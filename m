@@ -1,215 +1,356 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444D71F03D5;
-	Tue,  7 Jan 2025 13:29:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBBD41F12E0;
+	Tue,  7 Jan 2025 13:30:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736256577; cv=none; b=mOKw6PVqA+iieNrsddlh39Tkp9FbCt9EFkGufStTqcs6jsm+tVav4+NLP5bmwzARxQ3vBQWq0FxK1bneBIK9KGpNUHlE0NYI/7ciVws5pUHUQwc5XXxA12IHA0dbr1E7DB2wn2ZH5AEd4onKJzJe9nUaub29r2U4Aq8/vWi6tqo=
+	t=1736256649; cv=none; b=FZNJcfKX/TCOpexQZNFztcYk8ddNERCGuCQYpvGcYLFMAFr+Ly6sfzUB1fQ2WkwgSuUPQvdZuKdYV8WIBWa3kBthdckrEniICXWn6chlvnm5GasLOIWaweEBdXX24W6LXbGcHN0pnAIsfi5c7RkyJc4ZBmDaBjnBWpmAAe4Cd4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736256577; c=relaxed/simple;
-	bh=L+MkuHhCLgD8kGQfSxdeNfO2pfO1WF0R1klzgWW+KGw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q0JQTSQDKstP20BejQWE2KGlVc+6EWg5Bz9nBw8wE1wbKHgF6uULWjTLAgB6lwJIzYvHMuL0JqbL9E8U8JlNvFbyBnTIFjJY3EAq29e9eQfMJdSNofDk01BWIDMJMJYF0xbNekIXR7xTorHpJRkazd/VfKKoKPswDBf3oetblIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OBlsnYR/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OBlsnYR/"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 507BWGNg009731;
-	Tue, 7 Jan 2025 13:28:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=mLgDzv/pVpbzGVF/OSbbOoTsrwb8sA
-	5JJIlfnBc5IRk=; b=OBlsnYR/bBezL2GRdAOvCDpfjTzgBC1YAjcDWKh3genAFF
-	7VmFYGzCQqntDisGxSNct7Weq0zBh7U5qGIkA5VFcOJnoftvLaehKEFWCQfbiAfR
-	Hl5eFKoY3fwyy2nUB/xz6agS+ZhpnxTY7T/PX+63Xv2yU1Kk0y9tcnz2IFIcrbYV
-	NzQeY+t+o8ZjwiyLasSJ3MUgeMRk8A4h2B7dp/wPkINyHfgIfyQ633G927/t2rHM
-	KAh2R9OaibMnsh2VLHw9gByqghhedxAONPnPg+tuNpdgnb/8oi6iqo8T34dO6hVT
-	kuVJh4zs/jK+zKcJflBj0i12SBFp1JxjCTVCM/Nw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440s0aaygh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 13:28:40 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 507DSdcj025835;
-	Tue, 7 Jan 2025 13:28:39 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440s0aaygc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 13:28:39 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5079nnbp027946;
-	Tue, 7 Jan 2025 13:28:38 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yhhk2dgt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 13:28:38 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 507DSY0s27591038
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 Jan 2025 13:28:34 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D9D820040;
-	Tue,  7 Jan 2025 13:28:34 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2A3C020043;
-	Tue,  7 Jan 2025 13:28:33 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  7 Jan 2025 13:28:33 +0000 (GMT)
-Date: Tue, 7 Jan 2025 14:28:31 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Yury Norov <yury.norov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-        linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-crypto@vger.kernel.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Haren Myneni <haren@linux.ibm.com>,
-        Rick Lindsley <ricklind@linux.ibm.com>,
-        Nick Child <nnac123@linux.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
-        James Smart <james.smart@broadcom.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Matt Wu <wuqiang.matt@bytedance.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>, Greg Kurz <groug@kaod.org>,
-        Peter Xu <peterx@redhat.com>, Shrikanth Hegde <sshegde@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>
-Subject: Re: [PATCH 06/14] cpumask: re-introduce cpumask_next{,_and}_wrap()
-Message-ID: <Z30r/6S8VBU8/Ml5@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20241228184949.31582-1-yury.norov@gmail.com>
- <20241228184949.31582-7-yury.norov@gmail.com>
+	s=arc-20240116; t=1736256649; c=relaxed/simple;
+	bh=2II28rDnm/JjA1uReOOKsrlbl9iJobUJwyfrFihf/nM=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=Gy6lMGE561l10jGjukBVYWgIaCuNsGJWCUhq14by2Mw5VYGcgY7Nv7+2aRmt0emY7uSbidqBNrTHjZlYHc4jadH5oy+cQam7o5lf9iziA3INzbGuzStnj7Eh59t68WDKxDm/RGGp/8AlGbwC49H5LE8Cobvy0eCnu/kvUnzA/X0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1938C4CEDD;
+	Tue,  7 Jan 2025 13:30:46 +0000 (UTC)
+Date: Tue, 7 Jan 2025 08:32:14 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>, Linux Trace Kernel
+ <linux-trace-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
+ <will@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mathieu
+ Desnoyers <mathieu.desnoyers@efficios.com>, Linus Torvalds
+ <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [RFC][PATCH] arm64: scripts/sorttable: Implement sorting mcount_loc
+ at build for arm64
+Message-ID: <20250107083214.5a29d429@gandalf.local.home>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241228184949.31582-7-yury.norov@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CvBcdJZ3Px_Fxar3yVlr0JKsNe7bUdCi
-X-Proofpoint-ORIG-GUID: MYFcjTtUWdbqcyxPXpK7_i-p0KcJF5T7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- phishscore=0 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
- malwarescore=0 mlxscore=0 adultscore=0 bulkscore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501070109
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sat, Dec 28, 2024 at 10:49:38AM -0800, Yury Norov wrote:
+From: Steven Rostedt <rostedt@goodmis.org>
 
-Hi Yury,
+The mcount_loc section holds the addresses of the functions that get
+patched by ftrace when enabling function callbacks. It can contain tens of
+thousands of entries. These addresses must be sorted. If they are not
+sorted at compile time, they are sorted at boot. Sorting at boot does take
+some time and does have a small impact on boot overhead.
 
-> cpumask_next_wrap_old() has two additional parameters, comparing to it's
-> analogue in linux/find.h find_next_bit_wrap(). The reason for that is
-> historical.
-> 
-> Before 4fe49b3b97c262 ("lib/bitmap: introduce for_each_set_bit_wrap()
-> macro"), cpumask_next_wrap() was used to implement for_each_cpu_wrap()
-> iterator. Now that the iterator is an alias to generic
-> for_each_set_bit_wrap(), the additional parameters aren't used and may
-> confuse readers.
-> 
-> All existing users call cpumask_next_wrap() in a way that makes it
-> possible to turn it to straight and simple alias to find_next_bit_wrap().
-> 
-> In a couple places kernel users opencode missing cpumask_next_and_wrap().
-> Add it as well.
-> 
-> Signed-off-by: Yury Norov <yury.norov@gmail.com>
-> ---
->  include/linux/cpumask.h | 37 +++++++++++++++++++++++++++++++++++++
->  1 file changed, 37 insertions(+)
-> 
-> diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
-> index b267a4f6a917..18c9908d50c4 100644
-> --- a/include/linux/cpumask.h
-> +++ b/include/linux/cpumask.h
-> @@ -284,6 +284,43 @@ unsigned int cpumask_next_and(int n, const struct cpumask *src1p,
->  		small_cpumask_bits, n + 1);
->  }
->  
-> +/**
-> + * cpumask_next_and_wrap - get the next cpu in *src1p & *src2p, starting from
-> + *			   @n and wrapping around, if needed
-> + * @n: the cpu prior to the place to search (i.e. return will be > @n)
-> + * @src1p: the first cpumask pointer
-> + * @src2p: the second cpumask pointer
-> + *
-> + * Return: >= nr_cpu_ids if no further cpus set in both.
-> + */
-> +static __always_inline
-> +unsigned int cpumask_next_and_wrap(int n, const struct cpumask *src1p,
-> +			      const struct cpumask *src2p)
-> +{
-> +	/* -1 is a legal arg here. */
-> +	if (n != -1)
-> +		cpumask_check(n);
-> +	return find_next_and_bit_wrap(cpumask_bits(src1p), cpumask_bits(src2p),
-> +		small_cpumask_bits, n + 1);
-> +}
-> +
-> +/*
-> + * cpumask_next_wrap - get the next cpu in *src, starting from
-> + *			   @n and wrapping around, if needed
+x86 and arm32 have the addresses in the mcount_loc section of the ELF
+file. But for arm64, the section just contains zeros. The .rela.dyn
+Elf_Rela section holds the addresses and they get patched at boot during
+the relocation phase.
 
-Does it mean the search wraps a cpumask and starts from the beginning
-if the bit is not found and returns >= nr_cpu_ids if @n crosses itself?
+In order to sort these addresses, the Elf_Rela needs to be updated instead
+of the location in the binary that holds the mcount_loc section. Have the
+sorttable code, allocate an array to hold the function addresses, load the
+addresses from the Elf_Rela entries, sort them, then put them back in
+order into the Elf_rela entries so that they will be sorted at boot up
+without having to sort them during boot up.
 
-> + * @n: the cpu prior to the place to search
-> + * @src: cpumask pointer
-> + *
-> + * Return: >= nr_cpu_ids if no further cpus set in both.
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
 
-It looks like Return is a cpumask_next_and_wrap() comment leftover.
+Note, this is based on top of my sorttable clean up code:
 
-> + */
-> +static __always_inline
-> +unsigned int cpumask_next_wrap(int n, const struct cpumask *src)
-> +{
-> +	/* -1 is a legal arg here. */
-> +	if (n != -1)
-> +		cpumask_check(n);
-> +	return find_next_bit_wrap(cpumask_bits(src), small_cpumask_bits, n + 1);
-> +}
-> +
->  /**
->   * for_each_cpu - iterate over every cpu in a mask
->   * @cpu: the (optionally unsigned) integer iterator
+  https://lore.kernel.org/linux-trace-kernel/20250105162211.971039541@goodmis.org/
+  git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git sorttable/for-next
 
-Thanks!
+I tested this on a arm64 VM (running on x86 host), with
+CONFIG_FTRACE_SORT_STARTUP_TEST enabled, which verifies the mcount entries
+are sorted at boot up.
+
+I wonder if this will also work for s390? But I do not know s390 Elf layout.
+
+ arch/arm64/Kconfig  |   1 +
+ scripts/sorttable.c | 157 +++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 155 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 100570a048c5..e922622a9571 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -214,6 +214,7 @@ config ARM64
+ 		if DYNAMIC_FTRACE_WITH_ARGS
+ 	select HAVE_SAMPLE_FTRACE_DIRECT
+ 	select HAVE_SAMPLE_FTRACE_DIRECT_MULTI
++	select HAVE_BUILDTIME_MCOUNT_SORT
+ 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
+ 	select HAVE_GUP_FAST
+ 	select HAVE_FTRACE_MCOUNT_RECORD
+diff --git a/scripts/sorttable.c b/scripts/sorttable.c
+index cd3b2145a827..bb1cf94b942f 100644
+--- a/scripts/sorttable.c
++++ b/scripts/sorttable.c
+@@ -28,6 +28,7 @@
+ #include <fcntl.h>
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <stdbool.h>
+ #include <string.h>
+ #include <unistd.h>
+ #include <errno.h>
+@@ -79,10 +80,16 @@ typedef union {
+ 	Elf64_Sym	e64;
+ } Elf_Sym;
+ 
++typedef union {
++	Elf32_Rela	e32;
++	Elf64_Rela	e64;
++} Elf_Rela;
++
+ static uint32_t (*r)(const uint32_t *);
+ static uint16_t (*r2)(const uint16_t *);
+ static uint64_t (*r8)(const uint64_t *);
+ static void (*w)(uint32_t, uint32_t *);
++static void (*w8)(uint64_t, uint64_t *);
+ typedef void (*table_sort_t)(char *, int);
+ 
+ static uint64_t ehdr64_shoff(Elf_Ehdr *ehdr)
+@@ -199,6 +206,31 @@ SYM_ADDR(value)
+ SYM_WORD(name)
+ SYM_HALF(shndx)
+ 
++#define RELA_ADDR(fn_name)				\
++static uint64_t rela64_##fn_name(Elf_Rela *rela)	\
++{							\
++	return r8((uint64_t *)&rela->e64.r_##fn_name);	\
++}							\
++							\
++static uint64_t rela32_##fn_name(Elf_Rela *rela)	\
++{							\
++	return r((uint32_t *)&rela->e32.r_##fn_name);	\
++}
++
++RELA_ADDR(offset)
++RELA_ADDR(info)
++RELA_ADDR(addend)
++
++static void rela64_write_addend(Elf_Rela *rela, uint64_t val)
++{
++	w8(val, (uint64_t *)&rela->e64.r_addend);
++}
++
++static void rela32_write_addend(Elf_Rela *rela, uint64_t val)
++{
++	w(val, (uint32_t *)&rela->e32.r_addend);
++}
++
+ /*
+  * Get the whole file as a programming convenience in order to avoid
+  * malloc+lseek+read+free of many pieces.  If successful, then mmap
+@@ -278,6 +310,16 @@ static void wle(uint32_t val, uint32_t *x)
+ 	put_unaligned_le32(val, x);
+ }
+ 
++static void w8be(uint64_t val, uint64_t *x)
++{
++	put_unaligned_be64(val, x);
++}
++
++static void w8le(uint64_t val, uint64_t *x)
++{
++	put_unaligned_le64(val, x);
++}
++
+ /*
+  * Move reserved section indices SHN_LORESERVE..SHN_HIRESERVE out of
+  * the way to -256..-1, to avoid conflicting with real section
+@@ -344,17 +386,20 @@ static uint8_t (*sym_type)(Elf_Sym *sym);
+ static uint32_t (*sym_name)(Elf_Sym *sym);
+ static uint64_t (*sym_value)(Elf_Sym *sym);
+ static uint16_t (*sym_shndx)(Elf_Sym *sym);
++static uint64_t (*rela_offset)(Elf_Rela *rela);
++static uint64_t (*rela_info)(Elf_Rela *rela);
++static uint64_t (*rela_addend)(Elf_Rela *rela);
++static void (*rela_write_addend)(Elf_Rela *rela, uint64_t val);
+ 
+ static int extable_ent_size;
+ static int long_size;
+ 
++#define ERRSTR_MAXSZ	256
+ 
+ #ifdef UNWINDER_ORC_ENABLED
+ /* ORC unwinder only support X86_64 */
+ #include <asm/orc_types.h>
+ 
+-#define ERRSTR_MAXSZ	256
+-
+ static char g_err[ERRSTR_MAXSZ];
+ static int *g_orc_ip_table;
+ static struct orc_entry *g_orc_table;
+@@ -447,6 +492,9 @@ static void *sort_orctable(void *arg)
+ 
+ #ifdef MCOUNT_SORT_ENABLED
+ static pthread_t mcount_sort_thread;
++static bool sort_reloc;
++
++static char m_err[ERRSTR_MAXSZ];
+ 
+ struct elf_mcount_loc {
+ 	Elf_Ehdr *ehdr;
+@@ -455,6 +503,92 @@ struct elf_mcount_loc {
+ 	uint64_t stop_mcount_loc;
+ };
+ 
++/* Sort the relocations not the address itself */
++static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
++{
++	Elf_Shdr *shdr_start;
++	Elf_Rela *rel;
++	unsigned int shnum;
++	unsigned int count;
++	int shentsize;
++	void *vals;
++	void *ptr;
++
++	shdr_start = (Elf_Shdr *)((char *)ehdr + ehdr_shoff(ehdr));
++	shentsize = ehdr_shentsize(ehdr);
++
++	vals = malloc(long_size * size);
++	if (!vals) {
++		snprintf(m_err, ERRSTR_MAXSZ, "Failed to allocate sort array");
++		pthread_exit(m_err);
++		return NULL;
++	}
++
++	ptr = vals;
++
++	shnum = ehdr_shnum(ehdr);
++	if (shnum == SHN_UNDEF)
++		shnum = shdr_size(shdr_start);
++
++	for (int i = 0; i < shnum; i++) {
++		Elf_Shdr *shdr = get_index(shdr_start, shentsize, i);
++		void *end;
++
++		if (shdr_type(shdr) != SHT_RELA)
++			continue;
++
++		rel = (void *)ehdr + shdr_offset(shdr);
++		end = (void *)rel + shdr_size(shdr);
++
++		for (; (void *)rel < end; rel = (void *)rel + shdr_entsize(shdr)) {
++			uint64_t offset = rela_offset(rel);
++
++			if (offset >= start_loc && offset < start_loc + size) {
++				if (ptr + long_size > vals + size) {
++					free(vals);
++					snprintf(m_err, ERRSTR_MAXSZ,
++						 "Too many relocations");
++					pthread_exit(m_err);
++					return NULL;
++				}
++				if (long_size == 4)
++					*(uint32_t *)ptr = rela_addend(rel);
++				else
++					*(uint64_t *)ptr = rela_addend(rel);
++				ptr += long_size;
++			}
++		}
++	}
++	count = ptr - vals;
++	qsort(vals, count / long_size, long_size, compare_extable);
++
++	ptr = vals;
++	for (int i = 0; i < shnum; i++) {
++		Elf_Shdr *shdr = get_index(shdr_start, shentsize, i);
++		void *end;
++
++		if (shdr_type(shdr) != SHT_RELA)
++			continue;
++
++		rel = (void *)ehdr + shdr_offset(shdr);
++		end = (void *)rel + shdr_size(shdr);
++
++		for (; (void *)rel < end; rel = (void *)rel + shdr_entsize(shdr)) {
++			uint64_t offset = rela_offset(rel);
++
++			if (offset >= start_loc && offset < start_loc + size) {
++				if (long_size == 4)
++					rela_write_addend(rel, *(uint32_t *)ptr);
++				else
++					rela_write_addend(rel, *(uint64_t *)ptr);
++				ptr += long_size;
++			}
++		}
++	}
++	free(vals);
++	return NULL;
++}
++
+ /* Sort the addresses stored between __start_mcount_loc to __stop_mcount_loc in vmlinux */
+ static void *sort_mcount_loc(void *arg)
+ {
+@@ -464,6 +598,9 @@ static void *sort_mcount_loc(void *arg)
+ 	uint64_t count = emloc->stop_mcount_loc - emloc->start_mcount_loc;
+ 	unsigned char *start_loc = (void *)emloc->ehdr + offset;
+ 
++	if (sort_reloc)
++		return sort_relocs(emloc->ehdr, emloc->start_mcount_loc, count);
++
+ 	qsort(start_loc, count/long_size, long_size, compare_extable);
+ 	return NULL;
+ }
+@@ -813,12 +950,14 @@ static int do_file(char const *const fname, void *addr)
+ 		r2	= r2le;
+ 		r8	= r8le;
+ 		w	= wle;
++		w8	= w8le;
+ 		break;
+ 	case ELFDATA2MSB:
+ 		r	= rbe;
+ 		r2	= r2be;
+ 		r8	= r8be;
+ 		w	= wbe;
++		w8	= w8be;
+ 		break;
+ 	default:
+ 		fprintf(stderr, "unrecognized ELF data encoding %d: %s\n",
+@@ -834,8 +973,12 @@ static int do_file(char const *const fname, void *addr)
+ 	}
+ 
+ 	switch (r2(&ehdr->e32.e_machine)) {
+-	case EM_386:
+ 	case EM_AARCH64:
++#ifdef MCOUNT_SORT_ENABLED
++		sort_reloc = true;
++#endif
++		/* fallthrough */
++	case EM_386:
+ 	case EM_LOONGARCH:
+ 	case EM_RISCV:
+ 	case EM_S390:
+@@ -885,6 +1028,10 @@ static int do_file(char const *const fname, void *addr)
+ 		sym_name		= sym32_name;
+ 		sym_value		= sym32_value;
+ 		sym_shndx		= sym32_shndx;
++		rela_offset		= rela32_offset;
++		rela_info		= rela32_info;
++		rela_addend		= rela32_addend;
++		rela_write_addend	= rela32_write_addend;
+ 		long_size		= 4;
+ 		extable_ent_size	= 8;
+ 		break;
+@@ -913,6 +1060,10 @@ static int do_file(char const *const fname, void *addr)
+ 		sym_name		= sym64_name;
+ 		sym_value		= sym64_value;
+ 		sym_shndx		= sym64_shndx;
++		rela_offset		= rela64_offset;
++		rela_info		= rela64_info;
++		rela_addend		= rela64_addend;
++		rela_write_addend	= rela64_write_addend;
+ 		long_size		= 8;
+ 		extable_ent_size	= 16;
+ 
+-- 
+2.45.2
+
