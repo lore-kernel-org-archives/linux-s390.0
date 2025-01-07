@@ -1,119 +1,127 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7049B2940F;
-	Tue,  7 Jan 2025 15:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6133F1D8A16
+	for <linux-s390@vger.kernel.org>; Tue,  7 Jan 2025 15:43:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736264467; cv=none; b=opKQmYW+c5UeNplZUqEsIpp2OYIOAzXVaBhVjEY/0Ve6RDxyqCc2QwXK7OUfG2ltFr8UJv5dbs/Qrh/p5AIO3C4RW9aNydieF/ogwJw2cwqb4vAoddr+PSm7AqkGmVzONDoH3cawGKMwqtUIxAy/970+NuyJVY5hwlBYWtqeRJo=
+	t=1736264634; cv=none; b=aY9s06hzzWo7eAVovic3ViQi3gWmPxwEscMqt1AbDmYC/EFsVDzG7vF6Ajgb1/E5eJm2hrCn0bDXOLqPk1Lq7bohLvyOkSkFDBsfVSPcxvy23dZPrutBoVwJjbqWNZ0C9Tvt0WgZB8xIxmMWQtcLryYH6Sk/Wsmc5MmzZwXh74M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736264467; c=relaxed/simple;
-	bh=wU3AmXqWeebtBzG3iuP8K5ZfOVmS72pFtFks1Kfmdhc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=K2jdIiyCJy95uhV1jb3xxGaMeIp0Pj5H+dg0/YSfKz+xDt6+dHcthZ6J8wW9NMCrRnmyu8YF248mSWsb9LWRpIPAEnga7MEIt6K5UIrBBJfKNgfcXpxR3hdyWGrMJ0YikM0zT5ynzxt0Dcd+sidzezNlU44SBGgWY6rxRtka/LU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R27tIdc/; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736264634; c=relaxed/simple;
+	bh=hjUxddgNgIench8tTN/A4/cad+LVlRD3ay1rqEPRWIs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GlOiG3GeB5FzifdUgrfvtxWsOmkyXFZZyGjkfePbcjzRoXBd6TbdANS3URhJkFpRhnpa6t1q8QkQ1fzxub2R1OMpRLFy6iMHz9v8mEWY9rf8a9C+TqBLJjZOS+4t905+bYCA01BjRrPYtMJCU1QM3W9WmPbdlm1LstFfmyVkFEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jMl5yXmC; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R27tIdc/"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 507F07W8021223;
-	Tue, 7 Jan 2025 15:40:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=evmVHb
-	l1d3vQvc1aZxdCbI7PcZy58sDxPlK5whrOGuk=; b=R27tIdc/bafAcLou81yqmY
-	gI0LKsh2Q+b5MYy16kSvC7IcP0VB31PzN1+6PttaaTKMIRPHGb8KOCnvhlUJFX2C
-	y5gyzL0x7dJN2lLhOx8mvueT9J4G9OYv/uV5kYXpOxoXv0OGPP5BH9mekM52YHq4
-	f390uF+DTQrxZSOrogNmL2VA1N27sYgZIAfzpl4oey4xnRBVXlTnEvssT+ec+AUK
-	PXwxSs8I1M6EOeYFwWGC1QPrmCc5IP4V8Yr8AN25gqYthkBtL3ekXFjp5RPidAPJ
-	KJR8cHSpfw/9olebEYEASKK9VNVlLhZ+uSKZkpJ4WcK/EG0gAzFdWkjvQ4HRutrw
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440s0abpcy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 15:40:56 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 507EGVhK026238;
-	Tue, 7 Jan 2025 15:40:55 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yj122uxm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Jan 2025 15:40:55 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 507FenxF61669744
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 Jan 2025 15:40:50 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DAE232004B;
-	Tue,  7 Jan 2025 15:40:49 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F60E20040;
-	Tue,  7 Jan 2025 15:40:49 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.171.93.72])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue,  7 Jan 2025 15:40:49 +0000 (GMT)
-Date: Tue, 7 Jan 2025 16:40:47 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank
- <frankja@linux.ibm.com>, KVM <kvm@vger.kernel.org>,
-        S390
- <linux-s390@vger.kernel.org>,
-        Christoph Schlameuss
- <schlameuss@linux.ibm.com>,
-        Linux Kernel Mailing List
- <linux-kernel@vger.kernel.org>,
-        Linux Next Mailing List
- <linux-next@vger.kernel.org>
-Subject: Re: linux-next: Fixes tag needs some work in the kvms390-fixes tree
-Message-ID: <20250107164047.5a6799bb@p-imbrenda>
-In-Reply-To: <20250106064232.3c34fdb1@canb.auug.org.au>
-References: <20250106064232.3c34fdb1@canb.auug.org.au>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jMl5yXmC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736264631;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=no+Cud0jOAk4dWVRpdO5fYUlo8Ug9zs65TpfSMAqw2s=;
+	b=jMl5yXmCl08AELw4k8tG3aI7YDA++krDbfUWXK5Z8lwEILquR8aV5yA7pvKvVOhRA8x1nx
+	/ML77cciaZjeUfsYxKtCJVtuH1DBH/l4m1DAvNhKM62jNcneNOxdHrapYF4FsSieBOUKbv
+	BRwxjIUPW+kJXUJ6bOsADx3plqSk64k=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-86-HKNTxGjjNye3MloPlRzmLg-1; Tue, 07 Jan 2025 10:43:48 -0500
+X-MC-Unique: HKNTxGjjNye3MloPlRzmLg-1
+X-Mimecast-MFC-AGG-ID: HKNTxGjjNye3MloPlRzmLg
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43623bf2a83so114362285e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 07 Jan 2025 07:43:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736264627; x=1736869427;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=no+Cud0jOAk4dWVRpdO5fYUlo8Ug9zs65TpfSMAqw2s=;
+        b=ThQPIBQi2xi+OI+/HfiEIysebcVBq0UkBRXanlBC02IfB1ngeaKX3yKDisFi3pXRud
+         jEXRnGvoeKgCZMN3yL4ddJUD6iqph/9oqbJd/IkJzSW4zONcqsI0sOgk8O/uwdH3z3HD
+         r3XfceAtf5pUSRcWXwPtrMILBrraQG7tVvkpd/dvm8HMmoA2IS/0abdNgIGCGB9IoRQI
+         8PlpJsBOgCTSztO+GLE13SUFPaClD7V7GtiiiHm9bsjvpVkLIaIkY/FRp5GhPjLOYnAs
+         AzpWpwytWLJyHqmCCFJBDDEIdIUaFpFZgW2lheTUNDpY+CGV5MHoulnzoODrNplyUccu
+         LceA==
+X-Forwarded-Encrypted: i=1; AJvYcCWn5Bxc4kSglBTAuJe5eMqAHlCBcF3gVbylHBLxgKnDn6FNgKEi8mxKWZ/tAEuXDXVPvp9Ch4DxN1t1@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzi8U8+53XfhIbmJNQnjm2D5zurrak0Tr54xqzadm+wuk7Eihe/
+	5ncgZFFXUJuZJlFAFmrxMKc5T5pjESmNxPeD6E9so1E/sqrhWnbnfaj5jz9Sr03cnNUKwxOTrPJ
+	Ydkh2tN46J1+DZgGMGls67uzD2bYL0Y3Av1GBNci9hSdBhMkd4E2VRwOP0Bc=
+X-Gm-Gg: ASbGnctYwc5uFCIJhRf7k64GKT+3C6b94xSz6VnFqi0Y2f2LbbxUr3abzJ6Ah5i0Bkf
+	kZfwoHExM1WDngLRasZ9GpFwUolaMqcI8A+OxYrEC79ds1dbrOFNpfC6UPztEW65WV43wszCZjb
+	+P8clsT0lK6/ULcIuM2EPutZPuP0nXeeR3WD/RmAxeqGKSbgXGSQwrvEHK7RhDZjU2d3w9q6zU5
+	NGDDgqGWc1l1aEllBMrjIpeqJqXAvAulS2XoFfuBZtmUKmmgKlzfRvsp83hUA1LAhJen9xFF7A6
+	mI53NH0ga6QP1gxxKHLLFzWNOsVcWVs6Z3zJoZhCCg==
+X-Received: by 2002:a05:600c:45cf:b0:434:f297:8e78 with SMTP id 5b1f17b1804b1-4366854896cmr459739915e9.7.1736264626946;
+        Tue, 07 Jan 2025 07:43:46 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFtLanc3Hb6BIOTSGukfIzYS1Co4sBL6WU3f6+RlroOR2If65sti0csBVLD4eTv+aaDHFjzXg==
+X-Received: by 2002:a05:600c:45cf:b0:434:f297:8e78 with SMTP id 5b1f17b1804b1-4366854896cmr459739685e9.7.1736264626629;
+        Tue, 07 Jan 2025 07:43:46 -0800 (PST)
+Received: from localhost (p200300cbc719170056dc6a88b509d3f3.dip0.t-ipconnect.de. [2003:cb:c719:1700:56dc:6a88:b509:d3f3])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4366128a62asm596318625e9.44.2025.01.07.07.43.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2025 07:43:46 -0800 (PST)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	David Hildenbrand <david@redhat.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Huth <thuth@redhat.com>,
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH v1 0/4] KVM: s390: vsie: vsie page handling fixes + rework
+Date: Tue,  7 Jan 2025 16:43:40 +0100
+Message-ID: <20250107154344.1003072-1-david@redhat.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: jEQ5GHeOuQUOe4-7UZ4xMSQU5WTTRhHk
-X-Proofpoint-ORIG-GUID: jEQ5GHeOuQUOe4-7UZ4xMSQU5WTTRhHk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- phishscore=0 mlxlogscore=960 lowpriorityscore=0 impostorscore=0
- malwarescore=0 mlxscore=0 adultscore=0 bulkscore=0 suspectscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501070130
+Content-Transfer-Encoding: 8bit
 
-On Mon, 6 Jan 2025 06:42:32 +1100
-Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+We want to get rid of page->index, so let's make vsie code stop using it
+for the vsie page.
 
-> Hi all,
-> 
-> In commit
-> 
->   6c2b70cc4887 ("selftests: kvm: s390: Streamline uc_skey test to issue iske after sske")
-> 
-> Fixes tag
-> 
->   Fixes: 7d900f8ac191 ("selftests: kvm: s390: Add uc_skey VM test case")
-> 
-> has these problem(s):
-> 
->   - Target SHA1 does not exist
-> 
-> Maybe you meant
-> 
-> Fixes: 0185fbc6a2d3 ("KVM: s390: selftests: Add uc_skey VM test case")
-> 
+While at it, also remove the usage of page refcount, so we can stop messing
+with "struct page" completely.
 
-ironically, it turns out that the patch creates more problem than it
-solves, and therefore I'm removing it from the branch.
+... of course, looking at this code after quite some years, I found some
+corner cases that should be fixed.
+
+Briefly sanity tested with kvm-unit-tests running inside a KVM VM, and
+nothing blew up.
+
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+
+David Hildenbrand (4):
+  KVM: s390: vsie: fix some corner-cases when grabbing vsie pages
+  KVM: s390: vsie: stop using page->index
+  KVM: s390: vsie: stop messing with page refcount
+  KVM: s390: vsie: stop using "struct page" for vsie page
+
+ arch/s390/include/asm/kvm_host.h |   4 +-
+ arch/s390/kvm/vsie.c             | 104 ++++++++++++++++++++-----------
+ 2 files changed, 69 insertions(+), 39 deletions(-)
+
+
+base-commit: fbfd64d25c7af3b8695201ebc85efe90be28c5a3
+-- 
+2.47.1
+
