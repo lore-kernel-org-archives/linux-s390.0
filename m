@@ -1,101 +1,141 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 065252594AC;
-	Tue,  7 Jan 2025 02:18:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55835EC4;
+	Tue,  7 Jan 2025 04:17:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736216294; cv=none; b=UzjY9HeQpxOUWoTyrq88nmSyKsRUJatz8U68OK8lNOS8XwMqqo4HqbnhKDZ4SLk7v4aMCkKEb0ILSShIF69otJ7b+HnEOr/SQS2KOvpPf6w6H1Ql+lmeH0d12pcKr/tUypCwZlU+o2OZuW/G/YfXDN9NKnVtyBYWVapyj/23Jq4=
+	t=1736223448; cv=none; b=nVXhgHqsAKEX+l1YxyegJyDMSKSi9yLXAScnnGtrvI9/WCaO0zTPDxmYCKQkf/oJcPLWSLieAX/5xRj6x0POJGIieL0N41qFks4W+4adYcuk/pEdAIPsKiwaG0dFFb2GKtpQN/q8lKx1zQhuLNOCIGs32jN3/JNdT/TCQBfBtqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736216294; c=relaxed/simple;
-	bh=eJmghvnmLkFTCwMWfUEsH6NOY9e29K/vfw2TZb4n1gw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a1NmIbCV2o1za0kGmN7Kw/HHsXwX9b70dkKrjZ+JRqbTH466LgPo3kmZc4C9bxCpjbVxPU4ytFCmLjVVcGFHPWVnOgZNUoeykUtO+Hi4rBBKOrUPl1ofDYM9i5OY3ns5DIrl3hrOXDYVyADJrUm0sGeDmY6TgKLPHeH/2GKG/ho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=l3iE6MmI; arc=none smtp.client-ip=115.124.30.110
+	s=arc-20240116; t=1736223448; c=relaxed/simple;
+	bh=uMpDJn4WL/ugF/STMkBP72XWPwlkjNOQtdWJGhDr3xk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HdfMSkByk4FwFMBNnUHbyJCdZBLzrhxNjQQojJCcq5ELeHJ5QCiL4aVM3hKVEXKUwI4HNMDb/FJN39i+5kV1R4jBQ+Xu4be6EjcR0NoyLmGlTNjIMM7Dp7ZO8IGtGdgsNl/r6+qrvkm9SU/fgEQ7JUWYA9sfazQfY/cE0N8K01A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=R27ENXXl; arc=none smtp.client-ip=115.124.30.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="l3iE6MmI"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="R27ENXXl"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1736216280; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=BrlAbkrmliPNS+hvATlVqovFmBYRnuxmyFSlNK1Sq/o=;
-	b=l3iE6MmIoSXMdccqfkufggsnr9UqY5kEa3/YJsfL0n6f1Yi1yhwpWQX79KEphLr+hdeS/k8yuyut3Jgn9XkEev/8v39xP2cUdIsoQlXMHU244344G0rnhijIhi3jMM6gvWMBxNUYxPe5dshByHyT7KdiLJF8atR3vsbA/YnmAGg=
-Received: from 30.221.145.177(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WN8xqgP_1736216279 cluster:ay36)
+	t=1736223442; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=bOH18qK4nR/W2tKNNGJkI+f12+0zwrmAacbo4a/CAX8=;
+	b=R27ENXXl9Xl+N8tFk+0qlAg6Z7a/yADE0Ue5dt1I9VhROgJvk+K/kP94GPKYKlrzWrc5pzPbNuLklOWYH/Lgz5yQsx/c3c/nI5JB7mhfrckbyisCAjG9ly/dGZqONc+LI9wSJ/ocsejE2EhVwap1j2xrD8WUBsuhkDjHnrob3So=
+Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WN9KZYS_1736223435 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 07 Jan 2025 10:18:00 +0800
-Message-ID: <a84414e8-bb69-4f63-84f6-80df89e3917a@linux.alibaba.com>
-Date: Tue, 7 Jan 2025 10:17:57 +0800
+          Tue, 07 Jan 2025 12:17:20 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com>
+To: kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	ast@kernel.org,
+	daniel@iogearbox.net,
+	andrii@kernel.org,
+	martin.lau@linux.dev,
+	pabeni@redhat.com,
+	song@kernel.org,
+	sdf@google.com,
+	haoluo@google.com,
+	yhs@fb.com,
+	edumazet@google.com,
+	john.fastabend@gmail.com,
+	kpsingh@kernel.org,
+	jolsa@kernel.org,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org,
+	davem@davemloft.net,
+	netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: [PATCH bpf-next v5 0/5] net/smc: Introduce smc_ops
+Date: Tue,  7 Jan 2025 12:17:10 +0800
+Message-ID: <20250107041715.98342-1-alibuda@linux.alibaba.com>
+X-Mailer: git-send-email 2.45.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
- pnetid table
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, wenjia@linux.ibm.com,
- jaka@linux.ibm.com, PASIC@de.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org
-Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
-From: Wen Gu <guwen@linux.alibaba.com>
-In-Reply-To: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+This patch aims to introduce BPF injection capabilities for SMC and
+includes a self-test to ensure code stability.
 
+Since the SMC protocol isn't ideal for every situation, especially
+short-lived ones, most applications can't guarantee the absence of
+such scenarios. Consequently, applications may need specific strategies
+to decide whether to use SMC. For example, an application might limit SMC
+usage to certain IP addresses or ports.
 
-On 2024/12/27 12:04, Guangguan Wang wrote:
-> The command 'smc_pnet -a -I <ethx> <pnetid>' will add <pnetid>
-> to the pnetid table and will attach the <pnetid> to net device
-> whose name is <ethx>. But When do SMCR by <ethx>, in function
-> smc_pnet_find_roce_by_pnetid, it will use <ethx>'s base ndev's
-> pnetid to match rdma device, not <ethx>'s pnetid. The asymmetric
-> use of the pnetid seems weird. Sometimes it is difficult to know
-> the hierarchy of net device what may make it difficult to configure
-> the pnetid and to use the pnetid. Looking into the history of
-> commit, it was the commit 890a2cb4a966 ("net/smc: rework pnet table")
-> that changes the ndev from the <ethx> to the <ethx>'s base ndev
-> when finding pnetid by pnetid table. It seems a mistake.
-> 
-> This patch changes the ndev back to the <ethx> when finding pnetid
-> by pnetid table.
-> 
-> Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To maintain the principle of transparent replacement, we want applications
+to remain unaffected even if they need specific SMC strategies. In other
+words, they should not require recompilation of their code.
 
-It makes sense to me, thanks!
+Additionally, we need to ensure the scalability of strategy implementation.
+While using socket options or sysctl might be straightforward, it could
+complicate future expansions.
 
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Fortunately, BPF addresses these concerns effectively. Users can write
+their own strategies in eBPF to determine whether to use SMC, and they can
+easily modify those strategies in the future.
 
-> ---
->   net/smc/smc_pnet.c | 7 ++++---
->   1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-> index 716808f374a8..cc098780970b 100644
-> --- a/net/smc/smc_pnet.c
-> +++ b/net/smc/smc_pnet.c
-> @@ -1079,14 +1079,15 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
->   					 struct smc_init_info *ini)
->   {
->   	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
-> +	struct net_device *base_ndev;
->   	struct net *net;
->   
-> -	ndev = pnet_find_base_ndev(ndev);
-> +	base_ndev = pnet_find_base_ndev(ndev);
->   	net = dev_net(ndev);
-> -	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
-> +	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
->   				   ndev_pnetid) &&
->   	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
-> -		smc_pnet_find_rdma_dev(ndev, ini);
-> +		smc_pnet_find_rdma_dev(base_ndev, ini);
->   		return; /* pnetid could not be determined */
->   	}
->   	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
+v2:
+  1. Rename smc_bpf_ops to smc_ops.
+  2. Change the scope of smc_ops from global to per netns.
+  3. Directly pass parameters to ops instead of smc_ops_ctx.
+  4. Remove struct smc_ops_ctx.
+  5. Remove exports that are no longer needed.
+
+v3:
+  1. Remove find_ksym_btf_id_by_prefix_kind.
+  2. Enhance selftest, introduce a complete ops for filtering smc
+     connections based on ip pairs and a realistic topology test
+     to verify it.
+
+v4:
+  1. Remove unless func: smc_bpf_ops_check_member()
+  2. Remove unless inline func: smc_ops_find_by_name()
+  3. Change CONFIG_SMC=y to complete CI testing
+  4. Change smc_sock to smc_sock___local in test to avoid
+     compiling failed with CONFIG_SMC=y
+  5. Improve test cases, remove unnecessary timeouts and multi-thread
+     test, using network_helpers to start testing between server and
+     client.
+  6. Fix issues when the return value of the ops function is neither 0
+     nor 1.
+
+v5:
+  1. Fix incorrect CI config from CONFIG_SMC=Y to CONFIG_SMC=y.
+
+D. Wythe (5):
+  bpf: export necessary sympols for modules with struct_ops
+  net/smc: Introduce generic hook smc_ops
+  net/smc: bpf: register smc_ops info struct_ops
+  libbpf: fix error when st-prefix_ops and ops from differ btf
+  bpf/selftests: add selftest for bpf_smc_ops
+
+ include/net/netns/smc.h                       |   3 +
+ include/net/smc.h                             |  51 +++
+ kernel/bpf/bpf_struct_ops.c                   |   2 +
+ kernel/bpf/syscall.c                          |   1 +
+ net/ipv4/tcp_output.c                         |  15 +-
+ net/smc/Kconfig                               |  12 +
+ net/smc/Makefile                              |   1 +
+ net/smc/af_smc.c                              |  10 +
+ net/smc/smc_ops.c                             | 130 ++++++
+ net/smc/smc_ops.h                             |  30 ++
+ net/smc/smc_sysctl.c                          |  95 +++++
+ tools/lib/bpf/libbpf.c                        |  25 +-
+ tools/testing/selftests/bpf/config            |   4 +
+ .../selftests/bpf/prog_tests/test_bpf_smc.c   | 390 ++++++++++++++++++
+ tools/testing/selftests/bpf/progs/bpf_smc.c   | 116 ++++++
+ 15 files changed, 873 insertions(+), 12 deletions(-)
+ create mode 100644 net/smc/smc_ops.c
+ create mode 100644 net/smc/smc_ops.h
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
+ create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
+
+-- 
+2.45.0
+
