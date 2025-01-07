@@ -1,150 +1,101 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E2B571DE4FE;
-	Mon,  6 Jan 2025 17:24:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 065252594AC;
+	Tue,  7 Jan 2025 02:18:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736184252; cv=none; b=EXcjFu8Mvgg5bJoe6DkHfF47SSkqwk/QqYfxOuAfqakfBfxvLQWxPwDqPeArPbfMBk0po7N92BzPTr2isE52Ze76f1YRR6WIZng5u7yfG5el2KcsXykPK67r+YwfrVG94Cf9SJGq/j/CsjOfyUr9cQY9p+R6zCuubolgVnQdrus=
+	t=1736216294; cv=none; b=UzjY9HeQpxOUWoTyrq88nmSyKsRUJatz8U68OK8lNOS8XwMqqo4HqbnhKDZ4SLk7v4aMCkKEb0ILSShIF69otJ7b+HnEOr/SQS2KOvpPf6w6H1Ql+lmeH0d12pcKr/tUypCwZlU+o2OZuW/G/YfXDN9NKnVtyBYWVapyj/23Jq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736184252; c=relaxed/simple;
-	bh=Yg5SNGPrba2K/PJDKpXk83y1mWdRgl+WzB3sP0ELx9c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VRQcp6Gyk/yovI2V7Q1PaROozeKzP2vPyRsPQ/nJOKwYwU+tIN3rc83KBK7WuxqCupaqHTDmXtOknAr1b71hnJb0feghjwjUeiH+uZl8lUS0TWU/TbIWXWhRpR2bKbsvn5N0bTh5hh3U1mpQbuFtdyQfiD2UFcKlflI7kk/NXQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 33A32143D;
-	Mon,  6 Jan 2025 09:24:37 -0800 (PST)
-Received: from e133380.arm.com (e133380.arm.com [10.1.197.41])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F35C43F673;
-	Mon,  6 Jan 2025 09:24:06 -0800 (PST)
-Date: Mon, 6 Jan 2025 17:23:50 +0000
-From: Dave Martin <Dave.Martin@arm.com>
-To: Kees Cook <kees@kernel.org>
-Cc: Akihiko Odaki <akihiko.odaki@daynix.com>,
-	Eric Biederman <ebiederm@xmission.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Mark Brown <broonie@kernel.org>, Baoquan He <bhe@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	kexec@lists.infradead.org, devel@daynix.com
-Subject: Re: [PATCH v2 1/5] elf: Define note name macros
-Message-ID: <Z3wRnX4RHg7KDYDT@e133380.arm.com>
-References: <20250104-elf-v2-0-77dc2e06db4e@daynix.com>
- <20250104-elf-v2-1-77dc2e06db4e@daynix.com>
- <202501060830.B735C3A@keescook>
+	s=arc-20240116; t=1736216294; c=relaxed/simple;
+	bh=eJmghvnmLkFTCwMWfUEsH6NOY9e29K/vfw2TZb4n1gw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=a1NmIbCV2o1za0kGmN7Kw/HHsXwX9b70dkKrjZ+JRqbTH466LgPo3kmZc4C9bxCpjbVxPU4ytFCmLjVVcGFHPWVnOgZNUoeykUtO+Hi4rBBKOrUPl1ofDYM9i5OY3ns5DIrl3hrOXDYVyADJrUm0sGeDmY6TgKLPHeH/2GKG/ho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=l3iE6MmI; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="l3iE6MmI"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1736216280; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=BrlAbkrmliPNS+hvATlVqovFmBYRnuxmyFSlNK1Sq/o=;
+	b=l3iE6MmIoSXMdccqfkufggsnr9UqY5kEa3/YJsfL0n6f1Yi1yhwpWQX79KEphLr+hdeS/k8yuyut3Jgn9XkEev/8v39xP2cUdIsoQlXMHU244344G0rnhijIhi3jMM6gvWMBxNUYxPe5dshByHyT7KdiLJF8atR3vsbA/YnmAGg=
+Received: from 30.221.145.177(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WN8xqgP_1736216279 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 07 Jan 2025 10:18:00 +0800
+Message-ID: <a84414e8-bb69-4f63-84f6-80df89e3917a@linux.alibaba.com>
+Date: Tue, 7 Jan 2025 10:17:57 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202501060830.B735C3A@keescook>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
+ pnetid table
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, PASIC@de.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+From: Wen Gu <guwen@linux.alibaba.com>
+In-Reply-To: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi all,
 
-On Mon, Jan 06, 2025 at 08:48:05AM -0800, Kees Cook wrote:
-> On Sat, Jan 04, 2025 at 11:38:34PM +0900, Akihiko Odaki wrote:
-> > elf.h had a comment saying:
-> > > Notes used in ET_CORE. Architectures export some of the arch register
-> > > sets using the corresponding note types via the PTRACE_GETREGSET and
-> > > PTRACE_SETREGSET requests.
-> > > The note name for these types is "LINUX", except NT_PRFPREG that is
-> > > named "CORE".
-> > 
-> > However, NT_PRSTATUS is also named "CORE". It is also unclear what
-> > "these types" refers to.
-> > 
-> > To fix these problems, define a name for each note type. The added
-> > definitions are macros so the kernel and userspace can directly refer to
-> > them.
+
+On 2024/12/27 12:04, Guangguan Wang wrote:
+> The command 'smc_pnet -a -I <ethx> <pnetid>' will add <pnetid>
+> to the pnetid table and will attach the <pnetid> to net device
+> whose name is <ethx>. But When do SMCR by <ethx>, in function
+> smc_pnet_find_roce_by_pnetid, it will use <ethx>'s base ndev's
+> pnetid to match rdma device, not <ethx>'s pnetid. The asymmetric
+> use of the pnetid seems weird. Sometimes it is difficult to know
+> the hierarchy of net device what may make it difficult to configure
+> the pnetid and to use the pnetid. Looking into the history of
+> commit, it was the commit 890a2cb4a966 ("net/smc: rework pnet table")
+> that changes the ndev from the <ethx> to the <ethx>'s base ndev
+> when finding pnetid by pnetid table. It seems a mistake.
 > 
-> While ELF is specified in the Tool Interface Standard[1], the core dump
-> format doesn't have an official specification. It does follow a lot of
-> agreed rules, though, and the "note name" is intended to help coredump
-> consumers distinguish between "common" things ("CORE") and Linux-specific
-> things ("LINUX").
+> This patch changes the ndev back to the <ethx> when finding pnetid
+> by pnetid table.
 > 
-> I think this should be explicitly spelled out in the UAPI header,
-> even if we have "mistakes" for this mapping.
+> Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 
-This seems reasonable.
+It makes sense to me, thanks!
 
-> I'm not convinced we need these macros, though: everything is "LINUX"
-> expect the common types. And the GNU types are "GNU". There are only 7
-> types under the "CORE" name. :)
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
 
-My starting point for suggesting the new macros was that the current
-usage seems to be a historical accident; there doesn't seem to be an
-underlying logic to it, except that arch-independent core note types
-defined by Linux are named "CORE" ... except when they aren't.
-
-Although the number of exceptional cases is small today, this doesn't
-make for a robust rule -- nothing really prevents more unintentional
-anomalies being added in future, so it seems prone to bitrot.
-
-If the names are arbitrary, having a table rather than trying to
-describe a rule seems the best way to avoid confusion.
-
-Documenting these in a regular way may also encourage people to treat
-the name as a formal part of the identifier, rather than a sort of
-"comment" that nobody is quite sure what to do with (even if [1] makes
-it clear).
-
-That said, software does cope with the situation today; it's just a bit
-gross.
-
+> ---
+>   net/smc/smc_pnet.c | 7 ++++---
+>   1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> For the macros, I'd much prefer NN_CORE, NN_LINUX, and NN_GNU.
-
-What would be the point of these?
-
-#define NN_CORE "CORE" doesn't convey any information at all, though I
-suppose it does provide a layer of typo-resistance.
-
-> If you really want to be able to examine the name from the type, then
-> yeah, I guess we need something like the macros you have, but I'd much
-> prefer also adding a macro like Dave suggested[2], and then replace the
-> fill_note() with a macro that can unwrap it:
-> 
-> 	fill_note(note, NT_SIGINFO, size..., data...);
-> 
-> The repetition of NN_type, NT_type doesn't feel robust if we have a
-> programmatic mapping: only the "type" is needed to determine both, so
-> why supply both?
-> 
-> -Kees
-> 
-> [1] https://refspecs.linuxfoundation.org/elf/elf.pdf
-> [2] https://lore.kernel.org/lkml/Z3vuBTiQvnRvv9DQ@e133380.arm.com/
-
-Although not "robust", it should at least be obvious to the eye of
-anyone pasting and repurposing an existing snippet of code that the
-"type" is probably supposed to match in a single call.
-
-I suppose we could have a kernel helper function containing a big
-switch that gives you the name for each recognised note type though.
-At the source code level, that would avoid specifying the "NN_"
-arguments explicitly.  But if we still want a canonical way to describe
-this mapping in elf.h, the "NN_" macros still serve a purpose.
-
-
-With a literal string instead, I would expect then when adapting
-
-	fill_note(note, NT_SIGINFO, "CORE", ...)
-
-to
-
-	fill_note(note, NT_WIZZFOO, ???, ...)
-
-it's not clear what ??? should be.  I think people have tended to shrug
-and just leave it unchanged -- so, it depends on which bit of code was
-randomly chosen to serve as a template.  I could be guessing wrongly
-about that, but if that's how the name gets chosen for new notes then
-it doesn't feel ideal.
-
-Cheers
----Dave
+> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+> index 716808f374a8..cc098780970b 100644
+> --- a/net/smc/smc_pnet.c
+> +++ b/net/smc/smc_pnet.c
+> @@ -1079,14 +1079,15 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
+>   					 struct smc_init_info *ini)
+>   {
+>   	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
+> +	struct net_device *base_ndev;
+>   	struct net *net;
+>   
+> -	ndev = pnet_find_base_ndev(ndev);
+> +	base_ndev = pnet_find_base_ndev(ndev);
+>   	net = dev_net(ndev);
+> -	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
+> +	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
+>   				   ndev_pnetid) &&
+>   	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
+> -		smc_pnet_find_rdma_dev(ndev, ini);
+> +		smc_pnet_find_rdma_dev(base_ndev, ini);
+>   		return; /* pnetid could not be determined */
+>   	}
+>   	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
