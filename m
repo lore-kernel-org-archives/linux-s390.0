@@ -1,123 +1,126 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29C0A1DED72
-	for <linux-s390@vger.kernel.org>; Tue,  7 Jan 2025 08:44:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 478B033CA;
+	Tue,  7 Jan 2025 08:50:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736239483; cv=none; b=Cy9nvMosoqqFidJ0YaVSN9if9wgwDhqxi0Xrvvx5pS274TjvjD3OyjBwic281jqI1EhugnxBjTm4zdJZH98MqMNt2QqnkBXknIfn78fM7AJh1w9nuw8Xq59iZRnmdoqCRxPSTm10sFb3YK/Ud2Q270HLNLQnOFK0h9w+nnaWXgw=
+	t=1736239822; cv=none; b=ct99oEi7xnXomZ9RoRgZdOLPDuND0C+J9Ij5Ra4JlrsdxxiWcMcPyY+OfpuDqzFIuc8gavGLj5xaQb+l2PfrVZxRh67qCLdOTnBK2y1FZjpfxs4vLovkQa7dPXwZpQNi4T5JUzhDc9ijxu0wE6NK7AIFtb2bhkPoGdgLvYfIBNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736239483; c=relaxed/simple;
-	bh=9z4E307FEw5yEmX/R4lxvUrMV7D0T547+CC68yqF1tw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nR3FJphaqfXYCzrLqPeeUBFXXLlESD9BJL4K9/VYIunqd1x87iaU56bUNhfPLuXL0Rna2ccEQLipHfDJ8BExrfYgkZPsAr4sKjNDA8ZDKX9F8VnXpR/xA6Z/u47YojjXoZ/8gz15s3g3UGJj0zJIOeWIRkV5NQtZY/JJSqPOTRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S9fDYTfw; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1736239822; c=relaxed/simple;
+	bh=dPEBYYjGBQdVYXVs//TkEtyt4wWfqF15Mt2E+a2IcIo=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=gsSRWx8GhMDuxOI1lyTUP4raMRFPV8BkVIAyvMOH0mKWgn292df+nqFsWzENdJynFvfY3YccI6Du8ZcSdDDXBLUBJNpNyajcC3fNa4FI4ALnlOsE79NyccPXm9pkb6E5T21Oyx+Dpq9gUTvrf/2wNRa3QoP7nLfXd17c1ZVwiAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NKteK+kT; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S9fDYTfw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1736239476;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vHBnQGum4M7ipVuexTEpYGlSJHQu9KV4nhMGzektAi0=;
-	b=S9fDYTfwQok1tTQZDF1UWH8e1gByy9gs2ivLwQKJ6ClBM9GS2B6kiXY//MOV/vUqOopUeo
-	UFRZh7kkaCqXAKDUEcCjzIOVgfPJvWr/cLAGjohw09Dzb4HuGctZW4Xm3BhUiiGo7rxmAu
-	0Tc2N9Mm+sEwDu0vVszvfBMihEZAeqU=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-341-AmOh1DJhPr258u5FrLVIcw-1; Tue, 07 Jan 2025 03:44:35 -0500
-X-MC-Unique: AmOh1DJhPr258u5FrLVIcw-1
-X-Mimecast-MFC-AGG-ID: AmOh1DJhPr258u5FrLVIcw
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-7b6ecd22efbso3015916485a.0
-        for <linux-s390@vger.kernel.org>; Tue, 07 Jan 2025 00:44:35 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736239475; x=1736844275;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=vHBnQGum4M7ipVuexTEpYGlSJHQu9KV4nhMGzektAi0=;
-        b=AxtuCCnHSE/4Suiz1A/5hx7oW0geGl9o1fhrrf0pNNsWdxf9uISLyz+/UzkJtOW6mI
-         LgexkKPiSx9duFatyQAxJFoyIxWAZsid3tGXFZ1qFbElK1+/mWnEtVUDWw23QPK0aI6e
-         dGbjihdO/Hi/SL65/KAYuSmIvTMiDT1BU8XgR1Q7KJCUip/lm+eoJbiAPm9/7XX/vyeA
-         4Aqud0R5QCx03SsJI7NGcOD3jqul8A96tJamAMOmEq3+jtpAxvKVRd7CS4e1RJLGwq9Q
-         zSMTjcLrDNTRLgshQA8HLajmbb26Cm+abEpUB75SJoi6xOQgg7ydclMFw/gUi05xJexE
-         uU7g==
-X-Forwarded-Encrypted: i=1; AJvYcCVQWv1ec3FD/ySo4w7SNpvp+kSo6l8cL1tSI7ZvbEApRhnck0AOtqaLNyW0/cF+zdZ7EBf5UWwGAy6z@vger.kernel.org
-X-Gm-Message-State: AOJu0YxCBE2vf88ml25u2jJKXaC+Uvgls5Do+4Nl44L14bQzNIYyZxOD
-	87SbY1lJsjLrImLpGXwQEUPsuwz89FP9HuAZthGU2nvp/+qum7lZZ311VEVnpVminRwbICwbAIT
-	GDpIvN6XDIBtZq0nC6pDnJf+uWvxocELxQQXRgDC7cp1/xSm6iGtSLbvFBAI=
-X-Gm-Gg: ASbGncvkKUFo0saOPQmVQXgSprGHakQIYOe4ouCVql4hy4aysvaP9yI30D4Y0D1qKnx
-	NvqXJ79S0/IOVSIC4CpoPQNfvYQ48AvaUdmYr4hc5G2pBoorwyrQYRekiI5srsavtbGUNl3FyRd
-	D8KO7PVRttaHsWRjl/FBlEnAfgBlEelrH/mT/4JpM3WRHwHXF8z58/HJFPixrRly9AbBLOnzWKH
-	O8xFJJ6b7IqjOvo2Bkmc/GgEuVlzEEQIz+DO+yHcqqiNDvOgcsB/m0QuxurDEzGeyr8nA3gOxlL
-	Spj7gg==
-X-Received: by 2002:a05:620a:2a03:b0:7b6:eba3:2dfb with SMTP id af79cd13be357-7bb9027dc9cmr357935185a.16.1736239475071;
-        Tue, 07 Jan 2025 00:44:35 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEQCMcAkJhmI/CqAK5HFPejGMDCVtbEjbyNYs7SJgbt11nVHwRNfhnAYo5Ac+BtyoR7P+tihQ==
-X-Received: by 2002:a05:620a:2a03:b0:7b6:eba3:2dfb with SMTP id af79cd13be357-7bb9027dc9cmr357932985a.16.1736239474732;
-        Tue, 07 Jan 2025 00:44:34 -0800 (PST)
-Received: from [192.168.88.253] (146-241-73-5.dyn.eolo.it. [146.241.73.5])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b9ac2e6587sm1573880685a.48.2025.01.07.00.44.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jan 2025 00:44:34 -0800 (PST)
-Message-ID: <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
-Date: Tue, 7 Jan 2025 09:44:30 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NKteK+kT"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 506Nx5t2023884;
+	Tue, 7 Jan 2025 08:50:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=i13OhI2I3cqU+X96/5pDJys5iCJku1SiUNUTdrHCVhI=; b=NKteK+kTDs0T
+	5aWPHk/poa/7unlPT9p0cweUo0LlUijefm/27h8cqaZYqY+M54bVO5V5Tw212OJl
+	hxhshfRzRIPtYkY0LMtX4DluwhG6ETM23UPL5YZP1TH1GkIWo+9IfNjiY9UFbBVf
+	J2+dBXMVf6LULIJkvl6rxHvxWPwjGfYANnqL8Glt8COe9e1k6o7fyj2fDq818i7J
+	e2GPBVb53dROZejn90XxupH1SmIhD6Bqdvv/b+z4aBSvAqCPc/DoIngS61wsdKhc
+	jm2c73hGnuYXtuzz4kYQmVLCrg0vQDNqC9PHiAybjyDF8cMN2NalrpMRy8o7wvzn
+	NSCDejJPEQ==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 440sahhv06-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jan 2025 08:50:18 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5074cGF5013698;
+	Tue, 7 Jan 2025 08:50:16 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygansmdy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 Jan 2025 08:50:16 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5078oF4J2490954
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 Jan 2025 08:50:15 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C8CE358052;
+	Tue,  7 Jan 2025 08:50:15 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 489815805D;
+	Tue,  7 Jan 2025 08:50:15 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 Jan 2025 08:50:15 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
- pnetid table
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>, wenjia@linux.ibm.com,
- jaka@linux.ibm.com, PASIC@de.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, horms@kernel.org
-Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
-Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Jan 2025 09:50:15 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Holger Dengler <dengler@linux.ibm.com>,
+        =?UTF-8?Q?Thomas_Wei=C3=9Fsch?=
+ =?UTF-8?Q?uh?= <linux@weissschuh.net>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Niklas
+ Schnelle <schnelle@linux.ibm.com>,
+        Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] s390/pkey: Constify 'struct bin_attribute'
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <Z3fyc73WKFXOYFNi@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20241211-sysfs-const-bin_attr-s390-v1-0-be01f66bfcf7@weissschuh.net>
+ <20241211-sysfs-const-bin_attr-s390-v1-5-be01f66bfcf7@weissschuh.net>
+ <2295c2a4-7d7f-4932-99df-fa9d4b6186ae@linux.ibm.com>
+ <Z3fyc73WKFXOYFNi@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Message-ID: <1753d01a50ad73867fb7829fbca6880e@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vEK-IE62uPaGHwN_sGC6Lffbv0ovxpz-
+X-Proofpoint-ORIG-GUID: vEK-IE62uPaGHwN_sGC6Lffbv0ovxpz-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ adultscore=0 mlxlogscore=477 impostorscore=0 priorityscore=1501
+ clxscore=1011 lowpriorityscore=0 spamscore=0 suspectscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501070070
 
-On 12/27/24 5:04 AM, Guangguan Wang wrote:
-> The command 'smc_pnet -a -I <ethx> <pnetid>' will add <pnetid>
-> to the pnetid table and will attach the <pnetid> to net device
-> whose name is <ethx>. But When do SMCR by <ethx>, in function
-> smc_pnet_find_roce_by_pnetid, it will use <ethx>'s base ndev's
-> pnetid to match rdma device, not <ethx>'s pnetid. The asymmetric
-> use of the pnetid seems weird. Sometimes it is difficult to know
-> the hierarchy of net device what may make it difficult to configure
-> the pnetid and to use the pnetid. Looking into the history of
-> commit, it was the commit 890a2cb4a966 ("net/smc: rework pnet table")
-> that changes the ndev from the <ethx> to the <ethx>'s base ndev
-> when finding pnetid by pnetid table. It seems a mistake.
+On 2025-01-03 15:21, Alexander Gordeev wrote:
+> On Thu, Dec 12, 2024 at 04:03:18PM +0100, Holger Dengler wrote:
+>> On 11/12/2024 18:54, Thomas Weißschuh wrote:
+>> > The sysfs core now allows instances of 'struct bin_attribute' to be
+>> > moved into read-only memory. Make use of that to protect them against
+>> > accidental or malicious modifications.
+>> >
+>> > Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+>> 
+>> Thanks for your contribution.
+>> 
+>> Tested-by: Holger Dengler <dengler@linux.ibm.com>
+>> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 > 
-> This patch changes the ndev back to the <ethx> when finding pnetid
-> by pnetid table.
+> Hi Harald,
 > 
-> Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+> Would you like to pull this patch via the crypto or s390 tree?
+> 
+> Thanks!
 
-If I read correctly, this will break existing applications using the
-lookup schema introduced by the blamed commit - which is not very recent.
-
-Perhaps for a net patch would be better to support both lookup schemas i.e.
-
-	(smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid) ||
-	 smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid))
-
-?
-
-Thanks,
-
-Paolo
-
+Hi Alexander
+If you don't mind then take it together with the other patches as part 
+of the s390 tree.
