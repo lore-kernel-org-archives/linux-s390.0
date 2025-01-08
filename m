@@ -1,397 +1,191 @@
-Received: from out-181.mta0.migadu.com (out-181.mta0.migadu.com [91.218.175.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136F86FC5
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jan 2025 00:49:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB162594B6
+	for <linux-s390@vger.kernel.org>; Wed,  8 Jan 2025 04:34:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736297358; cv=none; b=trQ5QqAIUegSPKoTZ3Ucjwlso4HJizWfu2w+PhAM9YFBCEWtGQJEDKl/4PaBJ0tEAA2GZYqMKVHaKGvqocBnb6ty+8GmG30u8lgnk6FcbsG4zkgLxf9OWbTvTHil6nKwwIPBmWyqMkl8GY+sdlPPMx1ByUXSULHr3xrTGSR9DCQ=
+	t=1736310873; cv=none; b=ZkOWzmTmH+5P8REEAH7+GQWbuf+tNIeTsScFR+xhcxPepAi603fjr3SQ2MqP157CFaRb8a6oDTlW5NFLlwr7h81m+i+6UvmChAjZGDZD6uw3pDDczBfj61tA2vnhP66P2UJpUyQ1Zp4MSDPJMIml1dUsoKhFhZYaWInp4c4P6xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736297358; c=relaxed/simple;
-	bh=kT+CtTrM8CiyeLoR5LIUZDvX6Pxfd7G6w50Xe+e2FRs=;
+	s=arc-20240116; t=1736310873; c=relaxed/simple;
+	bh=7V6JWRfMe2YRHgN0cvVhNfilOVqdetz0ehJc/OcedDk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p25+pRX2KNNHHRCaprSE0QGg1ZtWo0/SvDBr9alzkgSKiZcynLRwi665qfChIas6uTfzKqpvgsKlC+NgDvC+jUzlU7BCp+zculJFgQY+B4NLqxEBTJfY2qqxh2ijAIAXz79NHhIohwZPCo8RKQOjgzs76asXBAduGNr6XDBlMpE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=GmJEN+Ed; arc=none smtp.client-ip=91.218.175.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	 In-Reply-To:Content-Type; b=ZnLorzx9/GjVx3BKfHXT5QmUx8RNyRNzdN8LjBa1plk4gIRvwQuJTD1z3TSMOnPWqbWBi4xWslA7odsmH4WpFGidvTobqaBhSoKZdRQ2sEdrfBsX8g00eAT17HeN3LEUoiIlBHTl20F5J0Sg2wRdjJaUyhW7/PQ5epf6zGHghRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=rUX8V8fL; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="GmJEN+Ed"
-Message-ID: <5ff5cb2b-625b-44ba-8472-95e007f24824@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1736297338;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8skuobeik2cGErmNEK7HqQ7AwlVSQpb754nlfxxuUrk=;
-	b=GmJEN+Edw6LAtGfrDeXXPzfMnsL4Tb2kfJOURmd5gxX/+o4bNptph/94yltaQ22+a98cf6
-	xmbRTbLKx4ETxy2jw58BrQcKiZpdMi9kUsyArnFu9mOfknN53LlmZFXy1O4NxhhHrMczDi
-	nqTlzC1CGU1De7f4Z5kzm5XCrJ2SQxM=
-Date: Tue, 7 Jan 2025 16:48:51 -0800
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="rUX8V8fL"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2ef748105deso18423850a91.1
+        for <linux-s390@vger.kernel.org>; Tue, 07 Jan 2025 20:34:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736310871; x=1736915671; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=l5qyePdTQsadGlhhkm88UTLOJyB05IwMsFPhm2KKy5k=;
+        b=rUX8V8fLWu02Zq/GmPWDRo3naBb8VY7uymTXm1e7xyxY98iSAwTBWcEl8MbcPoJSkp
+         T0Ro/SZ/R1KJGzmChaceLhgWDx0WfXvDhH5hVW/dz9TUu+2VViZ9UVo0Pf4q4r8Ov7K0
+         L5XM/y9BgShFkHFvx/RZ+HU/Ni9qR26zg+XM33N6DEzGRKzJnNfzsQEtXhxQdy3rjLjl
+         RBAyuoZDUcgFmIHqO4TqVfxmiSu3tmi9yEErnmO/Sg+Zj5a9r9b+noQWNoiQnKOdwu/I
+         yexa7gP6uadnr28uflZQBPbdQhwzdsv0P6fJ2P/mop6rJrODrXZU7PAWMJkPTJI68yYd
+         jRrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736310871; x=1736915671;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=l5qyePdTQsadGlhhkm88UTLOJyB05IwMsFPhm2KKy5k=;
+        b=vIieBC9oUv5HwwY2nVuMTHX3R4ol6nME8m3/11BP8iW6HRmjLJWs5ht5ejCPCa/goX
+         G6aNFnMyNoM6cwo3ghRsH42R2guXkK997nYa4D0y/KI9jw3Wy8VlgRCOSAREKyGHE+BE
+         wyJtR+hEQgSECt5cnur+9NdEm2k0/x5g4G+BtKX2F38jXI2kYszIdRO9h1XeBG4I5E/L
+         tyF+dNY7bjrCAw29OQ5cFbHkq6P9pNZ8qyvo2UK6iQ7yrGifESQYWVwqqOD8SpHjzIvN
+         VBiuk7/Rpav78jiACewa9QjgRaJtNwrxIaLzhmlMqmbEXBDIazYIFStzvFUQhHoWZaUQ
+         G9/A==
+X-Forwarded-Encrypted: i=1; AJvYcCUGS7SzDNM7zKkpeVUAgtzVP/zJWy4GanQNnLjc0Idt/RmrY1V8hthkco7dfM7I0ZgCpyN3PSGdlGdX@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy34jPU6iGYLORtA/GdNnMcjaA0LIyIU/k8KWpCufE7fVNYJKnV
+	L4FRu/4+R1hh1atRXBOQztdFVZO55SmR1d28EuWftwbgpw7HFQV11UJtogIYgz8=
+X-Gm-Gg: ASbGnct6HuDdGSorNiYwugpV55YpnrcLXHLTs/YEf+iicRJ0yc9RSljC5r5aXDxtPo5
+	YZdWFuwKRP5apOJDlYnXHmF1KbxYABY6J6ww7d9sAzmF/D0zqNjOKxlbRJRHEyTxH/zAQHss982
+	mex1R7J42UNUmWwYvyd6WMIQAQuaZJeWTUhb/Cph7waVbPJ7DWCzKHojv4H1618KTMcXXkNd628
+	44/I1iLlbyqNFWathYhDRNc5J6OCcZOR4fg1f1aMD8gFklWF1ax18+NRRSonF/g1Dc=
+X-Google-Smtp-Source: AGHT+IGQRKZLowOpLDJxDKDC4Zdlnk/imeV0cILJj+G12S7tUJ9/SfK9Sf0wRtST8EIlv//HMUuIqA==
+X-Received: by 2002:a17:90b:3bc4:b0:2f4:43ce:dcea with SMTP id 98e67ed59e1d1-2f548f1edafmr2196020a91.25.1736310871016;
+        Tue, 07 Jan 2025 20:34:31 -0800 (PST)
+Received: from [157.82.203.37] ([157.82.203.37])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f54a34d91bsm448853a91.32.2025.01.07.20.34.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2025 20:34:30 -0800 (PST)
+Message-ID: <2c6f2c95-b2fc-46e0-91ce-1b9f14b28d3d@daynix.com>
+Date: Wed, 8 Jan 2025 13:34:24 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v5 5/5] bpf/selftests: add selftest for
- bpf_smc_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
- song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
- edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
- jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
- davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-References: <20250107041715.98342-1-alibuda@linux.alibaba.com>
- <20250107041715.98342-6-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Martin KaFai Lau <martin.lau@linux.dev>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/6] binfmt_elf: Use note name macros
+To: Dave Martin <Dave.Martin@arm.com>
+Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
+ Catalin Marinas <catalin.marinas@arm.com>, Mark Brown <broonie@kernel.org>,
+ Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+ Dave Young <dyoung@redhat.com>, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, kexec@lists.infradead.org,
+ binutils@sourceware.org, devel@daynix.com
+References: <20250107-elf-v3-0-99cb505b1ab2@daynix.com>
+ <20250107-elf-v3-2-99cb505b1ab2@daynix.com>
+ <Z31T0dMgMucke5KS@e133380.arm.com>
 Content-Language: en-US
-In-Reply-To: <20250107041715.98342-6-alibuda@linux.alibaba.com>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <Z31T0dMgMucke5KS@e133380.arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
 
-On 1/6/25 8:17 PM, D. Wythe wrote:
-> +static int send_cmd(int fd, __u16 nlmsg_type, __u32 nlmsg_pid, __u16 nlmsg_flags,
-> +			__u8 genl_cmd, __u16 nla_type,
-> +			void *nla_data, int nla_len)
-> +{
-> +	struct nlattr *na;
-> +	struct sockaddr_nl nladdr;
-> +	int r, buflen;
-> +	char *buf;
-> +
-> +	struct msgtemplate msg = {0};
-> +
-> +	msg.n.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
-> +	msg.n.nlmsg_type = nlmsg_type;
-> +	msg.n.nlmsg_flags = nlmsg_flags;
-> +	msg.n.nlmsg_seq = 0;
-> +	msg.n.nlmsg_pid = nlmsg_pid;
-> +	msg.g.cmd = genl_cmd;
-> +	msg.g.version = 1;
-> +	na = (struct nlattr *) GENLMSG_DATA(&msg);
-> +	na->nla_type = nla_type;
-> +	na->nla_len = nla_len + 1 + NLA_HDRLEN;
-> +	memcpy(NLA_DATA(na), nla_data, nla_len);
-> +	msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
-> +
-> +	buf = (char *) &msg;
-> +	buflen = msg.n.nlmsg_len;
-> +	memset(&nladdr, 0, sizeof(nladdr));
-> +	nladdr.nl_family = AF_NETLINK;
-> +
-> +	while ((r = sendto(fd, buf, buflen, 0, (struct sockaddr *) &nladdr,
-> +			   sizeof(nladdr))) < buflen) {
-> +		if (r > 0) {
-> +			buf += r;
-> +			buflen -= r;
-> +		} else if (errno != EAGAIN)
-> +			return -1;
-> +		}
+On 2025/01/08 1:18, Dave Martin wrote:
+> On Tue, Jan 07, 2025 at 09:45:53PM +0900, Akihiko Odaki wrote:
+>> Use note name macros to match with the userspace's expectation.
+> 
+> Also (and more importantly) get rid of duplicated knowledge about the
+> mapping of note types to note names, so that elf.h is the authoritative
+> source of this information?
+> 
+>>
+>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+>> Acked-by: Baoquan He <bhe@redhat.com>
+>> ---
+>>   fs/binfmt_elf.c       | 21 ++++++++++-----------
+>>   fs/binfmt_elf_fdpic.c |  8 ++++----
+>>   2 files changed, 14 insertions(+), 15 deletions(-)
+>>
+>> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+>> index 106f0e8af177..5b4a92e5e508 100644
+>> --- a/fs/binfmt_elf.c
+>> +++ b/fs/binfmt_elf.c
+> 
+> [...]
+> 
+>> @@ -1538,7 +1538,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
+>>   	do
+>>   		i += 2;
+>>   	while (auxv[i - 2] != AT_NULL);
+>> -	fill_note(&auxv_note, "CORE", NT_AUXV, i * sizeof(elf_addr_t), auxv);
+>> +	fill_note(&auxv_note, NN_AUXV, NT_AUXV, i * sizeof(elf_addr_t), auxv);
+>>   	thread_status_size += notesize(&auxv_note);
+>>   
+>>   	offset = sizeof(*elf);				/* ELF header */
+> 
+> Looking at this code, it appears that the right name is explicitly
+> taken from elf.h for a few specific notes, but for those that are
+> specified by the arch code (e.g., in struct user_regset entries) the
+> name is still guessed locally:
+> 
+> static int fill_thread_core_info(...) {
+> 
+> ...
+> 
+> 	fill_note(&t->notes[note_iter], is_fpreg ? "CORE" : "LINUX",
+> 		note_type, ret, data);
+> 
+> 
+> It would be preferable to clean this up if we want elf.h to be the
+> authoritative source for the names.
 
-The "}" indentation is off.
+If we want elf.h to be the authoritative source, yes, but I like the 
+current form as it ensures nobody adds a note with a name different from 
+"LINUX" and it is also simpler. There is a trade-off so I'd like to keep 
+the current form unless anyone has a strong preference for one option.
 
-I was wondering if it missed a "}" for the while loop. Turns out the "else if" 
-does not have braces while the "if" has. I would add braces to the "else if" 
-also to avoid confusion like this.
+Regards,
+Akihiko Odaki
 
-> +	return 0;
-> +}
-> +
-> +static bool get_smc_nl_family_id(void)
-> +{
-> +	struct sockaddr_nl nl_src;
-> +	struct msgtemplate msg;
-> +	struct nlattr *nl;
-> +	int fd, ret;
-> +	pid_t pid;
-> +
-> +	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
-> +	if (!ASSERT_GT(fd, 0, "nl_family socket"))
-> +		return false;
-> +
-> +	pid = getpid();
-> +
-> +	memset(&nl_src, 0, sizeof(nl_src));
-> +	nl_src.nl_family = AF_NETLINK;
-> +	nl_src.nl_pid = pid;
-> +
-> +	ret = bind(fd, (struct sockaddr *) &nl_src, sizeof(nl_src));
-> +	if (!ASSERT_GE(ret, 0, "nl_family bind"))
-> +		goto fail;
-> +
-> +	ret = send_cmd(fd, GENL_ID_CTRL, pid,
-> +		       NLM_F_REQUEST, CTRL_CMD_GETFAMILY,
-> +		       CTRL_ATTR_FAMILY_NAME, (void *)SMC_GENL_FAMILY_NAME,
-> +		       strlen(SMC_GENL_FAMILY_NAME));
-> +	if (!ASSERT_EQ(ret, 0, "nl_family query"))
-> +		goto fail;
-> +
-> +	ret = recv(fd, &msg, sizeof(msg), 0);
-> +	if (!ASSERT_FALSE(msg.n.nlmsg_type == NLMSG_ERROR || (ret < 0) ||
-> +			  !NLMSG_OK((&msg.n), ret), "nl_family response"))
-> +		goto fail;
-> +
-> +	nl = (struct nlattr *) GENLMSG_DATA(&msg);
-> +	nl = (struct nlattr *) ((char *) nl + NLA_ALIGN(nl->nla_len));
-> +	if (!ASSERT_EQ(nl->nla_type, CTRL_ATTR_FAMILY_ID, "nl_family nla type"))
-> +		goto fail;
-> +
-> +	smc_nl_family_id = *(uint16_t *) NLA_DATA(nl);
-> +	close(fd);
-> +	return true;
-> +fail:
-> +	close(fd);
-> +	return false;
-> +}
-> +
-> +static bool smc_ueid(int op)
-> +{
-> +	struct sockaddr_nl nl_src;
-> +	struct msgtemplate msg;
-> +	struct nlmsgerr *err;
-> +	char test_ueid[32];
-> +	int fd, ret;
-> +	pid_t pid;
-> +
-> +	/* UEID required */
-> +	memset(test_ueid, '\x20', sizeof(test_ueid));
-> +	memcpy(test_ueid, SMC_BPFTEST_UEID, strlen(SMC_BPFTEST_UEID));
-> +	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
-> +	if (!ASSERT_GT(fd, 0, "ueid socket"))
-> +		return false;
-> +
-> +	pid = getpid();
-> +	memset(&nl_src, 0, sizeof(nl_src));
-> +	nl_src.nl_family = AF_NETLINK;
-> +	nl_src.nl_pid = pid;
-> +
-> +	ret = bind(fd, (struct sockaddr *) &nl_src, sizeof(nl_src));
-> +	if (!ASSERT_GE(ret, 0, "ueid bind"))
-> +		goto fail;
-> +
-> +	ret = send_cmd(fd, smc_nl_family_id, pid,
-> +		       NLM_F_REQUEST | NLM_F_ACK, op, SMC_NLA_EID_TABLE_ENTRY,
-> +	(void *)test_ueid, sizeof(test_ueid));
-
-Same. Indentation is off.
-
-> +	if (!ASSERT_EQ(ret, 0, "ueid cmd"))
-> +		goto fail;
-> +
-> +	ret = recv(fd, &msg, sizeof(msg), 0);
-> +	if (!ASSERT_FALSE((ret < 0) || !NLMSG_OK((&msg.n), ret), "ueid response"))
-> +		goto fail;
-> +
-> +	if (msg.n.nlmsg_type == NLMSG_ERROR) {
-> +		err = NLMSG_DATA(&msg);
-> +		switch (op) {
-> +		case SMC_NETLINK_REMOVE_UEID:
-> +			if (!ASSERT_FALSE((err->error && err->error != -ENOENT), "ueid remove"))
-> +				goto fail;
-> +			break;
-> +		case SMC_NETLINK_ADD_UEID:
-> +			if (!ASSERT_EQ(err->error, 0, "ueid add"))
-> +				goto fail;
-> +			break;
-> +		default:
-> +			break;
-> +		}
-> +	}
-> +	close(fd);
-> +	return true;
-> +fail:
-> +	close(fd);
-> +	return false;
-> +}
-> +
-> +static bool setup_netns(void)
-> +{
-> +	if (!ASSERT_OK(make_netns(TEST_NS), "create net namespace"))
-> +		return false;
-> +
-> +	nstoken = open_netns(TEST_NS);
-
-Instead of make_netns and then immediately open_netns, try netns_new(TEST_NS, 
-true) from the test_progs.c.
-
-> +	if (!ASSERT_OK_PTR(nstoken, "open net namespace"))
-> +		goto fail_open_netns;
-> +
-> +	if (!ASSERT_OK(system("ip addr add 127.0.1.0/8 dev lo"), "add server node"))
-> +		goto fail_ip;
-> +
-> +	if (!ASSERT_OK(system("ip addr add 127.0.2.0/8 dev lo"), "server via risk path"))
-> +		goto fail_ip;
-> +
-> +	return true;
-> +fail_open_netns:
-> +	remove_netns(TEST_NS);
-> +fail_ip:
-> +	close_netns(nstoken);
-> +	return false;
-> +}
-> +
-> +static void cleanup_netns(void)
-> +{
-> +	close_netns(nstoken);
-> +	remove_netns(TEST_NS);
-> +}
-> +
-> +static bool setup_ueid(void)
-> +{
-> +	/* get smc nl id */
-> +	if (!get_smc_nl_family_id())
-> +		return false;
-> +	/* clear old ueid for bpftest */
-> +	smc_ueid(SMC_NETLINK_REMOVE_UEID);
-> +	/* smc-loopback required ueid */
-> +	return smc_ueid(SMC_NETLINK_ADD_UEID);
-> +}
-> +
-> +static void cleanup_ueid(void)
-> +{
-> +	smc_ueid(SMC_NETLINK_REMOVE_UEID);
-> +}
-> +
-> +static bool setup_smc(void)
-> +{
-> +	if (!setup_ueid())
-> +		return false;
-> +
-> +	if (!setup_netns())
-> +		goto fail_netns;
-> +
-> +	return true;
-> +fail_netns:
-> +	cleanup_ueid();
-> +	return false;
-> +}
-> +
-> +static int set_client_addr_cb(int fd, void *opts)
-> +{
-> +	const char *src = (const char *)opts;
-> +	struct sockaddr_in localaddr;
-> +
-> +	localaddr.sin_family = AF_INET;
-> +	localaddr.sin_port = htons(0);
-> +	localaddr.sin_addr.s_addr = inet_addr(src);
-> +	return !ASSERT_EQ(bind(fd, &localaddr, sizeof(localaddr)), 0, "client bind");
-> +}
-> +
-> +static void run_link(const char *src, const char *dst, int port)
-> +{
-> +	struct network_helper_opts opts = {0};
-> +	int server, client;
-> +
-> +	server = start_server_str(AF_INET, SOCK_STREAM, dst, port, NULL);
-> +	if (!ASSERT_OK_FD(server, "start service_1"))
-> +		return;
-> +
-> +	opts.proto = IPPROTO_TCP;
-> +	opts.post_socket_cb = set_client_addr_cb;
-> +	opts.cb_opts = (void *)src;
-> +
-> +	client = connect_to_fd_opts(server, &opts);
-> +	if (!ASSERT_OK_FD(client, "start connect"))
-> +		goto fail_client;
-> +
-> +	close(client);
-> +fail_client:
-> +	close(server);
-> +}
-> +
-> +static void block_link(int map_fd, const char *src, const char *dst)
-> +{
-> +	struct smc_strat_ip_value val = { .mode = /* block */ 0 };
-> +	struct smc_strat_ip_key key = {
-> +		.sip = inet_addr(src),
-> +		.dip = inet_addr(dst),
-> +	};
-> +
-> +	bpf_map_update_elem(map_fd, &key, &val, BPF_ANY);
-> +}
-> +
-> +/*
-> + * This test describes a real-life service topology as follows:
-> + *
-> + *                             +-------------> service_1
-> + *            link1            |                     |
-> + *   +--------------------> server                   |  link 2
-> + *   |                         |                     V
-> + *   |                         +-------------> service_2
-> + *   |        link 3
-> + *  client -------------------> server_via_unsafe_path -> service_3
-> + *
-> + * Among them,
-> + * 1. link-1 is very suitable for using SMC.
-> + * 2. link-2 is not suitable for using SMC, because the mode of this link is kind of
-> + *     short-link services.
-> + * 3. link-3 is also not suitable for using SMC, because the RDMA link is unavailable and
-> + *     needs to go through a long timeout before it can fallback to TCP.
-> + *
-> + * To achieve this goal, we use a customized SMC ip strategy via smc_ops.
-> + */
-> +static void test_topo(void)
-> +{
-> +	struct bpf_smc *skel;
-> +	int rc, map_fd;
-> +
-> +	skel = bpf_smc__open_and_load();
-> +	if (!ASSERT_OK_PTR(skel, "bpf_smc__open_and_load"))
-> +		return;
-> +
-> +	rc = bpf_smc__attach(skel);
-> +	if (!ASSERT_EQ(rc, 0, "bpf_smc__attach"))
-> +		goto fail;
-> +
-> +	map_fd = bpf_map__fd(skel->maps.smc_strats_ip);
-> +	if (!ASSERT_GT(map_fd, 0, "bpf_map__fd"))
-> +		goto fail;
-> +
-> +	/* Mock the process of transparent replacement, since we will modify protocol
-> +	 * to ipproto_smc accropding to it via fmod_ret/update_socket_protocol.
-> +	 */
-> +	system("sysctl -w net.smc.ops=linkcheck");
-> +
-> +	/* Configure ip strat */
-> +	block_link(map_fd, CLIENT_IP, SERVER_IP_VIA_RISK_PATH);
-> +	block_link(map_fd, SERVER_IP, SERVER_IP);
-> +	close(map_fd);
-
-No need to close(map-fd) here. bpf_smc__destroy(skel) will do it.
-
-It seems the new selftest fails also. not always though which is concerning.
-
-pw-bot: cr
-
-> +
-> +	/* should go with smc */
-> +	run_link(CLIENT_IP, SERVER_IP, SERVICE_1);
-> +	/* should go with smc fallback */
-> +	run_link(SERVER_IP, SERVER_IP, SERVICE_2);
-> +
-> +	ASSERT_EQ(skel->bss->smc_cnt, 2, "smc count");
-> +	ASSERT_EQ(skel->bss->fallback_cnt, 1, "fallback count");
-> +
-> +	/* should go with smc */
-> +	run_link(CLIENT_IP, SERVER_IP, SERVICE_2);
-> +
-> +	ASSERT_EQ(skel->bss->smc_cnt, 3, "smc count");
-> +	ASSERT_EQ(skel->bss->fallback_cnt, 1, "fallback count");
-> +
-> +	/* should go with smc fallback */
-> +	run_link(CLIENT_IP, SERVER_IP_VIA_RISK_PATH, SERVICE_3);
-> +
-> +	ASSERT_EQ(skel->bss->smc_cnt, 4, "smc count");
-> +	ASSERT_EQ(skel->bss->fallback_cnt, 2, "fallback count");
-> +
-> +fail:
-> +	bpf_smc__destroy(skel);
-> +}
-
+> 
+> It would be possible to add a .core_note_name entry in struct
+> user_regset, and define a helper macro to populate the note type and
+> name, something like the following:
+> 
+> struct user_regset {
+> 	...
+> 	unsigned int core_note_type;
+> +	unsigned int core_note_name;
+> };
+> 
+> #define USER_REGSET_NOTE_TYPE(type) \
+> 	.core_note_type = NT_ ## type, \
+> 	.core_note_name = NN_ ## name,
+> 
+> ...and then replace every .core_note_type assignment with an invocation
+> of this macro.  A quick git grep should easily find all the affected
+> cases.
+> 
+> 
+> Alternatively, as discussed in the last review round, a helper could
+> be defined to get the name for a note type:
+> 
+> const char *elf_note_name(int Elf32_Word n_type)
+> {
+> 	switch (n_type) {
+> 	case NT_PRSTATUS:	return NN_PRSTATUS;
+> 	case NT_PRFPREG:	return NN_PRFPREG;
+> 	/* ...and all the rest..., then: */
+> 
+> 	default:
+> 		WARN();
+> 		return "LINUX";
+> 	}
+> }
+> 
+> This avoids the caller having to specify the name explicitly, but only
+> works if all the n_type values are unique for the note types that Linux
+> knows about (currently true).
+> 
+> Experimenting with this shows that GCC 11.4.0 (for example) doesn't do
+> a very good job with this switch, though, and it requires building
+> knowledge about irrelevant arch-specific note types into every kernel.
+> I think that extending struct user_regset is probably the better
+> approach -- though other people may disagree.
+> 
+> Cheers
+> ---Dave
 
