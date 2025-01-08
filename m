@@ -1,66 +1,66 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86276202C4E;
-	Wed,  8 Jan 2025 18:15:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB60A202F83;
+	Wed,  8 Jan 2025 18:15:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736360109; cv=none; b=dr1Z0G1RX1/vQqd3+K4lmp3ye3Wty4vzr9Budb0iJtlM+yn5OUsI0hKc3DPiZq2+SU4GVnHo/2otB/GsRZn/LOQg9/Y699QDJKZS7TUBZgsGPcRRA9wQtljNzjNkih+mfiKHOsuhso/O7fsufi+ACRHv2cW8y6jUIcI+NAmYhDk=
+	t=1736360110; cv=none; b=F9kpMJ5CuvnQ6cICJJFxVZslXjocSly42UqnHcyN/I0HLHuyAl+0wFGE8oc0KHHRRwkiMXwF4TUZut3d+FAKzpA/neFfIRAUnjc5PvCq2RrlqbNbvcmCgutWGWGZuBCVIt1L7zq8PrhSBQMS+PrHCJSYzhcIebapn4vTqj3eSh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736360109; c=relaxed/simple;
-	bh=HiER/4QeKMtOMjnknlIMhX1FegG+NqFgpu8Zr9NDe+g=;
+	s=arc-20240116; t=1736360110; c=relaxed/simple;
+	bh=kubolyOc0tfr17qj1RO9lTCekFhkx384rlHQvJQXyLU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pJGp79y+Wo43yREZi0Af8g+mrR371qSeKESwrQoPZ4XKzid9JNTkN6HHN1yLm1spFjLUXh6Xfx9YWVitIDupLfuVgCCxMrbTxlhlgdkMkA3+yFLzQJaKbmeH9qai7UNQPZCtEit1EexqfDUnl6SUjeLy5GA2k1pIO1/1rJtkCsY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kbHfBR/J; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=IPK6hIqwBF34qXWx1fcOIohkTMnsJOauhPjAhO6Fk6Q+Hea5bwKIqnFPOcCTPKXIPDUQbc3MZrIdX1gY3A2F4vElSE+nMTXWqK9BsnKpkyuckB+ZnPbkCMxaQIHo9GGbqzqzuYwDcPBeyuVr3MYaIaZNcoHUKlxA0J14Y4BCdJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZaJgxgNg; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kbHfBR/J"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZaJgxgNg"
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 508E6b8G000831;
-	Wed, 8 Jan 2025 18:14:57 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 508E6IZd032588;
+	Wed, 8 Jan 2025 18:15:00 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=96kG7Seh7JaCM16zv
-	ih/S051p+WJs5UzzSL6fxQOFMs=; b=kbHfBR/JcfGELr2cjbbb4Rb1nEZ7zJDyJ
-	jtPNTESH9LQZZAgX+Me5AX3DNeeNRrdEh82c4iKJTNFTISSzQHo/mp3l6MpOjJZh
-	NeHUqFHo5PCRKNg1v+ZFR9bKwBdP4BQpV2C8RY17UW/2MuyJ7kd/K0yKXe+ZAylF
-	ck0xBjqemr0Q90mr0P2mZ4jvirV52kMePwzp/gAY03FJHnmT/b1BNz31+63iw20g
-	ZuRhX/DCMVD+dJdv6sOHmek/cfDCfevPWUmLNsDeJhZZTiJxu6tq1LI9vOrP6qg3
-	gbsVmsq+QObimqPvl2kxYWric86hTmbNEv9qRiadAMuBin8KO1f/Q==
+	:mime-version:references:subject:to; s=pp1; bh=9ZyRWeABVjz6rAykc
+	cHmijVGMUfB30hsXLGxgDSmN6I=; b=ZaJgxgNg2RPoKidSluGiEyli5xar2KJrz
+	9kzUTCwrC5YrjlXDfIIFKzkxmWM0o2zXzZDNtKXHj63eWjUmVhFWRHYRhXHTuCnG
+	puwtUXv46g1FE1YLuC464CWMZWjfo/Fqb9iurBuYI6mozXD2J4ItrC4Ut4WPw1ex
+	Hg3xyuMdTkMj3qHvSwBMNWrEYCiAeAN2IUdGG2ykjVSEgeE7XY0XZWhVfcuzlLYc
+	OGkYHTKOcYGMnUFQGwxYXmNWDdkkjAmMgiTd0vyMXaf1Ei9kFJSw0G337ogpBFhV
+	MqFnWpnr+ldARtj8VmzrqjTJPVyeQf8JtglL7SkEr517uUwM/o5sg==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441tu5h3qn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441tu5h3qs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 18:14:57 +0000 (GMT)
+	Wed, 08 Jan 2025 18:14:59 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 508HDX6r015903;
-	Wed, 8 Jan 2025 18:14:56 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygtm106s-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 508HCQ13016144;
+	Wed, 8 Jan 2025 18:14:59 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygtm1070-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 18:14:56 +0000
+	Wed, 08 Jan 2025 18:14:59 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 508IEqMe59376056
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 508IErcd45679080
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Jan 2025 18:14:52 GMT
+	Wed, 8 Jan 2025 18:14:55 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B59842004B;
-	Wed,  8 Jan 2025 18:14:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C4C5520040;
+	Wed,  8 Jan 2025 18:14:53 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8F6DE20043;
-	Wed,  8 Jan 2025 18:14:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8D7342004D;
+	Wed,  8 Jan 2025 18:14:53 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  8 Jan 2025 18:14:52 +0000 (GMT)
+	Wed,  8 Jan 2025 18:14:53 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com,
         schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
         hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
         gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-Subject: [PATCH v1 02/13] KVM: s390: fake memslots for ucontrol VMs
-Date: Wed,  8 Jan 2025 19:14:40 +0100
-Message-ID: <20250108181451.74383-3-imbrenda@linux.ibm.com>
+Subject: [PATCH v1 07/13] KVM: s390: move some gmap shadowing functions away from mm/gmap.c
+Date: Wed,  8 Jan 2025 19:14:45 +0100
+Message-ID: <20250108181451.74383-8-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20250108181451.74383-1-imbrenda@linux.ibm.com>
 References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
@@ -72,8 +72,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1xYJf43InE-L9osZOIvvzYTEDHusKLKm
-X-Proofpoint-ORIG-GUID: 1xYJf43InE-L9osZOIvvzYTEDHusKLKm
+X-Proofpoint-GUID: yJCojKxWwU5b-VOII186zKdwUSfaOnMG
+X-Proofpoint-ORIG-GUID: yJCojKxWwU5b-VOII186zKdwUSfaOnMG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
@@ -83,113 +83,595 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscor
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
  definitions=main-2501080148
 
-Create fake memslots for ucontrol VMs. The fake memslots identity-map
-userspace.
-
-Now memslots will always be present, and ucontrol is not a special case
-anymore.
+Move some gmap shadowing functions from mm/gmap.c to kvm/vsie.c and
+kvm/kvm-s390.c .
 
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 42 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/gmap.h |   7 +-
+ arch/s390/kvm/kvm-s390.c     |  62 +++++++++-
+ arch/s390/kvm/kvm-s390.h     |   2 +
+ arch/s390/kvm/vsie.c         | 137 +++++++++++++++++++++
+ arch/s390/mm/gmap.c          | 232 ++++-------------------------------
+ 5 files changed, 226 insertions(+), 214 deletions(-)
 
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 3652d8523e1f..8637ebbf618a 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -106,6 +106,8 @@ struct gmap *gmap_create(struct mm_struct *mm, unsigned long limit);
+ void gmap_remove(struct gmap *gmap);
+ struct gmap *gmap_get(struct gmap *gmap);
+ void gmap_put(struct gmap *gmap);
++void gmap_free(struct gmap *gmap);
++struct gmap *gmap_alloc(unsigned long limit);
+ 
+ int gmap_map_segment(struct gmap *gmap, unsigned long from,
+ 		     unsigned long to, unsigned long len);
+@@ -120,7 +122,7 @@ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val);
+ 
+ struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+ 			 int edat_level);
+-int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level);
++void gmap_unshadow(struct gmap *sg);
+ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+ 		    int fake);
+ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+@@ -136,8 +138,7 @@ int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte);
+ void gmap_register_pte_notifier(struct gmap_notifier *);
+ void gmap_unregister_pte_notifier(struct gmap_notifier *);
+ 
+-int gmap_mprotect_notify(struct gmap *, unsigned long start,
+-			 unsigned long len, int prot);
++int gmap_protect_one(struct gmap *gmap, unsigned long gaddr, int prot, unsigned long bits);
+ 
+ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+ 			     unsigned long gaddr, unsigned long vmaddr);
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ecbdd7d41230..797b8503c162 100644
+index 574a9e43f97a..b9e02fb9ae4a 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -59,6 +59,7 @@
- #define LOCAL_IRQS 32
- #define VCPU_IRQS_MAX_BUF (sizeof(struct kvm_s390_irq) * \
- 			   (KVM_MAX_VCPUS + LOCAL_IRQS))
-+#define UCONTROL_SLOT_SIZE SZ_4T
- 
- const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
- 	KVM_GENERIC_VM_STATS(),
-@@ -3326,6 +3327,23 @@ void kvm_arch_free_vm(struct kvm *kvm)
- 	__kvm_arch_free_vm(kvm);
+@@ -4520,6 +4520,63 @@ static bool ibs_enabled(struct kvm_vcpu *vcpu)
+ 	return kvm_s390_test_cpuflags(vcpu, CPUSTAT_IBS);
  }
  
-+static void kvm_s390_ucontrol_ensure_memslot(struct kvm *kvm, unsigned long addr)
++static int __kvm_s390_fixup_fault_sync(struct gmap *gmap, gpa_t gaddr, unsigned int flags)
 +{
-+	struct kvm_userspace_memory_region2 region = {
-+		.slot = addr / UCONTROL_SLOT_SIZE,
-+		.memory_size = UCONTROL_SLOT_SIZE,
-+		.guest_phys_addr = ALIGN_DOWN(addr, UCONTROL_SLOT_SIZE),
-+		.userspace_addr = ALIGN_DOWN(addr, UCONTROL_SLOT_SIZE),
-+	};
-+	struct kvm_memory_slot *slot;
++	struct kvm *kvm = gmap->private;
++	gfn_t gfn = gpa_to_gfn(gaddr);
++	bool unlocked;
++	hva_t vmaddr;
++	gpa_t tmp;
++	int rc;
 +
-+	mutex_lock(&kvm->slots_lock);
-+	slot = gfn_to_memslot(kvm, addr);
-+	if (!slot)
-+		__kvm_set_memory_region(kvm, &region);
-+	mutex_unlock(&kvm->slots_lock);
++	if (kvm_is_ucontrol(kvm)) {
++		tmp = __gmap_translate(gmap, gaddr);
++		gfn = gpa_to_gfn(tmp);
++	}
++
++	vmaddr = gfn_to_hva(kvm, gfn);
++	rc = fixup_user_fault(gmap->mm, vmaddr, FAULT_FLAG_WRITE, &unlocked);
++	if (!rc)
++		rc = __gmap_link(gmap, gaddr, vmaddr);
++	return rc;
 +}
 +
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	gfp_t alloc_flags = GFP_KERNEL_ACCOUNT;
-@@ -3430,6 +3448,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (type & KVM_VM_S390_UCONTROL) {
- 		kvm->arch.gmap = NULL;
- 		kvm->arch.mem_limit = KVM_S390_NO_MEM_LIMIT;
-+		/* pre-initialize a bunch of memslots; the amount is arbitrary */
-+		for (i = 0; i < 32; i++)
-+			kvm_s390_ucontrol_ensure_memslot(kvm, i * UCONTROL_SLOT_SIZE);
- 	} else {
- 		if (sclp.hamax == U64_MAX)
- 			kvm->arch.mem_limit = TASK_SIZE_MAX;
-@@ -5704,6 +5725,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- #ifdef CONFIG_KVM_S390_UCONTROL
- 	case KVM_S390_UCAS_MAP: {
- 		struct kvm_s390_ucas_mapping ucasmap;
-+		unsigned long a;
- 
- 		if (copy_from_user(&ucasmap, argp, sizeof(ucasmap))) {
- 			r = -EFAULT;
-@@ -5715,6 +5737,11 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 			break;
- 		}
- 
-+		a = ALIGN_DOWN(ucasmap.user_addr, UCONTROL_SLOT_SIZE);
-+		while (a < ucasmap.user_addr + ucasmap.length) {
-+			kvm_s390_ucontrol_ensure_memslot(vcpu->kvm, a);
-+			a += UCONTROL_SLOT_SIZE;
++int __kvm_s390_mprotect_many(struct gmap *gmap, gpa_t gpa, u8 npages, unsigned int prot,
++			     unsigned long bits)
++{
++	unsigned int fault_flag = (prot & PROT_WRITE) ? FAULT_FLAG_WRITE : 0;
++	gpa_t end = gpa + npages * PAGE_SIZE;
++	int rc;
++
++	for (; gpa < end; gpa = ALIGN(gpa + 1, rc ? HPAGE_SIZE : PAGE_SIZE)) {
++		rc = gmap_protect_one(gmap, gpa, prot, bits);
++		if (rc == -EAGAIN) {
++			__kvm_s390_fixup_fault_sync(gmap, gpa, fault_flag);
++			rc = gmap_protect_one(gmap, gpa, prot, bits);
 +		}
- 		r = gmap_map_segment(vcpu->arch.gmap, ucasmap.user_addr,
- 				     ucasmap.vcpu_addr, ucasmap.length);
- 		break;
-@@ -5852,10 +5879,18 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
- 				   struct kvm_memory_slot *new,
- 				   enum kvm_mr_change change)
- {
--	gpa_t size;
-+	gpa_t size = new->npages * PAGE_SIZE;
- 
--	if (kvm_is_ucontrol(kvm))
--		return -EINVAL;
-+	if (kvm_is_ucontrol(kvm)) {
-+		if (change != KVM_MR_CREATE || new->flags)
-+			return -EINVAL;
-+		if (new->userspace_addr != new->base_gfn * PAGE_SIZE)
-+			return -EINVAL;
-+		if (!IS_ALIGNED(new->userspace_addr | size, UCONTROL_SLOT_SIZE))
-+			return -EINVAL;
-+		if (new->id != new->userspace_addr / UCONTROL_SLOT_SIZE)
-+			return -EINVAL;
++		if (rc < 0)
++			return rc;
 +	}
++
++	return 0;
++}
++
++static int kvm_s390_mprotect_notify_prefix(struct kvm_vcpu *vcpu)
++{
++	gpa_t gaddr = kvm_s390_get_prefix(vcpu);
++	int idx, rc;
++
++	idx = srcu_read_lock(&vcpu->kvm->srcu);
++	mmap_read_lock(vcpu->arch.gmap->mm);
++
++	rc = __kvm_s390_mprotect_many(vcpu->arch.gmap, gaddr, 2, PROT_WRITE, GMAP_NOTIFY_MPROT);
++
++	mmap_read_unlock(vcpu->arch.gmap->mm);
++	srcu_read_unlock(&vcpu->kvm->srcu, idx);
++
++	return rc;
++}
++
+ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ {
+ retry:
+@@ -4535,9 +4592,8 @@ static int kvm_s390_handle_requests(struct kvm_vcpu *vcpu)
+ 	 */
+ 	if (kvm_check_request(KVM_REQ_REFRESH_GUEST_PREFIX, vcpu)) {
+ 		int rc;
+-		rc = gmap_mprotect_notify(vcpu->arch.gmap,
+-					  kvm_s390_get_prefix(vcpu),
+-					  PAGE_SIZE * 2, PROT_WRITE);
++
++		rc = kvm_s390_mprotect_notify_prefix(vcpu);
+ 		if (rc) {
+ 			kvm_make_request(KVM_REQ_REFRESH_GUEST_PREFIX, vcpu);
+ 			return rc;
+diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+index 37c9ab52ecaa..f77a3829d182 100644
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -418,6 +418,8 @@ void kvm_s390_set_cpu_timer(struct kvm_vcpu *vcpu, __u64 cputm);
+ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu);
+ int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rc, u16 *rrc);
+ int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, unsigned int flags);
++int __kvm_s390_mprotect_many(struct gmap *gmap, gpa_t gpa, u8 npages, unsigned int prot,
++			     unsigned long bits);
  
- 	/* When we are protected, we should not change the memory slots */
- 	if (kvm_s390_pv_get_handle(kvm))
-@@ -5872,7 +5907,6 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
- 		if (new->userspace_addr & 0xffffful)
- 			return -EINVAL;
+ static inline int kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gpa_t gaddr, unsigned int flags)
+ {
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 150b9387860a..314e9baf2120 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -13,6 +13,7 @@
+ #include <linux/bitmap.h>
+ #include <linux/sched/signal.h>
+ #include <linux/io.h>
++#include <linux/mman.h>
  
--		size = new->npages * PAGE_SIZE;
- 		if (size & 0xffffful)
- 			return -EINVAL;
+ #include <asm/gmap.h>
+ #include <asm/mmu_context.h>
+@@ -1207,6 +1208,142 @@ static void release_gmap_shadow(struct vsie_page *vsie_page)
+ 	prefix_unmapped(vsie_page);
+ }
  
++/**
++ * gmap_find_shadow - find a specific asce in the list of shadow tables
++ * @parent: pointer to the parent gmap
++ * @asce: ASCE for which the shadow table is created
++ * @edat_level: edat level to be used for the shadow translation
++ *
++ * Returns the pointer to a gmap if a shadow table with the given asce is
++ * already available, ERR_PTR(-EAGAIN) if another one is just being created,
++ * otherwise NULL
++ */
++static struct gmap *gmap_find_shadow(struct gmap *parent, unsigned long asce,
++				     int edat_level)
++{
++	struct gmap *sg;
++
++	list_for_each_entry(sg, &parent->children, list) {
++		if (sg->orig_asce != asce || sg->edat_level != edat_level ||
++		    sg->removed)
++			continue;
++		if (!sg->initialized)
++			return ERR_PTR(-EAGAIN);
++		refcount_inc(&sg->ref_count);
++		return sg;
++	}
++	return NULL;
++}
++
++/**
++ * gmap_shadow_valid - check if a shadow guest address space matches the
++ *                     given properties and is still valid
++ * @sg: pointer to the shadow guest address space structure
++ * @asce: ASCE for which the shadow table is requested
++ * @edat_level: edat level to be used for the shadow translation
++ *
++ * Returns 1 if the gmap shadow is still valid and matches the given
++ * properties, the caller can continue using it. Returns 0 otherwise, the
++ * caller has to request a new shadow gmap in this case.
++ *
++ */
++static int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level)
++{
++	if (sg->removed)
++		return 0;
++	return sg->orig_asce == asce && sg->edat_level == edat_level;
++}
++
++/**
++ * gmap_shadow - create/find a shadow guest address space
++ * @parent: pointer to the parent gmap
++ * @asce: ASCE for which the shadow table is created
++ * @edat_level: edat level to be used for the shadow translation
++ *
++ * The pages of the top level page table referred by the asce parameter
++ * will be set to read-only and marked in the PGSTEs of the kvm process.
++ * The shadow table will be removed automatically on any change to the
++ * PTE mapping for the source table.
++ *
++ * Returns a guest address space structure, ERR_PTR(-ENOMEM) if out of memory,
++ * ERR_PTR(-EAGAIN) if the caller has to retry and ERR_PTR(-EFAULT) if the
++ * parent gmap table could not be protected.
++ */
++struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
++			 int edat_level)
++{
++	struct gmap *sg, *new;
++	unsigned long limit;
++	int rc;
++
++	if (KVM_BUG_ON(parent->mm->context.allow_gmap_hpage_1m, (struct kvm *)parent->private) ||
++	    KVM_BUG_ON(gmap_is_shadow(parent), (struct kvm *)parent->private))
++		return ERR_PTR(-EFAULT);
++	spin_lock(&parent->shadow_lock);
++	sg = gmap_find_shadow(parent, asce, edat_level);
++	spin_unlock(&parent->shadow_lock);
++	if (sg)
++		return sg;
++	/* Create a new shadow gmap */
++	limit = -1UL >> (33 - (((asce & _ASCE_TYPE_MASK) >> 2) * 11));
++	if (asce & _ASCE_REAL_SPACE)
++		limit = -1UL;
++	new = gmap_alloc(limit);
++	if (!new)
++		return ERR_PTR(-ENOMEM);
++	new->mm = parent->mm;
++	new->parent = gmap_get(parent);
++	new->private = parent->private;
++	new->orig_asce = asce;
++	new->edat_level = edat_level;
++	new->initialized = false;
++	spin_lock(&parent->shadow_lock);
++	/* Recheck if another CPU created the same shadow */
++	sg = gmap_find_shadow(parent, asce, edat_level);
++	if (sg) {
++		spin_unlock(&parent->shadow_lock);
++		gmap_free(new);
++		return sg;
++	}
++	if (asce & _ASCE_REAL_SPACE) {
++		/* only allow one real-space gmap shadow */
++		list_for_each_entry(sg, &parent->children, list) {
++			if (sg->orig_asce & _ASCE_REAL_SPACE) {
++				spin_lock(&sg->guest_table_lock);
++				gmap_unshadow(sg);
++				spin_unlock(&sg->guest_table_lock);
++				list_del(&sg->list);
++				gmap_put(sg);
++				break;
++			}
++		}
++	}
++	refcount_set(&new->ref_count, 2);
++	list_add(&new->list, &parent->children);
++	if (asce & _ASCE_REAL_SPACE) {
++		/* nothing to protect, return right away */
++		new->initialized = true;
++		spin_unlock(&parent->shadow_lock);
++		return new;
++	}
++	spin_unlock(&parent->shadow_lock);
++	/* protect after insertion, so it will get properly invalidated */
++	mmap_read_lock(parent->mm);
++	rc = __kvm_s390_mprotect_many(parent, asce & _ASCE_ORIGIN,
++				      ((asce & _ASCE_TABLE_LENGTH) + 1),
++				      PROT_READ, GMAP_NOTIFY_SHADOW);
++	mmap_read_unlock(parent->mm);
++	spin_lock(&parent->shadow_lock);
++	new->initialized = true;
++	if (rc) {
++		list_del(&new->list);
++		gmap_free(new);
++		new = ERR_PTR(rc);
++	}
++	spin_unlock(&parent->shadow_lock);
++	return new;
++}
++
+ static int acquire_gmap_shadow(struct kvm_vcpu *vcpu,
+ 			       struct vsie_page *vsie_page)
+ {
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index ae6ccf034378..12d681b657b4 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -43,7 +43,7 @@ static struct page *gmap_alloc_crst(void)
+  *
+  * Returns a guest address space structure.
+  */
+-static struct gmap *gmap_alloc(unsigned long limit)
++struct gmap *gmap_alloc(unsigned long limit)
+ {
+ 	struct gmap *gmap;
+ 	struct page *page;
+@@ -97,6 +97,7 @@ static struct gmap *gmap_alloc(unsigned long limit)
+ out:
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(gmap_alloc);
+ 
+ /**
+  * gmap_create - create a guest address space
+@@ -191,7 +192,7 @@ static void gmap_rmap_radix_tree_free(struct radix_tree_root *root)
+  *
+  * No locks required. There are no references to this gmap anymore.
+  */
+-static void gmap_free(struct gmap *gmap)
++void gmap_free(struct gmap *gmap)
+ {
+ 	struct page *page, *next;
+ 
+@@ -218,6 +219,7 @@ static void gmap_free(struct gmap *gmap)
+ 
+ 	kfree(gmap);
+ }
++EXPORT_SYMBOL_GPL(gmap_free);
+ 
+ /**
+  * gmap_get - increase reference counter for guest address space
+@@ -958,86 +960,36 @@ static int gmap_protect_pte(struct gmap *gmap, unsigned long gaddr,
+  * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
+  * @bits: pgste notification bits to set
+  *
+- * Returns 0 if successfully protected, -ENOMEM if out of memory and
+- * -EFAULT if gaddr is invalid (or mapping for shadows is missing).
++ * Returns 0 if successfully protected, -ENOMEM if out of memory,
++ * -EFAULT if gaddr is invalid (or mapping for shadows is missing),
++ * -EAGAIN if the guest mapping is missing and should be fixed by the
++ * caller.
+  *
+  * Called with sg->mm->mmap_lock in read.
+  */
+-static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+-			      unsigned long len, int prot, unsigned long bits)
++int gmap_protect_one(struct gmap *gmap, unsigned long gaddr, int prot, unsigned long bits)
+ {
+-	unsigned long vmaddr, dist;
+ 	pmd_t *pmdp;
+-	int rc;
++	int rc = 0;
+ 
+ 	BUG_ON(gmap_is_shadow(gmap));
+-	while (len) {
+-		rc = -EAGAIN;
+-		pmdp = gmap_pmd_op_walk(gmap, gaddr);
+-		if (pmdp) {
+-			if (!pmd_leaf(*pmdp)) {
+-				rc = gmap_protect_pte(gmap, gaddr, pmdp, prot,
+-						      bits);
+-				if (!rc) {
+-					len -= PAGE_SIZE;
+-					gaddr += PAGE_SIZE;
+-				}
+-			} else {
+-				rc = gmap_protect_pmd(gmap, gaddr, pmdp, prot,
+-						      bits);
+-				if (!rc) {
+-					dist = HPAGE_SIZE - (gaddr & ~HPAGE_MASK);
+-					len = len < dist ? 0 : len - dist;
+-					gaddr = (gaddr & HPAGE_MASK) + HPAGE_SIZE;
+-				}
+-			}
+-			gmap_pmd_op_end(gmap, pmdp);
+-		}
+-		if (rc) {
+-			if (rc == -EINVAL)
+-				return rc;
+ 
+-			/* -EAGAIN, fixup of userspace mm and gmap */
+-			vmaddr = __gmap_translate(gmap, gaddr);
+-			if (IS_ERR_VALUE(vmaddr))
+-				return vmaddr;
+-			rc = gmap_pte_op_fixup(gmap, gaddr, vmaddr, prot);
+-			if (rc)
+-				return rc;
+-		}
+-	}
+-	return 0;
+-}
++	pmdp = gmap_pmd_op_walk(gmap, gaddr);
++	if (!pmdp)
++		return -EAGAIN;
+ 
+-/**
+- * gmap_mprotect_notify - change access rights for a range of ptes and
+- *                        call the notifier if any pte changes again
+- * @gmap: pointer to guest mapping meta data structure
+- * @gaddr: virtual address in the guest address space
+- * @len: size of area
+- * @prot: indicates access rights: PROT_NONE, PROT_READ or PROT_WRITE
+- *
+- * Returns 0 if for each page in the given range a gmap mapping exists,
+- * the new access rights could be set and the notifier could be armed.
+- * If the gmap mapping is missing for one or more pages -EFAULT is
+- * returned. If no memory could be allocated -ENOMEM is returned.
+- * This function establishes missing page table entries.
+- */
+-int gmap_mprotect_notify(struct gmap *gmap, unsigned long gaddr,
+-			 unsigned long len, int prot)
+-{
+-	int rc;
++	if (!pmd_leaf(*pmdp)) {
++		rc = gmap_protect_pte(gmap, gaddr, pmdp, prot, bits);
++	} else {
++		rc = gmap_protect_pmd(gmap, gaddr, pmdp, prot, bits);
++		if (!rc)
++			rc = 1;
++	}
++	gmap_pmd_op_end(gmap, pmdp);
+ 
+-	if ((gaddr & ~PAGE_MASK) || (len & ~PAGE_MASK) || gmap_is_shadow(gmap))
+-		return -EINVAL;
+-	if (!MACHINE_HAS_ESOP && prot == PROT_READ)
+-		return -EINVAL;
+-	mmap_read_lock(gmap->mm);
+-	rc = gmap_protect_range(gmap, gaddr, len, prot, GMAP_NOTIFY_MPROT);
+-	mmap_read_unlock(gmap->mm);
+ 	return rc;
+ }
+-EXPORT_SYMBOL_GPL(gmap_mprotect_notify);
++EXPORT_SYMBOL_GPL(gmap_protect_one);
+ 
+ /**
+  * gmap_read_table - get an unsigned long value from a guest page table using
+@@ -1488,7 +1440,7 @@ static void __gmap_unshadow_r1t(struct gmap *sg, unsigned long raddr,
+  *
+  * Called with sg->guest_table_lock
+  */
+-static void gmap_unshadow(struct gmap *sg)
++void gmap_unshadow(struct gmap *sg)
+ {
+ 	unsigned long *table;
+ 
+@@ -1514,143 +1466,7 @@ static void gmap_unshadow(struct gmap *sg)
+ 		break;
+ 	}
+ }
+-
+-/**
+- * gmap_find_shadow - find a specific asce in the list of shadow tables
+- * @parent: pointer to the parent gmap
+- * @asce: ASCE for which the shadow table is created
+- * @edat_level: edat level to be used for the shadow translation
+- *
+- * Returns the pointer to a gmap if a shadow table with the given asce is
+- * already available, ERR_PTR(-EAGAIN) if another one is just being created,
+- * otherwise NULL
+- */
+-static struct gmap *gmap_find_shadow(struct gmap *parent, unsigned long asce,
+-				     int edat_level)
+-{
+-	struct gmap *sg;
+-
+-	list_for_each_entry(sg, &parent->children, list) {
+-		if (sg->orig_asce != asce || sg->edat_level != edat_level ||
+-		    sg->removed)
+-			continue;
+-		if (!sg->initialized)
+-			return ERR_PTR(-EAGAIN);
+-		refcount_inc(&sg->ref_count);
+-		return sg;
+-	}
+-	return NULL;
+-}
+-
+-/**
+- * gmap_shadow_valid - check if a shadow guest address space matches the
+- *                     given properties and is still valid
+- * @sg: pointer to the shadow guest address space structure
+- * @asce: ASCE for which the shadow table is requested
+- * @edat_level: edat level to be used for the shadow translation
+- *
+- * Returns 1 if the gmap shadow is still valid and matches the given
+- * properties, the caller can continue using it. Returns 0 otherwise, the
+- * caller has to request a new shadow gmap in this case.
+- *
+- */
+-int gmap_shadow_valid(struct gmap *sg, unsigned long asce, int edat_level)
+-{
+-	if (sg->removed)
+-		return 0;
+-	return sg->orig_asce == asce && sg->edat_level == edat_level;
+-}
+-EXPORT_SYMBOL_GPL(gmap_shadow_valid);
+-
+-/**
+- * gmap_shadow - create/find a shadow guest address space
+- * @parent: pointer to the parent gmap
+- * @asce: ASCE for which the shadow table is created
+- * @edat_level: edat level to be used for the shadow translation
+- *
+- * The pages of the top level page table referred by the asce parameter
+- * will be set to read-only and marked in the PGSTEs of the kvm process.
+- * The shadow table will be removed automatically on any change to the
+- * PTE mapping for the source table.
+- *
+- * Returns a guest address space structure, ERR_PTR(-ENOMEM) if out of memory,
+- * ERR_PTR(-EAGAIN) if the caller has to retry and ERR_PTR(-EFAULT) if the
+- * parent gmap table could not be protected.
+- */
+-struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce,
+-			 int edat_level)
+-{
+-	struct gmap *sg, *new;
+-	unsigned long limit;
+-	int rc;
+-
+-	BUG_ON(parent->mm->context.allow_gmap_hpage_1m);
+-	BUG_ON(gmap_is_shadow(parent));
+-	spin_lock(&parent->shadow_lock);
+-	sg = gmap_find_shadow(parent, asce, edat_level);
+-	spin_unlock(&parent->shadow_lock);
+-	if (sg)
+-		return sg;
+-	/* Create a new shadow gmap */
+-	limit = -1UL >> (33 - (((asce & _ASCE_TYPE_MASK) >> 2) * 11));
+-	if (asce & _ASCE_REAL_SPACE)
+-		limit = -1UL;
+-	new = gmap_alloc(limit);
+-	if (!new)
+-		return ERR_PTR(-ENOMEM);
+-	new->mm = parent->mm;
+-	new->parent = gmap_get(parent);
+-	new->private = parent->private;
+-	new->orig_asce = asce;
+-	new->edat_level = edat_level;
+-	new->initialized = false;
+-	spin_lock(&parent->shadow_lock);
+-	/* Recheck if another CPU created the same shadow */
+-	sg = gmap_find_shadow(parent, asce, edat_level);
+-	if (sg) {
+-		spin_unlock(&parent->shadow_lock);
+-		gmap_free(new);
+-		return sg;
+-	}
+-	if (asce & _ASCE_REAL_SPACE) {
+-		/* only allow one real-space gmap shadow */
+-		list_for_each_entry(sg, &parent->children, list) {
+-			if (sg->orig_asce & _ASCE_REAL_SPACE) {
+-				spin_lock(&sg->guest_table_lock);
+-				gmap_unshadow(sg);
+-				spin_unlock(&sg->guest_table_lock);
+-				list_del(&sg->list);
+-				gmap_put(sg);
+-				break;
+-			}
+-		}
+-	}
+-	refcount_set(&new->ref_count, 2);
+-	list_add(&new->list, &parent->children);
+-	if (asce & _ASCE_REAL_SPACE) {
+-		/* nothing to protect, return right away */
+-		new->initialized = true;
+-		spin_unlock(&parent->shadow_lock);
+-		return new;
+-	}
+-	spin_unlock(&parent->shadow_lock);
+-	/* protect after insertion, so it will get properly invalidated */
+-	mmap_read_lock(parent->mm);
+-	rc = gmap_protect_range(parent, asce & _ASCE_ORIGIN,
+-				((asce & _ASCE_TABLE_LENGTH) + 1) * PAGE_SIZE,
+-				PROT_READ, GMAP_NOTIFY_SHADOW);
+-	mmap_read_unlock(parent->mm);
+-	spin_lock(&parent->shadow_lock);
+-	new->initialized = true;
+-	if (rc) {
+-		list_del(&new->list);
+-		gmap_free(new);
+-		new = ERR_PTR(rc);
+-	}
+-	spin_unlock(&parent->shadow_lock);
+-	return new;
+-}
+-EXPORT_SYMBOL_GPL(gmap_shadow);
++EXPORT_SYMBOL(gmap_unshadow);
+ 
+ /**
+  * gmap_shadow_r2t - create an empty shadow region 2 table
 -- 
 2.47.1
 
