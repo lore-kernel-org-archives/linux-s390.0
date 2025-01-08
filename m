@@ -1,213 +1,255 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E526F19D88F;
-	Wed,  8 Jan 2025 04:57:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2FC51A8F6B
+	for <linux-s390@vger.kernel.org>; Wed,  8 Jan 2025 06:59:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736312237; cv=none; b=tb3IMtiZpYg+UUugXAT4cATgB3KutBK9Dv8thAdJ/PW1muqJCX3lQut9v8fke2sAr6q0s1nZWxjKjDEAZwVKnBHUwIJ8vTbU+e6H9b+tFAzTVtiqheoM0/D44zYLzDeUryQDaugIq2KQa0bBoCY0xVcOg6Eekyvn2Wico427/D4=
+	t=1736319558; cv=none; b=nxANOxymKYyiKNiR8Tldmx+rsVAWfI+/qi5XODzJfI4cvegVqg8Kj8bGRNRrGNMxTyIiDFB3pfzPjUNNSlX6cYVVbTQG3wM9BYtiLmJxsosYDH6No3mfg6Lut1DdZOXoagECvxmQ6sHHs59aRstFdFSd3qTqT3ej9huREMPi3e4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736312237; c=relaxed/simple;
-	bh=Wi4w1CZuHTsWa7Xz+0vg7iU1FtNI8yjQD7t7+K0lCJg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mv7L7Km0Q2ajt3gTWKV5S2e3nIEzhimNUDqYyB4jGuRwMGkSdeog/XbCN6G+gDnHiNgE8NGepSpX5hme9eJAhy8i+8eXTfzlwMLUffVNrb8bPiyvXobLEIuU7rM8kthqoR8HREg9+g+hnkfg3A4VgTk1+M5RgJ2rR4UQtYqAd9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=V0Y4hD3H; arc=none smtp.client-ip=115.124.30.113
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1736319558; c=relaxed/simple;
+	bh=EdTs1gy5zYgx6BoMVvtYVm1nCTmCaYsA6ZdI4rTRksQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aU9ZncFZxzN7xiMBNbmDST28PAY5TafpgcFGQYrBihRR7Ybl3n2dmFh0ouVx9pnnBbmKXfs8l5WfgXpPyvSpt+plTRDO57WGtsKYO0FIut/jRtrDqkTNc8GtXwBZydJ/VZEMsa4PuiPaViADnn2Ug8C2N1Pdzzyy5MWsQ+KLMec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=Dqj/YQm1; arc=none smtp.client-ip=209.85.216.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="V0Y4hD3H"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1736312224; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=fCAm0QwYn+M/bP0Q8qp/lxXFwNaJPr2jpn5rRXSf4jY=;
-	b=V0Y4hD3HpFw0hxHQuFtUjvEVGtWiAbnH+Yr/0exo2+ldoE6mm+AQB2sm6jBG7O1uHlXHQlJT7GU0gkpef8a493xZ16v3FEcq3L0rrCDHzmjkT6+jeS3zQtnz9csiLzqHbZKeuPJestC++QQkSUHqzR7YmPku1TmZvvFbG7883t8=
-Received: from 30.221.99.192(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WNCbklj_1736312223 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 08 Jan 2025 12:57:04 +0800
-Message-ID: <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
-Date: Wed, 8 Jan 2025 12:57:00 +0800
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="Dqj/YQm1"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-2ee709715d9so19468737a91.3
+        for <linux-s390@vger.kernel.org>; Tue, 07 Jan 2025 22:59:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1736319555; x=1736924355; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+oUJziA+3SIeve9hH8p/SUshEWFM4XR7pFGccDfjKoA=;
+        b=Dqj/YQm1bfzrDP7DQ/Ic9GW1KGuM2dMvaJwVKjeZPFhAtabgeh2VZ9zKIJ3s5a+5oJ
+         Otd0i/ATtjG8HecynSEhahYK2aba6UHEgbi8t2y/NE2FU91cptxKUwRZD5EZ4+rVA4lr
+         wRVdqJHFXig/GgDpGj5DLE8+p7Uy5apd74P9rAWo6wdmHHOBy8zZetKiV7gp95emdlZa
+         HjYO9cJEnGhNHroCbBgtjHkJi7O6Jdxd7kiDXL/mMcQFdq120JyzURtGvDrVXiWY+urw
+         5ThXXXSBvM/JTLb+skk6PEDTLG5Oi5s+Qp4y2XoXv4y/fOrQE/SXFPVfFffPLrZoztJu
+         yddw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736319555; x=1736924355;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+oUJziA+3SIeve9hH8p/SUshEWFM4XR7pFGccDfjKoA=;
+        b=uvPht0pWIo33xMholQimJVRpoMlcCp4LRdj/k4WrDY+03rkUg2WsPMTKKqIqhT8/52
+         lA/V2WcklF4OQ5vbMfutPuUMNxxNDCFPRn9Lg2NtSLoy0OpPbzP66s1Kq/2TT+Wi0wvT
+         7b8ZjaCBH8omKIPRnjH/Mb2urSxsQD3SSdUudA652T4Y7+Pe3vqHFelutEDzm0+3+VDE
+         qbR/75yo5mPkcYHKfXbOarllO6ZVkklaTvjshBOxhUerBnpMDvPZdM1BBihOhRgwF8LO
+         IaOste02oGJCiyK/Jf4L7YtXOGa6BoDo7kYt+bfY0J4TNi+a6m5ofLdY18hQlMC3X2Vj
+         E95g==
+X-Forwarded-Encrypted: i=1; AJvYcCVhcJ0m4t1cnCvOFrVGM+NoU6Lw8IougHa7Wu7nEg46Pb8CVR17XD4W2qAFHnRyJfDY7r/9KAbsEp2v@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfZyCG7rrs/3Bfr8jQEX2MIutbCHKxI9TXxMr0aEmpuq6cRFwV
+	J3whp+An++zIIFXATpKCK++3IAPVkHxd8Ma6930C0VcQP8N8TLruZ7tEat5WG64=
+X-Gm-Gg: ASbGnctudwxjEqvI/PgdB5+BtfP3xRq5k883VPGi1AXbPx3LdadcDBSjCy8E9mq5SYW
+	2JZPWiGzH1nepI3+R7AKMdHFIl/4LcIx2Ngxy6fYrSgXhzUgaOyziC8AGo6OrLR0xmx3swW/Lcu
+	BFtXN0liojSW6Lr6Sw135tEyPSXA8UUTKl6kMVKM1o1iT+LcbVrHNGmUZhnv6rk4KGKRC/pzQc+
+	oOu+Iyu3z7l/tlZ9OAp07zw2zfqt7RnNvno6WZD3KlPKQ6KqlOwOVfeJrOhn/ATuq4QHr6goCl1
+	RNrxV3CJb3wcA+YG0yW12ffXAL8=
+X-Google-Smtp-Source: AGHT+IF0KICf2IpNdbhCgJ/4FLwWodDPqZ+kJ6jQ+m3hTC2SCt6RG6Dd8PQChw/e3cG7DLZH3PR19A==
+X-Received: by 2002:a17:90b:4d05:b0:2ee:f80c:6884 with SMTP id 98e67ed59e1d1-2f548f426ccmr2612187a91.33.1736319554907;
+        Tue, 07 Jan 2025 22:59:14 -0800 (PST)
+Received: from C02DW0BEMD6R.bytedance.net ([139.177.225.244])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dca023a3sm320067275ad.250.2025.01.07.22.59.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2025 22:59:14 -0800 (PST)
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+To: peterz@infradead.org,
+	agordeev@linux.ibm.com,
+	kevin.brodsky@arm.com,
+	alex@ghiti.fr,
+	andreas@gaisler.com,
+	palmer@dabbelt.com,
+	tglx@linutronix.de,
+	david@redhat.com,
+	jannh@google.com,
+	hughd@google.com,
+	yuzhao@google.com,
+	willy@infradead.org,
+	muchun.song@linux.dev,
+	vbabka@kernel.org,
+	lorenzo.stoakes@oracle.com,
+	akpm@linux-foundation.org,
+	rientjes@google.com,
+	vishal.moola@gmail.com,
+	arnd@arndb.de,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	dave.hansen@linux.intel.com,
+	rppt@kernel.org,
+	ryan.roberts@arm.com
+Cc: linux-mm@kvack.org,
+	linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	Qi Zheng <zhengqi.arch@bytedance.com>
+Subject: [PATCH v5 00/17] move pagetable_*_dtor() to __tlb_remove_table()
+Date: Wed,  8 Jan 2025 14:57:16 +0800
+Message-Id: <cover.1736317725.git.zhengqi.arch@bytedance.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
- pnetid table
-To: Halil Pasic <pasic@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Alexandra Winter <wintera@linux.ibm.com>
-References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
- <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
- <20250107203218.5787acb4.pasic@linux.ibm.com>
-Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20250107203218.5787acb4.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+Changes in v5:
+ - cancel the move of p4d_free_tlb()'s location in [PATCH v4 06/15]
+   (Alexander Gordeev)
+ - fix the missing pagetable_dtor() in [PATCH v4 08/15] (Kevin Brodsky)
+ - change the subject and description in [PATCH v4 12/15]
+   (Alexander Gordeev)
+ - remove the redundant __HAVE_ARCH_TLB_REMOVE_TABLE definition in [PATCH v4 13/15]
+   (Andreas Larsson)
+ - add "mm: pgtable: completely move pagetable_dtor() to generic tlb_remove_table()"
+   (Kevin Brodsky)
+ - add "x86: pgtable: convert __tlb_remove_table() to use struct ptdesc"
+ - collect Acked-bys and Reviewed-bys
 
+Changes in v4:
+ - remove [PATCH v3 15/17] and [PATCH v3 16/17] (Mike Rapoport)
+   (the tlb_remove_page_ptdesc() and tlb_remove_ptdesc() are intermediate
+    products of the project: https://kernelnewbies.org/MatthewWilcox/Memdescs,
+    so keep them)
+ - collect Acked-by
 
-On 2025/1/8 03:32, Halil Pasic wrote:
-> On Tue, 7 Jan 2025 09:44:30 +0100
-> Paolo Abeni <pabeni@redhat.com> wrote:
-> 
->> On 12/27/24 5:04 AM, Guangguan Wang wrote:
-> 
-> @Guangguan Wang: please use my linux.ibm.com address
-> in the future.
-Get it.
+Changes in v3:
+ - take patch #5 and #6 from Kevin Brodsky's patch series below.
+   Link: https://lore.kernel.org/lkml/20241219164425.2277022-1-kevin.brodsky@arm.com/
+ - separate the statistics part from [PATCH v2 02/15] as [PATCH v3 04/17], and
+   replace the rest part with Kevin Brodsky's patch #6
+   (Alexander Gordeev and Kevin Brodsky)
+ - change the commit message of [PATCH v2 10/15] and [PATCH v2 11/15]
+   (Alexander Gordeev)
+ - fix the bug introduced by [PATCH v2 11/15]
+   (Peter Zijlstra)
+ - rebase onto the next-20241220
 
-> 
->>> The command 'smc_pnet -a -I <ethx> <pnetid>' will add <pnetid>
->>> to the pnetid table and will attach the <pnetid> to net device
->>> whose name is <ethx>. But When do SMCR by <ethx>, in function
->>> smc_pnet_find_roce_by_pnetid, it will use <ethx>'s base ndev's
->>> pnetid to match rdma device, not <ethx>'s pnetid. The asymmetric
->>> use of the pnetid seems weird. Sometimes it is difficult to know
->>> the hierarchy of net device what may make it difficult to configure
->>> the pnetid and to use the pnetid. Looking into the history of
->>> commit, it was the commit 890a2cb4a966 ("net/smc: rework pnet table")
->>> that changes the ndev from the <ethx> to the <ethx>'s base ndev
->>> when finding pnetid by pnetid table. It seems a mistake.
->>>
->>> This patch changes the ndev back to the <ethx> when finding pnetid
->>> by pnetid table.
->>>
->>> Fixes: 890a2cb4a966 ("net/smc: rework pnet table")
->>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>  
->>
->> If I read correctly, this will break existing applications using the
->> lookup schema introduced by the blamed commit - which is not very
->> recent.
-> 
-> Hi Paolo,
-> 
-> sorry for chiming in late. Wenjia is on vacation and Jan is out sick!
-> After some reading and thinking I could not figure out how 890a2cb4a966
-> ("net/smc: rework pnet table") is broken.
+Changes in v2:
+ - add [PATCH v2 13|14|15/15] (suggested by Peter Zijlstra)
+ - add Originally-bys and Suggested-bys
+ - rebase onto the next-20241218
 
-Before commit 890a2cb4a966:
-smc_pnet_find_roce_resource
-    smc_pnet_find_roce_by_pnetid(ndev, ...) /* lookup via hardware-defined pnetid */
-        smc_pnetid_by_dev_port(base_ndev, ...)
-    smc_pnet_find_roce_by_table(ndev, ...) /* lookup via SMC PNET table */
-    {
-        ...
-        list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
-                if (ndev == pnetelem->ndev) { /* notice here, it was ndev to matching pnetid element in pnet table */
-        ...
-    }
+Hi all,
 
-After commit 890a2cb4a966:
-smc_pnet_find_roce_resource
-    smc_pnet_find_roce_by_pnetid
-    {
-        ...
-        base_ndev = pnet_find_base_ndev(ndev); /* rename the variable name to base_ndev for better understanding */
-        smc_pnetid_by_dev_port(base_ndev, ...)
-        smc_pnet_find_ndev_pnetid_by_table(base_ndev, ...)
-        {
-                ...
-                list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
-                if (base_ndev == pnetelem->ndev) { /* notice here, it is base_ndev to matching pnetid element in pnet table */
-                ...
-        }
+As proposed [1] by Peter Zijlstra below, this patch series aims to move
+pagetable_*_dtor() into __tlb_remove_table(). This will cleanup pagetable_*_dtor()
+a bit and more gracefully fix the UAF issue [2] reported by syzbot.
 
-    }
+```
+Notably:
 
-The commit 890a2cb4a966 has changed ndev to base_ndev when matching pnetid element in pnet table.
-But in the function smc_pnet_add_eth, the pnetid is attached to the ndev itself, not the base_ndev.
-smc_pnet_add_eth(...)
-{
-    ...
-    ndev = dev_get_by_name(net, eth_name);
-    ...
-        if (new_netdev) {
-            if (ndev) {
-                new_pe->ndev = ndev;
-                netdev_tracker_alloc(ndev, &new_pe->dev_tracker,
-                    GFP_ATOMIC);
-            }
-            list_add_tail(&new_pe->list, &pnettable->pnetlist);
-            mutex_unlock(&pnettable->lock);
-        } else {
-    ...
-}
+ - s390 pud isn't calling the existing pagetable_pud_[cd]tor()
+ - none of the p4d things have pagetable_p4d_[cd]tor() (x86,arm64,s390,riscv)
+   and they have inconsistent accounting
+ - while much of the _ctor calls are in generic code, many of the _dtor
+   calls are in arch code for hysterial raisins, this could easily be
+   fixed
+ - if we fix ptlock_free() to handle NULL, then all the _dtor()
+   functions can use it, and we can observe they're all identical
+   and can be folded
 
-> 
-> Admittedly I'm not really a net guy,and I'm mostly guessing what that
-> lower and upper device stuff is, so please bear with me. All that said, I
-> do think that going to the lowest netdev in the hierarchy is a sane
-> thing to do here.  I assume  that lower and upper devices are applicable
-> to stuff like bonding. 
-> 
-> PNETID stands for "Physical Network Identifier" and the idea is that iff
-> two ports are connected to the same physical network then they should
-> have the same PNETID. And on s390 PNETID can come and often is comming
-> "from the hardware". Now for something like a bond of two OSA
-> interfaces, I would expect the two legs of the bond to probably have a
-> "HW PNETID", but the netdev representing the bond itself won't have one
-> unless the Linux admin defines a software PNETID, which is work, and
-> can't have a HW PNETID because it is a software construct within Linux.
-> Breaking for example an active-backup bond setup where the legs have
-> HW PNETIDs and the admin did not bother to specify a PNETID for the bond
-> is not acceptable.
-> 
-> Let me also note that if ndev is a leaf (i.e. there is no lower device to
-> it) then ndev == base_ndev, and the whole discussion does not matter for
-> that case.
-> 
-> Again I have to emphasize that my domain knowledge is very limited, but
-> I really don't feel comfortable going forward with this without Jan or
-> Wenjia weighing in on the matter.
-> 
-> Paolo thanks for bringing this up!
-> 
->>
->> Perhaps for a net patch would be better to support both lookup schemas
->> i.e.
->>
->> 	(smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid) ||
->> 	 smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid))
->>
->> ?
->>
-> 
-> Hm, I guess the idea here is that if ndev has a PNETID then it should
-> take precedence, but if not we should try to obtain the PNETID of its
-> "base_ndev". I'm not sure this would make things better compared to the
-> original idea of caring about the leaf. Which makes me question my
-> understanding of the problem statement from the commit message.
-> 
-> BTW to implement the logic proposed by you Paolo, as understood by me,
-> we would have to use "&&" instead of "||". The whole expression is
-> supposed
-> to evaluate to false if a pnetid is found and to true if no pnet_id is
-> found. smc_pnet_find_ndev_pnetid_by_table(ndev) returns false if a pnetid
-> is found. I.e. if not found we would just short circuit to true and not
-> call smc_pnet_find_ndev_pnetid_by_table(base_ndev), which is not what I
-> believe you wanted to propose.
+after all that cleanup, you can move the _dtor from *_free_tlb() into
+tlb_remove_table() -- which for the above case, would then have it
+called from __tlb_remove_table_free().
+```
 
-Yes, it should be
-        (smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid) &&
- 	 smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid))
-if for the consideration of application's compatible usage of smc_pnet.
+And hi Andrew, I developed the code based on the latest linux-next, so I reverted
+the "mm: pgtable: make ptlock be freed by RCU" first. Once the review of this
+patch series is completed, the "mm: pgtable: make ptlock be freed by RCU" can be
+dropped directly from mm tree, and this revert patch will not be needed.
+
+This series is based on next-20241220. And I tested this patch series on x86 and
+only cross-compiled it on arm, arm64, powerpc, riscv, s390 and sparc.
+
+Comments and suggestions are welcome!
 
 Thanks,
-Guangguan Wang
+Qi
 
-> 
-> To sum it up, please let us wait until Wenjia or Jan chime in. Copying
-> Alexandra as well: she is more of a net person than I am, and maybe she
-> has a more informed opinion.
-> 
-> Regards,
-> Halil
-> [...]
-> 
+[1]. https://lore.kernel.org/all/20241211133433.GC12500@noisy.programming.kicks-ass.net/
+[2]. https://lore.kernel.org/all/67548279.050a0220.a30f1.015b.GAE@google.com/
+
+Kevin Brodsky (2):
+  riscv: mm: Skip pgtable level check in {pud,p4d}_alloc_one
+  asm-generic: pgalloc: Provide generic p4d_{alloc_one,free}
+
+Qi Zheng (15):
+  Revert "mm: pgtable: make ptlock be freed by RCU"
+  mm: pgtable: add statistics for P4D level page table
+  arm64: pgtable: use mmu gather to free p4d level page table
+  s390: pgtable: add statistics for PUD and P4D level page table
+  mm: pgtable: introduce pagetable_dtor()
+  arm: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  arm64: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  riscv: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  x86: pgtable: convert __tlb_remove_table() to use struct ptdesc
+  x86: pgtable: move pagetable_dtor() to __tlb_remove_table()
+  s390: pgtable: consolidate PxD and PTE TLB free paths
+  mm: pgtable: introduce generic __tlb_remove_table()
+  mm: pgtable: completely move pagetable_dtor() to generic
+    tlb_remove_table()
+  mm: pgtable: move __tlb_remove_table_one() in x86 to generic file
+  mm: pgtable: introduce generic pagetable_dtor_free()
+
+ Documentation/mm/split_page_table_lock.rst |  4 +-
+ arch/arm/include/asm/tlb.h                 | 10 ----
+ arch/arm64/include/asm/pgalloc.h           | 18 ------
+ arch/arm64/include/asm/tlb.h               | 21 ++++---
+ arch/csky/include/asm/pgalloc.h            |  2 +-
+ arch/hexagon/include/asm/pgalloc.h         |  2 +-
+ arch/loongarch/include/asm/pgalloc.h       |  2 +-
+ arch/m68k/include/asm/mcf_pgalloc.h        |  4 +-
+ arch/m68k/include/asm/sun3_pgalloc.h       |  2 +-
+ arch/m68k/mm/motorola.c                    |  2 +-
+ arch/mips/include/asm/pgalloc.h            |  2 +-
+ arch/nios2/include/asm/pgalloc.h           |  2 +-
+ arch/openrisc/include/asm/pgalloc.h        |  2 +-
+ arch/powerpc/include/asm/tlb.h             |  1 +
+ arch/powerpc/mm/book3s64/mmu_context.c     |  2 +-
+ arch/powerpc/mm/book3s64/pgtable.c         |  2 +-
+ arch/powerpc/mm/pgtable-frag.c             |  4 +-
+ arch/riscv/include/asm/pgalloc.h           | 69 +++++-----------------
+ arch/riscv/include/asm/tlb.h               | 18 ------
+ arch/riscv/mm/init.c                       |  4 +-
+ arch/s390/include/asm/pgalloc.h            | 31 +++++++---
+ arch/s390/include/asm/tlb.h                | 10 ++--
+ arch/s390/mm/pgalloc.c                     | 23 +-------
+ arch/sh/include/asm/pgalloc.h              |  2 +-
+ arch/sparc/include/asm/tlb_64.h            |  1 +
+ arch/sparc/mm/init_64.c                    |  2 +-
+ arch/sparc/mm/srmmu.c                      |  2 +-
+ arch/um/include/asm/pgalloc.h              |  6 +-
+ arch/x86/include/asm/pgalloc.h             | 18 ------
+ arch/x86/include/asm/tlb.h                 | 33 -----------
+ arch/x86/kernel/paravirt.c                 |  5 +-
+ arch/x86/mm/pgtable.c                      | 23 ++++----
+ include/asm-generic/pgalloc.h              | 55 +++++++++++++++--
+ include/asm-generic/tlb.h                  | 24 ++++++--
+ include/linux/mm.h                         | 50 ++++++----------
+ include/linux/mm_types.h                   |  9 +--
+ mm/memory.c                                | 23 +++-----
+ mm/mmu_gather.c                            | 20 ++++++-
+ 38 files changed, 211 insertions(+), 299 deletions(-)
+
+-- 
+2.20.1
+
