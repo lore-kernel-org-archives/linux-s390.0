@@ -1,199 +1,284 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEDE1202F97;
-	Wed,  8 Jan 2025 16:14:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CF8B1FFC67;
+	Wed,  8 Jan 2025 17:52:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736352870; cv=none; b=gVY5ru9rsp43kqkzNz542Dgu06pEZBQ5t6lwWP/4v6nFYR0OmrbGSl4Gth2n5GbpVgUPRiaZf0AgUQdqTAUC/CfTtSn7vfwkpgp8UjM+D4iudefbga3g08J18sdO5TcC2MxU30ChVWOiPqFRqLGztrqVRyLL8tDNJQ7bMzujeok=
+	t=1736358779; cv=none; b=nbTnKk/90mzGiv1QgAIzGiHyAQxE1T1emtEMa1cVlkf3ecA87VBVEYwO/xcNu6NUeqEDzwbyHFuTTugB4hqArz4sThU4Dsr4fe9viQJ11OtUoS/QedgygmGTRBHSm2xC3ykjHxZPtyKhPkigOCNpWlvwzLOmIBRNdUPa5ZpIQN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736352870; c=relaxed/simple;
-	bh=ZVFqFMhIUaIyHR1ntHU0QNWhp55G1M8JaiO4HLQZLH8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L86onav+R9mFUytpzkUSvlC5CdPOvT7GTp9x2epMPI+Ffdk2vr4yDVI3akao+HwRgb3Shf3UTI0vyohPtwfX92N4casZtZJ4Xo0oIetKOgFXaPU1Hc/yxuf0xBrYtL8xe4AmO3LgOv3sq00prhMJMkgjTldFGfugai7kAWkGzj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Qc2i4Tp0; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736358779; c=relaxed/simple;
+	bh=QV0zSXXSQW8UjP5PQeq8PFF2s8zCILiTY+PAQRr2D+E=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ZYGlCew+fuw39ACXNJl4U8vykRV62rawC174UKKJwvQnd0Kg3ZZ6wH19kKbkYiCHACTXO2GF+6dAihkWPOlkcwPKUD+SmIpbmTuLe1WJvSqvDNANWhAFCx4MJdItRenKlE/stX8SCxkf/TBpGb1S4GF+Ua80GXZyjhl9V1qGD4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UJyjD3xR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Qc2i4Tp0"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 508Ew0Hd008979;
-	Wed, 8 Jan 2025 16:13:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=/0pEosJAtrrq7+AZfl2ID181pVMDXx
-	vqRB1iDHPru/M=; b=Qc2i4Tp0uvBRyl+jGtaMLwYGZKKaztQUee3zrazLkmkths
-	BKjfeh5hc4DNF+FovJkBB/fHbU/DPDjRCbIEh/eMZyHyvXxayMqu9FBQFJOug4QH
-	iQGB7QT793mBW00g/2e5RWsTUnIRvzEqsPYZoZ1xrycOjY77mjmhxD3Tr58vKYfh
-	i5WI1PseA+GU3nr66lZ1WH05bULNRioNAgJgAm9VNeTRLQ4pRSeX+RYdvIB2cetS
-	GTBBs7NBz+M3Z6MiU02DQX/J9dzcrcbfHP6qZ8C6ajXXZ6zofEYRDTTx4bda1nof
-	mnWd9f4JhtWC7wiQ3TFYDev/txCoPQl/rsnDG/uQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441hupu905-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 16:13:02 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 508GD1K1025958;
-	Wed, 8 Jan 2025 16:13:01 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441hupu901-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 16:13:01 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 508CW5fH003630;
-	Wed, 8 Jan 2025 16:13:00 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yfat8qq7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 16:13:00 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 508GCwru8061280
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Jan 2025 16:12:58 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B38D720040;
-	Wed,  8 Jan 2025 16:12:58 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1575720043;
-	Wed,  8 Jan 2025 16:12:58 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  8 Jan 2025 16:12:58 +0000 (GMT)
-Date: Wed, 8 Jan 2025 17:12:56 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: peterz@infradead.org, kevin.brodsky@arm.com, alex@ghiti.fr,
-        andreas@gaisler.com, palmer@dabbelt.com, tglx@linutronix.de,
-        david@redhat.com, jannh@google.com, hughd@google.com,
-        yuzhao@google.com, willy@infradead.org, muchun.song@linux.dev,
-        vbabka@kernel.org, lorenzo.stoakes@oracle.com,
-        akpm@linux-foundation.org, rientjes@google.com, vishal.moola@gmail.com,
-        arnd@arndb.de, will@kernel.org, aneesh.kumar@kernel.org,
-        npiggin@gmail.com, dave.hansen@linux.intel.com, rppt@kernel.org,
-        ryan.roberts@arm.com, linux-mm@kvack.org,
-        linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        x86@kernel.org, linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-um@lists.infradead.org
-Subject: Re: [PATCH v5 06/17] s390: pgtable: add statistics for PUD and P4D
- level page table
-Message-ID: <Z36kCF6tgnzkIRDM@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <cover.1736317725.git.zhengqi.arch@bytedance.com>
- <4707dffce228ccec5c6662810566dd12b5741c4b.1736317725.git.zhengqi.arch@bytedance.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UJyjD3xR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887BAC4CED3;
+	Wed,  8 Jan 2025 17:52:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736358779;
+	bh=QV0zSXXSQW8UjP5PQeq8PFF2s8zCILiTY+PAQRr2D+E=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=UJyjD3xRKLU4YEUp69wtcS7Pvi+qHqJChMvTk/AeVs14Cm00nzzQXMbhQ9wMMOCJY
+	 HWfX+cXIWtYCZQGDLbkwNu4/Ssr6xsDlO/wWDCwbLUGD8rfTshPiEgkt/RfjMaq9RQ
+	 r7aGqnMNLCIwcCzW2tAUOJLlkKp1vLkFBGeR/ZqQAidDVUNxA7YOxzIT6vBExVgl3F
+	 W15yO9QinDagAAgbLLM2v/XyZTdLjF3O81OdufonyRXimopakG5Ba08XFlOEDgd51P
+	 c7LAmkB48tKgLxHn0pHFUFK9fa4FIouD66pfhZU/hekwzsxVgtGFef8oV9gk59CAWu
+	 +ZyxGUqqrXEZA==
+Date: Wed, 8 Jan 2025 09:52:57 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+ edumazet@google.com, pabeni@redhat.com, horms@kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Halil Pasic
+ <pasic@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>
+Subject: Re: [PATCH RESEND net] net/smc: fix data error when recvmsg with
+ MSG_PEEK flag
+Message-ID: <20250108095257.2b93b6c6@kernel.org>
+In-Reply-To: <20250104143201.35529-1-guangguan.wang@linux.alibaba.com>
+References: <20250104143201.35529-1-guangguan.wang@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4707dffce228ccec5c6662810566dd12b5741c4b.1736317725.git.zhengqi.arch@bytedance.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: KUhXNS6aArO_tUV9i1PAsm9yGShhoIw3
-X-Proofpoint-GUID: AEhKKtU-rxWzLnMSxQ4AI9AzMP3tXlSR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
- clxscore=1011 mlxscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 spamscore=0 bulkscore=0 impostorscore=0 mlxlogscore=890
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501080133
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 08, 2025 at 02:57:22PM +0800, Qi Zheng wrote:
-> Like PMD and PTE level page table, also add statistics for PUD and P4D
-> page table.
+CC: Halil, Alexandra
+
+On Sat,  4 Jan 2025 22:32:01 +0800 Guangguan Wang wrote:
+> When recvmsg with MSG_PEEK flag, the data will be copied to
+> user's buffer without advancing consume cursor and without
+> reducing the length of rx available data. Once the expected
+> peek length is larger than the value of bytes_to_rcv, in the
+> loop of do while in smc_rx_recvmsg, the first loop will copy
+> bytes_to_rcv bytes of data from the position local_tx_ctrl.cons,
+> the second loop will copy the min(bytes_to_rcv, read_remaining)
+> bytes from the position local_tx_ctrl.cons again because of the
+> lacking of process with advancing consume cursor and reducing
+> the length of available data. So do the subsequent loops. The
+> data copied in the second loop and the subsequent loops will
+> result in data error, as it should not be copied if no more data
+> arrives and it should be copied from the position advancing
+> bytes_to_rcv bytes from the local_tx_ctrl.cons if more data arrives.
 > 
-> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> Cc: linux-s390@vger.kernel.org
+> This issue can be reproduce by the following python script:
+> server.py:
+> import socket
+> import time
+> server_ip = '0.0.0.0'
+> server_port = 12346
+> server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+> server_socket.bind((server_ip, server_port))
+> server_socket.listen(1)
+> print('Server is running and listening for connections...')
+> conn, addr = server_socket.accept()
+> print('Connected by', addr)
+> while True:
+>     data = conn.recv(1024)
+>     if not data:
+>         break
+>     print('Received request:', data.decode())
+>     conn.sendall(b'Hello, client!\n')
+>     time.sleep(5)
+>     conn.sendall(b'Hello, again!\n')
+> conn.close()
+> 
+> client.py:
+> import socket
+> server_ip = '<server ip>'
+> server_port = 12346
+> resp=b'Hello, client!\nHello, again!\n'
+> client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+> client_socket.connect((server_ip, server_port))
+> request = 'Hello, server!'
+> client_socket.sendall(request.encode())
+> peek_data = client_socket.recv(len(resp),
+>     socket.MSG_PEEK | socket.MSG_WAITALL)
+> print('Peeked data:', peek_data.decode())
+> client_socket.close()
+> 
+> Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
+> Reported-by: D. Wythe <alibuda@linux.alibaba.com>
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 > ---
->  arch/s390/include/asm/pgalloc.h | 29 +++++++++++++++++++++--------
->  arch/s390/include/asm/tlb.h     |  2 ++
->  2 files changed, 23 insertions(+), 8 deletions(-)
+>  net/smc/af_smc.c |  2 +-
+>  net/smc/smc_rx.c | 37 +++++++++++++++++++++----------------
+>  net/smc/smc_rx.h |  8 ++++----
+>  3 files changed, 26 insertions(+), 21 deletions(-)
 > 
-> diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-> index 7b84ef6dc4b6d..a0c1ca5d8423c 100644
-> --- a/arch/s390/include/asm/pgalloc.h
-> +++ b/arch/s390/include/asm/pgalloc.h
-> @@ -53,29 +53,42 @@ static inline p4d_t *p4d_alloc_one(struct mm_struct *mm, unsigned long address)
->  {
->  	unsigned long *table = crst_table_alloc(mm);
->  
-> -	if (table)
-> -		crst_table_init(table, _REGION2_ENTRY_EMPTY);
-> +	if (!table)
-> +		return NULL;
-> +	crst_table_init(table, _REGION2_ENTRY_EMPTY);
-> +	pagetable_p4d_ctor(virt_to_ptdesc(table));
-> +
->  	return (p4d_t *) table;
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 6cc7b846cff1..ebc41a7b13db 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2738,7 +2738,7 @@ int smc_accept(struct socket *sock, struct socket *new_sock,
+>  			release_sock(clcsk);
+>  		} else if (!atomic_read(&smc_sk(nsk)->conn.bytes_to_rcv)) {
+>  			lock_sock(nsk);
+> -			smc_rx_wait(smc_sk(nsk), &timeo, smc_rx_data_available);
+> +			smc_rx_wait(smc_sk(nsk), &timeo, 0, smc_rx_data_available);
+>  			release_sock(nsk);
+>  		}
+>  	}
+> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+> index f0cbe77a80b4..79047721df51 100644
+> --- a/net/smc/smc_rx.c
+> +++ b/net/smc/smc_rx.c
+> @@ -238,22 +238,23 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
+>  	return -ENOMEM;
 >  }
 >  
->  static inline void p4d_free(struct mm_struct *mm, p4d_t *p4d)
+> -static int smc_rx_data_available_and_no_splice_pend(struct smc_connection *conn)
+> +static int smc_rx_data_available_and_no_splice_pend(struct smc_connection *conn, size_t peeked)
 >  {
-> -	if (!mm_p4d_folded(mm))
-> -		crst_table_free(mm, (unsigned long *) p4d);
-> +	if (mm_p4d_folded(mm))
-> +		return;
-> +
-> +	pagetable_p4d_dtor(virt_to_ptdesc(p4d));
-> +	crst_table_free(mm, (unsigned long *) p4d);
+> -	return atomic_read(&conn->bytes_to_rcv) &&
+> +	return smc_rx_data_available(conn, peeked) &&
+>  	       !atomic_read(&conn->splice_pending);
 >  }
 >  
->  static inline pud_t *pud_alloc_one(struct mm_struct *mm, unsigned long address)
+>  /* blocks rcvbuf consumer until >=len bytes available or timeout or interrupted
+>   *   @smc    smc socket
+>   *   @timeo  pointer to max seconds to wait, pointer to value 0 for no timeout
+> + *   @peeked  number of bytes already peeked
+>   *   @fcrit  add'l criterion to evaluate as function pointer
+>   * Returns:
+>   * 1 if at least 1 byte available in rcvbuf or if socket error/shutdown.
+>   * 0 otherwise (nothing in rcvbuf nor timeout, e.g. interrupted).
+>   */
+> -int smc_rx_wait(struct smc_sock *smc, long *timeo,
+> -		int (*fcrit)(struct smc_connection *conn))
+> +int smc_rx_wait(struct smc_sock *smc, long *timeo, size_t peeked,
+> +		int (*fcrit)(struct smc_connection *conn, size_t baseline))
 >  {
->  	unsigned long *table = crst_table_alloc(mm);
-> -	if (table)
-> -		crst_table_init(table, _REGION3_ENTRY_EMPTY);
-> +
-> +	if (!table)
-> +		return NULL;
-> +	crst_table_init(table, _REGION3_ENTRY_EMPTY);
-> +	pagetable_pud_ctor(virt_to_ptdesc(table));
-> +
->  	return (pud_t *) table;
+>  	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+>  	struct smc_connection *conn = &smc->conn;
+> @@ -262,7 +263,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
+>  	struct sock *sk = &smc->sk;
+>  	int rc;
+>  
+> -	if (fcrit(conn))
+> +	if (fcrit(conn, peeked))
+>  		return 1;
+>  	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+>  	add_wait_queue(sk_sleep(sk), &wait);
+> @@ -271,7 +272,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
+>  			   cflags->peer_conn_abort ||
+>  			   READ_ONCE(sk->sk_shutdown) & RCV_SHUTDOWN ||
+>  			   conn->killed ||
+> -			   fcrit(conn),
+> +			   fcrit(conn, peeked),
+>  			   &wait);
+>  	remove_wait_queue(sk_sleep(sk), &wait);
+>  	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+> @@ -322,11 +323,11 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
+>  	return -EAGAIN;
 >  }
 >  
->  static inline void pud_free(struct mm_struct *mm, pud_t *pud)
+> -static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
+> +static bool smc_rx_recvmsg_data_available(struct smc_sock *smc, size_t peeked)
 >  {
-> -	if (!mm_pud_folded(mm))
-> -		crst_table_free(mm, (unsigned long *) pud);
-> +	if (mm_pud_folded(mm))
-> +		return;
-> +
-> +	pagetable_pud_dtor(virt_to_ptdesc(pud));
-> +	crst_table_free(mm, (unsigned long *) pud);
+>  	struct smc_connection *conn = &smc->conn;
+>  
+> -	if (smc_rx_data_available(conn))
+> +	if (smc_rx_data_available(conn, peeked))
+>  		return true;
+>  	else if (conn->urg_state == SMC_URG_VALID)
+>  		/* we received a single urgent Byte - skip */
+> @@ -344,10 +345,10 @@ static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
+>  int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  		   struct pipe_inode_info *pipe, size_t len, int flags)
+>  {
+> -	size_t copylen, read_done = 0, read_remaining = len;
+> +	size_t copylen, read_done = 0, read_remaining = len, peeked_bytes = 0;
+>  	size_t chunk_len, chunk_off, chunk_len_sum;
+>  	struct smc_connection *conn = &smc->conn;
+> -	int (*func)(struct smc_connection *conn);
+> +	int (*func)(struct smc_connection *conn, size_t baseline);
+>  	union smc_host_cursor cons;
+>  	int readable, chunk;
+>  	char *rcvbuf_base;
+> @@ -384,14 +385,14 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  		if (conn->killed)
+>  			break;
+>  
+> -		if (smc_rx_recvmsg_data_available(smc))
+> +		if (smc_rx_recvmsg_data_available(smc, peeked_bytes))
+>  			goto copy;
+>  
+>  		if (sk->sk_shutdown & RCV_SHUTDOWN) {
+>  			/* smc_cdc_msg_recv_action() could have run after
+>  			 * above smc_rx_recvmsg_data_available()
+>  			 */
+> -			if (smc_rx_recvmsg_data_available(smc))
+> +			if (smc_rx_recvmsg_data_available(smc, peeked_bytes))
+>  				goto copy;
+>  			break;
+>  		}
+> @@ -425,26 +426,28 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  			}
+>  		}
+>  
+> -		if (!smc_rx_data_available(conn)) {
+> -			smc_rx_wait(smc, &timeo, smc_rx_data_available);
+> +		if (!smc_rx_data_available(conn, peeked_bytes)) {
+> +			smc_rx_wait(smc, &timeo, peeked_bytes, smc_rx_data_available);
+>  			continue;
+>  		}
+>  
+>  copy:
+>  		/* initialize variables for 1st iteration of subsequent loop */
+>  		/* could be just 1 byte, even after waiting on data above */
+> -		readable = atomic_read(&conn->bytes_to_rcv);
+> +		readable = smc_rx_data_available(conn, peeked_bytes);
+>  		splbytes = atomic_read(&conn->splice_pending);
+>  		if (!readable || (msg && splbytes)) {
+>  			if (splbytes)
+>  				func = smc_rx_data_available_and_no_splice_pend;
+>  			else
+>  				func = smc_rx_data_available;
+> -			smc_rx_wait(smc, &timeo, func);
+> +			smc_rx_wait(smc, &timeo, peeked_bytes, func);
+>  			continue;
+>  		}
+>  
+>  		smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
+> +		if ((flags & MSG_PEEK) && peeked_bytes)
+> +			smc_curs_add(conn->rmb_desc->len, &cons, peeked_bytes);
+>  		/* subsequent splice() calls pick up where previous left */
+>  		if (splbytes)
+>  			smc_curs_add(conn->rmb_desc->len, &cons, splbytes);
+> @@ -480,6 +483,8 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  			}
+>  			read_remaining -= chunk_len;
+>  			read_done += chunk_len;
+> +			if (flags & MSG_PEEK)
+> +				peeked_bytes += chunk_len;
+>  
+>  			if (chunk_len_sum == copylen)
+>  				break; /* either on 1st or 2nd iteration */
+> diff --git a/net/smc/smc_rx.h b/net/smc/smc_rx.h
+> index db823c97d824..994f5e42d1ba 100644
+> --- a/net/smc/smc_rx.h
+> +++ b/net/smc/smc_rx.h
+> @@ -21,11 +21,11 @@ void smc_rx_init(struct smc_sock *smc);
+>  
+>  int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  		   struct pipe_inode_info *pipe, size_t len, int flags);
+> -int smc_rx_wait(struct smc_sock *smc, long *timeo,
+> -		int (*fcrit)(struct smc_connection *conn));
+> -static inline int smc_rx_data_available(struct smc_connection *conn)
+> +int smc_rx_wait(struct smc_sock *smc, long *timeo, size_t peeked,
+> +		int (*fcrit)(struct smc_connection *conn, size_t baseline));
+> +static inline int smc_rx_data_available(struct smc_connection *conn, size_t peeked)
+>  {
+> -	return atomic_read(&conn->bytes_to_rcv);
+> +	return atomic_read(&conn->bytes_to_rcv) - peeked;
 >  }
 >  
->  static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
-> diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-> index e95b2c8081eb8..907d57a68145c 100644
-> --- a/arch/s390/include/asm/tlb.h
-> +++ b/arch/s390/include/asm/tlb.h
-> @@ -122,6 +122,7 @@ static inline void p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4d,
->  {
->  	if (mm_p4d_folded(tlb->mm))
->  		return;
-> +	pagetable_p4d_dtor(virt_to_ptdesc(p4d));
->  	__tlb_adjust_range(tlb, address, PAGE_SIZE);
->  	tlb->mm->context.flush_mm = 1;
->  	tlb->freed_tables = 1;
-> @@ -140,6 +141,7 @@ static inline void pud_free_tlb(struct mmu_gather *tlb, pud_t *pud,
->  {
->  	if (mm_pud_folded(tlb->mm))
->  		return;
-> +	pagetable_pud_dtor(virt_to_ptdesc(pud));
->  	tlb->mm->context.flush_mm = 1;
->  	tlb->freed_tables = 1;
->  	tlb->cleared_p4ds = 1;
+>  #endif /* SMC_RX_H */
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-
-Thanks!
