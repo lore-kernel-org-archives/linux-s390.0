@@ -1,284 +1,236 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CF8B1FFC67;
-	Wed,  8 Jan 2025 17:52:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0455B1FF7BE;
+	Wed,  8 Jan 2025 18:14:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736358779; cv=none; b=nbTnKk/90mzGiv1QgAIzGiHyAQxE1T1emtEMa1cVlkf3ecA87VBVEYwO/xcNu6NUeqEDzwbyHFuTTugB4hqArz4sThU4Dsr4fe9viQJ11OtUoS/QedgygmGTRBHSm2xC3ykjHxZPtyKhPkigOCNpWlvwzLOmIBRNdUPa5ZpIQN4=
+	t=1736360099; cv=none; b=mC0UV5JVZnA1yXLmPoIvv8zcCoVl/amb30xxO+v9JPNLaGHKMhVszSSkcgU4+F+63mfbLlhpcXCKOPbH8QOYF7mqRMXRnnK22X1HzLG57ENbed07cHBEfX6JIX24cMXUkLq/kLL2gRh8nKEf4uTMdkPSwdZdU33+YCOMLWYxwlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736358779; c=relaxed/simple;
-	bh=QV0zSXXSQW8UjP5PQeq8PFF2s8zCILiTY+PAQRr2D+E=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZYGlCew+fuw39ACXNJl4U8vykRV62rawC174UKKJwvQnd0Kg3ZZ6wH19kKbkYiCHACTXO2GF+6dAihkWPOlkcwPKUD+SmIpbmTuLe1WJvSqvDNANWhAFCx4MJdItRenKlE/stX8SCxkf/TBpGb1S4GF+Ua80GXZyjhl9V1qGD4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UJyjD3xR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736360099; c=relaxed/simple;
+	bh=ccFbCHIzf35bpWSvUDjqAoijtUomoZ+2jdiOVQymRoE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=TuLuGxcqG4vdWv/GM4j/TcBkBcQaKaHKdRrbZDPLXno1jIUrduX6AwAqdmcKA3m94m35eGkGKaN6d0iNNjPhHCiK7pazMpEady17YNnN4L4Sux4iJop4q5wXvr3wo48bBmDv5Druazry1vKhCVDy0GyBnupTRMErR144CcudbgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pT9rzWOC; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UJyjD3xR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887BAC4CED3;
-	Wed,  8 Jan 2025 17:52:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736358779;
-	bh=QV0zSXXSQW8UjP5PQeq8PFF2s8zCILiTY+PAQRr2D+E=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=UJyjD3xRKLU4YEUp69wtcS7Pvi+qHqJChMvTk/AeVs14Cm00nzzQXMbhQ9wMMOCJY
-	 HWfX+cXIWtYCZQGDLbkwNu4/Ssr6xsDlO/wWDCwbLUGD8rfTshPiEgkt/RfjMaq9RQ
-	 r7aGqnMNLCIwcCzW2tAUOJLlkKp1vLkFBGeR/ZqQAidDVUNxA7YOxzIT6vBExVgl3F
-	 W15yO9QinDagAAgbLLM2v/XyZTdLjF3O81OdufonyRXimopakG5Ba08XFlOEDgd51P
-	 c7LAmkB48tKgLxHn0pHFUFK9fa4FIouD66pfhZU/hekwzsxVgtGFef8oV9gk59CAWu
-	 +ZyxGUqqrXEZA==
-Date: Wed, 8 Jan 2025 09:52:57 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
- edumazet@google.com, pabeni@redhat.com, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Halil Pasic
- <pasic@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>
-Subject: Re: [PATCH RESEND net] net/smc: fix data error when recvmsg with
- MSG_PEEK flag
-Message-ID: <20250108095257.2b93b6c6@kernel.org>
-In-Reply-To: <20250104143201.35529-1-guangguan.wang@linux.alibaba.com>
-References: <20250104143201.35529-1-guangguan.wang@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pT9rzWOC"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 508DEC6C026955;
+	Wed, 8 Jan 2025 18:14:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=g+rGGxEIPkszuYHy9
+	Ulk51+d/8Rmh6+kQi7Pg+ThiPI=; b=pT9rzWOC8J3rmtQF2tIQmj+2SAnuUvY2K
+	aRr0aIk1pZqjcSvuGf9BVOvsY7vzIrv2c9lJdGdEh/+eh0W9w2VA/A6NS89zCphI
+	5FtSoaeJezIZhCcHDz9pYl1mGl539/2vGra6DZ4UW3TCjNqu8QdvQPfJ7M+enx5X
+	36HBUkSiW5gqnHny/VfZGqSt02Jw41kV8SQ//Ha6H8Q56nF60smfy0/7bv5bgyfY
+	eFW6ZQOr6lkvL23tgHpWIiFW7b2FdXtQ1tQdpxlNMD0/cNlP25Sq6U/dKhHx5HRw
+	gNIoMYyjBzt0IXtwNL9G8ySIXJ2yIY7YbtDgxGcJ5Qr22F9RwzRwA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441e3b4d38-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 08 Jan 2025 18:14:55 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 508Hf7tp027946;
+	Wed, 8 Jan 2025 18:14:54 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yhhk8vc4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 08 Jan 2025 18:14:54 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 508IErpo45679072
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 8 Jan 2025 18:14:53 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E110E20040;
+	Wed,  8 Jan 2025 18:14:52 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BA5D62004D;
+	Wed,  8 Jan 2025 18:14:52 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  8 Jan 2025 18:14:52 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com,
+        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
+        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
+Subject: [PATCH v1 03/13] KVM: s390: use __kvm_faultin_pfn()
+Date: Wed,  8 Jan 2025 19:14:41 +0100
+Message-ID: <20250108181451.74383-4-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.47.1
+In-Reply-To: <20250108181451.74383-1-imbrenda@linux.ibm.com>
+References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gvTU7bluCb5yDbAz3X8JP3f1H5mOsa35
+X-Proofpoint-GUID: gvTU7bluCb5yDbAz3X8JP3f1H5mOsa35
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 phishscore=0 impostorscore=0 clxscore=1015 bulkscore=0
+ lowpriorityscore=0 mlxlogscore=797 adultscore=0 suspectscore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501080148
 
-CC: Halil, Alexandra
+Refactor the existing page fault handling code to use __kvm_faultin_pfn().
 
-On Sat,  4 Jan 2025 22:32:01 +0800 Guangguan Wang wrote:
-> When recvmsg with MSG_PEEK flag, the data will be copied to
-> user's buffer without advancing consume cursor and without
-> reducing the length of rx available data. Once the expected
-> peek length is larger than the value of bytes_to_rcv, in the
-> loop of do while in smc_rx_recvmsg, the first loop will copy
-> bytes_to_rcv bytes of data from the position local_tx_ctrl.cons,
-> the second loop will copy the min(bytes_to_rcv, read_remaining)
-> bytes from the position local_tx_ctrl.cons again because of the
-> lacking of process with advancing consume cursor and reducing
-> the length of available data. So do the subsequent loops. The
-> data copied in the second loop and the subsequent loops will
-> result in data error, as it should not be copied if no more data
-> arrives and it should be copied from the position advancing
-> bytes_to_rcv bytes from the local_tx_ctrl.cons if more data arrives.
-> 
-> This issue can be reproduce by the following python script:
-> server.py:
-> import socket
-> import time
-> server_ip = '0.0.0.0'
-> server_port = 12346
-> server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-> server_socket.bind((server_ip, server_port))
-> server_socket.listen(1)
-> print('Server is running and listening for connections...')
-> conn, addr = server_socket.accept()
-> print('Connected by', addr)
-> while True:
->     data = conn.recv(1024)
->     if not data:
->         break
->     print('Received request:', data.decode())
->     conn.sendall(b'Hello, client!\n')
->     time.sleep(5)
->     conn.sendall(b'Hello, again!\n')
-> conn.close()
-> 
-> client.py:
-> import socket
-> server_ip = '<server ip>'
-> server_port = 12346
-> resp=b'Hello, client!\nHello, again!\n'
-> client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-> client_socket.connect((server_ip, server_port))
-> request = 'Hello, server!'
-> client_socket.sendall(request.encode())
-> peek_data = client_socket.recv(len(resp),
->     socket.MSG_PEEK | socket.MSG_WAITALL)
-> print('Peeked data:', peek_data.decode())
-> client_socket.close()
-> 
-> Fixes: 952310ccf2d8 ("smc: receive data from RMBE")
-> Reported-by: D. Wythe <alibuda@linux.alibaba.com>
-> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-> ---
->  net/smc/af_smc.c |  2 +-
->  net/smc/smc_rx.c | 37 +++++++++++++++++++++----------------
->  net/smc/smc_rx.h |  8 ++++----
->  3 files changed, 26 insertions(+), 21 deletions(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 6cc7b846cff1..ebc41a7b13db 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2738,7 +2738,7 @@ int smc_accept(struct socket *sock, struct socket *new_sock,
->  			release_sock(clcsk);
->  		} else if (!atomic_read(&smc_sk(nsk)->conn.bytes_to_rcv)) {
->  			lock_sock(nsk);
-> -			smc_rx_wait(smc_sk(nsk), &timeo, smc_rx_data_available);
-> +			smc_rx_wait(smc_sk(nsk), &timeo, 0, smc_rx_data_available);
->  			release_sock(nsk);
->  		}
->  	}
-> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
-> index f0cbe77a80b4..79047721df51 100644
-> --- a/net/smc/smc_rx.c
-> +++ b/net/smc/smc_rx.c
-> @@ -238,22 +238,23 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
->  	return -ENOMEM;
->  }
->  
-> -static int smc_rx_data_available_and_no_splice_pend(struct smc_connection *conn)
-> +static int smc_rx_data_available_and_no_splice_pend(struct smc_connection *conn, size_t peeked)
->  {
-> -	return atomic_read(&conn->bytes_to_rcv) &&
-> +	return smc_rx_data_available(conn, peeked) &&
->  	       !atomic_read(&conn->splice_pending);
->  }
->  
->  /* blocks rcvbuf consumer until >=len bytes available or timeout or interrupted
->   *   @smc    smc socket
->   *   @timeo  pointer to max seconds to wait, pointer to value 0 for no timeout
-> + *   @peeked  number of bytes already peeked
->   *   @fcrit  add'l criterion to evaluate as function pointer
->   * Returns:
->   * 1 if at least 1 byte available in rcvbuf or if socket error/shutdown.
->   * 0 otherwise (nothing in rcvbuf nor timeout, e.g. interrupted).
->   */
-> -int smc_rx_wait(struct smc_sock *smc, long *timeo,
-> -		int (*fcrit)(struct smc_connection *conn))
-> +int smc_rx_wait(struct smc_sock *smc, long *timeo, size_t peeked,
-> +		int (*fcrit)(struct smc_connection *conn, size_t baseline))
->  {
->  	DEFINE_WAIT_FUNC(wait, woken_wake_function);
->  	struct smc_connection *conn = &smc->conn;
-> @@ -262,7 +263,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
->  	struct sock *sk = &smc->sk;
->  	int rc;
->  
-> -	if (fcrit(conn))
-> +	if (fcrit(conn, peeked))
->  		return 1;
->  	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
->  	add_wait_queue(sk_sleep(sk), &wait);
-> @@ -271,7 +272,7 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo,
->  			   cflags->peer_conn_abort ||
->  			   READ_ONCE(sk->sk_shutdown) & RCV_SHUTDOWN ||
->  			   conn->killed ||
-> -			   fcrit(conn),
-> +			   fcrit(conn, peeked),
->  			   &wait);
->  	remove_wait_queue(sk_sleep(sk), &wait);
->  	sk_clear_bit(SOCKWQ_ASYNC_WAITDATA, sk);
-> @@ -322,11 +323,11 @@ static int smc_rx_recv_urg(struct smc_sock *smc, struct msghdr *msg, int len,
->  	return -EAGAIN;
->  }
->  
-> -static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
-> +static bool smc_rx_recvmsg_data_available(struct smc_sock *smc, size_t peeked)
->  {
->  	struct smc_connection *conn = &smc->conn;
->  
-> -	if (smc_rx_data_available(conn))
-> +	if (smc_rx_data_available(conn, peeked))
->  		return true;
->  	else if (conn->urg_state == SMC_URG_VALID)
->  		/* we received a single urgent Byte - skip */
-> @@ -344,10 +345,10 @@ static bool smc_rx_recvmsg_data_available(struct smc_sock *smc)
->  int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->  		   struct pipe_inode_info *pipe, size_t len, int flags)
->  {
-> -	size_t copylen, read_done = 0, read_remaining = len;
-> +	size_t copylen, read_done = 0, read_remaining = len, peeked_bytes = 0;
->  	size_t chunk_len, chunk_off, chunk_len_sum;
->  	struct smc_connection *conn = &smc->conn;
-> -	int (*func)(struct smc_connection *conn);
-> +	int (*func)(struct smc_connection *conn, size_t baseline);
->  	union smc_host_cursor cons;
->  	int readable, chunk;
->  	char *rcvbuf_base;
-> @@ -384,14 +385,14 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->  		if (conn->killed)
->  			break;
->  
-> -		if (smc_rx_recvmsg_data_available(smc))
-> +		if (smc_rx_recvmsg_data_available(smc, peeked_bytes))
->  			goto copy;
->  
->  		if (sk->sk_shutdown & RCV_SHUTDOWN) {
->  			/* smc_cdc_msg_recv_action() could have run after
->  			 * above smc_rx_recvmsg_data_available()
->  			 */
-> -			if (smc_rx_recvmsg_data_available(smc))
-> +			if (smc_rx_recvmsg_data_available(smc, peeked_bytes))
->  				goto copy;
->  			break;
->  		}
-> @@ -425,26 +426,28 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->  			}
->  		}
->  
-> -		if (!smc_rx_data_available(conn)) {
-> -			smc_rx_wait(smc, &timeo, smc_rx_data_available);
-> +		if (!smc_rx_data_available(conn, peeked_bytes)) {
-> +			smc_rx_wait(smc, &timeo, peeked_bytes, smc_rx_data_available);
->  			continue;
->  		}
->  
->  copy:
->  		/* initialize variables for 1st iteration of subsequent loop */
->  		/* could be just 1 byte, even after waiting on data above */
-> -		readable = atomic_read(&conn->bytes_to_rcv);
-> +		readable = smc_rx_data_available(conn, peeked_bytes);
->  		splbytes = atomic_read(&conn->splice_pending);
->  		if (!readable || (msg && splbytes)) {
->  			if (splbytes)
->  				func = smc_rx_data_available_and_no_splice_pend;
->  			else
->  				func = smc_rx_data_available;
-> -			smc_rx_wait(smc, &timeo, func);
-> +			smc_rx_wait(smc, &timeo, peeked_bytes, func);
->  			continue;
->  		}
->  
->  		smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
-> +		if ((flags & MSG_PEEK) && peeked_bytes)
-> +			smc_curs_add(conn->rmb_desc->len, &cons, peeked_bytes);
->  		/* subsequent splice() calls pick up where previous left */
->  		if (splbytes)
->  			smc_curs_add(conn->rmb_desc->len, &cons, splbytes);
-> @@ -480,6 +483,8 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->  			}
->  			read_remaining -= chunk_len;
->  			read_done += chunk_len;
-> +			if (flags & MSG_PEEK)
-> +				peeked_bytes += chunk_len;
->  
->  			if (chunk_len_sum == copylen)
->  				break; /* either on 1st or 2nd iteration */
-> diff --git a/net/smc/smc_rx.h b/net/smc/smc_rx.h
-> index db823c97d824..994f5e42d1ba 100644
-> --- a/net/smc/smc_rx.h
-> +++ b/net/smc/smc_rx.h
-> @@ -21,11 +21,11 @@ void smc_rx_init(struct smc_sock *smc);
->  
->  int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->  		   struct pipe_inode_info *pipe, size_t len, int flags);
-> -int smc_rx_wait(struct smc_sock *smc, long *timeo,
-> -		int (*fcrit)(struct smc_connection *conn));
-> -static inline int smc_rx_data_available(struct smc_connection *conn)
-> +int smc_rx_wait(struct smc_sock *smc, long *timeo, size_t peeked,
-> +		int (*fcrit)(struct smc_connection *conn, size_t baseline));
-> +static inline int smc_rx_data_available(struct smc_connection *conn, size_t peeked)
->  {
-> -	return atomic_read(&conn->bytes_to_rcv);
-> +	return atomic_read(&conn->bytes_to_rcv) - peeked;
->  }
->  
->  #endif /* SMC_RX_H */
+This possible now that memslots are always present.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kvm/kvm-s390.c | 92 +++++++++++++++++++++++++++++++---------
+ arch/s390/mm/gmap.c      |  1 +
+ 2 files changed, 73 insertions(+), 20 deletions(-)
+
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 797b8503c162..8e4e7e45238b 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4794,11 +4794,66 @@ static void kvm_s390_assert_primary_as(struct kvm_vcpu *vcpu)
+ 		current->thread.gmap_int_code, current->thread.gmap_teid.val);
+ }
+ 
++static int kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr,
++				     unsigned int flags)
++{
++	struct kvm_memory_slot *slot;
++	unsigned int fault_flags;
++	bool writable, unlocked;
++	unsigned long vmaddr;
++	struct page *page;
++	kvm_pfn_t pfn;
++	int rc;
++
++	slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
++	if (!slot || slot->flags & KVM_MEMSLOT_INVALID)
++		return vcpu_post_run_addressing_exception(vcpu);
++
++	fault_flags = flags & FOLL_WRITE ? FAULT_FLAG_WRITE : 0;
++	if (vcpu->arch.gmap->pfault_enabled)
++		flags |= FOLL_NOWAIT;
++	vmaddr = __gfn_to_hva_memslot(slot, gfn);
++
++try_again:
++	pfn = __kvm_faultin_pfn(slot, gfn, flags, &writable, &page);
++
++	/* Access outside memory, inject addressing exception */
++	if (is_noslot_pfn(pfn))
++		return vcpu_post_run_addressing_exception(vcpu);
++	/* Signal pending: try again */
++	if (pfn == KVM_PFN_ERR_SIGPENDING)
++		return -EAGAIN;
++
++	/* Needs I/O, try to setup async pfault (only possible with FOLL_NOWAIT) */
++	if (pfn == KVM_PFN_ERR_NEEDS_IO) {
++		trace_kvm_s390_major_guest_pfault(vcpu);
++		if (kvm_arch_setup_async_pf(vcpu))
++			return 0;
++		vcpu->stat.pfault_sync++;
++		/* Could not setup async pfault, try again synchronously */
++		flags &= ~FOLL_NOWAIT;
++		goto try_again;
++	}
++	/* Any other error */
++	if (is_error_pfn(pfn))
++		return -EFAULT;
++
++	/* Success */
++	mmap_read_lock(vcpu->arch.gmap->mm);
++	/* Mark the userspace PTEs as young and/or dirty, to avoid page fault loops */
++	rc = fixup_user_fault(vcpu->arch.gmap->mm, vmaddr, fault_flags, &unlocked);
++	if (!rc)
++		rc = __gmap_link(vcpu->arch.gmap, gaddr, vmaddr);
++	kvm_release_faultin_page(vcpu->kvm, page, false, writable);
++	mmap_read_unlock(vcpu->arch.gmap->mm);
++	return rc;
++}
++
+ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ {
++	unsigned long gaddr, gaddr_tmp;
+ 	unsigned int flags = 0;
+-	unsigned long gaddr;
+-	int rc = 0;
++	gfn_t gfn;
+ 
+ 	gaddr = current->thread.gmap_teid.addr * PAGE_SIZE;
+ 	if (kvm_s390_cur_gmap_fault_is_write())
+@@ -4850,29 +4905,26 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 	case PGM_REGION_SECOND_TRANS:
+ 	case PGM_REGION_THIRD_TRANS:
+ 		kvm_s390_assert_primary_as(vcpu);
+-		if (vcpu->arch.gmap->pfault_enabled) {
+-			rc = gmap_fault(vcpu->arch.gmap, gaddr, flags | FAULT_FLAG_RETRY_NOWAIT);
+-			if (rc == -EFAULT)
+-				return vcpu_post_run_addressing_exception(vcpu);
+-			if (rc == -EAGAIN) {
+-				trace_kvm_s390_major_guest_pfault(vcpu);
+-				if (kvm_arch_setup_async_pf(vcpu))
+-					return 0;
+-				vcpu->stat.pfault_sync++;
+-			} else {
+-				return rc;
+-			}
+-		}
+-		rc = gmap_fault(vcpu->arch.gmap, gaddr, flags);
+-		if (rc == -EFAULT) {
+-			if (kvm_is_ucontrol(vcpu->kvm)) {
++
++		gfn = gpa_to_gfn(gaddr);
++		if (kvm_is_ucontrol(vcpu->kvm)) {
++			/*
++			 * This translates the per-vCPU guest address into a
++			 * fake guest address, which can then be used with the
++			 * fake memslots that are identity mapping userspace.
++			 * This allows ucontrol VMs to use the normal fault
++			 * resolution path, like normal VMs.
++			 */
++			gaddr_tmp = gmap_translate(vcpu->arch.gmap, gaddr);
++			if (gaddr_tmp == -EFAULT) {
+ 				vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
+ 				vcpu->run->s390_ucontrol.trans_exc_code = gaddr;
+ 				vcpu->run->s390_ucontrol.pgm_code = 0x10;
+ 				return -EREMOTE;
+ 			}
+-			return vcpu_post_run_addressing_exception(vcpu);
++			gfn = gpa_to_gfn(gaddr_tmp);
+ 		}
++		return kvm_s390_handle_dat_fault(vcpu, gfn, gaddr, flags);
+ 		break;
+ 	default:
+ 		KVM_BUG(1, vcpu->kvm, "Unexpected program interrupt 0x%x, TEID 0x%016lx",
+@@ -4880,7 +4932,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 		send_sig(SIGSEGV, current, 0);
+ 		break;
+ 	}
+-	return rc;
++	return 0;
+ }
+ 
+ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 16b8a36c56de..3aacef77c174 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -605,6 +605,7 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 	radix_tree_preload_end();
+ 	return rc;
+ }
++EXPORT_SYMBOL(__gmap_link);
+ 
+ /**
+  * fixup_user_fault_nowait - manually resolve a user page fault without waiting
+-- 
+2.47.1
 
