@@ -1,127 +1,69 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86FBC1B0433;
-	Wed,  8 Jan 2025 08:27:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4CACD1ACECE;
+	Wed,  8 Jan 2025 08:31:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736324858; cv=none; b=Uprp5Bk5zdp7O1OaLTq65OZsxk1D+XdTv0tvX+R/c8JpZ0QxFZ5laCcsVWqm4qToLuzggQstw+td687U2NsvUX5CjtZwNZ9WWOeCM064Hm9851DAl/ynkC758lzY8VXAZU6Uic7S3QnQErZ58AT3arRDwN++kvArPKsVNrtBF10=
+	t=1736325080; cv=none; b=lKqeMyu9bBkdqQQTMvuo8UIpVNP4U9u5Xh1lk0ye/6BDuOckzjJOrc0kyBm3zUcyuPBMhtx+7/faidlNvNxf8ToGOTrxRDezCtWB6uQqV4vo9I182t8o4BUt2J5FoXEvhxazNZIJ3Ed9sDfFviHs3z7otFECV9dJBCJvps78lq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736324858; c=relaxed/simple;
-	bh=6z56hOhGs7RA1JlAlzTmWzZJD+rp5GBOOiWJE93mRnM=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=YvJg6JAnzYt5kfyxOs+0or1Y1gp87CSQvY1/ocOMIa4dNsu7UzelleGSx89oMlZVL4pDQydRD2GZm5ZlIaylnKbA/cVEX0iAcNuAmV3Jo3OD9sUA0okVKmZX4G9S62Dc1W21WC1FLVLjZxHwiwOcNgfpLgaAAUbkNs1Cvw7feNc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YyCZ9rh/; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YyCZ9rh/"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5083qeT0015976;
-	Wed, 8 Jan 2025 08:27:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6z56hO
-	hGs7RA1JlAlzTmWzZJD+rp5GBOOiWJE93mRnM=; b=YyCZ9rh/oj3XkQiiw/mz+p
-	LMVPh4/MfJE+FmqHGzYo+GJU7SaM6z/FQLeQrL1rnR9m1JlEsqjhPB2uoo1fR1i/
-	XeahgJp5Yh4BlGcU8eh0gnEyglz+n4ON2LvytefdawSnhSQEZrYZfDQWPB7lIBQd
-	rW88chUsXV87o5h1X0qwxrYPRpCXK724e+gEC1IZKHZW6qbvAjtRP1BLzI4mocoi
-	3F8nfbI6YcXDqWPbJZzaancbQoyEPDygQyeeOtlBO4MCyPkdb1XYp0Pu3OBNF7Oo
-	tULVXDcynfHiytO8SiwUclpggEOoy942gsdGZTBb0xWYmLL/w1KoHNAhaYvgazPg
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441huc12q3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 08:27:28 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 5088RRkp024375;
-	Wed, 8 Jan 2025 08:27:27 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441huc12q0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 08:27:27 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5084oh62008861;
-	Wed, 8 Jan 2025 08:27:26 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43yfpyxwj4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 08:27:26 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5088RMTL57016684
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Jan 2025 08:27:22 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B09F62004B;
-	Wed,  8 Jan 2025 08:27:22 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 456FE20040;
-	Wed,  8 Jan 2025 08:27:21 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.24.235])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  8 Jan 2025 08:27:21 +0000 (GMT)
+	s=arc-20240116; t=1736325080; c=relaxed/simple;
+	bh=lom+i4v3PxfHxmognsFk46EQaMmrjYMhI/xbLHGccvw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Xixq8mCxUXtDLaQIM+7EgqGa2ZOtQMacW4rxjWSTfRTuKYHGahW/ikhzhnhUiFSjAnlKgthD0UepIclJqUwuYoWXHJB2ZunjxHV3A7mGuvfO8Yt9w0zqsJqLE0vSpGQCwt6EFujpfUjTDc51cYGLvU6CpPrMtzaVIUYxdLg2wRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A875312FC;
+	Wed,  8 Jan 2025 00:31:45 -0800 (PST)
+Received: from [10.57.94.52] (unknown [10.57.94.52])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 28A753F59E;
+	Wed,  8 Jan 2025 00:31:08 -0800 (PST)
+Message-ID: <7cf8fa3b-799f-415a-82a1-eee6b7b2e0f5@arm.com>
+Date: Wed, 8 Jan 2025 09:31:06 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 11/17] x86: pgtable: convert __tlb_remove_table() to
+ use struct ptdesc
+To: Qi Zheng <zhengqi.arch@bytedance.com>, peterz@infradead.org,
+ agordeev@linux.ibm.com, alex@ghiti.fr, andreas@gaisler.com,
+ palmer@dabbelt.com, tglx@linutronix.de, david@redhat.com, jannh@google.com,
+ hughd@google.com, yuzhao@google.com, willy@infradead.org,
+ muchun.song@linux.dev, vbabka@kernel.org, lorenzo.stoakes@oracle.com,
+ akpm@linux-foundation.org, rientjes@google.com, vishal.moola@gmail.com,
+ arnd@arndb.de, will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
+ dave.hansen@linux.intel.com, rppt@kernel.org, ryan.roberts@arm.com
+Cc: linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-kernel@vger.kernel.org, x86@kernel.org, linux-arch@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-um@lists.infradead.org
+References: <cover.1736317725.git.zhengqi.arch@bytedance.com>
+ <39f60f93143ff77cf5d6b3c3e75af0ffc1480adb.1736317725.git.zhengqi.arch@bytedance.com>
+Content-Language: en-GB
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+In-Reply-To: <39f60f93143ff77cf5d6b3c3e75af0ffc1480adb.1736317725.git.zhengqi.arch@bytedance.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 08 Jan 2025 09:27:20 +0100
-Message-Id: <D6WJSC67OTP3.2QL240O0BQNGK@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v4 4/6] s390x: Add library functions for
- exiting from snippet
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Nina Schoetterl-Glausch" <nsg@linux.ibm.com>,
-        "Claudio Imbrenda"
- <imbrenda@linux.ibm.com>,
-        "Thomas Huth" <thuth@redhat.com>,
-        "Janosch Frank"
- <frankja@linux.ibm.com>
-Cc: "David Hildenbrand" <david@redhat.com>, <kvm@vger.kernel.org>,
-        "Nicholas
- Piggin" <npiggin@gmail.com>, <linux-s390@vger.kernel.org>
-X-Mailer: aerc 0.18.2
-References: <20241016180320.686132-1-nsg@linux.ibm.com>
- <20241016180320.686132-5-nsg@linux.ibm.com>
- <D67Y11RRNUJ4.3U17EAZFWQR6M@linux.ibm.com>
- <fcc8d46283daa6922c90328a1a8a36b528530166.camel@linux.ibm.com>
-In-Reply-To: <fcc8d46283daa6922c90328a1a8a36b528530166.camel@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AEPIsKA2Ns_lm0_AOx9CAmhJbjkFgwRz
-X-Proofpoint-GUID: DuAEOOGuEV6gKyPS4V8lc84UPMUZYZ9P
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- spamscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=727
- bulkscore=0 mlxscore=0 malwarescore=0 adultscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501080064
+Content-Transfer-Encoding: 7bit
 
-On Thu Dec 12, 2024 at 4:33 PM CET, Nina Schoetterl-Glausch wrote:
-> On Tue, 2024-12-10 at 11:20 +0100, Nico Boehr wrote:
-> > On Wed Oct 16, 2024 at 8:03 PM CEST, Nina Schoetterl-Glausch wrote:
-> > > It is useful to be able to force an exit to the host from the snippet=
-,
-> > > as well as do so while returning a value.
-> > > Add this functionality, also add helper functions for the host to che=
-ck
-> > > for an exit and get or check the value.
-> > > Use diag 0x44 and 0x9c for this.
-> > > Add a guest specific snippet header file and rename snippet.h to refl=
-ect
-> > > that it is host specific.
-> > >=20
-> > > Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> >=20
-> > Hi Nina,
-> >=20
-> > would you mind if I fix this up like this?
+On 08/01/2025 07:57, Qi Zheng wrote:
+> Convert __tlb_remove_table() to use struct ptdesc, which will help to move
+> pagetable_dtor() to __tlb_remove_table().
 >
-> Looks good to me.
-> Thanks!
+> And page tables shouldn't have swap cache, so use pagetable_free() instead
+> of free_page_and_swap_cache() to free page table pages.
+>
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
-Alright, thanks. It's now in the CI for coverage. When no issues come up, I=
- will pick it.
+Definitely a good idea to have split patch 11 from v4.
+
+Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
+
+- Kevin
