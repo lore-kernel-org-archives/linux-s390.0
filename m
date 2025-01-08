@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4E3D1FDE2C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CD3B1FDE2E;
 	Wed,  8 Jan 2025 15:23:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736349840; cv=none; b=quq9qkIOSa1PqSjtMKahfebUv9vBZ5X/q+A7NjdvUDhKiCJsQX9+ip/JDJi0amXspR9nnTOj3h7ah5uWRmgt66ilN0Bwx67XviZebyqBt9lXxwL15Uq7vG9F9KW4VY6qJgJBk7aRH2ZC96OL7ZqNsiqM1dAkD20V35+QE2H6fiM=
+	t=1736349840; cv=none; b=cYQLNkfG0ld8T+tLjtTEnOHLVec4c1mtniK4qNDaGMaTQgC4CZgLbT9Dqtg5TcLGvHWHUN99Wt3uuaYdQ3GDVj1a1uNtmVKikPxmiEzDgIKEpa2XKFnm4Wb2XMENsS+PTLwxmWaz7Q3cuCxY7VoY4qgWuv0n59uRbX0EILLqJRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1736349840; c=relaxed/simple;
-	bh=x5noGS8xATHCvMWIZnBKCz9MWAsrULcTebmrwSiB5mk=;
+	bh=69VnNoJaGD/GItLWdLMsSQE1u38sIvDmMEFDkxhQJzU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=igfH/AU4bB8y8KB29/U/Fy/+i68DE75b1IgI7/at832ahgXg82k7yHF4GjDNaVKFrw8SAMvSsT9z4dilT352TptgHdRLQ8FizI/VtExrf77NNZwTGrb77KuGAGh1GIOGDDMjYJg+bbCRNgoSgORdjiPwQx/FR1c6g5NbgOuId80=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rSIzzBTd; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=ZQquqdcsh6jNOhUWhdWuPb0dRiUl3rRWoydyJ732MB4cjpVKBvvyfvgtBBanfnV+TnZtuDc1RauZaZugvFirsl+AvRtKRRGO09KNlQ4uU36Pv1TQxRUxzYdRkQKaT5myOjOjDOtr6d9NEMFfimuBO9ztQPBxWG1fjISD6HbE5Is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TtPLsisV; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rSIzzBTd"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 508DA0uk029113;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TtPLsisV"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 508DnIxt015803;
 	Wed, 8 Jan 2025 15:23:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ZLHp7TNnsY2FZawg0
-	YD5cr6rGzikUEAmWI7mgkf46Y8=; b=rSIzzBTd4hheEkuPq/Tg4Ida3kqNaM/Qe
-	yo8JNBH+Nz2RvyL4zoZm6t6oO1eO6vvv3waySK8krkSciIlnzbA+nzsR5BBomQd/
-	QWqQwJL8lAqCbgB0dPWrBthA338UoM7BfZqPZyqQZF5e88tJulIy0V75nxtKLR4K
-	QgWxDUm5bPUkQt90/epCHDT2XnLscPUnfprIuvGSZjz/y7zzH/nn0Qarql3UbD7Z
-	TfyhgfYtk8xCxmFlbqPaUC/YWc11XB9XewKbaiwHDh9qa2hq4l2IgQYTL9S15lj/
-	7Wg72cAqU5Wj00GWuf8W9u+bwRF2Ws2RJqniPXyp8aqe/SE0uw8AA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441e3b3mt9-1
+	:mime-version:references:subject:to; s=pp1; bh=PMizD0ef2pkzdNP//
+	d29BRjsMZxgAQwScYuOQ67B6jw=; b=TtPLsisV554CESdqYWnVe9ofJEsY2/zUR
+	3qfyxtFCgmBcZnx4Z0cbtXEk2RsUBKB19JGjx2ZnmY6d5iDC2Q6kqiEeiCw95bjP
+	lQNC7/LQ2280MOdbBq5FTfpVv2/jsTebhy+BGmPCzho7n7UQEyyPwMGrQuOQQlkn
+	emw8wQj3o+FygnDXPV23yrrUTDyqHxh/BhIRAWZ0wdP04h1w8Fj4fMapNE82L9tv
+	YUFmxn8bXIFMJvSYXd+gEtubllhF02Ln4Xm13NUVae/88diG00WrLa8wTEsScWgH
+	e4sMSbHNeg545ZAD1MIWd8jGbiLpT9gJpMAxcaB28DFDomHl0N67w==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 441huc31j6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Jan 2025 15:23:55 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 508DQTNk013648;
+	Wed, 08 Jan 2025 15:23:56 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 508EPdrO027976;
 	Wed, 8 Jan 2025 15:23:55 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygap0a05-1
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yhhk848e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 08 Jan 2025 15:23:55 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 508FNoLk51184068
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 508FNp8M32244412
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Jan 2025 15:23:50 GMT
+	Wed, 8 Jan 2025 15:23:51 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CEA1520043;
-	Wed,  8 Jan 2025 15:23:50 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8EA9220043;
+	Wed,  8 Jan 2025 15:23:51 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF9BB2004F;
-	Wed,  8 Jan 2025 15:23:50 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 703B82004F;
+	Wed,  8 Jan 2025 15:23:51 +0000 (GMT)
 Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  8 Jan 2025 15:23:50 +0000 (GMT)
+	Wed,  8 Jan 2025 15:23:51 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v1 1/6] KVM: s390: vsie: fix virtual/physical address in unpin_scb()
-Date: Wed,  8 Jan 2025 16:23:45 +0100
-Message-ID: <20250108152350.48892-2-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 6/6] KVM: s390: selftests: Add has device attr check to uc_attr_mem_limit selftest
+Date: Wed,  8 Jan 2025 16:23:50 +0100
+Message-ID: <20250108152350.48892-7-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20250108152350.48892-1-imbrenda@linux.ibm.com>
 References: <20250108152350.48892-1-imbrenda@linux.ibm.com>
@@ -70,62 +70,51 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0cC7iXaCv6GGRFAlT7z-Ps5FKENfpf36
-X-Proofpoint-GUID: 0cC7iXaCv6GGRFAlT7z-Ps5FKENfpf36
+X-Proofpoint-ORIG-GUID: vgSJ1KWtWoyB75iTE3JG6Ol9GG1AVKF8
+X-Proofpoint-GUID: vgSJ1KWtWoyB75iTE3JG6Ol9GG1AVKF8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 phishscore=0 impostorscore=0 clxscore=1015 bulkscore=0
- lowpriorityscore=0 mlxlogscore=913 adultscore=0 suspectscore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501080125
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ spamscore=0 phishscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=974
+ bulkscore=0 mlxscore=0 malwarescore=0 adultscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501080125
 
-In commit 77b533411595 ("KVM: s390: VSIE: sort out virtual/physical
-address in pin_guest_page"), only pin_scb() has been updated. This
-means that in unpin_scb() a virtual address was still used directly as
-physical address without conversion. The resulting physical address is
-obviously wrong and most of the time also invalid.
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-Since commit d0ef8d9fbebe ("KVM: s390: Use kvm_release_page_dirty() to
-unpin "struct page" memory"), unpin_guest_page() will directly use
-kvm_release_page_dirty(), instead of kvm_release_pfn_dirty(), which has
-since been removed.
+Fixup the uc_attr_mem_limit test case to also cover the
+KVM_HAS_DEVICE_ATTR ioctl.
 
-One of the checks that were performed by kvm_release_pfn_dirty() was to
-verify whether the page was valid at all, and silently return
-successfully without doing anything if the page was invalid.
-
-When kvm_release_pfn_dirty() was still used, the invalid page was thus
-silently ignored. Now the check is gone and the result is an Oops.
-This also means that when running with a V!=R kernel, the page was not
-released, causing a leak.
-
-The solution is simply to add the missing virt_to_phys().
-
-Fixes: 77b533411595 ("KVM: s390: VSIE: sort out virtual/physical address in pin_guest_page")
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Link: https://lore.kernel.org/r/20241210083948.23963-1-imbrenda@linux.ibm.com
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Tested-by: Hariharan Mari <hari55@linux.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20241216092140.329196-7-schlameuss@linux.ibm.com
+Message-ID: <20241216092140.329196-7-schlameuss@linux.ibm.com>
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-ID: <20241210083948.23963-1-imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/kvm/s390x/ucontrol_test.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 150b9387860a..a687695d8f68 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -854,7 +854,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
- 		      gpa_t gpa)
- {
--	hpa_t hpa = (hpa_t) vsie_page->scb_o;
-+	hpa_t hpa = virt_to_phys(vsie_page->scb_o);
+diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+index 8f306395696e..135ee22856cf 100644
+--- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+@@ -210,10 +210,13 @@ TEST_F(uc_kvm, uc_attr_mem_limit)
+ 	struct kvm_device_attr attr = {
+ 		.group = KVM_S390_VM_MEM_CTRL,
+ 		.attr = KVM_S390_VM_MEM_LIMIT_SIZE,
+-		.addr = (unsigned long)&limit,
++		.addr = (u64)&limit,
+ 	};
+ 	int rc;
  
- 	if (hpa)
- 		unpin_guest_page(vcpu->kvm, gpa, hpa);
++	rc = ioctl(self->vm_fd, KVM_HAS_DEVICE_ATTR, &attr);
++	EXPECT_EQ(0, rc);
++
+ 	rc = ioctl(self->vm_fd, KVM_GET_DEVICE_ATTR, &attr);
+ 	EXPECT_EQ(0, rc);
+ 	EXPECT_EQ(~0UL, limit);
 -- 
 2.47.1
 
