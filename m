@@ -1,63 +1,63 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB162594B6
-	for <linux-s390@vger.kernel.org>; Wed,  8 Jan 2025 04:34:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625C379FE
+	for <linux-s390@vger.kernel.org>; Wed,  8 Jan 2025 04:54:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736310873; cv=none; b=ZkOWzmTmH+5P8REEAH7+GQWbuf+tNIeTsScFR+xhcxPepAi603fjr3SQ2MqP157CFaRb8a6oDTlW5NFLlwr7h81m+i+6UvmChAjZGDZD6uw3pDDczBfj61tA2vnhP66P2UJpUyQ1Zp4MSDPJMIml1dUsoKhFhZYaWInp4c4P6xg=
+	t=1736312043; cv=none; b=QiXJVSd/jzA+QgKCb7dUgP9FBWhrohGfNOrRz08jN1V/lNzy3ji9yxdW5J9slXdKmzd8iJvnCJfXhvOSGJxGkrZydm6AjE5O+3J+mDGqdNPWHtEbt1ZnhC1lcd2Iva3x2eVRhGf1itkcwUAnTH8p+Bd+4QyqrGS3NmOzBq0Ocx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736310873; c=relaxed/simple;
-	bh=7V6JWRfMe2YRHgN0cvVhNfilOVqdetz0ehJc/OcedDk=;
+	s=arc-20240116; t=1736312043; c=relaxed/simple;
+	bh=uyuDNtIOBYqDnWryQRHZ5qBgToQ3gandNYmtpBPm+rw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZnLorzx9/GjVx3BKfHXT5QmUx8RNyRNzdN8LjBa1plk4gIRvwQuJTD1z3TSMOnPWqbWBi4xWslA7odsmH4WpFGidvTobqaBhSoKZdRQ2sEdrfBsX8g00eAT17HeN3LEUoiIlBHTl20F5J0Sg2wRdjJaUyhW7/PQ5epf6zGHghRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=rUX8V8fL; arc=none smtp.client-ip=209.85.216.53
+	 In-Reply-To:Content-Type; b=TeKdyIt0taqBKhlgwZrwBdrzoYM/0Qk88OEbv2PEqQBzGoP8FZgtNu4xUoIMjz4yAKg/Q20El3b09o06ajw2TllBZYKlH7T83Bkf5j1kcfNVZOSQtflIBtBs9C8Je92gxQj31aJ5fJZQkXa1Hw6ekyZ4QZ/t0lBz89vO+8FYCU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=T9UM9MYn; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="rUX8V8fL"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2ef748105deso18423850a91.1
-        for <linux-s390@vger.kernel.org>; Tue, 07 Jan 2025 20:34:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="T9UM9MYn"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2efb17478adso23670635a91.1
+        for <linux-s390@vger.kernel.org>; Tue, 07 Jan 2025 20:54:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736310871; x=1736915671; darn=vger.kernel.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736312040; x=1736916840; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=l5qyePdTQsadGlhhkm88UTLOJyB05IwMsFPhm2KKy5k=;
-        b=rUX8V8fLWu02Zq/GmPWDRo3naBb8VY7uymTXm1e7xyxY98iSAwTBWcEl8MbcPoJSkp
-         T0Ro/SZ/R1KJGzmChaceLhgWDx0WfXvDhH5hVW/dz9TUu+2VViZ9UVo0Pf4q4r8Ov7K0
-         L5XM/y9BgShFkHFvx/RZ+HU/Ni9qR26zg+XM33N6DEzGRKzJnNfzsQEtXhxQdy3rjLjl
-         RBAyuoZDUcgFmIHqO4TqVfxmiSu3tmi9yEErnmO/Sg+Zj5a9r9b+noQWNoiQnKOdwu/I
-         yexa7gP6uadnr28uflZQBPbdQhwzdsv0P6fJ2P/mop6rJrODrXZU7PAWMJkPTJI68yYd
-         jRrg==
+        bh=NTAeASi7vVObUDW8V2zM5ksK3/uTU7NPiyOQuEofviY=;
+        b=T9UM9MYnJAYDup3XaXKe6FaHMEqXE6bUv5D1cJocXi0GJsyeArPdMbZHAg0CBAcGxh
+         PuVoL7QmyBFDp22EV21u8R8765Mun1IKil1uYvidEK6q/OwtMrZOp9zICYsTyxZOF9S4
+         MsERuJ+5AtQQHYKDqAlUJypCmvxgToWiuAJPnC3pCcB05zSUHUq86xg7oak+JLp4XQj5
+         lw3qyNc+TNMsOjZ0H0l+/tw72ROdlMbxyyeG5HQiN6OfX+sgoFlhCbQZJxstUCFq7vty
+         ebCv3kkuCh2hvHmvbvmDVohkiKIU8lPO9QIWVgjzYLjc7NXtBAqa2B1swWPfpX2UCUfs
+         Sh5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736310871; x=1736915671;
+        d=1e100.net; s=20230601; t=1736312040; x=1736916840;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=l5qyePdTQsadGlhhkm88UTLOJyB05IwMsFPhm2KKy5k=;
-        b=vIieBC9oUv5HwwY2nVuMTHX3R4ol6nME8m3/11BP8iW6HRmjLJWs5ht5ejCPCa/goX
-         G6aNFnMyNoM6cwo3ghRsH42R2guXkK997nYa4D0y/KI9jw3Wy8VlgRCOSAREKyGHE+BE
-         wyJtR+hEQgSECt5cnur+9NdEm2k0/x5g4G+BtKX2F38jXI2kYszIdRO9h1XeBG4I5E/L
-         tyF+dNY7bjrCAw29OQ5cFbHkq6P9pNZ8qyvo2UK6iQ7yrGifESQYWVwqqOD8SpHjzIvN
-         VBiuk7/Rpav78jiACewa9QjgRaJtNwrxIaLzhmlMqmbEXBDIazYIFStzvFUQhHoWZaUQ
-         G9/A==
-X-Forwarded-Encrypted: i=1; AJvYcCUGS7SzDNM7zKkpeVUAgtzVP/zJWy4GanQNnLjc0Idt/RmrY1V8hthkco7dfM7I0ZgCpyN3PSGdlGdX@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy34jPU6iGYLORtA/GdNnMcjaA0LIyIU/k8KWpCufE7fVNYJKnV
-	L4FRu/4+R1hh1atRXBOQztdFVZO55SmR1d28EuWftwbgpw7HFQV11UJtogIYgz8=
-X-Gm-Gg: ASbGnct6HuDdGSorNiYwugpV55YpnrcLXHLTs/YEf+iicRJ0yc9RSljC5r5aXDxtPo5
-	YZdWFuwKRP5apOJDlYnXHmF1KbxYABY6J6ww7d9sAzmF/D0zqNjOKxlbRJRHEyTxH/zAQHss982
-	mex1R7J42UNUmWwYvyd6WMIQAQuaZJeWTUhb/Cph7waVbPJ7DWCzKHojv4H1618KTMcXXkNd628
-	44/I1iLlbyqNFWathYhDRNc5J6OCcZOR4fg1f1aMD8gFklWF1ax18+NRRSonF/g1Dc=
-X-Google-Smtp-Source: AGHT+IGQRKZLowOpLDJxDKDC4Zdlnk/imeV0cILJj+G12S7tUJ9/SfK9Sf0wRtST8EIlv//HMUuIqA==
-X-Received: by 2002:a17:90b:3bc4:b0:2f4:43ce:dcea with SMTP id 98e67ed59e1d1-2f548f1edafmr2196020a91.25.1736310871016;
-        Tue, 07 Jan 2025 20:34:31 -0800 (PST)
+        bh=NTAeASi7vVObUDW8V2zM5ksK3/uTU7NPiyOQuEofviY=;
+        b=ECB0QO7nlcVQ8k6kkXlzw8ki0MuzeB87RxYwf7in8aSPLnMjmxmu5a0nttKJXuD2pm
+         zUAzW0jvHBiZuflBPbN9mwGKENGe1AQu3YVZnji8ZFuAWp1FIA6PvAaAa9cgIoJqjA5H
+         d1nygy7H0AGemxdeuMPS/gI3sWAR3hpogz5uslkp76+t6ruJ/hWFcR1VuLIwIUu9Kdf0
+         VLMTLoni5zfht2tbfiwjlgkbcAWWje8gI/4ZrN+obtg+tyezH+JKpNa63wfdta9t1ko9
+         UGGIUkv8ANM4pMIjNxd19vAGAbLRqyZiLe9UoLoo7qIhxjMdiM5tTcUnP3MsYfRS1e/6
+         Qshw==
+X-Forwarded-Encrypted: i=1; AJvYcCWtN2qxUihAabARYbmbRFMDseMs2EGy7MxuuLYiCjJxpdLJEm6bPJ0pwHVvzxSOJvExIXHKI+iJVGwH@vger.kernel.org
+X-Gm-Message-State: AOJu0YxgiktOYksMyiAeok9NVQ5yoVFAKo9pnuYo6ppECw3jPSNaidKY
+	JH+v6v3qhnWwdHZCRTgQduTBJoMCEnH5yo6UQKs/pgwqtLPgocsk6YozOvwn6N8=
+X-Gm-Gg: ASbGncsQHHf5NgEfpIIH6JTgeh1kW9nvlTJrns+RLvUFZdQXi6YWp0c3CAAqXTF1rxO
+	C4/fAubdlEDqHSXm7+lmWzaddctccDeq50Chu44c2OFXCu63+ixAJWRSTcT9/bkSXrUEd7k6YVQ
+	qSTN5SI1TNfzhvq5CNBfGlKiPeuiQYm4gSlNNgpTaVtzgnVe8PdI9IJy7A6e2S+flpn2BdPu0+E
+	7cRb9W+5ri0s5fW+uGdRd94piGdmrtH6Kaa7knDqg9nml6in1ht9ydJ0hKIOfEd+lY=
+X-Google-Smtp-Source: AGHT+IGF/lDnmbVBM65O0BZ//6tKBYkr4Hn46ySNw0SXEM+WKDuSN4ZlNc368YPeAlJVvXi3c8brJg==
+X-Received: by 2002:a05:6a00:1385:b0:72a:aa0f:c86e with SMTP id d2e1a72fcca58-72d21f17738mr1884512b3a.4.1736312039609;
+        Tue, 07 Jan 2025 20:53:59 -0800 (PST)
 Received: from [157.82.203.37] ([157.82.203.37])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f54a34d91bsm448853a91.32.2025.01.07.20.34.26
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-72d012b1de0sm4918303b3a.80.2025.01.07.20.53.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jan 2025 20:34:30 -0800 (PST)
-Message-ID: <2c6f2c95-b2fc-46e0-91ce-1b9f14b28d3d@daynix.com>
-Date: Wed, 8 Jan 2025 13:34:24 +0900
+        Tue, 07 Jan 2025 20:53:59 -0800 (PST)
+Message-ID: <965b73e7-d0a3-4fae-b0ec-70b5497cb6c4@daynix.com>
+Date: Wed, 8 Jan 2025 13:53:51 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,8 +65,11 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/6] binfmt_elf: Use note name macros
-To: Dave Martin <Dave.Martin@arm.com>
+Subject: Re: [PATCH v3 5/6] s390/crash: Use note name macros
+To: Dave Martin <Dave.Martin@arm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>
 Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
  Catalin Marinas <catalin.marinas@arm.com>, Mark Brown <broonie@kernel.org>,
  Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
@@ -75,116 +78,129 @@ Cc: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>,
  linux-s390@vger.kernel.org, kexec@lists.infradead.org,
  binutils@sourceware.org, devel@daynix.com
 References: <20250107-elf-v3-0-99cb505b1ab2@daynix.com>
- <20250107-elf-v3-2-99cb505b1ab2@daynix.com>
- <Z31T0dMgMucke5KS@e133380.arm.com>
+ <20250107-elf-v3-5-99cb505b1ab2@daynix.com>
+ <Z31Tp0nMhb/ntUW0@e133380.arm.com>
 Content-Language: en-US
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <Z31T0dMgMucke5KS@e133380.arm.com>
+In-Reply-To: <Z31Tp0nMhb/ntUW0@e133380.arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2025/01/08 1:18, Dave Martin wrote:
-> On Tue, Jan 07, 2025 at 09:45:53PM +0900, Akihiko Odaki wrote:
+On 2025/01/08 1:17, Dave Martin wrote:
+> Hi,
+> 
+> On Tue, Jan 07, 2025 at 09:45:56PM +0900, Akihiko Odaki wrote:
 >> Use note name macros to match with the userspace's expectation.
-> 
-> Also (and more importantly) get rid of duplicated knowledge about the
-> mapping of note types to note names, so that elf.h is the authoritative
-> source of this information?
-> 
 >>
 >> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
->> Acked-by: Baoquan He <bhe@redhat.com>
 >> ---
->>   fs/binfmt_elf.c       | 21 ++++++++++-----------
->>   fs/binfmt_elf_fdpic.c |  8 ++++----
->>   2 files changed, 14 insertions(+), 15 deletions(-)
+>>   arch/s390/kernel/crash_dump.c | 62 ++++++++++++++++---------------------------
+>>   1 file changed, 23 insertions(+), 39 deletions(-)
 >>
->> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
->> index 106f0e8af177..5b4a92e5e508 100644
->> --- a/fs/binfmt_elf.c
->> +++ b/fs/binfmt_elf.c
+>> diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
 > 
 > [...]
 > 
->> @@ -1538,7 +1538,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
->>   	do
->>   		i += 2;
->>   	while (auxv[i - 2] != AT_NULL);
->> -	fill_note(&auxv_note, "CORE", NT_AUXV, i * sizeof(elf_addr_t), auxv);
->> +	fill_note(&auxv_note, NN_AUXV, NT_AUXV, i * sizeof(elf_addr_t), auxv);
->>   	thread_status_size += notesize(&auxv_note);
+>> @@ -281,10 +272,8 @@ static void *nt_init_name(void *buf, Elf64_Word type, void *desc, int d_len,
+>>   	return PTR_ADD(buf, len);
+>>   }
 >>   
->>   	offset = sizeof(*elf);				/* ELF header */
+>> -static inline void *nt_init(void *buf, Elf64_Word type, void *desc, int d_len)
+>> -{
+>> -	return nt_init_name(buf, type, desc, d_len, nt_name(type));
+>> -}
+>> +#define NT_INIT(buf, type, desc) \
+>> +	(nt_init_name((buf), NT_ ## type, &(desc), sizeof(desc), NN_ ## type))
 > 
-> Looking at this code, it appears that the right name is explicitly
-> taken from elf.h for a few specific notes, but for those that are
-> specified by the arch code (e.g., in struct user_regset entries) the
-> name is still guessed locally:
+> Nit: this macro name clashes with the naming scheme in elf.h.
 > 
-> static int fill_thread_core_info(...) {
-> 
-> ...
-> 
-> 	fill_note(&t->notes[note_iter], is_fpreg ? "CORE" : "LINUX",
-> 		note_type, ret, data);
-> 
-> 
-> It would be preferable to clean this up if we want elf.h to be the
-> authoritative source for the names.
+> I think that there is a (weak) convention that macros with upper-case
+> names don't expand to a C function call; thus, a macro with an upper-
+> case name can be invoked in places where a C function call would not be
+> allowed.  (This convention is not followed everywhere, though -- it's
+> up to the maintainer what they prefer here.)
 
-If we want elf.h to be the authoritative source, yes, but I like the 
-current form as it ensures nobody adds a note with a name different from 
-"LINUX" and it is also simpler. There is a trade-off so I'd like to keep 
-the current form unless anyone has a strong preference for one option.
+I wanted to clarify it is a macro as it concatenates tokens with ##, but 
+I also find there are many macros that are named lower-case and performs 
+token concatenation.
 
-Regards,
-Akihiko Odaki
+S390 maintainers, please tell usr your opinion.
 
 > 
-> It would be possible to add a .core_note_name entry in struct
-> user_regset, and define a helper macro to populate the note type and
-> name, something like the following:
+> (Note also, the outer parentheses and the parentheses around (buf)
+> appear redundant -- although harmless?)
+
+They only make a difference in trivial corner cases and may look 
+needlessly verbose.
+
 > 
-> struct user_regset {
-> 	...
-> 	unsigned int core_note_type;
-> +	unsigned int core_note_name;
-> };
+>>   
+>>   /*
+>>    * Calculate the size of ELF note
+>> @@ -300,10 +289,7 @@ static size_t nt_size_name(int d_len, const char *name)
+>>   	return size;
+>>   }
+>>   
+>> -static inline size_t nt_size(Elf64_Word type, int d_len)
+>> -{
+>> -	return nt_size_name(d_len, nt_name(type));
+>> -}
+>> +#define NT_SIZE(type, desc) (nt_size_name(sizeof(desc), NN_ ## type))
 > 
-> #define USER_REGSET_NOTE_TYPE(type) \
-> 	.core_note_type = NT_ ## type, \
-> 	.core_note_name = NN_ ## name,
+> Nit: name prefix clash (again); possibly redundant parentheses.
 > 
-> ...and then replace every .core_note_type assignment with an invocation
-> of this macro.  A quick git grep should easily find all the affected
-> cases.
+> [...]
 > 
+>> @@ -348,16 +332,16 @@ static size_t get_cpu_elf_notes_size(void)
+>>   	struct save_area *sa = NULL;
+>>   	size_t size;
+>>   
+>> -	size =	nt_size(NT_PRSTATUS, sizeof(struct elf_prstatus));
+>> -	size +=  nt_size(NT_PRFPREG, sizeof(elf_fpregset_t));
+>> -	size +=  nt_size(NT_S390_TIMER, sizeof(sa->timer));
+>> -	size +=  nt_size(NT_S390_TODCMP, sizeof(sa->todcmp));
+>> -	size +=  nt_size(NT_S390_TODPREG, sizeof(sa->todpreg));
+>> -	size +=  nt_size(NT_S390_CTRS, sizeof(sa->ctrs));
+>> -	size +=  nt_size(NT_S390_PREFIX, sizeof(sa->prefix));
+>> +	size =	NT_SIZE(PRSTATUS, struct elf_prstatus);
+>> +	size +=  NT_SIZE(PRFPREG, elf_fpregset_t);
+>> +	size +=  NT_SIZE(S390_TIMER, sa->timer);
+>> +	size +=  NT_SIZE(S390_TODCMP, sa->todcmp);
+>> +	size +=  NT_SIZE(S390_TODPREG, sa->todpreg);
+>> +	size +=  NT_SIZE(S390_CTRS, sa->ctrs);
+>> +	size +=  NT_SIZE(S390_PREFIX, sa->prefix);
 > 
-> Alternatively, as discussed in the last review round, a helper could
-> be defined to get the name for a note type:
+> It might be worth fixing the funny spacing on these lines, since all
+> the affected lines are being replaced.
 > 
-> const char *elf_note_name(int Elf32_Word n_type)
-> {
-> 	switch (n_type) {
-> 	case NT_PRSTATUS:	return NN_PRSTATUS;
-> 	case NT_PRFPREG:	return NN_PRFPREG;
-> 	/* ...and all the rest..., then: */
+>>   	if (cpu_has_vx()) {
+>> -		size += nt_size(NT_S390_VXRS_HIGH, sizeof(sa->vxrs_high));
+>> -		size += nt_size(NT_S390_VXRS_LOW, sizeof(sa->vxrs_low));
+>> +		size += NT_SIZE(S390_VXRS_HIGH, sa->vxrs_high);
+>> +		size += NT_SIZE(S390_VXRS_LOW, sa->vxrs_low);
+>>   	}
+>>   
+>>   	return size;
+>> @@ -373,7 +357,7 @@ static void *nt_prpsinfo(void *ptr)
+>>   	memset(&prpsinfo, 0, sizeof(prpsinfo));
+>>   	prpsinfo.pr_sname = 'R';
+>>   	strcpy(prpsinfo.pr_fname, "vmlinux");
+>> -	return nt_init(ptr, NT_PRPSINFO, &prpsinfo, sizeof(prpsinfo));
+>> +	return NT_INIT(ptr, PRPSINFO, prpsinfo);
+>>   }
+>>   
+>>   /*
+>> @@ -589,7 +573,7 @@ static size_t get_elfcorehdr_size(int phdr_count)
+>>   	/* PT_NOTES */
+>>   	size += sizeof(Elf64_Phdr);
+>>   	/* nt_prpsinfo */
+>> -	size += nt_size(NT_PRPSINFO, sizeof(struct elf_prpsinfo));
+>> +	size += NT_SIZE(PRPSINFO, struct elf_prpsinfo);
+>>   	/* regsets */
+>>   	size += get_cpu_cnt() * get_cpu_elf_notes_size();
+>>   	/* nt_vmcoreinfo */
 > 
-> 	default:
-> 		WARN();
-> 		return "LINUX";
-> 	}
-> }
-> 
-> This avoids the caller having to specify the name explicitly, but only
-> works if all the n_type values are unique for the note types that Linux
-> knows about (currently true).
-> 
-> Experimenting with this shows that GCC 11.4.0 (for example) doesn't do
-> a very good job with this switch, though, and it requires building
-> knowledge about irrelevant arch-specific note types into every kernel.
-> I think that extending struct user_regset is probably the better
-> approach -- though other people may disagree.
+> Otherwise, this looks sensible to me.
 > 
 > Cheers
 > ---Dave
