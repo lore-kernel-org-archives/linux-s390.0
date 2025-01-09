@@ -1,112 +1,120 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C83A10A3E;
-	Thu,  9 Jan 2025 08:08:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA861474A9;
+	Thu,  9 Jan 2025 08:28:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736410132; cv=none; b=hLNRdPHe/6GkFgKNKpgIPDgw7ZnBFbCAhOtKzVdKvTDDGx8nkZGMTYihDmGJY8GG0k7vSD4GIV33g3F+0Jg4IavgpQVl2XwUQ5qZs6riexrR9mxIusLgxTeUkLeJEvBcyTK2cV7MXgYbci30EiTlJnuksD0F3PpCrrVnzPFE9c8=
+	t=1736411323; cv=none; b=ZUSjVCH0/W9uSLcTbFC9ltLuxLl2XJOzAHp+pq7rvLUg7YciLOM3XvKPeDe81QxJS9LhGGHA2thRLmbgRBiXuxasfOm73m5/hPO0pXo0jpQr/9rQCEGpgmSwKDufaOkJ1gW88zZA6rCJWPx6iI5SaRbtIAnE1n/IT3O9Dd8dvwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736410132; c=relaxed/simple;
-	bh=o4yEtcNVMOgYLoIF5l3nod1UNaP471pYQcOciahrPGk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SwdP1iOH8RfhsPle4tZH0Xu7CYFP+my5qES5l9I4F+tlgezHFgEgPJJ7qrZZNZOk+4/ft/7trCJBwdLLbfh2zRfqUQvh0CLPyWgKKljORcixJGdmIMva6QgS8Kggdv4naTAB9XX2sjpmtbvt28VEIofA0/KqNMsJQtuUuaLll6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RXiVmWjs; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736411323; c=relaxed/simple;
+	bh=1/qBE3/GdcGQ/2g5qMOGSRv7sxaWW6lgwTrmVZVdbr8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RGAlpAj82jCfvt7+fSApiGe4S//Oi7vBbey0uHtvfS3YwWmzWoLFdSq2n8bZ1qbILKkWLL88XLIe734i2v10bhtCun5QA61F8iqgq8gA2VATzJdGe4h0yfXiogi2/vJBXPa2E/X9vU8NOnmHE9p+T/59ftJGyIoeBsfGy6QTKzA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CIGUOhYX; arc=none smtp.client-ip=209.85.219.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RXiVmWjs"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5093qYMP005342;
-	Thu, 9 Jan 2025 08:08:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=t7jVA7gUFV8nKFnPRMMn6jD3jPlBdQ
-	FcYfqooydXZjk=; b=RXiVmWjsGdK9RGU7o0Ibns9BD5fU+4HbpdDbNIylhyU6Oo
-	L3I8a2/lkVWzwZtSjOSP2rSMNg9gmalPW9HpagMj3iFuuQCAF9NTlacFLUxJklVl
-	tP4gN48UqiNueq62bCc1ksQ3BNsO2WyYJZOT6hNh5mnzAPclJkYBflIFqQrzt6dr
-	Qw1QnsMQRjkfR6pIV0Alp9zgoaRqGif4/CWINq7yMZ8+DsNCrMos8OBBLENTavjb
-	iLut5jk6A0+Hw2exwU574utIjwyzShqSr1wHaxOO6XKCFwPmIbkEeZvDv8wWlCXg
-	OBntWzCH9eAybX4Agx/nTXv7cHdAdZ3qNIiXPFnQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4426xc8xts-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jan 2025 08:08:46 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50987u7p024676;
-	Thu, 9 Jan 2025 08:08:45 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4426xc8xtn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jan 2025 08:08:45 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5097ju2H008851;
-	Thu, 9 Jan 2025 08:08:44 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43yfq04a1a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jan 2025 08:08:44 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50988gb712452238
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Jan 2025 08:08:42 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5597820043;
-	Thu,  9 Jan 2025 08:08:42 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DA79B20040;
-	Thu,  9 Jan 2025 08:08:41 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.27.187])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  9 Jan 2025 08:08:41 +0000 (GMT)
-Date: Thu, 9 Jan 2025 09:08:40 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Guo Weikang <guoweikang.kernel@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] arch/s390: save_area_alloc default failure behavior
- changed to panic
-Message-ID: <Z3+ECLf7LHQe+Mdq@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250109033136.2845676-1-guoweikang.kernel@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CIGUOhYX"
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e461015fbd4so812438276.2;
+        Thu, 09 Jan 2025 00:28:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1736411321; x=1737016121; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2ntTkjgxuiepBBR2xyDwRTMrrHsN8lAhMeazmuGXDzY=;
+        b=CIGUOhYXLx5ryhGawLNQVEU2evvcwW5JqxTopFrQGT+RUbx+Arz5lWYUNhHaK+E7Kw
+         vqpZmuQxa/wZEc5Kafj1KE4g0+C9fAop/TPqjudGgIJ6rVwU/CTIq33tiZRlsrzJIAxj
+         ab7AiIPJDCPNRU0NLrEk3u1DMhm5vr4n+Rgf69cJMtNqDRdNvGSB5zUrk83qmDjWTWh7
+         jX/Q50SLfJ8tMfON4X2OwOiVBfOeBq8zzbZZJqCY0I9Lim4yg3tUSrXaG1RDM92R5QJ/
+         GauqfYVkWohNaawDFQRrNslz0X4gUghlD+2R4lal202ZyhRh4qsZ3Shm99hnq7Mmimue
+         sJ6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736411321; x=1737016121;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2ntTkjgxuiepBBR2xyDwRTMrrHsN8lAhMeazmuGXDzY=;
+        b=NE8iRvlMozsj/S91FXEz44X3aimLjab8lf7JhZnZ+1421QxZ2CWCYfb7ObkjZp5g9N
+         zL45eb7RFIg0q4riLUa9jdZJl6Ofc7Ts8lKjt/Dl1QTQOmYCX8WgRRm14NobJoq0BBNy
+         P3bOGNCYSAy9A09oiElj8UEBwY6iox7mn5ZM5tuDkH9kmimbpfIIxDOaoD5/jT0Egtj6
+         PLBagqKNFySeehbkND5Wt/KeeQB+KA8gL7QydtPFwQDBmo3lYNVvm3PfWjWPf9xukQN6
+         Qfj9zjNx5+kxADHVoM8x5igrLvbhQPe+iQM9Zg3VpL/gsKXLtMBmfvxERQpFWe0Mha3U
+         NgNw==
+X-Forwarded-Encrypted: i=1; AJvYcCV0UGB/2h5RDxSIZN5YsCc6vCHlBJGozJ+BqEVjvp1nXvDn7UNR53Nvm4i9vcnd+f5tmVWP+LFHDvyEdw==@vger.kernel.org, AJvYcCVVTuGB7vXrDit8o7jpKhF5/xrdaRK8CFCmbUjBQp8Fgw/ugGPSdouOz1qISCsQzm3SlXP2tBmZdNLPX20=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYrVY9ykS11FVMsfh9Ny/f0ZY8xraaDKSSYTSn2/duUqkYaJbZ
+	69MyRMz+meBSWSD9cFfL+ELyG+9f7KJkUZWp/rcPqfjCtDs+UOhgTuhkoZuVNmsmk500+QtYEpa
+	ZL7k+7GEMrK8E8F/IXf5nXVqlgUPE0aw10lbdcWZG
+X-Gm-Gg: ASbGncvAVHGB1rFCYLbvV6TcoXuXE45SdniUluJ13f3JrytznPGqXAykc14Qk/Bz3SO
+	yUmnEJ+MRi5ksk36FlPP5me+yk916GdfHYXDova0=
+X-Google-Smtp-Source: AGHT+IEKF8udQ2Qn4PyN8Z0ntaVBS7+cYzu4t1/vdCcPo9D8nlW2XNm3khBGrnY9SBS+bCKPiIkDm01iSjrROyBRkTg=
+X-Received: by 2002:a05:690c:62c8:b0:6ea:98d8:a61 with SMTP id
+ 00721157ae682-6f5312d6badmr54247427b3.28.1736411321112; Thu, 09 Jan 2025
+ 00:28:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250109033136.2845676-1-guoweikang.kernel@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qa7FqO4BukFwIvguM1u5zT0yxgNqpVDg
-X-Proofpoint-ORIG-GUID: dEKN7p7U_xs-QV3NF_qGAVjkApnzna6u
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 phishscore=0 suspectscore=0 adultscore=0
- impostorscore=0 mlxscore=0 malwarescore=0 spamscore=0 bulkscore=0
- mlxlogscore=502 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2501090065
+References: <20250109033136.2845676-1-guoweikang.kernel@gmail.com> <Z3+ECLf7LHQe+Mdq@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+In-Reply-To: <Z3+ECLf7LHQe+Mdq@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+From: Weikang Guo <guoweikang.kernel@gmail.com>
+Date: Thu, 9 Jan 2025 16:28:06 +0800
+X-Gm-Features: AbW1kvbIcLva0XRIP8n0t9SsnPvuIwbBVTfP2lt7L9s7M3vdIL_igJWGPbxJZsI
+Message-ID: <CAOm6qnkoKjrUXCbhCiSYviuwCRVES1FYCy17fwATtyZ+M=Aw7g@mail.gmail.com>
+Subject: Re: [PATCH] arch/s390: save_area_alloc default failure behavior
+ changed to panic
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 09, 2025 at 11:31:36AM +0800, Guo Weikang wrote:
+Hi, Alexander
 
-Hi Guo,
+>
+> Alexander Gordeev <agordeev@linux.ibm.com> wrote on Thursday, 9 January 2=
+025 16:08
+>
+> On Thu, Jan 09, 2025 at 11:31:36AM +0800, Guo Weikang wrote:
+>
+> Hi Guo,
+>
+> > Now with the memblock_alloc_or_panic interface, save_area_alloc no long=
+er
+> > needs to handle panic itself.
+> >
+> > Signed-off-by: Guo Weikang <guoweikang.kernel@gmail.com>
+> > ---
+> >  arch/s390/kernel/crash_dump.c | 4 +---
+> >  arch/s390/kernel/numa.c       | 3 +--
+> >  arch/s390/kernel/smp.c        | 4 ----
+> >  3 files changed, 2 insertions(+), 9 deletions(-)
+>
+> This patch is a follow-up to v7, but instead it needs to be part of v8.
+> I guess Andrew would refresh mm-everything (or whatever he finds appropri=
+ate)
+> with the new version.
 
-> Now with the memblock_alloc_or_panic interface, save_area_alloc no longer
-> needs to handle panic itself.
-> 
-> Signed-off-by: Guo Weikang <guoweikang.kernel@gmail.com>
-> ---
->  arch/s390/kernel/crash_dump.c | 4 +---
->  arch/s390/kernel/numa.c       | 3 +--
->  arch/s390/kernel/smp.c        | 4 ----
->  3 files changed, 2 insertions(+), 9 deletions(-)
+Sorry to confuse you, `memblock_alloc_or_panic`  is already merged
+into mm/mm-everything
+by Andrew, so this is an additional patch specifically to fix the
+problem you mentioned.
 
-This patch is a follow-up to v7, but instead it needs to be part of v8.
-I guess Andrew would refresh mm-everything (or whatever he finds appropriate)
-with the new version.
+This patch is based on the latest mm/mm-everything branch, and it  has
+also been merged
+by  Andrew=EF=BC=8CYou should have received the email.
 
-@Andrew, please correct me if I am wroing.
+@Alexander  I hope I cleared your confusion.  ^ ^
 
-Thanks!
+>
+> @Andrew, please correct me if I am wroing.
+>
+> Thanks!
+
+
+Best regards.
+---
+Guo
