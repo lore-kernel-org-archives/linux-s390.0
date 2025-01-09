@@ -1,137 +1,139 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54A8E215187;
-	Thu,  9 Jan 2025 09:51:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4FA41A23B0;
+	Thu,  9 Jan 2025 11:55:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736416276; cv=none; b=rSTrC9kSnkZrcsVvreTrpG+GLolZWCi19FfOvKjYAx6xTzy5cuBo3o/pmF0P4LHskz3l1U+v0k84GzDn1vbgIpR+oLT4r45iCm6qU5xD7i1SgZnsCSv/ozixJP/Su6lRbgCE/b5xAq8C0lsjxXIAS8fXdoQkXeF4AdIF7+eahlI=
+	t=1736423726; cv=none; b=aWndq0gcDUU65xO56qSdH+7NDJrdnujP8fv4muu/K11JxwjN9j1qqv39+W5jv360aslShcaox+PZXpNfNZWbrVKwMQlfaUZRtPDlxTo2KiweW0MtyE87vF0Rvl/67P0gfPfbzpZYM4TEjEJL4vpzGeOWUtPWFC19A+ujlSNnJB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736416276; c=relaxed/simple;
-	bh=Gg+Y5yDS6mn0qrYlJhaeEfkWDq/ZXijycyjez1j1x+s=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=R9jLdvWc9EfSAB5LJvW3XUU2t61HE/Nj3A0FMkO4fPciB/hHkSvZuvU6m0C//G1ORt5dJlCHQwC+LyCxpMCTQ8KenokHPmlksYr1xTBeMZ5YlEISsK05N8Jnvm/c+ybhSv/h5J4V6d1RQ9+u3I6r/j3VYx/pk85HUyyPmNlB7n4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i6dZ7MS8; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1736423726; c=relaxed/simple;
+	bh=D3sA98W32+zngVbnalNpt0EtP/yVNDM4WQtJkKd3srk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dF77KBIbKasAvH7fpDo0SvI4qzE3z38ESan405k4ds1KYyZ1Y8kS6ydrXMMnSvq+aMRJ7sVi9Y+VOnlON5kBiLNhlCqf7SgAFiCic4G9ZRna1ucg5dDnhprQhBgo0r0VH5JBwfDW7posBI06j89SA1u7tzZG/oqBlLpXj+eIp/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HU3Eulhe; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i6dZ7MS8"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5093shRD009879;
-	Thu, 9 Jan 2025 09:51:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HU3Eulhe"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 509864T9022893;
+	Thu, 9 Jan 2025 11:55:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JTtRDv
-	KOF4kAHsP+hDLCC9JccbrM01VfizVNYVFgGjY=; b=i6dZ7MS8GjxJ1JoXcPN6A8
-	EYLCcDqKsF2gvFa9ef7Exx3QRPh9o8ED+q0aSOQA1SNHX77/bj31hyOKugFSYzee
-	UwisfoSS3rcOdgpD9AG1BLENAPNDSNd+u1skkc5BYoJXUQUyS3zvRq/CRgI4xsX2
-	3aBXOQzo8HAgEDdmXcDSHtHMcNtigrGrinjMVWcu8/5mGmPq++/ccO0DDyM5DLIE
-	SaHH+WbNhquTor63o1kMNMhD5G3p/sBD34Bz30NgUbrvg/Vdgx1yb0IIwD3/4guw
-	R3VqWfxLtmOsJgkIR14m8qrFgdmlcQxtavlbHgN1yLsUl+pIf8Epj2RyrMjf8v8A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=TEFEUs
+	DUypMb0E06F+mIr6mms6VLi/ADn+g21sLTM6M=; b=HU3Eulheor5aaMA38MgqND
+	w5D0VsYZ9Y4ZQYJZvyu4WLwzk/lzISPX279vOi1rwp0OvImCElaqBmZ7yGv4GXtm
+	vKwEzqRIH6fu9psGCV1MCIKHOFAwC/4SQQ1AC5BtxaNM8wdtW+DAIciNpYPO6Ll6
+	rLdpqprshTa3IetrfZ8gd5phbjzubOZ9ML1FsMTvRNrN2rZkXWtL51/wIfyNRwsc
+	zmVXIeHDTR4Dx4SMQ7DiZQb0y62yBcOaIrAEugKNmaBRj2/WpqHifUmZzBe2/kuP
+	CAm9wsvyCG2SQnvkSXl/G1rirz7QoOVkinRwkhD5FGKGs504YPdGvBwjkZgyGuxw
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4426xc9e43-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442an2gx1u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jan 2025 09:51:12 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50994R8F013576;
-	Thu, 9 Jan 2025 09:51:11 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygap4fyd-1
+	Thu, 09 Jan 2025 11:55:23 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5097ss8u003572;
+	Thu, 9 Jan 2025 11:55:22 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yfatd4rc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Jan 2025 09:51:11 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5099p54k45285866
+	Thu, 09 Jan 2025 11:55:22 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 509BtLqN63177092
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Jan 2025 09:51:05 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D7A420043;
-	Thu,  9 Jan 2025 09:51:05 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5054E20040;
-	Thu,  9 Jan 2025 09:51:05 +0000 (GMT)
-Received: from t14-nrb (unknown [9.179.13.177])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  9 Jan 2025 09:51:05 +0000 (GMT)
+	Thu, 9 Jan 2025 11:55:21 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E2F272004B;
+	Thu,  9 Jan 2025 11:55:20 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 379C620043;
+	Thu,  9 Jan 2025 11:55:20 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  9 Jan 2025 11:55:20 +0000 (GMT)
+Date: Thu, 9 Jan 2025 12:55:18 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>, Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+        Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+        Russell King <linux@armlinux.org.uk>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Naveen N Rao <naveen@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+        linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org,
+        loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>
+Subject: Re: [PATCH 10/17] s390/vdso: Switch to generic storage implementation
+Message-ID: <20250109115518.9731-A-hca@linux.ibm.com>
+References: <20241216-vdso-store-rng-v1-0-f7aed1bdb3b2@linutronix.de>
+ <20241216-vdso-store-rng-v1-10-f7aed1bdb3b2@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 09 Jan 2025 10:51:05 +0100
-Message-Id: <D6XG6ZSJ22ZU.1UDCOZQS6KUBP@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>,
-        <thuth@redhat.com>, <david@redhat.com>, <schlameuss@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>
-Subject: Re: [kvm-unit-tests PATCH v3 3/3] s390x: pv: Add test for large
- host pages backing
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-X-Mailer: aerc 0.18.2
-References: <20241218135138.51348-1-imbrenda@linux.ibm.com>
- <20241218135138.51348-4-imbrenda@linux.ibm.com>
- <D6GMPV211UPF.CC1OSNJYEJ6T@linux.ibm.com>
- <20241220165224.3307fbf4@p-imbrenda>
-In-Reply-To: <20241220165224.3307fbf4@p-imbrenda>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241216-vdso-store-rng-v1-10-f7aed1bdb3b2@linutronix.de>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VMIwGD-hqSBVKszyq2mNP4dD0Qn45wmf
-X-Proofpoint-ORIG-GUID: VMIwGD-hqSBVKszyq2mNP4dD0Qn45wmf
+X-Proofpoint-GUID: lsyfqPho4h_myH3I0usc_uivjxmUZY2Q
+X-Proofpoint-ORIG-GUID: lsyfqPho4h_myH3I0usc_uivjxmUZY2Q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 phishscore=0 suspectscore=0 adultscore=0
- impostorscore=0 mlxscore=0 malwarescore=0 spamscore=0 bulkscore=0
- mlxlogscore=870 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2501090076
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 priorityscore=1501 spamscore=0 suspectscore=0
+ clxscore=1011 impostorscore=0 mlxlogscore=354 phishscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501090091
 
-On Fri Dec 20, 2024 at 4:52 PM CET, Claudio Imbrenda wrote:
-[...]
-> > > diff --git a/s390x/snippets/c/pv-memhog.c b/s390x/snippets/c/pv-memho=
-g.c
-> > > new file mode 100644
-> > > index 00000000..43f0c2b1
-> > > --- /dev/null
-> > > +++ b/s390x/snippets/c/pv-memhog.c
-> > > @@ -0,0 +1,59 @@ =20
-> > [...]
-> > > +int main(void)
-> > > +{
-> > > +	uint64_t param, addr, i, n;
-> > > +
-> > > +	READ_ONCE(*MIDPAGE_PTR(SZ_1M + 42 * PAGE_SIZE));
-> > > +	param =3D get_value(42); =20
-> >=20
-> > (see below)
-> >=20
-> > > +	n =3D (param >> 32) & 0x1fffffff;
-> > > +	n =3D n ? n : N_PAGES;
-> > > +	param &=3D 0x7fffffff;
-> > > +
-> > > +	while (true) {
-> > > +		for (i =3D 0; i < n; i++) {
-> > > +			addr =3D ((param ? i * param : i * i * i) * PAGE_SIZE) & MASK_2G;
-> > > +			WRITE_ONCE(*MIDPAGE_PTR(addr), addr);
-> > > +		}
-> > > +
-> > > +		i =3D get_value(23);
-> > > +		if (i !=3D 42) =20
-> >=20
-> > I would like some defines for 23 and 42 and possibly share them with th=
-e host.
->
-> not sure what's the easiest way to share with the host, but I can just
-> copy the defines
+On Mon, Dec 16, 2024 at 03:10:06PM +0100, Thomas Weiﬂschuh wrote:
+> The generic storage implementation provides the same features as the
+> custom one. However it can be shared between architectures, making
+> maintenance easier.
+> 
+> Co-developed-by: Nam Cao <namcao@linutronix.de>
+> Signed-off-by: Nam Cao <namcao@linutronix.de>
+> Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+> ---
+>  arch/s390/Kconfig                         |  1 +
+>  arch/s390/include/asm/vdso.h              |  4 +-
+>  arch/s390/include/asm/vdso/getrandom.h    | 12 ----
+>  arch/s390/include/asm/vdso/gettimeofday.h | 15 +----
+>  arch/s390/include/asm/vdso/vsyscall.h     | 20 -------
+>  arch/s390/kernel/time.c                   |  6 +-
+>  arch/s390/kernel/vdso.c                   | 97 ++-----------------------------
+>  arch/s390/kernel/vdso32/vdso32.lds.S      |  7 +--
+>  arch/s390/kernel/vdso64/vdso64.lds.S      |  8 +--
+>  9 files changed, 17 insertions(+), 153 deletions(-)
 
-The sie-dat.c test does this, there's a header file
+Looks good to me and works.
 
-s390x/snippets/c/sie-dat.h
-
-which is included in the host:
-
-#include "snippets/c/sie-dat.h"
-
-Not the most beautiful way, but works.
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
