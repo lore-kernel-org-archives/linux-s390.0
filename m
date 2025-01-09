@@ -1,141 +1,143 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6AA14C7D;
-	Thu,  9 Jan 2025 03:32:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F2F414EC77
+	for <linux-s390@vger.kernel.org>; Thu,  9 Jan 2025 05:29:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736393526; cv=none; b=emCyh0aic8dz7866Ixp7xwE02hyDSnCnkr0sdNKtLihzaUio2UTZezv4VO+QQXq6z7H/ausKgOLzDxvDNVrjLSx/Icv8jr1FwRgkFYAMAxbIwxbaZTrtr7Tef070euQWhpiXQi6DnOSs/631nb7urV92bRVHgXItRME4qNLUc/8=
+	t=1736400568; cv=none; b=PMmBFSvi+xSShbxBdZbUSg4VwmdiK9qIH8X62RiymZHH1dUiw9Wr2+AgR55RXwOccvZM5qfoQ65xRSp15DF0U73S1XbZKzYf+f63TEr6nzqqv2dVvo1RlCd0rj06SQvfcp6sI0sZ0ld2EtY+ryK/QSNyx+BLKwqLmPE3AIX3aeE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736393526; c=relaxed/simple;
-	bh=qmjimz5NXkvZrQIEiT3BVuGnFnEEAJoVPN+sCV31vv4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=btqlxc1yenbyGL2uNs9LvDRVBQclI/1mMCDInD4KnW8BocMbFvOPW67snwptwkxpe72mwFJdUWBGAzsMcosFX+UH04wDaPVOwSTIhFV+YYVptIiQ4MNJrw08uARSMWT/rF+QWcfB33DL48MM9v1bHwCZUT8T8D3YZRk5eDjGXOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PONWgRAJ; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1736400568; c=relaxed/simple;
+	bh=AokpQtg4wT+HaVxGAkUafltUyUpP2VUjq65/op/PFFc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uKuZETQXYoXcAlh0H6nVto7JRcJLnJtF8XQqf1428zQkGkqGOSZRxjIrcgW72XfPxNhzp2MAWepkf+4AUmAIoJVaL3+KTZAXpyStzfJEmvHsYQU8k4lr73BI+EFCdKU7VYlVhmD4OUPbY26+4s1j26phfXjw9H3J8CrmU2jSiQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=BJ1Y58d3; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PONWgRAJ"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-21675fd60feso8541415ad.2;
-        Wed, 08 Jan 2025 19:32:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="BJ1Y58d3"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2166651f752so9612285ad.3
+        for <linux-s390@vger.kernel.org>; Wed, 08 Jan 2025 21:29:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736393524; x=1736998324; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lXLkHTQWgHzu9KjIvPLCv6JTi/EeuuALx+VRr/98s4I=;
-        b=PONWgRAJZk3fvR0giqBqUQ58y3h7kZj3WHn6DGqYvedcwfgsCFpRX0ehArTLLNxIqr
-         NSyTX6p+ehauGr86uDE90F5CXvQmC1z9iYKf7cWaS0pE8SMjmLmNqmohVAptVtJOTh3J
-         QPh2FVqd7mm4u5IuFEqyuQWgOTNjttQa/RIVxstKmuPCMZqUa13LgdwoRCD0EMNXidBR
-         yMek6nMMhatY6+zUEWQtwdBteddF4qlXoNiIfCv9gxcXRt/Gg68tEC1JJaEBprJ1TYdG
-         3O7i9/tyvkU1iejhhspKHS0TGqyLA8GJkrzi2ZZBrwyIPo7M4//qeDw/fLKPi5GOJBIo
-         3BUA==
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736400566; x=1737005366; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=XMJt/YhwUnBzvs59wX/sgUOAGddtx1maXOTnOv1QH5s=;
+        b=BJ1Y58d3hpgj/XHSiDXIc/mUhau1oC71NOyEyM6o3N16MLBKv45x6ifKvDtPOLSAqQ
+         ooiw4B9hkuBC5jxlHPaUcOc5ToRxPgOMoBrsRoUV0dqs5BTlwefA/Sn25J4uZR1Df8Vr
+         zhGEf5NDmFsEhmyBGm8EJpDwp36DuD9oDBzNyFL/ilgkcs+QANONLNl7Pw87wwcTPyDq
+         Mz6PBsNu7YTdZxJmVmsxeyoHEzncLYIBVJROF4yqracnkLEUj16YTnbRVPzvcz7C1GJM
+         gnMyg/0fIztXb5VaNfe0vxZg84Z1WFLz1Yyx94b4aeqA7yjyXZHN3CJ6ISwi5a1657VH
+         PGcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736393524; x=1736998324;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lXLkHTQWgHzu9KjIvPLCv6JTi/EeuuALx+VRr/98s4I=;
-        b=ZXEWlLw1Oik9MMe2D9ktCMhOV5Pw+ytA8MoZJw7wXUmJJmt2YVrJgO9oULiGkkp22k
-         ++7hzb3eGVwMN6J8w7wmb8r+tSSciAUG1W2S59qDOoly3VxDZp8b+rgb5mlSiWHMmoD7
-         S8tiwyaEVAZfuCoRVZ5S7Hw0RNJ4Wn0Qh++opNwHsKChoXHiildQ5IKK+MhzqgNIIw5i
-         6Sp/IQzEXjhlCTOWDNUJlTqQp5GmE3jQHZxNL/CkYbOER8T4cHhBsCsry/BII8mZ71ZH
-         /wB3G9fph+HSqE+Ux9/IieFinm8OeDtLXNyB/5EN/KXs1h9VOdvV4lSE+w3JkDv4fGEm
-         DNzg==
-X-Forwarded-Encrypted: i=1; AJvYcCUF4uhgN0J21AbUK3k7k3w93JmsfrkL7e11SplSAT0XQJHHtxJkK8dnPKxpPXUuNzIjum/MF5xHyZpb2VQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxO4BkIDMho88x4lQIJTaiaaGdjUCYZIKD+6+O1kktiV7R12qAc
-	RkbBH8p7nxGNRGEm62EU86M7ggB1P8EQNavjzaG9R5VSSfR9KUv9
-X-Gm-Gg: ASbGncsJGd5B/bOAewiOGWGVjSQuuf1MTWUYFx45O8+RHwoP0DMu0NyU8zG4SgOE6Dt
-	kU6haYOm9i7cgi38jMznHRIiZEyaX/Qr6PVLg0Eyq3upy24gFHzQCqvI5XuNWEr0v0xAVsYxa5Z
-	bhQe0lGcgHb++g/zPe30hshPiakqIxYnhs1f2yheWcfiN5F4ljxExaxklT4a0PCizQ4KtZuumNK
-	D8ErHOrqt0R+y1As2Ykt+PKaD5gA/AQ6VGB3X/VUA57BKrSRh8rwX3+QzgeP4/0MrvjgbfgMJ6r
-	7mIx
-X-Google-Smtp-Source: AGHT+IFWx3SO4h+JbQQAuUZJ3jBGwoAgqUM5IB48w8KUPjOfaHOhIfnoe7lR09EQQVbX4ymVPd2ccg==
-X-Received: by 2002:a17:903:1c7:b0:216:2bd7:1c36 with SMTP id d9443c01a7336-21a83f48ccbmr72098135ad.1.1736393524236;
-        Wed, 08 Jan 2025 19:32:04 -0800 (PST)
-Received: from localhost.localdomain ([36.110.106.149])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-219dc9f4f5esm334455625ad.178.2025.01.08.19.32.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jan 2025 19:32:03 -0800 (PST)
-From: Guo Weikang <guoweikang.kernel@gmail.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	Guo Weikang <guoweikang.kernel@gmail.com>
-Subject: [PATCH] arch/s390: save_area_alloc default failure behavior changed to panic
-Date: Thu,  9 Jan 2025 11:31:36 +0800
-Message-Id: <20250109033136.2845676-1-guoweikang.kernel@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        d=1e100.net; s=20230601; t=1736400566; x=1737005366;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XMJt/YhwUnBzvs59wX/sgUOAGddtx1maXOTnOv1QH5s=;
+        b=CKfDIuH/ZvWVOsZ1HPxBlcrKhhp6oM+6USHGpWDEX69FHpvUi9dlDb1NCquQrZphiP
+         vyr7Re4w09+WZVBXpKDAyvSQbj9HpKRSLUjPLUnyGsm1pLxLpOPoQjEWivRAgRhf20FO
+         uZPWpYixWJeZeI73k+8iGT5oG6vQOIMQUU/zxv2abAvmkKJkVdh56zDvNLghDfa+4UB9
+         +eUkEm1d8HgsAmRlk6EF6up4v15Lc3s9lgNHB9siH1HQhqG9INipSySvJPSlNGWZd9cv
+         T/M4AtBLnfQZ6Pj0lW7IblZRexHrW4d6jOLyewiMOBOrdpQ+af/N8/6wDlQJDLfPrGR6
+         aIDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVtVANyneU+tIsQQDqzzc3fOxTjRkt565hZ/eV5BHcIV7YFTEhGBgSLZdKYqtfGF7PRSmlQMaXKmKdn@vger.kernel.org
+X-Gm-Message-State: AOJu0YzqkV+HUjW1tL9CA5BA7kCVmRm3Es8knZe3QTG/7cmHrOtneqtz
+	P2EgY/kp96vyVtz1oJYs0VZWjx0C+wEthWafZVgSE/Cm0Resb5eJzot/CLWe60Y=
+X-Gm-Gg: ASbGncuXOsJKYxVex0/3hxNgWwfntwkyxgIf+gLL2tGGeQNLsRA4/5SRijkNnHDD9HS
+	MjncZyy73xb1yNLDkz6yS5SZDY/gwjqgzoUbmQDQA9O52tX2V3LiPehajf4D05mBBAp4eZuqwsO
+	g3ZS0GE92c6R2kiLQtQhOtQsUv0VKhNyYzI46a41QyK8gDBc6S+q1CGVzbC21g4HhE+tcRqEicS
+	ZjNLBABjCksjbVKhUyw3YhPc/jEilrSEYT8MH5LjdK21hRvykhHaxSMn4G2j+GwV0c=
+X-Google-Smtp-Source: AGHT+IHb0FVyvp1dm7B/1h/x9uzjYQ//zMkoJ4qWj36+ahLI4sk0W30C74Z9uJRWuq6gqr8rh892HA==
+X-Received: by 2002:a17:902:f681:b0:215:e98c:c5bc with SMTP id d9443c01a7336-21a840094b7mr86342285ad.48.1736400565988;
+        Wed, 08 Jan 2025 21:29:25 -0800 (PST)
+Received: from [157.82.203.37] ([157.82.203.37])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21a91744580sm3702405ad.84.2025.01.08.21.29.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jan 2025 21:29:25 -0800 (PST)
+Message-ID: <2ad7234d-bfc5-49e3-abe6-7a85d992329d@daynix.com>
+Date: Thu, 9 Jan 2025 14:29:19 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 5/6] s390/crash: Use note name macros
+To: Dave Martin <Dave.Martin@arm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Eric Biederman <ebiederm@xmission.com>,
+ Kees Cook <kees@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
+ Mark Brown <broonie@kernel.org>, Baoquan He <bhe@redhat.com>,
+ Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ kexec@lists.infradead.org, binutils@sourceware.org, devel@daynix.com
+References: <20250107-elf-v3-0-99cb505b1ab2@daynix.com>
+ <20250107-elf-v3-5-99cb505b1ab2@daynix.com>
+ <Z31Tp0nMhb/ntUW0@e133380.arm.com>
+ <965b73e7-d0a3-4fae-b0ec-70b5497cb6c4@daynix.com>
+ <Z36Cljsz2p0hYsFd@e133380.arm.com>
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+In-Reply-To: <Z36Cljsz2p0hYsFd@e133380.arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Now with the memblock_alloc_or_panic interface, save_area_alloc no longer
-needs to handle panic itself.
+On 2025/01/08 22:50, Dave Martin wrote:
+> On Wed, Jan 08, 2025 at 01:53:51PM +0900, Akihiko Odaki wrote:
+>> On 2025/01/08 1:17, Dave Martin wrote:
+>>> Hi,
+>>>
+>>> On Tue, Jan 07, 2025 at 09:45:56PM +0900, Akihiko Odaki wrote:
+>>>> Use note name macros to match with the userspace's expectation.
+>>>>
+>>>> Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+>>>> ---
+>>>>    arch/s390/kernel/crash_dump.c | 62 ++++++++++++++++---------------------------
+>>>>    1 file changed, 23 insertions(+), 39 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+>>>
+>>> [...]
+> 
+>>>> +#define NT_INIT(buf, type, desc) \
+>>>> +	(nt_init_name((buf), NT_ ## type, &(desc), sizeof(desc), NN_ ## type))
+> 
+> [...]
+> 
+>>> (Note also, the outer parentheses and the parentheses around (buf)
+>>> appear redundant -- although harmless?)
+>>
+>> They only make a difference in trivial corner cases and may look needlessly
+>> verbose.
+> 
+> (In case there was a misunderstanding here, I meant that some
+> parentheses can be removed without affecting correctness:
+> 
+> #define NT_INIT(buf, type, desc) \
+> 	nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc), NN_ ## type))
+> 
+> It still doesn't matter though -- and some people do prefer to be
+> defensive anyway and err on the side of having too many parentheses
+> rather than too few.)
 
-Signed-off-by: Guo Weikang <guoweikang.kernel@gmail.com>
----
- arch/s390/kernel/crash_dump.c | 4 +---
- arch/s390/kernel/numa.c       | 3 +--
- arch/s390/kernel/smp.c        | 4 ----
- 3 files changed, 2 insertions(+), 9 deletions(-)
+Well, being very pedantic, there are some cases where these parentheses 
+have some effect.
 
-diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
-index f699df2a2b11..276cb4c1e11b 100644
---- a/arch/s390/kernel/crash_dump.c
-+++ b/arch/s390/kernel/crash_dump.c
-@@ -63,9 +63,7 @@ struct save_area * __init save_area_alloc(bool is_boot_cpu)
- {
- 	struct save_area *sa;
- 
--	sa = memblock_alloc(sizeof(*sa), 8);
--	if (!sa)
--		return NULL;
-+	sa = memblock_alloc_or_panic(sizeof(*sa), 8);
- 
- 	if (is_boot_cpu)
- 		list_add(&sa->list, &dump_save_areas);
-diff --git a/arch/s390/kernel/numa.c b/arch/s390/kernel/numa.c
-index a33e20f73330..2fc40f97c0ad 100644
---- a/arch/s390/kernel/numa.c
-+++ b/arch/s390/kernel/numa.c
-@@ -21,9 +21,8 @@ void __init numa_setup(void)
- 	nodes_clear(node_possible_map);
- 	node_set(0, node_possible_map);
- 	node_set_online(0);
--	for (nid = 0; nid < MAX_NUMNODES; nid++) {
-+	for (nid = 0; nid < MAX_NUMNODES; nid++)
- 		NODE_DATA(nid) = memblock_alloc_or_panic(sizeof(pg_data_t), 8);
--	}
- 	NODE_DATA(0)->node_spanned_pages = memblock_end_of_DRAM() >> PAGE_SHIFT;
- 	NODE_DATA(0)->node_id = 0;
- }
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index d77aaefb59bd..7b08399b0846 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -611,8 +611,6 @@ void __init smp_save_dump_ipl_cpu(void)
- 	if (!dump_available())
- 		return;
- 	sa = save_area_alloc(true);
--	if (!sa)
--		panic("could not allocate memory for boot CPU save area\n");
- 	regs = memblock_alloc_or_panic(512, 8);
- 	copy_oldmem_kernel(regs, __LC_FPREGS_SAVE_AREA, 512);
- 	save_area_add_regs(sa, regs);
-@@ -646,8 +644,6 @@ void __init smp_save_dump_secondary_cpus(void)
- 		    SIGP_CC_NOT_OPERATIONAL)
- 			continue;
- 		sa = save_area_alloc(false);
--		if (!sa)
--			panic("could not allocate memory for save area\n");
- 		__pcpu_sigp_relax(addr, SIGP_STORE_STATUS_AT_ADDRESS, __pa(page));
- 		save_area_add_regs(sa, page);
- 		if (cpu_has_vx()) {
--- 
-2.25.1
+If you omit the outer parentheses, the following code will have 
+different consequences:
+a->NT_INIT(buf, PRSTATUS, desc)
 
+The parentheses around buf will make difference for the following code:
+#define COMMA ,
+NT_INIT(NULL COMMA buf, PRSTATUS, desc)
+
+But nobody will write such code.
+
+Regards,
+Akihiko Odaki
