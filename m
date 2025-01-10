@@ -1,151 +1,107 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377212F3E;
-	Fri, 10 Jan 2025 17:43:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCD8B2066E0;
+	Fri, 10 Jan 2025 18:11:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736531010; cv=none; b=pxJyFFQnMfiYRhtQmPkpnRLba7LtGCB6hXrDxNYlYSSvHpKQdDckAl1CmZQhzLQL+nbDGXYsLa14X6aTcuZ4ZXcH+UuISzZUTej1szz7nuCPMvNnCiuQqX+5nccbBdtwLtkwD5wcF/qpM8ffD5lkJKld8X2Z2/KTKAaMvGxoIsc=
+	t=1736532683; cv=none; b=eoX1uTDF4qU7YeI2U82NxxTrXdNwarp47tjfJRcNoaXvJqd9R3jLNapni7p+jtPb6lolmTDRYDC4JX4BlfXdeZQULgrodAmKaieB9rJDU8leBT6ddCmZ5pdJT1GFmdlDgCkBFeTdBrHRoZylae337GEPZR4KIGXq8ZVDSy+48eE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736531010; c=relaxed/simple;
-	bh=bQaNH0Z8kzRAGIlnLYROjZC2icV8aVG+zIPOAEZeBZA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=q3Q6SqeJgZXTp5i/G309UNRpHSb82RsjgSWoZEq3RzHcg/LK+6yzH2Yb/dqb6SfsWJtjn6+j2F9/eiEaU1AZoLK9MoaMom0YWURMLD9QuzNTxtTA3BlB4DGnQRnPe68eYRsHciGLmBD5SrDtiZBMaJv9HZitRBKQ4HTsLk7+dfM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AVP2yzRd; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736532683; c=relaxed/simple;
+	bh=tvsh4hr+RpRunTiBWlCn4gyuE/0HI1YBjC00BuBbCZc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qFyRIK91Pl3J0vaWQqg5fLXcfhD7mbATA0JNviSRPJZtzzk26jgby2yrvvTHTd5MWkS6vB6wuZh556WuzuoAl//0XY60+fFp6gQom/5LjjDjsERIjTlA+V1qCSHyrXmNx/Af2I7j13Fxw1s8FJih56vEx3w15NJ4oxDR50400cw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K/JqBXyD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AVP2yzRd"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50AG2Vta029127;
-	Fri, 10 Jan 2025 17:43:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=D39The
-	kF7dZ96yS7Ke6fVz8cJcnokqRBKWE4tS2XwIE=; b=AVP2yzRdtFEJBoP2vi6all
-	iGxznlRRAhJW9TKKMawQhMqf4N86GWTKOGajHbGTHmZ1zysJafmpXNXXBlrq7Ouk
-	F2gzAH/B4bjQgQG1xA23AQbiCAZGcWDbL4txOCwMpc8NwDomoYuTBESVqIfroWJE
-	1rxtmLusfRvg3QQg2ACzpyf8GtmtXt+ftyDcyRFyzeuuz+9TrhmCYz4KkC2Wytfq
-	SM3XVQY4UaQDQzK7besjevfjpzTlfQGLuFjHcSGHTKvSeqh9AbXDbisX+ZoTBiJy
-	QMSqK4uAHmuGh+vLxawy1hZpdtKWdz7qYbuavv3WpIKqRGYhd3V14KJZCors0Lbw
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442v1q3b3b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 17:43:25 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50AHff6l031062;
-	Fri, 10 Jan 2025 17:43:24 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442v1q3b31-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 17:43:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50AGIRSa008875;
-	Fri, 10 Jan 2025 17:43:23 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43yfq0bggw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 17:43:23 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50AHhJ5738928840
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jan 2025 17:43:19 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 911832004B;
-	Fri, 10 Jan 2025 17:43:19 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4CFF020040;
-	Fri, 10 Jan 2025 17:43:19 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 10 Jan 2025 17:43:19 +0000 (GMT)
-Date: Fri, 10 Jan 2025 18:43:17 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
-        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-Subject: Re: [PATCH v1 02/13] KVM: s390: fake memslots for ucontrol VMs
-Message-ID: <20250110184317.1a2a93c8@p-imbrenda>
-In-Reply-To: <Z4FaOW3-hen3nIpF@google.com>
-References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
-	<20250108181451.74383-3-imbrenda@linux.ibm.com>
-	<12a4155f-9d09-4af9-8556-ba32f7f639e6@de.ibm.com>
-	<20250110124705.74db01be@p-imbrenda>
-	<Z4FJNJ3UND8LSJZz@google.com>
-	<20250110180225.06dfba3c@p-imbrenda>
-	<Z4FaOW3-hen3nIpF@google.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K/JqBXyD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5405CC4CED6;
+	Fri, 10 Jan 2025 18:11:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736532683;
+	bh=tvsh4hr+RpRunTiBWlCn4gyuE/0HI1YBjC00BuBbCZc=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=K/JqBXyDfZHReSXezfeArduMX/HhV0GxaP7feYQuH9tZczRfS2NDttkQbcyLrIyYv
+	 Fwmf6D2nWqVIw5UmM2/IjprnkTiiQHJIv5FvINmGzxeJY+B64N4D6GsiZhaEnUFKOg
+	 4aHPRpbF5p50Kg6HI+sbZZS9V4YVTKBKZh4yg1E/ZbbwiASICV+EDXiowfqD8XEjhs
+	 F07D0sds/OKom3n4hMtAHGjStmNcD54KikSI0YtJZv9V+H9nax9VbPLMGmthh1ZgxS
+	 JhIRRaxUy8MEjsmFXrwCSYeYql8gjcO98eddfNudTwfeqJM+3m4KsYw8Ky5PYGwTtr
+	 xqtV7N7I6xULA==
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5401be44b58so2388645e87.0;
+        Fri, 10 Jan 2025 10:11:23 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUS6RwQUxD44SzlnCj93F+w3+vkSEMaIDQCsIkhSh9NXyCLJWWOiOoUmpUHYgjFTHxgJrpwKhCceiRIais=@vger.kernel.org, AJvYcCW2fm2zvouRMRugGbi6yOkXDBdynMUtnVa7rtTMGniImkM0qc4TStc2oo37MW/Gugia9LTkq6csm10s9Q==@vger.kernel.org, AJvYcCXnukuI6BX7UJy85FQFi7fVllk3T2Qg7lT8DFh9zHdOnBXQTaB+fOkAeQpb+dQbgtMl0VEhjUKFh3RXn8O5@vger.kernel.org
+X-Gm-Message-State: AOJu0YxtdQRLboag+sAd/PzmFlKGX8+v8rb0Z8u6Dt7+S6zNcDZSultH
+	xYVftNOn64DJ3VuQjDiFoFi1Wn8g3M8NYuQBYXsqmQWwqlOai9SQ9pLgWb2rWfl3PgwGDMgIsqD
+	6NvpUA47sqIHKqEZpLN6wpSRmnUA=
+X-Google-Smtp-Source: AGHT+IHb+bVSbz/gWKROdqBObQn5D87lJ5UfB6lJ8BolyK+Cbfvoq5wnSddYteub72xoaPb4ig6IvpgTBgEULc/b/no=
+X-Received: by 2002:a05:6512:3b0e:b0:540:5253:6af2 with SMTP id
+ 2adb3069b0e04-542845af9c9mr3654946e87.12.1736532681694; Fri, 10 Jan 2025
+ 10:11:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rdfkGp7nkG1Hr35CUI3TmaZMWYOla_iM
-X-Proofpoint-ORIG-GUID: faG1O3hllL5i6ZlrxaX2OpcA6halR2aH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxlogscore=456
- priorityscore=1501 spamscore=0 impostorscore=0 adultscore=0 suspectscore=0
- lowpriorityscore=0 clxscore=1015 mlxscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501100136
+References: <20250110082744.457067-2-ardb+git@google.com> <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
+In-Reply-To: <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Fri, 10 Jan 2025 19:11:10 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXEPq6VU19qzmW9DNVG=nzoGbnCMt7dE5nXeZCqk2JPE3A@mail.gmail.com>
+X-Gm-Features: AbW1kvasbJxXizyCj8YjS23s-yzUuL4NZfOhY2CO3pG_FqQEpOsXCxnYOlub1mk
+Message-ID: <CAMj1kXEPq6VU19qzmW9DNVG=nzoGbnCMt7dE5nXeZCqk2JPE3A@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: Strip runtime const RELA sections correctly
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Ard Biesheuvel <ardb+git@google.com>, linux-kbuild@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 10 Jan 2025 09:34:49 -0800
-Sean Christopherson <seanjc@google.com> wrote:
+On Fri, 10 Jan 2025 at 13:14, Masahiro Yamada <masahiroy@kernel.org> wrote:
+>
+> On Fri, Jan 10, 2025 at 5:28=E2=80=AFPM Ard Biesheuvel <ardb+git@google.c=
+om> wrote:
+> >
+> > From: Ard Biesheuvel <ardb@kernel.org>
+> >
+> > Due to the fact that runtime const ELF sections are named without a
+> > leading period or double underscore, the RSTRIP logic that removes the
+> > static RELA sections from vmlinux fails to identify them. This results
+> > in a situation like below, where some sections that were supposed to ge=
+t
+> > removed are left behind.
+> >
+> >   [Nr] Name                              Type            Address       =
+   Off     Size   ES Flg Lk Inf Al
+> >
+> >   [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f=
+50 2900f50 000014 00   A  0   0  1
+> >   [59] .relaruntime_shift_d_hash_shift   RELA            00000000000000=
+00 55b6f00 000078 18   I 70  58  8
+> >   [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f=
+68 2900f68 000014 00   A  0   0  1
+> >   [61] .relaruntime_ptr_dentry_hashtable RELA            00000000000000=
+00 55b6f78 000078 18   I 70  60  8
+> >   [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f=
+80 2900f80 000238 00   A  0   0  1
+> >   [63] .relaruntime_ptr_USER_PTR_MAX     RELA            00000000000000=
+00 55b6ff0 000d50 18   I 70  62  8
+> >
+> > So tweak the match expression to strip all sections starting with .rel.
+> > While at it, consolidate the logic used by RISC-V, s390 and x86 into a
+> > single shared Makefile library command.
+>
+> I do not know how this works because arch/*/Makefile.post
+> do not include scripts/Makefile.lib
+>
 
-> On Fri, Jan 10, 2025, Claudio Imbrenda wrote:
-> > On Fri, 10 Jan 2025 08:22:12 -0800
-> > Sean Christopherson <seanjc@google.com> wrote:  
-> > > AFAIK, that limitation exists purely because of dirty bitmaps.  IIUC, these "fake"
-> > > memslots are not intended to be visible to userspace, or at the very least don't
-> > > *need* to be visible to userspace.
-> > > 
-> > > Assuming that's true, they/it can/should be KVM-internal memslots, and those
-> > > should never be dirty-logged.  x86 allocates metadata based on slot size, so in
-> > > practice creating a mega-slot will never succeed on x86, but the only size
-> > > limitation I see in s390 is on arch.mem_limit, but for ucontrol that's set to -1ull,
-> > > i.e. is a non-issue.
-> > > 
-> > > I have a series (that I need to refresh) to provide a dedicated API for creating
-> > > internal memslots, and to also enforce that flags == 0 for internal memslots,
-> > > i.e. to enforce that dirty logging is never enabled (see Link below).  With that
-> > > I mind, I can't think of any reason to disallow a 0 => TASK_SIZE memslot so long
-> > > as it's KVM-defined.
-> > > 
-> > > Using a single memslot would hopefully allow s390 to unconditionally carve out a
-> > > KVM-internal memslot, i.e. not have to condition the logic on the type of VM.  E.g.  
-> > 
-> > yes, I would love that
-> > 
-> > the reason why I did not use internal memslots is that I would have
-> > potentially needed *all* the memslots for ucontrol, and instead of
-> > reserving, say, half of all memslots, I decided to have them
-> > user-visible, which is hack I honestly don't like.
-> > 
-> > do you think you can refresh the series before the upcoming merge
-> > window?  
-> 
-> Ya, I'll refresh it today, and then I can apply it early next week and provide
+Apologies - it seems I didn't test this thoroughly.
 
-excellent, thanks!
+The build happily completes without any errors, though - it appears
+doing '$(call cmd,foo)' does not trigger an error when cmd_foo does
+not exist.
 
-> an immutable topic branch/tag.
-> 
-> My thought is to have you carry the below in the s390 series though, as I don't
-
-sure
-
-> have a way to properly test it, and I'd prefer to avoid having to do a revert on
-> the off chance removing the limit doesn't work for ucontrol.
-
-makes sense, yes
+I suppose this is a consequence of 8962b6b475bddc ("kbuild: print
+short log in addition to the whole command with V=3D1") which introduced
+an $(if ) where the else branch is simply ':' and so it always
+succeeds.
