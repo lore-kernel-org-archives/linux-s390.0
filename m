@@ -1,39 +1,31 @@
-Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17B218BEC;
-	Fri, 10 Jan 2025 03:18:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84FBC746E;
+	Fri, 10 Jan 2025 05:43:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736479097; cv=none; b=EneuVV6Pd1pFA+uYo6ZjkqaWRQ0hhdKGPUw/Jjbxw+rtHUFAeAY//2K4GyOdmNdOEA5kf3duikyo0HM0Aj313yOLwIvqt3Ilp7C27VcQ3aDSUdiLGXlsBycxrOjvzjBXgqiNjC99H7Tb7as+9ew0Aa5S/XETZSwRAbfQHmx9dME=
+	t=1736487840; cv=none; b=bmnUlTABkcX6opTIzJYeyulBAV0CDow+S5Zb1gOwSmT6T74K0C55CT0lBkvgAG7En6x8gc4x93FeIcNqJKBly5jagqIzbexOlCZNY8f8NKfHRjuXTUBaaxk/DtWybtENZcjJMaQGW2di+H9ow6OvbvVoI5vFPxQzFoPBmXIM318=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736479097; c=relaxed/simple;
-	bh=aIXN1fFDfC84V416aPhCKGkGdMkFr9cf9umweXfeUA0=;
+	s=arc-20240116; t=1736487840; c=relaxed/simple;
+	bh=9G/L1ZomCQwviZeWuRSudJqgRPVeuQmTot+azaFSyS8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QpyZFcwDh+Csjsc1M8UGNyPSONPvmIIVtETI1dWXcT24NTRgyUaQoFTcn10iYYPcMBE6rR9eRRQE/BjafqESQV08+biouFs+fKZjsNiu0jGrwe/PU8rP2B/9/QoMhYuDUP4M3hQyYAJenvKEKOrQ48siMmPC/DqQw187J2OcZXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=UI2PWbpd; arc=none smtp.client-ip=198.137.202.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
+	 In-Reply-To:Content-Type; b=mvIaAWo/qtsUptZ5F9op1ckfv7+0ZVDdSWEiJLwUTc5uGIuyZQovemy4ikt6EqWHN0ToWe6+DrLuyBrgg7gz8KAcxLdI2V2yPY+BmWqICOIHhIAlXXCjA2lP2ghlGdBhO/AKlkRYWSSXoa0kfu9ZFoMDyMoNhJ4kecUdOgNZZ3A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mLRbtEG+; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="UI2PWbpd"
-Received: from [IPV6:2601:646:8080:c1f1:e386:c572:17d3:6ddc] ([IPv6:2601:646:8080:c1f1:e386:c572:17d3:6ddc])
-	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 50A3FGON981507
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Thu, 9 Jan 2025 19:15:22 -0800
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 50A3FGON981507
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2024121701; t=1736478939;
-	bh=2Gsk7+JP3PoZg8VhoEWFUmet8fDEOviqEDX2siCLmXA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=UI2PWbpd/173uf8ET7OhKCSxHMq3wIV9uPwlDabKLopTn4XQlVOW2UhdDhLNKQ2ou
-	 8eY5IkJPjKd/ufxYXpC3T7ngILIHHww7s3f/TxHKadq33uowsRPtdqvlulWYDcl4s8
-	 98gF9cD/iHRBhl+LkNR2Vz4dcuRwuyCMkzCPxTONo9GrePkGJYLa5vUD7mYV9L5Uos
-	 ee2fTgpV4TmVkm3/EnjzCs2Wh3is/8drjYQa4kdxx6i4NZ58BWsIW3fEOCUEzu/US4
-	 z0xQ+UHFUiZOJoDRJIqr/23SWWVPTNXl6Nb/6Jv9OAyLaNK9jKDb4DWbnzq60xty/Q
-	 X0SCgYzOXKJQw==
-Message-ID: <4536aca6-c430-4cf9-a98f-8282c7378955@zytor.com>
-Date: Thu, 9 Jan 2025 19:15:09 -0800
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mLRbtEG+"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1736487827; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=xAyuwYq8sl8JF7mbt/6XCIrVbtDcyq2uevTq8dLVNrk=;
+	b=mLRbtEG+7GUMB5zKf6BaeRQCOP42HFvlOEnuOh4oW8nvF4qy52a74gP+z3CuRtwEqOO922pXF7xep5X8Kb5ZglJPDyvnGkthXSfEuoh68hkZQoTvy3bTwk/9hqUfVhR0xG4QkEdgbufUU7ZWq5atH7qjuGtS8Kpche+ffEcN7v4=
+Received: from 30.221.98.188(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WNJnBTV_1736487825 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 10 Jan 2025 13:43:46 +0800
+Message-ID: <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
+Date: Fri, 10 Jan 2025 13:43:44 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,150 +33,172 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/6] ptrace: introduce PTRACE_SET_SYSCALL_INFO API
-To: "Dmitry V. Levin" <ldv@strace.io>, Oleg Nesterov <oleg@redhat.com>
-Cc: Eugene Syromyatnikov <evgsyr@gmail.com>,
-        Mike Frysinger <vapier@gentoo.org>, Renzo Davoli <renzo@cs.unibo.it>,
-        Davide Berardi <berardi.dav@gmail.com>, strace-devel@lists.strace.io,
-        Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-        Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne <shorne@gmail.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt
- <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.osdn.me>, Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Shuah Khan <shuah@kernel.org>,
-        linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-arch@vger.kernel.org, linux-kselftest@vger.kernel.org
-References: <20250107230153.GA30560@strace.io>
+Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
+ pnetid table
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
+References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+ <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
+ <20250107203218.5787acb4.pasic@linux.ibm.com>
+ <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
+ <20250109040429.350fdd60.pasic@linux.ibm.com>
 Content-Language: en-US
-From: "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <20250107230153.GA30560@strace.io>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-This would seem like a very good idea. However, it is perhaps important 
-to realize that it doesn't fully eliminate the problems with 64-bit 
-arguments on 32-bit ABIs being handled differently (never mind 
-inconsistencies in system call ABIs etc.) There isn't all that much that 
-can be done about that directly, though.
-
-	-hpa
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20250109040429.350fdd60.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 
-On 1/7/25 15:01, Dmitry V. Levin wrote:
-> PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
-> PTRACE_GET_SYSCALL_INFO by letting the ptracer modify details of
-> system calls the tracee is blocked in.
+
+On 2025/1/9 11:04, Halil Pasic wrote:
+> On Wed, 8 Jan 2025 12:57:00 +0800
+> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
 > 
-> This API allows ptracers to obtain and modify system call details
-> in a straightforward and architecture-agnostic way.
+>>> sorry for chiming in late. Wenjia is on vacation and Jan is out sick!
+>>> After some reading and thinking I could not figure out how 890a2cb4a966
+>>> ("net/smc: rework pnet table") is broken.  
+>>
+>> Before commit 890a2cb4a966:
+>> smc_pnet_find_roce_resource
+>>     smc_pnet_find_roce_by_pnetid(ndev, ...) /* lookup via hardware-defined pnetid */
+>>         smc_pnetid_by_dev_port(base_ndev, ...)
+>>     smc_pnet_find_roce_by_table(ndev, ...) /* lookup via SMC PNET table */
+>>     {
+>>         ...
+>>         list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
+>>                 if (ndev == pnetelem->ndev) { /* notice here, it was ndev to matching pnetid element in pnet table */
+>>         ...
+>>     }
+>>
+>> After commit 890a2cb4a966:
+>> smc_pnet_find_roce_resource
+>>     smc_pnet_find_roce_by_pnetid
+>>     {
+>>         ...
+>>         base_ndev = pnet_find_base_ndev(ndev); /* rename the variable name to base_ndev for better understanding */
+>>         smc_pnetid_by_dev_port(base_ndev, ...)
+>>         smc_pnet_find_ndev_pnetid_by_table(base_ndev, ...)
+>>         {
+>>                 ...
+>>                 list_for_each_entry(pnetelem, &smc_pnettable.pnetlist, list) {
+>>                 if (base_ndev == pnetelem->ndev) { /* notice here, it is base_ndev to matching pnetid element in pnet table */
+>>                 ...
+>>         }
+>>
+>>     }
+>>
+>> The commit 890a2cb4a966 has changed ndev to base_ndev when matching pnetid element in pnet table.
+>> But in the function smc_pnet_add_eth, the pnetid is attached to the ndev itself, not the base_ndev.
+>> smc_pnet_add_eth(...)
+>> {
+>>     ...
+>>     ndev = dev_get_by_name(net, eth_name);
+>>     ...
+>>         if (new_netdev) {
+>>             if (ndev) {
+>>                 new_pe->ndev = ndev;
+>>                 netdev_tracker_alloc(ndev, &new_pe->dev_tracker,
+>>                     GFP_ATOMIC);
+>>             }
+>>             list_add_tail(&new_pe->list, &pnettable->pnetlist);
+>>             mutex_unlock(&pnettable->lock);
+>>         } else {
+>>     ...
+>> }
 > 
-> Current implementation supports changing only those bits of system call
-> information that are used by strace, namely, syscall number, syscall
-> arguments, and syscall return value.
+> I still not understand why do you think that 890a2cb4a966~1 is better
+> than 890a2cb4a966 even if things changed with 890a2cb4a966 which
+> I did not verify for myself but am willing to assume.
 > 
-> Support of changing additional details returned by PTRACE_GET_SYSCALL_INFO,
-> such as instruction pointer and stack pointer, could be added later
-> if needed, by re-using struct ptrace_syscall_info.reserved to specify
-> the additional details that should be set.  Currently, the reserved
-> field of struct ptrace_syscall_info must be initialized with zeroes;
-> arch, instruction_pointer, and stack_pointer fields are ignored.
-> 
-> PTRACE_SET_SYSCALL_INFO currently supports only PTRACE_SYSCALL_INFO_ENTRY,
-> PTRACE_SYSCALL_INFO_EXIT, and PTRACE_SYSCALL_INFO_SECCOMP operations.
-> Other operations could be added later if needed.
-> 
-> Ideally, PTRACE_SET_SYSCALL_INFO should have been introduced along with
-> PTRACE_GET_SYSCALL_INFO, but it didn't happen.  The last straw that
-> convinced me to implement PTRACE_SET_SYSCALL_INFO was apparent failure
-> to provide an API of changing the first system call argument on riscv
-> architecture [1].
-> 
-> ptrace(2) man page:
-> 
-> long ptrace(enum __ptrace_request request, pid_t pid, void *addr, void *data);
-> ...
-> PTRACE_SET_SYSCALL_INFO
->         Modify information about the system call that caused the stop.
->         The "data" argument is a pointer to struct ptrace_syscall_info
->         that specifies the system call information to be set.
->         The "addr" argument should be set to sizeof(struct ptrace_syscall_info)).
-> 
-> [1] https://lore.kernel.org/all/59505464-c84a-403d-972f-d4b2055eeaac@gmail.com/
-> 
-> Dmitry V. Levin (6):
->    Revert "arch: remove unused function syscall_set_arguments()"
->    syscall.h: add syscall_set_arguments() on remaining
->      HAVE_ARCH_TRACEHOOK arches
->    syscall.h: introduce syscall_set_nr()
->    ptrace_get_syscall_info: factor out ptrace_get_syscall_info_op
->    ptrace: introduce PTRACE_SET_SYSCALL_INFO request
->    selftests/ptrace: add a test case for PTRACE_SET_SYSCALL_INFO
-> 
->   arch/arc/include/asm/syscall.h                |  20 +
->   arch/arm/include/asm/syscall.h                |  25 +
->   arch/arm64/include/asm/syscall.h              |  20 +
->   arch/csky/include/asm/syscall.h               |  13 +
->   arch/hexagon/include/asm/syscall.h            |  14 +
->   arch/loongarch/include/asm/syscall.h          |  15 +
->   arch/m68k/include/asm/syscall.h               |   7 +
->   arch/microblaze/include/asm/syscall.h         |   7 +
->   arch/mips/include/asm/syscall.h               |  53 +++
->   arch/nios2/include/asm/syscall.h              |  16 +
->   arch/openrisc/include/asm/syscall.h           |  13 +
->   arch/parisc/include/asm/syscall.h             |  19 +
->   arch/powerpc/include/asm/syscall.h            |  15 +
->   arch/riscv/include/asm/syscall.h              |  16 +
->   arch/s390/include/asm/syscall.h               |  19 +
->   arch/sh/include/asm/syscall_32.h              |  19 +
->   arch/sparc/include/asm/syscall.h              |  17 +
->   arch/um/include/asm/syscall-generic.h         |  19 +
->   arch/x86/include/asm/syscall.h                |  43 ++
->   arch/xtensa/include/asm/syscall.h             |  18 +
->   include/asm-generic/syscall.h                 |  30 ++
->   include/linux/ptrace.h                        |   3 +
->   include/uapi/linux/ptrace.h                   |   3 +-
->   kernel/ptrace.c                               | 154 ++++++-
->   tools/testing/selftests/ptrace/Makefile       |   2 +-
->   .../selftests/ptrace/set_syscall_info.c       | 436 ++++++++++++++++++
->   26 files changed, 994 insertions(+), 22 deletions(-)
->   create mode 100644 tools/testing/selftests/ptrace/set_syscall_info.c
+> Is there some particular setup that you think would benefit from
+> you patch? I.e. going back to the 890a2cb4a966~1 behavior I suppose.
 > 
 
+We want to use SMC in container on cloud environment, and encounter problem
+when using smc_pnet with commit 890a2cb4a966. In container, there have choices
+of different container network, such as directly using host network, virtual
+network IPVLAN, veth, etc. Different choices of container network have different
+netdev hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1 in host
+below is the netdev directly related to the physical device).
+ _______________________________      ________________________________   
+|   _________________           |     |   _________________           |  
+|  |POD              |          |     |  |POD  __________  |          |  
+|  |                 |          |     |  |    |upper_ndev| |          |  
+|  | eth0_________   |          |     |  |eth0|__________| |          |  
+|  |____|         |__|          |     |  |_______|_________|          |  
+|       |         |             |     |          |lower netdev        |  
+|       |         |             |     |        __|______              |  
+|   eth1|base_ndev| eth0_______ |     |   eth1|         | eth0_______ |  
+|       |         |    | RDMA  ||     |       |base_ndev|    | RDMA  ||  
+| host  |_________|    |_______||     | host  |_________|    |_______||  
+———————————————————————————————-      ———————————————————————————————-    
+ netdev hierarchy if directly          netdev hierarchy if using IPVLAN    
+   using host network
+ _______________________________
+|   _____________________       |
+|  |POD        _________ |      |
+|  |          |base_ndev||      |
+|  |eth0(veth)|_________||      |
+|  |____________|________|      |
+|               |pairs          |
+|        _______|_              |
+|       |         | eth0_______ |
+|   veth|base_ndev|    | RDMA  ||
+|       |_________|    |_______||
+|        _________              |
+|   eth1|base_ndev|             |
+| host  |_________|             |
+ ———————————————————————————————
+  netdev hierarchy if using veth
+
+Due to some reasons, the eth1 in host is not RDMA attached netdevice, pnetid
+is needed to map the eth1(in host) with RDMA device so that POD can do SMC-R.
+Because the eth1(in host) is managed by CNI plugin(such as Terway, network
+management plugin in container environment), and in cloud environment the
+eth(in host) can dynamically be inserted by CNI when POD create and dynamically
+be removed by CNI when POD destroy and no POD related to the eth(in host)
+anymore. It is hard for us to config the pnetid to the eth1(in host). So we
+config the pnetid to the netdevice which can be seen in POD. When do SMC-R, both
+the container directly using host network and the container using veth network
+can successfully match the RDMA device, because the configured pnetid netdev is a
+base_ndev. But the container using IPVLAN can not successfully match the RDMA
+device and 0x03030000 fallback happens, because the configured pnetid netdev is
+not a base_ndev. Additionally, if config pnetid to the eth1(in host) also can not
+work for matching RDMA device when using veth network and doing SMC-R in POD.
+
+My patch can resolve the problem we encountered and also can unify the pnetid setup
+of different network choices list above, assuming the pnetid is not limited to
+config to the base_ndev directly related to the physical device(indeed, the current
+implementation has not limited it yet).
+
+> I think I showed a valid and practical setup that would break with your
+> patch as is. Do you agree with that statement?
+Did you mean
+"
+Now for something like a bond of two OSA
+interfaces, I would expect the two legs of the bond to probably have a
+"HW PNETID", but the netdev representing the bond itself won't have one
+unless the Linux admin defines a software PNETID, which is work, and
+can't have a HW PNETID because it is a software construct within Linux.
+Breaking for example an active-backup bond setup where the legs have
+HW PNETIDs and the admin did not bother to specify a PNETID for the bond
+is not acceptable.
+" ?
+If the legs have HW pnetids, add pnetid to bond netdev will fail as
+smc_pnet_add_eth will check whether the base_ndev already have HW pnetid.
+
+If the legs without HW pnetids, and admin add pnetids to legs through smc_pnet.
+Yes, my patch will break the setup. What Paolo suggests(both checking ndev and
+base_ndev, and replace || by && )can help compatible with the setup.
+
+
+Thanks,
+Guangguan Wang
+> 
+> Regards,
+> Halil
