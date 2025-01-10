@@ -1,55 +1,55 @@
 Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E23E215059
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 18:41:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3BBD22331B
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 18:41:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534482; cv=none; b=R/i34iGbdVEoKOwhFC9SklIXtHNMxgqcJD6vr4PHrGDa5BTKm/Vy9xQlM62Vwh1XO4VcsIT9WkIMChBG/gmq+uPEJmH7kAKRk9LwpYCs9hWGFSG4uLC9r5/5uNNGvu4xuYOOs78IAljuc5Rmz5YCoNkrbwLh1YV/gh6lFcR9JP4=
+	t=1736534492; cv=none; b=f1DHUakKtxNqUnJGx+AutJrGK5gaQA0qLx1Qzi73SLgUSh/r7XsFkFMnye1NREt3vshjgHni6rcaSpUDU5nq4oinn1gajVCXngKPjZVPBd6SJxNMnejJdmJ2WBlLzr46Az/HEem98Gy7Rmd/ccD8U1qagGyouewY31TDFNUCZVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534482; c=relaxed/simple;
-	bh=x2YRvd2PJrOVmRl1EDQ1QR7VsXzIRAuxYJ+jR+SOTII=;
+	s=arc-20240116; t=1736534492; c=relaxed/simple;
+	bh=zf+Yj7gONw2oJr0tFFRjRLuZn51LvVJn5xoc6PzGvqM=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=iD2ilk6RWBTHV3pCnQwyZTvCvYjRhUJ8SQ18zdD8AH3O4t6AmfRnptzkWntX12jmdKSF47ByFQojcb9GT6xVXqXaT5jRlNzrWIASlmRrfmUvBg0Ea+o/47BgTWrcq6/wK7mFxpBmKX/6Bau7gEevboPRV6nmm8rViY5OltDGA2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=beALCmiN; arc=none smtp.client-ip=209.85.128.73
+	 To:Cc:Content-Type; b=AI+BOfyolrQ3RKuU2NQfuvuI1sKoWiZ0+5E8dCOi6qSceZq+n4en3Pc0+onf4ewcohtpWeVAjGN/LttZFvEbaJnkULUYJH1jzYqkC54xAKW05nXXsVN8OXNvEAOZ5E37xTzQ0kLBshlJTF8zr52q3CAq+Djiq6ZQBRN+lJNHu+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dGKUjLGW; arc=none smtp.client-ip=209.85.128.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="beALCmiN"
-Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-4359eb032c9so19040665e9.2
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 10:41:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dGKUjLGW"
+Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-43624b08181so12084705e9.0
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 10:41:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534468; x=1737139268; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534473; x=1737139273; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ffc/jeUEwcE9NsWtGdDMnxjVfG4g8pYiskW7P1F5M34=;
-        b=beALCmiN1ZxeRodmJ+TQnuW8T+kX0EJPj5cDpOtEPFeMOWFj+4IKu+B1OHoYFouUL4
-         qm/i/gbDgTYe0kJHGDI8D1dd48KZK+3oVOUWDCpxET1fEw+H81+T/5KwG7YE8d4AEw70
-         /obIDpWnLNNEeMc9eFjd5Z7QW1uc5fdgReciijNcwqn0dB+V3k2X7VbIhhnUEOSP3T+3
-         H94GJA8oMWYWyQbmnswkB2HlfwU944nbX3I0BSdfGWFELIAAPcHu/73rq/LY71iL+PKu
-         EGje6xEl4yRYIRE7F6nDpRz3f3XRLVlDvsdQ++cG55QKJ4HIZ+kMq09s6ScwpPHlroPY
-         Cv4Q==
+        bh=UzXM9zi9X6couWShNCb4EkjJb05AI+Oo7qUi6Mvjsww=;
+        b=dGKUjLGWhBEnXn4eDEWhzP6ZFcnqbSFQdLJfgPCkYKYOSitI/vVM83Yan49K1P59HI
+         D0FbNK6z3PflJLKiZ6JsxG59GeOdk3kXhXJzfbpXt9Uj1n7mU2hg7U7hRbDatfKIblrL
+         JjqAQjLP7h/4oGxrKNUCp9LmGf9bfNgFhJJdl8mX/iXZgsoLEKzZt9OC7AvjLunJeOKa
+         7u3jgqkQc/I2+wgeuUxX2D6nPAhUbwO58CZFDeP09mQBZ6bypSl3tl1dhfrPY9PZOxW7
+         degP9fY7Mr1sIfnatuIIV1F8J4ot63ZkJ7OSBqtqFKPUJ4cGRR+8ewW++IRxFTuLIqJ7
+         MBIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534468; x=1737139268;
+        d=1e100.net; s=20230601; t=1736534473; x=1737139273;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ffc/jeUEwcE9NsWtGdDMnxjVfG4g8pYiskW7P1F5M34=;
-        b=E+uGUIdyd2QPoREvf0ZTa6MXSndzmnAciXtMuZjF4tBuOqGGk2fk+Sfy83TJscJnNs
-         SQHNYHVlRNfHZEvAqJmhNQYJeEjUOjY+A1sSpGKLlmF5Lfji2SrkwfQK1e49E9KhtecK
-         kZLFyngCVjdY3XmROtIwtePgtoE50f+1hEgOSD1t6XxEsyI+KATsckAAJzHamj2gcr2G
-         jcrGDkGXdi8HxKDlVTnxLBxOyPFXDOIaCvzbyn3u4ROwG1WODXfz2ZP0Yc/Y147PfJ8C
-         qFLY093f8dYvjg7SpevY+ZOnqUGf61IYjbdLciKfm4rjF5ZXBeSlU4gikBrxTwTVgtWD
-         35BA==
-X-Forwarded-Encrypted: i=1; AJvYcCUP7DPVKiIMOrPMHSevF3Kk4wVCkAZecpRtPiU8mQaKdE9vz4lknKr7Iwp2kFgY9j0GSU+2D5C16Ow4@vger.kernel.org
-X-Gm-Message-State: AOJu0YxnMQAi3jM9KYUw34EttdlAIxCccP0usBi5RdqcNMjgGujWumrA
-	C1p8Niw4u8RTwue0EI+1I/Qkoi/jcLUF94jOAv61M2OuLaj8qrYdd7qmYLYwnHPMNpLPA7uYLMQ
-	lB0Y5fnpRdw==
-X-Google-Smtp-Source: AGHT+IF/q1QCp5xw/vI+ho6WzVZa4JA3GTBWKWx8cvSyaKNRoxJopmgrWWLxru20teHN6JHe+1fTI5ygNpFhkw==
-X-Received: from wmso37.prod.google.com ([2002:a05:600c:5125:b0:434:a98d:6a1c])
+        bh=UzXM9zi9X6couWShNCb4EkjJb05AI+Oo7qUi6Mvjsww=;
+        b=o81AvPtbIv5DK9HvU+IqVvG6IhJxi5IPWaKNLupxmQ5XE0bPd2RJbj75ehsny7NnTu
+         Zwcub+6JaiWgKNbqYXtzcANbcTYSxsVMMjeunHOWCVOwUoqj9fjP4zMzuC4eioGoVaiB
+         bN34uKsFidwy2J7rU7soeNhwkKTnqpCySz3UrAWVjQYtnbb4j8hOQPSQTVF6C4vBK+iq
+         np/GzCqsu+PZ0hZub0yYw81MwOEPr+bhwDRG5XnWplCPXXA59JSfpmEQm/3xOYkEfdeI
+         5fA9W85ZETMlcTxl5Ip1yORU/f1FjUQ0IdldiPkgbPmDUko+kOdskRblroMD7TaD9SdQ
+         tpng==
+X-Forwarded-Encrypted: i=1; AJvYcCXIkzs2ThiwBtEDHCCKrUgovnG0wFzDIYW1vlXqWyOFjy0EIkpX85JUxb1cywONMiolaEhr07SrLU3i@vger.kernel.org
+X-Gm-Message-State: AOJu0YyRPXZSWt0qvmnvMNZ/0d0Ue4OD7Iq3yYzqGwWRu2QhNBAkGkAo
+	0oQtXDSJvy2nxNr1f7e+CzugVP76bdjnigS3PoGt5LI+SMhsz1DKWzFB4rTOyhPlPSjxnyGfjLr
+	XNud+VIEkRw==
+X-Google-Smtp-Source: AGHT+IFDRv4zNENk63KYcLxYmQdIUcLs7zTtS/Sd8xMbR3tJqcykEbsngD0F8tGcq40UK8q2XIPTmnyPYnp+hA==
+X-Received: from wmqe5.prod.google.com ([2002:a05:600c:4e45:b0:435:21e:7bec])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:524f:b0:435:d22:9c9e with SMTP id 5b1f17b1804b1-436e26d0cf9mr103592725e9.19.1736534468098;
- Fri, 10 Jan 2025 10:41:08 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:36 +0000
+ 2002:a05:600c:1d2a:b0:435:edb0:5d27 with SMTP id 5b1f17b1804b1-436e8827fbcmr75837805e9.9.1736534472863;
+ Fri, 10 Jan 2025 10:41:12 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:38 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,9 +59,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-10-8419288bc805@google.com>
-Subject: [PATCH RFC v2 10/29] mm: asi: asi_exit() on PF, skip handling if
- address is accessible
+Message-ID: <20250110-asi-rfc-v2-v2-12-8419288bc805@google.com>
+Subject: [PATCH RFC v2 12/29] mm: asi: Add basic infrastructure for global
+ non-sensitive mappings
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -112,234 +112,197 @@ Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
 	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
 	kvm@vger.kernel.org, linux-efi@vger.kernel.org, 
-	Brendan Jackman <jackmanb@google.com>, Ofir Weisse <oweisse@google.com>
+	Brendan Jackman <jackmanb@google.com>, Junaid Shahid <junaids@google.com>
 Content-Type: text/plain; charset="utf-8"
 
-From: Ofir Weisse <oweisse@google.com>
+From: Junaid Shahid <junaids@google.com>
 
-On a page-fault - do asi_exit(). Then check if now after the exit the
-address is accessible. We do this by refactoring spurious_kernel_fault()
-into two parts:
+A pseudo-PGD is added to store global non-sensitive ASI mappings.
+Actual ASI PGDs copy entries from this pseudo-PGD during asi_init().
 
-1. Verify that the error code value is something that could arise from a
-lazy TLB update.
-2. Walk the page table and verify permissions, which is now called
-is_address_accessible(). We also define PTE_PRESENT() and PMD_PRESENT()
-which are suitable for checking userspace pages. For the sake of
-spurious faults,  pte_present() and pmd_present() are only good for
-kernelspace pages. This is because these macros might return true even
-if the present bit is 0 (only relevant for userspace).
+Memory can be mapped as globally non-sensitive by calling asi_map()
+with ASI_GLOBAL_NONSENSITIVE.
 
-checkpatch.pl VSPRINTF_SPECIFIER_PX - it's in a WARN that only fires in
-a debug build of the kernel when we hit a disastrous bug, seems OK to
-leak addresses.
+Page tables allocated for global non-sensitive mappings are never
+freed.
 
-RFC note: A separate refactoring/prep commit should be split out of this
-patch.
+These page tables are shared between all domains and init_mm, so they
+don't need special synchronization.
 
-Checkpatch-args: --ignore=VSPRINTF_SPECIFIER_PX
-Signed-off-by: Ofir Weisse <oweisse@google.com>
+RFC note: A refactoring/prep commit should be split out of this patch.
+
+Signed-off-by: Junaid Shahid <junaids@google.com>
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
 ---
- arch/x86/mm/fault.c | 118 +++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 103 insertions(+), 15 deletions(-)
+ arch/x86/include/asm/asi.h |  3 +++
+ arch/x86/mm/asi.c          | 37 +++++++++++++++++++++++++++++++++++++
+ arch/x86/mm/init_64.c      | 25 ++++++++++++++++---------
+ arch/x86/mm/mm_internal.h  |  3 +++
+ include/asm-generic/asi.h  |  2 ++
+ 5 files changed, 61 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index e6c469b323ccb748de22adc7d9f0a16dd195edad..ee8f5417174e2956391d538f41e2475553ca4972 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -948,7 +948,7 @@ do_sigbus(struct pt_regs *regs, unsigned long error_code, unsigned long address,
- 	force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address);
- }
+diff --git a/arch/x86/include/asm/asi.h b/arch/x86/include/asm/asi.h
+index 33f18be0e268b3a6725196619cbb8d847c21e197..555edb5f292e4d6baba782f51d014aa48dc850b6 100644
+--- a/arch/x86/include/asm/asi.h
++++ b/arch/x86/include/asm/asi.h
+@@ -120,6 +120,9 @@ struct asi_taint_policy {
+ 	asi_taints_t set;
+ };
  
--static int spurious_kernel_fault_check(unsigned long error_code, pte_t *pte)
-+static __always_inline int kernel_protection_ok(unsigned long error_code, pte_t *pte)
- {
- 	if ((error_code & X86_PF_WRITE) && !pte_write(*pte))
- 		return 0;
-@@ -959,6 +959,8 @@ static int spurious_kernel_fault_check(unsigned long error_code, pte_t *pte)
- 	return 1;
- }
- 
-+static int kernel_access_ok(unsigned long error_code, unsigned long address, pgd_t *pgd);
++extern struct asi __asi_global_nonsensitive;
++#define ASI_GLOBAL_NONSENSITIVE	(&__asi_global_nonsensitive)
 +
  /*
-  * Handle a spurious fault caused by a stale TLB entry.
-  *
-@@ -984,11 +986,6 @@ static noinline int
- spurious_kernel_fault(unsigned long error_code, unsigned long address)
+  * An ASI domain (struct asi) represents a restricted address space. The
+  * unrestricted address space (and user address space under PTI) are not
+diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
+index f2d8fbc0366c289891903e1c2ac6c59b9476d95f..17391ec8b22e3c0903cd5ca29cbb03fcc4cbacce 100644
+--- a/arch/x86/mm/asi.c
++++ b/arch/x86/mm/asi.c
+@@ -13,6 +13,7 @@
+ #include <asm/mmu_context.h>
+ #include <asm/traps.h>
+ 
++#include "mm_internal.h"
+ #include "../../../mm/internal.h"
+ 
+ static struct asi_taint_policy *taint_policies[ASI_MAX_NUM_CLASSES];
+@@ -26,6 +27,13 @@ const char *asi_class_names[] = {
+ DEFINE_PER_CPU_ALIGNED(struct asi *, curr_asi);
+ EXPORT_SYMBOL(curr_asi);
+ 
++static __aligned(PAGE_SIZE) pgd_t asi_global_nonsensitive_pgd[PTRS_PER_PGD];
++
++struct asi __asi_global_nonsensitive = {
++	.pgd = asi_global_nonsensitive_pgd,
++	.mm = &init_mm,
++};
++
+ static inline bool asi_class_id_valid(enum asi_class_id class_id)
  {
- 	pgd_t *pgd;
--	p4d_t *p4d;
--	pud_t *pud;
--	pmd_t *pmd;
--	pte_t *pte;
--	int ret;
- 
- 	/*
- 	 * Only writes to RO or instruction fetches from NX may cause
-@@ -1004,6 +1001,50 @@ spurious_kernel_fault(unsigned long error_code, unsigned long address)
- 		return 0;
- 
- 	pgd = init_mm.pgd + pgd_index(address);
-+	return kernel_access_ok(error_code, address, pgd);
-+}
-+NOKPROBE_SYMBOL(spurious_kernel_fault);
-+
-+/*
-+ * For kernel addresses, pte_present and pmd_present are sufficient for
-+ * is_address_accessible. For user addresses these functions will return true
-+ * even though the pte is not actually accessible by hardware (i.e _PAGE_PRESENT
-+ * is not set). This happens in cases where the pages are physically present in
-+ * memory, but they are not made accessible to hardware as they need software
-+ * handling first:
-+ *
-+ * - ptes/pmds with _PAGE_PROTNONE need autonuma balancing (see pte_protnone(),
-+ *   change_prot_numa(), and do_numa_page()).
-+ *
-+ * - pmds with _PAGE_PSE & !_PAGE_PRESENT are undergoing splitting (see
-+ *   split_huge_page()).
-+ *
-+ * Here, we care about whether the hardware can actually access the page right
-+ * now.
-+ *
-+ * These issues aren't currently present for PUD but we also have a custom
-+ * PUD_PRESENT for a layer of future-proofing.
-+ */
-+#define PUD_PRESENT(pud) (pud_flags(pud) & _PAGE_PRESENT)
-+#define PMD_PRESENT(pmd) (pmd_flags(pmd) & _PAGE_PRESENT)
-+#define PTE_PRESENT(pte) (pte_flags(pte) & _PAGE_PRESENT)
-+
-+/*
-+ * Check if an access by the kernel would cause a page fault. The access is
-+ * described by a page fault error code (whether it was a write/instruction
-+ * fetch) and address. This doesn't check for types of faults that are not
-+ * expected to affect the kernel, e.g. PKU. The address can be user or kernel
-+ * space, if user then we assume the access would happen via the uaccess API.
-+ */
-+static noinstr int
-+kernel_access_ok(unsigned long error_code, unsigned long address, pgd_t *pgd)
-+{
-+	p4d_t *p4d;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+	int ret;
-+
- 	if (!pgd_present(*pgd))
- 		return 0;
- 
-@@ -1012,27 +1053,27 @@ spurious_kernel_fault(unsigned long error_code, unsigned long address)
- 		return 0;
- 
- 	if (p4d_leaf(*p4d))
--		return spurious_kernel_fault_check(error_code, (pte_t *) p4d);
-+		return kernel_protection_ok(error_code, (pte_t *) p4d);
- 
- 	pud = pud_offset(p4d, address);
--	if (!pud_present(*pud))
-+	if (!PUD_PRESENT(*pud))
- 		return 0;
- 
- 	if (pud_leaf(*pud))
--		return spurious_kernel_fault_check(error_code, (pte_t *) pud);
-+		return kernel_protection_ok(error_code, (pte_t *) pud);
- 
- 	pmd = pmd_offset(pud, address);
--	if (!pmd_present(*pmd))
-+	if (!PMD_PRESENT(*pmd))
- 		return 0;
- 
- 	if (pmd_leaf(*pmd))
--		return spurious_kernel_fault_check(error_code, (pte_t *) pmd);
-+		return kernel_protection_ok(error_code, (pte_t *) pmd);
- 
- 	pte = pte_offset_kernel(pmd, address);
--	if (!pte_present(*pte))
-+	if (!PTE_PRESENT(*pte))
- 		return 0;
- 
--	ret = spurious_kernel_fault_check(error_code, pte);
-+	ret = kernel_protection_ok(error_code, pte);
- 	if (!ret)
- 		return 0;
- 
-@@ -1040,12 +1081,11 @@ spurious_kernel_fault(unsigned long error_code, unsigned long address)
- 	 * Make sure we have permissions in PMD.
- 	 * If not, then there's a bug in the page tables:
- 	 */
--	ret = spurious_kernel_fault_check(error_code, (pte_t *) pmd);
-+	ret = kernel_protection_ok(error_code, (pte_t *) pmd);
- 	WARN_ONCE(!ret, "PMD has incorrect permission bits\n");
- 
- 	return ret;
- }
--NOKPROBE_SYMBOL(spurious_kernel_fault);
- 
- int show_unhandled_signals = 1;
- 
-@@ -1490,6 +1530,29 @@ handle_page_fault(struct pt_regs *regs, unsigned long error_code,
- 	}
+ 	return class_id >= 0 && class_id < ASI_MAX_NUM_CLASSES;
+@@ -156,6 +164,31 @@ void __init asi_check_boottime_disable(void)
+ 		pr_info("ASI enablement ignored due to incomplete implementation.\n");
  }
  
-+static __always_inline void warn_if_bad_asi_pf(
-+	unsigned long error_code, unsigned long address)
++static int __init asi_global_init(void)
 +{
-+#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-+	struct asi *target;
++	if (!boot_cpu_has(X86_FEATURE_ASI))
++		return 0;
 +
 +	/*
-+	 * It's a bug to access sensitive data from the "critical section", i.e.
-+	 * on the path between asi_enter and asi_relax, where untrusted code
-+	 * gets run. #PF in this state sees asi_intr_nest_depth() as 1 because
-+	 * #PF increments it. We can't think of a better way to determine if
-+	 * this has happened than to check the ASI pagetables, hence we can't
-+	 * really have this check in non-debug builds unfortunately.
++	 * Lower-level pagetables for global nonsensitive mappings are shared,
++	 * but the PGD has to be copied into each domain during asi_init. To
++	 * avoid needing to synchronize new mappings into pre-existing domains
++	 * we just pre-allocate all of the relevant level N-1 entries so that
++	 * the global nonsensitive PGD already has pointers that can be copied
++	 * when new domains get asi_init()ed.
 +	 */
-+	VM_WARN_ONCE(
-+		(target = asi_get_target(current)) != NULL &&
-+		asi_intr_nest_depth() == 1 &&
-+		!kernel_access_ok(error_code, address, asi_pgd(target)),
-+		"ASI-sensitive data access from critical section, addr=%px error_code=%lx class=%s",
-+		(void *) address, error_code, asi_class_name(target->class_id));
-+#endif
++	preallocate_sub_pgd_pages(asi_global_nonsensitive_pgd,
++				  PAGE_OFFSET,
++				  PAGE_OFFSET + PFN_PHYS(max_pfn) - 1,
++				  "ASI Global Non-sensitive direct map");
++	preallocate_sub_pgd_pages(asi_global_nonsensitive_pgd,
++				  VMALLOC_START, VMALLOC_END,
++				  "ASI Global Non-sensitive vmalloc");
++
++	return 0;
++}
++subsys_initcall(asi_global_init)
++
+ static void __asi_destroy(struct asi *asi)
+ {
+ 	WARN_ON_ONCE(asi->ref_count <= 0);
+@@ -170,6 +203,7 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
+ {
+ 	struct asi *asi;
+ 	int err = 0;
++	uint i;
+ 
+ 	*out_asi = NULL;
+ 
+@@ -203,6 +237,9 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
+ 	asi->mm = mm;
+ 	asi->class_id = class_id;
+ 
++	for (i = KERNEL_PGD_BOUNDARY; i < PTRS_PER_PGD; i++)
++		set_pgd(asi->pgd + i, asi_global_nonsensitive_pgd[i]);
++
+ exit_unlock:
+ 	if (err)
+ 		__asi_destroy(asi);
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index ff253648706fa9cd49169a54882014a72ad540cf..9d358a05c4e18ac6d5e115de111758ea6cdd37f2 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -1288,18 +1288,15 @@ static void __init register_page_bootmem_info(void)
+ #endif
+ }
+ 
+-/*
+- * Pre-allocates page-table pages for the vmalloc area in the kernel page-table.
+- * Only the level which needs to be synchronized between all page-tables is
+- * allocated because the synchronization can be expensive.
+- */
+-static void __init preallocate_vmalloc_pages(void)
++/* Initialize empty pagetables at the level below PGD.  */
++void __init preallocate_sub_pgd_pages(pgd_t *pgd_table, ulong start,
++				      ulong end, const char *name)
+ {
+ 	unsigned long addr;
+ 	const char *lvl;
+ 
+-	for (addr = VMALLOC_START; addr <= VMEMORY_END; addr = ALIGN(addr + 1, PGDIR_SIZE)) {
+-		pgd_t *pgd = pgd_offset_k(addr);
++	for (addr = start; addr <= end; addr = ALIGN(addr + 1, PGDIR_SIZE)) {
++		pgd_t *pgd = pgd_offset_pgd(pgd_table, addr);
+ 		p4d_t *p4d;
+ 		pud_t *pud;
+ 
+@@ -1335,7 +1332,17 @@ static void __init preallocate_vmalloc_pages(void)
+ 	 * The pages have to be there now or they will be missing in
+ 	 * process page-tables later.
+ 	 */
+-	panic("Failed to pre-allocate %s pages for vmalloc area\n", lvl);
++	panic("Failed to pre-allocate %s pages for %s area\n", lvl, name);
 +}
 +
- DEFINE_IDTENTRY_RAW_ERRORCODE(exc_page_fault)
- {
- 	irqentry_state_t state;
-@@ -1497,6 +1560,31 @@ DEFINE_IDTENTRY_RAW_ERRORCODE(exc_page_fault)
++/*
++ * Pre-allocates page-table pages for the vmalloc area in the kernel page-table.
++ * Only the level which needs to be synchronized between all page-tables is
++ * allocated because the synchronization can be expensive.
++ */
++static void __init preallocate_vmalloc_pages(void)
++{
++	preallocate_sub_pgd_pages(init_mm.pgd, VMALLOC_START, VMEMORY_END, "vmalloc");
+ }
  
- 	address = cpu_feature_enabled(X86_FEATURE_FRED) ? fred_event_data(regs) : read_cr2();
+ void __init mem_init(void)
+diff --git a/arch/x86/mm/mm_internal.h b/arch/x86/mm/mm_internal.h
+index 3f37b5c80bb32ff34656a20789449da92e853eb6..1203a977edcd523589ad88a37aab01398a10a129 100644
+--- a/arch/x86/mm/mm_internal.h
++++ b/arch/x86/mm/mm_internal.h
+@@ -25,4 +25,7 @@ void update_cache_mode_entry(unsigned entry, enum page_cache_mode cache);
  
-+	if (static_asi_enabled() && !user_mode(regs)) {
-+		pgd_t *pgd;
-+
-+		/* Can be a NOP even for ASI faults, because of NMIs */
-+		asi_exit();
-+
-+		/*
-+		 * handle_page_fault() might oops if we run it for a kernel
-+		 * address in kernel mode. This might be the case if we got here
-+		 * due to an ASI fault. We avoid this case by checking whether
-+		 * the address is now, after asi_exit(), accessible by hardware.
-+		 * If it is - there's nothing to do. Note that this is a bit of
-+		 * a shotgun; we can also bail early from user-address faults
-+		 * here that weren't actually caused by ASI. So we might wanna
-+		 * move this logic later in the handler. In particular, we might
-+		 * be losing some stats here. However for now this keeps ASI
-+		 * page faults nice and fast.
-+		 */
-+		pgd = (pgd_t *)__va(read_cr3_pa()) + pgd_index(address);
-+		if (!user_mode(regs) && kernel_access_ok(error_code, address, pgd)) {
-+			warn_if_bad_asi_pf(error_code, address);
-+			return;
-+		}
-+	}
-+
- 	prefetchw(&current->mm->mmap_lock);
+ extern unsigned long tlb_single_page_flush_ceiling;
  
- 	/*
++extern void preallocate_sub_pgd_pages(pgd_t *pgd_table, ulong start,
++				      ulong end, const char *name);
++
+ #endif	/* __X86_MM_INTERNAL_H */
+diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
+index 5be8f7d657ba0bc2196e333f62b084d0c9eef7b6..7867b8c23449058a1dd06308ab5351e0d210a489 100644
+--- a/include/asm-generic/asi.h
++++ b/include/asm-generic/asi.h
+@@ -23,6 +23,8 @@ typedef u8 asi_taints_t;
+ 
+ #ifndef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
+ 
++#define ASI_GLOBAL_NONSENSITIVE		NULL
++
+ struct asi_hooks {};
+ struct asi {};
+ 
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
