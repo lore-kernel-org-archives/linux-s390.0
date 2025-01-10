@@ -1,100 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30136205E21;
-	Fri, 10 Jan 2025 12:14:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34EAE20DD45;
+	Fri, 10 Jan 2025 13:14:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736511259; cv=none; b=lr2VUoQ3CevOglU9wM0nf0VhGG6ygvPsJ5xrUOmXtS/joEFQ+CjizrVcbmg+sM+G54yVi8lcKSGTeMoAKr0H8EmuLe1nzH9qsQxakdWkMFdu49W4hl8okyk/K/JDfHAJQL06ljf32PBd+oUVEJo/q7Cu4RrLHRt39UhZB6TL+pg=
+	t=1736514843; cv=none; b=kXUgcL48rGhUL6130cQ7M1xpMKVSBdm5pbhMlvSbn8Z7yMavM/sBVUWlYIREIObTs4fWTRE3PKbdw2U0NxNbtMp4RRa90GsTq8eFE0+zd8X8O7zl+fkRke7y8eHxPTobjNrChaIVNllA1G8HCTL9D3USytZ58LiwmJ9kicj8NpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736511259; c=relaxed/simple;
-	bh=LKo8bpEtYIe5t1VceBxZS22BvfVVDlhIZm0EoNnQYEs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T+CU/HxBddKe1GbvNDT0lTG4TQoTPeXrltoBepk3uU960gHSMsU/blFizoV8SGlS9iwc5IpOPKyDle80+cWqOW5rFeKPVTk/Vh2E4Mg7gq5imLu0cIXQL3arhw0OCeR1/3vjjeot30bWqq2X8BQdrboGkU5i4b0hlPQY9FgDIYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XlLK6X/d; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736514843; c=relaxed/simple;
+	bh=1LzsD5o3InaPHLfUMbf2fPyOd9x0aDjJdVcyfxyyKIw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Subject:From:Cc:
+	 References:In-Reply-To; b=seAgw97DQ+d8WW0lx5g3Hk18q3tNvL/hFqS1Y0PtB+L1t9OxW8gLdTJvruwIm0aWlsJk845fvKhGGXs9V3pS4PHBgHw+r1ORyTZf2WcCgiVWnxiPy/0hNNFeC6kYshBGxJWaRZOJCG3d6xJWuOlppxcpSUDqWcd5EtW8MtkpTT4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qm1O03nt; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XlLK6X/d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC297C4CEE1;
-	Fri, 10 Jan 2025 12:14:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736511258;
-	bh=LKo8bpEtYIe5t1VceBxZS22BvfVVDlhIZm0EoNnQYEs=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=XlLK6X/dS8tqVWhYOAJVc4GMdupJU0aj3EbEpgjG5ELiHvIrp92f3An90gvP6r2uF
-	 Sdt/RO5yWD7whAscqg2x5vvLmkc9ghXYG5ku1ARD8cLJ+rRcYQpK6BwZxyNBXrnLme
-	 hoKYYPLj3VdnAUhSbldJrWSjomkiBzk3BmFpUcOgnUwOCvTxzXaeLySIONJc527TwB
-	 GoN3HeoEsM5+phLM6E6RMX5B3AFozfV1N/gDFazPfOTcfg/IFsfnTiWW2eLEI8yR/X
-	 f3UuqtrVqHKrjts5F5wgKfObTlnpW+BuOLR6Mb31EUaMP1tc28G3LRp83iL1op8R8U
-	 nLg2+pu6IUEeQ==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-53ff1f7caaeso2036749e87.0;
-        Fri, 10 Jan 2025 04:14:18 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCWfF1x2sV34hswMAZXNoZKRQRjUXCS+TxsELvL4/gwvS+UKgMZ3pb2IlKX2mLejx6g9iDUy75kNpRG3jA==@vger.kernel.org, AJvYcCXWx6ZzTqwP0cszRMoKh3/AGiga8nkATmkqL+1iMnMXVK6Z44i8D1sgYv3uJjyv78bT315PKEomg9Gi60E=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxbiqlJ9YTG7It6mV/dmR7PFtDQ+8MrGSNVJii9j7xKdkxgHhV1
-	oIRBhm5ELIJrYEAk8dTx6yR+wS/j68YTzlsp6Nph1UzA1Fo4AcSVWciNDVCs+C2OnqK+H3o6E2a
-	jYr197GK7O7NVz8ttFxHmJ6XcayE=
-X-Google-Smtp-Source: AGHT+IH34RNFIsnvALe6AjqSTDDJWj/TiAsDt+LHFUd3XT4Qq1HhowlIi4/eiuJedBUmy+/wHA0rdXMqF+/iSLbSmak=
-X-Received: by 2002:a05:6512:1149:b0:540:2201:57d1 with SMTP id
- 2adb3069b0e04-542845c01b8mr3284401e87.49.1736511257474; Fri, 10 Jan 2025
- 04:14:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qm1O03nt"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50A3qRm9013147;
+	Fri, 10 Jan 2025 13:13:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=htv8t+
+	tddy+6CuKkPnRsfu1/zhNW7zA0aOIc88KWb7c=; b=qm1O03nt7aRZBXNfWccGnV
+	qNpBCMncRjCXNzwIPiPRqFaeJrm2bLWO4NTX0zLNIVh42Fs0CXhR1uSYZOQxPbYv
+	8cTUV2MV46fYkAaTmuWLWDKF9i9nywEi4oZ5+kbwpIZoAEGlTcVbetlPWyNfezpR
+	N254WbTXohwhVbFl5SWmSpL982coiL/Ld0tnHfp/EiOSUCC8UvZiL2wdnCCnfXbL
+	zB+iEGMIRwDSYkFfT5X0ScIAe50zrzy4I0Nz2wrx4lp647rBtz4+e/e0F+vny4GL
+	HXsgI4FJCXZv6qcNJ82QG54vLeIajqMyHO37+5wgxyn8ir8Lk033/HBgX8lo9lew
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442v1bt41e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Jan 2025 13:13:54 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50AAw3AB026195;
+	Fri, 10 Jan 2025 13:13:53 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yj12j228-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 10 Jan 2025 13:13:53 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50ADDnYm50266382
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 10 Jan 2025 13:13:49 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9576A20043;
+	Fri, 10 Jan 2025 13:13:49 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D68220040;
+	Fri, 10 Jan 2025 13:13:49 +0000 (GMT)
+Received: from darkmoore (unknown [9.171.73.124])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 10 Jan 2025 13:13:49 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250110082744.457067-2-ardb+git@google.com>
-In-Reply-To: <20250110082744.457067-2-ardb+git@google.com>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Fri, 10 Jan 2025 21:13:41 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
-X-Gm-Features: AbW1kvYJSJ4ULPz9l8U8QGvpjCXJw-r5-U5EtXUed8QBmqt7AOBtvhMEG4S3Zrw
-Message-ID: <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
-Subject: Re: [PATCH] kbuild: Strip runtime const RELA sections correctly
-To: Ard Biesheuvel <ardb+git@google.com>
-Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Ard Biesheuvel <ardb@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 10 Jan 2025 14:13:43 +0100
+Message-Id: <D6YF4OUQZV0R.NI011IZA5C1N@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v1 01/13] KVM: s390: wrapper for KVM_BUG
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
+        <borntraeger@de.ibm.com>, <david@redhat.com>, <willy@infradead.org>,
+        <hca@linux.ibm.com>, <svens@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <gor@linux.ibm.com>, <nrb@linux.ibm.com>, <nsg@linux.ibm.com>
+X-Mailer: aerc 0.18.2
+References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
+ <20250108181451.74383-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20250108181451.74383-2-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XshA3OlG4EUPWgk2sCvzfLsTOiht2SpK
+X-Proofpoint-GUID: XshA3OlG4EUPWgk2sCvzfLsTOiht2SpK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=511
+ malwarescore=0 spamscore=0 clxscore=1011 impostorscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 suspectscore=0
+ adultscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501100102
 
-On Fri, Jan 10, 2025 at 5:28=E2=80=AFPM Ard Biesheuvel <ardb+git@google.com=
-> wrote:
+On Wed Jan 8, 2025 at 7:14 PM CET, Claudio Imbrenda wrote:
+> Wrap the call to KVM_BUG; this reduces code duplication and improves
+> readability.
 >
-> From: Ard Biesheuvel <ardb@kernel.org>
->
-> Due to the fact that runtime const ELF sections are named without a
-> leading period or double underscore, the RSTRIP logic that removes the
-> static RELA sections from vmlinux fails to identify them. This results
-> in a situation like below, where some sections that were supposed to get
-> removed are left behind.
->
->   [Nr] Name                              Type            Address         =
- Off     Size   ES Flg Lk Inf Al
->
->   [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f50=
- 2900f50 000014 00   A  0   0  1
->   [59] .relaruntime_shift_d_hash_shift   RELA            0000000000000000=
- 55b6f00 000078 18   I 70  58  8
->   [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f68=
- 2900f68 000014 00   A  0   0  1
->   [61] .relaruntime_ptr_dentry_hashtable RELA            0000000000000000=
- 55b6f78 000078 18   I 70  60  8
->   [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f80=
- 2900f80 000238 00   A  0   0  1
->   [63] .relaruntime_ptr_USER_PTR_MAX     RELA            0000000000000000=
- 55b6ff0 000d50 18   I 70  62  8
->
-> So tweak the match expression to strip all sections starting with .rel.
-> While at it, consolidate the logic used by RISC-V, s390 and x86 into a
-> single shared Makefile library command.
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 19 ++++++++++---------
+>  1 file changed, 10 insertions(+), 9 deletions(-)
 
-I do not know how this works because arch/*/Makefile.post
-do not include scripts/Makefile.lib
+LGTM
 
-
-
-
-
---=20
-Best Regards
-Masahiro Yamada
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
