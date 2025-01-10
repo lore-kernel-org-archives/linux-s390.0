@@ -1,55 +1,55 @@
-Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
+Received: from mail-wm1-f74.google.com (mail-wm1-f74.google.com [209.85.128.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE5F62147E8
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 18:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404C3217712
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 18:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534467; cv=none; b=p4XQehTh/dGsjxLSB65GKqFq+7O7WY6poxZWuEUy6dYdQOC/pLkNzcMELplouibNuk+zwJvjyESHsqrWb20SMFkWECJ0osh32Vymw33OXMylngOdHraEgjVvoPz3d8i2vvAOJWwZIoH3y01LktlHj1qrNwKP0v3JOwFEsU23NJE=
+	t=1736534474; cv=none; b=hJMME4iTbsM+10bfCNgtJ7RFEbxKfw+Cc4a/JdK2zHex83jJu87rzKBle/mR6Bu+l+ExVyahj1QsPcQOfZpTAnVmqc+lA1SFStEMrtLU5LepIZtMP7K9uuAUwil+504mG4Nu19ZrbC+vNamibXl1uYy7TDAPsEECQv8drNG5aqg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534467; c=relaxed/simple;
-	bh=yUJhfygL4zShgEMCarvXajCch8gRGTatWhXnwaWQKgM=;
+	s=arc-20240116; t=1736534474; c=relaxed/simple;
+	bh=ZyyS472lY9ilNqBUUS6XBgXxtvVvCl5YE/QkVX7gPU4=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=mDm+YNxRjWRXnfHLG4HbuxffOc3q5+pwFPednIpCu2UJdo3t8zbxikdhraigIssS6/Ijev17PT/ay/Bg5zBR2A4edc1iHs/j1OiantPvqdqLwIodZNFU/+fvRyAzzFuORkukTisNOi+MuYs1h/8fOsCHEhfI3RroLTRrjFcYXFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mozzmvQ5; arc=none smtp.client-ip=209.85.128.73
+	 To:Cc:Content-Type; b=R/O8VvDqxO4t+I3kPRDImqjrDajdZTf0XYwnTQlBQxxU/NZs4KrudzNBJVj+KRIB/uXksHZGebDe+YeFx4AfTqa/2taI/MkWWBghrDZFH5vhf9DFHYBAPSlifOlNL4BCqCBg67P2w5K9ENUNJ0VNQGhuvXk9g72fGE95bbhCxR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MwGFD9OK; arc=none smtp.client-ip=209.85.128.74
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mozzmvQ5"
-Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-4362b9c1641so11437385e9.3
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 10:40:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MwGFD9OK"
+Received: by mail-wm1-f74.google.com with SMTP id 5b1f17b1804b1-4361b090d23so12505005e9.0
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 10:41:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534455; x=1737139255; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534459; x=1737139259; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2/DwiwuishkWohq1Selw9AVX00i6WMTVrJEAuBvDTaE=;
-        b=mozzmvQ5Q89WknVh3HFBLi6LdQv8dp+ZGQCV7FRye6W+J9vOvcUt5P56CUk6P347cV
-         6yXjhqfraYIXZzCC4EvY+1RIIk3snnlnXrLJvGMqORGj1HewheZW992mvfjip46vXA9T
-         i9ZS4gRE8HbrrG8FNcFeSB7e6gk5kuQACCLYYQK30Ju/4t9WtDDAxGYW4JNGD58dyw1P
-         8ez9nimM0WH3Rq/p9CgkenJKT631QXvy+YWiwRzsUsu4+3sRv63+uZ0hg0y8e3hN76IH
-         P+0eo6l44czEI8KUT9nF8lpzgTW8YooNxMaBkQz9HAvyVIOIAqVjY9h6HNz6jzWWS2Jl
-         uA3w==
+        bh=kYL7XeCfcudeBLlUDEGoh0o6eIbGWBwJtwhvHOdo8c0=;
+        b=MwGFD9OKwwBWPJmYN7PHKR2peoxxK5IY840imBFglsc81KeOezd/D6v+lEfvCa90ex
+         67ZLw+nWPdbx+5QvceOBeAhFPg5FbFe9oLO62doYkEiC+eC46xuCxlMxAVlUg55mCYiz
+         E7uFxgfNlhs2zFawZcDe2zOUmj2p19oW3uL1oyvL6i3Ia+kuaEj/+D7VGp50GMGrG+Uq
+         i2+MglutLWhMNIZ87EdT6P91s5kh46w1AmqL7rYybbk+FlE6r1rR+nUHgUBcao/CbhAI
+         /D21HDdzNAiZDHYI1fMF5AEpmBBGJSWaMCZF2f+vgEB3SBG0+KuoKj8UPl/2QnV8O3An
+         nyjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534455; x=1737139255;
+        d=1e100.net; s=20230601; t=1736534459; x=1737139259;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2/DwiwuishkWohq1Selw9AVX00i6WMTVrJEAuBvDTaE=;
-        b=J2WzNxxZzBkK08LE4ODZoN82mg1XdoMcO0Bp/A76Ll+Ndbd5tIH7vxpR3Gcx9hvEvt
-         6UQWK69hLoD58E3gQixJaD7IKfkkk13k11yPER/2rUibvaYO20t87WzJuNzgGTsVYAbM
-         5DqEY4zd5y5PDpJ389UdC7vh1t3SuvbEQPMDnQl8klXAhpCmpSFsAK+633vU3EmG3aXS
-         e9ASSSMJpBt+wxzHzBwxsOreUHySuW89NN2Epm6JdXFg7m/m6gzRAT0mErOUybB5FRXW
-         HtI0zw9kyjTzOVWZXIlSjxyidx3jgAM3QarQIQWgHzRo7LzB3D71UHz5lxOW4fpcoWLB
-         EGFw==
-X-Forwarded-Encrypted: i=1; AJvYcCX1k51TBidg2slDDJukQ1fJHDOkG7FV9ZD/JrGWqVsU7WZfMSLll7DYRifLfpZc9pChnJ5h0wRBXOIy@vger.kernel.org
-X-Gm-Message-State: AOJu0YyVUhGRybBxskTaRygvHcRFgn2T9Yz/CMcRl53AEEDpJAvVkWqe
-	rwrXA8ixaiEuTxjnbyTydwB88brZEz3vdl/+NxK3Ov76XXKFnSFUz0kYFHwTvCosnyXoj7zGim4
-	JoRbmaLNT4g==
-X-Google-Smtp-Source: AGHT+IFG2gVbYjLEgd+rVsDr92xsiDXdhg3a2JRtZbNVmnh3EgFoUPLrUSfZq6jOhgEgZFCkNrLAplfHg1IQBQ==
-X-Received: from wmqa17.prod.google.com ([2002:a05:600c:3491:b0:434:fa72:f1bf])
+        bh=kYL7XeCfcudeBLlUDEGoh0o6eIbGWBwJtwhvHOdo8c0=;
+        b=CniiC7xqwrEHOMZoNvYLn9JjRqcyDlSaW3tfjQHB33P+jB5OSG24hFrWcX8CZg0c+C
+         UOZE4Lt1/ytS86m7PeS4xsSTejg/2CSOrrV+vWg2qXNtB3uXDYvC/aY7IgP8Yf2fIcQr
+         IRRJEJbO0fRIaYtHF3RsRKph0brS+7sgtjpBSCmnmp2EkkQuzpmzRoq2yBJkyK/yhXNW
+         6tosnSL5K4OVzQ6T8v992lp3ljutPxj6zod7qSEMKdiBavyOsLezaJ7oGULtf0dCHYoP
+         UHwbT4Fma2OtoyRqXyXUrpDE5QJ1XGlLHAJTmtZJIIY8af3T4oLnUrpCR+dJEq/ZrIt2
+         aZuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVpinUC6u1sGU+1kqUbTVF2sbDSYYmeqeCxqXukSCIQKeniv0dinAQhX5NAS6rDiT+1UWN9BZ7lCIRV@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxs0Jrc06Aq/lbLsPrYStvUyDfN729cbNK0XWyjsxLlXIdRVtgz
+	oCl59cl6CPHQpWOp+eTE5QEKFada6gXFnF6glCEUy5QnxNFvH1knlLcjaVkGBKbomwOWiJH+SUW
+	WIReZ902WCQ==
+X-Google-Smtp-Source: AGHT+IH0DyTQGUBeXAkb8pkdNHIPyF1JMCOQ9V4x2A26uY/IXi2bUp3/F2mGP9HMTIoPxxyBiM7AkavMfpYEag==
+X-Received: from wmdn10.prod.google.com ([2002:a05:600c:294a:b0:436:d819:e4eb])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:600c:1d14:b0:436:5fc9:309d with SMTP id 5b1f17b1804b1-436e26f6d81mr55448175e9.30.1736534454514;
- Fri, 10 Jan 2025 10:40:54 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:30 +0000
+ 2002:a05:600c:4f09:b0:434:fafe:edb with SMTP id 5b1f17b1804b1-436e26f00fdmr96576145e9.24.1736534459144;
+ Fri, 10 Jan 2025 10:40:59 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:32 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,8 +59,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-4-8419288bc805@google.com>
-Subject: [PATCH RFC v2 04/29] mm: asi: Add infrastructure for boot-time enablement
+Message-ID: <20250110-asi-rfc-v2-v2-6-8419288bc805@google.com>
+Subject: [PATCH RFC v2 06/29] mm: asi: Use separate PCIDs for restricted
+ address spaces
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -111,354 +112,256 @@ Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
 	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
 	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
 	kvm@vger.kernel.org, linux-efi@vger.kernel.org, 
-	Brendan Jackman <jackmanb@google.com>, Junaid Shahid <junaids@google.com>, 
-	Yosry Ahmed <yosryahmed@google.com>
+	Brendan Jackman <jackmanb@google.com>, Yosry Ahmed <yosryahmed@google.com>, 
+	Junaid Shahid <junaids@google.com>
 Content-Type: text/plain; charset="utf-8"
 
-Add a boot time parameter to control the newly added X86_FEATURE_ASI.
-"asi=on" or "asi=off" can be used in the kernel command line to enable
-or disable ASI at boot time. If not specified, ASI enablement depends
-on CONFIG_ADDRESS_SPACE_ISOLATION_DEFAULT_ON, which is off by default.
-asi_check_boottime_disable() is modeled after
-pti_check_boottime_disable().
+From: Yosry Ahmed <yosryahmed@google.com>
 
-The boot parameter is currently ignored until ASI is fully functional.
+Each restricted address space is assigned a separate PCID. Since
+currently only one ASI instance per-class exists for a given process,
+the PCID is just derived from the class index.
 
-Once we have a set of ASI features checked in that we have actually
-tested, we will stop ignoring the flag. But for now let's just add the
-infrastructure so we can implement the usage code.
+This commit only sets the appropriate PCID when switching CR3, but does
+not actually use the NOFLUSH bit. That will be done by later patches.
 
-Ignoring checkpatch.pl CONFIG_DESCRIPTION because the _DEFAULT_ON
-Kconfig is trivial to explain.
-
-Checkpatch-args: --ignore CONFIG_DESCRIPTION
 Co-developed-by: Junaid Shahid <junaids@google.com>
 Signed-off-by: Junaid Shahid <junaids@google.com>
-Co-developed-by: Yosry Ahmed <yosryahmed@google.com>
 Signed-off-by: Yosry Ahmed <yosryahmed@google.com>
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
 ---
- arch/x86/Kconfig                         |  9 +++++
- arch/x86/include/asm/asi.h               | 19 ++++++++--
- arch/x86/include/asm/cpufeatures.h       |  1 +
- arch/x86/include/asm/disabled-features.h |  8 ++++-
- arch/x86/mm/asi.c                        | 61 +++++++++++++++++++++++++++-----
- arch/x86/mm/init.c                       |  4 ++-
- include/asm-generic/asi.h                |  4 +++
- 7 files changed, 92 insertions(+), 14 deletions(-)
+ arch/x86/include/asm/asi.h             |  4 +--
+ arch/x86/include/asm/processor-flags.h | 24 +++++++++++++++++
+ arch/x86/include/asm/tlbflush.h        |  3 +++
+ arch/x86/mm/asi.c                      | 10 +++----
+ arch/x86/mm/tlb.c                      | 49 +++++++++++++++++++++++++++++++---
+ include/asm-generic/asi.h              |  2 ++
+ 6 files changed, 81 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 5a50582eb210e9d1309856a737d32b76fa1bfc85..1fcb52cb8cd5084ac3cef04af61b7d1653162bdb 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2533,6 +2533,15 @@ config MITIGATION_ADDRESS_SPACE_ISOLATION
- 	  there are likely to be unhandled cases, in particular concerning TLB
- 	  flushes.
- 
-+
-+config ADDRESS_SPACE_ISOLATION_DEFAULT_ON
-+	bool "Enable address space isolation by default"
-+	default n
-+	depends on MITIGATION_ADDRESS_SPACE_ISOLATION
-+	help
-+	  If selected, ASI is enabled by default at boot if the asi=on or
-+	  asi=off are not specified.
-+
- config MITIGATION_RETPOLINE
- 	bool "Avoid speculative indirect branches in kernel"
- 	select OBJTOOL if HAVE_OBJTOOL
 diff --git a/arch/x86/include/asm/asi.h b/arch/x86/include/asm/asi.h
-index 7cc635b6653a3970ba9dbfdc9c828a470e27bd44..b9671ef2dd3278adceed18507fd260e21954d574 100644
+index 9a9a139518289fc65f26a4d1cd311aa52cc5357f..a55e73f1b2bc84c41b9ab25f642a4d5f1aa6ba90 100644
 --- a/arch/x86/include/asm/asi.h
 +++ b/arch/x86/include/asm/asi.h
-@@ -8,6 +8,7 @@
+@@ -4,13 +4,13 @@
  
+ #include <linux/sched.h>
+ 
+-#include <asm-generic/asi.h>
+-
  #include <asm/pgtable_types.h>
  #include <asm/percpu.h>
-+#include <asm/cpufeature.h>
+ #include <asm/cpufeature.h>
  #include <asm/processor.h>
  
++#include <asm-generic/asi.h>
++
  #ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-@@ -66,6 +67,8 @@
-  * the N ASI classes.
-  */
- 
-+#define static_asi_enabled() cpu_feature_enabled(X86_FEATURE_ASI)
-+
- /*
-  * ASI uses a per-CPU tainting model to track what mitigation actions are
-  * required on domain transitions. Taints exist along two dimensions:
-@@ -131,6 +134,8 @@ struct asi {
- 
- DECLARE_PER_CPU_ALIGNED(struct asi *, curr_asi);
- 
-+void asi_check_boottime_disable(void);
-+
- void asi_init_mm_state(struct mm_struct *mm);
- 
- int asi_init_class(enum asi_class_id class_id, struct asi_taint_policy *taint_policy);
-@@ -155,7 +160,9 @@ void asi_exit(void);
- /* The target is the domain we'll enter when returning to process context. */
- static __always_inline struct asi *asi_get_target(struct task_struct *p)
- {
--	return p->thread.asi_state.target;
-+	return static_asi_enabled()
-+	       ? p->thread.asi_state.target
-+	       : NULL;
- }
- 
- static __always_inline void asi_set_target(struct task_struct *p,
-@@ -166,7 +173,9 @@ static __always_inline void asi_set_target(struct task_struct *p,
- 
- static __always_inline struct asi *asi_get_current(void)
- {
--	return this_cpu_read(curr_asi);
-+	return static_asi_enabled()
-+	       ? this_cpu_read(curr_asi)
-+	       : NULL;
- }
- 
- /* Are we currently in a restricted address space? */
-@@ -175,7 +184,11 @@ static __always_inline bool asi_is_restricted(void)
- 	return (bool)asi_get_current();
- }
- 
--/* If we exit/have exited, can we stay that way until the next asi_enter? */
-+/*
-+ * If we exit/have exited, can we stay that way until the next asi_enter?
-+ *
-+ * When ASI is disabled, this returns true.
-+ */
- static __always_inline bool asi_is_relaxed(void)
- {
- 	return !asi_get_target(current);
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 913fd3a7bac6506141de65f33b9ee61c615c7d7d..d6a808d10c3b8900d190ea01c66fc248863f05e2 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -474,6 +474,7 @@
- #define X86_FEATURE_CLEAR_BHB_HW	(21*32+ 3) /* BHI_DIS_S HW control enabled */
- #define X86_FEATURE_CLEAR_BHB_LOOP_ON_VMEXIT (21*32+ 4) /* Clear branch history at vmexit using SW loop */
- #define X86_FEATURE_FAST_CPPC		(21*32 + 5) /* AMD Fast CPPC */
-+#define X86_FEATURE_ASI			(21*32+6) /* Kernel Address Space Isolation */
  
  /*
-  * BUG word(s)
-diff --git a/arch/x86/include/asm/disabled-features.h b/arch/x86/include/asm/disabled-features.h
-index c492bdc97b0595ec77f89dc9b0cefe5e3e64be41..c7964ed4fef8b9441e1c0453da587787d8008d9d 100644
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -50,6 +50,12 @@
- # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+diff --git a/arch/x86/include/asm/processor-flags.h b/arch/x86/include/asm/processor-flags.h
+index e5f204b9b33dfaa92ed1b05faa6b604e50d5f2f3..42c5acb67c2d2a6b03deb548fe3dd088baa88842 100644
+--- a/arch/x86/include/asm/processor-flags.h
++++ b/arch/x86/include/asm/processor-flags.h
+@@ -55,4 +55,28 @@
+ # define X86_CR3_PTI_PCID_USER_BIT	11
  #endif
  
++/*
++ * An ASI identifier is included in the higher bits of PCID to use a different
++ * PCID for each restricted address space, different from the PCID of the
++ * unrestricted address space (see asi_pcid()). We use the bits directly after
++ * the bit used by PTI (if any).
++ */
 +#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-+# define DISABLE_ASI		0
++
++#define X86_CR3_ASI_PCID_BITS 2
++
++/* Use the highest available PCID bits after the PTI bit (if any) */
++#ifdef CONFIG_MITIGATION_PAGE_TABLE_ISOLATION
++#define X86_CR3_ASI_PCID_END_BIT (X86_CR3_PTI_PCID_USER_BIT - 1)
 +#else
-+# define DISABLE_ASI		(1 << (X86_FEATURE_ASI & 31))
++#define X86_CR3_ASI_PCID_END_BIT (X86_CR3_PCID_BITS - 1)
 +#endif
 +
- #ifdef CONFIG_MITIGATION_RETPOLINE
- # define DISABLE_RETPOLINE	0
- #else
-@@ -154,7 +160,7 @@
- #define DISABLED_MASK17	0
- #define DISABLED_MASK18	(DISABLE_IBT)
- #define DISABLED_MASK19	(DISABLE_SEV_SNP)
--#define DISABLED_MASK20	0
-+#define DISABLED_MASK20	(DISABLE_ASI)
- #define DISABLED_MASK21	0
- #define DISABLED_MASK_CHECK BUILD_BUG_ON_ZERO(NCAPINTS != 22)
++#define X86_CR3_ASI_PCID_BITS_SHIFT (X86_CR3_ASI_PCID_END_BIT - X86_CR3_ASI_PCID_BITS + 1)
++#define X86_CR3_ASI_PCID_MASK (((1UL << X86_CR3_ASI_PCID_BITS) - 1) << X86_CR3_ASI_PCID_BITS_SHIFT)
++
++#else
++#define X86_CR3_ASI_PCID_BITS 0
++#endif
++
+ #endif /* _ASM_X86_PROCESSOR_FLAGS_H */
+diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+index c884174a44e119a3c027c44ada6c5cdba14d1282..f167feb5ebdfc7faba26b8b18ac65888cd9b0494 100644
+--- a/arch/x86/include/asm/tlbflush.h
++++ b/arch/x86/include/asm/tlbflush.h
+@@ -425,5 +425,8 @@ static inline void __native_tlb_flush_global(unsigned long cr4)
+ }
  
+ unsigned long build_cr3_noinstr(pgd_t *pgd, u16 asid, unsigned long lam);
++unsigned long build_cr3_pcid_noinstr(pgd_t *pgd, u16 pcid, unsigned long lam, bool noflush);
++
++u16 asi_pcid(struct asi *asi, u16 asid);
+ 
+ #endif /* _ASM_X86_TLBFLUSH_H */
 diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
-index 105cd8b43eaf5c20acc80d4916b761559fb95d74..5baf563a078f5b3a6cd4b9f5e92baaf81b0774c4 100644
+index 054315d566c082c0925a00ce3a0877624c8b9957..8d060c633be68b508847e2c1c111761df1da92af 100644
 --- a/arch/x86/mm/asi.c
 +++ b/arch/x86/mm/asi.c
-@@ -4,6 +4,7 @@
- #include <linux/percpu.h>
- #include <linux/spinlock.h>
- 
-+#include <linux/init.h>
- #include <asm/asi.h>
- #include <asm/cmdline.h>
- #include <asm/cpufeature.h>
-@@ -29,6 +30,9 @@ static inline bool asi_class_id_valid(enum asi_class_id class_id)
- 
- static inline bool asi_class_initialized(enum asi_class_id class_id)
+@@ -238,6 +238,7 @@ static __always_inline void maybe_flush_data(struct asi *next_asi)
+ noinstr void __asi_enter(void)
  {
-+	if (!boot_cpu_has(X86_FEATURE_ASI))
-+		return 0;
+ 	u64 asi_cr3;
++	u16 pcid;
+ 	struct asi *target = asi_get_target(current);
+ 
+ 	/*
+@@ -266,9 +267,8 @@ noinstr void __asi_enter(void)
+ 	this_cpu_write(curr_asi, target);
+ 	maybe_flush_control(target);
+ 
+-	asi_cr3 = build_cr3_noinstr(target->pgd,
+-				    this_cpu_read(cpu_tlbstate.loaded_mm_asid),
+-				    tlbstate_lam_cr3_mask());
++	pcid = asi_pcid(target, this_cpu_read(cpu_tlbstate.loaded_mm_asid));
++	asi_cr3 = build_cr3_pcid_noinstr(target->pgd, pcid, tlbstate_lam_cr3_mask(), false);
+ 	write_cr3(asi_cr3);
+ 
+ 	maybe_flush_data(target);
+@@ -335,8 +335,8 @@ noinstr void asi_exit(void)
+ 
+ 		unrestricted_cr3 =
+ 			build_cr3_noinstr(this_cpu_read(cpu_tlbstate.loaded_mm)->pgd,
+-					  this_cpu_read(cpu_tlbstate.loaded_mm_asid),
+-					  tlbstate_lam_cr3_mask());
++					 this_cpu_read(cpu_tlbstate.loaded_mm_asid),
++					 tlbstate_lam_cr3_mask());
+ 
+ 		/* Tainting first makes reentrancy easier to reason about.  */
+ 		this_cpu_or(asi_taints, ASI_TAINT_KERNEL_DATA);
+diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+index 7c2309996d1d5a7cac23bd122f7b56a869d67d6a..2601beed83aef182d88800c09d70e4c5e95e7ed0 100644
+--- a/arch/x86/mm/tlb.c
++++ b/arch/x86/mm/tlb.c
+@@ -13,6 +13,7 @@
+ #include <linux/mmu_notifier.h>
+ #include <linux/mmu_context.h>
+ 
++#include <asm/processor-flags.h>
+ #include <asm/tlbflush.h>
+ #include <asm/mmu_context.h>
+ #include <asm/nospec-branch.h>
+@@ -96,7 +97,10 @@
+ # define PTI_CONSUMED_PCID_BITS	0
+ #endif
+ 
+-#define CR3_AVAIL_PCID_BITS (X86_CR3_PCID_BITS - PTI_CONSUMED_PCID_BITS)
++#define CR3_AVAIL_PCID_BITS (X86_CR3_PCID_BITS - PTI_CONSUMED_PCID_BITS - \
++			     X86_CR3_ASI_PCID_BITS)
 +
- 	if (WARN_ON(!asi_class_id_valid(class_id)))
- 		return false;
- 
-@@ -51,6 +55,9 @@ EXPORT_SYMBOL_GPL(asi_init_class);
- 
- void asi_uninit_class(enum asi_class_id class_id)
- {
-+	if (!boot_cpu_has(X86_FEATURE_ASI))
-+		return;
-+
- 	if (!asi_class_initialized(class_id))
- 		return;
- 
-@@ -66,10 +73,36 @@ const char *asi_class_name(enum asi_class_id class_id)
- 	return asi_class_names[class_id];
- }
- 
-+void __init asi_check_boottime_disable(void)
-+{
-+	bool enabled = IS_ENABLED(CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION_DEFAULT_ON);
-+	char arg[4];
-+	int ret;
-+
-+	ret = cmdline_find_option(boot_command_line, "asi", arg, sizeof(arg));
-+	if (ret == 3 && !strncmp(arg, "off", 3)) {
-+		enabled = false;
-+		pr_info("ASI disabled through kernel command line.\n");
-+	} else if (ret == 2 && !strncmp(arg, "on", 2)) {
-+		enabled = true;
-+		pr_info("Ignoring asi=on param while ASI implementation is incomplete.\n");
-+	} else {
-+		pr_info("ASI %s by default.\n",
-+			enabled ? "enabled" : "disabled");
-+	}
-+
-+	if (enabled)
-+		pr_info("ASI enablement ignored due to incomplete implementation.\n");
-+}
-+
- static void __asi_destroy(struct asi *asi)
- {
--	lockdep_assert_held(&asi->mm->asi_init_lock);
-+	WARN_ON_ONCE(asi->ref_count <= 0);
-+	if (--(asi->ref_count) > 0)
-+		return;
- 
-+	free_pages((ulong)asi->pgd, PGD_ALLOCATION_ORDER);
-+	memset(asi, 0, sizeof(struct asi));
- }
- 
- int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_asi)
-@@ -79,6 +112,9 @@ int asi_init(struct mm_struct *mm, enum asi_class_id class_id, struct asi **out_
- 
- 	*out_asi = NULL;
- 
-+	if (!boot_cpu_has(X86_FEATURE_ASI))
-+		return 0;
-+
- 	if (WARN_ON(!asi_class_initialized(class_id)))
- 		return -EINVAL;
- 
-@@ -122,7 +158,7 @@ void asi_destroy(struct asi *asi)
- {
- 	struct mm_struct *mm;
- 
--	if (!asi)
-+	if (!boot_cpu_has(X86_FEATURE_ASI) || !asi)
- 		return;
- 
- 	if (WARN_ON(!asi_class_initialized(asi->class_id)))
-@@ -134,11 +170,7 @@ void asi_destroy(struct asi *asi)
- 	 * to block concurrent asi_init calls.
- 	 */
- 	mutex_lock(&mm->asi_init_lock);
--	WARN_ON_ONCE(asi->ref_count <= 0);
--	if (--(asi->ref_count) == 0) {
--		free_pages((ulong)asi->pgd, PGD_ALLOCATION_ORDER);
--		memset(asi, 0, sizeof(struct asi));
--	}
-+	__asi_destroy(asi);
- 	mutex_unlock(&mm->asi_init_lock);
- }
- EXPORT_SYMBOL_GPL(asi_destroy);
-@@ -255,6 +287,9 @@ static noinstr void __asi_enter(void)
- 
- noinstr void asi_enter(struct asi *asi)
- {
-+	if (!static_asi_enabled())
-+		return;
-+
- 	VM_WARN_ON_ONCE(!asi);
- 
- 	/* Should not have an asi_enter() without a prior asi_relax(). */
-@@ -269,8 +304,10 @@ EXPORT_SYMBOL_GPL(asi_enter);
- 
- noinstr void asi_relax(void)
- {
--	barrier();
--	asi_set_target(current, NULL);
-+	if (static_asi_enabled()) {
-+		barrier();
-+		asi_set_target(current, NULL);
-+	}
- }
- EXPORT_SYMBOL_GPL(asi_relax);
- 
-@@ -279,6 +316,9 @@ noinstr void asi_exit(void)
- 	u64 unrestricted_cr3;
- 	struct asi *asi;
- 
-+	if (!static_asi_enabled())
-+		return;
-+
- 	preempt_disable_notrace();
- 
- 	VM_BUG_ON(this_cpu_read(cpu_tlbstate.loaded_mm) ==
-@@ -310,6 +350,9 @@ EXPORT_SYMBOL_GPL(asi_exit);
- 
- void asi_init_mm_state(struct mm_struct *mm)
- {
-+	if (!boot_cpu_has(X86_FEATURE_ASI))
-+		return;
-+
- 	memset(mm->asi, 0, sizeof(mm->asi));
- 	mutex_init(&mm->asi_init_lock);
- }
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index de4227ed5169ff84d0ce80b677caffc475198fa6..ded3a47f2a9c1f554824d4ad19f3b48bce271274 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -28,6 +28,7 @@
- #include <asm/text-patching.h>
- #include <asm/memtype.h>
- #include <asm/paravirt.h>
-+#include <asm/asi.h>
++static_assert(BIT(CR3_AVAIL_PCID_BITS) > TLB_NR_DYN_ASIDS);
  
  /*
-  * We need to define the tracepoints somewhere, and tlb.c
-@@ -251,7 +252,7 @@ static void __init probe_page_size_mask(void)
- 	__default_kernel_pte_mask = __supported_pte_mask;
- 	/* Except when with PTI where the kernel is mostly non-Global: */
- 	if (cpu_feature_enabled(X86_FEATURE_PTI) ||
--	    IS_ENABLED(CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION))
-+	    cpu_feature_enabled(X86_FEATURE_ASI))
- 		__default_kernel_pte_mask &= ~_PAGE_GLOBAL;
+  * ASIDs are zero-based: 0->MAX_AVAIL_ASID are valid.  -1 below to account
+@@ -125,6 +129,11 @@ static __always_inline u16 kern_pcid(u16 asid)
+ 	 */
+ 	VM_WARN_ON_ONCE(asid & (1 << X86_CR3_PTI_PCID_USER_BIT));
+ #endif
++
++#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
++	BUILD_BUG_ON(TLB_NR_DYN_ASIDS >= (1 << X86_CR3_ASI_PCID_BITS_SHIFT));
++	VM_WARN_ON_ONCE(asid & X86_CR3_ASI_PCID_MASK);
++#endif
+ 	/*
+ 	 * The dynamically-assigned ASIDs that get passed in are small
+ 	 * (<TLB_NR_DYN_ASIDS).  They never have the high switch bit set,
+@@ -153,17 +162,22 @@ static inline u16 user_pcid(u16 asid)
+ 	return ret;
+ }
  
- 	/* Enable 1 GB linear kernel mappings if available: */
-@@ -754,6 +755,7 @@ void __init init_mem_mapping(void)
- 	unsigned long end;
++static __always_inline unsigned long __build_cr3(pgd_t *pgd, u16 pcid, unsigned long lam)
++{
++	return __sme_pa_nodebug(pgd) | pcid | lam;
++}
++
+ static __always_inline unsigned long build_cr3(pgd_t *pgd, u16 asid, unsigned long lam)
+ {
+-	unsigned long cr3 = __sme_pa_nodebug(pgd) | lam;
++	u16 pcid = 0;
  
- 	pti_check_boottime_disable();
-+	asi_check_boottime_disable();
- 	probe_page_size_mask();
- 	setup_pcid();
+ 	if (static_cpu_has(X86_FEATURE_PCID)) {
+-		cr3 |= kern_pcid(asid);
++		pcid = kern_pcid(asid);
+ 	} else {
+ 		VM_WARN_ON_ONCE(asid != 0);
+ 	}
  
+-	return cr3;
++	return __build_cr3(pgd, pcid, lam);
+ }
+ 
+ noinstr unsigned long build_cr3_noinstr(pgd_t *pgd, u16 asid, unsigned long lam)
+@@ -183,6 +197,19 @@ static inline unsigned long build_cr3_noflush(pgd_t *pgd, u16 asid,
+ 	return build_cr3(pgd, asid, lam) | CR3_NOFLUSH;
+ }
+ 
++noinstr unsigned long build_cr3_pcid_noinstr(pgd_t *pgd, u16 pcid,
++					     unsigned long lam, bool noflush)
++{
++	u64 noflush_bit = 0;
++
++	if (!static_cpu_has(X86_FEATURE_PCID))
++		pcid = 0;
++	else if (noflush)
++		noflush_bit = CR3_NOFLUSH;
++
++	return __build_cr3(pgd, pcid, lam) | noflush_bit;
++}
++
+ /*
+  * We get here when we do something requiring a TLB invalidation
+  * but could not go invalidate all of the contexts.  We do the
+@@ -998,6 +1025,20 @@ static void put_flush_tlb_info(void)
+ #endif
+ }
+ 
++#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
++
++noinstr u16 asi_pcid(struct asi *asi, u16 asid)
++{
++	return kern_pcid(asid) | ((asi->class_id + 1) << X86_CR3_ASI_PCID_BITS_SHIFT);
++	// return kern_pcid(asid) | ((asi->index + 1) << X86_CR3_ASI_PCID_BITS_SHIFT);
++}
++
++#else /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
++
++u16 asi_pcid(struct asi *asi, u16 asid) { return kern_pcid(asid); }
++
++#endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
++
+ void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
+ 				unsigned long end, unsigned int stride_shift,
+ 				bool freed_tables)
 diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
-index 6b84202837605fa57e4a910318c8353b3f816f06..eedc961ee916a9e1da631ca489ea4a7bc9e6089f 100644
+index 7f542c59c2b8a2b74432e4edb7199f9171db8a84..f777a6cf604b0656fb39087f6eba08f980b2cb6f 100644
 --- a/include/asm-generic/asi.h
 +++ b/include/asm-generic/asi.h
-@@ -65,6 +65,10 @@ static inline pgd_t *asi_pgd(struct asi *asi) { return NULL; }
+@@ -2,6 +2,7 @@
+ #ifndef __ASM_GENERIC_ASI_H
+ #define __ASM_GENERIC_ASI_H
  
- static inline void asi_handle_switch_mm(void) { }
++#include <linux/log2.h>
+ #include <linux/types.h>
  
-+#define static_asi_enabled() false
-+
-+static inline void asi_check_boottime_disable(void) { }
-+
- #endif /* !CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
+ #ifndef _ASSEMBLY_
+@@ -16,6 +17,7 @@ enum asi_class_id {
+ #endif
+ 	ASI_MAX_NUM_CLASSES,
+ };
++static_assert(order_base_2(X86_CR3_ASI_PCID_BITS) <= ASI_MAX_NUM_CLASSES);
  
- #endif  /* !_ASSEMBLY_ */
+ typedef u8 asi_taints_t;
+ 
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
