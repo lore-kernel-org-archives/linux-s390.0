@@ -1,217 +1,111 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63A82054E7;
-	Fri, 10 Jan 2025 07:39:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13A9F1FFC58;
+	Fri, 10 Jan 2025 07:46:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736494753; cv=none; b=ijtyMG8v4B+DDWI7ie5edEIs5aeRCz+YQZoSdn6uwcaVhAZbP4ON/vKnQlykjkGqYQdgW0T1SLBbgDrQYWXfXPRztJsfjGbDLEP4t67Klk6yzDTtCCryibwE7kxntO1Et53As5Pu450qBqdWEB/4JkI01elSyOEIzSv4+lL40Kw=
+	t=1736495163; cv=none; b=JQkCnNPtcCq3M4QEMCJkKkmH9DmOqFwqPmfy6UTUBv4NlLQQiLQo6A2lM83GBCs39STqrF5SVe7GwizlvMrUKRDl3C0oPcWOiAPX0lo6CpobxFMQqDwyt9QS/MbByg15kJBCzm4PXgwq+WaieWal/usZhOsarkblZpdmRUcdcX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736494753; c=relaxed/simple;
-	bh=UqpeD7AFDIeauyvYNP7b1aaXOeL4aPQfa0cJe+ReQVs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Ns78nPKCu9Y+JbuR7f348NMq6IINY0VIYEOYpXucatFO9SajiLRjGakYwCpU4DfB4dAn9uqoT/E9QglV5Lod2RQ2eDOKOKHsYQDrx14xbmVfCseuji/OjNbb7hYF8/VxEYL0pG9+ujxkNHRqIL3MFyL/nKtbPEP3s5pGESceKUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oRQpF/U/; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1736495163; c=relaxed/simple;
+	bh=TaN/YVl+XMUic9yzN1PVn4S4r+x029ETZNwY8Jcsy28=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VwdJcMK76knfAX1I2U2u7Cbvu5RH4k8+nmGIfkB6oTsTlauTegBgDEP8SKdUOHsLfNA4Ai3iYJ5YsKP1HfZOrzBOMM12rwHofmrhob7Ngn5DKxDiI02qYDMf8iFImwgrJmAKlvL+52MvUeKKFvE6LuY/0jL3A3Ug66FsU1JVZ8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qbW4f8XY; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oRQpF/U/"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 509Nx3H2001639;
-	Fri, 10 Jan 2025 07:37:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qbW4f8XY"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 509Nb4sb020087;
+	Fri, 10 Jan 2025 07:45:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=2WLKmmEPE7uT96J0bnuWzAWEZ+Ks9U
-	e/uzhm9byypE8=; b=oRQpF/U/6grcr4Snq1iRk/I9GYPWsewmz147QsJg3tlJpp
-	Sm/UeyETvgjJAENQaWXaSd8cfqXr/0vuRhl8N3wtL6grgFwp/aIijZOMmhsN47FV
-	f5jNMRsdgk7yT4y+tHRFOoWJtkEWYjhp56XaA02mxcT8qNb30IwNF63MXXQkZAEl
-	UIlk8MTqRCqzy91KOcrwItqlnQdxp2B2h/5xAgUKTct76fC0NSNLcVTVxD2ZYQ7X
-	9rxhSluh+DwsIN5cVsDEsi/dxgg4ADMCRoXyhv5xzciWSwH6XZkvVHoOuULqD2BA
-	tjfE3Xo8v5ux7lwgyBH9IJOGKqLEpFGzYgoJwZfA==
+	:references:subject:to; s=pp1; bh=TaN/YVl+XMUic9yzN1PVn4S4r+x029
+	ETZNwY8Jcsy28=; b=qbW4f8XYwSQcuge7SfzrAFyTqSo3qEOsN8xMF3xyiF+gW0
+	RwxEuUgefU19gVT8hZRBaaLKJffShBPnrw6gcAS4yxv4jHf1aK7Fu64fG91/OnLq
+	tf2c7XyvOPhjFx3sAQClheWMX1ThaPgUKWbfXXyUnG8QSJ5mfGh2xkCA4ba6w8aF
+	GQntvnG2zI9DHDowHcpERqiy92b+LhUUzaqaH7UYKi+x3U2p4EY+uR9loWFKYb2m
+	/ZCy9M9o3upXXi7CGRiRaHay9NSY2is6GzFE5HaH/PNb4zPEb0h6uBlOCbXfc6ZK
+	jsgqr7CELMtPvk28AE9HHPSKqvex1UL6cdUZTa9Q==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442rkhsd0u-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442r9ase9c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 07:37:54 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50A7YWLB014523;
-	Fri, 10 Jan 2025 07:37:53 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442rkhsd0p-1
+	Fri, 10 Jan 2025 07:45:57 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50A7jvah028978;
+	Fri, 10 Jan 2025 07:45:57 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442r9ase98-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 07:37:53 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50A5a76b015805;
-	Fri, 10 Jan 2025 07:37:51 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43ygtm930f-1
+	Fri, 10 Jan 2025 07:45:57 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50A5xHRD028054;
+	Fri, 10 Jan 2025 07:45:56 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43yhhkgxq0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 07:37:51 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50A7bmZl54264154
+	Fri, 10 Jan 2025 07:45:56 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50A7jss152167072
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jan 2025 07:37:48 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCF1520049;
-	Fri, 10 Jan 2025 07:37:47 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2113920040;
-	Fri, 10 Jan 2025 07:37:47 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 10 Jan 2025 07:37:47 +0000 (GMT)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: "Dmitry V. Levin" <ldv@strace.io>
-Cc: Oleg Nesterov <oleg@redhat.com>, Eugene Syromyatnikov
- <evgsyr@gmail.com>,
-        Mike Frysinger <vapier@gentoo.org>, Renzo Davoli
- <renzo@cs.unibo.it>,
-        Davide Berardi <berardi.dav@gmail.com>, strace-devel@lists.strace.io,
-        Vineet Gupta <vgupta@kernel.org>,
-        Russell
- King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Brian Cain <bcain@quicinc.com>,
-        Huacai
- Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
-        Geert
- Uytterhoeven <geert@linux-m68k.org>,
-        Michal Simek <monstr@monstr.eu>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Dinh Nguyen
- <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-        Stefan
- Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Stafford Horne
- <shorne@gmail.com>,
-        "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin
- <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Naveen N Rao <naveen@kernel.org>,
-        Madhavan Srinivasan
- <maddy@linux.ibm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer
- Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Heiko
- Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>,
-        John Paul Adrian Glaubitz
- <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Richard Weinberger
- <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Thomas Gleixner
- <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov
- <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel
- <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann
- <arnd@arndb.de>,
-        linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
-        loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/6] syscall.h: introduce syscall_set_nr()
-In-Reply-To: <20250107230438.GC30633@strace.io> (Dmitry V. Levin's message of
-	"Wed, 8 Jan 2025 01:04:38 +0200")
-References: <20250107230438.GC30633@strace.io>
-Date: Fri, 10 Jan 2025 08:37:46 +0100
-Message-ID: <yt9dzfjz6rw5.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	Fri, 10 Jan 2025 07:45:54 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB2A12004D;
+	Fri, 10 Jan 2025 07:45:54 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 55B1820040;
+	Fri, 10 Jan 2025 07:45:54 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.93.19])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 10 Jan 2025 07:45:54 +0000 (GMT)
+Date: Fri, 10 Jan 2025 08:45:52 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Weikang Guo <guoweikang.kernel@gmail.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Mike Rapoport <rppt@linux.ibm.com>
+Subject: Re: [PATCH] arch/s390: save_area_alloc default failure behavior
+ changed to panic
+Message-ID: <Z4DQMNCayUHlwEol@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250109033136.2845676-1-guoweikang.kernel@gmail.com>
+ <Z3+ECLf7LHQe+Mdq@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <CAOm6qnkoKjrUXCbhCiSYviuwCRVES1FYCy17fwATtyZ+M=Aw7g@mail.gmail.com>
+ <Z3/VoAaSQF5Tcy4t@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <CAOm6qnnxvVfxfoKTj8eO3iqZ9oj__JMJ8o0cH2fZuKkk7gVZYQ@mail.gmail.com>
+ <20250109164315.b21f40e1b757b1cf9eb7e042@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250109164315.b21f40e1b757b1cf9eb7e042@linux-foundation.org>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oQL9q4Cm2OlRS0avVKS0GOik26TaXbjd
-X-Proofpoint-GUID: v26jL7-Nw4XZK-M8Nskiprqug0sq7Zhb
+X-Proofpoint-GUID: DiTpdXiyvd8k4Mwu2S2MNWuUt9wEd6xr
+X-Proofpoint-ORIG-GUID: UUGlbVpcvpsa-5ou-jh79m4dOSbPleoP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
- mlxscore=0 suspectscore=0 phishscore=0 impostorscore=0 adultscore=0
- malwarescore=0 priorityscore=1501 mlxlogscore=723 lowpriorityscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501100061
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ lowpriorityscore=0 bulkscore=0 malwarescore=0 adultscore=0 suspectscore=0
+ mlxlogscore=534 impostorscore=0 priorityscore=1501 mlxscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501100061
 
-"Dmitry V. Levin" <ldv@strace.io> writes:
+On Thu, Jan 09, 2025 at 04:43:15PM -0800, Andrew Morton wrote:
 
-> Similar to syscall_set_arguments() that complements
-> syscall_get_arguments(), introduce syscall_set_nr()
-> that complements syscall_get_nr().
->
-> syscall_set_nr() is going to be needed along with
-> syscall_set_arguments() on all HAVE_ARCH_TRACEHOOK
-> architectures to implement PTRACE_SET_SYSCALL_INFO API.
->
-> Signed-off-by: Dmitry V. Levin <ldv@strace.io>
-> ---
->  arch/arc/include/asm/syscall.h        |  6 ++++++
->  arch/arm/include/asm/syscall.h        | 12 ++++++++++++
->  arch/arm64/include/asm/syscall.h      |  7 +++++++
->  arch/hexagon/include/asm/syscall.h    |  7 +++++++
->  arch/loongarch/include/asm/syscall.h  |  7 +++++++
->  arch/m68k/include/asm/syscall.h       |  7 +++++++
->  arch/microblaze/include/asm/syscall.h |  7 +++++++
->  arch/mips/include/asm/syscall.h       |  7 +++++++
->  arch/nios2/include/asm/syscall.h      |  5 +++++
->  arch/openrisc/include/asm/syscall.h   |  6 ++++++
->  arch/parisc/include/asm/syscall.h     |  7 +++++++
->  arch/powerpc/include/asm/syscall.h    |  5 +++++
->  arch/riscv/include/asm/syscall.h      |  7 +++++++
->  arch/s390/include/asm/syscall.h       |  7 +++++++
->  arch/sh/include/asm/syscall_32.h      |  7 +++++++
->  arch/sparc/include/asm/syscall.h      |  7 +++++++
->  arch/um/include/asm/syscall-generic.h |  5 +++++
->  arch/x86/include/asm/syscall.h        |  7 +++++++
->  arch/xtensa/include/asm/syscall.h     |  7 +++++++
->  include/asm-generic/syscall.h         | 14 ++++++++++++++
->  20 files changed, 144 insertions(+)
->
-> diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
-> index b3dd883699e7..1c0e349fd5c9 100644
-> --- a/arch/s390/include/asm/syscall.h
-> +++ b/arch/s390/include/asm/syscall.h
-> @@ -24,6 +24,13 @@ static inline long syscall_get_nr(struct task_struct *task,
->  		(regs->int_code & 0xffff) : -1;
->  }
->  
-> +static inline void syscall_set_nr(struct task_struct *task,
-> +				  struct pt_regs *regs,
-> +				  int nr)
-> +{
+Hi Andrew,
 
-I think there should be a
+> I'll fold this patch ("arch/s390: save_area_alloc default failure
+> behavior changed to panic") into
+> "mm-memblock-add-memblock_alloc_or_panic-interface.patch", v8 before
+> sending the latter upstream.
 
-	if (!test_pt_regs_flags(regs, PIF_SYSCALL))
-		return;
+To s390 bits of the folded patch:
 
-before the modification so a user can't accidentally change int_code
-when ptrace stopped in a non-syscall path.
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
 
-> +	regs->int_code = (regs->int_code & ~0xffff) | (nr & 0xffff);
-> +}
-> +
->  static inline void syscall_rollback(struct task_struct *task,
->  				    struct pt_regs *regs)
->  {
+Thanks!
