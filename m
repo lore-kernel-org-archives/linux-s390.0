@@ -1,200 +1,100 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962C01ACEDF;
-	Fri, 10 Jan 2025 11:47:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30136205E21;
+	Fri, 10 Jan 2025 12:14:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736509642; cv=none; b=LgQu2sUzHOBZFQgMhdk9LBbK160zQJXTdwruSaSX40W7AL/h5vJSu0LZbo/3GU9j0zhnWlkoM6VIOQynyTuwbq7MK40Oj1HPe9Tpuv2sotmhj0YcOFQwD3jpMmjhW685ynW4OravwA/lIKZpbZOeaaOBwHfJnJGIwyyl5u2rh7Y=
+	t=1736511259; cv=none; b=lr2VUoQ3CevOglU9wM0nf0VhGG6ygvPsJ5xrUOmXtS/joEFQ+CjizrVcbmg+sM+G54yVi8lcKSGTeMoAKr0H8EmuLe1nzH9qsQxakdWkMFdu49W4hl8okyk/K/JDfHAJQL06ljf32PBd+oUVEJo/q7Cu4RrLHRt39UhZB6TL+pg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736509642; c=relaxed/simple;
-	bh=L3T0DOVw7M8dEdeuOninHFRgJFC+Lb+MVcZw77LEWps=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YosBPrues+zT+wORlXQvzzPbP67tQ1JUbEVnn7bavZUq6JKr7+F1GljY7OuYf2XtUvEeUPO/XRwCG6ZikvrqVQSKwgQS08VQ6b4+qK9BJ5CDyzgVkk1S+qkAMbFGriV0NvT7+Rfz7BQz/pm5SatZTBGVmyWMzaf7WTpgBqGf8MI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sJFqk7KQ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736511259; c=relaxed/simple;
+	bh=LKo8bpEtYIe5t1VceBxZS22BvfVVDlhIZm0EoNnQYEs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=T+CU/HxBddKe1GbvNDT0lTG4TQoTPeXrltoBepk3uU960gHSMsU/blFizoV8SGlS9iwc5IpOPKyDle80+cWqOW5rFeKPVTk/Vh2E4Mg7gq5imLu0cIXQL3arhw0OCeR1/3vjjeot30bWqq2X8BQdrboGkU5i4b0hlPQY9FgDIYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XlLK6X/d; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sJFqk7KQ"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 509NaeWH019012;
-	Fri, 10 Jan 2025 11:47:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JPWKOP
-	uIjUVrWzHaZ5UuC7gV61CKrjIBvdezkO1JYwQ=; b=sJFqk7KQOAn9DZxkcVswpM
-	eu1ffPefrm+2FHQ+vE+y1VYJxev1MSkVCNW1AwdJJ0Evnwlq/h8VKP98yq6trE8j
-	Mcd1Xk72J1zg8awb7b9A5yLAxPq0iDn4gWKBj4rj+0ycAwIcNLNLR/juAnNL8/RH
-	8cgU0V7num0SkXnXWh9Uey1aExi5Hj1EY9UAsuQrCHdnUgzS6y6hH4Sxzf88biuQ
-	uZppn8o/7Hqm41wjiEd5FDaLpElfHLuKKmdnGemLFeo0dcRNSh54KMNt0ZIM/SHM
-	D5KP51/aj4i68BuonIitqgEjSVfcfxPhsSDX+nvAO6xCJqmEtFh3V70x/ByxuBGA
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 442r9atd0v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 11:47:11 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50A9G4ef008869;
-	Fri, 10 Jan 2025 11:47:11 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 43yfq0a4um-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Jan 2025 11:47:11 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50ABl7gj31785498
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Jan 2025 11:47:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8402620040;
-	Fri, 10 Jan 2025 11:47:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 520F82004B;
-	Fri, 10 Jan 2025 11:47:07 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 10 Jan 2025 11:47:07 +0000 (GMT)
-Date: Fri, 10 Jan 2025 12:47:05 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
-        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-Subject: Re: [PATCH v1 02/13] KVM: s390: fake memslots for ucontrol VMs
-Message-ID: <20250110124705.74db01be@p-imbrenda>
-In-Reply-To: <12a4155f-9d09-4af9-8556-ba32f7f639e6@de.ibm.com>
-References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
-	<20250108181451.74383-3-imbrenda@linux.ibm.com>
-	<12a4155f-9d09-4af9-8556-ba32f7f639e6@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XlLK6X/d"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC297C4CEE1;
+	Fri, 10 Jan 2025 12:14:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736511258;
+	bh=LKo8bpEtYIe5t1VceBxZS22BvfVVDlhIZm0EoNnQYEs=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=XlLK6X/dS8tqVWhYOAJVc4GMdupJU0aj3EbEpgjG5ELiHvIrp92f3An90gvP6r2uF
+	 Sdt/RO5yWD7whAscqg2x5vvLmkc9ghXYG5ku1ARD8cLJ+rRcYQpK6BwZxyNBXrnLme
+	 hoKYYPLj3VdnAUhSbldJrWSjomkiBzk3BmFpUcOgnUwOCvTxzXaeLySIONJc527TwB
+	 GoN3HeoEsM5+phLM6E6RMX5B3AFozfV1N/gDFazPfOTcfg/IFsfnTiWW2eLEI8yR/X
+	 f3UuqtrVqHKrjts5F5wgKfObTlnpW+BuOLR6Mb31EUaMP1tc28G3LRp83iL1op8R8U
+	 nLg2+pu6IUEeQ==
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-53ff1f7caaeso2036749e87.0;
+        Fri, 10 Jan 2025 04:14:18 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCWfF1x2sV34hswMAZXNoZKRQRjUXCS+TxsELvL4/gwvS+UKgMZ3pb2IlKX2mLejx6g9iDUy75kNpRG3jA==@vger.kernel.org, AJvYcCXWx6ZzTqwP0cszRMoKh3/AGiga8nkATmkqL+1iMnMXVK6Z44i8D1sgYv3uJjyv78bT315PKEomg9Gi60E=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxbiqlJ9YTG7It6mV/dmR7PFtDQ+8MrGSNVJii9j7xKdkxgHhV1
+	oIRBhm5ELIJrYEAk8dTx6yR+wS/j68YTzlsp6Nph1UzA1Fo4AcSVWciNDVCs+C2OnqK+H3o6E2a
+	jYr197GK7O7NVz8ttFxHmJ6XcayE=
+X-Google-Smtp-Source: AGHT+IH34RNFIsnvALe6AjqSTDDJWj/TiAsDt+LHFUd3XT4Qq1HhowlIi4/eiuJedBUmy+/wHA0rdXMqF+/iSLbSmak=
+X-Received: by 2002:a05:6512:1149:b0:540:2201:57d1 with SMTP id
+ 2adb3069b0e04-542845c01b8mr3284401e87.49.1736511257474; Fri, 10 Jan 2025
+ 04:14:17 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dFGNPt_vBTsBEvzEiaPhXe1217Dz3EIA
-X-Proofpoint-ORIG-GUID: dFGNPt_vBTsBEvzEiaPhXe1217Dz3EIA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 adultscore=0 suspectscore=0
- mlxlogscore=999 impostorscore=0 priorityscore=1501 mlxscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501100090
+References: <20250110082744.457067-2-ardb+git@google.com>
+In-Reply-To: <20250110082744.457067-2-ardb+git@google.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Fri, 10 Jan 2025 21:13:41 +0900
+X-Gmail-Original-Message-ID: <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
+X-Gm-Features: AbW1kvYJSJ4ULPz9l8U8QGvpjCXJw-r5-U5EtXUed8QBmqt7AOBtvhMEG4S3Zrw
+Message-ID: <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: Strip runtime const RELA sections correctly
+To: Ard Biesheuvel <ardb+git@google.com>
+Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Ard Biesheuvel <ardb@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 10 Jan 2025 10:31:38 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Fri, Jan 10, 2025 at 5:28=E2=80=AFPM Ard Biesheuvel <ardb+git@google.com=
+> wrote:
+>
+> From: Ard Biesheuvel <ardb@kernel.org>
+>
+> Due to the fact that runtime const ELF sections are named without a
+> leading period or double underscore, the RSTRIP logic that removes the
+> static RELA sections from vmlinux fails to identify them. This results
+> in a situation like below, where some sections that were supposed to get
+> removed are left behind.
+>
+>   [Nr] Name                              Type            Address         =
+ Off     Size   ES Flg Lk Inf Al
+>
+>   [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f50=
+ 2900f50 000014 00   A  0   0  1
+>   [59] .relaruntime_shift_d_hash_shift   RELA            0000000000000000=
+ 55b6f00 000078 18   I 70  58  8
+>   [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f68=
+ 2900f68 000014 00   A  0   0  1
+>   [61] .relaruntime_ptr_dentry_hashtable RELA            0000000000000000=
+ 55b6f78 000078 18   I 70  60  8
+>   [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f80=
+ 2900f80 000238 00   A  0   0  1
+>   [63] .relaruntime_ptr_USER_PTR_MAX     RELA            0000000000000000=
+ 55b6ff0 000d50 18   I 70  62  8
+>
+> So tweak the match expression to strip all sections starting with .rel.
+> While at it, consolidate the logic used by RISC-V, s390 and x86 into a
+> single shared Makefile library command.
 
-> Am 08.01.25 um 19:14 schrieb Claudio Imbrenda:
-> > Create fake memslots for ucontrol VMs. The fake memslots identity-map
-> > userspace.
-> > 
-> > Now memslots will always be present, and ucontrol is not a special case
-> > anymore.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >   arch/s390/kvm/kvm-s390.c | 42 ++++++++++++++++++++++++++++++++++++----
-> >   1 file changed, 38 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> > index ecbdd7d41230..797b8503c162 100644
-> > --- a/arch/s390/kvm/kvm-s390.c
-> > +++ b/arch/s390/kvm/kvm-s390.c
-> > @@ -59,6 +59,7 @@
-> >   #define LOCAL_IRQS 32
-> >   #define VCPU_IRQS_MAX_BUF (sizeof(struct kvm_s390_irq) * \
-> >   			   (KVM_MAX_VCPUS + LOCAL_IRQS))
-> > +#define UCONTROL_SLOT_SIZE SZ_4T
-> >   
-> >   const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
-> >   	KVM_GENERIC_VM_STATS(),
-> > @@ -3326,6 +3327,23 @@ void kvm_arch_free_vm(struct kvm *kvm)
-> >   	__kvm_arch_free_vm(kvm);
-> >   }
-> >   
-> > +static void kvm_s390_ucontrol_ensure_memslot(struct kvm *kvm, unsigned long addr)
-> > +{
-> > +	struct kvm_userspace_memory_region2 region = {
-> > +		.slot = addr / UCONTROL_SLOT_SIZE,
-> > +		.memory_size = UCONTROL_SLOT_SIZE,
-> > +		.guest_phys_addr = ALIGN_DOWN(addr, UCONTROL_SLOT_SIZE),
-> > +		.userspace_addr = ALIGN_DOWN(addr, UCONTROL_SLOT_SIZE),
-> > +	};
-> > +	struct kvm_memory_slot *slot;
-> > +
-> > +	mutex_lock(&kvm->slots_lock);
-> > +	slot = gfn_to_memslot(kvm, addr);
-> > +	if (!slot)
-> > +		__kvm_set_memory_region(kvm, &region);
-> > +	mutex_unlock(&kvm->slots_lock);
-> > +}
-> > +  
-> 
-> Would simply having one slot from 0 to TASK_SIZE also work? This could avoid the
-> construction of the fake slots during runtime.
+I do not know how this works because arch/*/Makefile.post
+do not include scripts/Makefile.lib
 
-unfortunately memslots are limited to 4TiB.
-having bigger ones would require even more changes all across KVM (and
-maybe qemu too)
 
-> 
-> >   int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
-> >   {
-> >   	gfp_t alloc_flags = GFP_KERNEL_ACCOUNT;
-> > @@ -3430,6 +3448,9 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
-> >   	if (type & KVM_VM_S390_UCONTROL) {
-> >   		kvm->arch.gmap = NULL;
-> >   		kvm->arch.mem_limit = KVM_S390_NO_MEM_LIMIT;
-> > +		/* pre-initialize a bunch of memslots; the amount is arbitrary */
-> > +		for (i = 0; i < 32; i++)
-> > +			kvm_s390_ucontrol_ensure_memslot(kvm, i * UCONTROL_SLOT_SIZE);
-> >   	} else {
-> >   		if (sclp.hamax == U64_MAX)
-> >   			kvm->arch.mem_limit = TASK_SIZE_MAX;
-> > @@ -5704,6 +5725,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
-> >   #ifdef CONFIG_KVM_S390_UCONTROL
-> >   	case KVM_S390_UCAS_MAP: {
-> >   		struct kvm_s390_ucas_mapping ucasmap;
-> > +		unsigned long a;  
-> 
-> maybe addr?
 
-yes
 
-> 
-> [...]
-> 
-> > @@ -5852,10 +5879,18 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
-> >   				   struct kvm_memory_slot *new,
-> >   				   enum kvm_mr_change change)
-> >   {
-> > -	gpa_t size;
-> > +	gpa_t size = new->npages * PAGE_SIZE;
-> >   
-> > -	if (kvm_is_ucontrol(kvm))
-> > -		return -EINVAL;  
-> 
-> Maybe add some comment here what and why we are checking those?
 
-will do
-
-> 
-> > +	if (kvm_is_ucontrol(kvm)) {
-> > +		if (change != KVM_MR_CREATE || new->flags)
-> > +			return -EINVAL;
-> > +		if (new->userspace_addr != new->base_gfn * PAGE_SIZE)
-> > +			return -EINVAL;
-> > +		if (!IS_ALIGNED(new->userspace_addr | size, UCONTROL_SLOT_SIZE))
-> > +			return -EINVAL;
-> > +		if (new->id != new->userspace_addr / UCONTROL_SLOT_SIZE)
-> > +			return -EINVAL;
-> > +	}
-> >     
-
+--=20
+Best Regards
+Masahiro Yamada
