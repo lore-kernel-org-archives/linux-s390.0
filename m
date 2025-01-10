@@ -1,55 +1,55 @@
-Received: from mail-wr1-f73.google.com (mail-wr1-f73.google.com [209.85.221.73])
+Received: from mail-lj1-f201.google.com (mail-lj1-f201.google.com [209.85.208.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE161215179
-	for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 18:42:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B577328EC83
+	for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 18:47:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736534544; cv=none; b=qiRmp3Q1NDl28d8x53QoHrTsqmRJOmwl+tOTEC28/eqU/fnRdsQnXoOUm4FXYfRCYgaaVfRVsDFIPDfjrNXcJMIcFt/8Qq3IZQMuiyqW/rWlO01Gx8RZRXvi9BfF+NsHphg19OoOWsheQ6MH8q/wGsyZ9ucMztl1t7g4lRme1Bs=
+	t=1736534844; cv=none; b=IM3pqQxFRnt3Pk2XPYG1gCscuvpxT0KYHdAu1ZykMLT9wraEIDX6YFZtPczBHLg2hpP0F+sZ9WD/ooJUV9Y0YEgjHe6JMI3BjlmHHwdO6BO9EiXGN2OwtdRLUDAzUPOpZe3g3EJvELQNHPaiHFKVXlRrIf7so7zkWsizfpHYz3U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736534544; c=relaxed/simple;
-	bh=yFE2RvhsdHiuE5lhdo52Dzo1ojzSWSiC8Ss1voWwr0o=;
+	s=arc-20240116; t=1736534844; c=relaxed/simple;
+	bh=Ua0Eznh6vBIqJokkBKNt1xiE4aA9cS4fZDm05XjqWbo=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=uhEDDIQlkkkrFHV5Su+mdqHR/fZLXMrHXMOCam+ZJh/yznZETuQLa4BEdaSg7rF4Wv3xTjgAmkReZSWl8aKarJ76oZ7wVRLD9Z9VFQcuM37oTat4q3OncTw8EhfW8AOJU66RSBWKOY2JiSAyjc6wkyVCevjopp5o5hNdx99LHjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4qXm0akH; arc=none smtp.client-ip=209.85.221.73
+	 To:Cc:Content-Type; b=f2E5+1btj+UM2d957fKBHIU3Q9mV+vwqh2PVr7N3VnWomHgz0SkFYO2vEEZul4fwb061EJPBSoMKflo686fOlK6x6TMdluj1ZxFpbfUPhGEQ9lGpvpPWrqKxM1nSRjBrDcwjqhStBPPTkHcZe0sBBlSUGBaIOw/MlDoi1KXSkZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=TjFEuzMG; arc=none smtp.client-ip=209.85.208.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jackmanb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4qXm0akH"
-Received: by mail-wr1-f73.google.com with SMTP id ffacd0b85a97d-38634103b0dso1432661f8f.2
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 10:41:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="TjFEuzMG"
+Received: by mail-lj1-f201.google.com with SMTP id 38308e7fff4ca-30221227ec8so11910001fa.0
+        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 10:47:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736534511; x=1737139311; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1736534841; x=1737139641; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=t56obMWOlMyKyO7q6Si1cnEbfn2qyXwrpnzxR+4ONcI=;
-        b=4qXm0akHB0cuC/EDQ8VuOoCpDXwtoPfxrekyuf3Jr5mxf6WGp7rbhmhHeDIXklqxd6
-         T9lxWQyVYIV47B5OJUReQPTb2cO2OVBUtcNSPlShJjCRvFudrMBkxkEdOt7YD8B8s+2v
-         Xr3EQaZc/p07fpcwbTqNiK+qV7HY0Toaji/thgJjB5yEeJhTxg1FeoYSHEY8Jfy2/8EZ
-         jiZa5Ti+Lb8moW5SGa97W3jyG6bI8MyoEEfqB2DFyV9BFxFzztzkYfBsUkAjDJ+UDd9H
-         nFSU4xK+FYnLvbOSILO7311XYQqvF516GEImEec3eyOp+/ymIWgUdw/GtFKY2TxOmoyN
-         vLJw==
+        bh=YGrdWVEeU4Ptbj/O5LlMCmxq+nbCGI8+4U1HKBQ0dew=;
+        b=TjFEuzMG+s0aVahkgkXXNX/cNN/t7WQkQeTaK1Qzf/3JbXnO/LdIQzyd01aQw8yYIZ
+         t7tcsWeMKVi0ysZTYmtOMkmaPD1iOJC200GQjQIxjqMKoa+oL14EEIuAbJ2zpFsYVkq4
+         ndMqNxYN3SlcBVIEB37guNnq/Pw2F4HwN5ZRg09agLy6qICUWrJKPeXGV1bN2FiKrxfV
+         +9sZn+huMNjGSDR8dh8rETPSdOus60SakPZf46bHQaVhRrlspDwAERpcOh9hL0+fcaWD
+         Fb4Vu6Sog17SiBqiu5b8Zp1hZ6R4NQIZvlHS801VT8S361BUD1N5hqwAHlaW2MY348Qm
+         qoOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736534511; x=1737139311;
+        d=1e100.net; s=20230601; t=1736534841; x=1737139641;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=t56obMWOlMyKyO7q6Si1cnEbfn2qyXwrpnzxR+4ONcI=;
-        b=T5tQp+ZaO4FZ3MKdo/06Bc+J6X5ftOL9KJaD6+D2qExL2Mm7PYCIeZkgKHxutn5J4E
-         XcNxXsgSGqIbd6/Dxi2MLZtQ9Go+F4jGjGHNMFnF8YN1m1sQL9BPXLAK8Jl9sRcbT1GZ
-         Y3HPRCYuCSW4r4avAPdMgHuNzmkYGEIvD/k3zmfcYf9CaWnF2PRIwyxzPRr9A07vDvDN
-         M8QgTOhdw1MPIY/Dv1qJUUnGnQyPkdQB7IiNJZeFsHGFOPucokblKzT3acba3+N0gU4i
-         f9uvyHyRtJBhMeJEPVKQTU9TALmWF3niU3SsM7aOdD4GWlL4XYYpM813WZnMvr1rhDnE
-         kNHA==
-X-Forwarded-Encrypted: i=1; AJvYcCVKEZo2D1FhrwGko9a5bz+NG5o1rBRU5CkHu7gF++jAyyKpFeqS7nxb7nyoRPGvs6uM6Mv/Phpk5Q21@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzeafv9Y3kY3vrO/DiwCZcpEW8x4Tq8kGFeFgAXUI93cd8qWNtp
-	yVJy/pV68m6malHDGDIYUOpMsfXiDm6Az1eOReMKv8skW56nb41AojJ028vW7YOAZYpmIheKDe8
-	8+2lau83Olg==
-X-Google-Smtp-Source: AGHT+IHNze04KHr3mNrPu4oWzk1uJr6kUgfUG8uUPvBwU8SZTj2uxyjbDaOwELGdGilpgEGrHE3bExV1JNVQyA==
-X-Received: from wmba16.prod.google.com ([2002:a05:600c:6dd0:b0:434:f350:9fc])
+        bh=YGrdWVEeU4Ptbj/O5LlMCmxq+nbCGI8+4U1HKBQ0dew=;
+        b=AVDto0DpErwXu79SP5jzYkGvZHT8c7B0nnMv5A0Oo+FIDe7ZOT379N0t5FlFv4intA
+         MMfg0qwzI4iIYFhRLwplxFe8W6ickoyBPum1ESMsal2hkTOP1Ga+xMelkmKx5Shy6sOg
+         Y1GZIShnjzPpaIgPjqq9QDSvz6hffdZC88uAc1g60jcHBXFxqAKZ6R8ILyzoHyPJLmPb
+         9/HTiGK/WYN7JTQRIjSK8tSWdDLXUzxN2jkgcPmiyflyAU8f03kIHkl9SdXeoqksgW3z
+         MkM/2AlerPUfrcufECpJqoJIsw3PVNEfLcado2HhSCAh1qMrpsxlmuY5fTmH2tJzm/fj
+         DPwg==
+X-Forwarded-Encrypted: i=1; AJvYcCWPshUhtmpmfD55yU4LN3LkDRXflOIhpqyECn7AVb+aUGK6zT3V2sKJOuB7HlAYxpOdSGJe9E727uMM@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy5TpMptkD/yn/vhFsjkXU9gX255D0SCfgIsTMb91DXiEfljFKS
+	9pzMIIuh1naSS04SaUDMX+aiJuz7JsfPpUiKH0u7vecp2KsisiZsKRC0bGfB2FXj0ITJd1nCLPJ
+	2XW1rvy5ROg==
+X-Google-Smtp-Source: AGHT+IEgsXbDoolH8oLFMalWBy0djT9uJM60zMy+Lo0ErgHawFZLEGOSZUiE5P0d6bxzOZZfpK4Vh92Jd6K16A==
+X-Received: from wmrn43.prod.google.com ([2002:a05:600c:502b:b0:434:a9bd:e68c])
  (user=jackmanb job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6000:70a:b0:38a:4184:1519 with SMTP id ffacd0b85a97d-38a873051e1mr10550801f8f.23.1736534511095;
- Fri, 10 Jan 2025 10:41:51 -0800 (PST)
-Date: Fri, 10 Jan 2025 18:40:55 +0000
+ 2002:a05:600c:4f81:b0:434:f1d5:1453 with SMTP id 5b1f17b1804b1-436e2531ec8mr120237105e9.0.1736534506703;
+ Fri, 10 Jan 2025 10:41:46 -0800 (PST)
+Date: Fri, 10 Jan 2025 18:40:53 +0000
 In-Reply-To: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
 X-Mailer: b4 0.15-dev
-Message-ID: <20250110-asi-rfc-v2-v2-29-8419288bc805@google.com>
-Subject: [PATCH RFC v2 29/29] mm: asi: Stop ignoring asi=on cmdline flag
+Message-ID: <20250110-asi-rfc-v2-v2-27-8419288bc805@google.com>
+Subject: [PATCH RFC v2 27/29] mm: asi: Add some mitigations on address space transitions
 From: Brendan Jackman <jackmanb@google.com>
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
 	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
@@ -114,35 +114,153 @@ Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
 	Brendan Jackman <jackmanb@google.com>
 Content-Type: text/plain; charset="utf-8"
 
-At this point the minimum requirements are in place for the kernel to
-operate correctly with ASI enabled.
+Here we ASI actually starts becoming a real exploit mitigation,
+
+On CPUs with L1TF, flush L1D when the ASI data taints say so.
+
+On all CPUs, do some general branch predictor clearing
+whenever the control taints say so.
+
+This policy is very much just a starting point for discussion.
+Primarily it's a vague gesture at the fact that there is leeway
+in how ASI is used: it can be used to target CPU-specific issues (as
+is the case for L1TF here), or it can be used as a fairly broad
+mitigation (asi_maybe_flush_control() mitigates several known
+Spectre-style attacks and very likely also some unknown ones).
 
 Signed-off-by: Brendan Jackman <jackmanb@google.com>
 ---
- arch/x86/mm/asi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/nospec-branch.h |  2 ++
+ arch/x86/kvm/vmx/vmx.c               |  1 +
+ arch/x86/lib/l1tf.c                  |  2 ++
+ arch/x86/lib/retpoline.S             | 10 ++++++++++
+ arch/x86/mm/asi.c                    | 29 +++++++++++++++++++++--------
+ 5 files changed, 36 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
-index f10f6614b26148e5ba423d8a44f640674573ee40..3e3956326936ea8550308ad004dbbb3738546f9f 100644
---- a/arch/x86/mm/asi.c
-+++ b/arch/x86/mm/asi.c
-@@ -207,14 +207,14 @@ void __init asi_check_boottime_disable(void)
- 		pr_info("ASI disabled through kernel command line.\n");
- 	} else if (ret == 2 && !strncmp(arg, "on", 2)) {
- 		enabled = true;
--		pr_info("Ignoring asi=on param while ASI implementation is incomplete.\n");
-+		pr_info("ASI enabled through kernel command line.\n");
- 	} else {
- 		pr_info("ASI %s by default.\n",
- 			enabled ? "enabled" : "disabled");
- 	}
- 
- 	if (enabled)
--		pr_info("ASI enablement ignored due to incomplete implementation.\n");
-+		setup_force_cpu_cap(X86_FEATURE_ASI);
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 96b410b1d4e841eb02f53a4691ee794ceee4ad2c..4582fb1fb42f6fd226534012d969ed13085e943a 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -614,6 +614,8 @@ static __always_inline void mds_idle_clear_cpu_buffers(void)
+ 		mds_clear_cpu_buffers();
  }
  
- /*
++extern void fill_return_buffer(void);
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_X86_NOSPEC_BRANCH_H_ */
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index b1a02f27b3abce0ef6ac448b66bef2c653a52eef..a532783caaea97291cd92a2e2cac617f74f76c7e 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6635,6 +6635,7 @@ int vmx_handle_exit(struct kvm_vcpu *vcpu, fastpath_t exit_fastpath)
+ 	return ret;
+ }
+ 
++/* Must be reentrant, for use by vmx_post_asi_enter. */
+ static noinstr void vmx_l1d_flush(struct kvm_vcpu *vcpu)
+ {
+ 	/*
+diff --git a/arch/x86/lib/l1tf.c b/arch/x86/lib/l1tf.c
+index c474f18ae331c8dfa7a029c457dd3cf75bebf808..ffe1c3d0ef43ff8f1781f2e446aed041f4ce3179 100644
+--- a/arch/x86/lib/l1tf.c
++++ b/arch/x86/lib/l1tf.c
+@@ -46,6 +46,8 @@ EXPORT_SYMBOL(l1tf_flush_setup);
+  *  - may or may not work on other CPUs.
+  *
+  * Don't call unless l1tf_flush_setup() has returned successfully.
++ *
++ * Must be reentrant, for use by ASI.
+  */
+ noinstr void l1tf_flush(void)
+ {
+diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
+index 391059b2c6fbc4a571f0582c7c4654147a930cef..6d126fff6bf839889086fe21464d8af07316d7e5 100644
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -396,3 +396,13 @@ SYM_CODE_END(__x86_return_thunk)
+ EXPORT_SYMBOL(__x86_return_thunk)
+ 
+ #endif /* CONFIG_MITIGATION_RETHUNK */
++
++.pushsection .noinstr.text, "ax"
++SYM_CODE_START(fill_return_buffer)
++	UNWIND_HINT_FUNC
++	ENDBR
++	__FILL_RETURN_BUFFER(%_ASM_AX,RSB_CLEAR_LOOPS)
++	RET
++SYM_CODE_END(fill_return_buffer)
++__EXPORT_THUNK(fill_return_buffer)
++.popsection
+diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
+index 1e9dc568e79e8686a4dbf47f765f2c2535d025ec..f10f6614b26148e5ba423d8a44f640674573ee40 100644
+--- a/arch/x86/mm/asi.c
++++ b/arch/x86/mm/asi.c
+@@ -10,6 +10,7 @@
+ 
+ #include <asm/cmdline.h>
+ #include <asm/cpufeature.h>
++#include <asm/l1tf.h>
+ #include <asm/page.h>
+ #include <asm/pgalloc.h>
+ #include <asm/mmu_context.h>
+@@ -38,6 +39,8 @@ struct asi __asi_global_nonsensitive = {
+ 	.mm = &init_mm,
+ };
+ 
++static bool do_l1tf_flush __ro_after_init;
++
+ static inline bool asi_class_id_valid(enum asi_class_id class_id)
+ {
+ 	return class_id >= 0 && class_id < ASI_MAX_NUM_CLASSES;
+@@ -361,6 +364,15 @@ static int __init asi_global_init(void)
+ 	asi_clone_pgd(asi_global_nonsensitive_pgd, init_mm.pgd,
+ 		      VMEMMAP_START + (1UL << PGDIR_SHIFT));
+ 
++	if (boot_cpu_has_bug(X86_BUG_L1TF)) {
++		int err = l1tf_flush_setup();
++
++		if (err)
++			pr_warn("Failed to setup L1TF flushing for ASI (%pe)", ERR_PTR(err));
++		else
++			do_l1tf_flush = true;
++	}
++
+ #ifdef CONFIG_PM_SLEEP
+ 	register_syscore_ops(&asi_syscore_ops);
+ #endif
+@@ -512,10 +524,12 @@ static __always_inline void maybe_flush_control(struct asi *next_asi)
+ 	if (!taints)
+ 		return;
+ 
+-	/*
+-	 * This is where we'll do the actual dirty work of clearing uarch state.
+-	 * For now we just pretend, clear the taints.
+-	 */
++	/* Clear normal indirect branch predictions, if we haven't */
++	if (cpu_feature_enabled(X86_FEATURE_IBPB))
++		__wrmsr(MSR_IA32_PRED_CMD, PRED_CMD_IBPB, 0);
++
++	fill_return_buffer();
++
+ 	this_cpu_and(asi_taints, ~ASI_TAINTS_CONTROL_MASK);
+ }
+ 
+@@ -536,10 +550,9 @@ static __always_inline void maybe_flush_data(struct asi *next_asi)
+ 	if (!taints)
+ 		return;
+ 
+-	/*
+-	 * This is where we'll do the actual dirty work of clearing uarch state.
+-	 * For now we just pretend, clear the taints.
+-	 */
++	if (do_l1tf_flush)
++		l1tf_flush();
++
+ 	this_cpu_and(asi_taints, ~ASI_TAINTS_DATA_MASK);
+ }
+ 
 
 -- 
 2.47.1.613.gc27f4b7a9f-goog
