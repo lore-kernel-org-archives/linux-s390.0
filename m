@@ -1,46 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8694D2116E0;
-	Fri, 10 Jan 2025 15:23:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A51C211A23;
+	Fri, 10 Jan 2025 15:23:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736522637; cv=none; b=VUTMMFgbgn8+NZCqrPVQtfNbuowKdD77XeO/6o725dh5Nx/P7pGj1cTdvG/STd8Ptvzr2wNDaYG7zZqIMx8R0VyQXEt0pdu+Nuwl++y7NyeYyCAHdovc0eRvhZhg+wJVprD0+635L7jmiyVnsNy4xiTeArXVJmdr8xDTlzfBK5I=
+	t=1736522640; cv=none; b=DDIMq4pp5+vWOyoUD3k4IkrrGD0V+Vc1onj+CwiG4f7pupQPHWUGBYx/wnpE/MnxmpgzucZYupzS9BHh8aHug07FWgcgqihRRqb8H39gAGXBf9GiFN/F14yn8D/BJ1yYIPpQnoADZRSLkZZsNrok4wo+AQPpmEgP0zVRbQGCtq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736522637; c=relaxed/simple;
-	bh=gZhdZKZMoTNYw2pU5X/col/8fSI23OaoBKYviSpwdkc=;
+	s=arc-20240116; t=1736522640; c=relaxed/simple;
+	bh=TOR0HRUliJCIUuvHYcqOmYpJLHep6FFOCk6zZu1ILJU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=UGTBZIsAAeuwfhS0f/sn02HKEHH0ELBYZfbMHd6hZSOfkwKhkOgZMkMmuAn+/Wdaji4gNYNaV9nHfQ7IOlvPIrOJBfeBd14gORjbhloWEulidnE759c62JixAyDAGtksIjDvslNLyYLcYuRFveGzAr6gNmO8kr2dfui3nB1gErs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=a+goen3N; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=VrsdI0xa; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=Oseiy8P4/PqdnhvWW9vcEz/VyaH/6ExYcda3kwMPO80Q+D0Z/+6Eb2qy4T67MwtVvYy1qeQjivx+nupjW/LI3HherKhQlaCTigtxD0PaGJAUsWd42SKg2hR1dRQCzSlCCQhUNsdqJMXlnYqBwbb7fXFbgKhjLNpLZBGY6iLPH88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=nw4V9z7/; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=WT/B9qwn; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="a+goen3N";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="VrsdI0xa"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="nw4V9z7/";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="WT/B9qwn"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1736522633;
+	s=2020; t=1736522635;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=m8WMREGn25yHDxjslQs6BSfPQl6yYZiTZxD40yaQegk=;
-	b=a+goen3NDiuCNKk5VbX3LQa22tPTwZ9pyLz0z0AJQekT9hJt7Kp+JILBXlY+iG1ZrSfvLm
-	FzEtqMn4JZHJsMhYqsp4HFWRJww59PGPQNbQGqQuU4YcuNX6lREpFMeQABxTlVhxOJIYrE
-	ha0mRMpDq0SDah0jHrxVicTaMPRqjs5fcRY8BXV/9ATocwcppxfOfZkYbuDoykhMnpjCJd
-	c9b90u5HsvOxVVnSVK+Lu8PDDj3dp2S86/kYxVdgYZx1jpIvSawZEBR8e4/ua/ez91PqYK
-	YlY5hUMeN1nqf/Ly77inJipzg7dPunuwLbLpKCfGR+dgSh1ovFGXw6UeRfFt2w==
+	bh=wTlwrpnN/Mdv7Nv7w9MmLSi1lCOGIszv1xkWYWYm93s=;
+	b=nw4V9z7/hGZPSByeCTKI8H5vdRk8cSFV463S+hMSmHDM5wUVTgbPaGq2Fn+OzpxrRsHTuN
+	cSLa6MxSQHZQEh9m6tQ51Dm8ld4veu2Ye2VYdkBpOwLo4K1231Lr58iv27cUh6GOXc8rEp
+	NOCLFTdK4yysg1d1CVgnKgzPg/f6XrGRuOBPM469plIb9/Cx5Zti2jTZo+/lyCRw2eDgaC
+	inLesQmWwHvjxdjMaj2NE+OmET7cR9J437dI+rgn0xqtGPhHMTtSzqd4U4OSJv7iauqy+R
+	GUXBRpcYjLE8+5os5ol0ioEDlq21+wtU7vueoo52vM/B9PQt52+NX+rgB67HvQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1736522633;
+	s=2020e; t=1736522635;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=m8WMREGn25yHDxjslQs6BSfPQl6yYZiTZxD40yaQegk=;
-	b=VrsdI0xaM5xuvKtuexXVthnAMHSitk7pfv+V1eqF8Vf6ccPhLyMAALcBuwUglFfjl1lNaH
-	fW8oMiNd7SH+XYDw==
-Date: Fri, 10 Jan 2025 16:23:43 +0100
-Subject: [PATCH v2 04/18] vdso: Rename included Makefile
+	bh=wTlwrpnN/Mdv7Nv7w9MmLSi1lCOGIszv1xkWYWYm93s=;
+	b=WT/B9qwnuf7sYBx/35OCt9hm9ZvLbooZn1HxehyYeOcUhAilEzepaqi4NelWtuAADyQVS9
+	jT56E5eydoePu5AQ==
+Date: Fri, 10 Jan 2025 16:23:45 +0100
+Subject: [PATCH v2 06/18] vdso: Add generic random data storage
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250110-vdso-store-rng-v2-4-350c9179bbf1@linutronix.de>
+Message-Id: <20250110-vdso-store-rng-v2-6-350c9179bbf1@linutronix.de>
 References: <20250110-vdso-store-rng-v2-0-350c9179bbf1@linutronix.de>
 In-Reply-To: <20250110-vdso-store-rng-v2-0-350c9179bbf1@linutronix.de>
 To: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
@@ -84,207 +84,196 @@ Cc: linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
  linux-csky@vger.kernel.org
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1736522629; l=8178;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1736522629; l=7434;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=gZhdZKZMoTNYw2pU5X/col/8fSI23OaoBKYviSpwdkc=;
- b=ODVXUd6Lizh5S/6TjK63XF+ODf/7JeimxbvXYWGSRshLJsTds1xNhm8TpWL/t/ZVv9j9SJbMi
- X7NxIcJ5MuNB2xAJfxm4nj0l4UsuJeYAIO9rhaOZVogrMQ7djaKOADr
+ bh=TOR0HRUliJCIUuvHYcqOmYpJLHep6FFOCk6zZu1ILJU=;
+ b=3boEYEI5Nm8k5FTdZejwZ1IkT69WAiA9aBtiQ/lcCWX4EdLOyeK+PqxfGoyMP6zfvl3hi/oIf
+ nbSbyD79vz4CdFUJf2SAJi6HeklAmszTsxI2TM1q6M92hFiZeB9w/Ze
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-As the Makefile is included into other Makefiles it can not be used to
-define objects to be built from the current source directory.
-However the generic datastore will introduce such a local source file.
-Rename the included Makefile so it is clear how it is to be used and to
-make room for a regular Makefile in lib/vdso/.
+Extend the generic vDSO data storage with a page for the random state data.
+The random state data is stored in a dedicated page, as the existing
+storage page is only meant for time-related, time-namespace-aware data.
+This simplifies to access logic to not need to handle time namespaces
+anymore and also frees up more space in the time-related page.
+
+In case further generic vDSO data store is required it can be added to
+the random state page.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/arm/vdso/Makefile                  | 2 +-
- arch/arm64/kernel/vdso/Makefile         | 2 +-
- arch/arm64/kernel/vdso32/Makefile       | 2 +-
- arch/csky/kernel/vdso/Makefile          | 2 +-
- arch/loongarch/vdso/Makefile            | 2 +-
- arch/mips/vdso/Makefile                 | 2 +-
- arch/parisc/kernel/vdso32/Makefile      | 2 +-
- arch/parisc/kernel/vdso64/Makefile      | 2 +-
- arch/powerpc/kernel/vdso/Makefile       | 2 +-
- arch/riscv/kernel/vdso/Makefile         | 2 +-
- arch/s390/kernel/vdso32/Makefile        | 2 +-
- arch/s390/kernel/vdso64/Makefile        | 2 +-
- arch/x86/entry/vdso/Makefile            | 2 +-
- lib/vdso/{Makefile => Makefile.include} | 0
- 14 files changed, 13 insertions(+), 13 deletions(-)
+ drivers/char/random.c               |  6 +++---
+ include/asm-generic/vdso/vsyscall.h | 12 ++++++++++++
+ include/vdso/datapage.h             | 10 ++++++++++
+ lib/vdso/datastore.c                | 14 ++++++++++++++
+ lib/vdso/getrandom.c                |  8 ++++++--
+ 5 files changed, 45 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/vdso/Makefile b/arch/arm/vdso/Makefile
-index 8a306bbec4a0c4d4b6580fe88187faf9f5422eed..cb044bfd145d10b5bf840d31900aefc8a187e5bd 100644
---- a/arch/arm/vdso/Makefile
-+++ b/arch/arm/vdso/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 23ee76bbb4aa728274bf9980a60b863216d88797..84efda7bede348401db2ed1c443e5ab2bc5dbd2b 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -278,7 +278,7 @@ static void crng_reseed(struct work_struct *work)
+ 	WRITE_ONCE(base_crng.generation, next_gen);
+ #ifdef CONFIG_VDSO_GETRANDOM
+ 	/* base_crng.generation's invalid value is ULONG_MAX, while
+-	 * _vdso_rng_data.generation's invalid value is 0, so add one to the
++	 * vdso_k_rng_data->generation's invalid value is 0, so add one to the
+ 	 * former to arrive at the latter. Use smp_store_release so that this
+ 	 * is ordered with the write above to base_crng.generation. Pairs with
+ 	 * the smp_rmb() before the syscall in the vDSO code.
+@@ -290,7 +290,7 @@ static void crng_reseed(struct work_struct *work)
+ 	 * because the vDSO side only checks whether the value changed, without
+ 	 * actually using or interpreting the value.
+ 	 */
+-	smp_store_release((unsigned long *)&__arch_get_k_vdso_rng_data()->generation, next_gen + 1);
++	smp_store_release((unsigned long *)&vdso_k_rng_data->generation, next_gen + 1);
+ #endif
+ 	if (!static_branch_likely(&crng_is_ready))
+ 		crng_init = CRNG_READY;
+@@ -743,7 +743,7 @@ static void __cold _credit_init_bits(size_t bits)
+ 			queue_work(system_unbound_wq, &set_ready);
+ 		atomic_notifier_call_chain(&random_ready_notifier, 0, NULL);
+ #ifdef CONFIG_VDSO_GETRANDOM
+-		WRITE_ONCE(__arch_get_k_vdso_rng_data()->is_ready, true);
++		WRITE_ONCE(vdso_k_rng_data->is_ready, true);
+ #endif
+ 		wake_up_interruptible(&crng_init_wait);
+ 		kill_fasync(&fasync, SIGIO, POLL_IN);
+diff --git a/include/asm-generic/vdso/vsyscall.h b/include/asm-generic/vdso/vsyscall.h
+index ac5b93b91993224da245e80031b9f51e0c083f3c..a5f973e4e2723ef1815c88a7846f7c477e3febd9 100644
+--- a/include/asm-generic/vdso/vsyscall.h
++++ b/include/asm-generic/vdso/vsyscall.h
+@@ -13,6 +13,13 @@ static __always_inline const struct vdso_time_data *__arch_get_vdso_u_time_data(
+ }
+ #endif
  
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
++#ifndef __arch_get_vdso_u_rng_data
++static __always_inline const struct vdso_rng_data *__arch_get_vdso_u_rng_data(void)
++{
++	return &vdso_u_rng_data;
++}
++#endif
++
+ #else  /* !CONFIG_GENERIC_VDSO_DATA_STORE */
  
- hostprogs := vdsomunge
+ #ifndef __arch_get_k_vdso_data
+@@ -25,6 +32,11 @@ static __always_inline struct vdso_data *__arch_get_k_vdso_data(void)
  
-diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
-index 35685c0360441ddb0e549ff0abe39cf4fce64071..5e27e46aa49674bb4d2186bcba548aa841116fa9 100644
---- a/arch/arm64/kernel/vdso/Makefile
-+++ b/arch/arm64/kernel/vdso/Makefile
-@@ -7,7 +7,7 @@
- #
+ #define __arch_get_vdso_u_time_data __arch_get_vdso_data
  
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
++#ifndef __arch_get_vdso_u_rng_data
++#define __arch_get_vdso_u_rng_data() __arch_get_vdso_rng_data()
++#endif
++#define vdso_k_rng_data __arch_get_k_vdso_rng_data()
++
+ #endif /* CONFIG_GENERIC_VDSO_DATA_STORE */
  
- obj-vdso := vgettimeofday.o note.o sigreturn.o vgetrandom.o vgetrandom-chacha.o
+ #ifndef __arch_update_vsyscall
+diff --git a/include/vdso/datapage.h b/include/vdso/datapage.h
+index b3d8087488ff35fbbc4d5058ae21e2c6cc58ed9c..7dbc8797e3b8923c06f4b6b34790766e68b2abd2 100644
+--- a/include/vdso/datapage.h
++++ b/include/vdso/datapage.h
+@@ -144,8 +144,10 @@ extern struct vdso_time_data _timens_data[CS_BASES] __attribute__((visibility("h
+ extern struct vdso_rng_data _vdso_rng_data __attribute__((visibility("hidden")));
+ #else
+ extern struct vdso_time_data vdso_u_time_data[CS_BASES] __attribute__((visibility("hidden")));
++extern struct vdso_rng_data vdso_u_rng_data __attribute__((visibility("hidden")));
  
-diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-index 25a2cb6317f3592179dded21218e81036a8f67bc..f2dfdc7dc8185bc045907283b68ab18fed980312 100644
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for vdso32
- #
+ extern struct vdso_time_data *vdso_k_time_data;
++extern struct vdso_rng_data *vdso_k_rng_data;
+ #endif
  
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
+ /**
+@@ -161,6 +163,7 @@ union vdso_data_store {
+ enum vdso_pages {
+ 	VDSO_TIME_PAGE_OFFSET,
+ 	VDSO_TIMENS_PAGE_OFFSET,
++	VDSO_RNG_PAGE_OFFSET,
+ 	VDSO_NR_PAGES
+ };
  
- # Same as cc-*option, but using CC_COMPAT instead of CC
- ifeq ($(CONFIG_CC_IS_CLANG), y)
-diff --git a/arch/csky/kernel/vdso/Makefile b/arch/csky/kernel/vdso/Makefile
-index 069ef0b17fe5235918a6aa13aa120857bbbf3faf..a3042287a0707a9aa5d512441311c3deffff2ceb 100644
---- a/arch/csky/kernel/vdso/Makefile
-+++ b/arch/csky/kernel/vdso/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0-only
+@@ -184,9 +187,16 @@ enum vdso_pages {
  
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
+ #else /* !__ASSEMBLY__ */
  
- # Symbols present in the vdso
- vdso-syms  += rt_sigreturn
-diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
-index fdde1bcd4e2663bd400dcc6becc4261b7d5dce3a..1c26147aff7018d190c49aebf6012f6780770dd2 100644
---- a/arch/loongarch/vdso/Makefile
-+++ b/arch/loongarch/vdso/Makefile
-@@ -2,7 +2,7 @@
- # Objects to go into the VDSO.
++#ifdef CONFIG_VDSO_GETRANDOM
++#define __vdso_u_rng_data	PROVIDE(vdso_u_rng_data = vdso_u_data + 2 * PAGE_SIZE);
++#else
++#define __vdso_u_rng_data
++#endif
++
+ #define VDSO_VVAR_SYMS						\
+ 	PROVIDE(vdso_u_data = . - __VDSO_PAGES * PAGE_SIZE);	\
+ 	PROVIDE(vdso_u_time_data = vdso_u_data);		\
++	__vdso_u_rng_data					\
  
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
  
- obj-vdso-y := elf.o vgetcpu.o vgettimeofday.o vgetrandom.o \
-               vgetrandom-chacha.o sigreturn.o
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index b289b2c1b2946057c29cde8ee456b311fa25d448..fb4c493aaffa904d51f68b483ab83256a2e358e4 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -2,7 +2,7 @@
- # Objects to go into the VDSO.
+ #endif /* !__ASSEMBLY__ */
+diff --git a/lib/vdso/datastore.c b/lib/vdso/datastore.c
+index d3181768424cc3ee2e980bd537ac5ca14dfcb304..9260b00dc8520af109bd9dd05ac7f7504eafbea0 100644
+--- a/lib/vdso/datastore.c
++++ b/lib/vdso/datastore.c
+@@ -17,6 +17,15 @@ struct vdso_time_data *vdso_k_time_data = vdso_time_data_store.data;
+ static_assert(sizeof(vdso_time_data_store) == PAGE_SIZE);
+ #endif /* CONFIG_HAVE_GENERIC_VDSO */
  
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
++#ifdef CONFIG_VDSO_GETRANDOM
++static union {
++	struct vdso_rng_data	data;
++	u8			page[PAGE_SIZE];
++} vdso_rng_data_store __page_aligned_data;
++struct vdso_rng_data *vdso_k_rng_data = &vdso_rng_data_store.data;
++static_assert(sizeof(vdso_rng_data_store) == PAGE_SIZE);
++#endif /* CONFIG_VDSO_GETRANDOM */
++
+ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
+ 			     struct vm_area_struct *vma, struct vm_fault *vmf)
+ {
+@@ -53,6 +62,11 @@ static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
+ 			return VM_FAULT_SIGBUS;
+ 		pfn = __phys_to_pfn(__pa_symbol(vdso_k_time_data));
+ 		break;
++	case VDSO_RNG_PAGE_OFFSET:
++		if (!IS_ENABLED(CONFIG_VDSO_GETRANDOM))
++			return VM_FAULT_SIGBUS;
++		pfn = __phys_to_pfn(__pa_symbol(vdso_k_rng_data));
++		break;
+ 	default:
+ 		return VM_FAULT_SIGBUS;
+ 	}
+diff --git a/lib/vdso/getrandom.c b/lib/vdso/getrandom.c
+index 938ca539aaa64bc46280ef6dd17aa661126699eb..440f8a6203a69a6462aafee4ad8d5670cef6a353 100644
+--- a/lib/vdso/getrandom.c
++++ b/lib/vdso/getrandom.c
+@@ -12,6 +12,9 @@
+ #include <uapi/linux/mman.h>
+ #include <uapi/linux/random.h>
  
- obj-vdso-y := elf.o vgettimeofday.o sigreturn.o
++/* Bring in default accessors */
++#include <vdso/vsyscall.h>
++
+ #undef PAGE_SIZE
+ #undef PAGE_MASK
+ #define PAGE_SIZE (1UL << CONFIG_PAGE_SHIFT)
+@@ -152,7 +155,7 @@ __cvdso_getrandom_data(const struct vdso_rng_data *rng_info, void *buffer, size_
  
-diff --git a/arch/parisc/kernel/vdso32/Makefile b/arch/parisc/kernel/vdso32/Makefile
-index 2b36d25ada6e3f2d259cb0a364dcaa07570cf7c4..e2f7c4140decca5e7a3a7c5d3e2c3cf61f92a5cb 100644
---- a/arch/parisc/kernel/vdso32/Makefile
-+++ b/arch/parisc/kernel/vdso32/Makefile
-@@ -1,5 +1,5 @@
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
+ 		/*
+ 		 * Prevent the syscall from being reordered wrt current_generation. Pairs with the
+-		 * smp_store_release(&_vdso_rng_data.generation) in random.c.
++		 * smp_store_release(&vdso_k_rng_data->generation) in random.c.
+ 		 */
+ 		smp_rmb();
  
- KCOV_INSTRUMENT := n
- 
-diff --git a/arch/parisc/kernel/vdso64/Makefile b/arch/parisc/kernel/vdso64/Makefile
-index bd87bd6a6659d3af91d599d356cc48a7248c5282..35d5ee4c43ba3102942f86b043d5fa66e1e11f95 100644
---- a/arch/parisc/kernel/vdso64/Makefile
-+++ b/arch/parisc/kernel/vdso64/Makefile
-@@ -1,5 +1,5 @@
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
- 
- KCOV_INSTRUMENT := n
- 
-diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
-index 0e3ed6fb199fff7ad25aadca76e3a49a283b3f94..e8824f93332610db259b303c63957436bfef4191 100644
---- a/arch/powerpc/kernel/vdso/Makefile
-+++ b/arch/powerpc/kernel/vdso/Makefile
-@@ -3,7 +3,7 @@
- # List of files in the vdso, has to be asm only for now
- 
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
- 
- obj-vdso32 = sigtramp32-32.o gettimeofday-32.o datapage-32.o cacheflush-32.o note-32.o getcpu-32.o
- obj-vdso64 = sigtramp64-64.o gettimeofday-64.o datapage-64.o cacheflush-64.o note-64.o getcpu-64.o
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 9a1b555e87331fb288eff12470ad498199d7cf24..ad73607abc2808af2cd1aaf839b227c78d7a1769 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -2,7 +2,7 @@
- # Copied from arch/tile/kernel/vdso/Makefile
- 
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
- # Symbols present in the vdso
- vdso-syms  = rt_sigreturn
- ifdef CONFIG_64BIT
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index 2c5afb88d298263a70abbe1e4f903a95c0389225..1e4ddd1a683ff84492f0f4b48d0efa00688129c2 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -2,7 +2,7 @@
- # List of files in the vdso
- 
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
- obj-vdso32 = vdso_user_wrapper-32.o note-32.o
- 
- # Build rules
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index 37bb4b761229759b068797c4584bbb5ae2fad314..64d734c7fa5949796028f91528a63ee52d676eb5 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -2,7 +2,7 @@
- # List of files in the vdso
- 
- # Include the generic Makefile to check the built vdso.
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
- obj-vdso64 = vdso_user_wrapper.o note.o vgetrandom-chacha.o
- obj-cvdso64 = vdso64_generic.o getcpu.o vgetrandom.o
- VDSO_CFLAGS_REMOVE := -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE) $(CC_FLAGS_CHECK_STACK)
-diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
-index c9216ac4fb1eb8c1e5bc5e33b41e9e40c7924cbf..1c0072336e66177453f8bbad743c6a2ee1f1849d 100644
---- a/arch/x86/entry/vdso/Makefile
-+++ b/arch/x86/entry/vdso/Makefile
-@@ -4,7 +4,7 @@
- #
- 
- # Include the generic Makefile to check the built vDSO:
--include $(srctree)/lib/vdso/Makefile
-+include $(srctree)/lib/vdso/Makefile.include
- 
- # Files to link into the vDSO:
- vobjs-y := vdso-note.o vclock_gettime.o vgetcpu.o vgetrandom.o vgetrandom-chacha.o
-diff --git a/lib/vdso/Makefile b/lib/vdso/Makefile.include
-similarity index 100%
-rename from lib/vdso/Makefile
-rename to lib/vdso/Makefile.include
+@@ -256,5 +259,6 @@ __cvdso_getrandom_data(const struct vdso_rng_data *rng_info, void *buffer, size_
+ static __always_inline ssize_t
+ __cvdso_getrandom(void *buffer, size_t len, unsigned int flags, void *opaque_state, size_t opaque_len)
+ {
+-	return __cvdso_getrandom_data(__arch_get_vdso_rng_data(), buffer, len, flags, opaque_state, opaque_len);
++	return __cvdso_getrandom_data(__arch_get_vdso_u_rng_data(), buffer, len, flags,
++				      opaque_state, opaque_len);
+ }
 
 -- 
 2.47.1
