@@ -1,145 +1,131 @@
-Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 196C94C83;
-	Sat, 11 Jan 2025 01:16:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FBF8EAFA;
+	Sat, 11 Jan 2025 02:03:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736558201; cv=none; b=H4XhUnXAFdTPj9Azb1xOQHQ1+bvOUSXSmi3b9Isl5v53gxRo6tW9EgpfBQb+UToeAFv3Nd6muRRP70kiG7l5llciW0YGEDUPXWcgFxyjFuRS2sztCw/X4AU0Ak2QXAtAheg49FcDa0PQLfo+gORS06XGJ7AIfR3omnr5otksU9Y=
+	t=1736561020; cv=none; b=r06Vb9bDjdjV7GutvUqYm+ShdPFzoNNpCYRWmehgvI9oCihgg+NtOr7OOV9TPdrHLN0/WK3HVRy0fQ3NVmE/mm2KuykhnEmSIrFVbPq/RB04M5dqcSl6N4H2kN2pubKFa5N4LcPlZrz2yO4woCSL+LSGtAXZd0BCt+BSWxeMHRc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736558201; c=relaxed/simple;
-	bh=sQ0hKscqgkFbQlYbywE8EkWkGZ06l86yKwob99Aviyk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SUR2hGFDLTEiNTvLBamVMhQScwC1jkMv6ZS/+BGzNawd6+eb1mK1L7TtZzVWcY6vSEyToM/Yz8zNpBIhC5JR9K4ZzBxg7iNABGmymxVx2MCOcggFDcr2K37NQZUbpCtIO5aPKoqoPnJJtR/kIGLEhOiapCddIRbptKuO41VJQls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
-Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
-	by vmicros1.altlinux.org (Postfix) with ESMTP id 3DA2E72C97D;
-	Sat, 11 Jan 2025 04:16:32 +0300 (MSK)
-Received: by mua.local.altlinux.org (Postfix, from userid 508)
-	id 2736C7CCB3A; Sat, 11 Jan 2025 03:16:32 +0200 (IST)
-Date: Sat, 11 Jan 2025 03:16:32 +0200
-From: "Dmitry V. Levin" <ldv@strace.io>
-To: Sven Schnelle <svens@linux.ibm.com>
-Cc: Oleg Nesterov <oleg@redhat.com>,
-	Eugene Syromyatnikov <evgsyr@gmail.com>,
-	Mike Frysinger <vapier@gentoo.org>,
-	Renzo Davoli <renzo@cs.unibo.it>,
-	Davide Berardi <berardi.dav@gmail.com>,
-	strace-devel@lists.strace.io, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Brian Cain <bcain@quicinc.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-	linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/6] syscall.h: introduce syscall_set_nr()
-Message-ID: <20250111011632.GA1724@strace.io>
-References: <20250107230438.GC30633@strace.io>
- <yt9dzfjz6rw5.fsf@linux.ibm.com>
+	s=arc-20240116; t=1736561020; c=relaxed/simple;
+	bh=zrMqxieUAVjEnm1/l0WnttQr7ZTV7jvQ0HQxj0ou+Fk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BrHNCeJBS7BMewE/Zs8QWo4TK6MCdSQBIvd5+IX99kvFJpj3it0h1x1/9egIqMJygkzVPlE+izRASJ78BDznWlDb53k4f3oTt1Bl9wgZE48hXmTJP1LpkU6XfEm0Itcf899OGKomH5cCjITMs9YEgJUJ1k7X8JVnHUw9G90hom8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VlcCw0xh; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VlcCw0xh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2160C4CEE0;
+	Sat, 11 Jan 2025 02:03:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736561019;
+	bh=zrMqxieUAVjEnm1/l0WnttQr7ZTV7jvQ0HQxj0ou+Fk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=VlcCw0xh2HLF7XLNSnRdRxsmUYLAkSvdEQ/g633zZyYtMwnIEhdS+TG4lKQspT5eo
+	 YpiWAr4L96TEsJYUChuwc1sAHE14ZC1dGYuVapDlo3xNq5QzjASAYeDSKa/oA+nOs1
+	 ycp9g1iOrOWjZHKJRpeW4z3YoAZuHBwEwG++Da79oBanCdfJhz0LxVYRnnU40j3m16
+	 7Xae6R3NBO+sVktwqTe3e1P52kYJnd1v1P/gVOlwflsfophvwiQBkkV+uL18d6pxKe
+	 vMwraWoZb+hPOscifMQ0rEWtgzYp7m27NVmKWCwS02MdWN7gk1eIS8P3GesOqgAO0M
+	 MmXiUoKnU0XcQ==
+Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-30034ad2ca3so18397041fa.1;
+        Fri, 10 Jan 2025 18:03:39 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUWX3ngOl4+cWfT7mp0FP/S7FmvD1pBcxw7y4abO691YvnDP1CdwOs5ZBguiEnb6DYb3OWfVeVsMJvzS0lF@vger.kernel.org, AJvYcCUkmt1AQMeKx1jQi6L7Pf1uy0bHFX0839seNQw4hFf51Ud9eIngPAi3eakwthKrBiaFULtrwIjNrphV5w==@vger.kernel.org, AJvYcCWheJCqKY4SHto1gs5LfZeGmRw40XbRWB/v8xh6k1e5kGiNUasGbzyXcbqZJMRv99n6QKX0asOg22FJZ+M=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPJ6LydLTN5jC1ixGbAN8VO38Fn8xpgIA3RWy4OEbJt7UnYmtW
+	4siYYVLTnFIj2BvnNetbnqsLR96XCZ+7vMjiprMTu0kzMwAVpxKyde6b/PDFcQEhSZ/XWP6GShe
+	k9sd4k9KNq2U7cV9b4DDoH37flPM=
+X-Google-Smtp-Source: AGHT+IHhgYYQ+eaUG/6J1vIQ2gCVQ/X8DlPgIpyb6Fr8nk6blZECzuoppcYovwX2mQzobcO9Mv4mEt0JKOOpHJAl6TQ=
+X-Received: by 2002:a05:6512:1382:b0:542:2388:3f0d with SMTP id
+ 2adb3069b0e04-54284815c9emr3952112e87.45.1736561018515; Fri, 10 Jan 2025
+ 18:03:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yt9dzfjz6rw5.fsf@linux.ibm.com>
+References: <20250110082744.457067-2-ardb+git@google.com> <CAK7LNASygf5gRdYOOa3KsKbz8mny9nnn5RduuGtP5WoWgXDTQA@mail.gmail.com>
+ <CAMj1kXEPq6VU19qzmW9DNVG=nzoGbnCMt7dE5nXeZCqk2JPE3A@mail.gmail.com>
+ <CAHk-=wiGfhxb4q4T2=W=Vg=sHwZwwMTN2EaDYbmS0VG1Srdb-w@mail.gmail.com> <CAK7LNASrzZnoLeRQz9FH6EUEz1rSPY_-GHvmS=8JA2R8eCjSKg@mail.gmail.com>
+In-Reply-To: <CAK7LNASrzZnoLeRQz9FH6EUEz1rSPY_-GHvmS=8JA2R8eCjSKg@mail.gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Sat, 11 Jan 2025 11:03:02 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAR4RTfQ5R3VsuXeZ9i0EbR0v0tYiVmGxcX2U_pjM=TtDA@mail.gmail.com>
+X-Gm-Features: AbW1kva8YJXXpo1T_EG8d0P_EqdhvniTZ_sa2T7clRl8min3uMR81XFLgv7UjPs
+Message-ID: <CAK7LNAR4RTfQ5R3VsuXeZ9i0EbR0v0tYiVmGxcX2U_pjM=TtDA@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: Strip runtime const RELA sections correctly
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>, Ard Biesheuvel <ardb+git@google.com>, linux-kbuild@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 10, 2025 at 08:37:46AM +0100, Sven Schnelle wrote:
-> "Dmitry V. Levin" <ldv@strace.io> writes:
-> 
-> > Similar to syscall_set_arguments() that complements
-> > syscall_get_arguments(), introduce syscall_set_nr()
-> > that complements syscall_get_nr().
+On Sat, Jan 11, 2025 at 10:13=E2=80=AFAM Masahiro Yamada <masahiroy@kernel.=
+org> wrote:
+>
+> On Sat, Jan 11, 2025 at 3:33=E2=80=AFAM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
 > >
-> > syscall_set_nr() is going to be needed along with
-> > syscall_set_arguments() on all HAVE_ARCH_TRACEHOOK
-> > architectures to implement PTRACE_SET_SYSCALL_INFO API.
-[...]
-> > diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
-> > index b3dd883699e7..1c0e349fd5c9 100644
-> > --- a/arch/s390/include/asm/syscall.h
-> > +++ b/arch/s390/include/asm/syscall.h
-> > @@ -24,6 +24,13 @@ static inline long syscall_get_nr(struct task_struct *task,
-> >  		(regs->int_code & 0xffff) : -1;
-> >  }
-> >  
-> > +static inline void syscall_set_nr(struct task_struct *task,
-> > +				  struct pt_regs *regs,
-> > +				  int nr)
-> > +{
-> 
-> I think there should be a
-> 
-> 	if (!test_pt_regs_flags(regs, PIF_SYSCALL))
-> 		return;
-> 
-> before the modification so a user can't accidentally change int_code
-> when ptrace stopped in a non-syscall path.
+> > On Fri, 10 Jan 2025 at 10:11, Ard Biesheuvel <ardb@kernel.org> wrote:
+> > >
+> > > I suppose this is a consequence of 8962b6b475bddc ("kbuild: print
+> > > short log in addition to the whole command with V=3D1") which introdu=
+ced
+> > > an $(if ) where the else branch is simply ':' and so it always
+> > > succeeds.
+> >
+> > Hmm. Odd. I don't see why that part of the commit exists, and you're
+> > right, that seems like a bad idea.
+> >
+> > And removing that odd $(if..) and making it just do
+> >
+> >    cmd =3D @set -e; $($(quiet)log_print) $(delete-on-interrupt) $(cmd_$=
+(1))
+> >
+> > doesn't seem to have any obvious negative effects.
+>
+> When cmd_foo is not defined, $(call if_changed,foo) will fail with this c=
+hange,
+> but $(call cmd,foo) will succeed regardless.
+>
+> In Makefile, the variable expansion works like the latter.
+> When X is not defined, $(X) is expanded to an empty string successfully.
+> This is useful.
+>
+>
+> > I'm probably missing some obvious reason why that $(if..) was added,
+> > it's been that way for two years now.
+>
+> We do not need to guard both a definition and its callsite.
+>
+> For example, the current code in arch/powerpc/Makefile.postlink:
+>
+> vmlinux: FORCE
+>         @true
+> ifdef CONFIG_PPC64
+>         $(call cmd,head_check)
+> endif
+> ifdef CONFIG_RELOCATABLE
+>         $(call if_changed,relocs_check)
+> endif
+> ifdef CONFIG_FUNCTION_TRACER
+> ifndef CONFIG_PPC64_ELF_ABI_V1
+>         $(call cmd,ftrace_check)
+> endif
+> endif
+>
+>
+> ... can be simplified into:
+>
+> vmlinux: FORCE
+>         $(call cmd,head_check)
+>         $(call if_changed,relocs_check)
+>         $(call cmd,ftrace_check)
+>
 
-The reason why syscall_get_nr() has this check on s390 (and similar checks
-on arc, powerpc, and sparc) is that syscall_get_nr() can be called while
-the target task is not in syscall.
-
-Unlike syscall_get_nr(), syscall_set_nr() can be called only when the
-target task is stopped for tracing on entering syscall: the description in
-include/asm-generic/syscall.h explicitly states that, and the follow-up
-patch that introduces PTRACE_SET_SYSCALL_INFO adds a syscall_set_nr() call
-when the tracee is stopped on entering syscall in either
-PTRACE_SYSCALL_INFO_ENTRY or PTRACE_SYSCALL_INFO_SECCOMP state.
-
-I don't mind adding a check, but syscall_set_nr() invocation while the
-target task is not in syscall wouldn't be a result of user actions but
-a kernel programing error, and in that case WARN_ON_ONCE() would be more
-appropriate.
-
-If calling syscall_set_nr() while the target task is not in syscall was
-legal, then syscall_set_nr() would have been designed to return a value
-indicating the status of operation.
-
-Anyway, I'll add an explanatory comment to syscall_set_nr() on all
-architectures where syscall_get_nr() has a check.
+arch/riscv/Makefile.postlink is a better example.
+CONFIG_RELOCATABLE for the callsite is redundant.
 
 
--- 
-ldv
+--=20
+Best Regards
+Masahiro Yamada
