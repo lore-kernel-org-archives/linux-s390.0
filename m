@@ -1,121 +1,122 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2540917BED0
-	for <linux-s390@vger.kernel.org>; Sat, 11 Jan 2025 05:49:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6881922EF;
+	Sat, 11 Jan 2025 13:08:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736574578; cv=none; b=MMCor0o5nzIzeNkOCsf02qC1WS8jbHGEf3/Vh2mXaDdBw9UDbbHupuLRldYFPO8ey/xyCH3Xqaw4RuAg+B29fJ0VDU4jx0H72on+LZJqRWOLjhfSJ1Mjuuw5TI79OnbGIJuRvL+hucICWALUomznT/37frMsskDhBS0MKRUtaQE=
+	t=1736600890; cv=none; b=WcX+Amg9GnbPlKagqM8xq7YbAdQkFnT+RqvS9/Z899BTtfRWdFCKw//BR5SXrZwDcllGnn0fos3IpRfcVOrgZ63xvb+qdReCMKvDnRXZbuYq6IMiV0Ri6SBtGi7yuPXFwsPPMpjwUk1adAawWzhyJojRS90YCgepCGuGKk+8j1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736574578; c=relaxed/simple;
-	bh=PDKDOEbG5wLU1DkJmdPQNhRgipqYHagmRVjwHv2hyKE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=N0DOR5kbgJhrDKWT58m3dxbbSJV53C+Om7ORtyaGlGi2jY+ofM1eCHUwm7sYQgikR/pskX4lb7jTBPGSJl21HWsrUBv0319h0IWGnRpRfWNQvG4I8AMOO341MBUhr68F1Xb8bVX63UxVgMYPEfayRrEc2IPMpqACXQYb8Hcb+iA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=Mrk5pi5+; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
+	s=arc-20240116; t=1736600890; c=relaxed/simple;
+	bh=wdSwZqiGhYyZAx+e2IQorQXp43S0F5s8LS6LS3NEPn0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VB1/upF1GbSSkNQ077tysBKr6nwEFrQHyCySPCGHLyBxAZsmAMrpmyYwd/zROO4l0W2PnabBk35PT4g3NedulkAognC73pph5QAXQfoK+tPdbFJpzk1m2VCyPTkFxKc4c9BfPcXvnvEjqjsJQvRzIXYlKJ33apHn9H4TZNrg+ag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GZjBtyPN; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="Mrk5pi5+"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2161eb95317so46355575ad.1
-        for <linux-s390@vger.kernel.org>; Fri, 10 Jan 2025 21:49:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736574576; x=1737179376; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hJIM5PjsK5XkECqCUUoGiieCybrsun7CzYeIZbw5syM=;
-        b=Mrk5pi5+LgbSuRWkugDhBASfg1fK14Frvx5xX58x3XsJlHhlhBseJCt/8a9h95QYzM
-         xaYQ9Rx+MlCwUhjrlZ+YvdpjdgWzttjgNk0KQBWEtAlfEpq98sgViacNihhQi3UmMAAK
-         lXRD4LPozpNnrGFygpu+mBgZ2KRewOVR+XHxwfXFaykiMmzX5xx7oIh/DDsYXXalOjsn
-         6DHn+qOCPnEqQIwkEYVh1hv/MXloWPHgR47uOD8uDZ5Ls6Y9sq+fEP2btlq2Ira97igG
-         kIwKvrkDr3BunoQIRQJD85rsxBvLYWbJ3lcWn6Or/f3RsSpvZPQxV/yIxGqsxnm+aZBs
-         zjiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736574576; x=1737179376;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hJIM5PjsK5XkECqCUUoGiieCybrsun7CzYeIZbw5syM=;
-        b=GE246FtEgo3xiuDGlYCykPyDZHlgGeZxFy0I4RkM9V73tRiXEw5r5uYsdENASuYLOr
-         WHWNbdS1L1kmSgQp1m+vAwPdjRDAQbuksM3Ft0s4vxRVzDRQkg8gZa873X0j7DLPvjhW
-         UApVVcvvxc7VICgvnHCh5UPIG2bkeNLlYRPgyUtj/n1DAj2ILi+LagL7oXixhM4sf9gF
-         Zq6CLa1LZgfRW8MId+8ffsZNcOBE8SpxNKl+HlocRPjxj0nxICfQ6vF37KfvgXE00zBV
-         tEKBP0ivTRG4buE7BbNWf4jU6iHA7eF9gOJLawYadhltW22DcabVTED9KeXPfH8Unt+l
-         +JjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXMAXpa2FbGypnnjgMgKv1JqheAQoWKucqMs40CJ3eoYnEQ2pw28tSN6P6kVNFjDECIk7d7yzrr9SmC@vger.kernel.org
-X-Gm-Message-State: AOJu0YwwXESoL3tv7iNjVadV6HY+LyAI8QLbHOwF4II+Y/vrMbAZaa45
-	ynM5qww1XM0Zu4XFVHNfIP/kLckBSBRSHSYkrFhYmjD41zZhGyEaDjc3fmhGWto=
-X-Gm-Gg: ASbGncuSD+mJ1OtBLU9l3T/JTog/50qvvWLJKypjbdeINyfnIfyt+hzC3QjmBsflFyC
-	9kzxkx3lbZha0vltbVhY2leMlvG0BSeyRmJLIyL3u8pY+fzJ4pG3pgfPiZjEpGfOZq0rrLlz+J2
-	uFDp4qBmuvbPvOoA96Cl0D2LWs+9tNbhSKe0lvdPyOaaCi2TrFEZCFNT0vZpRfbaK2DykBo+xiL
-	0iN72uBrucV78oyg8zvaoC76dl2jg8e/ty24mHVkvhdjm7QoQNist0Shbk=
-X-Google-Smtp-Source: AGHT+IGdQ/W+GdFqyOEQRaBJtYEIC3d/2Cs4dWBSsnFKDdtRyf3/E/GqQ6RNXv61x1Bb9PKDJOpeZw==
-X-Received: by 2002:a17:902:e552:b0:216:2426:7666 with SMTP id d9443c01a7336-21a83f36f14mr210827905ad.12.1736574576473;
-        Fri, 10 Jan 2025 21:49:36 -0800 (PST)
-Received: from localhost ([157.82.203.37])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21a9f10ddbesm21468195ad.2.2025.01.10.21.49.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Jan 2025 21:49:36 -0800 (PST)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Sat, 11 Jan 2025 14:48:49 +0900
-Subject: [PATCH v4 6/6] crash: Remove KEXEC_CORE_NOTE_NAME
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GZjBtyPN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1736600889; x=1768136889;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=wdSwZqiGhYyZAx+e2IQorQXp43S0F5s8LS6LS3NEPn0=;
+  b=GZjBtyPN58OTXZUM6ChEmXOWdLK4whViA66vmRivabd/YMD5R2sThkPz
+   c3sYpvZbZDP7Sy4uyNtwrgId9XKMfHF6U77MlJHCSoAy1LM10mgDXPmR+
+   42KQ535mMViBIRXfkMz6aFVS279EhVcUGEJmjl8F0aH2EqxGAC2G5L42k
+   nd8iHYsUU/gj+nUmZv8UFu8Ypb5Skj7GF8/ruJDkNdMYGk1Q2lhE1a9bY
+   xM8W2oCzGBA6MdW+Jg33cIw/oxzwSPdGkG2vnVojCzG7uOzJ9jkgAOdH8
+   zFbvoJLcvZlqdRPDpeSX5203zX1P/SWvMbLpjC0A4gm8jWqc6g6vfeGO8
+   w==;
+X-CSE-ConnectionGUID: XtjCeJpzTrqBCZIGlvUBgw==
+X-CSE-MsgGUID: oD6Zp8/eQpyjVG0uuEkS4g==
+X-IronPort-AV: E=McAfee;i="6700,10204,11312"; a="59370306"
+X-IronPort-AV: E=Sophos;i="6.12,307,1728975600"; 
+   d="scan'208";a="59370306"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Jan 2025 05:08:09 -0800
+X-CSE-ConnectionGUID: 3/wqF2ZURhC4WRstUhiavQ==
+X-CSE-MsgGUID: 6Lir+QKzQ4WRshUr7vMXAQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,307,1728975600"; 
+   d="scan'208";a="104040539"
+Received: from lkp-server01.sh.intel.com (HELO d63d4d77d921) ([10.239.97.150])
+  by orviesa006.jf.intel.com with ESMTP; 11 Jan 2025 05:08:01 -0800
+Received: from kbuild by d63d4d77d921 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tWbDa-000KfP-2E;
+	Sat, 11 Jan 2025 13:07:58 +0000
+Date: Sat, 11 Jan 2025 21:07:51 +0800
+From: kernel test robot <lkp@intel.com>
+To: Andrey Albershteyn <aalbersh@redhat.com>, linux-fsdevel@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Andrey Albershteyn <aalbersh@redhat.com>, linux-api@vger.kernel.org,
+	monstr@monstr.eu, mpe@ellerman.id.au, npiggin@gmail.com,
+	christophe.leroy@csgroup.eu, naveen@kernel.org, maddy@linux.ibm.com,
+	luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+	chris@zankel.net, jcmvbkbc@gmail.com, viro@zeniv.linux.org.uk,
+	brauner@kernel.org, jack@suse.cz, arnd@arndb.de,
+	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [PATCH] fs: introduce getfsxattrat and setfsxattrat syscalls
+Message-ID: <202501112052.ZJEvfjhd-lkp@intel.com>
+References: <20250109174540.893098-1-aalbersh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250111-elf-v4-6-b3841fa0dcd9@daynix.com>
-References: <20250111-elf-v4-0-b3841fa0dcd9@daynix.com>
-In-Reply-To: <20250111-elf-v4-0-b3841fa0dcd9@daynix.com>
-To: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>, 
- Catalin Marinas <catalin.marinas@arm.com>, Mark Brown <broonie@kernel.org>, 
- Dave Martin <Dave.Martin@arm.com>, Baoquan He <bhe@redhat.com>, 
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>, 
- LEROY Christophe <christophe.leroy2@cs-soprasteria.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
- kexec@lists.infradead.org, binutils@sourceware.org, devel@daynix.com, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.14-dev-fd6e3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250109174540.893098-1-aalbersh@kernel.org>
 
-KEXEC_CORE_NOTE_NAME is no longer used.
+Hi Andrey,
 
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Acked-by: Baoquan He <bhe@redhat.com>
----
- include/linux/kexec.h       | 2 --
- include/linux/vmcore_info.h | 1 -
- 2 files changed, 3 deletions(-)
+kernel test robot noticed the following build warnings:
 
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index f0e9f8eda7a3..c840431eadda 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -68,8 +68,6 @@ extern note_buf_t __percpu *crash_notes;
- #define KEXEC_CRASH_MEM_ALIGN PAGE_SIZE
- #endif
- 
--#define KEXEC_CORE_NOTE_NAME	CRASH_CORE_NOTE_NAME
--
- /*
-  * This structure is used to hold the arguments that are used when loading
-  * kernel binaries.
-diff --git a/include/linux/vmcore_info.h b/include/linux/vmcore_info.h
-index 1672801fd98c..37e003ae5262 100644
---- a/include/linux/vmcore_info.h
-+++ b/include/linux/vmcore_info.h
-@@ -6,7 +6,6 @@
- #include <linux/elfcore.h>
- #include <linux/elf.h>
- 
--#define CRASH_CORE_NOTE_NAME	   "CORE"
- #define CRASH_CORE_NOTE_HEAD_BYTES ALIGN(sizeof(struct elf_note), 4)
- #define CRASH_CORE_NOTE_NAME_BYTES ALIGN(sizeof(NN_PRSTATUS), 4)
- #define CRASH_CORE_NOTE_DESC_BYTES ALIGN(sizeof(struct elf_prstatus), 4)
+[auto build test WARNING on brauner-vfs/vfs.all]
+[also build test WARNING on geert-m68k/for-next powerpc/next powerpc/fixes s390/features linus/master v6.13-rc6 next-20250110]
+[cannot apply to geert-m68k/for-linus deller-parisc/for-next jcmvbkbc-xtensa/xtensa-for-next arnd-asm-generic/master tip/x86/asm]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Andrey-Albershteyn/fs-introduce-getfsxattrat-and-setfsxattrat-syscalls/20250110-014739
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git vfs.all
+patch link:    https://lore.kernel.org/r/20250109174540.893098-1-aalbersh%40kernel.org
+patch subject: [PATCH] fs: introduce getfsxattrat and setfsxattrat syscalls
+config: arm-allnoconfig (https://download.01.org/0day-ci/archive/20250111/202501112052.ZJEvfjhd-lkp@intel.com/config)
+compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250111/202501112052.ZJEvfjhd-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202501112052.ZJEvfjhd-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> <stdin>:1615:2: warning: syscall getfsxattrat not implemented [-W#warnings]
+    1615 | #warning syscall getfsxattrat not implemented
+         |  ^
+>> <stdin>:1618:2: warning: syscall setfsxattrat not implemented [-W#warnings]
+    1618 | #warning syscall setfsxattrat not implemented
+         |  ^
+   2 warnings generated.
+--
+>> <stdin>:1615:2: warning: syscall getfsxattrat not implemented [-W#warnings]
+    1615 | #warning syscall getfsxattrat not implemented
+         |  ^
+>> <stdin>:1618:2: warning: syscall setfsxattrat not implemented [-W#warnings]
+    1618 | #warning syscall setfsxattrat not implemented
+         |  ^
+   2 warnings generated.
 
 -- 
-2.47.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
