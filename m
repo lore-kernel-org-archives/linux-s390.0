@@ -1,79 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581671BBBD7;
-	Sat, 11 Jan 2025 21:20:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80D7F13BAE3
+	for <linux-s390@vger.kernel.org>; Sun, 12 Jan 2025 10:36:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736630411; cv=none; b=Wa+1eYM38U7s1SncmVxCTKhavKtrOQCTxhKLtA7ntVT3eHvrHgr1EQjIIEsJ8ss0LrrVNZ9iJTw3nsrxtVh/G+IDH1JhzJRuS5JBMPRnaGdMbfaDlN4mzP6Ikx0sdpf2Al7VDCj8mQZsWbHQYOBoudjXwe7fQJObkv5FO1AcVns=
+	t=1736678208; cv=none; b=Zq1PuppDy2d7yWdEyH047ATLMBCuxTg5IKWyr8JBvOH9eXSSbcm8vIcVdiu81fjeb2vmHAGUNyxfJiyDczfeMt2d0WwHjV883rxwRXTUmFfNmn8M4DDhpLWc+Q6DuDYx2oaIzRGKf3WUtZQKy0vuH/6glOkQTwUyszwvmkGQsSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736630411; c=relaxed/simple;
-	bh=xRnRLoBesJG/EZ9jRC0T4oavXLsrIkvaL4M32cLMxDU=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=b3q+XxbxlK+4I6VzWLEH8RxuYgJ/W5fIVBM/NDE3+YS0OjN6bWASSHPrMhekxIOYOw1gOvBq58uNTy2gn/DHEuMScQaIU+dZQ24bkbkL3H7UMcd7Ju1yumvaTQmU+v0BPZVtT3S5I78AajaS3hTvtCAHmjRGfAG2Z/DOgijuMxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dpU+vRQH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736678208; c=relaxed/simple;
+	bh=REgFctRGG2i+aWyJ1ZRxJ6TwTZBV1cOPjFQdvPEnzK0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NACwWrlprZo7GIWeMCl2R+++sxx7rsvlnrgIwyEDhUxR2nZpD2/VtA+PwiXlbrvbAZuqzkI9MIjUYHvcDQaavkvr+2IvYtvxhuXleNWktTE92u7jG1f9S9i4fcbh7dU3iAZPwjdc3raKgM10SjBINMPgvYR3nCXoMEQQEVqbZG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C5lWoEHG; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dpU+vRQH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C41C4CEDF;
-	Sat, 11 Jan 2025 21:20:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736630410;
-	bh=xRnRLoBesJG/EZ9jRC0T4oavXLsrIkvaL4M32cLMxDU=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=dpU+vRQHaIVbANeRBu1UAL5ukcD+7okkV+cpnJwXbooQAqwY2kaJ0M0CYeDManon8
-	 i87kEeEmpbTmRDIrO35E6YzF5FxJS4W4Tq83kuo4iOVlJhuDOFsTndIYktstAf9oXe
-	 xEVA8mOr5K2imVXp20TE1BMvpOKpJiJTYe0LeQVA6d9iAR2Wf7t1CSDpGIweqv0kJ6
-	 9eAeC1lsQUdaMe+oj0a+msJNf/61ShMUmFrBnXlTG6dYXQudc9vaIOF1kzkf4ZDfh3
-	 UfuHlbqAdSDp1BYVglHFCvpqCyJImAiGqIIGzMkL1OUzAe37Yoe0Uw7KYgGkErHEsE
-	 8+RgKSaAoX7ew==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33FDE380AA54;
-	Sat, 11 Jan 2025 21:20:34 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C5lWoEHG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736678205;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sjZIf+MqzlX40O8hdTacUc+jXg2UIC0x4trWd6422To=;
+	b=C5lWoEHGZn5UcZQqc8zGTsFIizU25jP1fo4lfOoo2wT/10/TsZTmatKegzDhxZmthRB5hn
+	cuYDIxfS0deNQVWwlPcGwyrRdDI93/LjBpOqqlwO1e5kgK6VV0u2nWc0hzcWkRB1CT/+G5
+	pQRa4QPkQknEA86DKDKKUZQt2S5fQ3I=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-543-0DSN8VPiNBSr_DA-YHIeIA-1; Sun,
+ 12 Jan 2025 05:36:43 -0500
+X-MC-Unique: 0DSN8VPiNBSr_DA-YHIeIA-1
+X-Mimecast-MFC-AGG-ID: 0DSN8VPiNBSr_DA-YHIeIA
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A2F3A19560BB;
+	Sun, 12 Jan 2025 10:36:36 +0000 (UTC)
+Received: from localhost (unknown [10.72.113.4])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5808B195608A;
+	Sun, 12 Jan 2025 10:36:31 +0000 (UTC)
+Date: Sun, 12 Jan 2025 18:36:27 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
+	Kees Cook <kees@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+	openipmi-developer@lists.sourceforge.net,
+	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-raid@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org,
+	xen-devel@lists.xenproject.org, linux-aio@kvack.org,
+	linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev,
+	codalist@coda.cs.cmu.edu, linux-mm@kvack.org,
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	fsverity@lists.linux.dev, linux-xfs@vger.kernel.org,
+	io-uring@vger.kernel.org, bpf@vger.kernel.org,
+	kexec@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
+	linux-hardening@vger.kernel.org, apparmor@lists.ubuntu.com,
+	linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+	Song Liu <song@kernel.org>,
+	"Steven Rostedt (Google)" <rostedt@goodmis.org>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	"Darrick J. Wong" <djwong@kernel.org>,
+	Jani Nikula <jani.nikula@intel.com>,
+	Corey Minyard <cminyard@mvista.com>
+Subject: Re: [PATCH v2] treewide: const qualify ctl_tables where applicable
+Message-ID: <Z4ObK5hkQ7qjWgbf@MiWiFi-R3L-srv>
+References: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net/smc: delete pointless divide by one
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173663043299.2451513.4391354145760496406.git-patchwork-notify@kernel.org>
-Date: Sat, 11 Jan 2025 21:20:32 +0000
-References: <ee1a790b-f874-4512-b3ae-9c45f99dc640@stanley.mountain>
-In-Reply-To: <ee1a790b-f874-4512-b3ae-9c45f99dc640@stanley.mountain>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-Hello:
+On 01/10/25 at 03:16pm, Joel Granados wrote:
+...snip...
+> diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
+> index c0caa14880c3..71b0809e06d6 100644
+> --- a/kernel/kexec_core.c
+> +++ b/kernel/kexec_core.c
+> @@ -925,7 +925,7 @@ static int kexec_limit_handler(const struct ctl_table *table, int write,
+>  	return proc_dointvec(&tmp, write, buffer, lenp, ppos);
+>  }
+>  
+> -static struct ctl_table kexec_core_sysctls[] = {
+> +static const struct ctl_table kexec_core_sysctls[] = {
+>  	{
+>  		.procname	= "kexec_load_disabled",
+>  		.data		= &kexec_load_disabled,
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+For the kexec/kdump part,
 
-On Wed, 8 Jan 2025 12:26:06 +0300 you wrote:
-> Here "buf" is a void pointer so sizeof(*buf) is one.  Doing a divide
-> by one makes the code less readable.  Delete it.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
-> ---
->  net/smc/smc_core.c | 2 +-
->  net/smc/smc_rx.c   | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-
-Here is the summary with links:
-  - [net-next] net/smc: delete pointless divide by one
-    https://git.kernel.org/netdev/net-next/c/10bc9761d12e
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+Acked-by: Baoquan He <bhe@redhat.com>
+......
 
