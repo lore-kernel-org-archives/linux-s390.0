@@ -1,171 +1,147 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1246F1420DD;
-	Mon, 13 Jan 2025 03:25:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8353231A5B;
+	Mon, 13 Jan 2025 07:45:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736738745; cv=none; b=qyUNzz/5awqBpGs9fC6mrLNQvNUJzrp1MLP3K8dUn6HGWXirM7QUVGhduAy8ugl1LQEGi6WcdcJ/pIXT8Z16WmWojABxDSKCvjukUjA0TqmDqC78rQZjv0ZwTPo7RIcVePUvUT2h5DqE5Io9HtpafnWkG18NtbhN7zq7layku3E=
+	t=1736754324; cv=none; b=kti+/7SSXtYuXPuAuQrH3j00bSbQ8gUJb+v6AcVJc7q+3DfYOZySZm3KxOW+MPGWay2895OrYCsklYTyQ8yOQTtfjIZfd19unaWKdOaSDwxSU194DoTYCjhEtlS6R3jq8npRh4ZCXOlfxXbvkAJZ30SZr8eXLW6LGL5edGH+1BE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736738745; c=relaxed/simple;
-	bh=kDvnC74Lo6EZ1n3L3aZwXkWsD4GwjpMEPT/wHL2YzN4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Polb2I9JXmwgvdRR0sZs8qULzCINJuQHOPCD0EzeQJCt1GPpFn4q/90VCq2rHjCVCRVUjIymjEEj7uyGnAQWN8SsvZsplb9IUCWsWZoS/sHpAFVleCxsuhw8Xj9SunIVHIuhwn+Ndup3hcKNKB/Xti+h6Gr4w8RZ3RQQs45qQPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bSRWhzay; arc=none smtp.client-ip=192.198.163.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1736754324; c=relaxed/simple;
+	bh=9UR7XaoBIYrEopR0bb2oUMRVAgfO1MuY5IfgY85cJOc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EJK7R/dCNnb9IjjrkM4zMmvmRrKJ5A9xTNLWhllN9kG73Gz5S8kj3kUireAYDXzObnA16Glz/E/YK+83QQCTK6XVRbAzB9f2Gfq1ew3ySXzXs/jnrf2zI0bS2DPG+T327sEtcvlXL8lSpvW3vvm8flgpbQO5tXe/kiFIIig5ARs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CH1efmUL; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bSRWhzay"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1736738743; x=1768274743;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=kDvnC74Lo6EZ1n3L3aZwXkWsD4GwjpMEPT/wHL2YzN4=;
-  b=bSRWhzayo+3BVU64Q2ou3pz2apkIzEWoisoV91Qya9Dv09XZmkWO/loo
-   2EOfrujz+Zg0JRVHHy6damYgkMU5cge7KpddDJJvTixfEdEpGaWAUGrfl
-   VnpkHLSrofMoJiN7mH04FGsk11WeOXdJARfZy6s1RR4/BvEa4Vu57oSpi
-   QNpWL+Idd9ihCWUZv1q8qjioGGa9eqR6/r+bohc1PhCK4xbXc1+2uDxZ4
-   U4MgPyvPsn0a8w+LaAd8OjdRRvznJjor4mYHd0cb7EYBrYIrQTItzev8t
-   1lLhHIH7ybbULgeE7G6eERgNLhatQp49PzHiyYkILyM8KjUys14vQBnhB
-   A==;
-X-CSE-ConnectionGUID: i0zYZppWQRujwTVEPA3C3A==
-X-CSE-MsgGUID: tJywnziMS6OUFfNoACaTAg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11313"; a="48399183"
-X-IronPort-AV: E=Sophos;i="6.12,310,1728975600"; 
-   d="scan'208";a="48399183"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2025 19:25:42 -0800
-X-CSE-ConnectionGUID: pGeiW06QRgC2unHlctenaQ==
-X-CSE-MsgGUID: cNe1mltgTL6TwFBhawgDIA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,310,1728975600"; 
-   d="scan'208";a="104496936"
-Received: from lkp-server01.sh.intel.com (HELO d63d4d77d921) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 12 Jan 2025 19:25:35 -0800
-Received: from kbuild by d63d4d77d921 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tXB53-000Mfv-1I;
-	Mon, 13 Jan 2025 03:25:33 +0000
-Date: Mon, 13 Jan 2025 11:25:27 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andrey Albershteyn <aalbersh@redhat.com>, linux-fsdevel@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, Andrey Albershteyn <aalbersh@redhat.com>,
-	linux-api@vger.kernel.org, monstr@monstr.eu, mpe@ellerman.id.au,
-	npiggin@gmail.com, christophe.leroy@csgroup.eu, naveen@kernel.org,
-	maddy@linux.ibm.com, luto@kernel.org, tglx@linutronix.de,
-	mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-	x86@kernel.org, hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com,
-	viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz,
-	arnd@arndb.de, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org
-Subject: Re: [PATCH] fs: introduce getfsxattrat and setfsxattrat syscalls
-Message-ID: <202501131033.KKMmoHBV-lkp@intel.com>
-References: <20250109174540.893098-1-aalbersh@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CH1efmUL"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50CIh68e017895;
+	Mon, 13 Jan 2025 07:45:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HMqDm+
+	1QhqmjUgeavGWF0V6HolHyRYX3RZXiz/vg2fc=; b=CH1efmULdEOjf0S02NUq+a
+	EkNeAVrPLd0KkjULDso3Nxs9E14l3Ped/yIYrC5QUkWM7GgXDnywgjy7+JqnTsgv
+	pIjfUC0GoEZsrRLBCiZ7z/EswHc421mLvgrO58dnCIvI2qP9N6NrceKUPK1ps5VP
+	disMMxtsWBUUHup7V+YUxOonxtwn6biLhDQPrz1uUKNLFfRcuN/XqfgsvdNB3gIV
+	pzFRPh2G1+lVtTQZXZLpvyjVU4QPDJHfBNEoAJkJMmiHWSvnGGvv7FkuD4IjduxQ
+	vyJN8RmAtCvRhqrcdtB0tKdaerDQhu8f9SakcC81kaeGNvCBC8GyDanFlUAxIiog
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 444f74jh63-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Jan 2025 07:45:17 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50D5Q5Tx001089;
+	Mon, 13 Jan 2025 07:45:16 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44456jmv49-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 13 Jan 2025 07:45:16 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50D7jE0252363760
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Jan 2025 07:45:15 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D405B2004E;
+	Mon, 13 Jan 2025 07:45:14 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 896BB20040;
+	Mon, 13 Jan 2025 07:45:14 +0000 (GMT)
+Received: from [9.179.7.252] (unknown [9.179.7.252])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 13 Jan 2025 07:45:14 +0000 (GMT)
+Message-ID: <7ceb1b7d-30ad-443a-8719-1f8747f3d2a1@linux.ibm.com>
+Date: Mon, 13 Jan 2025 08:45:14 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250109174540.893098-1-aalbersh@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 3/3] s390/crypto: Enable phmac selftest invocation
+To: Harald Freudenberger <freude@linux.ibm.com>, herbert@gondor.apana.org.au,
+        davem@davemloft.net
+Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org
+References: <20250102094615.99181-1-freude@linux.ibm.com>
+ <20250102094615.99181-4-freude@linux.ibm.com>
+Content-Language: de-DE, en-US
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250102094615.99181-4-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 0ZHGVv3TMPYOB0LUpjAVgjip5vSUCTb2
+X-Proofpoint-ORIG-GUID: 0ZHGVv3TMPYOB0LUpjAVgjip5vSUCTb2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 mlxlogscore=941 bulkscore=0 clxscore=1015
+ malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
+ suspectscore=0 phishscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2501130063
 
-Hi Andrey,
+On 02/01/2025 10:46, Harald Freudenberger wrote:
+> - Add a little helper inline function
+>     crypto_tfm_alg_get_flags()
+>   to crypto.h to retrieve the alg flags.
+> - Add key preparation code in case of selftest running
+>   to the phmac setkey function.
+> - Add phmac selftest invocation to the crypto testmanager.
 
-kernel test robot noticed the following build warnings:
+Can you please split this self-test enablement for phmac into a separate patch series.
 
-[auto build test WARNING on brauner-vfs/vfs.all]
-[also build test WARNING on geert-m68k/for-next powerpc/next powerpc/fixes s390/features linus/master v6.13-rc6 next-20250110]
-[cannot apply to geert-m68k/for-linus deller-parisc/for-next jcmvbkbc-xtensa/xtensa-for-next arnd-asm-generic/master tip/x86/asm]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>  arch/s390/crypto/phmac_s390.c | 144 ++++++++++++++++++++++++++++++++--
+>  crypto/testmgr.c              |  30 +++++++
+>  include/linux/crypto.h        |   5 ++
+>  3 files changed, 174 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/crypto/phmac_s390.c b/arch/s390/crypto/phmac_s390.c
+> index b2b389e94a37..3d80168775ab 100644
+> --- a/arch/s390/crypto/phmac_s390.c
+> +++ b/arch/s390/crypto/phmac_s390.c
+[...]
+> @@ -687,10 +799,26 @@ static int s390_phmac_setkey(struct crypto_ahash *tfm,
+>  		tfm_ctx->keylen = 0;
+>  	}
+>  
+> -	tfm_ctx->key = kmemdup(key, keylen, GFP_ATOMIC);
+> -	if (!tfm_ctx->key)
+> -		return -ENOMEM;
+> -	tfm_ctx->keylen = keylen;
+> +	if (crypto_tfm_alg_get_flags(tfm_base) & CRYPTO_ALG_TESTED) {
+> +		/* no selftest: key is always a key token digestable by PKEY */
+> +		tfm_ctx->key = kmemdup(key, keylen, GFP_ATOMIC);
+> +		if (!tfm_ctx->key) {
+> +			rc = -ENOMEM;
+> +			goto out;
+> +		}
+> +		tfm_ctx->keylen = keylen;
+> +	} else {
+> +		/* selftest running: key is a raw hmac clear key */
+> +		tfm_ctx->keylen = sizeof(struct hmac_clrkey_token) + bs;
+> +		tfm_ctx->key = kzalloc(tfm_ctx->keylen, GFP_ATOMIC);
+> +		if (!tfm_ctx->key) {
+> +			rc = -ENOMEM;
+> +			goto out;
+> +		}
+> +		rc = make_clrkey_token(key, keylen, ds, tfm_ctx->key);
+> +		if (rc)
+> +			goto out;
+> +	}
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Andrey-Albershteyn/fs-introduce-getfsxattrat-and-setfsxattrat-syscalls/20250110-014739
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git vfs.all
-patch link:    https://lore.kernel.org/r/20250109174540.893098-1-aalbersh%40kernel.org
-patch subject: [PATCH] fs: introduce getfsxattrat and setfsxattrat syscalls
-config: m68k-randconfig-r122-20250111 (https://download.01.org/0day-ci/archive/20250113/202501131033.KKMmoHBV-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 14.2.0
-reproduce: (https://download.01.org/0day-ci/archive/20250113/202501131033.KKMmoHBV-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202501131033.KKMmoHBV-lkp@intel.com/
-
-sparse warnings: (new ones prefixed by >>)
-   fs/inode.c:957:24: sparse: sparse: context imbalance in 'inode_lru_isolate' - wrong count at exit
-   fs/inode.c:1058:9: sparse: sparse: context imbalance in 'find_inode' - different lock contexts for basic block
-   fs/inode.c:1099:9: sparse: sparse: context imbalance in 'find_inode_fast' - different lock contexts for basic block
-   fs/inode.c:1829:5: sparse: sparse: context imbalance in 'insert_inode_locked' - wrong count at exit
-   fs/inode.c:1947:20: sparse: sparse: context imbalance in 'iput_final' - unexpected unlock
-   fs/inode.c:1961:6: sparse: sparse: context imbalance in 'iput' - wrong count at exit
-   fs/inode.c:2494:17: sparse: sparse: context imbalance in '__wait_on_freeing_inode' - unexpected unlock
->> fs/inode.c:2998:39: sparse: sparse: incorrect type in argument 2 (different address spaces) @@     expected struct fsxattr [noderef] __user *ufa @@     got struct fsxattr *fsx @@
-   fs/inode.c:2998:39: sparse:     expected struct fsxattr [noderef] __user *ufa
-   fs/inode.c:2998:39: sparse:     got struct fsxattr *fsx
-   fs/inode.c:3032:41: sparse: sparse: incorrect type in argument 2 (different address spaces) @@     expected struct fsxattr [noderef] __user *ufa @@     got struct fsxattr *fsx @@
-   fs/inode.c:3032:41: sparse:     expected struct fsxattr [noderef] __user *ufa
-   fs/inode.c:3032:41: sparse:     got struct fsxattr *fsx
-
-vim +2998 fs/inode.c
-
-  2959	
-  2960	SYSCALL_DEFINE4(getfsxattrat, int, dfd, const char __user *, filename,
-  2961			struct fsxattr *, fsx, int, at_flags)
-  2962	{
-  2963		struct fd dir;
-  2964		struct fileattr fa;
-  2965		struct path filepath;
-  2966		struct inode *inode;
-  2967		int error;
-  2968	
-  2969		if (at_flags)
-  2970			return -EINVAL;
-  2971	
-  2972		if (!capable(CAP_FOWNER))
-  2973			return -EPERM;
-  2974	
-  2975		dir = fdget(dfd);
-  2976		if (!fd_file(dir))
-  2977			return -EBADF;
-  2978	
-  2979		if (!S_ISDIR(file_inode(fd_file(dir))->i_mode)) {
-  2980			error = -EBADF;
-  2981			goto out;
-  2982		}
-  2983	
-  2984		error = user_path_at(dfd, filename, at_flags, &filepath);
-  2985		if (error)
-  2986			goto out;
-  2987	
-  2988		inode = filepath.dentry->d_inode;
-  2989		if (file_inode(fd_file(dir))->i_sb->s_magic != inode->i_sb->s_magic) {
-  2990			error = -EBADF;
-  2991			goto out_path;
-  2992		}
-  2993	
-  2994		error = vfs_fileattr_get(filepath.dentry, &fa);
-  2995		if (error)
-  2996			goto out_path;
-  2997	
-> 2998		if (copy_fsxattr_to_user(&fa, fsx))
-  2999			error = -EFAULT;
-  3000	
-  3001	out_path:
-  3002		path_put(&filepath);
-  3003	out:
-  3004		fdput(dir);
-  3005		return error;
-  3006	}
-  3007	
+I would prefer, if the conversion of the self-test clear-key is an additional code path and not a replacement. I know, that this might end up in an additional memory allocation, but I think it is worth to do so.
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
+
