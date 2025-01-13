@@ -1,126 +1,239 @@
-Received: from out-189.mta0.migadu.com (out-189.mta0.migadu.com [91.218.175.189])
+Received: from omta34.uswest2.a.cloudfilter.net (omta34.uswest2.a.cloudfilter.net [35.89.44.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 130F622DFB1
-	for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2025 15:02:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.189
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59066229810
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2025 15:07:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.89.44.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736780533; cv=none; b=jO3lJYG6RhzuV8NiVTHCKNIMTomJ+uZ3YX062coSXQaiVr+pzck7U7vKjDnCdX2lPflw3hwj/kYAoUnQCHiJHIH3dbqcWN+tvF5SYvCq8Aq3dcaVSEeQKJAmASqG2Jsp8l/8kxjiwji1eLtdbQcjtcgHeOI8p7a5mkZq1hJFeqw=
+	t=1736780874; cv=none; b=MHu/UpmmVEZTrDSFwVzVr01LW5lMErwUbQDLfxpNLlQJRw54kC8OkptmJO7bL+jB5sHaCAf7nMDcnHVOSLE6fS+TWItT0/b85mqsa8T1hDeMdece9nPJUY+EzTu0yAvcJ8P8CTfTQeZSnQcrnJtMHEmuym4uByxNCESOLg1M5rg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736780533; c=relaxed/simple;
-	bh=jReV93cCbYPy83WgD/3sAghiioBKnnwhpLE7WasF130=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aTZ3klJDBHJRHmBX85FpnArMcUnhs4IVv9sFDyqr+3HldKx4K+TkGViGaydH/XbH4dSH1KsrkmR+Z42NzpNHgJnCnEwFTcpPv/F6z1GhllM/9nXwaYjcxhFCV9O/+Q9YTF3tpCx10/8CT16HX0cKz9v4ZLxV4ktB129LVrndHUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VgUr5y4b; arc=none smtp.client-ip=91.218.175.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1736780874; c=relaxed/simple;
+	bh=VflLVJpll41zBEnRp+E8ITyaeeYX7MDwxJHz6ZBXHnM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fCmPx8eePrl6R+X1GfXTF6LLN08GBJxIKtiEsZYaLTabDwMDKTjDBP4egxkNZCBUnzw3WJbqtK00nkZyh+U+j+bIOwxy/ki+TfAc9nDDoxHKxSq6lJ/4pPQJSABKrze31uvLWIPtAYZS37vojEMfruy+MSf6UpO0Rz7gNoqTO40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=w6rz.net; spf=pass smtp.mailfrom=w6rz.net; dkim=pass (2048-bit key) header.d=w6rz.net header.i=@w6rz.net header.b=a0nTCHvQ; arc=none smtp.client-ip=35.89.44.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=w6rz.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=w6rz.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VgUr5y4b"
-Date: Mon, 13 Jan 2025 16:01:58 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1736780522;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KwFSzUI7AdO7FN349dbUBnEYz5JimFOvpyWuoBOACSs=;
-	b=VgUr5y4bQO1Br7MsgRdM1yCg/KVoRF6a29p+gYXkeY6gfIyCy+x35yMDZCFlI5dFxc3uid
-	JtEpJHj3e3C8PLPpr9BNvSyShTJt3K0xoqNMpByq1XfH+tJUKm4mzI5Q+UAPA//+02zQa1
-	COW1rZcCyiE9+UKnRWMTecZzncHIwj8=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
-	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
-	pbonzini@redhat.com, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, vladimir.murzin@arm.com
-Subject: Re: [kvm-unit-tests PATCH v1 1/5] configure: Document that the
- architecture name 'aarch64' is also supported
-Message-ID: <20250113-0fe04c6089726d1d06a254ec@orel>
-References: <20250110135848.35465-1-alexandru.elisei@arm.com>
- <20250110135848.35465-2-alexandru.elisei@arm.com>
+	dkim=pass (2048-bit key) header.d=w6rz.net header.i=@w6rz.net header.b="a0nTCHvQ"
+Received: from eig-obgw-5008a.ext.cloudfilter.net ([10.0.29.246])
+	by cmsmtp with ESMTPS
+	id Wy2WtgmEd09RnXM2atY6F9; Mon, 13 Jan 2025 15:07:45 +0000
+Received: from box5620.bluehost.com ([162.241.219.59])
+	by cmsmtp with ESMTPS
+	id XM2ZtoS7dLy0yXM2atjGNO; Mon, 13 Jan 2025 15:07:44 +0000
+X-Authority-Analysis: v=2.4 cv=OtZJyT/t c=1 sm=1 tr=0 ts=67852c40
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=IkcTkHD0fZMA:10 a=VdSt8ZQiCzkA:10 a=7vwVE5O1G3EA:10 a=VwQbUJbxAAAA:8
+ a=pGLkceISAAAA:8 a=Z4Rwk6OoAAAA:8 a=JfrnYn6hAAAA:8 a=RiYDK7WvK0PClliYqTEA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=HkZW87K1Qel5hWWM3VKY:22
+ a=1CNFftbPRP8L7MoqJWF3:22 a=hTR6fmoedSdf3N0JiVF8:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+	s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=FV80WBHquXMN08T5W3+Ksl5Dj9zljkMGlhhiCT+jC0k=; b=a0nTCHvQhX6w54cgFnZCw0LyXT
+	GWgY9E/lD1WLSUkc9MATFq/00GiV8Ii3bG5i1lUSTAKmi1L1h/tl2iuqRMcdUIYcn4nlPmtlow3bh
+	v4uKBnF+J1rx6BzI9UkEHtNGOLoIoN7T8Mlrb0/RqKbtUA8Q1YZE+uMshRIJkXY8tAE0LTOiFJoeA
+	7aM/GfmgNucJXPIBnvIlb6nO0m3sOovdt0irk4ydGM7gTdb8Xme7LMfyJx433DYAVN9DcBuf5Psz2
+	G6mFRi4Ii06jFo7pnaeiW3chkmSE/oP62ttawBvetF/9ffEzLycFnnh7o0xhA8hwzgh30dsZySUOW
+	mhxgfs3Q==;
+Received: from c-73-223-253-157.hsd1.ca.comcast.net ([73.223.253.157]:57814 helo=[10.0.1.116])
+	by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.96.2)
+	(envelope-from <re@w6rz.net>)
+	id 1tXM2Z-0011Bx-0K;
+	Mon, 13 Jan 2025 08:07:43 -0700
+Message-ID: <82c4c224-1e3a-4fe1-8bec-a9a3d82cbf3f@w6rz.net>
+Date: Mon, 13 Jan 2025 07:07:41 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250110135848.35465-2-alexandru.elisei@arm.com>
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] kbuild: Strip runtime const RELA sections correctly
+To: Ard Biesheuvel <ardb+git@google.com>, linux-kbuild@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ Masahiro Yamada <masahiroy@kernel.org>, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org
+References: <20250113143222.1868692-2-ardb+git@google.com>
+Content-Language: en-US
+From: Ron Economos <re@w6rz.net>
+In-Reply-To: <20250113143222.1868692-2-ardb+git@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.223.253.157
+X-Source-L: No
+X-Exim-ID: 1tXM2Z-0011Bx-0K
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-223-253-157.hsd1.ca.comcast.net ([10.0.1.116]) [73.223.253.157]:57814
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 1
+X-Org: HG=bhshared;ORG=bluehost;
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfNBmyj3BDqLngWrfVTWW+gNEw8fhyuLyFb590C+ve7mwbk8juff/NOQRGM9oc2KEpYGOV8FCM2ILtDzu2bBk09eZIFADi1ldLdGs50eVx0lb4czx7/1P
+ UKXksrQRDd4XZ7U7hNuxb96lfPmN2DPu0mZGBLziFa/ggJT75WqBbqIJK31DvbN6j9N583SKIH7zwcx5+k8KHw1LpFmQc39TkSE=
 
-On Fri, Jan 10, 2025 at 01:58:44PM +0000, Alexandru Elisei wrote:
-> $arch, on arm64, defaults to 'aarch64', and later in the script is replaced
-> by 'arm64'. Intentional or not, document that the name 'aarch64' is also
-> supported when configuring for the arm64 architecture. This has been the
-> case since the initial commit that added support for the arm64
-> architecture, commit 39ac3f8494be ("arm64: initial drop").
-> 
-> The help text for --arch changes from*:
-> 
->    --arch=ARCH            architecture to compile for (aarch64). ARCH can be one of:
->                            arm, arm64, i386, ppc64, riscv32, riscv64, s390x, x86_64
-> 
-> to:
-> 
->     --arch=ARCH            architecture to compile for (aarch64). ARCH can be one of:
->                            arm, arm64/aarch64, i386, ppc64, riscv32, riscv64, s390x, x86_64
-> 
-> *Worth pointing out that the default architecture is 'aarch64', even though
-> the rest of the help text doesn't have it as one of the supported
-> architectures.
-> 
-> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-> ---
->  configure | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/configure b/configure
-> index 86cf1da36467..5b0a2d7f39c0 100755
-> --- a/configure
-> +++ b/configure
-> @@ -47,7 +47,7 @@ usage() {
->  
->  	Options include:
->  	    --arch=ARCH            architecture to compile for ($arch). ARCH can be one of:
-> -	                           arm, arm64, i386, ppc64, riscv32, riscv64, s390x, x86_64
-> +	                           arm, arm64/aarch64, i386, ppc64, riscv32, riscv64, s390x, x86_64
->  	    --processor=PROCESSOR  processor to compile for ($arch)
->  	    --target=TARGET        target platform that the tests will be running on (qemu or
->  	                           kvmtool, default is qemu) (arm/arm64 only)
-> -- 
-> 2.47.1
+On 1/13/25 06:32, Ard Biesheuvel wrote:
+> From: Ard Biesheuvel <ardb@kernel.org>
 >
+> Due to the fact that runtime const ELF sections are named without a
+> leading period or double underscore, the RSTRIP logic that removes the
+> static RELA sections from vmlinux fails to identify them. This results
+> in a situation like below, where some sections that were supposed to get
+> removed are left behind.
+>
+>    [Nr] Name                              Type            Address          Off     Size   ES Flg Lk Inf Al
+>
+>    [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f50 2900f50 000014 00   A  0   0  1
+>    [59] .relaruntime_shift_d_hash_shift   RELA            0000000000000000 55b6f00 000078 18   I 70  58  8
+>    [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f68 2900f68 000014 00   A  0   0  1
+>    [61] .relaruntime_ptr_dentry_hashtable RELA            0000000000000000 55b6f78 000078 18   I 70  60  8
+>    [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f80 2900f80 000238 00   A  0   0  1
+>    [63] .relaruntime_ptr_USER_PTR_MAX     RELA            0000000000000000 55b6ff0 000d50 18   I 70  62  8
+>
+> So tweak the match expression to strip all sections starting with .rel.
+> While at it, consolidate the logic used by RISC-V, s390 and x86 into a
+> single shared Makefile library command.
+>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Masahiro Yamada <masahiroy@kernel.org>
+> Cc: linux-riscv@lists.infradead.org
+> Cc: linux-s390@vger.kernel.org
+> Link: https://lore.kernel.org/all/CAHk-=wjk3ynjomNvFN8jf9A1k=qSc=JFF591W00uXj-qqNUxPQ@mail.gmail.com/
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> ---
+> v2: add missing include of scripts/Makefile.lib
+>
+>   arch/riscv/Makefile.postlink | 10 ++--------
+>   arch/s390/Makefile.postlink  |  6 +-----
+>   arch/x86/Makefile.postlink   |  6 +-----
+>   scripts/Makefile.lib         |  3 +++
+>   4 files changed, 7 insertions(+), 18 deletions(-)
+>
+> diff --git a/arch/riscv/Makefile.postlink b/arch/riscv/Makefile.postlink
+> index 829b9abc91f6..750d2784f69e 100644
+> --- a/arch/riscv/Makefile.postlink
+> +++ b/arch/riscv/Makefile.postlink
+> @@ -10,6 +10,7 @@ __archpost:
+>   
+>   -include include/config/auto.conf
+>   include $(srctree)/scripts/Kbuild.include
+> +include $(srctree)/scripts/Makefile.lib
+>   
+>   quiet_cmd_relocs_check = CHKREL  $@
+>   cmd_relocs_check = 							\
+> @@ -19,13 +20,6 @@ ifdef CONFIG_RELOCATABLE
+>   quiet_cmd_cp_vmlinux_relocs = CPREL   vmlinux.relocs
+>   cmd_cp_vmlinux_relocs = cp vmlinux vmlinux.relocs
+>   
+> -quiet_cmd_relocs_strip = STRIPREL $@
+> -cmd_relocs_strip = $(OBJCOPY)   --remove-section='.rel.*'       \
+> -                                --remove-section='.rel__*'      \
+> -                                --remove-section='.rela.*'      \
+> -                                --remove-section='.rela__*' $@
+> -endif
+> -
+>   # `@true` prevents complaint when there is nothing to be done
+>   
+>   vmlinux: FORCE
+> @@ -33,7 +27,7 @@ vmlinux: FORCE
+>   ifdef CONFIG_RELOCATABLE
+>   	$(call if_changed,relocs_check)
+>   	$(call if_changed,cp_vmlinux_relocs)
+> -	$(call if_changed,relocs_strip)
+> +	$(call if_changed,strip_relocs)
+>   endif
+>   
+>   clean:
+> diff --git a/arch/s390/Makefile.postlink b/arch/s390/Makefile.postlink
+> index df82f5410769..1ae5478cd6ac 100644
+> --- a/arch/s390/Makefile.postlink
+> +++ b/arch/s390/Makefile.postlink
+> @@ -11,6 +11,7 @@ __archpost:
+>   
+>   -include include/config/auto.conf
+>   include $(srctree)/scripts/Kbuild.include
+> +include $(srctree)/scripts/Makefile.lib
+>   
+>   CMD_RELOCS=arch/s390/tools/relocs
+>   OUT_RELOCS = arch/s390/boot
+> @@ -19,11 +20,6 @@ quiet_cmd_relocs = RELOCS  $(OUT_RELOCS)/relocs.S
+>   	mkdir -p $(OUT_RELOCS); \
+>   	$(CMD_RELOCS) $@ > $(OUT_RELOCS)/relocs.S
+>   
+> -quiet_cmd_strip_relocs = RSTRIP  $@
+> -      cmd_strip_relocs = \
+> -	$(OBJCOPY) --remove-section='.rel.*' --remove-section='.rel__*' \
+> -		   --remove-section='.rela.*' --remove-section='.rela__*' $@
+> -
+>   vmlinux: FORCE
+>   	$(call cmd,relocs)
+>   	$(call cmd,strip_relocs)
+> diff --git a/arch/x86/Makefile.postlink b/arch/x86/Makefile.postlink
+> index fef2e977cc7d..8b8a68162c94 100644
+> --- a/arch/x86/Makefile.postlink
+> +++ b/arch/x86/Makefile.postlink
+> @@ -11,6 +11,7 @@ __archpost:
+>   
+>   -include include/config/auto.conf
+>   include $(srctree)/scripts/Kbuild.include
+> +include $(srctree)/scripts/Makefile.lib
+>   
+>   CMD_RELOCS = arch/x86/tools/relocs
+>   OUT_RELOCS = arch/x86/boot/compressed
+> @@ -20,11 +21,6 @@ quiet_cmd_relocs = RELOCS  $(OUT_RELOCS)/$@.relocs
+>   	$(CMD_RELOCS) $@ > $(OUT_RELOCS)/$@.relocs; \
+>   	$(CMD_RELOCS) --abs-relocs $@
+>   
+> -quiet_cmd_strip_relocs = RSTRIP  $@
+> -      cmd_strip_relocs = \
+> -	$(OBJCOPY) --remove-section='.rel.*' --remove-section='.rel__*' \
+> -		   --remove-section='.rela.*' --remove-section='.rela__*' $@
+> -
+>   # `@true` prevents complaint when there is nothing to be done
+>   
+>   vmlinux: FORCE
+> diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+> index 7395200538da..f604f51d23ca 100644
+> --- a/scripts/Makefile.lib
+> +++ b/scripts/Makefile.lib
+> @@ -374,6 +374,9 @@ quiet_cmd_ar = AR      $@
+>   quiet_cmd_objcopy = OBJCOPY $@
+>   cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+>   
+> +quiet_cmd_strip_relocs = RSTRIP  $@
+> +cmd_strip_relocs = $(OBJCOPY) --remove-section='.rel*' $@
+> +
+>   # Gzip
+>   # ---------------------------------------------------------------------------
+>   
 
-I'd prefer to support --arch=aarch64, but then always refer to it as only
-arm64 everywhere else. We need to support arch=aarch64 since that's what
-'uname -m' returns, but I don't think we need to change the help text for
-it. If we don't want to trust our users to figure out arm64==aarch64,
-then we can do something like
+Fails on RISC-V with:
 
-@@ -216,12 +197,12 @@ while [[ $optno -le $argc ]]; do
-            werror=
-            ;;
-        --help)
--           usage
-+           do_help=1
-            ;;
-        *)
-            echo "Unknown option '$opt'"
-            echo
--           usage
-+           do_help=1
-            ;;
-     esac
- done
+   LD      vmlinux
+   NM      System.map
+   SORTTAB vmlinux
+arch/riscv/Makefile.postlink:41: *** missing 'endif'.  Stop.
+make[2]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 2
+make[2]: *** Deleting file 'vmlinux'
+make[1]: *** [/home/ubuntu/xfer/linux/Makefile:1167: vmlinux] Error 2
+make: *** [Makefile:224: __sub-make] Error 2
+Command exited with non-zero status 2
 
-And then only do
+I think you need to put that deleted "endif" back in.
 
- if [ $do_help ]; then
-    usage
- fi
-
-after $arch and other variables have had a chance to be converted.
-
-Thanks,
-drew
