@@ -1,130 +1,209 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f74.google.com (mail-wm1-f74.google.com [209.85.128.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC8E29D19;
-	Mon, 13 Jan 2025 15:42:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2775240225
+	for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2025 15:53:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736782927; cv=none; b=AUGFv/QJFOnVxgyTL7mIpuQe0g1NICMt6p+VelygtNWhm6Khn2mPmR6Wo17cMNIo1ECZQQ1VEhvvMyP4dhtNIBjwl43qSxd4sjR7O771UrcTSPEsjCz+JWe7CfMuDD5BCoR7G1lbNZkFgNYUkirEteEcCfkPhmL9wY0S4zneeso=
+	t=1736783599; cv=none; b=cLzndIc7YOR8ZllCeX/pdvfGo50+UbOPZnldg+2h22DtC3JFP+gbeShv5wDNtxSIHs9JTwnNRiXyj4lu2r+9J7KdkcMX4UspcZMWGQgocmSSYoZTNGO03P6y2YY1PNZYPACLPLFzCE/gsku6fn2x6AXJpFxt1rji3nQ3MKX2kPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736782927; c=relaxed/simple;
-	bh=ezdGV1GvsLDMkgG6vD/PLW6Gg9qJx+DHYsoBas5WR/s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qbZZFKL2svH4VIv1YU3upLUmG4sGptjSE2XqCHxIGzoFPMur3pPtgGPIvWYHq+mLGlLC0SK9arsLFiDDkWOHOKL4XH+R6al15ID5Q7rlzywSd1noNpXh8BqBgIJp+ZUwraDr+DKUaEhXLsroiJZtXkn10nHH6BDlYfFndN88pHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VvDqV5Jk; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736783599; c=relaxed/simple;
+	bh=7+aQuI/za1zmIkn/UHCnXgtSF+ivUYg266I22Jva0Go=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=DRbEVRAmJulQMDMuAeBOVlaBBfzxD0Xz5XzzOGz9G5Jn7VjN3x4+QVScgM4XXlo1Hr5e1PUZc9auY/7RcGHQ9boQ6X/CPr4Ihh5M9BgJtxgjmh3QcGiGqa2GYzws5AYHvZ+66CCxpHDxG5PO1WDi9E8ep/0Sqv/IMtU434VpFbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--ardb.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=op+s+NNB; arc=none smtp.client-ip=209.85.128.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--ardb.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VvDqV5Jk"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50DE6HEv018414;
-	Mon, 13 Jan 2025 15:41:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=xMOmJUfZwM8up3CrPy5oYax53wSUkJ
-	w0YSM9enl3yiw=; b=VvDqV5JkCneG9RHqiPSkA//pyH9r+ZZTEeWs6yeGPncs1F
-	DQ0LGTIg004AsdW0334Ciw+Wi0T8Fz9s1XuQmNXzDaDzwTaJxAlB2t0a9mfBzSyx
-	sNWRRwI67waTYlZgHehOA12A7/RpNLbpZbFOjE/TRJOUAvF9TwEUFm8vxDvNrGnd
-	jDU8NdUXqmWgwmwMi40PFRZeAEbKwAEZsGu9rBsfSyjbTmsGrjBdLntCyX4iBQ6D
-	48RdhdJpeQbtxD1FNN+OsG3JIv/zSwCIVH/1q4cQEds7uAD1+8vUA39lSLSc6YR4
-	SjgFZuENWmht9VLwbK7+CGjnN3L+R6XmjpgQLTsQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4454a58e5b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Jan 2025 15:41:46 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50DCNZ9v002663;
-	Mon, 13 Jan 2025 15:41:46 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4443bxxy4j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 13 Jan 2025 15:41:46 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50DFfidX28246616
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 13 Jan 2025 15:41:44 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1BB8220043;
-	Mon, 13 Jan 2025 15:41:44 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 67A8420040;
-	Mon, 13 Jan 2025 15:41:43 +0000 (GMT)
-Received: from osiris (unknown [9.171.45.96])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 13 Jan 2025 15:41:43 +0000 (GMT)
-Date: Mon, 13 Jan 2025 16:41:41 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [RFC][PATCH] arm64: scripts/sorttable: Implement sorting
- mcount_loc at build for arm64
-Message-ID: <20250113154141.42646-N-hca@linux.ibm.com>
-References: <20250107083214.5a29d429@gandalf.local.home>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="op+s+NNB"
+Received: by mail-wm1-f74.google.com with SMTP id 5b1f17b1804b1-4361ac8b25fso24961595e9.2
+        for <linux-s390@vger.kernel.org>; Mon, 13 Jan 2025 07:53:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1736783596; x=1737388396; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=G6GC1+XOYFciKr0QO2K3EfTIEu2fRgTNywEW62ZU6LU=;
+        b=op+s+NNB4YytSKU/lfINY8nX4XGZNEij4TZQuypLCuLWWBI9cerXY3KC0cV8Vpa2dc
+         R//lZgzNPFFope0dhLloNYJTV9JnxXbmeeEcDwb7UHLH0HYhfRF6wmVbhJ6vp0yMCOFl
+         ObtNvsKfcaFBNVfcNmHCYCd4Xd3bjfAEoKVbFBY4BKuoMWOET+MFmSQmHNxZau58ty1R
+         219Q5A/A7qwhRGQu35TO84lIjqgHcHsRS84Isf+nSpEaZTD5IIXzzFeD7+KLfyTw8S6u
+         0hWp+q3SKY0wKjDC0NZtMfHi4jiJjA82N8kM18UaQf91G2p/KwkFgP1zngmLmeVGBT9N
+         KYHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736783596; x=1737388396;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=G6GC1+XOYFciKr0QO2K3EfTIEu2fRgTNywEW62ZU6LU=;
+        b=Xg5lYsBBvGmvjbaxgfNFoJ/XQWV23mi4jCOQLKN+j/ol65xAJcsnOsmWN6W6kUiuA6
+         27iCQR+RAdzJlTvk17mZWiMSwhwptbFYkD5GwJa/SdTjuQtvBlLSA8TjuzPmrcnX4zU6
+         4LgkZzZQl9t13xhwRzUUz2VVdHXN/w5Hpsfl+H9fAWgwLTSqpJ50CEUD1DfpMtcmrb7/
+         gqtQbSHRGiyWo+LvQZjoeIFDi1XJWGPaKfX9r3Iy4E8HV+xnAGCcv6ZookMyFVE6943h
+         WblClba1cVmQw9yrFHjZIfzl9+lQYc8aCaXZTjcFEaePuQ4UW0RCzix5a8B+eRVBbE4Z
+         Sm7A==
+X-Forwarded-Encrypted: i=1; AJvYcCUHROHsPjLX8hLlkjNvb4UQnYp56OYH+ZLpkdGCmmOIzXqMA7K+i50yHh6a8fgkI2MQp2kG8c2xhPEQ@vger.kernel.org
+X-Gm-Message-State: AOJu0YyiZjeRpp2jlSJvIvQLDB89ZvmDNcvm5KbtjLshLwSMr/I5F7UV
+	34sh1ip+A0rOEP1vrrOn24Hro+GfTlQGHVzZaw2jqoNk3t79+OSYQKhxw4zf4nLD1J8e8A==
+X-Google-Smtp-Source: AGHT+IH5dEPphrI2+hqKkm7nO8Qbid4pBpO1yTJyk8F4n5RDCgoHc9WThlBG2WEW1eUpQcKcce5iGx6w
+X-Received: from wmgg20.prod.google.com ([2002:a05:600d:14:b0:436:3ea:c491])
+ (user=ardb job=prod-delivery.src-stubby-dispatcher) by 2002:a05:600c:1d01:b0:434:fec5:4ef5
+ with SMTP id 5b1f17b1804b1-436e26b6f51mr217012995e9.14.1736783596145; Mon, 13
+ Jan 2025 07:53:16 -0800 (PST)
+Date: Mon, 13 Jan 2025 16:53:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250107083214.5a29d429@gandalf.local.home>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: iQ8PN44jIslB0CyVZKKQ4eWaU-hf9tMS
-X-Proofpoint-ORIG-GUID: iQ8PN44jIslB0CyVZKKQ4eWaU-hf9tMS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- suspectscore=0 phishscore=0 mlxlogscore=999 spamscore=0 impostorscore=0
- clxscore=1011 lowpriorityscore=0 bulkscore=0 malwarescore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501130129
+Mime-Version: 1.0
+X-Developer-Key: i=ardb@kernel.org; a=openpgp; fpr=F43D03328115A198C90016883D200E9CA6329909
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5339; i=ardb@kernel.org;
+ h=from:subject; bh=s4MbVtYFuNllJHwyINAWQC4eh4cmwVLd+OMXzyVaU8I=;
+ b=owGbwMvMwCFmkMcZplerG8N4Wi2JIb3V7LH6jISPUvYLO+s+zL58qDPvUuyVJ3PK+858XGPgc
+ tyuLU6po5SFQYyDQVZMkUVg9t93O09PlKp1niULM4eVCWQIAxenAEzEQZnhf4piYPWaVCmvf2ps
+ SwW6XzS8sDjfce3ulErNM5nnbhziOMfw33me3BH9j5aTNdIvVVxjmZjIcMbvovG+pUsM56YnFvV vYAUA
+X-Mailer: git-send-email 2.47.1.688.g23fc6f90ad-goog
+Message-ID: <20250113155306.1922992-2-ardb+git@google.com>
+Subject: [PATCH v3] kbuild: Strip runtime const RELA sections correctly
+From: Ard Biesheuvel <ardb+git@google.com>
+To: linux-kbuild@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Masahiro Yamada <masahiroy@kernel.org>, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	Ron Economos <re@w6rz.net>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Steven,
+From: Ard Biesheuvel <ardb@kernel.org>
 
-On Tue, Jan 07, 2025 at 08:32:14AM -0500, Steven Rostedt wrote:
-> From: Steven Rostedt <rostedt@goodmis.org>
-> 
-> The mcount_loc section holds the addresses of the functions that get
-> patched by ftrace when enabling function callbacks. It can contain tens of
-> thousands of entries. These addresses must be sorted. If they are not
-> sorted at compile time, they are sorted at boot. Sorting at boot does take
-> some time and does have a small impact on boot overhead.
-> 
-> x86 and arm32 have the addresses in the mcount_loc section of the ELF
-> file. But for arm64, the section just contains zeros. The .rela.dyn
-> Elf_Rela section holds the addresses and they get patched at boot during
-> the relocation phase.
-> 
-> In order to sort these addresses, the Elf_Rela needs to be updated instead
-> of the location in the binary that holds the mcount_loc section. Have the
-> sorttable code, allocate an array to hold the function addresses, load the
-> addresses from the Elf_Rela entries, sort them, then put them back in
-> order into the Elf_rela entries so that they will be sorted at boot up
-> without having to sort them during boot up.
-> 
-> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-> ---
-> 
-> Note, this is based on top of my sorttable clean up code:
-> 
->   https://lore.kernel.org/linux-trace-kernel/20250105162211.971039541@goodmis.org/
->   git://git.kernel.org/pub/scm/linux/kernel/git/trace/linux-trace.git sorttable/for-next
-> 
-> I tested this on a arm64 VM (running on x86 host), with
-> CONFIG_FTRACE_SORT_STARTUP_TEST enabled, which verifies the mcount entries
-> are sorted at boot up.
-> 
-> I wonder if this will also work for s390? But I do not know s390 Elf layout.
+Due to the fact that runtime const ELF sections are named without a
+leading period or double underscore, the RSTRIP logic that removes the
+static RELA sections from vmlinux fails to identify them. This results
+in a situation like below, where some sections that were supposed to get
+removed are left behind.
 
-Thanks for the hint! We look into this, but it might take some time.
+  [Nr] Name                              Type            Address          Off     Size   ES Flg Lk Inf Al
+
+  [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f50 2900f50 000014 00   A  0   0  1
+  [59] .relaruntime_shift_d_hash_shift   RELA            0000000000000000 55b6f00 000078 18   I 70  58  8
+  [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f68 2900f68 000014 00   A  0   0  1
+  [61] .relaruntime_ptr_dentry_hashtable RELA            0000000000000000 55b6f78 000078 18   I 70  60  8
+  [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f80 2900f80 000238 00   A  0   0  1
+  [63] .relaruntime_ptr_USER_PTR_MAX     RELA            0000000000000000 55b6ff0 000d50 18   I 70  62  8
+
+So tweak the match expression to strip all sections starting with .rel.
+While at it, consolidate the logic used by RISC-V, s390 and x86 into a
+single shared Makefile library command.
+
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: Ron Economos <re@w6rz.net>
+Link: https://lore.kernel.org/all/CAHk-=wjk3ynjomNvFN8jf9A1k=qSc=JFF591W00uXj-qqNUxPQ@mail.gmail.com/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+v3: put back missing 'endif' to fix the RISC-V build
+v2: add missing include of scripts/Makefile.lib
+
+ arch/riscv/Makefile.postlink |  8 ++------
+ arch/s390/Makefile.postlink  |  6 +-----
+ arch/x86/Makefile.postlink   |  6 +-----
+ scripts/Makefile.lib         |  3 +++
+ 4 files changed, 7 insertions(+), 18 deletions(-)
+
+diff --git a/arch/riscv/Makefile.postlink b/arch/riscv/Makefile.postlink
+index 829b9abc91f6..750d2784f69e 100644
+--- a/arch/riscv/Makefile.postlink
++++ b/arch/riscv/Makefile.postlink
+@@ -10,6 +10,7 @@ __archpost:
+ 
+ -include include/config/auto.conf
+ include $(srctree)/scripts/Kbuild.include
++include $(srctree)/scripts/Makefile.lib
+ 
+ quiet_cmd_relocs_check = CHKREL  $@
+ cmd_relocs_check = 							\
+@@ -19,11 +20,6 @@ ifdef CONFIG_RELOCATABLE
+ quiet_cmd_cp_vmlinux_relocs = CPREL   vmlinux.relocs
+ cmd_cp_vmlinux_relocs = cp vmlinux vmlinux.relocs
+ 
+-quiet_cmd_relocs_strip = STRIPREL $@
+-cmd_relocs_strip = $(OBJCOPY)   --remove-section='.rel.*'       \
+-                                --remove-section='.rel__*'      \
+-                                --remove-section='.rela.*'      \
+-                                --remove-section='.rela__*' $@
+ endif
+ 
+ # `@true` prevents complaint when there is nothing to be done
+@@ -33,7 +27,7 @@ vmlinux: FORCE
+ ifdef CONFIG_RELOCATABLE
+ 	$(call if_changed,relocs_check)
+ 	$(call if_changed,cp_vmlinux_relocs)
+-	$(call if_changed,relocs_strip)
++	$(call if_changed,strip_relocs)
+ endif
+ 
+ clean:
+diff --git a/arch/s390/Makefile.postlink b/arch/s390/Makefile.postlink
+index df82f5410769..1ae5478cd6ac 100644
+--- a/arch/s390/Makefile.postlink
++++ b/arch/s390/Makefile.postlink
+@@ -11,6 +11,7 @@ __archpost:
+ 
+ -include include/config/auto.conf
+ include $(srctree)/scripts/Kbuild.include
++include $(srctree)/scripts/Makefile.lib
+ 
+ CMD_RELOCS=arch/s390/tools/relocs
+ OUT_RELOCS = arch/s390/boot
+@@ -19,11 +20,6 @@ quiet_cmd_relocs = RELOCS  $(OUT_RELOCS)/relocs.S
+ 	mkdir -p $(OUT_RELOCS); \
+ 	$(CMD_RELOCS) $@ > $(OUT_RELOCS)/relocs.S
+ 
+-quiet_cmd_strip_relocs = RSTRIP  $@
+-      cmd_strip_relocs = \
+-	$(OBJCOPY) --remove-section='.rel.*' --remove-section='.rel__*' \
+-		   --remove-section='.rela.*' --remove-section='.rela__*' $@
+-
+ vmlinux: FORCE
+ 	$(call cmd,relocs)
+ 	$(call cmd,strip_relocs)
+diff --git a/arch/x86/Makefile.postlink b/arch/x86/Makefile.postlink
+index fef2e977cc7d..8b8a68162c94 100644
+--- a/arch/x86/Makefile.postlink
++++ b/arch/x86/Makefile.postlink
+@@ -11,6 +11,7 @@ __archpost:
+ 
+ -include include/config/auto.conf
+ include $(srctree)/scripts/Kbuild.include
++include $(srctree)/scripts/Makefile.lib
+ 
+ CMD_RELOCS = arch/x86/tools/relocs
+ OUT_RELOCS = arch/x86/boot/compressed
+@@ -20,11 +21,6 @@ quiet_cmd_relocs = RELOCS  $(OUT_RELOCS)/$@.relocs
+ 	$(CMD_RELOCS) $@ > $(OUT_RELOCS)/$@.relocs; \
+ 	$(CMD_RELOCS) --abs-relocs $@
+ 
+-quiet_cmd_strip_relocs = RSTRIP  $@
+-      cmd_strip_relocs = \
+-	$(OBJCOPY) --remove-section='.rel.*' --remove-section='.rel__*' \
+-		   --remove-section='.rela.*' --remove-section='.rela__*' $@
+-
+ # `@true` prevents complaint when there is nothing to be done
+ 
+ vmlinux: FORCE
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index 7395200538da..f604f51d23ca 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -374,6 +374,9 @@ quiet_cmd_ar = AR      $@
+ quiet_cmd_objcopy = OBJCOPY $@
+ cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+ 
++quiet_cmd_strip_relocs = RSTRIP  $@
++cmd_strip_relocs = $(OBJCOPY) --remove-section='.rel*' $@
++
+ # Gzip
+ # ---------------------------------------------------------------------------
+ 
+-- 
+2.47.1.688.g23fc6f90ad-goog
+
