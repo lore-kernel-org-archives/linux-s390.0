@@ -1,87 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out199-3.us.a.mail.aliyun.com (out199-3.us.a.mail.aliyun.com [47.90.199.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CCA3596A;
-	Tue, 14 Jan 2025 03:10:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B948E224D6;
+	Tue, 14 Jan 2025 07:12:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736824215; cv=none; b=nW1mU7n2xQoJKs3K5Z+WJ/aDp1arhUU1xoofBNbm7wtKdnlf03bsSoo3xsPIl5SWvrDbGAT8okcpl/zsTEx73zOExI+hcv04iCa0v/mwp66/IkGZpjEN57n+cmjBPZyIxcgE5M+JEnvsiSs1f2mvNlrMFvPja3aTvxkisRKOMfw=
+	t=1736838734; cv=none; b=hoy/XNOVy85KWqwlKbtTLfIFpca+3oY8s7gEsBXfoHEXDMSaDTtGCR6cnrsBshCuY/OnPzbP20X61IAA0zjb/+FvA6uTNh0XOJnvMGRyIw7a/89JF5GGhlsYBZrV6ukxdlhBW80lBqBaH8ikLm7n/CZof3OPvyh8KsG4w9El1KQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736824215; c=relaxed/simple;
-	bh=wtiqlRNAijPwFZxttNbA9gPDMRele86XZmih4s3L2aQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=VMJE7rjvv3ZDnCromx2ZC12AMkMzXm3o32OZl2IyUQPP3Jaew7Por2zr4G0h+ncexJTEY2V9z84zf5nS70xuHswOgBJn/PoqYxOV2Hjyf8LUi4Ux4GrvZYH6TS6EaCbBoCpuw1drFOjTcMHnGXrxJ0r+oHif4KmcFB0ASEICSRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VAim8GkZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736838734; c=relaxed/simple;
+	bh=/jTiEukBk4OXr0oz4YiAlGU6iQIdT0wI4GSysHcmIvg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CyrEKW0l69iMz0hjJwIHzpveqP3xVXXnmJNNvgdRrQlLfK9PNpKijpTPSC9S3aoCofJPxKuVyO7Q3ZDYdkrB2ggQgZ12jhw7O0SaNs5OXTpgunhDwWAZitIQ1bjfA19QTATGVm0GW0F60/dqU78gO+8vbsGlBEt6JM/JLxzAPgM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RCXLwQ2I; arc=none smtp.client-ip=47.90.199.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VAim8GkZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9D94C4CEE5;
-	Tue, 14 Jan 2025 03:10:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736824213;
-	bh=wtiqlRNAijPwFZxttNbA9gPDMRele86XZmih4s3L2aQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=VAim8GkZh/aQqBoaFlLQwWeoAw550NavRJtAAdPyInHO/U6DbVE4MXR2FQkdwOjnx
-	 64LzrZk+3llFe8FuZ0MH/GCdYAr0dyj/x8Tf7X3itOgtRpUbIS3/uQtEHZFGEA6wh6
-	 T4/HWZjuT/2Zz/nGV7/wXsjkrpFtlMZCGL6YzkQP9DXXq/6lsxOHTj/0iAG67Y09Cq
-	 9W0DHnuGnURxUIVVBKWerKlLzGAJbRKslHVv9kfikuE5M4Cy5B4Jsz4vIL2CY+DEjv
-	 4BvD7zbcG4/ahhpW2r/HtxETrCYOpaFbnqT9EjkGvcE7BV3ahQwuUdTeUNHu45gJ2r
-	 ODKufr3CfJUsg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id AE4EC380AA5F;
-	Tue, 14 Jan 2025 03:10:37 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RCXLwQ2I"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1736838711; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=g27TgMLSSWDA6rh7dbNBUqwtZ6V1tqrqcoJ1TbS5P1w=;
+	b=RCXLwQ2IOdQJjr2AfLeAMRLw0f01qDq72ivynUb1Ad9i/WKHtuXlxmZ1zcsN5atUBUFf5yooDhH6wmvjXYHIieb4iL7OJlAYfcLKuFyNIviDlkouEXibyWfctVUBo4chj+suWYsd04uGNXiP5KhTaK5vRblkZUJ2JC4pQcX2pGE=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WNeEgmT_1736838709 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 14 Jan 2025 15:11:49 +0800
+Date: Tue, 14 Jan 2025 15:11:49 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+	daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
+	pabeni@redhat.com, song@kernel.org, sdf@google.com,
+	haoluo@google.com, yhs@fb.com, edumazet@google.com,
+	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v3 4/5] libbpf: fix error when st-prefix_ops and
+ ops from differ btf
+Message-ID: <20250114071149.GA106114@j66a10360.sqa.eu95>
+References: <20241218024422.23423-1-alibuda@linux.alibaba.com>
+ <20241218024422.23423-5-alibuda@linux.alibaba.com>
+ <CAEf4Bzas7E4bSFnxiObJysf4hDv2AJVd4B4Q+me1wmGtdHVVbQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH RESEND net] net/smc: fix data error when recvmsg with MSG_PEEK
- flag
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173682423623.3717681.3711335962362031005.git-patchwork-notify@kernel.org>
-Date: Tue, 14 Jan 2025 03:10:36 +0000
-References: <20250104143201.35529-1-guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20250104143201.35529-1-guangguan.wang@linux.alibaba.com>
-To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CAEf4Bzas7E4bSFnxiObJysf4hDv2AJVd4B4Q+me1wmGtdHVVbQ@mail.gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Sat,  4 Jan 2025 22:32:01 +0800 you wrote:
-> When recvmsg with MSG_PEEK flag, the data will be copied to
-> user's buffer without advancing consume cursor and without
-> reducing the length of rx available data. Once the expected
-> peek length is larger than the value of bytes_to_rcv, in the
-> loop of do while in smc_rx_recvmsg, the first loop will copy
-> bytes_to_rcv bytes of data from the position local_tx_ctrl.cons,
-> the second loop will copy the min(bytes_to_rcv, read_remaining)
-> bytes from the position local_tx_ctrl.cons again because of the
-> lacking of process with advancing consume cursor and reducing
-> the length of available data. So do the subsequent loops. The
-> data copied in the second loop and the subsequent loops will
-> result in data error, as it should not be copied if no more data
-> arrives and it should be copied from the position advancing
-> bytes_to_rcv bytes from the local_tx_ctrl.cons if more data arrives.
+On Fri, Jan 10, 2025 at 03:38:19PM -0800, Andrii Nakryiko wrote:
+> On Tue, Dec 17, 2024 at 6:44 PM D. Wythe <alibuda@linux.alibaba.com> wrote:
+> >
+> > When a struct_ops named xxx_ops was registered by a module, and
+> > it will be used in both built-in modules and the module itself,
+> > so that the btf_type of xxx_ops will be present in btf_vmlinux
+> > instead of in btf_mod, which means that the btf_type of
+> > bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
+> >
+> > Here are four possible case:
+> >
+> > +--------+-------------+-------------+---------------------------------+
+> > |        | st_opx_xxx  | xxx         |                                 |
+> > +--------+-------------+-------------+---------------------------------+
+> > | case 0 | btf_vmlinux | bft_vmlinux | be used and reg only in vmlinux |
+> > +--------+-------------+-------------+---------------------------------+
+> > | case 1 | btf_vmlinux | bpf_mod     | INVALID                         |
+> > +--------+-------------+-------------+---------------------------------+
+> > | case 2 | btf_mod     | btf_vmlinux | reg in mod but be used both in  |
+> > |        |             |             | vmlinux and mod.                |
+> > +--------+-------------+-------------+---------------------------------+
+> > | case 3 | btf_mod     | btf_mod     | be used and reg only in mod     |
+> > +--------+-------------+-------------+---------------------------------+
+> >
+> > At present, cases 0, 1, and 3 can be correctly identified, because
+> > st_ops_xxx is searched from the same btf with xxx. In order to
+> > handle case 2 correctly without affecting other cases, we cannot simply
+> > change the search method for st_ops_xxx from find_btf_by_prefix_kind()
+> > to find_ksym_btf_id(), because in this way, case 1 will not be
+> > recognized anymore.
+> >
+> > To address this issue, if st_ops_xxx cannot be found in the btf with xxx
+> > and mod_btf does not exist, do find_ksym_btf_id() again to
+> > avoid such issue.
+> > +               }
 > 
-> [...]
+> purely from the coding perspective, this is unnecessarily nested and
+> convoluted. Wouldn't this work the same but be less nested:
+> 
+> kern_vtype_id = btf__find_by_name_kind(btf, stname, BTF_KIND_STRUCT);
+> if (kern_vtype_id == -ENOENT && !*mod_btf)
+>     kern_vtype_id = find_ksym_btf_id(...);
+> if (kern_vtype_id < 0) {
+>     pr_warn(...);
+>     return kern_vtype_id;
+> }
 
-Here is the summary with links:
-  - [RESEND,net] net/smc: fix data error when recvmsg with MSG_PEEK flag
-    https://git.kernel.org/netdev/net-next/c/a4b6539038c1
+Hi Andrii,
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+It's indeed more concise with your code. Thanks very much for your suggestion.
+And Martin has provided us with another suggestion to address this issue,
+and according to his plan, there shall be no such complex conditional
+checks too.
 
+Anyway, I will keep my code concise in the next version. Thank you for
+the reminder.
 
+Best wishes,
+D. Wythe
+
+> 
+> 
+> >         }
+> >         kern_vtype = btf__type_by_id(btf, kern_vtype_id);
+> >
+> > @@ -1046,8 +1055,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
+> >                         break;
+> >         }
+> >         if (i == btf_vlen(kern_vtype)) {
+> > -               pr_warn("struct_ops init_kern: struct %s data is not found in struct %s%s\n",
+> > -                       tname, STRUCT_OPS_VALUE_PREFIX, tname);
+> > +               pr_warn("struct_ops init_kern: struct %s data is not found in struct %s\n",
+> > +                       tname, stname);
+> >                 return -EINVAL;
+> >         }
+> >
+> > --
+> > 2.45.0
+> >
