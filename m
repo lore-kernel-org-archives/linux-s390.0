@@ -1,173 +1,131 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DA181E3DCC;
-	Tue, 14 Jan 2025 17:56:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA87E1FAC50;
+	Tue, 14 Jan 2025 18:14:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736877381; cv=none; b=qIJn8L/Zu8BGJo9kNGDFx/BEQZGyaLlMR/hS/rCmt9EfReA31N9jlaOocxoGZ5pdesMT5FdWQXy9pR+zXySURIUUbenG4pIAWXGlXdHwm9CNFsYaXupa8KW3f9p20Pa1vLbU/TaEauOa5huL3O8bTru//IN0BJTLq6aWvWpZf8M=
+	t=1736878448; cv=none; b=NNRBG/A/Nacljj98GuljfGyJgXquA91iCp7Bt9Y+jKGsgACvbg5phVEHgCRVqERkFDqp3XVdBRYB6TmWo+Ia5gI9nSdpd1T5xrzHXV1WQQR6zJnJ8L8M+TT7z8E6H/8JRLeYPJspiEE3nCe/V3rbWNTRrvtPsKBP2oTnFL1bbI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736877381; c=relaxed/simple;
-	bh=ik2Aj+Yp2na9xeeNQolDsviEnf4v9NEK7GCREAN9EBI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qu/XIEEjXyE5/5KSpo5Lba37h/95jK4HUN3MJtX1XGZNy6mllJubz0EtKVGbiZrE2G1+Q/VAu0BY33DVeK15auKkNnScXpSrgaCl5r2F64j+9Yx4QWMVmIaV9ecoFwkgXPdcq68G5mfBFLAHMBv3Vv9gVcNHII9gbALWCHMNGwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=n9j9lStj; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1736878448; c=relaxed/simple;
+	bh=iVDVF0UOw15eQhrTm2s6LnlZ5VvAT9NOExxEknqq6vQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fJ5pAZEVlPq8aJV2R2HWulNAYXK+71sXAJsNXHro4RPpKLmv6S8AOd5TMKPsGrOjnZnx3qL2pSRZoxCxPcX7LINKASuMoXF1mBCIydch80tUydlj5PerLy7WvoYnFSRN8x0J+4qvB8qiuIdhQlJxpjVxADNM05XVescowlxhqQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FMlLVILh; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="n9j9lStj"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50EGlaG4004790;
-	Tue, 14 Jan 2025 17:56:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FMlLVILh"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50EFUiYS020468;
+	Tue, 14 Jan 2025 18:13:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gaJaWv
-	LIE1FnyC6yQ1fz4UHjE41IcgxpE1WDEye4bt0=; b=n9j9lStjsvxQCiL2QLWT50
-	qLuAieQyRtWhxGxslB+SW4ygyHes7IdJbKilZTflqI5plSlUacCaoNZKPLpf3ovJ
-	JFtaCiCmhv4OaKyeBtBU49+GB2BsnDXK4bzYSG4NzSQgaIM/QcoRK72ivdN5TcKm
-	uY0onajp49oWcSqM7+3rOQLbb9v/4GpNfSGyDtopYJbmcVoBymooxGcr0QyHlPWx
-	MOr9nlNVGTI5dglo3hfr0P8m4lKwOgKQkppSyvY3DrjQh+BuRb3qXN3YieFahyg3
-	wIsTNuk1L8jm5psnfgmwyoztOGd/v2CjmnsOzQmNslpi18XWsUFY95SfQKJ5L3Lw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=WU5eqS
+	9yPmgNSXNtxqTWkw+t7NKW6A6IxA3jZh2luO8=; b=FMlLVILhQ8DfAPhbYP3Jko
+	Xoi+Gr7B+LVNYN3rZkaddp6fVALGGaYXctJxXAFHri+CtL6lEimfriwGwJl9mIqy
+	Pmkw9hJ0LsSWpo5SnLeIknlGyH2awMpdhUvUWvArigerb/VraX/VJywnzTIw53A/
+	xpAp1J53sLAkeoemP5LrNupRCeXKxxKgpeGuqeku55hrAd5m+Wh3OmRiK8+OzLUg
+	YfnAbfwkTOTWRqbp8JAmiVuwoRNfl+Ck7KQANvUy7zL+cttqsfrQCUceJeXd3rDs
+	ZEMskyQsQLn0bSYKZunZ2wNTrGuk1MXVf9zqjGMlyOTAi+nnyWlw2hgzVDAlX/xA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 445gdjk88y-1
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 445tmggr5s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Jan 2025 17:56:12 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50EE51dR016991;
-	Tue, 14 Jan 2025 17:56:11 GMT
+	Tue, 14 Jan 2025 18:13:48 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50EIDmqO018601;
+	Tue, 14 Jan 2025 18:13:48 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 445tmggr5k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Jan 2025 18:13:48 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50EEVIsa000874;
+	Tue, 14 Jan 2025 18:13:47 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4444fk48bf-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44456jv63m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 14 Jan 2025 17:56:11 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50EHu75e30671436
+	Tue, 14 Jan 2025 18:13:47 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50EIDjI827525666
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 14 Jan 2025 17:56:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A658820040;
-	Tue, 14 Jan 2025 17:56:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 74AC220043;
-	Tue, 14 Jan 2025 17:56:07 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 14 Jan 2025 17:56:07 +0000 (GMT)
-Date: Tue, 14 Jan 2025 18:56:05 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>, <david@redhat.com>,
-        <willy@infradead.org>, <hca@linux.ibm.com>, <svens@linux.ibm.com>,
-        <agordeev@linux.ibm.com>, <gor@linux.ibm.com>, <nrb@linux.ibm.com>,
-        <nsg@linux.ibm.com>
-Subject: Re: [PATCH v1 03/13] KVM: s390: use __kvm_faultin_pfn()
-Message-ID: <20250114185605.24262ca3@p-imbrenda>
-In-Reply-To: <D71Z6BW4A19F.3OQIPSERFIUCH@linux.ibm.com>
-References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
-	<20250108181451.74383-4-imbrenda@linux.ibm.com>
-	<D71Z6BW4A19F.3OQIPSERFIUCH@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	Tue, 14 Jan 2025 18:13:45 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 787D02004B;
+	Tue, 14 Jan 2025 18:13:45 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D579C20040;
+	Tue, 14 Jan 2025 18:13:44 +0000 (GMT)
+Received: from [9.171.42.120] (unknown [9.171.42.120])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 14 Jan 2025 18:13:44 +0000 (GMT)
+Message-ID: <15851309-1c3b-4506-b094-fd445941f142@linux.ibm.com>
+Date: Tue, 14 Jan 2025 19:13:51 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 0/2] sched/fair: introduce new scheduler group type
+ group_parked
+To: Shrikanth Hegde <sshegde@linux.ibm.com>
+Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
+        vschneid@redhat.com, linux-s390@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <20241204112149.25872-1-huschle@linux.ibm.com>
+ <543d376c-85a7-4628-a38e-52bc117258a5@linux.ibm.com>
+ <27c4288d-5617-4195-8424-e6e346acefd0@linux.ibm.com>
+ <4f3b49cb-15bc-43ef-b4cb-3af98c8a1c5f@linux.ibm.com>
+From: Tobias Huschle <huschle@linux.ibm.com>
+In-Reply-To: <4f3b49cb-15bc-43ef-b4cb-3af98c8a1c5f@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xDPWe0jCz3zkTJRZl0sYVMrEkuJgVz29
-X-Proofpoint-ORIG-GUID: xDPWe0jCz3zkTJRZl0sYVMrEkuJgVz29
+X-Proofpoint-GUID: nRId5-1n2RdAPYyt4nCB0oiHTy_FuuSC
+X-Proofpoint-ORIG-GUID: kB6aX6py6Kjj-SFrbM2KnNW7rKSDMazq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
  definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=964
- suspectscore=0 malwarescore=0 bulkscore=0 clxscore=1015 phishscore=0
- priorityscore=1501 adultscore=0 impostorscore=0 spamscore=0 mlxscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501140134
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
+ adultscore=0 mlxlogscore=833 mlxscore=0 spamscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501140138
 
-On Tue, 14 Jan 2025 18:34:13 +0100
-"Christoph Schlameuss" <schlameuss@linux.ibm.com> wrote:
 
-> On Wed Jan 8, 2025 at 7:14 PM CET, Claudio Imbrenda wrote:
-> > Refactor the existing page fault handling code to use __kvm_faultin_pfn().
-> >
-> > This possible now that memslots are always present.
-> >
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >  arch/s390/kvm/kvm-s390.c | 92 +++++++++++++++++++++++++++++++---------
-> >  arch/s390/mm/gmap.c      |  1 +
-> >  2 files changed, 73 insertions(+), 20 deletions(-)  
+
+On 10/12/2024 21:24, Shrikanth Hegde wrote:
+> On 12/9/24 13:35, Tobias Huschle wrote:
+[...]
 > 
-> With nits resolved:
+> It was happening with 100% stress-ng case. I was wondering since i dont 
+> have no-hz full enabled.
+> I found out the reason why and one way to do is to trigger active load 
+> balance if there are any parked cpus
+> in the group. That probably needs a IS_ENABLED check not to hurt the 
+> regular case.
 > 
-> Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> Also, I gave a try to include arch_cpu_parked in idle_cpu and friends. 
+> It seems to working for me.
+> I will attach the code below. It simplifies code quite a bit.
+> 
+> Also, I am thinking to rely on active balance codepath more than the 
+> regular pull model.
+> so this would be akin to asym packing codepaths. The below code does 
+> that too.
+> 
+> Feel free to take the bits as necessary if it works.
+> 
 
-I'll send a v2 with some more substantial differences, so maybe you
-will want to look at that first :) 
+Thanks a lot for your your comments and proposals. I was working through 
+them and have a v2 almost ready. I'll be offline for the next 4 weeks 
+though and will post my v2 once I'm back.
+
 
 [...]
-
-> > +		gfn = gpa_to_gfn(gaddr);
-> > +		if (kvm_is_ucontrol(vcpu->kvm)) {
-> > +			/*
-> > +			 * This translates the per-vCPU guest address into a
-> > +			 * fake guest address, which can then be used with the
-> > +			 * fake memslots that are identity mapping userspace.
-> > +			 * This allows ucontrol VMs to use the normal fault
-> > +			 * resolution path, like normal VMs.
-> > +			 */
-> > +			gaddr_tmp = gmap_translate(vcpu->arch.gmap, gaddr);
-> > +			if (gaddr_tmp == -EFAULT) {
-> >  				vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
-> >  				vcpu->run->s390_ucontrol.trans_exc_code = gaddr;
-> >  				vcpu->run->s390_ucontrol.pgm_code = 0x10;  
-> 
-> nit: s/0x10/PGM_SEGMENT_TRANSLATION/
-
-the original code has 0x10, I wanted to keep it as it is, but I'll
-change it, since I'm refactoring more code in v2
-
-> 
-> >  				return -EREMOTE;
-> >  			}
-> > -			return vcpu_post_run_addressing_exception(vcpu);
-> > +			gfn = gpa_to_gfn(gaddr_tmp);
-> >  		}
-> > +		return kvm_s390_handle_dat_fault(vcpu, gfn, gaddr, flags);
-> >  		break;  
-> 
-> nit: Remove the break after the return here?
-
-yes
-
-> 
-> >  	default:
-> >  		KVM_BUG(1, vcpu->kvm, "Unexpected program interrupt 0x%x, TEID 0x%016lx",
-> > @@ -4880,7 +4932,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
-> >  		send_sig(SIGSEGV, current, 0);
-> >  		break;
-> >  	}
-> > -	return rc;
-> > +	return 0;
-> >  }
-> >  
-> >  static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
-> > diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> > index 16b8a36c56de..3aacef77c174 100644
-> > --- a/arch/s390/mm/gmap.c
-> > +++ b/arch/s390/mm/gmap.c
-> > @@ -605,6 +605,7 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
-> >  	radix_tree_preload_end();
-> >  	return rc;
-> >  }
-> > +EXPORT_SYMBOL(__gmap_link);
-> >  
-> >  /**
-> >   * fixup_user_fault_nowait - manually resolve a user page fault without waiting  
-> 
 
