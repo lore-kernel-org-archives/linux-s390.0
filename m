@@ -1,31 +1,31 @@
-Received: from out-184.mta1.migadu.com (out-184.mta1.migadu.com [95.215.58.184])
+Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76D581FC0F1
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 18:39:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88311FA8DE
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 18:51:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736879999; cv=none; b=sd5ixawxTp7NT2yIL8suEofmJHEjbVzCaEFhsA6T2A2M36YCENYcPC/Zj0qOcyGwO+7YvWHX6G9GRA1k7jcSDSh7h+1Xl38Nhl5+hq+m9oLUoCmiff0z7AWpC9evFLCLapX8JTa5MPEcZQEmcSxZk9D2IaAERti+p2VBNynvBgw=
+	t=1736880686; cv=none; b=CgBwpm6cF1INfpkzcniDWarVmrRP9L5LagjkQZp1sLGQllt317pBolpTGOEj9RQbpueGdtc5q1AXtHAMxsqI0wJKh3CVnk1PIkuXVmV8tNUgeeYeY608yhuGYrruOmyDI2nkbOq6dRSeSZZjgNJGwMYLpW9EieUh6ENeEbuOKos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736879999; c=relaxed/simple;
-	bh=Pq4VB2co6DlDAkufGeGEI1KHrnsWOp+YIDepto+qbd0=;
+	s=arc-20240116; t=1736880686; c=relaxed/simple;
+	bh=R4OdNl8vclZ5OqJ7MQuD3rDX0xFvlBDx/OTMtePGWIY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jw2W3rBc4f/LIEJdulGhxnTtuPLb56UiYPtK59ljnsaksPvI2azuAMY8K95bf2Deaa8VqQK5EvsvvV0Bduhx+2SxuAsQZUZ48kzCBua0oNvm/impJh9nPOvM6lmtx0TCBN7Z6Hq/0tXqv6YD5Ea4lHM09u8nNOIrwAjIjy+Aj70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=LuUcJe8N; arc=none smtp.client-ip=95.215.58.184
+	 Content-Type:Content-Disposition:In-Reply-To; b=ml/ykWUnl+ByzT0qg/NlxRvTKQVhfA7dw1nmwAkSWXJQCJlhsL2kvtuRv42QFvLeEZ4m44XNWlnx7/fFsB9eD/STPyVRzLKn2+m4DwVBT8TI8kyejgua22GKbciaR6V19kXq3+arRTM0Wq14V0lFyCbCR/59ShOEzoLG39cAzlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=bDwVpiqw; arc=none smtp.client-ip=91.218.175.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="LuUcJe8N"
-Date: Tue, 14 Jan 2025 19:39:49 +0100
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="bDwVpiqw"
+Date: Tue, 14 Jan 2025 19:51:04 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1736879995;
+	t=1736880667;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=97WDxuRYiWyXD8yAfu0zZqcacG47H/1aDD9ac4aHZlM=;
-	b=LuUcJe8N3NNsLgNnpBIEndO1e8RFDX3UzQ60SV9T974sgFU7FKx6PrAoiVi+cMOHyqjTX3
-	+O7D88uR48oFxr5fTzbpYw0WUbRmzLezjmsAJthOY9lo5+6xPs/UhdtRlFWndrGVmWDiEj
-	JrN7xiQADyTXP/lFRwjSge76XevVY7U=
+	bh=2eozFwwdtkEYzJ2hyZvHDykhTKQHMj/tbtFgxiV9nmk=;
+	b=bDwVpiqwthykPiL4DaZF3p8XdHuWrRCxyc+t3QoVxlq9WllkrRjz253Cd2sapgSU4PpTuG
+	DBtaCXDW1u7il2zRd6EYwHlzoZ1xsuWES603N8XxALx+eGQSDb769jEfu92II30o+alkaZ
+	mznHVpGOOinL8YdOWHkCwYRK3h0Supg=
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Andrew Jones <andrew.jones@linux.dev>
 To: Alexandru Elisei <alexandru.elisei@arm.com>
@@ -33,13 +33,13 @@ Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
 	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
 	pbonzini@redhat.com, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
 	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, vladimir.murzin@arm.com
-Subject: Re: [kvm-unit-tests PATCH v1 1/5] configure: Document that the
- architecture name 'aarch64' is also supported
-Message-ID: <20250114-10fb4c9302167ef202e98713@orel>
+Subject: Re: [kvm-unit-tests PATCH v1 2/5] configure: Display the default
+ processor for arm and arm64
+Message-ID: <20250114-a36510d222fc3410b9b7654e@orel>
 References: <20250110135848.35465-1-alexandru.elisei@arm.com>
- <20250110135848.35465-2-alexandru.elisei@arm.com>
- <20250113-0fe04c6089726d1d06a254ec@orel>
- <Z4aY2AKSaxKDY5Hq@arm.com>
+ <20250110135848.35465-3-alexandru.elisei@arm.com>
+ <20250113-45b57478be2241a35ffa1b67@orel>
+ <Z4acKHEn/dE0yLM2@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,29 +48,62 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Z4aY2AKSaxKDY5Hq@arm.com>
+In-Reply-To: <Z4acKHEn/dE0yLM2@arm.com>
 X-Migadu-Flow: FLOW_OUT
 
-On Tue, Jan 14, 2025 at 05:03:20PM +0000, Alexandru Elisei wrote:
+On Tue, Jan 14, 2025 at 05:17:28PM +0000, Alexandru Elisei wrote:
 ...
-> diff --git a/configure b/configure
-> index 86cf1da36467..1362b68dd68b 100755
-> --- a/configure
-> +++ b/configure
-> @@ -15,8 +15,8 @@ objdump=objdump
->  readelf=readelf
->  ar=ar
->  addr2line=addr2line
-> -arch=$(uname -m | sed -e 's/i.86/i386/;s/arm64/aarch64/;s/arm.*/arm/;s/ppc64.*/ppc64/')
-> -host=$arch
-> +host=$(uname -m | sed -e 's/i.86/i386/;s/arm64/aarch64/;s/arm.*/arm/;s/ppc64.*/ppc64/')
-> +arch=$(echo $host | sed -e 's/aarch64/arm64/')
+> > > +# $arch will have changed when cross-compiling.
+> > > +[ -z "$processor" ] && processor=$(get_default_processor $arch)
+> > 
+> > The fact that $arch and $processor are wrong until they've had a chance to
+> 
+> $processor is never wrong. $processor is unset until either the user sets it
+> with --processor, or until this line. This patch introduces $default_processor
+> only for the purpose of having an accurate help text, it doesn't change when and
+> how $processor is assigned.
 
-Sure, or avoid the second sed and just do
+I should have said "The fact that $arch and $default_processor are wrong..."
 
-host=$(...)
-arch=$host
-[ "$arch" = "aarch64" ] && arch="arm64"
+> 
+> > be converted might be another reason for the $do_help idea. But it'll
+> > always be fragile since another change that does some sort of conversion
+> > could end up getting added after the '[ $do_help ] && usage' someday.
+> 
+> configure needs to distinguish between:
+> 
+> 1. The user not having specified --processor when doing ./configure.
+> 2. The user having set --processor.
+> 
+> If 1, then kvm-unit-tests can use the default $processor value for $arch,
+> which could have also been specified by the user.
+> 
+> If 2, then kvm-unit-tests should not touch $processor because that's what the
+> user wants.
+> 
+> Do you see something wrong with that reasoning?
+
+If we output $default_processor in usage() before it's had a chance to be
+set correctly based on a given cross arch, then it won't display the
+correct name.
+
+> 
+> Also, I don't understand why you say it's fragile, since configure doesn't
+
+I wrote "it'll always be fragile" where 'it' refers to the most recent
+object of my paragraph ("the $do_help idea"). But, TBH, I'm not sure
+how important it is to get the help text accurate, so we can just not
+care if we call usage() with the wrong strings sometimes.
 
 Thanks,
 drew
+
+> touch $processor until this point (and unless the user sets it, of course).
+> 
+> Thanks,
+> Alex
+> 
+> -- 
+> kvm-riscv mailing list
+> kvm-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/kvm-riscv
