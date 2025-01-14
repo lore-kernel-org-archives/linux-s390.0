@@ -1,135 +1,134 @@
-Received: from out199-3.us.a.mail.aliyun.com (out199-3.us.a.mail.aliyun.com [47.90.199.3])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B948E224D6;
-	Tue, 14 Jan 2025 07:12:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1580284A5B;
+	Tue, 14 Jan 2025 08:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736838734; cv=none; b=hoy/XNOVy85KWqwlKbtTLfIFpca+3oY8s7gEsBXfoHEXDMSaDTtGCR6cnrsBshCuY/OnPzbP20X61IAA0zjb/+FvA6uTNh0XOJnvMGRyIw7a/89JF5GGhlsYBZrV6ukxdlhBW80lBqBaH8ikLm7n/CZof3OPvyh8KsG4w9El1KQ=
+	t=1736844023; cv=none; b=dQQ8fZrUdxjRxRIH3u28ppxfkxSASg+oBOh2yJLzRhmzUImtxhs+NfmPDG5bVIOsJ7koWUTAmjQl1G1cxG28OQy4fgt9S096czCop3xs7fanbQkPHHVeegBREi8ztCRg3li4mE4xw+ToGB/SHVQfmRJOCtpIdrEcX6mxHCU+zrI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736838734; c=relaxed/simple;
-	bh=/jTiEukBk4OXr0oz4YiAlGU6iQIdT0wI4GSysHcmIvg=;
+	s=arc-20240116; t=1736844023; c=relaxed/simple;
+	bh=DZ9oOi5bm2IZgGdx0vZw9OiIJJcnUomT4Qpz04iKtgE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CyrEKW0l69iMz0hjJwIHzpveqP3xVXXnmJNNvgdRrQlLfK9PNpKijpTPSC9S3aoCofJPxKuVyO7Q3ZDYdkrB2ggQgZ12jhw7O0SaNs5OXTpgunhDwWAZitIQ1bjfA19QTATGVm0GW0F60/dqU78gO+8vbsGlBEt6JM/JLxzAPgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RCXLwQ2I; arc=none smtp.client-ip=47.90.199.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=p3L8qnFZ1pkCiTqVNM6tg/ab5PooJjHPdHw8xYrbMDCq067Jv0pCuuvwiB1FfXTpl+0ZJxeBBXg25Ie1MZpIMGCwhTI2+OlKhOY2FMYsfDi89OKbyJneL5Rq/xqeiwx4GJHYA98E3Fw9UQLCYiNK0btDqAFkRrCoCsO37JxyQgw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=hpYgILLP; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mNLDwfdu; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RCXLwQ2I"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1736838711; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=g27TgMLSSWDA6rh7dbNBUqwtZ6V1tqrqcoJ1TbS5P1w=;
-	b=RCXLwQ2IOdQJjr2AfLeAMRLw0f01qDq72ivynUb1Ad9i/WKHtuXlxmZ1zcsN5atUBUFf5yooDhH6wmvjXYHIieb4iL7OJlAYfcLKuFyNIviDlkouEXibyWfctVUBo4chj+suWYsd04uGNXiP5KhTaK5vRblkZUJ2JC4pQcX2pGE=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WNeEgmT_1736838709 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 14 Jan 2025 15:11:49 +0800
-Date: Tue, 14 Jan 2025 15:11:49 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-	daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-	pabeni@redhat.com, song@kernel.org, sdf@google.com,
-	haoluo@google.com, yhs@fb.com, edumazet@google.com,
-	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v3 4/5] libbpf: fix error when st-prefix_ops and
- ops from differ btf
-Message-ID: <20250114071149.GA106114@j66a10360.sqa.eu95>
-References: <20241218024422.23423-1-alibuda@linux.alibaba.com>
- <20241218024422.23423-5-alibuda@linux.alibaba.com>
- <CAEf4Bzas7E4bSFnxiObJysf4hDv2AJVd4B4Q+me1wmGtdHVVbQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="hpYgILLP";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mNLDwfdu"
+Date: Tue, 14 Jan 2025 09:40:11 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1736844014;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xO/nQTULVjGFS4TV539Ayp3ZWEmdmkrMeax/kxGzbA4=;
+	b=hpYgILLPXQ7SmDpUn60QinBCupBkKGG01dSa+3FTRxgCNWqRO6deM+5ajnF8F0Od2hJi0z
+	cpxkUWPEgYxlKuFJaMAU5lKMBOMsqCHOy8bQU1BqkIFPZmu3C6m9guZo5f5gQe7CgWfAgj
+	wXlrJ+vaLY79yRCYtXdOy7ekdepzM2+FdVeCX/9qEmHH9Disy0/cKsvFF+W1CBIVrlQCea
+	CdXCh/v5ERdvmGs43kWOXeLO4kjwv39L0SRYilloKSbhCM9dQG/0V+AKwY49Zz5COQvlml
+	dgkfNHCH4XX6YPAxAxjBf1Hw2izDtl+kF8Vz8wbVdA0kf1Oan0fsv7K9pzMvpA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1736844014;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xO/nQTULVjGFS4TV539Ayp3ZWEmdmkrMeax/kxGzbA4=;
+	b=mNLDwfduAqnNjlxAvy66A4s1VI9taFFzoR0Bjcd3QoK3m68hFryx0HiKPwHcCzZrImHOWD
+	IoGhvQiZnGydi4Aw==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Conor Dooley <conor@kernel.org>
+Cc: "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>, 
+	"Jason A. Donenfeld" <Jason@zx2c4.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Russell King <linux@armlinux.org.uk>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Guo Ren <guoren@kernel.org>, linux-parisc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-riscv@lists.infradead.org, loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-arch@vger.kernel.org, 
+	Nam Cao <namcao@linutronix.de>, linux-csky@vger.kernel.org
+Subject: Re: [PATCH v2 09/18] riscv: vdso: Switch to generic storage
+ implementation
+Message-ID: <20250114093609-6cb25835-f912-4f64-9ba7-54c67d4e2904@linutronix.de>
+References: <20250110-vdso-store-rng-v2-0-350c9179bbf1@linutronix.de>
+ <20250110-vdso-store-rng-v2-9-350c9179bbf1@linutronix.de>
+ <20250113-kissable-monstrous-aace0cf7182e@spud>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEf4Bzas7E4bSFnxiObJysf4hDv2AJVd4B4Q+me1wmGtdHVVbQ@mail.gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <20250113-kissable-monstrous-aace0cf7182e@spud>
 
-On Fri, Jan 10, 2025 at 03:38:19PM -0800, Andrii Nakryiko wrote:
-> On Tue, Dec 17, 2024 at 6:44â€¯PM D. Wythe <alibuda@linux.alibaba.com> wrote:
-> >
-> > When a struct_ops named xxx_ops was registered by a module, and
-> > it will be used in both built-in modules and the module itself,
-> > so that the btf_type of xxx_ops will be present in btf_vmlinux
-> > instead of in btf_mod, which means that the btf_type of
-> > bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
-> >
-> > Here are four possible case:
-> >
-> > +--------+-------------+-------------+---------------------------------+
-> > |        | st_opx_xxx  | xxx         |                                 |
-> > +--------+-------------+-------------+---------------------------------+
-> > | case 0 | btf_vmlinux | bft_vmlinux | be used and reg only in vmlinux |
-> > +--------+-------------+-------------+---------------------------------+
-> > | case 1 | btf_vmlinux | bpf_mod     | INVALID                         |
-> > +--------+-------------+-------------+---------------------------------+
-> > | case 2 | btf_mod     | btf_vmlinux | reg in mod but be used both in  |
-> > |        |             |             | vmlinux and mod.                |
-> > +--------+-------------+-------------+---------------------------------+
-> > | case 3 | btf_mod     | btf_mod     | be used and reg only in mod     |
-> > +--------+-------------+-------------+---------------------------------+
-> >
-> > At present, cases 0, 1, and 3 can be correctly identified, because
-> > st_ops_xxx is searched from the same btf with xxx. In order to
-> > handle case 2 correctly without affecting other cases, we cannot simply
-> > change the search method for st_ops_xxx from find_btf_by_prefix_kind()
-> > to find_ksym_btf_id(), because in this way, case 1 will not be
-> > recognized anymore.
-> >
-> > To address this issue, if st_ops_xxx cannot be found in the btf with xxx
-> > and mod_btf does not exist, do find_ksym_btf_id() again to
-> > avoid such issue.
-> > +               }
+On Mon, Jan 13, 2025 at 07:48:15PM +0000, Conor Dooley wrote:
+> On Fri, Jan 10, 2025 at 04:23:48PM +0100, Thomas Weißschuh wrote:
+> > The generic storage implementation provides the same features as the
+> > custom one. However it can be shared between architectures, making
+> > maintenance easier.
+> > 
+> > Co-developed-by: Nam Cao <namcao@linutronix.de>
+> > Signed-off-by: Nam Cao <namcao@linutronix.de>
+> > Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 > 
-> purely from the coding perspective, this is unnecessarily nested and
-> convoluted. Wouldn't this work the same but be less nested:
+> For rv64, nommu:
+>   LD      vmlinux
+> ld.lld: error: undefined symbol: vmf_insert_pfn
+> >>> referenced by datastore.c
+> >>>               lib/vdso/datastore.o:(vvar_fault) in archive vmlinux.a
 > 
-> kern_vtype_id = btf__find_by_name_kind(btf, stname, BTF_KIND_STRUCT);
-> if (kern_vtype_id == -ENOENT && !*mod_btf)
->     kern_vtype_id = find_ksym_btf_id(...);
-> if (kern_vtype_id < 0) {
->     pr_warn(...);
->     return kern_vtype_id;
-> }
-
-Hi Andrii,
-
-It's indeed more concise with your code. Thanks very much for your suggestion.
-And Martin has provided us with another suggestion to address this issue,
-and according to his plan, there shall be no such complex conditional
-checks too.
-
-Anyway, I will keep my code concise in the next version. Thank you for
-the reminder.
-
-Best wishes,
-D. Wythe
-
+> ld.lld: error: undefined symbol: _install_special_mapping
+> >>> referenced by datastore.c
+> >>>               lib/vdso/datastore.o:(vdso_install_vvar_mapping) in archive vmlinux.a
 > 
-> 
-> >         }
-> >         kern_vtype = btf__type_by_id(btf, kern_vtype_id);
-> >
-> > @@ -1046,8 +1055,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
-> >                         break;
-> >         }
-> >         if (i == btf_vlen(kern_vtype)) {
-> > -               pr_warn("struct_ops init_kern: struct %s data is not found in struct %s%s\n",
-> > -                       tname, STRUCT_OPS_VALUE_PREFIX, tname);
-> > +               pr_warn("struct_ops init_kern: struct %s data is not found in struct %s\n",
-> > +                       tname, stname);
-> >                 return -EINVAL;
-> >         }
-> >
-> > --
-> > 2.45.0
-> >
+> Later patches in the series don't make it build again.
+> rv32 builds now though, so thanks for fixing that.
+
+Thanks for the report.
+Can you try to diff below?
+
+I'm adding rv64 and arm nommu configs to my test matrix and
+doublechecking all kconfig dependencies.
+
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 335cbbd4dddb..583c55910612 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -52,7 +52,7 @@ config RISCV
+        select ARCH_HAS_SYSCALL_WRAPPER
+        select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+        select ARCH_HAS_UBSAN
+-       select ARCH_HAS_VDSO_ARCH_DATA
++       select ARCH_HAS_VDSO_ARCH_DATA if GENERIC_VDSO_DATA_STORE
+        select ARCH_KEEP_MEMBLOCK if ACPI
+        select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE if 64BIT && MMU
+        select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
+@@ -115,7 +115,7 @@ config RISCV
+        select GENERIC_SCHED_CLOCK
+        select GENERIC_SMP_IDLE_THREAD
+        select GENERIC_TIME_VSYSCALL if MMU && 64BIT
+-       select GENERIC_VDSO_DATA_STORE
++       select GENERIC_VDSO_DATA_STORE if MMU
+        select GENERIC_VDSO_TIME_NS if HAVE_GENERIC_VDSO
+        select HARDIRQS_SW_RESEND
+        select HAS_IOPORT if MMU
