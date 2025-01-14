@@ -1,109 +1,263 @@
-Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88311FA8DE
-	for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 18:51:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F83C20F090
+	for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 20:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736880686; cv=none; b=CgBwpm6cF1INfpkzcniDWarVmrRP9L5LagjkQZp1sLGQllt317pBolpTGOEj9RQbpueGdtc5q1AXtHAMxsqI0wJKh3CVnk1PIkuXVmV8tNUgeeYeY608yhuGYrruOmyDI2nkbOq6dRSeSZZjgNJGwMYLpW9EieUh6ENeEbuOKos=
+	t=1736885161; cv=none; b=HlxHiJWX/ui+3Be40cwUClFdh2+EOVnRFtx7Z1U/KmZU85lyM8xH7t+3ZmSggM9pqABiQLPbt6mXeREs3dY3y8cuHlI8XyGLmdYV7RFu9OwKehHifEhmfBdKw7Clg2ilRVx7bRGL76j1j07tdDwQ6w0skMuaoKNmhZ7oCT0i97Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736880686; c=relaxed/simple;
-	bh=R4OdNl8vclZ5OqJ7MQuD3rDX0xFvlBDx/OTMtePGWIY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ml/ykWUnl+ByzT0qg/NlxRvTKQVhfA7dw1nmwAkSWXJQCJlhsL2kvtuRv42QFvLeEZ4m44XNWlnx7/fFsB9eD/STPyVRzLKn2+m4DwVBT8TI8kyejgua22GKbciaR6V19kXq3+arRTM0Wq14V0lFyCbCR/59ShOEzoLG39cAzlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=bDwVpiqw; arc=none smtp.client-ip=91.218.175.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1736885161; c=relaxed/simple;
+	bh=8atAq7Fvid1hyCpF6Kr2YPzZhvvcDCqhVTTDUuWlKjI=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=WUmN3EhjK9251tnjjZw/ifAQhhDVEllfR/5A7J9ePA2Waqjf9SU0EQpJPgaDK0U2z0+SjrFWLoqxNqp+cAyUiKag/qVsPSe9t/F7g/GwCc7pBLRPv4m1iu6dW6QQyV0H0EDgwM5ivLZ4Mi8xq3vEkBVSKU1JfKqOKBGmqdnUBHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KMJz/pk2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="bDwVpiqw"
-Date: Tue, 14 Jan 2025 19:51:04 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1736880667;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KMJz/pk2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736885157;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=2eozFwwdtkEYzJ2hyZvHDykhTKQHMj/tbtFgxiV9nmk=;
-	b=bDwVpiqwthykPiL4DaZF3p8XdHuWrRCxyc+t3QoVxlq9WllkrRjz253Cd2sapgSU4PpTuG
-	DBtaCXDW1u7il2zRd6EYwHlzoZ1xsuWES603N8XxALx+eGQSDb769jEfu92II30o+alkaZ
-	mznHVpGOOinL8YdOWHkCwYRK3h0Supg=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
-	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
-	pbonzini@redhat.com, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, vladimir.murzin@arm.com
-Subject: Re: [kvm-unit-tests PATCH v1 2/5] configure: Display the default
- processor for arm and arm64
-Message-ID: <20250114-a36510d222fc3410b9b7654e@orel>
-References: <20250110135848.35465-1-alexandru.elisei@arm.com>
- <20250110135848.35465-3-alexandru.elisei@arm.com>
- <20250113-45b57478be2241a35ffa1b67@orel>
- <Z4acKHEn/dE0yLM2@arm.com>
+	bh=lbFar/I+VwSDzfZCkzrzUXwa5D3xb1SGyeHZsqGpL1Y=;
+	b=KMJz/pk2ylmaxoFHbO7BNDARNQ0x76XXijPWZf4BhG8ebnvXoQeEmTNRptyf9bLFkHnHYu
+	L8rMYaqOg5dQpw7ujWJRfIsZVmxSvzlxRxFo4LUsKehVK1woK5bErfYmIvpzQ5439jlDJT
+	6N347mEluTy0NSpJ3Fi15ag05dG3I/k=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-259-g1T3nd-lMGi5rkTw0Tyv2Q-1; Tue, 14 Jan 2025 15:05:56 -0500
+X-MC-Unique: g1T3nd-lMGi5rkTw0Tyv2Q-1
+X-Mimecast-MFC-AGG-ID: g1T3nd-lMGi5rkTw0Tyv2Q
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-849cc81984eso43404439f.1
+        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 12:05:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736885156; x=1737489956;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=lbFar/I+VwSDzfZCkzrzUXwa5D3xb1SGyeHZsqGpL1Y=;
+        b=oX/nyxivy3zYKXe9d4FCpg50/gjgpjqONADNGo+ArzG5a9hgQpjTqKKrQ2RXO4S9Gs
+         ZRTa2dyYU79IjvstCyqQccreVUBKzKcd3mlwPsXlOiZJMrRZ2VwJC6OlQ33TgZ5b/EwP
+         FXR6QJZIOpReQguynST+uyBcIQCfEoObzfFNPoJZW0yxPpH1unIMcpgwNk2dpR3dfE7K
+         6LVYBLefvELcRlei1YE3S6mntZvhK8vm4IhcGcYqBzvuTjQ83W0/fO67TdSwyQdlFe9w
+         MnGz2vvWpx36qchRSUZPeUcBjqrlJabzdnqRK8V2CHTf2BmFu2cLTyj4nTfsYAx5de/3
+         /wjA==
+X-Gm-Message-State: AOJu0YxTPECdQDePbfXLRvn364dOvS3Xir1CgyVcz+u1FiXvrHXtTw68
+	bYdp/ZPgkOI3RsiQZbc9EzXHBwn5DinK4NerzVfKKsrQQXMc7vief6CpCmw17DxAs6q6/7zF8e1
+	NHtg23lvmslz4L3PjZQzJrsHA91vHh4KpiFAMMhYooOgiRhq/azbRnIQV6x0=
+X-Gm-Gg: ASbGnct6gS9BOM+6DVqQEBuiUcBrjYagKdy1Pma5WK/oE0c8jvpVL8zk7yMFazYngkq
+	gV2TIvuLBlu0WLGNhkWiIHrVk6rr2W5rRR5s69FZuJbshsd7g0zSrmRf2kNIN4tJp9hlSmkIQB7
+	JTvtF1UbqGc/sVY3npxaogxbCUuH3CdAi0ZkDCmS8GujWhBfwYOdpdNO28P9JGbP4nH1BwzpYh0
+	DSDY0qjyxhXhQQe3NjyZgSB/1uBo4alLER1txzEYOyu3p7DSr6b0Gmuy7oR
+X-Received: by 2002:a92:c98c:0:b0:3ce:64a4:4c41 with SMTP id e9e14a558f8ab-3ce64a44da0mr17937505ab.1.1736885155867;
+        Tue, 14 Jan 2025 12:05:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFEDY6eIKMtRgDol6QZ9qwiDi184sj66O6NoceBRHc+xa1mFh7sgUaATLUNGGtMeRyOyweG2Q==
+X-Received: by 2002:a92:c98c:0:b0:3ce:64a4:4c41 with SMTP id e9e14a558f8ab-3ce64a44da0mr17937455ab.1.1736885155518;
+        Tue, 14 Jan 2025 12:05:55 -0800 (PST)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4ea1b74945csm3640279173.124.2025.01.14.12.05.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Jan 2025 12:05:55 -0800 (PST)
+Date: Tue, 14 Jan 2025 15:05:40 -0500
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Rorie Reyes <rreyes@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org, hca@linux.ibm.com, borntraeger@de.ibm.com,
+ agordeev@linux.ibm.com, gor@linux.ibm.com, pasic@linux.ibm.com,
+ jjherne@linux.ibm.com, akrowiak@linux.ibm.com
+Subject: Re: [PATCH v1] s390/vfio-ap: Signal eventfd when guest AP
+ configuration is changed
+Message-ID: <20250114150540.64405f27.alex.williamson@redhat.com>
+In-Reply-To: <20250107183645.90082-1-rreyes@linux.ibm.com>
+References: <20250107183645.90082-1-rreyes@linux.ibm.com>
+Organization: Red Hat
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z4acKHEn/dE0yLM2@arm.com>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 14, 2025 at 05:17:28PM +0000, Alexandru Elisei wrote:
-...
-> > > +# $arch will have changed when cross-compiling.
-> > > +[ -z "$processor" ] && processor=$(get_default_processor $arch)
-> > 
-> > The fact that $arch and $processor are wrong until they've had a chance to
-> 
-> $processor is never wrong. $processor is unset until either the user sets it
-> with --processor, or until this line. This patch introduces $default_processor
-> only for the purpose of having an accurate help text, it doesn't change when and
-> how $processor is assigned.
+On Tue,  7 Jan 2025 13:36:45 -0500
+Rorie Reyes <rreyes@linux.ibm.com> wrote:
 
-I should have said "The fact that $arch and $default_processor are wrong..."
+> In this patch, an eventfd object is created by the vfio_ap device driver
+> and used to notify userspace when a guests's AP configuration is
+> dynamically changed. Such changes may occur whenever:
+> 
+> * An adapter, domain or control domain is assigned to or unassigned from a
+>   mediated device that is attached to the guest.
+> * A queue assigned to the mediated device that is attached to a guest is
+>   bound to or unbound from the vfio_ap device driver. This can occur
+>   either by manually binding/unbinding the queue via the vfio_ap driver's
+>   sysfs bind/unbind attribute interfaces, or because an adapter, domain or
+>   control domain assigned to the mediated device is added to or removed
+>   from the host's AP configuration via an SE/HMC
+> 
+> The purpose of this patch is to provide immediate notification of changes
+> made to a guest's AP configuration by the vfio_ap driver. This will enable
+> the guest to take immediate action rather than relying on polling or some
+> other inefficient mechanism to detect changes to its AP configuration.
+> 
+> Note that there are corresponding QEMU patches that will be shipped along
+> with this patch (see vfio-ap: Report vfio-ap configuration changes) that
+> will pick up the eventfd signal.
+> 
+> Signed-off-by: Rorie Reyes <rreyes@linux.ibm.com>
+> Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> Tested-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c     | 52 ++++++++++++++++++++++++++-
+>  drivers/s390/crypto/vfio_ap_private.h |  2 ++
+>  include/uapi/linux/vfio.h             |  1 +
+>  3 files changed, 54 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index a52c2690933f..c6ff4ab13f16 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -650,13 +650,22 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
+>  	matrix->adm_max = info->apxa ? info->nd : 15;
+>  }
+>  
+> +static void signal_guest_ap_cfg_changed(struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +		if (matrix_mdev->cfg_chg_trigger)
+> +			eventfd_signal(matrix_mdev->cfg_chg_trigger);
+> +}
+> +
+>  static void vfio_ap_mdev_update_guest_apcb(struct ap_matrix_mdev *matrix_mdev)
+>  {
+> -	if (matrix_mdev->kvm)
+> +	if (matrix_mdev->kvm) {
+>  		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
+>  					  matrix_mdev->shadow_apcb.apm,
+>  					  matrix_mdev->shadow_apcb.aqm,
+>  					  matrix_mdev->shadow_apcb.adm);
+> +
+> +		signal_guest_ap_cfg_changed(matrix_mdev);
+> +	}
+>  }
+>  
+>  static bool vfio_ap_mdev_filter_cdoms(struct ap_matrix_mdev *matrix_mdev)
+> @@ -792,6 +801,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+>  	if (ret)
+>  		goto err_put_vdev;
+>  	matrix_mdev->req_trigger = NULL;
+> +	matrix_mdev->cfg_chg_trigger = NULL;
+>  	dev_set_drvdata(&mdev->dev, matrix_mdev);
+>  	mutex_lock(&matrix_dev->mdevs_lock);
+>  	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+> @@ -1860,6 +1870,7 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+>  		get_update_locks_for_kvm(kvm);
+>  
+>  		kvm_arch_crypto_clear_masks(kvm);
+> +		signal_guest_ap_cfg_changed(matrix_mdev);
+>  		vfio_ap_mdev_reset_queues(matrix_mdev);
+>  		kvm_put_kvm(kvm);
+>  		matrix_mdev->kvm = NULL;
+> @@ -2097,6 +2108,10 @@ static ssize_t vfio_ap_get_irq_info(unsigned long arg)
+>  		info.count = 1;
+>  		info.flags = VFIO_IRQ_INFO_EVENTFD;
+>  		break;
+> +	case VFIO_AP_CFG_CHG_IRQ_INDEX:
+> +		info.count = 1;
+> +		info.flags = VFIO_IRQ_INFO_EVENTFD;
+> +		break;
+>  	default:
+>  		return -EINVAL;
+>  	}
+> @@ -2160,6 +2175,39 @@ static int vfio_ap_set_request_irq(struct ap_matrix_mdev *matrix_mdev,
+>  	return 0;
+>  }
+>  
+> +static int vfio_ap_set_cfg_change_irq(struct ap_matrix_mdev *matrix_mdev, unsigned long arg)
+> +{
+> +	s32 fd;
+> +	void __user *data;
+> +	unsigned long minsz;
+> +	struct eventfd_ctx *cfg_chg_trigger;
+> +
+> +	minsz = offsetofend(struct vfio_irq_set, count);
+> +	data = (void __user *)(arg + minsz);
+> +
+> +	if (get_user(fd, (s32 __user *)data))
+> +		return -EFAULT;
+> +
+> +	if (fd == -1) {
+> +		if (matrix_mdev->cfg_chg_trigger)
+> +			eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
+> +		matrix_mdev->cfg_chg_trigger = NULL;
+> +	} else if (fd >= 0) {
+> +		cfg_chg_trigger = eventfd_ctx_fdget(fd);
+> +		if (IS_ERR(cfg_chg_trigger))
+> +			return PTR_ERR(cfg_chg_trigger);
+> +
+> +		if (matrix_mdev->cfg_chg_trigger)
+> +			eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
+> +
+> +		matrix_mdev->cfg_chg_trigger = cfg_chg_trigger;
+> +	} else {
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
 
-> 
-> > be converted might be another reason for the $do_help idea. But it'll
-> > always be fragile since another change that does some sort of conversion
-> > could end up getting added after the '[ $do_help ] && usage' someday.
-> 
-> configure needs to distinguish between:
-> 
-> 1. The user not having specified --processor when doing ./configure.
-> 2. The user having set --processor.
-> 
-> If 1, then kvm-unit-tests can use the default $processor value for $arch,
-> which could have also been specified by the user.
-> 
-> If 2, then kvm-unit-tests should not touch $processor because that's what the
-> user wants.
-> 
-> Do you see something wrong with that reasoning?
+How does this guard against a use after free, such as the eventfd being
+disabled or swapped concurrent to a config change?  Thanks,
 
-If we output $default_processor in usage() before it's had a chance to be
-set correctly based on a given cross arch, then it won't display the
-correct name.
+Alex
 
-> 
-> Also, I don't understand why you say it's fragile, since configure doesn't
+> +
+>  static int vfio_ap_set_irqs(struct ap_matrix_mdev *matrix_mdev,
+>  			    unsigned long arg)
+>  {
+> @@ -2175,6 +2223,8 @@ static int vfio_ap_set_irqs(struct ap_matrix_mdev *matrix_mdev,
+>  		switch (irq_set.index) {
+>  		case VFIO_AP_REQ_IRQ_INDEX:
+>  			return vfio_ap_set_request_irq(matrix_mdev, arg);
+> +		case VFIO_AP_CFG_CHG_IRQ_INDEX:
+> +			return vfio_ap_set_cfg_change_irq(matrix_mdev, arg);
+>  		default:
+>  			return -EINVAL;
+>  		}
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index 437a161c8659..37de9c69b6eb 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -105,6 +105,7 @@ struct ap_queue_table {
+>   * @mdev:	the mediated device
+>   * @qtable:	table of queues (struct vfio_ap_queue) assigned to the mdev
+>   * @req_trigger eventfd ctx for signaling userspace to return a device
+> + * @cfg_chg_trigger eventfd ctx to signal AP config changed to userspace
+>   * @apm_add:	bitmap of APIDs added to the host's AP configuration
+>   * @aqm_add:	bitmap of APQIs added to the host's AP configuration
+>   * @adm_add:	bitmap of control domain numbers added to the host's AP
+> @@ -120,6 +121,7 @@ struct ap_matrix_mdev {
+>  	struct mdev_device *mdev;
+>  	struct ap_queue_table qtable;
+>  	struct eventfd_ctx *req_trigger;
+> +	struct eventfd_ctx *cfg_chg_trigger;
+>  	DECLARE_BITMAP(apm_add, AP_DEVICES);
+>  	DECLARE_BITMAP(aqm_add, AP_DOMAINS);
+>  	DECLARE_BITMAP(adm_add, AP_DOMAINS);
+> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+> index c8dbf8219c4f..a2d3e1ac6239 100644
+> --- a/include/uapi/linux/vfio.h
+> +++ b/include/uapi/linux/vfio.h
+> @@ -671,6 +671,7 @@ enum {
+>   */
+>  enum {
+>  	VFIO_AP_REQ_IRQ_INDEX,
+> +	VFIO_AP_CFG_CHG_IRQ_INDEX,
+>  	VFIO_AP_NUM_IRQS
+>  };
+>  
 
-I wrote "it'll always be fragile" where 'it' refers to the most recent
-object of my paragraph ("the $do_help idea"). But, TBH, I'm not sure
-how important it is to get the help text accurate, so we can just not
-care if we call usage() with the wrong strings sometimes.
-
-Thanks,
-drew
-
-> touch $processor until this point (and unless the user sets it, of course).
-> 
-> Thanks,
-> Alex
-> 
-> -- 
-> kvm-riscv mailing list
-> kvm-riscv@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/kvm-riscv
