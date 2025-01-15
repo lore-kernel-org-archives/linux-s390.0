@@ -1,122 +1,146 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D324F230D07
-	for <linux-s390@vger.kernel.org>; Wed, 15 Jan 2025 05:49:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C14A61E7C26;
+	Wed, 15 Jan 2025 08:56:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736920159; cv=none; b=byOd/PifqSXdWSMrZwc19NGso878CevwgSeHApqnjpu9IfMMaXQT2g3ZLEVRkz7WsE1MQXHKs1XC6fA+hfRXM7VnJOdW5FkGJvoQ6FyFPZGAud08XBWBSZRKQO3HQE6Nw0ow/L0eMFj2AISb5h5PDqEmb3ubWE9vbbES15Yvf2w=
+	t=1736931384; cv=none; b=oEsOrMRhzQP4Ff9ViMegzQAx96tqusH2hD/gCUF6cKFda2GLIMlKPTgG9d2YZ7fQ1y0n07hEB9HITu9dW0usuM1gr57QP/+2r/YOUTwoMnb7Q9z3nYBh3nTrK+hYkn/o4LkA2DOmAfYCZxow3qbUA8JtHQ+liBjjw+dVBKThbqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736920159; c=relaxed/simple;
-	bh=dKp+neVs5VrK9cir+kWUKvbt+PUYfPNBvEjaFi25JA0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NUeeUfHNvIJcMUYXTIVzfcNf9hxU9SGMurznFZovR2sv2a1fYEHmHS+ZcdTRQDQmyBWujwG8ioZ5z0V/vudxMGU6DEYykywUmyRdVoQ9qHXxwbAOmCBbpPIlECLT6qvfx+Wwot5KgoH1FVJZD1rdKJS2F82J8r5f2SRiJ8EZREs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=WXjmUHf+; arc=none smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
+	s=arc-20240116; t=1736931384; c=relaxed/simple;
+	bh=n9X+ytbJXmd6sh1cyGdd4/DK31mGd0j/JGIY+bP9LAo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kHh87f+jWIo1V4aDad6c5dy1u/v+GUnnMknwupyk6SZeE+gx3S6um5ae8j3qo18h+k4dfyChkphGvGd/Ae9nwMD1rW4aQYmbLqCx57Syt6DvsMgRitBFw0XjLtJL+SvZPM06kBKv4guFFfDK2XjFpJAVQymWUXISYO7k0bYw+Zc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Us5W4Tdj; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="WXjmUHf+"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-21644aca3a0so138940975ad.3
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 21:49:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736920157; x=1737524957; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=88SqYtXaTV08jsATT/J9IavghVGb0T0MbX3fafAbdCI=;
-        b=WXjmUHf+v1ga8Qdyp7ljEb9P4TEeKXQQkApzYqc7N44ooa1o1skljC4UTf53783sbG
-         7qzB30u9X1U+UtNGOTd4mT+189VHQTgfkWvLOT3fsRbqX2R1HgU46mLPVl5o6eoodNbV
-         cT3AM0rvmXUDJXPSn7aElu+E08xIC6oMyXXbR8jzN1x9CuVKm/IvfzKL55dkjclE7AU3
-         N4fnLJM0OMDjRGL+X/pYYjFO+xEzJTvtmjmyHdT7Qm98JtxYrq5V8ovCmTn3n0uzvTsa
-         5+4TCfWFjlaAlT4FgC7wN9ZPxNIM/1R/R6XA5tULOsgcheINkYOpZlHDId0s0kXfOii3
-         JtIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736920157; x=1737524957;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=88SqYtXaTV08jsATT/J9IavghVGb0T0MbX3fafAbdCI=;
-        b=HSdxBoghgiTgTQZZDIJaevN+P+zeGNGzlhDVdnpWfFcAWl7brD5CrbYbQpuDOpMum9
-         U3LOfVpEvn7Yf3MaCskMt0dxNrRo1xs85txnaP1sUf0Vd5V3ZDnxUo7FmqXcneOOv5/g
-         moDx7NO9yxqeG62cRVipTvJmbSZQlswJsA1/NEggvfdex5tqY223urHY9DzRiFQ5umPG
-         hg7DBInPeP3+rwJKMtMWDiNqRpXmeYIZtg6JEIYOrIltiCHEY+M4tEv7NvcSR4Oo2nhK
-         E9p4gd795bTeIkZDWF3ebhSIgYfvblrn877XnYR0++fnY8A+pl8qA22sbwd1WzfccUga
-         0XQw==
-X-Forwarded-Encrypted: i=1; AJvYcCWN+0byKaRAfd5QnWbHkiGAk7E198ImksXDspdCSqGlcJE2WGJUiLhazSFHFGTfBOrR7Ovhos4NwrkP@vger.kernel.org
-X-Gm-Message-State: AOJu0YwNq0iXR4QeEEFuoh6Xabt2Mo4LzJa/Pnl7eKIB6cpe3ykmkN5J
-	/9jcps7J9krX1f7Rir3TjHMkMBcjF6vVeHlPYbvpBop79ko1S7fgT4rG1SqZqh8=
-X-Gm-Gg: ASbGncugGsAx5QhR+RR/5QjZDJb5CDwQFtUJvr/c5F0fXppM+8hoyiC/pu7hbyrgQRa
-	ga9McLxfCk47mfbd7DeKWtf26u2oifABEB3TeU37dJ8N/1O9sKHuNm9o+1QI1+eQJHBgtGQnJNe
-	bKn+nkvc9KUK9nx24MBKfSy39QM+6oAa3Ffmbd8VaoSs1b4fZSdKd+lpyxgxQTaLbuOFagwAliR
-	I0klKajHBUXbNBntyuVTtk9nz0UtECTe7u5kcvhlDDjPLx0Qd80a23qVlE=
-X-Google-Smtp-Source: AGHT+IE7CP/5jGWZAR0IrIqQIqvoQb7g5wi9hxFsU0CFVXu0dR68h2h3F8IAezzLwnE0Rlv/Ybh8/Q==
-X-Received: by 2002:a17:902:d48a:b0:216:4064:53ad with SMTP id d9443c01a7336-21a840109d2mr433462125ad.48.1736920157113;
-        Tue, 14 Jan 2025 21:49:17 -0800 (PST)
-Received: from localhost ([157.82.203.37])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21a9f22e591sm76124125ad.180.2025.01.14.21.49.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Jan 2025 21:49:16 -0800 (PST)
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Wed, 15 Jan 2025 14:48:03 +0900
-Subject: [PATCH v5 6/6] crash: Remove KEXEC_CORE_NOTE_NAME
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Us5W4Tdj"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50ENaOUW010013;
+	Wed, 15 Jan 2025 08:56:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=WpHN0/
+	SzsYoELOlvKaAUcshsYZoQyd+AEub8A0w+OB0=; b=Us5W4TdjtYmULp9gbe7vYP
+	GmbkXiK7CYBIO6g641BxmTHQvkwN+fEohDLQv50wRhMMNXJ8cgebpc9im+hk5DSx
+	/yfQoHDOCxPulS6+k8ZDS6Bn+AVQt7i/zkYOzZ1mDAwfOlZHjFpgwnwSdIJ8NUz3
+	3FkXynWk6ugpheH3CA9DPIvoKAgQU0V1GmRnlGoRe5d2pLAdd7PNQsKGkMZmGyNE
+	mjLcDzJAgK8heFTCYQNUuLpAjxqJBQ9enx6K3ROK+QfLevvH8P/H2OblshM2njSn
+	PnWMeYRo07zDMjA6jEILeia3rkSFX0vNlsQFvceb2jn8qipSdAIKkahPfJKSiatg
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4461rbhs7a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jan 2025 08:56:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50F7WPX5000827;
+	Wed, 15 Jan 2025 08:56:15 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44456jy6xn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jan 2025 08:56:15 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50F8uCKl35455296
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Jan 2025 08:56:12 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0460C2004D;
+	Wed, 15 Jan 2025 08:56:12 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8015620040;
+	Wed, 15 Jan 2025 08:56:11 +0000 (GMT)
+Received: from [9.171.76.32] (unknown [9.171.76.32])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Jan 2025 08:56:11 +0000 (GMT)
+Message-ID: <91c13ac1-ad31-46e2-8a07-9b759caaf33d@linux.ibm.com>
+Date: Wed, 15 Jan 2025 09:56:11 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 07/13] KVM: s390: move some gmap shadowing functions
+ away from mm/gmap.c
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
+        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
+References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
+ <20250108181451.74383-8-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20250108181451.74383-8-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250115-elf-v5-6-0f9e55bbb2fc@daynix.com>
-References: <20250115-elf-v5-0-0f9e55bbb2fc@daynix.com>
-In-Reply-To: <20250115-elf-v5-0-0f9e55bbb2fc@daynix.com>
-To: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>, 
- Catalin Marinas <catalin.marinas@arm.com>, Mark Brown <broonie@kernel.org>, 
- Dave Martin <Dave.Martin@arm.com>, Baoquan He <bhe@redhat.com>, 
- Vivek Goyal <vgoyal@redhat.com>, Dave Young <dyoung@redhat.com>, 
- LEROY Christophe <christophe.leroy2@cs-soprasteria.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
- kexec@lists.infradead.org, binutils@sourceware.org, devel@daynix.com, 
- Akihiko Odaki <akihiko.odaki@daynix.com>
-X-Mailer: b4 0.14-dev-fd6e3
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: U0sXMliS1m1UkzwYHUVxd1ZrDUvVAG-f
+X-Proofpoint-GUID: U0sXMliS1m1UkzwYHUVxd1ZrDUvVAG-f
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-15_03,2025-01-15_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 impostorscore=0 mlxscore=0 suspectscore=0
+ mlxlogscore=754 adultscore=0 bulkscore=0 phishscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501150063
 
-KEXEC_CORE_NOTE_NAME is no longer used.
+On 1/8/25 7:14 PM, Claudio Imbrenda wrote:
+> Move some gmap shadowing functions from mm/gmap.c to kvm/vsie.c and
+> kvm/kvm-s390.c .
+> 
 
-Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Dave Martin <Dave.Martin@arm.com>
----
- include/linux/kexec.h       | 2 --
- include/linux/vmcore_info.h | 1 -
- 2 files changed, 3 deletions(-)
+Why though?
 
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index f0e9f8eda7a3..c840431eadda 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -68,8 +68,6 @@ extern note_buf_t __percpu *crash_notes;
- #define KEXEC_CRASH_MEM_ALIGN PAGE_SIZE
- #endif
- 
--#define KEXEC_CORE_NOTE_NAME	CRASH_CORE_NOTE_NAME
--
- /*
-  * This structure is used to hold the arguments that are used when loading
-  * kernel binaries.
-diff --git a/include/linux/vmcore_info.h b/include/linux/vmcore_info.h
-index 1672801fd98c..37e003ae5262 100644
---- a/include/linux/vmcore_info.h
-+++ b/include/linux/vmcore_info.h
-@@ -6,7 +6,6 @@
- #include <linux/elfcore.h>
- #include <linux/elf.h>
- 
--#define CRASH_CORE_NOTE_NAME	   "CORE"
- #define CRASH_CORE_NOTE_HEAD_BYTES ALIGN(sizeof(struct elf_note), 4)
- #define CRASH_CORE_NOTE_NAME_BYTES ALIGN(sizeof(NN_PRSTATUS), 4)
- #define CRASH_CORE_NOTE_DESC_BYTES ALIGN(sizeof(struct elf_prstatus), 4)
+I don't really want to have gmap code in vsie.c
+If you want to add a new mm/gmap-vsie.c then do so but I don't see a 
+need to move gmap code from mm to kvm and you give no explanation 
+whatsoever.
 
--- 
-2.47.1
-
+Maybe add a vsie-gmap.c in kvm but I'm not so thrilled about that for 
+the reasons mentioned above.
