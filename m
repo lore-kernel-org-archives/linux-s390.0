@@ -1,118 +1,150 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out-187.mta1.migadu.com (out-187.mta1.migadu.com [95.215.58.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 395371DB138;
-	Wed, 15 Jan 2025 10:20:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAAB71F9A81
+	for <linux-s390@vger.kernel.org>; Wed, 15 Jan 2025 11:47:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736936428; cv=none; b=s2gpMcqpZegBJfDuLq9Bo2/QyXkXS+Iwjt6IypbvfgkWhPU/5V8spPn54nahXJ2OukN3oRmfe7+iRmO2MSNJ21GsMTJ+pudgK4ShZoLJPmz4pSke2s6KdLfDEM4WeJU287VSzua4Xq3NB0XKnAbIO3GZeKU+qHWoWgmykPYJ97w=
+	t=1736941633; cv=none; b=qjDuQyKm5qTdQF+Y2Yt7t66ZxNRAmA3z4rs6RDM9ZdO/8auDuedEr1Wq3vbEaA0IZc9HSl24Ke/V+OWJSW7JsvyY5SMbNOQqEn9M13ETGxxIK/0D1sHG+uMZp0OmYNIy8CSTQWuLTiybUasv4HJ8yC00YhpMXtCYwcYVdQ2eIqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736936428; c=relaxed/simple;
-	bh=34JBOL+zmXvpqgSI8+nty0X501Jw+lBz7cs5HMeIv/4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ecwnq2DZ+prf7wCq7hyUyGwuToUcLqYqLGQFJDI+lAt3BDuYGmY9Ven2W5cm/g1fz+GYByGL/6RpMAUS+4gl0i/1Nxnd0H7j69tcJNIGhFQOLAU7jheB/P4XInj2fUnuxGzHd2gjh38I/eeZYxGAWaViuzPOi6f+QITA5mDEicw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PB8OzkBf; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1736941633; c=relaxed/simple;
+	bh=lOJ3NGWQGevXcacL3czT9BSD6SpO6SDkYJLBDKharjU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Tk7MrhZTO2xvMM64dWsST6e9DRtPNCPSjd9kSW37CAYBBLgUMoO2dpVZUXLNl2juCW1+0hMjldC2BiGNESVVVn5T1JKb4nM1sDgw3DAMTd+AOZnNauNpXVzT95TkH3Bbw7Q/xC/j6cmtYCvfBYuGF29Z45mhFglahEosZqE1c+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=e8eo6yZT; arc=none smtp.client-ip=95.215.58.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PB8OzkBf"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50F85gHI017620;
-	Wed, 15 Jan 2025 10:20:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JJ6HKq
-	fUSWCMS+eOo8zfcV7T2eVAkhZjQRFPu2Ff1zI=; b=PB8OzkBfArqOv82ewgehZ9
-	rE72inVzN4BP9ZCPGzdTlXJaYalXZOaz9cCPRR+rc2Sqk8ftNQ+xvUzU9bCOu0cn
-	NiOJoY7/nDWbWgc2/q/FwmOqnw8QbsXozABtCDhGPL8/1ldHHT5hgw2q0LPpVh9+
-	7OqUu9x3ztCmb4bslo8A56gK2zKBOxkxIJuzIk0PXTkr9OQdRYQlaHkEvI54V0s9
-	QGz8ZQmrAGF4Hq9vABRQL6q8rLAdCLDwMNTvSIdEwufht+jhaE3P2hiEgPpGZ4am
-	87Eu9cI9/ai9SfOpQb4H1wxhWdJrxub/gTYUv71Cj2CTzHYbFiwoOdaFtEKNI5MA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4469730hxk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Jan 2025 10:20:21 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50F6gAqd007386;
-	Wed, 15 Jan 2025 10:20:20 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4443yn7s1w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 15 Jan 2025 10:20:20 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50FAKGxY56164818
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 15 Jan 2025 10:20:16 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8B47F2004E;
-	Wed, 15 Jan 2025 10:20:16 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 644A92004D;
-	Wed, 15 Jan 2025 10:20:16 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 15 Jan 2025 10:20:16 +0000 (GMT)
-Date: Wed, 15 Jan 2025 11:20:14 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
-        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
-Subject: Re: [PATCH v1 07/13] KVM: s390: move some gmap shadowing functions
- away from mm/gmap.c
-Message-ID: <20250115112014.19ca99f2@p-imbrenda>
-In-Reply-To: <91c13ac1-ad31-46e2-8a07-9b759caaf33d@linux.ibm.com>
-References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
-	<20250108181451.74383-8-imbrenda@linux.ibm.com>
-	<91c13ac1-ad31-46e2-8a07-9b759caaf33d@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="e8eo6yZT"
+Date: Wed, 15 Jan 2025 12:47:02 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1736941628;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=m8XOo0FW0vTE1WDVQEvU4KsWOEVRC4l+3gRa0NCsvGY=;
+	b=e8eo6yZTgL/aZFbN0VN9rSnSZflP1y47RQdu57cyuFOMsBqkyjBVyZm86w8eRsC8MTZgHj
+	AkN5Y1dfiLRu4c8S9cVfY6uyQPhnBSrm2mtBM0UKH46KPW+nhN8mg82cqHKsO+fubSQnZD
+	7yARFQU7gaG9mTSRZZdF8gWQFytNrWE=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
+	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
+	pbonzini@redhat.com, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, vladimir.murzin@arm.com
+Subject: Re: [kvm-unit-tests PATCH v1 2/5] configure: Display the default
+ processor for arm and arm64
+Message-ID: <20250115-dde4d782f94a79819c861c3b@orel>
+References: <20250110135848.35465-1-alexandru.elisei@arm.com>
+ <20250110135848.35465-3-alexandru.elisei@arm.com>
+ <20250113-45b57478be2241a35ffa1b67@orel>
+ <Z4acKHEn/dE0yLM2@arm.com>
+ <20250114-a36510d222fc3410b9b7654e@orel>
+ <Z4eGAl7kah6vfHle@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 0ZhncPHzJScdkmu-7GRgnKKpGkoDVVg4
-X-Proofpoint-GUID: 0ZhncPHzJScdkmu-7GRgnKKpGkoDVVg4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-15_04,2025-01-15_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- malwarescore=0 adultscore=0 priorityscore=1501 phishscore=0 clxscore=1015
- suspectscore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
- mlxlogscore=773 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501150076
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z4eGAl7kah6vfHle@arm.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Wed, 15 Jan 2025 09:56:11 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> On 1/8/25 7:14 PM, Claudio Imbrenda wrote:
-> > Move some gmap shadowing functions from mm/gmap.c to kvm/vsie.c and
-> > kvm/kvm-s390.c .
-> >   
+On Wed, Jan 15, 2025 at 09:55:14AM +0000, Alexandru Elisei wrote:
+> Hi Drew,
 > 
-> Why though?
-
-to start removing stuff from mm
-
+> On Tue, Jan 14, 2025 at 07:51:04PM +0100, Andrew Jones wrote:
+> > On Tue, Jan 14, 2025 at 05:17:28PM +0000, Alexandru Elisei wrote:
+> > ...
+> > > > > +# $arch will have changed when cross-compiling.
+> > > > > +[ -z "$processor" ] && processor=$(get_default_processor $arch)
+> > > > 
+> > > > The fact that $arch and $processor are wrong until they've had a chance to
+> > > 
+> > > $processor is never wrong. $processor is unset until either the user sets it
+> > > with --processor, or until this line. This patch introduces $default_processor
+> > > only for the purpose of having an accurate help text, it doesn't change when and
+> > > how $processor is assigned.
+> > 
+> > I should have said "The fact that $arch and $default_processor are wrong..."
+> > 
+> > > 
+> > > > be converted might be another reason for the $do_help idea. But it'll
+> > > > always be fragile since another change that does some sort of conversion
+> > > > could end up getting added after the '[ $do_help ] && usage' someday.
+> > > 
+> > > configure needs to distinguish between:
+> > > 
+> > > 1. The user not having specified --processor when doing ./configure.
+> > > 2. The user having set --processor.
+> > > 
+> > > If 1, then kvm-unit-tests can use the default $processor value for $arch,
+> > > which could have also been specified by the user.
+> > > 
+> > > If 2, then kvm-unit-tests should not touch $processor because that's what the
+> > > user wants.
+> > > 
+> > > Do you see something wrong with that reasoning?
+> > 
+> > If we output $default_processor in usage() before it's had a chance to be
+> > set correctly based on a given cross arch, then it won't display the
+> > correct name.
+> > 
+> > > 
+> > > Also, I don't understand why you say it's fragile, since configure doesn't
+> > 
+> > I wrote "it'll always be fragile" where 'it' refers to the most recent
+> > object of my paragraph ("the $do_help idea"). But, TBH, I'm not sure
+> > how important it is to get the help text accurate, so we can just not
+> > care if we call usage() with the wrong strings sometimes.
 > 
-> I don't really want to have gmap code in vsie.c
-> If you want to add a new mm/gmap-vsie.c then do so but I don't see a 
-
-will do
-
-> need to move gmap code from mm to kvm and you give no explanation 
-> whatsoever.
-
-the goal is to remove gmap from mm, as mentioned in the cover letter
-
+> Got it now, thanks for explaining it.
 > 
-> Maybe add a vsie-gmap.c in kvm but I'm not so thrilled about that for 
-> the reasons mentioned above.
+> My opinion is that a help text is there to help the user, and in my experience
+> an inaccurate help text can be very frustrating - think comments that say
+> one thing, and the code does something else.
+> 
+> How about this:
+> 
+> diff --git a/configure b/configure
+> index 3ab0ec208e10..5dbe189816b2 100755
+> --- a/configure
+> +++ b/configure
+> @@ -51,7 +51,6 @@ page_size=
+>  earlycon=
+>  efi=
+>  efi_direct=
+> -default_processor=$(get_default_processor $arch)
+> 
+>  # Enable -Werror by default for git repositories only (i.e. developer builds)
+>  if [ -e "$srcdir"/.git ]; then
+> @@ -61,13 +60,14 @@ else
+>  fi
+> 
+>  usage() {
+> +    [ -z "$processor" ] && processor=$(get_default_processor $arch)
+>      cat <<-EOF
+>         Usage: $0 [options]
+> 
+>         Options include:
+>             --arch=ARCH            architecture to compile for ($arch). ARCH can be one of:
+>                                    arm, arm64/aarch64, i386, ppc64, riscv32, riscv64, s390x, x86_64
+> -           --processor=PROCESSOR  processor to compile for ($default_processor). For arm and arm64, the
+> +           --processor=PROCESSOR  processor to compile for ($processor). For arm and arm64, the
+>                                    value 'max' is special and it will be passed directly to
+>                                    qemu, bypassing the compiler. In this case, --cflags can be
+>                                    used to compile for a specific processor.
+> 
+> Should be accurate enough, as far as I can tell. And I don't think there's
+> a need for $do_help: if the user does ./configure --help --arch=arm64, then
+> I think it's reasonable to expect that --help will be interpreted before
+> --arch is parsed.
+>
 
+Sounds good.
+
+Thanks,
+drew
