@@ -1,31 +1,60 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0846224AEF;
-	Wed, 15 Jan 2025 11:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBABF2475D8;
+	Wed, 15 Jan 2025 12:17:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736942005; cv=none; b=cRi0t5KYwKvye2Jepk6SYJ+lyZwC+vYo1kbU6KHWo0cR6CdGY7H2jp8vknYfe2I3SC+9S5shmUNQ0danSEQ3MCYDGn/C3dZHnsKQ20KsoaxvtYDM861zTgznDNyzn+KoyH953DSSKtr22qbbtkdg5fkhYh1DAjQ5c+0DkT+qmUs=
+	t=1736943433; cv=none; b=tRYBMpR4Xws/mKcXA4Q2NbAcVpXjwsnbqGLvQ109+8xqMjYRCz40MGSNLT6VvWoTZUHwJrtpYaEhxne75KPo2z3fAdHHofZWDKXmEAwREQQgphw2BigZ3KlVKeIZc8IdhW1Er93Zxl5w3PoNwM7371yKAwxiiQKndQnL+7z/pLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736942005; c=relaxed/simple;
-	bh=vom1M5y0t/2i6oRVZy3Twpq/IpbkTcdH5c9rb3WAZx4=;
+	s=arc-20240116; t=1736943433; c=relaxed/simple;
+	bh=NRzecwK2CPHEQ5u9LdfdgzJa+AUH4srDIPShLbJg81M=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EBEzqYfxk/lb8QNa8nCjSdmTOajlDb38CzER+Yb2Hp52p4xgnIqit9lrBrkcQZn/0kIhDYVL1fLqUKf/2gmddpLwVOm5qwbH9meiCQzImjyzOGg52J4lIMWVwiLYbNto3oUSSvVHtyuFCD3SIKmMfIc0Awm9eWxLBTf7emfeuDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=HW453Z1s; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 In-Reply-To:Content-Type; b=ucwVnmwtAPi2ql3e+ABCKVfOHQWszV8FABrsAln++8wOg7ArBguTsdaIWpfQSu4Igz5pdTV+ix5ZFaFfRfVcvnkBMMb4Emh3e9VZXXu0HPEn8v1H1BJgaHqhokiCzzWf8O2KWbs6da2xC6whNd2FX7Qm+4ZHnotXYG497KFCAFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SyLsKWBY; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="HW453Z1s"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1736941997; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=L1nv3aPuQLf0keVSQjzBMEcZo7dzqH6nOk+7lPFkYBQ=;
-	b=HW453Z1s4Cb2JvJv8SgbS6cMHKZFZXFkxDuzbN+67torJ5+wnhHWuNFUKRojklrkOsqgKtk+MYvyhUpspVHNK87HNQnAdiBr06gEoEXzjPASHt1RjvG7jXmeCFpEH1pxcU/uz6JOwOAi6nTYqQgUCeP2N5lshdN0wWRMLhUgtl8=
-Received: from 30.221.98.4(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WNiOY3G_1736941995 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 15 Jan 2025 19:53:16 +0800
-Message-ID: <3dc68650-904c-4a1d-adc4-172e771f640c@linux.alibaba.com>
-Date: Wed, 15 Jan 2025 19:53:15 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SyLsKWBY"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50F3qbo8016608;
+	Wed, 15 Jan 2025 12:17:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=i9B6Gd
+	kkU3GuXTGJqjxckxhAWnU1DblJzgnP6NoNFaw=; b=SyLsKWBYHSYydn19T3QAmI
+	g/xOOd+ha/7kMtS9nTBxTG2nTS3ZKQ3NMC7EQzpnw/w4qhw0lUI/YOXmK2A6QS1c
+	ejT2IU/y4SmPO9X6p3oJsma/cWF/ErHFEDsqS48Xz0y4xbRzpMV375qg0JYP5ry0
+	KqZ6pM0kBux1RoXrYe2pmGaYqJI+ExWmkvk7+qE++ZGJTwSOr9WtmeUs4EWOmPSt
+	rG3x4eRdQBQOWsAzXwBSE1qKl1RlQa4ICoHUtwKb0CeOF5ceGeawD2jL908ZuNuZ
+	Qi+0vnOIYD+YRbBWg5QXqvaHBnACHQU9q8y4khIiAMk3r6X3m1coxIbjQcdkL5uw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4465gbsycj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jan 2025 12:17:06 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50F9ZWFG004551;
+	Wed, 15 Jan 2025 12:17:06 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4442ysrd5h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jan 2025 12:17:06 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50FCH2XU65143286
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Jan 2025 12:17:02 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4F9FA20049;
+	Wed, 15 Jan 2025 12:17:02 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C815420040;
+	Wed, 15 Jan 2025 12:17:01 +0000 (GMT)
+Received: from [9.171.76.32] (unknown [9.171.76.32])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Jan 2025 12:17:01 +0000 (GMT)
+Message-ID: <4175795f-9323-4a2c-acef-d387c104f8b3@linux.ibm.com>
+Date: Wed, 15 Jan 2025 13:17:01 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -33,84 +62,131 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
- pnetid table
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
- jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
-References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
- <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
- <20250107203218.5787acb4.pasic@linux.ibm.com>
- <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
- <20250109040429.350fdd60.pasic@linux.ibm.com>
- <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
- <20250114130747.77a56d9a.pasic@linux.ibm.com>
+Subject: Re: [PATCH v1 13/13] KVM: s390: remove the last user of page->index
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
+        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
+References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
+ <20250108181451.74383-14-imbrenda@linux.ibm.com>
 Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20250114130747.77a56d9a.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20250108181451.74383-14-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: NJYWac3jjwcxqqO7K5e8LXsiuQdJRaUa
+X-Proofpoint-ORIG-GUID: NJYWac3jjwcxqqO7K5e8LXsiuQdJRaUa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-15_04,2025-01-15_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 spamscore=0
+ adultscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
+ suspectscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2501150087
 
-
-
-On 2025/1/14 20:07, Halil Pasic wrote:
-> On Fri, 10 Jan 2025 13:43:44 +0800
-> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+On 1/8/25 7:14 PM, Claudio Imbrenda wrote:
+> Shadow page tables use page->index to keep the g2 address of the guest
+> page table being shadowed.
 > 
->>> I think I showed a valid and practical setup that would break with your
->>> patch as is. Do you agree with that statement?  
->> Did you mean
->> "
->> Now for something like a bond of two OSA
->> interfaces, I would expect the two legs of the bond to probably have a
->> "HW PNETID", but the netdev representing the bond itself won't have one
->> unless the Linux admin defines a software PNETID, which is work, and
->> can't have a HW PNETID because it is a software construct within Linux.
->> Breaking for example an active-backup bond setup where the legs have
->> HW PNETIDs and the admin did not bother to specify a PNETID for the bond
->> is not acceptable.
->> " ?
->> If the legs have HW pnetids, add pnetid to bond netdev will fail as
->> smc_pnet_add_eth will check whether the base_ndev already have HW pnetid.
->>
->> If the legs without HW pnetids, and admin add pnetids to legs through smc_pnet.
->> Yes, my patch will break the setup. What Paolo suggests(both checking ndev and
->> base_ndev, and replace || by && )can help compatible with the setup.
+> Instead of keeping the information in page->index, split the address
+> and smear it over the 16-bit softbits areas of 4 PGSTEs.
 > 
-> I'm glad we agree on that part. Things are much more acceptable if we
-> are doing both base and ndev. 
-It is also acceptable for me.
-
-> Nevertheless I would like to understand
-> your problem better, and talk about it to my team. I will also ask some
-> questions in another email.
-Questions are welcome.
-
+> This removes the last s390 user of page->index.
 > 
-> That said having things work differently if there is a HW PNETID on
-> the base, and different if there is none is IMHO wonky and again
-> asymmetric.
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/gmap.h    |  1 +
+>   arch/s390/include/asm/pgtable.h | 15 +++++++++++++++
+>   arch/s390/kvm/gaccess.c         |  6 ++++--
+>   arch/s390/mm/gmap.c             | 22 ++++++++++++++++++++--
+>   4 files changed, 40 insertions(+), 4 deletions(-)
 > 
-> Imagine the following you have your nice little setup with a PNETID on
-> a non-leaf and a base_ndev that has no PNETID. Then your HW admin
-> configures a PNETID to your base_ndev, a different one. Suddenly
-> your ndev PNETID is ignored for reasons not obvious to you. Yes it is
-> similar to having a software PNETID on the base_ndev and getting it
-> overruled by a HW PNETID, but much less obvious IMHO. I am wondering if there are any scenarios that require setting different
-pnetids for different net devices in one netdev hierarchy. If no, maybe
-we should limit that only one pnetid can be set to one netdev hierarchy.
+> diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+> index 5ebc65ac78cc..28c5bf097268 100644
+> --- a/arch/s390/include/asm/gmap.h
+> +++ b/arch/s390/include/asm/gmap.h
+> @@ -177,4 +177,5 @@ static inline int s390_uv_destroy_range_interruptible(struct mm_struct *mm, unsi
+>   {
+>   	return __s390_uv_destroy_range(mm, start, end, true);
+>   }
+> +
 
-> I also think
-> a software PNETID of the base should probably take precedence over over
-> the software pnetid of ndev.
-Agree!
+Stray \n
 
-Thanks,
-Guangguan Wang
-> 
-> Regards,
-> Halil
+>   #endif /* _ASM_S390_GMAP_H */
+> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+> index 151488bb9ed7..948100a8fa7e 100644
+> --- a/arch/s390/include/asm/pgtable.h
+> +++ b/arch/s390/include/asm/pgtable.h
+> @@ -419,6 +419,7 @@ static inline int is_module_addr(void *addr)
+>   #define PGSTE_HC_BIT	0x0020000000000000UL
+>   #define PGSTE_GR_BIT	0x0004000000000000UL
+>   #define PGSTE_GC_BIT	0x0002000000000000UL
+> +#define PGSTE_ST2_MASK	0x0000ffff00000000UL
+>   #define PGSTE_UC_BIT	0x0000000000008000UL	/* user dirty (migration) */
+>   #define PGSTE_IN_BIT	0x0000000000004000UL	/* IPTE notify bit */
+>   #define PGSTE_VSIE_BIT	0x0000000000002000UL	/* ref'd in a shadow table */
+> @@ -2001,4 +2002,18 @@ extern void s390_reset_cmma(struct mm_struct *mm);
+>   #define pmd_pgtable(pmd) \
+>   	((pgtable_t)__va(pmd_val(pmd) & -sizeof(pte_t)*PTRS_PER_PTE))
+>   
+> +static inline unsigned long gmap_pgste_get_index(unsigned long *pgt)
+> +{
+> +	unsigned long *pgstes, res;
+> +
+> +	pgstes = pgt + _PAGE_ENTRIES;
+> +
+> +	res = (pgstes[0] & PGSTE_ST2_MASK) << 16;
+> +	res |= pgstes[1] & PGSTE_ST2_MASK;
+> +	res |= (pgstes[2] & PGSTE_ST2_MASK) >> 16;
+> +	res |= (pgstes[3] & PGSTE_ST2_MASK) >> 32;
+> +
+> +	return res;
+> +}
+
+I have to think about that change for a bit before I post an opinion.
