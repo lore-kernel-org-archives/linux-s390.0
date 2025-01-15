@@ -1,64 +1,64 @@
-Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7F4922F859
-	for <linux-s390@vger.kernel.org>; Wed, 15 Jan 2025 05:48:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6F9722FDFD
+	for <linux-s390@vger.kernel.org>; Wed, 15 Jan 2025 05:48:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736920126; cv=none; b=EiqUj677fGQCczGeDH9cpmpd3zhfErlSCKRo4M17m4aSlsNKkqvsM90gi+NkDfd5FILMJz4PIR/nXPzGajvKmo5my2OeUbZnynpolxDK4NdnfKc/G0x3z9RVhq2G3GN+spCe5CZeck0ChYZYuYDbI/2rpQqLfxIoUs9nQUyPscw=
+	t=1736920133; cv=none; b=UumhEAB//E3ecy1+D7hzyM4vQQDXdk3k7J55KxKzrz5/tQ80rSOKdqybV5ubtA51eTGElziJ1+hR8lP/t/ncdGfQFJ3b9DKna446/mtBxZq6QEGbI6QSyQSvXb2w+hwfrGB00OvnrOXhc9ux/qYQv+Wh5K5Wc+xKgnGQuxVtU/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736920126; c=relaxed/simple;
-	bh=GlbXCeDYomWSeKDojm9Z/ytHwmxGwy6S9teTclpfWhs=;
+	s=arc-20240116; t=1736920133; c=relaxed/simple;
+	bh=OznTh8CTSKljoZuFx8Vgv0i+Bhff7ONaPIhGZUma42Y=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KcW019xcFETugAetOepoxoS++XJsWv0ZbWjHbvIotSFh6KzWfLHXBG9e02xxm4YYuKSNE69zdigAq62WTH0s3VKE8Rh0ynKyST9JGHF2a32fg27yIPjDaUpN8AOf+2aEXECKAyMht4IPGuGtFNZ9V3Yqau0OXNLhrTlsSB8MBSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=YoOmNgEW; arc=none smtp.client-ip=209.85.214.173
+	 In-Reply-To:To:Cc; b=j+k/Teaf+c11rBAHlOAK2nDyjj4kYWApO0dqnkcBZWVBBLca6cMdcR8B2mNl5nc54x9/f4HQ1D7wyDmXD3Gl58YKzROhkpl3sxRASzqgtm+sd1NQWVpPhxs+hrxMotxEGCk+TTZxdPMfbBB2lKeJ5h1Jne3X+C5lG7F2PMWdQqs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com; spf=pass smtp.mailfrom=daynix.com; dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b=UXiMGbGN; arc=none smtp.client-ip=209.85.214.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=daynix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="YoOmNgEW"
-Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-21628b3fe7dso107520345ad.3
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 21:48:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="UXiMGbGN"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-21670dce0a7so137012745ad.1
+        for <linux-s390@vger.kernel.org>; Tue, 14 Jan 2025 21:48:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736920124; x=1737524924; darn=vger.kernel.org;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1736920131; x=1737524931; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=fZpSo6SfUC/c8jq/24P0QMTbOGHfF/+b8e/6Q9KEQLE=;
-        b=YoOmNgEWGGqU8/dSfPolMmShhCo9RyeDdk1tTmC+DbrIHs07Jk59JfyS1Vv17zOtQY
-         MffT2/IazT1iiatJXn5jXSomVszZFlG4WHxQ54+/+DV0DXms9qcvP8XX0JItH9sdk4c5
-         7Yg2kPvYZ0gc176cH0V/JmGZLDmWHiJ89fU9O7YKgecT8HgqThdCAieU2iwXH1NK130D
-         NyNuE9O0T5nIDTEeuBZTmWGoot//9jE60P7I7DXYQ+R8qQUlneR0UKj/KxGRHcQLzl9d
-         dLy0kCcDwnpuCzmEMdiJdjRcMV56huLchfJ/oh8WcUBj/ROFGgAAEzM1h5SFJhRhTH1S
-         zI8g==
+        bh=sHzEFJeIZDo3f5k/3U0rvOC8rXQluzySCipEOCSBJIE=;
+        b=UXiMGbGNBKqtjkRYNcPYLsYORGzkJtiUyvztX8o0vJie/KV0ViDtiDnUL/PkhRaUvm
+         tPNGzmmruqAF7QGZ2jJV8KkC3ojFD5Q844WWxGgXFjJXmm2ml+MhnzoT58XHOakhxFc5
+         XywETxzrRg3z9IDi8Cihk09N39Kc2pIOt81GXNB87vxor7njkVBxRNAno0gvZphwaLtT
+         1ulXqgEJVkb5iz+JBsJ8KhJHkTbKw0XOTLU5RmIz8+D+2uF2Etq0PGBXY1bqd0wQwqeP
+         hxG6d+O6DXvOrGQn5cjOWPV5iHLbVrqT+6tO+pDPrTUbeys/LxgqnTuWL3a1HmF+pcXz
+         iKCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736920124; x=1737524924;
+        d=1e100.net; s=20230601; t=1736920131; x=1737524931;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fZpSo6SfUC/c8jq/24P0QMTbOGHfF/+b8e/6Q9KEQLE=;
-        b=bxmJZ5t2nuOd7FgDqDBHUbtqeahg6637Y9bPuzYIgKwvEnjIaqAAJY4pEXDyfA2m6w
-         +Xz/e/Xdv1Aq/iZ1MxLaU+gFwkl6GT03kCnPm0Z87Kqr9Hh1G1Ah3nWlCDGIthiIsqYz
-         xhgeWuUy4cdNmguidNE54exJna6b4vrG1ocWGci1lHdmTw7+sVJ/wFURyEHdLnM1vio5
-         6CAm6jt6yQLAeEoCJqWv+tK7wCS8uWVH0JJnGZgdcB4HS/5Bny866z9dXmIngz21VOyS
-         LXrPM568bykUpchA59wiAjSYVS3Y6hAw5g6UiCqB5O25dq4143pdTcqx7dDcKtnbkCmR
-         aukw==
-X-Forwarded-Encrypted: i=1; AJvYcCXDQVTd0rI127e46cxTzPR1Ep/l4HuJwZuHDDwijKieerxZbRnVUwcO7imwWB3JUfpl+lFM5sGt90Ku@vger.kernel.org
-X-Gm-Message-State: AOJu0YyKBFYSImizrqwp+7PFr+vTPaFZcsRW/1jeb2/X6gOqDmdHyC2a
-	/aFMdBeSLgM4DCpqu3H9gnya1oNQPp5EyndmaI+sVIGC18gVj54zOA6yxT8QglU=
-X-Gm-Gg: ASbGncstdEwQcY2CwnCSnCSHosj2uuPhGmZB2KgL81LtvzilMWfsZyHxVAPCKnMPF7G
-	vsLT2uAySYtUeXKY4H009e/G74TEk1t5/5/PUaHFfF4ZY1+eLPoiG7lQg4oHCUHLJ9s8fvoc7gu
-	C+Q0+lkz3rdiw38OVN6m46YjsXl3dJ6UasEZv427eLx0Y7b6YYd2BS8D3IPm3EVGhTN9n+wo505
-	3Vv2NYhKjUTrh2ZyQK9v3CZngp9Yd271Y6ySttC8hUE4+zvY8FX9Y4MFQs=
-X-Google-Smtp-Source: AGHT+IE9Ko/sfU4l3gRoKIw1VpifRpZPoszZMRitXvYKUHMEVA/Y6+gd5cQmHupnz5hw/xWHCrALGQ==
-X-Received: by 2002:a17:902:d582:b0:216:69ca:7714 with SMTP id d9443c01a7336-21a83f339damr415380795ad.11.1736920124219;
-        Tue, 14 Jan 2025 21:48:44 -0800 (PST)
+        bh=sHzEFJeIZDo3f5k/3U0rvOC8rXQluzySCipEOCSBJIE=;
+        b=ptJTRwuHuZ+J1AzQ/mCSD5f4gsLNSfYpqj35geGiR/ckkMb3unsr6JJXlGOYQHCqbA
+         oHRgnLaOSz6X4jo8OjuJ0Wb4bentCBd5SM9WKnn96fYATCZpoTcfhDUdHY+SlEsjpBLb
+         XMS+Ydz7w3rp1/rF8DbmOzS7BfLa8ehoKREIsOLKv3mJeQ4nL2Bt5U9moOvlKbBY2SDi
+         HmB963SbTNIjz4qr/THmiYuXZVl6BeU26E0yk/u3TtxByq9oDyyzKnWs7C191FImdv77
+         jUrQs3/4OdvphBDa6oLkQv7oqZ3RDbz7ZYD7DLwlJQFPKdShqhEw7wvZbhxziAmb5ahm
+         b1ZA==
+X-Forwarded-Encrypted: i=1; AJvYcCWi/5bOkoAYxocwCe4PICExsoh9c09djmOMjitzjFQXjJmnH9CzyCTTBsLnHNbgKCK6FTDJWPv1ORbk@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXjNbGS526f7XN4jw0TKtnTU3vC0710mNaK6anSAizyueOeOsm
+	uJ4rKmnFizBLhQA4eKo8CTqQauP2+WyhqE19c7DOZpRziPUocZonTzw9pbi/0Gw=
+X-Gm-Gg: ASbGncuDv+l68qEB+pvpF6a+8Qz7lTumNiyUKut3oBALvuQIzo8q+6HTm9FCKhOFqkD
+	4JQup2YjEUwl53vFXtsSRQiZ+bUGsU+grDg0tKKbVfCHio8Umz3rkdjsMlthEI2XPGsVDoDZUW1
+	Jc0f5LnLz/usJX6OiTGvUylgK0u8NN9lNniZrAz8n373Aet2Kr1LHwfCsd97CqGbNB0xDBzKOor
+	dJAT14H31j4+h1zwDl/nKNf3KikxeeDn0nRVJ8RtSSkpYUxhsrGENiCIjQ=
+X-Google-Smtp-Source: AGHT+IE4WOueDadHkE/pTRlVlFsVpAiJG9FV/RBFhyadWkGkb4TxZaWQPSECPYbRg96If6idldoCOw==
+X-Received: by 2002:a05:6a00:9a3:b0:725:eacf:cfdb with SMTP id d2e1a72fcca58-72d22033ef6mr42478714b3a.24.1736920131167;
+        Tue, 14 Jan 2025 21:48:51 -0800 (PST)
 Received: from localhost ([157.82.203.37])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-21a9f219b7fsm75675195ad.116.2025.01.14.21.48.39
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-72d8bda6e9asm691573b3a.51.2025.01.14.21.48.46
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Jan 2025 21:48:43 -0800 (PST)
+        Tue, 14 Jan 2025 21:48:50 -0800 (PST)
 From: Akihiko Odaki <akihiko.odaki@daynix.com>
-Date: Wed, 15 Jan 2025 14:47:58 +0900
-Subject: [PATCH v5 1/6] elf: Define note name macros
+Date: Wed, 15 Jan 2025 14:47:59 +0900
+Subject: [PATCH v5 2/6] binfmt_elf: Use note name macros
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,7 +67,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250115-elf-v5-1-0f9e55bbb2fc@daynix.com>
+Message-Id: <20250115-elf-v5-2-0f9e55bbb2fc@daynix.com>
 References: <20250115-elf-v5-0-0f9e55bbb2fc@daynix.com>
 In-Reply-To: <20250115-elf-v5-0-0f9e55bbb2fc@daynix.com>
 To: Eric Biederman <ebiederm@xmission.com>, Kees Cook <kees@kernel.org>, 
@@ -81,216 +81,150 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  Akihiko Odaki <akihiko.odaki@daynix.com>
 X-Mailer: b4 0.14-dev-fd6e3
 
-elf.h had a comment saying:
-> Notes used in ET_CORE. Architectures export some of the arch register
-> sets using the corresponding note types via the PTRACE_GETREGSET and
-> PTRACE_SETREGSET requests.
-> The note name for these types is "LINUX", except NT_PRFPREG that is
-> named "CORE".
-
-However, NT_PRSTATUS is also named "CORE". It is also unclear what
-"these types" refers to.
-
-To fix these problems, define a name for each note type. The added
-definitions are macros so the kernel and userspace can directly refer to
-them to remove their duplicate definitions of note names.
+Use note name macros to match with the userspace's expectation.
 
 Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
 Acked-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Dave Martin <Dave.Martin@arm.com>
 ---
- include/uapi/linux/elf.h | 89 +++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 84 insertions(+), 5 deletions(-)
+ fs/binfmt_elf.c       | 21 ++++++++++-----------
+ fs/binfmt_elf_fdpic.c |  8 ++++----
+ 2 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/include/uapi/linux/elf.h b/include/uapi/linux/elf.h
-index b44069d29cec..592507aa9b3a 100644
---- a/include/uapi/linux/elf.h
-+++ b/include/uapi/linux/elf.h
-@@ -368,101 +368,180 @@ typedef struct elf64_shdr {
- #define ELF_OSABI ELFOSABI_NONE
- #endif
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index 106f0e8af177..5b4a92e5e508 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -762,8 +762,7 @@ static int parse_elf_property(const char *data, size_t *off, size_t datasz,
+ }
  
-+/* Note definitions: NN_ defines names. NT_ defines types. */
-+
-+#define NN_GNU_PROPERTY_TYPE_0	"GNU"
-+#define NT_GNU_PROPERTY_TYPE_0	5
-+
- /*
-  * Notes used in ET_CORE. Architectures export some of the arch register sets
-  * using the corresponding note types via the PTRACE_GETREGSET and
-  * PTRACE_SETREGSET requests.
-- * The note name for these types is "LINUX", except NT_PRFPREG that is named
-- * "CORE".
-  */
-+#define NN_PRSTATUS	"CORE"
- #define NT_PRSTATUS	1
-+#define NN_PRFPREG	"CORE"
- #define NT_PRFPREG	2
-+#define NN_PRPSINFO	"CORE"
- #define NT_PRPSINFO	3
-+#define NN_TASKSTRUCT	"CORE"
- #define NT_TASKSTRUCT	4
-+#define NN_AUXV		"CORE"
- #define NT_AUXV		6
- /*
-  * Note to userspace developers: size of NT_SIGINFO note may increase
-  * in the future to accomodate more fields, don't assume it is fixed!
-  */
-+#define NN_SIGINFO      "CORE"
- #define NT_SIGINFO      0x53494749
-+#define NN_FILE         "CORE"
- #define NT_FILE         0x46494c45
-+#define NN_PRXFPREG     "LINUX"
- #define NT_PRXFPREG     0x46e62b7f      /* copied from gdb5.1/include/elf/common.h */
-+#define NN_PPC_VMX	"LINUX"
- #define NT_PPC_VMX	0x100		/* PowerPC Altivec/VMX registers */
-+#define NN_PPC_SPE	"LINUX"
- #define NT_PPC_SPE	0x101		/* PowerPC SPE/EVR registers */
-+#define NN_PPC_VSX	"LINUX"
- #define NT_PPC_VSX	0x102		/* PowerPC VSX registers */
-+#define NN_PPC_TAR	"LINUX"
- #define NT_PPC_TAR	0x103		/* Target Address Register */
-+#define NN_PPC_PPR	"LINUX"
- #define NT_PPC_PPR	0x104		/* Program Priority Register */
-+#define NN_PPC_DSCR	"LINUX"
- #define NT_PPC_DSCR	0x105		/* Data Stream Control Register */
-+#define NN_PPC_EBB	"LINUX"
- #define NT_PPC_EBB	0x106		/* Event Based Branch Registers */
-+#define NN_PPC_PMU	"LINUX"
- #define NT_PPC_PMU	0x107		/* Performance Monitor Registers */
-+#define NN_PPC_TM_CGPR	"LINUX"
- #define NT_PPC_TM_CGPR	0x108		/* TM checkpointed GPR Registers */
-+#define NN_PPC_TM_CFPR	"LINUX"
- #define NT_PPC_TM_CFPR	0x109		/* TM checkpointed FPR Registers */
-+#define NN_PPC_TM_CVMX	"LINUX"
- #define NT_PPC_TM_CVMX	0x10a		/* TM checkpointed VMX Registers */
-+#define NN_PPC_TM_CVSX	"LINUX"
- #define NT_PPC_TM_CVSX	0x10b		/* TM checkpointed VSX Registers */
-+#define NN_PPC_TM_SPR	"LINUX"
- #define NT_PPC_TM_SPR	0x10c		/* TM Special Purpose Registers */
-+#define NN_PPC_TM_CTAR	"LINUX"
- #define NT_PPC_TM_CTAR	0x10d		/* TM checkpointed Target Address Register */
-+#define NN_PPC_TM_CPPR	"LINUX"
- #define NT_PPC_TM_CPPR	0x10e		/* TM checkpointed Program Priority Register */
-+#define NN_PPC_TM_CDSCR	"LINUX"
- #define NT_PPC_TM_CDSCR	0x10f		/* TM checkpointed Data Stream Control Register */
-+#define NN_PPC_PKEY	"LINUX"
- #define NT_PPC_PKEY	0x110		/* Memory Protection Keys registers */
-+#define NN_PPC_DEXCR	"LINUX"
- #define NT_PPC_DEXCR	0x111		/* PowerPC DEXCR registers */
-+#define NN_PPC_HASHKEYR	"LINUX"
- #define NT_PPC_HASHKEYR	0x112		/* PowerPC HASHKEYR register */
-+#define NN_386_TLS	"LINUX"
- #define NT_386_TLS	0x200		/* i386 TLS slots (struct user_desc) */
-+#define NN_386_IOPERM	"LINUX"
- #define NT_386_IOPERM	0x201		/* x86 io permission bitmap (1=deny) */
-+#define NN_X86_XSTATE	"LINUX"
- #define NT_X86_XSTATE	0x202		/* x86 extended state using xsave */
- /* Old binutils treats 0x203 as a CET state */
-+#define NN_X86_SHSTK	"LINUX"
- #define NT_X86_SHSTK	0x204		/* x86 SHSTK state */
-+#define NN_X86_XSAVE_LAYOUT	"LINUX"
- #define NT_X86_XSAVE_LAYOUT	0x205	/* XSAVE layout description */
-+#define NN_S390_HIGH_GPRS	"LINUX"
- #define NT_S390_HIGH_GPRS	0x300	/* s390 upper register halves */
-+#define NN_S390_TIMER	"LINUX"
- #define NT_S390_TIMER	0x301		/* s390 timer register */
-+#define NN_S390_TODCMP	"LINUX"
- #define NT_S390_TODCMP	0x302		/* s390 TOD clock comparator register */
-+#define NN_S390_TODPREG	"LINUX"
- #define NT_S390_TODPREG	0x303		/* s390 TOD programmable register */
-+#define NN_S390_CTRS	"LINUX"
- #define NT_S390_CTRS	0x304		/* s390 control registers */
-+#define NN_S390_PREFIX	"LINUX"
- #define NT_S390_PREFIX	0x305		/* s390 prefix register */
-+#define NN_S390_LAST_BREAK	"LINUX"
- #define NT_S390_LAST_BREAK	0x306	/* s390 breaking event address */
-+#define NN_S390_SYSTEM_CALL	"LINUX"
- #define NT_S390_SYSTEM_CALL	0x307	/* s390 system call restart data */
-+#define NN_S390_TDB	"LINUX"
- #define NT_S390_TDB	0x308		/* s390 transaction diagnostic block */
-+#define NN_S390_VXRS_LOW	"LINUX"
- #define NT_S390_VXRS_LOW	0x309	/* s390 vector registers 0-15 upper half */
-+#define NN_S390_VXRS_HIGH	"LINUX"
- #define NT_S390_VXRS_HIGH	0x30a	/* s390 vector registers 16-31 */
-+#define NN_S390_GS_CB	"LINUX"
- #define NT_S390_GS_CB	0x30b		/* s390 guarded storage registers */
-+#define NN_S390_GS_BC	"LINUX"
- #define NT_S390_GS_BC	0x30c		/* s390 guarded storage broadcast control block */
-+#define NN_S390_RI_CB	"LINUX"
- #define NT_S390_RI_CB	0x30d		/* s390 runtime instrumentation */
-+#define NN_S390_PV_CPU_DATA	"LINUX"
- #define NT_S390_PV_CPU_DATA	0x30e	/* s390 protvirt cpu dump data */
-+#define NN_ARM_VFP	"LINUX"
- #define NT_ARM_VFP	0x400		/* ARM VFP/NEON registers */
-+#define NN_ARM_TLS	"LINUX"
- #define NT_ARM_TLS	0x401		/* ARM TLS register */
-+#define NN_ARM_HW_BREAK	"LINUX"
- #define NT_ARM_HW_BREAK	0x402		/* ARM hardware breakpoint registers */
-+#define NN_ARM_HW_WATCH	"LINUX"
- #define NT_ARM_HW_WATCH	0x403		/* ARM hardware watchpoint registers */
-+#define NN_ARM_SYSTEM_CALL	"LINUX"
- #define NT_ARM_SYSTEM_CALL	0x404	/* ARM system call number */
-+#define NN_ARM_SVE	"LINUX"
- #define NT_ARM_SVE	0x405		/* ARM Scalable Vector Extension registers */
-+#define NN_ARM_PAC_MASK		"LINUX"
- #define NT_ARM_PAC_MASK		0x406	/* ARM pointer authentication code masks */
-+#define NN_ARM_PACA_KEYS	"LINUX"
- #define NT_ARM_PACA_KEYS	0x407	/* ARM pointer authentication address keys */
-+#define NN_ARM_PACG_KEYS	"LINUX"
- #define NT_ARM_PACG_KEYS	0x408	/* ARM pointer authentication generic key */
-+#define NN_ARM_TAGGED_ADDR_CTRL	"LINUX"
- #define NT_ARM_TAGGED_ADDR_CTRL	0x409	/* arm64 tagged address control (prctl()) */
-+#define NN_ARM_PAC_ENABLED_KEYS	"LINUX"
- #define NT_ARM_PAC_ENABLED_KEYS	0x40a	/* arm64 ptr auth enabled keys (prctl()) */
-+#define NN_ARM_SSVE	"LINUX"
- #define NT_ARM_SSVE	0x40b		/* ARM Streaming SVE registers */
-+#define NN_ARM_ZA	"LINUX"
- #define NT_ARM_ZA	0x40c		/* ARM SME ZA registers */
-+#define NN_ARM_ZT	"LINUX"
- #define NT_ARM_ZT	0x40d		/* ARM SME ZT registers */
-+#define NN_ARM_FPMR	"LINUX"
- #define NT_ARM_FPMR	0x40e		/* ARM floating point mode register */
-+#define NN_ARM_POE	"LINUX"
- #define NT_ARM_POE	0x40f		/* ARM POE registers */
-+#define NN_ARM_GCS	"LINUX"
- #define NT_ARM_GCS	0x410		/* ARM GCS state */
-+#define NN_ARC_V2	"LINUX"
- #define NT_ARC_V2	0x600		/* ARCv2 accumulator/extra registers */
-+#define NN_VMCOREDD	"LINUX"
- #define NT_VMCOREDD	0x700		/* Vmcore Device Dump Note */
-+#define NN_MIPS_DSP	"LINUX"
- #define NT_MIPS_DSP	0x800		/* MIPS DSP ASE registers */
-+#define NN_MIPS_FP_MODE	"LINUX"
- #define NT_MIPS_FP_MODE	0x801		/* MIPS floating-point mode */
-+#define NN_MIPS_MSA	"LINUX"
- #define NT_MIPS_MSA	0x802		/* MIPS SIMD registers */
-+#define NN_RISCV_CSR	"LINUX"
- #define NT_RISCV_CSR	0x900		/* RISC-V Control and Status Registers */
-+#define NN_RISCV_VECTOR	"LINUX"
- #define NT_RISCV_VECTOR	0x901		/* RISC-V vector registers */
-+#define NN_RISCV_TAGGED_ADDR_CTRL "LINUX"
- #define NT_RISCV_TAGGED_ADDR_CTRL 0x902	/* RISC-V tagged address control (prctl()) */
-+#define NN_LOONGARCH_CPUCFG	"LINUX"
- #define NT_LOONGARCH_CPUCFG	0xa00	/* LoongArch CPU config registers */
-+#define NN_LOONGARCH_CSR	"LINUX"
- #define NT_LOONGARCH_CSR	0xa01	/* LoongArch control and status registers */
-+#define NN_LOONGARCH_LSX	"LINUX"
- #define NT_LOONGARCH_LSX	0xa02	/* LoongArch Loongson SIMD Extension registers */
-+#define NN_LOONGARCH_LASX	"LINUX"
- #define NT_LOONGARCH_LASX	0xa03	/* LoongArch Loongson Advanced SIMD Extension registers */
-+#define NN_LOONGARCH_LBT	"LINUX"
- #define NT_LOONGARCH_LBT	0xa04	/* LoongArch Loongson Binary Translation registers */
-+#define NN_LOONGARCH_HW_BREAK	"LINUX"
- #define NT_LOONGARCH_HW_BREAK	0xa05   /* LoongArch hardware breakpoint registers */
-+#define NN_LOONGARCH_HW_WATCH	"LINUX"
- #define NT_LOONGARCH_HW_WATCH	0xa06   /* LoongArch hardware watchpoint registers */
+ #define NOTE_DATA_SZ SZ_1K
+-#define GNU_PROPERTY_TYPE_0_NAME "GNU"
+-#define NOTE_NAME_SZ (sizeof(GNU_PROPERTY_TYPE_0_NAME))
++#define NOTE_NAME_SZ (sizeof(NN_GNU_PROPERTY_TYPE_0))
  
--/* Note types with note name "GNU" */
--#define NT_GNU_PROPERTY_TYPE_0	5
--
- /* Note header in a PT_NOTE section */
- typedef struct elf32_note {
-   Elf32_Word	n_namesz;	/* Name size */
+ static int parse_elf_properties(struct file *f, const struct elf_phdr *phdr,
+ 				struct arch_elf_state *arch)
+@@ -800,7 +799,7 @@ static int parse_elf_properties(struct file *f, const struct elf_phdr *phdr,
+ 	if (note.nhdr.n_type != NT_GNU_PROPERTY_TYPE_0 ||
+ 	    note.nhdr.n_namesz != NOTE_NAME_SZ ||
+ 	    strncmp(note.data + sizeof(note.nhdr),
+-		    GNU_PROPERTY_TYPE_0_NAME, n - sizeof(note.nhdr)))
++		    NN_GNU_PROPERTY_TYPE_0, n - sizeof(note.nhdr)))
+ 		return -ENOEXEC;
+ 
+ 	off = round_up(sizeof(note.nhdr) + NOTE_NAME_SZ,
+@@ -1603,14 +1602,14 @@ static void fill_auxv_note(struct memelfnote *note, struct mm_struct *mm)
+ 	do
+ 		i += 2;
+ 	while (auxv[i - 2] != AT_NULL);
+-	fill_note(note, "CORE", NT_AUXV, i * sizeof(elf_addr_t), auxv);
++	fill_note(note, NN_AUXV, NT_AUXV, i * sizeof(elf_addr_t), auxv);
+ }
+ 
+ static void fill_siginfo_note(struct memelfnote *note, user_siginfo_t *csigdata,
+ 		const kernel_siginfo_t *siginfo)
+ {
+ 	copy_siginfo_to_external(csigdata, siginfo);
+-	fill_note(note, "CORE", NT_SIGINFO, sizeof(*csigdata), csigdata);
++	fill_note(note, NN_SIGINFO, NT_SIGINFO, sizeof(*csigdata), csigdata);
+ }
+ 
+ /*
+@@ -1706,7 +1705,7 @@ static int fill_files_note(struct memelfnote *note, struct coredump_params *cprm
+ 	}
+ 
+ 	size = name_curpos - (char *)data;
+-	fill_note(note, "CORE", NT_FILE, size, data);
++	fill_note(note, NN_FILE, NT_FILE, size, data);
+ 	return 0;
+ }
+ 
+@@ -1767,7 +1766,7 @@ static int fill_thread_core_info(struct elf_thread_core_info *t,
+ 	regset_get(t->task, &view->regsets[0],
+ 		   sizeof(t->prstatus.pr_reg), &t->prstatus.pr_reg);
+ 
+-	fill_note(&t->notes[0], "CORE", NT_PRSTATUS,
++	fill_note(&t->notes[0], NN_PRSTATUS, NT_PRSTATUS,
+ 		  PRSTATUS_SIZE, &t->prstatus);
+ 	info->size += notesize(&t->notes[0]);
+ 
+@@ -1801,7 +1800,7 @@ static int fill_thread_core_info(struct elf_thread_core_info *t,
+ 		if (is_fpreg)
+ 			SET_PR_FPVALID(&t->prstatus);
+ 
+-		fill_note(&t->notes[note_iter], is_fpreg ? "CORE" : "LINUX",
++		fill_note(&t->notes[note_iter], is_fpreg ? NN_PRFPREG : "LINUX",
+ 			  note_type, ret, data);
+ 
+ 		info->size += notesize(&t->notes[note_iter]);
+@@ -1821,7 +1820,7 @@ static int fill_thread_core_info(struct elf_thread_core_info *t,
+ 	fill_prstatus(&t->prstatus.common, p, signr);
+ 	elf_core_copy_task_regs(p, &t->prstatus.pr_reg);
+ 
+-	fill_note(&t->notes[0], "CORE", NT_PRSTATUS, sizeof(t->prstatus),
++	fill_note(&t->notes[0], NN_PRSTATUS, NT_PRSTATUS, sizeof(t->prstatus),
+ 		  &(t->prstatus));
+ 	info->size += notesize(&t->notes[0]);
+ 
+@@ -1832,7 +1831,7 @@ static int fill_thread_core_info(struct elf_thread_core_info *t,
+ 	}
+ 
+ 	t->prstatus.pr_fpvalid = 1;
+-	fill_note(&t->notes[1], "CORE", NT_PRFPREG, sizeof(*fpu), fpu);
++	fill_note(&t->notes[1], NN_PRFPREG, NT_PRFPREG, sizeof(*fpu), fpu);
+ 	info->size += notesize(&t->notes[1]);
+ 
+ 	return 1;
+@@ -1852,7 +1851,7 @@ static int fill_note_info(struct elfhdr *elf, int phdrs,
+ 	psinfo = kmalloc(sizeof(*psinfo), GFP_KERNEL);
+ 	if (!psinfo)
+ 		return 0;
+-	fill_note(&info->psinfo, "CORE", NT_PRPSINFO, sizeof(*psinfo), psinfo);
++	fill_note(&info->psinfo, NN_PRPSINFO, NT_PRPSINFO, sizeof(*psinfo), psinfo);
+ 
+ #ifdef CORE_DUMP_USE_REGSET
+ 	view = task_user_regset_view(dump_task);
+diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
+index f1a7c4875c4a..96bd9d2f23d7 100644
+--- a/fs/binfmt_elf_fdpic.c
++++ b/fs/binfmt_elf_fdpic.c
+@@ -1397,7 +1397,7 @@ static struct elf_thread_status *elf_dump_thread_status(long signr, struct task_
+ 	regset_get(p, &view->regsets[0],
+ 		   sizeof(t->prstatus.pr_reg), &t->prstatus.pr_reg);
+ 
+-	fill_note(&t->notes[0], "CORE", NT_PRSTATUS, sizeof(t->prstatus),
++	fill_note(&t->notes[0], NN_PRSTATUS, NT_PRSTATUS, sizeof(t->prstatus),
+ 		  &t->prstatus);
+ 	t->num_notes++;
+ 	*sz += notesize(&t->notes[0]);
+@@ -1415,7 +1415,7 @@ static struct elf_thread_status *elf_dump_thread_status(long signr, struct task_
+ 	}
+ 
+ 	if (t->prstatus.pr_fpvalid) {
+-		fill_note(&t->notes[1], "CORE", NT_PRFPREG, sizeof(t->fpu),
++		fill_note(&t->notes[1], NN_PRFPREG, NT_PRFPREG, sizeof(t->fpu),
+ 			  &t->fpu);
+ 		t->num_notes++;
+ 		*sz += notesize(&t->notes[1]);
+@@ -1530,7 +1530,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
+ 	 */
+ 
+ 	fill_psinfo(psinfo, current->group_leader, current->mm);
+-	fill_note(&psinfo_note, "CORE", NT_PRPSINFO, sizeof(*psinfo), psinfo);
++	fill_note(&psinfo_note, NN_PRPSINFO, NT_PRPSINFO, sizeof(*psinfo), psinfo);
+ 	thread_status_size += notesize(&psinfo_note);
+ 
+ 	auxv = (elf_addr_t *) current->mm->saved_auxv;
+@@ -1538,7 +1538,7 @@ static int elf_fdpic_core_dump(struct coredump_params *cprm)
+ 	do
+ 		i += 2;
+ 	while (auxv[i - 2] != AT_NULL);
+-	fill_note(&auxv_note, "CORE", NT_AUXV, i * sizeof(elf_addr_t), auxv);
++	fill_note(&auxv_note, NN_AUXV, NT_AUXV, i * sizeof(elf_addr_t), auxv);
+ 	thread_status_size += notesize(&auxv_note);
+ 
+ 	offset = sizeof(*elf);				/* ELF header */
 
 -- 
 2.47.1
