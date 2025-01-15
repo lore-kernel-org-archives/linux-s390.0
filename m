@@ -1,150 +1,178 @@
-Received: from out-187.mta1.migadu.com (out-187.mta1.migadu.com [95.215.58.187])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAAB71F9A81
-	for <linux-s390@vger.kernel.org>; Wed, 15 Jan 2025 11:47:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1638A1E98E3;
+	Wed, 15 Jan 2025 11:48:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736941633; cv=none; b=qjDuQyKm5qTdQF+Y2Yt7t66ZxNRAmA3z4rs6RDM9ZdO/8auDuedEr1Wq3vbEaA0IZc9HSl24Ke/V+OWJSW7JsvyY5SMbNOQqEn9M13ETGxxIK/0D1sHG+uMZp0OmYNIy8CSTQWuLTiybUasv4HJ8yC00YhpMXtCYwcYVdQ2eIqs=
+	t=1736941740; cv=none; b=eOokns4QkaVPhso74fmAmiNxzMub1aM0+Zxtleiwu3VIaE1PRX0byQ5KJyZUo3+J8+forwSIBEr0bbwCMGKZqkq1SvlsAd2N65wZsmG9O2rLW415niHktaUfyod7K2qgvpqiR5ZlgSW6WWNQ7XD9k8e7st8doKoBAN8jloCS5o0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736941633; c=relaxed/simple;
-	bh=lOJ3NGWQGevXcacL3czT9BSD6SpO6SDkYJLBDKharjU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Tk7MrhZTO2xvMM64dWsST6e9DRtPNCPSjd9kSW37CAYBBLgUMoO2dpVZUXLNl2juCW1+0hMjldC2BiGNESVVVn5T1JKb4nM1sDgw3DAMTd+AOZnNauNpXVzT95TkH3Bbw7Q/xC/j6cmtYCvfBYuGF29Z45mhFglahEosZqE1c+I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=e8eo6yZT; arc=none smtp.client-ip=95.215.58.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1736941740; c=relaxed/simple;
+	bh=4+xQOtVc+N+QQrCL79jY6YrheYZdrlKdN+r+nCDY2hs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GdcUvZhv12m3bFdkICuijyBpAJMIDhl2buafL106oUuzJu8vTXxpOf9o/7yjpuS9j8g65T4jDsW0enOJkRN4Q8PX8phDuydHW+duKiFFCiq0kdswviXKkpRor1xMc7++M39J7fGMdA/ZFBA3tNWRWTIjYz/+SDE/D6xxwfyRLz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ja4HMliE; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="e8eo6yZT"
-Date: Wed, 15 Jan 2025 12:47:02 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1736941628;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=m8XOo0FW0vTE1WDVQEvU4KsWOEVRC4l+3gRa0NCsvGY=;
-	b=e8eo6yZTgL/aZFbN0VN9rSnSZflP1y47RQdu57cyuFOMsBqkyjBVyZm86w8eRsC8MTZgHj
-	AkN5Y1dfiLRu4c8S9cVfY6uyQPhnBSrm2mtBM0UKH46KPW+nhN8mg82cqHKsO+fubSQnZD
-	7yARFQU7gaG9mTSRZZdF8gWQFytNrWE=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
-	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
-	pbonzini@redhat.com, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, vladimir.murzin@arm.com
-Subject: Re: [kvm-unit-tests PATCH v1 2/5] configure: Display the default
- processor for arm and arm64
-Message-ID: <20250115-dde4d782f94a79819c861c3b@orel>
-References: <20250110135848.35465-1-alexandru.elisei@arm.com>
- <20250110135848.35465-3-alexandru.elisei@arm.com>
- <20250113-45b57478be2241a35ffa1b67@orel>
- <Z4acKHEn/dE0yLM2@arm.com>
- <20250114-a36510d222fc3410b9b7654e@orel>
- <Z4eGAl7kah6vfHle@arm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ja4HMliE"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50F2B6iQ013488;
+	Wed, 15 Jan 2025 11:48:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Ktt+pq
+	VRYJehwrJ5njXajpKefoZB7BIIuB1Z+xuRbdo=; b=Ja4HMliE2XRnK1jbxHM17H
+	dZKJjk2FnVXMob5xTqZCEG7mon5ZfCbOCBtkP5bHxj6ijeHTJRwr6E/Q/SClURj2
+	R37PuCZR5Oqwlj5dN1c18bl7cjIwBBmk/dNhMJBeJTEQ7ZiBjZk7eI1PrqxeoYlH
+	ZRTX6D1zuDQ7/wTC7/YDBSxCxO4e63D8GZE4u28FVgQyN5AxBsXKLsCLm2VVeahG
+	PhsKziBFKuhdiocb19u4ua2SNXyFj53FEMmlPiYTRy3oPaBFHOynL6LdvWLxgoO/
+	YDfJrnyQuhn+sGNWhfBtUEnuvRrD4dXCz7oWP19FynD2wKRb4YnpQax3t5piGzCg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 445sd64te8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jan 2025 11:48:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50FAGQZN002666;
+	Wed, 15 Jan 2025 11:48:53 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4443by86mg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 15 Jan 2025 11:48:52 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50FBmnYg45678994
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 15 Jan 2025 11:48:49 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 34BE520049;
+	Wed, 15 Jan 2025 11:48:49 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9084F20040;
+	Wed, 15 Jan 2025 11:48:48 +0000 (GMT)
+Received: from [9.171.76.32] (unknown [9.171.76.32])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 15 Jan 2025 11:48:48 +0000 (GMT)
+Message-ID: <de4c6bb6-51a2-4e03-8758-1ef428849965@linux.ibm.com>
+Date: Wed, 15 Jan 2025 12:48:48 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z4eGAl7kah6vfHle@arm.com>
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 07/13] KVM: s390: move some gmap shadowing functions
+ away from mm/gmap.c
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
+        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com
+References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
+ <20250108181451.74383-8-imbrenda@linux.ibm.com>
+ <91c13ac1-ad31-46e2-8a07-9b759caaf33d@linux.ibm.com>
+ <20250115112014.19ca99f2@p-imbrenda>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20250115112014.19ca99f2@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: m967TlyaFBDEMA9m-nbEtuqMKAUyJTG_
+X-Proofpoint-ORIG-GUID: m967TlyaFBDEMA9m-nbEtuqMKAUyJTG_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-15_04,2025-01-15_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
+ clxscore=1015 phishscore=0 spamscore=0 suspectscore=0 priorityscore=1501
+ mlxlogscore=669 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501150087
 
-On Wed, Jan 15, 2025 at 09:55:14AM +0000, Alexandru Elisei wrote:
-> Hi Drew,
+On 1/15/25 11:20 AM, Claudio Imbrenda wrote:
+> On Wed, 15 Jan 2025 09:56:11 +0100
+> Janosch Frank <frankja@linux.ibm.com> wrote:
 > 
-> On Tue, Jan 14, 2025 at 07:51:04PM +0100, Andrew Jones wrote:
-> > On Tue, Jan 14, 2025 at 05:17:28PM +0000, Alexandru Elisei wrote:
-> > ...
-> > > > > +# $arch will have changed when cross-compiling.
-> > > > > +[ -z "$processor" ] && processor=$(get_default_processor $arch)
-> > > > 
-> > > > The fact that $arch and $processor are wrong until they've had a chance to
-> > > 
-> > > $processor is never wrong. $processor is unset until either the user sets it
-> > > with --processor, or until this line. This patch introduces $default_processor
-> > > only for the purpose of having an accurate help text, it doesn't change when and
-> > > how $processor is assigned.
-> > 
-> > I should have said "The fact that $arch and $default_processor are wrong..."
-> > 
-> > > 
-> > > > be converted might be another reason for the $do_help idea. But it'll
-> > > > always be fragile since another change that does some sort of conversion
-> > > > could end up getting added after the '[ $do_help ] && usage' someday.
-> > > 
-> > > configure needs to distinguish between:
-> > > 
-> > > 1. The user not having specified --processor when doing ./configure.
-> > > 2. The user having set --processor.
-> > > 
-> > > If 1, then kvm-unit-tests can use the default $processor value for $arch,
-> > > which could have also been specified by the user.
-> > > 
-> > > If 2, then kvm-unit-tests should not touch $processor because that's what the
-> > > user wants.
-> > > 
-> > > Do you see something wrong with that reasoning?
-> > 
-> > If we output $default_processor in usage() before it's had a chance to be
-> > set correctly based on a given cross arch, then it won't display the
-> > correct name.
-> > 
-> > > 
-> > > Also, I don't understand why you say it's fragile, since configure doesn't
-> > 
-> > I wrote "it'll always be fragile" where 'it' refers to the most recent
-> > object of my paragraph ("the $do_help idea"). But, TBH, I'm not sure
-> > how important it is to get the help text accurate, so we can just not
-> > care if we call usage() with the wrong strings sometimes.
+>> On 1/8/25 7:14 PM, Claudio Imbrenda wrote:
+>>> Move some gmap shadowing functions from mm/gmap.c to kvm/vsie.c and
+>>> kvm/kvm-s390.c .
+>>>    
+>>
+>> Why though?
 > 
-> Got it now, thanks for explaining it.
-> 
-> My opinion is that a help text is there to help the user, and in my experience
-> an inaccurate help text can be very frustrating - think comments that say
-> one thing, and the code does something else.
-> 
-> How about this:
-> 
-> diff --git a/configure b/configure
-> index 3ab0ec208e10..5dbe189816b2 100755
-> --- a/configure
-> +++ b/configure
-> @@ -51,7 +51,6 @@ page_size=
->  earlycon=
->  efi=
->  efi_direct=
-> -default_processor=$(get_default_processor $arch)
-> 
->  # Enable -Werror by default for git repositories only (i.e. developer builds)
->  if [ -e "$srcdir"/.git ]; then
-> @@ -61,13 +60,14 @@ else
->  fi
-> 
->  usage() {
-> +    [ -z "$processor" ] && processor=$(get_default_processor $arch)
->      cat <<-EOF
->         Usage: $0 [options]
-> 
->         Options include:
->             --arch=ARCH            architecture to compile for ($arch). ARCH can be one of:
->                                    arm, arm64/aarch64, i386, ppc64, riscv32, riscv64, s390x, x86_64
-> -           --processor=PROCESSOR  processor to compile for ($default_processor). For arm and arm64, the
-> +           --processor=PROCESSOR  processor to compile for ($processor). For arm and arm64, the
->                                    value 'max' is special and it will be passed directly to
->                                    qemu, bypassing the compiler. In this case, --cflags can be
->                                    used to compile for a specific processor.
-> 
-> Should be accurate enough, as far as I can tell. And I don't think there's
-> a need for $do_help: if the user does ./configure --help --arch=arm64, then
-> I think it's reasonable to expect that --help will be interpreted before
-> --arch is parsed.
->
+> to start removing stuff from mm
 
-Sounds good.
+Alright, let me be more specific below.
 
-Thanks,
-drew
+> 
+>>
+>> I don't really want to have gmap code in vsie.c
+>> If you want to add a new mm/gmap-vsie.c then do so but I don't see a
+> 
+> will do
+
+kvm-s390.c is quite long already and the fault code in vsie.c has been a 
+thorn in my side for a couple of years as well since I have to jump 
+between gmap.c and vsie.c and gaccess.c when reading.
+
+I don't mind putting the gmap.c code in the kvm/ dir but I don't want it 
+spread out over all of the kvm/*.c files and especially not over the two 
+main files.
+
+We have gaccess.c which is memory centric.
+Add a new file or two (since gmap.c is quite long and shadow code can be 
+split out) to kvm/.
+
+> 
+>> need to move gmap code from mm to kvm and you give no explanation
+>> whatsoever.
+> 
+> the goal is to remove gmap from mm, as mentioned in the cover letter
+
+Right, but that cover letter will never reach git.
+Also, why is that the goal? The cover letter does not tell me the reason 
+why you want to move that code.
+
