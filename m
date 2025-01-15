@@ -1,74 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E2B1189F54;
-	Wed, 15 Jan 2025 17:37:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCE24155C96;
+	Wed, 15 Jan 2025 17:52:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736962658; cv=none; b=IxFXtKPj9wsjRGAAhAQAn6pueeWo63+Af4w0n/493Lmh4Hj7Xx6nZq50Qd/IKboBeYAAMtzxoIKP2+JyoFfk4YC7aHo2jPVK/FJBTfDKIrUxQ3R9qDVfq+TITrVpwdSzHMeCUKClVFjG3l8LCOHRnjVjYuztSSp+xblkktUyMBw=
+	t=1736963564; cv=none; b=as7OqnqLMcKoxSEZauhJUGRslfL9HwpuuqhIsXXMRUQlcvLYuVXExZ4MTXqKU7yFLp93AT4sRvwLdHib1N/BJ61LNL5WqU/yg2v8nVgh/T7fHUMy4IvNoxM2CeMzZhIKReOr+AnK3IJr6XeQ5R8HtzbnwWF1h6ePtXmTNEXng0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736962658; c=relaxed/simple;
-	bh=3xWAnLBBl4w+4tJ92QXCBo72mV+FDrquZ1Z2BUPASco=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fUYoqE29bnOdMgBP5lPPRhqEN1Gtpat/qF6oLgLTosIq3tckhBuwy7c0bg6eVugCW5g8zs0wDSgCJe+Q3ouFEcdorq7m3eC7kSblA7yoEsFMKKo5d432SC9LjHTRwxrBdgWr5D7mPUVWdCaqQxojdjk7FccEeyUoIAX8Ej/ABJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IyAzogz9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736963564; c=relaxed/simple;
+	bh=SAuv4o0YPcUZA0Dnn4TAU1w9hrOHI62b2s0bpW+yq4M=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=QplvuKlWnT4nVi8mqnHX4Vm5dJKeDpFj+1O++IbEEzsjJMt8BNXNS4HY6xoRjddYgGAszy1KrP4zniiZQDM0jFj5SFOGeZ2RVxp9sujHScBJzHMsR1UGivVU8c664i/MvMd2DSik4n6Sx4mfw6EETGfnV6UgJ7KNsBavnC5j/sE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=O59TkAiV; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=fzGlQJbE; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IyAzogz9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F203EC4CEE0;
-	Wed, 15 Jan 2025 17:37:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736962658;
-	bh=3xWAnLBBl4w+4tJ92QXCBo72mV+FDrquZ1Z2BUPASco=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=IyAzogz9tuvRrqfK+PIY46Dv0v5IBZUhZl1OSl+U3AFLjqXXVs5ewjZmA3OcmsiQd
-	 Y3JjDLgujWqclLtGNZlkF05IOWiHJ7J0oS1CjEbOqnIIjt/82DjN3cmOEfbsj4OM2W
-	 p/YFkoXwlzrC5ewOBFHXog2WmcjYYHyHIhrDkd6L4KklhYSHpXtY4/x7ib/DQpaO7z
-	 LBav9lNelV71LnwHzUxYBBRWRD2f5QKQ5rezf4mcSeJ+iNI9gs/yApbP3h6anW+VhW
-	 NkPhwR8ClIhRH8n7Kb8YkccnRE4H094twlkH5nYJJncqzPyIT48jEAZW5r33kj5ciM
-	 +3mmrlLKEgwxg==
-Date: Wed, 15 Jan 2025 17:37:36 +0000
-From: Eric Biggers <ebiggers@kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: agk@redhat.com, snitzer@kernel.org, mpatocka@redhat.com,
-	ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
-	dm-devel@lists.linux.dev, herbert@gondor.apana.org.au,
-	dengler@linux.ibm.com
-Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
-Message-ID: <20250115173736.GA3712753@google.com>
-References: <20250115164657.84650-1-freude@linux.ibm.com>
- <20250115164657.84650-2-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="O59TkAiV";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="fzGlQJbE"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1736963561;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HoxPdbGDiDXMZjZ2YzakPSB0m74gINsG6VFgtuazYj8=;
+	b=O59TkAiVIoh/kyWqt3sD2QUaiElCxlt4joNfsm5Vy47rl6VB5TFRsEG8yyBoGzvY2r/6mY
+	lQrxl2KFOtZwXB8o2yGswqA28AwPR3ILexVj+8YMlHNoNTQyAqrecm5DQu43fEOAoeu1zB
+	AUUJUV3mFLL/jKj4Q1eejS9vRnjN/1NreJFiVLN6lXCv97Xxmp1pRrzkdAR4+8k7oYySE3
+	EjRlx3bwRLZ1kPZatpooq203bOQXFsUoJ5K9wvWgIoGkzYbbWPFekFpYB6FKtIibo4IGCl
+	3qtrgWckX7984+Okk9ULQbx1KIxKVOK20qnnIXjJMWBsTxDlkgtJ8kE9XE9ROg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1736963561;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HoxPdbGDiDXMZjZ2YzakPSB0m74gINsG6VFgtuazYj8=;
+	b=fzGlQJbELsuQf/TIokTn215dpIYwMgfAYRUXgXNteW1TJ/rfCFCi40yte9UtrzUzNBp68H
+	ns68VXLDVpNCEbAA==
+To: Joel Granados <joel.granados@kernel.org>, Thomas =?utf-8?Q?Wei=C3=9Fsc?=
+ =?utf-8?Q?huh?=
+ <linux@weissschuh.net>, Kees Cook <kees@kernel.org>, Luis Chamberlain
+ <mcgrof@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+ openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-serial@vger.kernel.org, xen-devel@lists.xenproject.org,
+ linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev,
+ codalist@coda.cs.cmu.edu, linux-mm@kvack.org, linux-nfs@vger.kernel.org,
+ ocfs2-devel@lists.linux.dev, fsverity@lists.linux.dev,
+ linux-xfs@vger.kernel.org, io-uring@vger.kernel.org, bpf@vger.kernel.org,
+ kexec@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
+ linux-hardening@vger.kernel.org, apparmor@lists.ubuntu.com,
+ linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, Song Liu
+ <song@kernel.org>, "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>, "Darrick J. Wong"
+ <djwong@kernel.org>, Jani Nikula <jani.nikula@intel.com>, Corey Minyard
+ <cminyard@mvista.com>, Joel Granados <joel.granados@kernel.org>
+Subject: Re: [PATCH v2] treewide: const qualify ctl_tables where applicable
+In-Reply-To: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
+References: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
+Date: Wed, 15 Jan 2025 18:52:40 +0100
+Message-ID: <87jzawarrr.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250115164657.84650-2-freude@linux.ibm.com>
+Content-Type: text/plain
 
-On Wed, Jan 15, 2025 at 05:46:57PM +0100, Harald Freudenberger wrote:
-> Use the async digest in-kernel crypto API instead of the
-> synchronous digest API. This has the advantage of being able
-> to use synchronous as well as asynchronous digest implementations
-> as the in-kernel API has an automatic wrapping mechanism
-> to provide all synchronous digests via the asynch API.
-> 
-> Tested with crc32, sha256, hmac-sha256 and the s390 specific
-> implementations for hmac-sha256 and protected key phmac-sha256.
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+On Fri, Jan 10 2025 at 15:16, Joel Granados wrote:
+> sed:
+>     sed --in-place \
+>       -e "s/struct ctl_table .table = &uts_kern/const struct ctl_table *table = \&uts_kern/" \
+>       kernel/utsname_sysctl.c
+>
+> Reviewed-by: Song Liu <song@kernel.org>
+> Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org> # for kernel/trace/
+> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com> # SCSI
+> Reviewed-by: Darrick J. Wong <djwong@kernel.org> # xfs
+> Acked-by: Jani Nikula <jani.nikula@intel.com>
+> Acked-by: Corey Minyard <cminyard@mvista.com>
+> Signed-off-by: Joel Granados <joel.granados@kernel.org>
 
-As Mikulas mentioned, this reduces performance for everyone else, which is not
-great.  It also makes the code more complicated.
-
-I also see that you aren't actually using the algorithm in an async manner, but
-rather waiting for it synchronously each time.  Thus the ability to operate
-asynchronously provides no benefit in this case, and this change is purely about
-allowing a particular driver to be used, presumably the s390 phmac one from your
-recent patchset.  Since s390 phmac seems to be new code, and furthermore it is
-CPU-based and thus uses virtual addresses (which makes the use of scatterlists
-entirely pointless), wouldn't it be easier to just make it implement shash
-instead of ahash, moving any wait that may be necessary into the driver itself?
-
-- Eric
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
