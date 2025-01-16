@@ -1,139 +1,164 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CBD31DE2CA;
-	Thu, 16 Jan 2025 12:18:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A0DB1DE4D4;
+	Thu, 16 Jan 2025 12:23:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737029896; cv=none; b=UHwsUnU41DbazoEqTipQI0BESxrKj2t409Ocye9djYz31z+oPaI4BIsNeKsp5+eoVmixHSUwo/qqAn80yaVMVPkHy8XADHGsudGuD09lRsmSsFm9M20thY6PdGp8eInBb7wLanwNoiituJeg6jFzH+O9GdNoHIAMjM4frEopmC4=
+	t=1737030193; cv=none; b=XxzFmYw8kXskbEVsZfAp4StUD62X6nDl/kmg7Y0MgIR+oKzw6TKlFfuq2EOwcxQBilqQxdlNppzdHM/AXCEMdIlIUTWQRrQ080HlVyKflMYBjn4WbG1d5Wf2PgQfM3ovz4tmzh4uvInbJlC5RoI6l0t9Z4zKcKJT+eLL/Dwq8Fg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737029896; c=relaxed/simple;
-	bh=8xGg+8JjwiceqRMkZaCdi4taDhkaMGOyaXVXe7ElnnU=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=R9U6y9u7xJGAKjlAr2X/c1FTrGtgd4iV12CVJjZgQdnjs7gD/BnNQM+P16ImVu1Mj5lhm+C+h1jTpcgo6DfKebeUEecovgr6+XkGkDVhio/+eUmP7V+vSgUwy6tWP7kgz1oMJMDekZN+fbU6tZbo7KY7lLObzQOb9BaK9dfb530=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qQDQfj0C; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737030193; c=relaxed/simple;
+	bh=DHqEvLwf3HDkS2JVIwmCrqfeDQIkB8B3EbXIvh3PJ8s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jTUmeOX+Q3Oe4YoQ+5+XASb2HUZ8DgjecY/CkLe3lb4S2SQYYl4MfLj5rd6LNa/piutsA70HQVXOEltrylRFhWom21PbLzW6QZ5GWRMmtiAuHXbSmywFREIfPRcKMrsZVtd4HtaaVAZ5zdiJljdEj5DCMviuv0Dk3r7tsVxoDOM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=aBbdOx0G; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qQDQfj0C"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50G3qaD2005777;
-	Thu, 16 Jan 2025 12:18:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=7GNZKm
-	sVkHiHn+HkZ+U6i2t5h/z3J9uds1v7RHrmfpk=; b=qQDQfj0CNzfuSl8gpDo4MC
-	laChqEIY63f9XKgbk4otDj0yC8y6sFzzsODqHXBb6Rb1Jxu8H6HYBfVk5Dhptpqe
-	YbIBuShlY3d8ysENg2Pcm8Z3PUMs6tNwZTMdmT07GiiAzbbPBnBE6B4dd0LyhzRr
-	wqyytuZiKkUy8H84rrcJxB9x7Jf2CTMP8u74SSSLB+/mMD8SX66oz8TzkmTwNFpz
-	3PEPOTOsW+67ow8hDGbacGa0g3vKqs1Ywoep46QlLvOf8aJtktnBvPPNxBhuNkur
-	US/7jTnK2RSOTpYEZ77/fP2S1dew8zvyxNfkwSS01zXPZvg4lUVn3KgUPcg7eAMQ
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 446tkcj6y0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jan 2025 12:18:03 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50GC567p011135;
-	Thu, 16 Jan 2025 12:18:02 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 446tkcj6xv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jan 2025 12:18:02 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50GB631X016499;
-	Thu, 16 Jan 2025 12:18:01 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4445p1wd2n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jan 2025 12:18:01 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50GCHwEJ20251134
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Jan 2025 12:17:58 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C5A12004D;
-	Thu, 16 Jan 2025 12:17:58 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E5A1C2004B;
-	Thu, 16 Jan 2025 12:17:57 +0000 (GMT)
-Received: from darkmoore (unknown [9.171.87.28])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 16 Jan 2025 12:17:57 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="aBbdOx0G"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737030181; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=z/2X4QCJz0+PjyBqoo8pjyWfSn+lHxhP2Hw0xitx+xw=;
+	b=aBbdOx0GBWv0xqNbiQwOCdBdCoX7wngQbPTG8guLWzkYLFE0NLORM3BXK6GJE2Zu7UCdzw6OMMpw7YXoOOIdRlCYHicTQVcl9yqM50YBkq0oyxE8ucKfOMiVXE1MYjrbR0xf09kbLtrUK0ZCwXymIr9qy87SZ9e3OLAYyX99j3s=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WNlhgBZ_1737030179 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 16 Jan 2025 20:23:00 +0800
+Date: Thu, 16 Jan 2025 20:22:59 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+	daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
+	pabeni@redhat.com, song@kernel.org, sdf@google.com,
+	haoluo@google.com, yhs@fb.com, edumazet@google.com,
+	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v6 2/5] net/smc: Introduce generic hook smc_ops
+Message-ID: <20250116122259.GE89233@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
+ <20250116074442.79304-3-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 16 Jan 2025 13:17:52 +0100
-Message-Id: <D73HP785C5WW.2NO07MN6I9AST@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
-        <borntraeger@de.ibm.com>, <david@redhat.com>, <willy@infradead.org>,
-        <hca@linux.ibm.com>, <svens@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <gor@linux.ibm.com>, <nrb@linux.ibm.com>, <nsg@linux.ibm.com>,
-        <seanjc@google.com>, <seiden@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
-Subject: Re: [PATCH v2 01/15] KVM: Do not restrict the size of KVM-internal
- memory regions
-X-Mailer: aerc 0.18.2
-References: <20250116113355.32184-1-imbrenda@linux.ibm.com>
- <20250116113355.32184-2-imbrenda@linux.ibm.com>
-In-Reply-To: <20250116113355.32184-2-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: cCwhLJnt1ThKTIDXzUjHf840INCECcHy
-X-Proofpoint-GUID: AqXyZz-mxkLeiKfe_FZxD-nd6pUl110k
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-16_05,2025-01-16_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
- impostorscore=0 mlxscore=0 spamscore=0 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 suspectscore=0 clxscore=1015
- mlxlogscore=902 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2501160090
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250116074442.79304-3-alibuda@linux.alibaba.com>
 
-On Thu Jan 16, 2025 at 12:33 PM CET, Claudio Imbrenda wrote:
-> From: Sean Christopherson <seanjc@google.com>
+On 2025-01-16 15:44:39, D. Wythe wrote:
+>The introduction of IPPROTO_SMC enables eBPF programs to determine
+>whether to use SMC based on the context of socket creation, such as
+>network namespaces, PID and comm name, etc.
 >
-> Exempt KVM-internal memslots from the KVM_MEM_MAX_NR_PAGES restriction, a=
-s
-> the limit on the number of pages exists purely to play nice with dirty
-> bitmap operations, which use 32-bit values to index the bitmaps, and dirt=
-y
-> logging isn't supported for KVM-internal memslots.
+>As a subsequent enhancement, to introduce a new generic hook that
+>allows decisions on whether to use SMC or not at runtime, including
+>but not limited to local/remote IP address or ports.
 >
-> Link: https://lore.kernel.org/all/20240802205003.353672-6-seanjc@google.c=
-om
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+>Moreover, in the future, we can achieve more complex extensions to the
+>protocol stack by extending this ops.
+>
+>Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>---
+> include/net/netns/smc.h |  3 ++
+> include/net/smc.h       | 53 +++++++++++++++++++++++
+> net/ipv4/tcp_output.c   | 18 ++++++--
+> net/smc/Kconfig         | 12 ++++++
+> net/smc/Makefile        |  1 +
+> net/smc/smc_ops.c       | 53 +++++++++++++++++++++++
+> net/smc/smc_ops.h       | 28 ++++++++++++
+> net/smc/smc_sysctl.c    | 94 +++++++++++++++++++++++++++++++++++++++++
+> 8 files changed, 258 insertions(+), 4 deletions(-)
+> create mode 100644 net/smc/smc_ops.c
+> create mode 100644 net/smc/smc_ops.h
+>
+>diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+>index fc752a50f91b..81b3fdb39cd2 100644
+>--- a/include/net/netns/smc.h
+>+++ b/include/net/netns/smc.h
+>@@ -17,6 +17,9 @@ struct netns_smc {
+> #ifdef CONFIG_SYSCTL
+> 	struct ctl_table_header		*smc_hdr;
+> #endif
+>+#if IS_ENABLED(CONFIG_SMC_OPS)
+>+	struct smc_ops __rcu		*ops;
+>+#endif /* CONFIG_SMC_OPS */
+> 	unsigned int			sysctl_autocorking_size;
+> 	unsigned int			sysctl_smcr_buf_type;
+> 	int				sysctl_smcr_testlink_time;
+>diff --git a/include/net/smc.h b/include/net/smc.h
+>index db84e4e35080..271838591b63 100644
+>--- a/include/net/smc.h
+>+++ b/include/net/smc.h
+>@@ -18,6 +18,8 @@
+> #include "linux/ism.h"
+> 
+> struct sock;
+>+struct tcp_sock;
+>+struct inet_request_sock;
+> 
+> #define SMC_MAX_PNETID_LEN	16	/* Max. length of PNET id */
+> 
+>@@ -97,4 +99,55 @@ struct smcd_dev {
+> 	u8 going_away : 1;
+> };
+> 
+>+#define  SMC_OPS_NAME_MAX 16
+>+
+>+enum {
+>+	/* ops can be inherit from init_net */
+>+	SMC_OPS_FLAG_INHERITABLE = 0x1,
+>+
+>+	SMC_OPS_ALL_FLAGS = SMC_OPS_FLAG_INHERITABLE,
+>+};
+>+
+>+struct smc_ops {
+>+	/* priavte */
+>+
+>+	struct list_head list;
+>+	struct module *owner;
+>+
+>+	/* public */
+>+
+>+	/* unique name */
+>+	char name[SMC_OPS_NAME_MAX];
+>+	int flags;
+>+
+>+	/* Invoked before computing SMC option for SYN packets.
+>+	 * We can control whether to set SMC options by returning varios value.
+>+	 * Return 0 to disable SMC, or return any other value to enable it.
+>+	 */
+>+	int (*set_option)(struct tcp_sock *tp);
+>+
+>+	/* Invoked before Set up SMC options for SYN-ACK packets
+>+	 * We can control whether to respond SMC options by returning varios
+>+	 * value. Return 0 to disable SMC, or return any other value to enable
+>+	 * it.
+>+	 */
+>+	int (*set_option_cond)(const struct tcp_sock *tp,
+>+			       struct inet_request_sock *ireq);
+>+};
+>+
+>+#if IS_ENABLED(CONFIG_SMC_OPS)
+>+#define smc_call_retops(init_val, sk, func, ...) ({	\
+>+	typeof(init_val) __ret = (init_val);		\
+>+	struct smc_ops *ops;				\
+>+	rcu_read_lock();				\
+>+	ops = READ_ONCE(sock_net(sk)->smc.ops);		\
+>+	if (ops && ops->func)				\
+>+		__ret = ops->func(__VA_ARGS__);		\
+>+	rcu_read_unlock();				\
+>+	!!__ret;					\
+>+})
 
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Here you force the return value to be bool by !!ret, what if the
+future caller expects the return value to be an integer or other types ?
 
-> ---
->  virt/kvm/kvm_main.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
->
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index a8a84bf450f9..ee3f040a4891 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1966,7 +1966,15 @@ static int kvm_set_memory_region(struct kvm *kvm,
->  		return -EINVAL;
->  	if (mem->guest_phys_addr + mem->memory_size < mem->guest_phys_addr)
->  		return -EINVAL;
-> -	if ((mem->memory_size >> PAGE_SHIFT) > KVM_MEM_MAX_NR_PAGES)
-> +
-> +	/*
-> +	 * The size of userspace-defined memory regions is restricted in order
-> +	 * to play nice with dirty bitmap operations, which are indexed with an
-> +	 * "unsigned int".  KVM's internal memory regions don't support dirty
-> +	 * logging, and so are exempt.
-> +	 */
-> +	if (id < KVM_USER_MEM_SLOTS &&
-> +	    (mem->memory_size >> PAGE_SHIFT) > KVM_MEM_MAX_NR_PAGES)
->  		return -EINVAL;
-> =20
->  	slots =3D __kvm_memslots(kvm, as_id);
+Best regards,
+Dust
 
