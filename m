@@ -1,176 +1,131 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B93AA19539F
-	for <linux-s390@vger.kernel.org>; Thu, 16 Jan 2025 07:55:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E221381AA;
+	Thu, 16 Jan 2025 08:03:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737014103; cv=none; b=ezsZp9u9NJOLdt8UBGJuwYJLdGnSBRgjc8SD6s9x/IseAXG0Dluf2Bv72cpKZjVSHg0VNicoB558vU+DKINyGhbdkIyLqvUgPgnKUjTXPj9pxW/f8JSN8kT/F+4Upiuvhe4FwZsdt5KzKzTbezMg+p8bCFtKT/JmEor1GX6e4+E=
+	t=1737014608; cv=none; b=mGyCnDktO1FFyfhuy+u5ZkcWYINysbI1uFaj+7KwZ6+vZSxDQEelg6irXldtUERzv37TXsF1umRzL03QlXPvHvV+hdYhVQ1bIhyXztxUYYFXYDo/wz56BIG/f6f5qEllMYlbgNu0nKTmrAJDUgxiY40zVPSSxZOhFnslmpZe4ZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737014103; c=relaxed/simple;
-	bh=7M65RmMX3Ry4OaGybSFFVt26wFFfaatRGurZ9wLro+M=;
+	s=arc-20240116; t=1737014608; c=relaxed/simple;
+	bh=1iSg3yTdztfZBPQGGQo4Uhv9RbrtBxtxVePVd7qGBuk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ws9JdTzCOKf5uMUV7Atpmke7R4QLFkTQ8P85Rj8o11oVN4qzWUXxs1D/lOqifHHsKZva4tpGtXY6CPX4NcTUcINMO2DvZZqknSPrS6KeVgX8y7aRV8HVKDEhu5DhEeXhCCoxJBMtl1kZJTnj9Xi/O84hJRdrUIzWI/Btm2R/x/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1tYKhe-00075B-4S; Thu, 16 Jan 2025 08:54:10 +0100
-Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1tYKhT-000DS3-0I;
-	Thu, 16 Jan 2025 08:53:59 +0100
-Received: from pengutronix.de (pd9e59fec.dip0.t-ipconnect.de [217.229.159.236])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	(Authenticated sender: mkl-all@blackshift.org)
-	by smtp.blackshift.org (Postfix) with ESMTPSA id 165233A99BF;
-	Thu, 16 Jan 2025 07:53:43 +0000 (UTC)
-Date: Thu, 16 Jan 2025 08:53:42 +0100
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-To: Kees Cook <kees@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>, 
-	Cheng Xu <chengyou@linux.alibaba.com>, Kai Shen <kaishen@linux.alibaba.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Christian Benvenuti <benve@cisco.com>, Nelson Escobar <neescoba@cisco.com>, 
-	Bernard Metzler <bmt@zurich.ibm.com>, Karsten Keil <isdn@linux-pingi.de>, 
-	Michal Ostrowski <mostrows@earthlink.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Paolo Abeni <pabeni@redhat.com>, Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	Chaitanya Kulkarni <kch@nvidia.com>, Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>, 
-	Mike Christie <michael.christie@oracle.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Alexander Aring <aahringo@redhat.com>, 
-	David Teigland <teigland@redhat.com>, Trond Myklebust <trondmy@kernel.org>, 
-	Anna Schumaker <anna@kernel.org>, Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, 
-	Joseph Qi <joseph.qi@linux.alibaba.com>, Namjae Jeon <linkinjeon@kernel.org>, 
-	Steve French <sfrench@samba.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Tom Talpey <tom@talpey.com>, Simon Horman <horms@kernel.org>, 
-	Chuck Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>, 
-	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, David Ahern <dsahern@kernel.org>, 
-	Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>, 
-	Johan Hedberg <johan.hedberg@gmail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
-	Oliver Hartkopp <socketcan@hartkopp.net>, Robin van der Gracht <robin@protonic.nl>, 
-	Oleksij Rempel <o.rempel@pengutronix.de>, Alexandra Winter <wintera@linux.ibm.com>, 
-	Thorsten Winkler <twinkler@linux.ibm.com>, James Chapman <jchapman@katalix.com>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
-	Remi Denis-Courmont <courmisch@gmail.com>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, 
-	Allison Henderson <allison.henderson@oracle.com>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
-	Xin Long <lucien.xin@gmail.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
-	Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, 
-	Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>, 
-	Ying Xue <ying.xue@windriver.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Martin Schiller <ms@dev.tdt.de>, Kentaro Takeda <takedakn@nttdata.co.jp>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Guillaume Nault <gnault@redhat.com>, 
-	Ahelenia =?utf-8?Q?Ziemia=C5=84ska?= <nabijaczleweli@nabijaczleweli.xyz>, Andrew Morton <akpm@linux-foundation.org>, 
-	Wu Yunchuan <yunchuan@nfschina.com>, Max Gurtovoy <mgurtovoy@nvidia.com>, 
-	Maurizio Lombardi <mlombard@redhat.com>, David Howells <dhowells@redhat.com>, 
-	Atte =?utf-8?B?SGVpa2tpbMOk?= <atteh.mailbox@gmail.com>, Vincent Duvert <vincent.ldev@duvert.net>, 
-	Denis Kirjanov <kirjanov@gmail.com>, Lukas Bulwahn <lukas.bulwahn@gmail.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Thomas Huth <thuth@redhat.com>, 
-	Andrew Waterman <waterman@eecs.berkeley.edu>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Andrej Shadura <andrew.shadura@collabora.co.uk>, Ying Hsu <yinghsu@chromium.org>, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>, Tom Parkin <tparkin@katalix.com>, 
-	Jason Xing <kernelxing@tencent.com>, Dan Carpenter <error27@gmail.com>, Hyunwoo Kim <v4bel@theori.io>, 
-	Bernard Pidoux <f6bvp@free.fr>, Sangsoo Lee <constant.lee@samsung.com>, 
-	Doug Brown <doug@schmorgal.com>, Ignat Korchagin <ignat@cloudflare.com>, 
-	Gou Hao <gouhao@uniontech.com>, Mina Almasry <almasrymina@google.com>, 
-	Abhishek Chauhan <quic_abchauha@quicinc.com>, Yajun Deng <yajun.deng@linux.dev>, Michal Luczaj <mhal@rbox.co>, 
-	Jiri Pirko <jiri@resnulli.us>, syzbot <syzkaller@googlegroups.com>, 
-	linux-kernel@vger.kernel.org, kernel@pengutronix.de, linux-rdma@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-nvme@lists.infradead.org, open-iscsi@googlegroups.com, 
-	linux-scsi@vger.kernel.org, linux-arm-msm@vger.kernel.org, target-devel@vger.kernel.org, 
-	gfs2@lists.linux.dev, linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, 
-	linux-cifs@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, 
-	linux-can@vger.kernel.org, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, 
-	linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	virtualization@lists.linux.dev, linux-x25@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	syzbot+d7ce59b06b3eb14fd218@syzkaller.appspotmail.com, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
-Message-ID: <20250116-light-panda-of-reverence-2f5da8-mkl@pengutronix.de>
-References: <20241217023417.work.145-kees@kernel.org>
+	 Content-Type:Content-Disposition:In-Reply-To; b=L8m1a3q/DSoHoCys+U9zWf3YWtWToZsXDf6zssACTJ1AUW+b06XEWyzJdaM2rhzOg7lyIXE5gZ0ydsYAOWW1GioQ9fJ8j5bsYslSfYhFMfIklnPwwP9ZQDaVHpxO0IQPqDJX9dca1MwQjUDUeokrBc7b6i3NvaJzsAr3puwKkTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TrX3gn5d; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TrX3gn5d"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB40C4CED6;
+	Thu, 16 Jan 2025 08:03:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1737014605;
+	bh=1iSg3yTdztfZBPQGGQo4Uhv9RbrtBxtxVePVd7qGBuk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=TrX3gn5d848i0cPEr26UZlwdHN74ytj6007E7eU8YLGQirFC2ZWk8puN8SabDotrS
+	 sWUQc6mqp340/OORAQB6evcRejXaYJhek1m4KBVFDOAr+Ez6IX+RSjKs5+xrWMlhXR
+	 7gBJnJmlxYkrOBwxr+9hsK9gcqjJL5ClIU1pkmdnFjsy+GMCW2hheMWpFE7Zk8JRHe
+	 pt6O3mclwft7Sc5u/zcXLFHdONt0lVU66zXAzIznRrcdiN8HyW3D5FjvE1d6sA+nOk
+	 4nT1jrNYgDaqPXEu0iDlClVc6TpEm4bMLb4KSk5lsj+IgXaLpWI7Dmcz2Ai9OzFKAF
+	 Vk2EpNQFrvM0Q==
+Date: Thu, 16 Jan 2025 00:03:24 -0800
+From: Eric Biggers <ebiggers@kernel.org>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: mpatocka@redhat.com, agk@redhat.com, snitzer@kernel.org,
+	ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
+	dm-devel@lists.linux.dev, herbert@gondor.apana.org.au,
+	dengler@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
+Message-ID: <20250116080324.GA3910@sol.localdomain>
+References: <20250115164657.84650-1-freude@linux.ibm.com>
+ <20250115164657.84650-2-freude@linux.ibm.com>
+ <20250115173736.GA3712753@google.com>
+ <85ea487d37ec320ec5707bd249352b02@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="nbdyd5ky7ajuduf3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241217023417.work.145-kees@kernel.org>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-s390@vger.kernel.org
+In-Reply-To: <85ea487d37ec320ec5707bd249352b02@linux.ibm.com>
 
+On Thu, Jan 16, 2025 at 08:33:46AM +0100, Harald Freudenberger wrote:
+> On 2025-01-15 18:37, Eric Biggers wrote:
+> > On Wed, Jan 15, 2025 at 05:46:57PM +0100, Harald Freudenberger wrote:
+> > > Use the async digest in-kernel crypto API instead of the
+> > > synchronous digest API. This has the advantage of being able
+> > > to use synchronous as well as asynchronous digest implementations
+> > > as the in-kernel API has an automatic wrapping mechanism
+> > > to provide all synchronous digests via the asynch API.
+> > > 
+> > > Tested with crc32, sha256, hmac-sha256 and the s390 specific
+> > > implementations for hmac-sha256 and protected key phmac-sha256.
+> > > 
+> > > Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> > 
+> > As Mikulas mentioned, this reduces performance for everyone else, which
+> > is not
+> > great.  It also makes the code more complicated.
+> > 
+> > I also see that you aren't actually using the algorithm in an async
+> > manner, but
+> > rather waiting for it synchronously each time.  Thus the ability to
+> > operate
+> > asynchronously provides no benefit in this case, and this change is
+> > purely about
+> > allowing a particular driver to be used, presumably the s390 phmac one
+> > from your
+> > recent patchset.  Since s390 phmac seems to be new code, and furthermore
+> > it is
+> > CPU-based and thus uses virtual addresses (which makes the use of
+> > scatterlists
+> > entirely pointless), wouldn't it be easier to just make it implement
+> > shash
+> > instead of ahash, moving any wait that may be necessary into the driver
+> > itself?
+> > 
+> > - Eric
+> 
+> Thanks for this feedback. I'll give it a try with some performance
+> measurements.
+> And I totally agree that a synchronous implementation of phmac whould have
+> solved
+> this also. But maybe you can see that this is not an option according to
+> Herbert Xu's feedback about my first posts with implementing phmac as an
+> shash.
+> The thing is that we have to derive a hardware based key (pkey) from the
+> given key material and that may be a sleeping call which a shash must not
+> invoke.
+> So finally the phmac implementation is now an ahash digest implementation
+> as suggested by Herbert.
+> 
+> You are right, my patch is not really asynchronous. Or at least waiting for
+> completion at the end of each function. However, opposed to the ahash
+> invocation
+> where there have been some update() calls this is now done in just one
+> digest()
+> giving the backing algorithm a chance to hash all this in one step (well it
+> still
+> needs to walk the scatterlist).
+> 
+> Is there a way to have dm-integrity accept both, a ahash() or a shash()
+> digest?
+> 
 
---nbdyd5ky7ajuduf3
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH] net: Convert proto_ops::getname to sockaddr_storage
-MIME-Version: 1.0
+To properly support async algorithms, the users (e.g. dm-integrity and
+dm-verity) really would need to have separate code paths anyway.  The
+computation models are just too different.
 
-On 16.12.2024 18:34:28, Kees Cook wrote:
-> The proto_ops::getname callback was long ago backed by sockaddr_storage,
-> but the replacement of it for sockaddr was never done. Plumb it through
-> all the getname() callbacks, adjust prototypes, and fix casts.
->=20
-> There are a few cases where the backing object is _not_ a sockaddr_storage
-> and converting it looks painful. In those cases, they use a cast to
-> struct sockaddr_storage. They appear well bounds-checked, so the risk
-> is no worse that we have currently.
->=20
-> Other casts to sockaddr are removed, though to avoid spilling this
-> change into BPF (which becomes a much larger set of changes), cast the
-> sockaddr_storage instances there to sockaddr for the time being.
->=20
-> In theory this could be split up into per-caller patches that add more
-> casts that all later get removed, but it seemed like there are few
-> enough callers that it seems feasible to do this in a single patch. Most
-> conversions are mechanical, so review should be fairly easy. (Famous
-> last words.)
->=20
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->  net/can/isotp.c                               |  3 +-
->  net/can/j1939/socket.c                        |  2 +-
->  net/can/raw.c                                 |  2 +-
+But in this case, it seems you simply want it to be synchronous and use virtual
+addresses.  The quirks of ahash, including its need for per-request allocations
+and scatterlists, make it a poor match here.  The only thing you are getting
+with it is, ironically, that it allows you to wait synchronously.  That could be
+done with shash too if it was fixed to support algorithms that aren't atomic.
+E.g. there could be a new CRYPTO_ALG_MAY_SLEEP flag that could be set in struct
+shash_alg to indicate that the algorithm doesn't support atomic context, and a
+flag could be passed to crypto_alloc_shash() to allow such an algorithm to be
+selected (if the particular user never uses it in atomic context).
 
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de> # for net/can
+That would be faster and simpler than the proposed ahash based version.
 
-regards,
-Marc
-
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde          |
-Embedded Linux                   | https://www.pengutronix.de |
-Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
-
---nbdyd5ky7ajuduf3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEUEC6huC2BN0pvD5fKDiiPnotvG8FAmeIuv8ACgkQKDiiPnot
-vG/tCQgAnoYMQthE5qhN4islXZibYx3HOEVpQp20V/CdVVRH56MNpoQvsjN0F5I9
-Pe8FiGuyUR9fNqhHJPDV5qTZfzq6vRSoc7PpwLTwF9ReyzpbKcMrYcmv/Wkbso1k
-faQaG0U/F/5wp2/nsK1h/PUHRvlwFfLs41wCCmlXQDks5vvt1U+8F/0mUiM/L0yT
-SQG9iudLNDMEv22xlkR1e90s94ARgRIKcBcOZ9LudgYLwGmT8I3JAenyHET3Q8d2
-GWVaepqliLBxoq7pfWcJm1yFL8DFp2xSUy/gP7BqrfKIJoJhRqOR2EXGSgAZ6rek
-c/YmUBVaGDu2ZBkxhzlB6NKXFu9dBA==
-=LAEY
------END PGP SIGNATURE-----
-
---nbdyd5ky7ajuduf3--
+- Eric
