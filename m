@@ -1,190 +1,189 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0752D1DE8AC;
-	Thu, 16 Jan 2025 14:04:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CA5E1DE881;
+	Thu, 16 Jan 2025 15:38:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737036299; cv=none; b=fYfD3JLSuqVO5Yu0wx2Zz1Ib203/xKe/go/NTe5+t2mU1Lm+fIEMfz1vUQxNjrbOOQFNRXDlBEkXwkDoWumYNH9HaUhzLTCxT/E41G8m/KzUaffhUbnrEvnid52F1sX1/vrUruuzIZd02wx6TO1hNmBqw88TQlhcQWyVdLGxXDk=
+	t=1737041930; cv=none; b=kRk6C+1Yw5KlbYGrBOaopHo90lgcBNGc5+gDBurUZdzBrL7alzbnckVYoA1cAd1UejZ02yUX2Y3V8u7lnzyW0dmyNjho5NF+wvIfz6StWNKtxroSSU30xOnekCk4RL6Hn6bGkjya0OQLnSMOmSzmZWmnNL6jb2EvIjXr39g8EQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737036299; c=relaxed/simple;
-	bh=hNyknZwTpS4igQ+b6Q471Clo7jLNR8MSLrznRv+goc8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RAPMQmtGvZPqnPyfHSSBetv1bu8un6SIimDWFgH1grLafK3aqPL5xT+FZxfWXPEU6v2FPpm8NZdKSTJOq1SqPaIwp5VaYZpLBEu9/3AKLSAyU9o1RkMJe5X3k1aH3t5B6B1V04OSYpN54ASf79I1xdbSUvHemEMCzv2r+K2VXus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=AoUcPN70; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1737041930; c=relaxed/simple;
+	bh=YuRkZ4RQKeJO8fufTCCX8kVqtSHNnC4hTDbaVnj7otg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qAmmsQGtAFsaBvCsnTwTv4P9bYWhjPkWvDqXwkyxdDKt1Exs7f8qluuJd3fwIVN4pYdbZ2mcqbhRoPf8Ai/dB86SCq3U519hOIED2vI0PDUqqN0izexMKbwIAkCc/EV5BXm1ySBLlQyjWZNSXnbGQCpxQiCXET9zCUd6tn0iPaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hjABPMmk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="AoUcPN70"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 64DEC40E0288;
-	Thu, 16 Jan 2025 14:04:47 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 2AjLmPaIv3rS; Thu, 16 Jan 2025 14:04:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1737036284; bh=ugKrbojVRwTBmPMKkHUcaS2aDcqRv9OqaSevzpXMYOg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=AoUcPN70r71GRskEbBjwKB5t2IpKoOvWroHj7Gj+yh3TXIQq4jAaeXsAtKetsP+we
-	 7U42EJbMPBRZdphzKgKJnl1FaXd4+NOPdDL1SkgOkJuvHbUXMBGkSPz+3v8h7dNhmT
-	 Hnpwxe9r0qX772w6Op3rP2iEyZS27E/nwn39RIAvFhrt8U3AgFlwZ1zghfPHzcZ8zO
-	 c/4ymjaW+0fTU8jpLPb236iMCAWdJa4hZ/QKzL2ReUqqUBynyzdljxfL49TuGZKsUK
-	 HuZUYY0mmrBW4uLQ4YxKMwtuKAzOBBOTZPyqnz4H81TmMZX9A3znFZ3JT09PpbLLCS
-	 Ia6e5nKvzD4mq+MXsOmJ3+GXejTE4cvNoC5h043TIg2mzfveb9shxPPW6gBlFTA53E
-	 7jgElnzIfinsMoQwVSg6i18FLDzY50+kqVz9+zbr5gpiPs5LeCwLYM/Aq1u2fGPpZ0
-	 0Ls41+wYzo1pfh0OpM+GBydt5tkuWtf+9452THH3PFkEdzhwGbhRprrYvj75bnToTh
-	 nRx4uZELom9gJdmd+ZcYZKN5oNcUaiz0Ijo4hBEtkfRieSbS8RUd1mN91KKgO2qVid
-	 d+CXJjbRpPfJbO67fm64t8fRGqM3v/OqRo/Z09m5/2qMM0veqGpRWUhNKQ3qXXaJz4
-	 pfAh9T0l+/f8chSy2nlAbhlU=
-Received: from zn.tnic (p200300ea971f934f329c23fffea6a903.dip0.t-ipconnect.de [IPv6:2003:ea:971f:934f:329c:23ff:fea6:a903])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id B67F640E0286;
-	Thu, 16 Jan 2025 14:03:01 +0000 (UTC)
-Date: Thu, 16 Jan 2025 15:02:58 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Brendan Jackman <jackmanb@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@linux.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, x86@kernel.org,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
-	linux-efi@vger.kernel.org
-Subject: Re: [PATCH RFC v2 01/29] mm: asi: Make some utility functions
- noinstr compatible
-Message-ID: <20250116140258.GDZ4kRkvEGYovA_J5u@fat_crate.local>
-References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
- <20250110-asi-rfc-v2-v2-1-8419288bc805@google.com>
- <20250116001858.GDZ4hQctZe_PFvJ0AJ@fat_crate.local>
- <20250116102747.GAZ4jfI9HG3K-PW7nf@fat_crate.local>
- <CA+i-1C1sXC1tbo9ytuex0eBD3gUbQwnNP8rvOhCv=JV+oSHo1g@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hjABPMmk"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50GE21Aq004600;
+	Thu, 16 Jan 2025 15:38:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ypBShM
+	721uvzeOQuo9I8KPiO7ccU1ZLYzZr9TIK8qmw=; b=hjABPMmkT4SEdxz6J+HnGK
+	kZcOrVSxoYnLbKhruLX7K7LvAIvGZTmdt6goKGc4aNqfE4nwXbyQz3xZHMosyATj
+	AroBztADzpFa+DfCPB5k8uuZjyezT1PkKGuGSLSSwYFgKAp5+APHKwWq7Yn+43Qa
+	QipVD+F7udYDcG9xVCwpGHzn7GfY6qzE/o6OJNE+F2b05EQK+nLrZSFWae/YtRGf
+	931fuDV1JNnZDC7uSMPtPZ9z+TC0BIrM2m37n57Q9IjSf8evSkFkPAZagqr7Qwj3
+	7iI/LxqCXZPDVG4Wnlkl2XurIP6Yh7Ktfh3rAGV5f95QPmV6n5uWREj44zSyeUQw
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 446tkhb9j2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jan 2025 15:38:45 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50GCp8Bx002700;
+	Thu, 16 Jan 2025 15:38:44 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4443byekgf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jan 2025 15:38:44 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50GFchLc18678174
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 Jan 2025 15:38:43 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6EA035805B;
+	Thu, 16 Jan 2025 15:38:43 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4BAC558058;
+	Thu, 16 Jan 2025 15:38:42 +0000 (GMT)
+Received: from [9.61.176.130] (unknown [9.61.176.130])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 Jan 2025 15:38:42 +0000 (GMT)
+Message-ID: <89a1a029-172a-407a-aeb4-0b6228da07e5@linux.ibm.com>
+Date: Thu, 16 Jan 2025 10:38:41 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CA+i-1C1sXC1tbo9ytuex0eBD3gUbQwnNP8rvOhCv=JV+oSHo1g@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/vfio-ap: Signal eventfd when guest AP
+ configuration is changed
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>,
+        Rorie Reyes <rreyes@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org, hca@linux.ibm.com,
+        borntraeger@de.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        jjherne@linux.ibm.com
+References: <20250107183645.90082-1-rreyes@linux.ibm.com>
+ <20250114150540.64405f27.alex.williamson@redhat.com>
+ <5d6402ce-38bd-4632-927e-2551fdd01dbe@linux.ibm.com>
+ <20250116011746.20cf941c.pasic@linux.ibm.com>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20250116011746.20cf941c.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: RVn2aQYsroivr7RMqhe5zhRKFkmK6KLZ
+X-Proofpoint-ORIG-GUID: RVn2aQYsroivr7RMqhe5zhRKFkmK6KLZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-16_06,2025-01-16_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
+ priorityscore=1501 impostorscore=0 adultscore=0 mlxscore=0 clxscore=1015
+ bulkscore=0 lowpriorityscore=0 mlxlogscore=942 phishscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501160117
 
-On Thu, Jan 16, 2025 at 02:22:42PM +0100, Brendan Jackman wrote:
-> Sure. I'm actually not even sure that for a [PATCH]-quality thing this
-> cross-cutting commit even makes sense - once we've decided on the
-> general way to solve this problem, perhaps the changes should just be
-> part of the commit that needs them?
 
-Right, that sounds better.
 
-> It feels messy to have a patch that "does multiple things", but on the
-> other hand it might be annoying to review a patch that says "make a
-> load of random changes across the kernel, which are needed at various
-> points in various upcoming patches, trust me".
-> 
-> Do you have any opinion on that?
 
-You're absolutely right - we do things when we need them and not before.
-Otherwise, often times things get done preemptively and then forgotten only
-for someone to notice way later and undo them again.
+On 1/15/25 7:17 PM, Halil Pasic wrote:
+> On Wed, 15 Jan 2025 14:35:02 -0500
+> Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>>> +static int vfio_ap_set_cfg_change_irq(struct ap_matrix_mdev *matrix_mdev, unsigned long arg)
+>>>> +{
+>>>> +	s32 fd;
+>>>> +	void __user *data;
+>>>> +	unsigned long minsz;
+>>>> +	struct eventfd_ctx *cfg_chg_trigger;
+>>>> +
+>>>> +	minsz = offsetofend(struct vfio_irq_set, count);
+>>>> +	data = (void __user *)(arg + minsz);
+>>>> +
+>>>> +	if (get_user(fd, (s32 __user *)data))
+>>>> +		return -EFAULT;
+>>>> +
+>>>> +	if (fd == -1) {
+>>>> +		if (matrix_mdev->cfg_chg_trigger)
+>>>> +			eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
+>>>> +		matrix_mdev->cfg_chg_trigger = NULL;
+>>>> +	} else if (fd >= 0) {
+>>>> +		cfg_chg_trigger = eventfd_ctx_fdget(fd);
+>>>> +		if (IS_ERR(cfg_chg_trigger))
+>>>> +			return PTR_ERR(cfg_chg_trigger);
+>>>> +
+>>>> +		if (matrix_mdev->cfg_chg_trigger)
+>>>> +			eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
+>>>> +
+>>>> +		matrix_mdev->cfg_chg_trigger = cfg_chg_trigger;
+>>>> +	} else {
+>>>> +		return -EINVAL;
+>>>> +	}
+>>>> +
+>>>> +	return 0;
+>>>> +}
+>>> How does this guard against a use after free, such as the eventfd being
+>>> disabled or swapped concurrent to a config change?  Thanks,
+>>>
+>>> Alex
+>> Hi Alex. I spent a great deal of time today trying to figure out exactly
+>> what
+>> you are asking here; reading about eventfd and digging through code.
+>> I looked at other places where eventfd is used to set up communication
+>> of events targetting a vfio device from KVM to userspace (e.g.,
+>> hw/vfio/ccw.c)
+>> and do not find anything much different than what is done here. In fact,
+>> this code looks identical to the code that sets up an eventfd for the
+>> VFIO_AP_REQ_IRQ_INDEX.
+>>
+>> Maybe you can explain how an eventfd is disabled or swapped, or maybe
+>> explain how we can guard against its use after free. Thanks.
+> Maybe I will try! The value of matrix_mdev->cfg_chg_trigger is used in:
+> * vfio_ap_set_cfg_change_irq() (rw, with matrix_dev->mdevs_lock)
+> * signal_guest_ap_cfg_changed()(r, takes no locks itself, )
+>    * called by vfio_ap_mdev_update_guest_apcb()
+>      * called at a bunch of places but AFAICT always with
+>        matrix_dev->mdevs_lock held
+>    * called by vfio_ap_mdev_unset_kvm() (with matrix_dev->mdevs_lock held
+>      via get_update_locks_for_kvm())
+> * vfio_ap_mdev_probe() (w, assigns NULL to it)
+>
+> If vfio_ap_set_cfg_change_irq() could change/destroy
+> matrix_mdev->cfg_chg_trigger while another thread of execution
+> is using it e.g. with signal_guest_ap_cfg_changed() that would be a
+> possible UAF and thus BAD.
+>
+> Now AFAICT matrix_mdev->cfg_chg_trigger is protected by
+> matrix_dev->mdevs_lock on each access except for in vfio_ap_mdev_probe()
+> which is AFAIK just an initialization in a safe state where we are
+> guaranteed to have exclusive access.
+>
+> The eventfd is swapped and disabled in vfio_ap_set_cfg_change_irq() with
+> userspace supplying a new valid fd or -1 respectively.
+>
+> Tony does that answer your question to Alex?
+>
+> Alex, does the above answer your question on what guards against UAF (the
+> short answer is: matrix_dev->mdevs_lock)?
 
-> (BTW, since a comment you made on another series (can't find it on
-> Lore...), I've changed my writing style to avoid stuff like this in
-> comments & commit messages in general, but this text all predates
-> that. I'll do my best to sort all that stuff out before I send
-> anything as a [PATCH].)
+I agree that the matrix_dev->mdevs_lock does prevent changes to
+matrix_mdev->cfg_chg_trigger while it is being accessed by the
+vfio_ap device driver. My confusion arises from my interpretation of
+Alex's question; it seemed to me that he was talking its use outside
+of the vfio_ap driver and how to guard against that.
 
-Thanks!
+>
+> Regards,
+> Halil
+>
+>
+>
 
-Btw, good and funny way to use "[PATCH]-quality" to mean non-RFC. :-P
-
-> Oh, I didn't notice your update until now. But yeah I also couldn't
-> reproduce it on a Sapphire Rapids machine and on QEMU with this patch
-> applied on top of tip/master (37bc915c6ad0f).
-
-Yeah, it feels like toolchain-related but I can't put my finger on it yet.
-We'll see if and when this thing will re-surface its ugly head...
-
-:-)
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
