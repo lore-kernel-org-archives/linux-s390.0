@@ -1,174 +1,123 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090001F5604;
-	Fri, 17 Jan 2025 02:13:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A39B91F7586;
+	Fri, 17 Jan 2025 06:21:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737080040; cv=none; b=foTG0/gPu/ULfYYVjxro3qiJf4rrGCDKMXLn8NMLrwcK8H7Ofev2z2cGZO7AoTdMOIFhkHQGujoXYPNzYMEnkCxnfMpX8bmbdfvFO9hMlqiu6KGH2tL4ifVuBpa49k0WuNFFoQRKUueQ6z7jxR0/iVhToFCCJ+aMDkmHxQMzr2Q=
+	t=1737094892; cv=none; b=ciBheQNbGqdIKA5GU14tJ8WZ7gERHn2P3nTZVcOVysU7zSpxZf35bcczZtSVhOAUwCh6jHnpdIQ9zzreNHqwubFk7dqtWSzB3ke7Qmc6riq4PBwyM0PfELRT5t7kR/gkHHta2AIfvHjBdyaGF2QNfxV4j5g03ms8IPvs0q6qvys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737080040; c=relaxed/simple;
-	bh=b8bP5SE0USzXzDD7E0HSc23dN32N4tag6/cV3tDf0z8=;
+	s=arc-20240116; t=1737094892; c=relaxed/simple;
+	bh=2OhMBDtEbXwTAHkNsEe6HamiyrxZuT3/v53V5ZG8wcc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XJb138s8Iuj4goYEVFoQMYP0KdJL0XtuS8Ft2o2spyxOp3mEIT3ORD/ercSPuW+6KOUvrlbMbLtWeD5U9tsYVp2N/VWQOG0JW5EsJ1wRrBlLxwnUeiCO2Ey/BMvCWHMvEIDs7WhF/lRuqI/LUCggR9X80xRDLl5d60zSQJxWUm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=e7eEHEYw; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=sr+QGd523cL+Ea0Nir8kzSXzUw7QWo4oaplxCn7i0LoW1mwNXGH05BxzA4sZWMxzZSmzUBAjxGcTRyu+bB2hSWfeel8qXyeCdMEDMmDWH5oop96P5yzKN/Z5RJYEbi84DrF06gcdyR0Y4AvteQv8aWfAx8pDbLXh+zzefCTHx1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=WJMf0cJT; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="e7eEHEYw"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1737080034; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=LsnmJDLMPx6BOmdSkxnx6bCuBrhMBXTPA1M6hZHcRM0=;
-	b=e7eEHEYwLJwDOaOGHFGa1uWEJUkQCSylQiKQ9riTUAc2SiQlY/NeqtBnq3a9Kkp+lSdUGESc4+FlsCT01LzDzs6ZvL1DOnzq7ocuHcmlDem2VdnRmTNxiGJ4n0m3h/PG45qaL7ZgwUOAcaWllKVl9CZtyRQK4eUaSRfH52PwSWI=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WNn-gA3_1737080033 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 17 Jan 2025 10:13:53 +0800
-Date: Fri, 17 Jan 2025 10:13:53 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-Message-ID: <20250117021353.GF89233@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
- <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="WJMf0cJT"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=r7RI9c0BSk3l3t8JX4/mNeWOAa5x0JyXCYROE80NAvc=; b=WJMf0cJTy4A+vmd+ziwjC3L4Uw
+	k6uRHGtuEi+vLo5lzIR0YEH7fxIJ36GYTZx40p1sDHNioHGokk7xN00P9WJpoJXMUyPRRQkFcZT2A
+	+6Zxa/Fk7afBQIf144U4A69ch2nRucMol7dyHJOX9cZG6tI3vffFD7wboSzFn91kMdd4DOHw6kMNm
+	YpNqbIPqvZ8bYkOZyDy/gtxFbZgoqpWXXHAJokH/P3ppjuz6ofGIo7lKBEfhr92tLvCs6hRTsGKJh
+	noHQVadYqpD9V/7hidg/RKRUH631eDPhOw85GWmNUOqgyE4KulYQGivJZdCzxaNgaaA5vKTXjneKe
+	QzAQI/Xg==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1tYfWQ-00A33I-2S;
+	Fri, 17 Jan 2025 14:21:20 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 17 Jan 2025 14:21:19 +0800
+Date: Fri, 17 Jan 2025 14:21:19 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, mpatocka@redhat.com,
+	agk@redhat.com, snitzer@kernel.org, ifranzki@linux.ibm.com,
+	linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
+	dengler@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
+Message-ID: <Z4n238ML4fdFsFAw@gondor.apana.org.au>
+References: <20250115164657.84650-1-freude@linux.ibm.com>
+ <20250115164657.84650-2-freude@linux.ibm.com>
+ <20250115173736.GA3712753@google.com>
+ <85ea487d37ec320ec5707bd249352b02@linux.ibm.com>
+ <20250116080324.GA3910@sol.localdomain>
+ <94e11912f1e1413ac2d13c7e5dc0ed35@linux.ibm.com>
+ <Z4jNmdb4Bacom3-j@gondor.apana.org.au>
+ <20250116175451.GA3772706@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
+In-Reply-To: <20250116175451.GA3772706@google.com>
 
-On 2025-01-16 17:17:33, Alexandra Winter wrote:
+On Thu, Jan 16, 2025 at 05:54:51PM +0000, Eric Biggers wrote:
 >
->
->On 16.01.25 12:55, Julian Ruess wrote:
->> On Thu Jan 16, 2025 at 10:32 AM CET, Dust Li wrote:
->>> On 2025-01-15 20:55:20, Alexandra Winter wrote:
->>>
->>> Hi Winter,
->>>
->>> I'm fully supportive of the refactor!
->
->
->Thank you very much Dust Li for joining the discussion.
->
->
->>> Interestingly, I developed a similar RFC code about a month ago while
->>> working on enhancing internal communication between guest and host
->>> systems. 
->
->
->But you did not send that out, did you?
->I hope I did not overlook an earlier proposal by you.
+> But in practice it's the opposite.  Making it an ahash forces users who would
+> otherwise just be using shash to use ahash instead.
 
-No, I just did a POC and didn't find the time to improve it.
-So I think we can go on with your version.
+I think that's a good thing.  shash was a mistake and I intend to
+get rid of it.  But we should not do the ahash conversion right now.
+Let me finish adding virtual address support first and then we could
+reassess whether this makes sense or not.
 
->
->
->Here are some of my thoughts on the matter:
->>>
->>> Naming and Structure: I suggest we refer to it as SHD (Shared Memory
->>> Device) instead of ISM (Internal Shared Memory). 
->
->
->So where does the 'H' come from? If you want to call it Shared Memory _D_evice?
+> No one is asking for it to be available to IPsec.  And this is just a MAC, not a
+> cipher.  But more generally, sleepable algorithms could still be used via an
+> adapter using cryptd, or by making IPsec support using a workqueue like all the
+> storage encryption/integrity systems already do.  In any case this would be a
+> rare (or nonexistent?) use case and should be treated as such.
 
-Oh, I was trying to refer to SHM(Share memory file in the userspace, see man
-shm_open(3)). SMD is also OK.
+If it was possible to shoehorn phmac/paes into a synchronous
+algorithm I'd love to do it.  But the fact is that this requires
+asynchronous communication in the *unlikely* case which means
+that the best way to model is with an optional async interface.
 
->
->
->To my knowledge, a
->>> "Shared Memory Device" better encapsulates the functionality we're
->>> aiming to implement. 
->
->
->Could you explain why that would be better?
->'Internal Shared Memory' is supposed to be a bit of a counterpart to the
->Remote 'R' in RoCE. Not the greatest name, but it is used already by our ISM
->devices and by ism_loopback. So what is the benefit in changing it?
+	if (unlikely(crypto_ahash_op(...) == -EINPROGRESS))
+		do async
+	else
+		op completed synchronously
 
-I believe that if we are going to separate and refine the code, and add
-a common subsystem, we should choose the most appropriate name.
+> That won't solve all the problems with ahash, for example the per-request
+> allocation.  We'll still end up with something that is worse for 99% of users,
+> while also doing a very poor job supporting the 1% (even assuming it's 1% and
+> not 0% which it very well might be) who actually think they want off-CPU
+> hardware crypto acceleration.  Not to mention the nonsense like having
+> "synchronous asynchronous hashes".
 
-In my opinion, "ISM" doesn’t quite capture what the device provides.
-Since we’re adding a "Device" that enables different entities (such as
-processes or VMs) to perform shared memory communication, I think a more
-fitting name would be better. If you have any alternative suggestions,
-I’m open to them.
+I disagree.  I want the users to start feeding ahash with more
+than one unit of input.  So rather than splitting up a folio
+into page-size or sector-size units, you feed the whole thing
+to ahash and the data should be split up automatically and hashed
+in parallel.
 
+> I think it's time to admit that the approach you're trying to take with the
+> crypto API is wrong.  This has been known for years.
 
->
->
->It might be beneficial to place it under
->>> drivers/shd/ and register it as a new class under /sys/class/shd/. That
->>> said, my initial draft also adopted the ISM terminology for simplicity.
->> 
->> I'm not sure if we really want to introduce a new name for
->> the already existing ISM device. For me, having two names
->> for the same thing just adds additional complexity.
+The only thing I agree with you here is that an SG list-based input
+format is inappropriate.  And that is why I'm adding virtual address
+support to ahash (and later to skcipher).
 
-I believe that if we are going to rename it, there should be no
-reference to "ISM" in this subsystem. IBM's PCI ISM can retain that
-name, as it is an implementation of the Shared Memory device (assuming
-we adopt that name).
+> The primary API needs to be designed around and optimized for software crypto,
+> which is what nearly everyone wants.
 
->> 
->> I would go for /sys/class/ism
->> 
->>>
->>> Modular Approach: I've made the ism_loopback an independent kernel
->>> module since dynamic enable/disable functionality is not yet supported
->>> in SMC. Using insmod and rmmod for module management could provide the
->>> flexibility needed in practical scenarios.
->
->
->With this proposal ism_loopback is just another ism device and SMC-D will
->handle removal just like ism_client.remove(ism_dev) of other ism devices.
->
->But I understand that net/smc/ism_loopback.c today does not provide enable/disable,
->which is a big disadvantage, I agree. The ism layer is prepared for dynamic
->removal by ism_dev_unregister(). In case of this RFC that would only happen
->in case of rmmod ism. Which should be improved.
->One way to do that would be a separate ism_loopback kernel module, like you say.
->Today ism_loopback is only 10k LOC, so I'd be fine with leaving it in the ism module.
->I also think it is a great way for testing any ISM client, so it has benefit for
->anybody using the ism module.
->Another way would be e.g. an 'enable' entry in the sysfs of the loopback device.
->(Once we agree if and how to represent ism devices in genera in sysfs).
+I agree with that completely.  However, what triggered this thread
+is in fact something that is not purely software crypto because it
+involves system-wide communication which could take seconds to
+complete.  The original patch tried to shoehorn this into a
+synchronous implementation that would just fail randomly after
+waiting.
 
-This works for me as well. I think it would be better to implement this
-within the common ISM layer, rather than duplicating the code in each
-device. Similar to how it's done in netdevice.
-
-Best regards,
-Dust
-
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
