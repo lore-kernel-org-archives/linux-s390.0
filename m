@@ -1,127 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECADE1FF609;
-	Fri, 17 Jan 2025 13:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CCB41E485
+	for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2025 13:31:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737120339; cv=none; b=bkmePTx4/SxrARAOio/0gqSLXcSTWs34TYSWrNNZM2I3oPAcX4iPwzD6HcLhi4KxXNU//ACpWHdqph2gJar5i+Zsuz2ne6nghcY4r/IqsHI2ZGgKcBuEe1VWqL4bZKrbfX9/lUYJWLb4EjGeCba8NUqwr1hI1wlgDdiQmCuvMrU=
+	t=1737120698; cv=none; b=iONsm4gaij9RiuZeDIoS1ty8dJoj/7DlJZWKMm8Vq+aPpxQ9zklrUv93zDv+jg3rwZjcoNQskm5ssVCdrEf9PwPX3C869RcOuXx72SY1spqj2Axii9J9pa4S/jsJKOqfs0SfbIBNuIJnJpyUwIIORCHD/mARbfleUXvnxtenK+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737120339; c=relaxed/simple;
-	bh=i5g2DbcJlsukG3CuQeCOvnrmGoI0+t7RerfHcE2ITE8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ucdu0Os/gLhJRTQzLQuhS12caSJ1cmaga+uuBWqYmQadtDVdt3+LwH3iVzAOowAQdRBD71n1zbG/BlNUic/9ZhzLn0FqQNxUQhKhdPF5vYrs9oi3X/uqYuVq700AkviUM+DClMUABbX5bbkZAqwqR/6E1v3hLNCxpmggUA3OPrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nCvHMpF2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1737120698; c=relaxed/simple;
+	bh=FqM/fe7DMvkv4mxHduYo9juUxZ8VI6ZZLzqweeDH/nw=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=mW3CKfvZbKhiNQypbttAF8+cwiGF7B4mxA9woBWFG0lLbULpWvLGdfkITNj8wVuBkFdhWFUWzJ6lb/FOzQdyLrDY2iGhqhpQA6u6thxJaFoPKhj4gywuduh6XcLUMYICQc+Ffxd1KTUuXlZJe/GoudXEr6ZQ0nrBdHghXsaQwzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mH2SeqVl; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nCvHMpF2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C43C4CEDD;
-	Fri, 17 Jan 2025 13:25:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737120338;
-	bh=i5g2DbcJlsukG3CuQeCOvnrmGoI0+t7RerfHcE2ITE8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nCvHMpF21/84VoMzTIfTmODZawDxjude8tCR6JJtkJECU6I5I9whWXy05LWEyoVNW
-	 KSzrpuQi7EY7p8WZMS465l3rzsHJ8EnYeKCSayrYuWoVdpTDqvziBmoejLV5qSMBK6
-	 f5E+BQjEiCRh0u6SKqq//93pPU+X4JoeMx70R+9aHhWo8pxelv+5LYbQpozArWbl4N
-	 fjahkxBv/te1ioiDTpeoXYuLizhvr0ePIgbB6YsYdqX4IS/429ehvwWhMUBrLB8HOx
-	 2ER9LwPKInXFc4sc8Z5xZ0s6RECYLRZli7PrwB954w5tTFqDoUfRjjNblQvSNEU4sb
-	 Uskxi7/yiLEew==
-Date: Fri, 17 Jan 2025 13:25:28 +0000
-From: Will Deacon <will@kernel.org>
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Cc: peterz@infradead.org, agordeev@linux.ibm.com, kevin.brodsky@arm.com,
-	alex@ghiti.fr, andreas@gaisler.com, palmer@dabbelt.com,
-	tglx@linutronix.de, david@redhat.com, jannh@google.com,
-	hughd@google.com, yuzhao@google.com, willy@infradead.org,
-	muchun.song@linux.dev, vbabka@kernel.org,
-	lorenzo.stoakes@oracle.com, akpm@linux-foundation.org,
-	rientjes@google.com, vishal.moola@gmail.com, arnd@arndb.de,
-	aneesh.kumar@kernel.org, npiggin@gmail.com,
-	dave.hansen@linux.intel.com, rppt@kernel.org, ryan.roberts@arm.com,
-	linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org, x86@kernel.org,
-	linux-arch@vger.kernel.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-um@lists.infradead.org
-Subject: Re: [PATCH v5 05/17] arm64: pgtable: use mmu gather to free p4d
- level page table
-Message-ID: <20250117132527.GA17058@willie-the-truck>
-References: <cover.1736317725.git.zhengqi.arch@bytedance.com>
- <3fd48525397b34a64f7c0eb76746da30814dc941.1736317725.git.zhengqi.arch@bytedance.com>
- <20250113162600.GA14101@willie-the-truck>
- <a017d072-943f-4008-bb1d-7be438804a44@bytedance.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mH2SeqVl"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50H3qq53025512;
+	Fri, 17 Jan 2025 13:31:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=ixZxt7FCYwDqO5dCQS6xwmbUE8xCx+yen2w15tSIJPw=; b=mH2SeqVl7YpV
+	ilIsQGw0I9A1nIcdYL1Y3pYb6qsLDZXueumhh8HHyFvl+Vyn9vmGFpapVOW0QXy8
+	bgszFYypEwwWUuAxpRx4lu5MkmgSjkf0wN/miRgY3fWdtzSsRDvPLHe23GUm7O38
+	7hePSeycSHucAcvOOghcU962Le6fbrmlEAa/ptxUWly5VRHD04gjPVHiuQzIAh7A
+	Dy4TeRUqXJpWf14Sxz8LTqz5E0Oh/iExpHYvItNU6UTnxxxTJD1cbCUEbxjdXw8a
+	l+ZZXClCEUZEWcWGCeJxIO0oJuUm2puSeXr7jW54UBaI28660Bv/I8ojG7nnpKIU
+	0wIip9sfZw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447fpcabwp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 13:31:28 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50HABHs7002734;
+	Fri, 17 Jan 2025 13:31:26 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4443byk6g3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 13:31:26 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50HDVPnY25363074
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jan 2025 13:31:25 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B86558052;
+	Fri, 17 Jan 2025 13:31:25 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3FA8E5805D;
+	Fri, 17 Jan 2025 13:31:25 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 17 Jan 2025 13:31:25 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a017d072-943f-4008-bb1d-7be438804a44@bytedance.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Date: Fri, 17 Jan 2025 14:31:25 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: agk@redhat.com, snitzer@kernel.org, ifranzki@linux.ibm.com,
+        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
+        herbert@gondor.apana.org.au, dengler@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com>
+References: <20250115164657.84650-1-freude@linux.ibm.com>
+ <20250115164657.84650-2-freude@linux.ibm.com>
+ <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com>
+Message-ID: <3d8e8b33e4ade05a2bd0e99583444f0f@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ab0DSjqgpdY3lx8I6ZTf_mumuGheJsMK
+X-Proofpoint-GUID: ab0DSjqgpdY3lx8I6ZTf_mumuGheJsMK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-17_05,2025-01-16_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ impostorscore=0 mlxlogscore=999 spamscore=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 mlxscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501170109
 
-On Tue, Jan 14, 2025 at 10:26:54AM +0800, Qi Zheng wrote:
-> Hi Will,
+On 2025-01-15 18:29, Mikulas Patocka wrote:
+> Hi
 > 
-> On 2025/1/14 00:26, Will Deacon wrote:
-> > On Wed, Jan 08, 2025 at 02:57:21PM +0800, Qi Zheng wrote:
-> > > Like other levels of page tables, also use mmu gather mechanism to free
-> > > p4d level page table.
-> > > 
-> > > Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> > > Originally-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > > Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> > > Cc: linux-arm-kernel@lists.infradead.org
-> > > ---
-> > >   arch/arm64/include/asm/pgalloc.h |  1 -
-> > >   arch/arm64/include/asm/tlb.h     | 14 ++++++++++++++
-> > >   2 files changed, 14 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/arch/arm64/include/asm/pgalloc.h b/arch/arm64/include/asm/pgalloc.h
-> > > index 2965f5a7e39e3..1b4509d3382c6 100644
-> > > --- a/arch/arm64/include/asm/pgalloc.h
-> > > +++ b/arch/arm64/include/asm/pgalloc.h
-> > > @@ -85,7 +85,6 @@ static inline void pgd_populate(struct mm_struct *mm, pgd_t *pgdp, p4d_t *p4dp)
-> > >   	__pgd_populate(pgdp, __pa(p4dp), pgdval);
-> > >   }
-> > > -#define __p4d_free_tlb(tlb, p4d, addr)  p4d_free((tlb)->mm, p4d)
-> > >   #else
-> > >   static inline void __pgd_populate(pgd_t *pgdp, phys_addr_t p4dp, pgdval_t prot)
-> > >   {
-> > > diff --git a/arch/arm64/include/asm/tlb.h b/arch/arm64/include/asm/tlb.h
-> > > index a947c6e784ed2..445282cde9afb 100644
-> > > --- a/arch/arm64/include/asm/tlb.h
-> > > +++ b/arch/arm64/include/asm/tlb.h
-> > > @@ -111,4 +111,18 @@ static inline void __pud_free_tlb(struct mmu_gather *tlb, pud_t *pudp,
-> > >   }
-> > >   #endif
-> > > +#if CONFIG_PGTABLE_LEVELS > 4
-> > > +static inline void __p4d_free_tlb(struct mmu_gather *tlb, p4d_t *p4dp,
-> > > +				  unsigned long addr)
-> > > +{
-> > > +	struct ptdesc *ptdesc = virt_to_ptdesc(p4dp);
-> > > +
-> > > +	if (!pgtable_l5_enabled())
-> > > +		return;
-> > > +
-> > > +	pagetable_p4d_dtor(ptdesc);
-> > > +	tlb_remove_ptdesc(tlb, ptdesc);
-> > > +}
-> > 
-> > Should we update p4d_free() to call the destructor, too? It looks like
-> > it just does free_page() atm.
+> The ahash interface is slower than the shash interface for synchronous
+> implementations, so the patch is basically slowing down the common 
+> case.
+> See the upstream commit b76ad8844234bd0d394105d7d784cd05f1bf269a for an
+> explanation in dm-verity.
 > 
-> The patch #3 introduces the generic p4d_free() and lets arm64 to use it.
-> The patch #4 adds the destructor to generic p4d_free(). So IIUC, there
-> is no problem here.
+> Do you have some benchmark that shows how much does it help on s390x? 
+> So,
+> that we can evaluate whether the added complexity is worth the 
+> performance
+> improvement or not.
+> 
+> Mikulas
+> 
 
-Sorry, I missed that. In which case:
+Just a short sniff test on my development system (s390x with 32GB RAM, 
+16 CPUs).
+When I run a dm-integrity format command on a 16G loopback file backed 
+up by tempfs
+I get this on a fedora40 with fresh build v6.13-rc7 kernel:
 
-Acked-by: Will Deacon <will@kernel.org>
+   integritysetup format /dev/loop0 --integrity sha256 --sector-size 4096
+   ...
+   Finished, time 00m08s,   15 GiB written, speed   1.8 GiB/s
 
-Will
+and with the same kernel + my dm-integrity async patch:
+
+   Finished, time 00m09s,   15 GiB written, speed   1.7 GiB/s
+
+However, I'll run some more sophisticated performance measurements 
+during
+the weekend.
+
+Harald Freudenberger
