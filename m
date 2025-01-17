@@ -1,65 +1,76 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE77A149C55;
-	Fri, 17 Jan 2025 16:33:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51339195980;
+	Fri, 17 Jan 2025 16:34:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737131633; cv=none; b=cVSWxblUXPvTBrhMldY0yRUYZ+XLtXWdoyKwoO0oe+YNVo65hmkQekExolUXsgDNthq3ynFrP5ZZm0onqSJ9hKGDsYzrXw+QuiOa+JYuJY8atMj6QmxY1ISI7zaNVL0jya0DY45snfXf8ItmaThTJa9HmX8coM/nEfCaGp33aSc=
+	t=1737131688; cv=none; b=FYtSU6CN1roGZVe+gKi9pUEZDClf9rX4K8wfjUrFN7+fPpWyiTMftnFxH6U+QZik4O6YKkDWuejCbPcXDeO1IxF3kmMMhHaghnRjOZJoYxcKpsXEMMFmmGspcH4KCWhDYqROeRE+ULrib26sJBvRN9qbc1bj3rZBiqxdiUYZ4HI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737131633; c=relaxed/simple;
-	bh=UJSDDe4C/yxjy2F3wKQNlqosiqdKBBJiJou4Uy88Eeg=;
+	s=arc-20240116; t=1737131688; c=relaxed/simple;
+	bh=hjTybMnPvhzT7BIED7jvkshpvSrLjI90aEbfMUNCUKA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UP9UeIu8J3aOwrwZ2hc25jWSBiDssCVd31pKsSPMZ8dCyBanFm7T+2cUcNLlHBn3j76N+KzUMLlu5tg1YvngCU7wh9xH58H5INvjGWgGPOOqTlO9fwNVg3LfpN20k4kZVsZkVLvc71yjdGAOh7w0RDZLtp5sYqXEkXDYUcaTNAM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=ELwRLsWL; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rgp9KHB0T4NQC97s4591QEFH2ySnAqFfHk5k1uHN3q7jInC/NmAI1LcIfGZE7p9yXrydEIBllVak+YEW8XrEUoEhX6qc+AmpX3jvJKtRimwSIryOr+Svax+O1C/1eZb+4m6I4MaELh9yZ87WQ68Y9m5knIFZA/8HJ44h1MpVjA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NVCBJnJo; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="ELwRLsWL"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=dOhk5H1hr/VU0cplGofQHk50OosVk4XUDMZzrQe3j5o=; b=ELwRLsWLLuvBAJy62Ql9QhRltR
-	uHW0izmzs7l+G+91lh2ygKdUZSkwcxZ2AyfR6Eszz28sqWsjJfg4/mujpL/mwdnhlap/K8HMjVl/T
-	3MOUWxo0axVnDVrXORvA0ZXjx3OY+0FQyJTeEN55CjvzP6+MyB5tjgStANFOIF5fmF/o=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1tYpHw-005XCs-M7; Fri, 17 Jan 2025 17:33:40 +0100
-Date: Fri, 17 Jan 2025 17:33:40 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: dust.li@linux.alibaba.com, Alexandra Winter <wintera@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-Message-ID: <7dc80dfb-5a75-4638-9d44-d5a080ddb693@lunn.ch>
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
- <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
- <20250117021353.GF89233@linux.alibaba.com>
- <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
- <034e69fe-84b4-44f2-80d1-7c36ab4ee4c9@lunn.ch>
- <64df7d8ca3331be205171ddaf7090cae632b7768.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NVCBJnJo"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50HBt5vO010691;
+	Fri, 17 Jan 2025 16:34:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=bAFnq3X9qi9pspiIgoJaU9knaVCMs8
+	tzzlJ4XBU+V5M=; b=NVCBJnJoKl5l+26+QSH0GdsVuGfU5i37kQXSmaRzGPh9Wg
+	dq3fE75gquyyCWgd1nPBAJosMz3Qqf3APgm4pUsk3qt9nAxXEIFq3zZqd88xBk19
+	VjkoHlmb3zxEJP8w9Y3KjE4emLG9gR5DA+FEZesQTZCl66e3haW+Tjc1Szqag1lj
+	R3tjPXCoQOUsk1tc3eJRB5Os2Sibwe8GH2/NMJEtU5XRsaswrXpb2u60E4RKvSG5
+	lUj4VAzbq8qjMZxlutFa6DVdX2uR7TjyX69fr6mj6TkUM5bJNmxKSjyCP+LxaWK+
+	7ymcQU8KgOO5DLj7cOnscwd7K0TT9y5dZY21/evg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447c8jc1mv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 16:34:43 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50HGVq2Y002039;
+	Fri, 17 Jan 2025 16:34:42 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447c8jc1ms-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 16:34:42 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50HDiKwH004543;
+	Fri, 17 Jan 2025 16:34:41 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4442yt3x0j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 16:34:41 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50HGYcCW57082288
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jan 2025 16:34:38 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31C4C2004B;
+	Fri, 17 Jan 2025 16:34:38 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7782720040;
+	Fri, 17 Jan 2025 16:34:37 +0000 (GMT)
+Received: from osiris (unknown [9.171.89.28])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 17 Jan 2025 16:34:37 +0000 (GMT)
+Date: Fri, 17 Jan 2025 17:34:36 +0100
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, schlameuss@linux.ibm.com, david@redhat.com,
+        willy@infradead.org, hca@linux.ibm.com, svens@linux.ibm.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com, nrb@linux.ibm.com,
+        nsg@linux.ibm.com, seanjc@google.com
+Subject: Re: [PATCH v2 15/15] KVM: s390: remove the last user of page->index
+Message-ID: <20250117163436.79512-B-seiden@linux.ibm.com>
+References: <20250116113355.32184-1-imbrenda@linux.ibm.com>
+ <20250116113355.32184-16-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,43 +79,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <64df7d8ca3331be205171ddaf7090cae632b7768.camel@linux.ibm.com>
+In-Reply-To: <20250116113355.32184-16-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: CED2Ca-002Pf86TIyI1zYjbkjRc3oEGo
+X-Proofpoint-ORIG-GUID: oPm8V5MXKdOdxWA0G_SteeVunTqUGo6V
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-17_06,2025-01-16_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ priorityscore=1501 malwarescore=0 lowpriorityscore=0 adultscore=0
+ phishscore=0 impostorscore=0 mlxscore=0 mlxlogscore=863 bulkscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501170130
 
-> Conceptually kind of but the existing s390 specific ISM device is a bit
-> special. But let me start with some background. On s390 aka Mainframes
-> OSs including Linux runs in so called logical partitions (LPARs) which
-> are machine hypervisor VMs which use partitioned non-paging memory. The
-> fact that memory is partitioned is important because this means LPARs
-> can not share physical memory by mapping it.
+On Thu, Jan 16, 2025 at 12:33:55PM +0100, Claudio Imbrenda wrote:
+> Shadow page tables use page->index to keep the g2 address of the guest
+> page table being shadowed.
 > 
-> Now at a high level an ISM device allows communication between two such
-> Linux LPARs on the same machine. The device is discovered as a PCI
-> device and allows Linux to take a buffer called a DMB map that in the
-> IOMMU and generate a token specific to another LPAR which also sees an
-> ISM device sharing the same virtual channel identifier (VCHID). This
-> token can then be transferred out of band (e.g. as part of an extended
-> TCP handshake in SMC-D) to that other system. With the token the other
-> system can use its ISM device to securely (authenticated by the token,
-> LPAR identity and the IOMMU mapping) write into the original systems
-> DMB at throughput and latency similar to doing a memcpy() via a
-> syscall.
+> Instead of keeping the information in page->index, split the address
+> and smear it over the 16-bit softbits areas of 4 PGSTEs.
 > 
-> On the implementation level the ISM device is actually a piece of
-> firmware and the write to a remote DMB is a special case of our PCI
-> Store Block instruction (no real MMIO on s390, instead there are
-> special instructions). Sadly there are a few more quirks but in
-> principle you can think of it as redirecting writes to a part of the
-> ISM PCI devices' BAR to the DMB in the peer system if that makes sense.
-> There's of course also a mechanism to cause an interrupt on the
-> receiver as the write completes.
+> This removes the last s390 user of page->index.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-So the s390 details are interesting, but as you say, it is
-special. Ideally, all the special should be hidden away inside the
-driver.
-
-So please take a step back. What is the abstract model?
-
-Can the abstract model be mapped onto CLX? Could it be used with a GPU
-vRAM? SoC with real shared memory between a pool of CPUs.
-
-	Andrew
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
