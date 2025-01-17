@@ -1,284 +1,159 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A451A840E;
-	Fri, 17 Jan 2025 19:09:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74B83187550;
+	Fri, 17 Jan 2025 20:29:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737141000; cv=none; b=BWwgtQdOvh6eGw96yHG/QRLDujBl3OEfEc2rFomWTyTpwaQqpUjbiuNLBQajgN4QSvLdh5GCiWN8r20tk5pnkMOvCKDDLPvshwSy95b48Wf3TMjUce92vR6i5rmdRh8behDb16EIqTsd1GGdFenB9RQwLbfBKNxcpl1sm05xXCY=
+	t=1737145764; cv=none; b=LoIh2tc4N8DeKlf9U0WxlWCd7gXvJIxhaVmHR8Em4hbAfYHtSnbMVIFl4veKDKL6JToTeX36ihhQDS3WBblM9Ruxyve0aUyq55ddR5tTNKUZdgVnwMFNlCX8+4MkrEMt+zxWYAJmWMyFCL1vv9pNQoc6xWvoDVPuWIX6+dopZxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737141000; c=relaxed/simple;
-	bh=jePIztGT6lKYVGBNLojQFQaReB/TgbPnYtjQapJuGgc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BflE2p2ymlqc9NNTrTyGQbUnB03SdUROryuXfH/T1pOm0L/U5CqBA9QvYS+nt9d9dDpub3bCYJgUe0+mLmLTxiATNhyPB0hjOBc2rsa054uuafDw3WLo8hPHi2k3vt4gtOv4gEMirz1iqMx6GWGfBCkJfbYSpH3cIVBoD2gIUXo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gN9vZKC6; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737145764; c=relaxed/simple;
+	bh=EtdlRyzsag0emijMlfhFTVgivQHeSsN6MFP/B2AC+5E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FC52WEWADz0ELZwM7Q1x9b39wjzWrgoN5w2d1nP7HybyStzWq1E9m7nVvO0XLVzPRGIRWz3nMk9qE0IvE/Bh4bdfRPBk2HeFFqvQBT2QiETuoUk0PLwJ1bUzjosigRLjyXfJd2UeKeOhS8higw/LD/VJ2AsCbeeNKegIjkVyzjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=CIhbYKM9; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gN9vZKC6"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50HCNbpl010206;
-	Fri, 17 Jan 2025 19:09:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=vsd0AqYdGEAVwFCBQ
-	J7d9iGVNhCwD/wXVC4+XXqQuUo=; b=gN9vZKC6ea1p63GR+qoeNsLz9W0PmJ431
-	V9OD45hLnZjxAtrdbc7GdehgrjEuxFeT6PnvK68y025fUcy4uOPdIIauE1+2mhAX
-	qj/Ab2TDgbTQfwYu1/zjW7BN336rgNwXL0EEtPaYlqHMm9R3pzWb8nwutHsc/caR
-	Tib/BamZ3+f43T5IPQ5O2YyVBikLP4zqkPOhZUuJeTEHajIZx8x7nU/EJxyT1siQ
-	/xxXRUiOYdryUF2JkJHLS2klp4rqvfBM4sj+8KHUKrP7WsQ6K7WWF6hKju5DeUhH
-	nJjBbNMiQuLqKhydmwYM0yKXVJAt+4fgBeiRmHKhWjIVdzO7H/3vw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447c8jcrws-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jan 2025 19:09:47 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50HJ9CaD016763;
-	Fri, 17 Jan 2025 19:09:47 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447c8jcrwp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jan 2025 19:09:47 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50HIh11h007519;
-	Fri, 17 Jan 2025 19:09:46 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4443ynmbnu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jan 2025 19:09:45 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50HJ9gZZ19202420
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Jan 2025 19:09:42 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 30C1420040;
-	Fri, 17 Jan 2025 19:09:42 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F13252004B;
-	Fri, 17 Jan 2025 19:09:41 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 17 Jan 2025 19:09:41 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com,
-        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
-        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
-        seanjc@google.com, seiden@linux.ibm.com
-Subject: [PATCH v3 12/15] KVM: s390: move gmap_shadow_pgt_lookup() into kvm
-Date: Fri, 17 Jan 2025 20:09:35 +0100
-Message-ID: <20250117190938.93793-13-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250117190938.93793-1-imbrenda@linux.ibm.com>
-References: <20250117190938.93793-1-imbrenda@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="CIhbYKM9"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=rMi/cjvuR8Du4cB7SgfDtqM1hJlv318nstpvkSQl7gQ=; b=CIhbYKM9teKXe7hQkikw48b19q
+	nCVLHuJxYW5SgGOEUbxheIMCZ0hRFSKd2ZYJhkPVx0VMbupR+bgy88rJSG5UxaxG24DQ4SBdJHU3a
+	fNE5INv2H5uQVOQrOrmQteFYF/MQPGrsLdE4WAAorgghKrPN4X0idv4EBloXF3xNLVkA=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1tYsxp-005bMs-MR; Fri, 17 Jan 2025 21:29:09 +0100
+Date: Fri, 17 Jan 2025 21:29:09 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: dust.li@linux.alibaba.com, Alexandra Winter <wintera@linux.ibm.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>
+Subject: Re: [RFC net-next 0/7] Provide an ism layer
+Message-ID: <85d94131-6c2b-41bd-ad93-c0e7c24801db@lunn.ch>
+References: <20250115195527.2094320-1-wintera@linux.ibm.com>
+ <20250116093231.GD89233@linux.alibaba.com>
+ <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
+ <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
+ <20250117021353.GF89233@linux.alibaba.com>
+ <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
+ <034e69fe-84b4-44f2-80d1-7c36ab4ee4c9@lunn.ch>
+ <64df7d8ca3331be205171ddaf7090cae632b7768.camel@linux.ibm.com>
+ <7dc80dfb-5a75-4638-9d44-d5a080ddb693@lunn.ch>
+ <c2eb6fd7e9a786749d70a17266a04fb50dbd5bb8.camel@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QPJnyXamTIMHJKbdQWldKX_mSJ7ZfRha
-X-Proofpoint-ORIG-GUID: G5W3d549idXHcdm0fcExcDz5TXnzCanw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-17_06,2025-01-16_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- priorityscore=1501 malwarescore=0 lowpriorityscore=0 adultscore=0
- phishscore=0 impostorscore=0 mlxscore=0 mlxlogscore=999 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501170149
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c2eb6fd7e9a786749d70a17266a04fb50dbd5bb8.camel@linux.ibm.com>
 
-Move gmap_shadow_pgt_lookup() from mm/gmap.c into kvm/gaccess.c .
+On Fri, Jan 17, 2025 at 05:57:10PM +0100, Niklas Schnelle wrote:
+> On Fri, 2025-01-17 at 17:33 +0100, Andrew Lunn wrote:
+> > > Conceptually kind of but the existing s390 specific ISM device is a bit
+> > > special. But let me start with some background. On s390 aka Mainframes
+> > > OSs including Linux runs in so called logical partitions (LPARs) which
+> > > are machine hypervisor VMs which use partitioned non-paging memory. The
+> > > fact that memory is partitioned is important because this means LPARs
+> > > can not share physical memory by mapping it.
+> > > 
+> > > Now at a high level an ISM device allows communication between two such
+> > > Linux LPARs on the same machine. The device is discovered as a PCI
+> > > device and allows Linux to take a buffer called a DMB map that in the
+> > > IOMMU and generate a token specific to another LPAR which also sees an
+> > > ISM device sharing the same virtual channel identifier (VCHID). This
+> > > token can then be transferred out of band (e.g. as part of an extended
+> > > TCP handshake in SMC-D) to that other system. With the token the other
+> > > system can use its ISM device to securely (authenticated by the token,
+> > > LPAR identity and the IOMMU mapping) write into the original systems
+> > > DMB at throughput and latency similar to doing a memcpy() via a
+> > > syscall.
+> > > 
+> > > On the implementation level the ISM device is actually a piece of
+> > > firmware and the write to a remote DMB is a special case of our PCI
+> > > Store Block instruction (no real MMIO on s390, instead there are
+> > > special instructions). Sadly there are a few more quirks but in
+> > > principle you can think of it as redirecting writes to a part of the
+> > > ISM PCI devices' BAR to the DMB in the peer system if that makes sense.
+> > > There's of course also a mechanism to cause an interrupt on the
+> > > receiver as the write completes.
+> > 
+> > So the s390 details are interesting, but as you say, it is
+> > special. Ideally, all the special should be hidden away inside the
+> > driver.
+> 
+> Yes and it will be. There are some exceptions e.g. for vfio-pci pass-
+> through but that's not unusual and why there is already the concept of
+> vfio-pci extension module.
+> 
+> > 
+> > So please take a step back. What is the abstract model?
+> 
+> I think my high level description may be a good start. The abstract
+> model is the ability to share a memory buffer (DMB) for writing by a
+> communication partner, authenticated by a DMB Token. Plus stuff like
+> triggering an interrupt on write or explicit trigger. Then Alibaba
+> added optional support for what they called attaching the buffer which
+> means it becomes truly shared between the peers but which IBM's ISM
+> can't support. Plus a few more optional pieces such as VLANs, PNETIDs
+> don't ask. The idea for the new layer then is to define this interface
+> with operations and documentation.
+> 
+> > 
+> > Can the abstract model be mapped onto CLX? Could it be used with a GPU
+> > vRAM? SoC with real shared memory between a pool of CPUs.
+> > 
+> > 	Andrew
+> 
+> I'd think that yes, one could implement such a mechanism on top of CXL
+> as well as on SoC. Or even with no special hardware between a host and
+> a DPU (e.g. via PCIe endpoint framework). Basically anything that can
+> DMA and IRQs between two OS instances.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
----
- arch/s390/include/asm/gmap.h |  3 +--
- arch/s390/kvm/gaccess.c      | 40 +++++++++++++++++++++++++++++++
- arch/s390/kvm/gmap.h         |  2 ++
- arch/s390/mm/gmap.c          | 46 ++----------------------------------
- 4 files changed, 45 insertions(+), 46 deletions(-)
+Is DMA part of the abstract model? That would suggest a true shared
+memory system is excluded, since that would not require DMA.
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 904d97f0bc5e..bc264c1469f3 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -127,8 +127,6 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
- 		    int fake);
- int gmap_shadow_pgt(struct gmap *sg, unsigned long saddr, unsigned long pgt,
- 		    int fake);
--int gmap_shadow_pgt_lookup(struct gmap *sg, unsigned long saddr,
--			   unsigned long *pgt, int *dat_protection, int *fake);
- int gmap_shadow_page(struct gmap *sg, unsigned long saddr, pte_t pte);
- 
- void gmap_register_pte_notifier(struct gmap_notifier *);
-@@ -144,6 +142,7 @@ void s390_uv_destroy_pfns(unsigned long count, unsigned long *pfns);
- int __s390_uv_destroy_range(struct mm_struct *mm, unsigned long start,
- 			    unsigned long end, bool interruptible);
- int kvm_s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool split);
-+unsigned long *gmap_table_walk(struct gmap *gmap, unsigned long gaddr, int level);
- 
- /**
-  * s390_uv_destroy_range - Destroy a range of pages in the given mm.
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 9816b0060fbe..560b5677929b 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -16,6 +16,7 @@
- #include <asm/gmap.h>
- #include <asm/dat-bits.h>
- #include "kvm-s390.h"
-+#include "gmap.h"
- #include "gaccess.h"
- 
- /*
-@@ -1392,6 +1393,42 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
- 	return 0;
- }
- 
-+/**
-+ * gmap_shadow_pgt_lookup - find a shadow page table
-+ * @sg: pointer to the shadow guest address space structure
-+ * @saddr: the address in the shadow aguest address space
-+ * @pgt: parent gmap address of the page table to get shadowed
-+ * @dat_protection: if the pgtable is marked as protected by dat
-+ * @fake: pgt references contiguous guest memory block, not a pgtable
-+ *
-+ * Returns 0 if the shadow page table was found and -EAGAIN if the page
-+ * table was not found.
-+ *
-+ * Called with sg->mm->mmap_lock in read.
-+ */
-+static int gmap_shadow_pgt_lookup(struct gmap *sg, unsigned long saddr, unsigned long *pgt,
-+				  int *dat_protection, int *fake)
-+{
-+	unsigned long *table;
-+	struct page *page;
-+	int rc;
-+
-+	spin_lock(&sg->guest_table_lock);
-+	table = gmap_table_walk(sg, saddr, 1); /* get segment pointer */
-+	if (table && !(*table & _SEGMENT_ENTRY_INVALID)) {
-+		/* Shadow page tables are full pages (pte+pgste) */
-+		page = pfn_to_page(*table >> PAGE_SHIFT);
-+		*pgt = page->index & ~GMAP_SHADOW_FAKE_TABLE;
-+		*dat_protection = !!(*table & _SEGMENT_ENTRY_PROTECT);
-+		*fake = !!(page->index & GMAP_SHADOW_FAKE_TABLE);
-+		rc = 0;
-+	} else  {
-+		rc = -EAGAIN;
-+	}
-+	spin_unlock(&sg->guest_table_lock);
-+	return rc;
-+}
-+
- /**
-  * kvm_s390_shadow_fault - handle fault on a shadow page table
-  * @vcpu: virtual cpu
-@@ -1415,6 +1452,9 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 	int dat_protection, fake;
- 	int rc;
- 
-+	if (KVM_BUG_ON(!gmap_is_shadow(sg), vcpu->kvm))
-+		return -EFAULT;
-+
- 	mmap_read_lock(sg->mm);
- 	/*
- 	 * We don't want any guest-2 tables to change - so the parent
-diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
-index 978f541059f0..c8f031c9ea5f 100644
---- a/arch/s390/kvm/gmap.h
-+++ b/arch/s390/kvm/gmap.h
-@@ -10,6 +10,8 @@
- #ifndef ARCH_KVM_S390_GMAP_H
- #define ARCH_KVM_S390_GMAP_H
- 
-+#define GMAP_SHADOW_FAKE_TABLE 1ULL
-+
- int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb);
- int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
- int gmap_destroy_page(struct gmap *gmap, unsigned long gaddr);
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 07df1a7b5ebe..918ea14515a1 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -36,8 +36,6 @@
- 
- #define GMAP_SHADOW_FAKE_TABLE 1ULL
- 
--static inline unsigned long *gmap_table_walk(struct gmap *gmap, unsigned long gaddr, int level);
--
- static struct page *gmap_alloc_crst(void)
- {
- 	struct page *page;
-@@ -738,8 +736,7 @@ static void gmap_call_notifier(struct gmap *gmap, unsigned long start,
-  *
-  * Note: Can also be called for shadow gmaps.
-  */
--static inline unsigned long *gmap_table_walk(struct gmap *gmap,
--					     unsigned long gaddr, int level)
-+unsigned long *gmap_table_walk(struct gmap *gmap, unsigned long gaddr, int level)
- {
- 	const int asce_type = gmap->asce & _ASCE_TYPE_MASK;
- 	unsigned long *table = gmap->table;
-@@ -790,6 +787,7 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
- 	}
- 	return table;
- }
-+EXPORT_SYMBOL(gmap_table_walk);
- 
- /**
-  * gmap_pte_op_walk - walk the gmap page table, get the page table lock
-@@ -1744,46 +1742,6 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
- }
- EXPORT_SYMBOL_GPL(gmap_shadow_sgt);
- 
--/**
-- * gmap_shadow_pgt_lookup - find a shadow page table
-- * @sg: pointer to the shadow guest address space structure
-- * @saddr: the address in the shadow aguest address space
-- * @pgt: parent gmap address of the page table to get shadowed
-- * @dat_protection: if the pgtable is marked as protected by dat
-- * @fake: pgt references contiguous guest memory block, not a pgtable
-- *
-- * Returns 0 if the shadow page table was found and -EAGAIN if the page
-- * table was not found.
-- *
-- * Called with sg->mm->mmap_lock in read.
-- */
--int gmap_shadow_pgt_lookup(struct gmap *sg, unsigned long saddr,
--			   unsigned long *pgt, int *dat_protection,
--			   int *fake)
--{
--	unsigned long *table;
--	struct page *page;
--	int rc;
--
--	BUG_ON(!gmap_is_shadow(sg));
--	spin_lock(&sg->guest_table_lock);
--	table = gmap_table_walk(sg, saddr, 1); /* get segment pointer */
--	if (table && !(*table & _SEGMENT_ENTRY_INVALID)) {
--		/* Shadow page tables are full pages (pte+pgste) */
--		page = pfn_to_page(*table >> PAGE_SHIFT);
--		*pgt = page->index & ~GMAP_SHADOW_FAKE_TABLE;
--		*dat_protection = !!(*table & _SEGMENT_ENTRY_PROTECT);
--		*fake = !!(page->index & GMAP_SHADOW_FAKE_TABLE);
--		rc = 0;
--	} else  {
--		rc = -EAGAIN;
--	}
--	spin_unlock(&sg->guest_table_lock);
--	return rc;
--
--}
--EXPORT_SYMBOL_GPL(gmap_shadow_pgt_lookup);
--
- /**
-  * gmap_shadow_pgt - instantiate a shadow page table
-  * @sg: pointer to the shadow guest address space structure
--- 
-2.48.1
+Maybe take a look at subsystems like USB, I2C.
 
+usb_submit_urb(struct urb *urb, gfp_t mem_flags)
+
+An URB is a data structure with a block of memory associated with it,
+contains the detail to pass to the USB device.
+
+i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+
+*msgs points to num of messages which get transferred to/from the I2C
+device.
+
+Could the high level API look like this? No DMA, no IRQ, no concept of
+a somewhat shared memory. Just an API which asks for a message to be
+sent to the other end? struct urb has some USB concepts in it, struct
+i2c_msg has some I2C concepts in it. A struct ism_msg would follow the
+same pattern, but does it need to care about the DMA, the IRQ, the
+memory which is semi shared?
+
+	Andrew
