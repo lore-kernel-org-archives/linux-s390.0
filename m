@@ -1,239 +1,180 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C85161DF97F;
-	Fri, 17 Jan 2025 18:37:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD95D1A83E4;
+	Fri, 17 Jan 2025 19:09:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737139025; cv=none; b=hzDOfvCnXZV2kzFRa1k0enYlCAs87UKJmy9u6FQOSMytV+v1CvPdw7tHopYONovyUhdDjnBk14FYRS7JwQgWh1RYKpxEmpYK7Z8hoTaPV+shckQAzKGMYAgS7HBB0J+lBb/z71DoDfFjyfG+4bM9A5jG9z379GlC6wjUn7MJBR0=
+	t=1737140990; cv=none; b=e+vsTNrLZK8o4y4CBkVMtfftiRg3V4dyvqgXom6TXJcOeXkv4pW5kR+tnxdM4Tg5WpHoY/0FK2eoQCZuH10yzC4YdlLQ0+L/0sneR1fUdfpVATZY/rT7Tu/Bv4FwKPE/KpQx0h6RcKqVYkgoGYgAvvXmdN2iBTV9zaM/wNv6+sE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737139025; c=relaxed/simple;
-	bh=L5nptAiaGY2hZpZb1eHBCcH++P2uqkiVoyI3tk7Jz1U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I+s1BBT3dw9Qj4lMlFrHkkMoIhIzLhraCS8URoB1IMYiFu5+8/gNs5fTtGtsMgRdIrNvgA+9XKh/WBVy/pIkZfbEYeOFoNi9Ig+GzZeOZbEhYraDhsSyJYlzFBHEF047hTf+sFxChxx9+KqymFyfo71xucGBl4El9DTiq3QYYIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jBnz7DNy; arc=none smtp.client-ip=209.85.216.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1737140990; c=relaxed/simple;
+	bh=1rhkKN6yVUMro8cr5+/x4h7CR9pzZVCmfgXsFG+oDaQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qLuokQwVj6+wWbrcYvHb4Pe+rQPPBHUSptr4An8yLJZLlC/4abWlFT6BAXHPaAdIz6Gun2/tmTN7xB6/IUmMNmSjyT8GSenDdOyDLIAAJ+dYSDG4LRUWFVUTN8BByebZQhdLe7OnQoWLiVZzUyA/Z7JME2MfrX0Ryz9Va/CZMLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Q/dk60A1; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jBnz7DNy"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-2ef87d24c2dso3462428a91.1;
-        Fri, 17 Jan 2025 10:37:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737139023; x=1737743823; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/paU3XV2YsdW8sqUdUFAzVL/jr9cL20VV7Pd7X+jfQo=;
-        b=jBnz7DNyBDc0KzCvuble9xh/KNs1BDPuaAL027+/jWJXt5aHFI6WmvjGowjx73grX0
-         B45n4ZMvy7XaOXuIlBeJirgLcHyhEU71VAl4Dah7hci+oCfFM2NTj0OcDUZufDKSqdCm
-         pG1YZkJcy4chxfWvDOQjlAoqVgjfNQcek1QN7rlEgGnbefnWPV1+pJgo7FJvSmkCHac6
-         RiVxb6ifmoQZ+qXEepD6krrhT7vI06JJtehYk2gL5nFLdjf0GIbzI1Ls7TLAeuVObI7e
-         6CUPzn7VAhG1fEwInaYH12i2Zbcq0hhEiyLW2cG03mhjeyee5EP1yhrTFn+K+TTb2VmL
-         lFXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737139023; x=1737743823;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/paU3XV2YsdW8sqUdUFAzVL/jr9cL20VV7Pd7X+jfQo=;
-        b=W54ayDDRb5j5++2Cy7YR0TgOx3iKe3lPUhIldk+S8e1YIk+Sph+qvdeZ5eC7Mo6X7K
-         +Q6fVfN3OUx557MVCLDbS3uVnlVYu6CYQ5CbdC6dPV0dVsnLWOP8xYZljpCLBe92zh7V
-         XPfihaSyANHtRwlXmRR2pFgzlqhPoFx+791inxvei11lL/IA6ps8W8/1oQdIbRSxvDH5
-         b4jBp5a2xI7om1gzP8CzVeD7+813No+oYDgiffdUBwK0UFZTRfleRp3mkNq0IQcY8kKo
-         La0plFIVhdB37UDvxROvr6P0oaM2iq/0uGQzKRQ1MZ++GsgVyAcGLlSD2qkEmdJ8ARWp
-         vBkw==
-X-Forwarded-Encrypted: i=1; AJvYcCV7G9ibuecgzcXVg6QJWnkWE8EUy53WostzEl27HVNEhWbjCifeYnf2REEmFUg+IOZ534wPfbLM@vger.kernel.org, AJvYcCX5J1Zk0sAQyZRbumtVUUCFJR77qotZ4bN6KloH1OvWw81CjbrA3yhY0rjs0URWOKFQrWo=@vger.kernel.org, AJvYcCXEtZnLYCeEOWPluCxdbA01ldcl4VLlmQQ3VUOSmCt/SJav9YT7kLz3axEXb9BhpDhaeLAHaV48i7sYXg==@vger.kernel.org, AJvYcCXcfC9jb0I6JF/68KWoGILKz6Y1/E/2Qj2Lz0sT00QegSPGYqXqN25qvyMSG8JLKX9foNsaG4uvab0lqg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywn519TAm8z0PCrvawjiITyEGZQj9ChAxj2+3S6yLenUneVyq8b
-	ORiG9jFG8xCuJj86e2yBF5qxL8eb0Jv2nykJA1VE8bl06OWsXaHtCdXGvvVac9uTlqN7OqeLpL/
-	ComVtxjfTzjnns9LZzOm0gtyrzXI=
-X-Gm-Gg: ASbGnctCEF21aOtTplhr0CGacO6HnsJBOmSZ9oiGTdAqTf57gWOS5BAJLAlptdBNJNo
-	RURZK1tPJ2cdqskgGwkO1vxIz4Wga7RPE0b5C
-X-Google-Smtp-Source: AGHT+IHlKXjKmNWGoqU/eH4r2mE6aT+7ReHvtK4TLTDiMthduAsThbIwDyr+XObLaRSjQuTbphVlH9jain7orH9zxZE=
-X-Received: by 2002:a17:90b:534b:b0:2ee:a6f0:f54 with SMTP id
- 98e67ed59e1d1-2f782c93df5mr5199405a91.13.1737139023096; Fri, 17 Jan 2025
- 10:37:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Q/dk60A1"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50HEkrQL015094;
+	Fri, 17 Jan 2025 19:09:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=o4h9hJqbOdh+6Zjq+Fcwapr/Kn6LQtscO3Sk2enTf
+	e4=; b=Q/dk60A1ZiPAJJx1yoYiasxUWRydqBUGKIKZs0eWx5IckcsOQMI0cHCrY
+	Fng2a2DJPuY/Zz9t/XIwhaska2kugA6ncc6AenkZ/h/g/wpjlm85G8WpU0W0a/6q
+	rKSzHqUrbQtYQKWqbWBjvdGvQTKv9L4vcVedZNEr01zlaitkkMb7oWCMe3ijN9tq
+	lOJfzH3xA3XYaXmpiu9GBdHBL76h4MkGVbiMDAZuWf2kJAyOXc3dYqkdxvdAiFlX
+	ED5l5YBa6/QjFJf17v7/AqW7uIlg20nmmCFj0aYptIn0yehs+45ofhVlp/0QMrkN
+	sRx+RDPEDIDU0GngNewPfNsvIv09Q==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447fpuc1yj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 19:09:44 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50HJ9isq009160;
+	Fri, 17 Jan 2025 19:09:44 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447fpuc1yg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 19:09:44 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50HIXXYA017359;
+	Fri, 17 Jan 2025 19:09:43 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4444fkma8b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 17 Jan 2025 19:09:42 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50HJ9daJ55116112
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 17 Jan 2025 19:09:39 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0CCFD20043;
+	Fri, 17 Jan 2025 19:09:39 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA17220040;
+	Fri, 17 Jan 2025 19:09:38 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 17 Jan 2025 19:09:38 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, borntraeger@de.ibm.com,
+        schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
+        hca@linux.ibm.com, svens@linux.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
+        seanjc@google.com, seiden@linux.ibm.com
+Subject: [PATCH v3 00/15] KVM: s390: Stop using page->index and other things
+Date: Fri, 17 Jan 2025 20:09:23 +0100
+Message-ID: <20250117190938.93793-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250116074442.79304-1-alibuda@linux.alibaba.com> <20250116074442.79304-5-alibuda@linux.alibaba.com>
-In-Reply-To: <20250116074442.79304-5-alibuda@linux.alibaba.com>
-From: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date: Fri, 17 Jan 2025 10:36:50 -0800
-X-Gm-Features: AbW1kvZPOA_e4VBRxGF2UR8BvcgPSnH8-FR3ERgszYydOW9nflDbMRjIRPEPz28
-Message-ID: <CAEf4BzZvxqiQ2J1XQMm-ZDBjSsmtJJk6-_RbexPk9vWxAO=ksw@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v6 4/5] libbpf: fix error when st-prefix_ops and
- ops from differ btf
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
-	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev, 
-	pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com, 
-	yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org, 
-	jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org, 
-	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: r_bwIuLHishf0mOVybAis-CRLkDFtzZ-
+X-Proofpoint-ORIG-GUID: iFJU1rLk-9-JBUz0lPTAX-Tp_BV_m2px
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-17_06,2025-01-16_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 lowpriorityscore=0 spamscore=0
+ impostorscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 mlxlogscore=692
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501170149
 
-On Wed, Jan 15, 2025 at 11:45=E2=80=AFPM D. Wythe <alibuda@linux.alibaba.co=
-m> wrote:
->
-> When a struct_ops named xxx_ops was registered by a module, and
-> it will be used in both built-in modules and the module itself,
-> so that the btf_type of xxx_ops will be present in btf_vmlinux
-> instead of in btf_mod, which means that the btf_type of
-> bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
->
-> Here are four possible case:
->
-> +--------+---------------+-------------+---------------------------------=
-+
-> |        | st_ops_xxx_ops| xxx_ops     |                                 =
-|
-> +--------+---------------+-------------+---------------------------------=
-+
-> | case 0 | btf_vmlinux   | bft_vmlinux | be used and reg only in vmlinux =
-|
-> +--------+---------------+-------------+---------------------------------=
-+
-> | case 1 | btf_vmlinux   | bpf_mod     | INVALID                         =
-|
-> +--------+---------------+-------------+---------------------------------=
-+
-> | case 2 | btf_mod       | btf_vmlinux | reg in mod but be used both in  =
-|
-> |        |               |             | vmlinux and mod.                =
-|
-> +--------+---------------+-------------+---------------------------------=
-+
-> | case 3 | btf_mod       | btf_mod     | be used and reg only in mod     =
-|
-> +--------+---------------+-------------+---------------------------------=
-+
->
-> At present, cases 0, 1, and 3 can be correctly identified, because
-> st_ops_xxx_ops is searched from the same btf with xxx_ops. In order to
-> handle case 2 correctly without affecting other cases, we cannot simply
-> change the search method for st_ops_xxx_ops from find_btf_by_prefix_kind(=
-)
-> to find_ksym_btf_id(), because in this way, case 1 will not be
-> recognized anymore.
->
-> To address the issue, we always look for st_ops_xxx_ops first,
-> figure out the btf, and then look for xxx_ops with the very btf to avoid
-> such issue.
->
-> Fixes: 590a00888250 ("bpf: libbpf: Add STRUCT_OPS support")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->  tools/lib/bpf/libbpf.c | 41 +++++++++++++++++++++++------------------
->  1 file changed, 23 insertions(+), 18 deletions(-)
->
+This patchseries starts moving some of the gmap logic into KVM itself,
+going towards the final goal of completely removing gmap from the
+non-kvm memory management code. Aside from just moving some code from
+mm/gmap into kvm, this series also starts using __kvm_faultin_pfn() to
+fault-in pages as needed.
 
-Other than a few nits below, LGTM
+But more importantly, this series removes almost all uses of
+page->index (and all uses of page->lru) from the s390 KVM code.
+The only remaining use is for the vsie pages, but that has already been
+taken care of by David in another series.
 
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Unfortunately the mix of hastiness and holidays means that this series
+is a little bit all over the place, and not as complete as I would have
+liked to.
 
-> diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-> index 66173ddb5a2d..202bc4c1001e 100644
-> --- a/tools/lib/bpf/libbpf.c
-> +++ b/tools/lib/bpf/libbpf.c
-> @@ -1005,14 +1005,33 @@ find_struct_ops_kern_types(struct bpf_object *obj=
-, const char *tname_raw,
->         const struct btf_member *kern_data_member;
->         struct btf *btf =3D NULL;
->         __s32 kern_vtype_id, kern_type_id;
-> -       char tname[256];
-> +       char tname[256], stname[256];
-> +       int ret;
->         __u32 i;
->
->         snprintf(tname, sizeof(tname), "%.*s",
->                  (int)bpf_core_essential_name_len(tname_raw), tname_raw);
->
-> -       kern_type_id =3D find_ksym_btf_id(obj, tname, BTF_KIND_STRUCT,
-> +       ret =3D snprintf(stname, sizeof(stname), "%s%s", STRUCT_OPS_VALUE=
-_PREFIX,
-> +                      tname);
-> +       if (ret < 0 || ret >=3D sizeof(stname))
-> +               return -ENAMETOOLONG;
+I'm posting it now so to try to speed up the removal of page->index,
+hopefully I will be able to post another short series before the
+upcoming merge window closes.
 
-see preexisting snprintf() above, we don't really handle truncation
-errors explicitly, they are extremely unlikely and not expected at
-all, and worst case nothing will be found and user will get some
--ENOENT or something like that eventually. I'd drop this extra error
-checking and keep it streamlines, similar to tname
 
-> +
-> +       /* Look for the corresponding "map_value" type that will be used
-> +        * in map_update(BPF_MAP_TYPE_STRUCT_OPS) first, figure out the b=
-tf
-> +        * and the mod_btf.
-> +        * For example, find "struct bpf_struct_ops_tcp_congestion_ops".
-> +        */
-> +       kern_vtype_id =3D find_ksym_btf_id(obj, stname, BTF_KIND_STRUCT,
->                                         &btf, mod_btf);
+v1->v2:
+* moved some code around between patches to improve readability and shuffle
+  the order of some patches
+* rebase on Sean's patchseries
+* add Sean's patch to remove size limitations for internal memslots
+* use Sean's new API for internal memslots to place one huge internal
+  memslot instead of many 4T ones for UCONTROL guests
+* create new kvm/gmap-vsie.c file for VSIE code, instead of dumping
+  everything in the existing files, which are already too large
+* improve comments and patch descriptions
+* minor style and cosmetic fixes
 
-nit: if this fits under 100 characters, keep it single line
+v2->v3
+* moved patch 5 back to its place
+* moved uv_wiggle_folio() to mm/gmap.c and renamed it to
+  kvm_s390_wiggle_split_folio()
+* fixed some typos
+* added some lockdep asserts
+* minor style fixes
+* added some comments
+* fixed documentation
 
-> +       if (kern_vtype_id < 0) {
-> +               pr_warn("struct_ops init_kern: struct %s is not found in =
-kernel BTF\n",
-> +                               stname);
 
-same nit about preserving single-line statements as much as possible,
-they are much easier to read
+Claudio Imbrenda (14):
+  KVM: s390: wrapper for KVM_BUG
+  KVM: s390: fake memslot for ucontrol VMs
+  KVM: s390: selftests: fix ucontrol memory region test
+  KVM: s390: move pv gmap functions into kvm
+  KVM: s390: use __kvm_faultin_pfn()
+  KVM: s390: get rid of gmap_fault()
+  KVM: s390: get rid of gmap_translate()
+  KVM: s390: move some gmap shadowing functions away from mm/gmap.c
+  KVM: s390: stop using page->index for non-shadow gmaps
+  KVM: s390: stop using lists to keep track of used dat tables
+  KVM: s390: move gmap_shadow_pgt_lookup() into kvm
+  KVM: s390: remove useless page->index usage
+  KVM: s390: move PGSTE softbits
+  KVM: s390: remove the last user of page->index
 
-> +               return kern_vtype_id;
-> +       }
-> +       kern_vtype =3D btf__type_by_id(btf, kern_vtype_id);
-> +
-> +       kern_type_id =3D btf__find_by_name_kind(btf, tname, BTF_KIND_STRU=
-CT);
->         if (kern_type_id < 0) {
->                 pr_warn("struct_ops init_kern: struct %s is not found in =
-kernel BTF\n",
->                         tname);
-> @@ -1020,20 +1039,6 @@ find_struct_ops_kern_types(struct bpf_object *obj,=
- const char *tname_raw,
->         }
->         kern_type =3D btf__type_by_id(btf, kern_type_id);
->
-> -       /* Find the corresponding "map_value" type that will be used
-> -        * in map_update(BPF_MAP_TYPE_STRUCT_OPS).  For example,
-> -        * find "struct bpf_struct_ops_tcp_congestion_ops" from the
-> -        * btf_vmlinux.
-> -        */
-> -       kern_vtype_id =3D find_btf_by_prefix_kind(btf, STRUCT_OPS_VALUE_P=
-REFIX,
-> -                                               tname, BTF_KIND_STRUCT);
-> -       if (kern_vtype_id < 0) {
-> -               pr_warn("struct_ops init_kern: struct %s%s is not found i=
-n kernel BTF\n",
-> -                       STRUCT_OPS_VALUE_PREFIX, tname);
-> -               return kern_vtype_id;
-> -       }
-> -       kern_vtype =3D btf__type_by_id(btf, kern_vtype_id);
-> -
->         /* Find "struct tcp_congestion_ops" from
->          * struct bpf_struct_ops_tcp_congestion_ops {
->          *      [ ... ]
-> @@ -1046,8 +1051,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, =
-const char *tname_raw,
->                         break;
->         }
->         if (i =3D=3D btf_vlen(kern_vtype)) {
-> -               pr_warn("struct_ops init_kern: struct %s data is not foun=
-d in struct %s%s\n",
-> -                       tname, STRUCT_OPS_VALUE_PREFIX, tname);
-> +               pr_warn("struct_ops init_kern: struct %s data is not foun=
-d in struct %s\n",
-> +                       tname, stname);
->                 return -EINVAL;
->         }
->
-> --
-> 2.45.0
->
+Sean Christopherson (1):
+  KVM: Do not restrict the size of KVM-internal memory regions
+
+ Documentation/virt/kvm/api.rst                |   2 +-
+ arch/s390/include/asm/gmap.h                  |  18 +-
+ arch/s390/include/asm/kvm_host.h              |   2 +
+ arch/s390/include/asm/pgtable.h               |  21 +-
+ arch/s390/include/asm/uv.h                    |   6 +-
+ arch/s390/kernel/uv.c                         | 292 +-------
+ arch/s390/kvm/Makefile                        |   2 +-
+ arch/s390/kvm/gaccess.c                       |  42 ++
+ arch/s390/kvm/gmap-vsie.c                     | 142 ++++
+ arch/s390/kvm/gmap.c                          | 206 ++++++
+ arch/s390/kvm/gmap.h                          |  39 +
+ arch/s390/kvm/intercept.c                     |   5 +-
+ arch/s390/kvm/interrupt.c                     |  19 +-
+ arch/s390/kvm/kvm-s390.c                      | 219 +++++-
+ arch/s390/kvm/kvm-s390.h                      |  19 +
+ arch/s390/kvm/pv.c                            |   1 +
+ arch/s390/kvm/vsie.c                          |   2 +
+ arch/s390/mm/gmap.c                           | 681 ++++--------------
+ .../selftests/kvm/s390x/ucontrol_test.c       |   6 +-
+ virt/kvm/kvm_main.c                           |  10 +-
+ 20 files changed, 867 insertions(+), 867 deletions(-)
+ create mode 100644 arch/s390/kvm/gmap-vsie.c
+ create mode 100644 arch/s390/kvm/gmap.c
+ create mode 100644 arch/s390/kvm/gmap.h
+
+-- 
+2.48.1
+
