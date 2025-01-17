@@ -1,151 +1,134 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90A821F8905;
-	Fri, 17 Jan 2025 11:04:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 677DC1FE47C
+	for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2025 11:23:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737111861; cv=none; b=qYpgS7TcURWowjJ2Ld85OUHwXaF0eR9Q5CwAGlCwJmFL7lJ4ha/0h7JbQ8CXXhgYqKCsnwuWmMd/KzSY/SCNQcULSqcoeJZwze8r7GF/+O3QOSy5abue075cbuSppAJqROwrNC6TAKZydVParoLDD8xCuECw6jgpwwZGtR5qEHY=
+	t=1737113025; cv=none; b=g6EbDSD3nPcQYco+9N/1xaIo/Ka5icUmRM9rt/q7Lhjclk4wyMVVkZwRch5lrtK/lLnaZlg+NOTFceozy0PQZt7VeOsad3p4R9PrD5Rc2xfwlMfwAa/A813W4Jc3UzRW3L51O8uX2MJppBrQbjzOA5lDSVJbbffbOcK5t8+OJcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737111861; c=relaxed/simple;
-	bh=6dHuOH8tZH87hfcM8Zo2QAgoWHdytFSqcuRVEsj8ANo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XgBDuMyhmvfBz5OW8QuWfOVfaC6GvttC0wHgKzZUyeGHuGs79vq3Q+WqfpWC1lNL+glmN22IcXSRvXC4hO0IHzFMDfSta/Dq4GvYiWS29KZg65YOSOiVeP9RXJWhrw46O9n8PeRTtb22oaK5pC8/59hLLimOVKzfrYk7HBsK26w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I8isLou3; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737113025; c=relaxed/simple;
+	bh=0MfAagGyPmBC90JAAVPekQyRC26SLFPBltnUGhYKIEU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FzBM2m50yJj3gYPYM7RB7G11pFsGS8EqALwMBmYQcEx56BQW+lVcHNDJ+10+II55IQj7MrhBpCUCttlowEGegkaHXmpmWNuKwq3P/evNfIYP7weZ9G3iPtorsaPCUWLBfaWnQvj8h9tfWlhFj8awizciALQRZaW92RtzrQfzCwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PPorRLND; arc=none smtp.client-ip=209.85.160.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I8isLou3"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50H3qqqP025512;
-	Fri, 17 Jan 2025 11:04:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=z9VWwi
-	BIRwOvxV6QcNBCpok231Z8erNJNcVDezJ2D9s=; b=I8isLou3gvy/gUm+1E2Rdn
-	4eczJ4fy6XOuIIdA1NljyFHIyuyx+Ve8g+7NIVFe5YUdn4hGyEl4QXlGqWzxFsT6
-	wUuUr0QRoscnNT5bzCVkvAz+ZdnTfDP9PbOCg2QZ7EctglX1WgMNLu5MS7Iart8R
-	ENRxpkrk4o8MR/teACfzkhB0pj2tcEK1pfeXgDN19ao2nRCROztMA2oCSDE/HbOz
-	kygobWZPyIdQaL/ddY4qcyYUukKRSHBuNo/hjKPaiEpjRr6m+mrHlRKFrfECT+LU
-	NGAXJj+wtS5SZz9tIBFc7HleCMpWhrvPTsN2PH999fX8j4x0EcK5D3+zC7vLrfhA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447fpc9qua-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jan 2025 11:04:12 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50HAx2dj007845;
-	Fri, 17 Jan 2025 11:04:12 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 447fpc9qu8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jan 2025 11:04:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50H7ZdbA016571;
-	Fri, 17 Jan 2025 11:04:11 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4445p226sq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Jan 2025 11:04:10 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50HB47m052888048
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Jan 2025 11:04:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A0632004B;
-	Fri, 17 Jan 2025 11:04:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0BE9920040;
-	Fri, 17 Jan 2025 11:04:06 +0000 (GMT)
-Received: from [9.171.79.45] (unknown [9.171.79.45])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 17 Jan 2025 11:04:05 +0000 (GMT)
-Message-ID: <235f4580-a062-4789-a598-ea54d13504bb@linux.ibm.com>
-Date: Fri, 17 Jan 2025 12:04:06 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PPorRLND"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-4678c9310afso165211cf.1
+        for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2025 03:23:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1737113021; x=1737717821; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=FIGX2U5Y620ytLuHZv9C2YKRXU6LkFVVh5lOzeeXil4=;
+        b=PPorRLNDV4AQ8MwiqGru7nqq+V+H31WOvwoUgITsCd2kWqUJXQ0yhvhLdOXY3jfgdF
+         kETx2BTwW1SrvyNs7aMKDcPh46hEYuh5pnW244DN+cgalqppCtqW9PT0LC1W+QxhOxKx
+         wxdp9Wrw9hFlF2qqvRkZd+n+iIcj1M7gaV74qABa+iFHX6R0UklI/TNVU/cfq9IfCDgw
+         R10IA7qqGnPlp7ySFSWytN+wNZX1iv50lOGLAQrK/1DZGVuVUOGRbSwrtFAH2dAer5jT
+         h71ju9UbgO4pg4KHLkbvEdA1Br7PcZVKcBZSvZyJs1f8UMptW8QFmgjCjegxSvlO9U/r
+         Tc1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737113021; x=1737717821;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FIGX2U5Y620ytLuHZv9C2YKRXU6LkFVVh5lOzeeXil4=;
+        b=I44GrqDeasBkIgnMzoYqeUpgn6Ilj2TekNF85mb8XUZpMymF3aEFwRFGlh8jSLL+AZ
+         Zpi8ECA70AOEa2IIywAfemzuIV1llPk9cvN3ktwTXTd+jFRSbPasVmCaLl5WhzdGSV1s
+         B0rqQIcSpWGCtaKE3Z5YB5MyatKqvqgch+0f9F5S6ezTe89bcEpIHqExc0KLL7L7i7iA
+         MNsS7+irha9vCYrHB6nYnzr5gN9d3w6M0I0reZrBl8/dTws34Bmeo62pJFZiGvn1nK1Y
+         Lh6ySdo0I3cAuPBQ7jhzdJBAZH0smqGV24jT28zfhgjUloWTb4s2h0A1AnFSGPSnkxKr
+         yXgg==
+X-Forwarded-Encrypted: i=1; AJvYcCX8RdT9pQCB4CIXIQ8eUQVA7M/BtkMNUXG70ZDbIBSThTlYzwfG6ltiukeHACGupvqWJhr4PEan4KoP@vger.kernel.org
+X-Gm-Message-State: AOJu0YxMmtQiWkOLAnzPgvEaC6CxhESR2LWTU+Q0F/vbCNmEUdNnTZlN
+	csLtRQbjTUOt3tOBtkVEPouGM17leOyxLcWl0vMsgnXBkduooK3eIg4sjDE53gbUHTX4IY43iHi
+	D+EJD8ubJUX8Oo1u9/sKGd/WbaqEPGzmMUIRe
+X-Gm-Gg: ASbGncs7LIPQ3pfTjqQBuWniBiowrbayYnmz4JAHkdrwCzS+3Tcnce2CDSimC52PjnW
+	yC6RyPBWb9QiizrYxLLU7kCTGiDFhoBudcg2v5Bb5p3TS5oKnoc/lxQ7ZFlsVHFsDEYs9
+X-Google-Smtp-Source: AGHT+IGncYyjy1GhHnzrsXOo74WzCLmIKZegqTWM730ikUDOlazbTaQH35QB0zgmvzL1yJ283cNPWINqKuKsZStNP0A=
+X-Received: by 2002:a05:622a:1997:b0:466:923f:a749 with SMTP id
+ d75a77b69052e-46e130af265mr2539121cf.15.1737113021050; Fri, 17 Jan 2025
+ 03:23:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-To: dust.li@linux.alibaba.com, Wenjia Zhang <wenjia@linux.ibm.com>,
-        Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Julian Ruess <julianr@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20250116093231.GD89233@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Bc5ul1wygm9gBnHl7Y7C9AI4itJqMy-3
-X-Proofpoint-GUID: 4hgNXehnU4vmNjx6aiB2Sb3C9yGOnPjB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-17_04,2025-01-16_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- impostorscore=0 mlxlogscore=654 spamscore=0 malwarescore=0 clxscore=1015
- priorityscore=1501 mlxscore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501170084
+References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com> <20250110-asi-rfc-v2-v2-16-8419288bc805@google.com>
+In-Reply-To: <20250110-asi-rfc-v2-v2-16-8419288bc805@google.com>
+From: Brendan Jackman <jackmanb@google.com>
+Date: Fri, 17 Jan 2025 12:23:30 +0100
+X-Gm-Features: AbW1kvZ_KaymUoc5jGYX-groCnX_p-Tg9PrSiJ2rBOnB_iSLYbhJZulsHf6-rd0
+Message-ID: <CA+i-1C1JKEd43vtyGO6RLCQQA8qVCvALjm+q1oVTGMLtjo64iw@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 16/29] mm: asi: Map kernel text and static data as nonsensitive
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, 
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>, 
+	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Paul Walmsley <paul.walmsley@sifive.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Chris Zankel <chris@zankel.net>, 
+	Max Filippov <jcmvbkbc@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Andrew Morton <akpm@linux-foundation.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
+	Valentin Schneider <vschneid@redhat.com>, Uladzislau Rezki <urezki@gmail.com>, 
+	Christoph Hellwig <hch@infradead.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Mike Rapoport <rppt@kernel.org>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>, 
+	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Ard Biesheuvel <ardb@kernel.org>, Josh Poimboeuf <jpoimboe@kernel.org>, 
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
+	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-efi@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-I hit the send button to early, sorry about that. 
-Let me comment on the other proposals from Dust Li as well.
+On Fri, 10 Jan 2025 at 19:41, Brendan Jackman <jackmanb@google.com> wrote:
+> +       asi_clone_pgd(asi_global_nonsensitive_pgd, init_mm.pgd, VMEMMAP_START);
+> +       asi_clone_pgd(asi_global_nonsensitive_pgd, init_mm.pgd,
+> +                     VMEMMAP_START + (1UL << PGDIR_SHIFT));
 
-On 16.01.25 10:32, Dust Li wrote:
-> Abstraction of ISM Device Details: I propose we abstract the ISM device
-> details by providing SMC with helper functions. These functions could
-> encapsulate ism->ops, making the implementation cleaner and more
-> intuitive. 
+There's a bug here that Yosry has fixed in our internal version, I
+neglected to incorporate that here.
 
+Under KASLR, vmemmap is not necessarily exactly 2 PGDs like this is
+assuming. In fact it can share a PGD entry with the vmalloc area. So
+to be correct this cloning logic needs to actually look at the
+alignment and then navigate the page table hierarchy appropriately.
 
-Maybe I misunderstand what you mean by helper functions..
-Why would you encapsulate ism->ops functions in another set of wrappers?
-I was happy to remove the helper functions in 2/7 and 7/7.
+To be fixed for the next version.
 
-
-This way, the struct ism_device would mainly serve its
-> implementers, while the upper helper functions offer a streamlined
-> interface for SMC.
-
-
-I was actually also wondering, whether the clients should access ism_device
-at all. Or whether they should only use the ism_ops.
-I can give that a try in the next version. I think this RFC almost there already.
-The clients would still need to pass a poitner to ism_dev as a parameter.
-
-
-> Structuring and Naming: I recommend embedding the structure of ism_ops
-> directly within ism_dev rather than using a pointer. 
-
-
-I think it is a common method to have the const struct xy_ops in the device driver code
-and then use pointer to register the device with an upper layer.
-What would be the benefit of duplicating that struct in every ism_dev?
-
-
-Additionally,
-> renaming it to ism_device_ops could enhance clarity and consistency.
-
-
-Yes, that would help to distinguish them from the ism_client functions. 
-I' rename them to ism_dev_ops in the next version.
-
+As Yosry noted internally we also need to think about vmmemap getting
+updated under memory hotplug.
