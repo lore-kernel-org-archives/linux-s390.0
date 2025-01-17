@@ -1,159 +1,193 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+Received: from out-187.mta1.migadu.com (out-187.mta1.migadu.com [95.215.58.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74B83187550;
-	Fri, 17 Jan 2025 20:29:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A99E1AE875
+	for <linux-s390@vger.kernel.org>; Fri, 17 Jan 2025 23:51:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737145764; cv=none; b=LoIh2tc4N8DeKlf9U0WxlWCd7gXvJIxhaVmHR8Em4hbAfYHtSnbMVIFl4veKDKL6JToTeX36ihhQDS3WBblM9Ruxyve0aUyq55ddR5tTNKUZdgVnwMFNlCX8+4MkrEMt+zxWYAJmWMyFCL1vv9pNQoc6xWvoDVPuWIX6+dopZxY=
+	t=1737157870; cv=none; b=sy+2gdlo9nC3wOyiYGftVDI6f66UxcDAeLJsczVpRRrohoSwmzXL6E0oYLXA+UB9ixTQ1pc5pKoP/tG+TBufgwGlqiUWSGThDUde0ii10yESlW3PuWZkbCZtJ8bkZ9h2q7NSRlGtHiH9NWdcd9dWOxqOeDRQVeaQ9YbGhavvGuE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737145764; c=relaxed/simple;
-	bh=EtdlRyzsag0emijMlfhFTVgivQHeSsN6MFP/B2AC+5E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FC52WEWADz0ELZwM7Q1x9b39wjzWrgoN5w2d1nP7HybyStzWq1E9m7nVvO0XLVzPRGIRWz3nMk9qE0IvE/Bh4bdfRPBk2HeFFqvQBT2QiETuoUk0PLwJ1bUzjosigRLjyXfJd2UeKeOhS8higw/LD/VJ2AsCbeeNKegIjkVyzjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=CIhbYKM9; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	s=arc-20240116; t=1737157870; c=relaxed/simple;
+	bh=GS+eplDaO0zzBE8kd3f7WLgIU8qo0/W7A9RLNj9cN2Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Gfuu5gWUPnVLmBxu6R0p6xqN3cpq9l9m2BszQA+b2PWD2tS47ISU2Wui0poYgI/+pA6mB+Dm1NWW9aedXLluPTuZNNeOcB1CS3tsBJkafKyKukuT/oi1+7SnNqm+Emvw33cfURyMHVTi57wPw+LUwDy/Jlh3hEN7psoiW2yoMPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=YRCxG/WM; arc=none smtp.client-ip=95.215.58.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="CIhbYKM9"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=rMi/cjvuR8Du4cB7SgfDtqM1hJlv318nstpvkSQl7gQ=; b=CIhbYKM9teKXe7hQkikw48b19q
-	nCVLHuJxYW5SgGOEUbxheIMCZ0hRFSKd2ZYJhkPVx0VMbupR+bgy88rJSG5UxaxG24DQ4SBdJHU3a
-	fNE5INv2H5uQVOQrOrmQteFYF/MQPGrsLdE4WAAorgghKrPN4X0idv4EBloXF3xNLVkA=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1tYsxp-005bMs-MR; Fri, 17 Jan 2025 21:29:09 +0100
-Date: Fri, 17 Jan 2025 21:29:09 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: dust.li@linux.alibaba.com, Alexandra Winter <wintera@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-Message-ID: <85d94131-6c2b-41bd-ad93-c0e7c24801db@lunn.ch>
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
- <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
- <20250117021353.GF89233@linux.alibaba.com>
- <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
- <034e69fe-84b4-44f2-80d1-7c36ab4ee4c9@lunn.ch>
- <64df7d8ca3331be205171ddaf7090cae632b7768.camel@linux.ibm.com>
- <7dc80dfb-5a75-4638-9d44-d5a080ddb693@lunn.ch>
- <c2eb6fd7e9a786749d70a17266a04fb50dbd5bb8.camel@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="YRCxG/WM"
+Message-ID: <86948347-529b-433a-991d-0b298776db63@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1737157864;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ON6aq/S2ODX7ZKRZdnbNdkw0Pwc6gEEIJlkq4LjKrL8=;
+	b=YRCxG/WM6HJkcW5AyJeqHEJUpJFfw50178ECRPL59g4zob3dT6hB54KooAGzbdCMLTdT3H
+	ygQ5+t0eLkJoRFNk3Zp+s5F2mKCChLc8wKOOpQOOQtiYFZSR3ccUtZeeZ46ZRE4ybYTxjX
+	EgpcwS3cSQEzqhsukBEUfubKDVmhesk=
+Date: Fri, 17 Jan 2025 15:50:48 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c2eb6fd7e9a786749d70a17266a04fb50dbd5bb8.camel@linux.ibm.com>
+Subject: Re: [PATCH bpf-next v6 2/5] net/smc: Introduce generic hook smc_ops
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+ ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
+ song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
+ edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
+ jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
+ davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-rdma@vger.kernel.org, bpf@vger.kernel.org
+References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
+ <20250116074442.79304-3-alibuda@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Martin KaFai Lau <martin.lau@linux.dev>
+Content-Language: en-US
+In-Reply-To: <20250116074442.79304-3-alibuda@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Fri, Jan 17, 2025 at 05:57:10PM +0100, Niklas Schnelle wrote:
-> On Fri, 2025-01-17 at 17:33 +0100, Andrew Lunn wrote:
-> > > Conceptually kind of but the existing s390 specific ISM device is a bit
-> > > special. But let me start with some background. On s390 aka Mainframes
-> > > OSs including Linux runs in so called logical partitions (LPARs) which
-> > > are machine hypervisor VMs which use partitioned non-paging memory. The
-> > > fact that memory is partitioned is important because this means LPARs
-> > > can not share physical memory by mapping it.
-> > > 
-> > > Now at a high level an ISM device allows communication between two such
-> > > Linux LPARs on the same machine. The device is discovered as a PCI
-> > > device and allows Linux to take a buffer called a DMB map that in the
-> > > IOMMU and generate a token specific to another LPAR which also sees an
-> > > ISM device sharing the same virtual channel identifier (VCHID). This
-> > > token can then be transferred out of band (e.g. as part of an extended
-> > > TCP handshake in SMC-D) to that other system. With the token the other
-> > > system can use its ISM device to securely (authenticated by the token,
-> > > LPAR identity and the IOMMU mapping) write into the original systems
-> > > DMB at throughput and latency similar to doing a memcpy() via a
-> > > syscall.
-> > > 
-> > > On the implementation level the ISM device is actually a piece of
-> > > firmware and the write to a remote DMB is a special case of our PCI
-> > > Store Block instruction (no real MMIO on s390, instead there are
-> > > special instructions). Sadly there are a few more quirks but in
-> > > principle you can think of it as redirecting writes to a part of the
-> > > ISM PCI devices' BAR to the DMB in the peer system if that makes sense.
-> > > There's of course also a mechanism to cause an interrupt on the
-> > > receiver as the write completes.
-> > 
-> > So the s390 details are interesting, but as you say, it is
-> > special. Ideally, all the special should be hidden away inside the
-> > driver.
-> 
-> Yes and it will be. There are some exceptions e.g. for vfio-pci pass-
-> through but that's not unusual and why there is already the concept of
-> vfio-pci extension module.
-> 
-> > 
-> > So please take a step back. What is the abstract model?
-> 
-> I think my high level description may be a good start. The abstract
-> model is the ability to share a memory buffer (DMB) for writing by a
-> communication partner, authenticated by a DMB Token. Plus stuff like
-> triggering an interrupt on write or explicit trigger. Then Alibaba
-> added optional support for what they called attaching the buffer which
-> means it becomes truly shared between the peers but which IBM's ISM
-> can't support. Plus a few more optional pieces such as VLANs, PNETIDs
-> don't ask. The idea for the new layer then is to define this interface
-> with operations and documentation.
-> 
-> > 
-> > Can the abstract model be mapped onto CLX? Could it be used with a GPU
-> > vRAM? SoC with real shared memory between a pool of CPUs.
-> > 
-> > 	Andrew
-> 
-> I'd think that yes, one could implement such a mechanism on top of CXL
-> as well as on SoC. Or even with no special hardware between a host and
-> a DPU (e.g. via PCIe endpoint framework). Basically anything that can
-> DMA and IRQs between two OS instances.
+On 1/15/25 11:44 PM, D. Wythe wrote:
+> diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+> index 2fab6456f765..2004241c3045 100644
+> --- a/net/smc/smc_sysctl.c
+> +++ b/net/smc/smc_sysctl.c
+> @@ -18,6 +18,7 @@
+>   #include "smc_core.h"
+>   #include "smc_llc.h"
+>   #include "smc_sysctl.h"
+> +#include "smc_ops.h"
+>   
+>   static int min_sndbuf = SMC_BUF_MIN_SIZE;
+>   static int min_rcvbuf = SMC_BUF_MIN_SIZE;
+> @@ -30,6 +31,69 @@ static int links_per_lgr_max = SMC_LINKS_ADD_LNK_MAX;
+>   static int conns_per_lgr_min = SMC_CONN_PER_LGR_MIN;
+>   static int conns_per_lgr_max = SMC_CONN_PER_LGR_MAX;
+>   
+> +#if IS_ENABLED(CONFIG_SMC_OPS)
+> +static int smc_net_replace_smc_ops(struct net *net, const char *name)
+> +{
+> +	struct smc_ops *ops = NULL;
+> +
+> +	rcu_read_lock();
+> +	/* null or empty name ask to clear current ops */
+> +	if (name && name[0]) {
+> +		ops = smc_ops_find_by_name(name);
+> +		if (!ops) {
+> +			rcu_read_unlock();
+> +			return -EINVAL;
+> +		}
+> +		/* no change, just return */
+> +		if (ops == rcu_dereference(net->smc.ops)) {
+> +			rcu_read_unlock();
+> +			return 0;
+> +		}
+> +	}
+> +	if (!ops || bpf_try_module_get(ops, ops->owner)) {
+> +		/* xhcg */
 
-Is DMA part of the abstract model? That would suggest a true shared
-memory system is excluded, since that would not require DMA.
+typo. I noticed it only because...
 
-Maybe take a look at subsystems like USB, I2C.
+> +		ops = rcu_replace_pointer(net->smc.ops, ops, true);
 
-usb_submit_urb(struct urb *urb, gfp_t mem_flags)
+... rcu_replace_pointer() does not align with the above xchg comment. From 
+looking into rcu_replace_pointer, it is not a xchg. It is also not obvious to me 
+why it is safe to assume "true" here...
 
-An URB is a data structure with a block of memory associated with it,
-contains the detail to pass to the USB device.
+> +		/* release old ops */
+> +		if (ops)
+> +			bpf_module_put(ops, ops->owner);
 
-i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+... together with a put here on the return value of the rcu_replace_pointer.
 
-*msgs points to num of messages which get transferred to/from the I2C
-device.
+> +	} else if (ops) {
 
-Could the high level API look like this? No DMA, no IRQ, no concept of
-a somewhat shared memory. Just an API which asks for a message to be
-sent to the other end? struct urb has some USB concepts in it, struct
-i2c_msg has some I2C concepts in it. A struct ism_msg would follow the
-same pattern, but does it need to care about the DMA, the IRQ, the
-memory which is semi shared?
+nit. This looks redundant when looking at the "if (!ops || ..." test above
 
-	Andrew
+Also a nit, I would move the bpf_try_module_get() immediately after the above 
+"if (ops == rcu_dereference(net->smc.ops))" test. This should simplify the later 
+cases.
+
+> +		rcu_read_unlock();
+> +		return -EBUSY;
+> +	}
+> +	rcu_read_unlock();
+> +	return 0;
+> +}
+> +
+> +static int proc_smc_ops(const struct ctl_table *ctl, int write,
+> +			void *buffer, size_t *lenp, loff_t *ppos)
+> +{
+> +	struct net *net = container_of(ctl->data, struct net, smc.ops);
+> +	char val[SMC_OPS_NAME_MAX];
+> +	const struct ctl_table tbl = {
+> +		.data = val,
+> +		.maxlen = SMC_OPS_NAME_MAX,
+> +	};
+> +	struct smc_ops *ops;
+> +	int ret;
+> +
+> +	rcu_read_lock();
+> +	ops = rcu_dereference(net->smc.ops);
+> +	if (ops)
+> +		memcpy(val, ops->name, sizeof(ops->name));
+> +	else
+> +		val[0] = '\0';
+> +	rcu_read_unlock();
+> +
+> +	ret = proc_dostring(&tbl, write, buffer, lenp, ppos);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (write)
+> +		ret = smc_net_replace_smc_ops(net, val);
+> +	return ret;
+> +}
+> +#endif /* CONFIG_SMC_OPS */
+> +
+>   static struct ctl_table smc_table[] = {
+>   	{
+>   		.procname       = "autocorking_size",
+> @@ -99,6 +163,15 @@ static struct ctl_table smc_table[] = {
+>   		.extra1		= SYSCTL_ZERO,
+>   		.extra2		= SYSCTL_ONE,
+>   	},
+> +#if IS_ENABLED(CONFIG_SMC_OPS)
+> +	{
+> +		.procname	= "ops",
+> +		.data		= &init_net.smc.ops,
+> +		.mode		= 0644,
+> +		.maxlen		= SMC_OPS_NAME_MAX,
+> +		.proc_handler	= proc_smc_ops,
+> +	},
+> +#endif /* CONFIG_SMC_OPS */
+>   };
+>   
+>   int __net_init smc_sysctl_net_init(struct net *net)
+> @@ -109,6 +182,20 @@ int __net_init smc_sysctl_net_init(struct net *net)
+>   	table = smc_table;
+>   	if (!net_eq(net, &init_net)) {
+>   		int i;
+> +#if IS_ENABLED(CONFIG_SMC_OPS)
+> +		struct smc_ops *ops;
+> +
+> +		rcu_read_lock();
+> +		ops = rcu_dereference(init_net.smc.ops);
+> +		if (ops && ops->flags & SMC_OPS_FLAG_INHERITABLE) {
+> +			if (!bpf_try_module_get(ops, ops->owner)) {
+> +				rcu_read_unlock();
+> +				return -EBUSY;
+
+Not sure if it should count as error when the ops is in the process of 
+un-register-ing. The next smc_sysctl_net_init will have NULL ops and succeed. 
+Something for you to consider.
+
+
+Also, it needs an ack from the SMC maintainer for the SMC specific parts like 
+the sysctl here.
