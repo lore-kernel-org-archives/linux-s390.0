@@ -1,51 +1,51 @@
 Received: from mail-il1-f206.google.com (mail-il1-f206.google.com [209.85.166.206])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D66DFD529
-	for <linux-s390@vger.kernel.org>; Sun, 19 Jan 2025 00:44:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CA7441AAC
+	for <linux-s390@vger.kernel.org>; Sun, 19 Jan 2025 05:50:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737247464; cv=none; b=FWN/Yy1NkABHnyRMrgj0zSxxW1ZaERsWqOMq82w65/dolc9UuV/Fa9qngabnhcLlZw1sTEwk8U7EubKoAQQmZtXPw+MnmhQrIHl7bsatDIhSbfb0hf4xWbJLz3djmuw42kCZYgIGRFMQE+TfJ3Znq/9ULQEbRocHJUZylk6L8qY=
+	t=1737265828; cv=none; b=PryyiGjy6lw0xkLIjS5cc6lVNo7IwQxNqNF/oSaVYYHngrISw4eAYsVcqBBbZFQBvq/h7ZRG81eBljdq2EsQKZFnZUNQ/QQLx1h+HrGhNYJjCQruwiL/mPsCQsqSOJATDmTZIfNqpbbAISiDwugb+fy4DNm5ekChdBvw4FKnK6c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737247464; c=relaxed/simple;
-	bh=p/DtqmrW174zOHZv6OCV2YwqB72MRhdfjiMBYOkZruA=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=EXI9Db30Jefbupcv5AhWVUXFcdXQS1aDjsjZfQ3Sexqz8BuLglkaCE1ovbt2Vcz3XBJLqv4qilM3nDc7kzfbGD2v8XKxgPWeAr0lpikQryeDnpDfkMiXtJyl3BXDc0ay09CAMPUu41peEU4xAFqHTBZZDb4TEBr+yqkt6hN1fjc=
+	s=arc-20240116; t=1737265828; c=relaxed/simple;
+	bh=KtiYxz19VrU3uK87Xq6veb7Q5cbyysOLAtYiN0HIomA=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=P3qAOtr1wauaWO9VsD/VjWyIZ/ZbVv6yRw2L7ZdFGeviZrXio2agcmmKem4/88pfNsb9Mw/KjhmL8SbrjndemtvVgAXtate/eLZjNSYoqR7TZfOmGUdHLgIGuKdPTdlXX+txDgbjx9ZAakMH7hzD9Hd7+shoVgDr6D5ol9jTioc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.206
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f206.google.com with SMTP id e9e14a558f8ab-3ce81381737so56403525ab.2
-        for <linux-s390@vger.kernel.org>; Sat, 18 Jan 2025 16:44:22 -0800 (PST)
+Received: by mail-il1-f206.google.com with SMTP id e9e14a558f8ab-3a9d075bdc3so74484395ab.3
+        for <linux-s390@vger.kernel.org>; Sat, 18 Jan 2025 21:50:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737247462; x=1737852262;
+        d=1e100.net; s=20230601; t=1737265825; x=1737870625;
         h=to:from:subject:message-id:date:mime-version:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=/hV3PwyU5Y5EMg5iIeIU3QtGfVFQWWbBMNzp+/pcluU=;
-        b=rUXAcSFt5F48buCNkDXs/cqEm80n8Gtcjnfb/H7Ebe/EKo4Qk7WPKZ0+05/ER/Ldl2
-         EnqcTk6/MNLuPhl0y0ZUTP7FI1TQkCV9nyedeWIIJoVhFTIoYZ9sDV77B1MxOusqNcrl
-         hWmuYeR2Lvqja7gEXomrZVJISv7kAR7OQUpvudWswfkAofkRo35BaCh2skCj3l3Y8z6v
-         FeyOwquuvPfmxbHg9ulzy2ayUQ9NV4Hm7F6Pw1z7ladrB7XfsmA8Yspedy7BrMhRdsRe
-         uezP6oOKShrWb72tCO8KMYDRKCubMrkbfJZ18Do7a1jpX+U9mL6TL+nH6wjErToAEQ/E
-         dMQA==
-X-Forwarded-Encrypted: i=1; AJvYcCXR2avp02/vrtXsAqV3mBxaenyzZ8f2ERDqYTlkMXCMMYQBq5NIEHwXxIJRJj+t9zR+b/nubRfh7bzT@vger.kernel.org
-X-Gm-Message-State: AOJu0YydFJ4Ibn9Sd+QSzj/Lip56AcgYixPJeo6s3c90feoaA/NSRHG9
-	UZEwAXmKpwesEvft1+enFUdBa8KcmAwASE+ykyYluhreya7gDPZxAfLB2da78lq5tr4sKePZ5Ne
-	dGh49R0CSki9t2T0X9IDohTR+dplQ26KUKfHOISSQ/CCi3h6nd7YOpE8=
-X-Google-Smtp-Source: AGHT+IEfpH3/hF24sveBdAFYLiIWKiZ/8kOPawt0Oq86rxSRwB3YPwV8CJPR91ndd4V3cCdWy2/OV0YRs8aWbyx2oe5hVqN5b2C8
+        bh=CGOLwG0ZYOhOJOG2wsSGObkhiF3ZcrTZyJ00Z0CuwkA=;
+        b=T3WLIlcs4CJmZvtXsU91Lw1fBsMVLvTC6+RgSNxUteajUMkTOsDdJCAgzZ/XSc5pk0
+         Yq/W6vUW3pOdSD8U874ADNQs9QMpPb3UImZFpO+oSiq1VmTpTW9zPNvhA2X8I9h2izq7
+         ILkiHYWie/lQXBI8hV5DijhGWLg3FZ/mAmCWLyYxR8qkETJ652t0armlG0GslSk4bRbb
+         v5Al7gx67aMf/EFEgxb4stuIHrxLnz4Xpz8U/U2BnHjZVFYxDjJZVWNYsVgLiFC4PB6X
+         9iDjIENzcLuQeKBCQMBcz88Tq1CkdzAih3iwpV+EJ30LNhnkKYyHrTv2TEhOIG7+oC58
+         K6Yg==
+X-Forwarded-Encrypted: i=1; AJvYcCUhg1FMkJLSb71VG/WAPw3V5q33rk8yIcOjFR4/AgadmnyNAJYVeodgXi++Cxt1ySQWXLnkHqOtxwJr@vger.kernel.org
+X-Gm-Message-State: AOJu0YywfFHa5zr8ZvS4lMJjFs+LAKJTso2uooNzqJAAhPJwTsoO8tUW
+	X7iKhBLv4fvu1vpadx1K0SWK/GRF4xxCyk8jM5FykE24c70Td4/ySISfFmCIxTyRGjGj1rHZKuS
+	qd4qOt/Ca6/y+DzVsmJKt3Z8wNZudqtpKC/5njmI07ruz5++q5EW6jL4=
+X-Google-Smtp-Source: AGHT+IF/7QCHZqtagmzSrRYsqMT151+fc9BUplRNPMhANA0290vDu09egR2h0tKKaOsbWYAreN15TWjDfn79X2poi5rYUymE2ehM
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:164f:b0:3ce:8bae:d88b with SMTP id
- e9e14a558f8ab-3cf744969a3mr71063255ab.18.1737247462054; Sat, 18 Jan 2025
- 16:44:22 -0800 (PST)
-Date: Sat, 18 Jan 2025 16:44:22 -0800
+X-Received: by 2002:a05:6e02:1fcd:b0:3a6:ad61:7ff8 with SMTP id
+ e9e14a558f8ab-3cf7442a567mr71606145ab.12.1737265825444; Sat, 18 Jan 2025
+ 21:50:25 -0800 (PST)
+Date: Sat, 18 Jan 2025 21:50:25 -0800
 X-Google-Appengine-App-Id: s~syzkaller
 X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <678c4ae6.050a0220.303755.003b.GAE@google.com>
-Subject: [syzbot] [s390?] [net?] possible deadlock in smc_pnet_find_ism_resource
-From: syzbot <syzbot+f160105b2817964a0886@syzkaller.appspotmail.com>
+Message-ID: <678c92a1.050a0220.303755.004c.GAE@google.com>
+Subject: [syzbot] [s390?] [net?] possible deadlock in smc_close_non_accepted (2)
+From: syzbot <syzbot+a68f8bafb37fc879d662@syzkaller.appspotmail.com>
 To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
 	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
 	jaka@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
@@ -58,136 +58,191 @@ Hello,
 
 syzbot found the following issue on:
 
-HEAD commit:    665bcfc982de Merge branch 'vsock-some-fixes-due-to-transpo..
-git tree:       net
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=125a89df980000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=4ef22c4fce5135b4
-dashboard link: https://syzkaller.appspot.com/bug?extid=f160105b2817964a0886
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=150c6a18580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=110cbcb0580000
+HEAD commit:    c3812b15000c Merge tag 'scsi-fixes' of git://git.kernel.or..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=137189df980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=f5e182416a4b418f
+dashboard link: https://syzkaller.appspot.com/bug?extid=a68f8bafb37fc879d662
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+
+Unfortunately, I don't have any reproducer for this issue yet.
 
 Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/7b7bcc1c7152/disk-665bcfc9.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/fe966ace24a0/vmlinux-665bcfc9.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/b5ac36708dde/bzImage-665bcfc9.xz
+disk image: https://storage.googleapis.com/syzbot-assets/d3f1a4960f46/disk-c3812b15.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/6816bebbf8db/vmlinux-c3812b15.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/112bb789a175/bzImage-c3812b15.xz
 
 IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+f160105b2817964a0886@syzkaller.appspotmail.com
+Reported-by: syzbot+a68f8bafb37fc879d662@syzkaller.appspotmail.com
 
 ======================================================
 WARNING: possible circular locking dependency detected
-6.13.0-rc6-syzkaller-00147-g665bcfc982de #0 Not tainted
+6.13.0-rc7-syzkaller-00039-gc3812b15000c #0 Not tainted
 ------------------------------------------------------
-syz-executor304/5836 is trying to acquire lock:
-ffffffff8fcb2dc8 (rtnl_mutex){+.+.}-{4:4}, at: pnet_find_base_ndev net/smc/smc_pnet.c:945 [inline]
-ffffffff8fcb2dc8 (rtnl_mutex){+.+.}-{4:4}, at: smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1101 [inline]
-ffffffff8fcb2dc8 (rtnl_mutex){+.+.}-{4:4}, at: smc_pnet_find_ism_resource+0xe1/0x510 net/smc/smc_pnet.c:1152
+syz.1.909/9790 is trying to acquire lock:
+ffff8880325e8dd8 (sk_lock-AF_SMC){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1623 [inline]
+ffff8880325e8dd8 (sk_lock-AF_SMC){+.+.}-{0:0}, at: smc_close_non_accepted+0x80/0x200 net/smc/af_smc.c:1832
 
 but task is already holding lock:
-ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1623 [inline]
-ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1641
+ffff88807a380dd8 (sk_lock-AF_INET/1){+.+.}-{0:0}, at: smc_release+0x378/0x5f0 net/smc/af_smc.c:336
 
 which lock already depends on the new lock.
 
 
 the existing dependency chain (in reverse order) is:
 
--> #1 (sk_lock-AF_INET){+.+.}-{0:0}:
-       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5849
-       lock_sock_nested+0x48/0x100 net/core/sock.c:3625
-       do_ip_setsockopt+0x1a2d/0x3cd0 net/ipv4/ip_sockglue.c:1078
-       ip_setsockopt+0x63/0x100 net/ipv4/ip_sockglue.c:1417
-       dccp_setsockopt+0x17c/0x12c0 net/dccp/proto.c:579
-       do_sock_setsockopt+0x3af/0x720 net/socket.c:2313
-       __sys_setsockopt net/socket.c:2338 [inline]
-       __do_sys_setsockopt net/socket.c:2344 [inline]
-       __se_sys_setsockopt net/socket.c:2341 [inline]
-       __x64_sys_setsockopt+0x1ee/0x280 net/socket.c:2341
+-> #4 (sk_lock-AF_INET/1){+.+.}-{0:0}:
+       lock_sock_nested+0x3a/0xf0 net/core/sock.c:3625
+       sctp_sock_migrate+0x987/0x1270 net/sctp/socket.c:9655
+       sctp_accept+0x654/0x800 net/sctp/socket.c:4899
+       inet_accept+0xc4/0x180 net/ipv4/af_inet.c:781
+       do_accept+0x337/0x530 net/socket.c:1941
+       __sys_accept4_file net/socket.c:1981 [inline]
+       __sys_accept4+0xfe/0x1b0 net/socket.c:2010
+       __do_sys_accept net/socket.c:2023 [inline]
+       __se_sys_accept net/socket.c:2020 [inline]
+       __x64_sys_accept+0x74/0xb0 net/socket.c:2020
        do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
        entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
--> #0 (rtnl_mutex){+.+.}-{4:4}:
+-> #3 (sk_lock-AF_INET){+.+.}-{0:0}:
+       lock_sock_nested+0x3a/0xf0 net/core/sock.c:3625
+       lock_sock include/net/sock.h:1623 [inline]
+       sockopt_lock_sock net/core/sock.c:1126 [inline]
+       sockopt_lock_sock+0x54/0x70 net/core/sock.c:1117
+       do_ip_setsockopt+0x101/0x38c0 net/ipv4/ip_sockglue.c:1078
+       ip_setsockopt+0x59/0xf0 net/ipv4/ip_sockglue.c:1417
+       raw_setsockopt+0xb8/0x290 net/ipv4/raw.c:845
+       do_sock_setsockopt+0x222/0x480 net/socket.c:2313
+       __sys_setsockopt+0x1a0/0x230 net/socket.c:2338
+       __do_sys_setsockopt net/socket.c:2344 [inline]
+       __se_sys_setsockopt net/socket.c:2341 [inline]
+       __x64_sys_setsockopt+0xbd/0x160 net/socket.c:2341
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #2 (rtnl_mutex){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xa60 kernel/locking/mutex.c:735
+       do_ip_setsockopt+0xf9/0x38c0 net/ipv4/ip_sockglue.c:1077
+       ip_setsockopt+0x59/0xf0 net/ipv4/ip_sockglue.c:1417
+       ipv6_setsockopt+0x155/0x170 net/ipv6/ipv6_sockglue.c:988
+       tcp_setsockopt+0xa4/0x100 net/ipv4/tcp.c:4030
+       smc_setsockopt+0x1b4/0xc00 net/smc/af_smc.c:3078
+       do_sock_setsockopt+0x222/0x480 net/socket.c:2313
+       __sys_setsockopt+0x1a0/0x230 net/socket.c:2338
+       __do_sys_setsockopt net/socket.c:2344 [inline]
+       __se_sys_setsockopt net/socket.c:2341 [inline]
+       __x64_sys_setsockopt+0xbd/0x160 net/socket.c:2341
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #1 (&smc->clcsock_release_lock){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xa60 kernel/locking/mutex.c:735
+       smc_switch_to_fallback+0x2d/0xa00 net/smc/af_smc.c:903
+       smc_sendmsg+0x13d/0x520 net/smc/af_smc.c:2778
+       sock_sendmsg_nosec net/socket.c:711 [inline]
+       __sock_sendmsg net/socket.c:726 [inline]
+       ____sys_sendmsg+0x9ae/0xb40 net/socket.c:2583
+       ___sys_sendmsg+0x135/0x1e0 net/socket.c:2637
+       __sys_sendmmsg+0x201/0x420 net/socket.c:2726
+       __do_sys_sendmmsg net/socket.c:2753 [inline]
+       __se_sys_sendmmsg net/socket.c:2750 [inline]
+       __x64_sys_sendmmsg+0x9c/0x100 net/socket.c:2750
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #0 (sk_lock-AF_SMC){+.+.}-{0:0}:
        check_prev_add kernel/locking/lockdep.c:3161 [inline]
        check_prevs_add kernel/locking/lockdep.c:3280 [inline]
-       validate_chain+0x18ef/0x5920 kernel/locking/lockdep.c:3904
-       __lock_acquire+0x1397/0x2100 kernel/locking/lockdep.c:5226
-       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5849
-       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
-       __mutex_lock+0x1ac/0xee0 kernel/locking/mutex.c:735
-       pnet_find_base_ndev net/smc/smc_pnet.c:945 [inline]
-       smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1101 [inline]
-       smc_pnet_find_ism_resource+0xe1/0x510 net/smc/smc_pnet.c:1152
-       smc_find_ism_device net/smc/af_smc.c:1011 [inline]
-       smc_find_proposal_devices net/smc/af_smc.c:1096 [inline]
-       __smc_connect+0x390/0x1850 net/smc/af_smc.c:1523
-       smc_connect+0x868/0xde0 net/smc/af_smc.c:1693
-       __sys_connect_file net/socket.c:2055 [inline]
-       __sys_connect+0x288/0x2d0 net/socket.c:2074
-       __do_sys_connect net/socket.c:2080 [inline]
-       __se_sys_connect net/socket.c:2077 [inline]
-       __x64_sys_connect+0x7a/0x90 net/socket.c:2077
-       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+       validate_chain kernel/locking/lockdep.c:3904 [inline]
+       __lock_acquire+0x249e/0x3c40 kernel/locking/lockdep.c:5226
+       lock_acquire.part.0+0x11b/0x380 kernel/locking/lockdep.c:5849
+       lock_sock_nested+0x3a/0xf0 net/core/sock.c:3625
+       lock_sock include/net/sock.h:1623 [inline]
+       smc_close_non_accepted+0x80/0x200 net/smc/af_smc.c:1832
+       smc_close_cleanup_listen net/smc/smc_close.c:45 [inline]
+       smc_close_active+0xc3c/0x1070 net/smc/smc_close.c:225
+       __smc_release+0x634/0x880 net/smc/af_smc.c:277
+       smc_release+0x1fc/0x5f0 net/smc/af_smc.c:344
+       __sock_release+0xb0/0x270 net/socket.c:640
+       sock_close+0x1c/0x30 net/socket.c:1408
+       __fput+0x3f8/0xb60 fs/file_table.c:450
+       task_work_run+0x14e/0x250 kernel/task_work.c:239
+       resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
+       exit_to_user_mode_loop kernel/entry/common.c:114 [inline]
+       exit_to_user_mode_prepare include/linux/entry-common.h:329 [inline]
+       __syscall_exit_to_user_mode_work kernel/entry/common.c:207 [inline]
+       syscall_exit_to_user_mode+0x27b/0x2a0 kernel/entry/common.c:218
+       do_syscall_64+0xda/0x250 arch/x86/entry/common.c:89
        entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
 other info that might help us debug this:
+
+Chain exists of:
+  sk_lock-AF_SMC --> sk_lock-AF_INET --> sk_lock-AF_INET/1
 
  Possible unsafe locking scenario:
 
        CPU0                    CPU1
        ----                    ----
-  lock(sk_lock-AF_INET);
-                               lock(rtnl_mutex);
+  lock(sk_lock-AF_INET/1);
                                lock(sk_lock-AF_INET);
-  lock(rtnl_mutex);
+                               lock(sk_lock-AF_INET/1);
+  lock(sk_lock-AF_SMC);
 
  *** DEADLOCK ***
 
-1 lock held by syz-executor304/5836:
- #0: ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1623 [inline]
- #0: ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1641
+2 locks held by syz.1.909/9790:
+ #0: ffff888049c7f408 (&sb->s_type->i_mutex_key#10){+.+.}-{4:4}, at: inode_lock include/linux/fs.h:818 [inline]
+ #0: ffff888049c7f408 (&sb->s_type->i_mutex_key#10){+.+.}-{4:4}, at: __sock_release+0x86/0x270 net/socket.c:639
+ #1: ffff88807a380dd8 (sk_lock-AF_INET/1){+.+.}-{0:0}, at: smc_release+0x378/0x5f0 net/smc/af_smc.c:336
 
 stack backtrace:
-CPU: 1 UID: 0 PID: 5836 Comm: syz-executor304 Not tainted 6.13.0-rc6-syzkaller-00147-g665bcfc982de #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
+CPU: 0 UID: 0 PID: 9790 Comm: syz.1.909 Not tainted 6.13.0-rc7-syzkaller-00039-gc3812b15000c #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 12/27/2024
 Call Trace:
  <TASK>
  __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120
- print_circular_bug+0x13a/0x1b0 kernel/locking/lockdep.c:2074
- check_noncircular+0x36a/0x4a0 kernel/locking/lockdep.c:2206
+ dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+ print_circular_bug+0x41c/0x610 kernel/locking/lockdep.c:2074
+ check_noncircular+0x31a/0x400 kernel/locking/lockdep.c:2206
  check_prev_add kernel/locking/lockdep.c:3161 [inline]
  check_prevs_add kernel/locking/lockdep.c:3280 [inline]
- validate_chain+0x18ef/0x5920 kernel/locking/lockdep.c:3904
- __lock_acquire+0x1397/0x2100 kernel/locking/lockdep.c:5226
- lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5849
- __mutex_lock_common kernel/locking/mutex.c:585 [inline]
- __mutex_lock+0x1ac/0xee0 kernel/locking/mutex.c:735
- pnet_find_base_ndev net/smc/smc_pnet.c:945 [inline]
- smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1101 [inline]
- smc_pnet_find_ism_resource+0xe1/0x510 net/smc/smc_pnet.c:1152
- smc_find_ism_device net/smc/af_smc.c:1011 [inline]
- smc_find_proposal_devices net/smc/af_smc.c:1096 [inline]
- __smc_connect+0x390/0x1850 net/smc/af_smc.c:1523
- smc_connect+0x868/0xde0 net/smc/af_smc.c:1693
- __sys_connect_file net/socket.c:2055 [inline]
- __sys_connect+0x288/0x2d0 net/socket.c:2074
- __do_sys_connect net/socket.c:2080 [inline]
- __se_sys_connect net/socket.c:2077 [inline]
- __x64_sys_connect+0x7a/0x90 net/socket.c:2077
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ validate_chain kernel/locking/lockdep.c:3904 [inline]
+ __lock_acquire+0x249e/0x3c40 kernel/locking/lockdep.c:5226
+ lock_acquire.part.0+0x11b/0x380 kernel/locking/lockdep.c:5849
+ lock_sock_nested+0x3a/0xf0 net/core/sock.c:3625
+ lock_sock include/net/sock.h:1623 [inline]
+ smc_close_non_accepted+0x80/0x200 net/smc/af_smc.c:1832
+ smc_close_cleanup_listen net/smc/smc_close.c:45 [inline]
+ smc_close_active+0xc3c/0x1070 net/smc/smc_close.c:225
+ __smc_release+0x634/0x880 net/smc/af_smc.c:277
+ smc_release+0x1fc/0x5f0 net/smc/af_smc.c:344
+ __sock_release+0xb0/0x270 net/socket.c:640
+ sock_close+0x1c/0x30 net/socket.c:1408
+ __fput+0x3f8/0xb60 fs/file_table.c:450
+ task_work_run+0x14e/0x250 kernel/task_work.c:239
+ resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:114 [inline]
+ exit_to_user_mode_prepare include/linux/entry-common.h:329 [inline]
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:207 [inline]
+ syscall_exit_to_user_mode+0x27b/0x2a0 kernel/entry/common.c:218
+ do_syscall_64+0xda/0x250 arch/x86/entry/common.c:89
  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f00e4558799
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fff72e40d38 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-RAX: ffffffffffffffda RBX: 00007f00e45a5490 RCX: 00007f00e4558799
-RDX: 0000000000000010 RSI: 0000000020000080 RDI: 0000000000000004
-RBP: 00007f00e45a5460 R08: 0000555500000000 R09: 0000555500000000
-R10: 0000000000000010 R11: 0000000000000246 R12: 00007f00e45a53e5
-R13: 0000000000000001 R14: 00007fff72e40d80 R15: 0000000000000003
+RIP: 0033:0x7fe6cff85d29
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fe6d0ce0038 EFLAGS: 00000246 ORIG_RAX: 00000000000001b4
+RAX: 0000000000000000 RBX: 00007fe6d0175fa0 RCX: 00007fe6cff85d29
+RDX: 0000000000000000 RSI: 000000000000000a RDI: 0000000000000002
+RBP: 00007fe6d0001b08 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000000000 R14: 00007fe6d0175fa0 R15: 00007ffd3f25a1e8
  </TASK>
 
 
@@ -201,10 +256,6 @@ https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
 If the report is already addressed, let syzbot know by replying with:
 #syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
 
 If you want to overwrite report's subsystems, reply with:
 #syz set subsystems: new-subsystem
