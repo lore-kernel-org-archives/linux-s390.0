@@ -1,129 +1,217 @@
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f206.google.com (mail-il1-f206.google.com [209.85.166.206])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E43918A93C;
-	Sat, 18 Jan 2025 15:31:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D66DFD529
+	for <linux-s390@vger.kernel.org>; Sun, 19 Jan 2025 00:44:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737214322; cv=none; b=pbdn0JZOJ7chepKMtg7cKpeFaFF6dWFr5v841HlO+DaAjwvYMLUe2L0U9ZKIkkBjEfo5PQTWSQzdLN9IbZcZsZojvfxyfSj2KEgh4yumdd/mRHCU2pkGfnQeGHoBASuASQW4O33u6aM7L4CANaksmyjrnVAOOoMd/u2fLbcchro=
+	t=1737247464; cv=none; b=FWN/Yy1NkABHnyRMrgj0zSxxW1ZaERsWqOMq82w65/dolc9UuV/Fa9qngabnhcLlZw1sTEwk8U7EubKoAQQmZtXPw+MnmhQrIHl7bsatDIhSbfb0hf4xWbJLz3djmuw42kCZYgIGRFMQE+TfJ3Znq/9ULQEbRocHJUZylk6L8qY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737214322; c=relaxed/simple;
-	bh=ZiEFqrXMXBUDaz/Mgv8SkHBj8ZsUoxRHA8O+A/UAHaE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HEXwRofuT7KbCcQoFvN9+HpjmbTXc8bRRxF+3iHPHWNJbbZlDJqkk9xQ090JYHx5nTHMaH4CTs9JjUtN0UV5zRf7poIGKwxv5mdZLY8VGppo2VvYflm7BhgSwD8gkwfjAIJeiOP+H8FLv+M1TVt1Q0HiC1OOZRDo1ogZNzUDlhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=N99tlrxx; arc=none smtp.client-ip=115.124.30.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="N99tlrxx"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1737214315; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=um4EpNPGGZn6uHOIvs0vt5Qo5OXfZuSdQuMmUsvwHTA=;
-	b=N99tlrxxojXtoZaqoUqNY+j7tm5dfKLj4Ul339SL6D7Nq2rzbX/RdA3iEFu9ukuHJwYJkCcURv4d5RrvP5x5AfzC+WXSz3nTPWoh0eU5NCxRZrfDRf0kt++5Q0ZNN0pVPERzkDLmHo3FocOzL8JQLtVIPQqQhH5IX2C393/oSM0=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WNrobRO_1737214314 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sat, 18 Jan 2025 23:31:54 +0800
-Date: Sat, 18 Jan 2025 23:31:54 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-Message-ID: <20250118153154.GI89233@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
- <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
- <20250117021353.GF89233@linux.alibaba.com>
- <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
+	s=arc-20240116; t=1737247464; c=relaxed/simple;
+	bh=p/DtqmrW174zOHZv6OCV2YwqB72MRhdfjiMBYOkZruA=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=EXI9Db30Jefbupcv5AhWVUXFcdXQS1aDjsjZfQ3Sexqz8BuLglkaCE1ovbt2Vcz3XBJLqv4qilM3nDc7kzfbGD2v8XKxgPWeAr0lpikQryeDnpDfkMiXtJyl3BXDc0ay09CAMPUu41peEU4xAFqHTBZZDb4TEBr+yqkt6hN1fjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f206.google.com with SMTP id e9e14a558f8ab-3ce81381737so56403525ab.2
+        for <linux-s390@vger.kernel.org>; Sat, 18 Jan 2025 16:44:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737247462; x=1737852262;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/hV3PwyU5Y5EMg5iIeIU3QtGfVFQWWbBMNzp+/pcluU=;
+        b=rUXAcSFt5F48buCNkDXs/cqEm80n8Gtcjnfb/H7Ebe/EKo4Qk7WPKZ0+05/ER/Ldl2
+         EnqcTk6/MNLuPhl0y0ZUTP7FI1TQkCV9nyedeWIIJoVhFTIoYZ9sDV77B1MxOusqNcrl
+         hWmuYeR2Lvqja7gEXomrZVJISv7kAR7OQUpvudWswfkAofkRo35BaCh2skCj3l3Y8z6v
+         FeyOwquuvPfmxbHg9ulzy2ayUQ9NV4Hm7F6Pw1z7ladrB7XfsmA8Yspedy7BrMhRdsRe
+         uezP6oOKShrWb72tCO8KMYDRKCubMrkbfJZ18Do7a1jpX+U9mL6TL+nH6wjErToAEQ/E
+         dMQA==
+X-Forwarded-Encrypted: i=1; AJvYcCXR2avp02/vrtXsAqV3mBxaenyzZ8f2ERDqYTlkMXCMMYQBq5NIEHwXxIJRJj+t9zR+b/nubRfh7bzT@vger.kernel.org
+X-Gm-Message-State: AOJu0YydFJ4Ibn9Sd+QSzj/Lip56AcgYixPJeo6s3c90feoaA/NSRHG9
+	UZEwAXmKpwesEvft1+enFUdBa8KcmAwASE+ykyYluhreya7gDPZxAfLB2da78lq5tr4sKePZ5Ne
+	dGh49R0CSki9t2T0X9IDohTR+dplQ26KUKfHOISSQ/CCi3h6nd7YOpE8=
+X-Google-Smtp-Source: AGHT+IEfpH3/hF24sveBdAFYLiIWKiZ/8kOPawt0Oq86rxSRwB3YPwV8CJPR91ndd4V3cCdWy2/OV0YRs8aWbyx2oe5hVqN5b2C8
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
+X-Received: by 2002:a05:6e02:164f:b0:3ce:8bae:d88b with SMTP id
+ e9e14a558f8ab-3cf744969a3mr71063255ab.18.1737247462054; Sat, 18 Jan 2025
+ 16:44:22 -0800 (PST)
+Date: Sat, 18 Jan 2025 16:44:22 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <678c4ae6.050a0220.303755.003b.GAE@google.com>
+Subject: [syzbot] [s390?] [net?] possible deadlock in smc_pnet_find_ism_resource
+From: syzbot <syzbot+f160105b2817964a0886@syzkaller.appspotmail.com>
+To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	jaka@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 2025-01-17 11:38:39, Niklas Schnelle wrote:
->On Fri, 2025-01-17 at 10:13 +0800, Dust Li wrote:
->> > 
->---8<---
->> > Here are some of my thoughts on the matter:
->> > > > 
->> > > > Naming and Structure: I suggest we refer to it as SHD (Shared Memory
->> > > > Device) instead of ISM (Internal Shared Memory). 
->> > 
->> > 
->> > So where does the 'H' come from? If you want to call it Shared Memory _D_evice?
->> 
->> Oh, I was trying to refer to SHM(Share memory file in the userspace, see man
->> shm_open(3)). SMD is also OK.
->> 
->> > 
->> > 
->> > To my knowledge, a
->> > > > "Shared Memory Device" better encapsulates the functionality we're
->> > > > aiming to implement. 
->> > 
->> > 
->> > Could you explain why that would be better?
->> > 'Internal Shared Memory' is supposed to be a bit of a counterpart to the
->> > Remote 'R' in RoCE. Not the greatest name, but it is used already by our ISM
->> > devices and by ism_loopback. So what is the benefit in changing it?
->> 
->> I believe that if we are going to separate and refine the code, and add
->> a common subsystem, we should choose the most appropriate name.
->> 
->> In my opinion, "ISM" doesn’t quite capture what the device provides.
->> Since we’re adding a "Device" that enables different entities (such as
->> processes or VMs) to perform shared memory communication, I think a more
->> fitting name would be better. If you have any alternative suggestions,
->> I’m open to them.
->
->I kept thinking about this a bit and I'd like to propose yet another
->name for this group of devices: Memory Communication Devices (MCD)
->
->One important point I see is that there is a bit of a misnomer in the
->existing ISM name in that our ISM device does in fact *not* share
->memory in the common sense of the "shared memory" wording. Instead it
->copies data between partitions of memory that share a common
->cache/memory hierarchy while not sharing the memory itself. loopback-
->ism and a possibly future virtio-ism on the other hand would share
->memory in the "shared memory" sense. Though I'd very much hope they
->will retain a copy mode to allow use in partition scenarios.
->
->With that background I think the common denominator between them and
->the main idea behind ISM is that they facilitate communication via
->memory buffers and very simple and reliable copy/share operations. I
->think this would also capture our planned use-case of devices (TTYs,
->block devices, framebuffers + HID etc) provided by a peer on top of
->such a memory communication device.
+Hello,
 
-Make sense, I agree with MCD.
+syzbot found the following issue on:
 
-Best regard,
-Dust
+HEAD commit:    665bcfc982de Merge branch 'vsock-some-fixes-due-to-transpo..
+git tree:       net
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=125a89df980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=4ef22c4fce5135b4
+dashboard link: https://syzkaller.appspot.com/bug?extid=f160105b2817964a0886
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=150c6a18580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=110cbcb0580000
 
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/7b7bcc1c7152/disk-665bcfc9.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/fe966ace24a0/vmlinux-665bcfc9.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/b5ac36708dde/bzImage-665bcfc9.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+f160105b2817964a0886@syzkaller.appspotmail.com
+
+======================================================
+WARNING: possible circular locking dependency detected
+6.13.0-rc6-syzkaller-00147-g665bcfc982de #0 Not tainted
+------------------------------------------------------
+syz-executor304/5836 is trying to acquire lock:
+ffffffff8fcb2dc8 (rtnl_mutex){+.+.}-{4:4}, at: pnet_find_base_ndev net/smc/smc_pnet.c:945 [inline]
+ffffffff8fcb2dc8 (rtnl_mutex){+.+.}-{4:4}, at: smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1101 [inline]
+ffffffff8fcb2dc8 (rtnl_mutex){+.+.}-{4:4}, at: smc_pnet_find_ism_resource+0xe1/0x510 net/smc/smc_pnet.c:1152
+
+but task is already holding lock:
+ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1623 [inline]
+ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1641
+
+which lock already depends on the new lock.
+
+
+the existing dependency chain (in reverse order) is:
+
+-> #1 (sk_lock-AF_INET){+.+.}-{0:0}:
+       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5849
+       lock_sock_nested+0x48/0x100 net/core/sock.c:3625
+       do_ip_setsockopt+0x1a2d/0x3cd0 net/ipv4/ip_sockglue.c:1078
+       ip_setsockopt+0x63/0x100 net/ipv4/ip_sockglue.c:1417
+       dccp_setsockopt+0x17c/0x12c0 net/dccp/proto.c:579
+       do_sock_setsockopt+0x3af/0x720 net/socket.c:2313
+       __sys_setsockopt net/socket.c:2338 [inline]
+       __do_sys_setsockopt net/socket.c:2344 [inline]
+       __se_sys_setsockopt net/socket.c:2341 [inline]
+       __x64_sys_setsockopt+0x1ee/0x280 net/socket.c:2341
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #0 (rtnl_mutex){+.+.}-{4:4}:
+       check_prev_add kernel/locking/lockdep.c:3161 [inline]
+       check_prevs_add kernel/locking/lockdep.c:3280 [inline]
+       validate_chain+0x18ef/0x5920 kernel/locking/lockdep.c:3904
+       __lock_acquire+0x1397/0x2100 kernel/locking/lockdep.c:5226
+       lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5849
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x1ac/0xee0 kernel/locking/mutex.c:735
+       pnet_find_base_ndev net/smc/smc_pnet.c:945 [inline]
+       smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1101 [inline]
+       smc_pnet_find_ism_resource+0xe1/0x510 net/smc/smc_pnet.c:1152
+       smc_find_ism_device net/smc/af_smc.c:1011 [inline]
+       smc_find_proposal_devices net/smc/af_smc.c:1096 [inline]
+       __smc_connect+0x390/0x1850 net/smc/af_smc.c:1523
+       smc_connect+0x868/0xde0 net/smc/af_smc.c:1693
+       __sys_connect_file net/socket.c:2055 [inline]
+       __sys_connect+0x288/0x2d0 net/socket.c:2074
+       __do_sys_connect net/socket.c:2080 [inline]
+       __se_sys_connect net/socket.c:2077 [inline]
+       __x64_sys_connect+0x7a/0x90 net/socket.c:2077
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+other info that might help us debug this:
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(sk_lock-AF_INET);
+                               lock(rtnl_mutex);
+                               lock(sk_lock-AF_INET);
+  lock(rtnl_mutex);
+
+ *** DEADLOCK ***
+
+1 lock held by syz-executor304/5836:
+ #0: ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1623 [inline]
+ #0: ffff888077140258 (sk_lock-AF_INET){+.+.}-{0:0}, at: smc_connect+0xb7/0xde0 net/smc/af_smc.c:1641
+
+stack backtrace:
+CPU: 1 UID: 0 PID: 5836 Comm: syz-executor304 Not tainted 6.13.0-rc6-syzkaller-00147-g665bcfc982de #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120
+ print_circular_bug+0x13a/0x1b0 kernel/locking/lockdep.c:2074
+ check_noncircular+0x36a/0x4a0 kernel/locking/lockdep.c:2206
+ check_prev_add kernel/locking/lockdep.c:3161 [inline]
+ check_prevs_add kernel/locking/lockdep.c:3280 [inline]
+ validate_chain+0x18ef/0x5920 kernel/locking/lockdep.c:3904
+ __lock_acquire+0x1397/0x2100 kernel/locking/lockdep.c:5226
+ lock_acquire+0x1ed/0x550 kernel/locking/lockdep.c:5849
+ __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+ __mutex_lock+0x1ac/0xee0 kernel/locking/mutex.c:735
+ pnet_find_base_ndev net/smc/smc_pnet.c:945 [inline]
+ smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1101 [inline]
+ smc_pnet_find_ism_resource+0xe1/0x510 net/smc/smc_pnet.c:1152
+ smc_find_ism_device net/smc/af_smc.c:1011 [inline]
+ smc_find_proposal_devices net/smc/af_smc.c:1096 [inline]
+ __smc_connect+0x390/0x1850 net/smc/af_smc.c:1523
+ smc_connect+0x868/0xde0 net/smc/af_smc.c:1693
+ __sys_connect_file net/socket.c:2055 [inline]
+ __sys_connect+0x288/0x2d0 net/socket.c:2074
+ __do_sys_connect net/socket.c:2080 [inline]
+ __se_sys_connect net/socket.c:2077 [inline]
+ __x64_sys_connect+0x7a/0x90 net/socket.c:2077
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xf3/0x230 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f00e4558799
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fff72e40d38 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f00e45a5490 RCX: 00007f00e4558799
+RDX: 0000000000000010 RSI: 0000000020000080 RDI: 0000000000000004
+RBP: 00007f00e45a5460 R08: 0000555500000000 R09: 0000555500000000
+R10: 0000000000000010 R11: 0000000000000246 R12: 00007f00e45a53e5
+R13: 0000000000000001 R14: 00007fff72e40d80 R15: 0000000000000003
+ </TASK>
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
