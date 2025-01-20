@@ -1,63 +1,52 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02341EBA09;
-	Mon, 20 Jan 2025 16:44:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0AAAD1EE024;
+	Mon, 20 Jan 2025 16:44:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737391450; cv=none; b=BLfjPXPfITSZwNwEV9OpdBNeF0zSFjaoNXtu8kMwCA+4xNiNj7TuUlQpaI472er44kzKXnX8UrkXqARxflJ7DRcpZ7C358TaRVatebOeP6tMybnyE+fFKTZ9Oo4x/SfgnKngyGJ2MtODCfYUCjmtfsmk9ywEWIvRZj6smyk+oos=
+	t=1737391452; cv=none; b=ebyEisn+KsrDdiQKBLGyNuGYRYt8wTQTAEii/0LPse0Sx9kfD8+nf1kBA7yeQqt2pCOikE3pICU+iSurx3Frbwby2YFuOfmbFPz0Ltx331btiI5AL1prk33MrXpn40rRXHcwxyPiU6bb46n+693kw00Qbz0KQYztveL46x8AcwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737391450; c=relaxed/simple;
-	bh=Bhaz6HwAMlKSMz7Ft5tGRHH17H9GBssSq5TkTZsy3Aw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KehidWSkd3OY+oS/cCMjyVv4mmX9i0o3BLRDmw26uuXyypCwUEjYRUk/ngs15rGKbpQI5TAhKWrEt5UU/VHHMu0xa8G89OIXbiwBi2wmJMF67CueLBoWY/qzgNur7/o+SsDy7kIdcAEEjT/eupRqvxX/BIOaY5NAaMq5LZwdmH4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MJr8eRoJ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MJr8eRoJ"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50KF1WYb004516;
-	Mon, 20 Jan 2025 16:44:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=XmrgOnz+coGd8vNa0W7ubihq3ILrBNP9i4xzPR4A8
-	1Y=; b=MJr8eRoJDoboMgfcS/7PbJcR+DTM7WeHkUNlypNqEbLNfsI/9HnWF+ykK
-	w3sfUCHelmItMXjic7f6yG/fpAx7XRLx3E5wmL9B+afQfd2JVWI10YmGIGR+6UKY
-	D45I3gBLZnF/5pT26Uy7hpBqx1gn1i1DVAGsqz5Yadi5deWtJMoKqpjMcCTVxsis
-	pQMl8tzsfC5OMkADk5tl013CybZJNmf7TkUyUHUD8BGth1Yv36zo42C7UOc/LTjB
-	TJoZ6sVa21s1XKWPnV/yYGoEuSD6kvfvEetnsnGoTtvwlXswiIvyQb0t7fKAMHqn
-	wX6giEh6FlHdefWPAMuVyVs0MW9tw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 449rry8f13-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 16:44:05 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50KGGRaJ022449;
-	Mon, 20 Jan 2025 16:44:04 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448r4jy3ac-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 16:44:04 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50KGi0F557475522
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Jan 2025 16:44:00 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BEE8720049;
-	Mon, 20 Jan 2025 16:44:00 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9123320040;
-	Mon, 20 Jan 2025 16:44:00 +0000 (GMT)
-Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Jan 2025 16:44:00 +0000 (GMT)
-From: Nico Boehr <nrb@linux.ibm.com>
-To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH v1] s390x: pv: fix arguments for out-of-tree-builds
-Date: Mon, 20 Jan 2025 17:43:29 +0100
-Message-ID: <20250120164400.2261408-1-nrb@linux.ibm.com>
-X-Mailer: git-send-email 2.47.1
+	s=arc-20240116; t=1737391452; c=relaxed/simple;
+	bh=LQRDkRD17AHx/7dGR1PQPz1U+TQtVIHPhH0+e0jOdqI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LnXmpvqUJp5hFbo2eba5JAII7PvlEWLe3byU6rF5yxMbPx2O5Tld53pSni8NZBqgI7wVWBfvgw2UMbkgCNSHtQEpJy42E2/zt4dXY0HLlIsCGt6/gs6bvAYywoy0mO+Cddxelr2eeE26rG+gIJtMDuWED5eoLsTCiYXSV+SUJqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 18899FEC;
+	Mon, 20 Jan 2025 08:44:39 -0800 (PST)
+Received: from localhost.localdomain (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7170E3F5A1;
+	Mon, 20 Jan 2025 08:44:07 -0800 (PST)
+From: Alexandru Elisei <alexandru.elisei@arm.com>
+To: andrew.jones@linux.dev,
+	eric.auger@redhat.com,
+	lvivier@redhat.com,
+	thuth@redhat.com,
+	frankja@linux.ibm.com,
+	imbrenda@linux.ibm.com,
+	nrb@linux.ibm.com,
+	david@redhat.com,
+	pbonzini@redhat.com
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	kvm-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	will@kernel.org,
+	julien.thierry.kdev@gmail.com,
+	maz@kernel.org,
+	oliver.upton@linux.dev,
+	suzuki.poulose@arm.com,
+	yuzenghui@huawei.com,
+	joey.gouly@arm.com,
+	andre.przywara@arm.com
+Subject: [kvm-unit-tests PATCH v2 11/18] arm/run: Add support for kvmtool
+Date: Mon, 20 Jan 2025 16:43:09 +0000
+Message-ID: <20250120164316.31473-12-alexandru.elisei@arm.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250120164316.31473-1-alexandru.elisei@arm.com>
+References: <20250120164316.31473-1-alexandru.elisei@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,42 +54,211 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8_Wu87rllANVlYk7kmNk91Yn-oXAUmbl
-X-Proofpoint-ORIG-GUID: 8_Wu87rllANVlYk7kmNk91Yn-oXAUmbl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-20_04,2025-01-20_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0 spamscore=0
- bulkscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501200136
 
-When building out-of-tree, the parmfile was not passed to genprotimg,
-causing the selftest-setup_PV test to fail.
+Teach the arm runner to use kvmtool when kvm-unit-tests has been configured
+appropriately.
 
-Fix the Makefile rule s.t. parmfile is correctly passed.
+The test is ran using run_test_status() because kvmtool does not have a
+testdev device to return the test exit code, so kvm-unit-tests must always
+parse the "EXIT: STATUS" line for the exit code.
 
-Suggested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 ---
- s390x/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arm/run | 183 ++++++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 110 insertions(+), 73 deletions(-)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 23342bd64f44..a6cf3c144fbf 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -218,7 +218,7 @@ else
- 	GENPROTIMG_PCF := 0x000000e0
- endif
+diff --git a/arm/run b/arm/run
+index 9b11feafffdd..880d5afae86d 100755
+--- a/arm/run
++++ b/arm/run
+@@ -17,77 +17,114 @@ qemu)
+    exit 3
+ esac
  
--$(patsubst %.parmfile,%.pv.bin,$(wildcard s390x/*.parmfile)): %.pv.bin: %.parmfile
-+$(TEST_DIR)/selftest.pv.bin: $(SRCDIR)/s390x/selftest.parmfile
- %.pv.bin: %.bin $(HOST_KEY_DOCUMENT) $(comm-key)
- 	$(eval parmfile_args = $(if $(filter %.parmfile,$^),--parmfile $(filter %.parmfile,$^),))
- 	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
+-processor="$PROCESSOR"
++arch_run_qemu()
++{
++    processor="$PROCESSOR"
++
++    if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
++       [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
++       [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
++        ACCEL="tcg"
++    fi
++
++    set_qemu_accelerator || exit $?
++    if [ "$ACCEL" = "kvm" ]; then
++        QEMU_ARCH=$HOST
++    fi
++
++    qemu=$(search_qemu_binary) ||
++        exit $?
++
++    if ! $qemu -machine '?' | grep -q 'ARM Virtual Machine'; then
++        echo "$qemu doesn't support mach-virt ('-machine virt'). Exiting."
++        exit 2
++    fi
++
++    M='-machine virt'
++
++    if [ "$ACCEL" = "kvm" ]; then
++        if $qemu $M,\? | grep -q gic-version; then
++            M+=',gic-version=host'
++        fi
++    fi
++
++    if [ "$ACCEL" = "kvm" ] || [ "$ACCEL" = "hvf" ]; then
++        if [ "$HOST" = "aarch64" ] || [ "$HOST" = "arm" ]; then
++            processor="host"
++            if [ "$ARCH" = "arm" ] && [ "$HOST" = "aarch64" ]; then
++                processor+=",aarch64=off"
++            fi
++        fi
++    fi
++
++    if [ "$ARCH" = "arm" ]; then
++        M+=",highmem=off"
++    fi
++
++    if ! $qemu $M -device '?' | grep -q virtconsole; then
++        echo "$qemu doesn't support virtio-console for chr-testdev. Exiting."
++        exit 2
++    fi
++
++    if ! $qemu $M -chardev '?' | grep -q testdev; then
++        echo "$qemu doesn't support chr-testdev. Exiting."
++        exit 2
++    fi
++
++    if [ "$UEFI_SHELL_RUN" != "y" ] && [ "$EFI_USE_ACPI" != "y" ]; then
++        chr_testdev='-device virtio-serial-device'
++        chr_testdev+=' -device virtconsole,chardev=ctd -chardev testdev,id=ctd'
++    fi
++
++    pci_testdev=
++    if $qemu $M -device '?' | grep -q pci-testdev; then
++        pci_testdev="-device pci-testdev"
++    fi
++
++    A="-accel $ACCEL$ACCEL_PROPS"
++    command="$qemu -nodefaults $M $A -cpu $processor $chr_testdev $pci_testdev"
++    command+=" -display none -serial stdio"
++    command="$(migration_cmd) $(timeout_cmd) $command"
++
++    if [ "$UEFI_SHELL_RUN" = "y" ]; then
++        ENVIRON_DEFAULT=n run_test_status $command "$@"
++    elif [ "$EFI_USE_ACPI" = "y" ]; then
++        run_test_status $command -kernel "$@"
++    else
++        run_qemu $command -kernel "$@"
++    fi
++}
++
++arch_run_kvmtool()
++{
++    local command
++
++    kvmtool=$(search_kvmtool_binary) ||
++        exit $?
++
++    if [ "$ACCEL" ] && [ "$ACCEL" != "kvm" ]; then
++        echo "kvmtool does not support $ACCEL" >&2
++        exit 2
++    fi
++
++    if ! kvm_available; then
++        echo "KVM required by kvmtool but not available on the host" >&2
++        exit 2
++    fi
++
++    command="$(timeout_cmd) $kvmtool run"
++    if [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ]; then
++	    run_test_status $command --kernel "$@" --aarch32
++    else
++	    run_test_status $command --kernel "$@"
++    fi
++}
+ 
+-if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
+-   [ "$HOST" = "aarch64" ] && [ "$ARCH" = "arm" ] &&
+-   [ "$(basename $QEMU)" = "qemu-system-arm" ]; then
+-	ACCEL="tcg"
+-fi
+-
+-set_qemu_accelerator || exit $?
+-if [ "$ACCEL" = "kvm" ]; then
+-	QEMU_ARCH=$HOST
+-fi
+-
+-qemu=$(search_qemu_binary) ||
+-	exit $?
+-
+-if ! $qemu -machine '?' | grep -q 'ARM Virtual Machine'; then
+-	echo "$qemu doesn't support mach-virt ('-machine virt'). Exiting."
+-	exit 2
+-fi
+-
+-M='-machine virt'
+-
+-if [ "$ACCEL" = "kvm" ]; then
+-	if $qemu $M,\? | grep -q gic-version; then
+-		M+=',gic-version=host'
+-	fi
+-fi
+-
+-if [ "$ACCEL" = "kvm" ] || [ "$ACCEL" = "hvf" ]; then
+-	if [ "$HOST" = "aarch64" ] || [ "$HOST" = "arm" ]; then
+-		processor="host"
+-		if [ "$ARCH" = "arm" ] && [ "$HOST" = "aarch64" ]; then
+-			processor+=",aarch64=off"
+-		fi
+-	fi
+-fi
+-
+-if [ "$ARCH" = "arm" ]; then
+-	M+=",highmem=off"
+-fi
+-
+-if ! $qemu $M -device '?' | grep -q virtconsole; then
+-	echo "$qemu doesn't support virtio-console for chr-testdev. Exiting."
+-	exit 2
+-fi
+-
+-if ! $qemu $M -chardev '?' | grep -q testdev; then
+-	echo "$qemu doesn't support chr-testdev. Exiting."
+-	exit 2
+-fi
+-
+-if [ "$UEFI_SHELL_RUN" != "y" ] && [ "$EFI_USE_ACPI" != "y" ]; then
+-	chr_testdev='-device virtio-serial-device'
+-	chr_testdev+=' -device virtconsole,chardev=ctd -chardev testdev,id=ctd'
+-fi
+-
+-pci_testdev=
+-if $qemu $M -device '?' | grep -q pci-testdev; then
+-	pci_testdev="-device pci-testdev"
+-fi
+-
+-A="-accel $ACCEL$ACCEL_PROPS"
+-command="$qemu -nodefaults $M $A -cpu $processor $chr_testdev $pci_testdev"
+-command+=" -display none -serial stdio"
+-command="$(migration_cmd) $(timeout_cmd) $command"
+-
+-if [ "$UEFI_SHELL_RUN" = "y" ]; then
+-	ENVIRON_DEFAULT=n run_test_status $command "$@"
+-elif [ "$EFI_USE_ACPI" = "y" ]; then
+-	run_test_status $command -kernel "$@"
+-else
+-	run_qemu $command -kernel "$@"
+-fi
++case "$TARGET" in
++qemu)
++    arch_run_qemu "$@"
++    ;;
++kvmtool)
++    arch_run_kvmtool "$@"
++    ;;
++esac
 -- 
 2.47.1
 
