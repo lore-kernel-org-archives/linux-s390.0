@@ -1,23 +1,23 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 00DB71E9B3F;
-	Mon, 20 Jan 2025 16:43:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 295721EB9E1;
+	Mon, 20 Jan 2025 16:43:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737391435; cv=none; b=rcfJfJZ1xxCaOcQkaKwev/+s5nFJDAVDUMjG5hentlXQ4wmHtM6WGZDVZxjE1j+RdxpjCTOaiypEpOOhK7bxwNyb0NII8DwZoRFn2JEdCXhTTSOnkFcGKEHvJREMZs6KYAj5rQnV8b2HH7jQl/0q0CA8OoKvkERablMtnJiLzgE=
+	t=1737391438; cv=none; b=pi8r+Upwbksqkrh3SUo/eJuGsirqGxGmEbdY2vyuLtHvHjJJyJ8vL4EjuynJ+hodaW0VOT3SO5boy3HpMWFTnGbhT9iLrFGFHm49IMKQ9ndgE33BNV3HHmaHAJmMSTvveUvTiWDJczXCtXEysawMxczIVmzvVoVB46Ogmta4uhI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737391435; c=relaxed/simple;
-	bh=jacWk6aUJYc+SCjwy2Kul2rVWQrs8XYtBgBQWT2mpVM=;
+	s=arc-20240116; t=1737391438; c=relaxed/simple;
+	bh=+0z9ZcxM8BSGnL7S6xhZIDiNijF7rdoQ0wWPrMo55Mg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oyAWW38t+kpIgaZprkIsewbzOfZRm+nCL1/x08O18AOAoXK/wWD+OO9M5ZiJyvtBVGn0F4AisxkJoMiO4elItYfFMgJxBFjYW9k0eFMIkefXckDtxbLVJzgrnm629bcmvmnBsImqT8Ds6NjZrKczu0hddC4M8XCYvEIu8vGy9Ik=
+	 MIME-Version; b=hYHwLq+X4HcmwVy9gKrc8Zf4gdopjKvyXOI1E8TqVedEWbG4POYxRlP/62tXGM9GM2NoUX0E9JhFDiMBblqmdShMOA/CoMZFFbaaNzRvn/q6rR+PL6F5QyWCvzS7QtY5W5DmEiuELZwGLpflrS2AS0dDijL8wcsqiLWUBES/yuM=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C18EE1CC4;
-	Mon, 20 Jan 2025 08:44:21 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3B32F1CE2;
+	Mon, 20 Jan 2025 08:44:25 -0800 (PST)
 Received: from localhost.localdomain (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2A9F03F5A1;
-	Mon, 20 Jan 2025 08:43:50 -0800 (PST)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 99F273F5A1;
+	Mon, 20 Jan 2025 08:43:53 -0800 (PST)
 From: Alexandru Elisei <alexandru.elisei@arm.com>
 To: andrew.jones@linux.dev,
 	eric.auger@redhat.com,
@@ -41,9 +41,9 @@ Cc: kvm@vger.kernel.org,
 	yuzenghui@huawei.com,
 	joey.gouly@arm.com,
 	andre.przywara@arm.com
-Subject: [kvm-unit-tests PATCH v2 06/18] scripts: Merge the qemu parameter -smp into $qemu_opts
-Date: Mon, 20 Jan 2025 16:43:04 +0000
-Message-ID: <20250120164316.31473-7-alexandru.elisei@arm.com>
+Subject: [kvm-unit-tests PATCH v2 07/18] scripts: Introduce kvmtool_opts
+Date: Mon, 20 Jan 2025 16:43:05 +0000
+Message-ID: <20250120164316.31473-8-alexandru.elisei@arm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250120164316.31473-1-alexandru.elisei@arm.com>
 References: <20250120164316.31473-1-alexandru.elisei@arm.com>
@@ -55,43 +55,85 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-kvmtool has a different command line parameter to specify the number of
-VCPUs (-c/--cpus). To make it easier to accommodate it, merge the qemu
-specific parameter -smp into $qemu_opts when passing it to the
-$RUNTIME_arch_run script.
-
-This is safe to do because the $RUNTIME_arch_run script, on all
-architectures, passes the parameters right back to run_qemu() et co, and
-do not treat individual parameters separately.
+In preparation for supporting kvmtool, create and pass the variable
+'kvmtool_opts' to the arch run script $RUNTIME_arch_run.
 
 Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 ---
- scripts/runtime.bash | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ scripts/common.bash  |  6 ++++--
+ scripts/runtime.bash | 14 +++++++++++---
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
+diff --git a/scripts/common.bash b/scripts/common.bash
+index a40c28121b6a..1b5e0d667841 100644
+--- a/scripts/common.bash
++++ b/scripts/common.bash
+@@ -37,6 +37,7 @@ function for_each_unittest()
+ 	local check
+ 	local accel
+ 	local timeout
++	local kvmtool_opts
+ 	local rematch
+ 
+ 	exec {fd}<"$unittests"
+@@ -45,7 +46,7 @@ function for_each_unittest()
+ 		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+ 			rematch=${BASH_REMATCH[1]}
+ 			if [ -n "${testname}" ]; then
+-				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$qemu_opts" "$arch" "$machine" "$check" "$accel" "$timeout"
++				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$qemu_opts" "$arch" "$machine" "$check" "$accel" "$timeout" "$kvmtool_opts"
+ 			fi
+ 			testname=$rematch
+ 			smp=1
+@@ -57,6 +58,7 @@ function for_each_unittest()
+ 			check=""
+ 			accel=""
+ 			timeout=""
++			kvmtool_opts=""
+ 		elif [[ $line =~ ^file\ *=\ *(.*)$ ]]; then
+ 			kernel=$TEST_DIR/${BASH_REMATCH[1]}
+ 		elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
+@@ -80,7 +82,7 @@ function for_each_unittest()
+ 		fi
+ 	done
+ 	if [ -n "${testname}" ]; then
+-		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$qemu_opts" "$arch" "$machine" "$check" "$accel" "$timeout"
++		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$qemu_opts" "$arch" "$machine" "$check" "$accel" "$timeout" "$kvmtool_opts"
+ 	fi
+ 	exec {fd}<&-
+ }
 diff --git a/scripts/runtime.bash b/scripts/runtime.bash
-index e5d661684ceb..a89f2d10ab78 100644
+index a89f2d10ab78..451b5585f010 100644
 --- a/scripts/runtime.bash
 +++ b/scripts/runtime.bash
-@@ -34,7 +34,8 @@ premature_failure()
- get_cmdline()
+@@ -35,7 +35,7 @@ get_cmdline()
  {
      local kernel=$1
--    echo "TESTNAME=$testname TIMEOUT=$timeout MACHINE=$machine ACCEL=$accel $RUNTIME_arch_run $kernel -smp $smp $qemu_opts"
-+
-+    echo "TESTNAME=$testname TIMEOUT=$timeout MACHINE=$machine ACCEL=$accel $RUNTIME_arch_run $kernel $qemu_opts"
+ 
+-    echo "TESTNAME=$testname TIMEOUT=$timeout MACHINE=$machine ACCEL=$accel $RUNTIME_arch_run $kernel $qemu_opts"
++    echo "TESTNAME=$testname TIMEOUT=$timeout MACHINE=$machine ACCEL=$accel $RUNTIME_arch_run $kernel $opts"
  }
  
  skip_nodefault()
-@@ -87,6 +88,8 @@ function run()
+@@ -87,8 +87,16 @@ function run()
+     local check="${CHECK:-$8}"
      local accel="$9"
      local timeout="${10:-$TIMEOUT}" # unittests.cfg overrides the default
- 
-+    qemu_opts="-smp $smp $qemu_opts"
+-
+-    qemu_opts="-smp $smp $qemu_opts"
++    local kvmtool_opts="${11}"
 +
++    case "$TARGET" in
++    qemu)
++        opts="-smp $smp $qemu_opts"
++        ;;
++    kvmtool)
++        opts="--cpus $smp $kvmtool_opts"
++        ;;
++    esac
+ 
      if [ "${CONFIG_EFI}" == "y" ]; then
          kernel=${kernel/%.flat/.efi}
-     fi
 -- 
 2.47.1
 
