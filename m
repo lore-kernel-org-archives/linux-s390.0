@@ -1,72 +1,72 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F15781DF968
-	for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 12:06:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20FAE1DFDBB
+	for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 12:07:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737374810; cv=none; b=lfmet2C/IoYvDmd/Mro9dI+KQ8088Bm/psZgZs/INOc1RzXmxogSGMD1gTw2q0HXJNBY+osk75KR+xQ0M7pPD4c7tJZC8VWZ2+aWQvmyBIWUdCoO5bsNZYQXBJxIlUVKVdzw1cGdtYGTBrXNZ81L7pqh4+wMkWKDRnbJkE9Ju54=
+	t=1737374865; cv=none; b=MYaAi3a/S3VCGYAS9rnb7YE8ff1lDR7o/QRUJjXwPyAnaz1mAkDY7xL3EBMuGgOhF9EemeXUMPgW7D6olek3SvySzuqo9R9JjGtHTVB3bMGjUqJS8LdWFHIBlxwxPV4TmPexzc5ISphS0kxJbuArwas8ZYAmH6WVwxTs2Nr/yKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737374810; c=relaxed/simple;
-	bh=Sur6MJWlZIqeg/rFl+mL3sU+tN/U/FA+Szn0X1gL+8o=;
+	s=arc-20240116; t=1737374865; c=relaxed/simple;
+	bh=QUYHxT40mbwQGRn5kwSA/TizS2VWnnxFvv8E5Ki0ApI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IdaVtW9mNZw/P8elke0gzeRi0Pm2y0m2XnFFQHCbngmT+Rn6CD9Z0pI3wm4TJ/eywKq1UbzUt0/VZ1m5/dlwp4rKPN1v+dJvh9z5ip3kKiqORuzo+ZkI3ivz4iMw0FmKxzYmmrUV9AGRc9UF+gYPeEoKs3TGzI9bNBPPnIKCSTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UYV0dZqC; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=Qw8IrkYZNN3lMW0MlVsiTu6EK3kiUHkH/PbmuSpJZATnfFWIu/kCAaAvK75Zbt4F34PvMu0/ucXuTwrBFoEgp09C/qLT6pjSQ0sdMu8lu9aAs1z63i3ICGuMhRPnQTJHjklDnwH3pO1C/MPiZElqmI5k6Zl2Ihehmp5K5m7n/zA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rt8kWv4a; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UYV0dZqC"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rt8kWv4a"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737374807;
+	s=mimecast20190719; t=1737374863;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=72ba0MjJUR1x91K6P/is/aJRUy5fIeddwn3W4Ob0+2c=;
-	b=UYV0dZqCrxzh4q/uiBxxSewjda4f9xGLRiLB1Fu4wKLDdvSYdrsA/X8bzuY1QZf8odiPbb
-	QxWMsoW4kyXd278vU4UzC5ceVJG82o4Uj5j1AXGhFR03tUPCR7rgm5/fgUTAEu8nNccix3
-	X9lg02tfMsmbd3YqP2BYQTF83QWV0/4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=noefFr5DPAf8uJvahy7JmLqUWiJUgQ1dlk/eUbIKrLY=;
+	b=Rt8kWv4a6GbXYpMWJxtAEYYRWbKrQlTLqQKS8UqD3BP7YtVJNjr/nDmU9iqF5yqmaNUnLq
+	7JXQAbUpYteHH4hgqZKlauba7s9g9s1Jp735ZI48vrLnHfzUD9GCr+3g0pbeO5a1wj2vBJ
+	7YupiSTQgM+3Tu/jgDb+YnwTCbsbZTU=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-465-vCcGptj0MKi2yH8MpDmdqA-1; Mon, 20 Jan 2025 07:06:43 -0500
-X-MC-Unique: vCcGptj0MKi2yH8MpDmdqA-1
-X-Mimecast-MFC-AGG-ID: vCcGptj0MKi2yH8MpDmdqA
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-385ded5e92aso1866936f8f.3
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 04:06:42 -0800 (PST)
+ us-mta-168-H2n9aqb1O-CkBFJw5CgHew-1; Mon, 20 Jan 2025 07:07:41 -0500
+X-MC-Unique: H2n9aqb1O-CkBFJw5CgHew-1
+X-Mimecast-MFC-AGG-ID: H2n9aqb1O-CkBFJw5CgHew
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4361f371908so33518035e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 04:07:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737374802; x=1737979602;
+        d=1e100.net; s=20230601; t=1737374860; x=1737979660;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=72ba0MjJUR1x91K6P/is/aJRUy5fIeddwn3W4Ob0+2c=;
-        b=IqMi1AB0AqOh7CFwdzLn+x7CA2EZYH//ovbtZBo+6Zi8fo7M7zTfdxbO83zFlS/Q9r
-         pPmxwDJCHhbSSzfnrDTRWCk/zbfjP8hBdKQA/bDvhtxOWLNSYsEQlAUmjXlG4lA1n65Y
-         bgP99uRmDFg7C20kbEWVjtTLPa2fzf1XeKkKCknqeyv5iiH8mQCDsyA1VvgX/TaRngmc
-         63agGXL8CjlXH+/r1Zj9O2PH5ayEtHCbt/1G30rGblpGP+YawkGyCMd7TELfyxN4Oomf
-         tFLEkxKCOfDdoVIVl0tYFZG5GCtQLxC49/NGiSgM01+u54biFaHlNWG1gtwt60JerCCs
-         ++Ig==
-X-Gm-Message-State: AOJu0YwUp6lt235tlXFvW+rJ2BVA2WEajhEkfeqkJfkmwLzRLw2DWsX+
-	nE9M3gCzwlFCkkNfvCJdoyawU9g6uV1bAX697vQwOXqrvoE3rR4Imp+pIcrbrfPi2tMyXjfHTbN
-	H3wDwtCmYsSmNujCBOzRTfp8Gkst8TPeE5+wLaumD1JDvc0I8SqYQ4mwwDMY=
-X-Gm-Gg: ASbGncvqlBJDMMZKh+wxE05/1fz3sEui/QT/WFKZcNvKjPP1H9oVLPYtG7Hs/U0OhJn
-	vdZCqn0D6zXxs7D4Vv4Vwrmw1i43RbK+naxPauNKcKWRPfMt0UAZ4x7zjz6KczKH55kEzZXSECP
-	feoyhVyXwylULq1uRCgvvGr5jK7XKtb6KyLce/aZV+plzy+Wkp9PRYt3Qajzqe3QEMkhlVcDdwd
-	ia+8U+VDK8T73E5+uoCyi5yQMASCsd6loL4Y78YLXy0UfojtOGw55ZHSwjteaByoji1Op5Ywxmw
-	QJNT6yywAexWT745QBT3cNwMDtaRVwHFqc66gxPTMht86TpQsCrkyyMd/6fcHyjf6XTo4eImmsn
-	92RpUsDSwpXQsW4XiFjHy5A==
-X-Received: by 2002:a5d:5256:0:b0:386:1cd3:8a03 with SMTP id ffacd0b85a97d-38bf57a2079mr8754137f8f.32.1737374801956;
-        Mon, 20 Jan 2025 04:06:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF5Gu3viSkRCW0ZB6VOdgGS/fHgN6E3Rfw3X3LsM+Q3M5bOEsBqq+vZ4cx/yg4911KYxmF+cw==
-X-Received: by 2002:a5d:5256:0:b0:386:1cd3:8a03 with SMTP id ffacd0b85a97d-38bf57a2079mr8754106f8f.32.1737374801489;
-        Mon, 20 Jan 2025 04:06:41 -0800 (PST)
+        bh=noefFr5DPAf8uJvahy7JmLqUWiJUgQ1dlk/eUbIKrLY=;
+        b=m8H1tpwGIj26IeKOEyzLNY/uhnzxbgKLnBOwdAX0MrnRneHrk8eSaWj2Y2m13uCemA
+         0oBuyCDVqzGt8fLzPvrrBvPH8absFHqow4DOUDQzXxNqjAAjliVnU9kUF5TXDt6iBfCw
+         mSACmYZhSuq8lECp4nfw0qsGyp6LpbVgV3vFNNfxJUG0adtmEdkppelQGIj5ETq389z1
+         mr6zmm1QC1vzf3CyGVQtkYDtGyOWwVzVhdCycXAG0OWT9ma70rgthfYLXcFZ8ceFH+Ba
+         HbOB9Q9n79rtA9lP7LC++1rcvrdh9RJMXVAZ9lY3a+16ntMUibtGSTRQk3EzpMAvEctV
+         vE+g==
+X-Gm-Message-State: AOJu0Ywj/mSEaNvImzb/x36bziVgXEUZXe07ew1lcYPAzZDp/GvQBICr
+	0dCe2mNZTOECntFdNWrWGfoM5oo9EpP5r1IkwnqG02tKBRbyiLShOcaxLgMgr13Zuh4y2uRJpkf
+	7G+g2bRQCN6tOjBRoP7KX1vM3zYvK8x67iwpCD5v/8C6o1bOydO4KFmWDRXc=
+X-Gm-Gg: ASbGncuKfm/OZHjWb+xwfGttkZtwh2m7/g7fJqtkBbqkOoTshlW3TL4zklxjVppSIGV
+	gml3MCboOcN60rctaLsd/BomexinR6kyI6ABiIFM/NaPrCXYAz69Cp63lYxLxMNgj799f3LSR9X
+	1CEamgh42J0MVHF2w+A3N/IH3/7TBWyQy4Wprus4Tsa7NujlPGuM/fyBT10sRwWzhgYq7KMydML
+	XV4M8nGPEnpaGxFDfz6j91yXG740CfXRSjAVoHZ+2jjVCZLu9Hg9aHZCiFpM04s7wmaxLHqTMRx
+	8nGUy8NC3aRtzKGAol+q2L9YDJKAwlBeXxAMlRND7oREVxzUNxH5DFpwrwJfH5k7MYJp3eGLNQ2
+	jCJN6YpGR9bUF7zJT0G1phg==
+X-Received: by 2002:a05:600c:1d1d:b0:434:a815:2b5d with SMTP id 5b1f17b1804b1-4389141c211mr103039255e9.24.1737374860424;
+        Mon, 20 Jan 2025 04:07:40 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGyl1GDQ+PFz+T0p36CM6DJH9mNlBF+N6lydwQjW3GsBxIFVGLCEAiDuher4KfL95tNIjmFkQ==
+X-Received: by 2002:a05:600c:1d1d:b0:434:a815:2b5d with SMTP id 5b1f17b1804b1-4389141c211mr103038935e9.24.1737374860025;
+        Mon, 20 Jan 2025 04:07:40 -0800 (PST)
 Received: from ?IPV6:2003:d8:2f22:1000:d72d:fd5f:4118:c70b? (p200300d82f221000d72dfd5f4118c70b.dip0.t-ipconnect.de. [2003:d8:2f22:1000:d72d:fd5f:4118:c70b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf32845e8sm10398460f8f.97.2025.01.20.04.06.38
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-437c7527fc4sm196648745e9.27.2025.01.20.04.07.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jan 2025 04:06:40 -0800 (PST)
-Message-ID: <3e2a6060-6e53-4f89-8392-ff6080b30504@redhat.com>
-Date: Mon, 20 Jan 2025 13:06:38 +0100
+        Mon, 20 Jan 2025 04:07:39 -0800 (PST)
+Message-ID: <ca7e9eb1-92d6-4b29-a9a7-502f1c78ab3d@redhat.com>
+Date: Mon, 20 Jan 2025 13:07:37 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,8 +74,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 01/15] KVM: Do not restrict the size of KVM-internal
- memory regions
+Subject: Re: [PATCH v3 02/15] KVM: s390: wrapper for KVM_BUG
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com,
  borntraeger@de.ibm.com, schlameuss@linux.ibm.com, willy@infradead.org,
@@ -83,7 +82,7 @@ Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com,
  gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com, seanjc@google.com,
  seiden@linux.ibm.com
 References: <20250117190938.93793-1-imbrenda@linux.ibm.com>
- <20250117190938.93793-2-imbrenda@linux.ibm.com>
+ <20250117190938.93793-3-imbrenda@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -131,47 +130,19 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20250117190938.93793-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20250117190938.93793-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 17.01.25 20:09, Claudio Imbrenda wrote:
-> From: Sean Christopherson <seanjc@google.com>
+> Wrap the call to KVM_BUG; this reduces code duplication and improves
+> readability.
 > 
-> Exempt KVM-internal memslots from the KVM_MEM_MAX_NR_PAGES restriction, as
-> the limit on the number of pages exists purely to play nice with dirty
-> bitmap operations, which use 32-bit values to index the bitmaps, and dirty
-> logging isn't supported for KVM-internal memslots.
-> 
-> Link: https://lore.kernel.org/all/20240802205003.353672-6-seanjc@google.com
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 > Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 > ---
->   virt/kvm/kvm_main.c | 10 +++++++++-
->   1 file changed, 9 insertions(+), 1 deletion(-)
-> 
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index a8a84bf450f9..ee3f040a4891 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1966,7 +1966,15 @@ static int kvm_set_memory_region(struct kvm *kvm,
->   		return -EINVAL;
->   	if (mem->guest_phys_addr + mem->memory_size < mem->guest_phys_addr)
->   		return -EINVAL;
-> -	if ((mem->memory_size >> PAGE_SHIFT) > KVM_MEM_MAX_NR_PAGES)
-> +
-> +	/*
-> +	 * The size of userspace-defined memory regions is restricted in order
-> +	 * to play nice with dirty bitmap operations, which are indexed with an
-> +	 * "unsigned int".  KVM's internal memory regions don't support dirty
-> +	 * logging, and so are exempt.
-> +	 */
-> +	if (id < KVM_USER_MEM_SLOTS &&
-> +	    (mem->memory_size >> PAGE_SHIFT) > KVM_MEM_MAX_NR_PAGES)
->   		return -EINVAL;
->   
->   	slots = __kvm_memslots(kvm, as_id);
-
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
 
