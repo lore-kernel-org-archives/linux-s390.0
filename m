@@ -1,176 +1,158 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E959F1EE008;
-	Mon, 20 Jan 2025 16:44:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2600615575C;
+	Mon, 20 Jan 2025 17:18:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737391477; cv=none; b=s3nE/Wb4FEyclEh2V0+mSsd61QxaTREhuCHmnrz+p0+ZUWU0KeDpxES+TidNkklQ8BvAWdcRYhGibvr4+h6ugh4/jeGqaPLXm8qlS+2HKio5OmMSgYKcp6P9sdbzHN756sEHl6Fpmzz0tLaPePpULpf6DY2l3h2oMarODfFo1mM=
+	t=1737393507; cv=none; b=hPl5RIk25aZb/V32tQVmMX/YFF8vyWu8TRIqziOPXHBsdGxkP4JXabIwM+aJPvlUufhpFypVvp8O0sdfIoKVuFD93MP1RYWdzn2y7pFgRF1HFunuQTJyF3UpHkdWAPGnna28i8Gk4+JED2+vCAHj9eGhddmX3lX+6YLrLpLsTyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737391477; c=relaxed/simple;
-	bh=oQPuFvqZz+8QpVL27r/lIr9FEsSrJtFYCs3MYHG2bUE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JBOFauGEcwKO8vjPVR+ETNFuk+VNaZlBM8ZEOolIszzn0YYPvsv4AHG8MU9R8w3aNO9660UMH+mtXB11V/wyfCQSER5kceRkvXZ9FNRR2JxtollNVHq/fg3Fhv/8k+Kfrr/y/7d2l4FehknRTf27rBDHrS5z3XhA+sVhSUwqJso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 00BE31D6F;
-	Mon, 20 Jan 2025 08:45:04 -0800 (PST)
-Received: from localhost.localdomain (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 08CEE3F5A1;
-	Mon, 20 Jan 2025 08:44:31 -0800 (PST)
-From: Alexandru Elisei <alexandru.elisei@arm.com>
-To: andrew.jones@linux.dev,
-	eric.auger@redhat.com,
-	lvivier@redhat.com,
-	thuth@redhat.com,
-	frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	nrb@linux.ibm.com,
-	david@redhat.com,
-	pbonzini@redhat.com
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	will@kernel.org,
-	julien.thierry.kdev@gmail.com,
-	maz@kernel.org,
-	oliver.upton@linux.dev,
-	suzuki.poulose@arm.com,
-	yuzenghui@huawei.com,
-	joey.gouly@arm.com,
-	andre.przywara@arm.com
-Subject: [kvm-unit-tests PATCH v2 18/18] run_tests: Enable kvmtool
-Date: Mon, 20 Jan 2025 16:43:16 +0000
-Message-ID: <20250120164316.31473-19-alexandru.elisei@arm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250120164316.31473-1-alexandru.elisei@arm.com>
-References: <20250120164316.31473-1-alexandru.elisei@arm.com>
+	s=arc-20240116; t=1737393507; c=relaxed/simple;
+	bh=gZrH04UrX1WzhsZDJ37CiKj8KVsDcg7H2g4hjNtlYew=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cQ0JxqRjFlv4rBUGxtMxuqnq82fK+spGuA8t/lITGg69mJBVwKkHdesSdNPAFNTmlwaXIYNkqHCceCEEZl1glIJ9PbyTF/pA/+2fSZQJe6uqjIZFIwb5c23XPBCnxt/rmxKtuFsyyZLGwqPcJSTNti6VTNjc15LlRNLUNQlGgFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QmS/AmZ/; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QmS/AmZ/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 511C2C4CEDD;
+	Mon, 20 Jan 2025 17:18:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1737393506;
+	bh=gZrH04UrX1WzhsZDJ37CiKj8KVsDcg7H2g4hjNtlYew=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=QmS/AmZ/XZiYmDkFCc3bvJ2XzG3ZC6buxBF6j8Znwaw8k3LcUrpv1LJKhZ8SSb8Ch
+	 EIiC6VgjwJCFOtb80cwW35+Sp6Rfk49xw/XoZmXFg0kbVH2Vv1MTFtzMZrqXYprogk
+	 WIQfkiHZCK73OFWMi+32le76O/yOwXeqlwHzN7CFmSoz9dEkaVlc80yvSNO0ghf5jB
+	 odCCvUoOU8UkU73zKjzd8e7csaQ+BHg29/+5g11BbN+5f/KxmOvUWtWEFdJGnEEiRW
+	 dz03F3ymb6OHIID/zMaxW1uHzOzS3mMK2jZOWHikZ59M4yrerxwr6cByj7px5VRSvX
+	 PQAZxH16AgK6A==
+Date: Mon, 20 Jan 2025 17:18:20 +0000
+From: Simon Horman <horms@kernel.org>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [RFC net-next 3/7] net/ism: Use uuid_t for ISM GID
+Message-ID: <20250120171820.GC6206@kernel.org>
+References: <20250115195527.2094320-1-wintera@linux.ibm.com>
+ <20250115195527.2094320-4-wintera@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250115195527.2094320-4-wintera@linux.ibm.com>
 
-Everything is in place to run the tests using kvmtool:
+On Wed, Jan 15, 2025 at 08:55:23PM +0100, Alexandra Winter wrote:
+> SMC uses 64 Bit and 128 Bit Global Identifiers (GIDs)
+> that need to be sent via the SMC protocol.
+> When integers are used network endianness and host endianness
+> need to be considered.
+> 
+> Avoid this in the ISM layer by using uuid_t byte arrays.
+> Follow on patches could do the same change for SMC, for now
+> conversion helper functions are introduced.
+> 
+> ISM-vPCI devices provide 64 Bit GIDs. Map them to ISM uuid_t GIDs
+> like this:
+>  _________________________________________
+> | 64 Bit ISM-vPCI GID | 00000000_00000000 |
+>  -----------------------------------------
+> If interpreted as UUID, this would be interpreted as th UIID variant,
+> that is reserved for NCS backward compatibility. So it will not collide
+> with UUIDs that were generated according to the standard.
+> 
+> Future ISM devices, shall use real UUIDs as 128 Bit GIDs.
+> 
+> Note:
+> - In this RFC patch smcd_gid is now moved back to smc.h,
+>   future patchset should avoid that.
+> - ism_dmb and ism_event structs still contain 64 Bit rgid and info
+>   fields. A future patch could change them to uuid_t gids. This
+>   does not break anything, because ism_loopback does not use them.
+> 
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 
-$ ./configure --target=kvmtool
-$ make clean && make
-$ KVMTOOL=<path/to/kvmtool> ./run_tests.sh
+...
 
-so enable it, and remove ERRATA_FORCE=y when configuring for kvmtool,
-because the runner will generate and pass the correct environment to
-kvmtool.
+> diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+> index 6763133dd8d0..d041e5a7c459 100644
+> --- a/net/smc/smc_ism.h
+> +++ b/net/smc/smc_ism.h
+> @@ -12,6 +12,7 @@
+>  #include <linux/uio.h>
+>  #include <linux/types.h>
+>  #include <linux/mutex.h>
+> +#include <linux/ism.h>
+>  
+>  #include "smc.h"
+>  
+> @@ -94,4 +95,24 @@ static inline bool smc_ism_is_loopback(struct smcd_dev *smcd)
+>  	return (smcd->ops->get_chid(smcd) == 0xFFFF);
+>  }
+>  
+> +static inline void copy_to_smcdgid(struct smcd_gid *sgid, uuid_t *igid)
+> +{
+> +	__be64 temp;
+> +
+> +	memcpy(&temp, igid, sizeof(sgid->gid));
+> +	sgid->gid = ntohll(temp);
+> +	memcpy(&temp, igid + sizeof(sgid->gid), sizeof(sgid->gid_ext));
 
-Missing is support for EFI tests. That's because distros don't ship a
-EDK2 binary compiled for kvmtool, and on top of that kvm-unit-tests as
-an EFI app hasn't been tested to work with kvmtool.
+Hi Alexandra,
 
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
----
+The stride of the pointer arithmetic is the width of igid
+so this write will be at an offset of:
 
-Should I also revert commit 35145f140442 ("arm/arm64: kvmtool: force all tests
-to run") which introduced ERRATA_FORCE? I didn't do this now in case other
-architectures use it/planning to use it.
+   sizeof(igid) + sizeof(sgid->gid) = 128 bytes
 
- README.md               | 15 +++++++++++++++
- arm/run                 |  2 +-
- configure               |  1 -
- run_tests.sh            |  2 +-
- scripts/mkstandalone.sh |  2 +-
- 5 files changed, 18 insertions(+), 4 deletions(-)
+Which is beyond the end of *igid.
 
-diff --git a/README.md b/README.md
-index be07dc28a094..5e7706f02553 100644
---- a/README.md
-+++ b/README.md
-@@ -65,6 +65,9 @@ or:
- 
- to run them all.
- 
-+All tests can be run using QEMU. On arm and arm64, tests can also be run using
-+kvmtool.
-+
- By default the runner script searches for a suitable QEMU binary in the system.
- To select a specific QEMU binary though, specify the QEMU=path/to/binary
- environment variable:
-@@ -80,10 +83,22 @@ For running tests that involve migration from one QEMU instance to another
- you also need to have the "ncat" binary (from the nmap.org project) installed,
- otherwise the related tests will be skipped.
- 
-+To run a test with kvmtool, please configure kvm-unit-tests accordingly first:
-+
-+   ./configure --arch=arm64 --target=kvmtool
-+
-+then run the test(s) like with QEMU above.
-+
-+To select a kvmtool binary, specify the KVMTOOL=path/to/binary environment
-+variable. kvmtool supports only kvm as the accelerator.
-+
- ## Running the tests with UEFI
- 
- Check [x86/efi/README.md](./x86/efi/README.md).
- 
-+On arm and arm64, this is only supported with QEMU; kvmtool cannot run the
-+tests under UEFI.
-+
- # Tests configuration file
- 
- The test case may need specific runtime configurations, for
-diff --git a/arm/run b/arm/run
-index 880d5afae86d..438a2617e564 100755
---- a/arm/run
-+++ b/arm/run
-@@ -10,7 +10,7 @@ if [ -z "$KUT_STANDALONE" ]; then
- fi
- 
- case "$TARGET" in
--qemu)
-+qemu | kvmtool)
-     ;;
- *)
-    echo "'$TARGET' not supported"
-diff --git a/configure b/configure
-index 86cf1da36467..17d3d931f2c0 100755
---- a/configure
-+++ b/configure
-@@ -299,7 +299,6 @@ elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
-         arm_uart_early_addr=0x09000000
-     elif [ "$target" = "kvmtool" ]; then
-         arm_uart_early_addr=0x1000000
--        errata_force=1
-     else
-         echo "--target must be one of 'qemu' or 'kvmtool'!"
-         usage
-diff --git a/run_tests.sh b/run_tests.sh
-index d38954be9093..3921dcdcb344 100755
---- a/run_tests.sh
-+++ b/run_tests.sh
-@@ -110,7 +110,7 @@ while [ $# -gt 0 ]; do
- done
- 
- case "$TARGET" in
--qemu)
-+qemu | kvmtool)
-     ;;
- *)
-     echo "$0 does not support '$TARGET'"
-diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
-index 10abb5e191b7..16383b05adfa 100755
---- a/scripts/mkstandalone.sh
-+++ b/scripts/mkstandalone.sh
-@@ -8,7 +8,7 @@ source config.mak
- source scripts/common.bash
- 
- case "$TARGET" in
--qemu)
-+qemu | kvmtool)
-     ;;
- *)
-     echo "'$TARGET' not supported for standlone tests"
--- 
-2.47.1
+I think the desired operation is to write at an offset of 8 bytes, so
+perhaps this is a way to achieve that, as the bi field is a
+16 byte array of u8:
 
+	memcpy(&temp, igid->b + sizeof(sgid->gid), sizeof(sgid->gid_ext));
+
+
+Flagged by W=1 builds with gcc-14 and clang-19, and by Smatch.
+
+> +	sgid->gid_ext = ntohll(temp);
+> +}
+> +
+> +static inline void copy_to_ismgid(uuid_t *igid, struct smcd_gid *sgid)
+> +{
+> +	__be64 temp;
+> +
+> +	temp = htonll(sgid->gid);
+> +	memcpy(igid, &temp, sizeof(sgid->gid));
+> +	temp = htonll(sgid->gid_ext);
+> +	memcpy(igid + sizeof(sgid->gid), &temp, sizeof(sgid->gid_ext));
+
+I believe there is a similar problem here too.
+
+> +}
+> +
+>  #endif
+> -- 
+> 2.45.2
+> 
