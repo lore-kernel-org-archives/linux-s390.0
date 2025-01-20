@@ -1,67 +1,67 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 595FD1DFFC;
-	Mon, 20 Jan 2025 12:21:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC6CD1B6CEC;
+	Mon, 20 Jan 2025 12:25:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737375679; cv=none; b=jYDQvdbxGaF7fGOuudfKEoZ0EbQa8dxyy/1XfZlcT2zQmOzBI5wSWJXXZ8e/kse4OhNp5RZcKdWiu6MjvWlom1jeTq2xrN5mWgT8vW4pR1XpJmD8U4dsFiGxzIxAExdiiqy+ptqoMkS5AWA57i8FtEQz4zJzB64+164pXXft/5g=
+	t=1737375945; cv=none; b=BcTjC6TS9zigcjFiqF8X6CByuCb/xgVhJHshzRRrXNRksLmphV/gwjUnd3G5h5+jooR24AKp/Q3YbQJ5w8zqsUektrZok/pk6OoRRklEvl/+VwLPgKhgXTM5Pjr2JW432PnBqnh5ZXC+fpzIdRJJgJpF9ffIoggblniPjxA/2Mw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737375679; c=relaxed/simple;
-	bh=Fc7b/lxG3QRpd0MAJjZrLAxGRVDT0z5D8PN5aVp7CRg=;
+	s=arc-20240116; t=1737375945; c=relaxed/simple;
+	bh=qSCh7Suqxs9E+vjNMIoLUE4zFZSehbM/bG/8ZCb2K/g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OGl/kijvrUhF6LFXy04PBTUm9gr0lZj8tPPQd/bpFxJEs7Si3oTGu+lbRXAs+nNDFT7qrZhFCCOwTs4LV1sUmnSlINTv8xOm3ds6hCcLFDrKahoDN3dFWDOFgx8fL87UppTHAvZqEIpe1utjiROD8k0jXk4NLZpKKBtkyd9+yzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L+BuXLv8; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=htfolrErKGlCwdrYvfP66P6mMm5Ot5WLK/vSfyKMKkGczzJ2AtjWMOtpFiiniptMyGLfN7YoocpQBgaaitoj87K+4k3v8aeDFZ/BYkgsYwEyWxxzRlNfLgAJm4lxSluGdAnAGS/hg/j5UEE0KMKBdHyEoJP8Qek65GQJUzsEr5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dhn+qNHr; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L+BuXLv8"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50K7WfbC010031;
-	Mon, 20 Jan 2025 12:21:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dhn+qNHr"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50JNumCC025423;
+	Mon, 20 Jan 2025 12:25:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Pjj/6b
-	s9G9QaX27DEwqJe7u8YKQWfvtowSD6gfcLWE8=; b=L+BuXLv8kNnNf8ZSeHgvnw
-	5sW8ZecC9C+CXmohS1gtJ8xkI9UNGXe+NwRl/bqrrBz9fpvlqG811zr9hTfdgcnq
-	uHZgS2Gd0TLUF6KxnXEG8yeuLX39LlfDopE507rJmOIRKrB8WGtovgpF+u9QGuvd
-	DSc4l1+B6rVmafSvdIBeysrV2nJIXMGSEqoDO/+K06KJfkHTEqIU7l6A0pGWSARa
-	dwVGQPNxmklAXeR1kvYHrkux+SQYbHwWtBkmJrCveQmmfWaX1LBhWD2hrOwM5b5q
-	C5V0Vvx9kCOlLi6x2w9cySkfY9ZjUZVUngv1xUQ0HVgAqkMwmeq9KVxL0XfX0cpg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BF8Y+U
+	ztZWnF0xD25b28b6aQHmTfHKAYCG0ZqEftieQ=; b=dhn+qNHrS5eEE1+DGVKDbm
+	xGX7Y712XetMhYpXDIYtN9v5S9Fx1XONtoRkDlbogmae8gvaxVXR2HhX8rO0/EJZ
+	gGzK/ZQs/zK5mqR/KlCvl1BBCDP5NSjM6RvQ9ASJc/qLsKtTJLPz8+iHD7K2P/Wv
+	80nQtW049qXZDCMeimmnoyg58Y04ok5mh0f7ElHpm3a2A7CO2zrHDJK4zpRidBZh
+	WAbiCLq9gfR/JOblyb93cfnlIuTxGAlkkJIc3yALWoOPLPJXSHORKaw9oG4hWhud
+	DiLq/+lo0MxafH0p2jllcJBZa9M3+uB0Po9ssRleAOpC4jpfwVenYqAvtM4jFuBA
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 449j6n992p-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44947suwt1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 12:21:10 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50KCHnek027103;
-	Mon, 20 Jan 2025 12:21:10 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 449j6n992k-1
+	Mon, 20 Jan 2025 12:25:39 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50KCLP9t013056;
+	Mon, 20 Jan 2025 12:25:39 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44947suwsy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 12:21:09 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50K923Ls032290;
-	Mon, 20 Jan 2025 12:21:09 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 448ruje069-1
+	Mon, 20 Jan 2025 12:25:38 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50KAZdIF019218;
+	Mon, 20 Jan 2025 12:25:38 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 448pms6fsn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 12:21:09 +0000
+	Mon, 20 Jan 2025 12:25:38 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50KCL5F734603676
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50KCPYli56754482
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Jan 2025 12:21:05 GMT
+	Mon, 20 Jan 2025 12:25:34 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75F0A20077;
-	Mon, 20 Jan 2025 12:21:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 86D0A20077;
+	Mon, 20 Jan 2025 12:25:34 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B8B49200A3;
-	Mon, 20 Jan 2025 12:21:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DC0D0200B3;
+	Mon, 20 Jan 2025 12:25:33 +0000 (GMT)
 Received: from [9.171.10.126] (unknown [9.171.10.126])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Jan 2025 12:21:04 +0000 (GMT)
-Message-ID: <9dd56395-2d90-41de-985b-cb02adac86b6@linux.ibm.com>
-Date: Mon, 20 Jan 2025 13:21:04 +0100
+	Mon, 20 Jan 2025 12:25:33 +0000 (GMT)
+Message-ID: <bbf555da-1c72-40ae-8c2a-1a3020e2a26e@linux.ibm.com>
+Date: Mon, 20 Jan 2025 13:25:33 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,8 +69,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 11/15] KVM: s390: stop using lists to keep track of
- used dat tables
+Subject: Re: [PATCH v2 13/15] KVM: s390: remove useless page->index usage
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         schlameuss@linux.ibm.com, david@redhat.com, willy@infradead.org,
@@ -78,7 +77,7 @@ Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
         gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com,
         seanjc@google.com, seiden@linux.ibm.com
 References: <20250116113355.32184-1-imbrenda@linux.ibm.com>
- <20250116113355.32184-12-imbrenda@linux.ibm.com>
+ <20250116113355.32184-14-imbrenda@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -123,32 +122,70 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20250116113355.32184-12-imbrenda@linux.ibm.com>
+In-Reply-To: <20250116113355.32184-14-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: D3YXmEnGaUkHFkoEwFCPS863BW6bgk8e
-X-Proofpoint-ORIG-GUID: wlNz2SROpbH7eQvVCP4BLbdJb-kh_z4f
+X-Proofpoint-GUID: SyUXgnZ6gDc8QgO9R6-jED59Ci2IBdDX
+X-Proofpoint-ORIG-GUID: 5lrWTSk2k1VZzze1Wm8PSbzxjr2HrOWn
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-20_02,2025-01-20_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=806 adultscore=0 phishscore=0 priorityscore=1501 mlxscore=0
- malwarescore=0 lowpriorityscore=0 bulkscore=0 clxscore=1015 suspectscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ malwarescore=0 lowpriorityscore=0 bulkscore=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 phishscore=0 adultscore=0 spamscore=0
+ suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2411120000 definitions=main-2501200100
 
 On 1/16/25 12:33 PM, Claudio Imbrenda wrote:
-> Until now, every dat table allocated to map a guest was put in a
-> linked list. The page->lru field of struct page was used to keep track
-> of which pages were being used, and when the gmap is torn down, the
-> list was walked and all pages freed.
+> The page->index field for VSIE dat tables is only used for segment
+> tables.
 > 
-> This patch gets rid of the usage of page->lru. Page tables are now
-> freed by recursively walking the dat table tree.
-> 
-> Since s390_unlist_old_asce() becomes useless now, remove it.
+> Stop setting the field for all region tables.
 > 
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
+Haha, I never noticed, good catch.
+
 Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+
+
+> ---
+>   arch/s390/mm/gmap.c | 9 ---------
+>   1 file changed, 9 deletions(-)
+> 
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 9d4a62628e51..80674bbf0f7b 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -1507,9 +1507,6 @@ int gmap_shadow_r2t(struct gmap *sg, unsigned long saddr, unsigned long r2t,
+>   	page = gmap_alloc_crst();
+>   	if (!page)
+>   		return -ENOMEM;
+> -	page->index = r2t & _REGION_ENTRY_ORIGIN;
+> -	if (fake)
+> -		page->index |= GMAP_SHADOW_FAKE_TABLE;
+>   	s_r2t = page_to_phys(page);
+>   	/* Install shadow region second table */
+>   	spin_lock(&sg->guest_table_lock);
+> @@ -1590,9 +1587,6 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+>   	page = gmap_alloc_crst();
+>   	if (!page)
+>   		return -ENOMEM;
+> -	page->index = r3t & _REGION_ENTRY_ORIGIN;
+> -	if (fake)
+> -		page->index |= GMAP_SHADOW_FAKE_TABLE;
+>   	s_r3t = page_to_phys(page);
+>   	/* Install shadow region second table */
+>   	spin_lock(&sg->guest_table_lock);
+> @@ -1673,9 +1667,6 @@ int gmap_shadow_sgt(struct gmap *sg, unsigned long saddr, unsigned long sgt,
+>   	page = gmap_alloc_crst();
+>   	if (!page)
+>   		return -ENOMEM;
+> -	page->index = sgt & _REGION_ENTRY_ORIGIN;
+> -	if (fake)
+> -		page->index |= GMAP_SHADOW_FAKE_TABLE;
+>   	s_sgt = page_to_phys(page);
+>   	/* Install shadow region second table */
+>   	spin_lock(&sg->guest_table_lock);
+
