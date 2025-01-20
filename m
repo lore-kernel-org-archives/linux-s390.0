@@ -1,72 +1,72 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3367F1B87EE
-	for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 12:09:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15071B87EE
+	for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 12:12:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737374958; cv=none; b=py8I1vnyA/Fpi4feZ5o3B5UC5KOz9n7fSvfFioNkbDDhSnR2mREURwfUKSbGgGZu2QpUt1VIrEOKVfI8uothsh9yy1uW9HJ222Va2Gs7+I56wxbzoi8MD1IvAg1g1lZLzBkzn2aqfHGeLxSspT9zjLs+3bQvC9iOEMTahoKBL8M=
+	t=1737375159; cv=none; b=c4yjlmEOjtqH5U0bLVRZJ4LTmDdxJCWS5u0BnFYI7u/exFXzC9RfFPY5tDUqLI5Wp98Rg4CJFfTTPDBXAC/0cP8cAILUUS9CRY6bLIOqUHznaVREBH+chd16qOGW+owSNoYCHV1hsuqXgJrV6RVmx+E1fpopkjjv59988qmkhgk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737374958; c=relaxed/simple;
-	bh=wyYZHXMjCW6fDQgo56Nnb0Lbnh4xIdOtvsRvRVfIyw0=;
+	s=arc-20240116; t=1737375159; c=relaxed/simple;
+	bh=sy5YIFdgxvVuYN4Kim5frO7IlmzLY6Xq07Re7/Ebv1s=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BstQRLJPBMO+qadgCeQplQ5jZAADTAyZrXIPHPV9TFzqoH1+YyPHiPd7CjF+K6nDPjzV77me7Cdnv8I+7336oT021f+2xo8RfvK7ppOFWAyQTqBlqduytDfH841nT+fjXjYr2IPw4EmE0O+STxG+DNdUo309jHzKuv1k1pxF9Dk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W/Dhtgll; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=VcMYnG1S+A6SarxNjlZfmxQwlFNondsWij1PvEMbloNFZOpNLWIfFRJFXnDLg0ikchCyhDaHyVOSv4IGP6efjgma3cTt4c0K1aKo7scJ8abCX6O/xShRJX4kRiyOEp/2hS2JsJvlipGZQG3C5VZXOGnXFty79HgFbhwRwaKGUvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vlhz/33R; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W/Dhtgll"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vlhz/33R"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737374955;
+	s=mimecast20190719; t=1737375156;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=PWZtPfFombM1GwcMhSbDl1k/MneBnq4+qv0QUQPibv8=;
-	b=W/DhtgllxMX+qs9lnC0lbORjhppT7W/zL6SkRkzGuRkqwo63ebALz/BG3fRz0Za0x0nTze
-	T4+l5+xBzRtUl9kETSOv9l4++Fzip9t6Xil5JvEyi8Re1fGzK2AIVHqbQWveDLLIR8h8e7
-	PxvufQ1NEpCXOs8262HT41zgO5LmUTo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=yvc/rKaknr027b8OD1G2lVqE5SB9wTxU5u6APXZx1no=;
+	b=Vlhz/33RR36WOlTfTmA2O9gU2qUvZuzbZ4rl5mV4Sgtict0CHNzxslGSiQBRn/G/GevAAy
+	9AsjFKgsfzjfwQTHgceqtkhQ2ggUpokCF8m8rZe8jlwbF7O/7mGV176z28ac9TsOPI4dAv
+	jsDdtu2FFDwYAVXwh4h8E6kt2I6JCOM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-311-s41it2LBOB2Bd5LWz5Z8Lw-1; Mon, 20 Jan 2025 07:09:13 -0500
-X-MC-Unique: s41it2LBOB2Bd5LWz5Z8Lw-1
-X-Mimecast-MFC-AGG-ID: s41it2LBOB2Bd5LWz5Z8Lw
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-38bee9ae3b7so2992617f8f.1
-        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 04:09:13 -0800 (PST)
+ us-mta-77-yiIdMJ9mNeuenDrdyIwXhQ-1; Mon, 20 Jan 2025 07:12:35 -0500
+X-MC-Unique: yiIdMJ9mNeuenDrdyIwXhQ-1
+X-Mimecast-MFC-AGG-ID: yiIdMJ9mNeuenDrdyIwXhQ
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3860bc1d4f1so2845485f8f.2
+        for <linux-s390@vger.kernel.org>; Mon, 20 Jan 2025 04:12:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737374952; x=1737979752;
+        d=1e100.net; s=20230601; t=1737375154; x=1737979954;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=PWZtPfFombM1GwcMhSbDl1k/MneBnq4+qv0QUQPibv8=;
-        b=CY+E2IqvtYrMbYRX1gBDP2Boiwz20F1qHInEyG4MM7YSJJ93NRuB+KdDAm8embMyq9
-         /xgRNQ3vag1TItsJaGKjJMG+Vhvv4HqiOcecEv6a9HyTs2wiS0BdMqvsvasqdK7uVl0W
-         EOINoxNQBJo356rZ8vTBuKgRSS211iC/8+t9duf3Au/b+lKqHSg9uw9cxXKkcx0MQp+r
-         WSjykmJMvZlBQt+BAbr1gj5FUgaQtvxIyTZFCFS9S37Y7Q6KuP4lDft/4DZWtPyvX3FU
-         gqZ12weoMfI8YLO056mmMq1zOhmur88dVpNXrVqIE+TjeQvJ8GiH85WAZSzT6hB/svEL
-         hHng==
-X-Gm-Message-State: AOJu0YwaWE7egh1R/nMC3SXQdD6Um/UQ51o26Iyue+OzLh+G0bj8bSHQ
-	6g7aVgL9nlrs+VraAqO+2e83dqmg6msiXq6RoZUv3HMzF1bosbTyFmK60SjBqQN0SHqVAC/domR
-	XT4+Iz2g32Sbyc7TaNr1kPbaTebGsRnKPTkRjcAjlL4xPLlFU2ROCnpHlD1Y=
-X-Gm-Gg: ASbGncs8+iCXaMoTgj0PvP+ZY/rLQ2Kwpu5MWtcZEq0qYjxvgr749eONbozJQ0R1RNU
-	vvG8C5wCOhGcW6zgPwlEqxQb5x+MN5PfUxsRheiiMahws0T0ErsMmofy0sLOVtC4ezqIa8jJqwd
-	ccVG/vdC8zQevqEWPZB2OTgFtlQrVxQhG1vNi2/1qHK6OUh7YKmuJnyU4ULhpidPbwwUPFM80Ng
-	P6AOcYt9r6DHfFrLP7H4otbvOkb9eHsTEuKI7hdk9uRFqCyv3A71ByORpyZ6TFh0l8IhEjPeEzu
-	6ppjxFpmAzDSSMNXzagjpJDnodIp2Ih0k/vJ5+KEq8D2EYEtcKeGoworDwDxJ94R9TGnqBbo2xA
-	2J8kr6zZ9mwZ1BQDNJjF49Q==
-X-Received: by 2002:a5d:64a1:0:b0:385:ddd2:6ab7 with SMTP id ffacd0b85a97d-38bf57d3802mr11435108f8f.52.1737374952597;
-        Mon, 20 Jan 2025 04:09:12 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFF9ZJSyFUcZ5+rv6O8fJppajvMveGSZDssR9ikLBpfoeYYgOuSmnlQ2tSrqo+FORUxOGEa0A==
-X-Received: by 2002:a5d:64a1:0:b0:385:ddd2:6ab7 with SMTP id ffacd0b85a97d-38bf57d3802mr11435071f8f.52.1737374952244;
-        Mon, 20 Jan 2025 04:09:12 -0800 (PST)
+        bh=yvc/rKaknr027b8OD1G2lVqE5SB9wTxU5u6APXZx1no=;
+        b=nMETfygOJG1aItBuPFmlL5GK2s5+1MgPQi18Ls5L6HJIcHEL9qa8W5QkxKsqJVuN1m
+         He2Tw5f2PwBh6pFoIxTt1y8KtIFPFgX5URFXk1kmHRMsSkFdCaK3TPmJlrEq8MsJxOAC
+         biarspDdufRBYI4aIMYoF3mEsHeLvzzSk1MTB2GpBtsaYjT94erThIAaMdaZprhVibrv
+         zAr/g5VnBkI+CzaDcjo4IrlKFVSxGkjnPM1PyBLrCLw2I4Hz73dWSObN24bZUlWY1Xgj
+         VKtbpryeoBmuKypH9qR1cU1QpDr1r+twg468DZQvkE9O8+kGdUBt9nDGdP0/RtQ0kh9L
+         w4LA==
+X-Gm-Message-State: AOJu0Yx56WyqF4rxiJlTbFW9ihJNv2W2yLl9FH3A7ZD5XrrN+LmaN2Do
+	dzIYbIHbmV3fOHeCL5Pc2xxguga/t7VEQUQHcD6Nz0U2RNl2juRtNhGxdrwKaF3a0NsSvaLldJA
+	b6AsWU19a056eJnZ3ggqUmAaxSBSflOJed5Zk2wHH57dCqifQqfyJiS2pUX0=
+X-Gm-Gg: ASbGncs4J6tm6X5ctW11U6NGhuduqq3YIT82PMSqGz3n4cUKfEJJDvALWeQb7xah0Vg
+	qxhF7uOrK5GJ8aSGm1lrRWoRx7/cZ5GLCi6afGLHTOmwG+diCug8t3VNtn6y0zgI6zv/2QbnAI4
+	orjnAuT893QqlAULEfVC5nGg19SNdF54HLSLOd2j/kFzGrfOS6bttsh1JJ0bR/lptxXKbI/7WHy
+	djwj1K3bVbw9mx3yEnZGGlQgURhjYNtyF2PZbhAj78T0dSFuHQPeSR7/xXdJDSTkGuuys5zg5V2
+	FD48YuGQ3gvDn4XZKp0sH3BjveUUIqNdJxRNm3A4SFxY9M20UE/k3XjZhhdD7odsieUKOpQ7n0m
+	xiBdwojBTs7qLf2pUYmoDOQ==
+X-Received: by 2002:a5d:5f56:0:b0:385:e176:4420 with SMTP id ffacd0b85a97d-38bf567800cmr12372161f8f.10.1737375154296;
+        Mon, 20 Jan 2025 04:12:34 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG1KNkr7rj8dqOTj7FeoFqku6VN4kPdczGEFkNYq9SPK+CkFWF+zzK0CUnl6OSTBuEdcuB/hQ==
+X-Received: by 2002:a5d:5f56:0:b0:385:e176:4420 with SMTP id ffacd0b85a97d-38bf567800cmr12372125f8f.10.1737375153926;
+        Mon, 20 Jan 2025 04:12:33 -0800 (PST)
 Received: from ?IPV6:2003:d8:2f22:1000:d72d:fd5f:4118:c70b? (p200300d82f221000d72dfd5f4118c70b.dip0.t-ipconnect.de. [2003:d8:2f22:1000:d72d:fd5f:4118:c70b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf327574asm10308237f8f.68.2025.01.20.04.09.09
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-437c74ac5f9sm193321095e9.11.2025.01.20.04.12.32
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jan 2025 04:09:11 -0800 (PST)
-Message-ID: <ad68a346-6027-4b5b-a68c-85b8898582dd@redhat.com>
-Date: Mon, 20 Jan 2025 13:09:09 +0100
+        Mon, 20 Jan 2025 04:12:32 -0800 (PST)
+Message-ID: <19a46e9e-afbd-4f83-894d-e3331c3ac956@redhat.com>
+Date: Mon, 20 Jan 2025 13:12:31 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,7 +74,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 03/15] KVM: s390: fake memslot for ucontrol VMs
+Subject: Re: [PATCH v3 04/15] KVM: s390: selftests: fix ucontrol memory region
+ test
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com,
  borntraeger@de.ibm.com, schlameuss@linux.ibm.com, willy@infradead.org,
@@ -82,7 +83,7 @@ Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com,
  gor@linux.ibm.com, nrb@linux.ibm.com, nsg@linux.ibm.com, seanjc@google.com,
  seiden@linux.ibm.com
 References: <20250117190938.93793-1-imbrenda@linux.ibm.com>
- <20250117190938.93793-4-imbrenda@linux.ibm.com>
+ <20250117190938.93793-5-imbrenda@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -130,22 +131,38 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20250117190938.93793-4-imbrenda@linux.ibm.com>
+In-Reply-To: <20250117190938.93793-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 17.01.25 20:09, Claudio Imbrenda wrote:
-> Create a fake memslot for ucontrol VMs. The fake memslot identity-maps
-> userspace.
+> With the latest patch, attempting to create a memslot from userspace
+> will result in an EEXIST error for UCONTROL VMs, instead of EINVAL,
+> since the new memslot will collide with the internal memslot. There is
+> no simple way to bring back the previous behaviour.
 > 
-> Now memslots will always be present, and ucontrol is not a special case
-> anymore.
+> This is not a problem, but the test needs to be fixed accordingly.
 > 
-> Suggested-by: Sean Christopherson <seanjc@google.com>
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > ---
+>   tools/testing/selftests/kvm/s390x/ucontrol_test.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/tools/testing/selftests/kvm/s390x/ucontrol_test.c b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> index 135ee22856cf..ca18736257f8 100644
+> --- a/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> +++ b/tools/testing/selftests/kvm/s390x/ucontrol_test.c
+> @@ -459,10 +459,12 @@ TEST_F(uc_kvm, uc_no_user_region)
+>   	};
+>   
+>   	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION, &region));
+> -	ASSERT_EQ(EINVAL, errno);
+> +	if (errno != EEXIST)
+> +		ASSERT_EQ(EINVAL, errno);
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+ASSERT_TRUE(errno == EEXIST || errno == EINVAL)'
+
+?
 
 -- 
 Cheers,
