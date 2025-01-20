@@ -1,190 +1,126 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7C911B6D01;
-	Mon, 20 Jan 2025 10:08:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 889151B414F;
+	Mon, 20 Jan 2025 10:29:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737367689; cv=none; b=pqgEDiBEujGXNvQU+3i5TuK3ZC8Kr8u40goXa9NxOqFaspNgIujEaDS02sW4koYSB4IospoKHn5cvwiN9E8S9HY0S40UiK8GZwqmZsKyVfpSdcSHWMmYc4odYdEouOXFGn6bxQixzlh8xqG/EONzF/tA3CfMNAfk6+DWYkutH6E=
+	t=1737368962; cv=none; b=eR9NCTQmW/2wnxAfqzGhB0Jq+oJViTYhRwaq0lyIr0OM/2kAloEcI9VXrZpYkhMq9fG/xa2nCuauwOE8wA69pD+3ujJKjkWHn7WyVXV8AgpTPBthBYVr5ncoyz/R4Lzi8nMe4Nav2egSqG+3xFZKzDTl0N4hoe90iJpTlvWAgnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737367689; c=relaxed/simple;
-	bh=3QIK0LeCkSSJJ6MZXDbBEv7lStjLSLrPLzCM6fCxnXI=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=Pp8q0+S+LtkcRA58NRguEuGCq4wWV54OBSouWS32KFD+7ObLQa03k29farkx/Y/MwWhr9x7hrjJotzRWQbRE/XFBII1Ke7z7Mz1BmGZJKM8n7ow5R75sDK7jvz2kQPMC26FJ0yEy3Kz6n9SPJuP06FB6PJTuoMRjG0r0J3hHxGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cR6ju4AO; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1737368962; c=relaxed/simple;
+	bh=EZyi+DifkMh9z7Pg3fXcrAESt38J4MudsVcp8wSDpPU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ZVYLv/7YZtF3e9gNyvFbBhnvjJaX7dRWYnYzGyorsisGkLVQGF0pYP+kMBVSxWLhlhnoGQwt91nz/NVaCkYbP2TVpPt0hrCYdEZye2kGy6SzveOi7G/TSGYzKcDFVQxG6hQTDmvyXp9Y/46PxoCZYtfT6sbBQEzxjFngXQ9KXRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GCl1y35Z; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cR6ju4AO"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50K20haK031849;
-	Mon, 20 Jan 2025 10:08:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GCl1y35Z"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50K8Hs8x014957;
+	Mon, 20 Jan 2025 10:29:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=mbvKmJ
-	O2LGWVHPAlJeFO/UU7/ZG2FqSeMx6toZf0+gA=; b=cR6ju4AOM+CADOdDlkjQ0Y
-	l4ymDVbI614mVXyftYQ+eagsjEWMjOZA82lMBQq9NG4EWh2FZYpRt5fbqjKEYIYu
-	/jc43K2WmV/+j45wfjHSufFFoXEzflFk+1xOLwvStvBp3C5zzEcAQ610iIGpYwMz
-	4XAY6ogMUSRBX1VGytHn0q+pntbXtDrxXpJeYanl919M5wXbaz9kAZNnxlP8LeBR
-	zvcBuyQV+0YoDYkkbF18lscgJLtd3YZR/rh9L0C9cyuiwI0y+Ui8oPdbzrHDRJup
-	szmVq3NCkmncAF/sTxL0poQTDpfsC/qMAHrPTsKzljyHZHfevSquqQ1krLVeluxA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Geo8iO
+	Gle5q31YH/VRjqk8ikIxhtahO/knYFt3KRSDI=; b=GCl1y35ZrVPaplHSGUozQk
+	QI2sW1TKI1qwLht8yWZrZTWuArlYf924B5+JY2F8EEMPrIivyI9boIRHcUra2uRE
+	MZ2S1ep8qc1Cr6eAxF9H01FqEQrswvdZXEFgia6RWxx54n5dFem54rhH4ITg8J9t
+	orBTQ89S7J4f9dO+FqMZaFiDa2P9zXThclc7WZNFDyVgfAtcpLjzZvtP5BoADlnL
+	Ss+25Ihy99f/K8DFcTuDFAvqxEc67A9t4uljt+tseb7+rZmrKAxrlAVLLLu/kXcB
+	/2Z6Au99RbHUiCibg4tSLTaiS58u0LZvtwldayyQrg6wlP1rSa57VEBYNHHXeQXw
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 449db0sv4s-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4493ny3mh3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 10:07:59 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50KA7xS4022322;
-	Mon, 20 Jan 2025 10:07:59 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 449db0sv4n-1
+	Mon, 20 Jan 2025 10:29:13 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50K90UUv020986;
+	Mon, 20 Jan 2025 10:28:54 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 448sb15ht0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 10:07:59 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50K97PHt032248;
-	Mon, 20 Jan 2025 10:07:58 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 448rujdhsq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 10:07:58 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50KA7t6U22217014
+	Mon, 20 Jan 2025 10:28:54 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50KASoLo34013572
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 20 Jan 2025 10:07:55 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EBDAF20065;
-	Mon, 20 Jan 2025 10:07:54 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9B53120063;
-	Mon, 20 Jan 2025 10:07:54 +0000 (GMT)
-Received: from localhost (unknown [9.152.212.252])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 20 Jan 2025 10:07:54 +0000 (GMT)
+	Mon, 20 Jan 2025 10:28:50 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7F86D2004B;
+	Mon, 20 Jan 2025 10:28:50 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3CEED20043;
+	Mon, 20 Jan 2025 10:28:50 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jan 2025 10:28:50 +0000 (GMT)
+Date: Mon, 20 Jan 2025 11:28:48 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        schlameuss@linux.ibm.com, willy@infradead.org, hca@linux.ibm.com,
+        svens@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        nrb@linux.ibm.com, nsg@linux.ibm.com
+Subject: Re: [PATCH v1 13/13] KVM: s390: remove the last user of page->index
+Message-ID: <20250120112848.1547a439@p-imbrenda>
+In-Reply-To: <e548aa1e-d954-4fab-8b74-302c140c04f7@redhat.com>
+References: <20250108181451.74383-1-imbrenda@linux.ibm.com>
+	<20250108181451.74383-14-imbrenda@linux.ibm.com>
+	<4175795f-9323-4a2c-acef-d387c104f8b3@linux.ibm.com>
+	<e548aa1e-d954-4fab-8b74-302c140c04f7@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 20 Jan 2025 11:07:54 +0100
-Message-Id: <D76TFVAMAGCP.2BN616RUY7GOY@linux.ibm.com>
-Cc: "Niklas Schnelle" <schnelle@linux.ibm.com>,
-        "Thorsten Winkler"
- <twinkler@linux.ibm.com>, <netdev@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
-        "Vasily
- Gorbik" <gor@linux.ibm.com>,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
-        "Sven Schnelle"
- <svens@linux.ibm.com>,
-        "Simon Horman" <horms@kernel.org>
-Subject: Re: [RFC net-next 4/7] net/ism: Add kernel-doc comments for ism
- functions
-From: "Julian Ruess" <julianr@linux.ibm.com>
-To: "Alexandra Winter" <wintera@linux.ibm.com>, <dust.li@linux.alibaba.com>,
-        "Wenjia Zhang" <wenjia@linux.ibm.com>,
-        "Jan Karcher" <jaka@linux.ibm.com>,
-        "Gerd Bayer" <gbayer@linux.ibm.com>,
-        "Halil Pasic" <pasic@linux.ibm.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        "Tony Lu"
- <tonylu@linux.alibaba.com>,
-        "Wen Gu" <guwen@linux.alibaba.com>,
-        "Peter
- Oberparleiter" <oberpar@linux.ibm.com>,
-        "David Miller"
- <davem@davemloft.net>,
-        "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni"
- <pabeni@redhat.com>,
-        "Eric Dumazet" <edumazet@google.com>,
-        "Andrew Lunn"
- <andrew+netdev@lunn.ch>
-X-Mailer: aerc 0.18.2
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250115195527.2094320-5-wintera@linux.ibm.com>
- <20250120063241.GM89233@linux.alibaba.com>
- <aba18690-5ffb-4eee-8931-728d72ce90c3@linux.ibm.com>
-In-Reply-To: <aba18690-5ffb-4eee-8931-728d72ce90c3@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bVZhpNZg5IeAKcNkE0Ln76m1MySoqTDO
-X-Proofpoint-GUID: cMT6SfS517poCO48ex2R2MymIyjOGOrn
+X-Proofpoint-ORIG-GUID: Z_52PMInAeRVQqyNwLHlx3Crh9sgqSS5
+X-Proofpoint-GUID: Z_52PMInAeRVQqyNwLHlx3Crh9sgqSS5
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-20_02,2025-01-20_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 mlxlogscore=986 bulkscore=0 clxscore=1015
- suspectscore=0 phishscore=0 mlxscore=0 priorityscore=1501 spamscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501200083
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ impostorscore=0 spamscore=0 mlxlogscore=999 bulkscore=0 phishscore=0
+ mlxscore=0 lowpriorityscore=0 priorityscore=1501 adultscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501200087
 
-On Mon Jan 20, 2025 at 10:56 AM CET, Alexandra Winter wrote:
->
->
-> On 20.01.25 07:32, Dust Li wrote:
-> >> +	/**
-> >> +	 * move_data() - write into a remote dmb
-> >> +	 * @dev: Local sending ism device
-> >> +	 * @dmb_tok: Token of the remote dmb
-> >> +	 * @idx: signalling index
-> >> +	 * @sf: signalling flag;
-> >> +	 *      if true, idx will be turned on at target ism interrupt mask
-> >> +	 *      and target device will be signalled, if required.
-> >> +	 * @offset: offset within target dmb
-> >> +	 * @data: pointer to data to be sent
-> >> +	 * @size: length of data to be sent
-> >> +	 *
-> >> +	 * Use dev to write data of size at offset into a remote dmb
-> >> +	 * identified by dmb_tok. Data is moved synchronously, *data can
-> >> +	 * be freed when this function returns.
-> > When considering the API, I found this comment may be incorrect.
-> >=20
-> > IIUC, in copy mode for PCI ISM devices, the CPU only tells the
-> > device to perform a DMA copy. As a result, when this function returns,
-> > the device may not have completed the DMA copy.
-> >=20
->
-> No, it is actually one of the properties of ISM vPCI that the data is
-> moved synchronously inside the move_data() function. (on PCI layer the
-> data is moved inside the __zpci_store_block() command).
-> Obviously for loopback move_data() is also synchornous.
+On Mon, 20 Jan 2025 10:43:15 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-That is true for the IBM ISM vPCI device but maybe we
-should design the API also for future PCI devices
-that do not move data synchronously.
+> >> +static inline unsigned long gmap_pgste_get_index(unsigned long *pgt)
+> >> +{
+> >> +	unsigned long *pgstes, res;
+> >> +
+> >> +	pgstes = pgt + _PAGE_ENTRIES;
+> >> +
+> >> +	res = (pgstes[0] & PGSTE_ST2_MASK) << 16;
+> >> +	res |= pgstes[1] & PGSTE_ST2_MASK;
+> >> +	res |= (pgstes[2] & PGSTE_ST2_MASK) >> 16;
+> >> +	res |= (pgstes[3] & PGSTE_ST2_MASK) >> 32;
+> >> +
+> >> +	return res;
+> >> +}  
+> > 
+> > I have to think about that change for a bit before I post an opinion.  
+> 
+> I'm wondering if we should just do what Willy suggested and use ptdesc 
+> -> pt_index instead?  
 
->
-> SMC-D does not make use of it, instead they re-use the same
-> conn->sndbuf_desc for the lifetime of a connection.
->
->
-> > In zero-copy mode for loopback, the source and destination share the
-> > same buffer. If the source rewrites the buffer, the destination may
-> > encounter corrupted data. The source should only reuse the data after
-> > the destination has finished reading it.
-> >=20
->
-> That is true independent of the question, whether the move is
-> synchronous or not.
-> It is the clients' responsibility to make sure a sender does not
-> overwrite unread data. SMC uses the write-pointers and read-pointer for
-> that.
->
->
-> > Best regards,
-> > Dust
-> >=20
-> >> +	 *
-> >> +	 * If signalling flag (sf) is true, bit number idx bit will be
-> >> +	 * turned on in the ism signalling mask, that belongs to the
-> >> +	 * target dmb, and handle_irq() of the ism client that owns this
-> >> +	 * dmb will be called, if required. The target device may chose to
-> >> +	 * coalesce multiple signalling triggers.
-> >> +	 */
-> >> 	int (*move_data)(struct ism_dev *dev, u64 dmb_tok, unsigned int idx,
-> >> 			 bool sf, unsigned int offset, void *data,
-> >> 			 unsigned int size);
-> >> --=20
+we will need to store more stuff in the future; putting things in the
+PGSTEs gives us 512 bytes per table (although I admit it looks... weird)
+
+> 
+> It's not like we must "force" this removal here. If we'll simply 
+> allocate a ptdesc memdesc in the future for these page tables (just like 
+> for any other page table), we have that extra space easily available.
+> 
+> The important part is getting rid of page->index now, but not 
+> necessarily ptdesc->pt_index.
+> 
 
