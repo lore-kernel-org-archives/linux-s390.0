@@ -1,52 +1,63 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9CB9F1EB9F7;
-	Mon, 20 Jan 2025 16:44:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02341EBA09;
+	Mon, 20 Jan 2025 16:44:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737391449; cv=none; b=ai14CVqm5rQ+Krwmyb7vTeUOLMx9kX9eLs9ugba46yMpdQQQjV1EkgnxzwvZGjJbyPgUZ4QSrIldLMHr9ijJX85NAOBgqahG9qcMtZ62SHD86p7RF9Vn2l203mmRf5So8UFLcHM/L7+xEusPSYuXM55D+RoHpDEKXTS6SnhVyzg=
+	t=1737391450; cv=none; b=BLfjPXPfITSZwNwEV9OpdBNeF0zSFjaoNXtu8kMwCA+4xNiNj7TuUlQpaI472er44kzKXnX8UrkXqARxflJ7DRcpZ7C358TaRVatebOeP6tMybnyE+fFKTZ9Oo4x/SfgnKngyGJ2MtODCfYUCjmtfsmk9ywEWIvRZj6smyk+oos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737391449; c=relaxed/simple;
-	bh=guJ8SHnjnRQ7PAUSpfkyhXyfLTmNeo8YLg2jt5EEMEA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iEHp3mrN3gtyfs17J6V6Hb3GPtRD7NQqyPOgOkFsLqeEXLFFZU6WUPMjg379UZsHfl4K5AQQn8jJ9LuxoT81z+P4TGqou7agaiLU1XnjPgeFBM5DdNcH+5m4UIZVd0azmnx6q8cY4QjbDUyqDqZJSijLHACD5lcjkMCnHHiCElQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9854F1D14;
-	Mon, 20 Jan 2025 08:44:35 -0800 (PST)
-Received: from localhost.localdomain (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0131C3F5A1;
-	Mon, 20 Jan 2025 08:44:03 -0800 (PST)
-From: Alexandru Elisei <alexandru.elisei@arm.com>
-To: andrew.jones@linux.dev,
-	eric.auger@redhat.com,
-	lvivier@redhat.com,
-	thuth@redhat.com,
-	frankja@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	nrb@linux.ibm.com,
-	david@redhat.com,
-	pbonzini@redhat.com
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	kvm-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	will@kernel.org,
-	julien.thierry.kdev@gmail.com,
-	maz@kernel.org,
-	oliver.upton@linux.dev,
-	suzuki.poulose@arm.com,
-	yuzenghui@huawei.com,
-	joey.gouly@arm.com,
-	andre.przywara@arm.com
-Subject: [kvm-unit-tests PATCH v2 10/18] scripts/arch-run: Add support for kvmtool
-Date: Mon, 20 Jan 2025 16:43:08 +0000
-Message-ID: <20250120164316.31473-11-alexandru.elisei@arm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250120164316.31473-1-alexandru.elisei@arm.com>
-References: <20250120164316.31473-1-alexandru.elisei@arm.com>
+	s=arc-20240116; t=1737391450; c=relaxed/simple;
+	bh=Bhaz6HwAMlKSMz7Ft5tGRHH17H9GBssSq5TkTZsy3Aw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KehidWSkd3OY+oS/cCMjyVv4mmX9i0o3BLRDmw26uuXyypCwUEjYRUk/ngs15rGKbpQI5TAhKWrEt5UU/VHHMu0xa8G89OIXbiwBi2wmJMF67CueLBoWY/qzgNur7/o+SsDy7kIdcAEEjT/eupRqvxX/BIOaY5NAaMq5LZwdmH4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MJr8eRoJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MJr8eRoJ"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50KF1WYb004516;
+	Mon, 20 Jan 2025 16:44:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=XmrgOnz+coGd8vNa0W7ubihq3ILrBNP9i4xzPR4A8
+	1Y=; b=MJr8eRoJDoboMgfcS/7PbJcR+DTM7WeHkUNlypNqEbLNfsI/9HnWF+ykK
+	w3sfUCHelmItMXjic7f6yG/fpAx7XRLx3E5wmL9B+afQfd2JVWI10YmGIGR+6UKY
+	D45I3gBLZnF/5pT26Uy7hpBqx1gn1i1DVAGsqz5Yadi5deWtJMoKqpjMcCTVxsis
+	pQMl8tzsfC5OMkADk5tl013CybZJNmf7TkUyUHUD8BGth1Yv36zo42C7UOc/LTjB
+	TJoZ6sVa21s1XKWPnV/yYGoEuSD6kvfvEetnsnGoTtvwlXswiIvyQb0t7fKAMHqn
+	wX6giEh6FlHdefWPAMuVyVs0MW9tw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 449rry8f13-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jan 2025 16:44:05 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50KGGRaJ022449;
+	Mon, 20 Jan 2025 16:44:04 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448r4jy3ac-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jan 2025 16:44:04 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50KGi0F557475522
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Jan 2025 16:44:00 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BEE8720049;
+	Mon, 20 Jan 2025 16:44:00 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9123320040;
+	Mon, 20 Jan 2025 16:44:00 +0000 (GMT)
+Received: from a46lp57.lnxne.boe (unknown [9.152.108.100])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jan 2025 16:44:00 +0000 (GMT)
+From: Nico Boehr <nrb@linux.ibm.com>
+To: frankja@linux.ibm.com, imbrenda@linux.ibm.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH v1] s390x: pv: fix arguments for out-of-tree-builds
+Date: Mon, 20 Jan 2025 17:43:29 +0100
+Message-ID: <20250120164400.2261408-1-nrb@linux.ibm.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,159 +65,42 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8_Wu87rllANVlYk7kmNk91Yn-oXAUmbl
+X-Proofpoint-ORIG-GUID: 8_Wu87rllANVlYk7kmNk91Yn-oXAUmbl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-20_04,2025-01-20_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 phishscore=0 priorityscore=1501 suspectscore=0 spamscore=0
+ bulkscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501200136
 
-Add two new functions, search_kvmtool_binary(), which, like the name
-suggests, searches for the location of the kvmtool binary, and
-run_kvmtool(), which runs a test with kvmtool as the VMM.
+When building out-of-tree, the parmfile was not passed to genprotimg,
+causing the selftest-setup_PV test to fail.
 
-initrd_create() has also been modified to use the kvmtool syntax for
-supplying an initrd, which is --initrd (two dashes instead of the single
-dash that qemu uses).
+Fix the Makefile rule s.t. parmfile is correctly passed.
 
-arm/run does not know how to use these functions yet, but this will be
-added in a subsequent patch.
-
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Suggested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Signed-off-by: Nico Boehr <nrb@linux.ibm.com>
 ---
- scripts/arch-run.bash | 94 +++++++++++++++++++++++++++++++++++++------
- 1 file changed, 81 insertions(+), 13 deletions(-)
+ s390x/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
-index d6eaf0ee5f09..34f633cade01 100644
---- a/scripts/arch-run.bash
-+++ b/scripts/arch-run.bash
-@@ -75,16 +75,47 @@ run_qemu ()
- 	return $ret
- }
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 23342bd64f44..a6cf3c144fbf 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -218,7 +218,7 @@ else
+ 	GENPROTIMG_PCF := 0x000000e0
+ endif
  
-+run_kvmtool ()
-+{
-+	local stdout errors ret sig
-+
-+	initrd_create || return $?
-+
-+	echo -n "$@"
-+	[ "$ENVIRON_DEFAULT" = "yes" ] && echo -n " #"
-+	echo " $INITRD"
-+
-+	# stdout to {stdout}, stderr to $errors and stderr
-+	exec {stdout}>&1
-+	"${@}" $INITRD </dev/null 2> >(tee /dev/stderr) > /dev/fd/$stdout
-+	ret=$?
-+	exec {stdout}>&-
-+
-+	return $ret
-+}
-+
- run_test_status ()
- {
--	local stdout ret
-+	local stdout ret ret_success
- 
- 	exec {stdout}>&1
--	lines=$(run_qemu "$@" > >(tee /dev/fd/$stdout))
-+
-+	# For qemu, an exit status of 1 means that the test completed. For kvmtool,
-+	# 0 means the same thing.
-+	case "$TARGET" in
-+	qemu)
-+		ret_success=1
-+		lines=$(run_qemu "$@" > >(tee /dev/fd/$stdout))
-+		;;
-+	kvmtool)
-+		ret_success=0
-+		lines=$(run_kvmtool "$@" > >(tee /dev/fd/$stdout))
-+		;;
-+	esac
- 	ret=$?
- 	exec {stdout}>&-
- 
--	if [ $ret -eq 1 ]; then
-+	if [ $ret -eq $ret_success ]; then
- 		testret=$(grep '^EXIT: ' <<<"$lines" | head -n1 | sed 's/.*STATUS=\([0-9][0-9]*\).*/\1/')
- 		if [ "$testret" ]; then
- 			if [ $testret -eq 1 ]; then
-@@ -422,6 +453,25 @@ search_qemu_binary ()
- 	export PATH=$save_path
- }
- 
-+search_kvmtool_binary ()
-+{
-+	local kvmtoolcmd kvmtool
-+
-+	for kvmtoolcmd in lkvm vm lkvm-static; do
-+		if $kvmtoolcmd --help 2>/dev/null| grep -q 'The most commonly used'; then
-+			kvmtool="$kvmtoolcmd"
-+			break
-+		fi
-+	done
-+
-+	if [ -z "$kvmtool" ]; then
-+		echo "A kvmtool binary was not found." >&2
-+		return 2
-+	fi
-+
-+	command -v $kvmtool
-+}
-+
- initrd_cleanup ()
- {
- 	rm -f $KVM_UNIT_TESTS_ENV
-@@ -447,7 +497,18 @@ initrd_create ()
- 	fi
- 
- 	unset INITRD
--	[ -f "$KVM_UNIT_TESTS_ENV" ] && INITRD="-initrd $KVM_UNIT_TESTS_ENV"
-+	if [ ! -f "$KVM_UNIT_TESTS_ENV" ]; then
-+		return 0
-+	fi
-+
-+	case "$TARGET" in
-+		qemu)
-+			INITRD="-initrd $KVM_UNIT_TESTS_ENV"
-+			;;
-+		kvmtool)
-+			INITRD="--initrd $KVM_UNIT_TESTS_ENV"
-+			;;
-+	esac
- 
- 	return 0
- }
-@@ -471,18 +532,25 @@ env_params ()
- 	local qemu have_qemu
- 	local _ rest
- 
--	qemu=$(search_qemu_binary) && have_qemu=1
-+	env_add_params TARGET
-+
-+	# kvmtool's versioning has been broken since it was split from the kernel
-+	# source.
-+	if [ "$TARGET" = "qemu" ]; then
-+		qemu=$(search_qemu_binary) && have_qemu=1
- 
--	if [ "$have_qemu" ]; then
--		if [ -n "$ACCEL" ] || [ -n "$QEMU_ACCEL" ]; then
--			[ -n "$ACCEL" ] && QEMU_ACCEL=$ACCEL
-+		if [ "$have_qemu" ]; then
-+			if [ -n "$ACCEL" ] || [ -n "$QEMU_ACCEL" ]; then
-+				[ -n "$ACCEL" ] && QEMU_ACCEL=$ACCEL
-+			fi
-+			QEMU_VERSION_STRING="$($qemu -h | head -1)"
-+			# Shellcheck does not see QEMU_MAJOR|MINOR|MICRO are used
-+			# shellcheck disable=SC2034
-+			IFS='[ .]' read -r _ _ _ QEMU_MAJOR QEMU_MINOR QEMU_MICRO rest <<<"$QEMU_VERSION_STRING"
- 		fi
--		QEMU_VERSION_STRING="$($qemu -h | head -1)"
--		# Shellcheck does not see QEMU_MAJOR|MINOR|MICRO are used
--		# shellcheck disable=SC2034
--		IFS='[ .]' read -r _ _ _ QEMU_MAJOR QEMU_MINOR QEMU_MICRO rest <<<"$QEMU_VERSION_STRING"
-+
-+		env_add_params QEMU_ACCEL QEMU_VERSION_STRING QEMU_MAJOR QEMU_MINOR QEMU_MICRO
- 	fi
--	env_add_params QEMU_ACCEL QEMU_VERSION_STRING QEMU_MAJOR QEMU_MINOR QEMU_MICRO
- 
- 	KERNEL_VERSION_STRING=$(uname -r)
- 	IFS=. read -r KERNEL_VERSION KERNEL_PATCHLEVEL rest <<<"$KERNEL_VERSION_STRING"
+-$(patsubst %.parmfile,%.pv.bin,$(wildcard s390x/*.parmfile)): %.pv.bin: %.parmfile
++$(TEST_DIR)/selftest.pv.bin: $(SRCDIR)/s390x/selftest.parmfile
+ %.pv.bin: %.bin $(HOST_KEY_DOCUMENT) $(comm-key)
+ 	$(eval parmfile_args = $(if $(filter %.parmfile,$^),--parmfile $(filter %.parmfile,$^),))
+ 	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify $(GENPROTIMG_COMM_OPTION) $(comm-key) --x-pcf $(GENPROTIMG_PCF) $(parmfile_args) --image $(filter %.bin,$^) -o $@
 -- 
 2.47.1
 
