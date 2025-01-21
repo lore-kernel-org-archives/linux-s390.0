@@ -1,114 +1,258 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FAA1F37D8;
-	Tue, 21 Jan 2025 15:12:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 421281E51D
+	for <linux-s390@vger.kernel.org>; Tue, 21 Jan 2025 15:46:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737472332; cv=none; b=kUMnsovSC6EDaa13uqWWpDx+MjAoNL5wZxrWKauSyLYgHI4oR3PfRPVqhdlvMpDRctczKL12wjZH4iSUqjxy1gMmunPU+qeGk90yijJKs/RMpHxZvZ75QJ2xJ0TetOvnmFjU12t0i4pVrw5dNO4AOVvBPTcmTfebmuBALsxagkw=
+	t=1737474402; cv=none; b=ZrS/XMDTeJnArP3NLdxDtMBQ5Q94oYF/Y0ukYOobNwjl4jbiuBqF150skByyZ/H8yrtrSw2n+swjOnqUuEQKR6OuA8u0fh0HgBMtS8WXLnRshaFa87hlZYM7UnLuZ4Xzbup3tVmQFqrDg8wForQ5MbGeLvRfmDj9roCdAyZVA9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737472332; c=relaxed/simple;
-	bh=iNHn+qMSUtgr+X956ZogUa4B4ToZNVhgGcSdCr3UJP4=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=PnOiOVIjrcypAl0c2IrFq+MmVhEmeURH0IKTAafmSzf7tOn9zxXu5qacT9d39dFQSY3k7jpls88ELa04aJ6L4AZg8/iOZhxe6U6AMyRHI0T1VKy2kCn9J7AycLAeLNU9/2erbdPaavQER/ncDEBsiOZA501YosSXPTCIk/SfeIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BsnM74gO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737474402; c=relaxed/simple;
+	bh=tiDhtmxJoJvjZcrOXt3MqPOYu9ynodG28rtiIrzdflE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AZfNNnM6NEO3K/9sHsHINzlAjSYbNFyUh0fvqLoZaK2j1TyDbsU1I1uBZhvZl+BsQcviAcOENujiok1y5otJ0T+T5LANTPyvscAJsKxVpuJh8jUFzp+o+cq1OELzgk3DhDDE9+2LzW6+Wjm4vhwnpnjhYi9ceqgqSkBcbR8MC5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=wyEI24cw; arc=none smtp.client-ip=91.218.175.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BsnM74gO"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50LCu4KJ022932;
-	Tue, 21 Jan 2025 15:12:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ytqRTP
-	aEnD+aJhUB3ME+8uhTgsQRHhHY85iDOG4pC0Q=; b=BsnM74gOhAD8I1R9np62SJ
-	Rs1qOMkKdQrVxjALyLZQpTsw/ZG0rNtzIHhecBtrmzSo6YBEENq6AyQqwtR3FP1n
-	KaxcWuivm7PgOicx4ucIyblYGTS6eNnCoIu6elSBew+GleGeeTvdzimC6D2N2N9d
-	caOywu26d90rDggsmSo6plFVboUinJSRpHsEUMEWtxTtderBN0oONmT0KoOKbjm9
-	rLfEUFmWABmxhvluJHKUgrUKw1XRZ2enZjgsbUxRK2xsWnLhVdSFmzLw5VNu6cVL
-	adbYvgztYxKjI/RcFb4C3CuDvs8CND7ce+6ncw2Ds31/PW8Jz/MPA067l4oEDQjA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44a1n9bf81-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jan 2025 15:12:05 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50LFC4R9023493;
-	Tue, 21 Jan 2025 15:12:04 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44a1n9bf7t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jan 2025 15:12:04 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50LDkYxN029587;
-	Tue, 21 Jan 2025 15:12:03 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448qmnbpjd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jan 2025 15:12:03 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50LFBxOd58065244
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 21 Jan 2025 15:11:59 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E95A20043;
-	Tue, 21 Jan 2025 15:11:59 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3D3FF20040;
-	Tue, 21 Jan 2025 15:11:59 +0000 (GMT)
-Received: from darkmoore (unknown [9.179.17.46])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 21 Jan 2025 15:11:59 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wyEI24cw"
+Date: Tue, 21 Jan 2025 16:46:24 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1737474387;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=udA8JggagAJP1CCzeg7Vekhu/UmA/lRvh6yXXvJFf1k=;
+	b=wyEI24cwFn/2SwnlrYJNsedCvXcu1OErKkpuVcynU6RgbSJLXlGwdYlCavdBXZgGUQjG7v
+	7nJ7yr9z5NxYNO9Oh6Xcq6ZgaYL4DDkiGbXw9w+UDPiGpwdVz1H4QfuenjOVrwsfae4IhX
+	volbSCuXEznlwkkvWfCPgEfeJbira3U=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
+	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
+	pbonzini@redhat.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org, 
+	oliver.upton@linux.dev, suzuki.poulose@arm.com, yuzenghui@huawei.com, joey.gouly@arm.com, 
+	andre.przywara@arm.com
+Subject: Re: [kvm-unit-tests PATCH v2 04/18] run_tests: Introduce unittest
+ parameter 'qemu_params'
+Message-ID: <20250121-82874afe4e52c828d21e7da2@orel>
+References: <20250120164316.31473-1-alexandru.elisei@arm.com>
+ <20250120164316.31473-5-alexandru.elisei@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 21 Jan 2025 16:11:54 +0100
-Message-Id: <D77UJ5ZYZEFX.6K7XSR64M7KF@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
-        <borntraeger@de.ibm.com>, <david@redhat.com>, <willy@infradead.org>,
-        <hca@linux.ibm.com>, <svens@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <gor@linux.ibm.com>, <nrb@linux.ibm.com>, <nsg@linux.ibm.com>,
-        <seanjc@google.com>, <seiden@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
-Subject: Re: [PATCH v3 06/15] KVM: s390: use __kvm_faultin_pfn()
-X-Mailer: aerc 0.18.2
-References: <20250117190938.93793-1-imbrenda@linux.ibm.com>
- <20250117190938.93793-7-imbrenda@linux.ibm.com>
-In-Reply-To: <20250117190938.93793-7-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RHptOCL1GzweJk0t1wrK-4ItByUiRyKe
-X-Proofpoint-GUID: K4qFgGtkXiz276fyaef03nFH0gc8T1x5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-21_06,2025-01-21_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- bulkscore=0 suspectscore=0 adultscore=0 clxscore=1015 priorityscore=1501
- spamscore=0 impostorscore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=388
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501210122
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250120164316.31473-5-alexandru.elisei@arm.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Fri Jan 17, 2025 at 8:09 PM CET, Claudio Imbrenda wrote:
-> Refactor the existing page fault handling code to use __kvm_faultin_pfn()=
-.
->
-> This possible now that memslots are always present.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Acked-by: Janosch Frank <frankja@linux.ibm.com>
+On Mon, Jan 20, 2025 at 04:43:02PM +0000, Alexandru Elisei wrote:
+> Tests for the arm and arm64 architectures can also be run with kvmtool, and
+> work is under way to have it supported by the run_tests.sh test runner. Not
+> suprisingly, kvmtool has a different syntax than qemu when configuring and
+> running a virtual machine.
+> 
+> Add a new unittest parameter, 'qemu_params', with the goal to add a similar
+> parameter for each virtual machine manager that run_tests.sh supports.
+> 
+> 'qemu_params' and 'extra_params' are interchangeable, but it is expected
+> that going forward new tests will use 'qemu_params'. A test should have
+> only one of the two parameters.
+> 
+> While we're at it, rename the variable opts to qemu_opts to match the new
+> unit configuration name, and to make it easier to distinguish from the
+> kvmtool parameters when they'll be added.
+> 
+> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 > ---
->  arch/s390/kvm/kvm-s390.c | 122 ++++++++++++++++++++++++++++++---------
->  arch/s390/kvm/kvm-s390.h |   6 ++
->  arch/s390/mm/gmap.c      |   1 +
->  3 files changed, 102 insertions(+), 27 deletions(-)
+>  docs/unittests.txt   | 17 +++++++++-----
+>  scripts/common.bash  | 53 ++++++++++++++++++++++++++------------------
+>  scripts/runtime.bash | 10 ++++-----
+>  3 files changed, 47 insertions(+), 33 deletions(-)
+> 
+> diff --git a/docs/unittests.txt b/docs/unittests.txt
+> index dbc2c11e3b59..3e1a9e563016 100644
+> --- a/docs/unittests.txt
+> +++ b/docs/unittests.txt
+> @@ -24,9 +24,9 @@ param = value format.
+>  
+>  Available parameters
+>  ====================
+> -Note! Some parameters like smp and extra_params modify how a test is run,
+> -while others like arch and accel restrict the configurations in which the
+> -test is run.
+> +Note! Some parameters like smp and qemu_params/extra_params modify how a
+> +test is run, while others like arch and accel restrict the configurations
+> +in which the test is run.
+>  
+>  file
+>  ----
+> @@ -56,13 +56,18 @@ smp = <number>
+>  Optional, the number of processors created in the machine to run the test.
+>  Defaults to 1. $MAX_SMP can be used to specify the maximum supported.
+>  
+> -extra_params
+> -------------
+> +qemu_params
+> +-----------
+>  These are extra parameters supplied to the QEMU process. -append '...' can
+>  be used to pass arguments into the test case argv. Multiple parameters can
+>  be added, for example:
+>  
+> -extra_params = -m 256 -append 'smp=2'
+> +qemu_params = -m 256 -append 'smp=2'
+> +
+> +extra_params
+> +------------
+> +Alias for 'qemu_params', supported for compatibility purposes. Use
+> +'qemu_params' for new tests.
+>  
+>  groups
+>  ------
+> diff --git a/scripts/common.bash b/scripts/common.bash
+> index 3aa557c8c03d..a40c28121b6a 100644
+> --- a/scripts/common.bash
+> +++ b/scripts/common.bash
+> @@ -1,5 +1,28 @@
+>  source config.mak
+>  
+> +function parse_opts()
+> +{
+> +	local opts="$1"
+> +	local fd="$2"
+> +
+> +	while read -r -u $fd; do
+> +		#escape backslash newline, but not double backslash
+> +		if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
+> +			if (( ${#BASH_REMATCH[1]} % 2 == 1 )); then
+> +				opts=${opts%\\$'\n'}
+> +			fi
+> +		fi
+> +		if [[ "$REPLY" =~ ^(.*)'"""'[:blank:]*$ ]]; then
+> +			opts+=${BASH_REMATCH[1]}
+> +			break
+> +		else
+> +			opts+=$REPLY$'\n'
+> +		fi
+> +	done
+> +
+> +	echo "$opts"
+> +}
+> +
+>  function for_each_unittest()
+>  {
+>  	local unittests="$1"
+> @@ -7,7 +30,7 @@ function for_each_unittest()
+>  	local testname
+>  	local smp
+>  	local kernel
+> -	local opts
+> +	local qemu_opts
+>  	local groups
+>  	local arch
+>  	local machine
+> @@ -22,12 +45,12 @@ function for_each_unittest()
+>  		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+>  			rematch=${BASH_REMATCH[1]}
+>  			if [ -n "${testname}" ]; then
+> -				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$machine" "$check" "$accel" "$timeout"
+> +				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$qemu_opts" "$arch" "$machine" "$check" "$accel" "$timeout"
+>  			fi
+>  			testname=$rematch
+>  			smp=1
+>  			kernel=""
+> -			opts=""
+> +			qemu_opts=""
+>  			groups=""
+>  			arch=""
+>  			machine=""
+> @@ -38,24 +61,10 @@ function for_each_unittest()
+>  			kernel=$TEST_DIR/${BASH_REMATCH[1]}
+>  		elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
+>  			smp=${BASH_REMATCH[1]}
+> -		elif [[ $line =~ ^extra_params\ *=\ *'"""'(.*)$ ]]; then
+> -			opts=${BASH_REMATCH[1]}$'\n'
+> -			while read -r -u $fd; do
+> -				#escape backslash newline, but not double backslash
+> -				if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
+> -					if (( ${#BASH_REMATCH[1]} % 2 == 1 )); then
+> -						opts=${opts%\\$'\n'}
+> -					fi
+> -				fi
+> -				if [[ "$REPLY" =~ ^(.*)'"""'[:blank:]*$ ]]; then
+> -					opts+=${BASH_REMATCH[1]}
+> -					break
+> -				else
+> -					opts+=$REPLY$'\n'
+> -				fi
+> -			done
+> -		elif [[ $line =~ ^extra_params\ *=\ *(.*)$ ]]; then
+> -			opts=${BASH_REMATCH[1]}
+> +		elif [[ $line =~ ^(extra_params|qemu_params)\ *=\ *'"""'(.*)$ ]]; then
+> +			qemu_opts=$(parse_opts ${BASH_REMATCH[2]}$'\n' $fd)
+> +		elif [[ $line =~ ^(extra_params|qemu_params)\ *=\ *(.*)$ ]]; then
+> +			qemu_opts=${BASH_REMATCH[2]}
+>  		elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
+>  			groups=${BASH_REMATCH[1]}
+>  		elif [[ $line =~ ^arch\ *=\ *(.*)$ ]]; then
+> @@ -71,7 +80,7 @@ function for_each_unittest()
+>  		fi
+>  	done
+>  	if [ -n "${testname}" ]; then
+> -		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$machine" "$check" "$accel" "$timeout"
+> +		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$qemu_opts" "$arch" "$machine" "$check" "$accel" "$timeout"
+>  	fi
+>  	exec {fd}<&-
+>  }
+> diff --git a/scripts/runtime.bash b/scripts/runtime.bash
+> index 4b9c7d6b7c39..e5d661684ceb 100644
+> --- a/scripts/runtime.bash
+> +++ b/scripts/runtime.bash
+> @@ -34,7 +34,7 @@ premature_failure()
+>  get_cmdline()
+>  {
+>      local kernel=$1
+> -    echo "TESTNAME=$testname TIMEOUT=$timeout MACHINE=$machine ACCEL=$accel $RUNTIME_arch_run $kernel -smp $smp $opts"
+> +    echo "TESTNAME=$testname TIMEOUT=$timeout MACHINE=$machine ACCEL=$accel $RUNTIME_arch_run $kernel -smp $smp $qemu_opts"
+>  }
+>  
+>  skip_nodefault()
+> @@ -80,7 +80,7 @@ function run()
+>      local groups="$2"
+>      local smp="$3"
+>      local kernel="$4"
+> -    local opts="$5"
+> +    local qemu_opts="$5"
+>      local arch="$6"
+>      local machine="$7"
+>      local check="${CHECK:-$8}"
+> @@ -179,9 +179,9 @@ function run()
+>          echo $cmdline
+>      fi
+>  
+> -    # extra_params in the config file may contain backticks that need to be
+> -    # expanded, so use eval to start qemu.  Use "> >(foo)" instead of a pipe to
+> -    # preserve the exit status.
+> +    # qemu_params/extra_params in the config file may contain backticks that
+> +    # need to be expanded, so use eval to start qemu.  Use "> >(foo)" instead of
+> +    # a pipe to preserve the exit status.
+>      summary=$(eval "$cmdline" 2> >(RUNTIME_log_stderr $testname) \
+>                               > >(tee >(RUNTIME_log_stdout $testname $kernel) | extract_summary))
+>      ret=$?
+> -- 
+> 2.47.1
+>
 
-LGTM
+Hmm, I'll keep reading the series, but it seems like we should be choosing
+generic names like 'extra_params' and 'opts' that we plan to use for both
+QEMU and kvmtool since they both have the concepts of "options" and "extra
+params".
 
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-
+Thanks,
+drew
