@@ -1,82 +1,85 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F06933991;
-	Wed, 22 Jan 2025 04:40:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765BD28EC;
+	Wed, 22 Jan 2025 07:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737520802; cv=none; b=CZ9AN26bkgCIL2gfLCATKZaaVyWfS5PJqq80v7GsI3r2mXdFYmcj3FhJ4w5CPyIv+38VkerDB8lJXoi70qrYZfCRZqDrTnc1XY97KhdQB+23E73sCtlzaFCLqnauzYa5Lu6HgovGDyBHrC6Wl+ViXS7OVSF4YN2xZXXh5vm4erI=
+	t=1737532240; cv=none; b=ZQx/9NafyJYtlK+MBl6X/ya6Du8vH/i33X0TFCpLXG+oRbgQuHxgSAyWEYp8RrwSk0iZ4pfZmJyHn0+QFuFdDdRbU40kzs8KZHMnFtyBXLqwK8VLMG8bpVj2coU7jR4BmZuuEDh2X4GS+92RtAPzah+zR8b6dYlOYoo/V3gGUuY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737520802; c=relaxed/simple;
-	bh=vozpJzoYh8NFazwcE0sbja2bDFoFPU5h6TA6RG2F2eQ=;
+	s=arc-20240116; t=1737532240; c=relaxed/simple;
+	bh=IEhcvheF4V81iZY+p0ALVQuZPTmOS4DOoc5c5f3Go8g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N0+C1ddnSNu1KNbj25bv3kXHToP33N5ES7xARKsNJgrvRUtqecXlIG+bYbNyBaYElBO2903x2d9DjFruugAveXl3LXQfWb/NGNAV9o22t8T1uZWNTOJkp1i135zGgH9ke8kQtqdnLkwisgX6nIZpkwx1m07emDwn1LGUZfHOpmU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LCfNkPAL; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=Weh6X46oLsD8r7CM037wijSYWke/zVmZ3jBLT9dw6IlBUEh+0r+1cLXU0sfzWSByIFcjXUUF0pC2BEy8HZyaBNwUhWyfg/MFTm5IH57HTKsSIySMMQtTkZz6eG9eAJ40WOoNgSXqD4jDhRXVqIEucsNlC52UMdVzmOxMtmBtZ7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WKfRRI1l; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LCfNkPAL"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50M18O0q013816;
-	Wed, 22 Jan 2025 04:39:15 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WKfRRI1l"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50M2A4Je009705;
+	Wed, 22 Jan 2025 07:49:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Uj1IBKSyRAR9M7uS0BMNRa1ZCi7T/v
-	zkm1EVAV7KiDc=; b=LCfNkPAL9XOiNff3jWXdS3v6u7HvDU+yx/KMiEz10OID+h
-	BHF+qdBG30yg0+vkh39dKE+YPVI9RDipo2vo/0K8+88vRvRQEwYNEvPBDCVlUgVF
-	T2QsHWKovqldZ60UymJ0NVPl84Roh53Sw4PXe+Jt3e92qxJt0cPdKAXKrPqq/p2+
-	GY9mszuG52k4hloJInmgQ8QtZbeb7PtVXoZ2VPXDBX0KGpp3CsBBO/ebmrzOo8t+
-	ytK4pgvSibbA2iWu1pEBSuI6S1zmI2jIwMz/DZCQlQpMjn3TKBgDHxiUXiOVeWv7
-	AGn7kwtKvA1OaCqR9bC5H6Ed1EwwMn2uLik99WTA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr98pb6-1
+	:references:subject:to; s=pp1; bh=YOmEKaCYp7BVYdSA921evwSGcBIDRQ
+	EOB9Qf7IL5hrk=; b=WKfRRI1lHye/PfeRq0CM+invZscqmJxiyfMJj6RqKDo+k0
+	oHw8bxFR10u4InxfkGzbtPQRnmjjRIxYD+e4Hdc6VNWvxRNBhElChMEKYTQww/ne
+	kooQLVgHcJbjlXo8YwFiHbBQ8lYIn1j20/tkdmwE9rGrifbH6of2GaRERifgPxvN
+	e6jGjgMPTSpOWNSK//eRAMpTyDt03PLcgP0/2Qj42QpNbLO975g3w4J/8kekr9qF
+	dPd8DDCPlAQUGXVLnf/2L8EUh+BlP8RuxoA5walvWUcYL4qLgoLMxpcBdMKwAzI/
+	K9cmGJQE5Hsas24CZr5x5+mJxBXMWUxPL2+9HvXg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44aee1bs75-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 04:39:14 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50M4dEAc032338;
-	Wed, 22 Jan 2025 04:39:14 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr98pb1-1
+	Wed, 22 Jan 2025 07:49:59 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50M4kx3X019330;
+	Wed, 22 Jan 2025 07:49:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 448pmsfk01-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 04:39:14 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50M1MuQv022387;
-	Wed, 22 Jan 2025 04:39:12 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448r4k6mpg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 04:39:12 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50M4d8EP34538106
+	Wed, 22 Jan 2025 07:49:58 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50M7nu1d48300472
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jan 2025 04:39:09 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D831E20043;
-	Wed, 22 Jan 2025 04:39:08 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 41AAB20040;
-	Wed, 22 Jan 2025 04:39:03 +0000 (GMT)
-Received: from linux.ibm.com (unknown [9.43.19.247])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 22 Jan 2025 04:39:03 +0000 (GMT)
-Date: Wed, 22 Jan 2025 10:09:00 +0530
-From: Saket Kumar Bhaskar <skb99@linux.ibm.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org,
-        sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
-        john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-        guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v6 5/5] bpf/selftests: add selftest for
- bpf_smc_ops
-Message-ID: <Z5B2ZFRWsuBviC/Q@linux.ibm.com>
-References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
- <20250116074442.79304-6-alibuda@linux.alibaba.com>
- <Z49Bv8ySi2EJ/jfl@linux.ibm.com>
- <20250122024651.GB81479@j66a10360.sqa.eu95>
+	Wed, 22 Jan 2025 07:49:56 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B223620040;
+	Wed, 22 Jan 2025 07:49:56 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B9362004B;
+	Wed, 22 Jan 2025 07:49:56 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 22 Jan 2025 07:49:56 +0000 (GMT)
+Date: Wed, 22 Jan 2025 08:49:54 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Mike Rapoport (IBM)" <rppt@kernel.org>,
+        Ryan Roberts <ryan.roberts@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Qi Zheng <zhengqi.arch@bytedance.com>, linux-alpha@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-um@lists.infradead.org, loongarch@lists.linux.dev,
+        x86@kernel.org
+Subject: Re: [PATCH v2 6/6] mm: Introduce ctor/dtor at PGD level
+Message-ID: <20250122074954.8685-A-hca@linux.ibm.com>
+References: <20250103184415.2744423-1-kevin.brodsky@arm.com>
+ <20250103184415.2744423-7-kevin.brodsky@arm.com>
+ <Z4/NTRDBXEEimdvc@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -85,78 +88,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250122024651.GB81479@j66a10360.sqa.eu95>
+In-Reply-To: <Z4/NTRDBXEEimdvc@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Q9lflqyZ0u44bxu6ZGJfEd2KlfghN-gc
-X-Proofpoint-ORIG-GUID: Q41V1KpJ1CnwKQ7Q8J91CM5w7UWBe_ai
+X-Proofpoint-ORIG-GUID: qTola2ylJwUaTSt4IdPRfZSdT02Tio3Q
+X-Proofpoint-GUID: qTola2ylJwUaTSt4IdPRfZSdT02Tio3Q
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-22_01,2025-01-21_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxscore=0
- spamscore=0 clxscore=1015 bulkscore=0 phishscore=0 malwarescore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2501220030
+ definitions=2025-01-22_03,2025-01-22_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1011
+ lowpriorityscore=0 mlxlogscore=674 priorityscore=1501 bulkscore=0
+ spamscore=0 malwarescore=0 phishscore=0 suspectscore=0 mlxscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501220053
 
-On Wed, Jan 22, 2025 at 10:46:51AM +0800, D. Wythe wrote:
-> On Tue, Jan 21, 2025 at 12:12:07PM +0530, Saket Kumar Bhaskar wrote:
-> > On Thu, Jan 16, 2025 at 03:44:42PM +0800, D. Wythe wrote:
-> > > This tests introduces a tiny smc_ops for filtering SMC connections based on
-> > > IP pairs, and also adds a realistic topology model to verify this ops.
-> > > 
-> > > Also, we can only use SMC loopback under CI test, so an
-> > > additional configuration needs to be enabled.
-> > > 
-> > > Follow the steps below to run this test.
-> > > 
-> > > make -C tools/testing/selftests/bpf
-> > > cd tools/testing/selftests/bpf
-> > > sudo ./test_progs -t smc
-> > > 
-> > > Results shows:
-> > > Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-> > > 
-> > > Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> > > ---
-> > >  tools/testing/selftests/bpf/config            |   4 +
-> > >  .../selftests/bpf/prog_tests/test_bpf_smc.c   | 397 ++++++++++++++++++
-> > >  tools/testing/selftests/bpf/progs/bpf_smc.c   | 117 ++++++
-> > >  3 files changed, 518 insertions(+)
-> > >  create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-> > >  create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
-> > > 
-> > > diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
-> > > index c378d5d07e02..fac2f2a9d02f 100644
-> > > --- a/tools/testing/selftests/bpf/config
-> > > +++ b/tools/testing/selftests/bpf/config
-> > > @@ -113,3 +113,7 @@ CONFIG_XDP_SOCKETS=y
-> > > +};
-> > Tested this selftest with patches applied on powerpc.
-> > 
-> > #./test_progs -t bpf_smc
-> > 
-> > net.smc.ops = linkcheck
-> > #27/1    bpf_smc/topo:OK
-> > #27      bpf_smc:OK
-> > Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-> > 
-> > Tested-by: Saket Kumar Bhaskar <skb99@linux.ibm.com>
-> > 
-> > Thanks,
-> > Saket
+On Tue, Jan 21, 2025 at 05:37:33PM +0100, Alexander Gordeev wrote:
+> On Fri, Jan 03, 2025 at 06:44:15PM +0000, Kevin Brodsky wrote:
 > 
-> Hi Saket,
+> Hi Kevin,
+> ...
+> > diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
+> > index 5fced6d3c36b..b19b6ed2ab53 100644
+> > --- a/arch/s390/include/asm/pgalloc.h
+> > +++ b/arch/s390/include/asm/pgalloc.h
+> > @@ -130,11 +130,18 @@ static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
+> >  
+> >  static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+> >  {
+> > -	return (pgd_t *) crst_table_alloc(mm);
+> > +	unsigned long *table = crst_table_alloc(mm);
+> > +
+> > +	if (!table)
+> > +		return NULL;
 > 
-> Thanks for your testing. I hope you don't mind if I add your test-by in
-> the next version.
+> I do not know status of this series, but FWIW, this call is missed:
 > 
-> Best wishes,
-> D. Wythe
-> 
-Fine for me Wythe.
+> 	crst_table_init(table, _REGION1_ENTRY_EMPTY); 
 
-Thanks,
-Saket
-> > > -- 
-> > > 2.45.0
-> > > 
+Why is that missing?
+
+A pgd table can be a Region1, Region2, or Region3 table. The only caller of
+this function is mm_init() via mm_alloc_pgd(); and right after mm_alloc_pgd()
+there is a call to init_new_context() which will initialize the pgd correctly.
+
+I guess what really gets odd, and might be broken (haven't checked yet) is
+what happens on dynamic upgrade of page table levels (->crst_table_upgrade()).
+
+With that a pgd may become a pud, and with that we get an imbalance with
+the ctor/dtor calls for the various page table levels when they get freed
+again. Plus, at first glance, it looks also broken that we have open-coded
+crst_alloc() calls instead of using the "proper" page table allocation API
+within crst_table_upgrade(), which again would cause an imbalance.
