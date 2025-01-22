@@ -1,225 +1,126 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CA421369B4;
-	Wed, 22 Jan 2025 17:17:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3BC621506A;
+	Wed, 22 Jan 2025 17:23:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737566233; cv=none; b=HN5qX9PQHrpnto5/hjSgaSLa8eQlBPKT5G961pAkPlHXtyk1FGHit/DAshxtUri2L0Fx5bvTM4/ELYgwE9OSjZjHFwFwpFfwem0zgcAulppXZS52NfV19uKt0QSNzKnWrmJ9fYQA9LcyukOxeprfR1pVocEI5zCIA5uiW1rQLcw=
+	t=1737566589; cv=none; b=X5xx0gD10eVOsQn0iGaYRLPNYzLzoIvD2bjCunG1o3WevZjurUiZ4yUV4AxRWVgCQZ+7KuQ1sFZCulD20pqcuAI+3mW6qHxLGwI6bILwj9o+vlDP2KBF69+BFoAhxnOSW92jKBrHxKr/mxvAMZRMrh1MLc1eo6PlK/T0DeIExYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737566233; c=relaxed/simple;
-	bh=o1SE3o3NcZUVY/hmBRha3xtrviGaumM9KPn/dAGuTFk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QPALcrurHa+hSdXZBvfFMCXO5VwzZAi6mJapAvxu2LhGlKau7NEESWeD6OYsEu9KyvOMEkSeewRI6M5BqSFaDpeAGB2CtoJv6MDjEUBwilBtcgucmsf7x1G9B9eF6g2Rpsr/3kLwDjPt4/440jX7zlHqb+Wb4DNel/7JwwhhFxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F+oEs/Py; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1737566589; c=relaxed/simple;
+	bh=0d+FBMNDtk7PmBD1dMUBHfmtvhFmBnvBZ1/fLZLu9Ho=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=quVW68eW3xFTn44iI/HYrESKdoQVYBpcxa5DHhbiiuv6vYlh+Xflw6jCGXNuRQHCjOUiNJGQGNXWO1tkaptzpfExP94ZY2SMS4z9UHPNsSHpI7HXezIaPFm8u6QUczY7R2OT8NT5KveHP3Bn8DpJEdFd6B7pEdpKsrBxFk4UNp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TecEmbZe; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F+oEs/Py"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2ef760a1001so99537a91.0;
-        Wed, 22 Jan 2025 09:17:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737566231; x=1738171031; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gFCVPvzzCocOSj8lSB1mfBdT82DT1p+MPx9OjvYvaR0=;
-        b=F+oEs/Pyob0UjEyYbUJ7b0LWFxqk0BsDzJMcmqoEvmieb+0AUBSatVQVh6GQHDzDB4
-         O1e9c+9bqlyy3wgtgvwIGGfdZ900KN7D1U6KnqUiu1dc1kopCO4eoxtTdyrMYgtWo9nl
-         NkYVinvhuggjBYoqHGMC1JVxfE9zxlh5mHx2fxdLH8m0G1pa2gbBiYBefP+1FYeeiHM1
-         U31OVehyRDCySW7yahEFHa14Zsd/rWHZF2p6hNk2q8nlsQ3lBncF+2/YE3J6fXMja5r8
-         byImxHe5tuEoWtO+ODy5VVp9KXMOw/AA84KHZkpAP9fD3ycVPv1R3fyvbVs7ewiCWSDb
-         5xhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737566231; x=1738171031;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gFCVPvzzCocOSj8lSB1mfBdT82DT1p+MPx9OjvYvaR0=;
-        b=WWbeUQpwAebWFAUH5ecySh9ANcKqrVa0jI407PAJXruUgdZRPWRNxu0PlgchR4gaOB
-         ykNXkaf3LJIjDHeuJDCJy4PHNT71kFIKDbHqI1w9if4QAhfgIHRVphKMAWeMlZJbrYPy
-         zetKRAtXY/fs2L4+DPEVwBA3I+53q1GR0zpvcWCvklEic+n3A7VmSIQzvZ+Hvs78PQrk
-         lKk1DZfMYnM6p1p2JfJmc59qOxc89pG3xNwmu8uYuJfZ7uV5pJewT8K/xtqdztDjS4CJ
-         D5s06k4qe1UVxbN5BpOnYcsSvJJbqfolXOjryCziJoyVkrNEi42AxzUglClucWfFGAdy
-         ATkA==
-X-Forwarded-Encrypted: i=1; AJvYcCUx/rankgafe8k97rzEUzy70NfVq8tio0S6kYkwkvWUzN+9nUukq7fX+RurkAXdy98PAfs=@vger.kernel.org, AJvYcCVKCN8zfFOOhjOBqyVavqpESeO87ivID2h3q4rpYBIfdvs04g2qCykzeWYS/nzcH4YbhXIJd9TzoJafmg==@vger.kernel.org, AJvYcCVKwfF6bG9kgmQWMdhl3YE6YRaLq9QLEq1PLkJLvvvJqcl3hJ9+NJO5h3cHTiw/4DvpVd7zp3TV@vger.kernel.org, AJvYcCXW4dveTUXyhF3G3PYBETze2Ch9HzEWgjuiOu8ZOB5j00p39D6o4r9tST0XeqCC5pWKr6UD/GzAHzBnow==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwK98E6JI84Op7m3lc6IXSYTOz9Ah8L4ERf46b6lvxeh/0OxikM
-	z3m4U65bhX5ZO/fVIBPmmogkaiQFOe9xvL7hZ4IVff65Jt6+jO/jchyM2ECjEUkMi23B46tAkkR
-	xKv2ikDWLA0cFZlUXXerVfm2gXfU=
-X-Gm-Gg: ASbGncu2KqbgZWpWTAPRoFyyOpHc5N8AQJg3W/tidYBeAtHNWZ7e2VQ1q65U709SI3o
-	h6aSKBiLZv2Va9mDtLMZldDzv2zEXBVP/I292rO9QKX6KejewKEzCVOz7AfvRELygKJQ=
-X-Google-Smtp-Source: AGHT+IHTvHTC++TojYxC/UgWgVuinh02AQWbyRQC6b5Z9w3BtCafMdo3/RyX2E4nRXqJ2H6wOGvd5dmMFKUFBshJkuA=
-X-Received: by 2002:a05:6a00:2184:b0:72a:8cc8:34aa with SMTP id
- d2e1a72fcca58-72daf88b65dmr33962621b3a.0.1737566230650; Wed, 22 Jan 2025
- 09:17:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TecEmbZe"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MF1XM8027463;
+	Wed, 22 Jan 2025 17:23:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=s+Sx6TftRkP+5tcfW8mhCC8MHQ0TqM
+	hpnL7cjp8hA34=; b=TecEmbZedJD2Zim15/iZMZidEE5svB8jChFO0xijV5n5+w
+	DHc5sI/9AeUfiyfx+uayPLJs57v4t0XJuBHu+EzOcqxdBGoJ8fZnAZc8sJkJtlA1
+	AmHge5YOpjxtYzdaNhvZxSx79tBLB0Iikr3n70MnMurR6E1Fg+gFF+o1GAFiKrtT
+	OGwmL/gRADXtO3xXW0Dq/2QGzYe/MHSFOBPJ69g3roDLov4wrf/k8RY26TY5KdVh
+	OVvPeqAGYoK/4T6eWDzlJvDQv2RNBmVUfV/061xl/xUgtXuoP+0UBQzN087wxh7a
+	XjdFcFAboALXhyCCTU+Xq98RbLlJymjCEsDrZeNA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44b2xygr3b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 17:23:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MDejnc024307;
+	Wed, 22 Jan 2025 17:23:01 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448q0y9kn3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 17:23:00 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MHMx5M36241906
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Jan 2025 17:22:59 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC9CF20043;
+	Wed, 22 Jan 2025 17:22:58 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9248320040;
+	Wed, 22 Jan 2025 17:22:58 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 22 Jan 2025 17:22:58 +0000 (GMT)
+Date: Wed, 22 Jan 2025 18:22:57 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Ard Biesheuvel <ardb+git@google.com>
+Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        Ron Economos <re@w6rz.net>
+Subject: Re: [PATCH v3] kbuild: Strip runtime const RELA sections correctly
+Message-ID: <Z5Epcb+GnqFegstq@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250113155306.1922992-2-ardb+git@google.com>
+ <Z5EhsaJOaRjjMEp4@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
- <20250116074442.79304-5-alibuda@linux.alibaba.com> <CAEf4BzZvxqiQ2J1XQMm-ZDBjSsmtJJk6-_RbexPk9vWxAO=ksw@mail.gmail.com>
- <20250122024327.GA81479@j66a10360.sqa.eu95>
-In-Reply-To: <20250122024327.GA81479@j66a10360.sqa.eu95>
-From: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date: Wed, 22 Jan 2025 09:16:58 -0800
-X-Gm-Features: AbW1kvZiku1BiieaalyxZJhB_Vt4Hw2HwinTvpys0Vs7Ip41IhYFnB8AF6RUhzc
-Message-ID: <CAEf4Bzabc+83abj7gP0h0sCxp-Bajqhm0bdAyn1Gn5bNi5nNXg@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v6 4/5] libbpf: fix error when st-prefix_ops and
- ops from differ btf
-To: "D. Wythe" <alibuda@linux.alibaba.com>
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
-	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev, 
-	pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com, 
-	yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org, 
-	jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org, 
-	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z5EhsaJOaRjjMEp4@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HoteUIm15bMeGwcSzQy8xKdqG5FmEHlS
+X-Proofpoint-ORIG-GUID: HoteUIm15bMeGwcSzQy8xKdqG5FmEHlS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-22_07,2025-01-22_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ impostorscore=0 adultscore=0 clxscore=1015 bulkscore=0 suspectscore=0
+ mlxlogscore=637 phishscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501220125
 
-On Tue, Jan 21, 2025 at 6:43=E2=80=AFPM D. Wythe <alibuda@linux.alibaba.com=
-> wrote:
->
-> On Fri, Jan 17, 2025 at 10:36:50AM -0800, Andrii Nakryiko wrote:
-> > On Wed, Jan 15, 2025 at 11:45=E2=80=AFPM D. Wythe <alibuda@linux.alibab=
-a.com> wrote:
-> > >
-> > > When a struct_ops named xxx_ops was registered by a module, and
-> > > it will be used in both built-in modules and the module itself,
-> > > so that the btf_type of xxx_ops will be present in btf_vmlinux
-> > > instead of in btf_mod, which means that the btf_type of
-> > > bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
-> > >
-> > > Here are four possible case:
-> > >
-> > > +--------+---------------+-------------+-----------------------------=
-----+
-> > > |        | st_ops_xxx_ops| xxx_ops     |                             =
-    |
-> > > +--------+---------------+-------------+-----------------------------=
-----+
-> > > | case 0 | btf_vmlinux   | bft_vmlinux | be used and reg only in vmli=
-nux |
-> > > +--------+---------------+-------------+-----------------------------=
-----+
-> > > | case 1 | btf_vmlinux   | bpf_mod     | INVALID                     =
-    |
-> > > +--------+---------------+-------------+-----------------------------=
-----+
-> > > | case 2 | btf_mod       | btf_vmlinux | reg in mod but be used both =
-in  |
-> > > |        |               |             | vmlinux and mod.            =
-    |
-> > > +--------+---------------+-------------+-----------------------------=
-----+
-> > > | case 3 | btf_mod       | btf_mod     | be used and reg only in mod =
-    |
-> > > +--------+---------------+-------------+-----------------------------=
-----+
-> > >
-> > > At present, cases 0, 1, and 3 can be correctly identified, because
-> > > +       if (ret < 0 || ret >=3D sizeof(stname))
-> > > +               return -ENAMETOOLONG;
-> >
-> > see preexisting snprintf() above, we don't really handle truncation
-> > errors explicitly, they are extremely unlikely and not expected at
-> > all, and worst case nothing will be found and user will get some
-> > -ENOENT or something like that eventually. I'd drop this extra error
-> > checking and keep it streamlines, similar to tname
-> >
->
-> Sounds reasonable to me. I will remove the explicit error checks in the
-> next version.
->
-> > > +
-> > > +       /* Look for the corresponding "map_value" type that will be u=
-sed
-> > > +        * in map_update(BPF_MAP_TYPE_STRUCT_OPS) first, figure out t=
-he btf
-> > > +        * and the mod_btf.
-> > > +        * For example, find "struct bpf_struct_ops_tcp_congestion_op=
-s".
-> > > +        */
-> > > +       kern_vtype_id =3D find_ksym_btf_id(obj, stname, BTF_KIND_STRU=
-CT,
-> > >                                         &btf, mod_btf);
-> >
-> > nit: if this fits under 100 characters, keep it single line
-> >
-> > > +       if (kern_vtype_id < 0) {
-> > > +               pr_warn("struct_ops init_kern: struct %s is not found=
- in kernel BTF\n",
-> > > +                               stname);
-> >
-> > same nit about preserving single-line statements as much as possible,
-> > they are much easier to read
->
-> None of them exceed 100 lines. Usually, I would check patches with 85 lin=
-es limitations,
-> but since 100 lines is acceptable, we can modify it to a single line here=
- for
-> better readability.
->
-> And thanks very much for your suggestion, I plan to fix these style
-> issues in next versions with you ack, is this okay for you?
+On Wed, Jan 22, 2025 at 05:49:53PM +0100, Alexander Gordeev wrote:
+> On Mon, Jan 13, 2025 at 04:53:07PM +0100, Ard Biesheuvel wrote:
+> 
+> Hi Ard,
+> 
+> > Due to the fact that runtime const ELF sections are named without a
+> > leading period or double underscore, the RSTRIP logic that removes the
+> > static RELA sections from vmlinux fails to identify them. This results
+> > in a situation like below, where some sections that were supposed to get
+> > removed are left behind.
+> > 
+> >   [Nr] Name                              Type            Address          Off     Size   ES Flg Lk Inf Al
+> > 
+> >   [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f50 2900f50 000014 00   A  0   0  1
+> >   [59] .relaruntime_shift_d_hash_shift   RELA            0000000000000000 55b6f00 000078 18   I 70  58  8
+> >   [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f68 2900f68 000014 00   A  0   0  1
+> >   [61] .relaruntime_ptr_dentry_hashtable RELA            0000000000000000 55b6f78 000078 18   I 70  60  8
+> >   [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f80 2900f80 000238 00   A  0   0  1
+> >   [63] .relaruntime_ptr_USER_PTR_MAX     RELA            0000000000000000 55b6ff0 000d50 18   I 70  62  8
+> > 
+> > So tweak the match expression to strip all sections starting with .rel.
+> > While at it, consolidate the logic used by RISC-V, s390 and x86 into a
+> > single shared Makefile library command.
+> 
+> On s390 this is before:
+> 
+>   [32] .relaruntime[...] RELA             0000000000000000  13b3fe20
+>   [34] .relaruntime[...] RELA             0000000000000000  13b3fe98
+> 
+> This is after:
+> 
+>   [ 2] .rela.text        RELA             0000000000000000  13b3fe20
+...
+>   [73] .rela.debug_[...] RELA             0000000000000000  298eb5a8
 
-yep, sgtm
+Sorry, I checked the wrong version. It works as expected.
 
->
-> Best wishes,
-> D. Wythe
-> >
-> > > +               return kern_vtype_id;
-> > > +       }
-> > > +       kern_vtype =3D btf__type_by_id(btf, kern_vtype_id);
-> > > +
-> > > +       kern_type_id =3D btf__find_by_name_kind(btf, tname, BTF_KIND_=
-STRUCT);
-> > >         if (kern_type_id < 0) {
-> > >                 pr_warn("struct_ops init_kern: struct %s is not found=
- in kernel BTF\n",
-> > >                         tname);
-> > > @@ -1020,20 +1039,6 @@ find_struct_ops_kern_types(struct bpf_object *=
-obj, const char *tname_raw,
-> > >         }
-> > >         kern_type =3D btf__type_by_id(btf, kern_type_id);
-> > >
-> > > -       /* Find the corresponding "map_value" type that will be used
-> > > -        * in map_update(BPF_MAP_TYPE_STRUCT_OPS).  For example,
-> > > -        * find "struct bpf_struct_ops_tcp_congestion_ops" from the
-> > > -        * btf_vmlinux.
-> > > -        */
-> > > -       kern_vtype_id =3D find_btf_by_prefix_kind(btf, STRUCT_OPS_VAL=
-UE_PREFIX,
-> > > -                                               tname, BTF_KIND_STRUC=
-T);
-> > > -       if (kern_vtype_id < 0) {
-> > > -               pr_warn("struct_ops init_kern: struct %s%s is not fou=
-nd in kernel BTF\n",
-> > > -                       STRUCT_OPS_VALUE_PREFIX, tname);
-> > > -               return kern_vtype_id;
-> > > -       }
-> > > -       kern_vtype =3D btf__type_by_id(btf, kern_vtype_id);
-> > > -
-> > >         /* Find "struct tcp_congestion_ops" from
-> > >          * struct bpf_struct_ops_tcp_congestion_ops {
-> > >          *      [ ... ]
-> > > @@ -1046,8 +1051,8 @@ find_struct_ops_kern_types(struct bpf_object *o=
-bj, const char *tname_raw,
-> > >                         break;
-> > >         }
-> > >         if (i =3D=3D btf_vlen(kern_vtype)) {
-> > > -               pr_warn("struct_ops init_kern: struct %s data is not =
-found in struct %s%s\n",
-> > > -                       tname, STRUCT_OPS_VALUE_PREFIX, tname);
-> > > +               pr_warn("struct_ops init_kern: struct %s data is not =
-found in struct %s\n",
-> > > +                       tname, stname);
-> > >                 return -EINVAL;
-> > >         }
-> > >
-> > > --
-> > > 2.45.0
-> > >
+Tested-by: Alexander Gordeev <agordeev@linux.ibm.com>
