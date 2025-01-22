@@ -1,349 +1,154 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E282135A2;
-	Wed, 22 Jan 2025 15:07:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDBD0211287;
+	Wed, 22 Jan 2025 16:01:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737558462; cv=none; b=r4Va2c5fQMveqof65U6gduN6eW5IunPFha5KNJNMhCuASqiGInabsgzh838gtIO52XCMJEdt8P5rLoWz0J3scPyjVxA6EJxl588DiZ0UjwdNxAFghLqp7CQpdpFMe8JhlMTspD5oR0omGT7yeYlY5ImTUxb+rb01wxwWkd/+yCE=
+	t=1737561684; cv=none; b=HFSWCPDcTCPe28HqLAKbEjymQwzjb89sscGB0cLhAs/2BBD9GOt9krVGvFvm41r08eJv7q8I1mHguOAl7RsOxUkyB+5ShNmiPN8pnCjpPpp3iP8A4Km0Lr8U+oU2ip09CNfzqHmQVK2gCCerGFbFZSfiQdKC4JGByHiyLGJzEwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737558462; c=relaxed/simple;
-	bh=jC8nq1oJyXLYvRbWcdpjD2AHEBNNEvwkIoubAmNG58Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CjcCYl4GxpH7CVAp4HuMbyyMW2S2ZUSjVvfFv2yvRfSsd5yA2qiQhVxN7PsMC4q86UbBiYwATTRuUllv74kHG6QRtHnYg4jga72qLCHA1yQqt8h0W/qJAv+M6YtG94fh4opqqYL7OM57bYXO+lmhXuD5c7FPWyJsGvztmIP+UPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kYaUUiNF; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1737561684; c=relaxed/simple;
+	bh=e8KJ7L8z+Xf7GP0K4PTyN/ifRd7iUNh70Fvo3UGOCYY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IFYhZ2E49cBw0m+yzWiDYbcNTBenz/LPrNIqRD1+bZKgklsrQSaaB2RFE00221uTsnt9w4X3SFVQ6/fWyDP45TVC33sORri+skEJagEcDr+KRqnkiOr2x/iyd/yKQhSZbxb2v3erb1nEVs3kDGMOPlr6/w5b39COu59SRVXDcs4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CAit0cn+; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kYaUUiNF"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1737558454; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=/by4m5u8o9/xj1WUzd3QP8chPkopT3L+hDR8WT1numI=;
-	b=kYaUUiNFuOoMlENAUtg82u4J8Yc0QOfN4HnliGgEApasT4k3Gv9897Gz4HpqNdPtE83vhVZ/lVta7KqSZkmp1yxnDrsIiNI+7zqJG/nINAgDmUJO95OZd/lLhJJIeaLMdbLiNYQx7LrgNU4zK+DqB2Wf/ipobGdaN9PqptkS1zI=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WO8jkJT_1737558132 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 22 Jan 2025 23:02:13 +0800
-Date: Wed, 22 Jan 2025 23:02:12 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Julian Ruess <julianr@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 4/7] net/ism: Add kernel-doc comments for ism
- functions
-Message-ID: <20250122150212.GP89233@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250115195527.2094320-5-wintera@linux.ibm.com>
- <20250120063241.GM89233@linux.alibaba.com>
- <ab6bef6ce04c9ddcbf22a2d0b42180ca343839bf.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CAit0cn+"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MCPHXU013713;
+	Wed, 22 Jan 2025 14:46:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=f+OQIE
+	QKsjPJaq/H92kYav0p4h1QhbDXTKlscMHn6AI=; b=CAit0cn+lJi3IVIKB/B0Jl
+	J7F2FpFiAovDvXrT8Of6lMmaKQb6uGAMQhgUAH+rjaPlp4rIjsa0u4cwQCE1CTZB
+	13oIN7UjQxCv/uq6xfFqREdU+OhjyfMWMptpvxHat8i0qFd7gmerciTWtjloNXqW
+	oBOAMSh6riKEvdelFyHoM2qkyKshxIZeXCRXoszUr/YNv28jgirhbZVX3qJcaaOv
+	UNo+LjKJqXbNGk2ofEf4TNJLDHykkO4JGLq1zczUw+G1MHNDJSFycawwpNYnh8+c
+	jNADNhH+tMg90Wtk0OblCQCqEsYyPgfhyWqsYxY+wRkh6UIiEUgVOJL4oKYz0f0w
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr9bbcs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 14:46:23 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50MEe8ZL003819;
+	Wed, 22 Jan 2025 14:46:22 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44apr9bbck-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 14:46:22 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MBerdH021080;
+	Wed, 22 Jan 2025 14:46:21 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 448sb1ggdh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 14:46:21 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MEkIAk32375116
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Jan 2025 14:46:18 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EEF3620040;
+	Wed, 22 Jan 2025 14:46:17 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E8A8C20043;
+	Wed, 22 Jan 2025 14:46:16 +0000 (GMT)
+Received: from [9.171.82.13] (unknown [9.171.82.13])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jan 2025 14:46:16 +0000 (GMT)
+Message-ID: <8c4ef401-9777-4a00-9b1f-0c66650a826d@linux.ibm.com>
+Date: Wed, 22 Jan 2025 15:46:16 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ab6bef6ce04c9ddcbf22a2d0b42180ca343839bf.camel@linux.ibm.com>
-
-On 2025-01-20 11:34:21, Niklas Schnelle wrote:
->On Mon, 2025-01-20 at 14:32 +0800, Dust Li wrote:
->> On 2025-01-15 20:55:24, Alexandra Winter wrote:
->> > Note that in this RFC this patch is not complete, future versions
->> > of this patch need to contain comments for all ism_ops.
->> > Especially signal_event() and handle_event() need a good generic
->> > description.
->> > 
->> > Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
->> > ---
->> > include/linux/ism.h | 115 ++++++++++++++++++++++++++++++++++++++++----
->> > 1 file changed, 105 insertions(+), 10 deletions(-)
->> > 
->> > diff --git a/include/linux/ism.h b/include/linux/ism.h
->> > index 50975847248f..bc165d077071 100644
->> > --- a/include/linux/ism.h
->> > +++ b/include/linux/ism.h
->> > @@ -13,11 +13,26 @@
->> > #include <linux/workqueue.h>
->> > #include <linux/uuid.h>
->> > 
->> > -/* The remote peer rgid can use dmb_tok to write into this buffer. */
->> > +/*
->> > + * DMB - Direct Memory Buffer
->> > + * ==========================
->> > + * An ism client provides an DMB as input buffer for a local receiving
->> > + * ism device for exactly one (remote) sending ism device. Only this
->> > + * sending device can send data into this DMB using move_data(). Sender
->> > + * and receiver can be the same device.
->> > + * TODO: Alignment and length rules (CPU and DMA). Device specific?
->> > + */
->> > struct ism_dmb {
->> > +	/* dmb_tok - Token for this dmb
->> > +	 * Used by remote sender to address this dmb.
->> > +	 * Provided by ism fabric in register_dmb().
->> > +	 * Unique per ism fabric.
->> > +	 */
->> > 	u64 dmb_tok;
->> > +	/* rgid - GID of designated remote sending device */
->> > 	u64 rgid;
->> > 	u32 dmb_len;
->> > +	/* sba_idx - Index of this DMB on this receiving device */
->> > 	u32 sba_idx;
->> > 	u32 vlan_valid;
->> > 	u32 vlan_id;
->> > @@ -25,6 +40,8 @@ struct ism_dmb {
->> > 	dma_addr_t dma_addr;
->> > };
->> > 
->> > +/* ISM event structure (currently device type specific) */
->> > +// TODO: Define and describe generic event properties
->> > struct ism_event {
->> > 	u32 type;
->> > 	u32 code;
->> > @@ -33,38 +50,89 @@ struct ism_event {
->> > 	u64 info;
->> > };
->> > 
->> > +//TODO: use enum typedef
->> > #define ISM_EVENT_DMB	0
->> > #define ISM_EVENT_GID	1
->> > #define ISM_EVENT_SWR	2
->> > 
->> > struct ism_dev;
->> > 
->> > +/*
->> > + * ISM clients
->> > + * ===========
->> > + * All ism clients have access to all ism devices
->> > + * and must provide the following functions to be called by
->> > + * ism device drivers:
->> > + */
->> > struct ism_client {
->> > +	/* client name for logging and debugging purposes */
->> > 	const char *name;
->> > +	/**
->> > +	 *  add() - add an ism device
->> > +	 *  @dev: device that was added
->> > +	 *
->> > +	 * Will be called during ism_register_client() for all existing
->> > +	 * ism devices and whenever a new ism device is registered.
->> > +	 * *dev is valid until ism_client->remove() is called.
->> > +	 */
->> > 	void (*add)(struct ism_dev *dev);
->> > +	/**
->> > +	 * remove() - remove an ism device
->> > +	 * @dev: device to be removed
->> > +	 *
->> > +	 * Will be called whenever an ism device is unregistered.
->> > +	 * Before this call the device is already inactive: It will
->> > +	 * no longer call client handlers.
->> > +	 * The client must not access *dev after this call.
->> > +	 */
->> > 	void (*remove)(struct ism_dev *dev);
->> > +	/**
->> > +	 * handle_event() - Handle control information sent by device
->> > +	 * @dev: device reporting the event
->> > +	 * @event: ism event structure
->> > +	 */
->> > 	void (*handle_event)(struct ism_dev *dev, struct ism_event *event);
->> > -	/* Parameter dmbemask contains a bit vector with updated DMBEs, if sent
->> > -	 * via ism_move_data(). Callback function must handle all active bits
->> > -	 * indicated by dmbemask.
->> > +	/**
->> > +	 * handle_irq() - Handle signalling of a DMB
->> > +	 * @dev: device owns the dmb
->> > +	 * @bit: sba_idx=idx of the ism_dmb that got signalled
->> > +	 *	TODO: Pass a priv pointer to ism_dmb instead of 'bit'(?)
->> > +	 * @dmbemask: ism signalling mask of the dmb
->> > +	 *
->> > +	 * Handle signalling of a dmb that was registered by this client
->> > +	 * for this device.
->> > +	 * The ism device can coalesce multiple signalling triggers into a
->> > +	 * single call of handle_irq(). dmbemask can be used to indicate
->> > +	 * different kinds of triggers.
->> > 	 */
->> > 	void (*handle_irq)(struct ism_dev *dev, unsigned int bit, u16 dmbemask);
->> > -	/* Private area - don't touch! */
->> > +	/* client index - provided by ism layer */
->> > 	u8 id;
->> > };
->> > 
->> > int ism_register_client(struct ism_client *client);
->> > int  ism_unregister_client(struct ism_client *client);
->> > 
->> > +//TODO: Pair descriptions with functions
->> > +/*
->> > + * ISM devices
->> > + * ===========
->> > + */
->> > /* Mandatory operations for all ism devices:
->> >  * int (*query_remote_gid)(struct ism_dev *dev, uuid_t *rgid,
->> >  *	                   u32 vid_valid, u32 vid);
->> >  *	Query whether remote GID rgid is reachable via this device and this
->> >  *	vlan id. Vlan id is only checked if vid_valid != 0.
->> > + *	Returns 0 if remote gid is reachable.
->> >  *
->> >  * int (*register_dmb)(struct ism_dev *dev, struct ism_dmb *dmb,
->> >  *			    void *client);
->> > - *	Register an ism_dmb buffer for this device and this client.
->> > + *	Allocate and register an ism_dmb buffer for this device and this client.
->> > + *	The following fields of ism_dmb must be valid:
->> > + *	rgid, dmb_len, vlan_*; Optionally:requested sba_idx (non-zero)
->> > + *	Upon return the following fields will be valid: dmb_tok, sba_idx
->> > + *		cpu_addr, dma_addr (if applicable)
->> > + *	Returns zero on success
->> >  *
->> >  * int (*unregister_dmb)(struct ism_dev *dev, struct ism_dmb *dmb);
->> >  *	Unregister an ism_dmb buffer
->> > @@ -81,10 +149,15 @@ int  ism_unregister_client(struct ism_client *client);
->> >  * u16 (*get_chid)(struct ism_dev *dev);
->> >  *	Returns ism fabric identifier (channel id) of this device.
->> >  *	Only devices on the same ism fabric can communicate.
->> > - *	chid is unique per HW system, except for 0xFFFF, which denotes
->> > - *	an ism_loopback device that can only communicate with itself.
->> > - *	Use chid for fast negative checks, but only query_remote_gid()
->> > - *	can give a reliable positive answer.
->> > + *	chid is unique per HW system. Use chid for fast negative checks,
->> > + *	but only query_remote_gid() can give a reliable positive answer:
->> > + *	Different chid: ism is not possible
->> > + *	Same chid: ism traffic may be possible or not
->> > + *		   (e.g. different HW systems)
->> > + *	EXCEPTION: A value of 0xFFFF denotes an ism_loopback device
->> > + *		that can only communicate with itself. Use GID or
->> > + *		query_remote_gid()to determine whether sender and
->> > + *		receiver use the same ism_loopback device.
->> >  *
->> >  * struct device* (*get_dev)(struct ism_dev *dev);
->> >  *
->> > @@ -109,6 +182,28 @@ struct ism_ops {
->> > 	int (*register_dmb)(struct ism_dev *dev, struct ism_dmb *dmb,
->> > 			    struct ism_client *client);
->> > 	int (*unregister_dmb)(struct ism_dev *dev, struct ism_dmb *dmb);
->> > +	/**
->> > +	 * move_data() - write into a remote dmb
->> > +	 * @dev: Local sending ism device
->> > +	 * @dmb_tok: Token of the remote dmb
->> > +	 * @idx: signalling index
->> > +	 * @sf: signalling flag;
->> > +	 *      if true, idx will be turned on at target ism interrupt mask
->> > +	 *      and target device will be signalled, if required.
->> > +	 * @offset: offset within target dmb
->> > +	 * @data: pointer to data to be sent
->> > +	 * @size: length of data to be sent
->> > +	 *
->> > +	 * Use dev to write data of size at offset into a remote dmb
->> > +	 * identified by dmb_tok. Data is moved synchronously, *data can
->> > +	 * be freed when this function returns.
->> 
->> When considering the API, I found this comment may be incorrect.
->> 
->> IIUC, in copy mode for PCI ISM devices, the CPU only tells the
->> device to perform a DMA copy. As a result, when this function returns,
->> the device may not have completed the DMA copy.
->
->For the s390 ISM device the statement is true. The move_data() function
->does a PCI Store Block instruction which is both the write on the
->sender side but also synchronously acts as the devices DMA write on the
->receiver side. So when the PCI Store Block instruction completes the
->data has been cache coherently written to the receiver DMB. And yes
->full synchronicity would be impossible with the posted writes of real
->PCIe.
-
-Thank you guys for the detail explaination on s390! I throught it was
-like normal PCI device. @Niklas, @Alexandra, @Julian
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC net-next 3/7] net/ism: Use uuid_t for ISM GID
+To: Simon Horman <horms@kernel.org>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        Peter Oberparleiter
+ <oberpar@linux.ibm.com>,
+        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+References: <20250115195527.2094320-1-wintera@linux.ibm.com>
+ <20250115195527.2094320-4-wintera@linux.ibm.com>
+ <20250120171820.GC6206@kernel.org>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20250120171820.GC6206@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9iHLN6_9EVQNvi39JaMn8IUOy96Ozs9n
+X-Proofpoint-ORIG-GUID: JlVzvFPDl7QM20ixpCvq5t5ta9abVVYe
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-22_06,2025-01-22_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ priorityscore=1501 lowpriorityscore=0 suspectscore=0 mlxscore=0
+ spamscore=0 clxscore=1015 bulkscore=0 phishscore=0 malwarescore=0
+ mlxlogscore=926 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2501220107
 
 
->
->That said when it comes to API design I think you have a great point
->here in that we need to decide if this synchronicity should be baked
->into the move_data() API. I think we instead want to only guarantee a
->weaker rule. That is the source buffer can be re-used after the move.
->This to me is also aligned with the word "move" here in that the data
->has been moved after the call not registered to be moved or such. This
->could be achieved with a real PCIe device by copying the data or by
->waiting on completion. If we ever get devices which need to wait on
->completion it may indeed be better to have a separate completion step
->in the API too. Then again I think the concept of having a single "move
->data" step is somewhat central to ISM and I'd hate to lose that
->simplicity.
 
-Agree.
-
-For SMC, it already handles zero-copy and copy modes differently. In
-copy mode, the current API seems appropriate, but for zero-copy mode, we
-may need to extend it.
-
-Taking the loopback device as an example, SMC requires the move_data()
-function to copy the CDC into the DMB. However, copying the data from
-the source to the destination DMB is not necessary. Instead, it needs to
-signal the peer that the data transfer is complete, so an API for
-notification is required.
-
-One solution might be to retain the move_data() function and introduce
-something like a notify() API. Alternatively, if we don't want to extend
-the API, we could use something like move_data(ismdev, data=NULL,
-length=0, ..., signal=1).
+On 20.01.25 18:18, Simon Horman wrote:
+>> +static inline void copy_to_smcdgid(struct smcd_gid *sgid, uuid_t *igid)
+>> +{
+>> +	__be64 temp;
+>> +
+>> +	memcpy(&temp, igid, sizeof(sgid->gid));
+>> +	sgid->gid = ntohll(temp);
+>> +	memcpy(&temp, igid + sizeof(sgid->gid), sizeof(sgid->gid_ext));
+> Hi Alexandra,
+> 
+> The stride of the pointer arithmetic is the width of igid
+> so this write will be at an offset of:
+> 
+>    sizeof(igid) + sizeof(sgid->gid) = 128 bytes
+> 
+> Which is beyond the end of *igid.
 
 
->
->I've been thinking also about a possible copy mode in a virtio-ism.
->That could be useful if we wanted to use virtio-ism between memory
->partitioned guests, or if one wanted to transparently proxy virtio-ism
->over s390 ISM to span multiple KVM hosts. And I think such a mode could
->still work with a single "move data" step and I'd love to have that in
->any future virtio-ism spec.
+Duh, what a stupid mistake. Thank you.
 
-I'm not opposed to that.
 
->
->> 
->> In zero-copy mode for loopback, the source and destination share the
->> same buffer. If the source rewrites the buffer, the destination may
->> encounter corrupted data. The source should only reuse the data after
->> the destination has finished reading it.
->
->I think there are two potential overwrite scenarios here.
->
->1. The sender re-uses the source data buffer i.e. the @data buffer of
->the move_data() call. On s390 ISM this is fine because the data was
->copied out and into the destination DMB during the call. This could
->typically become an issue if the device DMA reads directly from @data
->after the move_data() call completed.
->
->2. The sender does subsequent move_data() overwriting data in the
->destination DMB before the receiver has read the data. This can happen
->on s390 ISM too and needs to be prevented by DMB access rules.
->
->For the move_data() call I think that even in a "shared i.e. same page
->DMB" scenario move_data() must still do a copy out of the @data buffer
->into the shared DMB. Otherwise it really wouldn't "move" data and it
->would be a very weird API since @data is just a buffer not some kind of
->descriptor. In other words I think scenario 1 shouldn't be possible in
->either copy or shared DMB mode by the semantics of move_data().
+> I think the desired operation is to write at an offset of 8 bytes, so
+> perhaps this is a way to achieve that, as the bi field is a
+> 16 byte array of u8:
+> 
+> 	memcpy(&temp, igid->b + sizeof(sgid->gid), sizeof(sgid->gid_ext));
 
-For the shared DMB, I now agree with you. Perhaps we can keep the
-move_data() behavior consistent with memcpy(3) or memmove(3) and leave
-the usage to the upper layer.
+I propose to keep the
+memcpy(&temp, (u8 *)igid + sizeof(sgid->gid), sizeof(sgid->gid_ext));
+like in the orginal net/smc/smc_loopback.c
 
-Best regards,
-Dust
+
+> Flagged by W=1 builds with gcc-14 and clang-19, and by Smatch.
+> 
+>> +	sgid->gid_ext = ntohll(temp);
+>> +}
+
+I actually overlooked it in my smatch run (too many old warnings), but I
+cannot get W=1 to flag it. I'll try to improve my setup.
+
 
