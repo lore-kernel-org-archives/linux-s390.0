@@ -1,178 +1,190 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B5D6211A3D;
-	Wed, 22 Jan 2025 14:06:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ABE2322E;
+	Wed, 22 Jan 2025 14:10:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737554820; cv=none; b=seCySzv87k+RAYW8nWZ3JzC7QsVSv3HgFj1kHTWk+X1ff60imHSiOGHtYCYyhxHR4E6B1Q+H09UWCh3A3VpbHb77qRHa4jLt8D2LPDT9XOOHWq8PbMQzlpSmkbIeydP9ItKDurJE2wagm8DKucGWSbH/QToJ7Eicnu0jDaaCxgY=
+	t=1737555035; cv=none; b=jTbu7rv9wAyUB/mIIgM1tkpEz4CTDdrUM5/BRacACIXEuEdeFfhT7sN2RbpNfpSm6Q5Iw3KI8HTXKXa+m9XTsaf6ywNuyu9hMJi3k1lPBVBKLvsULTjwIejuOX0AIRlTb/PgkjethJzQsUewtMG1mo5LKvnbSs7LXirD2D/5mTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737554820; c=relaxed/simple;
-	bh=1WamsuRxwGWoQ7TQechsFHDD/WSmfFDwsjjjDq+R01c=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=aUquXnDHiNVD/GLfHoB96HXgpxVG4ue3vqCJ7eYZr//rVipXJBdtLGtpau31d5BylGLDliSMoLXzxl/DgMMxUEaDAiUsuP+uGSXbFXLU2xGj7XCKU7uQ7Bu6kxVFImrn9gf820+/fNyqO7XoYiVGQTidh/EZN9QLxDvbGba0uAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hWLXfoPv; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737555035; c=relaxed/simple;
+	bh=TZ3kKxaEch8onJrqPARpr5VxlT8632AGA/VmJffmhYo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=r+xMBGfZce86d3TkN8KpOeLX0ew4o4xGrnoR9DFd6CdeD47T35Lr6AKKzNv4V1uI18cH4VvL05E7LxDCwao3DOCDMvIwFM8yWDurAcR+H8hZi96dLGTRQpqcUIZoo44Cmrt9fyUKI5YdTHnMVLUlQIRqCclYDbp/8G6Nhyo5row=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Q6LH+uwb; arc=none smtp.client-ip=115.124.30.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hWLXfoPv"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MCcQWf001307;
-	Wed, 22 Jan 2025 14:06:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=HrfDPt
-	B6F0Jqb/yBIH4KRGfTfXLb38iUnuUeeWv2zUU=; b=hWLXfoPv8WYbZlM8YspVCn
-	EIJtBkrMAEkrJE81zLuIm+PhzCovjpv7ZYI3vKq9Uvf3FyhJEcrpb0g0CbSIUM00
-	3fl4658vK2JxkKVBOaUYDJBaf4gsTIuhBXlljyN/f7kTQDaLh/DuZdoFaxts9Fok
-	Pn7xYlKMf0YIQInVGLx9RxLGsHjOxycv8Ry6OBz6uM2dU3m0DOcOAClBwrGyYui/
-	k0VuqHQWnOvbe7EWdIp9GY2e/Wvr1pH6CPhv0Hh3VMj+hwbLmlzmUGl5PsmNn3Xt
-	yRie0eaSka5BZjVT92HbwXalHc+DjjGXwAe5mv/STFBJmEG4taJJi1k/HWaWF+ow
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44aduywvfu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 14:06:21 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MDcqGi024225;
-	Wed, 22 Jan 2025 14:06:20 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448q0y8uwv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 14:06:20 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50ME6GQ518481604
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jan 2025 14:06:16 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 995582004B;
-	Wed, 22 Jan 2025 14:06:16 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A26FD20040;
-	Wed, 22 Jan 2025 14:06:15 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.171.43.183])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 22 Jan 2025 14:06:15 +0000 (GMT)
-Date: Wed, 22 Jan 2025 15:06:13 +0100
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To: Sourabh Jain <sourabhjain@linux.ibm.com>
-Cc: akpm@linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo
- Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Muchun Song
- <muchun.song@linux.dev>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael
- Ellerman <mpe@ellerman.id.au>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH] mm/hugetlb: bring gigantic page allocation under
- hugepages_supported()
-Message-ID: <20250122150613.28a92438@thinkpad-T15>
-In-Reply-To: <20250121150419.1342794-1-sourabhjain@linux.ibm.com>
-References: <20250121150419.1342794-1-sourabhjain@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Q6LH+uwb"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737555028; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=WgPyzLRGnWS0Yuqpsn6bAJScp75GHEMQMQQDX10XN5k=;
+	b=Q6LH+uwbVSylc+WB7aVyoowmcoSdgKdvobnKPGSmVy63gOzU52MhaPl0hSSQ9Q+EQmyNVAq5cPXudbb2gtO7rhrVEm7369NVun/hllL/q4hK9I46x5eAIEtEfQZNKdtlFV70AXQwvYshV1C6vD19dC3C7wwmT+EKqNHnkJtBx1k=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WO8kY.F_1737555027 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 22 Jan 2025 22:10:27 +0800
+Date: Wed, 22 Jan 2025 22:10:26 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Alexandra Winter <wintera@linux.ibm.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>
+Subject: Re: [RFC net-next 0/7] Provide an ism layer
+Message-ID: <20250122141026.GO89233@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250115195527.2094320-1-wintera@linux.ibm.com>
+ <20250116093231.GD89233@linux.alibaba.com>
+ <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
+ <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
+ <20250117021353.GF89233@linux.alibaba.com>
+ <80330f0e-d769-4251-be2f-a2b5adb12ef2@linux.ibm.com>
+ <17f0cbf9-71f7-4cce-93d2-522943d9d83b@linux.ibm.com>
+ <20250122030459.GN89233@linux.alibaba.com>
+ <3866f996-6a1f-4f5a-9f92-01268a98baaf@linux.ibm.com>
+ <029fbf44-0627-4b1b-a884-59219897f844@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: XoHM5-spcLtVUau8AXWVPbF0ovvPSGWu
-X-Proofpoint-GUID: XoHM5-spcLtVUau8AXWVPbF0ovvPSGWu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-22_06,2025-01-22_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- adultscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
- suspectscore=0 clxscore=1011 bulkscore=0 malwarescore=0 mlxlogscore=975
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501220104
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <029fbf44-0627-4b1b-a884-59219897f844@linux.ibm.com>
 
-On Tue, 21 Jan 2025 20:34:19 +0530
-Sourabh Jain <sourabhjain@linux.ibm.com> wrote:
+On 2025-01-22 13:05:57, Alexandra Winter wrote:
+>
+>
+>On 22.01.25 13:02, Alexandra Winter wrote:
+>> 
+>> 
+>> On 22.01.25 04:04, Dust Li wrote:
+>>> On 2025-01-20 11:28:41, Alexandra Winter wrote:
+>>>>
+>>>>
+>>>> On 17.01.25 14:00, Alexandra Winter wrote:
+>>>>>
+>>>>>
+>>>>> On 17.01.25 03:13, Dust Li wrote:
+>>>>>>>>> Modular Approach: I've made the ism_loopback an independent kernel
+>>>>>>>>> module since dynamic enable/disable functionality is not yet supported
+>>>>>>>>> in SMC. Using insmod and rmmod for module management could provide the
+>>>>>>>>> flexibility needed in practical scenarios.
+>>>>>>>
+>>>>>>> With this proposal ism_loopback is just another ism device and SMC-D will
+>>>>>>> handle removal just like ism_client.remove(ism_dev) of other ism devices.
+>>>>>>>
+>>>>>>> But I understand that net/smc/ism_loopback.c today does not provide enable/disable,
+>>>>>>> which is a big disadvantage, I agree. The ism layer is prepared for dynamic
+>>>>>>> removal by ism_dev_unregister(). In case of this RFC that would only happen
+>>>>>>> in case of rmmod ism. Which should be improved.
+>>>>>>> One way to do that would be a separate ism_loopback kernel module, like you say.
+>>>>>>> Today ism_loopback is only 10k LOC, so I'd be fine with leaving it in the ism module.
+>>>>>>> I also think it is a great way for testing any ISM client, so it has benefit for
+>>>>>>> anybody using the ism module.
+>>>>>>> Another way would be e.g. an 'enable' entry in the sysfs of the loopback device.
+>>>>>>> (Once we agree if and how to represent ism devices in genera in sysfs).
+>>>>>> This works for me as well. I think it would be better to implement this
+>>>>>> within the common ISM layer, rather than duplicating the code in each
+>>>>>> device. Similar to how it's done in netdevice.
+>>>>>>
+>>>>>> Best regards,
+>>>>>> Dust
+>>>>>
+>>>>>
+>>>>> Is there a specific example for enable/disable in the netdevice code, you have in mind?
+>>>>> Or do you mean in general how netdevice provides a common layer?
+>>>>> Yes, everything that is common for all devices should be provided by the network layer.
+>>>>
+>>>>
+>>>> Dust for some reason, you did not 'Reply-all':
+>>>
+>>> Oh, sorry I didn't notice that
+>>>
+>>>> Dust Li wrote:
+>>>>> I think dev_close()/dev_open() are the high-level APIs, while
+>>>>> ndo_stop()/ndo_open() are the underlying device operations that we
+>>>>> can reference.
+>>>>
+>>>>
+>>>> I hear you, it can be beneficial to have a way for upper layers to
+>>>> enable/disable an ism device.
+>>>> But all this is typically a tricky area. The device driver can also have
+>>>> reasons to enable/disable a device, then hardware could do that or even
+>>>> hotplug a device. Error recovery on different levels may want to run a
+>>>> disable/enable sequence as a reset, etc. And all this has potential for
+>>>> deadlocks.
+>>>> All this is rather trivial for ism-loopback, as there is not much of a
+>>>> lower layer.
+>>>> ism-vpci already has 'HW' / device driver configure on/off and device
+>>>> add/remove.
+>>>> For a future ism-virtio, the Hipervisor may want to add/remove devices.
+>>>>
+>>>> I wonder what could be the simplest definition of an enable/disable for
+>>>> the ism layer, that we can start with? More sophisticated functionality
+>>>> can always be added later.
+>>>> Maybe support for add/remove ism-device by the device driver is
+>>>> sufficient as  starting point?
+>>>
+>>> I agree; this can be added later. For now, we can simply support
+>>> unregistering a device from the device driver. Which is already handled
+>>> by ism_dev_unregister() IIUC.
+>>>
+>>> However, I believe we still need an API and the ability to enable or
+>>> disable ISM devices from the upper layer. For example, if we want to
+>>> disable a specific ISM device (such as the loopback device) in SMC, we
+>>> should not do so by disabling the loopback device at the device layer,
+>>> as it may also serve other clients beyond SMC.
+>> 
+>> 
+>> Just a thought: not all clients have to use all available ism devices.
+>> The client could opt out without removing the device.
+>> 
+>>>
+>>> Further more, I think removing the loopback from the loopback device
+>>> driver seems unnecessory ? Since we should support that from the upper
+>>> layer in the future.
+>
+>
+>If it is not too much effort, I would like to have a simple remove for
+>ism_loopback soon, as it would allow for simple variations of testcases.
 
-> Despite having kernel arguments to enable gigantic hugepages, this
-> provides a way for the architecture to disable gigantic hugepages on the
-> fly, similar to what we do for hugepages.
-> 
-> Components like fadump (PowerPC-specific) need this functionality to
-> disable gigantic hugepages when the kernel is booted solely to collect
-> the kernel core dump.
-> 
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Muchun Song <muchun.song@linux.dev>
-> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
-> ---
-> 
-> To evaluate the impact of this change on architectures other than
-> PowerPC, I did the following analysis:
-> 
-> For architectures where hugepages_supported() is not redefined, it
-> depends on HPAGE_SHIFT, which is found to be a constant. It is mostly
-> initialized to PMD_SHIFT.
-> 
-> Architecture : HPAGE_SHIFT initialized with
-> 
-> ARC: PMD_SHIFT (constant)
-> ARM: PMD_SHIFT (constant)
-> ARM64: PMD_SHIFT (constant)
-> Hexagon: 22 (constant)
-> LoongArch: (PAGE_SHIFT + PAGE_SHIFT - 3) (appears to be constant)
-> MIPS: (PAGE_SHIFT + PAGE_SHIFT - 3) (appears to be constant)
-> PARISC: PMD_SHIFT (appears to be constant)
-> RISC-V: PMD_SHIFT (constant)
-> SH: 16 | 18 | 20 | 22 | 26 (constant)
-> SPARC: 23 (constant)
-> 
-> So seems like this change shouldn't have any impact on above
-> architectures.
-> 
-> On the S390 and X86 architectures, hugepages_supported() is redefined,
-> and I am uncertain at what point it is safe to call
-> hugepages_supported().
+Yes, this is very useful for testing before we can do that from the
+upper layer.
 
-For s390, hugepages_supported() checks EDAT1 machine flag, which is
-initialized long before any initcalls. So it is safe to be called
-here.
+>
+>
+>>>
+>>> Best regards,
+>>> Dust
+>> 
+>> 
+>> All good points. But it also shows that there are many options how to
+>> extend ism device handling of the upper layers / clients.
+>> e.g. I can image a loop macro ism_for_each_dev() might be nice...
+>> I'd prefer to take one step at a time. Start with a minimal useful ism
+>> layer and extend by usecase.
 
-My common code hugetlb skills got a little rusty, but shouldn't
-arch_hugetlb_valid_size() already prevent getting here for gigantic
-hugepages, in case they are not supported? And could you not use
-that for your purpose?
+That works for me.
 
-BTW, please also add arch mailing list for such questions.
-
-> 
-> ---
->  mm/hugetlb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index cec4b121193f..48b42b8d26b4 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -4629,7 +4629,7 @@ static int __init hugepages_setup(char *s)
->  	 * But we need to allocate gigantic hstates here early to still
->  	 * use the bootmem allocator.
->  	 */
-> -	if (hugetlb_max_hstate && hstate_is_gigantic(parsed_hstate))
-> +	if (hugetlb_max_hstate && hstate_is_gigantic(parsed_hstate) && hugepages_supported())
->  		hugetlb_hstate_alloc_pages(parsed_hstate);
->  
->  	last_mhp = mhp;
+Best regards,
+Dust
 
