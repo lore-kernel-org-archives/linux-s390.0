@@ -1,194 +1,225 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4AEB1369B4
-	for <linux-s390@vger.kernel.org>; Wed, 22 Jan 2025 17:00:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CA421369B4;
+	Wed, 22 Jan 2025 17:17:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737565242; cv=none; b=uoUWZazutwgB/mo+6ViG5rFRe2lPPfGL0uMDyaCJFuT9IzMPrgMQM1CnRLRW3KmTLq2XfAnMMHFpjJ6SWLxZm0ZbgZyLj/bXFRWCXB7wrjbfx6MLoR0XQI9LCfCI+UJloZe7DTzNbozlfNeKrQAPetnb0I0NvHdSvQ+fFJRcjZE=
+	t=1737566233; cv=none; b=HN5qX9PQHrpnto5/hjSgaSLa8eQlBPKT5G961pAkPlHXtyk1FGHit/DAshxtUri2L0Fx5bvTM4/ELYgwE9OSjZjHFwFwpFfwem0zgcAulppXZS52NfV19uKt0QSNzKnWrmJ9fYQA9LcyukOxeprfR1pVocEI5zCIA5uiW1rQLcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737565242; c=relaxed/simple;
-	bh=h67XZZ5BeVjdu7Js8a+o4Yi06Tufx+fnexA9XMWw2A8=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Q4WSsSsX6azV8FgBFKhCJHThA4bmsp2mMRWwVJrJIKNtviW8W51MrFSUdH5oVH7eiG5M2ah7sGEHDFKxC0Jrxq1FYiPUmmaVJK+RMGIJbgt8+1YX7kOf90ftvhFT1TxbeSyGzSowzXwyMluMCGv6HBFoUgXsM5DKHUfE2TCyyIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PFpgrJwv; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737566233; c=relaxed/simple;
+	bh=o1SE3o3NcZUVY/hmBRha3xtrviGaumM9KPn/dAGuTFk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QPALcrurHa+hSdXZBvfFMCXO5VwzZAi6mJapAvxu2LhGlKau7NEESWeD6OYsEu9KyvOMEkSeewRI6M5BqSFaDpeAGB2CtoJv6MDjEUBwilBtcgucmsf7x1G9B9eF6g2Rpsr/3kLwDjPt4/440jX7zlHqb+Wb4DNel/7JwwhhFxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F+oEs/Py; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PFpgrJwv"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MFdXR7016933;
-	Wed, 22 Jan 2025 17:00:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=W4gP+K9F4UCt2y9K/DfO4yUbHfb1rdpjakUW3NTjSAk=; b=PFpgrJwv8Ty+
-	YaQvlhZ5eQequO9wqNl3R77FY+Me1bvW/5ygIG+G9sqGSSSWRZ1HpE2xVahwt7ZS
-	04FUvD9ud2ZYhMmQXZ1wMrK0aP93Pt44acE8VDDRCEMuxaXDbF4Knu94JXQr6oma
-	oOL0qlWeva05+9nXtZQwYrZt6wmvaG5u7s8jRkrgfdI8A3L2s0wFrG2I8I8iiUjM
-	XV0ASBvai2uVe0S/ZYfbXZ/Z7VmaPxvD3St1CtgeAG4n5Bt+/Yn7oF/bfKdjvKCa
-	A0id8zqlgQm4ssP5idggA+z8D0o4VFRapJOo0IjmPre51ROK/qi/cgktJN4egKLe
-	Q63MaAjb/A==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44b3gtrdj4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 17:00:29 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MFfvjK021063;
-	Wed, 22 Jan 2025 17:00:28 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 448sb1h0um-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 17:00:28 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MH0RnS30015892
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jan 2025 17:00:27 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0BE6758055;
-	Wed, 22 Jan 2025 17:00:27 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A2CDB58043;
-	Wed, 22 Jan 2025 17:00:26 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Jan 2025 17:00:26 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F+oEs/Py"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2ef760a1001so99537a91.0;
+        Wed, 22 Jan 2025 09:17:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1737566231; x=1738171031; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gFCVPvzzCocOSj8lSB1mfBdT82DT1p+MPx9OjvYvaR0=;
+        b=F+oEs/Pyob0UjEyYbUJ7b0LWFxqk0BsDzJMcmqoEvmieb+0AUBSatVQVh6GQHDzDB4
+         O1e9c+9bqlyy3wgtgvwIGGfdZ900KN7D1U6KnqUiu1dc1kopCO4eoxtTdyrMYgtWo9nl
+         NkYVinvhuggjBYoqHGMC1JVxfE9zxlh5mHx2fxdLH8m0G1pa2gbBiYBefP+1FYeeiHM1
+         U31OVehyRDCySW7yahEFHa14Zsd/rWHZF2p6hNk2q8nlsQ3lBncF+2/YE3J6fXMja5r8
+         byImxHe5tuEoWtO+ODy5VVp9KXMOw/AA84KHZkpAP9fD3ycVPv1R3fyvbVs7ewiCWSDb
+         5xhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737566231; x=1738171031;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gFCVPvzzCocOSj8lSB1mfBdT82DT1p+MPx9OjvYvaR0=;
+        b=WWbeUQpwAebWFAUH5ecySh9ANcKqrVa0jI407PAJXruUgdZRPWRNxu0PlgchR4gaOB
+         ykNXkaf3LJIjDHeuJDCJy4PHNT71kFIKDbHqI1w9if4QAhfgIHRVphKMAWeMlZJbrYPy
+         zetKRAtXY/fs2L4+DPEVwBA3I+53q1GR0zpvcWCvklEic+n3A7VmSIQzvZ+Hvs78PQrk
+         lKk1DZfMYnM6p1p2JfJmc59qOxc89pG3xNwmu8uYuJfZ7uV5pJewT8K/xtqdztDjS4CJ
+         D5s06k4qe1UVxbN5BpOnYcsSvJJbqfolXOjryCziJoyVkrNEi42AxzUglClucWfFGAdy
+         ATkA==
+X-Forwarded-Encrypted: i=1; AJvYcCUx/rankgafe8k97rzEUzy70NfVq8tio0S6kYkwkvWUzN+9nUukq7fX+RurkAXdy98PAfs=@vger.kernel.org, AJvYcCVKCN8zfFOOhjOBqyVavqpESeO87ivID2h3q4rpYBIfdvs04g2qCykzeWYS/nzcH4YbhXIJd9TzoJafmg==@vger.kernel.org, AJvYcCVKwfF6bG9kgmQWMdhl3YE6YRaLq9QLEq1PLkJLvvvJqcl3hJ9+NJO5h3cHTiw/4DvpVd7zp3TV@vger.kernel.org, AJvYcCXW4dveTUXyhF3G3PYBETze2Ch9HzEWgjuiOu8ZOB5j00p39D6o4r9tST0XeqCC5pWKr6UD/GzAHzBnow==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwK98E6JI84Op7m3lc6IXSYTOz9Ah8L4ERf46b6lvxeh/0OxikM
+	z3m4U65bhX5ZO/fVIBPmmogkaiQFOe9xvL7hZ4IVff65Jt6+jO/jchyM2ECjEUkMi23B46tAkkR
+	xKv2ikDWLA0cFZlUXXerVfm2gXfU=
+X-Gm-Gg: ASbGncu2KqbgZWpWTAPRoFyyOpHc5N8AQJg3W/tidYBeAtHNWZ7e2VQ1q65U709SI3o
+	h6aSKBiLZv2Va9mDtLMZldDzv2zEXBVP/I292rO9QKX6KejewKEzCVOz7AfvRELygKJQ=
+X-Google-Smtp-Source: AGHT+IHTvHTC++TojYxC/UgWgVuinh02AQWbyRQC6b5Z9w3BtCafMdo3/RyX2E4nRXqJ2H6wOGvd5dmMFKUFBshJkuA=
+X-Received: by 2002:a05:6a00:2184:b0:72a:8cc8:34aa with SMTP id
+ d2e1a72fcca58-72daf88b65dmr33962621b3a.0.1737566230650; Wed, 22 Jan 2025
+ 09:17:10 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Wed, 22 Jan 2025 18:00:26 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: agk@redhat.com, snitzer@kernel.org, ifranzki@linux.ibm.com,
-        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-        herbert@gondor.apana.org.au, dengler@linux.ibm.com
-Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com>
-References: <20250115164657.84650-1-freude@linux.ibm.com>
- <20250115164657.84650-2-freude@linux.ibm.com>
- <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com>
-Message-ID: <5a8a09387c0fef59629707937297a0a4@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 6pT4E4ijpoetzdmAQo9Ih1EsjWTK3p-b
-X-Proofpoint-GUID: 6pT4E4ijpoetzdmAQo9Ih1EsjWTK3p-b
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-22_07,2025-01-22_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- bulkscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 impostorscore=0 mlxlogscore=720 phishscore=0
- spamscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501220125
+References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
+ <20250116074442.79304-5-alibuda@linux.alibaba.com> <CAEf4BzZvxqiQ2J1XQMm-ZDBjSsmtJJk6-_RbexPk9vWxAO=ksw@mail.gmail.com>
+ <20250122024327.GA81479@j66a10360.sqa.eu95>
+In-Reply-To: <20250122024327.GA81479@j66a10360.sqa.eu95>
+From: Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Date: Wed, 22 Jan 2025 09:16:58 -0800
+X-Gm-Features: AbW1kvZiku1BiieaalyxZJhB_Vt4Hw2HwinTvpys0Vs7Ip41IhYFnB8AF6RUhzc
+Message-ID: <CAEf4Bzabc+83abj7gP0h0sCxp-Bajqhm0bdAyn1Gn5bNi5nNXg@mail.gmail.com>
+Subject: Re: [PATCH bpf-next v6 4/5] libbpf: fix error when st-prefix_ops and
+ ops from differ btf
+To: "D. Wythe" <alibuda@linux.alibaba.com>
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com, 
+	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev, 
+	pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com, 
+	yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org, 
+	jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org, 
+	davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2025-01-15 18:29, Mikulas Patocka wrote:
-> Hi
-> 
-> The ahash interface is slower than the shash interface for synchronous
-> implementations, so the patch is basically slowing down the common 
-> case.
-> See the upstream commit b76ad8844234bd0d394105d7d784cd05f1bf269a for an
-> explanation in dm-verity.
-> 
-> Do you have some benchmark that shows how much does it help on s390x? 
-> So,
-> that we can evaluate whether the added complexity is worth the 
-> performance
-> improvement or not.
-> 
-> Mikulas
-> 
-> ...
+On Tue, Jan 21, 2025 at 6:43=E2=80=AFPM D. Wythe <alibuda@linux.alibaba.com=
+> wrote:
+>
+> On Fri, Jan 17, 2025 at 10:36:50AM -0800, Andrii Nakryiko wrote:
+> > On Wed, Jan 15, 2025 at 11:45=E2=80=AFPM D. Wythe <alibuda@linux.alibab=
+a.com> wrote:
+> > >
+> > > When a struct_ops named xxx_ops was registered by a module, and
+> > > it will be used in both built-in modules and the module itself,
+> > > so that the btf_type of xxx_ops will be present in btf_vmlinux
+> > > instead of in btf_mod, which means that the btf_type of
+> > > bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
+> > >
+> > > Here are four possible case:
+> > >
+> > > +--------+---------------+-------------+-----------------------------=
+----+
+> > > |        | st_ops_xxx_ops| xxx_ops     |                             =
+    |
+> > > +--------+---------------+-------------+-----------------------------=
+----+
+> > > | case 0 | btf_vmlinux   | bft_vmlinux | be used and reg only in vmli=
+nux |
+> > > +--------+---------------+-------------+-----------------------------=
+----+
+> > > | case 1 | btf_vmlinux   | bpf_mod     | INVALID                     =
+    |
+> > > +--------+---------------+-------------+-----------------------------=
+----+
+> > > | case 2 | btf_mod       | btf_vmlinux | reg in mod but be used both =
+in  |
+> > > |        |               |             | vmlinux and mod.            =
+    |
+> > > +--------+---------------+-------------+-----------------------------=
+----+
+> > > | case 3 | btf_mod       | btf_mod     | be used and reg only in mod =
+    |
+> > > +--------+---------------+-------------+-----------------------------=
+----+
+> > >
+> > > At present, cases 0, 1, and 3 can be correctly identified, because
+> > > +       if (ret < 0 || ret >=3D sizeof(stname))
+> > > +               return -ENAMETOOLONG;
+> >
+> > see preexisting snprintf() above, we don't really handle truncation
+> > errors explicitly, they are extremely unlikely and not expected at
+> > all, and worst case nothing will be found and user will get some
+> > -ENOENT or something like that eventually. I'd drop this extra error
+> > checking and keep it streamlines, similar to tname
+> >
+>
+> Sounds reasonable to me. I will remove the explicit error checks in the
+> next version.
+>
+> > > +
+> > > +       /* Look for the corresponding "map_value" type that will be u=
+sed
+> > > +        * in map_update(BPF_MAP_TYPE_STRUCT_OPS) first, figure out t=
+he btf
+> > > +        * and the mod_btf.
+> > > +        * For example, find "struct bpf_struct_ops_tcp_congestion_op=
+s".
+> > > +        */
+> > > +       kern_vtype_id =3D find_ksym_btf_id(obj, stname, BTF_KIND_STRU=
+CT,
+> > >                                         &btf, mod_btf);
+> >
+> > nit: if this fits under 100 characters, keep it single line
+> >
+> > > +       if (kern_vtype_id < 0) {
+> > > +               pr_warn("struct_ops init_kern: struct %s is not found=
+ in kernel BTF\n",
+> > > +                               stname);
+> >
+> > same nit about preserving single-line statements as much as possible,
+> > they are much easier to read
+>
+> None of them exceed 100 lines. Usually, I would check patches with 85 lin=
+es limitations,
+> but since 100 lines is acceptable, we can modify it to a single line here=
+ for
+> better readability.
+>
+> And thanks very much for your suggestion, I plan to fix these style
+> issues in next versions with you ack, is this okay for you?
 
-Hi Mikulas,
+yep, sgtm
 
-So finally some benchmarks measured on my development system:
-A LPAR on a z16 with 16 CPUs, 32G memory, with a fresh build linux 
-6.13.0-rc7
-kernel with and without just my dm-integrity ahash patch.
-
-For the dm-integrity format measurements I used a 16G file located in 
-tempfs
-as the backing file for a loopback device. The backing file totally 
-written
-with random data from /dev/urandom. The dm-integrity format command was
-
-   integritysetup format /dev/loop0 --integrity <alg> --sector-size 4096
-
-6.13.0-rc7 with dm-integrity using shash:
-
-sha256		Finished, time 00m09s,   15 GiB written, speed   1.8 GiB/s
-hmac-sha256	Finished, time 00m09s,   15 GiB written, speed   1.7 GiB/s
-
-6.13.0-rc7 with dm-integrity with my ahash patch:
-
-sha256	       Finished, time 00m09s,   15 GiB written, speed   1.7 GiB/s
-hmac-sha256    Finished, time 00m09s,   15 GiB written, speed   1.6 
-GiB/s
-
-In practice the read and write performance may be of more importance. I 
-set
-up a 8G file located in tempfs as the backing file for a loopback device 
-and
-dm-integrity formatted and opened it. Then I created a random file with 
-4G
-via dd if=/dev/urandom which was located in tempfs. For the write I used
-
-   dd if=<myrandomfile> of=/dev/mapper/<dm-inintegrity-name> 
-oflag=direct,sync bs=4096 count=1M
-
-to copy the 4G random into the dm-crypt-block device.
-For the read I used
-
-   dd if=/dev/mapper/<dm-inintegrity-name> of=/dev/null iflag=direct,sync 
-bs=4096 count=1M
-
-to copy 4G from the dm-crypt-block device to /dev/null.
-
-6.13.0-rc7 with dm-integrity using shash:
-
-sha256
-   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 45.5 s, 94.4 MB/s
-   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 19.2137 s, 224 MB/s
-hmac-sha256
-   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 45.2026 s, 95.0 MB/s
-   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 19.2082 s, 224 MB/s
-
-6.13.0-rc7 with dm-integrity with my ahash patch:
-
-sha256
-   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 41.5273 s, 103 MB/s
-   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 16.2558 s, 264 MB/s
-hmac-sha256
-   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 44.063 s, 97.5 MB/s
-   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 16.5381 s, 260 MB/s
-
-I checked these results several times. They vary but always the 
-dm-integrity
-with the ahash patch gives the better figures. I ran some measurements 
-with
-an isolated cpu and used this cpu to pin the format or the dd task to 
-this
-cpu. Pinning is not a good idea as very much of the work is done via 
-workqueues
-in dm-integrity and so the communication overhead between the cpus 
-increases.
-However, I would have expected a slight penalty with the ahash patch 
-like
-it is to see with the dm-integrity format but read and write seem to 
-benefit
-from this simple ahash patch. It would be very interesting how a real 
-asynch
-implementation of dm-integrity really performs.
-
-If someone is interested, I can share my scripts for these measurements.
-
-Harald Freudenberger
+>
+> Best wishes,
+> D. Wythe
+> >
+> > > +               return kern_vtype_id;
+> > > +       }
+> > > +       kern_vtype =3D btf__type_by_id(btf, kern_vtype_id);
+> > > +
+> > > +       kern_type_id =3D btf__find_by_name_kind(btf, tname, BTF_KIND_=
+STRUCT);
+> > >         if (kern_type_id < 0) {
+> > >                 pr_warn("struct_ops init_kern: struct %s is not found=
+ in kernel BTF\n",
+> > >                         tname);
+> > > @@ -1020,20 +1039,6 @@ find_struct_ops_kern_types(struct bpf_object *=
+obj, const char *tname_raw,
+> > >         }
+> > >         kern_type =3D btf__type_by_id(btf, kern_type_id);
+> > >
+> > > -       /* Find the corresponding "map_value" type that will be used
+> > > -        * in map_update(BPF_MAP_TYPE_STRUCT_OPS).  For example,
+> > > -        * find "struct bpf_struct_ops_tcp_congestion_ops" from the
+> > > -        * btf_vmlinux.
+> > > -        */
+> > > -       kern_vtype_id =3D find_btf_by_prefix_kind(btf, STRUCT_OPS_VAL=
+UE_PREFIX,
+> > > -                                               tname, BTF_KIND_STRUC=
+T);
+> > > -       if (kern_vtype_id < 0) {
+> > > -               pr_warn("struct_ops init_kern: struct %s%s is not fou=
+nd in kernel BTF\n",
+> > > -                       STRUCT_OPS_VALUE_PREFIX, tname);
+> > > -               return kern_vtype_id;
+> > > -       }
+> > > -       kern_vtype =3D btf__type_by_id(btf, kern_vtype_id);
+> > > -
+> > >         /* Find "struct tcp_congestion_ops" from
+> > >          * struct bpf_struct_ops_tcp_congestion_ops {
+> > >          *      [ ... ]
+> > > @@ -1046,8 +1051,8 @@ find_struct_ops_kern_types(struct bpf_object *o=
+bj, const char *tname_raw,
+> > >                         break;
+> > >         }
+> > >         if (i =3D=3D btf_vlen(kern_vtype)) {
+> > > -               pr_warn("struct_ops init_kern: struct %s data is not =
+found in struct %s%s\n",
+> > > -                       tname, STRUCT_OPS_VALUE_PREFIX, tname);
+> > > +               pr_warn("struct_ops init_kern: struct %s data is not =
+found in struct %s\n",
+> > > +                       tname, stname);
+> > >                 return -EINVAL;
+> > >         }
+> > >
+> > > --
+> > > 2.45.0
+> > >
