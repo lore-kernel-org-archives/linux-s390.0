@@ -1,131 +1,238 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0BE2212D62;
-	Wed, 22 Jan 2025 12:41:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2EE9211A33;
+	Wed, 22 Jan 2025 12:50:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737549709; cv=none; b=CcUdhbSAictj+RAcMhoxRKDLbrqp1Wx+6oq9TE84CfkL2vElgSMA5hJK6pw41lWqSsP17Zq3ai49TooqJbbANd3YfQquTGMurPNZIq9ohXbPN1/GemYy4qwX04VXbv2GOdEXaSsS3SCHQmSPDio3xrwZ3+3Lz0p3VKcHJB3ihp4=
+	t=1737550246; cv=none; b=aYto8tmHOc17BenC1qq/mhZe0HEmi/AdvgnUJFgDBlJuT/ydLZhLH5YDrX32n6kz06hvfDUbT3jXKwWS7Mk70c46EFJu3Br1VKFNO82/WBeBA2lH7wcHuQ/GD0OI4Hda/GsgFDgfF2EzJGE8uzaUqw9HRUyk5zxVU3qLYr/ecNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737549709; c=relaxed/simple;
-	bh=/nRt7/FOVju0HHPP7y/y/GmcikIqd0uun9LCjQjrq7E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hEKvKRUCNpQEjWg9J3CZIkOHFaOFNphESlsysqIkrRoV+spWQ15rab1Ri90RFd2UMcvkamCt/LbCr7LRqdjk8PiWyMPl6lEvEtXxfUwV4Ss2+uKtp47xjJG5VYfNhLY2aJkjPeq1qBrGmX8Ns4+9ECsGzNICft0wj6n+DsTjguM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VoyrM/KR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1737550246; c=relaxed/simple;
+	bh=IsYYXgW1N0YF1gsybPl+Wq9x92nBogcFA6StnYnFUPg=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=NrWvWx1OOOA/lPZrHjECCkvITHNyKRbfCnzfmbUFdeHbVEUH3sJJLd9IoMaHP6cc/mrHGOTTMuRX/Vim1kf4BQvttF/9GVzpad8QxCwSSSHYemzDAiy+B9r5Gs2vtdy9r7HWi42efLfBkdicWj4vveQ/CIL07of8r5APo+3VvVU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hhkp1nXl; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VoyrM/KR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75C04C4CEEC;
-	Wed, 22 Jan 2025 12:41:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737549708;
-	bh=/nRt7/FOVju0HHPP7y/y/GmcikIqd0uun9LCjQjrq7E=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=VoyrM/KR3y6SyzXqcrUXIeXUzSXAukF1jTugO3Tp/XeZbDQsZz0btjWFVZexImUyA
-	 GNv9Ye0JlCb6LXyPS9Jx9MVxR+Wdtkk0Ms+qZSrA1Lr8Xe+0i9vU/ISeGtF/6vb7Vs
-	 1Uj3RovlFmNzqVfmuzQ82cCacT+Fx0ki2YqsVx1IY92F3iqqKCafCCMLWLqphwdRxg
-	 srLeLPCzyALTJw1qCRW7tcb44xO01Rx4zDtdApARN9p2pthq2z1LppbizS751cMHo9
-	 cZn++ylUYdHjeWMHwboi8qRzV/CerfY2kd1XCsOqWLze560AIlYM8svAXpyzid0N54
-	 v69z43CGgr7bQ==
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-30738a717ffso40026971fa.0;
-        Wed, 22 Jan 2025 04:41:48 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUKqVG4UQOQTScLlnCjBrFmMKDZi12BERoup2VyZXTeujoY6Rg6J9s/glWmZ6JY1dfvi0Vi7hXCtDobASohYA==@vger.kernel.org, AJvYcCURoO/ywDw5Pl8qBwi9p4pyVnljK/iYiPao3+ko2R8pPSFF1JIyN4LpC6te/C4MLv1+hgdaPnoWpTBxWr/o8TfP@vger.kernel.org, AJvYcCUTzmcDIA3LpW9fUZlK213aRAmcpVoGuMm296zP0GKAOe0NceNLxF2DYZ0tP/oGKWDugZEOnlaSFYXoZBnGSsY7mtMI@vger.kernel.org, AJvYcCUXzMJs1EOc1S0Qfg7EvOLAIApE4a/Y01VQBzxNp0og+HHLddfXMrw2KCphcFcF1WG3f2vJw83Lsqs=@vger.kernel.org, AJvYcCUhrq7e6oE/j62WaesbAWQmSfgJKLUXs1F88xv0gqtCO9kadmounQWzCQvQ7ZrRBigrI0/1oK/ZEciT@vger.kernel.org, AJvYcCUtRZqq47x2MjR02ePwLTpxZQLDkXyg/PHk+FZ8rZ+e4jxy+KayMaFFoVHxYhLTujFI7XMj4M4o6me3@vger.kernel.org, AJvYcCUuD2rnEggiuXhFoo6SplY8eJbBjh0pqNoMZdLE1hekIhiG0Ij9Y4afZbyV+YeqyoSMzs72XcvxxiGVxGcy@vger.kernel.org, AJvYcCV1VcHnEi+XdJFXMd1QxDJsFt2GCvBBAc75PN/wtRaE20o0A7isaXNNZZqLSJ1i0nRd2Z9jgbCpwJIw96CjRCZWD2W1ng6h@vger.kernel.org, AJvYcCV4Fsa6oEwxkMarKgqsZ6LoPr+ywTkrol7pMfdV3JSxKpa2FddWU9Y1puunmgLG9C0W61Q=@vger.kernel.org, AJvYcCVUPAGRczk8MJssFfG6JzcgUi9NPmpZKxRpM69x9n6JongrYB4eyJJLAyiWx8HpPaGREmh5oRi5tGrUIA==@vger.kernel.org, AJvYcCVgt+IpKx1UwT3+h1GuwjNZI/xRLxaDq/ZuYde41XNGnMAWJmK0+A8I2arP2jYw6ySDDq7/BPVXpwY=@vger.kernel.org, AJvYcCW/rKaRjtwO20eckWhl1Hd8U9gU+6ax1NJVt/117zOm71lz4h9GUtkLqJE0gjU+nP1ZBTtevM6yJEcghA==@vger.kernel.org, AJvYcCWiYi76bcwqzm4drHmtyFI8rXphj1bZjD3LNNwVHESxKi9QXLC8GbYQG+3AUwRqDEuZJWV/E2Ve6zDVmg==@vger.kernel.org, AJvYcCWuucLsMUN+VWJyuwold4yhiALa8XQEilEKuazbig7+clgdbUySTm+e1nyMoJ0Uor99skfEKMwL0ed2+PKp@vger.kernel.org, AJvYcCXbjfRokKyYYMMdauSChuYQz7JLeQBw9YepWJbjHajMabmLKIQTbJVpXJ/Yf5PHCjVyIqyOLE+mNo2ZcA==@vger.kernel.org, AJvYcCXbm8imEMFZodtt9XomgfNMoxBGcBQM2ej0FUGytzDD1kI/zLMJ4CUa2SCLjpculQTPHvRDMvyQarRIodvS@vger.kernel.org, AJvYcCXf7G7N0M2NQhVlh4bbdQurA9xZiwLMbx660NU9zjJ0xVw4M61lJ2lynsjwjzr6RjczKQdOxGNqhQXl3A/3@vger.kernel.org
-X-Gm-Message-State: AOJu0YygbY2mkegbAEPzTnpWkQfZ34u45Z9jzLKtcYI8HoXQWad1kKlU
-	ZnNH8dnDCR8kew/TVhwdFxohdV1pSkU9K0dxh7lkNitB+SHJE69YrW51RLmcyAbcMtQMpCwjkIg
-	ZNItjjIDVm3D3jzjgZ14bvWmyn5M=
-X-Google-Smtp-Source: AGHT+IFcRSReB7hah7mapcirnp1PWu31SswN3BbR4HjBYPEG79Tzl030J0TjqkE7fYQS4xaDIi2/KgOUqh2J3fswv1A=
-X-Received: by 2002:a05:651c:2228:b0:302:4130:e19c with SMTP id
- 38308e7fff4ca-3072caa15c1mr71017091fa.19.1737549706586; Wed, 22 Jan 2025
- 04:41:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hhkp1nXl"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50M7WhAk012551;
+	Wed, 22 Jan 2025 12:50:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JUztsG
+	8vzjM/cD4pGAeOhlMbvTF/lvr4HDjbW1e8/s4=; b=hhkp1nXl2xc2qZ9EVTziBb
+	PlZaMpX73KwdbkuFb8k2djyHAAqyM3LEJE60LqyA0eC94GwyAvGAcV3eali0wPBd
+	JCEnIkk5+Po3VThgLimGxu5hoFkLv4FMg6SZ6t1CnegkjzuXijQsxmWlkx/Kx0PD
+	wpU8jV/bOq7AtMu01smmSjK2FLD9ejruaGjF0hWyMPXy8y70uJB1K5cwm/AlBiUZ
+	uY+FPNTCq0nZAc6G2KOufBp5K1dK0tcXhBNBzRcBigtcKPWkwObyCKvOuuQb11W/
+	f2MZdJC7njdtN3cOC/n9qlEuFTs7MA7jo47fPSL1vRItm1kA0N7lVUlH7sSuiu7w
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44avcp1bvb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 12:50:38 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50MCjbkw007991;
+	Wed, 22 Jan 2025 12:50:38 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44avcp1bv9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 12:50:38 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MBYrg5032274;
+	Wed, 22 Jan 2025 12:50:37 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 448rujr54t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Jan 2025 12:50:37 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MCoYtl57213402
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Jan 2025 12:50:34 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5BD7720049;
+	Wed, 22 Jan 2025 12:50:34 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3FD3C20040;
+	Wed, 22 Jan 2025 12:50:34 +0000 (GMT)
+Received: from darkmoore (unknown [9.155.210.150])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jan 2025 12:50:34 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
- <Z4+jwDBrZNRgu85S@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com> <nslqrapp4v3rknjgtfk4cg64ha7rewrrg24aslo2e5jmxfwce5@t4chrpuk632k>
-In-Reply-To: <nslqrapp4v3rknjgtfk4cg64ha7rewrrg24aslo2e5jmxfwce5@t4chrpuk632k>
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Wed, 22 Jan 2025 13:41:35 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXEZPe8zk7s67SADK9wVH3cfBup-sAZSC6_pJyng9QT7aw@mail.gmail.com>
-X-Gm-Features: AbW1kvaDj3u8bGVj1m4rnYAkpiRSTpmPAB3bThAH-GyuG2Tmgw9okzkp1e58uCc
-Message-ID: <CAMj1kXEZPe8zk7s67SADK9wVH3cfBup-sAZSC6_pJyng9QT7aw@mail.gmail.com>
-Subject: Re: Re: [PATCH v2] treewide: const qualify ctl_tables where applicable
-To: Joel Granados <joel.granados@kernel.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>, 
-	Kees Cook <kees@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org, 
-	linux-serial@vger.kernel.org, xen-devel@lists.xenproject.org, 
-	linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev, 
-	codalist@coda.cs.cmu.edu, linux-mm@kvack.org, linux-nfs@vger.kernel.org, 
-	ocfs2-devel@lists.linux.dev, fsverity@lists.linux.dev, 
-	linux-xfs@vger.kernel.org, io-uring@vger.kernel.org, bpf@vger.kernel.org, 
-	kexec@lists.infradead.org, linux-trace-kernel@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, 
-	Song Liu <song@kernel.org>, "Steven Rostedt (Google)" <rostedt@goodmis.org>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, "Darrick J. Wong" <djwong@kernel.org>, 
-	Jani Nikula <jani.nikula@intel.com>, Corey Minyard <cminyard@mvista.com>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 22 Jan 2025 13:50:29 +0100
+Message-Id: <D78M5FNORE1Y.1SJAXHNVZS9GL@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
+        <borntraeger@de.ibm.com>, <david@redhat.com>, <willy@infradead.org>,
+        <hca@linux.ibm.com>, <svens@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <gor@linux.ibm.com>, <nrb@linux.ibm.com>, <nsg@linux.ibm.com>,
+        <seanjc@google.com>, <seiden@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v3 09/15] KVM: s390: move some gmap shadowing functions
+ away from mm/gmap.c
+X-Mailer: aerc 0.18.2
+References: <20250117190938.93793-1-imbrenda@linux.ibm.com>
+ <20250117190938.93793-10-imbrenda@linux.ibm.com>
+In-Reply-To: <20250117190938.93793-10-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: O7JFkylgBfIdAATK2BGziNzHrCOP3hkm
+X-Proofpoint-GUID: ewvy0zc-iYfCb0ApTl4QTdAIWcA814K1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-22_05,2025-01-22_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ bulkscore=0 mlxlogscore=958 spamscore=0 phishscore=0 mlxscore=0
+ suspectscore=0 lowpriorityscore=0 priorityscore=1501 clxscore=1015
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501220093
 
-On Wed, 22 Jan 2025 at 13:25, Joel Granados <joel.granados@kernel.org> wrote:
+On Fri Jan 17, 2025 at 8:09 PM CET, Claudio Imbrenda wrote:
+> Move some gmap shadowing functions from mm/gmap.c to kvm/kvm-s390.c and
+> the newly created kvm/gmap-vsie.c
 >
-> On Tue, Jan 21, 2025 at 02:40:16PM +0100, Alexander Gordeev wrote:
-> > On Fri, Jan 10, 2025 at 03:16:08PM +0100, Joel Granados wrote:
-> >
-> > Hi Joel,
-> >
-> > > Add the const qualifier to all the ctl_tables in the tree except for
-> > > watchdog_hardlockup_sysctl, memory_allocation_profiling_sysctls,
-> > > loadpin_sysctl_table and the ones calling register_net_sysctl (./net,
-> > > drivers/inifiniband dirs). These are special cases as they use a
-> > > registration function with a non-const qualified ctl_table argument or
-> > > modify the arrays before passing them on to the registration function.
-> > >
-> > > Constifying ctl_table structs will prevent the modification of
-> > > proc_handler function pointers as the arrays would reside in .rodata.
-> > > This is made possible after commit 78eb4ea25cd5 ("sysctl: treewide:
-> > > constify the ctl_table argument of proc_handlers") constified all the
-> > > proc_handlers.
-> >
-> > I could identify at least these occurences in s390 code as well:
-> Hey Alexander
+> This is a step toward removing gmap from mm.
 >
-> Thx for bringing these to my attention. I had completely missed them as
-> the spatch only deals with ctl_tables outside functions.
->
-> Short answer:
-> These should not be included in the current patch because they are a
-> different pattern from how sysctl tables are usually used. So I will not
-> include them.
->
-> With that said, I think it might be interesting to look closer at them
-> as they seem to be complicating the proc_handler (I have to look at them
-> closer).
->
-> I see that they are defining a ctl_table struct within the functions and
-> just using the data (from the incoming ctl_table) to forward things down
-> to proc_do{u,}intvec_* functions. This is very odd and I have only seen
-> it done in order to change the incoming ctl_table (which is not what is
-> being done here).
->
-> I will take a closer look after the merge window and circle back with
-> more info. Might take me a while as I'm not very familiar with s390
-> code; any additional information on why those are being used inside the
-> functions would be helpfull.
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/gmap.h |   9 +-
+>  arch/s390/kvm/Makefile       |   2 +-
+>  arch/s390/kvm/gmap-vsie.c    | 142 +++++++++++++++++++++
+>  arch/s390/kvm/gmap.h         |  20 +++
+>  arch/s390/kvm/kvm-s390.c     |  62 ++++++++-
+>  arch/s390/kvm/kvm-s390.h     |   2 +
+>  arch/s390/kvm/vsie.c         |   2 +
+>  arch/s390/mm/gmap.c          | 238 +++++------------------------------
+>  8 files changed, 259 insertions(+), 218 deletions(-)
+>  create mode 100644 arch/s390/kvm/gmap-vsie.c
 >
 
-Using const data on the stack is not as useful, because the stack is
-always mapped writable.
+[...]
 
-Global data structures marked 'const' will be moved into an ELF
-section that is typically mapped read-only in its entirely, and so the
-data cannot be modified by writing to it directly. No such protection
-is possible for the stack, and so the constness there is only enforced
-at compile time.
+> diff --git a/arch/s390/kvm/gmap-vsie.c b/arch/s390/kvm/gmap-vsie.c
+> new file mode 100644
+> index 000000000000..90427f114995
+> --- /dev/null
+> +++ b/arch/s390/kvm/gmap-vsie.c
+> @@ -0,0 +1,142 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Guest memory management for KVM/s390 nested VMs.
+> + *
+> + * Copyright IBM Corp. 2008, 2020, 2024
+> + *
+> + *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
+> + *               Martin Schwidefsky <schwidefsky@de.ibm.com>
+> + *               David Hildenbrand <david@redhat.com>
+> + *               Janosch Frank <frankja@linux.vnet.ibm.com>
+> + */
+> +
+> +#include <linux/compiler.h>
+> +#include <linux/kvm.h>
+> +#include <linux/kvm_host.h>
+> +#include <linux/pgtable.h>
+> +#include <linux/pagemap.h>
+> +#include <linux/mman.h>
+> +
+> +#include <asm/lowcore.h>
+> +#include <asm/gmap.h>
+> +#include <asm/uv.h>
+> +
+> +#include "kvm-s390.h"
+> +#include "gmap.h"
+> +
+> +/**
+> + * gmap_find_shadow - find a specific asce in the list of shadow tables
+> + * @parent: pointer to the parent gmap
+> + * @asce: ASCE for which the shadow table is created
+> + * @edat_level: edat level to be used for the shadow translation
+> + *
+> + * Returns the pointer to a gmap if a shadow table with the given asce i=
+s
+> + * already available, ERR_PTR(-EAGAIN) if another one is just being crea=
+ted,
+> + * otherwise NULL
+> + */
+> +static struct gmap *gmap_find_shadow(struct gmap *parent, unsigned long =
+asce,
+> +				     int edat_level)
+> +{
+> +	struct gmap *sg;
+> +
+> +	list_for_each_entry(sg, &parent->children, list) {
+> +		if (sg->orig_asce !=3D asce || sg->edat_level !=3D edat_level ||
+> +		    sg->removed)
+
+This is just:
+
+if !gmap_shadow_valid(sg, asce, edat_level)
+
+> +			continue;
+> +		if (!sg->initialized)
+> +			return ERR_PTR(-EAGAIN);
+> +		refcount_inc(&sg->ref_count);
+> +		return sg;
+> +	}
+> +	return NULL;
+> +}
+
+[...]
+
+> diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
+> index f2b52ce29be3..978f541059f0 100644
+> --- a/arch/s390/kvm/gmap.h
+> +++ b/arch/s390/kvm/gmap.h
+> @@ -13,5 +13,25 @@
+>  int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)=
+;
+>  int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
+>  int gmap_destroy_page(struct gmap *gmap, unsigned long gaddr);
+> +struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce, int ed=
+at_level);
+> +
+> +/**
+> + * gmap_shadow_valid - check if a shadow guest address space matches the
+> + *                     given properties and is still valid
+> + * @sg: pointer to the shadow guest address space structure
+> + * @asce: ASCE for which the shadow table is requested
+> + * @edat_level: edat level to be used for the shadow translation
+> + *
+> + * Returns 1 if the gmap shadow is still valid and matches the given
+> + * properties, the caller can continue using it. Returns 0 otherwise, th=
+e
+> + * caller has to request a new shadow gmap in this case.
+> + *
+> + */
+> +static inline int gmap_shadow_valid(struct gmap *sg, unsigned long asce,=
+ int edat_level)
+> +{
+> +	if (sg->removed)
+> +		return 0;
+> +	return sg->orig_asce =3D=3D asce && sg->edat_level =3D=3D edat_level;
+
+This can simply be a single return:
+
+return !sg->removed && sg->orig_asce =3D=3D asce && sg->edat_level =3D=3D e=
+dat_level;
+
+> +}
+> =20
+>  #endif
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index b626c87480ed..482f0968abfa 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4509,6 +4509,63 @@ static bool ibs_enabled(struct kvm_vcpu *vcpu)
+>  	return kvm_s390_test_cpuflags(vcpu, CPUSTAT_IBS);
+>  }
+
+[...]
+
