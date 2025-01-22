@@ -1,238 +1,153 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2EE9211A33;
-	Wed, 22 Jan 2025 12:50:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ABD6322E;
+	Wed, 22 Jan 2025 14:06:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737550246; cv=none; b=aYto8tmHOc17BenC1qq/mhZe0HEmi/AdvgnUJFgDBlJuT/ydLZhLH5YDrX32n6kz06hvfDUbT3jXKwWS7Mk70c46EFJu3Br1VKFNO82/WBeBA2lH7wcHuQ/GD0OI4Hda/GsgFDgfF2EzJGE8uzaUqw9HRUyk5zxVU3qLYr/ecNo=
+	t=1737554803; cv=none; b=Lzr6drNCSFyoDmQE8MlbvukdeIdy/acJqTpcN3l0mwiw8A46sjbHH/I238WiXQpf2UT9goS0/xEaRX+BGGKnHnZl5gIiXy1C4pHzpP1y6A3OUpB2srB4xlVPmzCTWr0/NQZTywwEMlbjwlCV3OPxKX5J8ebz5tHs4Yd/vuMgH1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737550246; c=relaxed/simple;
-	bh=IsYYXgW1N0YF1gsybPl+Wq9x92nBogcFA6StnYnFUPg=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=NrWvWx1OOOA/lPZrHjECCkvITHNyKRbfCnzfmbUFdeHbVEUH3sJJLd9IoMaHP6cc/mrHGOTTMuRX/Vim1kf4BQvttF/9GVzpad8QxCwSSSHYemzDAiy+B9r5Gs2vtdy9r7HWi42efLfBkdicWj4vveQ/CIL07of8r5APo+3VvVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hhkp1nXl; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1737554803; c=relaxed/simple;
+	bh=SbM+5NPZo3HnIIrKSR8azZyZIsynul0mUMvUqnlO1I8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=leJiwJ/9qWEJ3WfXUZoqMb1YGuXxgaOAWHjCsvJNP2sWiJIv5x9Wrpq7tHFwksnKGurFSgwF0JPHLS6Er4aDth3AojYU54CJojGbLp7Q90zlEPhesS2dEYW9uex93nwpr6WLFi8nTE/7Ol1oLsmy9sBQAlhRSSmN6KMQhTxl0yo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pM55oaCk; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hhkp1nXl"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pM55oaCk"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50M7WhAk012551;
-	Wed, 22 Jan 2025 12:50:39 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50M7XQw7013738;
+	Wed, 22 Jan 2025 14:06:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JUztsG
-	8vzjM/cD4pGAeOhlMbvTF/lvr4HDjbW1e8/s4=; b=hhkp1nXl2xc2qZ9EVTziBb
-	PlZaMpX73KwdbkuFb8k2djyHAAqyM3LEJE60LqyA0eC94GwyAvGAcV3eali0wPBd
-	JCEnIkk5+Po3VThgLimGxu5hoFkLv4FMg6SZ6t1CnegkjzuXijQsxmWlkx/Kx0PD
-	wpU8jV/bOq7AtMu01smmSjK2FLD9ejruaGjF0hWyMPXy8y70uJB1K5cwm/AlBiUZ
-	uY+FPNTCq0nZAc6G2KOufBp5K1dK0tcXhBNBzRcBigtcKPWkwObyCKvOuuQb11W/
-	f2MZdJC7njdtN3cOC/n9qlEuFTs7MA7jo47fPSL1vRItm1kA0N7lVUlH7sSuiu7w
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44avcp1bvb-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=lzD+7TZXT2sRDxJfc726niuQB3RO28
+	6sYGqYL650DZ4=; b=pM55oaCkrG4O2Dq5LyDq7yUqgYEHoGWcDynb+cv/6amQGv
+	CSmA/4xHSIiJybxZQFG6ojn8mE7UozWjpvy4MM7gIMIcL1pTI9SIcFqkQ1kbhafz
+	X53gHxEK3qD3CZSLKuVEK4z0NAY5u6JEC+L7nMD99cIZzTyFR+l/Wtu6MJvwGX2V
+	IJVscUMPZbaPO/OdXOyaJR4ONTy4KfzZyBc/vm05niTL9IIUz+nnphrVv7czqVeM
+	wsN6QPjda0kXip9FvOsBHAquLX9cqkuFgdbti0RIf62uF+/PF8fUC1U+TMIoOvjz
+	+glf2u/CA/TL5TQYzSbjWk7Wfgj0d3pTM7lec5CA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44avcp1q7a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 12:50:38 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50MCjbkw007991;
-	Wed, 22 Jan 2025 12:50:38 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44avcp1bv9-1
+	Wed, 22 Jan 2025 14:06:09 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MDHXj7024252;
+	Wed, 22 Jan 2025 14:06:09 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448q0y8uwa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 12:50:38 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MBYrg5032274;
-	Wed, 22 Jan 2025 12:50:37 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 448rujr54t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 12:50:37 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MCoYtl57213402
+	Wed, 22 Jan 2025 14:06:09 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50ME67Kp19399076
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jan 2025 12:50:34 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BD7720049;
-	Wed, 22 Jan 2025 12:50:34 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3FD3C20040;
-	Wed, 22 Jan 2025 12:50:34 +0000 (GMT)
-Received: from darkmoore (unknown [9.155.210.150])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Jan 2025 12:50:34 +0000 (GMT)
+	Wed, 22 Jan 2025 14:06:07 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 06BE120043;
+	Wed, 22 Jan 2025 14:06:07 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 46B9320040;
+	Wed, 22 Jan 2025 14:06:06 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 22 Jan 2025 14:06:06 +0000 (GMT)
+Date: Wed, 22 Jan 2025 15:06:05 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Mike Rapoport (IBM)" <rppt@kernel.org>,
+        Ryan Roberts <ryan.roberts@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Qi Zheng <zhengqi.arch@bytedance.com>, linux-alpha@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-um@lists.infradead.org, loongarch@lists.linux.dev,
+        x86@kernel.org
+Subject: Re: [PATCH v2 6/6] mm: Introduce ctor/dtor at PGD level
+Message-ID: <Z5D7TSR3AttkC0Jf@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250103184415.2744423-1-kevin.brodsky@arm.com>
+ <20250103184415.2744423-7-kevin.brodsky@arm.com>
+ <Z4/NTRDBXEEimdvc@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <20250122074954.8685-A-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 22 Jan 2025 13:50:29 +0100
-Message-Id: <D78M5FNORE1Y.1SJAXHNVZS9GL@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
-        <borntraeger@de.ibm.com>, <david@redhat.com>, <willy@infradead.org>,
-        <hca@linux.ibm.com>, <svens@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <gor@linux.ibm.com>, <nrb@linux.ibm.com>, <nsg@linux.ibm.com>,
-        <seanjc@google.com>, <seiden@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
-Subject: Re: [PATCH v3 09/15] KVM: s390: move some gmap shadowing functions
- away from mm/gmap.c
-X-Mailer: aerc 0.18.2
-References: <20250117190938.93793-1-imbrenda@linux.ibm.com>
- <20250117190938.93793-10-imbrenda@linux.ibm.com>
-In-Reply-To: <20250117190938.93793-10-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250122074954.8685-A-hca@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: O7JFkylgBfIdAATK2BGziNzHrCOP3hkm
-X-Proofpoint-GUID: ewvy0zc-iYfCb0ApTl4QTdAIWcA814K1
+X-Proofpoint-ORIG-GUID: hnL1myQOEbP9JlWEuwvdB13NGgqHi6w6
+X-Proofpoint-GUID: hnL1myQOEbP9JlWEuwvdB13NGgqHi6w6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-22_05,2025-01-22_02,2024-11-22_01
+ definitions=2025-01-22_06,2025-01-22_02,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- bulkscore=0 mlxlogscore=958 spamscore=0 phishscore=0 mlxscore=0
+ bulkscore=0 mlxlogscore=742 spamscore=0 phishscore=0 mlxscore=0
  suspectscore=0 lowpriorityscore=0 priorityscore=1501 clxscore=1015
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501220093
+ engine=8.19.0-2411120000 definitions=main-2501220104
 
-On Fri Jan 17, 2025 at 8:09 PM CET, Claudio Imbrenda wrote:
-> Move some gmap shadowing functions from mm/gmap.c to kvm/kvm-s390.c and
-> the newly created kvm/gmap-vsie.c
->
-> This is a step toward removing gmap from mm.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/include/asm/gmap.h |   9 +-
->  arch/s390/kvm/Makefile       |   2 +-
->  arch/s390/kvm/gmap-vsie.c    | 142 +++++++++++++++++++++
->  arch/s390/kvm/gmap.h         |  20 +++
->  arch/s390/kvm/kvm-s390.c     |  62 ++++++++-
->  arch/s390/kvm/kvm-s390.h     |   2 +
->  arch/s390/kvm/vsie.c         |   2 +
->  arch/s390/mm/gmap.c          | 238 +++++------------------------------
->  8 files changed, 259 insertions(+), 218 deletions(-)
->  create mode 100644 arch/s390/kvm/gmap-vsie.c
->
+On Wed, Jan 22, 2025 at 08:49:54AM +0100, Heiko Carstens wrote:
+> > >  static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+> > >  {
+> > > -	return (pgd_t *) crst_table_alloc(mm);
+> > > +	unsigned long *table = crst_table_alloc(mm);
+> > > +
+> > > +	if (!table)
+> > > +		return NULL;
+> > 
+> > I do not know status of this series, but FWIW, this call is missed:
+> > 
+> > 	crst_table_init(table, _REGION1_ENTRY_EMPTY); 
+> 
+> Why is that missing?
 
-[...]
+Because the follow-up pagetable_pgd_ctor() is called against uninitialized
+page table, while other pagetable_pXd_ctor() variants are called against
+initialized one. I could imagine complications as result of that.
 
-> diff --git a/arch/s390/kvm/gmap-vsie.c b/arch/s390/kvm/gmap-vsie.c
-> new file mode 100644
-> index 000000000000..90427f114995
-> --- /dev/null
-> +++ b/arch/s390/kvm/gmap-vsie.c
-> @@ -0,0 +1,142 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Guest memory management for KVM/s390 nested VMs.
-> + *
-> + * Copyright IBM Corp. 2008, 2020, 2024
-> + *
-> + *    Author(s): Claudio Imbrenda <imbrenda@linux.ibm.com>
-> + *               Martin Schwidefsky <schwidefsky@de.ibm.com>
-> + *               David Hildenbrand <david@redhat.com>
-> + *               Janosch Frank <frankja@linux.vnet.ibm.com>
-> + */
-> +
-> +#include <linux/compiler.h>
-> +#include <linux/kvm.h>
-> +#include <linux/kvm_host.h>
-> +#include <linux/pgtable.h>
-> +#include <linux/pagemap.h>
-> +#include <linux/mman.h>
-> +
-> +#include <asm/lowcore.h>
-> +#include <asm/gmap.h>
-> +#include <asm/uv.h>
-> +
-> +#include "kvm-s390.h"
-> +#include "gmap.h"
-> +
-> +/**
-> + * gmap_find_shadow - find a specific asce in the list of shadow tables
-> + * @parent: pointer to the parent gmap
-> + * @asce: ASCE for which the shadow table is created
-> + * @edat_level: edat level to be used for the shadow translation
-> + *
-> + * Returns the pointer to a gmap if a shadow table with the given asce i=
-s
-> + * already available, ERR_PTR(-EAGAIN) if another one is just being crea=
-ted,
-> + * otherwise NULL
-> + */
-> +static struct gmap *gmap_find_shadow(struct gmap *parent, unsigned long =
-asce,
-> +				     int edat_level)
-> +{
-> +	struct gmap *sg;
-> +
-> +	list_for_each_entry(sg, &parent->children, list) {
-> +		if (sg->orig_asce !=3D asce || sg->edat_level !=3D edat_level ||
-> +		    sg->removed)
+Whether Region1 table is the right choice is a big question though, as you
+noticed below.
 
-This is just:
+> A pgd table can be a Region1, Region2, or Region3 table. The only caller of
+> this function is mm_init() via mm_alloc_pgd(); and right after mm_alloc_pgd()
+> there is a call to init_new_context() which will initialize the pgd correctly.
 
-if !gmap_shadow_valid(sg, asce, edat_level)
+init_new_context() is in a way a constructor as well, so whole thing looks odd
+to me. But I do not immedeately see a better way :(
 
-> +			continue;
-> +		if (!sg->initialized)
-> +			return ERR_PTR(-EAGAIN);
-> +		refcount_inc(&sg->ref_count);
-> +		return sg;
-> +	}
-> +	return NULL;
-> +}
+> I guess what really gets odd, and might be broken (haven't checked yet) is
+> what happens on dynamic upgrade of page table levels (->crst_table_upgrade()).
 
-[...]
+Hmm, that is a good point.
 
-> diff --git a/arch/s390/kvm/gmap.h b/arch/s390/kvm/gmap.h
-> index f2b52ce29be3..978f541059f0 100644
-> --- a/arch/s390/kvm/gmap.h
-> +++ b/arch/s390/kvm/gmap.h
-> @@ -13,5 +13,25 @@
->  int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)=
-;
->  int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
->  int gmap_destroy_page(struct gmap *gmap, unsigned long gaddr);
-> +struct gmap *gmap_shadow(struct gmap *parent, unsigned long asce, int ed=
-at_level);
-> +
-> +/**
-> + * gmap_shadow_valid - check if a shadow guest address space matches the
-> + *                     given properties and is still valid
-> + * @sg: pointer to the shadow guest address space structure
-> + * @asce: ASCE for which the shadow table is requested
-> + * @edat_level: edat level to be used for the shadow translation
-> + *
-> + * Returns 1 if the gmap shadow is still valid and matches the given
-> + * properties, the caller can continue using it. Returns 0 otherwise, th=
-e
-> + * caller has to request a new shadow gmap in this case.
-> + *
-> + */
-> +static inline int gmap_shadow_valid(struct gmap *sg, unsigned long asce,=
- int edat_level)
-> +{
-> +	if (sg->removed)
-> +		return 0;
-> +	return sg->orig_asce =3D=3D asce && sg->edat_level =3D=3D edat_level;
+> With that a pgd may become a pud, and with that we get an imbalance with
+> the ctor/dtor calls for the various page table levels when they get freed
 
-This can simply be a single return:
+The ctor/dtor mismatch should not be a problem, as pagetable_pgd|p4d|pud_ctor()
+are the same and there is one pagetable_dtor() for all top levels as of now.
+But if it ever comes to separate implementations, then we are in the world
+of pain.
 
-return !sg->removed && sg->orig_asce =3D=3D asce && sg->edat_level =3D=3D e=
-dat_level;
+> again. Plus, at first glance, it looks also broken that we have open-coded
+> crst_alloc() calls instead of using the "proper" page table allocation API
+> within crst_table_upgrade(), which again would cause an imbalance.
 
-> +}
-> =20
->  #endif
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index b626c87480ed..482f0968abfa 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -4509,6 +4509,63 @@ static bool ibs_enabled(struct kvm_vcpu *vcpu)
->  	return kvm_s390_test_cpuflags(vcpu, CPUSTAT_IBS);
->  }
+This is a good point too.
 
-[...]
-
+Many thanks!
