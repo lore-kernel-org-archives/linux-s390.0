@@ -1,62 +1,46 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42BA41DFF0;
-	Wed, 22 Jan 2025 03:05:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D9EEECF;
+	Wed, 22 Jan 2025 04:35:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737515105; cv=none; b=etZj6imfLoIUbM/TZkVQN4tyf7TO+A6qIuRIwLJTWl85pOzpZ2a3ikYZMV5jCD8039SBwC7NC7as45/p6SiJd21BZi7wefxi1mUeKROQXDd3NulLGr1zxpj5Na4GXuAv9jfTiYTgaQX5Xb3vJpcMZ6eOKvDMwyHnB+/tZady1Wo=
+	t=1737520552; cv=none; b=h6daPBmCNiaa2zcF1/mVqsd/QjK2GRyRxgSijWX1v9lbwO0lzc6fHdtS8oE12ALcRfxFBeGLSm0Rp0jeZo4kbOZNTHAOfWCzthN9eT6arhGbMzmRrGOyN4kuBsnl6r0zXsBsoRxVea531RbyUNpCIolqEPVOXS9VpD0bnfUqdG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737515105; c=relaxed/simple;
-	bh=v7wNV92ceArbY3Q55JLdSkpDqJ235ENJaaLp30RgAK0=;
+	s=arc-20240116; t=1737520552; c=relaxed/simple;
+	bh=kx4htrhC1LwQWfgDqorHI8uXV4Zpz4t+IvJ7Z5oP+9s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uiFOoiC8fzuL2m2LxQTZd4RsoELXQib3bXEvIzW1kPHoduuFLMCZZu+v8t74qIxd7VgI8mGc27tPWo4HyeRbgx37NqHYipTW9to5KAEKMmqLivlSydCCFOeFAg+1MK7h+0HgF6YGyR3bSMfqnMWKCKUNWtMFPmXDVYfvZ6jB3JQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=AGoCjCA/; arc=none smtp.client-ip=115.124.30.118
+	 Content-Type:Content-Disposition:In-Reply-To; b=aufTdLKaftmeS2vqhLD16M7KRkLv3ckducaid3CTQMH6815BT18FOurPjXXWttC0TgzyImewTq9mWhJf4w0dzB1mURa79XUgigVXrhAR9QS3H0qlFedBrmDSzInPD4NVKKmM+4yNfrNPZf5RoNMFFE6taJxdQjDAz5gLIiEmir4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mYgY2h8V; arc=none smtp.client-ip=115.124.30.113
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="AGoCjCA/"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mYgY2h8V"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1737515100; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=ChLu+bsO1fPPKy1p8fiLQGD4NeUbVV1c6LJjwIvLBYU=;
-	b=AGoCjCA/yPfCcEHv8+tNbuqGR8hfxz4lp7Z00kQ4Tw6Y2ZpQgiOiS/q5ewgZt9tzgzKhzSkro+XX9UdsL4wB+RHQGEUz5ivJIz4ZE0zkcQSINQmSCNltsgbrca4AWJ+GeSBuCUK2NcMlz/W9fBzKQh+HP/CZYZcWtsrlInqaQec=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WO6zR0i_1737515099 cluster:ay36)
+	t=1737520540; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=IHehevSmLWkA9dPFMqFrIjYjGxd1L3QHCe+CuOPx340=;
+	b=mYgY2h8V+fmrfLld9djLlPnK0vONOHRGBdUnfEYIjw34Bc/QZ7s4VN1AKUg+ctHzHzZVRL/0nnYz3/Yjf47nvEHNp7exqYT0Y0j3WetuaHxwCFL011He9rlVfRnDO9hbiAAIOIDM0Wg7z9aF84pWyNDeRwkKiR3f3JP0zjPQQhg=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WO7DQQg_1737520538 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 22 Jan 2025 11:05:00 +0800
-Date: Wed, 22 Jan 2025 11:04:59 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-Message-ID: <20250122030459.GN89233@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
- <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
- <20250117021353.GF89233@linux.alibaba.com>
- <80330f0e-d769-4251-be2f-a2b5adb12ef2@linux.ibm.com>
- <17f0cbf9-71f7-4cce-93d2-522943d9d83b@linux.ibm.com>
+          Wed, 22 Jan 2025 12:35:38 +0800
+Date: Wed, 22 Jan 2025 12:35:38 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Martin KaFai Lau <martin.lau@linux.dev>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+	daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
+	song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
+	edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
+	jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
+	davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v6 2/5] net/smc: Introduce generic hook smc_ops
+Message-ID: <20250122043538.GC81479@j66a10360.sqa.eu95>
+References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
+ <20250116074442.79304-3-alibuda@linux.alibaba.com>
+ <86948347-529b-433a-991d-0b298776db63@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,88 +49,115 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17f0cbf9-71f7-4cce-93d2-522943d9d83b@linux.ibm.com>
+In-Reply-To: <86948347-529b-433a-991d-0b298776db63@linux.dev>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On 2025-01-20 11:28:41, Alexandra Winter wrote:
->
->
->On 17.01.25 14:00, Alexandra Winter wrote:
->> 
->> 
->> On 17.01.25 03:13, Dust Li wrote:
->>>>>> Modular Approach: I've made the ism_loopback an independent kernel
->>>>>> module since dynamic enable/disable functionality is not yet supported
->>>>>> in SMC. Using insmod and rmmod for module management could provide the
->>>>>> flexibility needed in practical scenarios.
->>>>
->>>> With this proposal ism_loopback is just another ism device and SMC-D will
->>>> handle removal just like ism_client.remove(ism_dev) of other ism devices.
->>>>
->>>> But I understand that net/smc/ism_loopback.c today does not provide enable/disable,
->>>> which is a big disadvantage, I agree. The ism layer is prepared for dynamic
->>>> removal by ism_dev_unregister(). In case of this RFC that would only happen
->>>> in case of rmmod ism. Which should be improved.
->>>> One way to do that would be a separate ism_loopback kernel module, like you say.
->>>> Today ism_loopback is only 10k LOC, so I'd be fine with leaving it in the ism module.
->>>> I also think it is a great way for testing any ISM client, so it has benefit for
->>>> anybody using the ism module.
->>>> Another way would be e.g. an 'enable' entry in the sysfs of the loopback device.
->>>> (Once we agree if and how to represent ism devices in genera in sysfs).
->>> This works for me as well. I think it would be better to implement this
->>> within the common ISM layer, rather than duplicating the code in each
->>> device. Similar to how it's done in netdevice.
->>>
->>> Best regards,
->>> Dust
->> 
->> 
->> Is there a specific example for enable/disable in the netdevice code, you have in mind?
->> Or do you mean in general how netdevice provides a common layer?
->> Yes, everything that is common for all devices should be provided by the network layer.
->
->
->Dust for some reason, you did not 'Reply-all':
+On Fri, Jan 17, 2025 at 03:50:48PM -0800, Martin KaFai Lau wrote:
+> On 1/15/25 11:44 PM, D. Wythe wrote:
+> >diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
+> >index 2fab6456f765..2004241c3045 100644
+> >--- a/net/smc/smc_sysctl.c
+> >+++ b/net/smc/smc_sysctl.c
+> >@@ -18,6 +18,7 @@
+> >  #include "smc_core.h"
+> >  #include "smc_llc.h"
+> >  #include "smc_sysctl.h"
+> >+#include "smc_ops.h"
+> >  static int min_sndbuf = SMC_BUF_MIN_SIZE;
+> >  static int min_rcvbuf = SMC_BUF_MIN_SIZE;
+> >@@ -30,6 +31,69 @@ static int links_per_lgr_max = SMC_LINKS_ADD_LNK_MAX;
+> >  static int conns_per_lgr_min = SMC_CONN_PER_LGR_MIN;
+> >  static int conns_per_lgr_max = SMC_CONN_PER_LGR_MAX;
+> >+#if IS_ENABLED(CONFIG_SMC_OPS)
+> >+static int smc_net_replace_smc_ops(struct net *net, const char *name)
+> >+{
+> >+	struct smc_ops *ops = NULL;
+> >+
+> >+	rcu_read_lock();
+> >+	/* null or empty name ask to clear current ops */
+> >+	if (name && name[0]) {
+> >+		ops = smc_ops_find_by_name(name);
+> >+		if (!ops) {
+> >+			rcu_read_unlock();
+> >+			return -EINVAL;
+> >+		}
+> >+		/* no change, just return */
+> >+		if (ops == rcu_dereference(net->smc.ops)) {
+> >+			rcu_read_unlock();
+> >+			return 0;
+> >+		}
+> >+	}
+> >+	if (!ops || bpf_try_module_get(ops, ops->owner)) {
+> >+		/* xhcg */
+> 
+> typo. I noticed it only because...
+> 
+> >+		ops = rcu_replace_pointer(net->smc.ops, ops, true);
+> 
+> ... rcu_replace_pointer() does not align with the above xchg
+> comment. From looking into rcu_replace_pointer, it is not a xchg. It
+> is also not obvious to me why it is safe to assume "true" here...
+> 
+> >+		/* release old ops */
+> >+		if (ops)
+> >+			bpf_module_put(ops, ops->owner);
+> 
+> ... together with a put here on the return value of the rcu_replace_pointer.
+> 
 
-Oh, sorry I didn't notice that
+Hi Martin,
 
->Dust Li wrote:
->> I think dev_close()/dev_open() are the high-level APIs, while
->> ndo_stop()/ndo_open() are the underlying device operations that we
->> can reference.
+This is indeed a very good catch. Initially, I used the xhcg()
+for swapping, but later I thought there wouldn't be a situation where
+smc_net_replace_smc_ops would be called simultaneously with the same net.
+
+Therefore, I modified it to rcu_replace_pointer, which is also why I assumed
+that it was true here, I thought the updates here was prevented. but now I
+realize that sysctl might not be mutually exclusive. It seems that this should
+be changed back to xhcg().
+
+> >+	} else if (ops) {
+> 
+> nit. This looks redundant when looking at the "if (!ops || ..." test above
+> Also a nit, I would move the bpf_try_module_get() immediately after
+> the above "if (ops == rcu_dereference(net->smc.ops))" test. This
+> should simplify the later cases.
+> 
+
+This is a very good suggestion. I tried it and the code became very
+clean. I'll take it in next version.
+
+> >+		rcu_read_unlock();
+> >+		return -EBUSY;
+> >+	}
+> >+	rcu_read_unlock();
+> >+	return 0;
+> >+}
+> >+
+> >+static int proc_smc_ops(const struct ctl_table *ctl, int write,
+> >+#if IS_ENABLED(CONFIG_SMC_OPS)
+> >+		struct smc_ops *ops;
+> >+
+> >+		rcu_read_lock();
+> >+		ops = rcu_dereference(init_net.smc.ops);
+> >+		if (ops && ops->flags & SMC_OPS_FLAG_INHERITABLE) {
+> >+			if (!bpf_try_module_get(ops, ops->owner)) {
+> >+				rcu_read_unlock();
+> >+				return -EBUSY;
+> 
+> Not sure if it should count as error when the ops is in the process
+> of un-register-ing. The next smc_sysctl_net_init will have NULL ops
+> and succeed. Something for you to consider.
 >
->
->I hear you, it can be beneficial to have a way for upper layers to
->enable/disable an ism device.
->But all this is typically a tricky area. The device driver can also have
->reasons to enable/disable a device, then hardware could do that or even
->hotplug a device. Error recovery on different levels may want to run a
->disable/enable sequence as a reset, etc. And all this has potential for
->deadlocks.
->All this is rather trivial for ism-loopback, as there is not much of a
->lower layer.
->ism-vpci already has 'HW' / device driver configure on/off and device
->add/remove.
->For a future ism-virtio, the Hipervisor may want to add/remove devices.
->
->I wonder what could be the simplest definition of an enable/disable for
->the ism layer, that we can start with? More sophisticated functionality
->can always be added later.
->Maybe support for add/remove ism-device by the device driver is
->sufficient as  starting point?
 
-I agree; this can be added later. For now, we can simply support
-unregistering a device from the device driver. Which is already handled
-by ism_dev_unregister() IIUC.
+It seems more reasonable that no need to prevent net initialization
+just because ops is uninstalling... I plan to just skip that error.
 
-However, I believe we still need an API and the ability to enable or
-disable ISM devices from the upper layer. For example, if we want to
-disable a specific ISM device (such as the loopback device) in SMC, we
-should not do so by disabling the loopback device at the device layer,
-as it may also serve other clients beyond SMC.
+> 
+> Also, it needs an ack from the SMC maintainer for the SMC specific
+> parts like the sysctl here.
 
-Further more, I think removing the loopback from the loopback device
-driver seems unnecessory ? Since we should support that from the upper
-layer in the future.
+Got it. I will communicate this matter with the SMC maintainers.
 
-Best regards,
-Dust
+Best wishes,
+D. Wythe
