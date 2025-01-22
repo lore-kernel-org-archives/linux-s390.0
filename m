@@ -1,156 +1,194 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A95F213E8A;
-	Wed, 22 Jan 2025 16:50:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4AEB1369B4
+	for <linux-s390@vger.kernel.org>; Wed, 22 Jan 2025 17:00:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737564605; cv=none; b=iBN5rlwhPg7lp6/lgkWna2l7VYoerV2KgiyF+sCUukmLO8BNSvzo9/vrehYzWH8dYiy3LqP4+I4imaAo25znwpkLSR00+lNRMrHutLURsgIx7aYn21VREqRNdqQZHhl8APdTssJ55SGsIKaBI1Hxuq16E/uzUGzpxsf3X689yuI=
+	t=1737565242; cv=none; b=uoUWZazutwgB/mo+6ViG5rFRe2lPPfGL0uMDyaCJFuT9IzMPrgMQM1CnRLRW3KmTLq2XfAnMMHFpjJ6SWLxZm0ZbgZyLj/bXFRWCXB7wrjbfx6MLoR0XQI9LCfCI+UJloZe7DTzNbozlfNeKrQAPetnb0I0NvHdSvQ+fFJRcjZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737564605; c=relaxed/simple;
-	bh=JaJjbRIXcvMnef0lbm41UVeeML2Z8HQQANRyRqVlFS8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uDjqCvQbgo8VTC74+Qe5EhtI27o1SexK0vLMgcqfG9pT7LKUWwGYp/jeM+HwrAG2fN4C9p51jV7ycYc+eD3DXiqzZ6RO3oaGwOPDJojjoSF9rsxaecqbgtASogdheealPJpu/B6Lr7Y+fP5b5yiynkVHUULdhJGtBAmSt6ASfjo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SriPO9v5; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1737565242; c=relaxed/simple;
+	bh=h67XZZ5BeVjdu7Js8a+o4Yi06Tufx+fnexA9XMWw2A8=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=Q4WSsSsX6azV8FgBFKhCJHThA4bmsp2mMRWwVJrJIKNtviW8W51MrFSUdH5oVH7eiG5M2ah7sGEHDFKxC0Jrxq1FYiPUmmaVJK+RMGIJbgt8+1YX7kOf90ftvhFT1TxbeSyGzSowzXwyMluMCGv6HBFoUgXsM5DKHUfE2TCyyIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PFpgrJwv; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SriPO9v5"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MF1bVw027703;
-	Wed, 22 Jan 2025 16:49:58 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PFpgrJwv"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50MFdXR7016933;
+	Wed, 22 Jan 2025 17:00:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=tn6kHzxWYCuaWfhS7twBe8ajn1hW/8
-	C/C+k2mgUQe44=; b=SriPO9v56pnKes5h+CCJkoPhmImRFBQgIOiNx0rRNt58LC
-	HClfytDFRilfWert0SnToRYBpT9It9rDEqpjLaqeWFSUp7u7N2lBSriQtkrqEv5l
-	lrqwxd/35/lwHZEOPOmQOyq6Sv+O+KggA/JkKNIClxuKd0QVf9tQvQZdlWyNMk7r
-	FUyCXhKCPjYF7hZ9ZDs+uVIXYI6HdEvYQmERwVYsdqLncITdD3fW84PAv78Mg9sV
-	nhcfixaSySQzd+RYHfU0sGjbQlnMEm9z/RCfYloql4JCUNoAvNYY+4yYrKHqg6NG
-	uY7kxvQ1idttx2Anrtfg/6ZF99fSrWlA83jEJY9A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44b2xygjng-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 16:49:57 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50MGluIn004037;
-	Wed, 22 Jan 2025 16:49:57 GMT
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=W4gP+K9F4UCt2y9K/DfO4yUbHfb1rdpjakUW3NTjSAk=; b=PFpgrJwv8Ty+
+	YaQvlhZ5eQequO9wqNl3R77FY+Me1bvW/5ygIG+G9sqGSSSWRZ1HpE2xVahwt7ZS
+	04FUvD9ud2ZYhMmQXZ1wMrK0aP93Pt44acE8VDDRCEMuxaXDbF4Knu94JXQr6oma
+	oOL0qlWeva05+9nXtZQwYrZt6wmvaG5u7s8jRkrgfdI8A3L2s0wFrG2I8I8iiUjM
+	XV0ASBvai2uVe0S/ZYfbXZ/Z7VmaPxvD3St1CtgeAG4n5Bt+/Yn7oF/bfKdjvKCa
+	A0id8zqlgQm4ssP5idggA+z8D0o4VFRapJOo0IjmPre51ROK/qi/cgktJN4egKLe
+	Q63MaAjb/A==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44b2xygjne-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44b3gtrdj4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 16:49:57 +0000 (GMT)
+	Wed, 22 Jan 2025 17:00:29 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MG6YLP021074;
-	Wed, 22 Jan 2025 16:49:56 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 448sb1gy8s-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MFfvjK021063;
+	Wed, 22 Jan 2025 17:00:28 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 448sb1h0um-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jan 2025 16:49:56 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MGnsEi36962654
+	Wed, 22 Jan 2025 17:00:28 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50MH0RnS30015892
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jan 2025 16:49:54 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B52D020040;
-	Wed, 22 Jan 2025 16:49:54 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7291E2004B;
-	Wed, 22 Jan 2025 16:49:54 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 22 Jan 2025 16:49:54 +0000 (GMT)
-Date: Wed, 22 Jan 2025 17:49:53 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Ard Biesheuvel <ardb+git@google.com>
-Cc: linux-kbuild@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        Ron Economos <re@w6rz.net>
-Subject: Re: [PATCH v3] kbuild: Strip runtime const RELA sections correctly
-Message-ID: <Z5EhsaJOaRjjMEp4@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250113155306.1922992-2-ardb+git@google.com>
+	Wed, 22 Jan 2025 17:00:27 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0BE6758055;
+	Wed, 22 Jan 2025 17:00:27 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A2CDB58043;
+	Wed, 22 Jan 2025 17:00:26 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Jan 2025 17:00:26 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250113155306.1922992-2-ardb+git@google.com>
+Date: Wed, 22 Jan 2025 18:00:26 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: agk@redhat.com, snitzer@kernel.org, ifranzki@linux.ibm.com,
+        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
+        herbert@gondor.apana.org.au, dengler@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com>
+References: <20250115164657.84650-1-freude@linux.ibm.com>
+ <20250115164657.84650-2-freude@linux.ibm.com>
+ <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com>
+Message-ID: <5a8a09387c0fef59629707937297a0a4@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 1FIFpjqDLl7j4eqDhN1i8UjGeotJiCdU
-X-Proofpoint-ORIG-GUID: RYJA-gNaND7vC0TXC6i9NN-fNHfjO9zI
+X-Proofpoint-ORIG-GUID: 6pT4E4ijpoetzdmAQo9Ih1EsjWTK3p-b
+X-Proofpoint-GUID: 6pT4E4ijpoetzdmAQo9Ih1EsjWTK3p-b
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-22_07,2025-01-22_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- impostorscore=0 adultscore=0 clxscore=1011 bulkscore=0 suspectscore=0
- mlxlogscore=720 phishscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
- definitions=main-2501220121
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ bulkscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=720 phishscore=0
+ spamscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501220125
 
-On Mon, Jan 13, 2025 at 04:53:07PM +0100, Ard Biesheuvel wrote:
-
-Hi Ard,
-
-> Due to the fact that runtime const ELF sections are named without a
-> leading period or double underscore, the RSTRIP logic that removes the
-> static RELA sections from vmlinux fails to identify them. This results
-> in a situation like below, where some sections that were supposed to get
-> removed are left behind.
+On 2025-01-15 18:29, Mikulas Patocka wrote:
+> Hi
 > 
->   [Nr] Name                              Type            Address          Off     Size   ES Flg Lk Inf Al
+> The ahash interface is slower than the shash interface for synchronous
+> implementations, so the patch is basically slowing down the common 
+> case.
+> See the upstream commit b76ad8844234bd0d394105d7d784cd05f1bf269a for an
+> explanation in dm-verity.
 > 
->   [58] runtime_shift_d_hash_shift        PROGBITS        ffffffff83500f50 2900f50 000014 00   A  0   0  1
->   [59] .relaruntime_shift_d_hash_shift   RELA            0000000000000000 55b6f00 000078 18   I 70  58  8
->   [60] runtime_ptr_dentry_hashtable      PROGBITS        ffffffff83500f68 2900f68 000014 00   A  0   0  1
->   [61] .relaruntime_ptr_dentry_hashtable RELA            0000000000000000 55b6f78 000078 18   I 70  60  8
->   [62] runtime_ptr_USER_PTR_MAX          PROGBITS        ffffffff83500f80 2900f80 000238 00   A  0   0  1
->   [63] .relaruntime_ptr_USER_PTR_MAX     RELA            0000000000000000 55b6ff0 000d50 18   I 70  62  8
+> Do you have some benchmark that shows how much does it help on s390x? 
+> So,
+> that we can evaluate whether the added complexity is worth the 
+> performance
+> improvement or not.
 > 
-> So tweak the match expression to strip all sections starting with .rel.
-> While at it, consolidate the logic used by RISC-V, s390 and x86 into a
-> single shared Makefile library command.
+> Mikulas
+> 
+> ...
 
-On s390 this is before:
+Hi Mikulas,
 
-  [32] .relaruntime[...] RELA             0000000000000000  13b3fe20
-  [34] .relaruntime[...] RELA             0000000000000000  13b3fe98
+So finally some benchmarks measured on my development system:
+A LPAR on a z16 with 16 CPUs, 32G memory, with a fresh build linux 
+6.13.0-rc7
+kernel with and without just my dm-integrity ahash patch.
 
-This is after:
+For the dm-integrity format measurements I used a 16G file located in 
+tempfs
+as the backing file for a loopback device. The backing file totally 
+written
+with random data from /dev/urandom. The dm-integrity format command was
 
-  [ 2] .rela.text        RELA             0000000000000000  13b3fe20
-  [ 4] .rela.rodata      RELA             0000000000000000  142cf588
-  [ 6] .rela__ksymtab    RELA             0000000000000000  142ece08
-  [ 8] .rela__ksymt[...] RELA             0000000000000000  1433f200
-  [13] .rela__param      RELA             0000000000000000  14432d40
-  [15] .rela__modver     RELA             0000000000000000  14436358
-  [17] .rela__ex_table   RELA             0000000000000000  14436538
-  [20] .rela.data..[...] RELA             0000000000000000  14446228
-  [22] .rela.data.rel.ro RELA             0000000000000000  144d9240
-  [25] .rela.data        RELA             0000000000000000  14559148
-  [27] .rela__bug_table  RELA             0000000000000000  145b4ae0
-  [29] .rela.data.rel    RELA             0000000000000000  1461aab0
-  [32] .rela.amode3[...] RELA             0000000000000000  146eb280
-  [34] .rela.init.text   RELA             0000000000000000  146eb430
-  [36] .rela.exit.text   RELA             0000000000000000  14750c20
-  [38] .rela.altins[...] RELA             0000000000000000  14753d28
-  [41] .rela.nospec[...] RELA             0000000000000000  1484ca58
-  [43] .rela.nospec[...] RELA             0000000000000000  1487ef90
-  [46] .rela.amode3[...] RELA             0000000000000000  14a0d168
-  [48] .rela.amode3[...] RELA             0000000000000000  14a0d270
-  [51] .rela.init.data   RELA             0000000000000000  14a0d330
-  [53] .relaruntime[...] RELA             0000000000000000  14b5d6f0
-  [55] .relaruntime[...] RELA             0000000000000000  14b5d768
-  [57] .rela.data..[...] RELA             0000000000000000  14b5d7e0
-  [61] .rela.debug_[...] RELA             0000000000000000  14b5d918
-  [63] .rela.debug_info  RELA             0000000000000000  14b80478
-  [66] .rela.debug_line  RELA             0000000000000000  250ef010
-  [68] .rela.debug_frame RELA             0000000000000000  25123060
-  [71] .rela.debug_loc   RELA             0000000000000000  253bb1a0
-  [73] .rela.debug_[...] RELA             0000000000000000  298eb5a8
+   integritysetup format /dev/loop0 --integrity <alg> --sector-size 4096
 
-Thanks!
+6.13.0-rc7 with dm-integrity using shash:
+
+sha256		Finished, time 00m09s,   15 GiB written, speed   1.8 GiB/s
+hmac-sha256	Finished, time 00m09s,   15 GiB written, speed   1.7 GiB/s
+
+6.13.0-rc7 with dm-integrity with my ahash patch:
+
+sha256	       Finished, time 00m09s,   15 GiB written, speed   1.7 GiB/s
+hmac-sha256    Finished, time 00m09s,   15 GiB written, speed   1.6 
+GiB/s
+
+In practice the read and write performance may be of more importance. I 
+set
+up a 8G file located in tempfs as the backing file for a loopback device 
+and
+dm-integrity formatted and opened it. Then I created a random file with 
+4G
+via dd if=/dev/urandom which was located in tempfs. For the write I used
+
+   dd if=<myrandomfile> of=/dev/mapper/<dm-inintegrity-name> 
+oflag=direct,sync bs=4096 count=1M
+
+to copy the 4G random into the dm-crypt-block device.
+For the read I used
+
+   dd if=/dev/mapper/<dm-inintegrity-name> of=/dev/null iflag=direct,sync 
+bs=4096 count=1M
+
+to copy 4G from the dm-crypt-block device to /dev/null.
+
+6.13.0-rc7 with dm-integrity using shash:
+
+sha256
+   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 45.5 s, 94.4 MB/s
+   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 19.2137 s, 224 MB/s
+hmac-sha256
+   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 45.2026 s, 95.0 MB/s
+   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 19.2082 s, 224 MB/s
+
+6.13.0-rc7 with dm-integrity with my ahash patch:
+
+sha256
+   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 41.5273 s, 103 MB/s
+   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 16.2558 s, 264 MB/s
+hmac-sha256
+   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 44.063 s, 97.5 MB/s
+   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 16.5381 s, 260 MB/s
+
+I checked these results several times. They vary but always the 
+dm-integrity
+with the ahash patch gives the better figures. I ran some measurements 
+with
+an isolated cpu and used this cpu to pin the format or the dd task to 
+this
+cpu. Pinning is not a good idea as very much of the work is done via 
+workqueues
+in dm-integrity and so the communication overhead between the cpus 
+increases.
+However, I would have expected a slight penalty with the ahash patch 
+like
+it is to see with the dm-integrity format but read and write seem to 
+benefit
+from this simple ahash patch. It would be very interesting how a real 
+asynch
+implementation of dm-integrity really performs.
+
+If someone is interested, I can share my scripts for these measurements.
+
+Harald Freudenberger
