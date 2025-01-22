@@ -1,151 +1,165 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 978E2196;
-	Wed, 22 Jan 2025 01:51:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9982A249F9;
+	Wed, 22 Jan 2025 02:43:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737510684; cv=none; b=Wbd+X/fg1Bv2oIO0P6cpMUBVjiXBlrLYeqwPrHAe2SJVm6eiWsYI2UmTH9MbqjiUQvTix/MIbNqS8rH7sJGrFFZIHYh9VG/8w1Q8r0dsza5UxttwFEGqKFXifA4GxlffTC0j0+icPtYPqryeejkeCNRU4NS91c/fM5bXMWS42eQ=
+	t=1737513816; cv=none; b=keLcp2BiQKFD213OEG5bp1t2PMAEBdfmtzqkOuEnbOqUKeKyRN8vGATsSH9NEpjlJdyerwwSH/u9uvOFJB4kcFEnKt1oNUuJwnqSEJx2gFQjn3rGQJIdWOQ37CTxYEUxw43i3hGeky0YDRqved2ep46OBNRBZXUO0ppXWQ9+SMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737510684; c=relaxed/simple;
-	bh=o1vUhCZ1MIuPW9x3umjNxpr2woaO3N38+8noBsgoSXQ=;
+	s=arc-20240116; t=1737513816; c=relaxed/simple;
+	bh=Pawcx0vZWzoopIr28M39WQOkeACCe/QrUbhq4P9QjiE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RqR0HsXbUsqxZ5XW4vxvlUUgu0BNWnwcT5lgnvI7sHVDcYf7O344xck0knLXylfzNX9Jp5cYzQ0CaMn+BN+lER3VJc7eqH/95VgcWdnfN+Q22YYni8F9UvtiMI26tP10y8fs4iwKeBHTnNqfQ8ijy1/Y7t/UZZkySfWL4S5xm8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Hgapfv9T; arc=none smtp.client-ip=115.124.30.110
+	 Content-Type:Content-Disposition:In-Reply-To; b=EnzCEd0lxtxAlj5tZpA9KonpzDQpveibp1ucpA7rtJN0ZEo8pltpP9j+JjwBpdQBEGXAqsMGeP5OyvXEnQnTZi1jO3Ho2gv72eSCtazJ8q9uDzLwQZGFE3xoMIQEllKO3eN/+pTbcIxjDvRAgiaq0muLLvQASwMYk/xhrkmHGZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=qrbU+zWG; arc=none smtp.client-ip=115.124.30.132
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Hgapfv9T"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="qrbU+zWG"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1737510672; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=TFugPd9VsPU5LVMlrqc07WRWFR2jP8A5f/qqWIHyWZ0=;
-	b=Hgapfv9TkqlOQZjVbLdbsP/K3uhaQNMGUgpCUJ5bKkaSI5hz2dIGsksFEtiX7i6RviMoBjSwG1+tVYWPzqpTdaaCJ8TDPpyHlVCVerQ4Upw5lsqwE6RhBAVYIIGem/zOq1jfFjw00Oc31r0uTRUmO9rpNopCfpjfoqhRQld6EfU=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WO6n6eL_1737510670 cluster:ay36)
+	t=1737513810; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=lIgQW60MhRib77iPDue7FbAXzBMeV+tiKHMcuW5lSNc=;
+	b=qrbU+zWGtadA/blmCuSNX9ifiPpM1ow1Rl4d3LjtR2AQzkivC6NRZXp7LXEblYmNw9hr3rqJkq5LqxnCdpQ0CXTN1fi9yC3qCbnwu69qGFbNI38TEONjfnYrUohK7r4njvDigmBU7OAxwDAsRqJAI7tScDLQQ0h1rbgV/nG7raY=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WO6rCK3_1737513807 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Wed, 22 Jan 2025 09:51:10 +0800
-Date: Wed, 22 Jan 2025 09:51:09 +0800
+          Wed, 22 Jan 2025 10:43:28 +0800
+Date: Wed, 22 Jan 2025 10:43:27 +0800
 From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Martin KaFai Lau <martin.lau@linux.dev>
+To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
 Cc: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
 	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
-	daniel@iogearbox.net, andrii@kernel.org, pabeni@redhat.com,
-	song@kernel.org, sdf@google.com, haoluo@google.com, yhs@fb.com,
-	edumazet@google.com, john.fastabend@gmail.com, kpsingh@kernel.org,
-	jolsa@kernel.org, guwen@linux.alibaba.com, kuba@kernel.org,
-	davem@davemloft.net, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v6 5/5] bpf/selftests: add selftest for
- bpf_smc_ops
-Message-ID: <20250122015109.GA11751@j66a10360.sqa.eu95>
+	daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
+	pabeni@redhat.com, song@kernel.org, sdf@google.com,
+	haoluo@google.com, yhs@fb.com, edumazet@google.com,
+	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v6 4/5] libbpf: fix error when st-prefix_ops and
+ ops from differ btf
+Message-ID: <20250122024327.GA81479@j66a10360.sqa.eu95>
 References: <20250116074442.79304-1-alibuda@linux.alibaba.com>
- <20250116074442.79304-6-alibuda@linux.alibaba.com>
- <0d398524-f335-4346-902d-7d7cd3b0685b@linux.dev>
+ <20250116074442.79304-5-alibuda@linux.alibaba.com>
+ <CAEf4BzZvxqiQ2J1XQMm-ZDBjSsmtJJk6-_RbexPk9vWxAO=ksw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <0d398524-f335-4346-902d-7d7cd3b0685b@linux.dev>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEf4BzZvxqiQ2J1XQMm-ZDBjSsmtJJk6-_RbexPk9vWxAO=ksw@mail.gmail.com>
 User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Fri, Jan 17, 2025 at 04:37:04PM -0800, Martin KaFai Lau wrote:
-> On 1/15/25 11:44 PM, D. Wythe wrote:
-> >This tests introduces a tiny smc_ops for filtering SMC connections based on
-> >IP pairs, and also adds a realistic topology model to verify this ops.
+On Fri, Jan 17, 2025 at 10:36:50AM -0800, Andrii Nakryiko wrote:
+> On Wed, Jan 15, 2025 at 11:45 PM D. Wythe <alibuda@linux.alibaba.com> wrote:
 > >
-> >Also, we can only use SMC loopback under CI test, so an
-> >additional configuration needs to be enabled.
+> > When a struct_ops named xxx_ops was registered by a module, and
+> > it will be used in both built-in modules and the module itself,
+> > so that the btf_type of xxx_ops will be present in btf_vmlinux
+> > instead of in btf_mod, which means that the btf_type of
+> > bpf_struct_ops_xxx_ops and xxx_ops will not be in the same btf.
 > >
-> >Follow the steps below to run this test.
+> > Here are four possible case:
 > >
-> >make -C tools/testing/selftests/bpf
-> >cd tools/testing/selftests/bpf
-> >sudo ./test_progs -t smc
+> > +--------+---------------+-------------+---------------------------------+
+> > |        | st_ops_xxx_ops| xxx_ops     |                                 |
+> > +--------+---------------+-------------+---------------------------------+
+> > | case 0 | btf_vmlinux   | bft_vmlinux | be used and reg only in vmlinux |
+> > +--------+---------------+-------------+---------------------------------+
+> > | case 1 | btf_vmlinux   | bpf_mod     | INVALID                         |
+> > +--------+---------------+-------------+---------------------------------+
+> > | case 2 | btf_mod       | btf_vmlinux | reg in mod but be used both in  |
+> > |        |               |             | vmlinux and mod.                |
+> > +--------+---------------+-------------+---------------------------------+
+> > | case 3 | btf_mod       | btf_mod     | be used and reg only in mod     |
+> > +--------+---------------+-------------+---------------------------------+
 > >
-> >Results shows:
-> >Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-> >
-> >Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> >---
-> >  tools/testing/selftests/bpf/config            |   4 +
-> >  .../selftests/bpf/prog_tests/test_bpf_smc.c   | 397 ++++++++++++++++++
-> >  tools/testing/selftests/bpf/progs/bpf_smc.c   | 117 ++++++
-> >  3 files changed, 518 insertions(+)
-> >  create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-> >  create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
-> >
-> >diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
-> >index c378d5d07e02..fac2f2a9d02f 100644
-> >--- a/tools/testing/selftests/bpf/config
-> >+++ b/tools/testing/selftests/bpf/config
-> >@@ -113,3 +113,7 @@ CONFIG_XDP_SOCKETS=y
-> >  CONFIG_XFRM_INTERFACE=y
-> >  CONFIG_TCP_CONG_DCTCP=y
-> >  CONFIG_TCP_CONG_BBR=y
-> >+CONFIG_INFINIBAND=y
-> >+CONFIG_SMC=y
-> >+CONFIG_SMC_OPS=y
-> >+CONFIG_SMC_LO=y
-> >\ No newline at end of file
-> >+	int fd, ret;
-> >+	pid_t pid;
-> >+
-> >+	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
-> >+	if (!ASSERT_GT(fd, 0, "nl_family socket"))
+> > At present, cases 0, 1, and 3 can be correctly identified, because
+> > +       if (ret < 0 || ret >= sizeof(stname))
+> > +               return -ENAMETOOLONG;
 > 
-> Should be _GE. or just use ASSERT_OK_FD.
-> 
-Take it.
-> >+	if (!ASSERT_GE(ret, 0, "nl_family bind"))
-> 
-> nit. ASSERT_OK.
-> 
-> >+	if (!ASSERT_EQ(ret, 0, "nl_family query"))
-> 
-> ASSERT_OK.
-> 
-> >+	if (!ASSERT_GT(fd, 0, "ueid socket"))
-> 
-> ASSERT_OK_FD
-> 
-> >+		return false;
-> >+	ret = bind(fd, (struct sockaddr *) &nl_src, sizeof(nl_src));
-> >+	if (!ASSERT_GE(ret, 0, "ueid bind"))
-> 
-> ASSERT_OK
-> 
-> >+		goto fail;
-> >+	ret = send_cmd(fd, smc_nl_family_id, pid,
-> >+		       (void *)test_ueid, sizeof(test_ueid));
-> >+	if (!ASSERT_EQ(ret, 0, "ueid cmd"))
-> 
-> ASSERT_OK
+> see preexisting snprintf() above, we don't really handle truncation
+> errors explicitly, they are extremely unlikely and not expected at
+> all, and worst case nothing will be found and user will get some
+> -ENOENT or something like that eventually. I'd drop this extra error
+> checking and keep it streamlines, similar to tname
 > 
 
-The parts of the assert macro have been all fixed, thanks for your
-suggestion.
+Sounds reasonable to me. I will remove the explicit error checks in the
+next version.
 
-> >+		goto fail;
-> >+
-> >+int BPF_PROG(bpf_smc_switch_to_fallback, struct smc_sock___local *smc)
-> >+{
-> >+	/* only count from one side (client) */
-> >+	if (smc && !BPF_CORE_READ(smc, listen_smc))
+> > +
+> > +       /* Look for the corresponding "map_value" type that will be used
+> > +        * in map_update(BPF_MAP_TYPE_STRUCT_OPS) first, figure out the btf
+> > +        * and the mod_btf.
+> > +        * For example, find "struct bpf_struct_ops_tcp_congestion_ops".
+> > +        */
+> > +       kern_vtype_id = find_ksym_btf_id(obj, stname, BTF_KIND_STRUCT,
+> >                                         &btf, mod_btf);
 > 
-> It should not need BPF_CORE_READ. smc can be directly read like the
-> above sock->sk->...
+> nit: if this fits under 100 characters, keep it single line
+> 
+> > +       if (kern_vtype_id < 0) {
+> > +               pr_warn("struct_ops init_kern: struct %s is not found in kernel BTF\n",
+> > +                               stname);
+> 
+> same nit about preserving single-line statements as much as possible,
+> they are much easier to read
 
-Got it. I'll fix it in next version.
+None of them exceed 100 lines. Usually, I would check patches with 85 lines limitations,
+but since 100 lines is acceptable, we can modify it to a single line here for
+better readability.
 
-Thanks,
+And thanks very much for your suggestion, I plan to fix these style
+issues in next versions with you ack, is this okay for you?
+
+Best wishes,
 D. Wythe
-
 > 
-> >+		fallback_cnt++;
-> >+	return 0;
-> >+}
+> > +               return kern_vtype_id;
+> > +       }
+> > +       kern_vtype = btf__type_by_id(btf, kern_vtype_id);
+> > +
+> > +       kern_type_id = btf__find_by_name_kind(btf, tname, BTF_KIND_STRUCT);
+> >         if (kern_type_id < 0) {
+> >                 pr_warn("struct_ops init_kern: struct %s is not found in kernel BTF\n",
+> >                         tname);
+> > @@ -1020,20 +1039,6 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
+> >         }
+> >         kern_type = btf__type_by_id(btf, kern_type_id);
+> >
+> > -       /* Find the corresponding "map_value" type that will be used
+> > -        * in map_update(BPF_MAP_TYPE_STRUCT_OPS).  For example,
+> > -        * find "struct bpf_struct_ops_tcp_congestion_ops" from the
+> > -        * btf_vmlinux.
+> > -        */
+> > -       kern_vtype_id = find_btf_by_prefix_kind(btf, STRUCT_OPS_VALUE_PREFIX,
+> > -                                               tname, BTF_KIND_STRUCT);
+> > -       if (kern_vtype_id < 0) {
+> > -               pr_warn("struct_ops init_kern: struct %s%s is not found in kernel BTF\n",
+> > -                       STRUCT_OPS_VALUE_PREFIX, tname);
+> > -               return kern_vtype_id;
+> > -       }
+> > -       kern_vtype = btf__type_by_id(btf, kern_vtype_id);
+> > -
+> >         /* Find "struct tcp_congestion_ops" from
+> >          * struct bpf_struct_ops_tcp_congestion_ops {
+> >          *      [ ... ]
+> > @@ -1046,8 +1051,8 @@ find_struct_ops_kern_types(struct bpf_object *obj, const char *tname_raw,
+> >                         break;
+> >         }
+> >         if (i == btf_vlen(kern_vtype)) {
+> > -               pr_warn("struct_ops init_kern: struct %s data is not found in struct %s%s\n",
+> > -                       tname, STRUCT_OPS_VALUE_PREFIX, tname);
+> > +               pr_warn("struct_ops init_kern: struct %s data is not found in struct %s\n",
+> > +                       tname, stname);
+> >                 return -EINVAL;
+> >         }
+> >
+> > --
+> > 2.45.0
+> >
