@@ -1,166 +1,252 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13C162C9A;
-	Thu, 23 Jan 2025 03:30:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE3BD179A7;
+	Thu, 23 Jan 2025 07:30:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737603051; cv=none; b=fK0aWNxwaMPcQ6WwU0rbFPIdlykDVqJDJLXuqncscpXLPqHbaH3cud2LsIOBdAnv91aWsalKhGDS3UO/0dSOMO5LBJxoBDGft5vNDLwRsfG/4NcPm/VGnd3owDjdF5aKaY08exgdsMSL3H+EJUJD6xD+KimClit0YNLCzkUIT9I=
+	t=1737617444; cv=none; b=CDWAB6qHXOYWbHg3P8DnGQw1WwbOQ+VbGsayyh8rf9x0GatxpqBf9xSG5b2tO9ju18EnEFSAcra1RNQDQt5d8Zq0jq9tbYUZlzDT+RQJeAX8XU3lw4z6DJxSzm33HRLDN2/17lQ6uk9jFjs+V1+WqUrMoYVyvy1qOPvRJy8X5U4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737603051; c=relaxed/simple;
-	bh=/Gg28fZ6XTo4bzoa5SJH279/YT+vQs51tNDlVTdUiaQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OBFUKsrUQMFVL4x+VbsyIjC9t01L7nfIprYJT9g+bgivGuGC613kpyxYf9kYGMbhJlH6UIAM4jqhppT6aRUr5qapHQ4wBvK1WPvzrEr+jGDP8ciutrnIIyLPEbcY51FNICnjMOVRttSruMpq4SJyN42BWu/54ZP3qqoRY3TiFfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=skBEgtL1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737617444; c=relaxed/simple;
+	bh=4ROXU4dEmh4RWYEx61AVGXA3fTQl3Te7sC7Nvi9QyjU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nPYrMHAySYSraqdsDKLV06jimDnNPtK4TfxCDKAGQcyVyJS2sasjrPBndKhbqazUgqSJTQwDWA4vu16kqIwx225CVtQZLflgRd7WY6OVEurxc1jGvjHRN8sQwxxo1tw+VBg4RU40J+dnezKsy5RPVa/kzPjQcNktLY2WKXye2gY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hTKXjDao; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="skBEgtL1"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50N2mqbB016790;
-	Thu, 23 Jan 2025 03:30:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/Gg28f
-	Z6XTo4bzoa5SJH279/YT+vQs51tNDlVTdUiaQ=; b=skBEgtL1wwVl3bfROv/mc6
-	rqEp4D4shwNI9OE2/7gHzYgCfcBKihw4fkAwunTeAQ4z0pSi/jOr7NgyMd80+OvK
-	W5ATEFCjdOfZ7nFOUQEDnSes2PK/brxsQAdsAvGBYEeYN4GF8YA7tVdyZMJq7Drh
-	USwapeTTMG32ukzmQxr35oJF5mBjCtP/3LfhXEORJaK8M8tksye3ak4aXNil1ouG
-	lPkV+WO7UKxPRaDINJWyU4SVREI3Zpt2nwllCNrbu45W9OdAPrhNqYkuBVuqu2Ri
-	JMwW0XuW4Ilw69FwoBbwiyi5+FrvPUGoxQQ01ZGizTfoQnyjZQ9X11pZ0YqekOyQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44b3gttqys-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jan 2025 03:30:18 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50MNkiim021080;
-	Thu, 23 Jan 2025 03:30:17 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 448sb1k7v9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jan 2025 03:30:17 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50N3UE4I34996722
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jan 2025 03:30:14 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 20DCE2004B;
-	Thu, 23 Jan 2025 03:30:14 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 27CE620040;
-	Thu, 23 Jan 2025 03:30:11 +0000 (GMT)
-Received: from [9.109.204.94] (unknown [9.109.204.94])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jan 2025 03:30:10 +0000 (GMT)
-Message-ID: <f6576f1c-bba3-44cc-bcb4-95318d2ece5c@linux.ibm.com>
-Date: Thu, 23 Jan 2025 09:00:10 +0530
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hTKXjDao"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1737617437; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=5xdXtIDyunNbrMxr9UPFYnb5dTDyDfY6SdpFGFKJ/88=;
+	b=hTKXjDaoI+NDi1O61RQCZkOSI/eQuMZdjO5EKUq3FFcwoD8DTquU3d5pdWsuQIw/s5g+TEcF+jPNf6cQoAytVa6BLlAwsZmbCM5ucC2R1KsdmInc7pB9bLul2X8AWtinj/pvfsQHLMuu9cpKDa5QBLVYCPSXNWYJVhuCvSCvb68=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WOB-.T3_1737617434 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 23 Jan 2025 15:30:35 +0800
+Date: Thu, 23 Jan 2025 15:30:34 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
+	daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
+	pabeni@redhat.com, song@kernel.org, sdf@google.com,
+	haoluo@google.com, yhs@fb.com, edumazet@google.com,
+	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+	guwen@linux.alibaba.com
+Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v7 3/6] net/smc: Introduce generic hook smc_ops
+Message-ID: <20250123073034.GQ89233@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
+ <20250123015942.94810-4-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] mm/hugetlb: bring gigantic page allocation under
- hugepages_supported()
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: akpm@linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org
-References: <20250121150419.1342794-1-sourabhjain@linux.ibm.com>
- <20250122150613.28a92438@thinkpad-T15>
-Content-Language: en-US
-From: Sourabh Jain <sourabhjain@linux.ibm.com>
-In-Reply-To: <20250122150613.28a92438@thinkpad-T15>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: w2m3_3a-QB9cdFcKEir-4B9cCAZ8Nu9t
-X-Proofpoint-GUID: w2m3_3a-QB9cdFcKEir-4B9cCAZ8Nu9t
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-23_01,2025-01-22_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- bulkscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 impostorscore=0 mlxlogscore=828 phishscore=0
- spamscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501230024
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250123015942.94810-4-alibuda@linux.alibaba.com>
 
-Hello Gerald,
-
-On 22/01/25 19:36, Gerald Schaefer wrote:
-> On Tue, 21 Jan 2025 20:34:19 +0530
-> Sourabh Jain <sourabhjain@linux.ibm.com> wrote:
+On 2025-01-23 09:59:39, D. Wythe wrote:
+>The introduction of IPPROTO_SMC enables eBPF programs to determine
+>whether to use SMC based on the context of socket creation, such as
+>network namespaces, PID and comm name, etc.
 >
->> Despite having kernel arguments to enable gigantic hugepages, this
->> provides a way for the architecture to disable gigantic hugepages on the
->> fly, similar to what we do for hugepages.
->>
->> Components like fadump (PowerPC-specific) need this functionality to
->> disable gigantic hugepages when the kernel is booted solely to collect
->> the kernel core dump.
->>
->> Cc: Thomas Gleixner <tglx@linutronix.de>
->> Cc: Ingo Molnar <mingo@redhat.com>
->> Cc: Borislav Petkov <bp@alien8.de>
->> Cc: Heiko Carstens <hca@linux.ibm.com>
->> Cc: Vasily Gorbik <gor@linux.ibm.com>
->> Cc: Muchun Song <muchun.song@linux.dev>
->> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
->> Cc: Michael Ellerman <mpe@ellerman.id.au>
->> Cc: linux-mm@kvack.org
->> Cc: linux-kernel@vger.kernel.org
->> Cc: linuxppc-dev@lists.ozlabs.org
->> Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
->> ---
->>
->> To evaluate the impact of this change on architectures other than
->> PowerPC, I did the following analysis:
->>
->> For architectures where hugepages_supported() is not redefined, it
->> depends on HPAGE_SHIFT, which is found to be a constant. It is mostly
->> initialized to PMD_SHIFT.
->>
->> Architecture : HPAGE_SHIFT initialized with
->>
->> ARC: PMD_SHIFT (constant)
->> ARM: PMD_SHIFT (constant)
->> ARM64: PMD_SHIFT (constant)
->> Hexagon: 22 (constant)
->> LoongArch: (PAGE_SHIFT + PAGE_SHIFT - 3) (appears to be constant)
->> MIPS: (PAGE_SHIFT + PAGE_SHIFT - 3) (appears to be constant)
->> PARISC: PMD_SHIFT (appears to be constant)
->> RISC-V: PMD_SHIFT (constant)
->> SH: 16 | 18 | 20 | 22 | 26 (constant)
->> SPARC: 23 (constant)
->>
->> So seems like this change shouldn't have any impact on above
->> architectures.
->>
->> On the S390 and X86 architectures, hugepages_supported() is redefined,
->> and I am uncertain at what point it is safe to call
->> hugepages_supported().
-> For s390, hugepages_supported() checks EDAT1 machine flag, which is
-> initialized long before any initcalls. So it is safe to be called
-> here.
-Thanks for the info.
+>As a subsequent enhancement, to introduce a new generic hook that
+>allows decisions on whether to use SMC or not at runtime, including
+>but not limited to local/remote IP address or ports.
 >
-> My common code hugetlb skills got a little rusty, but shouldn't
-> arch_hugetlb_valid_size() already prevent getting here for gigantic
-> hugepages, in case they are not supported? And could you not use
-> that for your purpose?
+>Moreover, in the future, we can achieve more complex extensions to the
+>protocol stack by extending this ops.
+>
+>Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+>---
+> include/net/netns/smc.h |  3 ++
+> include/net/smc.h       | 53 ++++++++++++++++++++++++
+> net/ipv4/tcp_output.c   | 18 +++++++--
+> net/smc/Kconfig         | 12 ++++++
+> net/smc/Makefile        |  1 +
+> net/smc/smc_ops.c       | 53 ++++++++++++++++++++++++
+> net/smc/smc_ops.h       | 28 +++++++++++++
+> net/smc/smc_sysctl.c    | 90 +++++++++++++++++++++++++++++++++++++++++
+> 8 files changed, 254 insertions(+), 4 deletions(-)
+> create mode 100644 net/smc/smc_ops.c
+> create mode 100644 net/smc/smc_ops.h
+>
+>diff --git a/include/net/netns/smc.h b/include/net/netns/smc.h
+>index fc752a50f91b..81b3fdb39cd2 100644
+>--- a/include/net/netns/smc.h
+>+++ b/include/net/netns/smc.h
+>@@ -17,6 +17,9 @@ struct netns_smc {
+> #ifdef CONFIG_SYSCTL
+> 	struct ctl_table_header		*smc_hdr;
+> #endif
+>+#if IS_ENABLED(CONFIG_SMC_OPS)
+>+	struct smc_ops __rcu		*ops;
+>+#endif /* CONFIG_SMC_OPS */
+> 	unsigned int			sysctl_autocorking_size;
+> 	unsigned int			sysctl_smcr_buf_type;
+> 	int				sysctl_smcr_testlink_time;
+>diff --git a/include/net/smc.h b/include/net/smc.h
+>index db84e4e35080..844f98a6296a 100644
+>--- a/include/net/smc.h
+>+++ b/include/net/smc.h
+>@@ -18,6 +18,8 @@
+> #include "linux/ism.h"
+> 
+> struct sock;
+>+struct tcp_sock;
+>+struct inet_request_sock;
+> 
+> #define SMC_MAX_PNETID_LEN	16	/* Max. length of PNET id */
+> 
+>@@ -97,4 +99,55 @@ struct smcd_dev {
+> 	u8 going_away : 1;
+> };
+> 
+>+#define  SMC_OPS_NAME_MAX 16
+>+
+>+enum {
+>+	/* ops can be inherit from init_net */
+>+	SMC_OPS_FLAG_INHERITABLE = 0x1,
+>+
+>+	SMC_OPS_ALL_FLAGS = SMC_OPS_FLAG_INHERITABLE,
+>+};
+>+
+>+struct smc_ops {
+>+	/* priavte */
+>+
+>+	struct list_head list;
+>+	struct module *owner;
+>+
+>+	/* public */
+>+
+>+	/* unique name */
+>+	char name[SMC_OPS_NAME_MAX];
+>+	int flags;
+>+
+>+	/* Invoked before computing SMC option for SYN packets.
+>+	 * We can control whether to set SMC options by returning varios value.
+>+	 * Return 0 to disable SMC, or return any other value to enable it.
+>+	 */
+>+	int (*set_option)(struct tcp_sock *tp);
+>+
+>+	/* Invoked before Set up SMC options for SYN-ACK packets
+>+	 * We can control whether to respond SMC options by returning varios
+>+	 * value. Return 0 to disable SMC, or return any other value to enable
+>+	 * it.
+>+	 */
+>+	int (*set_option_cond)(const struct tcp_sock *tp,
+>+			       struct inet_request_sock *ireq);
+>+};
+>+
+>+#if IS_ENABLED(CONFIG_SMC_OPS)
+>+#define smc_call_retops(init_val, sk, func, ...) ({	\
+>+	typeof(init_val) __ret = (init_val);		\
+>+	struct smc_ops *ops;				\
+>+	rcu_read_lock();				\
+>+	ops = READ_ONCE(sock_net(sk)->smc.ops);		\
+>+	if (ops && ops->func)				\
+>+		__ret = ops->func(__VA_ARGS__);		\
+>+	rcu_read_unlock();				\
+>+	__ret;						\
+>+})
+>+#else
+>+#define smc_call_retops(init_val, ...) (init_val)
+>+#endif /* CONFIG_SMC_OPS */
+>+
+> #endif	/* _SMC_H */
+>diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+>index 0e5b9a654254..f62e30b4ffc8 100644
+>--- a/net/ipv4/tcp_output.c
+>+++ b/net/ipv4/tcp_output.c
+>@@ -40,6 +40,7 @@
+> #include <net/tcp.h>
+> #include <net/mptcp.h>
+> #include <net/proto_memory.h>
+>+#include <net/smc.h>
+> 
+> #include <linux/compiler.h>
+> #include <linux/gfp.h>
+>@@ -759,14 +760,18 @@ static void tcp_options_write(struct tcphdr *th, struct tcp_sock *tp,
+> 	mptcp_options_write(th, ptr, tp, opts);
+> }
+> 
+>-static void smc_set_option(const struct tcp_sock *tp,
+>+static void smc_set_option(struct tcp_sock *tp,
+> 			   struct tcp_out_options *opts,
+> 			   unsigned int *remaining)
+> {
+> #if IS_ENABLED(CONFIG_SMC)
+>+	struct sock *sk = &tp->inet_conn.icsk_inet.sk;
+> 	if (static_branch_unlikely(&tcp_have_smc)) {
+> 		if (tp->syn_smc) {
+>-			if (*remaining >= TCPOLEN_EXP_SMC_BASE_ALIGNED) {
+>+			tp->syn_smc = !!smc_call_retops(1, sk, set_option, tp);
+>+			/* re-check syn_smc */
+>+			if (tp->syn_smc &&
+>+			    *remaining >= TCPOLEN_EXP_SMC_BASE_ALIGNED) {
+> 				opts->options |= OPTION_SMC;
+> 				*remaining -= TCPOLEN_EXP_SMC_BASE_ALIGNED;
+> 			}
+>@@ -776,14 +781,19 @@ static void smc_set_option(const struct tcp_sock *tp,
+> }
+> 
+> static void smc_set_option_cond(const struct tcp_sock *tp,
+>-				const struct inet_request_sock *ireq,
+>+				struct inet_request_sock *ireq,
+> 				struct tcp_out_options *opts,
+> 				unsigned int *remaining)
+> {
+> #if IS_ENABLED(CONFIG_SMC)
+>+	const struct sock *sk = &tp->inet_conn.icsk_inet.sk;
+> 	if (static_branch_unlikely(&tcp_have_smc)) {
+> 		if (tp->syn_smc && ireq->smc_ok) {
+>-			if (*remaining >= TCPOLEN_EXP_SMC_BASE_ALIGNED) {
+>+			ireq->smc_ok = !!smc_call_retops(1, sk, set_option_cond,
+>+							 tp, ireq);
+>+			/* re-check smc_ok */
+>+			if (ireq->smc_ok &&
+>+			    *remaining >= TCPOLEN_EXP_SMC_BASE_ALIGNED) {
+> 				opts->options |= OPTION_SMC;
+> 				*remaining -= TCPOLEN_EXP_SMC_BASE_ALIGNED;
+> 			}
+>diff --git a/net/smc/Kconfig b/net/smc/Kconfig
+>index ba5e6a2dd2fd..27f35064d04c 100644
+>--- a/net/smc/Kconfig
+>+++ b/net/smc/Kconfig
+>@@ -33,3 +33,15 @@ config SMC_LO
+> 	  of architecture or hardware.
+> 
+> 	  if unsure, say N.
+>+
+>+config SMC_OPS
+>+	bool "Generic hook for SMC subsystem"
+>+	depends on SMC && BPF_SYSCALL
+>+	default n
+>+	help
+>+	  SMC_OPS enables support to register generic hook via eBPF programs
+>+	  for SMC subsystem. eBPF programs offer much greater flexibility
+>+	  in modifying the behavior of the SMC protocol stack compared
+>+	  to a complete kernel-based approach.
+>+
+>+	  if unsure, say N.
 
-Yes, handling this in arch_hugetlb_valid_size is even better. That way,
-we can avoid initializing data structures to hold hstate, which is not
-required anyway.
+I'm still not completely satisfied with the name smc_ops. Since this
+will be the API for our users, we need to be carefull on the name.
 
-Thanks for the review and suggestion. I will handle this in the
-architecture-specific code.
+It seems like you're aiming to define a common set of operations, but
+the implementation appears to be intertwined with BPF. If this is
+intended to be a common interface, and if we are using another operation,
+there shouldn’t be a need to hold a BPF reference.
 
-- Sourabh Jain
+As your 'help' sugguest, What about smc_hook ?
+
+Best regards,
+Dust
+
