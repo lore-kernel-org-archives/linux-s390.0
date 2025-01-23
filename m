@@ -1,178 +1,150 @@
-Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 876DE53363
-	for <linux-s390@vger.kernel.org>; Thu, 23 Jan 2025 16:13:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 375A513EFF3;
+	Thu, 23 Jan 2025 16:51:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737648793; cv=none; b=huoek2R3L90TaZevWHXzf8Wp8pcfZrlCrs1TfN+Gsxq/mCL1w9lu6dRyfJQfE2vK3vVXBm3+b7yeMQP9+q0MEqAmzpRzFx1/mGmuf1KWjrg3SxEkv+brsp1TIyzINh8O1W5RdwAIJqkW3/zWaF+B+Y9F95dDi372u9U6KI8f1n0=
+	t=1737651096; cv=none; b=XvGJ5Qt8XSoeNI71X4g90N6FljebuxcoHvOxRzEIHUFGoGWRw/rvOUgBCQi9yNGoWH3EG42CqBDLFdLc2mIxJeR6Y0Ho5aILuSw/M2xbloab+A4JZGSunZLdihB3pUYNP//8M+QiQugt18u6KXVg6rqF6F4Yy2HrkWtA4eK/aAU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737648793; c=relaxed/simple;
-	bh=MNLui14fZN+6VJ/pKz9DfN7dkjAM5YauH7/78gtwiu0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CJaKp20M+T1nLQpVQElW8SxU9qaJY0wl6lWwSs9QIRGWY5Qr5baagLTI8452lfv+3mZ8r9y8YIeylhZY/oG/eaFp+0FCv1aO8XkRoIigDzJwRWlLkHTsk11eF7NHS+KTG8aFNavcFmd9kIF3SVanKP9/TBB9Q5HNkYPNAAvLVvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=CdEfjCZ0; arc=none smtp.client-ip=95.215.58.186
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1737651096; c=relaxed/simple;
+	bh=DFaduKWU7VYI0Y7AW+VOvvpoHX2vW2fn3yulvDYBHyo=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ibv4ylRJMfcYNdNoaid28VTY50MziyQhlw7Gu0SYMzB4e22vmowCY8LzfO1ACTpMrRPslXwAJ72t7IF6doSwUMCv5t8tQM4uWeN795zKRQe55ordh8ntT4fdhPxleqb4N4Xwy+y6kdVDa7jPFD0EvloVtSWvsPZ8ffqnzly3RP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Z4z+dH68; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="CdEfjCZ0"
-Date: Thu, 23 Jan 2025 17:12:55 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1737648778;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KVjcAL8dszFablg6zSOCb3X5h1b08qnMEWy+SAhCX+M=;
-	b=CdEfjCZ0Emw7h2C19EyXfNIlFLFlSQXcDoTQIFOgT5XRbA1/Xz3R9t/N9SzXK6Vrvnin4X
-	thEzxRsofkjpUjgLII97kjT6y2k88hlNfM5KzQjaW1LQEg9alaJFQ1D/+bQMC7zS3QqQvt
-	Sazw3uVx63g7NHOdP/RnHLQV2SRqarU=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
-	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
-	pbonzini@redhat.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org, 
-	oliver.upton@linux.dev, suzuki.poulose@arm.com, yuzenghui@huawei.com, joey.gouly@arm.com, 
-	andre.przywara@arm.com
-Subject: Re: [kvm-unit-tests PATCH v2 18/18] run_tests: Enable kvmtool
-Message-ID: <20250123-30dd5e1694818e0d0228131b@orel>
-References: <20250120164316.31473-1-alexandru.elisei@arm.com>
- <20250120164316.31473-19-alexandru.elisei@arm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Z4z+dH68"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50NCP5cR020970;
+	Thu, 23 Jan 2025 16:51:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=CWWHnl
+	JRw0cVfjePevnNcyxun8+eLFDlFqd7I3sHbgw=; b=Z4z+dH68/3nA73wW7LDAMX
+	GOfuzM/mKU3xLhNQuD+n2C3VF5Me5LHUFYvvNidGzNG9BaSTi5qDssa4AsUZgcS3
+	d/RY5C1ORQRE34xMHXgg4jHrjSxbvsSoXgmYjBFhPqzUE3q6s53BMeyoiHJvHv6f
+	ztFHfo08ciJMKFD0ZKwrtFDbMmVrku+IGWDW95mq+C4UFCcpW047hdq7VaEPW+6H
+	KJAILoXotZ+rAmKePzWo3UaAMlvFfuEISJaHM3Vhxedxp9RuUlhnnlEPojL0zCIK
+	F1TuporU5syZfbAT/RJpKuoVeWT0tiZB0xm6JOogPaAwhZRUtrPA84N5WcnjyMmw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44bbu9c66h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jan 2025 16:51:15 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50NDx2co019218;
+	Thu, 23 Jan 2025 16:51:15 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 448pmspn1h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 23 Jan 2025 16:51:14 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50NGpBH452232614
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Jan 2025 16:51:11 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 385222005A;
+	Thu, 23 Jan 2025 16:51:11 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F2E6F20040;
+	Thu, 23 Jan 2025 16:51:10 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.152.212.238])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 23 Jan 2025 16:51:10 +0000 (GMT)
+Date: Thu, 23 Jan 2025 17:51:09 +0100
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
+        Qi Zheng
+ <zhengqi.arch@bytedance.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-mm@kvack.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] s390/mm: Add missing ctor/dtor on page table upgrade
+Message-ID: <20250123175109.294d7b4e@thinkpad-T15>
+In-Reply-To: <20250123160349.200154-1-agordeev@linux.ibm.com>
+References: <20250123160349.200154-1-agordeev@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250120164316.31473-19-alexandru.elisei@arm.com>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: IfKiNrKGv5ac1G9_wmbyaK86EmOJnqLw
+X-Proofpoint-ORIG-GUID: IfKiNrKGv5ac1G9_wmbyaK86EmOJnqLw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-23_07,2025-01-23_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=931
+ priorityscore=1501 clxscore=1011 adultscore=0 bulkscore=0 mlxscore=0
+ suspectscore=0 malwarescore=0 impostorscore=0 lowpriorityscore=0
+ spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501230122
 
-On Mon, Jan 20, 2025 at 04:43:16PM +0000, Alexandru Elisei wrote:
-> Everything is in place to run the tests using kvmtool:
+On Thu, 23 Jan 2025 17:03:49 +0100
+Alexander Gordeev <agordeev@linux.ibm.com> wrote:
+
+> Commit 78966b550289 ("s390: pgtable: add statistics for PUD and P4D
+> level page table") misses the call to pagetable_p4d_ctor() against
+> a newly allocated P4D table in crst_table_upgrade();
 > 
-> $ ./configure --target=kvmtool
-> $ make clean && make
-> $ KVMTOOL=<path/to/kvmtool> ./run_tests.sh
+> Commit 68c601de75d8 ("mm: introduce ctor/dtor at PGD level") misses
+> the call to pagetable_pgd_ctor() against a newly allocated PGD and
+> the call to pagetable_dtor() against a newly allocated P4D that is
+> about to be freed on crst_table_upgrade() PGD upgrade fail path.
 > 
-> so enable it, and remove ERRATA_FORCE=y when configuring for kvmtool,
-> because the runner will generate and pass the correct environment to
-> kvmtool.
+> The missed constructors and destructor break (at least) the page
+> table accounting when a process memory space is upgraded.
 > 
-> Missing is support for EFI tests. That's because distros don't ship a
-> EDK2 binary compiled for kvmtool, and on top of that kvm-unit-tests as
-> an EFI app hasn't been tested to work with kvmtool.
-> 
-> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+> Reported-by: Heiko Carstens <hca@linux.ibm.com>
+> Closes: https://lore.kernel.org/all/20250122074954.8685-A-hca@linux.ibm.com/
+> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
+> Fixes: 78966b550289 ("s390: pgtable: add statistics for PUD and P4D level page table")
+> Fixes: 68c601de75d8 ("mm: introduce ctor/dtor at PGD level")
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > ---
+> The patch is against:
 > 
-> Should I also revert commit 35145f140442 ("arm/arm64: kvmtool: force all tests
-> to run") which introduced ERRATA_FORCE? I didn't do this now in case other
-> architectures use it/planning to use it.
-
-We can leave ERRATA_FORCE, I use from time to time for quick testing.
-
+>   git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git	next-20250123
+>   git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm			mm-stable
+> ---
+>  arch/s390/mm/pgalloc.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
->  README.md               | 15 +++++++++++++++
->  arm/run                 |  2 +-
->  configure               |  1 -
->  run_tests.sh            |  2 +-
->  scripts/mkstandalone.sh |  2 +-
->  5 files changed, 18 insertions(+), 4 deletions(-)
-> 
-> diff --git a/README.md b/README.md
-> index be07dc28a094..5e7706f02553 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -65,6 +65,9 @@ or:
+> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> index a4e761902093..d33f55b7ee98 100644
+> --- a/arch/s390/mm/pgalloc.c
+> +++ b/arch/s390/mm/pgalloc.c
+> @@ -88,12 +88,14 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
+>  		if (unlikely(!p4d))
+>  			goto err_p4d;
+>  		crst_table_init(p4d, _REGION2_ENTRY_EMPTY);
+> +		pagetable_p4d_ctor(virt_to_ptdesc(p4d));
+>  	}
+>  	if (end > _REGION1_SIZE) {
+>  		pgd = crst_table_alloc(mm);
+>  		if (unlikely(!pgd))
+>  			goto err_pgd;
+>  		crst_table_init(pgd, _REGION1_ENTRY_EMPTY);
+> +		pagetable_pgd_ctor(virt_to_ptdesc(pgd));
+>  	}
 >  
->  to run them all.
+>  	spin_lock_bh(&mm->page_table_lock);
+> @@ -130,6 +132,7 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
+>  	return 0;
 >  
-> +All tests can be run using QEMU. On arm and arm64, tests can also be run using
-> +kvmtool.
-> +
->  By default the runner script searches for a suitable QEMU binary in the system.
->  To select a specific QEMU binary though, specify the QEMU=path/to/binary
->  environment variable:
-> @@ -80,10 +83,22 @@ For running tests that involve migration from one QEMU instance to another
->  you also need to have the "ncat" binary (from the nmap.org project) installed,
->  otherwise the related tests will be skipped.
->  
-> +To run a test with kvmtool, please configure kvm-unit-tests accordingly first:
-> +
-> +   ./configure --arch=arm64 --target=kvmtool
-> +
-> +then run the test(s) like with QEMU above.
-> +
-> +To select a kvmtool binary, specify the KVMTOOL=path/to/binary environment
-> +variable. kvmtool supports only kvm as the accelerator.
-> +
->  ## Running the tests with UEFI
->  
->  Check [x86/efi/README.md](./x86/efi/README.md).
->  
-> +On arm and arm64, this is only supported with QEMU; kvmtool cannot run the
-> +tests under UEFI.
-> +
->  # Tests configuration file
->  
->  The test case may need specific runtime configurations, for
-> diff --git a/arm/run b/arm/run
-> index 880d5afae86d..438a2617e564 100755
-> --- a/arm/run
-> +++ b/arm/run
-> @@ -10,7 +10,7 @@ if [ -z "$KUT_STANDALONE" ]; then
->  fi
->  
->  case "$TARGET" in
-> -qemu)
-> +qemu | kvmtool)
->      ;;
->  *)
->     echo "'$TARGET' not supported"
-> diff --git a/configure b/configure
-> index 86cf1da36467..17d3d931f2c0 100755
-> --- a/configure
-> +++ b/configure
-> @@ -299,7 +299,6 @@ elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
->          arm_uart_early_addr=0x09000000
->      elif [ "$target" = "kvmtool" ]; then
->          arm_uart_early_addr=0x1000000
-> -        errata_force=1
->      else
->          echo "--target must be one of 'qemu' or 'kvmtool'!"
->          usage
-> diff --git a/run_tests.sh b/run_tests.sh
-> index d38954be9093..3921dcdcb344 100755
-> --- a/run_tests.sh
-> +++ b/run_tests.sh
-> @@ -110,7 +110,7 @@ while [ $# -gt 0 ]; do
->  done
->  
->  case "$TARGET" in
-> -qemu)
-> +qemu | kvmtool)
->      ;;
->  *)
->      echo "$0 does not support '$TARGET'"
-> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
-> index 10abb5e191b7..16383b05adfa 100755
-> --- a/scripts/mkstandalone.sh
-> +++ b/scripts/mkstandalone.sh
-> @@ -8,7 +8,7 @@ source config.mak
->  source scripts/common.bash
->  
->  case "$TARGET" in
-> -qemu)
-> +qemu | kvmtool)
->      ;;
->  *)
->      echo "'$TARGET' not supported for standlone tests"
-> -- 
-> 2.47.1
->
+>  err_pgd:
+> +	pagetable_dtor(virt_to_ptdesc(p4d));
+>  	crst_table_free(mm, p4d);
+>  err_p4d:
+>  	return -ENOMEM;
 
-Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
+Thanks, looks good, and nice catch.
+
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
