@@ -1,148 +1,141 @@
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D12D3232;
-	Thu, 23 Jan 2025 02:21:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14A8335953;
+	Thu, 23 Jan 2025 02:55:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737598917; cv=none; b=NZNR76JvU++ZJFa/F35sbskuZmIrtx3Eu6avr4SpbDGTMNQ+XLRPgP2m9y5AT8YbB4gzDOWNUIHt76qzY/6ZzjaQk5iBxY0vflas+quHgNrItKV2giyVgNXvwA+8Bqd268SaAv8aigAAbpDs4uB4jf2/1Ip9miZ252gGFjToMP8=
+	t=1737600905; cv=none; b=ZK5VGSAftowy60kOTnXcFe6OHfZcQy3xAYCRqaDeUs2bbmyBDVcNK/nZ4g2c7ctrWH7YgJPQZJ9TbL0mrXg+srfpDJ7tZVjKJbd3JaBpepWuBJZ8iwg3zbXVdM1utVe0IJ8ke5O9kxeAeyr6ABe+hyYHaRMfw9fq0tZamouzfrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737598917; c=relaxed/simple;
-	bh=O0004Fp/PwMUyShcBZvPfRbmhH7tY4eOGMWkdrheC70=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XKFbszzEJ2TlAMaOk9Zl3G5OV/HZF3lmAYciOZ3SAyTFkH2z5XkezjPBDSluF3XetZiRNUTz59VxqgLm4PtP2bSg6QfmiteYoyiss16zIKYI0a7+P7gaKrFhEXtuLkJx9RL+pPunMmyJsnBEBcElj8yis+Bi5e9qTlH9YtPZhEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Ow0+G1SS; arc=none smtp.client-ip=115.124.30.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1737600905; c=relaxed/simple;
+	bh=aP0wv4Tcdl0htzXTlWdd2dIsiad+/SokA8d20fknp/U=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=snFK4qMwFd5jJUbPX8qhr2sute+H+Dl+Dbczq08Q55uqSPaL3re5/hDFdIalLmuyMNnK5fpkmZZvF8wK4/yNAEFMuaALZ9Sas7QejsafDEyshI4OtRBnp0E1H8WQnD8zXJIhN7cIdzPwhBwxyhuwUF5DbmoXkFV/6UkqrxCFfaU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oNqK1gVd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Ow0+G1SS"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1737598909; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=bOiM5BoMJqM/ebH3s2iqhNfCXeb+AKnDndw+EHGdh18=;
-	b=Ow0+G1SS9EMK6zR8YxDsFYFW/gveA9ZhypFIEDNl+RTb7u7EsmW9CkfHAvPyhcL7QOOBGfNSyKrwsTQREMKa/71fQwpbegj9CI0ovFLy2VVvHq7djv1eGHy/FAJdwyymrHDlXZOCfDjOHr1tQZOfpNthOYu5Mn2IuGyaSHH8DTA=
-Received: from 30.221.96.170(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WOA2eXV_1737598906 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 23 Jan 2025 10:21:48 +0800
-Message-ID: <437f3824-f6be-4053-acfe-7f3f1ebc626c@linux.alibaba.com>
-Date: Thu, 23 Jan 2025 10:21:46 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oNqK1gVd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89ABEC4CED2;
+	Thu, 23 Jan 2025 02:55:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1737600904;
+	bh=aP0wv4Tcdl0htzXTlWdd2dIsiad+/SokA8d20fknp/U=;
+	h=From:Date:Subject:To:Cc:From;
+	b=oNqK1gVdOwZ5RcPQhjVEkDB3l4UEXnTBUCvwCdy6+Eq6AdPHLeg4FtkJBe801Js77
+	 sUJmgTRqtiYaPqfYUuS5mnAZwNCEDO43qS46PiPW8Ut6sQKxDqe4Bpx8lrF6RZvshD
+	 bonsEvROMaQeSVM2sRKEAnAC6qhqn6KO+GhVVlBfDKNz41QZyXYo4GPR5YP/A4B+lM
+	 CoOKMMq/s//P51qSK3MwTxijOJh+sYcH6DoacrUr6cCVh4Yn2vlZY3iHmK2A2lblur
+	 ontSt/IYumU6zC5S8fgJ3j0t3/W++XD7bGcMPtPPjXzKmqO7tjsmWGizD/A90t/xif
+	 A2UJMik9cinXQ==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Wed, 22 Jan 2025 19:54:27 -0700
+Subject: [PATCH] s390: Add '-std=gnu11' to decompressor and purgatory
+ CFLAGS
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH bpf-next v7 2/6] net/smc: fix UAF on smcsk after
- smc_listen_out()
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
- daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
- pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com,
- yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com,
- kpsingh@kernel.org, jolsa@kernel.org, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
- <20250123015942.94810-3-alibuda@linux.alibaba.com>
-Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20250123015942.94810-3-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20250122-s390-fix-std-for-gcc-15-v1-1-8b00cadee083@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAGKvkWcC/x2MQQqAIBAAvxJ7bkEtkfpKdDBday8WbkQQ/T3pO
+ DAzDwgVJoGxeaDQxcJ7rqDbBsLm80rIsTIYZazSxqB0g8LEN8oZMe0F1xBQW1R+Sb4PPjnroNZ
+ HoWr952l+3w/R2jNDaQAAAA==
+X-Change-ID: 20250122-s390-fix-std-for-gcc-15-0abfa4caf757
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.15-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4084; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=aP0wv4Tcdl0htzXTlWdd2dIsiad+/SokA8d20fknp/U=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDOkT17dFZs6VVUk20X65XXruygBeBqZkI7l5XWULvDtuR
+ P2/3Piko5SFQYyLQVZMkaX6sepxQ8M5ZxlvnJoEM4eVCWQIAxenAExk9nJGhikvfx2MvV/5Oae/
+ XzJA5mPI1d1OR8ysHqtWHzLbncw0cR0jwyOfJVpyFboL2zMyHnBGdsZ3l09qWJw36YXQ3SWvlpe
+ HcQAA
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
+GCC changed the default C standard dialect from gnu17 to gnu23,
+which should not have impacted the kernel because it explicitly requests
+the gnu11 standard in the main Makefile. However, there are certain
+places in the s390 code that use their own CFLAGS without a '-std='
+value, which break with this dialect change because of the kernel's own
+definitions of bool, false, and true conflicting with the C23 reserved
+keywords.
 
+  include/linux/stddef.h:11:9: error: cannot use keyword 'false' as enumeration constant
+     11 |         false   = 0,
+        |         ^~~~~
+  include/linux/stddef.h:11:9: note: 'false' is a keyword with '-std=c23' onwards
+  include/linux/types.h:35:33: error: 'bool' cannot be defined via 'typedef'
+     35 | typedef _Bool                   bool;
+        |                                 ^~~~
+  include/linux/types.h:35:33: note: 'bool' is a keyword with '-std=c23' onwards
 
-On 2025/1/23 09:59, D. Wythe wrote:
-> BPF CI testing report a UAF issue:
-> 
->   [   16.446633] BUG: kernel NULL pointer dereference, address: 000000000000003  0
->   [   16.447134] #PF: supervisor read access in kernel mod  e
->   [   16.447516] #PF: error_code(0x0000) - not-present pag  e
->   [   16.447878] PGD 0 P4D   0
->   [   16.448063] Oops: Oops: 0000 [#1] PREEMPT SMP NOPT  I
->   [   16.448409] CPU: 0 UID: 0 PID: 9 Comm: kworker/0:1 Tainted: G           OE      6.13.0-rc3-g89e8a75fda73-dirty #4  2
->   [   16.449124] Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODUL  E
->   [   16.449502] Hardware name: QEMU Ubuntu 24.04 PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/201  4
->   [   16.450201] Workqueue: smc_hs_wq smc_listen_wor  k
->   [   16.450531] RIP: 0010:smc_listen_work+0xc02/0x159  0
->   [   16.452158] RSP: 0018:ffffb5ab40053d98 EFLAGS: 0001024  6
->   [   16.452526] RAX: 0000000000000001 RBX: 0000000000000002 RCX: 000000000000030  0
->   [   16.452994] RDX: 0000000000000280 RSI: 00003513840053f0 RDI: 000000000000000  0
->   [   16.453492] RBP: ffffa097808e3800 R08: ffffa09782dba1e0 R09: 000000000000000  5
->   [   16.453987] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa0978274640  0
->   [   16.454497] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa09782d4092  0
->   [   16.454996] FS:  0000000000000000(0000) GS:ffffa097bbc00000(0000) knlGS:000000000000000  0
->   [   16.455557] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003  3
->   [   16.455961] CR2: 0000000000000030 CR3: 0000000102788004 CR4: 0000000000770ef  0
->   [   16.456459] PKRU: 5555555  4
->   [   16.456654] Call Trace  :
->   [   16.456832]  <TASK  >
->   [   16.456989]  ? __die+0x23/0x7  0
->   [   16.457215]  ? page_fault_oops+0x180/0x4c  0
->   [   16.457508]  ? __lock_acquire+0x3e6/0x249  0
->   [   16.457801]  ? exc_page_fault+0x68/0x20  0
->   [   16.458080]  ? asm_exc_page_fault+0x26/0x3  0
->   [   16.458389]  ? smc_listen_work+0xc02/0x159  0
->   [   16.458689]  ? smc_listen_work+0xc02/0x159  0
->   [   16.458987]  ? lock_is_held_type+0x8f/0x10  0
->   [   16.459284]  process_one_work+0x1ea/0x6d  0
->   [   16.459570]  worker_thread+0x1c3/0x38  0
->   [   16.459839]  ? __pfx_worker_thread+0x10/0x1  0
->   [   16.460144]  kthread+0xe0/0x11  0
->   [   16.460372]  ? __pfx_kthread+0x10/0x1  0
->   [   16.460640]  ret_from_fork+0x31/0x5  0
->   [   16.460896]  ? __pfx_kthread+0x10/0x1  0
->   [   16.461166]  ret_from_fork_asm+0x1a/0x3  0
->   [   16.461453]  </TASK  >
->   [   16.461616] Modules linked in: bpf_testmod(OE) [last unloaded: bpf_testmod(OE)  ]
->   [   16.462134] CR2: 000000000000003  0
->   [   16.462380] ---[ end trace 0000000000000000 ]---
->   [   16.462710] RIP: 0010:smc_listen_work+0xc02/0x1590
-> 
-> The direct cause of this issue is that after smc_listen_out_connected(),
-> newclcsock->sk may be NULL since it will releases the smcsk. Therefore,
-> if the application closes the socket immediately after accept,
-> newclcsock->sk can be NULL. A possible execution order could be as
-> follows:
-> 
-> smc_listen_work                                 | userspace
-> -----------------------------------------------------------------
-> lock_sock(sk)                                   |
-> smc_listen_out_connected()                      |
-> | \- smc_listen_out                             |
-> |    | \- release_sock                          |
->      | |- sk->sk_data_ready()                   |
->                                                 | fd = accept();
->                                                 | close(fd);
->                                                 |  \- socket->sk = NULL;
-> /* newclcsock->sk is NULL now */
-> SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk))
-> 
-> Since smc_listen_out_connected() will not fail, simply swapping the order
-> of the code can easily fix this issue.
-> 
-> Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> ---
->  net/smc/af_smc.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index c370efcfe3e8..9eebf7d0179e 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -2549,8 +2549,9 @@ static void smc_listen_work(struct work_struct *work)
->  			goto out_decl;
->  	}
->  
-> -	smc_listen_out_connected(new_smc);
->  	SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk), ini);
-> +	/* smc_listen_out() will release smcsk */
-> +	smc_listen_out_connected(new_smc);
->  	goto out_free;
->  
->  out_unlock:
+Add '-std=gnu11' to the decompressor and purgatory CFLAGS to eliminate
+these errors and make the C standard version of these areas match the
+rest of the kernel.
 
-LGTM.
-Reviewed-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+I only see one other error in various files with a recent GCC 15.0.1
+snapshot, which I can eliminate by dropping the version part of the
+condition for CONFIG_GCC_ASM_FLAG_OUTPUT_BROKEN. Is this a regression of
+the fix for the problem of GCC 14.2.0 or is something else doing on
+here?
+
+  arch/s390/include/asm/bitops.h: Assembler messages:
+  arch/s390/include/asm/bitops.h:60: Error: operand 1: syntax error; missing ')' after base register
+  arch/s390/include/asm/bitops.h:60: Error: operand 2: syntax error; ')' not allowed here
+  arch/s390/include/asm/bitops.h:60: Error: junk at end of line: `,4'
+  arch/s390/include/asm/bitops.h:60: Error: operand 1: syntax error; missing ')' after base register
+  arch/s390/include/asm/bitops.h:60: Error: operand 2: syntax error; ')' not allowed here
+  arch/s390/include/asm/bitops.h:60: Error: junk at end of line: `,64'
+  arch/s390/include/asm/bitops.h:60: Error: operand 1: syntax error; missing ')' after base register
+  arch/s390/include/asm/bitops.h:60: Error: operand 2: syntax error; ')' not allowed here
+  arch/s390/include/asm/bitops.h:60: Error: junk at end of line: `,4'
+  make[6]: *** [scripts/Makefile.build:194: fs/gfs2/glock.o] Error 1
+---
+ arch/s390/Makefile           | 2 +-
+ arch/s390/purgatory/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 3f25498dac65..5fae311203c2 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -22,7 +22,7 @@ KBUILD_AFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -D__ASSEMBLY__
+ ifndef CONFIG_AS_IS_LLVM
+ KBUILD_AFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),$(aflags_dwarf))
+ endif
+-KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2 -mpacked-stack
++KBUILD_CFLAGS_DECOMPRESSOR := $(CLANG_FLAGS) -m64 -O2 -mpacked-stack -std=gnu11
+ KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+ KBUILD_CFLAGS_DECOMPRESSOR += -D__DECOMPRESSOR
+ KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float -mbackchain
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index 24eccaa29337..bdcf2a3b6c41 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -13,7 +13,7 @@ CFLAGS_sha256.o := -D__DISABLE_EXPORTS -D__NO_FORTIFY
+ $(obj)/mem.o: $(srctree)/arch/s390/lib/mem.S FORCE
+ 	$(call if_changed_rule,as_o_S)
+ 
+-KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
++KBUILD_CFLAGS := -std=gnu11 -fno-strict-aliasing -Wall -Wstrict-prototypes
+ KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
+ KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
+ KBUILD_CFLAGS += -Os -m64 -msoft-float -fno-common
+
+---
+base-commit: b2832409e00b6330781458d7db0080508a35a9a8
+change-id: 20250122-s390-fix-std-for-gcc-15-0abfa4caf757
+
+Best regards,
+-- 
+Nathan Chancellor <nathan@kernel.org>
+
