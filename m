@@ -1,68 +1,46 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47C3186A;
-	Thu, 23 Jan 2025 10:40:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 261312116F5
+	for <linux-s390@vger.kernel.org>; Thu, 23 Jan 2025 14:07:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737628852; cv=none; b=ZgcXaRAY4Dgfj844F22iLyGVDMrHN7T0KRyiCCOqsrSb4Mi8+tegvZnxIwJlbNlBGMcOrJsbzbuFWtYVlnkJqk5OReYc+2QefwxA+pv+xIJDTYcs2idDcmd8+PiOjeD6pNi8b1H0lC2vt41YKwlGAhUt+FJ9qeCrsZgGcELAPm0=
+	t=1737641258; cv=none; b=LT7zcHX4x8B3I/tEM6Xysjy4nEgIYgTBCm8lgHWOZCYsD6DRUZK7bcE7lDcyI74BwGIenoGiHULUXpZXv4orYWX5IPy8C75WOIVt09wqLzjn5mxn22nf/nguywaX7C0a2K7PE0hikF4atWFrSAHznC2DCyIBvocSuyKy5GVC+Sw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737628852; c=relaxed/simple;
-	bh=zrK5Lsbmf+cSiwB66LeyPvHutSUGEpNi7yG5s/3z69c=;
+	s=arc-20240116; t=1737641258; c=relaxed/simple;
+	bh=ZIwKFzk0Q/xzgIcE0IKnf1QwQMXGxdYsIcr/aL2YqZQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sODLsiiDIzp+rb3zaKEkNMui5EwLkQv57NvOqoL+dLROrbNH1P2UdZ6sHm/crjCHGKa08iK5mN1T5Megh6BB4Y1KjFPPehNWsm/zEvhHfHfEehHjmuo+6JKlWNVJB3vB2qwPuBRKpxpwNv55S0EoKcbqxKcOLRlsxzukuQODC9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oC0kdp9n; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=gNFp6jH8HxuWi6dOJcpI1R3iLIJqXDustIDQ1cq1x6j6I+1Y1MyE0JGbE1oxVOCSaOmzuhIC4WTzATfj/3KvlFBRNhYHDgqctG9Fx4ScKYypHkcDAomotrpAPwKbArsJK2P4m4zH2ISe1XQrfHscrIZNdRrTAMGiXKeCLO7WGWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=r41LZca+; arc=none smtp.client-ip=95.215.58.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oC0kdp9n"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50N5O5le026555;
-	Thu, 23 Jan 2025 10:40:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=I+ZNzz7N8uTr/4N40mx78vosGusiXM
-	z5qq+Jk6d1y2k=; b=oC0kdp9nXiZ1VZRyscU4OMOuplYOVPw0dwHPmu1pRj2S3N
-	Z9rR7Xr6RUkBXsrjHHkUNtQxjq3Zj0PyQ68sIuoTck8uh0LcP7UtVRewW4EGOJL3
-	tdaOax/+rByXqcnmrAt46XzJs5zqJORVEevulSswjZM4BWUkbNrDY3Ir5j7dr9U3
-	aKdaFLePKdUPvA096ivRm3403dxCQ2AAhCmy+VW6i4u0aT7pEfsVOi46y1lS/EZ2
-	LIssj4Gp5vIxisE6JUanJBEZgh8mNx8FO+LnuL9DDnUjOalFRbgU6Xf9zpAnleTs
-	wS1LsjLihAo3W1jXGnbUIe3K3eIAbwU9sjtGbB5w==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44bfk7sdd4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jan 2025 10:40:48 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50N7mxfe032266;
-	Thu, 23 Jan 2025 10:40:47 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 448rujvrvu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jan 2025 10:40:47 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50NAehZT52232508
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jan 2025 10:40:43 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6BD5F20040;
-	Thu, 23 Jan 2025 10:40:43 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B441D2004D;
-	Thu, 23 Jan 2025 10:40:42 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.77.114])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 23 Jan 2025 10:40:42 +0000 (GMT)
-Date: Thu, 23 Jan 2025 11:40:40 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] s390: Add '-std=gnu11' to decompressor and purgatory
- CFLAGS
-Message-ID: <Z5IcqJbvLhMGQmUw@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250122-s390-fix-std-for-gcc-15-v1-1-8b00cadee083@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="r41LZca+"
+Date: Thu, 23 Jan 2025 15:07:18 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1737641243;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wiYAC4Ucxcm7KuFAC5tUIQUTt4eAoBsu+z1SGcrkjzs=;
+	b=r41LZca+Sg/9Rc14gHPNbCgZPgDw6X/CzWbgkYZYXTZWfG9IYDtoDglUvjOpuR+psOcRFP
+	bVQkbsAuJLGvQhJcpWMAvbb5zRT6xkvAW9FFr+yMuz1EEAIFRpfQDHRFsRH80+9mTCqLQo
+	Qh+GFBQVRggjkwqI0l6xn+R27U6C8Ro=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
+	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
+	pbonzini@redhat.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org, 
+	oliver.upton@linux.dev, suzuki.poulose@arm.com, yuzenghui@huawei.com, joey.gouly@arm.com, 
+	andre.przywara@arm.com
+Subject: Re: [kvm-unit-tests PATCH v2 12/18] scripts/runtime: Add default
+ arguments for kvmtool
+Message-ID: <20250121-16510b161f5b92ce9c5ae4e1@orel>
+References: <20250120164316.31473-1-alexandru.elisei@arm.com>
+ <20250120164316.31473-13-alexandru.elisei@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,47 +49,110 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250122-s390-fix-std-for-gcc-15-v1-1-8b00cadee083@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EZCw6DzQknm-F8NCiHtCYL1NERxZl_cu
-X-Proofpoint-ORIG-GUID: EZCw6DzQknm-F8NCiHtCYL1NERxZl_cu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-23_04,2025-01-22_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=692
- adultscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 clxscore=1011
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501230080
+In-Reply-To: <20250120164316.31473-13-alexandru.elisei@arm.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Wed, Jan 22, 2025 at 07:54:27PM -0700, Nathan Chancellor wrote:
-> GCC changed the default C standard dialect from gnu17 to gnu23,
-> which should not have impacted the kernel because it explicitly requests
-> the gnu11 standard in the main Makefile. However, there are certain
-> places in the s390 code that use their own CFLAGS without a '-std='
-> value, which break with this dialect change because of the kernel's own
-> definitions of bool, false, and true conflicting with the C23 reserved
-> keywords.
+On Mon, Jan 20, 2025 at 04:43:10PM +0000, Alexandru Elisei wrote:
+> kvmtool, unless told otherwise, will do its best to make sure that a kernel
+> successfully boots in a virtual machine. Among things like automatically
+> creating a rootfs, it also adds extra parameters to the kernel command
+> line. This is actively harmful to kvm-unit-tests, because some tests parse
+> the kernel command line and they will fail if they encounter the options
+> added by kvmtool.
 > 
->   include/linux/stddef.h:11:9: error: cannot use keyword 'false' as enumeration constant
->      11 |         false   = 0,
->         |         ^~~~~
->   include/linux/stddef.h:11:9: note: 'false' is a keyword with '-std=c23' onwards
->   include/linux/types.h:35:33: error: 'bool' cannot be defined via 'typedef'
->      35 | typedef _Bool                   bool;
->         |                                 ^~~~
->   include/linux/types.h:35:33: note: 'bool' is a keyword with '-std=c23' onwards
+> Fortunately for us, kvmtool commit 5613ae26b998 ("Add --nodefaults command
+> line argument") addded the --nodefaults kvmtool parameter which disables
+
+added
+
+> all the implicit virtual machine configuration that cannot be disabled by
+> using other parameters, like modifying the kernel command line. Always use
+> --nodefaults to allow a test to run.
 > 
-> Add '-std=gnu11' to the decompressor and purgatory CFLAGS to eliminate
-> these errors and make the C standard version of these areas match the
-> rest of the kernel.
+> kvmtool can be too verbose when running a virtual machine, and this is
+> controlled with parameters. Add those to the default kvmtool command line
+> to reduce this verbosity to a minimum.
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-...
+> Before:
+> 
+> $ vm run arm/selftest.flat --cpus 2 --mem 256 --params "setup smp=2 mem=256"
+>   Info: # lkvm run -k arm/selftest.flat -m 256 -c 2 --name guest-5035
+> Unknown subtest
+> 
+> EXIT: STATUS=127
+>   Warning: KVM compatibility warning.
+> 	virtio-9p device was not detected.
+> 	While you have requested a virtio-9p device, the guest kernel did not initialize it.
+> 	Please make sure that the guest kernel was compiled with CONFIG_NET_9P_VIRTIO=y enabled in .config.
+>   Warning: KVM compatibility warning.
+> 	virtio-net device was not detected.
+> 	While you have requested a virtio-net device, the guest kernel did not initialize it.
+> 	Please make sure that the guest kernel was compiled with CONFIG_VIRTIO_NET=y enabled in .config.
+>   Info: KVM session ended normally.
+> 
+> After:
+> 
+> $ vm run arm/selftest.flat --nodefaults --network mode=none --loglevel=warning --cpus 2 --mem 256 --params "setup smp=2 mem=256"
+
+On riscv I've noticed that with --nodefaults if I don't add parameters
+with --params then kvmtool segfaults. I have to add --params "" to
+avoid it. Does that also happen on arm? Anyway, that's something we
+should fix in kvmtool rather than workaround it here.
+
+> PASS: selftest: setup: smp: number of CPUs matches expectation
+> INFO: selftest: setup: smp: found 2 CPUs
+> PASS: selftest: setup: mem: memory size matches expectation
+> INFO: selftest: setup: mem: found 256 MB
+> SUMMARY: 2 tests
+> 
+> EXIT: STATUS=1
+> 
+> Note that KVMTOOL_DEFAULT_OPTS can be overwritten by an environment
+> variable with the same name, but it's not documented in the help string for
+> run_tests.sh. This has been done on purpose, since overwritting
+> KVMTOOL_DEFAULT_OPTS should only be necessary for debugging or development
+> purposes.
+> 
+> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 > ---
->  arch/s390/Makefile           | 2 +-
->  arch/s390/purgatory/Makefile | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>  scripts/runtime.bash | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/scripts/runtime.bash b/scripts/runtime.bash
+> index 55d58eef9c7c..abfd1e67b2ef 100644
+> --- a/scripts/runtime.bash
+> +++ b/scripts/runtime.bash
+> @@ -2,6 +2,17 @@
+>  : "${MAX_SMP:=$(getconf _NPROCESSORS_ONLN)}"
+>  : "${TIMEOUT:=90s}"
+>  
+> +# The following parameters are enabled by default when running a test with
+> +# kvmtool:
+> +# --nodefaults: suppress VM configuration that cannot be disabled otherwise
+> +#               (like modifying the supplied kernel command line). Tests that
+> +#               use the command line will fail without this parameter.
+> +# --network mode=none: do not create a network device. kvmtool tries to help the
+> +#                user by automatically create one, and then prints a warning
+> +#                when the VM terminates if the device hasn't been initialized.
+> +# --loglevel=warning: reduce verbosity
+> +: "${KVMTOOL_DEFAULT_OPTS:="--nodefaults --network mode=none --loglevel=warning"}"
+> +
+>  PASS() { echo -ne "\e[32mPASS\e[0m"; }
+>  SKIP() { echo -ne "\e[33mSKIP\e[0m"; }
+>  FAIL() { echo -ne "\e[31mFAIL\e[0m"; }
+> @@ -103,7 +114,7 @@ function run()
+>          opts="-smp $smp $qemu_opts"
+>          ;;
+>      kvmtool)
+> -        opts="--cpus $smp $kvmtool_opts"
+> +        opts="$KVMTOOL_DEFAULT_OPTS --cpus $smp $kvmtool_opts"
+>          ;;
+>      esac
+>  
+> -- 
+> 2.47.1
+>
 
-Applied, thanks!
+Otherwise,
+
+Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
