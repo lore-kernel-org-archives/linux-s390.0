@@ -1,95 +1,88 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 375A513EFF3;
-	Thu, 23 Jan 2025 16:51:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 644D01D5CD7
+	for <linux-s390@vger.kernel.org>; Fri, 24 Jan 2025 02:43:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737651096; cv=none; b=XvGJ5Qt8XSoeNI71X4g90N6FljebuxcoHvOxRzEIHUFGoGWRw/rvOUgBCQi9yNGoWH3EG42CqBDLFdLc2mIxJeR6Y0Ho5aILuSw/M2xbloab+A4JZGSunZLdihB3pUYNP//8M+QiQugt18u6KXVg6rqF6F4Yy2HrkWtA4eK/aAU=
+	t=1737686628; cv=none; b=LE/hq9BDEiriacWp8YAbkkj9DhV5gw+6IuQsCDjmnKwfUSq5vmyUjs9TzyGzIt7T0eF4cpLZe5JSF8v4+l7oMx4eKsGGrCmxeeXw7xljHyqr37Fs8zfkLJG+SiUF38fWY5m7dFJd/HmOChDVZilbPQlI9JIfA/UDBexRRPDLtR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737651096; c=relaxed/simple;
-	bh=DFaduKWU7VYI0Y7AW+VOvvpoHX2vW2fn3yulvDYBHyo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ibv4ylRJMfcYNdNoaid28VTY50MziyQhlw7Gu0SYMzB4e22vmowCY8LzfO1ACTpMrRPslXwAJ72t7IF6doSwUMCv5t8tQM4uWeN795zKRQe55ordh8ntT4fdhPxleqb4N4Xwy+y6kdVDa7jPFD0EvloVtSWvsPZ8ffqnzly3RP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Z4z+dH68; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1737686628; c=relaxed/simple;
+	bh=Ea+o5mgPPSi79LiVF7xWzlz2h/NOLdA8cwxcZo1z9Kc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZpfC6WfuiM6eul890vvaip9TYVJ8oLBlpHLVy8nV24IHEZu44hYFSFoLRWhWUxtDjoTZG77+bG0Ya6Fa5dYBuwVFuoOcyTsrHhRBIjRZn+kBdPHh+WYG6+8KBvH0MbCnh3QtdoIZvogBg7jtzr0LHY8zcyaWsWOqZpvAOVqEM/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com; spf=pass smtp.mailfrom=bytedance.com; dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b=fIz+Hyk6; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Z4z+dH68"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50NCP5cR020970;
-	Thu, 23 Jan 2025 16:51:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CWWHnl
-	JRw0cVfjePevnNcyxun8+eLFDlFqd7I3sHbgw=; b=Z4z+dH68/3nA73wW7LDAMX
-	GOfuzM/mKU3xLhNQuD+n2C3VF5Me5LHUFYvvNidGzNG9BaSTi5qDssa4AsUZgcS3
-	d/RY5C1ORQRE34xMHXgg4jHrjSxbvsSoXgmYjBFhPqzUE3q6s53BMeyoiHJvHv6f
-	ztFHfo08ciJMKFD0ZKwrtFDbMmVrku+IGWDW95mq+C4UFCcpW047hdq7VaEPW+6H
-	KJAILoXotZ+rAmKePzWo3UaAMlvFfuEISJaHM3Vhxedxp9RuUlhnnlEPojL0zCIK
-	F1TuporU5syZfbAT/RJpKuoVeWT0tiZB0xm6JOogPaAwhZRUtrPA84N5WcnjyMmw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44bbu9c66h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jan 2025 16:51:15 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50NDx2co019218;
-	Thu, 23 Jan 2025 16:51:15 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 448pmspn1h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 23 Jan 2025 16:51:14 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50NGpBH452232614
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jan 2025 16:51:11 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 385222005A;
-	Thu, 23 Jan 2025 16:51:11 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F2E6F20040;
-	Thu, 23 Jan 2025 16:51:10 +0000 (GMT)
-Received: from thinkpad-T15 (unknown [9.152.212.238])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 23 Jan 2025 16:51:10 +0000 (GMT)
-Date: Thu, 23 Jan 2025 17:51:09 +0100
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
-        Qi Zheng
- <zhengqi.arch@bytedance.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] s390/mm: Add missing ctor/dtor on page table upgrade
-Message-ID: <20250123175109.294d7b4e@thinkpad-T15>
-In-Reply-To: <20250123160349.200154-1-agordeev@linux.ibm.com>
-References: <20250123160349.200154-1-agordeev@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="fIz+Hyk6"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-216395e151bso22008495ad.0
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jan 2025 18:43:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1737686624; x=1738291424; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aAEVMfSL85K0Fb818rr6S6+agwwVsO1oxeV+co+SL/A=;
+        b=fIz+Hyk6m7t29bE4DbRFZUw+hKsCgxCa5JX1afX6AP11WoUaOCQ2t0STLYq0oER0Iq
+         Mutfe3yxEW3qWBq0fo1kqGazLLeSNF7U78/pQkndq97xjXON64IoZR3Pw2YtOoLQ0lRj
+         CMgHij20x0zM47GU3fGLdU8zyr7LnMKvSGa+U0oqt82xtaP1cVxYvlDnI0P+v9ob7Og6
+         zWyFnYn82wu9ag9RdRxdIIYCcQrVe7EicqYZlejvqUxA1GjaZ6gSb5F2OaTQqtJOrK/3
+         +knDAIP9HGYTukDfP8QrfUGbjpestK50hmI4/n+vd6m6jfarIZ7HpAK7SDxKZ6gEnv38
+         3kcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737686624; x=1738291424;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aAEVMfSL85K0Fb818rr6S6+agwwVsO1oxeV+co+SL/A=;
+        b=at86MkxL5HKEc/UAkGGjrA7DBYkTwBtTgiFhBEZpb+wfs+t0AbG9PGQSriHHVhHxRM
+         9poJhfKpAxdAv0ZoL7k03Nucpzo70Y3N5gwQ7oarZkSwUL+5ISUBFJQgpaVph+Ff7vUE
+         X2u6oNMAGziqJJkadC7v+nKDFefKSNZnWSaQDdbH7+yuxf+xYHXasKhWQxK1heVrrDKT
+         E3RJuXeiTMOvz5ofrZBisPPmb+BJgWJegpTmLGD0bdUBXK1uEZCx4/vGIHU3muflsQqR
+         gbnqo9/XD7TEDgH/ABBkM2RC7+eBwm8xpRGzNaLg2mE0vN/McqMETYU738PVSPbsscNj
+         MjkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV+kXFR76yrdzPmOJon1pVbpPFSunh9CjjQzz1rQrFFTFv3lz1mv86+vB/3sQW8HSo37m2dKLIVfc68@vger.kernel.org
+X-Gm-Message-State: AOJu0YwoSRIyehcsyXvZQqTSAnRHAOQw/dYUlPJ+BPPdX8fe4eNDS81y
+	uXS6d6vJtBO3TRq56Y73ewO/3+VpndR9VCha0xC/DenJkCR1HRVs+C/Hw66JOYM=
+X-Gm-Gg: ASbGncuxpthhkXYTwbIybaTXxqTUA1LcGFm4tL6+9OBvH5T4Wk/RMLYj1my1QhETEQm
+	NNe5ClLuNFwgp7FgapoLDKkGcuiOIJQYhXwnhFtCPxaA2i/WhMo664whGjgCDF1eStmHG7wNRkE
+	OLz7RtN4DJg5suA8tXTSB65z+fijTWYuTygNpjGQESYsOJQRiNcuSZ5kpccmgzoCrZaaxY7AjyA
+	6Z8Eh+sKCQ7A0UQ4nvg6rRBs/pllaRMD6Cf0crbV+d13zwd0kUTNZrVL6lERLyAwtTC8WQDaaBk
+	HiGp8e9sdGINdvksE5y1YiEsiAIk9A==
+X-Google-Smtp-Source: AGHT+IHTWa6ZCDsSKDB8q4F0CTBJysKJhjEmOkLroQcS07omC9+DalweP+QvYBIrAKMtnEtGr9eVNQ==
+X-Received: by 2002:a17:903:228f:b0:216:33f0:58d5 with SMTP id d9443c01a7336-21da4a9ddc2mr25531815ad.17.1737686624071;
+        Thu, 23 Jan 2025 18:43:44 -0800 (PST)
+Received: from [10.84.148.23] ([203.208.167.150])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21da424f368sm5862405ad.257.2025.01.23.18.43.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jan 2025 18:43:43 -0800 (PST)
+Message-ID: <915e19a9-204c-4a22-b132-6ae5fac3e270@bytedance.com>
+Date: Fri, 24 Jan 2025 10:43:38 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/mm: Add missing ctor/dtor on page table upgrade
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, linux-mm@kvack.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>
+References: <20250123160349.200154-1-agordeev@linux.ibm.com>
+Content-Language: en-US
+From: Qi Zheng <zhengqi.arch@bytedance.com>
+In-Reply-To: <20250123160349.200154-1-agordeev@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: IfKiNrKGv5ac1G9_wmbyaK86EmOJnqLw
-X-Proofpoint-ORIG-GUID: IfKiNrKGv5ac1G9_wmbyaK86EmOJnqLw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-23_07,2025-01-23_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=931
- priorityscore=1501 clxscore=1011 adultscore=0 bulkscore=0 mlxscore=0
- suspectscore=0 malwarescore=0 impostorscore=0 lowpriorityscore=0
- spamscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501230122
 
-On Thu, 23 Jan 2025 17:03:49 +0100
-Alexander Gordeev <agordeev@linux.ibm.com> wrote:
 
+
+On 2025/1/24 00:03, Alexander Gordeev wrote:
 > Commit 78966b550289 ("s390: pgtable: add statistics for PUD and P4D
 > level page table") misses the call to pagetable_p4d_ctor() against
 > a newly allocated P4D table in crst_table_upgrade();
@@ -111,40 +104,13 @@ Alexander Gordeev <agordeev@linux.ibm.com> wrote:
 > ---
 > The patch is against:
 > 
->   git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git	next-20250123
->   git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm			mm-stable
+>    git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git	next-20250123
+>    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm			mm-stable
 > ---
->  arch/s390/mm/pgalloc.c | 3 +++
->  1 file changed, 3 insertions(+)
+>   arch/s390/mm/pgalloc.c | 3 +++
+>   1 file changed, 3 insertions(+)
 > 
-> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> index a4e761902093..d33f55b7ee98 100644
-> --- a/arch/s390/mm/pgalloc.c
-> +++ b/arch/s390/mm/pgalloc.c
-> @@ -88,12 +88,14 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
->  		if (unlikely(!p4d))
->  			goto err_p4d;
->  		crst_table_init(p4d, _REGION2_ENTRY_EMPTY);
-> +		pagetable_p4d_ctor(virt_to_ptdesc(p4d));
->  	}
->  	if (end > _REGION1_SIZE) {
->  		pgd = crst_table_alloc(mm);
->  		if (unlikely(!pgd))
->  			goto err_pgd;
->  		crst_table_init(pgd, _REGION1_ENTRY_EMPTY);
-> +		pagetable_pgd_ctor(virt_to_ptdesc(pgd));
->  	}
->  
->  	spin_lock_bh(&mm->page_table_lock);
-> @@ -130,6 +132,7 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned long end)
->  	return 0;
->  
->  err_pgd:
-> +	pagetable_dtor(virt_to_ptdesc(p4d));
->  	crst_table_free(mm, p4d);
->  err_p4d:
->  	return -ENOMEM;
 
-Thanks, looks good, and nice catch.
+Acked-by: Qi Zheng <zhengqi.arch@bytedance.com>
 
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Thanks!
