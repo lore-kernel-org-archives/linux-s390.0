@@ -1,99 +1,114 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2B27F21B8F8;
-	Fri, 24 Jan 2025 12:39:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27058134B0;
+	Fri, 24 Jan 2025 14:35:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737722354; cv=none; b=bRwuqmVlsadwEqXCMRrIUTbgXZJjpKk6YDzfbGwGG+HvggkjB4XFskOVHzvj639yGCXiB/1u8FFSw9+Hl1Ndhxd0G0AjhYfm1RyGfZSASNdvugIiN532AVn0kvoHgkPR0N4SabPi/i+SpbpATKGupDim0QXhln2VFNVheX3g7mY=
+	t=1737729316; cv=none; b=hm0yBXjNsWmBZhLoqGV4P0VtzSgMK4AHRUgI3nhuIdZkltEHjtJe/3yl+le9omD2lh9QczE03DjcxLDwDiG5zGZZ6X6BuG6WB8OvMzcgP7evtJON8B3iHbxAlrPbm5xo6vt4GB0R6kKvJYuxFJ+a5Lwpj6XFk9S97Bm9v5JiNa8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737722354; c=relaxed/simple;
-	bh=Emw2bbPqUP5KdqT9sCesqNaJIL9o2s1kfr6fiDoVpyk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rI5rm9S5hk3IsgdNeQg9DyX6kt8wmRrFj6wh9Y0h0J1lIUh1ia+hzXSh6prJrg0NiZHTy5LUlrd1EHt7eL8VpyPwYdAE1UaNkMX8EZozZfPOUcFD7Jx/196xUmDwIRDyPnFwrwDIPGfxn3KOr4erFiKcT9vTamHCPB2Do56QY1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 68A39497;
-	Fri, 24 Jan 2025 04:39:39 -0800 (PST)
-Received: from [10.57.95.170] (unknown [10.57.95.170])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 49F5E3F5A1;
-	Fri, 24 Jan 2025 04:39:09 -0800 (PST)
-Message-ID: <426c1487-2bc4-4aa4-8da7-7559c7109ab8@arm.com>
-Date: Fri, 24 Jan 2025 13:39:06 +0100
+	s=arc-20240116; t=1737729316; c=relaxed/simple;
+	bh=+8CKwnUVbS7XkfWyxuLaBZGiyucZXTj/neXw8nmsDU8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:Subject:From:
+	 References:In-Reply-To; b=Sw6Oh11SJEQsxfbeWqPZkJJJMAIGwkH/+QqgWMUudlSPuSCuWrB8s0SJEGUYx9chWovpWNjWg2gfSOALUPsLV4OpMG++1B3hKD7SQaDaGWIAQl+7NKctCWg1HJcFb02X0Uh78k44xiRfm2bWFpD4vV2GDVV7E0W2n6ri+Sfa3+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QrtaGQw1; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QrtaGQw1"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50OAifQE001889;
+	Fri, 24 Jan 2025 14:35:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lkDhra
+	KudUnMkAnyYCzkAF8aHClwQohAo/LQn/fNFCI=; b=QrtaGQw1yBHAPZdLHBsGgR
+	4CATnrPmGPr6RWfVGngQgzvnwzjid7eg8mwUDxoaaxTSuMhZtvJ+r11KJcf2Q0jd
+	DTeMKDgaMAmENt9fbXYAHZDY8FPZu0ANhxNTWdcqe+6/2r1u2IIUMb0jxwbBEybY
+	ccVo/xttWQ04F93Joec+cGklYWx/7Jfme1JKwHcj0xMXoTqgwJkL2Sl2aWjBAtQm
+	Qb3+pRZjeNMvfRI7mZWa6VkSeZCfs7FIAZlXC3YzbKauQ5GBUQZ2RIfqly5r8sEq
+	sts1ykyfQGQuUL5hRR1jZF3iMuQ+D1A1eejjxJDnTgVyYOR9aPw4C1JGLV/Ou0zA
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44brku6gah-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jan 2025 14:35:07 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50ODvLkO005426;
+	Fri, 24 Jan 2025 14:35:07 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44brku6gae-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jan 2025 14:35:07 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50OCEEBP029587;
+	Fri, 24 Jan 2025 14:35:06 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 448qmnuudq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 24 Jan 2025 14:35:06 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50OEZ2xt21365046
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 24 Jan 2025 14:35:02 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A2483200B1;
+	Fri, 24 Jan 2025 14:35:02 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BCD9D200B0;
+	Fri, 24 Jan 2025 14:35:01 +0000 (GMT)
+Received: from darkmoore (unknown [9.171.73.11])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 24 Jan 2025 14:35:01 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/mm: Add missing ctor/dtor on page table upgrade
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- Qi Zheng <zhengqi.arch@bytedance.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>
-References: <20250123160349.200154-1-agordeev@linux.ibm.com>
- <f1ff18a2-1b5e-4e9a-869b-9785faabf24d@arm.com>
- <20250124092917.19507-A-hca@linux.ibm.com>
-Content-Language: en-GB
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-In-Reply-To: <20250124092917.19507-A-hca@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Date: Fri, 24 Jan 2025 15:34:55 +0100
+Message-Id: <D7ADMHNRNKUU.T0DSREGYMGDH@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
+        <borntraeger@de.ibm.com>, <david@redhat.com>, <willy@infradead.org>,
+        <hca@linux.ibm.com>, <svens@linux.ibm.com>, <agordeev@linux.ibm.com>,
+        <gor@linux.ibm.com>, <nrb@linux.ibm.com>, <nsg@linux.ibm.com>,
+        <seanjc@google.com>, <seiden@linux.ibm.com>, <pbonzini@redhat.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v4 04/15] KVM: s390: selftests: fix ucontrol memory
+ region test
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+X-Mailer: aerc 0.18.2
+References: <20250123144627.312456-1-imbrenda@linux.ibm.com>
+ <20250123144627.312456-5-imbrenda@linux.ibm.com>
+In-Reply-To: <20250123144627.312456-5-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 8WS2d-lhgBDHm6qB8AtYTwDAZ_9FdV4G
+X-Proofpoint-GUID: x7trECZ4-VS4WNFZboqnYBBfVLTCDyix
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-24_06,2025-01-23_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
+ suspectscore=0 mlxlogscore=676 clxscore=1015 lowpriorityscore=0
+ spamscore=0 malwarescore=0 phishscore=0 adultscore=0 priorityscore=1501
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501240104
 
-On 24/01/2025 10:29, Heiko Carstens wrote:
-> On Fri, Jan 24, 2025 at 08:58:07AM +0100, Kevin Brodsky wrote:
->> On 23/01/2025 17:03, Alexander Gordeev wrote:
->>> Commit 78966b550289 ("s390: pgtable: add statistics for PUD and P4D
->>> level page table") misses the call to pagetable_p4d_ctor() against
->>> a newly allocated P4D table in crst_table_upgrade();
->>>
->>> Commit 68c601de75d8 ("mm: introduce ctor/dtor at PGD level") misses
->>> the call to pagetable_pgd_ctor() against a newly allocated PGD and
->>> the call to pagetable_dtor() against a newly allocated P4D that is
->>> about to be freed on crst_table_upgrade() PGD upgrade fail path.
->>>
->>> The missed constructors and destructor break (at least) the page
->>> table accounting when a process memory space is upgraded.
->>>
->>> Reported-by: Heiko Carstens <hca@linux.ibm.com>
->>> Closes: https://lore.kernel.org/all/20250122074954.8685-A-hca@linux.ibm.com/
->>> Suggested-by: Heiko Carstens <hca@linux.ibm.com>
->>> Fixes: 78966b550289 ("s390: pgtable: add statistics for PUD and P4D level page table")
->>> Fixes: 68c601de75d8 ("mm: introduce ctor/dtor at PGD level")
->>> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
->>> ---
->>> The patch is against:
->>>
->>>   git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git	next-20250123
->>>   git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm			mm-stable
->> Thank you for putting together this patch! I was completely unaware of
->> this "upgrade" path on s390.
-> This whole thing is even worse than it looks after this patch. With page
-> table upgrade taken into account we still have the oddity that e.g. a
-> previous pgd becomes a pud or p4d, which means that ctor and dtor functions
-> might be called for different levels for the same page table. As of now
-> this is ok, since they do all the same.
+LGTM
+
+On Thu Jan 23, 2025 at 3:46 PM CET, Claudio Imbrenda wrote:
+> With the latest patch, attempting to create a memslot from userspace
+> will result in an EEXIST error for UCONTROL VMs, instead of EINVAL,
+> since the new memslot will collide with the internal memslot. There is
+> no simple way to bring back the previous behaviour.
 >
-> As a quick fix this patch is ok, and most likely it will be ok for a long
-> time, but it doesn't give me good feeling :)
+> This is not a problem, but the test needs to be fixed accordingly.
+>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-This could clearly cause trouble if the pud/p4d/pgd constructors start
-to diverge. In principle this could be addressed when upgrading by
-calling the dtor on the old pgd and then the ctor on the new pud/p4d.
-That said since there is now only one dtor, and the ctor are all the
-same, it's probably good enough.
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-I'll mention in passing that my own series (that introduced PGD-level
-ctor/dtor) really aimed at supporting the kpkeys page table protection
-RFC [1], where hooks are inserted into the ctor/dtor to modify the pkey
-page tables are mapped with. No idea if that would work with this sort
-of upgrade path, but since s390 does not support pkeys this is just a
-theoretical issue :)
-
-- Kevin
-
-[1]
-https://lore.kernel.org/linux-hardening/20250108103250.3188419-1-kevin.brodsky@arm.com/
+> ---
+>  tools/testing/selftests/kvm/s390x/ucontrol_test.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
