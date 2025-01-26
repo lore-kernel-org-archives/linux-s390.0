@@ -1,628 +1,362 @@
-Received: from out-183.mta1.migadu.com (out-183.mta1.migadu.com [95.215.58.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F1687603F
-	for <linux-s390@vger.kernel.org>; Sun, 26 Jan 2025 09:48:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4238613BC3F
+	for <linux-s390@vger.kernel.org>; Sun, 26 Jan 2025 13:59:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737884933; cv=none; b=RpPP4MxsmdFZ/I/ZJEc9z+slg5CoO/9tWZwhxiH/5+JIYL76pXYJdB7KIafCErKqGgyBDRE9+GT9vi8GmHw+pAgsBw34+Os4LPSnbZwMV68QZ2VjMt8eUokXWEib1/L8bR7zymU4g/5+Fg0k91tNoW4yXkAQVIcDwUh/LHYYn7M=
+	t=1737899964; cv=none; b=DRKXZGWWR5DZCIgZ773ufo5KhBvagCIcJzYH/uXsMW3aX8gASMz/uWCw5Ens2dwIu4sArM394Sa9JIaAyeIpD7yS3DDG96Bfyja7zkE7pfwQ7+W/rJtB9GxJMkALAE2PFAUWwFVp4RGFf9c8MW+OYify/VsqD2Y/2PjTEQSC7dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737884933; c=relaxed/simple;
-	bh=oZdG9P+drO3In6X6MtmHo3nysImLXL31uAdHiYFvK64=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=meG0pqRGW2gxKEG1jTGBBm14z8f8hIDr6wBAFo5zAsYcuKtLsFUd4qPPdXIwQB2z+2vXa5w4xfEeydWdQj3G1IMlRpzBV0Ihlufhn+3AuXHgoTnqqSStgv+LqVH7Gg193Pj56WVuQXS4okWtCOL623+V63vWT/+wLa2SDR/yFWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=a+TKJOCN; arc=none smtp.client-ip=95.215.58.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="a+TKJOCN"
-Message-ID: <0e14b9c5-fa74-4de0-a903-cfbc7efd7b97@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1737884927;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=j/UffQrFwRVhHTe5KigDsyAezErQac/gQ0Gd78pdtzg=;
-	b=a+TKJOCNCaqXgUcjB743dIhagzVBMZgVHyXh+tbuqWqHJOiLKS0p6XJPuEQJsGILSjrb7J
-	S50rV7NfD05EFar0AqJCguwCkEO2mgor3/jE4lHu/b905tgy8r0drXsQN7V8++9PEoDi0F
-	F+rzsUq0NyhSCm5i4KXGNPX7pCySVlY=
-Date: Sun, 26 Jan 2025 10:48:39 +0100
+	s=arc-20240116; t=1737899964; c=relaxed/simple;
+	bh=P+UMFG+e31zCpJVDnpUmqnTorckC9UuKiEJx8iAhAfE=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ajKF3jf7CUG+rrFxuHu+YXQ67f4iNUg7BMT7k93NyM0l32FxQDvnpNGg1A+vmPMplciN1tjzUQ+LxSb9ZYCkEqU3zwP1JvZeSxU8UvMm264cr5zqwqpycshxI63G9DanFf0JGsYWrEjwrLP4GACMk+CGWGu3Ld9LisE/QWop0lM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-3cf64584097so26606665ab.2
+        for <linux-s390@vger.kernel.org>; Sun, 26 Jan 2025 05:59:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737899961; x=1738504761;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=BsXybfNGAizvjgp3GJiXaZSbLzKmPZggkqsDGAboXqE=;
+        b=h8WFhoxP2N7kcP8bE3p3x03BC0oAjBPJCZXwOSPJ/uyUurLGnxBsG+bH6mBPEWY4Vh
+         uwqshL4MTNOP5t+f4Wdt12n5EtnSzJR025KxMNt7YtVYmQiD0ZmojS1tnQiT/lU6oeCT
+         ees+oYN0HmOxeP9Ck7EHDU0ehuMDp3r9z8doERunHLrKKI/gP1xaZhJZvtZtaV1da4ss
+         WpIbZw+7PSnD6kqNJ0BuIWDnhHEiSH6byZwMKj9pf9l4BPnlQPz0lT4QQ3hngITjxI4s
+         H2l/GDOBkawJZpO8cunmebvlq2ObU6vFasCQdNKvaofPpGR8hBogagU7FCbqfPsJwYiV
+         hprg==
+X-Forwarded-Encrypted: i=1; AJvYcCVeMfXTElqC7Xn+G4TvEaeTg8sdeTSEf0+a7JKJH88A6eXvK0r1/JF5oyJe/ls2lw9T5nfCs3VP7+hx@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy5GCdQTTAEIsXVXdXr/e51eEpB8IzC6yKdLZNf2sTQPC+kDIhu
+	okzA6F4Z4j9Fgbo8zmriulj5TLrumujjaNXdVRhw7syqmv/aQB2ZUuRBaBSZ93PgFlh05nyZaKy
+	Q7qUUqdQF6dnDh3QIc6T1bOLEpc3tSAPk8R/8EW7sieSLdmHYG4gzj4A=
+X-Google-Smtp-Source: AGHT+IEbMftfrZaTzbr9gSiQX9fmJj6oZnybe8imsFPCa522q/o7bWqWxZXXNenqFJnlF888h7VVXJCPVuC1WSDkXF/1PnFUqOd6
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH bpf-next v7 6/6] bpf/selftests: add selftest for
- bpf_smc_ops
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
- wenjia@linux.ibm.com, jaka@linux.ibm.com, ast@kernel.org,
- daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
- pabeni@redhat.com, song@kernel.org, sdf@google.com, haoluo@google.com,
- yhs@fb.com, edumazet@google.com, john.fastabend@gmail.com,
- kpsingh@kernel.org, jolsa@kernel.org, guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
- <20250123015942.94810-7-alibuda@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <20250123015942.94810-7-alibuda@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+X-Received: by 2002:a92:ca4c:0:b0:3cf:cbfb:b509 with SMTP id
+ e9e14a558f8ab-3cfcbfbb7camr76237005ab.2.1737899961376; Sun, 26 Jan 2025
+ 05:59:21 -0800 (PST)
+Date: Sun, 26 Jan 2025 05:59:21 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67963fb9.050a0220.11b1bb.0076.GAE@google.com>
+Subject: [syzbot] [net?] [s390?] possible deadlock in smc_shutdown (2)
+From: syzbot <syzbot+3667d719a932ebc28119@syzkaller.appspotmail.com>
+To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	jaka@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-在 2025/1/23 2:59, D. Wythe 写道:
-> This tests introduces a tiny smc_ops for filtering SMC connections based on
-> IP pairs, and also adds a realistic topology model to verify this ops.
-> 
-> Also, we can only use SMC loopback under CI test, so an
-> additional configuration needs to be enabled.
-> 
-> Follow the steps below to run this test.
-> 
-> make -C tools/testing/selftests/bpf
-> cd tools/testing/selftests/bpf
-> sudo ./test_progs -t smc
+Hello,
 
-Enable CONFIG_INFINIBAND, CONFIG_SMC, CONFIG_SMC_OPS, CONFIG_SMC_LO, 
-then run the above commands, it can work well.
+syzbot found the following issue on:
 
-Reviewed-by: Zhu Yanjun <yanjun.zhu@linux.dev>
+HEAD commit:    c4b9570cfb63 Merge tag 'audit-pr-20250121' of git://git.ke..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=122d4ab0580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=c857c6065c39b1e2
+dashboard link: https://syzkaller.appspot.com/bug?extid=3667d719a932ebc28119
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+userspace arch: i386
 
-Thanks,
-Zhu Yanjun
-> 
-> Results shows:
-> Summary: 1/1 PASSED, 0 SKIPPED, 0 FAILED
-> 
-> Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-> Tested-by: Saket Kumar Bhaskar <skb99@linux.ibm.com>
-> ---
->   tools/testing/selftests/bpf/config            |   4 +
->   .../selftests/bpf/prog_tests/test_bpf_smc.c   | 396 ++++++++++++++++++
->   tools/testing/selftests/bpf/progs/bpf_smc.c   | 117 ++++++
->   3 files changed, 517 insertions(+)
->   create mode 100644 tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
->   create mode 100644 tools/testing/selftests/bpf/progs/bpf_smc.c
-> 
-> diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
-> index c378d5d07e02..fac2f2a9d02f 100644
-> --- a/tools/testing/selftests/bpf/config
-> +++ b/tools/testing/selftests/bpf/config
-> @@ -113,3 +113,7 @@ CONFIG_XDP_SOCKETS=y
->   CONFIG_XFRM_INTERFACE=y
->   CONFIG_TCP_CONG_DCTCP=y
->   CONFIG_TCP_CONG_BBR=y
-> +CONFIG_INFINIBAND=y
-> +CONFIG_SMC=y
-> +CONFIG_SMC_OPS=y
-> +CONFIG_SMC_LO=y
-> \ No newline at end of file
-> diff --git a/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-> new file mode 100644
-> index 000000000000..0580961fd693
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/prog_tests/test_bpf_smc.c
-> @@ -0,0 +1,396 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#include <test_progs.h>
-> +#include <linux/genetlink.h>
-> +#include "network_helpers.h"
-> +#include "bpf_smc.skel.h"
-> +
-> +#ifndef IPPROTO_SMC
-> +#define IPPROTO_SMC 256
-> +#endif
-> +
-> +#define CLIENT_IP			"127.0.0.1"
-> +#define SERVER_IP			"127.0.1.0"
-> +#define SERVER_IP_VIA_RISK_PATH	"127.0.2.0"
-> +
-> +#define SERVICE_1	11234
-> +#define SERVICE_2	22345
-> +#define SERVICE_3	33456
-> +
-> +#define TEST_NS	"bpf_smc_netns"
-> +
-> +static struct netns_obj *test_netns;
-> +
-> +struct smc_strat_ip_key {
-> +	__u32  sip;
-> +	__u32  dip;
-> +};
-> +
-> +struct smc_strat_ip_value {
-> +	__u8	mode;
-> +};
-> +
-> +#if defined(__s390x__)
-> +/* s390x has default seid  */
-> +static bool setup_ueid(void) { return true; }
-> +static void cleanup_ueid(void) {}
-> +#else
-> +enum {
-> +	SMC_NETLINK_ADD_UEID = 10,
-> +	SMC_NETLINK_REMOVE_UEID
-> +};
-> +
-> +enum {
-> +	SMC_NLA_EID_TABLE_UNSPEC,
-> +	SMC_NLA_EID_TABLE_ENTRY,    /* string */
-> +};
-> +
-> +struct msgtemplate {
-> +	struct nlmsghdr n;
-> +	struct genlmsghdr g;
-> +	char buf[1024];
-> +};
-> +
-> +#define GENLMSG_DATA(glh)	((void *)(NLMSG_DATA(glh) + GENL_HDRLEN))
-> +#define GENLMSG_PAYLOAD(glh)	(NLMSG_PAYLOAD(glh, 0) - GENL_HDRLEN)
-> +#define NLA_DATA(na)		((void *)((char *)(na) + NLA_HDRLEN))
-> +#define NLA_PAYLOAD(len)	((len) - NLA_HDRLEN)
-> +
-> +#define SMC_GENL_FAMILY_NAME	"SMC_GEN_NETLINK"
-> +#define SMC_BPFTEST_UEID	"SMC-BPFTEST-UEID"
-> +
-> +static uint16_t smc_nl_family_id = -1;
-> +
-> +static int send_cmd(int fd, __u16 nlmsg_type, __u32 nlmsg_pid,
-> +		    __u16 nlmsg_flags, __u8 genl_cmd, __u16 nla_type,
-> +		    void *nla_data, int nla_len)
-> +{
-> +	struct nlattr *na;
-> +	struct sockaddr_nl nladdr;
-> +	int r, buflen;
-> +	char *buf;
-> +
-> +	struct msgtemplate msg = {0};
-> +
-> +	msg.n.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
-> +	msg.n.nlmsg_type = nlmsg_type;
-> +	msg.n.nlmsg_flags = nlmsg_flags;
-> +	msg.n.nlmsg_seq = 0;
-> +	msg.n.nlmsg_pid = nlmsg_pid;
-> +	msg.g.cmd = genl_cmd;
-> +	msg.g.version = 1;
-> +	na = (struct nlattr *) GENLMSG_DATA(&msg);
-> +	na->nla_type = nla_type;
-> +	na->nla_len = nla_len + 1 + NLA_HDRLEN;
-> +	memcpy(NLA_DATA(na), nla_data, nla_len);
-> +	msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
-> +
-> +	buf = (char *) &msg;
-> +	buflen = msg.n.nlmsg_len;
-> +	memset(&nladdr, 0, sizeof(nladdr));
-> +	nladdr.nl_family = AF_NETLINK;
-> +
-> +	while ((r = sendto(fd, buf, buflen, 0, (struct sockaddr *) &nladdr,
-> +			   sizeof(nladdr))) < buflen) {
-> +		if (r > 0) {
-> +			buf += r;
-> +			buflen -= r;
-> +		} else if (errno != EAGAIN) {
-> +			return -1;
-> +		}
-> +	}
-> +	return 0;
-> +}
-> +
-> +static bool get_smc_nl_family_id(void)
-> +{
-> +	struct sockaddr_nl nl_src;
-> +	struct msgtemplate msg;
-> +	struct nlattr *nl;
-> +	int fd, ret;
-> +	pid_t pid;
-> +
-> +	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
-> +	if (!ASSERT_OK_FD(fd, "nl_family socket"))
-> +		return false;
-> +
-> +	pid = getpid();
-> +
-> +	memset(&nl_src, 0, sizeof(nl_src));
-> +	nl_src.nl_family = AF_NETLINK;
-> +	nl_src.nl_pid = pid;
-> +
-> +	ret = bind(fd, (struct sockaddr *) &nl_src, sizeof(nl_src));
-> +	if (!ASSERT_OK(ret, "nl_family bind"))
-> +		goto fail;
-> +
-> +	ret = send_cmd(fd, GENL_ID_CTRL, pid,
-> +		       NLM_F_REQUEST, CTRL_CMD_GETFAMILY,
-> +		       CTRL_ATTR_FAMILY_NAME, (void *)SMC_GENL_FAMILY_NAME,
-> +		       strlen(SMC_GENL_FAMILY_NAME));
-> +	if (!ASSERT_OK(ret, "nl_family query"))
-> +		goto fail;
-> +
-> +	ret = recv(fd, &msg, sizeof(msg), 0);
-> +	if (!ASSERT_FALSE(msg.n.nlmsg_type == NLMSG_ERROR || (ret < 0) ||
-> +			  !NLMSG_OK((&msg.n), ret), "nl_family response"))
-> +		goto fail;
-> +
-> +	nl = (struct nlattr *) GENLMSG_DATA(&msg);
-> +	nl = (struct nlattr *) ((char *) nl + NLA_ALIGN(nl->nla_len));
-> +	if (!ASSERT_EQ(nl->nla_type, CTRL_ATTR_FAMILY_ID, "nl_family nla type"))
-> +		goto fail;
-> +
-> +	smc_nl_family_id = *(uint16_t *) NLA_DATA(nl);
-> +	close(fd);
-> +	return true;
-> +fail:
-> +	close(fd);
-> +	return false;
-> +}
-> +
-> +static bool smc_ueid(int op)
-> +{
-> +	struct sockaddr_nl nl_src;
-> +	struct msgtemplate msg;
-> +	struct nlmsgerr *err;
-> +	char test_ueid[32];
-> +	int fd, ret;
-> +	pid_t pid;
-> +
-> +	/* UEID required */
-> +	memset(test_ueid, '\x20', sizeof(test_ueid));
-> +	memcpy(test_ueid, SMC_BPFTEST_UEID, strlen(SMC_BPFTEST_UEID));
-> +	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC);
-> +	if (!ASSERT_OK_FD(fd, "ueid socket"))
-> +		return false;
-> +
-> +	pid = getpid();
-> +	memset(&nl_src, 0, sizeof(nl_src));
-> +	nl_src.nl_family = AF_NETLINK;
-> +	nl_src.nl_pid = pid;
-> +
-> +	ret = bind(fd, (struct sockaddr *) &nl_src, sizeof(nl_src));
-> +	if (!ASSERT_OK(ret, "ueid bind"))
-> +		goto fail;
-> +
-> +	ret = send_cmd(fd, smc_nl_family_id, pid,
-> +		       NLM_F_REQUEST | NLM_F_ACK, op, SMC_NLA_EID_TABLE_ENTRY,
-> +		       (void *)test_ueid, sizeof(test_ueid));
-> +	if (!ASSERT_OK(ret, "ueid cmd"))
-> +		goto fail;
-> +
-> +	ret = recv(fd, &msg, sizeof(msg), 0);
-> +	if (!ASSERT_FALSE((ret < 0) ||
-> +	    !NLMSG_OK((&msg.n), ret), "ueid response"))
-> +		goto fail;
-> +
-> +	if (msg.n.nlmsg_type == NLMSG_ERROR) {
-> +		err = NLMSG_DATA(&msg);
-> +		switch (op) {
-> +		case SMC_NETLINK_REMOVE_UEID:
-> +			if (!ASSERT_FALSE((err->error && err->error != -ENOENT),
-> +					  "ueid remove"))
-> +				goto fail;
-> +			break;
-> +		case SMC_NETLINK_ADD_UEID:
-> +			if (!ASSERT_OK(err->error, "ueid add"))
-> +				goto fail;
-> +			break;
-> +		default:
-> +			break;
-> +		}
-> +	}
-> +	close(fd);
-> +	return true;
-> +fail:
-> +	close(fd);
-> +	return false;
-> +}
-> +
-> +static bool setup_ueid(void)
-> +{
-> +	/* get smc nl id */
-> +	if (!get_smc_nl_family_id())
-> +		return false;
-> +	/* clear old ueid for bpftest */
-> +	smc_ueid(SMC_NETLINK_REMOVE_UEID);
-> +	/* smc-loopback required ueid */
-> +	return smc_ueid(SMC_NETLINK_ADD_UEID);
-> +}
-> +
-> +static void cleanup_ueid(void)
-> +{
-> +	smc_ueid(SMC_NETLINK_REMOVE_UEID);
-> +}
-> +#endif /* __s390x__ */
-> +
-> +static bool setup_netns(void)
-> +{
-> +	test_netns = netns_new(TEST_NS, true);
-> +	if (!ASSERT_OK_PTR(test_netns, "open net namespace"))
-> +		goto fail_netns;
-> +
-> +	if (!ASSERT_OK(system("ip addr add 127.0.1.0/8 dev lo"),
-> +		       "add server node"))
-> +		goto fail_ip;
-> +
-> +	if (!ASSERT_OK(system("ip addr add 127.0.2.0/8 dev lo"),
-> +		       "server via risk path"))
-> +		goto fail_ip;
-> +
-> +	return true;
-> +fail_ip:
-> +	netns_free(test_netns);
-> +fail_netns:
-> +	return false;
-> +}
-> +
-> +static void cleanup_netns(void)
-> +{
-> +	netns_free(test_netns);
-> +	remove_netns(TEST_NS);
-> +}
-> +
-> +static bool setup_smc(void)
-> +{
-> +	if (!setup_ueid())
-> +		return false;
-> +
-> +	if (!setup_netns())
-> +		goto fail_netns;
-> +
-> +	return true;
-> +fail_netns:
-> +	cleanup_ueid();
-> +	return false;
-> +}
-> +
-> +static int set_client_addr_cb(int fd, void *opts)
-> +{
-> +	const char *src = (const char *)opts;
-> +	struct sockaddr_in localaddr;
-> +
-> +	localaddr.sin_family = AF_INET;
-> +	localaddr.sin_port = htons(0);
-> +	localaddr.sin_addr.s_addr = inet_addr(src);
-> +	return !ASSERT_OK(bind(fd, &localaddr, sizeof(localaddr)), "client bind");
-> +}
-> +
-> +static void run_link(const char *src, const char *dst, int port)
-> +{
-> +	struct network_helper_opts opts = {0};
-> +	int server, client;
-> +
-> +	server = start_server_str(AF_INET, SOCK_STREAM, dst, port, NULL);
-> +	if (!ASSERT_OK_FD(server, "start service_1"))
-> +		return;
-> +
-> +	opts.proto = IPPROTO_TCP;
-> +	opts.post_socket_cb = set_client_addr_cb;
-> +	opts.cb_opts = (void *)src;
-> +
-> +	client = connect_to_fd_opts(server, &opts);
-> +	if (!ASSERT_OK_FD(client, "start connect"))
-> +		goto fail_client;
-> +
-> +	close(client);
-> +fail_client:
-> +	close(server);
-> +}
-> +
-> +static void block_link(int map_fd, const char *src, const char *dst)
-> +{
-> +	struct smc_strat_ip_value val = { .mode = /* block */ 0 };
-> +	struct smc_strat_ip_key key = {
-> +		.sip = inet_addr(src),
-> +		.dip = inet_addr(dst),
-> +	};
-> +
-> +	bpf_map_update_elem(map_fd, &key, &val, BPF_ANY);
-> +}
-> +
-> +/*
-> + * This test describes a real-life service topology as follows:
-> + *
-> + *                             +-------------> service_1
-> + *            link1            |                     |
-> + *   +--------------------> server                   |  link 2
-> + *   |                         |                     V
-> + *   |                         +-------------> service_2
-> + *   |        link 3
-> + *  client -------------------> server_via_unsafe_path -> service_3
-> + *
-> + * Among them,
-> + * 1. link-1 is very suitable for using SMC.
-> + * 2. link-2 is not suitable for using SMC, because the mode of this link is
-> + *    kind of short-link services.
-> + * 3. link-3 is also not suitable for using SMC, because the RDMA link is
-> + *    unavailable and needs to go through a long timeout before it can fallback
-> + *    to TCP.
-> + * To achieve this goal, we use a customized SMC ip strategy via smc_ops.
-> + */
-> +static void test_topo(void)
-> +{
-> +	struct bpf_smc *skel;
-> +	int rc, map_fd;
-> +
-> +	skel = bpf_smc__open_and_load();
-> +	if (!ASSERT_OK_PTR(skel, "bpf_smc__open_and_load"))
-> +		return;
-> +
-> +	rc = bpf_smc__attach(skel);
-> +	if (!ASSERT_OK(rc, "bpf_smc__attach"))
-> +		goto fail;
-> +
-> +	map_fd = bpf_map__fd(skel->maps.smc_strats_ip);
-> +	if (!ASSERT_OK_FD(map_fd, "bpf_map__fd"))
-> +		goto fail;
-> +
-> +	/* Mock the process of transparent replacement, since we will modify
-> +	 * protocol to ipproto_smc accropding to it via
-> +	 * fmod_ret/update_socket_protocol.
-> +	 */
-> +	system("sysctl -w net.smc.ops=linkcheck");
-> +
-> +	/* Configure ip strat */
-> +	block_link(map_fd, CLIENT_IP, SERVER_IP_VIA_RISK_PATH);
-> +	block_link(map_fd, SERVER_IP, SERVER_IP);
-> +
-> +	/* should go with smc */
-> +	run_link(CLIENT_IP, SERVER_IP, SERVICE_1);
-> +	/* should go with smc fallback */
-> +	run_link(SERVER_IP, SERVER_IP, SERVICE_2);
-> +
-> +	ASSERT_EQ(skel->bss->smc_cnt, 2, "smc count");
-> +	ASSERT_EQ(skel->bss->fallback_cnt, 1, "fallback count");
-> +
-> +	/* should go with smc */
-> +	run_link(CLIENT_IP, SERVER_IP, SERVICE_2);
-> +
-> +	ASSERT_EQ(skel->bss->smc_cnt, 3, "smc count");
-> +	ASSERT_EQ(skel->bss->fallback_cnt, 1, "fallback count");
-> +
-> +	/* should go with smc fallback */
-> +	run_link(CLIENT_IP, SERVER_IP_VIA_RISK_PATH, SERVICE_3);
-> +
-> +	ASSERT_EQ(skel->bss->smc_cnt, 4, "smc count");
-> +	ASSERT_EQ(skel->bss->fallback_cnt, 2, "fallback count");
-> +
-> +fail:
-> +	bpf_smc__destroy(skel);
-> +}
-> +
-> +void test_bpf_smc(void)
-> +{
-> +	if (!setup_smc()) {
-> +		printf("setup for smc test failed, test SKIP:\n");
-> +		test__skip();
-> +		return;
-> +	}
-> +
-> +	if (test__start_subtest("topo"))
-> +		test_topo();
-> +
-> +	cleanup_ueid();
-> +	cleanup_netns();
-> +}
-> diff --git a/tools/testing/selftests/bpf/progs/bpf_smc.c b/tools/testing/selftests/bpf/progs/bpf_smc.c
-> new file mode 100644
-> index 000000000000..c8499e7821fa
-> --- /dev/null
-> +++ b/tools/testing/selftests/bpf/progs/bpf_smc.c
-> @@ -0,0 +1,117 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +
-> +#include "vmlinux.h"
-> +
-> +#include <bpf/bpf_helpers.h>
-> +#include <bpf/bpf_tracing.h>
-> +#include "bpf_tracing_net.h"
-> +
-> +char _license[] SEC("license") = "GPL";
-> +
-> +enum {
-> +	BPF_SMC_LISTEN	= 10,
-> +};
-> +
-> +struct smc_sock___local {
-> +	struct sock sk;
-> +	struct smc_sock *listen_smc;
-> +	bool use_fallback;
-> +} __attribute__((preserve_access_index));
-> +
-> +int smc_cnt = 0;
-> +int fallback_cnt = 0;
-> +
-> +SEC("fentry/smc_release")
-> +int BPF_PROG(bpf_smc_release, struct socket *sock)
-> +{
-> +	/* only count from one side (client) */
-> +	if (sock->sk->__sk_common.skc_state == BPF_SMC_LISTEN)
-> +		return 0;
-> +	smc_cnt++;
-> +	return 0;
-> +}
-> +
-> +SEC("fentry/smc_switch_to_fallback")
-> +int BPF_PROG(bpf_smc_switch_to_fallback, struct smc_sock___local *smc)
-> +{
-> +	/* only count from one side (client) */
-> +	if (smc && !smc->listen_smc)
-> +		fallback_cnt++;
-> +	return 0;
-> +}
-> +
-> +/* go with default value if no strat was found */
-> +bool default_ip_strat_value = true;
-> +
-> +struct smc_strat_ip_key {
-> +	__u32	sip;
-> +	__u32	dip;
-> +};
-> +
-> +struct smc_strat_ip_value {
-> +	__u8	mode;
-> +};
-> +
-> +struct {
-> +	__uint(type, BPF_MAP_TYPE_HASH);
-> +	__uint(key_size, sizeof(struct smc_strat_ip_key));
-> +	__uint(value_size, sizeof(struct smc_strat_ip_value));
-> +	__uint(max_entries, 128);
-> +	__uint(map_flags, BPF_F_NO_PREALLOC);
-> +} smc_strats_ip SEC(".maps");
-> +
-> +static bool smc_check(__u32 src, __u32 dst)
-> +{
-> +	struct smc_strat_ip_value *value;
-> +	struct smc_strat_ip_key key = {
-> +		.sip = src,
-> +		.dip = dst,
-> +	};
-> +
-> +	value = bpf_map_lookup_elem(&smc_strats_ip, &key);
-> +	return value ? value->mode : default_ip_strat_value;
-> +}
-> +
-> +SEC("fmod_ret/update_socket_protocol")
-> +int BPF_PROG(smc_run, int family, int type, int protocol)
-> +{
-> +	struct task_struct *task;
-> +
-> +	if (family != AF_INET && family != AF_INET6)
-> +		return protocol;
-> +
-> +	if ((type & 0xf) != SOCK_STREAM)
-> +		return protocol;
-> +
-> +	if (protocol != 0 && protocol != IPPROTO_TCP)
-> +		return protocol;
-> +
-> +	task = bpf_get_current_task_btf();
-> +	/* Prevent from affecting other tests */
-> +	if (!task || !task->nsproxy->net_ns->smc.ops)
-> +		return protocol;
-> +
-> +	return IPPROTO_SMC;
-> +}
-> +
-> +SEC("struct_ops/bpf_smc_set_tcp_option_cond")
-> +int BPF_PROG(bpf_smc_set_tcp_option_cond, const struct tcp_sock *tp,
-> +	     struct inet_request_sock *ireq)
-> +{
-> +	return smc_check(ireq->req.__req_common.skc_daddr,
-> +			 ireq->req.__req_common.skc_rcv_saddr);
-> +}
-> +
-> +SEC("struct_ops/bpf_smc_set_tcp_option")
-> +int BPF_PROG(bpf_smc_set_tcp_option, struct tcp_sock *tp)
-> +{
-> +	return smc_check(tp->inet_conn.icsk_inet.sk.__sk_common.skc_rcv_saddr,
-> +			 tp->inet_conn.icsk_inet.sk.__sk_common.skc_daddr);
-> +}
-> +
-> +SEC(".struct_ops.link")
-> +struct smc_ops  linkcheck = {
-> +	.name			= "linkcheck",
-> +	.set_option		= (void *) bpf_smc_set_tcp_option,
-> +	.set_option_cond	= (void *) bpf_smc_set_tcp_option_cond,
-> +};
+Unfortunately, I don't have any reproducer for this issue yet.
 
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/7feb34a89c2a/non_bootable_disk-c4b9570c.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/f4f88f09e44f/vmlinux-c4b9570c.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/bb4658fd4384/bzImage-c4b9570c.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+3667d719a932ebc28119@syzkaller.appspotmail.com
+
+======================================================
+WARNING: possible circular locking dependency detected
+6.13.0-syzkaller-02526-gc4b9570cfb63 #0 Not tainted
+------------------------------------------------------
+syz.2.21908/20249 is trying to acquire lock:
+ffff88804fb90dd8 (sk_lock-AF_SMC){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1623 [inline]
+ffff88804fb90dd8 (sk_lock-AF_SMC){+.+.}-{0:0}, at: smc_shutdown+0x65/0x7f0 net/smc/af_smc.c:2927
+
+but task is already holding lock:
+ffff88806efb3c70 (&nsock->tx_lock){+.+.}-{4:4}, at: sock_shutdown+0x16f/0x280 drivers/block/nbd.c:410
+
+which lock already depends on the new lock.
+
+
+the existing dependency chain (in reverse order) is:
+
+-> #7 (&nsock->tx_lock){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
+       sock_shutdown+0x16f/0x280 drivers/block/nbd.c:410
+       nbd_clear_sock drivers/block/nbd.c:1415 [inline]
+       nbd_clear_sock_ioctl drivers/block/nbd.c:1553 [inline]
+       __nbd_ioctl drivers/block/nbd.c:1581 [inline]
+       nbd_ioctl+0x49b/0xd60 drivers/block/nbd.c:1641
+       compat_blkdev_ioctl+0x2f7/0x750 block/ioctl.c:749
+       __do_compat_sys_ioctl+0x1cb/0x2c0 fs/ioctl.c:1004
+       do_syscall_32_irqs_on arch/x86/entry/common.c:165 [inline]
+       __do_fast_syscall_32+0x73/0x120 arch/x86/entry/common.c:386
+       do_fast_syscall_32+0x32/0x80 arch/x86/entry/common.c:411
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+-> #6 (&nbd->config_lock){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
+       refcount_dec_and_mutex_lock+0x51/0xc0 lib/refcount.c:118
+       nbd_config_put+0x31/0x750 drivers/block/nbd.c:1422
+       nbd_release+0xb7/0x190 drivers/block/nbd.c:1734
+       blkdev_put_whole+0xad/0xf0 block/bdev.c:679
+       bdev_release+0x47e/0x6d0 block/bdev.c:1102
+       blkdev_release+0x15/0x20 block/fops.c:660
+       __fput+0x3f8/0xb60 fs/file_table.c:450
+       __fput_sync+0xa1/0xc0 fs/file_table.c:536
+       __do_sys_close fs/open.c:1547 [inline]
+       __se_sys_close fs/open.c:1532 [inline]
+       __x64_sys_close+0x86/0x100 fs/open.c:1532
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #5 (&disk->open_mutex){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
+       bdev_open+0x41a/0xe20 block/bdev.c:903
+       bdev_file_open_by_dev block/bdev.c:1017 [inline]
+       bdev_file_open_by_dev+0x17d/0x210 block/bdev.c:992
+       disk_scan_partitions+0x1ed/0x320 block/genhd.c:374
+       add_disk_fwnode+0x1006/0x1320 block/genhd.c:526
+       pmem_attach_disk+0x9a1/0x13e0 drivers/nvdimm/pmem.c:576
+       nd_pmem_probe+0x1a9/0x1f0 drivers/nvdimm/pmem.c:649
+       nvdimm_bus_probe+0x169/0x5d0 drivers/nvdimm/bus.c:94
+       call_driver_probe drivers/base/dd.c:579 [inline]
+       really_probe+0x23e/0xa90 drivers/base/dd.c:658
+       __driver_probe_device+0x1de/0x440 drivers/base/dd.c:800
+       driver_probe_device+0x4c/0x1b0 drivers/base/dd.c:830
+       __driver_attach+0x283/0x580 drivers/base/dd.c:1216
+       bus_for_each_dev+0x13c/0x1d0 drivers/base/bus.c:370
+       bus_add_driver+0x2e9/0x690 drivers/base/bus.c:675
+       driver_register+0x15c/0x4b0 drivers/base/driver.c:246
+       __nd_driver_register+0x103/0x1a0 drivers/nvdimm/bus.c:622
+       do_one_initcall+0x128/0x630 init/main.c:1267
+       do_initcall_level init/main.c:1329 [inline]
+       do_initcalls init/main.c:1345 [inline]
+       do_basic_setup init/main.c:1364 [inline]
+       kernel_init_freeable+0x58f/0x8b0 init/main.c:1578
+       kernel_init+0x1c/0x2b0 init/main.c:1467
+       ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:148
+       ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+
+-> #4 (&nvdimm_namespace_key){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
+       device_lock include/linux/device.h:1014 [inline]
+       uevent_show+0x188/0x3b0 drivers/base/core.c:2729
+       dev_attr_show+0x53/0xe0 drivers/base/core.c:2423
+       sysfs_kf_seq_show+0x223/0x3e0 fs/sysfs/file.c:59
+       seq_read_iter+0x4f4/0x12b0 fs/seq_file.c:230
+       kernfs_fop_read_iter+0x414/0x580 fs/kernfs/file.c:279
+       new_sync_read fs/read_write.c:484 [inline]
+       vfs_read+0x87f/0xbe0 fs/read_write.c:565
+       ksys_read+0x12b/0x250 fs/read_write.c:708
+       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+       entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+-> #3 (kn->active#5){++++}-{0:0}:
+       kernfs_drain+0x48f/0x590 fs/kernfs/dir.c:500
+       __kernfs_remove+0x281/0x670 fs/kernfs/dir.c:1486
+       kernfs_remove_by_name_ns+0xb2/0x130 fs/kernfs/dir.c:1694
+       sysfs_remove_file include/linux/sysfs.h:794 [inline]
+       device_remove_file drivers/base/core.c:3047 [inline]
+       device_remove_file drivers/base/core.c:3043 [inline]
+       device_del+0x381/0x9f0 drivers/base/core.c:3852
+       unregister_netdevice_many_notify+0x105d/0x1e60 net/core/dev.c:11581
+       unregister_netdevice_many net/core/dev.c:11609 [inline]
+       unregister_netdevice_queue+0x307/0x3f0 net/core/dev.c:11481
+       unregister_netdevice include/linux/netdevice.h:3192 [inline]
+       unregister_netdev+0x1c/0x30 net/core/dev.c:11627
+       slcan_close+0x76/0x1a0 drivers/net/can/slcan/slcan-core.c:866
+       tty_ldisc_close+0x111/0x1a0 drivers/tty/tty_ldisc.c:455
+       tty_ldisc_kill+0x8e/0x150 drivers/tty/tty_ldisc.c:613
+       tty_ldisc_release+0x116/0x2a0 drivers/tty/tty_ldisc.c:781
+       tty_release_struct+0x23/0xe0 drivers/tty/tty_io.c:1690
+       tty_release+0xe25/0x1410 drivers/tty/tty_io.c:1861
+       __fput+0x3f8/0xb60 fs/file_table.c:450
+       task_work_run+0x14e/0x250 kernel/task_work.c:239
+       resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
+       exit_to_user_mode_loop kernel/entry/common.c:114 [inline]
+       exit_to_user_mode_prepare include/linux/entry-common.h:329 [inline]
+       __syscall_exit_to_user_mode_work kernel/entry/common.c:207 [inline]
+       syscall_exit_to_user_mode+0x27b/0x2a0 kernel/entry/common.c:218
+       __do_fast_syscall_32+0x80/0x120 arch/x86/entry/common.c:389
+       do_fast_syscall_32+0x32/0x80 arch/x86/entry/common.c:411
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+-> #2 (rtnl_mutex){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
+       start_sync_thread+0x12d/0x2740 net/netfilter/ipvs/ip_vs_sync.c:1761
+       do_ip_vs_set_ctl+0x41c/0x1070 net/netfilter/ipvs/ip_vs_ctl.c:2732
+       nf_setsockopt+0x8a/0xf0 net/netfilter/nf_sockopt.c:101
+       ip_setsockopt+0xcb/0xf0 net/ipv4/ip_sockglue.c:1424
+       tcp_setsockopt+0xa4/0x100 net/ipv4/tcp.c:4030
+       smc_setsockopt+0x1b4/0xc00 net/smc/af_smc.c:3078
+       do_sock_setsockopt+0x222/0x480 net/socket.c:2313
+       __sys_setsockopt+0x1a0/0x230 net/socket.c:2338
+       __do_sys_setsockopt net/socket.c:2344 [inline]
+       __se_sys_setsockopt net/socket.c:2341 [inline]
+       __ia32_sys_setsockopt+0xbc/0x160 net/socket.c:2341
+       do_syscall_32_irqs_on arch/x86/entry/common.c:165 [inline]
+       __do_fast_syscall_32+0x73/0x120 arch/x86/entry/common.c:386
+       do_fast_syscall_32+0x32/0x80 arch/x86/entry/common.c:411
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+-> #1 (&smc->clcsock_release_lock){+.+.}-{4:4}:
+       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
+       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
+       smc_switch_to_fallback+0x2d/0xa00 net/smc/af_smc.c:903
+       smc_setsockopt+0xa7b/0xc00 net/smc/af_smc.c:3101
+       do_sock_setsockopt+0x222/0x480 net/socket.c:2313
+       __sys_setsockopt+0x1a0/0x230 net/socket.c:2338
+       __do_sys_setsockopt net/socket.c:2344 [inline]
+       __se_sys_setsockopt net/socket.c:2341 [inline]
+       __ia32_sys_setsockopt+0xbc/0x160 net/socket.c:2341
+       do_syscall_32_irqs_on arch/x86/entry/common.c:165 [inline]
+       __do_fast_syscall_32+0x73/0x120 arch/x86/entry/common.c:386
+       do_fast_syscall_32+0x32/0x80 arch/x86/entry/common.c:411
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+-> #0 (sk_lock-AF_SMC){+.+.}-{0:0}:
+       check_prev_add kernel/locking/lockdep.c:3163 [inline]
+       check_prevs_add kernel/locking/lockdep.c:3282 [inline]
+       validate_chain kernel/locking/lockdep.c:3906 [inline]
+       __lock_acquire+0x249e/0x3c40 kernel/locking/lockdep.c:5228
+       lock_acquire.part.0+0x11b/0x380 kernel/locking/lockdep.c:5851
+       lock_sock_nested+0x3a/0xf0 net/core/sock.c:3625
+       lock_sock include/net/sock.h:1623 [inline]
+       smc_shutdown+0x65/0x7f0 net/smc/af_smc.c:2927
+       nbd_mark_nsock_dead+0xae/0x5d0 drivers/block/nbd.c:318
+       sock_shutdown+0x17c/0x280 drivers/block/nbd.c:411
+       nbd_clear_sock drivers/block/nbd.c:1415 [inline]
+       nbd_clear_sock_ioctl drivers/block/nbd.c:1553 [inline]
+       __nbd_ioctl drivers/block/nbd.c:1581 [inline]
+       nbd_ioctl+0x49b/0xd60 drivers/block/nbd.c:1641
+       compat_blkdev_ioctl+0x2f7/0x750 block/ioctl.c:749
+       __do_compat_sys_ioctl+0x1cb/0x2c0 fs/ioctl.c:1004
+       do_syscall_32_irqs_on arch/x86/entry/common.c:165 [inline]
+       __do_fast_syscall_32+0x73/0x120 arch/x86/entry/common.c:386
+       do_fast_syscall_32+0x32/0x80 arch/x86/entry/common.c:411
+       entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+
+other info that might help us debug this:
+
+Chain exists of:
+  sk_lock-AF_SMC --> &nbd->config_lock --> &nsock->tx_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&nsock->tx_lock);
+                               lock(&nbd->config_lock);
+                               lock(&nsock->tx_lock);
+  lock(sk_lock-AF_SMC);
+
+ *** DEADLOCK ***
+
+2 locks held by syz.2.21908/20249:
+ #0: ffff888024364998 (&nbd->config_lock){+.+.}-{4:4}, at: nbd_ioctl+0x151/0xd60 drivers/block/nbd.c:1634
+ #1: ffff88806efb3c70 (&nsock->tx_lock){+.+.}-{4:4}, at: sock_shutdown+0x16f/0x280 drivers/block/nbd.c:410
+
+stack backtrace:
+CPU: 3 UID: 0 PID: 20249 Comm: syz.2.21908 Not tainted 6.13.0-syzkaller-02526-gc4b9570cfb63 #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+ print_circular_bug+0x490/0x760 kernel/locking/lockdep.c:2076
+ check_noncircular+0x31a/0x400 kernel/locking/lockdep.c:2208
+ check_prev_add kernel/locking/lockdep.c:3163 [inline]
+ check_prevs_add kernel/locking/lockdep.c:3282 [inline]
+ validate_chain kernel/locking/lockdep.c:3906 [inline]
+ __lock_acquire+0x249e/0x3c40 kernel/locking/lockdep.c:5228
+ lock_acquire.part.0+0x11b/0x380 kernel/locking/lockdep.c:5851
+ lock_sock_nested+0x3a/0xf0 net/core/sock.c:3625
+ lock_sock include/net/sock.h:1623 [inline]
+ smc_shutdown+0x65/0x7f0 net/smc/af_smc.c:2927
+ nbd_mark_nsock_dead+0xae/0x5d0 drivers/block/nbd.c:318
+ sock_shutdown+0x17c/0x280 drivers/block/nbd.c:411
+ nbd_clear_sock drivers/block/nbd.c:1415 [inline]
+ nbd_clear_sock_ioctl drivers/block/nbd.c:1553 [inline]
+ __nbd_ioctl drivers/block/nbd.c:1581 [inline]
+ nbd_ioctl+0x49b/0xd60 drivers/block/nbd.c:1641
+ compat_blkdev_ioctl+0x2f7/0x750 block/ioctl.c:749
+ __do_compat_sys_ioctl+0x1cb/0x2c0 fs/ioctl.c:1004
+ do_syscall_32_irqs_on arch/x86/entry/common.c:165 [inline]
+ __do_fast_syscall_32+0x73/0x120 arch/x86/entry/common.c:386
+ do_fast_syscall_32+0x32/0x80 arch/x86/entry/common.c:411
+ entry_SYSENTER_compat_after_hwframe+0x84/0x8e
+RIP: 0023:0xf7f0f579
+Code: b8 01 10 06 03 74 b4 01 10 07 03 74 b0 01 10 08 03 74 d8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 8d b4 26 00 00 00 00 8d b4 26 00 00 00 00
+RSP: 002b:00000000f506655c EFLAGS: 00000296 ORIG_RAX: 0000000000000036
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 000000000000ab04
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000296 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+block nbd2: shutting down sockets
+----------------
+Code disassembly (best guess), 2 bytes skipped:
+   0:	10 06                	adc    %al,(%rsi)
+   2:	03 74 b4 01          	add    0x1(%rsp,%rsi,4),%esi
+   6:	10 07                	adc    %al,(%rdi)
+   8:	03 74 b0 01          	add    0x1(%rax,%rsi,4),%esi
+   c:	10 08                	adc    %cl,(%rax)
+   e:	03 74 d8 01          	add    0x1(%rax,%rbx,8),%esi
+  1e:	00 51 52             	add    %dl,0x52(%rcx)
+  21:	55                   	push   %rbp
+  22:	89 e5                	mov    %esp,%ebp
+  24:	0f 34                	sysenter
+  26:	cd 80                	int    $0x80
+* 28:	5d                   	pop    %rbp <-- trapping instruction
+  29:	5a                   	pop    %rdx
+  2a:	59                   	pop    %rcx
+  2b:	c3                   	ret
+  2c:	90                   	nop
+  2d:	90                   	nop
+  2e:	90                   	nop
+  2f:	90                   	nop
+  30:	8d b4 26 00 00 00 00 	lea    0x0(%rsi,%riz,1),%esi
+  37:	8d b4 26 00 00 00 00 	lea    0x0(%rsi,%riz,1),%esi
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
