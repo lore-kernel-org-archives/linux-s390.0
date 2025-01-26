@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E59A717084F;
-	Sun, 26 Jan 2025 14:48:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBD06194137;
+	Sun, 26 Jan 2025 14:49:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737902929; cv=none; b=E+99pYm2UOgOjPmv2z4Zu4iL7N8GXRqZTxII1wUTYpVSuVl0OYqXjoGvISdoVzac7jXuO2l3mIayhKY1M76N3BunQsj+PjxcukVMBjGHl/61G5AEzh8qrsSQWwficEPft+d1pVrXdMXntKgvp5jsqKHcNMnfJhyv1c07ApLpBsI=
+	t=1737902943; cv=none; b=pP2r11fkGcdS3VvaBL1U7GcgU8OFBLqCn06HO3t2XCsmYPt8HYYbcGDiOAQcujjyLDfnMCX+Fw5gRMlc3LAIKhmTKdClf7JmoYat9vDD2XhAeLPOn0wLaQweB04PCnn3JStds2bBaP6/vNH4o8xz7VgS0oRhWn8+xj3D9iQ95wY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737902929; c=relaxed/simple;
-	bh=eh4cIulasgqyPYNqTd0PIqpVWaBDnASMx9Xs+U8eW9k=;
+	s=arc-20240116; t=1737902943; c=relaxed/simple;
+	bh=PKz/tUNjKmibvKH3GaGhjJ+PRUw2DYBI7SOrKrB3yOs=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TkorYxfMyeCi5rO89N+IDGhjFvJVlqGfV8UmgaxBc76HZRo9vwpkV0c86xzham/mtc6WLLQG2kZdUwVpzbrVTo+lqDzxMV20BeAnnYajja9gikFOARy0i0Z7Xas164cyt1Pd2mYwDcwGrClm9vQgTkFy3WQvkCzHMkkw01SYLKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gVZi/5yO; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=ueWc1j7/fUNJNrIY01/YeJU/GvoKPMiNIdasQRM40TA3g0TL1SoG7A+rmm2wJhIrx6HkToJ8PO/zFCDbPY2RoPAasNL5Ye6A94fcMHmm4yAvA0rFtvwlEnUzq5JMLf8GaHxA1ikXLzjMfCArqnk5eaK83Ho2NJ53yTr3Tvi6+/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pjfSckqp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gVZi/5yO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C2CFC4CED3;
-	Sun, 26 Jan 2025 14:48:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pjfSckqp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E154C4CED3;
+	Sun, 26 Jan 2025 14:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737902928;
-	bh=eh4cIulasgqyPYNqTd0PIqpVWaBDnASMx9Xs+U8eW9k=;
+	s=k20201202; t=1737902942;
+	bh=PKz/tUNjKmibvKH3GaGhjJ+PRUw2DYBI7SOrKrB3yOs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=gVZi/5yOPWFByekCISiwlAzV8c+58Cc/0yQLJ3P9oUce56n0fJjrkOkZbDNdF43Ph
-	 gDjrDCagpp7SkzA72s8xJ2HvDchI0xW6dZ+exNd6WqllGRwSSUyKkT9h1Qd1cqe9Gl
-	 pCCck8taFdCwKlEp2n0EEMcwRhuKR2W6N3pHdmJLiGpBBkIL3RLZkvXVm2u0s1kLRB
-	 RzDvG+rrkVlAIj5sQ0AjUnE9Omnka6NY3EyJnbMy/BoGA5c3GzTg1LEbcsA49Kmd4f
-	 jpuNuXjb/g7LSdebLoiqDBO9YZDGmQp0qymIIkJJfnor1DH6hIoiDZ3lpLupDerAM/
-	 sTVd/e7DW0ZCg==
+	b=pjfSckqpa4PKiBDg5wbrGWz/J7RW7Z+NhHUdWY+xXCy4SYcluPU/VXfuni1/eUOBZ
+	 dmSugMA0l1Kwh2DHWvak8JHytQ3ghPyqjBRMjgTItxomGS7QbEeQx4ovImTDZrUxnK
+	 RGKRD3iqjG+mPQKnv3URauMTzlsfJhFXlV6fAD9c2F5gXYDLYW9/3mXTd3LUG/+M8c
+	 TpOKD1tIeCqzmkES49oULr6387t03So4CW8MFLD2dPwKy33ltOl6/4AYglrSrVB4jc
+	 EA52hg9y65JLytC6+z24rX7t5NgwCw8MqTtzgkgIyLJgYfLs+bLR8BenUvY8b4/tjH
+	 /aZIKD0ZqcuMw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -37,12 +37,12 @@ Cc: Sven Schnelle <svens@linux.ibm.com>,
 	imbrenda@linux.ibm.com,
 	meted@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.13 4/7] s390/stackleak: Use exrl instead of ex in __stackleak_poison()
-Date: Sun, 26 Jan 2025 09:48:35 -0500
-Message-Id: <20250126144839.925271-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.12 4/6] s390/stackleak: Use exrl instead of ex in __stackleak_poison()
+Date: Sun, 26 Jan 2025 09:48:51 -0500
+Message-Id: <20250126144854.925377-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250126144839.925271-1-sashal@kernel.org>
-References: <20250126144839.925271-1-sashal@kernel.org>
+In-Reply-To: <20250126144854.925377-1-sashal@kernel.org>
+References: <20250126144854.925377-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,7 +51,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.13
+X-stable-base: Linux 6.12.11
 Content-Transfer-Encoding: 8bit
 
 From: Sven Schnelle <svens@linux.ibm.com>
@@ -71,10 +71,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 8761fd01a9f09..4f8d5592c2981 100644
+index 9a5236acc0a86..21ae93cbd8e47 100644
 --- a/arch/s390/include/asm/processor.h
 +++ b/arch/s390/include/asm/processor.h
-@@ -163,8 +163,7 @@ static __always_inline void __stackleak_poison(unsigned long erase_low,
+@@ -162,8 +162,7 @@ static __always_inline void __stackleak_poison(unsigned long erase_low,
  		"	la	%[addr],256(%[addr])\n"
  		"	brctg	%[tmp],0b\n"
  		"1:	stg	%[poison],0(%[addr])\n"
