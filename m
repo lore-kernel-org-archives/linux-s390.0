@@ -1,87 +1,107 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F368A19BBA;
-	Mon, 27 Jan 2025 15:42:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56D8518CBFB
+	for <linux-s390@vger.kernel.org>; Mon, 27 Jan 2025 17:57:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737992581; cv=none; b=hlKJ084b+wIEqZXyGUKaz7+c0w8WaWn5o0hoAaeubRTleSjf1mswjJTKsK59jZOs2Vz3B0rrY+AlvAbz449SGJkZ/003U2pbuza3vd4wk/cmUUvDjhUAXv8nqfyaARgsKu+LYmanLs4LbwRrC0GtHk4l/nVs0yDkh941/nwwHR0=
+	t=1738000658; cv=none; b=AGGCvbjK/R/cUsopNblagpQtJhHNoRQbtbD/KM8kKwAy2FJ7kNh8UDzQ3KKYcpGn3MkdwLsw2/VQr0WNVUpi04b6bNNv3F+snyBcOgQmsiiUVXPOBSl2ETw/H3Efbh6vRLakw+kS5trN+Wdf0k094M5fR29ZJoOi0ApLW+iZPoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737992581; c=relaxed/simple;
-	bh=754tTQ0Xv0FV1pAPiQ7XMzOqvV5Ru3eT2/4MtIxHkKc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pcxjjWPHVuwrYIY3AW5zCkXqNuIvI2fQQ0VJx0xLK3WwbCAoyoO1pu4yLS/kX6gczLJqYNs4V2wyhB3ULJzgKjwL/IDvffeq1CbImkTFPDwGY7ajdNyjpUetqcdWx+dtSyOqy04rVVlQvjLsKbrQIrM+Zsrco896Xe2Q6pjCfmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Pyozw0ts; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1738000658; c=relaxed/simple;
+	bh=Da/Mo6lc9KrmvCQJHGNrMkn9XdDwOdxWpBKxPrOgGA0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=C1VKCPqH3pp5w+H/JCFOkUBgeUApPKM0Jjr7Sl7aBBU0zfKFNxukiT3NwOrqI8ziHQ1R7RUfHs+r88ztfesqiaCSOrFCDgyoGBQYtOEY5oR9CoLq8srqZ7eZ8qV7phpILao1wHq99gwQiEOeFy39GcQpJ3nT4GgyNYpwHhuISPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MnE2Tu9X; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Pyozw0ts"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=754tTQ0Xv0FV1pAPiQ7XMzOqvV5Ru3eT2/4MtIxHkKc=; b=Pyozw0tsKLD9gp97o+N6ZbHkTo
-	Il8/2Vpa4F0aqTQ5eLNtncdojFavxqC+3hOoMyt2pPZYgpxoa7oSXp+1z19h2FwdJ9ksectEr6L5y
-	pdndzuM9IJbuYbMGyY8OnttTeia0ZsfUEQN3vE3Kvu3ywzVzVm7PiaoVN1j+XGx7cGtNMyIWcHM2K
-	IHU9EJmiTnsw2atKedPjlIYgnndG3plYffG/psV0clxoDlPsLg9vBJ8MCt7RCyZQNR2Rl4uIk2hOI
-	SGpvgckCCBw+KC2Pto4K/lzMPYNt+Lyqoqjs99RL8H5P/AQH7nlJDuMDpJ1IZ/IMsyAIp8YsG+ytq
-	PlpOQ/eA==;
-Received: from willy by casper.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1tcRG3-00000009b8r-2Zcd;
-	Mon, 27 Jan 2025 15:42:39 +0000
-Date: Mon, 27 Jan 2025 15:42:39 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Jani Nikula <jani.nikula@intel.com>
-Cc: Joel Granados <joel.granados@kernel.org>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
-	Kees Cook <kees@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-raid@vger.kernel.org,
-	linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org,
-	xen-devel@lists.xenproject.org, linux-aio@kvack.org,
-	linux-fsdevel@vger.kernel.org, netfs@lists.linux.dev,
-	codalist@coda.cs.cmu.edu, linux-mm@kvack.org,
-	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
-	fsverity@lists.linux.dev, linux-xfs@vger.kernel.org,
-	io-uring@vger.kernel.org, bpf@vger.kernel.org,
-	kexec@lists.infradead.org, linux-trace-kernel@vger.kernel.org,
-	linux-hardening@vger.kernel.org, apparmor@lists.ubuntu.com,
-	linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-	Song Liu <song@kernel.org>,
-	"Steven Rostedt (Google)" <rostedt@goodmis.org>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	"Darrick J. Wong" <djwong@kernel.org>,
-	Corey Minyard <cminyard@mvista.com>
-Subject: Re: Re: Re: [PATCH v2] treewide: const qualify ctl_tables where
- applicable
-Message-ID: <Z5epb86xkHQ3BLhp@casper.infradead.org>
-References: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
- <Z4+jwDBrZNRgu85S@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <nslqrapp4v3rknjgtfk4cg64ha7rewrrg24aslo2e5jmxfwce5@t4chrpuk632k>
- <CAMj1kXEZPe8zk7s67SADK9wVH3cfBup-sAZSC6_pJyng9QT7aw@mail.gmail.com>
- <f4lfo2fb7ajogucsvisfd5sg2avykavmkizr6ycsllcrco4mo3@qt2zx4zp57zh>
- <87jzag9ugx.fsf@intel.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MnE2Tu9X"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1738000656;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6FkhrzKrV06UD8gv8drmi1i5znhVKcH4EdaDtq7gHPQ=;
+	b=MnE2Tu9XZQWSetS7h/CDxJ09+Lo0KAEn5MtR3mG2x04boVtRIltFN/aEmQHE9gQ2mdVVq/
+	bEWN6H2RWbqQV0tQOXX8hKpM3WQV+OJULUr2rZflnveQtgIWC+aTpwClcno5ahyG5PHKOI
+	RJXV+RbWLODcdgNf/0BoHuvNC3Ik7RA=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-553-rBQa59sANb6K_EgZ4fXOUg-1; Mon,
+ 27 Jan 2025 12:57:32 -0500
+X-MC-Unique: rBQa59sANb6K_EgZ4fXOUg-1
+X-Mimecast-MFC-AGG-ID: rBQa59sANb6K_EgZ4fXOUg
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2ABC41801F16;
+	Mon, 27 Jan 2025 17:57:31 +0000 (UTC)
+Received: from [10.45.224.57] (unknown [10.45.224.57])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5EC7E195608A;
+	Mon, 27 Jan 2025 17:57:28 +0000 (UTC)
+Date: Mon, 27 Jan 2025 18:57:24 +0100 (CET)
+From: Mikulas Patocka <mpatocka@redhat.com>
+To: Harald Freudenberger <freude@linux.ibm.com>
+cc: agk@redhat.com, snitzer@kernel.org, ifranzki@linux.ibm.com, 
+    linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, 
+    herbert@gondor.apana.org.au, dengler@linux.ibm.com
+Subject: Re: [PATCH v1 1/1] dm-integrity: Implement asynch digest support
+In-Reply-To: <5a8a09387c0fef59629707937297a0a4@linux.ibm.com>
+Message-ID: <1f3c94f0-1149-70cf-8bb8-756a5c3e8a2d@redhat.com>
+References: <20250115164657.84650-1-freude@linux.ibm.com> <20250115164657.84650-2-freude@linux.ibm.com> <b541f1bb-5287-7600-77ce-ceed5903e554@redhat.com> <5a8a09387c0fef59629707937297a0a4@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87jzag9ugx.fsf@intel.com>
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Mon, Jan 27, 2025 at 04:55:58PM +0200, Jani Nikula wrote:
-> You could have static const within functions too. You get the rodata
-> protection and function local scope, best of both worlds?
+Hi
 
-timer_active is on the stack, so it can't be static const.
 
-Does this really need to be cc'd to such a wide distribution list?
+On Wed, 22 Jan 2025, Harald Freudenberger wrote:
+
+> 
+> 6.13.0-rc7 with dm-integrity using shash:
+> 
+> sha256
+>   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 45.5 s, 94.4 MB/s
+>   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 19.2137 s, 224 MB/s
+> hmac-sha256
+>   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 45.2026 s, 95.0 MB/s
+>   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 19.2082 s, 224 MB/s
+> 
+> 6.13.0-rc7 with dm-integrity with my ahash patch:
+> 
+> sha256
+>   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 41.5273 s, 103 MB/s
+>   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 16.2558 s, 264 MB/s
+> hmac-sha256
+>   WRITE: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 44.063 s, 97.5 MB/s
+>   READ: 4294967296 bytes (4.3 GB, 4.0 GiB) copied, 16.5381 s, 260 MB/s
+> 
+> I checked these results several times. They vary but always the dm-integrity
+> with the ahash patch gives the better figures. I ran some measurements with
+> an isolated cpu and used this cpu to pin the format or the dd task to this
+> cpu. Pinning is not a good idea as very much of the work is done via
+> workqueues
+> in dm-integrity and so the communication overhead between the cpus increases.
+> However, I would have expected a slight penalty with the ahash patch like
+> it is to see with the dm-integrity format but read and write seem to benefit
+> from this simple ahash patch. It would be very interesting how a real asynch
+> implementation of dm-integrity really performs.
+> 
+> If someone is interested, I can share my scripts for these measurements.
+> 
+> Harald Freudenberger
+
+If ahash helps for you, you can add it in a similar way to the dm-verity 
+target - so that it is only used when it makes sense - see the function 
+verity_setup_hash_alg.
+
+Mikulas
+
