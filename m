@@ -1,136 +1,94 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38CC619CD17;
-	Tue, 28 Jan 2025 10:15:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADE501A072A;
+	Tue, 28 Jan 2025 11:22:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738059308; cv=none; b=mbwS3Q7jZCk5wlW/+ii/ajKVK+ycNItk33tSvTl9xUX/PxHsVi/Z6oS7fYDmQTuLc2U0hPZTmnewNRJb4j2KtBrwThT6hmXLgPMKCtFP2zkwo3+PrLzY4xuNXAnOce9fMZt+fOnzV1V2EoZt8QmLCeZWMpspXti/0iYDgSRfoqc=
+	t=1738063363; cv=none; b=WIed3RYgYQwzRJ8kptd6WG0A7azbhd6tlAJ8xEBUaWX2ov0kUBy04gQIi6BbWu8tMFYNKl75YN8czkWDvn+WWRj8QIwQhjvvqbNMsrA3L5EA19mI/kH3RDJIhN/o6fCHiQgk2PAGt6/tbb88ey/PRCR2gcvdGF3miENGXU3HHl8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738059308; c=relaxed/simple;
-	bh=NvgP2SiB4/Y4OGvHxwhUdU1VXNKYqMjUW0oiWtuqrrQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=GtXUmLDS/yzvJs4iadlNpD4HVKH1qnIs12Y1vgwtilRyFOdyQBxjRNFS/OA0XNglF4ZAT9Yf4UpxJ2uGsgt09ULlQPGiAFQrkiavieWg+/xU56JH5owmTVrusFITkJrLZ/8uzL/9+oFZ5xyiKCtploHWgctcEhnZOyKMpq7l6Yc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GWkZtevm; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738063363; c=relaxed/simple;
+	bh=AJfDJn9pFkPItjs+l9CjDlC33TdlTCE01Kr4mfJIOJE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g+cCyGb2/fsQowQreYNLg9qSUrLirXR7MS1CsgJTWL5oNhbhe1swUVk/CwSswe8PDryMSusPUfNKlrWUa3532e8R+YEEmmA4oN6QzpCINKU580mS3vkG99WHUT1yexgg3lDas9CYY6cW1AeZPm219ztniPyeJErJcq9Nc2Lg5xE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=foTouGKI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GWkZtevm"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50S5OFGK024429;
-	Tue, 28 Jan 2025 10:15:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=lIiP3k
-	C/83V24/mp8tQckq3MOhktT/vQImL8a1ZKUSY=; b=GWkZtevm7TcwopoEWUAcwZ
-	0aNg9YwjMDJdStJsiCngpdhTKQfDwMzTUw5zQu5KIGhnNcmgH6sO56EUNW+UpLJs
-	rB4axAf655s7Is0cK80l0WQhzbxDpQQPO1tuJwqroSmcByYcC9oPWw5L0NqD/clK
-	8WouxSv0ZL479H1uiWTC4SEM7CuoLSR7WXPqcPaoux8GrOkDC4Al2zs8hvt/5cYz
-	o3mhqrL55CMIen2I1LabQtP1A7+lw1QL3vt6pBE1J7J9BPeU14M/JZNGIC6rYbee
-	/s6ZuE5WJRCjaQWWlHYXX5LwjWdeP3NwE7zIbDXASDde57TkCIoB0rIRsmWVgf3Q
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44es27h842-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jan 2025 10:15:02 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50S99vFW019348;
-	Tue, 28 Jan 2025 10:15:01 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44db9mtqs8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 28 Jan 2025 10:15:01 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50SAEvnb56754488
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 28 Jan 2025 10:14:58 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D8EBA200CB;
-	Tue, 28 Jan 2025 10:14:57 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E539200CA;
-	Tue, 28 Jan 2025 10:14:57 +0000 (GMT)
-Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.179.13.59])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 28 Jan 2025 10:14:57 +0000 (GMT)
-From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
-To: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>
-Cc: kvm@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        Nico Boehr
- <nrb@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v1 1/2] s390x/Makefile: Make sure the
- linker script is generated in the build directory
-In-Reply-To: <20250128100639.41779-2-mhartmay@linux.ibm.com>
-References: <20250128100639.41779-1-mhartmay@linux.ibm.com>
- <20250128100639.41779-2-mhartmay@linux.ibm.com>
-Date: Tue, 28 Jan 2025 11:14:56 +0100
-Message-ID: <8734h3s0rj.fsf@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="foTouGKI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98109C4CEDF;
+	Tue, 28 Jan 2025 11:22:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1738063362;
+	bh=AJfDJn9pFkPItjs+l9CjDlC33TdlTCE01Kr4mfJIOJE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=foTouGKI5Xpt6DiifiySGU1Px4B0JlxynZkL/A+4GJ+F1wUAFkM/N4G83a9sI8N06
+	 lsMHA2F0I+BGkV1h4oylhwmSeJznMzbN+UJy9qwbYRK5QlpfqNfv8Msq/ndA/iDm4I
+	 JYp3P2GR22dNEIcBnZOOATJGYPU+gMIFK9XfLLma3B24+UKToDLZL/ZLBF6bwp16qy
+	 HMKr9svtYad8MrCuOMMF5t2I0WLB8bGS9HGYMu9w94+SD6sanYCztaTmP2cubx4D+F
+	 lhSPEntAtoYhJR/j92VqRwE5MifEf7tNzvj9NQnTwv0sbHofELHMou005/QzH1lonP
+	 yczCENnq4hKEA==
+Date: Tue, 28 Jan 2025 12:22:37 +0100
+From: Joel Granados <joel.granados@kernel.org>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Jani Nikula <jani.nikula@intel.com>, Ard Biesheuvel <ardb@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <linux@weissschuh.net>, 
+	Kees Cook <kees@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, 
+	openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, 
+	netfs@lists.linux.dev, codalist@coda.cs.cmu.edu, linux-mm@kvack.org, 
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, fsverity@lists.linux.dev, 
+	linux-xfs@vger.kernel.org, io-uring@vger.kernel.org, bpf@vger.kernel.org, 
+	kexec@lists.infradead.org, linux-trace-kernel@vger.kernel.org, 
+	linux-hardening@vger.kernel.org, apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
+	keyrings@vger.kernel.org, Song Liu <song@kernel.org>, 
+	"Steven Rostedt (Google)" <rostedt@goodmis.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	"Darrick J. Wong" <djwong@kernel.org>, Corey Minyard <cminyard@mvista.com>
+Subject: Re: Re: Re: Re: [PATCH v2] treewide: const qualify ctl_tables where
+ applicable
+Message-ID: <u2fwibsnbfvulxj6adigla6geiafh2vuve4hcyo4vmeytwjl7p@oz6xonrq5225>
+References: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
+ <Z4+jwDBrZNRgu85S@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <nslqrapp4v3rknjgtfk4cg64ha7rewrrg24aslo2e5jmxfwce5@t4chrpuk632k>
+ <CAMj1kXEZPe8zk7s67SADK9wVH3cfBup-sAZSC6_pJyng9QT7aw@mail.gmail.com>
+ <f4lfo2fb7ajogucsvisfd5sg2avykavmkizr6ycsllcrco4mo3@qt2zx4zp57zh>
+ <87jzag9ugx.fsf@intel.com>
+ <Z5epb86xkHQ3BLhp@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: EA9ANBa_hAru4Y_V8UVbXXc-WPgyCz2g
-X-Proofpoint-GUID: EA9ANBa_hAru4Y_V8UVbXXc-WPgyCz2g
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-28_03,2025-01-27_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1011
- priorityscore=1501 phishscore=0 bulkscore=0 lowpriorityscore=0
- malwarescore=0 suspectscore=0 adultscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501280077
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z5epb86xkHQ3BLhp@casper.infradead.org>
 
-On Tue, Jan 28, 2025 at 11:06 AM +0100, Marc Hartmayer <mhartmay@linux.ibm.=
-com> wrote:
-> This change makes sure that the 'flat.lds' linker script is actually gene=
-rated
-> in the build directory and not source directory - this makes a difference=
- in
-> case of an out-of-source build.
->
-> Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-> ---
->  s390x/Makefile | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/s390x/Makefile b/s390x/Makefile
-> index 23342bd64f44..71bfa787fe59 100644
-> --- a/s390x/Makefile
-> +++ b/s390x/Makefile
-> @@ -182,8 +182,8 @@ lds-autodepend-flags =3D -MMD -MF $(dir $*).$(notdir =
-$*).d -MT $@
->  	$(CC) $(CFLAGS) -c -o $@ $< -DPROGNAME=3D\"$(@:.aux.o=3D.elf)\"
->=20=20
->  .SECONDEXPANSION:
-> -%.elf: $(FLATLIBS) $(asmlib) $(SRCDIR)/s390x/flat.lds $$(snippets-obj) $=
-$(snippet-hdr-obj) %.o %.aux.o
-> -	@$(CC) $(LDFLAGS) -o $@ -T $(SRCDIR)/s390x/flat.lds \
+On Mon, Jan 27, 2025 at 03:42:39PM +0000, Matthew Wilcox wrote:
+> On Mon, Jan 27, 2025 at 04:55:58PM +0200, Jani Nikula wrote:
+> > You could have static const within functions too. You get the rodata
+> > protection and function local scope, best of both worlds?
+> 
+> timer_active is on the stack, so it can't be static const.
+> 
+> Does this really need to be cc'd to such a wide distribution list?
+That is a very good question. I removed 160 people from the original
+e-mail and left the ones that where previously involved with this patch
+and left all the lists for good measure. But it seems I can reduce it
+even more.
 
-> +%.elf: $(FLATLIBS) $(asmlib) s390x/flat.lds $$(snippets-obj) $$(snippet-=
-hdr-obj) %.o %.aux.o
-> +	@$(CC) $(LDFLAGS) -o $@ -T s390x/flat.lds \
+How about this: For these treewide efforts I just leave the people that
+are/were involved in the series and add two lists: linux-kernel and
+linux-hardening.
 
-s390x/flat.lds should be replaced by $(TESTDIR)/flat.lds
+Unless someone screams, I'll try this out on my next treewide.
 
->  		$(filter %.o, $^) $(FLATLIBS) $(snippets-obj) $(snippet-hdr-obj) || \
->  		{ echo "Failure probably caused by missing definition of gen-se-header=
- executable"; exit 1; }
->  	@chmod a-x $@
-> --=20
-> 2.48.1
->
->
---=20
-Kind regards / Beste Gr=C3=BC=C3=9Fe
-   Marc Hartmayer
+Thx for the feedback
 
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-Gesch=C3=A4ftsf=C3=BChrung: David Faller
-Sitz der Gesellschaft: B=C3=B6blingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+Best
+
+-- 
+
+Joel Granados
