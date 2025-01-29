@@ -1,61 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35BA2171CD;
-	Wed, 29 Jan 2025 10:08:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2B416C854;
+	Wed, 29 Jan 2025 10:20:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738145285; cv=none; b=mrMWEJxquQL0WDp9qgu38RUar01NojCW5QPoSGyBySeqlPDwxTYXyuuKwTO7xYls+Cx95gHkSfDlU+KuwE0mo7BXslS51xUetcmz+X4Dgto7bY4ldfUYJUefIotsgxHvtVfiPHuLjeGaKU0N6aXB9dO+6J5f1hz3SFmtGM9WA7g=
+	t=1738146031; cv=none; b=Ka62rZFTLbkojdb4zpyqOZ2S4PaFm7nyJcdqGviG6PtkAize0/C9ibnh+UZH9/WYFOnTInBaDDx96OC/wNrv2kWB6EoyCJJccsGMXkQ/dRFWtSqhaCjP3Q+xNG51ADfrPu1H0fN0wi6y1CTsN8Qq/uF7ifplOddNO0WES5Ht8Gg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738145285; c=relaxed/simple;
-	bh=lubZ19/IE38+XVvrPiPULsiAfNeJUs+M+tXobAd69Zw=;
+	s=arc-20240116; t=1738146031; c=relaxed/simple;
+	bh=JX/WsnTImYTnj7KHSjD5bKt72zMvQKY1PttR4fyBsZg=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=VuTpcBWCphW6Gt3w4lP4nO7L4k/TyIozoHJEWj89wZ9iBlmv+yBqKfTgMNRuZaH5kJUrInLQsS+Bi4MP46klCS/zy2jydB6ZEwQvi+GwDlDNENcP2aY0mwlQshkHvIu7PLKUxKRsoR1XZY7WBfZPbSH5hnveuvkV8LMzqgaCv8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Jpk7kUIy; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:MIME-Version; b=qzApJlVnLV9H0fz+L866zDBZqXr/M/ec+FiHKBGahhdeNnZ5gsc5NleXuBZAeIIr/TE07jgzrgCNAowc/ddbfwCfRuEJuZAoOc0lGET8MiCv0g44Z+1w0R1WQlv+PC507YmfSnBZyx+jxEUNOURqj8ADR/ONl34p+shhdgF7gZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WFQXGqar; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Jpk7kUIy"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50T184G1004471;
-	Wed, 29 Jan 2025 10:07:52 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WFQXGqar"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50T41rxN006695;
+	Wed, 29 Jan 2025 10:20:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=bmBUUF
-	sP648nmSXcQ2YA2mxfP8O8JLUDSdt0USPAKss=; b=Jpk7kUIyoyUGUdoAgNtG2y
-	ShnzxSLh5Q9El6/+YE1sIuBSn6uJvSR27vuRcDJ9fu+M6UBR6NJOW0kc/uPvKpdb
-	SXEVKN9eunUKj4Sr+jmWhqb8WsnaqkZWRy0pWBCK3W9iM4ehXuk8qWjw2i493Eyu
-	niVbPpjLWjEK0cH3ePihF2hMu+ehcdMKXAbrSNt79FbM0W4hA/MIz4mNQe3hrClR
-	Re1RjKH/xU9agWUqyLipl87pjX6dNmSLn0hGlzkig3YYAEW0QrpkvBDLqV4Iphs4
-	m6kUflFfuKWuYyhBGn1UMyslCZxHcGJIxVw1z8kVjXJxZlJE25yFDybSbcYUfrFA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Dtx3ex
+	royQ9WiLTpmoxXJfNldQxVGGuZX6ylOukFUkI=; b=WFQXGqarWB7m0u+i4Rwj32
+	v9Tr5xAwIng2nToyBGG3Obc0mdLE1eFrG+8qwfE5sSvFfytUSOD0lLovADYWoUrE
+	KF8ltNgtmLXrXxH1co48HNPJWcVggxoDLha2JFgQ50HDc6761CdcVE/4a7Pyc2w8
+	Yr2bhIzMwFuGbi9pxSY26Pf/bbzTCzSbkaxuUMthNpj7RdvPeXmQ7asQWHfQd9PK
+	dKji8Kpz2uWaXagJw0WAgGATLvTsVDMUBEqoAO0d834kg4GIR0MnR/rqbdjuU0FF
+	V7pVmUDmQMfSBa8yBH6hltfiPCIrmRD97cKOaFuqin2GJFZIjD9MH1zW2ogcrUAg
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44fad9hx68-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44f1gymjkf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jan 2025 10:07:52 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50T9lwTx028042;
-	Wed, 29 Jan 2025 10:07:50 GMT
+	Wed, 29 Jan 2025 10:20:18 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50T8HE1J012476;
+	Wed, 29 Jan 2025 10:20:16 GMT
 Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44dbskg0wj-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44dany88x7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jan 2025 10:07:50 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50TA7nZG20972072
+	Wed, 29 Jan 2025 10:20:16 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50TAKFEW31195856
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jan 2025 10:07:49 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF1885803F;
-	Wed, 29 Jan 2025 10:07:49 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E18258055;
-	Wed, 29 Jan 2025 10:07:47 +0000 (GMT)
+	Wed, 29 Jan 2025 10:20:15 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4F17458068;
+	Wed, 29 Jan 2025 10:20:15 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4C99158052;
+	Wed, 29 Jan 2025 10:20:13 +0000 (GMT)
 Received: from [9.152.212.245] (unknown [9.152.212.245])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Jan 2025 10:07:47 +0000 (GMT)
-Message-ID: <62069e893ea338c17283b6c81b108f89d4ab2d77.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/3] s390/pci: check for relaxed translation
- capability
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Jan 2025 10:20:13 +0000 (GMT)
+Message-ID: <e22214eefa5c304d800db503687260b81c16964c.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 2/3] s390/pci: store DMA offset in bus_dma_region
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
         robin.murphy@arm.com, gerald.schaefer@linux.ibm.com
@@ -63,10 +62,10 @@ Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
         clegoate@redhat.com, iommu@lists.linux.dev,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Date: Wed, 29 Jan 2025 11:07:46 +0100
-In-Reply-To: <20250124201717.348736-2-mjrosato@linux.ibm.com>
+Date: Wed, 29 Jan 2025 11:20:12 +0100
+In-Reply-To: <20250124201717.348736-3-mjrosato@linux.ibm.com>
 References: <20250124201717.348736-1-mjrosato@linux.ibm.com>
-	 <20250124201717.348736-2-mjrosato@linux.ibm.com>
+	 <20250124201717.348736-3-mjrosato@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -132,73 +131,82 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 0QHzY146MOcbErV0abwRYByxHMg6hRQf
-X-Proofpoint-ORIG-GUID: 0QHzY146MOcbErV0abwRYByxHMg6hRQf
+X-Proofpoint-GUID: hLun8QnRDmXjUW2pCOIdtKQILFjOyuJ3
+X-Proofpoint-ORIG-GUID: hLun8QnRDmXjUW2pCOIdtKQILFjOyuJ3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-28_04,2025-01-27_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 mlxlogscore=854 spamscore=0
- priorityscore=1501 suspectscore=0 clxscore=1015 mlxscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
+ suspectscore=0 phishscore=0 mlxlogscore=934 impostorscore=0
+ lowpriorityscore=0 spamscore=0 bulkscore=0 malwarescore=0 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2411120000 definitions=main-2501290081
 
 On Fri, 2025-01-24 at 15:17 -0500, Matthew Rosato wrote:
-> For each zdev, record whether or not CLP indicates relaxed translation
-> capability for the associated device group.
+> PCI devices on s390 have a DMA offset that is reported via CLP.  In
+> preparation for allowing identity domains, setup the bus_dma_region
+> for all PCI devices using the reported CLP value.
 >=20
 > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > ---
->  arch/s390/include/asm/pci.h     | 2 +-
->  arch/s390/include/asm/pci_clp.h | 4 +++-
->  arch/s390/pci/pci_clp.c         | 1 +
->  3 files changed, 5 insertions(+), 2 deletions(-)
+>  arch/s390/pci/pci_bus.c | 18 ++++++++++++++++++
+>  1 file changed, 18 insertions(+)
 >=20
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 474e1f8d1d3c..8fe4c7a72c0b 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -144,7 +144,7 @@ struct zpci_dev {
->  	u8		util_str_avail	: 1;
->  	u8		irqs_registered	: 1;
->  	u8		tid_avail	: 1;
-> -	u8		reserved	: 1;
-> +	u8		rtr_avail	: 1; /* Relaxed translation allowed */
->  	unsigned int	devfn;		/* DEVFN part of the RID*/
+> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+> index d5ace00d10f0..51fa993b64fc 100644
+> --- a/arch/s390/pci/pci_bus.c
+> +++ b/arch/s390/pci/pci_bus.c
+> @@ -19,6 +19,7 @@
+>  #include <linux/jump_label.h>
+>  #include <linux/pci.h>
+>  #include <linux/printk.h>
+> +#include <linux/dma-direct.h>
 > =20
->  	u8 pfip[CLP_PFIP_NR_SEGMENTS];	/* pci function internal path */
-> diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_=
-clp.h
-> index 3fff2f7095c8..7ebff39c84b3 100644
-> --- a/arch/s390/include/asm/pci_clp.h
-> +++ b/arch/s390/include/asm/pci_clp.h
-> @@ -156,7 +156,9 @@ struct clp_rsp_query_pci_grp {
->  	u16			:  4;
->  	u16 noi			: 12;	/* number of interrupts */
->  	u8 version;
-> -	u8			:  6;
-> +	u8			:  2;
-> +	u8 rtr			:  1;	/* Relaxed translation requirement */
-> +	u8			:  3;
->  	u8 frame		:  1;
->  	u8 refresh		:  1;	/* TLB refresh mode */
->  	u16			:  3;
-> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-> index 14bf7e8d06b7..27248686e588 100644
-> --- a/arch/s390/pci/pci_clp.c
-> +++ b/arch/s390/pci/pci_clp.c
-> @@ -112,6 +112,7 @@ static void clp_store_query_pci_fngrp(struct zpci_dev=
- *zdev,
->  	zdev->version =3D response->version;
->  	zdev->maxstbl =3D response->maxstbl;
->  	zdev->dtsm =3D response->dtsm;
-> +	zdev->rtr_avail =3D response->rtr;
+>  #include <asm/pci_clp.h>
+>  #include <asm/pci_dma.h>
+> @@ -284,10 +285,27 @@ static struct zpci_bus *zpci_bus_alloc(int topo, bo=
+ol topo_is_tid)
+>  	return zbus;
+>  }
 > =20
->  	switch (response->version) {
->  	case 1:
+> +static void pci_dma_range_setup(struct pci_dev *pdev)
+> +{
+> +	struct zpci_dev *zdev =3D to_zpci(pdev);
+> +	struct bus_dma_region *map;
+> +
+> +	map =3D kzalloc(sizeof(*map), GFP_KERNEL);
+> +	if (!map)
+> +		return;
+> +
+> +	map->cpu_start =3D 0;
+> +	map->dma_start =3D PAGE_ALIGN(zdev->start_dma);
+> +	map->size =3D zdev->end_dma - zdev->start_dma + 1;
 
-Checked the bit positions and as discussed out of band I gave the whole
-series a try too. So feel free to add:
+Shouldn't the size calculation also use PAGE_ALIGN(zdev->start_dma) in
+case that actually aligns? And for zdev->end_dma I think we want
+PAGE_ALIGN_DOWN(zdev->end_dma + 1). There is also the, hopefully
+theoretical, case that zdev->end_dma could be less than PAGE_SIZE
+larger than zdev->start_dma. I guess in that case we should just ensure
+that size is 0, maybe using max(=E2=80=A6, 0) around the expression.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> +	pdev->dev.dma_range_map =3D map;
+> +}
+> +
+>  void pcibios_bus_add_device(struct pci_dev *pdev)
+>  {
+>  	struct zpci_dev *zdev =3D to_zpci(pdev);
+> =20
+> +	pci_dma_range_setup(pdev);
+> +
+>  	/*
+>  	 * With pdev->no_vf_scan the common PCI probing code does not
+>  	 * perform PF/VF linking.
+
+I was initially wondering where the map is freed, then found the
+kfree()s in common code in device_unbind_cleanup() and
+device_release().
+
+Despite the thoughts above I already tested this on my setup and it
+worked great, so you can already add my:
+
 Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
