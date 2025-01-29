@@ -1,60 +1,61 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2B416C854;
-	Wed, 29 Jan 2025 10:20:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A8871B0412;
+	Wed, 29 Jan 2025 10:29:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738146031; cv=none; b=Ka62rZFTLbkojdb4zpyqOZ2S4PaFm7nyJcdqGviG6PtkAize0/C9ibnh+UZH9/WYFOnTInBaDDx96OC/wNrv2kWB6EoyCJJccsGMXkQ/dRFWtSqhaCjP3Q+xNG51ADfrPu1H0fN0wi6y1CTsN8Qq/uF7ifplOddNO0WES5Ht8Gg=
+	t=1738146601; cv=none; b=VonBs58rY7AbBUA9dYbfQk9m4fKTtqfjRk9UXlRBaomqCCVc6Ey/WctsNcp0KgAuMyX/6tjCjT6krPrIfXjTY6K8tdR+WbwXDwllAFxowJdWd0mKIVfKjG2gkxSwzrHKIShRacH9Lt1EtjtCPbEFVUn09+8YfL+VVtuOwQUDo2c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738146031; c=relaxed/simple;
-	bh=JX/WsnTImYTnj7KHSjD5bKt72zMvQKY1PttR4fyBsZg=;
+	s=arc-20240116; t=1738146601; c=relaxed/simple;
+	bh=7DBG3En0UjKi0i1i/A0tJCqo9EwVAEs3O2hhRX8KJz0=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=qzApJlVnLV9H0fz+L866zDBZqXr/M/ec+FiHKBGahhdeNnZ5gsc5NleXuBZAeIIr/TE07jgzrgCNAowc/ddbfwCfRuEJuZAoOc0lGET8MiCv0g44Z+1w0R1WQlv+PC507YmfSnBZyx+jxEUNOURqj8ADR/ONl34p+shhdgF7gZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WFQXGqar; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:MIME-Version; b=NZRDTkD9N1hxMYvAZuow/Ajscaojb6AoLCgeD9fWwGp8mnNhWkHYw/wE9htDJKU5KN5kZsVvyYZ7qdkFG4lNytoikcHUAY4c9pZRf228UGOTUWLYJh8Qp2/mlrkY0nGm/dfiHSsCPnwQfEHzUjp21vWsqWhI/KZE0YQYSqb0kiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Wv4mhKvY; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WFQXGqar"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50T41rxN006695;
-	Wed, 29 Jan 2025 10:20:18 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Wv4mhKvY"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50T7Wne3006010;
+	Wed, 29 Jan 2025 10:29:47 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Dtx3ex
-	royQ9WiLTpmoxXJfNldQxVGGuZX6ylOukFUkI=; b=WFQXGqarWB7m0u+i4Rwj32
-	v9Tr5xAwIng2nToyBGG3Obc0mdLE1eFrG+8qwfE5sSvFfytUSOD0lLovADYWoUrE
-	KF8ltNgtmLXrXxH1co48HNPJWcVggxoDLha2JFgQ50HDc6761CdcVE/4a7Pyc2w8
-	Yr2bhIzMwFuGbi9pxSY26Pf/bbzTCzSbkaxuUMthNpj7RdvPeXmQ7asQWHfQd9PK
-	dKji8Kpz2uWaXagJw0WAgGATLvTsVDMUBEqoAO0d834kg4GIR0MnR/rqbdjuU0FF
-	V7pVmUDmQMfSBa8yBH6hltfiPCIrmRD97cKOaFuqin2GJFZIjD9MH1zW2ogcrUAg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=0Tltgq
+	GcG13HH5wvE5YTVYFVCux9at1ir48BjOpLokc=; b=Wv4mhKvYjiUGHePD8tu8su
+	DKND+V5wubMiOt8f6vYtS+cr87vrK14xjekD9mH3MQ8d7tP2/i8Bl8gEUzvkJjNT
+	GIJiRp4n0PZNu31FjzveFPfFmQpva+q3fGJskijgPgXWjEYisjt78SuRoZiAZJmZ
+	UWF7/ZCmg7WpGzKvoqtQn4T1sLp11UtGm1gwZtcKf1yhw2ZX/mrInXvoDzATZAPc
+	IGrLFQn16AZxxULTr9YKm/b5gPvpykQo9idRICHgvEGirirwIdGyd/3MZkhu6ns9
+	lSCSdk/gK/BTuU7tZ0JXxLCU7CC8udmqpAOjO+Enf3ON2KKTn76Le7kD24CqwIDA
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44f1gymjkf-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44fg1ngr81-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jan 2025 10:20:18 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50T8HE1J012476;
-	Wed, 29 Jan 2025 10:20:16 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44dany88x7-1
+	Wed, 29 Jan 2025 10:29:47 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50TAJNXS022175;
+	Wed, 29 Jan 2025 10:29:46 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44dcgjqun8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jan 2025 10:20:16 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50TAKFEW31195856
+	Wed, 29 Jan 2025 10:29:46 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50TATj8Y30671426
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jan 2025 10:20:15 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4F17458068;
-	Wed, 29 Jan 2025 10:20:15 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C99158052;
-	Wed, 29 Jan 2025 10:20:13 +0000 (GMT)
+	Wed, 29 Jan 2025 10:29:45 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8958858059;
+	Wed, 29 Jan 2025 10:29:45 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5E73558055;
+	Wed, 29 Jan 2025 10:29:43 +0000 (GMT)
 Received: from [9.152.212.245] (unknown [9.152.212.245])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 29 Jan 2025 10:20:13 +0000 (GMT)
-Message-ID: <e22214eefa5c304d800db503687260b81c16964c.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 2/3] s390/pci: store DMA offset in bus_dma_region
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Jan 2025 10:29:43 +0000 (GMT)
+Message-ID: <496b23d8f33fef632a7ab5002ede803605d448f8.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 3/3] iommu/s390: implement iommu passthrough via
+ identity domain
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
         robin.murphy@arm.com, gerald.schaefer@linux.ibm.com
@@ -62,10 +63,10 @@ Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
         clegoate@redhat.com, iommu@lists.linux.dev,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Date: Wed, 29 Jan 2025 11:20:12 +0100
-In-Reply-To: <20250124201717.348736-3-mjrosato@linux.ibm.com>
+Date: Wed, 29 Jan 2025 11:29:42 +0100
+In-Reply-To: <20250124201717.348736-4-mjrosato@linux.ibm.com>
 References: <20250124201717.348736-1-mjrosato@linux.ibm.com>
-	 <20250124201717.348736-3-mjrosato@linux.ibm.com>
+	 <20250124201717.348736-4-mjrosato@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -131,82 +132,201 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hLun8QnRDmXjUW2pCOIdtKQILFjOyuJ3
-X-Proofpoint-ORIG-GUID: hLun8QnRDmXjUW2pCOIdtKQILFjOyuJ3
+X-Proofpoint-GUID: 0x23pyHKVDh8GMEz_yz_-6YnAWjb8ovp
+X-Proofpoint-ORIG-GUID: 0x23pyHKVDh8GMEz_yz_-6YnAWjb8ovp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-28_04,2025-01-27_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- suspectscore=0 phishscore=0 mlxlogscore=934 impostorscore=0
- lowpriorityscore=0 spamscore=0 bulkscore=0 malwarescore=0 adultscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501290081
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 malwarescore=0
+ priorityscore=1501 phishscore=0 mlxscore=0 lowpriorityscore=0 adultscore=0
+ clxscore=1015 mlxlogscore=999 impostorscore=0 spamscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501290085
 
 On Fri, 2025-01-24 at 15:17 -0500, Matthew Rosato wrote:
-> PCI devices on s390 have a DMA offset that is reported via CLP.  In
-> preparation for allowing identity domains, setup the bus_dma_region
-> for all PCI devices using the reported CLP value.
+> Enabled via the kernel command-line 'iommu.passthrough=3D1' option.
+>=20
+> Introduce the concept of identity domains to s390-iommu, which relies on
+> the bus_dma_region to offset identity mappings to the start of the DMA
+> aperture advertized by CLP.
 >=20
 > Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 > ---
->  arch/s390/pci/pci_bus.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
+>  arch/s390/pci/pci.c        |  6 ++-
+>  drivers/iommu/s390-iommu.c | 95 +++++++++++++++++++++++++++++---------
+>  2 files changed, 76 insertions(+), 25 deletions(-)
 >=20
-> diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-> index d5ace00d10f0..51fa993b64fc 100644
-> --- a/arch/s390/pci/pci_bus.c
-> +++ b/arch/s390/pci/pci_bus.c
-> @@ -19,6 +19,7 @@
->  #include <linux/jump_label.h>
->  #include <linux/pci.h>
->  #include <linux/printk.h>
-> +#include <linux/dma-direct.h>
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index 88f72745fa59..758b23331754 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -124,14 +124,16 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dm=
+aas,
+>  	struct zpci_fib fib =3D {0};
+>  	u8 cc;
 > =20
->  #include <asm/pci_clp.h>
->  #include <asm/pci_dma.h>
-> @@ -284,10 +285,27 @@ static struct zpci_bus *zpci_bus_alloc(int topo, bo=
-ol topo_is_tid)
->  	return zbus;
+> -	WARN_ON_ONCE(iota & 0x3fff);
+>  	fib.pba =3D base;
+>  	/* Work around off by one in ISM virt device */
+>  	if (zdev->pft =3D=3D PCI_FUNC_TYPE_ISM && limit > base)
+>  		fib.pal =3D limit + (1 << 12);
+>  	else
+>  		fib.pal =3D limit;
+> -	fib.iota =3D iota | ZPCI_IOTA_RTTO_FLAG;
+> +	if (iota =3D=3D 0)
+> +		fib.iota =3D iota;
+> +	else
+> +		fib.iota =3D iota | ZPCI_IOTA_RTTO_FLAG;
+
+The logic here did confuse me resolving the merge conflict with your
+other series. Maybe a ternary conves better that this is really about
+not applying the flags if the I/O address translation anchor isn't
+used. Something like:
+
+fib.iota =3D iota | ((iota) ? ZPCI_IOTA_RTTO_FLASG : 0);
+
+>  	fib.gd =3D zdev->gisa;
+>  	cc =3D zpci_mod_fc(req, &fib, status);
+>  	if (cc)
+> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> index fbdeded3d48b..3d93a9644fca 100644
+> --- a/drivers/iommu/s390-iommu.c
+> +++ b/drivers/iommu/s390-iommu.c
+> @@ -16,7 +16,7 @@
+> =20
+>  #include "dma-iommu.h"
+> =20
+> -static const struct iommu_ops s390_iommu_ops;
+> +static const struct iommu_ops s390_iommu_ops, s390_iommu_rtr_ops;
+> =20
+>  static struct kmem_cache *dma_region_table_cache;
+>  static struct kmem_cache *dma_page_table_cache;
+> @@ -392,9 +392,11 @@ static int blocking_domain_attach_device(struct iomm=
+u_domain *domain,
+>  		return 0;
+> =20
+>  	s390_domain =3D to_s390_domain(zdev->s390_domain);
+> -	spin_lock_irqsave(&s390_domain->list_lock, flags);
+> -	list_del_rcu(&zdev->iommu_list);
+> -	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> +	if (zdev->dma_table) {
+> +		spin_lock_irqsave(&s390_domain->list_lock, flags);
+> +		list_del_rcu(&zdev->iommu_list);
+> +		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
+> +	}
+> =20
+>  	zpci_unregister_ioat(zdev, 0);
+>  	zdev->dma_table =3D NULL;
+> @@ -723,7 +725,13 @@ int zpci_init_iommu(struct zpci_dev *zdev)
+>  	if (rc)
+>  		goto out_err;
+> =20
+> -	rc =3D iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops, NULL);
+> +	if (zdev->rtr_avail) {
+> +		rc =3D iommu_device_register(&zdev->iommu_dev,
+> +					   &s390_iommu_rtr_ops, NULL);
+> +	} else {
+> +		rc =3D iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops,
+> +					   NULL);
+> +	}
+>  	if (rc)
+>  		goto out_sysfs;
+> =20
+> @@ -787,6 +795,39 @@ static int __init s390_iommu_init(void)
 >  }
+>  subsys_initcall(s390_iommu_init);
 > =20
-> +static void pci_dma_range_setup(struct pci_dev *pdev)
+> +static int s390_attach_dev_identity(struct iommu_domain *domain,
+> +				    struct device *dev)
 > +{
-> +	struct zpci_dev *zdev =3D to_zpci(pdev);
-> +	struct bus_dma_region *map;
+> +	struct zpci_dev *zdev =3D to_zpci_dev(dev);
+> +	u8 status;
+> +	int cc;
 > +
-> +	map =3D kzalloc(sizeof(*map), GFP_KERNEL);
-> +	if (!map)
-> +		return;
+> +	blocking_domain_attach_device(&blocking_domain, dev);
 > +
-> +	map->cpu_start =3D 0;
-> +	map->dma_start =3D PAGE_ALIGN(zdev->start_dma);
-> +	map->size =3D zdev->end_dma - zdev->start_dma + 1;
-
-Shouldn't the size calculation also use PAGE_ALIGN(zdev->start_dma) in
-case that actually aligns? And for zdev->end_dma I think we want
-PAGE_ALIGN_DOWN(zdev->end_dma + 1). There is also the, hopefully
-theoretical, case that zdev->end_dma could be less than PAGE_SIZE
-larger than zdev->start_dma. I guess in that case we should just ensure
-that size is 0, maybe using max(=E2=80=A6, 0) around the expression.
-
-> +	pdev->dev.dma_range_map =3D map;
+> +	/* If we fail now DMA remains blocked via blocking domain */
+> +	cc =3D zpci_register_ioat(zdev, 0, zdev->start_dma, zdev->end_dma,
+> +				0, &status);
+> +	/*
+> +	 * If the device is undergoing error recovery the reset code
+> +	 * will re-establish the new domain.
+> +	 */
+> +	if (cc && status !=3D ZPCI_PCI_ST_FUNC_NOT_AVAIL)
+> +		return -EIO;
+> +
+> +	zdev_s390_domain_update(zdev, domain);
+> +
+> +	return 0;
 > +}
 > +
->  void pcibios_bus_add_device(struct pci_dev *pdev)
->  {
->  	struct zpci_dev *zdev =3D to_zpci(pdev);
-> =20
-> +	pci_dma_range_setup(pdev);
+> +static const struct iommu_domain_ops s390_identity_ops =3D {
+> +	.attach_dev =3D s390_attach_dev_identity,
+> +};
 > +
->  	/*
->  	 * With pdev->no_vf_scan the common PCI probing code does not
->  	 * perform PF/VF linking.
+> +static struct iommu_domain s390_identity_domain =3D {
+> +	.type =3D IOMMU_DOMAIN_IDENTITY,
+> +	.ops =3D &s390_identity_ops,
+> +};
+> +
+>  static struct iommu_domain blocking_domain =3D {
+>  	.type =3D IOMMU_DOMAIN_BLOCKED,
+>  	.ops =3D &(const struct iommu_domain_ops) {
+> @@ -794,23 +835,31 @@ static struct iommu_domain blocking_domain =3D {
+>  	}
+>  };
+> =20
+> -static const struct iommu_ops s390_iommu_ops =3D {
+> -	.blocked_domain		=3D &blocking_domain,
+> -	.release_domain		=3D &blocking_domain,
+> -	.capable =3D s390_iommu_capable,
+> -	.domain_alloc_paging =3D s390_domain_alloc_paging,
+> -	.probe_device =3D s390_iommu_probe_device,
+> -	.device_group =3D generic_device_group,
+> -	.pgsize_bitmap =3D SZ_4K,
+> -	.get_resv_regions =3D s390_iommu_get_resv_regions,
+> -	.default_domain_ops =3D &(const struct iommu_domain_ops) {
+> -		.attach_dev	=3D s390_iommu_attach_device,
+> -		.map_pages	=3D s390_iommu_map_pages,
+> -		.unmap_pages	=3D s390_iommu_unmap_pages,
+> -		.flush_iotlb_all =3D s390_iommu_flush_iotlb_all,
+> -		.iotlb_sync      =3D s390_iommu_iotlb_sync,
+> -		.iotlb_sync_map  =3D s390_iommu_iotlb_sync_map,
+> -		.iova_to_phys	=3D s390_iommu_iova_to_phys,
+> -		.free		=3D s390_domain_free,
+> +#define S390_IOMMU_COMMON_OPS() \
+> +	.blocked_domain		=3D &blocking_domain, \
+> +	.release_domain		=3D &blocking_domain, \
+> +	.capable =3D s390_iommu_capable, \
+> +	.domain_alloc_paging =3D s390_domain_alloc_paging, \
+> +	.probe_device =3D s390_iommu_probe_device, \
+> +	.device_group =3D generic_device_group, \
+> +	.pgsize_bitmap =3D SZ_4K, \
+> +	.get_resv_regions =3D s390_iommu_get_resv_regions, \
+> +	.default_domain_ops =3D &(const struct iommu_domain_ops) { \
+> +		.attach_dev	=3D s390_iommu_attach_device, \
+> +		.map_pages	=3D s390_iommu_map_pages, \
+> +		.unmap_pages	=3D s390_iommu_unmap_pages, \
+> +		.flush_iotlb_all =3D s390_iommu_flush_iotlb_all, \
+> +		.iotlb_sync      =3D s390_iommu_iotlb_sync, \
+> +		.iotlb_sync_map  =3D s390_iommu_iotlb_sync_map, \
+> +		.iova_to_phys	=3D s390_iommu_iova_to_phys, \
+> +		.free		=3D s390_domain_free, \
+>  	}
+> +
+> +static const struct iommu_ops s390_iommu_ops =3D {
+> +	S390_IOMMU_COMMON_OPS()
+> +};
+> +
+> +static const struct iommu_ops s390_iommu_rtr_ops =3D {
+> +	.identity_domain	=3D &s390_identity_domain,
+> +	S390_IOMMU_COMMON_OPS()
+>  };
 
-I was initially wondering where the map is freed, then found the
-kfree()s in common code in device_unbind_cleanup() and
-device_release().
+Other than the nit above this all looks good to me and as stated on
+other patches I did give this a try in my setup.
 
-Despite the thoughts above I already tested this on my setup and it
-worked great, so you can already add my:
-
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
+
+
