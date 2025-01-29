@@ -1,132 +1,111 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85C4F1AD403;
-	Wed, 29 Jan 2025 15:54:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938F41DE8AD
+	for <linux-s390@vger.kernel.org>; Wed, 29 Jan 2025 16:25:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738166051; cv=none; b=SIHGlumrFyxHR3bUnOftByNWVEzmaDFU3QfhJcwpYl5Rz7XL/dXKY2wNQzruBDbLYgqrhOlp3kbS2o+tFWkiBcHxupGVqDWOi1JD9QhyEcmdUKJsCmpMMhpXiHc162PfZoG6sFF5Clr9WB1YIDilNoR+gzevENBzN8Z8wheMYPc=
+	t=1738167944; cv=none; b=ASAB4yqVifHaWkEeWjdqFXbh9EXhe/VjGmG6RJ56PV4UPAnjLJZ/HyjZqIUZBWGZVGShLfc8QwhLKccJhzF4piZDCQ/qB/hFrKYYNDQ/Ej/c5TpkRdy4Gz4HMrZYSjQleJ6kkk+pjtXBIBrsqLSz+z43tAPv0Tk/noT72jBPhY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738166051; c=relaxed/simple;
-	bh=j3H/YkFZxydWVxZwTVNK0pWbLamFBxtpjNG1HGRozw8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=u+udvyHUKOiiA5qomrIFIHO1ycuQeSRUkrjfQaZ4+2WQ3vYVmukaAsta1IDbqmOKJe6IBPPFOxjKEQaDWndzg9K9fEq9CeR2x6kpuzj0Z//Bvg8TDoxZvQaY1L23DbfILhirEevQQsOTtcjmdeQMLaxbyJEDEdcxnFyJXavuG4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V34ztABM; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1738167944; c=relaxed/simple;
+	bh=Pcq1xP4ase3TR7+I7WC3Xk0oeGrravZbwvQwkweXK04=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jj0/Hzcyxj+5aShh+6psZDi7cvi6PGeZ8gJi0PZDDQoQYEOmtqap1S0M5zojC1ZHIFIVsU3VAzX3LWNLHlfWnAtj1nGWxISTWpHgCYYt3foTzXBa5jbbxiWq9bphQk8yB/jxGYmKkK/9p+irfy0ML/InJ+68EuCUlWpHPfrNKeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=B4KRoa3+; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V34ztABM"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50TENMxg030814;
-	Wed, 29 Jan 2025 15:54:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B4KRoa3+"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50TFdS3X008446;
+	Wed, 29 Jan 2025 16:25:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=UtonePPy0pLQ6bsSy1HA5+WlY8+DxN
-	wYp+tgC1LA7/8=; b=V34ztABMVNf84fw1AZBOBtlxKuL12tyg//fAV4A2+Wo/Rq
-	lLoHuVBFvl3hpfBzN2KXyfLyUQG61wlv7wGfwJfth5vvW9LbGZPzImUz2OpqBdVJ
-	nW4eILA4YjsDh7b8O54vlrwbCh71SX0WeozPqZjhltBTvysJ0uRsFfoTvyjZsu8F
-	Jjlu54FdX44zkESVaU3p8ImHDL7TlU3YX1cG/iKTN+qndmDYprrzJGGFdN3Sig28
-	6/0zOQo2dwZvPuGNkimk9MF+lXxVjO1OSQXdNoJwP+vJdw+sux9l4uQEONLfiGfO
-	A8muyU2Jx1JW+epmlVHlxN3gpIuaiYhZxNr0AYRg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44fb60b67q-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=r2dGeDT2YMdi1knJj7IVMYQB+3u7OSG2GCkcgg921
+	ss=; b=B4KRoa3+oQsjfAXdnQQCqQ2Vu5UanpRrPfIvntukQsmzAsM83q0gQ7cN8
+	vqUN9Rm06mDq5CKPEwJv6niSjvR/dIXn5lgPZRtvQclfiCGgbc32jc1t9N6unTSh
+	IWtWw6GGeVB26pI2t3HMHkfkZslL6HWan8wVahl0AdJ7kLyh7YzkCbPPj3Zo3UKO
+	l/b7zlW2JKimArlYOaczjDfKnQqhFuU0BYDXqIcQHIxsWEl24Z8P4k1n2PL3N8c7
+	72ZkddgY+W+Gji38Ag0MV+5EgM+9arV0L1YWT7Mb6E1+lnQTFiV0aPcjhmEuKQky
+	B4Jcw75gIBE73uOudeQ+pzMX6gY1g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44fq5tr99v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jan 2025 15:54:01 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50TCe9up012441;
-	Wed, 29 Jan 2025 15:54:00 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44dany9gj7-1
+	Wed, 29 Jan 2025 16:25:33 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50TDCkAo019276;
+	Wed, 29 Jan 2025 16:25:33 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44db9n1g2v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Jan 2025 15:54:00 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50TFruMI25493766
+	Wed, 29 Jan 2025 16:25:32 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50TGPTXm56426824
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jan 2025 15:53:56 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9562720085;
-	Wed, 29 Jan 2025 15:53:56 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6082020083;
-	Wed, 29 Jan 2025 15:53:56 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 29 Jan 2025 15:53:56 +0000 (GMT)
-Date: Wed, 29 Jan 2025 16:53:55 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Thorsten Blum <thorsten.blum@linux.dev>
-Cc: Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-hardening@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/vfio-ap: Replace one-element array with flexible
- array member
-Message-ID: <Z5pPE19EQxaahb3q@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250116131859.105756-2-thorsten.blum@linux.dev>
+	Wed, 29 Jan 2025 16:25:29 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ECEFD20119;
+	Wed, 29 Jan 2025 16:25:28 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A243A20118;
+	Wed, 29 Jan 2025 16:25:28 +0000 (GMT)
+Received: from funtu2.fritz.box?044ibm.com (unknown [9.171.56.44])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 29 Jan 2025 16:25:28 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, ifranzki@linux.ibm.com, agk@redhat.com,
+        snitzer@kernel.org, mpatocka@redhat.com
+Cc: linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
+        herbert@gondor.apana.org.au
+Subject: [PATCH v2 0/2] dm-integrity: Implement asynch digest support
+Date: Wed, 29 Jan 2025 17:25:26 +0100
+Message-ID: <20250129162528.57124-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250116131859.105756-2-thorsten.blum@linux.dev>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nFNDuDZItcIZBeQBgpqGS7Ngf9F_2RU3
-X-Proofpoint-ORIG-GUID: nFNDuDZItcIZBeQBgpqGS7Ngf9F_2RU3
+X-Proofpoint-GUID: EuKrmckJXge4HMZgJ239DZN4csRawlWE
+X-Proofpoint-ORIG-GUID: EuKrmckJXge4HMZgJ239DZN4csRawlWE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-29_02,2025-01-29_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 clxscore=1015 lowpriorityscore=0 mlxlogscore=861
- bulkscore=0 spamscore=0 suspectscore=0 phishscore=0 priorityscore=1501
- mlxscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501290125
+ definitions=2025-01-29_03,2025-01-29_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 lowpriorityscore=0 impostorscore=0 phishscore=0
+ adultscore=0 priorityscore=1501 clxscore=1015 mlxscore=0 malwarescore=0
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501290129
 
-On Thu, Jan 16, 2025 at 02:18:59PM +0100, Thorsten Blum wrote:
-> Replace the deprecated one-element array with a modern flexible array
-> member in the struct ap_matrix_dev.
-> 
-> Use struct_size() to calculate the number of bytes to allocate for
-> matrix_dev with a single mdev_type.
-> 
-> Link: https://github.com/KSPP/linux/issues/79
-> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
-> ---
->  drivers/s390/crypto/vfio_ap_drv.c     | 2 +-
->  drivers/s390/crypto/vfio_ap_private.h | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 67a807e2e75b..ea9ffa37f263 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -96,7 +96,7 @@ static int vfio_ap_matrix_dev_create(void)
->  	if (ret)
->  		goto bus_register_err;
->  
-> -	matrix_dev = kzalloc(sizeof(*matrix_dev), GFP_KERNEL);
-> +	matrix_dev = kzalloc(struct_size(matrix_dev, mdev_types, 1), GFP_KERNEL);
->  	if (!matrix_dev) {
->  		ret = -ENOMEM;
->  		goto matrix_alloc_err;
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index 437a161c8659..9aed8994f567 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -53,7 +53,7 @@ struct ap_matrix_dev {
->  	struct mutex guests_lock; /* serializes access to each KVM guest */
->  	struct mdev_parent parent;
->  	struct mdev_type mdev_type;
-> -	struct mdev_type *mdev_types[1];
-> +	struct mdev_type *mdev_types[];
->  };
->  
->  extern struct ap_matrix_dev *matrix_dev;
+Support for ahashes in dm-integrity.
 
-Applied, thanks!
+Please note this code is elementary tested but needs some more
+test coverage before integration. I can't do that as I only have
+a s390 platform but I assume someone from dmcrypt/dmintegrity will
+run a more sophisticated test suite on this.
+
+Changelog:
+
+v1: First implementation. Tested with crc32, sha256, hmac-sha256 and
+    the s390 specific implementations for hmac-sha256 and protected
+    key phmac-sha256. Also ran with some instrumented code (in the digest
+    implementation) to verify that in fact now the code runs asynchronous.
+v2: Support shash and ahash. Based on Mikulas' idea about implementing
+    ahash support similar to dm-verity this version now adds support
+    for ahash but does not replace the shash support. For more details
+    see the text of the patch header.
+
+Harald Freudenberger (2):
+  dm-integrity: use internal variable for digestsize
+  dm-integrity: introduce ahash support for the internal hash
+
+ drivers/md/dm-integrity.c | 237 +++++++++++++++++++++++++++++---------
+ 1 file changed, 180 insertions(+), 57 deletions(-)
+
+
+base-commit: fac04efc5c793dccbd07e2d59af9f90b7fc0dca4
+-- 
+2.43.0
+
