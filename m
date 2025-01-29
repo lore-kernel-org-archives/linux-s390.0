@@ -1,121 +1,112 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7111D1802B;
-	Wed, 29 Jan 2025 00:55:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C19F62D627;
+	Wed, 29 Jan 2025 08:49:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738112145; cv=none; b=poczDA42pqG3GtBoNzqKMRMSE2y20NfcExG505sRePQeC+Q5Y6oyNL2wpXykRQlHxiFXu7IYSpX+zt1Wt0ghUsWRCZijKYqx3zkdGXDf+Ox4YtHtqVbkvak9Qx7XJUaoqPkcRqvGF+Orc4cExBCSd8KM+Du/YWb38JVeGgBrImE=
+	t=1738140560; cv=none; b=dMzd52IIQTon1xJXbCdXqpfMDcWb2IeXuH9R1SgKanZxacguMprU/Hg7Ll5XYR4ivg3F+1Wv4+aQokMcFTAhcDq4d+nCOB+GPhKIr9OyAgUzDX1zwvcylPdEDf6K7+ZZGzDaSeP8oSXRTqSftjkJMNnYcr8F1auxuXh1eYeMYL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738112145; c=relaxed/simple;
-	bh=7lLgfsbUvvXkuZ/CHyObEqTqK07OIPpnMi3L8CLFkWY=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=tcURMQ1kJUM89KLMAAj6OEf3EAPGPnoDjhpWS/TXL+Ss1qZswUn8jHlpP+ihclsGe18ra6scr5v9PQ+Ui1Eks8OmjrHU4A5zYqeP+YxTxGE/fNmIKyCkjW7cqgYNlEZXMta8d/aXcl0bKTk2uUkySa+2KCLG8IqpBxHhmSC7GDQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a0Tp33LE; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1738140560; c=relaxed/simple;
+	bh=bkecGghn49Q0kcBr4/Q4RAYEqTU2lzStxg+kMBkUviM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EF0OhxvyF0kaEvrafy1BX3zzWeBuyJSo+qySUHfcv1VSkqFwetU/NmqcRTdUSpAfFwY+MEF00yXvJWaX+n8YqoVny+ir4VpKtsuf6BjmHCrLXTyravxLj1Ov8tO5WrOXCEBSoXa9YI4i3vBsifIaEYj1uHKWsH044/ity2GPCKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D+6QRneb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a0Tp33LE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF0E2C4CED3;
-	Wed, 29 Jan 2025 00:55:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D+6QRneb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFA1C4CED3;
+	Wed, 29 Jan 2025 08:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738112144;
-	bh=7lLgfsbUvvXkuZ/CHyObEqTqK07OIPpnMi3L8CLFkWY=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=a0Tp33LEr5mdpx4Jdes8W04nWqwEaLorvXlTwLQeltYmYb4klZ+1dz2ywlTC1b8vX
-	 3+k4ui1fUmLbcFjL5APZZHqXajEfDw8XK18yEtuoVQbYLE2/KJ3OWDxcoyJSsIsYNE
-	 DtQEthCyYqS56sQa1kB1Swn6qPUBhCaLAgWkwja3f55uChLvycrhuijZWm8POhmtni
-	 ykUeyJuvAvFNmoLZJQP4RIXBzVayDzL59pE6M7xHqHJCz+rWiTvl4EPHbNFmFx8Chm
-	 4j7efWWME8OF3uvIkfJk+9cFoNkYjHICLOSesiRjPTBgLZGNKhAvpDasPjs5mHTnv5
-	 F99y903Tt3oVw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE01380AA66;
-	Wed, 29 Jan 2025 00:56:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1738140558;
+	bh=bkecGghn49Q0kcBr4/Q4RAYEqTU2lzStxg+kMBkUviM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=D+6QRnebTmdCsTn/fBIyawZ8F2h5FOi1VkBceKjrJE9gQqYhsE4MpI+DUnmOyvn9r
+	 jy2STn2XFJrPEPFrh+vO/ZWYbctxdvY6UR3Ry6YZK+y8a1MhcK6ynlBs1p1BMMkJ1P
+	 w6gLTDQPv35AYJJgnh4TzBlS6e9ascDPFne+p1YDjEpGVHG5PR2AxRH9J1o9Q9BPKi
+	 anvTB+Oa86UvplOCcaBDT4qhHCCSJO/P11ip4o+2DBjUNcnkNIz/KxsEnezLq+wofc
+	 pmlKCTkKHhEdUE5jBQ13DTAnVV4ZlV/QW5dr1RzqeBZB57C+fkYnuuFh6jqnxMpijz
+	 QxNX1fm0X2YKQ==
+Date: Wed, 29 Jan 2025 09:49:13 +0100
+From: Joel Granados <joel.granados@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Matthew Wilcox <willy@infradead.org>, 
+	Jani Nikula <jani.nikula@intel.com>, Ard Biesheuvel <ardb@kernel.org>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <linux@weissschuh.net>, 
+	Kees Cook <kees@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, 
+	openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, 
+	netfs@lists.linux.dev, codalist@coda.cs.cmu.edu, linux-mm@kvack.org, 
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev, fsverity@lists.linux.dev, 
+	linux-xfs@vger.kernel.org, io-uring@vger.kernel.org, bpf@vger.kernel.org, 
+	kexec@lists.infradead.org, linux-trace-kernel@vger.kernel.org, 
+	linux-hardening@vger.kernel.org, apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
+	keyrings@vger.kernel.org, Song Liu <song@kernel.org>, 
+	"Steven Rostedt (Google)" <rostedt@goodmis.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	"Darrick J. Wong" <djwong@kernel.org>, Corey Minyard <cminyard@mvista.com>
+Subject: Re: Re: Re: Re: Re: [PATCH v2] treewide: const qualify ctl_tables
+ where applicable
+Message-ID: <umk5gfo7iq7krppvqsal57hlzds26bdqd3g7kccjzuudjikdws@k2oknd6zx6g7>
+References: <20250110-jag-ctl_table_const-v2-1-0000e1663144@kernel.org>
+ <Z4+jwDBrZNRgu85S@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <nslqrapp4v3rknjgtfk4cg64ha7rewrrg24aslo2e5jmxfwce5@t4chrpuk632k>
+ <CAMj1kXEZPe8zk7s67SADK9wVH3cfBup-sAZSC6_pJyng9QT7aw@mail.gmail.com>
+ <f4lfo2fb7ajogucsvisfd5sg2avykavmkizr6ycsllcrco4mo3@qt2zx4zp57zh>
+ <87jzag9ugx.fsf@intel.com>
+ <Z5epb86xkHQ3BLhp@casper.infradead.org>
+ <u2fwibsnbfvulxj6adigla6geiafh2vuve4hcyo4vmeytwjl7p@oz6xonrq5225>
+ <CAHC9VhQnB_bsQaezBfAcA0bE7Zoc99QXrvO1qjpHA-J8+_doYg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [f2fs-dev] [PATCH v4 00/19] Wire up CRC32 library functions to
- arch-optimized code
-From: patchwork-bot+f2fs@kernel.org
-Message-Id: 
- <173811217076.3973351.8137382917166262630.git-patchwork-notify@kernel.org>
-Date: Wed, 29 Jan 2025 00:56:10 +0000
-References: <20241202010844.144356-1-ebiggers@kernel.org>
-In-Reply-To: <20241202010844.144356-1-ebiggers@kernel.org>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, x86@kernel.org,
- linux-mips@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-crypto@vger.kernel.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-ext4@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-arm-kernel@lists.infradead.org
+In-Reply-To: <CAHC9VhQnB_bsQaezBfAcA0bE7Zoc99QXrvO1qjpHA-J8+_doYg@mail.gmail.com>
 
-Hello:
-
-This series was applied to jaegeuk/f2fs.git (dev)
-by Eric Biggers <ebiggers@google.com>:
-
-On Sun,  1 Dec 2024 17:08:25 -0800 you wrote:
-> This patchset applies to v6.13-rc1 and is also available in git via:
+On Tue, Jan 28, 2025 at 10:43:10AM -0500, Paul Moore wrote:
+> On Tue, Jan 28, 2025 at 6:22 AM Joel Granados <joel.granados@kernel.org> wrote:
+> > On Mon, Jan 27, 2025 at 03:42:39PM +0000, Matthew Wilcox wrote:
+> > > On Mon, Jan 27, 2025 at 04:55:58PM +0200, Jani Nikula wrote:
+> > > > You could have static const within functions too. You get the rodata
+> > > > protection and function local scope, best of both worlds?
+> > >
+> > > timer_active is on the stack, so it can't be static const.
+> > >
+> > > Does this really need to be cc'd to such a wide distribution list?
+> > That is a very good question. I removed 160 people from the original
+> > e-mail and left the ones that where previously involved with this patch
+> > and left all the lists for good measure. But it seems I can reduce it
+> > even more.
+> >
+> > How about this: For these treewide efforts I just leave the people that
+> > are/were involved in the series and add two lists: linux-kernel and
+> > linux-hardening.
+> >
+> > Unless someone screams, I'll try this out on my next treewide.
 > 
->     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git crc32-lib-v4
-> 
-> CRC32 is a family of common non-cryptographic integrity check algorithms
-> that are fairly fast with a portable C implementation and become far
-> faster still with the CRC32 or carryless multiplication instructions
-> that most CPUs have.  9 architectures already have optimized code for at
-> least some CRC32 variants; however, except for arm64 this optimized code
-> was only accessible through the crypto API, not the library functions.
-> 
-> [...]
+> I'm not screaming about it :) but anything that touches the LSM,
+I'll consider it as a scream :) So I'll keep my previous approach of
+leaving only personal mails that are involved, but leaving all the lists
+that b4 suggests.
 
-Here is the summary with links:
-  - [f2fs-dev,v4,01/19] lib/crc32: drop leading underscores from __crc32c_le_base
-    https://git.kernel.org/jaegeuk/f2fs/c/0a499a7e9819
-  - [f2fs-dev,v4,02/19] lib/crc32: improve support for arch-specific overrides
-    https://git.kernel.org/jaegeuk/f2fs/c/d36cebe03c3a
-  - [f2fs-dev,v4,03/19] lib/crc32: expose whether the lib is really optimized at runtime
-    https://git.kernel.org/jaegeuk/f2fs/c/b5ae12e0ee09
-  - [f2fs-dev,v4,04/19] crypto: crc32 - don't unnecessarily register arch algorithms
-    https://git.kernel.org/jaegeuk/f2fs/c/780acb2543ea
-  - [f2fs-dev,v4,05/19] arm/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/1e1b6dbc3d9c
-  - [f2fs-dev,v4,06/19] loongarch/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/72f51a4f4b07
-  - [f2fs-dev,v4,07/19] mips/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/289c270eab5e
-  - [f2fs-dev,v4,08/19] powerpc/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/372ff60ac4dd
-  - [f2fs-dev,v4,09/19] s390/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/008071917dfc
-  - [f2fs-dev,v4,10/19] sparc/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/0f60a8ace577
-  - [f2fs-dev,v4,11/19] x86/crc32: update prototype for crc_pcl()
-    https://git.kernel.org/jaegeuk/f2fs/c/64e3586c0b61
-  - [f2fs-dev,v4,12/19] x86/crc32: update prototype for crc32_pclmul_le_16()
-    https://git.kernel.org/jaegeuk/f2fs/c/1e6b72e60a5a
-  - [f2fs-dev,v4,13/19] x86/crc32: expose CRC32 functions through lib
-    https://git.kernel.org/jaegeuk/f2fs/c/55d1ecceb8d6
-  - [f2fs-dev,v4,14/19] bcachefs: Explicitly select CRYPTO from BCACHEFS_FS
-    https://git.kernel.org/jaegeuk/f2fs/c/cc354fa7f016
-  - [f2fs-dev,v4,15/19] lib/crc32: make crc32c() go directly to lib
-    https://git.kernel.org/jaegeuk/f2fs/c/38a9a5121c3b
-  - [f2fs-dev,v4,16/19] ext4: switch to using the crc32c library
-    https://git.kernel.org/jaegeuk/f2fs/c/f2b4fa19647e
-  - [f2fs-dev,v4,17/19] jbd2: switch to using the crc32c library
-    https://git.kernel.org/jaegeuk/f2fs/c/dd348f054b24
-  - [f2fs-dev,v4,18/19] f2fs: switch to using the crc32 library
-    https://git.kernel.org/jaegeuk/f2fs/c/3ca4bec40ee2
-  - [f2fs-dev,v4,19/19] scsi: target: iscsi: switch to using the crc32c library
-    https://git.kernel.org/jaegeuk/f2fs/c/31e4cdde4d8b
+> SELinux, or audit code (or matches the regex in MAINTAINERS) I would
+> prefer to see on the associated mailing list.
 
-You are awesome, thank you!
+General comment sent to the void:
+It is tricky to know exactly who wants to be informed of all this and
+who thinks its useless. I think that if we want more focus it should
+come from automated tools like b4. Maybe some string in MAINTAINERS
+stating that the list should not be used in cases of tree-wide commits?
+
+Best
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
 
-
+Joel Granados
