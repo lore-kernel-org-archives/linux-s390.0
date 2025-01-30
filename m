@@ -1,132 +1,158 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E9591ACEB3;
-	Thu, 30 Jan 2025 10:46:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2C7301A7046;
+	Thu, 30 Jan 2025 11:22:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738233997; cv=none; b=rmAnc+5PwquIklBc/g5jWUX3+n/KH08xqB1JZfEr7BAQbqUnqvJCSHL6B8VirP96XpGZMXHE/p+syeJ1ttuivtVNowQ3NTVKVsYclGNrKSVZUCM+ab0CIMGAV7rXs6gFpImMLI2oTMalLpQllgaVJq3ziTKDkbB8vzMcK8DBp68=
+	t=1738236138; cv=none; b=f8A/GY7YpDB9uvdOgPQyj9O6X3C85aHtx9/LJ/tPbkvuWkE07FJVZ4jbjV9KomO4gSNGeW6XCX1bdxMjmJU4Hffa5eY+dt2tOfhS0zCTr8mWjunm1sUGh75TLyYHq/NgMW99Ip3V3Wln52TlmR5MA58Amcnu9qcii9vtr8KGPC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738233997; c=relaxed/simple;
-	bh=XnLyFFk1L3o2T1GAGQ8JEFb5LfLnzJHt7dvXNVvn8Zs=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OgYblXSSsKTlvYXbTNQFr09duOhkX45WuxMDc/NUneaq+A7pGoHQ2rZUFy1cwua9LCkZM2i/PfVx4k1c/OSdPv8RThEj0WrRy6VnvoOYStTvnCb5mbqIB4vH5LH3NwwZv7R9DUXUoNdVpcXLRI5a/I5Hu8dFvGDjFBcQTWPfZV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OC85zOnT; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OC85zOnT"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50U1ILwU008475;
-	Thu, 30 Jan 2025 10:46:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=rbQ0iV
-	5kMkAPr98XhQIgEokS+6oo7ofi+Sa+NyvSgwQ=; b=OC85zOnTl/VQmPikdMYnGa
-	prkfC3/uLAdyQE9cr9aE54C+FlBj6LMMXjzN8jZsF81wGmd5yWB3bSmNCbSB4xPF
-	anxnB0PeYA8eLYjiSuL139O9fs1ubD+s7ApJkk2J1kjf7KQQBHBU3Iloya1Pxcaz
-	lCBPXuIvE/uj4UUbHAE01MSdf//ae6PoNa6xYTPnNV+3c9SehkcuaM4VA85Q5Vzd
-	VUmZvJc+cn5X3bQAo1xdUNNSugOdnu+EQ6p/ZS+6juAkUJP9Fe+oa+MUiV31B5jg
-	JkOBCWHS+kKGj1rcauHkuOp1j6jwF5Fs8uO4ZN0dRm3nSWu0LEeJNFM8chwJDYcg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44fq5tvgsq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jan 2025 10:46:22 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50U8DVAn028051;
-	Thu, 30 Jan 2025 10:46:21 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44dbsknpaw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jan 2025 10:46:21 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50UAkHNW53871032
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 30 Jan 2025 10:46:17 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9531B20081;
-	Thu, 30 Jan 2025 10:46:17 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 69B4120084;
-	Thu, 30 Jan 2025 10:46:17 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 30 Jan 2025 10:46:17 +0000 (GMT)
-Date: Thu, 30 Jan 2025 11:46:15 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Thorsten Blum <thorsten.blum@linux.dev>,
-        Tony Krowiak
- <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald
- Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler
- <dengler@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>, linux-hardening@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Halil Pasic
- <pasic@linux.ibm.com>
-Subject: Re: [PATCH] s390/vfio-ap: Replace one-element array with flexible
- array member
-Message-ID: <20250130114615.6f591882.pasic@linux.ibm.com>
-In-Reply-To: <85863d7a-2d8b-4c1b-b76a-e2f40834a7a8@embeddedor.com>
-References: <20250116131859.105756-2-thorsten.blum@linux.dev>
-	<20250129213826.291cfe12.pasic@linux.ibm.com>
-	<85863d7a-2d8b-4c1b-b76a-e2f40834a7a8@embeddedor.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	s=arc-20240116; t=1738236138; c=relaxed/simple;
+	bh=MghFTWMvhJ+aN7aFXsfim1mSQbCrS8tySxPnq4M2kjM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RH296WwIxTpxaq2ZXqI58hPWdhLFwSIXuhVTSqpnlXuO+n97xZKm/kN4PJWmnG6MMLA6agUxGzuuX4SReAzNyFDJsOgu8rvAnPfZlVVnPovc7dG0rdGbUV4jZ9ulEu0jE/e/vHNeBAe7uIerZ+WEHDqAN2nYfLjILMq55QeD1JE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+	by vmicros1.altlinux.org (Postfix) with ESMTP id 2997B72C97E;
+	Thu, 30 Jan 2025 14:22:08 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+	id F28277CCB3A; Thu, 30 Jan 2025 13:22:07 +0200 (IST)
+Date: Thu, 30 Jan 2025 13:22:07 +0200
+From: "Dmitry V. Levin" <ldv@strace.io>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-snps-arc@lists.infradead.org, Rich Felker <dalias@libc.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Andreas Larsson <andreas@gaisler.com>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	x86@kernel.org, Arnd Bergmann <arnd@arndb.de>,
+	linux-kernel@vger.kernel.org,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, WANG Xuerui <kernel@xen0n.name>,
+	Will Deacon <will@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Jonas Bonn <jonas@southpole.se>, linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	linux-sh@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Ingo Molnar <mingo@redhat.com>, Vineet Gupta <vgupta@kernel.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	strace-devel@lists.strace.io, linux-arch@vger.kernel.org,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Mike Frysinger <vapier@gentoo.org>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Renzo Davoli <renzo@cs.unibo.it>, linux-um@lists.infradead.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Charlie Jenkins <charlie@rivosinc.com>,
+	Naveen N Rao <naveen@kernel.org>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Borislav Petkov <bp@alien8.de>, loongarch@lists.linux.dev,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Stafford Horne <shorne@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Brian Cain <bcain@quicinc.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-parisc@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	Oleg Nesterov <oleg@redhat.com>, Dinh Nguyen <dinguyen@kernel.org>,
+	linux-riscv@lists.infradead.org,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Richard Weinberger <richard@nod.at>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Alexey Gladkov <legion@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v3 2/6] syscall.h: add syscall_set_arguments() and
+ syscall_set_return_value()
+Message-ID: <20250130112207.GA6617@strace.io>
+References: <20250128091626.GB8601@strace.io>
+ <yt9dwmecya4g.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: q9NxGqcZI12C94KXtUoH1A5QT5ao1ZLb
-X-Proofpoint-ORIG-GUID: q9NxGqcZI12C94KXtUoH1A5QT5ao1ZLb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-30_06,2025-01-30_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- mlxlogscore=635 lowpriorityscore=0 impostorscore=0 phishscore=0
- adultscore=0 priorityscore=1501 clxscore=1011 mlxscore=0 malwarescore=0
- spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501300081
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yt9dwmecya4g.fsf@linux.ibm.com>
 
-On Thu, 30 Jan 2025 10:30:30 +1030
-"Gustavo A. R. Silva" <gustavo@embeddedor.com> wrote:
+On Thu, Jan 30, 2025 at 09:33:03AM +0100, Sven Schnelle wrote:
+> "Dmitry V. Levin" <ldv@strace.io> writes:
+> 
+> > These functions are going to be needed on all HAVE_ARCH_TRACEHOOK
+> > architectures to implement PTRACE_SET_SYSCALL_INFO API.
+> >
+> > This partially reverts commit 7962c2eddbfe ("arch: remove unused
+> > function syscall_set_arguments()") by reusing some of old
+> > syscall_set_arguments() implementations.
+> >
+> > Signed-off-by: Dmitry V. Levin <ldv@strace.io>
+> > Tested-by: Charlie Jenkins <charlie@rivosinc.com>
+> > Reviewed-by: Charlie Jenkins <charlie@rivosinc.com>
+> > ---
+> >  arch/arc/include/asm/syscall.h        | 14 +++++++++++
+> >  arch/arm/include/asm/syscall.h        | 13 ++++++++++
+> >  arch/arm64/include/asm/syscall.h      | 13 ++++++++++
+> >  arch/csky/include/asm/syscall.h       | 13 ++++++++++
+> >  arch/hexagon/include/asm/syscall.h    | 14 +++++++++++
+> >  arch/loongarch/include/asm/syscall.h  |  8 ++++++
+> >  arch/mips/include/asm/syscall.h       | 32 ++++++++++++++++++++++++
+> >  arch/nios2/include/asm/syscall.h      | 11 ++++++++
+> >  arch/openrisc/include/asm/syscall.h   |  7 ++++++
+> >  arch/parisc/include/asm/syscall.h     | 12 +++++++++
+> >  arch/powerpc/include/asm/syscall.h    | 10 ++++++++
+> >  arch/riscv/include/asm/syscall.h      |  9 +++++++
+> >  arch/s390/include/asm/syscall.h       | 12 +++++++++
+> >  arch/sh/include/asm/syscall_32.h      | 12 +++++++++
+> >  arch/sparc/include/asm/syscall.h      | 10 ++++++++
+> >  arch/um/include/asm/syscall-generic.h | 14 +++++++++++
+> >  arch/x86/include/asm/syscall.h        | 36 +++++++++++++++++++++++++++
+> >  arch/xtensa/include/asm/syscall.h     | 11 ++++++++
+> >  include/asm-generic/syscall.h         | 16 ++++++++++++
+> >  19 files changed, 267 insertions(+)
+> >
+> > diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+> > index 27e3d804b311..b3dd883699e7 100644
+> > --- a/arch/s390/include/asm/syscall.h
+> > +++ b/arch/s390/include/asm/syscall.h
+> > @@ -78,6 +78,18 @@ static inline void syscall_get_arguments(struct task_struct *task,
+> >  	args[0] = regs->orig_gpr2 & mask;
+> >  }
+> >  
+> > +static inline void syscall_set_arguments(struct task_struct *task,
+> > +					 struct pt_regs *regs,
+> > +					 const unsigned long *args)
+> > +{
+> > +	unsigned int n = 6;
+> > +
+> > +	while (n-- > 0)
+> > +		if (n > 0)
+> > +			regs->gprs[2 + n] = args[n];
+> > +	regs->orig_gpr2 = args[0];
+> > +}
+> 
+> Could that be changed to something like:
+> 
+> for (int n = 1; n < 6; n++)
+>         regs->gprs[2 + n] = args[n];
+> regs->orig_gpr2 = args[0];
+> 
+> I think this is way easier to parse.
 
-> On 30/01/25 07:08, Halil Pasic wrote:
-> > On Thu, 16 Jan 2025 14:18:59 +0100
-> > Thorsten Blum <thorsten.blum@linux.dev> wrote:
-> >   
-> >> Replace the deprecated one-element array with a modern flexible array
-> >> member in the struct ap_matrix_dev.
-> >>  
-> > 
-> > I'm not sure I understand the value of this. What we have here is not
-> > a flexible array but a one element array. Something that in the generic
-> > case could be many but particularly for vfio-ap is always one.  
-> 
-> You are correct. Only fake flexible arrays should be transformed into
-> C99 flex-array members [1].
-> 
-> Thanks
-> -Gustavo
-> 
-> [1] https://lwn.net/Articles/908817/
-> 
+I don't mind changing syscall_set_arguments() this way, but it just
+mirrors syscall_get_arguments(), so I think it would be better if these
+two functions were written in the same style.  Would you like to change
+syscall_get_arguments() as well?
 
-Thanks! Alex, what do we do with this then? I think you picked it up
-yesterday late. And I think, it might make sense to make this look
-less like a fake flex-array...
+
+-- 
+ldv
