@@ -1,64 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FF221EC016;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C59041C1F27;
 	Fri, 31 Jan 2025 11:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738322724; cv=none; b=T5w3vPQrDJJY07Qvj2+gW4IMbsjkPFfWa81icTJMCTZOlx5K4DgrqkESfiwmGC8u3NoNt2itvTCctzewkywBTTAtF3Jx1aLCGHtn+MIAP57XM/WZ3fEjh3+J+fLFWFrC2uayIaEQAJgmN7b27ADymX1tyDtTYw+mEH0Cte+dD8s=
+	t=1738322724; cv=none; b=hx9BWPYH7jM+yY20fAJ+IpYNleDhBIGYezT08nhd6c1DJPJt4IAnsI15ltXBi7xmp3ycZOxn6ad4hH6xCNBdAGbEo3Kgr3DippD+BehjyN98SMG9JAKn19hCuieY+FWyJ3z3+bk+oJaT8n4uxFHChSAhK/5x0NERTK8/SOL7E4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1738322724; c=relaxed/simple;
-	bh=FWTDP1rk8DhN4KiP/c62NuMgHbTEIYOMQ9gSclJYTf4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PhdmtH5UbRgSxa0l6gbHTY9emqKaledTvhN1ko7qJh1MiEYPC3Pi/g/qIO06RfRoDU0DBfkrVCgSVcgEK9bVL4/HUBJUB8FWN87haT0iPLlooBvykUiL/ZS/6bwOnR03YGppfgHpeWnv1HM5bJr6qrcTXw6NOy9MRcGgMrt7EfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sOf/ii5K; arc=none smtp.client-ip=148.163.158.5
+	bh=S83xgFUVvgKdoh3LqqvysctSMbV/M/iSX6IN4+tm5mY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Z6Mq756cXymAGlY+OAowMzNizAIvCj6TIikwpk93mSUBnrTxZePQKW3hHqUv2Unw61mspB0LZQNTgBsgf0eZROysDMGc6qgihXtj/SwayMAN8u5SwHqsjysZiovhMMLjJzg6uXbeAPkyxMF6mJTwRH2N8cOoof1t8cfOpGtXC4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a2pxYbRG; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sOf/ii5K"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V7Wqbd009647;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a2pxYbRG"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V2O9o9016320;
 	Fri, 31 Jan 2025 11:25:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=QdZ7+INnoGa6djL8g+i1n3RTdyMfjnw8D3kNVHAT8
-	rg=; b=sOf/ii5KCmAn36pB2udvrplnJobrkbpToAfmwck4yv1qx/eO/bACr0pw4
-	/WfIho/JKanma6Y6xVnXQmZSpeWPH9ErOhsXr3eFS1GO4d9J3I6lIhTkgKphOY94
-	pELpbhJIdu+gVcOJ6dqv1cguOPsHaKV+bjDGuzh2gOMT44L84b/lc9RrOgfRX/RV
-	Jf8nA0X5j9UsLJ3Fev7D55AdeAsvH4Q3lGN1gZOJxvc1gSlA0DpSnPZP51gHQXeL
-	7BIgymAZM1dHa0/1VFfqAoNMjHMmu61hylE1+01oUMQP6SYOrSsR3K6T1ePWBtJS
-	95gihteeRiCAGm8E4AdOFCst85M2g==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gt7n8v2w-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=tSRncQR9h9/rXuuTa
+	U6VYKFDz8PlEhaXkV50bKfseHc=; b=a2pxYbRGzw84Qy+/xqnqHjHsVW90KyGKK
+	lktJq/wY5yN9NP3PplM9adt//DTWSgv4n5hTQ3OU5H1VtQSi5biaDSpaxQhKpJiF
+	oxm9GRBBTmCg4RlY5C2u64SwD0mhBzyl+qVLuYOi6IAsD9/AD4ohW8lrDyGeejfV
+	xVzZO7XG6VZDxNKFPOF4ftl/Ygx1ESPPKxf5/+R8JQjlxUimWsbMXsjFJlN96GCD
+	+JGl/+8p8EuiJ5n0X0wcREHJzdSz5VNCenOeOkmSpfGwgSpCXdub8FHPhC3tLlyk
+	CJT6dXqXHi7O58/h04o08Iz8Q0ofiTPYPRGlUTsRskY9aLVloDX7Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gmk9246x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 31 Jan 2025 11:25:19 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V8MOpt017346;
-	Fri, 31 Jan 2025 11:25:19 GMT
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V88exK013872;
+	Fri, 31 Jan 2025 11:25:18 GMT
 Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44gfaxb8jp-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44gf93b9ey-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:19 +0000
+	Fri, 31 Jan 2025 11:25:18 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPFBh56820006
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPFVK56361278
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 31 Jan 2025 11:25:15 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 18B952013A;
+	by IMSVA (Postfix) with ESMTP id 1538D2012D;
 	Fri, 31 Jan 2025 11:25:15 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6585220132;
-	Fri, 31 Jan 2025 11:25:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id ED42E20136;
+	Fri, 31 Jan 2025 11:25:11 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.171.25.38])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jan 2025 11:25:10 +0000 (GMT)
+	Fri, 31 Jan 2025 11:25:11 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v2 00/20] KVM: s390: some non-trivial fixes and cleanups for 6.14
-Date: Fri, 31 Jan 2025 12:24:50 +0100
-Message-ID: <20250131112510.48531-1-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v2 04/20] KVM: s390: vsie: stop using "struct page" for vsie page
+Date: Fri, 31 Jan 2025 12:24:54 +0100
+Message-ID: <20250131112510.48531-5-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250131112510.48531-1-imbrenda@linux.ibm.com>
+References: <20250131112510.48531-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,100 +70,153 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OIDRb8r_C0OQ5VB7rQVG2Iruzpg2B439
-X-Proofpoint-ORIG-GUID: OIDRb8r_C0OQ5VB7rQVG2Iruzpg2B439
+X-Proofpoint-GUID: Cj1jMfRDZ1_6DoKCsFxks8J9VBEGhkyq
+X-Proofpoint-ORIG-GUID: Cj1jMfRDZ1_6DoKCsFxks8J9VBEGhkyq
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-31_04,2025-01-31_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- clxscore=1015 mlxscore=0 spamscore=0 bulkscore=0 mlxlogscore=635
- phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 impostorscore=0 mlxscore=0 bulkscore=0 clxscore=1015
+ adultscore=0 spamscore=0 phishscore=0 priorityscore=1501 mlxlogscore=988
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2501170000 definitions=main-2501310083
 
-Ciao Paolo,
+From: David Hildenbrand <david@redhat.com>
 
-please pull the following changes:
+Now that we no longer use page->index and the page refcount explicitly,
+let's avoid messing with "struct page" completely.
 
-- some selftest fixes
-- move some kvm-related functions from mm into kvm
-- remove all usage of page->index and page->lru from kvm
-- fixes and cleanups for vsie
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Tested-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Message-ID: <20250107154344.1003072-5-david@redhat.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/include/asm/kvm_host.h |  4 +++-
+ arch/s390/kvm/vsie.c             | 31 ++++++++++++-------------------
+ 2 files changed, 15 insertions(+), 20 deletions(-)
 
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 97c7c8127543..4581388411b7 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -931,12 +931,14 @@ struct sie_page2 {
+ 	u8 reserved928[0x1000 - 0x928];			/* 0x0928 */
+ };
+ 
++struct vsie_page;
++
+ struct kvm_s390_vsie {
+ 	struct mutex mutex;
+ 	struct radix_tree_root addr_to_page;
+ 	int page_count;
+ 	int next;
+-	struct page *pages[KVM_MAX_VCPUS];
++	struct vsie_page *pages[KVM_MAX_VCPUS];
+ };
+ 
+ struct kvm_s390_gisa_iam {
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 424f80f5f6b2..a0398ff85d00 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -599,7 +599,6 @@ void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, unsigned long start,
+ 	struct kvm *kvm = gmap->private;
+ 	struct vsie_page *cur;
+ 	unsigned long prefix;
+-	struct page *page;
+ 	int i;
+ 
+ 	if (!gmap_is_shadow(gmap))
+@@ -609,10 +608,9 @@ void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, unsigned long start,
+ 	 * therefore we can safely reference them all the time.
+ 	 */
+ 	for (i = 0; i < kvm->arch.vsie.page_count; i++) {
+-		page = READ_ONCE(kvm->arch.vsie.pages[i]);
+-		if (!page)
++		cur = READ_ONCE(kvm->arch.vsie.pages[i]);
++		if (!cur)
+ 			continue;
+-		cur = page_to_virt(page);
+ 		if (READ_ONCE(cur->gmap) != gmap)
+ 			continue;
+ 		prefix = cur->scb_s.prefix << GUEST_PREFIX_SHIFT;
+@@ -1384,14 +1382,12 @@ static void put_vsie_page(struct vsie_page *vsie_page)
+ static struct vsie_page *get_vsie_page(struct kvm *kvm, unsigned long addr)
+ {
+ 	struct vsie_page *vsie_page;
+-	struct page *page;
+ 	int nr_vcpus;
+ 
+ 	rcu_read_lock();
+-	page = radix_tree_lookup(&kvm->arch.vsie.addr_to_page, addr >> 9);
++	vsie_page = radix_tree_lookup(&kvm->arch.vsie.addr_to_page, addr >> 9);
+ 	rcu_read_unlock();
+-	if (page) {
+-		vsie_page = page_to_virt(page);
++	if (vsie_page) {
+ 		if (try_get_vsie_page(vsie_page)) {
+ 			if (vsie_page->scb_gpa == addr)
+ 				return vsie_page;
+@@ -1411,20 +1407,18 @@ static struct vsie_page *get_vsie_page(struct kvm *kvm, unsigned long addr)
+ 
+ 	mutex_lock(&kvm->arch.vsie.mutex);
+ 	if (kvm->arch.vsie.page_count < nr_vcpus) {
+-		page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO | GFP_DMA);
+-		if (!page) {
++		vsie_page = (void *)__get_free_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO | GFP_DMA);
++		if (!vsie_page) {
+ 			mutex_unlock(&kvm->arch.vsie.mutex);
+ 			return ERR_PTR(-ENOMEM);
+ 		}
+-		vsie_page = page_to_virt(page);
+ 		__set_bit(VSIE_PAGE_IN_USE, &vsie_page->flags);
+-		kvm->arch.vsie.pages[kvm->arch.vsie.page_count] = page;
++		kvm->arch.vsie.pages[kvm->arch.vsie.page_count] = vsie_page;
+ 		kvm->arch.vsie.page_count++;
+ 	} else {
+ 		/* reuse an existing entry that belongs to nobody */
+ 		while (true) {
+-			page = kvm->arch.vsie.pages[kvm->arch.vsie.next];
+-			vsie_page = page_to_virt(page);
++			vsie_page = kvm->arch.vsie.pages[kvm->arch.vsie.next];
+ 			if (try_get_vsie_page(vsie_page))
+ 				break;
+ 			kvm->arch.vsie.next++;
+@@ -1438,7 +1432,8 @@ static struct vsie_page *get_vsie_page(struct kvm *kvm, unsigned long addr)
+ 	vsie_page->scb_gpa = ULONG_MAX;
+ 
+ 	/* Double use of the same address or allocation failure. */
+-	if (radix_tree_insert(&kvm->arch.vsie.addr_to_page, addr >> 9, page)) {
++	if (radix_tree_insert(&kvm->arch.vsie.addr_to_page, addr >> 9,
++			      vsie_page)) {
+ 		put_vsie_page(vsie_page);
+ 		mutex_unlock(&kvm->arch.vsie.mutex);
+ 		return NULL;
+@@ -1519,20 +1514,18 @@ void kvm_s390_vsie_init(struct kvm *kvm)
+ void kvm_s390_vsie_destroy(struct kvm *kvm)
+ {
+ 	struct vsie_page *vsie_page;
+-	struct page *page;
+ 	int i;
+ 
+ 	mutex_lock(&kvm->arch.vsie.mutex);
+ 	for (i = 0; i < kvm->arch.vsie.page_count; i++) {
+-		page = kvm->arch.vsie.pages[i];
++		vsie_page = kvm->arch.vsie.pages[i];
+ 		kvm->arch.vsie.pages[i] = NULL;
+-		vsie_page = page_to_virt(page);
+ 		release_gmap_shadow(vsie_page);
+ 		/* free the radix tree entry */
+ 		if (vsie_page->scb_gpa != ULONG_MAX)
+ 			radix_tree_delete(&kvm->arch.vsie.addr_to_page,
+ 					  vsie_page->scb_gpa >> 9);
+-		__free_page(page);
++		free_page((unsigned long)vsie_page);
+ 	}
+ 	kvm->arch.vsie.page_count = 0;
+ 	mutex_unlock(&kvm->arch.vsie.mutex);
+-- 
+2.48.1
 
-and this time I did not forget any Signed-off-by: tags! *facepalm*
-sorry for the noise
-
-
-The following changes since commit 72deda0abee6e705ae71a93f69f55e33be5bca5c:
-
-  Merge tag 'soundwire-6.14-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/vkoul/soundwire (2025-01-29 14:38:19 -0800)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-6.14-2
-
-for you to fetch changes up to 32239066776a27287837a193b37c6e55259e5c10:
-
-  KVM: s390: selftests: Streamline uc_skey test to issue iske after sske (2025-01-31 12:03:53 +0100)
-
-----------------------------------------------------------------
-- some selftest fixes
-- move some kvm-related functions from mm into kvm
-- remove all usage of page->index and page->lru from kvm
-- fixes and cleanups for vsie
-
-----------------------------------------------------------------
-Christoph Schlameuss (1):
-      KVM: s390: selftests: Streamline uc_skey test to issue iske after sske
-
-Claudio Imbrenda (14):
-      KVM: s390: wrapper for KVM_BUG
-      KVM: s390: fake memslot for ucontrol VMs
-      KVM: s390: selftests: fix ucontrol memory region test
-      KVM: s390: move pv gmap functions into kvm
-      KVM: s390: use __kvm_faultin_pfn()
-      KVM: s390: get rid of gmap_fault()
-      KVM: s390: get rid of gmap_translate()
-      KVM: s390: move some gmap shadowing functions away from mm/gmap.c
-      KVM: s390: stop using page->index for non-shadow gmaps
-      KVM: s390: stop using lists to keep track of used dat tables
-      KVM: s390: move gmap_shadow_pgt_lookup() into kvm
-      KVM: s390: remove useless page->index usage
-      KVM: s390: move PGSTE softbits
-      KVM: s390: remove the last user of page->index
-
-David Hildenbrand (4):
-      KVM: s390: vsie: fix some corner-cases when grabbing vsie pages
-      KVM: s390: vsie: stop using page->index
-      KVM: s390: vsie: stop messing with page refcount
-      KVM: s390: vsie: stop using "struct page" for vsie page
-
-Sean Christopherson (1):
-      KVM: Do not restrict the size of KVM-internal memory regions
-
- Documentation/virt/kvm/api.rst                   |   2 +-
- arch/s390/include/asm/gmap.h                     |  20 +-
- arch/s390/include/asm/kvm_host.h                 |   6 +-
- arch/s390/include/asm/pgtable.h                  |  21 +-
- arch/s390/include/asm/uv.h                       |   6 +-
- arch/s390/kernel/uv.c                            | 292 +---------
- arch/s390/kvm/Makefile                           |   2 +-
- arch/s390/kvm/gaccess.c                          |  44 +-
- arch/s390/kvm/gmap-vsie.c                        | 142 +++++
- arch/s390/kvm/gmap.c                             | 212 +++++++
- arch/s390/kvm/gmap.h                             |  39 ++
- arch/s390/kvm/intercept.c                        |   7 +-
- arch/s390/kvm/interrupt.c                        |  19 +-
- arch/s390/kvm/kvm-s390.c                         | 237 ++++++--
- arch/s390/kvm/kvm-s390.h                         |  19 +
- arch/s390/kvm/pv.c                               |  21 +
- arch/s390/kvm/vsie.c                             | 106 ++--
- arch/s390/mm/gmap.c                              | 681 +++++------------------
- arch/s390/mm/pgalloc.c                           |   2 -
- tools/testing/selftests/kvm/s390/ucontrol_test.c |  32 +-
- virt/kvm/kvm_main.c                              |  10 +-
- 21 files changed, 990 insertions(+), 930 deletions(-)
- create mode 100644 arch/s390/kvm/gmap-vsie.c
- create mode 100644 arch/s390/kvm/gmap.c
- create mode 100644 arch/s390/kvm/gmap.h
