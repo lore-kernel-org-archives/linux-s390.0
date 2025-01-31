@@ -1,64 +1,64 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBD1B1F238A;
-	Fri, 31 Jan 2025 11:25:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B0141F0E24;
+	Fri, 31 Jan 2025 11:25:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738322731; cv=none; b=edZvdBvrojMGYnVy9mKaz26sv/F43ZOu9Deg2v34WUHDGroDYqFXa4UfbVH6gIfg9NQFvQx6Uj1VoFY8vwtNIbjW7vpOjHON6bLb7G3MjBxztDkRVuEsAyNJaZn+KVa40mhPmlYmXbS3i8hBdK5KbEHouMTIsSmmMFIsAbfmb2U=
+	t=1738322732; cv=none; b=AQn8A8IwUelC5AXmBcQaW1ibysJvixlLbVpeoVOzMG2yXHvUvd4LXU9Khqx/SLrqb1c5NfZ1CieWmbnsEK4bgxWHnSqqa0MdUzY28HBj8uWByP+SVChb0dPeJ1QFoIZ7b/Yn4omfIOuEtf74BQA/5umVyLLuQK6lskinRgHTQ5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738322731; c=relaxed/simple;
-	bh=PzTHNr9qqKpwNf0Av53oDcqhsk8OY6Od3s7oXhPWvBY=;
+	s=arc-20240116; t=1738322732; c=relaxed/simple;
+	bh=hW8QUGSJeZi4NErsIV3FnLcZc0wm+zIpbi0XOPHbwuQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hp1i/RMI5k7EWDltZWeNYauMU7e66wg3yewn/o1V3ix0MefwvD9rqNPVrO8wcOApjcjfEXBgOjZNWa/8Zrow/YJksLZGwOO+sz2WCLkROCq/SlrIonYN9BfKEhqs5lS73ggxksFo8HCU3jXN78c2eBEqEBF2HREZ2bTH7r5EBpE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CcF996uO; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=tTymtia+le5xoEW5iTpFUVl0Ar8b1U4Qb5fVg9a3wUq4BhHfLNfp9YUswnnkUuUl+Tojj30+5d+13MeVKhrNdky+CVRNytRKWtD6yKkoVbzksmouKeL1GWekSFIgK9HeD4LG236kGPOdKarAS1qZCngBDknkVEQ9pCileGqFBcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Df5c1BB5; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CcF996uO"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V7Wdot009488;
-	Fri, 31 Jan 2025 11:25:27 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Df5c1BB5"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V2OPIC030494;
+	Fri, 31 Jan 2025 11:25:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ZYM9Nc8rY8p/nTLL3
-	r+i4CWuWpEZ55ZZKrZPppQc4Tg=; b=CcF996uOBvQ+ddm5EDnTov78jedDoUefg
-	79bTniEvQ97xsXhTbp7zfCXf9xruFBzZ0qIDfaUz7PqV8bFuBWDxzokSRs8DZ5XG
-	/sMpcprlNwC3XDDPWbFB1Lv/c1hsFFASVFsTSwjkWhFeC3LdzZebzSP3ybhHuyRI
-	8TQS90UqyQQqB+5+fBU4EMw73YONy1id6fuNCJaYaJz+OPZzY0qSYEwzRMO12TIU
-	HnZcpBviv2u/t1QWRRUezetNMzW62OTOlVus2wj1zLVdhZ0Ndw9jwtBmgHEYNsjt
-	4sA/YiioHlTBM39CT1InR353OdKSQljfHzcNCAwq/hdfdFoGAJI1Q==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gt7n8v3m-1
+	:mime-version:references:subject:to; s=pp1; bh=SRG2Lsjbt5losy1EF
+	Q08+azcIQgwFnZAQYhP9wLiCek=; b=Df5c1BB5jYwB8ZK3F8Ei5YX3Tt2vfcYpI
+	E2izCDlYe6zYVNq0rkyikPL9hqCsDVoJdE2D7fF080NbVjtNMJUhRnCVO4yoGif6
+	C6VZOHHTmRMn0QonH9RL1E+KD77T6MbVy8pCXa0SByYMRWuoZMAgyE2VVDHxpl8N
+	gHYi4CZe9/WlEJKvn0L/vFnFdBEyabXUx5kkYAocQ+Zzdu1UmOgwXQ2hZ+oaGWQL
+	Pwtc+hWySulos8FvqbL24uii6PUvsX69M7IJpdgMR+kZ4e1JQJxANZmYWPw1N9rP
+	JQFqjMe16YzEjghNxnefwiSHC/EPkO3MQWuyUzYwowatXPdkCuoBA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gfn5b8sv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:27 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V81VsD013887;
-	Fri, 31 Jan 2025 11:25:26 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44gf93b9fu-1
+	Fri, 31 Jan 2025 11:25:28 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V8Bm4I010257;
+	Fri, 31 Jan 2025 11:25:27 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44gfa0k94n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:26 +0000
+	Fri, 31 Jan 2025 11:25:27 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPMeW56361286
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPN2F20316568
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 31 Jan 2025 11:25:23 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8C3B2012E;
-	Fri, 31 Jan 2025 11:25:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9252A20133;
+	Fri, 31 Jan 2025 11:25:23 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E22E2012D;
-	Fri, 31 Jan 2025 11:25:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 458162012F;
+	Fri, 31 Jan 2025 11:25:23 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.171.25.38])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jan 2025 11:25:22 +0000 (GMT)
+	Fri, 31 Jan 2025 11:25:23 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v2 06/20] KVM: s390: wrapper for KVM_BUG
-Date: Fri, 31 Jan 2025 12:24:56 +0100
-Message-ID: <20250131112510.48531-7-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v2 08/20] KVM: s390: selftests: fix ucontrol memory region test
+Date: Fri, 31 Jan 2025 12:24:58 +0100
+Message-ID: <20250131112510.48531-9-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250131112510.48531-1-imbrenda@linux.ibm.com>
 References: <20250131112510.48531-1-imbrenda@linux.ibm.com>
@@ -70,82 +70,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: egM4dqJ3bmmpq36U7r3pGeizlGi2NwLE
-X-Proofpoint-ORIG-GUID: egM4dqJ3bmmpq36U7r3pGeizlGi2NwLE
+X-Proofpoint-ORIG-GUID: wMTnncO1RKPm7Nfujdidm0S7zT3KNLyi
+X-Proofpoint-GUID: wMTnncO1RKPm7Nfujdidm0S7zT3KNLyi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-31_04,2025-01-31_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- clxscore=1015 mlxscore=0 spamscore=0 bulkscore=0 mlxlogscore=999
- phishscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2501310083
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ mlxscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0
+ adultscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=680 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
+ definitions=main-2501310083
 
-Wrap the call to KVM_BUG; this reduces code duplication and improves
-readability.
+With the latest patch, attempting to create a memslot from userspace
+will result in an EEXIST error for UCONTROL VMs, instead of EINVAL,
+since the new memslot will collide with the internal memslot. There is
+no simple way to bring back the previous behaviour.
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+This is not a problem, but the test needs to be fixed accordingly.
+
 Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20250123144627.312456-3-imbrenda@linux.ibm.com
+Link: https://lore.kernel.org/r/20250123144627.312456-5-imbrenda@linux.ibm.com
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-ID: <20250123144627.312456-3-imbrenda@linux.ibm.com>
+Message-ID: <20250123144627.312456-5-imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ tools/testing/selftests/kvm/s390/ucontrol_test.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d8080c27d45b..ecbdd7d41230 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4766,6 +4766,13 @@ static int vcpu_post_run_addressing_exception(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_prog_irq(vcpu, &pgm_info);
+diff --git a/tools/testing/selftests/kvm/s390/ucontrol_test.c b/tools/testing/selftests/kvm/s390/ucontrol_test.c
+index 135ee22856cf..22ce9219620c 100644
+--- a/tools/testing/selftests/kvm/s390/ucontrol_test.c
++++ b/tools/testing/selftests/kvm/s390/ucontrol_test.c
+@@ -459,10 +459,14 @@ TEST_F(uc_kvm, uc_no_user_region)
+ 	};
+ 
+ 	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION, &region));
+-	ASSERT_EQ(EINVAL, errno);
++	ASSERT_TRUE(errno == EEXIST || errno == EINVAL)
++		TH_LOG("errno %s (%i) not expected for ioctl KVM_SET_USER_MEMORY_REGION",
++		       strerror(errno), errno);
+ 
+ 	ASSERT_EQ(-1, ioctl(self->vm_fd, KVM_SET_USER_MEMORY_REGION2, &region2));
+-	ASSERT_EQ(EINVAL, errno);
++	ASSERT_TRUE(errno == EEXIST || errno == EINVAL)
++		TH_LOG("errno %s (%i) not expected for ioctl KVM_SET_USER_MEMORY_REGION2",
++		       strerror(errno), errno);
  }
  
-+static void kvm_s390_assert_primary_as(struct kvm_vcpu *vcpu)
-+{
-+	KVM_BUG(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm,
-+		"Unexpected program interrupt 0x%x, TEID 0x%016lx",
-+		current->thread.gmap_int_code, current->thread.gmap_teid.val);
-+}
-+
- static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
- {
- 	unsigned int flags = 0;
-@@ -4781,9 +4788,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
- 		vcpu->stat.exit_null++;
- 		break;
- 	case PGM_NON_SECURE_STORAGE_ACCESS:
--		KVM_BUG(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm,
--			"Unexpected program interrupt 0x%x, TEID 0x%016lx",
--			current->thread.gmap_int_code, current->thread.gmap_teid.val);
-+		kvm_s390_assert_primary_as(vcpu);
- 		/*
- 		 * This is normal operation; a page belonging to a protected
- 		 * guest has not been imported yet. Try to import the page into
-@@ -4794,9 +4799,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
- 		break;
- 	case PGM_SECURE_STORAGE_ACCESS:
- 	case PGM_SECURE_STORAGE_VIOLATION:
--		KVM_BUG(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm,
--			"Unexpected program interrupt 0x%x, TEID 0x%016lx",
--			current->thread.gmap_int_code, current->thread.gmap_teid.val);
-+		kvm_s390_assert_primary_as(vcpu);
- 		/*
- 		 * This can happen after a reboot with asynchronous teardown;
- 		 * the new guest (normal or protected) will run on top of the
-@@ -4825,9 +4828,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
- 	case PGM_REGION_FIRST_TRANS:
- 	case PGM_REGION_SECOND_TRANS:
- 	case PGM_REGION_THIRD_TRANS:
--		KVM_BUG(current->thread.gmap_teid.as != PSW_BITS_AS_PRIMARY, vcpu->kvm,
--			"Unexpected program interrupt 0x%x, TEID 0x%016lx",
--			current->thread.gmap_int_code, current->thread.gmap_teid.val);
-+		kvm_s390_assert_primary_as(vcpu);
- 		if (vcpu->arch.gmap->pfault_enabled) {
- 			rc = gmap_fault(vcpu->arch.gmap, gaddr, flags | FAULT_FLAG_RETRY_NOWAIT);
- 			if (rc == -EFAULT)
+ TEST_F(uc_kvm, uc_map_unmap)
 -- 
 2.48.1
 
