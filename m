@@ -1,117 +1,100 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA42A1F3D57;
-	Fri, 31 Jan 2025 11:25:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961F18467
+	for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2025 16:23:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738322749; cv=none; b=iekLFaonaNLENOSg35wa3HbV+lD7WffAHknVzP6rc/T0MoTOeNifIXsFgXObVAKid3nQO6cE8R9e/tl0Xw6Nvbk+Uh1jlLUmFGM7xXiXKjm6MYg/0LIZVRILwrVy9cp+wbmIR6rYCLuwOWvG5NZIxChwmuW9jvFM6GGOI1YX6S8=
+	t=1738340600; cv=none; b=rkCUnCVmmiGwy94SuDWO4WLQi9QMXPCPAWlYLKhWKkPVsl1f3qaxRoY1PvAtzXztySKszSoSpC50MzyhjfVDYwKd9/l6nn+dqA9wpT4z46gQn4r6OR+3G/1mzOga9/KCipeTgcltqbccRdg46Iqx7G9bun0lNdOgG1LyNNnyaQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738322749; c=relaxed/simple;
-	bh=bXMeCQwxXJJhWnlLKeCRhoDD9cdwFGwltizbHxyQnbE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jE6pbkbl1ZpZbxSlQ0kp2hr499JnKzxwb3T+M3Y1sV6yxmIyc6NWMRI8+fyB9A+/bAfwQENZ8/QvjlWzJiirKx+Cl7zAJj5EwOLMavEjDhZX62v52FpJ6iFvBsig2ACuZxiKjRx3YXmx1cGtdsGwuXpX17URYa16XArz5Y6A9SE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o6RryhtL; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738340600; c=relaxed/simple;
+	bh=XR5lx6T2OZX3TvgFfUCQ2wqoocF1737mUfcufcBWu3Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jxNHajC14gmmO3fBV870354QJ3r/jnlvkMbNs5iKl7cuCgBnERjdzNlwFT+j1a0j8gB0TygO5ZSqWfHHxwNLKscR9GhY4T02wLsoS/5CLqeegj9Aph4+WGbWI7q0z8XlpVnWAPu8XGNKM3XmotQCcSZPEfiEEUaHW0qL1c63k/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=vxxKAnKH; arc=none smtp.client-ip=209.85.221.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o6RryhtL"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V2Oc0V016640;
-	Fri, 31 Jan 2025 11:25:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=iZcFWV0rWt5Yt0Xtq
-	zWBidwiaSBSf8d6Q6babA4TcQc=; b=o6RryhtL+yXz93FRknpuLV0GpVUVM1Bb4
-	1QHKHNuLuOdeM6mR1ZW59vaTQqTSA254NPbHcz9ng6tP6Bgu4fwoo1zlzcv9BxXy
-	qVMUp8tO2BF8U3Hm+Jt7iQg5nieCksVkZQ7thhsJZWNJRw6WZDZd0X2Vy/RvyNcv
-	o2PVy12UOFu/GliVG7njnAzUBwcPKvO0WEbbnyYM9lqJk6uT1cJ/Jh3NHp6BRHTk
-	0Td81ET3n/+CErrOf6e24McEmpwJyW6dsn2x7xtidSUF7/7byEsLYyu0j9pti580
-	4DwhOZmTfpCpticdPk8RUEPfoocJuhj5pTZsRTsp3G/xFIakpbZJg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gmk92481-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:45 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V8MVKk017145;
-	Fri, 31 Jan 2025 11:25:44 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44gfaxb8mv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:43 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPdbx29098506
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jan 2025 11:25:40 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44EA820134;
-	Fri, 31 Jan 2025 11:25:37 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EC3F920138;
-	Fri, 31 Jan 2025 11:25:36 +0000 (GMT)
-Received: from p-imbrenda.ibmuc.com (unknown [9.171.25.38])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jan 2025 11:25:36 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v2 18/20] KVM: s390: move PGSTE softbits
-Date: Fri, 31 Jan 2025 12:25:08 +0100
-Message-ID: <20250131112510.48531-19-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250131112510.48531-1-imbrenda@linux.ibm.com>
-References: <20250131112510.48531-1-imbrenda@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="vxxKAnKH"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-38be3bfb045so2281672f8f.0
+        for <linux-s390@vger.kernel.org>; Fri, 31 Jan 2025 08:23:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1738340597; x=1738945397; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ccsQCvgWKqv3yygq/7Q/nlBWnWSWfZGyLmBYGuzRwP0=;
+        b=vxxKAnKHC7G4bKKCD04ERw4VFCG+qDpfzIw8T5IhExw0kBfT5A3ksQ+YcPVtnAfgFK
+         5Q69tOkwHXS0BQGfLl5++vpUDVqRb0vGoHxGdnSKA9yOpbhFfQer3qVAlwO91UiN68ez
+         lYgOCvkiTAz0mnKl2/jWuRRyYmlnLU4o9orCRm4aPq8hq819x0SREQm8p9P4TiTEeyAv
+         kvuhbnh/n/KLMIeXQPOuzb33Ub4r8RVNi7Jrf3pfn39D/nVDODSdTecNYKI3wd+C2M7x
+         UuUQR+8s9T+DcTVOrJzlVTcOaYPpwyALmZA6oi9orncB2ZLwp9bPbsU/npJXJJgHYb9v
+         hr4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738340597; x=1738945397;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ccsQCvgWKqv3yygq/7Q/nlBWnWSWfZGyLmBYGuzRwP0=;
+        b=cYrc66HhRuv0tgAGawLFe6kjUmNU3cnPgV8n7qyvbsaeKJpVVun7HBmZavSAV09VwS
+         XnsXubAGDYn4I+px4NFH9mWgwkFzxtopdxUtjfFgAtxh7D3IRVok5e+70otMCkDOD3Zv
+         sGoyrQxtVea60J1bWmfhvLtfAmK4sv1PMvUF5HOzywVcCdzJYPvGtMePTOvA8cR6+Vfq
+         nQ81SDJ8fdMtaHFJObA5xhTGlvVVmLmOCVRV1DLLbf5/GaQv3G3wWtWTDN4b91qYi1IV
+         eP5IAluCH9XsAIh127cvBWkC85nMYTVucJkeYYExw+gPH0EAJZyLYPC1lg01oeaDQHPW
+         XIDw==
+X-Forwarded-Encrypted: i=1; AJvYcCVZqe+vjd3WkyFnKhM5pfE/QcWa/SCY9+Oaf7o9w//WVtGl+5B2uD6vnT0yvT/kOSkyfqZjrltsGR1e@vger.kernel.org
+X-Gm-Message-State: AOJu0YxUcH7Rzm02X6xEM51MuSDIPo9S35Mi4Sx+Q++613Mi5oJYGcHV
+	TWVVivesp9ztXK+C2N0NXlYpoSIOhgVykXPzoMpXEniVJg2pg0PaGE6W98jvqew=
+X-Gm-Gg: ASbGncuH4l5Zg1w3m7onlHcmM2/UtJkjnUeES+oocFJjHmlJbFoJKEBXEnrbl555Tfx
+	5TXP26HaLnTmVhoquwZgK9iwje5TNJfC8QXThFeRLKHobgnJHMvZsZkxIEb9FUrQ+U+733Od7V/
+	RX0Fen+FSCvCxtS0QHCooz9qZJRq/zjvJvw+SmDSq8ji5aA69viMY7wXrlDdgSvlBGWIVVVw7lq
+	qopcqzJtDVjHJYaQ8fNsGjmacjOMiadAQU65Azo6nUstiIZSw8aZoYL22/sqNh3W7cQZ8DNxQ8J
+	kImLm4jlueWR/1wSyPWyuo48kA==
+X-Google-Smtp-Source: AGHT+IHjR1HpSI+OxXVo1rJx/d3HvscdknUv4GZNTW8wQmSNUAcS/oELkxUcnST2xhCMAatVE56veA==
+X-Received: by 2002:a5d:59a9:0:b0:386:4244:15c7 with SMTP id ffacd0b85a97d-38c60f7788amr3570705f8f.25.1738340596916;
+        Fri, 31 Jan 2025 08:23:16 -0800 (PST)
+Received: from [192.168.68.163] ([145.224.90.107])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38c5c1b576csm5113346f8f.63.2025.01.31.08.22.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 31 Jan 2025 08:22:44 -0800 (PST)
+Message-ID: <0ee49250-47e9-4719-898e-644b30ef8585@linaro.org>
+Date: Fri, 31 Jan 2025 16:22:15 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QCw3AEhSQoLSt-MRq0HCfFUo3RFp7man
-X-Proofpoint-ORIG-GUID: QCw3AEhSQoLSt-MRq0HCfFUo3RFp7man
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-31_04,2025-01-31_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 impostorscore=0 mlxscore=0 bulkscore=0 clxscore=1015
- adultscore=0 spamscore=0 phishscore=0 priorityscore=1501 mlxlogscore=440
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2501310083
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/2 v3] perf test: perf record tests (114) changes
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+ hca@linux.ibm.com, linux-kernel@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+ linux-s390@vger.kernel.org
+References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
+Content-Language: en-US
+From: James Clark <james.clark@linaro.org>
+In-Reply-To: <20250131102756.4185235-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Move the softbits in the PGSTEs to the other usable area.
 
-This leaves the 16-bit block of usable bits free, which will be used in the
-next patch for something else.
 
-Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250123144627.312456-15-imbrenda@linux.ibm.com
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-ID: <20250123144627.312456-15-imbrenda@linux.ibm.com>
----
- arch/s390/include/asm/pgtable.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+On 31/01/2025 10:27 am, Thomas Richter wrote:
+> Change event intructions to cycles for subtests
+>   - precise_max attribute
+>   - Basic leader sampling
+> as event instructions can not be used for sampling on s390.
+> 
+> Thomas Richter (2):
+>    perf test: Fix perf test 114 perf record test subtest precise_max
+>    perf test: Change event in perf test 114 perf record test subtest
+>      test_leader_sampling
+> 
+>   tools/perf/tests/shell/record.sh | 53 ++++++++++++++++++++------------
+>   1 file changed, 34 insertions(+), 19 deletions(-)
+> 
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index a3b51056a177..a96bde2e5f18 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -420,9 +420,9 @@ void setup_protection_map(void);
- #define PGSTE_HC_BIT	0x0020000000000000UL
- #define PGSTE_GR_BIT	0x0004000000000000UL
- #define PGSTE_GC_BIT	0x0002000000000000UL
--#define PGSTE_UC_BIT	0x0000800000000000UL	/* user dirty (migration) */
--#define PGSTE_IN_BIT	0x0000400000000000UL	/* IPTE notify bit */
--#define PGSTE_VSIE_BIT	0x0000200000000000UL	/* ref'd in a shadow table */
-+#define PGSTE_UC_BIT	0x0000000000008000UL	/* user dirty (migration) */
-+#define PGSTE_IN_BIT	0x0000000000004000UL	/* IPTE notify bit */
-+#define PGSTE_VSIE_BIT	0x0000000000002000UL	/* ref'd in a shadow table */
- 
- /* Guest Page State used for virtualization */
- #define _PGSTE_GPS_ZERO			0x0000000080000000UL
--- 
-2.48.1
+LGTM
 
