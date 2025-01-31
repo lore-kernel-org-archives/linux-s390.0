@@ -1,63 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86FED1865FA;
-	Thu, 30 Jan 2025 18:56:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F647632;
+	Fri, 31 Jan 2025 08:06:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738263380; cv=none; b=ni2d1QR69mGiPCyU/MXOqHtgMdjEAT23zIqvaELOBiyr8w4R1Ngt0MAuc+FZjASwPAC5LALt38L2Z+cYU3EV+3GjD5f1sq3bG1dUApOUuBL7xNv9pq12GI/u10tVza3yO9MkiLuA7QkRm8a9TKT1X5q4uJWM9Z65CXf5vUvKElc=
+	t=1738310784; cv=none; b=XpnBfDCnfEnYro1Ar1rZQliaBj8QWaj9uZcQ768NIMZW1pGRABjpDscWi2WuL/m3HIcCujaZW7r/n41xVvE80bVqj2QnglJMYsBgjjY4PW1ClIL/0MVS+jbE4v2r4lR2FqsOWknTP78Lm9ja3MMmnQ+G4mk7iu8SDbjTE0ppopc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738263380; c=relaxed/simple;
-	bh=c5/Bp0E/9gxloZG3/e7YG/TdHmLVmW9bCx3/vhfpXzs=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=rViHcRmIpO6z4V8rl4wfAwnBDBYfGpk5fGjrzSkvY+xdhHisLdT3Ta6xwfRQ+23Ubl8PQxNsWXcvUujGO37BOxBzhAbOaERL5ZftwaCjWPhL33UK7vvYMjnSRDX5Ol6UuLxmPCyLkdb40cWH79SREYyaiS1fHY3Ze2Xc1ybuy7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NqA6iEiY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1738310784; c=relaxed/simple;
+	bh=zNS/ceOig7QFM9quFO9l2NdtXouN+TuV7vXhAsNSZnE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=c2DdNtfOq9i6MxHNHj2fv1iZRa9eggEE+tw3V54rSUmlKjuUo1tk/F0/U+aeaw0aVV56NfCBBaDURJfDZmZJq6zX6vuNcxaKN1LZomnbz/Xmm3jYg0i8gwpZ8j5vVOYPY8QECS+zGQfdxI7uI1Or+iGhNVSGIUcrcSKbsXPLnzY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fB0ygwWn; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NqA6iEiY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F49C4CED3;
-	Thu, 30 Jan 2025 18:56:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738263380;
-	bh=c5/Bp0E/9gxloZG3/e7YG/TdHmLVmW9bCx3/vhfpXzs=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=NqA6iEiYLgS/A8jM7yJchBuz11A2CoKAQXJoY3YSye0GF8hCekEjAFmxm7THzZ6sA
-	 A5ft6/kVQdo6ui/S+WSF8RQObfkAf1620sCcgHELQVB6hw4kEkiDEFGPUPhJ+4m2Z4
-	 jTIvZPbodCLG3QimsduHKCvxpqKaALj9YHLFIE0+nIO2DlMRbzaQcuSNKUiexxcpR9
-	 jaKIA8dKgAJpnsASnvgmiLXp3VZeULDe5vI9qXn3DhgWECrF4q7dcM580Gk8y9N2L0
-	 2pdtbD+x1ev7A10ZINvRnQlQ2+9pmzrFV5xLxFPuZ9p/3q68dGanIml5Hun07nJtTz
-	 CIl45Hpq/nK5w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EADC7380AA66;
-	Thu, 30 Jan 2025 18:56:47 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 fixes for 6.14 merge window
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <Z5uhk4LusN5aGRwM@tuxmaker.boeblingen.de.ibm.com>
-References: <Z5uhk4LusN5aGRwM@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Z5uhk4LusN5aGRwM@tuxmaker.boeblingen.de.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.14-3
-X-PR-Tracked-Commit-Id: b999589956dd3ae096b7d67b6fee4e9989a2e430
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: b8a1c9f4b7106c94d95c83416d34277ee689638f
-Message-Id: <173826340665.1052698.8061535311779636283.pr-tracker-bot@kernel.org>
-Date: Thu, 30 Jan 2025 18:56:46 +0000
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fB0ygwWn"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V2OBkm014563;
+	Fri, 31 Jan 2025 08:06:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ZiyYLU
+	U/d10CTLKMVXtjBPsEO89a9FvWO4ZrdEwXlWY=; b=fB0ygwWn7xDUsB+4uhL8OB
+	VDA1cE5yWgiDtnyRZx1Wl7JpgzBFPq/lW7TsIrffV7PEEXlReApHm086+Exp1vHt
+	ryDsfzXNR6ApUmF6JzhYbERdOy88/ZgJSRwiKvk2xzUvy3myZbWhR4ebGahkHEJW
+	b++ynMVu8m8e6rKTiy8ndnIOTWJ3R61xmhWlZR9bRzpSGUeU0hIxnS3VMbdZ1+Mk
+	ALp/mBsAL+sWCxfy/0JqJVJav5Ag9F971hQ6M/Y535KCKKE6giBplWc8eomHpYPH
+	q2qWDQaLMUhaAe2U/qui1PdAm50Dalz1b4HAd+dIbH0Lxy+ik+4OEvseG+D9gmCQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gfn4tn0a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 Jan 2025 08:06:08 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V84FgT024501;
+	Fri, 31 Jan 2025 08:06:07 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44gf912m25-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 31 Jan 2025 08:06:07 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50V8635C46662034
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 31 Jan 2025 08:06:03 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 41C6A200E6;
+	Fri, 31 Jan 2025 08:06:03 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3BB8A200EC;
+	Fri, 31 Jan 2025 08:06:02 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.13.240])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 31 Jan 2025 08:06:02 +0000 (GMT)
+Date: Fri, 31 Jan 2025 09:06:00 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        "Gustavo A. R. Silva"
+ <gustavo@embeddedor.com>,
+        Thorsten Blum <thorsten.blum@linux.dev>,
+        Tony
+ Krowiak <akrowiak@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler
+ <dengler@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>, linux-hardening@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH] s390/vfio-ap: Replace one-element array with flexible
+ array member
+Message-ID: <20250131090600.04b8f4f7.pasic@linux.ibm.com>
+In-Reply-To: <20250130124647.15115-A-hca@linux.ibm.com>
+References: <20250116131859.105756-2-thorsten.blum@linux.dev>
+	<20250129213826.291cfe12.pasic@linux.ibm.com>
+	<85863d7a-2d8b-4c1b-b76a-e2f40834a7a8@embeddedor.com>
+	<20250130114615.6f591882.pasic@linux.ibm.com>
+	<Z5tkaaMNh83x2t/x@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+	<20250130124647.15115-A-hca@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: HX1BOxprH6kjGbEiVqJMffgabFV4aw7b
+X-Proofpoint-ORIG-GUID: HX1BOxprH6kjGbEiVqJMffgabFV4aw7b
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-31_03,2025-01-30_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ adultscore=0 clxscore=1015 impostorscore=0 mlxlogscore=555 malwarescore=0
+ phishscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2501310060
 
-The pull request you sent on Thu, 30 Jan 2025 16:58:11 +0100:
+On Thu, 30 Jan 2025 13:46:47 +0100
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.14-3
+> > > Thanks! Alex, what do we do with this then? I think you picked it up
+> > > yesterday late. And I think, it might make sense to make this look
+> > > less like a fake flex-array...  
+> > 
+> > Dropped.
+> > Thanks for looking into it!  
+> 
+> Given that we already have 5dd4241964c8 ("vfio/ccw: replace one-element
+> array with flexible-array member") applied, we now end up with inconsistent
+> code. I'd prefer if we address _both_ code locations in a way that the code
+> looks similar, and people won't send similar patches again and again.
+> 
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/b8a1c9f4b7106c94d95c83416d34277ee689638f
+Yes, I agree. We should make this not look like a fake flex array.
 
-Thank you!
+> Halil, since you started this discussion, can you address this please?
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Sure! But I won't get around before late in the evening.
+
+Regards,
+Halil
