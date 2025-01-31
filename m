@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58101F238D;
-	Fri, 31 Jan 2025 11:25:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF5DF1F2C22;
+	Fri, 31 Jan 2025 11:25:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738322732; cv=none; b=AXbUV0yLUTThaHOnT46K96afsyQ3nRIMrX60BJZaAdvVfez3veGdqfgJPCMiI7h5IsdI+FIMXG3IAvKMBwTJOwk218dP/HCVIzm8xqBO8TenuOIz/3TwvmKxkjTdXA2rSe39O9DfZsKxKZjKNgbCh2OtafDoIe0X3TOROORiY6I=
+	t=1738322733; cv=none; b=YxLwvwuNtmU5/yY+Y3UM2coZPqlmIVM+TVTWeLcri2pHeg6t3W3f7kBxYslOjM23PI9+6tPur3j8BvUuJizS68G3sHCxZ0x6abYeJph8cXzaFqbEcFjdgibyd/Q4M/pwL+fP/k2uFT0ZjX7lJLd7Jvs4LxIzFVaY6NDcVty8aII=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738322732; c=relaxed/simple;
-	bh=5kErglAGaiLpjTasLdpYtxcLS/MucM5ogAdGQcpeTV0=;
+	s=arc-20240116; t=1738322733; c=relaxed/simple;
+	bh=VxIN4FeIyslKtTPAUdWuL/CWBidHazVQsIdRsgDTEmE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XTaB2A85sXJnVvpZdRGIFBA+X2P1ANIwFdFR/2Xzkpb9Mw7gmnfY7MoCzo2LJEnPBkyFCR2Dn1cpDzFXRCr2us1Y+ZVHvdB2bfsouxxj1p01U+mYI/Ovrw3oLBlTTq1H3R5wK4Oz4EI8owELSdQJvrmTvQKIyb5c5pViHpUc9zE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DOZUKMlH; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=LoxQcPw2i1G2BRCSKrZibvfRjohIAvtqwqFkzG999Iq8b876iwHuwCR20L9NyR/Z9SptW6DEuXEYW32qMN5pFfSnCmSUn1uZ7iCKzRmbsGOS2NehlTlr+D+bksBX12bzJey8GMFRrTBJjLCDhDnwFSL2Qk4dOw8uK0t1HaHylOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hN0rRoA9; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DOZUKMlH"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V5Nk5J013095;
-	Fri, 31 Jan 2025 11:25:28 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hN0rRoA9"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50V2OAW3021709;
+	Fri, 31 Jan 2025 11:25:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=QBPgYjCXwiQR38I0U
-	2pO+KdWV2NZ0ToHb8moivvDEo8=; b=DOZUKMlHt+XIXnby2KdsmvKLf84G9Uu4F
-	NXsABv+sR1diECuoRaesMzM2t5JHWtlXn34EL7aKCbX6Pxn8pYjnLx4nIi57uHuQ
-	ypzWIsuCsoQNFPV0Yvp7t/SFlnG5qG6YXm6Uu+GWtQMyCIuZLiFBPKNlpHl81gcq
-	nhO1b0yAbHFbyyfDJyu/+fohpf4oUNDLHaEZGsmtaSyaJ3gZG2kiFX1SASxEvSWQ
-	Iwe627sAwTK4aBGXsGCpnEof7QElALH2CDwCylbOZj1l5bDsLu/opsoHGnulVLen
-	dJEE+hY0ysleW5eFCZ/sd1A3Ih69aAd3egghJFB5ZrVY6R5gLLDig==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44grb79b57-1
+	:mime-version:references:subject:to; s=pp1; bh=4APgAzwDh1BMLkCrA
+	XvZ76mNkyeCMn/AytX0MI4bmnk=; b=hN0rRoA9IF4lal0rVCsEQiuDv3AE5M8Ov
+	WignQTj8mWRcr6qra3pFdMLGDx76PWl4QPKSv/RoY3c6tQQ+vZJxmSyiWpghs2qk
+	fwq5dqK99xwzOwqjqdE91ln1n09FI6L5jdbkyXJPVVLMkohOyfVckqvy08TLUITP
+	Ez6nTXMLy+E9+Gsf8opce1nT4YYIQorKwhFCLLe8ng5vcn60KdbMuiVq5QLTsQnj
+	hBsaJplF2BHsBkxr1lBRmwjvEsOM/WrUbOR50b0ULM4yLaaxqj5O3J43agO/W700
+	D8eLX97HJzttQVxOlmEqNNZy4IGjFsiuxFkxsL9SWofoBIijZjmnA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44gnby9x0u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:27 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V89Jx1016101;
-	Fri, 31 Jan 2025 11:25:27 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44gfaub8qd-1
+	Fri, 31 Jan 2025 11:25:29 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 50V8BKPZ024533;
+	Fri, 31 Jan 2025 11:25:28 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44gf9139rq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 31 Jan 2025 11:25:27 +0000
+	Fri, 31 Jan 2025 11:25:28 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPNPu20316566
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 50VBPO9t39649636
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jan 2025 11:25:23 GMT
+	Fri, 31 Jan 2025 11:25:24 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 331E92012E;
-	Fri, 31 Jan 2025 11:25:23 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 725982012D;
+	Fri, 31 Jan 2025 11:25:24 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D9E952012F;
-	Fri, 31 Jan 2025 11:25:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2125E20131;
+	Fri, 31 Jan 2025 11:25:24 +0000 (GMT)
 Received: from p-imbrenda.ibmuc.com (unknown [9.171.25.38])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 31 Jan 2025 11:25:22 +0000 (GMT)
+	Fri, 31 Jan 2025 11:25:24 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v2 07/20] KVM: s390: fake memslot for ucontrol VMs
-Date: Fri, 31 Jan 2025 12:24:57 +0100
-Message-ID: <20250131112510.48531-8-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v2 10/20] KVM: s390: use __kvm_faultin_pfn()
+Date: Fri, 31 Jan 2025 12:25:00 +0100
+Message-ID: <20250131112510.48531-11-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250131112510.48531-1-imbrenda@linux.ibm.com>
 References: <20250131112510.48531-1-imbrenda@linux.ibm.com>
@@ -70,119 +70,222 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xKRY60wOZbP3HFTV0ATx3laXTV6BXEme
-X-Proofpoint-ORIG-GUID: xKRY60wOZbP3HFTV0ATx3laXTV6BXEme
+X-Proofpoint-ORIG-GUID: OyZuTk8p8H8BfSo1NNbsJvFEr2glBlVR
+X-Proofpoint-GUID: OyZuTk8p8H8BfSo1NNbsJvFEr2glBlVR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-31_04,2025-01-31_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 spamscore=0 lowpriorityscore=0 clxscore=1015
- impostorscore=0 malwarescore=0 mlxscore=0 mlxlogscore=999 bulkscore=0
- suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2501170000 definitions=main-2501310083
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 lowpriorityscore=0 impostorscore=0 mlxscore=0
+ malwarescore=0 suspectscore=0 phishscore=0 mlxlogscore=989 clxscore=1015
+ bulkscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2501310083
 
-Create a fake memslot for ucontrol VMs. The fake memslot identity-maps
-userspace.
+Refactor the existing page fault handling code to use __kvm_faultin_pfn().
 
-Now memslots will always be present, and ucontrol is not a special case
-anymore.
+This possible now that memslots are always present.
 
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250123144627.312456-4-imbrenda@linux.ibm.com
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Link: https://lore.kernel.org/r/20250123144627.312456-7-imbrenda@linux.ibm.com
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-ID: <20250123144627.312456-4-imbrenda@linux.ibm.com>
+Message-ID: <20250123144627.312456-7-imbrenda@linux.ibm.com>
 ---
- Documentation/virt/kvm/api.rst   |  2 +-
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/kvm-s390.c         | 17 ++++++++++++++++-
- arch/s390/kvm/kvm-s390.h         |  2 ++
- 4 files changed, 21 insertions(+), 2 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 126 ++++++++++++++++++++++++++++++---------
+ arch/s390/kvm/kvm-s390.h |   6 ++
+ arch/s390/mm/gmap.c      |   1 +
+ 3 files changed, 106 insertions(+), 27 deletions(-)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 0d1c3a820ce6..2b52eb77e29c 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -1419,7 +1419,7 @@ fetch) is injected in the guest.
- S390:
- ^^^^^
- 
--Returns -EINVAL if the VM has the KVM_VM_S390_UCONTROL flag set.
-+Returns -EINVAL or -EEXIST if the VM has the KVM_VM_S390_UCONTROL flag set.
- Returns -EINVAL if called on a protected VM.
- 
- 4.36 KVM_SET_TSS_ADDR
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 4581388411b7..9a367866cab0 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -30,6 +30,8 @@
- #define KVM_S390_ESCA_CPU_SLOTS 248
- #define KVM_MAX_VCPUS 255
- 
-+#define KVM_INTERNAL_MEM_SLOTS 1
-+
- /*
-  * These seem to be used for allocating ->chip in the routing table, which we
-  * don't use. 1 is as small as we can get to reduce the needed memory. If we
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index ecbdd7d41230..fc44002a7b04 100644
+index a25ca440760f..70c98bf12754 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -3428,8 +3428,20 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	VM_EVENT(kvm, 3, "vm created with type %lu", type);
+@@ -4786,11 +4786,104 @@ static void kvm_s390_assert_primary_as(struct kvm_vcpu *vcpu)
+ 		current->thread.gmap_int_code, current->thread.gmap_teid.val);
+ }
  
- 	if (type & KVM_VM_S390_UCONTROL) {
-+		struct kvm_userspace_memory_region2 fake_memslot = {
-+			.slot = KVM_S390_UCONTROL_MEMSLOT,
-+			.guest_phys_addr = 0,
-+			.userspace_addr = 0,
-+			.memory_size = ALIGN_DOWN(TASK_SIZE, _SEGMENT_SIZE),
-+			.flags = 0,
-+		};
++/*
++ * __kvm_s390_handle_dat_fault() - handle a dat fault for the gmap of a vcpu
++ * @vcpu: the vCPU whose gmap is to be fixed up
++ * @gfn: the guest frame number used for memslots (including fake memslots)
++ * @gaddr: the gmap address, does not have to match @gfn for ucontrol gmaps
++ * @flags: FOLL_* flags
++ *
++ * Return: 0 on success, < 0 in case of error.
++ * Context: The mm lock must not be held before calling. May sleep.
++ */
++int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, unsigned int flags)
++{
++	struct kvm_memory_slot *slot;
++	unsigned int fault_flags;
++	bool writable, unlocked;
++	unsigned long vmaddr;
++	struct page *page;
++	kvm_pfn_t pfn;
++	int rc;
 +
- 		kvm->arch.gmap = NULL;
- 		kvm->arch.mem_limit = KVM_S390_NO_MEM_LIMIT;
-+		/* one flat fake memslot covering the whole address-space */
-+		mutex_lock(&kvm->slots_lock);
-+		KVM_BUG_ON(kvm_set_internal_memslot(kvm, &fake_memslot), kvm);
-+		mutex_unlock(&kvm->slots_lock);
- 	} else {
- 		if (sclp.hamax == U64_MAX)
- 			kvm->arch.mem_limit = TASK_SIZE_MAX;
-@@ -5854,7 +5866,7 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
- {
- 	gpa_t size;
- 
--	if (kvm_is_ucontrol(kvm))
-+	if (kvm_is_ucontrol(kvm) && new->id < KVM_USER_MEM_SLOTS)
- 		return -EINVAL;
- 
- 	/* When we are protected, we should not change the memory slots */
-@@ -5906,6 +5918,9 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- {
- 	int rc = 0;
- 
-+	if (kvm_is_ucontrol(kvm))
-+		return;
++	slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
++	if (!slot || slot->flags & KVM_MEMSLOT_INVALID)
++		return vcpu_post_run_addressing_exception(vcpu);
 +
- 	switch (change) {
- 	case KVM_MR_DELETE:
- 		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
++	fault_flags = flags & FOLL_WRITE ? FAULT_FLAG_WRITE : 0;
++	if (vcpu->arch.gmap->pfault_enabled)
++		flags |= FOLL_NOWAIT;
++	vmaddr = __gfn_to_hva_memslot(slot, gfn);
++
++try_again:
++	pfn = __kvm_faultin_pfn(slot, gfn, flags, &writable, &page);
++
++	/* Access outside memory, inject addressing exception */
++	if (is_noslot_pfn(pfn))
++		return vcpu_post_run_addressing_exception(vcpu);
++	/* Signal pending: try again */
++	if (pfn == KVM_PFN_ERR_SIGPENDING)
++		return -EAGAIN;
++
++	/* Needs I/O, try to setup async pfault (only possible with FOLL_NOWAIT) */
++	if (pfn == KVM_PFN_ERR_NEEDS_IO) {
++		trace_kvm_s390_major_guest_pfault(vcpu);
++		if (kvm_arch_setup_async_pf(vcpu))
++			return 0;
++		vcpu->stat.pfault_sync++;
++		/* Could not setup async pfault, try again synchronously */
++		flags &= ~FOLL_NOWAIT;
++		goto try_again;
++	}
++	/* Any other error */
++	if (is_error_pfn(pfn))
++		return -EFAULT;
++
++	/* Success */
++	mmap_read_lock(vcpu->arch.gmap->mm);
++	/* Mark the userspace PTEs as young and/or dirty, to avoid page fault loops */
++	rc = fixup_user_fault(vcpu->arch.gmap->mm, vmaddr, fault_flags, &unlocked);
++	if (!rc)
++		rc = __gmap_link(vcpu->arch.gmap, gaddr, vmaddr);
++	scoped_guard(spinlock, &vcpu->kvm->mmu_lock) {
++		kvm_release_faultin_page(vcpu->kvm, page, false, writable);
++	}
++	mmap_read_unlock(vcpu->arch.gmap->mm);
++	return rc;
++}
++
++static int vcpu_dat_fault_handler(struct kvm_vcpu *vcpu, unsigned long gaddr, unsigned int flags)
++{
++	unsigned long gaddr_tmp;
++	gfn_t gfn;
++
++	gfn = gpa_to_gfn(gaddr);
++	if (kvm_is_ucontrol(vcpu->kvm)) {
++		/*
++		 * This translates the per-vCPU guest address into a
++		 * fake guest address, which can then be used with the
++		 * fake memslots that are identity mapping userspace.
++		 * This allows ucontrol VMs to use the normal fault
++		 * resolution path, like normal VMs.
++		 */
++		mmap_read_lock(vcpu->arch.gmap->mm);
++		gaddr_tmp = __gmap_translate(vcpu->arch.gmap, gaddr);
++		mmap_read_unlock(vcpu->arch.gmap->mm);
++		if (gaddr_tmp == -EFAULT) {
++			vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
++			vcpu->run->s390_ucontrol.trans_exc_code = gaddr;
++			vcpu->run->s390_ucontrol.pgm_code = PGM_SEGMENT_TRANSLATION;
++			return -EREMOTE;
++		}
++		gfn = gpa_to_gfn(gaddr_tmp);
++	}
++	return __kvm_s390_handle_dat_fault(vcpu, gfn, gaddr, flags);
++}
++
+ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ {
+ 	unsigned int flags = 0;
+ 	unsigned long gaddr;
+-	int rc = 0;
+ 
+ 	gaddr = current->thread.gmap_teid.addr * PAGE_SIZE;
+ 	if (kvm_s390_cur_gmap_fault_is_write())
+@@ -4842,37 +4935,14 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 	case PGM_REGION_SECOND_TRANS:
+ 	case PGM_REGION_THIRD_TRANS:
+ 		kvm_s390_assert_primary_as(vcpu);
+-		if (vcpu->arch.gmap->pfault_enabled) {
+-			rc = gmap_fault(vcpu->arch.gmap, gaddr, flags | FAULT_FLAG_RETRY_NOWAIT);
+-			if (rc == -EFAULT)
+-				return vcpu_post_run_addressing_exception(vcpu);
+-			if (rc == -EAGAIN) {
+-				trace_kvm_s390_major_guest_pfault(vcpu);
+-				if (kvm_arch_setup_async_pf(vcpu))
+-					return 0;
+-				vcpu->stat.pfault_sync++;
+-			} else {
+-				return rc;
+-			}
+-		}
+-		rc = gmap_fault(vcpu->arch.gmap, gaddr, flags);
+-		if (rc == -EFAULT) {
+-			if (kvm_is_ucontrol(vcpu->kvm)) {
+-				vcpu->run->exit_reason = KVM_EXIT_S390_UCONTROL;
+-				vcpu->run->s390_ucontrol.trans_exc_code = gaddr;
+-				vcpu->run->s390_ucontrol.pgm_code = 0x10;
+-				return -EREMOTE;
+-			}
+-			return vcpu_post_run_addressing_exception(vcpu);
+-		}
+-		break;
++		return vcpu_dat_fault_handler(vcpu, gaddr, flags);
+ 	default:
+ 		KVM_BUG(1, vcpu->kvm, "Unexpected program interrupt 0x%x, TEID 0x%016lx",
+ 			current->thread.gmap_int_code, current->thread.gmap_teid.val);
+ 		send_sig(SIGSEGV, current, 0);
+ 		break;
+ 	}
+-	return rc;
++	return 0;
+ }
+ 
+ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+@@ -5751,7 +5821,9 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 	}
+ #endif
+ 	case KVM_S390_VCPU_FAULT: {
+-		r = gmap_fault(vcpu->arch.gmap, arg, 0);
++		idx = srcu_read_lock(&vcpu->kvm->srcu);
++		r = vcpu_dat_fault_handler(vcpu, arg, 0);
++		srcu_read_unlock(&vcpu->kvm->srcu, idx);
+ 		break;
+ 	}
+ 	case KVM_ENABLE_CAP:
 diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 597d7a71deeb..30736ac16f84 100644
+index 30736ac16f84..3be5291723c8 100644
 --- a/arch/s390/kvm/kvm-s390.h
 +++ b/arch/s390/kvm/kvm-s390.h
-@@ -20,6 +20,8 @@
- #include <asm/processor.h>
- #include <asm/sclp.h>
- 
-+#define KVM_S390_UCONTROL_MEMSLOT (KVM_USER_MEM_SLOTS + 0)
+@@ -410,6 +410,12 @@ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu);
+ void kvm_s390_set_cpu_timer(struct kvm_vcpu *vcpu, __u64 cputm);
+ __u64 kvm_s390_get_cpu_timer(struct kvm_vcpu *vcpu);
+ int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rc, u16 *rrc);
++int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, unsigned int flags);
 +
- static inline void kvm_s390_fpu_store(struct kvm_run *run)
- {
- 	fpu_stfpc(&run->s.regs.fpc);
++static inline int kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gpa_t gaddr, unsigned int flags)
++{
++	return __kvm_s390_handle_dat_fault(vcpu, gpa_to_gfn(gaddr), gaddr, flags);
++}
+ 
+ /* implemented in diag.c */
+ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 3e6e25119a96..bfaba7733306 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -605,6 +605,7 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 	radix_tree_preload_end();
+ 	return rc;
+ }
++EXPORT_SYMBOL(__gmap_link);
+ 
+ /**
+  * fixup_user_fault_nowait - manually resolve a user page fault without waiting
 -- 
 2.48.1
 
