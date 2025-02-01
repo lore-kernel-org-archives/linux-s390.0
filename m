@@ -1,135 +1,170 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-il1-f175.google.com (mail-il1-f175.google.com [209.85.166.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75FB225760;
-	Sat,  1 Feb 2025 11:34:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AF551BBBD4
+	for <linux-s390@vger.kernel.org>; Sat,  1 Feb 2025 16:12:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738409652; cv=none; b=Z8TE8lhCjCZXflp/J2F9zO17vwYPJZuex8qNB0CK9V/lxulhYf9tqq/ipGMKneMuZZvD61TWv4VKZXiothOAQ6iFcvzT3tShpcUeFshLxEfL3+m6jt4Kcbp6aDmJsGIb829B/D+vpl0XWS7eY235hKdvK/fMM73xOMhBGamLO3w=
+	t=1738426373; cv=none; b=Cf3vdv+JGQxVtyTj3D1xBhGjRyteo0g0ZJe+IERcQ9Dk3KiSfh8Owc3a41ppZK05j+3tdZ79+RpM73S+zNOBMaSMweRmPUL9bO3rfk8z/Pc4heWv5XvIv4FFdE699v1XZz1VTfM6NRCe5lg2t9Ch8fYAKgEuVqHyDmMtG41IpU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738409652; c=relaxed/simple;
-	bh=2E0q54b3eypL3Ri2OP5FYkG06AqSFV2huCTuS8ngfn0=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AxiN/2OiCv76aJyH4MgMxzDPoqv9/av/aZSluWis7qsZvqDcTycpfucVwpuPlXilQ9EhGzb2IyBZvuzLcsRqrXdDNB2L8aCy8l8fBEPisBeW9EZ9tbcP0FtmZhgwX/3tKui+2gjwTEuxhTffY1rHZkj3XQZXmVaPdKmovELa8NI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gaqgJn8S; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1738426373; c=relaxed/simple;
+	bh=pWDy+G/FLFskjOChqfF5xxOtF+kpej0KMJdyHy1d2pY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=c2nwsMNqOlp4f/ZVZeHUQ/Zl5h5PgVt0Gu51hE6uXrd0CsEcJRsPnZqEFLHRcLcQ2uRXhgeZhRw7gp93a8Pz8ItFgX887LbshgbFBMUkuONdjnAdTF/W0fRuOvoz6o2Ma10O02cW24m5pTJ+dMofCCqAAOw0EcD5j47VcjN2zlI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qPxU10qp; arc=none smtp.client-ip=209.85.166.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gaqgJn8S"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-436281c8a38so20555985e9.3;
-        Sat, 01 Feb 2025 03:34:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qPxU10qp"
+Received: by mail-il1-f175.google.com with SMTP id e9e14a558f8ab-3a814c54742so119715ab.1
+        for <linux-s390@vger.kernel.org>; Sat, 01 Feb 2025 08:12:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738409647; x=1739014447; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+        d=google.com; s=20230601; t=1738426371; x=1739031171; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=PQomFJ4ChnU4fj4lFRCI9h/dmZzlSZdFogkPyQv5YjU=;
-        b=gaqgJn8Scloe+tZ8749PO59kUBdJNUScqXUjE1WmLFoBB5ppceXLLNg66B9R4+fAbL
-         EITRwIgjzBCGv0YR+ZDFzgddUKGXLVC+qnFU/H68ZHnJWTswPHWt1W8KeNvqpqWYDr0+
-         YJJMvSGK//+wGtrHervyzvA7lo7LMCTkUkloac5hUWzLHmlrHcbtuUEoFQT/b+AY9W+G
-         FhNUwnSTJ5FJyGFQQdbT+sYh/kWclfs+Cg1X/xUiFsIwo5fSTgj6BVQOClJk5Hql/bk2
-         Qi1bRDxFdurF4+7hlUtX/YxbfSijtbVPHH/WCnJYvxzlARKN9ekG0l9Jc4Q4oA7H+nEl
-         G3ig==
+        bh=OQaWCOfcTD7adap/jkek4EJcOFfU4JZ7fPFMN3rMGUQ=;
+        b=qPxU10qpZBTjdNJaV/n0WcNk6q6RfHgsNr9U1kcYSeHrXi7eLSLoQWWd1VIOipwoVx
+         JX9fhpjZa2nm+Dwd4sL0wJZnoQUZTyzxGSSJeZ60EGwRanWEKpOxovgn4RXMXWqHBi/W
+         p10H+cnf3w+B6cUSz1HzmoZ6tGSY7eoypXCZXzJa4DjaxX8+Ii7FofZkYMrMO++vtfAn
+         rloHcgZA67cZuIO5DrbGp1S0bdQUx8Yz2rrl7gNwUP5aWKzw3BO2C1nOj+ys3ke3Fsl8
+         xiMOODGosRZY4QSNkt5j6Jd1j7kJxhfRa5d5Eg89Y2bloLOfxLRRwf5MwBx5ujLM3Elx
+         ZTGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738409647; x=1739014447;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1738426371; x=1739031171;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=PQomFJ4ChnU4fj4lFRCI9h/dmZzlSZdFogkPyQv5YjU=;
-        b=fspzqWyWv0snFhkw8GzJS1xjKFUx9vBVLo+9qKf+Ei2nG3QgVWvG+2k7KJKgOT8HMu
-         PCbrCqPQ9oRNxE/hCT7kYj5uEn1oMEv3fRB1k19Z6y2hBg/Zlb6qhdINk7PB0XlIjaPG
-         lJI010VQ6luFQAUy2IGOqDK3j+lgwbjkJvSdYHilv7NcZ7JjKDAhO3GEuKu6jETzDcmx
-         htBCUEZmp+GMK70JeY3LUt/dlIdLAXN1dVNtWwgi+8H8my7Bm1w0ksOM54bc9Qv4e9vh
-         F7dMB3l6gRAGbbWYIBKyjpK/oRBSuN2y34DoHj3cVwRVJkNXFamz8iQJtNf/lr+NYQBH
-         2pVA==
-X-Forwarded-Encrypted: i=1; AJvYcCWu8xynsBUcHEZr4pQA26nv17LKh58HhddbdcO+GWMc4zBfU6ePdQXEorQuBMsiCo+6oxfcqQp183kuCcBfYuPQ@vger.kernel.org, AJvYcCX3ry8p+mbQEv1E+5Dy5DnhGTXPWxueEY/TgWev8lq4aonf2c3WgG11bxgbL0P+uPxGVV7/m5PZtTyBcQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwHJvCd3Xt88bG0qOyf/XcCW99mSiyDZ+F2EhfS1Qp/qB9tYOEG
-	jGW3UqHqZ/qqostfqcz0E2bccW38JA6WdHCN5KR/6xqAo5+7ec5y
-X-Gm-Gg: ASbGncvKKXAppBRLJ2pqwHvI7X6kJCglHY+ztpD/aS+OAdopxuX5RTO2guUEd7pFmH6
-	DjML5Re5KJvaY2C9YA9EHsz0JntBaj1fPSidklmNycW+9FPR5HPvRI8jH/AZcZnDjAGp0Lxkl8S
-	sq6OO2n/WVitutsT7bV1vXMN1SY18SagIAI9R5CQPGPG1J3m1JQ9AHrgxsWoskBKu/7JXQrQ2lh
-	alejYpHnV3KT8G0Y3Z7a1q5/AiIYZDYuGfl/S37VBPuioyHPlxIRhB5oMTJcMR+XLnC5PoFOSxE
-	Vhc9RY3kSTZUF5C3OMxJj28jevKpgdA/9OeAVOvjIregrdB6MGfF4Q==
-X-Google-Smtp-Source: AGHT+IFnnAAw3xF3oDUKUQhc4FZRLZaD+TRflMNSpfR1uTA1CXslNeBfeoL7eV4BqL2DdUjlQsg+Fw==
-X-Received: by 2002:a5d:6d0c:0:b0:38a:88b8:97a9 with SMTP id ffacd0b85a97d-38c51949b38mr11350742f8f.2.1738409647375;
-        Sat, 01 Feb 2025 03:34:07 -0800 (PST)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38c5c0ecc80sm7224343f8f.16.2025.02.01.03.34.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Feb 2025 03:34:07 -0800 (PST)
-Date: Sat, 1 Feb 2025 11:34:06 +0000
-From: David Laight <david.laight.linux@gmail.com>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
- irogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
- sumanthk@linux.ibm.com, hca@linux.ibm.com
-Subject: Re: [PATCH] perf test: Fix perf test 11 hwmon endianess issue
-Message-ID: <20250201113406.4312a601@pumpkin>
-In-Reply-To: <20250131112400.568975-1-tmricht@linux.ibm.com>
-References: <20250131112400.568975-1-tmricht@linux.ibm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        bh=OQaWCOfcTD7adap/jkek4EJcOFfU4JZ7fPFMN3rMGUQ=;
+        b=gdY8n1ELTDr/o/4zmbQ3aOZuEPqw27jZUaXWsdPm3LlsXBYJcNKc+MCrBQ3XJDac68
+         xCseBrFB5XS6E69kgIsZ675IW2wSvNaTJoWgnC7+9/QxjCbIQtP32Nh50RKh62FYtQt0
+         xcxjSAnIPDs2UH+lOdnUHN66kzMdUmhAMdRSUFu6MG+EP7dX2dBGGmSf945uCk3Mn9fR
+         nSMagrPPmvD2+2EAYmgtzQSe4cqv5rNIl++hF4EHrkVrbVTZBaSrCgjnVUM90R6I09Q9
+         QgI6SU1E0ZEyyXNQMLuiYZdKcfCULhUa/6aYJoPzMzYWUTdRopeBvOwvgeSAILZH55CC
+         bBGA==
+X-Forwarded-Encrypted: i=1; AJvYcCXM6gYlARZ6s0UVBI80n3oc89Y9xkQoLi8MZawn+bbZWrWWraHnyTWTG6FE/EBm3PBjjqU4qDt1f42X@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyizo99tbkXeV+K2NWSgdWfQX6t2Iz0TGjB2oIjM+h3Inzvwlso
+	cLTQXrnHD5Plv4OoJ3sPOw9h0zwbHzcqoDAy3tXC7BKqEGkDloG9uMN8UJrpgNL48SsKi97CfKK
+	FJdwgeL9tcMglpsxYoI4idy5crgqq3HynbrX0
+X-Gm-Gg: ASbGnctY2Kuf43TaXnisHYDU4RT7jyULduHyRi/mPvs+34NDeegCO9ce00xXnNkuGqn
+	BrotmiQ/WlAJ1qclckNUa3Y2TVgIx8FjjwMRdu+XkreZMf4MTaBZLSBJj/sXkIlxNT9vutrAV0A
+	==
+X-Google-Smtp-Source: AGHT+IF69bDr95smn4mmnZECR1b515k/xT3KInxWdsf6LEn1q52wgteTdkisoJ0CBgqKIxsr5onZsHFEdOuEee/fhVA=
+X-Received: by 2002:a05:6e02:152f:b0:3ce:2f93:a02b with SMTP id
+ e9e14a558f8ab-3d020178852mr2330315ab.12.1738426371027; Sat, 01 Feb 2025
+ 08:12:51 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20250131112400.568975-1-tmricht@linux.ibm.com> <20250201113406.4312a601@pumpkin>
+In-Reply-To: <20250201113406.4312a601@pumpkin>
+From: Ian Rogers <irogers@google.com>
+Date: Sat, 1 Feb 2025 08:12:38 -0800
+X-Gm-Features: AWEUYZlyxxB7qS1nrQjz_09CTMxeBkAZdRVUEc3B_GIHgRt9jOtoTPNp3J6x-Zg
+Message-ID: <CAP-5=fUOS6ZmfVdzwNL6+5VfUr9fms0zE4FXW6vsRqSfS9F7sA@mail.gmail.com>
+Subject: Re: [PATCH] perf test: Fix perf test 11 hwmon endianess issue
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
+	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	sumanthk@linux.ibm.com, hca@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 31 Jan 2025 12:24:00 +0100
-Thomas Richter <tmricht@linux.ibm.com> wrote:
+On Sat, Feb 1, 2025 at 3:34=E2=80=AFAM David Laight
+<david.laight.linux@gmail.com> wrote:
+>
+> On Fri, 31 Jan 2025 12:24:00 +0100
+> Thomas Richter <tmricht@linux.ibm.com> wrote:
+>
+> > perf test 11 hwmon fails on s390 with this error
+> >
+> >  # ./perf test -Fv 11
+> >  --- start ---
+> >  ---- end ----
+> >  11.1: Basic parsing test             : Ok
+> >  --- start ---
+> >  Testing 'temp_test_hwmon_event1'
+> >  Using CPUID IBM,3931,704,A01,3.7,002f
+> >  temp_test_hwmon_event1 -> hwmon_a_test_hwmon_pmu/temp_test_hwmon_event=
+1/
+> >  FAILED tests/hwmon_pmu.c:189 Unexpected config for
+> >     'temp_test_hwmon_event1', 292470092988416 !=3D 655361
+> >  ---- end ----
+> >  11.2: Parsing without PMU name       : FAILED!
+> >  --- start ---
+> >  Testing 'hwmon_a_test_hwmon_pmu/temp_test_hwmon_event1/'
+> >  FAILED tests/hwmon_pmu.c:189 Unexpected config for
+> >     'hwmon_a_test_hwmon_pmu/temp_test_hwmon_event1/',
+> >     292470092988416 !=3D 655361
+> >  ---- end ----
+> >  11.3: Parsing with PMU name          : FAILED!
+> >  #
+> >
+> > The root cause is in member test_event::config which is initialized
+> > to 0xA0001 or 655361. During event parsing a long list event parsing
+> > functions are called and end up with this gdb call stack:
+> ...
+> > However member key::type_and_num is defined as union and bit field:
+> >
+> >    union hwmon_pmu_event_key {
+> >         long type_and_num;
+> >         struct {
+> >                 int num :16;
+> >                 enum hwmon_type type :8;
+> >         };
+> >    };
+>
+> That is entirely horrid.
 
-> perf test 11 hwmon fails on s390 with this error
-> 
->  # ./perf test -Fv 11
->  --- start ---
->  ---- end ----
->  11.1: Basic parsing test             : Ok
->  --- start ---
->  Testing 'temp_test_hwmon_event1'
->  Using CPUID IBM,3931,704,A01,3.7,002f
->  temp_test_hwmon_event1 -> hwmon_a_test_hwmon_pmu/temp_test_hwmon_event1/
->  FAILED tests/hwmon_pmu.c:189 Unexpected config for
->     'temp_test_hwmon_event1', 292470092988416 != 655361
->  ---- end ----
->  11.2: Parsing without PMU name       : FAILED!
->  --- start ---
->  Testing 'hwmon_a_test_hwmon_pmu/temp_test_hwmon_event1/'
->  FAILED tests/hwmon_pmu.c:189 Unexpected config for
->     'hwmon_a_test_hwmon_pmu/temp_test_hwmon_event1/',
->     292470092988416 != 655361
->  ---- end ----
->  11.3: Parsing with PMU name          : FAILED!
->  #
-> 
-> The root cause is in member test_event::config which is initialized
-> to 0xA0001 or 655361. During event parsing a long list event parsing
-> functions are called and end up with this gdb call stack:
-...
-> However member key::type_and_num is defined as union and bit field:
-> 
->    union hwmon_pmu_event_key {
->         long type_and_num;
->         struct {
->                 int num :16;
->                 enum hwmon_type type :8;
->         };
->    };
+It also has the side-effect that if you initialize the struct bits in
+the type_and_num will be undefined and sanitizers will try to trip you
+up.
 
-That is entirely horrid.
+> I'm surprised this even compiles:
+> static size_t hwmon_pmu__event_hashmap_hash(long key, void *ctx __maybe_u=
+nused)
+> {
+>         return ((union hwmon_pmu_event_key)key).type_and_num;
+> }
+> It has to be just 'return key', but I'm not sure what the hashmap code is=
+ doing.
+>
+> AFAICT the code is just trying to generate a value for the hashmap to has=
+h on?
+> Why not just use (type << 16 | num) instead of 'trying to be clever' with=
+ a union?
 
-I'm surprised this even compiles:
-static size_t hwmon_pmu__event_hashmap_hash(long key, void *ctx __maybe_unused)
-{
-	return ((union hwmon_pmu_event_key)key).type_and_num;
-}
-It has to be just 'return key', but I'm not sure what the hashmap code is doing.
+The purpose wasn't so much to be 'clever' as you say. Perf event
+configs, which is where type_and_num lives in the events, have their
+bitfields described either by convention or by files in
+/sys/devices/<pmu>/format. On an Intel laptop:
+```
+$ cat /sys/devices/cpu/format/inv
+config:23
+```
+So I can go:
+```
+$ perf stat -e 'inst_retired.any/inv=3D1/' true
 
-AFAICT the code is just trying to generate a value for the hashmap to hash on?
-Why not just use (type << 16 | num) instead of 'trying to be clever' with a union?
+Performance counter stats for 'true':
 
-	David
+        1,069,756      inst_retired.any/inv=3D1/
 
+      0.001539265 seconds time elapsed
 
+      0.001719000 seconds user
+      0.000000000 seconds sys
+```
+and the configuration of my inst_retired.any event now has bit 23 in
+the config set. Just as the format files try to break down what the
+bitfields within a config u64 are doing, the union was trying to do
+similar. Making an attempt to have the value be intention revealing
+which the shift and masking may lose, for example, by making it look
+like bits in the num could overlap with and modify the type.
+
+Thanks,
+Ian
