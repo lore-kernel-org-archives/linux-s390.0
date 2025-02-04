@@ -1,104 +1,97 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47D9120CCE1;
-	Tue,  4 Feb 2025 12:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B675213E6D;
+	Tue,  4 Feb 2025 14:39:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738673745; cv=none; b=mkrJrL3hdOPn8S5VcUlnXNnH8s/hH1Ped7Hf0egAQOhMGGWdnEpSqayEotRlQQx3fH7uE2sWq7rIJkT8bmVoTJgW9M9avgQXwulButs1f9shjhOE8sUrxDmhG16hmIHGcyUDXLUkeY6uEcOY73W3bKu4wd/EQIXq3/m3uRl0UVQ=
+	t=1738679985; cv=none; b=iG/XgdoPxJXjB8uUUbFCykD+KcRx9x7BmnUticJhflVJG3RkA6sPQ6EDQ9pyNwGNY02db8WNiea7EXoUem0wUXA8aETw3Rb/8hn2rHh5atgh2HW6FmyGVkU3CJg0/+3UMK53Wujqapffs8VovWw1pgYLOdk/fA51Cp9yWBqdKd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738673745; c=relaxed/simple;
-	bh=OGjwQuPfWetksAPEcycdLMVdfygEutePpDK2iVnlDkc=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=C/8axExxQ7wPC4hXCXyB7FDyI4GVF0TpmO/L5qEZsucXR5MB9kIAlNNpIuCPJLHUwIFf9IOG6uWJ5DGu6qN3doyT0rprOyI7uWkc/GR+QSHJIKmEiBfVj4bMFt00HThYYzn8Y/qSE1ZrEQexdHH4MRCCXP7I1vZz9Ng1vEacv1c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AAidGAkr; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738679985; c=relaxed/simple;
+	bh=5GlRqCCgL38eGq3w5B1EVvtJfT68wKhuqhLDhkNIORY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SLE8O43N/UzNPRaOa/YTE3zsChEPhHPZv5vDPYdlRRJJBna+1GmOfjF0dOy5bQexxWMYYJeoj0YfsUWLxN4BqqZG5rznvOqaRI/Am6+Fp0IoEc0969jFeGypbE1r0pdTnkdRrT0YjydIEQ4BwCzvM9bFgaHOoIBBFy/O9vpPz+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QOlIVxya; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AAidGAkr"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5147X9hA011331;
-	Tue, 4 Feb 2025 12:55:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=k0tDC6
-	qlek+GMfcSTjHy7j7g2ghMuipMt7SckPEgcgA=; b=AAidGAkrLjZHJb8EbfpMIO
-	5GH5Fi3mFQRk5859xEiaQSaYvTP5YOKUbvj2nXNrXLIjgtzoOvEI2z190gjzO4Hz
-	bOf7lJCGJS/AkE9T7j5Tpbm/N6NzB2nKedc6R7jpe3jAwnMxX6XE9I+0W/oTHU96
-	fIztAU7Svqr2qNRNTwHShKPere7UFG9V9ctDdzCJfCQvhOb8U/mDGYSV0lq3c73g
-	2i2gpFWyTUclcDLXC4ZmnMHxSFaJe0/L/bzoBeyC3cdr004sTDfkL2xIe4rt6LRR
-	DSJwl0uKz/CVd7PBwqScBxt/dmD9Im4dO6NbyMyEQPr0ZmSvQaE9VVXXQTk+GT0Q
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kekp1dj2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Feb 2025 12:55:42 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 514C8MJU024510;
-	Tue, 4 Feb 2025 12:55:42 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxxn3hnb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Feb 2025 12:55:42 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 514CtcVm58524096
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 4 Feb 2025 12:55:38 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4D30620043;
-	Tue,  4 Feb 2025 12:55:38 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2B2CB20040;
-	Tue,  4 Feb 2025 12:55:38 +0000 (GMT)
-Received: from t14-nrb (unknown [9.171.3.166])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  4 Feb 2025 12:55:38 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QOlIVxya"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C15C4CEDF;
+	Tue,  4 Feb 2025 14:39:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1738679984;
+	bh=5GlRqCCgL38eGq3w5B1EVvtJfT68wKhuqhLDhkNIORY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=QOlIVxyaBLo+lHYsH10tybJKfOnt5svziBQJzF1nxY03A7XXA8vsvp5Vo5t9w67eD
+	 zpZZce1FAgN6VAkh7/zWZAWmDNvzJRIvJTD+ew0LnIN5GuSygaXPcVNgyJXYHjLl2d
+	 d6KsSI04BUt4Am9PXlyp1XfnC7rtYBX8JSjKhbirAtuvgqEiFtQdhSqh2DulXdz5Zo
+	 6roYft+8AQlBd7nCImtST0+fGVRXiUHvuibaR9Yndql5XPGYQLXR8l6PFbbs+1a4fv
+	 5RB1BXPXOOpyOUccUlkfIRgjtoo99XTBiYSAVkwFpeGbn6fJHdZ2VrDT5KHcz5RByP
+	 1w0bWdrXdVBZg==
+Date: Tue, 4 Feb 2025 14:39:38 +0000
+From: Simon Horman <horms@kernel.org>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Aswin Karuvally <aswin@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>
+Subject: Re: [PATCH net-next] s390/net: Remove LCS driver
+Message-ID: <20250204143938.GE234677@kernel.org>
+References: <20250204103135.1619097-1-wintera@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 04 Feb 2025 13:55:37 +0100
-Message-Id: <D7JOEGIKCINO.1NX73MSQGVGYZ@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>,
-        <hca@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH] lib: s390x: css: Name inline assembly
- arguments and clean them up
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
-X-Mailer: aerc 0.18.2
-References: <20250204100339.28158-1-frankja@linux.ibm.com>
-In-Reply-To: <20250204100339.28158-1-frankja@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vGFXpT8pKvEmPrCDD7-aZbfgEGJdjMYk
-X-Proofpoint-GUID: vGFXpT8pKvEmPrCDD7-aZbfgEGJdjMYk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-04_06,2025-01-31_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- adultscore=0 lowpriorityscore=0 clxscore=1015 mlxscore=0 malwarescore=0
- spamscore=0 priorityscore=1501 phishscore=0 mlxlogscore=757 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
- definitions=main-2502040100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250204103135.1619097-1-wintera@linux.ibm.com>
 
-On Tue Feb 4, 2025 at 10:51 AM CET, Janosch Frank wrote:
-> @@ -215,9 +215,9 @@ static inline int xsch(unsigned long schid)
-> =20
->  	asm volatile(
->  		"	xsch\n"
-> -		"	ipm	%0\n"
-> -		"	srl	%0,28"
-> -		: "=3Dd" (cc)
-> +		"	ipm	%[cc]\n"
-> +		"	srl	%cc,28"
+On Tue, Feb 04, 2025 at 11:31:35AM +0100, Alexandra Winter wrote:
+> From: Aswin Karuvally <aswin@linux.ibm.com>
+> 
+> The original Open Systems Adapter (OSA) was introduced by IBM in the
+> mid-90s. These were then superseded by OSA-Express in 1999 which used
+> Queued Direct IO to greatly improve throughput. The newer cards
+> retained the older, slower non-QDIO (OSE) modes for compatibility with
+> older systems. In Linux, the lcs driver was responsible for cards
+> operating in the older OSE mode and the qeth driver was introduced to
+> allow the OSA-Express cards to operate in the newer QDIO (OSD) mode.
+> 
+> For an S390 machine from 1998 or later, there is no reason to use the
+> OSE mode and lcs driver as all OSA cards since 1999 provide the faster
+> OSD mode. As a result, it's been years since we have heard of a
+> customer configuration involving the lcs driver.
+> 
+> This patch removes the lcs driver. The technology it supports has been
+> obsolete for past 25+ years and is irrelevant for current use cases.
+> 
+> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+> Signed-off-by: Aswin Karuvally <aswin@linux.ibm.com>
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+> ---
+>  Documentation/arch/s390/driver-model.rst |    2 +-
+>  arch/s390/include/asm/irq.h              |    1 -
+>  arch/s390/kernel/irq.c                   |    1 -
+>  drivers/s390/net/Kconfig                 |   11 +-
+>  drivers/s390/net/Makefile                |    1 -
+>  drivers/s390/net/lcs.c                   | 2385 ----------------------
+>  drivers/s390/net/lcs.h                   |  342 ----
+>  7 files changed, 2 insertions(+), 2741 deletions(-)
+>  delete mode 100644 drivers/s390/net/lcs.c
+>  delete mode 100644 drivers/s390/net/lcs.h
 
-Should this be:
-		"	srl	%[cc],28"
-instead?
+Less is more :)
 
-With that fixed (if it needs fixing):
+Reviewed-by: Simon Horman <horms@kernel.org>
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+
