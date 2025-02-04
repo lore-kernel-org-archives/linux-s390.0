@@ -1,2953 +1,663 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A992207DE5;
-	Tue,  4 Feb 2025 10:31:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE49120B1EC
+	for <linux-s390@vger.kernel.org>; Tue,  4 Feb 2025 11:49:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738665120; cv=none; b=JyEl95dbjqkr3Eo9AAab6VbjchOHG/kMF+uTYxSuf8RI+jlfIQ5iiHHNebdbyuqdgCmfpnoyDl9KkeEu4NEohcM7aUDY9XZHMS9ay/RsunLtV3bxvCz9vYqLYutl5BrmmHzSGAvjhIrLxXNkl++tbzXPLEZIg3DNKT0E7OeArKA=
+	t=1738669799; cv=none; b=OTEzuCvVU/svXIqCrwp0xWBJmUbjsVSzwQkyL5fnP+WTg5s4YJ8awnoi/yT2oFQO5iHJrUIFmKfx3wqeRo7yhFec86ny8R2+w1EsfuHI3FCrdNyRHF6QCxWuLkCdxbyl/G6hHvlsWjqkv+JvWPhYQfBXnW8AbUUxl0Yvn620XkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738665120; c=relaxed/simple;
-	bh=KNo3oBj1JVV4Y9dj6geflO6Qlz+kJISJl5yK70RVx4c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eTO+dBGTX/Dyu36iLKKoEee26qkc91TF2D+eqUeh5qu1vVico++Y0NmTQNqf7tGv/9UOKmhhFCmC5M8TJ7KSNYvVRr6uG91kwmtqaxqmSQdkIS3t+9x6MJUfmSQ3Vdgxa0Q8Bo/ORVYk8m17oHki0LeFicKlDyB6tVqFMwmGJos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cEiXO3tG; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1738669799; c=relaxed/simple;
+	bh=Dhecr444B4gR5F3LAKu2yWsWgt7OvjvBLxR3m43r+Q8=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=hEl+fjT248QzMkp2jIk63lslyZugF/pTxZufmQckcxOV8QZ0Yz+heUow+hKWH1Vm+u+5vOznFWyl+RTvhwG8B/HFe5HJ8tPUrAMqykQs3nuAtcq49mUglbJgImKzF0vZDkvdkdr6S1WocUe+yaVf8DnEXburC06KF5gU3i3LlJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=A5QzLcX3; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cEiXO3tG"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 514216uP008074;
-	Tue, 4 Feb 2025 10:31:42 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="A5QzLcX3"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5144E09u016507;
+	Tue, 4 Feb 2025 11:49:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=fq8nuIIetTtpGDVN29HF6lAHGsZDLSlskr2Zi3nSf
-	cg=; b=cEiXO3tG1UJgveg5/ux5DM5nvjzM8Yjsfn0usrkddkLN7zIKwfLFBR7fF
-	XfsJMERYHdQrEvAl6rZ7WiWBMVsJbMkEkPrSAqAcWoWj6OxmAZz4CvViFW6T44bo
-	usf6iWnWoJbIm1R38Wi9xQI3GTVSJg1NebgAI3mYl3KuO+RRC1aqTxvvznsOQk7J
-	SLNvqPcIsI0BS2EX/9rUVqXhyJiRUWufnbbzl2RHchbjdQcxKV9yNBzBo5Z8Zqh4
-	tSiUFq+/8W5XEWFaAIeWaugJqKhZRrSthWFYpTDCAiW6yaiUr9th4H8GvyXkimCX
-	t7n+HUzPsUtRu5v6+3xbYmK6HGbHQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44k9r0sxpp-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=rMUM6+oVEaevKVFcJu5m50Fud3M90fQN5O9XUjHRrMg=; b=A5QzLcX34egE
+	gK8lbajvNKGSlZgoqy01LkoOfUkPBbjTimJHa6vuKP7hp0N9yHqnmFIWBxMjiUFT
+	UvTlmSqEDWwqGAIqayaCrA4CV6tERb2ermn8SCmBODwmwPwqMBEdp2gHyiZFkYF3
+	n4gilwPdiVUe8fN7eAT+XCMEaa9lUKOwvskexri36m/8d9sJE6dBFj5AftE307G2
+	Oa9vC4BtohAWFNt2eDsOj5A0MtYG2FzjSvsNnKUmoOWp64+4nXvScIz5geGfB99i
+	WSEGs6VwPDMvIDhj6kduCCROznX+KB5rfZjIuiBd7TJpfwqTQ8ouJrAnXs/fi1zT
+	+u2gQK4OMg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44k02yna7g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Feb 2025 10:31:42 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 514APDTb031996;
-	Tue, 4 Feb 2025 10:31:41 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44k9r0sxpj-1
+	Tue, 04 Feb 2025 11:49:44 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5149UdDf005277;
+	Tue, 4 Feb 2025 11:49:43 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44j05ju2u7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Feb 2025 10:31:41 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5147K3wk016297;
-	Tue, 4 Feb 2025 10:31:40 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44hwxsb6s8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 04 Feb 2025 10:31:40 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 514AVapX56557834
+	Tue, 04 Feb 2025 11:49:43 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 514BngUf26346008
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 4 Feb 2025 10:31:36 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5B12D200D6;
-	Tue,  4 Feb 2025 10:31:36 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 824C6200DC;
-	Tue,  4 Feb 2025 10:31:35 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  4 Feb 2025 10:31:35 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-	id 30842E0471; Tue, 04 Feb 2025 11:31:35 +0100 (CET)
-From: Alexandra Winter <wintera@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Aswin Karuvally <aswin@linux.ibm.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: [PATCH net-next] s390/net: Remove LCS driver
-Date: Tue,  4 Feb 2025 11:31:35 +0100
-Message-ID: <20250204103135.1619097-1-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	Tue, 4 Feb 2025 11:49:42 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31B1258067;
+	Tue,  4 Feb 2025 11:49:42 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8910C58063;
+	Tue,  4 Feb 2025 11:49:41 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Feb 2025 11:49:41 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Tue, 04 Feb 2025 12:49:41 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, agk@redhat.com,
+        snitzer@kernel.org, linux-s390@vger.kernel.org,
+        dm-devel@lists.linux.dev, herbert@gondor.apana.org.au
+Subject: Re: [PATCH v3 2/2] dm-integrity: introduce ahash support for the
+ internal hash
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <1743b5fc-f401-c416-5733-6757bda963ca@redhat.com>
+References: <20250131100304.932064-1-freude@linux.ibm.com>
+ <20250131100304.932064-3-freude@linux.ibm.com>
+ <1743b5fc-f401-c416-5733-6757bda963ca@redhat.com>
+Message-ID: <50719156cbdb7621cfc141a3c64b56a7@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NOrUFgRvo2PRnFWk_bHWf9f3LrhJLPHV
-X-Proofpoint-GUID: yQA_4pK4IYx0hNtlaOePQnGNUGfKF7iZ
+X-Proofpoint-GUID: waTnTecPc7vrLLqIWucP0EpaWj-E1P-j
+X-Proofpoint-ORIG-GUID: waTnTecPc7vrLLqIWucP0EpaWj-E1P-j
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-02-04_05,2025-01-31_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
- suspectscore=0 lowpriorityscore=0 mlxlogscore=999 phishscore=0
- clxscore=1011 adultscore=0 spamscore=0 mlxscore=0 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502040084
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 mlxlogscore=999 spamscore=0 clxscore=1015
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 adultscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
+ definitions=main-2502040092
 
-From: Aswin Karuvally <aswin@linux.ibm.com>
+On 2025-02-03 21:17, Mikulas Patocka wrote:
+> Hi
+> 
+> I looked at the patch and found two problems:
+> 
+> 1. dm_integrity_end_io may be called in an interrupt context, so it
+> shouldn't call the ahash version of integrity_sector_checksum. It 
+> should
+> call the shash version. So, the shash version should be available even
+> when using ahash.
+> 
 
-The original Open Systems Adapter (OSA) was introduced by IBM in the
-mid-90s. These were then superseded by OSA-Express in 1999 which used
-Queued Direct IO to greatly improve throughput. The newer cards
-retained the older, slower non-QDIO (OSE) modes for compatibility with
-older systems. In Linux, the lcs driver was responsible for cards
-operating in the older OSE mode and the qeth driver was introduced to
-allow the OSA-Express cards to operate in the newer QDIO (OSD) mode.
+This comes down to the point that dm_integrity_end_io always() requires 
+a
+synchronous hash (maybe also with the CRYPTO_ALG_ALLOCATES_MEMORY flag 
+set).
+According to Herbert Xu an shash must support an "atomic" context which
+in the end means no sleeping (no kmalloc, no mutex, no completion, no 
+sleep).
+Such an implementation is not possible as our phmac cpacf instruction 
+set
+works with "protected keys" which may at any point in time get invalid 
+and
+need re-derive. However, the very same applies to all types of hardware
+based keys. Think about a KVM guest migration to another machine.
 
-For an S390 machine from 1998 or later, there is no reason to use the
-OSE mode and lcs driver as all OSA cards since 1999 provide the faster
-OSD mode. As a result, it's been years since we have heard of a
-customer configuration involving the lcs driver.
+In the end that's a no go for using ahashes with dm-integrity with
+the current code base - for all hash implementations which are only
+available as an asynch version. It does not make any sense at all to
+improve the dm-integrity code base to support ahashes when there is
+always the need to provide an shash as well. But why then use an ahash
+in the first place?
 
-This patch removes the lcs driver. The technology it supports has been
-obsolete for past 25+ years and is irrelevant for current use cases.
+> 2. There's a problem with memory allocation. You shouldn't allocate any
+> memory from I/O processing path. Suppose that the user is swapping to a
+> swap device that is backed by dm-integrity. If the system runs out of
+> memory, it attempts to write some pages to the swap device, this 
+> triggers
+> memory allocation (see ahash_request_alloc and kmalloc in your patch).
+> This memory allocation will wait until some memory is available, 
+> causing a
+> deadlock.
+> 
+> "sector_le = kmalloc(sizeof(__le64), GFP_KERNEL);"
+> 
+> - this field may be moved to the struct dm_integrity_io, you don't need 
+> to
+> allocate it at all. Note that struct dm_integrity_io is already 
+> allocated
+> from a mempool, so there is forward progress guarantee even if the 
+> system
+> has no free memory.
+> 
+> "req = ahash_request_alloc(ic->internal_ahash, GFP_KERNEL);"
+> 
+> - this may be moved after struct dm_integrity_io. I.e. change:
+> "ti->per_io_data_size = sizeof(struct dm_integrity_io)" to
+> "ti->per_io_data_size = sizeof(struct dm_integrity_io) + sizeof(struct
+> ahash_request) + crypto_ahash_reqsize(tfm)".
+> 
+> Then, instead of calling "req = ahash_request_alloc", you can do
+> req = (struct ahash_request *)(dio + 1);
+> 
+> integrity_sector_checksum is also called from code where there is no
+> associated "dm_integrity_io" (such as integrity_recalc_inline,
+> integrity_recalc) - in this situation, you can preallocate a dummy
+> dm_integrity_io structure before you take any locks (i.e. "dio =
+> kmalloc(sizeof(struct dm_integrity_io) + sizeof(struct ahash_request) +
+> crypto_ahash_reqsize(tfm), GFP_NOIO)". If you allocated it while 
+> holding
+> the range lock, the deadlock may be possible.
+> 
+> Another place where integrity_sector_checksum is called without
+> "dm_integrity_io" is do_journal_write - in this case, you can use the
+> synchronous hash version because it is not performance-critical.
+> 
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Aswin Karuvally <aswin@linux.ibm.com>
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- Documentation/arch/s390/driver-model.rst |    2 +-
- arch/s390/include/asm/irq.h              |    1 -
- arch/s390/kernel/irq.c                   |    1 -
- drivers/s390/net/Kconfig                 |   11 +-
- drivers/s390/net/Makefile                |    1 -
- drivers/s390/net/lcs.c                   | 2385 ----------------------
- drivers/s390/net/lcs.h                   |  342 ----
- 7 files changed, 2 insertions(+), 2741 deletions(-)
- delete mode 100644 drivers/s390/net/lcs.c
- delete mode 100644 drivers/s390/net/lcs.h
+I see where all this leads to - all memory needs to be pre-allocated.
+Thanks for this deep dive and all the hints to work around this.
 
-diff --git a/Documentation/arch/s390/driver-model.rst b/Documentation/arch/s390/driver-model.rst
-index ad4bc2dbea43..ad18f129fb0b 100644
---- a/Documentation/arch/s390/driver-model.rst
-+++ b/Documentation/arch/s390/driver-model.rst
-@@ -244,7 +244,7 @@ information about the interrupt from the irb parameter.
- --------------------
- 
- The ccwgroup mechanism is designed to handle devices consisting of multiple ccw
--devices, like lcs or ctc.
-+devices, like qeth or ctc.
- 
- The ccw driver provides a 'group' attribute. Piping bus ids of ccw devices to
- this attributes creates a ccwgroup device consisting of these ccw devices (if
-diff --git a/arch/s390/include/asm/irq.h b/arch/s390/include/asm/irq.h
-index d9e705f4a697..bde6a496df5f 100644
---- a/arch/s390/include/asm/irq.h
-+++ b/arch/s390/include/asm/irq.h
-@@ -54,7 +54,6 @@ enum interruption_class {
- 	IRQIO_C70,
- 	IRQIO_TAP,
- 	IRQIO_VMR,
--	IRQIO_LCS,
- 	IRQIO_CTC,
- 	IRQIO_ADM,
- 	IRQIO_CSC,
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index ef7be599e1f7..7ca157ffab30 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -84,7 +84,6 @@ static const struct irq_class irqclass_sub_desc[] = {
- 	{.irq = IRQIO_C70,  .name = "C70", .desc = "[I/O] 3270"},
- 	{.irq = IRQIO_TAP,  .name = "TAP", .desc = "[I/O] Tape"},
- 	{.irq = IRQIO_VMR,  .name = "VMR", .desc = "[I/O] Unit Record Devices"},
--	{.irq = IRQIO_LCS,  .name = "LCS", .desc = "[I/O] LCS"},
- 	{.irq = IRQIO_CTC,  .name = "CTC", .desc = "[I/O] CTC"},
- 	{.irq = IRQIO_ADM,  .name = "ADM", .desc = "[I/O] EADM Subchannel"},
- 	{.irq = IRQIO_CSC,  .name = "CSC", .desc = "[I/O] CHSC Subchannel"},
-diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
-index c61e6427384c..9eb9e3c49f81 100644
---- a/drivers/s390/net/Kconfig
-+++ b/drivers/s390/net/Kconfig
-@@ -2,15 +2,6 @@
- menu "S/390 network device drivers"
- 	depends on NETDEVICES && S390
- 
--config LCS
--	def_tristate m
--	prompt "Lan Channel Station Interface"
--	depends on CCW && NETDEVICES && ETHERNET
--	help
--	  Select this option if you want to use LCS networking on IBM System z.
--	  To compile as a module, choose M. The module name is lcs.
--	  If you do not use LCS, choose N.
--
- config CTCM
- 	def_tristate m
- 	prompt "CTC and MPC SNA device support"
-@@ -98,7 +89,7 @@ config QETH_OSX
- 
- config CCWGROUP
- 	tristate
--	default (LCS || CTCM || QETH || SMC)
-+	default (CTCM || QETH || SMC)
- 
- config ISM
- 	tristate "Support for ISM vPCI Adapter"
-diff --git a/drivers/s390/net/Makefile b/drivers/s390/net/Makefile
-index bc55ec316adb..b5aaba290127 100644
---- a/drivers/s390/net/Makefile
-+++ b/drivers/s390/net/Makefile
-@@ -8,7 +8,6 @@ obj-$(CONFIG_CTCM) += ctcm.o fsm.o
- obj-$(CONFIG_NETIUCV) += netiucv.o fsm.o
- obj-$(CONFIG_SMSGIUCV) += smsgiucv.o
- obj-$(CONFIG_SMSGIUCV_EVENT) += smsgiucv_app.o
--obj-$(CONFIG_LCS) += lcs.o
- qeth-y += qeth_core_sys.o qeth_core_main.o qeth_core_mpc.o qeth_ethtool.o
- obj-$(CONFIG_QETH) += qeth.o
- qeth_l2-y += qeth_l2_main.o qeth_l2_sys.o
-diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
-deleted file mode 100644
-index 88db8378325a..000000000000
---- a/drivers/s390/net/lcs.c
-+++ /dev/null
-@@ -1,2385 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0+
--/*
-- *  Linux for S/390 LAN channel station device driver
-- *
-- *  Copyright IBM Corp. 1999, 2009
-- *  Author(s): Original Code written by
-- *			DJ Barrow <djbarrow@de.ibm.com,barrow_dj@yahoo.com>
-- *	       Rewritten by
-- *			Frank Pavlic <fpavlic@de.ibm.com> and
-- *			Martin Schwidefsky <schwidefsky@de.ibm.com>
-- */
--
--#define KMSG_COMPONENT		"lcs"
--#define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
--
--#include <linux/module.h>
--#include <linux/if.h>
--#include <linux/netdevice.h>
--#include <linux/etherdevice.h>
--#include <linux/inetdevice.h>
--#include <linux/in.h>
--#include <linux/igmp.h>
--#include <linux/delay.h>
--#include <linux/kthread.h>
--#include <linux/slab.h>
--#include <net/arp.h>
--#include <net/ip.h>
--
--#include <asm/debug.h>
--#include <asm/idals.h>
--#include <asm/timex.h>
--#include <linux/device.h>
--#include <asm/ccwgroup.h>
--
--#include "lcs.h"
--
--
--/*
-- * initialization string for output
-- */
--
--static char version[] __initdata = "LCS driver";
--
--/*
--  * the root device for lcs group devices
--  */
--static struct device *lcs_root_dev;
--
--/*
-- * Some prototypes.
-- */
--static void lcs_tasklet(unsigned long);
--static void lcs_start_kernel_thread(struct work_struct *);
--static void lcs_get_frames_cb(struct lcs_channel *, struct lcs_buffer *);
--#ifdef CONFIG_IP_MULTICAST
--static int lcs_send_delipm(struct lcs_card *, struct lcs_ipm_list *);
--#endif /* CONFIG_IP_MULTICAST */
--static int lcs_recovery(void *ptr);
--
--/*
-- * Debug Facility Stuff
-- */
--static char debug_buffer[255];
--static debug_info_t *lcs_dbf_setup;
--static debug_info_t *lcs_dbf_trace;
--
--/*
-- *  LCS Debug Facility functions
-- */
--static void
--lcs_unregister_debug_facility(void)
--{
--	debug_unregister(lcs_dbf_setup);
--	debug_unregister(lcs_dbf_trace);
--}
--
--static int
--lcs_register_debug_facility(void)
--{
--	lcs_dbf_setup = debug_register("lcs_setup", 2, 1, 8);
--	lcs_dbf_trace = debug_register("lcs_trace", 4, 1, 8);
--	if (lcs_dbf_setup == NULL || lcs_dbf_trace == NULL) {
--		pr_err("Not enough memory for debug facility.\n");
--		lcs_unregister_debug_facility();
--		return -ENOMEM;
--	}
--	debug_register_view(lcs_dbf_setup, &debug_hex_ascii_view);
--	debug_set_level(lcs_dbf_setup, 2);
--	debug_register_view(lcs_dbf_trace, &debug_hex_ascii_view);
--	debug_set_level(lcs_dbf_trace, 2);
--	return 0;
--}
--
--/*
-- * Allocate io buffers.
-- */
--static int
--lcs_alloc_channel(struct lcs_channel *channel)
--{
--	int cnt;
--
--	LCS_DBF_TEXT(2, setup, "ichalloc");
--	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
--		/* alloc memory fo iobuffer */
--		channel->iob[cnt].data =
--			kzalloc(LCS_IOBUFFERSIZE, GFP_DMA | GFP_KERNEL);
--		if (channel->iob[cnt].data == NULL)
--			break;
--		channel->iob[cnt].state = LCS_BUF_STATE_EMPTY;
--	}
--	if (cnt < LCS_NUM_BUFFS) {
--		/* Not all io buffers could be allocated. */
--		LCS_DBF_TEXT(2, setup, "echalloc");
--		while (cnt-- > 0)
--			kfree(channel->iob[cnt].data);
--		return -ENOMEM;
--	}
--	return 0;
--}
--
--/*
-- * Free io buffers.
-- */
--static void
--lcs_free_channel(struct lcs_channel *channel)
--{
--	int cnt;
--
--	LCS_DBF_TEXT(2, setup, "ichfree");
--	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
--		kfree(channel->iob[cnt].data);
--		channel->iob[cnt].data = NULL;
--	}
--}
--
--/*
-- * Cleanup channel.
-- */
--static void
--lcs_cleanup_channel(struct lcs_channel *channel)
--{
--	LCS_DBF_TEXT(3, setup, "cleanch");
--	/* Kill write channel tasklets. */
--	tasklet_kill(&channel->irq_tasklet);
--	/* Free channel buffers. */
--	lcs_free_channel(channel);
--}
--
--/*
-- * LCS free memory for card and channels.
-- */
--static void
--lcs_free_card(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(2, setup, "remcard");
--	LCS_DBF_HEX(2, setup, &card, sizeof(void*));
--	kfree(card);
--}
--
--/*
-- * LCS alloc memory for card and channels
-- */
--static struct lcs_card *
--lcs_alloc_card(void)
--{
--	struct lcs_card *card;
--	int rc;
--
--	LCS_DBF_TEXT(2, setup, "alloclcs");
--
--	card = kzalloc(sizeof(struct lcs_card), GFP_KERNEL | GFP_DMA);
--	if (card == NULL)
--		return NULL;
--	card->lan_type = LCS_FRAME_TYPE_AUTO;
--	card->pkt_seq = 0;
--	card->lancmd_timeout = LCS_LANCMD_TIMEOUT_DEFAULT;
--	/* Allocate io buffers for the read channel. */
--	rc = lcs_alloc_channel(&card->read);
--	if (rc){
--		LCS_DBF_TEXT(2, setup, "iccwerr");
--		lcs_free_card(card);
--		return NULL;
--	}
--	/* Allocate io buffers for the write channel. */
--	rc = lcs_alloc_channel(&card->write);
--	if (rc) {
--		LCS_DBF_TEXT(2, setup, "iccwerr");
--		lcs_cleanup_channel(&card->read);
--		lcs_free_card(card);
--		return NULL;
--	}
--
--#ifdef CONFIG_IP_MULTICAST
--	INIT_LIST_HEAD(&card->ipm_list);
--#endif
--	LCS_DBF_HEX(2, setup, &card, sizeof(void*));
--	return card;
--}
--
--/*
-- * Setup read channel.
-- */
--static void
--lcs_setup_read_ccws(struct lcs_card *card)
--{
--	int cnt;
--
--	LCS_DBF_TEXT(2, setup, "ireadccw");
--	/* Setup read ccws. */
--	memset(card->read.ccws, 0, sizeof (struct ccw1) * (LCS_NUM_BUFFS + 1));
--	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
--		card->read.ccws[cnt].cmd_code = LCS_CCW_READ;
--		card->read.ccws[cnt].count = LCS_IOBUFFERSIZE;
--		card->read.ccws[cnt].flags =
--			CCW_FLAG_CC | CCW_FLAG_SLI | CCW_FLAG_PCI;
--		/*
--		 * Note: we have allocated the buffer with GFP_DMA, so
--		 * we do not need to do set_normalized_cda.
--		 */
--		card->read.ccws[cnt].cda =
--			virt_to_dma32(card->read.iob[cnt].data);
--		((struct lcs_header *)
--		 card->read.iob[cnt].data)->offset = LCS_ILLEGAL_OFFSET;
--		card->read.iob[cnt].callback = lcs_get_frames_cb;
--		card->read.iob[cnt].state = LCS_BUF_STATE_READY;
--		card->read.iob[cnt].count = LCS_IOBUFFERSIZE;
--	}
--	card->read.ccws[0].flags &= ~CCW_FLAG_PCI;
--	card->read.ccws[LCS_NUM_BUFFS - 1].flags &= ~CCW_FLAG_PCI;
--	card->read.ccws[LCS_NUM_BUFFS - 1].flags |= CCW_FLAG_SUSPEND;
--	/* Last ccw is a tic (transfer in channel). */
--	card->read.ccws[LCS_NUM_BUFFS].cmd_code = LCS_CCW_TRANSFER;
--	card->read.ccws[LCS_NUM_BUFFS].cda = virt_to_dma32(card->read.ccws);
--	/* Setg initial state of the read channel. */
--	card->read.state = LCS_CH_STATE_INIT;
--
--	card->read.io_idx = 0;
--	card->read.buf_idx = 0;
--}
--
--static void
--lcs_setup_read(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(3, setup, "initread");
--
--	lcs_setup_read_ccws(card);
--	/* Initialize read channel tasklet. */
--	card->read.irq_tasklet.data = (unsigned long) &card->read;
--	card->read.irq_tasklet.func = lcs_tasklet;
--	/* Initialize waitqueue. */
--	init_waitqueue_head(&card->read.wait_q);
--}
--
--/*
-- * Setup write channel.
-- */
--static void
--lcs_setup_write_ccws(struct lcs_card *card)
--{
--	int cnt;
--
--	LCS_DBF_TEXT(3, setup, "iwritccw");
--	/* Setup write ccws. */
--	memset(card->write.ccws, 0, sizeof(struct ccw1) * (LCS_NUM_BUFFS + 1));
--	for (cnt = 0; cnt < LCS_NUM_BUFFS; cnt++) {
--		card->write.ccws[cnt].cmd_code = LCS_CCW_WRITE;
--		card->write.ccws[cnt].count = 0;
--		card->write.ccws[cnt].flags =
--			CCW_FLAG_SUSPEND | CCW_FLAG_CC | CCW_FLAG_SLI;
--		/*
--		 * Note: we have allocated the buffer with GFP_DMA, so
--		 * we do not need to do set_normalized_cda.
--		 */
--		card->write.ccws[cnt].cda =
--			virt_to_dma32(card->write.iob[cnt].data);
--	}
--	/* Last ccw is a tic (transfer in channel). */
--	card->write.ccws[LCS_NUM_BUFFS].cmd_code = LCS_CCW_TRANSFER;
--	card->write.ccws[LCS_NUM_BUFFS].cda = virt_to_dma32(card->write.ccws);
--	/* Set initial state of the write channel. */
--	card->read.state = LCS_CH_STATE_INIT;
--
--	card->write.io_idx = 0;
--	card->write.buf_idx = 0;
--}
--
--static void
--lcs_setup_write(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(3, setup, "initwrit");
--
--	lcs_setup_write_ccws(card);
--	/* Initialize write channel tasklet. */
--	card->write.irq_tasklet.data = (unsigned long) &card->write;
--	card->write.irq_tasklet.func = lcs_tasklet;
--	/* Initialize waitqueue. */
--	init_waitqueue_head(&card->write.wait_q);
--}
--
--static void
--lcs_set_allowed_threads(struct lcs_card *card, unsigned long threads)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&card->mask_lock, flags);
--	card->thread_allowed_mask = threads;
--	spin_unlock_irqrestore(&card->mask_lock, flags);
--	wake_up(&card->wait_q);
--}
--static int lcs_threads_running(struct lcs_card *card, unsigned long threads)
--{
--        unsigned long flags;
--        int rc = 0;
--
--	spin_lock_irqsave(&card->mask_lock, flags);
--        rc = (card->thread_running_mask & threads);
--	spin_unlock_irqrestore(&card->mask_lock, flags);
--        return rc;
--}
--
--static int
--lcs_wait_for_threads(struct lcs_card *card, unsigned long threads)
--{
--        return wait_event_interruptible(card->wait_q,
--                        lcs_threads_running(card, threads) == 0);
--}
--
--static int lcs_set_thread_start_bit(struct lcs_card *card, unsigned long thread)
--{
--        unsigned long flags;
--
--	spin_lock_irqsave(&card->mask_lock, flags);
--        if ( !(card->thread_allowed_mask & thread) ||
--              (card->thread_start_mask & thread) ) {
--                spin_unlock_irqrestore(&card->mask_lock, flags);
--                return -EPERM;
--        }
--        card->thread_start_mask |= thread;
--	spin_unlock_irqrestore(&card->mask_lock, flags);
--        return 0;
--}
--
--static void
--lcs_clear_thread_running_bit(struct lcs_card *card, unsigned long thread)
--{
--        unsigned long flags;
--
--	spin_lock_irqsave(&card->mask_lock, flags);
--        card->thread_running_mask &= ~thread;
--	spin_unlock_irqrestore(&card->mask_lock, flags);
--        wake_up(&card->wait_q);
--}
--
--static int __lcs_do_run_thread(struct lcs_card *card, unsigned long thread)
--{
--        unsigned long flags;
--        int rc = 0;
--
--	spin_lock_irqsave(&card->mask_lock, flags);
--        if (card->thread_start_mask & thread){
--                if ((card->thread_allowed_mask & thread) &&
--                    !(card->thread_running_mask & thread)){
--                        rc = 1;
--                        card->thread_start_mask &= ~thread;
--                        card->thread_running_mask |= thread;
--                } else
--                        rc = -EPERM;
--        }
--	spin_unlock_irqrestore(&card->mask_lock, flags);
--        return rc;
--}
--
--static int
--lcs_do_run_thread(struct lcs_card *card, unsigned long thread)
--{
--        int rc = 0;
--        wait_event(card->wait_q,
--                   (rc = __lcs_do_run_thread(card, thread)) >= 0);
--        return rc;
--}
--
--static int
--lcs_do_start_thread(struct lcs_card *card, unsigned long thread)
--{
--        unsigned long flags;
--        int rc = 0;
--
--	spin_lock_irqsave(&card->mask_lock, flags);
--        LCS_DBF_TEXT_(4, trace, "  %02x%02x%02x",
--                        (u8) card->thread_start_mask,
--                        (u8) card->thread_allowed_mask,
--                        (u8) card->thread_running_mask);
--        rc = (card->thread_start_mask & thread);
--	spin_unlock_irqrestore(&card->mask_lock, flags);
--        return rc;
--}
--
--/*
-- * Initialize channels,card and state machines.
-- */
--static void
--lcs_setup_card(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(2, setup, "initcard");
--	LCS_DBF_HEX(2, setup, &card, sizeof(void*));
--
--	lcs_setup_read(card);
--	lcs_setup_write(card);
--	/* Set cards initial state. */
--	card->state = DEV_STATE_DOWN;
--	card->tx_buffer = NULL;
--	card->tx_emitted = 0;
--
--	init_waitqueue_head(&card->wait_q);
--	spin_lock_init(&card->lock);
--	spin_lock_init(&card->ipm_lock);
--	spin_lock_init(&card->mask_lock);
--#ifdef CONFIG_IP_MULTICAST
--	INIT_LIST_HEAD(&card->ipm_list);
--#endif
--	INIT_LIST_HEAD(&card->lancmd_waiters);
--}
--
--static void lcs_clear_multicast_list(struct lcs_card *card)
--{
--#ifdef	CONFIG_IP_MULTICAST
--	struct lcs_ipm_list *ipm;
--	unsigned long flags;
--
--	/* Free multicast list. */
--	LCS_DBF_TEXT(3, setup, "clmclist");
--	spin_lock_irqsave(&card->ipm_lock, flags);
--	while (!list_empty(&card->ipm_list)){
--		ipm = list_entry(card->ipm_list.next,
--				 struct lcs_ipm_list, list);
--		list_del(&ipm->list);
--		if (ipm->ipm_state != LCS_IPM_STATE_SET_REQUIRED){
--			spin_unlock_irqrestore(&card->ipm_lock, flags);
--			lcs_send_delipm(card, ipm);
--			spin_lock_irqsave(&card->ipm_lock, flags);
--		}
--		kfree(ipm);
--	}
--	spin_unlock_irqrestore(&card->ipm_lock, flags);
--#endif
--}
--
--/*
-- * Cleanup channels,card and state machines.
-- */
--static void
--lcs_cleanup_card(struct lcs_card *card)
--{
--
--	LCS_DBF_TEXT(3, setup, "cleancrd");
--	LCS_DBF_HEX(2,setup,&card,sizeof(void*));
--
--	if (card->dev != NULL)
--		free_netdev(card->dev);
--	/* Cleanup channels. */
--	lcs_cleanup_channel(&card->write);
--	lcs_cleanup_channel(&card->read);
--}
--
--/*
-- * Start channel.
-- */
--static int
--lcs_start_channel(struct lcs_channel *channel)
--{
--	unsigned long flags;
--	int rc;
--
--	LCS_DBF_TEXT_(4, trace,"ssch%s", dev_name(&channel->ccwdev->dev));
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	rc = ccw_device_start(channel->ccwdev,
--			      channel->ccws + channel->io_idx, 0, 0,
--			      DOIO_DENY_PREFETCH | DOIO_ALLOW_SUSPEND);
--	if (rc == 0)
--		channel->state = LCS_CH_STATE_RUNNING;
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--	if (rc) {
--		LCS_DBF_TEXT_(4,trace,"essh%s",
--			      dev_name(&channel->ccwdev->dev));
--		dev_err(&channel->ccwdev->dev,
--			"Starting an LCS device resulted in an error,"
--			" rc=%d!\n", rc);
--	}
--	return rc;
--}
--
--static int
--lcs_clear_channel(struct lcs_channel *channel)
--{
--	unsigned long flags;
--	int rc;
--
--	LCS_DBF_TEXT(4,trace,"clearch");
--	LCS_DBF_TEXT_(4, trace, "%s", dev_name(&channel->ccwdev->dev));
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	rc = ccw_device_clear(channel->ccwdev, 0);
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--	if (rc) {
--		LCS_DBF_TEXT_(4, trace, "ecsc%s",
--			      dev_name(&channel->ccwdev->dev));
--		return rc;
--	}
--	wait_event(channel->wait_q, (channel->state == LCS_CH_STATE_CLEARED));
--	channel->state = LCS_CH_STATE_STOPPED;
--	return rc;
--}
--
--
--/*
-- * Stop channel.
-- */
--static int
--lcs_stop_channel(struct lcs_channel *channel)
--{
--	unsigned long flags;
--	int rc;
--
--	if (channel->state == LCS_CH_STATE_STOPPED)
--		return 0;
--	LCS_DBF_TEXT(4,trace,"haltsch");
--	LCS_DBF_TEXT_(4, trace, "%s", dev_name(&channel->ccwdev->dev));
--	channel->state = LCS_CH_STATE_INIT;
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	rc = ccw_device_halt(channel->ccwdev, 0);
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--	if (rc) {
--		LCS_DBF_TEXT_(4, trace, "ehsc%s",
--			      dev_name(&channel->ccwdev->dev));
--		return rc;
--	}
--	/* Asynchronous halt initialted. Wait for its completion. */
--	wait_event(channel->wait_q, (channel->state == LCS_CH_STATE_HALTED));
--	lcs_clear_channel(channel);
--	return 0;
--}
--
--/*
-- * start read and write channel
-- */
--static int
--lcs_start_channels(struct lcs_card *card)
--{
--	int rc;
--
--	LCS_DBF_TEXT(2, trace, "chstart");
--	/* start read channel */
--	rc = lcs_start_channel(&card->read);
--	if (rc)
--		return rc;
--	/* start write channel */
--	rc = lcs_start_channel(&card->write);
--	if (rc)
--		lcs_stop_channel(&card->read);
--	return rc;
--}
--
--/*
-- * stop read and write channel
-- */
--static int
--lcs_stop_channels(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(2, trace, "chhalt");
--	lcs_stop_channel(&card->read);
--	lcs_stop_channel(&card->write);
--	return 0;
--}
--
--/*
-- * Get empty buffer.
-- */
--static struct lcs_buffer *
--__lcs_get_buffer(struct lcs_channel *channel)
--{
--	int index;
--
--	LCS_DBF_TEXT(5, trace, "_getbuff");
--	index = channel->io_idx;
--	do {
--		if (channel->iob[index].state == LCS_BUF_STATE_EMPTY) {
--			channel->iob[index].state = LCS_BUF_STATE_LOCKED;
--			return channel->iob + index;
--		}
--		index = (index + 1) & (LCS_NUM_BUFFS - 1);
--	} while (index != channel->io_idx);
--	return NULL;
--}
--
--static struct lcs_buffer *
--lcs_get_buffer(struct lcs_channel *channel)
--{
--	struct lcs_buffer *buffer;
--	unsigned long flags;
--
--	LCS_DBF_TEXT(5, trace, "getbuff");
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	buffer = __lcs_get_buffer(channel);
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--	return buffer;
--}
--
--/*
-- * Resume channel program if the channel is suspended.
-- */
--static int
--__lcs_resume_channel(struct lcs_channel *channel)
--{
--	int rc;
--
--	if (channel->state != LCS_CH_STATE_SUSPENDED)
--		return 0;
--	if (channel->ccws[channel->io_idx].flags & CCW_FLAG_SUSPEND)
--		return 0;
--	LCS_DBF_TEXT_(5, trace, "rsch%s", dev_name(&channel->ccwdev->dev));
--	rc = ccw_device_resume(channel->ccwdev);
--	if (rc) {
--		LCS_DBF_TEXT_(4, trace, "ersc%s",
--			      dev_name(&channel->ccwdev->dev));
--		dev_err(&channel->ccwdev->dev,
--			"Sending data from the LCS device to the LAN failed"
--			" with rc=%d\n",rc);
--	} else
--		channel->state = LCS_CH_STATE_RUNNING;
--	return rc;
--
--}
--
--/*
-- * Make a buffer ready for processing.
-- */
--static void __lcs_ready_buffer_bits(struct lcs_channel *channel, int index)
--{
--	int prev, next;
--
--	LCS_DBF_TEXT(5, trace, "rdybits");
--	prev = (index - 1) & (LCS_NUM_BUFFS - 1);
--	next = (index + 1) & (LCS_NUM_BUFFS - 1);
--	/* Check if we may clear the suspend bit of this buffer. */
--	if (channel->ccws[next].flags & CCW_FLAG_SUSPEND) {
--		/* Check if we have to set the PCI bit. */
--		if (!(channel->ccws[prev].flags & CCW_FLAG_SUSPEND))
--			/* Suspend bit of the previous buffer is not set. */
--			channel->ccws[index].flags |= CCW_FLAG_PCI;
--		/* Suspend bit of the next buffer is set. */
--		channel->ccws[index].flags &= ~CCW_FLAG_SUSPEND;
--	}
--}
--
--static int
--lcs_ready_buffer(struct lcs_channel *channel, struct lcs_buffer *buffer)
--{
--	unsigned long flags;
--	int index, rc;
--
--	LCS_DBF_TEXT(5, trace, "rdybuff");
--	BUG_ON(buffer->state != LCS_BUF_STATE_LOCKED &&
--	       buffer->state != LCS_BUF_STATE_PROCESSED);
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	buffer->state = LCS_BUF_STATE_READY;
--	index = buffer - channel->iob;
--	/* Set length. */
--	channel->ccws[index].count = buffer->count;
--	/* Check relevant PCI/suspend bits. */
--	__lcs_ready_buffer_bits(channel, index);
--	rc = __lcs_resume_channel(channel);
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--	return rc;
--}
--
--/*
-- * Mark the buffer as processed. Take care of the suspend bit
-- * of the previous buffer. This function is called from
-- * interrupt context, so the lock must not be taken.
-- */
--static int
--__lcs_processed_buffer(struct lcs_channel *channel, struct lcs_buffer *buffer)
--{
--	int index, prev, next;
--
--	LCS_DBF_TEXT(5, trace, "prcsbuff");
--	BUG_ON(buffer->state != LCS_BUF_STATE_READY);
--	buffer->state = LCS_BUF_STATE_PROCESSED;
--	index = buffer - channel->iob;
--	prev = (index - 1) & (LCS_NUM_BUFFS - 1);
--	next = (index + 1) & (LCS_NUM_BUFFS - 1);
--	/* Set the suspend bit and clear the PCI bit of this buffer. */
--	channel->ccws[index].flags |= CCW_FLAG_SUSPEND;
--	channel->ccws[index].flags &= ~CCW_FLAG_PCI;
--	/* Check the suspend bit of the previous buffer. */
--	if (channel->iob[prev].state == LCS_BUF_STATE_READY) {
--		/*
--		 * Previous buffer is in state ready. It might have
--		 * happened in lcs_ready_buffer that the suspend bit
--		 * has not been cleared to avoid an endless loop.
--		 * Do it now.
--		 */
--		__lcs_ready_buffer_bits(channel, prev);
--	}
--	/* Clear PCI bit of next buffer. */
--	channel->ccws[next].flags &= ~CCW_FLAG_PCI;
--	return __lcs_resume_channel(channel);
--}
--
--/*
-- * Put a processed buffer back to state empty.
-- */
--static void
--lcs_release_buffer(struct lcs_channel *channel, struct lcs_buffer *buffer)
--{
--	unsigned long flags;
--
--	LCS_DBF_TEXT(5, trace, "relbuff");
--	BUG_ON(buffer->state != LCS_BUF_STATE_LOCKED &&
--	       buffer->state != LCS_BUF_STATE_PROCESSED);
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	buffer->state = LCS_BUF_STATE_EMPTY;
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--}
--
--/*
-- * Get buffer for a lan command.
-- */
--static struct lcs_buffer *
--lcs_get_lancmd(struct lcs_card *card, int count)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(4, trace, "getlncmd");
--	/* Get buffer and wait if none is available. */
--	wait_event(card->write.wait_q,
--		   ((buffer = lcs_get_buffer(&card->write)) != NULL));
--	count += sizeof(struct lcs_header);
--	*(__u16 *)(buffer->data + count) = 0;
--	buffer->count = count + sizeof(__u16);
--	buffer->callback = lcs_release_buffer;
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->offset = count;
--	cmd->type = LCS_FRAME_TYPE_CONTROL;
--	cmd->slot = 0;
--	return buffer;
--}
--
--
--static void
--lcs_get_reply(struct lcs_reply *reply)
--{
--	refcount_inc(&reply->refcnt);
--}
--
--static void
--lcs_put_reply(struct lcs_reply *reply)
--{
--	if (refcount_dec_and_test(&reply->refcnt))
--		kfree(reply);
--}
--
--static struct lcs_reply *
--lcs_alloc_reply(struct lcs_cmd *cmd)
--{
--	struct lcs_reply *reply;
--
--	LCS_DBF_TEXT(4, trace, "getreply");
--
--	reply = kzalloc(sizeof(struct lcs_reply), GFP_ATOMIC);
--	if (!reply)
--		return NULL;
--	refcount_set(&reply->refcnt, 1);
--	reply->sequence_no = cmd->sequence_no;
--	reply->received = 0;
--	reply->rc = 0;
--	init_waitqueue_head(&reply->wait_q);
--
--	return reply;
--}
--
--/*
-- * Notifier function for lancmd replies. Called from read irq.
-- */
--static void
--lcs_notify_lancmd_waiters(struct lcs_card *card, struct lcs_cmd *cmd)
--{
--	struct list_head *l, *n;
--	struct lcs_reply *reply;
--
--	LCS_DBF_TEXT(4, trace, "notiwait");
--	spin_lock(&card->lock);
--	list_for_each_safe(l, n, &card->lancmd_waiters) {
--		reply = list_entry(l, struct lcs_reply, list);
--		if (reply->sequence_no == cmd->sequence_no) {
--			lcs_get_reply(reply);
--			list_del_init(&reply->list);
--			if (reply->callback != NULL)
--				reply->callback(card, cmd);
--			reply->received = 1;
--			reply->rc = cmd->return_code;
--			wake_up(&reply->wait_q);
--			lcs_put_reply(reply);
--			break;
--		}
--	}
--	spin_unlock(&card->lock);
--}
--
--/*
-- * Emit buffer of a lan command.
-- */
--static void
--lcs_lancmd_timeout(struct timer_list *t)
--{
--	struct lcs_reply *reply = from_timer(reply, t, timer);
--	struct lcs_reply *list_reply, *r;
--	unsigned long flags;
--
--	LCS_DBF_TEXT(4, trace, "timeout");
--	spin_lock_irqsave(&reply->card->lock, flags);
--	list_for_each_entry_safe(list_reply, r,
--				 &reply->card->lancmd_waiters,list) {
--		if (reply == list_reply) {
--			lcs_get_reply(reply);
--			list_del_init(&reply->list);
--			spin_unlock_irqrestore(&reply->card->lock, flags);
--			reply->received = 1;
--			reply->rc = -ETIME;
--			wake_up(&reply->wait_q);
--			lcs_put_reply(reply);
--			return;
--		}
--	}
--	spin_unlock_irqrestore(&reply->card->lock, flags);
--}
--
--static int
--lcs_send_lancmd(struct lcs_card *card, struct lcs_buffer *buffer,
--		void (*reply_callback)(struct lcs_card *, struct lcs_cmd *))
--{
--	struct lcs_reply *reply;
--	struct lcs_cmd *cmd;
--	unsigned long flags;
--	int rc;
--
--	LCS_DBF_TEXT(4, trace, "sendcmd");
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->return_code = 0;
--	cmd->sequence_no = card->sequence_no++;
--	reply = lcs_alloc_reply(cmd);
--	if (!reply)
--		return -ENOMEM;
--	reply->callback = reply_callback;
--	reply->card = card;
--	spin_lock_irqsave(&card->lock, flags);
--	list_add_tail(&reply->list, &card->lancmd_waiters);
--	spin_unlock_irqrestore(&card->lock, flags);
--
--	buffer->callback = lcs_release_buffer;
--	rc = lcs_ready_buffer(&card->write, buffer);
--	if (rc)
--		return rc;
--	timer_setup(&reply->timer, lcs_lancmd_timeout, 0);
--	mod_timer(&reply->timer, jiffies + HZ * card->lancmd_timeout);
--	wait_event(reply->wait_q, reply->received);
--	del_timer_sync(&reply->timer);
--	LCS_DBF_TEXT_(4, trace, "rc:%d",reply->rc);
--	rc = reply->rc;
--	lcs_put_reply(reply);
--	return rc ? -EIO : 0;
--}
--
--/*
-- * LCS startup command
-- */
--static int
--lcs_send_startup(struct lcs_card *card, __u8 initiator)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2, trace, "startup");
--	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_STARTUP;
--	cmd->initiator = initiator;
--	cmd->cmd.lcs_startup.buff_size = LCS_IOBUFFERSIZE;
--	return lcs_send_lancmd(card, buffer, NULL);
--}
--
--/*
-- * LCS shutdown command
-- */
--static int
--lcs_send_shutdown(struct lcs_card *card)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2, trace, "shutdown");
--	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_SHUTDOWN;
--	cmd->initiator = LCS_INITIATOR_TCPIP;
--	return lcs_send_lancmd(card, buffer, NULL);
--}
--
--/*
-- * LCS lanstat command
-- */
--static void
--__lcs_lanstat_cb(struct lcs_card *card, struct lcs_cmd *cmd)
--{
--	LCS_DBF_TEXT(2, trace, "statcb");
--	memcpy(card->mac, cmd->cmd.lcs_lanstat_cmd.mac_addr, LCS_MAC_LENGTH);
--}
--
--static int
--lcs_send_lanstat(struct lcs_card *card)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2,trace, "cmdstat");
--	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	/* Setup lanstat command. */
--	cmd->cmd_code = LCS_CMD_LANSTAT;
--	cmd->initiator = LCS_INITIATOR_TCPIP;
--	cmd->cmd.lcs_std_cmd.lan_type = card->lan_type;
--	cmd->cmd.lcs_std_cmd.portno = card->portno;
--	return lcs_send_lancmd(card, buffer, __lcs_lanstat_cb);
--}
--
--/*
-- * send stoplan command
-- */
--static int
--lcs_send_stoplan(struct lcs_card *card, __u8 initiator)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2, trace, "cmdstpln");
--	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_STOPLAN;
--	cmd->initiator = initiator;
--	cmd->cmd.lcs_std_cmd.lan_type = card->lan_type;
--	cmd->cmd.lcs_std_cmd.portno = card->portno;
--	return lcs_send_lancmd(card, buffer, NULL);
--}
--
--/*
-- * send startlan command
-- */
--static void
--__lcs_send_startlan_cb(struct lcs_card *card, struct lcs_cmd *cmd)
--{
--	LCS_DBF_TEXT(2, trace, "srtlancb");
--	card->lan_type = cmd->cmd.lcs_std_cmd.lan_type;
--	card->portno = cmd->cmd.lcs_std_cmd.portno;
--}
--
--static int
--lcs_send_startlan(struct lcs_card *card, __u8 initiator)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2, trace, "cmdstaln");
--	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_STARTLAN;
--	cmd->initiator = initiator;
--	cmd->cmd.lcs_std_cmd.lan_type = card->lan_type;
--	cmd->cmd.lcs_std_cmd.portno = card->portno;
--	return lcs_send_lancmd(card, buffer, __lcs_send_startlan_cb);
--}
--
--#ifdef CONFIG_IP_MULTICAST
--/*
-- * send setipm command (Multicast)
-- */
--static int
--lcs_send_setipm(struct lcs_card *card,struct lcs_ipm_list *ipm_list)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2, trace, "cmdsetim");
--	buffer = lcs_get_lancmd(card, LCS_MULTICAST_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_SETIPM;
--	cmd->initiator = LCS_INITIATOR_TCPIP;
--	cmd->cmd.lcs_qipassist.lan_type = card->lan_type;
--	cmd->cmd.lcs_qipassist.portno = card->portno;
--	cmd->cmd.lcs_qipassist.version = 4;
--	cmd->cmd.lcs_qipassist.num_ip_pairs = 1;
--	memcpy(cmd->cmd.lcs_qipassist.lcs_ipass_ctlmsg.ip_mac_pair,
--	       &ipm_list->ipm, sizeof (struct lcs_ip_mac_pair));
--	LCS_DBF_TEXT_(2, trace, "%x",ipm_list->ipm.ip_addr);
--	return lcs_send_lancmd(card, buffer, NULL);
--}
--
--/*
-- * send delipm command (Multicast)
-- */
--static int
--lcs_send_delipm(struct lcs_card *card,struct lcs_ipm_list *ipm_list)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--
--	LCS_DBF_TEXT(2, trace, "cmddelim");
--	buffer = lcs_get_lancmd(card, LCS_MULTICAST_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_DELIPM;
--	cmd->initiator = LCS_INITIATOR_TCPIP;
--	cmd->cmd.lcs_qipassist.lan_type = card->lan_type;
--	cmd->cmd.lcs_qipassist.portno = card->portno;
--	cmd->cmd.lcs_qipassist.version = 4;
--	cmd->cmd.lcs_qipassist.num_ip_pairs = 1;
--	memcpy(cmd->cmd.lcs_qipassist.lcs_ipass_ctlmsg.ip_mac_pair,
--	       &ipm_list->ipm, sizeof (struct lcs_ip_mac_pair));
--	LCS_DBF_TEXT_(2, trace, "%x",ipm_list->ipm.ip_addr);
--	return lcs_send_lancmd(card, buffer, NULL);
--}
--
--/*
-- * check if multicast is supported by LCS
-- */
--static void
--__lcs_check_multicast_cb(struct lcs_card *card, struct lcs_cmd *cmd)
--{
--	LCS_DBF_TEXT(2, trace, "chkmccb");
--	card->ip_assists_supported =
--		cmd->cmd.lcs_qipassist.ip_assists_supported;
--	card->ip_assists_enabled =
--		cmd->cmd.lcs_qipassist.ip_assists_enabled;
--}
--
--static int
--lcs_check_multicast_support(struct lcs_card *card)
--{
--	struct lcs_buffer *buffer;
--	struct lcs_cmd *cmd;
--	int rc;
--
--	LCS_DBF_TEXT(2, trace, "cmdqipa");
--	/* Send query ipassist. */
--	buffer = lcs_get_lancmd(card, LCS_STD_CMD_SIZE);
--	cmd = (struct lcs_cmd *) buffer->data;
--	cmd->cmd_code = LCS_CMD_QIPASSIST;
--	cmd->initiator = LCS_INITIATOR_TCPIP;
--	cmd->cmd.lcs_qipassist.lan_type = card->lan_type;
--	cmd->cmd.lcs_qipassist.portno = card->portno;
--	cmd->cmd.lcs_qipassist.version = 4;
--	cmd->cmd.lcs_qipassist.num_ip_pairs = 1;
--	rc = lcs_send_lancmd(card, buffer, __lcs_check_multicast_cb);
--	if (rc != 0) {
--		pr_err("Query IPAssist failed. Assuming unsupported!\n");
--		return -EOPNOTSUPP;
--	}
--	if (card->ip_assists_supported & LCS_IPASS_MULTICAST_SUPPORT)
--		return 0;
--	return -EOPNOTSUPP;
--}
--
--/*
-- * set or del multicast address on LCS card
-- */
--static void
--lcs_fix_multicast_list(struct lcs_card *card)
--{
--	struct list_head failed_list;
--	struct lcs_ipm_list *ipm, *tmp;
--	unsigned long flags;
--	int rc;
--
--	LCS_DBF_TEXT(4,trace, "fixipm");
--	INIT_LIST_HEAD(&failed_list);
--	spin_lock_irqsave(&card->ipm_lock, flags);
--list_modified:
--	list_for_each_entry_safe(ipm, tmp, &card->ipm_list, list){
--		switch (ipm->ipm_state) {
--		case LCS_IPM_STATE_SET_REQUIRED:
--			/* del from ipm_list so no one else can tamper with
--			 * this entry */
--			list_del_init(&ipm->list);
--			spin_unlock_irqrestore(&card->ipm_lock, flags);
--			rc = lcs_send_setipm(card, ipm);
--			spin_lock_irqsave(&card->ipm_lock, flags);
--			if (rc) {
--				pr_info("Adding multicast address failed."
--					" Table possibly full!\n");
--				/* store ipm in failed list -> will be added
--				 * to ipm_list again, so a retry will be done
--				 * during the next call of this function */
--				list_add_tail(&ipm->list, &failed_list);
--			} else {
--				ipm->ipm_state = LCS_IPM_STATE_ON_CARD;
--				/* re-insert into ipm_list */
--				list_add_tail(&ipm->list, &card->ipm_list);
--			}
--			goto list_modified;
--		case LCS_IPM_STATE_DEL_REQUIRED:
--			list_del(&ipm->list);
--			spin_unlock_irqrestore(&card->ipm_lock, flags);
--			lcs_send_delipm(card, ipm);
--			spin_lock_irqsave(&card->ipm_lock, flags);
--			kfree(ipm);
--			goto list_modified;
--		case LCS_IPM_STATE_ON_CARD:
--			break;
--		}
--	}
--	/* re-insert all entries from the failed_list into ipm_list */
--	list_for_each_entry_safe(ipm, tmp, &failed_list, list)
--		list_move_tail(&ipm->list, &card->ipm_list);
--
--	spin_unlock_irqrestore(&card->ipm_lock, flags);
--}
--
--/*
-- * get mac address for the relevant Multicast address
-- */
--static void
--lcs_get_mac_for_ipm(__be32 ipm, char *mac, struct net_device *dev)
--{
--	LCS_DBF_TEXT(4,trace, "getmac");
--	ip_eth_mc_map(ipm, mac);
--}
--
--/*
-- * function called by net device to handle multicast address relevant things
-- */
--static void lcs_remove_mc_addresses(struct lcs_card *card,
--				    struct in_device *in4_dev)
--{
--	struct ip_mc_list *im4;
--	struct list_head *l;
--	struct lcs_ipm_list *ipm;
--	unsigned long flags;
--	char buf[MAX_ADDR_LEN];
--
--	LCS_DBF_TEXT(4, trace, "remmclst");
--	spin_lock_irqsave(&card->ipm_lock, flags);
--	list_for_each(l, &card->ipm_list) {
--		ipm = list_entry(l, struct lcs_ipm_list, list);
--		for (im4 = rcu_dereference(in4_dev->mc_list);
--		     im4 != NULL; im4 = rcu_dereference(im4->next_rcu)) {
--			lcs_get_mac_for_ipm(im4->multiaddr, buf, card->dev);
--			if ( (ipm->ipm.ip_addr == im4->multiaddr) &&
--			     (memcmp(buf, &ipm->ipm.mac_addr,
--				     LCS_MAC_LENGTH) == 0) )
--				break;
--		}
--		if (im4 == NULL)
--			ipm->ipm_state = LCS_IPM_STATE_DEL_REQUIRED;
--	}
--	spin_unlock_irqrestore(&card->ipm_lock, flags);
--}
--
--static struct lcs_ipm_list *lcs_check_addr_entry(struct lcs_card *card,
--						 struct ip_mc_list *im4,
--						 char *buf)
--{
--	struct lcs_ipm_list *tmp, *ipm = NULL;
--	struct list_head *l;
--	unsigned long flags;
--
--	LCS_DBF_TEXT(4, trace, "chkmcent");
--	spin_lock_irqsave(&card->ipm_lock, flags);
--	list_for_each(l, &card->ipm_list) {
--		tmp = list_entry(l, struct lcs_ipm_list, list);
--		if ( (tmp->ipm.ip_addr == im4->multiaddr) &&
--		     (memcmp(buf, &tmp->ipm.mac_addr,
--			     LCS_MAC_LENGTH) == 0) ) {
--			ipm = tmp;
--			break;
--		}
--	}
--	spin_unlock_irqrestore(&card->ipm_lock, flags);
--	return ipm;
--}
--
--static void lcs_set_mc_addresses(struct lcs_card *card,
--				 struct in_device *in4_dev)
--{
--
--	struct ip_mc_list *im4;
--	struct lcs_ipm_list *ipm;
--	char buf[MAX_ADDR_LEN];
--	unsigned long flags;
--
--	LCS_DBF_TEXT(4, trace, "setmclst");
--	for (im4 = rcu_dereference(in4_dev->mc_list); im4 != NULL;
--	     im4 = rcu_dereference(im4->next_rcu)) {
--		lcs_get_mac_for_ipm(im4->multiaddr, buf, card->dev);
--		ipm = lcs_check_addr_entry(card, im4, buf);
--		if (ipm != NULL)
--			continue;	/* Address already in list. */
--		ipm = kzalloc(sizeof(struct lcs_ipm_list), GFP_ATOMIC);
--		if (ipm == NULL) {
--			pr_info("Not enough memory to add"
--				" new multicast entry!\n");
--			break;
--		}
--		memcpy(&ipm->ipm.mac_addr, buf, LCS_MAC_LENGTH);
--		ipm->ipm.ip_addr = im4->multiaddr;
--		ipm->ipm_state = LCS_IPM_STATE_SET_REQUIRED;
--		spin_lock_irqsave(&card->ipm_lock, flags);
--		LCS_DBF_HEX(2,trace,&ipm->ipm.ip_addr,4);
--		list_add(&ipm->list, &card->ipm_list);
--		spin_unlock_irqrestore(&card->ipm_lock, flags);
--	}
--}
--
--static int
--lcs_register_mc_addresses(void *data)
--{
--	struct lcs_card *card;
--	struct in_device *in4_dev;
--
--	card = (struct lcs_card *) data;
--
--	if (!lcs_do_run_thread(card, LCS_SET_MC_THREAD))
--		return 0;
--	LCS_DBF_TEXT(4, trace, "regmulti");
--
--	in4_dev = in_dev_get(card->dev);
--	if (in4_dev == NULL)
--		goto out;
--	rcu_read_lock();
--	lcs_remove_mc_addresses(card,in4_dev);
--	lcs_set_mc_addresses(card, in4_dev);
--	rcu_read_unlock();
--	in_dev_put(in4_dev);
--
--	netif_carrier_off(card->dev);
--	netif_tx_disable(card->dev);
--	wait_event(card->write.wait_q,
--			(card->write.state != LCS_CH_STATE_RUNNING));
--	lcs_fix_multicast_list(card);
--	if (card->state == DEV_STATE_UP) {
--		netif_carrier_on(card->dev);
--		netif_wake_queue(card->dev);
--	}
--out:
--	lcs_clear_thread_running_bit(card, LCS_SET_MC_THREAD);
--	return 0;
--}
--#endif /* CONFIG_IP_MULTICAST */
--
--/*
-- * function called by net device to
-- * handle multicast address relevant things
-- */
--static void
--lcs_set_multicast_list(struct net_device *dev)
--{
--#ifdef CONFIG_IP_MULTICAST
--        struct lcs_card *card;
--
--        LCS_DBF_TEXT(4, trace, "setmulti");
--        card = (struct lcs_card *) dev->ml_priv;
--
--        if (!lcs_set_thread_start_bit(card, LCS_SET_MC_THREAD))
--		schedule_work(&card->kernel_thread_starter);
--#endif /* CONFIG_IP_MULTICAST */
--}
--
--static long
--lcs_check_irb_error(struct ccw_device *cdev, struct irb *irb)
--{
--	if (!IS_ERR(irb))
--		return 0;
--
--	switch (PTR_ERR(irb)) {
--	case -EIO:
--		dev_warn(&cdev->dev,
--			"An I/O-error occurred on the LCS device\n");
--		LCS_DBF_TEXT(2, trace, "ckirberr");
--		LCS_DBF_TEXT_(2, trace, "  rc%d", -EIO);
--		break;
--	case -ETIMEDOUT:
--		dev_warn(&cdev->dev,
--			"A command timed out on the LCS device\n");
--		LCS_DBF_TEXT(2, trace, "ckirberr");
--		LCS_DBF_TEXT_(2, trace, "  rc%d", -ETIMEDOUT);
--		break;
--	default:
--		dev_warn(&cdev->dev,
--			"An error occurred on the LCS device, rc=%ld\n",
--			PTR_ERR(irb));
--		LCS_DBF_TEXT(2, trace, "ckirberr");
--		LCS_DBF_TEXT(2, trace, "  rc???");
--	}
--	return PTR_ERR(irb);
--}
--
--static int
--lcs_get_problem(struct ccw_device *cdev, struct irb *irb)
--{
--	int dstat, cstat;
--	char *sense;
--
--	sense = (char *) irb->ecw;
--	cstat = irb->scsw.cmd.cstat;
--	dstat = irb->scsw.cmd.dstat;
--
--	if (cstat & (SCHN_STAT_CHN_CTRL_CHK | SCHN_STAT_INTF_CTRL_CHK |
--		     SCHN_STAT_CHN_DATA_CHK | SCHN_STAT_CHAIN_CHECK |
--		     SCHN_STAT_PROT_CHECK   | SCHN_STAT_PROG_CHECK)) {
--		LCS_DBF_TEXT(2, trace, "CGENCHK");
--		return 1;
--	}
--	if (dstat & DEV_STAT_UNIT_CHECK) {
--		if (sense[LCS_SENSE_BYTE_1] &
--		    LCS_SENSE_RESETTING_EVENT) {
--			LCS_DBF_TEXT(2, trace, "REVIND");
--			return 1;
--		}
--		if (sense[LCS_SENSE_BYTE_0] &
--		    LCS_SENSE_CMD_REJECT) {
--			LCS_DBF_TEXT(2, trace, "CMDREJ");
--			return 0;
--		}
--		if ((!sense[LCS_SENSE_BYTE_0]) &&
--		    (!sense[LCS_SENSE_BYTE_1]) &&
--		    (!sense[LCS_SENSE_BYTE_2]) &&
--		    (!sense[LCS_SENSE_BYTE_3])) {
--			LCS_DBF_TEXT(2, trace, "ZEROSEN");
--			return 0;
--		}
--		LCS_DBF_TEXT(2, trace, "DGENCHK");
--		return 1;
--	}
--	return 0;
--}
--
--static void
--lcs_schedule_recovery(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(2, trace, "startrec");
--	if (!lcs_set_thread_start_bit(card, LCS_RECOVERY_THREAD))
--		schedule_work(&card->kernel_thread_starter);
--}
--
--/*
-- * IRQ Handler for LCS channels
-- */
--static void
--lcs_irq(struct ccw_device *cdev, unsigned long intparm, struct irb *irb)
--{
--	struct lcs_card *card;
--	struct lcs_channel *channel;
--	int rc, index;
--	int cstat, dstat;
--
--	if (lcs_check_irb_error(cdev, irb))
--		return;
--
--	card = CARD_FROM_DEV(cdev);
--	if (card->read.ccwdev == cdev)
--		channel = &card->read;
--	else
--		channel = &card->write;
--
--	cstat = irb->scsw.cmd.cstat;
--	dstat = irb->scsw.cmd.dstat;
--	LCS_DBF_TEXT_(5, trace, "Rint%s", dev_name(&cdev->dev));
--	LCS_DBF_TEXT_(5, trace, "%4x%4x", irb->scsw.cmd.cstat,
--		      irb->scsw.cmd.dstat);
--	LCS_DBF_TEXT_(5, trace, "%4x%4x", irb->scsw.cmd.fctl,
--		      irb->scsw.cmd.actl);
--
--	/* Check for channel and device errors presented */
--	rc = lcs_get_problem(cdev, irb);
--	if (rc || (dstat & DEV_STAT_UNIT_EXCEP)) {
--		dev_warn(&cdev->dev,
--			"The LCS device stopped because of an error,"
--			" dstat=0x%X, cstat=0x%X \n",
--			    dstat, cstat);
--		if (rc) {
--			channel->state = LCS_CH_STATE_ERROR;
--		}
--	}
--	if (channel->state == LCS_CH_STATE_ERROR) {
--		lcs_schedule_recovery(card);
--		wake_up(&card->wait_q);
--		return;
--	}
--	/* How far in the ccw chain have we processed? */
--	if ((channel->state != LCS_CH_STATE_INIT) &&
--	    (irb->scsw.cmd.fctl & SCSW_FCTL_START_FUNC) &&
--	    (irb->scsw.cmd.cpa != 0)) {
--		index = (struct ccw1 *)dma32_to_virt(irb->scsw.cmd.cpa)
--			- channel->ccws;
--		if ((irb->scsw.cmd.actl & SCSW_ACTL_SUSPENDED) ||
--		    (irb->scsw.cmd.cstat & SCHN_STAT_PCI))
--			/* Bloody io subsystem tells us lies about cpa... */
--			index = (index - 1) & (LCS_NUM_BUFFS - 1);
--		while (channel->io_idx != index) {
--			__lcs_processed_buffer(channel,
--					       channel->iob + channel->io_idx);
--			channel->io_idx =
--				(channel->io_idx + 1) & (LCS_NUM_BUFFS - 1);
--		}
--	}
--
--	if ((irb->scsw.cmd.dstat & DEV_STAT_DEV_END) ||
--	    (irb->scsw.cmd.dstat & DEV_STAT_CHN_END) ||
--	    (irb->scsw.cmd.dstat & DEV_STAT_UNIT_CHECK))
--		/* Mark channel as stopped. */
--		channel->state = LCS_CH_STATE_STOPPED;
--	else if (irb->scsw.cmd.actl & SCSW_ACTL_SUSPENDED)
--		/* CCW execution stopped on a suspend bit. */
--		channel->state = LCS_CH_STATE_SUSPENDED;
--	if (irb->scsw.cmd.fctl & SCSW_FCTL_HALT_FUNC) {
--		if (irb->scsw.cmd.cc != 0) {
--			ccw_device_halt(channel->ccwdev, 0);
--			return;
--		}
--		/* The channel has been stopped by halt_IO. */
--		channel->state = LCS_CH_STATE_HALTED;
--	}
--	if (irb->scsw.cmd.fctl & SCSW_FCTL_CLEAR_FUNC)
--		channel->state = LCS_CH_STATE_CLEARED;
--	/* Do the rest in the tasklet. */
--	tasklet_schedule(&channel->irq_tasklet);
--}
--
--/*
-- * Tasklet for IRQ handler
-- */
--static void
--lcs_tasklet(unsigned long data)
--{
--	unsigned long flags;
--	struct lcs_channel *channel;
--	struct lcs_buffer *iob;
--	int buf_idx;
--
--	channel = (struct lcs_channel *) data;
--	LCS_DBF_TEXT_(5, trace, "tlet%s", dev_name(&channel->ccwdev->dev));
--
--	/* Check for processed buffers. */
--	iob = channel->iob;
--	buf_idx = channel->buf_idx;
--	while (iob[buf_idx].state == LCS_BUF_STATE_PROCESSED) {
--		/* Do the callback thing. */
--		if (iob[buf_idx].callback != NULL)
--			iob[buf_idx].callback(channel, iob + buf_idx);
--		buf_idx = (buf_idx + 1) & (LCS_NUM_BUFFS - 1);
--	}
--	channel->buf_idx = buf_idx;
--
--	if (channel->state == LCS_CH_STATE_STOPPED)
--		lcs_start_channel(channel);
--	spin_lock_irqsave(get_ccwdev_lock(channel->ccwdev), flags);
--	if (channel->state == LCS_CH_STATE_SUSPENDED &&
--	    channel->iob[channel->io_idx].state == LCS_BUF_STATE_READY)
--		__lcs_resume_channel(channel);
--	spin_unlock_irqrestore(get_ccwdev_lock(channel->ccwdev), flags);
--
--	/* Something happened on the channel. Wake up waiters. */
--	wake_up(&channel->wait_q);
--}
--
--/*
-- * Finish current tx buffer and make it ready for transmit.
-- */
--static void
--__lcs_emit_txbuffer(struct lcs_card *card)
--{
--	LCS_DBF_TEXT(5, trace, "emittx");
--	*(__u16 *)(card->tx_buffer->data + card->tx_buffer->count) = 0;
--	card->tx_buffer->count += 2;
--	lcs_ready_buffer(&card->write, card->tx_buffer);
--	card->tx_buffer = NULL;
--	card->tx_emitted++;
--}
--
--/*
-- * Callback for finished tx buffers.
-- */
--static void
--lcs_txbuffer_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
--{
--	struct lcs_card *card;
--
--	LCS_DBF_TEXT(5, trace, "txbuffcb");
--	/* Put buffer back to pool. */
--	lcs_release_buffer(channel, buffer);
--	card = container_of(channel, struct lcs_card, write);
--	if (netif_queue_stopped(card->dev) && netif_carrier_ok(card->dev))
--		netif_wake_queue(card->dev);
--	spin_lock(&card->lock);
--	card->tx_emitted--;
--	if (card->tx_emitted <= 0 && card->tx_buffer != NULL)
--		/*
--		 * Last running tx buffer has finished. Submit partially
--		 * filled current buffer.
--		 */
--		__lcs_emit_txbuffer(card);
--	spin_unlock(&card->lock);
--}
--
--/*
-- * Packet transmit function called by network stack
-- */
--static netdev_tx_t __lcs_start_xmit(struct lcs_card *card, struct sk_buff *skb,
--				    struct net_device *dev)
--{
--	struct lcs_header *header;
--	int rc = NETDEV_TX_OK;
--
--	LCS_DBF_TEXT(5, trace, "hardxmit");
--	if (skb == NULL) {
--		card->stats.tx_dropped++;
--		card->stats.tx_errors++;
--		return NETDEV_TX_OK;
--	}
--	if (card->state != DEV_STATE_UP) {
--		dev_kfree_skb(skb);
--		card->stats.tx_dropped++;
--		card->stats.tx_errors++;
--		card->stats.tx_carrier_errors++;
--		return NETDEV_TX_OK;
--	}
--	if (skb->protocol == htons(ETH_P_IPV6)) {
--		dev_kfree_skb(skb);
--		return NETDEV_TX_OK;
--	}
--	netif_stop_queue(card->dev);
--	spin_lock(&card->lock);
--	if (card->tx_buffer != NULL &&
--	    card->tx_buffer->count + sizeof(struct lcs_header) +
--	    skb->len + sizeof(u16) > LCS_IOBUFFERSIZE)
--		/* skb too big for current tx buffer. */
--		__lcs_emit_txbuffer(card);
--	if (card->tx_buffer == NULL) {
--		/* Get new tx buffer */
--		card->tx_buffer = lcs_get_buffer(&card->write);
--		if (card->tx_buffer == NULL) {
--			card->stats.tx_dropped++;
--			rc = NETDEV_TX_BUSY;
--			goto out;
--		}
--		card->tx_buffer->callback = lcs_txbuffer_cb;
--		card->tx_buffer->count = 0;
--	}
--	header = (struct lcs_header *)
--		(card->tx_buffer->data + card->tx_buffer->count);
--	card->tx_buffer->count += skb->len + sizeof(struct lcs_header);
--	header->offset = card->tx_buffer->count;
--	header->type = card->lan_type;
--	header->slot = card->portno;
--	skb_copy_from_linear_data(skb, header + 1, skb->len);
--	spin_unlock(&card->lock);
--	card->stats.tx_bytes += skb->len;
--	card->stats.tx_packets++;
--	dev_kfree_skb(skb);
--	netif_wake_queue(card->dev);
--	spin_lock(&card->lock);
--	if (card->tx_emitted <= 0 && card->tx_buffer != NULL)
--		/* If this is the first tx buffer emit it immediately. */
--		__lcs_emit_txbuffer(card);
--out:
--	spin_unlock(&card->lock);
--	return rc;
--}
--
--static netdev_tx_t lcs_start_xmit(struct sk_buff *skb, struct net_device *dev)
--{
--	struct lcs_card *card;
--	int rc;
--
--	LCS_DBF_TEXT(5, trace, "pktxmit");
--	card = (struct lcs_card *) dev->ml_priv;
--	rc = __lcs_start_xmit(card, skb, dev);
--	return rc;
--}
--
--/*
-- * send startlan and lanstat command to make LCS device ready
-- */
--static int
--lcs_startlan_auto(struct lcs_card *card)
--{
--	int rc;
--
--	LCS_DBF_TEXT(2, trace, "strtauto");
--	card->lan_type = LCS_FRAME_TYPE_ENET;
--	rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
--	if (rc == 0)
--		return 0;
--
--	return -EIO;
--}
--
--static int
--lcs_startlan(struct lcs_card *card)
--{
--	int rc, i;
--
--	LCS_DBF_TEXT(2, trace, "startlan");
--	rc = 0;
--	if (card->portno != LCS_INVALID_PORT_NO) {
--		if (card->lan_type == LCS_FRAME_TYPE_AUTO)
--			rc = lcs_startlan_auto(card);
--		else
--			rc = lcs_send_startlan(card, LCS_INITIATOR_TCPIP);
--	} else {
--                for (i = 0; i <= 16; i++) {
--                        card->portno = i;
--                        if (card->lan_type != LCS_FRAME_TYPE_AUTO)
--                                rc = lcs_send_startlan(card,
--                                                       LCS_INITIATOR_TCPIP);
--                        else
--                                /* autodetecting lan type */
--                                rc = lcs_startlan_auto(card);
--                        if (rc == 0)
--                                break;
--                }
--        }
--	if (rc == 0)
--		return lcs_send_lanstat(card);
--	return rc;
--}
--
--/*
-- * LCS detect function
-- * setup channels and make them I/O ready
-- */
--static int
--lcs_detect(struct lcs_card *card)
--{
--	int rc = 0;
--
--	LCS_DBF_TEXT(2, setup, "lcsdetct");
--	/* start/reset card */
--	if (card->dev)
--		netif_stop_queue(card->dev);
--	rc = lcs_stop_channels(card);
--	if (rc == 0) {
--		rc = lcs_start_channels(card);
--		if (rc == 0) {
--			rc = lcs_send_startup(card, LCS_INITIATOR_TCPIP);
--			if (rc == 0)
--				rc = lcs_startlan(card);
--		}
--	}
--	if (rc == 0) {
--		card->state = DEV_STATE_UP;
--	} else {
--		card->state = DEV_STATE_DOWN;
--		card->write.state = LCS_CH_STATE_INIT;
--		card->read.state =  LCS_CH_STATE_INIT;
--	}
--	return rc;
--}
--
--/*
-- * LCS Stop card
-- */
--static int
--lcs_stopcard(struct lcs_card *card)
--{
--	int rc;
--
--	LCS_DBF_TEXT(3, setup, "stopcard");
--
--	if (card->read.state != LCS_CH_STATE_STOPPED &&
--	    card->write.state != LCS_CH_STATE_STOPPED &&
--	    card->read.state != LCS_CH_STATE_ERROR &&
--	    card->write.state != LCS_CH_STATE_ERROR &&
--	    card->state == DEV_STATE_UP) {
--		lcs_clear_multicast_list(card);
--		rc = lcs_send_stoplan(card,LCS_INITIATOR_TCPIP);
--		rc = lcs_send_shutdown(card);
--	}
--	rc = lcs_stop_channels(card);
--	card->state = DEV_STATE_DOWN;
--
--	return rc;
--}
--
--/*
-- * Kernel Thread helper functions for LGW initiated commands
-- */
--static void
--lcs_start_kernel_thread(struct work_struct *work)
--{
--	struct lcs_card *card = container_of(work, struct lcs_card, kernel_thread_starter);
--	LCS_DBF_TEXT(5, trace, "krnthrd");
--	if (lcs_do_start_thread(card, LCS_RECOVERY_THREAD))
--		kthread_run(lcs_recovery, card, "lcs_recover");
--#ifdef CONFIG_IP_MULTICAST
--	if (lcs_do_start_thread(card, LCS_SET_MC_THREAD))
--		kthread_run(lcs_register_mc_addresses, card, "regipm");
--#endif
--}
--
--/*
-- * Process control frames.
-- */
--static void
--lcs_get_control(struct lcs_card *card, struct lcs_cmd *cmd)
--{
--	LCS_DBF_TEXT(5, trace, "getctrl");
--	if (cmd->initiator == LCS_INITIATOR_LGW) {
--		switch(cmd->cmd_code) {
--		case LCS_CMD_STARTUP:
--		case LCS_CMD_STARTLAN:
--			lcs_schedule_recovery(card);
--			break;
--		case LCS_CMD_STOPLAN:
--			if (card->dev) {
--				pr_warn("Stoplan for %s initiated by LGW\n",
--					card->dev->name);
--				netif_carrier_off(card->dev);
--			}
--			break;
--		default:
--			LCS_DBF_TEXT(5, trace, "noLGWcmd");
--			break;
--		}
--	} else
--		lcs_notify_lancmd_waiters(card, cmd);
--}
--
--/*
-- * Unpack network packet.
-- */
--static void
--lcs_get_skb(struct lcs_card *card, char *skb_data, unsigned int skb_len)
--{
--	struct sk_buff *skb;
--
--	LCS_DBF_TEXT(5, trace, "getskb");
--	if (card->dev == NULL ||
--	    card->state != DEV_STATE_UP)
--		/* The card isn't up. Ignore the packet. */
--		return;
--
--	skb = dev_alloc_skb(skb_len);
--	if (skb == NULL) {
--		dev_err(&card->dev->dev,
--			" Allocating a socket buffer to interface %s failed\n",
--			  card->dev->name);
--		card->stats.rx_dropped++;
--		return;
--	}
--	skb_put_data(skb, skb_data, skb_len);
--	skb->protocol =	card->lan_type_trans(skb, card->dev);
--	card->stats.rx_bytes += skb_len;
--	card->stats.rx_packets++;
--	if (skb->protocol == htons(ETH_P_802_2))
--		*((__u32 *)skb->cb) = ++card->pkt_seq;
--	netif_rx(skb);
--}
--
--/*
-- * LCS main routine to get packets and lancmd replies from the buffers
-- */
--static void
--lcs_get_frames_cb(struct lcs_channel *channel, struct lcs_buffer *buffer)
--{
--	struct lcs_card *card;
--	struct lcs_header *lcs_hdr;
--	__u16 offset;
--
--	LCS_DBF_TEXT(5, trace, "lcsgtpkt");
--	lcs_hdr = (struct lcs_header *) buffer->data;
--	if (lcs_hdr->offset == LCS_ILLEGAL_OFFSET) {
--		LCS_DBF_TEXT(4, trace, "-eiogpkt");
--		return;
--	}
--	card = container_of(channel, struct lcs_card, read);
--	offset = 0;
--	while (lcs_hdr->offset != 0) {
--		if (lcs_hdr->offset <= 0 ||
--		    lcs_hdr->offset > LCS_IOBUFFERSIZE ||
--		    lcs_hdr->offset < offset) {
--			/* Offset invalid. */
--			card->stats.rx_length_errors++;
--			card->stats.rx_errors++;
--			return;
--		}
--		if (lcs_hdr->type == LCS_FRAME_TYPE_CONTROL)
--			lcs_get_control(card, (struct lcs_cmd *) lcs_hdr);
--		else if (lcs_hdr->type == LCS_FRAME_TYPE_ENET)
--			lcs_get_skb(card, (char *)(lcs_hdr + 1),
--				    lcs_hdr->offset - offset -
--				    sizeof(struct lcs_header));
--		else
--			dev_info_once(&card->dev->dev,
--				      "Unknown frame type %d\n",
--				      lcs_hdr->type);
--		offset = lcs_hdr->offset;
--		lcs_hdr->offset = LCS_ILLEGAL_OFFSET;
--		lcs_hdr = (struct lcs_header *) (buffer->data + offset);
--	}
--	/* The buffer is now empty. Make it ready again. */
--	lcs_ready_buffer(&card->read, buffer);
--}
--
--/*
-- * get network statistics for ifconfig and other user programs
-- */
--static struct net_device_stats *
--lcs_getstats(struct net_device *dev)
--{
--	struct lcs_card *card;
--
--	LCS_DBF_TEXT(4, trace, "netstats");
--	card = (struct lcs_card *) dev->ml_priv;
--	return &card->stats;
--}
--
--/*
-- * stop lcs device
-- * This function will be called by user doing ifconfig xxx down
-- */
--static int
--lcs_stop_device(struct net_device *dev)
--{
--	struct lcs_card *card;
--	int rc;
--
--	LCS_DBF_TEXT(2, trace, "stopdev");
--	card   = (struct lcs_card *) dev->ml_priv;
--	netif_carrier_off(dev);
--	netif_tx_disable(dev);
--	dev->flags &= ~IFF_UP;
--	wait_event(card->write.wait_q,
--		(card->write.state != LCS_CH_STATE_RUNNING));
--	rc = lcs_stopcard(card);
--	if (rc)
--		dev_err(&card->dev->dev,
--			" Shutting down the LCS device failed\n");
--	return rc;
--}
--
--/*
-- * start lcs device and make it runnable
-- * This function will be called by user doing ifconfig xxx up
-- */
--static int
--lcs_open_device(struct net_device *dev)
--{
--	struct lcs_card *card;
--	int rc;
--
--	LCS_DBF_TEXT(2, trace, "opendev");
--	card = (struct lcs_card *) dev->ml_priv;
--	/* initialize statistics */
--	rc = lcs_detect(card);
--	if (rc) {
--		pr_err("Error in opening device!\n");
--
--	} else {
--		dev->flags |= IFF_UP;
--		netif_carrier_on(dev);
--		netif_wake_queue(dev);
--		card->state = DEV_STATE_UP;
--	}
--	return rc;
--}
--
--/*
-- * show function for portno called by cat or similar things
-- */
--static ssize_t
--lcs_portno_show (struct device *dev, struct device_attribute *attr, char *buf)
--{
--	struct lcs_card *card;
--
--	card = dev_get_drvdata(dev);
--
--	if (!card)
--		return 0;
--
--	return sysfs_emit(buf, "%d\n", card->portno);
--}
--
--/*
-- * store the value which is piped to file portno
-- */
--static ssize_t
--lcs_portno_store (struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
--{
--        struct lcs_card *card;
--	int rc;
--	s16 value;
--
--	card = dev_get_drvdata(dev);
--
--        if (!card)
--                return 0;
--
--	rc = kstrtos16(buf, 0, &value);
--	if (rc)
--		return -EINVAL;
--        /* TODO: sanity checks */
--        card->portno = value;
--	if (card->dev)
--		card->dev->dev_port = card->portno;
--
--        return count;
--
--}
--
--static DEVICE_ATTR(portno, 0644, lcs_portno_show, lcs_portno_store);
--
--static const char *lcs_type[] = {
--	"not a channel",
--	"2216 parallel",
--	"2216 channel",
--	"OSA LCS card",
--	"unknown channel type",
--	"unsupported channel type",
--};
--
--static ssize_t
--lcs_type_show(struct device *dev, struct device_attribute *attr, char *buf)
--{
--	struct ccwgroup_device *cgdev;
--
--	cgdev = to_ccwgroupdev(dev);
--	if (!cgdev)
--		return -ENODEV;
--
--	return sysfs_emit(buf, "%s\n",
--			  lcs_type[cgdev->cdev[0]->id.driver_info]);
--}
--
--static DEVICE_ATTR(type, 0444, lcs_type_show, NULL);
--
--static ssize_t
--lcs_timeout_show(struct device *dev, struct device_attribute *attr, char *buf)
--{
--	struct lcs_card *card;
--
--	card = dev_get_drvdata(dev);
--
--	return card ? sysfs_emit(buf, "%u\n", card->lancmd_timeout) : 0;
--}
--
--static ssize_t
--lcs_timeout_store (struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
--{
--        struct lcs_card *card;
--	unsigned int value;
--	int rc;
--
--	card = dev_get_drvdata(dev);
--
--        if (!card)
--                return 0;
--
--	rc = kstrtouint(buf, 0, &value);
--	if (rc)
--		return -EINVAL;
--        /* TODO: sanity checks */
--        card->lancmd_timeout = value;
--
--        return count;
--
--}
--
--static DEVICE_ATTR(lancmd_timeout, 0644, lcs_timeout_show, lcs_timeout_store);
--
--static ssize_t
--lcs_dev_recover_store(struct device *dev, struct device_attribute *attr,
--		      const char *buf, size_t count)
--{
--	struct lcs_card *card = dev_get_drvdata(dev);
--	char *tmp;
--	int i;
--
--	if (!card)
--		return -EINVAL;
--	if (card->state != DEV_STATE_UP)
--		return -EPERM;
--	i = simple_strtoul(buf, &tmp, 16);
--	if (i == 1)
--		lcs_schedule_recovery(card);
--	return count;
--}
--
--static DEVICE_ATTR(recover, 0200, NULL, lcs_dev_recover_store);
--
--static struct attribute * lcs_attrs[] = {
--	&dev_attr_portno.attr,
--	&dev_attr_type.attr,
--	&dev_attr_lancmd_timeout.attr,
--	&dev_attr_recover.attr,
--	NULL,
--};
--static struct attribute_group lcs_attr_group = {
--	.attrs = lcs_attrs,
--};
--static const struct attribute_group *lcs_attr_groups[] = {
--	&lcs_attr_group,
--	NULL,
--};
--static const struct device_type lcs_devtype = {
--	.name = "lcs",
--	.groups = lcs_attr_groups,
--};
--
--/*
-- * lcs_probe_device is called on establishing a new ccwgroup_device.
-- */
--static int
--lcs_probe_device(struct ccwgroup_device *ccwgdev)
--{
--	struct lcs_card *card;
--
--	if (!get_device(&ccwgdev->dev))
--		return -ENODEV;
--
--	LCS_DBF_TEXT(2, setup, "add_dev");
--        card = lcs_alloc_card();
--        if (!card) {
--		LCS_DBF_TEXT_(2, setup, "  rc%d", -ENOMEM);
--		put_device(&ccwgdev->dev);
--                return -ENOMEM;
--        }
--	dev_set_drvdata(&ccwgdev->dev, card);
--	ccwgdev->cdev[0]->handler = lcs_irq;
--	ccwgdev->cdev[1]->handler = lcs_irq;
--	card->gdev = ccwgdev;
--	INIT_WORK(&card->kernel_thread_starter, lcs_start_kernel_thread);
--	card->thread_start_mask = 0;
--	card->thread_allowed_mask = 0;
--	card->thread_running_mask = 0;
--	ccwgdev->dev.type = &lcs_devtype;
--
--	return 0;
--}
--
--static int
--lcs_register_netdev(struct ccwgroup_device *ccwgdev)
--{
--	struct lcs_card *card;
--
--	LCS_DBF_TEXT(2, setup, "regnetdv");
--	card = dev_get_drvdata(&ccwgdev->dev);
--	if (card->dev->reg_state != NETREG_UNINITIALIZED)
--		return 0;
--	SET_NETDEV_DEV(card->dev, &ccwgdev->dev);
--	return register_netdev(card->dev);
--}
--
--/*
-- * lcs_new_device will be called by setting the group device online.
-- */
--static const struct net_device_ops lcs_netdev_ops = {
--	.ndo_open		= lcs_open_device,
--	.ndo_stop		= lcs_stop_device,
--	.ndo_get_stats		= lcs_getstats,
--	.ndo_start_xmit		= lcs_start_xmit,
--};
--
--static const struct net_device_ops lcs_mc_netdev_ops = {
--	.ndo_open		= lcs_open_device,
--	.ndo_stop		= lcs_stop_device,
--	.ndo_get_stats		= lcs_getstats,
--	.ndo_start_xmit		= lcs_start_xmit,
--	.ndo_set_rx_mode	= lcs_set_multicast_list,
--};
--
--static int
--lcs_new_device(struct ccwgroup_device *ccwgdev)
--{
--	struct  lcs_card *card;
--	struct net_device *dev=NULL;
--	enum lcs_dev_states recover_state;
--	int rc;
--
--	card = dev_get_drvdata(&ccwgdev->dev);
--	if (!card)
--		return -ENODEV;
--
--	LCS_DBF_TEXT(2, setup, "newdev");
--	LCS_DBF_HEX(3, setup, &card, sizeof(void*));
--	card->read.ccwdev  = ccwgdev->cdev[0];
--	card->write.ccwdev = ccwgdev->cdev[1];
--
--	recover_state = card->state;
--	rc = ccw_device_set_online(card->read.ccwdev);
--	if (rc)
--		goto out_err;
--	rc = ccw_device_set_online(card->write.ccwdev);
--	if (rc)
--		goto out_werr;
--
--	LCS_DBF_TEXT(3, setup, "lcsnewdv");
--
--	lcs_setup_card(card);
--	rc = lcs_detect(card);
--	if (rc) {
--		LCS_DBF_TEXT(2, setup, "dtctfail");
--		dev_err(&ccwgdev->dev,
--			"Detecting a network adapter for LCS devices"
--			" failed with rc=%d (0x%x)\n", rc, rc);
--		lcs_stopcard(card);
--		goto out;
--	}
--	if (card->dev) {
--		LCS_DBF_TEXT(2, setup, "samedev");
--		LCS_DBF_HEX(3, setup, &card, sizeof(void*));
--		goto netdev_out;
--	}
--	switch (card->lan_type) {
--	case LCS_FRAME_TYPE_ENET:
--		card->lan_type_trans = eth_type_trans;
--		dev = alloc_etherdev(0);
--		break;
--	default:
--		LCS_DBF_TEXT(3, setup, "errinit");
--		pr_err(" Initialization failed\n");
--		goto out;
--	}
--	if (!dev)
--		goto out;
--	card->dev = dev;
--	card->dev->ml_priv = card;
--	card->dev->netdev_ops = &lcs_netdev_ops;
--	card->dev->dev_port = card->portno;
--	eth_hw_addr_set(card->dev, card->mac);
--#ifdef CONFIG_IP_MULTICAST
--	if (!lcs_check_multicast_support(card))
--		card->dev->netdev_ops = &lcs_mc_netdev_ops;
--#endif
--netdev_out:
--	lcs_set_allowed_threads(card,0xffffffff);
--	if (recover_state == DEV_STATE_RECOVER) {
--		lcs_set_multicast_list(card->dev);
--		card->dev->flags |= IFF_UP;
--		netif_carrier_on(card->dev);
--		netif_wake_queue(card->dev);
--		card->state = DEV_STATE_UP;
--	} else {
--		lcs_stopcard(card);
--	}
--
--	if (lcs_register_netdev(ccwgdev) != 0)
--		goto out;
--
--	/* Print out supported assists: IPv6 */
--	pr_info("LCS device %s %s IPv6 support\n", card->dev->name,
--		(card->ip_assists_supported & LCS_IPASS_IPV6_SUPPORT) ?
--		"with" : "without");
--	/* Print out supported assist: Multicast */
--	pr_info("LCS device %s %s Multicast support\n", card->dev->name,
--		(card->ip_assists_supported & LCS_IPASS_MULTICAST_SUPPORT) ?
--		"with" : "without");
--	return 0;
--out:
--
--	ccw_device_set_offline(card->write.ccwdev);
--out_werr:
--	ccw_device_set_offline(card->read.ccwdev);
--out_err:
--	return -ENODEV;
--}
--
--/*
-- * lcs_shutdown_device, called when setting the group device offline.
-- */
--static int
--__lcs_shutdown_device(struct ccwgroup_device *ccwgdev, int recovery_mode)
--{
--	struct lcs_card *card;
--	enum lcs_dev_states recover_state;
--	int ret = 0, ret2 = 0, ret3 = 0;
--
--	LCS_DBF_TEXT(3, setup, "shtdndev");
--	card = dev_get_drvdata(&ccwgdev->dev);
--	if (!card)
--		return -ENODEV;
--	if (recovery_mode == 0) {
--		lcs_set_allowed_threads(card, 0);
--		if (lcs_wait_for_threads(card, LCS_SET_MC_THREAD))
--			return -ERESTARTSYS;
--	}
--	LCS_DBF_HEX(3, setup, &card, sizeof(void*));
--	recover_state = card->state;
--
--	ret = lcs_stop_device(card->dev);
--	ret2 = ccw_device_set_offline(card->read.ccwdev);
--	ret3 = ccw_device_set_offline(card->write.ccwdev);
--	if (!ret)
--		ret = (ret2) ? ret2 : ret3;
--	if (ret)
--		LCS_DBF_TEXT_(3, setup, "1err:%d", ret);
--	if (recover_state == DEV_STATE_UP) {
--		card->state = DEV_STATE_RECOVER;
--	}
--	return 0;
--}
--
--static int
--lcs_shutdown_device(struct ccwgroup_device *ccwgdev)
--{
--	return __lcs_shutdown_device(ccwgdev, 0);
--}
--
--/*
-- * drive lcs recovery after startup and startlan initiated by Lan Gateway
-- */
--static int
--lcs_recovery(void *ptr)
--{
--	struct lcs_card *card;
--	struct ccwgroup_device *gdev;
--        int rc;
--
--	card = (struct lcs_card *) ptr;
--
--	LCS_DBF_TEXT(4, trace, "recover1");
--	if (!lcs_do_run_thread(card, LCS_RECOVERY_THREAD))
--		return 0;
--	LCS_DBF_TEXT(4, trace, "recover2");
--	gdev = card->gdev;
--	dev_warn(&gdev->dev,
--		"A recovery process has been started for the LCS device\n");
--	rc = __lcs_shutdown_device(gdev, 1);
--	rc = lcs_new_device(gdev);
--	if (!rc)
--		pr_info("Device %s successfully recovered!\n",
--			card->dev->name);
--	else
--		pr_info("Device %s could not be recovered!\n",
--			card->dev->name);
--	lcs_clear_thread_running_bit(card, LCS_RECOVERY_THREAD);
--	return 0;
--}
--
--/*
-- * lcs_remove_device, free buffers and card
-- */
--static void
--lcs_remove_device(struct ccwgroup_device *ccwgdev)
--{
--	struct lcs_card *card;
--
--	card = dev_get_drvdata(&ccwgdev->dev);
--	if (!card)
--		return;
--
--	LCS_DBF_TEXT(3, setup, "remdev");
--	LCS_DBF_HEX(3, setup, &card, sizeof(void*));
--	if (ccwgdev->state == CCWGROUP_ONLINE) {
--		lcs_shutdown_device(ccwgdev);
--	}
--	if (card->dev)
--		unregister_netdev(card->dev);
--	lcs_cleanup_card(card);
--	lcs_free_card(card);
--	dev_set_drvdata(&ccwgdev->dev, NULL);
--	put_device(&ccwgdev->dev);
--}
--
--static struct ccw_device_id lcs_ids[] = {
--	{CCW_DEVICE(0x3088, 0x08), .driver_info = lcs_channel_type_parallel},
--	{CCW_DEVICE(0x3088, 0x1f), .driver_info = lcs_channel_type_2216},
--	{CCW_DEVICE(0x3088, 0x60), .driver_info = lcs_channel_type_osa2},
--	{},
--};
--MODULE_DEVICE_TABLE(ccw, lcs_ids);
--
--static struct ccw_driver lcs_ccw_driver = {
--	.driver = {
--		.owner	= THIS_MODULE,
--		.name	= "lcs",
--	},
--	.ids	= lcs_ids,
--	.probe	= ccwgroup_probe_ccwdev,
--	.remove	= ccwgroup_remove_ccwdev,
--	.int_class = IRQIO_LCS,
--};
--
--/*
-- * LCS ccwgroup driver registration
-- */
--static struct ccwgroup_driver lcs_group_driver = {
--	.driver = {
--		.owner	= THIS_MODULE,
--		.name	= "lcs",
--	},
--	.ccw_driver  = &lcs_ccw_driver,
--	.setup	     = lcs_probe_device,
--	.remove      = lcs_remove_device,
--	.set_online  = lcs_new_device,
--	.set_offline = lcs_shutdown_device,
--};
--
--static ssize_t group_store(struct device_driver *ddrv, const char *buf,
--			   size_t count)
--{
--	int err;
--	err = ccwgroup_create_dev(lcs_root_dev, &lcs_group_driver, 2, buf);
--	return err ? err : count;
--}
--static DRIVER_ATTR_WO(group);
--
--static struct attribute *lcs_drv_attrs[] = {
--	&driver_attr_group.attr,
--	NULL,
--};
--static struct attribute_group lcs_drv_attr_group = {
--	.attrs = lcs_drv_attrs,
--};
--static const struct attribute_group *lcs_drv_attr_groups[] = {
--	&lcs_drv_attr_group,
--	NULL,
--};
--
--/*
-- *  LCS Module/Kernel initialization function
-- */
--static int
--__init lcs_init_module(void)
--{
--	int rc;
--
--	pr_info("Loading %s\n", version);
--	rc = lcs_register_debug_facility();
--	LCS_DBF_TEXT(0, setup, "lcsinit");
--	if (rc)
--		goto out_err;
--	lcs_root_dev = root_device_register("lcs");
--	rc = PTR_ERR_OR_ZERO(lcs_root_dev);
--	if (rc)
--		goto register_err;
--	rc = ccw_driver_register(&lcs_ccw_driver);
--	if (rc)
--		goto ccw_err;
--	lcs_group_driver.driver.groups = lcs_drv_attr_groups;
--	rc = ccwgroup_driver_register(&lcs_group_driver);
--	if (rc)
--		goto ccwgroup_err;
--	return 0;
--
--ccwgroup_err:
--	ccw_driver_unregister(&lcs_ccw_driver);
--ccw_err:
--	root_device_unregister(lcs_root_dev);
--register_err:
--	lcs_unregister_debug_facility();
--out_err:
--	pr_err("Initializing the lcs device driver failed\n");
--	return rc;
--}
--
--
--/*
-- *  LCS module cleanup function
-- */
--static void
--__exit lcs_cleanup_module(void)
--{
--	pr_info("Terminating lcs module.\n");
--	LCS_DBF_TEXT(0, trace, "cleanup");
--	ccwgroup_driver_unregister(&lcs_group_driver);
--	ccw_driver_unregister(&lcs_ccw_driver);
--	root_device_unregister(lcs_root_dev);
--	lcs_unregister_debug_facility();
--}
--
--module_init(lcs_init_module);
--module_exit(lcs_cleanup_module);
--
--MODULE_AUTHOR("Frank Pavlic <fpavlic@de.ibm.com>");
--MODULE_DESCRIPTION("S/390 LAN channel station device driver");
--MODULE_LICENSE("GPL");
--
-diff --git a/drivers/s390/net/lcs.h b/drivers/s390/net/lcs.h
-deleted file mode 100644
-index a2699b70b050..000000000000
---- a/drivers/s390/net/lcs.h
-+++ /dev/null
-@@ -1,342 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--/*lcs.h*/
--
--#include <linux/interrupt.h>
--#include <linux/netdevice.h>
--#include <linux/skbuff.h>
--#include <linux/workqueue.h>
--#include <linux/refcount.h>
--#include <asm/ccwdev.h>
--
--#define LCS_DBF_TEXT(level, name, text) \
--	do { \
--		debug_text_event(lcs_dbf_##name, level, text); \
--	} while (0)
--
--#define LCS_DBF_HEX(level,name,addr,len) \
--do { \
--	debug_event(lcs_dbf_##name,level,(void*)(addr),len); \
--} while (0)
--
--#define LCS_DBF_TEXT_(level,name,text...) \
--	do { \
--		if (debug_level_enabled(lcs_dbf_##name, level)) { \
--			scnprintf(debug_buffer, sizeof(debug_buffer), text); \
--			debug_text_event(lcs_dbf_##name, level, debug_buffer); \
--		} \
--	} while (0)
--
--/**
-- *	sysfs related stuff
-- */
--#define CARD_FROM_DEV(cdev) \
--	(struct lcs_card *) dev_get_drvdata( \
--		&((struct ccwgroup_device *)dev_get_drvdata(&cdev->dev))->dev);
--
--/**
-- * Enum for classifying detected devices.
-- */
--enum lcs_channel_types {
--	/* Device is not a channel  */
--	lcs_channel_type_none,
--
--	/* Device is a 2216 channel */
--	lcs_channel_type_parallel,
--
--	/* Device is a 2216 channel */
--	lcs_channel_type_2216,
--
--	/* Device is a OSA2 card */
--	lcs_channel_type_osa2
--};
--
--/**
-- * CCW commands used in this driver
-- */
--#define LCS_CCW_WRITE		0x01
--#define LCS_CCW_READ		0x02
--#define LCS_CCW_TRANSFER	0x08
--
--/**
-- * LCS device status primitives
-- */
--#define LCS_CMD_STARTLAN	0x01
--#define LCS_CMD_STOPLAN		0x02
--#define LCS_CMD_LANSTAT		0x04
--#define LCS_CMD_STARTUP		0x07
--#define LCS_CMD_SHUTDOWN	0x08
--#define LCS_CMD_QIPASSIST	0xb2
--#define LCS_CMD_SETIPM		0xb4
--#define LCS_CMD_DELIPM		0xb5
--
--#define LCS_INITIATOR_TCPIP	0x00
--#define LCS_INITIATOR_LGW	0x01
--#define LCS_STD_CMD_SIZE	16
--#define LCS_MULTICAST_CMD_SIZE	404
--
--/**
-- * LCS IPASSIST MASKS,only used when multicast is switched on
-- */
--/* Not supported by LCS */
--#define LCS_IPASS_ARP_PROCESSING	0x0001
--#define LCS_IPASS_IN_CHECKSUM_SUPPORT	0x0002
--#define LCS_IPASS_OUT_CHECKSUM_SUPPORT	0x0004
--#define LCS_IPASS_IP_FRAG_REASSEMBLY	0x0008
--#define LCS_IPASS_IP_FILTERING		0x0010
--/* Supported by lcs 3172 */
--#define LCS_IPASS_IPV6_SUPPORT		0x0020
--#define LCS_IPASS_MULTICAST_SUPPORT	0x0040
--
--/**
-- * LCS sense byte definitions
-- */
--#define LCS_SENSE_BYTE_0 		0
--#define LCS_SENSE_BYTE_1 		1
--#define LCS_SENSE_BYTE_2 		2
--#define LCS_SENSE_BYTE_3 		3
--#define LCS_SENSE_INTERFACE_DISCONNECT	0x01
--#define LCS_SENSE_EQUIPMENT_CHECK	0x10
--#define LCS_SENSE_BUS_OUT_CHECK		0x20
--#define LCS_SENSE_INTERVENTION_REQUIRED 0x40
--#define LCS_SENSE_CMD_REJECT		0x80
--#define LCS_SENSE_RESETTING_EVENT	0x80
--#define LCS_SENSE_DEVICE_ONLINE		0x20
--
--/**
-- * LCS packet type definitions
-- */
--#define LCS_FRAME_TYPE_CONTROL		0
--#define LCS_FRAME_TYPE_ENET		1
--#define LCS_FRAME_TYPE_TR		2
--#define LCS_FRAME_TYPE_FDDI		7
--#define LCS_FRAME_TYPE_AUTO		-1
--
--/**
-- * some more definitions,we will sort them later
-- */
--#define LCS_ILLEGAL_OFFSET		0xffff
--#define LCS_IOBUFFERSIZE		0x5000
--#define LCS_NUM_BUFFS			32	/* needs to be power of 2 */
--#define LCS_MAC_LENGTH			6
--#define LCS_INVALID_PORT_NO		-1
--#define LCS_LANCMD_TIMEOUT_DEFAULT      5
--
--/**
-- * Multicast state
-- */
--#define	 LCS_IPM_STATE_SET_REQUIRED	0
--#define	 LCS_IPM_STATE_DEL_REQUIRED	1
--#define	 LCS_IPM_STATE_ON_CARD		2
--
--/**
-- * LCS IP Assist declarations
-- * seems to be only used for multicast
-- */
--#define	 LCS_IPASS_ARP_PROCESSING	0x0001
--#define	 LCS_IPASS_INBOUND_CSUM_SUPP	0x0002
--#define	 LCS_IPASS_OUTBOUND_CSUM_SUPP	0x0004
--#define	 LCS_IPASS_IP_FRAG_REASSEMBLY	0x0008
--#define	 LCS_IPASS_IP_FILTERING		0x0010
--#define	 LCS_IPASS_IPV6_SUPPORT		0x0020
--#define	 LCS_IPASS_MULTICAST_SUPPORT	0x0040
--
--/**
-- * LCS Buffer states
-- */
--enum lcs_buffer_states {
--	LCS_BUF_STATE_EMPTY,	/* buffer is empty */
--	LCS_BUF_STATE_LOCKED,	/* buffer is locked, don't touch */
--	LCS_BUF_STATE_READY,	/* buffer is ready for read/write */
--	LCS_BUF_STATE_PROCESSED,
--};
--
--/**
-- * LCS Channel State Machine declarations
-- */
--enum lcs_channel_states {
--	LCS_CH_STATE_INIT,
--	LCS_CH_STATE_HALTED,
--	LCS_CH_STATE_STOPPED,
--	LCS_CH_STATE_RUNNING,
--	LCS_CH_STATE_SUSPENDED,
--	LCS_CH_STATE_CLEARED,
--	LCS_CH_STATE_ERROR,
--};
--
--/**
-- * LCS device state machine
-- */
--enum lcs_dev_states {
--	DEV_STATE_DOWN,
--	DEV_STATE_UP,
--	DEV_STATE_RECOVER,
--};
--
--enum lcs_threads {
--	LCS_SET_MC_THREAD 	= 1,
--	LCS_RECOVERY_THREAD 	= 2,
--};
--
--/**
-- * LCS struct declarations
-- */
--struct lcs_header {
--	__u16  offset;
--	__u8   type;
--	__u8   slot;
--}  __attribute__ ((packed));
--
--struct lcs_ip_mac_pair {
--	__be32  ip_addr;
--	__u8   mac_addr[LCS_MAC_LENGTH];
--	__u8   reserved[2];
--}  __attribute__ ((packed));
--
--struct lcs_ipm_list {
--	struct list_head list;
--	struct lcs_ip_mac_pair ipm;
--	__u8 ipm_state;
--};
--
--struct lcs_cmd {
--	__u16  offset;
--	__u8   type;
--	__u8   slot;
--	__u8   cmd_code;
--	__u8   initiator;
--	__u16  sequence_no;
--	__u16  return_code;
--	union {
--		struct {
--			__u8   lan_type;
--			__u8   portno;
--			__u16  parameter_count;
--			__u8   operator_flags[3];
--			__u8   reserved[3];
--		} lcs_std_cmd;
--		struct {
--			__u16  unused1;
--			__u16  buff_size;
--			__u8   unused2[6];
--		} lcs_startup;
--		struct {
--			__u8   lan_type;
--			__u8   portno;
--			__u8   unused[10];
--			__u8   mac_addr[LCS_MAC_LENGTH];
--			__u32  num_packets_deblocked;
--			__u32  num_packets_blocked;
--			__u32  num_packets_tx_on_lan;
--			__u32  num_tx_errors_detected;
--			__u32  num_tx_packets_disgarded;
--			__u32  num_packets_rx_from_lan;
--			__u32  num_rx_errors_detected;
--			__u32  num_rx_discarded_nobuffs_avail;
--			__u32  num_rx_packets_too_large;
--		} lcs_lanstat_cmd;
--#ifdef CONFIG_IP_MULTICAST
--		struct {
--			__u8   lan_type;
--			__u8   portno;
--			__u16  num_ip_pairs;
--			__u16  ip_assists_supported;
--			__u16  ip_assists_enabled;
--			__u16  version;
--			struct {
--				struct lcs_ip_mac_pair
--				ip_mac_pair[32];
--				__u32	  response_data;
--			} lcs_ipass_ctlmsg __attribute ((packed));
--		} lcs_qipassist __attribute__ ((packed));
--#endif /*CONFIG_IP_MULTICAST */
--	} cmd __attribute__ ((packed));
--}  __attribute__ ((packed));
--
--/**
-- * Forward declarations.
-- */
--struct lcs_card;
--struct lcs_channel;
--
--/**
-- * Definition of an lcs buffer.
-- */
--struct lcs_buffer {
--	enum lcs_buffer_states state;
--	void *data;
--	int count;
--	/* Callback for completion notification. */
--	void (*callback)(struct lcs_channel *, struct lcs_buffer *);
--};
--
--struct lcs_reply {
--	struct list_head list;
--	__u16 sequence_no;
--	refcount_t refcnt;
--	/* Callback for completion notification. */
--	void (*callback)(struct lcs_card *, struct lcs_cmd *);
--	wait_queue_head_t wait_q;
--	struct lcs_card *card;
--	struct timer_list timer;
--	int received;
--	int rc;
--};
--
--/**
-- * Definition of an lcs channel
-- */
--struct lcs_channel {
--	enum lcs_channel_states state;
--	struct ccw_device *ccwdev;
--	struct ccw1 ccws[LCS_NUM_BUFFS + 1];
--	wait_queue_head_t wait_q;
--	struct tasklet_struct irq_tasklet;
--	struct lcs_buffer iob[LCS_NUM_BUFFS];
--	int io_idx;
--	int buf_idx;
--};
--
--
--/**
-- * definition of the lcs card
-- */
--struct lcs_card {
--	spinlock_t lock;
--	spinlock_t ipm_lock;
--	enum lcs_dev_states state;
--	struct net_device *dev;
--	struct net_device_stats stats;
--	__be16 (*lan_type_trans)(struct sk_buff *skb,
--					 struct net_device *dev);
--	struct ccwgroup_device *gdev;
--	struct lcs_channel read;
--	struct lcs_channel write;
--	struct lcs_buffer *tx_buffer;
--	int tx_emitted;
--	struct list_head lancmd_waiters;
--	int lancmd_timeout;
--
--	struct work_struct kernel_thread_starter;
--	spinlock_t mask_lock;
--	unsigned long thread_start_mask;
--	unsigned long thread_running_mask;
--	unsigned long thread_allowed_mask;
--	wait_queue_head_t wait_q;
--
--#ifdef CONFIG_IP_MULTICAST
--	struct list_head ipm_list;
--#endif
--	__u8 mac[LCS_MAC_LENGTH];
--	__u16 ip_assists_supported;
--	__u16 ip_assists_enabled;
--	__s8 lan_type;
--	__u32 pkt_seq;
--	__u16 sequence_no;
--	__s16 portno;
--	/* Some info copied from probeinfo */
--	u8 device_forced;
--	u8 max_port_no;
--	u8 hint_port_no;
--	s16 port_protocol_no;
--}  __attribute__ ((aligned(8)));
--
--- 
-2.45.2
+> Please, send a new version of your patch where these problems are 
+> fixed.
+> 
+> Also, test your patch with the cryptsetup testsuite - download it with
+> "git clone https://gitlab.com/cryptsetup/cryptsetup" and run 
+> "./autogen.sh
+> && ./configure && make && make check". Make sure that the ahash 
+> interface
+> is preferred while testing - so that you can catch bugs like scheduling 
+> in
+> interrupt that happens in dm_integrity_end_io (I'm not sure if the
+> testsuite tests the 'Inline' mode of dm-integrity; maybe not).
+> 
+> Mikulas
 
+Thanks Mikulas for your feedback.
+As of now all this looks like a dead end to our attempt on trying to
+provide a phmac-shaxxx digest for use with dm-integrity. Thanks for
+your effort. Don't expect another version of this patch as I can't
+fullfill the requirements.
+
+> 
+> 
+> On Fri, 31 Jan 2025, Harald Freudenberger wrote:
+> 
+>> Introduce ahash support for the "internal hash" algorithm.
+>> 
+>> Rework the dm-integrity code to be able to run the "internal hash"
+>> either with a synchronous ("shash") or asynchronous ("ahash") hash
+>> algorithm implementation.
+>> 
+>> The get_mac() function now tries to decide which of the digest
+>> implemenations to use if there is a choice:
+>> - If an ahash and shash tfm is available and both are backed by the
+>>   same driver name it is assumed that the shash is the faster
+>>   implementation and thus the shash tfm is delivered to the caller.
+>> - If an ahash and shash tfm is available but the backing device driver
+>>   divers (different driver names) it is assumed that the ahash
+>>   implementation is a "better" hardware based implementation and thus
+>>   the ahash tfm is delivered to the caller.
+>> - If there is no choice, for example only an ahash or an shash
+>>   implementation is available then this tfm is delivered to the
+>>   caller. Especially in cases where only an ahash implementation is
+>>   available this is now used instead of failing.
+>> - The caller can steer this choice by passing a NULL to the ahash or
+>>   shash parameter, thus enforcing to only allocate an algorithm of the
+>>   remaining possibility.
+>> 
+>> The function integrity_sector_checksum() is now only a dispatcher
+>> function calling one of the two new functions
+>> integrity_ahash_sector_checksum() or integrity_shash_sector_checksum()
+>> based on which tfm is allocated based on the two new fields
+>> internal_shash and internal_ahash in struct dm_integrity_c.
+>> 
+>> Together with this comes some slight rework around availability and
+>> digest size of the internal hash in use.
+>> 
+>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>> ---
+>>  drivers/md/dm-integrity.c | 221 
+>> +++++++++++++++++++++++++++++---------
+>>  1 file changed, 172 insertions(+), 49 deletions(-)
+>> 
+>> diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
+>> index 9ab0f0836c86..418bdc57054b 100644
+>> --- a/drivers/md/dm-integrity.c
+>> +++ b/drivers/md/dm-integrity.c
+>> @@ -221,7 +221,9 @@ struct dm_integrity_c {
+>> 
+>>  	int failed;
+>> 
+>> -	struct crypto_shash *internal_hash;
+>> +	bool have_internal_hash;
+>> +	struct crypto_shash *internal_shash;
+>> +	struct crypto_ahash *internal_ahash;
+>>  	unsigned int internal_hash_digestsize;
+>> 
+>>  	struct dm_target *ti;
+>> @@ -1635,57 +1637,128 @@ static void integrity_end_io(struct bio *bio)
+>>  	dec_in_flight(dio);
+>>  }
+>> 
+>> -static void integrity_sector_checksum(struct dm_integrity_c *ic, 
+>> sector_t sector,
+>> -				      const char *data, char *result)
+>> +static bool integrity_shash_sector_checksum(struct dm_integrity_c 
+>> *ic,
+>> +					    sector_t sector, const char *data,
+>> +					    char *result)
+>>  {
+>>  	__le64 sector_le = cpu_to_le64(sector);
+>> -	SHASH_DESC_ON_STACK(req, ic->internal_hash);
+>> +	SHASH_DESC_ON_STACK(req, ic->internal_shash);
+>>  	int r;
+>> -	unsigned int digest_size;
+>> 
+>> -	req->tfm = ic->internal_hash;
+>> +	req->tfm = ic->internal_shash;
+>> 
+>>  	r = crypto_shash_init(req);
+>>  	if (unlikely(r < 0)) {
+>>  		dm_integrity_io_error(ic, "crypto_shash_init", r);
+>> -		goto failed;
+>> +		return false;
+>>  	}
+>> 
+>>  	if (ic->sb->flags & cpu_to_le32(SB_FLAG_FIXED_HMAC)) {
+>>  		r = crypto_shash_update(req, (__u8 *)&ic->sb->salt, SALT_SIZE);
+>>  		if (unlikely(r < 0)) {
+>>  			dm_integrity_io_error(ic, "crypto_shash_update", r);
+>> -			goto failed;
+>> +			return false;
+>>  		}
+>>  	}
+>> 
+>>  	r = crypto_shash_update(req, (const __u8 *)&sector_le, 
+>> sizeof(sector_le));
+>>  	if (unlikely(r < 0)) {
+>>  		dm_integrity_io_error(ic, "crypto_shash_update", r);
+>> -		goto failed;
+>> +		return false;
+>>  	}
+>> 
+>>  	r = crypto_shash_update(req, data, ic->sectors_per_block << 
+>> SECTOR_SHIFT);
+>>  	if (unlikely(r < 0)) {
+>>  		dm_integrity_io_error(ic, "crypto_shash_update", r);
+>> -		goto failed;
+>> +		return false;
+>>  	}
+>> 
+>>  	r = crypto_shash_final(req, result);
+>>  	if (unlikely(r < 0)) {
+>>  		dm_integrity_io_error(ic, "crypto_shash_final", r);
+>> -		goto failed;
+>> +		return false;
+>>  	}
+>> 
+>> -	digest_size = ic->internal_hash_digestsize;
+>> -	if (unlikely(digest_size < ic->tag_size))
+>> -		memset(result + digest_size, 0, ic->tag_size - digest_size);
+>> +	if (unlikely(ic->internal_hash_digestsize < ic->tag_size))
+>> +		memset(result + ic->internal_hash_digestsize,
+>> +		       0, ic->tag_size - ic->internal_hash_digestsize);
+>> 
+>> -	return;
+>> +	return true;
+>> +}
+>> +
+>> +static bool integrity_ahash_sector_checksum(struct dm_integrity_c 
+>> *ic,
+>> +					    sector_t sector, const char *data,
+>> +					    char *result)
+>> +{
+>> +	struct ahash_request *req = NULL;
+>> +	struct scatterlist sg[3], *s;
+>> +	DECLARE_CRYPTO_WAIT(wait);
+>> +	__le64 *sector_le = NULL;
+>> +	unsigned int nbytes = 0;
+>> +	int r = -ENOMEM;
+>> +
+>> +	req = ahash_request_alloc(ic->internal_ahash, GFP_KERNEL);
+>> +	if (unlikely(!req)) {
+>> +		dm_integrity_io_error(ic, "ahash_request_alloc", r);
+>> +		return false;
+>> +	}
+>> +	ahash_request_set_callback(req, 0, crypto_req_done, &wait);
+>> +
+>> +	s = sg;
+>> +	if (ic->sb->flags & cpu_to_le32(SB_FLAG_FIXED_HMAC)) {
+>> +		sg_init_table(sg, 3);
+>> +		sg_set_buf(s, (const __u8 *)&ic->sb->salt, SALT_SIZE);
+>> +		nbytes += SALT_SIZE;
+>> +		s++;
+>> +	} else {
+>> +		sg_init_table(sg, 2);
+>> +	}
+>> +
+>> +	sector_le = kmalloc(sizeof(__le64), GFP_KERNEL);
+>> +	if (unlikely(!sector_le)) {
+>> +		dm_integrity_io_error(ic, "kmalloc(sizeof(__le64))", r);
+>> +		goto out;
+>> +	}
+>> +	*sector_le = cpu_to_le64(sector);
+>> +	sg_set_buf(s, (const __u8 *)sector_le, sizeof(*sector_le));
+>> +	nbytes += sizeof(*sector_le);
+>> +	s++;
+>> +
+>> +	sg_set_buf(s, data, ic->sectors_per_block << SECTOR_SHIFT);
+>> +	nbytes += ic->sectors_per_block << SECTOR_SHIFT;
+>> +
+>> +	ahash_request_set_crypt(req, sg, result, nbytes);
+>> +
+>> +	r = crypto_wait_req(crypto_ahash_digest(req), &wait);
+>> +	if (r) {
+>> +		dm_integrity_io_error(ic, "crypto_ahash_digest", r);
+>> +		goto out;
+>> +	}
+>> +
+>> +	if (unlikely(ic->internal_hash_digestsize < ic->tag_size))
+>> +		memset(result + ic->internal_hash_digestsize,
+>> +		       0, ic->tag_size - ic->internal_hash_digestsize);
+>> 
+>> -failed:
+>> -	/* this shouldn't happen anyway, the hash functions have no reason 
+>> to fail */
+>> -	get_random_bytes(result, ic->tag_size);
+>> +out:
+>> +	ahash_request_free(req);
+>> +	kfree(sector_le);
+>> +
+>> +	return r ? false : true;
+>> +}
+>> +
+>> +static void integrity_sector_checksum(struct dm_integrity_c *ic,
+>> +				      sector_t sector, const char *data,
+>> +				      char *result)
+>> +{
+>> +	bool r;
+>> +
+>> +	if (likely(ic->internal_shash))
+>> +		r = integrity_shash_sector_checksum(ic, sector, data, result);
+>> +	else
+>> +		r = integrity_ahash_sector_checksum(ic, sector, data, result);
+>> +
+>> +	if (unlikely(!r))
+>> +		get_random_bytes(result, ic->tag_size);
+>>  }
+>> 
+>>  static noinline void integrity_recheck(struct dm_integrity_io *dio, 
+>> char *checksum)
+>> @@ -1774,7 +1847,7 @@ static void integrity_metadata(struct 
+>> work_struct *w)
+>> 
+>>  	int r;
+>> 
+>> -	if (ic->internal_hash) {
+>> +	if (ic->have_internal_hash) {
+>>  		struct bvec_iter iter;
+>>  		struct bio_vec bv;
+>>  		unsigned int digest_size = ic->internal_hash_digestsize;
+>> @@ -1992,7 +2065,7 @@ static int dm_integrity_map(struct dm_target 
+>> *ti, struct bio *bio)
+>>  		return DM_MAPIO_KILL;
+>> 
+>>  	bip = bio_integrity(bio);
+>> -	if (!ic->internal_hash) {
+>> +	if (!ic->have_internal_hash) {
+>>  		if (bip) {
+>>  			unsigned int wanted_tag_size = bio_sectors(bio) >> 
+>> ic->sb->log2_sectors_per_block;
+>> 
+>> @@ -2073,7 +2146,7 @@ static bool __journal_read_write(struct 
+>> dm_integrity_io *dio, struct bio *bio,
+>>  					mem_ptr += 1 << SECTOR_SHIFT;
+>>  				} while (++s < ic->sectors_per_block);
+>>  #ifdef INTERNAL_VERIFY
+>> -				if (ic->internal_hash) {
+>> +				if (ic->have_internal_hash) {
+>>  					char checksums_onstack[MAX_T(size_t, HASH_MAX_DIGESTSIZE, 
+>> MAX_TAG_SIZE)];
+>> 
+>>  					integrity_sector_checksum(ic, logical_sector, mem + 
+>> bv.bv_offset, checksums_onstack);
+>> @@ -2087,7 +2160,7 @@ static bool __journal_read_write(struct 
+>> dm_integrity_io *dio, struct bio *bio,
+>>  #endif
+>>  			}
+>> 
+>> -			if (!ic->internal_hash) {
+>> +			if (!ic->have_internal_hash) {
+>>  				struct bio_integrity_payload *bip = bio_integrity(bio);
+>>  				unsigned int tag_todo = ic->tag_size;
+>>  				char *tag_ptr = journal_entry_tag(ic, je);
+>> @@ -2124,7 +2197,7 @@ static bool __journal_read_write(struct 
+>> dm_integrity_io *dio, struct bio *bio,
+>>  					je->last_bytes[s] = js[s].commit_id;
+>>  				} while (++s < ic->sectors_per_block);
+>> 
+>> -				if (ic->internal_hash) {
+>> +				if (ic->have_internal_hash) {
+>>  					unsigned int digest_size = ic->internal_hash_digestsize;
+>> 
+>>  					if (unlikely(digest_size > ic->tag_size)) {
+>> @@ -2187,7 +2260,7 @@ static void dm_integrity_map_continue(struct 
+>> dm_integrity_io *dio, bool from_map
+>>  	sector_t recalc_sector;
+>>  	struct completion read_comp;
+>>  	bool discard_retried = false;
+>> -	bool need_sync_io = ic->internal_hash && dio->op == REQ_OP_READ;
+>> +	bool need_sync_io = ic->have_internal_hash && dio->op == 
+>> REQ_OP_READ;
+>> 
+>>  	if (unlikely(dio->op == REQ_OP_DISCARD) && ic->mode != 'D')
+>>  		need_sync_io = true;
+>> @@ -2908,7 +2981,7 @@ static void do_journal_write(struct 
+>> dm_integrity_c *ic, unsigned int write_start
+>>  #ifndef INTERNAL_VERIFY
+>>  				    unlikely(from_replay) &&
+>>  #endif
+>> -				    ic->internal_hash) {
+>> +				    ic->have_internal_hash) {
+>>  					char test_tag[MAX_T(size_t, HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
+>> 
+>>  					integrity_sector_checksum(ic, sec + ((l - j) << 
+>> ic->sb->log2_sectors_per_block),
+>> @@ -3905,7 +3978,7 @@ static void dm_integrity_io_hints(struct 
+>> dm_target *ti, struct queue_limits *lim
+>>  		limits->discard_granularity = ic->sectors_per_block << 
+>> SECTOR_SHIFT;
+>>  	}
+>> 
+>> -	if (!ic->internal_hash) {
+>> +	if (!ic->have_internal_hash) {
+>>  		struct blk_integrity *bi = &limits->integrity;
+>> 
+>>  		memset(bi, 0, sizeof(*bi));
+>> @@ -4213,32 +4286,76 @@ static int get_alg_and_key(const char *arg, 
+>> struct alg_spec *a, char **error, ch
+>>  	return -ENOMEM;
+>>  }
+>> 
+>> -static int get_mac(struct crypto_shash **hash, struct alg_spec *a, 
+>> char **error,
+>> +static int get_mac(struct crypto_shash **shash, struct crypto_ahash 
+>> **ahash,
+>> +		   struct alg_spec *a, char **error,
+>>  		   char *error_alg, char *error_key)
+>>  {
+>> +	const char *ahash_driver_name = NULL;
+>>  	int r;
+>> 
+>> -	if (a->alg_string) {
+>> -		*hash = crypto_alloc_shash(a->alg_string, 0, 
+>> CRYPTO_ALG_ALLOCATES_MEMORY);
+>> -		if (IS_ERR(*hash)) {
+>> +	if (!a->alg_string || !(shash || ahash))
+>> +		return 0;
+>> +
+>> +	if (ahash) {
+>> +		*ahash = crypto_alloc_ahash(a->alg_string, 0, 0);
+>> +		if (IS_ERR(*ahash)) {
+>>  			*error = error_alg;
+>> -			r = PTR_ERR(*hash);
+>> -			*hash = NULL;
+>> +			r = PTR_ERR(*ahash);
+>> +			*ahash = NULL;
+>>  			return r;
+>>  		}
+>> +		ahash_driver_name = crypto_ahash_driver_name(*ahash);
+>> +	}
+>> 
+>> -		if (a->key) {
+>> -			r = crypto_shash_setkey(*hash, a->key, a->key_size);
+>> -			if (r) {
+>> -				*error = error_key;
+>> -				return r;
+>> +	if (shash) {
+>> +		*shash = crypto_alloc_shash(a->alg_string, 0, 
+>> CRYPTO_ALG_ALLOCATES_MEMORY);
+>> +		if (IS_ERR(*shash) && !ahash_driver_name) {
+>> +			*error = error_alg;
+>> +			r = PTR_ERR(*shash);
+>> +			*shash = NULL;
+>> +			return r;
+>> +		}
+>> +		if (!IS_ERR(shash) && ahash_driver_name) {
+>> +			if (strcmp(crypto_shash_driver_name(*shash), ahash_driver_name)) {
+>> +				/*
+>> +				 * ahash gave a different driver than shash, so probably
+>> +				 * this is a case of real hardware offload.  Use ahash.
+>> +				 */
+>> +				crypto_free_shash(*shash);
+>> +				*shash = NULL;
+>> +			} else {
+>> +				/* ahash and shash are same driver. Use shash. */
+>> +				crypto_free_ahash(*ahash);
+>> +				*ahash = NULL;
+>>  			}
+>> -		} else if (crypto_shash_get_flags(*hash) & CRYPTO_TFM_NEED_KEY) {
+>> +		}
+>> +	}
+>> +
+>> +	/* either *ahash or *shash is set now */
+>> +
+>> +	if (a->key) {
+>> +		r = shash && *shash ?
+>> +			crypto_shash_setkey(*shash, a->key, a->key_size) :
+>> +			crypto_ahash_setkey(*ahash, a->key, a->key_size);
+>> +		if (r) {
+>>  			*error = error_key;
+>> -			return -ENOKEY;
+>> +			return r;
+>>  		}
+>> +	} else if ((shash && *shash ?
+>> +		    crypto_shash_get_flags(*shash) :
+>> +		    crypto_ahash_get_flags(*ahash))
+>> +		   & CRYPTO_TFM_NEED_KEY) {
+>> +		*error = error_key;
+>> +		return -ENOKEY;
+>>  	}
+>> 
+>> +	pr_debug("Using %s %s (driver name %s)\n",
+>> +		 ahash && *ahash ? "ahash" : "shash",
+>> +		 a->alg_string,
+>> +		 ahash && *ahash ?
+>> +		 crypto_ahash_driver_name(*ahash) :
+>> +		 crypto_shash_driver_name(*shash));
+>> +
+>>  	return 0;
+>>  }
+>> 
+>> @@ -4693,20 +4810,24 @@ static int dm_integrity_ctr(struct dm_target 
+>> *ti, unsigned int argc, char **argv
+>>  		buffer_sectors = 1;
+>>  	ic->log2_buffer_sectors = min((int)__fls(buffer_sectors), 31 - 
+>> SECTOR_SHIFT);
+>> 
+>> -	r = get_mac(&ic->internal_hash, &ic->internal_hash_alg, &ti->error,
+>> +	r = get_mac(&ic->internal_shash, &ic->internal_ahash,
+>> +		    &ic->internal_hash_alg, &ti->error,
+>>  		    "Invalid internal hash", "Error setting internal hash key");
+>>  	if (r)
+>>  		goto bad;
+>> -	if (ic->internal_hash)
+>> -		ic->internal_hash_digestsize = 
+>> crypto_shash_digestsize(ic->internal_hash);
+>> +	ic->have_internal_hash = ic->internal_shash || ic->internal_ahash;
+>> +	if (ic->have_internal_hash)
+>> +		ic->internal_hash_digestsize = ic->internal_shash ?
+>> +			crypto_shash_digestsize(ic->internal_shash) :
+>> +			crypto_ahash_digestsize(ic->internal_ahash);
+>> 
+>> -	r = get_mac(&ic->journal_mac, &ic->journal_mac_alg, &ti->error,
+>> +	r = get_mac(&ic->journal_mac, NULL, &ic->journal_mac_alg, 
+>> &ti->error,
+>>  		    "Invalid journal mac", "Error setting journal mac key");
+>>  	if (r)
+>>  		goto bad;
+>> 
+>>  	if (!ic->tag_size) {
+>> -		if (!ic->internal_hash) {
+>> +		if (!ic->have_internal_hash) {
+>>  			ti->error = "Unknown tag size";
+>>  			r = -EINVAL;
+>>  			goto bad;
+>> @@ -4770,13 +4891,13 @@ static int dm_integrity_ctr(struct dm_target 
+>> *ti, unsigned int argc, char **argv
+>>  		}
+>>  	}
+>> 
+>> -	if (ic->mode == 'B' && !ic->internal_hash) {
+>> +	if (ic->mode == 'B' && !ic->have_internal_hash) {
+>>  		r = -EINVAL;
+>>  		ti->error = "Bitmap mode can be only used with internal hash";
+>>  		goto bad;
+>>  	}
+>> 
+>> -	if (ic->discard && !ic->internal_hash) {
+>> +	if (ic->discard && !ic->have_internal_hash) {
+>>  		r = -EINVAL;
+>>  		ti->error = "Discard can be only used with internal hash";
+>>  		goto bad;
+>> @@ -5038,7 +5159,7 @@ static int dm_integrity_ctr(struct dm_target 
+>> *ti, unsigned int argc, char **argv
+>>  		ic->sb->recalc_sector = cpu_to_le64(0);
+>>  	}
+>> 
+>> -	if (ic->internal_hash) {
+>> +	if (ic->have_internal_hash) {
+>>  		ic->recalc_wq = alloc_workqueue("dm-integrity-recalc", 
+>> WQ_MEM_RECLAIM, 1);
+>>  		if (!ic->recalc_wq) {
+>>  			ti->error = "Cannot allocate workqueue";
+>> @@ -5229,8 +5350,10 @@ static void dm_integrity_dtr(struct dm_target 
+>> *ti)
+>>  	if (ic->sb)
+>>  		free_pages_exact(ic->sb, SB_SECTORS << SECTOR_SHIFT);
+>> 
+>> -	if (ic->internal_hash)
+>> -		crypto_free_shash(ic->internal_hash);
+>> +	if (ic->internal_shash)
+>> +		crypto_free_shash(ic->internal_shash);
+>> +	if (ic->internal_ahash)
+>> +		crypto_free_ahash(ic->internal_ahash);
+>>  	free_alg(&ic->internal_hash_alg);
+>> 
+>>  	if (ic->journal_crypt)
+>> --
+>> 2.43.0
+>> 
