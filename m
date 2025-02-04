@@ -1,116 +1,148 @@
-Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 72033213E62;
-	Tue,  4 Feb 2025 15:14:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7B1B2147F4;
+	Tue,  4 Feb 2025 15:55:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738682071; cv=none; b=goGwlnDEz/5HX9ImSxhvToq9d7CeW6t6VARTXmAYx6JFL2fjiBTtaFkfGsCUtbz/RTEerlF7f+bEd4kMnQ30LvH4Kd+gjJxG2Mi4afZ6HpB3jG/L0ggrEZoTjuZ9xyH+Tqm1mJQXSbnJYfzgxBI+HbgVYcmBzONEdW39GEQTciw=
+	t=1738684550; cv=none; b=U6C/Y3gBkkFJhmLLkbqB1dGlt9HObxK+5fgYGY1xVXk9XOHKLdWzu1dAipdUwt5jtc6DHBBdAplb0m39rpOk3dXKkRy1cltSQkdOxZs6/aMkQzhpmTXlorir5ZtubnSmEAdsE7NZoDmW9dGpuBOlKvo+qMZtWjOj1YNRKxCaq8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738682071; c=relaxed/simple;
-	bh=0VF9NjSm+wa57QWPS0q6hwOKkX1Utbbo0dCdpkggj6Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=Zbz4X+xkYwWv3ddYB5/wo8fuskUHe96pdA7kVpFtDsSODSr+qfqTqk5NxyZTubKUe/FHFC8+Zk/RWrhKoyMGAwcFZ36O2ppPCVyzvAS9t1O7UA95JNWE8e17Ict6YrfSoaC1Wa4SVp4NtYLNu/VZ0FbbXocyEPrvCVafS/l5G+A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
-Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
-	by vmicros1.altlinux.org (Postfix) with ESMTP id EA38B72C8CC;
-	Tue,  4 Feb 2025 18:14:20 +0300 (MSK)
-Received: by mua.local.altlinux.org (Postfix, from userid 508)
-	id DC6C57CCB3A; Tue,  4 Feb 2025 17:14:20 +0200 (IST)
-Date: Tue, 4 Feb 2025 17:14:20 +0200
-From: "Dmitry V. Levin" <ldv@strace.io>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Oleg Nesterov <oleg@redhat.com>, Shuah Khan <shuah@kernel.org>,
-	Alexey Gladkov <legion@kernel.org>,
-	Eugene Syromyatnikov <evgsyr@gmail.com>,
-	Mike Frysinger <vapier@gentoo.org>,
-	Renzo Davoli <renzo@cs.unibo.it>,
-	Davide Berardi <berardi.dav@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, strace-devel@lists.strace.io,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 0/7] ptrace: introduce PTRACE_SET_SYSCALL_INFO API
-Message-ID: <20250204151420.GA30282@strace.io>
+	s=arc-20240116; t=1738684550; c=relaxed/simple;
+	bh=MfU4zkvJuWsXPwef+2sVlFAfUNs2Bjk8e7EVIiknJ3c=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Nn/M4QGGztNd4QS3MDPvDKuNU8GMOIBOe4Q70wa0nm5GgN3YgboR9yjMFgs1LGxbqwu2kdGLWF1GKcKxlS0s9R90Jt1o/OE5XtkuGGEKgvaq3qVtqdC9UHwzb6WMNY1kGkydrWWm94kxNKYQvow6f5hm89Zepdn5JCZEsWWcmzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=O/CRGjlU; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="O/CRGjlU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1738684549; x=1770220549;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=MfU4zkvJuWsXPwef+2sVlFAfUNs2Bjk8e7EVIiknJ3c=;
+  b=O/CRGjlUdToDJfKvNz6maDie15RY9ZQZ958szwzxwF0CiGtX9zh0tPxB
+   GHnxk+v3kY3MtEfnutNduT4iiZtE0gVfaXVImBVet8lZuuNiKi7MwRZ2A
+   WyLbuY7BK9rOIVCKDb6ecWwmdwDFjuWhaW8xOQALilg63JstbraUjOqiq
+   +m+hPHDMRAVKqS38T2sNdPETiNz1iNrq4+sDmU6B5Tri5pydMCtNEJv0I
+   au1SDIf1c7U9WeU1kEvKKIMXH5AVhJDAS63NUUS6Y32RLG5F2ggHywmNc
+   oOAppk0hV5ftFB39fTJ2edPErTp6dBELQBeZ9bLmFgn6SNVnTwu+rfgSY
+   A==;
+X-CSE-ConnectionGUID: pzswkPd+RXSmDixC3DcgUg==
+X-CSE-MsgGUID: SDoHoyaIQ7GPRckxErn6TQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11336"; a="38427055"
+X-IronPort-AV: E=Sophos;i="6.13,258,1732608000"; 
+   d="scan'208";a="38427055"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2025 07:55:48 -0800
+X-CSE-ConnectionGUID: XoteHasDRlmHFrYrmOIhWA==
+X-CSE-MsgGUID: Fvos8oJ/TGO8g//af5lAnA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="133877889"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmviesa002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2025 07:55:47 -0800
+Received: from [10.246.136.14] (kliang2-mobl1.ccr.corp.intel.com [10.246.136.14])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by linux.intel.com (Postfix) with ESMTPS id A5C6620B5713;
+	Tue,  4 Feb 2025 07:55:45 -0800 (PST)
+Message-ID: <9b091546-8178-470b-8904-dc948fd9aa11@linux.intel.com>
+Date: Tue, 4 Feb 2025 10:55:44 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250203103542.GA16165@strace.io>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2 v3] perf test: Change event in perf test 114 perf
+ record test subtest test_leader_sampling
+To: Namhyung Kim <namhyung@kernel.org>, Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ acme@kernel.org, linux-s390@vger.kernel.org, james.clark@linaro.org,
+ agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+ hca@linux.ibm.com, Dapeng Mi <dapeng1.mi@linux.intel.com>
+References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
+ <20250131102756.4185235-3-tmricht@linux.ibm.com>
+ <Z6GMmxKvXd0-fd_-@google.com>
+Content-Language: en-US
+From: "Liang, Kan" <kan.liang@linux.intel.com>
+In-Reply-To: <Z6GMmxKvXd0-fd_-@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Feb 03, 2025 at 12:35:42PM +0200, Dmitry V. Levin wrote:
-> On Mon, Feb 03, 2025 at 10:29:37AM +0100, Alexander Gordeev wrote:
-> > On Mon, Feb 03, 2025 at 08:58:49AM +0200, Dmitry V. Levin wrote:
-> > 
-> > Hi Dmitry,
-> > 
-> > > PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
-> > > PTRACE_GET_SYSCALL_INFO by letting the ptracer modify details of
-> > > system calls the tracee is blocked in.
-> > ...
-> > 
-> > FWIW, I am getting these on s390:
-> > 
-> > # ./tools/testing/selftests/ptrace/set_syscall_info 
-> > TAP version 13
-> > 1..1
-> > # Starting 1 tests from 1 test cases.
-> > #  RUN           global.set_syscall_info ...
-> > # set_syscall_info.c:87:set_syscall_info:Expected exp_entry->nr (-1) == info->entry.nr (65535)
-> > # set_syscall_info.c:88:set_syscall_info:wait #3: PTRACE_GET_SYSCALL_INFO #2: syscall nr mismatch
-> > # set_syscall_info: Test terminated by assertion
-> > #          FAIL  global.set_syscall_info
-> > not ok 1 global.set_syscall_info
-> > # FAILED: 0 / 1 tests passed.
-> > # Totals: pass:0 fail:1 xfail:0 xpass:0 skip:0 error:0
-> > 
-> > I remember one of the earlier versions (v1 or v2) was working for me.
-> > 
-> > Thanks!
+
+
+On 2025-02-03 10:42 p.m., Namhyung Kim wrote:
+> Add Kan and Dapeng to CC.
 > 
-> In v3, this test was extended to check whether PTRACE_GET_SYSCALL_INFO
-> called immediately after PTRACE_SET_SYSCALL_INFO returns the same syscall
-> number, and on s390 it apparently doesn't, thanks to its implementation
-> of syscall_get_nr() that returns 0xffff in this case.
+> Thanks,
+> Namhyung
 > 
-> To workaround this, we could either change syscall_get_nr() to return -1
-> in this case, or add an #ifdef __s390x__ exception to the test.
 > 
-> What would you prefer?
+> On Fri, Jan 31, 2025 at 11:27:56AM +0100, Thomas Richter wrote:
+>> On s390 the event instructions can not be used for recording.
+>> This event is only supported by perf stat.
+>>
+>> Change the event from instructions to cycles in
+>> subtest test_leader_sampling.
+>>
+>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+>> Suggested-by: James Clark <james.clark@linaro.org>
+>> Reviewed-by: James Clark <james.clark@linaro.org>
+>> ---
+>>  tools/perf/tests/shell/record.sh | 10 +++++-----
+>>  1 file changed, 5 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
+>> index fe2d05bcbb1f..ba8d873d3ca7 100755
+>> --- a/tools/perf/tests/shell/record.sh
+>> +++ b/tools/perf/tests/shell/record.sh
+>> @@ -231,7 +231,7 @@ test_cgroup() {
+>>  
+>>  test_leader_sampling() {
+>>    echo "Basic leader sampling test"
+>> -  if ! perf record -o "${perfdata}" -e "{instructions,instructions}:Su" -- \
+>> +  if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
+>>      perf test -w brstack 2> /dev/null
 
-OK, I'm going to apply the following s390 workaround to the test:
 
-diff --git a/tools/testing/selftests/ptrace/set_syscall_info.c b/tools/testing/selftests/ptrace/set_syscall_info.c
-index 0ec69401c008..4198248ef874 100644
---- a/tools/testing/selftests/ptrace/set_syscall_info.c
-+++ b/tools/testing/selftests/ptrace/set_syscall_info.c
-@@ -71,6 +71,11 @@ check_psi_entry(struct __test_metadata *_metadata,
- 		const char *text)
- {
- 	unsigned int i;
-+	int exp_nr = exp_entry->nr;
-+#if defined __s390__ || defined __s390x__
-+	/* s390 is the only architecture that has 16-bit syscall numbers */
-+	exp_nr &= 0xffff;
-+#endif
- 
- 	ASSERT_EQ(PTRACE_SYSCALL_INFO_ENTRY, info->op) {
- 		LOG_KILL_TRACEE("%s: entry stop mismatch", text);
-@@ -84,7 +89,7 @@ check_psi_entry(struct __test_metadata *_metadata,
- 	ASSERT_TRUE(info->stack_pointer) {
- 		LOG_KILL_TRACEE("%s: entry stop mismatch", text);
- 	}
--	ASSERT_EQ(exp_entry->nr, info->entry.nr) {
-+	ASSERT_EQ(exp_nr, info->entry.nr) {
- 		LOG_KILL_TRACEE("%s: syscall nr mismatch", text);
- 	}
- 	for (i = 0; i < ARRAY_SIZE(exp_entry->args); ++i) {
+As a non-precise test, using cycles instead should be fine. But we
+should never use it for precise test, e.g., with p. Because cycles is a
+non-precise event. It would not surprise me if there is a skid when
+reading two cycles events at the point when the event overflow occurs.
 
--- 
-ldv
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+
+Thanks,
+Kan
+
+>>    then
+>>      echo "Leader sampling [Failed record]"
+>> @@ -243,15 +243,15 @@ test_leader_sampling() {
+>>    while IFS= read -r line
+>>    do
+>>      # Check if the two instruction counts are equal in each record
+>> -    instructions=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="instructions:") print $(i-1)}')
+>> -    if [ $(($index%2)) -ne 0 ] && [ ${instructions}x != ${prev_instructions}x ]
+>> +    cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
+>> +    if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
+>>      then
+>> -      echo "Leader sampling [Failed inconsistent instructions count]"
+>> +      echo "Leader sampling [Failed inconsistent cycles count]"
+>>        err=1
+>>        return
+>>      fi
+>>      index=$(($index+1))
+>> -    prev_instructions=$instructions
+>> +    prev_cycles=$cycles
+>>    done < $script_output
+>>    echo "Basic leader sampling test [Success]"
+>>  }
+>> -- 
+>> 2.48.1
+>>
+
