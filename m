@@ -1,148 +1,107 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7B1B2147F4;
-	Tue,  4 Feb 2025 15:55:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F951215196;
+	Tue,  4 Feb 2025 16:25:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738684550; cv=none; b=U6C/Y3gBkkFJhmLLkbqB1dGlt9HObxK+5fgYGY1xVXk9XOHKLdWzu1dAipdUwt5jtc6DHBBdAplb0m39rpOk3dXKkRy1cltSQkdOxZs6/aMkQzhpmTXlorir5ZtubnSmEAdsE7NZoDmW9dGpuBOlKvo+qMZtWjOj1YNRKxCaq8U=
+	t=1738686314; cv=none; b=h2qW5Qv8yyWfR+vRXGWgMILew9rgwXPhG9OKQGYMZRqZMXXjDr08SK7rLDhq0jqExC/ykXEbSGYO3HdMeLHhdiHl7vfmoKdVJem+iJwB6Db8tv0ukOvpHHfGMp87hNzn/zLgp4ioQEWy/akHlICEkXTak8penhPSwTKMZaxMjhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738684550; c=relaxed/simple;
-	bh=MfU4zkvJuWsXPwef+2sVlFAfUNs2Bjk8e7EVIiknJ3c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Nn/M4QGGztNd4QS3MDPvDKuNU8GMOIBOe4Q70wa0nm5GgN3YgboR9yjMFgs1LGxbqwu2kdGLWF1GKcKxlS0s9R90Jt1o/OE5XtkuGGEKgvaq3qVtqdC9UHwzb6WMNY1kGkydrWWm94kxNKYQvow6f5hm89Zepdn5JCZEsWWcmzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=O/CRGjlU; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1738686314; c=relaxed/simple;
+	bh=3fEAX56iNa+CycfmEtTazJYgTC1eFzflfXs3KGTszjc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=MbL7+FjJf9WtP2s3wJh9nXRKmtMTBlRvXPPcRa30PdUBLgdBRy1V0R4cg7gGUdquSePq8IQ3nuqj/FZsO7Dl26xHXk1v3pkL8qHL0IXnv4YrGeW8pXgBhPRNJiC7yPE6m4HN6R+EvnVM8NAQtI47oAydDDCU0mM+5yrOwi+Ha7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l++VE5Ls; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="O/CRGjlU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1738684549; x=1770220549;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=MfU4zkvJuWsXPwef+2sVlFAfUNs2Bjk8e7EVIiknJ3c=;
-  b=O/CRGjlUdToDJfKvNz6maDie15RY9ZQZ958szwzxwF0CiGtX9zh0tPxB
-   GHnxk+v3kY3MtEfnutNduT4iiZtE0gVfaXVImBVet8lZuuNiKi7MwRZ2A
-   WyLbuY7BK9rOIVCKDb6ecWwmdwDFjuWhaW8xOQALilg63JstbraUjOqiq
-   +m+hPHDMRAVKqS38T2sNdPETiNz1iNrq4+sDmU6B5Tri5pydMCtNEJv0I
-   au1SDIf1c7U9WeU1kEvKKIMXH5AVhJDAS63NUUS6Y32RLG5F2ggHywmNc
-   oOAppk0hV5ftFB39fTJ2edPErTp6dBELQBeZ9bLmFgn6SNVnTwu+rfgSY
-   A==;
-X-CSE-ConnectionGUID: pzswkPd+RXSmDixC3DcgUg==
-X-CSE-MsgGUID: SDoHoyaIQ7GPRckxErn6TQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11336"; a="38427055"
-X-IronPort-AV: E=Sophos;i="6.13,258,1732608000"; 
-   d="scan'208";a="38427055"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2025 07:55:48 -0800
-X-CSE-ConnectionGUID: XoteHasDRlmHFrYrmOIhWA==
-X-CSE-MsgGUID: Fvos8oJ/TGO8g//af5lAnA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="133877889"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmviesa002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2025 07:55:47 -0800
-Received: from [10.246.136.14] (kliang2-mobl1.ccr.corp.intel.com [10.246.136.14])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by linux.intel.com (Postfix) with ESMTPS id A5C6620B5713;
-	Tue,  4 Feb 2025 07:55:45 -0800 (PST)
-Message-ID: <9b091546-8178-470b-8904-dc948fd9aa11@linux.intel.com>
-Date: Tue, 4 Feb 2025 10:55:44 -0500
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l++VE5Ls"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-385f06d0c8eso3182654f8f.0;
+        Tue, 04 Feb 2025 08:25:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1738686311; x=1739291111; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IA4Yp+yCwxNKEvtY2lHaAdyLql0BmH5cuaPGmjqth1w=;
+        b=l++VE5LsEfesIck4VgABGK9gzK7hMRVwmnyilCBluVgj/K6RL3cjLbgVPYpfQUp0Gy
+         BVCdHpstm4tobLoW4w/I2qb/fV8dREeIYfVDNMf9KZZkmmPsYIn8QccMtNNYXgJwFvD7
+         yC0PWUEDPMSjsSFaFNCT19qVfRJR5M3SQu4FN3HygK4gF8hUHc3C6ylSD6zDGRdu9KCj
+         yHUy7CRoafTZoAdVkkmjDyWsDia9i3B+I3+Mx9rnyUPj8ZNSe7CvpNJY8d3pG0pwf4SI
+         RITomUm3zDBpf2NJ54CJ7aMKbvpuFRlaHOlmpvPTKVi1i1SQ19X6Osel/pr1dr6SJh1v
+         U62w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738686311; x=1739291111;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IA4Yp+yCwxNKEvtY2lHaAdyLql0BmH5cuaPGmjqth1w=;
+        b=Ec21J3FnUpOWLDs2LxjE4UOu+ecQB7x9KJ8PbxP7z9dt3wzJkcvyCkG0fFlKyxfqBN
+         d1spzGDNUjOPIGYbgLBHoWRTKKyIdC/eDjgKjngBYKInRSpht12pqLHPGA/Nzbu6uBgs
+         78cq2rp+d41Dn68e5Cwj38cjvaOPohHY7TXNCYGEENtGTWgMYjN5K5uoE3BYcz90Dc/Y
+         z+SCXUoxCcX4YRuh4IdTP8/xAfMUGYvd6WB6uEV++YYVee61NA8slxiFw7yM2aFOoZcd
+         GOse8aJa0DDnBP2WOpo1JYwnrINJ0NjcRgGxpGi/nzKMjSLevhwEIbmbp1kOTe/OcG2L
+         /vlA==
+X-Forwarded-Encrypted: i=1; AJvYcCWXmqPCl8HBfeRZnbtcH2cddH/1Iwbf3Qwngwd4F62Ze8zgNu9kJAhZuGimvWgN3J2KWAlnLPMNUGYvFZU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNAJ0ESA4w8OdPL1htiUnw8m7EX6+Lt2ycg1bAPjUdbQD9xi9l
+	VNK+ALmW8IaO7PprGidmKtRBEGApAaePTWH0DMMZmTDyExi4wNzehKrF4fpW
+X-Gm-Gg: ASbGncu0mxBj3VjkxyiSBVJbmgMgZIrdbWEAsVyQ0ZFdDJUKxSwpu+U/Rpn5nSzxuiE
+	1RNSldH+mOH1NI9jaQDk2Bg7zyZRprcI3vqZ2ZqDjpuMci7bxonEOFBgT9rteiRXZVrnX1oPodD
+	hytvm1PdBHvmuGdgnLx5qyNKvxVc+UhIQn1MBT95NfUtzW9XFKiiBJ9FExV0mmpgtrEDuj1xCEf
+	n7xcExy/7utlxW7+fPHasQ+gv2kkrlaq/We1PTCW3AO4wYGZ76OycB9O0GwPRGukvv5RwAXhnTW
+	gEvPoNlWTWINrEh3
+X-Google-Smtp-Source: AGHT+IGZLPKU2USTsvRL65kiUm/nRtgDWZ1R6LnaZd708LRV2tT4XJVniSk5UK6wn78+DjhPuztQ4Q==
+X-Received: by 2002:a5d:4565:0:b0:385:fd07:85f8 with SMTP id ffacd0b85a97d-38c5197470bmr16556579f8f.29.1738686310622;
+        Tue, 04 Feb 2025 08:25:10 -0800 (PST)
+Received: from qasdev.Home ([2a02:c7c:6696:8300:8399:6015:262f:b375])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-438dcc26d6fsm228174525e9.14.2025.02.04.08.25.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Feb 2025 08:25:10 -0800 (PST)
+From: Qasim Ijaz <qasdev00@gmail.com>
+To: agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com
+Cc: linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/mm: Simplify gap clamping in mmap_base() using clamp() 
+Date: Tue,  4 Feb 2025 16:25:08 +0000
+Message-Id: <20250204162508.12335-1-qasdev00@gmail.com>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2 v3] perf test: Change event in perf test 114 perf
- record test subtest test_leader_sampling
-To: Namhyung Kim <namhyung@kernel.org>, Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- acme@kernel.org, linux-s390@vger.kernel.org, james.clark@linaro.org,
- agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
- hca@linux.ibm.com, Dapeng Mi <dapeng1.mi@linux.intel.com>
-References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
- <20250131102756.4185235-3-tmricht@linux.ibm.com>
- <Z6GMmxKvXd0-fd_-@google.com>
-Content-Language: en-US
-From: "Liang, Kan" <kan.liang@linux.intel.com>
-In-Reply-To: <Z6GMmxKvXd0-fd_-@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+mmap_base() has logic to ensure that the variable "gap" stays within the 
+range defined by "gap_min" and "gap_max". Replace this with the clamp() 
+macro to shorten and simplify code.
 
+Signed-off-by: Qasim Ijaz <qasdev00@gmail.com>
+---
+ arch/s390/mm/mmap.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-On 2025-02-03 10:42 p.m., Namhyung Kim wrote:
-> Add Kan and Dapeng to CC.
-> 
-> Thanks,
-> Namhyung
-> 
-> 
-> On Fri, Jan 31, 2025 at 11:27:56AM +0100, Thomas Richter wrote:
->> On s390 the event instructions can not be used for recording.
->> This event is only supported by perf stat.
->>
->> Change the event from instructions to cycles in
->> subtest test_leader_sampling.
->>
->> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
->> Suggested-by: James Clark <james.clark@linaro.org>
->> Reviewed-by: James Clark <james.clark@linaro.org>
->> ---
->>  tools/perf/tests/shell/record.sh | 10 +++++-----
->>  1 file changed, 5 insertions(+), 5 deletions(-)
->>
->> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
->> index fe2d05bcbb1f..ba8d873d3ca7 100755
->> --- a/tools/perf/tests/shell/record.sh
->> +++ b/tools/perf/tests/shell/record.sh
->> @@ -231,7 +231,7 @@ test_cgroup() {
->>  
->>  test_leader_sampling() {
->>    echo "Basic leader sampling test"
->> -  if ! perf record -o "${perfdata}" -e "{instructions,instructions}:Su" -- \
->> +  if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
->>      perf test -w brstack 2> /dev/null
-
-
-As a non-precise test, using cycles instead should be fine. But we
-should never use it for precise test, e.g., with p. Because cycles is a
-non-precise event. It would not surprise me if there is a skid when
-reading two cycles events at the point when the event overflow occurs.
-
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-
-Thanks,
-Kan
-
->>    then
->>      echo "Leader sampling [Failed record]"
->> @@ -243,15 +243,15 @@ test_leader_sampling() {
->>    while IFS= read -r line
->>    do
->>      # Check if the two instruction counts are equal in each record
->> -    instructions=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="instructions:") print $(i-1)}')
->> -    if [ $(($index%2)) -ne 0 ] && [ ${instructions}x != ${prev_instructions}x ]
->> +    cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
->> +    if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
->>      then
->> -      echo "Leader sampling [Failed inconsistent instructions count]"
->> +      echo "Leader sampling [Failed inconsistent cycles count]"
->>        err=1
->>        return
->>      fi
->>      index=$(($index+1))
->> -    prev_instructions=$instructions
->> +    prev_cycles=$cycles
->>    done < $script_output
->>    echo "Basic leader sampling test [Success]"
->>  }
->> -- 
->> 2.48.1
->>
+diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
+index 76f376876e0d..a3d3e09a2828 100644
+--- a/arch/s390/mm/mmap.c
++++ b/arch/s390/mm/mmap.c
+@@ -63,11 +63,7 @@ static inline unsigned long mmap_base(unsigned long rnd,
+ 	 */
+ 	gap_min = SZ_128M;
+ 	gap_max = (STACK_TOP / 6) * 5;
+-
+-	if (gap < gap_min)
+-		gap = gap_min;
+-	else if (gap > gap_max)
+-		gap = gap_max;
++	gap = clamp(gap, gap_min, gap_max);
+ 
+ 	return PAGE_ALIGN(STACK_TOP - gap - rnd);
+ }
+-- 
+2.39.5
 
