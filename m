@@ -1,140 +1,67 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3C791519AD;
-	Wed,  5 Feb 2025 17:48:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B2D41FDE2E;
+	Wed,  5 Feb 2025 18:39:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738777683; cv=none; b=iY3SRomYppIr2Bgv426ptMh6KCBugU64cuaTkyG/N4N8OJ1mlSPifp9fuKF5+QVEBSwOlpbdZ6bDyPm+4UCERgH+jf/a2zfjBtM6+ycWkgloSde7tEGh3pnCr5xNYYdo9torvTDi5OSRIdbOT6Nzblbh1Ftyr8yk39bry9IidIM=
+	t=1738780799; cv=none; b=T6VI68MZlqcL5FPmfHz8/XamVRvGVtU+RdHG11GZ5oOwMU2ZufkZw2e22L6q+LbiwVhLlN6nvULTi/VUWO3he2DKCqyvs6335StTGvM90Z5jNCiXSWjXJqwBNjTHGgHsw+DVHnKObW21wmqE9GyK8mUJIe186B3x9zFPBVrFQ5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738777683; c=relaxed/simple;
-	bh=gRDZ8QX1t+MAuID6HIGuq2knMJylgXgnKzKelQUZhXs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gSnnKl80NSDNceFD/dA22fc/g3JfCWXogywJs9bMZVu/yJUrk0/XSJH0y4js9gtEdxf56lAWRAu8xS658hM/ydQsts8ZFV9np6okD/cN1NUlewNBbUpIzb3FXI6pmeHFUMryccXYtLF5OeDLezkJjXRVQnTacIxzlJNYFrHmf5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EOHY/ok9; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738780799; c=relaxed/simple;
+	bh=7sWFejsI1UCl+uJkGzueUtnSh1WmqUnOFRxmBVHo/xM=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=VL82D/ooZFU/FYmh9m3s7K8eg07VjwUnyvdtq3trMB1ixxv6okeoc+NcI2Zh/Nalm2bjHetrL0xxDOhwUinouvaNN68Te1HYDU4QS/oXcDT+vMgJZu9zEBVW7Ko0O/uKbz/RgqVYVuPXTGJqiv07WvQSsAN3Xv4erI6/rnEwT5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N/8axFdO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EOHY/ok9"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 515F1bxO001663;
-	Wed, 5 Feb 2025 17:47:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=B1ja24
-	MtE/dfzDMGymMgwVB+uiPkGyxyQVny/o4LP5Y=; b=EOHY/ok92JzaIG9OEPxJUW
-	Dmr90Ndks6D4IREgjql+2e+5MosaZr4ZjvVIPeFn/IA++B75HtR7thzuMjkWYHTG
-	89TkWoLQHYBV21CTPgO6U5RKLwxn1oBxdCii3I8S+ZbaMey46wkxzort1WZPUq9K
-	vGK/rwbwbkugnQjETfUs2dTglG4pxzVQ5+5WKeEPtxq//2W1xx7W+0iRCpNWZHxN
-	WH3fFWZwg2spWk5P9/qoCGCnDrcUXp/mnjp+ZixuoCrj+zOhGLnHr0IxG0j7vDXI
-	fcqSHK4g/12ML9ai/oHqDtbPPkVMMz3gMcEgy/sEhX5O9D6+WotYQDFCgmYxTKLg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44ma8yry4x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 17:47:58 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 515FtNqd007130;
-	Wed, 5 Feb 2025 17:47:57 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxayt4h0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 17:47:57 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 515HltBM21758638
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Feb 2025 17:47:56 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5E73558056;
-	Wed,  5 Feb 2025 17:47:56 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7FA4258052;
-	Wed,  5 Feb 2025 17:47:55 +0000 (GMT)
-Received: from [9.61.82.181] (unknown [9.61.82.181])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Feb 2025 17:47:55 +0000 (GMT)
-Message-ID: <f1af50b3-f966-445d-ab89-3d213f55b93a@linux.ibm.com>
-Date: Wed, 5 Feb 2025 12:47:55 -0500
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N/8axFdO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46FE1C4CED1;
+	Wed,  5 Feb 2025 18:39:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1738780798;
+	bh=7sWFejsI1UCl+uJkGzueUtnSh1WmqUnOFRxmBVHo/xM=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=N/8axFdO2VtANlm9amv+GOX1rf+wmuZiSP6HZ2Dn97Vs3k6J7lRjauVwsMaIir9my
+	 7bptf4SdPsyjbSWAD9pejTdZbUQrS1DfGblSWthHyeyFj0pbiBluOFym+OMEDXxcNV
+	 vAle1qHYmUgT1mO5jAQYjMwNUU4wpSwXkGHDL5siMn9XlWtnTyD+7hLzWVWEeGMUgH
+	 8uqAgNZVViM26gqe8+2HiKBuW2RzmHa+GZpbEdlqu4EOVkoFbm8db+MP/OvYE8bxZv
+	 OOrfIxZn0mVnhoOI0mAP9VlHdX8GIH6OlhNG2bG5TjE6uQUqu1j8Qsy73oH6LpXKA5
+	 XEbrYpPsTkzgQ==
+From: Namhyung Kim <namhyung@kernel.org>
+To: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+ acme@kernel.org, linux-s390@vger.kernel.org, james.clark@linaro.org, 
+ Thomas Richter <tmricht@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+ hca@linux.ibm.com
+In-Reply-To: <20250131102756.4185235-1-tmricht@linux.ibm.com>
+References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
+Subject: Re: [PATCH 0/2 v3] perf test: perf record tests (114) changes
+Message-Id: <173878079824.596119.8970944890321793548.b4-ty@kernel.org>
+Date: Wed, 05 Feb 2025 10:39:58 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] s390/vfio-ap: Signal eventfd when guest AP
- configuration is changed
-To: Rorie Reyes <rreyes@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, hca@linux.ibm.com, borntraeger@de.ibm.com,
-        gor@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com
-References: <20250107183645.90082-1-rreyes@linux.ibm.com>
- <Z4U6iu5JidJUxDgX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <f69bba4b-a97e-4166-9ce1-c8a2ad634696@linux.ibm.com>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <f69bba4b-a97e-4166-9ce1-c8a2ad634696@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: HJtPEgZxq8gYTsTa6QDXLnK6U8sHN_-Y
-X-Proofpoint-GUID: HJtPEgZxq8gYTsTa6QDXLnK6U8sHN_-Y
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-05_06,2025-02-05_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- malwarescore=0 phishscore=0 mlxlogscore=999 spamscore=0 mlxscore=0
- lowpriorityscore=0 suspectscore=0 adultscore=0 priorityscore=1501
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502050134
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15-dev-c04d2
 
+On Fri, 31 Jan 2025 11:27:54 +0100, Thomas Richter wrote:
+> Change event intructions to cycles for subtests
+>  - precise_max attribute
+>  - Basic leader sampling
+> as event instructions can not be used for sampling on s390.
+> 
+> Thomas Richter (2):
+>   perf test: Fix perf test 114 perf record test subtest precise_max
+>   perf test: Change event in perf test 114 perf record test subtest
+>     test_leader_sampling
+> 
+> [...]
+Applied to perf-tools-next, thanks!
 
-
-
-On 2/5/25 12:33 PM, Rorie Reyes wrote:
->
-> On 1/13/25 11:08 AM, Alexander Gordeev wrote:
->> On Tue, Jan 07, 2025 at 01:36:45PM -0500, Rorie Reyes wrote:
->>
->> Hi Rorie, Antony,
->>
->>> Note that there are corresponding QEMU patches that will be shipped 
->>> along
->>> with this patch (see vfio-ap: Report vfio-ap configuration changes) 
->>> that
->>> will pick up the eventfd signal.
->> How this patch is synchronized with the mentioned QEMU series?
->> What is the series status, especially with the comment from Cédric Le 
->> Goater [1]?
->>
->> 1. 
->> https://lore.kernel.org/all/20250107184354.91079-1-rreyes@linux.ibm.com/T/#mb0d37909c5f69bdff96289094ac0bad0922a7cce
->>
->> Thanks!
->
-> Hey Alex, sorry for the long delay. This patch is synchronized with 
-> the QEMU series by registering an event notifier handler to process AP 
-> configuration
->
-> change events. This is done by queuing the event and generating a CRW. 
-> The series status is currently going through a v2 RFC after 
-> implementing changes
->
-> requested by Cedric and Tony.
->
-> Let me know if there's anything else you're concerned with
->
-> Thanks!
-
-I don't think that is what Alex was asking. I believe he is asking how 
-the QEMU and kernel patch series are going to be synchronized.
-Given the kernel series changes a value in vfio.h which is used by QEMU, 
-the two series need to be coordinated since the vfio.h file
-used by QEMU can not be updated until the kernel code is available. So 
-these two sets of code have
-to be merged upstream during a merge window. which is different for the 
-kernel and QEMU. At least I think that is what Alex is asking.
+Best regards,
+Namhyung
 
 
