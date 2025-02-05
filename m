@@ -1,274 +1,110 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B2E94C2EF;
-	Wed,  5 Feb 2025 05:00:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out199-16.us.a.mail.aliyun.com (out199-16.us.a.mail.aliyun.com [47.90.199.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03F8320F09B;
+	Wed,  5 Feb 2025 08:02:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738731662; cv=none; b=tTlsSCAW1RwKYASXrQ7DZJsRywhHYrkKuc7+kY/QpL9+JGJziERgffZDGg/taPM+hU0XEIBNYJSnnAtdsWTwSajS6BIWwbM29FzY6Jo3QfUJtnq6Ofjdenn5O4vVU95EcuQAovz9u3HDKRC171cEoYBBxCQhUwWmCnCCTBzhPIk=
+	t=1738742576; cv=none; b=nAkfMoX1rIBY8oWS1WlFQlQ4u7PpkffPzTWMJV5EfIrxG5NvdcTfBzQRp6h0gFMpKeZemPIIg8tEd7L8PAge3p/tvn0v7YXloZNc/daQ2+dhyAPMnqliMCS4d79DHcEiLxr1GVkokybYP/3jMrjF5KLbcZI0FI/K84MUks1vMQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738731662; c=relaxed/simple;
-	bh=U2eesr90eNrCpDefobywehAaMgkRK5RRHycQeinE6tk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Bu5uFJ6uynJ8VLzW2FM+S1odZ2MBNz/YAvHPAMFa9mEqis0PbY0YZ/Pr+tqec8UDZ8HmdzlKHdG4IHS4QTne0chb/gRFoRJhf5mKToBnk6tEBImT2YIafeKhUapUZRpsJqU5ZVQGlG3VXKDaoEovJb5z7PVYEw7VMz/sKg9XpGg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D9D611FB;
-	Tue,  4 Feb 2025 21:01:17 -0800 (PST)
-Received: from a077893.blr.arm.com (unknown [10.162.16.89])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 0BA7C3F63F;
-	Tue,  4 Feb 2025 21:00:45 -0800 (PST)
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-To: linux-mm@kvack.org
-Cc: steven.price@arm.com,
-	christophe.leroy@csgroup.eu,
-	Anshuman Khandual <anshuman.khandual@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Marc Zyngier <maz@kernel.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH V2] mm/ptdump: Drop GENERIC_PTDUMP
-Date: Wed,  5 Feb 2025 10:30:39 +0530
-Message-Id: <20250205050039.1506377-1-anshuman.khandual@arm.com>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1738742576; c=relaxed/simple;
+	bh=u08HtmoR3gjyR8lSKU9dYPRmR+YL7GM5wtJ6j/Ioiac=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nAFGruo0GQ9mTP3mMoVkL1y4rjtKasCwiRGueMkVBC+Dmfg+LL3SbG2uqEgUzwo9dNtsS/IWqz4z3GuFdRgNlmRcjWrzj9YmTWfqDIupkRo4gy8twGpLTYpnFb9i+ZxWg7qC1HfV70Rl2wa04DwGB/F4iTR2FeLdDinWtfb6qQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=A5M+Vvr4; arc=none smtp.client-ip=47.90.199.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="A5M+Vvr4"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1738742551; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=7GaEyfI7UicQBv1sg4JfW3DT68PYKPedGIl8mINzZOI=;
+	b=A5M+Vvr4LhZzusgoy/CzI657NkVXqlFPRS0/8N87W4jY4FvUopy/MqDOSp8jRUhJ62Y7fVG7h721LxbLjrCeGygLWHXdkT/eix259S4g9p+2gLSkAwgJOE4yoDrOqEXRlwfdgskKmffAba8XXmc0O5jjh9ftgqwIjoR1XxOkXHI=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WOoxC9D_1738742548 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 05 Feb 2025 16:02:29 +0800
+Date: Wed, 5 Feb 2025 16:02:28 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Gerd Bayer <gbayer@linux.ibm.com>
+Cc: dust.li@linux.alibaba.com, "D. Wythe" <alibuda@linux.alibaba.com>,
+	kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+	martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org,
+	sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
+	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v7 3/6] net/smc: Introduce generic hook smc_ops
+Message-ID: <20250205080228.GA57822@j66a10360.sqa.eu95>
+References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
+ <20250123015942.94810-4-alibuda@linux.alibaba.com>
+ <20250123073034.GQ89233@linux.alibaba.com>
+ <6685f9266702dcf0a3123f9be7c1c0200a5f4032.camel@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <6685f9266702dcf0a3123f9be7c1c0200a5f4032.camel@linux.ibm.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-GENERIC_PTDUMP does not guard any code but instead just used for platform's
-subscription into core ptdump defined under PTDUMP_CORE, which is selected.
-Instead use PTDUMP_CORE for platform subscription and drop GENERIC_PTDUMP.
+On Thu, Jan 23, 2025 at 11:15:21AM +0100, Gerd Bayer wrote:
+> On Thu, 2025-01-23 at 15:30 +0800, Dust Li wrote:
+> > On 2025-01-23 09:59:39, D. Wythe wrote:
+> > > The introduction of IPPROTO_SMC enables eBPF programs to determine
+> > > whether to use SMC based on the context of socket creation, such as
+> > > network namespaces, PID and comm name, etc.
+> > > 
+> > 
+> > I'm still not completely satisfied with the name smc_ops. Since this
+> > will be the API for our users, we need to be carefull on the name.
+> 
+> If I may jump in with a suggestion here:
+> On my first glance, I'd expect SMC_OPS to offer OPS as a general API.
+> The description however suggest that this adds "contol points" or hooks
+> in the SMC code, that eBPF programs can use to tweak the protocol's
+> behavior. Exclusively eBPF programs, it seems.
+> 
+> So how about naming this SMC_EBPF_HOOKS or SMC_EBPF_SUPPORT?
+> 
+> Just my 2ct,
+> Gerd
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: kvmarm@lists.linux.dev
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-mm@kvack.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
-This patch applies on v6.14-rc1
+Hi all,
 
-Changes in V2:
+Thanks for all the suggestion.It seems that the naming of this ops has indeed
+sparked some controversy. However, I still oppose explicitly linking the name
+to BPF. As I mentioned earlier, this ops is not strongly tied to BPF
+implementations, kernel modules can also implement them.
 
-- Keep arch/powerpc/Kconfig alphabetically sorted per Christophe
+I used ChatGPT to generate some potential names, including:
+smc_ops / smc_hook / smc_aug / smc_ext / smc_alert / smc_support
 
-Changes in V1:
+Perhaps these can be used as references.
 
-https://lore.kernel.org/all/20241217034807.2541349-1-anshuman.khandual@arm.com/
+However, in any case, these changes need to be acked by the SMC
+maintainer, but for what I can tell, the maintainer of SMC is currently on
+leave, so this discussion may still take some time.
 
- Documentation/arch/arm64/ptdump.rst       | 1 -
- arch/arm64/Kconfig                        | 2 +-
- arch/arm64/kvm/Kconfig                    | 3 +--
- arch/powerpc/Kconfig                      | 2 +-
- arch/powerpc/configs/mpc885_ads_defconfig | 1 -
- arch/riscv/Kconfig                        | 2 +-
- arch/s390/Kconfig                         | 2 +-
- arch/x86/Kconfig                          | 2 +-
- arch/x86/Kconfig.debug                    | 2 +-
- kernel/configs/debug.config               | 1 -
- mm/Kconfig.debug                          | 8 ++------
- 11 files changed, 9 insertions(+), 17 deletions(-)
+Best wishes,
+D. Wythe
 
-diff --git a/Documentation/arch/arm64/ptdump.rst b/Documentation/arch/arm64/ptdump.rst
-index 5dcfc5d7cddf..61ca040a885b 100644
---- a/Documentation/arch/arm64/ptdump.rst
-+++ b/Documentation/arch/arm64/ptdump.rst
-@@ -22,7 +22,6 @@ offlining of memory being accessed by the ptdump code.
- In order to dump the kernel page tables, enable the following
- configurations and mount debugfs::
- 
-- CONFIG_GENERIC_PTDUMP=y
-  CONFIG_PTDUMP_CORE=y
-  CONFIG_PTDUMP_DEBUGFS=y
- 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index fcdd0ed3eca8..1f516bed81dd 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -157,7 +157,7 @@ config ARM64
- 	select GENERIC_IRQ_SHOW_LEVEL
- 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
- 	select GENERIC_PCI_IOMAP
--	select GENERIC_PTDUMP
-+	select PTDUMP_CORE
- 	select GENERIC_SCHED_CLOCK
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
-diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
-index ead632ad01b4..fe17d7f5b061 100644
---- a/arch/arm64/kvm/Kconfig
-+++ b/arch/arm64/kvm/Kconfig
-@@ -71,8 +71,7 @@ config PTDUMP_STAGE2_DEBUGFS
- 	depends on KVM
- 	depends on DEBUG_KERNEL
- 	depends on DEBUG_FS
--	depends on GENERIC_PTDUMP
--	select PTDUMP_CORE
-+	depends on PTDUMP_CORE
- 	default n
- 	help
- 	  Say Y here if you want to show the stage-2 kernel pagetables
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 424f188e62d9..97312440f715 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -206,7 +206,6 @@ config PPC
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_IRQ_SHOW_LEVEL
- 	select GENERIC_PCI_IOMAP		if PCI
--	select GENERIC_PTDUMP
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
- 	select GENERIC_VDSO_TIME_NS
-@@ -314,6 +313,7 @@ config PPC
- 	select PCI_MSI_ARCH_FALLBACKS		if PCI_MSI
- 	select PCI_SYSCALL			if PCI
- 	select PPC_DAWR				if PPC64
-+	select PTDUMP_CORE
- 	select RTC_LIB
- 	select SPARSE_IRQ
- 	select STRICT_KERNEL_RWX if STRICT_MODULE_RWX
-diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
-index 77306be62e9e..ea6f836407d2 100644
---- a/arch/powerpc/configs/mpc885_ads_defconfig
-+++ b/arch/powerpc/configs/mpc885_ads_defconfig
-@@ -78,4 +78,3 @@ CONFIG_DEBUG_VM_PGTABLE=y
- CONFIG_DETECT_HUNG_TASK=y
- CONFIG_BDI_SWITCH=y
- CONFIG_PPC_EARLY_DEBUG=y
--CONFIG_GENERIC_PTDUMP=y
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 7612c52e9b1e..bdaf08c1e1da 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -112,7 +112,7 @@ config RISCV
- 	select GENERIC_IRQ_SHOW_LEVEL
- 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
- 	select GENERIC_PCI_IOMAP
--	select GENERIC_PTDUMP if MMU
-+	select PTDUMP_CORE if MMU
- 	select GENERIC_SCHED_CLOCK
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL if MMU && 64BIT
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9c9ec08d78c7..ecf6b4cb3e33 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -163,7 +163,7 @@ config S390
- 	select GENERIC_CPU_VULNERABILITIES
- 	select GENERIC_ENTRY
- 	select GENERIC_GETTIMEOFDAY
--	select GENERIC_PTDUMP
-+	select PTDUMP_CORE
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
- 	select GENERIC_VDSO_TIME_NS
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 87198d957e2f..b6097b6178de 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -174,7 +174,7 @@ config X86
- 	select GENERIC_IRQ_RESERVATION_MODE
- 	select GENERIC_IRQ_SHOW
- 	select GENERIC_PENDING_IRQ		if SMP
--	select GENERIC_PTDUMP
-+	select PTDUMP_CORE
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_TIME_VSYSCALL
- 	select GENERIC_GETTIMEOFDAY
-diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
-index 1eb4d23cdaae..090c44d7e1a5 100644
---- a/arch/x86/Kconfig.debug
-+++ b/arch/x86/Kconfig.debug
-@@ -59,7 +59,7 @@ config EARLY_PRINTK_USB_XDBC
- config EFI_PGT_DUMP
- 	bool "Dump the EFI pagetable"
- 	depends on EFI
--	select PTDUMP_CORE
-+	depends on PTDUMP_CORE
- 	help
- 	  Enable this if you want to dump the EFI page table before
- 	  enabling virtual mode. This can be used to debug miscellaneous
-diff --git a/kernel/configs/debug.config b/kernel/configs/debug.config
-index 20552f163930..8aafd050b754 100644
---- a/kernel/configs/debug.config
-+++ b/kernel/configs/debug.config
-@@ -73,7 +73,6 @@ CONFIG_DEBUG_VM=y
- CONFIG_DEBUG_VM_PGFLAGS=y
- CONFIG_DEBUG_VM_RB=y
- CONFIG_DEBUG_VM_VMACACHE=y
--CONFIG_GENERIC_PTDUMP=y
- CONFIG_KASAN=y
- CONFIG_KASAN_GENERIC=y
- CONFIG_KASAN_INLINE=y
-diff --git a/mm/Kconfig.debug b/mm/Kconfig.debug
-index 41a58536531d..b206e5a11f96 100644
---- a/mm/Kconfig.debug
-+++ b/mm/Kconfig.debug
-@@ -187,7 +187,7 @@ config DEBUG_WX
- 	bool "Warn on W+X mappings at boot"
- 	depends on ARCH_HAS_DEBUG_WX
- 	depends on MMU
--	select PTDUMP_CORE
-+	depends on PTDUMP_CORE
- 	help
- 	  Generate a warning if any W+X mappings are found at boot.
- 
-@@ -212,9 +212,6 @@ config DEBUG_WX
- 
- 	  If in doubt, say "Y".
- 
--config GENERIC_PTDUMP
--	bool
--
- config PTDUMP_CORE
- 	bool
- 
-@@ -222,8 +219,7 @@ config PTDUMP_DEBUGFS
- 	bool "Export kernel pagetable layout to userspace via debugfs"
- 	depends on DEBUG_KERNEL
- 	depends on DEBUG_FS
--	depends on GENERIC_PTDUMP
--	select PTDUMP_CORE
-+	depends on PTDUMP_CORE
- 	help
- 	  Say Y here if you want to show the kernel pagetable layout in a
- 	  debugfs file. This information is only useful for kernel developers
--- 
-2.30.2
-
+> 
+> > 
+> > It seems like you're aiming to define a common set of operations, but
+> > the implementation appears to be intertwined with BPF. If this is
+> > intended to be a common interface, and if we are using another operation,
+> > there shouldn’t be a need to hold a BPF reference.
+> > 
+> > As your 'help' sugguest, What about smc_hook ?
+> > 
+> > Best regards,
+> > Dust
+> > 
+> > 
