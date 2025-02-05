@@ -1,142 +1,93 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFE0E207DE0;
-	Wed,  5 Feb 2025 19:56:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0719C846F
+	for <linux-s390@vger.kernel.org>; Wed,  5 Feb 2025 20:20:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738785364; cv=none; b=NuzJSdX3JCaRPOXhMm4OpgE5fvl3YuFtUwgO930vy4YUcxb14p5/ody2s3QZqH7IS60t7CeG7FvzvSvcEegCq0gC31D2iPMISWaz4mM+9FS95x5BfU7lx8A9IFn+fVH4Qw00xOnD0slme/hJPQvqHBTuE2kToHF3Rj/hwSGYddY=
+	t=1738786827; cv=none; b=ULwrBRBVo5YyBKIlE2cWIsc7pgUYg1gA+hMVA6Bk2uXe1Lq+lEcBLzLhzi/2pMlpndWxIHQ+1BE1mj+KJcu/VT/Ki888IorkZcLvNnEvKeC38CjcDRFZBXNtMAFMVFP7gAyN5U+KHDGRv+6HzoMlKdSiklsW45FAovVvVBrwfh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738785364; c=relaxed/simple;
-	bh=iPFum/ooN80cOPMsh94P49PMd9sImNoX5r665M1PBEQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LJB6jpvInQoqJwQxE6TqZXQzcit1w2Cp0jP2ytiMOY9GOP3yqf54puusL515FZkiHXIYWkOz3E4MHoPQJfxW3GELUQBoRJEBldmwhkjxGjoO0Lqhu7t8t7u8t/LzJCh4p+f1z2q2p62CobODocBDm3jEagNSlAF7Uc9sf/bvBRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fs1//zAe; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738786827; c=relaxed/simple;
+	bh=fnTAqM3D/83qeGP69un7O8D6chMjRT+BZtI6vSyZYjM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=VOrUOvQ8tV7Fywu+SzEEptsCsn/seyt9XBICWTcZryZ9tbTPkpoAFS5hKt45DyQLHCS7R1u7virQgtCJtu2uLadU5bbXimlv0aMPAW9qSa6EmogCarAHXE4qmkHsPokGtI/OJjhCvUBcaV6hM16BUMQS0dIVTJjFprkEsfDHtuw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fwdpv9/f; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fs1//zAe"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 515EtBre000663;
-	Wed, 5 Feb 2025 19:55:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NsNoTA
-	zBIrSlGCv20i9hObAFmMvUHA4jpdgPNAIpdWo=; b=Fs1//zAeAtUSdbAsmkoaxG
-	Wuk/KfT0vD3Knm9Nu1MlnkKTfY659XvN7HUNDTRLjGE5+fteWi1/tFPu3MmDaOMW
-	PYuuXpXbNOqV2xz9i9tSUYqkYjGHbqQSb9QMdklKAKJ9/eFL49y/eey2qZBY5hZ5
-	rkhqQm93gQAvPy1tyKfpBMre3906X/ZV2yWJZkQPcS2fmQyt7JdKwbC79bwc7GD0
-	PnTyTRvvf/yqgPCKh1qtBRkQ+25dmaW9TzroR7Ortjtt+8phMgIeIg4DzmfRUqZw
-	Kq/pfcP2AizXMP6ujS+QlKiRHAHyU4fA730tiifHt4zS/lO4vzHc45QQBVBO+8fg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44m1t84c49-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 19:55:50 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 515JU3h8006535;
-	Wed, 5 Feb 2025 19:55:48 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hyekjg0c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 19:55:48 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 515JtlUM29688426
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Feb 2025 19:55:47 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6A81658055;
-	Wed,  5 Feb 2025 19:55:47 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D58A85804B;
-	Wed,  5 Feb 2025 19:55:45 +0000 (GMT)
-Received: from [9.61.30.101] (unknown [9.61.30.101])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Feb 2025 19:55:45 +0000 (GMT)
-Message-ID: <c0c82eb4-3849-4127-b6bf-bee329653a24@linux.ibm.com>
-Date: Wed, 5 Feb 2025 14:55:45 -0500
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fwdpv9/f"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1738786824;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=i6tgDU57Mg8+mA/Pkg4w2tDko2vpEndFX/IjtOXl5rI=;
+	b=fwdpv9/fN0/GwFeAbIlnnLqDuDctxzdSSr3gczIvVBZVTeD++/SX5zqAlYkEfbdqQDnwde
+	7sTlBU48O5tMcPpJE9qo/0CHCnuXPcJX5gOBFR0WIpRExjbwkmbF9Z8QY1JBDuuB1+uVis
+	6jQVUNqaeszII4FIbcWhpP1Ia+hs9qY=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-480-6gAnFY5BOh2AhJHb60SCGw-1; Wed,
+ 05 Feb 2025 15:20:21 -0500
+X-MC-Unique: 6gAnFY5BOh2AhJHb60SCGw-1
+X-Mimecast-MFC-AGG-ID: 6gAnFY5BOh2AhJHb60SCGw
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B22021956095;
+	Wed,  5 Feb 2025 20:20:19 +0000 (UTC)
+Received: from [10.45.224.44] (unknown [10.45.224.44])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B04FE1800267;
+	Wed,  5 Feb 2025 20:20:16 +0000 (UTC)
+Date: Wed, 5 Feb 2025 21:20:12 +0100 (CET)
+From: Mikulas Patocka <mpatocka@redhat.com>
+To: Harald Freudenberger <freude@linux.ibm.com>
+cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, agk@redhat.com, 
+    snitzer@kernel.org, linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, 
+    herbert@gondor.apana.org.au, Milan Broz <gmazyland@gmail.com>
+Subject: Re: [PATCH v3 2/2] dm-integrity: introduce ahash support for the
+ internal hash
+In-Reply-To: <50719156cbdb7621cfc141a3c64b56a7@linux.ibm.com>
+Message-ID: <dea23d80-31be-605a-0c37-6ae185fd4fa5@redhat.com>
+References: <20250131100304.932064-1-freude@linux.ibm.com> <20250131100304.932064-3-freude@linux.ibm.com> <1743b5fc-f401-c416-5733-6757bda963ca@redhat.com> <50719156cbdb7621cfc141a3c64b56a7@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/3] iommu/s390: implement iommu passthrough via
- identity domain
-To: Niklas Schnelle <schnelle@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, gerald.schaefer@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        clegoate@redhat.com, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20250124201717.348736-1-mjrosato@linux.ibm.com>
- <20250124201717.348736-4-mjrosato@linux.ibm.com>
- <53c930df7058288776392073964a70025ca62d19.camel@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <53c930df7058288776392073964a70025ca62d19.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: C5Ly6ffk3UkHDhTlnvilvDtqF16XvjFp
-X-Proofpoint-ORIG-GUID: C5Ly6ffk3UkHDhTlnvilvDtqF16XvjFp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-05_06,2025-02-05_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- mlxlogscore=999 suspectscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 spamscore=0 mlxscore=0 clxscore=1015 malwarescore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502050148
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On 1/30/25 2:43 AM, Niklas Schnelle wrote:
-> On Fri, 2025-01-24 at 15:17 -0500, Matthew Rosato wrote:
->> Enabled via the kernel command-line 'iommu.passthrough=1' option.
->>
->> Introduce the concept of identity domains to s390-iommu, which relies on
->> the bus_dma_region to offset identity mappings to the start of the DMA
->> aperture advertized by CLP.
->>
->> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>  arch/s390/pci/pci.c        |  6 ++-
->>  drivers/iommu/s390-iommu.c | 95 +++++++++++++++++++++++++++++---------
->>  2 files changed, 76 insertions(+), 25 deletions(-)
->>
->> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
->> index 88f72745fa59..758b23331754 100644
->> --- a/arch/s390/pci/pci.c
->> +++ b/arch/s390/pci/pci.c
->> @@ -124,14 +124,16 @@ int zpci_register_ioat(struct zpci_dev *zdev, u8 dmaas,
->>  	struct zpci_fib fib = {0};
->>  	u8 cc;
->>  
->> -	WARN_ON_ONCE(iota & 0x3fff);
->>  	fib.pba = base;
->>  	/* Work around off by one in ISM virt device */
->>  	if (zdev->pft == PCI_FUNC_TYPE_ISM && limit > base)
->>  		fib.pal = limit + (1 << 12);
->>  	else
->>  		fib.pal = limit;
->> -	fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
->> +	if (iota == 0)
->> +		fib.iota = iota;
-> 
-> Taking another look, I think there is a small problem with the logic of
-> passing iota == 0 to indicate direct mapping. In
-> zpci_hot_reset_device() we call zpci_register_ioat() with iota set to
-> virt_to_phys(zdev->dma_table) and while zdev->dma_table is NULL for the
-> identity domain we can't rely on virt_to_phys(NULL) == NULL.
 
-Thanks for pointing this out.  We discussed this a fair bit off-list, but to summarize here: I'll include an additional patch in the next version that will drive IOAT registration code through s390-iommu, since really this owns the dma_table and knows when it does (not) make sense to register it.  Places in s390 code that need to perform IOAT re-registration (such as zpci_hot_reset_device) will call into this routine and let s390-iommu determine the correct action based upon the type of domain in use.  
 
-I'll set that patch before this one, so then this patch remains unchanged except to replace the zpci_register_ioat call added by this patch in s390_attach_dev_identity with the new routine.
+On Tue, 4 Feb 2025, Harald Freudenberger wrote:
 
-> 
->> +	else
->> +		fib.iota = iota | ZPCI_IOTA_RTTO_FLAG;
->>  	fib.gd = zdev->gisa;
->>  	cc = zpci_mod_fc(req, &fib, status);
->>  	if (cc)
+> Thanks Mikulas for your feedback.
+> As of now all this looks like a dead end to our attempt on trying to
+> provide a phmac-shaxxx digest for use with dm-integrity. Thanks for
+> your effort. Don't expect another version of this patch as I can't
+> fullfill the requirements.
+
+Hi
+
+I think that it is possible to make it work for you with async-only 
+hashes.
+
+As for calling integrity_sector_checksum from dm_integrity_end_io - we can 
+offload this operation to a workqueue when using an async hash.
+
+As for memory allocation in the I/O path - we can move the sector_le and 
+ahash_request fields to the structure dm_integrity_io. So, that there is 
+no allocation in the I/O path.
+
+I fixed your patches and I'll send them in the next email - please test 
+them.
+
+I tested them with the cryptsetup testsuite (and I hacked the code so that 
+it prefers ahash over shash) and it passed.
+
+Mikulas
 
