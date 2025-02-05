@@ -1,161 +1,93 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C49122B8B9;
-	Wed,  5 Feb 2025 12:08:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7107722CBF0
+	for <linux-s390@vger.kernel.org>; Wed,  5 Feb 2025 12:43:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738757339; cv=none; b=qQfqP8q3cOc/QUo2P5E1NlakNRTVKXg+166F7VyVPlVr5B4DzzcxLh2kaQX/WzJVcSD8rXGv9WO93QaoQZkgdlmwGk/21Tptsf1D9lJZP1/XxInCAQeWDxAdPjNfN2Se3gUI9Ld2wrF4giXXVap0oCCY/mnOcFPIAjup31BGhpY=
+	t=1738759407; cv=none; b=icpWPO0srBaIxIm7QZ8e+aE/NZvjdeUCXu/wnaQDzsctcw/qHKsR6racoZBW1cFqu4d62DCVq11auc3hynY5Z/nbEVofXtc9VI+S9Hr+Ve33pz21+Cg3yKl9JSU81sd1GGirWqhGSd/5G3CKyeB/SNA/usyIVEu5cqfF0y0KGrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738757339; c=relaxed/simple;
-	bh=LXmD7jHSFNZPlbA/cqAxmYQVdK23tUec4eK5766sXXw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QPwf7p/rERsquhAe5XNS8CR8jf6kxohinpCbGy2+YiF6Jde/AV4r4YWLE+8na+VGHNxX7XFCq/hOTFLI7M7vx3+WCEN2AoBm1xzTa+9ZbclUoNpF99T9TB9C0HQyjUNNXLpDp9MUd6mP4ftEPZtyXkt5p6ek+cZbCEwQUKXnV4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qIKzAt0K; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qIKzAt0K"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51537A3C029206;
-	Wed, 5 Feb 2025 12:08:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=WwBAnL
-	x1mSmeOl1Zs9LWX97C7W4cgCq4Nn1vDfx9QgU=; b=qIKzAt0Kbd31cz11x5+6T9
-	YiroJhFUiUre0XMZjU+Ds43taGILAanbpO/itHFBIRg6rS4bdal4RzcGwo/Gqvgk
-	qh9oNvxb1WQNgayG2cpxCSY8QQUW3iI4RXxm8a23auf4GTKl1O5x+0NXhBYSo1er
-	x42jRCw5uyY8wypJjhIxiGngWT+it8++q8dno8ifWMgP7+5G3SbziWN56xYk4I1k
-	4xtYhAKJ07pjOqN4JZNsqfsYYRKXLk1VqPQNbwpxg9+ixFRBt0L/0J+IKTp/X41m
-	0epAWKrG0MvGt1B3114WUdnpQxKHJW0IIAuR7p7VZSPG+BRRNuOHfdjl0w4RymeQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44knqtvx0r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 12:08:55 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5159XLsk005251;
-	Wed, 5 Feb 2025 12:08:55 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44j05k0dmx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 12:08:55 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 515C8p5p58327314
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Feb 2025 12:08:51 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2957D200CE;
-	Wed,  5 Feb 2025 12:08:51 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D5D16200C9;
-	Wed,  5 Feb 2025 12:08:50 +0000 (GMT)
-Received: from [9.179.10.151] (unknown [9.179.10.151])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Feb 2025 12:08:50 +0000 (GMT)
-Message-ID: <5d04e2c8-68df-4d6c-9ef8-0fc0d72e791f@linux.ibm.com>
-Date: Wed, 5 Feb 2025 13:08:50 +0100
+	s=arc-20240116; t=1738759407; c=relaxed/simple;
+	bh=MFwWo9skWE6TgrrIuG9Dg1rbyddXG8DLp+DwyUcHO/w=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=tnvbtS6J+jemJMUuiUufylKA497e+HiVCQfpJcZkSEnl6P+nlcmqTah/8amzuxLBe933zBM/ShLoUjrMsBsUgIq6lXKo0tDkHPtbl5udDzxj68LceyEX5N1irTSs9e+OiS4pz8B9ZB/bAvzkofcWQDjX2/Zq5agECK/O+FA2g5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3d0508b8008so4422805ab.0
+        for <linux-s390@vger.kernel.org>; Wed, 05 Feb 2025 04:43:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738759404; x=1739364204;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=qE+fXc1pHOhxeyOdSmAnMaDoJYrhg+xmOJDX5G4+jRw=;
+        b=HJe17i3mMSAyNQWG68fwHTc7iPWZ0xnY2blPBo0YCNV2H7Vd6/6CkEjDYs1Nse9Kdb
+         WCaN6x0ibEVcX3gnyax/kJn6kqMe0jkcyzJ2+pXPTOSfJfS+Tzk2nUlKGO/m4FSb2fTW
+         iYnGwU56RrsRSZp+3u4L9/h0g5BseDkVaBrOepzKLB8SQSp+oCMG76uV6zWl7fLXEXdQ
+         F8UY3HwwqU4bgheo3MYOH7WznHWd+8nFD63hyULgJAvGz7aYAeGyrJJxopmT/9AZKQZl
+         xJVGIK6ZdiIw7fdYa5UeQFjrcwf8nGTbeU9Urv573MkNvvzUlELHkDuVNf4+p05xTojR
+         lHuQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXb4n0IQHzoSdg7hvupR4Gfq3Kg56PZms47v45DKK6ctxONj0JDuuSPOk3mCbQ+p83TkmDGFRbid7mT@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz4btWKNXi1kzpj57xk4FX2tqYrDHQ8x1M1OFg04Guam1I4gLzl
+	WPX4mzm/bqFooxQN0Cl+dOdy/hQpU8i+3urXjq2TJkALEYigntpHbE0LvsJSkfDckSQOXI3C8Qe
+	fv8yawPKREwF3s34h2izTp58OMLzGJw7R55fpbASUllW0eFy2jS9V/oQ=
+X-Google-Smtp-Source: AGHT+IHXWRgilzd3XNVpmJ5vIWEJ3GQ8019fDmXhYFTPWkCFU4PsLj9OkZ3YQ86PBm04LC/9AK62WTRpSIP3t6lhhRuG/88ASsAD
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH] lib: s390x: css: Name inline assembly
- arguments and clean them up
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, nrb@linux.ibm.com,
-        hca@linux.ibm.com
-References: <20250204100339.28158-1-frankja@linux.ibm.com>
- <20250205112550.45a6b2cd@p-imbrenda>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20250205112550.45a6b2cd@p-imbrenda>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: m9s5pC_hO9_rTUopX8qCUti4jZ6HeYti
-X-Proofpoint-ORIG-GUID: m9s5pC_hO9_rTUopX8qCUti4jZ6HeYti
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-05_05,2025-02-05_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 spamscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
- clxscore=1015 mlxlogscore=839 phishscore=0 malwarescore=0 mlxscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502050096
+X-Received: by 2002:a05:6e02:1a45:b0:3cf:c8ec:d375 with SMTP id
+ e9e14a558f8ab-3d04f2c7559mr25490575ab.0.1738759404554; Wed, 05 Feb 2025
+ 04:43:24 -0800 (PST)
+Date: Wed, 05 Feb 2025 04:43:24 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67a35cec.050a0220.50516.0052.GAE@google.com>
+Subject: [syzbot] Monthly s390 report (Feb 2025)
+From: syzbot <syzbot+listc2bca56bae687bb9de83@syzkaller.appspotmail.com>
+To: agordeev@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 2/5/25 11:25 AM, Claudio Imbrenda wrote:
-> On Tue,  4 Feb 2025 09:51:33 +0000
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> Less need to count the operands makes the code easier to read.
->>
->> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->> ---
->>
->> This one has been gathering dust for a while.
->> rfc->v1: Moved to Q constraint (thanks Heiko)
->>
->> ---
-> 
-> [...]
-> 
->>   	asm volatile(" .insn   rre,0xb25f0000,%2,0\n"
->> -		     " ipm     %0\n"
->> -		     " srl     %0,28\n"
->> -		     : "=d" (cc), "=m" (p)
->> +		     " ipm     %[cc]\n"
->> +		     " srl     %[cc],28\n"
->> +		     : [cc] "=d" (cc), "=m" (p)
->>   		     : "d" (p), "m" (p)
-> 
-> this bit (which you did not touch) is actually the most confusing to me.
-> what's the point of separately specifying both "d" and "m" constraints
-> for (p) ? (and it also has a "=m" in the output clobberlist)
+Hello s390 maintainers/developers,
 
-I'll add a second patch to bring this into line with the kernel's 
-ioasm.c implementation.
+This is a 31-day syzbot report for the s390 subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/s390
+
+During the period, 4 new issues were detected and 0 were fixed.
+In total, 11 issues are still open and 43 have already been fixed.
+
+Some of the still happening issues:
+
+Ref Crashes Repro Title
+<1> 20019   Yes   possible deadlock in smc_switch_to_fallback (2)
+                  https://syzkaller.appspot.com/bug?extid=bef85a6996d1737c1a2f
+<2> 2669    Yes   possible deadlock in smc_vlan_by_tcpsk
+                  https://syzkaller.appspot.com/bug?extid=c75d1de73d3b8b76272f
+<3> 204     Yes   general protection fault in smc_diag_dump_proto
+                  https://syzkaller.appspot.com/bug?extid=f69bfae0a4eb29976e44
+<4> 51      Yes   possible deadlock in smc_release
+                  https://syzkaller.appspot.com/bug?extid=621fd56ba002faba6392
+<5> 41      Yes   general protection fault in __smc_diag_dump (3)
+                  https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
+<6> 8       Yes   Unable to handle kernel execute from non-executable memory at virtual address ADDR
+                  https://syzkaller.appspot.com/bug?extid=8798e95c2e5511646dac
+<7> 8       No    possible deadlock in smc_shutdown (2)
+                  https://syzkaller.appspot.com/bug?extid=3667d719a932ebc28119
+<8> 5       Yes   possible deadlock in smc_pnet_find_ism_resource
+                  https://syzkaller.appspot.com/bug?extid=f160105b2817964a0886
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
+
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.
