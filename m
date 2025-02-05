@@ -1,110 +1,153 @@
-Received: from out199-16.us.a.mail.aliyun.com (out199-16.us.a.mail.aliyun.com [47.90.199.16])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03F8320F09B;
-	Wed,  5 Feb 2025 08:02:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=47.90.199.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FB6F221D90;
+	Wed,  5 Feb 2025 08:17:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738742576; cv=none; b=nAkfMoX1rIBY8oWS1WlFQlQ4u7PpkffPzTWMJV5EfIrxG5NvdcTfBzQRp6h0gFMpKeZemPIIg8tEd7L8PAge3p/tvn0v7YXloZNc/daQ2+dhyAPMnqliMCS4d79DHcEiLxr1GVkokybYP/3jMrjF5KLbcZI0FI/K84MUks1vMQM=
+	t=1738743474; cv=none; b=fkSHviZc8tjUg3vxOeFE+XI5pyw5aH/qHsjBMYbTBSNZswfVB3E516d9vB2sWEwm3Yee2obCdAxHqJR0d1/n7c1a782m/LOSVyLODP2D8dNx3IEJWMNNTBJiFLqJw3tMoBL9kiB48NFZKyARp63hUBvsDOMx9mjDfx8QpvT8wcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738742576; c=relaxed/simple;
-	bh=u08HtmoR3gjyR8lSKU9dYPRmR+YL7GM5wtJ6j/Ioiac=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nAFGruo0GQ9mTP3mMoVkL1y4rjtKasCwiRGueMkVBC+Dmfg+LL3SbG2uqEgUzwo9dNtsS/IWqz4z3GuFdRgNlmRcjWrzj9YmTWfqDIupkRo4gy8twGpLTYpnFb9i+ZxWg7qC1HfV70Rl2wa04DwGB/F4iTR2FeLdDinWtfb6qQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=A5M+Vvr4; arc=none smtp.client-ip=47.90.199.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1738743474; c=relaxed/simple;
+	bh=1bm7o4jm61DKhsesfl1Llf2NH/BL2znt9dXZdlGOOnY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eLOK6BQZyus1MTz506AXH9j+TNbzMntWTofteg6o+a56SWRqwYF6Q00oxczY6jT9y2e0B6WkCHzorDx94cGAQm9Ahr5hN50XG2KQBfEzEfEG0Wz4/J0Owy82JiMTdX2QOThoz8Lb5GfpuXuAp3pfA957uOyBCaH2IUgof7pOieo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iXw/MKsr; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="A5M+Vvr4"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1738742551; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=7GaEyfI7UicQBv1sg4JfW3DT68PYKPedGIl8mINzZOI=;
-	b=A5M+Vvr4LhZzusgoy/CzI657NkVXqlFPRS0/8N87W4jY4FvUopy/MqDOSp8jRUhJ62Y7fVG7h721LxbLjrCeGygLWHXdkT/eix259S4g9p+2gLSkAwgJOE4yoDrOqEXRlwfdgskKmffAba8XXmc0O5jjh9ftgqwIjoR1XxOkXHI=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WOoxC9D_1738742548 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 05 Feb 2025 16:02:29 +0800
-Date: Wed, 5 Feb 2025 16:02:28 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: Gerd Bayer <gbayer@linux.ibm.com>
-Cc: dust.li@linux.alibaba.com, "D. Wythe" <alibuda@linux.alibaba.com>,
-	kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-	martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org,
-	sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
-	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v7 3/6] net/smc: Introduce generic hook smc_ops
-Message-ID: <20250205080228.GA57822@j66a10360.sqa.eu95>
-References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
- <20250123015942.94810-4-alibuda@linux.alibaba.com>
- <20250123073034.GQ89233@linux.alibaba.com>
- <6685f9266702dcf0a3123f9be7c1c0200a5f4032.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iXw/MKsr"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51518DBr012510;
+	Wed, 5 Feb 2025 08:17:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oXKOH3
+	D9n7QoGtPbX2Z/diam6YS/hMAD/ecFdTt4Iqk=; b=iXw/MKsrlan8YQ47wIB8cK
+	v1m1dyWqHiqclf1SaZkaHtZa1WsngMgw4TIV8DLrEPuyr3CANfRnDZUwSQAq9e/m
+	ShJJwfwP3V9Fodkg8Luzl1dLABspSdFNm7Li4/PYhQ52GFY8BX6ca67AoJy+i3hC
+	xmJAvgFZ0p1fbmsiMW2GK3rQHs6d6ZuWNC3LlbgZI5UGIHurXx8uo1v6zcG1dmwa
+	DTyvAKN7IAblOORiXy43BzkVgszs5IBnAs7/7JD/xmvTqquNtLYgmkOtI4bdsmQX
+	ogAa2PiW8TnfvSnzF5nwkPN/vHa4MWZw+tdsnX+9fbwf+PLPB+0sJFiBriIq/Ryw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29hnyg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Feb 2025 08:17:52 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5154NSwY024506;
+	Wed, 5 Feb 2025 08:17:51 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxxn7sy7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Feb 2025 08:17:51 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5158Hk1R51249436
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 5 Feb 2025 08:17:47 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E497620191;
+	Wed,  5 Feb 2025 08:17:46 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 990DB2016A;
+	Wed,  5 Feb 2025 08:17:46 +0000 (GMT)
+Received: from [9.179.10.151] (unknown [9.179.10.151])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  5 Feb 2025 08:17:46 +0000 (GMT)
+Message-ID: <2d183675-09f8-4ab3-bc4d-67f203f0487c@linux.ibm.com>
+Date: Wed, 5 Feb 2025 09:17:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6685f9266702dcf0a3123f9be7c1c0200a5f4032.camel@linux.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH] lib: s390x: css: Name inline assembly
+ arguments and clean them up
+To: Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, hca@linux.ibm.com
+References: <20250204100339.28158-1-frankja@linux.ibm.com>
+ <D7JOEGIKCINO.1NX73MSQGVGYZ@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <D7JOEGIKCINO.1NX73MSQGVGYZ@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: N8nkg7jLVIm1xDDvu4goetAFVZzSZb2P
+X-Proofpoint-ORIG-GUID: N8nkg7jLVIm1xDDvu4goetAFVZzSZb2P
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-05_03,2025-02-05_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
+ suspectscore=0 adultscore=0 mlxlogscore=905 clxscore=1015
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502050063
 
-On Thu, Jan 23, 2025 at 11:15:21AM +0100, Gerd Bayer wrote:
-> On Thu, 2025-01-23 at 15:30 +0800, Dust Li wrote:
-> > On 2025-01-23 09:59:39, D. Wythe wrote:
-> > > The introduction of IPPROTO_SMC enables eBPF programs to determine
-> > > whether to use SMC based on the context of socket creation, such as
-> > > network namespaces, PID and comm name, etc.
-> > > 
-> > 
-> > I'm still not completely satisfied with the name smc_ops. Since this
-> > will be the API for our users, we need to be carefull on the name.
+On 2/4/25 1:55 PM, Nico Boehr wrote:
+> On Tue Feb 4, 2025 at 10:51 AM CET, Janosch Frank wrote:
+>> @@ -215,9 +215,9 @@ static inline int xsch(unsigned long schid)
+>>   
+>>   	asm volatile(
+>>   		"	xsch\n"
+>> -		"	ipm	%0\n"
+>> -		"	srl	%0,28"
+>> -		: "=d" (cc)
+>> +		"	ipm	%[cc]\n"
+>> +		"	srl	%cc,28"
 > 
-> If I may jump in with a suggestion here:
-> On my first glance, I'd expect SMC_OPS to offer OPS as a general API.
-> The description however suggest that this adds "contol points" or hooks
-> in the SMC code, that eBPF programs can use to tweak the protocol's
-> behavior. Exclusively eBPF programs, it seems.
+> Should this be:
+> 		"	srl	%[cc],28"
+> instead?
 > 
-> So how about naming this SMC_EBPF_HOOKS or SMC_EBPF_SUPPORT?
+> With that fixed (if it needs fixing):
 > 
-> Just my 2ct,
-> Gerd
-
-Hi all,
-
-Thanks for all the suggestion.It seems that the naming of this ops has indeed
-sparked some controversy. However, I still oppose explicitly linking the name
-to BPF. As I mentioned earlier, this ops is not strongly tied to BPF
-implementations, kernel modules can also implement them.
-
-I used ChatGPT to generate some potential names, including:
-smc_ops / smc_hook / smc_aug / smc_ext / smc_alert / smc_support
-
-Perhaps these can be used as references.
-
-However, in any case, these changes need to be acked by the SMC
-maintainer, but for what I can tell, the maintainer of SMC is currently on
-leave, so this discussion may still take some time.
-
-Best wishes,
-D. Wythe
-
+> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
 > 
-> > 
-> > It seems like you're aiming to define a common set of operations, but
-> > the implementation appears to be intertwined with BPF. If this is
-> > intended to be a common interface, and if we are using another operation,
-> > there shouldn’t be a need to hold a BPF reference.
-> > 
-> > As your 'help' sugguest, What about smc_hook ?
-> > 
-> > Best regards,
-> > Dust
-> > 
-> > 
+
+Thanks!
+Fixed and applied.
+
