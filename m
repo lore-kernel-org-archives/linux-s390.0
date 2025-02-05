@@ -1,144 +1,274 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 062672054F0;
-	Tue,  4 Feb 2025 19:41:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B2E94C2EF;
+	Wed,  5 Feb 2025 05:00:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738698067; cv=none; b=MYm3+jxhpFFxVQTyyTbsPuqMDY3D+JobPXz2qhrxOv0jMrtGm4vPubZkI0a8ygRzIeGXJJajDCIUWcHFYMZIA4fntzFSJcM/xhzIZ/XfdbxHHBKUkbjMHlyghUS+UlQw3yBwRcPZJ3lI56Y6ETVlzfMU60GhuqvbxnvgpxbYAH4=
+	t=1738731662; cv=none; b=tTlsSCAW1RwKYASXrQ7DZJsRywhHYrkKuc7+kY/QpL9+JGJziERgffZDGg/taPM+hU0XEIBNYJSnnAtdsWTwSajS6BIWwbM29FzY6Jo3QfUJtnq6Ofjdenn5O4vVU95EcuQAovz9u3HDKRC171cEoYBBxCQhUwWmCnCCTBzhPIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738698067; c=relaxed/simple;
-	bh=ZPd5d3LP4lSPJ0S+PvFfBrMSrUEFNR/QGVnE/v8NhkM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EL/BvQqAMDyjKlZ92IoQ3dIg27SKHjwzqFa0CHeZdXtuc18YGKD1ZB1SkFp8jdRLuReMerJblDd5STiTHwhVAW/4joBTZoWOaDS346Z0i1CXXW3hG/AwJ+MGBjxnMVXbUH546nrcc3NbmU7zwVC3Zu1VFQh+igtxUez7xrHPSF4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=O+aWIPh/; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="O+aWIPh/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1738698062; x=1770234062;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=ZPd5d3LP4lSPJ0S+PvFfBrMSrUEFNR/QGVnE/v8NhkM=;
-  b=O+aWIPh/KkmKPVNCN72vDB7tVaGLMk/Z5JgTL8b/7JLUO19ccj0kSwq+
-   kYWWbkQbB3ol96/fuA5Sn0YQHgMAV9eaPxxcWAv6SScy9RhyQbTlmHrCh
-   xqE/oYLrmnnED27DY+IPE0i8AD9fITXBp8fxVux3uElnhr1NIWSfgVEk1
-   jXjmdwouoAQdKDYFgb0Rhqsr2ou/xLuXWGjykCC0ICX0BrLKmdcO2S4g4
-   giGnoj+8kJke2EOVEWTsmnos1zGHkGmmNCdN+oEnoOxfSazw+g46ygfcF
-   I4biy0BPyOu13k0w/t72WogOGdUzv4kvf4Y9D9+vzOMGgn34BUFe59YAU
-   g==;
-X-CSE-ConnectionGUID: ichWZ9klScOQ7X2VYtNIyg==
-X-CSE-MsgGUID: Wg+8xyWcQkythiIneRKOvA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11336"; a="38452874"
-X-IronPort-AV: E=Sophos;i="6.13,259,1732608000"; 
-   d="scan'208";a="38452874"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2025 11:41:01 -0800
-X-CSE-ConnectionGUID: /XafOi5JTy+zcaEwQmVqsw==
-X-CSE-MsgGUID: fIWPPb2CSEGKPV779jLAzg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,259,1732608000"; 
-   d="scan'208";a="111230834"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmviesa010.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Feb 2025 11:41:00 -0800
-Received: from [10.246.136.14] (kliang2-mobl1.ccr.corp.intel.com [10.246.136.14])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by linux.intel.com (Postfix) with ESMTPS id 00B6020B5713;
-	Tue,  4 Feb 2025 11:40:58 -0800 (PST)
-Message-ID: <5da59431-e21f-42fa-927d-e5d346ae9713@linux.intel.com>
-Date: Tue, 4 Feb 2025 14:40:57 -0500
+	s=arc-20240116; t=1738731662; c=relaxed/simple;
+	bh=U2eesr90eNrCpDefobywehAaMgkRK5RRHycQeinE6tk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Bu5uFJ6uynJ8VLzW2FM+S1odZ2MBNz/YAvHPAMFa9mEqis0PbY0YZ/Pr+tqec8UDZ8HmdzlKHdG4IHS4QTne0chb/gRFoRJhf5mKToBnk6tEBImT2YIafeKhUapUZRpsJqU5ZVQGlG3VXKDaoEovJb5z7PVYEw7VMz/sKg9XpGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D9D611FB;
+	Tue,  4 Feb 2025 21:01:17 -0800 (PST)
+Received: from a077893.blr.arm.com (unknown [10.162.16.89])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 0BA7C3F63F;
+	Tue,  4 Feb 2025 21:00:45 -0800 (PST)
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org
+Cc: steven.price@arm.com,
+	christophe.leroy@csgroup.eu,
+	Anshuman Khandual <anshuman.khandual@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Marc Zyngier <maz@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH V2] mm/ptdump: Drop GENERIC_PTDUMP
+Date: Wed,  5 Feb 2025 10:30:39 +0530
+Message-Id: <20250205050039.1506377-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2 v3] perf test: Change event in perf test 114 perf
- record test subtest test_leader_sampling
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, acme@kernel.org,
- linux-s390@vger.kernel.org, james.clark@linaro.org, agordeev@linux.ibm.com,
- gor@linux.ibm.com, sumanthk@linux.ibm.com, hca@linux.ibm.com,
- Dapeng Mi <dapeng1.mi@linux.intel.com>
-References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
- <20250131102756.4185235-3-tmricht@linux.ibm.com>
- <Z6GMmxKvXd0-fd_-@google.com>
- <9b091546-8178-470b-8904-dc948fd9aa11@linux.intel.com>
- <Z6JrkYYOkGcuKQOh@google.com>
-Content-Language: en-US
-From: "Liang, Kan" <kan.liang@linux.intel.com>
-In-Reply-To: <Z6JrkYYOkGcuKQOh@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+GENERIC_PTDUMP does not guard any code but instead just used for platform's
+subscription into core ptdump defined under PTDUMP_CORE, which is selected.
+Instead use PTDUMP_CORE for platform subscription and drop GENERIC_PTDUMP.
 
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-doc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: kvmarm@lists.linux.dev
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-mm@kvack.org
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+---
+This patch applies on v6.14-rc1
 
-On 2025-02-04 2:33 p.m., Namhyung Kim wrote:
-> Hello Kan,
-> 
-> On Tue, Feb 04, 2025 at 10:55:44AM -0500, Liang, Kan wrote:
->>
->>
->> On 2025-02-03 10:42 p.m., Namhyung Kim wrote:
->>> Add Kan and Dapeng to CC.
->>>
->>> Thanks,
->>> Namhyung
->>>
->>>
->>> On Fri, Jan 31, 2025 at 11:27:56AM +0100, Thomas Richter wrote:
->>>> On s390 the event instructions can not be used for recording.
->>>> This event is only supported by perf stat.
->>>>
->>>> Change the event from instructions to cycles in
->>>> subtest test_leader_sampling.
->>>>
->>>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
->>>> Suggested-by: James Clark <james.clark@linaro.org>
->>>> Reviewed-by: James Clark <james.clark@linaro.org>
->>>> ---
->>>>  tools/perf/tests/shell/record.sh | 10 +++++-----
->>>>  1 file changed, 5 insertions(+), 5 deletions(-)
->>>>
->>>> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
->>>> index fe2d05bcbb1f..ba8d873d3ca7 100755
->>>> --- a/tools/perf/tests/shell/record.sh
->>>> +++ b/tools/perf/tests/shell/record.sh
->>>> @@ -231,7 +231,7 @@ test_cgroup() {
->>>>  
->>>>  test_leader_sampling() {
->>>>    echo "Basic leader sampling test"
->>>> -  if ! perf record -o "${perfdata}" -e "{instructions,instructions}:Su" -- \
->>>> +  if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
->>>>      perf test -w brstack 2> /dev/null
->>
->>
->> As a non-precise test, using cycles instead should be fine. But we
->> should never use it for precise test, e.g., with p. Because cycles is a
->> non-precise event. It would not surprise me if there is a skid when
->> reading two cycles events at the point when the event overflow occurs.
-> 
-> Sorry, I don't think I'm following.  Are you saying "{cycles:p,cycles:p}:S"
-> cannot guarantee that they will have the same period?
+Changes in V2:
 
-Only sampling can supports p modifier. So it should be
-{cycles:p,cycles}:S. The "{cycles:p,cycles:p}:S" will error out.
-Yes, it's not guaranteed that they have the same period.
+- Keep arch/powerpc/Kconfig alphabetically sorted per Christophe
 
-Thanks,
-Kan
-> 
->>
->> Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-> 
-> Thanks for your review and the comment!
-> Namhyung
-> 
-> 
+Changes in V1:
+
+https://lore.kernel.org/all/20241217034807.2541349-1-anshuman.khandual@arm.com/
+
+ Documentation/arch/arm64/ptdump.rst       | 1 -
+ arch/arm64/Kconfig                        | 2 +-
+ arch/arm64/kvm/Kconfig                    | 3 +--
+ arch/powerpc/Kconfig                      | 2 +-
+ arch/powerpc/configs/mpc885_ads_defconfig | 1 -
+ arch/riscv/Kconfig                        | 2 +-
+ arch/s390/Kconfig                         | 2 +-
+ arch/x86/Kconfig                          | 2 +-
+ arch/x86/Kconfig.debug                    | 2 +-
+ kernel/configs/debug.config               | 1 -
+ mm/Kconfig.debug                          | 8 ++------
+ 11 files changed, 9 insertions(+), 17 deletions(-)
+
+diff --git a/Documentation/arch/arm64/ptdump.rst b/Documentation/arch/arm64/ptdump.rst
+index 5dcfc5d7cddf..61ca040a885b 100644
+--- a/Documentation/arch/arm64/ptdump.rst
++++ b/Documentation/arch/arm64/ptdump.rst
+@@ -22,7 +22,6 @@ offlining of memory being accessed by the ptdump code.
+ In order to dump the kernel page tables, enable the following
+ configurations and mount debugfs::
+ 
+- CONFIG_GENERIC_PTDUMP=y
+  CONFIG_PTDUMP_CORE=y
+  CONFIG_PTDUMP_DEBUGFS=y
+ 
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index fcdd0ed3eca8..1f516bed81dd 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -157,7 +157,7 @@ config ARM64
+ 	select GENERIC_IRQ_SHOW_LEVEL
+ 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
+ 	select GENERIC_PCI_IOMAP
+-	select GENERIC_PTDUMP
++	select PTDUMP_CORE
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL
+diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+index ead632ad01b4..fe17d7f5b061 100644
+--- a/arch/arm64/kvm/Kconfig
++++ b/arch/arm64/kvm/Kconfig
+@@ -71,8 +71,7 @@ config PTDUMP_STAGE2_DEBUGFS
+ 	depends on KVM
+ 	depends on DEBUG_KERNEL
+ 	depends on DEBUG_FS
+-	depends on GENERIC_PTDUMP
+-	select PTDUMP_CORE
++	depends on PTDUMP_CORE
+ 	default n
+ 	help
+ 	  Say Y here if you want to show the stage-2 kernel pagetables
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 424f188e62d9..97312440f715 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -206,7 +206,6 @@ config PPC
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_IRQ_SHOW_LEVEL
+ 	select GENERIC_PCI_IOMAP		if PCI
+-	select GENERIC_PTDUMP
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL
+ 	select GENERIC_VDSO_TIME_NS
+@@ -314,6 +313,7 @@ config PPC
+ 	select PCI_MSI_ARCH_FALLBACKS		if PCI_MSI
+ 	select PCI_SYSCALL			if PCI
+ 	select PPC_DAWR				if PPC64
++	select PTDUMP_CORE
+ 	select RTC_LIB
+ 	select SPARSE_IRQ
+ 	select STRICT_KERNEL_RWX if STRICT_MODULE_RWX
+diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
+index 77306be62e9e..ea6f836407d2 100644
+--- a/arch/powerpc/configs/mpc885_ads_defconfig
++++ b/arch/powerpc/configs/mpc885_ads_defconfig
+@@ -78,4 +78,3 @@ CONFIG_DEBUG_VM_PGTABLE=y
+ CONFIG_DETECT_HUNG_TASK=y
+ CONFIG_BDI_SWITCH=y
+ CONFIG_PPC_EARLY_DEBUG=y
+-CONFIG_GENERIC_PTDUMP=y
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 7612c52e9b1e..bdaf08c1e1da 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -112,7 +112,7 @@ config RISCV
+ 	select GENERIC_IRQ_SHOW_LEVEL
+ 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
+ 	select GENERIC_PCI_IOMAP
+-	select GENERIC_PTDUMP if MMU
++	select PTDUMP_CORE if MMU
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL if MMU && 64BIT
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 9c9ec08d78c7..ecf6b4cb3e33 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -163,7 +163,7 @@ config S390
+ 	select GENERIC_CPU_VULNERABILITIES
+ 	select GENERIC_ENTRY
+ 	select GENERIC_GETTIMEOFDAY
+-	select GENERIC_PTDUMP
++	select PTDUMP_CORE
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL
+ 	select GENERIC_VDSO_TIME_NS
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 87198d957e2f..b6097b6178de 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -174,7 +174,7 @@ config X86
+ 	select GENERIC_IRQ_RESERVATION_MODE
+ 	select GENERIC_IRQ_SHOW
+ 	select GENERIC_PENDING_IRQ		if SMP
+-	select GENERIC_PTDUMP
++	select PTDUMP_CORE
+ 	select GENERIC_SMP_IDLE_THREAD
+ 	select GENERIC_TIME_VSYSCALL
+ 	select GENERIC_GETTIMEOFDAY
+diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
+index 1eb4d23cdaae..090c44d7e1a5 100644
+--- a/arch/x86/Kconfig.debug
++++ b/arch/x86/Kconfig.debug
+@@ -59,7 +59,7 @@ config EARLY_PRINTK_USB_XDBC
+ config EFI_PGT_DUMP
+ 	bool "Dump the EFI pagetable"
+ 	depends on EFI
+-	select PTDUMP_CORE
++	depends on PTDUMP_CORE
+ 	help
+ 	  Enable this if you want to dump the EFI page table before
+ 	  enabling virtual mode. This can be used to debug miscellaneous
+diff --git a/kernel/configs/debug.config b/kernel/configs/debug.config
+index 20552f163930..8aafd050b754 100644
+--- a/kernel/configs/debug.config
++++ b/kernel/configs/debug.config
+@@ -73,7 +73,6 @@ CONFIG_DEBUG_VM=y
+ CONFIG_DEBUG_VM_PGFLAGS=y
+ CONFIG_DEBUG_VM_RB=y
+ CONFIG_DEBUG_VM_VMACACHE=y
+-CONFIG_GENERIC_PTDUMP=y
+ CONFIG_KASAN=y
+ CONFIG_KASAN_GENERIC=y
+ CONFIG_KASAN_INLINE=y
+diff --git a/mm/Kconfig.debug b/mm/Kconfig.debug
+index 41a58536531d..b206e5a11f96 100644
+--- a/mm/Kconfig.debug
++++ b/mm/Kconfig.debug
+@@ -187,7 +187,7 @@ config DEBUG_WX
+ 	bool "Warn on W+X mappings at boot"
+ 	depends on ARCH_HAS_DEBUG_WX
+ 	depends on MMU
+-	select PTDUMP_CORE
++	depends on PTDUMP_CORE
+ 	help
+ 	  Generate a warning if any W+X mappings are found at boot.
+ 
+@@ -212,9 +212,6 @@ config DEBUG_WX
+ 
+ 	  If in doubt, say "Y".
+ 
+-config GENERIC_PTDUMP
+-	bool
+-
+ config PTDUMP_CORE
+ 	bool
+ 
+@@ -222,8 +219,7 @@ config PTDUMP_DEBUGFS
+ 	bool "Export kernel pagetable layout to userspace via debugfs"
+ 	depends on DEBUG_KERNEL
+ 	depends on DEBUG_FS
+-	depends on GENERIC_PTDUMP
+-	select PTDUMP_CORE
++	depends on PTDUMP_CORE
+ 	help
+ 	  Say Y here if you want to show the kernel pagetable layout in a
+ 	  debugfs file. This information is only useful for kernel developers
+-- 
+2.30.2
 
