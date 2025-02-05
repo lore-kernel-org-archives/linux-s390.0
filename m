@@ -1,153 +1,182 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FB6F221D90;
-	Wed,  5 Feb 2025 08:17:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CF75219A6E;
+	Wed,  5 Feb 2025 09:07:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738743474; cv=none; b=fkSHviZc8tjUg3vxOeFE+XI5pyw5aH/qHsjBMYbTBSNZswfVB3E516d9vB2sWEwm3Yee2obCdAxHqJR0d1/n7c1a782m/LOSVyLODP2D8dNx3IEJWMNNTBJiFLqJw3tMoBL9kiB48NFZKyARp63hUBvsDOMx9mjDfx8QpvT8wcU=
+	t=1738746434; cv=none; b=ZFHpzvPsZZqzBi29UgqEFkwhKlj44+p4VHCP+qf5cW/PLhCt1fGCADXK6TBJnUX8xdlgyA0T0OvpWZnFRjUR5ZUupuZwLH4UhBHEtrJH7AKRfI0gAwS79iPKUFkBjXsQeWwtuHK8QzluZrfR68s8vlMlMQGl1jXM1NZfRvha0SU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738743474; c=relaxed/simple;
-	bh=1bm7o4jm61DKhsesfl1Llf2NH/BL2znt9dXZdlGOOnY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eLOK6BQZyus1MTz506AXH9j+TNbzMntWTofteg6o+a56SWRqwYF6Q00oxczY6jT9y2e0B6WkCHzorDx94cGAQm9Ahr5hN50XG2KQBfEzEfEG0Wz4/J0Owy82JiMTdX2QOThoz8Lb5GfpuXuAp3pfA957uOyBCaH2IUgof7pOieo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iXw/MKsr; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1738746434; c=relaxed/simple;
+	bh=wjawX1358YXjCS0M3IDazo/IC2l7c+1IedZFz7GeuHA=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=lInPSJJ2jtlg3BLVBVWhFffCUI7zaeGrTPuLkolWJkKV8J/sbS6NEQ+/wgyZrPTOF8m/EBmxE204RiOVMVxO28nY9KsAxrmpDVKXa8mhEESMB+BtJMzzSyyFKX+0S2+4DhVBbF18lY2ai+rPtbSofuXgCnYOE+VTKCEuoaLGU3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cNp+yFz5; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iXw/MKsr"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cNp+yFz5"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51518DBr012510;
-	Wed, 5 Feb 2025 08:17:52 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5151865m012355;
+	Wed, 5 Feb 2025 09:06:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=oXKOH3
-	D9n7QoGtPbX2Z/diam6YS/hMAD/ecFdTt4Iqk=; b=iXw/MKsrlan8YQ47wIB8cK
-	v1m1dyWqHiqclf1SaZkaHtZa1WsngMgw4TIV8DLrEPuyr3CANfRnDZUwSQAq9e/m
-	ShJJwfwP3V9Fodkg8Luzl1dLABspSdFNm7Li4/PYhQ52GFY8BX6ca67AoJy+i3hC
-	xmJAvgFZ0p1fbmsiMW2GK3rQHs6d6ZuWNC3LlbgZI5UGIHurXx8uo1v6zcG1dmwa
-	DTyvAKN7IAblOORiXy43BzkVgszs5IBnAs7/7JD/xmvTqquNtLYgmkOtI4bdsmQX
-	ogAa2PiW8TnfvSnzF5nwkPN/vHa4MWZw+tdsnX+9fbwf+PLPB+0sJFiBriIq/Ryw
-	==
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=K2f0PH2cD7QKBWZ+FSllOE7GTYjRMh
+	2E/cknU+SKsVk=; b=cNp+yFz51eIzC2UuHdWsWEJXiNNA8k3bRPZbu7JDcY5f1I
+	/Cd8TS/z9xb5nuVVjLLHCZjNFUFB4N7QO64uQgHZ8YTpVOvjmldAv6t2isSvpZ6l
+	jV9ve5I+VMaB3RbcPtfnQoRBJx+09NzQeleksjLVIgk8cQFLTjRb0pQ6pDBQ3jnB
+	hoVAnbK5M+9OkV3JUx7nsCt3K3AeGMnv5gQ3gyE4ynago4WFFqV+e1wZkZs4Yzug
+	cOAkk20RFNMqlDO4j4nIi2bgt4IoNkPytr9fz4RpdKhypgk5NDXb00JCrCUte1vc
+	5JDJlaDJAldPMLUeGWOOnEZOm0KXVwk2pWBEOi5A==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29hxh9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 05 Feb 2025 09:06:43 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 5158qO1C006065;
+	Wed, 5 Feb 2025 09:06:42 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29hnyg-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44kx29hxh6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 08:17:52 +0000 (GMT)
+	Wed, 05 Feb 2025 09:06:42 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5154NSwY024506;
-	Wed, 5 Feb 2025 08:17:51 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxxn7sy7-1
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5158CegV024533;
+	Wed, 5 Feb 2025 09:06:41 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxxn7yrx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Feb 2025 08:17:51 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5158Hk1R51249436
+	Wed, 05 Feb 2025 09:06:41 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51596bDG17170796
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Feb 2025 08:17:47 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E497620191;
-	Wed,  5 Feb 2025 08:17:46 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 990DB2016A;
-	Wed,  5 Feb 2025 08:17:46 +0000 (GMT)
-Received: from [9.179.10.151] (unknown [9.179.10.151])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Feb 2025 08:17:46 +0000 (GMT)
-Message-ID: <2d183675-09f8-4ab3-bc4d-67f203f0487c@linux.ibm.com>
-Date: Wed, 5 Feb 2025 09:17:46 +0100
+	Wed, 5 Feb 2025 09:06:37 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 564B620313;
+	Wed,  5 Feb 2025 09:06:37 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1E96020312;
+	Wed,  5 Feb 2025 09:06:37 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  5 Feb 2025 09:06:37 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: "Dmitry V. Levin" <ldv@strace.io>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>, Shuah Khan
+ <shuah@kernel.org>,
+        Alexey Gladkov <legion@kernel.org>,
+        Eugene
+ Syromyatnikov <evgsyr@gmail.com>,
+        Mike Frysinger <vapier@gentoo.org>, Renzo Davoli <renzo@cs.unibo.it>,
+        Davide Berardi
+ <berardi.dav@gmail.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        strace-devel@lists.strace.io, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 0/7] ptrace: introduce PTRACE_SET_SYSCALL_INFO API
+In-Reply-To: <20250204151420.GA30282@strace.io> (Dmitry V. Levin's message of
+	"Tue, 4 Feb 2025 17:14:20 +0200")
+References: <20250204151420.GA30282@strace.io>
+Date: Wed, 05 Feb 2025 10:06:36 +0100
+Message-ID: <yt9d8qqkyd43.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH] lib: s390x: css: Name inline assembly
- arguments and clean them up
-To: Nico Boehr <nrb@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, hca@linux.ibm.com
-References: <20250204100339.28158-1-frankja@linux.ibm.com>
- <D7JOEGIKCINO.1NX73MSQGVGYZ@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <D7JOEGIKCINO.1NX73MSQGVGYZ@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: N8nkg7jLVIm1xDDvu4goetAFVZzSZb2P
-X-Proofpoint-ORIG-GUID: N8nkg7jLVIm1xDDvu4goetAFVZzSZb2P
+X-Proofpoint-GUID: 7MffZGyFzaakFNQn2nT3hUSCU8OLe9Ad
+X-Proofpoint-ORIG-GUID: jC8ovOeJCCPOFj5pvJIzOaPypbBvtX3m
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-02-05_03,2025-02-05_01,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
  bulkscore=0 priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0
- suspectscore=0 adultscore=0 mlxlogscore=905 clxscore=1015
+ suspectscore=0 adultscore=0 mlxlogscore=890 clxscore=1015
  lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502050063
+ engine=8.19.0-2501170000 definitions=main-2502050071
 
-On 2/4/25 1:55 PM, Nico Boehr wrote:
-> On Tue Feb 4, 2025 at 10:51 AM CET, Janosch Frank wrote:
->> @@ -215,9 +215,9 @@ static inline int xsch(unsigned long schid)
->>   
->>   	asm volatile(
->>   		"	xsch\n"
->> -		"	ipm	%0\n"
->> -		"	srl	%0,28"
->> -		: "=d" (cc)
->> +		"	ipm	%[cc]\n"
->> +		"	srl	%cc,28"
-> 
-> Should this be:
-> 		"	srl	%[cc],28"
-> instead?
-> 
-> With that fixed (if it needs fixing):
-> 
-> Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-> 
+"Dmitry V. Levin" <ldv@strace.io> writes:
 
-Thanks!
-Fixed and applied.
+> On Mon, Feb 03, 2025 at 12:35:42PM +0200, Dmitry V. Levin wrote:
+>> On Mon, Feb 03, 2025 at 10:29:37AM +0100, Alexander Gordeev wrote:
+>> > On Mon, Feb 03, 2025 at 08:58:49AM +0200, Dmitry V. Levin wrote:
+>> > 
+>> > Hi Dmitry,
+>> > 
+>> > > PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
+>> > > PTRACE_GET_SYSCALL_INFO by letting the ptracer modify details of
+>> > > system calls the tracee is blocked in.
+>> > ...
+>> > 
+>> > FWIW, I am getting these on s390:
+>> > 
+>> > # ./tools/testing/selftests/ptrace/set_syscall_info 
+>> > TAP version 13
+>> > 1..1
+>> > # Starting 1 tests from 1 test cases.
+>> > #  RUN           global.set_syscall_info ...
+>> > # set_syscall_info.c:87:set_syscall_info:Expected exp_entry->nr (-1) == info->entry.nr (65535)
+>> > # set_syscall_info.c:88:set_syscall_info:wait #3: PTRACE_GET_SYSCALL_INFO #2: syscall nr mismatch
+>> > # set_syscall_info: Test terminated by assertion
+>> > #          FAIL  global.set_syscall_info
+>> > not ok 1 global.set_syscall_info
+>> > # FAILED: 0 / 1 tests passed.
+>> > # Totals: pass:0 fail:1 xfail:0 xpass:0 skip:0 error:0
+>> > 
+>> > I remember one of the earlier versions (v1 or v2) was working for me.
+>> > 
+>> > Thanks!
+>> 
+>> In v3, this test was extended to check whether PTRACE_GET_SYSCALL_INFO
+>> called immediately after PTRACE_SET_SYSCALL_INFO returns the same syscall
+>> number, and on s390 it apparently doesn't, thanks to its implementation
+>> of syscall_get_nr() that returns 0xffff in this case.
+>> 
+>> To workaround this, we could either change syscall_get_nr() to return -1
+>> in this case, or add an #ifdef __s390x__ exception to the test.
+>> 
+>> What would you prefer?
+>
+> OK, I'm going to apply the following s390 workaround to the test:
+>
+> diff --git a/tools/testing/selftests/ptrace/set_syscall_info.c b/tools/testing/selftests/ptrace/set_syscall_info.c
+> index 0ec69401c008..4198248ef874 100644
+> --- a/tools/testing/selftests/ptrace/set_syscall_info.c
+> +++ b/tools/testing/selftests/ptrace/set_syscall_info.c
+> @@ -71,6 +71,11 @@ check_psi_entry(struct __test_metadata *_metadata,
+>  		const char *text)
+>  {
+>  	unsigned int i;
+> +	int exp_nr = exp_entry->nr;
+> +#if defined __s390__ || defined __s390x__
+> +	/* s390 is the only architecture that has 16-bit syscall numbers */
+> +	exp_nr &= 0xffff;
+> +#endif
+>  
+>  	ASSERT_EQ(PTRACE_SYSCALL_INFO_ENTRY, info->op) {
+>  		LOG_KILL_TRACEE("%s: entry stop mismatch", text);
+> @@ -84,7 +89,7 @@ check_psi_entry(struct __test_metadata *_metadata,
+>  	ASSERT_TRUE(info->stack_pointer) {
+>  		LOG_KILL_TRACEE("%s: entry stop mismatch", text);
+>  	}
+> -	ASSERT_EQ(exp_entry->nr, info->entry.nr) {
+> +	ASSERT_EQ(exp_nr, info->entry.nr) {
+>  		LOG_KILL_TRACEE("%s: syscall nr mismatch", text);
+>  	}
+>  	for (i = 0; i < ARRAY_SIZE(exp_entry->args); ++i) {
 
+Fine with me. As you already noted only 16 bit of the syscall number is
+stored in pt_regs::int_code. A quick hack would be possible to do sign
+extensions, so -1 would work. But i think this would be odd, because
+positive numbers would still be limited.
+
+So i think the patch you proposed is fine.
