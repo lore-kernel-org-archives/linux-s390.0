@@ -1,153 +1,124 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C90A222370D;
-	Thu,  6 Feb 2025 06:06:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82AE72144A8;
+	Thu,  6 Feb 2025 07:40:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738821971; cv=none; b=e5frxMPtpn9HDj9nxUNY01tbENjQqvTEoZ7hHiF8mOvQVFdRyfmsW87yisxTvmvv4XxvgFUBLOWeOOTBK68ALNl8tC3EKIi2Dbf4ye0yryY9lq/8c3oEeWTZeG9aFV4VJmJZ7rCu0bdkOGwSQYfkUGavN15H1Yau9/9LTczRfac=
+	t=1738827659; cv=none; b=OFVxmfODV9ID00P+ZkWBHKd7n922pvB34Tle++THRq33uBd/V5Vn8fbm04tnJCfoNDmWHmLDdBFqAe8aN4ADzFIESQhYhz4ELLxeeNGeX+Z/FTrZM76DJHlOb80CiRLX0cdw4vaHBpTuxb5T0up58DqLCCHiXk5B0wavCZVua40=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738821971; c=relaxed/simple;
-	bh=+sxzlzrNtZjx+em7KXC8/phrKF6st5ThSNbzCs5vdJw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LZJYvBDGheg/V3vTwtB0hXpoh7YwX1tHFueLeWuFB8T8mBopo6KxOIiwVqv76256ye1TxvcOqTfIWO2SqnWpBmXO+xbEsOXPOvAL97dgOY5QxH74I1jIGmQhNGFx0i7D+PcO4q8EpBLsRXdOw5GlvAQRV50eGwluCjL1jGq6RcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nZLnlOQg; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1738827659; c=relaxed/simple;
+	bh=rznXd4x1zW1//N/BsvDJtIAkg2PEYTFKtcqRLhHYAI8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=q7mrdtIEkwd/bUYz/AcLX2qXb5kt2Zlflpvio1ISNE90MvRjpDIhDd1CTNFGMdMxzHb8Xm6uSnoVqKfrKLmO5wLDQPWFMkp8ZWTd7xPYbhSeAYQ86fZ2MMcUjoyTl2vj87cTV2PMVOyaub04Y4EnhuK94a1EcUJ86Enx2xYZzHU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=otZRwA0X; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nZLnlOQg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1738821970; x=1770357970;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=+sxzlzrNtZjx+em7KXC8/phrKF6st5ThSNbzCs5vdJw=;
-  b=nZLnlOQgNSDiIgCCrK9eh6WgdVlxHteI1NRNW9jZGPCkV5V9UpQ3H1A0
-   IvSx2P44upHmjWtZWxyufbFQV94Nak5k94lJf2yuAphUAo122RnNepOh5
-   jmo6P08ZW1g7jv7AotXIDfln6svwPyx5TkCjOXqJFdUxcuqw0VhBaayj6
-   R3jSMZN5/SaEWkFI1AZZaIB0/D1JiINE6zZiKAVio7wnFHCl8yPKTnofo
-   f91kA36Yq4D+MxnSdYftwABlpRS7yzKmBI3mUPIkQ5YRhkKS/G0Fuuapf
-   6VrY/eeVjv9r8WsC5DVXZTCZ1VMTygbG9pNt+17B54SRt1xcMeqVP3kix
-   Q==;
-X-CSE-ConnectionGUID: 8atJGDo0QR2SKyTmwT/kyg==
-X-CSE-MsgGUID: ImgnSc87RTSIfsMuQjHUIw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11336"; a="43071761"
-X-IronPort-AV: E=Sophos;i="6.13,263,1732608000"; 
-   d="scan'208";a="43071761"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2025 22:06:09 -0800
-X-CSE-ConnectionGUID: JJOacnduSKmwDmmFhlOoXQ==
-X-CSE-MsgGUID: Tu0xr7jmRRKiRISW8l/LIA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,263,1732608000"; 
-   d="scan'208";a="110896776"
-Received: from dapengmi-mobl1.ccr.corp.intel.com (HELO [10.124.245.128]) ([10.124.245.128])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2025 22:06:06 -0800
-Message-ID: <688e9a7f-0b98-4f8a-b575-90d7de244589@linux.intel.com>
-Date: Thu, 6 Feb 2025 13:42:58 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="otZRwA0X"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5167XcIe006184;
+	Thu, 6 Feb 2025 07:40:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BZQGey
+	7aq0bOIsiLZo/USNAPvLQFjQQ8oT67LMfXifo=; b=otZRwA0XJUW+/h+Ac1USfU
+	UdeCj+jvK5yeJ4m18jsBDDLls0FzuvKj6pMCy1UXPB6IEX3tmhnMRxRMtMHIrrQD
+	nS9U13aOuphUtYa6iT43KZJ12ydpbz2/L44C/LlMlMJ8Rs+qfrlVUt0g++BOMpJ1
+	PVM0GQb/KSlewjDm3gFnFyylNgWrXQ1PwJZMjd343+08Gu0Qn0oEg6hJe5IuMLRI
+	jnAPusdAJ270y+XInxlWjO6SQgR/FrGSaGR2cacopLoul/sMAGDLDhEpSMsxmTS2
+	us3ZP+XDXZqjCAot8yR8fzEar9qoAtww3hHNGiOKBr3Pce3VSoJU0zmgYO4DbHmA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mrsp010x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Feb 2025 07:40:53 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5167DH0K016416;
+	Thu, 6 Feb 2025 07:40:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44hwxsnaf9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Feb 2025 07:40:52 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5167enaZ46072166
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 6 Feb 2025 07:40:49 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 392B020218;
+	Thu,  6 Feb 2025 07:40:49 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AC36F20217;
+	Thu,  6 Feb 2025 07:40:48 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.15.176])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  6 Feb 2025 07:40:48 +0000 (GMT)
+Date: Thu, 6 Feb 2025 08:40:47 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Anthony Krowiak <akrowiak@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
+Cc: Rorie Reyes <rreyes@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        borntraeger@de.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com
+Subject: Re: [PATCH v1] s390/vfio-ap: Signal eventfd when guest AP
+ configuration is changed
+Message-ID: <Z6RnfwawWop0v1CW@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250107183645.90082-1-rreyes@linux.ibm.com>
+ <Z4U6iu5JidJUxDgX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <f69bba4b-a97e-4166-9ce1-c8a2ad634696@linux.ibm.com>
+ <f1af50b3-f966-445d-ab89-3d213f55b93a@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2 v3] perf test: Change event in perf test 114 perf
- record test subtest test_leader_sampling
-To: "Liang, Kan" <kan.liang@linux.intel.com>,
- Namhyung Kim <namhyung@kernel.org>, Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- acme@kernel.org, linux-s390@vger.kernel.org, james.clark@linaro.org,
- agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
- hca@linux.ibm.com
-References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
- <20250131102756.4185235-3-tmricht@linux.ibm.com>
- <Z6GMmxKvXd0-fd_-@google.com>
- <9b091546-8178-470b-8904-dc948fd9aa11@linux.intel.com>
-Content-Language: en-US
-From: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>
-In-Reply-To: <9b091546-8178-470b-8904-dc948fd9aa11@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <f1af50b3-f966-445d-ab89-3d213f55b93a@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fqtzxi7VF_dh9dJf88Qgv9YE_uAhhBV4
+X-Proofpoint-ORIG-GUID: fqtzxi7VF_dh9dJf88Qgv9YE_uAhhBV4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-06_01,2025-02-05_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
+ bulkscore=0 lowpriorityscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ spamscore=0 phishscore=0 priorityscore=1501 mlxlogscore=999 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
+ definitions=main-2502060061
 
+On Wed, Feb 05, 2025 at 12:47:55PM -0500, Anthony Krowiak wrote:
+> > > How this patch is synchronized with the mentioned QEMU series?
+> > > What is the series status, especially with the comment from Cédric
+> > > Le Goater [1]?
+> > > 
+> > > 1. https://lore.kernel.org/all/20250107184354.91079-1-rreyes@linux.ibm.com/T/#mb0d37909c5f69bdff96289094ac0bad0922a7cce
+...
+> > Hey Alex, sorry for the long delay. This patch is synchronized with the
+> > QEMU series by registering an event notifier handler to process AP
+> > configuration
+> > 
+> > change events. This is done by queuing the event and generating a CRW.
+> > The series status is currently going through a v2 RFC after implementing
+> > changes
+> > 
+> > requested by Cedric and Tony.
+> > 
+> > Let me know if there's anything else you're concerned with
+> > 
+> > Thanks!
+> 
+> I don't think that is what Alex was asking. I believe he is asking how the
+> QEMU and kernel patch series are going to be synchronized.
+> Given the kernel series changes a value in vfio.h which is used by QEMU, the
+> two series need to be coordinated since the vfio.h file
+> used by QEMU can not be updated until the kernel code is available. So these
+> two sets of code have
+> to be merged upstream during a merge window. which is different for the
+> kernel and QEMU. At least I think that is what Alex is asking.
 
-On 2/4/2025 11:55 PM, Liang, Kan wrote:
->
-> On 2025-02-03 10:42 p.m., Namhyung Kim wrote:
->> Add Kan and Dapeng to CC.
->>
->> Thanks,
->> Namhyung
->>
->>
->> On Fri, Jan 31, 2025 at 11:27:56AM +0100, Thomas Richter wrote:
->>> On s390 the event instructions can not be used for recording.
->>> This event is only supported by perf stat.
->>>
->>> Change the event from instructions to cycles in
->>> subtest test_leader_sampling.
->>>
->>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
->>> Suggested-by: James Clark <james.clark@linaro.org>
->>> Reviewed-by: James Clark <james.clark@linaro.org>
->>> ---
->>>  tools/perf/tests/shell/record.sh | 10 +++++-----
->>>  1 file changed, 5 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
->>> index fe2d05bcbb1f..ba8d873d3ca7 100755
->>> --- a/tools/perf/tests/shell/record.sh
->>> +++ b/tools/perf/tests/shell/record.sh
->>> @@ -231,7 +231,7 @@ test_cgroup() {
->>>  
->>>  test_leader_sampling() {
->>>    echo "Basic leader sampling test"
->>> -  if ! perf record -o "${perfdata}" -e "{instructions,instructions}:Su" -- \
->>> +  if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
->>>      perf test -w brstack 2> /dev/null
->
-> As a non-precise test, using cycles instead should be fine. But we
-> should never use it for precise test, e.g., with p. Because cycles is a
-> non-precise event. It would not surprise me if there is a skid when
-> reading two cycles events at the point when the event overflow occurs.
->
-> Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-
-Kan, I suppose you mean only the case without counter snapshot, right? With
-counter snapshot's help, there would be same period even for non-precise
-events, right?
-
-
->
-> Thanks,
-> Kan
->
->>>    then
->>>      echo "Leader sampling [Failed record]"
->>> @@ -243,15 +243,15 @@ test_leader_sampling() {
->>>    while IFS= read -r line
->>>    do
->>>      # Check if the two instruction counts are equal in each record
->>> -    instructions=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="instructions:") print $(i-1)}')
->>> -    if [ $(($index%2)) -ne 0 ] && [ ${instructions}x != ${prev_instructions}x ]
->>> +    cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
->>> +    if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
->>>      then
->>> -      echo "Leader sampling [Failed inconsistent instructions count]"
->>> +      echo "Leader sampling [Failed inconsistent cycles count]"
->>>        err=1
->>>        return
->>>      fi
->>>      index=$(($index+1))
->>> -    prev_instructions=$instructions
->>> +    prev_cycles=$cycles
->>>    done < $script_output
->>>    echo "Basic leader sampling test [Success]"
->>>  }
->>> -- 
->>> 2.48.1
-
-The code changes look good for me.
-
-
->
+Correct.
+Thanks for the clarification, Anthony!
