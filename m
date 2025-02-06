@@ -1,107 +1,82 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E22C1FECAC;
-	Wed,  5 Feb 2025 21:24:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F17DF1339A4;
+	Thu,  6 Feb 2025 02:30:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738790647; cv=none; b=aRcSe2xYNIzULjKZKNQ/IZfmFKY9HGCNzNNulCFVxJ9rn8jdhmcU5TXhewjqb5Jr6RJH26cHFVPbAIXjH+yCHXol+wA/sMXo+tF2kDxwpOM/lpdqulmiq33toXzQ15HlztfKIKalVTysxXAUc7LGKFDro7yuWXNSkx5V6OQEi+o=
+	t=1738809004; cv=none; b=k7Lx0FeWhDKp3GFzhZb2uNR6QutTPt+Z2RI5ujQQcFz1qksfrbZadQGoGK+tyelyMpVRFZSEBL5doKiPSPCb+oIgB0m7pN2fY9ibxggxrMdxwKCqWWuBt/mmVhh1T6ZikNPc+HDl1aEkQ9IliwcL9Zoei4bK87MB3UUEJNyXl/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738790647; c=relaxed/simple;
-	bh=+UmAYllNZYZlQY4/25xkX92Mq1romBT3nJ/RvEWGDkY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FjOM4w+1EzPw0wiNp8kjtQW8FyZuHruBzJscvZKIXc2ygAqQihGTX1REpwxFdX4VHy1ogGlZxs/5QECe9OH2VutB8O440/pnG87hh2YYN8xVOmwbx4EyOvlEGJPErAejsFpyDfje1waf2ITm6fB70iRArB7QTGZXCWZww7MESjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gJpW+qIO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1738809004; c=relaxed/simple;
+	bh=Z+7WwaOqoB8lbYMJl+MJRy5YxMMtQ2ceeFQLgMAAG74=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=Y6nYtiYKeUkTR/Ayv8sYL6DH7yp8glX5YEOApvPXjEbJ40N/Tm3ZL7qhzsoXDQEkA9LGLl8l95uzPE9zABf0X+xFrmH+8X6keSQ71v8ZHqXQjIKy6wE4XskKZM/XcwhTE3BMm4R3OZUa32mDFA/1dMnWAlIoqw54hUYYvbOk1mg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=drQBG/vS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gJpW+qIO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6315EC4CED1;
-	Wed,  5 Feb 2025 21:24:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="drQBG/vS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB073C4CED1;
+	Thu,  6 Feb 2025 02:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738790646;
-	bh=+UmAYllNZYZlQY4/25xkX92Mq1romBT3nJ/RvEWGDkY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gJpW+qIOr2q0UZYqhVZSsO8CsQ3aiFgMy5fQw22kPckB8CjH2qxf+BmrtslGiFxfY
-	 GA7DwNBUie1jFQT38/PoUMvlawHmMBQHf04y0aqw14bp6YJ49vgxjssBVsjY7eRkUe
-	 FC+u165X5HzDjmdX8XtDd4bQqgS0OaPo9JnGoRLZs6DxYG/50gB7ERdZGOXIjeww8n
-	 ZT/lCqkr2e+YU5U2i0339FJ8vIRjlFuX2IvVi9O/oHkGJCsjskewJna5Vqplcb+EE+
-	 cDgKnA7pAcmjQux69en8xVKSxoTmXVJ+idNyQQfJrn02SJbbnRo/5Xm0gi6Pv3RoCM
-	 tOHb8MEa7x0+w==
-Date: Wed, 5 Feb 2025 21:24:04 +0000
-From: Eric Biggers <ebiggers@kernel.org>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, dengler@linux.ibm.com,
-	ifranzki@linux.ibm.com, agk@redhat.com, snitzer@kernel.org,
-	linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-	herbert@gondor.apana.org.au, Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH v4 2/2] dm-integrity: introduce ahash support for the
- internal hash
-Message-ID: <20250205212404.GA2175877@google.com>
-References: <50a28342-9d3c-b4e4-de13-40304eabb8b1@redhat.com>
+	s=k20201202; t=1738809003;
+	bh=Z+7WwaOqoB8lbYMJl+MJRy5YxMMtQ2ceeFQLgMAAG74=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=drQBG/vSF1o8mt2PJNCAWe02eZzTcLhv1C5UH598u+mUj6tU+D0EY/5aI1Bpvmc9I
+	 WdQKycFF7Vtm0DiCo1Cf0OJTInc8A3hzlOAk7biebWMNp+PiUGyQsWGsEWW4AbhLql
+	 u6h310XVMftOQRM10h5L3RSKjXZ2sZRf73N4trnXky0Xd6mNiUFxkrWGHf6nUhN+jT
+	 fe5JDuicI/BaSPnift4FAglPeJuVqfz3MEn+juaYHgV/tCi5Mfqs7gFqeWfYwGB1AK
+	 sZrFYpK+p24cgUaTEXIXdEW2oGirj7U5EmEJtOz/6Epnod76mfqlBzEzp1AwqTQAXq
+	 22AUTP5KnrHxw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 717B1380AAD0;
+	Thu,  6 Feb 2025 02:30:32 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <50a28342-9d3c-b4e4-de13-40304eabb8b1@redhat.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] s390/net: Remove LCS driver
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173880903129.977176.16252464144075540544.git-patchwork-notify@kernel.org>
+Date: Thu, 06 Feb 2025 02:30:31 +0000
+References: <20250204103135.1619097-1-wintera@linux.ibm.com>
+In-Reply-To: <20250204103135.1619097-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, aswin@linux.ibm.com,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, twinkler@linux.ibm.com, horms@kernel.org,
+ corbet@lwn.net, oberpar@linux.ibm.com
 
-On Wed, Feb 05, 2025 at 09:23:18PM +0100, Mikulas Patocka wrote:
-> Introduce ahash support for the "internal hash" algorithm.
-> 
-> Rework the dm-integrity code to be able to run the "internal hash"
-> either with a synchronous ("shash") or asynchronous ("ahash") hash
-> algorithm implementation.
-> 
-> The get_mac() function now tries to decide which of the digest
-> implemenations to use if there is a choice:
-> - If an ahash and shash tfm is available and both are backed by the
->   same driver name it is assumed that the shash is the faster
->   implementation and thus the shash tfm is delivered to the caller.
-> - If an ahash and shash tfm is available but the backing device driver
->   divers (different driver names) it is assumed that the ahash
->   implementation is a "better" hardware based implementation and thus
->   the ahash tfm is delivered to the caller.
-> - If there is no choice, for example only an ahash or an shash
->   implementation is available then this tfm is delivered to the
->   caller. Especially in cases where only an ahash implementation is
->   available this is now used instead of failing.
-> - The caller can steer this choice by passing a NULL to the ahash or
->   shash parameter, thus enforcing to only allocate an algorithm of the
->   remaining possibility.
-> 
-> The function integrity_sector_checksum() is now only a dispatcher
-> function calling one of the two new functions
-> integrity_ahash_sector_checksum() or integrity_shash_sector_checksum()
-> based on which tfm is allocated based on the two new fields
-> internal_shash and internal_ahash in struct dm_integrity_c.
-> 
-> Together with this comes some slight rework around availability and
-> digest size of the internal hash in use.
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-> ---
->  drivers/md/dm-integrity.c |  350 +++++++++++++++++++++++++++++++++-------------
->  1 file changed, 252 insertions(+), 98 deletions(-)
+Hello:
 
-Thanks.  This keeps the questionable ahash stuff from affecting the common case.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-I do still want to emphasize that the use of ahash here is artificial, given
-that the proposed code waits synchronously for each request to complete, and the
-underlying "phmac" algorithm that Harald is trying to add
-(https://lore.kernel.org/r/20250115162231.83516-1-freude@linux.ibm.com) uses CPU
-instructions (s390 CPACF) and therefore wants virtual addresses.  IMO, the way
-that things should be is that subsystems like dm-integrity, dm-verity,
-fs-verity, etc. should implement ahash support *only* if they are trying to
-support old-school, fully off-CPU hardware hash accelerators *and* it is used
-properly with an async callback other than crypto_req_done in order to actually
-utilize the hardware properly.  That does not apply here, where the underlying
-algorithm that Harald is adding could just be made an shash instead, provided
-that shash was improved to support sleepable algorithms.
+On Tue,  4 Feb 2025 11:31:35 +0100 you wrote:
+> From: Aswin Karuvally <aswin@linux.ibm.com>
+> 
+> The original Open Systems Adapter (OSA) was introduced by IBM in the
+> mid-90s. These were then superseded by OSA-Express in 1999 which used
+> Queued Direct IO to greatly improve throughput. The newer cards
+> retained the older, slower non-QDIO (OSE) modes for compatibility with
+> older systems. In Linux, the lcs driver was responsible for cards
+> operating in the older OSE mode and the qeth driver was introduced to
+> allow the OSA-Express cards to operate in the newer QDIO (OSD) mode.
+> 
+> [...]
 
-So, that is my opinion.  But in practice it may be necessary to use ahash for
-other use cases too if that is what Herbert insists on.
+Here is the summary with links:
+  - [net-next] s390/net: Remove LCS driver
+    https://git.kernel.org/netdev/net-next/c/6cccb3bb0561
 
-- Eric
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
