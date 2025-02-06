@@ -1,60 +1,56 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0AAB1C6FE0;
-	Thu,  6 Feb 2025 14:12:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC209610C;
+	Thu,  6 Feb 2025 14:25:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738851155; cv=none; b=fF0PAXYuGHtlLdoCEIAa71G4tvw9319WNCaSzLkzU9Is3B6RethBOGi9Men4Ak6O1qmUwGBoPpTaFNd4Kq48yN+XtvzrO6mxxWCcbcEk/iYDsay8Qo632HvhIf5v0lr6okk857Wc9oglLogCNo5rxE8443HDPn987BiIZhe6g1E=
+	t=1738851909; cv=none; b=rTcFI+oUM3BPGYA1Cl4wUWGCJO2Uq+KNuefr5rF4Y/TF4zgTg/ND9KXCLqpLOjtKjskOeFI00LtMN45stsn8wabBeyMY1nA7iXQPkqnkb1vuc2+2zdTNz2MtQ/HjLq0Kt5ZNXtz9hYbGFIWYRo3px1qsoWsvl5m2/76KUUo1+k0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738851155; c=relaxed/simple;
-	bh=f9xA7XWmR1We7sDj+xor/lbZ7RmI0r/FRir2tEAOjkA=;
+	s=arc-20240116; t=1738851909; c=relaxed/simple;
+	bh=cwTUjdQ0YvWtd8wQNBT4zvsceQsB9677KeuTtNGs3tQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DCAWYz2eNIhplzkcpQqyQenZGz9ERZdCpFnx+yXlpVk5YviHPIbVNQRmaEU+4k5ItFbkU+shF8Gwxht5xZ54H6hrqQsYI+J5lNpQxPK1DkT4rb7ps4CiWYtDdAKBCmALAGiNO6CL7mpUKMR7Z2hs4lw/MbfNrg8mWlPWqlh7uFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o5tn02Wp; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=ZUUb7N0q4RG9vDcmGAXEVrc73GjJlXJkOhILRDBSoS5QqHPVAoG2nbFJ8Jgh7QnScXaR66zrMUXZQBHXlpvVLQE6bITIDKm22eis09iHgeCdfIg2MrfvwnZ+3ikKHPBLnyQWhKj7mJpubSICWiPJgdjCQF9/Py6b3bZA/YDm5vE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mrzGLFfx; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o5tn02Wp"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 516C7a0v024426;
-	Thu, 6 Feb 2025 14:12:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=f9xA7X
-	WmR1We7sDj+xor/lbZ7RmI0r/FRir2tEAOjkA=; b=o5tn02Wp3wpRVP9tx40Cnr
-	nh/1KQgf57b5pIRO0uH27Icpe4p3w9hEKLph+BfWKNZJ9Tce2eX3QR6lKuKit86P
-	C1ohyOs+WOevlDZ4wFzHcnp1NL42oRsCWuRTES0P8Ke9DnY5YuV+g55ZWNmLc2yB
-	8RvI6fatvtNB/y6XlyPBhtk7CKcd+VzztlobCn44f9sc6Q18PL9cGYH2lFqnw+0O
-	cL4GsR/v8BRxDmxtrQhbrTSllU5eW5cZOLSIC3WpOQapdsfUD6/JfmRTC5WQSi8o
-	vFHbyxjQIk+c3ipBNfQlq+wSr7yTj8EfswReMszUqCy8/dAN0gQbRJtUPdTYcJLQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mattdwru-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 14:12:31 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 516AgmWg007127;
-	Thu, 6 Feb 2025 14:12:30 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxayxs6j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 14:12:30 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 516ECTLj22938308
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Feb 2025 14:12:29 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5556B58062;
-	Thu,  6 Feb 2025 14:12:29 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 558A358055;
-	Thu,  6 Feb 2025 14:12:28 +0000 (GMT)
-Received: from [9.61.248.214] (unknown [9.61.248.214])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Feb 2025 14:12:28 +0000 (GMT)
-Message-ID: <02675184-0ce5-4f08-9d5d-f42987b77b5b@linux.ibm.com>
-Date: Thu, 6 Feb 2025 09:12:27 -0500
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mrzGLFfx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1738851908; x=1770387908;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=cwTUjdQ0YvWtd8wQNBT4zvsceQsB9677KeuTtNGs3tQ=;
+  b=mrzGLFfxR70zdcqmJ/0w9ydqtW3b6gMZjl3WRxBHOqDa1yYKzIhNxfQj
+   zpCFvCpWQgA0t7vp9Qi4h4xMJLdC0ADlQn7NYudSTQMI83ZDLD561Xiph
+   0gAKZCZ8lgLLmYW49y+qrs7kg5XB28wgNxg3MYPehnNDPDyARDYkU9z/I
+   Op8cA29Cw1DKOI9NaWO/pTC+fYkkYSNsI+aNKpmBSOc7GDzM51Cma9wet
+   Avh3Jb2XVw3YgDL1sTx1REKNJ0XDaFWk3Pbf5K/ktsH7q1Bg9lbFKEUFn
+   jaiw3ZvfKvtXg4uEoieYWrc/L5dvuJZgWrwSQQM8VruwXQVps4viLoiA3
+   A==;
+X-CSE-ConnectionGUID: JvmIuEIERh2Ei5gjFpv6ZA==
+X-CSE-MsgGUID: 9bnHHzTxTByLKLs2iOuOYQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11336"; a="39729231"
+X-IronPort-AV: E=Sophos;i="6.13,264,1732608000"; 
+   d="scan'208";a="39729231"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2025 06:25:07 -0800
+X-CSE-ConnectionGUID: lxOVpppLRVWQxsfFHcoe+Q==
+X-CSE-MsgGUID: 1o8WxGLgTr6c2qdSiHlyJQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,264,1732608000"; 
+   d="scan'208";a="111055033"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmviesa006.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2025 06:25:07 -0800
+Received: from [10.246.136.14] (kliang2-mobl1.ccr.corp.intel.com [10.246.136.14])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by linux.intel.com (Postfix) with ESMTPS id 2439720B5713;
+	Thu,  6 Feb 2025 06:25:05 -0800 (PST)
+Message-ID: <69f7d048-e7dd-4863-a21f-2d8fafafd280@linux.intel.com>
+Date: Thu, 6 Feb 2025 09:25:03 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,70 +58,123 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] s390/vfio-ap: Signal eventfd when guest AP
- configuration is changed
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Anthony Krowiak <akrowiak@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        jjherne@linux.ibm.com, alex.williamson@redhat.com
-References: <20250107183645.90082-1-rreyes@linux.ibm.com>
- <Z4U6iu5JidJUxDgX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
- <f69bba4b-a97e-4166-9ce1-c8a2ad634696@linux.ibm.com>
- <f1af50b3-f966-445d-ab89-3d213f55b93a@linux.ibm.com>
- <Z6RnfwawWop0v1CW@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Subject: Re: [PATCH 2/2 v3] perf test: Change event in perf test 114 perf
+ record test subtest test_leader_sampling
+To: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>,
+ Namhyung Kim <namhyung@kernel.org>, Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ acme@kernel.org, linux-s390@vger.kernel.org, james.clark@linaro.org,
+ agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+ hca@linux.ibm.com
+References: <20250131102756.4185235-1-tmricht@linux.ibm.com>
+ <20250131102756.4185235-3-tmricht@linux.ibm.com>
+ <Z6GMmxKvXd0-fd_-@google.com>
+ <9b091546-8178-470b-8904-dc948fd9aa11@linux.intel.com>
+ <688e9a7f-0b98-4f8a-b575-90d7de244589@linux.intel.com>
 Content-Language: en-US
-From: Rorie Reyes <rreyes@linux.ibm.com>
-In-Reply-To: <Z6RnfwawWop0v1CW@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dypPC_fK1VqygqcN5e7E83RU4fwU1aQ9
-X-Proofpoint-ORIG-GUID: dypPC_fK1VqygqcN5e7E83RU4fwU1aQ9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-06_03,2025-02-05_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 suspectscore=0 adultscore=0 mlxscore=0 clxscore=1015
- mlxlogscore=999 bulkscore=0 phishscore=0 malwarescore=0 impostorscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502060115
+From: "Liang, Kan" <kan.liang@linux.intel.com>
+In-Reply-To: <688e9a7f-0b98-4f8a-b575-90d7de244589@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 
-On 2/6/25 2:40 AM, Alexander Gordeev wrote:
-> On Wed, Feb 05, 2025 at 12:47:55PM -0500, Anthony Krowiak wrote:
->>>> How this patch is synchronized with the mentioned QEMU series?
->>>> What is the series status, especially with the comment from Cédric
->>>> Le Goater [1]?
+
+On 2025-02-06 12:42 a.m., Mi, Dapeng wrote:
+> 
+> On 2/4/2025 11:55 PM, Liang, Kan wrote:
+>>
+>> On 2025-02-03 10:42 p.m., Namhyung Kim wrote:
+>>> Add Kan and Dapeng to CC.
+>>>
+>>> Thanks,
+>>> Namhyung
+>>>
+>>>
+>>> On Fri, Jan 31, 2025 at 11:27:56AM +0100, Thomas Richter wrote:
+>>>> On s390 the event instructions can not be used for recording.
+>>>> This event is only supported by perf stat.
 >>>>
->>>> 1. https://lore.kernel.org/all/20250107184354.91079-1-rreyes@linux.ibm.com/T/#mb0d37909c5f69bdff96289094ac0bad0922a7cce
-> ...
->>> Hey Alex, sorry for the long delay. This patch is synchronized with the
->>> QEMU series by registering an event notifier handler to process AP
->>> configuration
->>>
->>> change events. This is done by queuing the event and generating a CRW.
->>> The series status is currently going through a v2 RFC after implementing
->>> changes
->>>
->>> requested by Cedric and Tony.
->>>
->>> Let me know if there's anything else you're concerned with
->>>
->>> Thanks!
->> I don't think that is what Alex was asking. I believe he is asking how the
->> QEMU and kernel patch series are going to be synchronized.
->> Given the kernel series changes a value in vfio.h which is used by QEMU, the
->> two series need to be coordinated since the vfio.h file
->> used by QEMU can not be updated until the kernel code is available. So these
->> two sets of code have
->> to be merged upstream during a merge window. which is different for the
->> kernel and QEMU. At least I think that is what Alex is asking.
-> Correct.
-> Thanks for the clarification, Anthony!
+>>>> Change the event from instructions to cycles in
+>>>> subtest test_leader_sampling.
+>>>>
+>>>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+>>>> Suggested-by: James Clark <james.clark@linaro.org>
+>>>> Reviewed-by: James Clark <james.clark@linaro.org>
+>>>> ---
+>>>>  tools/perf/tests/shell/record.sh | 10 +++++-----
+>>>>  1 file changed, 5 insertions(+), 5 deletions(-)
+>>>>
+>>>> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
+>>>> index fe2d05bcbb1f..ba8d873d3ca7 100755
+>>>> --- a/tools/perf/tests/shell/record.sh
+>>>> +++ b/tools/perf/tests/shell/record.sh
+>>>> @@ -231,7 +231,7 @@ test_cgroup() {
+>>>>  
+>>>>  test_leader_sampling() {
+>>>>    echo "Basic leader sampling test"
+>>>> -  if ! perf record -o "${perfdata}" -e "{instructions,instructions}:Su" -- \
+>>>> +  if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
+>>>>      perf test -w brstack 2> /dev/null
+>>
+>> As a non-precise test, using cycles instead should be fine. But we
+>> should never use it for precise test, e.g., with p. Because cycles is a
+>> non-precise event. It would not surprise me if there is a skid when
+>> reading two cycles events at the point when the event overflow occurs.
+>>
+>> Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+> 
+> Kan, I suppose you mean only the case without counter snapshot, right? With
+> counter snapshot's help, there would be same period even for non-precise
+> events, right?
 
-Tony, thank you for the back up!
+No, the counter-snapshot doesn't help. That's why I suggested to not
+utilize it via enabling the modifier p. It should work for most of the
+cases. But it's not 100% guaranteed for some non-precise events that the
+same period is got at overflow. Since it's a test that could be run
+everywhere, the occasional false alarm would just bring troubles.
 
-Alexander, is there anything else you need from my end for clarification?
+Without p, it falls back to the traditional way of handling the sampling
+read. In the PMI handler, the global control is disabled first, then all
+the counters are read. The value may not be very accurate, since it's
+stopped at the PMI handler, not the counter overflow. But because of the
+global control, all the counters stop at the same time. The skid would
+be the same. The test should work.
+
+Thanks,
+Kan
+> 
+> 
+>>
+>> Thanks,
+>> Kan
+>>
+>>>>    then
+>>>>      echo "Leader sampling [Failed record]"
+>>>> @@ -243,15 +243,15 @@ test_leader_sampling() {
+>>>>    while IFS= read -r line
+>>>>    do
+>>>>      # Check if the two instruction counts are equal in each record
+>>>> -    instructions=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="instructions:") print $(i-1)}')
+>>>> -    if [ $(($index%2)) -ne 0 ] && [ ${instructions}x != ${prev_instructions}x ]
+>>>> +    cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
+>>>> +    if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
+>>>>      then
+>>>> -      echo "Leader sampling [Failed inconsistent instructions count]"
+>>>> +      echo "Leader sampling [Failed inconsistent cycles count]"
+>>>>        err=1
+>>>>        return
+>>>>      fi
+>>>>      index=$(($index+1))
+>>>> -    prev_instructions=$instructions
+>>>> +    prev_cycles=$cycles
+>>>>    done < $script_output
+>>>>    echo "Basic leader sampling test [Success]"
+>>>>  }
+>>>> -- 
+>>>> 2.48.1
+> 
+> The code changes look good for me.
+> 
+> 
+>>
 
