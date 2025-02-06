@@ -1,225 +1,170 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A57D3239569;
-	Thu,  6 Feb 2025 17:36:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA8771A00E7
+	for <linux-s390@vger.kernel.org>; Thu,  6 Feb 2025 18:51:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738863392; cv=none; b=mT6t11v2bHOiCH4b7AmURmPVhZhXioo5jNjJVdtKjPYEVJ0pHUubMEhauXWrEusbmpbdm49dUok/eO+OReeabJJl3bdaKuDiCueOq70vJ8CeRrvMcCXsLmDVhWG9SUHKaf4Iozo6xo6nytzPgtoPu7vMJXnvJc5HUinguGwxar8=
+	t=1738867883; cv=none; b=DsX+yIV1E13jNIawCtf5unDcFbvqBwLE1W72axJYDyGS/NaWXQzw/c74FgnWhYUxNTobWxjnE1avppEbgxfcdWuy0pfYyt550V65RcHjv4H31gkmyHIlDiucKpMKzX4oclVpLqi+j3rGg8tuR9p176jGKIsmcZDbMMkbqGrfloo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738863392; c=relaxed/simple;
-	bh=d4gBXBu4ap4WuzCeqgPtbkDNvVvzmqMNjC9rIdF5Y6s=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
-	 References:In-Reply-To; b=cocc7JQavFR97Bq4pWYXKry2Uf1SVNpD8O1afFeJFTyMYdxRAKdMOBFWGKjDzsBzvLeo43396XGUSCj76dMYhY5tlfZ9+diEaePOmkZeasVs+1qLWZi5v6ZemN5ajuvH38HmQzgKisTSrD4M7cMsGmGXDl45AYhtk6t7IbSVFbc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c0u6NvTg; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1738867883; c=relaxed/simple;
+	bh=kZMcsQE8tmWol8Wm7lSOkd2XdB59ZsBJwEwnyhHgas4=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=vF+DV4kP0p71AC0J95x0wHnkUki/7MZ0s01Am4Cew9iZPlUM+MhWfEJxXMtvDFdhbwlfEsFVjWe3pkJww+YDz5xAstoQViRtNDRn2mLBpOPmpd4dNQFqHyf0Nd53SJBQtQ4WTx7zFoy2RNPnD5Scg2jXxoyzV5gzYGUNhjloQRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--fvdl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dphu4B57; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--fvdl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c0u6NvTg"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 516ESKgh020344;
-	Thu, 6 Feb 2025 17:36:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=syYJ/e
-	u8dhsmwgEpaRbh4JJJ7WxUlNJv4JPugmKe2gY=; b=c0u6NvTgHIjEulRvHFLCif
-	rxrJ2j6YqYVuQVLS8/Q5/CX1+gZrQg0d2kGs4RxM+RvEnirYrRikDqC+HE/qEy0l
-	9nFQwgY9zBWGSo5UWO04n8zezIGyPt8lqo1VVfbT5gbmrwyQDaLeIqhqlxF8RPCL
-	ELTy3yhbCASW9kIW3Q1p3ORHj7J2e1KVvf1ZjrT9lCDew0B0E04qZlP2B6FvRizb
-	Qs4CMDH+kW/uGqDD3C5ZG5T+Pc4gacbG7vH+nkYO0lSDyfSQs29EFHMmQdcxQy6T
-	RW/c5+S8nBYO6UsEVAMEG644IQ+eO69BlcwuHFszA1xtHgzza6WUEmuT38LFmg9w
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mpw83rhk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 17:36:21 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 516HYwxu026990;
-	Thu, 6 Feb 2025 17:36:21 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mpw83rhe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 17:36:21 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 516GaDgC021474;
-	Thu, 6 Feb 2025 17:36:20 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44j0n1q4x1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 17:36:20 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 516HaGns34931278
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Feb 2025 17:36:16 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9D695200DC;
-	Thu,  6 Feb 2025 17:36:16 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F441200DB;
-	Thu,  6 Feb 2025 17:36:16 +0000 (GMT)
-Received: from localhost (unknown [9.152.212.252])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Feb 2025 17:36:16 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dphu4B57"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2fa228b4143so147542a91.0
+        for <linux-s390@vger.kernel.org>; Thu, 06 Feb 2025 10:51:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1738867881; x=1739472681; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GxP6S0l3dQ+6CkO+pIY1HsOnc8ShdfnkIOi767vYzT8=;
+        b=dphu4B57lvnXi/LCOv7bhjTlnIDICM0nicd5OGOo3jdvqOKtFOG9b9WhBVzhIeGvB6
+         +HUDaVfp0zb/U+HmUr6XZztPZLkX4tA/DRA1c/d7VXxBsylkHDsPRGZr+YDYxWDFDz/r
+         wc/mLGsmNoHCoRU4PwtXoMgUfmK+lcevjR9eJXct8FpPnlRgWDj9tdyMUipeGKBWml+5
+         aSZt9wl44X4NRvzTDCQAlVqrRjxLJ+xwiqPX8NLkudh1vxuYRdh+Q2e9XUSj0lzFKnRx
+         wSZLKtAObQv0El0EkXcmwrhbz/sE3Eg+g+i5ocAxu8GwN4KS5YWxiLr92pZatKEWx16K
+         xRag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738867881; x=1739472681;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GxP6S0l3dQ+6CkO+pIY1HsOnc8ShdfnkIOi767vYzT8=;
+        b=eievF8nKkHQW7Uf6jHfr62E4Dl8pTBhKlnkHxODFleYUl0AD89sceCVITizomk/rtI
+         JN5BEqqzH0zXa1SkZhkUm/fooSWJpy2CUhoWOFLqR83v7829fyZnQgno2HCVhICEJttl
+         5JhjMhqZBz3doh3aOCvPapFh5xjdnh0u+m0ZiFPk0/o2nEoC2NxnL8NMM4Z48SjDF0UJ
+         hbrWbz6xMH0Z2zwf3cCijWtMXiJ1CAQmVy6ZDRz/R9ZhWjyaoClDiVu7Ou2bwiUOQLBP
+         Yg4m0fEuPOngHGiimfEr2lg5eHTMywZDSVmbetTpBtcTJ+mnaM8NXgfDIiNUqPXb69Vk
+         Rf3g==
+X-Forwarded-Encrypted: i=1; AJvYcCUd8MGBBKkv8lV082/qUTua6TCNf/VWdbhIMQe2ahiK303Ep6izLyC+idaKNUXw3I8TfDbAVQUvQBkX@vger.kernel.org
+X-Gm-Message-State: AOJu0YzjTS3NaE8gBy8FneKN1BfuxtGFdKFK8KMbup3rGDuOchcurd/N
+	8eUN/pMpn20PAzxhNUqzIr40dRJv18hWegCA8YWDyxZ51ORmGMfVkseaGCfkzyvma98UCg==
+X-Google-Smtp-Source: AGHT+IFhAWowVYwEoYtx6mfFOivywbt3Piw8sNnJL4ZJYNh4M1FuUx2ERPDZanvYPgCeFa64BAkgYsQp
+X-Received: from pjbse15.prod.google.com ([2002:a17:90b:518f:b0:2f4:3e59:8bb1])
+ (user=fvdl job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1946:b0:2fa:17e4:b1cf
+ with SMTP id 98e67ed59e1d1-2fa247f9fcdmr44198a91.2.1738867881130; Thu, 06 Feb
+ 2025 10:51:21 -0800 (PST)
+Date: Thu,  6 Feb 2025 18:50:43 +0000
+In-Reply-To: <20250206185109.1210657-1-fvdl@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 06 Feb 2025 18:36:16 +0100
-Message-Id: <D7LJMF6OMXFQ.1ADL6WMIWIQ5C@linux.ibm.com>
-To: "Alexandra Winter" <wintera@linux.ibm.com>,
-        "Wenjia Zhang"
- <wenjia@linux.ibm.com>,
-        "Jan Karcher" <jaka@linux.ibm.com>,
-        "Gerd Bayer"
- <gbayer@linux.ibm.com>,
-        "Halil Pasic" <pasic@linux.ibm.com>,
-        "D. Wythe"
- <alibuda@linux.alibaba.com>,
-        "Tony Lu" <tonylu@linux.alibaba.com>,
-        "Wen Gu"
- <guwen@linux.alibaba.com>,
-        "Peter Oberparleiter" <oberpar@linux.ibm.com>,
-        "David Miller" <davem@davemloft.net>,
-        "Jakub Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>,
-        "Eric Dumazet" <edumazet@google.com>,
-        "Andrew Lunn" <andrew+netdev@lunn.ch>
-Cc: "Niklas Schnelle" <schnelle@linux.ibm.com>,
-        "Thorsten Winkler"
- <twinkler@linux.ibm.com>, <netdev@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
-        "Vasily
- Gorbik" <gor@linux.ibm.com>,
-        "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
-        "Sven Schnelle"
- <svens@linux.ibm.com>,
-        "Simon Horman" <horms@kernel.org>
-Subject: Re: [RFC net-next 5/7] net/ism: Move ism_loopback to net/ism
-From: "Julian Ruess" <julianr@linux.ibm.com>
-X-Mailer: aerc 0.20.1
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250115195527.2094320-6-wintera@linux.ibm.com>
-In-Reply-To: <20250115195527.2094320-6-wintera@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: PBypoT_HftuRHrn1cpTmtdkwj9djft2b
-X-Proofpoint-ORIG-GUID: RvArULKGIkziuQeR2QU1yV2L_4QgVtRR
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-06_05,2025-02-05_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 spamscore=0 impostorscore=0 mlxscore=0 bulkscore=0
- phishscore=0 priorityscore=1501 clxscore=1015 mlxlogscore=735 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502060141
+References: <20250206185109.1210657-1-fvdl@google.com>
+X-Mailer: git-send-email 2.48.1.502.g6dc24dfdaf-goog
+Message-ID: <20250206185109.1210657-4-fvdl@google.com>
+Subject: [PATCH v3 03/28] mm/cma: introduce cma_intersects function
+From: Frank van der Linden <fvdl@google.com>
+To: akpm@linux-foundation.org, muchun.song@linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org
+Cc: yuzhao@google.com, usamaarif642@gmail.com, joao.m.martins@oracle.com, 
+	roman.gushchin@linux.dev, Frank van der Linden <fvdl@google.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed Jan 15, 2025 at 8:55 PM CET, Alexandra Winter wrote:
-> The first stage of ism_loopback was implemented as part of the
-> SMC module [1]. Now that we have the ism layer, provide
-> access to the ism_loopback device to all ism clients.
->
-> Move ism_loopback.* from net/smc to net/ism.
-> The following changes are required to ism_loopback.c:
-> - Change ism_lo_move_data() to no longer schedule an smcd receive tasklet=
-,
-> but instead call ism_client->handle_irq().
-> Note: In this RFC patch ism_loppback is not fully generic.
->   The smc-d client uses attached buffers, for moves without signalling.
->   and not-attached buffers for moves with signalling.
->   ism_lo_move_data() must not rely on that assumption.
->   ism_lo_move_data() must be able to handle more than one ism client.
->
-> In addition the following changes are required to unify ism_loopback and
-> ism_vp:
->
-> In ism layer and ism_vpci:
-> ism_loopback is not backed by a pci device, so use dev instead of pdev in
-> ism_dev.
->
-> In smc-d:
-> in smcd_alloc_dev():
-> - use kernel memory instead of device memory for smcd_dev and smcd->conn.
->         An alternative would be to ask device to alloc the memory.
-> - use different smcd_ops and max_dmbs for ism_vp and ism_loopback.
->     A future patch can change smc-d to directly use ism_ops instead of
->     smcd_ops.
-> - use ism dev_name instead of pci dev name for ism_evt_wq name
-> - allocate an event workqueue for ism_loopback, although it currently doe=
-s
->   not generate events.
->
-> Link: https://lore.kernel.org/linux-kernel//20240428060738.60843-1-guwen@=
-linux.alibaba.com/ [1]
->
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> ---
->  drivers/s390/net/ism.h     |   6 +-
->  drivers/s390/net/ism_drv.c |  31 ++-
->  include/linux/ism.h        |  59 +++++
->  include/net/smc.h          |   4 +-
->  net/ism/Kconfig            |  13 ++
->  net/ism/Makefile           |   1 +
->  net/ism/ism_loopback.c     | 366 +++++++++++++++++++++++++++++++
->  net/ism/ism_loopback.h     |  59 +++++
->  net/ism/ism_main.c         |  11 +-
->  net/smc/Kconfig            |  13 --
->  net/smc/Makefile           |   1 -
->  net/smc/af_smc.c           |  12 +-
->  net/smc/smc_ism.c          | 108 +++++++---
->  net/smc/smc_loopback.c     | 427 -------------------------------------
->  net/smc/smc_loopback.h     |  60 ------
->  15 files changed, 606 insertions(+), 565 deletions(-)
->  create mode 100644 net/ism/ism_loopback.c
->  create mode 100644 net/ism/ism_loopback.h
->  delete mode 100644 net/smc/smc_loopback.c
->  delete mode 100644 net/smc/smc_loopback.h
->
+Now that CMA areas can have multiple physical ranges,
+code can't assume a CMA struct represents a base_pfn
+plus a size, as returned from cma_get_base.
 
-...
+Most cases are ok though, since they all explicitly
+refer to CMA areas that were created using existing
+interfaces (cma_declare_contiguous_nid or
+cma_init_reserved_mem), which guarantees they have just
+one physical range.
 
-> diff --git a/net/ism/ism_loopback.c b/net/ism/ism_loopback.c
-> new file mode 100644
-> index 000000000000..47e5ef355dd7
-> --- /dev/null
-> +++ b/net/ism/ism_loopback.c
-> @@ -0,0 +1,366 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + *  Functions for loopback-ism device.
-> + *
-> + *  Copyright (c) 2024, Alibaba Inc.
-> + *
-> + *  Author: Wen Gu <guwen@linux.alibaba.com>
-> + *          Tony Lu <tonylu@linux.alibaba.com>
-> + *
-> + */
-> +
-> +#include <linux/bitops.h>
-> +#include <linux/device.h>
-> +#include <linux/ism.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/types.h>
-> +
-> +#include "ism_loopback.h"
-> +
-> +#define ISM_LO_V2_CAPABLE	0x1 /* loopback-ism acts as ISMv2 */
-> +#define ISM_LO_SUPPORT_NOCOPY	0x1
-> +#define ISM_DMA_ADDR_INVALID	(~(dma_addr_t)0)
-> +
-> +static const char ism_lo_dev_name[] =3D "loopback-ism";
-> +/* global loopback device */
-> +static struct ism_lo_dev *lo_dev;
-> +
-> +static int ism_lo_query_rgid(struct ism_dev *ism, uuid_t *rgid,
-> +			     u32 vid_valid, u32 vid)
-> +{
-> +	/* rgid should be the same as lgid; vlan is not supported */
-> +	if (!vid_valid && uuid_equal(rgid, &ism->gid))
-> +		return 0;
-> +	return -ENETUNREACH;
-> +}
+An exception is the s390 code, which walks all CMA
+ranges to see if they intersect with a range of memory
+that is about to be hotremoved. So, in the future,
+it might run in to multi-range areas. To keep this check
+working, define a cma_intersects function. This just checks
+if a physaddr range intersects any of the ranges.
+Use it in the s390 check.
 
-This vid_valid check breaks ism-loopback for me.
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Frank van der Linden <fvdl@google.com>
+---
+ arch/s390/mm/init.c | 13 +++++--------
+ include/linux/cma.h |  1 +
+ mm/cma.c            | 21 +++++++++++++++++++++
+ 3 files changed, 27 insertions(+), 8 deletions(-)
+
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index f2298f7a3f21..d88cb1c13f7d 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -239,16 +239,13 @@ struct s390_cma_mem_data {
+ static int s390_cma_check_range(struct cma *cma, void *data)
+ {
+ 	struct s390_cma_mem_data *mem_data;
+-	unsigned long start, end;
+ 
+ 	mem_data = data;
+-	start = cma_get_base(cma);
+-	end = start + cma_get_size(cma);
+-	if (end < mem_data->start)
+-		return 0;
+-	if (start >= mem_data->end)
+-		return 0;
+-	return -EBUSY;
++
++	if (cma_intersects(cma, mem_data->start, mem_data->end))
++		return -EBUSY;
++
++	return 0;
+ }
+ 
+ static int s390_cma_mem_notifier(struct notifier_block *nb,
+diff --git a/include/linux/cma.h b/include/linux/cma.h
+index 863427c27dc2..03d85c100dcc 100644
+--- a/include/linux/cma.h
++++ b/include/linux/cma.h
+@@ -53,6 +53,7 @@ extern bool cma_pages_valid(struct cma *cma, const struct page *pages, unsigned
+ extern bool cma_release(struct cma *cma, const struct page *pages, unsigned long count);
+ 
+ extern int cma_for_each_area(int (*it)(struct cma *cma, void *data), void *data);
++extern bool cma_intersects(struct cma *cma, unsigned long start, unsigned long end);
+ 
+ extern void cma_reserve_pages_on_error(struct cma *cma);
+ 
+diff --git a/mm/cma.c b/mm/cma.c
+index 6ac9173d3a7d..c7116a5819c5 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -978,3 +978,24 @@ int cma_for_each_area(int (*it)(struct cma *cma, void *data), void *data)
+ 
+ 	return 0;
+ }
++
++bool cma_intersects(struct cma *cma, unsigned long start, unsigned long end)
++{
++	int r;
++	struct cma_memrange *cmr;
++	unsigned long rstart, rend;
++
++	for (r = 0; r < cma->nranges; r++) {
++		cmr = &cma->ranges[r];
++
++		rstart = PFN_PHYS(cmr->base_pfn);
++		rend = PFN_PHYS(cmr->base_pfn + cmr->count);
++		if (end < rstart)
++			continue;
++		if (start >= rend)
++			continue;
++		return true;
++	}
++
++	return false;
++}
+-- 
+2.48.1.502.g6dc24dfdaf-goog
+
