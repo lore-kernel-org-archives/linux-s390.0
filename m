@@ -1,124 +1,257 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2578D1C700E;
-	Thu,  6 Feb 2025 15:26:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1506D239572;
+	Thu,  6 Feb 2025 17:28:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738855578; cv=none; b=CtYwxYvUBBYP/Dp8mW4f0pyjFSWt7c4v7n081Vhi/TfcP7RgQXhKBNa/GCL5KZX8Z0DHWqErXQQ/Rvy1yXe6BCqiiow5d+pqk3Bsf5sor6AHxNgIY0wR4Dh1qvKoxOreSdrYt1Z7m0/snFiua8XjpFXyiPQDq3QC0U/T2lNxPkc=
+	t=1738862888; cv=none; b=eoNSS+Vj3DF/evWs9DDeiWhz4Jhuqh8aC/y20El6wQ+je6ArgXLYS7yuIj2suKrkq07+yUsioVFE1Jw2siZI4uxtvqOFXaQnRigwCVbjuDpLtrEJQeedyNnby3XkhKKEBoJCEU2NMtrckvsZRe+jZGRNVu4dBcBer83TF83QzAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738855578; c=relaxed/simple;
-	bh=tcVpN1qc+CNHOZ+Drmas1nokJSHGtwyKNe/PAK4Joq4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pHj1ZRgQJl+cgkjXqb3pPUVar3MUzAbk5LWUnsK+Weue932RNSaSom4tahLbXad43SvsiranYcb6K6M4pjGbmO+TKAYWG+/AshYieCAVPhZmVwR83xOllOAQquBqKl5MpKvVf3d3KbrFdPBIzR0w03uhV63gjFCuz+vNElQAoo0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qb2ap9S7; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1738862888; c=relaxed/simple;
+	bh=I1D8HIFxfi4EvDiIubeBCm2CKOjJ3YJAkHhs03SgKeo=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=tJPlZs04sHoxAXDy/iP5zqUOK29nhZgpnbV1t9tkZGC9UDEiA5/mzBKmMc9f0NxQMH/tx7OG6Tc1buWTfdtoC0Vb1b+IsIigz29suMsniLfgXVZ5KAf4VGa6wEJUAhB0qilPZkNgLFYJekIHHiNU3Kemg6UY46xbMPcKhGv0sUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nv7fU46v; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qb2ap9S7"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nv7fU46v"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 516ESKHg009550;
-	Thu, 6 Feb 2025 15:26:15 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 516ESPfh009811;
+	Thu, 6 Feb 2025 17:28:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=OgRc2XZeqDfYKX9OdYVxO+K/KEjR0lZARFuay+GGR
-	9k=; b=qb2ap9S7u1aVUz6bNDvBQ4aU6I4fKWQon7SKn90BN1svxFM7JoUxSlyps
-	XN+uL2fD3xQAGPKj9XSTEWBi9+NESzpWq/smB98UckJD8+/njkN+JwbFtijurrR4
-	Mi+f3wrwW2JeZqMgiA/mg8scvmnWactG1TmIYVBbTafCV6DW6ZLq7L6xHLXmJnKn
-	WHLsqUHzWlJ2DSkKnGmIr4aRQW9Zsd91MvRDGb6EYIlpgDWCVWYLGfGIiKy2/JKT
-	IAWSCDWahZOLueOH15ydJmhj4lCivMgx6Tt2aZJkyPOjeLEmrdqdG5QT+oObGsjv
-	ebfvgUgelIfTx6Th9UmU85fwrqnkw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mk5a3wbn-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=U7KGUP
+	0KplSQNojFLq+iZErwGlgKyPg0MFmq8Ps2eSA=; b=nv7fU46vzIFNBAzttU95dJ
+	JwgrIWwJptTVpijZnaH/ALZ0C5WR8pu2+1G6vDCQ0HIrTmmZgevBrOUF3KuEZpdl
+	YQrBs+Jt2Wssq9OKTwtJFY0LkW8op384elFTGYhG7Of/brusCmIk2oKvEiKt9Jon
+	cxmx9Rcu7TrubJXSo6F/tCgY3AK6juAYgEuGu6htAdUkH1k7ZeL2AHz6p6vRhBcb
+	kNPISy0eL8mbq1+/dBteQgvaa//TGsLOLpKXnMkoWyX97vNTVOdJOWT8T9PIsHag
+	P+kLDgdhTXG4NWoevuFYTO039xmwGJVZeeyqny04YlHbRlIQvTI8tpumw+FDol6w
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mk5a4kse-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 15:26:14 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 516ElFN6024635;
-	Thu, 6 Feb 2025 15:26:13 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44hxxneyvc-1
+	Thu, 06 Feb 2025 17:28:06 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 516FuVfB005251;
+	Thu, 6 Feb 2025 17:28:05 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44j05k775x-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Feb 2025 15:26:13 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 516FQ9g339911804
+	Thu, 06 Feb 2025 17:28:05 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 516HS19331916418
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Feb 2025 15:26:09 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D65A420135;
-	Thu,  6 Feb 2025 15:01:45 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AEA6620134;
-	Thu,  6 Feb 2025 15:01:45 +0000 (GMT)
-Received: from a46lp67.lnxne.boe (unknown [9.152.108.100])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Feb 2025 15:01:45 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
+	Thu, 6 Feb 2025 17:28:01 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A6A5320043;
+	Thu,  6 Feb 2025 17:28:01 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 15B4020040;
+	Thu,  6 Feb 2025 17:28:01 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.19.151])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu,  6 Feb 2025 17:28:01 +0000 (GMT)
+Date: Thu, 6 Feb 2025 18:22:30 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, nrb@linux.ibm.com,
         hca@linux.ibm.com
-Subject: [kvm-unit-tests PATCH] lib: s390x: css: Cleanup chsc inline assembly
-Date: Thu,  6 Feb 2025 14:58:49 +0000
-Message-ID: <20250206150128.147206-1-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
+Subject: Re: [kvm-unit-tests PATCH] lib: s390x: css: Name inline assembly
+ arguments and clean them up
+Message-ID: <20250206182230.68ec3c69@p-imbrenda>
+In-Reply-To: <20250204100339.28158-1-frankja@linux.ibm.com>
+References: <20250204100339.28158-1-frankja@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8QwqespLYpMUgXJPxR3jFWOhGj-XcWLa
-X-Proofpoint-ORIG-GUID: 8QwqespLYpMUgXJPxR3jFWOhGj-XcWLa
+X-Proofpoint-GUID: YaNjJ_jtQtwNOB5Fy136WNutC98QMXtm
+X-Proofpoint-ORIG-GUID: YaNjJ_jtQtwNOB5Fy136WNutC98QMXtm
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-06_03,2025-02-05_03,2024-11-22_01
+ definitions=2025-02-06_05,2025-02-05_03,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=877 mlxscore=0 malwarescore=0
+ priorityscore=1501 mlxlogscore=999 mlxscore=0 malwarescore=0
  suspectscore=0 clxscore=1015 impostorscore=0 spamscore=0 adultscore=0
  phishscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502060123
+ engine=8.19.0-2501170000 definitions=main-2502060137
 
-Name the CHSC command block pointer instead of naming it "p".
+On Tue,  4 Feb 2025 09:51:33 +0000
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Also replace the two "m" constraints with a memory globber so the
-constraints are easier to read.
+> Less need to count the operands makes the code easier to read.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-To me it makes more sense to have a separate commit that has a message
-explaining why we changed it instead of sending a v2, so here it is.
 
----
- lib/s390x/css.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 06bb59c7..167f8e83 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -364,16 +364,16 @@ bool get_chsc_scsc(void);
- #define CHSC_RSP_EBUSY	0x000B
- #define CHSC_RSP_MAX	0x000B
- 
--static inline int _chsc(void *p)
-+static inline int _chsc(void *com_blk)
- {
- 	int cc;
- 
--	asm volatile(" .insn   rre,0xb25f0000,%2,0\n"
-+	asm volatile(" .insn   rre,0xb25f0000,%[com_blk],0\n"
- 		     " ipm     %[cc]\n"
- 		     " srl     %[cc],28\n"
--		     : [cc] "=d" (cc), "=m" (p)
--		     : "d" (p), "m" (p)
--		     : "cc");
-+		     : [cc] "=d" (cc)
-+		     : [com_blk] "d" (com_blk)
-+		     : "cc", "memory");
- 
- 	return cc;
- }
--- 
-2.43.0
+> ---
+> 
+> This one has been gathering dust for a while.
+> rfc->v1: Moved to Q constraint (thanks Heiko)
+> 
+> ---
+>  lib/s390x/css.h | 76 ++++++++++++++++++++++++-------------------------
+>  1 file changed, 38 insertions(+), 38 deletions(-)
+> 
+> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+> index 504b3f14..42c5830c 100644
+> --- a/lib/s390x/css.h
+> +++ b/lib/s390x/css.h
+> @@ -135,11 +135,11 @@ static inline int ssch(unsigned long schid, struct orb *addr)
+>  	int cc;
+>  
+>  	asm volatile(
+> -		"	ssch	0(%2)\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28\n"
+> -		: "=d" (cc)
+> -		: "d" (reg1), "a" (addr), "m" (*addr)
+> +		"	ssch	%[addr]\n"
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28\n"
+> +		: [cc] "=d" (cc)
+> +		: "d" (reg1), [addr] "Q" (*addr)
+>  		: "cc", "memory");
+>  	return cc;
+>  }
+> @@ -152,11 +152,11 @@ static inline int stsch(unsigned long schid, struct schib *addr)
+>  
+>  	asm volatile(
+>  		"       tmll    %[bogus_cc],3\n"
+> -		"	stsch	0(%3)\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc), "=m" (*addr)
+> -		: "d" (reg1), "a" (addr), [bogus_cc] "d" (bogus_cc)
+> +		"	stsch	%[addr]\n"
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc), [addr] "=Q" (*addr)
+> +		: "d" (reg1), [bogus_cc] "d" (bogus_cc)
+>  		: "cc");
+>  	return cc;
+>  }
+> @@ -167,11 +167,11 @@ static inline int msch(unsigned long schid, struct schib *addr)
+>  	int cc;
+>  
+>  	asm volatile(
+> -		"	msch	0(%3)\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc)
+> -		: "d" (reg1), "m" (*addr), "a" (addr)
+> +		"	msch	%[addr]\n"
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc)
+> +		: "d" (reg1), [addr] "Q" (*addr)
+>  		: "cc");
+>  	return cc;
+>  }
+> @@ -184,11 +184,11 @@ static inline int tsch(unsigned long schid, struct irb *addr)
+>  
+>  	asm volatile(
+>  		"       tmll    %[bogus_cc],3\n"
+> -		"	tsch	0(%3)\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc), "=m" (*addr)
+> -		: "d" (reg1), "a" (addr), [bogus_cc] "d" (bogus_cc)
+> +		"	tsch	%[addr]\n"
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc), [addr] "=Q" (*addr)
+> +		: "d" (reg1), [bogus_cc] "d" (bogus_cc)
+>  		: "cc");
+>  	return cc;
+>  }
+> @@ -200,9 +200,9 @@ static inline int hsch(unsigned long schid)
+>  
+>  	asm volatile(
+>  		"	hsch\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc)
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc)
+>  		: "d" (reg1)
+>  		: "cc");
+>  	return cc;
+> @@ -215,9 +215,9 @@ static inline int xsch(unsigned long schid)
+>  
+>  	asm volatile(
+>  		"	xsch\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc)
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%cc,28"
+> +		: [cc] "=d" (cc)
+>  		: "d" (reg1)
+>  		: "cc");
+>  	return cc;
+> @@ -230,9 +230,9 @@ static inline int csch(unsigned long schid)
+>  
+>  	asm volatile(
+>  		"	csch\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc)
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc)
+>  		: "d" (reg1)
+>  		: "cc");
+>  	return cc;
+> @@ -245,9 +245,9 @@ static inline int rsch(unsigned long schid)
+>  
+>  	asm volatile(
+>  		"	rsch\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc)
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc)
+>  		: "d" (reg1)
+>  		: "cc");
+>  	return cc;
+> @@ -262,9 +262,9 @@ static inline int rchp(unsigned long chpid)
+>  	asm volatile(
+>  		"       tmll    %[bogus_cc],3\n"
+>  		"	rchp\n"
+> -		"	ipm	%0\n"
+> -		"	srl	%0,28"
+> -		: "=d" (cc)
+> +		"	ipm	%[cc]\n"
+> +		"	srl	%[cc],28"
+> +		: [cc] "=d" (cc)
+>  		: "d" (reg1), [bogus_cc] "d" (bogus_cc)
+>  		: "cc");
+>  	return cc;
+> @@ -369,9 +369,9 @@ static inline int _chsc(void *p)
+>  	int cc;
+>  
+>  	asm volatile(" .insn   rre,0xb25f0000,%2,0\n"
+> -		     " ipm     %0\n"
+> -		     " srl     %0,28\n"
+> -		     : "=d" (cc), "=m" (p)
+> +		     " ipm     %[cc]\n"
+> +		     " srl     %[cc],28\n"
+> +		     : [cc] "=d" (cc), "=m" (p)
+>  		     : "d" (p), "m" (p)
+>  		     : "cc");
+>  
 
