@@ -1,142 +1,124 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE82E1DE2CD;
-	Fri,  7 Feb 2025 10:30:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA09C1A8F97;
+	Fri,  7 Feb 2025 20:53:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738924207; cv=none; b=iCaB2RUEim80POtpHRIMP+9Z1c9TkKa0Nk1Fsfx8jSaWGMCb/L1bDx4Aa3XqsLbXNsFJWbTU8fDwmFBt3prYrrSZw87U3qVqo6a3ZmXiS3JnaZs6e6n7E3vsEwMTBnJPdaFvvCMPJ9etD6LWxvR6Pt7bwaiVltYtY+n8KaV+7yo=
+	t=1738961633; cv=none; b=rBLx7r/zczoydKXzBL2ilNsiNiw8nM4bnZfYym1Jxda7mAgfNgerMbdauRGSoiUqywCeKjH5prx3fgW3pXJ2NVm1bXKDjAyUXhoejDIrcS87rJEhFpvAGmOR1IuSP9xH21Ps2rQaObTY4rGGxff6ODi2nkug6UWdwljblrI3WnI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738924207; c=relaxed/simple;
-	bh=JpbQcaAa8JcQZWOzqHFtWGVskjPJYM2OOIEdEBr9QSg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
-	 In-Reply-To:Content-Type; b=P+1fa48j4yvKI8JDSdcUXSA+kRHFom0sLdTZTiqQ7c0I4c2xFOlUZg4VUYNpee9zZMTURX994XgmnQ0s8wProVow2ZDBzUnWbizkgHQ4UKpaQ96B+8K0v0WIZOvAiq9f06Uj1zi+NF3kuwFEXWgs9TB0NcRErIVqny8Cf73dH9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=j1PAOVYj; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1738961633; c=relaxed/simple;
+	bh=+XE1Gibj53XUdm3yvQ0U9Wn6es8t7Fa+pXS6zzOUfNg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MpNFnbEY8P/vnqpDdd2F+nO4p09m82LJgkNFKa46pKvwy9jwQhBZSA2QsjRixuFc/kCQI4+Zn6Hcyspnhf5IFLfBW8UmcV35FCSTP3NlouK9wGgzKrPU5RdOukRnzPqW6LhUm3p1kLhVI5KzHg9fSI47s7Ihz2ocN45fnAWkVDo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GI1AQyIw; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="j1PAOVYj"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51716oQQ010458;
-	Fri, 7 Feb 2025 10:29:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GI1AQyIw"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 517C1Apo028647;
+	Fri, 7 Feb 2025 20:53:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6W0N8f
-	QjXPiR8sVNB2nSeoDujwMgwlQ8qmGFGmH8wrc=; b=j1PAOVYjYmvoN4MsXtqrFe
-	u7V/IQcO6W0sjjw/fjI6F1sxMxhIfLgsnaQz+O6FzRcRPIp/5Xdx7bgchX5r9hg8
-	AB95LKPBoSpm5sri/dhZL+AZPlv7sQkou/HI4YhH3NSCyeQEJ8QL6BMbLh6oiPeS
-	gycoJR8+XK6mu+PGQyfwXm7BJjJ0K6wU22/IZJKYz7zthvhIIovKuL4r0J6Vr3Rj
-	3SnsdklT+T+LStXz/XOUM88jlNTRUac5miPcsUJyRB6u2FAfcRqAMcGViYk3N+XM
-	sudQQ2+y8m5e0SjtCzanSJLHJkMy6NRsioQsYObkkWVVy9Xmj0eYdF/wvwi+hK2Q
-	==
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=MaC+iU9MwJfPXnKDmF+0wEXepTZYUvrOmE2qOB7q+
+	4k=; b=GI1AQyIwClkwioyBaIHD43FEVX9dHg8HmyBRc4nY2vLz6U3xKzTeyhQoW
+	1M8+0FY2aoXUxAr/AgaCHgfdqvGAPC9IsPagI+PVaYkl0X4n5bLHSmD2J49duVRX
+	Dp2c9rp+lr3KaXLCPnPOZfEEHqDpoaClF6ZuvzDAjd0i/hfzpayvRwCncYLc9G+V
+	1ywm2HcZiC6Li4WV4s3LKYxwG393V+Zw4lwOmWhQ1zdm0qdWQCkTNDnIemAscaoP
+	977JU40Bpri/yv51S3EDmWk46AnEYXKS2lZzm92wKKQLAurWuxi1CGZ4WxHGT2JR
+	VpzQtt8uCzZ6k4PaAG4o3bZVjKZ8g==
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44mywtvrpm-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44n910d1q6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Feb 2025 10:29:51 +0000 (GMT)
+	Fri, 07 Feb 2025 20:53:39 +0000 (GMT)
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 517A7hDV016297;
-	Fri, 7 Feb 2025 10:29:38 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44hwxsu9rt-1
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 517Hq4Vp016391;
+	Fri, 7 Feb 2025 20:53:38 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44hwxswmne-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Feb 2025 10:29:38 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 517ATYMI44433798
+	Fri, 07 Feb 2025 20:53:38 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 517Krb8x16646810
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Feb 2025 10:29:34 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3B2220085;
-	Fri,  7 Feb 2025 10:29:34 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B46120084;
-	Fri,  7 Feb 2025 10:29:34 +0000 (GMT)
-Received: from [9.171.75.27] (unknown [9.171.75.27])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  7 Feb 2025 10:29:34 +0000 (GMT)
-Message-ID: <828a5848-518a-4049-b534-0ae45ca964b2@linux.ibm.com>
-Date: Fri, 7 Feb 2025 11:29:23 +0100
+	Fri, 7 Feb 2025 20:53:38 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C36758052;
+	Fri,  7 Feb 2025 20:53:37 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02DF658045;
+	Fri,  7 Feb 2025 20:53:36 +0000 (GMT)
+Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.30.101])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  7 Feb 2025 20:53:35 +0000 (GMT)
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
+        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
+        clegoate@redhat.com, jgg@nvidia.com, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v4 0/4] iommu/s390: add support for IOMMU passthrough
+Date: Fri,  7 Feb 2025 15:53:31 -0500
+Message-ID: <20250207205335.473946-1-mjrosato@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 03/31] KVM: s390: Switch to use hrtimer_setup()
-To: Nam Cao <namcao@linutronix.de>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-        linux-s390 <linux-s390@vger.kernel.org>
-References: <cover.1738746821.git.namcao@linutronix.de>
- <637865c62963fb8cddf6c4368ca12434988a8c27.1738746821.git.namcao@linutronix.de>
-Content-Language: en-US
-Cc: Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <637865c62963fb8cddf6c4368ca12434988a8c27.1738746821.git.namcao@linutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ld2vLwj5Mc7hMxxdUJFbzNTX1ZAazY_i
-X-Proofpoint-ORIG-GUID: ld2vLwj5Mc7hMxxdUJFbzNTX1ZAazY_i
+X-Proofpoint-ORIG-GUID: lJAzURkSLHDBwagGGbtFvD0Sxd48ofPT
+X-Proofpoint-GUID: lJAzURkSLHDBwagGGbtFvD0Sxd48ofPT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-07_05,2025-02-07_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 mlxscore=0
- bulkscore=0 phishscore=0 mlxlogscore=876 impostorscore=0 adultscore=0
- priorityscore=1501 clxscore=1011 spamscore=0 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502070080
+ definitions=2025-02-07_09,2025-02-07_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=651
+ priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 phishscore=0 spamscore=0 malwarescore=0 suspectscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502070153
 
+This series introduces the ability for certain devices on s390 to bypass
+a layer of IOMMU via the iommu.passthrough=1 option.  In order to enable
+this, the concept of an identity domain is added to s390-iommu.  On s390,
+IOMMU passthrough is only allowed if indicated via a special bit in s390
+CLP data for the associated device group, otherwise we must fall back to
+dma-iommu.
 
+Changes for v4:
+- Additional patch to handle IOAT registration within s390-iommu.  This
+  fixes an issue with re-registration of identity domain during events
+  like zpci_hot_reset_device
+- Fixup page alignment for bus_dma_region setup
+- Dropped a few review/test tags due to above changes
 
-Am 05.02.25 um 11:38 schrieb Nam Cao:
-> hrtimer_setup() takes the callback function pointer as argument and
-> initializes the timer completely.
-> 
-> Replace hrtimer_init() and the open coded initialization of
-> hrtimer::function with the new setup mechanism.
-> 
-> Patch was created by using Coccinelle.
-> 
-> Signed-off-by: Nam Cao <namcao@linutronix.de>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Changes for v3:
+- Rebase onto 6.13
+- fixed bus_dma_region size (Niklas) 
 
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Changes for v2:
+- Remove ARCH_HAS_PHYS_TO_DMA, use bus_dma_region
+- Remove use of def_domain_type, use 1 of 2 ops chosen at init
 
-> ---
->   arch/s390/kvm/interrupt.c | 3 +--
->   arch/s390/kvm/kvm-s390.c  | 4 ++--
->   2 files changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index d4f031e086fc..11a33fa21dfd 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -3171,8 +3171,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
->   	gi->alert.mask = 0;
->   	spin_lock_init(&gi->alert.ref_lock);
->   	gi->expires = 50 * 1000; /* 50 usec */
-> -	hrtimer_init(&gi->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> -	gi->timer.function = gisa_vcpu_kicker;
-> +	hrtimer_setup(&gi->timer, gisa_vcpu_kicker, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
->   	memset(gi->origin, 0, sizeof(struct kvm_s390_gisa));
->   	gi->origin->next_alert = (u32)virt_to_phys(gi->origin);
->   	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index d8080c27d45b..a0ef902c7a3d 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -3930,8 +3930,8 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
->   		if (rc)
->   			return rc;
->   	}
-> -	hrtimer_init(&vcpu->arch.ckc_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> -	vcpu->arch.ckc_timer.function = kvm_s390_idle_wakeup;
-> +	hrtimer_setup(&vcpu->arch.ckc_timer, kvm_s390_idle_wakeup, CLOCK_MONOTONIC,
-> +		      HRTIMER_MODE_REL);
->   
->   	vcpu->arch.sie_block->hpid = HPID_KVM;
->   
+Matthew Rosato (4):
+  s390/pci: check for relaxed translation capability
+  s390/pci: store DMA offset in bus_dma_region
+  iommu/s390: handle IOAT registration based on domain
+  iommu/s390: implement iommu passthrough via identity domain
+
+ arch/s390/include/asm/pci.h     |   4 +-
+ arch/s390/include/asm/pci_clp.h |   4 +-
+ arch/s390/kvm/pci.c             |  17 +---
+ arch/s390/pci/pci.c             |  35 ++++----
+ arch/s390/pci/pci_bus.c         |  18 +++++
+ arch/s390/pci/pci_clp.c         |   1 +
+ arch/s390/pci/pci_sysfs.c       |  11 +--
+ drivers/iommu/s390-iommu.c      | 138 ++++++++++++++++++++++++++------
+ 8 files changed, 161 insertions(+), 67 deletions(-)
+
+-- 
+2.48.1
 
