@@ -1,91 +1,130 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3235D1CAA9E;
-	Mon, 10 Feb 2025 10:42:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D6A619CC33;
+	Mon, 10 Feb 2025 11:17:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739184128; cv=none; b=fsCLLsbPbSP5gctjQI2t3/bIBYCfab7qdYihg6pMG1bprYh4dl+a61Yb17WcIDmbr497+F02ceqKXGDd08iXhtwHesE9CA8EhberYHktfzJZrP+sBtDc2mCvKE3TMR8sEoJoafAltkcqGr7IRiWA7vxhL4nxfm67dV85q/c921k=
+	t=1739186227; cv=none; b=oAF63MIB0avXJ3HO7SsJlXq2OArJnOtPCClEinYlmj9VG1csUCFdCdzH2heTvpr8w7xh7fc/AtTqhsWW7dATpG2pKDoKeQAobFH13Ce5mKlVL+lQSdn/JQuBzaIDY8pcLcTv+f7a7Ko6Xvc/nneBWsWFIipjlr32N+myAzHJidA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739184128; c=relaxed/simple;
-	bh=jq/HIHgfHgdifwYmPIbidSugf6VXqeVQV7y6gzurIYg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f/jeY5ayqCsUy+BShejtWzsQJJexGYXT3UOo7MzIkRY/cM17c3itL/+GCVYIa7tcn4mUEOCFI8p8db20jkmuDjNL3MsPqEx3pC88zt/a3wxpBOuSFC+9xFzu5J+sUJm6Aov0i19ftlVJkEkAbEHKDxiacu1QVJWARh0is3r+Hn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 35AA11BA8;
-	Mon, 10 Feb 2025 02:42:27 -0800 (PST)
-Received: from arm.com (unknown [10.57.76.200])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 510A33F58B;
-	Mon, 10 Feb 2025 02:41:58 -0800 (PST)
-Date: Mon, 10 Feb 2025 10:41:53 +0000
-From: Alexandru Elisei <alexandru.elisei@arm.com>
-To: Andrew Jones <andrew.jones@linux.dev>
-Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
-	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
-	david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org,
-	oliver.upton@linux.dev, suzuki.poulose@arm.com,
-	yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com
-Subject: Re: [kvm-unit-tests PATCH v2 03/18] scripts: Refuse to run the tests
- if not configured for qemu
-Message-ID: <Z6nX8YC8ZX9jFiLb@arm.com>
-References: <20250120164316.31473-1-alexandru.elisei@arm.com>
- <20250120164316.31473-4-alexandru.elisei@arm.com>
- <20250121-45faf6a9a9681c7c9ece5f44@orel>
+	s=arc-20240116; t=1739186227; c=relaxed/simple;
+	bh=mSkiGXTqHGYYLjplMNYod7sGEW6e2weQZ7cjuOsZaz4=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=f4emNCJ/lSaWLys9kpzF1upE2OyrSJmW1cTN/kIBJfVpYaoahp2sEB2Mvc9J1dfcKOTpm5WUwwxL8mv7egDDWNWvLIDpitiiOSCFrpJGimX0Uhlquw+l42ISRvuvZnFDqYd0q8KwymLen0ukCf8AeZOhECTsR/pLtSjlazR/aPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=mE9SnCYw; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="mE9SnCYw"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1739186219; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type;
+	bh=dmcnIETOkRmcLc2k59ZJrtg3E4RjzRzuJfuWKk05UZg=;
+	b=mE9SnCYwJRHxiEBu9mJNa6oBcFz+IoIFaDRytYWlITj1aAxOLGj4+gfGs4TZVQkmazzO0Zxl0dQylqlJ0kYDJLGqmqGzloAR6Z9hoVPIGl4WquKb7zVyrbo48xRlZuvTS3AEhEFPlnZ6xyxo8LedbLkOqVsdx+w4hJ4GHXOoxpQ=
+Received: from 30.221.98.157(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WPAl8CS_1739186218 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 10 Feb 2025 19:16:59 +0800
+Message-ID: <4339aaa1-f2aa-4454-b5b1-6ffb6415f484@linux.alibaba.com>
+Date: Mon, 10 Feb 2025 19:16:57 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250121-45faf6a9a9681c7c9ece5f44@orel>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
+ pnetid table
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
+References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+ <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
+ <20250107203218.5787acb4.pasic@linux.ibm.com>
+ <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
+ <20250109040429.350fdd60.pasic@linux.ibm.com>
+ <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
+ <20250114130747.77a56d9a.pasic@linux.ibm.com>
+ <3dc68650-904c-4a1d-adc4-172e771f640c@linux.alibaba.com>
+Content-Language: en-US
+In-Reply-To: <3dc68650-904c-4a1d-adc4-172e771f640c@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Drew,
 
-On Tue, Jan 21, 2025 at 03:48:55PM +0100, Andrew Jones wrote:
-> On Mon, Jan 20, 2025 at 04:43:01PM +0000, Alexandru Elisei wrote:
-<snip>
-> > ---
-> >  arm/efi/run             | 8 ++++++++
-> >  arm/run                 | 9 +++++++++
-> >  run_tests.sh            | 8 ++++++++
-> >  scripts/mkstandalone.sh | 8 ++++++++
-> >  4 files changed, 33 insertions(+)
-<snip>
-> > +case "$TARGET" in
-> > +qemu)
-> > +    ;;
-> > +*)
-> > +    echo "'$TARGET' not supported for standlone tests"
-> > +    exit 2
-> > +esac
+
+On 2025/1/15 19:53, Guangguan Wang wrote:
 > 
-> I think we could put the check in a function in scripts/arch-run.bash and
-> just use the same error message for all cases.
-
-Coming back to the series.
-
-arm/efi/run and arm/run source scripts/arch-run.bash; run_tests.sh and
-scripts/mkstandalone.sh don't source scripts/arch-run.bash. There doesn't
-seem to be a common file that is sourced by all of them.
-
-How about creating a new file in scripts (vmm.bash?) with only this
-function?
-
-Thanks,
-Alex
-
+> 
+> On 2025/1/14 20:07, Halil Pasic wrote:
+>> On Fri, 10 Jan 2025 13:43:44 +0800
+>> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+>>
+>>>> I think I showed a valid and practical setup that would break with your
+>>>> patch as is. Do you agree with that statement?  
+>>> Did you mean
+>>> "
+>>> Now for something like a bond of two OSA
+>>> interfaces, I would expect the two legs of the bond to probably have a
+>>> "HW PNETID", but the netdev representing the bond itself won't have one
+>>> unless the Linux admin defines a software PNETID, which is work, and
+>>> can't have a HW PNETID because it is a software construct within Linux.
+>>> Breaking for example an active-backup bond setup where the legs have
+>>> HW PNETIDs and the admin did not bother to specify a PNETID for the bond
+>>> is not acceptable.
+>>> " ?
+>>> If the legs have HW pnetids, add pnetid to bond netdev will fail as
+>>> smc_pnet_add_eth will check whether the base_ndev already have HW pnetid.
+>>>
+>>> If the legs without HW pnetids, and admin add pnetids to legs through smc_pnet.
+>>> Yes, my patch will break the setup. What Paolo suggests(both checking ndev and
+>>> base_ndev, and replace || by && )can help compatible with the setup.
+>>
+>> I'm glad we agree on that part. Things are much more acceptable if we
+>> are doing both base and ndev. 
+> It is also acceptable for me.
+> 
+>> Nevertheless I would like to understand
+>> your problem better, and talk about it to my team. I will also ask some
+>> questions in another email.
+> Questions are welcome.
+> 
+>>
+>> That said having things work differently if there is a HW PNETID on
+>> the base, and different if there is none is IMHO wonky and again
+>> asymmetric.
+>>
+>> Imagine the following you have your nice little setup with a PNETID on
+>> a non-leaf and a base_ndev that has no PNETID. Then your HW admin
+>> configures a PNETID to your base_ndev, a different one. Suddenly
+>> your ndev PNETID is ignored for reasons not obvious to you. Yes it is
+>> similar to having a software PNETID on the base_ndev and getting it
+>> overruled by a HW PNETID, but much less obvious IMHO. I am wondering if there are any scenarios that require setting different
+> pnetids for different net devices in one netdev hierarchy. If no, maybe
+> we should limit that only one pnetid can be set to one netdev hierarchy.
+> 
+>> I also think
+>> a software PNETID of the base should probably take precedence over over
+>> the software pnetid of ndev.
+> Agree!
 > 
 > Thanks,
-> drew
-> 
-> > 
-> > -- 
-> > kvm-riscv mailing list
-> > kvm-riscv@lists.infradead.org
-> > http://lists.infradead.org/mailman/listinfo/kvm-riscv
+> Guangguan Wang
+>>
+>> Regards,
+>> Halil
+
+Hi Halil,
+
+Are there any questions or further discussions about this patch? If no, I will
+send a v2 patch, in which software pnetid will be searched in both base_ndev and ndev,
+and base_ndev will take precedence over ndev.
+
+Thanks,
+Guangguan Wang
+
