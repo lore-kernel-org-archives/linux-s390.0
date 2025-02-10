@@ -1,300 +1,203 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E3A61F3D30;
-	Mon, 10 Feb 2025 11:47:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A2A51B0F00;
+	Mon, 10 Feb 2025 13:14:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739188049; cv=none; b=B/Z9EVEBnRptq8so8lz6wFeBSZay+3h2XmxUMU6xzVqk1j3NQEkDVq3VYoLqvg/h3OjnzVdow53wEU+H4CyjGlGhw7zOEQR90y53aT/XnEvUCJ8uj2nieHqQeMmNCDZP0s8SOQcWYUJgRy7i47q16iGivj0ufl04Iq+0mz3BkIM=
+	t=1739193250; cv=none; b=GfI/zSoQt1dMtS3UHTu0TWt6pvgDB2z6Mwu1sbxCUGgO251PPnTWE+4zBg9bh5cKAVJW2tXCKYDozx9ovDqfnHnFwo+raDMNFIC38k2672z41HSpWpTjNArdmLTb+Y16GrKU5rjj82qfh4f/4iWhJvAEO/wCgnbq7C+9RMPx9vM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739188049; c=relaxed/simple;
-	bh=cF/CH70V9SQE+XpvSFXUMJv3KkJgsXiNRJBJx6J0zps=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=TZMyolXmp2whEcQkvLk0OPJd+b5+5Q1hQNCea3DiNh5v9PbnmTRdLhedb9atp502ZR4HxJ67dbsXbTJLfBlli1KtUQvk7N+EBWSOO7ZP34FGWrwtCpGyjZQAVikKrWGYUYRwOYVgDjM8pNRyNSp3K57gavb+RYqbGi8SVmRhSRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EiGLg0E6; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1739193250; c=relaxed/simple;
+	bh=dgELg2wiAZA+JF3sDD2KDCqfReF5gcMgG9A4PFTS5z8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BrJ0tWOMXQCe3YgVdvUDcvQbCcOeK8tPDYdOLzbGBne84ZPVoO0FOMc7Gf929CDwEeLtkwnb8B7/yUNnxi1zvX5zQDghDQkw1SnAK667qIG/0YR3HeK4+nEJlLWrsAR+YV40RsWiHxArRTH0taT6DaPdLUSrmWYENq7bX3JmiE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g01tbHpz; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EiGLg0E6"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51A20bYt013946;
-	Mon, 10 Feb 2025 11:47:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g01tbHpz"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51AD7Cqf025053;
+	Mon, 10 Feb 2025 13:14:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0dxywa
-	BHHunzNH3EeTC2fmdSmVvuKR7MS4lcFcrkquQ=; b=EiGLg0E6gKy4RAGjRnT+FK
-	t3hcsP1h8A48lDyULcmwFWVfybDk0A2P72Oer+hTBGWV6y9OLj0ZD53qMSvB5+di
-	8cgbTaEV394F9DoNdeNGiyXts/i22YWVksqC7gx0Jh4MUtjGgjJ3EWlrc5QfUN5P
-	2Rb4SDekwLFO+s/oVuSx5s/aJhV1Pm2siPoTtkY25qRmYz0yGUanzUDFui0mMuoU
-	9tUSaIglOd8OL9WzfwTxTvxXaj0UitDp+kbiNsKpL/Y+5c7Aok6jsvjfPyKpld2k
-	Rg5UxQCrXXbytisJ1jEGpQyA5gJkLg/lcclSpkFFMDKI4y1/JpMsYuISVIXsUyaQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=liKZUk
+	lKnfW7FSG+cP7kmEj5EI0edOcw73zB0BbhOAI=; b=g01tbHpzyd1ruka9vGzG1h
+	r11GUKZA+zME2x87ySz9sqluhuP5a6o1cuLbbEFX34TSVuJ9dwWw3PxWJUau1/YS
+	Qsqs9l2EJskpj6IxzS15iSnDUpIg9oKqa4VrHuWaNHnpxo33xBddlbCaB4qahbme
+	9FUy6HzGKAp8sMisMbuBX4zWPOkOgJe8ur7Tr3dOUT5lMgyMTvfrE5P+y3yL7pl7
+	DaAwvMdfr1BNrYKGBNcsJYhJrGiZ13A2fPFVCZdfbg1I84MI7bn09yeJXQn9ewNA
+	n1wHjW8n/PL1AfY3YRycp7Csz1RJKwqUp83/SdkRbHAVEZzgXpQYPg20jO01PzXA
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44q89yt8uh-1
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44q7h9awrf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Feb 2025 11:47:09 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51ABRkwB028204;
-	Mon, 10 Feb 2025 11:47:09 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44phyy669s-1
+	Mon, 10 Feb 2025 13:14:03 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51ADAckm023201;
+	Mon, 10 Feb 2025 13:14:03 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44q7h9awrb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Feb 2025 11:47:09 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51ABl7PB25821722
+	Mon, 10 Feb 2025 13:14:03 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51A9s5Jc028716;
+	Mon, 10 Feb 2025 13:14:02 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44pma1e1qa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Feb 2025 13:14:02 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51ADE08729557486
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Feb 2025 11:47:08 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A0D5C58061;
-	Mon, 10 Feb 2025 11:47:07 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AD1CD58043;
-	Mon, 10 Feb 2025 11:47:04 +0000 (GMT)
-Received: from [9.171.88.1] (unknown [9.171.88.1])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 10 Feb 2025 11:47:04 +0000 (GMT)
-Message-ID: <8027bc7ce19e512253f7f33d205e2010f3f92fc0.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 4/4] iommu/s390: implement iommu passthrough via
- identity domain
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, gerald.schaefer@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com, farman@linux.ibm.com,
-        clegoate@redhat.com, jgg@nvidia.com, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Date: Mon, 10 Feb 2025 12:47:03 +0100
-In-Reply-To: <20250207205335.473946-5-mjrosato@linux.ibm.com>
-References: <20250207205335.473946-1-mjrosato@linux.ibm.com>
-	 <20250207205335.473946-5-mjrosato@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+	Mon, 10 Feb 2025 13:14:00 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6135058052;
+	Mon, 10 Feb 2025 13:14:00 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 119295805D;
+	Mon, 10 Feb 2025 13:13:58 +0000 (GMT)
+Received: from [9.171.86.231] (unknown [9.171.86.231])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 10 Feb 2025 13:13:57 +0000 (GMT)
+Message-ID: <08cd6e15-3f8c-47a0-8490-103d59abf910@linux.ibm.com>
+Date: Mon, 10 Feb 2025 14:13:57 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
+ pnetid table
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, jaka@linux.ibm.com,
+        alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
+References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+ <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
+ <20250107203218.5787acb4.pasic@linux.ibm.com>
+ <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
+ <20250109040429.350fdd60.pasic@linux.ibm.com>
+ <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
+ <20250114130747.77a56d9a.pasic@linux.ibm.com>
+ <3dc68650-904c-4a1d-adc4-172e771f640c@linux.alibaba.com>
+ <4339aaa1-f2aa-4454-b5b1-6ffb6415f484@linux.alibaba.com>
+Content-Language: en-US
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <4339aaa1-f2aa-4454-b5b1-6ffb6415f484@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dY-Y_w8rTTY5aBWh63ZT9QNqprjsp_4c
-X-Proofpoint-ORIG-GUID: dY-Y_w8rTTY5aBWh63ZT9QNqprjsp_4c
+X-Proofpoint-GUID: 15FTV8EPZQmyyWbTChmRah1YMwx5izSU
+X-Proofpoint-ORIG-GUID: -iSYw6egEIudQfx3bahwkPDXquKxr180
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-10_06,2025-02-10_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 mlxlogscore=999 clxscore=1015 impostorscore=0
- spamscore=0 bulkscore=0 suspectscore=0 adultscore=0 malwarescore=0
- mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502100096
-
-On Fri, 2025-02-07 at 15:53 -0500, Matthew Rosato wrote:
-> Enabled via the kernel command-line 'iommu.passthrough=3D1' option.
->=20
-> Introduce the concept of identity domains to s390-iommu, which relies on
-> the bus_dma_region to offset identity mappings to the start of the DMA
-> aperture advertized by CLP.
->=20
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  drivers/iommu/s390-iommu.c | 95 +++++++++++++++++++++++++++++---------
->  1 file changed, 72 insertions(+), 23 deletions(-)
->=20
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index 007ccfdad495..e1c76e0f9c2b 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -16,7 +16,7 @@
-> =20
->  #include "dma-iommu.h"
-> =20
-> -static const struct iommu_ops s390_iommu_ops;
-> +static const struct iommu_ops s390_iommu_ops, s390_iommu_rtr_ops;
-> =20
->  static struct kmem_cache *dma_region_table_cache;
->  static struct kmem_cache *dma_page_table_cache;
-> @@ -432,9 +432,11 @@ static int blocking_domain_attach_device(struct iomm=
-u_domain *domain,
->  		return 0;
-> =20
->  	s390_domain =3D to_s390_domain(zdev->s390_domain);
-> -	spin_lock_irqsave(&s390_domain->list_lock, flags);
-> -	list_del_rcu(&zdev->iommu_list);
-> -	spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> +	if (zdev->dma_table) {
-> +		spin_lock_irqsave(&s390_domain->list_lock, flags);
-> +		list_del_rcu(&zdev->iommu_list);
-> +		spin_unlock_irqrestore(&s390_domain->list_lock, flags);
-> +	}
-> =20
->  	zpci_unregister_ioat(zdev, 0);
->  	zdev->dma_table =3D NULL;
-> @@ -762,7 +764,13 @@ int zpci_init_iommu(struct zpci_dev *zdev)
->  	if (rc)
->  		goto out_err;
-> =20
-> -	rc =3D iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops, NULL);
-> +	if (zdev->rtr_avail) {
-> +		rc =3D iommu_device_register(&zdev->iommu_dev,
-> +					   &s390_iommu_rtr_ops, NULL);
-> +	} else {
-> +		rc =3D iommu_device_register(&zdev->iommu_dev, &s390_iommu_ops,
-> +					   NULL);
-> +	}
->  	if (rc)
->  		goto out_sysfs;
-> =20
-> @@ -826,6 +834,39 @@ static int __init s390_iommu_init(void)
->  }
->  subsys_initcall(s390_iommu_init);
-> =20
-> +static int s390_attach_dev_identity(struct iommu_domain *domain,
-> +				    struct device *dev)
-> +{
-> +	struct zpci_dev *zdev =3D to_zpci_dev(dev);
-> +	u8 status;
-> +	int cc;
-> +
-> +	blocking_domain_attach_device(&blocking_domain, dev);
-> +
-> +	/* If we fail now DMA remains blocked via blocking domain */
-> +	cc =3D s390_iommu_domain_reg_ioat(zdev, domain, &status);
-> +
-> +	/*
-> +	 * If the device is undergoing error recovery the reset code
-> +	 * will re-establish the new domain.
-> +	 */
-> +	if (cc && status !=3D ZPCI_PCI_ST_FUNC_NOT_AVAIL)
-> +		return -EIO;
-> +
-> +	zdev_s390_domain_update(zdev, domain);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct iommu_domain_ops s390_identity_ops =3D {
-> +	.attach_dev =3D s390_attach_dev_identity,
-> +};
-> +
-> +static struct iommu_domain s390_identity_domain =3D {
-> +	.type =3D IOMMU_DOMAIN_IDENTITY,
-> +	.ops =3D &s390_identity_ops,
-> +};
-> +
->  static struct iommu_domain blocking_domain =3D {
->  	.type =3D IOMMU_DOMAIN_BLOCKED,
->  	.ops =3D &(const struct iommu_domain_ops) {
-> @@ -833,23 +874,31 @@ static struct iommu_domain blocking_domain =3D {
->  	}
->  };
-> =20
-> -static const struct iommu_ops s390_iommu_ops =3D {
-> -	.blocked_domain		=3D &blocking_domain,
-> -	.release_domain		=3D &blocking_domain,
-> -	.capable =3D s390_iommu_capable,
-> -	.domain_alloc_paging =3D s390_domain_alloc_paging,
-> -	.probe_device =3D s390_iommu_probe_device,
-> -	.device_group =3D generic_device_group,
-> -	.pgsize_bitmap =3D SZ_4K,
-> -	.get_resv_regions =3D s390_iommu_get_resv_regions,
-> -	.default_domain_ops =3D &(const struct iommu_domain_ops) {
-> -		.attach_dev	=3D s390_iommu_attach_device,
-> -		.map_pages	=3D s390_iommu_map_pages,
-> -		.unmap_pages	=3D s390_iommu_unmap_pages,
-> -		.flush_iotlb_all =3D s390_iommu_flush_iotlb_all,
-> -		.iotlb_sync      =3D s390_iommu_iotlb_sync,
-> -		.iotlb_sync_map  =3D s390_iommu_iotlb_sync_map,
-> -		.iova_to_phys	=3D s390_iommu_iova_to_phys,
-> -		.free		=3D s390_domain_free,
-> +#define S390_IOMMU_COMMON_OPS() \
-> +	.blocked_domain		=3D &blocking_domain, \
-> +	.release_domain		=3D &blocking_domain, \
-> +	.capable =3D s390_iommu_capable, \
-> +	.domain_alloc_paging =3D s390_domain_alloc_paging, \
-> +	.probe_device =3D s390_iommu_probe_device, \
-> +	.device_group =3D generic_device_group, \
-> +	.pgsize_bitmap =3D SZ_4K, \
-> +	.get_resv_regions =3D s390_iommu_get_resv_regions, \
-> +	.default_domain_ops =3D &(const struct iommu_domain_ops) { \
-> +		.attach_dev	=3D s390_iommu_attach_device, \
-> +		.map_pages	=3D s390_iommu_map_pages, \
-> +		.unmap_pages	=3D s390_iommu_unmap_pages, \
-> +		.flush_iotlb_all =3D s390_iommu_flush_iotlb_all, \
-> +		.iotlb_sync      =3D s390_iommu_iotlb_sync, \
-> +		.iotlb_sync_map  =3D s390_iommu_iotlb_sync_map, \
-> +		.iova_to_phys	=3D s390_iommu_iova_to_phys, \
-> +		.free		=3D s390_domain_free, \
->  	}
-> +
-> +static const struct iommu_ops s390_iommu_ops =3D {
-> +	S390_IOMMU_COMMON_OPS()
-> +};
-> +
-> +static const struct iommu_ops s390_iommu_rtr_ops =3D {
-> +	.identity_domain	=3D &s390_identity_domain,
-> +	S390_IOMMU_COMMON_OPS()
->  };
-
-Looks good to me here and worked well in my tests too. Thank you!
-
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+ definitions=2025-02-10_07,2025-02-10_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ priorityscore=1501 lowpriorityscore=0 bulkscore=0 phishscore=0 mlxscore=0
+ mlxlogscore=999 clxscore=1015 malwarescore=0 impostorscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
+ definitions=main-2502100109
 
 
 
+On 10.02.25 12:16, Guangguan Wang wrote:
+> 
+> 
+> On 2025/1/15 19:53, Guangguan Wang wrote:
+>>
+>>
+>> On 2025/1/14 20:07, Halil Pasic wrote:
+>>> On Fri, 10 Jan 2025 13:43:44 +0800
+>>> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+>>>
+>>>>> I think I showed a valid and practical setup that would break with your
+>>>>> patch as is. Do you agree with that statement?
+>>>> Did you mean
+>>>> "
+>>>> Now for something like a bond of two OSA
+>>>> interfaces, I would expect the two legs of the bond to probably have a
+>>>> "HW PNETID", but the netdev representing the bond itself won't have one
+>>>> unless the Linux admin defines a software PNETID, which is work, and
+>>>> can't have a HW PNETID because it is a software construct within Linux.
+>>>> Breaking for example an active-backup bond setup where the legs have
+>>>> HW PNETIDs and the admin did not bother to specify a PNETID for the bond
+>>>> is not acceptable.
+>>>> " ?
+>>>> If the legs have HW pnetids, add pnetid to bond netdev will fail as
+>>>> smc_pnet_add_eth will check whether the base_ndev already have HW pnetid.
+>>>>
+>>>> If the legs without HW pnetids, and admin add pnetids to legs through smc_pnet.
+>>>> Yes, my patch will break the setup. What Paolo suggests(both checking ndev and
+>>>> base_ndev, and replace || by && )can help compatible with the setup.
+>>>
+>>> I'm glad we agree on that part. Things are much more acceptable if we
+>>> are doing both base and ndev.
+>> It is also acceptable for me.
+>>
+>>> Nevertheless I would like to understand
+>>> your problem better, and talk about it to my team. I will also ask some
+>>> questions in another email.
+>> Questions are welcome.
+>>
+>>>
+>>> That said having things work differently if there is a HW PNETID on
+>>> the base, and different if there is none is IMHO wonky and again
+>>> asymmetric.
+>>>
+>>> Imagine the following you have your nice little setup with a PNETID on
+>>> a non-leaf and a base_ndev that has no PNETID. Then your HW admin
+>>> configures a PNETID to your base_ndev, a different one. Suddenly
+>>> your ndev PNETID is ignored for reasons not obvious to you. Yes it is
+>>> similar to having a software PNETID on the base_ndev and getting it
+>>> overruled by a HW PNETID, but much less obvious IMHO. I am wondering if there are any scenarios that require setting different
+>> pnetids for different net devices in one netdev hierarchy. If no, maybe
+>> we should limit that only one pnetid can be set to one netdev hierarchy.
+>>
+>>> I also think
+>>> a software PNETID of the base should probably take precedence over over
+>>> the software pnetid of ndev.
+>> Agree!
+>>
+>> Thanks,
+>> Guangguan Wang
+>>>
+>>> Regards,
+>>> Halil
+> 
+> Hi Halil,
+> 
+> Are there any questions or further discussions about this patch? If no, I will
+> send a v2 patch, in which software pnetid will be searched in both base_ndev and ndev,
+> and base_ndev will take precedence over ndev.
+> 
+> Thanks,
+> Guangguan Wang
+> 
+> 
+
+Hi Guangguan,
+
+Thank you for the detailed description and examples; I understand your 
+situation better now. Paolo's suggestions (checking both ndev and 
+base_ndev, and replacing || with &&) could indeed serve as a workaround 
+for certain setups like yours. However, they might also introduce 
+invalid topologies, one example is what Halil mentioned.
+
+Therefore, neither suggestion is fully acceptable, whether from you or 
+from Paolo. I agree that we should restrict it so that only one pnetid 
+can be assigned to a single netdev hierarchy, based on the base ndev.
+
+One preliminary idea I have is to enhance the smc_pnet -a -I <ethx> 
+<pnetid> command to analyze the entire hierarchy first, ensuring that 
+only one pnetid is assigned per netdev hierarchy.
+
+Thanks,
+Wenjia
 
