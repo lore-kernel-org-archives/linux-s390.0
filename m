@@ -1,45 +1,42 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6702580D5;
-	Mon, 10 Feb 2025 16:32:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id CD4AB24FC17;
+	Mon, 10 Feb 2025 18:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739205168; cv=none; b=Dm0n/9/yEqgcLRXZnwGB/mW0VS6u8TnlXtL+fz86bTZtJSX24CRknfiGtvgipOmwy5aMo5AhyaoGUKJ4JjWt1x7M/3NNO8/CcxlaZAs4q4nNYNvHPnCk0/qmG5PW3vlBPv9S6qF7csqGWtrdhOvIEuBQA2OM1lY1V+Ocozp5dpw=
+	t=1739210679; cv=none; b=rX6pmaNkZg672zVEM4Bg80Ic7H7HidlrF26UcUcqjHAHWkdFqXvhiViWQALInPqWLRGmx9j/ghTmIqU6CRw68/upMR/2gmGtulpQUZwXItCcnHBxEJVPsVuYXBbVtukWE6NEPH3Ed6NKSvXFfrwyG9rEqooDfCSYiFUiubcg8E0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739205168; c=relaxed/simple;
-	bh=R1G23Mx8i1twwIigIePIEmfwkGFvwlDiNAkiyuJkmLY=;
+	s=arc-20240116; t=1739210679; c=relaxed/simple;
+	bh=ksvS5XX7xX64IlxGvydgg2Jy1f9U1hAJdVFTbzlcyK0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UeiQe4V9E/NjoeB/XEAg2ZbxeJ6Wz6LYs5LJMmJkRY8nB4ASou8RBfI1Szk6TsbcIGER1tuaKflzUGhLKHT1WRLK0RRdj3S1YEu/n4qxCSv05GAw311zIdDRj2fF6P0KHCcqaDi9v16XofPv8Jlgghs43DC7X05Z+dKABeh9oBs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q/EqEeNN; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q/EqEeNN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A2EC4CED1;
-	Mon, 10 Feb 2025 16:32:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739205168;
-	bh=R1G23Mx8i1twwIigIePIEmfwkGFvwlDiNAkiyuJkmLY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Q/EqEeNNlYDBNgUtrreA4N7eFtEViO4s5JyujVS6Vsa/HhVWyb0p5snoSolIej2IQ
-	 cWny55B+81HFGLghyGl78fQkb7beTqr6jpT7O4Y2AykaKamjp4Qw2HYaWQwSGtvVul
-	 LdilVhlcUzTzBI6TL/Utf2as/F3VyTRk472nyn1jLlH6RvfUDmN75yFgn4UGUQP4aj
-	 lHD2Q2Bh98I5i2wdS+jU71cj5mpTrlPsDtUohl0tdBP+obQHeXCJ1TCrcdfuWivHkl
-	 d+F0oyPJ7BmBfeeLRsoX9Syp5pvDg0wOKHVaTou40eBdho1z2allcGsbxPIqcpWxKe
-	 WEEAz1zMnfPBA==
-Date: Mon, 10 Feb 2025 08:32:46 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, davem@davemloft.net,
-	dengler@linux.ibm.com, linux-s390@vger.kernel.org,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key
- hash phmac
-Message-ID: <20250210163246.GD1264@sol.localdomain>
-References: <20250115162231.83516-1-freude@linux.ibm.com>
- <20250115162231.83516-3-freude@linux.ibm.com>
- <Z6hrvQzb5G_wqlni@gondor.apana.org.au>
- <20250209163430.GB1230@sol.localdomain>
- <Z6mxZ8lfO6zzD7x0@gondor.apana.org.au>
+	 Content-Type:Content-Disposition:In-Reply-To; b=NFBUc/pzE+i/tALVvNI+EQWbVJZFQlFJ/BsniIBTCzX83LYy8xDpAWBWFXAOmwFLIvyKMR9SG2Pb7Xop0IQXHXQUGaWkS1gma9PXg8Mmi8VY6acyY3wqGBtdeysiClbfYWUGzLBA+ZunisjCpHHG7yUmPRhZjQcXn71jCCSIOuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D671B1477;
+	Mon, 10 Feb 2025 10:04:58 -0800 (PST)
+Received: from arm.com (e134078.arm.com [10.1.26.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 58DAB3F58B;
+	Mon, 10 Feb 2025 10:04:32 -0800 (PST)
+Date: Mon, 10 Feb 2025 18:04:29 +0000
+From: Alexandru Elisei <alexandru.elisei@arm.com>
+To: Andrew Jones <andrew.jones@linux.dev>
+Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
+	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
+	david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org,
+	oliver.upton@linux.dev, suzuki.poulose@arm.com,
+	yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com
+Subject: Re: [kvm-unit-tests PATCH v2 03/18] scripts: Refuse to run the tests
+ if not configured for qemu
+Message-ID: <Z6o/rbweZttGReir@arm.com>
+References: <20250120164316.31473-1-alexandru.elisei@arm.com>
+ <20250120164316.31473-4-alexandru.elisei@arm.com>
+ <20250121-45faf6a9a9681c7c9ece5f44@orel>
+ <Z6nX8YC8ZX9jFiLb@arm.com>
+ <20250210-640ff37c16a0dbccb69f08ea@orel>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,26 +45,89 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Z6mxZ8lfO6zzD7x0@gondor.apana.org.au>
+In-Reply-To: <20250210-640ff37c16a0dbccb69f08ea@orel>
 
-On Mon, Feb 10, 2025 at 03:57:27PM +0800, Herbert Xu wrote:
-> On Sun, Feb 09, 2025 at 08:34:30AM -0800, Eric Biggers wrote:
-> >
-> > Or just make it synchronous which would be way easier, and the calling code uses
-> > it synchronously anyway.
-> 
-> Note that synchronous in general does not make the problem go away.
-> The important thing here is to give congestion feedback in the form
-> of EBUSY which tells the user to stop generating more data until a
-> callback is made.
-> 
-> While synchronous can be a form of congestion control by requiring
-> an extra thread for each waiting request, it doesn't really give
-> that feedback to the upper level.
-> 
+Hi Drew,
 
-Which is of course entirely theoretical, given that the proposed user waits
-synchronously for each request to complete anyway.  And hardly anyone wants to
-do otherwise since it is way too much of a pain.
+On Mon, Feb 10, 2025 at 02:56:25PM +0100, Andrew Jones wrote:
+> On Mon, Feb 10, 2025 at 10:41:53AM +0000, Alexandru Elisei wrote:
+> > Hi Drew,
+> > 
+> > On Tue, Jan 21, 2025 at 03:48:55PM +0100, Andrew Jones wrote:
+> > > On Mon, Jan 20, 2025 at 04:43:01PM +0000, Alexandru Elisei wrote:
+> > <snip>
+> > > > ---
+> > > >  arm/efi/run             | 8 ++++++++
+> > > >  arm/run                 | 9 +++++++++
+> > > >  run_tests.sh            | 8 ++++++++
+> > > >  scripts/mkstandalone.sh | 8 ++++++++
+> > > >  4 files changed, 33 insertions(+)
+> > <snip>
+> > > > +case "$TARGET" in
+> > > > +qemu)
+> > > > +    ;;
+> > > > +*)
+> > > > +    echo "'$TARGET' not supported for standlone tests"
+> > > > +    exit 2
+> > > > +esac
+> > > 
+> > > I think we could put the check in a function in scripts/arch-run.bash and
+> > > just use the same error message for all cases.
+> > 
+> > Coming back to the series.
+> > 
+> > arm/efi/run and arm/run source scripts/arch-run.bash; run_tests.sh and
+> > scripts/mkstandalone.sh don't source scripts/arch-run.bash. There doesn't
+> > seem to be a common file that is sourced by all of them.
+> 
+> scripts/mkstandalone.sh uses arch-run.bash, see generate_test().
 
-- Eric
+Are you referring to this bit:
+
+generate_test ()
+{
+	<snip>
+        (echo "#!/usr/bin/env bash"
+         cat scripts/arch-run.bash "$TEST_DIR/run")
+
+I think scripts/arch-run.bash would need to be sourced for any functions defined
+there to be usable in mkstandalone.sh.
+
+What I was thinking is something like this:
+
+if ! vmm_supported $TARGET; then
+	echo "$0 does not support '$TARGET'"
+	exit 2
+fi
+
+Were you thinking of something else?
+
+I think mkstandalone should error at the top level (when you do make
+standalone), and not rely on the individual scripts to error if the VMM is
+not supported. That's because I think creating the test files, booting a
+machine and copying the files only to find out that kvm-unit-tests was
+misconfigured is a pretty suboptimal experience.
+
+> run_tests.sh doesn't, but I'm not sure it needs to validate TARGET
+> since it can leave that to the lower-level scripts.
+
+I put the check in arm/run, and removed it from run_tests.sh, and this is
+what I got:
+
+$ ./run_tests.sh selftest-setup
+SKIP selftest-setup (./arm/run does not supported 'kvmtool')
+
+which looks good to me.
+
+> 
+> > 
+> > How about creating a new file in scripts (vmm.bash?) with only this
+> > function?
+> 
+> If we need a new file, then we can add one, but I'd try using
+> arch-run.bash or common.bash first.
+
+common.bash seems to work (and the name fits), so I'll give that a go.
+
+Thanks,
+Alex
