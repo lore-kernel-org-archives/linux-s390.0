@@ -1,135 +1,134 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B14A31FBCA1;
-	Tue, 11 Feb 2025 12:09:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from vmicros1.altlinux.org (vmicros1.altlinux.org [194.107.17.57])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6845A524F;
+	Tue, 11 Feb 2025 13:02:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.107.17.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739275762; cv=none; b=mFXFYD0DBUGkMPxJWIY4QbKzYJZ4+8ix7qZXqbCuM3rxEJdWz39NrUiL/sLDvFYM6iva8z596Uv/Iz0kelRcm8rvHp4wO8TZTDWcBO9RqR0bnLuXRKHb8VKJ0QRFgykTOdsDcvRf0bzWovCzawWFoRTmb5gL3w3ZpCP8D5DZx/I=
+	t=1739278946; cv=none; b=M1MHakSm+mLyx6cXa5kBvd0GdgwySN1kmrTjFBzLrNCsDXQMRu1LuygRnIfkV2dPQAYL1EV1p7fmn5NlVNtaJmSzYIu3AmV2SWN/yR9bpPl5xyZwwAqgNUunc0yvqYZ8W2xD2ItZTBGXYKEtmgjBHowqmPbqAU9RNB6cKDzzPFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739275762; c=relaxed/simple;
-	bh=97jrskvhlAXgZqsK+kGEXoVzNhFqmpE13NGubMutl0Y=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=FMv02LEh+lbemaZeab1dSH/Dz4TYfWhDHzMFCtmbwtinuJBo1kzsOZSuutlw8h9eqhhyuGFHk5SgtBsWf42l8U4Dxb/1Vhox/5Yaw5xcrytE022Qc3rsAgrWA6pv7NhXz5Oq5yeOl93p/cn9kRP29pVNi1WZI5IlgdbbeFpJGww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RJPOwar6; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RJPOwar6"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51B7X3Vn015490;
-	Tue, 11 Feb 2025 12:09:15 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=ccsXllvEBKuTE+D4Q/u6d4MvUjvSi5fxXuGxl/E063Y=; b=RJPOwar6uQI9
-	UTL3gXZpciZDDHWHw/CieV90v+EKJQFJyhVAeC58NbJbRLwETvZ9XKJvnC8SiWEQ
-	zuBQjDcPWl8jFvaEJCnA1zPD/BUrrSQuqWWxe7CvwiM9Fv6lx+5YwIXxQkYNdvj1
-	nDrTGzA+8TDeN+Cws1fsuJ/FOPxzu+fqlpyaORY2EjulTfgfxs3TLMiNzjdx+dll
-	bcEDL5VhGUd0ktWOOJi4FJF9yYha9dNcrGfikf1NQh3C/ns+Wi3PZWWeP3OKATrr
-	B+8sJgEAXIZKVizCC4NJo6x/4aNDTHmvgbwChS7ISQv6mAWmHF5ew56FJm2cdhAl
-	MktTIdAwmw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44r28ps54h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Feb 2025 12:09:14 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51BBkuZR006250;
-	Tue, 11 Feb 2025 12:09:14 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44r28ps54f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Feb 2025 12:09:14 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51B8KD94021894;
-	Tue, 11 Feb 2025 12:09:13 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44phkskb6g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Feb 2025 12:09:13 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51BC9C3N25821886
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Feb 2025 12:09:13 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D8E305805E;
-	Tue, 11 Feb 2025 12:09:12 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 612AE58045;
-	Tue, 11 Feb 2025 12:09:12 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Feb 2025 12:09:12 +0000 (GMT)
+	s=arc-20240116; t=1739278946; c=relaxed/simple;
+	bh=UIT3nL8T6WZ83CAtmo+44fcUifKFuxa829u+1ScYy5I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZKJ9y6Lwi7yF9bKStg5nKtKpR+2hPdhqCdlZ07SBT3jTZZAHFrQBWgANLrAAMxuq4Im799vijBC/zuqXBUGhoSl2LgkSVufGn0IvyOnbVKi3bZGPObb8BWGZQvgDfZhxvkAR3xQCRiwut7Ez/Ov8H78wzwCSpeEv3S6wlN5LhE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=194.107.17.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strace.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
+Received: from mua.local.altlinux.org (mua.local.altlinux.org [192.168.1.14])
+	by vmicros1.altlinux.org (Postfix) with ESMTP id 45B7572C8CC;
+	Tue, 11 Feb 2025 16:02:17 +0300 (MSK)
+Received: by mua.local.altlinux.org (Postfix, from userid 508)
+	id 1F4537CCB3A; Tue, 11 Feb 2025 15:02:17 +0200 (IST)
+Date: Tue, 11 Feb 2025 15:02:17 +0200
+From: "Dmitry V. Levin" <ldv@strace.io>
+To: Sven Schnelle <svens@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Oleg Nesterov <oleg@redhat.com>, Shuah Khan <shuah@kernel.org>,
+	Alexey Gladkov <legion@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Mike Frysinger <vapier@gentoo.org>,
+	Renzo Davoli <renzo@cs.unibo.it>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	strace-devel@lists.strace.io, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 0/7] ptrace: introduce PTRACE_SET_SYSCALL_INFO API
+Message-ID: <20250211130216.GA13417@strace.io>
+References: <20250204151420.GA30282@strace.io>
+ <yt9d8qqkyd43.fsf@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 11 Feb 2025 13:09:12 +0100
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: ebiggers@google.com
-Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-        davem@davemloft.net, dengler@linux.ibm.com,
-        herbert@gondor.apana.org.au
-Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key hash
- phmac
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20250115162231.83516-3-freude@linux.ibm.com>
-References: <20250115162231.83516-1-freude@linux.ibm.com>
- <20250115162231.83516-3-freude@linux.ibm.com>
-Message-ID: <265b5abbf32fcb6748abad7d0ec360cc@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: C0SWG3XnLjOOKPqLicsAjG0L2MUzOc_h
-X-Proofpoint-GUID: eajUi9FSaQ9LqZDSBSEyFzFCnms2-X_1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-11_05,2025-02-11_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- suspectscore=0 impostorscore=0 mlxlogscore=594 lowpriorityscore=0
- clxscore=1015 phishscore=0 priorityscore=1501 malwarescore=0 spamscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502110077
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yt9d8qqkyd43.fsf@linux.ibm.com>
 
-On 2025-01-15 17:22, Harald Freudenberger wrote:
-> Add support for protected key hmac ("phmac") for s390 arch.
+On Wed, Feb 05, 2025 at 10:06:36AM +0100, Sven Schnelle wrote:
+> "Dmitry V. Levin" <ldv@strace.io> writes:
+> > On Mon, Feb 03, 2025 at 12:35:42PM +0200, Dmitry V. Levin wrote:
+> >> On Mon, Feb 03, 2025 at 10:29:37AM +0100, Alexander Gordeev wrote:
+> >> > On Mon, Feb 03, 2025 at 08:58:49AM +0200, Dmitry V. Levin wrote:
+> >> > 
+> >> > Hi Dmitry,
+> >> > 
+> >> > > PTRACE_SET_SYSCALL_INFO is a generic ptrace API that complements
+> >> > > PTRACE_GET_SYSCALL_INFO by letting the ptracer modify details of
+> >> > > system calls the tracee is blocked in.
+> >> > ...
+> >> > 
+> >> > FWIW, I am getting these on s390:
+> >> > 
+> >> > # ./tools/testing/selftests/ptrace/set_syscall_info 
+> >> > TAP version 13
+> >> > 1..1
+> >> > # Starting 1 tests from 1 test cases.
+> >> > #  RUN           global.set_syscall_info ...
+> >> > # set_syscall_info.c:87:set_syscall_info:Expected exp_entry->nr (-1) == info->entry.nr (65535)
+> >> > # set_syscall_info.c:88:set_syscall_info:wait #3: PTRACE_GET_SYSCALL_INFO #2: syscall nr mismatch
+> >> > # set_syscall_info: Test terminated by assertion
+> >> > #          FAIL  global.set_syscall_info
+> >> > not ok 1 global.set_syscall_info
+> >> > # FAILED: 0 / 1 tests passed.
+> >> > # Totals: pass:0 fail:1 xfail:0 xpass:0 skip:0 error:0
+> >> > 
+> >> > I remember one of the earlier versions (v1 or v2) was working for me.
+> >> > 
+> >> > Thanks!
+> >> 
+> >> In v3, this test was extended to check whether PTRACE_GET_SYSCALL_INFO
+> >> called immediately after PTRACE_SET_SYSCALL_INFO returns the same syscall
+> >> number, and on s390 it apparently doesn't, thanks to its implementation
+> >> of syscall_get_nr() that returns 0xffff in this case.
+> >> 
+> >> To workaround this, we could either change syscall_get_nr() to return -1
+> >> in this case, or add an #ifdef __s390x__ exception to the test.
+> >> 
+> >> What would you prefer?
+> >
+> > OK, I'm going to apply the following s390 workaround to the test:
+> >
+> > diff --git a/tools/testing/selftests/ptrace/set_syscall_info.c b/tools/testing/selftests/ptrace/set_syscall_info.c
+> > index 0ec69401c008..4198248ef874 100644
+> > --- a/tools/testing/selftests/ptrace/set_syscall_info.c
+> > +++ b/tools/testing/selftests/ptrace/set_syscall_info.c
+> > @@ -71,6 +71,11 @@ check_psi_entry(struct __test_metadata *_metadata,
+> >  		const char *text)
+> >  {
+> >  	unsigned int i;
+> > +	int exp_nr = exp_entry->nr;
+> > +#if defined __s390__ || defined __s390x__
+> > +	/* s390 is the only architecture that has 16-bit syscall numbers */
+> > +	exp_nr &= 0xffff;
+> > +#endif
+> >  
+> >  	ASSERT_EQ(PTRACE_SYSCALL_INFO_ENTRY, info->op) {
+> >  		LOG_KILL_TRACEE("%s: entry stop mismatch", text);
+> > @@ -84,7 +89,7 @@ check_psi_entry(struct __test_metadata *_metadata,
+> >  	ASSERT_TRUE(info->stack_pointer) {
+> >  		LOG_KILL_TRACEE("%s: entry stop mismatch", text);
+> >  	}
+> > -	ASSERT_EQ(exp_entry->nr, info->entry.nr) {
+> > +	ASSERT_EQ(exp_nr, info->entry.nr) {
+> >  		LOG_KILL_TRACEE("%s: syscall nr mismatch", text);
+> >  	}
+> >  	for (i = 0; i < ARRAY_SIZE(exp_entry->args); ++i) {
 > 
-> With the latest machine generation there is now support for
-> protected key (that is a key wrapped by a master key stored
-> in firmware) hmac for sha2 (sha224, sha256, sha384 and sha512)
-> for the s390 specific CPACF instruction kmac.
+> Fine with me. As you already noted only 16 bit of the syscall number is
+> stored in pt_regs::int_code. A quick hack would be possible to do sign
+> extensions, so -1 would work. But i think this would be odd, because
+> positive numbers would still be limited.
 > 
-> This patch adds support via 4 new ahashes registered as
-> phmac(sha224), phmac(sha256), phmac(sha384) and phmac(sha512).
-> 
-> Co-developed-by: Holger Dengler <dengler@linux.ibm.com>
-> Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
+> So i think the patch you proposed is fine.
 
-...
+Thanks, I've applied this workaround in v5:
+https://lore.kernel.org/all/20250210113336.GA887@strace.io/
 
-> +
-> +	  Select this option if you want to use the phmac digests
-> +	  for example to use dm-integrity with secure/protected keys.
-> +
->  config S390_PRNG
->  	tristate "Pseudo random number generator device driver"
->  	depends on S390
+Please consider adding your Reviewed-by.
 
-Hello Eric
 
-with your commit
-   7fa481734016 crypto: ahash - make hash walk functions private to 
-ahash.c
-you move the crypto_hash_walk_* functions to private context into 
-ahash.c.
-So for example my new phmac does not compile any more.
-What is the replacement for these functions then? Should I really do
-the scatter walk by my own now or is there a set of new functions to 
-come?
+-- 
+ldv
