@@ -1,194 +1,125 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E87826BD9A;
-	Tue, 11 Feb 2025 03:44:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F31C1EE006;
+	Tue, 11 Feb 2025 07:58:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739245490; cv=none; b=QyGEYBStcNuhzHPK5WF/NMjU05Hb8SFM30hdPBq6kheMWcZiIbi+JzgounOTJoQJAFNXAGkSmWT011azLEoosfGwTxks55xr04SFJA5naHCkx2kIckFdpOjKR6omW1dUM5wCGf3otCC/D3xdLtjGhTVXgTAabbxc7wOhNurQ5Vs=
+	t=1739260725; cv=none; b=VaAlwnC+EN7Ng31o/72HwiKirm3shPFF3XTuVZ/JsPQwpkJZnT/L9/HHu1ybgUlokEXD1Cp2Fm5ePcADH2iHYGZ+qKh9JERb/MClonBqMxZeXPSNmG5m4JPrWbKb9EeG/jaaUuAwJFYdFHUFeYV3tPpyOgw2kjDMMQPD0QDBqIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739245490; c=relaxed/simple;
-	bh=cbZeyB2v5CBXKmD5Rwhbq7GfwJEO4Dq3/ysp8Gv1D+k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ABYWy5gZ1yEQOSGV2vxvAfTORCAzyZqaQ/UruqhopVFDXCBVGydGVZpWYQCScGP95hKwlr5hTWXxi9Ig08XL43gneHuqvL/fbZDsz8PZSXyXm9Z4vL4mHe5wf39uikHMT2usqPUbiOla+FTvHqn1qtzfyhw9L1CXHpnPCuUMv8E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UpgJHSV7; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1739260725; c=relaxed/simple;
+	bh=MfEtWbLPgXZpUzRVrDPwsHWz/9YeYn+wWSSA9lyf3bI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GPBN5T+DuuRvouTU+B25BGcCRtybv2RdJrDkGcFna3ZeSGejHzPu2ls5PLUBDXavWhMPF4YkRHL9dI7HjVn+fblUdzi4KJOQ+6iYyTkP8cY24hB0oMWFQtJG67gnLGVCb3MCJ2pgZqCYq9HqVCusjh43Tr+1corV2E606f6rdM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nqMsmtvg; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UpgJHSV7"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1739245475; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=vms42idQU2sl94ZqBjF5MJvW0dhT/Zg7Gq/ZK3nF0vk=;
-	b=UpgJHSV7gnVmMwkQZh/jbV12dCPzwx6IDespgfvE8Fi1YL+vK78A99ANBH9O8hYeqgmGEgzStXQWHcr+3SgLtNNQiLebpgQGvSOYM28SgMfBOXaCm9r64XIl53b+yeXYVsDV8lKOOarT0BHnoYOrBp4pEeJewrGrsiOhnX0mVtg=
-Received: from 30.221.99.7(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WPFLNSe_1739245472 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 11 Feb 2025 11:44:33 +0800
-Message-ID: <4eb38707-1a93-4c5c-aa65-14adfd595d14@linux.alibaba.com>
-Date: Tue, 11 Feb 2025 11:44:32 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nqMsmtvg"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51B1go7G005901;
+	Tue, 11 Feb 2025 07:58:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=WlxeSK
+	+CAkCyLAKyw0C9HbWTW9TRohs2UDyT8UneP/8=; b=nqMsmtvgA6XO9pvNt4HSjv
+	ugyIlux65V1i3HWg7l9s8hWyLWqkK4O7bwzAFbmP5oFHgHLV3IgC/qHq6FXdym/U
+	Rh2TqdtLA8t/53dmVmXqZceQupP2pqduaRPUnNzk0eiaz00cCQbNU7ue61hkzVsW
+	QKta95IW5cgInyy5CJZCT2ZVa4Y4jGewEfCOp2z+LzEkCl5eKwhZQQJY+dXs92Sf
+	26R/FfZ0jJ5kMJYimG1rojaUtrWA3wcCGvBG5XoDSeMZxSMag5SY1nnmnLaIgD1i
+	Z6b27mOiRVNyQEB3Wm8KqjWiowQiLgwutA+AHWwB+AiSHvrEDR/8A/QuhNlqB8vA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44qvma1bdq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Feb 2025 07:58:40 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51B4Yn7D000924;
+	Tue, 11 Feb 2025 07:58:39 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44pjkn29rd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Feb 2025 07:58:39 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51B7wZBq33358334
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 11 Feb 2025 07:58:35 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D95920043;
+	Tue, 11 Feb 2025 07:58:35 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A243820040;
+	Tue, 11 Feb 2025 07:58:34 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.13.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 11 Feb 2025 07:58:34 +0000 (GMT)
+Date: Tue, 11 Feb 2025 08:58:33 +0100
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Rorie Reyes <rreyes@linux.ibm.com>
+Cc: Anthony Krowiak <akrowiak@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, borntraeger@de.ibm.com, pasic@linux.ibm.com,
+        jjherne@linux.ibm.com, alex.williamson@redhat.com
+Subject: Re: [PATCH v1] s390/vfio-ap: Signal eventfd when guest AP
+ configuration is changed
+Message-ID: <Z6sDKeA6WzAgagiZ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250107183645.90082-1-rreyes@linux.ibm.com>
+ <Z4U6iu5JidJUxDgX@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <f69bba4b-a97e-4166-9ce1-c8a2ad634696@linux.ibm.com>
+ <f1af50b3-f966-445d-ab89-3d213f55b93a@linux.ibm.com>
+ <Z6RnfwawWop0v1CW@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+ <02675184-0ce5-4f08-9d5d-f42987b77b5b@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
- pnetid table
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
- jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
- linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
-References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
- <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
- <20250107203218.5787acb4.pasic@linux.ibm.com>
- <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
- <20250109040429.350fdd60.pasic@linux.ibm.com>
- <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
- <20250210145255.793e6639.pasic@linux.ibm.com>
-Content-Language: en-US
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-In-Reply-To: <20250210145255.793e6639.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <02675184-0ce5-4f08-9d5d-f42987b77b5b@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: SEkIxNSiV1jJ20CL6-C0sYFI2LnPE0Ur
+X-Proofpoint-ORIG-GUID: SEkIxNSiV1jJ20CL6-C0sYFI2LnPE0Ur
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-11_03,2025-02-10_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ clxscore=1015 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ adultscore=0 mlxlogscore=999 spamscore=0 suspectscore=0 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502110044
 
+On Thu, Feb 06, 2025 at 09:12:27AM -0500, Rorie Reyes wrote:
 
+Hi Rorie,
 
-On 2025/2/10 21:52, Halil Pasic wrote:
-> On Fri, 10 Jan 2025 13:43:44 +0800
-> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+> On 2/6/25 2:40 AM, Alexander Gordeev wrote:
+> > On Wed, Feb 05, 2025 at 12:47:55PM -0500, Anthony Krowiak wrote:
+> > > > > How this patch is synchronized with the mentioned QEMU series?
+> > > > > What is the series status, especially with the comment from C�dric
+> > > > > Le Goater [1]?
+> > > > > 
+> > > > > 1. https://lore.kernel.org/all/20250107184354.91079-1-rreyes@linux.ibm.com/T/#mb0d37909c5f69bdff96289094ac0bad0922a7cce
+...
+> > > I don't think that is what Alex was asking. I believe he is asking how the
+> > > QEMU and kernel patch series are going to be synchronized.
+> > > Given the kernel series changes a value in vfio.h which is used by QEMU, the
+> > > two series need to be coordinated since the vfio.h file
+> > > used by QEMU can not be updated until the kernel code is available. So these
+> > > two sets of code have
+> > > to be merged upstream during a merge window. which is different for the
+> > > kernel and QEMU. At least I think that is what Alex is asking.
+> > Correct.
+> > Thanks for the clarification, Anthony!
 > 
->> We want to use SMC in container on cloud environment, and encounter problem
->> when using smc_pnet with commit 890a2cb4a966. In container, there have choices
->> of different container network, such as directly using host network, virtual
->> network IPVLAN, veth, etc. Different choices of container network have different
->> netdev hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1 in host
->> below is the netdev directly related to the physical device).
->>  _______________________________      ________________________________   
->> |   _________________           |     |   _________________           |  
->> |  |POD              |          |     |  |POD  __________  |          |  
->> |  |                 |          |     |  |    |upper_ndev| |          |  
->> |  | eth0_________   |          |     |  |eth0|__________| |          |  
->> |  |____|         |__|          |     |  |_______|_________|          |  
->> |       |         |             |     |          |lower netdev        |  
->> |       |         |             |     |        __|______              |  
->> |   eth1|base_ndev| eth0_______ |     |   eth1|         | eth0_______ |  
->> |       |         |    | RDMA  ||     |       |base_ndev|    | RDMA  ||  
->> | host  |_________|    |_______||     | host  |_________|    |_______||  
->> ———————————————————————————————-      ———————————————————————————————-    
->>  netdev hierarchy if directly          netdev hierarchy if using IPVLAN    
->>    using host network
->>  _______________________________
->> |   _____________________       |
->> |  |POD        _________ |      |
->> |  |          |base_ndev||      |
->> |  |eth0(veth)|_________||      |
->> |  |____________|________|      |
->> |               |pairs          |
->> |        _______|_              |
->> |       |         | eth0_______ |
->> |   veth|base_ndev|    | RDMA  ||
->> |       |_________|    |_______||
->> |        _________              |
->> |   eth1|base_ndev|             |
->> | host  |_________|             |
->>  ———————————————————————————————
->>   netdev hierarchy if using veth
->>
->> Due to some reasons, the eth1 in host is not RDMA attached netdevice, pnetid
->> is needed to map the eth1(in host) with RDMA device so that POD can do SMC-R.
->> Because the eth1(in host) is managed by CNI plugin(such as Terway, network
->> management plugin in container environment), and in cloud environment the
->> eth(in host) can dynamically be inserted by CNI when POD create and dynamically
->> be removed by CNI when POD destroy and no POD related to the eth(in host)
->> anymore.
+> Tony, thank you for the back up!
 > 
-> I'm pretty clueless when it comes to the details of CNI but I think
-> I'm barely able to follow. Nevertheless if you have the feeling that
-> my extrapolations are wrong, please do point it out.
-> 
->> It is hard for us to config the pnetid to the eth1(in host). So we
->> config the pnetid to the netdevice which can be seen in POD.
-> 
-> Hm, this sounds like you could set PNETID on eth1 (in host) for each of
-> the cases and everything would be cool (and would work), but because CNI
-> and the environment do not support it, or supports it in a very
-> inconvenient way, you are looking for a workaround where PNETID is set
-> in the POD. Is that right? Or did I get something wrong?
+> Alexander, is there anything else you need from my end for clarification?
 
-Right.
+The original question still stays - is it safe to pull this patch now,
+before the corresponding QEMU change is integrated?
 
-> 
->> When do SMC-R, both
->> the container directly using host network and the container using veth network
->> can successfully match the RDMA device, because the configured pnetid netdev is a
->> base_ndev. But the container using IPVLAN can not successfully match the RDMA
->> device and 0x03030000 fallback happens, because the configured pnetid netdev is
->> not a base_ndev. Additionally, if config pnetid to the eth1(in host) also can not
->> work for matching RDMA device when using veth network and doing SMC-R in POD.
-> 
-> That I guess answers my question from the first paragraph. Setting
-> PNETID on eth1 (host) would not be sufficient for veth. Right?
-
-Right. It is also one of the reasons for setting PNETID in POD.
-
-> 
-> Another silly question: is making the PNETID basically a part of the Pod
-> definition shifting PNETID from the realm of infrastructure (i.e.
-> configured by the cloud provider) to the ream of an application (i.e.
-> configured by the tenant)?
-
-No, application do not need to know the PNETID configuration. We have a plugin in
-Kubernetes. When deploying a POD, the plugin will automatically add an initContainer
-to the POD and automatically configure the PNETID in initContainer.
-
-> 
-> AFAIU veth (host) is bridged (or similar) to eth1 (host) and that is in
-> the host, and this is where we make sure that the requirements for SMC-R
-> are satisfied.
-> 
-> But veth (host) could be attached to eth3 which is on a network not
-> reachable via eth0 (host) or eth1 (host). In that case the pod could
-> still set PNETID on veth (POD). Or?
-> 
-
-Sorry, I forget to add a precondition, it is a single-tenant scenario, and all of the
-ethX in host are in the same VPC(A term in Cloud, can be simply understood as a private
-network domain). The ethX in the same VPC means they have the same network reachability.
-Therefore, in this scenario, we will not encounter the situation you mentioned.
-
->>
->> My patch can resolve the problem we encountered and also can unify the pnetid setup
->> of different network choices list above, assuming the pnetid is not limited to
->> config to the base_ndev directly related to the physical device(indeed, the current
->> implementation has not limited it yet).
-> 
-> I see some problems here, but I'm afraid we see different problems. For
-> me not being able to set eth0 (veth/POD)'s PNEDID from the host is a
-> problem. Please notice that with the current implementation users can
-> only control the PNETID if infrastructure does not do so in the first
-> place.
-> 
-> 
-> Can you please help me reason about this? I'm unfortunately lacking
-> Kubernetes skills here, and it is difficult for me to think along.
-
-Yes, it is also a problem that not being able to set eth0 (veth/POD)'s PNEDID from the host.
-Even if the eth1(host) have hardware PNETID, the eth0 (veth/POD) can not search the hardware
-PNETID. Because the eth0 (veth/POD) and eth1(host) are not in one netdev hierarchy.
-But the two netdev hierarchies have relationship. Maybe search PNETID in all related netdev
-hierarchies can help resolve this. For example when finding the base_ndev, if the base_ndev
-is a netdev has relationship with other netdev(veth .etc) then jump to the related netdev
-hierarchy through the relationship to iteratively find the base_ndev.
-It is an idea now. I have not do any research about it yet and I am not sure if it is feasible.
-
-Thanks,
-Guangguan Wang
-
-> 
-> Regards,
-> Halil
-
+Thanks!
