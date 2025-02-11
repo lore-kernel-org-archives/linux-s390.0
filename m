@@ -1,95 +1,62 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 595291F55ED;
-	Tue, 11 Feb 2025 15:31:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 229282505C8;
+	Tue, 11 Feb 2025 15:46:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739287913; cv=none; b=qemyc3426AIlAK2WkcicT3jN38Hy89NZqeC5Qx2su8S9Ye/3lZtE4Pri6lg7wqnU9ksA4hU9gEtWXATPPDSYA++FGkqh/G8e6HqSdbjQ432TPr03UxGdI5yDTpK/FWpawpl2Kk2BqBRnNQcx5EDzy9pmWv7QtHxDxEEqFKnDiFg=
+	t=1739288796; cv=none; b=EuCG1o3l3xoc5cPp25NR9q/gTUCidBYHXjRXgfr0uTv0i2Ot3oH6IFWmgk25R8TcF8dAHaxyygUb0vTdfAZOdSh/+4HNRdwtIa59emkCqOL76K1qXKYqIWPbb6q3rP/AQsT0mX1lK/ahhBICKO3mBFMXDcqEVTytbtSLWs59VGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739287913; c=relaxed/simple;
-	bh=BuvtqjV55gZ0tKhPQub/uLEqKJ0jsP/YnyzafgATcPE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ahKoQaTUJ4vAvb2I9iqK3yMmgA54CqmcC2ED3EMQfsQV/fq7Lnu7/8xrjPcKSmVt97LNakfNLsCFluOVRzv/XiErDG+eOZPC4Hc6WhQQp602alXnc4oRPoZog1t5i08Yp7DckGZoKGYQa0u4rtn7/vin/+oJJmsI3Dp4OeF4/bE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oAihRzm8; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oAihRzm8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82ED7C4CEDD;
-	Tue, 11 Feb 2025 15:31:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739287912;
-	bh=BuvtqjV55gZ0tKhPQub/uLEqKJ0jsP/YnyzafgATcPE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=oAihRzm8tvtP4l3Icb9yKW/TQcrsCLazIAneqqp06Mvm/NXXCi5vJvafFte5ECOfK
-	 iU8psq2u7+NX3LeDJ951NnsAqXOTE7BM44yWqjk1igX6h8KMFBX6TPWXQNIBfOxIrc
-	 mUIt3WWjBrKLy7dThYw00GfFF5i8eA0/RqL4XOONAm+l2jA6zkmDvnP5q6sHYVjq2N
-	 q0tbVGImCYlI5hkG0f2YKu74s6DmRD8nhhkSdkUcWYd92iTQQfTTybvFA+M/+4sLn2
-	 u3cLcOg2oxycTHw69SWKxr9/OanlNorarORNsqv2JleD401/YPHh4KAV3RpCndf8xe
-	 Cc/cjgoFdFXdg==
-Date: Tue, 11 Feb 2025 07:31:51 -0800
-From: Eric Biggers <ebiggers@kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
-	davem@davemloft.net, dengler@linux.ibm.com,
-	herbert@gondor.apana.org.au, Mikulas Patocka <mpatocka@redhat.com>,
-	dm-devel@lists.linux.dev
-Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key
- hash phmac
-Message-ID: <20250211153151.GA1227@sol.localdomain>
-References: <20250115162231.83516-1-freude@linux.ibm.com>
- <20250115162231.83516-3-freude@linux.ibm.com>
- <265b5abbf32fcb6748abad7d0ec360cc@linux.ibm.com>
+	s=arc-20240116; t=1739288796; c=relaxed/simple;
+	bh=6fu3wYfrbxpX9ThH36XIH7LpZ6BrCQc/5hqS5lNA56E=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=lHUP7eGvtHb0ztFMf8gPx8usCCvA422yftBmCKxGHjFcwMAlVTP2tncMELNNpA4w5julLYswTo3/EkhPODRGFKplqao0Dp0wQwy7CT9eBg480039XXibmqeB8uUw3jAidRag2fYbDeXaiWblXO1Sdu55CMzrOntmDkBjYHLiXIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40B98C4CEDD;
+	Tue, 11 Feb 2025 15:46:34 +0000 (UTC)
+Date: Tue, 11 Feb 2025 10:46:38 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: kernel test robot <lkp@intel.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon
+ <will@kernel.org>, oe-kbuild-all@lists.linux.dev, LKML
+ <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, Mark
+ Rutland <mark.rutland@arm.com>, Linux Trace Kernel
+ <linux-trace-kernel@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] arm64: scripts/sorttable: Implement sorting mcount_loc
+ at boot for arm64
+Message-ID: <20250211104638.0cdc51e1@gandalf.local.home>
+In-Reply-To: <202502111626.K7CTghCR-lkp@intel.com>
+References: <20250210142647.083ff456@gandalf.local.home>
+	<202502111626.K7CTghCR-lkp@intel.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <265b5abbf32fcb6748abad7d0ec360cc@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-[+dm-devel]
+On Tue, 11 Feb 2025 17:07:13 +0800
+kernel test robot <lkp@intel.com> wrote:
 
-On Tue, Feb 11, 2025 at 01:09:12PM +0100, Harald Freudenberger wrote:
-> On 2025-01-15 17:22, Harald Freudenberger wrote:
-> > Add support for protected key hmac ("phmac") for s390 arch.
-> > 
-> > With the latest machine generation there is now support for
-> > protected key (that is a key wrapped by a master key stored
-> > in firmware) hmac for sha2 (sha224, sha256, sha384 and sha512)
-> > for the s390 specific CPACF instruction kmac.
-> > 
-> > This patch adds support via 4 new ahashes registered as
-> > phmac(sha224), phmac(sha256), phmac(sha384) and phmac(sha512).
-> > 
-> > Co-developed-by: Holger Dengler <dengler@linux.ibm.com>
-> > Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
-> > Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> > ---
+> All warnings (new ones prefixed by >>):
 > 
-> ...
-> 
-> > +
-> > +	  Select this option if you want to use the phmac digests
-> > +	  for example to use dm-integrity with secure/protected keys.
-> > +
-> >  config S390_PRNG
-> >  	tristate "Pseudo random number generator device driver"
-> >  	depends on S390
-> 
-> Hello Eric
-> 
-> with your commit
->   7fa481734016 crypto: ahash - make hash walk functions private to ahash.c
-> you move the crypto_hash_walk_* functions to private context into ahash.c.
-> So for example my new phmac does not compile any more.
-> What is the replacement for these functions then? Should I really do
-> the scatter walk by my own now or is there a set of new functions to come?
+> >> scripts/sorttable.c:306:13: warning: 'rela_write_addend' defined but not used [-Wunused-function]  
+>      306 | static void rela_write_addend(Elf_Rela *rela, uint64_t val)
+>          |             ^~~~~~~~~~~~~~~~~
+> >> scripts/sorttable.c:287:17: warning: 'rela_addend' defined but not used [-Wunused-function]  
+>      287 | static uint64_t rela_##fn_name(Elf_Rela *rela)          \
+>          |                 ^~~~~
+>    scripts/sorttable.c:294:1: note: in expansion of macro 'RELA_ADDR'
+>      294 | RELA_ADDR(addend)
+>          | ^~~~~~~~~
 
-This is just another ridiculous problem caused by trying to shoehorn CPU-based
-crypto into ahash which is an interface designed for off-CPU offload.
-I've already given the solution here:
-https://lore.kernel.org/dm-devel/20250116080324.GA3910@sol.localdomain/
+The above isn't used if sorting isn't enabled.
 
-- Eric
+Looks like I'll have to add some "__maybe_unused" attributes.
+
+-- Steve
