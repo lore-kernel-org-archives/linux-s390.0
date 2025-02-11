@@ -1,202 +1,194 @@
-Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 337293EA76;
-	Tue, 11 Feb 2025 01:57:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E87826BD9A;
+	Tue, 11 Feb 2025 03:44:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739239064; cv=none; b=jS1ElNIbcRTfhU1mnk/PKDoenHE1/6WVZlcSX+zNbeCWoc5qIjt96EJV5GvptZUSEc1UYYmmuRqyCDFPmysRKkmsSavztaKu+V9Dhko+b4QdCMXXq/WaDJklB2EKYAE9u5BkW/G1M+oFZ3z5yNjaAHHlL71GvAd40mr52VLOzBo=
+	t=1739245490; cv=none; b=QyGEYBStcNuhzHPK5WF/NMjU05Hb8SFM30hdPBq6kheMWcZiIbi+JzgounOTJoQJAFNXAGkSmWT011azLEoosfGwTxks55xr04SFJA5naHCkx2kIckFdpOjKR6omW1dUM5wCGf3otCC/D3xdLtjGhTVXgTAabbxc7wOhNurQ5Vs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739239064; c=relaxed/simple;
-	bh=QCcRjU5DqQ8Rg0L75l0VB4IRtbXDh4bBWuib43cLYzA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JYTFDfF8F7Submg/LqBXJzCqBdNQMsr3mh2eFMiQamDrTrMxhQtZyLrQs8A+oEkFMf7SdHay94Cbu63OYDasGk8A+gbi4hfwKQAgCubkl/6QVLMG602Ojm+0vPN4NH7+Glrf+3WzmGlbZ4Bicd/D0chzbJ6OP19SdqXyhhZxbv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=gfE8S9XS; arc=none smtp.client-ip=115.124.30.98
+	s=arc-20240116; t=1739245490; c=relaxed/simple;
+	bh=cbZeyB2v5CBXKmD5Rwhbq7GfwJEO4Dq3/ysp8Gv1D+k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ABYWy5gZ1yEQOSGV2vxvAfTORCAzyZqaQ/UruqhopVFDXCBVGydGVZpWYQCScGP95hKwlr5hTWXxi9Ig08XL43gneHuqvL/fbZDsz8PZSXyXm9Z4vL4mHe5wf39uikHMT2usqPUbiOla+FTvHqn1qtzfyhw9L1CXHpnPCuUMv8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=UpgJHSV7; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="gfE8S9XS"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="UpgJHSV7"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1739239050; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=aKFFEyaPN2Tn555yUQ8ZjBZ4ZysgqLh+05pI8cxVN2s=;
-	b=gfE8S9XStUBCEE5+MYcpgUEw3pv0OS+BQ2FnTKgU+8gnlRtsCGKCwfHT8jVr88eTx9L/p16bSo/BKUeGCQZU4fX1etKM7Yip+2tSkaA2O2nDVAgJbAsr6+RKd2wCWkwuDIM4giKiem3jfM4XDwKVMpBnguK0YnzMXH/cljIm4oE=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WPF0Hk7_1739239049 cluster:ay36)
+	t=1739245475; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=vms42idQU2sl94ZqBjF5MJvW0dhT/Zg7Gq/ZK3nF0vk=;
+	b=UpgJHSV7gnVmMwkQZh/jbV12dCPzwx6IDespgfvE8Fi1YL+vK78A99ANBH9O8hYeqgmGEgzStXQWHcr+3SgLtNNQiLebpgQGvSOYM28SgMfBOXaCm9r64XIl53b+yeXYVsDV8lKOOarT0BHnoYOrBp4pEeJewrGrsiOhnX0mVtg=
+Received: from 30.221.99.7(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WPFLNSe_1739245472 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 11 Feb 2025 09:57:30 +0800
-Date: Tue, 11 Feb 2025 09:57:29 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer
-Message-ID: <20250211015729.GB81943@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250115195527.2094320-1-wintera@linux.ibm.com>
- <20250116093231.GD89233@linux.alibaba.com>
- <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
- <20250117021353.GF89233@linux.alibaba.com>
- <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
- <20250118153154.GI89233@linux.alibaba.com>
- <d1927140-443b-401c-92ff-f467c12d3e75@linux.ibm.com>
- <20250210050851.GS89233@linux.alibaba.com>
- <1e96806f-0a4e-4292-9483-928b1913d311@linux.ibm.com>
+          Tue, 11 Feb 2025 11:44:33 +0800
+Message-ID: <4eb38707-1a93-4c5c-aa65-14adfd595d14@linux.alibaba.com>
+Date: Tue, 11 Feb 2025 11:44:32 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
+ pnetid table
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
+References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+ <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
+ <20250107203218.5787acb4.pasic@linux.ibm.com>
+ <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
+ <20250109040429.350fdd60.pasic@linux.ibm.com>
+ <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
+ <20250210145255.793e6639.pasic@linux.ibm.com>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20250210145255.793e6639.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1e96806f-0a4e-4292-9483-928b1913d311@linux.ibm.com>
 
-On 2025-02-10 10:38:27, Alexandra Winter wrote:
->
->
->On 10.02.25 06:08, Dust Li wrote:
->> On 2025-01-28 17:04:53, Alexandra Winter wrote:
->>>
->>>
->>> On 18.01.25 16:31, Dust Li wrote:
->>>> On 2025-01-17 11:38:39, Niklas Schnelle wrote:
->>>>> On Fri, 2025-01-17 at 10:13 +0800, Dust Li wrote:
->>>>>>>
->>>>> ---8<---
->>>>>>> Here are some of my thoughts on the matter:
->>>>>>>>>
->>>>>>>>> Naming and Structure: I suggest we refer to it as SHD (Shared Memory
->>>>>>>>> Device) instead of ISM (Internal Shared Memory). 
->>>>>>>
->>>>>>>
->>>>>>> So where does the 'H' come from? If you want to call it Shared Memory _D_evice?
->>>>>>
->>>>>> Oh, I was trying to refer to SHM(Share memory file in the userspace, see man
->>>>>> shm_open(3)). SMD is also OK.
->>>>>>
->>>>>>>
->>>>>>>
->>>>>>> To my knowledge, a
->>>>>>>>> "Shared Memory Device" better encapsulates the functionality we're
->>>>>>>>> aiming to implement. 
->>>>>>>
->>>>>>>
->>>>>>> Could you explain why that would be better?
->>>>>>> 'Internal Shared Memory' is supposed to be a bit of a counterpart to the
->>>>>>> Remote 'R' in RoCE. Not the greatest name, but it is used already by our ISM
->>>>>>> devices and by ism_loopback. So what is the benefit in changing it?
->>>>>>
->>>>>> I believe that if we are going to separate and refine the code, and add
->>>>>> a common subsystem, we should choose the most appropriate name.
->>>>>>
->>>>>> In my opinion, "ISM" doesn’t quite capture what the device provides.
->>>>>> Since we’re adding a "Device" that enables different entities (such as
->>>>>> processes or VMs) to perform shared memory communication, I think a more
->>>>>> fitting name would be better. If you have any alternative suggestions,
->>>>>> I’m open to them.
->>>>>
->>>>> I kept thinking about this a bit and I'd like to propose yet another
->>>>> name for this group of devices: Memory Communication Devices (MCD)
->>>>>
->>>>> One important point I see is that there is a bit of a misnomer in the
->>>>> existing ISM name in that our ISM device does in fact *not* share
->>>>> memory in the common sense of the "shared memory" wording. Instead it
->>>>> copies data between partitions of memory that share a common
->>>>> cache/memory hierarchy while not sharing the memory itself. loopback-
->>>>> ism and a possibly future virtio-ism on the other hand would share
->>>>> memory in the "shared memory" sense. Though I'd very much hope they
->>>>> will retain a copy mode to allow use in partition scenarios.
->>>>>
->>>>> With that background I think the common denominator between them and
->>>>> the main idea behind ISM is that they facilitate communication via
->>>>> memory buffers and very simple and reliable copy/share operations. I
->>>>> think this would also capture our planned use-case of devices (TTYs,
->>>>> block devices, framebuffers + HID etc) provided by a peer on top of
->>>>> such a memory communication device.
->>>>
->>>> Make sense, I agree with MCD.
->>>>
->>>> Best regard,
->>>> Dust
->>>>
->>>
->>>
->> 
->> Hi Winter,
->> 
->> Sorry for the late reply; we were on break for the Chinese Spring
->> Festival.
->> 
->>>
->>> In the discussion with Andrew Lunn, it showed that
->>> a) we need an abstract description of 'ISM' devices (noted)
->>> b) DMBs (Direct Memory Buffers) are a critical differentiator.
->>>
->>> So what do your think of Direct Memory Communication (DMC) as class name for these devices?
->>>
->>> I don't have a strong preference (we could also stay with ISM). But DMC may be a bit more
->>> concrete than MCD or ISM.
->> 
->> I personally prefer MCD over Direct Memory Communication (DMC).
->> 
->> For loopback or Virtio-ISM, DMC seems like a good choice. However, for
->> IBM ISM, since there's a DMA copy involved, it doesn’t seem truly "Direct,"
->> does it?
->> 
->> Additionally, since we are providing a device, MCD feels like a more
->> fitting choice, as it aligns better with the concept of a "device."
->> 
->> Best regards,
->> Dust
->
->Thank you for your thoughts, Dust.
->For me the 'D as 'direct' is not so much about the number of copies, but more about the
->aspect, that you can directly write at any offset into the buffer. I.e. no queues.
->More like the D in DMA or RDMA.
 
-Thanks for you explaintion. I think I understand you now.
 
->
->I am preparing a talk for netdev in March about this subject, and the more I work on it,
->it seems to me that the buffers ('B'), that are
->a) only authorized for a single remote device and
->b) can be accessed at any offset
->are the important differentiator compared other virtual devices.
->So maybe 'D' for Dedicated?
->
->I even came up with
->dibs - Dedicated Internal Buffer Sharing or
->dibc - Dedicated Internal Buffer Communication
->(ok, I like the sound and look of the 'I'. But being on the same hardware as opposed
->to RDMA is also an important aspect.)
->
->
->MCD - 'memory communication device' sounds rather vague to me. But if it is the
->smallest common denominator, i.e. the only thing we can all agree on, I could live with it.
->
+On 2025/2/10 21:52, Halil Pasic wrote:
+> On Fri, 10 Jan 2025 13:43:44 +0800
+> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+> 
+>> We want to use SMC in container on cloud environment, and encounter problem
+>> when using smc_pnet with commit 890a2cb4a966. In container, there have choices
+>> of different container network, such as directly using host network, virtual
+>> network IPVLAN, veth, etc. Different choices of container network have different
+>> netdev hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1 in host
+>> below is the netdev directly related to the physical device).
+>>  _______________________________      ________________________________   
+>> |   _________________           |     |   _________________           |  
+>> |  |POD              |          |     |  |POD  __________  |          |  
+>> |  |                 |          |     |  |    |upper_ndev| |          |  
+>> |  | eth0_________   |          |     |  |eth0|__________| |          |  
+>> |  |____|         |__|          |     |  |_______|_________|          |  
+>> |       |         |             |     |          |lower netdev        |  
+>> |       |         |             |     |        __|______              |  
+>> |   eth1|base_ndev| eth0_______ |     |   eth1|         | eth0_______ |  
+>> |       |         |    | RDMA  ||     |       |base_ndev|    | RDMA  ||  
+>> | host  |_________|    |_______||     | host  |_________|    |_______||  
+>> ———————————————————————————————-      ———————————————————————————————-    
+>>  netdev hierarchy if directly          netdev hierarchy if using IPVLAN    
+>>    using host network
+>>  _______________________________
+>> |   _____________________       |
+>> |  |POD        _________ |      |
+>> |  |          |base_ndev||      |
+>> |  |eth0(veth)|_________||      |
+>> |  |____________|________|      |
+>> |               |pairs          |
+>> |        _______|_              |
+>> |       |         | eth0_______ |
+>> |   veth|base_ndev|    | RDMA  ||
+>> |       |_________|    |_______||
+>> |        _________              |
+>> |   eth1|base_ndev|             |
+>> | host  |_________|             |
+>>  ———————————————————————————————
+>>   netdev hierarchy if using veth
+>>
+>> Due to some reasons, the eth1 in host is not RDMA attached netdevice, pnetid
+>> is needed to map the eth1(in host) with RDMA device so that POD can do SMC-R.
+>> Because the eth1(in host) is managed by CNI plugin(such as Terway, network
+>> management plugin in container environment), and in cloud environment the
+>> eth(in host) can dynamically be inserted by CNI when POD create and dynamically
+>> be removed by CNI when POD destroy and no POD related to the eth(in host)
+>> anymore.
+> 
+> I'm pretty clueless when it comes to the details of CNI but I think
+> I'm barely able to follow. Nevertheless if you have the feeling that
+> my extrapolations are wrong, please do point it out.
+> 
+>> It is hard for us to config the pnetid to the eth1(in host). So we
+>> config the pnetid to the netdevice which can be seen in POD.
+> 
+> Hm, this sounds like you could set PNETID on eth1 (in host) for each of
+> the cases and everything would be cool (and would work), but because CNI
+> and the environment do not support it, or supports it in a very
+> inconvenient way, you are looking for a workaround where PNETID is set
+> in the POD. Is that right? Or did I get something wrong?
 
-I've thought about it a bit more. Since DMC is at the same level as RDMA
-and fits well with the "D" in SMC-D, either DMC or MCD works for me.
+Right.
 
-Best regards,
-Dust
+> 
+>> When do SMC-R, both
+>> the container directly using host network and the container using veth network
+>> can successfully match the RDMA device, because the configured pnetid netdev is a
+>> base_ndev. But the container using IPVLAN can not successfully match the RDMA
+>> device and 0x03030000 fallback happens, because the configured pnetid netdev is
+>> not a base_ndev. Additionally, if config pnetid to the eth1(in host) also can not
+>> work for matching RDMA device when using veth network and doing SMC-R in POD.
+> 
+> That I guess answers my question from the first paragraph. Setting
+> PNETID on eth1 (host) would not be sufficient for veth. Right?
+
+Right. It is also one of the reasons for setting PNETID in POD.
+
+> 
+> Another silly question: is making the PNETID basically a part of the Pod
+> definition shifting PNETID from the realm of infrastructure (i.e.
+> configured by the cloud provider) to the ream of an application (i.e.
+> configured by the tenant)?
+
+No, application do not need to know the PNETID configuration. We have a plugin in
+Kubernetes. When deploying a POD, the plugin will automatically add an initContainer
+to the POD and automatically configure the PNETID in initContainer.
+
+> 
+> AFAIU veth (host) is bridged (or similar) to eth1 (host) and that is in
+> the host, and this is where we make sure that the requirements for SMC-R
+> are satisfied.
+> 
+> But veth (host) could be attached to eth3 which is on a network not
+> reachable via eth0 (host) or eth1 (host). In that case the pod could
+> still set PNETID on veth (POD). Or?
+> 
+
+Sorry, I forget to add a precondition, it is a single-tenant scenario, and all of the
+ethX in host are in the same VPC(A term in Cloud, can be simply understood as a private
+network domain). The ethX in the same VPC means they have the same network reachability.
+Therefore, in this scenario, we will not encounter the situation you mentioned.
+
+>>
+>> My patch can resolve the problem we encountered and also can unify the pnetid setup
+>> of different network choices list above, assuming the pnetid is not limited to
+>> config to the base_ndev directly related to the physical device(indeed, the current
+>> implementation has not limited it yet).
+> 
+> I see some problems here, but I'm afraid we see different problems. For
+> me not being able to set eth0 (veth/POD)'s PNEDID from the host is a
+> problem. Please notice that with the current implementation users can
+> only control the PNETID if infrastructure does not do so in the first
+> place.
+> 
+> 
+> Can you please help me reason about this? I'm unfortunately lacking
+> Kubernetes skills here, and it is difficult for me to think along.
+
+Yes, it is also a problem that not being able to set eth0 (veth/POD)'s PNEDID from the host.
+Even if the eth1(host) have hardware PNETID, the eth0 (veth/POD) can not search the hardware
+PNETID. Because the eth0 (veth/POD) and eth1(host) are not in one netdev hierarchy.
+But the two netdev hierarchies have relationship. Maybe search PNETID in all related netdev
+hierarchies can help resolve this. For example when finding the base_ndev, if the base_ndev
+is a netdev has relationship with other netdev(veth .etc) then jump to the related netdev
+hierarchy through the relationship to iteratively find the base_ndev.
+It is an idea now. I have not do any research about it yet and I am not sure if it is feasible.
+
+Thanks,
+Guangguan Wang
+
+> 
+> Regards,
+> Halil
+
