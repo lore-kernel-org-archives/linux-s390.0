@@ -1,78 +1,95 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35EFD25EFAC;
-	Mon, 10 Feb 2025 23:14:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C708264615;
+	Tue, 11 Feb 2025 00:59:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739229285; cv=none; b=gk5rgzZaAh7Yv+gEhTZB6kQF9WPPXyPK67gThPH8s+x66cIFQjSUghf/9PmpUNnC+WSU33t4OKicFJybmkdX7SjBex3XvblHkcRX06j7ezuMEr+uwcMYSMfSxqd3hf9lzyHeb8XkPtxhm4Q0VMiGs41UX8kIbhKFWQFCOW3FImE=
+	t=1739235585; cv=none; b=Z3jXixbGjaVnFx3vCMDCWG9Tg5kKK0DV1CSRwyXeYF+wnl8UWltWHS4i96qMi51KLq0y10G72m8K24GKMaQtiH/5HC73VjYPV4zdnCSF9KSLT7PHyAtV+1rYT5L8i09HoZrOj+daXcFDzPkHmyhlYJndHe4bDRt+ywV6i2rzr6w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739229285; c=relaxed/simple;
-	bh=COrp6hWGzz8/siYvHimfWfsoXzmyNa/p3dR3OMKEEnM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Qrf3e8mYWgQ9AY+kvcQNT+86amTcXHA2CplsDBKJ434aOzvficbF9laGMk6P386NzAQycCJzFpNfO2dHWtH358RpgM1+c1d8wI7/8dv+ugYWO3kuHaxA/Q/DB4SqbZgA7Vbbr+v2wJKDvSJwQn8ET8F7knQFuyWhm7tW1GmAGbY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=WEoASmAk; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1739235585; c=relaxed/simple;
+	bh=KclDnq0yGU1M84esdrfIpWZm2KXaxbIJOJXRdNM4TVg=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=P70KjpbM9vCrbsoXi22e5pk0Yau+5JnrGILDjRqzxkfijCbhl618VgZ4tGad59GC0LhAyOZb3d86JpnBozZmM/OmTzW3oO1VLR3vp0XpUkQ+KNFwd512gVKE5aj5S5SOZuyUNYVvYI+eyZJIYfmebUIQZ/wbx8uvceOEFm2bcmM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=baX/QCOx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="WEoASmAk"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=2pClLF4sbthFxm3CTGXCUQu05y9qNQMNR5mihhu0gv0=; b=WEoASmAkNhYWMTh+g9+nnGuSE/
-	T/G0eVrAMHE+31fkAylQmhxZOSqM7SPo0iCL22NatKIl8fBHjE9OB0W2yeScR9kpnOZUuhnSbpL0/
-	JC2LjlqxqSZCRvZH6C3vLa6sBL4mJJmTNf1HAmNIAgqzHlIaJMEj6bZIm7zi03BqjA6ZoYy/LxoiC
-	eOc991GA0uSeeLbhWWqfM4uk2V7cA8yxQc90em64fqfICvr+rxieh3jcVW7GBU3t8YhSVpi2pnS+z
-	+saHNY2d2EMdSS3lp+4uXH0KpnHxssRv6YrSurKxMSnaP6u4883jUlSl64apzTgu2m0YRAbEidUrI
-	GTLnrRwg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1thclx-00Grrl-2h;
-	Tue, 11 Feb 2025 07:14:23 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 11 Feb 2025 07:14:22 +0800
-Date: Tue, 11 Feb 2025 07:14:22 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, davem@davemloft.net,
-	dengler@linux.ibm.com, linux-s390@vger.kernel.org,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key
- hash phmac
-Message-ID: <Z6qITvR7LPBjyEf6@gondor.apana.org.au>
-References: <20250115162231.83516-1-freude@linux.ibm.com>
- <20250115162231.83516-3-freude@linux.ibm.com>
- <Z6hrvQzb5G_wqlni@gondor.apana.org.au>
- <20250209163430.GB1230@sol.localdomain>
- <Z6mxZ8lfO6zzD7x0@gondor.apana.org.au>
- <20250210163246.GD1264@sol.localdomain>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="baX/QCOx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68860C4CED1;
+	Tue, 11 Feb 2025 00:59:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739235584;
+	bh=KclDnq0yGU1M84esdrfIpWZm2KXaxbIJOJXRdNM4TVg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=baX/QCOxqatyQmLiiwJbPKnXXqi17ksm24/KMF3E42PVYgHxp8UHyslMOHx/CleeI
+	 +v8nfmXKDSFs5N/ZCQBxCGPe8GPQI+2dtJFBbvdN/txmjsnDEQ9v5e58ycEj+jULpA
+	 tdXj9fX98XgZJpClPK3FcnfvIbruA7A8T6iv6Uqsac+/geicTGhqDS1Is3qnBTVHAs
+	 gb/LHHm4EJjJ2y1osY7JMfGsufc+JLt6kaDcGFobRkKdawyQ5La6PEScQS3kdmUWfi
+	 t8HRJPLYf6g0KI+jxc4cV9D+sj7EgQkzPmvzwfBDMshVoxQaK2deyXR+4TNxgWxz66
+	 cOiutKCeDYFIg==
+From: Kees Cook <kees@kernel.org>
+To: Eric Biederman <ebiederm@xmission.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Mark Brown <broonie@kernel.org>,
+	Dave Martin <Dave.Martin@arm.com>,
+	Baoquan He <bhe@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Dave Young <dyoung@redhat.com>,
+	LEROY Christophe <christophe.leroy2@cs-soprasteria.com>,
+	Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Kees Cook <kees@kernel.org>,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	kexec@lists.infradead.org,
+	binutils@sourceware.org,
+	devel@daynix.com,
+	Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH v5 0/6] elf: Define note name macros
+Date: Mon, 10 Feb 2025 16:58:30 -0800
+Message-Id: <173923550723.2947986.17868728802985188618.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250115-elf-v5-0-0f9e55bbb2fc@daynix.com>
+References: <20250115-elf-v5-0-0f9e55bbb2fc@daynix.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250210163246.GD1264@sol.localdomain>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 10, 2025 at 08:32:46AM -0800, Eric Biggers wrote:
->
-> Which is of course entirely theoretical, given that the proposed user waits
-> synchronously for each request to complete anyway.  And hardly anyone wants to
-> do otherwise since it is way too much of a pain.
+On Wed, 15 Jan 2025 14:47:57 +0900, Akihiko Odaki wrote:
+> elf.h had a comment saying:
+> > Notes used in ET_CORE. Architectures export some of the arch register
+> > sets using the corresponding note types via the PTRACE_GETREGSET and
+> > PTRACE_SETREGSET requests.
+> > The note name for these types is "LINUX", except NT_PRFPREG that is
+> > named "CORE".
+> 
+> [...]
 
-We don't design things for a single user.  When you write an
-algorithm through the Crypto API, it becomes available to *all*
-users.
+I rebased this for changes introduced by commit
+680e029fd62f ("proc/kcore: don't walk list on every read")
 
-Just because a single user might be naturally resistant to congestion,
-it doesn't make this a non-issue or theoretical.
+Applied to for-next/execve, thanks!
 
-Cheers,
+[1/6] elf: Define note name macros
+      https://git.kernel.org/kees/c/7da8e4ad4df0
+[2/6] binfmt_elf: Use note name macros
+      https://git.kernel.org/kees/c/2fc4947bbd91
+[3/6] powerpc: Use note name macros
+      https://git.kernel.org/kees/c/609c8b309156
+[4/6] crash: Use note name macros
+      https://git.kernel.org/kees/c/0de47f28ec84
+[5/6] s390/crash: Use note name macros
+      https://git.kernel.org/kees/c/d4a760fb77fd
+[6/6] crash: Remove KEXEC_CORE_NOTE_NAME
+      https://git.kernel.org/kees/c/7e620b56d958
+
+Take care,
+
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Kees Cook
+
