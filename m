@@ -1,184 +1,135 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEBDF1F03D2;
-	Tue, 11 Feb 2025 09:07:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B14A31FBCA1;
+	Tue, 11 Feb 2025 12:09:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739264867; cv=none; b=VwCcxqVOR5+zfaGB4Hsb18GPOYuYe4f+MxjPQHgo2XLUcDA2Wz+Kf/6kB7xGn3v8fp426g9ln6qoGHF7GvpgfULaCm09EOK2+acBbcBTNQLdB86uyk/cqnRGPouC5/I2Zdi20q+PFVA3askvBchf+/zj7stMSgUvFc/jsyrQC2A=
+	t=1739275762; cv=none; b=mFXFYD0DBUGkMPxJWIY4QbKzYJZ4+8ix7qZXqbCuM3rxEJdWz39NrUiL/sLDvFYM6iva8z596Uv/Iz0kelRcm8rvHp4wO8TZTDWcBO9RqR0bnLuXRKHb8VKJ0QRFgykTOdsDcvRf0bzWovCzawWFoRTmb5gL3w3ZpCP8D5DZx/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739264867; c=relaxed/simple;
-	bh=hFx79QumT2efvDIu9SQG+KhJyUcuw+IZ0OY2d/uT+og=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K8KLf8G0DcSbkJ8kxhlabyRaRpX/43uIvTlnybzTN7xJeeC4dDRYdbZLRHjoVEeIyipdtoiz217oS1MomEcl11l1UKJum5XktG1SEOxuFXUVt9ycltXIzhjz6z49vtkJDDyt1HuaPHTzpi+LHolrh+MIQrR2MriWBqVoVeF2x3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=X5xgcR2j; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1739275762; c=relaxed/simple;
+	bh=97jrskvhlAXgZqsK+kGEXoVzNhFqmpE13NGubMutl0Y=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=FMv02LEh+lbemaZeab1dSH/Dz4TYfWhDHzMFCtmbwtinuJBo1kzsOZSuutlw8h9eqhhyuGFHk5SgtBsWf42l8U4Dxb/1Vhox/5Yaw5xcrytE022Qc3rsAgrWA6pv7NhXz5Oq5yeOl93p/cn9kRP29pVNi1WZI5IlgdbbeFpJGww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RJPOwar6; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="X5xgcR2j"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1739264866; x=1770800866;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hFx79QumT2efvDIu9SQG+KhJyUcuw+IZ0OY2d/uT+og=;
-  b=X5xgcR2jSLNt89s/67ieR8yzJN1T+7/bPWJsXx7aT4thNw9Fkgs2nVaI
-   f0hdP9qApM+UReHx07eahi+LNSLiBLG9h65aZyBciNU4I8McMXhTbZ1jC
-   cSkq479Gp4tE+GDcnnI/qEgT5tQUZUCt1/9GVkE7nK0BIJzespdvRTcPq
-   nmkoSv7glLVxBOz4dFhwCnblxXstMYSXdY+MF52dE69sueEVyF2N7J+ms
-   IRooQLEpjnXK01Q9u5YXSEOU00vL41invI6ZNRUDgaSYPCMmBcArowMUg
-   DVVq4MAcRikY+VTimfbaNUBjydXBTDujjobn/fQi3hnEKnahqEoEZeKBF
-   g==;
-X-CSE-ConnectionGUID: KQQKYG4EThSTzOgzXc34gg==
-X-CSE-MsgGUID: 8qxQp64eReOzFlXWRcAkug==
-X-IronPort-AV: E=McAfee;i="6700,10204,11341"; a="39758893"
-X-IronPort-AV: E=Sophos;i="6.13,277,1732608000"; 
-   d="scan'208";a="39758893"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Feb 2025 01:07:45 -0800
-X-CSE-ConnectionGUID: Wlse3+4DSkGTXxDkvf01tQ==
-X-CSE-MsgGUID: nbHe+6jIRwa8BdCdBKGWcg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="135702696"
-Received: from lkp-server01.sh.intel.com (HELO d63d4d77d921) ([10.239.97.150])
-  by fmviesa002.fm.intel.com with ESMTP; 11 Feb 2025 01:07:42 -0800
-Received: from kbuild by d63d4d77d921 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1thmF2-0013wj-0a;
-	Tue, 11 Feb 2025 09:07:40 +0000
-Date: Tue, 11 Feb 2025 17:07:13 +0800
-From: kernel test robot <lkp@intel.com>
-To: Steven Rostedt <rostedt@goodmis.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, LKML <linux-kernel@vger.kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	Mark Rutland <mark.rutland@arm.com>,
-	Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH] arm64: scripts/sorttable: Implement sorting mcount_loc
- at boot for arm64
-Message-ID: <202502111626.K7CTghCR-lkp@intel.com>
-References: <20250210142647.083ff456@gandalf.local.home>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RJPOwar6"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51B7X3Vn015490;
+	Tue, 11 Feb 2025 12:09:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=ccsXllvEBKuTE+D4Q/u6d4MvUjvSi5fxXuGxl/E063Y=; b=RJPOwar6uQI9
+	UTL3gXZpciZDDHWHw/CieV90v+EKJQFJyhVAeC58NbJbRLwETvZ9XKJvnC8SiWEQ
+	zuBQjDcPWl8jFvaEJCnA1zPD/BUrrSQuqWWxe7CvwiM9Fv6lx+5YwIXxQkYNdvj1
+	nDrTGzA+8TDeN+Cws1fsuJ/FOPxzu+fqlpyaORY2EjulTfgfxs3TLMiNzjdx+dll
+	bcEDL5VhGUd0ktWOOJi4FJF9yYha9dNcrGfikf1NQh3C/ns+Wi3PZWWeP3OKATrr
+	B+8sJgEAXIZKVizCC4NJo6x/4aNDTHmvgbwChS7ISQv6mAWmHF5ew56FJm2cdhAl
+	MktTIdAwmw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44r28ps54h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Feb 2025 12:09:14 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51BBkuZR006250;
+	Tue, 11 Feb 2025 12:09:14 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44r28ps54f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Feb 2025 12:09:14 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51B8KD94021894;
+	Tue, 11 Feb 2025 12:09:13 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44phkskb6g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Feb 2025 12:09:13 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51BC9C3N25821886
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 11 Feb 2025 12:09:13 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D8E305805E;
+	Tue, 11 Feb 2025 12:09:12 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 612AE58045;
+	Tue, 11 Feb 2025 12:09:12 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 11 Feb 2025 12:09:12 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250210142647.083ff456@gandalf.local.home>
+Date: Tue, 11 Feb 2025 13:09:12 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: ebiggers@google.com
+Cc: linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org,
+        davem@davemloft.net, dengler@linux.ibm.com,
+        herbert@gondor.apana.org.au
+Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key hash
+ phmac
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20250115162231.83516-3-freude@linux.ibm.com>
+References: <20250115162231.83516-1-freude@linux.ibm.com>
+ <20250115162231.83516-3-freude@linux.ibm.com>
+Message-ID: <265b5abbf32fcb6748abad7d0ec360cc@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: C0SWG3XnLjOOKPqLicsAjG0L2MUzOc_h
+X-Proofpoint-GUID: eajUi9FSaQ9LqZDSBSEyFzFCnms2-X_1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-11_05,2025-02-11_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ suspectscore=0 impostorscore=0 mlxlogscore=594 lowpriorityscore=0
+ clxscore=1015 phishscore=0 priorityscore=1501 malwarescore=0 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502110077
 
-Hi Steven,
+On 2025-01-15 17:22, Harald Freudenberger wrote:
+> Add support for protected key hmac ("phmac") for s390 arch.
+> 
+> With the latest machine generation there is now support for
+> protected key (that is a key wrapped by a master key stored
+> in firmware) hmac for sha2 (sha224, sha256, sha384 and sha512)
+> for the s390 specific CPACF instruction kmac.
+> 
+> This patch adds support via 4 new ahashes registered as
+> phmac(sha224), phmac(sha256), phmac(sha384) and phmac(sha512).
+> 
+> Co-developed-by: Holger Dengler <dengler@linux.ibm.com>
+> Signed-off-by: Holger Dengler <dengler@linux.ibm.com>
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
 
-kernel test robot noticed the following build warnings:
+...
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v6.14-rc2 next-20250210]
-[cannot apply to arm64/for-next/core arm-perf/for-next/perf kvmarm/next soc/for-next arm/for-next arm/fixes]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> +
+> +	  Select this option if you want to use the phmac digests
+> +	  for example to use dm-integrity with secure/protected keys.
+> +
+>  config S390_PRNG
+>  	tristate "Pseudo random number generator device driver"
+>  	depends on S390
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Steven-Rostedt/arm64-scripts-sorttable-Implement-sorting-mcount_loc-at-boot-for-arm64/20250211-032956
-base:   linus/master
-patch link:    https://lore.kernel.org/r/20250210142647.083ff456%40gandalf.local.home
-patch subject: [PATCH] arm64: scripts/sorttable: Implement sorting mcount_loc at boot for arm64
-config: riscv-randconfig-001-20250211 (https://download.01.org/0day-ci/archive/20250211/202502111626.K7CTghCR-lkp@intel.com/config)
-compiler: riscv64-linux-gcc (GCC) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250211/202502111626.K7CTghCR-lkp@intel.com/reproduce)
+Hello Eric
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202502111626.K7CTghCR-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> scripts/sorttable.c:306:13: warning: 'rela_write_addend' defined but not used [-Wunused-function]
-     306 | static void rela_write_addend(Elf_Rela *rela, uint64_t val)
-         |             ^~~~~~~~~~~~~~~~~
->> scripts/sorttable.c:287:17: warning: 'rela_addend' defined but not used [-Wunused-function]
-     287 | static uint64_t rela_##fn_name(Elf_Rela *rela)          \
-         |                 ^~~~~
-   scripts/sorttable.c:294:1: note: in expansion of macro 'RELA_ADDR'
-     294 | RELA_ADDR(addend)
-         | ^~~~~~~~~
->> scripts/sorttable.c:287:17: warning: 'rela_info' defined but not used [-Wunused-function]
-     287 | static uint64_t rela_##fn_name(Elf_Rela *rela)          \
-         |                 ^~~~~
-   scripts/sorttable.c:293:1: note: in expansion of macro 'RELA_ADDR'
-     293 | RELA_ADDR(info)
-         | ^~~~~~~~~
->> scripts/sorttable.c:287:17: warning: 'rela_offset' defined but not used [-Wunused-function]
-     287 | static uint64_t rela_##fn_name(Elf_Rela *rela)          \
-         |                 ^~~~~
-   scripts/sorttable.c:292:1: note: in expansion of macro 'RELA_ADDR'
-     292 | RELA_ADDR(offset)
-         | ^~~~~~~~~
-   In file included from arch/riscv/kernel/asm-offsets.c:10:
-   include/linux/ftrace.h: In function 'ftrace_get_regs':
-   include/linux/ftrace.h:190:16: error: implicit declaration of function 'arch_ftrace_get_regs'; did you mean 'arch_ftrace_regs'? [-Wimplicit-function-declaration]
-     190 |         return arch_ftrace_get_regs(fregs);
-         |                ^~~~~~~~~~~~~~~~~~~~
-         |                arch_ftrace_regs
-   include/linux/ftrace.h:190:16: error: returning 'int' from a function with return type 'struct pt_regs *' makes pointer from integer without a cast [-Wint-conversion]
-     190 |         return arch_ftrace_get_regs(fregs);
-         |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-   make[3]: *** [scripts/Makefile.build:102: arch/riscv/kernel/asm-offsets.s] Error 1 shuffle=1925395641
-   make[3]: Target 'prepare' not remade because of errors.
-   make[2]: *** [Makefile:1264: prepare0] Error 2 shuffle=1925395641
-   make[2]: Target 'prepare' not remade because of errors.
-   make[1]: *** [Makefile:251: __sub-make] Error 2 shuffle=1925395641
-   make[1]: Target 'prepare' not remade because of errors.
-   make: *** [Makefile:251: __sub-make] Error 2 shuffle=1925395641
-   make: Target 'prepare' not remade because of errors.
-
-
-vim +/rela_write_addend +306 scripts/sorttable.c
-
-   275	
-   276	#define RELA_ADDR(fn_name)				\
-   277	static uint64_t rela64_##fn_name(Elf_Rela *rela)	\
-   278	{							\
-   279		return r8((uint64_t *)&rela->e64.r_##fn_name);	\
-   280	}							\
-   281								\
-   282	static uint64_t rela32_##fn_name(Elf_Rela *rela)	\
-   283	{							\
-   284		return r((uint32_t *)&rela->e32.r_##fn_name);	\
-   285	}							\
-   286								\
- > 287	static uint64_t rela_##fn_name(Elf_Rela *rela)		\
-   288	{							\
-   289		return e.rela_##fn_name(rela);			\
-   290	}
-   291	
-   292	RELA_ADDR(offset)
-   293	RELA_ADDR(info)
-   294	RELA_ADDR(addend)
-   295	
-   296	static void rela64_write_addend(Elf_Rela *rela, uint64_t val)
-   297	{
-   298		w8(val, (uint64_t *)&rela->e64.r_addend);
-   299	}
-   300	
-   301	static void rela32_write_addend(Elf_Rela *rela, uint64_t val)
-   302	{
-   303		w(val, (uint32_t *)&rela->e32.r_addend);
-   304	}
-   305	
- > 306	static void rela_write_addend(Elf_Rela *rela, uint64_t val)
-   307	{
-   308		e.rela_write_addend(rela, val);
-   309	}
-   310	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+with your commit
+   7fa481734016 crypto: ahash - make hash walk functions private to 
+ahash.c
+you move the crypto_hash_walk_* functions to private context into 
+ahash.c.
+So for example my new phmac does not compile any more.
+What is the replacement for these functions then? Should I really do
+the scatter walk by my own now or is there a set of new functions to 
+come?
