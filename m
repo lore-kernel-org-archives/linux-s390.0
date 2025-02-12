@@ -1,126 +1,279 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88D5F1F8BCA
-	for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2025 19:35:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB9E72010EF
+	for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2025 20:28:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739388942; cv=none; b=lv/A8p0206BeH/HbshFIJmamtM9aZpAEZA3ASRp+HksTBuS9Twf9G7BxgXaxfX6I7hqX7rcrd1QQCVFidigsIZOhJndoUiJdQQOs9xXW6kVkG9x081YzU65XoBvB8SzJMLReQuH4RkE2XFUOn5lCGFbVuwHSt54BCx4/wHID3FI=
+	t=1739392100; cv=none; b=l9Mho09h4jDeJvyoK4t28l6eJajGoa5lDIYSs54tCdpnCACIsXmYWMSqbIzk1UgXPTI8kb4DzCo9sGtzOSAHNmGVRu4vFoAWamHG7BZRKb1+NR7/2E6ZPFhKUdWl/Pk8EWAuS9v2OdX/E9wN5QDw6V4II09Una8e60TxUV3YGc0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739388942; c=relaxed/simple;
-	bh=vmAvWbsGdYNKRmni5mBBWvqq4sSKlumOWOmZ0JYXLzE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a0zXE5MFoTkBQgR/CaQ0sdoDzuW67B3uJVNJj7/GcOiLt1jd6yIEuQfZ83vL4yZNfE8EMR/92qMfRbA1Si+ALhGE4l8dYm0OlYkz381OOTzf13l0kilCEcVHFZghA8wvZmUL7edjTrWVIzhJ4GJax3TLrSvYLNr/kdN+dOTQ5zE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com; spf=pass smtp.mailfrom=fastly.com; dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b=XG2Gk+9G; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fastly.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastly.com
+	s=arc-20240116; t=1739392100; c=relaxed/simple;
+	bh=sjyb8CO9UDI0bkvCcVRPvdxFy6b8B/z8MMi7G+pzvSs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jFjMnumj3ZpUrodeizrf8fOWF3gxPX/vBBvjaTwiE2EVxJpgA3GabKzMajJXMSv5xZA7gZepfK4opIp/E7K8DsdcTrAYoZHxkzQDc7R47wS4Q5+v1O0a6ozMYspfcR8yreUjG6DQrSTWAKPyLmZTEgHYgTu5OHuKBd+6ys3nXt4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S3dtN+I5; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fastly.com header.i=@fastly.com header.b="XG2Gk+9G"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-21f49837d36so345195ad.3
-        for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2025 11:35:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fastly.com; s=google; t=1739388940; x=1739993740; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5gM8cfuxuqg3cm9VTQK30nhz59V/mbnlWePA/01igcE=;
-        b=XG2Gk+9GoSkTYjSUzDPl+TKQmAoOdcpgWRmB3LUILlgocLW3+QjsDjAs16PBgwAQAi
-         ONP1OBnGPRwgEal+YDj1ZfzhgkPc7JKAy+EPnZQ/qE/yaTHWHbi0wcq/fHH3Lj16NR3w
-         WHgfYPkXJgEA20ng0vbQRvwNaxEp3fhuoBpZs=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S3dtN+I5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1739392096;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UEoeLSsS3aCEim/Ww8cGuMBb2a0y/QZooCtBWDiEWjA=;
+	b=S3dtN+I55XaLdh8p0ehDOL+JzDJBJmMsnaNNPr7kwClBcM4f3hmmwLkz9eVY+Vm3E+I0/l
+	MUAuIfr4OG1pO11Ysrtjr2KaCXseAdjHPkjy+/NTFjrSau284FCXl4fxjXG0lo8OoibpuL
+	vG4m/MH8Xw+hmB7nSvx+1GQRFiFKzlw=
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com
+ [209.85.166.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-190-lyOshVAWNIGc7c8fygtfrw-1; Wed, 12 Feb 2025 15:28:15 -0500
+X-MC-Unique: lyOshVAWNIGc7c8fygtfrw-1
+X-Mimecast-MFC-AGG-ID: lyOshVAWNIGc7c8fygtfrw_1739392094
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-85534e45380so1987539f.1
+        for <linux-s390@vger.kernel.org>; Wed, 12 Feb 2025 12:28:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739388940; x=1739993740;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5gM8cfuxuqg3cm9VTQK30nhz59V/mbnlWePA/01igcE=;
-        b=ZjZbuzJqjmSOZJ5mABobKwxkcfF2rjtra3uNr3iAF+7NtmNxLYGaSemHH6HA30xlsv
-         78u+m5rwcU5GrlUg8zuV4J6tMJvcdJtQb1iMCi+bFBLa3S78VhQ36/See5BQecqOHbdQ
-         MyZ4E6Xlmo2ADFCwVQ6CbBXt37wTTraMB9P4Bzv58uRJzbwHdEnA3wWKXx7vk7XFdR3c
-         dwg/JO1iVqv6MB+vv6SoL6uImRbEVm3flu3ZMLHd2f2CTcGLZSfpgRpdpQ6s0sBpWN7m
-         VhKwRmHFrybIeQQ2uUF05Wim1Na9bqwu8pvLNqwrTx8wgh0N5d7OoMPSXLcgWajoMwF+
-         lRTw==
-X-Forwarded-Encrypted: i=1; AJvYcCWTbchcw4gp0HQIv/IbehzAa+CohoqwW+1G/I3ZAGYsrBwZtn68ob+ezh1joHQR1elutTB1mWaFlnS/@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzau0N4kwhx89FDX4tTJgaL/4et1Y5HA01sJaZTjEc48PauJhmT
-	/3dCTS/zNq1Kfff/GROAuFYYZI+CbLOvn2mWWHQ1cj8NFuiZVuqTj797TglBoIPRM4coBy2Ayv6
-	o
-X-Gm-Gg: ASbGncszzeYHcD/PAbAr3vP5ZPC4YHxHqHqjvBGvXKGzML6IfkYHu9qVfw3Yv91OQY1
-	LbQTn2uZRs7uNXV6JYicBRKoYfsguKVhc2b7qLszQBxBZhAHeBpB/dBxePDUnwo3g5OspEKntbU
-	t4vlOuulCjXpYI+pzNbZyAlVVrf7U/F9icIPRAqouQI3peJyBsChYn9vafnxD1J+tFUAP9U79Hh
-	I1R8htlVu7NyzlJpNh7Ih8AXRcupRB4lSKqsZm4u14ebVNJS+rgpcr9sVLHTJtXYjPfH4umYBo3
-	fYwXP71zFJjhNz8hqTFiig3iZ9dnLQBmtLx6++oj9oh9jd41qHNQEWh6SQ==
-X-Google-Smtp-Source: AGHT+IEg+ioBMU+Ca/G1OAdLCJnP2ms61SibWzHwbJn0apwKLa2R4j3/nJXUxKb9+FoRp0a41HzDeg==
-X-Received: by 2002:a17:902:ecd1:b0:215:9470:7e82 with SMTP id d9443c01a7336-220d1ea097emr9340915ad.4.1739388939724;
-        Wed, 12 Feb 2025 11:35:39 -0800 (PST)
-Received: from LQ3V64L9R2 (c-24-6-151-244.hsd1.ca.comcast.net. [24.6.151.244])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-220cd96ae5asm3486845ad.247.2025.02.12.11.35.38
+        d=1e100.net; s=20230601; t=1739392094; x=1739996894;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UEoeLSsS3aCEim/Ww8cGuMBb2a0y/QZooCtBWDiEWjA=;
+        b=ZL4Pp9aMD3/RxDvGI4nPYDdVqAjhmWM1HZHUY3166bL17KWa/cBCITlShsHABc7DiE
+         hvrQqWAGM+bzcYUMyE8G2+U4ZjZGBA41EUdPsWrADbJ+irXsfU9bQn6DXw0k9K0NDOCT
+         E90A6HoJB7/5nL3crBPLzAbIDquXZsTrRhAcQvAUOlyXB7aszXiaXzPkg/bw8H2zU6Qs
+         Iyk5kXEfGGnp787XK2oww1ATxRmKx79q6ndEtMxB3pAgun9yHzZBUS5ZHszemtnih4n3
+         sGBKvYmhc1Pv71MyMHrlBV4ztTuZq5fDXM8R0VsX7kNNTroZ4O6c/CE5E5f5LW3zNHfe
+         7g4g==
+X-Forwarded-Encrypted: i=1; AJvYcCUQI5XmvpNkv+tnJ3X048y5EVYbvPF4hd1gVqhRJqMyKPHjgd2j5HT2fLSXsfieIjegkGF6bA3+4qmK@vger.kernel.org
+X-Gm-Message-State: AOJu0YxGNSIfdnytb8dLCtjMzN/L9wqJL0KQjmIm8vWNq8xFLxVjShsH
+	Qxn1DpSNYwQj8G3wf/Ki4PHPOVnLO6GrJiCHQE8CcgG/uecTRC+sJD/UbdCY3YG+k+8Vemgd9L2
+	EADfbuEtLF+L597rZw5tZJNJ/GYFfQo9h1/r9ET7fAzKSN8+matPSjQhn/PA=
+X-Gm-Gg: ASbGncvbhbb0PBi/PipOai/KzZMpIMnG5apem6kkr35e5XaHPgB049iNShCV6fL7MKu
+	VmbhzB81CRiApIB4DWqZqs9320y2V2aEm1jHJ1SWcuEUSZScx9xZsmMrgY8eddQLRFpzAf2MY6b
+	NaCtUdaV895Hh74nnewZSrApMwmVDsBNzAmM0TNio6JASNApdx4hz/jB6z9xN5zbm/hScXJmHWQ
+	ldCTtRZm5e01GiMImhfz92v+2KfECRFCnhOEc3waybVNA/UhqojLoEeG562DF7gNu5faWEZvN/f
+	m0BcMQAt
+X-Received: by 2002:a92:cd84:0:b0:3d0:17d2:a02a with SMTP id e9e14a558f8ab-3d17bffab44mr9449645ab.6.1739392094516;
+        Wed, 12 Feb 2025 12:28:14 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGyMnLl5ryneXcFqbJLdWXtkIqeCdaQ3vDzYtJyQFOGuNj5RmpgPu7yQTnc7ZA4uZtoSr3rVg==
+X-Received: by 2002:a92:cd84:0:b0:3d0:17d2:a02a with SMTP id e9e14a558f8ab-3d17bffab44mr9449525ab.6.1739392094143;
+        Wed, 12 Feb 2025 12:28:14 -0800 (PST)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4eccf9afc38sm3393858173.1.2025.02.12.12.28.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Feb 2025 11:35:39 -0800 (PST)
-Date: Wed, 12 Feb 2025 11:35:36 -0800
-From: Joe Damato <jdamato@fastly.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>,
-	Kuniyuki Iwashima <kuniyu@amazon.com>
-Subject: Re: [PATCH net] s390/qeth: move netif_napi_add_tx() and
- napi_enable() from under BH
-Message-ID: <Z6z4CMhLo0aj5YEN@LQ3V64L9R2>
-Mail-Followup-To: Joe Damato <jdamato@fastly.com>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>,
-	Kuniyuki Iwashima <kuniyu@amazon.com>
-References: <20250212163659.2287292-1-wintera@linux.ibm.com>
+        Wed, 12 Feb 2025 12:28:12 -0800 (PST)
+Date: Wed, 12 Feb 2025 13:28:08 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Bjorn Helgaas <helgaas@kernel.org>, Christoph Hellwig <hch@lst.de>,
+ Alexandra Winter <wintera@linux.ibm.com>, Gerd Bayer
+ <gbayer@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, Jason
+ Gunthorpe <jgg@ziepe.ca>, Thorsten Winkler <twinkler@linux.ibm.com>, Bjorn
+ Helgaas <bhelgaas@google.com>, Julian Ruess <julianr@linux.ibm.com>, Halil
+ Pasic <pasic@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Gerald
+ Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ linux-pci@vger.kernel.org
+Subject: Re: [PATCH v5 2/2] PCI: s390: Support mmap() of BARs and replace
+ VFIO_PCI_MMAP by a device flag
+Message-ID: <20250212132808.08dcf03c.alex.williamson@redhat.com>
+In-Reply-To: <20250212-vfio_pci_mmap-v5-2-633ca5e056da@linux.ibm.com>
+References: <20250212-vfio_pci_mmap-v5-0-633ca5e056da@linux.ibm.com>
+	<20250212-vfio_pci_mmap-v5-2-633ca5e056da@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250212163659.2287292-1-wintera@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Feb 12, 2025 at 05:36:59PM +0100, Alexandra Winter wrote:
-> Like other drivers qeth is calling local_bh_enable() after napi_schedule()
-> to kick-start softirqs [0].
-> Since netif_napi_add_tx() and napi_enable() now take the netdev_lock()
-> mutex [1], move them out from under the BH protection. Same solution as in
-> commit a60558644e20 ("wifi: mt76: move napi_enable() from under BH")
+On Wed, 12 Feb 2025 16:28:32 +0100
+Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+
+> On s390 there is a virtual PCI device called ISM which has a few
+> peculiarities. For one, it presents a 256 TiB PCI BAR whose size leads
+> to any attempt to ioremap() the whole BAR failing. This is problematic
+> since mapping the whole BAR is the default behavior of for example
+> vfio-pci in combination with QEMU and VFIO_PCI_MMAP enabled.
 > 
-> Fixes: 1b23cdbd2bbc ("net: protect netdev->napi_list with netdev_lock()")
+> Even if one tried to map this BAR only partially, the mapping would not
+> be usable without extra precautions on systems with MIO support enabled.
+> This is because of another oddity, in that this virtual PCI device does
+> not support the newer memory I/O (MIO) PCI instructions and legacy PCI
+> instructions are not accessible through writeq()/readq() when MIO is in
+> use.
+> 
+> In short the ISM device's BAR is not accessible through memory mappings.
+> Indicate this by introducing a new non_mappable_bars flag for the ISM
+> device and set it using a PCI quirk. Use this flag instead of the
+> VFIO_PCI_MMAP Kconfig option to block mapping with vfio-pci. This was
+> the only use of the Kconfig option so remove it. Note that there are no
+> PCI resource sysfs files on s390x already as HAVE_PCI_MMAP is currently
+> not set. If this were to be set in the future pdev->non_mappable_bars
+> can be used to prevent unusable resource files for ISM from being
+> created.
 
-Hm, I wonder if the fixes should be for commit 413f0271f396 ("net:
-protect NAPI enablement with netdev_lock()") instead ?
+I think we should also look at it from the opposite side, not just
+s390x maybe adding HAVE_PCI_MMAP in the future, but the fact that we're
+currently adding a generic PCI device flag which isn't honored by the
+one mechanism that PCI core provides to mmap MMIO BARs to userspace.
+It seems easier to implement it in pci_mmap_resource() now rather than
+someone later discovering there's no enforcement outside of the very
+narrow s390x use case.  Thanks,
 
-> Link: https://lore.kernel.org/netdev/20240612181900.4d9d18d0@kernel.org/ [0]
-> Link: https://lore.kernel.org/netdev/20250115035319.559603-1-kuba@kernel.org/ [1]
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Alex
+
+> As s390x has no PCI quirk handling add basic support modeled after x86's
+> arch/x86/pci/fixup.c and move the ISM device's PCI ID to the common
+> header to make it accessible. Also enable CONFIG_PCI_QUIRKS whenever
+> CONFIG_PCI is enabled.
+> 
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > ---
->  drivers/s390/net/qeth_core_main.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  arch/s390/Kconfig                |  4 +---
+>  arch/s390/pci/Makefile           |  2 +-
+>  arch/s390/pci/pci_fixup.c        | 23 +++++++++++++++++++++++
+>  drivers/s390/net/ism_drv.c       |  1 -
+>  drivers/vfio/pci/Kconfig         |  4 ----
+>  drivers/vfio/pci/vfio_pci_core.c |  2 +-
+>  include/linux/pci.h              |  1 +
+>  include/linux/pci_ids.h          |  1 +
+>  8 files changed, 28 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 9c9ec08d78c71b4d227beeafab1b82d6434cb5c7..e48741e001476f765e8aba0037a1b386df393683 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -41,9 +41,6 @@ config AUDIT_ARCH
+>  config NO_IOPORT_MAP
+>  	def_bool y
+>  
+> -config PCI_QUIRKS
+> -	def_bool n
+> -
+>  config ARCH_SUPPORTS_UPROBES
+>  	def_bool y
+>  
+> @@ -258,6 +255,7 @@ config S390
+>  	select PCI_DOMAINS		if PCI
+>  	select PCI_MSI			if PCI
+>  	select PCI_MSI_ARCH_FALLBACKS	if PCI_MSI
+> +	select PCI_QUIRKS		if PCI
+>  	select SPARSE_IRQ
+>  	select SWIOTLB
+>  	select SYSCTL_EXCEPTION_TRACE
+> diff --git a/arch/s390/pci/Makefile b/arch/s390/pci/Makefile
+> index df73c5182990ad3ae4ed5a785953011feb9a093c..1810e0944a4ed9d31261788f0f6eb341e5316546 100644
+> --- a/arch/s390/pci/Makefile
+> +++ b/arch/s390/pci/Makefile
+> @@ -5,6 +5,6 @@
+>  
+>  obj-$(CONFIG_PCI)	+= pci.o pci_irq.o pci_clp.o \
+>  			   pci_event.o pci_debug.o pci_insn.o pci_mmio.o \
+> -			   pci_bus.o pci_kvm_hook.o pci_report.o
+> +			   pci_bus.o pci_kvm_hook.o pci_report.o pci_fixup.o
+>  obj-$(CONFIG_PCI_IOV)	+= pci_iov.o
+>  obj-$(CONFIG_SYSFS)	+= pci_sysfs.o
+> diff --git a/arch/s390/pci/pci_fixup.c b/arch/s390/pci/pci_fixup.c
+> new file mode 100644
+> index 0000000000000000000000000000000000000000..35688b645098329f082d0c40cc8c59231c390eaa
+> --- /dev/null
+> +++ b/arch/s390/pci/pci_fixup.c
+> @@ -0,0 +1,23 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Exceptions for specific devices,
+> + *
+> + * Copyright IBM Corp. 2025
+> + *
+> + * Author(s):
+> + *   Niklas Schnelle <schnelle@linux.ibm.com>
+> + */
+> +#include <linux/pci.h>
+> +
+> +static void zpci_ism_bar_no_mmap(struct pci_dev *pdev)
+> +{
+> +	/*
+> +	 * ISM's BAR is special. Drivers written for ISM know
+> +	 * how to handle this but others need to be aware of their
+> +	 * special nature e.g. to prevent attempts to mmap() it.
+> +	 */
+> +	pdev->non_mappable_bars = 1;
+> +}
+> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_IBM,
+> +			PCI_DEVICE_ID_IBM_ISM,
+> +			zpci_ism_bar_no_mmap);
+> diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+> index e36e3ea165d3b2b01d68e53634676cb8c2c40220..d32633ed9fa80c1764724f493b363bfd6cb4f9cf 100644
+> --- a/drivers/s390/net/ism_drv.c
+> +++ b/drivers/s390/net/ism_drv.c
+> @@ -20,7 +20,6 @@
+>  MODULE_DESCRIPTION("ISM driver for s390");
+>  MODULE_LICENSE("GPL");
+>  
+> -#define PCI_DEVICE_ID_IBM_ISM 0x04ED
+>  #define DRV_NAME "ism"
+>  
+>  static const struct pci_device_id ism_device_table[] = {
+> diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+> index bf50ffa10bdea9e52a9d01cc3d6ee4cade39a08c..c3bcb6911c538286f7985f9c5e938d587fc04b56 100644
+> --- a/drivers/vfio/pci/Kconfig
+> +++ b/drivers/vfio/pci/Kconfig
+> @@ -7,10 +7,6 @@ config VFIO_PCI_CORE
+>  	select VFIO_VIRQFD
+>  	select IRQ_BYPASS_MANAGER
+>  
+> -config VFIO_PCI_MMAP
+> -	def_bool y if !S390
+> -	depends on VFIO_PCI_CORE
+> -
+>  config VFIO_PCI_INTX
+>  	def_bool y if !S390
+>  	depends on VFIO_PCI_CORE
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 586e49efb81be32ccb50ca554a60cec684c37402..c8586d47704c74cf9a5256d65bbf888db72b2f91 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -116,7 +116,7 @@ static void vfio_pci_probe_mmaps(struct vfio_pci_core_device *vdev)
+>  
+>  		res = &vdev->pdev->resource[bar];
+>  
+> -		if (!IS_ENABLED(CONFIG_VFIO_PCI_MMAP))
+> +		if (vdev->pdev->non_mappable_bars)
+>  			goto no_mmap;
+>  
+>  		if (!(res->flags & IORESOURCE_MEM))
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index 47b31ad724fa5bf7abd7c3dc572947551b0f2148..7192b9d78d7e337ce6144190325458fe3c0f1696 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -476,6 +476,7 @@ struct pci_dev {
+>  	unsigned int	no_command_memory:1;	/* No PCI_COMMAND_MEMORY */
+>  	unsigned int	rom_bar_overlap:1;	/* ROM BAR disable broken */
+>  	unsigned int	rom_attr_enabled:1;	/* Display of ROM attribute enabled? */
+> +	unsigned int	non_mappable_bars:1;	/* BARs can't be mapped to user-space  */
+>  	pci_dev_flags_t dev_flags;
+>  	atomic_t	enable_cnt;	/* pci_enable_device has been called */
+>  
+> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> index de5deb1a0118fcf56570d461cbe7a501d4bd0da3..ec6d311ed12e174dc0bad2ce8c92454bed668fee 100644
+> --- a/include/linux/pci_ids.h
+> +++ b/include/linux/pci_ids.h
+> @@ -518,6 +518,7 @@
+>  #define PCI_DEVICE_ID_IBM_ICOM_V2_ONE_PORT_RVX_ONE_PORT_MDM	0x0251
+>  #define PCI_DEVICE_ID_IBM_ICOM_V2_ONE_PORT_RVX_ONE_PORT_MDM_PCIE 0x0361
+>  #define PCI_DEVICE_ID_IBM_ICOM_FOUR_PORT_MODEL	0x252
+> +#define PCI_DEVICE_ID_IBM_ISM		0x04ED
+>  
+>  #define PCI_SUBVENDOR_ID_IBM		0x1014
+>  #define PCI_SUBDEVICE_ID_IBM_SATURN_SERIAL_ONE_PORT	0x03d4
+> 
 
-Other than the above, I briefly scanned the driver source and the
-change seems reasonable.
-
-I am not sure whether a different Fixes is needed or not (I'll leave
-that to the maintainers to decide), but whether this is fine as is
-or is re-posted with a new Fixes tag:
-
-Acked-by: Joe Damato <jdamato@fastly.com>
