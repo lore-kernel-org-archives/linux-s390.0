@@ -1,113 +1,134 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F5320F095;
-	Wed, 12 Feb 2025 13:41:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D193921018A;
+	Wed, 12 Feb 2025 15:20:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739367698; cv=none; b=WOh27M1eIbfz88xJvxdkHwqEdDAYmo0zLSu9hlvequ5GXwz2gmrJLGy8+CN8gxH6Uu1Vt3v9aech84lh/mDe7Q/T844ow8R3MyluFuVSXsgtmuPIC7byG2hpPlbI4dWBrzkrq5d4Zw/u5c+oFC3USjFN9YvCtwbet5ZMefhFGs8=
+	t=1739373659; cv=none; b=ElzX+ppErpb8lmkeWjBFn0YRCNPRzGQwQdv+HsqlsMu5VHbhrr2oiePXT9bekv+uEPsPweR4GhEb5GWv5ZUMk8ctjcUaYF5X8g1VuELlDlzacLVdpC/Ww2kaFPT280f0wgb5JjlQut2jfFH7j5LKz/PEjOjP6ww/5GlFMbZI9N4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739367698; c=relaxed/simple;
-	bh=4e/ZYIqbaPlbrji9W2swzGj5tfRCnq/Rty9Zu4FuQEM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sLiDPCMvQMu8v1QjKwELE66FsVmv+o10Bqx6+nWJTg9iXogKT/8dmrs4Y4WqutIxpLhi7SIT3XPId5UjAYqbdsVrtEp71Eaz/+yDcEflSE+kVUhiyU8cRzZaW5dTOLWQSZZjI9eSDw4NyA2B6COF8fUwFiAvn0OiZpNzJ6VGM2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=dspNOYO0; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=QzPHKOUe; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1739373659; c=relaxed/simple;
+	bh=l70dMKRZZuIcTN7P7KYGeI54CkmfOAguGwGNr3boZ6o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JIge2/Ul0m0/eLMQzoR4051SS8+oTiCg1BX0Az4RBPyKxn9InRp+1dH9fb2MsYSADCS3YeDoyvKYP6oShBu+jd+VoX7mjMdR91lejhPUNeGQew0TQl7+APngark+z6uMZ0k2pDWMC7tiXE4L0EFTdT3hRN31gwK+X4xlqhX5+fI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gQw1dYcA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="dspNOYO0";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="QzPHKOUe"
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1739367693;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=y+ZKfpmr3pMXsS3E912MhMX/FXEkzo/mSsNGFHgHyLc=;
-	b=dspNOYO0K/D5UQ/G9+0xYJILQLJKiHPSkIWmj84YXZk8CDayDygUef43E6R24K1OS0Xf4k
-	qFgIqSBD4GkfyU2zip9sFdgvAMtypnjiTHN8rX4fmrmR+BOwOWhdopv8jJj208ijM9tasw
-	FTJX0tHeQ+c7YY9LG0IL3Hcg6h+0UnUhbD7JYm/lx7k7+1pL76InMRU6eveBOZzQhHX9Y7
-	41NO4mL2qDRi6kVqChUQL65DgA84YEiHMTL1OB2oKbr5YaHuCi3wNAi/2Qeuz32BVv3lyE
-	mr4zHijsXfaVEKtNgYveauolcvXiEjMpJrlwbo36oFm/Bha8x95cCAnp3M2e7A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1739367693;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=y+ZKfpmr3pMXsS3E912MhMX/FXEkzo/mSsNGFHgHyLc=;
-	b=QzPHKOUed5mExwdCUb43cqPscJfujsztACtE5CF67vmd2RTpJgkT4uHYDkgxc7qQzIKEXC
-	0RK/Hg+LUIiuD6Cg==
-To: linux-kernel@vger.kernel.org,
-	linux-rt-devel@lists.linux.dev
-Cc: Ben Segall <bsegall@google.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Mel Gorman <mgorman@suse.de>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Will Deacon <will@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH v3 6/9] s390: Rely on generic printing of preemption model.
-Date: Wed, 12 Feb 2025 14:41:12 +0100
-Message-ID: <20250212134115.2583667-7-bigeasy@linutronix.de>
-In-Reply-To: <20250212134115.2583667-1-bigeasy@linutronix.de>
-References: <20250212134115.2583667-1-bigeasy@linutronix.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gQw1dYcA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75818C4CEDF;
+	Wed, 12 Feb 2025 15:20:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739373658;
+	bh=l70dMKRZZuIcTN7P7KYGeI54CkmfOAguGwGNr3boZ6o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gQw1dYcANs1L+I6pI6LMs0z3EhXQQ20a41aWQcrsTE6vEtMYSnoC0vvf4psAphxBF
+	 dHGaKMpWKlyVGMr10FKYAnwcN5NcHxYzIW+vWZwWvKTokAfaBslGTqbYyOFC5p3FAv
+	 afijLUbuFPg609q6nBnUIMc7CFIOyfB4qBVEBxLwYD1uclpKrDWBUg5YCiz/R2yr8N
+	 nJCzfv1LLpYeQxUhRWxHEQAsfGahfRGqM45tb+q3ay3QYhyzwvLrZgK028CusANr6L
+	 kupL48i8z3ujPqJivFu3FKEv7heU2XaEoG9LVtqSBG/JAYYVjscaWKolfoD3qtMDYf
+	 3yrr66V8+TdTw==
+Date: Wed, 12 Feb 2025 07:20:56 -0800
+From: Eric Biggers <ebiggers@kernel.org>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+	dengler@linux.ibm.com, linux-s390@vger.kernel.org,
+	linux-crypto@vger.kernel.org, dm-devel@lists.linux.dev
+Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key
+ hash phmac
+Message-ID: <20250212152056.GA1256@sol.localdomain>
+References: <20250115162231.83516-1-freude@linux.ibm.com>
+ <20250115162231.83516-3-freude@linux.ibm.com>
+ <Z6hrvQzb5G_wqlni@gondor.apana.org.au>
+ <20250209163430.GB1230@sol.localdomain>
+ <9971160da17b1d18d4bdc87fc1297fda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9971160da17b1d18d4bdc87fc1297fda@linux.ibm.com>
 
-die() invokes later show_regs() -> show_regs_print_info() which prints
-the current preemption model.
-Remove it from the initial line.
+On Wed, Feb 12, 2025 at 12:17:46PM +0100, Harald Freudenberger wrote:
+> On 2025-02-09 17:34, Eric Biggers wrote:
+> > On Sun, Feb 09, 2025 at 04:47:57PM +0800, Herbert Xu wrote:
+> > > On Wed, Jan 15, 2025 at 05:22:28PM +0100, Harald Freudenberger wrote:
+> > > >
+> > > > +static int s390_phmac_init(struct ahash_request *req)
+> > > > +{
+> > > > +	struct s390_phmac_req_ctx *req_ctx = ahash_request_ctx(req);
+> > > > +	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+> > > > +	struct s390_kmac_sha2_ctx *ctx = &req_ctx->sha2_ctx;
+> > > > +	int rc;
+> > > > +
+> > > > +	/*
+> > > > +	 * First try synchronous. If this fails for any reason
+> > > > +	 * schedule this request asynchronous via workqueue.
+> > > > +	 */
+> > > > +
+> > > > +	rc = phmac_init(tfm, ctx, false);
+> > > > +	if (!rc)
+> > > > +		goto out;
+> > > > +
+> > > > +	req_ctx->req = req;
+> > > > +	INIT_DELAYED_WORK(&req_ctx->work, phmac_wq_init_fn);
+> > > > +	schedule_delayed_work(&req_ctx->work, 0);
+> > > > +	rc = -EINPROGRESS;
+> > > 
+> > > This creates a resource problem because there is no limit on how
+> > > many requests that can be delayed in this manner for a given tfm.
+> > > 
+> > > When we hit this case, I presume this is a system-wide issue and
+> > > all requests would go pending? If that is the case, I suggest
+> > > allocating a system-wide queue through crypto_engine and using
+> > > that to limit how many requests that can become EINPROGRESS.
+> > 
+> > Or just make it synchronous which would be way easier, and the calling
+> > code uses
+> > it synchronously anyway.
+> > 
+> > - Eric
+> 
+> A word about synchronous vs asynchronous...
+> 
+> As a synchronous hash (or chipher or whatever) MUST NOT sleep I can't
+> really implement the pkey stuff in a synchronous way:
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- arch/s390/kernel/dumpstack.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+As I said at
+https://lore.kernel.org/dm-devel/20250116080324.GA3910@sol.localdomain/, shash
+could fairly easily be fixed to support sleepable algorithms (e.g.
+CRYPTO_ALG_SLEEPABLE).
 
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index 1ecd0580561f6..911b95cd57e58 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -198,13 +198,8 @@ void __noreturn die(struct pt_regs *regs, const char *=
-str)
- 	console_verbose();
- 	spin_lock_irq(&die_lock);
- 	bust_spinlocks(1);
--	printk("%s: %04x ilc:%d [#%d] ", str, regs->int_code & 0xffff,
-+	printk("%s: %04x ilc:%d [#%d]", str, regs->int_code & 0xffff,
- 	       regs->int_code >> 17, ++die_counter);
--#ifdef CONFIG_PREEMPT
--	pr_cont("PREEMPT ");
--#elif defined(CONFIG_PREEMPT_RT)
--	pr_cont("PREEMPT_RT ");
--#endif
- 	pr_cont("SMP ");
- 	if (debug_pagealloc_enabled())
- 		pr_cont("DEBUG_PAGEALLOC");
---=20
-2.47.2
+This would be *much* simpler than doing it with ahash.
 
+You even had it as a shash already in the first version of your patchset, just
+missing the bits that add the support for sleepable algorithms.
+
+I am trying to help you by suggesting an approach that would be much easier.
+There is no need to shoehorn CPU-based crypto into ahash, which is designed for
+off-CPU offload.
+
+> The issue with pkey (We call it "protected key") is that it is some kind
+> of hardware based key. As such it needs some special preparation action
+> to be done upfront in the hardware/firmware to use such a pkey.
+> Now think about KVM live guest migration where a guest suddenly awakes
+> (Well the guest is not even aware of this) on a new machine with another
+> hardware. So out of the sudden a hardware based crypto operation fails
+> with an indication that the hardware/firmware can't deal with this
+> key object and needs re-preparation. Usually this preparation step is
+> some kind of asynchronous operation (write some pci registers or run
+> some DMA sequences or refresh the working key material via an HSM
+> communication...) and as such may take some time and involve even
+> sleeping on a mutex or completion until another kernel thread is done.
+> Please note this is not unique to pkey on system z but may apply
+> to all kinds of hardware/firmware based keys in situations like
+> KVM live guest migration or suspend/resume.
+
+I.e. it already uses a kernel thread that does the operation synchronously (as
+opposed to being actual hardware offload that does not consume a thread and
+signals completion to the CPU via an interrupt), in addition to the caller's
+thread which also waits synchronously via crypto_wait_req().  There is really no
+need to make it async, nor to use scatterlists.
+
+- Eric
