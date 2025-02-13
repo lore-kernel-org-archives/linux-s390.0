@@ -1,25 +1,26 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A77B81FFC7A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC9B8200115;
 	Thu, 13 Feb 2025 16:21:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739463695; cv=none; b=l3TYhY4rtcDrh8U2jPv5jClaDX+EpvKU7EGcp0YRR7yu8eeTuwrn9L6z6r6jcNv9Dx8Qj+AjLdyJ3Qrm8WpF6zsHwy3xZwTXH1M0bPMC3hynusWhNNx3uRHTZYwkvUM7Rq5kKl/ZBlmeAfiCIhEmgD/4UYgDCPZGj8W6yXXM39g=
+	t=1739463695; cv=none; b=S54RopFxzCCCXroHutlqtXuNjdlYz0bdsG9X0887YrWFG3WxzoHKC1lq5P9xIKWmxrLwXGzfHn8jXLY0sTftQwMwPiLoknu4iA5atiWmHZBW1emYEW3xwWd2gVOpE2Gpg3MQnwSvTFPmZd/qGafGAkzi/Sb9B/pC2BgttpaQncg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739463695; c=relaxed/simple;
-	bh=ki5i2OB8DqrRr53FCV5uiJSHnPSRTR4IrOB5Ict3+xQ=;
-	h=Message-ID:Date:From:To:Cc:Subject; b=UyBQz7z3CzXFALiPfegdLpc6+1AiTxoFJ9FGfic7z6Od4PQwDsRvO1iw3C6NeKUki+zN1Yn5okBxU2VgwGgRC2ZjiWR7bf7jyyK4DFV8pgbWmCKclIwTchgXgUmtvn4pY2D9rPvRSuxz5itewJiQJ5FRiLAwCJme744lvsA9a70=
+	bh=OltVgEYzZ9xBW85TfnHfInwAEt15pvGNcSmUYnlj5mo=;
+	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
+	 Content-Type; b=NA+kblCGLp4tHAaR1BQB5cwJyK7y/du/+jfJkygt82bp/wssdQQb6c2X5dPXrC/pe8HRRG3eiPHEAKIX03TLkxwvFaoVEE8KeaCh97hSsAs99MQxVvq1ydW2WrMniOXkWhZdRO+495J/0RY1+T7UO4LOvjZMAGg9ZiFoKBwtIDY=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D7EC4CED1;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E7BDC4CEE8;
 	Thu, 13 Feb 2025 16:21:35 +0000 (UTC)
 Received: from rostedt by gandalf with local (Exim 4.98)
 	(envelope-from <rostedt@goodmis.org>)
-	id 1tibyD-00000001qZz-1tpJ;
+	id 1tibyD-00000001qb0-3M01;
 	Thu, 13 Feb 2025 11:21:45 -0500
-Message-ID: <20250213162047.306074881@goodmis.org>
+Message-ID: <20250213162145.652220571@goodmis.org>
 User-Agent: quilt/0.68
-Date: Thu, 13 Feb 2025 11:20:47 -0500
+Date: Thu, 13 Feb 2025 11:20:49 -0500
 From: Steven Rostedt <rostedt@goodmis.org>
 To: linux-kernel@vger.kernel.org,
  linux-trace-kernel@vger.kernel.org,
@@ -45,114 +46,87 @@ Cc: Masami Hiramatsu <mhiramat@kernel.org>,
  Will Deacon <will@kernel.org>,
  Vasily Gorbik <gor@linux.ibm.com>,
  Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v3 0/6] scripts/sorttable: ftrace: Remove place holders for weak functions in available_filter_functions
+Subject: [PATCH v3 2/6] scripts/sorttable: Have mcount rela sort use direct values
+References: <20250213162047.306074881@goodmis.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 
-This series removes the place holder __ftrace_invalid_address___ from
-the available_filter_functions file.
+From: Steven Rostedt <rostedt@goodmis.org>
 
-The rewriting of the sorttable.c code to make it more manageable
-has already been merged:
+The mcount_loc sorting for when the values are stored in the Elf_Rela
+entries uses the compare_extable() function to do the compares in the
+qsort(). That function does handle byte swapping if the machine being
+compiled for is a different endian than the host machine. But the
+sort_relocs() function sorts an array that pulled in the values from the
+Elf_Rela section and has already done the swapping.
 
-  https://git.kernel.org/torvalds/c/c0e75905caf368e19aab585d20151500e750de89
+Create two new compare functions that will sort the direct values. One
+will sort 32 bit values and the other will sort the 64 bit value. One of
+these will be assigned to a compare_values function pointer and that will
+be used for sorting the Elf_Rela mcount values.
 
-Now this is only for getting rid of the ftrace invalid function place holders.
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+---
+ scripts/sorttable.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
-The first patch adds arm64 sorting, which requires copying the Elf_Rela into
-a separate array and sorting that.
-
-There's a slight fix patch that adds using a compare function that checks the
-direct values without swapping bytes as the current method will swap bytes,
-but the copying into the array already did the necessary swapping.
-
-The third patch makes it always copy the section into an array, sort that,
-then copy it back. This allows updates to the values in one place.
-
-The forth patch adds the option "-s <file>" to sorttable.c. Now this code
-is called by:
-
-  ${NM} -S vmlinux > .tmp_vmlinux.nm-sort
-  ${objtree}/scripts/sorttable -s .tmp_vmlinux.nm-sort ${1}
-
-Where the file created by "nm -S" is read, recording the address and the
-associated sizes of each function. It then is sorted, and before sorting the
-mcount_loc table, it is scanned to make sure all symbols in the mcount_loc are
-within the boundaries of the functions defined by nm. If they are not, they
-are zeroed out, as they are most likely weak functions (I don't know what else
-they would be).
-
-Since the KASLR address can be added to the values in this section, when the
-section is read to populate the ftrace records, if the value is zero or equal
-to kaslr_offset() it is skipped and not added.
-
-Before:
-    
- ~# grep __ftrace_invalid_address___ /sys/kernel/tracing/available_filter_functions | wc -l
- 551
-
-After:
-
- ~# grep __ftrace_invalid_address___ /sys/kernel/tracing/available_filter_functions | wc -l
- 0
-
-The last patches are fixes to ftrace accounting to handle the fact that it
-will likely always have skipped values (at least for x86), and to modify the
-code to verify that the amount of skipped and saved records do match the
-calculated allocations necessary.
-
-And finally, to change the reporting of how much was allocated to reflect the
-freed pages that were allocated but not used due to the skipped entries.
-
-Changes since v2: https://lore.kernel.org/linux-trace-kernel/20250102232609.529842248@goodmis.org/
-
-- Rebased on mainline that has the rewriting of sorttable.c
-
-- Added the code to handle the sections being stored in Elf_Rela sections as
-  arm64 uses.
-
-- No longer use the "ftrace_skip_sym" variable to skip over the zeroed out
-  functions and instead just compare with kalsr_offset.
-
-- Sort via an array and not directly in the file's section.
-
-- Update the verification code to make sure the skipped value is correct.
-
-- Update the output to correctly reflect what was allocated.
-
-
-Changes since v1: https://lore.kernel.org/all/20250102185845.928488650@goodmis.org/
-
-- Replaced the last patch with 3 patches.
-
-  The first of the 3 patches removed the hack of reading System.map
-  with properly reading the Elf symbol table to find start_mcount_loc
-  and stop_mcount_loc.
-
-  The second patch adds the call to "nm -S vmlinux" to get the sizes
-  of each function.
-
-  The previous last patch would just check the zeroed out values and compare
-  them to kaslr_offset(). Instead, this time, the last patch adds a new
-  ftrace_mcount_skip that is used to simply skip over the first entries
-  that the sorttable.c moved to the beginning, as they were the weak functions
-  that were found.
+diff --git a/scripts/sorttable.c b/scripts/sorttable.c
+index 4a34c275123e..f62a91d8af0a 100644
+--- a/scripts/sorttable.c
++++ b/scripts/sorttable.c
+@@ -552,6 +552,28 @@ static void *sort_orctable(void *arg)
+ 
+ #ifdef MCOUNT_SORT_ENABLED
+ 
++static int compare_values_64(const void *a, const void *b)
++{
++	uint64_t av = *(uint64_t *)a;
++	uint64_t bv = *(uint64_t *)b;
++
++	if (av < bv)
++		return -1;
++	return av > bv;
++}
++
++static int compare_values_32(const void *a, const void *b)
++{
++	uint32_t av = *(uint32_t *)a;
++	uint32_t bv = *(uint32_t *)b;
++
++	if (av < bv)
++		return -1;
++	return av > bv;
++}
++
++static int (*compare_values)(const void *a, const void *b);
++
+ /* Only used for sorting mcount table */
+ static void rela_write_addend(Elf_Rela *rela, uint64_t val)
+ {
+@@ -583,6 +605,8 @@ static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
+ 	void *vals;
+ 	void *ptr;
+ 
++	compare_values = long_size == 4 ? compare_values_32 : compare_values_64;
++
+ 	shdr_start = (Elf_Shdr *)((char *)ehdr + ehdr_shoff(ehdr));
+ 	shentsize = ehdr_shentsize(ehdr);
+ 
+@@ -640,7 +664,7 @@ static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
+ 		}
+ 	}
+ 	count = ptr - vals;
+-	qsort(vals, count / long_size, long_size, compare_extable);
++	qsort(vals, count / long_size, long_size, compare_values);
+ 
+ 	ptr = vals;
+ 	for (int i = 0; i < shnum; i++) {
+-- 
+2.47.2
 
 
-Steven Rostedt (6):
-      arm64: scripts/sorttable: Implement sorting mcount_loc at boot for arm64
-      scripts/sorttable: Have mcount rela sort use direct values
-      scripts/sorttable: Always use an array for the mcount_loc sorting
-      scripts/sorttable: Zero out weak functions in mcount_loc table
-      ftrace: Update the mcount_loc check of skipped entries
-      ftrace: Have ftrace pages output reflect freed pages
-
-----
- arch/arm64/Kconfig      |   1 +
- kernel/trace/ftrace.c   |  45 +++++-
- scripts/link-vmlinux.sh |   4 +-
- scripts/sorttable.c     | 401 +++++++++++++++++++++++++++++++++++++++++++++++-
- 4 files changed, 437 insertions(+), 14 deletions(-)
