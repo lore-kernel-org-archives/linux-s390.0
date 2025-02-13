@@ -1,72 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2B6324A068
-	for <linux-s390@vger.kernel.org>; Thu, 13 Feb 2025 20:17:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5333D2010EB
+	for <linux-s390@vger.kernel.org>; Thu, 13 Feb 2025 20:34:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739477839; cv=none; b=XO9QnvdoC/RtziodU2fV8ocE7+qHPGaq+xS3RRX9Toon/+Dxum/kNfVvVsb9Qokh4NwOzpqqL77GCdn30MmLgktxik2CpJmWWXpAcJ+cGQHS/LaJ1l29h2n+Dk74j36F3bPNng32SptGfuoEzWHCoR6x4un7kulhAvpUEugknt8=
+	t=1739478848; cv=none; b=OlH32DDVsly8R4z1td9H/yIh74YwkB80frVxK1Yv3Kb2Pn0Dut8DXl076ZgPj5JiNQ17Spvu1NMrXuN6KpwVUx5R0o17hFZxhmTexeBxx1A+mbK7HtqrVts46t/XhAoQxTZws5SJJYt8LgndJOdwGGpYOXPXNX3DZb0fM1oWOxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739477839; c=relaxed/simple;
-	bh=HoQdF3QeQ4LrH7HA1RKzuYHX+mrbRfrzTEJLz+xuTIw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fFQs2gVW6mviWeI3dVvOVNF6S+kwSk5MB3X22u/E0DcT6uwe4KkU5yWUGRiaZkWwG2fHn8yhWDieh48hINHUBur8AVzoDRmoqE1l33WAuJ1Awshl4Hv/7+E3XzrWkrQuVlaxVFBKr6YdEku4gD0SpWsZZGejkfUwUPrfIngqUMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gOEqPbol; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1739478848; c=relaxed/simple;
+	bh=+PbppRTxU+MRaSpBLpJRBAel6afWqJFUI37ki0hIVp0=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=DVJBwdrN60OfqMnx/bw2LiMR+XK4UzzJQalD8Sl9xIFCqQYhR/A2UowZlLvmwWPBGMu4O7bwz9Rr519GIZC/MlfIYctvRQc2UHaYa6DnEHWU1sX1nyueBF33ReLt2k6SnY4LLWzuCapsyZSCJIy+NhtLbo0jClKn9FC7AVF0ccY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RlilsrJ3; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gOEqPbol"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RlilsrJ3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739477836;
+	s=mimecast20190719; t=1739478844;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=BGo3+h2k5TPDqtNzkqC5kdvh2J3BneuEnbq2jY5Hj3I=;
-	b=gOEqPbol43kNusgfcxQPe4mlec58buuufXt2GRSWUt4bkciC8PQMGtdKeZZXv7NyaIhEtV
-	E+X1Rqr/ad78h3J9iyHGPqlVhf/sBV77zqLz40eEQGeRTf7QOHaWL7tfDCLWoah/sN2t6+
-	liyVSZ4xP+KTEZAeQJq4CXmA8VrHHt4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Owelm3gwpVKruhUqbHcegjaA+IycUGkEQKc9gqgnzTs=;
+	b=RlilsrJ3pwNXrcUuAKwQS8GW4DCMcytqAeH7wKRpWRJHsobygzYnUnVajfeUzJl02NDjKW
+	p02occxmFPHZlinm4jewu6kSoNClZQFX+g6o3x1RNryAhC06njHNGTONoP/WxFMRUBvX1w
+	MJhfEKGet/sANs6UamUftxrtEjHYDic=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-164-KoOb8nQ5P16BKUKOBjiGgg-1; Thu, 13 Feb 2025 15:17:15 -0500
-X-MC-Unique: KoOb8nQ5P16BKUKOBjiGgg-1
-X-Mimecast-MFC-AGG-ID: KoOb8nQ5P16BKUKOBjiGgg_1739477834
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-439605aea5bso7188995e9.1
-        for <linux-s390@vger.kernel.org>; Thu, 13 Feb 2025 12:17:15 -0800 (PST)
+ us-mta-669-6q8HYprMOzmmrV3snlD0Hw-1; Thu, 13 Feb 2025 15:34:02 -0500
+X-MC-Unique: 6q8HYprMOzmmrV3snlD0Hw-1
+X-Mimecast-MFC-AGG-ID: 6q8HYprMOzmmrV3snlD0Hw
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4393535043bso7684975e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 13 Feb 2025 12:34:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739477834; x=1740082634;
+        d=1e100.net; s=20230601; t=1739478842; x=1740083642;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
+         :content-language:references:cc:to:from:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=BGo3+h2k5TPDqtNzkqC5kdvh2J3BneuEnbq2jY5Hj3I=;
-        b=Ckjz06hiLfxnMw+acavfbSj8/LjHXqJ+SzOkUYYWKc8lMO1fw0d9IOT7ItX+zAaN8a
-         27lwB+fsQH+aCXcW4jU3vz9GcOZ5IuS1DVA9QI9z6wacpGK5Eb3N4kT/1hq/agGZAbJH
-         hxRBgpGCKBLsY9ZQc5yFipV1voIk12Z8SIWhzDFuPZQAib7rLwSFcm1hsv93ZFsMXGvT
-         MR+bq6ljJDaJAQwIxTKfAp0+zv+cL1zGt0Fl97XDGR9wzpekRCnkOfaQGhgMVbDoNVh5
-         OdiNh6Lx/yvPSnyWAX+bdy+OLpCdTqFDmkax6KbcX5NcmNC6WmMns4W8r9GSxwqbc5s6
-         MgIg==
-X-Forwarded-Encrypted: i=1; AJvYcCVuXjcaYfjsgX5XAIWVR4XZV8ItSvbYPc2uLVtLHXsdk8Osx4hSnovaCrN8tefqo7dBCazONL4sxBsK@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx3+pUvaYoocy4ZLyLUXBbCd57UBu3ErulouSFiD+ZiW4h5WN1p
-	P23aLekTCOrQAoDBAreyMtDNzUPguy6j4m2KgIAcK02CC6U2fVNriEbJXCxFgbZpbrr6gvuLJHQ
-	EQmwK+YH1SRhHqQFI1ru9QVnrT8AKN0u1/CAC33qIyJ2puTYoaJ5NL1+8ce0=
-X-Gm-Gg: ASbGncu4oh+Nme+uzwrlyT/WPv+WfkJpklypmuWWZF3ZxKZzdgPMBI5hQYdQX/GxLZ/
-	5Y0tGdNrDH/UgSo9jxXwW8cliJJVzw9cifxmrO0Nzyd7020dMkSUziRPFVE+ixqGoF948+aWJ2/
-	fOs35ggAw238OP6C9/+rpVRdAoeBGReYzn7xKxvFtjj02IzHYwsZF3JOr6Klp8ccMWYiW3CZOj7
-	hZ0f37+Gv1F4o/aoCWBWJxchPJbM7e9gWFF5/9e5rw51adiWFLYeDHfvuLCsYAkrfyRaLEs5CFR
-	y2di0dL5U47p0YY4qk38xzMSUrrKv/kNZm8=
-X-Received: by 2002:a05:600c:1c84:b0:434:fa55:eb56 with SMTP id 5b1f17b1804b1-43958169fa4mr113436165e9.7.1739477834099;
-        Thu, 13 Feb 2025 12:17:14 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGOwQrzMx6mzF34oagv4phSuZe+sFnsgm7REJuXPhoW4eKwVPGPx8edkZ281TMbOD8fUrHCnw==
-X-Received: by 2002:a05:600c:1c84:b0:434:fa55:eb56 with SMTP id 5b1f17b1804b1-43958169fa4mr113435915e9.7.1739477833820;
-        Thu, 13 Feb 2025 12:17:13 -0800 (PST)
-Received: from [192.168.3.141] (p5b0c6c7e.dip0.t-ipconnect.de. [91.12.108.126])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4395a04f217sm56924685e9.1.2025.02.13.12.17.11
+        bh=Owelm3gwpVKruhUqbHcegjaA+IycUGkEQKc9gqgnzTs=;
+        b=Y+ubhnmyF2SCmUf2vN6NmkmeLCUzFblbTs4CHS9z2A4LypMxAVgoiWPCe5mc3VrFe0
+         tEta1gvNua2GmF3apAM317f4moStJ2/7y3sPWyc2Uze2P8TcfdYII+Oou+gHyWO9q14c
+         JDkXSWbbNW5SwhpO0SkBeyFvxsJ+agsnJSjdznJ9udROeLa2PFKifBBE1yI4ZHZx5qkv
+         6CDH8VOtprMqdmBVtcOPNwBsDTigrmp1DnKadbZaVWlONYEaLvnr8nRDmt/ZbL0eYq8i
+         lGU0tLUg/XTKXtUN22ERx23iITlqCHbPcxc8kC5vWzo9UB8RXlkRSyCTEatCaTw2STxQ
+         7zrA==
+X-Forwarded-Encrypted: i=1; AJvYcCWvyOADwF+Vyxs+F43c9N6Q1UidibZNn1J0mpsbSKqEwhpc+u24T1OYeaW1QXUU2SXomHlQrl+ZK65R@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6N1BN70wGja4oE8TIcNHxAzSPDrw/wpZf+NXCzh+69XeUIgdI
+	bgX77Zl577h/C3F+OYJo8z05uwts4C60dQaGENtdQwfCNxl4KQ3TDbv8zrqPvoEFsWqP42HvtzZ
+	4wBJ6Bh9JTW7TAw/IhILiDscwN743vCBRCtZ6K6Tz6rbcufxKp8WAgdeorCU=
+X-Gm-Gg: ASbGncuxKYzrs6Dimz52zsGkxXgexbaJL4VeBOYBGdG4qFLYL/ziWZfvxMQQLidldvw
+	azmmX1n9dVEF+Qecxa7VcbMe1lPFYu8GTbRFZGiFBGp3Oo287H+eatpbMtoB3ItlWrQ/kKqJIp9
+	I2FypclcJ+EA2c2bY8T02eQoSmCTXO1xVTIKN2xWwqXBKRcxU3gNE9LE9q/usSDf5NKuPUxVoXz
+	R3jI/dkkMbO18oVfO1V15MvUNHDEjqxkTQVNpm4jSU+DX+WEyPNb5NBrz4kZb+AbZJh14TufC62
+	gVD80eB5Hk3JDMAwoLJR2PDktdvRcQEvzQhLGxmzyERtzFxfr5uWnUBy0UZW2weSgm6XPuZH0cY
+	fQlzi6Dhytz9XZue8oU3AWH8aOzu5ow==
+X-Received: by 2002:a05:600c:1d88:b0:439:5f04:4f8d with SMTP id 5b1f17b1804b1-43960eaed47mr48329745e9.12.1739478841755;
+        Thu, 13 Feb 2025 12:34:01 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGFJReXEONDTrhQHonsIaBbRJxOTK06ZyxnB2XY054b28v3hwUCDeAubUJizNBjk30aJJZnSg==
+X-Received: by 2002:a05:600c:1d88:b0:439:5f04:4f8d with SMTP id 5b1f17b1804b1-43960eaed47mr48329455e9.12.1739478841410;
+        Thu, 13 Feb 2025 12:34:01 -0800 (PST)
+Received: from ?IPV6:2003:cb:c718:100:347d:db94:161d:398f? (p200300cbc7180100347ddb94161d398f.dip0.t-ipconnect.de. [2003:cb:c718:100:347d:db94:161d:398f])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4396180f199sm26455445e9.15.2025.02.13.12.33.58
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Feb 2025 12:17:12 -0800 (PST)
-Message-ID: <e58310a9-0fd7-44fa-b66b-b98502dbed30@redhat.com>
-Date: Thu, 13 Feb 2025 21:17:10 +0100
+        Thu, 13 Feb 2025 12:34:00 -0800 (PST)
+Message-ID: <570b2f04-0c46-4a40-9b59-b9db1b5b6185@redhat.com>
+Date: Thu, 13 Feb 2025 21:33:58 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,15 +75,16 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/2] KVM: s390: fix issues when splitting folios
+Subject: Re: [PATCH v1 2/2] KVM: s390: pv: fix race when making a page secure
+From: David Hildenbrand <david@redhat.com>
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  frankja@linux.ibm.com, borntraeger@de.ibm.com, nrb@linux.ibm.com,
  seiden@linux.ibm.com, nsg@linux.ibm.com, schlameuss@linux.ibm.com,
  hca@linux.ibm.com
 References: <20250213200755.196832-1-imbrenda@linux.ibm.com>
- <20250213200755.196832-2-imbrenda@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
+ <20250213200755.196832-3-imbrenda@linux.ibm.com>
+ <6c741da9-a793-4a59-920f-8df77807bc4d@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -129,30 +131,137 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20250213200755.196832-2-imbrenda@linux.ibm.com>
+In-Reply-To: <6c741da9-a793-4a59-920f-8df77807bc4d@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
+On 13.02.25 21:16, David Hildenbrand wrote:
+> On 13.02.25 21:07, Claudio Imbrenda wrote:
+>> Holding the pte lock for the page that is being converted to secure is
+>> needed to avoid races. A previous commit removed the locking, which
+>> caused issues. Fix by locking the pte again.
+>>
+>> Fixes: 5cbe24350b7d ("KVM: s390: move pv gmap functions into kvm")
+> 
+> If you found this because of my report about the changed locking,
+> consider adding a Suggested-by / Reported-y.
+> 
+>> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+>> ---
+>>    arch/s390/include/asm/uv.h |  2 +-
+>>    arch/s390/kernel/uv.c      | 19 +++++++++++++++++--
+>>    arch/s390/kvm/gmap.c       | 12 ++++++++----
+>>    3 files changed, 26 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+>> index b11f5b6d0bd1..46fb0ef6f984 100644
+>> --- a/arch/s390/include/asm/uv.h
+>> +++ b/arch/s390/include/asm/uv.h
+>> @@ -631,7 +631,7 @@ int uv_pin_shared(unsigned long paddr);
+>>    int uv_destroy_folio(struct folio *folio);
+>>    int uv_destroy_pte(pte_t pte);
+>>    int uv_convert_from_secure_pte(pte_t pte);
+>> -int make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb);
+>> +int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb);
+>>    int uv_convert_from_secure(unsigned long paddr);
+>>    int uv_convert_from_secure_folio(struct folio *folio);
+>>    
+>> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+>> index 9f05df2da2f7..de3c092da7b9 100644
+>> --- a/arch/s390/kernel/uv.c
+>> +++ b/arch/s390/kernel/uv.c
+>> @@ -245,7 +245,7 @@ static int expected_folio_refs(struct folio *folio)
+>>     * Context: The caller must hold exactly one extra reference on the folio
+>>     *          (it's the same logic as split_folio())
+>>     */
+>> -int make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb)
+>> +static int __make_folio_secure(struct folio *folio, unsigned long hva, struct uv_cb_header *uvcb)
+>>    {
+>>    	int expected, cc = 0;
+>>    
+>> @@ -277,7 +277,22 @@ int make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb)
+>>    		return -EAGAIN;
+>>    	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+>>    }
+>> -EXPORT_SYMBOL_GPL(make_folio_secure);
+>> +
+>> +int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb)
+>> +{
+>> +	spinlock_t *ptelock;
+>> +	pte_t *ptep;
+>> +	int rc;
+>> +
+>> +	ptep = get_locked_pte(mm, hva, &ptelock);
+>> +	if (!ptep)
+>> +		return -ENXIO;
+>> +	rc = __make_folio_secure(page_folio(pte_page(*ptep)), hva, uvcb);
+>> +	pte_unmap_unlock(ptep, ptelock);
+>> +
+>> +	return rc;
+>> +}
+>> +EXPORT_SYMBOL_GPL(make_hva_secure);
+>>    
+>>    /*
+>>     * To be called with the folio locked or with an extra reference! This will
+>> diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+>> index fc4d490d25a2..e56c0ab5fec7 100644
+>> --- a/arch/s390/kvm/gmap.c
+>> +++ b/arch/s390/kvm/gmap.c
+>> @@ -55,7 +55,7 @@ static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_str
+>>    	return atomic_read(&mm->context.protected_count) > 1;
+>>    }
+>>    
+>> -static int __gmap_make_secure(struct gmap *gmap, struct page *page, void *uvcb)
+>> +static int __gmap_make_secure(struct gmap *gmap, struct page *page, unsigned long hva, void *uvcb)
+>>    {
+>>    	struct folio *folio = page_folio(page);
+>>    	int rc;
+>> @@ -83,7 +83,7 @@ static int __gmap_make_secure(struct gmap *gmap, struct page *page, void *uvcb)
+>>    		return -EAGAIN;
+>>    	if (should_export_before_import(uvcb, gmap->mm))
+>>    		uv_convert_from_secure(folio_to_phys(folio));
+>> -	rc = make_folio_secure(folio, uvcb);
+>> +	rc = make_hva_secure(gmap->mm, hva, uvcb);
+>>    	folio_unlock(folio);
+>>    
+>>    	/*
+>> @@ -120,6 +120,7 @@ static int __gmap_make_secure(struct gmap *gmap, struct page *page, void *uvcb)
+>>    int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+>>    {
+>>    	struct kvm *kvm = gmap->private;
+>> +	unsigned long vmaddr;
+>>    	struct page *page;
+>>    	int rc = 0;
+>>    
+>> @@ -127,8 +128,11 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+>>    
+>>    	page = gfn_to_page(kvm, gpa_to_gfn(gaddr));
+>>    	mmap_read_lock(gmap->mm);
+>> -	if (page)
+>> -		rc = __gmap_make_secure(gmap, page, uvcb);
+>> +	vmaddr = gfn_to_hva(gmap->private, gpa_to_gfn(gaddr));
+>> +	if (kvm_is_error_hva(vmaddr))
+>> +		rc = -ENXIO;
+>> +	if (!rc && page)
+>> +		rc = __gmap_make_secure(gmap, page, vmaddr, uvcb);
+>>    	kvm_release_page_clean(page);
+>>    	mmap_read_unlock(gmap->mm);
+>>    
+> 
+> You effectively make the code more complicated and inefficient than
+> before. Now you effectively walk the page table twice in the common
+> small-folio case ...
+> 
+> Can we just go back to the old handling that we had before here?
 
-> +	struct folio *folio = page_folio(page);
->   	int rc;
->   
->   	lockdep_assert_not_held(&mm->mmap_lock);
-> @@ -2645,7 +2646,11 @@ int kvm_s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool
->   	lru_add_drain_all();
->   	if (split) {
->   		folio_lock(folio);
-> -		rc = split_folio(folio);
-> +		rc = min_order_for_split(folio);
-> +		if (rc > 0)
-> +			rc = -EINVAL;
-> +		if (!rc)
-> +			rc = split_huge_page_to_list_to_order(page, NULL, 0);
+I'll note that there is still the possibility for a different race: 
+nothing guarantees that the page you looked up using gfn_to_hva() will 
+still be mapped when you perform the get_locked_pte(). Not sure what 
+would happen if we would have a different page mapped.
 
-split_huge_page() ?
-
-But see my reply to #2. Likely we should just undo the refactorings you 
-added while moving the code.
+You could re-verify it is still there, but then, doing two page table 
+walks is still more than required in the common case where we can just 
+perform the conversion.
 
 -- 
 Cheers,
