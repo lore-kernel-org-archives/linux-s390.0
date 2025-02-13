@@ -1,71 +1,50 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out-181.mta0.migadu.com (out-181.mta0.migadu.com [91.218.175.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F6C02C182;
-	Thu, 13 Feb 2025 12:53:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 312E12659FF;
+	Thu, 13 Feb 2025 13:59:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739451203; cv=none; b=CgKnXk7cS6xwBc9Sy3zEeZApcIk4eDTP3rPjm1LpueOAF7gKap871d3wraQy6olrdci8IZPmpIrz/Tv6Ebxbx6meFtCNdsKcx/quWKtYF/feaEe8oGIuoO+wRcRqcotV0H6kolkzprWRS0K1t1M+aokeRSbv1dlb+z9tnGOHQj0=
+	t=1739455177; cv=none; b=bRfGVd3CsHypAikXCK8bKJVq4wnd3fznMBa/hK92HzoxfHCI7pdveoG7D0QgNlcTTBI+g9Lvqtl36A4GDpS26bhD6GXXCiFhXkkKD7KdGKwqu5trvErzNGSDuJ7h+sMBkTVjgiyQ+vRW16LZgop6v5Jybin7Wz1egtQsu3z+Mkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739451203; c=relaxed/simple;
-	bh=eWWChd9+g97MF6wnnaelU20oPUkpPav1lgJJQci8f6Y=;
+	s=arc-20240116; t=1739455177; c=relaxed/simple;
+	bh=cDbU7M3nb3YVSOukISqyiklXkeydmb+/cAbnL3ACgMM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WxuIHLqY6lIhYvV7vLHQISI4QIvGmTXvWPWLM1q1zKMvT9EpQuU52BEsO/Ah+0j9bEHcIv7kQiTb2dtu9eCGaO/irfvresUFaWxzTryKjWTProbu17DrIxsy4ZtJY8Z/mnca88IRBVtNXlAafqJIwlb64ZYc7VCuN8vovDucLeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mkv988nV; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=n8RqLRTl/We/xLfL+YEi914WduYOIC/mbApVTA7p5Y8tVT69b2mfDOU2RsOtzMaUICcfKN0zrF+k/f8kw2ffk7B/kwpBe3VO9lqxcHUKYuWs0x0CxILvu66PIZX18+fzgbpcYh4GLj0FfG1yCXDUZ54HgkI3oe7hJ+mnj2tHkFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=oxL4AOv2; arc=none smtp.client-ip=91.218.175.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mkv988nV"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51DCmkYW012578;
-	Thu, 13 Feb 2025 12:53:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=eWPNAIgOiUaqeYRzBZnoWTnufMu8O3
-	aad3DcxE2TisE=; b=mkv988nVqKFI+Q6OrBWS2ipxPqBTWh94TEwCx5ur0CW5tE
-	gFbmuMsKaNXIBWlbpy9XXzuqt8Q0SYtWLu5xw5dicWbmtK4cnhHK/N/mmO32y0Kt
-	GpxgaLbUIE+WtPwE5YYqiBZ+byC9GxDxMuwNYQn050np1UxVh3j/D4JLRuKI7MKx
-	qnE39AotUl1IWNJO8+Ftlv1OKxIIJ/IXGkgDbdH3t9eDuti41obAiU46MnGoLJHZ
-	BBkoakKAE6C0M/vRvP7cbEBdY4a8uahULG/ptd//n6izD71nSjIDUuS/h4zdd0Kd
-	0X3cjD9wjHovI3bb6RqoeEn9YfZJq2oiDEDhxYWA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44s7k0tsn9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Feb 2025 12:53:08 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51DBlMZ1001051;
-	Thu, 13 Feb 2025 12:53:08 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44pjkne8ya-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Feb 2025 12:53:07 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51DCr4JY22675828
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Feb 2025 12:53:04 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2997620043;
-	Thu, 13 Feb 2025 12:53:04 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F256620040;
-	Thu, 13 Feb 2025 12:53:03 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 13 Feb 2025 12:53:03 +0000 (GMT)
-Date: Thu, 13 Feb 2025 13:53:02 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] arm64: scripts/sorttable: Implement sorting mcount_loc
- at boot for arm64
-Message-ID: <20250213125302.12012-A-hca@linux.ibm.com>
-References: <20250210142647.083ff456@gandalf.local.home>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="oxL4AOv2"
+Date: Thu, 13 Feb 2025 14:59:19 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1739455163;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=quCNt3rENXxq12lVNZV7KFjjQFYvI9uo2HoGXNuB/os=;
+	b=oxL4AOv2PByqQJRmy2LV/aaLcm7zlaNJBU3a6mZ4KiT1XwSVG9tf4Z3GzbapebfxcHiqJx
+	A7DPMUZTuDaWda9Ms+5FMzarxZGNtmgIgBHFlsikf73RqRVlrke009F2yKj0xwukbdTbKX
+	kTUfgGhAYWnCki1zK3SlWOvzxZvLrdU=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com, 
+	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com, 
+	pbonzini@redhat.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org, 
+	oliver.upton@linux.dev, suzuki.poulose@arm.com, yuzenghui@huawei.com, joey.gouly@arm.com, 
+	andre.przywara@arm.com
+Subject: Re: [kvm-unit-tests PATCH v2 15/18] Add kvmtool_params to test
+ specification
+Message-ID: <20250213-a6741ec8fd32c34500327176@orel>
+References: <20250120164316.31473-1-alexandru.elisei@arm.com>
+ <20250120164316.31473-16-alexandru.elisei@arm.com>
+ <20250123-bbd289cfd7abfd93e9b67eef@orel>
+ <Z6tmrX8/+wzeFL1P@arm.com>
+ <20250212-77a312138f8b5931553ece38@orel>
+ <Z6zNpF6mi5GgeDFE@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,49 +53,80 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250210142647.083ff456@gandalf.local.home>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ric8tIwk28XGa8a184QYg1kdT_6Gbzhn
-X-Proofpoint-GUID: ric8tIwk28XGa8a184QYg1kdT_6Gbzhn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-13_05,2025-02-13_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=878
- malwarescore=0 lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=0
- phishscore=0 impostorscore=0 spamscore=0 priorityscore=1501 mlxscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502130096
+In-Reply-To: <Z6zNpF6mi5GgeDFE@arm.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Mon, Feb 10, 2025 at 02:26:47PM -0500, Steven Rostedt wrote:
-> For the s390 folks. I cross compiled a s390 and looked at the mcount_loc
-> section, and I have no idea how to implement this for that. I wrote a elf
-> parser to dump sections based symbols:
+On Wed, Feb 12, 2025 at 04:34:44PM +0000, Alexandru Elisei wrote:
+> Hi Drew,
 > 
->   https://rostedt.org/code/dump_elf_sym.c
+> On Wed, Feb 12, 2025 at 04:56:42PM +0100, Andrew Jones wrote:
+> > On Tue, Feb 11, 2025 at 03:03:09PM +0000, Alexandru Elisei wrote:
+> > > Hi Drew,
+> > > 
+> > > On Thu, Jan 23, 2025 at 04:53:29PM +0100, Andrew Jones wrote:
+> > > > On Mon, Jan 20, 2025 at 04:43:13PM +0000, Alexandru Elisei wrote:
+> > > > > arm/arm64 supports running tests under kvmtool, but kvmtool's syntax for
+> > > > > running a virtual machine is different than qemu's. To run tests using the
+> > > > > automated test infrastructure, add a new test parameter, kvmtool_params.
+> > > > > The parameter serves the exact purpose as qemu_params/extra_params, but using
+> > > > > kvmtool's syntax.
+> > > > 
+> > > > The need for qemu_params and kvmtool_params makes more sense to me now
+> > > > that I see the use in unittests.cfg (I wonder if we can't rearrange this
+> > > > series to help understand these things up front?). There's a lot of
+> > > 
+> > > Certainly, I'll move it closer to the beginning of the series.
+> > > 
+> > > > duplication, though, with having two sets of params since the test-
+> > > > specific inputs always have to be duplicated. To avoid the duplication
+> > > > I think we can use extra_params for '-append' and '--params' by
+> > > > parametrizing the option name for "params" (-append / --params) and then
+> > > > create qemu_opts and kvmtool_opts for extra options like --pmu, --mem,
+> > > > and irqchip.
+> > > 
+> > > How about something like this (I am using selftest-setup as an example, all the
+> > > other test definitions would be similarly modified):
+> > > 
+> > > diff --git a/arm/unittests.cfg b/arm/unittests.cfg
+> > > index 2bdad67d5693..3009305ba2d3 100644
+> > > --- a/arm/unittests.cfg
+> > > +++ b/arm/unittests.cfg
+> > > @@ -15,7 +15,9 @@
+> > >  [selftest-setup]
+> > >  file = selftest.flat
+> > >  smp = 2
+> > > -extra_params = -m 256 -append 'setup smp=2 mem=256'
+> > > +test_args = setup smp=2 mem=256
+> > > +qemu_params = -m 256
+> > > +kvmtool_params = --mem 256
+> > >  groups = selftest
+> > > 
+> > > I was thinking about using 'test_args' instead of 'extra_params' to avoid any
+> > > confusion between the two, and to match how they are passed to a test
+> > > - they are in the argv main's argument.
+> > 
+> > Yes, this looks good and test_args is better than my suggestion in the
+> > other mail of 'cmdline_options' since "cmdline" would be ambiguous with
+> > the test's cmdline and the vmm's cmdline.
+> > 
+> > > 
+> > > Also, should I change the test definitions for all the other architectures?
+> > > It's not going to be possible for me to test all the changes.
+> > 
+> > We should be safe with an s/extra_params/qemu_params/ change for all
+> > architectures and CI is pretty good, so we'd have good confidence
+> > if it passes, but, I think we should keep extra_params as a qemu_params
+> > alias anyway since it's possible that people have wrapped kvm-unit-tests
+> > in test harnesses which generate unittests.cfg files.
 > 
-> And ran it on the s390 vmlinux:
+> Sounds good, split extra_params into test_args and qemu_params in all
+> unittests.cfg files, and keep extra_params as an alias for qemu_params.
 > 
->  $ ./dump_elf_sym vmlinux __start_mcount_loc __stop_mcount_loc
->  1801620: .. .. .. .. .. .. .. ..   00 00 00 00 00 11 70 20  ......... .....p 
->  1801630: 00 00 00 00 00 11 70 90   00 00 00 00 00 11 70 a0  ......p.. .....p.
->  1801640: 00 00 00 00 00 11 71 10   00 00 00 00 00 11 71 20  ......q.. .....q 
->  1801650: 00 00 00 00 00 11 71 90   00 00 00 00 01 7c 70 00  ......q.. ....|p.
->  1801660: 00 00 00 00 01 7c 70 20   00 00 00 00 01 7c 70 40  .....|p . ....|p@
->  1801670: 00 00 00 00 01 7c 70 60   00 00 00 00 01 7c 70 70  .....|p`. ....|pp
->  1801680: 00 00 00 00 01 7c 70 98   00 00 00 00 01 7c 70 c0  .....|p.. ....|p.
->  1801690: 00 00 00 00 01 7c 70 d0   00 00 00 00 01 7c 71 68  .....|p.. ....|qh
-> [..]
-> 
-> It looks like addresses in that section...
+> I was thinking that maybe I should send that as a separate patch, to make
+> sure it gets the visibility it deserves from the other maintainers, instead
+> of it being buried in a 18 patch series. What do you think?
 
-Those are the addresses of the mcount locations. After looking at
-sorttable.c it really looks like that for s390 we can simply select
-HAVE_BUILDTIME_MCOUNT_SORT without any further changes.
+Sounds good.
 
-I just tested it with different compiler options (fentry vs hotpatch),
-including selecting FTRACE_SORT_STARTUP_TEST, and as expected everything
-works.
-
-I'm going to give it some more testing in our CI - but if nothing breaks a
-patch which selects HAVE_BUILDTIME_MCOUNT_SORT for s390 will go upstream
-with the next merge window.
+Thanks,
+drew
