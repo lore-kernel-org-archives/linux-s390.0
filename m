@@ -1,125 +1,140 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 214AE20DD72;
-	Thu, 13 Feb 2025 10:11:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9B902227EB4;
+	Thu, 13 Feb 2025 11:23:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739441486; cv=none; b=TO+YJ1U8x1bHXNxQiTCIylk07eQvlnqLql5pNn5Qs1deJr/VWLowG36YyiJIJfWzK5ygbsAKlrBza+vGF/eL6YIwFR5ZhFf8zhqWmzYuhER04sXmSZJOs7Xxlt9ciMrhCWyeYU4i1aCE+c5yM7lnseQWcxZGVSxln/HRQBkbgt8=
+	t=1739445802; cv=none; b=GnscnHA6dE9ZsRW9/YmX+QUx/N9k7iCYH5trJWmM74a2AQ7wJge/SMQZ9VsD6VE2PxcvXeCOOjLMeD9JdCmJnP3/s85f0r1zaS9Z9TWbS0e84+M+4RjjnsPURyQkIaNRVTEVnpSsK+zAhLLIEWrrZ04wVer7hiQSRaes74RrU2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739441486; c=relaxed/simple;
-	bh=M+w9kabOMahmG52D1RxSaUfG2yewgL3Ce6/3SZBF4P8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YqRwQgocvQYIaRFbo98SC2mGxNVibBVOlgeu2BH8Pmu1zBTfD2memJcm+o9g8BuCJ6lRd6f6XbYB5VaQ7uQ8ilN5TEyzX+EWKTWlqvxHtuL9vF9injUrWQA5ls8Kf7PzXV+iOiz02bhgcoZJ8kCrjqxUnf1YDAs1q/eBE+P2Bl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QZaxwkOd; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QZaxwkOd"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51D9muVw015181;
-	Thu, 13 Feb 2025 10:11:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=U74TuyLY5AFY92KaNCGYKAz8R/LTgs
-	X6KqtfSKDyU1o=; b=QZaxwkOdw85j9Se0f9lFoCNeL1+646+DW0iQ9bHd+2mPPY
-	vWqtGD5BwxqpUxMC3zkNQG6+jdpgq0sEH4netftKyNmLYF0AqjSGG8qSZ1uAFMTf
-	yYXJ5vd/nCGKCSPisjrpkrFa0t2CwNoxqPFCh7cV7LL5zruKqtMA4JsEmSnKfsRY
-	VTrm8bvV8FxOrbK2QH9DJayp8jbFWDM0VNbQomc6h+4HG9plUjyeurYGWWSbm1tE
-	bfk5w58yHm3q+rgUy2LAQrlvjBR3KWyb4ONn6eNv8aFpEN6WObqjisa6wVZUQEd7
-	CIOdoMIDAihTrxKz55PhvnQ4yqut5eE0CtRRkelw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44rxfu4u9a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Feb 2025 10:11:10 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51DABAlR007340;
-	Thu, 13 Feb 2025 10:11:10 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44rxfu4u99-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Feb 2025 10:11:10 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51D7LWPQ001358;
-	Thu, 13 Feb 2025 10:11:09 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44pjkndpd5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Feb 2025 10:11:09 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51DAB5CT29753996
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Feb 2025 10:11:05 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B348E2004E;
-	Thu, 13 Feb 2025 10:11:05 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EA4E820065;
-	Thu, 13 Feb 2025 10:11:04 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.6.230])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 13 Feb 2025 10:11:04 +0000 (GMT)
-Date: Thu, 13 Feb 2025 11:11:03 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Frank van der Linden <fvdl@google.com>
-Cc: akpm@linux-foundation.org, muchun.song@linux.dev, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, yuzhao@google.com,
-        usamaarif642@gmail.com, joao.m.martins@oracle.com,
-        roman.gushchin@linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 03/28] mm/cma: introduce cma_intersects function
-Message-ID: <Z63FN1+f+Ca2owdm@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250129224157.2046079-1-fvdl@google.com>
- <20250129224157.2046079-4-fvdl@google.com>
+	s=arc-20240116; t=1739445802; c=relaxed/simple;
+	bh=ogiguVW4Z7vn4yhlEE4l8PDGLrOsug+PvKa6NwTYaco=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uHCTCin4FuLwuGh9ztsDuGDoXHnIe3p03WPvZd2lu2wWbtA00owpoCOOC/V32Pw8crSiThEAg4OFZ4Mn1EnDYSiSsjTv51/4XGxpoZbkl4rH+YzkFmyyP9jgG1LNYJaojGxe6bHAPbu6KZyCktbfsgKvTyjb9iGBIB8lVSZDn0s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 84F7226A4;
+	Thu, 13 Feb 2025 03:23:40 -0800 (PST)
+Received: from [10.1.32.44] (e122027.cambridge.arm.com [10.1.32.44])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4CE743F6A8;
+	Thu, 13 Feb 2025 03:23:14 -0800 (PST)
+Message-ID: <8e75c5ff-a97b-4a6f-9c8b-ac2598eafe60@arm.com>
+Date: Thu, 13 Feb 2025 11:23:10 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250129224157.2046079-4-fvdl@google.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 4-Nzm_kfKbiYH4HhdkDWG-rtcGAVd8YX
-X-Proofpoint-GUID: Vzn0MMqmK8Lalyo1VKVejFWob49y7KWE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-13_03,2025-02-13_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- clxscore=1011 adultscore=0 mlxlogscore=491 phishscore=0 bulkscore=0
- suspectscore=0 spamscore=0 impostorscore=0 malwarescore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502130076
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/4] mm: Rename GENERIC_PTDUMP and PTDUMP_CORE
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org
+Cc: christophe.leroy@csgroup.eu, Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
+ Nicholas Piggin <npiggin@gmail.com>, Paul Walmsley
+ <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kvmarm@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org
+References: <20250213040934.3245750-1-anshuman.khandual@arm.com>
+ <20250213040934.3245750-5-anshuman.khandual@arm.com>
+From: Steven Price <steven.price@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20250213040934.3245750-5-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jan 29, 2025 at 10:41:32PM +0000, Frank van der Linden wrote:
-> Now that CMA areas can have multiple physical ranges,
-> code can't assume a CMA struct represents a base_pfn
-> plus a size, as returned from cma_get_base.
-> 
-> Most cases are ok though, since they all explicitly
-> refer to CMA areas that were created using existing
-> interfaces (cma_declare_contiguous_nid or
-> cma_init_reserved_mem), which guarantees they have just
-> one physical range.
-> 
-> An exception is the s390 code, which walks all CMA
-> ranges to see if they intersect with a range of memory
-> that is about to be hotremoved. So, in the future,
-> it might run in to multi-range areas. To keep this check
-> working, define a cma_intersects function. This just checks
-> if a physaddr range intersects any of the ranges.
-> Use it in the s390 check.
-> 
+On 13/02/2025 04:09, Anshuman Khandual wrote:
+> Platforms subscribe into generic ptdump implementation via GENERIC_PTDUMP.
+> But generic ptdump gets enabled via PTDUMP_CORE. These configs combination
+> is confusing as they sound very similar and does not differentiate between
+> platform's feature subscription and feature enablement for ptdump. Rename
+> the configs as ARCH_HAS_PTDUMP and PTDUMP making it more clear and improve
+> readability.
+
+I'm not going to bikeshed over the naming, but a few points below.
+
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Nicholas Piggin <npiggin@gmail.com>
+> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+> Cc: Palmer Dabbelt <palmer@dabbelt.com>
 > Cc: Heiko Carstens <hca@linux.ibm.com>
 > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-doc@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: kvmarm@lists.linux.dev
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-riscv@lists.infradead.org
 > Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Frank van der Linden <fvdl@google.com>
+> Cc: linux-mm@kvack.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
->  arch/s390/mm/init.c | 13 +++++--------
->  include/linux/cma.h |  1 +
->  mm/cma.c            | 21 +++++++++++++++++++++
->  3 files changed, 27 insertions(+), 8 deletions(-)
+>  Documentation/arch/arm64/ptdump.rst       |  4 ++--
+>  arch/arm64/Kconfig                        |  2 +-
+>  arch/arm64/include/asm/ptdump.h           |  4 ++--
+>  arch/arm64/kvm/Kconfig                    |  4 ++--
+>  arch/arm64/mm/Makefile                    |  2 +-
+>  arch/powerpc/Kconfig                      |  2 +-
+>  arch/powerpc/configs/mpc885_ads_defconfig |  2 +-
+>  arch/powerpc/mm/Makefile                  |  2 +-
+>  arch/riscv/Kconfig                        |  2 +-
+>  arch/riscv/mm/Makefile                    |  2 +-
+>  arch/s390/Kconfig                         |  2 +-
+>  arch/s390/mm/Makefile                     |  2 +-
+>  arch/x86/Kconfig                          |  2 +-
+>  arch/x86/Kconfig.debug                    |  2 +-
+>  arch/x86/mm/Makefile                      |  2 +-
+>  mm/Kconfig.debug                          | 12 ++++++------
+>  mm/Makefile                               |  2 +-
+>  17 files changed, 25 insertions(+), 25 deletions(-)
+> 
+> diff --git a/Documentation/arch/arm64/ptdump.rst b/Documentation/arch/arm64/ptdump.rst
+> index 5dcfc5d7cddf..a2e527377da3 100644
+> --- a/Documentation/arch/arm64/ptdump.rst
+> +++ b/Documentation/arch/arm64/ptdump.rst
+> @@ -22,8 +22,8 @@ offlining of memory being accessed by the ptdump code.
+>  In order to dump the kernel page tables, enable the following
+>  configurations and mount debugfs::
+>  
+> - CONFIG_GENERIC_PTDUMP=y
+> - CONFIG_PTDUMP_CORE=y
+> + CONFIG_ARCH_HAS_PTDUMP=y
+> + CONFIG_PTDUMP=y
+>   CONFIG_PTDUMP_DEBUGFS=y
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+I think we should drop CONFIG_GENERIC_PTDUMP/CONFIG_ARCH_HAS_PTDUMP from
+this list. It's not a user-selectable symbol so there's no need to be
+documenting it here.
+
+>  
+>   mount -t debugfs nodev /sys/kernel/debug
+[...]
+> diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
+> index 77306be62e9e..db005618690b 100644
+> --- a/arch/powerpc/configs/mpc885_ads_defconfig
+> +++ b/arch/powerpc/configs/mpc885_ads_defconfig
+> @@ -78,4 +78,4 @@ CONFIG_DEBUG_VM_PGTABLE=y
+>  CONFIG_DETECT_HUNG_TASK=y
+>  CONFIG_BDI_SWITCH=y
+>  CONFIG_PPC_EARLY_DEBUG=y
+> -CONFIG_GENERIC_PTDUMP=y
+> +CONFIG_PTDUMP=y
+
+I'd suggest dropp this from the defconfig too, just like patch 1 dropped
+it from debug.config.
+
+Steve
+
