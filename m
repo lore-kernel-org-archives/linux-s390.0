@@ -1,35 +1,66 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19D1A211A36;
-	Thu, 13 Feb 2025 17:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAE128A2CB;
+	Thu, 13 Feb 2025 20:08:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739468406; cv=none; b=K7SqyX22hcH3Rhxv90bvu5k1pJcAoPaA7AWAyGekbpuLer8i2VIffd83GrEeYIvTZa9ldl7DbroQMvLYBz09kGjsHSpbyVEKlFWHPzBwj2dBRQ2G9gQZ14NeDEEJXhT5RnMDAZaM/Bz44nBurNvjqzUkhps34NoEahb387Bjqz8=
+	t=1739477292; cv=none; b=fDCQvex7JsMmr8JE/aIDeKe0YNuHBmNxbuI4GtX0n4S3AL7h1feFS6JJNGeKnHYd3nmNP/S9By4BakUrBo3jAystOi/PFRRDKaLJ1OW9pBA8D/pdFvXBdKig8hmk1mh+RTH0od71nnf1A35BcS95DdDIWE7Uw/fSD1DA0axXuhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739468406; c=relaxed/simple;
-	bh=okz/Zp02PWPrwBd8hiza3ZcW4lXk0Cs566iIT1abH9I=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=sn8DFMB1zujvQ0JSobyQBcddVGrWBkM7X/sQtgcYb3ueO6TJp4A6IL7ZD0j34vBvKVW2qha4vJGYRVBm0xPA1mRrQz1nPpr76PvyibBtENIyAm3FOWO7ffid+FTWs4H7RiVvDGRIN8IbYnFwbzLBRRq9QHerY6hZp2NFwa/ZzYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ksfHuv8/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1739477292; c=relaxed/simple;
+	bh=/r3+TgwrcVNhcjjGk6MYwTF8/FYhXyZWt6nZveFqRCA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VztKYBneTnqzJSZWPLBC87+Y0pw1wgvlX7WZZFm2W+KC+wYD1GXHl+k+KTGT0HeXtN2x2kCVGoC0GDlY4LFcX/fGITSTEMJtR6y6Q9APnPO4QA0fcN9dXi/TbfEU1s5GVh6w3iTMSo5wur2LLdA0pnUxTfef8Ce6h5jICOjkMFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jeFZh/b5; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ksfHuv8/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F32FC4CED1;
-	Thu, 13 Feb 2025 17:40:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739468405;
-	bh=okz/Zp02PWPrwBd8hiza3ZcW4lXk0Cs566iIT1abH9I=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=ksfHuv8/7kUOLamVE3TtiF7DPtGhEPXkPGjmSzpy72Vi+Cc0T9utZugjl/zqC+ySy
-	 wTBI1oDP9KyQQSrIHIpaFAUwfSo8xdC00QKmy4j3mfSO5kj2SoJF0sGo00WRN+FyXJ
-	 mft8+wzroWeH5wYdZlmUjzmAXO7IOkgoJL3WpdkNdDyrwnFHJZn/nS1G14NU5r4Hcw
-	 eFpJHOg7u151ItdFv+OlFPaNVrVJa1lgalAC320Vx/+uzzXw7MINeRNXQ+jFoOdBhq
-	 oTW4C6hsDQ0VJ3ipdraCiWUb1zHjBqgFn4SQzTntkeRU+3FfVmbg+ZLTbM2QD1wwRW
-	 Z2sSES02Tmhgg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB13C380CEEF;
-	Thu, 13 Feb 2025 17:40:35 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jeFZh/b5"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51DFmht0015123;
+	Thu, 13 Feb 2025 20:08:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=r5NxNiwraLIrNf0oBP87fGsOB1KMBN9QlY+MdUMin
+	ck=; b=jeFZh/b5AOiu8EiCNQPNf5A4SAONRzLl8ww9R/zAjDGbm0QQCVWZLfdvQ
+	/gIFwlwOX+B4zRSMAkt9n1Rd2NSoAaPWjmjCD0XDNdtEPvW8Rfphmi2h8+1oEBf+
+	Z8Ju4lCi9aAtO/E9J0U6j/Uh234c/KdSFVkrhuHO68CsUlRIZvcEAf6bXpicYciM
+	EXPQhtZidBSByzVAyEEexH6CMlChYzuMfAb9C38pxFO7MZf+d/vZnHlMtreMaeGq
+	CsCQVtuZDKCwkeTQEMsELEsRn8uYsyFI0VUMjTavlHrh6roLERDBvsHXUgK28pu/
+	+gVtGT+K7sFtZU/9n9DrcNQuEtR0Q==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44sceq3v2q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Feb 2025 20:08:08 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51DJIQMf016689;
+	Thu, 13 Feb 2025 20:08:07 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44pk3kg16f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Feb 2025 20:08:07 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51DK83ST47055162
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 13 Feb 2025 20:08:03 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 90DA320040;
+	Thu, 13 Feb 2025 20:08:03 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E723020043;
+	Thu, 13 Feb 2025 20:08:02 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.171.41.52])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 13 Feb 2025 20:08:02 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@de.ibm.com, david@redhat.com,
+        nrb@linux.ibm.com, seiden@linux.ibm.com, nsg@linux.ibm.com,
+        schlameuss@linux.ibm.com, hca@linux.ibm.com
+Subject: [PATCH v1 0/2] KVM: s390: fix two newly introduced bugs
+Date: Thu, 13 Feb 2025 21:07:53 +0100
+Message-ID: <20250213200755.196832-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,48 +68,35 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] s390/qeth: move netif_napi_add_tx() and napi_enable()
- from under BH
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173946843476.1311122.1215077839596322461.git-patchwork-notify@kernel.org>
-Date: Thu, 13 Feb 2025 17:40:34 +0000
-References: <20250212163659.2287292-1-wintera@linux.ibm.com>
-In-Reply-To: <20250212163659.2287292-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- twinkler@linux.ibm.com, horms@kernel.org, kuniyu@amazon.com,
- jdamato@fastly.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sdEkEZAj3C-5UiFAw238kVX4oCYCSkRL
+X-Proofpoint-ORIG-GUID: sdEkEZAj3C-5UiFAw238kVX4oCYCSkRL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-13_08,2025-02-13_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 impostorscore=0 lowpriorityscore=0 mlxlogscore=494
+ clxscore=1015 malwarescore=0 spamscore=0 phishscore=0 suspectscore=0
+ bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502130141
 
-Hello:
+* fix race when making a page secure (hold pte lock again)
+* fix issues when splitting folios (use split_huge_page_to_list_to_order())
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+This should fix the issues I have seen, which I think/hope are also the same
+issues that David found.
 
-On Wed, 12 Feb 2025 17:36:59 +0100 you wrote:
-> Like other drivers qeth is calling local_bh_enable() after napi_schedule()
-> to kick-start softirqs [0].
-> Since netif_napi_add_tx() and napi_enable() now take the netdev_lock()
-> mutex [1], move them out from under the BH protection. Same solution as in
-> commit a60558644e20 ("wifi: mt76: move napi_enable() from under BH")
-> 
-> Fixes: 1b23cdbd2bbc ("net: protect netdev->napi_list with netdev_lock()")
-> Link: https://lore.kernel.org/netdev/20240612181900.4d9d18d0@kernel.org/ [0]
-> Link: https://lore.kernel.org/netdev/20250115035319.559603-1-kuba@kernel.org/ [1]
-> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-> 
-> [...]
+Claudio Imbrenda (2):
+  KVM: s390: fix issues when splitting folios
+  KVM: s390: pv: fix race when making a page secure
 
-Here is the summary with links:
-  - [net] s390/qeth: move netif_napi_add_tx() and napi_enable() from under BH
-    https://git.kernel.org/netdev/net/c/0d0b752f2497
+ arch/s390/include/asm/gmap.h |  2 +-
+ arch/s390/include/asm/uv.h   |  2 +-
+ arch/s390/kernel/uv.c        | 19 +++++++++++++++++--
+ arch/s390/kvm/gmap.c         | 16 ++++++++++------
+ arch/s390/mm/gmap.c          | 11 ++++++++---
+ 5 files changed, 37 insertions(+), 13 deletions(-)
 
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.48.1
 
