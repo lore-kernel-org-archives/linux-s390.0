@@ -1,125 +1,142 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682BC253B51;
-	Fri, 14 Feb 2025 10:02:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB2E42AAF;
+	Fri, 14 Feb 2025 10:17:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739527379; cv=none; b=XaIYIuNNnJygFUmbA6ky3U74zlJvqw18vEF1gYgVMtIUbuVn+YT5TyRTMocSgIymUZWqEQI95Ws6oJ5OA1WJd6QDb2fvEe1UTp0lvIuHImoDebeu76Oj6S693UfUyFQ3Oz+ROW27YJfrVp7hrkG0iIn/qrRpDBzSmWnhQJlrIWk=
+	t=1739528261; cv=none; b=EHFoy1I/UyW3Vhwz/ZfCKSRy0g5M9uD4uNwQsKxWDTpPDIHI0QFTXsQ/tFpZac66Ln7LHN1wT0Tyggb1h9poroPGwd5y6Olnmwrpp9v7yRixHtUBL14fJMsLBEpfBXghfzOlfO2IBcCH6umemtWItLqbPGaxFWeeH4n2rloM5ic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739527379; c=relaxed/simple;
-	bh=+IjmgDqeVgSyvVDQ9e6EOVq4U2JIS3lAvxc1XVEMgVo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VzOEsfbRHL6Mec1UgPd9PDwKtz3sbMDbUpGauq8muCgiHVSZ+3fMy6uXhK+pi5SfqNjQ+k7EMSJQA6UdDoSiSJdJA66emE6V3PyOVLlRtWb9Uf2E6WUnTtq+bQKHQdyO1ljUXtuQ+Xt7HeQikg1DALFQy+pSR4nNrpeFAfZX+P4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CVwsWe5H; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1739528261; c=relaxed/simple;
+	bh=Pj/0Yiytkz85tSMc0lYxVbx3zpu3ubj0LICmpNb71FA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UmdykH8y95loAaR6FkfgS2098363Y+gqp1Z1KEB0U6EnS9dgz4juJhsocbA1NoJn3PfUg/CU1vk0Abi0r4ku2aTFpRlyCn6Y2m5DpIvmTCNZl3ZU3rsGDNQtevtKe4+0UkBkVv+0rSHUEE+5MIBF5i8pC6YrkOT/j0pNSz8y1Zg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YEyc5Gul; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CVwsWe5H"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51E2nlN8016442;
-	Fri, 14 Feb 2025 10:02:41 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YEyc5Gul"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51E5OYoi010386;
+	Fri, 14 Feb 2025 10:17:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=ra/Dx+WxOY1D7TZc+vQhA7pPWzHT7U
-	ffFBZk9LGvtVs=; b=CVwsWe5HmaN7MxHB6a/tRHrUZYu4sxkab46TGw25hnKi9S
-	rhNByw8aqMUcqYBu+5A279T84f2ec5gz+fRSpKlLtRCJ/mRedvbJIptA0yhOu2lP
-	COoIB4iEP7P+GXGxG8m2N0CHDf1V8R0ejCOvIUUu62H+IufSPlhU6RV4Iw3NaOgg
-	uy0yWLoMR8nJGrBpq6xTXvAyKsQndYhcAuMrHPITKcgTRQ6akqrhGnwg+ma+FzXO
-	jCRvxMzKueF1Q7oHRt+mSPlduEdC3ch3jxbODQj0MmAJkro7xGiv6ZP8n8F/c4fI
-	4nTfJI8xKT3sY+bpQw4Y0+7Q1tFNwkXhGUCRy8ug==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44skjuvk3x-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ofoYPQ
+	i/GERP+8Jn8cOggrSSCPlwm7BULNMrkjDy0fc=; b=YEyc5GuliJCPmbH1LyEc+P
+	bINBBcHg6H+Wrzn7Yglam87ecRYDFdmd9H8OYxeDdpVu6DA8zD0NujkxrEN4Wp+x
+	SHw/nUJnNHHJcaQtz67FyVF6VFzq7jbeaiZGoFqRkZ+lleKokuZbCnpGJSnWjzbY
+	liMHV32FHXkzFDSdISLa/K+uHu+KoiwxRTP0tCt6kUJoSgyNUC1+6ktWOU2EJTmi
+	QecJgdBWUyISXl8paxRmus263fSVvVwtrIe4nQNTc2bsHPglHZxZfetFjk6CEguU
+	09MYJT+jTCoZznsIfKe04DXQNieP5cwMNdU7j5m6yj9m0g7RCPtUHYTdjrnsu1Fw
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44syn817fp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Feb 2025 10:02:41 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51E9xeF9031418;
-	Fri, 14 Feb 2025 10:02:41 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44skjuvk3v-1
+	Fri, 14 Feb 2025 10:17:35 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51E6sT4h021894;
+	Fri, 14 Feb 2025 10:17:35 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44phkt36ve-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Feb 2025 10:02:41 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51E7IJup001051;
-	Fri, 14 Feb 2025 10:02:40 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44pjknk0ay-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Feb 2025 10:02:40 +0000
+	Fri, 14 Feb 2025 10:17:35 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51EA2a9a55378420
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51EAHVgr19792218
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Feb 2025 10:02:36 GMT
+	Fri, 14 Feb 2025 10:17:31 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 71A6F2005A;
-	Fri, 14 Feb 2025 10:02:36 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 994DC20063;
+	Fri, 14 Feb 2025 10:17:31 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 48BF920063;
-	Fri, 14 Feb 2025 10:02:35 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.2.165])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 14 Feb 2025 10:02:35 +0000 (GMT)
-Date: Fri, 14 Feb 2025 11:02:33 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Frank van der Linden <fvdl@google.com>
-Cc: akpm@linux-foundation.org, muchun.song@linux.dev, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, yuzhao@google.com,
-        usamaarif642@gmail.com, joao.m.martins@oracle.com,
-        roman.gushchin@linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 03/28] mm/cma: introduce cma_intersects function
-Message-ID: <Z68UuZQJs6dpuHC8@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250206185109.1210657-1-fvdl@google.com>
- <20250206185109.1210657-4-fvdl@google.com>
+	by IMSVA (Postfix) with ESMTP id EAB6E2005A;
+	Fri, 14 Feb 2025 10:17:30 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.26.252])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 14 Feb 2025 10:17:30 +0000 (GMT)
+Date: Fri, 14 Feb 2025 11:17:29 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
+        nsg@linux.ibm.com, schlameuss@linux.ibm.com, hca@linux.ibm.com
+Subject: Re: [PATCH v1 2/2] KVM: s390: pv: fix race when making a page
+ secure
+Message-ID: <20250214111729.000d364e@p-imbrenda>
+In-Reply-To: <6c741da9-a793-4a59-920f-8df77807bc4d@redhat.com>
+References: <20250213200755.196832-1-imbrenda@linux.ibm.com>
+	<20250213200755.196832-3-imbrenda@linux.ibm.com>
+	<6c741da9-a793-4a59-920f-8df77807bc4d@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250206185109.1210657-4-fvdl@google.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: t-In3U_tmNjyWhY_yTRmtH3LI7-89WMB
-X-Proofpoint-ORIG-GUID: SYQ8donj5--N2ryoZQafKeRuOJfV_YtY
+X-Proofpoint-ORIG-GUID: SH8QYTNCDWJIZLZ1pAj45Uj9i0nlRbec
+X-Proofpoint-GUID: SH8QYTNCDWJIZLZ1pAj45Uj9i0nlRbec
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-14_03,2025-02-13_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
- mlxlogscore=501 lowpriorityscore=0 mlxscore=0 spamscore=0 suspectscore=0
- priorityscore=1501 bulkscore=0 malwarescore=0 adultscore=0 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
- definitions=main-2502140067
+ definitions=2025-02-14_04,2025-02-13_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
+ priorityscore=1501 lowpriorityscore=0 mlxscore=0 spamscore=0 bulkscore=0
+ impostorscore=0 malwarescore=0 suspectscore=0 clxscore=1015
+ mlxlogscore=919 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2501170000 definitions=main-2502140072
 
-On Thu, Feb 06, 2025 at 06:50:43PM +0000, Frank van der Linden wrote:
-> Now that CMA areas can have multiple physical ranges,
-> code can't assume a CMA struct represents a base_pfn
-> plus a size, as returned from cma_get_base.
-> 
-> Most cases are ok though, since they all explicitly
-> refer to CMA areas that were created using existing
-> interfaces (cma_declare_contiguous_nid or
-> cma_init_reserved_mem), which guarantees they have just
-> one physical range.
-> 
-> An exception is the s390 code, which walks all CMA
-> ranges to see if they intersect with a range of memory
-> that is about to be hotremoved. So, in the future,
-> it might run in to multi-range areas. To keep this check
-> working, define a cma_intersects function. This just checks
-> if a physaddr range intersects any of the ranges.
-> Use it in the s390 check.
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Frank van der Linden <fvdl@google.com>
-> ---
->  arch/s390/mm/init.c | 13 +++++--------
->  include/linux/cma.h |  1 +
->  mm/cma.c            | 21 +++++++++++++++++++++
->  3 files changed, 27 insertions(+), 8 deletions(-)
+On Thu, 13 Feb 2025 21:16:03 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> On 13.02.25 21:07, Claudio Imbrenda wrote:
+> > Holding the pte lock for the page that is being converted to secure is
+> > needed to avoid races. A previous commit removed the locking, which
+> > caused issues. Fix by locking the pte again.
+> > 
+> > Fixes: 5cbe24350b7d ("KVM: s390: move pv gmap functions into kvm")  
+> 
+> If you found this because of my report about the changed locking, 
+> consider adding a Suggested-by / Reported-y.
+
+yes, sorry; I sent the patch in haste and forgot. Which one would you
+prefer (or both?)
+
+[...]
+
+> > @@ -127,8 +128,11 @@ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+> >   
+> >   	page = gfn_to_page(kvm, gpa_to_gfn(gaddr));
+> >   	mmap_read_lock(gmap->mm);
+> > -	if (page)
+> > -		rc = __gmap_make_secure(gmap, page, uvcb);
+> > +	vmaddr = gfn_to_hva(gmap->private, gpa_to_gfn(gaddr));
+> > +	if (kvm_is_error_hva(vmaddr))
+> > +		rc = -ENXIO;
+> > +	if (!rc && page)
+> > +		rc = __gmap_make_secure(gmap, page, vmaddr, uvcb);
+> >   	kvm_release_page_clean(page);
+> >   	mmap_read_unlock(gmap->mm);
+> >     
+> 
+> You effectively make the code more complicated and inefficient than 
+> before. Now you effectively walk the page table twice in the common 
+> small-folio case ...
+
+I think in every case, but see below
+
+> 
+> Can we just go back to the old handling that we had before here?
+> 
+
+I'd rather not, this is needed to prepare for the next series (for
+6.15) in a couple of weeks, where gmap gets completely removed from
+s390/mm, and gmap dat tables will not share ptes with userspace anymore
+(i.e. we will use mmu_notifiers, like all other archs)
+
+I will remove the double walk, though, since there is no reason to keep
+it in there
+
