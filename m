@@ -1,87 +1,117 @@
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C228A21B182;
-	Fri, 14 Feb 2025 09:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1F10245030;
+	Fri, 14 Feb 2025 09:43:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739524938; cv=none; b=J6/Ci0jHb5h7gbDvJKTl/1jDtbpOiD+cA/HZ870tSlmpSGletXSxac5ID1GKu4J/C63SCKCYqd6n2voEq9z3q9Nh8C2VVIEcFh/1e5xa3eIOfEKswSEaRzBZ5Qy11ZNc4aW90a5IBnvAqpjH/ZpdDqA4yxzoZZ1akA0BC09E/Vk=
+	t=1739526224; cv=none; b=DVZt4/CHGw+YBXk72Gjg4VWc/088IYCQ6Zbz+XveqK5Xvn54gakRD9wbxBHY9rMTJjyW7VZ8OG6W2dWBFTfNdM2WTWwfmTA2GBA0ftxUIwG2nY9wO7G1bwwgX+aC0eyTdqTOpO21Li6HM1+J2/tGMI4QH9P7hwil6GPIxTncCxs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739524938; c=relaxed/simple;
-	bh=pQjK/iwCJO75ufgOTvx8cDDg/C9fbt+wixPYVCFqHfU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S450BJE/MMDCRqmSeqdiyFVqlo/cI5YLzH/zFDHikUwKv40YfsOr8umNwLdwAv3Q/ljLExCFiqidzFknrIMBe8zCdb+zBSVRxJRo8VUYVmeCNO7+qE/2fqKvDrGIMQ5Cwx9RWw7XOTH6N8VNxnR3J1E42Ybk24rZruVnGk08ogI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=nXvwb20R; arc=none smtp.client-ip=115.124.30.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1739526224; c=relaxed/simple;
+	bh=bR+EitM9xMeO4ilPsO7nnJll1F8pa8yA4EQ84Hrt8Wc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ro6jgstguWrjhyAVXpbeYCZqEZZm6tjqfkgNrsrGaL46GVnmibAmwlgpMdPtgx2gvi0mvBDY/bv6oXhKbZ9EBtpE7l8Byo8TmumuVRisaronlIArDwqTlhyW2VgAXzg9Mu0TBfoCoiLB7nlPwjLCo7FzATfLFqoADenfPAOvi0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PdNx/IaB; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="nXvwb20R"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1739524931; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=+D9V3WWQDBd/ZszSS/N9OZirb9lKepZNme5vqrAR1sQ=;
-	b=nXvwb20RU9oNju8SMnPYRFheTB/8zBCFsKKq2yFEhpV8H8EOrpVtT2FkvDhEogd18ikpKNiHOhFgv71Z5xTwUTH/gMaqPOxI2FOvBO1iK/JpimA3gKJqAvpBIpUdXJh6naB28EV3fyHckDrILbH/HF0SAP7G0nDMu0wrzv7zOmg=
-Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WPQIbTz_1739524929 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 14 Feb 2025 17:22:09 +0800
-Date: Fri, 14 Feb 2025 17:22:09 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com    >
-To: "D. Wythe" <alibuda@linux.alibaba.com>, wenjia@linux.ibm.com,
-	jaka@linux.ibm.com
-Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
-	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-	martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org,
-	sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
-	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
-	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH bpf-next v7 0/6] net/smc: Introduce smc_ops
-Message-ID: <20250214092209.GA88970@j66a10360.sqa.eu95>
-References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PdNx/IaB"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51E2mM8M017021;
+	Fri, 14 Feb 2025 09:43:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=VaXU7j
+	+cCekekrvpguCYcm8IKdQ46uzhM3dlVAX4zWg=; b=PdNx/IaBeUROA2QfRBczLL
+	UTK7XCYy77H0v2dLI+bfYdYziUSbWx5fPa11wOMv+wb+PtSuf0mRCo8fv3g5iy/4
+	3b9ApGEJRDkwa5vMBleL+bUcOyvJaQaFBUqgUnVaZO00XnqDvGab5afyz/+WDJJy
+	cZMDl+B2+m9sDyUfzqqG9kGR86EStkMCZ0a/BClQlz2wPyMOWR2xPrmVW9XooXZD
+	Pp9nEieNLJfu3c0etlqx1Gc2a8Zgba0pnRf8OvAqssKI4F6Dcp9rTCoIEj5pv1mN
+	lCYSkCgw8TrRS0eSa1wCZNpOBm7equqoCD5Pzm0REXjrcyOm3XwBYVaTo2N1IVIw
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44skjuvgjr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 14 Feb 2025 09:43:37 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51E78fwn000924;
+	Fri, 14 Feb 2025 09:43:37 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44pjknjx95-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 14 Feb 2025 09:43:37 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51E9hX4e22086234
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 14 Feb 2025 09:43:33 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3DDF320063;
+	Fri, 14 Feb 2025 09:43:33 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9EE942004E;
+	Fri, 14 Feb 2025 09:43:32 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.171.26.252])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 14 Feb 2025 09:43:32 +0000 (GMT)
+Date: Fri, 14 Feb 2025 10:43:31 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
+        nsg@linux.ibm.com, schlameuss@linux.ibm.com, hca@linux.ibm.com
+Subject: Re: [PATCH v1 1/2] KVM: s390: fix issues when splitting folios
+Message-ID: <20250214104331.1865aba5@p-imbrenda>
+In-Reply-To: <e58310a9-0fd7-44fa-b66b-b98502dbed30@redhat.com>
+References: <20250213200755.196832-1-imbrenda@linux.ibm.com>
+	<20250213200755.196832-2-imbrenda@linux.ibm.com>
+	<e58310a9-0fd7-44fa-b66b-b98502dbed30@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250123015942.94810-1-alibuda@linux.alibaba.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: fc6ZKaGCZLcaAT_njmm-yKN56OgkwNye
+X-Proofpoint-ORIG-GUID: fc6ZKaGCZLcaAT_njmm-yKN56OgkwNye
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-14_03,2025-02-13_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
+ mlxlogscore=700 lowpriorityscore=0 mlxscore=0 spamscore=0 suspectscore=0
+ priorityscore=1501 bulkscore=0 malwarescore=0 adultscore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
+ definitions=main-2502140067
 
-On Thu, Jan 23, 2025 at 09:59:36AM +0800, D. Wythe wrote:
-> This patch aims to introduce BPF injection capabilities for SMC and
-> includes a self-test to ensure code stability.
+On Thu, 13 Feb 2025 21:17:10 +0100
+David Hildenbrand <david@redhat.com> wrote:
+
+> > +	struct folio *folio = page_folio(page);
+> >   	int rc;
+> >   
+> >   	lockdep_assert_not_held(&mm->mmap_lock);
+> > @@ -2645,7 +2646,11 @@ int kvm_s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool
+> >   	lru_add_drain_all();
+> >   	if (split) {
+> >   		folio_lock(folio);
+> > -		rc = split_folio(folio);
+> > +		rc = min_order_for_split(folio);
+> > +		if (rc > 0)
+> > +			rc = -EINVAL;
+> > +		if (!rc)
+> > +			rc = split_huge_page_to_list_to_order(page, NULL, 0);  
 > 
-> Since the SMC protocol isn't ideal for every situation, especially
-> short-lived ones, most applications can't guarantee the absence of
-> such scenarios. Consequently, applications may need specific strategies
-> to decide whether to use SMC. For example, an application might limit SMC
-> usage to certain IP addresses or ports.
+> split_huge_page() ?
+
+ah, yes
+
 > 
-> To maintain the principle of transparent replacement, we want applications
-> to remain unaffected even if they need specific SMC strategies. In other
-> words, they should not require recompilation of their code.
+> But see my reply to #2. Likely we should just undo the refactorings you 
+> added while moving the code.
 > 
-> Additionally, we need to ensure the scalability of strategy implementation.
-> While using socket options or sysctl might be straightforward, it could
-> complicate future expansions.
-> 
-> Fortunately, BPF addresses these concerns effectively. Users can write
-> their own strategies in eBPF to determine whether to use SMC, and they can
-> easily modify those strategies in the future.
-
-Hi smc folks, @Wenjia @Ian
-
-Is there any feedback regarding this patches ? This series of code has
-gone through multiple rounds of community reviews. However, the parts
-related to SMC, including the new sysctl and ops name, really needs
-your input and acknowledgment.
-
-Additionally, this series includes a bug fix for SMC, which is easily
-reproducible in the BPF CI tests.
-
-Thanks,
-D. Wythe
 
