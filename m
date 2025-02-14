@@ -1,91 +1,87 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 094232080E1;
-	Fri, 14 Feb 2025 07:26:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C228A21B182;
+	Fri, 14 Feb 2025 09:22:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739517980; cv=none; b=U3z55pjzh23xW+cbNVeQOSxi4R46SfWEf+AhPo2VoyiPEdRDvv5dBoawwqHVhvVHSM1CQt8aELM5sI7lVnnIEUzhOVZnRHOlA6NhTm63hOO65ORnIGhCMbeTWs5wrqRtzOein5JDzt1nkj48VKrYiInUWorSUQ31dUtcNrrOknM=
+	t=1739524938; cv=none; b=J6/Ci0jHb5h7gbDvJKTl/1jDtbpOiD+cA/HZ870tSlmpSGletXSxac5ID1GKu4J/C63SCKCYqd6n2voEq9z3q9Nh8C2VVIEcFh/1e5xa3eIOfEKswSEaRzBZ5Qy11ZNc4aW90a5IBnvAqpjH/ZpdDqA4yxzoZZ1akA0BC09E/Vk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739517980; c=relaxed/simple;
-	bh=e/e3qRpo7LhLW8R2UTYX0GgNqFgT2Hororp8el2whMs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e6X6PWWRZ+kvjFWNNb6xkfwxQ4tDhaiZh4/bXq4uxY6SJAnkQAQA645May1QQ9HuNjTiduZLZPECBlYPFzwNXWSxccESanlf1I+fmmgQ9EMT5YlCIahO8ZmLMV8r2hQYB/euQPkDtZIrovkPmkmLSdkjl60MgAU/WU60e+sK8DM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A2A3D113E;
-	Thu, 13 Feb 2025 23:26:38 -0800 (PST)
-Received: from [10.163.37.128] (unknown [10.163.37.128])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 57E413F58B;
-	Thu, 13 Feb 2025 23:26:08 -0800 (PST)
-Message-ID: <03b042ec-1cb7-4419-8741-c65e74e49d51@arm.com>
-Date: Fri, 14 Feb 2025 12:56:01 +0530
+	s=arc-20240116; t=1739524938; c=relaxed/simple;
+	bh=pQjK/iwCJO75ufgOTvx8cDDg/C9fbt+wixPYVCFqHfU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=S450BJE/MMDCRqmSeqdiyFVqlo/cI5YLzH/zFDHikUwKv40YfsOr8umNwLdwAv3Q/ljLExCFiqidzFknrIMBe8zCdb+zBSVRxJRo8VUYVmeCNO7+qE/2fqKvDrGIMQ5Cwx9RWw7XOTH6N8VNxnR3J1E42Ybk24rZruVnGk08ogI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=nXvwb20R; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="nXvwb20R"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1739524931; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=+D9V3WWQDBd/ZszSS/N9OZirb9lKepZNme5vqrAR1sQ=;
+	b=nXvwb20RU9oNju8SMnPYRFheTB/8zBCFsKKq2yFEhpV8H8EOrpVtT2FkvDhEogd18ikpKNiHOhFgv71Z5xTwUTH/gMaqPOxI2FOvBO1iK/JpimA3gKJqAvpBIpUdXJh6naB28EV3fyHckDrILbH/HF0SAP7G0nDMu0wrzv7zOmg=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WPQIbTz_1739524929 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 14 Feb 2025 17:22:09 +0800
+Date: Fri, 14 Feb 2025 17:22:09 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: "D. Wythe" <alibuda@linux.alibaba.com>, wenjia@linux.ibm.com,
+	jaka@linux.ibm.com
+Cc: kgraul@linux.ibm.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
+	ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+	martin.lau@linux.dev, pabeni@redhat.com, song@kernel.org,
+	sdf@google.com, haoluo@google.com, yhs@fb.com, edumazet@google.com,
+	john.fastabend@gmail.com, kpsingh@kernel.org, jolsa@kernel.org,
+	guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH bpf-next v7 0/6] net/smc: Introduce smc_ops
+Message-ID: <20250214092209.GA88970@j66a10360.sqa.eu95>
+References: <20250123015942.94810-1-alibuda@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/4] mm: Rename GENERIC_PTDUMP and PTDUMP_CORE
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- Steven Price <steven.price@arm.com>, linux-mm@kvack.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Jonathan Corbet <corbet@lwn.net>, Marc Zyngier <maz@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, kvmarm@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org
-References: <20250213040934.3245750-1-anshuman.khandual@arm.com>
- <20250213040934.3245750-5-anshuman.khandual@arm.com>
- <8e75c5ff-a97b-4a6f-9c8b-ac2598eafe60@arm.com>
- <6e1201a1-60c1-40a3-951f-d603b6341a11@csgroup.eu>
-Content-Language: en-US
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <6e1201a1-60c1-40a3-951f-d603b6341a11@csgroup.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250123015942.94810-1-alibuda@linux.alibaba.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
+On Thu, Jan 23, 2025 at 09:59:36AM +0800, D. Wythe wrote:
+> This patch aims to introduce BPF injection capabilities for SMC and
+> includes a self-test to ensure code stability.
+> 
+> Since the SMC protocol isn't ideal for every situation, especially
+> short-lived ones, most applications can't guarantee the absence of
+> such scenarios. Consequently, applications may need specific strategies
+> to decide whether to use SMC. For example, an application might limit SMC
+> usage to certain IP addresses or ports.
+> 
+> To maintain the principle of transparent replacement, we want applications
+> to remain unaffected even if they need specific SMC strategies. In other
+> words, they should not require recompilation of their code.
+> 
+> Additionally, we need to ensure the scalability of strategy implementation.
+> While using socket options or sysctl might be straightforward, it could
+> complicate future expansions.
+> 
+> Fortunately, BPF addresses these concerns effectively. Users can write
+> their own strategies in eBPF to determine whether to use SMC, and they can
+> easily modify those strategies in the future.
 
+Hi smc folks, @Wenjia @Ian
 
-On 2/13/25 17:19, Christophe Leroy wrote:
-> 
-> 
-> Le 13/02/2025 à 12:23, Steven Price a écrit :
->> On 13/02/2025 04:09, Anshuman Khandual wrote:
->>> Platforms subscribe into generic ptdump implementation via GENERIC_PTDUMP.
->>> But generic ptdump gets enabled via PTDUMP_CORE. These configs combination
->>> is confusing as they sound very similar and does not differentiate between
->>> platform's feature subscription and feature enablement for ptdump. Rename
->>> the configs as ARCH_HAS_PTDUMP and PTDUMP making it more clear and improve
->>> readability.
->>
->> [...]
->>> diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
->>> index 77306be62e9e..db005618690b 100644
->>> --- a/arch/powerpc/configs/mpc885_ads_defconfig
->>> +++ b/arch/powerpc/configs/mpc885_ads_defconfig
->>> @@ -78,4 +78,4 @@ CONFIG_DEBUG_VM_PGTABLE=y
->>>   CONFIG_DETECT_HUNG_TASK=y
->>>   CONFIG_BDI_SWITCH=y
->>>   CONFIG_PPC_EARLY_DEBUG=y
->>> -CONFIG_GENERIC_PTDUMP=y
->>> +CONFIG_PTDUMP=y
->>
->> I'd suggest dropp this from the defconfig too, just like patch 1 dropped
->> it from debug.config.
->>
-> 
-> Thanks for spotting that.
-> 
-> That one is wrong. Was introduced by commit d210ee3fdfe8 ("powerpc/configs: Update config files for removed/renamed symbols") which aimed at fixing commit e084728393a5 ("powerpc/ptdump: Convert powerpc to GENERIC_PTDUMP") but it did it wrong.
-> 
-> It is CONFIG_PTDUMP_DEBUGFS that is wanted.
+Is there any feedback regarding this patches ? This series of code has
+gone through multiple rounds of community reviews. However, the parts
+related to SMC, including the new sysctl and ops name, really needs
+your input and acknowledgment.
 
-Should this replacement be done in the series or would you like it
-to be handled in powerpc later ?
+Additionally, this series includes a bug fix for SMC, which is easily
+reproducible in the BPF CI tests.
+
+Thanks,
+D. Wythe
+
