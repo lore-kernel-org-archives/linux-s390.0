@@ -1,115 +1,140 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9191B2907;
-	Sat, 15 Feb 2025 12:31:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C28AB672;
+	Sat, 15 Feb 2025 17:01:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739622721; cv=none; b=CuXmP6hboTfjaT0ghD4O9mk1owPTm1kJaxTHmIDCTwzgHcLJuvULhyH/rkE/2TcKjfOYQhtB52dH+J+NoBx/Mj4CFFH5O33Jh68i6Sgmp+cQR2d5OWXjLQzyjAwsWuUhFxfsffp+jlruN4pDLTNlwz2I8xtkhm+5xQk3tpVQ3dU=
+	t=1739638884; cv=none; b=JW/8tUsEGXKq7R+5ltGnNmNulVs3ox557FYfoLDzM6tu6vcam9XiEtAntIGYJh5/RTlN9QKYPOHrErrn0g7XnFWYSG8Tc6ZZQmA895EwDs6fKhVPo66JG00n8OQSqbbMD8OqyWyzXS8Idhn9nv01PTST30VEpTO7nCRN4CrNFiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739622721; c=relaxed/simple;
-	bh=D5G0HKCIPWKSJTETYd0WNwsmeh6SEjTMIoteLitYD10=;
+	s=arc-20240116; t=1739638884; c=relaxed/simple;
+	bh=2AKGxYVPIAM+l2qG4staRqXMuWUgBxHOeZQb8f3VM0g=;
 	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=HG7JY3P5QVvb/yx4/Z9/mw7RYJ5pssUqykWq0uOpl/Tx1PoCjG951SumNOYIajtYxKpROSJ2ZzQEWCUBVp0Gu2G2A6pZxiVnjM7VUwS6/CfeP8+ODq5kT/52EzoOhU0YEXTvGk7YP2LuQ37ssp2XS4VFea4V1kG4mVCMEX2/z7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j2nsSlZK; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Disposition; b=sqvkHvV7hOIA0JtvyhEgyb34633izdC/z54Lj0qIlGx4MrHFi0m42mlNmtkzB6qlYbxQxabno3zr3Qpr5nQ9ADXHS1+Nrjp55UN0eIRpdnxhIWCdAZyfDql0eTw98HDo/jggAkiHfb7UHyhPSEYc3PlsLJdyfwSFPueFcoPXPQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dOyhy/Kp; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j2nsSlZK"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-38a8b17d7a7so1658101f8f.2;
-        Sat, 15 Feb 2025 04:31:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739622718; x=1740227518; darn=vger.kernel.org;
-        h=content-disposition:mime-version:reply-to:message-id:subject:cc:to
-         :from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ooQbejPW2H/DhzcDw7Zh86TF4u7fsUqvHl4nGqSelPw=;
-        b=j2nsSlZKvWzabz4COKpFmFn8sIk/BxgFgJo77PDTj7pXKBYwK/jyyiNPt7OYTP/5t3
-         xhHJdZO1a4wvMgS1gjOlOy3PLCgyb3YpvVqZSYmT3kEy8slVe7lrJwRLrmYzzH5yFjth
-         4k6k1PFpwRcquZKgKSq4Tc/vMcq12RQ8wc71BEvlx3Rg8UQyO8SvtEkUZdWNr43qQUs3
-         swBz03RlhYz3Z7EITl+LNzvEjH5IKGuNyKmzWd8/hPeoy600f5wnAE31CR7/gtXNaOOG
-         2F8jhdHsQHZH7us7M3JwTfaSYO1M3mV++NmsqQCEb4YpPEtbAidSpKG5uYcERgeUASYa
-         Kr3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739622718; x=1740227518;
-        h=content-disposition:mime-version:reply-to:message-id:subject:cc:to
-         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ooQbejPW2H/DhzcDw7Zh86TF4u7fsUqvHl4nGqSelPw=;
-        b=ACMKnVW77pRufCM4DIsDnoeUBgyaLOEcJs/8WgHutnqk8nhllA8aUnzLfylIVxIpef
-         Vo9xPfcUodqfc3zohu4abRP+dua+IWjCVM6WELscteK0zkL6Jl4mTAM9UUQslgcUVtbY
-         DeSWVVp/em4BzKI4VPDDcFe0dXQaUveBx38XPvYca4ks8FIP1cTU77X9WAUzh5LIo9IY
-         OcsIHCR6EJI7nzQmSh8UtuTEnzR6J3Mfeszgu/gPOpm/thquWBL1hEqvb6m6KQyaS1Bm
-         IJhMbcm04u1JjebsEI6SvG7yKicJ7t4w06zAWXoq/nPli36kGk/k+B5qwHAm1F1v5tX0
-         5HLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWjlMJWPlaCzZJr9GOl7dak1hLDXtkjuWik2w0vaKcIAj83wSr7tGgaKQx6Mo9pLViuR3anLN18r+mgTA==@vger.kernel.org, AJvYcCXQqlcL2mcCpTZ/Ip+Jt8NjVSoSv8wxmULpXQ+z2Q4R6p62wPDIkHRoMWED/3cdnpL8b2C+FVj30cMgcTQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywcly85Bp75FhozTxjKVb5FAQo9T3LxmnRL+YujLIBmUVBsFtNa
-	ad/SMfo4bl2qS4TZ4PW1jWLzhiMzpNO2hJQ75B2m7iBTCzwW+v+QrjhuQSTr
-X-Gm-Gg: ASbGncsUdqgntm91i9N894AG4YjveD7X8hZl77iJ8rmVlhyEmkWwnnzUEsNNYWp3Lge
-	L2+8QvQq/eKY+qoO4BrNigwxYcZRSf2YBWCTuyi4zHatLvqu96QrnbA+AJXXcvPaH2IvXT8i7HM
-	G7I8pM/7n1B6pIGClkt2zxyDUg6SAVxdSMlkR24++BQCev8iu3MyLcwK0z7QaVvbsRLQUdzY8uX
-	miSS27Ukb03VQvjId67Gj0b1WkLZ09YbECSLkOfof4CDz4Wu2nelNo6XJ0357cdQyRkCHjQ2SUO
-	3u7GaTWuHpBbf0YD+g==
-X-Google-Smtp-Source: AGHT+IHm1UUnP/9Kpbsqv6esXi7Vk5bcRZRymvEgoNah7y4zKMlfpz3jf1jZNPdO+LgjakvmZhCvDQ==
-X-Received: by 2002:a05:6000:dc6:b0:38f:3015:b9f4 with SMTP id ffacd0b85a97d-38f33f337eamr2637765f8f.27.1739622717423;
-        Sat, 15 Feb 2025 04:31:57 -0800 (PST)
-Received: from qasdev.system ([2a02:c7c:6696:8300:25c:5fd7:e9cc:160b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f259d65bcsm7173950f8f.65.2025.02.15.04.31.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Feb 2025 04:31:56 -0800 (PST)
-Date: Sat, 15 Feb 2025 12:31:45 +0000
-From: Qasim Ijaz <qasdev00@gmail.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-	borntraeger@linux.ibm.com, svens@linux.ibm.com,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/mm: Simplify gap clamping in mmap_base() using
- clamp()
-Message-ID: <Z7CJMfywZ8HoqbnL@qasdev.system>
-Reply-To: Z68h0B6vFdfCbNpb@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dOyhy/Kp"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51FGDq8p011119;
+	Sat, 15 Feb 2025 17:01:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=JQql3gZk0qgX9xHEkE+nIvCugZHS
+	5eNWyvY8wF7gd1k=; b=dOyhy/KpLmd+16n192pc/9W5H7CD8PUiF55tDpnU59OI
+	vIK23P40BJLMruD/5e3qY+cUBggVJ/jrsN9CW6MOeBS1U1kr76VT5J38AEUfjugV
+	n3LLDokblBy+Fv+Ra5wxCUeethuQwaahxoyMo0eZ/uUeCkDJonnnRBp/TxiqIx7E
+	kkAmujsbLG9r5ixGEy3WFn9ibt3/VxBAkbMVuMuB1L/D4gbQWpvUJH/AyI2cMqrg
+	HBQgZ9AyaW09Zbm9yf7WHiBBeU6+qa8ckzsDrYI03Hvsnxi2lQtaD3/owyK30RUA
+	UmvlFPfs3RHhYDbLR0/s2skXsUTHcLuFTLMT7MJosQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44tje7jkfr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 15 Feb 2025 17:01:21 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51FGOsYW011642;
+	Sat, 15 Feb 2025 17:01:20 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44pktkgs3h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 15 Feb 2025 17:01:20 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51FH1Gt721102872
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 15 Feb 2025 17:01:16 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7824020043;
+	Sat, 15 Feb 2025 17:01:16 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1678D20040;
+	Sat, 15 Feb 2025 17:01:16 +0000 (GMT)
+Received: from localhost (unknown [9.171.86.41])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Sat, 15 Feb 2025 17:01:16 +0000 (GMT)
+Date: Sat, 15 Feb 2025 18:01:14 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.14-rc3
+Message-ID: <your-ad-here.call-01739638874-ext-6275@work.hours>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dXbFTc0DbvqCEc6545pU07m0ZZcQqMS2
+X-Proofpoint-ORIG-GUID: dXbFTc0DbvqCEc6545pU07m0ZZcQqMS2
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-15_07,2025-02-13_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ mlxscore=0 suspectscore=0 clxscore=1011 malwarescore=0 spamscore=0
+ mlxlogscore=482 bulkscore=0 priorityscore=1501 phishscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2501170000 definitions=main-2502150146
 
-On Fri, Feb 14, 2025 at 11:58:24AM +0100, Alexander Gordeev wrote:
-> On Tue, Feb 04, 2025 at 04:25:08PM +0000, Qasim Ijaz wrote:
-> > mmap_base() has logic to ensure that the variable "gap" stays within the 
-> > range defined by "gap_min" and "gap_max". Replace this with the clamp() 
-> > macro to shorten and simplify code.
-> > 
-> > Signed-off-by: Qasim Ijaz <qasdev00@gmail.com>
-> > ---
-> >  arch/s390/mm/mmap.c | 6 +-----
-> >  1 file changed, 1 insertion(+), 5 deletions(-)
-> > 
-> > diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-> > index 76f376876e0d..a3d3e09a2828 100644
-> > --- a/arch/s390/mm/mmap.c
-> > +++ b/arch/s390/mm/mmap.c
-> > @@ -63,11 +63,7 @@ static inline unsigned long mmap_base(unsigned long rnd,
-> >  	 */
-> >  	gap_min = SZ_128M;
-> >  	gap_max = (STACK_TOP / 6) * 5;
-> > -
-> > -	if (gap < gap_min)
-> > -		gap = gap_min;
-> > -	else if (gap > gap_max)
-> > -		gap = gap_max;
-> > +	gap = clamp(gap, gap_min, gap_max);
-> >  
-> >  	return PAGE_ALIGN(STACK_TOP - gap - rnd);
-> >  }
-> 
-> Whenever possible I personally prefer branches over ternary operators.
-> But if one wants to clump it in one line, then gap_min and gap_max
-> are also redundant.
+Hello Linus,
 
-Thank you for the feedback Alexander, would you like me to send a v2
-patch without the gap_min and gap_max variables as you suggested?
+please pull s390 fixes for 6.14-rc3.
 
-> 
-> Thanks!
+Thank you,
+Vasily
+
+The following changes since commit a64dcfb451e254085a7daee5fe51bf22959d52d3:
+
+  Linux 6.14-rc2 (2025-02-09 12:45:03 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.14-4
+
+for you to fetch changes up to 2844ddbd540fc84d7571cca65d6c43088e4d6952:
+
+  s390/pci: Fix handling of isolated VFs (2025-02-11 19:35:08 +0100)
+
+----------------------------------------------------------------
+s390 updates for 6.14-rc3
+
+- Fix isolated VFs handling by verifying that a VF’s parent PF is
+  locally owned before registering it in an existing PCI domain
+
+- Disable arch_test_bit() optimization for PROFILE_ALL_BRANCHES to
+  workaround gcc failure in handling __builtin_constant_p() in this case
+
+- Fix CHPID "configure" attribute caching in CIO by not updating the
+  cache when SCLP returns no data, ensuring consistent sysfs output
+
+- Remove CONFIG_LSM from default configs and rely on defaults, which
+  enables BPF LSM hook
+
+----------------------------------------------------------------
+Heiko Carstens (1):
+      s390/bitops: Disable arch_test_bit() optimization for PROFILE_ALL_BRANCHES
+
+Ilya Leoshkevich (1):
+      s390/configs: Remove CONFIG_LSM
+
+Niklas Schnelle (2):
+      s390/pci: Pull search for parent PF out of zpci_iov_setup_virtfn()
+      s390/pci: Fix handling of isolated VFs
+
+Peter Oberparleiter (1):
+      s390/cio: Fix CHPID "configure" attribute caching
+
+ arch/s390/configs/debug_defconfig    |  1 -
+ arch/s390/configs/defconfig          |  1 -
+ arch/s390/configs/zfcpdump_defconfig |  1 -
+ arch/s390/include/asm/bitops.h       |  6 +++-
+ arch/s390/pci/pci_bus.c              | 20 +++++++++++++
+ arch/s390/pci/pci_iov.c              | 56 +++++++++++++++++++++++++++---------
+ arch/s390/pci/pci_iov.h              |  7 +++++
+ drivers/s390/cio/chp.c               |  3 +-
+ 8 files changed, 76 insertions(+), 19 deletions(-)
