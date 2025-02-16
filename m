@@ -1,31 +1,31 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F34BE567;
-	Sun, 16 Feb 2025 15:39:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AD621F94C;
+	Sun, 16 Feb 2025 15:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739720356; cv=none; b=G4GyiWpjgDRCSq+kYg+H4Syr369k69R0Bw84i5fbcmDO0Y0pFtGtUfzB1m4Mn/sDmbJ/FgZprfP8zXVFAP+WqyG/WAPK3qvvULTZg/ArKzcYMEi2mnjAcYNrR+pzLuOfkEqBduJxw2z/a/miY7PlFWlTJGXB5FzZ2NL4R8tEqRs=
+	t=1739720470; cv=none; b=uFr30VAbiaQCBFfnMQ+/t1N8xj+6wdY/Vh+NjNvbSUP+KgrPGB0j+Xd0phFYNR8VPjjQxqmLYuGiegdNNvKFJC8m9ppj6VRqwxxbofTXWs1/sx9IAsPWqHPeYelJcOvkISJNXZ5gR+4Ray5yJBRUuWPNqWoHcxtLTgzGppJZOyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739720356; c=relaxed/simple;
-	bh=R/rjesY1vUA6QWSva5TdUE0A3eW1/D0JRd6BbtBqM4U=;
+	s=arc-20240116; t=1739720470; c=relaxed/simple;
+	bh=xG68caSkAsZvGAHs2S6lM0GkJkEvO8/I7pYrnkzMPZE=;
 	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Dh1bU/H8MfvRzTWetX1upF9tXicRCDnHmI3HSBeVzMx+z7gpJmL+2SVcqtdaAtU21xi6OnaVgDW2B6hiumHZPkvRRijcSRqyfSYyinUqCpzUQVK6v5R45ayBe5EqCisFKmbRL1kHn7HSEMX3RhbOaeCuG3SeuLK95rDzGqKiFcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=GvMLObNK; arc=none smtp.client-ip=115.124.30.133
+	 In-Reply-To:Content-Type; b=TEgCtfgzeNgCSoqstc5oz5bKxZx0xhMKZgoHvsJHfU9rM79X+SOOQyt6hk6sQpDqXxtjqnBOQzYXeF0r5lijiF3vPwnuVQfJO6WbEW7cS+aI7oxAlzPzDRUEes8YVpAGW4kQatJvPuSqDF3+v6oV7OxYNP5CFTKLSS2BNQ5GYic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JGgIVzhx; arc=none smtp.client-ip=115.124.30.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="GvMLObNK"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JGgIVzhx"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1739720344; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
-	bh=+1uFYePbL4gJcuBtQwdJFiHz1tFGGrZucYBZ/AAb9e0=;
-	b=GvMLObNKW2ZU41T5n2O3/qibtej2aoeDdV2scLza9LJQrBK1VlEpUmo7LoChCGTOqhCf+zUODA6BK8mylsmMtYXIh1Wd7rFao/2kCqhBX1oa+q3P21lwDxSn3CJJd0FeC4yTbEqhRQwNzwb57X2LFBE7D12cyprigSg6fIdaWPY=
-Received: from 30.212.179.125(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WPWxkrU_1739720330 cluster:ay36)
+	t=1739720453; h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type;
+	bh=PS+GWVq2CPifdbQ54kKu6lK5pfUFqFXGFeV1WrkaFkE=;
+	b=JGgIVzhxcmbu8/03WhdIQXVz+Uw95Al0nBtchkGueMlGR6ZMie714CgoGDBJf9P77ImtgFTtZWDZ0Q7b6QZKwWOjZxjTlcQ178nZsNq9wSt+I5lcMCwux0j8485z6HccuP1df1WOuxcdEubQM3lLD8zbzTbnoW+v1JkL6eacb8w=
+Received: from 30.212.179.125(mailfrom:guwen@linux.alibaba.com fp:SMTPD_---0WPWxmN2_1739720450 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Sun, 16 Feb 2025 23:39:03 +0800
-Message-ID: <ac35c3ce-f568-4d1d-b9a5-2e5c51bd4494@linux.alibaba.com>
-Date: Sun, 16 Feb 2025 23:38:47 +0800
+          Sun, 16 Feb 2025 23:40:52 +0800
+Message-ID: <59d386fb-0612-4c2e-a4e7-ca26b474917f@linux.alibaba.com>
+Date: Sun, 16 Feb 2025 23:40:47 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,17 +35,17 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 From: Wen Gu <guwen@linux.alibaba.com>
 Subject: Re: [RFC net-next 0/7] Provide an ism layer
-To: Alexandra Winter <wintera@linux.ibm.com>,
- Julian Ruess <julianr@linux.ibm.com>, dust.li@linux.alibaba.com,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- Gerd Bayer <gbayer@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+To: Alexandra Winter <wintera@linux.ibm.com>, dust.li@linux.alibaba.com,
+ Niklas Schnelle <schnelle@linux.ibm.com>,
+ Julian Ruess <julianr@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
+ Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Tony Lu <tonylu@linux.alibaba.com>,
  Peter Oberparleiter <oberpar@linux.ibm.com>,
  David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
  Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
+Cc: Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
  linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
  Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
  <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -54,146 +54,145 @@ References: <20250115195527.2094320-1-wintera@linux.ibm.com>
  <20250116093231.GD89233@linux.alibaba.com>
  <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
  <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
-In-Reply-To: <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
+ <20250117021353.GF89233@linux.alibaba.com>
+ <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
+ <20250118153154.GI89233@linux.alibaba.com>
+ <d1927140-443b-401c-92ff-f467c12d3e75@linux.ibm.com>
+ <20250210050851.GS89233@linux.alibaba.com>
+ <1e96806f-0a4e-4292-9483-928b1913d311@linux.ibm.com>
+In-Reply-To: <1e96806f-0a4e-4292-9483-928b1913d311@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
 
 
-On 2025/1/17 00:17, Alexandra Winter wrote:
+On 2025/2/10 17:38, Alexandra Winter wrote:
 > 
 > 
-> On 16.01.25 12:55, Julian Ruess wrote:
->> On Thu Jan 16, 2025 at 10:32 AM CET, Dust Li wrote:
->>> On 2025-01-15 20:55:20, Alexandra Winter wrote:
->>>
->>> Hi Winter,
->>>
->>> I'm fully supportive of the refactor!
-> 
-> 
-> Thank you very much Dust Li for joining the discussion.
-> 
-> 
->>> Interestingly, I developed a similar RFC code about a month ago while
->>> working on enhancing internal communication between guest and host
->>> systems.
-> 
-> 
-> But you did not send that out, did you?
-> I hope I did not overlook an earlier proposal by you.
-> 
-> 
-> Here are some of my thoughts on the matter:
->>>
->>> Naming and Structure: I suggest we refer to it as SHD (Shared Memory
->>> Device) instead of ISM (Internal Shared Memory).
-> 
-> 
-> So where does the 'H' come from? If you want to call it Shared Memory _D_evice?
-> 
-> 
-> To my knowledge, a
->>> "Shared Memory Device" better encapsulates the functionality we're
->>> aiming to implement.
-> 
-> 
-> Could you explain why that would be better?
-> 'Internal Shared Memory' is supposed to be a bit of a counterpart to the
-> Remote 'R' in RoCE. Not the greatest name, but it is used already by our ISM
-> devices and by ism_loopback. So what is the benefit in changing it?
-> 
-> 
-> It might be beneficial to place it under
->>> drivers/shd/ and register it as a new class under /sys/class/shd/. That
->>> said, my initial draft also adopted the ISM terminology for simplicity.
->>
->> I'm not sure if we really want to introduce a new name for
->> the already existing ISM device. For me, having two names
->> for the same thing just adds additional complexity.
->>
->> I would go for /sys/class/ism
->>
->>>
->>> Modular Approach: I've made the ism_loopback an independent kernel
->>> module since dynamic enable/disable functionality is not yet supported
->>> in SMC. Using insmod and rmmod for module management could provide the
->>> flexibility needed in practical scenarios.
-> 
-> 
-> With this proposal ism_loopback is just another ism device and SMC-D will
-> handle removal just like ism_client.remove(ism_dev) of other ism devices.
-> 
-> But I understand that net/smc/ism_loopback.c today does not provide enable/disable,
-> which is a big disadvantage, I agree. The ism layer is prepared for dynamic
-> removal by ism_dev_unregister(). In case of this RFC that would only happen
-> in case of rmmod ism. Which should be improved.
-> One way to do that would be a separate ism_loopback kernel module, like you say.
-> Today ism_loopback is only 10k LOC, so I'd be fine with leaving it in the ism module.
-> I also think it is a great way for testing any ISM client, so it has benefit for
-> anybody using the ism module.
-> Another way would be e.g. an 'enable' entry in the sysfs of the loopback device.
-> (Once we agree if and how to represent ism devices in genera in sysfs).
-> 
->>>
->>> Abstraction of ISM Device Details: I propose we abstract the ISM device
->>> details by providing SMC with helper functions. These functions could
->>> encapsulate ism->ops, making the implementation cleaner and more
->>> intuitive. This way, the struct ism_device would mainly serve its
->>> implementers, while the upper helper functions offer a streamlined
->>> interface for SMC.
->>>
->>> Structuring and Naming: I recommend embedding the structure of ism_ops
->>> directly within ism_dev rather than using a pointer. Additionally,
->>> renaming it to ism_device_ops could enhance clarity and consistency.
+> On 10.02.25 06:08, Dust Li wrote:
+>> On 2025-01-28 17:04:53, Alexandra Winter wrote:
 >>>
 >>>
->>>> This RFC is about providing a generic shim layer between all kinds of
->>>> ism devices and all kinds of ism users.
+>>> On 18.01.25 16:31, Dust Li wrote:
+>>>> On 2025-01-17 11:38:39, Niklas Schnelle wrote:
+>>>>> On Fri, 2025-01-17 at 10:13 +0800, Dust Li wrote:
+>>>>>>>
+>>>>> ---8<---
+>>>>>>> Here are some of my thoughts on the matter:
+>>>>>>>>>
+>>>>>>>>> Naming and Structure: I suggest we refer to it as SHD (Shared Memory
+>>>>>>>>> Device) instead of ISM (Internal Shared Memory).
+>>>>>>>
+>>>>>>>
+>>>>>>> So where does the 'H' come from? If you want to call it Shared Memory _D_evice?
+>>>>>>
+>>>>>> Oh, I was trying to refer to SHM(Share memory file in the userspace, see man
+>>>>>> shm_open(3)). SMD is also OK.
+>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> To my knowledge, a
+>>>>>>>>> "Shared Memory Device" better encapsulates the functionality we're
+>>>>>>>>> aiming to implement.
+>>>>>>>
+>>>>>>>
+>>>>>>> Could you explain why that would be better?
+>>>>>>> 'Internal Shared Memory' is supposed to be a bit of a counterpart to the
+>>>>>>> Remote 'R' in RoCE. Not the greatest name, but it is used already by our ISM
+>>>>>>> devices and by ism_loopback. So what is the benefit in changing it?
+>>>>>>
+>>>>>> I believe that if we are going to separate and refine the code, and add
+>>>>>> a common subsystem, we should choose the most appropriate name.
+>>>>>>
+>>>>>> In my opinion, "ISM" doesn’t quite capture what the device provides.
+>>>>>> Since we’re adding a "Device" that enables different entities (such as
+>>>>>> processes or VMs) to perform shared memory communication, I think a more
+>>>>>> fitting name would be better. If you have any alternative suggestions,
+>>>>>> I’m open to them.
+>>>>>
+>>>>> I kept thinking about this a bit and I'd like to propose yet another
+>>>>> name for this group of devices: Memory Communication Devices (MCD)
+>>>>>
+>>>>> One important point I see is that there is a bit of a misnomer in the
+>>>>> existing ISM name in that our ISM device does in fact *not* share
+>>>>> memory in the common sense of the "shared memory" wording. Instead it
+>>>>> copies data between partitions of memory that share a common
+>>>>> cache/memory hierarchy while not sharing the memory itself. loopback-
+>>>>> ism and a possibly future virtio-ism on the other hand would share
+>>>>> memory in the "shared memory" sense. Though I'd very much hope they
+>>>>> will retain a copy mode to allow use in partition scenarios.
+>>>>>
+>>>>> With that background I think the common denominator between them and
+>>>>> the main idea behind ISM is that they facilitate communication via
+>>>>> memory buffers and very simple and reliable copy/share operations. I
+>>>>> think this would also capture our planned use-case of devices (TTYs,
+>>>>> block devices, framebuffers + HID etc) provided by a peer on top of
+>>>>> such a memory communication device.
 >>>>
->>>> Benefits:
->>>> - Cleaner separation of ISM and SMC-D functionality
->>>> - simpler and less module dependencies
->>>> - Clear interface definition.
->>>> - Extendable for future devices and clients.
->>>
->>> Fully agree.
->>>
+>>>> Make sense, I agree with MCD.
 >>>>
-> [...]
+>>>> Best regard,
+>>>> Dust
 >>>>
->>>> Ideas for next steps:
->>>> ---------------------
->>>> - sysfs representation? e.g. as /sys/class/ism ?
->>>> - provide a full-fledged ism loopback interface
->>>>     (runtime enable/disable, sysfs device, ..)
 >>>
->>> I think it's better if we can make this common for all ISM devices.
->>> but yeah, that shoud be the next step.
+>>>
+>>
+>> Hi Winter,
+>>
+>> Sorry for the late reply; we were on break for the Chinese Spring
+>> Festival.
+>>
+>>>
+>>> In the discussion with Andrew Lunn, it showed that
+>>> a) we need an abstract description of 'ISM' devices (noted)
+>>> b) DMBs (Direct Memory Buffers) are a critical differentiator.
+>>>
+>>> So what do your think of Direct Memory Communication (DMC) as class name for these devices?
+>>>
+>>> I don't have a strong preference (we could also stay with ISM). But DMC may be a bit more
+>>> concrete than MCD or ISM.
+>>
+>> I personally prefer MCD over Direct Memory Communication (DMC).
+>>
+>> For loopback or Virtio-ISM, DMC seems like a good choice. However, for
+>> IBM ISM, since there's a DMA copy involved, it doesn’t seem truly "Direct,"
+>> does it?
+>>
+>> Additionally, since we are providing a device, MCD feels like a more
+>> fitting choice, as it aligns better with the concept of a "device."
+>>
+>> Best regards,
+>> Dust
 > 
-> 
-> The s390 ism_vpci devices are already backed by struct pci_dev.
-> And I assume that would be represented in sysfs somehow like:
-> /sys/class/ism/ism_vp0/device -> /sys/devices/<pci bus no>/<pci dev no>
-> so there is an
-> /sys/class/ism/<ism dev name>/device/enable entry already,
-> because there is /sys/devices/<pci bus no>/<pci dev no>/enable today.
-> 
-> I remember Wen Gu's first proposal for ism_loopback had a device
-> in /sys/devices/virtual/ and had an 'active' entry to enable/disable.
-> Something like that could be linked to /sys/class/ism/ism_lo/device.
+> Thank you for your thoughts, Dust.
+> For me the 'D as 'direct' is not so much about the number of copies, but more about the
+> aspect, that you can directly write at any offset into the buffer. I.e. no queues.
+> More like the D in DMA or RDMA.
 > 
 
-Yes, the previous proposal can be refered to [1]. And the hierarchy
-you mentioned makes sense to me.
+IMHO the 'D' means that the CPU copy does not need to be involved, and memory access
+only involves between memory and IO devices. So under this semantics, I think 'DMC'
+also applies to s390 ism device, since IIUC the s390 ism directly access to the memory
+which is passed down by move_data(). The exception is lo-ism, where the device
+actually doesn't need to access the memory(DMB), since the data has been put into the
+shared memory once the sendmsg() is called and no copy or move is needed. But this
+is not a violation of name, just a special kind of short-cut. So DMC makes sense
+to me.
 
-[1] https://lore.kernel.org/netdev/20240111120036.109903-1-guwen@linux.alibaba.com/
-
+> I am preparing a talk for netdev in March about this subject, and the more I work on it,
+> it seems to me that the buffers ('B'), that are
+> a) only authorized for a single remote device and
+> b) can be accessed at any offset
+> are the important differentiator compared other virtual devices.
+> So maybe 'D' for Dedicated?
 > 
->>
->> I already have patches based on this series that introduce
->> /sys/class/ism and show ism-loopback as well as
->> s390/ism devices. I can send this soon.
->>
->>
->> Julian
+> I even came up with
+> dibs - Dedicated Internal Buffer Sharing or
+> dibc - Dedicated Internal Buffer Communication
+> (ok, I like the sound and look of the 'I'. But being on the same hardware as opposed
+> to RDMA is also an important aspect.)
+> 
+> 
+> MCD - 'memory communication device' sounds rather vague to me. But if it is the
+> smallest common denominator, i.e. the only thing we can all agree on, I could live with it.
+> 
