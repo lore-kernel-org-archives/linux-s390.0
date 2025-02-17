@@ -1,26 +1,26 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00691224AE0;
-	Mon, 17 Feb 2025 15:34:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C3A72253E2;
+	Mon, 17 Feb 2025 15:34:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739806474; cv=none; b=VH+eGHdPcWqJTDabE6HPMer8NmcmoH0Jks71sXJcV3mkIiwtBjMlLNfbXJbtdAzYTcylWp+5CXPp0fQkWXbaV0KtI9LbP6LvZ7rrMdfBf79l/rqhZwZhqr11jy5ighqVxOHuB8fXd2xg4VRYgTdaNr6PhnW9gjRHoMbnz9xgsAg=
+	t=1739806474; cv=none; b=mraqhPj5JHEw51ZAhZSxhABrfbR7qM6R3dIKcRttnIgFMfUkZWgX3J3WsEmOUrCO+hb8jlpDIoSwz313l2ossdbtpodBfEQJujxkbuQvBU4msDG8QiB4jOEqUS+ndSf/fMSjpASjaLsh2Ms8Mo8JnfggMMGgb7pAIE7+QfduCsU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739806474; c=relaxed/simple;
-	bh=adWDEN1xA8RJXsxjA7ajZlW+Xp1KGSevPLjjon+DSOA=;
+	bh=wZwu3dRXSpsPU781WWc0GLMKXfLrt3NN07IElLsCoJ8=;
 	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=G9FNW4zSM7oHkiCcjFKhMYT6zaX8YQnvErEq0Qc4fnl/h7VvmQYa3IOWdYrlWp0jVxm2qzuaRMz5+POOFB+bcmKM/j6jngoWkl/sWZ/8kmxD6Xj55zt7ziV7keW+R5tv1GZNEIg6o4BrwuiLW4bftuW3sd1sjlhEpyCeABw47GY=
+	 Content-Type; b=asis2D6DzYs4dU+hYNJVMDDa/vZg1RvUehs48pF12zM6AcF/Sdtg32u8l/5Hgs0oErTduLPVYiIWWUYPtf4S/WBt5Cm2veMiBZlRr2ywRAjvEcNy26oNfrvzrGdHhWJL89fr1xcuoyZsVIQHvrLKshtIycoQuHfhudpTlhhtjEk=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE11C4CEEF;
-	Mon, 17 Feb 2025 15:34:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DE74C4AF13;
+	Mon, 17 Feb 2025 15:34:34 +0000 (UTC)
 Received: from rostedt by gandalf with local (Exim 4.98)
 	(envelope-from <rostedt@goodmis.org>)
-	id 1tk393-00000003aKs-2RZE;
+	id 1tk393-00000003aLr-3wJu;
 	Mon, 17 Feb 2025 10:34:53 -0500
-Message-ID: <20250217153453.433822299@goodmis.org>
+Message-ID: <20250217153453.792481985@goodmis.org>
 User-Agent: quilt/0.68
-Date: Mon, 17 Feb 2025 10:34:04 -0500
+Date: Mon, 17 Feb 2025 10:34:06 -0500
 From: Steven Rostedt <rostedt@goodmis.org>
 To: linux-kernel@vger.kernel.org,
  linux-trace-kernel@vger.kernel.org,
@@ -46,7 +46,7 @@ Cc: Masami Hiramatsu <mhiramat@kernel.org>,
  Will Deacon <will@kernel.org>,
  Vasily Gorbik <gor@linux.ibm.com>,
  Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v4 3/6] scripts/sorttable: Always use an array for the mcount_loc sorting
+Subject: [PATCH v4 5/6] ftrace: Update the mcount_loc check of skipped entries
 References: <20250217153401.022858448@goodmis.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -58,209 +58,50 @@ Content-Type: text/plain; charset=UTF-8
 
 From: Steven Rostedt <rostedt@goodmis.org>
 
-The sorting of the mcount_loc section is done directly to the section for
-x86 and arm32 but it uses a separate array for arm64 as arm64 has the
-values for the mcount_loc stored in the rela sections of the vmlinux ELF
-file.
-
-In order to use the same code to remove weak functions, always use a
-separate array to do the sorting. This requires splitting up the filling
-of the array into one function and the placing the contents of the array
-back into the rela sections or into the mcount_loc section into a separate
-file.
+Now that weak functions turn into skipped entries, update the check to
+make sure the amount that was allocated would fit both the entries that
+were allocated as well as those that were skipped.
 
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 ---
- scripts/sorttable.c | 122 ++++++++++++++++++++++++++++++++------------
- 1 file changed, 90 insertions(+), 32 deletions(-)
+ kernel/trace/ftrace.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/sorttable.c b/scripts/sorttable.c
-index f62a91d8af0a..ec02a2852efb 100644
---- a/scripts/sorttable.c
-+++ b/scripts/sorttable.c
-@@ -594,31 +594,19 @@ struct elf_mcount_loc {
- 	uint64_t stop_mcount_loc;
- };
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index e3f89924f603..55d28c060784 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -7111,7 +7111,29 @@ static int ftrace_process_locs(struct module *mod,
  
--/* Sort the relocations not the address itself */
--static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
-+/* Fill the array with the content of the relocs */
-+static int fill_relocs(void *ptr, uint64_t size, Elf_Ehdr *ehdr, uint64_t start_loc)
- {
- 	Elf_Shdr *shdr_start;
- 	Elf_Rela *rel;
- 	unsigned int shnum;
--	unsigned int count;
-+	unsigned int count = 0;
- 	int shentsize;
--	void *vals;
--	void *ptr;
--
--	compare_values = long_size == 4 ? compare_values_32 : compare_values_64;
-+	void *array_end = ptr + size;
- 
- 	shdr_start = (Elf_Shdr *)((char *)ehdr + ehdr_shoff(ehdr));
- 	shentsize = ehdr_shentsize(ehdr);
- 
--	vals = malloc(long_size * size);
--	if (!vals) {
--		snprintf(m_err, ERRSTR_MAXSZ, "Failed to allocate sort array");
--		pthread_exit(m_err);
--		return NULL;
--	}
--
--	ptr = vals;
--
- 	shnum = ehdr_shnum(ehdr);
- 	if (shnum == SHN_UNDEF)
- 		shnum = shdr_size(shdr_start);
-@@ -637,22 +625,18 @@ static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
- 			uint64_t offset = rela_offset(rel);
- 
- 			if (offset >= start_loc && offset < start_loc + size) {
--				if (ptr + long_size > vals + size) {
--					free(vals);
-+				if (ptr + long_size > array_end) {
- 					snprintf(m_err, ERRSTR_MAXSZ,
- 						 "Too many relocations");
--					pthread_exit(m_err);
--					return NULL;
-+					return -1;
- 				}
- 
- 				/* Make sure this has the correct type */
- 				if (rela_info(rel) != rela_type) {
--					free(vals);
- 					snprintf(m_err, ERRSTR_MAXSZ,
- 						"rela has type %lx but expected %lx\n",
- 						(long)rela_info(rel), rela_type);
--					pthread_exit(m_err);
--					return NULL;
-+					return -1;
- 				}
- 
- 				if (long_size == 4)
-@@ -660,13 +644,28 @@ static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
- 				else
- 					*(uint64_t *)ptr = rela_addend(rel);
- 				ptr += long_size;
-+				count++;
- 			}
- 		}
- 	}
--	count = ptr - vals;
--	qsort(vals, count / long_size, long_size, compare_values);
-+	return count;
-+}
+ 	/* We should have used all pages unless we skipped some */
+ 	if (pg_unuse) {
+-		WARN_ON(!skipped);
++		unsigned long pg_remaining, remaining;
++		unsigned long skip;
 +
-+/* Put the sorted vals back into the relocation elements */
-+static void replace_relocs(void *ptr, uint64_t size, Elf_Ehdr *ehdr, uint64_t start_loc)
-+{
-+	Elf_Shdr *shdr_start;
-+	Elf_Rela *rel;
-+	unsigned int shnum;
-+	int shentsize;
++		/* Count the number of entries unused and compare it to skipped. */
++		pg_remaining = (ENTRIES_PER_PAGE << pg->order) - pg->index;
 +
-+	shdr_start = (Elf_Shdr *)((char *)ehdr + ehdr_shoff(ehdr));
-+	shentsize = ehdr_shentsize(ehdr);
++		if (!WARN(skipped < pg_remaining, "Extra allocated pages for ftrace")) {
 +
-+	shnum = ehdr_shnum(ehdr);
-+	if (shnum == SHN_UNDEF)
-+		shnum = shdr_size(shdr_start);
- 
--	ptr = vals;
- 	for (int i = 0; i < shnum; i++) {
- 		Elf_Shdr *shdr = get_index(shdr_start, shentsize, i);
- 		void *end;
-@@ -689,8 +688,32 @@ static void *sort_relocs(Elf_Ehdr *ehdr, uint64_t start_loc, uint64_t size)
- 			}
- 		}
- 	}
--	free(vals);
--	return NULL;
-+}
++			skip = skipped - pg_remaining;
 +
-+static int fill_addrs(void *ptr, uint64_t size, void *addrs)
-+{
-+	void *end = ptr + size;
-+	int count = 0;
++			for (pg = pg_unuse; pg; pg = pg->next) {
++				remaining += 1 << pg->order;
++			}
 +
-+	for (; ptr < end; ptr += long_size, addrs += long_size, count++) {
-+		if (long_size == 4)
-+			*(uint32_t *)ptr = r(addrs);
-+		else
-+			*(uint64_t *)ptr = r8(addrs);
-+	}
-+	return count;
-+}
++			skip = DIV_ROUND_UP(skip, ENTRIES_PER_PAGE);
 +
-+static void replace_addrs(void *ptr, uint64_t size, void *addrs)
-+{
-+	void *end = ptr + size;
-+
-+	for (; ptr < end; ptr += long_size, addrs += long_size) {
-+		if (long_size == 4)
-+			w(*(uint32_t *)ptr, addrs);
-+		else
-+			w8(*(uint64_t *)ptr, addrs);
-+	}
- }
- 
- /* Sort the addresses stored between __start_mcount_loc to __stop_mcount_loc in vmlinux */
-@@ -699,14 +722,49 @@ static void *sort_mcount_loc(void *arg)
- 	struct elf_mcount_loc *emloc = (struct elf_mcount_loc *)arg;
- 	uint64_t offset = emloc->start_mcount_loc - shdr_addr(emloc->init_data_sec)
- 					+ shdr_offset(emloc->init_data_sec);
--	uint64_t count = emloc->stop_mcount_loc - emloc->start_mcount_loc;
-+	uint64_t size = emloc->stop_mcount_loc - emloc->start_mcount_loc;
- 	unsigned char *start_loc = (void *)emloc->ehdr + offset;
-+	Elf_Ehdr *ehdr = emloc->ehdr;
-+	void *e_msg = NULL;
-+	void *vals;
-+	int count;
-+
-+	vals = malloc(long_size * size);
-+	if (!vals) {
-+		snprintf(m_err, ERRSTR_MAXSZ, "Failed to allocate sort array");
-+		pthread_exit(m_err);
-+	}
- 
- 	if (sort_reloc)
--		return sort_relocs(emloc->ehdr, emloc->start_mcount_loc, count);
-+		count = fill_relocs(vals, size, ehdr, emloc->start_mcount_loc);
-+	else
-+		count = fill_addrs(vals, size, start_loc);
-+
-+	if (count < 0) {
-+		e_msg = m_err;
-+		goto out;
-+	}
-+
-+	if (count != size / long_size) {
-+		snprintf(m_err, ERRSTR_MAXSZ, "Expected %u mcount elements but found %u\n",
-+			(int)(size / long_size), count);
-+		e_msg = m_err;
-+		goto out;
-+	}
-+
-+	compare_values = long_size == 4 ? compare_values_32 : compare_values_64;
-+
-+	qsort(vals, count, long_size, compare_values);
-+
-+	if (sort_reloc)
-+		replace_relocs(vals, size, ehdr, emloc->start_mcount_loc);
-+	else
-+		replace_addrs(vals, size, start_loc);
-+
-+out:
-+	free(vals);
- 
--	qsort(start_loc, count/long_size, long_size, compare_extable);
--	return NULL;
-+	pthread_exit(e_msg);
- }
- 
- /* Get the address of __start_mcount_loc and __stop_mcount_loc in System.map */
++			/*
++			 * Check to see if the number of pages remaining would
++			 * just fit the number of entries skipped.
++			 */
++			WARN(skip != remaining, "Extra allocated pages for ftrace: %lu with %lu skipped",
++			     remaining, skipped);
++		}
+ 		/* Need to synchronize with ftrace_location_range() */
+ 		synchronize_rcu();
+ 		ftrace_free_pages(pg_unuse);
 -- 
 2.47.2
 
