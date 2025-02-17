@@ -1,23 +1,23 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8313E15852F;
-	Mon, 17 Feb 2025 04:22:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DDEF5183CA6;
+	Mon, 17 Feb 2025 04:22:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739766165; cv=none; b=FC2BYiofumU9/fbd7Cw5f+jxDi291EoCOPBkpgWZs6GR3NfzKIRRe67l2wkh3Rp4aI9pCL0Il+jnsU3IGJHAQFL7A80kR0l4ms2D+jhYPFhG2oo8teY9KMQSkRw+BhyEDsrQA/XOzb7yB4yAocCdhHtP0LiuiOnLqVMm1PYhhic=
+	t=1739766170; cv=none; b=ZjTiHHdVELO2A2Zr+EKDwfHYmKwlA78MTrgUMNkzJwfVBZixvk8sI0UNNVfPFpeCgo+5doI13vRpXVoq7NL143x2UWypFN5vB7m4gWsculAGDhVSfApE1xhVbXOBXJpsyiOt8r0oH1v8lbHu2rMARWAix9N8cgQPDfcXJWeT9Ow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739766165; c=relaxed/simple;
-	bh=+PviHAwD+iZdDuTMuUjKZtAItr3hYRxyxVhNRgE683o=;
+	s=arc-20240116; t=1739766170; c=relaxed/simple;
+	bh=QF11rklDJlulOtMhX6JMt11M85VxHvDVfYl4vULNd3E=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GjkMCoeux9WCRIfHcecycDKkFIn9S+jrnL+lR4zbGBBAy8VQwP1tQhTTO/bE0K1CuvQjhFDySae1kGEOXgHpE3BcXbIP00hrieQwKEDghlr9eINaAvqWkqNR9FVQcWsO9QA2OBqACRmhRwSjxXEcFVU9+4ihRM6C3lyNCHU094Q=
+	 MIME-Version; b=OhJglFkhtvgzXCYWvTfTabRGudBLfwOryPB05rtQa3UBIEx9QSJcSsFPUIXlVuwpoB72BkUTRHrDxGCDWRjVmVHZ2ZRtei/54Nk45UzvDhctu9rq7BquRvVXy/JFSGKME8kwlQittDQUwElxZDrBFRd1BX6UFwtN7P25eLiMrkg=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 40B401CE2;
-	Sun, 16 Feb 2025 20:23:03 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9B9871D14;
+	Sun, 16 Feb 2025 20:23:07 -0800 (PST)
 Received: from a077893.blr.arm.com (unknown [10.162.16.135])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 4192C3F59E;
-	Sun, 16 Feb 2025 20:22:39 -0800 (PST)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 6ADA33F59E;
+	Sun, 16 Feb 2025 20:22:44 -0800 (PST)
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 To: linux-mm@kvack.org
 Cc: steven.price@arm.com,
@@ -31,13 +31,10 @@ Cc: steven.price@arm.com,
 	linux-kernel@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH V2 3/5] docs: arm64: Drop PTDUMP config options from ptdump.rst
-Date: Mon, 17 Feb 2025 09:52:18 +0530
-Message-Id: <20250217042220.32920-4-anshuman.khandual@arm.com>
+	linux-s390@vger.kernel.org
+Subject: [PATCH V2 4/5] mm: Make DEBUG_WX depdendent on GENERIC_PTDUMP
+Date: Mon, 17 Feb 2025 09:52:19 +0530
+Message-Id: <20250217042220.32920-5-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20250217042220.32920-1-anshuman.khandual@arm.com>
 References: <20250217042220.32920-1-anshuman.khandual@arm.com>
@@ -49,34 +46,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Both GENERIC_PTDUMP and PTDUMP_CORE are not user selectable config options.
-Just drop these from documentation.
+DEBUG_WX selects PTDUMP_CORE without even ensuring that the given platform
+implements GENERIC_PTDUMP. This problem has been latent until now, as all
+the platforms subscribing ARCH_HAS_DEBUG_WX also subscribe GENERIC_PTDUMP.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-doc@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
-Suggested-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- Documentation/arch/arm64/ptdump.rst | 2 --
- 1 file changed, 2 deletions(-)
+ mm/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/arch/arm64/ptdump.rst b/Documentation/arch/arm64/ptdump.rst
-index 5dcfc5d7cddf..51eb902ba41a 100644
---- a/Documentation/arch/arm64/ptdump.rst
-+++ b/Documentation/arch/arm64/ptdump.rst
-@@ -22,8 +22,6 @@ offlining of memory being accessed by the ptdump code.
- In order to dump the kernel page tables, enable the following
- configurations and mount debugfs::
- 
-- CONFIG_GENERIC_PTDUMP=y
-- CONFIG_PTDUMP_CORE=y
-  CONFIG_PTDUMP_DEBUGFS=y
- 
-  mount -t debugfs nodev /sys/kernel/debug
+diff --git a/mm/Kconfig.debug b/mm/Kconfig.debug
+index 41a58536531d..a51a1149909a 100644
+--- a/mm/Kconfig.debug
++++ b/mm/Kconfig.debug
+@@ -186,6 +186,7 @@ config ARCH_HAS_DEBUG_WX
+ config DEBUG_WX
+ 	bool "Warn on W+X mappings at boot"
+ 	depends on ARCH_HAS_DEBUG_WX
++	depends on GENERIC_PTDUMP
+ 	depends on MMU
+ 	select PTDUMP_CORE
+ 	help
 -- 
 2.25.1
 
