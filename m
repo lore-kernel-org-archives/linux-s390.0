@@ -1,113 +1,83 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8B04235359;
-	Mon, 17 Feb 2025 18:25:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF5252376E0;
+	Mon, 17 Feb 2025 19:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739816737; cv=none; b=RoS7viI1sKtUoctOH7Qb1XTEeLxZiJnXLa8RDjlDCYiX90QX+imh2AdQjelz2Nkl9bxcd4DZXsosGNRG/oBrCr7UxkgUXefQWWFaDypJhVxTV0WTbTfkIu7G+Lj5HxxLRIXNHTXsXvLvjql5jplSJY2Dq7tU5cwNx42b/Xa18XE=
+	t=1739819322; cv=none; b=Mv7pA0AB5mC5PkwCGqAgTmBK+RjkJlPWZTG7v/3Wygwp615lZseYwBdNFTRh5ZX8hIf9L9dZZkd82t4oROa7SKJeebYjR5lTCIQipOI6lzEgkn5erdPKI0VOJqq8+kb0UJwKMbSPMWgaBSlM07kbC1jfCzy3Xq97vspoKTV/0hc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739816737; c=relaxed/simple;
-	bh=5khgD35fjPwEHUWM6/Tc1Rdzv1qWoYBP4oYEhlwM75Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pnLi3W2DgafaCPr5yrRSiwQyL+MJAxsTb8GMsyDHRB57RwbIFeR7dORcHBxIPvTEyZk4HVxa1sDSQNIelDrdmLrrceQLPWh2FupqPlsro2blr58RKGtQqYN4mDEt4em+g+rfbAOi/LVMuktT29eqUaGe1wH9ZSIYj+gs5ufz8as=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aqfLbHSZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1739819322; c=relaxed/simple;
+	bh=LPpP5moBq1x1B8T44YYF74TxHRr/1vdCj8Jq2sELHVQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=k0kQz6aokTyCzb9F17eWBMxDOET5lmmcaut4+OBG80XVe8Ab8YA5kbHdS/oARSBHTMKb8UU5LsDi66f0xZefHHP0OJxAFlBxvA8vVjFKWLyUjEdPSMn0B27EnyFK5RXcjeFXRgSzSVUhcl/z89xaMmDBlC891nWG5d9UK4cFi+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=thrH97rg; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aqfLbHSZ"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51HCNVbt030844;
-	Mon, 17 Feb 2025 18:25:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=zqBWVLibSN2BnE1MhuGrsYhIzK+bPL
-	ENN2DgCYa3zGI=; b=aqfLbHSZ05m12NX0QHqoj2JANDUFRzv2NtiD1jKyEUvg6+
-	f6ISN7Y2PSuDY793sEWcDRZ0Zh9zw2SYTCEli0IDzPFXwwXo3pqdwg8iRmGTL5BT
-	p+mp6kAcCVAcwpnPfcoaQcArQnHMap4mfYPj8Aemyl+EOkVegeGfoaEJZ7Spm16c
-	pIWG4Ks0vRBrnzVzJRoU3iZbpKpfp1+0M9MVMGbNT3hqqbxHq6izSgBozhXyfetv
-	MIGqKVWH/PHvha4BRd9/eT2YX2N1skGscTUzSC35VN7uVmswsYVp/fMx3kBkQd7N
-	8PnaunHTLsUEZwQUsUKqP6QdEUS5S+UtB5vhW37g==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44us5a506f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Feb 2025 18:25:24 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51HIObQ7014538;
-	Mon, 17 Feb 2025 18:25:24 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44us5a506d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Feb 2025 18:25:24 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51HGFOkL008133;
-	Mon, 17 Feb 2025 18:25:23 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44u58tfjwf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Feb 2025 18:25:23 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51HIPKCM40108400
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Feb 2025 18:25:20 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F1C9020043;
-	Mon, 17 Feb 2025 18:25:19 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7BB0C20040;
-	Mon, 17 Feb 2025 18:25:19 +0000 (GMT)
-Received: from localhost (unknown [9.179.20.129])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 17 Feb 2025 18:25:19 +0000 (GMT)
-Date: Mon, 17 Feb 2025 19:25:18 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Sami Tolvanen <samitolvanen@google.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, kernel test robot <lkp@intel.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/purgatory: Use -D__DISABLE_EXPORTS
-Message-ID: <your-ad-here.call-01739816718-ext-0992@work.hours>
-References: <20250213211614.3537605-2-samitolvanen@google.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="thrH97rg"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
+	Content-Type:Content-ID:Content-Description;
+	bh=atMZRm9oTSJ7EdJlQ3h7iJvkLCf12vGPXz2zKSkO6zo=; b=thrH97rgQk5cY6SsCjZalRSn93
+	HEQL4Fk+SimS8m8tDxDCmy2Unz81Dre8AePAFchB1p5SNzijFyHibJ6leOgVkq7ydpyDSd1Hm5diu
+	lFGZZqXQR5j2Tf4MB9wann/BnSax/OOuva/9PjoPPkSnezTUoKZpBEA/tIukuYEAm9AD5qRyIh4lW
+	Y1jjuvk2H/pOVPtbROx5QUrqcuMMBMlVw5lALGiInZjC638qVSFtxWjFoKxtL2gYFsWl3fdFPcDEh
+	IaffNaod96rCTnh7P8Ih+8Zbq/i1e1Ux3LterFamX4KVy9Th0HjUymOZL87+i9HUhimY9zJy/brrk
+	4dPWDbnw==;
+Received: from willy by casper.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
+	id 1tk6Tv-00000001pBc-0Zy7;
+	Mon, 17 Feb 2025 19:08:39 +0000
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To: linux-mm@kvack.org
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	linux-arch@vger.kernel.org,
+	x86@kernel.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org
+Subject: [PATCH 6/7] mm: Make mk_pte() definition unconditional
+Date: Mon, 17 Feb 2025 19:08:33 +0000
+Message-ID: <20250217190836.435039-7-willy@infradead.org>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250217190836.435039-1-willy@infradead.org>
+References: <20250217190836.435039-1-willy@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250213211614.3537605-2-samitolvanen@google.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ULpRvCYuDWIoWXxio4zaoQsMVRNwQ262
-X-Proofpoint-GUID: HUYvxhw7rzp0YxDkpSZyF3zHGveGiFl4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-17_07,2025-02-13_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 malwarescore=0
- mlxlogscore=368 suspectscore=0 phishscore=0 impostorscore=0 bulkscore=0
- spamscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
- definitions=main-2502170143
+Content-Transfer-Encoding: 8bit
 
-On Thu, Feb 13, 2025 at 09:16:14PM +0000, Sami Tolvanen wrote:
-> The object files in purgatory do not export symbols, so disable exports
-> for all the object files, not only sha256.o, with -D__DISABLE_EXPORTS.
-> 
-> This fixes a build failure with CONFIG_GENDWARFKSYMS, where we would
-> otherwise attempt to calculate symbol versions for purgatory objects and
-> fail because they're not built with debugging information:
-> 
-> error: gendwarfksyms: process_module: dwarf_get_units failed: no debugging information?
-> make[5]: *** [../scripts/Makefile.build:207: arch/s390/purgatory/string.o] Error 1
-> make[5]: *** Deleting file 'arch/s390/purgatory/string.o'
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202502120752.U3fOKScQ-lkp@intel.com/
-> Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-> ---
->  arch/s390/purgatory/Makefile | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+All architectures now use the common mk_pte() definition, so we
+can remove the condition.
 
-Applied, thank you!
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ include/linux/mm.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 3ef11ff3922f..62dccde9c561 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1916,14 +1916,12 @@ static inline struct folio *pfn_folio(unsigned long pfn)
+ 	return page_folio(pfn_to_page(pfn));
+ }
+ 
+-#ifndef mk_pte
+ #ifdef CONFIG_MMU
+ static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
+ {
+ 	return pfn_pte(page_to_pfn(page), pgprot);
+ }
+ #endif
+-#endif
+ 
+ /**
+  * folio_maybe_dma_pinned - Report if a folio may be pinned for DMA.
+-- 
+2.47.2
+
