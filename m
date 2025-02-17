@@ -1,80 +1,77 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4165121766A;
-	Mon, 17 Feb 2025 10:06:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1894218AD2;
+	Mon, 17 Feb 2025 11:33:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739786815; cv=none; b=YFINC+Nv1rV9+HnURn5HftcNY5PD3hcmPG1rFfy5uU/cnv7RpxnBki1QuaNYz+A5Sk1N2tcPUBdwdV3u/WAW7ENq8825yxqX2c2G2UjabYm8BfY1CzUrG6XmkYD6n2123+S/riZrYJEZWFenA9XWu3QUrHQtsK5tnhqvbMAueHc=
+	t=1739791995; cv=none; b=BGUB3zyYA760sSCRA7fa9TZXgcy6xQ4ne/+saPT7PDymo7bXX6xL4kXlcaMiJpsp+68xXBUZCJKrmN60l6sensWhp4dFuSrIuySkRMAl7mAmz5BNe919Kk0J3nDS0LJnHE99JvdDnBHH9szGo98ntMz9+Roj3X5jeqbq6Ry3l/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739786815; c=relaxed/simple;
-	bh=558d9/IVBYnUtRILUcTAq7bt9vxz/+fiXDjqRWuB0eg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PmmkeZx+Tkk1L1QxO75ZoDfJzR2wNwVpFlzQ9gU3Xx+mP3qQ+M9zD/z7z6OzBA00naqvyLLy5NJKc0uRdayYtt7moY4oi1kX80ru+lkD6dctVEIlja8+NvCrcW6da0J7rVKeskw6lSB7BudoTxkysJJDFfGvMb/e6cMuw9z53rg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XHsffdNj; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1739791995; c=relaxed/simple;
+	bh=oYek7E02RwnMK8GjcmYhc9PE+HmthFytfyFNagqSjvk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=RafKsM+Uh3EtYO8X3jU64CVpltA6SWe227kBJrFH2QCY6wN1LQN39ue0YRD6ykEKcqOCJ0fNfzqqCHdJKdyW/oGkmlFyHL5nyRLnZus/ZPY/moM0Jva/1UiH1QaoVAIizxrgoPi+ZLGSFL1/HP+wyiBOrzvNuAXLT+w3taX05WY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UiJO3Jnl; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XHsffdNj"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51H18nQ3015205;
-	Mon, 17 Feb 2025 10:06:31 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UiJO3Jnl"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51HBVwkV029404;
+	Mon, 17 Feb 2025 11:32:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=hfJFI3kZ5VCZCB7Js
-	iW1N0I9+4gi+bwnuBr+APbwOWM=; b=XHsffdNjZW9RU6XdKadUkM7y5zlbzMBE1
-	FDBJ2nSkVyq/CBNy+m4vIPUp4c3sLDOxNWfeIUrjm5DNVbA6VQ/iJq06Ks3+0sMM
-	3oVLBXF5+MSwMWmSIW4g3VET5imQNGDUP8UrKV0Uz9beE6aQimq8u3I0hr2Zj2FQ
-	iLARE46GOFDZ4MbZqvwItbS+CrArxxhcXPqgUpEcjfhVET2ERBVdXwtT4oAmjdri
-	3PceJXI72DYj7q7gI31sC2lyYO3j6FXMiB5wLL+5wjlVVnVP487NuN+852+Uao2d
-	KFD6Cp6kSZpfHxBcjOxFfT1kFSQXcFChJEy6edICb7vuixn7AqSgA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44uu69a51n-1
+	:mime-version:references:subject:to; s=pp1; bh=5scFkvSBGX+8VpmeF
+	IcdSWgrGL13fZO0gx+OvswNrik=; b=UiJO3Jnly3zIs+nO1/1tGEPbdZs7qAd4d
+	/jzrSjItfvq8QHI/iRlMgY8MdCYILxQuALM0dJXLvQR/aQHGLlIOnmkiaKbmCAMr
+	ybGqaYlsSlG/bxWXnSS6Ry/D7R8i4VIKoChX1Yr7RybXOHTCNlaeXg+PKCfHcfO+
+	G27wDpG+lg47JTT3d733B1/e7E1MVmEwKucnMBcDFwf3u51C7cKqw3cCOy4HlTQN
+	QprXy696E7tIsT5P5+qXF1fcWsU6/LLjXixZOdeS2klgxavE7R3f87GeGQdVJ4c7
+	eemP+94Hcy41KJ3T0+Q1bGxm6eevviRREnxqp1Jp7EQZcAMLMcZ5g==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44us5a2wpb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Feb 2025 10:06:30 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51H8MxO4001633;
-	Mon, 17 Feb 2025 10:06:29 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44u5mynnna-1
+	Mon, 17 Feb 2025 11:32:58 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51HBWvGL011153;
+	Mon, 17 Feb 2025 11:32:57 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44us5a2wp9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Feb 2025 10:06:29 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51HA6Pjg55443788
+	Mon, 17 Feb 2025 11:32:57 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51H92VN6032384;
+	Mon, 17 Feb 2025 11:32:56 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44u6rknrv0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 17 Feb 2025 11:32:56 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51HBWqUS33292898
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Feb 2025 10:06:25 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8465E20063;
-	Mon, 17 Feb 2025 10:06:25 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 476F82006A;
-	Mon, 17 Feb 2025 10:06:25 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 17 Feb 2025 10:06:25 +0000 (GMT)
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Eric Farman <farman@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Thorsten Blum <thorsten.blum@linux.dev>
-Subject: [PATCH 2/2] s390/vfio-ccw: make mdev_types not look like a fake flex array
-Date: Mon, 17 Feb 2025 11:06:14 +0100
-Message-ID: <20250217100614.3043620-3-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20250217100614.3043620-1-pasic@linux.ibm.com>
-References: <20250217100614.3043620-1-pasic@linux.ibm.com>
+	Mon, 17 Feb 2025 11:32:52 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 72C0C20043;
+	Mon, 17 Feb 2025 11:32:52 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 92C6D20040;
+	Mon, 17 Feb 2025 11:32:51 +0000 (GMT)
+Received: from IBM-PW0CRK36.ibm.com (unknown [9.179.18.115])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 17 Feb 2025 11:32:51 +0000 (GMT)
+From: Tobias Huschle <huschle@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
+        vschneid@redhat.com, sshegde@linux.ibm.com,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: [RFC PATCH v2 3/3] s390/topology: Add initial implementation for selection of parked CPUs
+Date: Mon, 17 Feb 2025 12:32:52 +0100
+Message-Id: <20250217113252.21796-4-huschle@linux.ibm.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250217113252.21796-1-huschle@linux.ibm.com>
+References: <20250217113252.21796-1-huschle@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -83,100 +80,69 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Nisoc6HnoD0j1Gl5QcbaBTgUpqRHKjHX
-X-Proofpoint-ORIG-GUID: Nisoc6HnoD0j1Gl5QcbaBTgUpqRHKjHX
+X-Proofpoint-ORIG-GUID: qggV-NYwYh3AV9N61X1WI-6NdqDpf5vb
+X-Proofpoint-GUID: pz89BfH_r6PC0tNHewRG5lxj9uLm2v93
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-17_04,2025-02-13_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- malwarescore=0 priorityscore=1501 suspectscore=0 impostorscore=0
- lowpriorityscore=0 spamscore=0 clxscore=1015 mlxscore=0 mlxlogscore=888
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2501170000 definitions=main-2502170088
+ definitions=2025-02-17_05,2025-02-13_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
+ mlxlogscore=964 suspectscore=0 phishscore=0 impostorscore=0 bulkscore=0
+ spamscore=0 mlxscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2501170000
+ definitions=main-2502170101
 
-The vfio-ccw driver and the vfio parent device provided by it (parent)
-support just a single mdev_type, and this is not likely to change any
-time soon. To match the mdev interfaces nicely initially the choice was
-made that mdev_types (which gets passed into mdev_register_parent())
-shall be an array of pointers to struct mdev_type with a single element,
-and to make things worse it ended up being the last member.
+At first, vertical low CPUs will be parked generally. This will later
+be adjusted by making the parked state dependent on the overall
+utilization on the underlying hypervisor.
 
-Now the problem with that is that before C99 the usual way to get
-something similar to a flexible array member was to use a trailing array
-of size 0 or 1. This is what I called fake flex array. For a while now
-the community is trying to get rid of fake flex arrays. And while
-mdev_types was not a fake flex array but an array of size one, because
-it can easily be and probably was mistaken for a fake flex array it got
-converted into a real C99 flex array with a compile time known constant
-size of one.
+Vertical lows are always bound to the highest CPU IDs. This implies that
+the three types of vertically polarized CPUs are always clustered by ID.
+This has the following implications:
+- There might be scheduler domains consisting of only vertical highs
+- There might be scheduler domains consisting of only vertical lows
 
-As per [1] it was established that "only fake flexible arrays should be
-transformed into C99 flex-array members". Since IMHO the entire point of
-flex arrays is being flexible about the array size at run time, a C99
-flex array is a poor fit for mdev_types.  But an array of a size one is
-a poor fit as well for the reason stated above, let us try to get rid of
-the flex array without introducing back the one sized array.
-
-So, lets make mdev_types a pointer to struct mdev_type and pass in the
-address of that pointer as the 4th formal parameter of
-mdev_register_parent().
-
-[1] https://lore.kernel.org/lkml/85863d7a-2d8b-4c1b-b76a-e2f40834a7a8@embeddedor.com/
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Tested-by: Eric Farman <farman@linux.ibm.com>
-
+Signed-off-by: Tobias Huschle <huschle@linux.ibm.com>
 ---
+ arch/s390/include/asm/smp.h | 2 ++
+ arch/s390/kernel/smp.c      | 5 +++++
+ 2 files changed, 7 insertions(+)
 
-I've also considered switching up the order in which the members
-mdev_types and mdev_type are defined in struct vfio_ccw_parent but
-decided against that because that could look to somebody like
-well known mistake that can be made when using fake flex arrays.
----
- drivers/s390/cio/vfio_ccw_drv.c     | 6 +++---
- drivers/s390/cio/vfio_ccw_private.h | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 914dde041675..6ff5c9cfb7ed 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -171,7 +171,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 		return -ENODEV;
- 	}
+diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
+index 7feca96c48c6..d4b65c5cebdc 100644
+--- a/arch/s390/include/asm/smp.h
++++ b/arch/s390/include/asm/smp.h
+@@ -13,6 +13,7 @@
  
--	parent = kzalloc(struct_size(parent, mdev_types, 1), GFP_KERNEL);
-+	parent = kzalloc(sizeof(*parent), GFP_KERNEL);
- 	if (!parent)
- 		return -ENOMEM;
+ #define raw_smp_processor_id()	(get_lowcore()->cpu_nr)
+ #define arch_scale_cpu_capacity smp_cpu_get_capacity
++#define arch_cpu_parked smp_cpu_parked
  
-@@ -186,10 +186,10 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ extern struct mutex smp_cpu_state_mutex;
+ extern unsigned int smp_cpu_mt_shift;
+@@ -38,6 +39,7 @@ extern int smp_cpu_get_polarization(int cpu);
+ extern void smp_cpu_set_capacity(int cpu, unsigned long val);
+ extern void smp_set_core_capacity(int cpu, unsigned long val);
+ extern unsigned long smp_cpu_get_capacity(int cpu);
++extern bool smp_cpu_parked(int cpu);
+ extern int smp_cpu_get_cpu_address(int cpu);
+ extern void smp_fill_possible_mask(void);
+ extern void smp_detect_cpus(void);
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 7b08399b0846..e65850cac02b 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -686,6 +686,11 @@ void smp_set_core_capacity(int cpu, unsigned long val)
+ 		smp_cpu_set_capacity(i, val);
+ }
  
- 	parent->mdev_type.sysfs_name = "io";
- 	parent->mdev_type.pretty_name = "I/O subchannel (Non-QDIO)";
--	parent->mdev_types[0] = &parent->mdev_type;
-+	parent->mdev_types = &parent->mdev_type;
- 	ret = mdev_register_parent(&parent->parent, &sch->dev,
- 				   &vfio_ccw_mdev_driver,
--				   parent->mdev_types, 1);
-+				   &parent->mdev_types, 1);
- 	if (ret)
- 		goto out_unreg;
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index b62bbc5c6376..0501d4bbcdbd 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -79,7 +79,7 @@ struct vfio_ccw_parent {
- 
- 	struct mdev_parent	parent;
- 	struct mdev_type	mdev_type;
--	struct mdev_type	*mdev_types[];
-+	struct mdev_type	*mdev_types;
- };
- 
- /**
++bool smp_cpu_parked(int cpu)
++{
++	return smp_cpu_get_polarization(cpu) == POLARIZATION_VL;
++}
++
+ int smp_cpu_get_cpu_address(int cpu)
+ {
+ 	return per_cpu(pcpu_devices, cpu).address;
 -- 
-2.45.2
+2.34.1
 
