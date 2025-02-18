@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93376233155;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C48233D89;
 	Tue, 18 Feb 2025 09:56:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739872606; cv=none; b=JYPOFLlLfiNUrfb3GQWfqN1iB1tA0U5RMAeViR/dDOuklld6mN03gmzn+lyqK7sHF08LE0Cf1fxp1HQ0+rAX47DSX9fqJs/2hUG43oS92OdUIUUPRHK8phfYqJTLLsq1eGOLfERWsk9dQpb+uH0YXWCLkQxcHn/2z8XCGQFkvrI=
+	t=1739872606; cv=none; b=pLKfARksbFjwyC5REsk7oCcHwQbt37rRhs+il/vF8SmSPXaWMJcSvLThxe/QR/XrLG0n7lC8mVWr8L/Oo/trd87mIYI/CeC53NYveD6f7Tjy+2CBy1DErXUAD+uSEKqNPiuvTqU0nwVzoAPXAMYTPi3oKxaERbaiwd5sLe5mF5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739872606; c=relaxed/simple;
-	bh=ec+FA3bJhRbXcy44mL0olZwg4DCvtazy/yRT+8kvChY=;
+	bh=25VrcofxjXYiWPL+NpeDoZmrthXGZql9I+TZr94WN1U=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Ylxz5PwX4C39Z/zYoaY8xTIQU/PlL5CDitVGYXp8ngQMU1KS45Hp7fFhUaap6zZQTjVaoaBADKKJb4RPvf/R+5tdgBHW21NnFinlvGR1iZX7FarpWxkNLGtQHUuqPTOXNBOtwQqWkhl/hbtGC17ksuG/6QCUTReGvDtqYI3Xxgc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mq4wG/wX; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Pde5P+kYfohFQH6MFmjEQcD358p2v7hyGzVj+amk9/QRolL7Eyrw6OAD8KpMlhn3Ot+UZz8zd3pMlX0b4aa7NhmhLeC0eUhiG7NsKw9ZM8jKc3CCwFviWZEEGYetwqJ7vvXVrI39linE0PQhRY5S5nF1prShHZOiD5wBmniAEcM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t1O7vfVv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mq4wG/wX"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id F0275C4CEF5;
-	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t1O7vfVv"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 35171C4AF51;
+	Tue, 18 Feb 2025 09:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1739872606;
-	bh=ec+FA3bJhRbXcy44mL0olZwg4DCvtazy/yRT+8kvChY=;
+	bh=25VrcofxjXYiWPL+NpeDoZmrthXGZql9I+TZr94WN1U=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=mq4wG/wX0fCB0VL5nhi+lFBk/iJXk0oNlnvWSvD2yVB7MdbNX44SUp4Kqlk4apwvD
-	 S9Od0pQJIlk32D0wQs+tiQnHKc37Ay1Pfr0q1Q8N+BQv28A2x+NsvTBy9PfVNAp/1y
-	 TBmlFaKEBPs8sWyKz3dUs130DmI/fEmRck4esvLGjmDfRgq+TAOX3RyudbXWKEMhGc
-	 ZsclT/zcw6BcBpr6PR6OdfUcNUoPcQDq/ay7X/KoCPsKjLqeQgBOQVz43IU3NE2roV
-	 1Yg0htV8iUny+PxDDIKIlSUwB9DhGCB/8f+TghMK/RkJJmov6/p6QYkzRwEX+YxzKY
-	 OU5bEdZETAcoQ==
+	b=t1O7vfVvEjL21CvHAqne4UhEdRzvJaXiNYil7mgmm9x44BZBd1W6Y1uCfPBOnqhwL
+	 1RFaRWdenTWu8GUoprIpS7nV8zMJ3DM+2u7Tdt/5e90/ohrHQkg5bq/i1L8K3IKsHs
+	 ZuPWSJQi/BU8DGF6WZhFTIqiaMBGORw9tCHtc+U8tgifRHAPvJV7EVvm/nydcmmS01
+	 4ecEs5J6pYRVkakXmLzie9sopp5t0ShkVU65fznUq7weu8CX36AXhHBOLkX+Qoc6fO
+	 j1xT1AGV+Jdl789v3OoweOkkLbWovTxvUu+GmWuzgkmyltkm31lg2OSCPBGJ9p/b3R
+	 6BL9WgBr2+VHw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCFCCC021AF;
-	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 240A9C021AD;
+	Tue, 18 Feb 2025 09:56:46 +0000 (UTC)
 From: Joel Granados <joel.granados@kernel.org>
-Date: Tue, 18 Feb 2025 10:56:21 +0100
-Subject: [PATCH 5/8] events: Move perf_event sysctls into kernel/events
+Date: Tue, 18 Feb 2025 10:56:24 +0100
+Subject: [PATCH 8/8] x86: Move sysctls into arch/x86
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250218-jag-mv_ctltables-v1-5-cd3698ab8d29@kernel.org>
+Message-Id: <20250218-jag-mv_ctltables-v1-8-cd3698ab8d29@kernel.org>
 References: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
 In-Reply-To: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
 To: Kees Cook <kees@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
@@ -69,36 +69,36 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
  sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, 
  linux-acpi@vger.kernel.org, Joel Granados <joel.granados@kernel.org>
 X-Mailer: b4 0.15-dev-64da2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=10332;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6910;
  i=joel.granados@kernel.org; h=from:subject:message-id;
- bh=ec+FA3bJhRbXcy44mL0olZwg4DCvtazy/yRT+8kvChY=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGe0WVl4I3BgQWKHSlxKcgbAbttCoqSWTuqv6
- E2K55ipFuPqeokBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJntFlZAAoJELqXzVK3
- lkFPov4L/RxARj9V/wFZMdAdHvvAdNNNOGecvUbb5RcX9LmCIH1ffYRA+vpEsrxQr81qFqysDjN
- Vedrg2sG3GXwbK+AvI7bbh5a/qrrtSURVs1JSqWyVHc3olvazvg6RwBFXprR/Iwqqv7MVKDWlMu
- N7duPFpbjZqFRP/g3KxlBKUc80Sy2A42bP3H1Qmx1g4lDI2AJqf0Ozkrpw3D77p+eFUs7Mrp8hI
- 5n6DCzWKHSIVWF2qmMR7T35tdEftGxSw+uFU8DPZCBv9AQxpSjz4OnUmTXoNdBMEjPZ8gJc+vyf
- 77WXvsBXxN3/GQwY1dI1pa8rxTTrUgO7MhvvxN8xd/1oJKecjUtMbdehbgdCpV7xdF1NGvwWdGx
- hsS5Be3VxuZ+cHM+xUgMV7WHSZOLlU7KFyzi7guNab1Ncr8xS7+eDIshIyfJIbNTj91LNiVbOBS
- AEpcfTffEUYJOxygd7R5/GqX7eSLArk2LJVCHd8SusvHNbUJGQX6cPCrqv4WoEHKFIW27QGmmX8
- mg=
+ bh=25VrcofxjXYiWPL+NpeDoZmrthXGZql9I+TZr94WN1U=;
+ b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGe0WVumUM7VC3nkKjqPjxD72KDdRR6LD1mMS
+ aDvYqAAB3iMY4kBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJntFlbAAoJELqXzVK3
+ lkFPVIIL/izMcYoC1vEgjhYCHqFpAP7CLDIpIwXauJG2W7wUCFoIwUCBuPHBZj6KYSXDyNu8X7T
+ G07ju4giBhkZofL8eCOhuasU8ZN+at3aFEXf5fICqFDRS3TvXik4Z6yK43mTYZXs9MVRThtZRxf
+ PaKruze8Nn89HxOdekRSpFl6UYsufRMHOA+nJ0EaATUd/X62cOvDvsysHXG+HFVz/gU1359eNU7
+ Cpj/W39YNxVDAJPM0xOYuoQmFd0U6iBBrxwxq6aN3VAZLJzLpYzuL+4ZUrmw6aaZZPm8MnCY9dl
+ bq8q1h6VKx/CzaUT0KoCAc63XIjmywKIdO/UOm723JUAdqttspUYzcemKmhLYblQWbDCA+TIRc3
+ XIp586nZ2T+iHo5+Dr63JwJFPd3FjJEP4e9nQhyv6xnKUUCyMDwM/Rm4rqblg8A+ixRIIh0GzOC
+ 0/m2pTkTNc06RWRYqOj5WGwYe5koNsO/aCDJQqN+3HSkJahp8yLHPFCUeAsegkvcgTqKbKzlco7
+ XA=
 X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
  fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
 X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
  auth_id=239
 
-Move ctl tables to two files:
-* perf_event_{paranoid,mlock_kb,max_sample_rate} and
-  perf_cpu_time_max_percent into kernel/events/core.c
-* perf_event_max_{stack,context_per_stack} into
-  kernel/events/callchain.c
+Move the following sysctl tables into arch/x86/kernel/setup.c:
+panic_on_{unrecoverable_nmi,io_nmi}, bootloader_{type,version},
+io_delay_type, unknown_nmi_panic, acpi_realmode_flags.
 
-Make static variables and functions that are fully contained in core.c
-and callchain.cand remove them from include/linux/perf_event.h.
-Additionally six_hundred_forty_kb is moved to callchain.c.
+Variables moved from include/linux to arch/x86/include/asm because there
+is no longer need for them outside arch/x86/kernel: acpi_realmode_flags,
+panic_on_{unrecoverable_nmi,io_nmi}.
 
-Two new sysctl tables are added ({callchain,events_core}_sysctl_table)
-with their respective sysctl registration functions.
+Include asm/nmi.h in arch/s86/kernel/setup.h in order to bring in
+panic_on_{io_nmi,unrecovered_nmi}
+
+Remove the asm/{nmi.h,io.h} includes from sysctl.c
 
 This is part of a greater effort to move ctl tables into their
 respective subsystems which will reduce the merge conflicts in
@@ -106,281 +106,226 @@ kerenel/sysctl.c.
 
 Signed-off-by: Joel Granados <joel.granados@kernel.org>
 ---
- include/linux/perf_event.h |  9 -------
- kernel/events/callchain.c  | 38 ++++++++++++++++++++++-----
- kernel/events/core.c       | 57 ++++++++++++++++++++++++++++++++++++-----
- kernel/sysctl.c            | 64 ----------------------------------------------
- 4 files changed, 83 insertions(+), 85 deletions(-)
+ arch/x86/include/asm/setup.h |  1 +
+ arch/x86/include/asm/traps.h |  2 --
+ arch/x86/kernel/setup.c      | 66 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h         |  1 -
+ kernel/sysctl.c              | 60 ----------------------------------------
+ 5 files changed, 67 insertions(+), 63 deletions(-)
 
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index 8333f132f4a9..a92ade5d62be 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -1646,19 +1646,10 @@ static inline int perf_callchain_store(struct perf_callchain_entry_ctx *ctx, u64
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index 85f4fde3515c..a8d676bba5de 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -46,6 +46,7 @@ void setup_bios_corruption_check(void);
+ void early_platform_quirks(void);
+ 
+ extern unsigned long saved_video_mode;
++extern unsigned long acpi_realmode_flags;
+ 
+ extern void reserve_standard_io_resources(void);
+ extern void i386_reserve_resources(void);
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index 1f1deaecd364..869b88061801 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -35,8 +35,6 @@ static inline int get_si_code(unsigned long condition)
+ 		return TRAP_BRKPT;
  }
  
- extern int sysctl_perf_event_paranoid;
--extern int sysctl_perf_event_mlock;
- extern int sysctl_perf_event_sample_rate;
--extern int sysctl_perf_cpu_time_max_percent;
- 
- extern void perf_sample_event_took(u64 sample_len_ns);
- 
--int perf_event_max_sample_rate_handler(const struct ctl_table *table, int write,
--		void *buffer, size_t *lenp, loff_t *ppos);
--int perf_cpu_time_max_percent_handler(const struct ctl_table *table, int write,
--		void *buffer, size_t *lenp, loff_t *ppos);
--int perf_event_max_stack_handler(const struct ctl_table *table, int write,
--		void *buffer, size_t *lenp, loff_t *ppos);
+-extern int panic_on_unrecovered_nmi;
 -
- /* Access to perf_event_open(2) syscall. */
- #define PERF_SECURITY_OPEN		0
+ void math_emulate(struct math_emu_info *);
  
-diff --git a/kernel/events/callchain.c b/kernel/events/callchain.c
-index 8a47e52a454f..6c83ad674d01 100644
---- a/kernel/events/callchain.c
-+++ b/kernel/events/callchain.c
-@@ -22,6 +22,7 @@ struct callchain_cpus_entries {
+ bool fault_in_kernel_space(unsigned long address);
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index cebee310e200..9f8ff3aad4f4 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -56,6 +56,9 @@
+ #include <asm/unwind.h>
+ #include <asm/vsyscall.h>
+ #include <linux/vmalloc.h>
++#if defined(CONFIG_X86_LOCAL_APIC)
++#include <asm/nmi.h>
++#endif
  
- int sysctl_perf_event_max_stack __read_mostly = PERF_MAX_STACK_DEPTH;
- int sysctl_perf_event_max_contexts_per_stack __read_mostly = PERF_MAX_CONTEXTS_PER_STACK;
-+static const int six_hundred_forty_kb = 640 * 1024;
+ /*
+  * max_low_pfn_mapped: highest directly mapped pfn < 4 GB
+@@ -146,6 +149,69 @@ static size_t ima_kexec_buffer_size;
+ /* Boot loader ID and version as integers, for the benefit of proc_dointvec */
+ int bootloader_type, bootloader_version;
  
- static inline size_t perf_callchain_entry__sizeof(void)
- {
-@@ -266,12 +267,8 @@ get_perf_callchain(struct pt_regs *regs, u32 init_nr, bool kernel, bool user,
- 	return entry;
- }
- 
--/*
-- * Used for sysctl_perf_event_max_stack and
-- * sysctl_perf_event_max_contexts_per_stack.
-- */
--int perf_event_max_stack_handler(const struct ctl_table *table, int write,
--				 void *buffer, size_t *lenp, loff_t *ppos)
-+static int perf_event_max_stack_handler(const struct ctl_table *table, int write,
-+					void *buffer, size_t *lenp, loff_t *ppos)
- {
- 	int *value = table->data;
- 	int new_value = *value, ret;
-@@ -292,3 +289,32 @@ int perf_event_max_stack_handler(const struct ctl_table *table, int write,
- 
- 	return ret;
- }
-+
-+static const struct ctl_table callchain_sysctl_table[] = {
++static const struct ctl_table x86_sysctl_table[] = {
 +	{
-+		.procname	= "perf_event_max_stack",
-+		.data		= &sysctl_perf_event_max_stack,
-+		.maxlen		= sizeof(sysctl_perf_event_max_stack),
++		.procname	= "panic_on_unrecovered_nmi",
++		.data		= &panic_on_unrecovered_nmi,
++		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= perf_event_max_stack_handler,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= (void *)&six_hundred_forty_kb,
++		.proc_handler	= proc_dointvec,
 +	},
 +	{
-+		.procname	= "perf_event_max_contexts_per_stack",
-+		.data		= &sysctl_perf_event_max_contexts_per_stack,
-+		.maxlen		= sizeof(sysctl_perf_event_max_contexts_per_stack),
++		.procname	= "panic_on_io_nmi",
++		.data		= &panic_on_io_nmi,
++		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= perf_event_max_stack_handler,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= SYSCTL_ONE_THOUSAND,
++		.proc_handler	= proc_dointvec,
 +	},
++	{
++		.procname	= "bootloader_type",
++		.data		= &bootloader_type,
++		.maxlen		= sizeof(int),
++		.mode		= 0444,
++		.proc_handler	= proc_dointvec,
++	},
++	{
++		.procname	= "bootloader_version",
++		.data		= &bootloader_version,
++		.maxlen		= sizeof(int),
++		.mode		= 0444,
++		.proc_handler	= proc_dointvec,
++	},
++	{
++		.procname	= "io_delay_type",
++		.data		= &io_delay_type,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec,
++	},
++#if defined(CONFIG_X86_LOCAL_APIC)
++	{
++		.procname       = "unknown_nmi_panic",
++		.data           = &unknown_nmi_panic,
++		.maxlen         = sizeof(int),
++		.mode           = 0644,
++		.proc_handler   = proc_dointvec,
++	},
++#endif
++#if defined(CONFIG_ACPI_SLEEP)
++	{
++		.procname	= "acpi_video_flags",
++		.data		= &acpi_realmode_flags,
++		.maxlen		= sizeof(unsigned long),
++		.mode		= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++	},
++#endif
 +};
 +
-+static int __init init_callchain_sysctls(void)
++static int __init init_x86_sysctl(void)
 +{
-+	register_sysctl_init("kernel", callchain_sysctl_table);
++	register_sysctl_init("kernel", x86_sysctl_table);
 +	return 0;
 +}
-+core_initcall(init_callchain_sysctls);
++arch_initcall(init_x86_sysctl);
 +
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index bcb09e011e9e..3c3d95312c28 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -452,8 +452,8 @@ static struct kmem_cache *perf_event_cache;
+ /*
+  * Setup options
   */
- int sysctl_perf_event_paranoid __read_mostly = 2;
- 
--/* Minimum for 512 kiB + 1 user control page */
--int sysctl_perf_event_mlock __read_mostly = 512 + (PAGE_SIZE / 1024); /* 'free' kiB per user */
-+/* Minimum for 512 kiB + 1 user control page. 'free' kiB per user. */
-+static int sysctl_perf_event_mlock __read_mostly = 512 + (PAGE_SIZE / 1024);
- 
- /*
-  * max perf event sample rate
-@@ -463,6 +463,7 @@ int sysctl_perf_event_mlock __read_mostly = 512 + (PAGE_SIZE / 1024); /* 'free'
- #define DEFAULT_CPU_TIME_MAX_PERCENT	25
- 
- int sysctl_perf_event_sample_rate __read_mostly	= DEFAULT_MAX_SAMPLE_RATE;
-+static int sysctl_perf_cpu_time_max_percent __read_mostly = DEFAULT_CPU_TIME_MAX_PERCENT;
- 
- static int max_samples_per_tick __read_mostly	= DIV_ROUND_UP(DEFAULT_MAX_SAMPLE_RATE, HZ);
- static int perf_sample_period_ns __read_mostly	= DEFAULT_SAMPLE_PERIOD_NS;
-@@ -484,7 +485,7 @@ static void update_perf_cpu_limits(void)
- 
- static bool perf_rotate_context(struct perf_cpu_pmu_context *cpc);
- 
--int perf_event_max_sample_rate_handler(const struct ctl_table *table, int write,
-+static int perf_event_max_sample_rate_handler(const struct ctl_table *table, int write,
- 				       void *buffer, size_t *lenp, loff_t *ppos)
- {
- 	int ret;
-@@ -506,9 +507,7 @@ int perf_event_max_sample_rate_handler(const struct ctl_table *table, int write,
- 	return 0;
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 4e495b29c640..a70e62d69dc7 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -330,7 +330,6 @@ static inline bool acpi_sci_irq_valid(void)
  }
  
--int sysctl_perf_cpu_time_max_percent __read_mostly = DEFAULT_CPU_TIME_MAX_PERCENT;
--
--int perf_cpu_time_max_percent_handler(const struct ctl_table *table, int write,
-+static int perf_cpu_time_max_percent_handler(const struct ctl_table *table, int write,
- 		void *buffer, size_t *lenp, loff_t *ppos)
- {
- 	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
-@@ -528,6 +527,52 @@ int perf_cpu_time_max_percent_handler(const struct ctl_table *table, int write,
- 	return 0;
- }
+ extern int sbf_port;
+-extern unsigned long acpi_realmode_flags;
  
-+static const struct ctl_table events_core_sysctl_table[] = {
-+	/*
-+	 * User-space relies on this file as a feature check for
-+	 * perf_events being enabled. It's an ABI, do not remove!
-+	 */
-+	{
-+		.procname	= "perf_event_paranoid",
-+		.data		= &sysctl_perf_event_paranoid,
-+		.maxlen		= sizeof(sysctl_perf_event_paranoid),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.procname	= "perf_event_mlock_kb",
-+		.data		= &sysctl_perf_event_mlock,
-+		.maxlen		= sizeof(sysctl_perf_event_mlock),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+	},
-+	{
-+		.procname	= "perf_event_max_sample_rate",
-+		.data		= &sysctl_perf_event_sample_rate,
-+		.maxlen		= sizeof(sysctl_perf_event_sample_rate),
-+		.mode		= 0644,
-+		.proc_handler	= perf_event_max_sample_rate_handler,
-+		.extra1		= SYSCTL_ONE,
-+	},
-+	{
-+		.procname	= "perf_cpu_time_max_percent",
-+		.data		= &sysctl_perf_cpu_time_max_percent,
-+		.maxlen		= sizeof(sysctl_perf_cpu_time_max_percent),
-+		.mode		= 0644,
-+		.proc_handler	= perf_cpu_time_max_percent_handler,
-+		.extra1		= SYSCTL_ZERO,
-+		.extra2		= SYSCTL_ONE_HUNDRED,
-+	},
-+};
-+
-+static int __init init_events_core_sysctls(void)
-+{
-+	register_sysctl_init("kernel", events_core_sysctl_table);
-+	return 0;
-+}
-+core_initcall(init_events_core_sysctls);
-+
-+
- /*
-  * perf samples are done in some very critical code paths (NMIs).
-  * If they take too much CPU time, the system can lock up and not
+ int acpi_register_gsi (struct device *dev, u32 gsi, int triggering, int polarity);
+ int acpi_gsi_to_irq (u32 gsi, unsigned int *irq);
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index dc3747cc72d4..fdc92d80e841 100644
+index 7f505f9ace87..bf098028ba68 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -51,7 +51,6 @@
- #include <linux/nfs_fs.h>
- #include <linux/acpi.h>
- #include <linux/reboot.h>
--#include <linux/perf_event.h>
- #include <linux/oom.h>
- #include <linux/kmod.h>
- #include <linux/capability.h>
-@@ -87,12 +86,6 @@ EXPORT_SYMBOL_GPL(sysctl_long_vals);
- #if defined(CONFIG_SYSCTL)
+@@ -65,10 +65,6 @@
+ #include <linux/uaccess.h>
+ #include <asm/processor.h>
  
- /* Constants used for minimum and maximum */
--
--#ifdef CONFIG_PERF_EVENTS
--static const int six_hundred_forty_kb = 640 * 1024;
+-#ifdef CONFIG_X86
+-#include <asm/nmi.h>
+-#include <asm/io.h>
+-#endif
+ #ifdef CONFIG_RT_MUTEXES
+ #include <linux/rtmutex.h>
+ #endif
+@@ -1716,16 +1712,6 @@ static const struct ctl_table kern_table[] = {
+ 		.mode		= 0444,
+ 		.proc_handler	= proc_dointvec,
+ 	},
+-#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_X86)
+-	{
+-		.procname       = "unknown_nmi_panic",
+-		.data           = &unknown_nmi_panic,
+-		.maxlen         = sizeof (int),
+-		.mode           = 0644,
+-		.proc_handler   = proc_dointvec,
+-	},
 -#endif
 -
--
- static const int ngroups_max = NGROUPS_MAX;
- static const int cap_last_cap = CAP_LAST_CAP;
- 
-@@ -1869,63 +1862,6 @@ static const struct ctl_table kern_table[] = {
+ #if (defined(CONFIG_X86_32) || defined(CONFIG_PARISC)) && \
+ 	defined(CONFIG_DEBUG_STACKOVERFLOW)
+ 	{
+@@ -1736,43 +1722,6 @@ static const struct ctl_table kern_table[] = {
  		.proc_handler	= proc_dointvec,
  	},
  #endif
--#ifdef CONFIG_PERF_EVENTS
--	/*
--	 * User-space scripts rely on the existence of this file
--	 * as a feature check for perf_events being enabled.
--	 *
--	 * So it's an ABI, do not remove!
--	 */
+-#if defined(CONFIG_X86)
 -	{
--		.procname	= "perf_event_paranoid",
--		.data		= &sysctl_perf_event_paranoid,
--		.maxlen		= sizeof(sysctl_perf_event_paranoid),
+-		.procname	= "panic_on_unrecovered_nmi",
+-		.data		= &panic_on_unrecovered_nmi,
+-		.maxlen		= sizeof(int),
 -		.mode		= 0644,
 -		.proc_handler	= proc_dointvec,
 -	},
 -	{
--		.procname	= "perf_event_mlock_kb",
--		.data		= &sysctl_perf_event_mlock,
--		.maxlen		= sizeof(sysctl_perf_event_mlock),
+-		.procname	= "panic_on_io_nmi",
+-		.data		= &panic_on_io_nmi,
+-		.maxlen		= sizeof(int),
 -		.mode		= 0644,
 -		.proc_handler	= proc_dointvec,
 -	},
 -	{
--		.procname	= "perf_event_max_sample_rate",
--		.data		= &sysctl_perf_event_sample_rate,
--		.maxlen		= sizeof(sysctl_perf_event_sample_rate),
--		.mode		= 0644,
--		.proc_handler	= perf_event_max_sample_rate_handler,
--		.extra1		= SYSCTL_ONE,
+-		.procname	= "bootloader_type",
+-		.data		= &bootloader_type,
+-		.maxlen		= sizeof (int),
+-		.mode		= 0444,
+-		.proc_handler	= proc_dointvec,
 -	},
 -	{
--		.procname	= "perf_cpu_time_max_percent",
--		.data		= &sysctl_perf_cpu_time_max_percent,
--		.maxlen		= sizeof(sysctl_perf_cpu_time_max_percent),
--		.mode		= 0644,
--		.proc_handler	= perf_cpu_time_max_percent_handler,
--		.extra1		= SYSCTL_ZERO,
--		.extra2		= SYSCTL_ONE_HUNDRED,
+-		.procname	= "bootloader_version",
+-		.data		= &bootloader_version,
+-		.maxlen		= sizeof (int),
+-		.mode		= 0444,
+-		.proc_handler	= proc_dointvec,
 -	},
 -	{
--		.procname	= "perf_event_max_stack",
--		.data		= &sysctl_perf_event_max_stack,
--		.maxlen		= sizeof(sysctl_perf_event_max_stack),
+-		.procname	= "io_delay_type",
+-		.data		= &io_delay_type,
+-		.maxlen		= sizeof(int),
 -		.mode		= 0644,
--		.proc_handler	= perf_event_max_stack_handler,
--		.extra1		= SYSCTL_ZERO,
--		.extra2		= (void *)&six_hundred_forty_kb,
--	},
--	{
--		.procname	= "perf_event_max_contexts_per_stack",
--		.data		= &sysctl_perf_event_max_contexts_per_stack,
--		.maxlen		= sizeof(sysctl_perf_event_max_contexts_per_stack),
--		.mode		= 0644,
--		.proc_handler	= perf_event_max_stack_handler,
--		.extra1		= SYSCTL_ZERO,
--		.extra2		= SYSCTL_ONE_THOUSAND,
+-		.proc_handler	= proc_dointvec,
 -	},
 -#endif
- #ifdef CONFIG_TREE_RCU
+ #if defined(CONFIG_MMU)
  	{
- 		.procname	= "panic_on_rcu_stall",
+ 		.procname	= "randomize_va_space",
+@@ -1782,15 +1731,6 @@ static const struct ctl_table kern_table[] = {
+ 		.proc_handler	= proc_dointvec,
+ 	},
+ #endif
+-#if	defined(CONFIG_ACPI_SLEEP) && defined(CONFIG_X86)
+-	{
+-		.procname	= "acpi_video_flags",
+-		.data		= &acpi_realmode_flags,
+-		.maxlen		= sizeof (unsigned long),
+-		.mode		= 0644,
+-		.proc_handler	= proc_doulongvec_minmax,
+-	},
+-#endif
+ #ifdef CONFIG_SYSCTL_ARCH_UNALIGN_NO_WARN
+ 	{
+ 		.procname	= "ignore-unaligned-usertrap",
 
 -- 
 2.44.2
