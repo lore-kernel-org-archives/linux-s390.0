@@ -1,144 +1,111 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159B521B9C2;
-	Tue, 18 Feb 2025 20:00:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11F171DF752;
+	Tue, 18 Feb 2025 20:25:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739908801; cv=none; b=EWJhZib5avLNxEDySgbMH/M0saug6g45ulJIeuvFYVH8LcURuvmij//+SLOYmpGlfFDsQlI5ni590ZNsPIpUtMpe3W5KhKUqwZvc3ODJ1gZu3fbhHQdJvhAXgg+Z5H7rJhKwhQgjm3s5uIMhjVi91ho+OjT9uR3kTdHITlRHq6s=
+	t=1739910335; cv=none; b=j7vh7mnCjWqxfVrLo9Bioo277RTu252Q7NxpsECJHG9n+hDGjpEWOlPfSXWnlpHlcd0j/l3gPWnD0Hnnp8vDM1smG3yvxtRY8vLLTszTd3wd+zppdUHb0Wcho73crNn/5I3mmXFm5DyoWemH7uURKBdYW9ICs+R2vW3vNCALH0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739908801; c=relaxed/simple;
-	bh=QLFTRFzyYuSINdme3xF6V7D+ye8dNm9AD+eKCHO+3HU=;
-	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=dgQd9K9dcnf8mfoqVD4f5Gw20ylplkMKAb0m43hDh8hEkRXQNy/AsWXPDn+qmLdYxr5nBrLFTovVGCrv6nlFmEJhjHayMS6Ch1oCqmbSphKm930YCbcZD/8Jl8oXvLCXf6EOCNX1AZs6hH9XtNRfj8dBAfN1HdOkuu0Og2UJxoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA4DC4CEEA;
-	Tue, 18 Feb 2025 20:00:00 +0000 (UTC)
-Received: from rostedt by gandalf with local (Exim 4.98)
-	(envelope-from <rostedt@goodmis.org>)
-	id 1tkTlX-00000004Arp-1YRM;
-	Tue, 18 Feb 2025 15:00:23 -0500
-Message-ID: <20250218200023.221100846@goodmis.org>
-User-Agent: quilt/0.68
-Date: Tue, 18 Feb 2025 14:59:24 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
+	s=arc-20240116; t=1739910335; c=relaxed/simple;
+	bh=e1n1HO8Te3vuVIduSWAsmB68eGN79EQJdQNO529zCXM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=WKt37P/6nTdsS6zwHTmTCGUvnMmNiqa86+SBIJtDGAkPHAFah8eeAgfEAIj+ghdEmKSiO5eitvhh1qOJDSyguUx3Kzg1NLI10ArcgUuktFifCq1wC2fUllpkO5jpnCAmMth3cjd0pPzgpYs6Wh55n8rj9dzDMsJzj7ePR3baICY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=od0RyUE5; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="od0RyUE5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF20C4CEED;
+	Tue, 18 Feb 2025 20:25:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739910333;
+	bh=e1n1HO8Te3vuVIduSWAsmB68eGN79EQJdQNO529zCXM=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=od0RyUE5SMfcfE/7phTr8tADefsj+5RTu/4Bd4dBNKK2VGAv2wjKIFXKadJy19DWy
+	 rA88tgAKY8anc/LfC5mS2Qy9WPSMsRiDSSZ/PTc7Wxo9EEPv1ZQzD85IoD1yZ7ppbg
+	 RQCrUuP6MRqpQiZ3eRXIuRG9AbruutDASWzKWv2nJDK3tYLjtVDxwEtaFgeCzhQp2A
+	 EBsUhQ05DTyztGa2hBPfgsITtrFNw9C+y2797w+7LgtVDnqQRLHKFH75pQZXnNmXtz
+	 /WItUgmIM5vwM1pVCggn5gE06HsK89NPibgb3pkMP1509mqO+ICYlNmEzHbWibGhaJ
+	 9v9khxfMwfMCg==
+From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org,
- linux-kbuild@vger.kernel.org,
- bpf <bpf@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org,
- linux-s390@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Peter Zijlstra <peterz@infradead.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Masahiro Yamada <masahiroy@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>,
- Nicolas Schier <nicolas@fjasle.eu>,
- Zheng Yejian <zhengyejian1@huawei.com>,
- Martin  Kelly <martin.kelly@crowdstrike.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Josh Poimboeuf <jpoimboe@redhat.com>,
- Heiko Carstens <hca@linux.ibm.com>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v5 6/6] ftrace: Have ftrace pages output reflect freed pages
-References: <20250218195918.255228630@goodmis.org>
+	stable@vger.kernel.org
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Sasha Levin <sashal@kernel.org>,
+	hca@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.13 19/31] s390/cio: Fix CHPID "configure" attribute caching
+Date: Tue, 18 Feb 2025 15:24:39 -0500
+Message-Id: <20250218202455.3592096-19-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20250218202455.3592096-1-sashal@kernel.org>
+References: <20250218202455.3592096-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.13.3
+Content-Transfer-Encoding: 8bit
 
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-The amount of memory that ftrace uses to save the descriptors to manage
-the functions it can trace is shown at output. But if there are a lot of
-functions that are skipped because they were weak or the architecture
-added holes into the tables, then the extra pages that were allocated are
-freed. But these freed pages are not reflected in the numbers shown, and
-they can even be inconsistent with what is reported:
+[ Upstream commit 32ae4a2992529e2c7934e422035fad1d9b0f1fb5 ]
 
- ftrace: allocating 57482 entries in 225 pages
- ftrace: allocated 224 pages with 3 groups
+In some environments, the SCLP firmware interface used to query a
+CHPID's configured state is not supported. On these environments,
+rapidly reading the corresponding sysfs attribute produces inconsistent
+results:
 
-The above shows the number of original entries that are in the mcount_loc
-section and the pages needed to save them (225), but the second output
-reflects the number of pages that were actually used. The two should be
-consistent as:
+  $ cat /sys/devices/css0/chp0.00/configure
+  cat: /sys/devices/css0/chp0.00/configure: Operation not supported
+  $ cat /sys/devices/css0/chp0.00/configure
+  3
 
- ftrace: allocating 56739 entries in 224 pages
- ftrace: allocated 224 pages with 3 groups
+This occurs for example when Linux is run as a KVM guest. The
+inconsistency is a result of CIO using cached results for generating
+the value of the "configure" attribute while failing to handle the
+situation where no data was returned by SCLP.
 
-The above also shows the accurate number of entires that were actually
-stored and does not include the entries that were removed.
+Fix this by not updating the cache-expiration timestamp when SCLP
+returns no data. With the fix applied, the system response is
+consistent:
 
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+  $ cat /sys/devices/css0/chp0.00/configure
+  cat: /sys/devices/css0/chp0.00/configure: Operation not supported
+  $ cat /sys/devices/css0/chp0.00/configure
+  cat: /sys/devices/css0/chp0.00/configure: Operation not supported
+
+Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Tested-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/s390/cio/chp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index e657013424aa..27c8def2139d 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -7006,6 +7006,7 @@ static int ftrace_process_locs(struct module *mod,
- 	unsigned long addr;
- 	unsigned long kaslr;
- 	unsigned long flags = 0; /* Shut up gcc */
-+	unsigned long pages;
- 	int ret = -ENOMEM;
- 
- 	count = end - start;
-@@ -7013,6 +7014,8 @@ static int ftrace_process_locs(struct module *mod,
- 	if (!count)
- 		return 0;
- 
-+	pages = DIV_ROUND_UP(count, ENTRIES_PER_PAGE);
-+
- 	/*
- 	 * Sorting mcount in vmlinux at build time depend on
- 	 * CONFIG_BUILDTIME_MCOUNT_SORT, while mcount loc in
-@@ -7124,6 +7127,8 @@ static int ftrace_process_locs(struct module *mod,
- 			for (pg = pg_unuse; pg; pg = pg->next)
- 				remaining += 1 << pg->order;
- 
-+			pages -= remaining;
-+
- 			skip = DIV_ROUND_UP(skip, ENTRIES_PER_PAGE);
- 
- 			/*
-@@ -7137,6 +7142,13 @@ static int ftrace_process_locs(struct module *mod,
- 		synchronize_rcu();
- 		ftrace_free_pages(pg_unuse);
+diff --git a/drivers/s390/cio/chp.c b/drivers/s390/cio/chp.c
+index cba2d048a96b3..7855d88a49d85 100644
+--- a/drivers/s390/cio/chp.c
++++ b/drivers/s390/cio/chp.c
+@@ -695,7 +695,8 @@ static int info_update(void)
+ 	if (time_after(jiffies, chp_info_expires)) {
+ 		/* Data is too old, update. */
+ 		rc = sclp_chp_read_info(&chp_info);
+-		chp_info_expires = jiffies + CHP_INFO_UPDATE_INTERVAL ;
++		if (!rc)
++			chp_info_expires = jiffies + CHP_INFO_UPDATE_INTERVAL;
  	}
-+
-+	if (!mod) {
-+		count -= skipped;
-+		pr_info("ftrace: allocating %ld entries in %ld pages\n",
-+			count, pages);
-+	}
-+
- 	return ret;
- }
+ 	mutex_unlock(&info_lock);
  
-@@ -7782,9 +7794,6 @@ void __init ftrace_init(void)
- 		goto failed;
- 	}
- 
--	pr_info("ftrace: allocating %ld entries in %ld pages\n",
--		count, DIV_ROUND_UP(count, ENTRIES_PER_PAGE));
--
- 	ret = ftrace_process_locs(NULL,
- 				  __start_mcount_loc,
- 				  __stop_mcount_loc);
 -- 
-2.47.2
-
+2.39.5
 
