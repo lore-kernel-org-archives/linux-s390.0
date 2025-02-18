@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EC1118E743;
-	Tue, 18 Feb 2025 09:56:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EC78200111;
+	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739872606; cv=none; b=itoUYTDg+vzLIOuO/CDMQsNSQnW8ly8WXfXtuzpcwUvXWhSffkIWXkqIh+pRrfFd8UaZoB+HbCSIzC8ES1FjufY6eOB0n93C9ZWifa57urMFpK1vcbsD1V2dh5lR8oQqOB9Thu4LPzOP5shopdtlGYBIlxkTmMuW9oc/NAMTXFc=
+	t=1739872606; cv=none; b=Ol9mT9LX8holFdakJKC3JbOzKT92vQolgjytzPhQEhlfVMyDCi9rI/JdK65DTRRgfHEkGIRPD8JJ6PxgO6lcv1uOmrk5QN/kkKPOnRowC8knPsRCbmE6gUL7NlKpYPIbbBfzTCXGnyFWWV4K9w5ncNR+f50cXFgkQkow4SKhwy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739872606; c=relaxed/simple;
-	bh=gKOcrGpQjahVvJdglNWmSaswvExwnbWiiSjSH90VtpI=;
+	bh=NyFjle3l0026Gd8PBKMPo4EmMXIGmeeTI/HzQnjZhwo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gwrcND5wrnqPPmcHDA2aeTStrXbmHd+gP0Z6Kqln5oUhq4nvaax2+MItt9hDopb00ufhGZ6wt5GZ2ckwXSCD+xY+s8m90pG0ocdgwTcuI/wJTmQs5rN3Ryr3v4B8+VZLYMbHHJzokICID22SQxAvlYUoETr/P8oogIa3Yy7Ij0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fsAAAuDU; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=fOUkPDDWJiz2up0RWG/5MFwf8fDt6K8cVq6UPb4T3IcTp3YQP60dRAEn7dff0oB0pmwMPJh02ZAUXb3JgX5HjqOkScwfUnKlc53R6V0bnkbJxC3ttqQqMO5LjNOc7y8DUV1btb8qvSd/ggMS4rOvuFAr29aGgfH3JorsF9UC12o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=swFHRr0t; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fsAAAuDU"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D6103C4CEF0;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="swFHRr0t"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A93C3C4CEE8;
 	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1739872605;
-	bh=gKOcrGpQjahVvJdglNWmSaswvExwnbWiiSjSH90VtpI=;
+	bh=NyFjle3l0026Gd8PBKMPo4EmMXIGmeeTI/HzQnjZhwo=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=fsAAAuDUrmTBpjf+pPR7mbS+SCq/vkH2zq/1nUArctmJSEhpXQaGCLTRsO1lEjITT
-	 yUREgDThnSIf+e3NvsnzKLR7oojEzmy36xjSo2gJIvdK+xvOqZybKW+Fmkt5wXv+zH
-	 2WEtIe6URfhy3zia00dCQf2k+67D52yFXuMwYH9hudxB7jvfC4xbIfvxnMU/BJSelk
-	 t8jnfB5wFK/fX439Xvj+mYoSv+2bTKUeI6shdsp0gUfStGEgYTUuLWbMVfQVzVmZqu
-	 ufBRMhwTww2nNjVba9gwRtyS2NMvw3XhyrG1ckv3LMaW2G/q25Nr18zkOfWd1wWB5O
-	 31cDuFMuVUsFQ==
+	b=swFHRr0tDDufCCwCcsmIuxhpVCjoWLszRL/1eJdiJg6oXKm87Kv7AJt6wcfTaSmcX
+	 fq972tanKzPkgD6kSLevKopQ9pBsqeHV6wiJ9cdhNBMOohMpnF4H2u3OGqzeZudZ0Y
+	 E/h0F2SMeYWytLUBLkgeH5zJfBVgJfbTt/i787BdPv6LG5APnTir1sgZ2b607DiM/a
+	 TyUhnOFZLMPB2NvNechpgtN9Od7s9FVG8xUhCwr3fnilKTpsGd/dzOlAhXbCWbQfL4
+	 CLNJenH6NTW2iiWgXVEMfxXCrm7I3iBs/n6G9aZpWmZZZKkd7T1P3JiyCKhIQjfUd4
+	 dIrkVYtYBG3Xg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCD80C02198;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92BCFC021A9;
 	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
 From: Joel Granados <joel.granados@kernel.org>
-Date: Tue, 18 Feb 2025 10:56:19 +0100
-Subject: [PATCH 3/8] ftrace: Move trace sysctls into trace.c
+Date: Tue, 18 Feb 2025 10:56:17 +0100
+Subject: [PATCH 1/8] panic: Move panic ctl tables into panic.c
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250218-jag-mv_ctltables-v1-3-cd3698ab8d29@kernel.org>
+Message-Id: <20250218-jag-mv_ctltables-v1-1-cd3698ab8d29@kernel.org>
 References: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
 In-Reply-To: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
 To: Kees Cook <kees@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
@@ -69,155 +69,139 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
  sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, 
  linux-acpi@vger.kernel.org, Joel Granados <joel.granados@kernel.org>
 X-Mailer: b4 0.15-dev-64da2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4133;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3111;
  i=joel.granados@kernel.org; h=from:subject:message-id;
- bh=gKOcrGpQjahVvJdglNWmSaswvExwnbWiiSjSH90VtpI=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGe0WViZ+1Utx9MJcRoUlK2QW6VYygMERf4Hj
- Ahbcaguu2zpRYkBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJntFlYAAoJELqXzVK3
- lkFPUJQL/jbOqbjXit8Gy+oxvkYPcsV3ssL8il7SReg2PhRCFIkA8a31a0iIhDGRtpwXwz0dq/L
- CTmsWNMTMapxBbmyinvlCTFCMcpOx/B3JWFdM6uyNCy10Xs8H5VU9U3TTQz6rtqj6z8Jmn5Xcv8
- N1iJ+rsM0qDsa/wx8gf/A/HeVwZTKfj+VIHAgVfT5TDGFEzx22C2VSNzhPSIrqz7EdPifNzrche
- xdbRsDR4QYqveSKRYOetQqkaond55zNApIJDcYyAwlm0C4uCz0YkP5M2g8x2T1Wty6sF4bNIJEV
- MNHmOB0GLYo799ehS0P5B7D5Bp9JYw+HO90bKQ972uCB5tkrT/rKCvvCvpVIvLNuMnQOfnv9Gf/
- KeqL8S5Bxe/pNyeTSdwDzuMwaQg0jNgs1IT5V66G+5GNJH8k4P7ifO11fAXVH2uCAMx33e+lFHn
- GomuRYKFW6gRomNXfz3vj++4G17yWSAJ7co6mnb6DNf0+cg1LAjG9QhSrMvJl0tqlx2P+Hk8HX5
- o0=
+ bh=NyFjle3l0026Gd8PBKMPo4EmMXIGmeeTI/HzQnjZhwo=;
+ b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGe0WVcAzJMiraNriDVA+Jt05tU4vLaM0b9zm
+ pQ2Aq7OP5eX/YkBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJntFlXAAoJELqXzVK3
+ lkFPLfAL/20rjwkdDzYb51zKDdgXrnBcdHhkgJERVMP5kLuoDZPIpCzZp0dzglrDGrmWlA8rhxN
+ NQU/dO9PP0QZrfy/Hfe2s8RXLT20avONnO7wYWu18KpWrTsp6TWbmJ7Zw3nAzDrGhpM+kO8VE2z
+ IQntkQdUb1PWcV5Vm2G5GzZ01F6vKIVWYRw/z/gNZQF8csmvMOmkOIu+irJCgNCzhygDkPmhzDY
+ efozZo2EblyEvFTgKPaP2s13syORR3hbJc4QjhOP57eR3WBTD+0GSaFFL0rIEGk++DJCX9VXFjM
+ Cud8ZlqEMrbXPiE4LIWZsa5ce4O2Ik2fAPxhBwPWwE27VcFmVwE08vnP+EurCOP7EBMst60ZQPC
+ KFowdYMyOAKk6890XxRSNZ2dYj/lWpNAjY6wgZPxVb9COHxmqfmT22EGGtdlw5rOJM0bMQop0PP
+ vEgf8A6vjycLBM+VlS8tZpT/YLtLex21joa/9v6Wvmj7UWlN+ibSIzK/WRs1HVOWVIhWAVmnBQ6
+ Qs=
 X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
  fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
 X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
  auth_id=239
 
-Move trace ctl tables into their own const array in
-kernel/trace/trace.c. The sysctl table register is called with
-subsys_initcall placing if after its original place in proc_root_init.
-This is part of a greater effort to move ctl tables into their
-respective subsystems which will reduce the merge conflicts in
+Move panic, panic_on_oops, panic_print, panic_on_warn into
+kerne/panic.c. This is part of a greater effort to move ctl tables into
+their respective subsystems which will reduce the merge conflicts in
 kerenel/sysctl.c.
 
 Signed-off-by: Joel Granados <joel.granados@kernel.org>
 ---
- include/linux/ftrace.h |  7 -------
- kernel/sysctl.c        | 24 ------------------------
- kernel/trace/trace.c   | 36 +++++++++++++++++++++++++++++++++++-
- 3 files changed, 35 insertions(+), 32 deletions(-)
+ kernel/panic.c  | 30 ++++++++++++++++++++++++++++++
+ kernel/sysctl.c | 31 -------------------------------
+ 2 files changed, 30 insertions(+), 31 deletions(-)
 
-diff --git a/include/linux/ftrace.h b/include/linux/ftrace.h
-index fbabc3d848b3..59774513ae45 100644
---- a/include/linux/ftrace.h
-+++ b/include/linux/ftrace.h
-@@ -1298,16 +1298,9 @@ static inline void unpause_graph_tracing(void) { }
- #ifdef CONFIG_TRACING
- enum ftrace_dump_mode;
- 
--#define MAX_TRACER_SIZE		100
--extern char ftrace_dump_on_oops[];
- extern int ftrace_dump_on_oops_enabled(void);
--extern int tracepoint_printk;
- 
- extern void disable_trace_on_warning(void);
--extern int __disable_trace_on_warning;
--
--int tracepoint_printk_sysctl(const struct ctl_table *table, int write,
--			     void *buffer, size_t *lenp, loff_t *ppos);
- 
- #else /* CONFIG_TRACING */
- static inline void  disable_trace_on_warning(void) { }
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 6514c13800a4..baa250e223a2 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -51,7 +51,6 @@
- #include <linux/nfs_fs.h>
- #include <linux/acpi.h>
- #include <linux/reboot.h>
--#include <linux/ftrace.h>
- #include <linux/perf_event.h>
- #include <linux/oom.h>
- #include <linux/kmod.h>
-@@ -1684,29 +1683,6 @@ static const struct ctl_table kern_table[] = {
- 		.proc_handler	= stack_trace_sysctl,
+diff --git a/kernel/panic.c b/kernel/panic.c
+index d8635d5cecb2..f9bf88f4c262 100644
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -96,6 +96,36 @@ static const struct ctl_table kern_panic_table[] = {
+ 		.extra2         = SYSCTL_ONE,
  	},
  #endif
--#ifdef CONFIG_TRACING
--	{
--		.procname	= "ftrace_dump_on_oops",
--		.data		= &ftrace_dump_on_oops,
--		.maxlen		= MAX_TRACER_SIZE,
--		.mode		= 0644,
--		.proc_handler	= proc_dostring,
--	},
--	{
--		.procname	= "traceoff_on_warning",
--		.data		= &__disable_trace_on_warning,
--		.maxlen		= sizeof(__disable_trace_on_warning),
--		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
--	},
--	{
--		.procname	= "tracepoint_printk",
--		.data		= &tracepoint_printk,
--		.maxlen		= sizeof(tracepoint_printk),
--		.mode		= 0644,
--		.proc_handler	= tracepoint_printk_sysctl,
--	},
--#endif
- #ifdef CONFIG_MODULES
- 	{
- 		.procname	= "modprobe",
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 0e6d517e74e0..abfc0e56173b 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -117,6 +117,7 @@ static int tracing_disabled = 1;
- 
- cpumask_var_t __read_mostly	tracing_buffer_mask;
- 
-+#define MAX_TRACER_SIZE		100
- /*
-  * ftrace_dump_on_oops - variable to dump ftrace buffer on oops
-  *
-@@ -139,7 +140,40 @@ cpumask_var_t __read_mostly	tracing_buffer_mask;
- char ftrace_dump_on_oops[MAX_TRACER_SIZE] = "0";
- 
- /* When set, tracing will stop when a WARN*() is hit */
--int __disable_trace_on_warning;
-+static int __disable_trace_on_warning;
-+
-+int tracepoint_printk_sysctl(const struct ctl_table *table, int write,
-+			     void *buffer, size_t *lenp, loff_t *ppos);
-+static const struct ctl_table trace_sysctl_table[] = {
 +	{
-+		.procname	= "ftrace_dump_on_oops",
-+		.data		= &ftrace_dump_on_oops,
-+		.maxlen		= MAX_TRACER_SIZE,
-+		.mode		= 0644,
-+		.proc_handler	= proc_dostring,
-+	},
-+	{
-+		.procname	= "traceoff_on_warning",
-+		.data		= &__disable_trace_on_warning,
-+		.maxlen		= sizeof(__disable_trace_on_warning),
++		.procname	= "panic",
++		.data		= &panic_timeout,
++		.maxlen		= sizeof(int),
 +		.mode		= 0644,
 +		.proc_handler	= proc_dointvec,
 +	},
 +	{
-+		.procname	= "tracepoint_printk",
-+		.data		= &tracepoint_printk,
-+		.maxlen		= sizeof(tracepoint_printk),
++		.procname	= "panic_on_oops",
++		.data		= &panic_on_oops,
++		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= tracepoint_printk_sysctl,
++		.proc_handler	= proc_dointvec,
 +	},
-+};
-+
-+static int __init init_trace_sysctls(void)
-+{
-+	register_sysctl_init("kernel", trace_sysctl_table);
-+	return 0;
-+}
-+subsys_initcall(init_trace_sysctls);
++	{
++		.procname	= "panic_print",
++		.data		= &panic_print,
++		.maxlen		= sizeof(unsigned long),
++		.mode		= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++	},
++	{
++		.procname	= "panic_on_warn",
++		.data		= &panic_on_warn,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
+ 	{
+ 		.procname       = "warn_limit",
+ 		.data           = &warn_limit,
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index cb57da499ebb..7759b1ed7221 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -26,7 +26,6 @@
+ #include <linux/sysctl.h>
+ #include <linux/bitmap.h>
+ #include <linux/signal.h>
+-#include <linux/panic.h>
+ #include <linux/printk.h>
+ #include <linux/proc_fs.h>
+ #include <linux/security.h>
+@@ -1610,13 +1609,6 @@ int proc_do_static_key(const struct ctl_table *table, int write,
+ }
  
- #ifdef CONFIG_TRACE_EVAL_MAP_FILE
- /* Map of enums to their values, for "eval_map" file */
+ static const struct ctl_table kern_table[] = {
+-	{
+-		.procname	= "panic",
+-		.data		= &panic_timeout,
+-		.maxlen		= sizeof(int),
+-		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
+-	},
+ #ifdef CONFIG_PROC_SYSCTL
+ 	{
+ 		.procname	= "tainted",
+@@ -1803,20 +1795,6 @@ static const struct ctl_table kern_table[] = {
+ 		.proc_handler	= proc_dointvec,
+ 	},
+ #endif
+-	{
+-		.procname	= "panic_on_oops",
+-		.data		= &panic_on_oops,
+-		.maxlen		= sizeof(int),
+-		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
+-	},
+-	{
+-		.procname	= "panic_print",
+-		.data		= &panic_print,
+-		.maxlen		= sizeof(unsigned long),
+-		.mode		= 0644,
+-		.proc_handler	= proc_doulongvec_minmax,
+-	},
+ 	{
+ 		.procname	= "ngroups_max",
+ 		.data		= (void *)&ngroups_max,
+@@ -1990,15 +1968,6 @@ static const struct ctl_table kern_table[] = {
+ 		.extra2		= SYSCTL_ONE_THOUSAND,
+ 	},
+ #endif
+-	{
+-		.procname	= "panic_on_warn",
+-		.data		= &panic_on_warn,
+-		.maxlen		= sizeof(int),
+-		.mode		= 0644,
+-		.proc_handler	= proc_dointvec_minmax,
+-		.extra1		= SYSCTL_ZERO,
+-		.extra2		= SYSCTL_ONE,
+-	},
+ #ifdef CONFIG_TREE_RCU
+ 	{
+ 		.procname	= "panic_on_rcu_stall",
 
 -- 
 2.44.2
