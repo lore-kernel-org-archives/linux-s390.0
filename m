@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11F171DF752;
-	Tue, 18 Feb 2025 20:25:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 664322080CE;
+	Tue, 18 Feb 2025 20:26:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739910335; cv=none; b=j7vh7mnCjWqxfVrLo9Bioo277RTu252Q7NxpsECJHG9n+hDGjpEWOlPfSXWnlpHlcd0j/l3gPWnD0Hnnp8vDM1smG3yvxtRY8vLLTszTd3wd+zppdUHb0Wcho73crNn/5I3mmXFm5DyoWemH7uURKBdYW9ICs+R2vW3vNCALH0o=
+	t=1739910419; cv=none; b=bjT2Y44eyl+Whn+eWKyXH8u4UhlXtzGu/aEyNcIfsvdf35jBPO9Q0Sysx/D5coLbKt7HzIoPNtABACe+AM3qQqNnGFW2DQ5IxCKnI5vzfy9ttf+DtOgWMAyazeKamfL13Jj8z5hj+79+NaV32kEHT8kdol6wCbuMoYXTLQb7O6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739910335; c=relaxed/simple;
-	bh=e1n1HO8Te3vuVIduSWAsmB68eGN79EQJdQNO529zCXM=;
+	s=arc-20240116; t=1739910419; c=relaxed/simple;
+	bh=+BpSywo2RlI8BW6DOlE1otMjRAQJkJig6+pDphhevfA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=WKt37P/6nTdsS6zwHTmTCGUvnMmNiqa86+SBIJtDGAkPHAFah8eeAgfEAIj+ghdEmKSiO5eitvhh1qOJDSyguUx3Kzg1NLI10ArcgUuktFifCq1wC2fUllpkO5jpnCAmMth3cjd0pPzgpYs6Wh55n8rj9dzDMsJzj7ePR3baICY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=od0RyUE5; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=SWWwhHfILBb5H0xx1oQvbXGiYDl7i3cu2VQZweT0ue1zMGSaizJQQRZd8JeJb5fSGRT+F1CKuqIhiM7x+IOn1DBVhwQPqhF6PDe7BUUMsuqXMEXk/3fvwiiasJQzVEivFfqUXnBAX1TLMfuiBbv2hH/+2OyoS64iZ+cXEoryBRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hvep/sNG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="od0RyUE5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF20C4CEED;
-	Tue, 18 Feb 2025 20:25:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hvep/sNG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38514C4CEEC;
+	Tue, 18 Feb 2025 20:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739910333;
-	bh=e1n1HO8Te3vuVIduSWAsmB68eGN79EQJdQNO529zCXM=;
+	s=k20201202; t=1739910419;
+	bh=+BpSywo2RlI8BW6DOlE1otMjRAQJkJig6+pDphhevfA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=od0RyUE5SMfcfE/7phTr8tADefsj+5RTu/4Bd4dBNKK2VGAv2wjKIFXKadJy19DWy
-	 rA88tgAKY8anc/LfC5mS2Qy9WPSMsRiDSSZ/PTc7Wxo9EEPv1ZQzD85IoD1yZ7ppbg
-	 RQCrUuP6MRqpQiZ3eRXIuRG9AbruutDASWzKWv2nJDK3tYLjtVDxwEtaFgeCzhQp2A
-	 EBsUhQ05DTyztGa2hBPfgsITtrFNw9C+y2797w+7LgtVDnqQRLHKFH75pQZXnNmXtz
-	 /WItUgmIM5vwM1pVCggn5gE06HsK89NPibgb3pkMP1509mqO+ICYlNmEzHbWibGhaJ
-	 9v9khxfMwfMCg==
+	b=Hvep/sNGRESIUqOcBxcaw4Yf42g8NewRR7QPA0ZxtkcGbgkFq3DlEgqy8e1i6cPw4
+	 bvowu75A7pWKuCeHWJQvhzHdrtBTHUbIULMvI8C5HnL+xv/54nxiVnzfIMfxzcqLGb
+	 G9btS+iV31gMkZJhoW2/DUxtc3vj4UHl0tP714AtadATJ1x7FiAQI6ql/WrqPw7iJk
+	 y5yoVAgjYXGbv6lE4Jldd3B7Mf+TXelh2dNsBQ53P8LDvuGMrl9BK+iDp0vrSPEeKc
+	 PzyJa2L1S3duvVh2Ks/M93+JdQSSP7AHffSH3zeyGb33vzD9K266r4noCBytIwua2X
+	 J1vobllgcTYrw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -37,12 +37,12 @@ Cc: Peter Oberparleiter <oberpar@linux.ibm.com>,
 	hca@linux.ibm.com,
 	agordeev@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.13 19/31] s390/cio: Fix CHPID "configure" attribute caching
-Date: Tue, 18 Feb 2025 15:24:39 -0500
-Message-Id: <20250218202455.3592096-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.12 19/31] s390/cio: Fix CHPID "configure" attribute caching
+Date: Tue, 18 Feb 2025 15:26:05 -0500
+Message-Id: <20250218202619.3592630-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250218202455.3592096-1-sashal@kernel.org>
-References: <20250218202455.3592096-1-sashal@kernel.org>
+In-Reply-To: <20250218202619.3592630-1-sashal@kernel.org>
+References: <20250218202619.3592630-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,7 +51,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.13.3
+X-stable-base: Linux 6.12.15
 Content-Transfer-Encoding: 8bit
 
 From: Peter Oberparleiter <oberpar@linux.ibm.com>
@@ -93,10 +93,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/s390/cio/chp.c b/drivers/s390/cio/chp.c
-index cba2d048a96b3..7855d88a49d85 100644
+index a07bbecba61cd..0c5bda060249e 100644
 --- a/drivers/s390/cio/chp.c
 +++ b/drivers/s390/cio/chp.c
-@@ -695,7 +695,8 @@ static int info_update(void)
+@@ -682,7 +682,8 @@ static int info_update(void)
  	if (time_after(jiffies, chp_info_expires)) {
  		/* Data is too old, update. */
  		rc = sclp_chp_read_info(&chp_info);
