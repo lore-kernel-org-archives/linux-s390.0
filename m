@@ -1,48 +1,35 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3801423716B;
-	Mon, 17 Feb 2025 19:08:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD898749A;
+	Tue, 18 Feb 2025 01:20:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739819330; cv=none; b=FKPoroWbLy3w6ofyQXsTgJXOWCUPRkz9hmh1m22iMPrHL3WcyuxuAzgFq5fqUH1i02gGbclboVke4f46T9oLVIkPGHFnp7TUeeWmYYqj2XP3OyRHuYg+2maA5MFyA4EEyj21Omjuo88phrcppyvTG1ozY2nLdn/tNeMzFPpTpKA=
+	t=1739841601; cv=none; b=MB9GZ/2powYZdY9Cysi+hkQtxMFhFSMoJBM4tcf8FsFhrNlO74WAQgsIkzekmlGbA6Rz6IFcfBiwJvj3ts2MTkcQMkLI6FpxWu5WPQUK8nD1IMgI7ZMGme2hQ6hBbAvb+XFt424lQyEC6sF9r7fbdwaTSarh+4bGJOPeTAHiYqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739819330; c=relaxed/simple;
-	bh=p3k7P2FcOpMBcBQksYZOQpetCvUNIZbDu47lFM8WPeA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e1hG1kcV3l3hQ9yp3mphkL8/rjNTnw1jc0sts//8MTKunP5wtJ7y40YYCbQpuuZKPjRF+0KNXpPF73aA6VUbHyw1+VbLCXVcPZ9agARNbeuWGYt2GGoNENI68kkYlUy1eAqGWCdqTJYaoZ6DAzoI1tjKPHxbL4AE5RVw795Ohew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=VviXey2+; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1739841601; c=relaxed/simple;
+	bh=1+R3AxY4ep2Td0pFGzl3dbsukT9cYIZeGkJukXulpqg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=CoVuOFPzVYSiBxFwdjgAikCe63UN0ty1ht7Mlt3iZP4hFwhB2OE/CDs4Y1nkOhw1aKmZgG4l/82sVxhiNlxCUtmI17E6V4ppeTl9dznz9WkXVh1TCnWugaHDTzujtu0xqH/6iQrXiO5vZWfbaQp+Pi8hsQfP3q3fy5rimDpmy8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BrnRnBkv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VviXey2+"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
-	Content-Type:Content-ID:Content-Description;
-	bh=DQ8pEjsubtBd0+r7ArW3+Pwnui7gFm3cbKmo8d222fI=; b=VviXey2+gk7RQlHla7fyP62RbI
-	TWt5oMDGkBP4sH/ZbqUgWk8bfKkMHOigOck3TrdZiCNDAVRbOYFTGqv5DDvX6UgttQFSlvwPw9TsP
-	NLCPz9fidRWT/lWflrucyZKu1lXBP23nJGb0UafoScOJ+2xcIjlAcbGJMsM2zrZXqcmVXIjmeSe70
-	VL1w0cEd8G7h/4R9o4P/G74QbYHA+UQJmatysUlnLAXoPic8p1UTx+k06XYAUa5hXp5ikTZ/C8t5t
-	ckJWGnG7IdVoN3DVdUN95CMcdnIYHnW+v4WLn46jowGmawC3q3v17uKqvUt3MTrWYlS4Vm4MxDull
-	HBNOJXwg==;
-Received: from willy by casper.infradead.org with local (Exim 4.98 #2 (Red Hat Linux))
-	id 1tk6Tu-00000001pBD-2cvi;
-	Mon, 17 Feb 2025 19:08:38 +0000
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To: linux-mm@kvack.org
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	linux-arch@vger.kernel.org,
-	x86@kernel.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-um@lists.infradead.org
-Subject: [PATCH 1/7] mm: Set the pte dirty if the folio is already dirty
-Date: Mon, 17 Feb 2025 19:08:28 +0000
-Message-ID: <20250217190836.435039-2-willy@infradead.org>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250217190836.435039-1-willy@infradead.org>
-References: <20250217190836.435039-1-willy@infradead.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BrnRnBkv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E33C4CED1;
+	Tue, 18 Feb 2025 01:20:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739841601;
+	bh=1+R3AxY4ep2Td0pFGzl3dbsukT9cYIZeGkJukXulpqg=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=BrnRnBkvHQVKuvz8BrEokMG2XRDWd1c7Y379QlZiOtrxNQO5h3uWCZP9JLpViYBwE
+	 i8sZFYqRphLfHZRMYyiDi/kDjvfuC6N+PQTCDeAowZVmhUWyXcRBXUhU+zzIXOZyRp
+	 4swaxWWbOIct3b5VC+ij6kLbYgyMGbbZDSaZZ9t2m5doXv/Y+DGI+Zo3XRw+1eM3Sy
+	 FU/6nAjqGH4f+cV4GXfxSDwvM92TQYLfPnPU0BoXe8m5M3UusfCRZz0wmoMjIbXxde
+	 WshS/z6mVpl06LPFthmZ5B07KFvXwUajJVeazmzEHfXRVm+zhonn58bSlTxCBvoqdh
+	 R2KGrxx+F0ERA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ED7D9380AAD5;
+	Tue, 18 Feb 2025 01:20:32 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,49 +37,49 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] s390/ism: add release function for struct device
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173984163176.3591662.6324124388363934052.git-patchwork-notify@kernel.org>
+Date: Tue, 18 Feb 2025 01:20:31 +0000
+References: <20250214120137.563409-1-wintera@linux.ibm.com>
+In-Reply-To: <20250214120137.563409-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, julianr@linux.ibm.com,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, twinkler@linux.ibm.com, horms@kernel.org,
+ wenjia@linux.ibm.com, jaka@linux.ibm.com, gbayer@linux.ibm.com,
+ pasic@linux.ibm.com, raspl@linux.ibm.com
 
-If the first access to a folio is a read that is then followed by a
-write, we can save a page fault.  s390 implemented this in their
-mk_pte() in commit abf09bed3cce ("s390/mm: implement software dirty
-bits"), but other architectures can also benefit from this.
+Hello:
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- arch/s390/include/asm/pgtable.h | 7 +------
- mm/memory.c                     | 2 ++
- 2 files changed, 3 insertions(+), 6 deletions(-)
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 3ca5af4cfe43..3ee495b5171e 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1451,12 +1451,7 @@ static inline pte_t mk_pte_phys(unsigned long physpage, pgprot_t pgprot)
- 
- static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
- {
--	unsigned long physpage = page_to_phys(page);
--	pte_t __pte = mk_pte_phys(physpage, pgprot);
--
--	if (pte_write(__pte) && PageDirty(page))
--		__pte = pte_mkdirty(__pte);
--	return __pte;
-+	return mk_pte_phys(page_to_phys(page), pgprot);
- }
- 
- #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
-diff --git a/mm/memory.c b/mm/memory.c
-index 539c0f7c6d54..4330560eee55 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5124,6 +5124,8 @@ void set_pte_range(struct vm_fault *vmf, struct folio *folio,
- 
- 	if (write)
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+	else if (pte_write(entry) && folio_test_dirty(folio))
-+		entry = pte_mkdirty(entry);
- 	if (unlikely(vmf_orig_pte_uffd_wp(vmf)))
- 		entry = pte_mkuffd_wp(entry);
- 	/* copy-on-write page */
+On Fri, 14 Feb 2025 13:01:37 +0100 you wrote:
+> From: Julian Ruess <julianr@linux.ibm.com>
+> 
+> According to device_release() in /drivers/base/core.c,
+> a device without a release function is a broken device
+> and must be fixed.
+> 
+> The current code directly frees the device after calling device_add()
+> without waiting for other kernel parts to release their references.
+> Thus, a reference could still be held to a struct device,
+> e.g., by sysfs, leading to potential use-after-free
+> issues if a proper release function is not set.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] s390/ism: add release function for struct device
+    https://git.kernel.org/netdev/net/c/915e34d5ad35
+
+You are awesome, thank you!
 -- 
-2.47.2
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
