@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ECDD22D7B1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C4A23236C;
 	Tue, 18 Feb 2025 09:56:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739872606; cv=none; b=frNBt1snvwtD7qCCUyKs58FEpKvaVjg0wYBedHhGNajJYxkF4vXA244IxQmw6meXsg91lzFcSNEVtGpdVHyB9KzJdof4+zd60sU4Srtok93CbAVh9x+PVIUQgePyRPYl7jAjlxvVNOhO3zOV/pnwa+a9oXIQ9WTnFeI/f6FY/ic=
+	t=1739872606; cv=none; b=dxNhqyVPp47OLezlKkmTjLOeCeG+RR/jC5mVojum2yCuWELc6VttC4ZIX2TPgVpfDv2ONLIQtyVfzBs3r8IJxuBPiFlNznSJUyxH+JOEZQ0bzj2lh/w9bGXzrciBG/MiqnLPdaLRPd5I8iVuHkRHV4Mkbd5zsr/BYDBQTr9qWiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739872606; c=relaxed/simple;
-	bh=bNOhzTe2prG7ApNrzEgxiz1fkHFIuGiO+IoM7HFyf6g=;
+	bh=/zlS+ERKpHQA2aoOnRoLZTEBI+gUJf2tLAkgKfYYCdU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=F1JQvZg5vUGYq8EtPa601mG+2IsAqiVj9qsFJFTbaBvHD5687HKx+zFyczTyNZ8a5ED0roakpivsP/fgJhSKr7yF7f/JoLSf5s4PYxo1EmtmSpJKGJ/iz8nKNDTEmT97/BbV+8elWuHHaLGYwW4W1WlEFJrBdYmHVsu31Vvevcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tg0r8JyG; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=PS13FPmdMjYKhyh+zA334dFh80jKEfy4u13O1o5+m32mDNdPxysyqwpczKmL4e2Jn7R/s8BYUJjnthuPOpekSh7ZsaFHAQlx2VV1h6bx/2kCn/Qc5nNJk0X6DYyhczndRt0/WhTJgXq9SsHFSENCeIN2yKfnDQeccmPJ4pOG4bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DjhuPBGJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tg0r8JyG"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id BDC74C4AF0B;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DjhuPBGJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E5518C4CEF4;
 	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739872605;
-	bh=bNOhzTe2prG7ApNrzEgxiz1fkHFIuGiO+IoM7HFyf6g=;
+	s=k20201202; t=1739872606;
+	bh=/zlS+ERKpHQA2aoOnRoLZTEBI+gUJf2tLAkgKfYYCdU=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Tg0r8JyGfalSHtuPxOPpDJOJd/eVr2t83fDrx8ZUQS/AcUBxpr+MEZDisVIhSqUA0
-	 BLCJjHTRX13/9Wm+utObTLrcG9wYvanaPzmsHSvdE5kIKaWwYrRcXwPhW5+RRNKsIN
-	 zAjbs2OuuiUBfg8NB+olJY6MkxyC6mkrpsw4mDi8pghzg362Sy9QSR7/S0jEU9JwJl
-	 Fhct8cHfRFFiMeWxyY28IayLd2FUWpxQK0n/TgBZQ60JR2ixwnd0Bg0XCE5hxg99Kg
-	 e4Qy1bRWa6HHn1C91PTFeY4clmfzPchKss9YKmtBZCKxMNBLolfBoLyaMykcKOKfF/
-	 EFZ8TyXOobPrA==
+	b=DjhuPBGJxNIYqaSDxD0vmLIFjXsBaypNsQ2fs4F9xvtVB+3QmPkXkwwgOWa+L2QFH
+	 gu987r3eZifQRDv6y2S1D3CFJx517YX2B/eiZhjmc1BGm4io6DD9BksFr5Zb8vUNbl
+	 bQj3reOJ75do/9cX5Io0fGNyY0T0EJnnTRg5Xd7QKdfRl7FQr9v2gIl4wllvax3nSu
+	 BwK2C6/5va4x5VZNZgOhbC+kufBaZYhKE+9thHC6i3wGA7il8hUCwcSREh3fGd+iiL
+	 v5beL8Gi1TGU1GHn+As49+1wdDKCcngOe0RQsccWxqbsSPQHJd5dEFuHAM1Wi+MToO
+	 PnooGR1T2OcZA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1F4C021AD;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA7FC021AE;
 	Tue, 18 Feb 2025 09:56:45 +0000 (UTC)
 From: Joel Granados <joel.granados@kernel.org>
-Date: Tue, 18 Feb 2025 10:56:18 +0100
-Subject: [PATCH 2/8] signal: Move signal ctl tables into signal.c
+Date: Tue, 18 Feb 2025 10:56:20 +0100
+Subject: [PATCH 4/8] stack_tracer: move sysctl registration to
+ kernel/trace/trace.c
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250218-jag-mv_ctltables-v1-2-cd3698ab8d29@kernel.org>
+Message-Id: <20250218-jag-mv_ctltables-v1-4-cd3698ab8d29@kernel.org>
 References: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
 In-Reply-To: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
 To: Kees Cook <kees@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
@@ -69,86 +70,84 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
  sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, 
  linux-acpi@vger.kernel.org, Joel Granados <joel.granados@kernel.org>
 X-Mailer: b4 0.15-dev-64da2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1782;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1714;
  i=joel.granados@kernel.org; h=from:subject:message-id;
- bh=bNOhzTe2prG7ApNrzEgxiz1fkHFIuGiO+IoM7HFyf6g=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGe0WVePspv5KFWYMyxxLrq5NdT/+kjWQWT00
- rb5ohuXmdhRRYkBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJntFlXAAoJELqXzVK3
- lkFP/xwL/iWUKDAOOAgg2CCZDNJ/yTk7qhzst2m5RCQY9Y9zkZd8qKFneoSuZFOUv47OcPnifVs
- PRXUs74ZHqQKYph9Cc+Lxv1aQ/ur/PUH9bxmz2ZaXGaLF7WrOymkU8yQJf+YHZLE8RAxjeOL6rt
- cYouRwqv6R4TQUOt947+voVAO/nYSGPzQ6gce4vukbpBnEou2q05GRROklOEs7HtAuAKQ8LL9sz
- s9LunTmFGywtFwEXwfxl8tgrWi88kRV6TKTLhCCwwHVh5lW8g0Ee24SvTIDuvQqwYib7KBtXlyI
- J6XG8Puogwm2gxIEuR+whFOP9c9prA/d6sLn5ItTocmOUzF7oKb1a4HFtpoxjI7nNVNWye1z7LR
- AzxihVlvEG6A8lpIx7lxKdbaD7DOkbbSTLfARmcA9nl4C2cakCWzx8hI57bcJUrJmDRqMolX+qm
- LmCj5YMEOQfmswhrtpm6mEpxZElhKQ/QruoIC34NUUc5tQkBqW7VxMxIEX7kTXV63PjbIzceDX8
- I8=
+ bh=/zlS+ERKpHQA2aoOnRoLZTEBI+gUJf2tLAkgKfYYCdU=;
+ b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGe0WVgdnOsE2LBo8sB/PcaBKZaaLibVcy9tY
+ 2cjMrYv0U+1SokBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJntFlYAAoJELqXzVK3
+ lkFPbOML/0BkZif9lQxXAdndl9X7PkO/IgNY0ckRwVnf7HmurT96PjRSjAl0K33it31UMHgqcww
+ TMbcoOexxyIjtASGitj1+XNcHLZQ3Sv+/hr4mMkM7aON5Bk0oorTMMuLax3QcBlwb1vWB/z2oDE
+ DMMF+n2jmRDwJzUBj3HXxfvdEZ0YaY+SQcsjUacWIi0e8cVVYrDOCZdEnRvuyRvyQ9qsVzh0Goz
+ 9rm9S0sPxFmy+KffZNDwhtu7QRiqAsdwMf01NQ5g66X8b411lmdcL3vmkpgTGIihRRvhenvvmEI
+ ZKuF75x54ZN4vZBQXSmrSfPlf70tzJfEUBP/JPVZzmxVOMSR4dxYdnk/U1oyUt2ReG5f1tLsWJa
+ 6Sf61IHCPYcer+yZHZ6xXIZAIMsWOBPWTTlfhhcB2QxSudCyzr87kIOROJFjn+pbmC/KAwu/zLl
+ Mx/JbvEHQC6B3qjQaQyxUxyx/gdDc+Rqt92K0r4bXnKeVj4TXZ7bPZld7So6BQBDOCV0Bfjv8C6
+ z8=
 X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
  fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
 X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
  auth_id=239
 
-Move print-fatal-signals into its own const ctl table array in
-kernel/signal.c. This is part of a greater effort to move ctl tables
-into their respective subsystems which will reduce the merge conflicts
-in kerenel/sysctl.c.
+Squash with ftrace:
+Move stac_tracer_enabled into trace_sysctl_table while keeping the
+CONFIG_STACK_TRACER ifdef. This is part of a greater effort to move ctl
+tables into their respective subsystems which will reduce the merge
+conflicts in kerenel/sysctl.c.
 
 Signed-off-by: Joel Granados <joel.granados@kernel.org>
 ---
- kernel/signal.c | 11 +++++++++++
- kernel/sysctl.c |  8 --------
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ kernel/sysctl.c      | 10 ----------
+ kernel/trace/trace.c |  9 +++++++++
+ 2 files changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 875e97f6205a..347b74800f92 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -4962,9 +4962,20 @@ static const struct ctl_table signal_debug_table[] = {
- #endif
- };
- 
-+static const struct ctl_table signal_table[] = {
-+	{
-+		.procname	= "print-fatal-signals",
-+		.data		= &print_fatal_signals,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+	},
-+};
-+
- static int __init init_signal_sysctls(void)
- {
- 	register_sysctl_init("debug", signal_debug_table);
-+	register_sysctl_init("kernel", signal_table);
- 	return 0;
- }
- early_initcall(init_signal_sysctls);
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 7759b1ed7221..6514c13800a4 100644
+index baa250e223a2..dc3747cc72d4 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -25,7 +25,6 @@
- #include <linux/slab.h>
- #include <linux/sysctl.h>
- #include <linux/bitmap.h>
--#include <linux/signal.h>
- #include <linux/printk.h>
- #include <linux/proc_fs.h>
- #include <linux/security.h>
-@@ -1626,13 +1625,6 @@ static const struct ctl_table kern_table[] = {
- 		.extra2		= SYSCTL_ONE,
+@@ -68,7 +68,6 @@
+ 
+ #ifdef CONFIG_X86
+ #include <asm/nmi.h>
+-#include <asm/stacktrace.h>
+ #include <asm/io.h>
+ #endif
+ #ifdef CONFIG_SPARC
+@@ -1674,15 +1673,6 @@ static const struct ctl_table kern_table[] = {
+ 		.proc_handler	= proc_dointvec,
  	},
  #endif
+-#ifdef CONFIG_STACK_TRACER
 -	{
--		.procname	= "print-fatal-signals",
--		.data		= &print_fatal_signals,
+-		.procname	= "stack_tracer_enabled",
+-		.data		= &stack_tracer_enabled,
 -		.maxlen		= sizeof(int),
 -		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
+-		.proc_handler	= stack_trace_sysctl,
 -	},
- #ifdef CONFIG_SPARC
+-#endif
+ #ifdef CONFIG_MODULES
  	{
- 		.procname	= "reboot-cmd",
+ 		.procname	= "modprobe",
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index abfc0e56173b..17b449f9e330 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -166,6 +166,15 @@ static const struct ctl_table trace_sysctl_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= tracepoint_printk_sysctl,
+ 	},
++#ifdef CONFIG_STACK_TRACER
++	{
++		.procname	= "stack_tracer_enabled",
++		.data		= &stack_tracer_enabled,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= stack_trace_sysctl,
++	},
++#endif
+ };
+ 
+ static int __init init_trace_sysctls(void)
 
 -- 
 2.44.2
