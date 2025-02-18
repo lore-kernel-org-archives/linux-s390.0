@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CB6022B8A0
-	for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2025 10:31:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4DC2236A6B
+	for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2025 10:32:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739874676; cv=none; b=o597UrSn/WMpEhTwfCrPPHtvDVzxZkjujWca7cuq8VM94in+GMBamz74REqRjX62igMTtGMwZ9XudByJ8okWSLjnzdw8WaEAN8ArfZkukoOiLMx4D1mRhHtQjJJICBBAAF30qimnzemnUEaZsZJ6qz4dy2qOoxFDAmtucBOaZAc=
+	t=1739874736; cv=none; b=pPJDeO1tlikDxAtP5Sw+MKckre7vymeVw/5KaVg8Y44AFfapHX035q3cBORno2skSqxnNnQzRo9Kk+l5TCXxSDg4lpjU7KwZw+jXGZLBmdbUqVaVDRw+skCEoDjdnpPYeY0xfcif+QKjBo1PuoKp9S60mReFz7x/I329yJsWLEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739874676; c=relaxed/simple;
-	bh=xIKwsVYSeT+yIT+J3E68TcAIy0/z4ZuetsggoO6Qyio=;
+	s=arc-20240116; t=1739874736; c=relaxed/simple;
+	bh=xTTAepB4hSls510JUC4iYlnWF+VYDHsdbUHpJ3Xebks=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NGGxIWw67sK0xOXV+ZqCMoKUbFK0LGnzWWquFITe3Fx28K2vV9vT7MPUM8zEZQJDtlf6hAvjmKhH/CzbyoCflRd1E8qOzvkdaZJHMRM2269r4EyBzl3LrrnffRl2JuETckNZ+3bc2oyAKG7lL1gaMmObHvCJqYLMEmw8ZH82T6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dGHJGA5+; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=QboR6I+NekjzIPymTgR4Y8JAnpo+gJUBJNpMbeco8kOjqmz8r7Y+rsyii09iYCwkG0cCvjsOqAz2hE9tN9+rvsp/dehmOGy+OQom25n4KSI3Z3OD5Nm28Kat1fmVifmU02uSuSRVhKbignIy9LlLbD5VVUeuqm2pQs4FiizS858=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Gf5oTWV/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dGHJGA5+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gf5oTWV/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1739874673;
+	s=mimecast20190719; t=1739874732;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=bYHwcLVWT7ViqDSplojxQnlqWrz/ZE/8JhhVM+wg4bQ=;
-	b=dGHJGA5+veMCAHQzd2qJZE1c6v72hHxr1HXmGBVtXXsi5rVuUkzgcvjAsed49KVUBJTOy6
-	D5eQ6a/A0BkM0ynXso1bNqalZXFHmidUhYCMsic2pADDm7k+X0VwLfmi1BjWj7q+eywH4/
-	Q2FV/JTbgssD+gBP6podK58+1VEY6Iw=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=6qQSUzHgCyxJavo98b2ypHiPRZXpN9/8Rj9BOTux8BQ=;
+	b=Gf5oTWV/KTLrXTa7ISFFgtx6XCokoKOupi8BIFKBtl57mVBYjuMTCzrguEJOaAHFlyzfBN
+	3PDCFV9oh26uv2z8Tr54daaroeJP+1LFLWvaGQj30GVuUIMxRa9r9Jc0W8zgTTROGflNm1
+	MmQpOUUYxIBechHMJQz0QQrIrkTk+9o=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-696-BsCMpir5NH6tUJBpxWVlgA-1; Tue, 18 Feb 2025 05:31:11 -0500
-X-MC-Unique: BsCMpir5NH6tUJBpxWVlgA-1
-X-Mimecast-MFC-AGG-ID: BsCMpir5NH6tUJBpxWVlgA_1739874671
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43935e09897so44798595e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2025 02:31:11 -0800 (PST)
+ us-mta-97-T_2ADL0FM_6TYi2mkzLvlA-1; Tue, 18 Feb 2025 05:32:11 -0500
+X-MC-Unique: T_2ADL0FM_6TYi2mkzLvlA-1
+X-Mimecast-MFC-AGG-ID: T_2ADL0FM_6TYi2mkzLvlA_1739874730
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-38f36fcf4b3so1854538f8f.1
+        for <linux-s390@vger.kernel.org>; Tue, 18 Feb 2025 02:32:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739874670; x=1740479470;
+        d=1e100.net; s=20230601; t=1739874730; x=1740479530;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=bYHwcLVWT7ViqDSplojxQnlqWrz/ZE/8JhhVM+wg4bQ=;
-        b=mtg7h7GvLh39jnfYVFDwHonhOwecxpP1/xd1rwoR/+xbK5qooTzTq7rtHY9W68Hs1p
-         ThPUNZAEZET7zIg0dyjECNdQTj6OX9r7+EADxkIernTana3YV4smrm2mFoFGO9L6cBP4
-         SjonKj5WgxJ3jYgGf8Plw7CgHZfJzfIIaNyXpId1raN8KN2i38yGuxn5iEIClWrDhe6D
-         Jbup0qfP2uinuQ7gYrqF+wqd+/Bf33d7bhNzax3ChiML5BShe1ynKypSRbUl0qqjLKQy
-         MziflS/aBCZepVEBVnYmHUrZ1R5JQP7j6Ek+/dL1bOy8spEqFsCzXf+7rIs5gqn7v1q1
-         65iQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWtQa1+yBlobiYr8w0HZw10w24fWw2YsthzwB+3/zEiGTn5eaIpeSX/XxAwZ8PwFHo4sjKwP8ze2wMY@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw2EsOVoegxVpR07RscVBsvPF4/Z69wnNCnnTOhFjRRNgXn44zb
-	q+/7DhEli46egtFGTIH5shn9hOB3lr8hBLPYh7CM8nNkrwp7C1ypfFgI9BrJsaoCF3PPJOpkHWa
-	X/xcg3T0rJ1H+XREADWltTJlYL2S55aJU0ozRFwQLplprt5hai4in/0cQ7RtIZYUZk+fTWg==
-X-Gm-Gg: ASbGncsGd8IS1D7eYTN84Af6HyqN73PXOfaETUr/kh938MOQmY7uGPNCMRFa6ApPoCc
-	lB6obIgZXZ1kZH0I7AY7YonlRn2l9FR9um51HG7dIGJxomGnl8Dj9qvzmMavsn0W6kk/KQ/HidE
-	C48rYu101JSYsHYzLFR2PHEtcTB89f2HWQBh01r3YP+50TPxzh8MZ5kziS8lV7V/WADNAM9Ztd4
-	UocnXcZjc8rRC0L0ZUSMKU0UFDXYpTJIJSCdVqRe4Xl0TgTFyoUeHcHC6E+W9fvJPSqd8pmyLfV
-	R3SfIDtPPZb+JXwjb/LbP5mOiSprBsmnG9Q8XgABQWuEk2kw2qE8baw/v7ppDDHIcsaeB8JmfdY
-	AlGEsdhIai52HAehyTKXGjCg2D2XWhADC
-X-Received: by 2002:a05:600c:1912:b0:439:6925:4d42 with SMTP id 5b1f17b1804b1-4396e69a291mr145157695e9.5.1739874670504;
-        Tue, 18 Feb 2025 02:31:10 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEKK/d9jTwRaJ76UZdUAwdd23rNzlgGNUJjR7HWeCisU6/6HAcioR2Kkp6B8p+CFTIAPK1yIw==
-X-Received: by 2002:a05:600c:1912:b0:439:6925:4d42 with SMTP id 5b1f17b1804b1-4396e69a291mr145157155e9.5.1739874669914;
-        Tue, 18 Feb 2025 02:31:09 -0800 (PST)
+        bh=6qQSUzHgCyxJavo98b2ypHiPRZXpN9/8Rj9BOTux8BQ=;
+        b=ZNsWQaFNWeX6nEG0QflfrwrXdF+ghFojRbPt4LQCmWTHPEyOeJvL7bvJ3n724VH2ft
+         EMHsS5J7spHOtHsu6//ywVWET4jc+p4mQmyFUR7px72VvH19+G/TGYFRoz4R7MxHwQSm
+         OqqbiUcLyCzYolfmj0yO0+5yPVMRzJKKlR+/b4YZhIWs2HP48kHTm4ZXgomSx4s16HW9
+         vS3euYnPfa038FkfdGusGWUGEx50z3t/G2U5SbLOa35RX7dqr8qRMdgKkbjkrQlVJiBB
+         3SCR0N5F7pBU/YRz7Ks7ylfdOxPfhjOCvyj2tAvKZ0EINS6XZpr1Krb7XwZoRxZ5ZH4k
+         MTyA==
+X-Forwarded-Encrypted: i=1; AJvYcCUDESyI0oSw8njT9vSvzF7ycem4W/c6sVxY2+IGZ/A+gSDN6uJwm6jFoXkIs659BMvhFe+LkuSMXWZV@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyg/IeO8HC1kgUD5qdoh5/C5DEjVi/DyHLXOLIoeaBHsR+xsMac
+	b9dnSKmy2t6hSq5/su9/Ba4f62Ky/a6F0yaOsm44BiF0IMA+os4tDAAZ3Vo3VFDu1ZADvkTTSqK
+	FcFjpLO6bjCGTlD5ekCG0y26vMbD9BDZO1s3U12Il/irufII86OJdKeXMpMw=
+X-Gm-Gg: ASbGncs1LqhwgCilYrZyEodOu9bbAY5C31j0qLRSjKbbVWQcK7KX3Vi06IySeUlR2Hx
+	dun+4s7LWsxU5SzthaUUGhWEKdvw+wUTbpC8kk5/BVTzTAw9xd8SFkdCAfWwcftbULIqwztYb7X
+	bDq4fkTUFf7EKXpx9NQVVWgxnaW795VJpDhfqW98jM1o7wDspQUIFdZDEmEFZUeMCq14QVBquJG
+	VrcHp8n0Z6UzvyWyFr+FsjcoYAObcC62PLevhfgb7f3NchWuzeYRifKwsXsKFYxlARD1MyAAnbl
+	19y24rGR8YVYloD6sOvOMX77UdtiuDyQ0Nc4VTHrdJb4fJJd8jygX8jABHeT8Ebi7ojeJzLlcGK
+	fbF84805+h3dku917vcyvRBu0788XrxpJ
+X-Received: by 2002:a5d:5888:0:b0:38f:287a:43e2 with SMTP id ffacd0b85a97d-38f33f11a6amr10019564f8f.11.1739874729868;
+        Tue, 18 Feb 2025 02:32:09 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEHcoLtTGItTBQVw2jJchMRekN6vG0iQZFBlCtfZJTgat4RtCXNKhMX84MbQAT4tMgdFIp+iA==
+X-Received: by 2002:a5d:5888:0:b0:38f:287a:43e2 with SMTP id ffacd0b85a97d-38f33f11a6amr10019525f8f.11.1739874729381;
+        Tue, 18 Feb 2025 02:32:09 -0800 (PST)
 Received: from ?IPV6:2003:cb:c70d:fb00:d3ed:5f44:1b2d:12af? (p200300cbc70dfb00d3ed5f441b2d12af.dip0.t-ipconnect.de. [2003:cb:c70d:fb00:d3ed:5f44:1b2d:12af])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4395a1b824dsm176854065e9.34.2025.02.18.02.31.07
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f259d94acsm14844177f8f.75.2025.02.18.02.32.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Feb 2025 02:31:08 -0800 (PST)
-Message-ID: <65da326f-96a0-42ed-95e9-932c598b40f4@redhat.com>
-Date: Tue, 18 Feb 2025 11:31:06 +0100
+        Tue, 18 Feb 2025 02:32:09 -0800 (PST)
+Message-ID: <d3f1692f-3e80-495e-a39d-fc665732e0d6@redhat.com>
+Date: Tue, 18 Feb 2025 11:32:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,12 +75,12 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/7] mm: Set the pte dirty if the folio is already dirty
+Subject: Re: [PATCH 2/7] mm: Introduce a common definition of mk_pte()
 To: "Matthew Wilcox (Oracle)" <willy@infradead.org>, linux-mm@kvack.org
 Cc: linux-arch@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org,
  sparclinux@vger.kernel.org, linux-um@lists.infradead.org
 References: <20250217190836.435039-1-willy@infradead.org>
- <20250217190836.435039-2-willy@infradead.org>
+ <20250217190836.435039-3-willy@infradead.org>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -128,55 +128,17 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20250217190836.435039-2-willy@infradead.org>
+In-Reply-To: <20250217190836.435039-3-willy@infradead.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 17.02.25 20:08, Matthew Wilcox (Oracle) wrote:
-> If the first access to a folio is a read that is then followed by a
-> write, we can save a page fault.  s390 implemented this in their
-> mk_pte() in commit abf09bed3cce ("s390/mm: implement software dirty
-> bits"), but other architectures can also benefit from this.
+> Most architectures simply call pfn_pte().  Centralise that as the normal
+> definition and remove the definition of mk_pte() from the architectures
+> which have either that exact definition or something similar.
 > 
 > Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > ---
->   arch/s390/include/asm/pgtable.h | 7 +------
->   mm/memory.c                     | 2 ++
->   2 files changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-> index 3ca5af4cfe43..3ee495b5171e 100644
-> --- a/arch/s390/include/asm/pgtable.h
-> +++ b/arch/s390/include/asm/pgtable.h
-> @@ -1451,12 +1451,7 @@ static inline pte_t mk_pte_phys(unsigned long physpage, pgprot_t pgprot)
->   
->   static inline pte_t mk_pte(struct page *page, pgprot_t pgprot)
->   {
-> -	unsigned long physpage = page_to_phys(page);
-> -	pte_t __pte = mk_pte_phys(physpage, pgprot);
-> -
-> -	if (pte_write(__pte) && PageDirty(page))
-> -		__pte = pte_mkdirty(__pte);
-> -	return __pte;
-> +	return mk_pte_phys(page_to_phys(page), pgprot);
->   }
->   
->   #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
-> diff --git a/mm/memory.c b/mm/memory.c
-> index 539c0f7c6d54..4330560eee55 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -5124,6 +5124,8 @@ void set_pte_range(struct vm_fault *vmf, struct folio *folio,
->   
->   	if (write)
->   		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-> +	else if (pte_write(entry) && folio_test_dirty(folio))
-> +		entry = pte_mkdirty(entry);
->   	if (unlikely(vmf_orig_pte_uffd_wp(vmf)))
->   		entry = pte_mkuffd_wp(entry);
->   	/* copy-on-write page */
-
-Yes, that looks sane
 
 Acked-by: David Hildenbrand <david@redhat.com>
 
