@@ -1,160 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF15B217F33;
-	Wed, 19 Feb 2025 18:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 721D11B6CF5;
+	Wed, 19 Feb 2025 20:30:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739989470; cv=none; b=tKMAyaltsISTmLAttVfAeKKZ6Qw8zsdR+W6Y8RLj0TDhD06vLxx1piMYggNetodWgpu2a4qgd2ZNR6VbfbuBg6vEfKha8r5fvYvf1yool2ne96MNf2jlZNZY+2RBaHmhvbG91A9l/8WLiYPmiRtxAe52ajhcBwQSr10T8Pc25eY=
+	t=1739997039; cv=none; b=haw8ksHYZLrVYI22cvlnLGb1o1O0rb3ExSRJFdg9v4orjed2irtNrVHM1R2M244mgaCLbWFaw0ex1aWKav3hPFdaeZ17rLvzgvZ1l1+6BiDjaEn674iiKW9PYZ2OkR69xShCkBtPyZlyrQE+/ngsLB8q2S2d4vepzoLzL+AdxvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739989470; c=relaxed/simple;
-	bh=qzT0MJ9mKrHr5wUabQxbT1zAY3hHrks2Yh9qtZdKQD8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KLAFfOjg4Mpi+U6usi0BWYT/JRMbQpFfkDSdCcw2+b+CzSm6OTNR++LIC08JXncW+MhJyjb/DtqT4FdXKiw91EKIxfAfwQWgLbH1A4YglORjgm0Vl5Jco5mHt8Z5XXnqDTG1D0HwRa8yH+7tRDBb8b2GrQcm7ba7YVCXivGddDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i1T/Ts0k; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1739997039; c=relaxed/simple;
+	bh=iSh7RQdc/sccudkQ5pUXh58n+rYkXbgItZcBzQUVl08=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=TN72p9OJWNixGK0feHikei88VWG5cx0WzYtaArw6XGc2ytcAMmi8wX9SuPsNBhpBQ9lSrO6KZf9jCmsZcCcJLPT688xn6U02ZXjSpq/N0z2lCPJYbXcV4uUvdaivG4sZAEfWS2IYandK5xruQay5yl/JuW5S3py25DoYSUMUPRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=gvUN7DSz; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i1T/Ts0k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD44C4CEEC;
-	Wed, 19 Feb 2025 18:24:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1739989470;
-	bh=qzT0MJ9mKrHr5wUabQxbT1zAY3hHrks2Yh9qtZdKQD8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=i1T/Ts0kwZ+vSYuzOse9KsmIzaVpXGAhwtksjtcvf+Q+Cbj5YF0PE9KBn7dRMXMTy
-	 4zJYEmrqjSbLKfQS5NNQkgGrBSSX0QyfeY9AAV9sWmDjzHGD5TRLdi2FHhI+iUvQDD
-	 rV6M6FEoQQM7UEuS5naXQfaFdoCDKPqdfi0Hg4tJrblV8nakTq2rA0j9bLALofYvqR
-	 SJz4Xh+hlbwGEwg2rF14tbN/aUgttIREgbj8pzHuz5rDHHHTsfzMNwUMsupRB/F6Jy
-	 APMfjNTgNsFDPZdyy9JpoqJ6s0QV0ji1aKUs+8uXAk56Hk1rEqH7op9Kr28eIne+Ti
-	 w5FN6NjUHTLFg==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	Holger Dengler <dengler@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	Harald Freudenberger <freude@linux.ibm.com>
-Subject: [PATCH v3 11/19] crypto: s390/aes-gcm - use the new scatterwalk functions
-Date: Wed, 19 Feb 2025 10:23:33 -0800
-Message-ID: <20250219182341.43961-12-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250219182341.43961-1-ebiggers@kernel.org>
-References: <20250219182341.43961-1-ebiggers@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="gvUN7DSz"
+Received: from eahariha-devbox.internal.cloudapp.net (unknown [40.91.112.99])
+	by linux.microsoft.com (Postfix) with ESMTPSA id D6BF62043E1B;
+	Wed, 19 Feb 2025 12:30:37 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D6BF62043E1B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1739997037;
+	bh=jaqtwsDQCTOG0vwdN99+rVafX0o12jqei48RbqmPu+M=;
+	h=From:Subject:Date:To:Cc:From;
+	b=gvUN7DSzwHUk+kj/1fUSkFixkZhvmywRnxiUbXTtsRDuz17gtreRD4wlImbxI4773
+	 ZR9OBvQMtmvolFv57jeJAAN4LALcBaf0czEA+hfWAYs4sy/y/6aEKCRjRh6FCUk7NA
+	 mpJC7kKu/UnJm8lsAXd5WRiPnNXiL3zvMnNVBiS4=
+From: Easwar Hariharan <eahariha@linux.microsoft.com>
+Subject: [PATCH net-next 0/3] Converge on using secs_to_jiffies() part two
+Date: Wed, 19 Feb 2025 20:30:35 +0000
+Message-Id: <20250219-netdev-secs-to-jiffies-part-2-v1-0-c484cc63611b@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAGs/tmcC/x3MwQqDMAyA4VeRnBeoGZVurzJ2KDbV7FClKSJI3
+ 33B43/4/guUq7DCe7ig8iEqW7EYHwPMaywLoyRrIEfejRSwcEt8oPKs2Db8Sc7mcY+1IWHILpF
+ /eveaIthjr5zlvP8fMGr8bPDt/Q+d/1MVeQAAAA==
+X-Change-ID: 20250128-netdev-secs-to-jiffies-part-2-8f0d2535096a
+To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+ Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+ Pablo Neira Ayuso <pablo@netfilter.org>, 
+ Jozsef Kadlecsik <kadlec@netfilter.org>, David Ahern <dsahern@kernel.org>
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
+ Easwar Hariharan <eahariha@linux.microsoft.com>
+X-Mailer: b4 0.14.2
 
-From: Eric Biggers <ebiggers@google.com>
+This is the second series (part 1*) that converts users of msecs_to_jiffies() that
+either use the multiply pattern of either of:
+- msecs_to_jiffies(N*1000) or
+- msecs_to_jiffies(N*MSEC_PER_SEC)
 
-Use scatterwalk_next() which consolidates scatterwalk_clamp() and
-scatterwalk_map().  Use scatterwalk_done_src() and
-scatterwalk_done_dst() which consolidate scatterwalk_unmap(),
-scatterwalk_advance(), and scatterwalk_done().
+where N is a constant or an expression, to avoid the multiplication.
 
-Besides the new functions being a bit easier to use, this is necessary
-because scatterwalk_done() is planned to be removed.
+The conversion is made with Coccinelle with the secs_to_jiffies() script
+in scripts/coccinelle/misc. Attention is paid to what the best change
+can be rather than restricting to what the tool provides.
 
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Tested-by: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Holger Dengler <dengler@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+The non-netdev patches that include the update to secs_to_jiffies.cocci to address
+expressions are here: https://lore.kernel.org/all/20250203-converge-secs-to-jiffies-part-two-v2-0-d7058a01fd0e@linux.microsoft.com
+
+This series is based on net-next.
+
+Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+
+* https://lore.kernel.org/all/20241212-netdev-converge-secs-to-jiffies-v4-0-6dac97a6d6ab@linux.microsoft.com/
+
 ---
- arch/s390/crypto/aes_s390.c | 33 +++++++++++++--------------------
- 1 file changed, 13 insertions(+), 20 deletions(-)
+Easwar Hariharan (3):
+      net/smc: convert timeouts to secs_to_jiffies()
+      netfilter: xt_IDLETIMER: convert timeouts to secs_to_jiffies()
+      net: ipconfig: convert timeouts to secs_to_jiffies()
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 9c46b1b630b1a..7fd303df05abd 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -785,32 +785,25 @@ static void gcm_walk_start(struct gcm_sg_walk *gw, struct scatterlist *sg,
- 	scatterwalk_start(&gw->walk, sg);
- }
- 
- static inline unsigned int _gcm_sg_clamp_and_map(struct gcm_sg_walk *gw)
- {
--	struct scatterlist *nextsg;
--
--	gw->walk_bytes = scatterwalk_clamp(&gw->walk, gw->walk_bytes_remain);
--	while (!gw->walk_bytes) {
--		nextsg = sg_next(gw->walk.sg);
--		if (!nextsg)
--			return 0;
--		scatterwalk_start(&gw->walk, nextsg);
--		gw->walk_bytes = scatterwalk_clamp(&gw->walk,
--						   gw->walk_bytes_remain);
--	}
--	gw->walk_ptr = scatterwalk_map(&gw->walk);
-+	if (gw->walk_bytes_remain == 0)
-+		return 0;
-+	gw->walk_ptr = scatterwalk_next(&gw->walk, gw->walk_bytes_remain,
-+					&gw->walk_bytes);
- 	return gw->walk_bytes;
- }
- 
- static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
--					     unsigned int nbytes)
-+					     unsigned int nbytes, bool out)
- {
- 	gw->walk_bytes_remain -= nbytes;
--	scatterwalk_unmap(gw->walk_ptr);
--	scatterwalk_advance(&gw->walk, nbytes);
--	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
-+	if (out)
-+		scatterwalk_done_dst(&gw->walk, gw->walk_ptr, nbytes);
-+	else
-+		scatterwalk_done_src(&gw->walk, gw->walk_ptr, nbytes);
- 	gw->walk_ptr = NULL;
- }
- 
- static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
- {
-@@ -842,11 +835,11 @@ static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
- 
- 	while (1) {
- 		n = min(gw->walk_bytes, AES_BLOCK_SIZE - gw->buf_bytes);
- 		memcpy(gw->buf + gw->buf_bytes, gw->walk_ptr, n);
- 		gw->buf_bytes += n;
--		_gcm_sg_unmap_and_advance(gw, n);
-+		_gcm_sg_unmap_and_advance(gw, n, false);
- 		if (gw->buf_bytes >= minbytesneeded) {
- 			gw->ptr = gw->buf;
- 			gw->nbytes = gw->buf_bytes;
- 			goto out;
- 		}
-@@ -902,11 +895,11 @@ static int gcm_in_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
- 			memmove(gw->buf, gw->buf + bytesdone, n);
- 			gw->buf_bytes = n;
- 		} else
- 			gw->buf_bytes = 0;
- 	} else
--		_gcm_sg_unmap_and_advance(gw, bytesdone);
-+		_gcm_sg_unmap_and_advance(gw, bytesdone, false);
- 
- 	return bytesdone;
- }
- 
- static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
-@@ -920,14 +913,14 @@ static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
- 		for (i = 0; i < bytesdone; i += n) {
- 			if (!_gcm_sg_clamp_and_map(gw))
- 				return i;
- 			n = min(gw->walk_bytes, bytesdone - i);
- 			memcpy(gw->walk_ptr, gw->buf + i, n);
--			_gcm_sg_unmap_and_advance(gw, n);
-+			_gcm_sg_unmap_and_advance(gw, n, true);
- 		}
- 	} else
--		_gcm_sg_unmap_and_advance(gw, bytesdone);
-+		_gcm_sg_unmap_and_advance(gw, bytesdone, true);
- 
- 	return bytesdone;
- }
- 
- static int gcm_aes_crypt(struct aead_request *req, unsigned int flags)
+ net/ipv4/ipconfig.c          |  6 +++---
+ net/netfilter/xt_IDLETIMER.c | 12 ++++++------
+ net/smc/af_smc.c             |  3 +--
+ 3 files changed, 10 insertions(+), 11 deletions(-)
+---
+base-commit: de7a88b639d488607352a270ef2e052c4442b1b3
+change-id: 20250128-netdev-secs-to-jiffies-part-2-8f0d2535096a
+
+Best regards,
 -- 
-2.48.1
+Easwar Hariharan <eahariha@linux.microsoft.com>
 
