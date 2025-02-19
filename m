@@ -1,120 +1,160 @@
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6425C8F58;
-	Wed, 19 Feb 2025 17:16:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF15B217F33;
+	Wed, 19 Feb 2025 18:24:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739985368; cv=none; b=ZsXURLcP01yG782DM514f6OtvM8vz04uNmpDnuDCi0qAbwnpBxs28oOI9tZhkPS52hYeZSYPGAid9Yp4rC2doCKPOQXzKGYEchVtl9h6C3WH4OVn++TqoiFmXJ8B+JDAYtit/HPjorAX2q9+37GYj2dHc38Pbxhe87va/NTC4Ug=
+	t=1739989470; cv=none; b=tKMAyaltsISTmLAttVfAeKKZ6Qw8zsdR+W6Y8RLj0TDhD06vLxx1piMYggNetodWgpu2a4qgd2ZNR6VbfbuBg6vEfKha8r5fvYvf1yool2ne96MNf2jlZNZY+2RBaHmhvbG91A9l/8WLiYPmiRtxAe52ajhcBwQSr10T8Pc25eY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739985368; c=relaxed/simple;
-	bh=7QI0wT4+63qh/XUmz07BMZkRninTpYvjv4idET9mc5E=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=EeoKwkDoiuqkVws/peZWoQR4G4vxfLjIos7nUrbWYOymatWtUs8xmrwi8IDwQJs1wZ7BjqW7cUV9E35cyjt2UO+knXQXxVygshZbsg5ElhdSdQPN2T8aOTjjNBM33NnzZM5BfoR/+/Hy9Vrrt2jdOTudOCDuE6mIY8GKP7GnOAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-	id 247399200B3; Wed, 19 Feb 2025 18:16:05 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by angie.orcam.me.uk (Postfix) with ESMTP id 1E09592009E;
-	Wed, 19 Feb 2025 17:16:05 +0000 (GMT)
-Date: Wed, 19 Feb 2025 17:16:05 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
-To: "Dmitry V. Levin" <ldv@strace.io>
-cc: Andrew Morton <akpm@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, 
-    Alexey Gladkov <legion@kernel.org>, 
-    Eugene Syromyatnikov <evgsyr@gmail.com>, 
-    Charlie Jenkins <charlie@rivosinc.com>, Helge Deller <deller@gmx.de>, 
-    Mike Frysinger <vapier@gentoo.org>, Renzo Davoli <renzo@cs.unibo.it>, 
-    Davide Berardi <berardi.dav@gmail.com>, Vineet Gupta <vgupta@kernel.org>, 
-    Russell King <linux@armlinux.org.uk>, 
-    Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-    Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>, 
-    WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-    Michal Simek <monstr@monstr.eu>, 
-    Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-    Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>, 
-    Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
-    Stafford Horne <shorne@gmail.com>, 
-    "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
-    Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-    Christophe Leroy <christophe.leroy@csgroup.eu>, 
-    Naveen N Rao <naveen@kernel.org>, 
-    Madhavan Srinivasan <maddy@linux.ibm.com>, 
-    Paul Walmsley <paul.walmsley@sifive.com>, 
-    Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-    Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, 
-    Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-    John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-    "David S. Miller" <davem@davemloft.net>, 
-    Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
-    Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-    Johannes Berg <johannes@sipsolutions.net>, 
-    Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-    Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
-    x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-    Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-    Arnd Bergmann <arnd@arndb.de>, strace-devel@lists.strace.io, 
-    linux-snps-arc@lists.infradead.org, linux-kernel@vger.kernel.org, 
-    linux-arm-kernel@lists.infradead.org, linux-hexagon@vger.kernel.org, 
-    loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-    linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-    linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-    linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-    linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-    linux-um@lists.infradead.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH v6 3/6] syscall.h: introduce syscall_set_nr()
-In-Reply-To: <20250217091034.GD18175@strace.io>
-Message-ID: <alpine.DEB.2.21.2502191658530.65342@angie.orcam.me.uk>
-References: <20250217091034.GD18175@strace.io>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+	s=arc-20240116; t=1739989470; c=relaxed/simple;
+	bh=qzT0MJ9mKrHr5wUabQxbT1zAY3hHrks2Yh9qtZdKQD8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=KLAFfOjg4Mpi+U6usi0BWYT/JRMbQpFfkDSdCcw2+b+CzSm6OTNR++LIC08JXncW+MhJyjb/DtqT4FdXKiw91EKIxfAfwQWgLbH1A4YglORjgm0Vl5Jco5mHt8Z5XXnqDTG1D0HwRa8yH+7tRDBb8b2GrQcm7ba7YVCXivGddDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i1T/Ts0k; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i1T/Ts0k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD44C4CEEC;
+	Wed, 19 Feb 2025 18:24:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1739989470;
+	bh=qzT0MJ9mKrHr5wUabQxbT1zAY3hHrks2Yh9qtZdKQD8=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=i1T/Ts0kwZ+vSYuzOse9KsmIzaVpXGAhwtksjtcvf+Q+Cbj5YF0PE9KBn7dRMXMTy
+	 4zJYEmrqjSbLKfQS5NNQkgGrBSSX0QyfeY9AAV9sWmDjzHGD5TRLdi2FHhI+iUvQDD
+	 rV6M6FEoQQM7UEuS5naXQfaFdoCDKPqdfi0Hg4tJrblV8nakTq2rA0j9bLALofYvqR
+	 SJz4Xh+hlbwGEwg2rF14tbN/aUgttIREgbj8pzHuz5rDHHHTsfzMNwUMsupRB/F6Jy
+	 APMfjNTgNsFDPZdyy9JpoqJ6s0QV0ji1aKUs+8uXAk56Hk1rEqH7op9Kr28eIne+Ti
+	 w5FN6NjUHTLFg==
+From: Eric Biggers <ebiggers@kernel.org>
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org,
+	Holger Dengler <dengler@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	Harald Freudenberger <freude@linux.ibm.com>
+Subject: [PATCH v3 11/19] crypto: s390/aes-gcm - use the new scatterwalk functions
+Date: Wed, 19 Feb 2025 10:23:33 -0800
+Message-ID: <20250219182341.43961-12-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250219182341.43961-1-ebiggers@kernel.org>
+References: <20250219182341.43961-1-ebiggers@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 
-On Mon, 17 Feb 2025, Dmitry V. Levin wrote:
+From: Eric Biggers <ebiggers@google.com>
 
-> diff --git a/arch/mips/include/asm/syscall.h b/arch/mips/include/asm/syscall.h
-> index ea050b23d428..b956b015641c 100644
-> --- a/arch/mips/include/asm/syscall.h
-> +++ b/arch/mips/include/asm/syscall.h
-> @@ -41,6 +41,20 @@ static inline long syscall_get_nr(struct task_struct *task,
->  	return task_thread_info(task)->syscall;
->  }
->  
-> +static inline void syscall_set_nr(struct task_struct *task,
-> +				  struct pt_regs *regs,
-> +				  int nr)
-> +{
-> +	/*
-> +	 * New syscall number has to be assigned to regs[2] because
-> +	 * syscall_trace_entry() loads it from there unconditionally.
+Use scatterwalk_next() which consolidates scatterwalk_clamp() and
+scatterwalk_map().  Use scatterwalk_done_src() and
+scatterwalk_done_dst() which consolidate scatterwalk_unmap(),
+scatterwalk_advance(), and scatterwalk_done().
 
- That label is called `trace_a_syscall' in arch/mips/kernel/scall64-o32.S 
-instead.  To bring some order and avoid an inaccuracy here should the odd 
-one be matched to the other three?
+Besides the new functions being a bit easier to use, this is necessary
+because scatterwalk_done() is planned to be removed.
 
-> +	 *
-> +	 * Consequently, if the syscall was indirect and nr != __NR_syscall,
-> +	 * then after this assignment the syscall will cease to be indirect.
-> +	 */
-> +	task_thread_info(task)->syscall = regs->regs[2] = nr;
-> +}
-> +
->  static inline void mips_syscall_update_nr(struct task_struct *task,
->  					  struct pt_regs *regs)
->  {
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+Tested-by: Harald Freudenberger <freude@linux.ibm.com>
+Cc: Holger Dengler <dengler@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ arch/s390/crypto/aes_s390.c | 33 +++++++++++++--------------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
 
- Otherwise:
+diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+index 9c46b1b630b1a..7fd303df05abd 100644
+--- a/arch/s390/crypto/aes_s390.c
++++ b/arch/s390/crypto/aes_s390.c
+@@ -785,32 +785,25 @@ static void gcm_walk_start(struct gcm_sg_walk *gw, struct scatterlist *sg,
+ 	scatterwalk_start(&gw->walk, sg);
+ }
+ 
+ static inline unsigned int _gcm_sg_clamp_and_map(struct gcm_sg_walk *gw)
+ {
+-	struct scatterlist *nextsg;
+-
+-	gw->walk_bytes = scatterwalk_clamp(&gw->walk, gw->walk_bytes_remain);
+-	while (!gw->walk_bytes) {
+-		nextsg = sg_next(gw->walk.sg);
+-		if (!nextsg)
+-			return 0;
+-		scatterwalk_start(&gw->walk, nextsg);
+-		gw->walk_bytes = scatterwalk_clamp(&gw->walk,
+-						   gw->walk_bytes_remain);
+-	}
+-	gw->walk_ptr = scatterwalk_map(&gw->walk);
++	if (gw->walk_bytes_remain == 0)
++		return 0;
++	gw->walk_ptr = scatterwalk_next(&gw->walk, gw->walk_bytes_remain,
++					&gw->walk_bytes);
+ 	return gw->walk_bytes;
+ }
+ 
+ static inline void _gcm_sg_unmap_and_advance(struct gcm_sg_walk *gw,
+-					     unsigned int nbytes)
++					     unsigned int nbytes, bool out)
+ {
+ 	gw->walk_bytes_remain -= nbytes;
+-	scatterwalk_unmap(gw->walk_ptr);
+-	scatterwalk_advance(&gw->walk, nbytes);
+-	scatterwalk_done(&gw->walk, 0, gw->walk_bytes_remain);
++	if (out)
++		scatterwalk_done_dst(&gw->walk, gw->walk_ptr, nbytes);
++	else
++		scatterwalk_done_src(&gw->walk, gw->walk_ptr, nbytes);
+ 	gw->walk_ptr = NULL;
+ }
+ 
+ static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
+ {
+@@ -842,11 +835,11 @@ static int gcm_in_walk_go(struct gcm_sg_walk *gw, unsigned int minbytesneeded)
+ 
+ 	while (1) {
+ 		n = min(gw->walk_bytes, AES_BLOCK_SIZE - gw->buf_bytes);
+ 		memcpy(gw->buf + gw->buf_bytes, gw->walk_ptr, n);
+ 		gw->buf_bytes += n;
+-		_gcm_sg_unmap_and_advance(gw, n);
++		_gcm_sg_unmap_and_advance(gw, n, false);
+ 		if (gw->buf_bytes >= minbytesneeded) {
+ 			gw->ptr = gw->buf;
+ 			gw->nbytes = gw->buf_bytes;
+ 			goto out;
+ 		}
+@@ -902,11 +895,11 @@ static int gcm_in_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
+ 			memmove(gw->buf, gw->buf + bytesdone, n);
+ 			gw->buf_bytes = n;
+ 		} else
+ 			gw->buf_bytes = 0;
+ 	} else
+-		_gcm_sg_unmap_and_advance(gw, bytesdone);
++		_gcm_sg_unmap_and_advance(gw, bytesdone, false);
+ 
+ 	return bytesdone;
+ }
+ 
+ static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
+@@ -920,14 +913,14 @@ static int gcm_out_walk_done(struct gcm_sg_walk *gw, unsigned int bytesdone)
+ 		for (i = 0; i < bytesdone; i += n) {
+ 			if (!_gcm_sg_clamp_and_map(gw))
+ 				return i;
+ 			n = min(gw->walk_bytes, bytesdone - i);
+ 			memcpy(gw->walk_ptr, gw->buf + i, n);
+-			_gcm_sg_unmap_and_advance(gw, n);
++			_gcm_sg_unmap_and_advance(gw, n, true);
+ 		}
+ 	} else
+-		_gcm_sg_unmap_and_advance(gw, bytesdone);
++		_gcm_sg_unmap_and_advance(gw, bytesdone, true);
+ 
+ 	return bytesdone;
+ }
+ 
+ static int gcm_aes_crypt(struct aead_request *req, unsigned int flags)
+-- 
+2.48.1
 
-Reviewed-by: Maciej W. Rozycki <macro@orcam.me.uk>
-
-for this part, thank you!
-
-  Maciej
