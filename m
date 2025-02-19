@@ -1,139 +1,148 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 721781B393D;
-	Wed, 19 Feb 2025 20:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C565257438;
+	Wed, 19 Feb 2025 21:33:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739997040; cv=none; b=pWe8rIxpICRFDjIb6B1QWyTC9BP/lyoy98GQRvSodSsu2D8F4eegZ7fRB5SEJsWv8dftOGlXjQ4WrVqoe0cttmjCvBLueWMXKJA4X3soUwmP+yLhgxkMmDylALdd6pMYEEPLySfbqnLLw2jbP5Y55RAQwAxEsT35lXVlK64lyB8=
+	t=1740000820; cv=none; b=IHsdcOUQbu9HLejJL628TLc0ojQA0ALt6b5kDsSeVilE645PPwVw9Jr/ueWkgrhOqGv02pAIXfr6fENBHVhfjwJe3YggQXUXlqitOV86nvZ7ssCLf4miLh249Z6d4cOGaw5MAKsj62unXHuqX75RDgzJWQKbmTDq548u7+HgsWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739997040; c=relaxed/simple;
-	bh=DQPWMVuUQIr0IxHiIYQ/n4uOkjrc8H0ifaBmg6YK+gM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KZgD/fqwA4IPLI6S9j5oY7jnG+qMu0x4vWY6CJSuBbU+RYQUdj43Gq6UR3a0djKVP1xWC+5ivcU5KvPVHLO4/4RIwRtqDLzdCj7/Kl3CWfS3fsFeyC1v9hlHjoSP5fbcy1lIUsZy7vlLtcx+aOpRdxF2Zg6wYF8E3ujGkARIsKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=gHI/szIr; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1740000820; c=relaxed/simple;
+	bh=2SLbVXvUTul1P3Tb6G8KWZoREquyu8OU0BLz70QyvCY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Moq+oNpgqHQAiZim7Xo9g35VjuQ/YkLCHIl49a3eHWX49u3aqR7Dg/cvWbPXDLZsd4pfaMB13FVGN9ian6QVhFynkiDn7MGcXf+gII+ACaCn1CPZKDnGZJn0b2P2tOrOgTyQoox/y5ial7DJVm5hRnB7JmA3FxQKFGhvWcrrurY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hiivaTQr; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="gHI/szIr"
-Received: from eahariha-devbox.internal.cloudapp.net (unknown [40.91.112.99])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 1CAA02043E1D;
-	Wed, 19 Feb 2025 12:30:38 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1CAA02043E1D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1739997038;
-	bh=90UV+JP+XbwbcCJgflCYjTDRG9AqL4zRGYQK3ZIz7DU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=gHI/szIreKPPS8CxgVZkOrmds1yXBXX+RfhyiAWEF7PcU8TVQ0OV06loHmtB3AUfI
-	 58ImeFrYtjThwlYVfIYTdDyP5hnERUBNdU7qo7iuGhbT+d3WAuLF2z7gsLiCHbK/jt
-	 twqPKca7sGyepZzdk8+yUGqjwgkcEGptijcqgwI4=
-From: Easwar Hariharan <eahariha@linux.microsoft.com>
-Date: Wed, 19 Feb 2025 20:30:37 +0000
-Subject: [PATCH net-next 2/3] netfilter: xt_IDLETIMER: convert timeouts to
- secs_to_jiffies()
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hiivaTQr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740000818; x=1771536818;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=2SLbVXvUTul1P3Tb6G8KWZoREquyu8OU0BLz70QyvCY=;
+  b=hiivaTQr+J/IpUhInUvd/77FLLaGsCI/zNZ18gtPrTigsultvxMIowk9
+   Di7HWirhCXp4z9iU3fUSpe0bY9AsZ3nnYpR/YhkKdgizYq2IlWWgK8Bih
+   VMZQOnI50V0//taYIOYlRWi2+V94AIoRB6pmUipqK8BfRqOrMbhB1kq/K
+   zTb3E+9sXcmhtPWA0dAHEAE1SWb7cT5828cLopciN3vLYbl/xoueIXSCT
+   6oL2jyrBMhtKwo+BtO2rKnR90EtaITCIvulPGyuO2/1tlQoWZ0hf+H6BF
+   wd7HG27M3qEDfLJXJr9DGPkca9iSGyvLEq5oaeGMBE5gR+3zp4Wz1KAFv
+   w==;
+X-CSE-ConnectionGUID: X76l41w7TxG0jeOHh5yRBw==
+X-CSE-MsgGUID: SgvV2W6eT2K404nGAt3LHA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11350"; a="40775916"
+X-IronPort-AV: E=Sophos;i="6.13,299,1732608000"; 
+   d="scan'208";a="40775916"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 13:33:37 -0800
+X-CSE-ConnectionGUID: XXneleheS8aI0f46QupHtw==
+X-CSE-MsgGUID: /zLq0WsCR86gtLTRzeJITg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,299,1732608000"; 
+   d="scan'208";a="115370267"
+Received: from kinlongk-mobl1.amr.corp.intel.com (HELO [10.125.109.250]) ([10.125.109.250])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 12:53:45 -0800
+Message-ID: <940c4972-fad0-4d61-a7ce-1c5d52891a5e@intel.com>
+Date: Wed, 19 Feb 2025 12:53:41 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/7] x86: Remove custom definition of mk_pte()
+To: "Matthew Wilcox (Oracle)" <willy@infradead.org>, linux-mm@kvack.org
+Cc: linux-arch@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org
+References: <20250217190836.435039-1-willy@infradead.org>
+ <20250217190836.435039-5-willy@infradead.org>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20250217190836.435039-5-willy@infradead.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250219-netdev-secs-to-jiffies-part-2-v1-2-c484cc63611b@linux.microsoft.com>
-References: <20250219-netdev-secs-to-jiffies-part-2-v1-0-c484cc63611b@linux.microsoft.com>
-In-Reply-To: <20250219-netdev-secs-to-jiffies-part-2-v1-0-c484cc63611b@linux.microsoft.com>
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, 
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, 
- Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, 
- Jozsef Kadlecsik <kadlec@netfilter.org>, David Ahern <dsahern@kernel.org>
-Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
- Easwar Hariharan <eahariha@linux.microsoft.com>
-X-Mailer: b4 0.14.2
 
-Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
-secs_to_jiffies().  As the value here is a multiple of 1000, use
-secs_to_jiffies() instead of msecs_to_jiffies to avoid the multiplication.
+On 2/17/25 11:08, Matthew Wilcox (Oracle) wrote:
+> diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+> index 593f10aabd45..9f480bdafd20 100644
+> --- a/arch/x86/include/asm/pgtable.h
+> +++ b/arch/x86/include/asm/pgtable.h
+> @@ -784,6 +784,9 @@ static inline pgprotval_t check_pgprot(pgprot_t pgprot)
+>  static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+>  {
+>  	phys_addr_t pfn = (phys_addr_t)page_nr << PAGE_SHIFT;
+> +	/* This bit combination is used to mark shadow stacks */
+> +	WARN_ON_ONCE((pgprot_val(pgprot) & (_PAGE_DIRTY | _PAGE_RW)) ==
+> +			_PAGE_DIRTY);
 
-This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci with
-the following Coccinelle rules:
+Looks sane to me. Good riddance to unnecessary arch-specific code.
 
-@depends on patch@
-expression E;
-@@
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
 
--msecs_to_jiffies(E * 1000)
-+secs_to_jiffies(E)
+Just one note (in case anyone ever trips over that WARN_ON_ONCE()): This
+is a problem with the existing code and with your patch, but the
+'pgprot' going to mk_pte() or pfn_pte() probably can't come from a
+hardware PTE that has the dirty bit clear.
 
--msecs_to_jiffies(E * MSEC_PER_SEC)
-+secs_to_jiffies(E)
+Old, pre-shadow-stack hardware could race between:
 
-Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
----
- net/netfilter/xt_IDLETIMER.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+	1. Software transitioning _PAGE_RW 1=>0
+	2. The CPU page walker trying to set
+	   _PAGE_DIRTY in response to a write
 
-diff --git a/net/netfilter/xt_IDLETIMER.c b/net/netfilter/xt_IDLETIMER.c
-index 9f54819eb52ca28a6ef6544249e864f17ca3de7a..9082155ee558933c640f51f1a6fec8ccdc1f0fa2 100644
---- a/net/netfilter/xt_IDLETIMER.c
-+++ b/net/netfilter/xt_IDLETIMER.c
-@@ -168,7 +168,7 @@ static int idletimer_tg_create(struct idletimer_tg_info *info)
- 	INIT_WORK(&info->timer->work, idletimer_tg_work);
- 
- 	mod_timer(&info->timer->timer,
--		  msecs_to_jiffies(info->timeout * 1000) + jiffies);
-+		  secs_to_jiffies(info->timeout) + jiffies);
- 
- 	return 0;
- 
-@@ -229,7 +229,7 @@ static int idletimer_tg_create_v1(struct idletimer_tg_info_v1 *info)
- 	} else {
- 		timer_setup(&info->timer->timer, idletimer_tg_expired, 0);
- 		mod_timer(&info->timer->timer,
--				msecs_to_jiffies(info->timeout * 1000) + jiffies);
-+				secs_to_jiffies(info->timeout) + jiffies);
- 	}
- 
- 	return 0;
-@@ -254,7 +254,7 @@ static unsigned int idletimer_tg_target(struct sk_buff *skb,
- 		 info->label, info->timeout);
- 
- 	mod_timer(&info->timer->timer,
--		  msecs_to_jiffies(info->timeout * 1000) + jiffies);
-+		  secs_to_jiffies(info->timeout) + jiffies);
- 
- 	return XT_CONTINUE;
- }
-@@ -275,7 +275,7 @@ static unsigned int idletimer_tg_target_v1(struct sk_buff *skb,
- 		alarm_start_relative(&info->timer->alarm, tout);
- 	} else {
- 		mod_timer(&info->timer->timer,
--				msecs_to_jiffies(info->timeout * 1000) + jiffies);
-+				secs_to_jiffies(info->timeout) + jiffies);
- 	}
- 
- 	return XT_CONTINUE;
-@@ -320,7 +320,7 @@ static int idletimer_tg_checkentry(const struct xt_tgchk_param *par)
- 	if (info->timer) {
- 		info->timer->refcnt++;
- 		mod_timer(&info->timer->timer,
--			  msecs_to_jiffies(info->timeout * 1000) + jiffies);
-+			  secs_to_jiffies(info->timeout) + jiffies);
- 
- 		pr_debug("increased refcnt of timer %s to %u\n",
- 			 info->label, info->timer->refcnt);
-@@ -382,7 +382,7 @@ static int idletimer_tg_checkentry_v1(const struct xt_tgchk_param *par)
- 			}
- 		} else {
- 				mod_timer(&info->timer->timer,
--					msecs_to_jiffies(info->timeout * 1000) + jiffies);
-+					secs_to_jiffies(info->timeout) + jiffies);
- 		}
- 		pr_debug("increased refcnt of timer %s to %u\n",
- 			 info->label, info->timer->refcnt);
+and end up with a Write=0,Dirty=1 PTE.
 
--- 
-2.43.0
+That doesn't happen for kernel memory because most or all of the PTEs
+that the kernel establishes have _PAGE_DIRTY=1 so the page walker never
+tries to set _PAGE_DIRTY. It's also generally some kind of a bug if one
+CPU is in the kernel trying to write to a page while another is making
+the page read-only.
 
+Anyway, I can basically see cases where this warning might trip, but
+it's very likely on older hardware when the kernel is doing something
+else silly.
