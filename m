@@ -1,49 +1,77 @@
-Received: from smtp.gentoo.org (woodpecker.gentoo.org [140.211.166.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37CDC1F5838;
-	Wed, 19 Feb 2025 14:06:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 760A185C5E;
+	Wed, 19 Feb 2025 15:21:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739974009; cv=none; b=G4Qxce8kzq9TmO7VM2/KIKizMNQmqe5dZ2ImH5cgiTR296cXk5yPn5xt1IH54Yglf/bTivGcWI5mn6R6UIxyqSovfD4tftrNqQLGtmsWW2V53lHwiygv/tKhL2G3awjJ7ptq+KgyVi2Wds6Rf/OidfwIXuHA0P9oIDz6+sDGpyo=
+	t=1739978519; cv=none; b=btjLN5IVQFU9sftt+q15/W2egIiRc2S7CtfkA0HOY3/lEhW3wMO4amz3iDJIfuSF7okohFAlh+EHfP2fQ7HQ/y4TOqohcq86R/RjXlvTNmipYgciqq9zXVvIoHCc4GdbT3usQdnFXkBmC2uzlvRbCKsBEABlZ2AlnaQk5saJIfA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739974009; c=relaxed/simple;
-	bh=CIMKBpM/otj/+4OgQScDBpEp7jJhRHbiXbYzvPVbUbQ=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:MIME-Version:
-	 Content-Type; b=lCTlHMszaCrBJfrhY2tsC6StMKGvI74T99DMc5pncm2NFm7hNkpk9qREiRKrf/qnrmUvXcBeN3LPKw4VHXYyRr4dlJBv7+RjOeEMoYbR1MT4IOGn+gDVBJ4jQNP7jiKga00XOL2++Y1FgQu2PrdtxTbblUqRXMXxwGfYkILwe3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gentoo.org; spf=pass smtp.mailfrom=gentoo.org; arc=none smtp.client-ip=140.211.166.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gentoo.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gentoo.org
-Received: from mop.sam.mop (unknown [82.8.138.118])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: sam)
-	by smtp.gentoo.org (Postfix) with ESMTPSA id BD261343050;
-	Wed, 19 Feb 2025 14:06:42 +0000 (UTC)
-From: Sam James <sam@gentoo.org>
-To: linmag7@gmail.com
-Cc: arnd@arndb.de,chris@zankel.net,dinguyen@kernel.org,glaubitz@physik.fu-berlin.de,ink@unseen.parts,jcmvbkbc@gmail.com,kees@kernel.org,linux-alpha@vger.kernel.org,linux-arm-kernel@lists.infradead.org,linux-csky@vger.kernel.org,linux-hexagon@vger.kernel.org,linux-kernel@vger.kernel.org,linux-m68k@lists.linux-m68k.org,linux-mips@vger.kernel.org,linux-openrisc@vger.kernel.org,linux-parisc@vger.kernel.org,linux-riscv@lists.infradead.org,linux-s390@vger.kernel.org,linux-sh@vger.kernel.org,linux-snps-arc@lists.infradead.org,linux-um@lists.infradead.org,linuxppc-dev@lists.ozlabs.org,loongarch@lists.linux.dev,mattst88@gmail.com,monstr@monstr.eu,richard.henderson@linaro.org,sparclinux@vger.kernel.org,x86@kernel.org
-Subject: Re: [PATCH v2 1/1] mm: pgtable: fix pte_swp_exclusive
-In-Reply-To: <20250218175735.19882-2-linmag7@gmail.com>
-Organization: Gentoo
-User-Agent: mu4e 1.12.7; emacs 31.0.50
-Date: Wed, 19 Feb 2025 14:06:40 +0000
-Message-ID: <87cyfejafj.fsf@gentoo.org>
+	s=arc-20240116; t=1739978519; c=relaxed/simple;
+	bh=6PhGFUTZ7jEy7Fueq9ZKSMRknajhNZU7gjTbXc05EUQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=C6KZAUJvOcrh/taEmtS+XfNARZhIgfOYBPKUpwRGOSRDYdbcPXHBsvhNjKeHcY0XC3py8nquHL0SH4s3amo2WjCFkboTsUkU+lXim/9L8HkhWYySztNvgEUoRadEhyIScFm2fppaPngyaxuSdLJhKxj8SqykVXr99nH6SIMcKCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871CBC4CED1;
+	Wed, 19 Feb 2025 15:21:56 +0000 (UTC)
+Date: Wed, 19 Feb 2025 10:22:20 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, Masami
+ Hiramatsu <mhiramat@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Andrew Morton
+ <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Linus
+ Torvalds <torvalds@linux-foundation.org>, Masahiro Yamada
+ <masahiroy@kernel.org>, Nathan Chancellor <nathan@kernel.org>, Nicolas
+ Schier <nicolas@fjasle.eu>, Zheng Yejian <zhengyejian1@huawei.com>, Martin
+ Kelly <martin.kelly@crowdstrike.com>, Christophe Leroy
+ <christophe.leroy@csgroup.eu>, Josh Poimboeuf <jpoimboe@redhat.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v4 0/6] scripts/sorttable: ftrace: Remove place holders
+ for weak functions in available_filter_functions
+Message-ID: <20250219102220.3b79ec5e@gandalf.local.home>
+In-Reply-To: <20250218145836.7740B3b-hca@linux.ibm.com>
+References: <20250217153401.022858448@goodmis.org>
+	<20250218145836.7740B3b-hca@linux.ibm.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Lovely cleanup and a great suggestion from Al.
+On Tue, 18 Feb 2025 15:58:36 +0100
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-Reviewed-by: Sam James <sam@gentoo.org>
+> Hi Steven,
+> 
+> > This series removes the place holder __ftrace_invalid_address___ from
+> > the available_filter_functions file.
+> > 
+> > The rewriting of the sorttable.c code to make it more manageable
+> > has already been merged:
+> > 
+> >   https://git.kernel.org/torvalds/c/c0e75905caf368e19aab585d20151500e750de89
+> > 
+> > Now this is only for getting rid of the ftrace invalid function place holders.  
+> 
+> Since you asked me to test this on s390: seems to work with
+> HAVE_BUILDTIME_MCOUNT_SORT enabled; the ftrace selftests still
+> work as before.
 
-I'd suggest adding a:
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Great!
 
-thanks,
-sam
+I'm guessing by just adding the support in s390 with what is upstream as
+well as what is in my for-next would work? You can just add that for the
+next merge window then.
+
+Expect this code to be in linux-next later this week.
+
+-- Steve
