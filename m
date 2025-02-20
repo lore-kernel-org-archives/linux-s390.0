@@ -1,67 +1,67 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F1891EE032;
-	Thu, 20 Feb 2025 10:53:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA67B1EE032;
+	Thu, 20 Feb 2025 10:55:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740048836; cv=none; b=Y6tlNZuS2Kb64VrCKluQYCdaqv4gpvXgAHYVop+p7A2YpZFWPzV9c+ydrwlO6yYIrXrVVbHG3o+FtxNxDoRdwqFQjBosiRZ28/LjmQY9sgzRaqE7x6quwMetRlmWXUW+Sa1MuZAD+pzo7kIcma5Dz8bErgATMkGUg2INGs+1iuE=
+	t=1740048929; cv=none; b=ZqK4GvfHZxPvshFMBiUT8N09iexthmW/k88Me+UIqgDYeshCUkGMY3r3pYwPm9vrjr4cCUypYo9lTzSoXefJUMkueYETvjDIVgB4OUqOAba2yvZATQvIEFebCRkSGCeJ3lIUpxCezI6e+qUdeKyNVfkS+hnY2xKZAyZyVOuvviI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740048836; c=relaxed/simple;
-	bh=cvrlDKUc47oNUgrf8xmRGG7QI779wNiuR9EGngfmYWg=;
+	s=arc-20240116; t=1740048929; c=relaxed/simple;
+	bh=ZVhBmrsyGM13pc4FtlV7FgXQNriRkQVrrI5sFBrJxPg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lAt7G5YWeWbQ3oeTV+kl+CWL84gr9nmrs9sMmToV/ei3OnIDcETLroHqx6ZuZlBsGxlHwQrlF9zaFzF+fMwLP6aufh1G2GQzYEzX6p8Q2G+qqUKX64Pk1pfjpMokiqJtwuRX9daUKgVbgwiYYgtwOZlJSgJsfPd8qsTDdzqj7zM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=m69fhajh; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=E0cQmd1QsdPIv4Yo/6c6R+Pktgr49HBIkvS0EruGsqdqT0N5THGAYAZTU5VrDuTQYBZBzU6NmjNvq31wtmoZS2f30XvI16zag55Hfv2WoY42PlwEKUPJaEYuDysEux2SQi4LJEIx1FPGdv39DGRJMJGjEqK6fgSXID6c1nj62Dc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BCBjE3Mb; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="m69fhajh"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BCBjE3Mb"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51K9PK2f007835;
-	Thu, 20 Feb 2025 10:53:36 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51K9P5Ko007707;
+	Thu, 20 Feb 2025 10:55:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=uF7znE
-	Z9GRSVtKX2LQujf9rIx7K6OZ00qsFQj5nY6so=; b=m69fhajhgtvaLdcfPvJwpW
-	1Oaq7Oy9VbSgPt0RqeHuAGAGe1usX3REWLNaQ7pzSyJM89eqiSQD9HAD7HdFpRsZ
-	dVj5RG94W7RecF+r2JD0iBe6b3jQdyD1UJLdGI/gZbHMUf6QlJoaGPdEJN4MaCVv
-	/yumea6LxU9qTRQF0wr49ieNsYFzpImJRxAPkFnpCjIIjn9KdCecqUMZBqUyapJw
-	pdRz7jR1eji/krbOG6IbLcVa45Wy0s0BDk9hHCMeFuuvMlS/pIzx7CqsR6q8c0Ef
-	Amqe2QseNXDTCfTT96vDZi1/WVlhmuHlp4qA5yw3+fDOPC4MMZh3vjvyphFZSh3Q
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ujuHnR
+	76tvpz4/RK1mGB53DPQfOPMqw3IQtytJ4ILFE=; b=BCBjE3MbWzhhHiXm7FTfNs
+	kMYzFZ3jbJ6RpIRvdZRycbPk9IXsF3uSeak3HXGa4CgakTwR2zxVFgwVncxPAslz
+	Xe49aKbYy8btQfASk2zgOE/qicxYh9fFYWgXyBjdycn7TJa6xDyiGvYGXrN66SQp
+	bBZu+D4oKgQrcnzo+lRV4DUePkocOIhDQKsZWMDGr6AmH7qpA6B/IfFGz5mvCwWj
+	G9igAJ56eRrlMJL53PLMjD1iEu5X4cXGfZIFGbPvVGvYvv93MRAh8tB0bQI6h8VM
+	iDj/LVK9+ldPBCyv2tq3ACfRN+QA1AhsCev7XijbaEGS3dXD5bChHdhGMzpMt2Kg
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44x1qy8cdk-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44x1qy8cm3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Feb 2025 10:53:36 +0000 (GMT)
+	Thu, 20 Feb 2025 10:55:15 +0000 (GMT)
 Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51KAUl1l019570;
-	Thu, 20 Feb 2025 10:53:35 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44x1qy8cdh-1
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51KArwS1012824;
+	Thu, 20 Feb 2025 10:55:15 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44x1qy8cm0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Feb 2025 10:53:35 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51K7jjCq030118;
-	Thu, 20 Feb 2025 10:53:34 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44w01x9jjc-1
+	Thu, 20 Feb 2025 10:55:15 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51K82TDA027050;
+	Thu, 20 Feb 2025 10:55:14 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44w0259h9a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Feb 2025 10:53:34 +0000
+	Thu, 20 Feb 2025 10:55:14 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51KArWSB35914356
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51KAtCDD57606480
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Feb 2025 10:53:32 GMT
+	Thu, 20 Feb 2025 10:55:12 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C9B320040;
-	Thu, 20 Feb 2025 10:53:32 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 82FC020043;
+	Thu, 20 Feb 2025 10:55:12 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 012B420043;
-	Thu, 20 Feb 2025 10:53:32 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BF1D220040;
+	Thu, 20 Feb 2025 10:55:11 +0000 (GMT)
 Received: from [9.171.63.18] (unknown [9.171.63.18])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 20 Feb 2025 10:53:31 +0000 (GMT)
-Message-ID: <e2495b3a-81c5-4238-b766-2ab6e892b6bf@linux.ibm.com>
-Date: Thu, 20 Feb 2025 11:53:32 +0100
+	Thu, 20 Feb 2025 10:55:11 +0000 (GMT)
+Message-ID: <e44c0761-ea50-4c44-b42c-415dffdb441d@linux.ibm.com>
+Date: Thu, 20 Feb 2025 11:55:12 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,122 +69,80 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 1/3] sched/fair: introduce new scheduler group type
+Subject: Re: [RFC PATCH v2 0/3] sched/fair: introduce new scheduler group type
  group_parked
-To: Shrikanth Hegde <sshegde@linux.ibm.com>
+To: Shrikanth Hegde <sshegde@linux.ibm.com>, linux-kernel@vger.kernel.org
 Cc: mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
         vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
         rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
         vschneid@redhat.com, linuxppc-dev@lists.ozlabs.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+        linux-s390@vger.kernel.org
 References: <20250217113252.21796-1-huschle@linux.ibm.com>
- <20250217113252.21796-2-huschle@linux.ibm.com>
- <ee74de65-1b9d-4c40-aa57-52682801260a@linux.ibm.com>
+ <cc6996cc-c5c1-429d-ade0-9978b859f207@linux.ibm.com>
 From: Tobias Huschle <huschle@linux.ibm.com>
-In-Reply-To: <ee74de65-1b9d-4c40-aa57-52682801260a@linux.ibm.com>
+In-Reply-To: <cc6996cc-c5c1-429d-ade0-9978b859f207@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: LJQ2-XyjMYZZTqZ72jSpZrkSTDecBFC_
-X-Proofpoint-ORIG-GUID: 0MCLTxFzE9ZA4l4lQXYPWz0Vb7wyIHTB
+X-Proofpoint-GUID: Ct2IvKZD6_Q5Diiqy7uyOzOnkv_JcEQ6
+X-Proofpoint-ORIG-GUID: vcZh0oNL4zuZdyycl9vyld7y6w1sAvJz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-02-20_04,2025-02-20_02,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- phishscore=0 impostorscore=0 bulkscore=0 mlxlogscore=823 adultscore=0
+ phishscore=0 impostorscore=0 bulkscore=0 mlxlogscore=999 adultscore=0
  suspectscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
  mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502100000 definitions=main-2502200078
 
 
 
-On 18/02/2025 06:44, Shrikanth Hegde wrote:
+On 18/02/2025 06:58, Shrikanth Hegde wrote:
 [...]
->> @@ -1352,6 +1352,9 @@ bool sched_can_stop_tick(struct rq *rq)
->>       if (rq->cfs.h_nr_queued > 1)
->>           return false;
->> +    if (rq->cfs.nr_running > 0 && arch_cpu_parked(cpu_of(rq)))
->> +        return false;
->> +
+>>
+>> There are a couple of issues and corner cases which need further
+>> considerations:
+>> - rt & dl:      Realtime and deadline scheduling require some additional
+>>                  attention.
 > 
-> you mean rq->cfs.h_nr_queued or rq->nr_running ?
-> 
-
-cfs.h_nr_queued is probably more sensible, will use that.
-
-[...]
->> @@ -11259,6 +11293,8 @@ static inline void calculate_imbalance(struct 
->> lb_env *env, struct sd_lb_stats *s
->>    * avg_load : Only if imbalance is significant enough.
->>    * nr_idle :  dst_cpu is not busy and the number of idle CPUs is quite
->>    *            different in groups.
->> + * nr_task :  balancing can go either way depending on the number of 
->> running tasks
->> + *            per group
->>    */
-> 
-> This comment on nr_task can be removed as it is not present in the list.
+> I think we need to address atleast rt, there would be some non percpu 
+> kworker threads which need to move out of parked cpus.
 > 
 
-Consider it gone.
+Yea, sounds reasonable. Would probably make sense to go next for that one.
 
-[...]
->> @@ -11766,7 +11822,7 @@ static int sched_balance_rq(int this_cpu, 
->> struct rq *this_rq,
->>       ld_moved = 0;
->>       /* Clear this flag as soon as we find a pullable task */
->>       env.flags |= LBF_ALL_PINNED;
->> -    if (busiest->nr_running > 1) {
->> +    if (busiest->nr_running > 1 || arch_cpu_parked(busiest->cpu)) {
+>> - ext:          Probably affected as well. Needs some conceptional
+>>                  thoughts first.
+>> - raciness:     Right now, there are no synchronization efforts. It needs
+>>                  to be considered whether those might be necessary or if
+>>                  it is alright that the parked-state of a CPU might 
+>> change
+>>                  during load-balancing.
+>>
+>> Patches apply to tip:sched/core
+>>
+>> The s390 patch serves as a simplified implementation example.
 > 
-> Since there is reliance on active balance if there is single task, it 
-> think above isn't needed. Is there any usecase for it?
->
-
-Seems to work without that check. I have no particular use case in mind.
-
->>           /*
->>            * Attempt to move tasks. If sched_balance_find_src_group 
->> has found
->>            * an imbalance but busiest->nr_running <= 1, the group is
->> @@ -12356,6 +12412,11 @@ static void nohz_balancer_kick(struct rq *rq)
->>       if (time_before(now, nohz.next_balance))
->>           goto out;
->> +    if (!idle_cpu(rq->cpu)) {
->> +        flags = NOHZ_STATS_KICK | NOHZ_BALANCE_KICK;
->> +        goto out;
->> +    }
->> +
 > 
-> This could be agrressive. Note when the code comes here, it is not idle. 
-> It would bail out early if it is idle.
+> Gave it a try on powerpc with the debugfs file. it works for 
+> sched_normal tasks.
 > 
 
-It seems like we can do without this one as well.
+That's great to hear!
 
->>       if (rq->nr_running >= 2) {
->>           flags = NOHZ_STATS_KICK | NOHZ_BALANCE_KICK;
->>           goto out;
->> @@ -12767,6 +12828,9 @@ static int sched_balance_newidle(struct rq 
->> *this_rq, struct rq_flags *rf)
->>       update_misfit_status(NULL, this_rq);
->> +    if (arch_cpu_parked(this_cpu))
->> +        return 0;
->> +
->>       /*
->>        * There is a task waiting to run. No need to search for one.
->>        * Return 0; the task will be enqueued when switching to idle.
->> diff --git a/kernel/sched/syscalls.c b/kernel/sched/syscalls.c
->> index 456d339be98f..7efd76a30be7 100644
->> --- a/kernel/sched/syscalls.c
->> +++ b/kernel/sched/syscalls.c
->> @@ -214,6 +214,9 @@ int idle_cpu(int cpu)
->>           return 0;
->>   #endif
->> +    if (arch_cpu_parked(cpu))
->> +        return 0;
->> +
->>       return 1;
->>   }
+>>
+>> Tobias Huschle (3):
+>>    sched/fair: introduce new scheduler group type group_parked
+>>    sched/fair: adapt scheduler group weight and capacity for parked CPUs
+>>    s390/topology: Add initial implementation for selection of parked CPUs
+>>
+>>   arch/s390/include/asm/smp.h    |   2 +
+>>   arch/s390/kernel/smp.c         |   5 ++
+>>   include/linux/sched/topology.h |  19 ++++++
+>>   kernel/sched/core.c            |  13 ++++-
+>>   kernel/sched/fair.c            | 104 ++++++++++++++++++++++++++++-----
+>>   kernel/sched/syscalls.c        |   3 +
+>>   6 files changed, 130 insertions(+), 16 deletions(-)
+>>
 > 
 
