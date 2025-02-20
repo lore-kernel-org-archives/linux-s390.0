@@ -1,148 +1,265 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C565257438;
-	Wed, 19 Feb 2025 21:33:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E740EA29;
+	Thu, 20 Feb 2025 00:07:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740000820; cv=none; b=IHsdcOUQbu9HLejJL628TLc0ojQA0ALt6b5kDsSeVilE645PPwVw9Jr/ueWkgrhOqGv02pAIXfr6fENBHVhfjwJe3YggQXUXlqitOV86nvZ7ssCLf4miLh249Z6d4cOGaw5MAKsj62unXHuqX75RDgzJWQKbmTDq548u7+HgsWI=
+	t=1740010072; cv=none; b=d78XunpGgXJ2RsQM+4FaiT3TmBrrKrsxMooyv+FrmoDArO6GPsyNCECSpqh8XHCcruG1TplK96IkYY1WIgCdsTiC0GwgN/Vr01pSPAWOwkzKQGHxiUzkcpE0UfFZUqUbfMCPniNUyD6Xa7vifjebc3lBfD4MiaHFNmJ7RRmN7cw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740000820; c=relaxed/simple;
-	bh=2SLbVXvUTul1P3Tb6G8KWZoREquyu8OU0BLz70QyvCY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Moq+oNpgqHQAiZim7Xo9g35VjuQ/YkLCHIl49a3eHWX49u3aqR7Dg/cvWbPXDLZsd4pfaMB13FVGN9ian6QVhFynkiDn7MGcXf+gII+ACaCn1CPZKDnGZJn0b2P2tOrOgTyQoox/y5ial7DJVm5hRnB7JmA3FxQKFGhvWcrrurY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hiivaTQr; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1740010072; c=relaxed/simple;
+	bh=8c7q78y2Q6JBC3cq+n401peleGxD5+GJLp0EA7qwljg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AjdkgU6+zge2U8M7iPWT0r4IIZ6TYE8ryC7Z275jhUuprMrNqt5LsuSAGnXCSHN+GCFYY6MGJjzuv8JVif1E24Yl6gk6RhdgVT+f8QTNhIacJywro7Y1pdhBBvnZa7IimD+ZL/xDLtAvUHn2y8tJS9z5k3U307C0lj5N7mEMmag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=owhjfjY2; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hiivaTQr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740000818; x=1771536818;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=2SLbVXvUTul1P3Tb6G8KWZoREquyu8OU0BLz70QyvCY=;
-  b=hiivaTQr+J/IpUhInUvd/77FLLaGsCI/zNZ18gtPrTigsultvxMIowk9
-   Di7HWirhCXp4z9iU3fUSpe0bY9AsZ3nnYpR/YhkKdgizYq2IlWWgK8Bih
-   VMZQOnI50V0//taYIOYlRWi2+V94AIoRB6pmUipqK8BfRqOrMbhB1kq/K
-   zTb3E+9sXcmhtPWA0dAHEAE1SWb7cT5828cLopciN3vLYbl/xoueIXSCT
-   6oL2jyrBMhtKwo+BtO2rKnR90EtaITCIvulPGyuO2/1tlQoWZ0hf+H6BF
-   wd7HG27M3qEDfLJXJr9DGPkca9iSGyvLEq5oaeGMBE5gR+3zp4Wz1KAFv
-   w==;
-X-CSE-ConnectionGUID: X76l41w7TxG0jeOHh5yRBw==
-X-CSE-MsgGUID: SgvV2W6eT2K404nGAt3LHA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11350"; a="40775916"
-X-IronPort-AV: E=Sophos;i="6.13,299,1732608000"; 
-   d="scan'208";a="40775916"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 13:33:37 -0800
-X-CSE-ConnectionGUID: XXneleheS8aI0f46QupHtw==
-X-CSE-MsgGUID: /zLq0WsCR86gtLTRzeJITg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,299,1732608000"; 
-   d="scan'208";a="115370267"
-Received: from kinlongk-mobl1.amr.corp.intel.com (HELO [10.125.109.250]) ([10.125.109.250])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Feb 2025 12:53:45 -0800
-Message-ID: <940c4972-fad0-4d61-a7ce-1c5d52891a5e@intel.com>
-Date: Wed, 19 Feb 2025 12:53:41 -0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="owhjfjY2"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51JMu0mS005307;
+	Thu, 20 Feb 2025 00:07:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Aw0XHYH+vTNlvHbeC3K7LAX5ktVM0MmPSi3gK3/j5
+	iA=; b=owhjfjY2u8Nhxlv95C7h06Fc4KPPzIqTAqVt7SAiJLJDJWyu6wm9+wIlx
+	RKIAno+kKS/hyXq8S1lPuQb9SVF1uPzMwpKRS+pe4KG1L8m7VaoBkfxG+HmQMk6g
+	bkdD0dFu3X6KpitjT9RafVU8EKqgh9uhMgqVwDFkbeuHQ9XGhMcM3nBnE0e7O8aH
+	UAVzQYZjf1uqTwNmYg+cbjinvRoXIVk78cj/378utiEUrIqtbQWyyKj3dVTgIruQ
+	4aA0wtgEY9txMEfyqnbbcblji8oDaaotR+1R968g1yo7ncYtpi/rk/SmC1lCTnMm
+	kisv9ytvLQYxNu592MYXpoxeD4geg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44w650dpj5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 20 Feb 2025 00:07:46 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51JKc5dl009646;
+	Thu, 20 Feb 2025 00:07:46 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44w03y70gw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 20 Feb 2025 00:07:46 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51K07iUg23265844
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 20 Feb 2025 00:07:44 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B15C5805A;
+	Thu, 20 Feb 2025 00:07:44 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8072658051;
+	Thu, 20 Feb 2025 00:07:43 +0000 (GMT)
+Received: from li-2c1e724c-2c76-11b2-a85c-ae42eaf3cb3d.ibm.com.com (unknown [9.61.107.75])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 20 Feb 2025 00:07:43 +0000 (GMT)
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        agordeev@linux.ibm.com, gor@linux.ibm.com
+Subject: [PATCH] s390/vio-ap: Fix no AP queue sharing allowed message written to kernel log
+Date: Wed, 19 Feb 2025 19:07:38 -0500
+Message-ID: <20250220000742.2930832-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/7] x86: Remove custom definition of mk_pte()
-To: "Matthew Wilcox (Oracle)" <willy@infradead.org>, linux-mm@kvack.org
-Cc: linux-arch@vger.kernel.org, x86@kernel.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org
-References: <20250217190836.435039-1-willy@infradead.org>
- <20250217190836.435039-5-willy@infradead.org>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <20250217190836.435039-5-willy@infradead.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0jZdKi9I3Hwht56kNFrHQEnn3bawwo68
+X-Proofpoint-GUID: 0jZdKi9I3Hwht56kNFrHQEnn3bawwo68
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-19_10,2025-02-19_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
+ impostorscore=0 suspectscore=0 mlxscore=0 clxscore=1011 bulkscore=0
+ adultscore=0 phishscore=0 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502190175
 
-On 2/17/25 11:08, Matthew Wilcox (Oracle) wrote:
-> diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-> index 593f10aabd45..9f480bdafd20 100644
-> --- a/arch/x86/include/asm/pgtable.h
-> +++ b/arch/x86/include/asm/pgtable.h
-> @@ -784,6 +784,9 @@ static inline pgprotval_t check_pgprot(pgprot_t pgprot)
->  static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
->  {
->  	phys_addr_t pfn = (phys_addr_t)page_nr << PAGE_SHIFT;
-> +	/* This bit combination is used to mark shadow stacks */
-> +	WARN_ON_ONCE((pgprot_val(pgprot) & (_PAGE_DIRTY | _PAGE_RW)) ==
-> +			_PAGE_DIRTY);
+An erroneous message is written to the kernel log when either of the
+following actions are taken by a user:
 
-Looks sane to me. Good riddance to unnecessary arch-specific code.
+1. Assign an adapter or domain to a vfio_ap mediated device via its sysfs
+   assign_adapter or assign_domain attributes that would result in one or
+   more AP queues being assigned that are already assigned to a different
+   mediated device. Sharing of queues between mdevs is not allowed.
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+2. Reserve an adapter or domain for the host device driver via the AP bus
+   driver's sysfs apmask or aqmask attribute that would result in providing
+   host access to an AP queue that is in use by a vfio_ap mediated device.
+   Reserving a queue for a host driver that is in use by an mdev is not
+   allowed.
 
-Just one note (in case anyone ever trips over that WARN_ON_ONCE()): This
-is a problem with the existing code and with your patch, but the
-'pgprot' going to mk_pte() or pfn_pte() probably can't come from a
-hardware PTE that has the dirty bit clear.
+In both cases, the assignment will return an error; however, a message like
+the following is written to the kernel log:
 
-Old, pre-shadow-stack hardware could race between:
+vfio_ap_mdev e1839397-51a0-4e3c-91e0-c3b9c3d3047d: Userspace may not
+re-assign queue 00.0028 already assigned to \
+e1839397-51a0-4e3c-91e0-c3b9c3d3047d
 
-	1. Software transitioning _PAGE_RW 1=>0
-	2. The CPU page walker trying to set
-	   _PAGE_DIRTY in response to a write
+Notice the mdev reporting the error is the same as the mdev identified
+in the message as the one to which the queue is being assigned.
+It is perfectly okay to assign a queue to an mdev to which it is
+already assigned; the assignment is simply ignored by the vfio_ap device
+driver.
 
-and end up with a Write=0,Dirty=1 PTE.
+This patch logs more descriptive and accurate messages for both 1 and 2
+above to the kernel log:
 
-That doesn't happen for kernel memory because most or all of the PTEs
-that the kernel establishes have _PAGE_DIRTY=1 so the page walker never
-tries to set _PAGE_DIRTY. It's also generally some kind of a bug if one
-CPU is in the kernel trying to write to a page while another is making
-the page read-only.
+Example for 1:
+vfio_ap_mdev 0fe903a0-a323-44db-9daf-134c68627d61: Userspace may not assign
+queue 00.0033 to mdev: already assigned to \
+62177883-f1bb-47f0-914d-32a22e3a8804
 
-Anyway, I can basically see cases where this warning might trip, but
-it's very likely on older hardware when the kernel is doing something
-else silly.
+Example for 2:
+vfio_ap_mdev 62177883-f1bb-47f0-914d-32a22e3a8804: Can not reserve queue
+00.0033 for host driver: in use by mdev
+
+Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 73 ++++++++++++++++++++-----------
+ 1 file changed, 48 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index a52c2690933f..2ce52b491f8a 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -863,48 +863,66 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	vfio_put_device(&matrix_mdev->vdev);
+ }
+ 
+-#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
+-			 "already assigned to %s"
++#define MDEV_SHARING_ERR "Userspace may not assign queue %02lx.%04lx " \
++			 "to mdev: already assigned to %s"
+ 
+-static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *matrix_mdev,
+-					 unsigned long *apm,
+-					 unsigned long *aqm)
++#define MDEV_IN_USE_ERR "Can not reserve queue %02lx.%04lx for host driver: " \
++			"in use by mdev"
++
++static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *assignee,
++					 struct ap_matrix_mdev *assigned_to,
++					 unsigned long *apm, unsigned long *aqm)
+ {
+ 	unsigned long apid, apqi;
+-	const struct device *dev = mdev_dev(matrix_mdev->mdev);
+-	const char *mdev_name = dev_name(dev);
+ 
+ 	for_each_set_bit_inv(apid, apm, AP_DEVICES)
+ 		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
+-			dev_warn(dev, MDEV_SHARING_ERR, apid, apqi, mdev_name);
++			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
++				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev)));
+ }
+ 
+-/**
++static void vfio_ap_mdev_log_in_use_err(struct ap_matrix_mdev *assignee,
++					unsigned long *apm, unsigned long *aqm)
++{
++	unsigned long apid, apqi;
++
++	for_each_set_bit_inv(apid, apm, AP_DEVICES)
++		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
++			dev_warn(mdev_dev(assignee->mdev), MDEV_IN_USE_ERR,
++				 apid, apqi);
++}
++
++/**assigned
+  * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by matrix mdevs
+  *
++ * @assignee the matrix mdev to which @mdev_apm and @mdev_aqm are being
++ *           assigned; or, NULL if this function was called by the AP bus driver
++ *           in_use callback to verify none of the APQNs being reserved for the
++ *           host device driver are in use by a vfio_ap mediated device
+  * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+  * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+  *
+- * Verifies that each APQN derived from the Cartesian product of a bitmap of
+- * AP adapter IDs and AP queue indexes is not configured for any matrix
+- * mediated device. AP queue sharing is not allowed.
++ * Verifies that each APQN derived from the Cartesian product of APIDs
++ * represented by the bits set in @mdev_apm and the APQIs of the bits set in
++ * @mdev_aqm is not assigned to a mediated device other than the mdev to which
++ * the APQN is being assigned (@assignee). AP queue sharing is not allowed.
+  *
+  * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
+  */
+-static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
++static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *assignee,
++					  unsigned long *mdev_apm,
+ 					  unsigned long *mdev_aqm)
+ {
+-	struct ap_matrix_mdev *matrix_mdev;
++	struct ap_matrix_mdev *assigned_to;
+ 	DECLARE_BITMAP(apm, AP_DEVICES);
+ 	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ 
+-	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
++	list_for_each_entry(assigned_to, &matrix_dev->mdev_list, node) {
+ 		/*
+-		 * If the input apm and aqm are fields of the matrix_mdev
+-		 * object, then move on to the next matrix_mdev.
++		 * If the mdev to which the mdev_apm and mdev_aqm is being
++		 * assigned is the same as the mdev being verified
+ 		 */
+-		if (mdev_apm == matrix_mdev->matrix.apm &&
+-		    mdev_aqm == matrix_mdev->matrix.aqm)
++		if (assignee == assigned_to)
+ 			continue;
+ 
+ 		memset(apm, 0, sizeof(apm));
+@@ -912,17 +930,21 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+ 
+ 		/*
+ 		 * We work on full longs, as we can only exclude the leftover
+-		 * bits in non-inverse order. The leftover is all zeros.
++		 * bits in non-inverse order. The leftover is all zeros.assigned
+ 		 */
+-		if (!bitmap_and(apm, mdev_apm, matrix_mdev->matrix.apm,
++		if (!bitmap_and(apm, mdev_apm, assigned_to->matrix.apm,
+ 				AP_DEVICES))
+ 			continue;
+ 
+-		if (!bitmap_and(aqm, mdev_aqm, matrix_mdev->matrix.aqm,
++		if (!bitmap_and(aqm, mdev_aqm, assigned_to->matrix.aqm,
+ 				AP_DOMAINS))
+ 			continue;
+ 
+-		vfio_ap_mdev_log_sharing_err(matrix_mdev, apm, aqm);
++		if (assignee)
++			vfio_ap_mdev_log_sharing_err(assignee, assigned_to,
++						     apm, aqm);
++		else
++			vfio_ap_mdev_log_in_use_err(assigned_to, apm, aqm);
+ 
+ 		return -EADDRINUSE;
+ 	}
+@@ -951,7 +973,8 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
+ 					       matrix_mdev->matrix.aqm))
+ 		return -EADDRNOTAVAIL;
+ 
+-	return vfio_ap_mdev_verify_no_sharing(matrix_mdev->matrix.apm,
++	return vfio_ap_mdev_verify_no_sharing(matrix_mdev,
++					      matrix_mdev->matrix.apm,
+ 					      matrix_mdev->matrix.aqm);
+ }
+ 
+@@ -2458,7 +2481,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
+ 
+ 	mutex_lock(&matrix_dev->guests_lock);
+ 	mutex_lock(&matrix_dev->mdevs_lock);
+-	ret = vfio_ap_mdev_verify_no_sharing(apm, aqm);
++	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
+ 	mutex_unlock(&matrix_dev->guests_lock);
+ 
+-- 
+2.47.1
+
