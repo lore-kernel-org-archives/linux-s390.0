@@ -1,154 +1,308 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA8AE20B211;
-	Thu, 20 Feb 2025 16:44:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 476251FF610;
+	Fri, 21 Feb 2025 07:56:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740069881; cv=none; b=VtmhRjP6qgPteJ2pyGMxf/YVbk1ksm8icJnWzDtOP0dBr8Ue1qWcQNM/f9feZgLay/U9VbFXxEV7yvmySgVkAf2Mo7CFZIyAzXK3wKL48a05dCn3Ca5V/MPInErPfMGkKsJoK/cCsa7K1r/8KX7xYbfmXSz7XCkCRdBPfn3BJ/c=
+	t=1740124588; cv=none; b=J9eUeqq4rUwGGrH5msOVhMhFsFjxxzdDOrDVu/OUTLMQJEbON//SSUVTvZLm+29aX/iXIsqSIGLFQgIDfVxD5TCwGs3W8pQ93IJvpYCPzr3zS0Y/742GyvuWbsySP9rnPdunYeEqrBOpnNEVUIb2ha8cCSN8GvjVI9nOAdNKWfI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740069881; c=relaxed/simple;
-	bh=s+DTl6tU3kF08I2UyldTi/y0xQ6rl5/cP2qUtibkU/w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KloeYfNcHB1Bs8B2wbpjYfGlM/qg5KPEa/AJVFv/QjTQDJiV0F9AKZ/R72gRTqUoYuXz2hOUCOI+K5dPBvMfJ05R9nfEscMoIywj67f5+T3Wxq/WhZEmVUeEkphIZ2HKGyrF2Tw1SfV032QwVWkcVrVq5m+q1GuROujqnQLsnZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fg2ZdEdZ; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1740124588; c=relaxed/simple;
+	bh=o+QUEtONbmalO3iHUP+gO1dTRbynEFsTw1lum/2sQJg=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=Ik+/iiu5tzynuiPWecKXIG++VJfQCW7gYHyZTPEJF6+WJzbCFMCGOxizk8e1oLDmcLC0jNzupjSmO7IQ/7t7oHy+W2ha6T9oEE1sxvg/6ttoGHlQjZvF+jRqMchcDIQKHIKKCENiO6KeHRyPol632XawI4b2tnRaeSiw4ik7drI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=A29srHDS; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fg2ZdEdZ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51KBld33001689;
-	Thu, 20 Feb 2025 16:43:55 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="A29srHDS"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51L5OUSo002626;
+	Fri, 21 Feb 2025 07:56:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=2phGq1PASew3t0QitT+lz7mcsTOMpz
-	4L7ee8QirsuZU=; b=Fg2ZdEdZwarsWS57pS+/6IXcUxTrTtCLnhG9CBGZ/7HGWi
-	4zAWb3M539K8KPS0Ajmb/PEzTqkGG38Ai+zL1gYVY4anEms/XTxHY28EJ4xlx/AF
-	IUn+cXfqtcI5hv4hzHC4AL7ugPq0hKMuYbyTtcKHIbdd6lb7tMPr95gbVbiNVJH+
-	yzBsnvN0hGYuWJxvHvbXddPIPPhMLHzGJxo+0NEWCwpR/A6b6JLE7YAgE1qftFmU
-	X8qdol1P5giI4dqT57n6qb3N89dOmr8ZV58kAi7tkbB+YnfIhyNfQnGQOLkoz4M2
-	sXSo3k/o/GFXMpo2IP6vEkxcgwZaMd1wbjpTThkQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44wtfa4552-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=Wabv1Ir4kV4dUnykC2n2IgUYyZ9+Qc4PLzScfM1u5Bk=; b=A29srHDSqEV7
+	KfgGP3Tg7x8htoE1EqK84MH6BUjJSECa5cPi44R2yaLYKuoaApRGE2p8MBZjNn/R
+	NzDTmC4AIwd/tLte0B2TBflBRUeyRyFytgTvQRl7nwmj5XTWYX101Ri3JZ5fi5tr
+	dl34QFxPx0kTCymN+zrTY9P2l1330/lKmhjSH8XftTyLMAFNrBCjmZ1TUaL8qB2o
+	VDHa8p5taMXKEn5GToA4QhsnE0oSgWZ1H7pMaIs1wtlUV/OFIhuYjumlShjVbWV4
+	kAHy/kT8jJiP447xa50brsoHUOAx36Lm9mBXVmLyaAgE0tHBhaY9esr8UiF0yEDQ
+	nTO0+ZblDQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44xka8gmba-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Feb 2025 16:43:55 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51KGhsmH028733;
-	Thu, 20 Feb 2025 16:43:54 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44wtfa454x-1
+	Fri, 21 Feb 2025 07:56:22 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51L5hKHK002330;
+	Fri, 21 Feb 2025 07:56:21 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44w03xep7r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Feb 2025 16:43:54 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51KF7PST027113;
-	Thu, 20 Feb 2025 16:43:53 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44w025b1sh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Feb 2025 16:43:53 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51KGhnA118088388
+	Fri, 21 Feb 2025 07:56:21 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51L7uJM525887294
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Feb 2025 16:43:49 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A8F0820043;
-	Thu, 20 Feb 2025 16:43:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4888520040;
-	Thu, 20 Feb 2025 16:43:49 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 20 Feb 2025 16:43:49 +0000 (GMT)
-Date: Thu, 20 Feb 2025 17:43:48 +0100
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Dave Young <dyoung@redhat.com>
-Cc: Alexander Graf <graf@amazon.com>, Mike Rapoport <rppt@kernel.org>,
-        linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Anthony Yznaga <anthony.yznaga@oracle.com>,
-        Arnd Bergmann <arnd@arndb.de>, Ashish Kalra <ashish.kalra@amd.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Eric Biederman <ebiederm@xmission.com>, Ingo Molnar <mingo@redhat.com>,
-        James Gowans <jgowans@amazon.com>, Jonathan Corbet <corbet@lwn.net>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Pasha Tatashin <pasha.tatashin@soleen.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pratyush Yadav <ptyadav@amazon.de>, Rob Herring <robh+dt@kernel.org>,
-        Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@google.com>,
-        Stanislav Kinsburskii <skinsburskii@linux.microsoft.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Usama Arif <usama.arif@bytedance.com>, Will Deacon <will@kernel.org>,
-        devicetree@vger.kernel.org, kexec@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
-        linux-mm@kvack.org, x86@kernel.org, Philipp Rudo <prudo@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 00/14] kexec: introduce Kexec HandOver (KHO)
-Message-ID: <Z7dbxJNxlW2EA_aa@tuxmaker.boeblingen.de.ibm.com>
-References: <20250206132754.2596694-1-rppt@kernel.org>
- <CALu+AoRMQyRDFS_4L0KQkmrFT_S+yk=uZ-Mqt86JQYKKnj-5Ug@mail.gmail.com>
- <Z7WJD6eBLuIRnLwk@kernel.org>
- <CALu+AoSaEthfed1NOYPiQgm_g-dhibVMRAp0+=_+9qTT4_x=tg@mail.gmail.com>
- <d8c43707-65a2-4176-85e2-acdb4c9d16ad@amazon.com>
- <CALu+AoR0BbmbZeOkLU55OpD8kxGsVnFs+pXgEC9Y_MpB4=GMvQ@mail.gmail.com>
+	Fri, 21 Feb 2025 07:56:19 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5F78B58067;
+	Fri, 21 Feb 2025 07:56:19 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B457058056;
+	Fri, 21 Feb 2025 07:56:18 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 21 Feb 2025 07:56:18 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALu+AoR0BbmbZeOkLU55OpD8kxGsVnFs+pXgEC9Y_MpB4=GMvQ@mail.gmail.com>
+Date: Fri, 21 Feb 2025 08:56:18 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Anthony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
+        pasic@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, alex.williamson@redhat.com,
+        kwankhede@nvidia.com, agordeev@linux.ibm.com, gor@linux.ibm.com
+Subject: Re: [PATCH] s390/vio-ap: Fix no AP queue sharing allowed message
+ written to kernel log
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <20250220000742.2930832-1-akrowiak@linux.ibm.com>
+References: <20250220000742.2930832-1-akrowiak@linux.ibm.com>
+Message-ID: <96e34cc993a7ce76431ed27c4789736e@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 02CmlzRAvH6gUhNjDul_d5grRXN4j5Cf
-X-Proofpoint-GUID: vqtrf0KyRdj5sNl93G5J7u-LcnzQFqNz
+X-Proofpoint-GUID: AAKSlSx7_aADwkOaXe9rveOcYqZEhb0K
+X-Proofpoint-ORIG-GUID: AAKSlSx7_aADwkOaXe9rveOcYqZEhb0K
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-20_07,2025-02-20_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 mlxlogscore=660
- bulkscore=0 phishscore=0 malwarescore=0 mlxscore=0 adultscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2502200116
+ definitions=2025-02-21_01,2025-02-20_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1011
+ priorityscore=1501 mlxscore=0 suspectscore=0 lowpriorityscore=0
+ adultscore=0 phishscore=0 spamscore=0 malwarescore=0 impostorscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502210055
 
-On Thu, Feb 20, 2025 at 09:49:52AM +0800, Dave Young wrote:
-> On Wed, 19 Feb 2025 at 21:55, Alexander Graf <graf@amazon.com> wrote:
-> > >>> What architecture exactly does this KHO work fine?   Device Tree
-> > >>> should be ok on arm*, x86 and power*, but how about s390?
-> > >> KHO does not use device tree as the boot protocol, it uses FDT as a data
-> > >> structure and adds architecture specific bits to the boot structures to
-> > >> point to that data, very similar to how IMA_KEXEC works.
-> > >>
-> > >> Currently KHO is implemented on arm64 and x86, but there is no fundamental
-> > >> reason why it wouldn't work on any architecture that supports kexec.
-> > > Well,  the problem is whether there is a way to  add dtb in the early
-> > > boot path,  for X86 it is added via setup_data,  if there is no such
-> > > way I'm not sure if it is doable especially for passing some info for
-> > > early boot use.  Then the KHO will be only for limited use cases.
-> >
-> >
-> > Every architecture has a platform specific way of passing data into the
-> > kernel so it can find its command line and initrd. S390x for example has
-> > struct parmarea. To enable s390x, you would remove some of its padding
-> > and replace it with a KHO base addr + size, so that the new kernel can
-> > find the KHO state tree.
+On 2025-02-20 01:07, Anthony Krowiak wrote:
+> An erroneous message is written to the kernel log when either of the
+> following actions are taken by a user:
 > 
-> Ok, thanks for the info,  I cced s390 people maybe they can provide inputs.
+> 1. Assign an adapter or domain to a vfio_ap mediated device via its 
+> sysfs
+>    assign_adapter or assign_domain attributes that would result in one 
+> or
+>    more AP queues being assigned that are already assigned to a 
+> different
+>    mediated device. Sharing of queues between mdevs is not allowed.
+> 
+> 2. Reserve an adapter or domain for the host device driver via the AP 
+> bus
+>    driver's sysfs apmask or aqmask attribute that would result in 
+> providing
+>    host access to an AP queue that is in use by a vfio_ap mediated 
+> device.
+>    Reserving a queue for a host driver that is in use by an mdev is not
+>    allowed.
+> 
+> In both cases, the assignment will return an error; however, a message 
+> like
+> the following is written to the kernel log:
+> 
+> vfio_ap_mdev e1839397-51a0-4e3c-91e0-c3b9c3d3047d: Userspace may not
+> re-assign queue 00.0028 already assigned to \
+> e1839397-51a0-4e3c-91e0-c3b9c3d3047d
+> 
+> Notice the mdev reporting the error is the same as the mdev identified
+> in the message as the one to which the queue is being assigned.
+> It is perfectly okay to assign a queue to an mdev to which it is
+> already assigned; the assignment is simply ignored by the vfio_ap 
+> device
+> driver.
+> 
+> This patch logs more descriptive and accurate messages for both 1 and 2
+> above to the kernel log:
+> 
+> Example for 1:
+> vfio_ap_mdev 0fe903a0-a323-44db-9daf-134c68627d61: Userspace may not 
+> assign
+> queue 00.0033 to mdev: already assigned to \
+> 62177883-f1bb-47f0-914d-32a22e3a8804
+> 
+> Example for 2:
+> vfio_ap_mdev 62177883-f1bb-47f0-914d-32a22e3a8804: Can not reserve 
+> queue
+> 00.0033 for host driver: in use by mdev
+> 
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 73 ++++++++++++++++++++-----------
+>  1 file changed, 48 insertions(+), 25 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c
+> b/drivers/s390/crypto/vfio_ap_ops.c
+> index a52c2690933f..2ce52b491f8a 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -863,48 +863,66 @@ static void vfio_ap_mdev_remove(struct 
+> mdev_device *mdev)
+>  	vfio_put_device(&matrix_mdev->vdev);
+>  }
+> 
+> -#define MDEV_SHARING_ERR "Userspace may not re-assign queue 
+> %02lx.%04lx " \
+> -			 "already assigned to %s"
+> +#define MDEV_SHARING_ERR "Userspace may not assign queue %02lx.%04lx " 
+> \
+> +			 "to mdev: already assigned to %s"
+> 
+> -static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev 
+> *matrix_mdev,
+> -					 unsigned long *apm,
+> -					 unsigned long *aqm)
+> +#define MDEV_IN_USE_ERR "Can not reserve queue %02lx.%04lx for host 
+> driver: " \
+> +			"in use by mdev"
+> +
+> +static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev 
+> *assignee,
+> +					 struct ap_matrix_mdev *assigned_to,
+> +					 unsigned long *apm, unsigned long *aqm)
+>  {
+>  	unsigned long apid, apqi;
+> -	const struct device *dev = mdev_dev(matrix_mdev->mdev);
+> -	const char *mdev_name = dev_name(dev);
+> 
+>  	for_each_set_bit_inv(apid, apm, AP_DEVICES)
+>  		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
+> -			dev_warn(dev, MDEV_SHARING_ERR, apid, apqi, mdev_name);
+> +			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
+> +				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev)));
+>  }
+> 
+> -/**
+> +static void vfio_ap_mdev_log_in_use_err(struct ap_matrix_mdev 
+> *assignee,
+> +					unsigned long *apm, unsigned long *aqm)
+> +{
+> +	unsigned long apid, apqi;
+> +
+> +	for_each_set_bit_inv(apid, apm, AP_DEVICES)
+> +		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
+> +			dev_warn(mdev_dev(assignee->mdev), MDEV_IN_USE_ERR,
+> +				 apid, apqi);
+> +}
+> +
+> +/**assigned
+>   * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by 
+> matrix mdevs
+>   *
+> + * @assignee the matrix mdev to which @mdev_apm and @mdev_aqm are 
+> being
+> + *           assigned; or, NULL if this function was called by the AP
+> bus driver
+> + *           in_use callback to verify none of the APQNs being 
+> reserved for the
+> + *           host device driver are in use by a vfio_ap mediated 
+> device
+>   * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+>   * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+>   *
+> - * Verifies that each APQN derived from the Cartesian product of a 
+> bitmap of
+> - * AP adapter IDs and AP queue indexes is not configured for any 
+> matrix
+> - * mediated device. AP queue sharing is not allowed.
+> + * Verifies that each APQN derived from the Cartesian product of APIDs
+> + * represented by the bits set in @mdev_apm and the APQIs of the bits 
+> set in
+> + * @mdev_aqm is not assigned to a mediated device other than the mdev 
+> to which
+> + * the APQN is being assigned (@assignee). AP queue sharing is not 
+> allowed.
+>   *
+>   * Return: 0 if the APQNs are not shared; otherwise return 
+> -EADDRINUSE.
+>   */
+> -static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+> +static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev 
+> *assignee,
+> +					  unsigned long *mdev_apm,
+>  					  unsigned long *mdev_aqm)
+>  {
+> -	struct ap_matrix_mdev *matrix_mdev;
+> +	struct ap_matrix_mdev *assigned_to;
+>  	DECLARE_BITMAP(apm, AP_DEVICES);
+>  	DECLARE_BITMAP(aqm, AP_DOMAINS);
+> 
+> -	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +	list_for_each_entry(assigned_to, &matrix_dev->mdev_list, node) {
+>  		/*
+> -		 * If the input apm and aqm are fields of the matrix_mdev
+> -		 * object, then move on to the next matrix_mdev.
+> +		 * If the mdev to which the mdev_apm and mdev_aqm is being
+> +		 * assigned is the same as the mdev being verified
+>  		 */
+> -		if (mdev_apm == matrix_mdev->matrix.apm &&
+> -		    mdev_aqm == matrix_mdev->matrix.aqm)
+> +		if (assignee == assigned_to)
+>  			continue;
+> 
+>  		memset(apm, 0, sizeof(apm));
+> @@ -912,17 +930,21 @@ static int
+> vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+> 
+>  		/*
+>  		 * We work on full longs, as we can only exclude the leftover
+> -		 * bits in non-inverse order. The leftover is all zeros.
+> +		 * bits in non-inverse order. The leftover is all zeros.assigned
+>  		 */
+> -		if (!bitmap_and(apm, mdev_apm, matrix_mdev->matrix.apm,
+> +		if (!bitmap_and(apm, mdev_apm, assigned_to->matrix.apm,
+>  				AP_DEVICES))
+>  			continue;
+> 
+> -		if (!bitmap_and(aqm, mdev_aqm, matrix_mdev->matrix.aqm,
+> +		if (!bitmap_and(aqm, mdev_aqm, assigned_to->matrix.aqm,
+>  				AP_DOMAINS))
+>  			continue;
+> 
+> -		vfio_ap_mdev_log_sharing_err(matrix_mdev, apm, aqm);
+> +		if (assignee)
+> +			vfio_ap_mdev_log_sharing_err(assignee, assigned_to,
+> +						     apm, aqm);
+> +		else
+> +			vfio_ap_mdev_log_in_use_err(assigned_to, apm, aqm);
+> 
+>  		return -EADDRINUSE;
+>  	}
+> @@ -951,7 +973,8 @@ static int vfio_ap_mdev_validate_masks(struct
+> ap_matrix_mdev *matrix_mdev)
+>  					       matrix_mdev->matrix.aqm))
+>  		return -EADDRNOTAVAIL;
+> 
+> -	return vfio_ap_mdev_verify_no_sharing(matrix_mdev->matrix.apm,
+> +	return vfio_ap_mdev_verify_no_sharing(matrix_mdev,
+> +					      matrix_mdev->matrix.apm,
+>  					      matrix_mdev->matrix.aqm);
+>  }
+> 
+> @@ -2458,7 +2481,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long
+> *apm, unsigned long *aqm)
+> 
+>  	mutex_lock(&matrix_dev->guests_lock);
+>  	mutex_lock(&matrix_dev->mdevs_lock);
+> -	ret = vfio_ap_mdev_verify_no_sharing(apm, aqm);
+> +	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
+>  	mutex_unlock(&matrix_dev->mdevs_lock);
+>  	mutex_unlock(&matrix_dev->guests_lock);
 
-If I understand correctly, the parmarea would be used for passing the
-FDT address - which appears to be fine. However, s390 does not implement
-early_memremap()/early_memunmap(), which KHO needs.
-
-Thanks, Dave!
+I don't see exactly where you do the printk but according to your
+description you do an error log. I would suggest to lower this
+to a warning instead.
