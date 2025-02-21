@@ -1,69 +1,47 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 367891E0DD8;
-	Fri, 21 Feb 2025 09:57:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1C99B2066FB;
+	Fri, 21 Feb 2025 11:02:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740131856; cv=none; b=KHngZUWjxyuZjexcyWqGM9Bwszl+g1Onqj2RhUujkflfLJGcRP9Fk7a8+ohdYYQVgsLWA5R6kNbAJKr1NLuNEqyUYWv3xOd/dGMPX9kHP8wflZUdh1isRFdDOaXddNFXhHPe9Y4Y0qNCqOxvsMQQ681ZNbrkoeMBz4GKSXPD5uA=
+	t=1740135763; cv=none; b=A5YqGNoWLeiiQQv/E90xdp7MTzH0Et4vsdpu8I3w9/ldmSsaMZMRY9wfxYHmHi4SKQFn4AJMbTaHsCRaPdAXd4rc/IZaB35hrFFiRl6WkNTXoOfjWyGzv9D2WdO3Lcg3N9P1iYGBba25j1W2TIKhgUpL6K59Ysw20ksEJRcwzYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740131856; c=relaxed/simple;
-	bh=sXVw593ZoC57ceMork7Q3pTrmmGOhTUQ6LtS88ZFKaw=;
+	s=arc-20240116; t=1740135763; c=relaxed/simple;
+	bh=kj4d0d41STTV9L3rbd8n4L8j2d2EbKeh7wEJWkAUSYE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tOPjWzlQy/URFI6qaTi+G0vQnIAHiP5j3bPoLKU+QrvqHFpH2gzYm//flgczk+8CSNn81EfkDAKu/iVcee1dtOs646HUkBM0o4PBesPX/I4V7WG0q6RbFyKk8xC4/CZona3BUR/eLey8a4T/Wb0vU844Kk02RWdRixcdy5lexMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Dgm2Flvx; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=QDLeyPksXoQV9vGrfESO6MXnsS7BxZyhScBkR7lLtJvjFID84RViWYAcSWQzJ+Tr8WIUvhgR2AXP4HBHcfla4wZtOR0eOBANSBjgDD3hVJ2mHPvK3z4XoN+Zyk9Uyg96DmmCeQU0bJQ7SVZ8If2IGeiq6BeELDw7NK5TaCBvCTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b=efRkc6S9; arc=none smtp.client-ip=85.214.250.239
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Dgm2Flvx"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51L21f7W003042;
-	Fri, 21 Feb 2025 09:57:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=NI12m+UKWkD+/nsc1GrJ/rdFIwb5em
-	pNDly47W5Tu6g=; b=Dgm2FlvxbI0rVlJsHTUoBjwzrYWTLyBrCao6PDXzpjRaWd
-	DKeNhY6q2AcCpYKwlwfHKS7eX7N0LIf3Va84MiDAfgnRR8ye3SdLRWzmwL3/xelt
-	l9JeUklrNfP/1W1XHBR5E+8NurIxqxg7SZtFPRZ2OkdZ3d1jvNgZa5Ct/gJWM/cc
-	Wmy4X7DKKebRm9jKA27dPoHICgL7Da88l234pvbHT1ZhHv97WYLOjsLbpvBJ4zHr
-	C57ucMx8AXrPgjaTSbFMSDTu8IPgfwVuymasYCTjJLp6sbyTF636Q0VoLn+cCorv
-	G3N3RhOdjF2UdOhh7apIbQCuOSbsvYCLhQS8uJog==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44xgb09t08-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Feb 2025 09:57:30 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51L9CtSm029303;
-	Fri, 21 Feb 2025 09:57:30 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44w024q6dq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Feb 2025 09:57:30 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51L9vObT35848822
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Feb 2025 09:57:24 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1ACDC201E6;
-	Fri, 21 Feb 2025 09:57:24 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F359820158;
-	Fri, 21 Feb 2025 09:57:20 +0000 (GMT)
-Received: from osiris (unknown [9.179.14.8])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 21 Feb 2025 09:57:20 +0000 (GMT)
-Date: Fri, 21 Feb 2025 10:57:19 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Anthony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        pasic@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, alex.williamson@redhat.com,
-        kwankhede@nvidia.com, agordeev@linux.ibm.com, gor@linux.ibm.com
-Subject: Re: [PATCH] s390/vio-ap: Fix no AP queue sharing allowed message
- written to kernel log
-Message-ID: <20250221095719.11661Ba2-hca@linux.ibm.com>
-References: <20250220000742.2930832-1-akrowiak@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b="efRkc6S9"
+Received: from 8bytes.org (p4ffe03ae.dip0.t-ipconnect.de [79.254.3.174])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.8bytes.org (Postfix) with ESMTPSA id 4AAAE42FC0;
+	Fri, 21 Feb 2025 12:02:34 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
+	s=default; t=1740135754;
+	bh=kj4d0d41STTV9L3rbd8n4L8j2d2EbKeh7wEJWkAUSYE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=efRkc6S9UE9J/RtnztI1PsUPpiWWOB6d5HvnsxnbewjzKdWjmg2r53hAVFdanm05e
+	 1gdZdnqBKvssNIGBPOkK4x2yIM0WhsThUBzj9eioHcZ08r+w4hO6i01g6t33bNRFq9
+	 tPoyDszUT88tuRRjswz+479soi1xVin29Vp8RosqVOl8zgiw4ZkvMODuRf8zubOEGT
+	 dCo9MsxwJECMAfIODisbQwZfoQnA0Db3sdBQJdpaF59e0aDDsxSbFwdJ1czIPOUv5k
+	 QFWKE/G0T0fVCOZLpznSKatAz2r/0I83QykeTx/Q4a1uX4islC1CvqeEANf/01NGur
+	 sXR+FJeMDQLyg==
+Date: Fri, 21 Feb 2025 12:02:33 +0100
+From: Joerg Roedel <joro@8bytes.org>
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: will@kernel.org, robin.murphy@arm.com, gerald.schaefer@linux.ibm.com,
+	schnelle@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+	agordeev@linux.ibm.com, svens@linux.ibm.com,
+	borntraeger@linux.ibm.com, farman@linux.ibm.com,
+	clegoate@redhat.com, jgg@nvidia.com, iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v5 0/4] iommu/s390: add support for IOMMU passthrough
+Message-ID: <Z7hdSXY3N79AkZj7@8bytes.org>
+References: <20250212213418.182902-1-mjrosato@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,95 +50,49 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250220000742.2930832-1-akrowiak@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5QZpml_tscZqj1DV_1L5BLOlkKU3zM-t
-X-Proofpoint-ORIG-GUID: 5QZpml_tscZqj1DV_1L5BLOlkKU3zM-t
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-21_01,2025-02-20_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=934
- malwarescore=0 clxscore=1011 lowpriorityscore=0 suspectscore=0
- impostorscore=0 priorityscore=1501 phishscore=0 adultscore=0 mlxscore=0
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2502210072
+In-Reply-To: <20250212213418.182902-1-mjrosato@linux.ibm.com>
 
-On Wed, Feb 19, 2025 at 07:07:38PM -0500, Anthony Krowiak wrote:
-> -#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
-> -			 "already assigned to %s"
-> +#define MDEV_SHARING_ERR "Userspace may not assign queue %02lx.%04lx " \
-> +			 "to mdev: already assigned to %s"
+On Wed, Feb 12, 2025 at 04:34:14PM -0500, Matthew Rosato wrote:
+> This series introduces the ability for certain devices on s390 to bypass
+> a layer of IOMMU via the iommu.passthrough=1 option.  In order to enable
+> this, the concept of an identity domain is added to s390-iommu.  On s390,
+> IOMMU passthrough is only allowed if indicated via a special bit in s390
+> CLP data for the associated device group, otherwise we must fall back to
+> dma-iommu.
+> 
+> Changes for v5:
+> - Fixup error checking for bus_dma_region size
+> - Add review/test tags
+> 
+> Changes for v4:
+> - Additional patch to handle IOAT registration within s390-iommu.  This
+>   fixes an issue with re-registration of identity domain during events
+>   like zpci_hot_reset_device
+> - Fixup page alignment for bus_dma_region setup
+> - Dropped a few review/test tags due to above changes
+> 
+> Changes for v3:
+> - Rebase onto 6.13
+> - fixed bus_dma_region size (Niklas) 
+> 
+> Changes for v2:
+> - Remove ARCH_HAS_PHYS_TO_DMA, use bus_dma_region
+> - Remove use of def_domain_type, use 1 of 2 ops chosen at init
+> 
+> Matthew Rosato (4):
+>   s390/pci: check for relaxed translation capability
+>   s390/pci: store DMA offset in bus_dma_region
+>   iommu/s390: handle IOAT registration based on domain
+>   iommu/s390: implement iommu passthrough via identity domain
+> 
+>  arch/s390/include/asm/pci.h     |   4 +-
+>  arch/s390/include/asm/pci_clp.h |   4 +-
+>  arch/s390/kvm/pci.c             |  17 +---
+>  arch/s390/pci/pci.c             |  35 ++++----
+>  arch/s390/pci/pci_bus.c         |  25 ++++++
+>  arch/s390/pci/pci_clp.c         |   1 +
+>  arch/s390/pci/pci_sysfs.c       |  11 +--
+>  drivers/iommu/s390-iommu.c      | 138 ++++++++++++++++++++++++++------
+>  8 files changed, 168 insertions(+), 67 deletions(-)
 
-Please do not split error messages across several lines, so it is easy
-to grep such for messages. If this would have been used for printk
-directly checkpatch would have emitted a message.
-
-> +#define MDEV_IN_USE_ERR "Can not reserve queue %02lx.%04lx for host driver: " \
-> +			"in use by mdev"
-
-Same here.
-
->  	for_each_set_bit_inv(apid, apm, AP_DEVICES)
->  		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
-> -			dev_warn(dev, MDEV_SHARING_ERR, apid, apqi, mdev_name);
-> +			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
-> +				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev)));
-
-Braces are missing. Even it the above is not a bug: bodies of for
-statements must be enclosed with braces if they have more than one
-line:
-
-  	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
-  		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
-			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
-				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev))
-		}
-	}
-
-> +static void vfio_ap_mdev_log_in_use_err(struct ap_matrix_mdev *assignee,
-> +					unsigned long *apm, unsigned long *aqm)
-> +{
-> +	unsigned long apid, apqi;
-> +
-> +	for_each_set_bit_inv(apid, apm, AP_DEVICES)
-> +		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
-> +			dev_warn(mdev_dev(assignee->mdev), MDEV_IN_USE_ERR,
-> +				 apid, apqi);
-> +}
-
-Same here.
-
-> +
-> +/**assigned
->   * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by matrix mdevs
-
-Stray "assigned" - as a result this is not kernel doc anymore.
-
-> + * @assignee the matrix mdev to which @mdev_apm and @mdev_aqm are being
-> + *           assigned; or, NULL if this function was called by the AP bus driver
-> + *           in_use callback to verify none of the APQNs being reserved for the
-> + *           host device driver are in use by a vfio_ap mediated device
->   * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
->   * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
-
-Missing ":" behind @assignee. Please keep this consistent.
-
-> @@ -912,17 +930,21 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
->  
->  		/*
->  		 * We work on full longs, as we can only exclude the leftover
-> -		 * bits in non-inverse order. The leftover is all zeros.
-> +		 * bits in non-inverse order. The leftover is all zeros.assigned
->  		 */
-
-Another random "assigned" word.
-
-> +		if (assignee)
-> +			vfio_ap_mdev_log_sharing_err(assignee, assigned_to,
-> +						     apm, aqm);
-> +		else
-> +			vfio_ap_mdev_log_in_use_err(assigned_to, apm, aqm);
-
-if body with multiple lines -> braces. Or better make that
-vfio_ap_mdev_log_sharing_err() call a long line. If you want to keep
-the line-break add braces to both the if and else branch.
+Applied, thanks.
