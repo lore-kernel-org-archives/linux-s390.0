@@ -1,84 +1,107 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAFC42010FD;
-	Sat, 22 Feb 2025 08:23:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A593A20766E;
+	Sat, 22 Feb 2025 10:14:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740212595; cv=none; b=W8ixTHn+SQJIBlhQGs9EBq+b3SKhSXMpcToUbrN7Gow2CtPczaVxpRkn+GgYe9VR1AFtaOh6GzApOlbisUOMxNzX02ZdfCc/Mlo8TtglQ8odDt4lx+CVJhCS0FTjpwC4EJH7IqKTYifhwAnYUpmgEHbKzUoEALUeE1cKk7CIfho=
+	t=1740219269; cv=none; b=HLxKPDO0PKCwa4LpjbJCpQFjRuEgaOl6imvrzmy5jHWcdVFIuWi+qqFOiNPUAcyZbpLrPYzn6/BB+YMaTnuqk/4GCrYWd7H4yRF9KZ2ch3jSMbxvqwsJLhsaYDETZlEro+XlrXZVvh5Wlniuxm8CkOFRxy02ZE3aGdylYi9tUL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740212595; c=relaxed/simple;
-	bh=DyuhcNQ4BYyGgdd0YMCl2K5ih3s5StW34Q6vUfin47o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RxAXnT/eV5yXg/UCvCO/63AhH3iprW40pIZHhTkd0yS9j4Yw487cU00dPR33angBQNI4tDp9MJozBESHDcc2lmYxSE2bMP6VEdX/3PosYglW75cQ1CWyMm+hdcifQ7F6e0Gb5xxasMd6p0CoetlWRZxaqf8kxyKnlmKuxvJ7cK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=DqjTVwy/; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1740219269; c=relaxed/simple;
+	bh=ygaPhnEWXxg0PTIQSnFt/u2T3zJiHAt9hR7zOE9Myuo=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=SflJThYgdUAK1XP1AAmE2Tk2Ph+dTBnkhkvnTIcKNiTl0p9OI0+qxt4hfPyrfn4KfdPFgxpdtCmMEtOUC+uw4e19WrwERiccYJ2iDDq9+X9bbtPPG9L1FEgmqgy6Z5Q7aZQgjg/WZE9PeqnMmA5Yf3U8+Aid1woJV00jw/G837E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=E0xbOLPR; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=z74TsqYt; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="DqjTVwy/"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=M2GQkbDJYOHDat2atdcUeSIimKVwjQQ67L6QMfJu40w=; b=DqjTVwy/8ryooIoWm/bjv4nQpB
-	XC/0Ci/aaD6YgCh+9eoZlFGYmuOh9HeF3fFqnslOR6cYtgP1vdp0zzN1W/ZQJ3fbKOAtwhLcTGNcd
-	7BSLLX8rRVd894spP8T0bmr7H+OOOHPZPIJ5vREy5jRSVc/CZPX4WwhTd5DpkfJnoUdfi8LNPU5aQ
-	MDfTaWhhfTPyp7VkczHMdjR3cbNo3U7j8xyl3d1GytsKZv2l1wy1h2PZgn/uWFq9ciQrzDr8BOr/6
-	lloM/PMUw4mU4ziGRniVQ3gNCMuov3ljFP0pG6J7VsBUxzEb8Q+hh72/lL4d6wbq94s+7HUAOlJ2D
-	ZmQwHwQA==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tlkmw-000oZE-02;
-	Sat, 22 Feb 2025 16:23:07 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 22 Feb 2025 16:23:06 +0800
-Date: Sat, 22 Feb 2025 16:23:06 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org,
-	linux-crypto@vger.kernel.org, davem@davemloft.net,
-	dengler@linux.ibm.com
-Subject: Re: [PATCH v10 2/5] s390/crypto: New s390 specific protected key
- hash phmac
-Message-ID: <Z7mJadq3V2k7IgOY@gondor.apana.org.au>
-References: <20250115162231.83516-1-freude@linux.ibm.com>
- <20250115162231.83516-3-freude@linux.ibm.com>
- <265b5abbf32fcb6748abad7d0ec360cc@linux.ibm.com>
- <Z6wTTJz8uUNwT8Gg@gondor.apana.org.au>
- <Z6wUO-8wPTyzF5SK@gondor.apana.org.au>
- <20250212033226.GA2010357@google.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="E0xbOLPR";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="z74TsqYt"
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1740219265;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NYt57ZYgbjy6ej8hXDty7Cfp9Tf5nA32oYEo7YLt3U4=;
+	b=E0xbOLPRJ+XD/M3Ao9By6szoKCsyLxcxtVTGsSbhAcE5NU1NK5C2+Dfl+zJ4+rpk8p2vce
+	IgpgL+eLpTnyqk83xyrJHvEqqHTXl3g07KURIn1lsZ0aq6OKRUYTD54okHfdjXqNbDsSjC
+	8vSMloBPM2AV4QgA0stwUEWMG6uZx3A9biypqi3p4tS6E2BLtlPpYMDvXniwVQOifJQaz1
+	6Qig6O/uBgxjjBbGrOo71YvA2kL4peLeza5WOnn/Kdf4/Lf3rBALBWYLzmAVI3S8o31rMK
+	Fy+Fe19AlwTl2IsoJXlYAVNRDdBMW1sP8B0maDlcTMTjaB57ZbWi7eIerkehlg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1740219265;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=NYt57ZYgbjy6ej8hXDty7Cfp9Tf5nA32oYEo7YLt3U4=;
+	b=z74TsqYtERi/FO28k1WNxuOk/eCrttvKrCalx/NPgzVgRgvry4d1qCKiaSmbcNlhBsMonW
+	bE0L5AunrFXssYCw==
+To: Xi Ruoyao <xry111@xry111.site>, Thomas =?utf-8?Q?Wei=C3=9Fschuh?=
+ <thomas.weissschuh@linutronix.de>, "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>, Helge
+ Deller <deller@gmx.de>, Andy Lutomirski <luto@kernel.org>, Vincenzo
+ Frascino <vincenzo.frascino@arm.com>, Anna-Maria Behnsen
+ <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Catalin
+ Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Theodore
+ Ts'o <tytso@mit.edu>, "Jason A. Donenfeld" <Jason@zx2c4.com>, Paul
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Russell King <linux@armlinux.org.uk>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
+ Bogendoerfer <tsbogend@alpha.franken.de>, Michael Ellerman
+ <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe
+ Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>,
+ Madhavan
+ Srinivasan <maddy@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann
+ <arnd@arndb.de>, Guo Ren <guoren@kernel.org>
+Cc: linux-parisc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-riscv@lists.infradead.org,
+ loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>,
+ linux-csky@vger.kernel.org
+Subject: Re: [PATCH v3 09/18] riscv: vdso: Switch to generic storage
+ implementation
+In-Reply-To: <1adbf1603237b654a2948ae13692c6b6db0ab7eb.camel@xry111.site>
+References: <20250204-vdso-store-rng-v3-0-13a4669dfc8c@linutronix.de>
+ <20250204-vdso-store-rng-v3-9-13a4669dfc8c@linutronix.de>
+ <1adbf1603237b654a2948ae13692c6b6db0ab7eb.camel@xry111.site>
+Date: Sat, 22 Feb 2025 11:14:23 +0100
+Message-ID: <87a5aegubk.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250212033226.GA2010357@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 12, 2025 at 03:32:26AM +0000, Eric Biggers wrote:
-> On Wed, Feb 12, 2025 at 11:23:39AM +0800, Herbert Xu wrote:
-> > On Wed, Feb 12, 2025 at 11:19:40AM +0800, Herbert Xu wrote:
-> > >
-> > > Don't worry about this.  It can easily be reverted once a patch
-> > > using it is submitted.
-> > 
-> > I just reverted it in cryptodev.
-> > 
-> 
-> Nacked-by: Eric Biggers <ebiggers@kernel.org>
+On Sat, Feb 22 2025 at 16:17, Xi Ruoyao wrote:
+> On Tue, 2025-02-04 at 13:05 +0100, Thomas Wei=C3=9Fschuh wrote:
+>> The generic storage implementation provides the same features as the
+>> custom one. However it can be shared between architectures, making
+>> maintenance easier.
+>>=20
+>> Co-developed-by: Nam Cao <namcao@linutronix.de>
+>> Signed-off-by: Nam Cao <namcao@linutronix.de>
+>> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+>
+> I made a RISC-V vDSO getrandom implementation on top of this and it
+> works fine.  I'll submit it when this is merged.
 
-I actually pulled the revert out again, not so much because of
-your nack, but because I'm going to redo the walking helpers to
-incorporate direct support for multibuffer.
+You can submit it right now. If it's reviewed and if Jason agrees, this
+can be merged through the timers/vdso branch on top of the pending
+changes.
 
-So it's more convenient if the old walk interface is moved out
-of the way first.
+Thanks for testing it!
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+       tglx
