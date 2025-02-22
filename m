@@ -1,127 +1,68 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1B7F433DE;
-	Fri, 21 Feb 2025 23:55:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F82022331;
+	Sat, 22 Feb 2025 00:21:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740182153; cv=none; b=esbIaRpWaWHbtpymEeg4qgsTSjp8nW3azkwKI933CS3QRF11XBa5Rf9/Niav+C8B+0nA7Om2toH1nhPbZwe7ZKK9aMwb0dITWHdESN+cCB/dmBoddi6M8xaC/4RglvnpS1dyksfDHepwaEopsETaYlce9nMtXUPtyj5Zr2snspc=
+	t=1740183669; cv=none; b=Z0W31Sz6BYkA35liBL65Uu0HiIww0bbIHPy2qBffrCxpyJZSpKrigflZkBI0e7tzo2iqAwy53FxQ44j3hZOoj/+Jy+Acs0U/sTFHMcyauGa2oCbHCTKU0R8QCP5DbxtA5KKca61tjBZex69ucYeYEBiLuc+b+3836VM1wsR6KSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740182153; c=relaxed/simple;
-	bh=2db/W3z8n0hWl/MKDovp0LrTr/t/l9Q9+WY0RSNMumo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i9wuWzQXshgYWtQ64VkAfhVkLTiBXtQbr1q17fdleX1wSif4/HbjfMV+yNx/fNXsoFuVoSGrO7QkBX+0D9wgZL338kJJ8RJpBfH8OhS8C3Oug9ur00IXd1Dx11H5mjWMT8HGSGPk5fZzIwZu/E/i/Pq20UVBRMpH04Fy/5Z4gPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qEMMUVs2; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1740183669; c=relaxed/simple;
+	bh=w5Us4co0IXc6Eag9FCitU+k7PuUF/LaAJBwnhy4KrFg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UvS/z38/8LByvGHbca4JC15NKuPqsncTF4//JlJsncBNXPX2tH5bCGxABB4p8nuHNYp+W2DUVUb0HjmGvKQs6M/knhadUKu8jS24Z6TSU0mKvXSpDKW4PnFbbP56br7VmEZafNDuZBZvPSs5LlhZoXDLYvtP5vrR0kuoZ2ob3Sc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EbIP3G9O; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qEMMUVs2"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51LIMnif002896;
-	Fri, 21 Feb 2025 23:55:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=achMRzWnd/KuI8b0wuIGICjjIrYg4Y
-	P7qUOZX+tlM/0=; b=qEMMUVs2ZVqyTriMS0xBDIeyOXSBM2lSPqCs+S3VnXkfEu
-	2QwSgpQ85tThMe9ybizqpcoZjhugdvYvDzWXgroNnHWSdPjffPoj/1w50Z3tl4/k
-	qQq3cEqqgBKanoju1j7k+uMDalTfQTj8g14h96cvDPdFEe8bbZeM/Ksg0zX7I1j2
-	VZYiWCFBT8/65/s8zAJz78XZgY11UQ8ojEjurLvQMB4gYcifafv4cN1d4uRUkWha
-	w9TXEh1w0OuIRdxbn3Z5deR8Ax2vnWj+DH42WMb56zH8tCl90Y9RbfTQ+Ygbbp2O
-	mvnVeFmy5mk1gaGnuUcl5f0E+rZ0BPiYBGlZYEtg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44xn6q4fjn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Feb 2025 23:55:50 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51LNtnsf023036;
-	Fri, 21 Feb 2025 23:55:49 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 44xn6q4fjk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Feb 2025 23:55:49 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51LMUC9n027066;
-	Fri, 21 Feb 2025 23:55:49 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44w025jsd9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Feb 2025 23:55:49 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51LNtjrN33096034
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Feb 2025 23:55:45 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8278720043;
-	Fri, 21 Feb 2025 23:55:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 016A020040;
-	Fri, 21 Feb 2025 23:55:45 +0000 (GMT)
-Received: from localhost (unknown [9.171.80.218])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 21 Feb 2025 23:55:44 +0000 (GMT)
-Date: Sat, 22 Feb 2025 00:55:43 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Qasim Ijaz <qasdev00@gmail.com>
-Cc: agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/mm: Simplify gap clamping in mmap_base() using
- clamp()
-Message-ID: <your-ad-here.call-01740182143-ext-5271@work.hours>
-References: <20250204162508.12335-1-qasdev00@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EbIP3G9O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83BDCC4CED6;
+	Sat, 22 Feb 2025 00:21:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740183669;
+	bh=w5Us4co0IXc6Eag9FCitU+k7PuUF/LaAJBwnhy4KrFg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=EbIP3G9O9yne8m8kctpmELSYvahL8VNQjPBG/auPmdUcMfnRVXrBClf9Lx9JhZ2Rh
+	 Vm1x++1/CvmPW//TgHcaaV4fsS/VfaaZutcmIVscrbHXs084fycNBRUcRc4KWm0ezB
+	 6izPJgz78/KUSfvfzRLqJAqeGyL9k1Bxqh0gwpbKryd+PfyWG1l4399o3ip7RybjIW
+	 ilKEynnkEeRtuFLyb4RTXmWxeawXmP/7aiUcceAM9FB2FJuJMP1Vv1J5KlTsH/IF2m
+	 yjopxA+OSZ+rB52Zyxi9oLqU8GguJencwzPQtT0QpAviuhcBFr5wy5CQRA5Gjqn5Rv
+	 3+IQkZ4SwhKlA==
+Date: Fri, 21 Feb 2025 16:21:07 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Easwar Hariharan <eahariha@linux.microsoft.com>
+Cc: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef
+ Kadlecsik <kadlec@netfilter.org>, David Ahern <dsahern@kernel.org>,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: [PATCH net-next 0/3] Converge on using secs_to_jiffies() part
+ two
+Message-ID: <20250221162107.409ae333@kernel.org>
+In-Reply-To: <20250219-netdev-secs-to-jiffies-part-2-v1-0-c484cc63611b@linux.microsoft.com>
+References: <20250219-netdev-secs-to-jiffies-part-2-v1-0-c484cc63611b@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250204162508.12335-1-qasdev00@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 06BIERgAeYDJhI6AyOyeUl0Mk93vN8Ct
-X-Proofpoint-ORIG-GUID: 6a4Wjbv3g57imsF_ZRWmcjewk8IQOYxD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-21_09,2025-02-20_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
- mlxscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 adultscore=0 phishscore=0 mlxlogscore=889 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2502210161
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, Feb 04, 2025 at 04:25:08PM +0000, Qasim Ijaz wrote:
-> mmap_base() has logic to ensure that the variable "gap" stays within the 
-> range defined by "gap_min" and "gap_max". Replace this with the clamp() 
-> macro to shorten and simplify code.
+On Wed, 19 Feb 2025 20:30:35 +0000 Easwar Hariharan wrote:
+> The conversion is made with Coccinelle with the secs_to_jiffies() script
+> in scripts/coccinelle/misc. Attention is paid to what the best change
+> can be rather than restricting to what the tool provides.
 > 
-> Signed-off-by: Qasim Ijaz <qasdev00@gmail.com>
-> ---
->  arch/s390/mm/mmap.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-> index 76f376876e0d..a3d3e09a2828 100644
-> --- a/arch/s390/mm/mmap.c
-> +++ b/arch/s390/mm/mmap.c
-> @@ -63,11 +63,7 @@ static inline unsigned long mmap_base(unsigned long rnd,
->  	 */
->  	gap_min = SZ_128M;
->  	gap_max = (STACK_TOP / 6) * 5;
-> -
-> -	if (gap < gap_min)
-> -		gap = gap_min;
-> -	else if (gap > gap_max)
-> -		gap = gap_max;
-> +	gap = clamp(gap, gap_min, gap_max);
->  
->  	return PAGE_ALIGN(STACK_TOP - gap - rnd);
->  }
-> -- 
+> The non-netdev patches that include the update to secs_to_jiffies.cocci to address
+> expressions are here: https://lore.kernel.org/all/20250203-converge-secs-to-jiffies-part-two-v2-0-d7058a01fd0e@linux.microsoft.com
 
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Can the secs_to_jiffies cocci check script finally run in report mode?
 
-Applied, with a fixup removing the gap_min and gap_max variables as
-Alexander proposed and aligning with your patch for x86. Thank you!
-
-https://lore.kernel.org/all/174014934373.10177.13398467994659612713.tip-bot2@tip-bot2/
+I think that needs to be fixed first, before we start "cleaning up"
+existing code under net.
+-- 
+pw-bot: defer
