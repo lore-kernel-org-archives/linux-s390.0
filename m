@@ -1,39 +1,25 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0409C221F2B;
-	Mon, 24 Feb 2025 12:20:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B4B0A2571DA;
+	Mon, 24 Feb 2025 13:48:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740399610; cv=none; b=rnlhOmYpSSP4uB2IZgCoO5KiGAHWW2BKFPPwUqOWZPxaM4ubJhVgCFE/Y7YvxFLiyORzlyfyGlc+AiyFYy0IQ3i7ObC26HdeDWtwVNJmc+CeHaEYYJUdkNzgAk4TI7X/ZBY5J75mdNjqPNnZOTClUJx4tKKztTGwuiBXLjnFVQg=
+	t=1740404897; cv=none; b=Czs1Bsv9+Bn/S+4K1yvYU6QIE4yjfq4emaY6pOViPPnjvcF1hYdmZ49pl0oP55zH+g2jKMsmlSthTIIaTN71dTQnLHI12ziK8Fp7elm31AcTew6oA6wm5PfUYUCo4k3gr7pC6HL1GTR6/Qv6tNoGUpz7lxSL7oGlcpTirqV0GTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740399610; c=relaxed/simple;
-	bh=5BAuLMhC6Rqt1wdGAns8uutdl/iqePryxlBpJEjYAtQ=;
+	s=arc-20240116; t=1740404897; c=relaxed/simple;
+	bh=tL1+UhoAB+zhQZj2gjP8iNht2hSkHMqUXIe4VPji8jA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JdGnWzjUUUMWQSfhQbKPcH5PFqaxVkRDTQwc1RQLxf48avSZL54mOLGxIKprO0Gsq2BKaYWYI1lvnso7h1nV+UFYaTa4HFVMuYkA9miVn8VSshjsilk6A9vDgkBNoLwQFX2SbBj+oakKlfcEGH3iaDNCmkcWIzHYTNAa6QWbU70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4Z1fY56pPJz9sSK;
-	Mon, 24 Feb 2025 13:04:25 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jmjW4wRXcRyZ; Mon, 24 Feb 2025 13:04:25 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4Z1fY55w83z9sSC;
-	Mon, 24 Feb 2025 13:04:25 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id B37438B765;
-	Mon, 24 Feb 2025 13:04:25 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id lGRMugV4dhlW; Mon, 24 Feb 2025 13:04:25 +0100 (CET)
-Received: from [10.25.207.138] (unknown [10.25.207.138])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 7A6868B763;
-	Mon, 24 Feb 2025 13:04:25 +0100 (CET)
-Message-ID: <93e96586-13a2-4800-9dc7-5b35177a328e@csgroup.eu>
-Date: Mon, 24 Feb 2025 13:04:25 +0100
+	 In-Reply-To:Content-Type; b=X7hS8hWNe9rQCrr50XOdN1kRmxm+lqU0zX2xnivhksuvYcgQW47505y5iDP+JX2PwBOSQBR/fGSwVF/oX81KkPnZP6euBNHOOb5XIT0qgRPCU3Mq7Vz+Qv2Mm9PKdliM174ul7cgW4UREkK8LFKODERky8IigkLtn89aGec2WwY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 990B31515;
+	Mon, 24 Feb 2025 05:48:30 -0800 (PST)
+Received: from [10.163.40.148] (unknown [10.163.40.148])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 716D33F5A1;
+	Mon, 24 Feb 2025 05:48:07 -0800 (PST)
+Message-ID: <acc7eb95-a0d2-4f35-96a8-7a370cc1eff6@arm.com>
+Date: Mon, 24 Feb 2025 19:18:02 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -43,7 +29,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH V2 2/5] arch/powerpc: Drop GENERIC_PTDUMP from
  mpc885_ads_defconfig
-To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, linux-mm@kvack.org
 Cc: steven.price@arm.com, Andrew Morton <akpm@linux-foundation.org>,
  Mark Rutland <mark.rutland@arm.com>, kvmarm@lists.linux.dev,
  linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
@@ -53,42 +39,56 @@ Cc: steven.price@arm.com, Andrew Morton <akpm@linux-foundation.org>,
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>
 References: <20250217042220.32920-1-anshuman.khandual@arm.com>
  <20250217042220.32920-3-anshuman.khandual@arm.com>
-Content-Language: fr-FR
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20250217042220.32920-3-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ <93e96586-13a2-4800-9dc7-5b35177a328e@csgroup.eu>
+Content-Language: en-US
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <93e96586-13a2-4800-9dc7-5b35177a328e@csgroup.eu>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 
 
-Le 17/02/2025 à 05:22, Anshuman Khandual a écrit :
-> GENERIC_PTDUMP gets selected on powerpc explicitly and hence can be dropped
-> off from mpc885_ads_defconfig.
+On 2/24/25 17:34, Christophe Leroy wrote:
 > 
-> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Nicholas Piggin <npiggin@gmail.com>
-> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
-> Just wondering - Should CONFIG_PTDUMP_DEBUGFS be added instead ?
+> 
+> Le 17/02/2025 à 05:22, Anshuman Khandual a écrit :
+>> GENERIC_PTDUMP gets selected on powerpc explicitly and hence can be dropped
+>> off from mpc885_ads_defconfig.
+>>
+>> Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Nicholas Piggin <npiggin@gmail.com>
+>> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+>> Cc: linuxppc-dev@lists.ozlabs.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>> Just wondering - Should CONFIG_PTDUMP_DEBUGFS be added instead ?
+> 
+> Yes please do that as a fix to commit e084728393a5 ("powerpc/ptdump: Convert powerpc to GENERIC_PTDUMP")
 
-Yes please do that as a fix to commit e084728393a5 ("powerpc/ptdump: 
-Convert powerpc to GENERIC_PTDUMP")
+Sure, does the following updated commit message look okay ?
+
+arch/powerpc: Drop GENERIC_PTDUMP from mpc885_ads_defconfig
+
+GENERIC_PTDUMP gets selected on powerpc explicitly and hence can be dropped
+off from mpc885_ads_defconfig. Just add CONFIG_PTDUMP_DEBUGFS instead.
+
+Fixes: e084728393a5 ("powerpc/ptdump: Convert powerpc to GENERIC_PTDUMP")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 
 > 
->   arch/powerpc/configs/mpc885_ads_defconfig | 1 -
->   1 file changed, 1 deletion(-)
+>>
+>>   arch/powerpc/configs/mpc885_ads_defconfig | 1 -
+>>   1 file changed, 1 deletion(-)
+>>
+>> diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
+>> index 77306be62e9e..ea6f836407d2 100644
+>> --- a/arch/powerpc/configs/mpc885_ads_defconfig
+>> +++ b/arch/powerpc/configs/mpc885_ads_defconfig
+>> @@ -78,4 +78,3 @@ CONFIG_DEBUG_VM_PGTABLE=y
+>>   CONFIG_DETECT_HUNG_TASK=y
+>>   CONFIG_BDI_SWITCH=y
+>>   CONFIG_PPC_EARLY_DEBUG=y
+>> -CONFIG_GENERIC_PTDUMP=y
 > 
-> diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
-> index 77306be62e9e..ea6f836407d2 100644
-> --- a/arch/powerpc/configs/mpc885_ads_defconfig
-> +++ b/arch/powerpc/configs/mpc885_ads_defconfig
-> @@ -78,4 +78,3 @@ CONFIG_DEBUG_VM_PGTABLE=y
->   CONFIG_DETECT_HUNG_TASK=y
->   CONFIG_BDI_SWITCH=y
->   CONFIG_PPC_EARLY_DEBUG=y
-> -CONFIG_GENERIC_PTDUMP=y
-
