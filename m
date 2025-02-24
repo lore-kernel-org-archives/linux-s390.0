@@ -1,117 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC4F1A5BA1;
-	Mon, 24 Feb 2025 20:06:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F62262D11;
+	Mon, 24 Feb 2025 20:53:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740427596; cv=none; b=BmAzkFSq9akBxZUzsqFUxr81ajoi5PpJ6ULLAq8OJ7irqFdmIEXEVnSxT72k8ku2jptJxzfygMEL9hQFnyvMRGnMNKLFJ4rfMSkpLpfR7M7HIKPpDaxpt69WxBGchLjtsbLoR4LBOxyIo037OlRN7+ks8wIHY6a3z7W2aK22n2k=
+	t=1740430398; cv=none; b=ciRR9OGiG0zdFbN237ktJUL4X6lBQ1E1OSdOJg2B7VcD/Y1cnLDBv7n+S3YWr6r87sVeyayYW54A5euSyATHo9oeFJiu8ZxJ52yTPZIwgcrGUpBu7Y21wrS/JUiNpvk3o+SLjZxa40eyLacBiGL6Mh6BvhTse9ToVlHRHES0N7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740427596; c=relaxed/simple;
-	bh=MQRG0wCElGkAgnXGUfFa/phfVU4AAiqsQ2KYJcjrJs8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pnfO3+wUHOoghFfBabr/K1aBTXc8eHCdJ/ysEzFlTpN3y5XhW6PiIyFYssMrj+Ap8fvF6Z5sFs9sUETNhDWYfg9fweARCxlGvCbj3VEx0ygJsJIct9n/uu/bqSHdCChRXQ00U9UhFwG6k8fuGctfZmJJw8tFrfwZCgUaGx+Cveo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F5PSnbYP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740430398; c=relaxed/simple;
+	bh=pREGhWg1kcj3syTH2EZjMgzcwFGBKmTgaY0Mxt8vcBk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=q+OTpjeTbYy6GEOUXAEVoE8StWTLMvAUuPS3yFVI5qG6BJTMGzfEbPKE/QpAB3985SIjmrUprIKnUmqfgEQfUtSeHNNVyo7LtMyVrbxF6Yv2kbDaErM/nuZh5sA1NTg0h7SZw/kjS9yMPZYkGRnf33lMVZr0ILFJdxo+C9W+NbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fyckZLa0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F5PSnbYP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92A4C4CED6;
-	Mon, 24 Feb 2025 20:06:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fyckZLa0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 239D9C4CED6;
+	Mon, 24 Feb 2025 20:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740427595;
-	bh=MQRG0wCElGkAgnXGUfFa/phfVU4AAiqsQ2KYJcjrJs8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=F5PSnbYP4YgwsftEmZ8YZ825gzDSojyh/8X2Q6bWNmKvJU/Gs+oWMwashqIOOBqgk
-	 UX18EdBSEGTcVGe6M95Pc/nRJ+Ne9x95agmGRhCS0+A4oDBluqiYzjRVfVrw7ptYrt
-	 ihkDswwM1AGmZQw5+5d8TTbmsZopkjNKjOX7avQocLHqWQOiSxsD4R1h5MeNxVEmwL
-	 JsunjM8s8RUSDEUUIKJiAxnBeCcbLFgx0wO7HGi51S9UqgTzmWKMT4csXhinjLDaIo
-	 Lhkg2kKDJi8B3cv2pHQrKJV213a8MFaqNkvy8kt4KWNiuTZOkEldGxNH5oICFMA9lR
-	 Tyv9VTeskbPxg==
-Date: Mon, 24 Feb 2025 20:06:28 +0000
-From: Mark Brown <broonie@kernel.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas@fjasle.eu>,
-	Zheng Yejian <zhengyejian1@huawei.com>,
-	Martin Kelly <martin.kelly@crowdstrike.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Josh Poimboeuf <jpoimboe@redhat.com>,
+	s=k20201202; t=1740430396;
+	bh=pREGhWg1kcj3syTH2EZjMgzcwFGBKmTgaY0Mxt8vcBk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=fyckZLa0MhIBkOEp96YFckrMzMItxbfarxjlThBvHzF1sF/J0CFKnvNBp3FK5rDqV
+	 qCOI1UPi2Y2K3/62XbfxPTdwTTxm1VfJVHLoz+UuI59cDt8HyYHaMMS8BE1+tzYx/e
+	 dABMISnYyfMQrv8W5+6p6JWhfV8A9P/bQjC9ZHbNv8uLwVgdjepzG/FM6wLg9mBsc0
+	 f/59WF5i2asjjpGrAb4623fte1gUsev2wdavllCS4G6YPnuOcYRfM8jgNkWsBGOtLd
+	 Z9tWabzTxe1nvPrId3CMtisrbuovE4uESNGIdlatzdBqIbpnAUVaqk51ufZ7VZ4/49
+	 sAX6TBzdjC5Cg==
+Date: Mon, 24 Feb 2025 14:53:14 -0600
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Christoph Hellwig <hch@lst.de>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH v5 4/6] scripts/sorttable: Zero out weak functions in
- mcount_loc table
-Message-ID: <5225b07b-a9b2-4558-9d5f-aa60b19f6317@sirena.org.uk>
-References: <20250218195918.255228630@goodmis.org>
- <20250218200022.883095980@goodmis.org>
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH v6 0/3] vfio/pci: s390: Fix issues preventing
+ VFIO_PCI_MMAP=y for s390 and enable it
+Message-ID: <20250224205314.GA478317@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="y1RTCqJAl8VZ6A/p"
-Content-Disposition: inline
-In-Reply-To: <20250218200022.883095980@goodmis.org>
-X-Cookie: Do not flush.
-
-
---y1RTCqJAl8VZ6A/p
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20250214-vfio_pci_mmap-v6-0-6f300cb63a7e@linux.ibm.com>
 
-On Tue, Feb 18, 2025 at 02:59:22PM -0500, Steven Rostedt wrote:
-> From: Steven Rostedt <rostedt@goodmis.org>
->=20
-> When a function is annotated as "weak" and is overridden, the code is not
-> removed. If it is traced, the fentry/mcount location in the weak function
-> will be referenced by the "__mcount_loc" section. This will then be added
-> to the available_filter_functions list. Since only the address of the
-> functions are listed, to find the name to show, a search of kallsyms is
-> used.
+On Fri, Feb 14, 2025 at 02:10:51PM +0100, Niklas Schnelle wrote:
+> With the introduction of memory I/O (MIO) instructions enbaled in commit
+> 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
+> gained support for direct user-space access to mapped PCI resources.
+> Even without those however user-space can access mapped PCI resources
+> via the s390 specific MMIO syscalls. There is thus nothing fundamentally
+> preventing s390 from supporting VFIO_PCI_MMAP, allowing user-space
+> drivers to access PCI resources without going through the pread()
+> interface. To actually enable VFIO_PCI_MMAP a few issues need fixing
+> however.
+> 
+> Firstly the s390 MMIO syscalls do not cause a page fault when
+> follow_pte() fails due to the page not being present. This breaks
+> vfio-pci's mmap() handling which lazily maps on first access.
+> 
+> Secondly on s390 there is a virtual PCI device called ISM which has
+> a few oddities. For one it claims to have a 256 TiB PCI BAR (not a typo)
+> which leads to any attempt to mmap() it fail with the following message:
+> 
+>     vmap allocation for size 281474976714752 failed: use vmalloc=<size> to increase size
+> 
+> Even if one tried to map this BAR only partially the mapping would not
+> be usable on systems with MIO support enabled. So just block mapping
+> BARs which don't fit between IOREMAP_START and IOREMAP_END. Solve this
+> by keeping the vfio-pci mmap() blocking behavior around for this
+> specific device via a PCI quirk and new pdev->non_mappable_bars
+> flag.
+> 
+> As noted by Alex Williamson With mmap() enabled in vfio-pci it makes
+> sense to also enable HAVE_PCI_MMAP with the same restriction for pdev->
+> non_mappable_bars. So this is added in patch 3 and I tested this with
+> another small test program.
+> 
+> Note:
+> For your convenience the code is also available in the tagged
+> b4/vfio_pci_mmap branch on my git.kernel.org site below:
+> https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
+> 
+> Thanks,
+> Niklas
+> 
+> Link: https://lore.kernel.org/all/c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com/
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+> Changes in v6:
+> - Add a patch to also enable PCI resource mmap() via sysfs and proc
+>   exlcluding pdev->non_mappable_bars devices (Alex Williamson)
+> - Added Acks
+> - Link to v5: https://lore.kernel.org/r/20250212-vfio_pci_mmap-v5-0-633ca5e056da@linux.ibm.com
 
-This breaks builds with ftrace on architectures without KASLR, one
-affected configuration is bcm2835_defconfig:
-
-/home/broonie/git/bisect/kernel/trace/ftrace.c: In function 'ftrace_process=
-_locs':
-/home/broonie/git/bisect/kernel/trace/ftrace.c:7057:24: error: implicit dec=
-laration of function 'kaslr_offset' [-Werror=3Dimplicit-function-declaratio=
-n]
- 7057 |         kaslr =3D !mod ? kaslr_offset() : 0;
-      |                        ^~~~~~~~~~~~
-
-since that happens to enable CONFIG_FUNCTION_TRACER but doesn't have
-KASLR, we don't have stubs for KASLR on architectures that don't have
-it.  It also looks like from a quick glance at least RISC-V will fail to
-link since it only provides kaslr_offset() with RANDOMIZE_BASE enabled.
-This all feels a bit footgunish.
-
---y1RTCqJAl8VZ6A/p
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAme80UMACgkQJNaLcl1U
-h9D0kQf+LOWnc5+uG7Nh+lw1IM17Kz4TpwJ61yMifGEeuryxBvycLlVXCTeHEAIq
-c7HSB66JzXtv5G9t9gzAkbeVmqYDVAtbhytC3F6yo8X/qpPncogEWepaMByDvprX
-HCCFf0oSdJlk2RPmofn2aVfzCcuAomhv2d96jBz73PlJ44WSxY8LdHmAgCoYcFvd
-LL5HefmNAKADaNA5Kp6zLspUNtUAsuwMH/ki69FVNctvN19ZkyiL7m/+nsV5uPCv
-41qzmSbcqPcNVsCqNocD4fefEk2HZARIqg8TGX0QhliWO0vQkrW+7z97xs1o8zcM
-o9EInP1vqJLx6DQQ0u2h3xxeLNEekA==
-=pRxx
------END PGP SIGNATURE-----
-
---y1RTCqJAl8VZ6A/p--
+I think the series would be more readable if patch 2/3 included all
+the core changes (adding pci_dev.non_mappable_bars, the 3/3
+pci-sysfs.c and proc.c changes to test it, and I suppose the similar
+vfio_pci_core.c change), and we moved all the s390 content from 2/3 to
+3/3.
