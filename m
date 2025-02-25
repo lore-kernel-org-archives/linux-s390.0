@@ -1,93 +1,55 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308E319E7F8;
-	Tue, 25 Feb 2025 20:34:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF8571448E3;
+	Tue, 25 Feb 2025 20:35:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740515686; cv=none; b=F2p5tOjySuBqv/hN/G4l2YDNnrmnI0WymtaqX2Mt/TW4K+E/ad/4hWPECJ26fN/mE06jPlqCirBU6IHiEK4nMBcd2XqIQU+wdwKmhyFiC1djM8i6sFOXE8mp0ifMZsGHF6yh4ZLS73uvxzxI8vwL8LyVei3uwqp8W03Z0P1oUjo=
+	t=1740515726; cv=none; b=sAopNrkMYS+SNcrEPCtupiUD23TLIGfeUxN0Qtk3GR1TqzsT+YQqOpgP9eJQgxpyLqtkLpg4lYn9E60I64Jj3ywtd0aXHdjENd1foqXP5ZTzpBWjhGWqi8u7xu89/kbV5JVH4pmcpCYpM94wVfIZ4T2N3h5/Iv04U15JgciLcw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740515686; c=relaxed/simple;
-	bh=BRDE49GDK1WZQtOVWzMxOTVjKgnZs4mLJeGOsJR4KcY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ni1RrSHaKfp711JMMLwThXNesiPTzabJSRHR7R29m4FMdHRgAl5MnZB+9sJZL2r04gvYvRzXMXbqJAggNm0ms7qeJEW2PLEFquQJPTCCE9U8gS8knwIkZhz0+X+9uPQoKemH+L1FU9XTWw6sm9QuSkApA+2eXJrJ3B7/NL4QJ40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GCTyihQ/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740515726; c=relaxed/simple;
+	bh=7Wg1p0f2ypkxnC0TFBuDHULqBARMpNOuEl5fgz8O5K4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=OKkkLlMrIiTBLy2y30CoeHBqDTIjkPSOumJE9yiUVQkGPbFtIu/pZnlXTns8oLTN4+SsOGU/41F7c2KNjpPnC08YXs2R1uwnej0LEuamYL3DAljoG9S3+uL1dszuCx5Z3B3Aar5jvvfJW5qBPIKvkeVeEf1A9yK9le/TxF5nxdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u1o+YzKQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GCTyihQ/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F3CC4CEE2;
-	Tue, 25 Feb 2025 20:34:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u1o+YzKQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4012C4CEDD;
+	Tue, 25 Feb 2025 20:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740515685;
-	bh=BRDE49GDK1WZQtOVWzMxOTVjKgnZs4mLJeGOsJR4KcY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GCTyihQ/b2fTjWjL/w3eMUhECoP7pQUVh6qE6TXIEJ1BjHjigwTdvaXZ8aa1oOZW9
-	 oKgOEDdFkHlCFZJGO4qmPSlQfmqTMdR4q6AaRRkwLGJ3tn5IsA6CVTfZngMu04uwvU
-	 USQQvX2Ui2Py5GmeTon0UPIp4jb3Kllog7qTR84ZVlGPWnNhBglvmgANXSDfz/nF8C
-	 fe6Ei8S+wY4QXqwkmTNtltifZ28vYDexOBzcB6Jx/JDAMQqYWr6bIziStGJLhdUGBs
-	 KFr35I0nEjHgGeGnYKE+sCz27ig69d53549TBv6xK6RZKoaFrkcXukrE4yB0TGFtgY
-	 hJMWUKlbR87Lg==
-Received: by pali.im (Postfix)
-	id 5A20189B; Tue, 25 Feb 2025 21:34:32 +0100 (CET)
-Date: Tue, 25 Feb 2025 21:34:32 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To: "Darrick J. Wong" <djwong@kernel.org>
-Cc: Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Amir Goldstein <amir73il@gmail.com>,
-	Andrey Albershteyn <aalbersh@redhat.com>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
+	s=k20201202; t=1740515726;
+	bh=7Wg1p0f2ypkxnC0TFBuDHULqBARMpNOuEl5fgz8O5K4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=u1o+YzKQTjiHFa378K9/JNzh8aDmB6+8eSlzj2e0oqKfk3HNpjqojfcknEQf7dasY
+	 03hMuuQtgsENKquMorrWqUGoeNDbnhT8OWNv2SkWWLV2eGDqCJKtwkf01YgUUcP3em
+	 0vF1gkPM7D3w3aowShgQuXbYAygbru0he6FEP1lpDrHz9VHeTVcmNxKMqIdyJgFqm4
+	 XCKGzWr5q/xPyIjix/RGoEOSV0Bbd2ZAqusDGXt9sZ/henPtK7X/J0rhcR9MmW6NaV
+	 yjkjWzQ+We+5C2wMW9aH5ZtmatdkVY+qCKe3UQk5io0s0ECF90mFWsoYbS4vjIrMLR
+	 29Dh1G9eqw+eQ==
+Date: Tue, 25 Feb 2025 14:35:24 -0600
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Christoph Hellwig <hch@lst.de>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Julian Ruess <julianr@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S . Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>,
-	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-	Linux-Arch <linux-arch@vger.kernel.org>, linux-xfs@vger.kernel.org,
-	Theodore Ts'o <tytso@mit.edu>
-Subject: Re: [PATCH v3] fs: introduce getfsxattrat and setfsxattrat syscalls
-Message-ID: <20250225203432.o2lxjbimka4jldrx@pali>
-References: <20250211-xattrat-syscall-v3-1-a07d15f898b2@kernel.org>
- <20250221181135.GW21808@frogsfrogsfrogs>
- <CAOQ4uxgyYBFqkq6cQsso4LxJsPJ4uECOdskXmz-nmGhhV5BQWg@mail.gmail.com>
- <20250224-klinke-hochdekoriert-3f6be89005a8@brauner>
- <6b51ffa2-9d67-4466-865e-e703c1243352@app.fastmail.com>
- <20250225-strom-kopflos-32062347cd13@brauner>
- <3c860dc0-ba8d-4324-b286-c160b7d8d2c4@app.fastmail.com>
- <20250225-testfahrt-seilwinde-64e6f44c01ce@brauner>
- <20250225155926.GD6265@frogsfrogsfrogs>
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kvm@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: [PATCH v6 0/3] vfio/pci: s390: Fix issues preventing
+ VFIO_PCI_MMAP=y for s390 and enable it
+Message-ID: <20250225203524.GA516498@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -96,87 +58,84 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250225155926.GD6265@frogsfrogsfrogs>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <7bcd6de5f40b2ee6d4d6758e3d2473172bd9b990.camel@linux.ibm.com>
 
-On Tuesday 25 February 2025 07:59:26 Darrick J. Wong wrote:
-> On Tue, Feb 25, 2025 at 12:24:08PM +0100, Christian Brauner wrote:
-> > On Tue, Feb 25, 2025 at 11:40:51AM +0100, Arnd Bergmann wrote:
-> > > On Tue, Feb 25, 2025, at 11:22, Christian Brauner wrote:
-> > > > On Tue, Feb 25, 2025 at 09:02:04AM +0100, Arnd Bergmann wrote:
-> > > >> On Mon, Feb 24, 2025, at 12:32, Christian Brauner wrote:
-> > > >> 
-> > > >> The ioctl interface relies on the existing behavior, see
-> > > >> 0a6eab8bd4e0 ("vfs: support FS_XFLAG_COWEXTSIZE and get/set of
-> > > >> CoW extent size hint") for how it was previously extended
-> > > >> with an optional flag/word. I think that is fine for the syscall
-> > > >> as well, but should be properly documented since it is different
-> > > >> from how most syscalls work.
-> > > >
-> > > > If we're doing a new system call I see no reason to limit us to a
-> > > > pre-existing structure or structure layout.
+On Tue, Feb 25, 2025 at 09:59:13AM +0100, Niklas Schnelle wrote:
+> On Mon, 2025-02-24 at 14:53 -0600, Bjorn Helgaas wrote:
+> > On Fri, Feb 14, 2025 at 02:10:51PM +0100, Niklas Schnelle wrote:
+> > > With the introduction of memory I/O (MIO) instructions enbaled in commit
+> > > 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
+> > > gained support for direct user-space access to mapped PCI resources.
+> > > Even without those however user-space can access mapped PCI resources
+> > > via the s390 specific MMIO syscalls. There is thus nothing fundamentally
+> > > preventing s390 from supporting VFIO_PCI_MMAP, allowing user-space
+> > > drivers to access PCI resources without going through the pread()
+> > > interface. To actually enable VFIO_PCI_MMAP a few issues need fixing
+> > > however.
 > > > 
-> > > Obviously we could create a new structure, but I also see no
-> > > reason to do so. The existing ioctl interface was added in
-> > > in 2002 as part of linux-2.5.35 with 16 bytes of padding, half
-> > > of which have been used so far.
+> > > Firstly the s390 MMIO syscalls do not cause a page fault when
+> > > follow_pte() fails due to the page not being present. This breaks
+> > > vfio-pci's mmap() handling which lazily maps on first access.
 > > > 
-> > > If this structure works for another 23 years before we run out
-> > > of spare bytes, I think that's good enough. Building in an
-> > > incompatible way to handle potential future contents would
-> > > just make it harder to use for any userspace that wants to
-> > > use the new syscalls but still needs a fallback to the
-> > > ioctl version.
+> > > Secondly on s390 there is a virtual PCI device called ISM which has
+> > > a few oddities. For one it claims to have a 256 TiB PCI BAR (not a typo)
+> > > which leads to any attempt to mmap() it fail with the following message:
+> > > 
+> > >     vmap allocation for size 281474976714752 failed: use vmalloc=<size> to increase size
+> > > 
+> > > Even if one tried to map this BAR only partially the mapping would not
+> > > be usable on systems with MIO support enabled. So just block mapping
+> > > BARs which don't fit between IOREMAP_START and IOREMAP_END. Solve this
+> > > by keeping the vfio-pci mmap() blocking behavior around for this
+> > > specific device via a PCI quirk and new pdev->non_mappable_bars
+> > > flag.
+> > > 
+> > > As noted by Alex Williamson With mmap() enabled in vfio-pci it makes
+> > > sense to also enable HAVE_PCI_MMAP with the same restriction for pdev->
+> > > non_mappable_bars. So this is added in patch 3 and I tested this with
+> > > another small test program.
+> > > 
+> > > Note:
+> > > For your convenience the code is also available in the tagged
+> > > b4/vfio_pci_mmap branch on my git.kernel.org site below:
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
+> > > 
+> > > Thanks,
+> > > Niklas
+> > > 
+> > > Link: https://lore.kernel.org/all/c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com/
+> > > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> > > ---
+> > > Changes in v6:
+> > > - Add a patch to also enable PCI resource mmap() via sysfs and proc
+> > >   exlcluding pdev->non_mappable_bars devices (Alex Williamson)
+> > > - Added Acks
+> > > - Link to v5: https://lore.kernel.org/r/20250212-vfio_pci_mmap-v5-0-633ca5e056da@linux.ibm.com
 > > 
-> > The fact that this structure has existed since the dawn of time doesn't
-> > mean it needs to be retained when adding a completely new system call.
-> > 
-> > People won't mix both. They either switch to the new interface because
-> > they want to get around the limitations of the old interface or they
-> > keep using the old interface and the associated workarounds.
-> > 
-> > In another thread they keep arguing about new extensions for Windows
-> > that are going to be added to the ioctl interface and how to make it fit
-> > into this. That just shows that it's very hard to predict from the
-> > amount of past changes how many future changes are going to happen. And
-> > if an interface is easy to extend it might well invite new changes that
-> > people didn't want to or couldn't make using the old interface.
+> > I think the series would be more readable if patch 2/3 included all
+> > the core changes (adding pci_dev.non_mappable_bars, the 3/3
+> > pci-sysfs.c and proc.c changes to test it, and I suppose the similar
+> > vfio_pci_core.c change), and we moved all the s390 content from 2/3 to
+> > 3/3.
 > 
-> Agreed, I don't think it's hard to enlarge struct fsxattr in the
-> existing ioctl interface; either we figure out how to make the kernel
-> fill out the "missing" bytes with an internal getfsxattr call, or we
-> make it return some errno if we would be truncating real output due to
-> struct size limits and leave a note in the manpage that "EL3HLT means
-> use a bigger structure definition"
+> Maybe we could do the following:
 > 
-> Then both interfaces can plod along for another 30 years. :)
+> 1/3: As is
 > 
-> --D
+> 2/3: Introduces pdev->non_mappable_bars and the checks in vfio and
+> proc.c/pci-sysfs.c. To make the flag handle the vfio case with
+> VFIO_PCI_MMAP gone, a one-line change in s390 will set pdev-
+> >non_mappable_bars = 1 for all PCI devices.
 
-For Windows attributes, there are for sure needed new 11 bits for
-attributes which can be both get and set, additional 4 bits for get-only
-attributes, and plus there are 9 reserved bits (which Windows can start
-using it and exporting over NTFS or SMB). And it is possible that
-Windows can reuse some bits which were previously assigned for things
-which today does not appear on NTFS.
+What if you moved the vfio_pci_core.c change to patch 3?  Then I think
+patch 2 would do nothing at all (since there's nothing that sets
+non_mappable_bars), and all the s390 stuff would be in patch 3?
 
-I think that fsx_xflags does not have enough free bits for all these
-attributes. So it would be really nice to design API/ABI in away which
-can be extended for new fields.
+Not sure if that's possible, but I think it's a little confusing to
+have the s390 changes split across patch 2 and 3.
 
-Also another two points, for this new syscalls. I have not looked at the
-current changes (I was added to CC just recently), but it would be nice:
-
-1) If syscall API allows to operate on the symlink itself. This is
-   because NTFS and also SMB symlink also contains attributes. ioctl
-   interface currently does not support to get/set these symlink
-   attributes.
-
-2) If syscall API contains ability to just change subset of attributes.
-   And provide an error reporting to userspace if userspace application
-   is trying to set attribute which is not supported by the filesystem.
-   This error reporting is needed for possible "cp -a" or possible
-   "rsync" implementation which informs when some metadata cannot be
-   backup/restored. There are more filesystems which supports only
-   subset of attributes, this applies also for windows attributes.
-   For example UDF fs supports only "hidden" attribute.
+> 3/3: Changes setting pdev->non_mappable_bars = 1 in s390 to only the
+> ISM device using the quirk handling and adds HAVE_PCI_MMAP.
+> 
+> Thanks,
+> Niklas
