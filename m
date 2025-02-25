@@ -1,117 +1,223 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AD1B266B5E;
-	Tue, 25 Feb 2025 11:24:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4316267AE1;
+	Tue, 25 Feb 2025 12:56:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740482663; cv=none; b=OKK5c4O2fWGD91giwNX4TfKUL5Mw2jLIcQrgImEr11XbW2FY7YwMD0f/S+QKpwcYmjJ5VgLgGMNLpXKEAKlowmC+bubO/A5qtgiRnj8MGNWOgksuaesmMwWEiT9IdqiDiG62hYw2r8fFoqeHMISr0N2eIOIWXTY3XvlG2T7uFLY=
+	t=1740488189; cv=none; b=Ayq02xfWtmfhCF/Z2SfKW4o942QwUSpxunWLVqGkQufEH/c7CDekM6ztCNw79cibGLYlu2T4VT/dDMAWF97B64lNE97I2BQ/pwFMhkikmBwkoZGlBCjEgpEDd64lWGXQiS4RKUTkDNB0HFGqgKMM7xPi9DtGB9FrTiG5IvctLdQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740482663; c=relaxed/simple;
-	bh=MirNTPbQz5gTjaQC01Jw/a2iTl1/yY+daEIYiEzXuYM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=H0VX4PYbFzpNjTvwE2iA+ebutCMK79xZnKLicIy52yGlngCQjuMrJUhwPPSTyjpxKmX3kn3spbFC/QXrMHZL84Eu3T2TZ/r27VLvy6aLRDtmzXC4Hl0b/d9ze6Ntd251FrxAACILOKcEAc/D+6lXd66aP0eMSDOTgG1Iio6lKMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vLIeKOVd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740488189; c=relaxed/simple;
+	bh=0oT5shLnbtbhNDJ7D3AgCbSwDUFlzk9PgtUkpEfpxPE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=d+GcWjTO5XKFgMbG5HUkoxoh0QgLg1TdnnFHvuKJUzXVEUooecDWvUT9o0hUHvxvTcdUbXHtxfi3CTRjOgRhrwLDUnx+k6mJf1uY96joJF+A9G9nBgiEfQgbTQ4QasA1iX9tAyO5nsYgCJYEz0tCRVDcv/ieKnH+bVuGvRwX5Ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=je5JKm3C; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vLIeKOVd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD844C4CEDD;
-	Tue, 25 Feb 2025 11:24:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740482662;
-	bh=MirNTPbQz5gTjaQC01Jw/a2iTl1/yY+daEIYiEzXuYM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=vLIeKOVdl8nhID+IyQy/esaTBoDcVsF3QQztySqida1uICinzlhoj8QrYH5VNi1Zf
-	 LNuuXA5KuPmkBWu4ExDD1p1M2aXjH+B35LyRNknPuvEzQYNScpGDI8RXjTNkKGknCp
-	 jCNxf9GkTGXJSIuatGoUkyHppwxOFV2ejI5mpXRC52caYLhTsMSbMGBST2IhBn+M3M
-	 mzrrmgcnR0Kp4cA5VvZZwbQ5dJl0BOPvqadxjR0uEGafKVLu8lEMs9f2ZJPYLAaI0K
-	 ny41ZtFz6WkWycL/51GTpx4UYutgKXLvLXllVJKuaysCABLLzDTr29YIhJKQQM6yZG
-	 r+5f5Pg20iqmA==
-Date: Tue, 25 Feb 2025 12:24:08 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Amir Goldstein <amir73il@gmail.com>, 
-	Andrey Albershteyn <aalbersh@redhat.com>, "Darrick J. Wong" <djwong@kernel.org>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
-	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
-	Linux-Arch <linux-arch@vger.kernel.org>, linux-xfs@vger.kernel.org, 
-	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, Theodore Ts'o <tytso@mit.edu>
-Subject: Re: [PATCH v3] fs: introduce getfsxattrat and setfsxattrat syscalls
-Message-ID: <20250225-testfahrt-seilwinde-64e6f44c01ce@brauner>
-References: <20250211-xattrat-syscall-v3-1-a07d15f898b2@kernel.org>
- <20250221181135.GW21808@frogsfrogsfrogs>
- <CAOQ4uxgyYBFqkq6cQsso4LxJsPJ4uECOdskXmz-nmGhhV5BQWg@mail.gmail.com>
- <20250224-klinke-hochdekoriert-3f6be89005a8@brauner>
- <6b51ffa2-9d67-4466-865e-e703c1243352@app.fastmail.com>
- <20250225-strom-kopflos-32062347cd13@brauner>
- <3c860dc0-ba8d-4324-b286-c160b7d8d2c4@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="je5JKm3C"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51PCY3Vn011208;
+	Tue, 25 Feb 2025 12:56:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=piYoMX
+	DdaY+TU9E18vFRAcZoLdOWB0ePhiobWmf10uk=; b=je5JKm3Cvt4SNBH4kt6GCP
+	BCergyn9VoVVqo5edSKmjdIWLh5J9rIrPSSMcAKuo8pM2PGrhiIARIKNEBcIXU5z
+	qBw643xPXKH8jxVRBuCnzUJ/KyOXArBHZY024u0iXMYbTIqpTeWmA9wFEAa5zQ2H
+	9dX1EZvwrI5Py/j6YOx9gjXu0rUVGxvPRw85jXI1AYaCWI/1YTi7M3HEmrb15rrI
+	kFHsIyhD99qQIeErhJnINUqHVPFTX6qijSLqy8a+ivlII1Z5KWIJhnFt2NvVbWgg
+	fzxoL/y+xeYesfNYYNKI4YxZqbtIt5Auy4TPoQp2SJFUENYZaFuxSOnU1FXCQa/A
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4513x9twsy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 12:56:14 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51PBRO59002545;
+	Tue, 25 Feb 2025 12:56:13 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4jmn38-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 12:56:13 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51PCuA8i11338002
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Feb 2025 12:56:10 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3CBB020040;
+	Tue, 25 Feb 2025 12:56:10 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0C6BC2004B;
+	Tue, 25 Feb 2025 12:56:10 +0000 (GMT)
+Received: from [9.152.224.140] (unknown [9.152.224.140])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Feb 2025 12:56:09 +0000 (GMT)
+Message-ID: <5ac2dda6-a9ac-449a-bb7c-0f9eb90614f5@linux.ibm.com>
+Date: Tue, 25 Feb 2025 13:56:09 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <3c860dc0-ba8d-4324-b286-c160b7d8d2c4@app.fastmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] KVM: s390: Don't use %pK through debug printing
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20250217-restricted-pointers-s390-v1-0-0e4ace75d8aa@linutronix.de>
+ <20250217-restricted-pointers-s390-v1-2-0e4ace75d8aa@linutronix.de>
+From: Michael Mueller <mimu@linux.ibm.com>
+In-Reply-To: <20250217-restricted-pointers-s390-v1-2-0e4ace75d8aa@linutronix.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _mwJdslvPc5QLXsfDPi8-Q7J-DAJwtjM
+X-Proofpoint-GUID: _mwJdslvPc5QLXsfDPi8-Q7J-DAJwtjM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-25_04,2025-02-25_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ suspectscore=0 mlxscore=0 priorityscore=1501 spamscore=0
+ lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
+ mlxlogscore=944 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2502100000 definitions=main-2502250088
 
-On Tue, Feb 25, 2025 at 11:40:51AM +0100, Arnd Bergmann wrote:
-> On Tue, Feb 25, 2025, at 11:22, Christian Brauner wrote:
-> > On Tue, Feb 25, 2025 at 09:02:04AM +0100, Arnd Bergmann wrote:
-> >> On Mon, Feb 24, 2025, at 12:32, Christian Brauner wrote:
-> >> 
-> >> The ioctl interface relies on the existing behavior, see
-> >> 0a6eab8bd4e0 ("vfs: support FS_XFLAG_COWEXTSIZE and get/set of
-> >> CoW extent size hint") for how it was previously extended
-> >> with an optional flag/word. I think that is fine for the syscall
-> >> as well, but should be properly documented since it is different
-> >> from how most syscalls work.
-> >
-> > If we're doing a new system call I see no reason to limit us to a
-> > pre-existing structure or structure layout.
+
+
+On 17.02.25 14:13, Thomas Weißschuh wrote:
+> Restricted pointers ("%pK") are only meant to be used when directly
+> printing to a file from task context.
+> Otherwise it can unintentionally expose security sensitive,
+> raw pointer values.
 > 
-> Obviously we could create a new structure, but I also see no
-> reason to do so. The existing ioctl interface was added in
-> in 2002 as part of linux-2.5.35 with 16 bytes of padding, half
-> of which have been used so far.
+> Use regular pointer formatting instead.
 > 
-> If this structure works for another 23 years before we run out
-> of spare bytes, I think that's good enough. Building in an
-> incompatible way to handle potential future contents would
-> just make it harder to use for any userspace that wants to
-> use the new syscalls but still needs a fallback to the
-> ioctl version.
+> Link: https://lore.kernel.org/lkml/20250113171731-dc10e3c1-da64-4af0-b767-7c7070468023@linutronix.de/
+> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
-The fact that this structure has existed since the dawn of time doesn't
-mean it needs to be retained when adding a completely new system call.
 
-People won't mix both. They either switch to the new interface because
-they want to get around the limitations of the old interface or they
-keep using the old interface and the associated workarounds.
+I sucessfully ran our test suite after applying this patch.
 
-In another thread they keep arguing about new extensions for Windows
-that are going to be added to the ioctl interface and how to make it fit
-into this. That just shows that it's very hard to predict from the
-amount of past changes how many future changes are going to happen. And
-if an interface is easy to extend it might well invite new changes that
-people didn't want to or couldn't make using the old interface.
+Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
+Tested-by: Michael Mueller <mimu@linux.ibm.com>
+
+> ---
+>   arch/s390/kvm/intercept.c |  2 +-
+>   arch/s390/kvm/interrupt.c |  8 ++++----
+>   arch/s390/kvm/kvm-s390.c  | 10 +++++-----
+>   3 files changed, 10 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> index 610dd44a948b22945b0a35b760ded64bd44ef7cb..a06a000f196ce0066bfd21b0d914492a1796819a 100644
+> --- a/arch/s390/kvm/intercept.c
+> +++ b/arch/s390/kvm/intercept.c
+> @@ -95,7 +95,7 @@ static int handle_validity(struct kvm_vcpu *vcpu)
+>   
+>   	vcpu->stat.exit_validity++;
+>   	trace_kvm_s390_intercept_validity(vcpu, viwhy);
+> -	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
+> +	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%p)", viwhy,
+>   		  current->pid, vcpu->kvm);
+>   
+>   	/* do not warn on invalid runtime instrumentation mode */
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 07ff0e10cb7f5c0294bf85f1d65d1eb124698705..c0558f05400732b2fe6911c1ef58f86b62364770 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -3161,7 +3161,7 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
+>   	if (!gi->origin)
+>   		return;
+>   	gisa_clear_ipm(gi->origin);
+> -	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", gi->origin);
+> +	VM_EVENT(kvm, 3, "gisa 0x%p cleared", gi->origin);
+>   }
+>   
+>   void kvm_s390_gisa_init(struct kvm *kvm)
+> @@ -3178,7 +3178,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
+>   	gi->timer.function = gisa_vcpu_kicker;
+>   	memset(gi->origin, 0, sizeof(struct kvm_s390_gisa));
+>   	gi->origin->next_alert = (u32)virt_to_phys(gi->origin);
+> -	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
+> +	VM_EVENT(kvm, 3, "gisa 0x%p initialized", gi->origin);
+>   }
+>   
+>   void kvm_s390_gisa_enable(struct kvm *kvm)
+> @@ -3219,7 +3219,7 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
+>   		process_gib_alert_list();
+>   	hrtimer_cancel(&gi->timer);
+>   	gi->origin = NULL;
+> -	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
+> +	VM_EVENT(kvm, 3, "gisa 0x%p destroyed", gisa);
+>   }
+>   
+>   void kvm_s390_gisa_disable(struct kvm *kvm)
+> @@ -3468,7 +3468,7 @@ int __init kvm_s390_gib_init(u8 nisc)
+>   		}
+>   	}
+>   
+> -	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
+> +	KVM_EVENT(3, "gib 0x%p (nisc=%d) initialized", gib, gib->nisc);
+>   	goto out;
+>   
+>   out_unreg_gal:
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index ebecb96bacce7d75563bd3a130a7cc31869dc254..9e427ba3aed42edf617d6625b5bcaba8f43dc464 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -1020,7 +1020,7 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
+>   		}
+>   		mutex_unlock(&kvm->lock);
+>   		VM_EVENT(kvm, 3, "SET: max guest address: %lu", new_limit);
+> -		VM_EVENT(kvm, 3, "New guest asce: 0x%pK",
+> +		VM_EVENT(kvm, 3, "New guest asce: 0x%p",
+>   			 (void *) kvm->arch.gmap->asce);
+>   		break;
+>   	}
+> @@ -3464,7 +3464,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>   		kvm_s390_gisa_init(kvm);
+>   	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
+>   	kvm->arch.pv.set_aside = NULL;
+> -	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+> +	KVM_EVENT(3, "vm 0x%p created by pid %u", kvm, current->pid);
+>   
+>   	return 0;
+>   out_err:
+> @@ -3527,7 +3527,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>   	kvm_s390_destroy_adapters(kvm);
+>   	kvm_s390_clear_float_irqs(kvm);
+>   	kvm_s390_vsie_destroy(kvm);
+> -	KVM_EVENT(3, "vm 0x%pK destroyed", kvm);
+> +	KVM_EVENT(3, "vm 0x%p destroyed", kvm);
+>   }
+>   
+>   /* Section: vcpu related */
+> @@ -3648,7 +3648,7 @@ static int sca_switch_to_extended(struct kvm *kvm)
+>   
+>   	free_page((unsigned long)old_sca);
+>   
+> -	VM_EVENT(kvm, 2, "Switched to ESCA (0x%pK -> 0x%pK)",
+> +	VM_EVENT(kvm, 2, "Switched to ESCA (0x%p -> 0x%p)",
+>   		 old_sca, kvm->arch.sca);
+>   	return 0;
+>   }
+> @@ -4025,7 +4025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+>   			goto out_free_sie_block;
+>   	}
+>   
+> -	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%pK, sie block at 0x%pK",
+> +	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%p, sie block at 0x%p",
+>   		 vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
+>   	trace_kvm_s390_create_vcpu(vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
+>   
+> 
+
