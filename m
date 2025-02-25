@@ -1,206 +1,119 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBFA0175AB;
-	Tue, 25 Feb 2025 08:02:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BD7E1624C0
+	for <linux-s390@vger.kernel.org>; Tue, 25 Feb 2025 08:12:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740470549; cv=none; b=Rcn35Vi3VY1+31SnyR03mehixi1ZIpJKLWQhqyFnjGQYPWVks/qAM4PqXHsD0KpY8PXbKj8PqPqVhzlYXF/elRf+NDrE3nRnp77Z8QIDyzSOwvXJBaLFyfaimWYuiccO64NUS/AziMkgCOTM+8LbsPDsdhytaGHIhoxPLElK1H8=
+	t=1740471138; cv=none; b=Wsdkfa5SHqMlVoL3if0ZPC1uUUutp+1KdspnmaQ73gJ6PU76Za96hGWfmEx0EAkmWPjkHn5HraN2zSw3T9a4WGDd4jRPd32C4OrAZ1HurzSXtxbnr4PdqWWQ5+GrfXU3GZjG+wmaqe+YUQ700bWS3ZlZ3trYxZQqWqGxubo4+hw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740470549; c=relaxed/simple;
-	bh=k1leRad2ojzsetmQP/1iyqy9qsl2R22cOQijt9+MijA=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=DOa6TMYbP80Q3wOIzdfyumBQbYG+Zvm10PbYdxhCqvBbLNl3TBZiD7muCnmvieuSSJrHjOZ0SonUn0iOkvKCfY+dSKFquvdB49n3V0sbBHEIPPU3a8V2So8GmY4bbvPr9NFIuq6lP92qM8GkUrw9agePxToRUTFs6SXxz+BDsJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Tf4Iq+/9; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=0oq0By6m; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1740471138; c=relaxed/simple;
+	bh=J2KmVhHgbRd4ipUdfn/i+p/EeXsqvi+jYyedHfYj824=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZntsaIi60zJvk9hFEdOU3yP5pr23yXvYEmyWY2DM/HjjGSGxkEmWNUl3MZMKveJ20nWr+jM7Pa/AbUbembPYu2mckbKfMHeeMkNv4Tk6irElEBk+wzqREXwKTbV2MaBHAJ7HLVC2sRmk8EgqSFew91XNBzI22kiWgqfHJg+xFxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k8sgrFBB; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Tf4Iq+/9";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="0oq0By6m"
-Received: from phl-compute-11.internal (phl-compute-11.phl.internal [10.202.2.51])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 7807F25400DE;
-	Tue, 25 Feb 2025 03:02:25 -0500 (EST)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-11.internal (MEProxy); Tue, 25 Feb 2025 03:02:25 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1740470545;
-	 x=1740556945; bh=QLBFywS7XyTxwPOejQif6z/28yCPC+NOlxqp7jJivgU=; b=
-	Tf4Iq+/9FoptMoOc1nTy4f6BZj5gOhOcHoeGz30LIjaqvtSeOkmVD7cvZMxvxaA2
-	C9FBCps0jhTV8mON4YGxKlQQ/DY4j4gq9DUn1hR2wvSW5+19TSRIcaMVQnxs7z+Q
-	Q1HcJJh3jNBnqM2g+zF8oI3aFNpbxiOH8NGYi0hG/Tsx4Vo2LnTecLS9dUkLnCzJ
-	74Yb04cjHm0WnoPvdKmEs8JDZAl6Twpc1+JcHw49CuY9i8rfJPipD/KnX2GeHqmh
-	6zMbMYf1tfnXdqi5OEQYJO0JZX7GElIIEjGwSJXzbRLOOUSlGuA+8Z0oUg6et+Gj
-	Ng4DzlsI+jxT8GyIZSf33g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1740470545; x=
-	1740556945; bh=QLBFywS7XyTxwPOejQif6z/28yCPC+NOlxqp7jJivgU=; b=0
-	oq0By6mJ5NU9t94eHHbBWd1S57H/FNY4h6Bf/tNIyl/sv61I5hgg19F78zcR1V43
-	M3R9Xa+Mivuoj2un/03HKLXJzxOIou5DdoZVSSxmeIoeGOnqxBI7Ki5IyrBIXr5e
-	MvY4WS7T0N63bm+7VZyHgSKpsH2hX4B10irHEd53mymzHZHRBmOA4aEaY0CsZBQO
-	1JVeT1A4iBzZDn4ZwkdfhyTfGrCrzwWNURnZbh1+Xv7XvgnD1DoI8FplhzohR/Hg
-	+g1nV5ROjbWwent0yDSTo3+n+fi4dxXI3HdHcSRzo1x0uH3oRDx6huW/Gly+ojgo
-	RNJvSsSWSvKicaOGni8lw==
-X-ME-Sender: <xms:EHm9Z6Ueeld-J-y38pUdxlQFN0u69PD-iN4M0VScKLvURxXHU0szCA>
-    <xme:EHm9Z2lmmZRxLlBIenGCUfci6FMToiUmNH_Pt9giaE6zq60W0nd1PYGM_iBoxQ3XP
-    ZTmklTn1jqxZbYrbW8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdekuddujecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
-    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
-    hnthhsucdlqddutddtmdenucfjughrpefoggffhffvvefkjghfufgtgfesthhqredtredt
-    jeenucfhrhhomhepfdetrhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusg
-    druggvqeenucggtffrrghtthgvrhhnpedvhfdvkeeuudevfffftefgvdevfedvleehvddv
-    geejvdefhedtgeegveehfeeljeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgtphhtthhopeel
-    pdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehlihhnuhigqdhprghrihhstgesvh
-    hgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhsfeeltdesvhhg
-    vghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhsvggtuhhrihhthi
-    dqmhhoughulhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhu
-    gidqshhhsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqgi
-    hfshesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehsphgrrhgtlhhinhhu
-    giesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopegthhhrihhsseiirghnkh
-    gvlhdrnhgvthdprhgtphhtthhopehvihhrohesiigvnhhivhdrlhhinhhugidrohhrghdr
-    uhhkpdhrtghpthhtohephhhprgesiiihthhorhdrtghomh
-X-ME-Proxy: <xmx:EHm9Z-ZIf4WE2-wNzseYDm9x7hprbFHz10DKe2GRvVPNKzaBgy6XkQ>
-    <xmx:EHm9ZxUanB_hQqMJMNKW0Rx6zN0XeG9puC5chAlei8xDXkzxYsHbIw>
-    <xmx:EHm9Z0m9hTJLXfvsJGXAaWD8aWcG2olfL0b-oNEspC0aaov9fHWzvg>
-    <xmx:EHm9Z2fKM_n1XKLlyAXepTqs4plqGLdUy7mS8ymNvqdebJWeG23a-A>
-    <xmx:EXm9Z-42ymM6iFFD8VvAMpU1O7tYc_kThzG4uPM3IrOXX9V4F4Lmp5EP>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id A3F4B2220072; Tue, 25 Feb 2025 03:02:24 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k8sgrFBB"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51OMnWh9013148;
+	Tue, 25 Feb 2025 08:12:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=m1zZms
+	FYPQBCC1Cs5haidOOFA9JsAklvBQw+T1EnKAg=; b=k8sgrFBBSlykf+qoKzV0Yw
+	DccqA/K+n0HGiigZsLTY1l2r/+Ofc7xa/1DGMrGPnaAcx6q9zNe04wc3FoWp9eim
+	xHH4eUqF34UtULUBq7iPJLCFR5dzbZJ9xoGh+ylW9EOF7zWeK95KUejwTpdNiSIq
+	CotMOo2YmBZC2N+Uqb1iWoZqIYQbn8kxIQe5BsqngjjGp7h56URc4QDp1++6KM3C
+	pRUZt3+l3edxoEA1+v5CV9cO+xg6nnGqwemZmguypeGMMhd38y0KuM26jCUJTCKy
+	lFYZra7wyUhouw9Fhl55rw8Uu5iipKehonFHiMAop/y1perMQi0GFaifJAQaF/XA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4511wa9w4a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 08:12:12 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51P4SKFk002570;
+	Tue, 25 Feb 2025 08:12:11 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4jkdvx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 08:12:11 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51P8C7UY35520980
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Feb 2025 08:12:07 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D20D220040;
+	Tue, 25 Feb 2025 08:12:07 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 85C2620043;
+	Tue, 25 Feb 2025 08:12:07 +0000 (GMT)
+Received: from [9.171.13.48] (unknown [9.171.13.48])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Feb 2025 08:12:07 +0000 (GMT)
+Message-ID: <c8767137-51da-4e87-ab69-5f7f03a07835@linux.ibm.com>
+Date: Tue, 25 Feb 2025 09:12:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 25 Feb 2025 09:02:04 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Christian Brauner" <brauner@kernel.org>
-Cc: "Amir Goldstein" <amir73il@gmail.com>,
- "Andrey Albershteyn" <aalbersh@redhat.com>,
- "Darrick J. Wong" <djwong@kernel.org>,
- "Richard Henderson" <richard.henderson@linaro.org>,
- "Matt Turner" <mattst88@gmail.com>,
- "Russell King" <linux@armlinux.org.uk>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Will Deacon" <will@kernel.org>,
- "Geert Uytterhoeven" <geert@linux-m68k.org>,
- "Michal Simek" <monstr@monstr.eu>,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Helge Deller" <deller@gmx.de>,
- "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Michael Ellerman" <mpe@ellerman.id.au>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Naveen N Rao" <naveen@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Yoshinori Sato" <ysato@users.sourceforge.jp>,
- "Rich Felker" <dalias@libc.org>,
- "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
- "David S . Miller" <davem@davemloft.net>,
- "Andreas Larsson" <andreas@gaisler.com>,
- "Andy Lutomirski" <luto@kernel.org>,
- "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, "Chris Zankel" <chris@zankel.net>,
- "Max Filippov" <jcmvbkbc@gmail.com>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>, "Jan Kara" <jack@suse.cz>,
- =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-api@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
- linux-xfs@vger.kernel.org, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
- "Theodore Ts'o" <tytso@mit.edu>
-Message-Id: <6b51ffa2-9d67-4466-865e-e703c1243352@app.fastmail.com>
-In-Reply-To: <20250224-klinke-hochdekoriert-3f6be89005a8@brauner>
-References: <20250211-xattrat-syscall-v3-1-a07d15f898b2@kernel.org>
- <20250221181135.GW21808@frogsfrogsfrogs>
- <CAOQ4uxgyYBFqkq6cQsso4LxJsPJ4uECOdskXmz-nmGhhV5BQWg@mail.gmail.com>
- <20250224-klinke-hochdekoriert-3f6be89005a8@brauner>
-Subject: Re: [PATCH v3] fs: introduce getfsxattrat and setfsxattrat syscalls
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 02/20] s390/ap/zcrypt: Rework AP message buffer
+ allocation
+To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
+        fcallies@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+References: <20250223095459.43058-1-freude@linux.ibm.com>
+ <20250223095459.43058-3-freude@linux.ibm.com>
+Content-Language: de-DE
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250223095459.43058-3-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Ls8UXVonBp6giDgsS2Zv2E81IbBtRraD
+X-Proofpoint-ORIG-GUID: Ls8UXVonBp6giDgsS2Zv2E81IbBtRraD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-25_03,2025-02-24_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
+ malwarescore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 phishscore=0 clxscore=1015
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502250053
 
-On Mon, Feb 24, 2025, at 12:32, Christian Brauner wrote:
-> On Fri, Feb 21, 2025 at 08:15:24PM +0100, Amir Goldstein wrote:
->> On Fri, Feb 21, 2025 at 7:13=E2=80=AFPM Darrick J. Wong <djwong@kerne=
-l.org> wrote:
+On 23/02/2025 10:54, Harald Freudenberger wrote:
+> Slight rework on the way how AP message buffers are allocated.
+> Instead of having multiple places with kmalloc() calls all
+> the AP message buffers are now allocated and freed on exactyl
+> one place ap_init_apmsg() allocates the current AP bus max
+> limit of ap_max_msg_size (defaults to 12KB). The preparation
+> functions only check for their payload to fit in. The AP
+> message buffer is freed in ap_release_apmsg().
 
->> > > @@ -23,6 +23,9 @@
->> > >  #include <linux/rw_hint.h>
->> > >  #include <linux/seq_file.h>
->> > >  #include <linux/debugfs.h>
->> > > +#include <linux/syscalls.h>
->> > > +#include <linux/fileattr.h>
->> > > +#include <linux/namei.h>
->> > >  #include <trace/events/writeback.h>
->> > >  #define CREATE_TRACE_POINTS
->> > >  #include <trace/events/timestamp.h>
->> > > @@ -2953,3 +2956,75 @@ umode_t mode_strip_sgid(struct mnt_idmap *=
-idmap,
->> > >       return mode & ~S_ISGID;
->> > >  }
->> > >  EXPORT_SYMBOL(mode_strip_sgid);
->> > > +
->> > > +SYSCALL_DEFINE4(getfsxattrat, int, dfd, const char __user *, fil=
-ename,
->> > > +             struct fsxattr __user *, fsx, unsigned int, at_flag=
-s)
->> >
->> > Should the kernel require userspace to pass the size of the fsx buf=
-fer?
->> > That way we avoid needing to rev the interface when we decide to gr=
-ow
->> > the structure.
->
-> Please version the struct by size as we do for clone3(),
-> mount_setattr(), listmount()'s struct mnt_id_req, sched_setattr(), all
-> the new xattrat*() system calls and a host of others. So laying out the
-> struct 64bit and passing a size alongside it.
->
-> This is all handled by copy_struct_from_user() and copy_struct_to_user=
-()
-> so nothing to reinvent. And it's easy to copy from existing system
-> calls.
+This patch reverts some non-neccessary changes from the previous one. Please clean this up.
 
-I don't think that works in this case, because 'struct fsxattr'
-is an existing structure that is defined with a fixed size of
-28 bytes. If we ever need more than 8 extra bytes, then the
-existing ioctl commands are also broken.
+Beside that,
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-Replacing fsxattr with an extensible structure of the same contents
-would work, but I feel that just adds more complication for little
-gain.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/ap_bus.c           | 30 ++++++++++++++++
+>  drivers/s390/crypto/ap_bus.h           | 21 ++---------
+>  drivers/s390/crypto/zcrypt_api.c       | 49 +++++++++++++++-----------
+>  drivers/s390/crypto/zcrypt_msgtype50.c | 22 ++++++------
+>  drivers/s390/crypto/zcrypt_msgtype6.c  | 46 ++++++++++++------------
+>  5 files changed, 96 insertions(+), 72 deletions(-)
 
-On the other hand, there is an open question about how unknown
-flags and fields in this structure. FS_IOC_FSSETXATTR/FS_IOC_FSGETXATTR
-treats them as optional and just ignores anything it doesn't
-understand, while copy_struct_from_user() would treat any unknown
-but set bytes as -E2BIG.
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
 
-The ioctl interface relies on the existing behavior, see
-0a6eab8bd4e0 ("vfs: support FS_XFLAG_COWEXTSIZE and get/set of
-CoW extent size hint") for how it was previously extended
-with an optional flag/word. I think that is fine for the syscall
-as well, but should be properly documented since it is different
-from how most syscalls work.
-
-    Arnd
