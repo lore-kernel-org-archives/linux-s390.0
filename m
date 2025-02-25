@@ -1,194 +1,170 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F7A257420
-	for <linux-s390@vger.kernel.org>; Tue, 25 Feb 2025 13:52:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3221627701;
+	Tue, 25 Feb 2025 15:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740491573; cv=none; b=QYNXGqda3QjP2uuNF/cWfRIoDuSCfP5vZR7ie4mDgcMVxv1eVTvL+GseJD3FQ3SR0Tlol6sUsKdkYNxQp7Bw6G2LGUbQvJQIgs7hOFCbsUTNyu7f8VGPBwAQVXr4vWq37KSEutWPysXJusDLbsbYF8tvYSs0Evj8XXq6Y9wMs/Y=
+	t=1740498319; cv=none; b=BpFxwbypgL4dDeLpd56fzAA3f1jl0465fUnmR9hA1V4zIK0f1qJ/HHKh2F03Gp74FZsOG2ftJ6oIEecId+WfhRnTW48hXYxcPkmI5EIfFT/WlnszHg1XOj2B5H6K+7WNhQj26HKCol+zh1K4abHJ057NL4lb0nBpXwHAgAIe8g0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740491573; c=relaxed/simple;
-	bh=nHn48dLV//yUG/6vYxCrlC+bwk5ldO95U+u7i3TD0cA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cGMyTsZ0D/8/+11u6cOuqJ4oG8d9h4EWgLoGFDW4Zo1Xi/Q/ONGfNrvP33RfGoUx07UYf9a3G8hGcqAHxE+rNbn4fJAZkxD/sA4kztvC7JZ9Fu0smBsIRWQhu2j1xeKnVccT47OLWrP6umIFeWWl7UZEeCmp8a78SnXLhUcyEps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sFHGG6TJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sFHGG6TJ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51PDjYc2018817;
-	Tue, 25 Feb 2025 13:52:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=msLFg/
-	xFqFHvfxlX98gcKdsSvAI54PJBA3XeoolyzE4=; b=sFHGG6TJt5zloq9xJ03lLi
-	oSiEdKEnqMDp38zA0gTi+gKLYG7508NzG+X6m8Ct5hSMkzDpPQ4VB/PHO3Fa1L6i
-	xSe0QEhtkqrrby6fjXquxGgZYSZo2aJCOmabnUCw8ia8B0jjx1DyHF0e4NUkZTwW
-	w/N4JaOyPbZOspt6wLvumiJXsBr13osfq0geq9GBhRjlt8FsfWtQymYQTZkg/q0d
-	4GNYnFUhJ/5TfyXVPW/gpUzNnuA2E5/WFCA23INi4iHl3PPZlG8aJTl3fJP9uOUY
-	w9tdWm1ATWV9cKkbLLG4yGe/NWCOOyeHTMW+gdWrn94MIGdQv4ZPw3BtabGg4OGw
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4519jp9us2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 13:52:48 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51PCmnaH012100;
-	Tue, 25 Feb 2025 13:52:47 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44ys9yddk5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 13:52:47 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51PDqhiw45089104
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Feb 2025 13:52:43 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B308520043;
-	Tue, 25 Feb 2025 13:52:43 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 65CFA20040;
-	Tue, 25 Feb 2025 13:52:43 +0000 (GMT)
-Received: from [9.171.13.48] (unknown [9.171.13.48])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Feb 2025 13:52:43 +0000 (GMT)
-Message-ID: <90d1a9a3-c314-4ecc-832b-f346fcf7f94a@linux.ibm.com>
-Date: Tue, 25 Feb 2025 14:52:43 +0100
+	s=arc-20240116; t=1740498319; c=relaxed/simple;
+	bh=J5MY8MNJZjjXvPf3aaubOgBeUIi+hFPi+Z9UdY1nir8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nK9pU3kwkxs2liFoJgNs7SIU6m6mRJfMALg4oAbNUr+fB5plefHRRmSimoh0bJIMhZOEfMTUN/0WA3H/9KLDXn/DlonfBo+u8FiIot/ivRjV2XVjCS9OCBkOEL96ubnihLgyVeaSriJmFTNynj9MgLe4APwpAPKxYBxk/3LwEbc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16DDC4CEDD;
+	Tue, 25 Feb 2025 15:45:14 +0000 (UTC)
+Date: Tue, 25 Feb 2025 10:45:52 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, "Masami
+ Hiramatsu" <mhiramat@kernel.org>, "Mark Rutland" <mark.rutland@arm.com>,
+ "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>, "Andrew Morton"
+ <akpm@linux-foundation.org>, "Peter Zijlstra" <peterz@infradead.org>,
+ "Linus Torvalds" <torvalds@linux-foundation.org>, "Masahiro Yamada"
+ <masahiroy@kernel.org>, "Nathan Chancellor" <nathan@kernel.org>, "Nicolas
+ Schier" <nicolas@fjasle.eu>, "Zheng Yejian" <zhengyejian1@huawei.com>,
+ "Martin Kelly" <martin.kelly@crowdstrike.com>, "Christophe Leroy"
+ <christophe.leroy@csgroup.eu>, "Josh Poimboeuf" <jpoimboe@redhat.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>, "Catalin Marinas"
+ <catalin.marinas@arm.com>, "Will Deacon" <will@kernel.org>, "Vasily Gorbik"
+ <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v5 2/6] scripts/sorttable: Have mcount rela sort use
+ direct values
+Message-ID: <20250225104552.2acc5909@gandalf.local.home>
+In-Reply-To: <91523154-072b-437b-bbdc-0b70e9783fd0@app.fastmail.com>
+References: <20250218195918.255228630@goodmis.org>
+	<20250218200022.538888594@goodmis.org>
+	<893cd8f1-8585-4d25-bf0f-4197bf872465@app.fastmail.com>
+	<20250224172147.1de3fda5@gandalf.local.home>
+	<20250224211102.33e264fc@gandalf.local.home>
+	<91523154-072b-437b-bbdc-0b70e9783fd0@app.fastmail.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/20] s390/ap: Introduce ap message buffer pool
-To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
-        fcallies@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-References: <20250223095459.43058-1-freude@linux.ibm.com>
- <20250223095459.43058-4-freude@linux.ibm.com>
-Content-Language: de-DE
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <20250223095459.43058-4-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: AaVJmswRd44MeSXWWsHIxsdL4bapFi4h
-X-Proofpoint-GUID: AaVJmswRd44MeSXWWsHIxsdL4bapFi4h
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-25_04,2025-02-25_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- bulkscore=0 mlxlogscore=740 priorityscore=1501 suspectscore=0 phishscore=0
- adultscore=0 lowpriorityscore=0 mlxscore=0 spamscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
- definitions=main-2502250090
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On 23/02/2025 10:54, Harald Freudenberger wrote:
-> There is a need for a do-not-allocate-memory path through the
-> ap bus layer. When ap_init_apmsg() with the AP_MSG_FLAG_MEMPOOL
-> xflag is called, instead of kmalloc() the ap message buffer is
-> allocated from the ap_msg_pool. This pool only holds a limited
-> amount of buffers: AP_MSG_POOL_MIN_ITEMS with the item size
-> AP_DEFAULT_MAX_MSG_SIZE and exactly one of these items (if available)
-> is returned if ap_init_apmsg() with the MEMPOOL flag is called.
-> When this pool is exhausted and the MEMPOOL flag is effective,
-> ap_init_apmsg() returns -ENOMEM without any attempt to allocate
-> memory.
-> 
-> The zcrypt layer may use this flag to indicate to the ap bus
-> that the processing path for this message should not allocate
-> memory. This is to prevent deadlocks with crypto and io for
-> example with encrypted swap volumes.
+On Tue, 25 Feb 2025 09:45:52 +0100
+"Arnd Bergmann" <arnd@arndb.de> wrote:
 
-See my comments below.
-The rest looks good to me.
+> It fixes the build issue for me. I tried booting as well, but ran
+> into a BUG() when I enable ftrace. I assume this is an unrelated
+> issue, but you can find the output for reference in case this is
+> relevant.
 
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
->  drivers/s390/crypto/ap_bus.c     | 59 +++++++++++++++++++++++++++-----
->  drivers/s390/crypto/ap_bus.h     |  3 +-
->  drivers/s390/crypto/zcrypt_api.c | 10 +++---
->  3 files changed, 57 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-> index 4940eaf538e9..b585b5d11074 100644
-> --- a/drivers/s390/crypto/ap_bus.c
-> +++ b/drivers/s390/crypto/ap_bus.c
-[...]
-> @@ -546,16 +562,27 @@ static void ap_poll_thread_stop(void)
->  #define is_card_dev(x) ((x)->parent == ap_root_device)
->  #define is_queue_dev(x) ((x)->parent != ap_root_device)
->  
-> -/**
-> +/*
+Thanks, can you try this patch instead? I'll be breaking it up if this works.
 
-What is the reason for mixing coding styles?
+This also removes the kaslr_offset() code.
 
->   * ap_init_apmsg() - Initialize ap_message.
-> - * Initialize a message before using. Otherwise this might result in
-> - * unexpected behaviour.
-> + * Initialize struct ap_message and allocate buffer to construct
-> + * the ap message.
->   */
-> -int ap_init_apmsg(struct ap_message *ap_msg)
-> +int ap_init_apmsg(struct ap_message *ap_msg, u32 xflags)
+-- Steve
 
-The xflags function parameter is very confusing (here and also in all other APIs too), because it allows to set some, but not all flags in ap_msg-flags. Why not using `bool alloc`? If you will keep the more flexible interface, please add another xflags element to struct ap_message. There is nothing in common between the ap_msg->flags and xflags, beside they're both named "flags". 
-
->  {
-> -	unsigned int maxmsgsize = atomic_read(&ap_max_msg_size);
-> +	unsigned int maxmsgsize;
->  
->  	memset(ap_msg, 0, sizeof(*ap_msg));
-> +
-> +	if (xflags & AP_MSG_FLAG_MEMPOOL) {
-> +		ap_msg->msg = mempool_alloc_preallocated(ap_msg_pool);
-> +		if (!ap_msg->msg)
-> +			return -ENOMEM;
-> +		ap_msg->bufsize = AP_DEFAULT_MAX_MSG_SIZE;
-> +		ap_msg->flags |= AP_MSG_FLAG_MEMPOOL;
-> +		return 0;
-> +	}
-> +
-> +	maxmsgsize = atomic_read(&ap_max_msg_size);
->  	ap_msg->msg = kmalloc(maxmsgsize, GFP_KERNEL);
->  	if (!ap_msg->msg)
->  		return -ENOMEM;
-> @@ -565,14 +592,18 @@ int ap_init_apmsg(struct ap_message *ap_msg)
->  }
->  EXPORT_SYMBOL(ap_init_apmsg);
->  
-> -/**
-> +/*
-
-???
-
->   * ap_release_apmsg() - Release ap_message.
-> - * Releases all memory used internal within the ap_message struct
-> - * Currently this is the message and private field.
-> + * Cleanup struct ap_message and release all memory held.
->   */
->  void ap_release_apmsg(struct ap_message *ap_msg)
->  {
-> -	kfree_sensitive(ap_msg->msg);
-> +	if (ap_msg->flags & AP_MSG_FLAG_MEMPOOL) {
-> +		memzero_explicit(ap_msg->msg, ap_msg->bufsize);
-> +		mempool_free(ap_msg->msg, ap_msg_pool);
-> +	} else {
-> +		kfree_sensitive(ap_msg->msg);
-> +	}
->  }
->  EXPORT_SYMBOL(ap_release_apmsg);
->  
-[...]
-
---
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
-
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 27c8def2139d..fdd5ffe268de 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -7004,7 +7004,6 @@ static int ftrace_process_locs(struct module *mod,
+ 	unsigned long count;
+ 	unsigned long *p;
+ 	unsigned long addr;
+-	unsigned long kaslr;
+ 	unsigned long flags = 0; /* Shut up gcc */
+ 	unsigned long pages;
+ 	int ret = -ENOMEM;
+@@ -7056,25 +7055,37 @@ static int ftrace_process_locs(struct module *mod,
+ 		ftrace_pages->next = start_pg;
+ 	}
+ 
+-	/* For zeroed locations that were shifted for core kernel */
+-	kaslr = !mod ? kaslr_offset() : 0;
+-
+ 	p = start;
+ 	pg = start_pg;
+ 	while (p < end) {
+ 		unsigned long end_offset;
+-		addr = ftrace_call_adjust(*p++);
++
++		addr = *p++;
++
+ 		/*
+ 		 * Some architecture linkers will pad between
+ 		 * the different mcount_loc sections of different
+ 		 * object files to satisfy alignments.
+ 		 * Skip any NULL pointers.
+ 		 */
+-		if (!addr || addr == kaslr) {
++		if (!addr) {
++			skipped++;
++			continue;
++		}
++
++		/*
++		 * If this is core kernel, make sure the address is in core
++		 * or inittext, as weak functions get zeroed and KASLR can
++		 * move them to something other than zero. It just will not
++		 * move it to an area where kernel text is.
++		 */
++		if (!mod && !(is_kernel_text(addr) || is_kernel_inittext(addr))) {
+ 			skipped++;
+ 			continue;
+ 		}
+ 
++		addr = ftrace_call_adjust(addr);
++
+ 		end_offset = (pg->index+1) * sizeof(pg->records[0]);
+ 		if (end_offset > PAGE_SIZE << pg->order) {
+ 			/* We should have allocated enough */
+diff --git a/scripts/sorttable.c b/scripts/sorttable.c
+index 23c7e0e6c024..10aff2aeb868 100644
+--- a/scripts/sorttable.c
++++ b/scripts/sorttable.c
+@@ -611,13 +611,16 @@ static int add_field(uint64_t addr, uint64_t size)
+ 	return 0;
+ }
+ 
++/* Used for when mcount/fentry is before the function entry */
++static int before_func;
++
+ /* Only return match if the address lies inside the function size */
+ static int cmp_func_addr(const void *K, const void *A)
+ {
+ 	uint64_t key = *(const uint64_t *)K;
+ 	const struct func_info *a = A;
+ 
+-	if (key < a->addr)
++	if (key + before_func < a->addr)
+ 		return -1;
+ 	return key >= a->addr + a->size;
+ }
+@@ -827,9 +830,14 @@ static void *sort_mcount_loc(void *arg)
+ 		pthread_exit(m_err);
+ 	}
+ 
+-	if (sort_reloc)
++	if (sort_reloc) {
+ 		count = fill_relocs(vals, size, ehdr, emloc->start_mcount_loc);
+-	else
++		/* gcc may use relocs to save the addresses, but clang does not. */
++		if (!count) {
++			count = fill_addrs(vals, size, start_loc);
++			sort_reloc = 0;
++		}
++	} else
+ 		count = fill_addrs(vals, size, start_loc);
+ 
+ 	if (count < 0) {
+@@ -1248,6 +1256,8 @@ static int do_file(char const *const fname, void *addr)
+ #ifdef MCOUNT_SORT_ENABLED
+ 		sort_reloc = true;
+ 		rela_type = 0x403;
++		/* arm64 uses patchable function entry placing before function */
++		before_func = 8;
+ #endif
+ 		/* fallthrough */
+ 	case EM_386:
