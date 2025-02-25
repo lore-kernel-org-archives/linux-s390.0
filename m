@@ -1,177 +1,425 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96C691FC0E3;
-	Tue, 25 Feb 2025 08:46:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E08F260A29
+	for <linux-s390@vger.kernel.org>; Tue, 25 Feb 2025 08:57:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740473179; cv=none; b=XhCKmjAmrgce+8Tg72QeWIAfJSnL93ELaeEvf3X5C1DzIqvpRNij0eb0qvDiJe/SbjNp1v7flBu5wwPyocQ/T0GHUeJSOf105YU1T1LNKHwVVh+gSxJPZ1lXUnpaSNxmPfstYD5kiK2CVSqjsI5tvsz3+k51kh4bFDv3Kt4UjeQ=
+	t=1740473824; cv=none; b=daI1DMbLbjMbFcHycjpTS5enC13Ey4QzMhsLAmZbyjnISgurkZj0F4YOv1vqGxKizjBBtkn4Op7LotYH61tGxnGCVNMwzPYr5zZYtZLCCnGpkfmOd6yv4dYjrF+r36PNE1u+SMrkoHiN48Y8X8GB3tJwqMNL1+pmqeRnfvIXlVg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740473179; c=relaxed/simple;
-	bh=aOml0Bz8Sgb0jQ51XEKSZOwqEewPrKJmjSJ4oe1CkdA=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=hu9wUaB3yed+yhh0VYMO14061CNqiNeQ3eZmujYwLfbmLYqUxEvycRQ85udwo3D2EqztzlLd2Uh9wZTotN0D/oYGHr4SYJ5/ujk4En0mod4SiQC64NFSZN/zcnpJtz8IOQgucrV9KpWgtk8RDFJTqeiHNZsQEJbe4EVfY9NNYZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=qWtF1Owc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=g8sSRzPq; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1740473824; c=relaxed/simple;
+	bh=HBkfWUvaOCsLjYoE+RMGKDQqEfPoo8bHuPZv5+FJ0Rg=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=WN38rxbuDbkIkAslbSs6SCnmGQq2HTvVg2gM5sVfG7Jz5lEcywaJ8ZnSCX7CE3T3uO+owNCxvx/ZtyIlE5dB6PJmFD5yP3VhZO1nqdchKtoz60jH6BCYI/AwbrS/kv00BT9rgciO/jNDAGLd2TDaoZ+jazk0TVWHrmelmBerfDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fvi1ASmd; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="qWtF1Owc";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="g8sSRzPq"
-Received: from phl-compute-11.internal (phl-compute-11.phl.internal [10.202.2.51])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 161DC2540135;
-	Tue, 25 Feb 2025 03:46:15 -0500 (EST)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-11.internal (MEProxy); Tue, 25 Feb 2025 03:46:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1740473174;
-	 x=1740559574; bh=Gqp7mwTK3YSjBq7qHLLUEIE1pbJAxEZRfdzmirETXMQ=; b=
-	qWtF1OwcrUhy36iN8BURe8nP0cFg0cmcOc+vnGmUH2pt6lcZGpNPG5PNgWqdtV5A
-	4JiNgqgMQ2SA4myTu3CjD2Lbgiay3Iv/8GxZopX9dP2FOEYqLwt7dphddTK+/2aO
-	IhFK/eBxu1q7sncbOudX6HA1+cKTQjtp1LwB75tgQlLa8TZOVg6MuRgtlwMQ8WDT
-	Q2qLEfsrTJU0iibiOSFbEfQFlm3Cda4rZeKTzKyGi6hl/RG38nWCZKmkr7TMQk86
-	hmO0Bb5w2ZZdXY4DP6aj9jgChinTO+TzI+8QxOTA1T+Kyj+xy5ejmL1gCkLnLw4U
-	upz/YsnU/nqvopd8ioKP8g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1740473174; x=
-	1740559574; bh=Gqp7mwTK3YSjBq7qHLLUEIE1pbJAxEZRfdzmirETXMQ=; b=g
-	8sSRzPqIkkcW3d2sMheE8RXiIv/hxa0fkAnUND/YHkYPIV1r+LIH9hzpTA2VLCZs
-	E3c/LteZGrF7J2MYrblMxg/NnRFI9rQxdrT1sHtKfozEHrWoW5oppH0V0VNUhLrC
-	jzwdjSRwfPUx+RPDAXFurpYPSQFXu3IYRanimyL6jos7OIiziugOCA+lebW/BaX7
-	bS0SVvl2lvHjCGcVIejv7ZbczP0BI7b6HRWVFwgruklhSCJLecnwFIadutjk9DTs
-	vyIoTUIfpW+Ejgg3Hzu/PElCZPWBKIP8XEnce6pE7XMmC4apV+S8/mqiAE6vOZS4
-	A62M35zMy5CMFA1vnfncg==
-X-ME-Sender: <xms:VYO9Z7ZjzSGQBkl_bdQAkvw7RJJKpmBsMHVKTFY2RIiqGv57dtOovQ>
-    <xme:VYO9Z6YUx_PJ_13sTiAv8-8ZCAS_Xv9dHzddPFWcgmFqXFk-ydg9u4vTO9ypS1Sei
-    tb_GoxcBIQCmoOzbQw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdekuddvhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
-    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
-    hnthhsucdlqddutddtmdenucfjughrpefoggffhffvvefkjghfufgtgfesthejredtredt
-    tdenucfhrhhomhepfdetrhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusg
-    druggvqeenucggtffrrghtthgvrhhnpefhtdfhvddtfeehudekteeggffghfejgeegteef
-    gffgvedugeduveelvdekhfdvieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgtphhtthhopedv
-    hedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheptggrthgrlhhinhdrmhgrrhhinh
-    grshesrghrmhdrtghomhdprhgtphhtthhopehmrghrkhdrrhhuthhlrghnugesrghrmhdr
-    tghomhdprhgtphhtthhopehmrghrthhinhdrkhgvlhhlhiestghrohifughsthhrihhkvg
-    drtghomhdprhgtphhtthhopegthhhrihhsthhophhhvgdrlhgvrhhohiestghsghhrohhu
-    phdrvghupdhrtghpthhtohepmhgrthhhihgvuhdruggvshhnohihvghrshesvghffhhitg
-    hiohhsrdgtohhmpdhrtghpthhtohepnhhitgholhgrshesfhhjrghslhgvrdgvuhdprhgt
-    phhtthhopehrohhsthgvughtsehgohhoughmihhsrdhorhhgpdhrtghpthhtohepiihhvg
-    hnghihvghjihgrnhdusehhuhgrfigvihdrtghomhdprhgtphhtthhopehpvghtvghriies
-    ihhnfhhrrgguvggrugdrohhrgh
-X-ME-Proxy: <xmx:VYO9Z99GuZzh6mTJ2hh1DqhImZMJTUwR9ybvHkkLGvmfhkFBjtpcNw>
-    <xmx:VYO9ZxrzBi1aI77BwZu-YSr_bsDL0SzuIuIq7uZ2I0sQ--QrrCJSYg>
-    <xmx:VYO9Z2qimk4q1oG6TtJqdD8ayoJVMeQ_QFFum5C-vnfOJ1yQB2yU6Q>
-    <xmx:VYO9Z3T_YIynT8x-I6JrB-PKgBsjBTzNNam7Kn-Nn_ZS2KLkTWU2Pw>
-    <xmx:VoO9Z4YEQE10Manbd5j1XgNtt-qqvPhkwEGTYhWC2WCwzIcHyl7INc-u>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id ED1BC2220072; Tue, 25 Feb 2025 03:46:12 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fvi1ASmd"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51P20cd4003173;
+	Tue, 25 Feb 2025 08:57:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=LA4DhyYNVi/L0ZfVf+sPp/ieNDmzI9adwaSw92DijGE=; b=Fvi1ASmdGP9s
+	Q5ENyvNLDoonKjpJnsNvYhprTIJBQ5tKKn3RCz85WVgoUXu18E4DinhMOty7vo9l
+	pP2KPXlLTigCJ0sSxJp9phma9IMVzK9xXzSLlLTLw2cPMBKJ6hP1fPu+V5/rlQ7A
+	/ZRdDifmeSCiRcSwMe+bNsS7N5tQiDtBWVu/DOA4L5H816m9cAm6u2cveQLyzFM/
+	kkM8RN112bbWWQxpCjubXCV6R7ihOtvw9L0ujCTBFcWAunPxvIgABLikSeod/ma7
+	arf7+uLqmfol0CMohX54vIyLSTXsrkI7i7sNdGOr7djlLHOMYEpMmU/eYOEH6uPJ
+	aQeTxmcJwQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4514q09ft2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 08:56:59 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51P52h7o027376;
+	Tue, 25 Feb 2025 08:56:59 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yum1uf2u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 08:56:59 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51P8uuTF56820002
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Feb 2025 08:56:56 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 86B4F5805A;
+	Tue, 25 Feb 2025 08:56:57 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 47AF458051;
+	Tue, 25 Feb 2025 08:56:57 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Feb 2025 08:56:57 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 25 Feb 2025 09:45:52 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
- "Masami Hiramatsu" <mhiramat@kernel.org>,
- "Mark Rutland" <mark.rutland@arm.com>,
- "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Peter Zijlstra" <peterz@infradead.org>,
- "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Masahiro Yamada" <masahiroy@kernel.org>,
- "Nathan Chancellor" <nathan@kernel.org>,
- "Nicolas Schier" <nicolas@fjasle.eu>,
- "Zheng Yejian" <zhengyejian1@huawei.com>,
- "Martin Kelly" <martin.kelly@crowdstrike.com>,
- "Christophe Leroy" <christophe.leroy@csgroup.eu>,
- "Josh Poimboeuf" <jpoimboe@redhat.com>, "Heiko Carstens" <hca@linux.ibm.com>,
- "Catalin Marinas" <catalin.marinas@arm.com>, "Will Deacon" <will@kernel.org>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>
-Message-Id: <91523154-072b-437b-bbdc-0b70e9783fd0@app.fastmail.com>
-In-Reply-To: <20250224211102.33e264fc@gandalf.local.home>
-References: <20250218195918.255228630@goodmis.org>
- <20250218200022.538888594@goodmis.org>
- <893cd8f1-8585-4d25-bf0f-4197bf872465@app.fastmail.com>
- <20250224172147.1de3fda5@gandalf.local.home>
- <20250224211102.33e264fc@gandalf.local.home>
-Subject: Re: [PATCH v5 2/6] scripts/sorttable: Have mcount rela sort use direct values
-Content-Type: text/plain
+Date: Tue, 25 Feb 2025 09:56:57 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Holger Dengler <dengler@linux.ibm.com>
+Cc: ifranzki@linux.ibm.com, fcallies@linux.ibm.com, linux-s390@vger.kernel.org,
+        herbert@gondor.apana.org.au
+Subject: Re: [PATCH v1 01/20] s390/ap: Move response_type struct into ap_msg
+ struct
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <4e7052e5-2319-42f8-a9f0-ca59227a2f10@linux.ibm.com>
+References: <20250223095459.43058-1-freude@linux.ibm.com>
+ <20250223095459.43058-2-freude@linux.ibm.com>
+ <4e7052e5-2319-42f8-a9f0-ca59227a2f10@linux.ibm.com>
+Message-ID: <604e9fbfd03fdfa4af7764ba54d8103b@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zrfoZXiDf06ELg2z1yEmkJ4YR5hczuC1
+X-Proofpoint-GUID: zrfoZXiDf06ELg2z1yEmkJ4YR5hczuC1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-25_03,2025-02-24_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 mlxscore=0 phishscore=0 bulkscore=0 impostorscore=0
+ spamscore=0 mlxlogscore=999 malwarescore=0 clxscore=1015
+ priorityscore=1501 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2502100000 definitions=main-2502250057
 
-On Tue, Feb 25, 2025, at 03:11, Steven Rostedt wrote:
-> On Mon, 24 Feb 2025 17:21:47 -0500
+On 2025-02-24 16:23, Holger Dengler wrote:
+> On 23/02/2025 10:54, Harald Freudenberger wrote:
+>> Move the very small response_type struct into struct ap_msg.
+>> So there is no need to kmalloc this tiny struct with each
+>> ap message preparation.
+> 
+> I understand the intention for this patch, but in my opinion the
+> layering concept between ap and zcrypt is violated by defining the
+> response-type as part of the ap message struct. But I don't have any
+> better solution, so for the moment you may leave it as is.
+> 
 >> 
->
-> Nevermind, Masami told me all I need to do is add LLVM=1 and clang can
-> handle the cross compiling.
->
-> I looked, and sure enough clang on arm64 does it the same way x86 does. So
-> using the rela items to sort is a gcc thing :-p
->
-> Can you try this patch?
+>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>> ---
+>>  drivers/s390/crypto/ap_bus.h           |  12 ++-
+>>  drivers/s390/crypto/zcrypt_msgtype50.c |  22 +++---
+>>  drivers/s390/crypto/zcrypt_msgtype6.c  | 101 
+>> ++++++++++---------------
+>>  3 files changed, 59 insertions(+), 76 deletions(-)
+>> 
+>> diff --git a/drivers/s390/crypto/ap_bus.h 
+>> b/drivers/s390/crypto/ap_bus.h
+>> index f4622ee4d894..a5d8f805625f 100644
+>> --- a/drivers/s390/crypto/ap_bus.h
+>> +++ b/drivers/s390/crypto/ap_bus.h
+>> @@ -214,6 +214,15 @@ struct ap_queue {
+>> 
+>>  typedef enum ap_sm_wait (ap_func_t)(struct ap_queue *queue);
+>> 
+>> +struct ap_response_type {
+>> +	struct completion work;
+>> +	int type;
+>> +};
+>> +
+>> +#define CEXXC_RESPONSE_TYPE_ICA  1
+>> +#define CEXXC_RESPONSE_TYPE_XCRB 2
+>> +#define CEXXC_RESPONSE_TYPE_EP11 3
+>> +
+> 
+> I would leave the type defines in the zcrypt_msgtype50.c.
 
-It fixes the build issue for me. I tried booting as well, but ran
-into a BUG() when I enable ftrace. I assume this is an unrelated
-issue, but you can find the output for reference in case this is
-relevant.
+Done -> v2
 
-     Arnd
+> 
+>>  struct ap_message {
+>>  	struct list_head list;		/* Request queueing. */
+>>  	unsigned long psmid;		/* Message id. */
+>> @@ -222,7 +231,7 @@ struct ap_message {
+>>  	size_t bufsize;			/* allocated msg buffer size */
+>>  	u16 flags;			/* Flags, see AP_MSG_FLAG_xxx */
+>>  	int rc;				/* Return code for this message */
+>> -	void *private;			/* ap driver private pointer. */
+>> +	struct ap_response_type response;
+> 
+> I don't like this change. The completion and the type are both
+> message-type related. That means, this change pulls messate-type
+> related data definitions into the ap-layer. On the other hand, I have
+> currently no idea how this can be solved.
+> 
 
-----
-[    0.000000] ftrace section at ffffc44698ef67c8 sorted properly
-[    0.000000] Unable to handle kernel paging request at virtual address 0000444617800008
-[    0.000000] Mem abort info:
-[    0.000000]   ESR = 0x0000000096000004
-[    0.000000]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    0.000000]   SET = 0, FnV = 0
-[    0.000000]   EA = 0, S1PTW = 0
-[    0.000000]   FSC = 0x04: level 0 translation fault
-[    0.000000] Data abort info:
-[    0.000000]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
-[    0.000000]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
-[    0.000000]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
-[    0.000000] [0000444617800008] user address but active_mm is swapper
-[    0.000000] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
-[    0.000000] Modules linked in:
-[    0.000000] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.14.0-rc4-next-20250225-00565-g6c6895f38d76 #15305
-[    0.000000] Hardware name: linux,dummy-virt (DT)
-[    0.000000] pstate: 400000c5 (nZcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[    0.000000] pc : ftrace_call_adjust+0x44/0xd0
-[    0.000000] lr : ftrace_process_locs+0x220/0x5e0
-[    0.000000] sp : ffffc44698fb3da0
-[    0.000000] x29: ffffc44698fb3da0 x28: ffffc4469929f000 x27: ffffc4469929f000
-[    0.000000] x26: 0000444617800000 x25: ffffc44698ef67d0 x24: ffff57b2c2008000
-[    0.000000] x23: ffffc44698f59de0 x22: ffff57b2c2008000 x21: 0000000000000000
-[    0.000000] x20: 0000000000001000 x19: 0000444617800000 x18: 0000000000000068
-[    0.000000] x17: 0000000000000001 x16: 00000000ffffffff x15: ffffc44698fc5f80
-[    0.000000] x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000000
-[    0.000000] x11: 0000000000000000 x10: 0000000000000000 x9 : 00007fff80000000
-[    0.000000] x8 : 000000000000201f x7 : 0000000000000000 x6 : 302e30202020205b
-[    0.000000] x5 : 0000000000000001 x4 : 0000000000000000 x3 : 0000000000000001
-[    0.000000] x2 : 0000000000000004 x1 : 0000000000000040 x0 : 0000444617800000
-[    0.000000] Call trace:
-[    0.000000]  ftrace_call_adjust+0x44/0xd0 (P)
-[    0.000000]  ftrace_process_locs+0x220/0x5e0
-[    0.000000]  ftrace_init+0x98/0xe8
-[    0.000000]  start_kernel+0x16c/0x3d0
-[    0.000000]  __primary_switched+0x88/0x98
-[    0.000000] Code: aa1f03e0 14000014 aa0003f3 528403e8 (b8408e74) 
-[    0.000000] ---[ end trace 0000000000000000 ]---
-[    0.000000] Kernel panic - not syncing: Attempted to kill the idle task!
-[    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
+Well, the "private" data could be opaque allocated in ap_init_apmsg 
+without
+any knowledge about the data - just the size. And the msg type 50 and 6
+implementations could just check for the right size and then overlay the
+private data bytes with their own struct.
+
+>>  	/* receive is called from tasklet context */
+>>  	void (*receive)(struct ap_queue *, struct ap_message *,
+>>  			struct ap_message *);
+>> @@ -250,7 +259,6 @@ static inline void ap_init_message(struct 
+>> ap_message *ap_msg)
+>>  static inline void ap_release_message(struct ap_message *ap_msg)
+>>  {
+>>  	kfree_sensitive(ap_msg->msg);
+>> -	kfree_sensitive(ap_msg->private);
+> 
+> As far as I can see, the kfree_sensitive() was not really required, as
+> this only contains the type and the completion, but no sensitive data,
+> right?
+> If the assumption is true, the change is ok (if not, we should replace
+> it with a memzero_explicit()).
+
+Your assumption is true - the private data only held a completion and
+the type of the msg (type 50 or type 6) - all that is no sensitive info.
+
+> 
+>> @@ -454,25 +454,24 @@ static long zcrypt_msgtype50_modexpo(struct 
+>> zcrypt_queue *zq,
+>>  				     struct ica_rsa_modexpo *mex,
+>>  				     struct ap_message *ap_msg)
+>>  {
+>> -	struct completion work;
+>>  	int rc;
+>> 
+>>  	ap_msg->bufsize = MSGTYPE50_CRB3_MAX_MSG_SIZE;
+>> -	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+>> +	if (!ap_msg->msg)
+>> +		ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+> 
+> This change will be removed by the next patch in the series. Please
+> drop it. There are other occurances later in the code, see my further
+> comments.
+> 
+
+Done as you suggest -> v2
+
+>>  	if (!ap_msg->msg)
+>>  		return -ENOMEM;
+>>  	ap_msg->receive = zcrypt_msgtype50_receive;
+>>  	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
+>>  		atomic_inc_return(&zcrypt_step);
+>> -	ap_msg->private = &work;
+>>  	rc = ICAMEX_msg_to_type50MEX_msg(zq, ap_msg, mex);
+>>  	if (rc)
+>>  		goto out;
+>> -	init_completion(&work);
+>> +	init_completion(&ap_msg->response.work);
+>>  	rc = ap_queue_message(zq->queue, ap_msg);
+>>  	if (rc)
+>>  		goto out;
+>> -	rc = wait_for_completion_interruptible(&work);
+>> +	rc = wait_for_completion_interruptible(&ap_msg->response.work);
+>>  	if (rc == 0) {
+>>  		rc = ap_msg->rc;
+>>  		if (rc == 0)
+> [...]
+>> @@ -504,25 +502,24 @@ static long zcrypt_msgtype50_modexpo_crt(struct 
+>> zcrypt_queue *zq,
+>>  					 struct ica_rsa_modexpo_crt *crt,
+>>  					 struct ap_message *ap_msg)
+>>  {
+>> -	struct completion work;
+>>  	int rc;
+>> 
+>>  	ap_msg->bufsize = MSGTYPE50_CRB3_MAX_MSG_SIZE;
+>> -	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+>> +	if (!ap_msg->msg)
+>> +		ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+> 
+> Same here, please drop it.
+
+-> v2
+
+> 
+>>  	if (!ap_msg->msg)
+>>  		return -ENOMEM;
+>>  	ap_msg->receive = zcrypt_msgtype50_receive;
+>>  	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
+>>  		atomic_inc_return(&zcrypt_step);
+>> -	ap_msg->private = &work;
+>>  	rc = ICACRT_msg_to_type50CRT_msg(zq, ap_msg, crt);
+>>  	if (rc)
+>>  		goto out;
+>> -	init_completion(&work);
+>> +	init_completion(&ap_msg->response.work);
+>>  	rc = ap_queue_message(zq->queue, ap_msg);
+>>  	if (rc)
+>>  		goto out;
+>> -	rc = wait_for_completion_interruptible(&work);
+>> +	rc = wait_for_completion_interruptible(&ap_msg->response.work);
+>>  	if (rc == 0) {
+>>  		rc = ap_msg->rc;
+>>  		if (rc == 0)
+> [...]
+>> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c 
+>> b/drivers/s390/crypto/zcrypt_msgtype6.c
+>> index b64c9d9fc613..21ee311cf33d 100644
+>> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+>> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+>> @@ -31,15 +31,6 @@
+>> 
+>>  #define CEIL4(x) ((((x) + 3) / 4) * 4)
+>> 
+>> -struct response_type {
+>> -	struct completion work;
+>> -	int type;
+>> -};
+>> -
+>> -#define CEXXC_RESPONSE_TYPE_ICA  0
+>> -#define CEXXC_RESPONSE_TYPE_XCRB 1
+>> -#define CEXXC_RESPONSE_TYPE_EP11 2
+>> -
+> 
+> Please define the message types here (see my previous comment).
+> 
+
+done -> v2
+
+>>  MODULE_AUTHOR("IBM Corporation");
+>>  MODULE_DESCRIPTION("Cryptographic Coprocessor (message type 6), " \
+>>  		   "Copyright IBM Corp. 2001, 2023");
+> [...]
+>> @@ -1061,28 +1046,26 @@ static long zcrypt_msgtype6_modexpo_crt(struct 
+>> zcrypt_queue *zq,
+>>   * Prepare a CCA AP msg: fetch the required data from userspace,
+>>   * prepare the AP msg, fill some info into the ap_message struct,
+>>   * extract some data from the CPRB and give back to the caller.
+>> - * This function allocates memory and needs an ap_msg prepared
+>> - * by the caller with ap_init_message(). Also the caller has to
+>> - * make sure ap_release_message() is always called even on failure.
+>> + * This function may allocate memory if the ap_msg msg buffer is
+>> + * not preallocated and needs an ap_msg prepared by the caller
+>> + * with ap_init_message(). Also the caller has to make sure
+>> + * ap_release_message() is always called even on failure.
+> 
+> Please move this change to the patch, which makes the allocation 
+> optional.
+
+done -> v2
+
+> 
+>>   */
+>>  int prep_cca_ap_msg(bool userspace, struct ica_xcRB *xcrb,
+>>  		    struct ap_message *ap_msg,
+>>  		    unsigned int *func_code, unsigned short **dom)
+>>  {
+>> -	struct response_type resp_type = {
+>> -		.type = CEXXC_RESPONSE_TYPE_XCRB,
+>> -	};
+>> +	struct ap_response_type *resp_type = &ap_msg->response;
+>> 
+>>  	ap_msg->bufsize = atomic_read(&ap_max_msg_size);
+>> -	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+>> +	if (!ap_msg->msg)
+>> +		ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+> 
+> Please drop the kmalloc change.
+
+done -> v2
+
+> 
+>>  	if (!ap_msg->msg)
+>>  		return -ENOMEM;
+>>  	ap_msg->receive = zcrypt_msgtype6_receive;
+>>  	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
+>>  				atomic_inc_return(&zcrypt_step);
+>> -	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), 
+>> GFP_KERNEL);
+>> -	if (!ap_msg->private)
+>> -		return -ENOMEM;
+>> +	resp_type->type = CEXXC_RESPONSE_TYPE_XCRB;
+>>  	return xcrb_msg_to_type6cprb_msgx(userspace, ap_msg, xcrb, 
+>> func_code, dom);
+>>  }
+>> 
+> [...]
+>> @@ -1158,28 +1141,26 @@ static long zcrypt_msgtype6_send_cprb(bool 
+>> userspace, struct zcrypt_queue *zq,
+>>   * Prepare an EP11 AP msg: fetch the required data from userspace,
+>>   * prepare the AP msg, fill some info into the ap_message struct,
+>>   * extract some data from the CPRB and give back to the caller.
+>> - * This function allocates memory and needs an ap_msg prepared
+>> - * by the caller with ap_init_message(). Also the caller has to
+>> - * make sure ap_release_message() is always called even on failure.
+>> + * This function may allocate memory if the ap_msg msg buffer is
+>> + * not preallocated and needs an ap_msg prepared by the caller
+>> + * with ap_init_message(). Also the caller has to make sure
+>> + * ap_release_message() is always called even on failure.
+> 
+> Please move this change to the patch, which makes the allocation 
+> optional.
+
+done -> v2
+
+> 
+>>   */
+>>  int prep_ep11_ap_msg(bool userspace, struct ep11_urb *xcrb,
+>>  		     struct ap_message *ap_msg,
+>>  		     unsigned int *func_code, unsigned int *domain)
+>>  {
+>> -	struct response_type resp_type = {
+>> -		.type = CEXXC_RESPONSE_TYPE_EP11,
+>> -	};
+>> +	struct ap_response_type *resp_type = &ap_msg->response;
+>> 
+>>  	ap_msg->bufsize = atomic_read(&ap_max_msg_size);
+>> -	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+>> +	if (!ap_msg->msg)
+>> +		ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+> 
+> Please drop the kmalloc change.
+> 
+
+done -> v2
+
+>>  	if (!ap_msg->msg)
+>>  		return -ENOMEM;
+>>  	ap_msg->receive = zcrypt_msgtype6_receive_ep11;
+>>  	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
+>>  				atomic_inc_return(&zcrypt_step);
+>> -	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), 
+>> GFP_KERNEL);
+>> -	if (!ap_msg->private)
+>> -		return -ENOMEM;
+>> +	resp_type->type = CEXXC_RESPONSE_TYPE_EP11;
+>>  	return xcrb_msg_to_type6_ep11cprb_msgx(userspace, ap_msg, xcrb,
+>>  					       func_code, domain);
+>>  }
+> [...]
+>> @@ -1279,20 +1260,18 @@ static long 
+>> zcrypt_msgtype6_send_ep11_cprb(bool userspace, struct zcrypt_queue *
+>>  int prep_rng_ap_msg(struct ap_message *ap_msg, int *func_code,
+>>  		    unsigned int *domain)
+>>  {
+>> -	struct response_type resp_type = {
+>> -		.type = CEXXC_RESPONSE_TYPE_XCRB,
+>> -	};
+>> +	struct ap_response_type *resp_type = &ap_msg->response;
+>> 
+>>  	ap_msg->bufsize = AP_DEFAULT_MAX_MSG_SIZE;
+>> -	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+>> +	if (!ap_msg->msg)
+>> +		ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
+> 
+> Please drop the kmalloc change.
+> 
+
+done -> v2
+
+>>  	if (!ap_msg->msg)
+>>  		return -ENOMEM;
+>>  	ap_msg->receive = zcrypt_msgtype6_receive;
+>>  	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
+>>  				atomic_inc_return(&zcrypt_step);
+>> -	ap_msg->private = kmemdup(&resp_type, sizeof(resp_type), 
+>> GFP_KERNEL);
+>> -	if (!ap_msg->private)
+>> -		return -ENOMEM;
+>> +
+>> +	resp_type->type = CEXXC_RESPONSE_TYPE_XCRB;
+>> 
+>>  	rng_type6cprb_msgx(ap_msg, ZCRYPT_RNG_BUFFER_SIZE, domain);
+>> 
+> [...]
