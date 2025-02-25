@@ -1,170 +1,149 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3221627701;
-	Tue, 25 Feb 2025 15:45:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF7AD1552F5;
+	Tue, 25 Feb 2025 15:59:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740498319; cv=none; b=BpFxwbypgL4dDeLpd56fzAA3f1jl0465fUnmR9hA1V4zIK0f1qJ/HHKh2F03Gp74FZsOG2ftJ6oIEecId+WfhRnTW48hXYxcPkmI5EIfFT/WlnszHg1XOj2B5H6K+7WNhQj26HKCol+zh1K4abHJ057NL4lb0nBpXwHAgAIe8g0=
+	t=1740499168; cv=none; b=knpTuebUBAwjmj21VroOkMpOwiQuACfn6ErTPZLNfifJ3FCB6+SYmqaTSSUfk4HfJcJSOEUAw1AZfrKkYjnMBJWIbm69B79pSpy5B+fL3o24oIFXpmiR8rFb6tQ6Qgd1B7Qh1RW+xALo2rtL+ShNXgevABUQg5kE0wRf02BT1M4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740498319; c=relaxed/simple;
-	bh=J5MY8MNJZjjXvPf3aaubOgBeUIi+hFPi+Z9UdY1nir8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nK9pU3kwkxs2liFoJgNs7SIU6m6mRJfMALg4oAbNUr+fB5plefHRRmSimoh0bJIMhZOEfMTUN/0WA3H/9KLDXn/DlonfBo+u8FiIot/ivRjV2XVjCS9OCBkOEL96ubnihLgyVeaSriJmFTNynj9MgLe4APwpAPKxYBxk/3LwEbc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16DDC4CEDD;
-	Tue, 25 Feb 2025 15:45:14 +0000 (UTC)
-Date: Tue, 25 Feb 2025 10:45:52 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, "Masami
- Hiramatsu" <mhiramat@kernel.org>, "Mark Rutland" <mark.rutland@arm.com>,
- "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>, "Andrew Morton"
- <akpm@linux-foundation.org>, "Peter Zijlstra" <peterz@infradead.org>,
- "Linus Torvalds" <torvalds@linux-foundation.org>, "Masahiro Yamada"
- <masahiroy@kernel.org>, "Nathan Chancellor" <nathan@kernel.org>, "Nicolas
- Schier" <nicolas@fjasle.eu>, "Zheng Yejian" <zhengyejian1@huawei.com>,
- "Martin Kelly" <martin.kelly@crowdstrike.com>, "Christophe Leroy"
- <christophe.leroy@csgroup.eu>, "Josh Poimboeuf" <jpoimboe@redhat.com>,
- "Heiko Carstens" <hca@linux.ibm.com>, "Catalin Marinas"
- <catalin.marinas@arm.com>, "Will Deacon" <will@kernel.org>, "Vasily Gorbik"
- <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-Subject: Re: [PATCH v5 2/6] scripts/sorttable: Have mcount rela sort use
- direct values
-Message-ID: <20250225104552.2acc5909@gandalf.local.home>
-In-Reply-To: <91523154-072b-437b-bbdc-0b70e9783fd0@app.fastmail.com>
-References: <20250218195918.255228630@goodmis.org>
-	<20250218200022.538888594@goodmis.org>
-	<893cd8f1-8585-4d25-bf0f-4197bf872465@app.fastmail.com>
-	<20250224172147.1de3fda5@gandalf.local.home>
-	<20250224211102.33e264fc@gandalf.local.home>
-	<91523154-072b-437b-bbdc-0b70e9783fd0@app.fastmail.com>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1740499168; c=relaxed/simple;
+	bh=5BKzhjbCX0A+Ckqb9LCw0vp1xrvfcOr/debaeQvehd8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FAyVW2W39+KEXYjtPe5U8/tnWXEhJ1V2ulQknvvW7ut2MPnBHQEYAemejBFz7XnvgkyBXuCAl60/ZGIb8Tc0JukRdqTXqWhNND5o6WWHsz1gVO7rR2vBqRNSa9JGnNkEHXYZEp4SBMBwKn0Tb5XqAi7lULIAAR6id4TRG6LThB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hcOfCPg6; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hcOfCPg6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 377C2C4CEDD;
+	Tue, 25 Feb 2025 15:59:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740499167;
+	bh=5BKzhjbCX0A+Ckqb9LCw0vp1xrvfcOr/debaeQvehd8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hcOfCPg62Mp6p/gGtsnSxwqeC+vKxdWbUHnaP0lhK9+JD4bU00iwT2OXd68fSYasS
+	 cMGHk14Swd2/bs18Mw+XCs/M5g9hO4nFPN0Ad0v9g1xE2A9OCjxI2KFldk5FNdIDjn
+	 6E9m81StJWl7+TqHJObUe/YJwJ7lmLNHRT9OGwEAOMO9UjBY3ljMeb+SDLleZcmrad
+	 7KNBAlXezxSZE8YKAYBXGYKCx63g46BsIA9/Ts0WWq6vzlXJCD9vHcwme0PfK8ESP6
+	 08LqrVwRicdu/SNhfCpUvJXkehDRbEwBSi3DKCbLms+TjzZu3gFvEovMZrnaatKyJs
+	 GmUKFT+3vHHCw==
+Date: Tue, 25 Feb 2025 07:59:26 -0800
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Amir Goldstein <amir73il@gmail.com>,
+	Andrey Albershteyn <aalbersh@redhat.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+	Linux-Arch <linux-arch@vger.kernel.org>, linux-xfs@vger.kernel.org,
+	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+	Theodore Ts'o <tytso@mit.edu>
+Subject: Re: [PATCH v3] fs: introduce getfsxattrat and setfsxattrat syscalls
+Message-ID: <20250225155926.GD6265@frogsfrogsfrogs>
+References: <20250211-xattrat-syscall-v3-1-a07d15f898b2@kernel.org>
+ <20250221181135.GW21808@frogsfrogsfrogs>
+ <CAOQ4uxgyYBFqkq6cQsso4LxJsPJ4uECOdskXmz-nmGhhV5BQWg@mail.gmail.com>
+ <20250224-klinke-hochdekoriert-3f6be89005a8@brauner>
+ <6b51ffa2-9d67-4466-865e-e703c1243352@app.fastmail.com>
+ <20250225-strom-kopflos-32062347cd13@brauner>
+ <3c860dc0-ba8d-4324-b286-c160b7d8d2c4@app.fastmail.com>
+ <20250225-testfahrt-seilwinde-64e6f44c01ce@brauner>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250225-testfahrt-seilwinde-64e6f44c01ce@brauner>
 
-On Tue, 25 Feb 2025 09:45:52 +0100
-"Arnd Bergmann" <arnd@arndb.de> wrote:
+On Tue, Feb 25, 2025 at 12:24:08PM +0100, Christian Brauner wrote:
+> On Tue, Feb 25, 2025 at 11:40:51AM +0100, Arnd Bergmann wrote:
+> > On Tue, Feb 25, 2025, at 11:22, Christian Brauner wrote:
+> > > On Tue, Feb 25, 2025 at 09:02:04AM +0100, Arnd Bergmann wrote:
+> > >> On Mon, Feb 24, 2025, at 12:32, Christian Brauner wrote:
+> > >> 
+> > >> The ioctl interface relies on the existing behavior, see
+> > >> 0a6eab8bd4e0 ("vfs: support FS_XFLAG_COWEXTSIZE and get/set of
+> > >> CoW extent size hint") for how it was previously extended
+> > >> with an optional flag/word. I think that is fine for the syscall
+> > >> as well, but should be properly documented since it is different
+> > >> from how most syscalls work.
+> > >
+> > > If we're doing a new system call I see no reason to limit us to a
+> > > pre-existing structure or structure layout.
+> > 
+> > Obviously we could create a new structure, but I also see no
+> > reason to do so. The existing ioctl interface was added in
+> > in 2002 as part of linux-2.5.35 with 16 bytes of padding, half
+> > of which have been used so far.
+> > 
+> > If this structure works for another 23 years before we run out
+> > of spare bytes, I think that's good enough. Building in an
+> > incompatible way to handle potential future contents would
+> > just make it harder to use for any userspace that wants to
+> > use the new syscalls but still needs a fallback to the
+> > ioctl version.
+> 
+> The fact that this structure has existed since the dawn of time doesn't
+> mean it needs to be retained when adding a completely new system call.
+> 
+> People won't mix both. They either switch to the new interface because
+> they want to get around the limitations of the old interface or they
+> keep using the old interface and the associated workarounds.
+> 
+> In another thread they keep arguing about new extensions for Windows
+> that are going to be added to the ioctl interface and how to make it fit
+> into this. That just shows that it's very hard to predict from the
+> amount of past changes how many future changes are going to happen. And
+> if an interface is easy to extend it might well invite new changes that
+> people didn't want to or couldn't make using the old interface.
 
-> It fixes the build issue for me. I tried booting as well, but ran
-> into a BUG() when I enable ftrace. I assume this is an unrelated
-> issue, but you can find the output for reference in case this is
-> relevant.
+Agreed, I don't think it's hard to enlarge struct fsxattr in the
+existing ioctl interface; either we figure out how to make the kernel
+fill out the "missing" bytes with an internal getfsxattr call, or we
+make it return some errno if we would be truncating real output due to
+struct size limits and leave a note in the manpage that "EL3HLT means
+use a bigger structure definition"
 
-Thanks, can you try this patch instead? I'll be breaking it up if this works.
+Then both interfaces can plod along for another 30 years. :)
 
-This also removes the kaslr_offset() code.
-
--- Steve
-
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 27c8def2139d..fdd5ffe268de 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -7004,7 +7004,6 @@ static int ftrace_process_locs(struct module *mod,
- 	unsigned long count;
- 	unsigned long *p;
- 	unsigned long addr;
--	unsigned long kaslr;
- 	unsigned long flags = 0; /* Shut up gcc */
- 	unsigned long pages;
- 	int ret = -ENOMEM;
-@@ -7056,25 +7055,37 @@ static int ftrace_process_locs(struct module *mod,
- 		ftrace_pages->next = start_pg;
- 	}
- 
--	/* For zeroed locations that were shifted for core kernel */
--	kaslr = !mod ? kaslr_offset() : 0;
--
- 	p = start;
- 	pg = start_pg;
- 	while (p < end) {
- 		unsigned long end_offset;
--		addr = ftrace_call_adjust(*p++);
-+
-+		addr = *p++;
-+
- 		/*
- 		 * Some architecture linkers will pad between
- 		 * the different mcount_loc sections of different
- 		 * object files to satisfy alignments.
- 		 * Skip any NULL pointers.
- 		 */
--		if (!addr || addr == kaslr) {
-+		if (!addr) {
-+			skipped++;
-+			continue;
-+		}
-+
-+		/*
-+		 * If this is core kernel, make sure the address is in core
-+		 * or inittext, as weak functions get zeroed and KASLR can
-+		 * move them to something other than zero. It just will not
-+		 * move it to an area where kernel text is.
-+		 */
-+		if (!mod && !(is_kernel_text(addr) || is_kernel_inittext(addr))) {
- 			skipped++;
- 			continue;
- 		}
- 
-+		addr = ftrace_call_adjust(addr);
-+
- 		end_offset = (pg->index+1) * sizeof(pg->records[0]);
- 		if (end_offset > PAGE_SIZE << pg->order) {
- 			/* We should have allocated enough */
-diff --git a/scripts/sorttable.c b/scripts/sorttable.c
-index 23c7e0e6c024..10aff2aeb868 100644
---- a/scripts/sorttable.c
-+++ b/scripts/sorttable.c
-@@ -611,13 +611,16 @@ static int add_field(uint64_t addr, uint64_t size)
- 	return 0;
- }
- 
-+/* Used for when mcount/fentry is before the function entry */
-+static int before_func;
-+
- /* Only return match if the address lies inside the function size */
- static int cmp_func_addr(const void *K, const void *A)
- {
- 	uint64_t key = *(const uint64_t *)K;
- 	const struct func_info *a = A;
- 
--	if (key < a->addr)
-+	if (key + before_func < a->addr)
- 		return -1;
- 	return key >= a->addr + a->size;
- }
-@@ -827,9 +830,14 @@ static void *sort_mcount_loc(void *arg)
- 		pthread_exit(m_err);
- 	}
- 
--	if (sort_reloc)
-+	if (sort_reloc) {
- 		count = fill_relocs(vals, size, ehdr, emloc->start_mcount_loc);
--	else
-+		/* gcc may use relocs to save the addresses, but clang does not. */
-+		if (!count) {
-+			count = fill_addrs(vals, size, start_loc);
-+			sort_reloc = 0;
-+		}
-+	} else
- 		count = fill_addrs(vals, size, start_loc);
- 
- 	if (count < 0) {
-@@ -1248,6 +1256,8 @@ static int do_file(char const *const fname, void *addr)
- #ifdef MCOUNT_SORT_ENABLED
- 		sort_reloc = true;
- 		rela_type = 0x403;
-+		/* arm64 uses patchable function entry placing before function */
-+		before_func = 8;
- #endif
- 		/* fallthrough */
- 	case EM_386:
+--D
