@@ -1,247 +1,182 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40BEB20E6FC;
-	Tue, 25 Feb 2025 20:12:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 308E319E7F8;
+	Tue, 25 Feb 2025 20:34:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740514339; cv=none; b=Am8ZUGwXOq/su+SvCkz7LwYgbxiEo5+5QBQkkegEJT/HvqOrijrbYDIQ1cauKeSxzLHBiGK4tdATYPmxm/9KK10BL8FeHr4vaqH11J7jy+bcrZaLRSrevXcBBGLmeFn6SQsJHXqgGAZ5vDSH4Jp/XqA97jl7nlZ9AOioYhsBQKs=
+	t=1740515686; cv=none; b=F2p5tOjySuBqv/hN/G4l2YDNnrmnI0WymtaqX2Mt/TW4K+E/ad/4hWPECJ26fN/mE06jPlqCirBU6IHiEK4nMBcd2XqIQU+wdwKmhyFiC1djM8i6sFOXE8mp0ifMZsGHF6yh4ZLS73uvxzxI8vwL8LyVei3uwqp8W03Z0P1oUjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740514339; c=relaxed/simple;
-	bh=jyfgZ7hdGQ+7vkMlHbZAbEyF8hHA3oXzDRcU6/jBrqg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EpP2dlkNijqjFyjLU84zN9TMOC4Ev46ucjxNWbyqH6+GLXPfV1j+yS5Gd8fasroRH0J48VaQI73EtX7sKQU746HdXx/oqQCLZ9O8Jg7r0Zc7iFG53e4fSfPwEJr4kAwmnHO0hQ244HeqVQuEFcDVR3xyQ2aCj3KaYYhlBac1YlM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=to3Tt1Mi; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1740515686; c=relaxed/simple;
+	bh=BRDE49GDK1WZQtOVWzMxOTVjKgnZs4mLJeGOsJR4KcY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ni1RrSHaKfp711JMMLwThXNesiPTzabJSRHR7R29m4FMdHRgAl5MnZB+9sJZL2r04gvYvRzXMXbqJAggNm0ms7qeJEW2PLEFquQJPTCCE9U8gS8knwIkZhz0+X+9uPQoKemH+L1FU9XTWw6sm9QuSkApA+2eXJrJ3B7/NL4QJ40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GCTyihQ/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="to3Tt1Mi"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51PDjZZJ022687;
-	Tue, 25 Feb 2025 20:12:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=qucujcqLhUwdL3YtH
-	IiokciTxPKndQxWgwwJYybcvak=; b=to3Tt1Mirf0GMzvm3DSixxZm/4IeUJcxe
-	+ttQU6Yfm8jGNtjYz/D0Bo6i6VwTq1RSKKIsvX9+auOTbR9jSwCmscpxVKWkOkaW
-	0NJGTwxH3fMFLcvJdOKzAMBDuzEVE4dgq3rzXT48x9lW21gDSkCtR3kfXWVaZ8zZ
-	D/7P8SvJmUg2jmcD0JEciFIdry3RB2VfWoGvFz5lqjgLTEd4QZd60TCaP12Ehq6X
-	1FETEALRnEzQevcfYnp8ilVltq4XbJAvq2APJfpTdkGuXI76+Ft+4elwiQj0D5ZU
-	fXn2QCpIhPHoe0ABYrxxsCnluOE1/WbmHjzaKjdL5dXbAFKn77bOA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4511wadnuc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 20:12:13 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51PImcGV027327;
-	Tue, 25 Feb 2025 20:12:12 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yum1xf2g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 20:12:12 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51PKCA8f26083900
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Feb 2025 20:12:11 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A8DB35805D;
-	Tue, 25 Feb 2025 20:12:10 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD23A58056;
-	Tue, 25 Feb 2025 20:12:09 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.61.252.67])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Feb 2025 20:12:09 +0000 (GMT)
-From: Rorie Reyes <rreyes@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, akrowiak@linux.ibm.com,
-        rreyes@linux.ibm.com
-Subject: [RFC PATCH v2 1/2] s390/vfio-ap: Signal eventfd when guest AP configuration is changed
-Date: Tue, 25 Feb 2025 15:12:07 -0500
-Message-ID: <20250225201208.45998-2-rreyes@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250225201208.45998-1-rreyes@linux.ibm.com>
-References: <20250225201208.45998-1-rreyes@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GCTyihQ/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63F3CC4CEE2;
+	Tue, 25 Feb 2025 20:34:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740515685;
+	bh=BRDE49GDK1WZQtOVWzMxOTVjKgnZs4mLJeGOsJR4KcY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=GCTyihQ/b2fTjWjL/w3eMUhECoP7pQUVh6qE6TXIEJ1BjHjigwTdvaXZ8aa1oOZW9
+	 oKgOEDdFkHlCFZJGO4qmPSlQfmqTMdR4q6AaRRkwLGJ3tn5IsA6CVTfZngMu04uwvU
+	 USQQvX2Ui2Py5GmeTon0UPIp4jb3Kllog7qTR84ZVlGPWnNhBglvmgANXSDfz/nF8C
+	 fe6Ei8S+wY4QXqwkmTNtltifZ28vYDexOBzcB6Jx/JDAMQqYWr6bIziStGJLhdUGBs
+	 KFr35I0nEjHgGeGnYKE+sCz27ig69d53549TBv6xK6RZKoaFrkcXukrE4yB0TGFtgY
+	 hJMWUKlbR87Lg==
+Received: by pali.im (Postfix)
+	id 5A20189B; Tue, 25 Feb 2025 21:34:32 +0100 (CET)
+Date: Tue, 25 Feb 2025 21:34:32 +0100
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To: "Darrick J. Wong" <djwong@kernel.org>
+Cc: Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Amir Goldstein <amir73il@gmail.com>,
+	Andrey Albershteyn <aalbersh@redhat.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S . Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>,
+	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
+	Linux-Arch <linux-arch@vger.kernel.org>, linux-xfs@vger.kernel.org,
+	Theodore Ts'o <tytso@mit.edu>
+Subject: Re: [PATCH v3] fs: introduce getfsxattrat and setfsxattrat syscalls
+Message-ID: <20250225203432.o2lxjbimka4jldrx@pali>
+References: <20250211-xattrat-syscall-v3-1-a07d15f898b2@kernel.org>
+ <20250221181135.GW21808@frogsfrogsfrogs>
+ <CAOQ4uxgyYBFqkq6cQsso4LxJsPJ4uECOdskXmz-nmGhhV5BQWg@mail.gmail.com>
+ <20250224-klinke-hochdekoriert-3f6be89005a8@brauner>
+ <6b51ffa2-9d67-4466-865e-e703c1243352@app.fastmail.com>
+ <20250225-strom-kopflos-32062347cd13@brauner>
+ <3c860dc0-ba8d-4324-b286-c160b7d8d2c4@app.fastmail.com>
+ <20250225-testfahrt-seilwinde-64e6f44c01ce@brauner>
+ <20250225155926.GD6265@frogsfrogsfrogs>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: o1_vwFadUed6wrEB6htETVmQiFZBw5xI
-X-Proofpoint-ORIG-GUID: o1_vwFadUed6wrEB6htETVmQiFZBw5xI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-25_06,2025-02-25_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- malwarescore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 bulkscore=0 suspectscore=0 phishscore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2502250120
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250225155926.GD6265@frogsfrogsfrogs>
+User-Agent: NeoMutt/20180716
 
-In this patch, an eventfd object is created by the vfio_ap device driver
-and used to notify userspace when a guests's AP configuration is
-dynamically changed. Such changes may occur whenever:
+On Tuesday 25 February 2025 07:59:26 Darrick J. Wong wrote:
+> On Tue, Feb 25, 2025 at 12:24:08PM +0100, Christian Brauner wrote:
+> > On Tue, Feb 25, 2025 at 11:40:51AM +0100, Arnd Bergmann wrote:
+> > > On Tue, Feb 25, 2025, at 11:22, Christian Brauner wrote:
+> > > > On Tue, Feb 25, 2025 at 09:02:04AM +0100, Arnd Bergmann wrote:
+> > > >> On Mon, Feb 24, 2025, at 12:32, Christian Brauner wrote:
+> > > >> 
+> > > >> The ioctl interface relies on the existing behavior, see
+> > > >> 0a6eab8bd4e0 ("vfs: support FS_XFLAG_COWEXTSIZE and get/set of
+> > > >> CoW extent size hint") for how it was previously extended
+> > > >> with an optional flag/word. I think that is fine for the syscall
+> > > >> as well, but should be properly documented since it is different
+> > > >> from how most syscalls work.
+> > > >
+> > > > If we're doing a new system call I see no reason to limit us to a
+> > > > pre-existing structure or structure layout.
+> > > 
+> > > Obviously we could create a new structure, but I also see no
+> > > reason to do so. The existing ioctl interface was added in
+> > > in 2002 as part of linux-2.5.35 with 16 bytes of padding, half
+> > > of which have been used so far.
+> > > 
+> > > If this structure works for another 23 years before we run out
+> > > of spare bytes, I think that's good enough. Building in an
+> > > incompatible way to handle potential future contents would
+> > > just make it harder to use for any userspace that wants to
+> > > use the new syscalls but still needs a fallback to the
+> > > ioctl version.
+> > 
+> > The fact that this structure has existed since the dawn of time doesn't
+> > mean it needs to be retained when adding a completely new system call.
+> > 
+> > People won't mix both. They either switch to the new interface because
+> > they want to get around the limitations of the old interface or they
+> > keep using the old interface and the associated workarounds.
+> > 
+> > In another thread they keep arguing about new extensions for Windows
+> > that are going to be added to the ioctl interface and how to make it fit
+> > into this. That just shows that it's very hard to predict from the
+> > amount of past changes how many future changes are going to happen. And
+> > if an interface is easy to extend it might well invite new changes that
+> > people didn't want to or couldn't make using the old interface.
+> 
+> Agreed, I don't think it's hard to enlarge struct fsxattr in the
+> existing ioctl interface; either we figure out how to make the kernel
+> fill out the "missing" bytes with an internal getfsxattr call, or we
+> make it return some errno if we would be truncating real output due to
+> struct size limits and leave a note in the manpage that "EL3HLT means
+> use a bigger structure definition"
+> 
+> Then both interfaces can plod along for another 30 years. :)
+> 
+> --D
 
-* An adapter, domain or control domain is assigned to or unassigned from a
-  mediated device that is attached to the guest.
-* A queue assigned to the mediated device that is attached to a guest is
-  bound to or unbound from the vfio_ap device driver. This can occur
-  either by manually binding/unbinding the queue via the vfio_ap driver's
-  sysfs bind/unbind attribute interfaces, or because an adapter, domain or
-  control domain assigned to the mediated device is added to or removed
-  from the host's AP configuration via an SE/HMC
+For Windows attributes, there are for sure needed new 11 bits for
+attributes which can be both get and set, additional 4 bits for get-only
+attributes, and plus there are 9 reserved bits (which Windows can start
+using it and exporting over NTFS or SMB). And it is possible that
+Windows can reuse some bits which were previously assigned for things
+which today does not appear on NTFS.
 
-Signed-off-by: Rorie Reyes <rreyes@linux.ibm.com>
-Reviewed-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-Tested-by: Anthony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c     | 52 ++++++++++++++++++++++++++-
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- include/uapi/linux/vfio.h             |  1 +
- 3 files changed, 54 insertions(+), 1 deletion(-)
+I think that fsx_xflags does not have enough free bits for all these
+attributes. So it would be really nice to design API/ABI in away which
+can be extended for new fields.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index a52c2690933f..c6ff4ab13f16 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -650,13 +650,22 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
- 	matrix->adm_max = info->apxa ? info->nd : 15;
- }
- 
-+static void signal_guest_ap_cfg_changed(struct ap_matrix_mdev *matrix_mdev)
-+{
-+		if (matrix_mdev->cfg_chg_trigger)
-+			eventfd_signal(matrix_mdev->cfg_chg_trigger);
-+}
-+
- static void vfio_ap_mdev_update_guest_apcb(struct ap_matrix_mdev *matrix_mdev)
- {
--	if (matrix_mdev->kvm)
-+	if (matrix_mdev->kvm) {
- 		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
- 					  matrix_mdev->shadow_apcb.apm,
- 					  matrix_mdev->shadow_apcb.aqm,
- 					  matrix_mdev->shadow_apcb.adm);
-+
-+		signal_guest_ap_cfg_changed(matrix_mdev);
-+	}
- }
- 
- static bool vfio_ap_mdev_filter_cdoms(struct ap_matrix_mdev *matrix_mdev)
-@@ -792,6 +801,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
- 	if (ret)
- 		goto err_put_vdev;
- 	matrix_mdev->req_trigger = NULL;
-+	matrix_mdev->cfg_chg_trigger = NULL;
- 	dev_set_drvdata(&mdev->dev, matrix_mdev);
- 	mutex_lock(&matrix_dev->mdevs_lock);
- 	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
-@@ -1860,6 +1870,7 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
- 		get_update_locks_for_kvm(kvm);
- 
- 		kvm_arch_crypto_clear_masks(kvm);
-+		signal_guest_ap_cfg_changed(matrix_mdev);
- 		vfio_ap_mdev_reset_queues(matrix_mdev);
- 		kvm_put_kvm(kvm);
- 		matrix_mdev->kvm = NULL;
-@@ -2097,6 +2108,10 @@ static ssize_t vfio_ap_get_irq_info(unsigned long arg)
- 		info.count = 1;
- 		info.flags = VFIO_IRQ_INFO_EVENTFD;
- 		break;
-+	case VFIO_AP_CFG_CHG_IRQ_INDEX:
-+		info.count = 1;
-+		info.flags = VFIO_IRQ_INFO_EVENTFD;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -2160,6 +2175,39 @@ static int vfio_ap_set_request_irq(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
- 
-+static int vfio_ap_set_cfg_change_irq(struct ap_matrix_mdev *matrix_mdev, unsigned long arg)
-+{
-+	s32 fd;
-+	void __user *data;
-+	unsigned long minsz;
-+	struct eventfd_ctx *cfg_chg_trigger;
-+
-+	minsz = offsetofend(struct vfio_irq_set, count);
-+	data = (void __user *)(arg + minsz);
-+
-+	if (get_user(fd, (s32 __user *)data))
-+		return -EFAULT;
-+
-+	if (fd == -1) {
-+		if (matrix_mdev->cfg_chg_trigger)
-+			eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
-+		matrix_mdev->cfg_chg_trigger = NULL;
-+	} else if (fd >= 0) {
-+		cfg_chg_trigger = eventfd_ctx_fdget(fd);
-+		if (IS_ERR(cfg_chg_trigger))
-+			return PTR_ERR(cfg_chg_trigger);
-+
-+		if (matrix_mdev->cfg_chg_trigger)
-+			eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
-+
-+		matrix_mdev->cfg_chg_trigger = cfg_chg_trigger;
-+	} else {
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- static int vfio_ap_set_irqs(struct ap_matrix_mdev *matrix_mdev,
- 			    unsigned long arg)
- {
-@@ -2175,6 +2223,8 @@ static int vfio_ap_set_irqs(struct ap_matrix_mdev *matrix_mdev,
- 		switch (irq_set.index) {
- 		case VFIO_AP_REQ_IRQ_INDEX:
- 			return vfio_ap_set_request_irq(matrix_mdev, arg);
-+		case VFIO_AP_CFG_CHG_IRQ_INDEX:
-+			return vfio_ap_set_cfg_change_irq(matrix_mdev, arg);
- 		default:
- 			return -EINVAL;
- 		}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 437a161c8659..37de9c69b6eb 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -105,6 +105,7 @@ struct ap_queue_table {
-  * @mdev:	the mediated device
-  * @qtable:	table of queues (struct vfio_ap_queue) assigned to the mdev
-  * @req_trigger eventfd ctx for signaling userspace to return a device
-+ * @cfg_chg_trigger eventfd ctx to signal AP config changed to userspace
-  * @apm_add:	bitmap of APIDs added to the host's AP configuration
-  * @aqm_add:	bitmap of APQIs added to the host's AP configuration
-  * @adm_add:	bitmap of control domain numbers added to the host's AP
-@@ -120,6 +121,7 @@ struct ap_matrix_mdev {
- 	struct mdev_device *mdev;
- 	struct ap_queue_table qtable;
- 	struct eventfd_ctx *req_trigger;
-+	struct eventfd_ctx *cfg_chg_trigger;
- 	DECLARE_BITMAP(apm_add, AP_DEVICES);
- 	DECLARE_BITMAP(aqm_add, AP_DOMAINS);
- 	DECLARE_BITMAP(adm_add, AP_DOMAINS);
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index c8dbf8219c4f..a2d3e1ac6239 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -671,6 +671,7 @@ enum {
-  */
- enum {
- 	VFIO_AP_REQ_IRQ_INDEX,
-+	VFIO_AP_CFG_CHG_IRQ_INDEX,
- 	VFIO_AP_NUM_IRQS
- };
- 
--- 
-2.39.5 (Apple Git-154)
+Also another two points, for this new syscalls. I have not looked at the
+current changes (I was added to CC just recently), but it would be nice:
 
+1) If syscall API allows to operate on the symlink itself. This is
+   because NTFS and also SMB symlink also contains attributes. ioctl
+   interface currently does not support to get/set these symlink
+   attributes.
+
+2) If syscall API contains ability to just change subset of attributes.
+   And provide an error reporting to userspace if userspace application
+   is trying to set attribute which is not supported by the filesystem.
+   This error reporting is needed for possible "cp -a" or possible
+   "rsync" implementation which informs when some metadata cannot be
+   backup/restored. There are more filesystems which supports only
+   subset of attributes, this applies also for windows attributes.
+   For example UDF fs supports only "hidden" attribute.
