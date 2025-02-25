@@ -1,119 +1,177 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BD7E1624C0
-	for <linux-s390@vger.kernel.org>; Tue, 25 Feb 2025 08:12:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96C691FC0E3;
+	Tue, 25 Feb 2025 08:46:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740471138; cv=none; b=Wsdkfa5SHqMlVoL3if0ZPC1uUUutp+1KdspnmaQ73gJ6PU76Za96hGWfmEx0EAkmWPjkHn5HraN2zSw3T9a4WGDd4jRPd32C4OrAZ1HurzSXtxbnr4PdqWWQ5+GrfXU3GZjG+wmaqe+YUQ700bWS3ZlZ3trYxZQqWqGxubo4+hw=
+	t=1740473179; cv=none; b=XhCKmjAmrgce+8Tg72QeWIAfJSnL93ELaeEvf3X5C1DzIqvpRNij0eb0qvDiJe/SbjNp1v7flBu5wwPyocQ/T0GHUeJSOf105YU1T1LNKHwVVh+gSxJPZ1lXUnpaSNxmPfstYD5kiK2CVSqjsI5tvsz3+k51kh4bFDv3Kt4UjeQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740471138; c=relaxed/simple;
-	bh=J2KmVhHgbRd4ipUdfn/i+p/EeXsqvi+jYyedHfYj824=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZntsaIi60zJvk9hFEdOU3yP5pr23yXvYEmyWY2DM/HjjGSGxkEmWNUl3MZMKveJ20nWr+jM7Pa/AbUbembPYu2mckbKfMHeeMkNv4Tk6irElEBk+wzqREXwKTbV2MaBHAJ7HLVC2sRmk8EgqSFew91XNBzI22kiWgqfHJg+xFxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k8sgrFBB; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1740473179; c=relaxed/simple;
+	bh=aOml0Bz8Sgb0jQ51XEKSZOwqEewPrKJmjSJ4oe1CkdA=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=hu9wUaB3yed+yhh0VYMO14061CNqiNeQ3eZmujYwLfbmLYqUxEvycRQ85udwo3D2EqztzlLd2Uh9wZTotN0D/oYGHr4SYJ5/ujk4En0mod4SiQC64NFSZN/zcnpJtz8IOQgucrV9KpWgtk8RDFJTqeiHNZsQEJbe4EVfY9NNYZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=qWtF1Owc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=g8sSRzPq; arc=none smtp.client-ip=202.12.124.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k8sgrFBB"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51OMnWh9013148;
-	Tue, 25 Feb 2025 08:12:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=m1zZms
-	FYPQBCC1Cs5haidOOFA9JsAklvBQw+T1EnKAg=; b=k8sgrFBBSlykf+qoKzV0Yw
-	DccqA/K+n0HGiigZsLTY1l2r/+Ofc7xa/1DGMrGPnaAcx6q9zNe04wc3FoWp9eim
-	xHH4eUqF34UtULUBq7iPJLCFR5dzbZJ9xoGh+ylW9EOF7zWeK95KUejwTpdNiSIq
-	CotMOo2YmBZC2N+Uqb1iWoZqIYQbn8kxIQe5BsqngjjGp7h56URc4QDp1++6KM3C
-	pRUZt3+l3edxoEA1+v5CV9cO+xg6nnGqwemZmguypeGMMhd38y0KuM26jCUJTCKy
-	lFYZra7wyUhouw9Fhl55rw8Uu5iipKehonFHiMAop/y1perMQi0GFaifJAQaF/XA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4511wa9w4a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 08:12:12 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51P4SKFk002570;
-	Tue, 25 Feb 2025 08:12:11 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4jkdvx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 08:12:11 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51P8C7UY35520980
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Feb 2025 08:12:07 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D20D220040;
-	Tue, 25 Feb 2025 08:12:07 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 85C2620043;
-	Tue, 25 Feb 2025 08:12:07 +0000 (GMT)
-Received: from [9.171.13.48] (unknown [9.171.13.48])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Feb 2025 08:12:07 +0000 (GMT)
-Message-ID: <c8767137-51da-4e87-ab69-5f7f03a07835@linux.ibm.com>
-Date: Tue, 25 Feb 2025 09:12:07 +0100
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="qWtF1Owc";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="g8sSRzPq"
+Received: from phl-compute-11.internal (phl-compute-11.phl.internal [10.202.2.51])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 161DC2540135;
+	Tue, 25 Feb 2025 03:46:15 -0500 (EST)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-11.internal (MEProxy); Tue, 25 Feb 2025 03:46:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1740473174;
+	 x=1740559574; bh=Gqp7mwTK3YSjBq7qHLLUEIE1pbJAxEZRfdzmirETXMQ=; b=
+	qWtF1OwcrUhy36iN8BURe8nP0cFg0cmcOc+vnGmUH2pt6lcZGpNPG5PNgWqdtV5A
+	4JiNgqgMQ2SA4myTu3CjD2Lbgiay3Iv/8GxZopX9dP2FOEYqLwt7dphddTK+/2aO
+	IhFK/eBxu1q7sncbOudX6HA1+cKTQjtp1LwB75tgQlLa8TZOVg6MuRgtlwMQ8WDT
+	Q2qLEfsrTJU0iibiOSFbEfQFlm3Cda4rZeKTzKyGi6hl/RG38nWCZKmkr7TMQk86
+	hmO0Bb5w2ZZdXY4DP6aj9jgChinTO+TzI+8QxOTA1T+Kyj+xy5ejmL1gCkLnLw4U
+	upz/YsnU/nqvopd8ioKP8g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1740473174; x=
+	1740559574; bh=Gqp7mwTK3YSjBq7qHLLUEIE1pbJAxEZRfdzmirETXMQ=; b=g
+	8sSRzPqIkkcW3d2sMheE8RXiIv/hxa0fkAnUND/YHkYPIV1r+LIH9hzpTA2VLCZs
+	E3c/LteZGrF7J2MYrblMxg/NnRFI9rQxdrT1sHtKfozEHrWoW5oppH0V0VNUhLrC
+	jzwdjSRwfPUx+RPDAXFurpYPSQFXu3IYRanimyL6jos7OIiziugOCA+lebW/BaX7
+	bS0SVvl2lvHjCGcVIejv7ZbczP0BI7b6HRWVFwgruklhSCJLecnwFIadutjk9DTs
+	vyIoTUIfpW+Ejgg3Hzu/PElCZPWBKIP8XEnce6pE7XMmC4apV+S8/mqiAE6vOZS4
+	A62M35zMy5CMFA1vnfncg==
+X-ME-Sender: <xms:VYO9Z7ZjzSGQBkl_bdQAkvw7RJJKpmBsMHVKTFY2RIiqGv57dtOovQ>
+    <xme:VYO9Z6YUx_PJ_13sTiAv8-8ZCAS_Xv9dHzddPFWcgmFqXFk-ydg9u4vTO9ypS1Sei
+    tb_GoxcBIQCmoOzbQw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdekuddvhecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
+    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
+    hnthhsucdlqddutddtmdenucfjughrpefoggffhffvvefkjghfufgtgfesthejredtredt
+    tdenucfhrhhomhepfdetrhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusg
+    druggvqeenucggtffrrghtthgvrhhnpefhtdfhvddtfeehudekteeggffghfejgeegteef
+    gffgvedugeduveelvdekhfdvieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgtphhtthhopedv
+    hedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheptggrthgrlhhinhdrmhgrrhhinh
+    grshesrghrmhdrtghomhdprhgtphhtthhopehmrghrkhdrrhhuthhlrghnugesrghrmhdr
+    tghomhdprhgtphhtthhopehmrghrthhinhdrkhgvlhhlhiestghrohifughsthhrihhkvg
+    drtghomhdprhgtphhtthhopegthhhrihhsthhophhhvgdrlhgvrhhohiestghsghhrohhu
+    phdrvghupdhrtghpthhtohepmhgrthhhihgvuhdruggvshhnohihvghrshesvghffhhitg
+    hiohhsrdgtohhmpdhrtghpthhtohepnhhitgholhgrshesfhhjrghslhgvrdgvuhdprhgt
+    phhtthhopehrohhsthgvughtsehgohhoughmihhsrdhorhhgpdhrtghpthhtohepiihhvg
+    hnghihvghjihgrnhdusehhuhgrfigvihdrtghomhdprhgtphhtthhopehpvghtvghriies
+    ihhnfhhrrgguvggrugdrohhrgh
+X-ME-Proxy: <xmx:VYO9Z99GuZzh6mTJ2hh1DqhImZMJTUwR9ybvHkkLGvmfhkFBjtpcNw>
+    <xmx:VYO9ZxrzBi1aI77BwZu-YSr_bsDL0SzuIuIq7uZ2I0sQ--QrrCJSYg>
+    <xmx:VYO9Z2qimk4q1oG6TtJqdD8ayoJVMeQ_QFFum5C-vnfOJ1yQB2yU6Q>
+    <xmx:VYO9Z3T_YIynT8x-I6JrB-PKgBsjBTzNNam7Kn-Nn_ZS2KLkTWU2Pw>
+    <xmx:VoO9Z4YEQE10Manbd5j1XgNtt-qqvPhkwEGTYhWC2WCwzIcHyl7INc-u>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id ED1BC2220072; Tue, 25 Feb 2025 03:46:12 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 02/20] s390/ap/zcrypt: Rework AP message buffer
- allocation
-To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
-        fcallies@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-References: <20250223095459.43058-1-freude@linux.ibm.com>
- <20250223095459.43058-3-freude@linux.ibm.com>
-Content-Language: de-DE
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <20250223095459.43058-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ls8UXVonBp6giDgsS2Zv2E81IbBtRraD
-X-Proofpoint-ORIG-GUID: Ls8UXVonBp6giDgsS2Zv2E81IbBtRraD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-25_03,2025-02-24_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 mlxscore=0
- malwarescore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 bulkscore=0 suspectscore=0 phishscore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2502250053
+Date: Tue, 25 Feb 2025 09:45:52 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Steven Rostedt" <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
+ "Masami Hiramatsu" <mhiramat@kernel.org>,
+ "Mark Rutland" <mark.rutland@arm.com>,
+ "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Peter Zijlstra" <peterz@infradead.org>,
+ "Linus Torvalds" <torvalds@linux-foundation.org>,
+ "Masahiro Yamada" <masahiroy@kernel.org>,
+ "Nathan Chancellor" <nathan@kernel.org>,
+ "Nicolas Schier" <nicolas@fjasle.eu>,
+ "Zheng Yejian" <zhengyejian1@huawei.com>,
+ "Martin Kelly" <martin.kelly@crowdstrike.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+ "Josh Poimboeuf" <jpoimboe@redhat.com>, "Heiko Carstens" <hca@linux.ibm.com>,
+ "Catalin Marinas" <catalin.marinas@arm.com>, "Will Deacon" <will@kernel.org>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>
+Message-Id: <91523154-072b-437b-bbdc-0b70e9783fd0@app.fastmail.com>
+In-Reply-To: <20250224211102.33e264fc@gandalf.local.home>
+References: <20250218195918.255228630@goodmis.org>
+ <20250218200022.538888594@goodmis.org>
+ <893cd8f1-8585-4d25-bf0f-4197bf872465@app.fastmail.com>
+ <20250224172147.1de3fda5@gandalf.local.home>
+ <20250224211102.33e264fc@gandalf.local.home>
+Subject: Re: [PATCH v5 2/6] scripts/sorttable: Have mcount rela sort use direct values
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On 23/02/2025 10:54, Harald Freudenberger wrote:
-> Slight rework on the way how AP message buffers are allocated.
-> Instead of having multiple places with kmalloc() calls all
-> the AP message buffers are now allocated and freed on exactyl
-> one place ap_init_apmsg() allocates the current AP bus max
-> limit of ap_max_msg_size (defaults to 12KB). The preparation
-> functions only check for their payload to fit in. The AP
-> message buffer is freed in ap_release_apmsg().
+On Tue, Feb 25, 2025, at 03:11, Steven Rostedt wrote:
+> On Mon, 24 Feb 2025 17:21:47 -0500
+>> 
+>
+> Nevermind, Masami told me all I need to do is add LLVM=1 and clang can
+> handle the cross compiling.
+>
+> I looked, and sure enough clang on arm64 does it the same way x86 does. So
+> using the rela items to sort is a gcc thing :-p
+>
+> Can you try this patch?
 
-This patch reverts some non-neccessary changes from the previous one. Please clean this up.
+It fixes the build issue for me. I tried booting as well, but ran
+into a BUG() when I enable ftrace. I assume this is an unrelated
+issue, but you can find the output for reference in case this is
+relevant.
 
-Beside that,
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+     Arnd
 
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
->  drivers/s390/crypto/ap_bus.c           | 30 ++++++++++++++++
->  drivers/s390/crypto/ap_bus.h           | 21 ++---------
->  drivers/s390/crypto/zcrypt_api.c       | 49 +++++++++++++++-----------
->  drivers/s390/crypto/zcrypt_msgtype50.c | 22 ++++++------
->  drivers/s390/crypto/zcrypt_msgtype6.c  | 46 ++++++++++++------------
->  5 files changed, 96 insertions(+), 72 deletions(-)
-
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
-
+----
+[    0.000000] ftrace section at ffffc44698ef67c8 sorted properly
+[    0.000000] Unable to handle kernel paging request at virtual address 0000444617800008
+[    0.000000] Mem abort info:
+[    0.000000]   ESR = 0x0000000096000004
+[    0.000000]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    0.000000]   SET = 0, FnV = 0
+[    0.000000]   EA = 0, S1PTW = 0
+[    0.000000]   FSC = 0x04: level 0 translation fault
+[    0.000000] Data abort info:
+[    0.000000]   ISV = 0, ISS = 0x00000004, ISS2 = 0x00000000
+[    0.000000]   CM = 0, WnR = 0, TnD = 0, TagAccess = 0
+[    0.000000]   GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+[    0.000000] [0000444617800008] user address but active_mm is swapper
+[    0.000000] Internal error: Oops: 0000000096000004 [#1] PREEMPT SMP
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.14.0-rc4-next-20250225-00565-g6c6895f38d76 #15305
+[    0.000000] Hardware name: linux,dummy-virt (DT)
+[    0.000000] pstate: 400000c5 (nZcv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    0.000000] pc : ftrace_call_adjust+0x44/0xd0
+[    0.000000] lr : ftrace_process_locs+0x220/0x5e0
+[    0.000000] sp : ffffc44698fb3da0
+[    0.000000] x29: ffffc44698fb3da0 x28: ffffc4469929f000 x27: ffffc4469929f000
+[    0.000000] x26: 0000444617800000 x25: ffffc44698ef67d0 x24: ffff57b2c2008000
+[    0.000000] x23: ffffc44698f59de0 x22: ffff57b2c2008000 x21: 0000000000000000
+[    0.000000] x20: 0000000000001000 x19: 0000444617800000 x18: 0000000000000068
+[    0.000000] x17: 0000000000000001 x16: 00000000ffffffff x15: ffffc44698fc5f80
+[    0.000000] x14: 0000000000000000 x13: 0000000000000001 x12: 0000000000000000
+[    0.000000] x11: 0000000000000000 x10: 0000000000000000 x9 : 00007fff80000000
+[    0.000000] x8 : 000000000000201f x7 : 0000000000000000 x6 : 302e30202020205b
+[    0.000000] x5 : 0000000000000001 x4 : 0000000000000000 x3 : 0000000000000001
+[    0.000000] x2 : 0000000000000004 x1 : 0000000000000040 x0 : 0000444617800000
+[    0.000000] Call trace:
+[    0.000000]  ftrace_call_adjust+0x44/0xd0 (P)
+[    0.000000]  ftrace_process_locs+0x220/0x5e0
+[    0.000000]  ftrace_init+0x98/0xe8
+[    0.000000]  start_kernel+0x16c/0x3d0
+[    0.000000]  __primary_switched+0x88/0x98
+[    0.000000] Code: aa1f03e0 14000014 aa0003f3 528403e8 (b8408e74) 
+[    0.000000] ---[ end trace 0000000000000000 ]---
+[    0.000000] Kernel panic - not syncing: Attempted to kill the idle task!
+[    0.000000] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
