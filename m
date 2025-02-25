@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4316267AE1;
-	Tue, 25 Feb 2025 12:56:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C0F20C01A;
+	Tue, 25 Feb 2025 13:08:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740488189; cv=none; b=Ayq02xfWtmfhCF/Z2SfKW4o942QwUSpxunWLVqGkQufEH/c7CDekM6ztCNw79cibGLYlu2T4VT/dDMAWF97B64lNE97I2BQ/pwFMhkikmBwkoZGlBCjEgpEDd64lWGXQiS4RKUTkDNB0HFGqgKMM7xPi9DtGB9FrTiG5IvctLdQ=
+	t=1740488897; cv=none; b=iUjEDpZPaiaNrxGFRF8tJ1x0ircsZpjs1JU1XbDRlsE14zqzFFD2+dHwsNVLYWJ1NOSDm3FKK0/s4ciaC5a4VHD1fVqVdBAr2jGY9l5hFjGxcQd7VCWwOMKFDiWlWdZ63PO4q6ik3nkeCkSjlYCaZPnpOY60Rgjpl2HxkUcdQJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740488189; c=relaxed/simple;
-	bh=0oT5shLnbtbhNDJ7D3AgCbSwDUFlzk9PgtUkpEfpxPE=;
+	s=arc-20240116; t=1740488897; c=relaxed/simple;
+	bh=99rOgsYmtxJ2T5rqMM/Ztjfgx7KuJRuns+c60HqCCwM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=d+GcWjTO5XKFgMbG5HUkoxoh0QgLg1TdnnFHvuKJUzXVEUooecDWvUT9o0hUHvxvTcdUbXHtxfi3CTRjOgRhrwLDUnx+k6mJf1uY96joJF+A9G9nBgiEfQgbTQ4QasA1iX9tAyO5nsYgCJYEz0tCRVDcv/ieKnH+bVuGvRwX5Ak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=je5JKm3C; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=olWutMrDs2K7tDoynzk8zwDYHsTog7J68t9d6tQQiEr/2dThExgvpn+brzbU32m1jfZMUSj66ZhODRpw9EUZ7EVamuH6d6UDjYidcqxe71dkz4XvpCIMh9Eo5oh4pXXFxCid36RaGtbDe0DG1UP+DFFxsRFcQnmDy/snbH/dIaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ilycD+hK; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="je5JKm3C"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ilycD+hK"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51PCY3Vn011208;
-	Tue, 25 Feb 2025 12:56:15 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51PBPWMs011423;
+	Tue, 25 Feb 2025 13:08:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=piYoMX
-	DdaY+TU9E18vFRAcZoLdOWB0ePhiobWmf10uk=; b=je5JKm3Cvt4SNBH4kt6GCP
-	BCergyn9VoVVqo5edSKmjdIWLh5J9rIrPSSMcAKuo8pM2PGrhiIARIKNEBcIXU5z
-	qBw643xPXKH8jxVRBuCnzUJ/KyOXArBHZY024u0iXMYbTIqpTeWmA9wFEAa5zQ2H
-	9dX1EZvwrI5Py/j6YOx9gjXu0rUVGxvPRw85jXI1AYaCWI/1YTi7M3HEmrb15rrI
-	kFHsIyhD99qQIeErhJnINUqHVPFTX6qijSLqy8a+ivlII1Z5KWIJhnFt2NvVbWgg
-	fzxoL/y+xeYesfNYYNKI4YxZqbtIt5Auy4TPoQp2SJFUENYZaFuxSOnU1FXCQa/A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=mBEFsS
+	/88ZtLdQox7D5tTupoUIMxzZwHoC8VeKMOMIU=; b=ilycD+hKwrTyReIwhMYpcu
+	uwmx9OmVvXoauqF3yjWEKDlA+bG8diBWONDjcXwM1ZxZdryjja38qiKS4CeAl/JU
+	BDMziDt1jlxXQ2a4UFU4+jioLSrKSRHmqS8lU2uNUUizZ3yjT8eyfm/9w0ngSUDc
+	uHTnnbfeByD4+xKJboqqtXiAYaJJhOTsZrgxDisivu/rUJONfUp08kSHz3pSZGIf
+	9H6TQmK4p0FjNd0NRwUzvu6TwqAr1/a1UYK5rCXSJtC691jkOZE4p3ItM6WSubRw
+	DpjTcy/9amdBs1X7qxpQOK/WBQ0jgKjB3ECTiwBn26+ed0hzy30A+SdHyVkVvlLw
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4513x9twsy-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4513x9tyjs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 12:56:14 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51PBRO59002545;
-	Tue, 25 Feb 2025 12:56:13 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4jmn38-1
+	Tue, 25 Feb 2025 13:08:10 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51PAogif026961;
+	Tue, 25 Feb 2025 13:08:09 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44ytdkcvuq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Feb 2025 12:56:13 +0000
+	Tue, 25 Feb 2025 13:08:09 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51PCuA8i11338002
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51PD854L58524128
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Feb 2025 12:56:10 GMT
+	Tue, 25 Feb 2025 13:08:05 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3CBB020040;
-	Tue, 25 Feb 2025 12:56:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7E09C2004B;
+	Tue, 25 Feb 2025 13:08:05 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0C6BC2004B;
-	Tue, 25 Feb 2025 12:56:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4E6C020043;
+	Tue, 25 Feb 2025 13:08:05 +0000 (GMT)
 Received: from [9.152.224.140] (unknown [9.152.224.140])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Feb 2025 12:56:09 +0000 (GMT)
-Message-ID: <5ac2dda6-a9ac-449a-bb7c-0f9eb90614f5@linux.ibm.com>
-Date: Tue, 25 Feb 2025 13:56:09 +0100
+	Tue, 25 Feb 2025 13:08:05 +0000 (GMT)
+Message-ID: <8d51c268-aef2-469d-bfd7-a269422803a3@linux.ibm.com>
+Date: Tue, 25 Feb 2025 14:08:04 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,7 +62,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] KVM: s390: Don't use %pK through debug printing
+Subject: Re: [PATCH 1/2] KVM: s390: Don't use %pK through tracepoints
 To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
@@ -75,149 +75,61 @@ To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20250217-restricted-pointers-s390-v1-0-0e4ace75d8aa@linutronix.de>
- <20250217-restricted-pointers-s390-v1-2-0e4ace75d8aa@linutronix.de>
+ <20250217-restricted-pointers-s390-v1-1-0e4ace75d8aa@linutronix.de>
 From: Michael Mueller <mimu@linux.ibm.com>
-In-Reply-To: <20250217-restricted-pointers-s390-v1-2-0e4ace75d8aa@linutronix.de>
+In-Reply-To: <20250217-restricted-pointers-s390-v1-1-0e4ace75d8aa@linutronix.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: _mwJdslvPc5QLXsfDPi8-Q7J-DAJwtjM
-X-Proofpoint-GUID: _mwJdslvPc5QLXsfDPi8-Q7J-DAJwtjM
+X-Proofpoint-ORIG-GUID: W8k0KDZ0WjSHGxeYS2x6WirWGr2TKaWo
+X-Proofpoint-GUID: W8k0KDZ0WjSHGxeYS2x6WirWGr2TKaWo
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-02-25_04,2025-02-25_03,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
  suspectscore=0 mlxscore=0 priorityscore=1501 spamscore=0
  lowpriorityscore=0 adultscore=0 malwarescore=0 impostorscore=0
- mlxlogscore=944 clxscore=1011 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2502100000 definitions=main-2502250088
+ mlxlogscore=748 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2502100000 definitions=main-2502250090
 
 
 
 On 17.02.25 14:13, Thomas Weißschuh wrote:
-> Restricted pointers ("%pK") are only meant to be used when directly
-> printing to a file from task context.
-> Otherwise it can unintentionally expose security sensitive,
-> raw pointer values.
+> Restricted pointers ("%pK") are not meant to be used through TP_format().
+> It can unintentionally expose security sensitive, raw pointer values.
 > 
 > Use regular pointer formatting instead.
 > 
 > Link: https://lore.kernel.org/lkml/20250113171731-dc10e3c1-da64-4af0-b767-7c7070468023@linutronix.de/
 > Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
-
-I sucessfully ran our test suite after applying this patch.
-
 Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
-Tested-by: Michael Mueller <mimu@linux.ibm.com>
 
 > ---
->   arch/s390/kvm/intercept.c |  2 +-
->   arch/s390/kvm/interrupt.c |  8 ++++----
->   arch/s390/kvm/kvm-s390.c  | 10 +++++-----
->   3 files changed, 10 insertions(+), 10 deletions(-)
+>   arch/s390/kvm/trace-s390.h | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index 610dd44a948b22945b0a35b760ded64bd44ef7cb..a06a000f196ce0066bfd21b0d914492a1796819a 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -95,7 +95,7 @@ static int handle_validity(struct kvm_vcpu *vcpu)
+> diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
+> index 9ac92dbf680dbbe7703dd63945968b1cda46cf13..9e28f165c114caab99857ed3b53edc6ed5045dfa 100644
+> --- a/arch/s390/kvm/trace-s390.h
+> +++ b/arch/s390/kvm/trace-s390.h
+> @@ -56,7 +56,7 @@ TRACE_EVENT(kvm_s390_create_vcpu,
+>   		    __entry->sie_block = sie_block;
+>   		    ),
 >   
->   	vcpu->stat.exit_validity++;
->   	trace_kvm_s390_intercept_validity(vcpu, viwhy);
-> -	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%pK)", viwhy,
-> +	KVM_EVENT(3, "validity intercept 0x%x for pid %u (kvm 0x%p)", viwhy,
->   		  current->pid, vcpu->kvm);
+> -	    TP_printk("create cpu %d at 0x%pK, sie block at 0x%pK",
+> +	    TP_printk("create cpu %d at 0x%p, sie block at 0x%p",
+>   		      __entry->id, __entry->vcpu, __entry->sie_block)
+>   	);
 >   
->   	/* do not warn on invalid runtime instrumentation mode */
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 07ff0e10cb7f5c0294bf85f1d65d1eb124698705..c0558f05400732b2fe6911c1ef58f86b62364770 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -3161,7 +3161,7 @@ void kvm_s390_gisa_clear(struct kvm *kvm)
->   	if (!gi->origin)
->   		return;
->   	gisa_clear_ipm(gi->origin);
-> -	VM_EVENT(kvm, 3, "gisa 0x%pK cleared", gi->origin);
-> +	VM_EVENT(kvm, 3, "gisa 0x%p cleared", gi->origin);
->   }
+> @@ -255,7 +255,7 @@ TRACE_EVENT(kvm_s390_enable_css,
+>   		    __entry->kvm = kvm;
+>   		    ),
 >   
->   void kvm_s390_gisa_init(struct kvm *kvm)
-> @@ -3178,7 +3178,7 @@ void kvm_s390_gisa_init(struct kvm *kvm)
->   	gi->timer.function = gisa_vcpu_kicker;
->   	memset(gi->origin, 0, sizeof(struct kvm_s390_gisa));
->   	gi->origin->next_alert = (u32)virt_to_phys(gi->origin);
-> -	VM_EVENT(kvm, 3, "gisa 0x%pK initialized", gi->origin);
-> +	VM_EVENT(kvm, 3, "gisa 0x%p initialized", gi->origin);
->   }
->   
->   void kvm_s390_gisa_enable(struct kvm *kvm)
-> @@ -3219,7 +3219,7 @@ void kvm_s390_gisa_destroy(struct kvm *kvm)
->   		process_gib_alert_list();
->   	hrtimer_cancel(&gi->timer);
->   	gi->origin = NULL;
-> -	VM_EVENT(kvm, 3, "gisa 0x%pK destroyed", gisa);
-> +	VM_EVENT(kvm, 3, "gisa 0x%p destroyed", gisa);
->   }
->   
->   void kvm_s390_gisa_disable(struct kvm *kvm)
-> @@ -3468,7 +3468,7 @@ int __init kvm_s390_gib_init(u8 nisc)
->   		}
->   	}
->   
-> -	KVM_EVENT(3, "gib 0x%pK (nisc=%d) initialized", gib, gib->nisc);
-> +	KVM_EVENT(3, "gib 0x%p (nisc=%d) initialized", gib, gib->nisc);
->   	goto out;
->   
->   out_unreg_gal:
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index ebecb96bacce7d75563bd3a130a7cc31869dc254..9e427ba3aed42edf617d6625b5bcaba8f43dc464 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -1020,7 +1020,7 @@ static int kvm_s390_set_mem_control(struct kvm *kvm, struct kvm_device_attr *att
->   		}
->   		mutex_unlock(&kvm->lock);
->   		VM_EVENT(kvm, 3, "SET: max guest address: %lu", new_limit);
-> -		VM_EVENT(kvm, 3, "New guest asce: 0x%pK",
-> +		VM_EVENT(kvm, 3, "New guest asce: 0x%p",
->   			 (void *) kvm->arch.gmap->asce);
->   		break;
->   	}
-> @@ -3464,7 +3464,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->   		kvm_s390_gisa_init(kvm);
->   	INIT_LIST_HEAD(&kvm->arch.pv.need_cleanup);
->   	kvm->arch.pv.set_aside = NULL;
-> -	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
-> +	KVM_EVENT(3, "vm 0x%p created by pid %u", kvm, current->pid);
->   
->   	return 0;
->   out_err:
-> @@ -3527,7 +3527,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
->   	kvm_s390_destroy_adapters(kvm);
->   	kvm_s390_clear_float_irqs(kvm);
->   	kvm_s390_vsie_destroy(kvm);
-> -	KVM_EVENT(3, "vm 0x%pK destroyed", kvm);
-> +	KVM_EVENT(3, "vm 0x%p destroyed", kvm);
->   }
->   
->   /* Section: vcpu related */
-> @@ -3648,7 +3648,7 @@ static int sca_switch_to_extended(struct kvm *kvm)
->   
->   	free_page((unsigned long)old_sca);
->   
-> -	VM_EVENT(kvm, 2, "Switched to ESCA (0x%pK -> 0x%pK)",
-> +	VM_EVENT(kvm, 2, "Switched to ESCA (0x%p -> 0x%p)",
->   		 old_sca, kvm->arch.sca);
->   	return 0;
->   }
-> @@ -4025,7 +4025,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
->   			goto out_free_sie_block;
->   	}
->   
-> -	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%pK, sie block at 0x%pK",
-> +	VM_EVENT(vcpu->kvm, 3, "create cpu %d at 0x%p, sie block at 0x%p",
->   		 vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
->   	trace_kvm_s390_create_vcpu(vcpu->vcpu_id, vcpu, vcpu->arch.sie_block);
+> -	    TP_printk("enabling channel I/O support (kvm @ %pK)\n",
+> +	    TP_printk("enabling channel I/O support (kvm @ %p)\n",
+>   		      __entry->kvm)
+>   	);
 >   
 > 
 
