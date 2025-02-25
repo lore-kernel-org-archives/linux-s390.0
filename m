@@ -1,230 +1,100 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1E94C76;
-	Tue, 25 Feb 2025 01:36:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 888AF2C9D;
+	Tue, 25 Feb 2025 02:10:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740447407; cv=none; b=NsFzrq8C6TBywFLIi25vIOqX+uhn5ZQFnJ8VKJGuP3ukqL4662oeB4u+tnJ4f9GMp6kKFJ965RvIVzpgXcarV+D/rnaCwLvQRU1NazZPMJ8PEGT9bqGqvBC4rVxSgVveEQWKXknFu3PvVu0dXlBfIQsTOuQUL44eYtDwcrPbvnA=
+	t=1740449429; cv=none; b=sY91/Gl+zVNfTi8jpnKzVov8LFHc8Oy7wivfUhb/XK94YWt4wNrqq3ZEwlIptczbk4o6D92n1ol5FaVlrDsl31wb3yiSTqTdC/fdS0aJIE89QmXAmquFoDy0X2r9/6RP0Y+jAuJ7ueTopD4UmcaZx6TDHicXCH3pO+zgKn1rsyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740447407; c=relaxed/simple;
-	bh=iRImChO2ZMyZnBTgCMRi32K6DA2pwjsam0wkmHE/YMg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MaMl7Rko5ChNXnuabsI52AS7KW2DiL/f8CAmK+hcxg8JImi+oK75WAzfZfqEWOSt12V7uhAMis2XIg2e2qdI5+KaicN3OodAAUfxZGIjyDrIgMrFUi1fGOqA+y86/k1ZC80ttHY2Y0kIdeKR8Giha+oYOfCtAQVxkpSTKRX+uHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CMUYvNPy; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CMUYvNPy"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1740447399; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=zWvMjmU2+SJ1elNZnAbHWtze8K8w97iUyKtJpyBPjjs=;
-	b=CMUYvNPyybKcJqAlcUbRsyRWkyxO43PBU09OTItxN3FlHxC+1/58Hyia3+TZVfFoAv+6/OMi9y9SjxMYf9GIlPZxzgggKau7n2tper6gzQNehpHwiwMh5vuBZK96I14HjOq2I4n4z7hkjv5rOLVDXBhE1Xa7KFRVV9dMsOkm1nE=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WQCgAVB_1740447398 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 25 Feb 2025 09:36:38 +0800
-Date: Tue, 25 Feb 2025 09:36:38 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Thorsten Winkler <twinkler@linux.ibm.com>, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>
-Subject: Re: [RFC net-next 0/7] Provide an ism layer - naming
-Message-ID: <20250225013638.GC81943@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <D73H7Q080GUQ.3BDOH23P4WDOL@linux.ibm.com>
- <0f96574a-567e-495a-b815-6aef336f12e6@linux.ibm.com>
- <20250117021353.GF89233@linux.alibaba.com>
- <dc2ff4c83ce8f7884872068570454f285510bda2.camel@linux.ibm.com>
- <20250118153154.GI89233@linux.alibaba.com>
- <d1927140-443b-401c-92ff-f467c12d3e75@linux.ibm.com>
- <20250210050851.GS89233@linux.alibaba.com>
- <1e96806f-0a4e-4292-9483-928b1913d311@linux.ibm.com>
- <59d386fb-0612-4c2e-a4e7-ca26b474917f@linux.alibaba.com>
- <88bfde57-a653-472a-936b-40e68c349ac1@linux.ibm.com>
+	s=arc-20240116; t=1740449429; c=relaxed/simple;
+	bh=aaHGUOs30tNuy84PGnD8R0PY9RDSWCOwwuFCRkSChe4=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=qVC6HrD8DtavyxruxygWpk5/Xi+GSvj+q/sm2Rz724LS/aYb5IvnzWvSz5UOgMOO/ly5cDLnctnW+TLwR4DhlzbUPsawWmFsSHgHvbbT7+Jp50KHUeYPjdGXMvCJ7mRqVWG8RFgnpZHUB0G4DSCrlq3Vy4WTXFqbc/GDtc8pQFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 659A4C4CED6;
+	Tue, 25 Feb 2025 02:10:26 +0000 (UTC)
+Date: Mon, 24 Feb 2025 21:11:02 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-kbuild@vger.kernel.org, bpf <bpf@vger.kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, "Masami
+ Hiramatsu" <mhiramat@kernel.org>, "Mark Rutland" <mark.rutland@arm.com>,
+ "Mathieu Desnoyers" <mathieu.desnoyers@efficios.com>, "Andrew Morton"
+ <akpm@linux-foundation.org>, "Peter Zijlstra" <peterz@infradead.org>,
+ "Linus Torvalds" <torvalds@linux-foundation.org>, "Masahiro Yamada"
+ <masahiroy@kernel.org>, "Nathan Chancellor" <nathan@kernel.org>, "Nicolas
+ Schier" <nicolas@fjasle.eu>, "Zheng Yejian" <zhengyejian1@huawei.com>,
+ "Martin Kelly" <martin.kelly@crowdstrike.com>, "Christophe Leroy"
+ <christophe.leroy@csgroup.eu>, "Josh Poimboeuf" <jpoimboe@redhat.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>, "Catalin Marinas"
+ <catalin.marinas@arm.com>, "Will Deacon" <will@kernel.org>, "Vasily Gorbik"
+ <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v5 2/6] scripts/sorttable: Have mcount rela sort use
+ direct values
+Message-ID: <20250224211102.33e264fc@gandalf.local.home>
+In-Reply-To: <20250224172147.1de3fda5@gandalf.local.home>
+References: <20250218195918.255228630@goodmis.org>
+	<20250218200022.538888594@goodmis.org>
+	<893cd8f1-8585-4d25-bf0f-4197bf872465@app.fastmail.com>
+	<20250224172147.1de3fda5@gandalf.local.home>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <88bfde57-a653-472a-936b-40e68c349ac1@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On 2025-02-19 12:25:59, Alexandra Winter wrote:
->
->
->On 16.02.25 16:40, Wen Gu wrote:
->> 
->> 
->> On 2025/2/10 17:38, Alexandra Winter wrote:
->>>
->>>
->>> On 10.02.25 06:08, Dust Li wrote:
->>>> On 2025-01-28 17:04:53, Alexandra Winter wrote:
->>>>>
->>>>>
->>>>> On 18.01.25 16:31, Dust Li wrote:
->>>>>> On 2025-01-17 11:38:39, Niklas Schnelle wrote:
->>>>>>> On Fri, 2025-01-17 at 10:13 +0800, Dust Li wrote:
->>>>>>>>>
->>>>>>> ---8<---
->>>>>>>>> Here are some of my thoughts on the matter:
->>>>>>>>>>>
->>>>>>>>>>> Naming and Structure: I suggest we refer to it as SHD (Shared Memory
->>>>>>>>>>> Device) instead of ISM (Internal Shared Memory).
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> So where does the 'H' come from? If you want to call it Shared Memory _D_evice?
->>>>>>>>
->>>>>>>> Oh, I was trying to refer to SHM(Share memory file in the userspace, see man
->>>>>>>> shm_open(3)). SMD is also OK.
->>>>>>>>
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> To my knowledge, a
->>>>>>>>>>> "Shared Memory Device" better encapsulates the functionality we're
->>>>>>>>>>> aiming to implement.
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> Could you explain why that would be better?
->>>>>>>>> 'Internal Shared Memory' is supposed to be a bit of a counterpart to the
->>>>>>>>> Remote 'R' in RoCE. Not the greatest name, but it is used already by our ISM
->>>>>>>>> devices and by ism_loopback. So what is the benefit in changing it?
->>>>>>>>
->>>>>>>> I believe that if we are going to separate and refine the code, and add
->>>>>>>> a common subsystem, we should choose the most appropriate name.
->>>>>>>>
->>>>>>>> In my opinion, "ISM" doesn’t quite capture what the device provides.
->>>>>>>> Since we’re adding a "Device" that enables different entities (such as
->>>>>>>> processes or VMs) to perform shared memory communication, I think a more
->>>>>>>> fitting name would be better. If you have any alternative suggestions,
->>>>>>>> I’m open to them.
->>>>>>>
->>>>>>> I kept thinking about this a bit and I'd like to propose yet another
->>>>>>> name for this group of devices: Memory Communication Devices (MCD)
->>>>>>>
->>>>>>> One important point I see is that there is a bit of a misnomer in the
->>>>>>> existing ISM name in that our ISM device does in fact *not* share
->>>>>>> memory in the common sense of the "shared memory" wording. Instead it
->>>>>>> copies data between partitions of memory that share a common
->>>>>>> cache/memory hierarchy while not sharing the memory itself. loopback-
->>>>>>> ism and a possibly future virtio-ism on the other hand would share
->>>>>>> memory in the "shared memory" sense. Though I'd very much hope they
->>>>>>> will retain a copy mode to allow use in partition scenarios.
->>>>>>>
->>>>>>> With that background I think the common denominator between them and
->>>>>>> the main idea behind ISM is that they facilitate communication via
->>>>>>> memory buffers and very simple and reliable copy/share operations. I
->>>>>>> think this would also capture our planned use-case of devices (TTYs,
->>>>>>> block devices, framebuffers + HID etc) provided by a peer on top of
->>>>>>> such a memory communication device.
->>>>>>
->>>>>> Make sense, I agree with MCD.
->>>>>>
->>>>>> Best regard,
->>>>>> Dust
->>>>>>
->>>>>
->>>>>
->>>>
->>>> Hi Winter,
->>>>
->>>> Sorry for the late reply; we were on break for the Chinese Spring
->>>> Festival.
->>>>
->>>>>
->>>>> In the discussion with Andrew Lunn, it showed that
->>>>> a) we need an abstract description of 'ISM' devices (noted)
->>>>> b) DMBs (Direct Memory Buffers) are a critical differentiator.
->>>>>
->>>>> So what do your think of Direct Memory Communication (DMC) as class name for these devices?
->>>>>
->>>>> I don't have a strong preference (we could also stay with ISM). But DMC may be a bit more
->>>>> concrete than MCD or ISM.
->>>>
->>>> I personally prefer MCD over Direct Memory Communication (DMC).
->>>>
->>>> For loopback or Virtio-ISM, DMC seems like a good choice. However, for
->>>> IBM ISM, since there's a DMA copy involved, it doesn’t seem truly "Direct,"
->>>> does it?
->>>>
->>>> Additionally, since we are providing a device, MCD feels like a more
->>>> fitting choice, as it aligns better with the concept of a "device."
->>>>
->>>> Best regards,
->>>> Dust
->>>
->>> Thank you for your thoughts, Dust.
->>> For me the 'D as 'direct' is not so much about the number of copies, but more about the
->>> aspect, that you can directly write at any offset into the buffer. I.e. no queues.
->>> More like the D in DMA or RDMA.
->>>
->> 
->> IMHO the 'D' means that the CPU copy does not need to be involved, and memory access
->> only involves between memory and IO devices. So under this semantics, I think 'DMC'
->> also applies to s390 ism device, since IIUC the s390 ism directly access to the memory
->> which is passed down by move_data(). The exception is lo-ism, where the device
->> actually doesn't need to access the memory(DMB), since the data has been put into the
->> shared memory once the sendmsg() is called and no copy or move is needed. But this
->> is not a violation of name, just a special kind of short-cut. So DMC makes sense
->> to me.
->> 
->>> I am preparing a talk for netdev in March about this subject, and the more I work on it,
->>> it seems to me that the buffers ('B'), that are
->>> a) only authorized for a single remote device and
->>> b) can be accessed at any offset
->>> are the important differentiator compared other virtual devices.
->>> So maybe 'D' for Dedicated?
->>>
->>> I even came up with
->>> dibs - Dedicated Internal Buffer Sharing or
->>> dibc - Dedicated Internal Buffer Communication
->>> (ok, I like the sound and look of the 'I'. But being on the same hardware as opposed
->>> to RDMA is also an important aspect.)
->>>
->>>
->>> MCD - 'memory communication device' sounds rather vague to me. But if it is the
->>> smallest common denominator, i.e. the only thing we can all agree on, I could live with it.
->>>
->
->
->Could you guys accept
->'DIBS - Dedicated Internal Buffer Sharing'
->as well?
->-> dibs_layer, /class/dibs/, dibs_dev
->
->That is currently my favourite.
->
+On Mon, 24 Feb 2025 17:21:47 -0500
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-I think you might prefer a name that describes shared memory,
-but I personally believe that something reflecting the device itself
-would be more fitting.
+> Hmm, I haven't tried building this with clang.
+> 
+> Can you compile without that commit, run and give me the output from these
+> two programs:
+> 
+>  ./dump_elf_sym vmlinux __start_mcount_loc __stop_mcount_loc
+>  ./dump_elf_rela vmlinux .rela.dyn
+> 
+> If the second one fails, remove the '.rela.dyn' and see what that shows.
+> 
+>  https://rostedt.org/code/dump_elf_sym.c
+>  https://rostedt.org/code/dump_elf_rela.c
+> 
 
-To be honest, here’s my ranking:
+Nevermind, Masami told me all I need to do is add LLVM=1 and clang can
+handle the cross compiling.
 
-MCD > DMC > DIBS
+I looked, and sure enough clang on arm64 does it the same way x86 does. So
+using the rela items to sort is a gcc thing :-p
 
-Best regards,
-Dust
+Can you try this patch?
 
+-- Steve
+
+
+diff --git a/scripts/sorttable.c b/scripts/sorttable.c
+index 23c7e0e6c024..07ad8116bc8d 100644
+--- a/scripts/sorttable.c
++++ b/scripts/sorttable.c
+@@ -827,9 +827,14 @@ static void *sort_mcount_loc(void *arg)
+ 		pthread_exit(m_err);
+ 	}
+ 
+-	if (sort_reloc)
++	if (sort_reloc) {
+ 		count = fill_relocs(vals, size, ehdr, emloc->start_mcount_loc);
+-	else
++		/* gcc may use relocs to save the addresses, but clang does not. */
++		if (!count) {
++			count = fill_addrs(vals, size, start_loc);
++			sort_reloc = 0;
++		}
++	} else
+ 		count = fill_addrs(vals, size, start_loc);
+ 
+ 	if (count < 0) {
