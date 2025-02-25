@@ -1,58 +1,67 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 875A5198A19;
-	Tue, 25 Feb 2025 16:42:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 432FE20DD79;
+	Tue, 25 Feb 2025 20:12:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740501743; cv=none; b=IMLVQZswWkt6HihikbS+dWwlQN8Y7gWVX/OM0kJeYVwDFhlR93OYBkTxb4rg0al9tW0f8rZ7I3Uj+q8d6JLYM7eir02aGM8gyBI/rQFD0lIK/onCjcg2l7TqxeyvFMHiqb3UIY2B0KV6+Oqb02Dryg29dHYhMEptHzo1LgNbTEc=
+	t=1740514337; cv=none; b=E3Pv9++9TXTfwP4+1gHlmMrCGfByZTLMekH+tPJoco7wJRGNSG5nOfB2xkF2PUfOoybG39QDRNhHi03pjALfV7ALrr90DSMpBI29YWEgOstdOu/C7EeV+DqAfvmqh7m7IjjQrqAq+rULFvk9GK+FYFGajpUlhlAtz+vvVbt3/0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740501743; c=relaxed/simple;
-	bh=E1I+A2ijUQsaJXZ97m6qRzEkqsAgeCC2zPqldsjqxWo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aS7pRMH9DUlGVqk51pQ7qyIiDPCoZM+ENANRaOQhMADtyxv51SXE5bdWyEcAA6TRXbcaVaq4yqmxzUNNxIQd7Ptd6UgiG7I1e7LtR15p5R7LPfc1w/zUwOWrTbYFMDtNaCFu1fO2DP+ftLAXW/WMlU6u5Rs4Hm9XlwwbMC6CIc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gMVjLfi8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740514337; c=relaxed/simple;
+	bh=lqRgiM8UKKa/qnLQeupFH5hkkFUg2xcJa1AOOU+0YZk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PXCDBtqQcyHVOFWXoXQ9G+u1y3g5SCJhxlUNViZcp+6+kmzja7pEwcxd4MgceanaNefmrbTz74Fsgo2/aEEqGBxQkjN/HRqfmPovVbl6ALLI2ASowRAm1+J7NrIEMrk3UIWfn7fmQIcxo6Zwabx6EYJClgkSDUqKKsHMW2VIBF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ch7kuwyJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gMVjLfi8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D075BC4CEE6;
-	Tue, 25 Feb 2025 16:42:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740501743;
-	bh=E1I+A2ijUQsaJXZ97m6qRzEkqsAgeCC2zPqldsjqxWo=;
-	h=From:To:Cc:Subject:Date:From;
-	b=gMVjLfi8RUbNJ1VSvtuyy71POodgGy0/kNnREyvDNg64smohUM2ALzQWrZi8w3f9I
-	 4LVmOLgrARJol4lLYOoUiobbX7Y3aQFL3sOxabO6oTV7550ZjxQ2xUAMdZ3szOUVhj
-	 CUPx79Br1nHmlgNXnJu7UF5b1ZfWSFhb6beB0/4BpMk6aGhwJT296Nyz+zHxGSZc1o
-	 ZGDGCza9K9x6n7zMHowk721uOxmBPdUDnEEby16e1qkZLrvjqigseSzNQa6PhG7Len
-	 hbONMGfxrM3RqDXrhZO0vN+dvny2/0bRrL91EkMBKKZR9FqYZPeEStSR4wYc9ujzIi
-	 5EtkuYflCfmHA==
-From: Arnd Bergmann <arnd@kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-	"David S. Miller" <davem@davemloft.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Eric Biggers <ebiggers@google.com>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	linux-crypto@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH] crypto: lib/Kconfig - fix chacha/poly1305 dependencies more more
-Date: Tue, 25 Feb 2025 17:42:07 +0100
-Message-Id: <20250225164216.4807-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ch7kuwyJ"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51PDjZ29022645;
+	Tue, 25 Feb 2025 20:12:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=LREirHOGGUHKPFwpdp5anEmPVt2NwJOT7yIWk7g11
+	FY=; b=ch7kuwyJtirBH1TFXypnApPjEl9lSelj/oMJEvYCl7L6H7py4zLqEKcKr
+	h7P49SebqsAvy8t0LUmo0lvQNCXEQrQQdrjg4i2RxQPnBK+kNgdBtYEsxrhylhS0
+	zEGMM3iNjdKfE89wOMjz4z7esMHIZIsNIq2It/XSVwfEtH4WPK7VQGtM9gLwGlWY
+	p1xAlB7e0jP7p2EkyKnQA3F7qDBk48cY8eDdUfBRIv0ehFBgXOsGZ+wk3dkHv9Nx
+	E2GyuiWJrvLa1uAN4fAv8KP3lTXW1wAiTISc5iVf/qT7/ooBypWerziebAMfE3h0
+	lutL6PMioRs1qZL7YsHBbGUdlmWiQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4511wadnub-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 20:12:12 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51PIjngd027333;
+	Tue, 25 Feb 2025 20:12:11 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yum1xf2c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 25 Feb 2025 20:12:11 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51PKC9HV21758670
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Feb 2025 20:12:10 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C368058052;
+	Tue, 25 Feb 2025 20:12:09 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F282358056;
+	Tue, 25 Feb 2025 20:12:08 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.61.252.67])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Feb 2025 20:12:08 +0000 (GMT)
+From: Rorie Reyes <rreyes@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: hca@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
+        gor@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
+        alex.williamson@redhat.com, akrowiak@linux.ibm.com,
+        rreyes@linux.ibm.com
+Subject: [RFC PATCH v2 0/2] Eventfd signal on guest AP configuration change
+Date: Tue, 25 Feb 2025 15:12:06 -0500
+Message-ID: <20250225201208.45998-1-rreyes@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -60,169 +69,43 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QA3rBfCXyNOsWXfF6j-mMiWX2Lt0kuVE
+X-Proofpoint-ORIG-GUID: QA3rBfCXyNOsWXfF6j-mMiWX2Lt0kuVE
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-25_06,2025-02-25_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=730 mlxscore=0
+ malwarescore=0 spamscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 phishscore=0 clxscore=1015
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502250120
 
-From: Arnd Bergmann <arnd@arndb.de>
+Changelog:
 
-A recent change tries to fix Kconfig dependencies, but introduced
-two problems in the process:
+v2:
+- Fixing remove notification for AP configuration
 
- - only arm, powerpc and x86 are changed, while mips, arm64 and s390
-   are now broken
+--------------------------------------------------------------------------
 
- - there are now configurations where the architecture enables its
-   own helper functions as loadable modules, but they remain silently
-   unused because CRYPTO_LIB_* falls back to the generic helpers
+The purpose of this patch is to provide immediate notification of changes
+made to a guest's AP configuration by the vfio_ap driver. This will enable
+the guest to take immediate action rather than relying on polling or some
+other inefficient mechanism to detect changes to its AP configuration.
 
-Address both by changing the logic again: the architecture functions
-select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA, which may be a loadable
-module or built-in, and this controls whether the library is
-also built-in.
+Note that there are corresponding QEMU patches that will be shipped along
+with this patch (see vfio-ap: Report vfio-ap configuration changes) that
+will pick up the eventfd signal.
 
-Fixes: 04f9ccc955c7 ("crypto: lib/Kconfig - Fix lib built-in failure when arch is modular")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-I did not quite understand what problem the 04f9ccc955c7 patch
-actually tried to solve, so there is a chance that my version
-undoes it. I tested this on randconfig builds across, arm,
-arm64 and x86 and found no other dependency problems with these
-libraries.
----
- arch/arm64/crypto/Kconfig |  4 ++--
- arch/mips/crypto/Kconfig  |  4 ++--
- arch/s390/crypto/Kconfig  |  2 +-
- lib/crypto/Kconfig        | 20 +++++++++++---------
- 4 files changed, 16 insertions(+), 14 deletions(-)
+Rorie Reyes (2):
+  s390/vfio-ap: Signal eventfd when guest AP configuration is changed
+  s390/vfio-ap: Fixing mdev remove notification
 
-diff --git a/arch/arm64/crypto/Kconfig b/arch/arm64/crypto/Kconfig
-index 5636ab83f22a..3d90efdcf5a5 100644
---- a/arch/arm64/crypto/Kconfig
-+++ b/arch/arm64/crypto/Kconfig
-@@ -29,7 +29,7 @@ config CRYPTO_POLY1305_NEON
- 	tristate "Hash functions: Poly1305 (NEON)"
- 	depends on KERNEL_MODE_NEON
- 	select CRYPTO_HASH
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	select CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -190,7 +190,7 @@ config CRYPTO_CHACHA20_NEON
- 	depends on KERNEL_MODE_NEON
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_CHACHA_GENERIC
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/mips/crypto/Kconfig b/arch/mips/crypto/Kconfig
-index 7decd40c4e20..cbeb2f62eb79 100644
---- a/arch/mips/crypto/Kconfig
-+++ b/arch/mips/crypto/Kconfig
-@@ -5,7 +5,7 @@ menu "Accelerated Cryptographic Algorithms for CPU (mips)"
- config CRYPTO_POLY1305_MIPS
- 	tristate "Hash functions: Poly1305"
- 	depends on MIPS
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	select CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -55,7 +55,7 @@ config CRYPTO_CHACHA_MIPS
- 	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (MIPS32r2)"
- 	depends on CPU_MIPS32_R2
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/s390/crypto/Kconfig b/arch/s390/crypto/Kconfig
-index b760232537f1..6f7495264943 100644
---- a/arch/s390/crypto/Kconfig
-+++ b/arch/s390/crypto/Kconfig
-@@ -112,7 +112,7 @@ config CRYPTO_CHACHA_S390
- 	depends on S390
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_CHACHA_GENERIC
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
- 	help
- 	  Length-preserving cipher: ChaCha20 stream cipher (RFC 7539)
- 
-diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
-index c542ef1d64d0..6b45bd634cd9 100644
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -50,8 +50,6 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
- 	tristate
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_LIB_CHACHA=m
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA=y
- 
- config CRYPTO_LIB_CHACHA_GENERIC
- 	tristate
-@@ -65,7 +63,9 @@ config CRYPTO_LIB_CHACHA_GENERIC
- 
- config CRYPTO_LIB_CHACHA
- 	tristate "ChaCha library interface"
--	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
-+	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA=n
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA!=n
-+	depends on CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA || !CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
- 	help
- 	  Enable the ChaCha library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
-@@ -80,8 +80,6 @@ config CRYPTO_ARCH_HAVE_LIB_CURVE25519
- 
- config CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
- 	tristate
--	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_LIB_CURVE25519=m
--	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519=y
- 
- config CRYPTO_LIB_CURVE25519_GENERIC
- 	tristate
-@@ -94,7 +92,9 @@ config CRYPTO_LIB_CURVE25519_GENERIC
- 
- config CRYPTO_LIB_CURVE25519
- 	tristate "Curve25519 scalar multiplication library"
--	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
-+	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519=n
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519!=n
-+	depends on CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519 || !CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
- 	select CRYPTO_LIB_UTILS
- 	help
- 	  Enable the Curve25519 library interface. This interface may be
-@@ -120,8 +120,6 @@ config CRYPTO_ARCH_HAVE_LIB_POLY1305
- 
- config CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
- 	tristate
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_LIB_POLY1305=m
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305=y
- 
- config CRYPTO_LIB_POLY1305_GENERIC
- 	tristate
-@@ -134,7 +132,9 @@ config CRYPTO_LIB_POLY1305_GENERIC
- 
- config CRYPTO_LIB_POLY1305
- 	tristate "Poly1305 library interface"
--	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
-+	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305=n
-+	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305!=n
-+	depends on CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305 || !CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
- 	help
- 	  Enable the Poly1305 library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
-@@ -143,6 +143,8 @@ config CRYPTO_LIB_POLY1305
- config CRYPTO_LIB_CHACHA20POLY1305
- 	tristate "ChaCha20-Poly1305 AEAD support (8-byte nonce library version)"
- 	depends on CRYPTO
-+	depends on CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305 || !CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
-+	depends on CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA || !CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
- 	select CRYPTO_LIB_CHACHA
- 	select CRYPTO_LIB_POLY1305
- 	select CRYPTO_ALGAPI
+ drivers/s390/crypto/vfio_ap_ops.c     | 65 ++++++++++++++++++++++++++-
+ drivers/s390/crypto/vfio_ap_private.h |  2 +
+ include/uapi/linux/vfio.h             |  1 +
+ 3 files changed, 67 insertions(+), 1 deletion(-)
+
 -- 
-2.39.5
+2.39.5 (Apple Git-154)
 
