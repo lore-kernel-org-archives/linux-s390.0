@@ -1,22 +1,23 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id ACBF84A1A;
-	Wed, 26 Feb 2025 12:24:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 448D9219E8D;
+	Wed, 26 Feb 2025 12:24:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740572666; cv=none; b=mZ5MNXwuuYSgu3lDpUPBBcN4T5g014sgo+xoKLTuZnKBE5SgxubqgUBR5ATmk/VU5DfwY6pe66KdKXScdGB8O1rbbXMQRL3IJkHkJzwLZC6kibishybXRUSdGZLJXGYaO2BuEKDj76axP5J/Xsgvg8X9d/eysdtAmC9YUF7qeKs=
+	t=1740572670; cv=none; b=OEG6x5k6SfHpriYzNZmuaZqLOiULpfmtwmCa4cW5ZoM1yqGCEmOZw3M/h7HQQS3ByHWYJ5LP6RxWKERBYPmg9KVS3v5eTgxeHT3qC2aEBcOgck3Xw0DayeM42cU50Zo+NgHmPMoJ1KMc1T2D9s42smVDx/V+sMabe6olCs+tGuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740572666; c=relaxed/simple;
-	bh=Is/QCHbWqAmr1YoxzAfhHFGcmQ46LcKYWWOELKfsQ8A=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aPVsLNRskg1fQujRtAKEBBRlGyJGDPMeR5rGPohe/PYEzLg9NMp9HOmSuKFPSn53u+QLoLFhJhQ2vsp1PYH3+X15hBUNzbImLDhWl14nlSK3bF3nrFCLP6r68uN6Y93/+qZZPyytmeeevwZ3Y2rUIP7OWgdUDw9tmgwaJwVqkVc=
+	s=arc-20240116; t=1740572670; c=relaxed/simple;
+	bh=oh130ZfN7W4wku04HmoxfgsWtF4oVy+oljkEG0XQAD8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=exV5+vvcv2v1uSLygLz/FXJEUogcIHFkMOZVdcM20I9pGxYrFNFJ39UkY57jIgxloH9fVUmgrkjZKUrV+239FQ9yB3Mt91kzOT6ZCyew8B8k75Lo1dEm1tghLTvddAaeVYSZxAeyAJ5jGt2EEdjrQubP7j9Qo1OvpTCLe9pUH7o=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4B55113D5;
-	Wed, 26 Feb 2025 04:24:40 -0800 (PST)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9CB9C16F3;
+	Wed, 26 Feb 2025 04:24:44 -0800 (PST)
 Received: from a077893.arm.com (unknown [10.163.40.69])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 646443F5A1;
-	Wed, 26 Feb 2025 04:24:20 -0800 (PST)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id A1DC13F5A1;
+	Wed, 26 Feb 2025 04:24:24 -0800 (PST)
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 To: linux-mm@kvack.org
 Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
@@ -29,11 +30,14 @@ Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
 	linux-kernel@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH V3 0/5] mm: Rework generic PTDUMP configs
-Date: Wed, 26 Feb 2025 17:53:59 +0530
-Message-Id: <20250226122404.1927473-1-anshuman.khandual@arm.com>
+	linux-s390@vger.kernel.org,
+	Steven Price <steven.price@arm.com>
+Subject: [PATCH V3 1/5] configs: Drop GENERIC_PTDUMP from debug.config
+Date: Wed, 26 Feb 2025 17:54:00 +0530
+Message-Id: <20250226122404.1927473-2-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20250226122404.1927473-1-anshuman.khandual@arm.com>
+References: <20250226122404.1927473-1-anshuman.khandual@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -42,72 +46,32 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The series reworks generic PTDUMP configs before eventually renaming them
-after some basic clean ups first. This is derived after splitting changes
-from the following patch.
-
-https://lore.kernel.org/all/20250205050039.1506377-1-anshuman.khandual@arm.com/
-
-This series applies on v6.14-rc3 and has been tested on arm64. Although it
-also builds on other platforms as well.
+The platforms that support GENERIC_PTDUMP select the config explicitly. But
+enabling this feature on platforms that don't really support - does nothing
+or might cause a build failure. Hence just drop GENERIC_PTDUMP from generic
+debug.config
 
 Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: kvmarm@lists.linux.dev
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
 Cc: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+---
+ kernel/configs/debug.config | 1 -
+ 1 file changed, 1 deletion(-)
 
-Changes in V3:
-
-- Added CONFIG_PTDUMP_DEBUGFS in mpc885_ads_defconfig per Christophe
-- Added back MMU dependency for CONFIG_ARCH_HAS_PTDUMP on riscv platform
-
-Changes in V2:
-
-https://lore.kernel.org/all/20250217042220.32920-1-anshuman.khandual@arm.com/
-
-- Dropped the patch "mm: Make GENERIC_PTDUMP dependent on MMU"
-- Dropped GENERIC_PTDUMP from mpc885_ads_defconfig
-- Dropped PTDUMP config options from ptdump.rst
-
-Changes in V1:
-
-https://lore.kernel.org/all/20250213040934.3245750-1-anshuman.khandual@arm.com/
-
-Anshuman Khandual (5):
-  configs: Drop GENERIC_PTDUMP from debug.config
-  arch/powerpc: Drop GENERIC_PTDUMP from mpc885_ads_defconfig
-  docs: arm64: Drop PTDUMP config options from ptdump.rst
-  mm: Make DEBUG_WX depdendent on GENERIC_PTDUMP
-  mm: Rename GENERIC_PTDUMP and PTDUMP_CORE
-
- Documentation/arch/arm64/ptdump.rst       |  2 --
- arch/arm64/Kconfig                        |  2 +-
- arch/arm64/include/asm/ptdump.h           |  4 ++--
- arch/arm64/kvm/Kconfig                    |  4 ++--
- arch/arm64/mm/Makefile                    |  2 +-
- arch/powerpc/Kconfig                      |  2 +-
- arch/powerpc/configs/mpc885_ads_defconfig |  2 +-
- arch/powerpc/mm/Makefile                  |  2 +-
- arch/riscv/Kconfig                        |  2 +-
- arch/riscv/mm/Makefile                    |  2 +-
- arch/s390/Kconfig                         |  2 +-
- arch/s390/mm/Makefile                     |  2 +-
- arch/x86/Kconfig                          |  2 +-
- arch/x86/Kconfig.debug                    |  2 +-
- arch/x86/mm/Makefile                      |  2 +-
- kernel/configs/debug.config               |  1 -
- mm/Kconfig.debug                          | 11 ++++++-----
- mm/Makefile                               |  2 +-
- 18 files changed, 23 insertions(+), 25 deletions(-)
-
+diff --git a/kernel/configs/debug.config b/kernel/configs/debug.config
+index 20552f163930..8aafd050b754 100644
+--- a/kernel/configs/debug.config
++++ b/kernel/configs/debug.config
+@@ -73,7 +73,6 @@ CONFIG_DEBUG_VM=y
+ CONFIG_DEBUG_VM_PGFLAGS=y
+ CONFIG_DEBUG_VM_RB=y
+ CONFIG_DEBUG_VM_VMACACHE=y
+-CONFIG_GENERIC_PTDUMP=y
+ CONFIG_KASAN=y
+ CONFIG_KASAN_GENERIC=y
+ CONFIG_KASAN_INLINE=y
 -- 
 2.25.1
 
