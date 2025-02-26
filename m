@@ -1,455 +1,237 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE790224220;
-	Wed, 26 Feb 2025 09:09:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9511222171E;
+	Wed, 26 Feb 2025 12:08:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740560955; cv=none; b=i+EKYgWbm7KQdNqrZuObKMAxcldMvkkF+2qtEeSvGdsC2SwhOvl0cnydD8WUr7KsOX83tGxpIqrPnxCj2h85kKQ26H/Zkvci+VYKPYTaNx9pwxSlQop/ZrN7GfUdzWRZVuU0qkDrHhr43DjKVSjG4Z7yctmU51p0tubvV82sle8=
+	t=1740571690; cv=none; b=sAjjNEdmW38RMFJZPCSEAO2lxHX2uWEH1rK4KdvEfmFaxFki5RcVYPSrUWYrbsETdCNkLWyCfFRkCIoF/D5pbao6g8kq3uzePxZC75GmTv01ZhOPu2BtlRii7dmaIjSbMRwhcvFQa3SeR/SFTKq9Lo9ZhJHrnMPkRjmd339v+YI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740560955; c=relaxed/simple;
-	bh=mWtuE0d+HNUmp/zyolAa21VUgkJzuk9wG7mXxuiq3eQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=O5sReh7MkwDOcyeQLL6ukGoJsMCnmPIN20sZC/5L8/Udg3UOcQwk3RgxDIX+axkFw9N+2brctvPfXobqM6a2N69aJK9+GjE4kZvDun/1l/pngLoed2M6qGG0f3M5z6Joz74XKdnk5u/V3ZbbzqiJpKAGwqWLiC6lAco017f8Sz8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=FSQXFrRc; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1740571690; c=relaxed/simple;
+	bh=3u0K2JG/HNw0dRW/XSkrMcs7WQVrmrT6Ae9Xqa5j2/Y=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=avhlucK9FL7YnlGWXaG34Oceo49G954BFIjgn1zrXRpVxnWPF89GrNi8e+LwfL6YwULViPZNWEUnZmRu6B8qfARO7N0ALM90rKwozfH7fWt62EZzW7zpgQsgDs2qYpKeyRr9afQX5Hy4pTV5NRioVaUZsqcV8LPDpBvjEncMxuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hr3udzsg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="FSQXFrRc"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=CBgt3Q2RUqu1G3RGyPq/Cq1jOTSZdtLEOZ0UeAUsMNE=; b=FSQXFrRcX+ZC4u1vlsZA2JZI+p
-	RtWeDBIgjL37PoUBF587B4eF3K1ojR0emEMTmENuCHy0NPIMupAj9u/fZIPutFqGUcj02bcXQbrbc
-	Q3OZZymwZhSPwhJaaold2D8C4zFhSsQDj/BATPgfSa3SNOwTpRHYrpLPVpvR5TPc3Ff3M6eLL/zij
-	f6WYQel7+0ktoop8T9iNg8b9zN4PGQQ1pZ4gP6g0AXRwF+InKGfyuOJxlt1kViEdoCg5f7UMsmY3H
-	Zk3w8FtgSCL9x4li1/vq3X8jlCnC4WFN6UMrycAxY0ecyKZ1P1uhMq+UTlmv+RGmIdvtIVE1S5P95
-	1sNDxYkw==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tnDPA-001suY-18;
-	Wed, 26 Feb 2025 17:08:37 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 26 Feb 2025 17:08:36 +0800
-Date: Wed, 26 Feb 2025 17:08:36 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Eric Biggers <ebiggers@google.com>,
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>, linux-crypto@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [v2 PATCH] crypto: lib/Kconfig - Hide arch options from user
-Message-ID: <Z77aFJCVuXeDXRrs@gondor.apana.org.au>
-References: <20250225164216.4807-1-arnd@kernel.org>
- <20250225213344.GA23792@willie-the-truck>
- <f7c298b8-7989-49e7-90a2-5356029a6283@app.fastmail.com>
- <c4896a12-8abe-4fe6-b381-86b23d32b332@app.fastmail.com>
- <Z75xKexTUNm_FnSK@gondor.apana.org.au>
- <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hr3udzsg"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51Q6PdXe028521;
+	Wed, 26 Feb 2025 12:07:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=u41wp8eT8G1duWWZqU/lYgqgj2by
+	hD5/C5psxHGfpWk=; b=hr3udzsgNQbrQl5brbOhibnYHjeqiN0lSaB6aceLkwXq
+	GRGwoyOFxmZwcjirHAzRN3V9I5vtawMdHlp8rvV/m/U6AVqq4o6SDEpfK+pYG38E
+	WaxOPAVjib6nIXSjpijTOJp1lodLGFvc1kKWX8uaKd/M0VZpTcWi0TMEBOa0toM8
+	dS1we9t+borB0phfPOuLD7I2JUTQ6bESHwTaC4+xWIoqq7M1nlFvCCw2UbaA1hlt
+	29tpUtQJX0Xu09oaEBWI5Ocasul7gyMLK9p5buXYpJ6kEc2W+fwtD+oAL5ksSIye
+	B2vLyHRKJdFYmoodCrgYGYwgplzp7NP0KgbTWOK2dA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 451wp69dvm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Feb 2025 12:07:59 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 51QC41Vk016140;
+	Wed, 26 Feb 2025 12:07:58 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 451wp69dvj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Feb 2025 12:07:58 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51QASJBC012465;
+	Wed, 26 Feb 2025 12:07:57 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yrwstr3q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 26 Feb 2025 12:07:57 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51QC7vLd19595930
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 26 Feb 2025 12:07:57 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E9F6C58056;
+	Wed, 26 Feb 2025 12:07:56 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1EA7B5803F;
+	Wed, 26 Feb 2025 12:07:54 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 26 Feb 2025 12:07:53 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH v7 0/3] vfio/pci: s390: Fix issues preventing
+ VFIO_PCI_MMAP=y for s390 and enable it
+Date: Wed, 26 Feb 2025 13:07:44 +0100
+Message-Id: <20250226-vfio_pci_mmap-v7-0-c5c0f1d26efd@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIABAEv2cC/23Q2WrDMBAF0F8Jeq7CzGiz89T/KCUoWhpBvWC3I
+ iX43yuHlhrVj3dgDpd7Z3OYUpjZ6XBnU8hpTkNfgnk6MHe1/VvgyZfMCEiCAsFzTMN5dOncdXb
+ kqGQbhAdy1rDyM04hptvDe3kt+Zrmj2H6evAZ1+uPRFhJGTlwilqgCgBKhuf31H/ejunSHd3Qs
+ VXLtBXqLpmKAN5ph6K1MuKeILZCWwuiCM4TGg/YEjZ7gvwTNOlakEUwEUTTGIhAtCeoX0EBIdW
+ CKoIWwtmyg9Le7gl6K8ha0KsQBYC7aGHNvyWXZfkGTZ9SzPgBAAA=
+X-Change-ID: 20240503-vfio_pci_mmap-1549e3d02ca7
+To: Bjorn Helgaas <helgaas@kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Cc: Julian Ruess <julianr@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        linux-pci@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5671;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=3u0K2JG/HNw0dRW/XSkrMcs7WQVrmrT6Ae9Xqa5j2/Y=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNL3s4j5v7c8OV9H1Nz60Gbr2MsdFkn2f1OaGhaa77dcL
+ PLEvU2xo5SFQYyLQVZMkWVRl7PfuoIppnuC+jtg5rAygQxh4OIUgIlwmzD8lfA0SLX7877YMlbg
+ u6ioPoug4cNmkYUKnkdOxm+X11RLYfjNLlG1afE0ecOGzYsD9UtOf5fdassv9pNH4L5P4M4L8+K
+ 5AQ==
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: VdZ9KsQiCYDpPATs-stLjJnYIfJmmzO7
+X-Proofpoint-ORIG-GUID: _pKwfZL4VTKK31iVPqfzOXNfGZGBwVck
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-26_02,2025-02-26_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 impostorscore=0 mlxlogscore=800 clxscore=1015
+ adultscore=0 spamscore=0 bulkscore=0 priorityscore=1501 phishscore=0
+ suspectscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502260096
 
-The ARCH_MAY_HAVE patch missed arm64, mips and s390.  But it may
-also lead to arch options being enabled but ineffective because
-of modular/built-in conflicts.
+With the introduction of memory I/O (MIO) instructions enbaled in commit
+71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
+gained support for direct user-space access to mapped PCI resources.
+Even without those however user-space can access mapped PCI resources
+via the s390 specific MMIO syscalls. There is thus nothing fundamentally
+preventing s390 from supporting VFIO_PCI_MMAP, allowing user-space
+drivers to access PCI resources without going through the pread()
+interface. To actually enable VFIO_PCI_MMAP a few issues need fixing
+however.
 
-As the primary user of all these options wireguard is selecting
-the arch options anyway, make the same selections at the lib/crypto
-option level and hide the arch options from the user.
+Firstly the s390 MMIO syscalls do not cause a page fault when
+follow_pte() fails due to the page not being present. This breaks
+vfio-pci's mmap() handling which lazily maps on first access.
 
-Instead of selecting them centrally from lib/crypto, simply set
-the default of each arch option as suggested by Eric Biggers.
+Secondly on s390 there is a virtual PCI device called ISM which has
+a few oddities. For one it claims to have a 256 TiB PCI BAR (not a typo)
+which leads to any attempt to mmap() it fail with the following message:
 
-Change the Crypto API generic algorithms to select the top-level
-lib/crypto options instead of the generic one as otherwise there
-is no way to enable the arch options (Eric Biggers).  Introduce a
-set of INTERNAL options to work around dependency cycles on the
-CONFIG_CRYPTO symbol.
+    vmap allocation for size 281474976714752 failed: use vmalloc=<size> to increase size
 
-Fixes: 1047e21aecdf ("crypto: lib/Kconfig - Fix lib built-in failure when arch is modular")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Closes: https://lore.kernel.org/oe-kbuild-all/202502232152.JC84YDLp-lkp@intel.com/
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Even if one tried to map this BAR only partially the mapping would not
+be usable on systems with MIO support enabled. So just block mapping
+BARs which don't fit between IOREMAP_START and IOREMAP_END. Solve this
+by keeping the vfio-pci mmap() blocking behavior around for this
+specific device via a PCI quirk and new pdev->non_mappable_bars
+flag.
 
-diff --git a/arch/arm/crypto/Kconfig b/arch/arm/crypto/Kconfig
-index 47d9cc59f254..0c19317a9ce0 100644
---- a/arch/arm/crypto/Kconfig
-+++ b/arch/arm/crypto/Kconfig
-@@ -3,10 +3,11 @@
- menu "Accelerated Cryptographic Algorithms for CPU (arm)"
- 
- config CRYPTO_CURVE25519_NEON
--	tristate "Public key crypto: Curve25519 (NEON)"
-+	tristate
- 	depends on KERNEL_MODE_NEON
--	select CRYPTO_LIB_CURVE25519_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
-+	select CRYPTO_KPP
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
-+	default CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 algorithm
- 
-@@ -45,9 +46,10 @@ config CRYPTO_NHPOLY1305_NEON
- 	  - NEON (Advanced SIMD) extensions
- 
- config CRYPTO_POLY1305_ARM
--	tristate "Hash functions: Poly1305 (NEON)"
-+	tristate
- 	select CRYPTO_HASH
--	select CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
-+	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -212,9 +214,10 @@ config CRYPTO_AES_ARM_CE
- 	  - ARMv8 Crypto Extensions
- 
- config CRYPTO_CHACHA20_NEON
--	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (NEON)"
-+	tristate
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/arm64/crypto/Kconfig b/arch/arm64/crypto/Kconfig
-index 5636ab83f22a..1b14551cc301 100644
---- a/arch/arm64/crypto/Kconfig
-+++ b/arch/arm64/crypto/Kconfig
-@@ -26,10 +26,11 @@ config CRYPTO_NHPOLY1305_NEON
- 	  - NEON (Advanced SIMD) extensions
- 
- config CRYPTO_POLY1305_NEON
--	tristate "Hash functions: Poly1305 (NEON)"
-+	tristate
- 	depends on KERNEL_MODE_NEON
- 	select CRYPTO_HASH
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -186,11 +187,11 @@ config CRYPTO_AES_ARM64_NEON_BLK
- 	  - NEON (Advanced SIMD) extensions
- 
- config CRYPTO_CHACHA20_NEON
--	tristate "Ciphers: ChaCha (NEON)"
-+	tristate
- 	depends on KERNEL_MODE_NEON
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_LIB_CHACHA_GENERIC
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/mips/crypto/Kconfig b/arch/mips/crypto/Kconfig
-index 7decd40c4e20..545fc0e12422 100644
---- a/arch/mips/crypto/Kconfig
-+++ b/arch/mips/crypto/Kconfig
-@@ -3,9 +3,11 @@
- menu "Accelerated Cryptographic Algorithms for CPU (mips)"
- 
- config CRYPTO_POLY1305_MIPS
--	tristate "Hash functions: Poly1305"
-+	tristate
- 	depends on MIPS
-+	select CRYPTO_HASH
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -52,10 +54,11 @@ config CRYPTO_SHA512_OCTEON
- 	  Architecture: mips OCTEON using crypto instructions, when available
- 
- config CRYPTO_CHACHA_MIPS
--	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (MIPS32r2)"
-+	tristate
- 	depends on CPU_MIPS32_R2
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/powerpc/crypto/Kconfig b/arch/powerpc/crypto/Kconfig
-index e453cb0c82d2..5beed03869c9 100644
---- a/arch/powerpc/crypto/Kconfig
-+++ b/arch/powerpc/crypto/Kconfig
-@@ -3,10 +3,11 @@
- menu "Accelerated Cryptographic Algorithms for CPU (powerpc)"
- 
- config CRYPTO_CURVE25519_PPC64
--	tristate "Public key crypto: Curve25519 (PowerPC64)"
-+	tristate
- 	depends on PPC64 && CPU_LITTLE_ENDIAN
--	select CRYPTO_LIB_CURVE25519_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
-+	select CRYPTO_KPP
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
-+	default CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 algorithm
- 
-@@ -91,11 +92,11 @@ config CRYPTO_AES_GCM_P10
- 	  later CPU. This module supports stitched acceleration for AES/GCM.
- 
- config CRYPTO_CHACHA20_P10
--	tristate "Ciphers: ChaCha20, XChacha20, XChacha12 (P10 or later)"
-+	tristate
- 	depends on PPC64 && CPU_LITTLE_ENDIAN && VSX
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_LIB_CHACHA_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/riscv/crypto/Kconfig b/arch/riscv/crypto/Kconfig
-index ad58dad9a580..c67095a3d669 100644
---- a/arch/riscv/crypto/Kconfig
-+++ b/arch/riscv/crypto/Kconfig
-@@ -22,7 +22,6 @@ config CRYPTO_CHACHA_RISCV64
- 	tristate "Ciphers: ChaCha"
- 	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_LIB_CHACHA_GENERIC
- 	help
- 	  Length-preserving ciphers: ChaCha20 stream cipher algorithm
- 
-diff --git a/arch/s390/crypto/Kconfig b/arch/s390/crypto/Kconfig
-index b760232537f1..f6f82dab3594 100644
---- a/arch/s390/crypto/Kconfig
-+++ b/arch/s390/crypto/Kconfig
-@@ -108,11 +108,11 @@ config CRYPTO_DES_S390
- 	  As of z196 the CTR mode is hardware accelerated.
- 
- config CRYPTO_CHACHA_S390
--	tristate "Ciphers: ChaCha20"
-+	tristate
- 	depends on S390
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_LIB_CHACHA_GENERIC
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving cipher: ChaCha20 stream cipher (RFC 7539)
- 
-diff --git a/arch/x86/crypto/Kconfig b/arch/x86/crypto/Kconfig
-index c189dad0969b..d3128e99bac5 100644
---- a/arch/x86/crypto/Kconfig
-+++ b/arch/x86/crypto/Kconfig
-@@ -3,10 +3,11 @@
- menu "Accelerated Cryptographic Algorithms for CPU (x86)"
- 
- config CRYPTO_CURVE25519_X86
--	tristate "Public key crypto: Curve25519 (ADX)"
-+	tristate
- 	depends on X86 && 64BIT
--	select CRYPTO_LIB_CURVE25519_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
-+	select CRYPTO_KPP
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
-+	default CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 algorithm
- 
-@@ -348,11 +349,11 @@ config CRYPTO_ARIA_GFNI_AVX512_X86_64
- 	  Processes 64 blocks in parallel.
- 
- config CRYPTO_CHACHA20_X86_64
--	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (SSSE3/AVX2/AVX-512VL)"
-+	tristate
- 	depends on X86 && 64BIT
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_LIB_CHACHA_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-@@ -417,10 +418,11 @@ config CRYPTO_POLYVAL_CLMUL_NI
- 	  - CLMUL-NI (carry-less multiplication new instructions)
- 
- config CRYPTO_POLY1305_X86_64
--	tristate "Hash functions: Poly1305 (SSE2/AVX2)"
-+	tristate
- 	depends on X86 && 64BIT
--	select CRYPTO_LIB_POLY1305_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
-+	select CRYPTO_HASH
-+	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 74ae5f52b784..b7771d7bd3b3 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -317,7 +317,7 @@ config CRYPTO_ECRDSA
- config CRYPTO_CURVE25519
- 	tristate "Curve25519"
- 	select CRYPTO_KPP
--	select CRYPTO_LIB_CURVE25519_GENERIC
-+	select CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 elliptic curve (RFC7748)
- 
-@@ -615,7 +615,7 @@ config CRYPTO_ARC4
- 
- config CRYPTO_CHACHA20
- 	tristate "ChaCha"
--	select CRYPTO_LIB_CHACHA_GENERIC
-+	select CRYPTO_LIB_CHACHA_INTERNAL
- 	select CRYPTO_SKCIPHER
- 	help
- 	  The ChaCha20, XChaCha20, and XChaCha12 stream cipher algorithms
-@@ -936,7 +936,7 @@ config CRYPTO_POLYVAL
- config CRYPTO_POLY1305
- 	tristate "Poly1305"
- 	select CRYPTO_HASH
--	select CRYPTO_LIB_POLY1305_GENERIC
-+	select CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
-index c542ef1d64d0..b09e78da959a 100644
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -48,11 +48,6 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
- 	  accelerated implementation of the ChaCha library interface,
- 	  either builtin or as a module.
- 
--config CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
--	tristate
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_LIB_CHACHA=m
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA=y
--
- config CRYPTO_LIB_CHACHA_GENERIC
- 	tristate
- 	select CRYPTO_LIB_UTILS
-@@ -63,9 +58,14 @@ config CRYPTO_LIB_CHACHA_GENERIC
- 	  implementation is enabled, this implementation serves the users
- 	  of CRYPTO_LIB_CHACHA.
- 
-+config CRYPTO_LIB_CHACHA_INTERNAL
-+	tristate
-+	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
-+
- config CRYPTO_LIB_CHACHA
- 	tristate "ChaCha library interface"
--	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
-+	select CRYPTO
-+	select CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Enable the ChaCha library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
-@@ -78,13 +78,9 @@ config CRYPTO_ARCH_HAVE_LIB_CURVE25519
- 	  accelerated implementation of the Curve25519 library interface,
- 	  either builtin or as a module.
- 
--config CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
--	tristate
--	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_LIB_CURVE25519=m
--	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519=y
--
- config CRYPTO_LIB_CURVE25519_GENERIC
- 	tristate
-+	select CRYPTO_LIB_UTILS
- 	help
- 	  This symbol can be depended upon by arch implementations of the
- 	  Curve25519 library interface that require the generic code as a
-@@ -92,10 +88,14 @@ config CRYPTO_LIB_CURVE25519_GENERIC
- 	  implementation is enabled, this implementation serves the users
- 	  of CRYPTO_LIB_CURVE25519.
- 
-+config CRYPTO_LIB_CURVE25519_INTERNAL
-+	tristate
-+	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
-+
- config CRYPTO_LIB_CURVE25519
- 	tristate "Curve25519 scalar multiplication library"
--	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
--	select CRYPTO_LIB_UTILS
-+	select CRYPTO
-+	select CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Enable the Curve25519 library interface. This interface may be
- 	  fulfilled by either the generic implementation or an arch-specific
-@@ -118,11 +118,6 @@ config CRYPTO_ARCH_HAVE_LIB_POLY1305
- 	  accelerated implementation of the Poly1305 library interface,
- 	  either builtin or as a module.
- 
--config CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
--	tristate
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_LIB_POLY1305=m
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305=y
--
- config CRYPTO_LIB_POLY1305_GENERIC
- 	tristate
- 	help
-@@ -132,9 +127,14 @@ config CRYPTO_LIB_POLY1305_GENERIC
- 	  implementation is enabled, this implementation serves the users
- 	  of CRYPTO_LIB_POLY1305.
- 
-+config CRYPTO_LIB_POLY1305_INTERNAL
-+	tristate
-+	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
-+
- config CRYPTO_LIB_POLY1305
- 	tristate "Poly1305 library interface"
--	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
-+	select CRYPTO
-+	select CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Enable the Poly1305 library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
-@@ -142,9 +142,10 @@ config CRYPTO_LIB_POLY1305
- 
- config CRYPTO_LIB_CHACHA20POLY1305
- 	tristate "ChaCha20-Poly1305 AEAD support (8-byte nonce library version)"
--	depends on CRYPTO
-+	select CRYPTO
- 	select CRYPTO_LIB_CHACHA
- 	select CRYPTO_LIB_POLY1305
-+	select CRYPTO_LIB_UTILS
- 	select CRYPTO_ALGAPI
- 
- config CRYPTO_LIB_SHA1
+As noted by Alex Williamson With mmap() enabled in vfio-pci it makes
+sense to also enable HAVE_PCI_MMAP with the same restriction for pdev->
+non_mappable_bars. So this is added in patch 3 and I tested this with
+another small test program.
+
+Note:
+For your convenience the code is also available in the tagged
+b4/vfio_pci_mmap branch on my git.kernel.org site below:
+https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
+
+Thanks,
+Niklas
+
+Link: https://lore.kernel.org/all/c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com/
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Changes in v7:
+- Move all s390 changes, except for a one-lineer to set pdev->
+  non_mappable_bars for all devices, to the third patch (Bjorn)
+- Move checks in pci-sysfs.c and proc.c to the second patch (Bjorn)
+- Only set ARCH_GENERIC_PCI_MMAP_RESOURCES not HAVE_PCI_MMAP following
+  the recommendation for new architectures in
+  Documentation/PCI/sysfs-pci.rst. This only enables the sysfs but not
+  the proc interface.
+- Link to v6: https://lore.kernel.org/r/20250214-vfio_pci_mmap-v6-0-6f300cb63a7e@linux.ibm.com
+
+Changes in v6:
+- Add a patch to also enable PCI resource mmap() via sysfs and proc
+  exlcluding pdev->non_mappable_bars devices (Alex Williamson)
+- Added Acks
+- Link to v5: https://lore.kernel.org/r/20250212-vfio_pci_mmap-v5-0-633ca5e056da@linux.ibm.com
+
+Changes in v5:
+- Instead of relying on the existing pdev->non_compliant_bars introduce
+  a new pdev->non_mappable_bars flag. This replaces the VFIO_PCI_MMAP
+  Kconfig option and makes it per-device. This is necessary to not break
+  upcoming vfio-pci use of ISM devices (Julian Ruess)
+- Squash the removal of VFIO_PCI_MMAP into the second commit as this
+  is now where its only use goes away.
+- Switch to using follow_pfnmap_start() in MMIO syscall page fault
+  handling to match upstream changes
+- Dropped R-b's because the changes are significant
+- Link to v4: https://lore.kernel.org/r/20240626-vfio_pci_mmap-v4-0-7f038870f022@linux.ibm.com
+
+Changes in v4:
+- Overhauled and split up patch 2 which caused errors on ppc due to
+  unexported __kernel_io_end. Replaced it with a minimal s390 PCI fixup
+  harness to set pdev->non_compliant_bars for ISM plus ignoring devices
+  with this flag in vfio-pci. Idea for using PCI quirks came from
+  Christoph Hellwig, thanks. Dropped R-bs for patch 2 accordingly.
+- Rebased on v6.10-rc5 which includes the vfio-pci mmap fault handler
+  fix to the issue I stumbled over independently in v3
+- Link to v3: https://lore.kernel.org/r/20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com
+
+Changes in v3:
+- Rebased on v6.10-rc1 requiring change to follow_pte() call
+- Use current->mm for fixup_user_fault() as seems more common
+- Collected new trailers
+- Link to v2: https://lore.kernel.org/r/20240523-vfio_pci_mmap-v2-0-0dc6c139a4f1@linux.ibm.com
+
+Changes in v2:
+- Changed last patch to remove VFIO_PCI_MMAP instead of just enabling it
+  for s390 as it is unconditionally true with s390 supporting PCI resource mmap() (Jason)
+- Collected R-bs from Jason
+- Link to v1: https://lore.kernel.org/r/20240521-vfio_pci_mmap-v1-0-2f6315e0054e@linux.ibm.com
+
+---
+Niklas Schnelle (3):
+      s390/pci: Fix s390_mmio_read/write syscall page fault handling
+      PCI: s390: Introduce pdev->non_mappable_bars and replace VFIO_PCI_MMAP
+      PCI: s390: Support mmap() of PCI resources except for ISM devices
+
+ arch/s390/Kconfig                |  4 +---
+ arch/s390/include/asm/pci.h      |  3 +++
+ arch/s390/pci/Makefile           |  2 +-
+ arch/s390/pci/pci_fixup.c        | 23 +++++++++++++++++++++++
+ arch/s390/pci/pci_mmio.c         | 18 +++++++++++++-----
+ drivers/pci/pci-sysfs.c          |  4 ++++
+ drivers/pci/proc.c               |  4 ++++
+ drivers/s390/net/ism_drv.c       |  1 -
+ drivers/vfio/pci/Kconfig         |  4 ----
+ drivers/vfio/pci/vfio_pci_core.c |  2 +-
+ include/linux/pci.h              |  1 +
+ include/linux/pci_ids.h          |  1 +
+ 12 files changed, 52 insertions(+), 15 deletions(-)
+---
+base-commit: d082ecbc71e9e0bf49883ee4afd435a77a5101b6
+change-id: 20240503-vfio_pci_mmap-1549e3d02ca7
+
+Best regards,
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Niklas Schnelle
+
