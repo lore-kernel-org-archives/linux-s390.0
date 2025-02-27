@@ -1,79 +1,118 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 667F2A47;
-	Thu, 27 Feb 2025 00:06:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0197221516A;
+	Thu, 27 Feb 2025 05:57:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740614795; cv=none; b=KDgFylJJ0INcmwtz20TaGHKDOo2JNKrg8zzm3TLn8tVhI0JasAjwePZrxzlGoCtSvYiZ15j1Q/TdbeOiSqCFXon3HXTxGI13KC4bpX6yDS97B7p2bGGUT3xjrXGrnkFfMiucWiOr7B/v2KO/aCMTUyGI4fYBSwjQU3uVaieIR+o=
+	t=1740635871; cv=none; b=C1LIT6aQWNfNvAEepznUZl4xtP7N8kR2mPdFjZf4Ovr3GD3St3ZU7vjA7YAK3yP9J2zjeoJCrYG2sfc6p5A4UilWlZ4wk0cLm8w/b7O8KYhjJA3hRM9uaj80Pn8oSQSjb4wc12x6z5bhQoxLUI4ZRReSop2+siUlPsFKbpMBPKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740614795; c=relaxed/simple;
-	bh=ZV07Gpz815P4h6/dASi/XClt914gSIOcYIvsY0gmk7g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Bl6kZixHzwvRR49Yibtd8tUbQzOp1k8Bu8TO/duWVo4TDsdMyoY1xeqAjWNFN36lccRaKZyvzz7F1+4n3lXX8xdJwhc0La/4fIuGLWJphvLDp68HTS3tBMx5CE7iRvZOPgPQJqN9sZfCWqqUEl5Ayqdnq4LtwiE62qSWDoqNNL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5564812FC;
-	Wed, 26 Feb 2025 16:06:48 -0800 (PST)
-Received: from [10.163.39.237] (unknown [10.163.39.237])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id F2DD63F5A1;
-	Wed, 26 Feb 2025 16:06:25 -0800 (PST)
-Message-ID: <39986b7d-7a82-4f28-9289-5620a2bec2b5@arm.com>
-Date: Thu, 27 Feb 2025 05:36:25 +0530
+	s=arc-20240116; t=1740635871; c=relaxed/simple;
+	bh=2SafO12uI4h/H25nQ13IVaO/mucCyOzb83y4kdC0s7E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=q+uHoEdBjb3nN+9xOt3fmfmXBSQXtde1AIcE6959jzqeqLp/PU2wPwze5OSUZPOFXaQ8EKarDeHJDE9vFEDluDG1BVy9Ae2fp2J5NkutO2Jf769sz4GlqeRcROfTIX+5lUVCX0Kev29dkncZL46AbW/E9C7oNbx7hmZJsQJH/7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=M8X07Jon; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="M8X07Jon"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740635870; x=1772171870;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=2SafO12uI4h/H25nQ13IVaO/mucCyOzb83y4kdC0s7E=;
+  b=M8X07JonQpr5Y2m0dWCfz5XWPY4n3vEEO8yOnQMh0iwWupQjW4tS68R+
+   wquGznzy4w/bLBkKiYhN14+Ufh3ZRFdLYu8smEcPl5a6kuJkQ72aeCxBL
+   vJBZk17IDJRg9f42wcijYybbuH5v0jhi6dO6kIgahax7Efrixpot7vA0V
+   xErsLBIDtSbQ6vPsvxPdIOQ6toK5oLRg4BfIxST8S3zx7X1/QgdMA7y4V
+   X1ardlYPHOYROyHuBq4MhAbRWhvZAPjIjgh+eBEfXcPZhvA6ZAm9yBMzN
+   6OtL/7/g/KtO72cmzlQbLiVEM8/iube2SnIKO1uqz4qRk8VxWWL+5Zipz
+   Q==;
+X-CSE-ConnectionGUID: ppCewY0qRwGwOYpQhRycAA==
+X-CSE-MsgGUID: E9vSov/iQ2C7gWadoGgtIA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11357"; a="29113642"
+X-IronPort-AV: E=Sophos;i="6.13,319,1732608000"; 
+   d="scan'208";a="29113642"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Feb 2025 21:57:49 -0800
+X-CSE-ConnectionGUID: 1O0BGv2cRtizHUdxu57vMA==
+X-CSE-MsgGUID: gCMMkIefR4GuMUemt9rdFQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="154113781"
+Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
+  by orviesa001.jf.intel.com with ESMTP; 26 Feb 2025 21:57:43 -0800
+Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tnWtn-000Cvi-2T;
+	Thu, 27 Feb 2025 05:57:37 +0000
+Date: Thu, 27 Feb 2025 13:57:22 +0800
+From: kernel test robot <lkp@intel.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>,
+	Arnd Bergmann <arnd@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, Will Deacon <will@kernel.org>,
+	"David S . Miller" <davem@davemloft.net>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Eric Biggers <ebiggers@google.com>,
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>, linux-crypto@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] crypto: lib/Kconfig - Select and hide arch options
+Message-ID: <202502271317.S0YZiPk1-lkp@intel.com>
+References: <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V3 5/5] mm: Rename GENERIC_PTDUMP and PTDUMP_CORE
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
- Mark Rutland <mark.rutland@arm.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>, kvmarm@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- Will Deacon <will@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Marc Zyngier <maz@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, Paul Walmsley
- <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>
-References: <20250226122404.1927473-1-anshuman.khandual@arm.com>
- <20250226122404.1927473-6-anshuman.khandual@arm.com>
- <Z79xK3xJWm0vH5jH@arm.com>
-Content-Language: en-US
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-In-Reply-To: <Z79xK3xJWm0vH5jH@arm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
 
- 
+Hi Herbert,
 
-On 2/27/25 01:23, Catalin Marinas wrote:
-> On Wed, Feb 26, 2025 at 05:54:04PM +0530, Anshuman Khandual wrote:
->> diff --git a/arch/arm64/include/asm/ptdump.h b/arch/arm64/include/asm/ptdump.h
->> index 6cf4aae05219..b2931d1ae0fb 100644
->> --- a/arch/arm64/include/asm/ptdump.h
->> +++ b/arch/arm64/include/asm/ptdump.h
->> @@ -7,7 +7,7 @@
->>  
->>  #include <linux/ptdump.h>
->>  
->> -#ifdef CONFIG_PTDUMP_CORE
->> +#ifdef CONFIG_PTDUMP
-> 
-> Do we need this #ifdef at all? I haven't tried but usually, if the
-> feature is not enabled, the header file on its own should be harmless.
+kernel test robot noticed the following build errors:
 
-With or without the #ifdef CONFIG_PTDUMP in place here, this does not cause
-any build warnings even without CONFIG_PTDUMP enabled. But dropping #ifdef
-while renaming the config option itself, might have caused unrelated code
-churn. So probably if required we could drop this later on.
+[auto build test ERROR on herbert-cryptodev-2.6/master]
+[also build test ERROR on next-20250226]
+[cannot apply to soc/for-next linus/master v6.14-rc4]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> 
-> For arm64:
-> 
-> Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+url:    https://github.com/intel-lab-lkp/linux/commits/Herbert-Xu/crypto-lib-Kconfig-Select-and-hide-arch-options/20250226-125220
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git master
+patch link:    https://lore.kernel.org/r/Z76aUfPIbhPAsHbv%40gondor.apana.org.au
+patch subject: [PATCH] crypto: lib/Kconfig - Select and hide arch options
+config: s390-randconfig-002-20250227 (https://download.01.org/0day-ci/archive/20250227/202502271317.S0YZiPk1-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250227/202502271317.S0YZiPk1-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202502271317.S0YZiPk1-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   s390-linux-ld: arch/s390/crypto/chacha-glue.o: in function `chacha20_s390':
+>> chacha-glue.c:(.text+0x30e): undefined reference to `chacha_crypt_generic'
+   s390-linux-ld: arch/s390/crypto/chacha-glue.o: in function `chacha_crypt_arch':
+   chacha-glue.c:(.text+0x3f6): undefined reference to `chacha_crypt_generic'
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
