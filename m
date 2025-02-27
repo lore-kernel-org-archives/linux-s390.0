@@ -1,128 +1,180 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167C842065;
-	Thu, 27 Feb 2025 08:43:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15D7C2253A8
+	for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2025 11:34:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740645831; cv=none; b=FXo4mlMpJ7E8Fontngj0/qrBoNnHCNYDefc4hcvW+Ocr5l2wHSYu7+0xID7VyP0sfTUYBv/gSkoUB2n7CP+tsiP9eVYtLJZ48L+lWYO9pJCtJzM3Yc3GhRSuHka3kiqRA5ebQWPHdNqBskKIXS0wflnnqqw4g/l95xFkuhujTh0=
+	t=1740656051; cv=none; b=U2Fj65AuoI3jl+mMgw6Cw8r62DcmVPbPU+E6yv9/Zz3IlwPXxYXkgJyhsYwDmP3+GCj3QWG4mWnzIwIGvJevJkEytfjjK6bVZicwSGTIKtgwJcVQ4fBUsATCbbGsEEh0rtH9NPmp3ZO/fi0eF5UXIIQPMUILg3d/0P/sX/3ikvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740645831; c=relaxed/simple;
-	bh=EKov/eWUobveVY+0YfO7u9hWNImc86wliXWDLqVpDTU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NFlHY+2KNJJ5lcL2Zpqp02TWbGS+vfTJSRpbFAqfkgRgvDxEC4qLcC+1alnq0uJHBiw3yHZ2zfAaQEqk8U0EBjOoWE94bVXd3UPk4umkVuoJuxylJtxG2er3LI4WZr/Z6wQF3LivGxSiNdnYfU68pUnUZvjnEYNkD2uMnZyeOIY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=GsRmCFqW; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1740656051; c=relaxed/simple;
+	bh=2NFsI18PkZyiy0G3s8PFLBgbk2QzKKNuavnCGFemDlk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FmK+Crfh6kBC2z7e0JWMoO6mMp8dYFxgZbJR9UYopL5nZjev47XynKxYZRBj7y/sJoeUGIUDfKN231dT/Vs2e81bW6Hakwq4uh6AMpVN6Ika8zdQ8UTbrqrLnB7Y64aTumeUNE7dBj3FfWiz1aLd8/lE2YTFLG42QR89LIzWAC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AtXWH/vA; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="GsRmCFqW"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=jiPcZapR216itPgDV41PdhwEbp2fRiThI86FlwLZTVA=; b=GsRmCFqWzGCGd5G+zhMOhUMliV
-	cvZYzsxKo30kJ+tvuntDdmv1EkdyiT0+RGypU3QuqxpBqjsmnSUpF1KQU6I08bJLDR964dnyF1dg2
-	F+hRMofLDZkexeOuz6TJIBgcOgYD9e1FkzFYhTWrW4tOXm3izNYMQIKBiVxOvR9VWbfx2DMLc0209
-	2U9reGjCRZC6/5tRtAkyM8XYsb4BO0sGHkWzjsMU2O6Hc8b5CHNlDooaTzPulqLwb1B18CHh17Z7E
-	ksxKtGLzPh9rNCN+j9JS2t9utYmWIFsJNWGFUqZfk8XAPqdt5vR9G4T9uNTl71HMzUAzeG3P8/0tE
-	oef5neBw==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tnZTz-002Cin-38;
-	Thu, 27 Feb 2025 16:43:05 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 27 Feb 2025 16:43:03 +0800
-Date: Thu, 27 Feb 2025 16:43:03 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Arnd Bergmann <arnd@kernel.org>, Will Deacon <will@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Eric Biggers <ebiggers@google.com>,
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>, linux-crypto@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [v3 PATCH] crypto: lib/Kconfig - Hide arch options from user
-Message-ID: <Z8All3G80gGXzfaU@gondor.apana.org.au>
-References: <20250225164216.4807-1-arnd@kernel.org>
- <20250225213344.GA23792@willie-the-truck>
- <f7c298b8-7989-49e7-90a2-5356029a6283@app.fastmail.com>
- <c4896a12-8abe-4fe6-b381-86b23d32b332@app.fastmail.com>
- <Z75xKexTUNm_FnSK@gondor.apana.org.au>
- <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
- <Z77aFJCVuXeDXRrs@gondor.apana.org.au>
- <Z8AY16EIqAYpfmRI@gondor.apana.org.au>
- <134f64aa-65bd-4de0-9ac6-52326e35d6d6@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AtXWH/vA"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51R5O0UK019699;
+	Thu, 27 Feb 2025 11:34:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=LlVPrL
+	ULXQzas6aOig4FMQl2NTbDgOZNDOwEZyexhOw=; b=AtXWH/vA14UrGrWM2k94XO
+	rEGRIKllnNNRkOkv61dLXnxOvDKY2Yb7sTibJEztlYRBTJCqJVBmsK/DRc+VqQg6
+	fOwNlfSJs5mgzwtXEyhtH91xNMtQZz2UoHAef8c6W4q5GVS3SO/4QSbJxWOuog8n
+	bQNXREvBOLGAIJKzXkIELUJipuKXdOnvlhFd2QnU2+NE7XxOg8ZC/KzbLg3ZTRnQ
+	DhusF/WG8O0C3VQsyYMBpIohi4eH+6mzxlA2CkVnnIKbthsIL4nbzBbLtpATtCFT
+	Dd3xbj2xFMBmXvb0PTYdIsYB0klzs1sqG/f+G2cwCBbxhbdxmWUhZxGVKwMDtKgA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 452hv8spem-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Feb 2025 11:34:06 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51RAf1ve002545;
+	Thu, 27 Feb 2025 11:34:05 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4k0131-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Feb 2025 11:34:05 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51RBY1Vn34144780
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Feb 2025 11:34:01 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B444A2004D;
+	Thu, 27 Feb 2025 11:34:01 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 719A320043;
+	Thu, 27 Feb 2025 11:34:01 +0000 (GMT)
+Received: from [9.171.16.19] (unknown [9.171.16.19])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Feb 2025 11:34:01 +0000 (GMT)
+Message-ID: <be1a6e43-64e7-4dab-9dbf-f1b77f2d2f5a@linux.ibm.com>
+Date: Thu, 27 Feb 2025 12:34:02 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <134f64aa-65bd-4de0-9ac6-52326e35d6d6@app.fastmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 07/20] s390/zcrypt: New zcrypt function
+ zcrypt_device_status_mask_ext2
+To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
+        fcallies@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+References: <20250223095459.43058-1-freude@linux.ibm.com>
+ <20250223095459.43058-8-freude@linux.ibm.com>
+Content-Language: de-DE
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250223095459.43058-8-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: L7rPDFa6OpE_geHJHA060AlQjE94on8T
+X-Proofpoint-GUID: L7rPDFa6OpE_geHJHA060AlQjE94on8T
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-27_05,2025-02-27_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ phishscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0 spamscore=0
+ impostorscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
+ definitions=main-2502270087
 
-On Thu, Feb 27, 2025 at 09:32:51AM +0100, Arnd Bergmann wrote:
->
-> This looks like a good approach. Once it works correctly,
-> it should be possible to clean up the 'select' statements
-> in wireguard as well and just 'select CRYPTO_LIB_CHACHA' etc.
+On 23/02/2025 10:54, Harald Freudenberger wrote:
+> Introduce a new function zcrypt_device_status_mask_ext2().
+> This function gives the possibility to provide upper limits
+> for cards and queues. The current implementation of
+> zcrypt_device_status_mask_ext() needs an array of
+> 256 * 256 * 4 = 256 KB which is huge. The new function
+> is more flexible in the sense that the caller can decide
+> the upper limit for cards and domains to be stored into
+> the status array. So for example a caller may decide to
+> only query for cards 0...127 and queues 0...127 and thus
+> only an array of size 128 * 128 * 4 = 64 KB is needed.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/zcrypt_api.c | 26 ++++++++++++++++++++++++++
+>  drivers/s390/crypto/zcrypt_api.h |  2 ++
+>  2 files changed, 28 insertions(+)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+> index 3a521e65f3fe..fd9666ae1d26 100644
+> --- a/drivers/s390/crypto/zcrypt_api.c
+> +++ b/drivers/s390/crypto/zcrypt_api.c
+> @@ -1330,6 +1330,32 @@ void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus)
+>  }
+>  EXPORT_SYMBOL(zcrypt_device_status_mask_ext);
+>  
+> +void zcrypt_device_status_mask_ext2(struct zcrypt_device_status_ext *devstatus,
+> +				    int maxcard, int maxqueue)
+> +{
+> +	struct zcrypt_card *zc;
+> +	struct zcrypt_queue *zq;
+> +	struct zcrypt_device_status_ext *stat;
+> +	int card, queue;
+> +
+> +	spin_lock(&zcrypt_list_lock);
+> +	for_each_zcrypt_card(zc) {
+> +		for_each_zcrypt_queue(zq, zc) {
+> +			card = AP_QID_CARD(zq->queue->qid);
+> +			queue = AP_QID_QUEUE(zq->queue->qid);
+> +			if (card >= maxcard || queue >= maxqueue)
+> +				continue;
 
-Yes that's the idea.
+What about doing a "break" here? Or are the the cards/queues iterated non-linear?
 
-> I think the more common style is to put the 'default'
-> lines before 'select'.
+> +			stat = &devstatus[card * maxqueue + queue];
+> +			stat->hwtype = zc->card->ap_dev.device_type;
+> +			stat->functions = zc->card->hwinfo.fac >> 26;
+> +			stat->qid = zq->queue->qid;
+> +			stat->online = zq->online ? 0x01 : 0x00;
+> +		}
+> +	}
+> +	spin_unlock(&zcrypt_list_lock);
+> +}
+> +EXPORT_SYMBOL(zcrypt_device_status_mask_ext2);
+> +
 
-It is the customary place in the crypto tree.
+In my opinion, this is a lot of code duplication for an early loop termination. Either extent the zcrypt_device_status_mask_ext() function with the two additional parameters and change all callers to
 
-> It appears that the two above are missing a
-> 'depends on KERNEL_MODE_NEON' line. There is still
-> a runtime check that prevents it from being used on
-> non-neon machines, but I think you should add these
-> lines here since it's no longer possible to turn
-> them off individually when building a kernel for a
-> non-NEON target.
+zcrypt_device_status_mask_ext(... , MAX_ZDEV_CARDIDS, MAX_ZDEV_DOMAINS);
 
-Good catch.  But I think this was deliberate as it also includes
-a non-NEON implementation:
+or just implement zcrypt_device_status_mask_ext() as a wrapper to zcrypt_device_status_mask_ext2().
 
-commit b36d8c09e710c71f6a9690b6586fea2d1c9e1e27
-Author: Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri Nov 8 13:22:14 2019 +0100
+void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus)
+{
+	zcrypt_device_status_ext2(devstatus, MAX_ZDEV_CARDIDS, MAX_ZDEV_DOMAINS);
+}
+EXPORT_SYMBOL(zcrypt_device_status_mask_ext);
 
-    crypto: arm/chacha - remove dependency on generic ChaCha driver
-    
-    Instead of falling back to the generic ChaCha skcipher driver for
-    non-SIMD cases, use a fast scalar implementation for ARM authored
-    by Eric Biggers. This removes the module dependency on chacha-generic
-    altogether, which also simplifies things when we expose the ChaCha
-    library interface from this module.
-    
-    Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
- 
-> I'm not sure why we need the extra "_INTERNAL" symbols, but I
-> may be missing something here. What problem does this solve
-> for you?
+>  int zcrypt_device_status_ext(int card, int queue,
+>  			     struct zcrypt_device_status_ext *devstat)
+>  {
+> diff --git a/drivers/s390/crypto/zcrypt_api.h b/drivers/s390/crypto/zcrypt_api.h
+> index 06ff697d171c..92027304f0d8 100644
+> --- a/drivers/s390/crypto/zcrypt_api.h
+> +++ b/drivers/s390/crypto/zcrypt_api.h
+> @@ -172,6 +172,8 @@ void zcrypt_api_exit(void);
+>  long zcrypt_send_cprb(struct ica_xcRB *xcRB, u32 xflags);
+>  long zcrypt_send_ep11_cprb(struct ep11_urb *urb, u32 xflags);
+>  void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus);
+> +void zcrypt_device_status_mask_ext2(struct zcrypt_device_status_ext *devstatus,
+> +				    int maxcard, int maxqueue);
+>  int zcrypt_device_status_ext(int card, int queue,
+>  			     struct zcrypt_device_status_ext *devstatus);
+>  
 
-Without them Kconfig will bomb out because of a loop centering
-on CONFIG_CRYPTO.
-
-Cheers,
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
+
