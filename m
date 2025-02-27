@@ -1,180 +1,462 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-a7-smtp.messagingengine.com (fout-a7-smtp.messagingengine.com [103.168.172.150])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15D7C2253A8
-	for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2025 11:34:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A1F1662EF;
+	Thu, 27 Feb 2025 11:57:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740656051; cv=none; b=U2Fj65AuoI3jl+mMgw6Cw8r62DcmVPbPU+E6yv9/Zz3IlwPXxYXkgJyhsYwDmP3+GCj3QWG4mWnzIwIGvJevJkEytfjjK6bVZicwSGTIKtgwJcVQ4fBUsATCbbGsEEh0rtH9NPmp3ZO/fi0eF5UXIIQPMUILg3d/0P/sX/3ikvs=
+	t=1740657427; cv=none; b=BesKwny7MeiBsXS7B8apX1xW/3m45Mq6eOKEaNTHzF9KMqzrl13JLctJFVW1l0Yst9tuM1+k6D1MY9nH8RqxYYJs1i+TU9wN8e2LS5tnRR8aa9bupjly9F8RdA15LHX7glLXc5Fv0VtaoJKmgS8IhB6K5bzn0Q2k6Rd8iXyZKH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740656051; c=relaxed/simple;
-	bh=2NFsI18PkZyiy0G3s8PFLBgbk2QzKKNuavnCGFemDlk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FmK+Crfh6kBC2z7e0JWMoO6mMp8dYFxgZbJR9UYopL5nZjev47XynKxYZRBj7y/sJoeUGIUDfKN231dT/Vs2e81bW6Hakwq4uh6AMpVN6Ika8zdQ8UTbrqrLnB7Y64aTumeUNE7dBj3FfWiz1aLd8/lE2YTFLG42QR89LIzWAC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AtXWH/vA; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1740657427; c=relaxed/simple;
+	bh=aMcbCUyIH0LdhPXZy489NqCaUbzMbAkTVRt4OmfaGLg=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=ln30RPJIMZn4KwVFT6k+udAB45gM9bkBTced5RFor0M2ZOnxP62CZKnt2FjWarxHx0KnSwhXgWG+7PDAsCQlbL6Y2tIeU7lyrXVFHzC8QnJlGNXxv79uNhB1mtBNBrdgneL3XGpIBxpFzgFqmu48xqgSJFvKYSqE3xW3DN+xAVg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=DoV6UI/n; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=wrCaUkxd; arc=none smtp.client-ip=103.168.172.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AtXWH/vA"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51R5O0UK019699;
-	Thu, 27 Feb 2025 11:34:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=LlVPrL
-	ULXQzas6aOig4FMQl2NTbDgOZNDOwEZyexhOw=; b=AtXWH/vA14UrGrWM2k94XO
-	rEGRIKllnNNRkOkv61dLXnxOvDKY2Yb7sTibJEztlYRBTJCqJVBmsK/DRc+VqQg6
-	fOwNlfSJs5mgzwtXEyhtH91xNMtQZz2UoHAef8c6W4q5GVS3SO/4QSbJxWOuog8n
-	bQNXREvBOLGAIJKzXkIELUJipuKXdOnvlhFd2QnU2+NE7XxOg8ZC/KzbLg3ZTRnQ
-	DhusF/WG8O0C3VQsyYMBpIohi4eH+6mzxlA2CkVnnIKbthsIL4nbzBbLtpATtCFT
-	Dd3xbj2xFMBmXvb0PTYdIsYB0klzs1sqG/f+G2cwCBbxhbdxmWUhZxGVKwMDtKgA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 452hv8spem-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Feb 2025 11:34:06 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51RAf1ve002545;
-	Thu, 27 Feb 2025 11:34:05 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 44yu4k0131-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Feb 2025 11:34:05 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51RBY1Vn34144780
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Feb 2025 11:34:01 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B444A2004D;
-	Thu, 27 Feb 2025 11:34:01 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 719A320043;
-	Thu, 27 Feb 2025 11:34:01 +0000 (GMT)
-Received: from [9.171.16.19] (unknown [9.171.16.19])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 27 Feb 2025 11:34:01 +0000 (GMT)
-Message-ID: <be1a6e43-64e7-4dab-9dbf-f1b77f2d2f5a@linux.ibm.com>
-Date: Thu, 27 Feb 2025 12:34:02 +0100
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="DoV6UI/n";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="wrCaUkxd"
+Received: from phl-compute-11.internal (phl-compute-11.phl.internal [10.202.2.51])
+	by mailfout.phl.internal (Postfix) with ESMTP id 7C4F51382D43;
+	Thu, 27 Feb 2025 06:57:03 -0500 (EST)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-11.internal (MEProxy); Thu, 27 Feb 2025 06:57:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1740657423;
+	 x=1740743823; bh=aJKPkC1SVbHcQfArtN7jy51GLZ3HD2OHCzJzLYvRUEw=; b=
+	DoV6UI/naig9BSabGeoNIsRIpTRCuNoe+mx/a9YK0cyJadJW2ItzOfaVuyAzexFI
+	NZqGvWvq1S+J23s02J5WkViB2tN0R6zwfh9i4PleihgBwcmQV+OKit6x9iaaDccY
+	JVa8VyYJRpQ+HmFUdir3959PYZzVO39wQIv5r4OVeA3DYF8v31Z40AmywR4uc8pk
+	8oTjOqoIQXbAA6EUb3667+8E18W4jMphoNOQF+bhcuOcg8pGOsvwT0+LxwQkxsef
+	vkytNRDa/NmhNwBeGAX+FYthf6ZALXcj5Fch+wxP0dZ3Muvh5lxxLYIZe1hOUdz7
+	LHjgV2PFE4yCTiIdDQQ2bQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1740657423; x=
+	1740743823; bh=aJKPkC1SVbHcQfArtN7jy51GLZ3HD2OHCzJzLYvRUEw=; b=w
+	rCaUkxdyW8REeIBS0h9XKI7JFXRz4qNDuhgNgCxhRQgHB0aAJ04OqeqYDXRtyacQ
+	dTqQAA1SUiTQxqz74DNZp1nkm72rON6r1TKNR0kNSmpHoTRzzqWMe6BWnd85Y/Gh
+	9CLWF/YZReqZtGtbnkA1j+PHRI4goSxlgRix1NdpVLTB7xQI/L5i8z1na2ybqL1m
+	8g+YYi1BMvmk55wqyjIpXSf7o7u5ztbjkpTX2rjJuY/Qk78hI9ESg4oNZOvZPskZ
+	waGb/mLnXvIBM+M3Ju0Pu+PmTeYrp7cj6A3mF2goyT0NCGyN9lEJNhoX07g//bpG
+	iusT245dsE1+EPRkcVC6g==
+X-ME-Sender: <xms:DVPAZxVNXxIgHuoAEv3H98vRTkmQL-M_q3WJ376NbiH8H-CPT0MV3Q>
+    <xme:DVPAZxnMJv-LmiL-MV_RR594lDx97AMLZEZhOcBSLsJhJJpSzhXmTFp-0r1GURdAE
+    HdRKezdKj5wEXH6pi8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdekjeeflecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
+    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
+    hnthhsucdlqddutddtmdenucfjughrpefoggffhffvvefkjghfufgtgfesthejredtredt
+    tdenucfhrhhomhepfdetrhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusg
+    druggvqeenucggtffrrghtthgvrhhnpefhtdfhvddtfeehudekteeggffghfejgeegteef
+    gffgvedugeduveelvdekhfdvieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgtphhtthhopedv
+    fedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepthhssghoghgvnhgusegrlhhphh
+    grrdhfrhgrnhhkvghnrdguvgdprhgtphhtthhopegtrghtrghlihhnrdhmrghrihhnrghs
+    segrrhhmrdgtohhmpdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvth
+    dprhgtphhtthhopehhvghrsggvrhhtsehgohhnughorhdrrghprghnrgdrohhrghdrrghu
+    pdhrtghpthhtohepvggsihhgghgvrhhssehgohhoghhlvgdrtghomhdprhgtphhtthhope
+    hjrghmvghsrdgsohhtthhomhhlvgihsehhrghnshgvnhhprghrthhnvghrshhhihhprdgt
+    ohhmpdhrtghpthhtoheprghruggssehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrrh
+    hnugeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhgrrhhkkhhosehkvghrnhgvlhdr
+    ohhrgh
+X-ME-Proxy: <xmx:DVPAZ9a0T0sNxKcnP1Ahd3eGoyei5KF2Q4cq6K7LT8drEQmX98VW9A>
+    <xmx:DVPAZ0WvkzvLzKr2bAKfDoj0SOQSKd_Z7WTfN4Wn_QSWMjfsSNt2yg>
+    <xmx:DVPAZ7liObMsY4CAH-LOssq-fNi4_T8QoMpzLbspplivwsK8bsFYFw>
+    <xmx:DVPAZxfbk88XyltpU7eAEl-QSgn-Gpp3zTqRyVqjLfr8pEXnKuDywQ>
+    <xmx:D1PAZ9WVcS6szVJNbb177L1ZeSDVjGXYO_CI7fV9X5Gfa1J__jGCCCDG>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id AD8542220077; Thu, 27 Feb 2025 06:57:01 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 07/20] s390/zcrypt: New zcrypt function
- zcrypt_device_status_mask_ext2
-To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
-        fcallies@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-References: <20250223095459.43058-1-freude@linux.ibm.com>
- <20250223095459.43058-8-freude@linux.ibm.com>
-Content-Language: de-DE
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <20250223095459.43058-8-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: L7rPDFa6OpE_geHJHA060AlQjE94on8T
-X-Proofpoint-GUID: L7rPDFa6OpE_geHJHA060AlQjE94on8T
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-02-27_05,2025-02-27_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- phishscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0 spamscore=0
- impostorscore=0 mlxlogscore=999 priorityscore=1501 mlxscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
- definitions=main-2502270087
+Date: Thu, 27 Feb 2025 12:56:30 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Herbert Xu" <herbert@gondor.apana.org.au>
+Cc: "Arnd Bergmann" <arnd@kernel.org>, "Will Deacon" <will@kernel.org>,
+ "David S . Miller" <davem@davemloft.net>,
+ "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+ "Harald Freudenberger" <freude@linux.ibm.com>,
+ "Holger Dengler" <dengler@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ "Ard Biesheuvel" <ardb@kernel.org>, "Eric Biggers" <ebiggers@google.com>,
+ "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Jarkko Sakkinen" <jarkko@kernel.org>, linux-crypto@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
+Message-Id: <9f4e5f41-e553-4f2a-88fe-478f074b62cb@app.fastmail.com>
+In-Reply-To: <Z8All3G80gGXzfaU@gondor.apana.org.au>
+References: <20250225164216.4807-1-arnd@kernel.org>
+ <20250225213344.GA23792@willie-the-truck>
+ <f7c298b8-7989-49e7-90a2-5356029a6283@app.fastmail.com>
+ <c4896a12-8abe-4fe6-b381-86b23d32b332@app.fastmail.com>
+ <Z75xKexTUNm_FnSK@gondor.apana.org.au> <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
+ <Z77aFJCVuXeDXRrs@gondor.apana.org.au> <Z8AY16EIqAYpfmRI@gondor.apana.org.au>
+ <134f64aa-65bd-4de0-9ac6-52326e35d6d6@app.fastmail.com>
+ <Z8All3G80gGXzfaU@gondor.apana.org.au>
+Subject: Re: [v3 PATCH] crypto: lib/Kconfig - Hide arch options from user
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On 23/02/2025 10:54, Harald Freudenberger wrote:
-> Introduce a new function zcrypt_device_status_mask_ext2().
-> This function gives the possibility to provide upper limits
-> for cards and queues. The current implementation of
-> zcrypt_device_status_mask_ext() needs an array of
-> 256 * 256 * 4 = 256 KB which is huge. The new function
-> is more flexible in the sense that the caller can decide
-> the upper limit for cards and domains to be stored into
-> the status array. So for example a caller may decide to
-> only query for cards 0...127 and queues 0...127 and thus
-> only an array of size 128 * 128 * 4 = 64 KB is needed.
+On Thu, Feb 27, 2025, at 09:43, Herbert Xu wrote:
+> On Thu, Feb 27, 2025 at 09:32:51AM +0100, Arnd Bergmann wrote:
+>> It appears that the two above are missing a
+>> 'depends on KERNEL_MODE_NEON' line. There is still
+>> a runtime check that prevents it from being used on
+>> non-neon machines, but I think you should add these
+>> lines here since it's no longer possible to turn
+>> them off individually when building a kernel for a
+>> non-NEON target.
+>
+> Good catch.  But I think this was deliberate as it also includes
+> a non-NEON implementation:
+>
+> commit b36d8c09e710c71f6a9690b6586fea2d1c9e1e27
+> Author: Ard Biesheuvel <ardb@kernel.org>
+> Date:   Fri Nov 8 13:22:14 2019 +0100
+>
+>     crypto: arm/chacha - remove dependency on generic ChaCha driver
+
+Ah, I see. That's fine then.
+
+>     Instead of falling back to the generic ChaCha skcipher driver for
+>     non-SIMD cases, use a fast scalar implementation for ARM authored
+>     by Eric Biggers. This removes the module dependency on chacha-generic
+>     altogether, which also simplifies things when we expose the ChaCha
+>     library interface from this module.
+>    
+>     Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+>     Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 > 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
->  drivers/s390/crypto/zcrypt_api.c | 26 ++++++++++++++++++++++++++
->  drivers/s390/crypto/zcrypt_api.h |  2 ++
->  2 files changed, 28 insertions(+)
-> 
-> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-> index 3a521e65f3fe..fd9666ae1d26 100644
-> --- a/drivers/s390/crypto/zcrypt_api.c
-> +++ b/drivers/s390/crypto/zcrypt_api.c
-> @@ -1330,6 +1330,32 @@ void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus)
->  }
->  EXPORT_SYMBOL(zcrypt_device_status_mask_ext);
->  
-> +void zcrypt_device_status_mask_ext2(struct zcrypt_device_status_ext *devstatus,
-> +				    int maxcard, int maxqueue)
-> +{
-> +	struct zcrypt_card *zc;
-> +	struct zcrypt_queue *zq;
-> +	struct zcrypt_device_status_ext *stat;
-> +	int card, queue;
-> +
-> +	spin_lock(&zcrypt_list_lock);
-> +	for_each_zcrypt_card(zc) {
-> +		for_each_zcrypt_queue(zq, zc) {
-> +			card = AP_QID_CARD(zq->queue->qid);
-> +			queue = AP_QID_QUEUE(zq->queue->qid);
-> +			if (card >= maxcard || queue >= maxqueue)
-> +				continue;
+>> I'm not sure why we need the extra "_INTERNAL" symbols, but I
+>> may be missing something here. What problem does this solve
+>> for you?
+>
+> Without them Kconfig will bomb out because of a loop centering
+> on CONFIG_CRYPTO.
 
-What about doing a "break" here? Or are the the cards/queues iterated non-linear?
+I've tried to undo that portion here and don't run into a
+dependency loop so far with the patch below on top of yours
+(around 100 randconfigs in). I'll keep testing and will let
+you know when something goes wrong.
 
-> +			stat = &devstatus[card * maxqueue + queue];
-> +			stat->hwtype = zc->card->ap_dev.device_type;
-> +			stat->functions = zc->card->hwinfo.fac >> 26;
-> +			stat->qid = zq->queue->qid;
-> +			stat->online = zq->online ? 0x01 : 0x00;
-> +		}
-> +	}
-> +	spin_unlock(&zcrypt_list_lock);
-> +}
-> +EXPORT_SYMBOL(zcrypt_device_status_mask_ext2);
-> +
+One issue I've already found in your version is that removing
+the  'select CRYPTO_LIB_CHACHA_GENERIC' is broken in the majority
+of the cases where an architecture specific implementation
+is enabled, because the architecture code typically contains
+a fallback to the generic version for the case where the
+custom CPU instructions are not present.
 
-In my opinion, this is a lot of code duplication for an early loop termination. Either extent the zcrypt_device_status_mask_ext() function with the two additional parameters and change all callers to
+I've added the 'select' lines to the architecture versions
+here, but since it's almost always needed, we could decide
+to just leave the generic version built-in anyway to
+make it less error-prone at the cost of kernel bloat
+in the few cases where it's not used.
 
-zcrypt_device_status_mask_ext(... , MAX_ZDEV_CARDIDS, MAX_ZDEV_DOMAINS);
+An unrelated issue I noticed is that CRYPTO_LIB_CHACHA20POLY1305
+depends on CRYPTO in order to pull in CRYPTO_ALGAPI, this
+looks like a mistake and could be resolved by moving
+crypto/scatterwalk.c into lib/crypto/ with its own symbol.
+That should be a separate patch of course.
 
-or just implement zcrypt_device_status_mask_ext() as a wrapper to zcrypt_device_status_mask_ext2().
+      Arnd
 
-void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus)
-{
-	zcrypt_device_status_ext2(devstatus, MAX_ZDEV_CARDIDS, MAX_ZDEV_DOMAINS);
-}
-EXPORT_SYMBOL(zcrypt_device_status_mask_ext);
-
->  int zcrypt_device_status_ext(int card, int queue,
->  			     struct zcrypt_device_status_ext *devstat)
->  {
-> diff --git a/drivers/s390/crypto/zcrypt_api.h b/drivers/s390/crypto/zcrypt_api.h
-> index 06ff697d171c..92027304f0d8 100644
-> --- a/drivers/s390/crypto/zcrypt_api.h
-> +++ b/drivers/s390/crypto/zcrypt_api.h
-> @@ -172,6 +172,8 @@ void zcrypt_api_exit(void);
->  long zcrypt_send_cprb(struct ica_xcRB *xcRB, u32 xflags);
->  long zcrypt_send_ep11_cprb(struct ep11_urb *urb, u32 xflags);
->  void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus);
-> +void zcrypt_device_status_mask_ext2(struct zcrypt_device_status_ext *devstatus,
-> +				    int maxcard, int maxqueue);
->  int zcrypt_device_status_ext(int card, int queue,
->  			     struct zcrypt_device_status_ext *devstatus);
->  
-
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
-
+diff --git a/arch/arm/crypto/Kconfig b/arch/arm/crypto/Kconfig
+index 0c19317a9ce0..f2e3b62c1379 100644
+--- a/arch/arm/crypto/Kconfig
++++ b/arch/arm/crypto/Kconfig
+@@ -7,7 +7,8 @@ config CRYPTO_CURVE25519_NEON
+ 	depends on KERNEL_MODE_NEON
+ 	select CRYPTO_KPP
+ 	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
+-	default CRYPTO_LIB_CURVE25519_INTERNAL
++	select CRYPTO_LIB_CURVE25519_GENERIC
++	default CRYPTO_LIB_CURVE25519
+ 	help
+ 	  Curve25519 algorithm
+ 
+@@ -49,7 +50,8 @@ config CRYPTO_POLY1305_ARM
+ 	tristate
+ 	select CRYPTO_HASH
+ 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
+-	default CRYPTO_LIB_POLY1305_INTERNAL
++	select CRYPTO_LIB_POLY1305_GENERIC
++	default CRYPTO_LIB_POLY1305
+ 	help
+ 	  Poly1305 authenticator algorithm (RFC7539)
+ 
+@@ -217,7 +219,8 @@ config CRYPTO_CHACHA20_NEON
+ 	tristate
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	default CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA_GENERIC
++	default CRYPTO_LIB_CHACHA
+ 	help
+ 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
+ 	  stream cipher algorithms
+diff --git a/arch/arm64/crypto/Kconfig b/arch/arm64/crypto/Kconfig
+index 1b14551cc301..17f447240f9a 100644
+--- a/arch/arm64/crypto/Kconfig
++++ b/arch/arm64/crypto/Kconfig
+@@ -30,7 +30,7 @@ config CRYPTO_POLY1305_NEON
+ 	depends on KERNEL_MODE_NEON
+ 	select CRYPTO_HASH
+ 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
+-	default CRYPTO_LIB_POLY1305_INTERNAL
++	default CRYPTO_LIB_POLY1305
+ 	help
+ 	  Poly1305 authenticator algorithm (RFC7539)
+ 
+@@ -191,7 +191,8 @@ config CRYPTO_CHACHA20_NEON
+ 	depends on KERNEL_MODE_NEON
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	default CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA_GENERIC
++	default CRYPTO_LIB_CHACHA
+ 	help
+ 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
+ 	  stream cipher algorithms
+diff --git a/arch/mips/crypto/Kconfig b/arch/mips/crypto/Kconfig
+index 545fc0e12422..e0d8ee2677df 100644
+--- a/arch/mips/crypto/Kconfig
++++ b/arch/mips/crypto/Kconfig
+@@ -7,7 +7,7 @@ config CRYPTO_POLY1305_MIPS
+ 	depends on MIPS
+ 	select CRYPTO_HASH
+ 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
+-	default CRYPTO_LIB_POLY1305_INTERNAL
++	default CRYPTO_LIB_POLY1305
+ 	help
+ 	  Poly1305 authenticator algorithm (RFC7539)
+ 
+@@ -58,7 +58,7 @@ config CRYPTO_CHACHA_MIPS
+ 	depends on CPU_MIPS32_R2
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	default CRYPTO_LIB_CHACHA_INTERNAL
++	default CRYPTO_LIB_CHACHA
+ 	help
+ 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
+ 	  stream cipher algorithms
+diff --git a/arch/powerpc/crypto/Kconfig b/arch/powerpc/crypto/Kconfig
+index 5beed03869c9..49f929f49e45 100644
+--- a/arch/powerpc/crypto/Kconfig
++++ b/arch/powerpc/crypto/Kconfig
+@@ -7,7 +7,8 @@ config CRYPTO_CURVE25519_PPC64
+ 	depends on PPC64 && CPU_LITTLE_ENDIAN
+ 	select CRYPTO_KPP
+ 	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
+-	default CRYPTO_LIB_CURVE25519_INTERNAL
++	select CRYPTO_LIB_CURVE25519_GENERIC
++	default CRYPTO_LIB_CURVE25519
+ 	help
+ 	  Curve25519 algorithm
+ 
+@@ -96,7 +97,8 @@ config CRYPTO_CHACHA20_P10
+ 	depends on PPC64 && CPU_LITTLE_ENDIAN && VSX
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	default CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA_GENERIC
++	default CRYPTO_LIB_CHACHA
+ 	help
+ 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
+ 	  stream cipher algorithms
+diff --git a/arch/s390/crypto/Kconfig b/arch/s390/crypto/Kconfig
+index f6f82dab3594..13245d569d4d 100644
+--- a/arch/s390/crypto/Kconfig
++++ b/arch/s390/crypto/Kconfig
+@@ -112,7 +112,8 @@ config CRYPTO_CHACHA_S390
+ 	depends on S390
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	default CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA_GENERIC
++	default CRYPTO_LIB_CHACHA
+ 	help
+ 	  Length-preserving cipher: ChaCha20 stream cipher (RFC 7539)
+ 
+diff --git a/arch/x86/crypto/Kconfig b/arch/x86/crypto/Kconfig
+index d3128e99bac5..1f20425f6c87 100644
+--- a/arch/x86/crypto/Kconfig
++++ b/arch/x86/crypto/Kconfig
+@@ -7,7 +7,8 @@ config CRYPTO_CURVE25519_X86
+ 	depends on X86 && 64BIT
+ 	select CRYPTO_KPP
+ 	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
+-	default CRYPTO_LIB_CURVE25519_INTERNAL
++	select CRYPTO_LIB_CURVE25519_GENERIC
++	default CRYPTO_LIB_CURVE25519
+ 	help
+ 	  Curve25519 algorithm
+ 
+@@ -353,7 +354,8 @@ config CRYPTO_CHACHA20_X86_64
+ 	depends on X86 && 64BIT
+ 	select CRYPTO_SKCIPHER
+ 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	default CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA_GENERIC
++	default CRYPTO_LIB_CHACHA
+ 	help
+ 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
+ 	  stream cipher algorithms
+@@ -422,7 +424,8 @@ config CRYPTO_POLY1305_X86_64
+ 	depends on X86 && 64BIT
+ 	select CRYPTO_HASH
+ 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
+-	default CRYPTO_LIB_POLY1305_INTERNAL
++	select CRYPTO_LIB_POLY1305_GENERIC
++	default CRYPTO_LIB_POLY1305
+ 	help
+ 	  Poly1305 authenticator algorithm (RFC7539)
+ 
+diff --git a/crypto/Kconfig b/crypto/Kconfig
+index aac27a4668fd..6013850c114c 100644
+--- a/crypto/Kconfig
++++ b/crypto/Kconfig
+@@ -317,7 +317,7 @@ config CRYPTO_ECRDSA
+ config CRYPTO_CURVE25519
+ 	tristate "Curve25519"
+ 	select CRYPTO_KPP
+-	select CRYPTO_LIB_CURVE25519_INTERNAL
++	select CRYPTO_LIB_CURVE25519
+ 	help
+ 	  Curve25519 elliptic curve (RFC7748)
+ 
+@@ -615,7 +615,7 @@ config CRYPTO_ARC4
+ 
+ config CRYPTO_CHACHA20
+ 	tristate "ChaCha"
+-	select CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA
+ 	select CRYPTO_SKCIPHER
+ 	help
+ 	  The ChaCha20, XChaCha20, and XChaCha12 stream cipher algorithms
+@@ -936,7 +936,7 @@ config CRYPTO_POLYVAL
+ config CRYPTO_POLY1305
+ 	tristate "Poly1305"
+ 	select CRYPTO_HASH
+-	select CRYPTO_LIB_POLY1305_INTERNAL
++	select CRYPTO_LIB_POLY1305_GENERIC
+ 	help
+ 	  Poly1305 authenticator algorithm (RFC7539)
+ 
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 1fd5acdc73c6..417b691c7c53 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -82,18 +82,6 @@ config WIREGUARD
+ 	select CRYPTO
+ 	select CRYPTO_LIB_CURVE25519
+ 	select CRYPTO_LIB_CHACHA20POLY1305
+-	select CRYPTO_CHACHA20_X86_64 if X86 && 64BIT
+-	select CRYPTO_POLY1305_X86_64 if X86 && 64BIT
+-	select CRYPTO_BLAKE2S_X86 if X86 && 64BIT
+-	select CRYPTO_CURVE25519_X86 if X86 && 64BIT
+-	select CRYPTO_CHACHA20_NEON if ARM || (ARM64 && KERNEL_MODE_NEON)
+-	select CRYPTO_POLY1305_NEON if ARM64 && KERNEL_MODE_NEON
+-	select CRYPTO_POLY1305_ARM if ARM
+-	select CRYPTO_BLAKE2S_ARM if ARM
+-	select CRYPTO_CURVE25519_NEON if ARM && KERNEL_MODE_NEON
+-	select CRYPTO_CHACHA_MIPS if CPU_MIPS32_R2
+-	select CRYPTO_POLY1305_MIPS if MIPS
+-	select CRYPTO_CHACHA_S390 if S390
+ 	help
+ 	  WireGuard is a secure, fast, and easy to use replacement for IPSec
+ 	  that uses modern cryptography and clever networking tricks. It's
+diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
+index b09e78da959a..8fdb1a5de909 100644
+--- a/lib/crypto/Kconfig
++++ b/lib/crypto/Kconfig
+@@ -42,7 +42,7 @@ config CRYPTO_LIB_BLAKE2S_GENERIC
+ 	  of CRYPTO_LIB_BLAKE2S.
+ 
+ config CRYPTO_ARCH_HAVE_LIB_CHACHA
+-	bool
++	tristate
+ 	help
+ 	  Declares whether the architecture provides an arch-specific
+ 	  accelerated implementation of the ChaCha library interface,
+@@ -58,21 +58,16 @@ config CRYPTO_LIB_CHACHA_GENERIC
+ 	  implementation is enabled, this implementation serves the users
+ 	  of CRYPTO_LIB_CHACHA.
+ 
+-config CRYPTO_LIB_CHACHA_INTERNAL
+-	tristate
+-	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
+-
+ config CRYPTO_LIB_CHACHA
+ 	tristate "ChaCha library interface"
+-	select CRYPTO
+-	select CRYPTO_LIB_CHACHA_INTERNAL
++	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
+ 	help
+ 	  Enable the ChaCha library interface. This interface may be fulfilled
+ 	  by either the generic implementation or an arch-specific one, if one
+ 	  is available and enabled.
+ 
+ config CRYPTO_ARCH_HAVE_LIB_CURVE25519
+-	bool
++	tristate
+ 	help
+ 	  Declares whether the architecture provides an arch-specific
+ 	  accelerated implementation of the Curve25519 library interface,
+@@ -88,14 +83,9 @@ config CRYPTO_LIB_CURVE25519_GENERIC
+ 	  implementation is enabled, this implementation serves the users
+ 	  of CRYPTO_LIB_CURVE25519.
+ 
+-config CRYPTO_LIB_CURVE25519_INTERNAL
+-	tristate
+-	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
+-
+ config CRYPTO_LIB_CURVE25519
+ 	tristate "Curve25519 scalar multiplication library"
+-	select CRYPTO
+-	select CRYPTO_LIB_CURVE25519_INTERNAL
++	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
+ 	help
+ 	  Enable the Curve25519 library interface. This interface may be
+ 	  fulfilled by either the generic implementation or an arch-specific
+@@ -112,7 +102,7 @@ config CRYPTO_LIB_POLY1305_RSIZE
+ 	default 1
+ 
+ config CRYPTO_ARCH_HAVE_LIB_POLY1305
+-	bool
++	tristate
+ 	help
+ 	  Declares whether the architecture provides an arch-specific
+ 	  accelerated implementation of the Poly1305 library interface,
+@@ -127,14 +117,9 @@ config CRYPTO_LIB_POLY1305_GENERIC
+ 	  implementation is enabled, this implementation serves the users
+ 	  of CRYPTO_LIB_POLY1305.
+ 
+-config CRYPTO_LIB_POLY1305_INTERNAL
+-	tristate
+-	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
+-
+ config CRYPTO_LIB_POLY1305
+ 	tristate "Poly1305 library interface"
+-	select CRYPTO
+-	select CRYPTO_LIB_POLY1305_INTERNAL
++	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
+ 	help
+ 	  Enable the Poly1305 library interface. This interface may be fulfilled
+ 	  by either the generic implementation or an arch-specific one, if one
