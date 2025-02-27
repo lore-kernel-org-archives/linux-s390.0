@@ -1,456 +1,509 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25DCF4A1A;
-	Thu, 27 Feb 2025 07:49:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 520F7A59
+	for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2025 08:21:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740642566; cv=none; b=iKzBNly6cGfKUDQzEutYuFOsLjYzQuOSLhp90B0I4W1tFPzvQQLBg/2iLgH43Y+oZonvmBIf0U94uNOkP4JkkCC24wXTtzyNtyKvbIRjYsEiZZLk4sw4X7NRbCbGiKa2aTVJ+3mE6r5m7X0QHtKwVeW5SJ3lKIvB3/22Odcdf9I=
+	t=1740644519; cv=none; b=tg+GVs6zBNSyhqbmWfipZxzRGleTm7fyQe9ZNMrwIse7M4IHIRaKxlZ6mUGfKnszk+jZa7Cn+XyhMTanuzbxwHPR6eoj+GHAdbeN12v2PIPEP2aZlhLW5FSSf+t0GI3fyxyQ/2TfW7YuZSc6PsVBc3PcEzQapFlYuwy43VRqQZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740642566; c=relaxed/simple;
-	bh=iw9ewAwQfe6X0zwWewfhIfLO8U0GhdEVVGspC39knVA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pJsjdZkk48MEBaUKKHNF3/l9l0qkKOu9msdnZeeC69Reuo7p4FGSn9fFU5IRP3G0iZfNq8jo1YhA/ppCNcOzqcMhZtCxTCnXNWsscywk+ssmKyMmOJpkpfY7N043D8I71oVXuJRT3XSo8p9jubtmNjsP9/Bel4iB8Or+/qaXEVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=IMHVVGHm; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1740644519; c=relaxed/simple;
+	bh=gVWVEdKQ8HzOPC4xqePddxkVpcsRTNyYqLPjR6J2uEM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VfSpdDKLTycJoik8rUwY8ksMg/YQxwDXZH8KpV5Z6bs2cJNrRXnJ+nPtx/ubu6KmLzbhCehA3xaB+imLcQQbis85b6QKQ8zsCJotQXFgZ9GZJSmA1jLjxYa5iDrIu757a9pbLTLcVk0TpKCgOaT/0w/WC9j/jqmpcaJHh7R4TEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fn/r54c/; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="IMHVVGHm"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=OFD5N9rOm82B332djyvozYo8ts0guMAt9X1fIIFKfy4=; b=IMHVVGHmALj2K9AbcjxWeI+sv0
-	ReL/t1iKX5KsPoXd9Uxn8orXIt6kRAh04DQhmTwB4JyBnqoi95FLIaaQnxjf5kvvl9lZNeNELriB7
-	jiCa4KUNe83jKyPcOU58GfY4jTWKwKv0seV4D25eERJLq5tZa9hR3PAHQ8tpMb27t2t59adKWW/fK
-	773grZuXFC08WWIhkI7+TG8gbZVKW14tdaXiheyq29FTbBrXWFkZvDRygeClklh85Mxhsx/tEd8jl
-	qWMZdi1W7GeaZsIKr4xIVhbhKRldl0NETYzjzeSBa+jCYVy5dscEAo3m1EF3HSIZMhlg5YJC3ypg7
-	MAmE3WWA==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tnYdL-002Bw7-2x;
-	Thu, 27 Feb 2025 15:48:40 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 27 Feb 2025 15:48:39 +0800
-Date: Thu, 27 Feb 2025 15:48:39 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Eric Biggers <ebiggers@google.com>,
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>, linux-crypto@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [v3 PATCH] crypto: lib/Kconfig - Hide arch options from user
-Message-ID: <Z8AY16EIqAYpfmRI@gondor.apana.org.au>
-References: <20250225164216.4807-1-arnd@kernel.org>
- <20250225213344.GA23792@willie-the-truck>
- <f7c298b8-7989-49e7-90a2-5356029a6283@app.fastmail.com>
- <c4896a12-8abe-4fe6-b381-86b23d32b332@app.fastmail.com>
- <Z75xKexTUNm_FnSK@gondor.apana.org.au>
- <Z76aUfPIbhPAsHbv@gondor.apana.org.au>
- <Z77aFJCVuXeDXRrs@gondor.apana.org.au>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fn/r54c/"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 51R212LG004668;
+	Thu, 27 Feb 2025 08:21:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=g7rLGe
+	FP8kA1qq+Uo2bZ32Q/x5XXclo+Tx/RFwJKakg=; b=fn/r54c/8ArcBz/8KChYz3
+	ah4l5Emzo6SJdoCQtQi/IgSTfgGwzWKr5Pw+npCcN9hDsgqxVH5nBClvGQaitQhx
+	6rQYO1QXi2I/C6BUE7sV2gw9h7LU9+9yW+UTkr4gs7NjZvPZDT58FN7rtR1nYRaJ
+	ox5vCcjGUwn1mDpfpgBv/w0rGTD+4jW9LRcDC0mhGFrXbOr2N8hsnlDc8mrTRirM
+	2c6Mv1MHO6r0GNVDnM8yJP7DSv+D7jTCBOPPjqBUe35c9Fmvvj5QJxVRXREMPzSi
+	hpCtbb2n789mGRzFUcjiSNOsPz0zm5fwzsK5HnwVPoY1cppwdvdrGfgPkSBttLvQ
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 452ew0hces-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Feb 2025 08:21:53 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 51R4hBCQ012507;
+	Thu, 27 Feb 2025 08:21:52 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 44ys9yqqwu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Feb 2025 08:21:52 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 51R8Lm3017695004
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Feb 2025 08:21:48 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AF25C20040;
+	Thu, 27 Feb 2025 08:21:48 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4263D2004D;
+	Thu, 27 Feb 2025 08:21:48 +0000 (GMT)
+Received: from [9.179.31.31] (unknown [9.179.31.31])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Feb 2025 08:21:48 +0000 (GMT)
+Message-ID: <e2b05ff5-cd5a-47fb-8b4c-dd8e90a97cd8@linux.ibm.com>
+Date: Thu, 27 Feb 2025 09:21:47 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z77aFJCVuXeDXRrs@gondor.apana.org.au>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 04/20] s390/zcrypt: Rework zcrypt layer to support new
+ flag NOMEMALLOC
+To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
+        fcallies@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+References: <20250223095459.43058-1-freude@linux.ibm.com>
+ <20250223095459.43058-5-freude@linux.ibm.com>
+Content-Language: de-DE
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250223095459.43058-5-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vbrd5Jp6AaO_PXpvMxaZJrjKmrrqg4oT
+X-Proofpoint-ORIG-GUID: vbrd5Jp6AaO_PXpvMxaZJrjKmrrqg4oT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-02-27_03,2025-02-26_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 clxscore=1015 suspectscore=0
+ impostorscore=0 malwarescore=0 mlxlogscore=999 lowpriorityscore=0
+ mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2502270060
 
-The ARCH_MAY_HAVE patch missed arm64, mips and s390.  But it may
-also lead to arch options being enabled but ineffective because
-of modular/built-in conflicts.
+On 23/02/2025 10:54, Harald Freudenberger wrote:
+> Introduce a new flag parameter for the both cprb send functions
+> zcrypt_send_cprb() and zcrypt_send_ep11_cprb(). This new
+> xflags parameter ("execution flags") shall be used to provide
+> execution hints and flags for this crypto request.
 
-As the primary user of all these options wireguard is selecting
-the arch options anyway, make the same selections at the lib/crypto
-option level and hide the arch options from the user.
+See my comment below. Please evaluate, if the boolean `userspace` parameter can also be implemented as one of the xflags. 
 
-Instead of selecting them centrally from lib/crypto, simply set
-the default of each arch option as suggested by Eric Biggers.
+> 
+> One flag is implemented: The xflag ZCRYPT_XFLAG_NOMEMALLOC
+> tells the zcrypt_send_*() functions to not allocate memory
+> via kmalloc() and friends with the goal to not trigger any
+> IO operations. If this xflag is given, it is also forwarded
+> to the AP bus functions as AP_MSG_FLAG_MEMPOOL when the
+> ap_init_apmsg() is invoked.
+> 
+> If the ZCRYPT_XFLAG_NOMEMALLOC is given, the zcrypt layer
+> does not allocate any memory but may fail to send a crypto
+> load:
+> - The number of EP11 targets if given must not exceed 16 APQNs.
+> - As the flag is passed down to the AP bus functions the
+>   AP bus uses a limited mem pool (with limited item size)
+>   to construct the AP msg. The AP bus mem pool may be depleted
+>   and/or the message size may exceed the item size of the
+>   AP bus mem pool. Currently the AP bus mem pool is limited
+>   to 4 mem pool items of 12KB each. On not being able to process
+>   a crypto request without memory allocation the result will
+>   be -ENOMEM returned from the zcrypt_send_cprb_*() functions.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 
-Change the Crypto API generic algorithms to select the top-level
-lib/crypto options instead of the generic one as otherwise there
-is no way to enable the arch options (Eric Biggers).  Introduce a
-set of INTERNAL options to work around dependency cycles on the
-CONFIG_CRYPTO symbol.
+See my comments below. Beside that
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-Fixes: 1047e21aecdf ("crypto: lib/Kconfig - Fix lib built-in failure when arch is modular")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Closes: https://lore.kernel.org/oe-kbuild-all/202502232152.JC84YDLp-lkp@intel.com/
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> ---
+>  drivers/s390/crypto/zcrypt_api.c      | 65 +++++++++++++++------------
+>  drivers/s390/crypto/zcrypt_api.h      | 12 ++++-
+>  drivers/s390/crypto/zcrypt_ccamisc.c  | 16 +++----
+>  drivers/s390/crypto/zcrypt_ep11misc.c | 10 ++---
+>  4 files changed, 59 insertions(+), 44 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+> index ce5f7cb974b9..f6deb10329e6 100644
+> --- a/drivers/s390/crypto/zcrypt_api.c
+> +++ b/drivers/s390/crypto/zcrypt_api.c
+> @@ -846,7 +846,7 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
+>  
+>  static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
+>  			      struct zcrypt_track *tr,
+> -			      struct ica_xcRB *xcrb)
+> +			      struct ica_xcRB *xcrb, u32 xflags)
 
-diff --git a/arch/arm/crypto/Kconfig b/arch/arm/crypto/Kconfig
-index 47d9cc59f254..23e4ea067ddb 100644
---- a/arch/arm/crypto/Kconfig
-+++ b/arch/arm/crypto/Kconfig
-@@ -3,10 +3,12 @@
- menu "Accelerated Cryptographic Algorithms for CPU (arm)"
- 
- config CRYPTO_CURVE25519_NEON
--	tristate "Public key crypto: Curve25519 (NEON)"
-+	tristate
- 	depends on KERNEL_MODE_NEON
-+	select CRYPTO_KPP
- 	select CRYPTO_LIB_CURVE25519_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
-+	default CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 algorithm
- 
-@@ -45,9 +47,10 @@ config CRYPTO_NHPOLY1305_NEON
- 	  - NEON (Advanced SIMD) extensions
- 
- config CRYPTO_POLY1305_ARM
--	tristate "Hash functions: Poly1305 (NEON)"
-+	tristate
- 	select CRYPTO_HASH
--	select CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
-+	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -212,9 +215,10 @@ config CRYPTO_AES_ARM_CE
- 	  - ARMv8 Crypto Extensions
- 
- config CRYPTO_CHACHA20_NEON
--	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (NEON)"
-+	tristate
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/arm64/crypto/Kconfig b/arch/arm64/crypto/Kconfig
-index 5636ab83f22a..3418c8d3c78d 100644
---- a/arch/arm64/crypto/Kconfig
-+++ b/arch/arm64/crypto/Kconfig
-@@ -26,10 +26,11 @@ config CRYPTO_NHPOLY1305_NEON
- 	  - NEON (Advanced SIMD) extensions
- 
- config CRYPTO_POLY1305_NEON
--	tristate "Hash functions: Poly1305 (NEON)"
-+	tristate
- 	depends on KERNEL_MODE_NEON
- 	select CRYPTO_HASH
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -186,11 +187,12 @@ config CRYPTO_AES_ARM64_NEON_BLK
- 	  - NEON (Advanced SIMD) extensions
- 
- config CRYPTO_CHACHA20_NEON
--	tristate "Ciphers: ChaCha (NEON)"
-+	tristate
- 	depends on KERNEL_MODE_NEON
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_CHACHA_GENERIC
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/mips/crypto/Kconfig b/arch/mips/crypto/Kconfig
-index 7decd40c4e20..545fc0e12422 100644
---- a/arch/mips/crypto/Kconfig
-+++ b/arch/mips/crypto/Kconfig
-@@ -3,9 +3,11 @@
- menu "Accelerated Cryptographic Algorithms for CPU (mips)"
- 
- config CRYPTO_POLY1305_MIPS
--	tristate "Hash functions: Poly1305"
-+	tristate
- 	depends on MIPS
-+	select CRYPTO_HASH
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-@@ -52,10 +54,11 @@ config CRYPTO_SHA512_OCTEON
- 	  Architecture: mips OCTEON using crypto instructions, when available
- 
- config CRYPTO_CHACHA_MIPS
--	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (MIPS32r2)"
-+	tristate
- 	depends on CPU_MIPS32_R2
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/powerpc/crypto/Kconfig b/arch/powerpc/crypto/Kconfig
-index e453cb0c82d2..370db8192ce6 100644
---- a/arch/powerpc/crypto/Kconfig
-+++ b/arch/powerpc/crypto/Kconfig
-@@ -3,10 +3,12 @@
- menu "Accelerated Cryptographic Algorithms for CPU (powerpc)"
- 
- config CRYPTO_CURVE25519_PPC64
--	tristate "Public key crypto: Curve25519 (PowerPC64)"
-+	tristate
- 	depends on PPC64 && CPU_LITTLE_ENDIAN
-+	select CRYPTO_KPP
- 	select CRYPTO_LIB_CURVE25519_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
-+	default CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 algorithm
- 
-@@ -91,11 +93,12 @@ config CRYPTO_AES_GCM_P10
- 	  later CPU. This module supports stitched acceleration for AES/GCM.
- 
- config CRYPTO_CHACHA20_P10
--	tristate "Ciphers: ChaCha20, XChacha20, XChacha12 (P10 or later)"
-+	tristate
- 	depends on PPC64 && CPU_LITTLE_ENDIAN && VSX
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_CHACHA_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-diff --git a/arch/riscv/crypto/Kconfig b/arch/riscv/crypto/Kconfig
-index ad58dad9a580..c67095a3d669 100644
---- a/arch/riscv/crypto/Kconfig
-+++ b/arch/riscv/crypto/Kconfig
-@@ -22,7 +22,6 @@ config CRYPTO_CHACHA_RISCV64
- 	tristate "Ciphers: ChaCha"
- 	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
- 	select CRYPTO_SKCIPHER
--	select CRYPTO_LIB_CHACHA_GENERIC
- 	help
- 	  Length-preserving ciphers: ChaCha20 stream cipher algorithm
- 
-diff --git a/arch/s390/crypto/Kconfig b/arch/s390/crypto/Kconfig
-index b760232537f1..8c4db8b64fa2 100644
---- a/arch/s390/crypto/Kconfig
-+++ b/arch/s390/crypto/Kconfig
-@@ -108,11 +108,12 @@ config CRYPTO_DES_S390
- 	  As of z196 the CTR mode is hardware accelerated.
- 
- config CRYPTO_CHACHA_S390
--	tristate "Ciphers: ChaCha20"
-+	tristate
- 	depends on S390
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_CHACHA_GENERIC
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving cipher: ChaCha20 stream cipher (RFC 7539)
- 
-diff --git a/arch/x86/crypto/Kconfig b/arch/x86/crypto/Kconfig
-index c189dad0969b..3d948f10c94c 100644
---- a/arch/x86/crypto/Kconfig
-+++ b/arch/x86/crypto/Kconfig
-@@ -3,10 +3,12 @@
- menu "Accelerated Cryptographic Algorithms for CPU (x86)"
- 
- config CRYPTO_CURVE25519_X86
--	tristate "Public key crypto: Curve25519 (ADX)"
-+	tristate
- 	depends on X86 && 64BIT
-+	select CRYPTO_KPP
- 	select CRYPTO_LIB_CURVE25519_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
-+	select CRYPTO_ARCH_HAVE_LIB_CURVE25519
-+	default CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 algorithm
- 
-@@ -348,11 +350,12 @@ config CRYPTO_ARIA_GFNI_AVX512_X86_64
- 	  Processes 64 blocks in parallel.
- 
- config CRYPTO_CHACHA20_X86_64
--	tristate "Ciphers: ChaCha20, XChaCha20, XChaCha12 (SSSE3/AVX2/AVX-512VL)"
-+	tristate
- 	depends on X86 && 64BIT
- 	select CRYPTO_SKCIPHER
- 	select CRYPTO_LIB_CHACHA_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
-+	select CRYPTO_ARCH_HAVE_LIB_CHACHA
-+	default CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Length-preserving ciphers: ChaCha20, XChaCha20, and XChaCha12
- 	  stream cipher algorithms
-@@ -417,10 +420,12 @@ config CRYPTO_POLYVAL_CLMUL_NI
- 	  - CLMUL-NI (carry-less multiplication new instructions)
- 
- config CRYPTO_POLY1305_X86_64
--	tristate "Hash functions: Poly1305 (SSE2/AVX2)"
-+	tristate
- 	depends on X86 && 64BIT
-+	select CRYPTO_HASH
- 	select CRYPTO_LIB_POLY1305_GENERIC
--	select CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
-+	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-+	default CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 74ae5f52b784..b7771d7bd3b3 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -317,7 +317,7 @@ config CRYPTO_ECRDSA
- config CRYPTO_CURVE25519
- 	tristate "Curve25519"
- 	select CRYPTO_KPP
--	select CRYPTO_LIB_CURVE25519_GENERIC
-+	select CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Curve25519 elliptic curve (RFC7748)
- 
-@@ -615,7 +615,7 @@ config CRYPTO_ARC4
- 
- config CRYPTO_CHACHA20
- 	tristate "ChaCha"
--	select CRYPTO_LIB_CHACHA_GENERIC
-+	select CRYPTO_LIB_CHACHA_INTERNAL
- 	select CRYPTO_SKCIPHER
- 	help
- 	  The ChaCha20, XChaCha20, and XChaCha12 stream cipher algorithms
-@@ -936,7 +936,7 @@ config CRYPTO_POLYVAL
- config CRYPTO_POLY1305
- 	tristate "Poly1305"
- 	select CRYPTO_HASH
--	select CRYPTO_LIB_POLY1305_GENERIC
-+	select CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
-diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
-index c542ef1d64d0..b09e78da959a 100644
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -48,11 +48,6 @@ config CRYPTO_ARCH_HAVE_LIB_CHACHA
- 	  accelerated implementation of the ChaCha library interface,
- 	  either builtin or as a module.
- 
--config CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA
--	tristate
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_LIB_CHACHA=m
--	select CRYPTO_ARCH_HAVE_LIB_CHACHA if CRYPTO_ARCH_MAY_HAVE_LIB_CHACHA=y
--
- config CRYPTO_LIB_CHACHA_GENERIC
- 	tristate
- 	select CRYPTO_LIB_UTILS
-@@ -63,9 +58,14 @@ config CRYPTO_LIB_CHACHA_GENERIC
- 	  implementation is enabled, this implementation serves the users
- 	  of CRYPTO_LIB_CHACHA.
- 
-+config CRYPTO_LIB_CHACHA_INTERNAL
-+	tristate
-+	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
-+
- config CRYPTO_LIB_CHACHA
- 	tristate "ChaCha library interface"
--	select CRYPTO_LIB_CHACHA_GENERIC if CRYPTO_ARCH_HAVE_LIB_CHACHA=n
-+	select CRYPTO
-+	select CRYPTO_LIB_CHACHA_INTERNAL
- 	help
- 	  Enable the ChaCha library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
-@@ -78,13 +78,9 @@ config CRYPTO_ARCH_HAVE_LIB_CURVE25519
- 	  accelerated implementation of the Curve25519 library interface,
- 	  either builtin or as a module.
- 
--config CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519
--	tristate
--	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_LIB_CURVE25519=m
--	select CRYPTO_ARCH_HAVE_LIB_CURVE25519 if CRYPTO_ARCH_MAY_HAVE_LIB_CURVE25519=y
--
- config CRYPTO_LIB_CURVE25519_GENERIC
- 	tristate
-+	select CRYPTO_LIB_UTILS
- 	help
- 	  This symbol can be depended upon by arch implementations of the
- 	  Curve25519 library interface that require the generic code as a
-@@ -92,10 +88,14 @@ config CRYPTO_LIB_CURVE25519_GENERIC
- 	  implementation is enabled, this implementation serves the users
- 	  of CRYPTO_LIB_CURVE25519.
- 
-+config CRYPTO_LIB_CURVE25519_INTERNAL
-+	tristate
-+	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
-+
- config CRYPTO_LIB_CURVE25519
- 	tristate "Curve25519 scalar multiplication library"
--	select CRYPTO_LIB_CURVE25519_GENERIC if CRYPTO_ARCH_HAVE_LIB_CURVE25519=n
--	select CRYPTO_LIB_UTILS
-+	select CRYPTO
-+	select CRYPTO_LIB_CURVE25519_INTERNAL
- 	help
- 	  Enable the Curve25519 library interface. This interface may be
- 	  fulfilled by either the generic implementation or an arch-specific
-@@ -118,11 +118,6 @@ config CRYPTO_ARCH_HAVE_LIB_POLY1305
- 	  accelerated implementation of the Poly1305 library interface,
- 	  either builtin or as a module.
- 
--config CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305
--	tristate
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_LIB_POLY1305=m
--	select CRYPTO_ARCH_HAVE_LIB_POLY1305 if CRYPTO_ARCH_MAY_HAVE_LIB_POLY1305=y
--
- config CRYPTO_LIB_POLY1305_GENERIC
- 	tristate
- 	help
-@@ -132,9 +127,14 @@ config CRYPTO_LIB_POLY1305_GENERIC
- 	  implementation is enabled, this implementation serves the users
- 	  of CRYPTO_LIB_POLY1305.
- 
-+config CRYPTO_LIB_POLY1305_INTERNAL
-+	tristate
-+	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
-+
- config CRYPTO_LIB_POLY1305
- 	tristate "Poly1305 library interface"
--	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
-+	select CRYPTO
-+	select CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Enable the Poly1305 library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
-@@ -142,9 +142,10 @@ config CRYPTO_LIB_POLY1305
- 
- config CRYPTO_LIB_CHACHA20POLY1305
- 	tristate "ChaCha20-Poly1305 AEAD support (8-byte nonce library version)"
--	depends on CRYPTO
-+	select CRYPTO
- 	select CRYPTO_LIB_CHACHA
- 	select CRYPTO_LIB_POLY1305
-+	select CRYPTO_LIB_UTILS
- 	select CRYPTO_ALGAPI
- 
- config CRYPTO_LIB_SHA1
+This is an internal only API, right? So please either use a bool for the NOMEMALLOC case or move the userspace boolean to the xflags.
+
+>  {
+>  	struct zcrypt_card *zc, *pref_zc;
+>  	struct zcrypt_queue *zq, *pref_zq;
+> @@ -861,7 +861,8 @@ static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
+>  
+>  	xcrb->status = 0;
+>  
+> -	rc = ap_init_apmsg(&ap_msg, 0);
+> +	rc = ap_init_apmsg(&ap_msg, xflags & ZCRYPT_XFLAG_NOMEMALLOC ?
+> +			   AP_MSG_FLAG_MEMPOOL : 0);
+
+This is hard to read, because of the line break. I would prefer to have it in a separate line. 
+
+u32 ap_flags = flags & ZCRYPT_XFLAG_NOMEMALLOC ? AP_MSG_FLAG_MEMPOOL : 0;
+[...]
+rc = ap_init_apmsg(&ap_msg, ap_flags);
+
+>  	if (rc)
+>  		goto out;
+>  
+> @@ -977,7 +978,7 @@ static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
+>  	return rc;
+>  }
+>  
+> -long zcrypt_send_cprb(struct ica_xcRB *xcrb)
+> +long zcrypt_send_cprb(struct ica_xcRB *xcrb, u32 xflags)
+>  {
+>  	struct zcrypt_track tr;
+>  	int rc;
+> @@ -985,13 +986,14 @@ long zcrypt_send_cprb(struct ica_xcRB *xcrb)
+>  	memset(&tr, 0, sizeof(tr));
+>  
+>  	do {
+> -		rc = _zcrypt_send_cprb(false, &ap_perms, &tr, xcrb);
+> +		rc = _zcrypt_send_cprb(false, &ap_perms, &tr, xcrb, xflags);
+>  	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  
+>  	/* on ENODEV failure: retry once again after a requested rescan */
+>  	if (rc == -ENODEV && zcrypt_process_rescan())
+>  		do {
+> -			rc = _zcrypt_send_cprb(false, &ap_perms, &tr, xcrb);
+> +			rc = _zcrypt_send_cprb(false, &ap_perms,
+> +					       &tr, xcrb, xflags);
+>  		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+>  		rc = -EIO;
+> @@ -1031,11 +1033,11 @@ static bool is_desired_ep11_queue(unsigned int dev_qid,
+>  
+>  static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  				   struct zcrypt_track *tr,
+> -				   struct ep11_urb *xcrb)
+> +				   struct ep11_urb *xcrb, u32 xflags)
+>  {
+>  	struct zcrypt_card *zc, *pref_zc;
+>  	struct zcrypt_queue *zq, *pref_zq;
+> -	struct ep11_target_dev *targets;
+> +	struct ep11_target_dev targetbuf[16], *targets = NULL;
+>  	unsigned short target_num;
+>  	unsigned int wgt = 0, pref_wgt = 0;
+>  	unsigned int func_code = 0, domain;
+> @@ -1045,36 +1047,39 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  
+>  	trace_s390_zcrypt_req(xcrb, TP_ZSENDEP11CPRB);
+>  
+> -	rc = ap_init_apmsg(&ap_msg, 0);
+> +	rc = ap_init_apmsg(&ap_msg, xflags & ZCRYPT_XFLAG_NOMEMALLOC ?
+> +			   AP_MSG_FLAG_MEMPOOL : 0);
+>  	if (rc)
+>  		goto out;
+>  
+>  	target_num = (unsigned short)xcrb->targets_num;
+>  
+>  	/* empty list indicates autoselect (all available targets) */
+> -	targets = NULL;
+> +	rc = -ENOMEM;
+>  	if (target_num != 0) {
+>  		struct ep11_target_dev __user *uptr;
+>  
+> -		targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+> -		if (!targets) {
+> -			func_code = 0;
+> -			rc = -ENOMEM;
+> +		if (target_num <= ARRAY_SIZE(targetbuf)) {
+> +			targets = targetbuf;
+> +		} else if (xflags & ZCRYPT_XFLAG_NOMEMALLOC) {
+>  			goto out;
+> +		} else {
+> +			targets = kcalloc(target_num,
+> +					  sizeof(*targets), GFP_KERNEL);
+> +			if (!targets)
+> +				goto out;
+>  		}
+> -
+>  		uptr = (struct ep11_target_dev __force __user *)xcrb->targets;
+>  		if (z_copy_from_user(userspace, targets, uptr,
+>  				     target_num * sizeof(*targets))) {
+> -			func_code = 0;
+>  			rc = -EFAULT;
+> -			goto out_free;
+> +			goto out;
+>  		}
+>  	}
+>  
+>  	rc = prep_ep11_ap_msg(userspace, xcrb, &ap_msg, &func_code, &domain);
+>  	if (rc)
+> -		goto out_free;
+> +		goto out;
+>  	print_hex_dump_debug("ep11req: ", DUMP_PREFIX_ADDRESS, 16, 1,
+>  			     ap_msg.msg, ap_msg.len, false);
+>  
+> @@ -1082,11 +1087,11 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  		if (ap_msg.flags & AP_MSG_FLAG_ADMIN) {
+>  			if (!test_bit_inv(domain, perms->adm)) {
+>  				rc = -ENODEV;
+> -				goto out_free;
+> +				goto out;
+>  			}
+>  		} else if ((ap_msg.flags & AP_MSG_FLAG_USAGE) == 0) {
+>  			rc = -EOPNOTSUPP;
+> -			goto out_free;
+> +			goto out;
+>  		}
+>  	}
+>  
+> @@ -1154,7 +1159,7 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  			pr_debug("no match for address ff.ffff => ENODEV\n");
+>  		}
+>  		rc = -ENODEV;
+> -		goto out_free;
+> +		goto out;
+>  	}
+>  
+>  	qid = pref_zq->queue->qid;
+> @@ -1168,9 +1173,9 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  	zcrypt_drop_queue(pref_zc, pref_zq, mod, wgt);
+>  	spin_unlock(&zcrypt_list_lock);
+>  
+> -out_free:
+> -	kfree(targets);
+>  out:
+> +	if (targets && targets != targetbuf)
+> +		kfree(targets);
+>  	ap_release_apmsg(&ap_msg);
+>  	if (tr) {
+>  		tr->last_rc = rc;
+> @@ -1181,7 +1186,7 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  	return rc;
+>  }
+>  
+> -long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb)
+> +long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb, u32 xflags)
+>  {
+>  	struct zcrypt_track tr;
+>  	int rc;
+> @@ -1189,13 +1194,15 @@ long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb)
+>  	memset(&tr, 0, sizeof(tr));
+>  
+>  	do {
+> -		rc = _zcrypt_send_ep11_cprb(false, &ap_perms, &tr, xcrb);
+> +		rc = _zcrypt_send_ep11_cprb(false, &ap_perms,
+> +					    &tr, xcrb, xflags);
+>  	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  
+>  	/* on ENODEV failure: retry once again after a requested rescan */
+>  	if (rc == -ENODEV && zcrypt_process_rescan())
+>  		do {
+> -			rc = _zcrypt_send_ep11_cprb(false, &ap_perms, &tr, xcrb);
+> +			rc = _zcrypt_send_ep11_cprb(false, &ap_perms,
+> +						    &tr, xcrb, xflags);
+>  		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+>  		rc = -EIO;
+> @@ -1539,13 +1546,13 @@ static int zsecsendcprb_ioctl(struct ap_perms *perms, unsigned long arg)
+>  		return -EFAULT;
+>  
+>  	do {
+> -		rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb);
+> +		rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb, 0);
+>  	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  
+>  	/* on ENODEV failure: retry once again after a requested rescan */
+>  	if (rc == -ENODEV && zcrypt_process_rescan())
+>  		do {
+> -			rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb);
+> +			rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb, 0);
+>  		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+>  		rc = -EIO;
+> @@ -1569,13 +1576,13 @@ static int zsendep11cprb_ioctl(struct ap_perms *perms, unsigned long arg)
+>  		return -EFAULT;
+>  
+>  	do {
+> -		rc = _zcrypt_send_ep11_cprb(true, perms, &tr, &xcrb);
+> +		rc = _zcrypt_send_ep11_cprb(true, perms, &tr, &xcrb, 0);
+>  	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  
+>  	/* on ENODEV failure: retry once again after a requested rescan */
+>  	if (rc == -ENODEV && zcrypt_process_rescan())
+>  		do {
+> -			rc = _zcrypt_send_ep11_cprb(true, perms, &tr, &xcrb);
+> +			rc = _zcrypt_send_ep11_cprb(true, perms, &tr, &xcrb, 0);
+>  		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+>  	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+>  		rc = -EIO;
+> diff --git a/drivers/s390/crypto/zcrypt_api.h b/drivers/s390/crypto/zcrypt_api.h
+> index 4ed481df57ca..06ff697d171c 100644
+> --- a/drivers/s390/crypto/zcrypt_api.h
+> +++ b/drivers/s390/crypto/zcrypt_api.h
+> @@ -76,6 +76,14 @@ struct zcrypt_track {
+>  #define TRACK_AGAIN_CARD_WEIGHT_PENALTY  1000
+>  #define TRACK_AGAIN_QUEUE_WEIGHT_PENALTY 10000
+>  
+> +/*
+> + * Do not allocate memory xflag. To be used with
+> + * zcrypt_send_cprb() and zcrypt_send_ep11_cprb().
+> + * Currently only available and used for the in-kernel
+> + * zcrpyt api.
+> + */
+> +#define ZCRYPT_XFLAG_NOMEMALLOC 0x0001
+> +
+>  struct zcrypt_ops {
+>  	long (*rsa_modexpo)(struct zcrypt_queue *, struct ica_rsa_modexpo *,
+>  			    struct ap_message *);
+> @@ -161,8 +169,8 @@ void zcrypt_msgtype_unregister(struct zcrypt_ops *);
+>  struct zcrypt_ops *zcrypt_msgtype(unsigned char *, int);
+>  int zcrypt_api_init(void);
+>  void zcrypt_api_exit(void);
+> -long zcrypt_send_cprb(struct ica_xcRB *xcRB);
+> -long zcrypt_send_ep11_cprb(struct ep11_urb *urb);
+> +long zcrypt_send_cprb(struct ica_xcRB *xcRB, u32 xflags);
+> +long zcrypt_send_ep11_cprb(struct ep11_urb *urb, u32 xflags);
+>  void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus);
+>  int zcrypt_device_status_ext(int card, int queue,
+>  			     struct zcrypt_device_status_ext *devstatus);
+> diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
+> index 43a27cb3db84..521baaea06ff 100644
+> --- a/drivers/s390/crypto/zcrypt_ccamisc.c
+> +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+> @@ -379,7 +379,7 @@ int cca_genseckey(u16 cardnr, u16 domain,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, errno %d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -517,7 +517,7 @@ int cca_clr2seckey(u16 cardnr, u16 domain, u32 keybitsize,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -644,7 +644,7 @@ int cca_sec2protkey(u16 cardnr, u16 domain,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -872,7 +872,7 @@ int cca_gencipherkey(u16 cardnr, u16 domain, u32 keybitsize, u32 keygenflags,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -1038,7 +1038,7 @@ static int _ip_cprb_helper(u16 cardnr, u16 domain,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -1249,7 +1249,7 @@ int cca_cipher2protkey(u16 cardnr, u16 domain, const u8 *ckey,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -1412,7 +1412,7 @@ int cca_ecc2protkey(u16 cardnr, u16 domain, const u8 *key,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -1526,7 +1526,7 @@ int cca_query_crypto_facility(u16 cardnr, u16 domain,
+>  	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+>  
+>  	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+> -	rc = zcrypt_send_cprb(&xcrb);
+> +	rc = zcrypt_send_cprb(&xcrb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
+> index cb7e6da43602..b60e262bcaa3 100644
+> --- a/drivers/s390/crypto/zcrypt_ep11misc.c
+> +++ b/drivers/s390/crypto/zcrypt_ep11misc.c
+> @@ -636,7 +636,7 @@ static int ep11_query_info(u16 cardnr, u16 domain, u32 query_type,
+>  		 req, sizeof(*req) + sizeof(*req_pl),
+>  		 rep, sizeof(*rep) + sizeof(*rep_pl) + buflen);
+>  
+> -	rc = zcrypt_send_ep11_cprb(urb);
+> +	rc = zcrypt_send_ep11_cprb(urb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+>  			       __func__, (int)cardnr, (int)domain, rc);
+> @@ -892,7 +892,7 @@ static int _ep11_genaeskey(u16 card, u16 domain,
+>  		 req, sizeof(*req) + req_pl_size,
+>  		 rep, sizeof(*rep) + sizeof(*rep_pl));
+>  
+> -	rc = zcrypt_send_ep11_cprb(urb);
+> +	rc = zcrypt_send_ep11_cprb(urb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+>  			       __func__, (int)card, (int)domain, rc);
+> @@ -1049,7 +1049,7 @@ static int ep11_cryptsingle(u16 card, u16 domain,
+>  		 req, sizeof(*req) + req_pl_size,
+>  		 rep, sizeof(*rep) + rep_pl_size);
+>  
+> -	rc = zcrypt_send_ep11_cprb(urb);
+> +	rc = zcrypt_send_ep11_cprb(urb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+>  			       __func__, (int)card, (int)domain, rc);
+> @@ -1212,7 +1212,7 @@ static int _ep11_unwrapkey(u16 card, u16 domain,
+>  		 req, sizeof(*req) + req_pl_size,
+>  		 rep, sizeof(*rep) + sizeof(*rep_pl));
+>  
+> -	rc = zcrypt_send_ep11_cprb(urb);
+> +	rc = zcrypt_send_ep11_cprb(urb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+>  			       __func__, (int)card, (int)domain, rc);
+> @@ -1372,7 +1372,7 @@ static int _ep11_wrapkey(u16 card, u16 domain,
+>  		 req, sizeof(*req) + req_pl_size,
+>  		 rep, sizeof(*rep) + sizeof(*rep_pl));
+>  
+> -	rc = zcrypt_send_ep11_cprb(urb);
+> +	rc = zcrypt_send_ep11_cprb(urb, 0);
+>  	if (rc) {
+>  		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+>  			       __func__, (int)card, (int)domain, rc);
+
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
+
