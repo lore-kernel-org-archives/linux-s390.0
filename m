@@ -1,118 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE981B87D1;
-	Sat,  1 Mar 2025 07:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB7D81E3761;
+	Sat,  1 Mar 2025 18:49:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740813871; cv=none; b=q/lrASCUG8cJkKL9UQ6ex7RfFT5igJmo+EJVDofq3TOGAvll6qGnYuISvMZfBMee4jGPnzvHjHAu5YagAQe1xTpTKDV2FbLnD3w4I0j4MZbCk1zWjUiQo5VouB4cYArLXrNA0MpldmuO1P14ilghOIB2inVzTRnAZ8RqnsZfUpo=
+	t=1740854997; cv=none; b=krL81p9d5RrqmXiUCL5lpXle2Ijdm+bmVo1MhtBECtU/QU+bLEIy+ANFbvGBUTc4NbMpxQzAIf0GG1f2OvogLY3n/2rNKQu9485aW9NDiCuWtRE15MuBOUovMms03P8BRA4nXpSdBsHFxjDpUw2+WcMOPgVPeH9k36iVYGzqLCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740813871; c=relaxed/simple;
-	bh=zNyC5lhRK0Jp4F93R1ijsSaURdoFR2R28yW7mia17cM=;
+	s=arc-20240116; t=1740854997; c=relaxed/simple;
+	bh=D6LK3deQZfKTTW6uwky3ge1mwOLyc/TdhQi0WSPhGbU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hmIaCfSUuUyAwzhAQ0Jrs/ioobSgF7YXBKxTiSNXnXdC9wGzWPZJY4f1XYl2Bv/2NKYoYBwaNlxUtF2tvLLVfHN/A0gbk0tJXf82UJbDIIb1g3/g99XdeBrsfaKVxNMRrIYD3OhErwQVf4/ZH33dzUVlCKT64ny14jpASaQ8JRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gtscTzal; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=fbsqGRvB9Pmm+YKiGlciW7zgh+EtK4xx0eVTH9PNw2UVLN2HFriV3FZc+NDYFFjQXQ07poix5rTr5xvxG3bKWOSq6oabJ/Qj8lmoD8EmU5S5DsRRJx6f/f0Pnm/GByKvtZi1STUFc1+3HeGkmGNRttk4Y30CBEOEr6Xfaflu0ug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nQ4nOWu7; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gtscTzal"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800D1C4CEDD;
-	Sat,  1 Mar 2025 07:24:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740813870;
-	bh=zNyC5lhRK0Jp4F93R1ijsSaURdoFR2R28yW7mia17cM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gtscTzalpXI+EBlbvhmEfLi9LdExvWsiMbsCojuFb6z7D6TJ+eIyI5Zu0dNVt1+Rt
-	 R7KC6887+sVZtgnQ19+IkfSlJqXOab6/YNi9aZBAtp/VgQU/JqRJpIH8eBc4GGjByG
-	 /iEET/+yluuuSKQHZY8L55Rx9HismpEadrVB6zyppH+G3FGWR/3bh3ot8dW5rcHNI7
-	 NKKycvvnkEsnUXv1eFIzBBP8cwd+jkC4/L6TStK9cq+p4BvnEfW2RzlrWF5UZglu5h
-	 /IAlH97YxPUeMyrnxQe6BmmTiig5TOwLHznM4yMtuGGFo8JCLj5r1JCg4T+JRGSA6x
-	 kS+2S3GSKmFcQ==
-Date: Sat, 1 Mar 2025 09:23:51 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: Brendan Jackman <jackmanb@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nQ4nOWu7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740854997; x=1772390997;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=D6LK3deQZfKTTW6uwky3ge1mwOLyc/TdhQi0WSPhGbU=;
+  b=nQ4nOWu7QUs1M8FeIfDaMwY4BvlWIYecyCQ+XNdQ0fM3Coh195b4XDSv
+   OI51O/cXiQzAwfkFI+z+WWbn0yBUvpMNvwVIM6NYMLR07QOuchgquOpG5
+   jo/Op18IGsFq/oADXQCRIGqsd3zVOZgoJ8KMFE81z1OXLFCqIXODKvmyf
+   PN1FaxRuKXFlbYNoNDS+AzUiSc/Xd4dJ1OICVoZSwHZWIWaA96zZ47ORj
+   OHc60E49kCPSAas1RR0ctWlL2nsny+ePVALDeOgQnL0+iHiW9BSnUpbmt
+   oN5QCS8pM9d2KrnF5LMljfGsthFUnj3qM/wkH1Ba1LOCaZa7L1eymB4sX
+   w==;
+X-CSE-ConnectionGUID: 2GJ7H/ufRlG90zGbo5CS2w==
+X-CSE-MsgGUID: +3aTqtm+QVy2GFK6x/Fw3w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11360"; a="45416201"
+X-IronPort-AV: E=Sophos;i="6.13,325,1732608000"; 
+   d="scan'208";a="45416201"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2025 10:49:56 -0800
+X-CSE-ConnectionGUID: 0kPiMjFwTXa5X7KYVNjm2A==
+X-CSE-MsgGUID: 8TbL827kQYuxjwBtg5CFGg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,325,1732608000"; 
+   d="scan'208";a="122762860"
+Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
+  by fmviesa004.fm.intel.com with ESMTP; 01 Mar 2025 10:49:50 -0800
+Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1toRuG-000GaI-1E;
+	Sat, 01 Mar 2025 18:49:48 +0000
+Date: Sun, 2 Mar 2025 02:49:37 +0800
+From: kernel test robot <lkp@intel.com>
+To: Lyude Paul <lyude@redhat.com>, rust-for-linux@vger.kernel.org,
+	Thomas Gleixner <tglx@linutronix.de>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Boqun Feng <boqun.feng@gmail.com>,
 	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Heiko Carstens <hca@linux.ibm.com>,
+	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@linux.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, x86@kernel.org,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
-	linux-efi@vger.kernel.org, Junaid Shahid <junaids@google.com>
-Subject: Re: [PATCH RFC v2 02/29] x86: Create
- CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-Message-ID: <Z8K2B3WJoICVbDj3@kernel.org>
-References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
- <20250110-asi-rfc-v2-v2-2-8419288bc805@google.com>
+	Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"(maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT))" <x86@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Juergen Christ <jchrist@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	"(moderated list:ARM64 PORT (AARCH64 ARCHITECTURE))" <linux-arm-kernel@lists.infradead.org>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v9 2/9] preempt: Introduce __preempt_count_{sub,
+ add}_return()
+Message-ID: <202503020258.CSGrY5E6-lkp@intel.com>
+References: <20250227221924.265259-3-lyude@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -121,131 +79,157 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250110-asi-rfc-v2-v2-2-8419288bc805@google.com>
+In-Reply-To: <20250227221924.265259-3-lyude@redhat.com>
 
-Hi Brendan,
+Hi Lyude,
 
-On Fri, Jan 10, 2025 at 06:40:28PM +0000, Brendan Jackman wrote:
-> Currently a nop config. Keeping as a separate commit for easy review of
-> the boring bits. Later commits will use and enable this new config.
-> 
-> This config is only added for non-UML x86_64 as other architectures do
-> not yet have pending implementations. It also has somewhat artificial
-> dependencies on !PARAVIRT and !KASAN which are explained in the Kconfig
-> file.
-> 
-> Co-developed-by: Junaid Shahid <junaids@google.com>
-> Signed-off-by: Junaid Shahid <junaids@google.com>
-> Signed-off-by: Brendan Jackman <jackmanb@google.com>
-> ---
->  arch/alpha/include/asm/Kbuild      |  1 +
->  arch/arc/include/asm/Kbuild        |  1 +
->  arch/arm/include/asm/Kbuild        |  1 +
->  arch/arm64/include/asm/Kbuild      |  1 +
->  arch/csky/include/asm/Kbuild       |  1 +
->  arch/hexagon/include/asm/Kbuild    |  1 +
->  arch/loongarch/include/asm/Kbuild  |  3 +++
->  arch/m68k/include/asm/Kbuild       |  1 +
->  arch/microblaze/include/asm/Kbuild |  1 +
->  arch/mips/include/asm/Kbuild       |  1 +
->  arch/nios2/include/asm/Kbuild      |  1 +
->  arch/openrisc/include/asm/Kbuild   |  1 +
->  arch/parisc/include/asm/Kbuild     |  1 +
->  arch/powerpc/include/asm/Kbuild    |  1 +
->  arch/riscv/include/asm/Kbuild      |  1 +
->  arch/s390/include/asm/Kbuild       |  1 +
->  arch/sh/include/asm/Kbuild         |  1 +
->  arch/sparc/include/asm/Kbuild      |  1 +
->  arch/um/include/asm/Kbuild         |  2 +-
->  arch/x86/Kconfig                   | 14 ++++++++++++++
->  arch/xtensa/include/asm/Kbuild     |  1 +
->  include/asm-generic/asi.h          |  5 +++++
->  22 files changed, 41 insertions(+), 1 deletion(-)
+kernel test robot noticed the following build errors:
 
-I don't think this all is needed. You can put asi.h with stubs used outside
-of arch/x86 in include/linux and save you the hassle of updating every
-architecture.
- 
-> diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
-> index 43b0ae4c2c2112d4d4d3cb3c60e787b175172dea..cb9062c9be17fe276cc92d2ac99d8b165f6297bf 100644
-> --- a/arch/sparc/include/asm/Kbuild
-> +++ b/arch/sparc/include/asm/Kbuild
-> @@ -4,3 +4,4 @@ generated-y += syscall_table_64.h
->  generic-y += agp.h
->  generic-y += kvm_para.h
->  generic-y += mcs_spinlock.h
-> +generic-y += asi.h
+[auto build test ERROR on 2014c95afecee3e76ca4a56956a936e23283f05b]
 
-sparc already has include/asm/asi.h, this will break the build
+url:    https://github.com/intel-lab-lkp/linux/commits/Lyude-Paul/preempt-Introduce-HARDIRQ_DISABLE_BITS/20250228-062508
+base:   2014c95afecee3e76ca4a56956a936e23283f05b
+patch link:    https://lore.kernel.org/r/20250227221924.265259-3-lyude%40redhat.com
+patch subject: [PATCH v9 2/9] preempt: Introduce __preempt_count_{sub, add}_return()
+config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20250302/202503020258.CSGrY5E6-lkp@intel.com/config)
+compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250302/202503020258.CSGrY5E6-lkp@intel.com/reproduce)
 
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 7b9a7e8f39acc8e9aeb7d4213e87d71047865f5c..5a50582eb210e9d1309856a737d32b76fa1bfc85 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -2519,6 +2519,20 @@ config MITIGATION_PAGE_TABLE_ISOLATION
->  
->  	  See Documentation/arch/x86/pti.rst for more details.
->  
-> +config MITIGATION_ADDRESS_SPACE_ISOLATION
-> +	bool "Allow code to run with a reduced kernel address space"
-> +	default n
-> +	depends on X86_64 && !PARAVIRT && !UML
-> +	help
-> +	  This feature provides the ability to run some kernel code
-> +	  with a reduced kernel address space. This can be used to
-> +	  mitigate some speculative execution attacks.
-> +
-> +	  The !PARAVIRT dependency is only because of lack of testing; in theory
-> +	  the code is written to work under paravirtualization. In practice
-> +	  there are likely to be unhandled cases, in particular concerning TLB
-> +	  flushes.
-> +
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202503020258.CSGrY5E6-lkp@intel.com/
 
-If you expect other architectures might implement ASI the config would better
-fit into init/Kconfig or mm/Kconfig and in arch/x86/Kconfig will define
-ARCH_HAS_MITIGATION_ADDRESS_SPACE_ISOLATION.
+All errors (new ones prefixed by >>):
 
->  config MITIGATION_RETPOLINE
->  	bool "Avoid speculative indirect branches in kernel"
->  	select OBJTOOL if HAVE_OBJTOOL
-> diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-> index fa07c686cbcc2153776a478ac4093846f01eddab..07cea6902f98053be244d026ed594fe7246755a6 100644
-> --- a/arch/xtensa/include/asm/Kbuild
-> +++ b/arch/xtensa/include/asm/Kbuild
-> @@ -8,3 +8,4 @@ generic-y += parport.h
->  generic-y += qrwlock.h
->  generic-y += qspinlock.h
->  generic-y += user.h
-> +generic-y += asi.h
-> diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
-> new file mode 100644
-> index 0000000000000000000000000000000000000000..c4d9a5ff860a96428422a15000c622aeecc2d664
-> --- /dev/null
-> +++ b/include/asm-generic/asi.h
-> @@ -0,0 +1,5 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef __ASM_GENERIC_ASI_H
-> +#define __ASM_GENERIC_ASI_H
-> +
-> +#endif
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:7:
+   In file included from include/linux/hardirq.h:5:
+   In file included from include/linux/context_tracking_state.h:5:
+   In file included from include/linux/percpu.h:5:
+   In file included from include/linux/alloc_tag.h:11:
+   In file included from include/linux/preempt.h:85:
+>> arch/s390/include/asm/preempt.h:109:15: error: invalid operands to binary expression ('int' and 'void')
+     109 |                         return val + __atomic_add_const(val, &get_lowcore()->preempt_count);
+         |                                ~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:98:11: warning: array index 3 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
+      98 |                 return (set->sig[3] | set->sig[2] |
+         |                         ^        ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:98:25: warning: array index 2 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
+      98 |                 return (set->sig[3] | set->sig[2] |
+         |                                       ^        ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:99:4: warning: array index 1 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
+      99 |                         set->sig[1] | set->sig[0]) == 0;
+         |                         ^        ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:101:11: warning: array index 1 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
+     101 |                 return (set->sig[1] | set->sig[0]) == 0;
+         |                         ^        ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:114:11: warning: array index 3 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     114 |                 return  (set1->sig[3] == set2->sig[3]) &&
+         |                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:114:27: warning: array index 3 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     114 |                 return  (set1->sig[3] == set2->sig[3]) &&
+         |                                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:115:5: warning: array index 2 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     115 |                         (set1->sig[2] == set2->sig[2]) &&
+         |                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:115:21: warning: array index 2 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     115 |                         (set1->sig[2] == set2->sig[2]) &&
+         |                                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:116:5: warning: array index 1 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     116 |                         (set1->sig[1] == set2->sig[1]) &&
+         |                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:116:21: warning: array index 1 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     116 |                         (set1->sig[1] == set2->sig[1]) &&
+         |                                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:119:11: warning: array index 1 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     119 |                 return  (set1->sig[1] == set2->sig[1]) &&
+         |                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
+   include/linux/signal.h:119:27: warning: array index 1 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
+     119 |                 return  (set1->sig[1] == set2->sig[1]) &&
+         |                                          ^         ~
+   arch/s390/include/asm/signal.h:22:9: note: array 'sig' declared here
+      22 |         unsigned long sig[_NSIG_WORDS];
+         |         ^
+   In file included from arch/s390/kernel/asm-offsets.c:11:
+   In file included from include/linux/kvm_host.h:11:
 
-IMHO it should be include/linux/asi.h, with something like
 
-#infdef __LINUX_ASI_H
-#define __LINUX_ASI_H
+vim +109 arch/s390/include/asm/preempt.h
 
-#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
-
-#include <asm/asi.h>
-
-#else /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
-
-/* stubs for functions used outside arch/ */
-
-#endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
-
-#endif /* __LINUX_ASI_H */
+   100	
+   101	static __always_inline int __preempt_count_add_return(int val)
+   102	{
+   103		/*
+   104		 * With some obscure config options and CONFIG_PROFILE_ALL_BRANCHES
+   105		 * enabled, gcc 12 fails to handle __builtin_constant_p().
+   106		 */
+   107		if (!IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES)) {
+   108			if (__builtin_constant_p(val) && (val >= -128) && (val <= 127)) {
+ > 109				return val + __atomic_add_const(val, &get_lowcore()->preempt_count);
+   110			}
+   111		}
+   112		return val + __atomic_add(val, &get_lowcore()->preempt_count);
+   113	}
+   114	
 
 -- 
-Sincerely yours,
-Mike.
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
