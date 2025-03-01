@@ -1,304 +1,251 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6EA35258
-	for <linux-s390@vger.kernel.org>; Sat,  1 Mar 2025 00:36:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE981B87D1;
+	Sat,  1 Mar 2025 07:24:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740789377; cv=none; b=SYIGhu/mMGZLCmnC1s6E2mWntKos9hXu9rCNPO2YGqTcXzdN6YwdPYuK6t8ZXtVmClKb9uj8xujvG5MNF63Xa2NfgMlxEkf2Ivv7kkRTPCIHL53wO/noSy9sP0NB/3ntJVTxBwmbDZnzbHavNzg1UO4BEDGIhfNw3DRaifY4ESs=
+	t=1740813871; cv=none; b=q/lrASCUG8cJkKL9UQ6ex7RfFT5igJmo+EJVDofq3TOGAvll6qGnYuISvMZfBMee4jGPnzvHjHAu5YagAQe1xTpTKDV2FbLnD3w4I0j4MZbCk1zWjUiQo5VouB4cYArLXrNA0MpldmuO1P14ilghOIB2inVzTRnAZ8RqnsZfUpo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740789377; c=relaxed/simple;
-	bh=2BrZxxNprGoxzLNC8/zcwyN9B35uloLJtrb+1opII4M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A+K82bcKoc+jXAKuV/e3DYRT/nPq1dmdNlCgYqb/OFv2wdeQ0IMW0XY9d7fpkPz4vkzLJaDjwd2GbM6HyNzIkYDQj+nAACwMkB6g/cKRQ84qM6ZivxCV5gxh2+Ub6mrwLoR7XOQeSwSzKR3JACtRTaUT5Gj2/NNkDATC+bBPSi0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hQgdwNKW; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1740813871; c=relaxed/simple;
+	bh=zNyC5lhRK0Jp4F93R1ijsSaURdoFR2R28yW7mia17cM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hmIaCfSUuUyAwzhAQ0Jrs/ioobSgF7YXBKxTiSNXnXdC9wGzWPZJY4f1XYl2Bv/2NKYoYBwaNlxUtF2tvLLVfHN/A0gbk0tJXf82UJbDIIb1g3/g99XdeBrsfaKVxNMRrIYD3OhErwQVf4/ZH33dzUVlCKT64ny14jpASaQ8JRo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gtscTzal; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hQgdwNKW"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2212222d4cdso68185ad.0
-        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2025 16:36:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740789374; x=1741394174; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nhZuBN/9mPGzSLbve08MvU9t9kKFyaph33uC3d3/RVo=;
-        b=hQgdwNKW82yV5eCuyXHNuHgecbQ2P+5ROODqnbBCQZK/TVElnVbFuMB1II7RKOspeZ
-         5z0yOr0Z1bKaZcRY7H8ZSVA82n2M1Y2YpqE5i7dXhHso7Ghb4mCz5SfOhddhdHyqCCmv
-         qZLyjpAlTmrc6DlEGDChuP6UI6COZPR6O6eiSxYhhh0pT8oZWGiL6bNIU7W4E2Urqns2
-         qTed/b0rzIb7DOSAIUi+b7vJtrhZc48XqUvVUmLxvtjcE5tiGSahTCaMyqIeDU2Vvnrs
-         ZpAwxC0bJD/JBp85zuVdnK5+rjScVor9SpR1Ui6Y8uKEmNvCq5ELb8ax/pVKvNlprKU+
-         bGtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740789374; x=1741394174;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nhZuBN/9mPGzSLbve08MvU9t9kKFyaph33uC3d3/RVo=;
-        b=wH0fHtQoAVqhtrEXKRCn3b4EisVL8BGe/U0FHP9jKF+viRn79agXes+r6CQuxcAwqn
-         eJdvH6O2PgL56SJSEb0MlM7/mTsYaH6wfgfpg3138EBW7rMtHImSMFdEd3rwbCtoIjz3
-         58nlASbslIxmL77en9WaQPRRDDt2p9EitRyy+935okX/dWHc3kfS7NVjFIYk3YlYMWU9
-         e4aaxoKXJjXnOPS8Fe0OyhhuCaf1YYXCN/+Asl128Hc2pU9VS9wrW6l5Hs7YMARuTulb
-         k/sVB1x1AjRpM/rUXjCCJqMcgHfC49logwbdg8vRSwiw5SnOwx2tZqyRGcNaykTsQCY2
-         lIkA==
-X-Forwarded-Encrypted: i=1; AJvYcCWCjJuNqZOgGazvRlYUbjtoIA479LbahEZI/9k7E80lumFdNxsUmy6KCCJ1XYN/L2cVrH/nvaVH83pB@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUoBpGZAS3V9ePncoNUvzT/rOKL6nfwm8ojwdXNorIB8I7d7y0
-	Mh6d7AHSn7uVPPStqRaZQJ0qX0l/q8XoJtmes5jx8/982fGe73cHOGy974gRKTa1k/FnVfKRF38
-	HLcFawFmcGQYq/Tmo3U3W4z/Cg+fMHrfOIud4D31bjYxYai4ch6Kr
-X-Gm-Gg: ASbGncucSpdzWXp2WFwlF+8b/nX8YJsZl9qnhK6ihCfEvjx/Za361hZlqew89SjkRTd
-	zsfk+/Q1y3J0UbP8PrdHR4UNx7UuNbe5tD37eduIWtGrB2QGqiNxuibWqolgVnB3m0GhuHHo3ik
-	+IgqAgv5+2RxWh/YpjOBe2ZYCHI58=
-X-Google-Smtp-Source: AGHT+IH6/MjikxHqgtWJQlJWlCRLE9/MgRb8A6dWMHQRW5SnmhLBv0G/33lLfpQgGnGpA2izds5R7swz/srEB5Hwek8=
-X-Received: by 2002:a17:903:44d:b0:223:7f8f:439b with SMTP id
- d9443c01a7336-22385a296a5mr498795ad.29.1740789373454; Fri, 28 Feb 2025
- 16:36:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gtscTzal"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 800D1C4CEDD;
+	Sat,  1 Mar 2025 07:24:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740813870;
+	bh=zNyC5lhRK0Jp4F93R1ijsSaURdoFR2R28yW7mia17cM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gtscTzalpXI+EBlbvhmEfLi9LdExvWsiMbsCojuFb6z7D6TJ+eIyI5Zu0dNVt1+Rt
+	 R7KC6887+sVZtgnQ19+IkfSlJqXOab6/YNi9aZBAtp/VgQU/JqRJpIH8eBc4GGjByG
+	 /iEET/+yluuuSKQHZY8L55Rx9HismpEadrVB6zyppH+G3FGWR/3bh3ot8dW5rcHNI7
+	 NKKycvvnkEsnUXv1eFIzBBP8cwd+jkC4/L6TStK9cq+p4BvnEfW2RzlrWF5UZglu5h
+	 /IAlH97YxPUeMyrnxQe6BmmTiig5TOwLHznM4yMtuGGFo8JCLj5r1JCg4T+JRGSA6x
+	 kS+2S3GSKmFcQ==
+Date: Sat, 1 Mar 2025 09:23:51 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Brendan Jackman <jackmanb@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@linux.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, x86@kernel.org,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
+	linux-efi@vger.kernel.org, Junaid Shahid <junaids@google.com>
+Subject: Re: [PATCH RFC v2 02/29] x86: Create
+ CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
+Message-ID: <Z8K2B3WJoICVbDj3@kernel.org>
+References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
+ <20250110-asi-rfc-v2-v2-2-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250228062241.303309-1-tmricht@linux.ibm.com> <Z8JRC2oSs8i53t_s@google.com>
-In-Reply-To: <Z8JRC2oSs8i53t_s@google.com>
-From: Ian Rogers <irogers@google.com>
-Date: Fri, 28 Feb 2025 16:36:02 -0800
-X-Gm-Features: AQ5f1Jo27S9_o_sqEYMlEN5u8ZrPMA3seerGcVGPfEDIZhYh_atDNzd8GgwU5_8
-Message-ID: <CAP-5=fUqs=mxdgQX0Vx=D0weQSitXh6a8DcW2FycDEk6J-=RtA@mail.gmail.com>
-Subject: Re: [PATCH] perf/test: Skip leader sampling for s390
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
-	hca@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250110-asi-rfc-v2-v2-2-8419288bc805@google.com>
 
-On Fri, Feb 28, 2025 at 4:13=E2=80=AFPM Namhyung Kim <namhyung@kernel.org> =
-wrote:
->
-> Hello,
->
-> On Fri, Feb 28, 2025 at 07:22:41AM +0100, Thomas Richter wrote:
-> > In tree linux-next
-> > the perf test case 114 'perf record tests' has a subtest
-> > named 'Basic leader sampling test' which always fails on s390.
-> > Root cause is this invocation
-> >
-> >  # perf record -vv -e '{cycles,cycles}:Su' -- perf test -w brstack
-> >
-> >  ...
-> >  In the debug output the following 2 event are installed:
-> >
-> >  ------------------------------------------------------------
-> >  perf_event_attr:
-> >   type                             0 (PERF_TYPE_HARDWARE)
-> >   size                             136
-> >   config                           0 (PERF_COUNT_HW_CPU_CYCLES)
-> >   { sample_period, sample_freq }   4000
-> >   sample_type                      IP|TID|TIME|READ|CPU|PERIOD|IDENTIFI=
-ER
-> >   read_format                      ID|GROUP|LOST
-> >   disabled                         1
-> >   exclude_kernel                   1
-> >   exclude_hv                       1
-> >   freq                             1
-> >   sample_id_all                    1
-> >  ------------------------------------------------------------
-> >  sys_perf_event_open: pid -1  cpu 0  group_fd -1  flags 0x8 =3D 5
-> >  ------------------------------------------------------------
-> >  perf_event_attr:
-> >   type                             0 (PERF_TYPE_HARDWARE)
-> >   size                             136
-> >   config                           0 (PERF_COUNT_HW_CPU_CYCLES)
-> >   sample_type                      IP|TID|TIME|READ|CPU|PERIOD|IDENTIFI=
-ER
-> >   read_format                      ID|GROUP|LOST
-> >   exclude_kernel                   1
-> >   exclude_hv                       1
-> >   sample_id_all                    1
-> >  ------------------------------------------------------------
-> >  sys_perf_event_open: pid -1  cpu 0  group_fd 5  flags 0x8 =3D 6
-> >  ...
-> >
-> > The first event is the group leader and is installed as sampling event.
-> > The secound one is group member and is installed as counting event.
-> >
-> > Namhyung Kim confirms this observation:
-> > > Yep, the syntax '{event1,event2}:S' is for group leader sampling whic=
-h
-> > > reduces the overhead of PMU interrupts.  The idea is that those event=
-s
-> > > are scheduled together so sampling is enabled only for the leader
-> > > (usually the first) event and it reads counts from the member events
-> > > using PERF_SAMPLE_READ.
-> > >
-> > > So they should have the same counts if it uses the same events in a
-> > > group.
-> >
-> > However this does not work on s390. s390 has one dedicated sampling PMU
-> > which supports only one event. A different PMU is used for counting.
-> > Both run concurrently using different setups and frequencies.
-> >
-> > On s390x a sampling event is setup using a preset trigger and a large
-> > buffer. The hardware
-> >  - writes a samples (64 bytes) into this buffer
-> >    when a given number of CPU instructions has been executed.
-> >  - and triggers an interrupt when the buffer gets full.
-> > The trigger has just a few possible values.
-> >
-> > On s390x the counting event cycles is used to read out the numer of
-> > CPU cycles executed.
-> >
-> > On s390 above invocation created 2 events executed on 2 different
-> > PMU and the result are diffent values from two independently running
-> > PMUs which do not match in a consistent and reliably as on Intel:
-> >
-> >  # ./perf record  -e '{cycles,cycles}:Su' -- perf test -w brstack
+Hi Brendan,
 
-Hi Thomas,
+On Fri, Jan 10, 2025 at 06:40:28PM +0000, Brendan Jackman wrote:
+> Currently a nop config. Keeping as a separate commit for easy review of
+> the boring bits. Later commits will use and enable this new config.
+> 
+> This config is only added for non-UML x86_64 as other architectures do
+> not yet have pending implementations. It also has somewhat artificial
+> dependencies on !PARAVIRT and !KASAN which are explained in the Kconfig
+> file.
+> 
+> Co-developed-by: Junaid Shahid <junaids@google.com>
+> Signed-off-by: Junaid Shahid <junaids@google.com>
+> Signed-off-by: Brendan Jackman <jackmanb@google.com>
+> ---
+>  arch/alpha/include/asm/Kbuild      |  1 +
+>  arch/arc/include/asm/Kbuild        |  1 +
+>  arch/arm/include/asm/Kbuild        |  1 +
+>  arch/arm64/include/asm/Kbuild      |  1 +
+>  arch/csky/include/asm/Kbuild       |  1 +
+>  arch/hexagon/include/asm/Kbuild    |  1 +
+>  arch/loongarch/include/asm/Kbuild  |  3 +++
+>  arch/m68k/include/asm/Kbuild       |  1 +
+>  arch/microblaze/include/asm/Kbuild |  1 +
+>  arch/mips/include/asm/Kbuild       |  1 +
+>  arch/nios2/include/asm/Kbuild      |  1 +
+>  arch/openrisc/include/asm/Kbuild   |  1 +
+>  arch/parisc/include/asm/Kbuild     |  1 +
+>  arch/powerpc/include/asm/Kbuild    |  1 +
+>  arch/riscv/include/asm/Kbuild      |  1 +
+>  arch/s390/include/asm/Kbuild       |  1 +
+>  arch/sh/include/asm/Kbuild         |  1 +
+>  arch/sparc/include/asm/Kbuild      |  1 +
+>  arch/um/include/asm/Kbuild         |  2 +-
+>  arch/x86/Kconfig                   | 14 ++++++++++++++
+>  arch/xtensa/include/asm/Kbuild     |  1 +
+>  include/asm-generic/asi.h          |  5 +++++
+>  22 files changed, 41 insertions(+), 1 deletion(-)
 
-Thanks for reporting this! Could you try adding --count=3D100000 so that
-we're not using frequency mode and we expect the counts to look like
-100,000. For example, on my x86 laptop:
-```
-$ perf record --count=3D100000 -e '{cycles,cycles}:Su' -- perf test -w brst=
-ack
-[ perf record: Woken up 1 times to write data ]
-[ perf record: Captured and wrote 0.047 MB perf.data (712 samples) ]
-$ perf script
-            perf  635952 290271.436115:     100007 cycles:
-ffffffffada00080 [unknown] ([unknown])
-           perf  635952 290271.436115:     100007 cycles:
-ffffffffada00080 [unknown] ([unknown])
-           perf  635952 290271.436650:     100525 cycles:
-7f86352b01b3 _dl_map_object_from_fd+0x553
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.436650:     100525 cycles:
-7f86352b01b3 _dl_map_object_from_fd+0x553
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437088:      99866 cycles:
-7f86352cb827 strchr+0x27
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437088:      99866 cycles:
-7f86352cb827 strchr+0x27
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437376:      99912 cycles:
-7f86352cba74 strcmp+0x54
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437376:      99912 cycles:
-7f86352cba74 strcmp+0x54
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437509:     100279 cycles:
-7f86352cba3a strcmp+0x1a
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437509:     100279 cycles:
-7f86352cba3a strcmp+0x1a
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437559:      99760 cycles:
-7f86352bc39f _dl_check_map_versions+0x50f
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-           perf  635952 290271.437559:      99760 cycles:
-7f86352bc39f _dl_check_map_versions+0x50f
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-...
-```
-I'm particularly concerned if we see the cycles count very deviant
-from the 100000.
+I don't think this all is needed. You can put asi.h with stubs used outside
+of arch/x86 in include/linux and save you the hassle of updating every
+architecture.
+ 
+> diff --git a/arch/sparc/include/asm/Kbuild b/arch/sparc/include/asm/Kbuild
+> index 43b0ae4c2c2112d4d4d3cb3c60e787b175172dea..cb9062c9be17fe276cc92d2ac99d8b165f6297bf 100644
+> --- a/arch/sparc/include/asm/Kbuild
+> +++ b/arch/sparc/include/asm/Kbuild
+> @@ -4,3 +4,4 @@ generated-y += syscall_table_64.h
+>  generic-y += agp.h
+>  generic-y += kvm_para.h
+>  generic-y += mcs_spinlock.h
+> +generic-y += asi.h
 
-> >    ...
-> >  # ./perf script
-> >    perf 2799437 92568.845118:  5508000 cycles:  3ffbcb898b6 do_lookup_x=
-+0x196
-> >    perf 2799437 92568.845119:  1377000 cycles:  3ffbcb898b6 do_lookup_x=
-+0x196
-> >    perf 2799437 92568.845120:  4131000 cycles:  3ffbcb897e8 do_lookup_x=
-+0xc8
-> >    perf 2799437 92568.845121:  1377000 cycles:  3ffbcb8a37c _dl_lookup_=
-symbol
-> >    perf 2799437 92568.845122:  1377000 cycles:  3ffbcb89558 check_match=
-+0x18
-> >    perf 2799437 92568.845123:  2754000 cycles:  3ffbcb89b2a do_lookup_x=
-+0x40a
-> >    perf 2799437 92568.845124:  1377000 cycles:  3ffbcb89b1e do_lookup_x=
-+0x3fe
-> >
-> > As can be seen the result match very often but not all the time
-> > make this test on s390 failing very, very often.
+sparc already has include/asm/asi.h, this will break the build
 
-Actually this is much more deviation than I'd expect. If we use
-task-clock softer/timer based event I see:
-```
-$ perf record --count=3D100000 -e '{task-clock,task-clock}:Su' -- perf
-test -w brstack
-[ perf record: Woken up 1 times to write data ]
-[ perf record: Captured and wrote 0.047 MB perf.data (712 samples) ]
-$ perf script
-            perf  636643 290571.807049:     801858 task-clock:
-7fdf48643439 _dl_map_object_from_fd+0x7d9
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-            perf  636643 290571.807049:     804012 task-clock:
-7fdf48643439 _dl_map_object_from_fd+0x7d9
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-            perf  636643 290571.807549:     499833 task-clock:
-7fdf4863eb9b _dl_map_object_deps+0x3eb
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-            perf  636643 290571.807549:     498236 task-clock:
-7fdf4863eb9b _dl_map_object_deps+0x3eb
-(/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
-```
-So the count deviates by a few hundred, but your output seems to
-deviate by 4 million.
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 7b9a7e8f39acc8e9aeb7d4213e87d71047865f5c..5a50582eb210e9d1309856a737d32b76fa1bfc85 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -2519,6 +2519,20 @@ config MITIGATION_PAGE_TABLE_ISOLATION
+>  
+>  	  See Documentation/arch/x86/pti.rst for more details.
+>  
+> +config MITIGATION_ADDRESS_SPACE_ISOLATION
+> +	bool "Allow code to run with a reduced kernel address space"
+> +	default n
+> +	depends on X86_64 && !PARAVIRT && !UML
+> +	help
+> +	  This feature provides the ability to run some kernel code
+> +	  with a reduced kernel address space. This can be used to
+> +	  mitigate some speculative execution attacks.
+> +
+> +	  The !PARAVIRT dependency is only because of lack of testing; in theory
+> +	  the code is written to work under paravirtualization. In practice
+> +	  there are likely to be unhandled cases, in particular concerning TLB
+> +	  flushes.
+> +
 
-So, I think the test needs to be more tolerant that should help your
-case. As Namhyung mentions I think there may be another bug lurking.
+If you expect other architectures might implement ASI the config would better
+fit into init/Kconfig or mm/Kconfig and in arch/x86/Kconfig will define
+ARCH_HAS_MITIGATION_ADDRESS_SPACE_ISOLATION.
 
-Thanks,
-Ian
+>  config MITIGATION_RETPOLINE
+>  	bool "Avoid speculative indirect branches in kernel"
+>  	select OBJTOOL if HAVE_OBJTOOL
+> diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
+> index fa07c686cbcc2153776a478ac4093846f01eddab..07cea6902f98053be244d026ed594fe7246755a6 100644
+> --- a/arch/xtensa/include/asm/Kbuild
+> +++ b/arch/xtensa/include/asm/Kbuild
+> @@ -8,3 +8,4 @@ generic-y += parport.h
+>  generic-y += qrwlock.h
+>  generic-y += qspinlock.h
+>  generic-y += user.h
+> +generic-y += asi.h
+> diff --git a/include/asm-generic/asi.h b/include/asm-generic/asi.h
+> new file mode 100644
+> index 0000000000000000000000000000000000000000..c4d9a5ff860a96428422a15000c622aeecc2d664
+> --- /dev/null
+> +++ b/include/asm-generic/asi.h
+> @@ -0,0 +1,5 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef __ASM_GENERIC_ASI_H
+> +#define __ASM_GENERIC_ASI_H
+> +
+> +#endif
 
-> > This patch bypasses this test on s390.
-> >
-> > Output before:
-> >  # ./perf test 114
-> >  114: perf record tests                       : FAILED!
-> >  #
-> >
-> > Output after:
-> >  # ./perf test 114
-> >  114: perf record tests                       : Ok
-> >  #
-> >
-> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
->
-> Thanks for the fix.  I think Ian saw the same problem on other archs
-> too.  Maybe we need to enable it on supported archs only.
->
-> Thanks,
-> Namhyung
->
-> > ---
-> >  tools/perf/tests/shell/record.sh | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> >
-> > diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/=
-record.sh
-> > index ba8d873d3ca7..98b69820bc5f 100755
-> > --- a/tools/perf/tests/shell/record.sh
-> > +++ b/tools/perf/tests/shell/record.sh
-> > @@ -231,6 +231,12 @@ test_cgroup() {
-> >
-> >  test_leader_sampling() {
-> >    echo "Basic leader sampling test"
-> > +  if [ "$(uname -m)" =3D s390x ]
-> > +  then
-> > +    echo "Leader sampling skipped"
-> > +    ((skipped+=3D1))
-> > +    return
-> > +  fi
-> >    if ! perf record -o "${perfdata}" -e "{cycles,cycles}:Su" -- \
-> >      perf test -w brstack 2> /dev/null
-> >    then
-> > --
-> > 2.45.2
-> >
+IMHO it should be include/linux/asi.h, with something like
+
+#infdef __LINUX_ASI_H
+#define __LINUX_ASI_H
+
+#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
+
+#include <asm/asi.h>
+
+#else /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
+
+/* stubs for functions used outside arch/ */
+
+#endif /* CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION */
+
+#endif /* __LINUX_ASI_H */
+
+-- 
+Sincerely yours,
+Mike.
