@@ -1,161 +1,75 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D467D33F6;
-	Mon,  3 Mar 2025 19:12:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7EA3A11CA9;
+	Mon,  3 Mar 2025 20:57:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741029125; cv=none; b=LNjqQ3yRczVQSPL5Tt6Y69jfeCJZijeR9VILJErPkeSmgJKg+aOixR5H7X7wjq/oELTNLbCfoxib9wNrvYqVYKRQggq+VDGxJ7tr78pOalIxGWG3o15Xo4viEDBGJ/qEIhHoXKHVjtodZyhIc0EYojTifw+HF11OTwSeBLiXQb0=
+	t=1741035426; cv=none; b=jeYpJ0liGmJ1vE4D5caevM3EhV/8OGY8pUMPITOb5hRDGKCVGl6YwZpj4iqJTbe3sB0+vT5G2SFBdnyw9NLRF+rC0xjOZvav6a0r9ir/gc/aUpyIpGOODCxzYOZklZSXifHG1Fs4OkKAhafCoBF5k5hvhGZbd/AxcKi9SKaoBi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741029125; c=relaxed/simple;
-	bh=HRBDb/01Aoz/Xbn/HWrMNCNs4hJQ+oaS+r2C1Bxu8ag=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gzACzu4bttGroADCgUlrS+B/F1xBxNvkqzR9jZ6muhTTnXmfFs95Aiy/J7l1xPjqlnZZRXWJlEvZreGEnPH1KnJZNmjhGNwAOWD/FAx2mE2Q6ZR46vrA1ue/cS5GQPZrh/qU4ATGA8kL901JSYZ5GwDfr2Z8T8HOoz0sLwE6DiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BCFVJpif; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1741035426; c=relaxed/simple;
+	bh=wkPrI5PI4gOi80WWVhId6dzA8Q9owv5JCghvbzkIVPM=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=n3JG0wtFH7R04RvBbbe2Lan+zeQvGgYpxE6cf61o7ycytzdSj80DvaQNBGewJLGpDbW5Ai8XJpHgedJ29J+KA+kDstjKoza3UENdFAuXvnEXN9Ozapd4lZSc67ZngS6Uh1WwN026hXZX+QNTRSA5bhmBfmTrswRnrjjiUhGldrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=WFd+7kVM; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BCFVJpif"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 523F53EF002272;
-	Mon, 3 Mar 2025 19:12:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=KkerPnmZLypqnbkqHWCG8ODSVofP4Dm6qZuF15VXw
-	wM=; b=BCFVJpif0WlvB3nW+oj9FIMUJYaC9bRP1TSJsrlGw8VqnZ1P2FAQEeEgs
-	+Nu+NRXs4pheNsTyQ9fVIr37FRtJvpHejtncuS5XDNY91XHSAZ2tcy7m9Bp9AupJ
-	X8DTd/RQGklxA3KaG1NPaE/PKjiybsmEkXHU1CbouP8uW+W+wU9RcQaimvJHTETJ
-	nLVMo5L9jtuwv6e+Bre7C+Goi8aXiLadJjSECbsLDTkPTa2Kq2I+btYUlDY60BKS
-	awWWaw6xFFsIZJ3qk3gV4aD9RvgmDii5Rupp1bbtUdBDpAr/S4wn8Qd2fiFkHEuX
-	OXb46BSJt9EYRqaCVZsQ/bOiLw06w==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 454xr4x6eh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Mar 2025 19:12:01 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 523G8lsD020845;
-	Mon, 3 Mar 2025 19:12:00 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 454djn9k6g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 03 Mar 2025 19:12:00 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 523JBxi931326774
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 3 Mar 2025 19:11:59 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 95B3758052;
-	Mon,  3 Mar 2025 19:11:59 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C9B195805D;
-	Mon,  3 Mar 2025 19:11:58 +0000 (GMT)
-Received: from MacBookPro.ibm.com (unknown [9.61.240.87])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  3 Mar 2025 19:11:58 +0000 (GMT)
-From: Rorie Reyes <rreyes@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, borntraeger@de.ibm.com, agordeev@linux.ibm.com,
-        gor@linux.ibm.com, pasic@linux.ibm.com, jjherne@linux.ibm.com,
-        alex.williamson@redhat.com, akrowiak@linux.ibm.com,
-        rreyes@linux.ibm.com
-Subject: [RFC PATCH v1] fixup! s390/vfio-ap: Notify userspace that guest's AP config changed when mdev removed
-Date: Mon,  3 Mar 2025 14:11:58 -0500
-Message-ID: <20250303191158.49317-1-rreyes@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="WFd+7kVM"
+Received: from [192.168.35.166] (c-24-22-154-137.hsd1.wa.comcast.net [24.22.154.137])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 860C12110483;
+	Mon,  3 Mar 2025 12:57:04 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 860C12110483
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1741035424;
+	bh=3qh+61wOXo3xnM/WVr1EaxpXDMg9Qc5SkS1wS9/KCaA=;
+	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
+	b=WFd+7kVMwb8m/yRhGu82uGV6e/HKaH3YScqYDNg3VqULYlWwhYN1W/EwkQ+KpHk2M
+	 B+UrWMeoRFcHhvu9/IkXdfvLFS9RIsO/J8jsCs0ntQiYwMGh95feOKPx7lgiJPPiC7
+	 /EfD2TyFRiTmU900qpo0PnuB9Rpe0/+ft8U6VJfk=
+Message-ID: <f0fa9bc3-159a-413f-a957-0298a55cf728@linux.microsoft.com>
+Date: Mon, 3 Mar 2025 12:57:09 -0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: mtees-123PRKTcihCHVDAVpovJQdXesc
-X-Proofpoint-ORIG-GUID: mtees-123PRKTcihCHVDAVpovJQdXesc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-03_09,2025-03-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- priorityscore=1501 lowpriorityscore=0 clxscore=1015 bulkscore=0
- adultscore=0 suspectscore=0 phishscore=0 spamscore=0 impostorscore=0
- malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2503030144
+User-Agent: Mozilla Thunderbird
+Cc: eahariha@linux.microsoft.com, Wenjia Zhang <wenjia@linux.ibm.com>,
+ Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>,
+ Jozsef Kadlecsik <kadlec@netfilter.org>, David Ahern <dsahern@kernel.org>,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org
+Subject: Re: [PATCH net-next 0/3] Converge on using secs_to_jiffies() part two
+To: Jakub Kicinski <kuba@kernel.org>
+References: <20250219-netdev-secs-to-jiffies-part-2-v1-0-c484cc63611b@linux.microsoft.com>
+ <20250221162107.409ae333@kernel.org>
+From: Easwar Hariharan <eahariha@linux.microsoft.com>
+Content-Language: en-US
+In-Reply-To: <20250221162107.409ae333@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-This patch is based on the s390/features branch
+On 2/21/2025 4:21 PM, Jakub Kicinski wrote:
+> On Wed, 19 Feb 2025 20:30:35 +0000 Easwar Hariharan wrote:
+>> The conversion is made with Coccinelle with the secs_to_jiffies() script
+>> in scripts/coccinelle/misc. Attention is paid to what the best change
+>> can be rather than restricting to what the tool provides.
+>>
+>> The non-netdev patches that include the update to secs_to_jiffies.cocci to address
+>> expressions are here: https://lore.kernel.org/all/20250203-converge-secs-to-jiffies-part-two-v2-0-d7058a01fd0e@linux.microsoft.com
+> 
+> Can the secs_to_jiffies cocci check script finally run in report mode?
+> 
+> I think that needs to be fixed first, before we start "cleaning up"
+> existing code under net.
 
-The guest's AP configuration is cleared when the mdev is removed, so
-userspace must be notified that the AP configuration has changed. To this
-end, this patch:
+It does not, yet. I'm not ignoring this feedback, it's just taking a bit
+of wall clock time between commercial commitments. :) 
 
-* Removes call to 'signal_guest_ap_cfg_changed()' function from the
-  'vfio_ap_mdev_unset_kvm()' function because it has no affect given it is
-  called after the mdev fd is closed.
-
-* Adds call to 'signal_guest_ap_cfg_changed()' function to the
-  'vfio_ap_mdev_request()' function to notify userspace that the guest's
-  AP configuration has changed before signaling the request to remove the
-  mdev.
-
-Minor change - Fixed an indentation issue in function
-'signal_guest_ap_cfg_changed()'
-
-Fixes: 2ba4410dd477 ("s390/vfio-ap: Signal eventfd when guest AP configuration is changed")
-Signed-off-by: Rorie Reyes <rreyes@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 571f5dcb49c5..c1afac5ac555 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -652,8 +652,8 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
- 
- static void signal_guest_ap_cfg_changed(struct ap_matrix_mdev *matrix_mdev)
- {
--		if (matrix_mdev->cfg_chg_trigger)
--			eventfd_signal(matrix_mdev->cfg_chg_trigger);
-+	if (matrix_mdev->cfg_chg_trigger)
-+		eventfd_signal(matrix_mdev->cfg_chg_trigger);
- }
- 
- static void vfio_ap_mdev_update_guest_apcb(struct ap_matrix_mdev *matrix_mdev)
-@@ -1870,7 +1870,6 @@ static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
- 		get_update_locks_for_kvm(kvm);
- 
- 		kvm_arch_crypto_clear_masks(kvm);
--		signal_guest_ap_cfg_changed(matrix_mdev);
- 		vfio_ap_mdev_reset_queues(matrix_mdev);
- 		kvm_put_kvm(kvm);
- 		matrix_mdev->kvm = NULL;
-@@ -2057,6 +2056,14 @@ static void vfio_ap_mdev_request(struct vfio_device *vdev, unsigned int count)
- 
- 	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
- 
-+	if (matrix_mdev->kvm) {
-+		get_update_locks_for_kvm(matrix_mdev->kvm);
-+		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-+		signal_guest_ap_cfg_changed(matrix_mdev);
-+	} else {
-+		mutex_lock(&matrix_dev->mdevs_lock);
-+	}
-+
- 	if (matrix_mdev->req_trigger) {
- 		if (!(count % 10))
- 			dev_notice_ratelimited(dev,
-@@ -2068,6 +2075,12 @@ static void vfio_ap_mdev_request(struct vfio_device *vdev, unsigned int count)
- 		dev_notice(dev,
- 			   "No device request registered, blocked until released by user\n");
- 	}
-+
-+	if (matrix_mdev->kvm)
-+		release_update_locks_for_kvm(matrix_mdev->kvm);
-+	else
-+		mutex_unlock(&matrix_dev->mdevs_lock);
-+
- }
- 
- static int vfio_ap_mdev_get_device_info(unsigned long arg)
--- 
-2.48.1
-
+Thanks,
+Easwar (he/him)
