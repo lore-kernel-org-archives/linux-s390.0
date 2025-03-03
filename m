@@ -1,46 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 855131F8BAA;
-	Mon,  3 Mar 2025 11:11:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCB41FBEAF;
+	Mon,  3 Mar 2025 11:11:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741000280; cv=none; b=S9cmjqW7FGyLKtiNhg1bX21xKFMV7JFXZJgcMedkMJsa7bj4uhmTrddtboPPIikCbsJLCk+kln3b+n9L18kLPyv7JIAxOoWeyh2p3QcoEUUxf+QSZBIldGBphA/V06fwT+MIlQJ3DK3ve255JAhC2/Sbb/69SpvroccYmfva76E=
+	t=1741000281; cv=none; b=athv0CKh7zM7vFISJQg4WlOv7FrUaI0AwztdvCYwSMSOlZQ7HzVM4Sqa4yfo7XwngoE+tlfYy+KxcGi6bUZrnxIe3oe0gNBoGvcW1q879oVKg5SBMXlhlx2OCYM1SbSWXbwY6maJWwRqIJRavzHiKZ7/vDO5ZPrfJPv9yg8GQ4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741000280; c=relaxed/simple;
-	bh=ysgS01DaUNRNFmCyqFaIEAFFgwufR+E1yAt/1uNSO8U=;
+	s=arc-20240116; t=1741000281; c=relaxed/simple;
+	bh=98E4VrqWtF5AW/xLBGM4T2qtKg+zPc3dVoKozXn+hFA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hkhkJSkv9mw+HRllY+c3WSGlN2pBmAqllondoQKVk8gnOdWYJpa69y5vdswwjcBe6MinueK/kNunTHA0ATi11KYB7+BehbiOtJZLYNr6tzYEkVo6MN9ei4EaYvdg4iY8ceg66cKZ0vhrCG57aUNyWfknb0o9mBWLGjd+x3dSkKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UbCusKeg; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=1fOvo9r/; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=TIzTo9XaJwaMXRDzZQRL78CEfCNqff3GbkRC9kVMhP+8V+9E1OfEJ/PeI/Gw9kIjz0pBdwmEJFRdU59JoThUL5ClfHJB04W4Wo6Eycj/hLM7mmSN1iJ3W/Omkir9y8/3HOabtAaLyFmi4IF/7ouBVjOwBXf9tiLgVesJGU+hqSc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=J2PnJ8Er; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GwBc4N7J; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UbCusKeg";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="1fOvo9r/"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="J2PnJ8Er";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="GwBc4N7J"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1741000276;
+	s=2020; t=1741000277;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rgB3LhMqOZ+YBkO0ZZD/ZAGt3jgrVFlcoSgeSBFrG1A=;
-	b=UbCusKegiY4htXtXb6cmiKpgLftrm8OW6HF0kY4SBA0xVA6X8uBoNc4HcYBYgf3qB7EKjy
-	0vnRhbCV99EGmEO9CIOQU5AdcQcMfSuVz/5cfuOEsSLtkpmIdb9tmSJn0nh1ZOEYvHWBXd
-	x5ohKq3YewG7wcBF2kCJNgLCwTZ1D8/+mkjUHVAlRsJkask5JVQkRUpUXvBwP5yhscXqaz
-	XCh3Z8GjDsSWj8I/uJ8qzqf1Kvs1B2NRxSEdIpg0gcMkgu4ew/f79wpGOjeFlZX68JF+W3
-	yzEpHQhM86wPsh+PyaBRXS68MAr6198hI5WbIhM1S9V/TuYtYWMg1LfvvT3P/A==
+	bh=kZM1ca5Q9+J4hpNMdg9ysh15hAgKOmycAt5hVatLnOo=;
+	b=J2PnJ8ErcXhVIuRvqvkHXj7+dnNdS1EYL5YDEQZoOxgEkdIVKIFeg07b0VEIi3KThnzbt0
+	ah3FK8WH0SUuZVYvxjp9pmpwO9vjxDPFsKHVNT/DUtprc2AbKlrSe/944ut+VipnhpibNE
+	29SbO2Xuxo/jL/txmYAIO16qHVwJFP+bvw3QcgHJXU/FohbxePmQm/Y+7++xwQnw/Hws2/
+	Hfq0VCWqKAR6lbMcAGPJux4b9Ev4LSi4bIfjXBPTW28XOqHQejdiPSeTSjqNqMnc5FIwO/
+	uUO5w4RFlrbUUu8nnclDM2MIzMtXJU72CkI7ELp9NW9W5sVsPcqWIk3/EMh6Aw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1741000276;
+	s=2020e; t=1741000277;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rgB3LhMqOZ+YBkO0ZZD/ZAGt3jgrVFlcoSgeSBFrG1A=;
-	b=1fOvo9r/qH+GjFBoFmV4Mq1GTv7uo31luHW62OlEVNNKdplS0DAqHgugpnuoBkmS+FSCDn
-	OTxv7inUt8L/yyCQ==
-Date: Mon, 03 Mar 2025 12:11:17 +0100
-Subject: [PATCH 15/19] x86/vdso: Prepare introduction of struct vdso_clock
+	bh=kZM1ca5Q9+J4hpNMdg9ysh15hAgKOmycAt5hVatLnOo=;
+	b=GwBc4N7JUlvmihVy8GcCVvbKSPyE3aY+zPykltsPgrrIWLNMhdZU0VqRTlm2Ku0wvazGx9
+	XnuHfIQjnht8pgCw==
+Date: Mon, 03 Mar 2025 12:11:19 +0100
+Subject: [PATCH 17/19] powerpc/vdso: Prepare introduction of struct
+ vdso_clock
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250303-vdso-clock-v1-15-c1b5c69a166f@linutronix.de>
+Message-Id: <20250303-vdso-clock-v1-17-c1b5c69a166f@linutronix.de>
 References: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
 In-Reply-To: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
@@ -71,15 +72,15 @@ Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
  linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
  linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1741000267; l=3053;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1741000267; l=1274;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=xyNISseLOTNZW4PPjUER0EQo8UUOOyYEKCLROc72ytc=;
- b=0qWgzjrxn8OGxXIBksBvp9I3CDmpmtrU83qA8jyzdK/S89J9zVZl5lnjSVCXoSYPOtqJjB5z6
- Eds45EkmeVCCIxtaR0ZY0XAX3AF9MFiqoAGHbKfXMXIBaSvGGgd69bM
+ bh=J/Meo4khXD/IuyjcSchvegknYNCvt5RiCWDXgeCNEuA=;
+ b=ipqT0aYN+nLJcWWGgAiulZ2z34jv+h8RZjUb8zE4PSrDBBV3fg7CNnQswUAW4p7fvphbY9V95
+ iF6oxWHwSrZAnFYXR+PzpHDR0Rb2CslyLmtoDfl4dn1AAze7BQJj/Ii
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-From: Anna-Maria Behnsen <anna-maria@linutronix.de>
+From: Nam Cao <namcao@linutronix.de>
 
 To support multiple PTP clocks, the VDSO data structure needs to be
 reworked. All clock specific data will end up in struct vdso_clock and in
@@ -91,68 +92,25 @@ vdso_time_data pointer with struct vdso_clock pointer whenever applicable.
 
 No functional change.
 
-Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
 Signed-off-by: Nam Cao <namcao@linutronix.de>
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/x86/include/asm/vdso/gettimeofday.h | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/powerpc/include/asm/vdso/gettimeofday.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/vdso/gettimeofday.h b/arch/x86/include/asm/vdso/gettimeofday.h
-index edec796832e08b73d6d58bda6408957048f4e80e..9e52cc46e1da99114312d85b34ae52e539dac9b6 100644
---- a/arch/x86/include/asm/vdso/gettimeofday.h
-+++ b/arch/x86/include/asm/vdso/gettimeofday.h
-@@ -261,7 +261,7 @@ static inline u64 __arch_get_hw_counter(s32 clock_mode,
- 	return U64_MAX;
+diff --git a/arch/powerpc/include/asm/vdso/gettimeofday.h b/arch/powerpc/include/asm/vdso/gettimeofday.h
+index dc955f2e0cc51f44d46f488a292aa0dbee3dc16c..99c9d6f43fde2efaf92d4777d3a5510677da7c92 100644
+--- a/arch/powerpc/include/asm/vdso/gettimeofday.h
++++ b/arch/powerpc/include/asm/vdso/gettimeofday.h
+@@ -99,7 +99,7 @@ static __always_inline u64 __arch_get_hw_counter(s32 clock_mode,
+ 	return get_tb();
  }
  
--static inline bool arch_vdso_clocksource_ok(const struct vdso_time_data *vd)
-+static inline bool arch_vdso_clocksource_ok(const struct vdso_clock *vc)
+-static inline bool vdso_clocksource_ok(const struct vdso_time_data *vd)
++static inline bool vdso_clocksource_ok(const struct vdso_clock *vc)
  {
  	return true;
  }
-@@ -300,34 +300,34 @@ static inline bool arch_vdso_cycles_ok(u64 cycles)
-  * declares everything with the MSB/Sign-bit set as invalid. Therefore the
-  * effective mask is S64_MAX.
-  */
--static __always_inline u64 vdso_calc_ns(const struct vdso_time_data *vd, u64 cycles, u64 base)
-+static __always_inline u64 vdso_calc_ns(const struct vdso_clock *vc, u64 cycles, u64 base)
- {
--	u64 delta = cycles - vd->cycle_last;
-+	u64 delta = cycles - vc->cycle_last;
- 
- 	/*
- 	 * Negative motion and deltas which can cause multiplication
- 	 * overflow require special treatment. This check covers both as
--	 * negative motion is guaranteed to be greater than @vd::max_cycles
-+	 * negative motion is guaranteed to be greater than @vc::max_cycles
- 	 * due to unsigned comparison.
- 	 *
- 	 * Due to the MSB/Sign-bit being used as invalid marker (see
- 	 * arch_vdso_cycles_ok() above), the effective mask is S64_MAX, but that
- 	 * case is also unlikely and will also take the unlikely path here.
- 	 */
--	if (unlikely(delta > vd->max_cycles)) {
-+	if (unlikely(delta > vc->max_cycles)) {
- 		/*
- 		 * Due to the above mentioned TSC wobbles, filter out
- 		 * negative motion.  Per the above masking, the effective
- 		 * sign bit is now bit 62.
- 		 */
- 		if (delta & (1ULL << 62))
--			return base >> vd->shift;
-+			return base >> vc->shift;
- 
- 		/* Handle multiplication overflow gracefully */
--		return mul_u64_u32_add_u64_shr(delta & S64_MAX, vd->mult, base, vd->shift);
-+		return mul_u64_u32_add_u64_shr(delta & S64_MAX, vc->mult, base, vc->shift);
- 	}
- 
--	return ((delta * vd->mult) + base) >> vd->shift;
-+	return ((delta * vc->mult) + base) >> vc->shift;
- }
- #define vdso_calc_ns vdso_calc_ns
- 
 
 -- 
 2.48.1
