@@ -1,22 +1,22 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCB41FBEAF;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ABEE1FC7E6;
 	Mon,  3 Mar 2025 11:11:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741000281; cv=none; b=athv0CKh7zM7vFISJQg4WlOv7FrUaI0AwztdvCYwSMSOlZQ7HzVM4Sqa4yfo7XwngoE+tlfYy+KxcGi6bUZrnxIe3oe0gNBoGvcW1q879oVKg5SBMXlhlx2OCYM1SbSWXbwY6maJWwRqIJRavzHiKZ7/vDO5ZPrfJPv9yg8GQ4E=
+	t=1741000282; cv=none; b=Zi+D3d0iZttAkMhQst4RROjAuRLie0ZnOXgv5EVRQROUOjJo0IWNvnkFEsWJHMsWXxH289nd5Qv7Cgljb4Yiz3I2lBKo8vdDZHJhasR++kgqJBn7ifLcxAKppUag9EChKNQzaUpLP472hbGoYYD0KPUR18xO25w8qHUYnKhOIBw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741000281; c=relaxed/simple;
-	bh=98E4VrqWtF5AW/xLBGM4T2qtKg+zPc3dVoKozXn+hFA=;
+	s=arc-20240116; t=1741000282; c=relaxed/simple;
+	bh=4W0/ux5EhNgOnsFPnNp1J2/rUjYoy2NJ0USEfInHEWs=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TIzTo9XaJwaMXRDzZQRL78CEfCNqff3GbkRC9kVMhP+8V+9E1OfEJ/PeI/Gw9kIjz0pBdwmEJFRdU59JoThUL5ClfHJB04W4Wo6Eycj/hLM7mmSN1iJ3W/Omkir9y8/3HOabtAaLyFmi4IF/7ouBVjOwBXf9tiLgVesJGU+hqSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=J2PnJ8Er; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GwBc4N7J; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=XLwr27VZxeI46HcHHaMXNTFZ3bL4cQKaqZ6ZfZbENKXOSBtNFoCHOBHe0+V9baptg7VU59yRnpfxXKilx/4ZReYXfa/g81MEWbezAWyXGan2Uz2PNHUhunOIlaCm9DYBrLFfmVfjNHjFEB/L5biCvAEVx8LHgix2MPPChmAgSS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Y5uWwxgC; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=txGhQuO8; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="J2PnJ8Er";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="GwBc4N7J"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Y5uWwxgC";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="txGhQuO8"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
 	s=2020; t=1741000277;
@@ -24,23 +24,23 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kZM1ca5Q9+J4hpNMdg9ysh15hAgKOmycAt5hVatLnOo=;
-	b=J2PnJ8ErcXhVIuRvqvkHXj7+dnNdS1EYL5YDEQZoOxgEkdIVKIFeg07b0VEIi3KThnzbt0
-	ah3FK8WH0SUuZVYvxjp9pmpwO9vjxDPFsKHVNT/DUtprc2AbKlrSe/944ut+VipnhpibNE
-	29SbO2Xuxo/jL/txmYAIO16qHVwJFP+bvw3QcgHJXU/FohbxePmQm/Y+7++xwQnw/Hws2/
-	Hfq0VCWqKAR6lbMcAGPJux4b9Ev4LSi4bIfjXBPTW28XOqHQejdiPSeTSjqNqMnc5FIwO/
-	uUO5w4RFlrbUUu8nnclDM2MIzMtXJU72CkI7ELp9NW9W5sVsPcqWIk3/EMh6Aw==
+	bh=UUFxaeOa8MxkhoOaa265B/ccj1bobA8YN971cVAYoCE=;
+	b=Y5uWwxgCwKEcrzJAENfdOv9giYLmvYx0m8BkwnRw3rjkGWNDqwO1mi2jZBcU076us9cfpe
+	NlIJ+nVEMz8yi0rHBd2d+N1S4xFgN9job+iswQJ+t+uhFMk8qoKYgI0iSixGv80eQRpXZJ
+	T36BOlunSnevhikVuciu604kS6m0N/R5WbRALLYbB5QZOKmvkFiWAkJh7ziL6RjXpn1LI0
+	NPQ9hz2VV6MqBqjoTxM8BFjYhcUmtPMQBsqvXjWlP8lFjQvInRUewL3iTuYV8Nn0z8aVSp
+	FH8tcof86vHWIUGIYK9ADtOe7Q/94P1alvifw6OqsiOaWgUFrp7XuzLhxC0M7g==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
 	s=2020e; t=1741000277;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kZM1ca5Q9+J4hpNMdg9ysh15hAgKOmycAt5hVatLnOo=;
-	b=GwBc4N7JUlvmihVy8GcCVvbKSPyE3aY+zPykltsPgrrIWLNMhdZU0VqRTlm2Ku0wvazGx9
-	XnuHfIQjnht8pgCw==
-Date: Mon, 03 Mar 2025 12:11:19 +0100
-Subject: [PATCH 17/19] powerpc/vdso: Prepare introduction of struct
+	bh=UUFxaeOa8MxkhoOaa265B/ccj1bobA8YN971cVAYoCE=;
+	b=txGhQuO8g6BysurNHcVyDXbTp4j02hmRD4DuL7Zh74mFtq1/JxyrjKsLn/OMUI10Pa7IKC
+	QoVL79GgITZAauCg==
+Date: Mon, 03 Mar 2025 12:11:18 +0100
+Subject: [PATCH 16/19] arm64/vdso: Prepare introduction of struct
  vdso_clock
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -50,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250303-vdso-clock-v1-17-c1b5c69a166f@linutronix.de>
+Message-Id: <20250303-vdso-clock-v1-16-c1b5c69a166f@linutronix.de>
 References: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
 In-Reply-To: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
@@ -72,11 +72,11 @@ Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
  linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
  linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1741000267; l=1274;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1741000267; l=1512;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=J/Meo4khXD/IuyjcSchvegknYNCvt5RiCWDXgeCNEuA=;
- b=ipqT0aYN+nLJcWWGgAiulZ2z34jv+h8RZjUb8zE4PSrDBBV3fg7CNnQswUAW4p7fvphbY9V95
- iF6oxWHwSrZAnFYXR+PzpHDR0Rb2CslyLmtoDfl4dn1AAze7BQJj/Ii
+ bh=L7kK/MCZMD7r1X/TTNdxBJdzqOQW5bJywl2DJquziWk=;
+ b=fJgzjZCc5WkxvrFlLjxD+BfXszci8Y3cDqbkKCkbvF2kHXyYJjhzAfWZAte2yMP84uv4/uX+e
+ gS1QU3HJXulDpcBrLb18rkXvBchGsQOAZLb+5338gjRvJQush6GNM2G
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
@@ -95,22 +95,25 @@ No functional change.
 Signed-off-by: Nam Cao <namcao@linutronix.de>
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/powerpc/include/asm/vdso/gettimeofday.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/vdso/compat_gettimeofday.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/vdso/gettimeofday.h b/arch/powerpc/include/asm/vdso/gettimeofday.h
-index dc955f2e0cc51f44d46f488a292aa0dbee3dc16c..99c9d6f43fde2efaf92d4777d3a5510677da7c92 100644
---- a/arch/powerpc/include/asm/vdso/gettimeofday.h
-+++ b/arch/powerpc/include/asm/vdso/gettimeofday.h
-@@ -99,7 +99,7 @@ static __always_inline u64 __arch_get_hw_counter(s32 clock_mode,
- 	return get_tb();
+diff --git a/arch/arm64/include/asm/vdso/compat_gettimeofday.h b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
+index 957ee12fcc54bd7f978fbcd8945bce62327b037a..2c6b90d26bc8fd6d4be87bf6a4178472581f56d3 100644
+--- a/arch/arm64/include/asm/vdso/compat_gettimeofday.h
++++ b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
+@@ -155,9 +155,9 @@ static __always_inline const struct vdso_time_data *__arch_get_vdso_u_time_data(
  }
+ #define __arch_get_vdso_u_time_data __arch_get_vdso_u_time_data
  
 -static inline bool vdso_clocksource_ok(const struct vdso_time_data *vd)
 +static inline bool vdso_clocksource_ok(const struct vdso_clock *vc)
  {
- 	return true;
+-	return vd->clock_mode == VDSO_CLOCKMODE_ARCHTIMER;
++	return vc->clock_mode == VDSO_CLOCKMODE_ARCHTIMER;
  }
+ #define vdso_clocksource_ok	vdso_clocksource_ok
+ 
 
 -- 
 2.48.1
