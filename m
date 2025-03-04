@@ -1,193 +1,190 @@
-Received: from out203-205-221-236.mail.qq.com (out203-205-221-236.mail.qq.com [203.205.221.236])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFEA313C67C;
-	Tue,  4 Mar 2025 07:43:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.236
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A142B1F666B;
+	Tue,  4 Mar 2025 09:21:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741074207; cv=none; b=EDjdItl7EoGzkuSnNhtU12EwKXDX3wL2LnOfuW7mrAMu0+IxjceoSyAiB5dZZtiWjonFOSXWKzScTTL31EAdYzP1j72PNBB5k+AxzLcI2HJOwa56BE9J1NJHDlQw2s8gx0cbGMhekKyfVtx7blUZnKzMXOXwasmcxdl4K4Rn6fE=
+	t=1741080117; cv=none; b=Qu0u80m1VW7GvOM1HgLSeaPHrFy/RevYD8g0ivVy5kw1DIntWwXUDTFG4i7QDI/n6hGRBhf/WhXARrQ932xQ7qnZPExlFoA/O4x+w8ajVrp8bjeEvGvipdKATtFkzgUkc+0NIXLF36aB4tMfHg0kHEJsl5YC9IzyOboM6K+o7Wo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741074207; c=relaxed/simple;
-	bh=q7Y7inN7p9nxDEZdZPPFpPXz6k6mgqWC56UrWP0aGlY=;
-	h=From:To:Subject:Mime-Version:Content-Type:Date:Message-ID; b=KoNQo9vvM/JBbDsv/MgyzheFthWYGyfJ7g/oNdkXRNfCBwhKS+NPM6ILsZFwCexkY54NyHVGfBqHoL4NUUUCmAPIqQ4DfysxqNUvnC2aEEr5QTltlc6oHJAlNLwYQRGGsiJDQES7RiXTwah0cMZafrtgdaDo9h1SiWCzWB+TFZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=yDfPkdvV; arc=none smtp.client-ip=203.205.221.236
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1741080117; c=relaxed/simple;
+	bh=/1wKwYgH19DpR7ZDJ3t00Y7uW5W0ujgdjwaOYeJddnU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=S0bhdlgQuJOURkTy2/XQeXOspSztCRVoVSVUu5p/bEhvEuxYPXSbOFbJ54kf37e4nrU+7X0iXcXe8kvWhU9Np4kkmE2I6cZjBqpPZtCu7in7jfHh7GO4UqOEcu+FgMocHqa2c0fWzaVtaiJ8ngEZR0KQiIGB+GCC8rq6QAqsnY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X0lw7Z0V; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="yDfPkdvV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1741073894; bh=q7Y7inN7p9nxDEZdZPPFpPXz6k6mgqWC56UrWP0aGlY=;
-	h=From:To:Subject:Date;
-	b=yDfPkdvVI+WEfZxNHDjR48RsFOvOG6WgngrwHSHFKzk3zr3eq4UY8wGFRgkwIDTBy
-	 yMD0FpcOfkqxlbnztZoF1uokYWE0AEEHRQamP87/8Lijt0cpRqeg9aL2+k63P65Y4E
-	 Bi+j3/msPmh+bvxSmFsqtcKf4acBo1oynUP3fyrk=
-X-QQ-FEAT: oHWrrGTW1dCni6VLWI7Xi3lwP5c1dnPf
-X-QQ-SSF: 00000000000000F0000000000000
-X-QQ-XMRINFO: OW8WShJdN8S2cMc/fs8JwkE=
-X-QQ-XMAILINFO: OTqiK0gT4U+cmgh7WDY0Za7rqIaxfpxORX2UGv52n3gU2ar7Qpb9eMtbJCC1dR
-	 XaNmrQ51Qt/0d6QUR9CUZJ1XEueAXQ5JM4n6HQI1J878NGCcrGjDu9P8MraKwA9xN7ic4g4k+PBZB
-	 9mIW5oqoCWTINJI9XTTCfs1UJCp1Eov+1/2ySfWLz7SFNjJHMvHbzsFFlZibdJE0qtRDK+GfMa3C+
-	 qljfYARMmJC/3fMB+9t6YJCuj6YManWuhJFweN2Uz69afd3ypwmqUUFIL4DvNr8wunxm9RwcD1kSj
-	 kkr4686RJD2373KpFz1KuqbNdadvceR7NraymAqYBC6aGf5ejtgoSpJySbmbcZ1fwRFe17Y8kxhZt
-	 vhhUkIzosY0DzSdt7Bh+LkASsxRwv07xqODFBTVena2JUVdLsKgorbxWTLAA3k116tf8ExHSD6uWw
-	 3lvnDakXzfRpwhW5LrPQO+Ik8qLNpqJlnFL/XwevEYmDcuVqWeIEhuQrgc/w76Rl3iEZTxsLDvKLM
-	 cs/6LwEbKhSwBXFE72BBFxA+HrF6kgFIsvB8udPznoq/v2/GFYTRmQf4dMs7OemWahSK1rh+YePB2
-	 EBeS2WAoistjvGys92DVeAzh5lZyrSsTrCjNq3y9O5Fv/V5aIXUyuJajPUfKMf0MxxOmXsr9HlyVD
-	 Hh4O1rh5NvquLdAFy03omowTjNC1LGD91/UZzaCQUr+i8PIfnr/luFmJVMOnbhxUEvQRtBqdwrmM0
-	 e0aC7glvvyxjgofdduCZ3/F1t62VXZmjUnqHt/dzxTAm34B2jDDoeuCamjwqlQ3HaL4nlfeU1ty7X
-	 q0SlWIMiiCD9uVBKaBv/v2FcwzNxyHbczziwWFrigKLnSY/isG7RHCFzqpxS7w+FwFZyQvRxGRMjn
-	 8NCsDNIKPROftWtqKIT/5q5hHGXOuzSP/sCwS79NBtwvI8FRmNl/odDu3VZbo/T3lGQDH+VkAfvzd
-	 +FGGO+4wPis9ZdrOTB
-X-HAS-ATTACH: no
-X-QQ-BUSINESS-ORIGIN: 2
-X-QQ-STYLE: 
-X-QQ-mid: webmail284t1741073498t405932
-From: "=?ISO-8859-1?B?ZmZoZ2Z2?=" <744439878@qq.com>
-To: "=?ISO-8859-1?B?d2Vuamlh?=" <wenjia@linux.ibm.com>, "=?ISO-8859-1?B?amFrYQ==?=" <jaka@linux.ibm.com>, "=?ISO-8859-1?B?YWxpYnVkYQ==?=" <alibuda@linux.alibaba.com>, "=?ISO-8859-1?B?dG9ueWx1?=" <tonylu@linux.alibaba.com>, "=?ISO-8859-1?B?Z3V3ZW4=?=" <guwen@linux.alibaba.com>, "=?ISO-8859-1?B?ZGF2ZW0=?=" <davem@davemloft.net>, "=?ISO-8859-1?B?ZWR1bWF6ZXQ=?=" <edumazet@google.com>, "=?ISO-8859-1?B?a3ViYQ==?=" <kuba@kernel.org>, "=?ISO-8859-1?B?cGFiZW5p?=" <pabeni@redhat.com>, "=?ISO-8859-1?B?aG9ybXM=?=" <horms@kernel.org>, "=?ISO-8859-1?B?bGludXgtcmRtYQ==?=" <linux-rdma@vger.kernel.org>, "=?ISO-8859-1?B?bGludXgtczM5MA==?=" <linux-s390@vger.kernel.org>, "=?ISO-8859-1?B?bmV0ZGV2?=" <netdev@vger.kernel.org>, "=?ISO-8859-1?B?bGludXgta2VybmVs?=" <linux-kernel@vger.kernel.org>
-Subject: kernel bug found and suggestions for fixing it
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X0lw7Z0V"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 523Ka1Oq022695;
+	Tue, 4 Mar 2025 09:21:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=1Yq58o
+	psB7IHhCTkH6W3tTgFClxwqWnFAP5FP/WEa0c=; b=X0lw7Z0VjVTksB3zFoSAto
+	4S+VlWluS/uLTlHPf9xVpjfF5e7R3WMnbovHYXFMGave8kUPJ8hM2i45w7pEbpQT
+	xft9NRj0pwrX4h8AHSKqLQEDwiEq5IlGz2/LSLlBEJoaBspX3mf3kPnomiX0QPnI
+	5bQTSBcttLHzGEYFIDi7QUeRlANfIAMHvjHiXhuJKP0flxpEHC6FkGshSN5aw/zi
+	yO1S3ZzwQPfPp8xsliDjXLXrn73upIf7m2lrB9P6tdxwEIw2/Sqr9cwy46JbWKKy
+	RRr3JMfKxLuW5oUMWPa9jcoJKPL5Epuvh2pBmtBJw1PJ1fB005PgSSUCUZc+MqCA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 455dunwqfh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Mar 2025 09:21:41 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5245mPVu025026;
+	Tue, 4 Mar 2025 09:21:40 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 454f91v6t0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Mar 2025 09:21:40 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5249LbXD54460758
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Mar 2025 09:21:37 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E7B3D20040;
+	Tue,  4 Mar 2025 09:21:36 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 360C020049;
+	Tue,  4 Mar 2025 09:21:36 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.179.5.148])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue,  4 Mar 2025 09:21:36 +0000 (GMT)
+Date: Tue, 4 Mar 2025 10:21:34 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
+        nsg@linux.ibm.com, schlameuss@linux.ibm.com, hca@linux.ibm.com
+Subject: Re: [PATCH v3 1/1] KVM: s390: pv: fix race when making a page
+ secure
+Message-ID: <20250304102134.1bd9fb03@p-imbrenda>
+In-Reply-To: <370231a1-af36-46ca-a87c-ce1929473c1d@redhat.com>
+References: <20250227130954.440821-1-imbrenda@linux.ibm.com>
+	<20250227130954.440821-2-imbrenda@linux.ibm.com>
+	<370231a1-af36-46ca-a87c-ce1929473c1d@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: base64
-Date: Tue, 4 Mar 2025 02:31:37 -0500
-X-Priority: 3
-Message-ID: <tencent_CE572E29B79ABD1AB33F1980363ADE182606@qq.com>
-X-QQ-MIME: TCMime 1.0 by Tencent
-X-Mailer: QQMail 2.x
-X-QQ-Mailer: QQMail 2.x
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XalftXI9k2WUBCiF3t9fhOPR3smvupSv
+X-Proofpoint-GUID: XalftXI9k2WUBCiF3t9fhOPR3smvupSv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-04_04,2025-03-03_04,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 priorityscore=1501 malwarescore=0 bulkscore=0 spamscore=0
+ suspectscore=0 mlxlogscore=915 phishscore=0 clxscore=1015 mlxscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2503040075
 
-SGVsbG8sIEkgZm91bmQgYSBidWcgdGl0bGVkICJLQVNBTjogbnVsbC1wdHItZGVyZWYgUmVh
-ZCBpbiBzbWNfdGNwX3N5bl9yZWN2X3NvY2siIHdpdGggbW9kaWZpZWQgc3l6a2FsbGVyIGlu
-IHRoZSBsYXN0ZWQgdXBzdHJlYW0gcmVsYXRlZCB0byBiY2FjaGVmcyBmaWxlIHN5c3RlbS4K
-SWYgeW91IGZpeCB0aGlzIGlzc3VlLCBwbGVhc2UgYWRkIHRoZSBmb2xsb3dpbmcgdGFnIHRv
-IHRoZSBjb21taXQ6ICBSZXBvcnRlZC1ieTogSmlhbnpob3UgWmhhbyA8eG54YzIyeG54YzIy
-QHFxLmNvbT4sICAgIHhpbmd3ZWkgbGVlIDx4cml2ZW5kZWxsN0BnbWFpbC5jb20+LCBaaGl6
-aHVvIFRhbmcgPHN0cmZvcmV4Y3R6emNoYW5nZUBmb3htYWlsLmNvbT4KCi0tLS0tLS0tLS0t
-LVsgY3V0IGhlcmUgXS0tLS0tLS0tLS0tLQpUSVRMRTogS0FTQU46IG51bGwtcHRyLWRlcmVm
-IFJlYWQgaW4gc21jX3RjcF9zeW5fcmVjdl9zb2NrCj09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpCVUc6IEtBU0FO
-OiBudWxsLXB0ci1kZXJlZiBpbiBpbnN0cnVtZW50X2F0b21pY19yZWFkIGluY2x1ZGUvbGlu
-dXgvaW5zdHJ1bWVudGVkLmg6NjggW2lubGluZV0KQlVHOiBLQVNBTjogbnVsbC1wdHItZGVy
-ZWYgaW4gYXRvbWljX3JlYWQgaW5jbHVkZS9saW51eC9hdG9taWMvYXRvbWljLWluc3RydW1l
-bnRlZC5oOjMyIFtpbmxpbmVdCkJVRzogS0FTQU46IG51bGwtcHRyLWRlcmVmIGluIHNtY190
-Y3Bfc3luX3JlY3Zfc29jaysweGE3LzB4NGMwIG5ldC9zbWMvYWZfc21jLmM6MTMxClJlYWQg
-b2Ygc2l6ZSA0IGF0IGFkZHIgMDAwMDAwMDAwMDAwMGEwNCBieSB0YXNrIHN5ei43LjIxLzEy
-MzE5CgpDUFU6IDEgVUlEOiAwIFBJRDogMTIzMTkgQ29tbTogc3l6LjcuMjEgTm90IHRhaW50
-ZWQgNi4xNC4wLXJjNS1kaXJ0eSAjMgpIYXJkd2FyZSBuYW1lOiBRRU1VIFN0YW5kYXJkIFBD
-IChpNDQwRlggKyBQSUlYLCAxOTk2KSwgQklPUyAxLjE1LjAtMSAwNC8wMS8yMDE0CkNhbGwg
-VHJhY2U6CiA8aXJxPgogX19kdW1wX3N0YWNrIGxpYi9kdW1wX3N0YWNrLmM6OTQgW2lubGlu
-ZV0KIGR1bXBfc3RhY2tfbHZsKzB4MTE2LzB4MWIwIGxpYi9kdW1wX3N0YWNrLmM6MTIwCiBr
-YXNhbl9yZXBvcnQrMHhiZC8weGYwIG1tL2thc2FuL3JlcG9ydC5jOjYzNAogY2hlY2tfcmVn
-aW9uX2lubGluZSBtbS9rYXNhbi9nZW5lcmljLmM6MTgzIFtpbmxpbmVdCiBrYXNhbl9jaGVj
-a19yYW5nZSsweGY0LzB4MWEwIG1tL2thc2FuL2dlbmVyaWMuYzoxODkKIGluc3RydW1lbnRf
-YXRvbWljX3JlYWQgaW5jbHVkZS9saW51eC9pbnN0cnVtZW50ZWQuaDo2OCBbaW5saW5lXQog
-YXRvbWljX3JlYWQgaW5jbHVkZS9saW51eC9hdG9taWMvYXRvbWljLWluc3RydW1lbnRlZC5o
-OjMyIFtpbmxpbmVdCiBzbWNfdGNwX3N5bl9yZWN2X3NvY2srMHhhNy8weDRjMCBuZXQvc21j
-L2FmX3NtYy5jOjEzMQogdGNwX2NoZWNrX3JlcSsweDVlNC8weDFhOTAgbmV0L2lwdjQvdGNw
-X21pbmlzb2Nrcy5jOjg2MQogdGNwX3Y0X3JjdisweDE3NTMvMHg0NGUwIG5ldC9pcHY0L3Rj
-cF9pcHY0LmM6MjI3NAogaXBfcHJvdG9jb2xfZGVsaXZlcl9yY3UrMHhiYS8weDRjMCBuZXQv
-aXB2NC9pcF9pbnB1dC5jOjIwNQogaXBfbG9jYWxfZGVsaXZlcl9maW5pc2grMHgzMjAvMHg1
-NzAgbmV0L2lwdjQvaXBfaW5wdXQuYzoyMzMKIE5GX0hPT0sgaW5jbHVkZS9saW51eC9uZXRm
-aWx0ZXIuaDozMTQgW2lubGluZV0KIE5GX0hPT0sgaW5jbHVkZS9saW51eC9uZXRmaWx0ZXIu
-aDozMDggW2lubGluZV0KIGlwX2xvY2FsX2RlbGl2ZXIrMHgxOWEvMHgyMDAgbmV0L2lwdjQv
-aXBfaW5wdXQuYzoyNTQKIGRzdF9pbnB1dCBpbmNsdWRlL25ldC9kc3QuaDo0NjkgW2lubGlu
-ZV0KIGlwX3Jjdl9maW5pc2ggbmV0L2lwdjQvaXBfaW5wdXQuYzo0NDcgW2lubGluZV0KIE5G
-X0hPT0sgaW5jbHVkZS9saW51eC9uZXRmaWx0ZXIuaDozMTQgW2lubGluZV0KIE5GX0hPT0sg
-aW5jbHVkZS9saW51eC9uZXRmaWx0ZXIuaDozMDggW2lubGluZV0KIGlwX3JjdisweDJiZS8w
-eDVkMCBuZXQvaXB2NC9pcF9pbnB1dC5jOjU2NwogX19uZXRpZl9yZWNlaXZlX3NrYl9vbmVf
-Y29yZSsweDE5Yi8weDFmMCBuZXQvY29yZS9kZXYuYzo1ODkzCiBfX25ldGlmX3JlY2VpdmVf
-c2tiKzB4MWQvMHgxNzAgbmV0L2NvcmUvZGV2LmM6NjAwNgogcHJvY2Vzc19iYWNrbG9nKzB4
-MzE5LzB4MTQ2MCBuZXQvY29yZS9kZXYuYzo2MzU0CiBfX25hcGlfcG9sbC5jb25zdHByb3Au
-MCsweGI2LzB4NTQwIG5ldC9jb3JlL2Rldi5jOjcxODgKIG5hcGlfcG9sbCBuZXQvY29yZS9k
-ZXYuYzo3MjU3IFtpbmxpbmVdCiBuZXRfcnhfYWN0aW9uKzB4OWQyLzB4ZTMwIG5ldC9jb3Jl
-L2Rldi5jOjczNzkKIGhhbmRsZV9zb2Z0aXJxcysweDFkMS8weDg3MCBrZXJuZWwvc29mdGly
-cS5jOjU2MQogZG9fc29mdGlycSBrZXJuZWwvc29mdGlycS5jOjQ2MiBbaW5saW5lXQogZG9f
-c29mdGlycSsweGFjLzB4ZTAga2VybmVsL3NvZnRpcnEuYzo0NDkKIDwvaXJxPgogPHRhc2s+
-CiBfX2xvY2FsX2JoX2VuYWJsZV9pcCsweDEwMC8weDEyMCBrZXJuZWwvc29mdGlycS5jOjM4
-OQogbG9jYWxfYmhfZW5hYmxlIGluY2x1ZGUvbGludXgvYm90dG9tX2hhbGYuaDozMyBbaW5s
-aW5lXQogcmN1X3JlYWRfdW5sb2NrX2JoIGluY2x1ZGUvbGludXgvcmN1cGRhdGUuaDo5MTkg
-W2lubGluZV0KIF9fZGV2X3F1ZXVlX3htaXQrMHgxYjdhLzB4NDEyMCBuZXQvY29yZS9kZXYu
-Yzo0Njc2CiBkZXZfcXVldWVfeG1pdCBpbmNsdWRlL2xpbnV4L25ldGRldmljZS5oOjMzMTMg
-W2lubGluZV0KIG5laWdoX2hoX291dHB1dCBpbmNsdWRlL25ldC9uZWlnaGJvdXIuaDo1MjMg
-W2lubGluZV0KIG5laWdoX291dHB1dCBpbmNsdWRlL25ldC9uZWlnaGJvdXIuaDo1MzcgW2lu
-bGluZV0KIGlwX2ZpbmlzaF9vdXRwdXQyKzB4YzFjLzB4MWYxMCBuZXQvaXB2NC9pcF9vdXRw
-dXQuYzoyMzYKIF9faXBfZmluaXNoX291dHB1dCBuZXQvaXB2NC9pcF9vdXRwdXQuYzozMTQg
-W2lubGluZV0KIF9faXBfZmluaXNoX291dHB1dCsweDQ0Mi8weDk0MCBuZXQvaXB2NC9pcF9v
-dXRwdXQuYzoyOTYKIGlwX2ZpbmlzaF9vdXRwdXQrMHgzNS8weDM4MCBuZXQvaXB2NC9pcF9v
-dXRwdXQuYzozMjQKIE5GX0hPT0tfQ09ORCBpbmNsdWRlL2xpbnV4L25ldGZpbHRlci5oOjMw
-MyBbaW5saW5lXQogaXBfb3V0cHV0KzB4MTQ2LzB4MmIwIG5ldC9pcHY0L2lwX291dHB1dC5j
-OjQzNAogZHN0X291dHB1dCBpbmNsdWRlL25ldC9kc3QuaDo0NTkgW2lubGluZV0KIGlwX2xv
-Y2FsX291dCBuZXQvaXB2NC9pcF9vdXRwdXQuYzoxMzAgW2lubGluZV0KIF9faXBfcXVldWVf
-eG1pdCsweDE5ZWUvMHgyMWYwIG5ldC9pcHY0L2lwX291dHB1dC5jOjUyOAogX190Y3BfdHJh
-bnNtaXRfc2tiKzB4MmE1NS8weDNlNzAgbmV0L2lwdjQvdGNwX291dHB1dC5jOjE0NzEKIF9f
-dGNwX3NlbmRfYWNrLnBhcnQuMCsweDM5Yy8weDcyMCBuZXQvaXB2NC90Y3Bfb3V0cHV0LmM6
-NDI3NQogX190Y3Bfc2VuZF9hY2sgbmV0L2lwdjQvdGNwX291dHB1dC5jOjQyODEgW2lubGlu
-ZV0KIHRjcF9zZW5kX2FjaysweDgxLzB4YTAgbmV0L2lwdjQvdGNwX291dHB1dC5jOjQyODEK
-IHRjcF9yY3Zfc3luc2VudF9zdGF0ZV9wcm9jZXNzIG5ldC9pcHY0L3RjcF9pbnB1dC5jOjY2
-MDAgW2lubGluZV0KIHRjcF9yY3Zfc3RhdGVfcHJvY2VzcysweDQwZTIvMHg0YzgwIG5ldC9p
-cHY0L3RjcF9pbnB1dC5jOjY3OTQKIHRjcF92NF9kb19yY3YrMHgxYTgvMHhhNzAgbmV0L2lw
-djQvdGNwX2lwdjQuYzoxOTQxCiBza19iYWNrbG9nX3JjdiBpbmNsdWRlL25ldC9zb2NrLmg6
-MTEyMiBbaW5saW5lXQogX19yZWxlYXNlX3NvY2srMHgzMWQvMHg0MDAgbmV0L2NvcmUvc29j
-ay5jOjMxMjMKIHJlbGVhc2Vfc29jaysweDVhLzB4MjIwIG5ldC9jb3JlL3NvY2suYzozNjc3
-CiB0Y3Bfc2VuZG1zZysweDNhLzB4NTAgbmV0L2lwdjQvdGNwLmM6MTM1OQogaW5ldF9zZW5k
-bXNnKzB4YjkvMHgxNTAgbmV0L2lwdjQvYWZfaW5ldC5jOjg1MQogc21jX3NlbmRtc2crMHgy
-MmEvMHg1MzAgbmV0L3NtYy9hZl9zbWMuYzoyNzk2CiBzb2NrX3NlbmRtc2dfbm9zZWMgbmV0
-L3NvY2tldC5jOjcxOCBbaW5saW5lXQogX19zb2NrX3NlbmRtc2cgbmV0L3NvY2tldC5jOjcz
-MyBbaW5saW5lXQogX19fX3N5c19zZW5kbXNnKzB4YWI4LzB4YzcwIG5ldC9zb2NrZXQuYzoy
-NTczCiBfX19zeXNfc2VuZG1zZysweDExZC8weDFjMCBuZXQvc29ja2V0LmM6MjYyNwogX19z
-eXNfc2VuZG1zZysweDE1MS8weDIwMCBuZXQvc29ja2V0LmM6MjY1OQogZG9fc3lzY2FsbF94
-NjQgYXJjaC94ODYvZW50cnkvY29tbW9uLmM6NTIgW2lubGluZV0KIGRvX3N5c2NhbGxfNjQr
-MHhjYi8weDI1MCBhcmNoL3g4Ni9lbnRyeS9jb21tb24uYzo4MwogZW50cnlfU1lTQ0FMTF82
-NF9hZnRlcl9od2ZyYW1lKzB4NzcvMHg3ZgpSSVA6IDAwMzM6MHg3ZjM2ZWY5YTk2MmQKQ29k
-ZTogMDIgYjggZmYgZmYgZmYgZmYgYzMgNjYgMGYgMWYgNDQgMDAgMDAgZjMgMGYgMWUgZmEg
-NDggODkgZjggNDggODkgZjcgNDggODkgZDYgNDggODkgY2EgNGQgODkgYzIgNGQgODkgYzgg
-NGMgOGIgNGMgMjQgMDggMGYgMDUgJmx0OzQ4Jmd0OyAzZCAwMSBmMCBmZiBmZiA3MyAwMSBj
-MyA0OCBjNyBjMSBhOCBmZiBmZiBmZiBmNyBkOCA2NCA4OSAwMSA0OApSU1A6IDAwMmI6MDAw
-MDdmMzZmMDhjNWY5OCBFRkxBR1M6IDAwMDAwMjQ2IE9SSUdfUkFYOiAwMDAwMDAwMDAwMDAw
-MDJlClJBWDogZmZmZmZmZmZmZmZmZmZkYSBSQlg6IDAwMDA3ZjM2ZWZiYzVmODAgUkNYOiAw
-MDAwN2YzNmVmOWE5NjJkClJEWDogMDAwMDAwMDAyNDA0MDA0OSBSU0k6IDAwMDAwMDAwMjAw
-MDAyMDAgUkRJOiAwMDAwMDAwMDAwMDAwMDA0ClJCUDogMDAwMDdmMzZlZmE0ZTM3MyBSMDg6
-IDAwMDAwMDAwMDAwMDAwMDAgUjA5OiAwMDAwMDAwMDAwMDAwMDAwClIxMDogMDAwMDAwMDAw
-MDAwMDAwMCBSMTE6IDAwMDAwMDAwMDAwMDAyNDYgUjEyOiAwMDAwMDAwMDAwMDAwMDAwClIx
-MzogMDAwMDAwMDAwMDAwMDAwMCBSMTQ6IDAwMDA3ZjM2ZWZiYzVmODAgUjE1OiAwMDAwN2Yz
-NmYwOGE2MDAwCiA8L3Rhc2s+Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpJIHVzZSB0aGUgc2FtZSBrZXJuZWwg
-YXMgc3l6Ym90IGluc3RhbmNlIHVwc3RyZWFtOiA3ZWIxNzIxNDNkNTUwOGI0ZGE0NjhlZDU5
-ZWU4NTdjNmU1ZTAxZGE2Cmtlcm5lbCBjb25maWc6IGh0dHBzOi8vc3l6a2FsbGVyLmFwcHNw
-b3QuY29tL3RleHQ/dGFnPUtlcm5lbENvbmZpZyZhbXA7eD1kYTRiMDRhZTc5OGI3ZWY2CmNv
-bXBpbGVyOiBnY2MgdmVyc2lvbiAxMS40LjAKPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpV
-bmZvcnR1bmF0ZWx5LCB0aGUgbW9kaWZpZWQgc3l6a2FsbGVyIGRvZXMgbm90IGdlbmVyYXRl
-IGFuIGVmZmVjdGl2ZSByZXBlYXQgcHJvZ3JhbS4KVGhlIGZvbGxvd2luZyBpcyBteSBhbmFs
-eXNpcyBvZiB0aGUgYnVnIGFuZCByZXBhaXIgc3VnZ2VzdGlvbnMsIGhvcGluZyB0byBoZWxw
-IHdpdGggdGhlIHJlcGFpciBvZiB0aGUgYnVnOgojIyBSb290IGNhdXNlIGFuYWx5c2lzCjEu
-ICoqIG51bGwgcG9pbnRlciBhY2Nlc3MgKiogOiAnc21jX3RjcF9zeW5fcmVjdl9zb2NrJyBm
-dW5jdGlvbiBkb2VzIG5vdCBjaGVjayB3aGV0aGVyIHRoZSAnc2snIHBvaW50ZXIgaXMgdmFs
-aWQsIGRpcmVjdCBhY2Nlc3MgdG8gaXRzIG1lbWJlciAnc2tfd21lbV9hbGxvYycuCjIuICoq
-IE1pc3NpbmcgaW5pdGlhbGl6YXRpb24gKiogOiBUaGUgJ3NrJyBwb2ludGVyIG1heSBub3Qg
-YmUgaW5pdGlhbGl6ZWQgY29ycmVjdGx5IG9yIHJldHVybmVkIGluIGFkdmFuY2UgaW4gdGhl
-IHdyb25nIHBhdGggKHN1Y2ggYXMgbWVtb3J5IGFsbG9jYXRpb24gZmFpbHVyZSBvciBTTUMg
-bmVnb3RpYXRpb24gZmFpbHVyZSksIHJlc3VsdGluZyBpbiBhIG51bGwgcG9pbnRlciBmb3Ig
-c3Vic2VxdWVudCBvcGVyYXRpb25zLgoKIyMjIFJlcGFpciBzdWdnZXN0aW9ucwoxLiAqKiBu
-dWxsIHBvaW50ZXIgY2hlY2sgKiogOiBhZGQgJ2lmICghKSBiZWZvcmUgYWNjZXNzaW5nJyBz
-ayAnbWVtYmVyIHNrKSByZXR1cm4gTlVMTDsgJy4KMi4gKiogRXJyb3IgcGF0aCBoYW5kbGlu
-ZyAqKiA6IEVuc3VyZSB0aGF0IHJlc291cmNlcyBhcmUgY2xlYW5lZCB1cCBpbiB0aW1lIHdo
-ZW4gJ2luZXRfY3NrX2Nsb25lJyBmYWlscyB0byBhdm9pZCBwYXNzaW5nIGludmFsaWQgUG9p
-bnRlcnMuClBhdGNoIGV4YW1wbGU6CmRpZmYgLS1naXQgYS9uZXQvc21jL2FmX3NtYy5jIGIv
-bmV0L3NtYy9hZl9zbWMuYwotLS0gYS9uZXQvc21jL2FmX3NtYy5jCisrKyBiL25ldC9zbWMv
-YWZfc21jLmMKQEAgLTEyOCw2ICsxMjgsOCBAQAogCXN0cnVjdCBzb2NrICpjaGlsZDsKIAog
-CXNtYyA9IHNtY19jbGNzb2NrX3VzZXJfZGF0YShzayk7CisJaWYgKCFzbWMpCisJCWdvdG8g
-ZHJvcDsgIC8vIEVuc3VyZSB0aGF0IHRoZSBzbWMgcG9pbnRlciBpcyB2YWxpZCBiZWZvcmUg
-YWNjZXNzaW5nIGl0cyBtZW1iZXJzCiAKIAlpZiAoUkVBRF9PTkNFKHNrLSZndDtza19hY2tf
-YmFja2xvZykgKyBhdG9taWNfcmVhZCgmYW1wO3NtYy0mZ3Q7cXVldWVkX3NtY19ocykgJmd0
-OwogCSAgICBzay0mZ3Q7c2tfbWF4X2Fja19iYWNrbG9nKQoKPT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQpJIGhvcGUgaXQgaGVscHMuCkJlc3QgcmVnYXJkcwpKaWFuemhvdSBaaGFvCnhpbmd3ZWkg
-bGVlClpoaXpodW8gVGFuZzwvc3RyZm9yZXhjdHp6Y2hhbmdlQGZveG1haWwuY29tPjwveHJp
-dmVuZGVsbDdAZ21haWwuY29tPjwveG54YzIyeG54YzIyQHFxLmNvbT4=
+On Fri, 28 Feb 2025 22:15:04 +0100
+David Hildenbrand <david@redhat.com> wrote:
+
+> On 27.02.25 14:09, Claudio Imbrenda wrote:
+> > Holding the pte lock for the page that is being converted to secure is
+> > needed to avoid races. A previous commit removed the locking, which
+> > caused issues. Fix by locking the pte again.
+> > 
+> > Fixes: 5cbe24350b7d ("KVM: s390: move pv gmap functions into kvm")
+> > Reported-by: David Hildenbrand <david@redhat.com>
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>  
+> 
+> Tested with shmem / memory-backend-memfd that ends up using large folios 
+> / THPs.
+> 
+> Tested-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> 
+> Two comments below.
+
+I will need to send a v4, unfortunately there are other issues with this
+patch (as you have probably noticed by now as well)
+
+> 
+> [...]
+> 
+> > +
+> > +int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb)
+> > +{
+> > +	struct folio *folio;
+> > +	spinlock_t *ptelock;
+> > +	pte_t *ptep;
+> > +	int rc;
+> > +
+> > +	ptep = get_locked_valid_pte(mm, hva, &ptelock);
+> > +	if (!ptep)
+> > +		return -ENXIO;
+> > +
+> > +	folio = page_folio(pte_page(*ptep));
+> > +	folio_get(folio);  
+> 
+> Grabbing a folio reference is only required if you want to keep using 
+> the folio after the pte_unmap_unlock. While the PTL is locked it cannot 
+> vanish.
+> 
+> So consider grabbing a reference only before dropping the PTL and you 
+> inted to call kvm_s390_wiggle_split_folio(). Then, you would effectively 
+> not require these two atomics on the expected hot path.
+> 
+> (I recall that the old code did that)
+
+This code will go away hopefully in the next merge window anyway
+(unless I get sick *again*)
+
+> 
+> > +	/*
+> > +	 * Secure pages cannot be huge and userspace should not combine both.
+> > +	 * In case userspace does it anyway this will result in an -EFAULT for
+> > +	 * the unpack. The guest is thus never reaching secure mode.
+> > +	 * If userspace plays dirty tricks and decides to map huge pages at a
+> > +	 * later point in time, it will receive a segmentation fault or
+> > +	 * KVM_RUN will return -EFAULT.
+> > +	 */
+> > +	if (folio_test_hugetlb(folio))
+> > +		rc =  -EFAULT;
+> > +	else if (folio_test_large(folio))
+> > +		rc = -E2BIG;
+> > +	else if (!pte_write(*ptep))
+> > +		rc = -ENXIO;
+> > +	else
+> > +		rc = make_folio_secure(mm, folio, uvcb);
+> > +	pte_unmap_unlock(ptep, ptelock);
+> > +
+> > +	if (rc == -E2BIG || rc == -EBUSY)
+> > +		rc = kvm_s390_wiggle_split_folio(mm, folio, rc == -E2BIG);
+> > +	folio_put(folio);
+> > +
+> > +	return rc;
+> > +}
+> > +EXPORT_SYMBOL_GPL(make_hva_secure);
+> >   
+> >   /*
+> >    * To be called with the folio locked or with an extra reference! This will
+> > diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+> > index 02adf151d4de..c08950b4301c 100644  
+> 
+> 
+> There is one remaining reference to __gmap_make_secure, which you remove:
+> 
+> $ git grep __gmap_make_secure
+> arch/s390/kvm/gmap.c: * Return: 0 on success, < 0 in case of error (see 
+> __gmap_make_secure()).
+
+will fix
+
+> 
+> 
+> 
 
