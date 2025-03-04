@@ -1,151 +1,518 @@
-Received: from beeline1.cc.itu.edu.tr (beeline1.cc.itu.edu.tr [160.75.25.115])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE733280404
-	for <linux-s390@vger.kernel.org>; Tue,  4 Mar 2025 18:09:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=160.75.25.115
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741111794; cv=fail; b=SaFrq8Eycm5dkMty6LMYHHReUQVxWwio9LCQQAE5FR6E+JxZPRkRT5rJTqRJwr5hoXzHz2pp4L7ZIcdnW8YPmE0u28+SlSFwEOMJrR21IqRUBEjZLlPtzeCAnrcokOejrkhtT5NQ3N/DLpS3vfZ4L6d+fih4kmzrFqzTcYkLX1U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741111794; c=relaxed/simple;
-	bh=0xL0F9rdElvB+NQbmj2NrRU9PnlyhTsMf4tikqFVt+Q=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uIsUEI953L9u9WnK0yWPa3I0MNzJDwfYmnhgiD7UnB4Pzi9UIL6Y9k4C0erPi/yVkAFyO1+DnhwmziRAAzo0uitVkpALp09cofmXomHA8+6bZGENc9tEcogriOTSlTGdkBBOExaPwHAltO5hmw43cq9ll6w062apabPPW//xks0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de; spf=none smtp.mailfrom=cc.itu.edu.tr; dkim=fail (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=J2PnJ8Er reason="signature verification failed"; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GwBc4N7J; arc=none smtp.client-ip=193.142.43.55; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; arc=fail smtp.client-ip=160.75.25.115
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=cc.itu.edu.tr
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="J2PnJ8Er";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="GwBc4N7J"
-Received: from lesvatest1.cc.itu.edu.tr (lesvatest1.cc.itu.edu.tr [10.146.128.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by beeline1.cc.itu.edu.tr (Postfix) with ESMTPS id 61BAC408B64C
-	for <linux-s390@vger.kernel.org>; Tue,  4 Mar 2025 21:09:51 +0300 (+03)
-X-Envelope-From: <root@cc.itu.edu.tr>
-Authentication-Results: lesvatest1.cc.itu.edu.tr;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=J2PnJ8Er;
-	dkim=fail reason="signature verification failed" header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=GwBc4N7J
-Received: from lesva1.cc.itu.edu.tr (unknown [160.75.70.79])
-	by lesvatest1.cc.itu.edu.tr (Postfix) with ESMTP id 4Z6dCK5nlGzFwNs
-	for <linux-s390@vger.kernel.org>; Tue,  4 Mar 2025 17:21:17 +0300 (+03)
-Received: by le1 (Postfix, from userid 0)
-	id 4DBB34278D; Tue,  4 Mar 2025 17:20:58 +0300 (+03)
-Authentication-Results: lesva1.cc.itu.edu.tr;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=J2PnJ8Er;
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GwBc4N7J
-X-Envelope-From: <linux-kernel+bounces-541541-bozkiru=itu.edu.tr@vger.kernel.org>
-Authentication-Results: lesva2.cc.itu.edu.tr;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=J2PnJ8Er;
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GwBc4N7J
-Received: from fgw1.itu.edu.tr (fgw1.itu.edu.tr [160.75.25.103])
-	by le2 (Postfix) with ESMTP id 0982542978
-	for <bozkiru@itu.edu.tr>; Mon,  3 Mar 2025 14:25:07 +0300 (+03)
-Received: from sv.mirrors.kernel.org (sv.mirrors.kernel.org [139.178.88.99])
-	by fgw1.itu.edu.tr (Postfix) with SMTP id 93E8C3063EFC
-	for <bozkiru@itu.edu.tr>; Mon,  3 Mar 2025 14:25:07 +0300 (+03)
-Received: from smtp.subspace.kernel.org (relay.kernel.org [52.25.139.140])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by sv.mirrors.kernel.org (Postfix) with ESMTPS id 282E83BD09A
-	for <bozkiru@itu.edu.tr>; Mon,  3 Mar 2025 11:17:39 +0000 (UTC)
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 225271F3FCB;
-	Mon,  3 Mar 2025 11:11:25 +0000 (UTC)
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCB41FBEAF;
-	Mon,  3 Mar 2025 11:11:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36EAC27D78E;
+	Tue,  4 Mar 2025 18:23:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741000281; cv=none; b=athv0CKh7zM7vFISJQg4WlOv7FrUaI0AwztdvCYwSMSOlZQ7HzVM4Sqa4yfo7XwngoE+tlfYy+KxcGi6bUZrnxIe3oe0gNBoGvcW1q879oVKg5SBMXlhlx2OCYM1SbSWXbwY6maJWwRqIJRavzHiKZ7/vDO5ZPrfJPv9yg8GQ4E=
+	t=1741112603; cv=none; b=p4cWQ/iQ5HZgxT9U0KA97yZYvVrviow/bGAoJKQwHLSXkkvO7xs3FO6umDMCY5d7Xzm4oF9FHEcHI9vQISwjhOrLpL1rdZGsK9/GC1H8v7MJ4j1gTajk3v0xtnw2HemB7Fmc82WWwDqcTeaIrWYWL5JT+hTjkkXQkVYMbf2j5as=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741000281; c=relaxed/simple;
-	bh=98E4VrqWtF5AW/xLBGM4T2qtKg+zPc3dVoKozXn+hFA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TIzTo9XaJwaMXRDzZQRL78CEfCNqff3GbkRC9kVMhP+8V+9E1OfEJ/PeI/Gw9kIjz0pBdwmEJFRdU59JoThUL5ClfHJB04W4Wo6Eycj/hLM7mmSN1iJ3W/Omkir9y8/3HOabtAaLyFmi4IF/7ouBVjOwBXf9tiLgVesJGU+hqSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=J2PnJ8Er; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GwBc4N7J; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1741000277;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kZM1ca5Q9+J4hpNMdg9ysh15hAgKOmycAt5hVatLnOo=;
-	b=J2PnJ8ErcXhVIuRvqvkHXj7+dnNdS1EYL5YDEQZoOxgEkdIVKIFeg07b0VEIi3KThnzbt0
-	ah3FK8WH0SUuZVYvxjp9pmpwO9vjxDPFsKHVNT/DUtprc2AbKlrSe/944ut+VipnhpibNE
-	29SbO2Xuxo/jL/txmYAIO16qHVwJFP+bvw3QcgHJXU/FohbxePmQm/Y+7++xwQnw/Hws2/
-	Hfq0VCWqKAR6lbMcAGPJux4b9Ev4LSi4bIfjXBPTW28XOqHQejdiPSeTSjqNqMnc5FIwO/
-	uUO5w4RFlrbUUu8nnclDM2MIzMtXJU72CkI7ELp9NW9W5sVsPcqWIk3/EMh6Aw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1741000277;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kZM1ca5Q9+J4hpNMdg9ysh15hAgKOmycAt5hVatLnOo=;
-	b=GwBc4N7JUlvmihVy8GcCVvbKSPyE3aY+zPykltsPgrrIWLNMhdZU0VqRTlm2Ku0wvazGx9
-	XnuHfIQjnht8pgCw==
-Date: Mon, 03 Mar 2025 12:11:19 +0100
-Subject: [PATCH 17/19] powerpc/vdso: Prepare introduction of struct
- vdso_clock
-Precedence: bulk
+	s=arc-20240116; t=1741112603; c=relaxed/simple;
+	bh=Hf1+Q9B7fNe/ej2Mbd1SMDxXq+3aMbm7iwZqN4PckfM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=PIKbeRJU14P4chVZDRksAyCOpkfb3jK35lUACDMv0VgSnDxbdkrXhGk11xHMp7hOH7iaJBQ0pFIb8jIlxBSgURxsXoVo9ijJRwAdHl2x+QTVUAQdURNhUTMA9CVfyEmHQYVK/RCEp96nO8VgkfDakX563vC692ZHbqTDrBkt9uM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Dibot4Mf; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Dibot4Mf"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 524Hv7WU022683;
+	Tue, 4 Mar 2025 18:23:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=XPR4OeLh0wi8xT4pG
+	EsDOwQphy1IcO8B6FzVnfjUkEU=; b=Dibot4MfP+w3tLDEp5LXe1D5WyAGAoXDR
+	NJgPpaNX2/wnr6Z4buNbyF4xp8doM5lKJBndh5FkD/JfxwzCkqyaImoVqb2C4M0i
+	d84Myb5sTQcErp5a0YjyJdXiYbeIohoL+587q6qmq8oB4zmtzlkve5O67otOgttK
+	iAf+AaFVnHmRWYQ2O04XL1kQtJmVKeqTYrnDmP2DfQ1ynwYOl+A4/UtQFPa0YbJo
+	iSZLb3883bCS94PT3XFNdbFGmuQDU3TfjOXUaup0VyTTplL23XfG5yQJn9YzqA8l
+	o4F3VgQt4YjepNoMU7Vmheuqso3UGAnScuCa3LXLTRxsMrAIs6ujA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 455ku55kea-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Mar 2025 18:23:15 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 524IHBTx032680;
+	Tue, 4 Mar 2025 18:23:15 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 454cjsy27m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 04 Mar 2025 18:23:14 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 524INB5o48496966
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 4 Mar 2025 18:23:11 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 408AD20043;
+	Tue,  4 Mar 2025 18:23:11 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 83BF720040;
+	Tue,  4 Mar 2025 18:23:10 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.171.33.201])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  4 Mar 2025 18:23:10 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        frankja@linux.ibm.com, borntraeger@de.ibm.com, david@redhat.com,
+        nrb@linux.ibm.com, seiden@linux.ibm.com, nsg@linux.ibm.com,
+        schlameuss@linux.ibm.com, hca@linux.ibm.com
+Subject: [PATCH v4 1/1] KVM: s390: pv: fix race when making a page secure
+Date: Tue,  4 Mar 2025 19:23:04 +0100
+Message-ID: <20250304182304.178746-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250304182304.178746-1-imbrenda@linux.ibm.com>
+References: <20250304182304.178746-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Message-ID: <20250303-vdso-clock-v1-17-c1b5c69a166f@linutronix.de>
-References: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
-In-Reply-To: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
-To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
- Vincenzo Frascino <vincenzo.frascino@arm.com>, 
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
- Anna-Maria Behnsen <anna-maria@linutronix.de>, 
- Frederic Weisbecker <frederic@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- Christophe Leroy <christophe.leroy@csgroup.eu>, 
- Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
- linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1741000267; l=1274;
- i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=J/Meo4khXD/IuyjcSchvegknYNCvt5RiCWDXgeCNEuA=;
- b=ipqT0aYN+nLJcWWGgAiulZ2z34jv+h8RZjUb8zE4PSrDBBV3fg7CNnQswUAW4p7fvphbY9V95
- iF6oxWHwSrZAnFYXR+PzpHDR0Rb2CslyLmtoDfl4dn1AAze7BQJj/Ii
-X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
- pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
-Content-Transfer-Encoding: quoted-printable
-X-ITU-Libra-ESVA-Information: Please contact Istanbul Teknik Universitesi for more information
-X-ITU-Libra-ESVA-ID: 4Z6dCK5nlGzFwNs
-X-ITU-Libra-ESVA: No virus found
-X-ITU-Libra-ESVA-From: root@cc.itu.edu.tr
-X-ITU-Libra-ESVA-Watermark: 1741716478.397@5Eu9z0RBDi5i3p2UaApPzA
-X-ITU-MailScanner-SpamCheck: not spam
-Message-ID: <20250303111119.IeMj1tujvGtiA2MzY3Fk9g9_3s1HvO4HoGV7EPehlec@z>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LqHfD_5FsFNjgzd6r6y3iREoOALY_zzd
+X-Proofpoint-GUID: LqHfD_5FsFNjgzd6r6y3iREoOALY_zzd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-04_07,2025-03-03_04,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ clxscore=1015 mlxscore=0 suspectscore=0 impostorscore=0 bulkscore=0
+ mlxlogscore=999 lowpriorityscore=0 spamscore=0 phishscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2503040144
 
-From: Nam Cao <namcao@linutronix.de>
+Holding the pte lock for the page that is being converted to secure is
+needed to avoid races. A previous commit removed the locking, which
+caused issues. Fix by locking the pte again.
 
-To support multiple PTP clocks, the VDSO data structure needs to be
-reworked. All clock specific data will end up in struct vdso_clock and in
-struct vdso_time_data there will be array of it. By now, vdso_clock is
-simply a define which maps vdso_clock to vdso_time_data.
+Fixes: 5cbe24350b7d ("KVM: s390: move pv gmap functions into kvm")
+Reported-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Tested-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+---
+ arch/s390/include/asm/gmap.h |   1 -
+ arch/s390/include/asm/uv.h   |   3 +-
+ arch/s390/kernel/uv.c        | 135 +++++++++++++++++++++++++++++++++--
+ arch/s390/kvm/gmap.c         | 101 ++------------------------
+ arch/s390/kvm/kvm-s390.c     |  25 ++++---
+ arch/s390/mm/gmap.c          |  28 --------
+ 6 files changed, 153 insertions(+), 140 deletions(-)
 
-To prepare for the rework of the data structures, replace the struct
-vdso_time_data pointer with struct vdso_clock pointer whenever applicable=
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 4e73ef46d4b2..9f2814d0e1e9 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -139,7 +139,6 @@ int s390_replace_asce(struct gmap *gmap);
+ void s390_uv_destroy_pfns(unsigned long count, unsigned long *pfns);
+ int __s390_uv_destroy_range(struct mm_struct *mm, unsigned long start,
+ 			    unsigned long end, bool interruptible);
+-int kvm_s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool split);
+ unsigned long *gmap_table_walk(struct gmap *gmap, unsigned long gaddr, int level);
+ 
+ /**
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index b11f5b6d0bd1..fa33a6ff2fab 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -631,9 +631,10 @@ int uv_pin_shared(unsigned long paddr);
+ int uv_destroy_folio(struct folio *folio);
+ int uv_destroy_pte(pte_t pte);
+ int uv_convert_from_secure_pte(pte_t pte);
+-int make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb);
++int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb);
+ int uv_convert_from_secure(unsigned long paddr);
+ int uv_convert_from_secure_folio(struct folio *folio);
++int s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool split);
+ 
+ void setup_uv(void);
+ 
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 9f05df2da2f7..63420a5f3ee5 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -206,6 +206,39 @@ int uv_convert_from_secure_pte(pte_t pte)
+ 	return uv_convert_from_secure_folio(pfn_folio(pte_pfn(pte)));
+ }
+ 
++/**
++ * should_export_before_import - Determine whether an export is needed
++ * before an import-like operation
++ * @uvcb: the Ultravisor control block of the UVC to be performed
++ * @mm: the mm of the process
++ *
++ * Returns whether an export is needed before every import-like operation.
++ * This is needed for shared pages, which don't trigger a secure storage
++ * exception when accessed from a different guest.
++ *
++ * Although considered as one, the Unpin Page UVC is not an actual import,
++ * so it is not affected.
++ *
++ * No export is needed also when there is only one protected VM, because the
++ * page cannot belong to the wrong VM in that case (there is no "other VM"
++ * it can belong to).
++ *
++ * Return: true if an export is needed before every import, otherwise false.
++ */
++static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
++{
++	/*
++	 * The misc feature indicates, among other things, that importing a
++	 * shared page from a different protected VM will automatically also
++	 * transfer its ownership.
++	 */
++	if (uv_has_feature(BIT_UV_FEAT_MISC))
++		return false;
++	if (uvcb->cmd == UVC_CMD_UNPIN_PAGE_SHARED)
++		return false;
++	return atomic_read(&mm->context.protected_count) > 1;
++}
++
+ /*
+  * Calculate the expected ref_count for a folio that would otherwise have no
+  * further pins. This was cribbed from similar functions in other places in
+@@ -228,7 +261,7 @@ static int expected_folio_refs(struct folio *folio)
+ }
+ 
+ /**
+- * make_folio_secure() - make a folio secure
++ * __make_folio_secure() - make a folio secure
+  * @folio: the folio to make secure
+  * @uvcb: the uvcb that describes the UVC to be used
+  *
+@@ -243,14 +276,13 @@ static int expected_folio_refs(struct folio *folio)
+  *         -EINVAL if the UVC failed for other reasons.
+  *
+  * Context: The caller must hold exactly one extra reference on the folio
+- *          (it's the same logic as split_folio())
++ *          (it's the same logic as split_folio()), and the folio must be
++ *          locked.
+  */
+-int make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb)
++static int __make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb)
+ {
+ 	int expected, cc = 0;
+ 
+-	if (folio_test_large(folio))
+-		return -E2BIG;
+ 	if (folio_test_writeback(folio))
+ 		return -EBUSY;
+ 	expected = expected_folio_refs(folio) + 1;
+@@ -277,7 +309,98 @@ int make_folio_secure(struct folio *folio, struct uv_cb_header *uvcb)
+ 		return -EAGAIN;
+ 	return uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
+ }
+-EXPORT_SYMBOL_GPL(make_folio_secure);
++
++static int make_folio_secure(struct mm_struct *mm, struct folio *folio, struct uv_cb_header *uvcb)
++{
++	int rc;
++
++	if (!folio_trylock(folio))
++		return -EAGAIN;
++	if (should_export_before_import(uvcb, mm))
++		uv_convert_from_secure(folio_to_phys(folio));
++	rc = __make_folio_secure(folio, uvcb);
++	folio_unlock(folio);
++
++	return rc;
++}
++
++static pte_t *get_locked_valid_pte(struct mm_struct *mm, unsigned long hva, spinlock_t **ptl)
++{
++	pte_t *ptep = get_locked_pte(mm, hva, ptl);
++
++	if (ptep && (pte_val(*ptep) & _PAGE_INVALID)) {
++		pte_unmap_unlock(ptep, *ptl);
++		ptep = NULL;
++	}
++	return ptep;
++}
++
++/**
++ * s390_wiggle_split_folio() - try to drain extra references to a folio and optionally split
++ * @mm:    the mm containing the folio to work on
++ * @folio: the folio
++ * @split: whether to split a large folio
++ *
++ * Context: Must be called while holding an extra reference to the folio;
++ *          the mm lock should not be held.
++ */
++int s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool split)
++{
++	int rc;
++
++	lockdep_assert_not_held(&mm->mmap_lock);
++	folio_wait_writeback(folio);
++	lru_add_drain_all();
++	if (split) {
++		folio_lock(folio);
++		rc = split_folio(folio);
++		folio_unlock(folio);
++
++		if (rc != -EBUSY)
++			return rc;
++	}
++	return -EAGAIN;
++}
++EXPORT_SYMBOL_GPL(s390_wiggle_split_folio);
++
++int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb)
++{
++	struct folio *folio;
++	spinlock_t *ptelock;
++	pte_t *ptep;
++	int rc;
++
++	ptep = get_locked_valid_pte(mm, hva, &ptelock);
++	if (!ptep)
++		return -ENXIO;
++
++	folio = page_folio(pte_page(*ptep));
++	folio_get(folio);
++	/*
++	 * Secure pages cannot be huge and userspace should not combine both.
++	 * In case userspace does it anyway this will result in an -EFAULT for
++	 * the unpack. The guest is thus never reaching secure mode.
++	 * If userspace plays dirty tricks and decides to map huge pages at a
++	 * later point in time, it will receive a segmentation fault or
++	 * KVM_RUN will return -EFAULT.
++	 */
++	if (folio_test_hugetlb(folio))
++		rc =  -EFAULT;
++	else if (folio_test_large(folio))
++		rc = -E2BIG;
++	else if (!pte_write(*ptep))
++		rc = -ENXIO;
++	else
++		rc = make_folio_secure(mm, folio, uvcb);
++	pte_unmap_unlock(ptep, ptelock);
++
++	if (rc == -E2BIG || rc == -EBUSY)
++		rc = s390_wiggle_split_folio(mm, folio, rc == -E2BIG);
++	folio_put(folio);
++
++	return rc;
++}
++EXPORT_SYMBOL_GPL(make_hva_secure);
+ 
+ /*
+  * To be called with the folio locked or with an extra reference! This will
+diff --git a/arch/s390/kvm/gmap.c b/arch/s390/kvm/gmap.c
+index 02adf151d4de..21580cfecc6a 100644
+--- a/arch/s390/kvm/gmap.c
++++ b/arch/s390/kvm/gmap.c
+@@ -22,92 +22,6 @@
+ 
+ #include "gmap.h"
+ 
+-/**
+- * should_export_before_import - Determine whether an export is needed
+- * before an import-like operation
+- * @uvcb: the Ultravisor control block of the UVC to be performed
+- * @mm: the mm of the process
+- *
+- * Returns whether an export is needed before every import-like operation.
+- * This is needed for shared pages, which don't trigger a secure storage
+- * exception when accessed from a different guest.
+- *
+- * Although considered as one, the Unpin Page UVC is not an actual import,
+- * so it is not affected.
+- *
+- * No export is needed also when there is only one protected VM, because the
+- * page cannot belong to the wrong VM in that case (there is no "other VM"
+- * it can belong to).
+- *
+- * Return: true if an export is needed before every import, otherwise false.
+- */
+-static bool should_export_before_import(struct uv_cb_header *uvcb, struct mm_struct *mm)
+-{
+-	/*
+-	 * The misc feature indicates, among other things, that importing a
+-	 * shared page from a different protected VM will automatically also
+-	 * transfer its ownership.
+-	 */
+-	if (uv_has_feature(BIT_UV_FEAT_MISC))
+-		return false;
+-	if (uvcb->cmd == UVC_CMD_UNPIN_PAGE_SHARED)
+-		return false;
+-	return atomic_read(&mm->context.protected_count) > 1;
+-}
+-
+-static int __gmap_make_secure(struct gmap *gmap, struct page *page, void *uvcb)
+-{
+-	struct folio *folio = page_folio(page);
+-	int rc;
+-
+-	/*
+-	 * Secure pages cannot be huge and userspace should not combine both.
+-	 * In case userspace does it anyway this will result in an -EFAULT for
+-	 * the unpack. The guest is thus never reaching secure mode.
+-	 * If userspace plays dirty tricks and decides to map huge pages at a
+-	 * later point in time, it will receive a segmentation fault or
+-	 * KVM_RUN will return -EFAULT.
+-	 */
+-	if (folio_test_hugetlb(folio))
+-		return -EFAULT;
+-	if (folio_test_large(folio)) {
+-		mmap_read_unlock(gmap->mm);
+-		rc = kvm_s390_wiggle_split_folio(gmap->mm, folio, true);
+-		mmap_read_lock(gmap->mm);
+-		if (rc)
+-			return rc;
+-		folio = page_folio(page);
+-	}
+-
+-	if (!folio_trylock(folio))
+-		return -EAGAIN;
+-	if (should_export_before_import(uvcb, gmap->mm))
+-		uv_convert_from_secure(folio_to_phys(folio));
+-	rc = make_folio_secure(folio, uvcb);
+-	folio_unlock(folio);
+-
+-	/*
+-	 * In theory a race is possible and the folio might have become
+-	 * large again before the folio_trylock() above. In that case, no
+-	 * action is performed and -EAGAIN is returned; the callers will
+-	 * have to try again later.
+-	 * In most cases this implies running the VM again, getting the same
+-	 * exception again, and make another attempt in this function.
+-	 * This is expected to happen extremely rarely.
+-	 */
+-	if (rc == -E2BIG)
+-		return -EAGAIN;
+-	/* The folio has too many references, try to shake some off */
+-	if (rc == -EBUSY) {
+-		mmap_read_unlock(gmap->mm);
+-		kvm_s390_wiggle_split_folio(gmap->mm, folio, false);
+-		mmap_read_lock(gmap->mm);
+-		return -EAGAIN;
+-	}
+-
+-	return rc;
+-}
+-
+ /**
+  * gmap_make_secure() - make one guest page secure
+  * @gmap: the guest gmap
+@@ -115,22 +29,21 @@ static int __gmap_make_secure(struct gmap *gmap, struct page *page, void *uvcb)
+  * @uvcb: the UVCB specifying which operation needs to be performed
+  *
+  * Context: needs to be called with kvm->srcu held.
+- * Return: 0 on success, < 0 in case of error (see __gmap_make_secure()).
++ * Return: 0 on success, < 0 in case of error.
+  */
+ int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
+ {
+ 	struct kvm *kvm = gmap->private;
+-	struct page *page;
++	unsigned long vmaddr;
+ 	int rc = 0;
+ 
+ 	lockdep_assert_held(&kvm->srcu);
+ 
+-	page = gfn_to_page(kvm, gpa_to_gfn(gaddr));
+-	mmap_read_lock(gmap->mm);
+-	if (page)
+-		rc = __gmap_make_secure(gmap, page, uvcb);
+-	kvm_release_page_clean(page);
+-	mmap_read_unlock(gmap->mm);
++	vmaddr = gfn_to_hva(kvm, gpa_to_gfn(gaddr));
++	if (kvm_is_error_hva(vmaddr))
++		rc = -ENXIO;
++	else
++		rc = make_hva_secure(gmap->mm, vmaddr, uvcb);
+ 
+ 	return rc;
+ }
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index ebecb96bacce..020502af7dc9 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4952,6 +4952,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ {
+ 	unsigned int flags = 0;
+ 	unsigned long gaddr;
++	int rc;
+ 
+ 	gaddr = current->thread.gmap_teid.addr * PAGE_SIZE;
+ 	if (kvm_s390_cur_gmap_fault_is_write())
+@@ -4961,16 +4962,6 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 	case 0:
+ 		vcpu->stat.exit_null++;
+ 		break;
+-	case PGM_NON_SECURE_STORAGE_ACCESS:
+-		kvm_s390_assert_primary_as(vcpu);
+-		/*
+-		 * This is normal operation; a page belonging to a protected
+-		 * guest has not been imported yet. Try to import the page into
+-		 * the protected guest.
+-		 */
+-		if (gmap_convert_to_secure(vcpu->arch.gmap, gaddr) == -EINVAL)
+-			send_sig(SIGSEGV, current, 0);
+-		break;
+ 	case PGM_SECURE_STORAGE_ACCESS:
+ 	case PGM_SECURE_STORAGE_VIOLATION:
+ 		kvm_s390_assert_primary_as(vcpu);
+@@ -4995,6 +4986,20 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 			send_sig(SIGSEGV, current, 0);
+ 		}
+ 		break;
++	case PGM_NON_SECURE_STORAGE_ACCESS:
++		kvm_s390_assert_primary_as(vcpu);
++		/*
++		 * This is normal operation; a page belonging to a protected
++		 * guest has not been imported yet. Try to import the page into
++		 * the protected guest.
++		 */
++		rc = gmap_convert_to_secure(vcpu->arch.gmap, gaddr);
++		if (rc == -EINVAL)
++			send_sig(SIGSEGV, current, 0);
++		if (rc != -ENXIO)
++			break;
++		flags = FAULT_FLAG_WRITE;
++		fallthrough;
+ 	case PGM_PROTECTION:
+ 	case PGM_SEGMENT_TRANSLATION:
+ 	case PGM_PAGE_TRANSLATION:
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 94d927785800..d14b488e7a1f 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2626,31 +2626,3 @@ int s390_replace_asce(struct gmap *gmap)
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(s390_replace_asce);
+-
+-/**
+- * kvm_s390_wiggle_split_folio() - try to drain extra references to a folio and optionally split
+- * @mm:    the mm containing the folio to work on
+- * @folio: the folio
+- * @split: whether to split a large folio
+- *
+- * Context: Must be called while holding an extra reference to the folio;
+- *          the mm lock should not be held.
+- */
+-int kvm_s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool split)
+-{
+-	int rc;
+-
+-	lockdep_assert_not_held(&mm->mmap_lock);
+-	folio_wait_writeback(folio);
+-	lru_add_drain_all();
+-	if (split) {
+-		folio_lock(folio);
+-		rc = split_folio(folio);
+-		folio_unlock(folio);
+-
+-		if (rc != -EBUSY)
+-			return rc;
+-	}
+-	return -EAGAIN;
+-}
+-EXPORT_SYMBOL_GPL(kvm_s390_wiggle_split_folio);
+-- 
+2.48.1
+
