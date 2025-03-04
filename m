@@ -1,125 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02FE7136347;
-	Tue,  4 Mar 2025 01:46:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B4632AE8C;
+	Tue,  4 Mar 2025 02:39:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741052804; cv=none; b=H0k2hBQxyoalM28+l/xpuB/D7YdIbyUfYZROlwcjERMX7dys3QGjmPLqW8YzCf1E1EtjmfU4jv4h/5knt2EW6/V740oMthPrKmSpIFQOrXe43CSomWM7QOTRbXX3bYzcLnmTYhQJo55YeqJEoSebk5lStMJuUfhnPlI5hTdPphU=
+	t=1741055965; cv=none; b=EARM9WJkTfuF0SfPOWhoCN3iA2mGxxWjzG6n3+Zrih1mBPK4RJbcKcBgYkWiylpveHowwLmJMB1edBW3h0pJBfe1qeRZvIIdyOkouJiTa3TdQWNlsGEC3JWrYmyCsKGN83MWpVy/dx1PjxXfTOZlW8OCUlLdeAvkiUXmrwtvk5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741052804; c=relaxed/simple;
-	bh=uI4aKqpuzt3742VEL0ucD83H5oRjcLrVnMEmZ0UADgQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Gpwzh+p6gdc53K2GXBxUCzj8OcEKh0c556MYK33v+b/RMKBNzxoH/ZbcNfHp88sQCJWy3ycrWb1xMkbaMqhxISusHixenx1aQleRFuOkayVfxZrNqOwOFT0qRPchDtD7sEGJ/6ub9XxATZ61vPlAtkP7c33MBNRB9+MAYysWaSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0706C4CEE8;
-	Tue,  4 Mar 2025 01:46:39 +0000 (UTC)
-Date: Mon, 3 Mar 2025 20:47:32 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Joel Granados <joel.granados@kernel.org>
-Cc: Kees Cook <kees@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Alexander Shishkin
- <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, Ian
- Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>,
- "Liang, Kan" <kan.liang@linux.intel.com>, "David S. Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Gerald
- Schaefer <gerald.schaefer@linux.ibm.com>, Thomas Gleixner
- <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown
- <lenb@kernel.org>, linux-kernel@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 4/8] stack_tracer: move sysctl registration to
- kernel/trace/trace.c
-Message-ID: <20250303204732.1f5af40d@gandalf.local.home>
-In-Reply-To: <20250218-jag-mv_ctltables-v1-4-cd3698ab8d29@kernel.org>
-References: <20250218-jag-mv_ctltables-v1-0-cd3698ab8d29@kernel.org>
-	<20250218-jag-mv_ctltables-v1-4-cd3698ab8d29@kernel.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1741055965; c=relaxed/simple;
+	bh=S6UahJypzv0OFjPYG4CuqQEAnDKBxU5UlGzMb+Pa2tY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K8sGYQBpVs/3q9U/ENWszK4jNESlOqbTWmCz/G5kVW7XxDBsgw5pUOHlsQNhpznnN0NY1WDdMQljh+1TP/Tga6JK8aomns0cjptYpydepM+yUSW+S6Q6y07675uyNpjhR8tmdD5jDYs7aVG5A8aJI8kkbhLKumv4I8oGrCJnq3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hXNh7Jik; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hXNh7Jik"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1741055951; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=USo7sAYD7oXp/gFBg03CGd9QfUctKLOWmyXr8TKIUO8=;
+	b=hXNh7JikXzFCHmBKGXGSjLH5Jjtu/JYbocIH/6slbhxyDiWgc0klrtg3yzjQthfh2DfeOHyjR0NNIeUe4TuLu4JDX8qNce6RN4jDLrdTKS/zmclJ86OkLppBlvkfSlu5Mpj8l7Clb6/5jzWgzc/fYhMPD/SZQKYsCgFbk0hmu8k=
+Received: from 30.221.99.241(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WQgMsiM_1741055949 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 04 Mar 2025 10:39:10 +0800
+Message-ID: <e59e4632-c689-4cd4-a9ab-73edc93d002d@linux.alibaba.com>
+Date: Tue, 4 Mar 2025 10:39:08 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: use the correct ndev to find pnetid by
+ pnetid table
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>
+References: <20241227040455.91854-1-guangguan.wang@linux.alibaba.com>
+ <1f4a721f-fa23-4f1d-97a9-1b27bdcd1e21@redhat.com>
+ <20250107203218.5787acb4.pasic@linux.ibm.com>
+ <908be351-b4f8-4c25-9171-4f033e11ffc4@linux.alibaba.com>
+ <20250109040429.350fdd60.pasic@linux.ibm.com>
+ <b1053a92-3a3f-4042-9be9-60b94b97747d@linux.alibaba.com>
+ <20250210145255.793e6639.pasic@linux.ibm.com>
+ <4eb38707-1a93-4c5c-aa65-14adfd595d14@linux.alibaba.com>
+ <20250303152410.31f5e3df.pasic@linux.ibm.com>
+Content-Language: en-US
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20250303152410.31f5e3df.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Tue, 18 Feb 2025 10:56:20 +0100
-Joel Granados <joel.granados@kernel.org> wrote:
 
-> Squash with ftrace:
-> Move stac_tracer_enabled into trace_sysctl_table while keeping the
-> CONFIG_STACK_TRACER ifdef. This is part of a greater effort to move ctl
-> tables into their respective subsystems which will reduce the merge
-> conflicts in kerenel/sysctl.c.
+
+On 2025/3/3 22:24, Halil Pasic wrote:
+> On Tue, 11 Feb 2025 11:44:32 +0800
+> Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
 > 
-> Signed-off-by: Joel Granados <joel.granados@kernel.org>
-> ---
->  kernel/sysctl.c      | 10 ----------
->  kernel/trace/trace.c |  9 +++++++++
->  2 files changed, 9 insertions(+), 10 deletions(-)
+>>> Can you please help me reason about this? I'm unfortunately lacking
+>>> Kubernetes skills here, and it is difficult for me to think along.  
+>>
+>> Yes, it is also a problem that not being able to set eth0 (veth/POD)'s PNEDID from the host.
+>> Even if the eth1(host) have hardware PNETID, the eth0 (veth/POD) can not search the hardware
+>> PNETID. Because the eth0 (veth/POD) and eth1(host) are not in one netdev hierarchy.
+>> But the two netdev hierarchies have relationship. Maybe search PNETID in all related netdev
+>> hierarchies can help resolve this. For example when finding the base_ndev, if the base_ndev
+>> is a netdev has relationship with other netdev(veth .etc) then jump to the related netdev
+>> hierarchy through the relationship to iteratively find the base_ndev.
+>> It is an idea now. I have not do any research about it yet and I am not sure if it is feasible.
 > 
-> diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-> index baa250e223a2..dc3747cc72d4 100644
-> --- a/kernel/sysctl.c
-> +++ b/kernel/sysctl.c
-> @@ -68,7 +68,6 @@
->  
->  #ifdef CONFIG_X86
->  #include <asm/nmi.h>
-> -#include <asm/stacktrace.h>
->  #include <asm/io.h>
->  #endif
->  #ifdef CONFIG_SPARC
-> @@ -1674,15 +1673,6 @@ static const struct ctl_table kern_table[] = {
->  		.proc_handler	= proc_dointvec,
->  	},
->  #endif
-> -#ifdef CONFIG_STACK_TRACER
-> -	{
-> -		.procname	= "stack_tracer_enabled",
-> -		.data		= &stack_tracer_enabled,
-> -		.maxlen		= sizeof(int),
-> -		.mode		= 0644,
-> -		.proc_handler	= stack_trace_sysctl,
-> -	},
-> -#endif
->  #ifdef CONFIG_MODULES
->  	{
->  		.procname	= "modprobe",
-> diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-> index abfc0e56173b..17b449f9e330 100644
-> --- a/kernel/trace/trace.c
-> +++ b/kernel/trace/trace.c
-
-This should go into kernel/trace/trace_stack.c, and remove the #ifdef.
-
--- Steve
-
-> @@ -166,6 +166,15 @@ static const struct ctl_table trace_sysctl_table[] = {
->  		.mode		= 0644,
->  		.proc_handler	= tracepoint_printk_sysctl,
->  	},
-> +#ifdef CONFIG_STACK_TRACER
-> +	{
-> +		.procname	= "stack_tracer_enabled",
-> +		.data		= &stack_tracer_enabled,
-> +		.maxlen		= sizeof(int),
-> +		.mode		= 0644,
-> +		.proc_handler	= stack_trace_sysctl,
-> +	},
-> +#endif
->  };
->  
->  static int __init init_trace_sysctls(void)
+> I did a fair amount of thinking and I've talked to Wenjia and Sandy as
+> well, and now I'm fine with moving forward with a variant that
+> prioritizes compatibility but makes the scenarios you have pointed out
+> work by enabling taking the SW PNETID of the non-leaf netdev(s) if the
+> base_dev has no PNETID (neither hw nor sw).
 > 
+> Regards,
+> Halil
 
+Thanks Halil, Wenjia and Alexandra.
+
+I will send a v2 patch soon, in which software pnetid will be searched in both base_ndev and ndev,
+and base_ndev will take precedence over ndev.
+
+Regards,
+Guangguan Wang
