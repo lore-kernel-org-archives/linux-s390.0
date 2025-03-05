@@ -1,55 +1,44 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48F1827BF82;
-	Tue,  4 Mar 2025 22:59:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB76A221F25;
+	Wed,  5 Mar 2025 12:06:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741129158; cv=none; b=ufbLAuy6fWqNx4yac78uHKXsHBDRcLPid2Cs7cQILN0nEl6d5kV7SohpZQ8DphvTKA8qD0Bx5rWtoctUH/UOWh74cCiqZeM1I0nYlAMG4izI9yWIHRkfi360zsFkihgDvKVlRf/c3Xnii6BrO/iXN1USE3u741gmTc86UAN2Afs=
+	t=1741176383; cv=none; b=JSw/7g1uBOUbbAsOXCeA+ii9PUnpa/89mhLL4oBWJiMdw6fpuSFmYOvCXEoY/uh2MFuXhtCNjlheIZRsj0S6tcLMp+WId0xT4OK0yzBWwR1SGSgbuxKvnH/79lTl+FchU3C24PVw8DQiqYWcy6xxduMENwtJ+4btGmoy8E+1pbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741129158; c=relaxed/simple;
-	bh=5fmOcMbWEYyFn1vlUabcduL1DY32zpRpBQx2RBuzbqo=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=oJ6/dsXM+liRMtHHUvmcA1nr1Fgnh1hbw0gB/J5cUur5sOTjgw4zMAqgrYRtKsFdRYAEO2vYp0hwSF6o2eWB36y/AaZD9L3Goc0TLiVI+WYI9tCfu2CDajwE/08xrAukSlqYxLESiZzWToO4t+pyYWcwk28dp98t3ge7CitKECs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZYWF2w35; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741176383; c=relaxed/simple;
+	bh=kq3NQERkvZbq7ob8h+qD3Nv/BfUilziEi+favHqPlD8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sIIVIk3SVhRKQLiAzmqg+Lz4rrRF51F+kUz/VqF1WCil2hLaOtB3vmrok5TUqtLnQY0d2z5h5wKnKDBL5YiV52HXzJmf0kWf+k5wAf9qgixGGVgN3gouNSFPrgnIl2jbqfQRk8WdKlHBPDPt77Ua5PlNTs1/1Ykfex+7c2cgwGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=PLerP03o; arc=none smtp.client-ip=115.124.30.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZYWF2w35"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93810C4CEE5;
-	Tue,  4 Mar 2025 22:59:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741129155;
-	bh=5fmOcMbWEYyFn1vlUabcduL1DY32zpRpBQx2RBuzbqo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=ZYWF2w35jdYCHsflLo1upLUHiJuYK/SSxPrqLaFOpahdwuUV0blKUlg3mfIfL3nWc
-	 mCbD/Lx+NjP0eEdJstmRDVM7WLBTmxyeS+FaAQd3puxhryfsQi1gQfcSPCeBD8Skpf
-	 QoQna5y7PE8CHR83rS6C0LJit1sei5s6eTL6upQ30KEbu25k5YrwLD9L/lsmmaIPBe
-	 K1bQCo415jf2i3vLMSrnu/DUVIX2G0lr0gidJ+abfXu/eQ1Zge9SZ2H/KZtJ45yJ9F
-	 KDXqaVtlCTekonlnx3IIwigxv+kKnQWlK+5oxqD+0rG03CmaCn678/Q1fBt6J+Yls3
-	 cJqyFkYzr9Vqw==
-Date: Tue, 4 Mar 2025 16:59:14 -0600
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Christoph Hellwig <hch@lst.de>,
-	Alexandra Winter <wintera@linux.ibm.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Gerd Bayer <gbayer@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Julian Ruess <julianr@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH v7 0/3] vfio/pci: s390: Fix issues preventing
- VFIO_PCI_MMAP=y for s390 and enable it
-Message-ID: <20250304225914.GA263226@bhelgaas>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="PLerP03o"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1741176376; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=TxAozyocArmyukQfRT8jyP8q7tVZxorcO31U7ngbLRg=;
+	b=PLerP03obm7Rx0WzY285Y6ToYNtZ/YNjGLpiFRt4WFfhl5OtSGmf+fncsaAo3CnSDNNcGXdNiw4evQvUAp5HXB6KzN3jp0mGGPfKMMH3TQDFYXyvyPxEX3EFUDsSrx6Znnffu1eaVtHc0OtgByP61untPBg4dBrhTkI22jzyiF8=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WQlTfPQ_1741176375 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 05 Mar 2025 20:06:15 +0800
+Date: Wed, 5 Mar 2025 20:06:15 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: ffhgfv <744439878@qq.com>
+Cc: wenjia <wenjia@linux.ibm.com>, jaka <jaka@linux.ibm.com>,
+	alibuda <alibuda@linux.alibaba.com>,
+	tonylu <tonylu@linux.alibaba.com>, guwen <guwen@linux.alibaba.com>,
+	davem <davem@davemloft.net>, edumazet <edumazet@google.com>,
+	kuba <kuba@kernel.org>, pabeni <pabeni@redhat.com>,
+	horms <horms@kernel.org>, linux-rdma <linux-rdma@vger.kernel.org>,
+	linux-s390 <linux-s390@vger.kernel.org>,
+	netdev <netdev@vger.kernel.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel bug found and suggestions for fixing it
+Message-ID: <20250305120615.GA99596@j66a10360.sqa.eu95>
+References: <tencent_CE572E29B79ABD1AB33F1980363ADE182606@qq.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,124 +47,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250226-vfio_pci_mmap-v7-0-c5c0f1d26efd@linux.ibm.com>
+In-Reply-To: <tencent_CE572E29B79ABD1AB33F1980363ADE182606@qq.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Wed, Feb 26, 2025 at 01:07:44PM +0100, Niklas Schnelle wrote:
-> With the introduction of memory I/O (MIO) instructions enbaled in commit
-> 71ba41c9b1d9 ("s390/pci: provide support for MIO instructions") s390
-> gained support for direct user-space access to mapped PCI resources.
-> Even without those however user-space can access mapped PCI resources
-> via the s390 specific MMIO syscalls. There is thus nothing fundamentally
-> preventing s390 from supporting VFIO_PCI_MMAP, allowing user-space
-> drivers to access PCI resources without going through the pread()
-> interface. To actually enable VFIO_PCI_MMAP a few issues need fixing
-> however.
+On Tue, Mar 04, 2025 at 02:31:37AM -0500, ffhgfv wrote:
+> Hello, I found a bug titled "KASAN: null-ptr-deref Read in smc_tcp_syn_recv_sock" with modified syzkaller in the lasted upstream related to bcachefs file system.
+> If you fix this issue, please add the following tag to the commit:  Reported-by: Jianzhou Zhao <xnxc22xnxc22@qq.com>,    xingwei lee <xrivendell7@gmail.com>, Zhizhuo Tang <strforexctzzchange@foxmail.com>
 > 
-> Firstly the s390 MMIO syscalls do not cause a page fault when
-> follow_pte() fails due to the page not being present. This breaks
-> vfio-pci's mmap() handling which lazily maps on first access.
+> ------------[ cut here ]------------
+> TITLE: KASAN: null-ptr-deref Read in smc_tcp_syn_recv_sock
+> ==================================================================
+> BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:68 [inline]
+> BUG: KASAN: null-ptr-deref in atomic_read include/linux/atomic/atomic-instrumented.h:32 [inline]
+> BUG: KASAN: null-ptr-deref in smc_tcp_syn_recv_sock+0xa7/0x4c0 net/smc/af_smc.c:131
+> Read of size 4 at addr 0000000000000a04 by task syz.7.21/12319
 > 
-> Secondly on s390 there is a virtual PCI device called ISM which has
-> a few oddities. For one it claims to have a 256 TiB PCI BAR (not a typo)
-> which leads to any attempt to mmap() it fail with the following message:
-> 
->     vmap allocation for size 281474976714752 failed: use vmalloc=<size> to increase size
-> 
-> Even if one tried to map this BAR only partially the mapping would not
-> be usable on systems with MIO support enabled. So just block mapping
-> BARs which don't fit between IOREMAP_START and IOREMAP_END. Solve this
-> by keeping the vfio-pci mmap() blocking behavior around for this
-> specific device via a PCI quirk and new pdev->non_mappable_bars
-> flag.
-> 
-> As noted by Alex Williamson With mmap() enabled in vfio-pci it makes
-> sense to also enable HAVE_PCI_MMAP with the same restriction for pdev->
-> non_mappable_bars. So this is added in patch 3 and I tested this with
-> another small test program.
-> 
-> Note:
-> For your convenience the code is also available in the tagged
-> b4/vfio_pci_mmap branch on my git.kernel.org site below:
-> https://git.kernel.org/pub/scm/linux/kernel/git/niks/linux.git/
-> 
-> Thanks,
-> Niklas
-> 
-> Link: https://lore.kernel.org/all/c5ba134a1d4f4465b5956027e6a4ea6f6beff969.camel@linux.ibm.com/
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
-> Changes in v7:
-> - Move all s390 changes, except for a one-lineer to set pdev->
->   non_mappable_bars for all devices, to the third patch (Bjorn)
-> - Move checks in pci-sysfs.c and proc.c to the second patch (Bjorn)
-> - Only set ARCH_GENERIC_PCI_MMAP_RESOURCES not HAVE_PCI_MMAP following
->   the recommendation for new architectures in
->   Documentation/PCI/sysfs-pci.rst. This only enables the sysfs but not
->   the proc interface.
-> - Link to v6: https://lore.kernel.org/r/20250214-vfio_pci_mmap-v6-0-6f300cb63a7e@linux.ibm.com
-> 
-> Changes in v6:
-> - Add a patch to also enable PCI resource mmap() via sysfs and proc
->   exlcluding pdev->non_mappable_bars devices (Alex Williamson)
-> - Added Acks
-> - Link to v5: https://lore.kernel.org/r/20250212-vfio_pci_mmap-v5-0-633ca5e056da@linux.ibm.com
-> 
-> Changes in v5:
-> - Instead of relying on the existing pdev->non_compliant_bars introduce
->   a new pdev->non_mappable_bars flag. This replaces the VFIO_PCI_MMAP
->   Kconfig option and makes it per-device. This is necessary to not break
->   upcoming vfio-pci use of ISM devices (Julian Ruess)
-> - Squash the removal of VFIO_PCI_MMAP into the second commit as this
->   is now where its only use goes away.
-> - Switch to using follow_pfnmap_start() in MMIO syscall page fault
->   handling to match upstream changes
-> - Dropped R-b's because the changes are significant
-> - Link to v4: https://lore.kernel.org/r/20240626-vfio_pci_mmap-v4-0-7f038870f022@linux.ibm.com
-> 
-> Changes in v4:
-> - Overhauled and split up patch 2 which caused errors on ppc due to
->   unexported __kernel_io_end. Replaced it with a minimal s390 PCI fixup
->   harness to set pdev->non_compliant_bars for ISM plus ignoring devices
->   with this flag in vfio-pci. Idea for using PCI quirks came from
->   Christoph Hellwig, thanks. Dropped R-bs for patch 2 accordingly.
-> - Rebased on v6.10-rc5 which includes the vfio-pci mmap fault handler
->   fix to the issue I stumbled over independently in v3
-> - Link to v3: https://lore.kernel.org/r/20240529-vfio_pci_mmap-v3-0-cd217d019218@linux.ibm.com
-> 
-> Changes in v3:
-> - Rebased on v6.10-rc1 requiring change to follow_pte() call
-> - Use current->mm for fixup_user_fault() as seems more common
-> - Collected new trailers
-> - Link to v2: https://lore.kernel.org/r/20240523-vfio_pci_mmap-v2-0-0dc6c139a4f1@linux.ibm.com
-> 
-> Changes in v2:
-> - Changed last patch to remove VFIO_PCI_MMAP instead of just enabling it
->   for s390 as it is unconditionally true with s390 supporting PCI resource mmap() (Jason)
-> - Collected R-bs from Jason
-> - Link to v1: https://lore.kernel.org/r/20240521-vfio_pci_mmap-v1-0-2f6315e0054e@linux.ibm.com
-> 
-> ---
-> Niklas Schnelle (3):
->       s390/pci: Fix s390_mmio_read/write syscall page fault handling
->       PCI: s390: Introduce pdev->non_mappable_bars and replace VFIO_PCI_MMAP
->       PCI: s390: Support mmap() of PCI resources except for ISM devices
-> 
->  arch/s390/Kconfig                |  4 +---
->  arch/s390/include/asm/pci.h      |  3 +++
->  arch/s390/pci/Makefile           |  2 +-
->  arch/s390/pci/pci_fixup.c        | 23 +++++++++++++++++++++++
->  arch/s390/pci/pci_mmio.c         | 18 +++++++++++++-----
->  drivers/pci/pci-sysfs.c          |  4 ++++
->  drivers/pci/proc.c               |  4 ++++
->  drivers/s390/net/ism_drv.c       |  1 -
->  drivers/vfio/pci/Kconfig         |  4 ----
->  drivers/vfio/pci/vfio_pci_core.c |  2 +-
->  include/linux/pci.h              |  1 +
->  include/linux/pci_ids.h          |  1 +
->  12 files changed, 52 insertions(+), 15 deletions(-)
+> CPU: 1 UID: 0 PID: 12319 Comm: syz.7.21 Not tainted 6.14.0-rc5-dirty #2
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -128,6 +128,8 @@
+>  	struct sock *child;
+>  
+>  	smc = smc_clcsock_user_data(sk);
+> +	if (!smc)
+> +		goto drop;  // Ensure that the smc pointer is valid before accessing its members
 
-Applied to pci/resource for v6.15, thanks!
+Hi ffhgfv,
 
-I updated the subject lines to all start with "s390/pci" since that's
-where all the interesting bits are and there's only a single instance
-of "PCI: s390" in the history.
+Thanks for your report and solution.
+
+The bigger issue here is that smc_clcsock_user_data currently requires
+lock protection, which means we need to acquire the sk_callback_lock here.
+But the sk in this context is const, which violates the expected interface.
+
+In fact, we have been planning to replace sk_callback_lock with RCU, which should
+provide a better solution to this issue. However, there is still a
+significant backlog of tasks related to SMC, and we haven't had the
+bandwidth to address this yet. 
+
+Anyway, we sincerely appreciate your report, and we will fix
+this issue in the future.
+
+Best wishes,
+D. Wythe
+
+>  
+>  	if (READ_ONCE(sk-&gt;sk_ack_backlog) + atomic_read(&amp;smc-&gt;queued_smc_hs) &gt;
+>  	    sk-&gt;sk_max_ack_backlog)
+> 
+> =========================================================================
+> I hope it helps.
+> Best regards
+> Jianzhou Zhao
+> xingwei lee
+> Zhizhuo Tang</strforexctzzchange@foxmail.com></xrivendell7@gmail.com></xnxc22xnxc22@qq.com>
