@@ -1,38 +1,59 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6D68211497;
-	Thu,  6 Mar 2025 11:30:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC6061898F8;
+	Thu,  6 Mar 2025 15:25:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741260651; cv=none; b=XOr9H12UPUZrWg9NCyl/rtuXJEnFfdjTN7hXvl2PJUTyLtZbYJUbR31/cVklFcwB5eoqYbHI15Vb5sAiUn3eA40Ovd6lrEK/Dhw7FH1r5YRRzLjJKg/3AjC4MDguWVlw6g4wBr3XES3TyaNgQYeS4FwSwkgW25rPxjWGEdNueHc=
+	t=1741274751; cv=none; b=G/IXBvQu9FpK17uEVpXwkJlxpsjicpRYusOtcnaChh1TBEZyUwa15DogqkdnPQRqc6DcX4QFJfJvpDcMWudJvmOtK343zADVWEMDyD4rdekfZwJDtMHVhzXBoHf54umZ08mM45LYp5iKFTRL8r45h/1yBVZR6ZCV1x+WQ+K5AzA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741260651; c=relaxed/simple;
-	bh=r81yvisX8P4UQm9F7N7hhZ732PaheqwD7Ks9SFpA+WU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=WGZ/YGQe5rWNkInhN+Y5sTGVtrenmmk5yA6Nhk0uFtWnKce9uIp4qFQ6xw8QshZAqVoaCApkefPNVKcRYA7XlcXcqGbIJ33m+BbL2wwElrFi6c8qt1sOhVv3kmpOsGpLUZW/XGilVEViY4lBosn4SidnZkxwfUOOc6DQpw4Uk9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ler7t8+S; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741274751; c=relaxed/simple;
+	bh=zeiNMfzgxo99+vnMw5coyNY4NMGJVNsOq+fXyJY/CCk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=XUSPI/QdqP/5ArYWpNWDOI6nwW2hvn4p0GWLnMNBJlfNXhglSt/IkF4xd4EWO/BRIjRx9PJlp8yz+a0i2McLm+H2GJOB4Mug3WGKkr1HXb68bimO/2+/ZDOnel/mWXlZib/aoplDO3ORRWO0r323HTV+QYe8GT58Jk34cG48pOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nVW6BriQ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ler7t8+S"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 04DD3C4AF0C;
-	Thu,  6 Mar 2025 11:30:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741260651;
-	bh=r81yvisX8P4UQm9F7N7hhZ732PaheqwD7Ks9SFpA+WU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=ler7t8+SANzyxeocUaVFF0itfXjdU/AePkZgfwecSb9/3uHn9EJLYdOl7yEWWt26X
-	 gfbgXEaTJbubb6zSFxiE3MJRKjpQXwfLp+1G9BSGiWCqMOTvaKavbo8xZt0/BrR1yQ
-	 xn/1Ptu59MizrbpA03exoCIx/1pM/xhK+vQSaXF1DemvPMQ4BB+ko4e3aWSoWZmJSo
-	 h+loNjGifVudVHzlXFeQCHsKVqs/vwkDcO70Zfm/Qg1PgQ/lR7aNYQu7I7CYExK744
-	 r8T5gba64BoDYPfa2j0BfACWYY/s14KBueIuTPUCOSNxF9bxT0pNglBNMAlCWu/Ipr
-	 eqkJb6AowxlqA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 968BAC282D1;
-	Thu,  6 Mar 2025 11:30:50 +0000 (UTC)
-From: joel granados <joel.granados@kernel.org>
-Date: Thu, 06 Mar 2025 12:29:46 +0100
-Subject: [PATCH v2 6/6] s390: mv s390 sysctls into their own file under
- arch/s390 dir
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nVW6BriQ"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5268cFK6001014;
+	Thu, 6 Mar 2025 15:25:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=+9o3XrsSCsDhK59r5sKdttZWDrBO
+	VOhUkaFANJsL9n4=; b=nVW6BriQBFr/6MaSgpszG0ssXQ0liQUzTL9WYY2wkkf5
+	LrBry7GDAJeBqqf4kpt/5coVIuJEd8NEHrADyF+eu06OEw3LFqWJ7ZdzhY8Aa7Tm
+	4Y9+4pSyJHTY0qR9TRECyDdMmvbhTll4yapjuf4MjiiqrXUEc7sHNUq4Hti6dqHw
+	GAdIoiCsNn4lQzedBs2opXG5MG5TldCIf30QCJKtTrQkrV4tCQJbIJydlJ+N/O3H
+	9wflNVNabSNpm1ygV7B7x9Undcs6m9PWiDVTs1G47+MwmbfVCnPv+x9bF6xHXxZq
+	nINFdfoXbE46DNKEd+j6P4+yTQ3WOsS8ngEMMenusQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 456wspmmb2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Mar 2025 15:25:40 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 526F18BW008958;
+	Thu, 6 Mar 2025 15:25:39 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 454cxyshkk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 06 Mar 2025 15:25:39 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 526FPbPc6816440
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 6 Mar 2025 15:25:37 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C10B358054;
+	Thu,  6 Mar 2025 15:25:38 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1CF0C5804E;
+	Thu,  6 Mar 2025 15:25:36 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  6 Mar 2025 15:25:35 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Thu, 06 Mar 2025 16:25:29 +0100
+Subject: [PATCH] s390/pci: Fix dev.dma_range_map missing sentinel element
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,159 +62,104 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250306-jag-mv_ctltables-v2-6-71b243c8d3f8@kernel.org>
-References: <20250306-jag-mv_ctltables-v2-0-71b243c8d3f8@kernel.org>
-In-Reply-To: <20250306-jag-mv_ctltables-v2-0-71b243c8d3f8@kernel.org>
-To: Kees Cook <kees@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
- Masami Hiramatsu <mhiramat@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- Andreas Larsson <andreas@gaisler.com>, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
- linux-trace-kernel@vger.kernel.org, sparclinux@vger.kernel.org, 
- linux-s390@vger.kernel.org, Joel Granados <joel.granados@kernel.org>
+Message-Id: <20250306-fix_dma_map_alloc-v1-1-b4fa44304eac@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAGi+yWcC/x2MSQqAMBDAviJztjBaFPQrIqXLqANdpAURxL9bP
+ AaSPFAoMxWYmwcyXVw4xQpd24A9dNxJsKsMPfYDShzFxrdyQaugT6W9T1YYaXCYUDq7Gajdmal
+ K/3NZ3/cDUnlEmmMAAAA=
+X-Change-ID: 20250306-fix_dma_map_alloc-b3b05903dcfb
+To: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <jroedel@suse.de>,
+        Will Deacon <will@kernel.org>, Gerd Bayer <gbayer@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3591;
- i=joel.granados@kernel.org; h=from:subject:message-id;
- bh=r81yvisX8P4UQm9F7N7hhZ732PaheqwD7Ks9SFpA+WU=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGfJh2hk9Sl4d4/rt7M4Iv2CUUdgG9l340yBQ
- 6BGtdUWhlaPu4kBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJnyYdoAAoJELqXzVK3
- lkFPr9cL/joKGCY8wwMfNbIM/wGecy7g3xyX2KarUDFaSjpCcTGPnu4HHo8U403Jd27W/skMAG9
- oVpxYveO27v7tBMjjMuxmOZ2oslc37sV8r1ghd2AHHxFE5PgLHtp7EfmYoySst59SKwIxWndwjd
- pVILJ97rkV8dNy4VuIkf7vRkIY8TpezV37Bg3nOiStdEeBer8CwF8/YNWojUb6oF0liBQjLvBRm
- /n81HLHBv64bVKMcW/82pwTrAvtP4Skk4na6AF25lC0iSWmP3k6iPhLrV4XCy+EbJnQx4XYhmOd
- 8/AZE8B8v7esZrpw0FYYg3004UQ6mS9KpGFBjcNCE/pxhBPfeC+MRj24JINqy1oT/bZpXK3fr8H
- AMu//ZLi/gEZ7QS6vGYkolT5M0Bvq6tqF3sOhc9tEp5zdaTOCasIU05PpbNWFzq0JbHpFvox1Lh
- 3bc6S5+/kikkHL42qGx9Ze7F2QAn/4jFnKdY7QjIHiCbAv/SWJhKXtDQLxZ6maCcIhK1UKBDPI7
- W4=
-X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
- fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
-X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
- auth_id=239
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2211;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=zeiNMfzgxo99+vnMw5coyNY4NMGJVNsOq+fXyJY/CCk=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNJP7ss/oL897u6/0AWynRbX3k2I//WT43iLmRPbxtObx
+ E5vEXwk01HKwiDGxSArpsiyqMvZb13BFNM9Qf0dMHNYmUCGMHBxCsBE9LYz/OHSllw5b2Nm3Ju/
+ TNUNHZ11Ob0aXRr8R2v67S9vNk/ZYMTIMPld/6tukUeTl+slsNbvft5xQ9Hw7PNfJ2U2q8oHcZd
+ 2cgMA
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: h9s9tDUV-G7nmXUHTpACtrSWzqyPSNKY
+X-Proofpoint-ORIG-GUID: h9s9tDUV-G7nmXUHTpACtrSWzqyPSNKY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-06_05,2025-03-06_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
+ mlxlogscore=999 clxscore=1011 priorityscore=1501 phishscore=0
+ impostorscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0
+ suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2503060114
 
-Move s390 sysctls (spin_retry and userprocess_debug) into their own
-files under arch/s390. We create two new sysctl tables
-(2390_{fault,spin}_sysctl_table) which will be initialized with
-arch_initcall placing them after their original place in proc_root_init.
+The fixed commit sets up dev.dma_range_map but missed that this is
+supposed to be an array of struct bus_dma_region with a sentinel element
+with the size field set to 0 at the end. This would lead to overruns in
+e.g. dma_range_map_min(). It could also result in wrong translations
+instead of DMA_MAPPIN_ERROR in translate_phys_to_dma() if the paddr were
+to not fit in the aperture. Fix this by using the dma_direct_set_offset()
+helper which creates a sentinel for us.
 
-This is part of a greater effort to move ctl tables into their
-respective subsystems which will reduce the merge conflicts in
-kernel/sysctl.c.
-
-Signed-off-by: joel granados <joel.granados@kernel.org>
+Fixes: d236843a6964 ("s390/pci: store DMA offset in bus_dma_region")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- arch/s390/lib/spinlock.c | 18 ++++++++++++++++++
- arch/s390/mm/fault.c     | 17 +++++++++++++++++
- kernel/sysctl.c          | 18 ------------------
- 3 files changed, 35 insertions(+), 18 deletions(-)
+This is based on iommu/next which contains the fixed commit
+---
+ arch/s390/pci/pci_bus.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
-index a81a01c449272ebad77cb031992078ac8e255eb8..6870b9e03456c34a1dc5c0c706f8e8bf1c4140e8 100644
---- a/arch/s390/lib/spinlock.c
-+++ b/arch/s390/lib/spinlock.c
-@@ -16,6 +16,7 @@
- #include <linux/io.h>
- #include <asm/alternative.h>
- #include <asm/asm.h>
-+#include <linux/sysctl.h>
- 
- int spin_retry = -1;
- 
-@@ -37,6 +38,23 @@ static int __init spin_retry_setup(char *str)
- }
- __setup("spin_retry=", spin_retry_setup);
- 
-+static const struct ctl_table s390_spin_sysctl_table[] = {
-+	{
-+		.procname	= "spin_retry",
-+		.data		= &spin_retry,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+	},
-+};
-+
-+static int __init init_s390_spin_sysctls(void)
-+{
-+	register_sysctl_init("kernel", s390_spin_sysctl_table);
-+	return 0;
-+}
-+arch_initcall(init_s390_spin_sysctls);
-+
- struct spin_wait {
- 	struct spin_wait *next, *prev;
- 	int node_id;
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9b681f74dccc1f525bafe150acf91e666a60d2bd..507da355bf68271c30115a797368f950707a2d8e 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -175,6 +175,23 @@ static void dump_fault_info(struct pt_regs *regs)
- 
- int show_unhandled_signals = 1;
- 
-+static const struct ctl_table s390_fault_sysctl_table[] = {
-+	{
-+		.procname	= "userprocess_debug",
-+		.data		= &show_unhandled_signals,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+	},
-+};
-+
-+static int __init init_s390_fault_sysctls(void)
-+{
-+	register_sysctl_init("kernel", s390_fault_sysctl_table);
-+	return 0;
-+}
-+arch_initcall(init_s390_fault_sysctls);
-+
- void report_user_fault(struct pt_regs *regs, long signr, int is_mm_fault)
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index 0e725039861f92925a38f7ff7cb6de6b0d965ac3..14310c3b48860a16de13536adf95ef99e6af21cc 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -287,23 +287,21 @@ static struct zpci_bus *zpci_bus_alloc(int topo, bool topo_is_tid)
+ static void pci_dma_range_setup(struct pci_dev *pdev)
  {
- 	static DEFINE_RATELIMIT_STATE(rs, DEFAULT_RATELIMIT_INTERVAL, DEFAULT_RATELIMIT_BURST);
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 0dc41eea1dbd34396c323118cfd0e3133c6993a1..34c525ad0e0e0fe3b64c2ec730e443a75b55f3a3 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1709,15 +1709,6 @@ static const struct ctl_table kern_table[] = {
- 		.extra1		= SYSCTL_ZERO,
- 		.extra2		= SYSCTL_MAXOLDUID,
- 	},
--#ifdef CONFIG_S390
--	{
--		.procname	= "userprocess_debug",
--		.data		= &show_unhandled_signals,
--		.maxlen		= sizeof(int),
--		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
--	},
--#endif
- 	{
- 		.procname	= "ngroups_max",
- 		.data		= (void *)&ngroups_max,
-@@ -1798,15 +1789,6 @@ static const struct ctl_table kern_table[] = {
- 		.proc_handler	= proc_dointvec,
- 	},
- #endif
--#if defined(CONFIG_S390) && defined(CONFIG_SMP)
--	{
--		.procname	= "spin_retry",
--		.data		= &spin_retry,
--		.maxlen		= sizeof (int),
--		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
--	},
--#endif
- #if	defined(CONFIG_ACPI_SLEEP) && defined(CONFIG_X86)
- 	{
- 		.procname	= "acpi_video_flags",
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+-	struct bus_dma_region *map;
+-	u64 aligned_end;
++	u64 aligned_end, size;
++	dma_addr_t dma_start;
++	int ret;
+ 
+-	map = kzalloc(sizeof(*map), GFP_KERNEL);
+-	if (!map)
+-		return;
+-
+-	map->cpu_start = 0;
+-	map->dma_start = PAGE_ALIGN(zdev->start_dma);
++	dma_start = PAGE_ALIGN(zdev->start_dma);
+ 	aligned_end = PAGE_ALIGN_DOWN(zdev->end_dma + 1);
+-	if (aligned_end >= map->dma_start)
+-		map->size = aligned_end - map->dma_start;
++	if (aligned_end >= dma_start)
++		size = aligned_end - dma_start;
+ 	else
+-		map->size = 0;
+-	WARN_ON_ONCE(map->size == 0);
++		size = 0;
++	WARN_ON_ONCE(size == 0);
+ 
+-	pdev->dev.dma_range_map = map;
++	ret = dma_direct_set_offset(&pdev->dev, 0, dma_start, size);
++	if (ret)
++		pr_err("Failed to allocate DMA range map for %s\n", pci_name(pdev));
+ }
+ 
+ void pcibios_bus_add_device(struct pci_dev *pdev)
 
+---
+base-commit: e840414e5a73ac02ffba6299b46f535a0b7cba98
+change-id: 20250306-fix_dma_map_alloc-b3b05903dcfb
+
+Best regards,
 -- 
-2.47.2
-
+Niklas Schnelle
 
