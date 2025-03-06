@@ -1,165 +1,121 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC6061898F8;
-	Thu,  6 Mar 2025 15:25:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFAB720E71F;
+	Thu,  6 Mar 2025 15:31:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741274751; cv=none; b=G/IXBvQu9FpK17uEVpXwkJlxpsjicpRYusOtcnaChh1TBEZyUwa15DogqkdnPQRqc6DcX4QFJfJvpDcMWudJvmOtK343zADVWEMDyD4rdekfZwJDtMHVhzXBoHf54umZ08mM45LYp5iKFTRL8r45h/1yBVZR6ZCV1x+WQ+K5AzA=
+	t=1741275100; cv=none; b=IbFj/h3e+h0Wi0L1yxqLCdloQy7xPfg0zR20Xc5iE4WLsIXDkV0xFiKauVjt3y2psHtP9SZh4gt2exvBpxq73PWFvyN1zi65ItZEP/rnI2RHqIUk8RljB1IbW/Z9kd9Isen7XFYd1I3ZQsUk9aerw0mfvQvr5tOZlZA/uFSd4rg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741274751; c=relaxed/simple;
-	bh=zeiNMfzgxo99+vnMw5coyNY4NMGJVNsOq+fXyJY/CCk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=XUSPI/QdqP/5ArYWpNWDOI6nwW2hvn4p0GWLnMNBJlfNXhglSt/IkF4xd4EWO/BRIjRx9PJlp8yz+a0i2McLm+H2GJOB4Mug3WGKkr1HXb68bimO/2+/ZDOnel/mWXlZib/aoplDO3ORRWO0r323HTV+QYe8GT58Jk34cG48pOQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nVW6BriQ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nVW6BriQ"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5268cFK6001014;
-	Thu, 6 Mar 2025 15:25:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=+9o3XrsSCsDhK59r5sKdttZWDrBO
-	VOhUkaFANJsL9n4=; b=nVW6BriQBFr/6MaSgpszG0ssXQ0liQUzTL9WYY2wkkf5
-	LrBry7GDAJeBqqf4kpt/5coVIuJEd8NEHrADyF+eu06OEw3LFqWJ7ZdzhY8Aa7Tm
-	4Y9+4pSyJHTY0qR9TRECyDdMmvbhTll4yapjuf4MjiiqrXUEc7sHNUq4Hti6dqHw
-	GAdIoiCsNn4lQzedBs2opXG5MG5TldCIf30QCJKtTrQkrV4tCQJbIJydlJ+N/O3H
-	9wflNVNabSNpm1ygV7B7x9Undcs6m9PWiDVTs1G47+MwmbfVCnPv+x9bF6xHXxZq
-	nINFdfoXbE46DNKEd+j6P4+yTQ3WOsS8ngEMMenusQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 456wspmmb2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Mar 2025 15:25:40 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 526F18BW008958;
-	Thu, 6 Mar 2025 15:25:39 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 454cxyshkk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 06 Mar 2025 15:25:39 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 526FPbPc6816440
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 6 Mar 2025 15:25:37 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C10B358054;
-	Thu,  6 Mar 2025 15:25:38 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1CF0C5804E;
-	Thu,  6 Mar 2025 15:25:36 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  6 Mar 2025 15:25:35 +0000 (GMT)
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Date: Thu, 06 Mar 2025 16:25:29 +0100
-Subject: [PATCH] s390/pci: Fix dev.dma_range_map missing sentinel element
+	s=arc-20240116; t=1741275100; c=relaxed/simple;
+	bh=SQ4miVnhmPAoOA/6WTcJSGaPc/CNU83guyGxo0OGbvY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UwuhCBDV47wPMx4E5OlxGd9tBSzWPoNQ+wN4SCzkkdF/Z+cSNkQgOy33popx0pJmciuFW6yR9x/V45aMGDET1gESRnCixJhnFo6/7rfUBnxZd1OfcEwRH4KSBOiOVanAqw/uggeteDuD26h+6AOln3nPaJYR0CjVVEyQ7oKRb6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A15C4CEE4;
+	Thu,  6 Mar 2025 15:31:38 +0000 (UTC)
+Date: Thu, 6 Mar 2025 10:31:38 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Kees Cook <kees@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Gerald
+ Schaefer <gerald.schaefer@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 4/6] stack_tracer: move sysctl registration to
+ kernel/trace/trace_stack.c
+Message-ID: <20250306103138.3cfc2955@gandalf.local.home>
+In-Reply-To: <20250306-jag-mv_ctltables-v2-4-71b243c8d3f8@kernel.org>
+References: <20250306-jag-mv_ctltables-v2-0-71b243c8d3f8@kernel.org>
+	<20250306-jag-mv_ctltables-v2-4-71b243c8d3f8@kernel.org>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250306-fix_dma_map_alloc-v1-1-b4fa44304eac@linux.ibm.com>
-X-B4-Tracking: v=1; b=H4sIAGi+yWcC/x2MSQqAMBDAviJztjBaFPQrIqXLqANdpAURxL9bP
- AaSPFAoMxWYmwcyXVw4xQpd24A9dNxJsKsMPfYDShzFxrdyQaugT6W9T1YYaXCYUDq7Gajdmal
- K/3NZ3/cDUnlEmmMAAAA=
-X-Change-ID: 20250306-fix_dma_map_alloc-b3b05903dcfb
-To: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <jroedel@suse.de>,
-        Will Deacon <will@kernel.org>, Gerd Bayer <gbayer@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, iommu@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2211;
- i=schnelle@linux.ibm.com; h=from:subject:message-id;
- bh=zeiNMfzgxo99+vnMw5coyNY4NMGJVNsOq+fXyJY/CCk=;
- b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNJP7ss/oL897u6/0AWynRbX3k2I//WT43iLmRPbxtObx
- E5vEXwk01HKwiDGxSArpsiyqMvZb13BFNM9Qf0dMHNYmUCGMHBxCsBE9LYz/OHSllw5b2Nm3Ju/
- TNUNHZ11Ob0aXRr8R2v67S9vNk/ZYMTIMPld/6tukUeTl+slsNbvft5xQ9Hw7PNfJ2U2q8oHcZd
- 2cgMA
-X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
- fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: h9s9tDUV-G7nmXUHTpACtrSWzqyPSNKY
-X-Proofpoint-ORIG-GUID: h9s9tDUV-G7nmXUHTpACtrSWzqyPSNKY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-06_05,2025-03-06_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- mlxlogscore=999 clxscore=1011 priorityscore=1501 phishscore=0
- impostorscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=0
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2503060114
 
-The fixed commit sets up dev.dma_range_map but missed that this is
-supposed to be an array of struct bus_dma_region with a sentinel element
-with the size field set to 0 at the end. This would lead to overruns in
-e.g. dma_range_map_min(). It could also result in wrong translations
-instead of DMA_MAPPIN_ERROR in translate_phys_to_dma() if the paddr were
-to not fit in the aperture. Fix this by using the dma_direct_set_offset()
-helper which creates a sentinel for us.
+On Thu, 06 Mar 2025 12:29:44 +0100
+Joel Granados <joel.granados@kernel.org> wrote:
 
-Fixes: d236843a6964 ("s390/pci: store DMA offset in bus_dma_region")
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-This is based on iommu/next which contains the fixed commit
----
- arch/s390/pci/pci_bus.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+> Move stack_tracer_enabled into trace_stack_sysctl_table. This is part of
+> a greater effort to move ctl tables into their respective subsystems
+> which will reduce the merge conflicts in kerenel/sysctl.c.
+> 
+> Signed-off-by: Joel Granados <joel.granados@kernel.org>
+> ---
+>  kernel/sysctl.c            | 10 ----------
+>  kernel/trace/trace_stack.c | 20 ++++++++++++++++++++
+>  2 files changed, 20 insertions(+), 10 deletions(-)
+> 
+> diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+> index baa250e223a26bafc39cb7a7d7635b4f7f5dcf56..dc3747cc72d470662879e4f2b7f2651505b7ca90 100644
+> --- a/kernel/sysctl.c
+> +++ b/kernel/sysctl.c
+> @@ -68,7 +68,6 @@
+>  
+>  #ifdef CONFIG_X86
+>  #include <asm/nmi.h>
+> -#include <asm/stacktrace.h>
+>  #include <asm/io.h>
+>  #endif
+>  #ifdef CONFIG_SPARC
+> @@ -1674,15 +1673,6 @@ static const struct ctl_table kern_table[] = {
+>  		.proc_handler	= proc_dointvec,
+>  	},
+>  #endif
+> -#ifdef CONFIG_STACK_TRACER
+> -	{
+> -		.procname	= "stack_tracer_enabled",
+> -		.data		= &stack_tracer_enabled,
+> -		.maxlen		= sizeof(int),
+> -		.mode		= 0644,
+> -		.proc_handler	= stack_trace_sysctl,
+> -	},
+> -#endif
+>  #ifdef CONFIG_MODULES
+>  	{
+>  		.procname	= "modprobe",
+> diff --git a/kernel/trace/trace_stack.c b/kernel/trace/trace_stack.c
+> index 14c6f272c4d8a382070d45e1cf0ee97db38831c9..b7ffbc1da8357f9c252cb8936c8f789daa97eb9a 100644
+> --- a/kernel/trace/trace_stack.c
+> +++ b/kernel/trace/trace_stack.c
+> @@ -578,3 +578,23 @@ static __init int stack_trace_init(void)
+>  }
+>  
+>  device_initcall(stack_trace_init);
+> +
+> +
+> +static const struct ctl_table trace_stack_sysctl_table[] = {
+> +	{
+> +		.procname	= "stack_tracer_enabled",
+> +		.data		= &stack_tracer_enabled,
+> +		.maxlen		= sizeof(int),
+> +		.mode		= 0644,
+> +		.proc_handler	= stack_trace_sysctl,
+> +	},
+> +};
+> +
+> +static int __init init_trace_stack_sysctls(void)
+> +{
+> +	register_sysctl_init("kernel", trace_stack_sysctl_table);
+> +	return 0;
+> +}
+> +subsys_initcall(init_trace_stack_sysctls);
+> +
+> +
+> 
 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 0e725039861f92925a38f7ff7cb6de6b0d965ac3..14310c3b48860a16de13536adf95ef99e6af21cc 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -287,23 +287,21 @@ static struct zpci_bus *zpci_bus_alloc(int topo, bool topo_is_tid)
- static void pci_dma_range_setup(struct pci_dev *pdev)
- {
- 	struct zpci_dev *zdev = to_zpci(pdev);
--	struct bus_dma_region *map;
--	u64 aligned_end;
-+	u64 aligned_end, size;
-+	dma_addr_t dma_start;
-+	int ret;
- 
--	map = kzalloc(sizeof(*map), GFP_KERNEL);
--	if (!map)
--		return;
--
--	map->cpu_start = 0;
--	map->dma_start = PAGE_ALIGN(zdev->start_dma);
-+	dma_start = PAGE_ALIGN(zdev->start_dma);
- 	aligned_end = PAGE_ALIGN_DOWN(zdev->end_dma + 1);
--	if (aligned_end >= map->dma_start)
--		map->size = aligned_end - map->dma_start;
-+	if (aligned_end >= dma_start)
-+		size = aligned_end - dma_start;
- 	else
--		map->size = 0;
--	WARN_ON_ONCE(map->size == 0);
-+		size = 0;
-+	WARN_ON_ONCE(size == 0);
- 
--	pdev->dev.dma_range_map = map;
-+	ret = dma_direct_set_offset(&pdev->dev, 0, dma_start, size);
-+	if (ret)
-+		pr_err("Failed to allocate DMA range map for %s\n", pci_name(pdev));
- }
- 
- void pcibios_bus_add_device(struct pci_dev *pdev)
+This should also make the variable "stack_tracer_enabled" static and
+removed from the ftrace.h header.
 
----
-base-commit: e840414e5a73ac02ffba6299b46f535a0b7cba98
-change-id: 20250306-fix_dma_map_alloc-b3b05903dcfb
-
-Best regards,
--- 
-Niklas Schnelle
+-- Steve
 
