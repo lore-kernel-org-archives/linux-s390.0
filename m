@@ -1,149 +1,131 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A4C101F2;
-	Fri,  7 Mar 2025 15:29:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B764515746E;
+	Fri,  7 Mar 2025 23:14:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741361371; cv=none; b=prTrNJs4Nb9kJI/9e8Am5iyvlF9bM1BsNjlO0AIhY90DYZhEBqj8qLCeZLOvLvXfn+2c99t61LZmPitymVYH2osuEe4I1jCsShk89hLjYP65Dr3iMdozymYw9O9LbKkXg5B6rjpqLjAz3fwtnoRUOtDOVKmqUZlom3IYjiXr314=
+	t=1741389246; cv=none; b=f2y2bR3KLObNH3XN5JiOfg+yghSfuuYRmJMCzl3Qc80xWDj3Jh4mqZ8GNnYUEc7sOJquWWJITB1BcRVrkWnwJCptnywb6T/gNVvQbPJMfQXOjLNCg6B6bPCCSabQaEMH66rEEjS0Y5izohaSd+2FsXhnKVKVC9ZpdVCp5Z0IBx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741361371; c=relaxed/simple;
-	bh=IQGBIqRB4GzYAQ/tDFR+0LkWEAzC++ZVR1ooYLXKi7w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oswP1zt/tvvfvx2OTk18YH+EQN+g2AO65nyU7GAlGI+kHHuFK+l48z7OTQHin7SY7qM6MIG/qsflFG+lEvN3ghgGljBJ7+dIXzxuLntbWKE/De836ZzQ3+ehjFaH/nPYqzg7tORHuwdpeloWXJjexs4BPCbBC8mkK+7IEQZnwCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qKQQC8sC; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1741389246; c=relaxed/simple;
+	bh=4C9O5IfLxoqALAVxpI1tRWW7zTFY8vqbF0bNmC70UVw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=BUAAZvjRJn68wiL+Fj7K7fu7YYxtxGHTerrqpGDPMW3B5EZ83g8Zn7ZvjHTo7Da6/M6qnCYuqqHwB/SzNw85m/kRDeUEsbCCh0x2Jl26dRZxgKUQ+aOWqWSa0X3NbcB+8IMaqtE8wqq5ZitfObW+1D/i9EEyvSMCriCZm0v352E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BFjrU/uC; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qKQQC8sC"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 527E3AWH028905;
-	Fri, 7 Mar 2025 15:28:27 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BFjrU/uC"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 527KqTPL023264;
+	Fri, 7 Mar 2025 23:14:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Y0KvhWxi6k4smjT1a6uHtK0WLe6VaK
-	HOV2hSoWFI5bI=; b=qKQQC8sCg9pR0Rgf2U4SjNR+davwX5FjEufMomgRsB00fg
-	zyRoTfxYxXh4Y8vuiZOJjrJtRUBqHxyVXsqcdfStADiDsVoEhvGXke2IzKBOI/hb
-	WiESqINaMWZlctFARnqnvnWiPTNBO/qTgrLVOx+veNXvwWI6SMXfFRzUxY07Dh9Y
-	p4E9rDCnukHT+Y6EVG26BlOZ16mHO3x7KhgMU6qM64BlKcUlVNv2REetqaorOfxE
-	Hv9tuR0tLZlF0MsbPIllc5+326ZsUeYtZPM3HYRousN2gYIQuhJdn4OFhBw8Ldam
-	BqYL6oneEKifef2Z24hvK1SLIU1JVnxU0/X7HqUg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45827p8e9e-1
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=9fzZUkk8QdDhoK9eiYVYMl630UKE
+	8hRxbL04c2VHNbQ=; b=BFjrU/uCLB9lApiTyTzgXstIXP9YrH0OFSv4vAVBBhUy
+	+2AJppWxohrefaiSNdY+Caz8sloRL2phKIu91SHPK67MivxoH5cmM62qCRAMYU1D
+	mzL5+wZqCrBSPTJs7z+eRwZUrWUHwE8Ag57LFquXq3mQylVmzRxsIJDSf7cXV5JG
+	EuaxgptJxV6eK+KYs+DLROwxZpJNXhervICmLpxrvzPeyfEYRc2h0vaUt+EilvSE
+	ewdLWD0znK9ex2u8zR4e9d9IdIv1g2lodTiwpePL0TtsLj21GsYK0DdxJhxeUzkH
+	LtBRiy/ipAGh6r5hT9a+e1tRToSW/nrea7VI/5CDfw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4588768eev-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Mar 2025 15:28:26 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 527FOGZe009112;
-	Fri, 7 Mar 2025 15:28:26 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45827p8e9b-1
+	Fri, 07 Mar 2025 23:14:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 527N3pSV009038;
+	Fri, 7 Mar 2025 23:14:01 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 454cy01mws-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Mar 2025 15:28:25 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 527CW0hk013724;
-	Fri, 7 Mar 2025 15:28:24 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 454e2m7eh2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 07 Mar 2025 15:28:24 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 527FSKc034669078
+	Fri, 07 Mar 2025 23:14:01 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 527NDv7g52953400
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 7 Mar 2025 15:28:20 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4BC592004D;
-	Fri,  7 Mar 2025 15:28:20 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CBC420040;
-	Fri,  7 Mar 2025 15:28:17 +0000 (GMT)
-Received: from osiris (unknown [9.171.2.237])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  7 Mar 2025 15:28:17 +0000 (GMT)
-Date: Fri, 7 Mar 2025 16:28:15 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Fri, 7 Mar 2025 23:13:58 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DEC0A2004D;
+	Fri,  7 Mar 2025 23:13:57 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 641C520043;
+	Fri,  7 Mar 2025 23:13:57 +0000 (GMT)
+Received: from localhost (unknown [9.179.11.245])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  7 Mar 2025 23:13:57 +0000 (GMT)
+Date: Sat, 8 Mar 2025 00:13:55 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Richard Weinberger <richard@nod.at>,
-        Russell King <linux@armlinux.org.uk>,
-        Stafford Horne <shorne@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-        Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
-Subject: Re: [PATCH 07/13] s390: make setup_zero_pages() use memblock
-Message-ID: <20250307152815.9880Gbd-hca@linux.ibm.com>
-References: <20250306185124.3147510-1-rppt@kernel.org>
- <20250306185124.3147510-8-rppt@kernel.org>
+        Shuah Khan <skhan@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [GIT PULL] s390 updates for 6.14-rc6
+Message-ID: <your-ad-here.call-01741389235-ext-8883@work.hours>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250306185124.3147510-8-rppt@kernel.org>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: A6EZhWyKm6a7TATSJL5pnfOrX3P29DY0
-X-Proofpoint-GUID: Cc95RTw9axkwgZElLQM4IM54NfQR-ck-
+X-Proofpoint-ORIG-GUID: 1Uh7G7H5ec4mEeRFGTGArVS_oHZuerkE
+X-Proofpoint-GUID: 1Uh7G7H5ec4mEeRFGTGArVS_oHZuerkE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-07_06,2025-03-06_04,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 bulkscore=0 clxscore=1011 spamscore=0 mlxlogscore=334
- malwarescore=0 lowpriorityscore=0 phishscore=0 adultscore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2503070115
+ definitions=2025-03-07_08,2025-03-07_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ mlxlogscore=782 priorityscore=1501 suspectscore=0 malwarescore=0
+ adultscore=0 impostorscore=0 phishscore=0 mlxscore=0 bulkscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2503070173
 
-On Thu, Mar 06, 2025 at 08:51:17PM +0200, Mike Rapoport wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> 
-> Allocating the zero pages from memblock is simpler because the memory is
-> already reserved.
-> 
-> This will also help with pulling out memblock_free_all() to the generic
-> code and reducing code duplication in arch::mem_init().
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  arch/s390/mm/init.c | 14 +++-----------
->  1 file changed, 3 insertions(+), 11 deletions(-)
+Hello Linus,
 
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+please pull s390 fixes for 6.14-rc6. There is also a vDSO selftest fix
+for s390, acked by Shuah Khan.
 
-> -	empty_zero_page = __get_free_pages(GFP_KERNEL | __GFP_ZERO, order);
-> +	empty_zero_page = (unsigned long)memblock_alloc(PAGE_SIZE << order, order);
->  	if (!empty_zero_page)
->  		panic("Out of memory in setup_zero_pages");
+Thank you,
+Vasily
 
-This could have been converted to memblock_alloc_or_panic(), but I
-guess this can also be done at a later point in time.
+The following changes since commit c3a589fd9fcbf295a7402a4b188dc9277d505f4f:
+
+  s390/boot: Fix ESSA detection (2025-02-18 18:49:24 +0100)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.14-6
+
+for you to fetch changes up to b4a1dec11793936ffe1a9fb811724532ff3b1174:
+
+  s390/ftrace: Fix return address recovery of traced function (2025-03-04 17:15:19 +0100)
+
+----------------------------------------------------------------
+s390 updates for 6.14-rc6
+
+- Fix return address recovery of traced function in ftrace to ensure
+  reliable stack unwinding
+
+- Fix compiler warnings and runtime crashes of vDSO selftests on s390 by
+  introducing a dedicated GNU hash bucket pointer with correct 32-bit
+  entry size
+
+- Fix test_monitor_call() inline asm, which misses CC clobber, by
+  switching to an instruction that doesn't modify CC
+
+----------------------------------------------------------------
+Heiko Carstens (1):
+      s390/traps: Fix test_monitor_call() inline assembly
+
+Sumanth Korikkar (1):
+      s390/ftrace: Fix return address recovery of traced function
+
+Thomas Weißschuh (1):
+      selftests/vDSO: Fix GNU hash table entry size for s390x
+
+ arch/s390/kernel/ftrace.c                 |  3 ++-
+ arch/s390/kernel/traps.c                  |  6 +++---
+ tools/testing/selftests/vDSO/parse_vdso.c | 10 +++++-----
+ 3 files changed, 10 insertions(+), 9 deletions(-)
