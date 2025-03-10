@@ -1,50 +1,56 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 05C032AE93;
-	Mon, 10 Mar 2025 09:59:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A754E1A7046
+	for <linux-s390@vger.kernel.org>; Mon, 10 Mar 2025 10:27:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741600768; cv=none; b=Zv4o4nNirxJp+y21AZisArQE4dt/NT9xKeY+IVLy5fByw0mdpQy7tqg+zcseduLSCFNVEHfIMoYb+83bRu0shs22YidAdlsqoL3EQWxEUzbK6/lIHfYkUdpP0tQS6YzBUkcHvcZeFd27BZiGKLslfBDun0MpoG2v+rK90GtYHCk=
+	t=1741602429; cv=none; b=Jm/l5wyeyNl9i1Xs1yhJ9QDBLYbsLAR4apXRMJ4lzkRpJQOFdG/FNX5yLGpRkmW0GMw3zQ51+IO24cXc84C84vDkfMUodVdpGjpeBl8c8jeLhcTS11OF2gTVmIb91OhxUQqes4SxdPqpDI7/RE0ZCLT3MUJ3JZPMPhgDTxTaDRo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741600768; c=relaxed/simple;
-	bh=nOsFQq3rKL4YonQQCQPrpTwWAHNMeeMHV+wVDjTJLC0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=tCBfnwaycaJhmW+k0TN+x9hA2y7P5IjQx2a9Tais4wlFHm+C9dH3u9RsRvEYXCV0OSrwtqFqrQGNHepqnwf16XWOYZ6yBTeqaBje4uBLHSiGP9mO8OC/63Wlvc/cTh4bs/Etz1Oxro2QEJ1IsK6q1pZZCBzMbfMqhYKXhu4SuyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BF12826BA;
-	Mon, 10 Mar 2025 02:59:37 -0700 (PDT)
-Received: from a077893.arm.com (unknown [10.163.42.69])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id CB0C43F673;
-	Mon, 10 Mar 2025 02:59:19 -0700 (PDT)
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-To: linux-mm@kvack.org
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	Marc Zyngier <maz@kernel.org>
-Subject: [RFC 2/2] arm64/ptdump: Replace u64 with pteval_t
-Date: Mon, 10 Mar 2025 15:29:02 +0530
-Message-Id: <20250310095902.390664-3-anshuman.khandual@arm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20250310095902.390664-1-anshuman.khandual@arm.com>
-References: <20250310095902.390664-1-anshuman.khandual@arm.com>
+	s=arc-20240116; t=1741602429; c=relaxed/simple;
+	bh=MrBVUwCDm2OakJrVwX6zAR4hOAXk414rT6sUa1Arz4E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JQbNPdvZIs1VHnuz+x7rLzavSLwNLiA8KrrHUff+pNtxbU24NW/PQ0JSlsR4stFOJ3PDpJZsHdxkXwQtBSk6iMGBdY4Yw326NX13bZL28PkhFWCT+/DHACGGg4/jsCePRFXPMSMhn8kTBcKYT4dLLAK2a4PNHMbsJdqd1xbYamw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DLypkPaZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DLypkPaZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741602426;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=a7eB7B6rszVCe0tDMlDTsG+YUCKsUgoY9Moab3I6Eks=;
+	b=DLypkPaZ3SOOtU4rRUam79Ba9X2eEzj3OmatFUp1y7UPhRSvsbZKGxTXtVFCIwMDvH9k+a
+	0Qw1YieeajQbtOlcs5ZogWKMvM+ynQFW8AlVc3dMbBhKcTwufwCe56ioaZK4KGhPehqwvS
+	+fQlqhorzbIzz14UxgZC0XaNvz/4Yrc=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-423-YFrv94yXMyeRLTgewdaJyg-1; Mon,
+ 10 Mar 2025 06:27:03 -0400
+X-MC-Unique: YFrv94yXMyeRLTgewdaJyg-1
+X-Mimecast-MFC-AGG-ID: YFrv94yXMyeRLTgewdaJyg_1741602422
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 17F6D18004A9;
+	Mon, 10 Mar 2025 10:27:02 +0000 (UTC)
+Received: from thuth-p1g4.redhat.com (unknown [10.45.226.133])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 582BF1800946;
+	Mon, 10 Mar 2025 10:26:59 +0000 (UTC)
+From: Thomas Huth <thuth@redhat.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/uapi: Replace __ASSEMBLY__ with __ASSEMBLER__ in uapi headers
+Date: Mon, 10 Mar 2025 11:26:57 +0100
+Message-ID: <20250310102657.54557-1-thuth@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -52,92 +58,85 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Page table entry's value, mask and protection are represented with pteval_t
-data type format not u64 that has been assumed while dumping the page table
-entries. Replace all such u64 instances with pteval_t instead as required.
+__ASSEMBLY__ is only defined by the Makefile of the kernel, so
+this is not really useful for uapi headers (unless the userspace
+Makefile defines it, too). Let's switch to __ASSEMBLER__ which
+gets set automatically by the compiler when compiling assembly
+code.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
 ---
- arch/arm64/include/asm/ptdump.h | 12 ++++++------
- arch/arm64/mm/ptdump.c          |  4 ++--
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ arch/s390/include/uapi/asm/ptrace.h | 5 +++--
+ arch/s390/include/uapi/asm/schid.h  | 4 ++--
+ arch/s390/include/uapi/asm/types.h  | 4 ++--
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/include/asm/ptdump.h b/arch/arm64/include/asm/ptdump.h
-index 8baba0d1aa8f..8ade657547f9 100644
---- a/arch/arm64/include/asm/ptdump.h
-+++ b/arch/arm64/include/asm/ptdump.h
-@@ -24,8 +24,8 @@ struct ptdump_info {
+diff --git a/arch/s390/include/uapi/asm/ptrace.h b/arch/s390/include/uapi/asm/ptrace.h
+index bb0826024bb95..ea202072f1ad5 100644
+--- a/arch/s390/include/uapi/asm/ptrace.h
++++ b/arch/s390/include/uapi/asm/ptrace.h
+@@ -242,7 +242,8 @@
+ #define PTRACE_OLDSETOPTIONS		21
+ #define PTRACE_SYSEMU			31
+ #define PTRACE_SYSEMU_SINGLESTEP	32
+-#ifndef __ASSEMBLY__
++
++#ifndef __ASSEMBLER__
+ #include <linux/stddef.h>
+ #include <linux/types.h>
+ 
+@@ -450,6 +451,6 @@ struct user_regs_struct {
+ 	unsigned long ieee_instruction_pointer;	/* obsolete, always 0 */
  };
  
- struct ptdump_prot_bits {
--	u64		mask;
--	u64		val;
-+	pteval_t	mask;
-+	pteval_t	val;
- 	const char	*set;
- 	const char	*clear;
- };
-@@ -34,7 +34,7 @@ struct ptdump_pg_level {
- 	const struct ptdump_prot_bits *bits;
- 	char name[4];
- 	int num;
--	u64 mask;
-+	pteval_t mask;
- };
+-#endif /* __ASSEMBLY__ */
++#endif /* __ASSEMBLER__ */
  
- /*
-@@ -51,7 +51,7 @@ struct ptdump_pg_state {
- 	const struct mm_struct *mm;
- 	unsigned long start_address;
- 	int level;
--	u64 current_prot;
-+	pteval_t current_prot;
- 	bool check_wx;
- 	unsigned long wx_pages;
- 	unsigned long uxn_pages;
-@@ -59,7 +59,7 @@ struct ptdump_pg_state {
+ #endif /* _UAPI_S390_PTRACE_H */
+diff --git a/arch/s390/include/uapi/asm/schid.h b/arch/s390/include/uapi/asm/schid.h
+index a3e1cf1685534..d804d1a5b1b3f 100644
+--- a/arch/s390/include/uapi/asm/schid.h
++++ b/arch/s390/include/uapi/asm/schid.h
+@@ -4,7 +4,7 @@
  
- void ptdump_walk(struct seq_file *s, struct ptdump_info *info);
- void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--	       u64 val);
-+	       pteval_t val);
- void note_page_pte(struct ptdump_state *st, unsigned long addr, pte_t pte);
- void note_page_pmd(struct ptdump_state *st, unsigned long addr, pmd_t pmd);
- void note_page_pud(struct ptdump_state *st, unsigned long addr, pud_t pud);
-@@ -74,7 +74,7 @@ static inline void ptdump_debugfs_register(struct ptdump_info *info,
- #endif /* CONFIG_PTDUMP_DEBUGFS */
- #else
- static inline void note_page(struct ptdump_state *pt_st, unsigned long addr,
--			     int level, u64 val) { }
-+			     int level, pteval_t val) { }
- static inline void note_page_pte(struct ptdump_state *st, unsigned long addr, pte_t pte) { }
- static inline void note_page_pmd(struct ptdump_state *st, unsigned long addr, pmd_t pmd) { }
- static inline void note_page_pud(struct ptdump_state *st, unsigned long addr, pud_t pud) { }
-diff --git a/arch/arm64/mm/ptdump.c b/arch/arm64/mm/ptdump.c
-index 0c66c8474a48..7950c0e9e89c 100644
---- a/arch/arm64/mm/ptdump.c
-+++ b/arch/arm64/mm/ptdump.c
-@@ -189,12 +189,12 @@ static void note_prot_wx(struct ptdump_pg_state *st, unsigned long addr)
- }
+ #include <linux/types.h>
  
- void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--	       u64 val)
-+	       pteval_t val)
- {
- 	struct ptdump_pg_state *st = container_of(pt_st, struct ptdump_pg_state, ptdump);
- 	struct ptdump_pg_level *pg_level = st->pg_level;
- 	static const char units[] = "KMGTPE";
--	u64 prot = 0;
-+	pteval_t prot = 0;
+-#ifndef __ASSEMBLY__
++#ifndef __ASSEMBLER__
  
- 	/* check if the current level has been folded dynamically */
- 	if (st->mm && ((level == 1 && mm_p4d_folded(st->mm)) ||
+ struct subchannel_id {
+ 	__u32 cssid : 8;
+@@ -15,6 +15,6 @@ struct subchannel_id {
+ 	__u32 sch_no : 16;
+ } __attribute__ ((packed, aligned(4)));
+ 
+-#endif /* __ASSEMBLY__ */
++#endif /* __ASSEMBLER__ */
+ 
+ #endif /* _UAPIASM_SCHID_H */
+diff --git a/arch/s390/include/uapi/asm/types.h b/arch/s390/include/uapi/asm/types.h
+index 84457dbb26b4a..4ab468c5032e3 100644
+--- a/arch/s390/include/uapi/asm/types.h
++++ b/arch/s390/include/uapi/asm/types.h
+@@ -10,7 +10,7 @@
+ 
+ #include <asm-generic/int-ll64.h>
+ 
+-#ifndef __ASSEMBLY__
++#ifndef __ASSEMBLER__
+ 
+ typedef unsigned long addr_t;
+ typedef __signed__ long saddr_t;
+@@ -25,6 +25,6 @@ typedef struct {
+ 	};
+ } __attribute__((packed, aligned(4))) __vector128;
+ 
+-#endif /* __ASSEMBLY__ */
++#endif /* __ASSEMBLER__ */
+ 
+ #endif /* _UAPI_S390_TYPES_H */
 -- 
-2.25.1
+2.48.1
 
