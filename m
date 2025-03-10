@@ -1,125 +1,119 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-a2-smtp.messagingengine.com (fout-a2-smtp.messagingengine.com [103.168.172.145])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B411922A1D5;
-	Mon, 10 Mar 2025 10:49:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7AB1226193;
+	Mon, 10 Mar 2025 11:08:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.145
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741603769; cv=none; b=cqn6me4esTTL2virmsY5oDPMJ9szKdRgA8GqmAwcMFDl9VvywS/lWFqOyDkNm4BCL6K1/xH6dtTX5nA/X1TIwuxz6mfjlRk/E2BeLzYy/Na5+g9h92PyeEC4PPomC9pq9Xg8pg9bWMaby3uDFm2Nm1nWPlGiA7b89XDexxE3xvY=
+	t=1741604901; cv=none; b=CYOJL2dIzcMU5cWCWLTdEz723oiOvg8Hawh3WpkS5w3S/pZ1y3BjcWyLjIsB8AHoliKIr+e3QhVQEmVmq6qPRXGu6nKnnKj2Tr5HsKT4oPxQ47t8q82oHPZshWzuoOjoyZ93WL5hGpRteQbQ6jGZeXLIkg8SmKPgzk6Gi3V8x80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741603769; c=relaxed/simple;
-	bh=7r91rKZtrskh6CmIPNf+XSih9a1OoxJ8ms07oy0GExk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=byq7RDf2umCDJiWcsCjJFgjHNJ8kDjaXBbBiVYDZ8qXeiIGkPIlaUCvVgQBAYzgMM+7PKk37GOcQHOgK5waKEmWVbicRveOMASOlzs4YBeo8TRlS40uxwT9fz6wqNvRguRV+4MteYZsq0MaPA/1nr3dMNcagUmvVP9LFxZ/P52s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bjk6RAj1; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1741604901; c=relaxed/simple;
+	bh=xvMJrDw0y71650wJWd+40aIoJasnNgfqXdrkvrX/7YI=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=crG54bwYq5X9bhhDxyIVfcu5ZAhTFnHaRyGWbaoIhkayquQOq2R6ITj9+43Pb7MmJXSN4SXXjt4VJkF4dOc1IO3SaQiqvIdaV4v86D915fNCKYxCbjN4uNca95XOHYUFVDUy0toN8PMB7ctP99aDfYQK2em1ao3hazn4qVePj9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=DMPkMqbs; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=pPTfCRE3; arc=none smtp.client-ip=103.168.172.145
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bjk6RAj1"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52A3kNJe017869;
-	Mon, 10 Mar 2025 10:49:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=sKO+75m207JysMjIXv7KSQYHDy7YlP
-	HemyAx01aINeQ=; b=bjk6RAj1gYm/73g4miHHrITkpTZLeEM2xqwRejDgvimYNO
-	quInQEMglqZRTqIeqYXoqd4YLN7cZICq3Y9sHf1hHZ92XBlhyp6vU5FNuwOMMWl+
-	plTY1zZSZ6NbfBYroA0WcaGgXnvXzUW4RyCAVLHPwKV06TZ+8C9e9kfgJ/WTNivX
-	Zi+WJHO/zxDf1S009q1+Mx2b9mPN8mYb4vBricZ3BQtTRm0AWO2/phww4hGz9OK6
-	Oi1QWwxGdC0fBytqYYDKalMBIOWnhNMBVLioklJ+kN2aOAzvFatR1Eb+0PhyaPMo
-	/WQycoDFXrQl2Sv4zjUukTLA6iJQNAAp8GSbpr5Q==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 459rf91vn1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Mar 2025 10:49:17 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52AA1IRC023851;
-	Mon, 10 Mar 2025 10:49:16 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4590kypaf7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Mar 2025 10:49:16 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52AAnCI457606518
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Mar 2025 10:49:12 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7B0672004F;
-	Mon, 10 Mar 2025 10:49:12 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D94320040;
-	Mon, 10 Mar 2025 10:49:12 +0000 (GMT)
-Received: from osiris (unknown [9.171.17.80])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 10 Mar 2025 10:49:12 +0000 (GMT)
-Date: Mon, 10 Mar 2025 11:49:10 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] s390/uapi: Replace __ASSEMBLY__ with __ASSEMBLER__ in
- uapi headers
-Message-ID: <20250310104910.27210B18-hca@linux.ibm.com>
-References: <20250310102657.54557-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="DMPkMqbs";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="pPTfCRE3"
+Received: from phl-compute-07.internal (phl-compute-07.phl.internal [10.202.2.47])
+	by mailfout.phl.internal (Postfix) with ESMTP id 92DDE1382D3C;
+	Mon, 10 Mar 2025 07:08:18 -0400 (EDT)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-07.internal (MEProxy); Mon, 10 Mar 2025 07:08:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1741604898;
+	 x=1741691298; bh=Apaj21dkzM+VkTh8UH1lJMExSSBSc8XmpLRBgZkT51Q=; b=
+	DMPkMqbsjW0B1h0G9cj6+fhuyrAzzqf2jrqYh4rB1LzL/d0tlGcFTCyUkd9hW9Am
+	sDvCmliWMLldoChh6L8IxCUFK9vDUe6yMNM4wNZAqK+8lynWPCoodS23wbJg+PEI
+	eQ3NmVm0P3XYYgPQJE/H7Rs23p36QW4SeKgQO2tNV5MT0WtcWe2lYYnIvB90NLOZ
+	JuzPEg2xTx/z9CyCr/qkYygTUgmMfxXc+T9M4JiV6iJDqKYAdtoGmNXHpJyOAg05
+	z9Po/ENcHzf8GHgOikR/08YY1RLuAXVedn9lJLfE4BDW2hp1b+NUozBiyyDu6Xvo
+	BkWla6AosU5ZoX1mU0khFA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1741604898; x=
+	1741691298; bh=Apaj21dkzM+VkTh8UH1lJMExSSBSc8XmpLRBgZkT51Q=; b=p
+	PTfCRE3bEkYbtm0XRKb8+lrEsWRiIauESbGTQHjHdP67nCDiKU0dJc1oG5PY0JGS
+	JklFEMIVarCww6V4VeWZA3eTwp6+Jxny0Fs3V107JOmPd8ZEsXZQAu3kmUHJTW7v
+	iN6D7A7JUhxAV82VX1n6h2LrcNDNGnOxHYD6oBnKdIM5prPLnWFu6yjW3BlPZpAw
+	LqJpmidNuV8Jtdr8T8MYxXi43by/vpgJXCcKS4XqoCTeWxiofYp9Wl1VaWEW7fmO
+	QbrhYotIfkUd3H3J2CJ6DG9lQZdpkPqd1F4trHNNif5IIc3LSNxDGg80C4SI9paI
+	6zbHAK0jBde+X07RpglTg==
+X-ME-Sender: <xms:IsjOZ5tVzhMUuwVnID3T_CAstLrvmaGTvGmERfH1kjSMq-rAhg2prw>
+    <xme:IsjOZyfRnWz7_Cvd1w9Pg1etW_fh3IqJ-Yxe4c7yb5DeUtr2yWQyk8imfOF_pLZB2
+    8x-rCBM-JrKpYyiyAU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdduudelvddtucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
+    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
+    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
+    tddtnecuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnug
+    gsrdguvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeet
+    fefggfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
+    hmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohep
+    kedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheprghgohhruggvvghvsehlihhnuh
+    igrdhisghmrdgtohhmpdhrtghpthhtohepsghorhhnthhrrggvghgvrheslhhinhhugidr
+    ihgsmhdrtghomhdprhgtphhtthhopehgohhrsehlihhnuhigrdhisghmrdgtohhmpdhrtg
+    hpthhtohephhgtrgeslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehsvhgvnhhs
+    sehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtohepthhhuhhthhesrhgvughhrghtrd
+    gtohhmpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghl
+    rdhorhhgpdhrtghpthhtoheplhhinhhugidqshefledtsehvghgvrhdrkhgvrhhnvghlrd
+    horhhg
+X-ME-Proxy: <xmx:IsjOZ8xvb6KmSinwNEfF4ON13Q0qptj6TIfxANrm_UINxyZ1nH3P4Q>
+    <xmx:IsjOZwNO14SI5s0L4ce3JPytGFpBYcBXVFAvjkIC4m7eO0OGhzSlqg>
+    <xmx:IsjOZ5-tysCkiKEv-A3i38k2IR9vpwn64afzDp5fb_FMv8c0jFCeOw>
+    <xmx:IsjOZwVjw59dFx7xojC52puO7VetCqNEH3qNQy8fAJX8IGtphDoTSw>
+    <xmx:IsjOZyPzySfhaIaE8ZSmnJAMCgv-QXHvprkvWXfHLb9brf56KjDyx1aa>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 351EF2220072; Mon, 10 Mar 2025 07:08:18 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250310102657.54557-1-thuth@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: V0k3BxwPMkpJ1gdsMev1GNuAAgSEoDZj
-X-Proofpoint-GUID: V0k3BxwPMkpJ1gdsMev1GNuAAgSEoDZj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-10_04,2025-03-07_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=643
- phishscore=0 bulkscore=0 mlxscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 priorityscore=1501 malwarescore=0 adultscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2503100083
+Date: Mon, 10 Mar 2025 12:07:40 +0100
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Heiko Carstens" <hca@linux.ibm.com>, "Thomas Huth" <thuth@redhat.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>, linux-kernel@vger.kernel.org
+Message-Id: <ab1ab15a-89e1-4c26-b7a2-6147a10a2fca@app.fastmail.com>
+In-Reply-To: <20250310104910.27210B18-hca@linux.ibm.com>
+References: <20250310102657.54557-1-thuth@redhat.com>
+ <20250310104910.27210B18-hca@linux.ibm.com>
+Subject: Re: [PATCH] s390/uapi: Replace __ASSEMBLY__ with __ASSEMBLER__ in uapi headers
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+On Mon, Mar 10, 2025, at 11:49, Heiko Carstens wrote:
+> On Mon, Mar 10, 2025 at 11:26:57AM +0100, Thomas Huth wrote:
+>
+> Did this cause any sorts of problems? I can see this pattern all over
+> the place, so why is this now a problem?
+>
+> Also, wouldn't it be better to fix this with an sed statement in
+> scripts/headers_install.sh instead? Otherwise this is going to be a
+> never ending story since those things will be re-introduced all the
+> time.
 
-On Mon, Mar 10, 2025 at 11:26:57AM +0100, Thomas Huth wrote:
-> __ASSEMBLY__ is only defined by the Makefile of the kernel, so
-> this is not really useful for uapi headers (unless the userspace
-> Makefile defines it, too). Let's switch to __ASSEMBLER__ which
-> gets set automatically by the compiler when compiling assembly
-> code.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> ---
->  arch/s390/include/uapi/asm/ptrace.h | 5 +++--
->  arch/s390/include/uapi/asm/schid.h  | 4 ++--
->  arch/s390/include/uapi/asm/types.h  | 4 ++--
->  3 files changed, 7 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/s390/include/uapi/asm/ptrace.h b/arch/s390/include/uapi/asm/ptrace.h
-> index bb0826024bb95..ea202072f1ad5 100644
-> --- a/arch/s390/include/uapi/asm/ptrace.h
-> +++ b/arch/s390/include/uapi/asm/ptrace.h
-> @@ -242,7 +242,8 @@
->  #define PTRACE_OLDSETOPTIONS		21
->  #define PTRACE_SYSEMU			31
->  #define PTRACE_SYSEMU_SINGLESTEP	32
-> -#ifndef __ASSEMBLY__
-> +
-> +#ifndef __ASSEMBLER__
->  #include <linux/stddef.h>
->  #include <linux/types.h>
+It should certainly be done in a consistent way across all
+architectures and architecture-independent headers. I see that
+all uapi headers use __ASSEMBLY__ consistently, while a few non-uapi
+headers use __ASSEMBLER__.
 
-...
+glibc obviously defines __ASSEMBLY__ whenever it includes one
+of the kernel headers that need this from a .S file. Unless
+there is a known problem with the current code, leaving this
+unchanged is probably the least risky way.
 
-Did this cause any sorts of problems? I can see this pattern all over
-the place, so why is this now a problem?
-
-Also, wouldn't it be better to fix this with an sed statement in
-scripts/headers_install.sh instead? Otherwise this is going to be a
-never ending story since those things will be re-introduced all the
-time.
+   Arnd
