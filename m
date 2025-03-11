@@ -1,100 +1,145 @@
-Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F96919007D;
-	Tue, 11 Mar 2025 03:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.204.34.129
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9F592206AC;
+	Tue, 11 Mar 2025 05:56:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741662557; cv=none; b=LmeSOab15Th1vv1V+wkTber3fwi/v9bHySwwWpKtk4EQRTQ3wiX+e5s5dOwX7eu21mYCTAz1Jj+Z/Ufyd9/yW9VbBBCy+YYFrpNoh7PYzXEBGsbRhr24u8apl/nYeUieZWbq++agePTPzhDywG6CDzzg/v+zynjK3v6TNyKMibs=
+	t=1741672583; cv=none; b=Q0nXobcy0CJ2+bpffJOwAtWiE45GEZuE8AxS2FvvwEvxUL+Kh2NOdl5fvL6kPLY4icR6C8kRcOgdO4HlL2QCMo9noq/xt4/nxSQVXAvh1TyY9JOEuzIAFXnybE7fmEBZDpBQDREG49ZjdEafU1gfg4nA9Jxbpc6sAC2GeVaoP/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741662557; c=relaxed/simple;
-	bh=jpF7nF3TOxCImalYkQUW1dnGf4zCL9LpRq+kndEXvcQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gF7/UA/jYPdg96lgd0MtGNC1teEGhu4sG1NGFCzihjvD6+6GLXSPMFoTPhlM2oett+pRQYC19eax0EZn8/S3wBKp6grjpHhzGqyBA1ZqG42g72xAnLtVn5peUxRQmsRTWEllBpYkrEO4kETN7X09a5ZnNPGUZYOftMqeYsQl6D0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=JyXyZUid; arc=none smtp.client-ip=54.204.34.129
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	s=arc-20240116; t=1741672583; c=relaxed/simple;
+	bh=JR5aE1/6W9bEsH29C5z708XdvBh3y3whu03ldRN1cT0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hU0+zGxmR+1dvfB9rJa8exxG+NFisG20MyrrgeeAN8gIL1ukYsp5JwU7+YmcpX1V/kf6K7ozA+kuoncPDeJsXZZ8m9pF7VfWHlozLinUEsc710EUAqjoVpmUb5rvz6L/hmTPlAml9IuuJPuSy8DNm1x22+snG0nxSWHFyNGAk4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f48a7jPd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="JyXyZUid"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1741662530;
-	bh=URGpqlmXm/gPdMSb/V6zyT1v5OpXsXe6QBAf5N53/HA=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=JyXyZUidOCSAHMInO0RzYM0IlPF4UxV0khWQtd4pXk72F/g8tPiPgaZnA7PddxK7J
-	 tDKhkWNuY6XWHQukPulWeP2jNLZPW80oAZBCVzJshFgNyGTNb+Ck7d/ru0EUs2pt+j
-	 xlri6r71a2n4y0Dwp/kzPV1UDIO8qRfhaPTq/lw0=
-X-QQ-mid: bizesmtpip4t1741662517tgfbwwo
-X-QQ-Originating-IP: xvxneow0DBdsfSSOmoup5niZ/oqQn8R/tK9JRLfrlBE=
-Received: from localhost.localdomain ( [localhost])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Tue, 11 Mar 2025 11:08:35 +0800 (CST)
-X-QQ-SSF: 0002000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 11756624125615866169
-From: WangYuli <wangyuli@uniontech.com>
-To: hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com
-Cc: wangyuli@uniontech.com,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	zhanjun@uniontech.com,
-	niecheng1@uniontech.com,
-	guanwentao@uniontech.com,
-	chenlinxuan@uniontech.com
-Subject: [PATCH] s390/boot: Ignore vmlinux.map
-Date: Tue, 11 Mar 2025 11:08:24 +0800
-Message-ID: <F884C733016D6715+20250311030824.675683-1-wangyuli@uniontech.com>
-X-Mailer: git-send-email 2.47.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f48a7jPd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D93EC4CEED;
+	Tue, 11 Mar 2025 05:56:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741672582;
+	bh=JR5aE1/6W9bEsH29C5z708XdvBh3y3whu03ldRN1cT0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=f48a7jPdRs+4CFxnOQTPCHsm75344xXl4kGcXGjsNF7CXHD6rakA6cXBClsJrVEtn
+	 WMcp4MDOS6ujAbPjNce+g3L+xfZC5vi4RqizMWw2e621BlT1F9Ay/Loxsxa26BilyR
+	 V3RuJvI1gFKwfV3U+Q95PUC/u4Gy4+xVTdXkrb9dHTeavvebfTfgzz2yhmQ89ydU2G
+	 kiwkfL2BapKmKWzCToyXgMHRmDr7W8auvyr26g/1+MWMbdjrYYGY9Pgy3JpC8H5B/G
+	 ocFRu6iz+c47Alu4XK27RyF2DFlSe0JprTDW9yyHuXhbUMDy3L4Bzl+ZBGVJfIovu1
+	 qQCLqsddFmhPA==
+Date: Tue, 11 Mar 2025 07:55:55 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Guo Ren <guoren@kernel.org>, Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
+Subject: Re: [PATCH 07/13] s390: make setup_zero_pages() use memblock
+Message-ID: <Z8_Qawg0dGtZdys7@kernel.org>
+References: <20250306185124.3147510-1-rppt@kernel.org>
+ <20250306185124.3147510-8-rppt@kernel.org>
+ <20250307152815.9880Gbd-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtpip:uniontech.com:qybglogicsvrgz:qybglogicsvrgz8a-1
-X-QQ-XMAILINFO: MDN2VRNR2P4wLboSgBu+93mRK0luZ7A0kqCAVkJOsXxyb71sZ6qO9jAC
-	7TMCBLugyVtUyp9r9f3YVtMoB/TppNO9p5HcfKLaY3Xg5KUFS5ibNnnagV60PMpM1SEYGAe
-	bVN1/FY/+PvyYY9invFLO7UbPE7BPfnzMYzC3//vwWLEZEuSN70QvyDsDmPYIKAP4ysEyGW
-	dDWvoii9PIBDmkyilbvQaFiigeMy4dI/T0h4LGlhi6cC0T8mA/S1nXY7UEKHjVMBkzpb1Kk
-	HBvEMOCp9b16kPhwelHVL2N8LEbd/lWM06M3WQUEtscoxsPyDLVM3Gyt/8sDY9yIawT7lWf
-	tGhlQ8JNSVbtxTj6YXV10rIO95wMmKf0thDz9R6dqKdqUBbXyfGJqF46ILLOVz4Dmskh9xK
-	ANyNjqlt0e/NWeqQdKmJsR9maXpY4Dn4gMlo/2dFUb5IvEpePIlBDi5vD9opxeSlwaCGNuB
-	1Q/1wyKGOYDuWLJDlQAcMyNdz87+3+IddimVSNz954zFBR9gORMfJKmUHsH36UR71g25ulS
-	aZ8I/varEb3Mexx1Lmzc/JtllFscJgbg3W7J72cVLBKSE9UCveRlV3MCB30SRQEwJrHFJ/A
-	okhs7yCiw0F5RSKFv37kriulBEk77eeCpF6JiV5IeAKqGJX8RuIcswLMjZ4+SNYFGSZ8o44
-	r0Ki2TswvDE4wvtrqQN6XKHh6v9/+I17UDRSQRg4j3FkwsWCHq2QxF12jza8aL4Tf2ob7Qv
-	e4nwBGHLKaOl3Y0SIuX5sENnTdhoEpNET7MA8bWjgCRL4JRYIbfS9nGWbb0YEkxNesKt8nD
-	fdf2GDctcepSGKTvYTPBaS7n+ruaspo4mCCgL4+kJ/D1sjohkXHjIDWTPpNb+se+7iZSq7N
-	dbDwd1iTG5KUfHkVUKzgqSrJbazsZvzTozNtVXwCqaD3MtFzoKP/rSx9A1JisyDR0MvkuA/
-	yGOvRNRteC3mwLLhwQvuuTMjRqaSDGuOCwOK6tF/k5mSXViU55pB6oTXvQk7yaiFrKjiesN
-	RN85Ij27jfNG3QMOaYKbucaDA3aB4=
-X-QQ-XMRINFO: MSVp+SPm3vtS1Vd6Y4Mggwc=
-X-QQ-RECHKSPAM: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250307152815.9880Gbd-hca@linux.ibm.com>
 
-Upon compiling an s390 kernel, a vmlinux.map file might be generated
-in the current directory.
+On Fri, Mar 07, 2025 at 04:28:15PM +0100, Heiko Carstens wrote:
+> On Thu, Mar 06, 2025 at 08:51:17PM +0200, Mike Rapoport wrote:
+> > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+> > 
+> > Allocating the zero pages from memblock is simpler because the memory is
+> > already reserved.
+> > 
+> > This will also help with pulling out memblock_free_all() to the generic
+> > code and reducing code duplication in arch::mem_init().
+> > 
+> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> > ---
+> >  arch/s390/mm/init.c | 14 +++-----------
+> >  1 file changed, 3 insertions(+), 11 deletions(-)
+> 
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> 
+> > -	empty_zero_page = __get_free_pages(GFP_KERNEL | __GFP_ZERO, order);
+> > +	empty_zero_page = (unsigned long)memblock_alloc(PAGE_SIZE << order, order);
+> >  	if (!empty_zero_page)
+> >  		panic("Out of memory in setup_zero_pages");
+> 
+> This could have been converted to memblock_alloc_or_panic(), but I
+> guess this can also be done at a later point in time.
 
-Append it to the .gitignore file so that Git does not track it.
+Duh, I should have remembered about memblock_alloc_or_panic() :)
 
-Signed-off-by: WangYuli <wangyuli@uniontech.com>
+@Andrew, can you please pick this as a fixup?
+
+From 344fec8519e5152c25809c9277b54a68f9cde0e9 Mon Sep 17 00:00:00 2001
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Date: Tue, 11 Mar 2025 07:51:27 +0200
+Subject: [PATCH] s390: use memblock_alloc_or_panic() in setup_zero_page()
+
+Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/s390/boot/.gitignore | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/mm/init.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/s390/boot/.gitignore b/arch/s390/boot/.gitignore
-index f5ef099e2fd3..af2a6a7bc028 100644
---- a/arch/s390/boot/.gitignore
-+++ b/arch/s390/boot/.gitignore
-@@ -5,4 +5,5 @@ relocs.S
- section_cmp.*
- vmlinux
- vmlinux.lds
-+vmlinux.map
- vmlinux.syms
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index ab8ece3c41f1..c6a97329d7e7 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -81,9 +81,7 @@ static void __init setup_zero_pages(void)
+ 	while (order > 2 && (total_pages >> 10) < (1UL << order))
+ 		order--;
+ 
+-	empty_zero_page = (unsigned long)memblock_alloc(PAGE_SIZE << order, order);
+-	if (!empty_zero_page)
+-		panic("Out of memory in setup_zero_pages");
++	empty_zero_page = (unsigned long)memblock_alloc_or_panic(PAGE_SIZE << order, order);
+ 
+ 	zero_page_mask = ((PAGE_SIZE << order) - 1) & PAGE_MASK;
+ }
 -- 
 2.47.2
 
+
+-- 
+Sincerely yours,
+Mike.
