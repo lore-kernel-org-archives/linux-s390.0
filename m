@@ -1,128 +1,133 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EB182206BD;
-	Tue, 11 Mar 2025 10:34:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E65F12505AC;
+	Tue, 11 Mar 2025 11:03:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741689267; cv=none; b=hu0NfGNYa1hvSGD+QJSdr4FxLpg9jrkOAiw9zlQYS+DIKxXFIERR3Z9Jcn1IDk1vPh4PKQtTD6n39FCGgKlHXwokFUltpayA7jj6TXr3lbK+FqSR3VDsTPfehb3JAKW1vbpm9adog5o7T+9XoFXQuOdrolca4ygV7M1l8brE8II=
+	t=1741690992; cv=none; b=XPRnXFGoNpYFnW5+tx9/ZBVSek/HAdBO3sYdRP5+UhY7FJTeFmKRC3eIC7J3zOqjX3SfxtziqB/ZMv1Ayz3fkWBNV21wVBNidXfNStUzXaMkAnHxyr7oqkAAorxYfibhu6xUH1o5HrHWskW5gU8WeIQj/oiTYTx2onxMxcpYOdM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741689267; c=relaxed/simple;
-	bh=S6wR8udc4flcNC99ou/zTegE4/iCZsKNPsN00sFe5JY=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=i18lwUaUiWtLU1jMK+twTcMXFmKUou0pnTE/yl9lbfIfzB6p43aqaZLWB/mAtSZ2CK/MiOTM5e4ZY/3bnVkcFLjca1SvV2yN7+6n5UhSYft6R7jQqOSwXIpBL5Ylv4W5J7o/Fu7X0URi1m0tkHRJga8ehLD0JnERHP8fWFReCLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=trMzo645; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1741690992; c=relaxed/simple;
+	bh=qAoAEAm5amauGeRnu7bSr3vPpdizHeYfV+q57O0m6pI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nwYL/8R7q+7/LmKzu/R+KVxFDH/k9BuX8EPSOz9zngw4H+DPSI9QisLbyD/voKIvzvKdugX/AXpS4QBpdHLDzZfEq7+8cszjgppcc10eU2xDqq5CP5LXMDVeI/ED6JhSZnbbPxKnbLEmuhlMXwJwLkIOAIaOfVCJa3tNnbT5BoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ct8X7uw8; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="trMzo645"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52B9PUlB026764;
-	Tue, 11 Mar 2025 10:34:24 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ct8X7uw8"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52B93ZVX004497;
+	Tue, 11 Mar 2025 11:02:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=EXkS22
-	ubkiuuVZA6TyT0Ek4W0I7j3tntZa9y+PgAqPY=; b=trMzo645qIlqFJAT49IzMv
-	2vDkujAdoEQVpBBLzVQzF0tPMmnVljAtYe3VUGtzrzh7vETw2NnCja7Or7mToRJV
-	znmFcOsdnnnasBQaOXbWhGcx2Cne/YR2iJFxFnQg8179zc6Bo1atS4XR6QkpPgLt
-	xTZDQJh4KG07VqOgBRXcr+Oin1L5O+iUnS4iwsoLm5HozVQHk7Tcjj9wx6Cfwg04
-	kfKuIjW2Y5l1ZAKmMdLHFR4sHcY2LMfBuN6RD/TIb7pVeBtBBB0CwmsUlYzhFasl
-	HBYBrMkVJ/QbwkPMl0w1iBQP6RF8lczqfUq1Ee/EB/cJ2Q8PWfn7OlbnWbhIJJlg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a7a1b7kd-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=xIPaMqGrsjATDI3COz82wtEWPVXld8
+	ipZrTVOIdtc+s=; b=Ct8X7uw8PWloUFD0MWoLtbch0x8v7ZBHf4sghnsOPUgWIL
+	4laCm8tkNral1P/z9pa2nZgA47oQRfKv0WakeNyyB8R9+Vh6Guw5jpCe+lYkjc9E
+	bj1tlXHKycXEbwA92MaXqkgcxxxOUUrD+0SLU9/Js2h7D+seIhAt3DVxnnK2+m+M
+	SnyXc8vAJyFHNNDHeTCQD7oaSV4hC/oLJUqp7OlFlDHv5ZRbtLJD4z9Jc5AwgRoc
+	/tM4WLkcBDQSA5Xdjf0/2qKWFBR96zHjriFf3YMAmrtmTXRoQMHGolmkB2ovcko5
+	8nhdu6grKgQd2Owr1x8xMpERkdmzu36UAYVwDP6Q==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a78qudaa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 10:34:23 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52B8gOBK007011;
-	Tue, 11 Mar 2025 10:34:22 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45907t3v70-1
+	Tue, 11 Mar 2025 11:02:54 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52B9qE2P027631;
+	Tue, 11 Mar 2025 11:02:53 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4591qkkqct-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 10:34:22 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52BAYMbr24117960
+	Tue, 11 Mar 2025 11:02:53 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52BB2nWY50266594
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Mar 2025 10:34:22 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1582258064;
-	Tue, 11 Mar 2025 10:34:22 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 313C85806B;
-	Tue, 11 Mar 2025 10:34:21 +0000 (GMT)
-Received: from [9.61.127.211] (unknown [9.61.127.211])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Mar 2025 10:34:21 +0000 (GMT)
-Message-ID: <ff033f2a-b82c-4c7b-a45d-71c674892b2d@linux.ibm.com>
-Date: Tue, 11 Mar 2025 06:34:20 -0400
+	Tue, 11 Mar 2025 11:02:49 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CABD520040;
+	Tue, 11 Mar 2025 11:02:49 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B658C20043;
+	Tue, 11 Mar 2025 11:02:48 +0000 (GMT)
+Received: from localhost (unknown [9.171.9.82])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 11 Mar 2025 11:02:48 +0000 (GMT)
+Date: Tue, 11 Mar 2025 12:02:47 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Kees Cook <kees@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 6/6] s390: mv s390 sysctls into their own file under
+ arch/s390 dir
+Message-ID: <your-ad-here.call-01741690967-ext-1293@work.hours>
+References: <20250306-jag-mv_ctltables-v2-0-71b243c8d3f8@kernel.org>
+ <20250306-jag-mv_ctltables-v2-6-71b243c8d3f8@kernel.org>
+ <20250307152620.9880F75-hca@linux.ibm.com>
+ <r73ph4ht5ejeeuj65nxocmqp7pury2mekz2lz3r6fs264s24c4@ransymcrzk2h>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/vfio-ap: lock mdev object when handling mdev remove
- request
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, pasic@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@linux.ibm.com,
-        alex.williamson@redhat.com, clg@redhat.com, mjrosato@linux.ibm.com,
-        stable@vger.kernel.org
-References: <20250221153238.3242737-1-akrowiak@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20250221153238.3242737-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <r73ph4ht5ejeeuj65nxocmqp7pury2mekz2lz3r6fs264s24c4@ransymcrzk2h>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RoiwAMSpPJPPSrY5iB4UQV1ltiLJsWnr
-X-Proofpoint-GUID: RoiwAMSpPJPPSrY5iB4UQV1ltiLJsWnr
+X-Proofpoint-GUID: h9Mg2owPiLRPVj7MJrH8lEXpq9BsvLC-
+X-Proofpoint-ORIG-GUID: h9Mg2owPiLRPVj7MJrH8lEXpq9BsvLC-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-11_01,2025-03-11_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- phishscore=0 lowpriorityscore=0 mlxlogscore=999 malwarescore=0
- clxscore=1015 mlxscore=0 impostorscore=0 bulkscore=0 spamscore=0
- suspectscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2502100000 definitions=main-2503110070
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
+ spamscore=0 adultscore=0 mlxlogscore=856 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 suspectscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
+ definitions=main-2503110072
 
-PING!
+On Mon, Mar 10, 2025 at 02:41:59PM +0100, Joel Granados wrote:
+> On Fri, Mar 07, 2025 at 04:26:20PM +0100, Heiko Carstens wrote:
+> > On Thu, Mar 06, 2025 at 12:29:46PM +0100, joel granados wrote:
+> > > Move s390 sysctls (spin_retry and userprocess_debug) into their own
+> > > files under arch/s390. We create two new sysctl tables
+> > > (2390_{fault,spin}_sysctl_table) which will be initialized with
+> > > arch_initcall placing them after their original place in proc_root_init.
+> > > 
+> > > This is part of a greater effort to move ctl tables into their
+> > > respective subsystems which will reduce the merge conflicts in
+> > > kernel/sysctl.c.
+> > > 
+> > > Signed-off-by: joel granados <joel.granados@kernel.org>
+> > > ---
+> > >  arch/s390/lib/spinlock.c | 18 ++++++++++++++++++
+> > >  arch/s390/mm/fault.c     | 17 +++++++++++++++++
+> > >  kernel/sysctl.c          | 18 ------------------
+> > >  3 files changed, 35 insertions(+), 18 deletions(-)
+> > 
+> > Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> > 
+> > How should this go upstream? Will you take care of this, or should
+> > this go via the s390 tree?
+> 
+> thx for the review
+> 
+> It would be great if you can push it through the s390 tree. However, if
+> it is not possible to do so, please let me know and I'll add it to the
+> sysctl-next changes.
 
+I've slightly changed the commit message
+s390: Move s390 sysctls into their own file under arch/s390
 
-On 2/21/25 10:32 AM, Anthony Krowiak wrote:
-> The vfio_ap_mdev_request function in drivers/s390/crypto/vfio_ap_ops.c
-> accesses fields of an ap_matrix_mdev object without ensuring that the
-> object is accessed by only one thread at a time. This patch adds the lock
-> necessary to secure access to the ap_matrix_mdev object.
->
-> Fixes: 2e3d8d71e285 ("s390/vfio-ap: wire in the vfio_device_ops request callback")
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-> Cc: <stable@vger.kernel.org>
-> ---
->   drivers/s390/crypto/vfio_ap_ops.c | 3 +++
->   1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index a52c2690933f..a2784d3357d9 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2045,6 +2045,7 @@ static void vfio_ap_mdev_request(struct vfio_device *vdev, unsigned int count)
->   	struct ap_matrix_mdev *matrix_mdev;
->   
->   	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
-> +	mutex_lock(&matrix_dev->mdevs_lock);
->   
->   	if (matrix_mdev->req_trigger) {
->   		if (!(count % 10))
-> @@ -2057,6 +2058,8 @@ static void vfio_ap_mdev_request(struct vfio_device *vdev, unsigned int count)
->   		dev_notice(dev,
->   			   "No device request registered, blocked until released by user\n");
->   	}
-> +
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
->   }
->   
->   static int vfio_ap_mdev_get_device_info(unsigned long arg)
-
+And applied, thank you!
