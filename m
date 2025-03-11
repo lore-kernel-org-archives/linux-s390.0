@@ -1,237 +1,107 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26CD825C717;
-	Tue, 11 Mar 2025 14:36:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D410255E20;
+	Tue, 11 Mar 2025 17:23:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741703779; cv=none; b=GhjytBTvXPb26Xy7A+q39tvP7yryxWHRd7o0Swn5LQPcSldIlNUGlCesmO48WQbOdlb9nf4p0IEMTMJ5y+jnVkqm5B203E+QvWz+lO/mii/B2j/3pMSaHLtHh4ahzmntS4riL15v3/M3cxjywUBgDijZikuBy0xB4D3dyeczpE0=
+	t=1741713831; cv=none; b=iD1kPxWh4CKP7ac11GCosEZIIEyuGLRv7/hs2uGTKEamKJwMzx3WcWZEEFBmtKaDm0gy8bjWTGWNFfKb2fFwHQ7ICL0qajkm+5FmJHJshK75aQFXlSFXDHiKba8A78isM7K354wJlvHTPztf6x4s7lJz3/YyDfhCz503IqquUa4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741703779; c=relaxed/simple;
-	bh=QpK53emxzundB3boPQwv2DDoyNFHOdeOqIuWMFSBX84=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UfjZKuw5V3hB87I3qKZa51+7YCosYAmEnW9Gp7xj76CbO+equUrcb7a8yXCK8jSm+PvGFZbMyWW+nzOg2LuXzeK2E0T1d48EiwTuEDgWilTQTtSsQ0slZVlf4Iw4XamdS0opTnhz5dWk2SsMfgXR+XkA00uxRY8xioRnmkPdSg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V0o+I1cU; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1741713831; c=relaxed/simple;
+	bh=CXHCCNEXOprghwu7t9O9nASmfIr6TtyDm1pbOw1Cqxo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lCcML3WbVYmydp6aRoXz7qDzUFqH419SGfyZgSHZ6RO1uqDQf/WOTlruFwTDU0a38Nuo4bX9EqmDM62HjmSaSms2JcgGjBMKY7wPoAMf8+goS5e288vlze1umPQcC0eKUw5X0G6EPxfOVCeIrOYIO1VqPg1Lk+JJaKsfbYXtqGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OkywOVyy; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V0o+I1cU"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52BA09M0004515;
-	Tue, 11 Mar 2025 14:36:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OkywOVyy"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52BE3Kts010108;
+	Tue, 11 Mar 2025 17:23:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=+gJJGx
-	RnLVbsWoeczP6FG8yWHlZQ5ofOXHgWg+4VQzQ=; b=V0o+I1cUSA2jJpM51uVhWP
-	1UTmlgDvrstXM+Nwh3Prk0PKsmCcAa5pVHTOPheQkrSQhd/Ihb3pZpUCAh2qnrLQ
-	FfhHAEeuoTCE7zSQ9OmFT4C8wGIZ/bNv+sU9I2OZRSz3YmpZn+2YvmHfaKk30Xha
-	kzuOtL29hBtEheeFGjb8khDb+Et9z+9jxY1b/U/+paMXPQsnpnKwPc8gwzGErSgk
-	jiT6NC7Ap0xW4ol2cT2rfhPrFigCGcSotXHbf3n3zryPDyRPK4cLCdbTBi3jd+rI
-	AE+mrPSreS7o/Xw2jdqCOFVUqdIoTnDAiAey+jT7CdPOS19Pag63NVJm0nD17sfA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a78qvghk-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=5u56dtQHGskTSf5+IQ68wqGEp6+oc9
+	PmagGYB1VKuuw=; b=OkywOVyyDjTwd5Ra9hJluBKTT6lDermeS4faJeFKbjAdGi
+	ySwoiQfoszXo5lsHNJCxz0MlMC606nNQjBZDcJ8krVS80zWrEkwY7o9ixwJuGWH+
+	t0/ishJP9tjw0SJqGSaPW/DB9lf3Ze7aXiGgTqgAwEZ55iI5kXWxUlXLOkqakzPW
+	K9bNUOD4Vc/dAUrvFz7MS1mkhNDgtRA9U1eWv7alAyIA5LNJAf4rrwn2R0gVEYyZ
+	DVafxvT9msrp9mhTSKC+dyMDth6qvTz1d1u7wtfB4BB/+qhTTBexc1qNhzsV5+GR
+	GNPKFk5ezUNNy26kRP08/o+slV+SbazlBiga2kFg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45apkrh56a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 14:36:11 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52BEKG21003836;
-	Tue, 11 Mar 2025 14:36:11 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a78qvghh-1
+	Tue, 11 Mar 2025 17:23:45 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52BGeIjw022196;
+	Tue, 11 Mar 2025 17:23:43 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45917nddcr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 14:36:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52BBVjMM014003;
-	Tue, 11 Mar 2025 14:36:10 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4592x1v7re-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 14:36:10 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52BEa9P014025446
+	Tue, 11 Mar 2025 17:23:43 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52BHNd8o46137780
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Mar 2025 14:36:09 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 42D6C58054;
-	Tue, 11 Mar 2025 14:36:09 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4663458050;
-	Tue, 11 Mar 2025 14:36:06 +0000 (GMT)
-Received: from [9.152.224.242] (unknown [9.152.224.242])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Mar 2025 14:36:06 +0000 (GMT)
-Message-ID: <77e4653d-6ad2-4b97-9952-99d506276b1a@linux.ibm.com>
-Date: Tue, 11 Mar 2025 15:36:05 +0100
+	Tue, 11 Mar 2025 17:23:39 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D040820049;
+	Tue, 11 Mar 2025 17:23:39 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 25A3C20040;
+	Tue, 11 Mar 2025 17:23:39 +0000 (GMT)
+Received: from localhost (unknown [9.171.9.82])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 11 Mar 2025 17:23:39 +0000 (GMT)
+Date: Tue, 11 Mar 2025 18:23:37 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: WangYuli <wangyuli@uniontech.com>
+Cc: hca@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, zhanjun@uniontech.com,
+        niecheng1@uniontech.com, guanwentao@uniontech.com,
+        chenlinxuan@uniontech.com
+Subject: Re: [PATCH] s390/boot: Ignore vmlinux.map
+Message-ID: <your-ad-here.call-01741713817-ext-6705@work.hours>
+References: <F884C733016D6715+20250311030824.675683-1-wangyuli@uniontech.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2] net/smc: use the correct ndev to find pnetid
- by pnetid table
-To: Paolo Abeni <pabeni@redhat.com>,
-        Guangguan Wang <guangguan.wang@linux.alibaba.com>, pasic@linux.ibm.com,
-        jaka@linux.ibm.com, alibuda@linux.alibaba.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        mjambigi@linux.ibm.com, sidraya@linux.ibm.com
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        horms@kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20250304124304.13732-1-guangguan.wang@linux.alibaba.com>
- <2c9accbd-fd6f-421c-9d00-1f36a6152b8d@redhat.com>
-Content-Language: en-US
-From: Wenjia Zhang <wenjia@linux.ibm.com>
-In-Reply-To: <2c9accbd-fd6f-421c-9d00-1f36a6152b8d@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <F884C733016D6715+20250311030824.675683-1-wangyuli@uniontech.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 8JyPt17XETZmYuWNC-l4JQSMMxY5YMh1
-X-Proofpoint-ORIG-GUID: w2dWjNPE_sJVQ19EQ9OjxDoJDdrL6PGb
+X-Proofpoint-ORIG-GUID: zgtopoqPN968ponBEZ9i61AE32kkFDc9
+X-Proofpoint-GUID: zgtopoqPN968ponBEZ9i61AE32kkFDc9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-11_03,2025-03-11_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- spamscore=0 adultscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
- lowpriorityscore=0 malwarescore=0 bulkscore=0 suspectscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
- definitions=main-2503110091
+ definitions=2025-03-11_04,2025-03-11_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ adultscore=0 clxscore=1011 priorityscore=1501 mlxlogscore=571
+ lowpriorityscore=0 suspectscore=0 impostorscore=0 malwarescore=0
+ spamscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502100000 definitions=main-2503110107
 
-
-
-On 11.03.25 09:59, Paolo Abeni wrote:
-> On 3/4/25 1:43 PM, Guangguan Wang wrote:
->> When using smc_pnet in SMC, it will only search the pnetid in the
->> base_ndev of the netdev hierarchy(both HW PNETID and User-defined
->> sw pnetid). This may not work for some scenarios when using SMC in
->> container on cloud environment.
->> In container, there have choices of different container network,
->> such as directly using host network, virtual network IPVLAN, veth,
->> etc. Different choices of container network have different netdev
->> hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1
->> in host below is the netdev directly related to the physical device).
->>              _______________________________
->>             |   _________________           |
->>             |  |POD              |          |
->>             |  |                 |          |
->>             |  | eth0_________   |          |
->>             |  |____|         |__|          |
->>             |       |         |             |
->>             |       |         |             |
->>             |   eth1|base_ndev| eth0_______ |
->>             |       |         |    | RDMA  ||
->>             | host  |_________|    |_______||
->>             ---------------------------------
->>       netdev hierarchy if directly using host network
->>             ________________________________
->>             |   _________________           |
->>             |  |POD  __________  |          |
->>             |  |    |upper_ndev| |          |
->>             |  |eth0|__________| |          |
->>             |  |_______|_________|          |
->>             |          |lower netdev        |
->>             |        __|______              |
->>             |   eth1|         | eth0_______ |
->>             |       |base_ndev|    | RDMA  ||
->>             | host  |_________|    |_______||
->>             ---------------------------------
->>              netdev hierarchy if using IPVLAN
->>              _______________________________
->>             |   _____________________       |
->>             |  |POD        _________ |      |
->>             |  |          |base_ndev||      |
->>             |  |eth0(veth)|_________||      |
->>             |  |____________|________|      |
->>             |               |pairs          |
->>             |        _______|_              |
->>             |       |         | eth0_______ |
->>             |   veth|base_ndev|    | RDMA  ||
->>             |       |_________|    |_______||
->>             |        _________              |
->>             |   eth1|base_ndev|             |
->>             | host  |_________|             |
->>             ---------------------------------
->>               netdev hierarchy if using veth
->> Due to some reasons, the eth1 in host is not RDMA attached netdevice,
->> pnetid is needed to map the eth1(in host) with RDMA device so that POD
->> can do SMC-R. Because the eth1(in host) is managed by CNI plugin(such
->> as Terway, network management plugin in container environment), and in
->> cloud environment the eth(in host) can dynamically be inserted by CNI
->> when POD create and dynamically be removed by CNI when POD destroy and
->> no POD related to the eth(in host) anymore. It is hard to config the
->> pnetid to the eth1(in host). But it is easy to config the pnetid to the
->> netdevice which can be seen in POD. When do SMC-R, both the container
->> directly using host network and the container using veth network can
->> successfully match the RDMA device, because the configured pnetid netdev
->> is a base_ndev. But the container using IPVLAN can not successfully
->> match the RDMA device and 0x03030000 fallback happens, because the
->> configured pnetid netdev is not a base_ndev. Additionally, if config
->> pnetid to the eth1(in host) also can not work for matching RDMA device
->> when using veth network and doing SMC-R in POD.
->>
->> To resolve the problems list above, this patch extends to search user
->> -defined sw pnetid in the clc handshake ndev when no pnetid can be found
->> in the base_ndev, and the base_ndev take precedence over ndev for backward
->> compatibility. This patch also can unify the pnetid setup of different
->> network choices list above in container(Config user-defined sw pnetid in
->> the netdevice can be seen in POD).
->>
->> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
->> ---
->>   net/smc/smc_pnet.c | 8 +++++---
->>   1 file changed, 5 insertions(+), 3 deletions(-)
->>
->> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
->> index 716808f374a8..b391c2ef463f 100644
->> --- a/net/smc/smc_pnet.c
->> +++ b/net/smc/smc_pnet.c
->> @@ -1079,14 +1079,16 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
->>   					 struct smc_init_info *ini)
->>   {
->>   	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
->> +	struct net_device *base_ndev;
->>   	struct net *net;
->>   
->> -	ndev = pnet_find_base_ndev(ndev);
->> +	base_ndev = pnet_find_base_ndev(ndev);
->>   	net = dev_net(ndev);
->> -	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
->> +	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
->>   				   ndev_pnetid) &&
->> +	    smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid) &&
->>   	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
->> -		smc_pnet_find_rdma_dev(ndev, ini);
->> +		smc_pnet_find_rdma_dev(base_ndev, ini);
->>   		return; /* pnetid could not be determined */
->>   	}
->>   	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
+On Tue, Mar 11, 2025 at 11:08:24AM +0800, WangYuli wrote:
+> Upon compiling an s390 kernel, a vmlinux.map file might be generated
+> in the current directory.
 > 
-> I understand Wenjia opposed to this solution as it may create invalid
-> topologies ?!?
+> Append it to the .gitignore file so that Git does not track it.
 > 
-> https://lore.kernel.org/netdev/08cd6e15-3f8c-47a0-8490-103d59abf910@linux.ibm.com/#t
-> 
-> Wenjia, could you please confirm?
-> 
-> Thanks,
-> 
-> Paolo
-> 
+> Signed-off-by: WangYuli <wangyuli@uniontech.com>
+> ---
+>  arch/s390/boot/.gitignore | 1 +
+>  1 file changed, 1 insertion(+)
 
-Hi Paolo,
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
 
-Thanks for asking! I really appreciate it.
+Changed the message to
+"""
+When building with CONFIG_VMLINUX_MAP=y, a decompressor vmlinux.map file
+is generated in the boot directory.
 
-I was initially opposed, but after discussing with Halil, I agreed that 
-my concerns might be not necessary. Halil and I reached an agreement 
-that he responded to the emails (v1) to ask for the version as he 
-already did, and we will double-check version 2 to ensure it works 
-correctly.
-
-In any case, I still need to review it carefully and will provide my 
-answer as soon as possible.
-
-Thanks,
-Wenjia
+Add this file to .gitignore to ensure Git does not track it.
+"""
+And applied, thank you!
