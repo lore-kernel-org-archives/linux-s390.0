@@ -1,308 +1,237 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 928F019AA63;
-	Tue, 11 Mar 2025 14:19:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26CD825C717;
+	Tue, 11 Mar 2025 14:36:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741702790; cv=none; b=CcW+b5k/bMDu25lLCRkYqa1JFhCHTtclplzgCwS2Ip9i6cHqNUvwge6AD8J+MrLOuD0KH12SvewfuHFxuTvxoavknqaDhBd5wudkXgwnbcgNeXZbm+x8D4ZbIjR8XD2ovwZ1vpzH5OrC+rOVj6HMcGb71IktBgNQwS6rquAfHro=
+	t=1741703779; cv=none; b=GhjytBTvXPb26Xy7A+q39tvP7yryxWHRd7o0Swn5LQPcSldIlNUGlCesmO48WQbOdlb9nf4p0IEMTMJ5y+jnVkqm5B203E+QvWz+lO/mii/B2j/3pMSaHLtHh4ahzmntS4riL15v3/M3cxjywUBgDijZikuBy0xB4D3dyeczpE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741702790; c=relaxed/simple;
-	bh=gn5J3MOOne38LA4FNRhfe9F53jyTFz8JyxsCOJODyOU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=OlkUShhFpdJpyCSoBR7Bu/E6aVePTOXGkwc8swMb+WbJRHIZO91i9wVco2pmEtdYbMB8o/5XHtRFVRgu9OL3t/P9ihO9Q8Y/JoH83LQ0hGh/a9QW7H4Bi1BKqGRyAWsUbz+WUBFu1M4jR69r52frkrNM65DKhFG5PH1EgzQArbk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GX95Kujb; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1741703779; c=relaxed/simple;
+	bh=QpK53emxzundB3boPQwv2DDoyNFHOdeOqIuWMFSBX84=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UfjZKuw5V3hB87I3qKZa51+7YCosYAmEnW9Gp7xj76CbO+equUrcb7a8yXCK8jSm+PvGFZbMyWW+nzOg2LuXzeK2E0T1d48EiwTuEDgWilTQTtSsQ0slZVlf4Iw4XamdS0opTnhz5dWk2SsMfgXR+XkA00uxRY8xioRnmkPdSg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V0o+I1cU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GX95Kujb"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52B9eD74002120;
-	Tue, 11 Mar 2025 14:19:35 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V0o+I1cU"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52BA09M0004515;
+	Tue, 11 Mar 2025 14:36:12 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=cLoGKU
-	6hIzqNfco5/+5/HztyKzx5MWFP6SclUMpodiI=; b=GX95Kujb/X2YY+Byrzb4gb
-	iLlLevww6QlbixCyw66ZuJ8utgEnHo+8lu3eTqotKKQUc44Zaj9DmE9uhgFB4S22
-	j9ZbKOtXyAaI8NfTcjoButNWWtCrDX563LYogpSi0A9snG7MkiWHba7N7n09SGEA
-	t9Txj7cmHhSt0Uy689ZocFl4zjZSTXHJzG4TplCkZsGDb3/XRCBjkBbO7JzRTW8C
-	hn+WKYHj4U9ngjxDA2dwwYqWOhlX88D+JE4UBKbBSX0WSzcTkNjHvvg6Z7L6W9Ue
-	qTNL/oogrtIeoTrVy0hOf4pFle+qzqTapj8IKvJ4uUvNjrZPjTYY6/XX3xOputig
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+gJJGx
+	RnLVbsWoeczP6FG8yWHlZQ5ofOXHgWg+4VQzQ=; b=V0o+I1cUSA2jJpM51uVhWP
+	1UTmlgDvrstXM+Nwh3Prk0PKsmCcAa5pVHTOPheQkrSQhd/Ihb3pZpUCAh2qnrLQ
+	FfhHAEeuoTCE7zSQ9OmFT4C8wGIZ/bNv+sU9I2OZRSz3YmpZn+2YvmHfaKk30Xha
+	kzuOtL29hBtEheeFGjb8khDb+Et9z+9jxY1b/U/+paMXPQsnpnKwPc8gwzGErSgk
+	jiT6NC7Ap0xW4ol2cT2rfhPrFigCGcSotXHbf3n3zryPDyRPK4cLCdbTBi3jd+rI
+	AE+mrPSreS7o/Xw2jdqCOFVUqdIoTnDAiAey+jT7CdPOS19Pag63NVJm0nD17sfA
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a7g5vafj-1
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a78qvghk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 14:19:35 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52BCvTv9022288;
-	Tue, 11 Mar 2025 14:19:34 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45917nck1b-1
+	Tue, 11 Mar 2025 14:36:11 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52BEKG21003836;
+	Tue, 11 Mar 2025 14:36:11 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45a78qvghh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Mar 2025 14:19:34 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52BEJXdO29033154
+	Tue, 11 Mar 2025 14:36:11 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52BBVjMM014003;
+	Tue, 11 Mar 2025 14:36:10 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4592x1v7re-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Mar 2025 14:36:10 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52BEa9P014025446
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Mar 2025 14:19:33 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3D21E5805D;
-	Tue, 11 Mar 2025 14:19:33 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AD3ED58059;
-	Tue, 11 Mar 2025 14:19:30 +0000 (GMT)
-Received: from [9.152.212.232] (unknown [9.152.212.232])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Mar 2025 14:19:30 +0000 (GMT)
-Message-ID: <25965f63fd72c43fdd3d4a3e2a3f70608f68ffe9.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 3/5] iommu/s390: support iova_to_phys for additional
- table regions
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
-        robin.murphy@arm.com, gerald.schaefer@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com, clg@redhat.com,
-        iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Date: Tue, 11 Mar 2025 15:19:29 +0100
-In-Reply-To: <20250228214456.440641-4-mjrosato@linux.ibm.com>
-References: <20250228214456.440641-1-mjrosato@linux.ibm.com>
-	 <20250228214456.440641-4-mjrosato@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
- /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
- 3/1pjpNlSaX/qg3ZM8+/EiSGc7uEPklLYu3gRGxcWV/944HdUyLcnjrZwCn2+gg9ncVJjsimS0ro/
- 2wU2RPE4ju6NMBn5Go26sAj1owdYQQv9t0d71CmZS9Bh+2+cLjC7HvyTHKFxVGOznUL+j1a45VrVS
- XQ+nhTVjvgvXR84z10bOvLiwxJZ/00pwNi7uCdSYnZFLQ4S/JGMs4lhOiCGJhJ/9FR7JVw/1t1G9a
- UlqVp23AXwzbcoV2fxyE/CsVpHcyOWGDahGLcH7QeitN6cjltf9ymw2spBzpRnfFn80nVxgSYVG1d
- w75ksBAuQ/3e+oTQk4GAa2ShoNVsvR9GYn7rnsDN5pVILDhdPO3J2PGIXa5ipQnvwb3EHvPXyzakY
- tK50fBUPKk3XnkRwRYEbbPEB7YT+ccF/HioCryqDPWUivXF8qf6Jw5T1mhwukUV1i+QyJzJxGPh19
- /N2/GK7/yS5wrt0Lwxzevc5g+jX8RyjzywOZGHTVu9KIQiG8Pqx33UxZvykjaqTMjo7kaAdGEkrHZ
- dVHqoPZwhCsgQARAQABtChOaWtsYXMgU2NobmVsbGUgPHNjaG5lbGxlQGxpbnV4LmlibS5jb20+iQ
- JXBBMBCABBAhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAhkBFiEEnbAAstJ1IDCl9y3cr+Q/Fej
- CYJAFAmesutgFCQenEYkACgkQr+Q/FejCYJDIzA//W5h3t+anRaztihE8ID1c6ifS7lNUtXr0wEKx
- Qm6EpDQKqFNP+n3R4A5w4gFqKv2JpYQ6UJAAlaXIRTeT/9XdqxQlHlA20QWI7yrJmoYaF74ZI9s/C
- 8aAxEzQZ64NjHrmrZ/N9q8JCTlyhk5ZEV1Py12I2UH7moLFgBFZsPlPWAjK2NO/ns5UJREAJ04pR9
- XQFSBm55gsqkPp028cdoFUD+IajGtW7jMIsx/AZfYMZAd30LfmSIpaPAi9EzgxWz5habO1ZM2++9e
- W6tSJ7KHO0ZkWkwLKicrqpPvA928eNPxYtjkLB2XipdVltw5ydH9SLq0Oftsc4+wDR8TqhmaUi8qD
- Fa2I/0NGwIF8hjwSZXtgJQqOTdQA5/6voIPheQIi0NBfUr0MwboUIVZp7Nm3w0QF9SSyTISrYJH6X
- qLp17NwnGQ9KJSlDYCMCBJ+JGVmlcMqzosnLli6JszAcRmZ1+sd/f/k47Fxy1i6o14z9Aexhq/UgI
- 5InZ4NUYhf5pWflV41KNupkS281NhBEpChoukw25iZk0AsrukpJ74x69MJQQO+/7PpMXFkt0Pexds
- XQrtsXYxLDQk8mgjlgsvWl0xlk7k7rddN1+O/alcv0yBOdvlruirtnxDhbjBqYNl8PCbfVwJZnyQ4
- SAX2S9XiGeNtWfZ5s2qGReyAcd2nBna0KU5pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNjaG5lbGxlQ
- GlibS5jb20+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAAstJ1IDCl9y
- 3cr+Q/FejCYJAFAmesuuEFCQenEYkACgkQr+Q/FejCYJCosA/9GCtbN8lLQkW71n/CHR58BAA5ct1
- KRYiZNPnNNAiAzjvSb0ezuRVt9H0bk/tnj6pPj0zdyU2bUj9Ok3lgocWhsF2WieWbG4dox5/L1K28
- qRf3p+vdPfu7fKkA1yLE5GXffYG3OJnqR7OZmxTnoutj81u/tXO95JBuCSJn5oc5xMQvUUFzLQSbh
- prIWxcnzQa8AHJ+7nAbSiIft/+64EyEhFqncksmzI5jiJ5edABiriV7bcNkK2d8KviUPWKQzVlQ3p
- LjRJcJJHUAFzsZlrsgsXyZLztAM7HpIA44yo+AVVmcOlmgPMUy+A9n+0GTAf9W3y36JYjTS+ZcfHU
- KP+y1TRGRzPrFgDKWXtsl1N7sR4tRXrEuNhbsCJJMvcFgHsfni/f4pilabXO1c5Pf8fiXndCz04V8
- ngKuz0aG4EdLQGwZ2MFnZdyf3QbG3vjvx7XDlrdzH0wUgExhd2fHQ2EegnNS4gNHjq82uLPU0hfcr
- obuI1D74nV0BPDtr7PKd2ryb3JgjUHKRKwok6IvlF2ZHMMXDxYoEvWlDpM1Y7g81NcKoY0BQ3ClXi
- a7vCaqAAuyD0zeFVGcWkfvxYKGqpj8qaI/mA8G5iRMTWUUUROy7rKJp/y2ioINrCul4NUJUujfx4k
- 7wFU11/YNAzRhQG4MwoO5e+VY66XnAd+XPyBIlvy0K05pa2xhcyBTY2huZWxsZSA8bmlrbGFzLnNj
- aG5lbGxlQGdtYWlsLmNvbT6JAlQEEwEIAD4CGwEFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQSds
- ACy0nUgMKX3Ldyv5D8V6MJgkAUCZ6y64QUJB6cRiQAKCRCv5D8V6MJgkEr/D/9iaYSYYwlmTJELv+
- +EjsIxXtneKYpjXEgNnPwpKEXNIpuU/9dcVDcJ10MfvWBPi3sFbIzO9ETIRyZSgrjQxCGSIhlbom4
- D8jVzTA698tl9id0FJKAi6T0AnBF7CxyqofPUzAEMSj9ynEJI/Qu8pHWkVp97FdJcbsho6HNMthBl
- +Qgj9l7/Gm1UW3ZPvGYgU75uB/mkaYtEv0vYrSZ+7fC2Sr/O5SM2SrNk+uInnkMBahVzCHcoAI+6O
- Enbag+hHIeFbqVuUJquziiB/J4Z2yT/3Ps/xrWAvDvDgdAEr7Kn697LLMRWBhGbdsxdHZ4ReAhc8M
- 8DOcSWX7UwjzUYq7pFFil1KPhIkHctpHj2Wvdnt+u1F9fN4e3C6lckUGfTVd7faZ2uDoCCkJAgpWR
- 10V1Q1Cgl09VVaoi6LcGFPnLZfmPrGYiDhM4gyDDQJvTmkB+eMEH8u8V1X30nCFP2dVvOpevmV5Uk
- onTsTwIuiAkoTNW4+lRCFfJskuTOQqz1F8xVae8KaLrUt2524anQ9x0fauJkl3XdsVcNt2wYTAQ/V
- nKUNgSuQozzfXLf+cOEbV+FBso/1qtXNdmAuHe76ptwjEfBhfg8L+9gMUthoCR94V0y2+GEzR5nlD
- 5kfu8ivV/gZvij+Xq3KijIxnOF6pd0QzliKadaFNgGw4FoUeZo0rQhTmlrbGFzIFNjaG5lbGxlIDx
- uaWtzQGtlcm5lbC5vcmc+iQJUBBMBCAA+AhsBBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAFiEEnbAA
- stJ1IDCl9y3cr+Q/FejCYJAFAmesuuEFCQenEYkACgkQr+Q/FejCYJC6yxAAiQQ5NAbWYKpkxxjP/
- AajXheMUW8EtK7EMJEKxyemj40laEs0wz9owu8ZDfQl4SPqjjtcRzUW6vE6JvfEiyCLd8gUFXIDMS
- l2hzuNot3sEMlER9kyVIvemtV9r8Sw1NHvvCjxOMReBmrtg9ooeboFL6rUqbXHW+yb4GK+1z7dy+Q
- 9DMlkOmwHFDzqvsP7eGJN0xD8MGJmf0L5LkR9LBc+jR78L+2ZpKA6P4jL53rL8zO2mtNQkoUO+4J6
- 0YTknHtZrqX3SitKEmXE2Is0Efz8JaDRW41M43cE9b+VJnNXYCKFzjiqt/rnqrhLIYuoWCNzSJ49W
- vt4hxfqh/v2OUcQCIzuzcvHvASmt049ZyGmLvEz/+7vF/Y2080nOuzE2lcxXF1Qr0gAuI+wGoN4gG
- lSQz9pBrxISX9jQyt3ztXHmH7EHr1B5oPus3l/zkc2Ajf5bQ0SE7XMlo7Pl0Xa1mi6BX6I98CuvPK
- SA1sQPmo+1dQYCWmdQ+OIovHP9Nx8NP1RB2eELP5MoEW9eBXoiVQTsS6g6OD3rH7xIRxRmuu42Z5e
- 0EtzF51BjzRPWrKSq/mXIbl5nVW/wD+nJ7U7elW9BoJQVky03G0DhEF6fMJs08DGG3XoKw/CpGtMe
- 2V1z/FRotP5Fkf5VD3IQGtkxSnO/awtxjlhytigylgrZ4wDpSE=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+	Tue, 11 Mar 2025 14:36:09 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 42D6C58054;
+	Tue, 11 Mar 2025 14:36:09 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4663458050;
+	Tue, 11 Mar 2025 14:36:06 +0000 (GMT)
+Received: from [9.152.224.242] (unknown [9.152.224.242])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 11 Mar 2025 14:36:06 +0000 (GMT)
+Message-ID: <77e4653d-6ad2-4b97-9952-99d506276b1a@linux.ibm.com>
+Date: Tue, 11 Mar 2025 15:36:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2] net/smc: use the correct ndev to find pnetid
+ by pnetid table
+To: Paolo Abeni <pabeni@redhat.com>,
+        Guangguan Wang <guangguan.wang@linux.alibaba.com>, pasic@linux.ibm.com,
+        jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        mjambigi@linux.ibm.com, sidraya@linux.ibm.com
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        horms@kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20250304124304.13732-1-guangguan.wang@linux.alibaba.com>
+ <2c9accbd-fd6f-421c-9d00-1f36a6152b8d@redhat.com>
+Content-Language: en-US
+From: Wenjia Zhang <wenjia@linux.ibm.com>
+In-Reply-To: <2c9accbd-fd6f-421c-9d00-1f36a6152b8d@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ec3glXhTVsrzaJJEQAwRZV-dz65eMeRK
-X-Proofpoint-ORIG-GUID: ec3glXhTVsrzaJJEQAwRZV-dz65eMeRK
+X-Proofpoint-GUID: 8JyPt17XETZmYuWNC-l4JQSMMxY5YMh1
+X-Proofpoint-ORIG-GUID: w2dWjNPE_sJVQ19EQ9OjxDoJDdrL6PGb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-11_03,2025-03-11_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 spamscore=0 mlxlogscore=999 suspectscore=0 phishscore=0
- priorityscore=1501 adultscore=0 clxscore=1015 malwarescore=0
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502100000 definitions=main-2503110089
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ spamscore=0 adultscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 suspectscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502100000
+ definitions=main-2503110091
 
-On Fri, 2025-02-28 at 16:44 -0500, Matthew Rosato wrote:
-> The origin_type of the dma_table is used to determine how many table
-> levels must be traversed for the translation.
->=20
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  arch/s390/include/asm/pci_dma.h |  2 ++
->  drivers/iommu/s390-iommu.c      | 52 ++++++++++++++++++++++++++++++++-
->  2 files changed, 53 insertions(+), 1 deletion(-)
->=20
-> diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_=
-dma.h
-> index 42d7cc4262ca..8d8962e4fd58 100644
-> --- a/arch/s390/include/asm/pci_dma.h
-> +++ b/arch/s390/include/asm/pci_dma.h
-> @@ -55,6 +55,8 @@ enum zpci_ioat_dtype {
->  #define ZPCI_PT_BITS			8
->  #define ZPCI_ST_SHIFT			(ZPCI_PT_BITS + PAGE_SHIFT)
->  #define ZPCI_RT_SHIFT			(ZPCI_ST_SHIFT + ZPCI_TABLE_BITS)
-> +#define ZPCI_RS_SHIFT			(ZPCI_RT_SHIFT + ZPCI_TABLE_BITS)
-> +#define ZPCI_RF_SHIFT			(ZPCI_RS_SHIFT + ZPCI_TABLE_BITS)
-> =20
->  #define ZPCI_RTE_FLAG_MASK		0x3fffUL
->  #define ZPCI_RTE_ADDR_MASK		(~ZPCI_RTE_FLAG_MASK)
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index f2cda0ce0fe9..0a6aad11c327 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -36,6 +36,16 @@ struct s390_domain {
-> =20
->  static struct iommu_domain blocking_domain;
-> =20
-> +static inline unsigned int calc_rfx(dma_addr_t ptr)
-> +{
-> +	return ((unsigned long)ptr >> ZPCI_RF_SHIFT) & ZPCI_INDEX_MASK;
-> +}
-> +
-> +static inline unsigned int calc_rsx(dma_addr_t ptr)
-> +{
-> +	return ((unsigned long)ptr >> ZPCI_RS_SHIFT) & ZPCI_INDEX_MASK;
-> +}
-> +
->  static inline unsigned int calc_rtx(dma_addr_t ptr)
->  {
->  	return ((unsigned long)ptr >> ZPCI_RT_SHIFT) & ZPCI_INDEX_MASK;
-> @@ -759,6 +769,43 @@ static int s390_iommu_map_pages(struct iommu_domain =
-*domain,
->  	return rc;
->  }
-> =20
-> +static unsigned long *get_rto_from_iova(struct s390_domain *domain,
-> +					dma_addr_t iova)
-> +{
-> +	unsigned long *rfo, *rso, *rto;
-> +	unsigned long rfe, rse;
-> +	unsigned int rfx, rsx;
-> +
-> +	switch (domain->origin_type) {
-> +	case ZPCI_TABLE_TYPE_RFX:
-> +		rfo =3D domain->dma_table;
-> +		goto itp_rf;
-> +	case ZPCI_TABLE_TYPE_RSX:
-> +		rso =3D domain->dma_table;
-> +		goto itp_rs;
-> +	case ZPCI_TABLE_TYPE_RTX:
-> +		return domain->dma_table;
-> +	default:
-> +		return NULL;
-> +	}
-> +
-> +itp_rf:
-> +	rfx =3D calc_rfx(iova);
-> +	rfe =3D READ_ONCE(rfo[rfx]);
-> +	if (!reg_entry_isvalid(rfe))
-> +		return NULL;
-> +	rso =3D get_rf_rso(rfe);
-> +
-> +itp_rs:
-> +	rsx =3D calc_rsx(iova);
-> +	rse =3D READ_ONCE(rso[rsx]);
-> +	if (!reg_entry_isvalid(rse))
-> +		return NULL;
-> +	rto =3D get_rs_rto(rse);
-> +
-> +	return rto;
-> +}
 
-I played around with re-organizing the above as the goto out of the
-switch feels a bit cumbersome. One variant I came up with is a separate
-get_rso_from_iova() function like below:
 
-static unsigned long *get_rso_from_iova(struct s390_domain *domain,
-					dma_addr_t iova)
-{
-	unsigned long *rfo;
-	unsigned long rfe;
-	unsigned int rfx;
+On 11.03.25 09:59, Paolo Abeni wrote:
+> On 3/4/25 1:43 PM, Guangguan Wang wrote:
+>> When using smc_pnet in SMC, it will only search the pnetid in the
+>> base_ndev of the netdev hierarchy(both HW PNETID and User-defined
+>> sw pnetid). This may not work for some scenarios when using SMC in
+>> container on cloud environment.
+>> In container, there have choices of different container network,
+>> such as directly using host network, virtual network IPVLAN, veth,
+>> etc. Different choices of container network have different netdev
+>> hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1
+>> in host below is the netdev directly related to the physical device).
+>>              _______________________________
+>>             |   _________________           |
+>>             |  |POD              |          |
+>>             |  |                 |          |
+>>             |  | eth0_________   |          |
+>>             |  |____|         |__|          |
+>>             |       |         |             |
+>>             |       |         |             |
+>>             |   eth1|base_ndev| eth0_______ |
+>>             |       |         |    | RDMA  ||
+>>             | host  |_________|    |_______||
+>>             ---------------------------------
+>>       netdev hierarchy if directly using host network
+>>             ________________________________
+>>             |   _________________           |
+>>             |  |POD  __________  |          |
+>>             |  |    |upper_ndev| |          |
+>>             |  |eth0|__________| |          |
+>>             |  |_______|_________|          |
+>>             |          |lower netdev        |
+>>             |        __|______              |
+>>             |   eth1|         | eth0_______ |
+>>             |       |base_ndev|    | RDMA  ||
+>>             | host  |_________|    |_______||
+>>             ---------------------------------
+>>              netdev hierarchy if using IPVLAN
+>>              _______________________________
+>>             |   _____________________       |
+>>             |  |POD        _________ |      |
+>>             |  |          |base_ndev||      |
+>>             |  |eth0(veth)|_________||      |
+>>             |  |____________|________|      |
+>>             |               |pairs          |
+>>             |        _______|_              |
+>>             |       |         | eth0_______ |
+>>             |   veth|base_ndev|    | RDMA  ||
+>>             |       |_________|    |_______||
+>>             |        _________              |
+>>             |   eth1|base_ndev|             |
+>>             | host  |_________|             |
+>>             ---------------------------------
+>>               netdev hierarchy if using veth
+>> Due to some reasons, the eth1 in host is not RDMA attached netdevice,
+>> pnetid is needed to map the eth1(in host) with RDMA device so that POD
+>> can do SMC-R. Because the eth1(in host) is managed by CNI plugin(such
+>> as Terway, network management plugin in container environment), and in
+>> cloud environment the eth(in host) can dynamically be inserted by CNI
+>> when POD create and dynamically be removed by CNI when POD destroy and
+>> no POD related to the eth(in host) anymore. It is hard to config the
+>> pnetid to the eth1(in host). But it is easy to config the pnetid to the
+>> netdevice which can be seen in POD. When do SMC-R, both the container
+>> directly using host network and the container using veth network can
+>> successfully match the RDMA device, because the configured pnetid netdev
+>> is a base_ndev. But the container using IPVLAN can not successfully
+>> match the RDMA device and 0x03030000 fallback happens, because the
+>> configured pnetid netdev is not a base_ndev. Additionally, if config
+>> pnetid to the eth1(in host) also can not work for matching RDMA device
+>> when using veth network and doing SMC-R in POD.
+>>
+>> To resolve the problems list above, this patch extends to search user
+>> -defined sw pnetid in the clc handshake ndev when no pnetid can be found
+>> in the base_ndev, and the base_ndev take precedence over ndev for backward
+>> compatibility. This patch also can unify the pnetid setup of different
+>> network choices list above in container(Config user-defined sw pnetid in
+>> the netdevice can be seen in POD).
+>>
+>> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+>> ---
+>>   net/smc/smc_pnet.c | 8 +++++---
+>>   1 file changed, 5 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+>> index 716808f374a8..b391c2ef463f 100644
+>> --- a/net/smc/smc_pnet.c
+>> +++ b/net/smc/smc_pnet.c
+>> @@ -1079,14 +1079,16 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
+>>   					 struct smc_init_info *ini)
+>>   {
+>>   	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
+>> +	struct net_device *base_ndev;
+>>   	struct net *net;
+>>   
+>> -	ndev = pnet_find_base_ndev(ndev);
+>> +	base_ndev = pnet_find_base_ndev(ndev);
+>>   	net = dev_net(ndev);
+>> -	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
+>> +	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
+>>   				   ndev_pnetid) &&
+>> +	    smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid) &&
+>>   	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
+>> -		smc_pnet_find_rdma_dev(ndev, ini);
+>> +		smc_pnet_find_rdma_dev(base_ndev, ini);
+>>   		return; /* pnetid could not be determined */
+>>   	}
+>>   	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
+> 
+> I understand Wenjia opposed to this solution as it may create invalid
+> topologies ?!?
+> 
+> https://lore.kernel.org/netdev/08cd6e15-3f8c-47a0-8490-103d59abf910@linux.ibm.com/#t
+> 
+> Wenjia, could you please confirm?
+> 
+> Thanks,
+> 
+> Paolo
+> 
 
-	switch (domain->origin_type) {
-	case ZPCI_TABLE_TYPE_RFX:
-		rfo =3D domain->dma_table;
-		rfx =3D calc_rfx(iova);
-		rfe =3D READ_ONCE(rfo[rfx]);
-		if (!reg_entry_isvalid(rfe))
-			return NULL;
-		return get_rf_rso(rfe);
-	case ZPCI_TABLE_TYPE_RSX:
-		return domain->dma_table;
-	default:
-		return NULL;
-	}
-}
+Hi Paolo,
 
-static unsigned long *get_rto_from_iova(struct s390_domain *domain,
-					dma_addr_t iova)
-{
-	unsigned long *rso;
-	unsigned long rse;
-	unsigned int rsx;
+Thanks for asking! I really appreciate it.
 
-	switch (domain->origin_type) {
-	case ZPCI_TABLE_TYPE_RFX:
-	case ZPCI_TABLE_TYPE_RSX:
-		rso =3D get_rso_from_iova(domain, iova);
-		rsx =3D calc_rsx(iova);
-		rse =3D READ_ONCE(rso[rsx]);
-		if (!reg_entry_isvalid(rse))
-			return NULL;
-		return get_rs_rto(rse);
-	case ZPCI_TABLE_TYPE_RTX:
-		return domain->dma_table;
-	default:
-		return NULL;
-	}
-}
+I was initially opposed, but after discussing with Halil, I agreed that 
+my concerns might be not necessary. Halil and I reached an agreement 
+that he responded to the emails (v1) to ask for the version as he 
+already did, and we will double-check version 2 to ensure it works 
+correctly.
 
-I think this is slightly cleaner but not by enough that I'd say we have
-to do it this way and I leave the choice to you.
+In any case, I still need to review it carefully and will provide my 
+answer as soon as possible.
 
-> +
->  static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
->  					   dma_addr_t iova)
->  {
-> @@ -772,10 +819,13 @@ static phys_addr_t s390_iommu_iova_to_phys(struct i=
-ommu_domain *domain,
->  	    iova > domain->geometry.aperture_end)
->  		return 0;
-> =20
-> +	rto =3D get_rto_from_iova(s390_domain, iova);
-> +	if (!rto)
-> +		return 0;
-> +
->  	rtx =3D calc_rtx(iova);
->  	sx =3D calc_sx(iova);
->  	px =3D calc_px(iova);
-> -	rto =3D s390_domain->dma_table;
-> =20
->  	rte =3D READ_ONCE(rto[rtx]);
->  	if (reg_entry_isvalid(rte)) {
-
-So with or without my suggestion.
-
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Thanks,
+Wenjia
