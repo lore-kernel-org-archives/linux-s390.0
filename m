@@ -1,293 +1,107 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 996A72AD21;
-	Wed, 12 Mar 2025 13:30:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4BF253B4A;
+	Wed, 12 Mar 2025 15:19:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741786230; cv=none; b=nZoO2OZVVi1XIjTTxZJ5OxfQxE5Bdb5P4uefFXEOqnrJYMcLaQTg+avZmmYp1trLEvQjcifbLrixX0Md8B7O/NTEw/tcWwdwnMbtzHta/WdKludmdyKc9H9oe5y1q9huDqMEBxWuwykPPLrp5BrYQkZUb/qR10aKQt9ghhiyc0E=
+	t=1741792754; cv=none; b=A/SCRslzWQ9DcxbemdFTokYTWpvEHlf2XGcWQgZ1ANAXsrTY6L6B3hBLC1Fvw+iefMCYKP6AXu9ssYIct126RrgApRzWa4cdSoS903UKl1YBh3LFWtrJe5QICaIZK67JcceBwiWe8QAxifvuy0+sZ0WmdjRksdosq1bvwdDldWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741786230; c=relaxed/simple;
-	bh=4KZAmteVCiPQZKXa6RixXdbPA2A1lVG6qAGUPw9jYGY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J8l5mX1/xKFtJtba+apDelSNEQKA5drvA+qZwiQZvnXexUyH9vYTeS7ceYjaWG0ihDeLLbXF3fPq/DxW3HuZoWiuggFnArWL6Icr3VYKDxXUm1WiYNNC0DAv8LbCeGYOHnzv+VV1PIbj2YXJz1o5UTfIbjca+XlDVtjOeomnjoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=xjNCMxKe; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1741792754; c=relaxed/simple;
+	bh=jNb7ofhEY6SToOBHz5m6ErUAC0PyqJ9CZaND4c4AKDc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tjA8utZqxbz4RoJsyvNcgAonPArrXfI9ej2qJGPjNsBoSis5ChBulMgzm9ySsXsWbIXTs5bokkemRTW5bPRGvWkShrGrXsCwVcNSNidmn0Zb7wcQxngb615beIG6npOByBcIJR8aQrhyyWmAeWCsnWcG5cR5PFnpM/wWYsO8byo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N6Qz6MBJ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="xjNCMxKe"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1741786220; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=snu8++Ueu+hpkYG+qKz0qWfUxpdd8LRIN9HJR73fE80=;
-	b=xjNCMxKecAjZ+9Hs47+vPxdqOZmmu52PbLse0zFDFckZpSCjYOdtptTf7BgJTTUGduHJqoIFBN00ZhxSYfudR5BfPS83I8v7hlos7I28xmc10KJPJkRXfLpkF2v3WlqJipL5sddwbHbQ3GgOY2Sdzdcu4sIhxg+1bwIXazrd6Yw=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WRD.2t6_1741786214 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 12 Mar 2025 21:30:20 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com
-Subject: [RFC PATCH net-next] net/smc: avoid conflict with sockmap after fallback
-Date: Wed, 12 Mar 2025 21:30:14 +0800
-Message-ID: <20250312133014.35775-1-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 2.45.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N6Qz6MBJ"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52CE3FvS023107;
+	Wed, 12 Mar 2025 15:19:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ok6GZB
+	71aBRQITqSs+UG3I4EO7p/C6x1/eDKvx/Ld5M=; b=N6Qz6MBJkKEFfQEQfTwQ/6
+	FwhWphgSJAM0uD+E7GIZZQXJL0aHSEIgsS+pOHWhsMaoKRok+y9omYf9r5dJR0IE
+	te7deJadVzh6zyrtZru0f+ZHXYV+Ku7/7HTuqnEwPHDSIPdiGKfThungoULt1vOX
+	GJHqMTY8TWcQsunDiQH5Ci3phaHYRbbfBxEZT28Fya0fccPCUexjzTLvypEJcqDo
+	daFbc9O5sNpB84o7UzwvYrgB9VSGPui70wnbiY/emIwEDF8KvMdJqyW/un13YAdZ
+	SaQTORHjbYL3mTeMLK+R/IUbL1oAZjEfQpaw+djp7BYX1+s/miLJBaNtukPyHCXQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45bbpprekh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Mar 2025 15:19:09 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52CDjQpK026048;
+	Wed, 12 Mar 2025 15:19:08 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45atspcs6q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Mar 2025 15:19:08 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52CFJ6lQ55378362
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Mar 2025 15:19:07 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9A075805A;
+	Wed, 12 Mar 2025 15:19:06 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D0F2658052;
+	Wed, 12 Mar 2025 15:19:05 +0000 (GMT)
+Received: from [9.61.55.227] (unknown [9.61.55.227])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 12 Mar 2025 15:19:05 +0000 (GMT)
+Message-ID: <b763cd33-fb89-498a-841d-1a5423b7ef9b@linux.ibm.com>
+Date: Wed, 12 Mar 2025 11:19:05 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/vfio-ap: lock mdev object when handling mdev remove
+ request
+To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, pasic@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, borntraeger@linux.ibm.com,
+        alex.williamson@redhat.com, clg@redhat.com, stable@vger.kernel.org
+References: <20250221153238.3242737-1-akrowiak@linux.ibm.com>
+Content-Language: en-US
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+In-Reply-To: <20250221153238.3242737-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ch44e_yl2Ni0C-dx_O-Zjlp6RSe5zxgc
+X-Proofpoint-GUID: ch44e_yl2Ni0C-dx_O-Zjlp6RSe5zxgc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-12_05,2025-03-11_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
+ adultscore=0 malwarescore=0 bulkscore=0 clxscore=1011 mlxscore=0
+ mlxlogscore=958 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503120102
 
-Currently, after fallback, SMC will occupy the sk_user_data of the TCP sock(clcsk) to
-forward events. As a result, we cannot use sockmap after that, since sockmap also
-requires the use of the sk_user_data. Even more, in some cases, this may result in
-abnormal panic.
+On 2/21/25 10:32 AM, Anthony Krowiak wrote:
+> The vfio_ap_mdev_request function in drivers/s390/crypto/vfio_ap_ops.c
+> accesses fields of an ap_matrix_mdev object without ensuring that the
+> object is accessed by only one thread at a time. This patch adds the lock
+> necessary to secure access to the ap_matrix_mdev object.
+> 
+> Fixes: 2e3d8d71e285 ("s390/vfio-ap: wire in the vfio_device_ops request callback")
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> Cc: <stable@vger.kernel.org>
 
-To enable sockmap after SMC fallback , we need to avoid using sk_user_data and
-instead introduce an additional smc_ctx in tcp_sock to index from TCP sock to SMC sock.
+The new code itself seems sane.
 
-Additionally, we bind the lifecycle of the SMC sock to that of the TCP sock, ensuring
-that the indexing to the SMC sock remains valid throughout the lifetime of the TCP sock.
+But besides this area of code, there are 2 other paths that touch matrix_mdev->req_trigger:
 
-One key reason is that SMC overrides inet_connection_sock_af_ops, which introduces
-potential dependencies. We must ensure that the af_ops remain visible throughout the
-lifecycle of the TCP socket. In addition, this also resolves potential issues in some
-scenarios where the SMC sock might be invalid.
+the one via vfio_ap_set_request_irq will already hold the lock via vfio_ap_mdev_ioctl (OK).
 
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
----
- include/linux/tcp.h |  1 +
- net/smc/af_smc.c    | 53 ++++++++++++++++++++++-----------------------
- net/smc/smc.h       |  8 +++----
- net/smc/smc_close.c |  1 -
- 4 files changed, 30 insertions(+), 33 deletions(-)
-
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index f88daaa76d83..f2223b1cc0d0 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -478,6 +478,7 @@ struct tcp_sock {
- #if IS_ENABLED(CONFIG_SMC)
- 	bool	syn_smc;	/* SYN includes SMC */
- 	bool	(*smc_hs_congested)(const struct sock *sk);
-+	void	*smc_ctx;
- #endif
- 
- #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bc356f77ff1d..d434105639c1 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -127,7 +127,7 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 	struct smc_sock *smc;
- 	struct sock *child;
- 
--	smc = smc_clcsock_user_data(sk);
-+	smc = smc_sk_from_clcsk(sk);
- 
- 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
- 				sk->sk_max_ack_backlog)
-@@ -143,8 +143,6 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
- 					       own_req);
- 	/* child must not inherit smc or its ops */
- 	if (child) {
--		rcu_assign_sk_user_data(child, NULL);
--
- 		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
- 		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
- 			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
-@@ -161,10 +159,7 @@ static bool smc_hs_congested(const struct sock *sk)
- {
- 	const struct smc_sock *smc;
- 
--	smc = smc_clcsock_user_data(sk);
--
--	if (!smc)
--		return true;
-+	smc = smc_sk_from_clcsk(sk);
- 
- 	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
- 		return true;
-@@ -250,7 +245,6 @@ static void smc_fback_restore_callbacks(struct smc_sock *smc)
- 	struct sock *clcsk = smc->clcsock->sk;
- 
- 	write_lock_bh(&clcsk->sk_callback_lock);
--	clcsk->sk_user_data = NULL;
- 
- 	smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
- 	smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
-@@ -832,11 +826,10 @@ static void smc_fback_forward_wakeup(struct smc_sock *smc, struct sock *clcsk,
- 
- static void smc_fback_state_change(struct sock *clcsk)
- {
--	struct smc_sock *smc;
-+	struct smc_sock *smc = smc_sk_from_clcsk(clcsk);
- 
- 	read_lock_bh(&clcsk->sk_callback_lock);
--	smc = smc_clcsock_user_data(clcsk);
--	if (smc)
-+	if (smc->clcsk_state_change)
- 		smc_fback_forward_wakeup(smc, clcsk,
- 					 smc->clcsk_state_change);
- 	read_unlock_bh(&clcsk->sk_callback_lock);
-@@ -844,11 +837,10 @@ static void smc_fback_state_change(struct sock *clcsk)
- 
- static void smc_fback_data_ready(struct sock *clcsk)
- {
--	struct smc_sock *smc;
-+	struct smc_sock *smc = smc_sk_from_clcsk(clcsk);
- 
- 	read_lock_bh(&clcsk->sk_callback_lock);
--	smc = smc_clcsock_user_data(clcsk);
--	if (smc)
-+	if (smc->clcsk_data_ready)
- 		smc_fback_forward_wakeup(smc, clcsk,
- 					 smc->clcsk_data_ready);
- 	read_unlock_bh(&clcsk->sk_callback_lock);
-@@ -856,11 +848,10 @@ static void smc_fback_data_ready(struct sock *clcsk)
- 
- static void smc_fback_write_space(struct sock *clcsk)
- {
--	struct smc_sock *smc;
-+	struct smc_sock *smc = smc_sk_from_clcsk(clcsk);
- 
- 	read_lock_bh(&clcsk->sk_callback_lock);
--	smc = smc_clcsock_user_data(clcsk);
--	if (smc)
-+	if (smc->clcsk_write_space)
- 		smc_fback_forward_wakeup(smc, clcsk,
- 					 smc->clcsk_write_space);
- 	read_unlock_bh(&clcsk->sk_callback_lock);
-@@ -868,11 +859,10 @@ static void smc_fback_write_space(struct sock *clcsk)
- 
- static void smc_fback_error_report(struct sock *clcsk)
- {
--	struct smc_sock *smc;
-+	struct smc_sock *smc = smc_sk_from_clcsk(clcsk);
- 
- 	read_lock_bh(&clcsk->sk_callback_lock);
--	smc = smc_clcsock_user_data(clcsk);
--	if (smc)
-+	if (smc->clcsk_error_report)
- 		smc_fback_forward_wakeup(smc, clcsk,
- 					 smc->clcsk_error_report);
- 	read_unlock_bh(&clcsk->sk_callback_lock);
-@@ -883,7 +873,6 @@ static void smc_fback_replace_callbacks(struct smc_sock *smc)
- 	struct sock *clcsk = smc->clcsock->sk;
- 
- 	write_lock_bh(&clcsk->sk_callback_lock);
--	clcsk->sk_user_data = (void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 
- 	smc_clcsock_replace_cb(&clcsk->sk_state_change, smc_fback_state_change,
- 			       &smc->clcsk_state_change);
-@@ -2602,11 +2591,10 @@ static void smc_tcp_listen_work(struct work_struct *work)
- 
- static void smc_clcsock_data_ready(struct sock *listen_clcsock)
- {
--	struct smc_sock *lsmc;
-+	struct smc_sock *lsmc = smc_sk_from_clcsk(listen_clcsock);
- 
- 	read_lock_bh(&listen_clcsock->sk_callback_lock);
--	lsmc = smc_clcsock_user_data(listen_clcsock);
--	if (!lsmc)
-+	if (!lsmc->clcsk_data_ready)
- 		goto out;
- 	lsmc->clcsk_data_ready(listen_clcsock);
- 	if (lsmc->sk.sk_state == SMC_LISTEN) {
-@@ -2648,8 +2636,6 @@ int smc_listen(struct socket *sock, int backlog)
- 	 * smc-specific sk_data_ready function
- 	 */
- 	write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
--	smc->clcsock->sk->sk_user_data =
--		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 	smc_clcsock_replace_cb(&smc->clcsock->sk->sk_data_ready,
- 			       smc_clcsock_data_ready, &smc->clcsk_data_ready);
- 	write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
-@@ -2670,7 +2656,6 @@ int smc_listen(struct socket *sock, int backlog)
- 		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 		smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
- 				       &smc->clcsk_data_ready);
--		smc->clcsock->sk->sk_user_data = NULL;
- 		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 		goto out;
- 	}
-@@ -3323,6 +3308,15 @@ static const struct proto_ops smc_sock_ops = {
- 	.splice_read	= smc_splice_read,
- };
- 
-+static void smc_clcsk_destruct(struct sock *clcsk)
-+{
-+	struct smc_sock *smc = smc_sk_from_clcsk(clcsk);
-+
-+	clcsk->sk_destruct = smc->clcsk_destruct;
-+	clcsk->sk_destruct(clcsk);
-+	sock_put(&smc->sk); /* hold in smc_create_clcsk() */
-+}
-+
- int smc_create_clcsk(struct net *net, struct sock *sk, int family)
- {
- 	struct smc_sock *smc = smc_sk(sk);
-@@ -3343,6 +3337,11 @@ int smc_create_clcsk(struct net *net, struct sock *sk, int family)
- 	sk->sk_net_refcnt = 1;
- 	get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
- 	sock_inuse_add(net, 1);
-+
-+	tcp_sk(sk)->smc_ctx = &smc->sk;
-+	sock_hold(&smc->sk); /* put in smc_clcsk_destruct() */
-+	smc->clcsk_destruct = sk->sk_destruct;
-+	sk->sk_destruct = smc_clcsk_destruct;
- 	return 0;
- }
- 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 78ae10d06ed2..940b040ee9e8 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -296,6 +296,8 @@ struct smc_sock {				/* smc sock container */
- 						/* original write_space fct. */
- 	void			(*clcsk_error_report)(struct sock *sk);
- 						/* original error_report fct. */
-+	void			(*clcsk_destruct)(struct sock *sk);
-+						/* original destruct fct. */
- 	struct smc_connection	conn;		/* smc connection */
- 	struct smc_sock		*listen_smc;	/* listen parent */
- 	struct work_struct	connect_work;	/* handle non-blocking connect*/
-@@ -340,11 +342,7 @@ static inline void smc_init_saved_callbacks(struct smc_sock *smc)
- 	smc->clcsk_error_report	= NULL;
- }
- 
--static inline struct smc_sock *smc_clcsock_user_data(const struct sock *clcsk)
--{
--	return (struct smc_sock *)
--	       ((uintptr_t)clcsk->sk_user_data & ~SK_USER_DATA_NOCOPY);
--}
-+#define smc_sk_from_clcsk(sk)	(tcp_sk(sk)->smc_ctx)
- 
- /* save target_cb in saved_cb, and replace target_cb with new_cb */
- static inline void smc_clcsock_replace_cb(void (**target_cb)(struct sock *),
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 10219f55aad1..a6aa0f8a99e2 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -218,7 +218,6 @@ int smc_close_active(struct smc_sock *smc)
- 			write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 			smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
- 					       &smc->clcsk_data_ready);
--			smc->clcsock->sk->sk_user_data = NULL;
- 			write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
- 		}
--- 
-2.45.0
+However the other one in vfio_ap_mdev_probe acquires mdevs_lock a few lines -after- initializing req_trigger and cfg_chg_trigger to NULL.  Should the lock also be held there since we would have already registered the vfio device above?  We might be protected by circumstance because we are in .probe() but I'm not sure, and we bother getting the lock already to protect mdev_list...
 
