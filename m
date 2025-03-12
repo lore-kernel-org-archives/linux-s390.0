@@ -1,209 +1,172 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B63AF1E5701;
-	Wed, 12 Mar 2025 06:35:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE7915A858;
+	Wed, 12 Mar 2025 10:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741761320; cv=none; b=moXZK/UtD2p2bySJATUc3SvXMN7/OVYOdTgNRhbyHO9KJDIdRoLNAMiagieLmptEqsNqy3UMswjc96Z2G/3AQh9viXnhLsNheQR+tM/pWq3v+wJaSrmTXWpalUav+KOLHyXroZdkA1AVE1WLXI50CQLuH1MUmpKbVt5P0huB53k=
+	t=1741775563; cv=none; b=eOyuej3ZtDolcKl0h43ZB1sNv8veoiRVYzwIsfPf7w7vQg0awDVXgVYCN8RzLkynKVKnzUj1LfaM4k5pGIkmwkmYwCHb9d1SaAZjHecmtQBeq9kd5OCX80MEEWwXlRnP7iebfl/tv1uWQzaCx4atzXxjYGuI1ho+P+v0KUlaehk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741761320; c=relaxed/simple;
-	bh=5mdaPZVI9H0/LV5hmobVgKrUIL2iuMSKhSTxPs81fPU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jrk+q2A8RBxWW5DthX4LRQA4N3kRlpbHsRv7abk7x+F/Mz16Fu+RlUiPFSe4OlX1QTMybemZiQ51STrsf2EL0aXlykcg2SQR0v9ZoTIy7EG79PvLV4re2IKpmKcVKudK3LyzAdI35bgVELVjFymcDEguB7kmg2V3gVbyouki+lo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s5OTgyGp; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741775563; c=relaxed/simple;
+	bh=1Zrl7XJlODTMn2xzf0QDsKnwExXLa7Dq6fAETI8+/Q4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=dnhqoNRpHBAFuh2HE29+jppRz04KRRkl1GuItEWbaZvL5Yy3yDjo96qgxfJA+hDeAQ6DK4gPlGyAofCANpItwjCaXNecl1328418eBb95ZPKXcssCrgBGJE3Y+rfULNr6PPUXIsEFUAyFjKL4Wa1UkFz/cOFdMhZ2SqixRrYmSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pAZAZIst; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s5OTgyGp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407D8C4CEE3;
-	Wed, 12 Mar 2025 06:35:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741761319;
-	bh=5mdaPZVI9H0/LV5hmobVgKrUIL2iuMSKhSTxPs81fPU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=s5OTgyGpaumshikTp+iDDuLZlaDN5ZFNt0xhyxhEjxDoGdrRr5fCFJqupGsQ1e9mc
-	 x5+ujh1N69RbM6sMUkTLS3DxQMtFw4J494229H1wYU5SpwxEIdYz9MdPy8mIFSl7pw
-	 l37VuFqhXXoOyw7aw+nwsTVBrmtEviGrZHfYnDThjgKfYUlSm8F0VvgI37TsJEXPQg
-	 Z/TS0S2P3vKV4E8YK2hLZIT0IUPWeSPBaDZrgP63fW1/ioeooSw+E437KEQCfrER7m
-	 3bE2KZoye8/AcR9u24hQHDyQiTnD+Psif0K5SR2GQnCkTLYx0lBk09w8YpbQLP/phf
-	 PvVxVGjqV5khg==
-Date: Wed, 12 Mar 2025 08:34:56 +0200
-From: Mike Rapoport <rppt@kernel.org>
-To: "Russell King (Oracle)" <linux@armlinux.org.uk>
-Cc: Mark Brown <broonie@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Michal Simek <monstr@monstr.eu>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Richard Weinberger <richard@nod.at>,
-	Stafford Horne <shorne@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-	Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
-Subject: Re: [PATCH 10/13] arch, mm: set high_memory in free_area_init()
-Message-ID: <Z9ErEBuMMvd6i2n9@kernel.org>
-References: <20250306185124.3147510-1-rppt@kernel.org>
- <20250306185124.3147510-11-rppt@kernel.org>
- <cee346ec-5fa5-4d0b-987b-413ee585dbaa@sirena.org.uk>
- <Z9CyRHewqfZlmgIo@shell.armlinux.org.uk>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pAZAZIst"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52C7vF5A008923;
+	Wed, 12 Mar 2025 10:32:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=UWvIREE7AL/FzZAsFF7hbrg0uAsb
+	UXJLdwxTI53a890=; b=pAZAZIstYQRwNWY+v8x/SOnEwcQpIWndlG3I0WD53TFm
+	qjwagVGIBe9cuU3Cy6ZkF4ZNe749v+SMI/qWaC76GUHepWUalJgHS4uqvpOarqIx
+	znC04KN697imJeBqDL41pCvo7MYVRAdGTD4OIZaaP78WHRn5FYrVPATARd8osfuH
+	1C9RwI1OgXIgZWeEX+ksk98GyDBNOb3w+6T+rktM0gIzoyDx7ACFeRhJCvRv/dzk
+	N+S7aEpbyQMuVPe0X8FIW8xda9xdcxJvLjmfKO/a/NgsEeTXeXqK0rqG3Lp7fXmE
+	jIlJOoXQ0askq5dcww8RcnUpUW1URxWJ8dUUjw82vw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45avk4b3x6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Mar 2025 10:32:34 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52CAF22l003141;
+	Wed, 12 Mar 2025 10:32:31 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45atstkjyf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Mar 2025 10:32:31 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52CAWSHC25559688
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Mar 2025 10:32:28 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02207580AF;
+	Wed, 12 Mar 2025 10:32:30 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5D6F9580AC;
+	Wed, 12 Mar 2025 10:32:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 12 Mar 2025 10:32:27 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Wed, 12 Mar 2025 11:32:18 +0100
+Subject: [PATCH v2] s390/pci: Fix dev.dma_range_map missing sentinel
+ element
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z9CyRHewqfZlmgIo@shell.armlinux.org.uk>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250312-fix_dma_map_alloc-v2-1-530108d9de21@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIALFi0WcC/32NWwrDIBREtxLudw1GTaH96j5CCGpMc8FH0FZSg
+ nuvzQL6eYaZMwckE9EkuDcHRJMxYfAV2KUBvUr/NATnysAo6ymnV7LgPs1OTk5uk7Q2aKK4ov2
+ N8lkvCupui6aWTucwVl4xvUL8nBe5+6X/bLkjHVFikUJwKozUD4v+vbeoXKuDg7GU8gXxzattt
+ gAAAA==
+X-Change-ID: 20250306-fix_dma_map_alloc-b3b05903dcfb
+To: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <jroedel@suse.de>,
+        Will Deacon <will@kernel.org>, Gerd Bayer <gbayer@linux.ibm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2375;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=1Zrl7XJlODTMn2xzf0QDsKnwExXLa7Dq6fAETI8+/Q4=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGNIvJu3aEiNxcX/wHY4nb2fISMeUbI6xUNhu0qAbeWq/T
+ ZDCrJr3HaUsDGJcDLJiiiyLupz91hVMMd0T1N8BM4eVCWQIAxenAEzk1kWG/5XTWZZ9D2g43jAv
+ w4uB8ZW/5xunty+se83d9apuKsh+DGdkuHLBaIrXx8Xe+9nEA1L3SDc/WNA451mPSuA1XcOOK7k
+ LuAE=
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6y4N96oHAM06SXiSsYvxVeXjOfJeGrWo
+X-Proofpoint-GUID: 6y4N96oHAM06SXiSsYvxVeXjOfJeGrWo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-12_04,2025-03-11_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 phishscore=0 mlxscore=0 mlxlogscore=999
+ lowpriorityscore=0 spamscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503120072
 
-On Tue, Mar 11, 2025 at 09:59:32PM +0000, Russell King (Oracle) wrote:
-> On Tue, Mar 11, 2025 at 05:51:06PM +0000, Mark Brown wrote:
-> > On Thu, Mar 06, 2025 at 08:51:20PM +0200, Mike Rapoport wrote:
-> > > From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-> > > 
-> > > high_memory defines upper bound on the directly mapped memory.
-> > > This bound is defined by the beginning of ZONE_HIGHMEM when a system has
-> > > high memory and by the end of memory otherwise.
-> > > 
-> > > All this is known to generic memory management initialization code that
-> > > can set high_memory while initializing core mm structures.
-> > > 
-> > > Remove per-architecture calculation of high_memory and add a generic
-> > > version to free_area_init().
-> > 
-> > This patch appears to be causing breakage on a number of 32 bit arm
-> > platforms, including qemu's virt-2.11,gic-version=3.  Affected platforms
-> > die on boot with no output, a bisect with qemu points at this commit and
-> > those for physical platforms appear to be converging on the same place.
-> 
-> I'm not convinced that the old and the new code is doing the same
-> thing.
-> 
-> The new code:
-> 
-> +       phys_addr_t highmem = memblock_end_of_DRAM();
-> +
-> +#ifdef CONFIG_HIGHMEM
-> +       unsigned long pfn = arch_zone_lowest_possible_pfn[ZONE_HIGHMEM];
-> +
-> +       if (arch_has_descending_max_zone_pfns() || highmem > PFN_PHYS(pfn))
-> +               highmem = PFN_PHYS(pfn);
-> +#endif
-> +
-> +       high_memory = phys_to_virt(highmem - 1) + 1;
-> 
-> First, when CONFIG_HIGHMEM is disabled, this code assumes that the last
-> byte of DRAM declared to memblock is the highmem limit. This _could_
-> overflow phys_to_virt() and lead to an invalid value for high_memory.
-> 
-> Second, arch_zone_lowest_possible_pfn[ZONE_HIGHMEM] is the _start_ of
-> highmem. This is not what arch code sets high_memory to - because
-> the start of highmem may not contiguously follow on from lowmem.
-> 
-> In arch/arm/mm/mmu.c, lowmem_limit is computed to be the highest + 1
-> physical address that lowmem can possibly be, taking into account the
-> amount of vmalloc memory that is required. This is used to set
-> high_memory.
-> 
-> We also limit the amount of usable RAM via memblock_set_current_limit()
-> which memblock_end_of_DRAM() doesn't respect.
-> 
-> I don't think the proposed generic version is suitable for 32-bit arm.
+The fixed commit sets up dev.dma_range_map but missed that this is
+supposed to be an array of struct bus_dma_region with a sentinel element
+with the size field set to 0 at the end. This would lead to overruns in
+e.g. dma_range_map_min(). It could also result in wrong translations
+instead of DMA_MAPPING_ERROR in translate_phys_to_dma() if the paddr
+were to not fit in the aperture. Fix this by using the
+dma_direct_set_offset() helper which creates a sentinel for us.
 
-Unless I'm missing something, both memblock.current_limit and start of
-ZONE_HIGHMEM are set to arm_lowmem_limit which will be different from
-memblock_end_of_DRAM() only for machines with more than nearly 4GiB of RAM
-and those will supposedly use HIGHMEM anyway.
+Fixes: d236843a6964 ("s390/pci: store DMA offset in bus_dma_region")
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Note: Based on iommu/next
 
-But this does not matter anyway because failures Mark reported happen
-because 32-bit arm uses high_memory before mem_init() and that what causes
-the hangs. 
+v1 -> v2:
+- Fixed typo, added trailers
+- Link to v1: https://lore.kernel.org/r/20250306-fix_dma_map_alloc-v1-1-b4fa44304eac@linux.ibm.com
+---
+ arch/s390/pci/pci_bus.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-Here's the fix I have, I'll send v2 shortly.
-
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index e492d58a0386..f02f872ea8a9 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -1250,6 +1250,8 @@ void __init adjust_lowmem_bounds(void)
- 
- 	arm_lowmem_limit = lowmem_limit;
- 
-+	high_memory = __va(arm_lowmem_limit - 1) + 1;
-+
- 	if (!memblock_limit)
- 		memblock_limit = arm_lowmem_limit;
- 
-diff --git a/arch/arm/mm/nommu.c b/arch/arm/mm/nommu.c
-index 65903ed5e80d..1a8f6914ee59 100644
---- a/arch/arm/mm/nommu.c
-+++ b/arch/arm/mm/nommu.c
-@@ -146,6 +146,7 @@ void __init adjust_lowmem_bounds(void)
- 	phys_addr_t end;
- 	adjust_lowmem_bounds_mpu();
- 	end = memblock_end_of_DRAM();
-+	high_memory = __va(end - 1) + 1;
- 	memblock_set_current_limit(end);
- }
- 
-diff --git a/mm/mm_init.c b/mm/mm_init.c
-index 545e11f1a3ba..0aef4bef93c4 100644
---- a/mm/mm_init.c
-+++ b/mm/mm_init.c
-@@ -1765,14 +1765,20 @@ static bool arch_has_descending_max_zone_pfns(void)
- 
- static void set_high_memory(void)
+diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
+index 0e725039861f92925a38f7ff7cb6de6b0d965ac3..14310c3b48860a16de13536adf95ef99e6af21cc 100644
+--- a/arch/s390/pci/pci_bus.c
++++ b/arch/s390/pci/pci_bus.c
+@@ -287,23 +287,21 @@ static struct zpci_bus *zpci_bus_alloc(int topo, bool topo_is_tid)
+ static void pci_dma_range_setup(struct pci_dev *pdev)
  {
-+	unsigned long pfn = arch_zone_lowest_possible_pfn[ZONE_HIGHMEM];
- 	phys_addr_t highmem = memblock_end_of_DRAM();
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+-	struct bus_dma_region *map;
+-	u64 aligned_end;
++	u64 aligned_end, size;
++	dma_addr_t dma_start;
++	int ret;
  
--#ifdef CONFIG_HIGHMEM
--	unsigned long pfn = arch_zone_lowest_possible_pfn[ZONE_HIGHMEM];
-+	/*
-+	 * Some architectures (e.g. ARM) set high_memory very early and
-+	 * use it in arch setup code.
-+	 * If an architecture already set high_memory don't overwrite it
-+	 */
-+	if (high_memory)
-+		return;
+-	map = kzalloc(sizeof(*map), GFP_KERNEL);
+-	if (!map)
+-		return;
+-
+-	map->cpu_start = 0;
+-	map->dma_start = PAGE_ALIGN(zdev->start_dma);
++	dma_start = PAGE_ALIGN(zdev->start_dma);
+ 	aligned_end = PAGE_ALIGN_DOWN(zdev->end_dma + 1);
+-	if (aligned_end >= map->dma_start)
+-		map->size = aligned_end - map->dma_start;
++	if (aligned_end >= dma_start)
++		size = aligned_end - dma_start;
+ 	else
+-		map->size = 0;
+-	WARN_ON_ONCE(map->size == 0);
++		size = 0;
++	WARN_ON_ONCE(size == 0);
  
--	if (arch_has_descending_max_zone_pfns() || highmem > PFN_PHYS(pfn))
-+	if (IS_ENABLED(CONFIG_HIGHMEM) &&
-+	    (arch_has_descending_max_zone_pfns() || highmem > PFN_PHYS(pfn)))
- 		highmem = PFN_PHYS(pfn);
--#endif
- 
- 	high_memory = phys_to_virt(highmem - 1) + 1;
+-	pdev->dev.dma_range_map = map;
++	ret = dma_direct_set_offset(&pdev->dev, 0, dma_start, size);
++	if (ret)
++		pr_err("Failed to allocate DMA range map for %s\n", pci_name(pdev));
  }
+ 
+ void pcibios_bus_add_device(struct pci_dev *pdev)
 
+---
+base-commit: e840414e5a73ac02ffba6299b46f535a0b7cba98
+change-id: 20250306-fix_dma_map_alloc-b3b05903dcfb
+
+Best regards,
 -- 
-Sincerely yours,
-Mike.
+Niklas Schnelle
+
