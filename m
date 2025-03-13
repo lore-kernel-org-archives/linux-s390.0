@@ -1,137 +1,112 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E194269836;
-	Thu, 13 Mar 2025 15:19:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03D251EF0A5;
+	Thu, 13 Mar 2025 15:42:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741879190; cv=none; b=eoe4bbbVUc/WERR15QC1ltST4AFG4D4pNK2cVPjRPpetb84uamnlRU66jAWDhXcCm7HiBDSJ3EFmupgqu5ISoQ2rX3xpelBEY67h4uEyJGx/LEnnBi9BCqpoUa/OoLhiUOzatl7sUKfFy52cEZZ66LW1pyBovG3rxyCghAv+Lt0=
+	t=1741880569; cv=none; b=cax4rt9CmXteWbU6AEvEH1MOga8uUQkMkUB10iKi4C+fv6i7lLMjzFDk3/6JOFVZOKvhQZydWBPtVKokXvrCphiYwgTOHsK7C2PBGIrjXlSUP/QCf8qlqjcQy1K68r7pFM0g43hBZmpdaaHnpMA37YJhM08L7BwmwbWLPi0+Tuw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741879190; c=relaxed/simple;
-	bh=FrNrmRF03ghmNEwfL8ovFyb6iLc0RrAEOh0F/ghf4Is=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aHx+3nwO1Csdo6lEFQurksrFtX4kTQY4VahVX/GdQutEeR9xn/Zvn2+OTk47Afx94BKv6zBbOIBC0tzJWby+oTYlq1h6BiQ2PtHYMTy+XvvF5pt7E7md2OpOcajRO8Van9ysRjdObu3ZX8SGU7yQJLtjoOBdnWWGZh/XH/qNjKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-ac2aeada833so212336066b.0;
-        Thu, 13 Mar 2025 08:19:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741879182; x=1742483982;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1ii1IFZdoC6n5uv3UgvYeObshpXYt3dV3HzZ5zG8DvA=;
-        b=W9QnCpy2z7liragH1HUm59BOqp43q4CXnuBtJa7okYrXzLfXUlfSgWiABJIxYvhGiR
-         JDH9uTWn8ku5l/Y/e5+YblHYEOMLXsElHDQhGQqCcpFgFpPPAWZakGArIezsj4hfPFLq
-         L4hWqC6TznU1DNQtdeqFAW3Kk/7H3omf3p8L+JW3IY1JYATE9WkIoeIOLbhnDFQKahMY
-         FV55avgG6TQ12qjouSdszV1Vcxi5VvxIE3JIMOLnlTaE7UQJyDBtVGqB7Ev/Fc7lRbLq
-         54sMGtCfZV1dnrV6HgfqAPtlbdUO+tXyHKf/4nIBfLYJj3i62gexXYqvvmcnew5cgtKz
-         j/Ug==
-X-Forwarded-Encrypted: i=1; AJvYcCU5KISh44rRVg8UeI6m4/3hBF0JYbNXFKeu6+haEDWi8dzZBNwUAQKSTBTW0t+X4RMIcFx7CnnVEKI=@vger.kernel.org, AJvYcCUCTOSCFLz/UafS4n+JBbfZrAYIKIj4978EmzSxmm1xXhpK8f4sNzPQSDmsl0uVibexvsxJxBzb38e+Q8DD@vger.kernel.org, AJvYcCUSVTeERoHO1QDUxjh8OxFLp58pJ1h6+RDMByONIyp6O6bM8WxKqz+yyOYPV7rAsuRSrK+a5dJV2vxF7Q==@vger.kernel.org, AJvYcCUUer8DlcV9SyIIDL2BQBAG0LjFkZbiUppILBrRki4BFJa74s18ryL7+pbzIQWByznxlhZyinpq3QxxvA==@vger.kernel.org, AJvYcCUsnuDHkVnSa1jrh+le0TH38X5bvX84A1Bxqsij10cpvKG0TruQUjwcRYPHg4bFM/9OkQas45vByml+/w==@vger.kernel.org, AJvYcCVA4Q17TsHc/kkGSlRe83bt62PV4InrJ9JbF+S+Te7w5q2D0XHEJ90misbFY5jJruYjVLcOZwsZyehhgw==@vger.kernel.org, AJvYcCVf2InVGrMmUV6z/T7I/PUyn4ZM45IlafnQzdrp0CqIfIvEg9tAtDwXXrJDrBuXa9w7z4hdmjdusLFBUQ==@vger.kernel.org, AJvYcCWCag+GOpZrhTDyGYXWJXgQ2wB2ORnsk/515EpbxGmJTJQUSNaSov3AhaQBfo25zujhzJDxOIoO3S16ErN9CA==@vger.kernel.org, AJvYcCWnmbojDHfoYQvJDTvB9FNwFDsQHqvI2DCZVsWfCjgd+OQ3xgNOyJSj7wRxz8dtoN9Fv1RBh3LUrHRVhZWl@vger.kernel.org, AJvYcCWz1UjUx3EMLE2Ki9ktZBfQu1JASJTmaagQPPDvz1sU3luAjcSXlRCEW0F9bgqm26SxAS9NGd+u6ILnHL/+3cA=@vger.kernel.org, AJvYcCXGGmh8kNblbmBL2c/6G2Hy3/XwcN6kCPje3VqVAz62+GVb5f1bZVLoc4Qi5exsY9iPmbywvgNlQ4S1Dg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyWgYO7kOiIyaHyYhoeez+j4V7J4n0AMZUxyPsOpN/P0fchA1ZK
-	s8Sv3Tk3mwgD4RehXuYomk5fz+RFpGTqbotExG0JwqtthcgGZdEqtrj5vpfNHmU=
-X-Gm-Gg: ASbGncvob5uLOdgDL0EXb9DJotu8lp9EnGkcTNBIOSz4pHdW4zg7MFnSA9RogX6meSy
-	56hfA9NY8JWUUifjlXIjieieYCp+pNLxN7sLxDlAjWC3XwhSRvJ0Qn/tHhcTOlJbvncXRUb3iJb
-	Yoc8Mt1R6Bm1HxshBqmOGxYdswMk+TjJfJreEQZYaCY+/2RnXMcEISN5RxbQCyuX9831b73mGMa
-	65/V9SJM1VFKUTCPlFpMnLZ3oin5tJEg2eewn9hN4oAkdOltIh41nrCIyHlfXtfHTpBNPCgjeOU
-	Fj84hUBEdS5cvsKl0DcOBPEZyPH7umN3jH4pvFacrfsCY8Ns0raEt+qFiOkQcn0IH80fBC9kxcQ
-	GMUzXh7k=
-X-Google-Smtp-Source: AGHT+IHgUEYjZ5BxZpsdAQFv31ablvhsNIXVzxerwIOsXj5v3VRn4dXHs2aiKu8KzFwyZ0I5/MFw7w==
-X-Received: by 2002:a17:907:3892:b0:ac3:88a:a001 with SMTP id a640c23a62f3a-ac3124b2393mr309962466b.19.1741879182378;
-        Thu, 13 Mar 2025 08:19:42 -0700 (PDT)
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3149d0b4csm90825166b.122.2025.03.13.08.19.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Mar 2025 08:19:39 -0700 (PDT)
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-ab771575040so412917966b.1;
-        Thu, 13 Mar 2025 08:19:38 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUDXUI9Mv0FgHhvu8zT2V8jovCBZO7GjNbjJhKEHzMRM8uSKH5KdUitsEaFYi/PjvzNcAn2w13xfzw=@vger.kernel.org,
- AJvYcCUIix75VQkA4SJjDdNlrsTJg2tFphfjFdUD1+TlkKdZmL9ATUIQ4gbapZ0KDJCEcwfVWxAkNIVajVTNOw==@vger.kernel.org,
- AJvYcCUJeX9i2PoaO2fU5F6WcSNnlBqkTE/xOIE4ZooanzOFrfmncX2PAQr3m/Q6Y75uMlTL8rHnVXN8HTC0zqpX9x8=@vger.kernel.org,
- AJvYcCUJlYg8baevhE/vOvW+4ZUwTL2nzDS8UvVHMnhcO506WvBL15F3HnY2XU/Z4y5nGDowESywSZNXawx8Gw==@vger.kernel.org,
- AJvYcCV0X9mYYXYjLh5d2UXvAOBoytkeYTnGx48WR38tSZbjmP/mjlXsjbyKtT+IvavEmfCHIcJLje/CBeEs8w==@vger.kernel.org,
- AJvYcCW9ZE/0EY2DOHLyRU+GBk33IUUI3pbuV90Nx73NIxCIjsYEIEMPfWCWXVFO+NOtgjEGIaeAWIZORLZenA==@vger.kernel.org,
- AJvYcCWbn7rIRqOxikUEVs9Y4fvK6mPfsnGln+kzM8xvEcM7W6Y8xIAfdM/qdssBObn0LN1fcSuzV46sHhVDuuTz@vger.kernel.org,
- AJvYcCXAL/Ni4VKzNJIx5AkpjhIVaPqGHkqXYv7y2WAWhLfZA6wjW1VfA1Tuk+O3s+SIslXPD4k6dp/gP01oP+l5@vger.kernel.org,
- AJvYcCXVzsHh2J+jN++qaY23k/lZG48se5SzkiynXhJ234WGLuhNUO5qzr9KwL3t6IQDIZDcxHz8Lq26bJHN+Q==@vger.kernel.org,
- AJvYcCXWRO5LIF5na9KQPeoqZHIB8RyP1UTUspe6Ar4TJ49UTNNhkDceg0P2uWd+0ytgV71PLw+9m9nxBWfNOw==@vger.kernel.org,
- AJvYcCXdG3gS9GiFIi3gM3+YyPr/9+f8OREqJFmSIVMQK60d7cbWq4LZJ8bzZF3MwVDhDC3RnrTQ1AK884zY7s0SoQ==@vger.kernel.org
-X-Received: by 2002:a17:907:9626:b0:ac3:d1c:89ce with SMTP id
- a640c23a62f3a-ac312305664mr252326866b.9.1741879178133; Thu, 13 Mar 2025
- 08:19:38 -0700 (PDT)
+	s=arc-20240116; t=1741880569; c=relaxed/simple;
+	bh=wM556SCM6EUBbCrqz6qCafPwSg7V69QwdRfb8370hxY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=lwmMuThgxkhnZxS0mLj92xr/qB1Xz3xSMpxssRXEuyJBJLzl4JHB/znrCUJjs8pY/wU+7dX0X5vMDdKL/ytZinrwHtoMDXGyaJxKxrrXFycFyOjs8BXCHP64Pq2Hfm4KdL5P3XA7my826gTg3xuJpbOroFqSr/yz8lhqn9Jupe4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LUsvDzCq; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LUsvDzCq"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52DADlNv012055;
+	Thu, 13 Mar 2025 15:42:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=zLwBs8
+	CJL7NfCxCwpTspKraeOlev5xmMUrR1jCAxbQk=; b=LUsvDzCqTKCv7KQ+aAL8Ml
+	nayXhOJd+KSDpLAONnhOebs+ST5jrXFrDxJTJQJdg6Pw5Us477y3AgHPHTt72dwB
+	y/4GF/w6O+e0suh5unfEkiu0f2vcvRbILh7+MG8O5y4i47w/qTgu6L8Hp1G0OYZf
+	VABOEa1obq73XG90fH3ZVMk4fntBQg50d7y4rz3mXXfRQSXTLSSKusC/7B63PLSx
+	L7W7KUhClOQHsbM4sbsvGLtJzH8j0Kf8ZlHbGika8OgZp4afQGa1whUw5NL3KoZk
+	j+bX8SohHf71MyZoCz37xMBEYA8ybrXd4o7xCd+EHbtSWrwilbB4wFWdiGmFrzhQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45bhg0cpqu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Mar 2025 15:42:41 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52DEsgow015127;
+	Thu, 13 Mar 2025 15:42:41 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45bhg0cpqp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Mar 2025 15:42:41 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52DCCN44007406;
+	Thu, 13 Mar 2025 15:42:40 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45atsraf86-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 13 Mar 2025 15:42:40 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52DFgakg52429070
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 13 Mar 2025 15:42:36 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A695820040;
+	Thu, 13 Mar 2025 15:42:36 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AF6AF2004B;
+	Thu, 13 Mar 2025 15:42:35 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.18.179])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 13 Mar 2025 15:42:35 +0000 (GMT)
+Date: Thu, 13 Mar 2025 16:42:33 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        horms@kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH net-next v2] net/smc: use the correct ndev to find
+ pnetid by pnetid table
+Message-ID: <20250313164233.3a974c6c.pasic@linux.ibm.com>
+In-Reply-To: <20250304124304.13732-1-guangguan.wang@linux.alibaba.com>
+References: <20250304124304.13732-1-guangguan.wang@linux.alibaba.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250313135003.836600-1-rppt@kernel.org> <20250313135003.836600-14-rppt@kernel.org>
-In-Reply-To: <20250313135003.836600-14-rppt@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 13 Mar 2025 16:19:10 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWCBL_cg1NgbHCA3e9GTob_P9mTuN_Tepvigci6rxDmbg@mail.gmail.com>
-X-Gm-Features: AQ5f1Jr9qHWq5jtnIT3-BmFGhQQ_nRM0uVNr9PeQK5Y9eEomJSZyndfwbc1wpbs
-Message-ID: <CAMuHMdWCBL_cg1NgbHCA3e9GTob_P9mTuN_Tepvigci6rxDmbg@mail.gmail.com>
-Subject: Re: [PATCH v2 13/13] arch, mm: make releasing of memory to page
- allocator more explicit
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, 
-	Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	"David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Guo Ren <guoren@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Mark Brown <broonie@kernel.org>, Matt Turner <mattst88@gmail.com>, 
-	Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>, 
-	Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, 
-	Stafford Horne <shorne@gmail.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, 
-	Will Deacon <will@kernel.org>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
-	x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: H-6ivajfkRXP0g2SWga-elmsMVXrMOay
+X-Proofpoint-ORIG-GUID: zky_qqhXq3BfkNdxbxJodXOqBWY-Ktrx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-13_07,2025-03-11_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
+ mlxlogscore=686 lowpriorityscore=0 spamscore=0 impostorscore=0 bulkscore=0
+ clxscore=1015 mlxscore=0 phishscore=0 adultscore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503130120
 
-On Thu, 13 Mar 2025 at 14:53, Mike Rapoport <rppt@kernel.org> wrote:
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
->
-> The point where the memory is released from memblock to the buddy allocator
-> is hidden inside arch-specific mem_init()s and the call to
-> memblock_free_all() is needlessly duplicated in every artiste cure and
-> after introduction of arch_mm_preinit() hook, mem_init() implementation on
-> many architecture only contains the call to memblock_free_all().
->
-> Pull memblock_free_all() call into mm_core_init() and drop mem_init() on
-> relevant architectures to make it more explicit where the free memory is
-> released from memblock to the buddy allocator and to reduce code
-> duplication in architecture specific code.
->
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>     # x86
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+On Tue,  4 Mar 2025 20:43:04 +0800
+Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
 
->  arch/m68k/mm/init.c          |  2 --
+> To resolve the problems list above, this patch extends to search user
+> -defined sw pnetid in the clc handshake ndev when no pnetid can be found
+> in the base_ndev, and the base_ndev take precedence over ndev for backward
+> compatibility. This patch also can unify the pnetid setup of different
+> network choices list above in container(Config user-defined sw pnetid in
+> the netdevice can be seen in POD).
+> 
+> Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
