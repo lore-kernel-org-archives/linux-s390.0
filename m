@@ -1,126 +1,248 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8153526563B;
-	Thu, 13 Mar 2025 11:18:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C228266B73
+	for <linux-s390@vger.kernel.org>; Thu, 13 Mar 2025 11:44:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741864741; cv=none; b=dM6A+aaXCVrm8svT3bIrEaQ2qHPBIyMxWLlv/JXjSrR3z5gUNyCJR5czcru8fMcn2Bys2cBYzsLs0ujaMpx+07c5d7oVjNE3pCFdB7wz2orp7VVO3E7nZ3kEvjNnlUlcZ1FNXFAuntDoGiOuh2E6f50EfFEF6GsWengrf02FKRw=
+	t=1741866274; cv=none; b=O4w+ITfhqqhHeiRtYhu9zotsh/MRi4uvHzhLoyBDvZzXzKcyE6Qwt54l0suSbRNsUxgZBGwGCMdx19UzdnZTMqmO5bOMqJOqGyWIiqHJN5nQPM7QV1vHC/ctGD3RKgY5MfMhZ8qC9T/Y8i5LuUO8DfXk+WiCNq+opCAMBLvV47s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741864741; c=relaxed/simple;
-	bh=exJvKtRGcNtxJCGx3dcAmTVLZlX/d0FQIWwfznTTjj4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ff4NRvxJrWLFOz2cESFjWkVLSVgx3Dew0cNoj8fzc6esqzJskRnBSTwBc0ZPxURsAEJc2RbMP38EkIGoeTgNj6Facr1bLNlrc7Oe1jIlTibzvVxNrqivTMsLDQapXQX8KdLkMtxIosMAZSHmpr9BXMwHMyjF8RvZIQpwOPp6AgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ax9II8Fu; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1741866274; c=relaxed/simple;
+	bh=RZxQPd6DhJpVyGhaRdUKVZqwkHQjwhx4+RC8j3iFEn0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 Content-type; b=D6NSoGhvlHVMvh54UaGZoDVx8XAfIUkEulUdrCwuIu8TOQ9rGlPl2v0A15V4wSWWXLlVQD1vwZcKhESzNPIUfP6tiYGl6hMiXI9dnIz9Vj7epCZX8udfWX6UUrPeC2Ia6vE/WGgMhybaMhefi/+6+F/X8rlFomEPtz/UwCp6ago=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pg8FjYTZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ax9II8Fu"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52D8RtsJ009903;
-	Thu, 13 Mar 2025 11:18:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=030sz2
-	TtLqOkQj6aFfSS41uI8Fof4nW8LclT1zGrP5I=; b=ax9II8FuyVkJEuEmEm384K
-	PDvyET2yePVbUU/NacXu8uZqSy8naHEgZrQ4wwJg4w8DrNAdf4ewkmvcaMZwtvSl
-	/xfoZaOaOiJs5vygDatkeO5DgHFG2P2dhkaK57YAvcfNhxvRMDIzmGdZNWSZdtx1
-	Q5XcnBwJxo6qdRQUYhw0Td06U2sGboc66r2Vypdn83S+mBdJl1iDQI/ti5qm6RoO
-	3vEQ7RJFWNYHbkS2fg4uZpS/Y+Z+KeNdXtbU3HGGUSZoh3a7gQ5aLxM30urPl3rP
-	ut7wuPp0e5HEONoPhugfAFfufSJ20vQePTH0Lk1xUJU6MCppnjVL9TIuaBsThw8A
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45bhg0bage-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Mar 2025 11:18:56 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52D8Vd2S003181;
-	Thu, 13 Mar 2025 11:18:56 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45atstser1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Mar 2025 11:18:56 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52DBItju22217366
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Mar 2025 11:18:55 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6592158058;
-	Thu, 13 Mar 2025 11:18:55 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 86FB558057;
-	Thu, 13 Mar 2025 11:18:54 +0000 (GMT)
-Received: from [9.61.127.211] (unknown [9.61.127.211])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Mar 2025 11:18:54 +0000 (GMT)
-Message-ID: <ff21c2cd-2999-4507-b5bc-26da5333e955@linux.ibm.com>
-Date: Thu, 13 Mar 2025 07:18:54 -0400
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pg8FjYTZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741866271;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:  content-type:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Vi3vqlZEjhRyke+tn+Q3MD+zw3p/H2XxVRSJ9/S1eBk=;
+	b=Pg8FjYTZArqGW7q9Gf77UziI5fVwoBa3PoF0snquq3w6LbVWjYxEXz6Knel1P3If+Auwtv
+	fgGKaGpotfb95cZ5+DZRBh9n+OLyAoys4PbD7i1Ga/XGa9Hc57Ue0Knoss7H7REb4fGDNT
+	oTDvf375jlK0OHcSydIsLDZb9xp/d3E=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-175-f2EdfzAXNricq_PtUjZSeg-1; Thu, 13 Mar 2025 07:44:30 -0400
+X-MC-Unique: f2EdfzAXNricq_PtUjZSeg-1
+X-Mimecast-MFC-AGG-ID: f2EdfzAXNricq_PtUjZSeg_1741866269
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3913f97d115so435620f8f.0
+        for <linux-s390@vger.kernel.org>; Thu, 13 Mar 2025 04:44:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741866269; x=1742471069;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Vi3vqlZEjhRyke+tn+Q3MD+zw3p/H2XxVRSJ9/S1eBk=;
+        b=AUeIBcCsi1YbJX8Am+S4vb+IUbztILx5Z2lig8Y6cbjw7cTqfXfC8xdy4fdsuFcf3q
+         BCMdNULQWYLJF85iZuNNmRSwrXtFU5AntADgyTAVrQp4AaGgbxmVwrjXmXy15Ilaa7lD
+         hVzVhtfRK1QDAKluqf+lmYArSd2tE9PAX0ideib++z8GuXFBIdFaJhZFCna5uB28KfbY
+         fT1XedfTR5HXFdDUlPVFIj5ATXGL+mE7hoMwWlA7m8XCvfgwjGokecVFhNWp74lY0Pzv
+         ootVxR4csXLds+PRZGCEih2UDyQiIZqG/9v44WeXD6xYfgFb1mQFast4pGTvy6MzG2+l
+         XOlA==
+X-Forwarded-Encrypted: i=1; AJvYcCVVYHInXKGHylrwMpQSQ1vcv4KYZ7Dw1eRWglZ//c/5L0fV42vx1R0CKdcL29YxXHaHX0AE1qNGnP34@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxg3UgFiSaD/+nIphp4icFCSxX9ay/AHbzS2lYZOWGozRDDAH/a
+	C8fLhB6TkClK6mC+tjzbfGT3K4pd/DC4geDx9Hp/Npn/S5SPTxz4H/62OHlWgKefkscoJ/FM3qL
+	twdEsO4aBNr2RhrfFK39zr0hm0yKH6WtRzl7nxcvRD30lFXuWYm9nekleGp0=
+X-Gm-Gg: ASbGncvnzVagRR5wfYs68ROA5X7OWF8NEOQ5DQgshE/7oZ0xoOUbe7eQgs7wP+N1Ty0
+	fbd5lyjKuku6278OIFPfDiAbRVWCOG5TAKkwP85DCOINpCyz1bYY801nlkKDwomuDe69tkNHQ+M
+	BYeuOVgRy10rY7iU+usxHCfQdkzVgBr+qmlzbqQMYYtX+JcgnqAxCXAoeMJqVfilnlMTXz9kvTY
+	EeawEaGFWHfYkaUxY1YrxljmdVLQYckh/IV3OxldPKslRlrWP1L1xjQenhONmEimuqwOq5EMsF2
+	jiTpHyv80q0UOqAs53VA
+X-Received: by 2002:a5d:64cb:0:b0:38f:23c4:208c with SMTP id ffacd0b85a97d-395b954ea75mr1784213f8f.18.1741866269079;
+        Thu, 13 Mar 2025 04:44:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH5B4S8E4d5tF3TI1rIoUvKO0tSV0G2B0BPE1gxY0qJz2LBrnTYS6FEhx79I2sbOMPQrE3jHw==
+X-Received: by 2002:a5d:64cb:0:b0:38f:23c4:208c with SMTP id ffacd0b85a97d-395b954ea75mr1784186f8f.18.1741866268630;
+        Thu, 13 Mar 2025 04:44:28 -0700 (PDT)
+Received: from lab.hqhome163.com ([81.57.75.210])
+        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-43d188b754asm17844115e9.14.2025.03.13.04.44.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Mar 2025 04:44:27 -0700 (PDT)
+From: Alessandro Carminati <acarmina@redhat.com>
+To: linux-kselftest@vger.kernel.org
+Cc: David Airlie <airlied@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	=?UTF-8?q?Ma=C3=ADra=20Canal?= <mcanal@igalia.com>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Kees Cook <keescook@chromium.org>,
+	Daniel Diaz <daniel.diaz@linaro.org>,
+	David Gow <davidgow@google.com>,
+	Arthur Grillo <arthurgrillo@riseup.net>,
+	Brendan Higgins <brendan.higgins@linux.dev>,
+	Naresh Kamboju <naresh.kamboju@linaro.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Maxime Ripard <mripard@kernel.org>,
+	=?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Alessandro Carminati <alessandro.carminati@gmail.com>,
+	Jani Nikula <jani.nikula@intel.com>,
+	dri-devel@lists.freedesktop.org,
+	kunit-dev@googlegroups.com,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	x86@kernel.org,
+	Alessandro Carminati <acarmina@redhat.com>
+Subject: [PATCH v4 00/14] Add support for suppressing warning backtraces
+Date: Thu, 13 Mar 2025 11:43:15 +0000
+Message-Id: <20250313114329.284104-1-acarmina@redhat.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/vfio-ap: lock mdev object when handling mdev remove
- request
-To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, pasic@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, borntraeger@linux.ibm.com,
-        alex.williamson@redhat.com, clg@redhat.com, stable@vger.kernel.org
-References: <20250221153238.3242737-1-akrowiak@linux.ibm.com>
- <b763cd33-fb89-498a-841d-1a5423b7ef9b@linux.ibm.com>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <b763cd33-fb89-498a-841d-1a5423b7ef9b@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: tbIH2omU48pJZLZxUWBWYAPMeXPIca9q
-X-Proofpoint-ORIG-GUID: tbIH2omU48pJZLZxUWBWYAPMeXPIca9q
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-13_05,2025-03-11_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- mlxlogscore=919 lowpriorityscore=0 spamscore=0 impostorscore=0 bulkscore=0
- clxscore=1015 mlxscore=0 phishscore=0 adultscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503130087
+Content-Type: text/plain; charset=UTF-8
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
 
+Some unit tests intentionally trigger warning backtraces by passing bad
+parameters to kernel API functions. Such unit tests typically check the
+return value from such calls, not the existence of the warning backtrace.
 
+Such intentionally generated warning backtraces are neither desirable
+nor useful for a number of reasons.
+- They can result in overlooked real problems.
+- A warning that suddenly starts to show up in unit tests needs to be
+  investigated and has to be marked to be ignored, for example by
+  adjusting filter scripts. Such filters are ad-hoc because there is
+  no real standard format for warnings. On top of that, such filter
+  scripts would require constant maintenance.
 
+One option to address problem would be to add messages such as "expected
+warning backtraces start / end here" to the kernel log.  However, that
+would again require filter scripts, it might result in missing real
+problematic warning backtraces triggered while the test is running, and
+the irrelevant backtrace(s) would still clog the kernel log.
 
-On 3/12/25 11:19 AM, Matthew Rosato wrote:
-> On 2/21/25 10:32 AM, Anthony Krowiak wrote:
->> The vfio_ap_mdev_request function in drivers/s390/crypto/vfio_ap_ops.c
->> accesses fields of an ap_matrix_mdev object without ensuring that the
->> object is accessed by only one thread at a time. This patch adds the lock
->> necessary to secure access to the ap_matrix_mdev object.
->>
->> Fixes: 2e3d8d71e285 ("s390/vfio-ap: wire in the vfio_device_ops request callback")
->> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
->> Cc: <stable@vger.kernel.org>
-> The new code itself seems sane.
->
-> But besides this area of code, there are 2 other paths that touch matrix_mdev->req_trigger:
->
-> the one via vfio_ap_set_request_irq will already hold the lock via vfio_ap_mdev_ioctl (OK).
+Solve the problem by providing a means to identify and suppress specific
+warning backtraces while executing test code. Support suppressing multiple
+backtraces while at the same time limiting changes to generic code to the
+absolute minimum. Architecture specific changes are kept at minimum by
+retaining function names only if both CONFIG_DEBUG_BUGVERBOSE and
+CONFIG_KUNIT are enabled.
 
-I have plans to create a patch to insert a call to lockdep_assert_held() 
-in functions that require a lock,
-such as the one you mentioned
+The first patch of the series introduces the necessary infrastructure.
+The second patch introduces support for counting suppressed backtraces.
+This capability is used in patch three to implement unit tests.
+Patch four documents the new API.
+The next two patches add support for suppressing backtraces in drm_rect
+and dev_addr_lists unit tests. These patches are intended to serve as
+examples for the use of the functionality introduced with this series.
+The remaining patches implement the necessary changes for all
+architectures with GENERIC_BUG support.
 
->
-> However the other one in vfio_ap_mdev_probe acquires mdevs_lock a few lines -after- initializing req_trigger and cfg_chg_trigger to NULL.  Should the lock also be held there since we would have already registered the vfio device above?  We might be protected by circumstance because we are in .probe() but I'm not sure, and we bother getting the lock already to protect mdev_list...
+With CONFIG_KUNIT enabled, image size increase with this series applied is
+approximately 1%. The image size increase (and with it the functionality
+introduced by this series) can be avoided by disabling
+CONFIG_KUNIT_SUPPRESS_BACKTRACE.
 
-While it may have been reasonable to include the initialization of those 
-fields inside the lock, it really isn't
-necessary. These two fields are used to signal events to userspace, so 
-these fields will not be used until the
-mdev - which is in the process of being created - is attached to a guest 
-and the VFIO_DEVICE_SET_IRQS ioctl
-is subsequently invoked.
+This series is based on the RFC patch and subsequent discussion at
+https://patchwork.kernel.org/project/linux-kselftest/patch/02546e59-1afe-4b08-ba81-d94f3b691c9a@moroto.mountain/
+and offers a more comprehensive solution of the problem discussed there.
 
->
+Design note:
+  Function pointers are only added to the __bug_table section if both
+  CONFIG_KUNIT_SUPPRESS_BACKTRACE and CONFIG_DEBUG_BUGVERBOSE are enabled
+  to avoid image size increases if CONFIG_KUNIT is disabled. There would be
+  some benefits to adding those pointers all the time (reduced complexity,
+  ability to display function names in BUG/WARNING messages). That change,
+  if desired, can be made later.
+
+Checkpatch note:
+  Remaining checkpatch errors and warnings were deliberately ignored.
+  Some are triggered by matching coding style or by comments interpreted
+  as code, others by assembler macros which are disliked by checkpatch.
+  Suggestions for improvements are welcome.
+
+Changes since RFC:
+- Introduced CONFIG_KUNIT_SUPPRESS_BACKTRACE
+- Minor cleanups and bug fixes
+- Added support for all affected architectures
+- Added support for counting suppressed warnings
+- Added unit tests using those counters
+- Added patch to suppress warning backtraces in dev_addr_lists tests
+
+Changes since v1:
+- Rebased to v6.9-rc1
+- Added Tested-by:, Acked-by:, and Reviewed-by: tags
+  [I retained those tags since there have been no functional changes]
+- Introduced KUNIT_SUPPRESS_BACKTRACE configuration option, enabled by
+  default.
+
+Changes since v2:
+- Rebased to v6.9-rc2
+- Added comments to drm warning suppression explaining why it is needed.
+- Added patch to move conditional code in arch/sh/include/asm/bug.h
+  to avoid kerneldoc warning
+- Added architecture maintainers to Cc: for architecture specific patches
+- No functional changes
+
+Changes since v3:
+- Rebased to v6.14-rc6
+- Dropped net: "kunit: Suppress lock warning noise at end of dev_addr_lists tests"
+  since 3db3b62955cd6d73afde05a17d7e8e106695c3b9
+- Added __kunit_ and KUNIT_ prefixes.
+- Tested on interessed architectures.
+
+----
+Guenter Roeck (14):
+  bug/kunit: Core support for suppressing warning backtraces
+  kunit: bug: Count suppressed warning backtraces
+  kunit: Add test cases for backtrace warning suppression
+  kunit: Add documentation for warning backtrace suppression API
+  drm: Suppress intentional warning backtraces in scaling unit tests
+  x86: Add support for suppressing warning backtraces
+  arm64: Add support for suppressing warning backtraces
+  loongarch: Add support for suppressing warning backtraces
+  parisc: Add support for suppressing warning backtraces
+  s390: Add support for suppressing warning backtraces
+  sh: Add support for suppressing warning backtraces
+  sh: Move defines needed for suppressing warning backtraces
+  riscv: Add support for suppressing warning backtraces
+  powerpc: Add support for suppressing warning backtraces
+
+ Documentation/dev-tools/kunit/usage.rst |  30 ++++++-
+ arch/arm64/include/asm/asm-bug.h        |  27 ++++--
+ arch/arm64/include/asm/bug.h            |   8 +-
+ arch/loongarch/include/asm/bug.h        |  42 +++++++---
+ arch/parisc/include/asm/bug.h           |  29 +++++--
+ arch/powerpc/include/asm/bug.h          |  37 +++++++--
+ arch/riscv/include/asm/bug.h            |  38 ++++++---
+ arch/s390/include/asm/bug.h             |  17 +++-
+ arch/sh/include/asm/bug.h               |  28 ++++++-
+ arch/x86/include/asm/bug.h              |  21 +++--
+ drivers/gpu/drm/tests/drm_rect_test.c   |  16 ++++
+ include/asm-generic/bug.h               |  16 +++-
+ include/kunit/bug.h                     |  56 +++++++++++++
+ include/kunit/test.h                    |   1 +
+ include/linux/bug.h                     |  13 +++
+ lib/bug.c                               |  51 +++++++++++-
+ lib/kunit/Kconfig                       |   9 ++
+ lib/kunit/Makefile                      |   7 +-
+ lib/kunit/backtrace-suppression-test.c  | 104 ++++++++++++++++++++++++
+ lib/kunit/bug.c                         |  42 ++++++++++
+ 20 files changed, 519 insertions(+), 73 deletions(-)
+ create mode 100644 include/kunit/bug.h
+ create mode 100644 lib/kunit/backtrace-suppression-test.c
+ create mode 100644 lib/kunit/bug.c
+
+-- 
+2.34.1
 
