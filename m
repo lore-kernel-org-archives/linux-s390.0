@@ -1,113 +1,113 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DAAD202F93;
-	Fri, 14 Mar 2025 16:08:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12C6A18B494;
+	Fri, 14 Mar 2025 16:16:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741968500; cv=none; b=iq8bpzvBs4qIvQMRO/+MBLnnZe/NO2qt5gxK24fuZCEY3MFX43cpR1GCXzz2DDO4CMIrfZWqxo10JeEmNfmr0p4I2/yCJQ5je8Mw/qwLp1Ztj7xpx9sCQoqBQm63mYoDrVqBtho4gUMY0geUPk6eXDsfjLtTXvy1TUBdjANDKLI=
+	t=1741968967; cv=none; b=st0oO7/oRUwGwoIPuG2+RKvhq49m5KCEn9IKsk3XXo1sU3UM5tOq996Hw8PxOkeCsuo2p74dyUHefPel4rB8D3+qAt9o39qG2kJ7BGXH1dYSH7k+R4TlsIthuSmDiqRYzDmJhGEjcWE9vUJKcfY+c8+cNAn52IYahTlRKg9Mxqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741968500; c=relaxed/simple;
-	bh=4e/ZYIqbaPlbrji9W2swzGj5tfRCnq/Rty9Zu4FuQEM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jUTXKnIv5GtSSwClT58oABcEFqvl3yJHlpohT8DoBiHygIlbc+8wwOp2nQOTyoZlcitjHC3Zg55t87bPb5YDMEfse0y5YXgFm9BA1sWhYj83Jm1y7q6ZrVAi3MKY7OwiHKbeHxTQqE2jwQdjZQ/QIUqoeLL/DcxMI98/5OK587o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UbKBXtqU; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Z9ZCSbYg; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1741968967; c=relaxed/simple;
+	bh=iU242pUR+tOyl29TUwZ4IHKiFB05BuJ52voXpXAvJbQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sWEsGXf/8hBPJLSb7WgYnn4GIrMs1tdSE0Mfy2gF7ow3dxy+kbwxvttY41ErGLNecaEu7NuJqWM2YzHUL1KjRyUEQgDN/kTOIef6CGQlOKT0viCHxE/XgYcActFnN1n0VTy+nTURKb785BgdKzdXvmKb4GhB2FzLIpfLPVqczK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pNuyf2p8; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UbKBXtqU";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Z9ZCSbYg"
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1741968497;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=y+ZKfpmr3pMXsS3E912MhMX/FXEkzo/mSsNGFHgHyLc=;
-	b=UbKBXtqU9pdR+b68bgmKTxa9Hx7qyZPmdOzYhngeIKt51cXbv6/V5dIA1TfZWu+84Wbp9r
-	MfqtaAXiUu+zQF/gx+MzM328NmTmndtPzcvaIjdw9TATcG+m6f9rcyGq8A3u6tyWsTUgBX
-	Luz97fLu1CvW3nfBm2xlki5wrEkThDw/0TfY4Y2ofCXaewWlqbmsca9FtwHY++a+C1o19z
-	5sDckkg57xTh1/4bDniTMMZzjXcer9V4lGiPVe2R20NBU0Y0tMsqfz4rPARsIM/448KAY6
-	5qDLOcjce1NheIrZTdV8tw/04ZR348JddIzGdsXIrKribBW3umivGf6cV8Taog==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1741968497;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=y+ZKfpmr3pMXsS3E912MhMX/FXEkzo/mSsNGFHgHyLc=;
-	b=Z9ZCSbYgWPSr53UuSaRsAH8OOwQcsZaqwBKzr4qjORVCv7gYqjIkaQzDIof3h3Egag4Bbr
-	TKo7cSDP7OlBQJCg==
-To: linux-kernel@vger.kernel.org,
-	linux-rt-devel@lists.linux.dev
-Cc: Ben Segall <bsegall@google.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Mel Gorman <mgorman@suse.de>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Will Deacon <will@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH v4 6/9] s390: Rely on generic printing of preemption model.
-Date: Fri, 14 Mar 2025 17:08:07 +0100
-Message-ID: <20250314160810.2373416-7-bigeasy@linutronix.de>
-In-Reply-To: <20250314160810.2373416-1-bigeasy@linutronix.de>
-References: <20250314160810.2373416-1-bigeasy@linutronix.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pNuyf2p8"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52EE3C8T001603;
+	Fri, 14 Mar 2025 16:16:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Mu3YsUhINQ1o0Nq4t7Xd5ejYk2l3dHricOUtdJ3HW
+	dw=; b=pNuyf2p8q9wTHn4avcFtlUbSk5qco5ejvjyCcrZT2zuLvlin1vqaUGLjc
+	tSlJrQ0tfIJSj6Zn/uK76Tn24bZJQtPa7hCrmLeRFYJd7wzo9NgVnFFrtuRZCg6Q
+	5qjoHRiwZS2hBZHNFZaaHDttE1GjUL340PLGb5u6WlDPzBFDxmhsjaKNl70f18xF
+	uZS5QKv0cOqm2/Fzu1vWfdRpJAtm0QQT3hL3rdVMVjd51+tYzFvBqSyqbg89PBIS
+	brvkr+zNdy5ViwH5o3t0GZF6G56oEmLtkFFFX5cZOAaiAavBh1yIZzlUqW0ZiVtM
+	AOSzN1TeW4ahswpd2X2ILULlSAUng==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45cnvqgn9x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 14 Mar 2025 16:16:02 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52ED2qML003175;
+	Fri, 14 Mar 2025 16:16:01 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45atstyq4t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 14 Mar 2025 16:16:01 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52EGFvge15728972
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 14 Mar 2025 16:15:57 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4F31120043;
+	Fri, 14 Mar 2025 16:15:57 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E305920040;
+	Fri, 14 Mar 2025 16:15:56 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.171.13.224])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 14 Mar 2025 16:15:56 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, david@redhat.com
+Subject: [GIT PULL v1 0/1] KVM: s390: pv: fix race when making a page secure
+Date: Fri, 14 Mar 2025 17:15:50 +0100
+Message-ID: <20250314161551.424804-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: hhyuYQvE3Zw4yaFzgWAjuNO1B3N0lS62
+X-Proofpoint-ORIG-GUID: hhyuYQvE3Zw4yaFzgWAjuNO1B3N0lS62
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-14_06,2025-03-14_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0 malwarescore=0
+ clxscore=1015 priorityscore=1501 mlxscore=0 spamscore=0 mlxlogscore=702
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503140125
 
-die() invokes later show_regs() -> show_regs_print_info() which prints
-the current preemption model.
-Remove it from the initial line.
+ciao Paolo,
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- arch/s390/kernel/dumpstack.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+please pull this late fix for 6.14.
 
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index 1ecd0580561f6..911b95cd57e58 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -198,13 +198,8 @@ void __noreturn die(struct pt_regs *regs, const char *=
-str)
- 	console_verbose();
- 	spin_lock_irq(&die_lock);
- 	bust_spinlocks(1);
--	printk("%s: %04x ilc:%d [#%d] ", str, regs->int_code & 0xffff,
-+	printk("%s: %04x ilc:%d [#%d]", str, regs->int_code & 0xffff,
- 	       regs->int_code >> 17, ++die_counter);
--#ifdef CONFIG_PREEMPT
--	pr_cont("PREEMPT ");
--#elif defined(CONFIG_PREEMPT_RT)
--	pr_cont("PREEMPT_RT ");
--#endif
- 	pr_cont("SMP ");
- 	if (debug_pagealloc_enabled())
- 		pr_cont("DEBUG_PAGEALLOC");
---=20
-2.47.2
+It fixes a race that in some circumstances can lead to a stall.
 
+
+The following changes since commit 695caca9345a160ecd9645abab8e70cfe849e9ff:
+
+  Merge tag 'leds-fixes-6.14' of git://git.kernel.org/pub/scm/linux/kernel/git/lee/leds (2025-03-13 22:52:52 -1000)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-6.14-1
+
+for you to fetch changes up to d8dfda5af0be6e48178b6f4b46c6af30b06335b2:
+
+  KVM: s390: pv: fix race when making a page secure (2025-03-14 15:24:19 +0100)
+
+----------------------------------------------------------------
+KVM: s390: pv: fix race when making a page secure
+
+----------------------------------------------------------------
+Claudio Imbrenda (1):
+      KVM: s390: pv: fix race when making a page secure
+
+ arch/s390/include/asm/gmap.h |   1 -
+ arch/s390/include/asm/uv.h   |   2 +-
+ arch/s390/kernel/uv.c        | 136 ++++++++++++++++++++++++++++++++++++++++---
+ arch/s390/kvm/gmap.c         | 103 ++------------------------------
+ arch/s390/kvm/kvm-s390.c     |  25 ++++----
+ arch/s390/mm/gmap.c          |  28 ---------
+ 6 files changed, 151 insertions(+), 144 deletions(-)
