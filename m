@@ -1,131 +1,116 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93336241129;
-	Mon, 17 Mar 2025 13:57:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8A8B4C74
+	for <linux-s390@vger.kernel.org>; Mon, 17 Mar 2025 13:57:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742219836; cv=none; b=XAicYnvG0PFNaaHPD4SX/pf8oVs295vZjSsYlXE282XeT+zhFbMYiWsK2jGaazeOXDLNQkVzXlIUwJsFjsk5Eq0aNLtqCWjmYOJR6IJBeXstVP//nlK28WIk6lpztfeRl1K9Rav/Nf5bh6WKrJLragqNt6YwUdCv8o+YS2Goqi0=
+	t=1742219876; cv=none; b=nEpsziwoDXhkdT8FHebD050QC+7lFv9+KP0WnyhLaxjBkCW73mVfG6VIBi22ItT2PuUdildpFiAJNNVU/BbOWV9TtoSRhV5wm+qnxYEQXv0kkMBwAfnuNoAx3DvGpIwv1jAwiSjzJKdiXCp5AEPCowR/j3OBFdLnxEnWNyPmRAY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742219836; c=relaxed/simple;
-	bh=sSjPqbu9OFPuvQnENGQoGhHTGaKcRFEGnMtAb/gleBA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g8isn9OSlw9M5w9si5h0zEv0w4eiaaJdKxHdGU3IYY1qfB+6SvIi5UtU5ysWWnYEDTfjV87kcbYGjwwO6GoFcOQ7WTqTOyOpmuHazMxf0j6RQTjPKiSWIljlJv/GNuUvj1rHcvTP8zKhY5GKw4g6ZC3X1W7tx8ZiF0uWJSXHtbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N9Ic8yF1; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1742219876; c=relaxed/simple;
+	bh=Q4NvwUh9EWjd0LsB0iPy7PI12n7I2z1Qyq1WNB1f8dc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=F9VIqqdmxGL19WTHYojsHTuoeQDUHbLIBUb/Hff1/T5od4w0bzlQ0TCXIQKht4riOv4OWY8z2XITg7HBI2ALe+w01Re3Y4xTCDAlcYdYtKRAjWx+1v570w0iLa40xXx9KYIQyoklNBVnIhafPbRrTQ6oSW9TFfu7SM+Q3swwDpo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qrREAL1f; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N9Ic8yF1"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52HDa3Zn018184;
-	Mon, 17 Mar 2025 13:57:05 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qrREAL1f"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52HDa4Vd022041;
+	Mon, 17 Mar 2025 13:57:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=GUH8cm
-	mKancpQH41aPR1l9wcULwXArnAHaNi/ZU5n4c=; b=N9Ic8yF13L5elng7ZY/pKj
-	Nuw0eIJsxnhhHCew2nnnm9/iYnfYoOxLaAA7eTSbUoRmjsRmRYyCiQv97CPlt4D3
-	b/AwoqOUIBO/hZ3mRbfDvz8YqE+cRlqFdqu8Q2qkIPXIgJWmYdbMOyjX5KTBxxQZ
-	5Bo4VFC2966+tYGVgnIHoYfjYdJ864lDLFWOmFFRSobFOAOxdsyCpTt5RV3CxZgC
-	NDxF+Q87J3lw7xm91xzgFq5EDnlCU8E6PxIjoZQ1CkaChJjtk4nyGPG8JEezQnJ4
-	GLsWGPnRn6BRzSdQMaJpA2ICrC2azsCmJWR7jL2KJd03gbic3Mnl1nU4vq1s7D7A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=WKutxz
+	JM+G1/kq6aGiMZp3SzvYOEzf/XUEA2ZR6pZvo=; b=qrREAL1fFyWHNRmYnT8XZT
+	6oA6icYZeKk0/K6SqE/NqiAavGLk/YZq0q9LyCUFR3zs1CtcehRrMH2qk3t1UZQ6
+	R8fNd9bY+++cU25+WKTB/j1ys+8AGjjCU2pH5k3GcMwhCWJ4+GnnyZ4HapfDGTcs
+	WK1aiacBltmQFBkkLyPTKDxnouY+abet03Yzaq7wfCWQWzxrVhjpdXUWXR8eZjOH
+	I1njANTjtJzONSy1EGZIw5yYPqfaIDCBFNSeKKNNOGyhIiaBTScy1rMAOkMdX+2j
+	yAuF9RYlynsA7WE8JDx5DzEvO2SKXE63vdTfh4JLqAXzUwTa+sbHp9tP6xtLJOXA
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45e5v03rfw-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45eks98fds-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Mar 2025 13:57:05 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52HDa4dE018418;
-	Mon, 17 Mar 2025 13:57:04 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45e5v03rec-1
+	Mon, 17 Mar 2025 13:57:50 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52HBqXcJ009157;
+	Mon, 17 Mar 2025 13:57:49 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45dm8ypmvv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Mar 2025 13:57:04 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52HDqkRI005742;
-	Mon, 17 Mar 2025 13:56:37 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dpk264tc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Mar 2025 13:56:37 +0000
+	Mon, 17 Mar 2025 13:57:49 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52HDuYWO52101546
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52HDvj1B51904912
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Mar 2025 13:56:34 GMT
+	Mon, 17 Mar 2025 13:57:45 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2222820049;
-	Mon, 17 Mar 2025 13:56:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B10012004B;
+	Mon, 17 Mar 2025 13:57:45 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 289F72004B;
-	Mon, 17 Mar 2025 13:56:33 +0000 (GMT)
-Received: from osiris (unknown [9.179.24.138])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 17 Mar 2025 13:56:33 +0000 (GMT)
-Date: Mon, 17 Mar 2025 14:56:31 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: I Hsin Cheng <richard120310@gmail.com>, alibuda@linux.alibaba.com,
-        jaka@linux.ibm.com, mjambigi@linux.ibm.com, sidraya@linux.ibm.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        horms@kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
-        jserv@ccns.ncku.edu.tw, linux-kernel-mentees@lists.linux.dev
-Subject: Re: [PATCH] net/smc: Reduce size of smc_wr_tx_tasklet_fn
-Message-ID: <20250317135631.21754E85-hca@linux.ibm.com>
-References: <20250315062516.788528-1-richard120310@gmail.com>
- <66ce34a0-b79d-4ef0-bdd5-982e139571f1@linux.ibm.com>
+	by IMSVA (Postfix) with ESMTP id 3851B20040;
+	Mon, 17 Mar 2025 13:57:45 +0000 (GMT)
+Received: from [9.179.25.138] (unknown [9.179.25.138])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 17 Mar 2025 13:57:45 +0000 (GMT)
+Message-ID: <c7e66f88-8f30-4ee5-984b-13cfd733a896@linux.ibm.com>
+Date: Mon, 17 Mar 2025 14:57:44 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 02/20] s390/ap/zcrypt: Rework AP message buffer
+ allocation
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au,
+        ifranzki@linux.ibm.com, fcallies@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com
+References: <20250304172116.85374-1-freude@linux.ibm.com>
+ <20250304172116.85374-3-freude@linux.ibm.com>
+Content-Language: de-DE
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250304172116.85374-3-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <66ce34a0-b79d-4ef0-bdd5-982e139571f1@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NSqFDVsAl9mx0PzomBeGQR0XnQ_batOr
-X-Proofpoint-GUID: NSIGZDVbzXe3CNF4ynR9y7mDwn94_QbP
+X-Proofpoint-GUID: -Z4Al6ub9Zxd-zjMhnC6hNG7gPVmPr6S
+X-Proofpoint-ORIG-GUID: -Z4Al6ub9Zxd-zjMhnC6hNG7gPVmPr6S
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-17_05,2025-03-17_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
- impostorscore=0 adultscore=0 mlxscore=0 spamscore=0 phishscore=0
- priorityscore=1501 lowpriorityscore=0 malwarescore=0 mlxlogscore=979
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ lowpriorityscore=0 clxscore=1015 spamscore=0 adultscore=0 mlxscore=0
+ malwarescore=0 phishscore=0 impostorscore=0 priorityscore=1501
+ mlxlogscore=963 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502280000 definitions=main-2503170101
 
-On Mon, Mar 17, 2025 at 12:22:46PM +0100, Wenjia Zhang wrote:
+On 04/03/2025 18:20, Harald Freudenberger wrote:
+> Slight rework on the way how AP message buffers are allocated.
+> Instead of having multiple places with kmalloc() calls all
+> the AP message buffers are now allocated and freed on exactly
+> one place: ap_init_apmsg() allocates the current AP bus max
+> limit of ap_max_msg_size (defaults to 12KB). The AP message
+> buffer is then freed in ap_release_apmsg().
 > 
-> 
-> On 15.03.25 07:25, I Hsin Cheng wrote:
-> > The variable "polled" in smc_wr_tx_tasklet_fn is a counter to determine
-> > whether the loop has been executed for the first time. Refactor the type
-> > of "polled" from "int" to "bool" can reduce the size of generated code
-> > size by 12 bytes shown with the test below
-> > 
-> > $ ./scripts/bloat-o-meter vmlinux_old vmlinux_new
-> > add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-12 (-12)
-> > Function                                     old     new   delta
-> > smc_wr_tx_tasklet_fn                        1076    1064     -12
-> > Total: Before=24795091, After=24795079, chg -0.00%
-> > 
-> > In some configuration, the compiler will complain this function for
-> > exceeding 1024 bytes for function stack, this change can at least reduce
-> > the size by 12 bytes within manner.
-> > 
-> The code itself looks good. However, I’m curious about the specific
-> situation where the compiler complained. Also, compared to exceeding the
-> function stack limit by 1024 bytes, I don’t see how saving 12 bytes would
-> bring any significant benefit.
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 
-The patch description doesn't make sense: bloat-a-meter prints the _text
-size_ difference of two kernels, which really has nothing to do with
-potential stack size savings.
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-If there are any changes in stack size with this patch is unknown; at least
-if you rely only on the patch description.
+> ---
+>  drivers/s390/crypto/ap_bus.c           | 30 ++++++++++++++++
+>  drivers/s390/crypto/ap_bus.h           | 21 ++---------
+>  drivers/s390/crypto/zcrypt_api.c       | 49 +++++++++++++++-----------
+>  drivers/s390/crypto/zcrypt_msgtype50.c | 20 ++++++-----
+>  drivers/s390/crypto/zcrypt_msgtype6.c  | 35 +++++++++---------
+>  5 files changed, 90 insertions(+), 65 deletions(-)
 
-You may want to have a look at scripts/stackusage and scripts/stackdelta.
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
+
