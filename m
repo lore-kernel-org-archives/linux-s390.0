@@ -1,155 +1,119 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5E2214A4F9;
-	Mon, 17 Mar 2025 03:57:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 75EB321505B;
+	Mon, 17 Mar 2025 06:18:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742183846; cv=none; b=CmR24MDpp2VwUggHLmGl/w44NuIfRCQNKzqHCfBfClVLxhDsStScrLDptytIXQJErCxKGFwzSrigjIcu7pK4aoBrsJO2IZDzixuHrF+kILou5qaoho8oaLeMODpSzIoCAwDCt8lHv2PjBVPStxS3DNpPszPxR7dXePv8/0RrmEI=
+	t=1742192314; cv=none; b=Jtwq2cgCaeE4jSbz6iGJE/RS3l3K/MFi7PVFaSG9m9zzIJ8A5lJSBSUTol/HLJpJZHi5lqsdhZjHfHE8PI57K+e5ckil7lkwd5Nkcj8Iccw2HumMNDqc17CPKZCzYmJ8n4g3+mxsiL2rdu+wMfL3CDqUQB+RHyko5y5UDPPvf8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742183846; c=relaxed/simple;
-	bh=bTXhexVaI+W5KWG7d5Svg2VmXApCu8ktNMe5tbjLp8U=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DsseLdG1+zizhQLJUeVtrGgvuxev/JBYpud+Y08sOOQuWKX1fbRmbvao9t8zJ3IyfqmvLb2mjUXcu8PQ+UkJruf9Xn/XZ0UXFSUciX3NudzqUgoVmHnWnJl5OG2x2MdMJYQ2iRQz6G2vS4BQR42jkTq006Sn6ID5RYYsxGBUpOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=eBTypSTn; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="eBTypSTn"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1742183839; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=uE6H0MBz98j5rhIzPJHfWr/CNL9ORRA0RW3EN1COpxM=;
-	b=eBTypSTnXuFlhKc+ixGvt8BjmjPdCkwmmSi5/ONZA+vVIi7u0zxY+gxtzsn90B8pP9q/X0aiSwLhM1ZA3/7dcEaMOJ4vvzp0odKHubAFLWj97FnPUabEzTd8qOa3IdjlGwerbXBxwyKzk30vTfUuwLhyFwHSnOhqSfTGHDB4BsE=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WRYMu4H_1742183838 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 17 Mar 2025 11:57:18 +0800
-Date: Mon, 17 Mar 2025 11:57:18 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>, kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com, jaka@linux.ibm.com, wintera@linux.ibm.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-	tonylu@linux.alibaba.com, pabeni@redhat.com, edumazet@google.com
-Subject: Re: [RFC PATCH net-next] net/smc: avoid conflict with sockmap after
- fallback
-Message-ID: <20250317035718.GD56800@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250312133014.35775-1-alibuda@linux.alibaba.com>
+	s=arc-20240116; t=1742192314; c=relaxed/simple;
+	bh=K24zDlNib5c1ikzayHI3B8zx/mMqGWPp+2Y0TLG60Ik=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=YYvbrdukJST9WBdCPA1phV51UQDHjo8aKhncKfSgc3nCC57JDkkJcB0WCzvnC/jce7lEYeGqWBDfBgyrvkTN48T9cXZ54We7h/BXYMNz3AOXn2qBrfp7epliCw3IeUkrxEtyYqdKHWxV4HesS+tqsu1rFf+nZe6a1Bzs2+jE3lI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2595E13D5;
+	Sun, 16 Mar 2025 23:18:39 -0700 (PDT)
+Received: from a077893.blr.arm.com (a077893.blr.arm.com [10.162.16.153])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 6A6203F673;
+	Sun, 16 Mar 2025 23:18:23 -0700 (PDT)
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Subject: [PATCH 0/2] mm/ptdump: Drop assumption that pxd_val() is u64
+Date: Mon, 17 Mar 2025 11:48:16 +0530
+Message-Id: <20250317061818.16244-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250312133014.35775-1-alibuda@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
 
-On 2025-03-12 21:30:14, D. Wythe wrote:
->Currently, after fallback, SMC will occupy the sk_user_data of the TCP sock(clcsk) to
->forward events. As a result, we cannot use sockmap after that, since sockmap also
->requires the use of the sk_user_data. Even more, in some cases, this may result in
->abnormal panic.
+Last argument passed down in note_page() is u64 assuming pxd_val() returned
+value (all page table levels) is 64 bit - which might not be the case going
+ahead when D128 page tables is enabled on arm64 platform. Besides pxd_val()
+is very platform specific and its type should not be assumed in generic MM.
 
-Looks like this is a bugfix more then a feature.
+This series splits note_page() into individual page table level specific
+callbacks which accepts corresponding pxd_t page table entry as an argument
+instead and later all subscribing platforms could derive pxd_val() from the
+entries as required and proceed as before.
 
->
->To enable sockmap after SMC fallback , we need to avoid using sk_user_data and
->instead introduce an additional smc_ctx in tcp_sock to index from TCP sock to SMC sock.
->
->Additionally, we bind the lifecycle of the SMC sock to that of the TCP sock, ensuring
->that the indexing to the SMC sock remains valid throughout the lifetime of the TCP sock.
->
->One key reason is that SMC overrides inet_connection_sock_af_ops, which introduces
->potential dependencies. We must ensure that the af_ops remain visible throughout the
->lifecycle of the TCP socket. In addition, this also resolves potential issues in some
->scenarios where the SMC sock might be invalid.
->
->Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
->---
-> include/linux/tcp.h |  1 +
-> net/smc/af_smc.c    | 53 ++++++++++++++++++++++-----------------------
-> net/smc/smc.h       |  8 +++----
-> net/smc/smc_close.c |  1 -
-> 4 files changed, 30 insertions(+), 33 deletions(-)
->
->diff --git a/include/linux/tcp.h b/include/linux/tcp.h
->index f88daaa76d83..f2223b1cc0d0 100644
->--- a/include/linux/tcp.h
->+++ b/include/linux/tcp.h
->@@ -478,6 +478,7 @@ struct tcp_sock {
-> #if IS_ENABLED(CONFIG_SMC)
-> 	bool	syn_smc;	/* SYN includes SMC */
-> 	bool	(*smc_hs_congested)(const struct sock *sk);
->+	void	*smc_ctx;
-> #endif
-> 
-> #if defined(CONFIG_TCP_MD5SIG) || defined(CONFIG_TCP_AO)
->diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
->index bc356f77ff1d..d434105639c1 100644
->--- a/net/smc/af_smc.c
->+++ b/net/smc/af_smc.c
->@@ -127,7 +127,7 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
-> 	struct smc_sock *smc;
-> 	struct sock *child;
-> 
->-	smc = smc_clcsock_user_data(sk);
->+	smc = smc_sk_from_clcsk(sk);
-> 
-> 	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
-> 				sk->sk_max_ack_backlog)
->@@ -143,8 +143,6 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
-> 					       own_req);
-> 	/* child must not inherit smc or its ops */
-> 	if (child) {
->-		rcu_assign_sk_user_data(child, NULL);
->-
-> 		/* v4-mapped sockets don't inherit parent ops. Don't restore. */
-> 		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
-> 			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
->@@ -161,10 +159,7 @@ static bool smc_hs_congested(const struct sock *sk)
-> {
-> 	const struct smc_sock *smc;
-> 
->-	smc = smc_clcsock_user_data(sk);
->-
->-	if (!smc)
->-		return true;
->+	smc = smc_sk_from_clcsk(sk);
+Page table entry's value, mask and protection are represented with pteval_t
+not u64 that has been assumed while dumping the page table entries on arm64
+platform. Replace such u64 instances with pteval_t instead as expected.
 
-I don't see any users of smc in this function. Seems it is redundant here.
+This series has been tested on arm64 platform but it does build on other
+relevant platforms (v6.14-rc7).
 
-> 
-> 	if (workqueue_congested(WORK_CPU_UNBOUND, smc_hs_wq))
-> 		return true;
->@@ -250,7 +245,6 @@ static void smc_fback_restore_callbacks(struct smc_sock *smc)
-> 	struct sock *clcsk = smc->clcsock->sk;
-> 
-> 	write_lock_bh(&clcsk->sk_callback_lock);
->-	clcsk->sk_user_data = NULL;
-> 
-> 	smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
-> 	smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
->@@ -832,11 +826,10 @@ static void smc_fback_forward_wakeup(struct smc_sock *smc, struct sock *clcsk,
-> 
-> static void smc_fback_state_change(struct sock *clcsk)
-> {
->-	struct smc_sock *smc;
->+	struct smc_sock *smc = smc_sk_from_clcsk(clcsk);
-> 
-> 	read_lock_bh(&clcsk->sk_callback_lock);
->-	smc = smc_clcsock_user_data(clcsk);
->-	if (smc)
->+	if (smc->clcsk_state_change)
-> 		smc_fback_forward_wakeup(smc, clcsk,
-> 					 smc->clcsk_state_change);
+Changes in V1:
 
-Since we checked the clcsock_callback everywhere, why not put it into
-smc_fback_forward_wakeup() ?
+- Added note_page_flush() callback and implemented the same on all
+  subscribing platforms
+- Moved note_page() argument change from u64 to pteval_t on arm64 platform
+  from second patch to the first patch instead
 
+Changes in RFC:
 
-Best regards,
-Dust
+https://lore.kernel.org/all/20250310095902.390664-1-anshuman.khandual@arm.com/
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-mm@kvack.org
+
+Anshuman Khandual (2):
+  mm/ptdump: Split note_page() into level specific callbacks
+  arm64/ptdump: Replace u64 with pteval_t
+
+ arch/arm64/include/asm/ptdump.h | 24 ++++++++++++----
+ arch/arm64/mm/ptdump.c          | 50 ++++++++++++++++++++++++++++++---
+ arch/powerpc/mm/ptdump/ptdump.c | 46 ++++++++++++++++++++++++++++--
+ arch/riscv/mm/ptdump.c          | 46 ++++++++++++++++++++++++++++--
+ arch/s390/mm/dump_pagetables.c  | 46 ++++++++++++++++++++++++++++--
+ arch/x86/mm/dump_pagetables.c   | 39 ++++++++++++++++++++++++-
+ include/linux/ptdump.h          |  9 ++++--
+ mm/ptdump.c                     | 42 ++++++++++++++++++++-------
+ 8 files changed, 272 insertions(+), 30 deletions(-)
+
+-- 
+2.25.1
 
