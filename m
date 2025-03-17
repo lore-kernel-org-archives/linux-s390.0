@@ -1,91 +1,111 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE945202963
-	for <linux-s390@vger.kernel.org>; Sat, 15 Mar 2025 14:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B52F0405F7;
+	Mon, 17 Mar 2025 01:34:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742050545; cv=none; b=SDf4CFEfHEfOVy6iJtm/RwDxafzxALJpixZa6WT3WadGX6Te5nGsyQlbKfTPU3NAOmVIMpsvxPZzF84z8PCB8gJ6YWoXeq5lQclP+AF/5Ix1Uj0mYGCXP5YpluQL3PJdsGwm3IwgFoQ5GMJwx0lNscAwhO0DinkVfW/dirczAOM=
+	t=1742175283; cv=none; b=X1WyzUlizEP47Mb55yqBKXsO7URdPLoFRBN7Sh1SGWD7TTm6wba7Qi0JRJRwCJo4ogZZL3UcVgcsyhX5DZVpO1m9c/2QmU0GencPF9bzVSL6vz3ydhYP5rjTZLgBPR53RYp7porWKWogJXeESmjozk/mayqYhtLfx7z6JQ6xhUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742050545; c=relaxed/simple;
-	bh=XA99tfLBp8bXT73QYWUaMhUBMUYYGtyNQMBwQmFvmFg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 Cc:Content-Type; b=aK6J8SL0vjQXG2E/2aLL0s6rWlMOxXFj5IeOu8aVYjYCUvqsFZyDOIqDGbAZpPXRkh6qvZFktxp5rih3fBGZgdJp8F6qejdu34XMI2eFAzzbUa/f2ZoSVohZotc2iiYTCept0Nfozuu1Q/ZV9oQmFSMLODX0KdR4e30VvK1cWNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PmSjBQ9i; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742175283; c=relaxed/simple;
+	bh=eT6MFakubGkmnBAAqo9NAtgD4qcjFA/LrKjlIPZyI2I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n3yiqxXkwIt0MNOxVdxgg2zvwwXGd+8T2+OCHDUxTw9O2OcfIP7v3zxUQcQFGhrGKO9raE3S9PWB8BUvMsYc6GTO/mpCqVMgmWZhlYYUVR7bzgzP15uf4ZQKBqjOqz59opN4z5hBT1xD99W+j/lePYGfLRmZML/Di7d12N/TknM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=PapciGaU; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PmSjBQ9i"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2fee4d9c2efso1027020a91.3
-        for <linux-s390@vger.kernel.org>; Sat, 15 Mar 2025 07:55:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742050543; x=1742655343; darn=vger.kernel.org;
-        h=cc:subject:message-id:date:from:in-reply-to:references:mime-version
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XA99tfLBp8bXT73QYWUaMhUBMUYYGtyNQMBwQmFvmFg=;
-        b=PmSjBQ9iXnLJUW2idUj4k2rryQQVbg/u4JfQq9Z7sOLQAWkwBeOXLDdObkRKX/YwA5
-         VZKXGNshnwN3FzHVih5sE5LsjfahwEYo8mTxY+LFfphTknebNzB/lfuO8AgeHLHwztzw
-         hsQclR4CmM2Swg9TQqh+7yBxVTAaMFPsWwwstd/omtTWD9gRwkFkiw3zLoYoHumY5V1+
-         OGK3MYKiA74blXWHYoH8LmYf767Z13BBpm0aBv2/F0xio5h/xsfr2n+3+iVpbq4gm1iX
-         bEVfjWwVFbRAM9csDsJGmDcIdCcvalQvxWekpf6eq4XRcvLFvrtmew58O7LnVVFdwxXC
-         yFzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742050543; x=1742655343;
-        h=cc:subject:message-id:date:from:in-reply-to:references:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XA99tfLBp8bXT73QYWUaMhUBMUYYGtyNQMBwQmFvmFg=;
-        b=K88bIohKeP0TJ+re1U6Ru0Wv4fGc3GWnStXYSKUn9iWj+MyMhn6gRmuEf5kGTiMJ7a
-         VwjzkGXxj37Pz8lInITLrRnCnnGS8riv60+DbaNp98P87tEQbO54r5/R6DXrkQQebeOM
-         iqnD9NafXpHUAyAPuLWPDIscrJgRSH1l06FpkM9yFx5ynPJQs1x/AavIM5fI52dPWJO5
-         4dKAy0UvJY1AnClkMaXFi2+4QESKeknW1GK35EAlsuDlT0f5p4IgbsgfwX1g4puhKf+/
-         fG+27+2pXDAWHcGLXJV+s92WSpW8+pT+RlsDlXhNC4EancsBqYwa8tNoImuzB67YYtiz
-         xc6g==
-X-Forwarded-Encrypted: i=1; AJvYcCXooE9smzTAvpix78hffTUk31tXO4ACuw4QvTHDc1xdXb7hMox34ri70Kz1rofTIfeqdSXraiCKuu+s@vger.kernel.org
-X-Gm-Message-State: AOJu0YwQ/asUPL6qEdj1KSNMUKkf5BEqEMGlboTItZza9kXDwi/1c0Hu
-	xlGQSU6cmZkCbVAoc9N/2KioOo2jwihvPbGt2ZgrLu00yrdm8q3f6CAkx88YlaKniYQ2Q1Mvlzw
-	MjXhGdVmAi9Uu0JR4u83TgKRtwG4=
-X-Gm-Gg: ASbGncsb0WuitJl3oqJwcR+U+ddANarnHXG6OjMJ6ggVP5lzQhTN1lONBxvLWOcp6kp
-	3my37+vPENLNzRIOQEvBPnKsvO9JULgZSbGS2eU0p+Pa4iW1VOacjUU4+EdQnRmgt0ekH6M3Sp0
-	zmY8WwhKTaaNTp91HIMlvFf5U=
-X-Received: by 2002:a17:90b:2e44:b0:2f9:d9fe:e72e with SMTP id
- 98e67ed59e1d1-30151cc2490mt7920218a91.16.1742050543260; Sat, 15 Mar 2025
- 07:55:43 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="PapciGaU"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1742175271; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=OWGQO/XmAgafV+pvwHl30RyH+rk+S5XjfM5aTrOYSKc=;
+	b=PapciGaUveJuicEJOX20kqEohwePbt3PERnn3y7mWmQ2uE7/M3hHvMrobGL4tJhmParVqN4jE4ZeQ8TBUNOl3zeMKeVSBimFIzu3vQoFRVLkGQ1RIMJGjYS5z2lFv/svy5uEsU5cVTQHrwZOCp4mEwszyq6AxVSdxTRlP4R7+XI=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WRXPGg2_1742175268 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 17 Mar 2025 09:34:29 +0800
+Date: Mon, 17 Mar 2025 09:34:28 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: I Hsin Cheng <richard120310@gmail.com>, alibuda@linux.alibaba.com
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	skhan@linuxfoundation.org, jserv@ccns.ncku.edu.tw,
+	linux-kernel-mentees@lists.linux.dev
+Subject: Re: [PATCH] net/smc: Reduce size of smc_wr_tx_tasklet_fn
+Message-ID: <20250317013428.GC56800@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250315062516.788528-1-richard120310@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250306185124.3147510-1-rppt@kernel.org> <20250306185124.3147510-11-rppt@kernel.org>
- <cee346ec-5fa5-4d0b-987b-413ee585dbaa@sirena.org.uk> <Z9CyRHewqfZlmgIo@shell.armlinux.org.uk>
- <Z9ErEBuMMvd6i2n9@kernel.org>
-In-Reply-To: <Z9ErEBuMMvd6i2n9@kernel.org>
-From: DiTBho Down in The Bunny hole <downinthebunnyhole@gmail.com>
-Date: Sat, 15 Mar 2025 15:55:33 +0100
-X-Gm-Features: AQ5f1Jrmv7KQRCuWBIo_vXTI9aIDRsZr_EQ5uQHAURWeudjXpiSlHPWiANvw4jg
-Message-ID: <CAAZ8i80e6CsD1Y36-sVrVs4QPB-82J1gPOeDvHa_+sQtfUpMtQ@mail.gmail.com>
-Subject: Soekris crypto 1411, where to find ?
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc <linux-parisc@vger.kernel.org>, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
-	x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250315062516.788528-1-richard120310@gmail.com>
 
-hi
-this is probably not the right place to ask, but I've been searching
-eBay and similar places for 2 years and haven't found one yet.
-I support older MIPS hardware and need to find a Soekris crypto 1411
-miniPCI module or two, to add VPN acceleration.
+On 2025-03-15 14:25:16, I Hsin Cheng wrote:
+>The variable "polled" in smc_wr_tx_tasklet_fn is a counter to determine
+>whether the loop has been executed for the first time. Refactor the type
+>of "polled" from "int" to "bool" can reduce the size of generated code
+>size by 12 bytes shown with the test below
+>
+>$ ./scripts/bloat-o-meter vmlinux_old vmlinux_new
+>add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-12 (-12)
+>Function                                     old     new   delta
+>smc_wr_tx_tasklet_fn                        1076    1064     -12
+>Total: Before=24795091, After=24795079, chg -0.00%
+>
+>In some configuration, the compiler will complain this function for
+>exceeding 1024 bytes for function stack, this change can at least reduce
+>the size by 12 bytes within manner.
+>
+>Signed-off-by: I Hsin Cheng <richard120310@gmail.com>
 
-Anyone have an idea where to buy it?
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-Soekris company went out of business years ago.
+Best regards,
+Dust
 
-Let me know.
-D.
+>---
+> net/smc/smc_wr.c | 8 ++++----
+> 1 file changed, 4 insertions(+), 4 deletions(-)
+>
+>diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+>index b04a21b8c511..3cc435ed7fde 100644
+>--- a/net/smc/smc_wr.c
+>+++ b/net/smc/smc_wr.c
+>@@ -138,14 +138,14 @@ static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+> 	struct smc_ib_device *dev = from_tasklet(dev, t, send_tasklet);
+> 	struct ib_wc wc[SMC_WR_MAX_POLL_CQE];
+> 	int i = 0, rc;
+>-	int polled = 0;
+>+	bool polled = false;
+> 
+> again:
+>-	polled++;
+>+	polled = !polled;
+> 	do {
+> 		memset(&wc, 0, sizeof(wc));
+> 		rc = ib_poll_cq(dev->roce_cq_send, SMC_WR_MAX_POLL_CQE, wc);
+>-		if (polled == 1) {
+>+		if (polled) {
+> 			ib_req_notify_cq(dev->roce_cq_send,
+> 					 IB_CQ_NEXT_COMP |
+> 					 IB_CQ_REPORT_MISSED_EVENTS);
+>@@ -155,7 +155,7 @@ static void smc_wr_tx_tasklet_fn(struct tasklet_struct *t)
+> 		for (i = 0; i < rc; i++)
+> 			smc_wr_tx_process_cqe(&wc[i]);
+> 	} while (rc > 0);
+>-	if (polled == 1)
+>+	if (polled)
+> 		goto again;
+> }
+> 
+>-- 
+>2.43.0
+>
