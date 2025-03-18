@@ -1,60 +1,25 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C268A17D355
-	for <linux-s390@vger.kernel.org>; Mon, 17 Mar 2025 16:14:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9675D19ABAB;
+	Tue, 18 Mar 2025 04:38:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742228065; cv=none; b=NgdBlvrAtdS2o3PEkUYhVKKT6ULvbVCsh02L41Gk37100SGjCTVigvDs4LD5Do80PA7vdxRJObl/FvEAjmVa00FdGCA+5++9oX1CFAE/JvG7JHgj4OMAy+vMzYLa/j+Q/8RpvYW52pmsGFOdhdFPAmK5EkFbAzhEXPHbbFV+8Lk=
+	t=1742272691; cv=none; b=C8PwzSRt+Ob3L3FdOhatqwUSfJ/j0NDvG+BaS6FqsFMR6yJDfTAPAfRUGhAbMs77Ii41kdQBvmiXOYnySsFmkJZYiVn6rf+6DVhDZKNUJPD0ER+VjbYfYO5CCuR7t7awLuhafnynvrQMBbJQ2wgQFIO9p0MNdykc65SzZTjgydo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742228065; c=relaxed/simple;
-	bh=oqWhvhkzZQZqzo/xMUCSlE0m7fqxUwLBFYhHXILwVCE=;
+	s=arc-20240116; t=1742272691; c=relaxed/simple;
+	bh=JZ+4+z8x6jry+kOr7DX851cPAlKYZQ1cyhiwm0scNpo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=imwnWoYlyODMUHv1bSwJiVpD0k4Vhxbo9XxzAF6eKyKrJznUqLgYrOraHNdqFpy+i2XEj0m01rdojFCe7a5D/dagQ3DOsdHR+vwCz4R4kOpyrbcTzBTn8khE8GHRvjJpegjMu9KjDpwwu3hlZFsjb0crbDb/2deGx1huKaHTqh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nGbdTv6Z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nGbdTv6Z"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52HDa3po021832;
-	Mon, 17 Mar 2025 16:14:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=QEIFIe
-	XajaAyZwqhVLYnJKgopJ+wJgBHjn41r1XWliw=; b=nGbdTv6ZOA6sBRuwb2lVTz
-	MzcjohiI95vN4vxxVa+lLQpKiC5LxVxtnCX+LwpvXQECDvph1RzJ9g4ayd+oke89
-	cbj5cHFmcpo1/AhSK/oF4ICyaz4jeGQsxqg+iR6ts1H/9oW8fpx0Y0ZSsSuTuZs6
-	nom4q5icj28+h3s7JHoixiFdALbpPLBVTndm+6RBLjr28m2Gd7mxWUwxP0BOiHJC
-	Es7T5ntCBpWWSrCgMzKxGKFEUbr+nGiC/hP3xCNn5F4w9F847Ee7/2RHYl0u00pE
-	ckTIKUPQio1EBC1iD/V7Nfoxofkmh1FXrwE/fTHM4QvCEyIHKKHVP4R24VpmbHTg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45eks99915-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Mar 2025 16:14:20 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52HDYOBj001039;
-	Mon, 17 Mar 2025 16:14:19 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dp3kewr0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Mar 2025 16:14:19 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52HGEFZT30408996
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Mar 2025 16:14:15 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7FCBE20049;
-	Mon, 17 Mar 2025 16:14:15 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0DFC820040;
-	Mon, 17 Mar 2025 16:14:15 +0000 (GMT)
-Received: from [9.179.25.138] (unknown [9.179.25.138])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 17 Mar 2025 16:14:14 +0000 (GMT)
-Message-ID: <1935a111-c0a3-4d7e-85f5-f7218253f1fc@linux.ibm.com>
-Date: Mon, 17 Mar 2025 17:14:13 +0100
+	 In-Reply-To:Content-Type; b=QPouzfni0C7WeUHJ0YPaBldCHvTajNltdYcExJcjfFPOlhBR6KbuV+i9FrHcVU+l7cseMRq/YMu0vzQ3wyA02p+2RPHWbJP8XAKpLKQedsWDsxmu++IPVJzdmlmk0Apoh/ylUjQ5aHyk07SKLYtpEBccs/RmOQ+va1XOxDXTMlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 300C2152B;
+	Mon, 17 Mar 2025 21:38:16 -0700 (PDT)
+Received: from [10.163.44.33] (unknown [10.163.44.33])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B992E3F63F;
+	Mon, 17 Mar 2025 21:38:00 -0700 (PDT)
+Message-ID: <392723e2-da82-4bdb-bebe-ed1c982d0d5f@arm.com>
+Date: Tue, 18 Mar 2025 10:07:56 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,99 +27,268 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 03/20] s390/ap: Introduce ap message buffer pool
-To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
-        fcallies@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-References: <20250304172116.85374-1-freude@linux.ibm.com>
- <20250304172116.85374-4-freude@linux.ibm.com>
+Subject: Re: [PATCH 2/2] arm64/ptdump: Replace u64 with pteval_t
+To: Ryan Roberts <ryan.roberts@arm.com>, linux-mm@kvack.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Nicholas Piggin <npiggin@gmail.com>, Paul Walmsley
+ <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, Marc Zyngier <maz@kernel.org>
+References: <20250317061818.16244-1-anshuman.khandual@arm.com>
+ <20250317061818.16244-3-anshuman.khandual@arm.com>
+ <16c12c3f-f2c2-45fa-9db6-4dfaeb002059@arm.com>
 Content-Language: en-US
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <20250304172116.85374-4-freude@linux.ibm.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <16c12c3f-f2c2-45fa-9db6-4dfaeb002059@arm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: FOf27q37GBw33P41-Vyrcf9iWktOuGvE
-X-Proofpoint-ORIG-GUID: FOf27q37GBw33P41-Vyrcf9iWktOuGvE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-17_06,2025-03-17_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- lowpriorityscore=0 clxscore=1015 spamscore=0 adultscore=0 mlxscore=0
- malwarescore=0 phishscore=0 impostorscore=0 priorityscore=1501
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503170115
+Content-Transfer-Encoding: 7bit
 
-On 04/03/2025 18:20, Harald Freudenberger wrote:
-> There is a need for a do-not-allocate-memory path through the
-> ap bus layer. When ap_init_apmsg() with use_mempool set to true
-> is called, instead of kmalloc() the ap message buffer is
-> allocated from the ap_msg_pool. This pool only holds a limited
-> amount of buffers: ap_msg_pool_min_items with the item size
-> AP_DEFAULT_MAX_MSG_SIZE and exactly one of these items (if available)
-> is returned if ap_init_apmsg() with the use_mempool arg set to true
-> is called. When this pool is exhausted and use_mempool is set true,
-> ap_init_apmsg() returns -ENOMEM without any attempt to allocate
-> memory.
+
+
+On 3/17/25 14:58, Ryan Roberts wrote:
+> On 17/03/2025 06:18, Anshuman Khandual wrote:
+>> Page table entry's value, mask and protection are represented with pteval_t
+>> data type format not u64 that has been assumed while dumping the page table
+>> entries. Replace all such u64 instances with pteval_t instead as required.
+>>
+>> Cc: Catalin Marinas <catalin.marinas@arm.com>
+>> Cc: Will Deacon <will@kernel.org>
+>> Cc: Marc Zyngier <maz@kernel.org>
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>  arch/arm64/include/asm/ptdump.h | 8 ++++----
+>>  arch/arm64/mm/ptdump.c          | 2 +-
+>>  2 files changed, 5 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/arch/arm64/include/asm/ptdump.h b/arch/arm64/include/asm/ptdump.h
+>> index e5da9ce8a515..476a870489b9 100644
+>> --- a/arch/arm64/include/asm/ptdump.h
+>> +++ b/arch/arm64/include/asm/ptdump.h
+>> @@ -24,8 +24,8 @@ struct ptdump_info {
+>>  };
+>>  
+>>  struct ptdump_prot_bits {
+>> -	u64		mask;
+>> -	u64		val;
+>> +	pteval_t	mask;
+>> +	pteval_t	val;
 > 
-> Default values for this mempool of ap messages is:
->  * Each buffer is 12KB (that is the default AP bus size
->    and all the urgend messages should fit into this space).
+> Given Ard's suggestion of using "ptdesc" as a generic term for PTDESC_SHIFT (or
+> PTDESC_ORDER, or whatever we ended up calling it), I wonder if it would be
+> cleaner to do the same with the types? We could have a ptdesc_t, which is
+> typedef'ed as u64 (or u128), then pteval_t, pmdval_t, ..., could all be
+> typedef'ed as ptdesc_t. Then for code that just wants a generic pgtable
+> descriptor value, we can use that type to indicate that it can be at any level.
 
-typo: urgent
+Something like the following ? Will cross check again if this might have
+missed something which could be converted as ptdesc_t as well.
 
->  * Minimum items held in the pool is 8. This value is adjustable
->    via module parameter ap.msgpool_min_items.
-> 
-> The zcrypt layer may use this flag to indicate to the ap bus
-> that the processing path for this message should not allocate
-> memory but should use pre-allocated memory buffer instead.
-> This is to prevent deadlocks with crypto and io for example
-> with encrypted swap volumes.
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-
-With the typo and the changed indent (see comment below)
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
-
-> ---
->  drivers/s390/crypto/ap_bus.c     | 57 ++++++++++++++++++++++++++++----
->  drivers/s390/crypto/ap_bus.h     |  9 ++---
->  drivers/s390/crypto/zcrypt_api.c | 10 +++---
->  3 files changed, 60 insertions(+), 16 deletions(-)
-> 
-[...]
-> diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-> index 483231bcdea6..a7bd44e5cc76 100644
-> --- a/drivers/s390/crypto/ap_bus.h
-> +++ b/drivers/s390/crypto/ap_bus.h
-> @@ -233,11 +233,12 @@ struct ap_message {
->  			struct ap_message *);
->  };
->  
-> -#define AP_MSG_FLAG_SPECIAL  0x0001	/* flag msg as 'special' with NQAP */
-> -#define AP_MSG_FLAG_USAGE    0x0002	/* CCA, EP11: usage (no admin) msg */
-> -#define AP_MSG_FLAG_ADMIN    0x0004	/* CCA, EP11: admin (=control) msg */
-> +#define AP_MSG_FLAG_SPECIAL  0x0001   /* flag msg as 'special' with NQAP */
-> +#define AP_MSG_FLAG_USAGE    0x0002   /* CCA, EP11: usage (no admin) msg */
-> +#define AP_MSG_FLAG_ADMIN    0x0004   /* CCA, EP11: admin (=control) msg */
-> +#define AP_MSG_FLAG_MEMPOOL  0x0008   /* ap msg buffer allocated from mempool */
-
-Please do not change the indent here. The change is not required, but it makes the life of reviewers much harder.
-
->  
-> -int ap_init_apmsg(struct ap_message *ap_msg);
-> +int ap_init_apmsg(struct ap_message *ap_msg, bool use_mempool);
->  void ap_release_apmsg(struct ap_message *ap_msg);
->  
->  enum ap_sm_wait ap_sm_event(struct ap_queue *aq, enum ap_sm_event event);
-[...]
-
+diff --git a/arch/arm64/include/asm/pgtable-types.h b/arch/arm64/include/asm/pgtable-types.h
+index 6d6d4065b0cb..686541e986e3 100644
+--- a/arch/arm64/include/asm/pgtable-types.h
++++ b/arch/arm64/include/asm/pgtable-types.h
+@@ -11,11 +11,13 @@
+ 
+ #include <asm/types.h>
+ 
+-typedef u64 pteval_t;
+-typedef u64 pmdval_t;
+-typedef u64 pudval_t;
+-typedef u64 p4dval_t;
+-typedef u64 pgdval_t;
++typedef u64 ptdesc_t;
++
++typedef ptdesc_t pteval_t;
++typedef ptdesc_t pmdval_t;
++typedef ptdesc_t pudval_t;
++typedef ptdesc_t p4dval_t;
++typedef ptdesc_t pgdval_t;
+ 
+ /*
+  * These are used to make use of C type-checking..
+@@ -46,7 +48,7 @@ typedef struct { pgdval_t pgd; } pgd_t;
+ #define pgd_val(x)	((x).pgd)
+ #define __pgd(x)	((pgd_t) { (x) } )
+ 
+-typedef struct { pteval_t pgprot; } pgprot_t;
++typedef struct { ptdesc_t pgprot; } pgprot_t;
+ #define pgprot_val(x)	((x).pgprot)
+ #define __pgprot(x)	((pgprot_t) { (x) } )
+ 
+diff --git a/arch/arm64/include/asm/ptdump.h b/arch/arm64/include/asm/ptdump.h
+index e5da9ce8a515..9548813bc877 100644
+--- a/arch/arm64/include/asm/ptdump.h
++++ b/arch/arm64/include/asm/ptdump.h
+@@ -24,8 +24,8 @@ struct ptdump_info {
+ };
+ 
+ struct ptdump_prot_bits {
+-	u64		mask;
+-	u64		val;
++	ptdesc_t	mask;
++	ptdesc_t	val;
+ 	const char	*set;
+ 	const char	*clear;
+ };
+@@ -34,7 +34,7 @@ struct ptdump_pg_level {
+ 	const struct ptdump_prot_bits *bits;
+ 	char name[4];
+ 	int num;
+-	u64 mask;
++	ptdesc_t mask;
+ };
+ 
+ /*
+@@ -51,7 +51,7 @@ struct ptdump_pg_state {
+ 	const struct mm_struct *mm;
+ 	unsigned long start_address;
+ 	int level;
+-	u64 current_prot;
++	ptdesc_t current_prot;
+ 	bool check_wx;
+ 	unsigned long wx_pages;
+ 	unsigned long uxn_pages;
+diff --git a/arch/arm64/kernel/efi.c b/arch/arm64/kernel/efi.c
+index 1d25d8899dbf..42e281c07c2f 100644
+--- a/arch/arm64/kernel/efi.c
++++ b/arch/arm64/kernel/efi.c
+@@ -29,7 +29,7 @@ static bool region_is_misaligned(const efi_memory_desc_t *md)
+  * executable, everything else can be mapped with the XN bits
+  * set. Also take the new (optional) RO/XP bits into account.
+  */
+-static __init pteval_t create_mapping_protection(efi_memory_desc_t *md)
++static __init ptdesc_t create_mapping_protection(efi_memory_desc_t *md)
+ {
+ 	u64 attr = md->attribute;
+ 	u32 type = md->type;
+@@ -83,7 +83,7 @@ static __init pteval_t create_mapping_protection(efi_memory_desc_t *md)
+ 
+ int __init efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md)
+ {
+-	pteval_t prot_val = create_mapping_protection(md);
++	ptdesc_t prot_val = create_mapping_protection(md);
+ 	bool page_mappings_only = (md->type == EFI_RUNTIME_SERVICES_CODE ||
+ 				   md->type == EFI_RUNTIME_SERVICES_DATA);
+ 
+diff --git a/arch/arm64/kernel/pi/map_kernel.c b/arch/arm64/kernel/pi/map_kernel.c
+index e57b043f324b..a00f57c73d81 100644
+--- a/arch/arm64/kernel/pi/map_kernel.c
++++ b/arch/arm64/kernel/pi/map_kernel.c
+@@ -159,7 +159,7 @@ static void noinline __section(".idmap.text") set_ttbr0_for_lpa2(u64 ttbr)
+ static void __init remap_idmap_for_lpa2(void)
+ {
+ 	/* clear the bits that change meaning once LPA2 is turned on */
+-	pteval_t mask = PTE_SHARED;
++	ptdesc_t mask = PTE_SHARED;
+ 
+ 	/*
+ 	 * We have to clear bits [9:8] in all block or page descriptors in the
+diff --git a/arch/arm64/kernel/pi/map_range.c b/arch/arm64/kernel/pi/map_range.c
+index 2b69e3beeef8..30c6bc50844f 100644
+--- a/arch/arm64/kernel/pi/map_range.c
++++ b/arch/arm64/kernel/pi/map_range.c
+@@ -30,7 +30,7 @@ void __init map_range(u64 *pte, u64 start, u64 end, u64 pa, pgprot_t prot,
+ 		      int level, pte_t *tbl, bool may_use_cont, u64 va_offset)
+ {
+ 	u64 cmask = (level == 3) ? CONT_PTE_SIZE - 1 : U64_MAX;
+-	pteval_t protval = pgprot_val(prot) & ~PTE_TYPE_MASK;
++	ptdesc_t protval = pgprot_val(prot) & ~PTE_TYPE_MASK;
+ 	int lshift = (3 - level) * (PAGE_SHIFT - 3);
+ 	u64 lmask = (PAGE_SIZE << lshift) - 1;
+ 
+@@ -87,7 +87,7 @@ void __init map_range(u64 *pte, u64 start, u64 end, u64 pa, pgprot_t prot,
+ 	}
+ }
+ 
+-asmlinkage u64 __init create_init_idmap(pgd_t *pg_dir, pteval_t clrmask)
++asmlinkage u64 __init create_init_idmap(pgd_t *pg_dir, ptdesc_t clrmask)
+ {
+ 	u64 ptep = (u64)pg_dir + PAGE_SIZE;
+ 	pgprot_t text_prot = PAGE_KERNEL_ROX;
+diff --git a/arch/arm64/kernel/pi/pi.h b/arch/arm64/kernel/pi/pi.h
+index c91e5e965cd3..91dcb5b6bbd1 100644
+--- a/arch/arm64/kernel/pi/pi.h
++++ b/arch/arm64/kernel/pi/pi.h
+@@ -33,4 +33,4 @@ void map_range(u64 *pgd, u64 start, u64 end, u64 pa, pgprot_t prot,
+ 
+ asmlinkage void early_map_kernel(u64 boot_status, void *fdt);
+ 
+-asmlinkage u64 create_init_idmap(pgd_t *pgd, pteval_t clrmask);
++asmlinkage u64 create_init_idmap(pgd_t *pgd, ptdesc_t clrmask);
+diff --git a/arch/arm64/mm/mmap.c b/arch/arm64/mm/mmap.c
+index 07aeab8a7606..c86c348857c4 100644
+--- a/arch/arm64/mm/mmap.c
++++ b/arch/arm64/mm/mmap.c
+@@ -83,7 +83,7 @@ arch_initcall(adjust_protection_map);
+ 
+ pgprot_t vm_get_page_prot(unsigned long vm_flags)
+ {
+-	pteval_t prot;
++	ptdesc_t prot;
+ 
+ 	/* Short circuit GCS to avoid bloating the table. */
+ 	if (system_supports_gcs() && (vm_flags & VM_SHADOW_STACK)) {
+diff --git a/arch/arm64/mm/ptdump.c b/arch/arm64/mm/ptdump.c
+index fd1610b4fd15..280e850f1688 100644
+--- a/arch/arm64/mm/ptdump.c
++++ b/arch/arm64/mm/ptdump.c
+@@ -194,7 +194,7 @@ void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
+ 	struct ptdump_pg_state *st = container_of(pt_st, struct ptdump_pg_state, ptdump);
+ 	struct ptdump_pg_level *pg_level = st->pg_level;
+ 	static const char units[] = "KMGTPE";
+-	u64 prot = 0;
++	ptdesc_t prot = 0;
+ 
+ 	/* check if the current level has been folded dynamically */
+ 	if (st->mm && ((level == 1 && mm_p4d_folded(st->mm)) ||
 -- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
+2.25.1
 
+> 
+> Thanks,
+> Ryan
+> 
+>>  	const char	*set;
+>>  	const char	*clear;
+>>  };
+>> @@ -34,7 +34,7 @@ struct ptdump_pg_level {
+>>  	const struct ptdump_prot_bits *bits;
+>>  	char name[4];
+>>  	int num;
+>> -	u64 mask;
+>> +	pteval_t mask;
+>>  };
+>>  
+>>  /*
+>> @@ -51,7 +51,7 @@ struct ptdump_pg_state {
+>>  	const struct mm_struct *mm;
+>>  	unsigned long start_address;
+>>  	int level;
+>> -	u64 current_prot;
+>> +	pteval_t current_prot;
+>>  	bool check_wx;
+>>  	unsigned long wx_pages;
+>>  	unsigned long uxn_pages;
+>> diff --git a/arch/arm64/mm/ptdump.c b/arch/arm64/mm/ptdump.c
+>> index fd1610b4fd15..a5651be95868 100644
+>> --- a/arch/arm64/mm/ptdump.c
+>> +++ b/arch/arm64/mm/ptdump.c
+>> @@ -194,7 +194,7 @@ void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
+>>  	struct ptdump_pg_state *st = container_of(pt_st, struct ptdump_pg_state, ptdump);
+>>  	struct ptdump_pg_level *pg_level = st->pg_level;
+>>  	static const char units[] = "KMGTPE";
+>> -	u64 prot = 0;
+>> +	pteval_t prot = 0;
+>>  
+>>  	/* check if the current level has been folded dynamically */
+>>  	if (st->mm && ((level == 1 && mm_p4d_folded(st->mm)) ||
+> 
