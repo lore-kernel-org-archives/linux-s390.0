@@ -1,202 +1,216 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DBF420E716
-	for <linux-s390@vger.kernel.org>; Tue, 18 Mar 2025 16:37:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D99D18EFD1;
+	Tue, 18 Mar 2025 16:39:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742315841; cv=none; b=p0+IAjM4gu+jBUKSO+o+BeGW2+OLn3tYnsBTP0UUHlDNSMrQFMc2gX/pEApq8FuzHuM14hB8VMLy3SLYepOL8qTk1oxyOGzbkceHxfff6YCQ1uQ6neZariaM8drPkylQB+kyZYeQQCRblTnhb0rQjYQBahSyiZUq/w2En1XhopE=
+	t=1742315981; cv=none; b=ulzw5neRKLq9M2mCzrscmkWeQQ1vEBFjz12Sgb44NxeJH7/l/0qCjNaRzsRMTG98bZOGg88BUQ9utzJxApTWqmXACqQb4vaqTXisoBd/YTKFgzaNPt/hCtZc1Mc5CMQdXfUA6m9hhBfeyUS6XjY8cx440j7o5KzznRd98R0QtxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742315841; c=relaxed/simple;
-	bh=4eT1odMzMnZPwJJSc0XgEk7lC+8F9q03wpNoipGla5U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sULnNQOXxEn2DM53QFSbJAnvQZMy3/TToGKoLpFwwZ6v46KptGx3Hp/gKtoepGN6mSCrs1eA7XoEwt9fs7U5JeGa6IeOovKr/necoEVzJ/XgAFHvBnNtityJLULZHRV3gN73uKQDYV6xEA+9A76NsMlPyEM/Cg7yxgBBkmioOmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ltJeuoVh; arc=none smtp.client-ip=209.85.214.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1742315981; c=relaxed/simple;
+	bh=jE/6C5rGqrc0B9YcKKbdnAyiGvo6gzJX96tTS9sn92s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Z6yhoM2rODb/z1MhZEDCzOlA+EWVRQ1WsHaZjeQGs4IfDf/rcoG0QLhnjCCWt2/cZYj0moDhL8PPze5sK6ipqczY5VqxwpQzddn11/YgD7QH0x+y2gGuge6dqYBYA5R+MNOwJtwLZj6ouWpI0xhcNS0c0hgEk5J/x0wAZe2I1I4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W8FnYU5/; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ltJeuoVh"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2242ac37caeso169455ad.1
-        for <linux-s390@vger.kernel.org>; Tue, 18 Mar 2025 09:37:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W8FnYU5/"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-225e3002dffso65077935ad.1;
+        Tue, 18 Mar 2025 09:39:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1742315835; x=1742920635; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=T2z69ehu9MYLofoS0JeQiQ0e/VE3ytjfb/z77xAUlFQ=;
-        b=ltJeuoVh0zi4JNdzW9UUjzGPslste3/5VtDEvY1a6kUE35DkascYD+89tdH/vVkckq
-         Dt/RB9zlcb1/AndZIK4am9uZjT2xXzDdtgI7I9GGrEhjuBiJJYepk8pPCT8WS6iKDA61
-         a4og5lTkRpgwfwToUnwi3gH2YFEtY0SMikH2Z+EoQpOyvFHvBKFgDjjHTOHpp2r+Crmp
-         tK8rvSh4L2cVOzQP6XsJzLWR2fAjnv5iAo4siLfwz5XmAowdyMhGZaHVdJc6DAxof9uJ
-         TTfq37b1M/nHCU9H1PyF8X+vLDwTnkhX6K6n5Q+dal17VvTH3iE6pWCd/buwl1Iid2Nq
-         4ZPQ==
+        d=gmail.com; s=20230601; t=1742315979; x=1742920779; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=0OMo6kY73E1DUQ5n4WQl1+v1FiQJTXExWUjOORF3Lm0=;
+        b=W8FnYU5/uE3ev6d6NL2edPu7kIk4/sipP0cHKMXLlfSVgQgq8hUbrmOYVQnsW/+tqg
+         pJQX1kPM+/9R9vXpzyU1sHZs14xhxVlqCrfgpixPjsOG1zKHnVhlklIDI+6vDSFjXZkJ
+         aZo03575yHqJNzzQpfhLczVK21N7BmPkR2y2vZ9Xm+GaBfEWTV4dxXAyVl7/N0Ppk4VJ
+         FA8qwR/KeTnSLJa/Ti6M1adBWCRn/y2ZjWsXfbOckAXLImf4LY9X7ZZzZqFGtoWFxkfX
+         5RH7Eb299Y5HqLhHjGxJQAlumAeg8P4yaDdXplXeo2xQyOgpR791MRx71qSZkwGjOL3S
+         UY5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742315835; x=1742920635;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=T2z69ehu9MYLofoS0JeQiQ0e/VE3ytjfb/z77xAUlFQ=;
-        b=jUYWuAAp9XnC1YMCTbTY75TWhSP9xlNITZbYzaWGThlUIX+XWrpgXcfdOpxWHyhV9J
-         gmypkCrlf4EBA84wA4dftR/u7taItAixoOxZBt4+XQVVFa+9yWBz3FpT0reCyy8fgixM
-         O35y2HCgzmjl+tEz/xuHbQhbkNJQl1nJRV1xfh5KxwcZZAHKZrS7Kf/hnpOa7G9aYeF2
-         lRvZb1bQLJROeibTVax5cc/llbGbZC1NKTzPOVJQ2qTkVs60QF/UyihCvDckKa5y//Ow
-         PPoWqweDBEFdG8om2ltfiVoVHU+vUESOgvip7YHJEH5/o46nvjxPdzo6HyqFDIrl3vs8
-         OP5A==
-X-Forwarded-Encrypted: i=1; AJvYcCUAO0UlbYyc3zj8YEEZZXNoOp32okA3FcXoItzyl12DH4mR6XsaChrrJMsIydqbR9OF6DRKBYKHFEtR@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJnhyXc19VPyjS7OmEwmAmKOWf88FdrOTumMF7R0lrjHgwWpzu
-	6cZATIEjdPKscLau0ZliLeasKWtp/cHhKBzmGS1NB3jl2MkclbG3ZindL0EaMI2Sng0mC4WlTLt
-	ZVuNFdMjjNlN9a3xjdYgpZhWv2IinMVizv9KzAIR9GjQqGVH/nmso
-X-Gm-Gg: ASbGncsahlU1cp1pwi1oXicKW9qMJpwF+ht0kCvKcYrqusxRIn3hOV4fEi5FYReRvI1
-	csdWVs2FND2+BP2AQpMhdjK8CRujTesiHvZSfdocCsS4mDYXVubUnTEAeLdYiRSi0lKXxf3CkXQ
-	FDDnmlhcU1t0QsOvGGZrlpCGqlKm4pK7GczDFuryol83mIoJr5uHa8eErBvub2gw==
-X-Google-Smtp-Source: AGHT+IHnSw39H849L234BIkDc47Eq7xhSFTxT3N4fuR1hmpWc455Btyp/vc6iE1Wb2xmRZNsrCL1ynYjk4f8BKIAoHA=
-X-Received: by 2002:a17:903:228a:b0:200:97b5:dc2b with SMTP id
- d9443c01a7336-226357c807cmr2082025ad.15.1742315834907; Tue, 18 Mar 2025
- 09:37:14 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1742315979; x=1742920779;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0OMo6kY73E1DUQ5n4WQl1+v1FiQJTXExWUjOORF3Lm0=;
+        b=OwvKdO9Js0ch6DYTCTnmKbc16Np9IJcg3rm8iKxyrMgsQg7rIKo9gdXgaRXYctFSBy
+         K4sqhfBxyyW5QrfCO75dVFriCV2talJPHEra/H5VwhzhsKCknOw1BeyDqdTS6ld9IIQL
+         y1f1cxgy6uv4Fvt1jjtWoHxnoTos59LYSTkL5N44CiPLrRter/7da1EMfH2BzyeG+Q+j
+         NWzjp35C4VAi2uF8bxTaHELMSCIN+ui+tfv8hiPY1xebcAK+hQZIL0Kq2CsbGIC+s/u9
+         OqgtOEIP8YkAks8fEajNE7xLYM25hzeilpb8cF8L/5kplqabffU7DzfesPQZoix2HV5u
+         /8qA==
+X-Forwarded-Encrypted: i=1; AJvYcCU0w+kKU0e6wr36ic0By9JXny99R+/8OdklIO+3UyNKsLn1/1Ag5KOAaWSVIDUmX07B7+jVRMnLKJkt@vger.kernel.org, AJvYcCUEul8xpxhTxXvCmPDMAohCWPByI2kBVuNciIwavMO5Q7220l/nRehep4DhpULhYSWBW536U3bLfaM=@vger.kernel.org, AJvYcCW9Gdim/9C5GMh4S92Gz1aUcOvxLr+E4NhGV/TwUPPodq/j1nCnjKgQGVQdzPWEHpHKlBxa+676PyI3MPYZ@vger.kernel.org, AJvYcCWTZleaVlltuj/+PjP2qtBGcw0r1ElIyF9aUzj4j0VZRwIRVEyegegoJKGnHeGWdDWqlPsJctFK52Wi@vger.kernel.org, AJvYcCWhKDNo/E1RiCgJpLM1HuJ6CwuHqokMnC1sYWzzYmCtR/Taj+PEbcr3XGJHwNlubmWPReS5hYtac7kQUYam@vger.kernel.org, AJvYcCWtvbrPiude2a5bvqmQFd68KmniooYIeQNtLKJSXXgOf1f3L15KCoCLZESWijI+qo9jsnRENqw/TRGzMg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMrZyUdQpuw+PNqZerLQQ1D2dFBT6hBj7cEemGwbPO2qbY/mxj
+	PdO6UlehGuHRuXweOYME9JtGF47rRkXVaRANNBeaP/9Wp1N0xI94
+X-Gm-Gg: ASbGncuw2WPEkh4JkSHjgDV6u3H1tszIe3qVh1Tq6yZvGQ/N92De4r66FNsy+Opqbx5
+	N70XB4vamyixTle564X2yi3xGd/AeMPFxpJ5CuvlwIl7svHrwMnlL5rhVf+ZqSBkzv+Ao7vAX7I
+	3aUXWsvQDZdeqUmZmIjWFnTJMd7JHYB0b6BP8Hd10RcWeP6Och2swZKJsJimpssKWT+R3m0Rrxt
+	YH2jV9EjQ2vR3UK5nKB/fkijCv60WIkbJNGP06Kx0nxcMiN4bWmk64CfomEu5GymMA557oZzajl
+	W+uixxQFm3QJepWNvPoPJpyz2sGXc8SEVCLsbwlznvrWwzH3HQNE9q9LviXS2hZTJ1pXxq278gH
+	EVX8yZMpVw4z/2DhtyQ==
+X-Google-Smtp-Source: AGHT+IGE5m6c7zPdMBD4x7LWCETtpVBn2q4Mh4LJo0JYKNyDmFsLhMqkHIw+PJnwPR3g3D5sK0aeCQ==
+X-Received: by 2002:a17:902:ea0c:b0:223:3bf6:7e6a with SMTP id d9443c01a7336-2262c5383e0mr62696385ad.12.1742315979380;
+        Tue, 18 Mar 2025 09:39:39 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-225c68aa906sm97145285ad.88.2025.03.18.09.39.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Mar 2025 09:39:38 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <17a383b4-2add-4e74-b7ca-d7ef2baac4f9@roeck-us.net>
+Date: Tue, 18 Mar 2025 09:39:35 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250318095132.1502654-1-tmricht@linux.ibm.com> <20250318095132.1502654-3-tmricht@linux.ibm.com>
-In-Reply-To: <20250318095132.1502654-3-tmricht@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Tue, 18 Mar 2025 09:37:02 -0700
-X-Gm-Features: AQ5f1JpT8DCKBYPXcNNrpUEYFo_khI7jP_G1lI4QozhZPAilFvW_a6UuYt0iing
-Message-ID: <CAP-5=fXAhsDkQXVCvb5xrjLVpYG-typR23_NXwgwPDjaJS0pqg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] perf/bench: Double free of dynamic allocated memory
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	acme@redhat.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 07/14] arm64: Add support for suppressing warning
+ backtraces
+To: Will Deacon <will@kernel.org>, Alessandro Carminati <acarmina@redhat.com>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
+ Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ma=C3=ADra_Canal?=
+ <mcanal@igalia.com>, Dan Carpenter <dan.carpenter@linaro.org>,
+ Kees Cook <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>,
+ David Gow <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>,
+ Brendan Higgins <brendan.higgins@linux.dev>,
+ Naresh Kamboju <naresh.kamboju@linaro.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
+ <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ Alessandro Carminati <alessandro.carminati@gmail.com>,
+ Jani Nikula <jani.nikula@intel.com>, dri-devel@lists.freedesktop.org,
+ kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ loongarch@lists.linux.dev, x86@kernel.org,
+ Linux Kernel Functional Testing <lkft@linaro.org>,
+ Catalin Marinas <catalin.marinas@arm.com>
+References: <20250313114329.284104-1-acarmina@redhat.com>
+ <20250313114329.284104-8-acarmina@redhat.com>
+ <20250313122503.GA7438@willie-the-truck>
+ <CAGegRW5r3V2-_44-X353vS-GZwDYG=SVwc6MzSGE8GdFQuFoKA@mail.gmail.com>
+ <20250318155946.GC13829@willie-the-truck>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+In-Reply-To: <20250318155946.GC13829@willie-the-truck>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 18, 2025 at 2:52=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
->
-> On s390 z/VM the command 'perf bench internals pmu-scan'
-> dumps core, as can be seen:
->
-> Output before:
->  # ./perf bench internals pmu-scan
->  # Running 'internals/pmu-scan' benchmark:
->  Computing performance of sysfs PMU event scan for 100 times
->  perf: /root/linux/tools/include/linux/refcount.h:131:
->         refcount_sub_and_test: Assertion `!(new > val)' failed.
->  Aborted (core dumped)
->  #
->
-> The root cause is in
->
-> perf_pmus__scan()
-> +--> perf_pmu__create_placeholder_core_pmu()
->      +--> cpu_map__online()
->
-> cpu_map__online() has a static variable
->
->     static struct perf_cpu_map *online;
->
->     if (!online)
->         online =3D perf_cpu_map__new_online_cpus();
->
->     return online;
->
-> which is allocated once when entered for the first time.
->
-> However perf_pmu__create_placeholder_core_pmu() is actually called
-> two times.
-> First time:
->    run_pmu_scan()
->    +--> save_result()
->         +---> perf_pmus__scan_core()
->               +--> pmu_read_sysfs()
->                    +--> perf_pmu__create_placeholder_core_pmu()
->         ...
->         +--> perf_pmus__destroy()
->
-> Second time:
->     run_pmu_scan()
->     +--> perf_pmus__scan()
->          +--> pmu_read_sysfs()
->               +--> perf_pmu__create_placeholder_core_pmu()
->         ...
->         +--> perf_pmus__destroy()
->
-> The second time the already allocated memory pointed to by variable
-> 'online' is returned. However in between the first and second call
-> of perf_pmu__create_placeholder_core_pmu()
-> function save_result() also frees all PMUs:
->
-> save_result()
-> +--> perf_pmus__destroy()
->      +--> perf_pmu__delete()
->           +--> perf_cpu_map__put()
->                +--> cpu_map__delete()
->
-> cpu_map__delete() deletes the perf_cpu_map pointed to by variable
-> online, but this static variable is not set to NULL. In the second
-> invocation of perf_pmu__create_placeholder_core_pmu() the same
-> memory locattion stored in variable online is returned.
->
-> Later on run_pmu_scan() calls perf_pmus__destroy() again and then
-> cpu_map__delete() frees the PMU "cpu->cpus" a second time causing
-> the core dump.
->
-> Avoid core dump and always allocate the online CPUs.
->
-> Output after:
->  # ./perf bench internals pmu-scan
->  # Running 'internals/pmu-scan' benchmark:
->  Computing performance of sysfs PMU event scan for 100 times
->   Average core PMU scanning took: 7.970 usec (+- 0.147 usec)
->   Average PMU scanning took: 60.415 usec (+- 3.986 usec)
->  #
->
-> Background: s390 z/VM system do not support PMUs for sampling and
-> counting. In this case dummy events are created by the perf tool
-> and the PMUs "tool" and "fake" are created and freed.
->
-> Fixes: a0c41caebab2f ("perf pmu: Add CPU map for "cpu" PMUs")
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Cc: Ian Rogers <irogers@google.com>
+On 3/18/25 08:59, Will Deacon wrote:
+> On Thu, Mar 13, 2025 at 05:40:59PM +0100, Alessandro Carminati wrote:
+>> On Thu, Mar 13, 2025 at 1:25 PM Will Deacon <will@kernel.org> wrote:
+>>>
+>>> On Thu, Mar 13, 2025 at 11:43:22AM +0000, Alessandro Carminati wrote:
+>>>> diff --git a/arch/arm64/include/asm/bug.h b/arch/arm64/include/asm/bug.h
+>>>> index 28be048db3f6..044c5e24a17d 100644
+>>>> --- a/arch/arm64/include/asm/bug.h
+>>>> +++ b/arch/arm64/include/asm/bug.h
+>>>> @@ -11,8 +11,14 @@
+>>>>
+>>>>   #include <asm/asm-bug.h>
+>>>>
+>>>> +#ifdef HAVE_BUG_FUNCTION
+>>>> +# define __BUG_FUNC  __func__
+>>>> +#else
+>>>> +# define __BUG_FUNC  NULL
+>>>> +#endif
+>>>> +
+>>>>   #define __BUG_FLAGS(flags)                           \
+>>>> -     asm volatile (__stringify(ASM_BUG_FLAGS(flags)));
+>>>> +     asm volatile (__stringify(ASM_BUG_FLAGS(flags, %c0)) : : "i" (__BUG_FUNC));
+>>>
+>>> Why is 'i' the right asm constraint to use here? It seems a bit odd to
+>>> use that for a pointer.
+>>
+>> I received this code as legacy from a previous version.
+>> In my review, I considered the case when HAVE_BUG_FUNCTION is defined:
+>> Here, __BUG_FUNC is defined as __func__, which is the name of the
+>> current function as a string literal.
+>> Using the constraint "i" seems appropriate to me in this case.
+>>
+>> However, when HAVE_BUG_FUNCTION is not defined:
+>> __BUG_FUNC is defined as NULL. Initially, I considered it literal 0,
+>> but after investigating your concern, I found:
+>>
+>> ```
+>> $ echo -E "#include <stdio.h>\n#include <stddef.h>\nint main()
+>> {\nreturn 0;\n}" | aarch64-linux-gnu-gcc -E -dM - | grep NULL
+>> #define NULL ((void *)0)
+>> ```
+>>
+>> I realized that NULL is actually a pointer that is not a link time
+>> symbol, and using the "i" constraint with NULL may result in undefined
+>> behavior.
+>>
+>> Would the following alternative definition for __BUG_FUNC be more convincing?
+>>
+>> ```
+>> #ifdef HAVE_BUG_FUNCTION
+>>      #define __BUG_FUNC __func__
+>> #else
+>>      #define __BUG_FUNC (uintptr_t)0
+>> #endif
+>> ```
+>> Let me know your thoughts.
+> 
+> Thanks for the analysis; I hadn't noticed this specific issue, it just
+> smelled a bit fishy. Anyway, the diff above looks better, thanks.
+> 
 
-Thanks Thomas, the proposed fix breaks address sanitizer as there are
-missing puts on the freshly allocated cpu maps. I think a better fix
-would be to "get" the cpu map to increment the reference count rather
-than to keep re-reading the online CPUs. In either case we need the
-puts on the user side.
+It has been a long time, but I seem to recall that I ran into trouble when
+trying to use a different constraint.
 
-Ian
+Guenter
 
-> ---
->  tools/perf/util/cpumap.c | 7 +------
->  1 file changed, 1 insertion(+), 6 deletions(-)
->
-> diff --git a/tools/perf/util/cpumap.c b/tools/perf/util/cpumap.c
-> index 5c329ad614e9..ab9e7a266af9 100644
-> --- a/tools/perf/util/cpumap.c
-> +++ b/tools/perf/util/cpumap.c
-> @@ -691,12 +691,7 @@ size_t cpu_map__snprint_mask(struct perf_cpu_map *ma=
-p, char *buf, size_t size)
->
->  struct perf_cpu_map *cpu_map__online(void) /* thread unsafe */
->  {
-> -       static struct perf_cpu_map *online;
-> -
-> -       if (!online)
-> -               online =3D perf_cpu_map__new_online_cpus(); /* from /sys/=
-devices/system/cpu/online */
-> -
-> -       return online;
-> +       return perf_cpu_map__new_online_cpus(); /* from /sys/devices/syst=
-em/cpu/online */
->  }
->
->  bool aggr_cpu_id__equal(const struct aggr_cpu_id *a, const struct aggr_c=
-pu_id *b)
-> --
-> 2.48.1
->
