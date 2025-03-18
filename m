@@ -1,189 +1,91 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD1F0207A16;
-	Tue, 18 Mar 2025 09:52:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4ACF9207A2A;
+	Tue, 18 Mar 2025 12:14:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742291531; cv=none; b=C+DDYzztSPW4dVIBNlgbD8L/M9CohLd/VKPaonVmMEmw0sRDz/cxJjCLIByblaR4bIR5RSE2eVxKYwcyCS9MvS5loMca0kypGes5AMerrnCUIDpPaV2S0kT7jjPjQDhQZLQ+ol2ap1R414FvPO8vXfohB1eG24C+mbScBZDhB8s=
+	t=1742300073; cv=none; b=kBpIEWGjSdIkvYRQZ46U/b//DpKHXPUPr6sY11l6+2tARXnpnOKpj2OQDItps4RnkMceiGLfi8XV71E2Y2L5JeZCMFTeCGNrXMc9r7km3J4gsAlAlOHsGULaK7L/p+SUcoaxUJtF6HtLNeR9Ubw+pJ26YpjYhPthrZwsFvJzekI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742291531; c=relaxed/simple;
-	bh=0YVURChpVNoTirygDVnHF8D/yvp8IgZBGg/GV+vDz/8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GKbwJazkhT8h4HgJIFQy61Eoe2vfYrRcURzlwFnHDVhuonFscAJa9hte/kq//XwBP4eInhJFkJzzM4I4uD0EA0XwOe9ML+JyQtSdVmeqU/PqagpWNdzIQULp2RYHOqVYDfNOf7lGykbk5wg7/Ukl7PsM9078Y1fjY+oyQUw8hMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E1+8WlTX; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E1+8WlTX"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52I3jm2m005934;
-	Tue, 18 Mar 2025 09:51:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=J6tM6zRdF7QdI3sWH
-	YEx3tMZexZAew/0+UceFbXw+fw=; b=E1+8WlTXpgvh0LH4PQhHavGJIvkZNW0Hb
-	SErx3q12OsoJ59DpF0Zp2/eXDS1F8TdwLPEoZjoVTU9hxSsCTbOxZT6+HXmCFDZx
-	3hTf6wAV5UTqEOb10qANAtp59nucySCGjaXxm7blucRddNj4dk7DJWdYx9yzS5yY
-	Q5lJwTjVcZ7PqPFBSNef7hZVt1pvXOFCb3sHCjOdp7l+qyY6Q8nYeyprmZBn9p9p
-	sUCKw5lJFUCXnLbbk5q3iCYAIJxZ5N/blKnELQkCQNgoK5T7tFItrKlRt2UNMc3G
-	s8mycVXqgIk4Wtn6l6tSYCFqFFRss6EO8F3RU6gY220ZkWd3TJJ1w==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45f179hj39-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Mar 2025 09:51:58 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52I9jp9Y022355;
-	Tue, 18 Mar 2025 09:51:58 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45f179hj37-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Mar 2025 09:51:58 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52I7RXoL012451;
-	Tue, 18 Mar 2025 09:51:57 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45dmvnu5p3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Mar 2025 09:51:56 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52I9prkJ12911084
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Mar 2025 09:51:53 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E749E20043;
-	Tue, 18 Mar 2025 09:51:52 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BA38920040;
-	Tue, 18 Mar 2025 09:51:52 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Mar 2025 09:51:52 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        irogers@google.com, acme@redhat.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH 1/2] perf/bench: Fix perf bench internals pmu-scan core dump
-Date: Tue, 18 Mar 2025 10:51:31 +0100
-Message-ID: <20250318095132.1502654-2-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20250318095132.1502654-1-tmricht@linux.ibm.com>
-References: <20250318095132.1502654-1-tmricht@linux.ibm.com>
+	s=arc-20240116; t=1742300073; c=relaxed/simple;
+	bh=64IIiCxSmb90ZQ6fmueb4xJ3WQaFIC2OATzJjR0a98k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Lb4bg8Lxm72ZgZtTw1mAFX4wKq72MKdllVCyRi7AmvchSybPt4cmKJ4nOWyn0aLFzFfxwcrQzSsPrTI6/8fBSUVVrgeNDoBAWEaLupA7aaqf8QJMFRhzFoQujRU1VRtJLTdfwIRriEl4n/7+r9g5pcWt7HAzIaVdrq550gRlJCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E278013D5;
+	Tue, 18 Mar 2025 05:14:38 -0700 (PDT)
+Received: from [10.57.85.104] (unknown [10.57.85.104])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7AF4D3F673;
+	Tue, 18 Mar 2025 05:14:22 -0700 (PDT)
+Message-ID: <e79f9aa9-ce1b-4d42-8a61-aebaae1744fc@arm.com>
+Date: Tue, 18 Mar 2025 13:14:18 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Sh1T0VrDKBp51vig9hpgBO_5Zx3iky0F
-X-Proofpoint-ORIG-GUID: pI2CckExotsV3fwA7rzOdjMSCfTHm2qT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-18_04,2025-03-17_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- adultscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 impostorscore=0
- lowpriorityscore=0 mlxscore=0 clxscore=1015 spamscore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503180068
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/11] Always call constructor for kernel page tables
+To: Ryan Roberts <ryan.roberts@arm.com>, linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+ Andreas Larsson <andreas@gaisler.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Matthew Wilcox <willy@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, "Mike Rapoport (IBM)"
+ <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ Peter Zijlstra <peterz@infradead.org>, Qi Zheng
+ <zhengqi.arch@bytedance.com>, Will Deacon <will@kernel.org>,
+ Yang Shi <yang@os.amperecomputing.com>, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org
+References: <20250317141700.3701581-1-kevin.brodsky@arm.com>
+ <70349335-84ee-4bca-a3d6-d7cf3c05b92b@arm.com>
+Content-Language: en-GB
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+In-Reply-To: <70349335-84ee-4bca-a3d6-d7cf3c05b92b@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On s390 z/VM systems the command 'perf bench internals pmu-scan'
-dumps core, as can be seen:
+On 17/03/2025 16:30, Ryan Roberts wrote:
+> On 17/03/2025 14:16, Kevin Brodsky wrote:
+>> The complications in those special pgtable allocators beg the question:
+>> does it really make sense to treat efi_mm and init_mm differently in
+>> e.g. apply_to_pte_range()? Maybe what we really need is a way to tell if
+>> an mm corresponds to user memory or not, and never use split locks for
+>> non-user mm's. Feedback and suggestions welcome!
+> The difference in treatment is whether or not the ptl is taken, right? So the
+> real question is when calling apply_to_pte_range() for efi_mm, is there already
+> a higher level serialization mechanism that prevents racy accesses? For init_mm,
+> I think this is handled implicitly because there is no way for user space to
+> cause apply_to_pte_range() for an arbitrary piece of kernel memory. Although I
+> can't even see where apply_to_page_range() is called for efi_mm.
 
- # ./perf bench internals pmu-scan
- # Running 'internals/pmu-scan' benchmark:
- Computing performance of sysfs PMU event scan for 100 times
- double free or corruption (out)
- Aborted (core dumped)
- # gdb ./perf core.xxxx
- ....
- #9  0x00000000012fb57a in perf_pmu__delete (pmu=0x160e370 <tool>)
-     at util/pmu.c:2318
- #10 0x00000000012fbfca in perf_pmus__destroy () at util/pmus.c:103
- #11 0x0000000001186f72 in save_result () at bench/pmu-scan.c:71
- #12 0x00000000011873c2 in run_pmu_scan () at bench/pmu-scan.c:140
- #13 0x00000000011876a8 in bench_pmu_scan (argc=0, argv=0x3fff3a77338)
-     at bench/pmu-scan.c:183
- #14 0x0000000001174556 in run_bench (coll_name=0x14709ba "internals",
-     bench_name=0x1470700 "pmu-scan", fn=0x1187620 <bench_pmu_scan>,
-     argc=1, argv=0x3fff3a77338) at builtin-bench.c:229
- #15 0x0000000001174a1e in cmd_bench (argc=2, argv=0x3fff3a77330)
-     at builtin-bench.c:330
- ...
+The commit I mentioned above, 61444cde9170 ("ARM: 8591/1: mm: use fully
+constructed struct pages for EFI pgd allocations"), shows that
+apply_to_page_range() is called from efi_set_mapping_permissions(), and
+this indeed hasn't changed. It is itself called from efi_virtmap_init().
+I would expect that no locking at all is necessary here, since the
+mapping has just been created and surely isn't used yet. Now the
+question is where exactly init_mm is special-cased in this manner. I can
+see that walk_page_range() does something similar, there may be more
+cases. And the other question is whether those functions are ever used
+on special mm's, aside from efi_set_mapping_permissions().
+> FWIW, contpte.c has mm_is_user() which is used by arm64.
 
-The root cause is in PMU buildup. The PMUs are constructed via
+Interesting! But not pretty, that's basically checking that the mm is
+not &init_mm or &efi_mm... which wouldn't work for a generic
+implementation. It feels like adding some attribute to mm_struct
+wouldn't hurt. It looks like we've run out of MMF_* flags though :/
 
-  run_bench()
-  +--> bench_pmu_scan()
-       +--> run_pmu_scan()
-	    +--> save_result()
-	         +--> perf_pmus__scan()
-	              +--> pmu_read_sysfs()
-	                   +--> perf_pmus__tool_pmu()
-
-perf_pmus__tool_pmu() returns a pointer to a static defined variable:
-
-  static struct perf_pmu tool = {
-                .name = "tool",
-                .type = PERF_PMU_TYPE_TOOL,
-                .aliases = LIST_HEAD_INIT(tool.aliases),
-                .caps = LIST_HEAD_INIT(tool.caps),
-                .format = LIST_HEAD_INIT(tool.format),
-  };
-
-and that PMU is added to the list of other_cpus in file
-./util/pmus.c, function pmu_read_sysfs().
-
-Later on after the list of PMUs is constructed,
-that list is removed again via:
-
-   save_result()
-   +--> perf_pmus__destroy()
-	+--> perf_pmu__delete()
-
-This works fine until the PMU named "tool" is deleted.
-Its name is a constant pointer possibly located in read-only data
-section and can not be freed using zfree().
-
-Remedy this and check for dynamic memory allocation for the PMU.
-
-Background: s390 z/VM system do not support PMUs for sampling and
-counting. In this case dummy events are created by the perf tool
-and the PMUs "tool" and "fake" are created and freed.
-
-Fixes: efe98a7a3977 ("perf pmu: Use zfree() to reduce chances of use after free")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Ian Rogers <irogers@google.com>
----
- tools/perf/util/pmu.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
-index 6206c8fe2bf9..59cec4d2909e 100644
---- a/tools/perf/util/pmu.c
-+++ b/tools/perf/util/pmu.c
-@@ -2315,10 +2315,13 @@ void perf_pmu__delete(struct perf_pmu *pmu)
- 
- 	perf_cpu_map__put(pmu->cpus);
- 
--	zfree(&pmu->name);
--	zfree(&pmu->alias_name);
--	zfree(&pmu->id);
--	free(pmu);
-+	/* Static variables can not be free'ed */
-+	if (pmu->type != PERF_PMU_TYPE_TOOL && pmu->type != PERF_PMU_TYPE_FAKE) {
-+		zfree(&pmu->alias_name);
-+		zfree(&pmu->id);
-+		zfree(&pmu->name);
-+		free(pmu);
-+	}
- }
- 
- const char *perf_pmu__name_from_config(struct perf_pmu *pmu, u64 config)
--- 
-2.48.1
-
+- Kevin
