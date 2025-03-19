@@ -1,157 +1,151 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0896B209674;
-	Wed, 19 Mar 2025 02:42:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4A53C250BF6;
+	Wed, 19 Mar 2025 08:20:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742352143; cv=none; b=gyiEeb8ZeoQkQ5rCwL/aP/fegSP7M/tw4vwuHAVF6aKhW284N5GuE27YC1bRdFyU8OW09+gzkHfgtUXiiwvHgDVbS6V7m2ymjzpUIqzEABzUIOd8G8ZRS6E76aqqm2ihP4Q3aKQZunVQnKi8Nl2S+3zyonMQi92RndgkZGQKldI=
+	t=1742372406; cv=none; b=ny9fw6RmHy/pgwviwLs9LDxYKL8YYHB2XvZzOllM4ipdXUSw1UQGb7HaOcSEAefNCJMbR5HS0eLpi4vb1jyGRmJiyJGdP1hv3pRlmn+kJutOyU3XnFZFnrmMhn6igENy5KeCLNSihus0YpP0igameG5Fx4E9qi0iKYCMH/YKwCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742352143; c=relaxed/simple;
-	bh=Yj6T0X/2HCiSmRuSpotaTytF5PjAW7Yi0axKCWTjt/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rQBirkUnfVeViUiT+X+YpxztE6Ct5FYC55URWo6WDxdfZbixN5XfAgJXUWnrlGCMmLJU326vv/Oyl6Re+rACMDR/7H+CcJC1ydsIqZepPVCTcIohwkCT+vtOd9Bo3RvCWLx4OuXNqaHHii/YjiIH3u6ULjL7JeJJ3oHBr3PZeK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C4k6JwYU; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C4k6JwYU"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-225b5448519so121705365ad.0;
-        Tue, 18 Mar 2025 19:42:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742352141; x=1742956941; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=5LIIm36cccYbao7TAk4Hq5YU6PWgxen0Sg9TmOOAtlo=;
-        b=C4k6JwYUPbj4aijyOvNmBFMXiNILY+Sj79QvIQbvW9I3AFYdfLlhdbRXiKJ20Gw276
-         5vMufkXBNvk6JKceIEt9NPlDmUOxNmkHUQm09DlSQhM8BmxlvB2CUkAQXG/Jy6VHj9MG
-         fv3GPxREiJRQBFzEAqJO0gtZyiZmYl9cR1KSgSiFL1d0mNeARsjUeyHqjWvro9ICdIF2
-         SiqMgStNRuSXJgMcNE8rq6sKVSqoINemQdwI4RyDYiYbKz44JZmRTL+U8S9cEhCalm7m
-         jUUuHc28JieNPIBTADYqnZuAdRFYQh3A1WK0EtAcQGo/oYmBDuygcwaALeril8LyvFu3
-         7hQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742352141; x=1742956941;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5LIIm36cccYbao7TAk4Hq5YU6PWgxen0Sg9TmOOAtlo=;
-        b=dfK0k0wyF6ErvQAEI7beYO1mZJQl0rp8ZdlYEg2VAI2/JM9wkAQPRTOMSwTAoDUT+K
-         YyLE3rNY6W0XhqxrXGsRdHFif9jvbpMTPjZLw0z34lB7A5BcZ2B0yEZ7nQhqvskG5LSU
-         JTjoURrG6EVNHPfvXI//Py2KorUKU503vqS1IBQie+dtMhZAOYe5Y+TgMgNAMOJsIcCY
-         6E1Nu9xwkXi36tC4IQhPv1+Da/TIKgeD1w7ZZTLzPsCbMq5ECHRFAnwVF6OxIggk6BtJ
-         2OfKyf3cwJoppYc0NPu+rX7/rW0wD7H7+7zS/d8DSDxR4+D5DGua7Pwwc/+Ae0qQfvGU
-         J/fw==
-X-Forwarded-Encrypted: i=1; AJvYcCUL8ND8NFvDhJK5H6W0cBEeLjJW2/EtJyqYPz4G2WYrcOfPjnWU2sOv+BZHwHLyvNGIc8RQ4K5WM+jyRg==@vger.kernel.org, AJvYcCUqRgZy5C6HHt1WG4ku0hYsT4QM6gM9RT5x+ROKBQml5zmlw74mLSDiHqF0n/EsQgXNzcg14oR5W8E2aA==@vger.kernel.org, AJvYcCVHyKMexvtNEQ+uCup3nMzD4Cf3OKBKpdhzoIXr4freCJK3n8tFhCOXUjqfyvTOismAXrN3PoJdV8K8z/I=@vger.kernel.org, AJvYcCVgmA7WHVTsJ596pU4D3yKFIab7PBdmFVrfxTBDNiicI6bfaTbfZjvUsWoXe4sLRKiyUPlNsXto@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0DlTxGF74OHfn2L2GXTpU1CcZNtzBE36yjsW9z5A0ruSKxdQy
-	qoKRhKT0RKqEHlGsAsZ4SeSaO9OgH4ORH7JQ0XpgbauqJIHUOFDo
-X-Gm-Gg: ASbGncubJLF8oJJD+Acy5/7d643+eJoiVKb+WM02hPDtYG+w29FL/1aeu92ZRAXUuwM
-	l74V8KeEmEu3kwDqGvjdMAPkoQf95OzeAHDZfxWmwBYaaIijNWn0QZsUAVZaGaLkuicFn037UGC
-	kf1x+U+ZJWo+dcGbG0z/Und74fLQhAw5dCxe0AlK4hYkOFmAnlCWML06t9g2QRFoqYldVPN0eyi
-	qvmk7uUeKZ7e2yI+anH/CtU39NZTORKYFsMaapCP2mXe42ikjjgzE19sj5gBeImVC35M7FpHYiS
-	OKRhDBitb4UMMllE0ggnXa8P/RCILR73iQ7QYRhJHyLMwWPWg2C00RtyPPfwtQ==
-X-Google-Smtp-Source: AGHT+IFMTPVzGmKOB0374Xwm8ymMGdht9WZf9KthbF99f4vKTy64/tyWlMgtJ/3VRoo6H4DyUbtn7w==
-X-Received: by 2002:a17:902:d54a:b0:223:6657:5001 with SMTP id d9443c01a7336-22649c8fe35mr18839615ad.40.1742352141212;
-        Tue, 18 Mar 2025 19:42:21 -0700 (PDT)
-Received: from vaxr-BM6660-BM6360 ([2001:288:7001:2703:2ccc:91ef:96dd:9ad9])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-225c6bbfdfesm102855595ad.203.2025.03.18.19.42.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Mar 2025 19:42:20 -0700 (PDT)
-Date: Wed, 19 Mar 2025 10:42:09 +0800
-From: I Hsin Cheng <richard120310@gmail.com>
-To: Wenjia Zhang <wenjia@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, alibuda@linux.alibaba.com,
-	jaka@linux.ibm.com, mjambigi@linux.ibm.com, sidraya@linux.ibm.com,
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
-	jserv@ccns.ncku.edu.tw, linux-kernel-mentees@lists.linux.dev
-Subject: Re: [PATCH] net/smc: Reduce size of smc_wr_tx_tasklet_fn
-Message-ID: <Z9ovAYqk8lESCug2@vaxr-BM6660-BM6360>
-References: <20250315062516.788528-1-richard120310@gmail.com>
- <66ce34a0-b79d-4ef0-bdd5-982e139571f1@linux.ibm.com>
- <20250317135631.21754E85-hca@linux.ibm.com>
- <6191739c-93db-4a7d-8e83-3168909315cd@linux.ibm.com>
+	s=arc-20240116; t=1742372406; c=relaxed/simple;
+	bh=9OlvM4XUWWvrHJOd2iYbZSXPoeKrvur3cTL1QmV2LNQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=jGPJqRUmdTHdWfAUsr7ntxP/W8arq3G/Iffg08MrASUp/VinXPonljuAYzkK09NwFa5LW256RcQKiQlbpa3nO9gVg/akVdb+kbdE6zGg2iHxeMZU/vNdIWv3DZnmvfggYrbvm7+1mN8FpBwV1uXHo4CO0bx/W3CS98Eh0Msc7N8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+	by localhost (Postfix) with ESMTP id 4ZHh8p3p47z9sSY;
+	Wed, 19 Mar 2025 09:05:30 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5Pdv_1f5SWZW; Wed, 19 Mar 2025 09:05:30 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4ZHh8p2Mb8z9sSX;
+	Wed, 19 Mar 2025 09:05:30 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 2617E8B78F;
+	Wed, 19 Mar 2025 09:05:30 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+	with ESMTP id K6S1MuFrSThd; Wed, 19 Mar 2025 09:05:30 +0100 (CET)
+Received: from [192.168.235.99] (unknown [192.168.235.99])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 585CB8B763;
+	Wed, 19 Mar 2025 09:05:28 +0100 (CET)
+Message-ID: <a64bf821-ea90-4fd9-92ec-13bf7b7a3067@csgroup.eu>
+Date: Wed, 19 Mar 2025 09:05:27 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 07/14] arm64: Add support for suppressing warning
+ backtraces
+To: Will Deacon <will@kernel.org>, Alessandro Carminati <acarmina@redhat.com>
+Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
+ Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ma=C3=ADra_Canal?=
+ <mcanal@igalia.com>, Dan Carpenter <dan.carpenter@linaro.org>,
+ Kees Cook <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>,
+ David Gow <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>,
+ Brendan Higgins <brendan.higgins@linux.dev>,
+ Naresh Kamboju <naresh.kamboju@linaro.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
+ <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Guenter Roeck <linux@roeck-us.net>,
+ Alessandro Carminati <alessandro.carminati@gmail.com>,
+ Jani Nikula <jani.nikula@intel.com>, dri-devel@lists.freedesktop.org,
+ kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ loongarch@lists.linux.dev, x86@kernel.org,
+ Linux Kernel Functional Testing <lkft@linaro.org>,
+ Catalin Marinas <catalin.marinas@arm.com>
+References: <20250313114329.284104-1-acarmina@redhat.com>
+ <20250313114329.284104-8-acarmina@redhat.com>
+ <20250313122503.GA7438@willie-the-truck>
+ <CAGegRW5r3V2-_44-X353vS-GZwDYG=SVwc6MzSGE8GdFQuFoKA@mail.gmail.com>
+ <20250318155946.GC13829@willie-the-truck>
+Content-Language: fr-FR
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+In-Reply-To: <20250318155946.GC13829@willie-the-truck>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <6191739c-93db-4a7d-8e83-3168909315cd@linux.ibm.com>
 
-On Tue, Mar 18, 2025 at 09:43:07AM +0100, Wenjia Zhang wrote:
+
+
+Le 18/03/2025 à 16:59, Will Deacon a écrit :
+> On Thu, Mar 13, 2025 at 05:40:59PM +0100, Alessandro Carminati wrote:
+>> On Thu, Mar 13, 2025 at 1:25 PM Will Deacon <will@kernel.org> wrote:
+>>>
+>>> On Thu, Mar 13, 2025 at 11:43:22AM +0000, Alessandro Carminati wrote:
+>>>> diff --git a/arch/arm64/include/asm/bug.h b/arch/arm64/include/asm/bug.h
+>>>> index 28be048db3f6..044c5e24a17d 100644
+>>>> --- a/arch/arm64/include/asm/bug.h
+>>>> +++ b/arch/arm64/include/asm/bug.h
+>>>> @@ -11,8 +11,14 @@
+>>>>
+>>>>   #include <asm/asm-bug.h>
+>>>>
+>>>> +#ifdef HAVE_BUG_FUNCTION
+>>>> +# define __BUG_FUNC  __func__
+>>>> +#else
+>>>> +# define __BUG_FUNC  NULL
+>>>> +#endif
+>>>> +
+>>>>   #define __BUG_FLAGS(flags)                           \
+>>>> -     asm volatile (__stringify(ASM_BUG_FLAGS(flags)));
+>>>> +     asm volatile (__stringify(ASM_BUG_FLAGS(flags, %c0)) : : "i" (__BUG_FUNC));
+>>>
+>>> Why is 'i' the right asm constraint to use here? It seems a bit odd to
+>>> use that for a pointer.
+>>
+>> I received this code as legacy from a previous version.
+>> In my review, I considered the case when HAVE_BUG_FUNCTION is defined:
+>> Here, __BUG_FUNC is defined as __func__, which is the name of the
+>> current function as a string literal.
+>> Using the constraint "i" seems appropriate to me in this case.
+>>
+>> However, when HAVE_BUG_FUNCTION is not defined:
+>> __BUG_FUNC is defined as NULL. Initially, I considered it literal 0,
+>> but after investigating your concern, I found:
+>>
+>> ```
+>> $ echo -E "#include <stdio.h>\n#include <stddef.h>\nint main()
+>> {\nreturn 0;\n}" | aarch64-linux-gnu-gcc -E -dM - | grep NULL
+>> #define NULL ((void *)0)
+>> ```
+>>
+>> I realized that NULL is actually a pointer that is not a link time
+>> symbol, and using the "i" constraint with NULL may result in undefined
+>> behavior.
+>>
+>> Would the following alternative definition for __BUG_FUNC be more convincing?
+>>
+>> ```
+>> #ifdef HAVE_BUG_FUNCTION
+>>      #define __BUG_FUNC __func__
+>> #else
+>>      #define __BUG_FUNC (uintptr_t)0
+>> #endif
+>> ```
+>> Let me know your thoughts.
 > 
-> 
-> On 17.03.25 14:56, Heiko Carstens wrote:
-> > On Mon, Mar 17, 2025 at 12:22:46PM +0100, Wenjia Zhang wrote:
-> > > 
-> > > 
-> > > On 15.03.25 07:25, I Hsin Cheng wrote:
-> > > > The variable "polled" in smc_wr_tx_tasklet_fn is a counter to determine
-> > > > whether the loop has been executed for the first time. Refactor the type
-> > > > of "polled" from "int" to "bool" can reduce the size of generated code
-> > > > size by 12 bytes shown with the test below
-> > > > 
-> > > > $ ./scripts/bloat-o-meter vmlinux_old vmlinux_new
-> > > > add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-12 (-12)
-> > > > Function                                     old     new   delta
-> > > > smc_wr_tx_tasklet_fn                        1076    1064     -12
-> > > > Total: Before=24795091, After=24795079, chg -0.00%
-> > > > 
-> > > > In some configuration, the compiler will complain this function for
-> > > > exceeding 1024 bytes for function stack, this change can at least reduce
-> > > > the size by 12 bytes within manner.
-> > > > 
-> > > The code itself looks good. However, I’m curious about the specific
-> > > situation where the compiler complained. Also, compared to exceeding the
-> > > function stack limit by 1024 bytes, I don’t see how saving 12 bytes would
-> > > bring any significant benefit.
-> > 
-> > The patch description doesn't make sense: bloat-a-meter prints the _text
-> > size_ difference of two kernels, which really has nothing to do with
-> > potential stack size savings.
-> > 
-> > If there are any changes in stack size with this patch is unknown; at least
-> > if you rely only on the patch description.
-> > 
-> > You may want to have a look at scripts/stackusage and scripts/stackdelta.
-> 
-> @Heiko, thank you for pointing it out!
-> 
-> Even if the potential stack size saving of 12 bytes were true, I still don’t
-> see how it would benefit our code, let alone justify the incorrect argument.
->
+> Thanks for the analysis; I hadn't noticed this specific issue, it just
+> smelled a bit fishy. Anyway, the diff above looks better, thanks.
 
-Hi Heiko, Wenjia,
+That propably deserves a comment.
 
-Thanks for your kindly review!
+Doesn't sparse and/or checkpatch complain about 0 being used in lieu of 
+NULL ?
 
-> > If there are any changes in stack size with this patch is unknown; at least
-> > if you rely only on the patch description.
-> >
-> > You may want to have a look at scripts/stackusage and scripts/stackdelta.
+By the way I had similar problem in the past with GCC not seeing NULL as 
+a __builtin_constant_p(), refer commit 1d8f739b07bd ("powerpc/kuap: Fix 
+set direction in allow/prevent_user_access()")
 
-Thanks for this, really appreciate! I'll try it out and see is there
-anything different.
-
-> Even if the potential stack size saving of 12 bytes were true, I still don’t
-> see how it would benefit our code, let alone justify the incorrect argument.
-
-Hmm I suppose smaller memory footprint can benefit the performace,
-though I agree it won't be significant. I'm not sure how to do
-performance test on this function, would you be so kind to suggest some
-ideas for me to test out.
-
-And I want to ask why's the argument incorrect? since I only change the
-type of "polled", maybe you mean "polled" itself should be an integer
-type?
-
-Best regards,
-I Hsin Cheng
-
+Christophe
