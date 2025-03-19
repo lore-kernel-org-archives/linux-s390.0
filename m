@@ -1,67 +1,60 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14AEF255241;
-	Wed, 19 Mar 2025 13:11:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB74C25A354;
+	Wed, 19 Mar 2025 13:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742389893; cv=none; b=IlN79BWTjoX6BI6ncao+GcXrBdePOiBqRfeqwzESJHzmsZobzr5E2IIhRiIubO4AAEqx7IBlcvm5zpD9mdi/hqJw7SxlarTiNx6tPbxLiQ7Sc6xJDK8xgct4aLOZxWr5ZTa+3i0t2+QsD1JXtULJEN2+UCZfKW4wW8ciFDWhWM8=
+	t=1742391699; cv=none; b=j0kOfIc3ZKlBYu+9BPGTmKDnSRqSogZu9K+vmwGYEWTRhYBqxsz6otFL+fFoTPLLM5NDBoD+Ux5JAlrxQq921Mc+S9Fehmbdh6iOG0YaWnC764bIQLEbAbIOrU7xs4cAEbPoSSuKCXdFujlYuCoROTyYQ+kLkCVc17UdvSv8aD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742389893; c=relaxed/simple;
-	bh=7z2QeMdxOzSLIrBnl1x85KA6hGxJO1bQRKSWgGeuNPY=;
+	s=arc-20240116; t=1742391699; c=relaxed/simple;
+	bh=gW6CRx7BC58S2vQv2J+FLFZ369uSrjJrDiLMG07+3rY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kHa+jktQsEXzH4jMyPE/5xwu7MuMEe0OYfXupnGA966KeJ55XvSCRWrqnyP+aj2fZ1i0vQ1zyDjlTdtIZLfQVJE6f40pVqVDK6M48OemE20c6pXJXtQCX9R4OJoqHSlFanhsnPODjFhW/vWm8Kc2QT8eIZpEBukLtItuQXVLCN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lYkmuEQ8; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=MxkQKiR0zMlsSk9RjagqmdFOg59gf0/ohGUQ318giTuH3hFpg3iTl4///QSF4LBWf1J21XRL796LumaSwfYhi9NVUesKTv5tSR46MhA2xzfftk+n72OUBELq0739dvCUlTTJtHc8KKM6OkFvjRLlK3fov3yDznkF1/H8tPUbMB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=a+61MMSc; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lYkmuEQ8"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-225b5448519so129846215ad.0;
-        Wed, 19 Mar 2025 06:11:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742389891; x=1742994691; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=/CKiUxIsp+RiAjt+4CW+mXa9kqAZnMY4uY5XJZebADk=;
-        b=lYkmuEQ8CEZI6JXXHtorSYZXxt9Ut2R1PEpbpXU1Ww2yK6p5GHOlJlZB4RBDPf29ch
-         de58a79TsN2XlwmlFBZfCZluZPs5Ft/AMhqa9QshhjopFHGvbdkVHLjQ6+XZFD7mkxj1
-         xctmlt9ytGKTOPSVa2fxu3diZrgr24rTYF6+Mexcu2YFCYpQ+zWEu4JyviJIa9lNTcB8
-         JekgjqMyKsG3l1CEJv7ouUqK1sD0/BoxSoqPpGHqIw8lv9CeS8v2pitzP7N757+PjfWm
-         /h6qBlHWZL8AIFf5fgikKy90L/dKv/ZDj4eLhOzj/OTSdIbsF/mL9ucIGfYVMlAqhu6i
-         VaHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742389891; x=1742994691;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:sender:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/CKiUxIsp+RiAjt+4CW+mXa9kqAZnMY4uY5XJZebADk=;
-        b=YhYSJOzUsDEsFmBReA2dq8toJtPImagDk+X/HyzvZ/xJxTTw53TO9nJhSLo06GS2KX
-         tx5zHThJkli+hEC+B3LDD+Mhd1ruft5AU7KnagXbF1+twIFD4gpUFYuVcVwjwH9ViZnP
-         akYomnB8oVIQTFPcL/HPfYujDPAxxh9DPZy86NLQ3KBsz8aKlcRAkmETvdR4UeBvIz8v
-         qdsS9MPN1NP6zkVxSfcP2d20rc/1pPVKl3qP3hhTedCuWAzL2+4qb8yGXl/ixVnRx45Q
-         +a498PTir8I/uln8fbMAhG747by/WrqKr9UVwS7K6pzbeuLg0xIGE3Tc/g3bCJIzcRPu
-         C3yg==
-X-Forwarded-Encrypted: i=1; AJvYcCU3gxdscukephkn1jklkrLZw5XU5OdxTb3szaAdztN/bN3yPsGcshgbf5rWbuNPtbIlnQeOIBAPZLQYW2li@vger.kernel.org, AJvYcCV6ZYrnkS9mh5kJGisEoLgdQUsVb3hs7RDLph4yFLerFpoSuf5FTyJ5n0eIdKGAVF1/HBWLjcSC6j8=@vger.kernel.org, AJvYcCVQL+VOhV0HUk7cj5ZYHBB+ZVbKG/CWdINS4ZluyFMtaf/XuMkJOpa1j9R6k2lqeYwlWdYIVyLzXUEpsA==@vger.kernel.org, AJvYcCVXqlgTOa57XG9b8zVX/9O+PYrAO6kN3k3DSePMy072kN/kmSv2wNGyLTKZT1JWFHnB1CrlS6zw7c2+@vger.kernel.org, AJvYcCWWegHkOdQRrEvN5eB7s7fQVvYrzjYDe7Ktfb1InySdtND6s8Yyg/pDkrlhwGgkHLdYzLixRz/0ZRLY@vger.kernel.org, AJvYcCXGy5RKjnjMhrLfgiCB7g5JPj6Z1Uulo+JLvnYo+ub4BtbTrEwwudIs5/WT2YPlL7CY92NahenKHTq4tyKC@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGzWgvjbfMCS8rF4v9kYtdMHOu0RIC6EhioanqjX9G3+zEM8Xf
-	9b582tIQrmMf6C4ZPRmZdYbmn5fwjYFwIC4E4NFw7GLgYUPof3J5
-X-Gm-Gg: ASbGncthkRo9Tl1Q6LAbVCLknRGZ9RDj7jS+QuSxacFSCbeof8NjpItztrt+yXqy/M+
-	ZjAoMlm2Kwgub1nJmENJlDlntpzejKEUV1tWR3luOldphZPHWNebvsOaRST7C68NBkIBQVsYr6o
-	LpBKIat0KvTh3eNWm0iexTY1msZ/YN7yIjOHSElWRfh6aulXBk6igmYH3s+5YFNudWksjdXq9hZ
-	Pbd/KELj9zW7esswGfLfvm5J+z0Uxuds7GwNsTvYl3r8UC0jHTU1KB13MyaolTtYKSU4dHcnsA6
-	FXCqSajhx0dKaeUN6JN9UG2Mfo6m4HNealyCVN79n/88aeEYMQH+DyNxXO3eJqm06adyA9xOpbL
-	4HZpVygDeZI9x5rqE5A==
-X-Google-Smtp-Source: AGHT+IEioVgtuSEfAYuAE8IAAYiDjsUn61PAgb/S9UQkSNM/19B6DRuSeEADVUHZxIm2XFZUlNalCg==
-X-Received: by 2002:a05:6a21:6e48:b0:1f5:839e:ece8 with SMTP id adf61e73a8af0-1fbeb1854bcmr4348609637.2.1742389891204;
-        Wed, 19 Mar 2025 06:11:31 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7371157369bsm11469895b3a.75.2025.03.19.06.11.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Mar 2025 06:11:30 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <9030a298-fcb6-48ea-a941-ad6916bf9fa7@roeck-us.net>
-Date: Wed, 19 Mar 2025 06:11:28 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="a+61MMSc"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52J8I1Oi004185;
+	Wed, 19 Mar 2025 13:41:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=dG63/V
+	hL+avs1TIfXixqD2sqNvJm/MWOcqzN8pTq868=; b=a+61MMScuuZK3NgKpY78T9
+	iszHkCDEnwWSrEzN2HQW9GphGM8P9gkJAPd8/8QpKLIcLdz2Ic2X5YyniiEGjgO7
+	hooImjW/YyD2v9M+q8STekz7sfTfDJhHAR/vzmLjRDzXJL1uK9LC4rrcH9EolPd4
+	lTVGjzPYsgXS1bRu3cSgWaiAsd6IX1mF8MZUMgeSQmLyGBPYUyRKb9fC2DiKaDcK
+	J0x1RlwH0PAr+B/Rqkj9k4pB43DTguGiDYVmpIeGorv7LNaNipYiUIgvzE0thVj2
+	BonmzAth3xRcNzHGArCsm9vHthW3aoMpATyz/lmMvd4utNxX3kTz3+52VAUnyW0w
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45ft9vsn0g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 13:41:35 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52JCR7tt012447;
+	Wed, 19 Mar 2025 13:41:34 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45dmvp1vtq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 13:41:34 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52JDfUIj32047740
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Mar 2025 13:41:30 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 96F7B2004E;
+	Wed, 19 Mar 2025 13:41:30 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 25FB42004B;
+	Wed, 19 Mar 2025 13:41:30 +0000 (GMT)
+Received: from [9.171.30.147] (unknown [9.171.30.147])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Mar 2025 13:41:30 +0000 (GMT)
+Message-ID: <47c6f4b7-b8a6-4b20-b915-1c4c2d9e7c74@linux.ibm.com>
+Date: Wed, 19 Mar 2025 14:41:29 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,164 +62,246 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 07/14] arm64: Add support for suppressing warning
- backtraces
-To: Christophe Leroy <christophe.leroy@csgroup.eu>,
- Will Deacon <will@kernel.org>, Alessandro Carminati <acarmina@redhat.com>
-Cc: linux-kselftest@vger.kernel.org, David Airlie <airlied@gmail.com>,
- Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Ma=C3=ADra_Canal?=
- <mcanal@igalia.com>, Dan Carpenter <dan.carpenter@linaro.org>,
- Kees Cook <keescook@chromium.org>, Daniel Diaz <daniel.diaz@linaro.org>,
- David Gow <davidgow@google.com>, Arthur Grillo <arthurgrillo@riseup.net>,
- Brendan Higgins <brendan.higgins@linux.dev>,
- Naresh Kamboju <naresh.kamboju@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Andrew Morton <akpm@linux-foundation.org>, Maxime Ripard
- <mripard@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
- <ville.syrjala@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Alessandro Carminati <alessandro.carminati@gmail.com>,
- Jani Nikula <jani.nikula@intel.com>, dri-devel@lists.freedesktop.org,
- kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- loongarch@lists.linux.dev, x86@kernel.org,
- Linux Kernel Functional Testing <lkft@linaro.org>,
- Catalin Marinas <catalin.marinas@arm.com>
-References: <20250313114329.284104-1-acarmina@redhat.com>
- <20250313114329.284104-8-acarmina@redhat.com>
- <20250313122503.GA7438@willie-the-truck>
- <CAGegRW5r3V2-_44-X353vS-GZwDYG=SVwc6MzSGE8GdFQuFoKA@mail.gmail.com>
- <20250318155946.GC13829@willie-the-truck>
- <a64bf821-ea90-4fd9-92ec-13bf7b7a3067@csgroup.eu>
+Subject: Re: [PATCH RFC 3/5] KVM: s390: Shadow VSIE SCA in guest-1
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Nico Boehr <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org
+References: <20250318-vsieie-v1-0-6461fcef3412@linux.ibm.com>
+ <20250318-vsieie-v1-3-6461fcef3412@linux.ibm.com>
 Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-In-Reply-To: <a64bf821-ea90-4fd9-92ec-13bf7b7a3067@csgroup.eu>
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20250318-vsieie-v1-3-6461fcef3412@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Y-jRBs1_HwGbLd5iv_6tQmRX4kDNXTck
+X-Proofpoint-GUID: Y-jRBs1_HwGbLd5iv_6tQmRX4kDNXTck
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-19_05,2025-03-19_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=733 spamscore=0
+ suspectscore=0 mlxscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
+ adultscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503190092
 
-On 3/19/25 01:05, Christophe Leroy wrote:
+On 3/18/25 7:59 PM, Christoph Schlameuss wrote:
+> Introduce a new shadow_sca function into kvm_s390_handle_vsie.
+> kvm_s390_handle_vsie is called within guest-1 when guest-2 initiates the
+> VSIE.
 > 
+> shadow_sca and unshadow_sca create and manage ssca_block structs in
+> guest-1 memory. References to the created ssca_blocks are kept within an
+> array and limited to the number of cpus. This ensures each VSIE in
+> execution can have its own SCA. Having the amount of shadowed SCAs
+> configurable above this is left to another patch.
 > 
-> Le 18/03/2025 à 16:59, Will Deacon a écrit :
->> On Thu, Mar 13, 2025 at 05:40:59PM +0100, Alessandro Carminati wrote:
->>> On Thu, Mar 13, 2025 at 1:25 PM Will Deacon <will@kernel.org> wrote:
->>>>
->>>> On Thu, Mar 13, 2025 at 11:43:22AM +0000, Alessandro Carminati wrote:
->>>>> diff --git a/arch/arm64/include/asm/bug.h b/arch/arm64/include/asm/bug.h
->>>>> index 28be048db3f6..044c5e24a17d 100644
->>>>> --- a/arch/arm64/include/asm/bug.h
->>>>> +++ b/arch/arm64/include/asm/bug.h
->>>>> @@ -11,8 +11,14 @@
->>>>>
->>>>>   #include <asm/asm-bug.h>
->>>>>
->>>>> +#ifdef HAVE_BUG_FUNCTION
->>>>> +# define __BUG_FUNC  __func__
->>>>> +#else
->>>>> +# define __BUG_FUNC  NULL
->>>>> +#endif
->>>>> +
->>>>>   #define __BUG_FLAGS(flags)                           \
->>>>> -     asm volatile (__stringify(ASM_BUG_FLAGS(flags)));
->>>>> +     asm volatile (__stringify(ASM_BUG_FLAGS(flags, %c0)) : : "i" (__BUG_FUNC));
->>>>
->>>> Why is 'i' the right asm constraint to use here? It seems a bit odd to
->>>> use that for a pointer.
->>>
->>> I received this code as legacy from a previous version.
->>> In my review, I considered the case when HAVE_BUG_FUNCTION is defined:
->>> Here, __BUG_FUNC is defined as __func__, which is the name of the
->>> current function as a string literal.
->>> Using the constraint "i" seems appropriate to me in this case.
->>>
->>> However, when HAVE_BUG_FUNCTION is not defined:
->>> __BUG_FUNC is defined as NULL. Initially, I considered it literal 0,
->>> but after investigating your concern, I found:
->>>
->>> ```
->>> $ echo -E "#include <stdio.h>\n#include <stddef.h>\nint main()
->>> {\nreturn 0;\n}" | aarch64-linux-gnu-gcc -E -dM - | grep NULL
->>> #define NULL ((void *)0)
->>> ```
->>>
->>> I realized that NULL is actually a pointer that is not a link time
->>> symbol, and using the "i" constraint with NULL may result in undefined
->>> behavior.
->>>
->>> Would the following alternative definition for __BUG_FUNC be more convincing?
->>>
->>> ```
->>> #ifdef HAVE_BUG_FUNCTION
->>>      #define __BUG_FUNC __func__
->>> #else
->>>      #define __BUG_FUNC (uintptr_t)0
->>> #endif
->>> ```
->>> Let me know your thoughts.
->>
->> Thanks for the analysis; I hadn't noticed this specific issue, it just
->> smelled a bit fishy. Anyway, the diff above looks better, thanks.
+> SCAOL/H in the VSIE control block are overwritten with references to the
+> shadow SCA. The original SCA pointer is saved in the vsie_page and
+> restored on VSIE exit. This limits the amount of change in the
+> preexisting VSIE pin and shadow functions.
 > 
-> That propably deserves a comment.
+> The shadow SCA contains the addresses of the original guest-3 SCA as
+> well as the original VSIE control blocks. With these addresses the
+> machine can directly monitor the intervention bits within the original
+> SCA entries.
 > 
-> Doesn't sparse and/or checkpatch complain about 0 being used in lieu of NULL ?
+> The ssca_blocks are also kept within a radix tree to reuse already
+> existing ssca_blocks efficiently. While the radix tree and array with
+> references to the ssca_blocks are held in kvm_s390_vsie.
+> The use of the ssca_blocks is tracked using an ref_count on the block
+> itself.
 > 
+> No strict mapping between the guest-1 vcpu and guest-3 vcpu is enforced.
+> Instead each VSIE entry updates the shadow SCA creating a valid mapping
+> for all cpus currently in VSIE.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/kvm_host.h |  22 +++-
+>   arch/s390/kvm/vsie.c             | 264 ++++++++++++++++++++++++++++++++++++++-
+>   2 files changed, 281 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index 0aca5fa01f3d772c3b3dd62a22134c0d4cb9dc22..4ab196caa9e79e4c4d295d23fed65e1a142e6ab1 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -29,6 +29,7 @@
+>   #define KVM_S390_BSCA_CPU_SLOTS 64
+>   #define KVM_S390_ESCA_CPU_SLOTS 248
+>   #define KVM_MAX_VCPUS 255
+> +#define KVM_S390_MAX_VCPUS 256
 
-__BUG_FUNC is only used as parameter to asm code, not as pointer.
+#define KVM_S390_SSCA_CPU_SLOTS 256
 
- From the diff:
+Yes, I'm aware, that ESCA and MAX_VCPUS are pretty confusing.
+I'm searching for solutions but they might take a while.
 
--                    : : "i" (__FILE__), "i" (__LINE__),                \
-+                    : : "i" (__FILE__), "i" (__BUG_FUNC), "i" (__LINE__),\
+>   
+>   #define KVM_INTERNAL_MEM_SLOTS 1
+>   
+> @@ -137,13 +138,23 @@ struct esca_block {
+>   
+>   /*
+>    * The shadow sca / ssca needs to cover both bsca and esca depending on what the
+> - * guest uses so we use KVM_S390_ESCA_CPU_SLOTS.
+> + * guest uses so we allocate space for 256 entries that are defined in the
+> + * architecture.
+>    * The header part of the struct must not cross page boundaries.
+>    */
+>   struct ssca_block {
+>   	__u64	osca;
+>   	__u64	reserved08[7];
+> -	struct ssca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
+> +	struct ssca_entry cpu[KVM_S390_MAX_VCPUS];
 
-The use is quite similar to __FILE__ and __LINE__. It might even be possible
-and appropriate to just define __BUG_FUNC as 0 if HAVE_BUG_FUNCTION is not defined.
+This should have been resolved in the previous patch, no?
 
-Guenter
+> +};
+> +
+> +/*
+> + * Store the vsie ssca block and accompanied management data.
+> + */
+> +struct ssca_vsie {
+> +	struct ssca_block ssca;			/* 0x0000 */
+> +	__u8	reserved[0x2200 - 0x2040];	/* 0x2040 */
+> +	atomic_t ref_count;			/* 0x2200 */
+>   };
+>   
+
+[...]
+
+>   void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, unsigned long start,
+>   				 unsigned long end)
+>   {
+> @@ -699,6 +932,9 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   
+>   	hpa = (u64) scb_s->scaoh << 32 | scb_s->scaol;
+>   	if (hpa) {
+> +		/* with vsie_sigpif scaoh/l was pointing to g1 ssca_block but
+> +		 * should have been reset in unshadow_sca()
+> +		 */
+
+There shouldn't be text in the first or last line of multi-line comments.
+
+>   		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
+>   		vsie_page->sca_gpa = 0;
+>   		scb_s->scaol = 0;
+> @@ -775,6 +1011,9 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>   		if (rc)
+>   			goto unpin;
+>   		vsie_page->sca_gpa = gpa;
+> +		/* with vsie_sigpif scaoh and scaol will be overwritten
+> +		 * in shadow_sca to point to g1 ssca_block instead
+> +		 */
+
+Same
+
+>   		scb_s->scaoh = (u32)((u64)hpa >> 32);
+>   		scb_s->scaol = (u32)(u64)hpa;
+>   	}
+> @@ -1490,12 +1729,17 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
+>   		goto out_unpin_scb;
+>   	rc = pin_blocks(vcpu, vsie_page);
+>   	if (rc)
+> -		goto out_unshadow;
+> +		goto out_unshadow_scb;
+> +	rc = shadow_sca(vcpu, vsie_page);
+> +	if (rc)
+> +		goto out_unpin_blocks;
+>   	register_shadow_scb(vcpu, vsie_page);
+>   	rc = vsie_run(vcpu, vsie_page);
+>   	unregister_shadow_scb(vcpu);
+
+For personal preference I'd like to have a \n here to visually separate 
+the cleanup from the rest of the code.
+
+> +	unshadow_sca(vcpu, vsie_page);
+> +out_unpin_blocks:
+>   	unpin_blocks(vcpu, vsie_page);
+> -out_unshadow:
+> +out_unshadow_scb:
+>   	unshadow_scb(vcpu, vsie_page);
+>   out_unpin_scb:
+>   	unpin_scb(vcpu, vsie_page, scb_addr);
+> @@ -1510,12 +1754,15 @@ void kvm_s390_vsie_init(struct kvm *kvm)
+>   {
+>   	mutex_init(&kvm->arch.vsie.mutex);
+>   	INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_KERNEL_ACCOUNT);
+> +	init_rwsem(&kvm->arch.vsie.ssca_lock);
+> +	INIT_RADIX_TREE(&kvm->arch.vsie.osca_to_ssca, GFP_KERNEL_ACCOUNT);
+>   }
+>   
+>   /* Destroy the vsie data structures. To be called when a vm is destroyed. */
+>   void kvm_s390_vsie_destroy(struct kvm *kvm)
+>   {
+>   	struct vsie_page *vsie_page;
+> +	struct ssca_vsie *ssca;
+>   	int i;
+>   
+>   	mutex_lock(&kvm->arch.vsie.mutex);
+> @@ -1531,6 +1778,17 @@ void kvm_s390_vsie_destroy(struct kvm *kvm)
+>   	}
+>   	kvm->arch.vsie.page_count = 0;
+>   	mutex_unlock(&kvm->arch.vsie.mutex);
+> +
+> +	down_write(&kvm->arch.vsie.ssca_lock);
+> +	for (i = 0; i < kvm->arch.vsie.ssca_count; i++) {
+> +		ssca = kvm->arch.vsie.sscas[i];
+> +		kvm->arch.vsie.sscas[i] = NULL;
+> +		radix_tree_delete(&kvm->arch.vsie.osca_to_ssca,
+> +				  (u64)phys_to_virt(ssca->ssca.osca));
+> +		free_pages((unsigned long)ssca, SSCA_PAGEORDER);
+> +	}
+> +	kvm->arch.vsie.ssca_count = 0;
+> +	up_write(&kvm->arch.vsie.ssca_lock);
+>   }
+>   
+>   void kvm_s390_vsie_kick(struct kvm_vcpu *vcpu)
+> 
 
