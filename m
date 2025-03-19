@@ -1,153 +1,157 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A935AF9DA
-	for <linux-s390@vger.kernel.org>; Tue, 18 Mar 2025 22:26:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0896B209674;
+	Wed, 19 Mar 2025 02:42:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742336821; cv=none; b=UWXDpPV1iMWCGw+qN9jjdaLF2ztEFh8vRXMNN9MPwSVuD0GlordYP5ihoxK6GmXdapoLJbk3YLGQqZkGSR8O36JQIYC+E7byDmlZPoZ5Gj9u5Wf/nYywXgC4WFCNszHxqmMaFzx/EsJOXR4VtNitGPc7tDRTB2hopnZ0XrXnuxA=
+	t=1742352143; cv=none; b=gyiEeb8ZeoQkQ5rCwL/aP/fegSP7M/tw4vwuHAVF6aKhW284N5GuE27YC1bRdFyU8OW09+gzkHfgtUXiiwvHgDVbS6V7m2ymjzpUIqzEABzUIOd8G8ZRS6E76aqqm2ihP4Q3aKQZunVQnKi8Nl2S+3zyonMQi92RndgkZGQKldI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742336821; c=relaxed/simple;
-	bh=EPvTZvQhRHUGCEVFcynstiCefy/8+3K395i7ASRUf9o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=J9IbjCP79yNOXzSSkgNWWcRHNhieC9krnjoKBDHpzyJy6EIKTbw/9RmzED4kSwCO27KaJWwtSy2s434ejmmQEnJSRiAZBNmqmoA95IGWv88fQKMcTYdOf3m9KWxLtRrKEtbcXc326fxEg4RonPENkkMNxy7qNMSB+dDY87Arrjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FU6yTr7I; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742352143; c=relaxed/simple;
+	bh=Yj6T0X/2HCiSmRuSpotaTytF5PjAW7Yi0axKCWTjt/I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rQBirkUnfVeViUiT+X+YpxztE6Ct5FYC55URWo6WDxdfZbixN5XfAgJXUWnrlGCMmLJU326vv/Oyl6Re+rACMDR/7H+CcJC1ydsIqZepPVCTcIohwkCT+vtOd9Bo3RvCWLx4OuXNqaHHii/YjiIH3u6ULjL7JeJJ3oHBr3PZeK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C4k6JwYU; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FU6yTr7I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742336817;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=BJVFLhRfFbH1bQJMOV/BNGlUJZXnijES874Ix3jfTjA=;
-	b=FU6yTr7IaGzkinO99DrG1LAmzDG8O0LFRuiXC6cXRujBAQSlo7+rmxaSAdt0OyKq7YzyPD
-	O0h0pF5yovdyoj2bURqetuwy919WdNSZwfsmj9MBab+LwHiSFqbaKhVAVqJ1FaOPe4sO1M
-	OHIJuqC49OuT5/xrwpcaQCySwGgdp4I=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-47-dRF-rZ4XO-CLqL1YfS9QSQ-1; Tue, 18 Mar 2025 18:26:53 -0400
-X-MC-Unique: dRF-rZ4XO-CLqL1YfS9QSQ-1
-X-Mimecast-MFC-AGG-ID: dRF-rZ4XO-CLqL1YfS9QSQ_1742336813
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-39126c3469fso2801760f8f.3
-        for <linux-s390@vger.kernel.org>; Tue, 18 Mar 2025 15:26:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C4k6JwYU"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-225b5448519so121705365ad.0;
+        Tue, 18 Mar 2025 19:42:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742352141; x=1742956941; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=5LIIm36cccYbao7TAk4Hq5YU6PWgxen0Sg9TmOOAtlo=;
+        b=C4k6JwYUPbj4aijyOvNmBFMXiNILY+Sj79QvIQbvW9I3AFYdfLlhdbRXiKJ20Gw276
+         5vMufkXBNvk6JKceIEt9NPlDmUOxNmkHUQm09DlSQhM8BmxlvB2CUkAQXG/Jy6VHj9MG
+         fv3GPxREiJRQBFzEAqJO0gtZyiZmYl9cR1KSgSiFL1d0mNeARsjUeyHqjWvro9ICdIF2
+         SiqMgStNRuSXJgMcNE8rq6sKVSqoINemQdwI4RyDYiYbKz44JZmRTL+U8S9cEhCalm7m
+         jUUuHc28JieNPIBTADYqnZuAdRFYQh3A1WK0EtAcQGo/oYmBDuygcwaALeril8LyvFu3
+         7hQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742336813; x=1742941613;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=BJVFLhRfFbH1bQJMOV/BNGlUJZXnijES874Ix3jfTjA=;
-        b=QRI36kCwnUVox6FNT5iFv8hIMjCkkWnqpPO2nSGZVwSkfqQLzcU3dkyZFnsAyvmZ0C
-         /lPxdN/qRJgVnEPFOWkYPGhdCj572y0f2plVO9c75PexV4GZS1eTDtkHr1by/MMg47Jm
-         bVZ7QY6aq55rMBMVETG3zJD0Xr/zrPcXH7rR5FYJqFCoE+8pH+jlP9Vc3oexpJmqRmRx
-         GnUqnV23wgMT840hu5RQ9t7lCEAIrCc1eTTu7wzItcpK0cvW+OG5w6T2cUedwOWaZZz2
-         IMfE7e6myr5yXzA7moA8ngG4fIQAe2NbCdYgpd5OCVPDWOYiXxllde+KeGMMluLWc2g4
-         9TOw==
-X-Forwarded-Encrypted: i=1; AJvYcCXdYET9/2rx1C4LGV9Tl331K11490aKBcHdR0T/vwrGtL91Q2AsjgPV9spAO10Ffky0G/nOYbUpNLuf@vger.kernel.org
-X-Gm-Message-State: AOJu0Yynf7hIIIVbV3RMdf0qSs04OXY9PYsv11tyKhrCYiq3UzROGsDQ
-	LztVhB186MCwtZAiQb6YqGn4U6Gew01+x05DuY3yRfeIYetsv7i/AYtQS2ewqg5O0IeR9zhGwJe
-	/GZBzTe7nJKIVp/I1o9sn1yoc3W790pWoKQxiIB/j1BlER8uWJzRKBOD3A4A=
-X-Gm-Gg: ASbGnctO62YT/pEtqObQHy8+nBkyGIWx/sOq2nShp91y/YypRpjkSsh9DOC6S3gZxs8
-	dW4+EkblDreB9t3AtEacnW//UTGTGgKOCix69UD4nL3EhkEP/hGwptQSDr0M47CE9KnsHVYw+XI
-	LsNzC+sYcIGR/llWspGMFbjLmsyknciykGgd82Ao+ZnYCwInpYFGZNRciioPRHEqBRnor6XHPLt
-	eNQKTw5z+AEk1lNo148riIu+OzLFPHiUnPQMevzI6susa7jHSaLWP//mk1P1qj+X8ddw2usgl4P
-	T+crJVyYONTxNIS3CRNSp34BTewBUXJGUXAO/u9JTI5YeklQjD0zcgGceI1vz8U2rs5JxUL3zoc
-	AqlRs392/lX4n+a1+lh/j8XprirejoNA2KZ3Rl323/PQ=
-X-Received: by 2002:a05:6000:1a8b:b0:391:6fd:bb65 with SMTP id ffacd0b85a97d-399739b4dbamr360369f8f.9.1742336812764;
-        Tue, 18 Mar 2025 15:26:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE2566PaXJziHXhYt8vU2N7wSpU6jLkXagpjvkPNdNzkOu5eNB/pkYy6bSTupr7UZPs+56uXQ==
-X-Received: by 2002:a05:6000:1a8b:b0:391:6fd:bb65 with SMTP id ffacd0b85a97d-399739b4dbamr360359f8f.9.1742336812416;
-        Tue, 18 Mar 2025 15:26:52 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c72d:2500:94b5:4b7d:ad4a:fd0b? (p200300cbc72d250094b54b7dad4afd0b.dip0.t-ipconnect.de. [2003:cb:c72d:2500:94b5:4b7d:ad4a:fd0b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c8e43244sm19721471f8f.60.2025.03.18.15.26.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Mar 2025 15:26:52 -0700 (PDT)
-Message-ID: <0a2e2784-7b5e-47b9-b7f3-59b0e471640d@redhat.com>
-Date: Tue, 18 Mar 2025 23:26:51 +0100
+        d=1e100.net; s=20230601; t=1742352141; x=1742956941;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=5LIIm36cccYbao7TAk4Hq5YU6PWgxen0Sg9TmOOAtlo=;
+        b=dfK0k0wyF6ErvQAEI7beYO1mZJQl0rp8ZdlYEg2VAI2/JM9wkAQPRTOMSwTAoDUT+K
+         YyLE3rNY6W0XhqxrXGsRdHFif9jvbpMTPjZLw0z34lB7A5BcZ2B0yEZ7nQhqvskG5LSU
+         JTjoURrG6EVNHPfvXI//Py2KorUKU503vqS1IBQie+dtMhZAOYe5Y+TgMgNAMOJsIcCY
+         6E1Nu9xwkXi36tC4IQhPv1+Da/TIKgeD1w7ZZTLzPsCbMq5ECHRFAnwVF6OxIggk6BtJ
+         2OfKyf3cwJoppYc0NPu+rX7/rW0wD7H7+7zS/d8DSDxR4+D5DGua7Pwwc/+Ae0qQfvGU
+         J/fw==
+X-Forwarded-Encrypted: i=1; AJvYcCUL8ND8NFvDhJK5H6W0cBEeLjJW2/EtJyqYPz4G2WYrcOfPjnWU2sOv+BZHwHLyvNGIc8RQ4K5WM+jyRg==@vger.kernel.org, AJvYcCUqRgZy5C6HHt1WG4ku0hYsT4QM6gM9RT5x+ROKBQml5zmlw74mLSDiHqF0n/EsQgXNzcg14oR5W8E2aA==@vger.kernel.org, AJvYcCVHyKMexvtNEQ+uCup3nMzD4Cf3OKBKpdhzoIXr4freCJK3n8tFhCOXUjqfyvTOismAXrN3PoJdV8K8z/I=@vger.kernel.org, AJvYcCVgmA7WHVTsJ596pU4D3yKFIab7PBdmFVrfxTBDNiicI6bfaTbfZjvUsWoXe4sLRKiyUPlNsXto@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0DlTxGF74OHfn2L2GXTpU1CcZNtzBE36yjsW9z5A0ruSKxdQy
+	qoKRhKT0RKqEHlGsAsZ4SeSaO9OgH4ORH7JQ0XpgbauqJIHUOFDo
+X-Gm-Gg: ASbGncubJLF8oJJD+Acy5/7d643+eJoiVKb+WM02hPDtYG+w29FL/1aeu92ZRAXUuwM
+	l74V8KeEmEu3kwDqGvjdMAPkoQf95OzeAHDZfxWmwBYaaIijNWn0QZsUAVZaGaLkuicFn037UGC
+	kf1x+U+ZJWo+dcGbG0z/Und74fLQhAw5dCxe0AlK4hYkOFmAnlCWML06t9g2QRFoqYldVPN0eyi
+	qvmk7uUeKZ7e2yI+anH/CtU39NZTORKYFsMaapCP2mXe42ikjjgzE19sj5gBeImVC35M7FpHYiS
+	OKRhDBitb4UMMllE0ggnXa8P/RCILR73iQ7QYRhJHyLMwWPWg2C00RtyPPfwtQ==
+X-Google-Smtp-Source: AGHT+IFMTPVzGmKOB0374Xwm8ymMGdht9WZf9KthbF99f4vKTy64/tyWlMgtJ/3VRoo6H4DyUbtn7w==
+X-Received: by 2002:a17:902:d54a:b0:223:6657:5001 with SMTP id d9443c01a7336-22649c8fe35mr18839615ad.40.1742352141212;
+        Tue, 18 Mar 2025 19:42:21 -0700 (PDT)
+Received: from vaxr-BM6660-BM6360 ([2001:288:7001:2703:2ccc:91ef:96dd:9ad9])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-225c6bbfdfesm102855595ad.203.2025.03.18.19.42.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Mar 2025 19:42:20 -0700 (PDT)
+Date: Wed, 19 Mar 2025 10:42:09 +0800
+From: I Hsin Cheng <richard120310@gmail.com>
+To: Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, alibuda@linux.alibaba.com,
+	jaka@linux.ibm.com, mjambigi@linux.ibm.com, sidraya@linux.ibm.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
+	jserv@ccns.ncku.edu.tw, linux-kernel-mentees@lists.linux.dev
+Subject: Re: [PATCH] net/smc: Reduce size of smc_wr_tx_tasklet_fn
+Message-ID: <Z9ovAYqk8lESCug2@vaxr-BM6660-BM6360>
+References: <20250315062516.788528-1-richard120310@gmail.com>
+ <66ce34a0-b79d-4ef0-bdd5-982e139571f1@linux.ibm.com>
+ <20250317135631.21754E85-hca@linux.ibm.com>
+ <6191739c-93db-4a7d-8e83-3168909315cd@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 1/5] KVM: s390: Add vsie_sigpif detection
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
- linux-s390@vger.kernel.org
-References: <20250318-vsieie-v1-0-6461fcef3412@linux.ibm.com>
- <20250318-vsieie-v1-1-6461fcef3412@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20250318-vsieie-v1-1-6461fcef3412@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6191739c-93db-4a7d-8e83-3168909315cd@linux.ibm.com>
 
-On 18.03.25 19:59, Christoph Schlameuss wrote:
-> Add sensing of the VSIE Interpretation Extension Facility as vsie_sigpif
-> from SCLP. This facility is introduced with IBM Z gen17.
+On Tue, Mar 18, 2025 at 09:43:07AM +0100, Wenjia Zhang wrote:
 > 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-> ---
+> 
+> On 17.03.25 14:56, Heiko Carstens wrote:
+> > On Mon, Mar 17, 2025 at 12:22:46PM +0100, Wenjia Zhang wrote:
+> > > 
+> > > 
+> > > On 15.03.25 07:25, I Hsin Cheng wrote:
+> > > > The variable "polled" in smc_wr_tx_tasklet_fn is a counter to determine
+> > > > whether the loop has been executed for the first time. Refactor the type
+> > > > of "polled" from "int" to "bool" can reduce the size of generated code
+> > > > size by 12 bytes shown with the test below
+> > > > 
+> > > > $ ./scripts/bloat-o-meter vmlinux_old vmlinux_new
+> > > > add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-12 (-12)
+> > > > Function                                     old     new   delta
+> > > > smc_wr_tx_tasklet_fn                        1076    1064     -12
+> > > > Total: Before=24795091, After=24795079, chg -0.00%
+> > > > 
+> > > > In some configuration, the compiler will complain this function for
+> > > > exceeding 1024 bytes for function stack, this change can at least reduce
+> > > > the size by 12 bytes within manner.
+> > > > 
+> > > The code itself looks good. However, I’m curious about the specific
+> > > situation where the compiler complained. Also, compared to exceeding the
+> > > function stack limit by 1024 bytes, I don’t see how saving 12 bytes would
+> > > bring any significant benefit.
+> > 
+> > The patch description doesn't make sense: bloat-a-meter prints the _text
+> > size_ difference of two kernels, which really has nothing to do with
+> > potential stack size savings.
+> > 
+> > If there are any changes in stack size with this patch is unknown; at least
+> > if you rely only on the patch description.
+> > 
+> > You may want to have a look at scripts/stackusage and scripts/stackdelta.
+> 
+> @Heiko, thank you for pointing it out!
+> 
+> Even if the potential stack size saving of 12 bytes were true, I still don’t
+> see how it would benefit our code, let alone justify the incorrect argument.
+>
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Hi Heiko, Wenjia,
 
--- 
-Cheers,
+Thanks for your kindly review!
 
-David / dhildenb
+> > If there are any changes in stack size with this patch is unknown; at least
+> > if you rely only on the patch description.
+> >
+> > You may want to have a look at scripts/stackusage and scripts/stackdelta.
+
+Thanks for this, really appreciate! I'll try it out and see is there
+anything different.
+
+> Even if the potential stack size saving of 12 bytes were true, I still don’t
+> see how it would benefit our code, let alone justify the incorrect argument.
+
+Hmm I suppose smaller memory footprint can benefit the performace,
+though I agree it won't be significant. I'm not sure how to do
+performance test on this function, would you be so kind to suggest some
+ideas for me to test out.
+
+And I want to ask why's the argument incorrect? since I only change the
+type of "polled", maybe you mean "polled" itself should be an integer
+type?
+
+Best regards,
+I Hsin Cheng
 
