@@ -1,244 +1,406 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 607751CAA8E;
-	Wed, 19 Mar 2025 16:02:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BAB21DE884;
+	Wed, 19 Mar 2025 17:31:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742400166; cv=none; b=FKh3rL6mK+Jv3y+E79wUsOHI7iWz1xuOh7iqXlv8bLhtUQMmXxRcdNx1K7RgeR9no16KdOZkvuWPeSV+HaJ5lmiZVEk6iJawZkaDeFCkBv3SthtsaDY9CJCKMtJ3jCpnY0Gk/tC2Em14HXsRVADhpEwO+7rjnQXa5dN9q3AqJmg=
+	t=1742405500; cv=none; b=kBPqAOOn9dIyW9KOYMF4FLq3KQxmbf/5RK7wKcZ+k/+GcwJ+yj+55snO7WX97gv5/W5VNPKTH/B/ZxkZVHsthPZxbKD8UGjpIWcCtepWVZVDCoTwwW5lSI71s2PRUCL3tqA3c82xZLL/k/nwjU0cmKw/TmT1+oERurpVCteuqyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742400166; c=relaxed/simple;
-	bh=9wVePQAtTFTA3zPNCJDvgyVA8TQMoXEtTT4LwlvUk+g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uheocWnk2vGWakE5dbwLmEgQVJSytY9pkdI19b9L6BaLI0MjyzNrTslMCIRA6kVKm4USfxZSVYo0tL1oY0ZwVPhGzGj7Wk9q4gUuPbSKFlHwN9+sxAiolek3q+urIlpWqXckfiQr81LknARdbpSi07mbrnsiuY7p9LrTEBlnsLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cnb9IzTx; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1742405500; c=relaxed/simple;
+	bh=1krTOqoQmK+AUaaMBs+P36+1kPk82EwrMREbbAaX5hA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JqTcL/IiImOau7Q/O8iD8Zntdz3P0pydCGhtlpAjnozWRaiZMbkycIUcXfQHAl0clWlB2viOve6pbq9lYTYE0Gx4SSTw2mKBzynQFPC8I0AM3VLbcquX7a0agUQ1ls7CpISweCyz4VxV66eCpFepiMWQ7+eSwH+nX6EBVKRaVaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=OPuKnj8n; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cnb9IzTx"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52J8I2i5004206;
-	Wed, 19 Mar 2025 16:02:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Oytdah
-	MN4JMH90LJzdENdVeIrZEBKPAZzLmsQJpoiBs=; b=cnb9IzTxh075dErrio7o9j
-	WZ+5+zVfneJVscw/6PCi43h87IkT/2BUrhVV0eQ+DNQsJ+stG810Dy45UIVDYy8p
-	Re9RSTAkOsNZe8oW3ir0yWvb5NccpRDztp4bukukW+rcpsKNRqe8j1BOy24j7D5K
-	SdCFIzD4WTuee9vAIctXX2qseU9wucjLu4ZM7CSiKLdbCtOhxADPp6QfDWtcypXy
-	bx0fDRIZXAJglfWyJHY9T1od59ox1gfodajNSNuEa7czuVLWJcSHdXsxu4UdCpv8
-	RflKOUYH8S2ghl6J+YQoFyi9Jk3RaRfiab99JL8Qu/GWK+EVYypkHVs+RY/i5GbQ
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45ft9vtcv8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 16:02:36 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52JCuEaq024417;
-	Wed, 19 Mar 2025 16:02:35 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45dncmacm6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 16:02:35 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52JG2V6S52756764
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Mar 2025 16:02:32 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DAD5320043;
-	Wed, 19 Mar 2025 16:02:31 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7757020040;
-	Wed, 19 Mar 2025 16:02:31 +0000 (GMT)
-Received: from [9.171.30.147] (unknown [9.171.30.147])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Mar 2025 16:02:31 +0000 (GMT)
-Message-ID: <1c7fbb34-648b-42de-9d9a-44e6f304f8fd@linux.ibm.com>
-Date: Wed, 19 Mar 2025 17:02:31 +0100
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="OPuKnj8n"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 033E640E01D1;
+	Wed, 19 Mar 2025 17:31:33 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id EOIBCM-ZWxOR; Wed, 19 Mar 2025 17:31:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1742405488; bh=y4IueNFhKFDuJLhg35AaumVxylQHY1jpwsFPITe81G8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OPuKnj8nSqrVhz24YDL81CfCg2gKR9pIWbtbaHWonnfkdzAOYbC52VlJf5R+D42NL
+	 p+FEyIidvNStF1js+JfxT0C7rZGoAMoejdM1WgsnqZOgssxdFq7zcrdehkdBOhwBCf
+	 6qn9py1y7c1kbXSMeviUQDURN49OG5fv/WjXQdW5IkqHVFOA0DbDKfAETmttIs75Qp
+	 okPexPU9CehnEmaY3d7p6wh5PbiGuNMNTVx27sDHmdjIb3Dtjbu4HRwbY4Q14i4bwJ
+	 dsbkbZltr+kVU6ilR9D0zZyxFpO/sh1scDlcoWBs6e/bo71ONMVPvUCTlG7i2ceeA5
+	 wLaaxTPNfgLMm+60LsvQKf3f4DtxJ37YimbXvOnTV9Uiwo+mADi/UxAjzpM0rP7ZL9
+	 wo6QkkCKHUim+f+duFQ3p6m3NNZfUI/OdPhNo3Vh4zPkc4ReJUxDq/sHn7PoTceDKC
+	 dFHviztK56ka7KdDhZc4xg9gEecFpX/b8YeeHYnRAAy42UF9NNurT+CJRgEvMwDn9o
+	 EmwYWflsznK/wu6GRntJJGeTc65/wswB2vmGe19QbC0B8PxXLmDLJ6Gvkm3RlzDUX4
+	 /qN979SHOM73h+ayNLsjM9Jni661c+WpiCH3Ao/36bsD+FjghQdcQsWiSHsw8vbL4o
+	 RjebWhOYASgWk0sBPvsbIbnY=
+Received: from zn.tnic (pd95303ce.dip0.t-ipconnect.de [217.83.3.206])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 73B2040E015E;
+	Wed, 19 Mar 2025 17:29:43 +0000 (UTC)
+Date: Wed, 19 Mar 2025 18:29:35 +0100
+From: Borislav Petkov <bp@alien8.de>
+To: Brendan Jackman <jackmanb@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Guo Ren <guoren@kernel.org>,
+	Brian Cain <bcain@quicinc.com>, Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Michal Simek <monstr@monstr.eu>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Dinh Nguyen <dinguyen@kernel.org>, Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@linux.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, x86@kernel.org,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, kvm@vger.kernel.org,
+	linux-efi@vger.kernel.org, Junaid Shahid <junaids@google.com>,
+	Yosry Ahmed <yosryahmed@google.com>
+Subject: Re: [PATCH RFC v2 04/29] mm: asi: Add infrastructure for boot-time
+ enablement
+Message-ID: <20250319172935.GMZ9r-_zzXhyhHBLfj@fat_crate.local>
+References: <20250110-asi-rfc-v2-v2-0-8419288bc805@google.com>
+ <20250110-asi-rfc-v2-v2-4-8419288bc805@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 3/5] KVM: s390: Shadow VSIE SCA in guest-1
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, David Hildenbrand <david@redhat.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org
-References: <20250318-vsieie-v1-0-6461fcef3412@linux.ibm.com>
- <20250318-vsieie-v1-3-6461fcef3412@linux.ibm.com>
- <47c6f4b7-b8a6-4b20-b915-1c4c2d9e7c74@linux.ibm.com>
- <D8KBKS9B7SHE.3AL1L7RDLM0IP@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
- qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
- 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
- zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
- lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
- Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
- 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
- cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
- Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
- HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
- YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
- CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
- AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
- bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
- eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
- CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
- EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
- rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
- UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
- RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
- dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
- jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
- cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
- JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
- iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
- tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
- 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
- v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
- HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
- 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
- gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
- BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
- 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
- jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
- IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
- katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
- dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
- FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
- DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
- Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
- phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <D8KBKS9B7SHE.3AL1L7RDLM0IP@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: xyUGZ1NgpUzM4872TAcvM-bchSCcAVTn
-X-Proofpoint-GUID: xyUGZ1NgpUzM4872TAcvM-bchSCcAVTn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-19_06,2025-03-19_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=790 spamscore=0
- suspectscore=0 mlxscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
- adultscore=0 malwarescore=0 lowpriorityscore=0 clxscore=1015 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503190108
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250110-asi-rfc-v2-v2-4-8419288bc805@google.com>
 
-On 3/19/25 3:41 PM, Christoph Schlameuss wrote:
-> On Wed Mar 19, 2025 at 2:41 PM CET, Janosch Frank wrote:
->> On 3/18/25 7:59 PM, Christoph Schlameuss wrote:
->>> Introduce a new shadow_sca function into kvm_s390_handle_vsie.
->>> kvm_s390_handle_vsie is called within guest-1 when guest-2 initiates the
->>> VSIE.
->>>
->>> shadow_sca and unshadow_sca create and manage ssca_block structs in
->>> guest-1 memory. References to the created ssca_blocks are kept within an
->>> array and limited to the number of cpus. This ensures each VSIE in
->>> execution can have its own SCA. Having the amount of shadowed SCAs
->>> configurable above this is left to another patch.
->>>
->>> SCAOL/H in the VSIE control block are overwritten with references to the
->>> shadow SCA. The original SCA pointer is saved in the vsie_page and
->>> restored on VSIE exit. This limits the amount of change in the
->>> preexisting VSIE pin and shadow functions.
->>>
->>> The shadow SCA contains the addresses of the original guest-3 SCA as
->>> well as the original VSIE control blocks. With these addresses the
->>> machine can directly monitor the intervention bits within the original
->>> SCA entries.
->>>
->>> The ssca_blocks are also kept within a radix tree to reuse already
->>> existing ssca_blocks efficiently. While the radix tree and array with
->>> references to the ssca_blocks are held in kvm_s390_vsie.
->>> The use of the ssca_blocks is tracked using an ref_count on the block
->>> itself.
->>>
->>> No strict mapping between the guest-1 vcpu and guest-3 vcpu is enforced.
->>> Instead each VSIE entry updates the shadow SCA creating a valid mapping
->>> for all cpus currently in VSIE.
->>>
->>> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
->>> ---
->>>    arch/s390/include/asm/kvm_host.h |  22 +++-
->>>    arch/s390/kvm/vsie.c             | 264 ++++++++++++++++++++++++++++++++++++++-
->>>    2 files changed, 281 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
->>> index 0aca5fa01f3d772c3b3dd62a22134c0d4cb9dc22..4ab196caa9e79e4c4d295d23fed65e1a142e6ab1 100644
->>> --- a/arch/s390/include/asm/kvm_host.h
->>> +++ b/arch/s390/include/asm/kvm_host.h
->>> @@ -29,6 +29,7 @@
->>>    #define KVM_S390_BSCA_CPU_SLOTS 64
->>>    #define KVM_S390_ESCA_CPU_SLOTS 248
->>>    #define KVM_MAX_VCPUS 255
->>> +#define KVM_S390_MAX_VCPUS 256
->>
->> #define KVM_S390_SSCA_CPU_SLOTS 256
->>
->> Yes, I'm aware, that ESCA and MAX_VCPUS are pretty confusing.
->> I'm searching for solutions but they might take a while.
->>
->>>    
->>>    #define KVM_INTERNAL_MEM_SLOTS 1
->>>    
->>> @@ -137,13 +138,23 @@ struct esca_block {
->>>    
->>>    /*
->>>     * The shadow sca / ssca needs to cover both bsca and esca depending on what the
->>> - * guest uses so we use KVM_S390_ESCA_CPU_SLOTS.
->>> + * guest uses so we allocate space for 256 entries that are defined in the
->>> + * architecture.
->>>     * The header part of the struct must not cross page boundaries.
->>>     */
->>>    struct ssca_block {
->>>    	__u64	osca;
->>>    	__u64	reserved08[7];
->>> -	struct ssca_entry cpu[KVM_S390_ESCA_CPU_SLOTS];
->>> +	struct ssca_entry cpu[KVM_S390_MAX_VCPUS];
->>
->> This should have been resolved in the previous patch, no?
->>
-> 
-> Oops, yes, exactly.
-> 
->>> +};
->>> +
->>> +/*
->>> + * Store the vsie ssca block and accompanied management data.
->>> + */
->>> +struct ssca_vsie {
->>> +	struct ssca_block ssca;			/* 0x0000 */
->>> +	__u8	reserved[0x2200 - 0x2040];	/* 0x2040 */
->>> +	atomic_t ref_count;			/* 0x2200 */
->>>    };
->>>    
->>
->> [...]
->>
->>>    void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, unsigned long start,
->>>    				 unsigned long end)
->>>    {
->>> @@ -699,6 +932,9 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->>>    
->>>    	hpa = (u64) scb_s->scaoh << 32 | scb_s->scaol;
->>>    	if (hpa) {
->>> +		/* with vsie_sigpif scaoh/l was pointing to g1 ssca_block but
->>> +		 * should have been reset in unshadow_sca()
->>> +		 */
->>
->> There shouldn't be text in the first or last line of multi-line comments.
->>
-> 
-> Will fix. Thx. (checkpatch seems to be fine with this, so I assume just in not
-> desired?)
+On Fri, Jan 10, 2025 at 06:40:30PM +0000, Brendan Jackman wrote:
+> Add a boot time parameter to control the newly added X86_FEATURE_ASI.
+> "asi=on" or "asi=off" can be used in the kernel command line to enable
+> or disable ASI at boot time. If not specified, ASI enablement depends
+> on CONFIG_ADDRESS_SPACE_ISOLATION_DEFAULT_ON, which is off by default.
 
-Might either be a personal preference as well or something that we don't 
-really do in s390 KVM code.
+I don't know yet why we need this default-on thing...
+
+> asi_check_boottime_disable() is modeled after
+> pti_check_boottime_disable().
+> 
+> The boot parameter is currently ignored until ASI is fully functional.
+> 
+> Once we have a set of ASI features checked in that we have actually
+> tested, we will stop ignoring the flag. But for now let's just add the
+> infrastructure so we can implement the usage code.
+> 
+> Ignoring checkpatch.pl CONFIG_DESCRIPTION because the _DEFAULT_ON
+> Kconfig is trivial to explain.
+
+Those last two paragraphs go...
+
+> Checkpatch-args: --ignore CONFIG_DESCRIPTION
+> Co-developed-by: Junaid Shahid <junaids@google.com>
+> Signed-off-by: Junaid Shahid <junaids@google.com>
+> Co-developed-by: Yosry Ahmed <yosryahmed@google.com>
+> Signed-off-by: Yosry Ahmed <yosryahmed@google.com>
+> Signed-off-by: Brendan Jackman <jackmanb@google.com>
+> ---
+
+... here as that's text not really pertaining to the contents of the patch.
+
+>  arch/x86/Kconfig                         |  9 +++++
+>  arch/x86/include/asm/asi.h               | 19 ++++++++--
+>  arch/x86/include/asm/cpufeatures.h       |  1 +
+>  arch/x86/include/asm/disabled-features.h |  8 ++++-
+>  arch/x86/mm/asi.c                        | 61 +++++++++++++++++++++++++++-----
+>  arch/x86/mm/init.c                       |  4 ++-
+>  include/asm-generic/asi.h                |  4 +++
+>  7 files changed, 92 insertions(+), 14 deletions(-)
+
+...
+
+>   * the N ASI classes.
+>   */
+>  
+> +#define static_asi_enabled() cpu_feature_enabled(X86_FEATURE_ASI)
+
+Yeah, as already mentioned somewhere else, whack that thing pls.
+
+> +
+>  /*
+>   * ASI uses a per-CPU tainting model to track what mitigation actions are
+>   * required on domain transitions. Taints exist along two dimensions:
+> @@ -131,6 +134,8 @@ struct asi {
+>  
+>  DECLARE_PER_CPU_ALIGNED(struct asi *, curr_asi);
+>  
+> +void asi_check_boottime_disable(void);
+> +
+>  void asi_init_mm_state(struct mm_struct *mm);
+>  
+>  int asi_init_class(enum asi_class_id class_id, struct asi_taint_policy *taint_policy);
+> @@ -155,7 +160,9 @@ void asi_exit(void);
+>  /* The target is the domain we'll enter when returning to process context. */
+>  static __always_inline struct asi *asi_get_target(struct task_struct *p)
+>  {
+> -	return p->thread.asi_state.target;
+> +	return static_asi_enabled()
+> +	       ? p->thread.asi_state.target
+> +	       : NULL;
+
+Waaay too fancy for old people:
+
+	if ()
+		return...
+	else
+		return NULL;
+
+:-)
+
+The others too pls.
+
+>  static __always_inline void asi_set_target(struct task_struct *p,
+> @@ -166,7 +173,9 @@ static __always_inline void asi_set_target(struct task_struct *p,
+>  
+>  static __always_inline struct asi *asi_get_current(void)
+>  {
+> -	return this_cpu_read(curr_asi);
+> +	return static_asi_enabled()
+> +	       ? this_cpu_read(curr_asi)
+> +	       : NULL;
+>  }
+>  
+>  /* Are we currently in a restricted address space? */
+> @@ -175,7 +184,11 @@ static __always_inline bool asi_is_restricted(void)
+>  	return (bool)asi_get_current();
+>  }
+>  
+> -/* If we exit/have exited, can we stay that way until the next asi_enter? */
+> +/*
+> + * If we exit/have exited, can we stay that way until the next asi_enter?
+
+What is that supposed to mean here?
+
+> + *
+> + * When ASI is disabled, this returns true.
+> + */
+>  static __always_inline bool asi_is_relaxed(void)
+>  {
+>  	return !asi_get_target(current);
+> diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+> index 913fd3a7bac6506141de65f33b9ee61c615c7d7d..d6a808d10c3b8900d190ea01c66fc248863f05e2 100644
+> --- a/arch/x86/include/asm/cpufeatures.h
+> +++ b/arch/x86/include/asm/cpufeatures.h
+> @@ -474,6 +474,7 @@
+>  #define X86_FEATURE_CLEAR_BHB_HW	(21*32+ 3) /* BHI_DIS_S HW control enabled */
+>  #define X86_FEATURE_CLEAR_BHB_LOOP_ON_VMEXIT (21*32+ 4) /* Clear branch history at vmexit using SW loop */
+>  #define X86_FEATURE_FAST_CPPC		(21*32 + 5) /* AMD Fast CPPC */
+> +#define X86_FEATURE_ASI			(21*32+6) /* Kernel Address Space Isolation */
+>  
+>  /*
+>   * BUG word(s)
+> diff --git a/arch/x86/include/asm/disabled-features.h b/arch/x86/include/asm/disabled-features.h
+> index c492bdc97b0595ec77f89dc9b0cefe5e3e64be41..c7964ed4fef8b9441e1c0453da587787d8008d9d 100644
+> --- a/arch/x86/include/asm/disabled-features.h
+> +++ b/arch/x86/include/asm/disabled-features.h
+> @@ -50,6 +50,12 @@
+>  # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+>  #endif
+>  
+> +#ifdef CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION
+> +# define DISABLE_ASI		0
+> +#else
+> +# define DISABLE_ASI		(1 << (X86_FEATURE_ASI & 31))
+> +#endif
+> +
+>  #ifdef CONFIG_MITIGATION_RETPOLINE
+>  # define DISABLE_RETPOLINE	0
+>  #else
+> @@ -154,7 +160,7 @@
+>  #define DISABLED_MASK17	0
+>  #define DISABLED_MASK18	(DISABLE_IBT)
+>  #define DISABLED_MASK19	(DISABLE_SEV_SNP)
+> -#define DISABLED_MASK20	0
+> +#define DISABLED_MASK20	(DISABLE_ASI)
+>  #define DISABLED_MASK21	0
+>  #define DISABLED_MASK_CHECK BUILD_BUG_ON_ZERO(NCAPINTS != 22)
+>  
+
+Right, that hunk is done this way now:
+
+diff --git a/arch/x86/Kconfig.cpufeatures b/arch/x86/Kconfig.cpufeatures
+index e12d5b7e39a2..f219eaf664fb 100644
+--- a/arch/x86/Kconfig.cpufeatures
++++ b/arch/x86/Kconfig.cpufeatures
+@@ -199,3 +199,7 @@ config X86_DISABLED_FEATURE_SEV_SNP
+ config X86_DISABLED_FEATURE_INVLPGB
+ 	def_bool y
+ 	depends on !BROADCAST_TLB_FLUSH
++
++config X86_DISABLED_FEATURE_ASI
++	def_bool y
++	depends on !MITIGATION_ADDRESS_SPACE_ISOLATION
+
+
+> diff --git a/arch/x86/mm/asi.c b/arch/x86/mm/asi.c
+> index 105cd8b43eaf5c20acc80d4916b761559fb95d74..5baf563a078f5b3a6cd4b9f5e92baaf81b0774c4 100644
+> --- a/arch/x86/mm/asi.c
+> +++ b/arch/x86/mm/asi.c
+> @@ -4,6 +4,7 @@
+>  #include <linux/percpu.h>
+>  #include <linux/spinlock.h>
+>  
+> +#include <linux/init.h>
+>  #include <asm/asi.h>
+>  #include <asm/cmdline.h>
+>  #include <asm/cpufeature.h>
+> @@ -29,6 +30,9 @@ static inline bool asi_class_id_valid(enum asi_class_id class_id)
+>  
+>  static inline bool asi_class_initialized(enum asi_class_id class_id)
+>  {
+> +	if (!boot_cpu_has(X86_FEATURE_ASI))
+
+check_for_deprecated_apis: WARNING: arch/x86/mm/asi.c:33: Do not use boot_cpu_has() - use cpu_feature_enabled() instead.
+
+Check your whole set pls.
+
+> +		return 0;
+> +
+>  	if (WARN_ON(!asi_class_id_valid(class_id)))
+>  		return false;
+>  
+> @@ -51,6 +55,9 @@ EXPORT_SYMBOL_GPL(asi_init_class);
+>  
+>  void asi_uninit_class(enum asi_class_id class_id)
+>  {
+> +	if (!boot_cpu_has(X86_FEATURE_ASI))
+> +		return;
+> +
+>  	if (!asi_class_initialized(class_id))
+>  		return;
+>  
+> @@ -66,10 +73,36 @@ const char *asi_class_name(enum asi_class_id class_id)
+>  	return asi_class_names[class_id];
+>  }
+>  
+> +void __init asi_check_boottime_disable(void)
+> +{
+> +	bool enabled = IS_ENABLED(CONFIG_MITIGATION_ADDRESS_SPACE_ISOLATION_DEFAULT_ON);
+> +	char arg[4];
+> +	int ret;
+> +
+> +	ret = cmdline_find_option(boot_command_line, "asi", arg, sizeof(arg));
+> +	if (ret == 3 && !strncmp(arg, "off", 3)) {
+> +		enabled = false;
+> +		pr_info("ASI disabled through kernel command line.\n");
+> +	} else if (ret == 2 && !strncmp(arg, "on", 2)) {
+> +		enabled = true;
+> +		pr_info("Ignoring asi=on param while ASI implementation is incomplete.\n");
+> +	} else {
+> +		pr_info("ASI %s by default.\n",
+> +			enabled ? "enabled" : "disabled");
+> +	}
+> +
+> +	if (enabled)
+> +		pr_info("ASI enablement ignored due to incomplete implementation.\n");
+
+Incomplete how?
+
+> +}
+> +
+>  static void __asi_destroy(struct asi *asi)
+>  {
+> -	lockdep_assert_held(&asi->mm->asi_init_lock);
+> +	WARN_ON_ONCE(asi->ref_count <= 0);
+> +	if (--(asi->ref_count) > 0)
+
+Switch that to
+
+include/linux/kref.h
+
+It gives you a sanity-checking functionality too so you don't need the WARN...
+
+> +		return;
+>  
+> +	free_pages((ulong)asi->pgd, PGD_ALLOCATION_ORDER);
+> +	memset(asi, 0, sizeof(struct asi));
+
+And then you can do:
+
+	if (kref_put())
+		free_pages...
+
+and so on.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
