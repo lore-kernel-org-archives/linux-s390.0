@@ -1,60 +1,67 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E755B2248AF
-	for <linux-s390@vger.kernel.org>; Wed, 19 Mar 2025 11:03:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5C8372;
+	Wed, 19 Mar 2025 12:28:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742382202; cv=none; b=ZziaFL6l4OxwmK0VQe1N8nMi8i6T2AmnOydkQDkkwuwiP/YUWqv/B1pxxlbtwzLtgqgbG6ChAcoMmcPQZK6Ym9QG90ihkCTR20Avn3/QmnomW9TzgewwCmQu7tTKNr21bNGfAQG8LJHWezON8sZXUlFzYwZPVbcSOxevWazxDfQ=
+	t=1742387293; cv=none; b=OGsgIzdeMCPCswndVC4zfTHBV6mKBegGMuwx6s+wXa2yLmtJlooI5BlCryGnxTukiLUzuj3IhTTqiIc9A00/m36UDF7aUOanlVp1CeJy93KOMcbU4IIjYYSv3ezJNx8p5UdXsH+NLzaEcE20l45/AtrPqdOV/VInAhgxyQ4VQ3U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742382202; c=relaxed/simple;
-	bh=Fy0fWLsXp7ml6lDG584es2shlVnDDu14yoS86D/bgko=;
+	s=arc-20240116; t=1742387293; c=relaxed/simple;
+	bh=OPH5Nary7E9IdqycTXq/IeMpyCsF4bDGdCutnM0PKqo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f630m3Ifnisz3yohNWl84dUBVG6/3JNUiZHdr7bNXjsK/niLlSzAu9qp3JJdgtqJ9J/+pugKnIgQGU4FkyJbJJyg885GGbOSYS5+WVXogYyZnrUpbpJ2Xeq5um5rcrrnTg0EyIKXiOrJXryc2j/bqaRMSTNFk4wfgdjDT0Zst9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XN+ZeJXW; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=SkcTWllQaixFsXvV0wlP1z6lJT4eHVUdJ36s2RYi7x9u8//9fjEbvwkdjV2RJ3SyUtIvPoQghuNgqutNtf2HI/tsyhiODtyniu6D4YzhOhNYreNc3mg6rxOc8QKRz/KUDeLebYnisfyyidOiQT6GNcfwnvhx4rYRVBAtO97QfbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sEGh97zs; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XN+ZeJXW"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52J3kW02019598;
-	Wed, 19 Mar 2025 11:03:18 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sEGh97zs"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52JCRvl5011881;
+	Wed, 19 Mar 2025 12:28:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ezeOvo
-	lR8BM6R52MwQVwOv/J4ao1gEF9kfrSFDks7cg=; b=XN+ZeJXWn4xx+ywoqu5NgV
-	sNLRYKkzi3K6PsL8m40Exl+O8jAToYK2xfZX3IF7q0DNwFvj78hQDHwSSzacy6CF
-	Pvnwx2JPsreH4Wiq4zOxrxAGV3CYlxAiM8OkmPdvr4USUb5q4f3Vm/oYFGHfC74r
-	ITbc1SAEcGXAIzXmQbJmK7RR3DyxABEeliQhTEw2zE1RCsOjnmOeD3i4SONIKf/r
-	JQZUmpls3MKik+8n/efsDHIGFZOK0sl+ZrFBpetvqdro8RdKFm8RpkvcZ+lMtUmJ
-	89mzTnY1A26T1hwnbkgfyeT8mrwZ3uEdgrT5+MCNsg1z9GhzqDxXCZteYCctOVuQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=dvQbFM
+	sZkPWeGhu6y1+yueYG0WzOohNzsniNmgooJ3A=; b=sEGh97zsPB0L4k5xGPxZn4
+	uNrDlN/ZDMIkmbPIPqkaRQvA1ij6E/7mY/Lza+bWbIFgBZ5ZZM/u7D2lsVFa/qvY
+	R+++aCceShJchFNpZOw1LJHtEGTMroIvUd0WMw7yxEsPLqQr1CBu1E/eJ3vNDMlU
+	NlWRRQE6VIJ/+9cvirkkEHJFKXwS7gYPTqBKoa/BaiiyE2aWzEJ0HcM2G6dm49Ps
+	x9SDUVH9pXdAczT4CV78dG8h+DkPq0RZ1dGlWX9RheFzP+42Y8nyzWxzYpfxmJqW
+	b3lDH9c4teu5Y0W2b8jNXubZVj/cnsiMn+kEVjoLEek4kPo8g6S6Z89UpeCo7SzA
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45fpa9hv8w-1
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45fwy20013-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 11:03:17 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52J89fUe032041;
-	Wed, 19 Mar 2025 11:03:17 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dkvthcns-1
+	Wed, 19 Mar 2025 12:28:07 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52JCS6SM012830;
+	Wed, 19 Mar 2025 12:28:06 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45fwy20010-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 11:03:16 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52JB3DQq47186242
+	Wed, 19 Mar 2025 12:28:06 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52JAQeYc005752;
+	Wed, 19 Mar 2025 12:28:05 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dpk2h4ak-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 12:28:05 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52JCS2uf22872544
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Mar 2025 11:03:13 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4336720043;
-	Wed, 19 Mar 2025 11:03:13 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C873B20040;
-	Wed, 19 Mar 2025 11:03:12 +0000 (GMT)
-Received: from [9.171.69.178] (unknown [9.171.69.178])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Mar 2025 11:03:12 +0000 (GMT)
-Message-ID: <64bab2ed-4302-45bf-b831-009c5b2d34e1@linux.ibm.com>
-Date: Wed, 19 Mar 2025 12:03:12 +0100
+	Wed, 19 Mar 2025 12:28:02 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76F3D2004D;
+	Wed, 19 Mar 2025 12:28:02 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3AE092004B;
+	Wed, 19 Mar 2025 12:28:02 +0000 (GMT)
+Received: from [9.152.212.229] (unknown [9.152.212.229])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Mar 2025 12:28:02 +0000 (GMT)
+Message-ID: <552882a0-936d-439b-a5ed-b852bd39f9d6@linux.ibm.com>
+Date: Wed, 19 Mar 2025 13:28:02 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,124 +69,103 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 07/20] s390/zcrypt: Rework zcrypt function
- zcrypt_device_status_mask_ext
-To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
-        fcallies@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-References: <20250304172116.85374-1-freude@linux.ibm.com>
- <20250304172116.85374-8-freude@linux.ibm.com>
+Subject: Re: [PATCH] perf pmu: Handle memory failure in tool_pmu__new()
+To: James Clark <james.clark@linaro.org>
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        acme@kernel.org, namhyung@kernel.org, irogers@google.com
+References: <20250319092847.1192988-1-tmricht@linux.ibm.com>
+ <9f9c007a-78fe-4709-9063-eb4df72d4f63@linaro.org>
 Content-Language: en-US
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <20250304172116.85374-8-freude@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <9f9c007a-78fe-4709-9063-eb4df72d4f63@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: WMeOFffYOPRRDwlRsQSnx1uUThUyCEl7
-X-Proofpoint-ORIG-GUID: WMeOFffYOPRRDwlRsQSnx1uUThUyCEl7
+X-Proofpoint-ORIG-GUID: Tdb4LtLZuxUao68fjAk_iBdSp2ALa685
+X-Proofpoint-GUID: UM6ZQx76Gbsf5HBsZgBZeGSenWGzds2G
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-19_03,2025-03-19_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- phishscore=0 priorityscore=1501 spamscore=0 impostorscore=0 malwarescore=0
- clxscore=1015 mlxscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=999
+ definitions=2025-03-19_04,2025-03-19_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ bulkscore=0 spamscore=0 malwarescore=0 mlxlogscore=918 suspectscore=0
+ adultscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0 phishscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503190076
+ definitions=main-2503190085
 
-On 04/03/2025 18:21, Harald Freudenberger wrote:
-> Rework the existing function zcrypt_device_status_mask_ext():
-> * Add two new parameters to provide upper limits for
->   cards and queues. The existing implementation needed an
->   array of 256 * 256 * 4 = 256 KB which is really huge. The
->   reworked function is more flexible in the sense that the
->   caller can decide the upper limit for cards and domains to
->   be stored into the status array. So for example a caller may
->   decide to only query for cards 0...127 and queues 0...127
->   and thus only an array of size 128 * 128 * 4 = 64 KB is needed.
-> * Instead of void the reworked function now returns an int.
->   The currently only way to have the function return != 0
->   is by providing card or domains limits beyond 256.
-
-I would prefer to stay with a void function and limit the card and domain values to the current maximum. Details below.
-
+On 3/19/25 10:58, James Clark wrote:
 > 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
->  drivers/s390/crypto/zcrypt_api.c      | 20 +++++++++++++++-----
->  drivers/s390/crypto/zcrypt_api.h      |  3 ++-
->  drivers/s390/crypto/zcrypt_ccamisc.c  | 22 +++++++++++++++++-----
->  drivers/s390/crypto/zcrypt_ep11misc.c | 14 ++++++++++----
->  4 files changed, 44 insertions(+), 15 deletions(-)
 > 
-> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-> index 62cc05881b13..bd2738e3792a 100644
-> --- a/drivers/s390/crypto/zcrypt_api.c
-> +++ b/drivers/s390/crypto/zcrypt_api.c
-> @@ -1317,19 +1317,25 @@ static void zcrypt_device_status_mask(struct zcrypt_device_status *devstatus)
->  	spin_unlock(&zcrypt_list_lock);
->  }
->  
-> -void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus)
-> +int zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus,
-> +				  int maxcard, int maxqueue)
+> On 19/03/2025 9:28 am, Thomas Richter wrote:
+>> On linux-next
+>> commit 72c6f57a4193 ("perf pmu: Dynamically allocate tool PMU")
+>> allocated PMU named "tool" dynamicly. However that allocation
+>> can fail and a NULL pointer is returned. That case is currently
+>> not handled and would result in an invalid address reference.
+>> Add a check for NULL pointer.
+>>
+>> Fixes: 72c6f57a4193 ("perf pmu: Dynamically allocate tool PMU")
+>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+>> Cc: Ian Rogers <irogers@google.com>
+>> Cc: James Clark <james.clark@linaro.org>
+>> ---
+>>   tools/perf/util/pmus.c     | 3 ++-
+>>   tools/perf/util/tool_pmu.c | 9 +++++++++
+>>   2 files changed, 11 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/tools/perf/util/pmus.c b/tools/perf/util/pmus.c
+>> index 9b5a63ecb249..b99292de7669 100644
+>> --- a/tools/perf/util/pmus.c
+>> +++ b/tools/perf/util/pmus.c
+>> @@ -265,7 +265,8 @@ static void pmu_read_sysfs(unsigned int to_read_types)
+>>       if ((to_read_types & PERF_TOOL_PMU_TYPE_TOOL_MASK) != 0 &&
+>>           (read_pmu_types & PERF_TOOL_PMU_TYPE_TOOL_MASK) == 0) {
+>>           tool_pmu = tool_pmu__new();
+>> -        list_add_tail(&tool_pmu->list, &other_pmus);
+>> +        if (tool_pmu)
+>> +            list_add_tail(&tool_pmu->list, &other_pmus);
+>>       }
+>>       if ((to_read_types & PERF_TOOL_PMU_TYPE_HWMON_MASK) != 0 &&
+>>           (read_pmu_types & PERF_TOOL_PMU_TYPE_HWMON_MASK) == 0)
+>> diff --git a/tools/perf/util/tool_pmu.c b/tools/perf/util/tool_pmu.c
+>> index b60ac390d52d..d764c4734be6 100644
+>> --- a/tools/perf/util/tool_pmu.c
+>> +++ b/tools/perf/util/tool_pmu.c
+>> @@ -495,12 +495,21 @@ struct perf_pmu *tool_pmu__new(void)
+>>   {
+>>       struct perf_pmu *tool = zalloc(sizeof(struct perf_pmu));
+>>   +    if (!tool)
+>> +        goto out;
+>>       tool->name = strdup("tool");
+>> +    if (!tool->name) {
+>> +        zfree(tool);
+>> +        tool = NULL;
+> 
+> Hi Thomas,
+> 
+> zfree() already sets the thing to NULL but you need to pass a pointer to it:
+> 
+>   zfree(&tool);
+> 
+> Without doing that you only free the first u64 of the struct, which happens to be zero in this case so free() does nothing. Then zfree() sets the first u64 of the struct to zero which it already is.
+> 
+> With that fixed:
+> 
+> Reviewed-by: James Clark <james.clark@linaro.org>
+> 
+> 
 
-Keep void and ...
-
->  {
->  	struct zcrypt_card *zc;
->  	struct zcrypt_queue *zq;
->  	struct zcrypt_device_status_ext *stat;
->  	int card, queue;
->  
-> +	if (maxcard > MAX_ZDEV_CARDIDS_EXT || maxqueue > MAX_ZDEV_DOMAINS_EXT)
-> +		return -EINVAL;
-> +
-
-... limit maxcard/maxqueue to the maximum supported values. In my opinion, it does not make any sense to call this function with higher values than the maximum.
-
-maxcard = MIN(maxcard, MAX_ZDEV_CARDIDS_EXT);
-maxqueue = MIN(maxqueue, MAX_ZDEV_DOMAINS_EXT);
-
-As a side effect, it keeps the caller code much simpler.
-
->  	spin_lock(&zcrypt_list_lock);
->  	for_each_zcrypt_card(zc) {
->  		for_each_zcrypt_queue(zq, zc) {
->  			card = AP_QID_CARD(zq->queue->qid);
->  			queue = AP_QID_QUEUE(zq->queue->qid);
-> -			stat = &devstatus[card * AP_DOMAINS + queue];
-> +			if (card >= maxcard || queue >= maxqueue)
-> +				continue;
-> +			stat = &devstatus[card * maxqueue + queue];
->  			stat->hwtype = zc->card->ap_dev.device_type;
->  			stat->functions = zc->card->hwinfo.fac >> 26;
->  			stat->qid = zq->queue->qid;
-[...]
-> @@ -1635,9 +1643,11 @@ static long zcrypt_unlocked_ioctl(struct file *filp, unsigned int cmd,
->  					 GFP_KERNEL);
->  		if (!device_status)
->  			return -ENOMEM;
-> -		zcrypt_device_status_mask_ext(device_status);
-> -		if (copy_to_user((char __user *)arg, device_status,
-> -				 total_size))
-> +		rc = zcrypt_device_status_mask_ext(device_status,
-> +						   MAX_ZDEV_CARDIDS_EXT,
-> +						   MAX_ZDEV_DOMAINS_EXT);
-> +		if (!rc && copy_to_user((char __user *)arg, device_status,
-> +					total_size))
-
-With the change above, you can stay with the current error handling. Only the addition parameters for zcrypt_device_status_mask_ext() need to be added. 
-
->  			rc = -EFAULT;
->  		kvfree(device_status);
->  		return rc;
-[...]
+Thanks for the finding. I'll post verion 2 soon.
 
 -- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
 --
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
+IBM Deutschland Research & Development GmbH
 
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+
+Geschäftsführung: David Faller
+
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
