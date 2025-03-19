@@ -1,147 +1,92 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3715554758;
-	Wed, 19 Mar 2025 12:28:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E0AFA935
+	for <linux-s390@vger.kernel.org>; Wed, 19 Mar 2025 13:02:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742387321; cv=none; b=Ks4zApasanvyP2gTSh6F0gzRRdQYY85WnCYHHng8L33tbrQjrEjxT+2MaGjZqkKZYIHBs80P8Hw32vTwPjZcNCIj93+Ixpj31LMndh+QTdZGNQjzcmrn/M15ZeN7HGvnvY5Lc5souTVNoa8PPrhioiHQxM68uI50/2SR0KBKmF8=
+	t=1742389348; cv=none; b=FamsUeWd3nQAKiIIu+9Yu1of8siq9cQsIOcXiI0B17OvAAS0Yo/HwPProI7TOsUO6fBOo+J4rrZ6yRcyc0iaSIuEEjF25bDqtqsU5ZmgNjf4ZxiR+wJspmPcBPufRgz+sdZVSkGIbjFdqJA0m5RCHeP/ppXCOd2vZg33eceVdSI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742387321; c=relaxed/simple;
-	bh=0FzWDBd98dxI71a410BhQiuVY3pWY7ArwaxozkDWYZk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H3sTzs87Ao/a116+eaSYLYti4LFYKcRNi8ssE9ebhlLoVx+5VCTFw2GAZTLIC7FK01yOZyECmwlHlXoAoJBtPLEG/JrTQsu/VgGMpQIHDX3ioshYc4GooaszKPFb1a1Ryf0TsTX8qO5j3tCWZYRnMXfAaYwXVZkcIyMwJ2ds3Pk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Chk3At+u; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1742389348; c=relaxed/simple;
+	bh=hjYKCzXkTNj7DEe6K/168WOuyg5Vvokvimor4gxXeCg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=s2b9MAQ28pCl8Mw+zPRAKQKgHkWzJTIfZXve6qyRmlz68eRg2eCBY5ISkm/N9Ifpx8mI+EZu/LXW+walzLKy2ZI/P+ksNo6Nm3ngE5wYYLyK87S4blbp3sTOQEirrrs1Fg548sS2TSlxRWZiSvFBHQQoLqeXJVvtqpNLSC1JDlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E6MYu3D6; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Chk3At+u"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52JCRwWd011898;
-	Wed, 19 Mar 2025 12:28:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=vSuyuRK6lsbWMylQNVNOOEkrUuB1K90NKyOR2jOsa
-	Xc=; b=Chk3At+uhyCmiqUioJLazRsbtEHkDE6arZgnNW99bAp91Tz7qVs6ZbeqB
-	J7QiAVRrgRgbg7UMaW/eaSYchrmgnMb6IdaEoRab3zDhC9ffUq5cVq5fSUzkD0cU
-	Q/Pp/RdS8WS5AEZSnaNSNfXG+MiGpaa/knaVDFR7xst/ymDq2EzuIxMJZs0VeoXD
-	n3kQ1r1A7Od6b5Ml7xLfFv23PASYsxa3QStykkhlBH9HDn1soOUMlAIeRV0A0j0D
-	EIUyRUxTenTv3pXV4foN9Xrw6SQldijjrS8yi5Wk3Re551JfQuSKc/cQkISfzAF/
-	3EtmwMedTHFkslgsX3DvqMiiI9Tbw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45fwy2002u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 12:28:37 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52JCRxlk011910;
-	Wed, 19 Mar 2025 12:28:36 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45fwy2002r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 12:28:36 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52JAQeYh005752;
-	Wed, 19 Mar 2025 12:28:36 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dpk2h4cv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 12:28:35 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52JCSWLc19726770
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Mar 2025 12:28:32 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F2B62004B;
-	Wed, 19 Mar 2025 12:28:32 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 39F6220049;
-	Wed, 19 Mar 2025 12:28:32 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Mar 2025 12:28:32 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        irogers@google.com, james.clark@linaro.org
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH v2] perf pmu: Handle memory failure in tool_pmu__new()
-Date: Wed, 19 Mar 2025 13:28:20 +0100
-Message-ID: <20250319122820.2898333-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E6MYu3D6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1742389345;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=hjYKCzXkTNj7DEe6K/168WOuyg5Vvokvimor4gxXeCg=;
+	b=E6MYu3D6kTIt3SXbKOq3jFyZqsAXjsgdas/Hw/UYM3bpkuUWfIb+PE1yZVxzzFEQkDFbz+
+	XCmh+ukxxaqkAvG063mah9L4fBePjpHUsGfx3V/x07Ufk7FIv/yjhxSA/K0Ei1GGcvSj8s
+	U48NpjoMUq9Z1riEhOWrAeUnLnSBDcw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-511-hdAxUKnhM_-ikiaa28DvqQ-1; Wed, 19 Mar 2025 09:02:24 -0400
+X-MC-Unique: hdAxUKnhM_-ikiaa28DvqQ-1
+X-Mimecast-MFC-AGG-ID: hdAxUKnhM_-ikiaa28DvqQ_1742389341
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-39123912ff0so3435378f8f.2
+        for <linux-s390@vger.kernel.org>; Wed, 19 Mar 2025 06:02:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742389341; x=1742994141;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hjYKCzXkTNj7DEe6K/168WOuyg5Vvokvimor4gxXeCg=;
+        b=LYv5lcvssj0d6GnanFMYvyAIt2h+36iQUqx3uIeR8K7n/D7sxdRGDi2L8VMM/gc6Vj
+         HOaDjO5MCSMeplsSr+y1Lb/SNrgBEf/oahRUitH6FiddV9vpiV95TZweELDVkJ1aTMON
+         ksYaU1+jec1iBJAICnpJIOsazaVhdqdksuRjqbdEDXo/E/xBFDvwYLpwVXobPGoTHEoJ
+         RU/VpRcXd+6WWxnIRPVYxe+CmkBbQ3ZnEagoAT6S5WuQEf6uD0F8pfpVAtY2JL49fGBg
+         sGO9mcNC8lpd/Key7yYGAeHwXuXZ/l8LTaWA3RZPQUb6ZrUQnKaV3+LkZWNYUaUDCbVP
+         4n9w==
+X-Forwarded-Encrypted: i=1; AJvYcCWVYtlPOhaYD2aTDUMRRamWuFqih7aQQ3xTlnY1xWAH1tZm10RTll2j+VwV9KzQjHG8jAO7QMCZ2kNB@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw5nfEbHj0buZAEQ5+wYE0CY9xobuYeHW1YsN2KWTRh8ofENPUo
+	Cpo+8BaN8veFeCtCsyQNBPSO1Vm61YDghL15qr/4pw2fTE9PnJ0XGfzRF523o1x0Kri/XkwVibR
+	oUC3gujpaG+joXQVTWj3qYgnHUAZakdlU8c6dvTSHnzbk2WNOZMybzts73lAvaD5GRCplJk/cY1
+	26Z0MrC/BABl27H9KVW2eoO+EP4fQAIM5AeA==
+X-Gm-Gg: ASbGncve4UV660WXq1IQxJhfZsD6fkA357W12Cr+p5xFOz42ja5BEYNlm1uZbBIaFK/
+	TfL6JDU9qYtOXU225mxbYJygaCNp4B9t6dragPXr9HYgZ6w8eb0M/1hTpBjara0/VfEYf4JkxQw
+	==
+X-Received: by 2002:a05:6000:154d:b0:391:2db0:2961 with SMTP id ffacd0b85a97d-39973b50772mr3127274f8f.38.1742389340958;
+        Wed, 19 Mar 2025 06:02:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFD6HfFmmSP0cjkdSlhe7K0qb4m/uOtm3qySw4lyfLWCTKjI9y2oVrZxJTWh4ZUa1nmkABFImIaCl2RPU909rU=
+X-Received: by 2002:a05:6000:154d:b0:391:2db0:2961 with SMTP id
+ ffacd0b85a97d-39973b50772mr3127190f8f.38.1742389340432; Wed, 19 Mar 2025
+ 06:02:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: W5WuXAnPb3e35S1bzccStjqSJnkXXomf
-X-Proofpoint-GUID: BDiH3Be6LrLJTu4d4pPAi2PXqgxvDCuV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-19_04,2025-03-19_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
- bulkscore=0 spamscore=0 malwarescore=0 mlxlogscore=755 suspectscore=0
- adultscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503190085
+References: <20250314161551.424804-1-imbrenda@linux.ibm.com>
+In-Reply-To: <20250314161551.424804-1-imbrenda@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Wed, 19 Mar 2025 14:02:09 +0100
+X-Gm-Features: AQ5f1JrBHLjAttbOwvhIUgFHgjpUlzmrMNLWo1ZIkJbVPOCEfLZwT0qvNaInPjU
+Message-ID: <CABgObfZ3nf-+466VWQ41GZ5T8cxo94eZmZJhK=jkCeDSDxfh6Q@mail.gmail.com>
+Subject: Re: [GIT PULL v1 0/1] KVM: s390: pv: fix race when making a page secure
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, 
+	borntraeger@de.ibm.com, david@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On linux-next
-commit 72c6f57a4193 ("perf pmu: Dynamically allocate tool PMU")
-allocated PMU named "tool" dynamicly. However that allocation
-can fail and a NULL pointer is returned. That case is currently
-not handled and would result in an invalid address reference.
-Add a check for NULL pointer.
+On Fri, Mar 14, 2025 at 5:16=E2=80=AFPM Claudio Imbrenda <imbrenda@linux.ib=
+m.com> wrote:
+>
+> ciao Paolo,
+>
+> please pull this late fix for 6.14.
 
-Fixes: 72c6f57a4193 ("perf pmu: Dynamically allocate tool PMU")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: James Clark <james.clark@linaro.org>
-Cc: Ian Rogers <irogers@google.com>
----
- tools/perf/util/pmus.c     | 3 ++-
- tools/perf/util/tool_pmu.c | 8 ++++++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+Done, thanks!
 
-diff --git a/tools/perf/util/pmus.c b/tools/perf/util/pmus.c
-index 9b5a63ecb249..b99292de7669 100644
---- a/tools/perf/util/pmus.c
-+++ b/tools/perf/util/pmus.c
-@@ -265,7 +265,8 @@ static void pmu_read_sysfs(unsigned int to_read_types)
- 	if ((to_read_types & PERF_TOOL_PMU_TYPE_TOOL_MASK) != 0 &&
- 	    (read_pmu_types & PERF_TOOL_PMU_TYPE_TOOL_MASK) == 0) {
- 		tool_pmu = tool_pmu__new();
--		list_add_tail(&tool_pmu->list, &other_pmus);
-+		if (tool_pmu)
-+			list_add_tail(&tool_pmu->list, &other_pmus);
- 	}
- 	if ((to_read_types & PERF_TOOL_PMU_TYPE_HWMON_MASK) != 0 &&
- 	    (read_pmu_types & PERF_TOOL_PMU_TYPE_HWMON_MASK) == 0)
-diff --git a/tools/perf/util/tool_pmu.c b/tools/perf/util/tool_pmu.c
-index b60ac390d52d..97b327d1ce4a 100644
---- a/tools/perf/util/tool_pmu.c
-+++ b/tools/perf/util/tool_pmu.c
-@@ -495,12 +495,20 @@ struct perf_pmu *tool_pmu__new(void)
- {
- 	struct perf_pmu *tool = zalloc(sizeof(struct perf_pmu));
- 
-+	if (!tool)
-+		goto out;
- 	tool->name = strdup("tool");
-+	if (!tool->name) {
-+		zfree(&tool);
-+		goto out;
-+	}
-+
- 	tool->type = PERF_PMU_TYPE_TOOL;
- 	INIT_LIST_HEAD(&tool->aliases);
- 	INIT_LIST_HEAD(&tool->caps);
- 	INIT_LIST_HEAD(&tool->format);
- 	tool->events_table = find_core_events_table("common", "common");
- 
-+out:
- 	return tool;
- }
--- 
-2.48.1
+Paolo
 
