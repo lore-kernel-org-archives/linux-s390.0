@@ -1,112 +1,149 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 733D51DED5A
-	for <linux-s390@vger.kernel.org>; Thu, 20 Mar 2025 15:18:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E41191E98E3;
+	Thu, 20 Mar 2025 15:22:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742483918; cv=none; b=YYpCSmFGUGVHpoS3PwNmlpax1XufBNEeP249NrkDUtReLuf+cBqTcqoHLvmY4zWnbbSfwgzM4F+Py26flIblQl4kWw2ngjfgIuL2GJ14OqtP/KtJo+aOOgnFwGF+bkY97PVZ00vxTw2HCZVPi9l6vuUF7RCT9NbP58mOfSEOhzE=
+	t=1742484175; cv=none; b=VHLvh3SL9wbEF1DgLy5siG0JK6MEU9cdatsoQX0C4e5Vd/tD7kiYMJqS9IyD3Fxjm+CKdd9sXhqgaOg4B0dI+dj08tkP7/ruEJ/KDD6mG6RdBdTaY76q4sMiDhbE28sTmw7zAr1/4JXftlNgZ295sjlV3DOQNcyM8LWZNdjHH00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742483918; c=relaxed/simple;
-	bh=wTnZ2GRd8W43AnlMSo7+YtCi6LR9xr12yQYkPX4FFtk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QHOuGdT1XyE2F16dyfo5v0JWVYIyuEIUv0iOjsWINFmDAa0tyU+dSPLDuMRn5BK/ympfg34SIiAb8rcIXgFdgPyPCEwAa71jtk66u3KRtTXYxPbcMCH2skL1DAgx3JNDixZjaAnJbGDdG6I0WBd3nYBy28QWhJ9bwZsgVrUJ968=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AmhW+Ty1; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1742484175; c=relaxed/simple;
+	bh=QcEKTvVCcmt+Mtl5LAj4p9CXTQljIa6E2wBgLOJl1RM=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=XdYJnzWctMnZcIIzcxpFAGzSMo1msQ//x/Enxp/BSsOY7RBIyylMnIkg34c8x7Vp64QmasQMoW76DOULP8CO+Ct66VW8Rfr8HKlwICY9Vk/rAtV/UPNiGwR8CBbRZqhNRwsonZ3CnzDNmJF5ZBhUu0CtiKZz9WYS5cKF/ZYNxb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=orwO8i1n; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AmhW+Ty1"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52KE6nfP020677;
-	Thu, 20 Mar 2025 15:18:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="orwO8i1n"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52K8iB9M032154;
+	Thu, 20 Mar 2025 15:22:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ohkyiv
-	b2JntPxi2f6tVRC4s5nTv6Vkx/CpTzuwGGtCs=; b=AmhW+Ty132a0+6jVM46dDx
-	zOuw3Q3PCMXR/r9hgAaQH4KASSEobzFsZrXkBkbIR9zn92+6G1K/M9X4TkCjwZPE
-	ccw7uRLeVO3L9OdLFpDnPjGT5DsDv4fRkyY/hCaBPem/p7TsXG7Tppv542IXCcaB
-	QzaXrRqgAktwA1HwVNJ5PdUJ0FOpBhNhr0NqNW1OXPO3+AOV4SiAovLpxFTRA2Bf
-	n5m2QAoYdy/XHvx0CGwmbLbb88+J7uviGtxzfTK6Tg/NjoqzBFCLT8N2Oujjsl8C
-	ewTeggmHMJg/mV/2Q6XRHejVV0W7J7fKN6IFB+NxxKQRH8xgRT59lRFDtnYUe/HQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=WOoXjn
+	Jf/52FUL8/hywtI6TArPJFwJgYRU6NlJMbWnE=; b=orwO8i1necDpuF8OZxGIzi
+	jS5xt9BEKSe856gNTck8sYC0CXKjQw4dN2+73ZYm7fN9X7kw60eAIvBRI5rb+oI3
+	uj0Uz3jNQVaJxlTGf630rkaxVJm//Zexw1HPGdYlggW+q1EXQq/j1WwbZb+xiwOR
+	4FW3LDgkO2nh3Wxem4dJ25qcdl8cnS6lNJSglUpmboDctC3xADfw7G8sSs6rp5L3
+	P8DEPGxB6SBqjLOtFbryZfu7psGNk+hbF9xYik9+hy38DbsPG04+pl1RhlYn0QLB
+	plV1fx3V149Y1w7Uo8sHU/3//aym8zJ7GALlrLMfU+oR+BfsI+RBUiVONaJxIM3Q
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45g23ve028-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45g5504wqa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Mar 2025 15:18:32 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52KEf7ul032337;
-	Thu, 20 Mar 2025 15:18:32 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dkvtrvjv-1
+	Thu, 20 Mar 2025 15:22:51 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52KCp2fi005752;
+	Thu, 20 Mar 2025 15:22:50 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45dpk2r8tr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Mar 2025 15:18:32 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52KFISOD46399864
+	Thu, 20 Mar 2025 15:22:50 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52KFMki456033614
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Mar 2025 15:18:28 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C517B2004D;
-	Thu, 20 Mar 2025 15:18:28 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6814320043;
-	Thu, 20 Mar 2025 15:18:28 +0000 (GMT)
-Received: from [9.179.0.254] (unknown [9.179.0.254])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 20 Mar 2025 15:18:28 +0000 (GMT)
-Message-ID: <88ab3eba-5e37-4edf-aed3-0d0e3a282031@linux.ibm.com>
-Date: Thu, 20 Mar 2025 16:18:27 +0100
+	Thu, 20 Mar 2025 15:22:46 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C985A20043;
+	Thu, 20 Mar 2025 15:22:46 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2D59F20040;
+	Thu, 20 Mar 2025 15:22:46 +0000 (GMT)
+Received: from t14-nrb (unknown [9.171.23.86])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 20 Mar 2025 15:22:46 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 15/20] s390/zcrypt: Rework ep11 misc functions to use
- cprb mempool
-To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
-        fcallies@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-References: <20250304172116.85374-1-freude@linux.ibm.com>
- <20250304172116.85374-16-freude@linux.ibm.com>
-Content-Language: en-US
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <20250304172116.85374-16-freude@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date: Thu, 20 Mar 2025 16:22:45 +0100
+Message-Id: <D8L732XS5NQW.1M5J3D0TFMQMD@linux.ibm.com>
+From: "Nico Boehr" <nrb@linux.ibm.com>
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>, <kvm@vger.kernel.org>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+        "Janosch Frank"
+ <frankja@linux.ibm.com>,
+        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        "David Hildenbrand" <david@redhat.com>,
+        "Sven Schnelle"
+ <svens@linux.ibm.com>,
+        "Paolo Bonzini" <pbonzini@redhat.com>, <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH RFC 3/5] KVM: s390: Shadow VSIE SCA in guest-1
+X-Mailer: aerc 0.20.1
+References: <20250318-vsieie-v1-0-6461fcef3412@linux.ibm.com>
+ <20250318-vsieie-v1-3-6461fcef3412@linux.ibm.com>
+In-Reply-To: <20250318-vsieie-v1-3-6461fcef3412@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: v-ipwKzjxv3H2rynxGs7rcYWyYf0brCw
-X-Proofpoint-GUID: v-ipwKzjxv3H2rynxGs7rcYWyYf0brCw
+X-Proofpoint-GUID: ExGxd4PgYVwu4UMkCFPrfWMMlfoBj7bD
+X-Proofpoint-ORIG-GUID: ExGxd4PgYVwu4UMkCFPrfWMMlfoBj7bD
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-20_03,2025-03-20_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=912
- clxscore=1015 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- mlxscore=0 priorityscore=1501 adultscore=0 phishscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2503200093
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ mlxscore=0 bulkscore=0 mlxlogscore=916 spamscore=0 clxscore=1015
+ phishscore=0 lowpriorityscore=0 malwarescore=0 impostorscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503200093
 
-On 04/03/2025 18:21, Harald Freudenberger wrote:
-> There are two places in the ep11 misc code where a short term
-> memory buffer is needed. Rework this code to use the cprb mempool
-> to satisfy this ephemeral memory requirements.
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+On Tue Mar 18, 2025 at 7:59 PM CET, Christoph Schlameuss wrote:
+[...]
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm=
+_host.h
+> index 0aca5fa01f3d772c3b3dd62a22134c0d4cb9dc22..4ab196caa9e79e4c4d295d23f=
+ed65e1a142e6ab1 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+[...]
+> +static struct ssca_vsie *get_ssca(struct kvm *kvm, struct vsie_page *vsi=
+e_page)
+> +{
+> +	u64 sca_o_hva =3D vsie_page->sca_o;
+> +	phys_addr_t sca_o_hpa =3D virt_to_phys((void *)sca_o_hva);
+> +	struct ssca_vsie *ssca, *ssca_new =3D NULL;
+> +
+> +	/* get existing ssca */
+> +	down_read(&kvm->arch.vsie.ssca_lock);
+> +	ssca =3D get_existing_ssca(kvm, sca_o_hva);
+> +	up_read(&kvm->arch.vsie.ssca_lock);
+> +	if (ssca)
+> +		return ssca;
 
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+I would assume this is the most common case, no?
 
-> ---
->  drivers/s390/crypto/pkey_ep11.c       |   3 +-
->  drivers/s390/crypto/zcrypt_cex4.c     |  12 +--
->  drivers/s390/crypto/zcrypt_ep11misc.c | 104 ++++++++++++++++----------
->  drivers/s390/crypto/zcrypt_ep11misc.h |   8 +-
->  4 files changed, 78 insertions(+), 49 deletions(-)
+And below only happens rarely, right?
 
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
+> +	/*
+> +	 * Allocate new ssca, it will likely be needed below.
+> +	 * We want at least #online_vcpus shadows, so every VCPU can execute th=
+e
+> +	 * VSIE in parallel. (Worst case all single core VMs.)
+> +	 */
+> +	if (kvm->arch.vsie.ssca_count < atomic_read(&kvm->online_vcpus)) {
+> +		BUILD_BUG_ON(offsetof(struct ssca_block, cpu) !=3D 64);
+> +		BUILD_BUG_ON(offsetof(struct ssca_vsie, ref_count) !=3D 0x2200);
+> +		BUILD_BUG_ON(sizeof(struct ssca_vsie) > ((1UL << SSCA_PAGEORDER)-1) * =
+PAGE_SIZE);
+> +		ssca_new =3D (struct ssca_vsie *)__get_free_pages(GFP_KERNEL_ACCOUNT |=
+ __GFP_ZERO,
+> +								SSCA_PAGEORDER);
+> +		if (!ssca_new) {
+> +			ssca =3D ERR_PTR(-ENOMEM);
+> +			goto out;
+> +		}
+> +		init_ssca(vsie_page, ssca_new);
+> +	}
+> +
+> +	/* enter write lock and recheck to make sure ssca has not been created =
+by other cpu */
+> +	down_write(&kvm->arch.vsie.ssca_lock);
 
+I am wondering whether it's really worth having this optimization of trying=
+ to
+avoid taking the lock? Maybe we can accept a bit of contention on the rwloc=
+k
+since it shouldn't happen very often and keep the code a bit less complex?
