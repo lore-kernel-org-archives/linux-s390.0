@@ -1,146 +1,152 @@
-Received: from smtp-1909.mail.infomaniak.ch (smtp-1909.mail.infomaniak.ch [185.125.25.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B80CC1946C3;
-	Mon, 24 Mar 2025 19:27:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.25.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D104918FDD8;
+	Mon, 24 Mar 2025 20:32:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742844436; cv=none; b=AFpPr5tpqWaiACO7dK0fdWmblXc6f3tPmLJI0RU5nhTjC24BJCjqCDpmtPkf419tHz/9qUevjzxs/9G20HHQpu6+/E1/mmHPPydOL6cr9vt2TO6JRaEcnC3yQI8kK6JhS7f0wTdFyM214lEQxY5Z8IeVinkmsTS8vak+FwawhrU=
+	t=1742848335; cv=none; b=jOrQjoD5zb81rkB0hNikcXQmbE0Md84DRbKt+UkXAoiwsd13OLbohAnwwdfL7Uuv2Jsn0VccIlVwSXWA77x0n5nnY0FgSe2/S05ZhHfpwhC+HWwTJSZh8eQhvVlamkeDnU9/hqjRTKlG/FHeH02uz4QQkLd571FAL6NPxdkTu8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742844436; c=relaxed/simple;
-	bh=P4P2z1eF/YNnOfLW8fBoOKbdAwyqWpJFO/rcNQNfqQo=;
+	s=arc-20240116; t=1742848335; c=relaxed/simple;
+	bh=XVX8FQkr9SlsH8uzchlcuOqHLWzlLBEAPLfd9ELg3Qc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KDkChI6jncu2zvmGkm8NEHE1qacfNW9Te+D/XibTAw2XAhrbYPTHhqJhgVKd14RdIcAZmDRx03ZCLZuNfzJSPeJNAh4f1JoOnnM40IrudtjMYWN7hh8dRCNWKbwen0RT8B8Ysea6M8HwQdqyMx4H888c16ezICAPw2ebwTwltvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=ZHOurTVq; arc=none smtp.client-ip=185.125.25.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=sYV38IZiqHzqVGgjH+GVki4YwL6wkKtMjd5MCi9/h6B/mfE2p+r+ULRcJnx91b3wLtHlBlHbDEfaRosBD0EpsixNtGKtPwA/fn+VvKi7TWF2vvNW/LphDdS9ajZatzvlcrGztcxwZi22WNT2cgdv7+MkITyW+9rmudHtXCE57O8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fJthRY5f; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="ZHOurTVq"
-Received: from smtp-4-0000.mail.infomaniak.ch (unknown [IPv6:2001:1600:7:10:40ca:feff:fe05:0])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4ZM32x2YZ7zdsP;
-	Mon, 24 Mar 2025 20:27:05 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1742844425;
-	bh=QBR/kecod01J1h193BKpllSnIdD5DJtmTOWxdGopk5I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZHOurTVqBYQHfSi3F6pdPowbpieWYs2igBgvPmtLeNtKh6bOX6LndXdRYsKY6jh9C
-	 KH3Sauy/1pIzJ/oIq5tcqOK2Grf+Vopzl7YTCM6Ps/dI4TzMQV42PBtmh1lSd4a4Ot
-	 uxKt6oeGXt0Fw5OGk8If/a4DunNXPqyIjb/UWnHQ=
-Received: from unknown by smtp-4-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4ZM32v3B5vz9hp;
-	Mon, 24 Mar 2025 20:27:03 +0100 (CET)
-Date: Mon, 24 Mar 2025 20:27:02 +0100
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Andrey Albershteyn <aalbersh@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
-Subject: Re: [PATCH v4 1/3] lsm: introduce new hooks for setting/getting
- inode  fsxattr
-Message-ID: <20250324.aThi9ioghiex@digikod.net>
-References: <20250321-xattrat-syscall-v4-1-3e82e6fb3264@kernel.org>
- <e2d5b27847fde03e0b4b9fc7a464fd87@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fJthRY5f"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3014ae35534so7493533a91.0;
+        Mon, 24 Mar 2025 13:32:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742848333; x=1743453133; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=XVX8FQkr9SlsH8uzchlcuOqHLWzlLBEAPLfd9ELg3Qc=;
+        b=fJthRY5fo9QFxJr0KWL0rh0UtHB0APpVut5T9S4rUFzo953jgsOVR0LcTKQrSkMgk1
+         MX6n9vXHt5L9tI13FBrD6pntfpgEBF2TsGHAUbYwdUT4URjqJzQOA36hTdpP5AnT8Qfe
+         VYYsQtasZIsV+/UPMwsEfoUcVX4GSlHmDog5YdgH40cSe9Au7URvoObkUqyUoh+EFDhT
+         uwHUMCoJnX/VVQikpXEtj4YGGDjdVf3cEfT1Lxblg0/FgKtPS5uKuA9bZ/euBaKjz6yw
+         YT5cen+pMDK0FzGyi6OsveMmnQBghK1q6gHaLNYYTjrDa7w/ZpqGSzwTPhxJC4O4ryDN
+         AF8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742848333; x=1743453133;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XVX8FQkr9SlsH8uzchlcuOqHLWzlLBEAPLfd9ELg3Qc=;
+        b=bFgGACjUvR3HT4r0YojSOheZ2GpXh9GstKQ+ZCk8dMRAE5r6J4q91ZQVLhl3FujpdP
+         pmS99rtdztdyDGCGgWpFUBj8+0N77mu01Sz/Tih1W28LulBiBxlHAXJC/E2g9sl+hbUY
+         CaQdtjeeYvgc3yfBqzSs9w8ami2nZIt2YoP/L3uEt8KBY49UNcavsTGVu60fwnPhyTM1
+         xLrSjJKZJFYVXAc1e4znz6kXwwNcRlNKyiJMzsvJsmNpc/rpBlKxbwJK9KOz/aW9JGCn
+         VGVrP0LN1jpH5LjmTXCoKw1N5//LJ7GUU2KaCZ9XxceuobRy4bTX1QPUBzo3vENPkcW8
+         sheg==
+X-Forwarded-Encrypted: i=1; AJvYcCVDQzDDhUYeq0pxGryEVOKX1xLMtEnbjjNz7naJITS6EDiJ5p+5ZVn9pwQ4z6QcraPSklnbVz3pPr9vwLr5ZX2I@vger.kernel.org, AJvYcCXhRGS+cgSrDWkXyi4Po/iwdOD6ZCRP351L92rkUtuNxdng/91nxbihPhEbhkLkmYY6IyMkyef2IsmmVQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwkFKrogLSHBQvfDWVU/Uf6qjiAwkg89ruHumHAxyVStFicCYtO
+	CLvfyktU45z8Q3J3n0oodNSzbpp9iHjEHanFY3v58suB/6O+SFzj
+X-Gm-Gg: ASbGnctFRYE56AYmD/LTT88+3uhhkyWNdRG4+x5VVuiUVxNNuHHnBh7q8CPZiBHZTmr
+	6+5DXEPa2CGW9/j/9BOTSEHOvw7AG3JaVwVErktc3TD+gYqOHZ59podr8l/1duv1LiAIty1IswA
+	UItyNriiNNBn6Riuiw1NzNOOcuKEV2dl1XKK/mUuZNDbyyjfsbcqN/vxT8rFpLBXHZBocRrrLug
+	ELeIxfXEI3ElcAMZiLlg0R7viy8vPlcu6DkpIKsOef7zd8TtORaHhn3NbrOVD/BZeCTuA07e649
+	GwuVdy4clizVGpdby4CHE958hrGmwIQSvhmRIQ2KTAQLdtTcRGoeLJ64C+q524OrH9A9YPtOjKY
+	rUF0=
+X-Google-Smtp-Source: AGHT+IEl94P5ryl0oiQlFs0i4xhbZ49ukxG7UTpiDPwU1kFz3OhT5yzplFI/ngX8B0sL1UAEezKEUQ==
+X-Received: by 2002:a17:90b:5105:b0:2ea:37b4:5373 with SMTP id 98e67ed59e1d1-3030fea47e8mr24740371a91.10.1742848332879;
+        Mon, 24 Mar 2025 13:32:12 -0700 (PDT)
+Received: from gmail.com (c-73-202-46-50.hsd1.ca.comcast.net. [73.202.46.50])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-301bf61a49bsm12690751a91.34.2025.03.24.13.32.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Mar 2025 13:32:12 -0700 (PDT)
+Date: Mon, 24 Mar 2025 13:32:09 -0700
+From: Howard Chu <howardchu95@gmail.com>
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, acme@kernel.org,
+	namhyung@kernel.org, irogers@google.com, james.clark@linaro.org,
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+	hca@linux.ibm.com
+Subject: Re: [PATCH] perf trace: Fix wrong size to bpf_map__update_elem call
+Message-ID: <Z-HBSReviPphH2LJ@gmail.com>
+References: <20250324152756.3879571-1-tmricht@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <e2d5b27847fde03e0b4b9fc7a464fd87@paul-moore.com>
-X-Infomaniak-Routing: alpha
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250324152756.3879571-1-tmricht@linux.ibm.com>
 
-On Fri, Mar 21, 2025 at 05:32:25PM -0400, Paul Moore wrote:
-> On Mar 21, 2025 Andrey Albershteyn <aalbersh@redhat.com> wrote:
-> > 
-> > Introduce new hooks for setting and getting filesystem extended
-> > attributes on inode (FS_IOC_FSGETXATTR).
-> > 
-> > Cc: selinux@vger.kernel.org
-> > Cc: Paul Moore <paul@paul-moore.com>
-> > 
-> > Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
-> > ---
-> >  fs/ioctl.c                    |  7 ++++++-
-> >  include/linux/lsm_hook_defs.h |  4 ++++
-> >  include/linux/security.h      | 16 ++++++++++++++++
-> >  security/security.c           | 32 ++++++++++++++++++++++++++++++++
-> >  4 files changed, 58 insertions(+), 1 deletion(-)
-> 
-> Thanks Andrey, one small change below, but otherwise this looks pretty
-> good.  If you feel like trying to work up the SELinux implementation but
-> need some assitance please let me know, I'll be happy to help :)
-> 
-> > diff --git a/fs/ioctl.c b/fs/ioctl.c
-> > index 638a36be31c14afc66a7fd6eb237d9545e8ad997..4434c97bc5dff5a3e8635e28745cd99404ff353e 100644
-> > --- a/fs/ioctl.c
-> > +++ b/fs/ioctl.c
-> > @@ -525,10 +525,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
-> >  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
-> >  {
-> >  	struct inode *inode = d_inode(dentry);
-> > +	int error;
-> >  
-> >  	if (!inode->i_op->fileattr_get)
-> >  		return -ENOIOCTLCMD;
-> >  
-> > +	error = security_inode_getfsxattr(inode, fa);
-> > +	if (error)
-> > +		return error;
-> > +
-> >  	return inode->i_op->fileattr_get(dentry, fa);
-> >  }
-> >  EXPORT_SYMBOL(vfs_fileattr_get);
-> > @@ -692,7 +697,7 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
-> >  			fa->flags |= old_ma.flags & ~FS_COMMON_FL;
-> >  		}
-> >  		err = fileattr_set_prepare(inode, &old_ma, fa);
-> > -		if (!err)
-> > +		if (!err && !security_inode_setfsxattr(inode, fa))
-> >  			err = inode->i_op->fileattr_set(idmap, dentry, fa);
-> >  	}
-> >  	inode_unlock(inode);
-> 
-> I don't believe we want to hide or otherwise drop the LSM return code as
-> that could lead to odd behavior, e.g. returning 0/success despite not
-> having executed the fileattr_set operation.
+On Mon, Mar 24, 2025 at 04:27:56PM +0100, Thomas Richter wrote:
+> In linux-next
+> commit c760174401f6 ("perf cpumap: Reduce cpu size from int to int16_t")
+> causes the perf tests 100 126 to fail on s390:
+>
+> Output before:
+>  # ./perf test 100
+>  100: perf trace BTF general tests         : FAILED!
 
-Yes, this should look something like this:
+Arnaldo encountered similar failure, but I couldn't reproduce it, so the
+fix was stalled.
 
- 		err = fileattr_set_prepare(inode, &old_ma, fa);
- 		if (err)
- 			goto out;
- 		err = security_inode_setfsxattr(dentry, fa);
- 		if (err)
- 			goto out;
- 		err = inode->i_op->fileattr_set(idmap, dentry, fa);
- 		if (err)
- 			goto out;
+>  #
+>
+> The root cause is the change from int to int16_t for the
+> cpu maps. The size of the CPU key value pair changes from
+> four bytes to two bytes. However a two byte key size is
+> not supported for bpf_map__update_elem().
+> Note: validate_map_op() in libbpf.c emits warning
+>  libbpf: map '__augmented_syscalls__': \
+>        unexpected key size 2 provided, expected 4
+> when key size is set to int16_t.
+>
+> Therefore change to variable size back to 4 bytes for
+> invocation of bpf_map__update_elem().
 
-> 
+Makes sense, thank you so much for digging into this and fixing it.
+
+>
+> Output after:
+>  # ./perf test 100
+>  100: perf trace BTF general tests         : Ok
+>  #
+>
+> Fixes: c760174401f6 ("perf cpumap: Reduce cpu size from int to int16_t")
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Cc: Ian Rogers <irogers@google.com>
+> Cc: James Clark <james.clark@linaro.org>
+> ---
+>  tools/perf/builtin-trace.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/tools/perf/builtin-trace.c b/tools/perf/builtin-trace.c
+> index 092c5f6404ba..464c97a11852 100644
+> --- a/tools/perf/builtin-trace.c
+> +++ b/tools/perf/builtin-trace.c
+> @@ -4375,10 +4375,12 @@ static int trace__run(struct trace *trace, int argc, const char **argv)
+>                * CPU the bpf-output event's file descriptor.
+>                */
+>               perf_cpu_map__for_each_cpu(cpu, i, trace->syscalls.events.bpf_output->core.cpus) {
+> +                     int mycpu = cpu.cpu;
+> +
+>                       bpf_map__update_elem(trace->skel->maps.__augmented_syscalls__,
+> -                                     &cpu.cpu, sizeof(int),
+> +                                     &mycpu, sizeof(int),
+>                                       xyarray__entry(trace->syscalls.events.bpf_output->core.fd,
+> -                                                    cpu.cpu, 0),
+> +                                                    mycpu, 0),
+>                                       sizeof(__u32), BPF_ANY);
+>               }
+>       }
 > --
-> paul-moore.com
-> 
+> 2.48.1
+>
+>
+
+Acked-by: Howard Chu <howardchu95@gmail.com>
+
+Thanks,
+Howard
