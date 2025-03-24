@@ -1,63 +1,78 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EF425C6E1;
-	Mon, 24 Mar 2025 08:07:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 17F9EFC1D;
+	Mon, 24 Mar 2025 08:38:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742803649; cv=none; b=p3/yzEBZPzuS0kxOl57nFrhS6T05j7FocU28t8gOymx99uAYmucfhTDlCGP5DQ5ieWJojtfu5mWHzrOYwzfZKLCQT4qzb2MToF8AvvgmN3PvRIfWxDvm7JAkOpVrX3EXtDHrsl9LQS8zItjkGiaA/fG6G+KMQcj06gpymn6Tlzw=
+	t=1742805542; cv=none; b=s7tvfm7FLLq+WALDee5jsSTDbSxkBiCegreD77eTJs/MxmtAUxdWQ7juc+isBxHPu7QhLcfnAMb2RMUyYhzerfpDxC8Ba99M8vOaoALcDjEhHvESwv0vJ5xt6s+UEbnmieMuQ6MvkBDjJUNIFUsFQ6e6UM9j7g2lqeEBJJd6wBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742803649; c=relaxed/simple;
-	bh=5uVL1S6BraAYWpE3iWe+8lb1zkG7XqLBz7/XOL52n9I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JlxpsqVS3alb8nxICcZzcVk2fGXCuqO4GS7uWSwdslIZr2K9DK9ICqzXjYokfVA8EcWALYUG5j+zE2qngaNxKT+i7VvMQKk4Aj73bjQrmcKzLfonB6aIuAf+8zLNTJcQDHRQxTMZTZ7beWA+BmSP6eBY+0ZQJUHF3FI620qby0Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=YfW2R0QM; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="YfW2R0QM"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=BJnBbXT+Y/QzXSVyatqqvRp8+BKp3EHWB4YBs7jklFQ=; b=YfW2R0QMUlyihJFgNEoDaISCGZ
-	4AJQg6134W78eo7XkuL7kpsvhkwGhFtQ8G8FF3NjHCaWp0SdclnOZLzegzDLk7B5vPuHHDW+guh6A
-	vtB41BgjYAc6j1sb5juoWp5i1lYmAb5U1xOBJfbRYOVxOjmRTwG2b7nUDHhD0plvntKDSECE6xkDm
-	KAZG1h7lNSGUK3Fy0YxknV48ugO5IJiilbYgHugaxvfx16E2LqLqVs0d6lZtjVSdxxZLYBG+fi3od
-	RHAHfYcSZalYzoBlDI09zEYjpDFbEfMJ/ouSoVAutz6q/dU0+cJBu3I6hxXN3goZiQ2xWDxFJiTAa
-	TPolDWzg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1twcqB-009er3-0O;
-	Mon, 24 Mar 2025 16:07:24 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Mon, 24 Mar 2025 16:07:23 +0800
-Date: Mon, 24 Mar 2025 16:07:23 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Holger Dengler <dengler@linux.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org,
-	Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: Re: s390 hmac
-Message-ID: <Z-ESu7CyMM873xBB@gondor.apana.org.au>
-References: <Z-AJFwndherQBH2W@gondor.apana.org.au>
- <b7bf79e9-9b75-462c-9c25-71dbc708760d@linux.ibm.com>
+	s=arc-20240116; t=1742805542; c=relaxed/simple;
+	bh=WFJMT0e0Wx2d4fqga/UUx/kJofGh0hGb/MxIjebVoZM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=r/jU+AWxxZ+3XQeo8tCdm4EUyLnXBlsPAvDKDrjQWuRv/ofPpKDz785i5pjVvY5Uz0d7zXZORwc+RXcLXFb/a8AdMJG6jOCwzmAftgV7Iwo4hO6aT4AGxI2RVTUODHqlRRm2ZkK1mHnlcU7EF4fBuO+Flk44DRJoqwv1y1LF5eY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6A3C51A2D;
+	Mon, 24 Mar 2025 01:39:05 -0700 (PDT)
+Received: from [10.57.41.67] (unknown [10.57.41.67])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 53A833F58B;
+	Mon, 24 Mar 2025 01:38:53 -0700 (PDT)
+Message-ID: <efc72f28-0dcb-4811-a20c-73bcdbdf28fb@arm.com>
+Date: Mon, 24 Mar 2025 09:37:56 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b7bf79e9-9b75-462c-9c25-71dbc708760d@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 02/11] mm: Call ctor/dtor for kernel PTEs
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+ Andreas Larsson <andreas@gaisler.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Matthew Wilcox <willy@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, "Mike Rapoport (IBM)"
+ <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ Peter Zijlstra <peterz@infradead.org>, Qi Zheng
+ <zhengqi.arch@bytedance.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Will Deacon <will@kernel.org>, Yang Shi <yang@os.amperecomputing.com>,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ sparclinux@vger.kernel.org
+References: <20250317141700.3701581-1-kevin.brodsky@arm.com>
+ <20250317141700.3701581-3-kevin.brodsky@arm.com>
+Content-Language: en-GB
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+In-Reply-To: <20250317141700.3701581-3-kevin.brodsky@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Mar 24, 2025 at 08:50:21AM +0100, Holger Dengler wrote:
->
-> The bit s390_kmac_gr0.ikp indicates, if the instruction has processed the inner key padding or not. The bit is zeroed at init() and the first instruction call for a context will set this bit to 1 and update the cv. So, if this bit is 0, the cv in param block contains undefined state.
+On 17/03/2025 15:16, Kevin Brodsky wrote:
+> diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
+> index e164ca66f0f6..3c8ec3bfea44 100644
+> --- a/include/asm-generic/pgalloc.h
+> +++ b/include/asm-generic/pgalloc.h
+> @@ -23,6 +23,11 @@ static inline pte_t *__pte_alloc_one_kernel_noprof(struct mm_struct *mm)
+>  
+>  	if (!ptdesc)
+>  		return NULL;
+> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
 
-Thanks for the info!
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+As reported by the CI [1], this can cause trouble on x86 because dtor
+calls are missing in pud_free_pmd_page() and pmd_free_pte_page(). Will
+fix in the next version.
+
+- Kevin
+
+[1] https://lore.kernel.org/oe-lkp/202503211612.e11bd73f-lkp@intel.com/
