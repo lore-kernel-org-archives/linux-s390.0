@@ -1,78 +1,129 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 17F9EFC1D;
-	Mon, 24 Mar 2025 08:38:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B8E19C542;
+	Mon, 24 Mar 2025 10:05:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742805542; cv=none; b=s7tvfm7FLLq+WALDee5jsSTDbSxkBiCegreD77eTJs/MxmtAUxdWQ7juc+isBxHPu7QhLcfnAMb2RMUyYhzerfpDxC8Ba99M8vOaoALcDjEhHvESwv0vJ5xt6s+UEbnmieMuQ6MvkBDjJUNIFUsFQ6e6UM9j7g2lqeEBJJd6wBo=
+	t=1742810704; cv=none; b=qCv108Rz9tRkSvnWWrcKBy4IY8gsGJ5oeqUyYazpctbmHQOU/BvJ4NUyXNTZzlicGiBCScgzBOtemyIUa+o3CtFBRSes1XDHdYgqYkBWLdzDgW27hwyrRHSWI07n5AWM2HSMlDEI9ExcOFZGMPRwoU6Q5ra0COjcLUBHiLQc3gY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742805542; c=relaxed/simple;
-	bh=WFJMT0e0Wx2d4fqga/UUx/kJofGh0hGb/MxIjebVoZM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r/jU+AWxxZ+3XQeo8tCdm4EUyLnXBlsPAvDKDrjQWuRv/ofPpKDz785i5pjVvY5Uz0d7zXZORwc+RXcLXFb/a8AdMJG6jOCwzmAftgV7Iwo4hO6aT4AGxI2RVTUODHqlRRm2ZkK1mHnlcU7EF4fBuO+Flk44DRJoqwv1y1LF5eY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6A3C51A2D;
-	Mon, 24 Mar 2025 01:39:05 -0700 (PDT)
-Received: from [10.57.41.67] (unknown [10.57.41.67])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 53A833F58B;
-	Mon, 24 Mar 2025 01:38:53 -0700 (PDT)
-Message-ID: <efc72f28-0dcb-4811-a20c-73bcdbdf28fb@arm.com>
-Date: Mon, 24 Mar 2025 09:37:56 +0100
+	s=arc-20240116; t=1742810704; c=relaxed/simple;
+	bh=tNOm5hOjvPzNWfk+4Iv721Nq70pxqeHMCyvaJ26k7v8=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=bbaHYM/k8NegRmMwSIPZl7SeM+Bfcm+N7dTw7pXAyBVKnlPCXehQkKdCKU0QEJS4zKC3DZi7u/+y7vMV/2yrXZqJLBv4y6Fef8OaPog5miDFhEq88+/UysssUYAX2JtDUkAH7WtZuKD5574mTn7EXxOB3W/hBv76dNDjAhB8q8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=P69y5i/c; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="P69y5i/c"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52O82Mcm028022;
+	Mon, 24 Mar 2025 10:04:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=F9EaT/qVYsHJtqpBrLrOIziNMenO6NJPwjuVQz/h3lw=; b=P69y5i/czaez
+	ft17xsMEsLTXR26fzCo4/0jXP3gmD9k3QnJO78EWLZWOsNNKpB4ls09Yo0UHApa0
+	lUKWKIksP6j/YepZ5J/P5ii4EWNGDLsQTPwj6i/DOLVUGgJKRfPgkNCp3QpLrfYD
+	7gWdoyISx5OlQ4vs54kmRZ+rYua5JgS3F4SfaN/K2wz8vS/+xsDeG79zI5xVoNJw
+	agMsfUXtEJLkTHz/av6vTaBiTSOCGGViE9r967sSIj0nGmc+QvL1c4FZL1ttChmH
+	2q8XGg15TJxaUtzbLlyuQoC01ahTLpx+lxibih53F/9w0U5/LHKQyj2NOQthtO84
+	GyFUS7yi5A==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45jkqp3xnj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 24 Mar 2025 10:04:59 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52O7031X030352;
+	Mon, 24 Mar 2025 10:04:58 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45j7ht5v32-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 24 Mar 2025 10:04:58 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52OA4ven57541092
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 24 Mar 2025 10:04:57 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 580D458056;
+	Mon, 24 Mar 2025 10:04:57 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 24C4758063;
+	Mon, 24 Mar 2025 10:04:57 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 24 Mar 2025 10:04:57 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/11] mm: Call ctor/dtor for kernel PTEs
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
- Andreas Larsson <andreas@gaisler.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "David S. Miller" <davem@davemloft.net>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Linus Walleij <linus.walleij@linaro.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Mark Rutland <mark.rutland@arm.com>, Matthew Wilcox <willy@infradead.org>,
- Michael Ellerman <mpe@ellerman.id.au>, "Mike Rapoport (IBM)"
- <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paul Walmsley <paul.walmsley@sifive.com>,
- Peter Zijlstra <peterz@infradead.org>, Qi Zheng
- <zhengqi.arch@bytedance.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Will Deacon <will@kernel.org>, Yang Shi <yang@os.amperecomputing.com>,
- linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-openrisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- sparclinux@vger.kernel.org
-References: <20250317141700.3701581-1-kevin.brodsky@arm.com>
- <20250317141700.3701581-3-kevin.brodsky@arm.com>
-Content-Language: en-GB
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-In-Reply-To: <20250317141700.3701581-3-kevin.brodsky@arm.com>
-Content-Type: text/plain; charset=UTF-8
+Date: Mon, 24 Mar 2025 11:04:56 +0100
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+Subject: Re: s390 hmac
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <Z-AJFwndherQBH2W@gondor.apana.org.au>
+References: <Z-AJFwndherQBH2W@gondor.apana.org.au>
+Message-ID: <1aa33386ca1c39438fd17ea651a21903@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ws17yETRShJz3hHrGZcRTIIwVQZZRcuN
+X-Proofpoint-ORIG-GUID: ws17yETRShJz3hHrGZcRTIIwVQZZRcuN
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-24_04,2025-03-21_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ suspectscore=0 priorityscore=1501 impostorscore=0 spamscore=0 adultscore=0
+ mlxscore=0 mlxlogscore=985 clxscore=1015 malwarescore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503240072
 
-On 17/03/2025 15:16, Kevin Brodsky wrote:
-> diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-> index e164ca66f0f6..3c8ec3bfea44 100644
-> --- a/include/asm-generic/pgalloc.h
-> +++ b/include/asm-generic/pgalloc.h
-> @@ -23,6 +23,11 @@ static inline pte_t *__pte_alloc_one_kernel_noprof(struct mm_struct *mm)
->  
->  	if (!ptdesc)
->  		return NULL;
-> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
+On 2025-03-23 14:13, Herbert Xu wrote:
+> Hi Harald:
+> 
+> I'm working on making the export format of hash algorithms compatible
+> so that you can switch between implementations seamlessly.
+> 
+> I've got a question about the s390 hmac implementation.  How does
+> the hardware tell if it's the first update (where the cv from the
+> param block contains undefined state) or not? Is it a bit in
+> s390_kmac_gr0 or is it the imbl?
+> 
+> Thanks,
 
-As reported by the CI [1], this can cause trouble on x86 because dtor
-calls are missing in pud_free_pmd_page() and pmd_free_pte_page(). Will
-fix in the next version.
+Hi Herbert
 
-- Kevin
+that is the ikp bit in the s390_kmac_gr0 struct:
 
-[1] https://lore.kernel.org/oe-lkp/202503211612.e11bd73f-lkp@intel.com/
+union s390_kmac_gr0 {
+	unsigned long reg;
+	struct {
+		unsigned long		: 48;
+		unsigned long ikp	:  1;
+		unsigned long iimp	:  1;
+		unsigned long ccup	:  1;
+		unsigned long		:  6;
+		unsigned long fc	:  7;
+	};
+};
+
+It needs to be initial 0 and the firmware sets it to 1 with
+the inner key padding and the hashing done.
+
+Holger's implementation in hmac_s390.c of the clear key hmac
+holds this gr0 value as part of the running hash context:
+
+struct s390_kmac_sha2_ctx {
+	u8 param[MAX_DIGEST_SIZE + MAX_IMBL_SIZE + MAX_BLOCK_SIZE];
+	union s390_kmac_gr0 gr0;
+	u8 buf[MAX_BLOCK_SIZE];
+	unsigned int buflen;
+};
