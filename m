@@ -1,118 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6AA225EF90;
-	Tue, 25 Mar 2025 18:10:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E89C41F2361;
+	Tue, 25 Mar 2025 19:49:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742926243; cv=none; b=XiArqvVi+98FNV7v2z2+slCgtxu++NQPXqCnL2hJm55UkuAOt0WhD5wEeFazRPG5Bh3N2e5cazLWm6uiA3Fg2y/iEVV8n5kDAP+z2zwb0n9SZhLiSaJ/kUzAvBR4RE04qp0ujlg8O5vjmBWHArTo6KgAt8dEI+k0J8/m8ggecX8=
+	t=1742932172; cv=none; b=Deq0DOpjJjHhJ1BGwtY/kZv7iCAiuI2a0CLzzQm0TPldQvvHvj9NIesQL7a65bQxubjvKZbSHi2c1qci75I++MqFsGTS5KJ4QpC6mRU+PcP4lF1ptOFnlNwQ0hB4B2lRtoMzd7cvCAvHtMs5hPBm/DbjTIpKTyPDmsnD1Ai5t+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742926243; c=relaxed/simple;
-	bh=3meA6QebgpcfGe2Vp3GUcuOU34OuRrsssJ+h7QcYQtA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nm1zbL7oiXQpJRGCWYZcvF11olEfGq9fnqYC9szl/lD1H2mb7jcM9JS25dPXe29fbWVeeqJ4UTac8z1k4262xAn7aKnv4BJyttSE+vdnwf2zm3EMSgT9aFlQV/eM95JSRzZLY4qKHt7HkDhLcFQbyoPlJmcACs22WIWjSgQ+v50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Cu6tabK8; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1742932172; c=relaxed/simple;
+	bh=4VQk3pFiSriwbHs0v3wS3Iq/EZ3JdXeMewF/E0+3tOQ=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=A6Qomct18rT6ZSGC/9bChpBGtf3ST8znFMhdX1dbR6swsg6pxoneNNAbdXd07mfisMf7JxQhK3EEdWwAseF1DzPijxhdQalSJapffrlhoroe68UEvWQhiPRBdGaHr/cAJ+FtELdJYDJXFNJnslrprK2WS1Dtd8kjqscWTOHYhBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gowlxC+0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Cu6tabK8"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52PEOhVN027698;
-	Tue, 25 Mar 2025 18:10:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=m8bPoE
-	EzwxicbIZ0HqZaTaWDkzQ7EBXE5jY3xeVaYLo=; b=Cu6tabK8/ayehedRkGbZ8l
-	rHaVHMgsE3KOaaGGqw1MWlmj4UH9le8TagVcoBkwCJx+163PKyUtu4DDfmvQyEMe
-	H19uJ2HZHo4SSkS2G4HEgtGgM9UlB2stk0Y7geiuocFPNBqX8mVgRofuC6EG20pV
-	6pJS660O32CJPSbUY3sbJkiT6wYkalxOXUV7uDkelLOSpxZR+udlthY2Zgw09wH1
-	64bSbAyL/SJVWZ+2vBjHfssOWJpRRjv/AREe/sFnlWGvr6ZSLwSjzcfQzUzF9C/2
-	V7pMQvndLlC6H6XgIx83rzwDa494vh33PNdzPKmzUC7Vzhlnl7U5zfFwKHEAN8dg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45kbjwxeke-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Mar 2025 18:10:38 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52PFuFDI030325;
-	Tue, 25 Mar 2025 18:10:38 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45j7htcw29-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Mar 2025 18:10:37 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52PIAauu30999142
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Mar 2025 18:10:36 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 360B020040;
-	Tue, 25 Mar 2025 18:10:36 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A280F20043;
-	Tue, 25 Mar 2025 18:10:35 +0000 (GMT)
-Received: from [9.171.41.98] (unknown [9.171.41.98])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 25 Mar 2025 18:10:35 +0000 (GMT)
-Message-ID: <bcaa276c-3c26-44da-b06b-4935bc1384f0@linux.ibm.com>
-Date: Tue, 25 Mar 2025 19:10:34 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gowlxC+0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C350C4CEF1;
+	Tue, 25 Mar 2025 19:49:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1742932171;
+	bh=4VQk3pFiSriwbHs0v3wS3Iq/EZ3JdXeMewF/E0+3tOQ=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=gowlxC+0XZ6ALnS4ljvZY2yFR0E1+afbpyEuPoc1m8nolyAvjrzOClx2GfhszCgrx
+	 tGUjAVogebUg97sU0TRcY+yHC9h2ykOeHGtk0TCCgY5j7jEbZMdT9PSFPdt5fzpfrq
+	 gz9dP3tPHBQums5BYH1uNPhW3qOTmEzmx4olYvKOP+1Y9jgQECPzhxJFiTqs6b5lIg
+	 eTUvRRoazbxJTqnXA6E1SiuJk1XqGWPNHMmsN/ZLx9UpR03GKgficc7K3w3v1CXCcB
+	 3H5OZlMqTBvQX7d7pZISYg9hG2xG9XloKNOlcaArV2u5hyJCXRCbwKboBfdNoyY3Nt
+	 Ln6ZT5Ank5raw==
+From: Namhyung Kim <namhyung@kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, acme@kernel.org, irogers@google.com, 
+ james.clark@linaro.org, Thomas Richter <tmricht@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+ hca@linux.ibm.com
+In-Reply-To: <20250324152756.3879571-1-tmricht@linux.ibm.com>
+References: <20250324152756.3879571-1-tmricht@linux.ibm.com>
+Subject: Re: [PATCH] perf trace: Fix wrong size to bpf_map__update_elem
+ call
+Message-Id: <174293217146.2401011.2061055290446825468.b4-ty@kernel.org>
+Date: Tue, 25 Mar 2025 12:49:31 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: s390 hmac
-To: Herbert Xu <herbert@gondor.apana.org.au>,
-        Harald Freudenberger <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-References: <Z-AJFwndherQBH2W@gondor.apana.org.au>
- <1aa33386ca1c39438fd17ea651a21903@linux.ibm.com>
- <Z-JntzkWQqc-Atlc@gondor.apana.org.au>
-Content-Language: en-US
-From: Holger Dengler <dengler@linux.ibm.com>
-In-Reply-To: <Z-JntzkWQqc-Atlc@gondor.apana.org.au>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YIVtMlbX8pTz9RvoOmFNpNjYOYoAkKMc
-X-Proofpoint-ORIG-GUID: YIVtMlbX8pTz9RvoOmFNpNjYOYoAkKMc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-25_07,2025-03-25_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- priorityscore=1501 lowpriorityscore=0 phishscore=0 spamscore=0
- clxscore=1015 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
- mlxlogscore=934 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503250119
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15-dev-c04d2
 
-On 25/03/2025 09:22, Herbert Xu wrote:
-> On Mon, Mar 24, 2025 at 11:04:56AM +0100, Harald Freudenberger wrote:
->>
->> that is the ikp bit in the s390_kmac_gr0 struct:
+On Mon, 24 Mar 2025 16:27:56 +0100, Thomas Richter wrote:
+> In linux-next
+> commit c760174401f6 ("perf cpumap: Reduce cpu size from int to int16_t")
+> causes the perf tests 100 126 to fail on s390:
 > 
-> Thank you Harald!
+> Output before:
+>  # ./perf test 100
+>  100: perf trace BTF general tests         : FAILED!
+>  #
 > 
->> union s390_kmac_gr0 {
->> 	unsigned long reg;
->> 	struct {
->> 		unsigned long		: 48;
->> 		unsigned long ikp	:  1;
->> 		unsigned long iimp	:  1;
->> 		unsigned long ccup	:  1;
-> 
-> I hope I don't have to worry about ccup and can just leave it
-> as zero during import, right?
+> [...]
+Applied to perf-tools-next, thanks!
 
-I've to do some further test to be 100% sure. This bit is an indicator, if the instruction has updated the hardware crypto counter for hmac or not. Normally, it should be initialized with 0 before the first instruction call and after the instruction call the flag indicates, if the counter has been updated or not. If the flag is 1, it should be 1 for the following calls, otherwise the hardware crypto counters show wrong statistics.
+Best regards,
+Namhyung
 
-I've no idea how to set the bit on import correctly, if parts of the hmac operation has been processed by another cipher implementation. Setting it to 0 means, the partial hmac operation is counters as a full operation. setting it to 1 would mean, that the operation after an import is not reflected in the statistics.
-
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
 
