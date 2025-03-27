@@ -1,243 +1,203 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7AE417A2F8
-	for <linux-s390@vger.kernel.org>; Thu, 27 Mar 2025 12:32:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4814214A98
+	for <linux-s390@vger.kernel.org>; Thu, 27 Mar 2025 14:39:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743078730; cv=none; b=s4TcJ53Mh4Bo+nhbqi8oQrd0p97XI3iD+TlRFQiMly6FkcvIflWkR6eRmMCHPEeyf5vsDiaSoC9+O4J9ZpsAM1HBn9cn3x9qunJn9Qmcem7JggOFjjfKAGREeNp74/XO+zCedK/kQ33gYlBAmiqe7Y396+BidV+9VBQHP/nGj/Q=
+	t=1743086393; cv=none; b=TC82WDr/obT7WKlR7ADgI/U+Ye74wyEAscFOUATYPMJ9q8p3eMnW13Tcc9a+nZ0CaJbW5+kcw7OXXofeq37uQIlGJIxuOLlCICGb9yfGrqybsQHu3NPURXBB8hbF6/kZup/D5DwJLmRAOAs8f/W5LFM8kOEkn9v/dJO9L2YvawI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743078730; c=relaxed/simple;
-	bh=Qwf5Jo1BHYvJLfqvwao6j95TasaeAbEnTX2yPLsqNvc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tTcGUf8usoOJTxuiSXL88n6s83PNvksk+5mnJYy0JZ5eByqzViDLJB+l33ghNhsuAIJina1Q6zo8/hMFc1KKaKPrfZNp2GtZoX0z+c0wYKHk72+PJOhIOTdH76zuJIku394QXLL8ZPzVtV9IV8Fq4Oy4kgk0QjQdNVWCKRnMhd4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=NPoancez; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=q0PRQMJp; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=NPoancez; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=q0PRQMJp; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1743086393; c=relaxed/simple;
+	bh=vsieCJLLJBjxDlgo6zegm5m/cDFTeI7yWzYUTVlapI8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qWO5J59pIhp79ecHfRs9xGWko0BQkI8QWJe00yKRPaaSVoYzK1Opowj4mLJB03ifnpVxBhgv5kRpcSzWo/TPd28hAcRdxxOtsDB7gPCImh6IZFL0UD7LqhnS3162/yqUu9lE1jzkp1CFc1OgqFXUgsRzSLQ/Wme7KAJTWa3JaiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UdUTDkeh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="NPoancez";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="q0PRQMJp";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="NPoancez";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="q0PRQMJp"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 4DD461F449;
-	Thu, 27 Mar 2025 12:32:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1743078726; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YZG14QR51a53B21JvKh9jT0ARcAKPuGiQLGnJ/TJfNE=;
-	b=NPoancez8cGcz158aaFuQXkVY/Rk1QSp1PE1iTEKex7C/C6X4QLcYqBAD5m89kw8rjhMNU
-	qLNSQY0CuaoqJZN1TVHH9NoiYdImWpdI1HwDYKNvGJ1GaDOt2WHALfPiUMy1v+/zTFQFpJ
-	P60x1ligl+CU3bHS59kivJz4FrbDU4M=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1743078726;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YZG14QR51a53B21JvKh9jT0ARcAKPuGiQLGnJ/TJfNE=;
-	b=q0PRQMJpRAwDi+liitWJVrsE7LN8A7E7Cwjwebt1a90Ufw/FNfaGyDh2IYj4ix0C5xBiRH
-	N3Vu1DNqSuDGdnBg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1743078726; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YZG14QR51a53B21JvKh9jT0ARcAKPuGiQLGnJ/TJfNE=;
-	b=NPoancez8cGcz158aaFuQXkVY/Rk1QSp1PE1iTEKex7C/C6X4QLcYqBAD5m89kw8rjhMNU
-	qLNSQY0CuaoqJZN1TVHH9NoiYdImWpdI1HwDYKNvGJ1GaDOt2WHALfPiUMy1v+/zTFQFpJ
-	P60x1ligl+CU3bHS59kivJz4FrbDU4M=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1743078726;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YZG14QR51a53B21JvKh9jT0ARcAKPuGiQLGnJ/TJfNE=;
-	b=q0PRQMJpRAwDi+liitWJVrsE7LN8A7E7Cwjwebt1a90Ufw/FNfaGyDh2IYj4ix0C5xBiRH
-	N3Vu1DNqSuDGdnBg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 421F813A41;
-	Thu, 27 Mar 2025 12:32:06 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 9ObMD0ZF5WfJPAAAD6G6ig
-	(envelope-from <jack@suse.cz>); Thu, 27 Mar 2025 12:32:06 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id EEF6AA082A; Thu, 27 Mar 2025 13:32:05 +0100 (CET)
-Date: Thu, 27 Mar 2025 13:32:05 +0100
-From: Jan Kara <jack@suse.cz>
-To: Andrey Albershteyn <aalbersh@redhat.com>
-Cc: Richard Henderson <richard.henderson@linaro.org>, 
-	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	Andrey Albershteyn <aalbersh@kernel.org>
-Subject: Re: [PATCH v4 2/3] fs: split fileattr/fsxattr converters into helpers
-Message-ID: <7por3exi45jfmlprgp6v573n3mwdzoxglzfypygvsocw3x42v4@7wvnedauzi5f>
-References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
- <20250321-xattrat-syscall-v4-2-3e82e6fb3264@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UdUTDkeh"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52R5vgd0017410;
+	Thu, 27 Mar 2025 14:39:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=avIBYvQnJZKd6ZXGqJz9hLNesh+bHNs/ccMTeDFui
+	Xg=; b=UdUTDkehqSMsXRjfri3bQHRPveOn1e6toJdq7DVFN47NwOfsyDJ99e9g5
+	KvfUJkJfHNJEQBH/KPX6DN2NwOWcMLAIIZuGh1cqIII5Ixy6oSYvHv/A/yyRaDTr
+	ClZP+ntRWxCHdpZh2YvQKzQuLLDFWbRb4t5HvpFon8JD/p9x/HZIGrbPDuoq0vc2
+	rwFHvAuRXjLM7O3P2grCss0SzCylitYaEL1z+rusPSAkpzHNp03GYy6XNa9XOOQS
+	R6PDzz0yYKBtCOERmP0Nw+OS/n9nSqVpDwAcqnRWCV9dXWqNbFhr+/qwD1h5rhza
+	S6WNgw/eTkvClDNFB2Ul47XjQfZtw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45mnrwnfr3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Mar 2025 14:39:47 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52RB1N7L025478;
+	Thu, 27 Mar 2025 14:39:46 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45j7x0dw8t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Mar 2025 14:39:46 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52REdgvq34669166
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Mar 2025 14:39:42 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A79B620040;
+	Thu, 27 Mar 2025 14:39:42 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3F9DF2004D;
+	Thu, 27 Mar 2025 14:39:42 +0000 (GMT)
+Received: from funtu2.fritz.box?044ibm.com (unknown [9.171.80.24])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Mar 2025 14:39:42 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: [PATCH v3 00/21] AP bus/zcrypt/pkey/paes no-mem-alloc patches
+Date: Thu, 27 Mar 2025 15:39:20 +0100
+Message-ID: <20250327143941.45507-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250321-xattrat-syscall-v4-2-3e82e6fb3264@kernel.org>
-X-Spam-Level: 
-X-Spamd-Result: default: False [-3.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_COUNT_THREE(0.00)[3];
-	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	FREEMAIL_CC(0.00)[linaro.org,gmail.com,armlinux.org.uk,arm.com,kernel.org,linux-m68k.org,monstr.eu,alpha.franken.de,hansenpartnership.com,gmx.de,linux.ibm.com,ellerman.id.au,csgroup.eu,users.sourceforge.jp,libc.org,physik.fu-berlin.de,davemloft.net,gaisler.com,linutronix.de,redhat.com,alien8.de,linux.intel.com,zytor.com,zankel.net,zeniv.linux.org.uk,suse.cz,digikod.net,google.com,arndb.de,paul-moore.com,namei.org,hallyn.com,vger.kernel.org,lists.infradead.org,lists.linux-m68k.org,lists.ozlabs.org];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[60];
-	RCVD_TLS_LAST(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email]
-X-Spam-Score: -3.80
-X-Spam-Flag: NO
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Le2wd_j2qhjcgfX-It_b1c7QJihxV5wd
+X-Proofpoint-ORIG-GUID: Le2wd_j2qhjcgfX-It_b1c7QJihxV5wd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-27_01,2025-03-26_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ impostorscore=0 priorityscore=1501 malwarescore=0 spamscore=0 phishscore=0
+ mlxlogscore=999 lowpriorityscore=0 suspectscore=0 adultscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503270099
 
-On Fri 21-03-25 20:48:41, Andrey Albershteyn wrote:
-> This will be helpful for get/setfsxattrat syscalls to convert
-> between fileattr and fsxattr.
-> 
-> Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
+This series of patches has the goal to open up a do-not-allocate
+memory path from the callers of the pkey in-kernel api down to
+the crypto cards and back.
 
-Looks good. Feel free to add:
+The asynch in-kernel cipher implementations (and the s390 PAES
+cipher implementations are one of them) may be called in a
+context where memory allocations which trigger IO is not acceptable.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+So this patch series reworks the AP bus code, the zcrypt layer,
+the pkey layer and the pkey handlers to respect this situation
+by processing a new parameter xflags (execution hints flags).
+There is a flag PKEY_XFLAG_NOMEMALLOC which tells the code to
+not allocate memory which may lead to IO operations.
 
-								Honza
+To reach this goal, the actual code changes have been differed.
+The zcrypt misc functions which need memory for cprb build
+use a pre allocated memory pool for this purpose. The findcard()
+functions have one temp memory area preallocated and protected
+with a mutex. Some smaller data is not allocated any more but went
+to the stack instead. The AP bus also uses a pre-allocated
+memory pool for building AP message requests.
 
-> ---
->  fs/ioctl.c               | 32 +++++++++++++++++++++-----------
->  include/linux/fileattr.h |  2 ++
->  2 files changed, 23 insertions(+), 11 deletions(-)
-> 
-> diff --git a/fs/ioctl.c b/fs/ioctl.c
-> index 4434c97bc5dff5a3e8635e28745cd99404ff353e..840283d8c406623d8d26790f89b62ebcbd39e2de 100644
-> --- a/fs/ioctl.c
-> +++ b/fs/ioctl.c
-> @@ -538,6 +538,16 @@ int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
->  }
->  EXPORT_SYMBOL(vfs_fileattr_get);
->  
-> +void fileattr_to_fsxattr(const struct fileattr *fa, struct fsxattr *fsx)
-> +{
-> +	memset(fsx, 0, sizeof(struct fsxattr));
-> +	fsx->fsx_xflags = fa->fsx_xflags;
-> +	fsx->fsx_extsize = fa->fsx_extsize;
-> +	fsx->fsx_nextents = fa->fsx_nextents;
-> +	fsx->fsx_projid = fa->fsx_projid;
-> +	fsx->fsx_cowextsize = fa->fsx_cowextsize;
-> +}
-> +
->  /**
->   * copy_fsxattr_to_user - copy fsxattr to userspace.
->   * @fa:		fileattr pointer
-> @@ -549,12 +559,7 @@ int copy_fsxattr_to_user(const struct fileattr *fa, struct fsxattr __user *ufa)
->  {
->  	struct fsxattr xfa;
->  
-> -	memset(&xfa, 0, sizeof(xfa));
-> -	xfa.fsx_xflags = fa->fsx_xflags;
-> -	xfa.fsx_extsize = fa->fsx_extsize;
-> -	xfa.fsx_nextents = fa->fsx_nextents;
-> -	xfa.fsx_projid = fa->fsx_projid;
-> -	xfa.fsx_cowextsize = fa->fsx_cowextsize;
-> +	fileattr_to_fsxattr(fa, &xfa);
->  
->  	if (copy_to_user(ufa, &xfa, sizeof(xfa)))
->  		return -EFAULT;
-> @@ -563,6 +568,15 @@ int copy_fsxattr_to_user(const struct fileattr *fa, struct fsxattr __user *ufa)
->  }
->  EXPORT_SYMBOL(copy_fsxattr_to_user);
->  
-> +void fsxattr_to_fileattr(const struct fsxattr *fsx, struct fileattr *fa)
-> +{
-> +	fileattr_fill_xflags(fa, fsx->fsx_xflags);
-> +	fa->fsx_extsize = fsx->fsx_extsize;
-> +	fa->fsx_nextents = fsx->fsx_nextents;
-> +	fa->fsx_projid = fsx->fsx_projid;
-> +	fa->fsx_cowextsize = fsx->fsx_cowextsize;
-> +}
-> +
->  static int copy_fsxattr_from_user(struct fileattr *fa,
->  				  struct fsxattr __user *ufa)
->  {
-> @@ -571,11 +585,7 @@ static int copy_fsxattr_from_user(struct fileattr *fa,
->  	if (copy_from_user(&xfa, ufa, sizeof(xfa)))
->  		return -EFAULT;
->  
-> -	fileattr_fill_xflags(fa, xfa.fsx_xflags);
-> -	fa->fsx_extsize = xfa.fsx_extsize;
-> -	fa->fsx_nextents = xfa.fsx_nextents;
-> -	fa->fsx_projid = xfa.fsx_projid;
-> -	fa->fsx_cowextsize = xfa.fsx_cowextsize;
-> +	fsxattr_to_fileattr(&xfa, fa);
->  
->  	return 0;
->  }
-> diff --git a/include/linux/fileattr.h b/include/linux/fileattr.h
-> index 47c05a9851d0600964b644c9c7218faacfd865f8..31888fa2edf10050be134f587299256088344365 100644
-> --- a/include/linux/fileattr.h
-> +++ b/include/linux/fileattr.h
-> @@ -33,7 +33,9 @@ struct fileattr {
->  	bool	fsx_valid:1;
->  };
->  
-> +void fileattr_to_fsxattr(const struct fileattr *fa, struct fsxattr *fsx);
->  int copy_fsxattr_to_user(const struct fileattr *fa, struct fsxattr __user *ufa);
-> +void fsxattr_to_fileattr(const struct fsxattr *fsx, struct fileattr *fa);
->  
->  void fileattr_fill_xflags(struct fileattr *fa, u32 xflags);
->  void fileattr_fill_flags(struct fileattr *fa, u32 flags);
-> 
-> -- 
-> 2.47.2
-> 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Note that the PAES implementation still needs to get reworked
+to run the protected key derivation in a real asynchronous way.
+However, this rework of AP bus, zcrypt and pkey is the base work
+required before reconsidering the PAES implementation.
+
+The patch series starts bottom (AP bus) and goes up the call
+chain (PKEY). At any time in the patch stack it should compile.
+For easier review I tried to have one logic code change by
+each patch and thus keep the patches "small". For the upstream
+version I intend to fold them together into only a few commits.
+
+Changelog:
+v1: initial version
+v2: - Rework on patch 0001 and 0002 based on feedback from Holger.
+      Also there was one place in zcrypt_msgtype50.c where still
+      an ap msg buffer was alloacated.
+    - Rework on patch 0003 - fixed feedback from Holger. Also the
+      min poolitems is now a module parameter and defaults to 8.
+    - Rework on patch 0004 - as suggested by Holger the "userspace"
+      parameter is now included into the ap msg flags.
+    - Rework on patch 0005 - nr of cca cprbs in the mempool is now
+      a module parameter.
+    - Rework on patch 0006 - nr of ep11 cprbs in the mempool is now
+      a module parameter.
+    - Rework on patch 0007 - as suggested by Holger instead of
+      implementing a copy-and-pasted new function
+      zcrypt_device_status_mask_ext2() use and extend the existing
+      the existing function to avoid code duplication.
+    - The rest of the patch series needed adaptions but there is
+      no functional change compared to v1.
+v3: Rework based on feedback from Holger:
+    - There is now one zcrypt module parameter "mempool_threshold"
+      controlling the cprb mempools for CCA and EP11. The default
+      value of 5 shall cover 5 CCA or EP11 requests/replies in parallel.
+    - The cca and ep11 card and domain info cache is done - anyway
+      nearly all callers used the verify=1 to enforce the retrieval
+      of fresh information. So now this info is always freshly fetched
+      from the card/domain.
+    - Holger found out that there are some unused functions lurking
+      around - deleted :-)
+    - The only thing still missing is no-mem support for the UV
+      driver. As of now the pkey uv layer refuses to contact the UV
+      dd in case the NOMEMALLOC flag is given.
+    - Tested and found no issues.
+    
+Harald Freudenberger (21):
+  s390/ap: Move response_type struct into ap_msg struct
+  s390/ap/zcrypt: Rework AP message buffer allocation
+  s390/ap: Introduce ap message buffer pool
+  s390/ap/zcrypt: New xflag parameter
+  s390/zcrypt: Introduce cprb mempool for cca misc functions
+  s390/zcrypt: Introduce cprb mempool for ep11 misc functions
+  s390/zcrypt: Rework zcrypt function zcrypt_device_status_mask_ext
+  s390/zcrypt: Introduce pre-allocated device status array for cca misc
+  s390/zcrypt: Introduce pre-allocated device status array for ep11 misc
+  s390/zcrypt: Remove unused functions from cca misc
+  s390/zcrypt: Remove CCA and EP11 card and domain info caches
+  s390/zcrypt/pkey: Rework cca findcard() implementation and callers
+  s390/zcrypt/pkey: Rework ep11 findcard() implementation and callers
+  s390/zcrypt: Rework cca misc functions kmallocs to use the cprb
+    mempool
+  s390/zcrypt: Propagate xflags argument with cca_get_info()
+  s390/zcrypt: Locate ep11_domain_query_info onto the stack instead of
+    kmalloc
+  s390/zcrypt: Rework ep11 misc functions to use cprb mempool
+  s390/pkey: Rework CCA pkey handler to use stack for small memory
+    allocs
+  s390/pkey: Rework EP11 pkey handler to use stack for small memory
+    allocs
+  s390/zcrypt/pkey: Provide and pass xflags within pkey and zcrypt
+    layers
+  s390/pkey/crypto: Introduce xflags param for pkey in-kernel API
+
+ arch/s390/crypto/paes_s390.c           |   2 +-
+ arch/s390/include/asm/pkey.h           |  15 +-
+ drivers/s390/crypto/ap_bus.c           |  73 ++++
+ drivers/s390/crypto/ap_bus.h           |  30 +-
+ drivers/s390/crypto/pkey_api.c         |  54 +--
+ drivers/s390/crypto/pkey_base.c        |  34 +-
+ drivers/s390/crypto/pkey_base.h        |  37 +-
+ drivers/s390/crypto/pkey_cca.c         | 121 +++---
+ drivers/s390/crypto/pkey_ep11.c        | 106 +++---
+ drivers/s390/crypto/pkey_pckmo.c       |   9 +-
+ drivers/s390/crypto/pkey_sysfs.c       |   4 +-
+ drivers/s390/crypto/pkey_uv.c          |  16 +-
+ drivers/s390/crypto/zcrypt_api.c       | 148 +++++---
+ drivers/s390/crypto/zcrypt_api.h       |  16 +-
+ drivers/s390/crypto/zcrypt_ccamisc.c   | 486 +++++++++----------------
+ drivers/s390/crypto/zcrypt_ccamisc.h   |  49 +--
+ drivers/s390/crypto/zcrypt_cex4.c      |  39 +-
+ drivers/s390/crypto/zcrypt_ep11misc.c  | 459 +++++++++++------------
+ drivers/s390/crypto/zcrypt_ep11misc.h  |  27 +-
+ drivers/s390/crypto/zcrypt_msgtype50.c |  36 +-
+ drivers/s390/crypto/zcrypt_msgtype6.c  | 109 +++---
+ 21 files changed, 898 insertions(+), 972 deletions(-)
+
+
+base-commit: a59fa56c6342f6cac1e37a4a525fbb36b99063ae
+--
+2.43.0
+
