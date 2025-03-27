@@ -1,237 +1,188 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB71C20CCDE
-	for <linux-s390@vger.kernel.org>; Thu, 27 Mar 2025 09:33:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C971FF7D1;
+	Thu, 27 Mar 2025 09:45:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743068037; cv=none; b=CZPVU/1SyQGhGqnWb7j9gFr/36yDpUShYG/xh5++nV5zjAgxAYrN4YL9ZUkgz6kI3EZEAt2v3IPilmqfY6mdhwiFbTQnIlTTHqzHqMXvq2y+6eOZz+Rk8mfUM5gx2mpva0ccEtQyGdVsMsqssjrH8mGK21pgWAWs1uH9n+oZ7xI=
+	t=1743068753; cv=none; b=D8hOJMvO+TBXA4VBOCFhsxjQk3kfJX7PUNgK2f48OPLIff0AXvyY+tnx6MaL1u2UfHNsFDf+1zsfAknjQ3L8NstPL+PWPKO8i6SzHMbCQA9Z17b1TgvtHyOzzRE0WuJWBj98APom8sZ45LYpk7f9dBMWMYJwvfxpXCyaJI9D/TY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743068037; c=relaxed/simple;
-	bh=Ux2uTvJSKDFlMu3udvsF6mFtz0qXJP724SLPGRRJ9wc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EtKTPw4zAJE6ZNA/0hhvN2gMOIRevG7qUWUkrsJ5Ff3gnSKrz/t4LhdOMqA4hzCP7sAKLSStmXzpK/lCcoQamIbGhZWl0S0vVWpAySxPT6zMZ1WbRii1kb1qN1h2pfDXyyef8yHBADJaUTgDxvwLF83ID8u8Am/GVJI/DN5roaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yxk2u6G8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1743068753; c=relaxed/simple;
+	bh=3QdH1x7K0P7siEkuBn7C56BoVRQuO6r9YkludoN80sM=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=DWoqENZ7TzvaS1Bw/txd+HpvzXgWCTOIwd3efe3FZzAAL/r6gi4g9vE5Cf+E1JABeoD1HKIPB2Jug6os9iEYR5R6Eiw2GRZp98jsFZ/eL3yhicfTha1NhGweL7miGoMNMEG/NPsvtmHn0LF7+HJuv1/XGT/j9pgnHk8KOgl7Qcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fqo1Mapk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yxk2u6G8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743068034;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=h5CNfk8nfXsjqd7Al/TA3/xzYA4Q3Hci3BjuX9fq6Hk=;
-	b=Yxk2u6G8GdDO8rNXpWp0V9JwKIQ8U2D34f97pESAO9bBc8S+oJoMb0ffSeUiHZ8JK2ikwn
-	g7u3c3nX6vL6m9WEFf/hXn2aBTFGwu7/FTENUEk5ouMhqGh+33PMlK0XH/ckk4JjqPBNqN
-	e4uVupalk5jfvGBDpGtxg41uHUOPuqg=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-610-q6Wop9NLPWGkiUEqqj6Niw-1; Thu, 27 Mar 2025 05:33:52 -0400
-X-MC-Unique: q6Wop9NLPWGkiUEqqj6Niw-1
-X-Mimecast-MFC-AGG-ID: q6Wop9NLPWGkiUEqqj6Niw_1743068030
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ac25852291cso70717066b.2
-        for <linux-s390@vger.kernel.org>; Thu, 27 Mar 2025 02:33:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743068030; x=1743672830;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=h5CNfk8nfXsjqd7Al/TA3/xzYA4Q3Hci3BjuX9fq6Hk=;
-        b=ewNNNITn9wCiJVlDDyrGeFQkzte6eCa6FVQYghplf8VpzKErtZ+IdBGj+wI1cegweC
-         RLeUD/KA7mK+IP3SpxqAF1unrXOQFvQ0iDU2vfO5AHv/5kJH3pg7NVeAYSrgQdiTY2nP
-         R1XQwwcBqe1nWwr8rTx7wZkQSB5IXvbpyu3npF9+bqDQvKE0xzKhCHd6ZrLuMCQmG7hR
-         /uYiUq+9Jk/MK2GirRJJN3jP7qIzyiii5AC0GLo01x+OKXNKdyVFXaJiyRVYoftktajB
-         HTQJX/b2fBYUqBuHlZco1U2cHNgUwnsnFyoejcYVTLNJgqpT5xN0bIoYOm3UxVMrICTS
-         leeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUYdpcSxhntOdwU1YSstGZ7lONhboaSAO91ns4hWW1KEh6Xivo8Scy7S23Y4f9XMyjNOayje98qcAZa@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx2bRp3ucczHcCb/0yxZbVr+OOcQ6moY7ALmCl2Iq4Acjv+TluZ
-	e55DI3dl2LempA3BMA+8S2nC+czseF7FFwZUHfc+lPt17Y0nQvGYG14EZ0boDdAhxynp2GwnB01
-	gGAIOuv6XX3/wFG8IQAfqu+aXnnTLmTNuRPnlbqi475rq27jCVjPlkYm4rg==
-X-Gm-Gg: ASbGnctFklEY4/j4j40QNkR5UQgMWICHHApknZaOj0ileE7gBlub4rKS2t40gHgjf+h
-	3x/IQqFjL7ZHAa2a5od6vU2Zk+RhO0zBYPafedv5Br4We2J9rN7h5uqCmXyoDctFrfCqq8vaviQ
-	jn6moM+q8pzlXwXJNVLCyU4QFTLvG4tdeZuMFreeygqjTErpFaejpcagG8FLE1gr4+RF5f/dySC
-	2YxTLgnWhwt+qObzCS+Ni561c3W/7RU+r8l/xJvzaaVXsigJZbQTQPNgFc/wq9onS0ovsfDV1d7
-	zGQUbRPmbnCVs9Gfqgfysttl0zVPBScS6JE=
-X-Received: by 2002:a17:907:9485:b0:ac2:87b0:e4a5 with SMTP id a640c23a62f3a-ac6faeaf925mr243565066b.2.1743068030219;
-        Thu, 27 Mar 2025 02:33:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE2zYSC7bMfUbOdY5puF0aDWWJJczWfClUA+AIABeR6/ROC8MRiCRtqFsrSolJNpWyhPAQwww==
-X-Received: by 2002:a17:907:9485:b0:ac2:87b0:e4a5 with SMTP id a640c23a62f3a-ac6faeaf925mr243555966b.2.1743068029638;
-        Thu, 27 Mar 2025 02:33:49 -0700 (PDT)
-Received: from thinky (ip-217-030-074-039.aim-net.cz. [217.30.74.39])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3efd47f44sm1185448066b.163.2025.03.27.02.33.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Mar 2025 02:33:49 -0700 (PDT)
-Date: Thu, 27 Mar 2025 10:33:47 +0100
-From: Andrey Albershteyn <aalbersh@redhat.com>
-To: Amir Goldstein <amir73il@gmail.com>
-Cc: Richard Henderson <richard.henderson@linaro.org>, 
-	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-xfs@vger.kernel.org
-Subject: Re: [PATCH v4 3/3] fs: introduce getfsxattrat and setfsxattrat
- syscalls
-Message-ID: <faqun3wrpvwrhwukql3niqvvauy5ngrpytx5bxbrv5xkounez3@m7j2znjuzapu>
-References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
- <20250321-xattrat-syscall-v4-3-3e82e6fb3264@kernel.org>
- <CAOQ4uxj2Fqmc_pSD4bqqoQu7QjmgSVp2V15FbmBdTNqQ03aPGQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fqo1Mapk"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52R3jxCC029968;
+	Thu, 27 Mar 2025 09:45:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bVV9Oc
+	/E5ALSiSYvlcvOW7CfrRcLn6yU+jtxwR+sryg=; b=Fqo1Mapk3ynVSf7SG8L6Jj
+	06yMY+QnWj0zxk4Pg48iqJc9Eti+Ekx/5IT/FMgpcTtuCvffHvZrRy6gLlup3Boq
+	oPWi7kAm2mOckCPXVVw08UmPhTn/gPmsFtQmGdH4jiV9zHYSBDlNlUGfBli+O4Et
+	b5W9CrKeHauDbJ0W/F9tx1R+aMVl93VAGx51ukTmr5roewbAvpsX1jWpF88gKTPZ
+	oS1vv0Slj0PrpO15x2eMZ1qRBwVjH0mjri6/8zqF+g5flAgll5yPBYjZFsLZjoTr
+	GG8R+t6CdIhp7j+IEBraKvGfvdOpCf8IOoOoxIS7gFwsSjUOdTWohfI8ByobrDlA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45my299hjn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Mar 2025 09:45:45 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52R7LHjN020101;
+	Thu, 27 Mar 2025 09:45:44 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45j8hp4rc4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Mar 2025 09:45:44 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52R9jhbO26215098
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Mar 2025 09:45:43 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B64258064;
+	Thu, 27 Mar 2025 09:45:43 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5364158057;
+	Thu, 27 Mar 2025 09:45:41 +0000 (GMT)
+Received: from [9.152.212.87] (unknown [9.152.212.87])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Mar 2025 09:45:41 +0000 (GMT)
+Message-ID: <c6bcb10536005fd36966a97574e424c17cde1105.camel@linux.ibm.com>
+Subject: Re: [PATCH v2] s390/pci: Fix dev.dma_range_map missing sentinel
+ element
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <jroedel@suse.de>,
+        Will Deacon <will@kernel.org>, Gerd Bayer <gbayer@linux.ibm.com>,
+        Jason
+ Gunthorpe <jgg@ziepe.ca>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev	 <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger	
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Date: Thu, 27 Mar 2025 10:45:40 +0100
+In-Reply-To: <20250312-fix_dma_map_alloc-v2-1-530108d9de21@linux.ibm.com>
+References: <20250312-fix_dma_map_alloc-v2-1-530108d9de21@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOQ4uxj2Fqmc_pSD4bqqoQu7QjmgSVp2V15FbmBdTNqQ03aPGQ@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: V8wp6Bh3sfBfwbN6GKk3kSG_pf8MaH7P
+X-Proofpoint-ORIG-GUID: V8wp6Bh3sfBfwbN6GKk3kSG_pf8MaH7P
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-26_09,2025-03-26_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 mlxlogscore=999 suspectscore=0 impostorscore=0
+ spamscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503270063
 
-On 2025-03-23 09:56:25, Amir Goldstein wrote:
-> On Fri, Mar 21, 2025 at 8:49 PM Andrey Albershteyn <aalbersh@redhat.com> wrote:
-> >
-> > From: Andrey Albershteyn <aalbersh@redhat.com>
-> >
-> > Introduce getfsxattrat and setfsxattrat syscalls to manipulate inode
-> > extended attributes/flags. The syscalls take parent directory fd and
-> > path to the child together with struct fsxattr.
-> >
-> > This is an alternative to FS_IOC_FSSETXATTR ioctl with a difference
-> > that file don't need to be open as we can reference it with a path
-> > instead of fd. By having this we can manipulated inode extended
-> > attributes not only on regular files but also on special ones. This
-> > is not possible with FS_IOC_FSSETXATTR ioctl as with special files
-> > we can not call ioctl() directly on the filesystem inode using fd.
-> >
-> > This patch adds two new syscalls which allows userspace to get/set
-> > extended inode attributes on special files by using parent directory
-> > and a path - *at() like syscall.
-> >
-> > CC: linux-api@vger.kernel.org
-> > CC: linux-fsdevel@vger.kernel.org
-> > CC: linux-xfs@vger.kernel.org
-> > Signed-off-by: Andrey Albershteyn <aalbersh@redhat.com>
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> ...
-> > +SYSCALL_DEFINE5(setfsxattrat, int, dfd, const char __user *, filename,
-> > +               struct fsxattr __user *, ufsx, size_t, usize,
-> > +               unsigned int, at_flags)
-> > +{
-> > +       struct fileattr fa;
-> > +       struct path filepath;
-> > +       int error;
-> > +       unsigned int lookup_flags = 0;
-> > +       struct filename *name;
-> > +       struct mnt_idmap *idmap;.
-> 
-> > +       struct dentry *dentry;
-> > +       struct vfsmount *mnt;
-> > +       struct fsxattr fsx = {};
-> > +
-> > +       BUILD_BUG_ON(sizeof(struct fsxattr) < FSXATTR_SIZE_VER0);
-> > +       BUILD_BUG_ON(sizeof(struct fsxattr) != FSXATTR_SIZE_LATEST);
-> > +
-> > +       if ((at_flags & ~(AT_SYMLINK_NOFOLLOW | AT_EMPTY_PATH)) != 0)
-> > +               return -EINVAL;
-> > +
-> > +       if (!(at_flags & AT_SYMLINK_NOFOLLOW))
-> > +               lookup_flags |= LOOKUP_FOLLOW;
-> > +
-> > +       if (at_flags & AT_EMPTY_PATH)
-> > +               lookup_flags |= LOOKUP_EMPTY;
-> > +
-> > +       if (usize > PAGE_SIZE)
-> > +               return -E2BIG;
-> > +
-> > +       if (usize < FSXATTR_SIZE_VER0)
-> > +               return -EINVAL;
-> > +
-> > +       error = copy_struct_from_user(&fsx, sizeof(struct fsxattr), ufsx, usize);
-> > +       if (error)
-> > +               return error;
-> > +
-> > +       fsxattr_to_fileattr(&fsx, &fa);
-> > +
-> > +       name = getname_maybe_null(filename, at_flags);
-> > +       if (!name) {
-> > +               CLASS(fd, f)(dfd);
-> > +
-> > +               if (fd_empty(f))
-> > +                       return -EBADF;
-> > +
-> > +               idmap = file_mnt_idmap(fd_file(f));
-> > +               dentry = file_dentry(fd_file(f));
-> > +               mnt = fd_file(f)->f_path.mnt;
-> > +       } else {
-> > +               error = filename_lookup(dfd, name, lookup_flags, &filepath,
-> > +                                       NULL);
-> > +               if (error)
-> > +                       return error;
-> > +
-> > +               idmap = mnt_idmap(filepath.mnt);
-> > +               dentry = filepath.dentry;
-> > +               mnt = filepath.mnt;
-> > +       }
-> > +
-> > +       error = mnt_want_write(mnt);
-> > +       if (!error) {
-> > +               error = vfs_fileattr_set(idmap, dentry, &fa);
-> > +               if (error == -ENOIOCTLCMD)
-> > +                       error = -EOPNOTSUPP;
-> 
-> This is awkward.
-> vfs_fileattr_set() should return -EOPNOTSUPP.
-> ioctl_setflags() could maybe convert it to -ENOIOCTLCMD,
-> but looking at similar cases ioctl_fiemap(), ioctl_fsfreeze() the
-> ioctl returns -EOPNOTSUPP.
-> 
-> I don't think it is necessarily a bad idea to start returning
->  -EOPNOTSUPP instead of -ENOIOCTLCMD for the ioctl
-> because that really reflects the fact that the ioctl is now implemented
-> in vfs and not in the specific fs.
-> 
-> and I think it would not be a bad idea at all to make that change
-> together with the merge of the syscalls as a sort of hint to userspace
-> that uses the ioctl, that the sycalls API exists.
-> 
-> Thanks,
-> Amir.
-> 
+On Wed, 2025-03-12 at 11:32 +0100, Niklas Schnelle wrote:
+> The fixed commit sets up dev.dma_range_map but missed that this is
+> supposed to be an array of struct bus_dma_region with a sentinel element
+> with the size field set to 0 at the end. This would lead to overruns in
+> e.g. dma_range_map_min(). It could also result in wrong translations
+> instead of DMA_MAPPING_ERROR in translate_phys_to_dma() if the paddr
+> were to not fit in the aperture. Fix this by using the
+> dma_direct_set_offset() helper which creates a sentinel for us.
+>=20
+> Fixes: d236843a6964 ("s390/pci: store DMA offset in bus_dma_region")
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+> Note: Based on iommu/next
+>=20
+> v1 -> v2:
+> - Fixed typo, added trailers
+> - Link to v1: https://lore.kernel.org/r/20250306-fix_dma_map_alloc-v1-1-b=
+4fa44304eac@linux.ibm.com
+> ---
+>  arch/s390/pci/pci_bus.c | 24 +++++++++++-------------
+>  1 file changed, 11 insertions(+), 13 deletions(-)
+>=20
 
-Hmm, not sure what you're suggesting here. I see it as:
-- get/setfsxattrat should return EOPNOTSUPP as it make more sense
-  than ENOIOCTLCMD
-- ioctl_setflags returns ENOIOCTLCMD which also expected
+With the IOMMU pull request for Linux v6.15 the fixed commit is now in
+Linus tree (with the SHA as cited) but this fix isn't. Since this fix
+only touches s390 specific code I think it could go through the s390
+tree but that currently doesn't carry the fixed commit so would have to
+wait until the s390 tree pulls in v6.15-rc1.=C2=A0
 
-Don't really see a reason to change what vfs_fileattr_set() returns
-and then copying this if() to other places or start returning
-EOPNOTSUPP.
+I don't think any breakage from the missing sentinel is visible outside
+of guests using the new IOMMU passthrough mode so I guess waiting until
+after v6.15-rc1 would be okay.
 
--- 
-- Andrey
+Heiko, Vasily, Alexander what do you think?
 
+Thanks,
+Niklas
