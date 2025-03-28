@@ -1,159 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0F11D5170;
-	Fri, 28 Mar 2025 09:11:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D46B4A35
+	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 10:34:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743153104; cv=none; b=FL6vnyyPC35qK66x55h5jyq6UQrue1uixxLE39e/LiClUcU+kPyvQrqciMK+vGQQKAePOKY5vJeNO97Vlejao/mKtDeDPoa2IP6kiVa88vj3oeZrODR1qhXRpGVg545Gz4bsIyAmsf+9kC5RICGUU+spaPculhHHw0tbnV55Csw=
+	t=1743158083; cv=none; b=PcaZrsQwlsBtrfl4o9qqUrFdO+w4BZrsJ6FRNW1d1MOeTiujOqKerCNb1en4dsoAui7K/9amSq/PNrzCH1m7vlv32oq/Yq+6kztjh37K/LXePJDMckuD2zGME8V6vd+estIQA4y32+ZOxy8sFTg62dhxsvUgAyJv762jipCjzyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743153104; c=relaxed/simple;
-	bh=/fQ2l7cD/isQx2nupZb1macgcLB2IW4AcXV0qJ4AiJ0=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=acNnqPcu+7vGddqdrxBMYy7WtmnYSzSLjmW3FE8WVuN1OweHsm9Z0b1mKOsAnFGBwsBH9jDKHDASQ6igIk4FUafy/4QlWAgzTsQ0MXOjp7kfgGL+fF6lv8ev0pbfdsF0o4v6xm4eX+rBuCbIkbGsMTrdGhm3zu08UlRqutEDtos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NlYHQI0E; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1743158083; c=relaxed/simple;
+	bh=IzwuCKm+AX1qNpJCw6mK7jxUAzAQnwXKzZjkvlARd5I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=glZTXSL5UhThfIOaXYMxViS+udFo9LYfNXyFGnWDvm7wU8Ie5rg+TcJAAfx58SbqOYrR8a80PcfGo/QXI8A0Nj1TQDtbTV8T0WiIE1Kl0z5qrytv5S9QbUNnxWJEESH4jIrXFusZ3DVYpCSGoIGOH0Jd4Tu530AfHTQv2t/IM9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PacV/Vhz; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NlYHQI0E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3E4C4CEE4;
-	Fri, 28 Mar 2025 09:11:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743153103;
-	bh=/fQ2l7cD/isQx2nupZb1macgcLB2IW4AcXV0qJ4AiJ0=;
-	h=Date:From:To:Cc:Subject:From;
-	b=NlYHQI0E0t3V6LAxmMvMQTx0CTpo8GWONUz65LhA7mSzdh4aMvEu9b5G0/GIubz1z
-	 ieNbbIGsDPqPe15+rCNGbUTE2kVQjZeQEXf9r4jMUbvdGyZnfZGIHk52MFb4hfCWSP
-	 J2FXnc9IKO1Q7tTO1U0vlf9ga5hDZwV6IOTCyc1mDVB7tXAMPma70yEi0Rt2ZxpbPK
-	 7uakO5uQ3t6ttEBACHaXqyiN5V0D7cmraP0wNlw+jFtNwunrgeDnAEVRxN4SM6rhNY
-	 avdqubYgKzuilui0sKZhUPBShJpn3dLx2rDEnDviA5mRRhsJzj0Ws8B80wE7Eqm9ZQ
-	 vfMV/8QAOAF7g==
-Date: Fri, 28 Mar 2025 10:11:13 +0100
-From: Joel Granados <joel.granados@kernel.org>
-To: iommu@lists.linux.dev
-Cc: David Woodhouse <dwmw2@infradead.org>, 
-	Jason Gunthorpe <jgg@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, 
-	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>, 
-	Lu Baolu <baolu.lu@linux.intel.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Niklas Schnelle <schnelle@linux.ibm.com>, 
-	Rob Clark <robdclark@gmail.com>, Robin Murphy <robin.murphy@arm.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Tomasz Jeznach <tjeznach@rivosinc.com>, 
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>, Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>, 
-	virtualization@lists.linux.dev, iommu@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: RFC iommutests_: Testing software for everything IOMMU
-Message-ID: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PacV/Vhz"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52S0PL6w008015
+	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 10:34:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=dKAOICO5zqxlLzmUoPt2mc4PkFRHDO
+	suV5UleW8qj0U=; b=PacV/Vhz8Udqd7UpXIDqAAPPtgne7k0hyJycWvv8wviqGi
+	285/d8G1zV+0w7jM+rZpoPiaMMR20G1NsoCovutBgrmpJ1NMXXTNUK/f9wkpk6Yr
+	MjMQz/VywfY8ZyaJIXJHPFJ+nySO02eXeLuhBKhVP6Kc9SsZusbGRdkw/LBl3eOA
+	gR2+aQBWH5+OI6dFF7uVwSjmGTKcZu9AeVi+Hzs9ogYJfAibOV1rFf5h+79Z2TGy
+	VXm3uJgFC/GN+nBCNFFNkft9MrHJqCOI8Pef+8mCEwnJ/S8HGznZrs8G2YFrXto+
+	FwFgOjbHwdeKfAvp0ayf9dJiKemFp7AgPi1RAryA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45n83pdhpn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 10:34:41 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52S99r01009718
+	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 10:34:40 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45j9rm1qpd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 10:34:40 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52SAYaem42139978
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Mar 2025 10:34:36 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B5BB420063;
+	Fri, 28 Mar 2025 10:34:36 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4BF4C2006A;
+	Fri, 28 Mar 2025 10:34:36 +0000 (GMT)
+Received: from osiris (unknown [9.171.48.48])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 28 Mar 2025 10:34:36 +0000 (GMT)
+Date: Fri, 28 Mar 2025 11:34:34 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: seiden@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1 1/1] s390/uv: Prealloc and use one work page
+Message-ID: <20250328103434.11717A53-hca@linux.ibm.com>
+References: <20250327153824.61600-1-freude@linux.ibm.com>
+ <20250327153824.61600-2-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250327153824.61600-2-freude@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: M6YH5gw_Z9q6l3-YB2QceaEy5UHmdfJ-
+X-Proofpoint-ORIG-GUID: M6YH5gw_Z9q6l3-YB2QceaEy5UHmdfJ-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-28_05,2025-03-27_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 malwarescore=0
+ adultscore=0 suspectscore=0 mlxlogscore=970 impostorscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 lowpriorityscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503280071
 
-Hello everyone
+On Thu, Mar 27, 2025 at 04:38:24PM +0100, Harald Freudenberger wrote:
+> The pkey handler is calling the uv in some circumstances
+> where no memory allocation is acceptable. As of now only
+> the uv_get_secret_metadata() function allocates memory.
+> As this is exactly one page, lets introduce a pre-allocated
+> work page and protect the concurrent use with a mutex to
+> remove dynamic memory allocation and free. This page may be
+> also used with future extension to the uv code.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> ---
+>  arch/s390/kernel/uv.c | 22 ++++++++++++++++++----
+>  1 file changed, 18 insertions(+), 4 deletions(-)
 
-This is a Request For Comment (RFC) describing a new testing infra
-called iommutests. It is motivated by interest expressed during the "IO
-Page Fault for all" [1] talk in LPC 2024 [2]. At the end of that
-presentation in the "VFIO/IOMMU/PCI MC" microconference, There was a
-clear "yes please" after asking if it made sense to have an
-infrastructure that could evaluate the full spectrum of IOMMU
-interactions — from host software to IOMMU in hardware and in emulated
-environments.
+[adding maintainers, according to get_maintainer.pl]
 
-What is iommutests?
---------------------
-The primary goal of iommutests [3] is to provide a modular framework to
-test IOMMU-mediated Direct Memory Access (DMA). It is meant to run
-PASS/NO_PASS tests for the interaction between kernel subsystems and
-hardware/virtual devices. All this in the hope of clarifying which IOMMU
-features are working correctly and which are not. You can find the
-project in github : https://github.com/SamsungDS/iommutests
+ 
+>  static int __init uv_init(phys_addr_t stor_base, unsigned long stor_len)
+>  {
+>  	struct uv_cb_init uvcb = {
+> @@ -61,6 +68,12 @@ void __init setup_uv(void)
+>  	if (!is_prot_virt_host())
+>  		return;
+>  
+> +	work_page = (u8 *)__get_free_page(GFP_KERNEL);
+> +	if (!work_page) {
+> +		pr_warn("Failed to alloc a working memory page\n");
+> +		return;
+> +	}
+> +
+>  	uv_stor_base = memblock_alloc_try_nid(
 
-* Test Orchestration:
-  This component is implemented in pytest [4], a testing framework where
-  tests can be parametrized, filtered and implemented concisely and
-  easily. Additionally, pyudev [5] is employed for device enumeration
-  and monitoring, as well as querying device properties and attributes.
+Did you test this? I think this cannot work. When setup_uv() is called
+the buddy allocator is not yet initialized.
+Please use memblock_alloc_or_panic() instead.
 
-* Test Executables:
-  For the creation and execution of tests, iommutests leans heavily on
-  libvfn [6], a zero-dependency C library designed for interacting with
-  PCIe-based devices from user-space using the Linux kernel user API.
-  The libvfn library can be used to abstract away common lower-level
-  interactions which can then be re-used through out.
+> -	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
+> -	if (!buf)
+> -		return -ENOMEM;
+> +	mutex_lock(&work_page_lock);
+> +	buf = (struct uv_secret_list *)work_page;
+>  	rc = find_secret(secret_id, buf, secret);
+> -	kfree(buf);
+> +	mutex_unlock(&work_page_lock);
 
-A Working Demonstration
------------------------
-To better illustrate how everything fits together, There’s a demo script
-[7], with some demo notes [8] explaining the setup and output. It does
-the following:
+The commit message does not explain why memory allocation is not
+acceptable. Usually this translates to non-sleepable context. If that
+is the case, then using a mutex would be wrong. This needs to be
+clarified.
 
-1. Sets up a custom qemu [9] virtual machine environment using a custom
-   test device.
-2. Builds both libvfn and iommutests.
-3. Runs a pair of example tests (one of them always fails to show how
-   how that would look like)
+> +
+>  	return rc;
 
-This demo shows how everything comes together to give the pass/no-pass
-IOMMU testing results. It is there for anyone interested in trying it
-out or contributing. To run it, you need to pass it a local ssh key and
-linux kernel compiled with VFIO support
+Unrelated whitespace change.
 
-Custom qemu device: pci-ats-testdev
--------------------------------------
-To support IOMMU testing under qemu, the pci-ats-testdev [10]
-(different from pci-testdev [11]) was used to emulate DMA transactions.
-It is a full fledged pci device capable of executing emulated DMA
-accesses. It was originally intended to test Linux kernel interactions
-with devices that had a working Address Translation Cache (ATC) but can
-become a platform capable of testing anything PCI/IOMMU related if
-needed.
-
-Feedback
---------
-This is a first draft, and many implementation details are still open to
-refinement. I would appreciate your thoughts on any part of the project
-— its design, scope, implementation language choices, or usability.
-These are however some of the questions that are still outstanding from
-my POV:
-
-Q1: Beyond binary testing:
-    Would iommutests be used for something other than pass/no-pass
-    tests? Like performance? Stress testing?
-
-Q2: Kernel Integration:
-    Should iommutests interact with the already existing IOMMU linux
-    kernel unit tests? Since it is an orchestration framework, then it
-    can execute the unit tests in some way. This could actually be the
-    next step, if found useful.
-
-Thanks for your time
-Best regards,
-
--- 
-
-Joel Granados
-
-[1] https://www.youtube.com/watch?v=UFrAjJ5TUf4
-[2] https://lpc.events/event/18/timetable/#20240918
-[3] https://github.com/SamsungDS/iommutests
-[4] https://docs.pytest.org/en/stable/
-[5] https://github.com/pyudev/pyudev
-[6] https://github.com/SamsungDS/libvfn
-[7] https://github.com/SamsungDS/iommutests/blob/master/docs/demo0_debian.sh
-[8] https://github.com/SamsungDS/iommutests/blob/master/docs/demo0.md
-[9] https://github.com/Joelgranados/qemu/tree/pcie-testdev
-[10] https://github.com/Joelgranados/qemu/blob/pcie-testdev/hw/misc/pcie-ats-testdev.c
-[11] https://github.com/Joelgranados/qemu/blob/pcie-testdev/hw/misc/pci-testdev.c
-
-PS:
-  Apologies for the long CC list. I always try to include the ppl that I
-  think will be interested, but its not always easy to know who you are
-  :). In this case, you are included because you appear as "M" under a
-  subsystem that contains the string "IOMMU" in the MAINTAINERS file. Feel
-  free to shoot me a mail if you don't want to be included in the future,
-  I'll try my best to remove you.
-
-
+It is up to the kvm folks to decide if the whole approach is ok.
