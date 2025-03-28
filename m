@@ -1,118 +1,127 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-il1-f176.google.com (mail-il1-f176.google.com [209.85.166.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 796121DEFCD
-	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 20:05:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D2F71EFF84
+	for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 22:14:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743192340; cv=none; b=o/+SdPybrqZXzNeUBiSlNYfkiLr79jwexQOMx0Eojd06DyHLEbpeM5lrywxhLyqrUlzUm6BzAO9O/yIZUC+u6XduD3towEAqGXTdt+gxG+dS39PHPhAayBHpEGIRn5fm0OpzgER3Zc5CqzG+USzEtN5hklNdrAiGk6AHwqa/LMM=
+	t=1743200100; cv=none; b=ANIcxT2R7D7iTP7nq3kvjipWQvliW+iIPzaGFCURTNWL8mfVOzfTpXhsn45gaWEpiZ5aGMnvB/Ky40F2CWM3HI0HXAnN7b7/uTFIBrVxC6ZDu738280X6fWAfKK0lD4i64PnS3bZW72EeSnJ9zo40AQNVRd9V8v7vDFYjCQ/pMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743192340; c=relaxed/simple;
-	bh=fZ3Pf+DoM9iEVqsujQTttx6bjnT/PN/295/nQ+aSoNg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cnFZ5k5h0MsdHgToFFMZ0vrgyOTUGWOvqmQ+Jn/CuN2L4GIEbbDntfQqX70Iwdcgz7ORiE/ePx7Zdcu7479SwO3GGQmQUFACsi9vZl1LnFZpDFZsVKQTRJ7RHU1zqlSO5IIw1XyVx74EbBECiQ8GYXiPJAsN3LqTtawE+QPU7hs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=sAAv99hK; arc=none smtp.client-ip=209.85.160.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1743200100; c=relaxed/simple;
+	bh=3LhOBh1if/G4lc3HsqhYB39Qdkno2Qt5JqUSH0+F/e8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eBRgkwIi7C4m2k61Rdu4bmI4czQ5400OPFaiCqP1lqkTNgjbTn7AESDAgLmeNb5Gt181AjQuyEWX8+PUweir6fnJdVMrFnW9zqsyKkyLQ6Q8kmGBWR7J/bjEjgjXolIZqpKj7cq0M5RPOFtv+pGOSmEBUEP1lTZzE53kcQZrtVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=UvsBsNtA; arc=none smtp.client-ip=209.85.166.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linuxfoundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="sAAv99hK"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-47666573242so97091cf.0
-        for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 13:05:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="UvsBsNtA"
+Received: by mail-il1-f176.google.com with SMTP id e9e14a558f8ab-3d5bb2ae4d3so8891515ab.0
+        for <linux-s390@vger.kernel.org>; Fri, 28 Mar 2025 15:14:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1743192337; x=1743797137; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fZ3Pf+DoM9iEVqsujQTttx6bjnT/PN/295/nQ+aSoNg=;
-        b=sAAv99hKGqkWpyFD7dY3JRxpSQlar446opEHO0pWqBsaaa1EQ6eHSxP2d0UnGYlh+s
-         +rLH+w3J2MxcefsK2AYD93E2QCcbE03JICOUzK6PvkwMZbf02K/hyPHqCPSbSodj4qos
-         idTO+ox0ksfQ6X7ivCjFOwsUtNK+UM5/H45KD50cix9fQSpQv5fF2C+aeLoBwCA8gevz
-         OPOEI2C0waRK/VNVzlhkeCqlqkMrDMnOhLBuNQk4aDowqKSMMhMe2QTZUvWlrlei5eky
-         QfLdD8PgyvMN/kq4dbWZsS5NkXZCGPPlBhlq128/RgRYTyFmQuLPdY/GsV1IL+h0XZ9p
-         dpZQ==
+        d=linuxfoundation.org; s=google; t=1743200098; x=1743804898; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=RUbOEFaJOAbY7faqDFBOHIbC1ZRfCrfheNTZ60rM6cc=;
+        b=UvsBsNtArvRdDUeYA8UGU7XjwlDQbEMdhhEvZBr3aX3UOeuHbcWFDMVauG2NjQSEIH
+         I65xsCKMykFCD6ZMgGOL7Ke6isQ3ZoNtt7/hyQ26RocNyWRImmT2UXRad6HULRG0QhTD
+         F0KplDBlDAJ7+ptEMXg1rxs++Dwd3d75kQr00=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743192337; x=1743797137;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fZ3Pf+DoM9iEVqsujQTttx6bjnT/PN/295/nQ+aSoNg=;
-        b=DpM8DU0yU0ohl/j+z+3gtOdXQQSWbR4mw2qlkPKCh6qQvvHlnDaDkqCkuNCmtdNEcP
-         UzPjhwSNuZvoGggR+k2quQ0AeT9kbMmcu/sHsiKcq855RLNQ++5FyhOCT3JQn3C+v7Xj
-         W+YlXHEZSPP8aJ59rnl7NAGBFBVTlxiRVslJ+0e8Ljm4Vocj5wGVqGDGbwb+BBtuLNjA
-         lOLpsP4WCMfOpqQ/FteTCbXUOlgtiUyxVbWUDSeqkg0SYdxpMxmdacEnRF17LJWpHrUu
-         eCb3rw3rZwVvnSv2KlwbHFPx3Ay0EbZS3nx4HSeCRYbyjEVXCEbBR5zKMX/q/AJaSIiX
-         SYKA==
-X-Forwarded-Encrypted: i=1; AJvYcCWwT0kxD8lNTajY2E56m91lWD1P3OEex2WZWimTlNr68OcZIotLPYzctRa3N+QdD2OmprS8fcReCmYQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YzwOarGdRpTe5URAe+IEa7Og9UiZiyn4ZJ2juNHiaSA4GA75HmO
-	lWhqzAgSUSyloOnOPuKqu/N7ANJYU1gp/tboijN0b+xoV1X31u2SvJI2aPEcc7RpMHLeKdEbzmS
-	TZz5XDqnl1gbfbFo/z0v8Qi7z8Uh2+shpiq5P
-X-Gm-Gg: ASbGncvZAw9luoOMGAAPre1Boti/96P5t9sbfX6M/ZN9HpyL3litwpZs3SdgYQLwpIc
-	ndqaL2PNEvGGvpsQCaAlfQpgcOBpwsmnOIBJVDjzKsmtYDwwexN8o1XNa/sJF73xqMnEojD3FcM
-	x5Gp3PxiF12xxkEjbaSFKPnZk0aS7a2A0S2nuJWKj8+kEvXGlFctRoYQ1Ffg==
-X-Google-Smtp-Source: AGHT+IGrxZNNiHvYHqH2odQT34847aiPbk5DRohCJ1jq0PV6GxQy2MURsax6DFZvPXwGATnS+7s0LvXvnQi6ttbMc90=
-X-Received: by 2002:a05:622a:4cf:b0:466:8887:6751 with SMTP id
- d75a77b69052e-4780b1a4647mr416171cf.23.1743192335400; Fri, 28 Mar 2025
- 13:05:35 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1743200098; x=1743804898;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RUbOEFaJOAbY7faqDFBOHIbC1ZRfCrfheNTZ60rM6cc=;
+        b=AbIWk5DgqbMbuk2DZbNjJRbHB+DE7DS1NcQccpbAYu02bkCxxy49a7l/ga2DnB2o7U
+         REhuCh4bnl1L5GIiaY9mYTI4MHZDsJnWoty4+o1nunRG+1ZLNzc0FoCOXaQoikEUCN7j
+         v/E8zaGgiHSdR70hd9yaDSN88Z0H8Bg7j6MD0osD9b7qnvhRvvy2YC+aDq4W0mOa9l8Y
+         bByxdCXfpv087ELnAS+p5jrU83muzRgszIlZ5LSUyG4YAR8v7pH3I++9ChO59l+p6gRX
+         /WFNI1TqwgrmIaoPERTaLfzMrI/eMakAAgbi7l5Tdh95/DGH5gkHl9zGRsrK7bVHLTPW
+         g/7g==
+X-Forwarded-Encrypted: i=1; AJvYcCVdgKVtpkBIpoTfjwuTyCdQMe0brKJHowsQ+7ChiUZFA0rdZXj2Y9muJtDmysq9d8VjaHv8Of4EmaAz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzvt4B6prvZJh/iO49e2HGdsxRG3uXItD4HakgR6hukE0YTLT0K
+	8hybPNn1ZZvFI+nJy5qLuZ3bbJOlnbyhe8AE2oX8caP/+usB05KYbK+JS0n+wfE=
+X-Gm-Gg: ASbGncsoq1UzRpKNLz/JX4mH78QttamIzICIkIBOUKy5Rdeh2rrLGYmdvCsn0LxFN2V
+	NUiP2YhoOdPMf5LN8MX6ulXnEoB9yM4OJmNsf3WWUHHbYZk0T0docnxP9Lc2WMHwgX6wfIpxp3U
+	44+GIrqkxWeTtfXDWifbaAVYQRuiSFWjELZ4s2JRbOWoj2EoGu84k5czoviSS5Cykt38T1gxRyl
+	NYv5T9ckg6fDnQU2oyfdsV5d151OLOHxjUglDq8Vrfh1Y3yx2v8T7Vyir1AIZa8XxQEOB/y9WRn
+	7Tk0WG28qGuXSHy1E+eUCm9Ko/FYnNuzr4RVdqwxnRV6J2E+1hE9dZU=
+X-Google-Smtp-Source: AGHT+IHAgQaNQm7V/HQ9xhZOQz/Fs6tsLI4+HRU2b6hOJkb/FR7IJnx7J0M2QjLjv4gsNmH0eGf+NQ==
+X-Received: by 2002:a05:6e02:3807:b0:3d0:47cf:869c with SMTP id e9e14a558f8ab-3d5e0a004a5mr11036025ab.19.1743200097993;
+        Fri, 28 Mar 2025 15:14:57 -0700 (PDT)
+Received: from [192.168.1.14] ([38.175.170.29])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4f464751ebasm643215173.57.2025.03.28.15.14.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 Mar 2025 15:14:57 -0700 (PDT)
+Message-ID: <a998f3fa-495c-4165-884a-a11c5cb61e96@linuxfoundation.org>
+Date: Fri, 28 Mar 2025 16:14:55 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <815e95e9-5a2d-4ef7-96bf-321fb57f42e7@linux.ibm.com> <20250328182752.769662-1-ctshao@google.com>
-In-Reply-To: <20250328182752.769662-1-ctshao@google.com>
-From: Stephane Eranian <eranian@google.com>
-Date: Fri, 28 Mar 2025 13:05:23 -0700
-X-Gm-Features: AQ5f1JrNUjBcJAke7k1ikFexUQiFHRNjn5nN4ZlvMROniw1uFYbevMqQFKoLSf0
-Message-ID: <CABPqkBQzCMNS_PfLZBWVuX9o8Z55PovwJvpVWMWzyeExFJ5R4Q@mail.gmail.com>
-Subject: Re: [PATCH] perf/test: Skip leader sampling for s390
-To: Chun-Tse Shao <ctshao@google.com>
-Cc: tmricht@linux.ibm.com, acme@kernel.org, agordeev@linux.ibm.com, 
-	gor@linux.ibm.com, hca@linux.ibm.com, irogers@google.com, 
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	linux-s390@vger.kernel.org, namhyung@kernel.org, sumanthk@linux.ibm.com, 
-	Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 00/14] Add support for suppressing warning backtraces
+To: Andrew Morton <akpm@linux-foundation.org>,
+ Guenter Roeck <linux@roeck-us.net>,
+ Brendan Higgins <brendan.higgins@linux.dev>, David Gow
+ <davidgow@google.com>, Rae Moar <rmoar@google.com>
+Cc: Maxime Ripard <mripard@kernel.org>, Kees Cook <kees@kernel.org>,
+ Alessandro Carminati <acarmina@redhat.com>, linux-kselftest@vger.kernel.org,
+ David Airlie <airlied@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
+ =?UTF-8?Q?Ma=C3=ADra_Canal?= <mcanal@igalia.com>,
+ Dan Carpenter <dan.carpenter@linaro.org>,
+ Daniel Diaz <daniel.diaz@linaro.org>, Arthur Grillo
+ <arthurgrillo@riseup.net>, Naresh Kamboju <naresh.kamboju@linaro.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Alessandro Carminati <alessandro.carminati@gmail.com>,
+ Jani Nikula <jani.nikula@intel.com>, dri-devel@lists.freedesktop.org,
+ kunit-dev@googlegroups.com, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ loongarch@lists.linux.dev, x86@kernel.org
+References: <20250313114329.284104-1-acarmina@redhat.com>
+ <202503131016.5DCEAEC945@keescook>
+ <20250313-abiding-vivid-robin-159dfa@houat>
+ <c8287bde-fa1c-4113-af22-4701d40d386e@roeck-us.net>
+ <20250313150505.cf1568bf7197a52a8ab302e6@linux-foundation.org>
+Content-Language: en-US
+From: Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <20250313150505.cf1568bf7197a52a8ab302e6@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On 3/13/25 16:05, Andrew Morton wrote:
+> On Thu, 13 Mar 2025 11:31:12 -0700 Guenter Roeck <linux@roeck-us.net> wrote:
+> 
+>> On Thu, Mar 13, 2025 at 06:24:25PM +0100, Maxime Ripard wrote:
+>>>>
+>>>> Yeah, as with my prior review, I'm a fan of this. It makes a bunch of my
+>>>> very noisy tests much easier to deal with.
+>>>
+>>> And for the record, we're also affected by this in DRM and would very
+>>> much like to get it merged in one shape or another.
+>>>
+>>
+>> I was unable to get maintainers of major architectures interested enough
+>> to provide feedback, and did not see a path forward. Maybe Alessandro
+>> has more success than me.
+> 
+> I'll put them into mm.git, to advance things a bit.
 
-Thanks CT for the post. Indeed this is a long-standing bug impacting
-(most likely)
-all architectures. The rate throttling code does not consider event groupin=
-g. It
-stops the sampling event in place (on x86) at the hardware level, not
-the generic
-scheduling layer. But if the event is in a group, it may make sense to also=
- stop
-all the other events in the group, i.e., stop the group. Otherwise you may =
-get
-discrepancies between samples of the "slave events". Similarly, the time_ru=
-nning
-and time_enable logic is not modified during throttling.
-Interested in hearing potential ways of solving this in a portable manner.
+I haven't heard from kunit maintainers yet. This thread got lost
+in inbox due to travel.
 
-On Fri, Mar 28, 2025 at 11:27=E2=80=AFAM Chun-Tse Shao <ctshao@google.com> =
-wrote:
->
-> We believe we know the problem, appreciate Stephan Eranian's investigatio=
-n.
-> It comes from throttling. While the sampling is too high, the generic cod=
-e
-> does not modify event scheduling. `perf_event_overflow()` simply returns =
-1,
-> and subsequently, `pmu_stop()` only stops the leader event, not the slave
-> events because the arch layer does not consider groups. Also, the
-> `event_stop()` callback only operates on a single event, not the siblings=
-.
->
-> This would impact all architectures. Perhaps we can extend the
-> `evnet_stop()` callback to include a new argument to also stop the siblin=
-gs.
-> We also welcome all suggestions and open to discuss any potential solutio=
-ns.
->
-> Thanks,
-> CT
->
-> Cc: Stephane Eranian <eranian@google.com>
+David/Brendan/Rae, Okay to take this series?
+
+Andrew, Okay to take this through your tree - this needs merging.
+
+thanks,
+-- Shuah
+
