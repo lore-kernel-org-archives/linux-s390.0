@@ -1,183 +1,285 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B41F214A8F;
-	Mon, 31 Mar 2025 21:49:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC8221C19A;
+	Mon, 31 Mar 2025 22:22:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743457793; cv=none; b=FmKcYp2rN9vrht9v6oiuFDaavfd2I/eMzM8TjLMYvxws4jCn2dY+NOcMRtmqgR8Pi7B7Tvrk7zU5N8d5V/50mHVCd/QYhKrIpa8CS5ztgZVpPxRPqdkmS1R+dDb0xact/ih5tT5MpKM8aRouPlpC5kFy3W6e/BEx9PwkazJhV+U=
+	t=1743459769; cv=none; b=Xm72Xi8xqthg67x2BDYDnJUXUy3Cz2jBKrIXkxkFy9xusR0jWqoAfv89639FKtK1Tbe/Zu7xxnsarJ0aMT3Tzifv3ksAN/bb+AZ7BkqZ//+sP9Vg6nsl+OpZNxfdzjg3JRjcn7bIc2chlajYCnjOlSYV/rgGVZvAJINArkVEyMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743457793; c=relaxed/simple;
-	bh=AWpak+pu550+V4KBVwcURhmwvApWhG8AaMXUc5d76HI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qGtx4Z7Z1sXkWDKLN6A6yHfzshyp7z0hpydEKH0Is4CY8pLTotMlPfNBMKjb4O8SdAxnrDFjpGAfvXAAzOjrqjll84u93efWd4+dJkLTrA+K419sEoY5LWxibW5pxkCLsW/j45T0tsSPSfk2oBRObu9Nl+sJr0szUfjJvTwaAu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=morUWOEi; arc=none smtp.client-ip=209.85.221.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1743459769; c=relaxed/simple;
+	bh=Jtp6wQ6r4GPlx2rZ16W9Ir0MyjHkgbNWjAamv8b1jk0=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=SkK3Snr64Bf/mLXMPqU2DCo4/IJ7hU23IkZnLR+72uMj7IeeQk1w8wysdcCheuOfPiIutfpo/T6sQZzWoEgcZ0fQGJf9yBngaUJ62hAdXeIP9Bmhr2/REl2SfjlHbWQ97NrVgJyOB5UIU8qqMOcJsjURMvo6f019cm95HnB84F8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JiGwb7fF; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="morUWOEi"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-39149bccb69so4353554f8f.2;
-        Mon, 31 Mar 2025 14:49:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743457790; x=1744062590; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vdstssp5d3ULMv78iW5ykH4+Ki4j9LIskO4UfhbPQIo=;
-        b=morUWOEiSIHhr65OgWkLtpYzIKD+He8Q+R6m3H1i42TPB2PX4NB5OkXfVOaG+FQMeG
-         LvFwMfVv+5Pqh6EMHDe+tn6jv36XziePWgVd9jYjlmlKwUwYM0ohFZvzwM29f/tlGbJQ
-         PxqKNaV0doSFloJO+LMqlWil/OINdG1VdV7GVDhLoofTCJy18Ac3nqLtLQtnGJ7VOAe+
-         S7ygjO8CdFMUWaTTiLNaIZajPzc2Jmbzgqeewo4feO9KrkYQq2LRRdoXMm3O+9O+xS4A
-         C4j0GyrDKZYBCQXuZloE1gpsIOSO6AeHkckV/98z1HF4x+3EchLbtUlvlNmtGd8sDNJV
-         qF3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743457790; x=1744062590;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vdstssp5d3ULMv78iW5ykH4+Ki4j9LIskO4UfhbPQIo=;
-        b=UGFftaY4B2Yd7ZtTyQpGxsTJ0BmdOMfQZ3SSwepEit3uBbBu8W0V5mt6RusvtJ8llY
-         T03tnGNwMSTBsGq2KaR/I4ENrfCzZpgk99Bvfy6XJlvGC79vK7NfeQFUFfu23X7uNCgN
-         BEUTvHvtexDSBEnn47tY3XD73lpWni5fpEliT1Q1yP9hfohhzzspxAUBDwbPfQytUsK8
-         ri7QwtovOy0N1YZB0/MW49yaqGXeXyCJ106Uy+VBBKFAaz0APQAjp6aoiyeZXwndtWdw
-         geO11UUwc1GWh1BAAwzit3gteD7UQ0hUqb7oFtV+1JR83fm0VqZ2fn8BgMeBS4bQgIF1
-         XfHA==
-X-Forwarded-Encrypted: i=1; AJvYcCUQcrsm/Rm2ALVJDXwvFnMYrUCVo8Kv8Zhi1pZewpPOdr9979FqwqxsO8alwKtOPfMhYaxte5IHCukBxQ==@vger.kernel.org, AJvYcCUTlmbbTJUKmPlVs5zE0CTClYIKLv+YiSfPoWKHeVaPlKrSC99nGvgwJYkaUzm17WN9a8iJQXroKQPeuw==@vger.kernel.org, AJvYcCV+u0obV1qKfTzFWtDi/a9tFaczicDRR+MTBD9HyFghP+H6ea1mOqghzsRWSjiAyeY+bpI15iP3@vger.kernel.org, AJvYcCV3VTUdRtFhEepJaQVUiIxPDZJjBt+cPeM9E3KtkTUvZFi+wNEsQjAFu2A1PX+dyQgJyaG8pQ==@vger.kernel.org, AJvYcCVxsJ2f9xRExcW8qvMmoWKETcR48SM0BNtitGZR10bh15Sgg3kY31mmLW84diHbUbDSBH7hL5fJXCXR4w==@vger.kernel.org, AJvYcCVy7zgsn1xdsDRfdvNl6L9/G1QstXruhM1kOy96OmdYHP1zip4/g4pt206qE2PLQzILF4NeXvoKhraB4Q==@vger.kernel.org, AJvYcCWQW6S9sB5r8o5a3ES2+XHqYiWCZ/QaviVp1OWgJIG3AlDJ9JXBIR5yrvmohVaFaPwC6he/QbDNsA6U@vger.kernel.org, AJvYcCWd0CnBHpm9oGSaoSutr1uSk8t9RDqmQZvey058F4AwtAqXgBa9cUo3vSEZYoqwVIMgCxFs6iuPtfo=@vger.kernel.org, AJvYcCWf/hW4v5Lm8Om1qxlWiVNgQi8UeZY4HUu4fVnufalFezM8eQ+37KFobRV3NovVAZZhI6VwlVYc0fYieJVpLebU@vger.kernel.org, AJvYcCWoHEu1hy8W4gBFQROawwsCuc9FnrLszPYhxmLnrJqgnAg/XNwqy2qA9H+8fNzSSXz9inm4fFa0nezb@vger.kernel.org, AJvYcCWvpIFKoiyBYjMFKz/rG+hYi1VK3Z4glznhFXMdRRv4NBxKD17654yiZU4kOzi+P9zTwaM=@vger.kernel.org, AJvYcCX67/XFksifD4TezFPSCv1F9kzngqU6HXfgVMJiB/XmwylBSzKrT6DVzIHSTWipi1lr0eF1eZzrpWTwvDM/@vger.kernel.org, AJvYcCXTFBzPfTo1XAFstd6IUk2LWuJKbmfPUhZuaEqknpXCf4mofKjdsMDl2vBp2+F2c/J18vQwJ/Fg3ZVoaA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+Q9DPMWIWojZj8OA7uU+F+8KfYF0+xe0ak+WFqrAhfobvbQPa
-	FMQcXUxvr5vobBjBCVqoZJeX1GDe0s1rykPpKDWQmJ2Z+yLxFZMV
-X-Gm-Gg: ASbGnctNz9M+RQvskGSXU6sbRAaBhPoFm+GWB4B+ImTOwwqKt+fShMdbRY0vz1g02MB
-	Tykm3FdizCtQJoDDAUCj7Bp4XxkaVTROUXE5yLjJZu+vEc2qixt7J9OjoCouyvl2ok/bWSoU2Yt
-	ODcGvv5D/WLL1Jy2A0nFMVQir4R6hvHD/Z1eEtHj01/eEvXJRxDsTW8ayyqs6aOTzuiPx5rO7XH
-	Qn1ylFedeccUwdZOs9h6JY3z59/CMz/eKyHJKHJAmZ13Ja4tK+5D3wzqKAZrED6tHH8gXF7ND1y
-	xTTasyB9S/g1pHt9iytQExV5jrUxhJSfwIN4DE3sck6R/TG+FLNRqxz3PhO/5SDY4IxelzpEm6G
-	eL/IH630=
-X-Google-Smtp-Source: AGHT+IHDaz6qc5K6SYy9jlhEIozUCY4N2JwSt3T6Lks7AZ/C8EYmlUGrPLhFAhoyTSOCg3hYOLXzSQ==
-X-Received: by 2002:a05:6000:18a8:b0:399:6d53:68d9 with SMTP id ffacd0b85a97d-39c12118aedmr9281669f8f.38.1743457789764;
-        Mon, 31 Mar 2025 14:49:49 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c0b7a4200sm12490080f8f.96.2025.03.31.14.49.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Mar 2025 14:49:48 -0700 (PDT)
-Date: Mon, 31 Mar 2025 22:49:46 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Stefan Metzmacher <metze@samba.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Jens Axboe
- <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>, Breno Leitao
- <leitao@debian.org>, Jakub Kicinski <kuba@kernel.org>, Christoph Hellwig
- <hch@lst.de>, Karsten Keil <isdn@linux-pingi.de>, Ayush Sawal
- <ayush.sawal@chelsio.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Kuniyuki
- Iwashima <kuniyu@amazon.com>, Willem de Bruijn <willemb@google.com>, David
- Ahern <dsahern@kernel.org>, Marcelo Ricardo Leitner
- <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Neal Cardwell
- <ncardwell@google.com>, Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann
- <marcel@holtmann.org>, Johan Hedberg <johan.hedberg@gmail.com>, Luiz
- Augusto von Dentz <luiz.dentz@gmail.com>, Oliver Hartkopp
- <socketcan@hartkopp.net>, Marc Kleine-Budde <mkl@pengutronix.de>, Robin van
- der Gracht <robin@protonic.nl>, Oleksij Rempel <o.rempel@pengutronix.de>,
- kernel@pengutronix.de, Alexander Aring <alex.aring@gmail.com>, Stefan
- Schmidt <stefan@datenfreihafen.org>, Miquel Raynal
- <miquel.raynal@bootlin.com>, Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>, James Chapman
- <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>, Matt
- Johnston <matt@codeconstruct.com.au>, Matthieu Baerts <matttbe@kernel.org>,
- Mat Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Remi Denis-Courmont
- <courmisch@gmail.com>, Allison Henderson <allison.henderson@oracle.com>,
- David Howells <dhowells@redhat.com>, Marc Dionne
- <marc.dionne@auristor.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan
- Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, Tony
- Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Jon Maloy
- <jmaloy@redhat.com>, Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
- Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>, Maciej
- Fijalkowski <maciej.fijalkowski@intel.com>, Jonathan Lemon
- <jonathan.lemon@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
- dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
- linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
- bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
- io-uring@vger.kernel.org
-Subject: Re: [RFC PATCH 3/4] net: pass a kernel pointer via 'optlen_t' to
- proto[ops].getsockopt() hooks
-Message-ID: <20250331224946.13899fcf@pumpkin>
-In-Reply-To: <d482e207223f434f0d306d3158b2142dceac4631.1743449872.git.metze@samba.org>
-References: <cover.1743449872.git.metze@samba.org>
-	<d482e207223f434f0d306d3158b2142dceac4631.1743449872.git.metze@samba.org>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JiGwb7fF"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52VE39wJ006354;
+	Mon, 31 Mar 2025 22:22:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JzihdS
+	bg/SgWNVVNKINk8CKQR/API8qYfxFTRXc4ce8=; b=JiGwb7fF6vFYvL3dksJExI
+	D0NfQ3EfZScWm1jLaGzqFccl0DyEdTUlqN1VgmYS/C9VdxC0AYGSdvyg7h7Y0oZ+
+	sSCQQVocJpiB/Vm6HXgWdEJvSzLUsO/f0Q3S4Sjx41b79TOdAWap/nitwM19cAt2
+	Q+HRNqtOQAb7XFJVv6kAF+UcIBcSGmvegliv8TcDubO8Uuhpngut56SbNmntXk1n
+	q4+rjcgWnMbtxVNWEC+TN7b+gA+QFtZfXheTc9wB0FPt3NWUGAfFjaWFgAVPhQqx
+	jbHAD9xVKHajKWp2bh1U005/ifB9B4CvL6XTY4axD9eeLkaSDFyY/6YNjqj73AvA
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qvfpt72k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Mar 2025 22:22:46 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52VLfC7n019391;
+	Mon, 31 Mar 2025 22:22:45 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45pu6t01mm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Mar 2025 22:22:45 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52VMMg90393964
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 31 Mar 2025 22:22:42 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0A5958062;
+	Mon, 31 Mar 2025 22:22:43 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 42C545805D;
+	Mon, 31 Mar 2025 22:22:43 +0000 (GMT)
+Received: from [9.61.7.200] (unknown [9.61.7.200])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 31 Mar 2025 22:22:43 +0000 (GMT)
+Message-ID: <156b71cf-b94f-4fa0-a149-62bb8c2a797b@linux.ibm.com>
+Date: Mon, 31 Mar 2025 18:22:42 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] s390/vio-ap: Fix no AP queue sharing allowed message
+ written to kernel log
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: gor@linux.ibm.com, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+References: <20250311103304.1539188-1-akrowiak@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20250311103304.1539188-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: bHV9AG7GPmlV1d9mO8vEyHcUNoXYjesL
+X-Proofpoint-GUID: bHV9AG7GPmlV1d9mO8vEyHcUNoXYjesL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-31_10,2025-03-27_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ priorityscore=1501 clxscore=1015 adultscore=0 bulkscore=0
+ lowpriorityscore=0 spamscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503310151
 
-On Mon, 31 Mar 2025 22:10:55 +0200
-Stefan Metzmacher <metze@samba.org> wrote:
 
-> The motivation for this is to remove the SOL_SOCKET limitation
-> from io_uring_cmd_getsockopt().
-> 
-> The reason for this limitation is that io_uring_cmd_getsockopt()
-> passes a kernel pointer.
-> 
-> The first idea would be to change the optval and optlen arguments
-> to the protocol specific hooks also to sockptr_t, as that
-> is already used for setsockopt() and also by do_sock_getsockopt()
-> sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
-> 
-> But as Linus don't like 'sockptr_t' I used a different approach.
-> 
-> Instead of passing the optlen as user or kernel pointer,
-> we only ever pass a kernel pointer and do the
-> translation from/to userspace in do_sock_getsockopt().
-> 
-> The simple solution would be to just remove the
-> '__user' from the int *optlen argument, but it
-> seems the compiler doesn't complain about
-> '__user' vs. without it, so instead I used
-> a helper struct in order to make sure everything
-> compiles with a typesafe change.
-> 
-> That together with get_optlen() and put_optlen() helper
-> macros make it relatively easy to review and check the
-> behaviour is most likely unchanged.
+Gentlemen,
 
-I've looked into this before (and fallen down the patch rabbit hole).
+I got some review comments from Heiko for v1 and implemented his 
+suggested changes. I have not heard from anyone else, but I think if 
+Heiko agrees that the changes are sufficient, I think this can go 
+upstream via the s390 tree. What say you?
 
-I think the best (final) solution is to pass a validated non-negative
-'optlen' into all getsockopt() functions and to have them usually return
-either -errno or the modified length.
-This simplifies 99% of the functions.
+Kind regards,
+Tony Krowiak
 
-The problem case is functions that want to update the length and return
-an error.
-By best solution is to support return values of -errno << 20 | length
-(as well as -errno and length).
+On 3/11/25 6:32 AM, Anthony Krowiak wrote:
+> An erroneous message is written to the kernel log when either of the
+> following actions are taken by a user:
+>
+> 1. Assign an adapter or domain to a vfio_ap mediated device via its sysfs
+>     assign_adapter or assign_domain attributes that would result in one or
+>     more AP queues being assigned that are already assigned to a different
+>     mediated device. Sharing of queues between mdevs is not allowed.
+>
+> 2. Reserve an adapter or domain for the host device driver via the AP bus
+>     driver's sysfs apmask or aqmask attribute that would result in providing
+>     host access to an AP queue that is in use by a vfio_ap mediated device.
+>     Reserving a queue for a host driver that is in use by an mdev is not
+>     allowed.
+>
+> In both cases, the assignment will return an error; however, a message like
+> the following is written to the kernel log:
+>
+> vfio_ap_mdev e1839397-51a0-4e3c-91e0-c3b9c3d3047d: Userspace may not
+> re-assign queue 00.0028 already assigned to \
+> e1839397-51a0-4e3c-91e0-c3b9c3d3047d
+>
+> Notice the mdev reporting the error is the same as the mdev identified
+> in the message as the one to which the queue is being assigned.
+> It is perfectly okay to assign a queue to an mdev to which it is
+> already assigned; the assignment is simply ignored by the vfio_ap device
+> driver.
+>
+> This patch logs more descriptive and accurate messages for both 1 and 2
+> above to the kernel log:
+>
+> Example for 1:
+> vfio_ap_mdev 0fe903a0-a323-44db-9daf-134c68627d61: Userspace may not assign
+> queue 00.0033 to mdev: already assigned to \
+> 62177883-f1bb-47f0-914d-32a22e3a8804
+>
+> Example for 2:
+> vfio_ap_mdev 62177883-f1bb-47f0-914d-32a22e3a8804: Can not reserve queue
+> 00.0033 for host driver: in use by mdev
+>
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 82 +++++++++++++++++++++----------
+>   1 file changed, 55 insertions(+), 27 deletions(-)
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index bc8669b5c304..7c34fdaa2a27 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -873,48 +873,68 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+>   	vfio_put_device(&matrix_mdev->vdev);
+>   }
+>   
+> -#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
+> -			 "already assigned to %s"
+> +#define MDEV_SHARING_ERR "Userspace may not assign queue %02lx.%04lx to mdev: already assigned to %s"
+>   
+> -static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *matrix_mdev,
+> -					 unsigned long *apm,
+> -					 unsigned long *aqm)
+> +#define MDEV_IN_USE_ERR "Can not reserve queue %02lx.%04lx for host driver: in use by mdev"
+> +
+> +static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *assignee,
+> +					 struct ap_matrix_mdev *assigned_to,
+> +					 unsigned long *apm, unsigned long *aqm)
+> +{
+> +	unsigned long apid, apqi;
+> +
+> +	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
+> +		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
+> +			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
+> +				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev)));
+> +		}
+> +	}
+> +}
+> +
+> +static void vfio_ap_mdev_log_in_use_err(struct ap_matrix_mdev *assignee,
+> +					unsigned long *apm, unsigned long *aqm)
+>   {
+>   	unsigned long apid, apqi;
+> -	const struct device *dev = mdev_dev(matrix_mdev->mdev);
+> -	const char *mdev_name = dev_name(dev);
+>   
+> -	for_each_set_bit_inv(apid, apm, AP_DEVICES)
+> -		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
+> -			dev_warn(dev, MDEV_SHARING_ERR, apid, apqi, mdev_name);
+> +	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
+> +		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
+> +			dev_warn(mdev_dev(assignee->mdev), MDEV_IN_USE_ERR,
+> +				 apid, apqi);
+> +		}
+> +	}
+>   }
+>   
+>   /**
+>    * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by matrix mdevs
+>    *
+> + * @assignee: the matrix mdev to which @mdev_apm and @mdev_aqm are being
+> + *            assigned; or, NULL if this function was called by the AP bus
+> + *            driver in_use callback to verify none of the APQNs being reserved
+> + *            for the host device driver are in use by a vfio_ap mediated device
+>    * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+>    * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+>    *
+> - * Verifies that each APQN derived from the Cartesian product of a bitmap of
+> - * AP adapter IDs and AP queue indexes is not configured for any matrix
+> - * mediated device. AP queue sharing is not allowed.
+> + * Verifies that each APQN derived from the Cartesian product of APIDs
+> + * represented by the bits set in @mdev_apm and the APQIs of the bits set in
+> + * @mdev_aqm is not assigned to a mediated device other than the mdev to which
+> + * the APQN is being assigned (@assignee). AP queue sharing is not allowed.
+>    *
+>    * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
+>    */
+> -static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+> +static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *assignee,
+> +					  unsigned long *mdev_apm,
+>   					  unsigned long *mdev_aqm)
+>   {
+> -	struct ap_matrix_mdev *matrix_mdev;
+> +	struct ap_matrix_mdev *assigned_to;
+>   	DECLARE_BITMAP(apm, AP_DEVICES);
+>   	DECLARE_BITMAP(aqm, AP_DOMAINS);
+>   
+> -	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +	list_for_each_entry(assigned_to, &matrix_dev->mdev_list, node) {
+>   		/*
+> -		 * If the input apm and aqm are fields of the matrix_mdev
+> -		 * object, then move on to the next matrix_mdev.
+> +		 * If the mdev to which the mdev_apm and mdev_aqm is being
+> +		 * assigned is the same as the mdev being verified
+>   		 */
+> -		if (mdev_apm == matrix_mdev->matrix.apm &&
+> -		    mdev_aqm == matrix_mdev->matrix.aqm)
+> +		if (assignee == assigned_to)
+>   			continue;
+>   
+>   		memset(apm, 0, sizeof(apm));
+> @@ -924,15 +944,22 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+>   		 * We work on full longs, as we can only exclude the leftover
+>   		 * bits in non-inverse order. The leftover is all zeros.
+>   		 */
+> -		if (!bitmap_and(apm, mdev_apm, matrix_mdev->matrix.apm,
+> -				AP_DEVICES))
+> +		if (!bitmap_and(apm, mdev_apm, assigned_to->matrix.apm,
+> +				AP_DEVICES)) {
+>   			continue;
+> +		}
+>   
+> -		if (!bitmap_and(aqm, mdev_aqm, matrix_mdev->matrix.aqm,
+> -				AP_DOMAINS))
+> +		if (!bitmap_and(aqm, mdev_aqm, assigned_to->matrix.aqm,
+> +				AP_DOMAINS)) {
+>   			continue;
+> +		}
+>   
+> -		vfio_ap_mdev_log_sharing_err(matrix_mdev, apm, aqm);
+> +		if (assignee) {
+> +			vfio_ap_mdev_log_sharing_err(assignee, assigned_to,
+> +						     apm, aqm);
+> +		} else {
+> +			vfio_ap_mdev_log_in_use_err(assigned_to, apm, aqm);
+> +		}
+>   
+>   		return -EADDRINUSE;
+>   	}
+> @@ -961,7 +988,8 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
+>   					       matrix_mdev->matrix.aqm))
+>   		return -EADDRNOTAVAIL;
+>   
+> -	return vfio_ap_mdev_verify_no_sharing(matrix_mdev->matrix.apm,
+> +	return vfio_ap_mdev_verify_no_sharing(matrix_mdev,
+> +					      matrix_mdev->matrix.apm,
+>   					      matrix_mdev->matrix.aqm);
+>   }
+>   
+> @@ -2516,7 +2544,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
+>   
+>   	mutex_lock(&matrix_dev->guests_lock);
+>   	mutex_lock(&matrix_dev->mdevs_lock);
+> -	ret = vfio_ap_mdev_verify_no_sharing(apm, aqm);
+> +	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
+>   	mutex_unlock(&matrix_dev->mdevs_lock);
+>   	mutex_unlock(&matrix_dev->guests_lock);
+>   
 
-There end up being some slight behaviour changes.
-- Some code tries to 'undo' actions if the length can't be updated.
-  I'm sure this is unnecessary and the recovery path is untested and
-  could be buggy. Provided the kernel data is consistent there is
-  no point trying to get code to recover from EFAULT.
-  The 'length' has been read - so would also need to be readonly
-  or unmapped by a second thread!
-- A lot of getsockopt functions actually treat a negative length as 4.
-  I think this 'bug' needs to preserved to avoid breaking applications.
-
-The changes are mechanical but very widespread.
-
-They also give the option of not writing back the length if unchanged.
-
-	David
- 
