@@ -1,281 +1,325 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f208.google.com (mail-il1-f208.google.com [209.85.166.208])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69CC321B9E0;
-	Mon, 31 Mar 2025 20:22:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00FD621A928
+	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 20:23:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.208
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743452544; cv=none; b=vEtMQH4uhBVIrgwOTZ5UaA8QAdDVpINr+V6sqHphxwO74wxO/PIumiXFSway2mJOwv524TJPU73SCS+cSWyRS6sdYZKjvgw4ziA2GqS8WothjB0ITrQJ/pmdkcgfLPBpKuZiGVCxavxHSmZuRCrHMezZshrDH2Sj7TuMFWC3o9k=
+	t=1743452603; cv=none; b=tdOs/fqxvZact/4RIowYzd7+Ud87zvcwQT8PAC7XyI8hZG0XE56uDLHbumgA32MEIhyMALreXBArCLkqhu0p+CAcL3Amkp+efgmmQXQHOLY1lsr3SqINlwyMPh6jSjWvD/BeT1Q19seyY9fwtp/7TNM+l5jb7TDdW+62eeLVXAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743452544; c=relaxed/simple;
-	bh=78FVZaz/ifJxU5ZlGxgMG855kHor4oDTQVhQw0ARKm0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ibIKfUnjLPCZbDrYFCZxF8QlrKnjSJ44k6fJwzYmnEHyma0J16ZVxqY1oXDrQGy0ODYFtA4L6EpwS8Jt2+8v6/tu87KsYZ2PgFZCuv2qhZSKiPDKjiptXjwL0M+YDghDpSGYpYq8dND+XLLNcqoGy7+lp6GRUUfxtkeY4I9Cqds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TczRxzR1; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TczRxzR1"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52VE3M4T007988;
-	Mon, 31 Mar 2025 20:22:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=0s2nYaP83mLmgojgx
-	Ynn4A70gTj6tK12R3u0RycbEto=; b=TczRxzR1TXiqvVj1hh6DEyMZt3KcligXm
-	qQHeKLJYbaO7Or3B8z0CFhOhHLwpdw9xXjdiezTQndB9L2A50yao1gse47cNcsCO
-	kHf2Vsq/yr9SlxLpig72tMMHqOfkWtQajPWQRKE8BW8wTI6b5Gwsq3J/Dpp0OUk4
-	qK50loT/4ZnzxZT+NpvVh/6/mZ7ATGQSoNjmRaqHODV76Y8RB5yNprhNSA/+V2jx
-	KgaOv1H0Ns0g2GnbUR4+u6jR6zVKQhEI3Lu5uTvtBeT2pM1p4KhCktaM2uq66S5B
-	MfHm10AMj9WhmpbmvepCmxP7YEnTJ29fTeehO2yMZbRoTVwJjMIpA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qvfpsse8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Mar 2025 20:22:10 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52VHn7di019410;
-	Mon, 31 Mar 2025 20:22:09 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45pu6symsj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Mar 2025 20:22:09 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52VKM83v27460292
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Mar 2025 20:22:08 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3390558059;
-	Mon, 31 Mar 2025 20:22:08 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B7B8558053;
-	Mon, 31 Mar 2025 20:22:06 +0000 (GMT)
-Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.39.63])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 31 Mar 2025 20:22:06 +0000 (GMT)
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, borntraeger@linux.ibm.com, clg@redhat.com,
-        iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH v4 4/5] iommu/s390: support map/unmap for additional table regions
-Date: Mon, 31 Mar 2025 16:21:58 -0400
-Message-ID: <20250331202159.85956-5-mjrosato@linux.ibm.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250331202159.85956-1-mjrosato@linux.ibm.com>
-References: <20250331202159.85956-1-mjrosato@linux.ibm.com>
+	s=arc-20240116; t=1743452603; c=relaxed/simple;
+	bh=3PY05xnMoMY5l0MLOVsaY4dzTB65DW9ZAGjtkWZLVh0=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=cDoRxjYTrqZtT3vSue4GsGlQ8a4IhCp3+QVHZXYGt0vFvaAEK2dBqXFTHfYCoitnoxGe4QLNxxnnhrOaFO6WiJBuUj250qsT7/9joLK7m6jleGXZleHw23+eUK6FMf4d76Wo9BAdcPMx5DKyQk4ZSMkOzEaS+LBYaYhWNtY9kb4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.208
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f208.google.com with SMTP id e9e14a558f8ab-3d44ba1c2b5so51391015ab.2
+        for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 13:23:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743452600; x=1744057400;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=3IdS2CIIBxydV1hM12Yq4u+yxRM3vbbwLHZJ/Jv2v1U=;
+        b=ldPcP3PmQeOY+JWlJS48g24wRMbRDbKs61LgIIXt7wOfjGAutj8TEaJGgzjvaTm4n5
+         ak0Qcs7/DVEtX6bzjSOHY/zgfvl/CDw4rFSkjzcyD+fcQ13XtqoRowS4EUwctSsVC1m8
+         WIvbxmHFLoE8zWuSkUyEWswANe/d35UP159LjOhFPQS0nTv0og9zbBHCZHont2hucWMh
+         UHzFTH6MPDmvm3SjiRRLrNH7RhjZB2WoXf0up8ZxD3+7nBR7TmYC2q7gJgIh7UsCbXab
+         8RmC0g01h7tnZAtXUD2rmP7KfIuSIMV8m/LbQgLip3x1uSv3j28aNm/p31rIoOhJRLmG
+         pUTA==
+X-Forwarded-Encrypted: i=1; AJvYcCWTv0CZoayzEg5KRVFrdlfqrQ8MWXQcng0xCmW2P8QHVyKT2cpqmY0uuPskwMGfkmMKrRPlG6LzKgUw@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOy8cH92rBgLBHF4iqTAF3DdgAbN+twL+9HHTlvEAFBz5il6z2
+	BGq1soArcXShTelyxHklDVd5VweMcHCn3eEM3Rt2EryFWWUtr244vqhComqwvoaXT2DJsZqXSe3
+	ueuiPbswIx1O70j1MzYu3F73/buOKh/mV/KQloMIlW8+vZgpo2YZoZMI=
+X-Google-Smtp-Source: AGHT+IHLSJS1wU9leOVUk3T6cwy7hiPNlkyZgl8AGQuBu7QPD/fBMTwXXwdHHtraXgZq65fv4E9K737nJXsbQyEFMVQY9/Ey77Hg
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3Wg7s9QUM7LDNGk7DZtY6RfB5D47wSpc
-X-Proofpoint-GUID: 3Wg7s9QUM7LDNGk7DZtY6RfB5D47wSpc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-31_09,2025-03-27_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- priorityscore=1501 clxscore=1015 adultscore=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503310135
+X-Received: by 2002:a05:6e02:238a:b0:3d3:fa0a:7242 with SMTP id
+ e9e14a558f8ab-3d5e0912eb8mr90641135ab.9.1743452600121; Mon, 31 Mar 2025
+ 13:23:20 -0700 (PDT)
+Date: Mon, 31 Mar 2025 13:23:20 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67eaf9b8.050a0220.3c3d88.004a.GAE@google.com>
+Subject: [syzbot] [rdma?] [s390?] [net?] KASAN: null-ptr-deref Read in smc_tcp_syn_recv_sock
+From: syzbot <syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com>
+To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	jaka@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-Map and unmap ops use the shared dma_walk_cpu_trans routine, update
-this using the origin_type of the dma_table to determine how many
-table levels must be walked.
+Hello,
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+syzbot found the following issue on:
+
+HEAD commit:    850925a8133c Merge tag '9p-for-6.12-rc5' of https://github..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1227aa87980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=17c0d505695d6b0
+dashboard link: https://syzkaller.appspot.com/bug?extid=827ae2bfb3a3529333e9
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15489230580000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/6d8177e17058/disk-850925a8.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/5d88252f39ff/vmlinux-850925a8.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/7a675a61b90d/bzImage-850925a8.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
+
+TCP: request_sock_TCP: Possible SYN flooding on port [::]:20002. Sending cookies.
+TCP: request_sock_TCP: Possible SYN flooding on port [::]:20002. Sending cookies.
+==================================================================
+BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:68 [inline]
+BUG: KASAN: null-ptr-deref in atomic_read include/linux/atomic/atomic-instrumented.h:32 [inline]
+BUG: KASAN: null-ptr-deref in smc_tcp_syn_recv_sock+0xa7/0x4b0 net/smc/af_smc.c:131
+Read of size 4 at addr 00000000000009d4 by task syz.4.10809/28966
+
+CPU: 1 UID: 0 PID: 28966 Comm: syz.4.10809 Not tainted 6.12.0-rc4-syzkaller-00261-g850925a8133c #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+ kasan_report+0xd9/0x110 mm/kasan/report.c:601
+ check_region_inline mm/kasan/generic.c:183 [inline]
+ kasan_check_range+0xef/0x1a0 mm/kasan/generic.c:189
+ instrument_atomic_read include/linux/instrumented.h:68 [inline]
+ atomic_read include/linux/atomic/atomic-instrumented.h:32 [inline]
+ smc_tcp_syn_recv_sock+0xa7/0x4b0 net/smc/af_smc.c:131
+ tcp_get_cookie_sock+0xd5/0x790 net/ipv4/syncookies.c:204
+ cookie_v4_check+0xcf8/0x1d40 net/ipv4/syncookies.c:485
+ tcp_v4_cookie_check net/ipv4/tcp_ipv4.c:1864 [inline]
+ tcp_v4_do_rcv+0x98e/0xa90 net/ipv4/tcp_ipv4.c:1923
+ tcp_v4_rcv+0x3cd2/0x4390 net/ipv4/tcp_ipv4.c:2340
+ ip_protocol_deliver_rcu+0xba/0x4c0 net/ipv4/ip_input.c:205
+ ip_local_deliver_finish+0x316/0x570 net/ipv4/ip_input.c:233
+ NF_HOOK include/linux/netfilter.h:314 [inline]
+ NF_HOOK include/linux/netfilter.h:308 [inline]
+ ip_local_deliver+0x18e/0x1f0 net/ipv4/ip_input.c:254
+ dst_input include/net/dst.h:460 [inline]
+ ip_rcv_finish net/ipv4/ip_input.c:449 [inline]
+ NF_HOOK include/linux/netfilter.h:314 [inline]
+ NF_HOOK include/linux/netfilter.h:308 [inline]
+ ip_rcv+0x2c3/0x5d0 net/ipv4/ip_input.c:569
+ __netif_receive_skb_one_core+0x199/0x1e0 net/core/dev.c:5666
+ __netif_receive_skb+0x1d/0x160 net/core/dev.c:5779
+ process_backlog+0x443/0x15f0 net/core/dev.c:6111
+ __napi_poll.constprop.0+0xba/0x550 net/core/dev.c:6775
+ napi_poll net/core/dev.c:6844 [inline]
+ net_rx_action+0xa92/0x1010 net/core/dev.c:6966
+ handle_softirqs+0x216/0x8f0 kernel/softirq.c:554
+ do_softirq kernel/softirq.c:455 [inline]
+ do_softirq+0xb2/0xf0 kernel/softirq.c:442
+ </IRQ>
+ <TASK>
+ __local_bh_enable_ip+0x100/0x120 kernel/softirq.c:382
+ local_bh_enable include/linux/bottom_half.h:33 [inline]
+ rcu_read_unlock_bh include/linux/rcupdate.h:919 [inline]
+ __dev_queue_xmit+0x887/0x4350 net/core/dev.c:4455
+ dev_queue_xmit include/linux/netdevice.h:3094 [inline]
+ neigh_hh_output include/net/neighbour.h:526 [inline]
+ neigh_output include/net/neighbour.h:540 [inline]
+ ip_finish_output2+0x16d7/0x2530 net/ipv4/ip_output.c:236
+ __ip_finish_output net/ipv4/ip_output.c:314 [inline]
+ __ip_finish_output+0x49e/0x950 net/ipv4/ip_output.c:296
+ ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:324
+ NF_HOOK_COND include/linux/netfilter.h:303 [inline]
+ ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:434
+ dst_output include/net/dst.h:450 [inline]
+ ip_local_out+0x33e/0x4a0 net/ipv4/ip_output.c:130
+ __ip_queue_xmit+0x747/0x1940 net/ipv4/ip_output.c:536
+ __tcp_transmit_skb+0x2a4c/0x3dc0 net/ipv4/tcp_output.c:1466
+ __tcp_send_ack.part.0+0x390/0x720 net/ipv4/tcp_output.c:4268
+ __tcp_send_ack net/ipv4/tcp_output.c:4274 [inline]
+ tcp_send_ack+0x82/0xa0 net/ipv4/tcp_output.c:4274
+ tcp_rcv_synsent_state_process net/ipv4/tcp_input.c:6576 [inline]
+ tcp_rcv_state_process+0x4332/0x4f30 net/ipv4/tcp_input.c:6770
+ tcp_v4_do_rcv+0x1ad/0xa90 net/ipv4/tcp_ipv4.c:1938
+ sk_backlog_rcv include/net/sock.h:1115 [inline]
+ __release_sock+0x31b/0x400 net/core/sock.c:3072
+ release_sock+0x5a/0x220 net/core/sock.c:3626
+ mptcp_connect+0xc14/0xee0 net/mptcp/protocol.c:3800
+ __inet_stream_connect+0x3ca/0x1020 net/ipv4/af_inet.c:679
+ inet_stream_connect+0x57/0xa0 net/ipv4/af_inet.c:750
+ __sys_connect_file+0x150/0x190 net/socket.c:2071
+ __sys_connect+0x147/0x180 net/socket.c:2088
+ __do_sys_connect net/socket.c:2098 [inline]
+ __se_sys_connect net/socket.c:2095 [inline]
+ __x64_sys_connect+0x72/0xb0 net/socket.c:2095
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f68acb7e719
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f68ada08038 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f68acd35f80 RCX: 00007f68acb7e719
+RDX: 0000000000000010 RSI: 0000000020000000 RDI: 0000000000000004
+RBP: 00007f68acbf132e R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000000000 R14: 00007f68acd35f80 R15: 00007ffdea14cb48
+ </TASK>
+==================================================================
+Oops: general protection fault, probably for non-canonical address 0xdffffc000000013a: 0000 [#1] PREEMPT SMP KASAN NOPTI
+KASAN: null-ptr-deref in range [0x00000000000009d0-0x00000000000009d7]
+CPU: 1 UID: 0 PID: 28966 Comm: syz.4.10809 Tainted: G    B              6.12.0-rc4-syzkaller-00261-g850925a8133c #0
+Tainted: [B]=BAD_PAGE
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
+RIP: 0010:arch_atomic_read arch/x86/include/asm/atomic.h:23 [inline]
+RIP: 0010:raw_atomic_read include/linux/atomic/atomic-arch-fallback.h:457 [inline]
+RIP: 0010:atomic_read include/linux/atomic/atomic-instrumented.h:33 [inline]
+RIP: 0010:smc_tcp_syn_recv_sock+0xb8/0x4b0 net/smc/af_smc.c:131
+Code: ad d4 09 00 00 be 04 00 00 00 44 8b bb 1c 04 00 00 4c 89 ef e8 69 94 2e f7 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <0f> b6 14 02 4c 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 34
+RSP: 0018:ffffc90000a18668 EFLAGS: 00010217
+RAX: dffffc0000000000 RBX: ffff88805b9cb600 RCX: ffffffff814e856f
+RDX: 000000000000013a RSI: ffffffff81ee031e RDI: 0000000000000007
+RBP: 0000000000000000 R08: 0000000000000007 R09: 0000000000000000
+R10: 0000000000000000 R11: 6e696c6261736944 R12: ffff88807df5bd00
+R13: 00000000000009d4 R14: ffffc90000a186e8 R15: 0000000000000000
+FS:  00007f68ada086c0(0000) GS:ffff8880b8700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f68ad9e7d58 CR3: 000000005e3fa000 CR4: 0000000000350ef0
+Call Trace:
+ <IRQ>
+ tcp_get_cookie_sock+0xd5/0x790 net/ipv4/syncookies.c:204
+ cookie_v4_check+0xcf8/0x1d40 net/ipv4/syncookies.c:485
+ tcp_v4_cookie_check net/ipv4/tcp_ipv4.c:1864 [inline]
+ tcp_v4_do_rcv+0x98e/0xa90 net/ipv4/tcp_ipv4.c:1923
+ tcp_v4_rcv+0x3cd2/0x4390 net/ipv4/tcp_ipv4.c:2340
+ ip_protocol_deliver_rcu+0xba/0x4c0 net/ipv4/ip_input.c:205
+ ip_local_deliver_finish+0x316/0x570 net/ipv4/ip_input.c:233
+ NF_HOOK include/linux/netfilter.h:314 [inline]
+ NF_HOOK include/linux/netfilter.h:308 [inline]
+ ip_local_deliver+0x18e/0x1f0 net/ipv4/ip_input.c:254
+ dst_input include/net/dst.h:460 [inline]
+ ip_rcv_finish net/ipv4/ip_input.c:449 [inline]
+ NF_HOOK include/linux/netfilter.h:314 [inline]
+ NF_HOOK include/linux/netfilter.h:308 [inline]
+ ip_rcv+0x2c3/0x5d0 net/ipv4/ip_input.c:569
+ __netif_receive_skb_one_core+0x199/0x1e0 net/core/dev.c:5666
+ __netif_receive_skb+0x1d/0x160 net/core/dev.c:5779
+ process_backlog+0x443/0x15f0 net/core/dev.c:6111
+ __napi_poll.constprop.0+0xba/0x550 net/core/dev.c:6775
+ napi_poll net/core/dev.c:6844 [inline]
+ net_rx_action+0xa92/0x1010 net/core/dev.c:6966
+ handle_softirqs+0x216/0x8f0 kernel/softirq.c:554
+ do_softirq kernel/softirq.c:455 [inline]
+ do_softirq+0xb2/0xf0 kernel/softirq.c:442
+ </IRQ>
+ <TASK>
+ __local_bh_enable_ip+0x100/0x120 kernel/softirq.c:382
+ local_bh_enable include/linux/bottom_half.h:33 [inline]
+ rcu_read_unlock_bh include/linux/rcupdate.h:919 [inline]
+ __dev_queue_xmit+0x887/0x4350 net/core/dev.c:4455
+ dev_queue_xmit include/linux/netdevice.h:3094 [inline]
+ neigh_hh_output include/net/neighbour.h:526 [inline]
+ neigh_output include/net/neighbour.h:540 [inline]
+ ip_finish_output2+0x16d7/0x2530 net/ipv4/ip_output.c:236
+ __ip_finish_output net/ipv4/ip_output.c:314 [inline]
+ __ip_finish_output+0x49e/0x950 net/ipv4/ip_output.c:296
+ ip_finish_output+0x31/0x310 net/ipv4/ip_output.c:324
+ NF_HOOK_COND include/linux/netfilter.h:303 [inline]
+ ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:434
+ dst_output include/net/dst.h:450 [inline]
+ ip_local_out+0x33e/0x4a0 net/ipv4/ip_output.c:130
+ __ip_queue_xmit+0x747/0x1940 net/ipv4/ip_output.c:536
+ __tcp_transmit_skb+0x2a4c/0x3dc0 net/ipv4/tcp_output.c:1466
+ __tcp_send_ack.part.0+0x390/0x720 net/ipv4/tcp_output.c:4268
+ __tcp_send_ack net/ipv4/tcp_output.c:4274 [inline]
+ tcp_send_ack+0x82/0xa0 net/ipv4/tcp_output.c:4274
+ tcp_rcv_synsent_state_process net/ipv4/tcp_input.c:6576 [inline]
+ tcp_rcv_state_process+0x4332/0x4f30 net/ipv4/tcp_input.c:6770
+ tcp_v4_do_rcv+0x1ad/0xa90 net/ipv4/tcp_ipv4.c:1938
+ sk_backlog_rcv include/net/sock.h:1115 [inline]
+ __release_sock+0x31b/0x400 net/core/sock.c:3072
+ release_sock+0x5a/0x220 net/core/sock.c:3626
+ mptcp_connect+0xc14/0xee0 net/mptcp/protocol.c:3800
+ __inet_stream_connect+0x3ca/0x1020 net/ipv4/af_inet.c:679
+ inet_stream_connect+0x57/0xa0 net/ipv4/af_inet.c:750
+ __sys_connect_file+0x150/0x190 net/socket.c:2071
+ __sys_connect+0x147/0x180 net/socket.c:2088
+ __do_sys_connect net/socket.c:2098 [inline]
+ __se_sys_connect net/socket.c:2095 [inline]
+ __x64_sys_connect+0x72/0xb0 net/socket.c:2095
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f68acb7e719
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f68ada08038 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f68acd35f80 RCX: 00007f68acb7e719
+RDX: 0000000000000010 RSI: 0000000020000000 RDI: 0000000000000004
+RBP: 00007f68acbf132e R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000000000 R14: 00007f68acd35f80 R15: 00007ffdea14cb48
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:arch_atomic_read arch/x86/include/asm/atomic.h:23 [inline]
+RIP: 0010:raw_atomic_read include/linux/atomic/atomic-arch-fallback.h:457 [inline]
+RIP: 0010:atomic_read include/linux/atomic/atomic-instrumented.h:33 [inline]
+RIP: 0010:smc_tcp_syn_recv_sock+0xb8/0x4b0 net/smc/af_smc.c:131
+Code: ad d4 09 00 00 be 04 00 00 00 44 8b bb 1c 04 00 00 4c 89 ef e8 69 94 2e f7 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <0f> b6 14 02 4c 89 e8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 34
+RSP: 0018:ffffc90000a18668 EFLAGS: 00010217
+RAX: dffffc0000000000 RBX: ffff88805b9cb600 RCX: ffffffff814e856f
+RDX: 000000000000013a RSI: ffffffff81ee031e RDI: 0000000000000007
+RBP: 0000000000000000 R08: 0000000000000007 R09: 0000000000000000
+R10: 0000000000000000 R11: 6e696c6261736944 R12: ffff88807df5bd00
+R13: 00000000000009d4 R14: ffffc90000a186e8 R15: 0000000000000000
+FS:  00007f68ada086c0(0000) GS:ffff8880b8700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f68ad9e7d58 CR3: 000000005e3fa000 CR4: 0000000000350ef0
+----------------
+Code disassembly (best guess), 2 bytes skipped:
+   0:	09 00                	or     %eax,(%rax)
+   2:	00 be 04 00 00 00    	add    %bh,0x4(%rsi)
+   8:	44 8b bb 1c 04 00 00 	mov    0x41c(%rbx),%r15d
+   f:	4c 89 ef             	mov    %r13,%rdi
+  12:	e8 69 94 2e f7       	call   0xf72e9480
+  17:	4c 89 ea             	mov    %r13,%rdx
+  1a:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+  21:	fc ff df
+  24:	48 c1 ea 03          	shr    $0x3,%rdx
+* 28:	0f b6 14 02          	movzbl (%rdx,%rax,1),%edx <-- trapping instruction
+  2c:	4c 89 e8             	mov    %r13,%rax
+  2f:	83 e0 07             	and    $0x7,%eax
+  32:	83 c0 03             	add    $0x3,%eax
+  35:	38 d0                	cmp    %dl,%al
+  37:	7c 08                	jl     0x41
+  39:	84 d2                	test   %dl,%dl
+  3b:	0f                   	.byte 0xf
+  3c:	85                   	.byte 0x85
+  3d:	34                   	.byte 0x34
+
+
 ---
- drivers/iommu/s390-iommu.c | 127 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 119 insertions(+), 8 deletions(-)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 338a7381e918..46f45b136993 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -67,6 +67,20 @@ static inline void set_pt_pfaa(unsigned long *entry, phys_addr_t pfaa)
- 	*entry |= (pfaa & ZPCI_PTE_ADDR_MASK);
- }
- 
-+static inline void set_rf_rso(unsigned long *entry, phys_addr_t rso)
-+{
-+	*entry &= ZPCI_RTE_FLAG_MASK;
-+	*entry |= (rso & ZPCI_RTE_ADDR_MASK);
-+	*entry |= ZPCI_TABLE_TYPE_RFX;
-+}
-+
-+static inline void set_rs_rto(unsigned long *entry, phys_addr_t rto)
-+{
-+	*entry &= ZPCI_RTE_FLAG_MASK;
-+	*entry |= (rto & ZPCI_RTE_ADDR_MASK);
-+	*entry |= ZPCI_TABLE_TYPE_RSX;
-+}
-+
- static inline void set_rt_sto(unsigned long *entry, phys_addr_t sto)
- {
- 	*entry &= ZPCI_RTE_FLAG_MASK;
-@@ -81,6 +95,22 @@ static inline void set_st_pto(unsigned long *entry, phys_addr_t pto)
- 	*entry |= ZPCI_TABLE_TYPE_SX;
- }
- 
-+static inline void validate_rf_entry(unsigned long *entry)
-+{
-+	*entry &= ~ZPCI_TABLE_VALID_MASK;
-+	*entry &= ~ZPCI_TABLE_OFFSET_MASK;
-+	*entry |= ZPCI_TABLE_VALID;
-+	*entry |= ZPCI_TABLE_LEN_RFX;
-+}
-+
-+static inline void validate_rs_entry(unsigned long *entry)
-+{
-+	*entry &= ~ZPCI_TABLE_VALID_MASK;
-+	*entry &= ~ZPCI_TABLE_OFFSET_MASK;
-+	*entry |= ZPCI_TABLE_VALID;
-+	*entry |= ZPCI_TABLE_LEN_RSX;
-+}
-+
- static inline void validate_rt_entry(unsigned long *entry)
- {
- 	*entry &= ~ZPCI_TABLE_VALID_MASK;
-@@ -286,6 +316,70 @@ static unsigned long *dma_alloc_page_table(gfp_t gfp)
- 	return table;
- }
- 
-+static unsigned long *dma_walk_rs_table(unsigned long *rso,
-+					dma_addr_t dma_addr, gfp_t gfp)
-+{
-+	unsigned int rsx = calc_rsx(dma_addr);
-+	unsigned long old_rse, rse;
-+	unsigned long *rsep, *rto;
-+
-+	rsep = &rso[rsx];
-+	rse = READ_ONCE(*rsep);
-+	if (reg_entry_isvalid(rse)) {
-+		rto = get_rs_rto(rse);
-+	} else {
-+		rto = dma_alloc_cpu_table(gfp);
-+		if (!rto)
-+			return NULL;
-+
-+		set_rs_rto(&rse, virt_to_phys(rto));
-+		validate_rs_entry(&rse);
-+		entry_clr_protected(&rse);
-+
-+		old_rse = cmpxchg(rsep, ZPCI_TABLE_INVALID, rse);
-+		if (old_rse != ZPCI_TABLE_INVALID) {
-+			/* Somone else was faster, use theirs */
-+			dma_free_cpu_table(rto);
-+			rto = get_rs_rto(old_rse);
-+		}
-+	}
-+	return rto;
-+}
-+
-+static unsigned long *dma_walk_rf_table(unsigned long *rfo,
-+					dma_addr_t dma_addr, gfp_t gfp)
-+{
-+	unsigned int rfx = calc_rfx(dma_addr);
-+	unsigned long old_rfe, rfe;
-+	unsigned long *rfep, *rso;
-+
-+	rfep = &rfo[rfx];
-+	rfe = READ_ONCE(*rfep);
-+	if (reg_entry_isvalid(rfe)) {
-+		rso = get_rf_rso(rfe);
-+	} else {
-+		rso = dma_alloc_cpu_table(gfp);
-+		if (!rso)
-+			return NULL;
-+
-+		set_rf_rso(&rfe, virt_to_phys(rso));
-+		validate_rf_entry(&rfe);
-+		entry_clr_protected(&rfe);
-+
-+		old_rfe = cmpxchg(rfep, ZPCI_TABLE_INVALID, rfe);
-+		if (old_rfe != ZPCI_TABLE_INVALID) {
-+			/* Somone else was faster, use theirs */
-+			dma_free_cpu_table(rso);
-+			rso = get_rf_rso(old_rfe);
-+		}
-+	}
-+
-+	if (!rso)
-+		return NULL;
-+
-+	return dma_walk_rs_table(rso, dma_addr, gfp);
-+}
-+
- static unsigned long *dma_get_seg_table_origin(unsigned long *rtep, gfp_t gfp)
- {
- 	unsigned long old_rte, rte;
-@@ -339,11 +433,31 @@ static unsigned long *dma_get_page_table_origin(unsigned long *step, gfp_t gfp)
- 	return pto;
- }
- 
--static unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t dma_addr, gfp_t gfp)
-+static unsigned long *dma_walk_region_tables(struct s390_domain *domain,
-+					     dma_addr_t dma_addr, gfp_t gfp)
- {
--	unsigned long *sto, *pto;
-+	switch (domain->origin_type) {
-+	case ZPCI_TABLE_TYPE_RFX:
-+		return dma_walk_rf_table(domain->dma_table, dma_addr, gfp);
-+	case ZPCI_TABLE_TYPE_RSX:
-+		return dma_walk_rs_table(domain->dma_table, dma_addr, gfp);
-+	case ZPCI_TABLE_TYPE_RTX:
-+		return domain->dma_table;
-+	default:
-+		return NULL;
-+	}
-+}
-+
-+static unsigned long *dma_walk_cpu_trans(struct s390_domain *domain,
-+					 dma_addr_t dma_addr, gfp_t gfp)
-+{
-+	unsigned long *rto, *sto, *pto;
- 	unsigned int rtx, sx, px;
- 
-+	rto = dma_walk_region_tables(domain, dma_addr, gfp);
-+	if (!rto)
-+		return NULL;
-+
- 	rtx = calc_rtx(dma_addr);
- 	sto = dma_get_seg_table_origin(&rto[rtx], gfp);
- 	if (!sto)
-@@ -690,8 +804,7 @@ static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
- 	int rc;
- 
- 	for (i = 0; i < nr_pages; i++) {
--		entry = dma_walk_cpu_trans(s390_domain->dma_table, dma_addr,
--					   gfp);
-+		entry = dma_walk_cpu_trans(s390_domain, dma_addr, gfp);
- 		if (unlikely(!entry)) {
- 			rc = -ENOMEM;
- 			goto undo_cpu_trans;
-@@ -706,8 +819,7 @@ static int s390_iommu_validate_trans(struct s390_domain *s390_domain,
- undo_cpu_trans:
- 	while (i-- > 0) {
- 		dma_addr -= PAGE_SIZE;
--		entry = dma_walk_cpu_trans(s390_domain->dma_table,
--					   dma_addr, gfp);
-+		entry = dma_walk_cpu_trans(s390_domain, dma_addr, gfp);
- 		if (!entry)
- 			break;
- 		dma_update_cpu_trans(entry, 0, ZPCI_PTE_INVALID);
-@@ -724,8 +836,7 @@ static int s390_iommu_invalidate_trans(struct s390_domain *s390_domain,
- 	int rc = 0;
- 
- 	for (i = 0; i < nr_pages; i++) {
--		entry = dma_walk_cpu_trans(s390_domain->dma_table, dma_addr,
--					   GFP_ATOMIC);
-+		entry = dma_walk_cpu_trans(s390_domain, dma_addr, GFP_ATOMIC);
- 		if (unlikely(!entry)) {
- 			rc = -EINVAL;
- 			break;
--- 
-2.49.0
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
