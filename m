@@ -1,67 +1,68 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A068187550
-	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 11:03:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F971B4F0F
+	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 11:21:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743419012; cv=none; b=rLuaLDY6cJ9lb5TW8S3GmQX/Iaw9cieOQNKQ+P7/p6hVAiqAkgvqYRjQUHDITTSOty/9Rsm4atyjW//0r5YsBMXc382wBgnwsyFraLuRKE3NH6wZqFFMlhIZkbXcMdnp2vI63zvkgKL0jyIuobLazEIBnR1DnHii1WZCRG60BE4=
+	t=1743420064; cv=none; b=Mp6rjEuMtSGN7qJpfzGMa1fUMPpEWMGKz+pGYqwcAMP/LCyg3ykCKy44LsAyYFXpZ679fvgwzUPaCMUq1l50W8ydgRTDON3ajyKEHCZK/VAp/dWt8aRhi3wgK0hAVeSStG9hPWXk1BBY14w1NtpMaZXHmV9xeZ048QX7dOUPfO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743419012; c=relaxed/simple;
-	bh=7J/Giu1LaVr0JksaiEqLN1kaqdLiUFTzsWzvzPgaJdI=;
+	s=arc-20240116; t=1743420064; c=relaxed/simple;
+	bh=ZXLEidgbdOU+yfK2MnIgbnNst9hfV5U73i6VH2kcgWc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mg+HkTEzOjvcee0QsT3G4i6jBo9cOHvNC/C5tpRCm3Vq4JPw8CLYxG7vcbWeUNcbLa+zRNdnwE9mgUyykH7kAj/AUh+0NDN450E9T1qCGAkSQYwvzSbmvUBP2lWeSG1fCfLNeM1fZ7IfCFJJSHjt91/qzBaWZrG4HlnmINZeFJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=K0l7YFzp; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=B5RfHJm90XFeIsD60u5RCCfWplacoL2JS7rbDQTDzv8ooh7UA6chSDSuiob6pAD/zqSaAvCdhxIzMBKlPP+eZA0bLJzYGBvc63R9shXHkoo8CF74eXXOwHhS17Bi07PbIaDgD7KIKZasD+Vatm32aC4O05+EMazvkwcmFHcbv0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M4YbKUYk; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="K0l7YFzp"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52UMlUYH027382;
-	Mon, 31 Mar 2025 11:03:28 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M4YbKUYk"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52UKdrm5014553;
+	Mon, 31 Mar 2025 11:20:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=XiCxemC6Ftr9D50OubMjidM5gIGAbt
-	JyXN1cuRd3BlA=; b=K0l7YFzpGavOaJdVWvrIAd5UbwG8f/32d4T9VJotkgWSgc
-	NSfBOboQS/Ie1uK0ND17No+7WPRmtc5aTt6zrmQVZobSgLyvpFXTW6TmZSZ8t5GI
-	AEvgCIpLoQ+8Q9WZzOFZiqkS1St1De6j3HqjWgrqwjkxOOfEH0wHkpzPS4vFe4Yl
-	MM2Q+Wb4GyasQU66UoVi5rdAjgeXkp2pjKoJ792iNknxCjs/Ve1sAyLQrEEnEWve
-	l0iowdBOt7sqEUWX120bYmCe4Wgwx48yragfRO5KY4n2zRrUeimP2FflZSIraYsJ
-	NaRQsJ3JALaqzjR/p6q880gfGgOI2iuQNjV+gO4w==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qd4q2qf8-1
+	:references:subject:to; s=pp1; bh=5yJWWXtsnZPvOibLelraA6MKnmpGc9
+	5x6om/R71JYKg=; b=M4YbKUYkSt57mqzmUN31UImGNUi/bsDp7bVCOzNLjsJ8+m
+	HYVu6EiVo0/UQprAoPf1Qlm2uIjaM5hbORti8hHbZ1L5uJ63WA61dDcvkgAxEeQD
+	rkZBaMH0ufu5zoD/oUCiayatdoT+kyUuLPoN79NV06SoMZrHCREsB7g8U+z8x7zi
+	FwmfFaLPb3bWLSgQVNZQgtMvxXtvpey4X5g7yRfHUQyjQ0uNiQaI4Xb+UJfabIPp
+	6EcEoILoPe8kuJLvXw+0gXzWT0ytz5ZIIXgzJ/ehCIc5AEbQo/MgAXOZSvVFaYgZ
+	7oXb12tP64YtdJkDqrKkR+9pSNa1gA+IoZRwcirw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qd602rfd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Mar 2025 11:03:28 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52V6WGEi005442;
-	Mon, 31 Mar 2025 11:03:27 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45pww256fa-1
+	Mon, 31 Mar 2025 11:20:59 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52VA7X99014560;
+	Mon, 31 Mar 2025 11:20:58 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45pvpkwfcr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Mar 2025 11:03:27 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52VB3N1B45547868
+	Mon, 31 Mar 2025 11:20:58 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52VBKsCG33358356
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Mar 2025 11:03:23 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C758720043;
-	Mon, 31 Mar 2025 11:03:23 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5C02B20040;
-	Mon, 31 Mar 2025 11:03:23 +0000 (GMT)
+	Mon, 31 Mar 2025 11:20:54 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 736AD20043;
+	Mon, 31 Mar 2025 11:20:54 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0202E20040;
+	Mon, 31 Mar 2025 11:20:54 +0000 (GMT)
 Received: from osiris (unknown [9.179.29.62])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 31 Mar 2025 11:03:23 +0000 (GMT)
-Date: Mon, 31 Mar 2025 13:03:21 +0200
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 31 Mar 2025 11:20:53 +0000 (GMT)
+Date: Mon, 31 Mar 2025 13:20:52 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Harald Freudenberger <freude@linux.ibm.com>
 Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
         herbert@gondor.apana.org.au
-Subject: Re: [PATCH v3 04/21] s390/ap/zcrypt: New xflag parameter
-Message-ID: <20250331110321.25223E4c-hca@linux.ibm.com>
+Subject: Re: [PATCH v3 05/21] s390/zcrypt: Introduce cprb mempool for cca
+ misc functions
+Message-ID: <20250331112052.25223F0d-hca@linux.ibm.com>
 References: <20250327143941.45507-1-freude@linux.ibm.com>
- <20250327143941.45507-5-freude@linux.ibm.com>
+ <20250327143941.45507-6-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,65 +71,84 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250327143941.45507-5-freude@linux.ibm.com>
+In-Reply-To: <20250327143941.45507-6-freude@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nkLSjF3-yZlYPsVWF2xhUlHrSG0jEVu3
-X-Proofpoint-ORIG-GUID: nkLSjF3-yZlYPsVWF2xhUlHrSG0jEVu3
+X-Proofpoint-ORIG-GUID: b9YKwCfcVnGXXQZFppq6EYq39aL0JQuW
+X-Proofpoint-GUID: b9YKwCfcVnGXXQZFppq6EYq39aL0JQuW
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-31_04,2025-03-27_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
- bulkscore=0 clxscore=1015 mlxscore=0 adultscore=0 mlxlogscore=743
- malwarescore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503310074
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ lowpriorityscore=0 priorityscore=1501 mlxlogscore=999 impostorscore=0
+ clxscore=1015 malwarescore=0 suspectscore=0 phishscore=0 adultscore=0
+ mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503310078
 
-On Thu, Mar 27, 2025 at 03:39:24PM +0100, Harald Freudenberger wrote:
-> Introduce a new flag parameter for the both cprb send functions
-> zcrypt_send_cprb() and zcrypt_send_ep11_cprb(). This new
-> xflags parameter ("execution flags") shall be used to provide
-> execution hints and flags for this crypto request.
+On Thu, Mar 27, 2025 at 03:39:25PM +0100, Harald Freudenberger wrote:
+> Introduce a new module parameter "zcrypt_mempool_threshold"
+> for the zcrypt module. This parameter controls the minimal
+> amount of mempool items which are pre-allocated for urgent
+> requests/replies and will be used with the support for the
+> new xflag ZCRYPT_XFLAG_NOMEMALLOC. The default value of 5
+> shall provide enough memory items to support up to 5 requests
+> (and their associated reply) in parallel.
 > 
-> There are two flags implemented to be used with these functions:
-> * ZCRYPT_XFLAG_USERSPACE - indicates to the lower layers that
->   all the ptrs address userspace. So when construction the ap msg
->   copy_from_user() is to be used. If this flag is NOT set, the ptrs
->   address kernel memory and thus memcpy() is to be used.
-> * ZCRYPT_XFLAG_NOMEMALLOC - indicates that this task must not
->   allocate memory which may be allocated with io operations.
->   For the zcrypt layer this limits the number of EP11 targets
->   to 16 APQNs. But as this flag is passed down the stack, it
->   may induce further restrictions.
+> For CCA each mempool item is 16KB, as a CCA CPRB needs to
+> hold the request and the reply. The pool items only support
+> requests/replies with a limit of about 8KB.
+> So by default the CCA mempool consumes
+>   5 * 16KB = 80KB
+> 
+> This is only part of an rework to support a new xflag
+> ZCRYPT_XFLAG_NOMEMALLOC but not yet complete.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/zcrypt_api.c     |  13 ++-
+>  drivers/s390/crypto/zcrypt_api.h     |   2 +
+>  drivers/s390/crypto/zcrypt_ccamisc.c | 117 ++++++++++++++++++++-------
+>  drivers/s390/crypto/zcrypt_ccamisc.h |   1 +
+>  4 files changed, 102 insertions(+), 31 deletions(-)
 
-And this magic 16 APQNs is not a problem, because...?
+...
 
-> -static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
-> +static long _zcrypt_send_ep11_cprb(u32 xflags, struct ap_perms *perms,
->  				   struct zcrypt_track *tr,
->  				   struct ep11_urb *xcrb)
->  {
-> +	bool userspace = xflags & ZCRYPT_XFLAG_USERSPACE;
->  	struct zcrypt_card *zc, *pref_zc;
->  	struct zcrypt_queue *zq, *pref_zq;
-> -	struct ep11_target_dev *targets;
-> +	struct ep11_target_dev targetbuf[16], *targets = NULL;
+> @@ -229,7 +241,16 @@ static int alloc_and_prep_cprbmem(size_t paramblen,
+>  	 * allocate consecutive memory for request CPRB, request param
+>  	 * block, reply CPRB and reply param block
+>  	 */
+> -	cprbmem = kcalloc(2, cprbplusparamblen, GFP_KERNEL);
+> +	if (xflags & ZCRYPT_XFLAG_NOMEMALLOC) {
+> +		size_t len = 2 * cprbplusparamblen;
+> +
+> +		if (cprb_mempool && len <= CPRB_MEMPOOL_ITEM_SIZE) {
+> +			cprbmem = mempool_alloc_preallocated(cprb_mempool);
+> +			memset(cprbmem, 0, len);
+> +		}
+> +	} else {
+> +		cprbmem = kcalloc(2, cprbplusparamblen, GFP_KERNEL);
+> +	}
+>  	if (!cprbmem)
+>  		return -ENOMEM;
 
-This "16" and the possible limitations that come this this should be
-documented somewhere.
+What happens on the ZCRYPT_XFLAG_NOMEMALLOC path if the cprb_mempool
+is empty and the allocation fails?
 
-> +	if (targets && targets != targetbuf)
-> +		kfree(targets);
+> +int __init zcrypt_ccamisc_init(void)
+> +{
+> +	/* Pre-allocate a small memory pool for cca cprbs. */
+> +	cprb_mempool = mempool_create_kmalloc_pool(zcrypt_mempool_threshold,
+> +						   CPRB_MEMPOOL_ITEM_SIZE);
+> +	if (IS_ERR(cprb_mempool)) {
+> +		ZCRYPT_DBF_ERR("%s mempool_create(%d,%d) failed: %ld\n",
+> +			       __func__, zcrypt_mempool_threshold,
+> +			       CPRB_MEMPOOL_ITEM_SIZE, PTR_ERR(cprb_mempool));
+> +		cprb_mempool = NULL;
+> +		return -ENOMEM;
+> +	}
+> +	return 0;
+> +}
 
-Please no NULL checks for kfree:
-
-	if (targets != targetbuf)
-		kfree(targets);
-
-> +/*
-> + * xflags - to be used with zcrypt_send_cprb() and
-> + * zcrypt_send_ep11_cprb() for the xflags parameter.
-> + */
-> +#define ZCRYPT_XFLAG_USERSPACE  0x0001  /* data ptrs address userspace */
-> +#define ZCRYPT_XFLAG_NOMEMALLOC 0x0002  /* do not allocate fresh memory */
-
-What is the definition of "fresh" memory?
+Like before: mempool_create_kmalloc_pool() returns NULL on error. Also
+please don't use ZCRYPT_DBF_ERR for such allocation failures. There
+will be a very visible message on the console for this case.
