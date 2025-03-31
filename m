@@ -1,123 +1,97 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D68122110
-	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 09:35:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28D911DE2DE
+	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 10:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743413755; cv=none; b=eR+cbMxFUBfyYI30GryuFQSlWbOAx8iFdNhheIgObWmqGa6rXYZyTxQQ5jiknN0QGlcmwuyGw+bAy/F5qGWVfE7uqLYsA6LP7+1KRcP/yEh2Js4NlNsO6Pb9PozXt/dH0xVMwre2SclGlpsQGoB3+ue4gXBANPJZnW/bhAw7634=
+	t=1743415802; cv=none; b=EdJ0zUbGkD9P5v930XXNfv9k8xTNvS9M7frZ1cq1KTjab9Ckiq5veb/dsEARywqMS+ohED6ZL7/iyMoj88mPkc9HhMP/CYwXpTwM1PzRnisVnbnq1FTPNM5uP9DvD3oZiWJY2RAO0gseeRYuxypI1CMLLUBBRnLyP984hnAdtW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743413755; c=relaxed/simple;
-	bh=oXU78hcEMEK1//fuMNSP2/m0N/IDK/M1Zs9JB8QNyE4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dvjmeuFCn/GHJLXkth9CU+GKczObpzyUw0ICFJDJcwQgsOGf9NnGEyRPRuQVUgAyNCoYSINJYSKnw+nI7GUnVqLAt5e0/ws/YxIqnoaS3s2Zo4CuUXTOM7+9/EzUr8B75gcjr48dkSTMDp1wxXeup4IFZWtc6E3i2gAWtR1ZMbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ePWX3LEX; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1743415802; c=relaxed/simple;
+	bh=2C+cFpwYqPuZBl966ZPAtxohYZBT2XF7gdhgJCqoZ2M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KbqpCtvK3Nx5FKxh0oa353ux1XCAfqWEgMhd5qzBKcRn5BlwvH8U7L98xIzYZCcSTtm6v+vafcv+/B2FPTp+TGbdwP+XZEAEktGcYclPjyhoJym5RyFRhJA9iCG4xHfk04cGWzhWFpaa5VK6uFbKmh7Bba5BvKwWy9BeEM1ov/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=grNu4ap2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ePWX3LEX"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52ULTv7l019124
-	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 09:35:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=TzZrK+byUa02iyORTM6EogAD7I/8QZ
-	59YeNEjZ1qvTE=; b=ePWX3LEXIFByEZ0n+/LzMViTjVe67EfoomS6ORxbkgR8ph
-	VJ1R8C3z1b2v9PxlyTx2Hb0bsNaGP0Av6jF3T0yEoe6MKX7k5rNVThwRrBdGdixg
-	dgywWhGO0IsBoEHSflFfl67J2lu3CzRndduSu6RVSub48GE+UPhbDZYtOok5sqHi
-	a0042oUsiFYclAOdlE0O5AEmmNGLP7XhXYNci9K2iEgSIXaY+sIDwDqXL/MzyTJf
-	PFgowoGbcAZh9ulsm4NmMpUNBqb+P31cMKwopppNXg16ljfV07QLgc06myYWIUFh
-	s0EFY76RfQ8Hnv+DocZXwDbJsp0j/VxIF39xBz4A==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qd4q2cdu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 09:35:52 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52V9DkeN004820
-	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 09:35:51 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45pujync0g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 09:35:51 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52V9ZlLk30868040
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Mar 2025 09:35:48 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D041B20085;
-	Mon, 31 Mar 2025 09:35:47 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 54C362007F;
-	Mon, 31 Mar 2025 09:35:47 +0000 (GMT)
-Received: from osiris (unknown [9.179.29.62])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 31 Mar 2025 09:35:47 +0000 (GMT)
-Date: Mon, 31 Mar 2025 11:35:45 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, seiden@linux.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v1 1/1] s390/uv: Prealloc and use one work page
-Message-ID: <20250331093545.25223B1a-hca@linux.ibm.com>
-References: <20250327153824.61600-1-freude@linux.ibm.com>
- <20250327153824.61600-2-freude@linux.ibm.com>
- <20250328103434.11717A53-hca@linux.ibm.com>
- <f70f6f9c93a8dfb5e0f0f52da882caf7@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="grNu4ap2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743415799;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2C+cFpwYqPuZBl966ZPAtxohYZBT2XF7gdhgJCqoZ2M=;
+	b=grNu4ap2icB4CCnbLWe6ng5NIdIvRoaVeURmRHb5wbwlM8LX24YflV7BCgWV/v9uN2L9EJ
+	VCaozKUOBtGCZhluRuIR6VCiVjPP5l0SvMSUfy1NiGJcD8NgwlGDrX09k2Hl9YRvcZpdEs
+	b931NpUoXt5/QD+xo7AnztzU2WbxeGU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-583-_fOU98xfP1iKmTb2MmVEVQ-1; Mon, 31 Mar 2025 06:09:58 -0400
+X-MC-Unique: _fOU98xfP1iKmTb2MmVEVQ-1
+X-Mimecast-MFC-AGG-ID: _fOU98xfP1iKmTb2MmVEVQ_1743415797
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-391425471d6so1907628f8f.3
+        for <linux-s390@vger.kernel.org>; Mon, 31 Mar 2025 03:09:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743415797; x=1744020597;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2C+cFpwYqPuZBl966ZPAtxohYZBT2XF7gdhgJCqoZ2M=;
+        b=vVxElr4SdUGKTyogStM2AkWF+NWAPMCMODPae+Jehla8RJwacpgbnT6Nc3YfKMhBjL
+         7cwGY7w2Z2eFtktZDUSkoAAZj/RN7e8bIkKUQWqVMUtXR4c7HFYgaqIuqTV69ojkkvzI
+         TNHSgJMWIT0Cs/qfKtgFj6fTBPyF1hg8vyzkaOToR2ecaGQl59wF8j9wz+WQq+AEUKXw
+         RjX6VAWGXDSggCauqoWo50w1LRJB0Jl6A/bf9phI8J27hokGhr0w4GsFRu9N9wAuvPux
+         z3jA5GAVshso4jKe0dy5IyIXdfhhz7XUeyXKeJhCNuRdxzPaJ9pYOCUFzsGiy5iGJdLr
+         bifg==
+X-Forwarded-Encrypted: i=1; AJvYcCUhekdgJuZ5D9fc8Xyc4ZFKyJQfRAA6qYyNTLKpK3lVignAdlQWJYoBXwRckbT+WcoZJIj4yl/IBCyD@vger.kernel.org
+X-Gm-Message-State: AOJu0YyqHqE4u977QtXJCMsa4LH1UrSeQFwDfHCjYLORj4c4/bW1NAz/
+	65D/zFhMJS5H8a6gJMUxcd2fzAtNj5fsRytsiCtqwcW6sjiYYZV+hWl9808/qxCrzlNtJAPg5Q1
+	2IhjP93r0B/TEN6MHhLwtBE2A55d8eicza5Dog5qtcRS8MGoHxlRPRfCT3Q3p9rnrlvecnEirHf
+	hzhw3FLWaeMze3b82McKtgh1DVnqL37cKp0g==
+X-Gm-Gg: ASbGnctEZjyA6wyJorPgEBq8h7PMjFF1jW0UxdktjUpWdRfr7rBjWXwFOokGSGLzGXi
+	NVIWoVsRijxga0EqYokbtxSxd6mvege/vNqHC8k3O37H9kZifFJ8Q2e/3xKoKI/pBXMO3tVQ=
+X-Received: by 2002:a5d:64e8:0:b0:39c:1257:c7a1 with SMTP id ffacd0b85a97d-39c1257c7c1mr6595067f8f.57.1743415797313;
+        Mon, 31 Mar 2025 03:09:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGCZJk6h5lJDDWBOtazw+tCAeqH2OEGLjA3uXm8fAYK3lITvQem6Jy7CuY03JRzh1ZQXa3lcXdTl3nBe47JoQo=
+X-Received: by 2002:a5d:64e8:0:b0:39c:1257:c7a1 with SMTP id
+ ffacd0b85a97d-39c1257c7c1mr6595047f8f.57.1743415796957; Mon, 31 Mar 2025
+ 03:09:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f70f6f9c93a8dfb5e0f0f52da882caf7@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YEMoWyD2Dmr1VTmJkUVxz7zZqHArV7YE
-X-Proofpoint-ORIG-GUID: YEMoWyD2Dmr1VTmJkUVxz7zZqHArV7YE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-03-31_04,2025-03-27_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
- bulkscore=0 clxscore=1015 mlxscore=0 adultscore=0 mlxlogscore=942
- malwarescore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503310067
+References: <20250322111119.24548-1-frankja@linux.ibm.com>
+In-Reply-To: <20250322111119.24548-1-frankja@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Mon, 31 Mar 2025 12:09:45 +0200
+X-Gm-Features: AQ5f1JoXsB2OfNE5y2Vy3gJtj9d-q7iVYfi_bwY9LhJIR_SI8fVtayetOBGbXgU
+Message-ID: <CABgObfb6gYHCjNBxL4c3WpL84K60LEvGsSaW63LcDW8aVC=vSg@mail.gmail.com>
+Subject: Re: [GIT PULL 0/2] KVM: s390: updates for 6.15
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com, 
+	cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 28, 2025 at 01:51:06PM +0100, Harald Freudenberger wrote:
-> > > +	work_page = (u8 *)__get_free_page(GFP_KERNEL);
-> > > +	if (!work_page) {
-> > > +		pr_warn("Failed to alloc a working memory page\n");
-> > > +		return;
-> > > +	}
-> > > +
-> > >  	uv_stor_base = memblock_alloc_try_nid(
-> > 
-> > Did you test this? I think this cannot work. When setup_uv() is called
-> > the buddy allocator is not yet initialized.
-> > Please use memblock_alloc_or_panic() instead.
-> > 
-> 
-> I only compiled this and I wanted to test this today in my
-> SEL environment. The patch is a suggestion and should trigger
-> maybe some feedback.
+On Sat, Mar 22, 2025 at 12:12=E2=80=AFPM Janosch Frank <frankja@linux.ibm.c=
+om> wrote:
+>
+> Paolo,
+>
+> only two cleanup patches by Thomas Weissschuh fixing our pointer print
+> formats in s390 KVM.
+>
+> I'll be on a conference next week but I'll check my mails periodically
+> and I really don't expect problems with those two patches.
+>
+> Please pull.
 
-Well, you got some feedback :)
+Pulled, thanks.
 
-> > > -	buf = kzalloc(sizeof(*buf), GFP_KERNEL);
-> > > -	if (!buf)
-> > > -		return -ENOMEM;
-> > > +	mutex_lock(&work_page_lock);
-> > > +	buf = (struct uv_secret_list *)work_page;
-> > >  	rc = find_secret(secret_id, buf, secret);
-> > > -	kfree(buf);
-> > > +	mutex_unlock(&work_page_lock);
-> > 
-> > The commit message does not explain why memory allocation is not
-> > acceptable. Usually this translates to non-sleepable context. If that
-> > is the case, then using a mutex would be wrong. This needs to be
-> > clarified.
+Paolo
 
-But I'm really wondering about this part. Please clarify.
