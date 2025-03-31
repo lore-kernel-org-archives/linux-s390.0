@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 139E4218E97;
-	Mon, 31 Mar 2025 20:22:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B9321ADC6;
+	Mon, 31 Mar 2025 20:22:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743452541; cv=none; b=txW5+bAvq5hQEjHbk7CqVjtYUvr14kTDIBc8rwYBHQsKi1ToYgYv76osjkg4aIT9dnqCAP1wHu+qKQuUB38Bx2QAvY708NHLhFPSBp4QUc6Qc7NW0DIteNsDxSH6SRfaUyRABnI3V0G0N5KNxe3837xY6mplT/0C9GyOnROl9fA=
+	t=1743452541; cv=none; b=NY7fq+Vo6cOr4hOMicRASaNF5VDfUVUm0lt6uFMhXQcMfgi/0WxMjXNAhBdT+kxUjnmYkBcASUV5ZnyLhxzPICyu/XbRVA10RNEZ5BzoBffv5B3B4tr/jZ5bTXwAF+cZems20RQdGO6+B/ZJPuqy7BrHMg/H+1ddLdHzdUXoDXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1743452541; c=relaxed/simple;
-	bh=2qKsH5kv0ncdsyHod9k9bno1V2Ucw112xluXhuZPimk=;
+	bh=ZZnyG3zya5Po2F1xc2XCG4pomT8ljt2l/zbVN/JYOUA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dd8e0XD2lw3jFqe7jbd0b0MHWFi9gR1J/Rfdm3d3cH6rqqV4CY1FeaB0rxGP+pkhv2RZZeq3cOIoA9PXg5IgqEGFA9c+J+e9scFf9lQhRvXlBxxU8SsXON5SPH9AE0j0NwCk/2JbcraeupFdNV2+oMFBQ1iJxjgkNEniDtTRtV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VdASBkhu; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=L2ujNKHEP02ANnvV7K5v2npG/8okX72wytzQxs2svwOMTNKICuE9KlHHJqKI+1xTzo6wNGQZjvfF0jlYxq7DMcAfyiPN7XeGSehQm7tARjUTuJjY5/2eW3E4OIrEUt6kMNUU5KEq0QV0gHM7ToYol2fmdxiOqoKT4KGJyFQ/0cc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LVaiXGjE; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VdASBkhu"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52VHC3bq029000;
-	Mon, 31 Mar 2025 20:22:07 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LVaiXGjE"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52VKKuR4027589;
+	Mon, 31 Mar 2025 20:22:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=c39HqofJWxJJ4EWgu
-	mfYfcuMArfFUHDA2BWbZqfDm44=; b=VdASBkhuiOelxpog44Tr6J7tMyFl46Wo9
-	zqU0XcCnLP3emAhOOYpMCtW0QykRAgi41wp7j2rqZ9ccWLja43T/tLtOyPAEKR57
-	TDhPKfmXukJ1ZzfZU7y3DWv8WUI+RKi/WYKdsUJMxziNycs66DYMRh8s2bYDYuQl
-	t3U+RtG7ToLiAa8DoPEjEOxhiMAN3q4uK2NQOMSj2P9jg49MLD9lxcG/aolm/7wM
-	8FgGy6leNe5V8BFiLFSAFPuwkQGVyEdvktWzUH3n4Ez1BcEAvGdY3Gcl2At0ZxwU
-	/j6O/SvyNRrcZ50oM27r5u46olqZbU+bVg2SxGcJ60pwDuZ5ybilQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qy7x8tf3-1
+	:mime-version:references:subject:to; s=pp1; bh=BW2kWj1vzqNrV9mFj
+	OjgpQ3BIDfQoxjiOkdFVgVgRuw=; b=LVaiXGjEtQgmojrCFKsjwezFahI12JO2e
+	IW3YcJv49d0yPMtr80CKNuUQ0rxOoVEkVQDnA9DU55yf0jBhPFwAKF7VmCu1ZTgH
+	oG8mBN5oVDeATCLJyN0x4dCrzjoEsHCXZAjxlvQB9Zuqj6ZxvrA9qgbjUMFm/eWo
+	KtEXVWU9hyrwqGjdsgr4SREXeoGuB/+XMrSNT6OugtcQFLQKTGQuMj2MJShuEfOe
+	l3canWrn4+AkOxZ+l7QCQWAevm//mpP3xkG4bvwNUuECNk2uQHFjApDTnDP0BgBc
+	TO4T0Kt3U5WlqK5EBk8Hk1o/qduPRmvpz3F8Pzn6JQ5ix31/cyjVQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qu32a8tb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Mar 2025 20:22:07 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52VHb6VF019405;
-	Mon, 31 Mar 2025 20:22:06 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45pu6symsf-1
+	Mon, 31 Mar 2025 20:22:08 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52VJMdlN006601;
+	Mon, 31 Mar 2025 20:22:08 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45pwdk76mm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Mar 2025 20:22:06 +0000
+	Mon, 31 Mar 2025 20:22:08 +0000
 Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52VKM3dN25494120
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52VKM6MI21103160
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Mar 2025 20:22:03 GMT
+	Mon, 31 Mar 2025 20:22:06 GMT
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E23F858043;
-	Mon, 31 Mar 2025 20:22:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8EF9158043;
+	Mon, 31 Mar 2025 20:22:06 +0000 (GMT)
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 739E25805D;
-	Mon, 31 Mar 2025 20:22:03 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1854158053;
+	Mon, 31 Mar 2025 20:22:05 +0000 (GMT)
 Received: from li-2311da4c-2e09-11b2-a85c-c003041e9174.ibm.com.com (unknown [9.61.39.63])
 	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 31 Mar 2025 20:22:03 +0000 (GMT)
+	Mon, 31 Mar 2025 20:22:04 +0000 (GMT)
 From: Matthew Rosato <mjrosato@linux.ibm.com>
 To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
         gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com
@@ -59,9 +59,9 @@ Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, borntraeger@linux.ibm.com, clg@redhat.com,
         iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: [PATCH v4 2/5] iommu/s390: support cleanup of additional table regions
-Date: Mon, 31 Mar 2025 16:21:56 -0400
-Message-ID: <20250331202159.85956-3-mjrosato@linux.ibm.com>
+Subject: [PATCH v4 3/5] iommu/s390: support iova_to_phys for additional table regions
+Date: Mon, 31 Mar 2025 16:21:57 -0400
+Message-ID: <20250331202159.85956-4-mjrosato@linux.ibm.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250331202159.85956-1-mjrosato@linux.ibm.com>
 References: <20250331202159.85956-1-mjrosato@linux.ibm.com>
@@ -73,128 +73,128 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hdqMQTEgj-xxIamRuDlm7ny0sOUtC5FM
-X-Proofpoint-GUID: hdqMQTEgj-xxIamRuDlm7ny0sOUtC5FM
+X-Proofpoint-GUID: DsfY1ruidDBzOzPsS0zJBNv7l4QhQG3h
+X-Proofpoint-ORIG-GUID: DsfY1ruidDBzOzPsS0zJBNv7l4QhQG3h
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-31_09,2025-03-27_02,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 malwarescore=0
- adultscore=0 mlxlogscore=974 spamscore=0 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 phishscore=0 suspectscore=0 impostorscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2503310138
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 suspectscore=0 spamscore=0 mlxlogscore=853 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503310138
 
-Extend the existing dma_cleanup_tables to also handle region second and
-region first tables.
+The origin_type of the dma_table is used to determine how many table
+levels must be traversed for the translation.
 
 Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/iommu/s390-iommu.c | 71 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 64 insertions(+), 7 deletions(-)
+ arch/s390/include/asm/pci_dma.h |  2 ++
+ drivers/iommu/s390-iommu.c      | 60 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 61 insertions(+), 1 deletion(-)
 
+diff --git a/arch/s390/include/asm/pci_dma.h b/arch/s390/include/asm/pci_dma.h
+index 42d7cc4262ca..8d8962e4fd58 100644
+--- a/arch/s390/include/asm/pci_dma.h
++++ b/arch/s390/include/asm/pci_dma.h
+@@ -55,6 +55,8 @@ enum zpci_ioat_dtype {
+ #define ZPCI_PT_BITS			8
+ #define ZPCI_ST_SHIFT			(ZPCI_PT_BITS + PAGE_SHIFT)
+ #define ZPCI_RT_SHIFT			(ZPCI_ST_SHIFT + ZPCI_TABLE_BITS)
++#define ZPCI_RS_SHIFT			(ZPCI_RT_SHIFT + ZPCI_TABLE_BITS)
++#define ZPCI_RF_SHIFT			(ZPCI_RS_SHIFT + ZPCI_TABLE_BITS)
+ 
+ #define ZPCI_RTE_FLAG_MASK		0x3fffUL
+ #define ZPCI_RTE_ADDR_MASK		(~ZPCI_RTE_FLAG_MASK)
 diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index cad032d4c9a6..f2cda0ce0fe9 100644
+index f2cda0ce0fe9..338a7381e918 100644
 --- a/drivers/iommu/s390-iommu.c
 +++ b/drivers/iommu/s390-iommu.c
-@@ -121,6 +121,22 @@ static inline int pt_entry_isvalid(unsigned long entry)
- 	return (entry & ZPCI_PTE_VALID_MASK) == ZPCI_PTE_VALID;
+@@ -36,6 +36,16 @@ struct s390_domain {
+ 
+ static struct iommu_domain blocking_domain;
+ 
++static inline unsigned int calc_rfx(dma_addr_t ptr)
++{
++	return ((unsigned long)ptr >> ZPCI_RF_SHIFT) & ZPCI_INDEX_MASK;
++}
++
++static inline unsigned int calc_rsx(dma_addr_t ptr)
++{
++	return ((unsigned long)ptr >> ZPCI_RS_SHIFT) & ZPCI_INDEX_MASK;
++}
++
+ static inline unsigned int calc_rtx(dma_addr_t ptr)
+ {
+ 	return ((unsigned long)ptr >> ZPCI_RT_SHIFT) & ZPCI_INDEX_MASK;
+@@ -759,6 +769,51 @@ static int s390_iommu_map_pages(struct iommu_domain *domain,
+ 	return rc;
  }
  
-+static inline unsigned long *get_rf_rso(unsigned long entry)
++static unsigned long *get_rso_from_iova(struct s390_domain *domain,
++					dma_addr_t iova)
 +{
-+	if ((entry & ZPCI_TABLE_TYPE_MASK) == ZPCI_TABLE_TYPE_RFX)
-+		return phys_to_virt(entry & ZPCI_RTE_ADDR_MASK);
-+	else
-+		return NULL;
-+}
++	unsigned long *rfo;
++	unsigned long rfe;
++	unsigned int rfx;
 +
-+static inline unsigned long *get_rs_rto(unsigned long entry)
-+{
-+	if ((entry & ZPCI_TABLE_TYPE_MASK) == ZPCI_TABLE_TYPE_RSX)
-+		return phys_to_virt(entry & ZPCI_RTE_ADDR_MASK);
-+	else
-+		return NULL;
-+}
-+
- static inline unsigned long *get_rt_sto(unsigned long entry)
- {
- 	if ((entry & ZPCI_TABLE_TYPE_MASK) == ZPCI_TABLE_TYPE_RTX)
-@@ -192,18 +208,59 @@ static void dma_free_seg_table(unsigned long entry)
- 	dma_free_cpu_table(sto);
- }
- 
--static void dma_cleanup_tables(unsigned long *table)
-+static void dma_free_rt_table(unsigned long entry)
- {
-+	unsigned long *rto = get_rs_rto(entry);
- 	int rtx;
- 
--	if (!table)
-+	for (rtx = 0; rtx < ZPCI_TABLE_ENTRIES; rtx++)
-+		if (reg_entry_isvalid(rto[rtx]))
-+			dma_free_seg_table(rto[rtx]);
-+
-+	dma_free_cpu_table(rto);
-+}
-+
-+static void dma_free_rs_table(unsigned long entry)
-+{
-+	unsigned long *rso = get_rf_rso(entry);
-+	int rsx;
-+
-+	for (rsx = 0; rsx < ZPCI_TABLE_ENTRIES; rsx++)
-+		if (reg_entry_isvalid(rso[rsx]))
-+			dma_free_rt_table(rso[rsx]);
-+
-+	dma_free_cpu_table(rso);
-+}
-+
-+static void dma_cleanup_tables(struct s390_domain *domain)
-+{
-+	int rtx, rsx, rfx;
-+
-+	if (!domain->dma_table)
- 		return;
- 
--	for (rtx = 0; rtx < ZPCI_TABLE_ENTRIES; rtx++)
--		if (reg_entry_isvalid(table[rtx]))
--			dma_free_seg_table(table[rtx]);
 +	switch (domain->origin_type) {
 +	case ZPCI_TABLE_TYPE_RFX:
-+		for (rfx = 0; rfx < ZPCI_TABLE_ENTRIES; rfx++)
-+			if (reg_entry_isvalid(domain->dma_table[rfx]))
-+				dma_free_rs_table(domain->dma_table[rfx]);
-+		break;
++		rfo = domain->dma_table;
++		rfx = calc_rfx(iova);
++		rfe = READ_ONCE(rfo[rfx]);
++		if (!reg_entry_isvalid(rfe))
++			return NULL;
++		return get_rf_rso(rfe);
 +	case ZPCI_TABLE_TYPE_RSX:
-+		for (rsx = 0; rsx < ZPCI_TABLE_ENTRIES; rsx++)
-+			if (reg_entry_isvalid(domain->dma_table[rsx]))
-+				dma_free_rt_table(domain->dma_table[rsx]);
-+		break;
-+	case ZPCI_TABLE_TYPE_RTX:
-+		for (rtx = 0; rtx < ZPCI_TABLE_ENTRIES; rtx++)
-+			if (reg_entry_isvalid(domain->dma_table[rtx]))
-+				dma_free_seg_table(domain->dma_table[rtx]);
-+		break;
++		return domain->dma_table;
 +	default:
-+		WARN_ONCE(1, "Invalid IOMMU table (%x)\n", domain->origin_type);
-+		return;
++		return NULL;
 +	}
- 
--	dma_free_cpu_table(table);
-+	dma_free_cpu_table(domain->dma_table);
- }
- 
- static unsigned long *dma_alloc_page_table(gfp_t gfp)
-@@ -358,7 +415,7 @@ static void s390_iommu_rcu_free_domain(struct rcu_head *head)
++}
++
++static unsigned long *get_rto_from_iova(struct s390_domain *domain,
++					dma_addr_t iova)
++{
++	unsigned long *rso;
++	unsigned long rse;
++	unsigned int rsx;
++
++	switch (domain->origin_type) {
++	case ZPCI_TABLE_TYPE_RFX:
++	case ZPCI_TABLE_TYPE_RSX:
++		rso = get_rso_from_iova(domain, iova);
++		rsx = calc_rsx(iova);
++		rse = READ_ONCE(rso[rsx]);
++		if (!reg_entry_isvalid(rse))
++			return NULL;
++		return get_rs_rto(rse);
++	case ZPCI_TABLE_TYPE_RTX:
++		return domain->dma_table;
++	default:
++		return NULL;
++	}
++}
++
+ static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
+ 					   dma_addr_t iova)
  {
- 	struct s390_domain *s390_domain = container_of(head, struct s390_domain, rcu);
+@@ -772,10 +827,13 @@ static phys_addr_t s390_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	    iova > domain->geometry.aperture_end)
+ 		return 0;
  
--	dma_cleanup_tables(s390_domain->dma_table);
-+	dma_cleanup_tables(s390_domain);
- 	kfree(s390_domain);
- }
++	rto = get_rto_from_iova(s390_domain, iova);
++	if (!rto)
++		return 0;
++
+ 	rtx = calc_rtx(iova);
+ 	sx = calc_sx(iova);
+ 	px = calc_px(iova);
+-	rto = s390_domain->dma_table;
  
+ 	rte = READ_ONCE(rto[rtx]);
+ 	if (reg_entry_isvalid(rte)) {
 -- 
 2.49.0
 
