@@ -1,126 +1,131 @@
-Received: from szxga06-in.huawei.com (szxga06-in.huawei.com [45.249.212.32])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 506BD7083C;
-	Mon, 31 Mar 2025 07:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C6D1524B0;
+	Mon, 31 Mar 2025 08:59:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743408000; cv=none; b=iTbn/GBW5d5dhO5K4rmMW1GSQAFz/8/sJ+Q9k6T4niVcbS4UwuTnRvE1ObUjJnS/AYi1h2AnWI27IfaJ+PF/vNRIW/GNY02R2hToRQ9mZT94MXHDS2aqKaY3dmHEyd5tvKNLns09cFt8c83H2lBlCm5RU/flUeQkbpjQbOwkn8o=
+	t=1743411598; cv=none; b=ikdevxV3vkHZyvl1MfeYGJK6Ngkme13jNStungHlMnAKYENXhkfYyVt407v6RLIaAf+hPFq9Hb3PMzTZbCGHaALIoEhAcvgc7Bn0/HIBxEFHhQB6OZa6GHNXLSM2cmajEhdDcQUc0iEwP/6XR5TS6qnUzXBfVXi1yynLrPDhNRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743408000; c=relaxed/simple;
-	bh=eQLxR96AEH+hQX8sCpZ8ht3V4w2BaVTTbv926vjsZbo=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jL9Ml66oFm0xIwnE1wOk/6tmMYqybm4IcLxrUUaeaCBBYqPyaAriLGs3n7Hemg0HFn2mOT2lntwqVZtgLou4+oWvqaIe/swNox1JvQqDIbrQ8SA8jqAU3+4WJoFIlDDyM+GX7CsawXOwU0X+Ho43mIbmyynwHRHMOOD+H71j8eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4ZR3TR5XL8z27hPF;
-	Mon, 31 Mar 2025 16:00:27 +0800 (CST)
-Received: from kwepemg200005.china.huawei.com (unknown [7.202.181.32])
-	by mail.maildlp.com (Postfix) with ESMTPS id 16F971A0188;
-	Mon, 31 Mar 2025 15:59:49 +0800 (CST)
-Received: from huawei.com (10.175.101.6) by kwepemg200005.china.huawei.com
- (7.202.181.32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 31 Mar
- 2025 15:59:47 +0800
-From: Wang Liang <wangliang74@huawei.com>
-To: <wenjia@linux.ibm.com>, <jaka@linux.ibm.com>, <alibuda@linux.alibaba.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<horms@kernel.org>, <ubraun@linux.vnet.ibm.com>
-CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<wangliang74@huawei.com>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: [PATCH net] net/smc: fix general protection fault in __smc_diag_dump
-Date: Mon, 31 Mar 2025 16:10:03 +0800
-Message-ID: <20250331081003.1503211-1-wangliang74@huawei.com>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1743411598; c=relaxed/simple;
+	bh=wlyMiRRTUhq1gI4BBk63IVi+E60IuUm2kFWUlnj55KY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=anLL3HMs/zkyfjP981rxq3J+yKe6vMw/Iy9+qDZkF46yW0Du00MddZsigZRef4/235vVoNGmd6bpHonOWX4rpcCp3XrxFz2Y5/UzGcoXFss3rDUWMiXBYJI6xBSRhz+fXTuHwwSgXUmg34bpSMWI6xMqRSPgNzk8OHJYm8G+M3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=P63v/gXs; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="P63v/gXs"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52UKauVs020777;
+	Mon, 31 Mar 2025 08:59:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=/02MeeTgr+edfUre6+XCDI7lrRPKBN
+	s5wpBz5Bd11FQ=; b=P63v/gXsRF4hDLy7ssEBBwh/kzsyGiOtp0mumcM5+A/LNj
+	gdY0eBuzdPTmuXOhURZupJ1YyCReKhjV+btHVIxdh6bjRaJyvFsMnji9ym0MycpW
+	FQ/tEiPUhIT3tmZjgUk0k8RfDGEkMM5umV5et3jPN0aBemzHNEpTH7otsAqg2D2s
+	IgiQKjGXwzD3QmqVQYFZ00JQ3UFfmml/HrvUYzWU2spcPKwRznX4azB8E9B4uB+1
+	1QpX2jha71AOh/TNdKabH257Nmy0qCW899l9HxKC4fFcsNGdaAqFdrftLmaLGGiG
+	2KPUxEHGLnOeqqSwgqWBfYVrpnKHZUpIb/RQpJew==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qd4q286v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Mar 2025 08:59:20 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 52V8pdhP010589;
+	Mon, 31 Mar 2025 08:59:19 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qd4q286t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Mar 2025 08:59:19 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 52V5GId8014560;
+	Mon, 31 Mar 2025 08:59:18 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45pvpkw19g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Mar 2025 08:59:18 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 52V8xEMj54460792
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 31 Mar 2025 08:59:14 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B244A20067;
+	Mon, 31 Mar 2025 08:59:14 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7D62920065;
+	Mon, 31 Mar 2025 08:59:13 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.74.246])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 31 Mar 2025 08:59:13 +0000 (GMT)
+Date: Mon, 31 Mar 2025 10:59:11 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: linux-mm@kvack.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Steven Price <steven.price@arm.com>,
+        Ryan Roberts <ryan.roberts@arm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/2] mm/ptdump: Split note_page() into level specific
+ callbacks
+Message-ID: <Z+pZX2QmFnNnnjZ5@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250317061818.16244-1-anshuman.khandual@arm.com>
+ <20250317061818.16244-2-anshuman.khandual@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemg200005.china.huawei.com (7.202.181.32)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250317061818.16244-2-anshuman.khandual@arm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FB8uw0hSchlofFmG1jPA1lzwCpmzLf0-
+X-Proofpoint-ORIG-GUID: 3iKHP7Q1z45fUexTKfPdZicsNHs_J4-s
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-31_04,2025-03-27_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ bulkscore=0 clxscore=1011 mlxscore=0 adultscore=0 mlxlogscore=741
+ malwarescore=0 lowpriorityscore=0 impostorscore=0 priorityscore=1501
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503310063
 
-Syzbot reported a general protection fault:
+On Mon, Mar 17, 2025 at 11:48:17AM +0530, Anshuman Khandual wrote:
 
-  CPU: 0 UID: 0 PID: 5830 Comm: syz-executor600 Not tainted 6.14.0-rc4-syzkaller-00090-gdd83757f6e68 #0
-  RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
-  RIP: 0010:__smc_diag_dump.constprop.0+0x3de/0x23d0 net/smc/smc_diag.c:89
-  Call Trace:
-   <TASK>
-   smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
-   smc_diag_dump+0x84/0x90 net/smc/smc_diag.c:236
-   netlink_dump+0x53c/0xd00 net/netlink/af_netlink.c:2318
-   __netlink_dump_start+0x6ca/0x970 net/netlink/af_netlink.c:2433
-   netlink_dump_start include/linux/netlink.h:340 [inline]
-   smc_diag_handler_dump+0x1fb/0x240 net/smc/smc_diag.c:251
-   __sock_diag_cmd net/core/sock_diag.c:249 [inline]
-   sock_diag_rcv_msg+0x437/0x790 net/core/sock_diag.c:287
-   netlink_rcv_skb+0x16b/0x440 net/netlink/af_netlink.c:2543
-   netlink_unicast_kernel net/netlink/af_netlink.c:1322 [inline]
-   netlink_unicast+0x53c/0x7f0 net/netlink/af_netlink.c:1348
-   netlink_sendmsg+0x8b8/0xd70 net/netlink/af_netlink.c:1892
-   sock_sendmsg_nosec net/socket.c:718 [inline]
-   __sock_sendmsg net/socket.c:733 [inline]
-   ____sys_sendmsg+0xaaf/0xc90 net/socket.c:2573
-   ___sys_sendmsg+0x135/0x1e0 net/socket.c:2627
-   __sys_sendmsg+0x16e/0x220 net/socket.c:2659
-   do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-   do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
-   entry_SYSCALL_64_after_hwframe+0x77/0x7f
-   </TASK>
+Hi Anshuman,
 
-When create smc socket, smc_inet_init_sock() first add sk to the smc_hash
-by smc_hash_sk(), then create smc->clcsock. it is possible that, after
-smc_diag_dump_proto() traverses the smc_hash, smc->clcsock is not created
-when the function visit it.
+...
+> --- a/include/linux/ptdump.h
+> +++ b/include/linux/ptdump.h
+> @@ -11,9 +11,12 @@ struct ptdump_range {
+>  };
+>  
+>  struct ptdump_state {
+> -	/* level is 0:PGD to 4:PTE, or -1 if unknown */
+> -	void (*note_page)(struct ptdump_state *st, unsigned long addr,
+> -			  int level, u64 val);
+> +	void (*note_page_pte)(struct ptdump_state *st, unsigned long addr, pte_t pte);
+> +	void (*note_page_pmd)(struct ptdump_state *st, unsigned long addr, pmd_t pmd);
+> +	void (*note_page_pud)(struct ptdump_state *st, unsigned long addr, pud_t pud);
+> +	void (*note_page_p4d)(struct ptdump_state *st, unsigned long addr, p4d_t p4d);
+> +	void (*note_page_pgd)(struct ptdump_state *st, unsigned long addr, pgd_t pgd);
+> +	void (*note_page_flush)(struct ptdump_state *st);
+>  	void (*effective_prot)(struct ptdump_state *st, int level, u64 val);
 
-The process like this:
+Should you treat effective_prot() similarly?
 
-  (CPU1)                         | (CPU2)
-  inet6_create()                 |
-    smc_inet_init_sock()         |
-      smc_sk_init()              |
-        smc_hash_sk()            |
-          head = &smc_hash->ht;  |
-          sk_add_node(sk, head); |
-                                 | smc_diag_dump_proto
-                                 |   head = &smc_hash->ht;
-                                 |     sk_for_each(sk, head)
-                                 |       __smc_diag_dump()
-                                 |         visit smc->clcsock
-      smc_create_clcsk()         |
-          set smc->clcsock       |
-
-Fix this by initialize smc->clcsock to NULL before add sk to smc_hash in
-smc_sk_init().
-
-Reported-by: syzbot+271fed3ed6f24600c364@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
-Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
-Signed-off-by: Wang Liang <wangliang74@huawei.com>
----
- net/smc/af_smc.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 3e6cb35baf25..454801188514 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -371,6 +371,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
- 	sk->sk_protocol = protocol;
- 	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
- 	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
-+	smc->clcsock = NULL;
- 	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
- 	INIT_WORK(&smc->connect_work, smc_connect_work);
- 	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
--- 
-2.34.1
-
+>  	const struct ptdump_range *range;
+>  };
