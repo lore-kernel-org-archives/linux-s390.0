@@ -1,122 +1,110 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF1A1F12ED
-	for <linux-s390@vger.kernel.org>; Tue,  1 Apr 2025 10:35:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E61C31F236C
+	for <linux-s390@vger.kernel.org>; Tue,  1 Apr 2025 11:01:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743503725; cv=none; b=tCVWV2vIOPKrx4NuJd2KgQykB1Y1W9P4iu9MO4djh+p2DjnynV1RFNs0Xpw1Hn9zuw4Wwo06oZmz5jYj9T1jhfHsbL4NXatgFJDkBmBTJXiFTFC9q4EkVCNqsLRtetYhm09xWfa23bH9AXHxjm/L5QfovvU+jsMDj8YjnvjAp3k=
+	t=1743505297; cv=none; b=MnCm7dIL85wAfYBq6MdKbMZwbsO9XAYLSh+TdTYy4ChhnYunlpy4wQzbKrlgtWDHEFpvxE1IP/MABhehp/2JP8yaQ5WaSFHPuEEqRmPGaK7Okov1Qe4a7DzhBYM/0ja7UOisJ0FPeBsfLoET5tCrf4WvEONx7cnHBIKny2Q/Rwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743503725; c=relaxed/simple;
-	bh=bB0Q88NaQ1z3A+sAKvbKfweAcqrwjXi0SB3rHqKzM6Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C3PJ1d0BUa+Lz8XUvK9cXqcFol3ky59q4EGwfRUugC/KGIXP7UeTRJPu8Tn5eSF2ajvcXStMhbfbFCxXi8nmDJ+LqBF/Pf9Dh/Cg2eRlGH4OanChZP/SQkLwDCWh+e9nNo8E/LZhSx+louNrI0UuFasI5idY020xqvYihFm8QYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=yZ1uhco5; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1743505297; c=relaxed/simple;
+	bh=ivqGICVxLEozQGBTawILTTXP7Nl7eMNQhKWIstBNXQI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dRaO5TReBZCO02Sl+FvIrlV6PcL7+wk5vcY0QQgaSpa2QjJpRsgWHDUVtb5wKpMuxAhbAFvGKS5WzWGn/TjTylZwsUmVkcs8yoDiKzfSCj2haUNBuUAC8LatYM5nxDMq+Tc9gST5Izue5d7sOxcYBDwCVmBPOdgGjWVDUheZ7Ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GjAyiasr; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="yZ1uhco5"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-43cef035a3bso38902955e9.1
-        for <linux-s390@vger.kernel.org>; Tue, 01 Apr 2025 03:35:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1743503722; x=1744108522; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=094SZ9fz+o6eVY5ZaePMpljZ6ZXESAEN9w/PXff7gsU=;
-        b=yZ1uhco5TGtEt2sLKCs3eIpdEgSFHue7Jj+dZdYa7Rt1xGwOKaWeP1mP8396IbKqwv
-         A+D6SPh4U0lihS14ZhRUH6gzU9XXq45ErLmXw5Jwcf4mHP4G0RyU7FWP89TiBXhCwF8N
-         ZuRPDTBsY5fP0ut1l3A3os0q6Vi2x6DQ375hbaOwcrFs4oojYius9WU/5yh+7Hf1s8bb
-         sFWHjRFicJvwoSQNX7wMERcj3BxIGUzylimyxNWxiXQHqFK6j2UuZ/R9g1TtHzfavJff
-         whXSpypw8SWzmbLOn3KvRPfHhSClzeelxNSNYWJ8GHCP3z/wRGUzO7HIXsBUV3LcqWD4
-         mxfQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GjAyiasr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1743505293;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bjr/CuUIuzeRdMkmnmhYE65i0HIy2EZrxJ55nmXT618=;
+	b=GjAyiasrhevW6cVHilPOM816h0Cs0zWxsH2fYaPIwfeDC+3PX7ommk3W95eCqzSNkDaEpN
+	HK3d7vupsMFaqTqSv2lVk/B5k1vamzRv6kSsuHX+Zgq0az1GeysUtnvMOhOztCGFbeGH79
+	zmMXSt1miAZX+XaSufktDQts2U9xMHE=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-355-z0k8IZN8MdS2Urbt5AYbkw-1; Tue, 01 Apr 2025 07:01:30 -0400
+X-MC-Unique: z0k8IZN8MdS2Urbt5AYbkw-1
+X-Mimecast-MFC-AGG-ID: z0k8IZN8MdS2Urbt5AYbkw_1743505289
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43bc97e6360so30853405e9.3
+        for <linux-s390@vger.kernel.org>; Tue, 01 Apr 2025 04:01:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743503722; x=1744108522;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=094SZ9fz+o6eVY5ZaePMpljZ6ZXESAEN9w/PXff7gsU=;
-        b=ZhwmxqR0A0bBXo4vg87opTP+yRV4+YZxeix6jHFbVMMxzazHohEoiQq3cM3WFOksml
-         CxhvOSwuFro39YmMccEaiDfL3kpDsHJeQjD6RaJ9Fy1XXVjwBFTJsmNzkoV5MEg3L6iA
-         LczQC9CpvT6o8i0LXWPPVB2v/jZ6xQY187LMPX5XAh61g4+uQseQcBVtTUWVN7l6/Mtk
-         qYfl7xvLoLhttmhBOZBuDRS6MU8zMCuXszuzrOGzN806m9N973OYMNGC9ydjI958JHbk
-         XDWk1P0ygPhoT1GCJRifGiwhmggfRizFoAbtMLrtqm6UsppnTo13LWP2dYhqFVTmcaqh
-         D15g==
-X-Forwarded-Encrypted: i=1; AJvYcCVBswdwOpmMdGL0rXv3quQhXRFbdeh5lAF4PUCjj4sjWNBd1egq7v9fmBb1gMEO5gqbYoJm+Wi4jQX6@vger.kernel.org
-X-Gm-Message-State: AOJu0YyoIJr8bhzbOPkPIR2OkJv+On/U9f/md09ddrJ/i9TomMQXAYiW
-	xRx1EUsLpx52tExThtlHor/69AZDjBzQKIi/SXylClkrc2RPLQ8prDzeJRzftxo=
-X-Gm-Gg: ASbGncvESgCz5X4U+t7eOU+GvJDo69ryIzkiNdtJYaXUyE9fQHdWHn4QYgEppWCwTZ4
-	MCfnOYYtP8Dpk5bUvL4Ij0C3saKQm5yyoIXtcw3CEn5FVpYPUAubda97QiDU5j7OABk0AKMhWfb
-	gI0HQ+wUY4lFlzm3gt7GmLmzns/P7eOkpW+MO1lQG7rO8w6TV65fiXyI7NqdIb4+7GZREZtcbKF
-	/wuz5uE4BCXoHnmQF9gu130f4x3c1moJolpP78Jz8tW8MTojYR5zQc1552IclMWMjM7Uqh/YnsA
-	zH0CjXEMT8w9jfes/w0i9amRED7pqVZmBlD1wn5jo0M=
-X-Google-Smtp-Source: AGHT+IH0MYFlI+kNZ16n6YuowDwZDpAgl0lcpbfUtl1S5hYwQqcUs9sspCA+WvoevEZPVnDHgpx5gw==
-X-Received: by 2002:a05:600c:4e87:b0:43d:8ea:8d80 with SMTP id 5b1f17b1804b1-43db61d5fd2mr102696825e9.5.1743503721639;
-        Tue, 01 Apr 2025 03:35:21 -0700 (PDT)
-Received: from myrica ([2.221.137.100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c0b658c87sm13912049f8f.9.2025.04.01.03.35.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Apr 2025 03:35:21 -0700 (PDT)
-Date: Tue, 1 Apr 2025 11:35:19 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Joel Granados <joel.granados@kernel.org>
-Cc: iommu@lists.linux.dev, David Woodhouse <dwmw2@infradead.org>,
-	Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Tomasz Jeznach <tjeznach@rivosinc.com>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
-	virtualization@lists.linux.dev, linux-arm-msm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-tegra@vger.kernel.org, pierrick.bouvier@linaro.org
-Subject: Re: RFC iommutests_: Testing software for everything IOMMU
-Message-ID: <20250401103519.GC2424925@myrica>
-References: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
+        d=1e100.net; s=20230601; t=1743505289; x=1744110089;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=bjr/CuUIuzeRdMkmnmhYE65i0HIy2EZrxJ55nmXT618=;
+        b=rkphG9lZ+VbwU0FRUPPzz1HMOcTcQaASyL3l3IS+AGRgDANxjkdoBRFde9vAZBKUHt
+         Wuz/ZdAE/AFSgrVE6G52kLa4S6B+iRhAlFyylLbz16Glj2aqRqdpuFVvCMODXhRajOoO
+         5N2kmkq/TZmaBkBNleZsx2M/SIZpmBNEGRiXfaYWmxmH6D/+EMK6dyKfblZc9pkHNKWN
+         VryoVe0GMQx7azYb+Dyg/wfyk3mfZRA/9R8XkIFSTpdTvYRgfG9+EvmtSq4vzQLvWhAb
+         5EEFIWXfmbfabqj547he1opMSG6xpO3rGFuRla3QA2iQUhoMQrxuI/9jlcvUVZJP81KZ
+         sdfw==
+X-Forwarded-Encrypted: i=1; AJvYcCVwSm3jG7PjCrd+aBp+qLmDishQNJgQfJWPbmXJu3MkF1cp3T4C6FrnTDPUSBBRdF37jLKBSJsJl1I/@vger.kernel.org
+X-Gm-Message-State: AOJu0YzwjR7q9trEzGw6QE1F9z/OsqOtBSw/s8c0Oqvry2Xr8vYmQDiW
+	IjelHdGv0KewuxJ/KP9McM0rPBgQgsRJzbmczK681XfgymXXIAAQLLeUjiObW/ZAAL8fYkYJKCT
+	PlM8EYy1Nwn8KIHZ5KdqLP74m0h0PP5q5KE1NrOTQ8CVo7HVWgLl0pI2Gkl8=
+X-Gm-Gg: ASbGncv384/MHMEvkhZi0UVHQNWW1KXl/86i/s+sQjH1AWJVp2Yflf6aYSQiNcupDOY
+	9ctCwmHKIf70jZbkrZQa/QMABnyYLmlgzW8Z6uv76v7YSEnMlrZ8qQ11d9Y+h3h6eudF49hxmAg
+	AZP023tgJEYSQiOXtFq63nef5FDbn+GBVqQgU5NEsRntJvjwu63R6eQ9rTgC7ueJixgbD9cSa+V
+	DQgxRdUkIfm1jUwR94i56inVu5bgTwxLKXkMgt/LcXSdMbnO3T1njsfSa/lcBO3Ej3gIbtlSlAQ
+	2UKO+SjyEp55+DxUviF15Wj3bDUn3xa0ofqM7zugftb2Ww==
+X-Received: by 2002:a05:600c:310c:b0:43d:db5:7b1a with SMTP id 5b1f17b1804b1-43db6228049mr92536705e9.12.1743505288649;
+        Tue, 01 Apr 2025 04:01:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEWR6oGgrBc9yh+EIWLu0f/Rl10wsiQ6GwZIk1/Jim/OUEtWye5DYg+AcOZjj2bj4OhsRKyqw==
+X-Received: by 2002:a05:600c:310c:b0:43d:db5:7b1a with SMTP id 5b1f17b1804b1-43db6228049mr92536285e9.12.1743505288311;
+        Tue, 01 Apr 2025 04:01:28 -0700 (PDT)
+Received: from [192.168.88.253] (146-241-68-231.dyn.eolo.it. [146.241.68.231])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d82efdffdsm194280015e9.18.2025.04.01.04.01.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Apr 2025 04:01:27 -0700 (PDT)
+Message-ID: <37f86471-5abc-4f04-954e-c6fb5f2b653a@redhat.com>
+Date: Tue, 1 Apr 2025 13:01:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix general protection fault in
+ __smc_diag_dump
+To: Wang Liang <wangliang74@huawei.com>, wenjia@linux.ibm.com,
+ jaka@linux.ibm.com, alibuda@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, horms@kernel.org, ubraun@linux.vnet.ibm.com
+Cc: yuehaibing@huawei.com, zhangchangzhong@huawei.com,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20250331081003.1503211-1-wangliang74@huawei.com>
+Content-Language: en-US
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250331081003.1503211-1-wangliang74@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 28, 2025 at 10:11:13AM +0100, Joel Granados wrote:
-> Custom qemu device: pci-ats-testdev
-> -------------------------------------
-> To support IOMMU testing under qemu, the pci-ats-testdev [10]
-> (different from pci-testdev [11]) was used to emulate DMA transactions.
-> It is a full fledged pci device capable of executing emulated DMA
-> accesses. It was originally intended to test Linux kernel interactions
-> with devices that had a working Address Translation Cache (ATC) but can
-> become a platform capable of testing anything PCI/IOMMU related if
-> needed.
+On 3/31/25 10:10 AM, Wang Liang wrote:
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index 3e6cb35baf25..454801188514 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -371,6 +371,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
+>  	sk->sk_protocol = protocol;
+>  	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
+>  	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
+> +	smc->clcsock = NULL;
+>  	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
+>  	INIT_WORK(&smc->connect_work, smc_connect_work);
+>  	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
 
-Yes please!  Maybe "pcie-testdev" rather than "pci-ats-testdev"?  There
-are other PCIe features that are poorly tested at the moment, for example
-PASID and PRI. The programming model of devices that actually implement
-those can get too complex so we need something simpler to precisely stress
-the IOMMU driver infrastructure. Driver unit-tests alone aren't good
-enough for exercising TLB invalidation (DMA after removing a mapping must
-crash), tricky cleanup paths (eg. killing a process bound to a device
-that's issuing page requests), runtime PM, MSIs etc. I'm guessing testing
-newer/future features like TDISP would also benefit from a simple device.
+The syzkaller report has a few reproducers, have you tested this? AFAICS
+the smc socket is already zeroed on allocation by sk_alloc().
 
-Some time back I needed a device like that to reproduce some tricky races
-but never got round to implementing extra PCIe features. Although this one
-[1] is based on virtio any programming interface should work as long as it
-can instruct the device to send precise DMA transactions, ideally many in
-parallel.
+/P
 
-Thanks,
-Jean
-
-[1] https://jpbrucker.net/git/linux/log/?h=virtio-dmatest/latest
-    https://jpbrucker.net/git/qemu/log/?h=virtio-dmatest/latest
