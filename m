@@ -1,178 +1,114 @@
-Received: from hr2.samba.org (hr2.samba.org [144.76.82.148])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E18A31E98F9;
-	Tue,  1 Apr 2025 08:24:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.76.82.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CBE21EDA05;
+	Tue,  1 Apr 2025 09:11:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743495881; cv=none; b=IHe9Dr7txe2I3jlDUxiqV7V3Hgcq4kFBU1yYmZyuCXat6tWUfJqH36xPZKTL7x6xrWwFnY2cZnM4tnVmQTsV7zV12EJV7UrvC/+iQjKog4pXq7v96wRxlCNTbUAi1XTRcna2qBThkToMFKBO4lfL8++r2qypVNcQL7hGZa21VM4=
+	t=1743498707; cv=none; b=YW+gwP+sDkQWRKAb0k+JPxQcZIlp9E3j+5++PSYTOLyN2d4gOkmMAYe39vdpTNtIktEVsvonuRXv7FqX+emZijGWQmp1HPqnvkSEZCKH19/CBtc0ZGHvel31JhnuTaLLKMdYnzcqByxNQ5rz0quuCkHAXFS47XpL+dsovAL7ktI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743495881; c=relaxed/simple;
-	bh=SB2q6xQ56/3mpPcfMH9fyJWiPwvHFAbAR+tuJWgebls=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZzXnRECO0kaPl5WMWl8MyClGZwxJ9hvz74Ax0BRdYMgMmRXZZ4NwEbKPsBvMMSgiPAmx3FzmxRC/+BpjV0bi5aiy15jM+l3MhkRkaFwBowzFKsxYQfYEBSFyoVOO8dBEKmUGwGesD8hswGbbYC85b2W/vQraxD2VuIx6fhA5mHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org; spf=pass smtp.mailfrom=samba.org; dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b=3Fq/qU1j; arc=none smtp.client-ip=144.76.82.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=samba.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samba.org
+	s=arc-20240116; t=1743498707; c=relaxed/simple;
+	bh=z5w4mqCNWGf9ESkE5yFsF6dByAcXvoIsTorTJ9KZAjA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EGETDMQu1vMVsZAK6Z1AgXdzIfmgeNsvWF4m2h7e51xh3u94DfRDQtpqzNLP0vQdZ6kIITqIxjc2+bU8vdhwcJsd35XyJeaJZ5SQGPAL7FigscD14W3u21c9XdLkyAtK9xq/n/Pu2C/zManow8/lYwZvdVAYs5Tvj4zv+tUJxUo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fpq1zwgC; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (3072-bit key) header.d=samba.org header.i=@samba.org header.b="3Fq/qU1j"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-	s=42; h=From:Cc:To:Date:Message-ID;
-	bh=P2vCMgKs60kE2AEX7EBwSn8Ro/J/oeai91FyuRtK384=; b=3Fq/qU1j2+zydWavWoxfAcA+HK
-	TKI4UvNHnhwFprYvUSDhd/3g172hIDos3qtk3cBwAqJau7Jhvq4tL41vm2l+ADVCkiocupdWJOVV9
-	3ql30+yvvyae6VsUM3J7Ho+XZD0hOHcAcb3P3IaIR9Fau7GUsyxSJRscTfjSw1IIJ/+i8wF6Y7WJW
-	vpnL7/YUDkat74R3AevuO9U2FwYyU0h5hqTzt9D7JnIfzoT6hCTiiqAHln7Nfpr5hkPfZwYhz9lRN
-	fLYDUS+e8G5ZMVcKG8sSMA005efyjFsifeGCyB0zCn9XI47K+K3yIgCUMzDP2hA8J6QinWnPoiBrH
-	AToIIUnvWg47OEFx9eir/cQlNMMu9gkPCUuvmtc0NA+8ULSsYhiEONjvU/M7aKAobjU56cv1KLDYy
-	rD56flFnuBVlPW0d8J7D3M+Ja1yDDNunOFIiCoQAP8LG52u2txNMmM8CdZicF/Y+R05Hcl8XrdDW2
-	XC695dYaZdJI//kShfqpRZux;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-	by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
-	(Exim)
-	id 1tzWvB-007dPk-1c;
-	Tue, 01 Apr 2025 08:24:33 +0000
-Message-ID: <51bb66d4-eaf3-4247-ba11-d793b6f0d56c@samba.org>
-Date: Tue, 1 Apr 2025 10:24:32 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fpq1zwgC"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5311amAB007991;
+	Tue, 1 Apr 2025 09:11:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=XyRix+4GNv6ZrOcC6r80lhGA/F7ll6
+	PFz2oW/xEJcr0=; b=fpq1zwgCTB8d4LNVPauRePRc3Q6pjQVus1rLRxHbp1pvwP
+	k9PhGM1n2ZaNHo3Dy4zCZeJXZJroUzUujMv9jVe8nu0ZG6my72IpS8T0YUmufVvV
+	9Kc5MGVaqe7zrr97bhSO7aLsZ/gL1PTvXhVRlnpsePw3Zkspc9kvZmiPYGdDmVc+
+	pXKzKxw3kqjb7M6jOMOVfbuZPk2Wv+hT3s8n2v5NEgWkd1cCypNZ0F2SBrGSx8gH
+	rswC6IK50Tk0N6/aLY1BPP5mchoMDdnrpMi2V0RiY/rLlZPgX4M40/rXEgl4Yuml
+	VeSJt3PZnc2B+z2mhsK6dZcoX7WU8/5p/mdcuwSA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45qvfpvgxn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Apr 2025 09:11:22 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5318o0sg014576;
+	Tue, 1 Apr 2025 09:11:21 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45pvpm1psx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Apr 2025 09:11:21 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5319BH1r31654402
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 1 Apr 2025 09:11:17 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9E1692004B;
+	Tue,  1 Apr 2025 09:11:17 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 644FF20043;
+	Tue,  1 Apr 2025 09:11:17 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  1 Apr 2025 09:11:17 +0000 (GMT)
+Date: Tue, 1 Apr 2025 11:11:15 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
+        gerald.schaefer@linux.ibm.com, schnelle@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com,
+        borntraeger@linux.ibm.com, clg@redhat.com, iommu@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 5/5] iommu/s390: allow larger region tables
+Message-ID: <20250401091115.7691Bd6-hca@linux.ibm.com>
+References: <20250331202159.85956-1-mjrosato@linux.ibm.com>
+ <20250331202159.85956-6-mjrosato@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 3/4] net: pass a kernel pointer via 'optlen_t' to
- proto[ops].getsockopt() hooks
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- Jens Axboe <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>,
- Breno Leitao <leitao@debian.org>, Jakub Kicinski <kuba@kernel.org>,
- Christoph Hellwig <hch@lst.de>, Karsten Keil <isdn@linux-pingi.de>,
- Ayush Sawal <ayush.sawal@chelsio.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de Bruijn
- <willemb@google.com>, David Ahern <dsahern@kernel.org>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, Neal Cardwell <ncardwell@google.com>,
- Joerg Reuter <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>,
- Johan Hedberg <johan.hedberg@gmail.com>,
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Oliver Hartkopp <socketcan@hartkopp.net>,
- Marc Kleine-Budde <mkl@pengutronix.de>,
- Robin van der Gracht <robin@protonic.nl>,
- Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
- Alexander Aring <alex.aring@gmail.com>,
- Stefan Schmidt <stefan@datenfreihafen.org>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Alexandra Winter <wintera@linux.ibm.com>,
- Thorsten Winkler <twinkler@linux.ibm.com>,
- James Chapman <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>,
- Matt Johnston <matt@codeconstruct.com.au>,
- Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
- Geliang Tang <geliang@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>,
- Remi Denis-Courmont <courmisch@gmail.com>,
- Allison Henderson <allison.henderson@oracle.com>,
- David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
- Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
- Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>,
- Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
- Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jonathan Lemon <jonathan.lemon@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org,
- linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
- linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
- bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
- io-uring@vger.kernel.org
-References: <cover.1743449872.git.metze@samba.org>
- <d482e207223f434f0d306d3158b2142dceac4631.1743449872.git.metze@samba.org>
- <20250331224946.13899fcf@pumpkin>
-Content-Language: en-US, de-DE
-From: Stefan Metzmacher <metze@samba.org>
-In-Reply-To: <20250331224946.13899fcf@pumpkin>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250331202159.85956-6-mjrosato@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iggC1jnG6T90UBVs0OvZOfNAlGnIobQP
+X-Proofpoint-GUID: iggC1jnG6T90UBVs0OvZOfNAlGnIobQP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-01_03,2025-03-27_02,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ priorityscore=1501 clxscore=1011 adultscore=0 bulkscore=0
+ lowpriorityscore=0 spamscore=0 mlxlogscore=651 mlxscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504010057
 
-Am 31.03.25 um 23:49 schrieb David Laight:
-> On Mon, 31 Mar 2025 22:10:55 +0200
-> Stefan Metzmacher <metze@samba.org> wrote:
+On Mon, Mar 31, 2025 at 04:21:59PM -0400, Matthew Rosato wrote:
+> Extend the aperture calculation to consider sizes beyond the maximum
+> size of a region third table.  Attempt to always use the smallest
+> table size possible to avoid unnecessary extra steps during translation.
+> Update reserved region calculations to use the appropriate table size.
 > 
->> The motivation for this is to remove the SOL_SOCKET limitation
->> from io_uring_cmd_getsockopt().
->>
->> The reason for this limitation is that io_uring_cmd_getsockopt()
->> passes a kernel pointer.
->>
->> The first idea would be to change the optval and optlen arguments
->> to the protocol specific hooks also to sockptr_t, as that
->> is already used for setsockopt() and also by do_sock_getsockopt()
->> sk_getsockopt() and BPF_CGROUP_RUN_PROG_GETSOCKOPT().
->>
->> But as Linus don't like 'sockptr_t' I used a different approach.
->>
->> Instead of passing the optlen as user or kernel pointer,
->> we only ever pass a kernel pointer and do the
->> translation from/to userspace in do_sock_getsockopt().
->>
->> The simple solution would be to just remove the
->> '__user' from the int *optlen argument, but it
->> seems the compiler doesn't complain about
->> '__user' vs. without it, so instead I used
->> a helper struct in order to make sure everything
->> compiles with a typesafe change.
->>
->> That together with get_optlen() and put_optlen() helper
->> macros make it relatively easy to review and check the
->> behaviour is most likely unchanged.
-> 
-> I've looked into this before (and fallen down the patch rabbit hole).
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/pci_dma.h |  1 +
+>  drivers/iommu/s390-iommu.c      | 71 ++++++++++++++++++++++++---------
+>  2 files changed, 53 insertions(+), 19 deletions(-)
 
-Yes, if you want to change the logic at the same time as
-changing the kind of argument variable, then it get messy
-quite fast.
+...
 
-> I think the best (final) solution is to pass a validated non-negative
-> 'optlen' into all getsockopt() functions and to have them usually return
-> either -errno or the modified length.
-> This simplifies 99% of the functions.
+> +	spin_lock_irqsave(&zdev->dom_lock, flags);
+> +	if (zdev->s390_domain->type == IOMMU_DOMAIN_BLOCKED ||
+> +	    zdev->s390_domain->type == IOMMU_DOMAIN_IDENTITY)
+> +		goto out;
+> +
+> +	s390_domain = to_s390_domain(zdev->s390_domain);
+> +	if (zdev->end_dma < max_tbl_size(s390_domain)) {
+> +		end_resv = max_tbl_size(s390_domain) - zdev->end_dma;
+> +		region = iommu_alloc_resv_region(zdev->end_dma + 1, end_resv,
+> +						 0, IOMMU_RESV_RESERVED,
+> +						 GFP_KERNEL);
 
-Yes, maybe not 99%, but a lot.
-
-> The problem case is functions that want to update the length and return
-> an error.
-> By best solution is to support return values of -errno << 20 | length
-> (as well as -errno and length).
-> 
-> There end up being some slight behaviour changes.
-> - Some code tries to 'undo' actions if the length can't be updated.
->    I'm sure this is unnecessary and the recovery path is untested and
->    could be buggy. Provided the kernel data is consistent there is
->    no point trying to get code to recover from EFAULT.
->    The 'length' has been read - so would also need to be readonly
->    or unmapped by a second thread!
-> - A lot of getsockopt functions actually treat a negative length as 4.
->    I think this 'bug' needs to preserved to avoid breaking applications.
-> 
-> The changes are mechanical but very widespread.
-> 
-> They also give the option of not writing back the length if unchanged.
-
-See my other mail regarding proto[_ops].getsockopt_iter(),
-where implementation could be converted step by step.
-
-But we may still need to keep the current  proto[ops].getsockopt()
-as proto[ops].getsockopt_legacy() in order to keep the
-insane uapi semantics alive.
-
-metze
-
-
+GFP_KERNEL allocation while holding a spinlock is not correct.
