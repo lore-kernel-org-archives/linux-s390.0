@@ -1,150 +1,123 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE6FE1E50B;
-	Wed,  2 Apr 2025 12:35:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB99205502;
+	Wed,  2 Apr 2025 13:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743597327; cv=none; b=h30ZLn+JkUvc/rCp75EnT9baK+mFmpIEYgLM+MWwud50Qun1Ux5MpdGxKAT6pA39HwOp0mgns5oiEJt1UYX5q7ABX5OL4/FlKCRYaplSHZcKR/4K9Wx4DYTBsPG2Yl+gT7w8qXNuNzbN7PkeE046zPzBWsN+Pj/boMr0YLapqP4=
+	t=1743598974; cv=none; b=cDW2FeQ5akZT/AV5Q1AN3dJiNci/H3yNOtfsCu2oqg9pBlCCQihUg6LROwnl+6+u+muXD4h9EPEhkidNPnaAVwEQX9HPBkYbhkDpB3HN0bKsc4zUm7v1EqHeLgXYIU6jCLRs03Auzo+OBCfDtz2xMfzbMAYTI6VquNxSXB0JZB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743597327; c=relaxed/simple;
-	bh=5x5voHAbthWztCnJTAxyUPzXr6ODagheOFflvD8Cgow=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=AMA7oZUMCtonaVfpWJxkF+P0OJ7BSsOvWYg+QhSJkZK+hI/WxIvN1zTQQR7g1YfghwIV22VO40xeAgHkqNDHApafGqfZFCwT1Hv/91aD+Rqjj7hca6jJ9eGt6abJElLe4u2nZ6WAlNCmU/BzGqdHEMrwE8HJuLxjYxuNT6f9UeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QcGL7P7x; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1743598974; c=relaxed/simple;
+	bh=DCEPhaPz/eGeoDWdb6Wt6RXEe9b9SHkk/0lHMFgtrJw=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=GwHZGIyehlHMq0ix3o7baKN8lBMEmoxoOyJl5ud0CuaNYc5gkDHhG1IfSmQgPRUMfCLXSDswGgTt9f5mcBjexeNvOO4jjV3EGmGyGBvIPtdcg71Wv9meeLXqLPrAy2F7GvREIsQv/xwdKmZLeXmSg9kN/zf6/7k+cr36m3+qyjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=gg6RUPXX; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=n78nMbbP; arc=none smtp.client-ip=103.168.172.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QcGL7P7x"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-3996af42857so578663f8f.0;
-        Wed, 02 Apr 2025 05:35:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743597324; x=1744202124; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fQPuk4z8aXO1/VwBQYL7UU05vvl1F/e5DxjIm3de0nQ=;
-        b=QcGL7P7xdIlNJFtbv1qiOnhd1v9UoUavw/eehcp5qTLK0ORnH24kzw7vGiboSbQGWD
-         ppytj7pxBsNeBJ/KEKu+yDjfacmVaip2Rdtoiwu/lcFmMPR30sBASZMW3vgAcQlC/kcJ
-         ONvHmufdnMwPmONrOTcijCBRR2mOKJRGN5Ik7OM0eZsVFF/wU6crTCymAIDEJLJ57LrX
-         yCfYIunRsZeYeilqu/gLbzXgnpL2aIL7IAMuIsvD1k4EzGkwrkdWakxLu2W6ESTmdWUy
-         CfBPgOa9ZZm0VX6/PZ/plvawSRCxyqIDzzojeiKRQDut4z5jxdRiFefL8ekzy/gSebAT
-         iATA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743597324; x=1744202124;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fQPuk4z8aXO1/VwBQYL7UU05vvl1F/e5DxjIm3de0nQ=;
-        b=rchl1ru5mEMrx+XbmE9zYhC8XxudatiZQckUfx+Q2yI1Sj58lcKLgfU4Ag+BlD5Arb
-         Apv4e0Uz0JaADiMbZPpur/U4xYeYusWhzxeYuYyN/bxXAX+msULtfbg7i1pT4E5IQ92U
-         8ff4RlkkHQPUJkr8GnaY+PCPHdU911BPpY5oiE18oD6ZPQEJ4ecEA2ugmAK81GNC1yxt
-         YNrSUQXHmX/OBYDNiDE0LoPdGvJU+NVDnFyibzPnKYAF4MTAJPPHF+19EBuLrx57rYti
-         Z3mnVI5AD3WEUFgh1GuXKzJ8NRZkLp6T/wnEwj+4NbspODNC1CzRoL+iaejXknP/MY30
-         /CAw==
-X-Forwarded-Encrypted: i=1; AJvYcCU3ET9hdKoCZuK+lJXILl+QeOU+9q2P4mmTWak/Kb6lNcsImdv3f60sxiyThbSwBN1mMHzEbRhC@vger.kernel.org, AJvYcCU74I9PmntDjz8zfd5JZDle0wx1kYIfc3UH7VOnGLXRO8T1kaRpYEDHuDyHwR4oHrjh9lA1fW464D6N@vger.kernel.org, AJvYcCUpJAx58K9xug8hCIcO4omOHbbtVDeMV2FnHsQPCgMsjTFNxbSlMeWQecOe0YeZLxaFaGlvKWOxqhv/@vger.kernel.org, AJvYcCVUJIQV2CYwVKa47sx5jWjf8kaOKvNmxOpNFNgFc7bhaOknHWN7EAW74bdQDDY9T5HrEmu/12SEhRy+yOKN@vger.kernel.org, AJvYcCVc+6wQcTWNvC5fGMy4colAI6SZ5ypD70q24zcagN2lOyQSLqbRKyMOSFXfjAFRFAokq50N2/Y2WQlJZw==@vger.kernel.org, AJvYcCVsGxNX+HQ7AxC/1/MOiDCNjX8hTbxrcPkogZqgWZQ3OzRI/ptciXR0N1SDcONAsKeZ9pkDuueh0ltZKQ==@vger.kernel.org, AJvYcCVvaLjZn2jWAOMryTf4TiQ9104/LhPJuQlmGmJWUymC9iJ0/4vjoG9mB07t2hOOTQjCHjs=@vger.kernel.org, AJvYcCWAO6wB/JHNG23o7D8wYYPRsT4woPW+mTI+ON3VykxaRxp85v9QbDMaZ+YrItzAgAFSU0SMypZBWDKDhg==@vger.kernel.org, AJvYcCWTozHbnxqZ0g4Mvqobcf98xg3b/LKrcQklnfZuZmUTH9yjYQr7huKmW5V+sDaIgNuZGK4npl2r1tw=@vger.kernel.org, AJvYcCWUySn7qvYZ7IfLe11HJ2nL9+AItCC9UNyZkXUmJaOC5Snh0leeY34sY0lWbq7yG235zceWfeh4PKthCC7pWu0a@vger.kernel.org, AJvYcCWyNyjHbs+QL6MN+LXrAl1LtFZ9eY4JHcwvO0So+LWgY7csykGT6u2JddCF8rfT3w6cfy/x1w==@vger.kernel.org, AJvYcCX7HB3HV08iHwh/h7qhgJbtQznDp2S8P9T8x5XmSZO//Yk+PNt1m2Eg82rqf5DdmxFJsMM93cb+dEgfkQ==@vger.kernel.org, AJvYcCXnjTIbGQ42spZ/B8cllCy0Wnw15dTI6sCfNv7cnja1bz3/Tn2ImuYGsX8lMVOYVQ4lGKCcun7G0y+h8Q==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx8kWe0OlPNKLMsRXrarDGAeF37TCmufpkhVJnukaY4cKLB0faL
-	3tWGhirrQsk7ZSfwk9zR2+yAODq9btzp1uLBk55AM5iuoqTpS46r
-X-Gm-Gg: ASbGncuwgp92SBngGAPvxqqxLAH0bom1QCyMzyiznnf/tCGA/5eVlJAmlDK+rd3Vnp6
-	zAE5/LFt43ItXHumAUnhVbRGkS3yvPE1fPlWNMfine5e6ZD9Rq3gxTzT6aH2JW4g2J+rNl20ZsS
-	zLqzJDsjitfGTXUaMmFSOVSU0qhHKnhsrrj2sLnDCplbP++r/MfJOV8Rhmp+SPpgcNN3ZeF43sh
-	cS4bJRDDLZnS/RUO5Agu/e0ZkYgeE//MONrwhzPhIos2dK1WIj/OOfA+YsfwGcXbqTM2VGK70wH
-	NG2d1QNr0uXb/qzKsUWEM9iad3ZDAwpqwWqN/VX7BfwQ3XSteV0ZNaELqpRH+bnF6OV4o4YKwmQ
-	+sKwCmsE=
-X-Google-Smtp-Source: AGHT+IHaPOBKU7A29Yjs98Lc1iT7Oi631s03TvCGaxR6gPTH2ceLJBkQprnFjuTvnVXixjBxLkV5PQ==
-X-Received: by 2002:a5d:648b:0:b0:38d:df15:2770 with SMTP id ffacd0b85a97d-39c2a2c9272mr2009745f8f.0.1743597323750;
-        Wed, 02 Apr 2025 05:35:23 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43eb613ae24sm19468475e9.40.2025.04.02.05.35.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Apr 2025 05:35:23 -0700 (PDT)
-Date: Wed, 2 Apr 2025 13:35:20 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Stefan Metzmacher <metze@samba.org>, Jens Axboe <axboe@kernel.dk>, Pavel
- Begunkov <asml.silence@gmail.com>, Breno Leitao <leitao@debian.org>, Jakub
- Kicinski <kuba@kernel.org>, Christoph Hellwig <hch@lst.de>, Karsten Keil
- <isdn@linux-pingi.de>, Ayush Sawal <ayush.sawal@chelsio.com>, Andrew Lunn
- <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>, Willem de
- Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, Marcelo
- Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long
- <lucien.xin@gmail.com>, Neal Cardwell <ncardwell@google.com>, Joerg Reuter
- <jreuter@yaina.de>, Marcel Holtmann <marcel@holtmann.org>, Johan Hedberg
- <johan.hedberg@gmail.com>, Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
- Oliver Hartkopp <socketcan@hartkopp.net>, Marc Kleine-Budde
- <mkl@pengutronix.de>, Robin van der Gracht <robin@protonic.nl>, Oleksij
- Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de, Alexander Aring
- <alex.aring@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Miquel
- Raynal <miquel.raynal@bootlin.com>, Alexandra Winter
- <wintera@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>, James
- Chapman <jchapman@katalix.com>, Jeremy Kerr <jk@codeconstruct.com.au>, Matt
- Johnston <matt@codeconstruct.com.au>, Matthieu Baerts <matttbe@kernel.org>,
- Mat Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>,
- Krzysztof Kozlowski <krzk@kernel.org>, Remi Denis-Courmont
- <courmisch@gmail.com>, Allison Henderson <allison.henderson@oracle.com>,
- David Howells <dhowells@redhat.com>, Marc Dionne
- <marc.dionne@auristor.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Jan
- Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, Tony
- Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, Jon Maloy
- <jmaloy@redhat.com>, Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Stefano Garzarella <sgarzare@redhat.com>,
- Martin Schiller <ms@dev.tdt.de>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
- <bjorn@kernel.org>, Magnus Karlsson <magnus.karlsson@intel.com>, Maciej
- Fijalkowski <maciej.fijalkowski@intel.com>, Jonathan Lemon
- <jonathan.lemon@gmail.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org,
- linux-bluetooth@vger.kernel.org, linux-can@vger.kernel.org,
- dccp@vger.kernel.org, linux-wpan@vger.kernel.org,
- linux-s390@vger.kernel.org, mptcp@lists.linux.dev,
- linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net,
- virtualization@lists.linux.dev, linux-x25@vger.kernel.org,
- bpf@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
- io-uring@vger.kernel.org
-Subject: Re: [RFC PATCH 0/4] net/io_uring: pass a kernel pointer via
- optlen_t to proto[_ops].getsockopt()
-Message-ID: <20250402133520.40451468@pumpkin>
-In-Reply-To: <CAHk-=whmzrO-BMU=uSVXbuoLi-3tJsO=0kHj1BCPBE3F2kVhTA@mail.gmail.com>
-References: <cover.1743449872.git.metze@samba.org>
-	<CAHk-=whmzrO-BMU=uSVXbuoLi-3tJsO=0kHj1BCPBE3F2kVhTA@mail.gmail.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="gg6RUPXX";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="n78nMbbP"
+Received: from phl-compute-07.internal (phl-compute-07.phl.internal [10.202.2.47])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 092981140120;
+	Wed,  2 Apr 2025 09:02:52 -0400 (EDT)
+Received: from phl-imap-11 ([10.202.2.101])
+  by phl-compute-07.internal (MEProxy); Wed, 02 Apr 2025 09:02:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1743598972;
+	 x=1743685372; bh=fpqFrssur8XwzaX61qKCU1rsBl9PXbyHjQbc2KbZiY0=; b=
+	gg6RUPXXt3H3z8L8cmXCPtMBoyEnxaJFzuHjASmOTUQ+M9GlyUQru0hXh41oFKP2
+	dFxqjRfR4GsCU3hTndh3uV8MV9gj+uavPPv+EjXQNt6xHA8090cbxGLODU2L2v05
+	+3+GnpqEsBzm67jNpHUD1G1kcMyKMLobRwcG0p9B6u6OpxF648pAnXvDEpk2zeKZ
+	nEcJExcz/6PClokw8X49JtMMioNymK3ICVBD4WliTeWQ4qpPr06v45lSQUh0yUH9
+	oYs9GWq49tB9dnfLdRvQcE4dk0eiNtzdNOlr3RcZg4QeRP71t39ww8R8ZW2jdYsE
+	kHxOOLocuzu2Clp4ZpFsCw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1743598972; x=
+	1743685372; bh=fpqFrssur8XwzaX61qKCU1rsBl9PXbyHjQbc2KbZiY0=; b=n
+	78nMbbPtE46JMldQeHEXrxRqA+SmvqqlDOlSWSZuaEKGZSoIfmz3WDIV74UvXqjg
+	7o6qANRtJ4E/mGd535EW5krWHEj+S/nHHb0h2cRAqcp47UcbjkLFC19lx3sT5Q/o
+	ziSt59wqjxlvhB7ggLxScg5bTjDHubrtKSTOIcEhLzvsverk2BKjFVdZm/3ejboU
+	5F9elXkDNLiTTpe87NYPKK6mV2rt5SECFE27nHGyDb7eEe3SN4Jsgb5wwc4nLyky
+	VwfnGpgJSKVwhXnH/ttlPrG78uN5fDJ0RCOMOJ7ipntXP/ZGiTyz5vBw/Wod87wr
+	bVrFrt/VHgJ2M6Rp3iYIA==
+X-ME-Sender: <xms:ezXtZ6sDCpW9FyCUSQTXNandTpb9tgG3W3mja7hq1S554mwWeC8lyQ>
+    <xme:ezXtZ_dNKWh-_EfibN9NxlOcJTeaKAcr6vrNE54sTxChc3LmCMu4E5LOvvvNH6-bs
+    OF0I8YvrkeKxKxDcAA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddukeehjeehucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
+    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
+    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
+    tddtnecuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnug
+    gsrdguvgeqnecuggftrfgrthhtvghrnhepfefhheetffduvdfgieeghfejtedvkeetkeej
+    feekkeelffejteevvdeghffhiefhnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenuc
+    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnuges
+    rghrnhgusgdruggvpdhnsggprhgtphhtthhopeduiedpmhhouggvpehsmhhtphhouhhtpd
+    hrtghpthhtohepnhgrthhhrghnsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrnhgu
+    vghrshdrrhhogigvlhhlsehlihhnrghrohdrohhrghdprhgtphhtthhopegurghnrdgtrg
+    hrphgvnhhtvghrsehlihhnrghrohdrohhrghdprhgtphhtthhopehnrghrvghshhdrkhgr
+    mhgsohhjuheslhhinhgrrhhordhorhhgpdhrtghpthhtohepthhorhhvrghlughssehlih
+    hnuhigqdhfohhunhgurghtihhonhdrohhrghdprhgtphhtthhopehgrhgvghhkhheslhhi
+    nhhugihfohhunhgurghtihhonhdrohhrghdprhgtphhtthhopehlihhnuhigqdgrrhhmqd
+    hkvghrnhgvlheslhhishhtshdrihhnfhhrrgguvggrugdrohhrghdprhgtphhtthhopehl
+    khhfthdqthhrihgrghgvsehlihhsthhsrdhlihhnrghrohdrohhrghdprhgtphhtthhope
+    hllhhvmheslhhishhtshdrlhhinhhugidruggvvh
+X-ME-Proxy: <xmx:ezXtZ1x0tn7ltpGTDYGifQyNGRwv05HQhp7VrRtfOYJERIsYFU5jDA>
+    <xmx:ezXtZ1Of7TE_gxWrJ9c7KR2LYhhzet4wNAtbTSz6jf4tXfLOFRPmbw>
+    <xmx:ezXtZ68sGdYz2vnEQ6TnUK9X4QGhn2liLK4occMVE2styVeDxOwdsA>
+    <xmx:ezXtZ9XcFzt4U54KRH7UKrG6STA-h_Ug_wweIkJej96LpAu49GYE5A>
+    <xmx:ezXtZzN6BS9dQtVWxt3yAmWJ7-RuOF4CsSi15WszlIkVW3qMZzB9w9x6>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 4E1562220072; Wed,  2 Apr 2025 09:02:51 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-ThreadId: T1e4eead9af4a5be9
+Date: Wed, 02 Apr 2025 15:02:29 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Naresh Kamboju" <naresh.kamboju@linaro.org>,
+ clang-built-linux <llvm@lists.linux.dev>,
+ "Linux ARM" <linux-arm-kernel@lists.infradead.org>,
+ linux-s390@vger.kernel.org, "open list" <linux-kernel@vger.kernel.org>,
+ lkft-triage@lists.linaro.org, samba-technical@lists.samba.org,
+ linux-cifs@vger.kernel.org, "Nathan Chancellor" <nathan@kernel.org>
+Cc: "Steve French" <sfrench@samba.org>, bharathsm@microsoft.com,
+ "Linus Torvalds" <torvalds@linux-foundation.org>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Dan Carpenter" <dan.carpenter@linaro.org>,
+ "Anders Roxell" <anders.roxell@linaro.org>,
+ "Shyam Prasad N" <sprasad@microsoft.com>
+Message-Id: <3ad96ab5-72a3-48ee-8ab3-e68d066169a4@app.fastmail.com>
+In-Reply-To: 
+ <CA+G9fYuQHeGicnEx1d=XBC0p1LCsndi5q0p86V7pCZ02d8Fv_w@mail.gmail.com>
+References: 
+ <CA+G9fYuQHeGicnEx1d=XBC0p1LCsndi5q0p86V7pCZ02d8Fv_w@mail.gmail.com>
+Subject: Re: clang-nightly: ERROR: modpost: "wcslen" [fs/smb/client/cifs.ko] undefined!
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Tue, 1 Apr 2025 17:40:19 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+On Wed, Apr 2, 2025, at 14:21, Naresh Kamboju wrote:
+> Build regression: arm powerpc s390 modpost "wcslen" fs smb client
+> cifs.ko undefined
+>
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+> ## Build log
+>
+> ERROR: modpost: "wcslen" [fs/smb/client/cifs.ko] undefined!
 
-> "
-> 
-> On Mon, 31 Mar 2025 at 13:11, Stefan Metzmacher <metze@samba.org> wrote:
-> >
-> > But as Linus don't like 'sockptr_t' I used a different approach.  
-> 
-> So the sockptr_t thing has already happened. I hate it, and I think
-> it's ugly as hell, but it is what it is.
-> 
-> I think it's a complete hack and having that "kernel or user" pointer
-> flag is disgusting.
+This is from the latest clang release, and Nathan already sent a fix:
 
-I have proposed a patch which replaced it with a structure.
-That showed up some really hacky code in IIRC io_uring.
+https://lore.kernel.org/lkml/20250328-string-add-wcslen-for-llvm-opt-v3-1-a180b4c0c1c4@kernel.org/
 
-Using sockptr_t for the buffer was one thing, the generic code
-can't copy the buffer to/from user because code lies about the length.
-
-But using for the length is just brain-dead.
-That is fixed size and can be copied from/to user by the wrapper.
-The code bloat reduction will be significant.
-
-	David
-
+     Arnd
