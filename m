@@ -1,112 +1,137 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FED22BD1B;
-	Wed,  2 Apr 2025 04:04:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E6B314C5B0;
+	Wed,  2 Apr 2025 07:20:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743566690; cv=none; b=rgKxSEhL4I5KsYBc8JdN/12eeb984QHbrAetq51BJkYa2QE/seXcVWYDzgKDFYM3PmLBPSmYhc7rLrnONmp0tbFZx6VDoRKEsdMcNOpwYLEpJv9SidtLdx9KCAm7RnVOwRHHe/lFPu5qaCppbY0be/bcwZaA9Im2ksUGg+/vIT8=
+	t=1743578423; cv=none; b=GDHqGQpJsfZwLOtC42+v3SeES72WFF3vejRtdGZhdXQ0XCxxt2I15wgGXqNpC5ZP3ClT7BIvDC/5K4mb0KzV+R4fCxyQai25WZmq9hkAPtFwEYkP8Z5pit99wwMRkCUwVS1KByNsNf0bseQClq1sQ3eIPDOMIyuwohfFrjiRyGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743566690; c=relaxed/simple;
-	bh=1s0swUoTlOS+9aTYKFHvEJREuZrIOqXyvwNB1Dz/R2Y=;
+	s=arc-20240116; t=1743578423; c=relaxed/simple;
+	bh=FG+mAEEJfFXvvo/HA/Yd5WAZif8rMmBYXzAaraYQrSA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eF6hB71uNJ2a2iNg6Fyqyr1VK2rA8qUc5uzjv4Pk0VKjfrC1P068l4Y4oOZcXCmk6YMe913hw88Xe2Hd28S82ZzxPiJaMcD41tlXgVdPJYGd3wc48C03CS2PKw2bSpMBLB35my8m35IxgYnsM3oaByq/k4ceTT2mnvxmCFzAC2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=WyBFZQtr; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	 Content-Type:Content-Disposition:In-Reply-To; b=XYaSg0nyMxk81xzoFSNYk07Tl168ZaV8pyBiJjTZNaqOokeNCECo+rV7uyyNBLGal4gogXfOUSh0BL9dA1cjZOlCiSWntvD6NzuFGWxqRquCYDc8Dy4+HM0KQBOSPoJ5Jl0Eo8C+kryQt+ZOpJF9E/2i0WkAcHiJ3Wpn0V1YlzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=JmJgOKNm; arc=none smtp.client-ip=115.124.30.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="WyBFZQtr"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=Vn4Fw6iH7tQfF6tNfZanVr7yGgz0Th49fEBqTPe7cJA=; b=WyBFZQtry+nFJ8oTLdaS6JM+Ax
-	dsj8w/RGv5/kTnhx+2OUvsx4EendvT7qzu2c32HwMzZxraRLQ63p1Wfo4OJQrlYNYhO7qGSoDpLho
-	EVGZEVAV6RiwmTIW8ooUhQyWftyL2Myty0Q7YZdKnxeb1hgSUmr2FX4P2B2rtM1PiCDG2so8xymGA
-	y35OTS0rc3+kvCSRxGz1Fv85RWjXga3No72qKtBDcuWpYuYS8zvnyQmk9qhEhvTVNTD3Tfd104FJB
-	aI7S5QCCQOAjEEqmf3RDPtT2F/K5SYaLfmgc52Sf8ouB7NhXVT8/7tMjjCoSILB6DyyVmzPlqzrig
-	6m5FICwg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1tzpLH-00C1Se-0Y;
-	Wed, 02 Apr 2025 12:04:44 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 02 Apr 2025 12:04:43 +0800
-Date: Wed, 2 Apr 2025 12:04:43 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
-	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] s390/crypto: Rework protected key AES for true
- asynch support
-Message-ID: <Z-y3W4o5nz9qfijs@gondor.apana.org.au>
-References: <20250401145048.52564-1-freude@linux.ibm.com>
- <20250401145048.52564-3-freude@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="JmJgOKNm"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1743578411; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=o3ZsxU/eLRlIBgMdAFPcSQYxPGvBAI0bku7B/uSDh6M=;
+	b=JmJgOKNmEAclSf4uui0i9mFSEDp57ahCauqzo1bZBx/fFggXBPYlf4unbwyz8Wgo7aOtLWcTTS3h2xj1iYyAOiFVGKjanmNVm5rWtnhITGJJzyPWX390gF8mhv5x3yuVCMWbuRV6Wf+hnkmkH65MTwVuqXOglURQcmziSFHBOl4=
+Received: from localhost(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WUHYYP._1743578410 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 02 Apr 2025 15:20:10 +0800
+Date: Wed, 2 Apr 2025 15:20:10 +0800
+From: "D. Wythe" <alibuda@linux.alibaba.com    >
+To: Wang Liang <wangliang74@huawei.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, wenjia@linux.ibm.com,
+	jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	horms@kernel.org, ubraun@linux.vnet.ibm.com, yanjun.zhu@linux.dev,
+	yuehaibing@huawei.com, zhangchangzhong@huawei.com,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix general protection fault in
+ __smc_diag_dump
+Message-ID: <20250402072010.GA110656@j66a10360.sqa.eu95>
+References: <20250331081003.1503211-1-wangliang74@huawei.com>
+ <37f86471-5abc-4f04-954e-c6fb5f2b653a@redhat.com>
+ <99f284be-bf1d-4bc4-a629-77b268522fff@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250401145048.52564-3-freude@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <99f284be-bf1d-4bc4-a629-77b268522fff@huawei.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 
-On Tue, Apr 01, 2025 at 04:50:47PM +0200, Harald Freudenberger wrote:
->
-> +static int ecb_paes_do_crypt(struct s390_paes_ctx *ctx,
-> +			     struct s390_pecb_req_ctx *req_ctx,
-> +			     bool maysleep)
+On Wed, Apr 02, 2025 at 10:37:24AM +0800, Wang Liang wrote:
+> 
+> 在 2025/4/1 19:01, Paolo Abeni 写道:
+> >On 3/31/25 10:10 AM, Wang Liang wrote:
+> >>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> >>index 3e6cb35baf25..454801188514 100644
+> >>--- a/net/smc/af_smc.c
+> >>+++ b/net/smc/af_smc.c
+> >>@@ -371,6 +371,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
+> >>  	sk->sk_protocol = protocol;
+> >>  	WRITE_ONCE(sk->sk_sndbuf, 2 * READ_ONCE(net->smc.sysctl_wmem));
+> >>  	WRITE_ONCE(sk->sk_rcvbuf, 2 * READ_ONCE(net->smc.sysctl_rmem));
+> >>+	smc->clcsock = NULL;
+> >>  	INIT_WORK(&smc->tcp_listen_work, smc_tcp_listen_work);
+> >>  	INIT_WORK(&smc->connect_work, smc_connect_work);
+> >>  	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
+> >The syzkaller report has a few reproducers, have you tested this? AFAICS
+> >the smc socket is already zeroed on allocation by sk_alloc().
+> 
+> 
+> Yes, I test it by the C repro:
+> https://syzkaller.appspot.com/text?tag=ReproC&x=13d2dc98580000
+> 
+> The C repro is provided by the 2025/02/27 15:16 crash from
+>   https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
+> 
+> After apply my patch, the crash no longer happens when running the C repro.
+> 
+> "the smc socket is already zeroed on allocation by sk_alloc()", That
+> is right.
+> However, smc->clcsock may be modified indirectly in inet6_create().
+> The process like this:
+> 
+>   __sys_socket
+>     __sys_socket_create
+>       sock_create
+>         __sock_create
+>           # pf->create
+>           inet6_create
+>             // init smc->clcsock = 0
+>             sk = sk_alloc()
+> 
+>             // set smc->clcsock to invalid address
+>             inet = inet_sk(sk);
+>             inet_assign_bit(IS_ICSK, sk, INET_PROTOSW_ICSK & answer_flags);
+>             inet6_set_bit(MC6_LOOP, sk);
+>             inet6_set_bit(MC6_ALL, sk);
+> 
+>             smc_inet_init_sock
+>               smc_sk_init
+>                 // add sk to smc_hash
+>                 smc_hash_sk
+>                   sk_add_node(sk, head);
+>               smc_create_clcsk
+>                 // set smc->clcsock
+>                 sock_create_kern(..., &smc->clcsock);)
+> 
+> So initialize smc->clcsock to NULL explicitly in smc_sk_init() can fix
+> this crash scene. If the problem can be reproduced after this patch, I
+> guess it is not the same reason, and fix it by another patch is more
+> appropriate.
+> 
 
-...
+This is actually because the current smc_sock is not an inet_sock,
+leading to two modules simultaneously modifying the same offset in
+memory but interpreting its structure differently. I previously proposed
+embedding an inet(6)_sock at the beginning of smc_sock, but the
+community had some objections...
 
-> +	/* always walk on the ... */
-> +	while ((nbytes = walk->nbytes) != 0) {
-> +		/* only use complete blocks */
-> +		n = nbytes & ~(AES_BLOCK_SIZE - 1);
-> +		k = cpacf_km(ctx->fc | req_ctx->modifier, param,
-> +			     walk->dst.virt.addr, walk->src.virt.addr, n);
-> +		if (k)
-> +			rc = skcipher_walk_done(walk, nbytes - k);
-> +		if (k < n) {
-> +			if (!maysleep) {
-> +				rc = -EKEYEXPIRED;
-> +				goto out;
-> +			}
+I'm not sure on the community's current stance on this matter, but if a
+fix is absolutely necessary, my recommendation would still be to embed
+an inet(6)_sock within the smc_sock structure
 
-So this leaves the skcipher walk in a mapped state, to be resumed in
-a work queue later.  Now I don't believe you guys have the horror of
-HIGHMEM so it's not fatal, but it's still a bit of a hack and worthy
-of a comment to at least stop people from other architectures copying
-this.
+D.
 
-> +			rc = paes_convert_key(ctx);
+> >
 
-At first I thought this was racy, but then I realised that it is not
-because only the crypto_engine thread gets called with maysleep ==
-true.  Since there is only one crypto_engine thread this is safe.
 
-I think this is not really obvious though and worthy of a comment to
-explain the reliance on the single crypto engine thread.
 
-There is one more subtle issue to do with request ordering.  Because
-networking requires packets to not be reordered, we enforce this in
-the Crypto API.  An algorithm must not reorder the requests sent to
-the same tfm.
-
-To do that here, once a ctx goes into the crypto_engine, all future
-requests to the same ctx must also go through the crypto_engine, as
-long as at the time of the request being submitted prior work is still
-outstanding.
-
-The easiest way would be to have a counter in the ctx that keeps
-track of how many requests are currently outstanding in the engine.
-Then in paes_do_crypt you'd simply check the counter, and if it is
-non-zero you always put the request into the engine.
-
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> >/P
+> >
+> >
