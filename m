@@ -1,104 +1,162 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B22209F35;
-	Fri,  4 Apr 2025 00:07:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F0C3C38;
+	Fri,  4 Apr 2025 04:02:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743725267; cv=none; b=UYJ5+gvc/qJ7mkzvyLNqrNClrgKIHcMFNli6RUmlZReAQjRVKj1NyGvcR/TTenxyP6FtQuxmXeQvBFL9PrCouX7iJJXnHsYmo/4el8nNSGIHvSDe8Lq90TR1ckxQDbTePBiogiqzm3vOjOw32G5cDvW08eeJvJ91uizF9fhpTxI=
+	t=1743739342; cv=none; b=INFICToOpgDhD1Rja9bceuFigmeSCfhmbo9IIpaqlpQ1am1wprlktgeEK+r3klHyl/8d3qPEjx3ZzmZvUloJA42JAhjueN+5dLcJCfd1Od9djB4U9AvQG7lE35KcwsAnz+khDFZyjN2EexW8ZynRkZanKGhruVALueLH4TZ26s8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743725267; c=relaxed/simple;
-	bh=KtlHusmjeBo2ehofOvWtPiyNsUDcFcYrXb7AQYaismI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Q3if7dlNNqSvHF+N7fEqYCRFMg3dFoaOc85NpO5te9XNx0l+85skLYfCd4LXDl93Y5AzCTxRYgf+lTTvITZWq7e3d9rZAvE9Ppk5f+BI/+md1hLEREGSeJY3KChFPvW8DOR1tPt3P5va37aDLJA4lz6g2kIPWnPRHtfgglgJ5m4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DYiEI4sH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1743739342; c=relaxed/simple;
+	bh=YvtjewQEpVtgIn6mwzy8Dw47VaTv42DwrZuOQFX1KeE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=SAU3wBSyx3Z4keTCsRWpdjz2U+hW8DD/rc6FyAAzFiwJfnHur9elisahSMxDncmi+215teh7JwQltDsDpgw/IfkLHCxRzZbsHLA59g8VaeukCL1Ls9gv8ViXyB/zn7rzLPQEbPCvQEMQuVID9uT9EQ+IimkUquY0lVsBNqt8Xz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fsLZ5Bc8; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DYiEI4sH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C715C4CEE3;
-	Fri,  4 Apr 2025 00:07:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743725267;
-	bh=KtlHusmjeBo2ehofOvWtPiyNsUDcFcYrXb7AQYaismI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DYiEI4sH2S0DdIWnuOatpufoYtaxQh71VksWzxf9G+6UYIEt7ikgST5xdrVW2Qs3F
-	 jwEVHTzoGvbkXjiGmpZFWHFdjr5HbAK3pcm2oE+pGzuYYyFHvG2mEoW3DFawWzbU4T
-	 YZMdLfK7kiWNn8M2wx6+aTt02giMYYG7DQnLk3RVs8U02LqB4wKwiEaP0btpdJrbir
-	 60ewZxZpmOLbuDb4hOAYuLq5qU1Lw820k/7Oent1xpexR/9rHMJxG0M0d4CPmKOm9X
-	 wlhHl5p0Yk29s7LuQD57DT4dWFdReHeF22RJe37kdI+KYAtpBxkzHnyYAmGdwo2EgU
-	 zeGjU+SKplH4g==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Haoxiang Li <haoxiang_li2024@163.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Sasha Levin <sashal@kernel.org>,
-	agordeev@linux.ibm.com,
-	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 7/8] s390/tty: Fix a potential memory leak bug
-Date: Thu,  3 Apr 2025 20:07:25 -0400
-Message-Id: <20250404000728.2689305-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250404000728.2689305-1-sashal@kernel.org>
-References: <20250404000728.2689305-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fsLZ5Bc8"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5341hNnV017801;
+	Fri, 4 Apr 2025 04:02:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=NqI6Ve
+	W0KeMnDUyRqzQsLFcFou5YGNJcmhyFenC6qC0=; b=fsLZ5Bc8iSTg/UC9a+a8q6
+	vJ//s8KpFfK6qegZli0ddaZqwOpSi4t1zhZBFA3EVetIq7mTdVlZw/hKW1PStMaf
+	fR8h6IiVoVTrqP/tFeH6dlY2mRtBADW60gOcscQIwHkJJszmftNHsFiSEFl5ROqn
+	eSF/9/G9jB3WcUpvq/HyQdubUjdOEM35QeGQGi6kNyc6HRhOOj4+A3S2igFUtNku
+	KxxdD/2Z3IDAw1LyrDdH2C50MiIkiAjnTSDZVzePyvNz94N1lBb9TjI6L6c7uYXJ
+	z7QumGRyCrsYUNsVf+CjvMSgmCQUzn4UqGXz2654pBMrTWCyRko+reXr5IvlEQaQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45t2qb142g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Apr 2025 04:02:12 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5341v5IZ001911;
+	Fri, 4 Apr 2025 04:02:11 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45t2ch1910-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Apr 2025 04:02:11 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 534427IS55771406
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 4 Apr 2025 04:02:07 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 76C642004B;
+	Fri,  4 Apr 2025 04:02:07 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B12F20040;
+	Fri,  4 Apr 2025 04:02:06 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.55.30])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri,  4 Apr 2025 04:02:06 +0000 (GMT)
+Date: Fri, 4 Apr 2025 06:02:04 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+        Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth
+ <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Wei Wang
+ <wei.w.wang@intel.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+Message-ID: <20250404060204.04db301d.pasic@linux.ibm.com>
+In-Reply-To: <20250403103127-mutt-send-email-mst@kernel.org>
+References: <20250402203621.940090-1-david@redhat.com>
+	<20250403161836.7fe9fea5.pasic@linux.ibm.com>
+	<20250403103127-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.179
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: gISA65PQoz6Bvv7M61Dig1bJNQBipG94
+X-Proofpoint-GUID: gISA65PQoz6Bvv7M61Dig1bJNQBipG94
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-04_01,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 priorityscore=1501 adultscore=0 bulkscore=0
+ lowpriorityscore=0 mlxscore=0 phishscore=0 suspectscore=0 spamscore=0
+ mlxlogscore=831 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2502280000 definitions=main-2504040025
 
-From: Haoxiang Li <haoxiang_li2024@163.com>
+On Thu, 3 Apr 2025 10:35:33 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-[ Upstream commit ad9bb8f049717d64c5e62b2a44954be9f681c65b ]
+> On Thu, Apr 03, 2025 at 04:18:36PM +0200, Halil Pasic wrote:
+> > On Wed,  2 Apr 2025 22:36:21 +0200
+[..]
+> > 
+> > 5.5.2 Virtqueues
+> > 
+> > 0
+> >     inflateq 
+> > 1
+> >     deflateq 
+> > 2
+> >     statsq 
+> > 3
+> >     free_page_vq 
+> > 4
+> >     reporting_vq  
+> 
+> Indeed. Unfortunately, no one at all implemented this properly as
+> per spec :(.
+> 
+> Balloon is the worst offender here but other devices are broken
+> too in some configurations.
+> 
+> 
+> Given it has been like this for many years I'm inclined in this
+> instance to fix the spec not the implementations.
+> 
 
-The check for get_zeroed_page() leads to a direct return
-and overlooked the memory leak caused by loop allocation.
-Add a free helper to free spaces allocated by get_zeroed_page().
+I understand! For me at least knowing if we are going to change the
+spec or the implementations is pretty important. It would probably
+make sense to spin a patch for the spec, just for the unlikely case that
+somebody did end up implementing this by the spec and wants to protest.
 
-Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250218034104.2436469-1-haoxiang_li2024@163.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/char/sclp_tty.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+I think, a consequence of this design is that all queues need to be
+created and allocated at initialization time.
 
-diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
-index 971fbb52740bf..432dad2a22664 100644
---- a/drivers/s390/char/sclp_tty.c
-+++ b/drivers/s390/char/sclp_tty.c
-@@ -490,6 +490,17 @@ static const struct tty_operations sclp_ops = {
- 	.flush_buffer = sclp_tty_flush_buffer,
- };
- 
-+/* Release allocated pages. */
-+static void __init __sclp_tty_free_pages(void)
-+{
-+	struct list_head *page, *p;
-+
-+	list_for_each_safe(page, p, &sclp_tty_pages) {
-+		list_del(page);
-+		free_page((unsigned long)page);
-+	}
-+}
-+
- static int __init
- sclp_tty_init(void)
- {
-@@ -516,6 +527,7 @@ sclp_tty_init(void)
- 	for (i = 0; i < MAX_KMEM_PAGES; i++) {
- 		page = (void *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
- 		if (page == NULL) {
-+			__sclp_tty_free_pages();
- 			tty_driver_kref_put(driver);
- 			return -ENOMEM;
- 		}
--- 
-2.39.5
+I mean in the spec we have something like 
+"""
+5.1.6.5.6.1 Driver Requirements: Automatic receive steering in multiqueue mode
+The driver MUST configure the virtqueues before enabling them with the VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET command. 
+"""
 
+For example one could want to hotplug 2 more vCPUs and still have a
+queue-pair per cpu (and a controlq). Those 2 extra queue-pairs could
+in theory be allocated on-demand instead of having to allocate memory
+for the rings for all the queues corresponding to the maxed out setup.
+I've had a look at the Linux virtio-net and it does allocate all the
+queues up front.
+
+Also with this design, I believe we would effectively prohibit "holes".
+Now if holes are prohibited, IMHO it does not make a whole lot of
+sense for the virtio_find_vqs() to support holes. Because the holes
+and a fair amount of complexity. Of course that would make sense as a
+cleanup on top.
+
+Regards,
+Halil
