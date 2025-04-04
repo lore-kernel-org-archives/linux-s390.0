@@ -1,133 +1,98 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BBC413AA2D;
-	Fri,  4 Apr 2025 12:05:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3C11C84DC;
+	Fri,  4 Apr 2025 12:37:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743768352; cv=none; b=iSAiyw9oE6kozOIgkt87EV1r7ENs0JD8LJG2LuR4LLf3Wzy10i1wBvd/ZCWI0z5rgTzSQ2+PQ1aTHCyXyRE6ZHjdQQ8O3HYM2TwMfC3bF4+lDdC7VqilFGm8vadtJHZR7yZAO5k4fPSKFdBswlfWUAfVaSgyjKt6wzW1VAZdP6M=
+	t=1743770274; cv=none; b=sym0Tpxojcm6Rs0m/q4/Nte+S3fJ7cYOOXizxCJtbQvt6PgF5cJ3CgWshTXJdMeHTrlwDX4J+5u5p08+cfF78UX1UtZskSzPJic7z5LrPl7+/TyvCdxe2uhX9WFp+WYAAXF4jzvoR9uN9XhhEvbTnXccqxgUm/0lVIApidyyiG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743768352; c=relaxed/simple;
-	bh=CKICFswTagr4M5w0rTnDXDPxJT/HGpOKJpeTFfAm058=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SDDAQC07MEpkgm6PDDc7go29xj6su4h0vJVhQnTzdQL0aUgUQzjXTVpt8hN/LHhKAFGHIDrk2r7cmUwpsGNL4u1cAr7Hh9UIStTEpfXPJ6VpouJ7xIYf55QModGMC/5f8PN4XV+q71KNuoEKTmY3XizH8fr1RssYYGIBDvzo93k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FliFonRz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1743770274; c=relaxed/simple;
+	bh=VvmsBy/mapPiKfdXXiu1j2lKuHaHgjbFqLZsrREc/14=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=T/yiZrvCOfMjZWw8yYxwPckSerx0z//aKjV9LhfQU6Ggfai7zw8PqJ0BXL0UHElAnc1Cx9m1qWtBqlDXD98zvgR5IlFA2UL0Wl+HroNThUeu/0+fOYLGJssMBFXotJK4aYS2AhrZfObEHD71838+lvC5bvlwn6/XDeJ4TbbAVBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t1NwqwB2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FliFonRz"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5341iPpW012823;
-	Fri, 4 Apr 2025 12:05:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gdRE9A
-	feY0sv/9P4CQuo5UaCAIb69zipdGKQZI+5fZQ=; b=FliFonRzNX0UDeCjhbCu1p
-	5Dg/h9QhYusvGa7f9JSYYyC7v0kWvXRov1/e5fAqSavFeKIbb9KHrIWhnqy5iksT
-	D1V24AxjzCJoy3YsPUe3b4Ntmd3/znQu/SeFRI4H1bDCLAV2l0z2eW84/XidPWNq
-	8EdcQh/fhjCHrz7vi9AUhFzJ/IQzY/D7hZnRgn0hTRqerXQpaMUeJpXEA4G6P0+/
-	jC2E0DvuNmmEjcubOLT5xcA1Hpme36eP0jKMSrOs9o7cOELwvX6COV8Nn9lHwWJm
-	FL9VF4/LrhAIUHUcA3gABVoh3a5g25bchG4GeHI9UChXoEJ9irqh01RbJQyermRg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45t2qbu3d9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Apr 2025 12:05:44 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 534B8QAV001877;
-	Fri, 4 Apr 2025 12:05:44 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45t2ch2v78-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Apr 2025 12:05:44 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 534C5dwN55116130
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 4 Apr 2025 12:05:39 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 91BD82004E;
-	Fri,  4 Apr 2025 12:05:39 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1316020040;
-	Fri,  4 Apr 2025 12:05:39 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  4 Apr 2025 12:05:39 +0000 (GMT)
-Date: Fri, 4 Apr 2025 14:05:37 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
-        Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        Thomas Huth
- <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Wei Wang
- <wei.w.wang@intel.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250404140537.54c1e464.pasic@linux.ibm.com>
-In-Reply-To: <20250404013208-mutt-send-email-mst@kernel.org>
-References: <20250402203621.940090-1-david@redhat.com>
-	<20250403161836.7fe9fea5.pasic@linux.ibm.com>
-	<20250403103127-mutt-send-email-mst@kernel.org>
-	<20250404060204.04db301d.pasic@linux.ibm.com>
-	<20250404013208-mutt-send-email-mst@kernel.org>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t1NwqwB2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923F1C4CEDD;
+	Fri,  4 Apr 2025 12:37:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1743770274;
+	bh=VvmsBy/mapPiKfdXXiu1j2lKuHaHgjbFqLZsrREc/14=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=t1NwqwB24nos3tDQ7j5m3JifuV9ILytu8D46XEYOG4J/KP/L+RAFCTSQm1KXrifu4
+	 4LI68DGxAZM5poiLYqZ4XI4D+N02CFHr5Invx5bcubxogk0wyHIE1zzCBS6x0CrAoB
+	 IOTz+7LUNZIwfw72m1nhuhPP1UQG3wwDGs8TFceph+mz6/z+gdXH2PGNQRxQVw36ar
+	 ScmsFUrhWkoso/zeBROuS18/0UFOzR2WBQvdyYObdon3XukPf/BiZWotYRevkAuph7
+	 A8Kz7F/4axvslbMjfBm9ZNOj4XQjFx7C5qLihsd/EQ3/qUpfKnL4B4oWRGtYKGq3VR
+	 K04VMlZhpxbZg==
+Date: Fri, 4 Apr 2025 14:37:48 +0200
+From: Joel Granados <joel.granados@kernel.org>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux.dev, David Woodhouse <dwmw2@infradead.org>, 
+	Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>, 
+	Kevin Tian <kevin.tian@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, 
+	Marek Szyprowski <m.szyprowski@samsung.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
+	Niklas Schnelle <schnelle@linux.ibm.com>, Rob Clark <robdclark@gmail.com>, 
+	Robin Murphy <robin.murphy@arm.com>, Thierry Reding <thierry.reding@gmail.com>, 
+	Tomasz Jeznach <tjeznach@rivosinc.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, 
+	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>, virtualization@lists.linux.dev, 
+	linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-tegra@vger.kernel.org, pierrick.bouvier@linaro.org, Klaus Jensen <k.jensen@samsung.com>
+Subject: Re: RFC iommutests_: Testing software for everything IOMMU
+Message-ID: <qk32ie2b663it7tjpdqfjecgrlamtuycyxulb5m2elblymzyqy@jcvjiqwgsmww>
+References: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
+ <20250401103519.GC2424925@myrica>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: E7GPCDF2y4xfi5bYTJ2LPr4e7-D0TdM6
-X-Proofpoint-GUID: E7GPCDF2y4xfi5bYTJ2LPr4e7-D0TdM6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-04_04,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 suspectscore=0 spamscore=0 phishscore=0
- mlxscore=0 adultscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=729
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2504040079
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250401103519.GC2424925@myrica>
 
-On Fri, 4 Apr 2025 01:33:28 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> > 
-> > I think, a consequence of this design is that all queues need to be
-> > created and allocated at initialization time.  
+On Tue, Apr 01, 2025 at 11:35:19AM +0100, Jean-Philippe Brucker wrote:
+> On Fri, Mar 28, 2025 at 10:11:13AM +0100, Joel Granados wrote:
+> > Custom qemu device: pci-ats-testdev
+> > -------------------------------------
+> > To support IOMMU testing under qemu, the pci-ats-testdev [10]
+> > (different from pci-testdev [11]) was used to emulate DMA transactions.
+> > It is a full fledged pci device capable of executing emulated DMA
+> > accesses. It was originally intended to test Linux kernel interactions
+> > with devices that had a working Address Translation Cache (ATC) but can
+> > become a platform capable of testing anything PCI/IOMMU related if
+> > needed.
 > 
-> Why? after feature negotiation.
+> Yes please!  Maybe "pcie-testdev" rather than "pci-ats-testdev"?  There
+Definitely. If it is a more general pcie test framework, we need to
+change the name to something like that; agreed.
 
-What I mean is, with this change having queues that exist but are not
-set up before the device becomes operational is not viable any more.
+> are other PCIe features that are poorly tested at the moment, for example
+> PASID and PRI. The programming model of devices that actually implement
+Actually, PRI was what we used it for. I have this as one of the
+potential next steps for iommutests.
 
-Let me use the virtio-net example again. I assume by the current spec
-it would be OK to have max_virtqueue_pairs quite big e.g. 64, just in
-case the guest ends up having many vCPUs hotplugged. But start out with
-2 vcpus, 2 queue pairs and initially doing VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET with 2.
+> those can get too complex so we need something simpler to precisely stress
+> the IOMMU driver infrastructure. Driver unit-tests alone aren't good
+> enough for exercising TLB invalidation (DMA after removing a mapping must
+> crash), tricky cleanup paths (eg. killing a process bound to a device
+> that's issuing page requests), runtime PM, MSIs etc. I'm guessing testing
+Totally agree. PRI is tricky to test indeed.
 
-And then grow the guest to 8 vcpus, 'discover' virtqueues
-2(I-1) receiveqI, 2(I-1)+1 transmitqI for 2 < I < 9 (I is a natural number)
-and do another VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET with 8.
+> newer/future features like TDISP would also benefit from a simple device.
+> 
+> Some time back I needed a device like that to reproduce some tricky races
+> but never got round to implementing extra PCIe features. Although this one
+> [1] is based on virtio any programming interface should work as long as it
+> can instruct the device to send precise DMA transactions, ideally many in
+> parallel.
+And it can be up-streamed to QEMU if it ends up being used for linux
+kernel testing.
 
-Please notice that the controlq would sit at index 128 (64*2) all along. That
-is in the old world. In the new world we don't do holes, so we need to
-allocate all the virtqueues up to controlq up-front. To avoid having
-holes. Or any queue-pairs that are discoverd after the initial vq discovery
-would need to have an index larger than controlq has.
+Best
 
-Regards,
-Halil
+-- 
+
+Joel Granados
