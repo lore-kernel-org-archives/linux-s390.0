@@ -1,98 +1,193 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3C11C84DC;
-	Fri,  4 Apr 2025 12:37:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 031781EBFE2;
+	Fri,  4 Apr 2025 13:36:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743770274; cv=none; b=sym0Tpxojcm6Rs0m/q4/Nte+S3fJ7cYOOXizxCJtbQvt6PgF5cJ3CgWshTXJdMeHTrlwDX4J+5u5p08+cfF78UX1UtZskSzPJic7z5LrPl7+/TyvCdxe2uhX9WFp+WYAAXF4jzvoR9uN9XhhEvbTnXccqxgUm/0lVIApidyyiG8=
+	t=1743773795; cv=none; b=Jdy+gqUuYqb3Fi9/TjR0xm3g97UVRN5xr5WKg8+dwt0mlwPyhGvX96yPSa0Q8gJ432XOa0yi/3V0Izj87R9ntWhAcgZBK4vYoO2aGu4/CLsVdHNB2PrueAj1pPO5EN+EImB2MuDq+Db8SO6Yf2bCsrSxmUC9KfzXyWQ1Xk3C5lA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743770274; c=relaxed/simple;
-	bh=VvmsBy/mapPiKfdXXiu1j2lKuHaHgjbFqLZsrREc/14=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T/yiZrvCOfMjZWw8yYxwPckSerx0z//aKjV9LhfQU6Ggfai7zw8PqJ0BXL0UHElAnc1Cx9m1qWtBqlDXD98zvgR5IlFA2UL0Wl+HroNThUeu/0+fOYLGJssMBFXotJK4aYS2AhrZfObEHD71838+lvC5bvlwn6/XDeJ4TbbAVBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t1NwqwB2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1743773795; c=relaxed/simple;
+	bh=I3vcLmVLsFwbGKKNAa5gOJi+kc6XdJdjzcVHrIDFyk0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=lhJSGgCNgVbA9no7k1o8CTKFESJ4QWQpkAyF6QhYvd4Gm+IUoWNFyoeERxnDshg+594OFszrS/vbqeiP6AmhDtFIXt0Aca+8We3H14AgtBubTie1Fepw/NSJe+vioZkaUFu95g7HXNABLyTmc1fAgSXPXOF8GXYHgFUmmE+G6gE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SSVC65l/; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t1NwqwB2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923F1C4CEDD;
-	Fri,  4 Apr 2025 12:37:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743770274;
-	bh=VvmsBy/mapPiKfdXXiu1j2lKuHaHgjbFqLZsrREc/14=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=t1NwqwB24nos3tDQ7j5m3JifuV9ILytu8D46XEYOG4J/KP/L+RAFCTSQm1KXrifu4
-	 4LI68DGxAZM5poiLYqZ4XI4D+N02CFHr5Invx5bcubxogk0wyHIE1zzCBS6x0CrAoB
-	 IOTz+7LUNZIwfw72m1nhuhPP1UQG3wwDGs8TFceph+mz6/z+gdXH2PGNQRxQVw36ar
-	 ScmsFUrhWkoso/zeBROuS18/0UFOzR2WBQvdyYObdon3XukPf/BiZWotYRevkAuph7
-	 A8Kz7F/4axvslbMjfBm9ZNOj4XQjFx7C5qLihsd/EQ3/qUpfKnL4B4oWRGtYKGq3VR
-	 K04VMlZhpxbZg==
-Date: Fri, 4 Apr 2025 14:37:48 +0200
-From: Joel Granados <joel.granados@kernel.org>
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux.dev, David Woodhouse <dwmw2@infradead.org>, 
-	Jason Gunthorpe <jgg@nvidia.com>, Joerg Roedel <joro@8bytes.org>, 
-	Kevin Tian <kevin.tian@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
-	Niklas Schnelle <schnelle@linux.ibm.com>, Rob Clark <robdclark@gmail.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Thierry Reding <thierry.reding@gmail.com>, 
-	Tomasz Jeznach <tjeznach@rivosinc.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, 
-	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>, virtualization@lists.linux.dev, 
-	linux-arm-msm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-tegra@vger.kernel.org, pierrick.bouvier@linaro.org, Klaus Jensen <k.jensen@samsung.com>
-Subject: Re: RFC iommutests_: Testing software for everything IOMMU
-Message-ID: <qk32ie2b663it7tjpdqfjecgrlamtuycyxulb5m2elblymzyqy@jcvjiqwgsmww>
-References: <5zoh5r6eovbpijic22htkqik6mvyfbma5w7kjzcpz7kgbjufd2@yw6ymwy2a54s>
- <20250401103519.GC2424925@myrica>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SSVC65l/"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 534DRRHE001973;
+	Fri, 4 Apr 2025 13:36:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=f3aNq9
+	6GpV4DJKKwJmf2EkJ9N2yWAajx4pMWzECAfes=; b=SSVC65l/4jt7jgIpSX0vPx
+	pqkvmeJ7uQyK6UmqAAR45VUX0xZDUCOf/FAHYwAnOM7jKxPGo+jQiTVhkIV4LPTU
+	8xe9HbXrtXaq3gTFmIhZvb1vxsXZ3NVopg4s4Q+xDtokl3CXSFWNpCePoqDm1ZYT
+	RY5LxgyqkKchOKEB4fF2gG7jp9Sqzvb00c9V8rajrdTbGS71piYaOjplwz9bcjkE
+	rzR1Em1L6LtKCei8ZvQUFSh9bl2QgD4any2tKgCH1aQduKlYbik0TbBI5t0p92ky
+	xTUjt5LJl+n21ve+OgpZb+JF9ZRe6LEVhSzzJBd8p20zkLqX+9ajDk5rUa6BVy+w
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45t2qakjtp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Apr 2025 13:36:26 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 534AmuPK003240;
+	Fri, 4 Apr 2025 13:36:25 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45t2cdu5r8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Apr 2025 13:36:25 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 534DaMZ513173160
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 4 Apr 2025 13:36:22 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53CF62004B;
+	Fri,  4 Apr 2025 13:36:22 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C9D7320043;
+	Fri,  4 Apr 2025 13:36:21 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  4 Apr 2025 13:36:21 +0000 (GMT)
+Date: Fri, 4 Apr 2025 15:36:20 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        Chandra Merla
+ <cmerla@redhat.com>, Stable@vger.kernel.org,
+        Cornelia Huck
+ <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
+        Eric Farman
+ <farman@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Wei Wang
+ <wei.w.wang@intel.com>, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+Message-ID: <20250404153620.04d2df05.pasic@linux.ibm.com>
+In-Reply-To: <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+References: <20250402203621.940090-1-david@redhat.com>
+	<20250403161836.7fe9fea5.pasic@linux.ibm.com>
+	<e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
+	<20250404063619.0fa60a41.pasic@linux.ibm.com>
+	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250401103519.GC2424925@myrica>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: jjbHEg6GGT9HznXQ3JvmOavD-8W0juTq
+X-Proofpoint-GUID: jjbHEg6GGT9HznXQ3JvmOavD-8W0juTq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-04_05,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ lowpriorityscore=0 suspectscore=0 impostorscore=0 adultscore=0 mlxscore=0
+ bulkscore=0 mlxlogscore=999 malwarescore=0 phishscore=0 spamscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504040094
 
-On Tue, Apr 01, 2025 at 11:35:19AM +0100, Jean-Philippe Brucker wrote:
-> On Fri, Mar 28, 2025 at 10:11:13AM +0100, Joel Granados wrote:
-> > Custom qemu device: pci-ats-testdev
-> > -------------------------------------
-> > To support IOMMU testing under qemu, the pci-ats-testdev [10]
-> > (different from pci-testdev [11]) was used to emulate DMA transactions.
-> > It is a full fledged pci device capable of executing emulated DMA
-> > accesses. It was originally intended to test Linux kernel interactions
-> > with devices that had a working Address Translation Cache (ATC) but can
-> > become a platform capable of testing anything PCI/IOMMU related if
-> > needed.
+On Fri, 4 Apr 2025 12:55:09 +0200
+David Hildenbrand <david@redhat.com> wrote:
+
+> For virito-balloon, we should probably do the following:
 > 
-> Yes please!  Maybe "pcie-testdev" rather than "pci-ats-testdev"?  There
-Definitely. If it is a more general pcie test framework, we need to
-change the name to something like that; agreed.
-
-> are other PCIe features that are poorly tested at the moment, for example
-> PASID and PRI. The programming model of devices that actually implement
-Actually, PRI was what we used it for. I have this as one of the
-potential next steps for iommutests.
-
-> those can get too complex so we need something simpler to precisely stress
-> the IOMMU driver infrastructure. Driver unit-tests alone aren't good
-> enough for exercising TLB invalidation (DMA after removing a mapping must
-> crash), tricky cleanup paths (eg. killing a process bound to a device
-> that's issuing page requests), runtime PM, MSIs etc. I'm guessing testing
-Totally agree. PRI is tricky to test indeed.
-
-> newer/future features like TDISP would also benefit from a simple device.
+>  From 38e340c2bb53c2a7cc7c675f5dfdd44ecf7701d9 Mon Sep 17 00:00:00 2001
+> From: David Hildenbrand <david@redhat.com>
+> Date: Fri, 4 Apr 2025 12:53:16 +0200
+> Subject: [PATCH] virtio-balloon: Fix queue index assignment for
+>   non-existing queues
 > 
-> Some time back I needed a device like that to reproduce some tricky races
-> but never got round to implementing extra PCIe features. Although this one
-> [1] is based on virtio any programming interface should work as long as it
-> can instruct the device to send precise DMA transactions, ideally many in
-> parallel.
-And it can be up-streamed to QEMU if it ends up being used for linux
-kernel testing.
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>   device-types/balloon/description.tex | 22 ++++++++++++++++------
+>   1 file changed, 16 insertions(+), 6 deletions(-)
+> 
+> diff --git a/device-types/balloon/description.tex b/device-types/balloon/description.tex
+> index a1d9603..a7396ff 100644
+> --- a/device-types/balloon/description.tex
+> +++ b/device-types/balloon/description.tex
+> @@ -16,6 +16,21 @@ \subsection{Device ID}\label{sec:Device Types / Memory Balloon Device / Device I
+>     5
+>   
+>   \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtqueues}
+> +
+> +\begin{description}
+> +\item[inflateq] Exists unconditionally.
+> +\item[deflateq] Exists unconditionally.
+> +\item[statsq] Only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+> +\item[free_page_vq] Only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+> +\item[reporting_vq] Only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
 
-Best
+s/is set/is negotiated/?
 
--- 
+I think we should stick to "feature is offered" and "feature is
+negotiated".
 
-Joel Granados
+> +\end{description}
+> +
+> +\begin{note}
+> +Virtqueue indexes are assigned sequentially for existing queues, starting
+> +with index 0; consequently, if a virtqueue does not exist, it does not get
+> +an index assigned. Assuming all virtqueues exist for a device, the indexes
+> +are:
+> +
+>   \begin{description}
+>   \item[0] inflateq
+>   \item[1] deflateq
+> @@ -23,12 +38,7 @@ \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtque
+>   \item[3] free_page_vq
+>   \item[4] reporting_vq
+>   \end{description}
+> -
+> -  statsq only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+> -
+> -  free_page_vq only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+> -
+> -  reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+> +\end{note}
+>   
+>   \subsection{Feature bits}\label{sec:Device Types / Memory Balloon Device / Feature bits}
+>   \begin{description}
+
+Sounds good to me! But I'm still a little confused by the "holes". What
+confuses me is that i can think of at least 2 distinct types of "holes":
+1) Holes that can be filled later. The queue conceptually exists, but
+   there is no need to back it with any resources for now because it is 
+   dormant (it can be seen a hole in comparison to queues that need to
+  materialize -- vring, notifiers, ...)
+2) Holes that can not be filled without resetting the device: i.e. if
+   certain features are not negotiated, then a queue X does not exist,
+   but subsequent queues retain their index.
+
+Can we have both kinds or was/will be 1) and/or 2) never a thing?
+
+This patch would make sure that neither 1) nor 2) applies to
+virtio-balloon, which is good. But we are talking about a
+transport fix here, and I would like to eventually make sure
+that the abstractions make sense.
+
+That being said, I think we should proceed with this patch, because I
+don't think Linux uses type 1) holes.
+
+Regards,
+Halil
