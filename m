@@ -1,63 +1,66 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp.gentoo.org (woodpecker.gentoo.org [140.211.166.183])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F23C8E0;
-	Sat,  5 Apr 2025 03:08:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2D2B14B07A;
+	Sat,  5 Apr 2025 17:09:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743822519; cv=none; b=dm4K7xKB5jJsFUgEG/GFvDs22efF3szpied4pd2Tk/y0dEQPcwcx6TrEOMuIc5SHOVRzak+auEyT+WG+yXhwVZJ6FZ12qcqAfLlL3ZNdiK4LXuIszO2hyKcZLN7Z+RTBSCu/DOcpOtONF90d/ZAiB4MEL90U14ZJ6w4GEpiHhcg=
+	t=1743872961; cv=none; b=Y1XT6Zjo4hqqDBWpyRrlsi72YUw3eT4kjzNGE4eSBOlpkqBpJ1REOM3vWFSCRUS+5m0fBtKBZjILF4G17n+VstCI8NchR2bkYQxaTJdcXcaxMtFfoYiZvsSN/+tzrLPcgwIi1qj6lPo8NgIfYNgeIW2APN6BB3zsbv9aiAt/hTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743822519; c=relaxed/simple;
-	bh=e/scFmECGgqKcSZic7AuDsqesiVKC2vjEDZ1wqrQl9k=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=hhZbffvJPGWI0sW+wlBZ2UA0G6932BMx1lnRJWvnBxTUIzs6h6YqwfyWa+BvrgZKNOF2/2PCknv2nZSqNIvKVUkG+1XkmVcngLuaK8t/EQN2aSiiNop8rrRCdGJwR7u9Lp+VPkclF87MyS4IFibFORwVFGGWkw/cuWdzrlb5PgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U5C2Fa1Q; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U5C2Fa1Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21EDC4CEDD;
-	Sat,  5 Apr 2025 03:08:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743822518;
-	bh=e/scFmECGgqKcSZic7AuDsqesiVKC2vjEDZ1wqrQl9k=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=U5C2Fa1QiS5EkmDM6TGu67fOdlw+ozBB5EsxzSHJPIE58WUs7biBK2u2fBeFlzNVx
-	 zSDD+8gnNhUeleOkrkW/JLXDP76d5NTC/bk+l79YtOQ+8Y7maGOAP2h+i4tJXa39m1
-	 vMXXlL2C5yrXrh/aqxH6+mIVMHHBJGrmBBizHD9DYf7IdC0sYMNXEC1PUUkwh2nMVL
-	 SO2m9kkHFpB5opfvV33HNoTiVeJ3KVo2MeU4s8QfIO5unI2ywmhMOnDr7IBnCjqYXj
-	 5hkB/vpncOvg+aak72W0BsoS/LpPWR4m1AO0+36i3JPPhMIABvtvMinKmQvU/uP33U
-	 q9AL6v9qx/sQg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33BA03822D19;
-	Sat,  5 Apr 2025 03:09:17 +0000 (UTC)
-Subject: Re: [GIT PULL] more s390 updates for 6.15 merge window
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <your-ad-here.call-01743810876-ext-9359@work.hours>
-References: <your-ad-here.call-01743810876-ext-9359@work.hours>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <your-ad-here.call-01743810876-ext-9359@work.hours>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.15-2
-X-PR-Tracked-Commit-Id: d33d729afcc8ad2148d99f9bc499b33fd0c0d73b
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: dd9db3bff8ec419ab0e5f18092f89a8fddc37f15
-Message-Id: <174382255578.3509887.16988107816757366805.pr-tracker-bot@kernel.org>
-Date: Sat, 05 Apr 2025 03:09:15 +0000
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+	s=arc-20240116; t=1743872961; c=relaxed/simple;
+	bh=tmIf37hkJseqnFO4ijvf4xA+K3JIaSwLPz9+OPSHUO4=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=HuaWonn4wOGF1Lodg+c2ZK9OU8iK9TsBHktj8nIIoACvFzt/Sn3nWCPMHULErFdt64+DTHDIq2DVSf9Wzf80NpR7R2K0T93I/RB4hALEZv3FIU4Q3JOP23ysOF37Gqw60XdEC2zj9sEZRVD8n1xFMkvWCajfrJY8gcrRal+ZRds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gentoo.org; spf=pass smtp.mailfrom=gentoo.org; arc=none smtp.client-ip=140.211.166.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gentoo.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gentoo.org
+Received: from mop.sam.mop (unknown [82.8.138.118])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: sam)
+	by smtp.gentoo.org (Postfix) with ESMTPSA id 5C1583430E5;
+	Sat, 05 Apr 2025 17:09:14 +0000 (UTC)
+From: Sam James <sam@gentoo.org>
+To: linmag7@gmail.com, Al Viro <viro@ftp.linux.org.uk>
+Cc: arnd@arndb.de, chris@zankel.net, dinguyen@kernel.org,
+ glaubitz@physik.fu-berlin.de, ink@unseen.parts, jcmvbkbc@gmail.com,
+ kees@kernel.org, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+ linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+ loongarch@lists.linux.dev, mattst88@gmail.com, monstr@monstr.eu,
+ richard.henderson@linaro.org, sparclinux@vger.kernel.org, x86@kernel.org
+Subject: Re: [PATCH v2 1/1] mm: pgtable: fix pte_swp_exclusive
+In-Reply-To: <87cyfejafj.fsf@gentoo.org>
+Organization: Gentoo
+References: <87cyfejafj.fsf@gentoo.org>
+User-Agent: mu4e 1.12.9; emacs 31.0.50
+Date: Sat, 05 Apr 2025 18:09:11 +0100
+Message-ID: <87v7rik020.fsf@gentoo.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain
 
-The pull request you sent on Sat, 5 Apr 2025 01:54:36 +0200:
+Sam James <sam@gentoo.org> writes:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.15-2
+> Lovely cleanup and a great suggestion from Al.
+>
+> Reviewed-by: Sam James <sam@gentoo.org>
+>
+> I'd suggest adding a:
+> Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/dd9db3bff8ec419ab0e5f18092f89a8fddc37f15
+Al, were you planning on taking this through your tree?
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+>
+> thanks,
+> sam
