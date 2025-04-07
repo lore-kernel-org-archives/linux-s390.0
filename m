@@ -1,23 +1,23 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9BBC722424D;
-	Mon,  7 Apr 2025 05:31:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 82B26224241;
+	Mon,  7 Apr 2025 05:31:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744003898; cv=none; b=muq03/G8BGQNxcnUC8J4FXaO9YWZvZqbQZF6gaV4hgb5xztTgfGl8VjZ5qiWkjNVPxulspSJyiIAhmrZcwU2cb6hv3ZTqfGiY0v2omJkXiZIo89B28wQAoX6ESbBJ0mWNXQ3YUZvbUUTnZAxoI38FpcPDSS5Bt+Qd15njFOm+XE=
+	t=1744003903; cv=none; b=tRL0EOB6bdpxzQzSCWbMBZIpfc05g0+hVzM2EXGOBdx9fT4fx7XmF4EwD/WeW5vd/IB4WYnpZPMOOlq+SE8UUKTsLB+f3456+Cq/ZcicNfOzW4N1tN8IrftkZleSeiuaQOMT+Xvac6oj1iUY9zY9eHYSEi5P4N21N/k+KdyeE+w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744003898; c=relaxed/simple;
-	bh=pECasa25zZPUEvARHbH2C8ZDZ4Nbi6XSPkIhr6pBP38=;
+	s=arc-20240116; t=1744003903; c=relaxed/simple;
+	bh=Kws5l7VmGmx5n9kHBtqOoPT5ggHs3eL0T6dQICtkcbA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=CQKpu20SkzDEKkRvcQUnFlM2aYIbcXUpH5n22IoPkhS5bnJ3o2q5H8CxWJpK9M+dUbt16/7UVHiwAzZruPyMT6uzfOvGjtiHRtNpUI5igoIY199eGbAzm3wzPu5RPvfrpuntmRcSyeQ6AUVaV0FqnPIyFJsVbvUHrKFNJgHSzcw=
+	 MIME-Version; b=sAjYMdIjr6pDXdQO68PzntMJew0Q0zyZhvx3qk1Z45OUJUDhPXVp75w3lBK2feXu0eX3eN+VQJHz0MbXE40CHHcQN/TtujC6rWELVn77jKkKmr1wLh+RsxOKZBKyyZNUXd8udTVk9Q5WS0nHLJomeRANMLT+CwaVXpSUzCKttvg=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6B9D31424;
-	Sun,  6 Apr 2025 22:31:34 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C73871BB0;
+	Sun,  6 Apr 2025 22:31:41 -0700 (PDT)
 Received: from a077893.blr.arm.com (a077893.blr.arm.com [10.162.42.8])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 042913F6A8;
-	Sun,  6 Apr 2025 22:31:25 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id BA4633F6A8;
+	Sun,  6 Apr 2025 22:31:33 -0700 (PDT)
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 To: linux-mm@kvack.org
 Cc: mark.rutland@arm.com,
@@ -41,10 +41,11 @@ Cc: mark.rutland@arm.com,
 	linux-kernel@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH V2 1/3] mm/ptdump: Split note_page() into level specific callbacks
-Date: Mon,  7 Apr 2025 11:01:11 +0530
-Message-Id: <20250407053113.746295-2-anshuman.khandual@arm.com>
+	linux-s390@vger.kernel.org,
+	Dave Hansen <dave.hansen@linux.intel.com>
+Subject: [PATCH V2 2/3] mm/ptdump: Split effective_prot() into level specific callbacks
+Date: Mon,  7 Apr 2025 11:01:12 +0530
+Message-Id: <20250407053113.746295-3-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20250407053113.746295-1-anshuman.khandual@arm.com>
 References: <20250407053113.746295-1-anshuman.khandual@arm.com>
@@ -56,551 +57,158 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Last argument passed down in note_page() is u64 assuming pxd_val() returned
-value (all page table levels) is 64 bit - which might not be the case going
-ahead when D128 page tables is enabled on arm64 platform. Besides pxd_val()
-is very platform specific and its type should not be assumed in generic MM.
+Last argument in effective_prot() is u64 assuming pxd_val() returned value
+(all page table levels) is 64 bit. pxd_val() is very platform specific and
+its type should not be assumed in generic MM.
 
-Split note_page() into individual page table level specific callbacks which
-accepts corresponding pxd_t argument instead and then subscribing platforms
-just derive pxd_val() from the entries as required and proceed as earlier.
+Split effective_prot() into individual page table level specific callbacks
+which accepts corresponding pxd_t argument instead and then the subscribing
+platform (only x86) just derive pxd_val() from the entries as required and
+proceed as earlier.
 
-Also add a note_page_flush() callback for flushing the last page table page
-that was being handled earlier via level = -1.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Paul Walmsley <paul.walmsley@sifive.com>
 Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
 Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
 Cc: linux-mm@kvack.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/arm64/include/asm/ptdump.h | 16 +++++++++--
- arch/arm64/mm/ptdump.c          | 48 ++++++++++++++++++++++++++++++---
- arch/powerpc/mm/ptdump/ptdump.c | 46 +++++++++++++++++++++++++++++--
- arch/riscv/mm/ptdump.c          | 46 +++++++++++++++++++++++++++++--
- arch/s390/mm/dump_pagetables.c  | 46 +++++++++++++++++++++++++++++--
- arch/x86/mm/dump_pagetables.c   | 39 ++++++++++++++++++++++++++-
- include/linux/ptdump.h          |  9 ++++---
- mm/ptdump.c                     | 42 ++++++++++++++++++++++-------
- 8 files changed, 267 insertions(+), 25 deletions(-)
+ arch/x86/mm/dump_pagetables.c | 32 +++++++++++++++++++++++++++++++-
+ include/linux/ptdump.h        |  6 +++++-
+ mm/ptdump.c                   | 20 ++++++++++----------
+ 3 files changed, 46 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm64/include/asm/ptdump.h b/arch/arm64/include/asm/ptdump.h
-index b2931d1ae0fb..01033c1d38dc 100644
---- a/arch/arm64/include/asm/ptdump.h
-+++ b/arch/arm64/include/asm/ptdump.h
-@@ -59,7 +59,13 @@ struct ptdump_pg_state {
- 
- void ptdump_walk(struct seq_file *s, struct ptdump_info *info);
- void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--	       u64 val);
-+	       pteval_t val);
-+void note_page_pte(struct ptdump_state *st, unsigned long addr, pte_t pte);
-+void note_page_pmd(struct ptdump_state *st, unsigned long addr, pmd_t pmd);
-+void note_page_pud(struct ptdump_state *st, unsigned long addr, pud_t pud);
-+void note_page_p4d(struct ptdump_state *st, unsigned long addr, p4d_t p4d);
-+void note_page_pgd(struct ptdump_state *st, unsigned long addr, pgd_t pgd);
-+void note_page_flush(struct ptdump_state *st);
- #ifdef CONFIG_PTDUMP_DEBUGFS
- #define EFI_RUNTIME_MAP_END	DEFAULT_MAP_WINDOW_64
- void __init ptdump_debugfs_register(struct ptdump_info *info, const char *name);
-@@ -69,7 +75,13 @@ static inline void ptdump_debugfs_register(struct ptdump_info *info,
- #endif /* CONFIG_PTDUMP_DEBUGFS */
- #else
- static inline void note_page(struct ptdump_state *pt_st, unsigned long addr,
--			     int level, u64 val) { }
-+			     int level, pteval_t val) { }
-+static inline void note_page_pte(struct ptdump_state *st, unsigned long addr, pte_t pte) { }
-+static inline void note_page_pmd(struct ptdump_state *st, unsigned long addr, pmd_t pmd) { }
-+static inline void note_page_pud(struct ptdump_state *st, unsigned long addr, pud_t pud) { }
-+static inline void note_page_p4d(struct ptdump_state *st, unsigned long addr, p4d_t p4d) { }
-+static inline void note_page_pgd(struct ptdump_state *st, unsigned long addr, pgd_t pgd) { }
-+static inline void note_page_flush(struct ptdump_state *st) { }
- #endif /* CONFIG_PTDUMP */
- 
- #endif /* __ASM_PTDUMP_H */
-diff --git a/arch/arm64/mm/ptdump.c b/arch/arm64/mm/ptdump.c
-index 8cec0da4cff2..ac0c20ba0cd9 100644
---- a/arch/arm64/mm/ptdump.c
-+++ b/arch/arm64/mm/ptdump.c
-@@ -189,7 +189,7 @@ static void note_prot_wx(struct ptdump_pg_state *st, unsigned long addr)
- }
- 
- void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--	       u64 val)
-+	       pteval_t val)
- {
- 	struct ptdump_pg_state *st = container_of(pt_st, struct ptdump_pg_state, ptdump);
- 	struct ptdump_pg_level *pg_level = st->pg_level;
-@@ -251,6 +251,38 @@ void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
- 
- }
- 
-+void note_page_pte(struct ptdump_state *pt_st, unsigned long addr, pte_t pte)
-+{
-+	note_page(pt_st, addr, 4, pte_val(pte));
-+}
-+
-+void note_page_pmd(struct ptdump_state *pt_st, unsigned long addr, pmd_t pmd)
-+{
-+	note_page(pt_st, addr, 3, pmd_val(pmd));
-+}
-+
-+void note_page_pud(struct ptdump_state *pt_st, unsigned long addr, pud_t pud)
-+{
-+	note_page(pt_st, addr, 2, pud_val(pud));
-+}
-+
-+void note_page_p4d(struct ptdump_state *pt_st, unsigned long addr, p4d_t p4d)
-+{
-+	note_page(pt_st, addr, 1, p4d_val(p4d));
-+}
-+
-+void note_page_pgd(struct ptdump_state *pt_st, unsigned long addr, pgd_t pgd)
-+{
-+	note_page(pt_st, addr, 0, pgd_val(pgd));
-+}
-+
-+void note_page_flush(struct ptdump_state *pt_st)
-+{
-+	pte_t pte_zero = {0};
-+
-+	note_page(pt_st, 0, -1, pte_val(pte_zero));
-+}
-+
- void ptdump_walk(struct seq_file *s, struct ptdump_info *info)
- {
- 	unsigned long end = ~0UL;
-@@ -266,7 +298,12 @@ void ptdump_walk(struct seq_file *s, struct ptdump_info *info)
- 		.pg_level = &kernel_pg_levels[0],
- 		.level = -1,
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = (struct ptdump_range[]){
- 				{info->base_addr, end},
- 				{0, 0}
-@@ -303,7 +340,12 @@ bool ptdump_check_wx(void)
- 		.level = -1,
- 		.check_wx = true,
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = (struct ptdump_range[]) {
- 				{_PAGE_OFFSET(vabits_actual), ~0UL},
- 				{0, 0}
-diff --git a/arch/powerpc/mm/ptdump/ptdump.c b/arch/powerpc/mm/ptdump/ptdump.c
-index 9dc239967b77..b2358d794855 100644
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -298,6 +298,38 @@ static void populate_markers(void)
- #endif
- }
- 
-+static void note_page_pte(struct ptdump_state *pt_st, unsigned long addr, pte_t pte)
-+{
-+	note_page(pt_st, addr, 4, pte_val(pte));
-+}
-+
-+static void note_page_pmd(struct ptdump_state *pt_st, unsigned long addr, pmd_t pmd)
-+{
-+	note_page(pt_st, addr, 3, pmd_val(pmd));
-+}
-+
-+static void note_page_pud(struct ptdump_state *pt_st, unsigned long addr, pud_t pud)
-+{
-+	note_page(pt_st, addr, 2, pud_val(pud));
-+}
-+
-+static void note_page_p4d(struct ptdump_state *pt_st, unsigned long addr, p4d_t p4d)
-+{
-+	note_page(pt_st, addr, 1, p4d_val(p4d));
-+}
-+
-+static void note_page_pgd(struct ptdump_state *pt_st, unsigned long addr, pgd_t pgd)
-+{
-+	note_page(pt_st, addr, 0, pgd_val(pgd));
-+}
-+
-+static void note_page_flush(struct ptdump_state *pt_st)
-+{
-+	pte_t pte_zero = {0};
-+
-+	note_page(pt_st, 0, -1, pte_val(pte_zero));
-+}
-+
- static int ptdump_show(struct seq_file *m, void *v)
- {
- 	struct pg_state st = {
-@@ -305,7 +337,12 @@ static int ptdump_show(struct seq_file *m, void *v)
- 		.marker = address_markers,
- 		.level = -1,
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = ptdump_range,
- 		}
- 	};
-@@ -338,7 +375,12 @@ bool ptdump_check_wx(void)
- 		.level = -1,
- 		.check_wx = true,
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = ptdump_range,
- 		}
- 	};
-diff --git a/arch/riscv/mm/ptdump.c b/arch/riscv/mm/ptdump.c
-index 9d5f657a251b..32922550a50a 100644
---- a/arch/riscv/mm/ptdump.c
-+++ b/arch/riscv/mm/ptdump.c
-@@ -318,6 +318,38 @@ static void note_page(struct ptdump_state *pt_st, unsigned long addr,
- 	}
- }
- 
-+static void note_page_pte(struct ptdump_state *pt_st, unsigned long addr, pte_t pte)
-+{
-+	note_page(pt_st, addr, 4, pte_val(pte));
-+}
-+
-+static void note_page_pmd(struct ptdump_state *pt_st, unsigned long addr, pmd_t pmd)
-+{
-+	note_page(pt_st, addr, 3, pmd_val(pmd));
-+}
-+
-+static void note_page_pud(struct ptdump_state *pt_st, unsigned long addr, pud_t pud)
-+{
-+	note_page(pt_st, addr, 2, pud_val(pud));
-+}
-+
-+static void note_page_p4d(struct ptdump_state *pt_st, unsigned long addr, p4d_t p4d)
-+{
-+	note_page(pt_st, addr, 1, p4d_val(p4d));
-+}
-+
-+static void note_page_pgd(struct ptdump_state *pt_st, unsigned long addr, pgd_t pgd)
-+{
-+	note_page(pt_st, addr, 0, pgd_val(pgd));
-+}
-+
-+static void note_page_flush(struct ptdump_state *pt_st)
-+{
-+	pte_t pte_zero = {0};
-+
-+	note_page(pt_st, 0, -1, pte_val(pte_zero));
-+}
-+
- static void ptdump_walk(struct seq_file *s, struct ptd_mm_info *pinfo)
- {
- 	struct pg_state st = {
-@@ -325,7 +357,12 @@ static void ptdump_walk(struct seq_file *s, struct ptd_mm_info *pinfo)
- 		.marker = pinfo->markers,
- 		.level = -1,
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = (struct ptdump_range[]) {
- 				{pinfo->base_addr, pinfo->end},
- 				{0, 0}
-@@ -347,7 +384,12 @@ bool ptdump_check_wx(void)
- 		.level = -1,
- 		.check_wx = true,
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = (struct ptdump_range[]) {
- 				{KERN_VIRT_START, ULONG_MAX},
- 				{0, 0}
-diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
-index d3e943752fa0..ac604b176660 100644
---- a/arch/s390/mm/dump_pagetables.c
-+++ b/arch/s390/mm/dump_pagetables.c
-@@ -147,11 +147,48 @@ static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
- 	}
- }
- 
-+static void note_page_pte(struct ptdump_state *pt_st, unsigned long addr, pte_t pte)
-+{
-+	note_page(pt_st, addr, 4, pte_val(pte));
-+}
-+
-+static void note_page_pmd(struct ptdump_state *pt_st, unsigned long addr, pmd_t pmd)
-+{
-+	note_page(pt_st, addr, 3, pmd_val(pmd));
-+}
-+
-+static void note_page_pud(struct ptdump_state *pt_st, unsigned long addr, pud_t pud)
-+{
-+	note_page(pt_st, addr, 2, pud_val(pud));
-+}
-+
-+static void note_page_p4d(struct ptdump_state *pt_st, unsigned long addr, p4d_t p4d)
-+{
-+	note_page(pt_st, addr, 1, p4d_val(p4d));
-+}
-+
-+static void note_page_pgd(struct ptdump_state *pt_st, unsigned long addr, pgd_t pgd)
-+{
-+	note_page(pt_st, addr, 0, pgd_val(pgd));
-+}
-+
-+static void note_page_flush(struct ptdump_state *pt_st)
-+{
-+	pte_t pte_zero = {0};
-+
-+	note_page(pt_st, 0, -1, pte_val(pte_zero));
-+}
-+
- bool ptdump_check_wx(void)
- {
- 	struct pg_state st = {
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = (struct ptdump_range[]) {
- 				{.start = 0, .end = max_addr},
- 				{.start = 0, .end = 0},
-@@ -190,7 +227,12 @@ static int ptdump_show(struct seq_file *m, void *v)
- {
- 	struct pg_state st = {
- 		.ptdump = {
--			.note_page = note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.range = (struct ptdump_range[]) {
- 				{.start = 0, .end = max_addr},
- 				{.start = 0, .end = 0},
 diff --git a/arch/x86/mm/dump_pagetables.c b/arch/x86/mm/dump_pagetables.c
-index 89079ea73e65..2e1c2d006ace 100644
+index 2e1c2d006ace..a4700ef6eb64 100644
 --- a/arch/x86/mm/dump_pagetables.c
 +++ b/arch/x86/mm/dump_pagetables.c
-@@ -362,6 +362,38 @@ static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
- 	}
+@@ -266,6 +266,32 @@ static void effective_prot(struct ptdump_state *pt_st, int level, u64 val)
+ 	st->prot_levels[level] = effective;
  }
  
-+static void note_page_pte(struct ptdump_state *pt_st, unsigned long addr, pte_t pte)
++static void effective_prot_pte(struct ptdump_state *st, pte_t pte)
 +{
-+	note_page(pt_st, addr, 4, pte_val(pte));
++	effective_prot(st, 4, pte_val(pte));
 +}
 +
-+static void note_page_pmd(struct ptdump_state *pt_st, unsigned long addr, pmd_t pmd)
++static void effective_prot_pmd(struct ptdump_state *st, pmd_t pmd)
 +{
-+	note_page(pt_st, addr, 3, pmd_val(pmd));
++	effective_prot(st, 3, pmd_val(pmd));
 +}
 +
-+static void note_page_pud(struct ptdump_state *pt_st, unsigned long addr, pud_t pud)
++static void effective_prot_pud(struct ptdump_state *st, pud_t pud)
 +{
-+	note_page(pt_st, addr, 2, pud_val(pud));
++	effective_prot(st, 2, pud_val(pud));
 +}
 +
-+static void note_page_p4d(struct ptdump_state *pt_st, unsigned long addr, p4d_t p4d)
++static void effective_prot_p4d(struct ptdump_state *st, p4d_t p4d)
 +{
-+	note_page(pt_st, addr, 1, p4d_val(p4d));
++	effective_prot(st, 1, p4d_val(p4d));
 +}
 +
-+static void note_page_pgd(struct ptdump_state *pt_st, unsigned long addr, pgd_t pgd)
++static void effective_prot_pgd(struct ptdump_state *st, pgd_t pgd)
 +{
-+	note_page(pt_st, addr, 0, pgd_val(pgd));
++	effective_prot(st, 0, pgd_val(pgd));
 +}
 +
-+static void note_page_flush(struct ptdump_state *pt_st)
-+{
-+	pte_t pte_zero = {0};
 +
-+	note_page(pt_st, 0, -1, pte_val(pte_zero));
-+}
-+
- bool ptdump_walk_pgd_level_core(struct seq_file *m,
- 				struct mm_struct *mm, pgd_t *pgd,
- 				bool checkwx, bool dmesg)
-@@ -378,7 +410,12 @@ bool ptdump_walk_pgd_level_core(struct seq_file *m,
- 
- 	struct pg_state st = {
- 		.ptdump = {
--			.note_page	= note_page,
-+			.note_page_pte = note_page_pte,
-+			.note_page_pmd = note_page_pmd,
-+			.note_page_pud = note_page_pud,
-+			.note_page_p4d = note_page_p4d,
-+			.note_page_pgd = note_page_pgd,
-+			.note_page_flush = note_page_flush,
- 			.effective_prot = effective_prot,
+ /*
+  * This function gets called on a break in a continuous series
+  * of PTE entries; the next one is different so we need to
+@@ -416,7 +442,11 @@ bool ptdump_walk_pgd_level_core(struct seq_file *m,
+ 			.note_page_p4d = note_page_p4d,
+ 			.note_page_pgd = note_page_pgd,
+ 			.note_page_flush = note_page_flush,
+-			.effective_prot = effective_prot,
++			.effective_prot_pte = effective_prot_pte,
++			.effective_prot_pmd = effective_prot_pmd,
++			.effective_prot_pud = effective_prot_pud,
++			.effective_prot_p4d = effective_prot_p4d,
++			.effective_prot_pgd = effective_prot_pgd,
  			.range		= ptdump_ranges
  		},
+ 		.level = -1,
 diff --git a/include/linux/ptdump.h b/include/linux/ptdump.h
-index 8dbd51ea8626..1c1eb1fae199 100644
+index 1c1eb1fae199..240bd3bff18d 100644
 --- a/include/linux/ptdump.h
 +++ b/include/linux/ptdump.h
-@@ -11,9 +11,12 @@ struct ptdump_range {
- };
- 
- struct ptdump_state {
--	/* level is 0:PGD to 4:PTE, or -1 if unknown */
--	void (*note_page)(struct ptdump_state *st, unsigned long addr,
--			  int level, u64 val);
-+	void (*note_page_pte)(struct ptdump_state *st, unsigned long addr, pte_t pte);
-+	void (*note_page_pmd)(struct ptdump_state *st, unsigned long addr, pmd_t pmd);
-+	void (*note_page_pud)(struct ptdump_state *st, unsigned long addr, pud_t pud);
-+	void (*note_page_p4d)(struct ptdump_state *st, unsigned long addr, p4d_t p4d);
-+	void (*note_page_pgd)(struct ptdump_state *st, unsigned long addr, pgd_t pgd);
-+	void (*note_page_flush)(struct ptdump_state *st);
- 	void (*effective_prot)(struct ptdump_state *st, int level, u64 val);
+@@ -17,7 +17,11 @@ struct ptdump_state {
+ 	void (*note_page_p4d)(struct ptdump_state *st, unsigned long addr, p4d_t p4d);
+ 	void (*note_page_pgd)(struct ptdump_state *st, unsigned long addr, pgd_t pgd);
+ 	void (*note_page_flush)(struct ptdump_state *st);
+-	void (*effective_prot)(struct ptdump_state *st, int level, u64 val);
++	void (*effective_prot_pte)(struct ptdump_state *st, pte_t pte);
++	void (*effective_prot_pmd)(struct ptdump_state *st, pmd_t pmd);
++	void (*effective_prot_pud)(struct ptdump_state *st, pud_t pud);
++	void (*effective_prot_p4d)(struct ptdump_state *st, p4d_t p4d);
++	void (*effective_prot_pgd)(struct ptdump_state *st, pgd_t pgd);
  	const struct ptdump_range *range;
  };
+ 
 diff --git a/mm/ptdump.c b/mm/ptdump.c
-index 106e1d66e9f9..706cfc19439b 100644
+index 706cfc19439b..9374f29cdc6f 100644
 --- a/mm/ptdump.c
 +++ b/mm/ptdump.c
-@@ -18,7 +18,7 @@ static inline int note_kasan_page_table(struct mm_walk *walk,
- {
- 	struct ptdump_state *st = walk->private;
+@@ -38,8 +38,8 @@ static int ptdump_pgd_entry(pgd_t *pgd, unsigned long addr,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
  
--	st->note_page(st, addr, 4, pte_val(kasan_early_shadow_pte[0]));
-+	st->note_page_pte(st, addr, kasan_early_shadow_pte[0]);
- 
- 	walk->action = ACTION_CONTINUE;
- 
-@@ -42,7 +42,7 @@ static int ptdump_pgd_entry(pgd_t *pgd, unsigned long addr,
- 		st->effective_prot(st, 0, pgd_val(val));
+-	if (st->effective_prot)
+-		st->effective_prot(st, 0, pgd_val(val));
++	if (st->effective_prot_pgd)
++		st->effective_prot_pgd(st, val);
  
  	if (pgd_leaf(val)) {
--		st->note_page(st, addr, 0, pgd_val(val));
-+		st->note_page_pgd(st, addr, val);
- 		walk->action = ACTION_CONTINUE;
- 	}
+ 		st->note_page_pgd(st, addr, val);
+@@ -61,8 +61,8 @@ static int ptdump_p4d_entry(p4d_t *p4d, unsigned long addr,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
  
-@@ -65,7 +65,7 @@ static int ptdump_p4d_entry(p4d_t *p4d, unsigned long addr,
- 		st->effective_prot(st, 1, p4d_val(val));
+-	if (st->effective_prot)
+-		st->effective_prot(st, 1, p4d_val(val));
++	if (st->effective_prot_p4d)
++		st->effective_prot_p4d(st, val);
  
  	if (p4d_leaf(val)) {
--		st->note_page(st, addr, 1, p4d_val(val));
-+		st->note_page_p4d(st, addr, val);
- 		walk->action = ACTION_CONTINUE;
- 	}
+ 		st->note_page_p4d(st, addr, val);
+@@ -84,8 +84,8 @@ static int ptdump_pud_entry(pud_t *pud, unsigned long addr,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
  
-@@ -88,7 +88,7 @@ static int ptdump_pud_entry(pud_t *pud, unsigned long addr,
- 		st->effective_prot(st, 2, pud_val(val));
+-	if (st->effective_prot)
+-		st->effective_prot(st, 2, pud_val(val));
++	if (st->effective_prot_pud)
++		st->effective_prot_pud(st, val);
  
  	if (pud_leaf(val)) {
--		st->note_page(st, addr, 2, pud_val(val));
-+		st->note_page_pud(st, addr, val);
- 		walk->action = ACTION_CONTINUE;
- 	}
+ 		st->note_page_pud(st, addr, val);
+@@ -106,8 +106,8 @@ static int ptdump_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
  
-@@ -109,7 +109,7 @@ static int ptdump_pmd_entry(pmd_t *pmd, unsigned long addr,
- 	if (st->effective_prot)
- 		st->effective_prot(st, 3, pmd_val(val));
+-	if (st->effective_prot)
+-		st->effective_prot(st, 3, pmd_val(val));
++	if (st->effective_prot_pmd)
++		st->effective_prot_pmd(st, val);
  	if (pmd_leaf(val)) {
--		st->note_page(st, addr, 3, pmd_val(val));
-+		st->note_page_pmd(st, addr, val);
+ 		st->note_page_pmd(st, addr, val);
  		walk->action = ACTION_CONTINUE;
- 	}
- 
-@@ -125,7 +125,7 @@ static int ptdump_pte_entry(pte_t *pte, unsigned long addr,
- 	if (st->effective_prot)
- 		st->effective_prot(st, 4, pte_val(val));
- 
--	st->note_page(st, addr, 4, pte_val(val));
-+	st->note_page_pte(st, addr, val);
- 
- 	return 0;
- }
-@@ -134,9 +134,31 @@ static int ptdump_hole(unsigned long addr, unsigned long next,
- 		       int depth, struct mm_walk *walk)
- {
+@@ -122,8 +122,8 @@ static int ptdump_pte_entry(pte_t *pte, unsigned long addr,
  	struct ptdump_state *st = walk->private;
--
--	st->note_page(st, addr, depth, 0);
--
-+	pte_t pte_zero = {0};
-+	pmd_t pmd_zero = {0};
-+	pud_t pud_zero = {0};
-+	p4d_t p4d_zero = {0};
-+	pgd_t pgd_zero = {0};
-+
-+	switch (depth) {
-+	case 4:
-+		st->note_page_pte(st, addr, pte_zero);
-+		break;
-+	case 3:
-+		st->note_page_pmd(st, addr, pmd_zero);
-+		break;
-+	case 2:
-+		st->note_page_pud(st, addr, pud_zero);
-+		break;
-+	case 1:
-+		st->note_page_p4d(st, addr, p4d_zero);
-+		break;
-+	case 0:
-+		st->note_page_pgd(st, addr, pgd_zero);
-+		break;
-+	default:
-+		break;
-+	}
- 	return 0;
- }
+ 	pte_t val = ptep_get_lockless(pte);
  
-@@ -162,7 +184,7 @@ void ptdump_walk_pgd(struct ptdump_state *st, struct mm_struct *mm, pgd_t *pgd)
- 	mmap_write_unlock(mm);
+-	if (st->effective_prot)
+-		st->effective_prot(st, 4, pte_val(val));
++	if (st->effective_prot_pte)
++		st->effective_prot_pte(st, val);
  
- 	/* Flush out the last page */
--	st->note_page(st, 0, -1, 0);
-+	st->note_page_flush(st);
- }
+ 	st->note_page_pte(st, addr, val);
  
- static int check_wx_show(struct seq_file *m, void *v)
 -- 
 2.25.1
 
