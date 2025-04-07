@@ -1,173 +1,220 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F206022F166
-	for <linux-s390@vger.kernel.org>; Mon,  7 Apr 2025 09:37:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735692288D2;
+	Mon,  7 Apr 2025 13:13:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744018679; cv=none; b=Svw5QhIOKrZHaM0Z6iIE+kaHrNKtk2jIJWxsEoBND/1Umlk85PXAoo66SeDAdAfit8p7MyMTLTKpZDWmylqya6ZVW5xdZltlr3a2IStRn+tNzD4HCK1f1pgyLLFLuY4P79f5/mEnjmIWAelvAj8LVKa+YznUJkP98j4DWqWpCWg=
+	t=1744031587; cv=none; b=UuP6AE3XDsx1srwfv3e2ndV+SsFeUonDdEhitOkt3hLxQrTUYUIFCWNJhexYtbWOQOWjN1FV+YwM7KkZM1vb20eTXiHRLDDALgvzaLOCIAqzo4n+qQUpN1QmD/0wT/iqqDT5tfAKnx3ybEtFaMoyntkvoWnsZSXfIaZSkt/xVhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744018679; c=relaxed/simple;
-	bh=UYVpnQToVhKkeD2a7choe2evBwk4oKQuBCk3T1e9dSo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sAODZAIBszNVd9LZXaCnh/+J6yiKOMBmyIBP+QCxtkTj/Yq9rV5YEE+t9l7yyMUW98C9jXZRHOhM/zyt0Yd2vQEjVnEGJNwQs5NanuJ/7ox6zonipym1cIl2wtcTXpruixqUwt7K7/BTQsKFuhiOyEbyeuZcRyzhlUtboSmrXM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rr19dGFZ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744031587; c=relaxed/simple;
+	bh=dVLtvgPnJdXLzcoDxT0pZr8vj6vljEbapmWMe2KsjVY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nSCH/oEc2yRHUM4EG7WXOBDBbIXCrx5Dl5qJGJffW4+oRAoS7NUCB8X1QhqFB4X2v1XA/IiK8DbQByaDaN77hKpgpCE3MPZ7V0sDyDdFDzpOlhU86d0ddqix4p7Xzd65h9BS0CN6V+FEpjGOnkdVe2Qbw/dQSArRqyPHphRgHTo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XVRhZI8B; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rr19dGFZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744018677;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dTru+5exuSFoOa7/E+HIvTf2c8suoUygvHtY3wcFXLI=;
-	b=Rr19dGFZIwezT+XvsKu7x9U4t2b5RQTXDH9fB+SgFdgrTCw4x/MxATb2deZ6dc4va8+aGw
-	NM1tuiFlN5qI2V8TdQlb3CtEp5+lgQXB8uxk3oeapa9mccar43na8+fJT9uwNz2R+Hufis
-	Phxd6QuDKqISycpEiSdfi4Z3EKnGwgc=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-372-7ex5b64aNmGbcEQdXc6Pmw-1; Mon, 07 Apr 2025 05:37:55 -0400
-X-MC-Unique: 7ex5b64aNmGbcEQdXc6Pmw-1
-X-Mimecast-MFC-AGG-ID: 7ex5b64aNmGbcEQdXc6Pmw_1744018674
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43ceb011ea5so27617245e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 02:37:55 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744018674; x=1744623474;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dTru+5exuSFoOa7/E+HIvTf2c8suoUygvHtY3wcFXLI=;
-        b=QyBYBiV4oAmCY5SItUCvNjYGoHvQ2nIdQIuVTREP+l0bRaWNd2BTyewDeZ+4q7HPn+
-         96J3Tw5v+E+YvI84KkPKU0twfUd4zs7g7E320dZuhxZgGLMtbAD4bBXRpl3C8WHh8wFn
-         W+d68WOVcCnNIHqC3tF5PWrxPCu1BsItveM1AAFq2bE6D0omeaWbOfPTcQwnJo+fHk2r
-         HO4CSaNtMspZ6DYxKziftVYQljUwPDIBRAYngflhTMpmQpc9j4CriOGtQ1jy6zUXbhEl
-         axG77JYC5qgwrgmke0MmOGphMH9YB7nlnLFLtvQ1DMamKzLdDuqu5ixxWwgD9+/z6Yni
-         MLfQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWK63YgDQSctQcxlRhWhTYey4ETwyQdc2cA7CodOa7jVcwjZnOA75S6XsVto/IABail4Ui0Gq5k7hdF@vger.kernel.org
-X-Gm-Message-State: AOJu0YyCG0mwiN/SHckFanEUKrPxVUQfIxONn3daLxj6/x5okHllRBzS
-	clV1ks8BtRf6KTai+eUVKqrfxHMFULCYqB6L9IuVEtMFjpMIk0djwxT5PDEurxEj4OU7NxaTSNR
-	nQkHXmHQYXkoE3aKbqtMzDex5dleba+De082HxpFNKSuiAyxSfyTQM53GZJk=
-X-Gm-Gg: ASbGncvTRahNED512Bt2tsRPSk7t9V2u/Dln56CQCMLfEVKn2DU/f197OYYsnZa7eVH
-	FfWBRJaaeEqYXxWyZaO/7H6n2rKBm3s3IH3sQ9pOuS4LWlnbkNn98WxZLttIuLaBzigSTONMjTZ
-	RT1jAktL5xwGzKK/UEQxBGUFSdf4nVTmZxgpx7fDeAups2+a4GMf3JZRnW+c62Xfc2EzKH4/Hhc
-	LvUxx1HFdwyvLUFeT7QFT/pZtS9A8jb2CWOv2ZxzYLsZUJ4CYddjcVCBtnLemDA+2XnfdnRk4gP
-	2vNSEU87gA==
-X-Received: by 2002:a05:600c:470d:b0:43d:47e:3205 with SMTP id 5b1f17b1804b1-43ecf85f23bmr79396915e9.11.1744018674547;
-        Mon, 07 Apr 2025 02:37:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFRDexwe+g43YwqQL8SzrJOq1OlI7SDdhXyepzHhoBm7gIYyJsaf0/QWV3+ztzeILwqBFtKrA==
-X-Received: by 2002:a05:600c:470d:b0:43d:47e:3205 with SMTP id 5b1f17b1804b1-43ecf85f23bmr79396625e9.11.1744018674172;
-        Mon, 07 Apr 2025 02:37:54 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec17b33c2sm132022505e9.40.2025.04.07.02.37.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Apr 2025 02:37:53 -0700 (PDT)
-Date: Mon, 7 Apr 2025 05:37:50 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
-	Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wei Wang <wei.w.wang@intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XVRhZI8B"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537D8nCt008341;
+	Mon, 7 Apr 2025 13:12:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=kTVk9i
+	eL2vFL3nlCB+xMp/6WkRXc8psU3RULIlrezBo=; b=XVRhZI8B6F3rVREKTFXp1l
+	GLFUIZr7Bt4RlFNIJPtXOb6xEofgUgcP0S4JdTLWNac9/Zcp4WQzWdi3NqZv0iSq
+	9yubEBbVi+9/lFkPm1SaZ9h8pNnt9aL0qkvyPcRV/QW8TLdlM509WEnSVY8styX2
+	rJPxk3D10q1uz6w1Z1zyJ9BrEI5Zrc5UD/Ww7BwcXxMnYzXiGRrGkv1nV6gQHSQU
+	TDZSx6qlpXtXSAH4P1xfG6d0X+jRUngUwh10n9Rg3K6StCx9XnrwNZLKjJjLpDIR
+	OS7lZc4izypJqliIcA7k+Odb/Z9RLyfF1hQJEVlc3RGdf2EimNpL7YLsAwbhFtQQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45v739jg0e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 13:12:59 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537B6sh2017457;
+	Mon, 7 Apr 2025 13:12:58 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45uh2kdqnm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 13:12:56 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537DCqWN54657412
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Apr 2025 13:12:52 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6D6BD2004E;
+	Mon,  7 Apr 2025 13:12:52 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DE55C20040;
+	Mon,  7 Apr 2025 13:12:51 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  7 Apr 2025 13:12:51 +0000 (GMT)
+Date: Mon, 7 Apr 2025 15:12:49 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+        Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Thomas Huth
+ <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Wei Wang
+ <wei.w.wang@intel.com>,
+        Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
  non-existing queues
-Message-ID: <20250407053037-mutt-send-email-mst@kernel.org>
-References: <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
- <20250404173910.6581706a.pasic@linux.ibm.com>
- <20250407034901-mutt-send-email-mst@kernel.org>
- <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
- <20250407042058-mutt-send-email-mst@kernel.org>
- <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com>
- <20250407044743-mutt-send-email-mst@kernel.org>
- <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com>
- <20250407045456-mutt-send-email-mst@kernel.org>
- <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
+Message-ID: <20250407151249.7fe1e418.pasic@linux.ibm.com>
+In-Reply-To: <20250407042058-mutt-send-email-mst@kernel.org>
+References: <20250404063619.0fa60a41.pasic@linux.ibm.com>
+	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+	<20250404153620.04d2df05.pasic@linux.ibm.com>
+	<d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+	<20250404160025.3ab56f60.pasic@linux.ibm.com>
+	<6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+	<20250404173910.6581706a.pasic@linux.ibm.com>
+	<20250407034901-mutt-send-email-mst@kernel.org>
+	<2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
+	<20250407042058-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: XlMUYpPLp9HmrbE7tJ6e6kIKNuwsg--1
+X-Proofpoint-ORIG-GUID: XlMUYpPLp9HmrbE7tJ6e6kIKNuwsg--1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-07_04,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=999 phishscore=0 mlxscore=0 malwarescore=0 suspectscore=0
+ adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2502280000 definitions=main-2504070091
 
-On Mon, Apr 07, 2025 at 11:11:34AM +0200, David Hildenbrand wrote:
-> On 07.04.25 10:58, Michael S. Tsirkin wrote:
-> > On Mon, Apr 07, 2025 at 10:54:00AM +0200, David Hildenbrand wrote:
-> > > On 07.04.25 10:49, Michael S. Tsirkin wrote:
-> > > > On Mon, Apr 07, 2025 at 10:44:21AM +0200, David Hildenbrand wrote:
-> > > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > > Whoever adds new feat_X *must be aware* about all previous features,
-> > > > > > > otherwise we'd be reusing feature bits and everything falls to pieces.
-> > > > > > 
-> > > > > > 
-> > > > > > The knowledge is supposed be limited to which feature bit to use.
+On Mon, 7 Apr 2025 04:34:29 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Mon, Apr 07, 2025 at 10:17:10AM +0200, David Hildenbrand wrote:
+> > On 07.04.25 09:52, Michael S. Tsirkin wrote:  
+> > > On Fri, Apr 04, 2025 at 05:39:10PM +0200, Halil Pasic wrote:  
 > > > > > 
-> > > > > I think we also have to know which virtqueue bits can be used, right?
-> > > > > 
+> > > > > Not perfect, but AFAIKS, not horrible.  
 > > > > 
-> > > > what are virtqueue bits? vq number?
+> > > > It is like it is. QEMU does queue exist if the corresponding feature
+> > > > is offered by the device, and that is what we have to live with.  
 > > > 
-> > > Yes, sorry.
+> > > I don't think we can live with this properly though.
+> > > It means a guest that does not know about some features
+> > > does not know where to find things.  
 > > 
-> > I got confused myself, it's vq index actually now, we made the spec
-> > consistent with that terminology. used to be number/index
-> > interchangeably.
-> > 
-> > > Assume cross-vm as an example. It would make use of virtqueue indexes 5+6
-> > > with their VIRTIO_BALLOON_F_WS_REPORTING.
-> > 
-> > 
-> > crossvm guys really should have reserved the feature bit even if they
-> > did not bother specifying it. Let's reserve it now at least?
+> > Please describe a real scenario, I'm missing the point.  
 > 
-> Along with the virtqueue indices, right?
-
-Well ... as long as the implementation is careful to check that feature
-is negotiated, reusing vq index at least causes no trouble for others.
-
-
-> Note that there was
 > 
-> https://lists.gnu.org/archive/html/qemu-devel/2023-05/msg02503.html
+> OK so.
 > 
-> and
+> Device has VIRTIO_BALLOON_F_FREE_PAGE_HINT and VIRTIO_BALLOON_F_REPORTING
+> Driver only knows about VIRTIO_BALLOON_F_REPORTING so
+> it does not know what does VIRTIO_BALLOON_F_FREE_PAGE_HINT do.
+> How does it know which vq to use for reporting?
+> It will try to use the free page hint one.
+
+First, sorry for not catching up again with the discussion earlier.
+
+I think David's point is based on the assumption that by the time feature
+with the feature bit N+1 is specified and allocates a queue Q, all
+queues with indexes smaller than Q are allocated and possibly associated
+with features that were previously specified (and probably have feature
+bits smaller than N+1). 
+
+I.e. that we can mandate, even if you don't want to care about other
+optional features, you have to, because we say so, for the matter of
+virtqueue existence. And anything in the future, you don't have to care
+about because the queue index associated with future features is larger
+than Q, so it does not affect our position.
+
+I think that argument can fall a part if:
+* future features reference optional queues defined in the past
+* somebody managed to introduce a limbo where a feature is reserved, and
+  they can not decide if they want a queue or not, or make the existence
+  of the queue depend on something else than a feature bit.
+
+Frankly I don't think the risks are huge, but it would undoubtedly make
+the spec more ugly.
+
 > 
-> https://groups.oasis-open.org/communities/community-home/digestviewer/viewthread?GroupId=3973&MessageKey=afb07613-f56c-4d40-8981-2fad1c723998&CommunityKey=2f26be99-3aa1-48f6-93a5-018dce262226&hlmlt=VT
 > 
-> But it only was RFC, and as the QEMU implementation didn't materialize,
-> nobody seemed to care ...
+> 
+> > Whoever adds new feat_X *must be aware* about all previous features,
+> > otherwise we'd be reusing feature bits and everything falls to pieces.  
+> 
+> 
+> The knowledge is supposed be limited to which feature bit to use.
+> 
 
-Thanks! I will try poke the author again.
+I do agree! This is why I brought this question up. Creating exceptions
+from that rule would be very ugly IMHO. But I would not say it is
+impossible.
 
-
-> > 
-> > 
-> > > So whatever feature another device implements couldn't use this feature bit
-> > > or these virtqueue indexes.
+> 
+> 
 > > > 
-> > > (as long the other device never intends to implement
-> > > VIRTIO_BALLOON_F_WS_REPORTING, the virtqueue indexes could be reused. But
-> > > the spec will also be a mess, because virtqueue indexes could also have
-> > > duplicate meanings ... ugh)
+> > > So now, I am inclined to add linux code to work with current qemu and
+> > > with spec compliant one, and add qemu code to work with current linux
+> > > and spec compliant one.
+> > > 
+> > > Document the bug in the spec, maybe, in a non conformance section.  
 > > 
-> > what do they do with vq indices btw?
+> > I'm afraid this results in a lot of churn without really making things
+> > better.  
 > 
-> See above links, they use the two for "s_vq and notification_vq".
+> > IMHO, documenting things how they actually behave, and maybe moving towards
+> > fixed queue indexes for new features is the low hanging fruit.  
 > 
-> -- 
-> Cheers,
+> I worry about how to we ensure that?
+> If old code is messed up people will just keep propagating that.
+> I would like to fix old code so that new code is correct.
 > 
-> David / dhildenb
+> > 
+> > As raised, it's not just qemu+linux, it's *at least* also cloud-hypervisor.
+> > 
+> > -- 
+> > Cheers,
+> > 
+> > David / dhildenb  
+> 
+> There's a slippery slope here in that people will come to us
+> with buggy devices and ask to change the spec.
+> 
+
+I agree! IMHO all we have are bad options. To decide for myself which is
+less ugly I would love to see both.
+
+I agree making the spec bend to the fact that implementations are buggy
+does not seem right from the spec perspective. But if making things work
+is not practical without sacrificing the sanctity of the spec, I am
+willing to swallow the bitter pill and bend the spec.
+
+If you don't mind try to keep me in the loop, even if I'm not able to
+be as responsive as I would like to be. I'm happy fixing the code is
+going to get another round of consideration.
+
+Regards,
+Halil
 
