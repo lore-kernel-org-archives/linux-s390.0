@@ -1,253 +1,276 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9EC261C6B4;
-	Mon,  7 Apr 2025 05:31:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0BB622F3B1
+	for <linux-s390@vger.kernel.org>; Mon,  7 Apr 2025 07:18:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744003910; cv=none; b=fX9H3FGl4t1agcx1784Y/H+0tmxhCu3UUpiG5TjGUVPhW39HnIGYFFwRLe0niUSzsBGTVgsjToYnGClvaSKXTDFBVhg2X12BGMrNEMVHcJ1aaalkhElwHFfcMcVRBGOB3VeqEev8/+bZEDKgpJOofbXyRY6otnuME/L7Oj4EJzE=
+	t=1744010309; cv=none; b=LMFp7Kk6kg8vkS0SZOuh7E6aAfT2/EAjWGl/pjLHXrU7WoWkQA2m2Pg/Del4RCTw1yI5+1ZKdndEXexk4HUvDF8l0GGLt+1M7pr1l6ilt7ZRu+pLtLY9jDj16aS2eeOqMB2C5pLpR/kXgbVzCCYghh4iBNJVtJLaAOLdwsasyyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744003910; c=relaxed/simple;
-	bh=hRPXXQom3Jcic+6bPtce8M8Sp8FtKuPiocesCS/hKh4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=KOS73BC7ui1geJelnI9Pd5BNv0HrRFjKZnUXfe6IBz6ll85WWMQYduf0Pym8XvMYQyPsKOFRTNV2xCsg022W4622ZaSdj2YY0gNVdcLBmioIAg9UHifzfAViD0NcBA3LLIzCpilNmDkMLLSKfRitpdNUwuj5X+hXa0e6SMc8tLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 336541CC4;
-	Sun,  6 Apr 2025 22:31:49 -0700 (PDT)
-Received: from a077893.blr.arm.com (a077893.blr.arm.com [10.162.42.8])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 0B0463F6A8;
-	Sun,  6 Apr 2025 22:31:40 -0700 (PDT)
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-To: linux-mm@kvack.org
-Cc: mark.rutland@arm.com,
-	Anshuman Khandual <anshuman.khandual@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	Ard Biesheuvel <ardb@kernel.org>,
-	linux-efi@vger.kernel.org
-Subject: [PATCH V2 3/3] arm64/mm: Define ptdesc_t
-Date: Mon,  7 Apr 2025 11:01:13 +0530
-Message-Id: <20250407053113.746295-4-anshuman.khandual@arm.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20250407053113.746295-1-anshuman.khandual@arm.com>
-References: <20250407053113.746295-1-anshuman.khandual@arm.com>
+	s=arc-20240116; t=1744010309; c=relaxed/simple;
+	bh=mYjOcwQPXCEo3PAx43/TpsYRavbohMhCu6cggyetg2M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NiPYODAu6C3FruDWXPCTZNhZKjQ7IOZNdkgYKg1Y6xJCS3+bF1qY2KaZzGbevX+V1WqaBiEj2+Xq725BTVT1buL5Y2hpxyH71Tu86zq2FQC1RjgwwhYOm/X5kY89TYAH+NbhhEywRompxWNHdGrJXLjTsTTEJmZSlQEjjaOIQsM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JR+zVPCn; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JR+zVPCn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744010306;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=ksYnepkSTzEXZ8AtLLerRetDOK5boPEguFAzQ11Hx88=;
+	b=JR+zVPCnjdArxONaZ3CThTE/vbswvabCpkcFSjIV0Wh9gK5MSo+wgR32M4Vva3/1flQiTa
+	CMBLTRl6EzmC2O2ew7++Ye3zXsbnGhjubwEid3DJx6d+tXlgo9xSAsFKp9SrdCOIer7Top
+	7urgjIhp9ZAT0fDamclMCDizvn+SoVw=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-442-Een0eG4vOai3TfKsHkbJng-1; Mon, 07 Apr 2025 03:18:24 -0400
+X-MC-Unique: Een0eG4vOai3TfKsHkbJng-1
+X-Mimecast-MFC-AGG-ID: Een0eG4vOai3TfKsHkbJng_1744010304
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3912d9848a7so2421258f8f.0
+        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 00:18:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744010303; x=1744615103;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=ksYnepkSTzEXZ8AtLLerRetDOK5boPEguFAzQ11Hx88=;
+        b=X5dcK1ONx3UmJWjuXskZbop4mPkXhc3TkP2S+H0w4tLYy58khjuyj5YcSSkjr3tEny
+         HBXCBBAr4++gC4e0e5hTQN9vf4ECGbFZxCplYfVdT02QSdDNz1sk/Fb9ln7TXJG6/tXu
+         bC0AChk1R4DZi12E5d09w1kKlOHfwS24YrkAt+9ME28QjJApL4ss71JuTXx1hss4l61v
+         c/WczI2zyFXSvnZiIpNS4YxRzokkKfrX3XbZImiT6GpvmdtFzhNdwWLDD8I6SJdXvUzH
+         eDDQxkh36uTjnn+YltY6lDZq8rerDIOcWvj80WZwtIQV4JluplUartMzbCcJFFkO23TK
+         pyiA==
+X-Forwarded-Encrypted: i=1; AJvYcCXHlu4oy/mEg3iYLVzkuDkFiI5l4qKeQTCpvWVBBxM324fdty7rpUnQ/gWBxXzhP7jDzQkqU7KsYB+W@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywti/i5TLZfCous609eezDB0Lo8wiZbJlliMhgTY2QmKuoayvEp
+	1XlFLIBOwNby0o7E09WNRrZ+Qy8dR2VvrNeo5GAMOtcHopFr1ROmub6dyuUl7ajOihpUuKtgMDU
+	Fe3QHGklSvaqtdGYVWLZdy/ws4nyu+wSJHkb+v6f05RjCrx5DwVW5MP/KMwc=
+X-Gm-Gg: ASbGncuTDSFJsrout41HZeT0T0xB25edAuSUDGXyqU5YXAGvPO5tviX77RHrsJC2nT5
+	/ZP+tYmnP72YII36iyOxB1Ty7NfIcrH2Soak0pPa3mRu1LBBVhEKbAwhj3hf+J/KkBkAaCbpoXA
+	Ru4j6/6RuUWgyVaysDh7nivpyzQp0CvZYIxsut2OoMywO7Vq13iKqdEc6tOZNLX7tc1DfrRrzy6
+	bEIG9o9hStXbwrCuo1GklP7CkDuLJ8p7hZk1scxooWEmkwj0qFiOXrYxvPzJZY43zQ5v/gkZX0K
+	cadV8dBgQ4s8ptdrntGL9HDuVdEhdzH7os537zgte8fF
+X-Received: by 2002:a5d:64e5:0:b0:38d:df15:2770 with SMTP id ffacd0b85a97d-39c2e4819a9mr14959486f8f.0.1744010303572;
+        Mon, 07 Apr 2025 00:18:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFCewS4OYeFc4l1AEVvAmgrTnvuewlFO6ZFzx0aFkXbHOPgtLMJqitW5fI/xaiiqBRFAZWr9Q==
+X-Received: by 2002:a5d:64e5:0:b0:38d:df15:2770 with SMTP id ffacd0b85a97d-39c2e4819a9mr14959456f8f.0.1744010303214;
+        Mon, 07 Apr 2025 00:18:23 -0700 (PDT)
+Received: from [192.168.3.141] (p5b0c6a16.dip0.t-ipconnect.de. [91.12.106.22])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c30226acfsm11018796f8f.88.2025.04.07.00.18.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Apr 2025 00:18:22 -0700 (PDT)
+Message-ID: <4450ec71-8a8f-478c-a66e-b53d858beb02@redhat.com>
+Date: Mon, 7 Apr 2025 09:18:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+ Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+ Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
+References: <20250402203621.940090-1-david@redhat.com>
+ <20250403161836.7fe9fea5.pasic@linux.ibm.com>
+ <e2936e2f-022c-44ee-bb04-f07045ee2114@redhat.com>
+ <20250404063619.0fa60a41.pasic@linux.ibm.com>
+ <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+ <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+ <20250404153620.04d2df05.pasic@linux.ibm.com>
+ <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+ <20250406144025-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20250406144025-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Define ptdesc_t type which describes the basic page table descriptor layout
-on arm64 platform. Subsequently all level specific pxxval_t descriptors are
-derived from ptdesc_t thus establishing a common original format, which can
-also be appropriate for page table entries, masks and protection values etc
-which are used at all page table levels.
+On 06.04.25 20:42, Michael S. Tsirkin wrote:
+> On Fri, Apr 04, 2025 at 03:48:49PM +0200, David Hildenbrand wrote:
+>> On 04.04.25 15:36, Halil Pasic wrote:
+>>> On Fri, 4 Apr 2025 12:55:09 +0200
+>>> David Hildenbrand <david@redhat.com> wrote:
+>>>
+>>>> For virito-balloon, we should probably do the following:
+>>>>
+>>>>    From 38e340c2bb53c2a7cc7c675f5dfdd44ecf7701d9 Mon Sep 17 00:00:00 2001
+>>>> From: David Hildenbrand <david@redhat.com>
+>>>> Date: Fri, 4 Apr 2025 12:53:16 +0200
+>>>> Subject: [PATCH] virtio-balloon: Fix queue index assignment for
+>>>>     non-existing queues
+>>>>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>> ---
+>>>>     device-types/balloon/description.tex | 22 ++++++++++++++++------
+>>>>     1 file changed, 16 insertions(+), 6 deletions(-)
+>>>>
+>>>> diff --git a/device-types/balloon/description.tex b/device-types/balloon/description.tex
+>>>> index a1d9603..a7396ff 100644
+>>>> --- a/device-types/balloon/description.tex
+>>>> +++ b/device-types/balloon/description.tex
+>>>> @@ -16,6 +16,21 @@ \subsection{Device ID}\label{sec:Device Types / Memory Balloon Device / Device I
+>>>>       5
+>>>>     \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtqueues}
+>>>> +
+>>>> +\begin{description}
+>>>> +\item[inflateq] Exists unconditionally.
+>>>> +\item[deflateq] Exists unconditionally.
+>>>> +\item[statsq] Only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+>>>> +\item[free_page_vq] Only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+>>>> +\item[reporting_vq] Only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+>>>
+>>> s/is set/is negotiated/?
+>>>
+>>> I think we should stick to "feature is offered" and "feature is
+>>> negotiated".
+>>>
+>>>> +\end{description}
+>>>> +
+>>>> +\begin{note}
+>>>> +Virtqueue indexes are assigned sequentially for existing queues, starting
+>>>> +with index 0; consequently, if a virtqueue does not exist, it does not get
+>>>> +an index assigned. Assuming all virtqueues exist for a device, the indexes
+>>>> +are:
+>>>> +
+>>>>     \begin{description}
+>>>>     \item[0] inflateq
+>>>>     \item[1] deflateq
+>>>> @@ -23,12 +38,7 @@ \subsection{Virtqueues}\label{sec:Device Types / Memory Balloon Device / Virtque
+>>>>     \item[3] free_page_vq
+>>>>     \item[4] reporting_vq
+>>>>     \end{description}
+>>>> -
+>>>> -  statsq only exists if VIRTIO_BALLOON_F_STATS_VQ is set.
+>>>> -
+>>>> -  free_page_vq only exists if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set.
+>>>> -
+>>>> -  reporting_vq only exists if VIRTIO_BALLOON_F_PAGE_REPORTING is set.
+>>>> +\end{note}
+>>>>     \subsection{Feature bits}\label{sec:Device Types / Memory Balloon Device / Feature bits}
+>>>>     \begin{description}
+>>>
+>>> Sounds good to me! But I'm still a little confused by the "holes". What
+>>> confuses me is that i can think of at least 2 distinct types of "holes":
+>>> 1) Holes that can be filled later. The queue conceptually exists, but
+>>>      there is no need to back it with any resources for now because it is
+>>>      dormant (it can be seen a hole in comparison to queues that need to
+>>>     materialize -- vring, notifiers, ...)
+>>> 2) Holes that can not be filled without resetting the device: i.e. if
+>>>      certain features are not negotiated, then a queue X does not exist,
+>>>      but subsequent queues retain their index.
+>>
+>> I think it is not about "negotiated", that might be the wrong terminology.
+>>
+>> E.g., in QEMU virtio_balloon_device_realize() we define the virtqueues
+>> (virtio_add_queue()) if virtio_has_feature(s->host_features).
+>>
+>> That is, it's independent of a feature negotiation (IIUC), it's static for
+>> the device --  "host_features"
+> 
+> 
+> No no that is a bad idea. Breaks forward compatibility.
+> 
+> Oh my. I did not realize. It is really broken hopelessly.
+> 
+> Because, note, the guest looks at the guest features :)
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-efi@vger.kernel.org
-Suggested-by: Ryan Roberts <ryan.roberts@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/arm64/include/asm/pgtable-types.h | 20 ++++++++++++++------
- arch/arm64/include/asm/ptdump.h        |  8 ++++----
- arch/arm64/kernel/efi.c                |  4 ++--
- arch/arm64/kernel/pi/map_kernel.c      |  2 +-
- arch/arm64/kernel/pi/map_range.c       |  4 ++--
- arch/arm64/kernel/pi/pi.h              |  2 +-
- arch/arm64/mm/mmap.c                   |  2 +-
- arch/arm64/mm/ptdump.c                 |  2 +-
- 8 files changed, 26 insertions(+), 18 deletions(-)
+Can you elaborate why?
 
-diff --git a/arch/arm64/include/asm/pgtable-types.h b/arch/arm64/include/asm/pgtable-types.h
-index 6d6d4065b0cb..265e8301d7ba 100644
---- a/arch/arm64/include/asm/pgtable-types.h
-+++ b/arch/arm64/include/asm/pgtable-types.h
-@@ -11,11 +11,19 @@
- 
- #include <asm/types.h>
- 
--typedef u64 pteval_t;
--typedef u64 pmdval_t;
--typedef u64 pudval_t;
--typedef u64 p4dval_t;
--typedef u64 pgdval_t;
-+/*
-+ * Page Table Descriptor
-+ *
-+ * Generic page table descriptor format from which
-+ * all level specific descriptors can be derived.
-+ */
-+typedef u64 ptdesc_t;
-+
-+typedef ptdesc_t pteval_t;
-+typedef ptdesc_t pmdval_t;
-+typedef ptdesc_t pudval_t;
-+typedef ptdesc_t p4dval_t;
-+typedef ptdesc_t pgdval_t;
- 
- /*
-  * These are used to make use of C type-checking..
-@@ -46,7 +54,7 @@ typedef struct { pgdval_t pgd; } pgd_t;
- #define pgd_val(x)	((x).pgd)
- #define __pgd(x)	((pgd_t) { (x) } )
- 
--typedef struct { pteval_t pgprot; } pgprot_t;
-+typedef struct { ptdesc_t pgprot; } pgprot_t;
- #define pgprot_val(x)	((x).pgprot)
- #define __pgprot(x)	((pgprot_t) { (x) } )
- 
-diff --git a/arch/arm64/include/asm/ptdump.h b/arch/arm64/include/asm/ptdump.h
-index 01033c1d38dc..fded5358641f 100644
---- a/arch/arm64/include/asm/ptdump.h
-+++ b/arch/arm64/include/asm/ptdump.h
-@@ -24,8 +24,8 @@ struct ptdump_info {
- };
- 
- struct ptdump_prot_bits {
--	u64		mask;
--	u64		val;
-+	ptdesc_t	mask;
-+	ptdesc_t	val;
- 	const char	*set;
- 	const char	*clear;
- };
-@@ -34,7 +34,7 @@ struct ptdump_pg_level {
- 	const struct ptdump_prot_bits *bits;
- 	char name[4];
- 	int num;
--	u64 mask;
-+	ptdesc_t mask;
- };
- 
- /*
-@@ -51,7 +51,7 @@ struct ptdump_pg_state {
- 	const struct mm_struct *mm;
- 	unsigned long start_address;
- 	int level;
--	u64 current_prot;
-+	ptdesc_t current_prot;
- 	bool check_wx;
- 	unsigned long wx_pages;
- 	unsigned long uxn_pages;
-diff --git a/arch/arm64/kernel/efi.c b/arch/arm64/kernel/efi.c
-index 1d25d8899dbf..42e281c07c2f 100644
---- a/arch/arm64/kernel/efi.c
-+++ b/arch/arm64/kernel/efi.c
-@@ -29,7 +29,7 @@ static bool region_is_misaligned(const efi_memory_desc_t *md)
-  * executable, everything else can be mapped with the XN bits
-  * set. Also take the new (optional) RO/XP bits into account.
-  */
--static __init pteval_t create_mapping_protection(efi_memory_desc_t *md)
-+static __init ptdesc_t create_mapping_protection(efi_memory_desc_t *md)
- {
- 	u64 attr = md->attribute;
- 	u32 type = md->type;
-@@ -83,7 +83,7 @@ static __init pteval_t create_mapping_protection(efi_memory_desc_t *md)
- 
- int __init efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md)
- {
--	pteval_t prot_val = create_mapping_protection(md);
-+	ptdesc_t prot_val = create_mapping_protection(md);
- 	bool page_mappings_only = (md->type == EFI_RUNTIME_SERVICES_CODE ||
- 				   md->type == EFI_RUNTIME_SERVICES_DATA);
- 
-diff --git a/arch/arm64/kernel/pi/map_kernel.c b/arch/arm64/kernel/pi/map_kernel.c
-index e57b043f324b..a00f57c73d81 100644
---- a/arch/arm64/kernel/pi/map_kernel.c
-+++ b/arch/arm64/kernel/pi/map_kernel.c
-@@ -159,7 +159,7 @@ static void noinline __section(".idmap.text") set_ttbr0_for_lpa2(u64 ttbr)
- static void __init remap_idmap_for_lpa2(void)
- {
- 	/* clear the bits that change meaning once LPA2 is turned on */
--	pteval_t mask = PTE_SHARED;
-+	ptdesc_t mask = PTE_SHARED;
- 
- 	/*
- 	 * We have to clear bits [9:8] in all block or page descriptors in the
-diff --git a/arch/arm64/kernel/pi/map_range.c b/arch/arm64/kernel/pi/map_range.c
-index 81345f68f9fc..7982788e7b9a 100644
---- a/arch/arm64/kernel/pi/map_range.c
-+++ b/arch/arm64/kernel/pi/map_range.c
-@@ -30,7 +30,7 @@ void __init map_range(u64 *pte, u64 start, u64 end, u64 pa, pgprot_t prot,
- 		      int level, pte_t *tbl, bool may_use_cont, u64 va_offset)
- {
- 	u64 cmask = (level == 3) ? CONT_PTE_SIZE - 1 : U64_MAX;
--	pteval_t protval = pgprot_val(prot) & ~PTE_TYPE_MASK;
-+	ptdesc_t protval = pgprot_val(prot) & ~PTE_TYPE_MASK;
- 	int lshift = (3 - level) * PTDESC_TABLE_SHIFT;
- 	u64 lmask = (PAGE_SIZE << lshift) - 1;
- 
-@@ -87,7 +87,7 @@ void __init map_range(u64 *pte, u64 start, u64 end, u64 pa, pgprot_t prot,
- 	}
- }
- 
--asmlinkage u64 __init create_init_idmap(pgd_t *pg_dir, pteval_t clrmask)
-+asmlinkage u64 __init create_init_idmap(pgd_t *pg_dir, ptdesc_t clrmask)
- {
- 	u64 ptep = (u64)pg_dir + PAGE_SIZE;
- 	pgprot_t text_prot = PAGE_KERNEL_ROX;
-diff --git a/arch/arm64/kernel/pi/pi.h b/arch/arm64/kernel/pi/pi.h
-index c91e5e965cd3..91dcb5b6bbd1 100644
---- a/arch/arm64/kernel/pi/pi.h
-+++ b/arch/arm64/kernel/pi/pi.h
-@@ -33,4 +33,4 @@ void map_range(u64 *pgd, u64 start, u64 end, u64 pa, pgprot_t prot,
- 
- asmlinkage void early_map_kernel(u64 boot_status, void *fdt);
- 
--asmlinkage u64 create_init_idmap(pgd_t *pgd, pteval_t clrmask);
-+asmlinkage u64 create_init_idmap(pgd_t *pgd, ptdesc_t clrmask);
-diff --git a/arch/arm64/mm/mmap.c b/arch/arm64/mm/mmap.c
-index 07aeab8a7606..c86c348857c4 100644
---- a/arch/arm64/mm/mmap.c
-+++ b/arch/arm64/mm/mmap.c
-@@ -83,7 +83,7 @@ arch_initcall(adjust_protection_map);
- 
- pgprot_t vm_get_page_prot(unsigned long vm_flags)
- {
--	pteval_t prot;
-+	ptdesc_t prot;
- 
- 	/* Short circuit GCS to avoid bloating the table. */
- 	if (system_supports_gcs() && (vm_flags & VM_SHADOW_STACK)) {
-diff --git a/arch/arm64/mm/ptdump.c b/arch/arm64/mm/ptdump.c
-index ac0c20ba0cd9..421a5de806c6 100644
---- a/arch/arm64/mm/ptdump.c
-+++ b/arch/arm64/mm/ptdump.c
-@@ -194,7 +194,7 @@ void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
- 	struct ptdump_pg_state *st = container_of(pt_st, struct ptdump_pg_state, ptdump);
- 	struct ptdump_pg_level *pg_level = st->pg_level;
- 	static const char units[] = "KMGTPE";
--	u64 prot = 0;
-+	ptdesc_t prot = 0;
- 
- 	/* check if the current level has been folded dynamically */
- 	if (st->mm && ((level == 1 && mm_p4d_folded(st->mm)) ||
+statsq = 2
+
+free_page_vq = statsq + host_offered_feat(VIRTIO_BALLOON_F_STATS_VQ)
+
+reporting_vq = free_page_vq + 
+host_offered_feat(VIRTIO_BALLOON_F_FREE_PAGE_HINT)
+
+
+Independent of any upcoming features. And if a new feature defines a new 
+virtqueue
+
+new_vq = reporting_vq +  host_offered_feat(VIRTIO_BALLOON_F_PAGE_REPORTING)
+
+We only have to make sure in the spec that these calculations always hold.
+
+Querying of the host offered features already happens as part of 
+determining the actual guest usable feature (driver_offered & host_offered).
+
+
+> Now I am beginning to think we should leave the spec alone
+> and fix the drivers ... Ugh ....
+
+We could always say that starting with feature X, queue indexes are 
+fixed again. E.g., VIRTIO_BALLOON_F_X would have it's virtqueue fixed at 
+index 5, independent of the other (older) features where the virtqueue 
+indexes are determined like today.
+
+Won't make the implementation easier, though, I'm afraid.
+
+(I also thought about a way to query the virtqueue index for a feature, 
+but that's probably overengineering)
+
 -- 
-2.25.1
+Cheers,
+
+David / dhildenb
 
