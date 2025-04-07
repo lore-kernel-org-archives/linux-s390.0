@@ -1,66 +1,66 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0DB1F63F9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0931F8BCD;
 	Mon,  7 Apr 2025 15:12:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744038724; cv=none; b=KEHavxyrO/TVZ43H5EFKTQ8WJ6jC5qmeKZYH/9HxOxmB8WLNjDEUHIQArANUUisBh8sFT5ZgJZkd8fuc1XpWJNTsOZ2Ibnl5DeSVzSfI+2JGndaq1eKq+4HeZiqdhyHEpMHP1wJueiKoiH+8pQyOHWc5ZYZaE5tyOUKcv5enruM=
+	t=1744038725; cv=none; b=Mj/PugCmOi/NSMpC/Xx++T43B9z8p4iZUhiQl8NP6YEBVZxrnywfktOinMFJHoUMy9DUkVaQk/kXyaRWx5DeOjrY2LhFEN776Ujcb0fdRHDIFZanZOWO8KKIpkHEA2vynGGJrxNljlh2TKLkHjSg4avpxslrPKzlYlnmIbvvhgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744038724; c=relaxed/simple;
-	bh=hj/TDsisJCnOvRQax5hfaCc22qUCiJgMR2YNMLLyCWQ=;
+	s=arc-20240116; t=1744038725; c=relaxed/simple;
+	bh=L5M52uoR+VNHr6Aqz1at4XGsAPpzStQXAW03Nn5h+w0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qtaoU0BWLF/D+t3p/TIiVcgtdnjKx40Pnsz1DWRhBPtF1Q/2ym49r4JypNYDGW6shNTqsNIxTUCbd3fNvNhdQ6EpNVpDdKbA32c26eNKABAOdNTUYtp4+vNZmk6V10I/+UxS3pImX8Avy7ojtHGVQvRoaGwrc5+zNBdue8A4Bs4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IKe6NKPK; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=WsvRSG0809c5PFJABKT2CVvWic2BrXNQnRut+jwISW23rjiE58COC8pOZx04aELau1oQoaQ8ad01V9LVJkW6c2V86ZxA+/+krzYKqF2n7XB61fClLJ+DASnTTH0d3gRuCAFzVhjmPb8983dvaBjtseB/t3AczJztQZ+X+uUySwg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GG9/qRMT; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IKe6NKPK"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537En0ZD029644;
-	Mon, 7 Apr 2025 15:11:34 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GG9/qRMT"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537E3FIb025560;
+	Mon, 7 Apr 2025 15:11:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=JAdRtQpYpJ83Wan/q
-	ay54BErF461aFj9Lbn233V6/Vo=; b=IKe6NKPK0RQuaHMhk18ftPiOYYmCBCWNo
-	B9AMFWR/OSyAEWP+S886dEpJeibdEmZl36pABv5K+wup8TiyL8NG8ViK9od6oBRM
-	3hfWr3Nzyj+cpTRWraAtGGyrEizF/IwgeyvpxnuqLvo0iHgyxm7f3x2y4rrF4BuZ
-	8DVbuOci3sgrMA9QHMuCtrLrrnIMC0eF9Lq4xmJACPC8mwWkrruApDLDO3y+TF6K
-	EKoPhfmZsym89+7c65PcFL6w5iov3VKT/uGxaF9PJzGWmz4HwXohtM7m83O2AHTx
-	G4AzXPBlc8+L56yqeI1A9XrdpDtpRX+WW/G2StWfINFf09T/NbHTA==
+	:mime-version:references:subject:to; s=pp1; bh=pLqNtHwxdz+KjzF0o
+	4al3IuUdgKeg437/opuwF8rOgY=; b=GG9/qRMTr3c234BdNbl8qcd6JICn1dr6T
+	h+1CwgnJosxDoTGQHDJLnBC+r8sdfje311yGnSrC48KNz6kVG3ETEbXxkIldtS4P
+	DeWcQ/wSyDFqcrEo/l5mNQ2K0Lp2iKaRYkSmtxXTFAGqSvnaN8aWIz5IKTOTOKFq
+	+JDtlQ3sQxmiVDXWN/y5otPtf5J6aL25Ojv2dz/9vWnkrf3ALjS2QQAfJwUkVTgb
+	dIt52+/rxwX4BWgeopjfh5rB3DIp5dxMR6YbMdiedI2eDNzrYRJVARzz4+Y3g9I/
+	CxasV3YuMtzXVUxrwLXF7t0esmIiJJgRgZro+hqrnkdilacrPiCpg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45uwswvt33-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vg4q8cmm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 07 Apr 2025 15:11:34 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 537FBXTb013844;
-	Mon, 7 Apr 2025 15:11:33 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45uwswvt2v-1
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 537EoQ3W019216;
+	Mon, 7 Apr 2025 15:11:34 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vg4q8cmf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Apr 2025 15:11:33 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537F2iM6018432;
-	Mon, 7 Apr 2025 15:11:32 GMT
+	Mon, 07 Apr 2025 15:11:34 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537EKIMr013925;
+	Mon, 7 Apr 2025 15:11:33 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45uh2ke5ug-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45ufunecfm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 07 Apr 2025 15:11:32 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537FBVQW33751652
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537FBVTI19595766
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 7 Apr 2025 15:11:31 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E82452004B;
-	Mon,  7 Apr 2025 15:11:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D3F6E20049;
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 03DF82004D;
+	Mon,  7 Apr 2025 15:11:31 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E2DFB20043;
 	Mon,  7 Apr 2025 15:11:30 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
 	Mon,  7 Apr 2025 15:11:30 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 7F795E10FC; Mon, 07 Apr 2025 17:11:30 +0200 (CEST)
+	id 88272E175F; Mon, 07 Apr 2025 17:11:30 +0200 (CEST)
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 To: Andrew Morton <akpm@linux-foundation.org>,
         Andrey Ryabinin <ryabinin.a.a@gmail.com>
@@ -70,9 +70,9 @@ Cc: Hugh Dickins <hughd@google.com>, Nicholas Piggin <npiggin@gmail.com>,
         linux-mm@kvack.org, kasan-dev@googlegroups.com,
         sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
         linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Subject: [PATCH v1 1/4] kasan: Avoid sleepable page allocation from atomic context
-Date: Mon,  7 Apr 2025 17:11:27 +0200
-Message-ID: <ad1b313b6e3e1a84d2df6f686680ad78ae99710c.1744037648.git.agordeev@linux.ibm.com>
+Subject: [PATCH v1 4/4] mm: Allow detection of wrong arch_enter_lazy_mmu_mode() context
+Date: Mon,  7 Apr 2025 17:11:30 +0200
+Message-ID: <5204eaec309f454efcb5a799c9e0ed9da1dff971.1744037648.git.agordeev@linux.ibm.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <cover.1744037648.git.agordeev@linux.ibm.com>
 References: <cover.1744037648.git.agordeev@linux.ibm.com>
@@ -84,44 +84,62 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: noh5DKX9Jwz7KQQbR0xgtrf0Cnrok7JA
-X-Proofpoint-ORIG-GUID: B9e39pOuvk43sXxp1B5Vd8FFaIlzYizr
+X-Proofpoint-ORIG-GUID: wG_AoPwbLBLy8-Y75yYVC-cpQvofPbGp
+X-Proofpoint-GUID: Yijp_AWT6tzwOtSLybGJbVPGYVge3z23
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-07_04,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- bulkscore=0 mlxlogscore=999 spamscore=0 adultscore=0 clxscore=1011
- phishscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504070104
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ mlxscore=0 priorityscore=1501 phishscore=0 mlxlogscore=935 malwarescore=0
+ clxscore=1015 suspectscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2504070104
 
-apply_to_page_range() enters lazy MMU mode and then invokes
-kasan_populate_vmalloc_pte() callback on each page table walk
-iteration. The lazy MMU mode may only be entered only under
-protection of the page table lock. However, the callback can
-go into sleep when trying to allocate a single page.
+The lazy MMU batching may be only be entered and left under the
+protection of the page table locks for all page tables which may
+be modified. Yet, there were cases arch_enter_lazy_mmu_mode()
+was called without the locks taken, e.g. commit b9ef323ea168
+("powerpc/64s: Disable preemption in hash lazy mmu mode").
 
-Change __get_free_page() allocation mode from GFP_KERNEL to
-GFP_ATOMIC to avoid scheduling out while in atomic context.
+Make default arch_enter|leave|flush_lazy_mmu_mode() callbacks
+complain at least in case the preemption is enabled to detect
+wrong contexts.
+
+Most platforms do not implement the callbacks, so to aovid a
+performance impact allow the complaint when CONFIG_DEBUG_VM
+option is enabled only.
 
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 ---
- mm/kasan/shadow.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/pgtable.h | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
-index 88d1c9dcb507..edfa77959474 100644
---- a/mm/kasan/shadow.c
-+++ b/mm/kasan/shadow.c
-@@ -301,7 +301,7 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, unsigned long addr,
- 	if (likely(!pte_none(ptep_get(ptep))))
- 		return 0;
+diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+index e2b705c14945..959590bb66da 100644
+--- a/include/linux/pgtable.h
++++ b/include/linux/pgtable.h
+@@ -232,9 +232,18 @@ static inline int pmd_dirty(pmd_t pmd)
+  * and the mode cannot be used in interrupt context.
+  */
+ #ifndef __HAVE_ARCH_ENTER_LAZY_MMU_MODE
+-#define arch_enter_lazy_mmu_mode()	do {} while (0)
+-#define arch_leave_lazy_mmu_mode()	do {} while (0)
+-#define arch_flush_lazy_mmu_mode()	do {} while (0)
++static inline void arch_enter_lazy_mmu_mode(void)
++{
++	VM_WARN_ON(preemptible());
++}
++static inline void arch_leave_lazy_mmu_mode(void)
++{
++	VM_WARN_ON(preemptible());
++}
++static inline void arch_flush_lazy_mmu_mode(void)
++{
++	VM_WARN_ON(preemptible());
++}
+ #endif
  
--	page = __get_free_page(GFP_KERNEL);
-+	page = __get_free_page(GFP_ATOMIC);
- 	if (!page)
- 		return -ENOMEM;
- 
+ #ifndef pte_batch_hint
 -- 
 2.45.2
 
