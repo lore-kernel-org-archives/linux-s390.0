@@ -1,285 +1,161 @@
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88C7B207A03;
-	Mon,  7 Apr 2025 17:03:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.184.29
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 403F52054F5;
+	Mon,  7 Apr 2025 17:26:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744045440; cv=none; b=WaOgDiVGdh5H1flrkhSs80UL5AhacwVqo4oIzGjIEvubVnEKIP4SlLfLLJaBHv5cFtKYI+Kz17Y/PDCeui/Tr5l9Ztbg4MHRrR2e1C48WJzncgU4ZjzI+IsVlXlghPTTUoC33stegGuBaoBsf3wAxYhPG4YxIUeszr/zZlKNMwo=
+	t=1744046800; cv=none; b=iZiQCx27CmrWUx15wfFHzndUNsHhqhsOxUQc99nLF1I4EkdJcoNNz4JTR4bildxw7EZyXm+a5Vx1T+cM94SImigmijCOldOIA4hARV7QPVghjnp3m9c+uxVPzCia+umJjivudAd/6eYyCEWbNm/lx33xtMgBawYOIyNuj/CmXzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744045440; c=relaxed/simple;
-	bh=Mp1yJ4tQaA49XECOmMwKj1j4Tx3V9HD7po6FSE/blEY=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=P/Eh0OIbKF6luN3TCXZe0bj3XmmBziGVShDXEkdOUMzSDWVCI9F4rF46lTBPLvvQkg21zgHQq57GnAgIB8qLD+HChTtfBkt54ueZm+qz1bIn5km/uYL5dOuDOt4p87Y7+pSuyuibpJm/KI+KjEcQ5fQDf2Y5EjigFjciBuXbmR4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=sq3s+rk6; arc=none smtp.client-ip=207.171.184.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1744046800; c=relaxed/simple;
+	bh=pk8wyV+OnEy4qlOQmIX6tSX6iKR+8zSU/AHbe41bpII=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=b694rrX/EOD8lJ+ClCX+DaNI4oWgP6D49wkLn0wHGOjxed88xcEot0Yke/uNXCsHL877KpndFJ5Uh+AObwGJL9l3LskxeeOui8qx01lHuOBb05Zx1X8YySKUW41dRekkkOsnjdxiSIxaqMeXBPOvHRGFfr66B7SYHLg1x6LM0dM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Z8HXjcw1; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="sq3s+rk6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1744045439; x=1775581439;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=F8ybB3i7BUzxcSm+BToxCqOS5oDKkiPUMrL+zrXl/ac=;
-  b=sq3s+rk6cLlDFJAOXPWohGBF3SX5oo/S0WIc9hImKgQztv05fKVRjQtg
-   hCR6X8Vb8gZg2maZkz0L7fMX6vxU7As7+f8E72JcUHc9l7uwm/0p1kd2B
-   lZaYh7Cn7fKRWD78i55veTVni6jJTJ5bkl3vC+WCsM2jgiBRvAgQJgXwq
-   A=;
-X-IronPort-AV: E=Sophos;i="6.15,194,1739836800"; 
-   d="scan'208";a="509513703"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-east-1.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2025 17:03:49 +0000
-Received: from EX19MTAUWA001.ant.amazon.com [10.0.7.35:44334]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.62.147:2525] with esmtp (Farcaster)
- id 35a3157d-b401-4f0c-902d-6a64e6513bac; Mon, 7 Apr 2025 17:03:47 +0000 (UTC)
-X-Farcaster-Flow-ID: 35a3157d-b401-4f0c-902d-6a64e6513bac
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWA001.ant.amazon.com (10.250.64.218) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Mon, 7 Apr 2025 17:03:46 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.106.101.45) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Mon, 7 Apr 2025 17:03:42 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, "D.
- Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, "Wen
- Gu" <guwen@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, "Jakub
- Kicinski" <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-CC: Simon Horman <horms@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>,
-	Kuniyuki Iwashima <kuni1840@gmail.com>, <netdev@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<syzbot+be6f4b383534d88989f7@syzkaller.appspotmail.com>
-Subject: [PATCH v1 net] smc: Fix lockdep false-positive for IPPROTO_SMC.
-Date: Mon, 7 Apr 2025 10:03:17 -0700
-Message-ID: <20250407170332.26959-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Z8HXjcw1"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537HBXnj005859;
+	Mon, 7 Apr 2025 17:26:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=AsUA3f
+	ycvbPxwQlbhLFJ7bYYQdsQ64Au0CYYS3yyPlw=; b=Z8HXjcw1Jr7e5FTybHWPsH
+	Fb7CXoYtwpYRGAaseqm/UBE2TVezQhSLRuhSrPULXwYo0JekNS1RqOkwI5nG4fn8
+	m43lF2ycomD+vTRKkdXToQP9VRq+Ej0+GNv52GMP88D+bTU3zbBCvaTxxa4C86ml
+	BRGPhmjJFR0yDo8Fb6Vd3WMlMQFgAONMgWx2jf0GtSEF7lxFwWazLqmzSwIRfPNd
+	zfDT1gx5SYjxljVnI/rN1t69nnz/89NYmR7fA4qdEWYJ6+lVPneiCQG4Ees4Hl2O
+	ad4C8YE8hpl/kMjAwWRJepzjGqhce9SpaPHAOU2i22Y7gturX4mgQmK98NKVUNOg
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vjvxg26y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 17:26:32 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537H6A5v024651;
+	Mon, 7 Apr 2025 17:26:32 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45ueut72vh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 17:26:31 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537HQS3Y31261056
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Apr 2025 17:26:28 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 603A820043;
+	Mon,  7 Apr 2025 17:26:28 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E25020040;
+	Mon,  7 Apr 2025 17:26:27 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.83.239])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Mon,  7 Apr 2025 17:26:27 +0000 (GMT)
+Date: Mon, 7 Apr 2025 19:26:25 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>,
+        "Michael S. Tsirkin"
+ <mst@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+        kvm@vger.kernel.org, Chandra Merla
+ <cmerla@redhat.com>,
+        Stable@vger.kernel.org, Thomas Huth
+ <thuth@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Wei Wang
+ <wei.w.wang@intel.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+Message-ID: <20250407192625.196b1b34.pasic@linux.ibm.com>
+In-Reply-To: <87h6309k42.fsf@redhat.com>
+References: <20250404063619.0fa60a41.pasic@linux.ibm.com>
+	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+	<20250404153620.04d2df05.pasic@linux.ibm.com>
+	<d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+	<20250404160025.3ab56f60.pasic@linux.ibm.com>
+	<6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+	<20250404173910.6581706a.pasic@linux.ibm.com>
+	<20250407034901-mutt-send-email-mst@kernel.org>
+	<2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
+	<20250407042058-mutt-send-email-mst@kernel.org>
+	<20250407151249.7fe1e418.pasic@linux.ibm.com>
+	<9126bfbf-9461-4959-bd38-1d7bc36d7701@redhat.com>
+	<87h6309k42.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D035UWB002.ant.amazon.com (10.13.138.97) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OOmVvdMQTFN8i-SpEj-wsHj-ODU-d7pt
+X-Proofpoint-GUID: OOmVvdMQTFN8i-SpEj-wsHj-ODU-d7pt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-07_04,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ mlxscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0 adultscore=0
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 clxscore=1015
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504070118
 
-SMC consists of two sockets: smc_sock and kernel TCP socket.
+On Mon, 07 Apr 2025 15:28:13 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Currently, there are two ways of creating the sockets, and syzbot reported
-a lockdep splat [0] for the newer way introduced by commit d25a92ccae6b
-("net/smc: Introduce IPPROTO_SMC").
+> > Staring at the cross-vmm, including the adding+removing of features and 
+> > queues that are not in the spec, I am wondering if (in a world with 
+> > fixed virtqueues)
+> >
+> > 1) Feature bits must be reserved before used.
+> >
+> > 2) Queue indices must be reserved before used.
+> >
+> > It all smells like a problem similar to device IDs ...  
+> 
+> Indeed, we need a rule "reserve a feature bit/queue index before using
+> it, even if you do not plan to spec it properly".
 
-  socket(AF_SMC             , SOCK_STREAM, SMCPROTO_SMC or SMCPROTO_SMC6)
-  socket(AF_INET or AF_INET6, SOCK_STREAM, IPPROTO_SMC)
+What definition of usage do you guys have in mind?  Would an RFC patch
+constitute usage.
 
-When a socket is allocated, sock_lock_init() sets a lockdep lock class to
-sk->sk_lock.slock based on its protocol family.  In the IPPROTO_SMC case,
-AF_INET or AF_INET6 lock class is assigned to smc_sock.
+I think reserving/allocating an identifier of this type before relying on
+it for anything remotely serious is very basic common sense.
 
-The repro sets IPV6_JOIN_ANYCAST for IPv6 UDP and SMC socket and exercises
-smc_switch_to_fallback() for IPPROTO_SMC.
+Frankly I would go even further and advocate for the following rule: we
+don't accept anything virtio into Linux unless it is reasonably/properly
+spec-ed. My train of thought is following: if a virtio thing gains
+traction with Linux it has a fair chance of becoming a de-facto standard.
 
-  1. smc_switch_to_fallback() is called under lock_sock() and holds
-     smc->clcsock_release_lock.
+Consider our thinking on this one. Despite the fact that what is spec-ed
+is obviously nicer, we almost decided to change the spec to fit what is
+implemented and fielded out there. And IMHO for good reason. For any
+rule we come up with, I think one of the most crucial questions is, who
+is going to enforce it if anybody. The Linux (and probably also QEMU)
+virtio maintainers are in my opinion the most reasonable point of
+enforcement. Another thing to consider. After the code is in and things
+work, I speculate that the motivation for writing a proper spec may
+wane. I hope we do strive for consistency between the spec and the
+implementations we are talking about. Having and eye on the spec while
+looking at and trying to understand the code suits my workflow better
+at least than the other way around. And licensing-wise getting the spec
+merged first is probably the better option. 
 
-      sk_lock-AF_INET6 -> &smc->clcsock_release_lock
-      (sk_lock-AF_SMC)
+Regards,
+Halil
 
-  2. Setting IPV6_JOIN_ANYCAST to SMC holds smc->clcsock_release_lock
-     and calls setsockopt() for the kernel TCP socket, which holds RTNL
-     and the kernel socket's lock_sock().
-
-      &smc->clcsock_release_lock -> rtnl_mutex (-> k-sk_lock-AF_INET6)
-
-  3. Setting IPV6_JOIN_ANYCAST to UDP holds RTNL and lock_sock().
-
-      rtnl_mutex -> sk_lock-AF_INET6
-
-Then, lockdep detects a false-positive circular locking,
-
-  .-> sk_lock-AF_INET6 -> &smc->clcsock_release_lock -> rtnl_mutex -.
-  `-----------------------------------------------------------------'
-
-but IPPROTO_SMC should have the same locking rule as AF_SMC.
-
-      sk_lock-AF_SMC   -> &smc->clcsock_release_lock -> rtnl_mutex -> k-sk_lock-AF_INET6
-
-Let's set the same lock class for smc_sock.
-
-Given AF_SMC uses the same lock class for SMCPROTO_SMC and SMCPROTO_SMC6,
-we do not need to separate the class for AF_INET and AF_INET6.
-
-[0]:
-WARNING: possible circular locking dependency detected
-6.14.0-rc3-syzkaller-00267-gff202c5028a1 #0 Not tainted
-
-syz.4.1528/11571 is trying to acquire lock:
-ffffffff8fef8de8 (rtnl_mutex){+.+.}-{4:4}, at: ipv6_sock_ac_close+0xd9/0x110 net/ipv6/anycast.c:220
-
-but task is already holding lock:
-ffff888027f596a8 (&smc->clcsock_release_lock){+.+.}-{4:4}, at: smc_clcsock_release+0x75/0xe0 net/smc/smc_close.c:30
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
- -> #2 (&smc->clcsock_release_lock){+.+.}-{4:4}:
-       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
-       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
-       smc_switch_to_fallback+0x2d/0xa00 net/smc/af_smc.c:903
-       smc_sendmsg+0x13d/0x520 net/smc/af_smc.c:2781
-       sock_sendmsg_nosec net/socket.c:718 [inline]
-       __sock_sendmsg net/socket.c:733 [inline]
-       ____sys_sendmsg+0xaaf/0xc90 net/socket.c:2573
-       ___sys_sendmsg+0x135/0x1e0 net/socket.c:2627
-       __sys_sendmsg+0x16e/0x220 net/socket.c:2659
-       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
- -> #1 (sk_lock-AF_INET6){+.+.}-{0:0}:
-       lock_sock_nested+0x3a/0xf0 net/core/sock.c:3645
-       lock_sock include/net/sock.h:1624 [inline]
-       sockopt_lock_sock net/core/sock.c:1133 [inline]
-       sockopt_lock_sock+0x54/0x70 net/core/sock.c:1124
-       do_ipv6_setsockopt+0x2160/0x4520 net/ipv6/ipv6_sockglue.c:567
-       ipv6_setsockopt+0xcb/0x170 net/ipv6/ipv6_sockglue.c:993
-       udpv6_setsockopt+0x7d/0xd0 net/ipv6/udp.c:1850
-       do_sock_setsockopt+0x222/0x480 net/socket.c:2303
-       __sys_setsockopt+0x1a0/0x230 net/socket.c:2328
-       __do_sys_setsockopt net/socket.c:2334 [inline]
-       __se_sys_setsockopt net/socket.c:2331 [inline]
-       __x64_sys_setsockopt+0xbd/0x160 net/socket.c:2331
-       do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-       do_syscall_64+0xcd/0x250 arch/x86/entry/common.c:83
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
- -> #0 (rtnl_mutex){+.+.}-{4:4}:
-       check_prev_add kernel/locking/lockdep.c:3163 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3282 [inline]
-       validate_chain kernel/locking/lockdep.c:3906 [inline]
-       __lock_acquire+0x249e/0x3c40 kernel/locking/lockdep.c:5228
-       lock_acquire.part.0+0x11b/0x380 kernel/locking/lockdep.c:5851
-       __mutex_lock_common kernel/locking/mutex.c:585 [inline]
-       __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
-       ipv6_sock_ac_close+0xd9/0x110 net/ipv6/anycast.c:220
-       inet6_release+0x47/0x70 net/ipv6/af_inet6.c:485
-       __sock_release net/socket.c:647 [inline]
-       sock_release+0x8e/0x1d0 net/socket.c:675
-       smc_clcsock_release+0xb7/0xe0 net/smc/smc_close.c:34
-       __smc_release+0x5c2/0x880 net/smc/af_smc.c:301
-       smc_release+0x1fc/0x5f0 net/smc/af_smc.c:344
-       __sock_release+0xb0/0x270 net/socket.c:647
-       sock_close+0x1c/0x30 net/socket.c:1398
-       __fput+0x3ff/0xb70 fs/file_table.c:464
-       task_work_run+0x14e/0x250 kernel/task_work.c:227
-       resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
-       exit_to_user_mode_loop kernel/entry/common.c:114 [inline]
-       exit_to_user_mode_prepare include/linux/entry-common.h:329 [inline]
-       __syscall_exit_to_user_mode_work kernel/entry/common.c:207 [inline]
-       syscall_exit_to_user_mode+0x27b/0x2a0 kernel/entry/common.c:218
-       do_syscall_64+0xda/0x250 arch/x86/entry/common.c:89
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-other info that might help us debug this:
-
-Chain exists of:
-  rtnl_mutex --> sk_lock-AF_INET6 --> &smc->clcsock_release_lock
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&smc->clcsock_release_lock);
-                               lock(sk_lock-AF_INET6);
-                               lock(&smc->clcsock_release_lock);
-  lock(rtnl_mutex);
-
- *** DEADLOCK ***
-
-2 locks held by syz.4.1528/11571:
- #0: ffff888077e88208 (&sb->s_type->i_mutex_key#10){+.+.}-{4:4}, at: inode_lock include/linux/fs.h:877 [inline]
- #0: ffff888077e88208 (&sb->s_type->i_mutex_key#10){+.+.}-{4:4}, at: __sock_release+0x86/0x270 net/socket.c:646
- #1: ffff888027f596a8 (&smc->clcsock_release_lock){+.+.}-{4:4}, at: smc_clcsock_release+0x75/0xe0 net/smc/smc_close.c:30
-
-stack backtrace:
-CPU: 0 UID: 0 PID: 11571 Comm: syz.4.1528 Not tainted 6.14.0-rc3-syzkaller-00267-gff202c5028a1 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 02/12/2025
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
- print_circular_bug+0x490/0x760 kernel/locking/lockdep.c:2076
- check_noncircular+0x31a/0x400 kernel/locking/lockdep.c:2208
- check_prev_add kernel/locking/lockdep.c:3163 [inline]
- check_prevs_add kernel/locking/lockdep.c:3282 [inline]
- validate_chain kernel/locking/lockdep.c:3906 [inline]
- __lock_acquire+0x249e/0x3c40 kernel/locking/lockdep.c:5228
- lock_acquire.part.0+0x11b/0x380 kernel/locking/lockdep.c:5851
- __mutex_lock_common kernel/locking/mutex.c:585 [inline]
- __mutex_lock+0x19b/0xb10 kernel/locking/mutex.c:730
- ipv6_sock_ac_close+0xd9/0x110 net/ipv6/anycast.c:220
- inet6_release+0x47/0x70 net/ipv6/af_inet6.c:485
- __sock_release net/socket.c:647 [inline]
- sock_release+0x8e/0x1d0 net/socket.c:675
- smc_clcsock_release+0xb7/0xe0 net/smc/smc_close.c:34
- __smc_release+0x5c2/0x880 net/smc/af_smc.c:301
- smc_release+0x1fc/0x5f0 net/smc/af_smc.c:344
- __sock_release+0xb0/0x270 net/socket.c:647
- sock_close+0x1c/0x30 net/socket.c:1398
- __fput+0x3ff/0xb70 fs/file_table.c:464
- task_work_run+0x14e/0x250 kernel/task_work.c:227
- resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:114 [inline]
- exit_to_user_mode_prepare include/linux/entry-common.h:329 [inline]
- __syscall_exit_to_user_mode_work kernel/entry/common.c:207 [inline]
- syscall_exit_to_user_mode+0x27b/0x2a0 kernel/entry/common.c:218
- do_syscall_64+0xda/0x250 arch/x86/entry/common.c:89
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f8b4b38d169
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe4efd22d8 EFLAGS: 00000246 ORIG_RAX: 00000000000001b4
-RAX: 0000000000000000 RBX: 00000000000b14a3 RCX: 00007f8b4b38d169
-RDX: 0000000000000000 RSI: 000000000000001e RDI: 0000000000000003
-RBP: 00007f8b4b5a7ba0 R08: 0000000000000001 R09: 000000114efd25cf
-R10: 00007f8b4b200000 R11: 0000000000000246 R12: 00007f8b4b5a5fac
-R13: 00007f8b4b5a5fa0 R14: ffffffffffffffff R15: 00007ffe4efd23f0
- </TASK>
-
-Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-Reported-by: syzbot+be6f4b383534d88989f7@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=be6f4b383534d88989f7
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
----
- net/smc/af_smc.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 3e6cb35baf25..3760131f1484 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -362,6 +362,9 @@ static void smc_destruct(struct sock *sk)
- 		return;
- }
- 
-+static struct lock_class_key smc_key;
-+static struct lock_class_key smc_slock_key;
-+
- void smc_sk_init(struct net *net, struct sock *sk, int protocol)
- {
- 	struct smc_sock *smc = smc_sk(sk);
-@@ -375,6 +378,8 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
- 	INIT_WORK(&smc->connect_work, smc_connect_work);
- 	INIT_DELAYED_WORK(&smc->conn.tx_work, smc_tx_work);
- 	INIT_LIST_HEAD(&smc->accept_q);
-+	sock_lock_init_class_and_name(sk, "slock-AF_SMC", &smc_slock_key,
-+				      "sk_lock-AF_SMC", &smc_key);
- 	spin_lock_init(&smc->accept_q_lock);
- 	spin_lock_init(&smc->conn.send_lock);
- 	sk->sk_prot->hash(sk);
--- 
-2.48.1
 
