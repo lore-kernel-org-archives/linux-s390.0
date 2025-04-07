@@ -1,174 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE015680
-	for <linux-s390@vger.kernel.org>; Mon,  7 Apr 2025 13:32:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E0DB1F63F9;
+	Mon,  7 Apr 2025 15:12:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744032743; cv=none; b=Y23/SxRtgc/uWrfkfe63ozU7q3Ugob508OC1Kb9MhfXaV9DL70Vy3vyxSLMz6tayk1/i+rea12lPY38FSQI73LCpGaw61brJA5Wb0VjvFFw4iae2M94GQuRWQx424AU7+kBGZghwd2PE5gKPo0hxXd69FxiFqPo82RR4b9ladOM=
+	t=1744038724; cv=none; b=KEHavxyrO/TVZ43H5EFKTQ8WJ6jC5qmeKZYH/9HxOxmB8WLNjDEUHIQArANUUisBh8sFT5ZgJZkd8fuc1XpWJNTsOZ2Ibnl5DeSVzSfI+2JGndaq1eKq+4HeZiqdhyHEpMHP1wJueiKoiH+8pQyOHWc5ZYZaE5tyOUKcv5enruM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744032743; c=relaxed/simple;
-	bh=OuqnqTBRovbLLVo3HjN6qkc40vRHSouYVZwbCzzmelk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FqyEnlYd2M2z5sf6+b9P+diXSNvYqzT25kELruRVmnY55mm2FPrDzzUzywKTfXhx4rEoE1yx4khzXlrzpOmBQOPzhsSpgztezBqOs2W8MQLFf78oCRtUinOzkrAz8bCZvcvNQ1x/iC++dXFVbQX4Dm0y0pErx5Kl9hG3Yhq5/R4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QcCbgyRZ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744038724; c=relaxed/simple;
+	bh=hj/TDsisJCnOvRQax5hfaCc22qUCiJgMR2YNMLLyCWQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qtaoU0BWLF/D+t3p/TIiVcgtdnjKx40Pnsz1DWRhBPtF1Q/2ym49r4JypNYDGW6shNTqsNIxTUCbd3fNvNhdQ6EpNVpDdKbA32c26eNKABAOdNTUYtp4+vNZmk6V10I/+UxS3pImX8Avy7ojtHGVQvRoaGwrc5+zNBdue8A4Bs4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IKe6NKPK; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QcCbgyRZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744032740;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=h2t9badq02L1YqSPP4iwtiUyd5ByYzFMz5Gq8uEjc+Q=;
-	b=QcCbgyRZC1Aqfk2KumHdOp+2tEJTmf0OvgK0XsRfAp5aFGx+JaY8CqK3fH9UJ0Kpyzj9l2
-	uC6BY2cNcbb0+Fob/5s+RjLnIn0Y1PVVgu4KSNt6ZG2Niv977eeGFyRYkPsoOiKmSPYj1S
-	fmSmyUJhc+NOSvPZRi6517G32BXRiD4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-80--nPoxOgTM6SXX19S1VksqA-1; Mon, 07 Apr 2025 09:32:19 -0400
-X-MC-Unique: -nPoxOgTM6SXX19S1VksqA-1
-X-Mimecast-MFC-AGG-ID: -nPoxOgTM6SXX19S1VksqA_1744032738
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3913aea90b4so1776752f8f.2
-        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 06:32:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744032738; x=1744637538;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=h2t9badq02L1YqSPP4iwtiUyd5ByYzFMz5Gq8uEjc+Q=;
-        b=MaWYZqwEm5fgIErmmFq43M1JTv9FzbPpX724d8Xi3do/NdJwSDXsug5fUbUvcpMIjR
-         ONrjJGCP1oIBG7fZv7/T5I67+nn5dbNgyuVi9sGVEUbADl71r74bGWncWupfFabfUXjR
-         /bY+CPDdVgffo0X6sZGuWVOOTT9lWqbu9tPvIBJIYACPdNlFCUj76M+0XXwuYnhc7EGx
-         nkSbAFdNH8HuLwy/9ptwHtlIG8aJaFzfsV508ufPlJpNiOUZn0QQO5uwgUPBDMlCi43i
-         KZCH9UMKoW4nEIyvNNIAQtkcmVnGBjkvn04ntPDAz+1Hh1leNTt5LEclb6mzbFmidzEG
-         hrTA==
-X-Forwarded-Encrypted: i=1; AJvYcCUcF1xv7PPiQWp4sGzNvrsyPtJsr7fu+lQxgTAQ32rkTcmv8AJOXP56UzZJswR5zMkpVGgdLrNc2e4r@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5e8bjDxGsUQplCSUUvSeKESim48evMC+YFkdEz7x8vuYgOcvP
-	MdRvbZ0XZ6FrbuzNBWMRBsZ0QF1x6qXaMaxTd7RrB7LPgjelfzheXgZcmVXB4OnJqiXdgV17FH6
-	SwZxzzib7ewpIdaxivMKGsgZIXT3WJPr41iiaTJN2Ov0D5tfrDVHlWKZ2URQ=
-X-Gm-Gg: ASbGncsSMNXlUK5tM6LWa79miPTbCe1e0D5m70KpTKA15bfiJe76wJTinhElBKLMlIP
-	Jfs61Z9WJ2mI0bsnuW7A56Bp+h0JDGWBP7UZ3xeRwQNwszMnIeVP8x+iizvYhU1qNEbXF/4xKep
-	e8x2PpkvQFJDW5tRDoF6tBTj5jaCYyEJujSRpLQ0KKCcBZPDw4JDZlaFTt7eNVrG9FGuemo6jUD
-	MR7WFgHBdUrYkSMXiGfYXp1RQp/rawTZ8jSIyuwDVtgl8ZqUPlcUul9VJTkvzMYb5jTFAcwaSVY
-	wCqnXmjQKg==
-X-Received: by 2002:a5d:64cb:0:b0:391:3f64:ed00 with SMTP id ffacd0b85a97d-39d6fc4e930mr7966126f8f.26.1744032738400;
-        Mon, 07 Apr 2025 06:32:18 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGvXFTZnDhg+4j5062m2TfC0SmlVES+KRW+YMFO/ahaSOai2rwVuCa6Gs1wgPmSJN+hQ8wtpg==
-X-Received: by 2002:a5d:64cb:0:b0:391:3f64:ed00 with SMTP id ffacd0b85a97d-39d6fc4e930mr7966079f8f.26.1744032737999;
-        Mon, 07 Apr 2025 06:32:17 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c3020da49sm11908898f8f.80.2025.04.07.06.32.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Apr 2025 06:32:17 -0700 (PDT)
-Date: Mon, 7 Apr 2025 09:32:14 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	Chandra Merla <cmerla@redhat.com>, Stable@vger.kernel.org,
-	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wei Wang <wei.w.wang@intel.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250407093047-mutt-send-email-mst@kernel.org>
-References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
- <20250404160025.3ab56f60.pasic@linux.ibm.com>
- <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
- <20250404173910.6581706a.pasic@linux.ibm.com>
- <20250407034901-mutt-send-email-mst@kernel.org>
- <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
- <20250407042058-mutt-send-email-mst@kernel.org>
- <20250407151249.7fe1e418.pasic@linux.ibm.com>
- <9126bfbf-9461-4959-bd38-1d7bc36d7701@redhat.com>
- <87h6309k42.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IKe6NKPK"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537En0ZD029644;
+	Mon, 7 Apr 2025 15:11:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=JAdRtQpYpJ83Wan/q
+	ay54BErF461aFj9Lbn233V6/Vo=; b=IKe6NKPK0RQuaHMhk18ftPiOYYmCBCWNo
+	B9AMFWR/OSyAEWP+S886dEpJeibdEmZl36pABv5K+wup8TiyL8NG8ViK9od6oBRM
+	3hfWr3Nzyj+cpTRWraAtGGyrEizF/IwgeyvpxnuqLvo0iHgyxm7f3x2y4rrF4BuZ
+	8DVbuOci3sgrMA9QHMuCtrLrrnIMC0eF9Lq4xmJACPC8mwWkrruApDLDO3y+TF6K
+	EKoPhfmZsym89+7c65PcFL6w5iov3VKT/uGxaF9PJzGWmz4HwXohtM7m83O2AHTx
+	G4AzXPBlc8+L56yqeI1A9XrdpDtpRX+WW/G2StWfINFf09T/NbHTA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45uwswvt33-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 15:11:34 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 537FBXTb013844;
+	Mon, 7 Apr 2025 15:11:33 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45uwswvt2v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 15:11:33 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537F2iM6018432;
+	Mon, 7 Apr 2025 15:11:32 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 45uh2ke5ug-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 15:11:32 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537FBVQW33751652
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Apr 2025 15:11:31 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E82452004B;
+	Mon,  7 Apr 2025 15:11:30 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D3F6E20049;
+	Mon,  7 Apr 2025 15:11:30 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  7 Apr 2025 15:11:30 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id 7F795E10FC; Mon, 07 Apr 2025 17:11:30 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>, Nicholas Piggin <npiggin@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>, Juergen Gross <jgross@suse.com>,
+        Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, kasan-dev@googlegroups.com,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Subject: [PATCH v1 1/4] kasan: Avoid sleepable page allocation from atomic context
+Date: Mon,  7 Apr 2025 17:11:27 +0200
+Message-ID: <ad1b313b6e3e1a84d2df6f686680ad78ae99710c.1744037648.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <cover.1744037648.git.agordeev@linux.ibm.com>
+References: <cover.1744037648.git.agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87h6309k42.fsf@redhat.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: noh5DKX9Jwz7KQQbR0xgtrf0Cnrok7JA
+X-Proofpoint-ORIG-GUID: B9e39pOuvk43sXxp1B5Vd8FFaIlzYizr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-07_04,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ bulkscore=0 mlxlogscore=999 spamscore=0 adultscore=0 clxscore=1011
+ phishscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504070104
 
-On Mon, Apr 07, 2025 at 03:28:13PM +0200, Cornelia Huck wrote:
-> On Mon, Apr 07 2025, David Hildenbrand <david@redhat.com> wrote:
-> 
-> > On 07.04.25 15:12, Halil Pasic wrote:
-> >> On Mon, 7 Apr 2025 04:34:29 -0400
-> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> 
-> >>> On Mon, Apr 07, 2025 at 10:17:10AM +0200, David Hildenbrand wrote:
-> >>>> On 07.04.25 09:52, Michael S. Tsirkin wrote:
-> >>>>> On Fri, Apr 04, 2025 at 05:39:10PM +0200, Halil Pasic wrote:
-> >>>>>>>
-> >>>>>>> Not perfect, but AFAIKS, not horrible.
-> >>>>>>
-> >>>>>> It is like it is. QEMU does queue exist if the corresponding feature
-> >>>>>> is offered by the device, and that is what we have to live with.
-> >>>>>
-> >>>>> I don't think we can live with this properly though.
-> >>>>> It means a guest that does not know about some features
-> >>>>> does not know where to find things.
-> >>>>
-> >>>> Please describe a real scenario, I'm missing the point.
-> >>>
-> >>>
-> >>> OK so.
-> >>>
-> >>> Device has VIRTIO_BALLOON_F_FREE_PAGE_HINT and VIRTIO_BALLOON_F_REPORTING
-> >>> Driver only knows about VIRTIO_BALLOON_F_REPORTING so
-> >>> it does not know what does VIRTIO_BALLOON_F_FREE_PAGE_HINT do.
-> >>> How does it know which vq to use for reporting?
-> >>> It will try to use the free page hint one.
-> >> 
-> >> First, sorry for not catching up again with the discussion earlier.
-> >> 
-> >> I think David's point is based on the assumption that by the time feature
-> >> with the feature bit N+1 is specified and allocates a queue Q, all
-> >> queues with indexes smaller than Q are allocated and possibly associated
-> >> with features that were previously specified (and probably have feature
-> >> bits smaller than N+1).
-> >> 
-> >> I.e. that we can mandate, even if you don't want to care about other
-> >> optional features, you have to, because we say so, for the matter of
-> >> virtqueue existence. And anything in the future, you don't have to care
-> >> about because the queue index associated with future features is larger
-> >> than Q, so it does not affect our position.
-> >> 
-> >> I think that argument can fall a part if:
-> >> * future features reference optional queues defined in the past
-> >> * somebody managed to introduce a limbo where a feature is reserved, and
-> >>    they can not decide if they want a queue or not, or make the existence
-> >>    of the queue depend on something else than a feature bit.
-> >
-> > Staring at the cross-vmm, including the adding+removing of features and 
-> > queues that are not in the spec, I am wondering if (in a world with 
-> > fixed virtqueues)
-> >
-> > 1) Feature bits must be reserved before used.
-> >
-> > 2) Queue indices must be reserved before used.
-> >
-> > It all smells like a problem similar to device IDs ...
-> 
-> Indeed, we need a rule "reserve a feature bit/queue index before using
-> it, even if you do not plan to spec it properly".
+apply_to_page_range() enters lazy MMU mode and then invokes
+kasan_populate_vmalloc_pte() callback on each page table walk
+iteration. The lazy MMU mode may only be entered only under
+protection of the page table lock. However, the callback can
+go into sleep when trying to allocate a single page.
 
+Change __get_free_page() allocation mode from GFP_KERNEL to
+GFP_ATOMIC to avoid scheduling out while in atomic context.
 
-Reserving feature bits is something I do my best to advocate for
-in all presentations I do.
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+---
+ mm/kasan/shadow.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
+index 88d1c9dcb507..edfa77959474 100644
+--- a/mm/kasan/shadow.c
++++ b/mm/kasan/shadow.c
+@@ -301,7 +301,7 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, unsigned long addr,
+ 	if (likely(!pte_none(ptep_get(ptep))))
+ 		return 0;
+ 
+-	page = __get_free_page(GFP_KERNEL);
++	page = __get_free_page(GFP_ATOMIC);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
 -- 
-MST
+2.45.2
 
