@@ -1,161 +1,261 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 403F52054F5;
-	Mon,  7 Apr 2025 17:26:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FE76C148
+	for <linux-s390@vger.kernel.org>; Mon,  7 Apr 2025 17:39:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744046800; cv=none; b=iZiQCx27CmrWUx15wfFHzndUNsHhqhsOxUQc99nLF1I4EkdJcoNNz4JTR4bildxw7EZyXm+a5Vx1T+cM94SImigmijCOldOIA4hARV7QPVghjnp3m9c+uxVPzCia+umJjivudAd/6eYyCEWbNm/lx33xtMgBawYOIyNuj/CmXzY=
+	t=1744047582; cv=none; b=F579u/0MJVDxG9E2/msh30TEgTyFkNZzTBvtD2KvgTGeVEGAqTyVdzej899NzFIYuuubBoFJLpDMsmR7ojbJjtzvyK2KSegIAIsgJcdAxaGuY1dnjJeO4kCY0V6yPm7uudSMpWrOCfyEnTxx44UOY6rvlJqfLYMI2nKzNlOzfZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744046800; c=relaxed/simple;
-	bh=pk8wyV+OnEy4qlOQmIX6tSX6iKR+8zSU/AHbe41bpII=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=b694rrX/EOD8lJ+ClCX+DaNI4oWgP6D49wkLn0wHGOjxed88xcEot0Yke/uNXCsHL877KpndFJ5Uh+AObwGJL9l3LskxeeOui8qx01lHuOBb05Zx1X8YySKUW41dRekkkOsnjdxiSIxaqMeXBPOvHRGFfr66B7SYHLg1x6LM0dM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Z8HXjcw1; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1744047582; c=relaxed/simple;
+	bh=gk7Pms5ggU4Mz+jBefE6aQUbZOdAXgc3uKZ/o8JLcRw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WwZrrRxanJvDDVDgr8N6gzKL8LJrs4SGtjT0DlrbHUQ1eeeqBF4nZRz1ZWk8tHLYb4qwGUHssZ8JJjOvEWfcohMAZjyxSNMdag4h3U5TGVQfcgSydLF448Mdew83WgOmU1ECpHzI9tgVhX/oCP5QKHcv5ob86+xTlU9NFjTr89M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=RQxc0De9; arc=none smtp.client-ip=209.85.214.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Z8HXjcw1"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537HBXnj005859;
-	Mon, 7 Apr 2025 17:26:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=AsUA3f
-	ycvbPxwQlbhLFJ7bYYQdsQ64Au0CYYS3yyPlw=; b=Z8HXjcw1Jr7e5FTybHWPsH
-	Fb7CXoYtwpYRGAaseqm/UBE2TVezQhSLRuhSrPULXwYo0JekNS1RqOkwI5nG4fn8
-	m43lF2ycomD+vTRKkdXToQP9VRq+Ej0+GNv52GMP88D+bTU3zbBCvaTxxa4C86ml
-	BRGPhmjJFR0yDo8Fb6Vd3WMlMQFgAONMgWx2jf0GtSEF7lxFwWazLqmzSwIRfPNd
-	zfDT1gx5SYjxljVnI/rN1t69nnz/89NYmR7fA4qdEWYJ6+lVPneiCQG4Ees4Hl2O
-	ad4C8YE8hpl/kMjAwWRJepzjGqhce9SpaPHAOU2i22Y7gturX4mgQmK98NKVUNOg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vjvxg26y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Apr 2025 17:26:32 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 537H6A5v024651;
-	Mon, 7 Apr 2025 17:26:32 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45ueut72vh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Apr 2025 17:26:31 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 537HQS3Y31261056
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 7 Apr 2025 17:26:28 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 603A820043;
-	Mon,  7 Apr 2025 17:26:28 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E25020040;
-	Mon,  7 Apr 2025 17:26:27 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.83.239])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon,  7 Apr 2025 17:26:27 +0000 (GMT)
-Date: Mon, 7 Apr 2025 19:26:25 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>,
-        "Michael S. Tsirkin"
- <mst@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-        kvm@vger.kernel.org, Chandra Merla
- <cmerla@redhat.com>,
-        Stable@vger.kernel.org, Thomas Huth
- <thuth@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Wei Wang
- <wei.w.wang@intel.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250407192625.196b1b34.pasic@linux.ibm.com>
-In-Reply-To: <87h6309k42.fsf@redhat.com>
-References: <20250404063619.0fa60a41.pasic@linux.ibm.com>
-	<4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
-	<d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
-	<20250404153620.04d2df05.pasic@linux.ibm.com>
-	<d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
-	<20250404160025.3ab56f60.pasic@linux.ibm.com>
-	<6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
-	<20250404173910.6581706a.pasic@linux.ibm.com>
-	<20250407034901-mutt-send-email-mst@kernel.org>
-	<2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
-	<20250407042058-mutt-send-email-mst@kernel.org>
-	<20250407151249.7fe1e418.pasic@linux.ibm.com>
-	<9126bfbf-9461-4959-bd38-1d7bc36d7701@redhat.com>
-	<87h6309k42.fsf@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="RQxc0De9"
+Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-2241c95619eso8378195ad.0
+        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 10:39:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1744047579; x=1744652379; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PDFKuqPeswYIIkk2eM8stbEtqZO/k06yxbdJkpWX+KA=;
+        b=RQxc0De9w7hArU7oJoscwkGBPZ87qz+4cm7nY1UG5C39SlZFz2Gn+vO7XcaLabqZM4
+         CbgoBi8kAa9AQPcJdPrw64wIM0VFO2sPJ5rePwe0zeX7KsGOzNuojSH+U+ol0LQ4UEGU
+         Q7wqdGanU2ehuMwmFsSfgzaIR3rCLtYBzb6cs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744047579; x=1744652379;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PDFKuqPeswYIIkk2eM8stbEtqZO/k06yxbdJkpWX+KA=;
+        b=ZeoYxyC0f8p3ZLYcHdKK9cBYey+efKNUaiZdbw1i0SGeEdX9vzTcR2pC3mCoxJsaWU
+         X+DQKCRYGBNsjMsHNiiQ5FcfkdO8+fmLdA2MFLPInacewaJrxpFQW2Q/eupKxMPtraCk
+         Gp6vu7xyIWAxL4J+8qJ0+hEHKy9gFbkt+OJhxKn8SQpzuEdLwNIq9ER9VveNvSqVahmh
+         rUsx6OnAr8QknMjfJG08poqa4PG+JkXmtCp4bqpAxYwtd42Fw7lDeR1MfC9o3Jkvitv/
+         f0XJbRtLx3joqca8BZqOM7xCFyaWwqFaAK8cCzTsGOKWK7JPNlQQG7Tm48eJFP251pL5
+         QEgw==
+X-Forwarded-Encrypted: i=1; AJvYcCWKlHTcJzVHPRYebWAIQFvyYunzW7Ofk+ICtjC8lAyiq1tRxrrvydUy+IvuE8uuD86ByvVn6XVRPjwF@vger.kernel.org
+X-Gm-Message-State: AOJu0YxU9UQwOex7GLCbx6hKdbCS8LfrTeQAqjOBs+gn89VZhb6urAgD
+	p81zKk5fOUvvyoBiuT+SJAPCYQmGUZY8YQYIJ2Ctdv4EkBIxOfPkzwcTAc+EKWFB+twft50kEHm
+	zlw==
+X-Gm-Gg: ASbGncudn9WLQNisHhaAbQ3otrvqztHHzNEnWT+9gGnGGqOMZdCzRCnHrZE2j9x9b9R
+	VUOdTlqnpzaeSIyrHUsGjMMGNjSSDPs0dK6EZ/fFAQDiXiOQzSz7dwigprGa22OepjLFdqDh0Jh
+	o3pTPW1N7wWiDqRYXcYX/CRI8u3CFyOrWGsb7JNqj0gMPdAsO1Ag37OmOybGAk91KAqVZx7OxCV
+	nOIFh0PTGJO2iUxjdboU8kUvMaU1CArN5l2DSkdMOhB4cN3JObeEFN2OeXKnl5dC7i5qSAZ65X3
+	6hNJsRz5b6sbyn3fhMGpILlyBHqZ1/EjWQhlgJXFVlNzg+OBETq8zZnv5YoXX2L8WeUUg+fn0kV
+	+nnjYHbkc
+X-Google-Smtp-Source: AGHT+IGLPGuz1kxtjYBgS9jxS/pGl4kcOjGEZ/leyNkYXfnFhQCMd3Sl34m/6h5cuRoMySvYNkcA6w==
+X-Received: by 2002:a17:903:292:b0:223:4b53:7349 with SMTP id d9443c01a7336-22a8a0a14c4mr71919805ad.11.1744047579602;
+        Mon, 07 Apr 2025 10:39:39 -0700 (PDT)
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com. [209.85.216.42])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-229785ad869sm84042285ad.26.2025.04.07.10.39.39
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Apr 2025 10:39:39 -0700 (PDT)
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-30155bbbed9so3498919a91.1
+        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 10:39:39 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCX+nmWH8VyeRQ20K5rwcHI26mfdAmps3Zd3k9aoUbK50FpAx3YUVQeAOnMIsJ26iEE0Y3biDwKZC999@vger.kernel.org
+X-Received: by 2002:a17:90a:f945:b0:2f6:dcc9:38e0 with SMTP id
+ 98e67ed59e1d1-306a4758cf3mr22729577a91.0.1744047578869; Mon, 07 Apr 2025
+ 10:39:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: OOmVvdMQTFN8i-SpEj-wsHj-ODU-d7pt
-X-Proofpoint-GUID: OOmVvdMQTFN8i-SpEj-wsHj-ODU-d7pt
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-07_04,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- mlxscore=0 bulkscore=0 mlxlogscore=999 impostorscore=0 adultscore=0
- priorityscore=1501 suspectscore=0 lowpriorityscore=0 clxscore=1015
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504070118
+References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+ <20250404160025.3ab56f60.pasic@linux.ibm.com> <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
+ <20250404173910.6581706a.pasic@linux.ibm.com> <20250407034901-mutt-send-email-mst@kernel.org>
+ <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com> <20250407042058-mutt-send-email-mst@kernel.org>
+ <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com> <20250407044743-mutt-send-email-mst@kernel.org>
+ <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com> <20250407045456-mutt-send-email-mst@kernel.org>
+ <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com> <33def1b0-d9d5-46f1-9b61-b0269753ecce@redhat.com>
+ <88d8f2d2-7b8a-458f-8fc4-c31964996817@redhat.com>
+In-Reply-To: <88d8f2d2-7b8a-458f-8fc4-c31964996817@redhat.com>
+From: Daniel Verkamp <dverkamp@chromium.org>
+Date: Mon, 7 Apr 2025 10:39:09 -0700
+X-Gmail-Original-Message-ID: <CABVzXAmMEsw70Tftg4ZNi0G4d8j9pGTyrNqOFMjzHwEpy0JqyA@mail.gmail.com>
+X-Gm-Features: ATxdqUEz43TGWrMKYfRndFlXjP-cvulXZBTkkQ4WcXYsTky_PROiRhjDfo9dcJs
+Message-ID: <CABVzXAmMEsw70Tftg4ZNi0G4d8j9pGTyrNqOFMjzHwEpy0JqyA@mail.gmail.com>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: David Hildenbrand <david@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>, Stable@vger.kernel.org, 
+	Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 07 Apr 2025 15:28:13 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
-
-> > Staring at the cross-vmm, including the adding+removing of features and 
-> > queues that are not in the spec, I am wondering if (in a world with 
-> > fixed virtqueues)
+On Mon, Apr 7, 2025 at 6:13=E2=80=AFAM David Hildenbrand <david@redhat.com>=
+ wrote:
+>
+> On 07.04.25 11:13, David Hildenbrand wrote:
+> > On 07.04.25 11:11, David Hildenbrand wrote:
+> >> On 07.04.25 10:58, Michael S. Tsirkin wrote:
+> >>> On Mon, Apr 07, 2025 at 10:54:00AM +0200, David Hildenbrand wrote:
+> >>>> On 07.04.25 10:49, Michael S. Tsirkin wrote:
+> >>>>> On Mon, Apr 07, 2025 at 10:44:21AM +0200, David Hildenbrand wrote:
+> >>>>>>>
+> >>>>>>>
+> >>>>>>>
+> >>>>>>>> Whoever adds new feat_X *must be aware* about all previous featu=
+res,
+> >>>>>>>> otherwise we'd be reusing feature bits and everything falls to p=
+ieces.
+> >>>>>>>
+> >>>>>>>
+> >>>>>>> The knowledge is supposed be limited to which feature bit to use.
+> >>>>>>
+> >>>>>> I think we also have to know which virtqueue bits can be used, rig=
+ht?
+> >>>>>>
+> >>>>>
+> >>>>> what are virtqueue bits? vq number?
+> >>>>
+> >>>> Yes, sorry.
+> >>>
+> >>> I got confused myself, it's vq index actually now, we made the spec
+> >>> consistent with that terminology. used to be number/index
+> >>> interchangeably.
+> >>>
+> >>>> Assume cross-vm as an example. It would make use of virtqueue indexe=
+s 5+6
+> >>>> with their VIRTIO_BALLOON_F_WS_REPORTING.
+> >>>
+> >>>
+> >>> crossvm guys really should have reserved the feature bit even if they
+> >>> did not bother specifying it. Let's reserve it now at least?
+> >>
+> >> Along with the virtqueue indices, right?
+> >>
+> >> Note that there was
+> >>
+> >> https://lists.gnu.org/archive/html/qemu-devel/2023-05/msg02503.html
+> >>
+> >> and
+> >>
+> >> https://groups.oasis-open.org/communities/community-home/digestviewer/=
+viewthread?GroupId=3D3973&MessageKey=3Dafb07613-f56c-4d40-8981-2fad1c723998=
+&CommunityKey=3D2f26be99-3aa1-48f6-93a5-018dce262226&hlmlt=3DVT
+> >>
+> >> But it only was RFC, and as the QEMU implementation didn't materialize=
+,
+> >> nobody seemed to care ...
 > >
-> > 1) Feature bits must be reserved before used.
+> > Heh, but that one said:
 > >
-> > 2) Queue indices must be reserved before used.
+> > +\item[ VIRTIO_BALLOON_F_WS_REPORTING(6) ] The device has support for
+> > Working Set
 > >
-> > It all smells like a problem similar to device IDs ...  
-> 
-> Indeed, we need a rule "reserve a feature bit/queue index before using
-> it, even if you do not plan to spec it properly".
+> > Which does not seem to reflect reality ...
 
-What definition of usage do you guys have in mind?  Would an RFC patch
-constitute usage.
+Please feel free to disregard these features and reuse their bits and
+queue indexes; as far as I know, they are not actually enabled
+anywhere currently and the corresponding guest patches were only
+applied to some (no-longer-used) ChromeOS kernel trees, so the
+compatibility impact should be minimal. I will also try to clean up
+the leftover bits on the crosvm side just to clear things up.
 
-I think reserving/allocating an identifier of this type before relying on
-it for anything remotely serious is very basic common sense.
+> I dug a bit more into cross-vm, because that one seems to be the only
+> one out there that does not behave like everybody else I found (maybe goo=
+d,
+> maybe bad :) ).
+>
+>
+> 1) There was temporarily even another feature (VIRTIO_BALLOON_F_EVENTS_VQ=
+)
+> and another queue.
+>
+> It got removed from cross-vm in:
+>
+> commit 9ba634b82b55ba762dc8724676b2cf9419460145
+> Author: Daniel Verkamp <dverkamp@chromium.org>
+> Date:   Thu Jul 11 11:29:52 2024 -0700
+>
+>      devices: virtio-balloon: remove event queue support
+>
+>      VIRTIO_BALLOON_F_EVENTS_VQ was part of a proposed virtio spec change=
+.
+>
+>      It is not currently supported by upstream Linux, so removing this sh=
+ould
+>      have no effect except for guest kernels that had CHROMIUM patches
+>      applied.
+>
+>      The virtqueue indexes for the ws-related queues are decremented to f=
+ill
+>      the hole left by the removal of the event VQ; these are non-standard=
+ as
+>      well, so they do not have virtqueue indexes assigned in the virtio s=
+pec,
+>      but the proposed spec extension did actually use vq indexes 5 and 6.
+>
+>      BUG=3Db:214864326
+>
+>
+> 2) cross-vm is aware of the upstream Linux driver
+>
+> They thought your fix would go upstream; it didn't.
+>
+> commit a2fa119e759d0238a42ff15a9aff0dfd122afebd
+> Author: Daniel Verkamp <dverkamp@chromium.org>
+> Date:   Wed Jul 10 16:16:28 2024 -0700
+>
+>      devices: virtio-balloon: warn about queue index mismatches
+>
+>      The Linux kernel virtio-balloon driver spec non-compliance related t=
+o
+>      queue numbering is being fixed; add some diagnostics to our device t=
+hat
+>      help to check if everything is working as expected.
+>
+>      <https://lore.kernel.org/virtualization/CACGkMEsg0+vpav1Fo8JF1isq4Ef=
+8t4_CFN1scyztDO8bXzRLBQ@mail.gmail.com/T/>
+>
+>      Additionally, replace the num_expected_queues() function with per-qu=
+eue
+>      checking to avoid the need for the duplicate feature checks and queu=
+e
+>      count calculation; each pop_queue() call will be checked using the `=
+?`
+>      operator and return a more useful error message if a particular queu=
+e is
+>      missing.
+>
+>      BUG=3DNone
+>      TEST=3Dcrosvm run --balloon-page-reporting ...
+>
+>
+> IIRC, in that commit they switched to the "spec" behavior.
+>
+> That's when they started hard-coding the queue indexes.
+>
+> CCing Daniel. All Linux versions should be incompatible with cross-vmm re=
+garding free page reporting.
+> How is that handled?
 
-Frankly I would go even further and advocate for the following rule: we
-don't accept anything virtio into Linux unless it is reasonably/properly
-spec-ed. My train of thought is following: if a virtio thing gains
-traction with Linux it has a fair chance of becoming a de-facto standard.
+In practice, it only works because nobody calls crosvm with
+--balloon-page-reporting (it's off by default), so the balloon device
+does not advertise the VIRTIO_BALLOON_F_PAGE_REPORTING feature.
 
-Consider our thinking on this one. Despite the fact that what is spec-ed
-is obviously nicer, we almost decided to change the spec to fit what is
-implemented and fielded out there. And IMHO for good reason. For any
-rule we come up with, I think one of the most crucial questions is, who
-is going to enforce it if anybody. The Linux (and probably also QEMU)
-virtio maintainers are in my opinion the most reasonable point of
-enforcement. Another thing to consider. After the code is in and things
-work, I speculate that the motivation for writing a proper spec may
-wane. I hope we do strive for consistency between the spec and the
-implementations we are talking about. Having and eye on the spec while
-looking at and trying to understand the code suits my workflow better
-at least than the other way around. And licensing-wise getting the spec
-merged first is probably the better option. 
+(I just went searching now, and it does seem like there is actually
+one user in Android that does try to enable page reporting[1], which
+I'll have to look into...)
 
-Regards,
-Halil
+In my opinion, it makes the most sense to keep the spec as it is and
+change QEMU and the kernel to match, but obviously that's not trivial
+to do in a way that doesn't break existing devices and drivers.
 
-
+[1]: https://cs.android.com/android/platform/superproject/main/+/main:packa=
+ges/modules/Virtualization/android/virtmgr/src/crosvm.rs;l=3D1079;drc=3Dcaf=
+f2827914c0918260ff76cd55f6e3dc6323d51
