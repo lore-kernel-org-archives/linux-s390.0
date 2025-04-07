@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D1F722B8B0
-	for <linux-s390@vger.kernel.org>; Mon,  7 Apr 2025 09:13:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EB30228CB2
+	for <linux-s390@vger.kernel.org>; Mon,  7 Apr 2025 09:22:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744017231; cv=none; b=mvhDNH8sctc+X81TKfdRf/CxAKYHDo+m5YLWl+BctbydacdmDu5AdJvFhv9HAuU8denKB+gczmlLTVXfw/Z4aae32QEjl1vI4vy2vupx9VkTg7MUzRKaEiXNuNBDRl91PnBs31IC9Dx+ZidmsNwnsdUoe5SDVqvcfyVx82M4xzM=
+	t=1744017755; cv=none; b=mCwOm8N7vmgt1LAG8XJd9WyMTOdK5i0sIil25N7mLNDV32Hg9+xAe+PwdhgpkUxLL3oBcvHU/PKMT2jmYqC20t+CEuk7xmd5/lfSIu3Jp86+vBoZacnYMp3dbNfHLLieiFK3N+iNdcWip1l4ftn80lBON2AetsihfKF1U0s2kTs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744017231; c=relaxed/simple;
-	bh=qXdKydonsxFLkA5dIsMoX0kJIDrRO1y7T2Mx+qFRkzM=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=kz9uOBPDorJJ0pc/3gRQk78xc0U9doW2JQCyWxvFXK+dUMhKqx3PfLAf411+RprDWqC+Mc7A2L+FpzMGYbKWXxB6qMIfuyGNnOfQwGJx6SU9+/YNH5svjBIeN7RG/2S/s2TNDsOJrwy51IhtfAXM5/2CtRik+leP7Dx2sdXSNZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AiqPY2/l; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1744017755; c=relaxed/simple;
+	bh=VqyGAa/Wnple9ormWUNewXd2QL7o32mB++LF6Ev1Zls=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BvBtaXEu9CHrDe9JcbvCFFah/f/eF7rHWVVEpEAB6Mze0dRhP86DKyQCVrSkpt+gbjSMSzYDoNibn1Ei3CXAoJHUPOTVu/A91YsvAS6B0fxIazY44yfJ3mL044DJgqyE2j3s0r8YltEZvbbDLJTMyzK/xr6nL9frCFvcuoZ8gx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OjyBY2B/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AiqPY2/l"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OjyBY2B/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744017228;
+	s=mimecast20190719; t=1744017752;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=JK4bT9yDflbfbLz0+zZQCKQJJD07YSHdaz2wMcN19qQ=;
-	b=AiqPY2/lFjpZ9ebu3QMhsf+su1TZCtGHHwe/d1f2wWOTohB8JMvvoG8Rwj5Ay7/91vmSCW
-	GbU9708VLN6he47gGkNdNseNv/1hRbsZqdZti+2OxDb8qfB77GWfaUJYsa1Mc9ruJxtXEu
-	Evs/XjGLimeUVc4JrBACfEfpWHu2s7I=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/yCYFM5XQ5OKPftJDCwWOuxcCEJiJqE9Gf8hXOCSC2Y=;
+	b=OjyBY2B/7k75ML5Hwnx8xnUnJNbKCF2Dxu/0l6lQp/CMyVzmzZW3msNAxz0YUNKDSUiZv5
+	i6EirqpF1CgMLHEfKPTMalB25lhj+3GaKi3XFlLgAz+33/5yDayBggvCq7BPJHEB55NZjp
+	l5+jSXiz73k8fGRXekLdGEZd/i01bXY=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-649-U2rPSF8uO-K23hsv0sp3kw-1; Mon, 07 Apr 2025 05:13:46 -0400
-X-MC-Unique: U2rPSF8uO-K23hsv0sp3kw-1
-X-Mimecast-MFC-AGG-ID: U2rPSF8uO-K23hsv0sp3kw_1744017225
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43d733063cdso34183055e9.0
-        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 02:13:46 -0700 (PDT)
+ us-mta-323-ORh_wJagPVuO818QO0oe4w-1; Mon, 07 Apr 2025 05:22:30 -0400
+X-MC-Unique: ORh_wJagPVuO818QO0oe4w-1
+X-Mimecast-MFC-AGG-ID: ORh_wJagPVuO818QO0oe4w_1744017750
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-39126c3469fso1599456f8f.3
+        for <linux-s390@vger.kernel.org>; Mon, 07 Apr 2025 02:22:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744017225; x=1744622025;
+        d=1e100.net; s=20230601; t=1744017750; x=1744622550;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:references:cc:to:from:subject:user-agent
+         :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=JK4bT9yDflbfbLz0+zZQCKQJJD07YSHdaz2wMcN19qQ=;
-        b=C3DKewutvW2MK0kowwJ3dMEaWSGAdXPzd0NxuLBeg3TPexryZ13X5d1P5Z28z248YT
-         SEPC/LMgqbSqU618ohcPoYP813XQyg1uILlinWaUhyI4yYmFyqklsWi5zE1skGNvqtNf
-         aHsaPQuP9g6CEQyGLrbVXTDJkquYoHE+Tdy4B45YoZzqy1xYjq47neLaB0D+QcUv7AKw
-         iusauQt/xfua2XMZTPIpuXuFiG7IRhSRJ2Jh1Mcxgf1X+d4V83JrnsINw8pSmprvV2O2
-         g/E1HFR34l1bv1czkepq300j1SBrwoOCqvyRkk5yEwpkjyV8ZPDjBLPLEE5DKyByviyU
-         yohw==
-X-Forwarded-Encrypted: i=1; AJvYcCVk0ZUhF5znzUtCKWrVBAXTKZWMkzdXPEE/5hMT6op/9HED6pT5H9dgBa02loBjPtMadoM+M7L4crZF@vger.kernel.org
-X-Gm-Message-State: AOJu0YwjpEB9ehDCPhm5/xsavY1e6JQWIFfDT6ylJHtP6TyqBc3WuSXn
-	30g56XWCgRHcSoH2CTU7Wp1DZazAqipec03DlA8fOvt4SHSRPOHgUpjTllftv7qgFpkId4zz935
-	E9MTZtChNgn97jfnsR7CcKWwpFEItsyMeVnyM4/IUTFMRfEfp5RfL+4r8Ew8=
-X-Gm-Gg: ASbGncuiuwXg25K54sNYK7Q7fExdCPtlYNmays76p3ng19zUctg+mmQKXg7EM2A8s4l
-	Yi82xr6lhGL8HalO9L9xZdEYeFKXrDOYKioaLAf/FY/UifnMRkxUb/JIX4Lydsrws6y4/x6W7nX
-	vt4Y79rDZtfVO16sBiLbcEMXlqg8jTZCNei7eqbexX1wUAxCBGsWeFeChPlSqg0M32EHgK6dhUD
-	nE9Y39mk5q2PSgJQd75aU+4bXMeCVr8Z3V4ZG+vjKFCyAAt/9F4EkHKRr69xZwvlS0YFozBIuvc
-	ckDGF+gPY6XHYHXG2TvaK335C1KfJEREeqN5i+RzuqUrnFV8f9KHt63jN0Gu8JXqHTNa71zinMd
-	vHhFT9gPjFT3uwp/XzqjuY81x0IUWM720Ku7oKQmBbvc=
-X-Received: by 2002:a05:600c:a016:b0:439:9b2a:1b2f with SMTP id 5b1f17b1804b1-43ee0613661mr100738865e9.3.1744017225309;
-        Mon, 07 Apr 2025 02:13:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF9IyhdhY/VgyFk9aw1ei601lFUWgvOu8pFixgJufRhTU9shyn6SoOxwjzIe0e9NNg+c3ap7A==
-X-Received: by 2002:a05:600c:a016:b0:439:9b2a:1b2f with SMTP id 5b1f17b1804b1-43ee0613661mr100738425e9.3.1744017224823;
-        Mon, 07 Apr 2025 02:13:44 -0700 (PDT)
+        bh=/yCYFM5XQ5OKPftJDCwWOuxcCEJiJqE9Gf8hXOCSC2Y=;
+        b=AitsC21jOwF/gJ2xqyXhX1H3AznsSqaZkt7xwdufVC7ItTdiFlg168fFXO0ESuv0fF
+         M4QbIC0dgjVfxqmYKulsIfFB2hHKpsYLpceIcLcYyocH66eNtHMDlKhn2hxrvxg6tiX4
+         VYcj1hp+upaycP5iaZDCZjsoA5q3Q90n8wY9g8j1pR3xqoWn2x2zFsMGk5IGplM7c8xQ
+         Zgs5Yp40meJ1Q6UMeMufppmG03x91UMEmM/zxNacrvKePsTFY79AWT1qg/2D+5d+r9Bh
+         kSqlSE69/mSjI5fcnZBqgXjc7d2Ypm6zUFuxPlVubkufAETfHFgwQSbpT5e4kF7sk2Kd
+         Yaig==
+X-Forwarded-Encrypted: i=1; AJvYcCXXN8bztdbLX4W1AfYlErVgq8zkAz6SIBdVBfjOm5QPryh8kycb2QB9jTcEi52mKQf4yAZVRpVhVA+l@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy3+76y5VR7LkzaioEQxMyZ8Jsk0e9Rhb2QKDX1SLjFv0gBgM4G
+	4RxkwDNg400Lz/qdYl90JFiqlKQHKsH5crS+tcKyKjm+yFuw3lkr9jPGzrIZi9z8uTe9t7m0xfV
+	BDYZ5pjtxJBYt6kaOj5kwTBmHn7lIYb2zBWtvE8QLgUPQW9MAu7OoYCI4F/M=
+X-Gm-Gg: ASbGncselh84+XJInD64qYGmU7ykLnV37+ycVUkx7w76kGonQdnxbUUUQ5VR/5cakQ8
+	SnVt0BDLFl9biqC1QNDYiQhr9giUS4R1IEb5NjyEvPp3CPtXRwiJb3wPJVckev/EgTOpyJJa88b
+	ogTLWFIBdSnnP4kG8a/6dbi9ZAMJ6UY0DXYqB1u3oQNm8Dzg7Lc3/HNtdr3WH75WnyIqA/P8oSX
+	d+eiK+FP5yt+2tpYRBg0Sya5FH7aM65QS+GwzD9WRo6w8FecGhPQ3U/PT0xwZG3v9knHcddSPD8
+	EGaarWrIwLbBruDbxJzIQCeAaON94R+9DwJPrIo39WHgYUH8wsDWse4G5ZgDuibjvhat1TCCDqL
+	eUqTNlcpKueLcZDZCl6UXpJUhHzeTW1ZxDVo9bjk+SkQ=
+X-Received: by 2002:a05:6000:1842:b0:390:d796:b946 with SMTP id ffacd0b85a97d-39cba975b7amr10984329f8f.44.1744017749688;
+        Mon, 07 Apr 2025 02:22:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFpnuVhkewnRTqYTGM8Rx3shfIX+fz32ljJ3fzJujcF/CDjD46/a7MbDgl6ZMvURv3xWypjfg==
+X-Received: by 2002:a05:6000:1842:b0:390:d796:b946 with SMTP id ffacd0b85a97d-39cba975b7amr10984301f8f.44.1744017749294;
+        Mon, 07 Apr 2025 02:22:29 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c738:3c00:8b01:4fd9:b833:e1e9? (p200300cbc7383c008b014fd9b833e1e9.dip0.t-ipconnect.de. [2003:cb:c738:3c00:8b01:4fd9:b833:e1e9])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43ec3174cf0sm127495935e9.0.2025.04.07.02.13.43
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39c301b816csm11532758f8f.57.2025.04.07.02.22.27
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Apr 2025 02:13:44 -0700 (PDT)
-Message-ID: <33def1b0-d9d5-46f1-9b61-b0269753ecce@redhat.com>
-Date: Mon, 7 Apr 2025 11:13:43 +0200
+        Mon, 07 Apr 2025 02:22:28 -0700 (PDT)
+Message-ID: <d5080785-b197-4444-b9c1-25838cd9496a@redhat.com>
+Date: Mon, 7 Apr 2025 11:22:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,7 +77,6 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
  non-existing queues
-From: David Hildenbrand <david@redhat.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
  linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
@@ -88,18 +87,18 @@ Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
  Alexander Gordeev <agordeev@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
  Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
-References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
+References: <4a33daa3-7415-411e-a491-07635e3cfdc4@redhat.com>
+ <d54fbf56-b462-4eea-a86e-3a0defb6298b@redhat.com>
+ <20250404153620.04d2df05.pasic@linux.ibm.com>
+ <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
  <20250404160025.3ab56f60.pasic@linux.ibm.com>
  <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
  <20250404173910.6581706a.pasic@linux.ibm.com>
  <20250407034901-mutt-send-email-mst@kernel.org>
  <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
- <20250407042058-mutt-send-email-mst@kernel.org>
- <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com>
- <20250407044743-mutt-send-email-mst@kernel.org>
- <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com>
- <20250407045456-mutt-send-email-mst@kernel.org>
- <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
+ <39a67ca9-966b-40c1-b080-95d8e2cde376@redhat.com>
+ <20250407044246-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -146,61 +145,46 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
+In-Reply-To: <20250407044246-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 07.04.25 11:11, David Hildenbrand wrote:
-> On 07.04.25 10:58, Michael S. Tsirkin wrote:
->> On Mon, Apr 07, 2025 at 10:54:00AM +0200, David Hildenbrand wrote:
->>> On 07.04.25 10:49, Michael S. Tsirkin wrote:
->>>> On Mon, Apr 07, 2025 at 10:44:21AM +0200, David Hildenbrand wrote:
->>>>>>
->>>>>>
->>>>>>
->>>>>>> Whoever adds new feat_X *must be aware* about all previous features,
->>>>>>> otherwise we'd be reusing feature bits and everything falls to pieces.
->>>>>>
->>>>>>
->>>>>> The knowledge is supposed be limited to which feature bit to use.
->>>>>
->>>>> I think we also have to know which virtqueue bits can be used, right?
->>>>>
->>>>
->>>> what are virtqueue bits? vq number?
->>>
->>> Yes, sorry.
->>
->> I got confused myself, it's vq index actually now, we made the spec
->> consistent with that terminology. used to be number/index
->> interchangeably.
->>
->>> Assume cross-vm as an example. It would make use of virtqueue indexes 5+6
->>> with their VIRTIO_BALLOON_F_WS_REPORTING.
->>
->>
->> crossvm guys really should have reserved the feature bit even if they
->> did not bother specifying it. Let's reserve it now at least?
-> 
-> Along with the virtqueue indices, right?
-> 
-> Note that there was
-> 
-> https://lists.gnu.org/archive/html/qemu-devel/2023-05/msg02503.html
-> 
-> and
-> 
-> https://groups.oasis-open.org/communities/community-home/digestviewer/viewthread?GroupId=3973&MessageKey=afb07613-f56c-4d40-8981-2fad1c723998&CommunityKey=2f26be99-3aa1-48f6-93a5-018dce262226&hlmlt=VT
-> 
-> But it only was RFC, and as the QEMU implementation didn't materialize,
-> nobody seemed to care ...
+On 07.04.25 10:44, Michael S. Tsirkin wrote:
+> Wow great job digging through all these hypervisors!
 
-Heh, but that one said:
+There is more ... :(
 
-+\item[ VIRTIO_BALLOON_F_WS_REPORTING(6) ] The device has support for
-Working Set
+aloith: 
+https://github.com/google/alioth/blob/main/alioth/src/virtio/dev/balloon.rs
 
-Which does not seem to reflect reality ...
+It uses the incremental vq index assignment like QEMU.
+
+impl VirtioMio for Balloon {
+     fn activate<'a, 'm, Q: VirtQueue<'m>, S: IrqSender>(
+         &mut self,
+         feature: u64,
+         _active_mio: &mut ActiveMio<'a, 'm, Q, S>,
+     ) -> Result<()> {
+         let feature = BalloonFeature::from_bits_retain(feature);
+         self.queues[0] = BalloonQueue::Inflate;
+         self.queues[1] = BalloonQueue::Deflate;
+         let mut index = 2;
+         if feature.contains(BalloonFeature::STATS_VQ) {
+             self.queues[index] = BalloonQueue::Stats;
+             index += 1;
+         }
+         if feature.contains(BalloonFeature::FREE_PAGE_HINT) {
+             self.queues[index] = BalloonQueue::FreePage;
+             index += 1;
+         }
+         if feature.contains(BalloonFeature::PAGE_REPORTING) {
+             self.queues[index] = BalloonQueue::Reporting;
+         }
+         Ok(())
+     }
+
+
+I'll dig some more, but this is getting out of hand :D
 
 -- 
 Cheers,
