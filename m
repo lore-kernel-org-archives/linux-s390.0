@@ -1,23 +1,23 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 37B43266594;
-	Tue,  8 Apr 2025 09:53:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 94A6A266594;
+	Tue,  8 Apr 2025 09:54:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744106040; cv=none; b=U+1V/CP6Nzmn46lSdVJQBWLcuBLWw9M8RE/NvE34FfScYMee2RJfUbNTw8F65uWvXfF0u7hAp8W8gTAvLFPzoOKOnq7YA0CKLUFrU/PVyA4rGI5en3PfPIK5waRxB/rD/uCF0MAewy7BIAQCbdXlwXp35EXsrX488S6az8bMbYk=
+	t=1744106044; cv=none; b=WvYWItFOgREYQqxUjlA8akjkBQEva0FkeCN5BMjTjFM9iDPKoMXW/pvFxWApJOGQhwE4LsxFCp7gcYCNk3Sd2GOGNJBy2IqklY4k0wLAINrT6mUTg0Nw92ZnuRX3DULJMWIyxJcyBPFWYX4ztIKCPyVKIy+jtVPSk6y9wbE0EXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744106040; c=relaxed/simple;
-	bh=PWLeu289fXlXcBmOnTypDs6Tc9pxoDi1WRHvtvQYZb8=;
+	s=arc-20240116; t=1744106044; c=relaxed/simple;
+	bh=WdNFcns4b/N7GiHf3jzJmDFe1Zzo1ZGJlpJuMOsolT8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CR82ff/nyAEXI8Qz1fB52AJhLhGhBUbz5+vBvlAY8bRaGVsoSs+AJu1kEYqvtfogePjJfu1KLpf5RG1P4OgsfBLfFEnPRiLgrJg7rfGGL4c5RzqTGVY/PIkCgs4In2QtQj+qWIk0Hz9FlTdlw+1f2+5fsNlxb5bhaADmNBnrerQ=
+	 MIME-Version; b=G3wo3AZZABbCGwWbysr8ElEhsMcTwCWJlsTJONxCUtl21WOnTRqBaU9zOO7HwPigtJCFkTLMtJmexoPDVkL7dyoXwNxpKpyh3uP0qq0nEgVLSa9Yn2ssHwcf9Dc1yjhaxXxkPbjnW68+BEW9cglpXoKd0BVx304WvEBUapSCaCY=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D48D16A3;
-	Tue,  8 Apr 2025 02:53:58 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 15DC122FA;
+	Tue,  8 Apr 2025 02:54:03 -0700 (PDT)
 Received: from e123572-lin.arm.com (e123572-lin.cambridge.arm.com [10.1.194.54])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1DCDA3F6A8;
-	Tue,  8 Apr 2025 02:53:52 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CA25B3F6A8;
+	Tue,  8 Apr 2025 02:53:57 -0700 (PDT)
 From: Kevin Brodsky <kevin.brodsky@arm.com>
 To: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org,
@@ -52,9 +52,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	sparclinux@vger.kernel.org,
 	x86@kernel.org
-Subject: [PATCH v2 10/12] riscv: mm: Clarify ctor mm argument in alloc_{pte,pmd}_late
-Date: Tue,  8 Apr 2025 10:52:20 +0100
-Message-ID: <20250408095222.860601-11-kevin.brodsky@arm.com>
+Subject: [PATCH v2 11/12] arm64: mm: Call PUD/P4D ctor in __create_pgd_mapping()
+Date: Tue,  8 Apr 2025 10:52:21 +0100
+Message-ID: <20250408095222.860601-12-kevin.brodsky@arm.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20250408095222.860601-1-kevin.brodsky@arm.com>
 References: <20250408095222.860601-1-kevin.brodsky@arm.com>
@@ -66,48 +66,32 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-pagetable_{pte,pmd}_ctor(mm, ptdesc) skip the ptlock initialisation
-if mm is &init_mm. To avoid unnecessary overhead, it is therefore
-preferable to pass the actual mm associated to the PTE/PMD.
-
-Unfortunately, this proves challenging for alloc_{pte,pmd}_late() as
-the associated mm is not available at the point where they are
-called - in fact not even top-level functions like
-create_pgd_mapping() are passed the mm. As a result they both call
-the ctor with NULL as mm; this is safe but potentially wasteful.
-
-This is not a new situation, but let's add a couple of comments to
-clarify it.
+Constructors for PUD/P4D-level pgtables were recently introduced.
+They should be called for all pgtables; make sure they are called
+for special kernel mappings created by __create_pgd_mapping() too.
 
 Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
 ---
- arch/riscv/mm/init.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/mm/mmu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index e5ef693fc778..59a982f88908 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -442,6 +442,11 @@ static phys_addr_t __meminit alloc_pte_late(uintptr_t va)
- {
- 	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 51cfc891f6a1..8fcf59ba39db 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -497,7 +497,11 @@ static phys_addr_t __pgd_pgtable_alloc(struct mm_struct *mm,
+ 	case TABLE_PMD:
+ 		BUG_ON(!pagetable_pmd_ctor(mm, ptdesc));
+ 		break;
+-	default:
++	case TABLE_PUD:
++		pagetable_pud_ctor(ptdesc);
++		break;
++	case TABLE_P4D:
++		pagetable_p4d_ctor(ptdesc);
+ 		break;
+ 	}
  
-+	/*
-+	 * We do not know which mm the PTE page is associated to at this point.
-+	 * Passing NULL to the ctor is the safe option, though it may result
-+	 * in unnecessary work (e.g. initialising the ptlock for init_mm).
-+	 */
- 	BUG_ON(!ptdesc || !pagetable_pte_ctor(NULL, ptdesc));
- 	return __pa((pte_t *)ptdesc_address(ptdesc));
- }
-@@ -522,6 +527,7 @@ static phys_addr_t __meminit alloc_pmd_late(uintptr_t va)
- {
- 	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
- 
-+	/* See comment in alloc_pte_late() regarding NULL passed the ctor */
- 	BUG_ON(!ptdesc || !pagetable_pmd_ctor(NULL, ptdesc));
- 	return __pa((pmd_t *)ptdesc_address(ptdesc));
- }
 -- 
 2.47.0
 
