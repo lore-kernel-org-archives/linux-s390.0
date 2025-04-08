@@ -1,119 +1,108 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4E93C267AFB;
-	Tue,  8 Apr 2025 09:54:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0D6122A7E0
+	for <linux-s390@vger.kernel.org>; Tue,  8 Apr 2025 15:15:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744106048; cv=none; b=fWAP871wNS8IYfS9xnnBIZakn8hKDlKHhSGDu8S/TjT3Ua1yEnCjz0V4wx/jvmk6xqn+l5ZbvRcVsnK3bUlfL89nDLZZ5BgNGL33ARny9i6K+uh7CUPKOtGge9EUSYjmk1VMEPNQpyzfeyZH+7Fp0wvuRU00itEz3lPSP++S96c=
+	t=1744125311; cv=none; b=IxbuPYvXeNJClq6yd9kd13ac/yY8ad3IuLeyFmsEBXdVMhQrl9TOBz3PDKUBcNrUgmCTi16ccUR5ZqKg9ITPPGEIxui6Y5y69q2vpH4ASsVCwi2Aa4P3zDeRasgQxPkUYFsCiUH3BGEiT8ExKyQyYXL6fUvLjikyQSiaVQXqOGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744106048; c=relaxed/simple;
-	bh=7SkekEk0zS7CeV0Z+w07u4SyLJEvkvLC1BauqGZI4gc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R1/RcWZOtXJMN8BFgqgpJh5fNPq76qbnLVm4qeN1f38txzzTp+wqotrhHKn79uBCj4rS65fRdqq3FedZWJzTC4+xM8F29ccq2G5Jnz693Kac0sjBS/YYahQ7Yxx4PxnjtYI6NtcNMnc8/+MBjqcFsGH525hQHDTXHZkGyS4Sse4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C22912308;
-	Tue,  8 Apr 2025 02:54:07 -0700 (PDT)
-Received: from e123572-lin.arm.com (e123572-lin.cambridge.arm.com [10.1.194.54])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8289A3F6A8;
-	Tue,  8 Apr 2025 02:54:02 -0700 (PDT)
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org,
-	Kevin Brodsky <kevin.brodsky@arm.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Mike Rapoport (IBM)" <rppt@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Qi Zheng <zhengqi.arch@bytedance.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Yang Shi <yang@os.amperecomputing.com>,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH v2 12/12] riscv: mm: Call PUD/P4D ctor in special kernel pgtable alloc
-Date: Tue,  8 Apr 2025 10:52:22 +0100
-Message-ID: <20250408095222.860601-13-kevin.brodsky@arm.com>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20250408095222.860601-1-kevin.brodsky@arm.com>
-References: <20250408095222.860601-1-kevin.brodsky@arm.com>
+	s=arc-20240116; t=1744125311; c=relaxed/simple;
+	bh=3HhnmiRuLz1M5Qj5NXBbxG42T6BiHz78XH6n147Dls8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dzl5a3TUJxZo4HCPpDYeBGFNpsmUh59dseb786pIRVlru8g9RTr1XHRo3o2HfUc1F3I60WqujQm5HcOHutG/Sr+YbW684VVGnPIoFMvo2sUpN4+wVj7X+440qbBbSDzXilgB7EErgx9aiaLDn4tIqPy9HmD5rjBnaDUanalWCyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=TB19qP6W; arc=none smtp.client-ip=95.215.58.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="TB19qP6W"
+Date: Tue, 8 Apr 2025 17:15:00 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1744125308;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qQDjU0c2FbbyMqE7EvnqvZnYPTTk0XjInWyGR5u9l98=;
+	b=TB19qP6W0TSkS/JzrH/dfnjAIyMyKp0E32t7zyl3dQmRzp7svN2DWXRoM0L+FuOLwJOv8t
+	wlqHm4njHEv2lNIAcoLYkfo2nvZjtS/pnWFsI8JzpzKOZO3gi0lDsqO6RyaTjZZlQEKKfl
+	xNTL3KPDwoli7i0CO5a8F3ad/BM4jGk=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
+	kvm-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, thuth@redhat.com, alexandru.elisei@arm.com, 
+	eric.auger@redhat.com, lvivier@redhat.com, frankja@linux.ibm.com, 
+	imbrenda@linux.ibm.com, nrb@linux.ibm.com
+Subject: Re: [kvm-unit-tests PATCH v2] Makefile: Use CFLAGS in cc-option
+Message-ID: <20250408-f7b9cefc2e8b16bad04debc3@orel>
+References: <20250307091828.57933-2-andrew.jones@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250307091828.57933-2-andrew.jones@linux.dev>
+X-Migadu-Flow: FLOW_OUT
 
-Constructors for PUD/P4D-level pgtables were recently introduced.
-They should be called for all pgtables; make sure they are called
-for special kernel mappings created by create_pgd_mapping() too.
+On Fri, Mar 07, 2025 at 10:18:29AM +0100, Andrew Jones wrote:
+> When cross compiling with clang we need to specify the target in
+> CFLAGS and cc-option will fail to recognize target-specific options
+> without it. Add CFLAGS to the CC invocation in cc-option.
+> 
+> The introduction of the realmode_bits variable is necessary to
+> avoid make failing to build x86 due to CFLAGS referencing itself.
+> 
+> Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
+> ---
+> v2:
+>  - Fixed x86 builds with the realmode_bits variable
+> 
+>  Makefile            | 2 +-
+>  x86/Makefile.common | 3 ++-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Makefile b/Makefile
+> index 78352fced9d4..9dc5d2234e2a 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -21,7 +21,7 @@ DESTDIR := $(PREFIX)/share/kvm-unit-tests/
+>  
+>  # cc-option
+>  # Usage: OP_CFLAGS+=$(call cc-option, -falign-functions=0, -malign-functions=0)
+> -cc-option = $(shell if $(CC) -Werror $(1) -S -o /dev/null -xc /dev/null \
+> +cc-option = $(shell if $(CC) $(CFLAGS) -Werror $(1) -S -o /dev/null -xc /dev/null \
+>                > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+>  
+>  libcflat := lib/libcflat.a
+> diff --git a/x86/Makefile.common b/x86/Makefile.common
+> index 0b7f35c8de85..e97464912e28 100644
+> --- a/x86/Makefile.common
+> +++ b/x86/Makefile.common
+> @@ -98,6 +98,7 @@ tests-common = $(TEST_DIR)/vmexit.$(exe) $(TEST_DIR)/tsc.$(exe) \
+>  ifneq ($(CONFIG_EFI),y)
+>  tests-common += $(TEST_DIR)/realmode.$(exe) \
+>  		$(TEST_DIR)/la57.$(exe)
+> +realmode_bits := $(if $(call cc-option,-m16,""),16,32)
+>  endif
+>  
+>  test_cases: $(tests-common) $(tests)
+> @@ -108,7 +109,7 @@ $(TEST_DIR)/realmode.elf: $(TEST_DIR)/realmode.o
+>  	$(LD) -m elf_i386 -nostdlib -o $@ \
+>  	      -T $(SRCDIR)/$(TEST_DIR)/realmode.lds $^
+>  
+> -$(TEST_DIR)/realmode.o: bits = $(if $(call cc-option,-m16,""),16,32)
+> +$(TEST_DIR)/realmode.o: bits = $(realmode_bits)
+>  
+>  $(TEST_DIR)/access_test.$(bin): $(TEST_DIR)/access.o
+>  
+> -- 
+> 2.48.1
+>
 
-While at it also switch to using pagetable_alloc() like
-in alloc_{pte,pmd}_late().
+Merged through arm/queue.
 
-Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
----
- arch/riscv/mm/init.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 59a982f88908..8d0374d7ce8e 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -590,11 +590,11 @@ static phys_addr_t __init alloc_pud_fixmap(uintptr_t va)
- 
- static phys_addr_t __meminit alloc_pud_late(uintptr_t va)
- {
--	unsigned long vaddr;
-+	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL, 0);
- 
--	vaddr = __get_free_page(GFP_KERNEL);
--	BUG_ON(!vaddr);
--	return __pa(vaddr);
-+	BUG_ON(!ptdesc);
-+	pagetable_pud_ctor(ptdesc);
-+	return __pa((pud_t *)ptdesc_address(ptdesc));
- }
- 
- static p4d_t *__init get_p4d_virt_early(phys_addr_t pa)
-@@ -628,11 +628,11 @@ static phys_addr_t __init alloc_p4d_fixmap(uintptr_t va)
- 
- static phys_addr_t __meminit alloc_p4d_late(uintptr_t va)
- {
--	unsigned long vaddr;
-+	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL, 0);
- 
--	vaddr = __get_free_page(GFP_KERNEL);
--	BUG_ON(!vaddr);
--	return __pa(vaddr);
-+	BUG_ON(!ptdesc);
-+	pagetable_p4d_ctor(ptdesc);
-+	return __pa((p4d_t *)ptdesc_address(ptdesc));
- }
- 
- static void __meminit create_pud_mapping(pud_t *pudp, uintptr_t va, phys_addr_t pa, phys_addr_t sz,
--- 
-2.47.0
-
+Thanks,
+drew
