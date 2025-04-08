@@ -1,174 +1,93 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B2EF238148;
-	Tue,  8 Apr 2025 16:08:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F11151DE3A9;
+	Tue,  8 Apr 2025 16:38:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744128497; cv=none; b=rQuyHGAIbHjTt2maybLx9RvSMsfHTUrJrIhC5/RV3f3e9Ht2I9iJ5N8XrYzl/pAweHMFbYmK+YMElVouzDW9uu5RDB6do+zUleOC+HOMZ3k+9L2a31pFaQOJo1PnQWwPaSIZwKsM1HmMtMzV8EZ0Of+pYJbjNAWYkHZEarp5Juo=
+	t=1744130310; cv=none; b=VEbyMzpcA1kGoM0Tr8ry8Hn/yTf1Wu1U60ktuqnixNZAVsbJq8vAeAD/VajV1SxDh3Q4W096/PKGmAnJfxh/FfcO9Ow22kRyc/KZOsc6v/+KcKFuXCcPSyyKG26Mz8FO21LLOTKiD/f2KwHoMKLH1HLtvj3dxNIMrYYmX6sFlFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744128497; c=relaxed/simple;
-	bh=lNvR9KLyydDCCuKSADWrMHdkdsfJVjvm7XyRbV58kdI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ID9u3MTnDpX8McqZNnZwrNrTHg1s5WSVALiZo1IRcNswTRXiYiaLxlVYAGo+vk3E/fZCkhmwbHfZNTfDjdMJfusKqX7ldKl2Dh5GH5PARZ9o4JvTU9LYJn3l9UMfRBMro0+nb8PUO8HSY877UOjFL7TtbsYAEpOEPNGP59S+e5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rNlkWZXj; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1744130310; c=relaxed/simple;
+	bh=+eU1l90ug4VLQCFWctk77ffIqdBjl5mOtKRYScVzcGg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RnORTq08n62xVm8gZiIBfYq8gM5hoUmb/322x1y7Kmxn51e7mxQrcREB69bhYz/N5vCAwRFXzfitD4ejBtpUZKaO/sKqmvHTJ9qg/xQfe1+ZoLSIaOqUBDurSBWlw6WvR2bW0T8bKYlGsLEatfLU7W9EIN4nXUzeadsFzNnfTnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=t9QSCPFK; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rNlkWZXj"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 538E3xau029563;
-	Tue, 8 Apr 2025 16:07:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ow6t3aZjTh8zUSYva
-	0I+1eccwoSgmKvfkvuHek+W7BI=; b=rNlkWZXjqNmrVA9DfqJ9qTqgEL8tDwB8v
-	uW+rRoK5iANBpubG1GKB6moL8Y4rxf1/ciAdNCg7DM56snFXeq6UI27BGzCdiXoL
-	Hr2JPBnmHtPqLjuZGH88qIcxX6n6fTG8p4+QuOCg9WyUsQapClXHAaBAz4VCbhjJ
-	ChFNmfH4CzkNCe02vZlhygEXR9J7hifdORr/28Gcllu/FuSoK+QDhFbPQ7HoT2l3
-	g8Y/Cdw/tx32Fgkpts/Q5SasZwSNURS/WI0A4R0LnPV7CD9LTIe6eJvqHGND+b6c
-	aEm6js3u/gkF2v4JxOC8NjZ+BFWMYfs0Eu9JU8hP/snzGwujEHEow==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vv6a3cmf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 16:07:35 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 538FxwH6004506;
-	Tue, 8 Apr 2025 16:07:35 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vv6a3cmc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 16:07:35 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 538E2Kef018870;
-	Tue, 8 Apr 2025 16:07:34 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 45uhj2b31s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 16:07:34 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 538G7WkZ17170806
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Apr 2025 16:07:32 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B38A12004D;
-	Tue,  8 Apr 2025 16:07:32 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9DDE720043;
-	Tue,  8 Apr 2025 16:07:32 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  8 Apr 2025 16:07:32 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 50F3DE171F; Tue, 08 Apr 2025 18:07:32 +0200 (CEST)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Hugh Dickins <hughd@google.com>, Nicholas Piggin <npiggin@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>, Juergen Gross <jgross@suse.com>,
-        Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, kasan-dev@googlegroups.com,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2 3/3] mm: Protect kernel pgtables in apply_to_pte_range()
-Date: Tue,  8 Apr 2025 18:07:32 +0200
-Message-ID: <ef8f6538b83b7fc3372602f90375348f9b4f3596.1744128123.git.agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <cover.1744128123.git.agordeev@linux.ibm.com>
-References: <cover.1744128123.git.agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="t9QSCPFK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=q8c5kGuEjzUrixCQz8SJfmiMTtSSZ6M/pup07QMbIZo=; b=t9QSCPFKWRX+IEXLLTG7nFPvtv
+	qDrwtyW8ndHz9ADtdBvDwK9R1/b7GawfLb9Ry+HoJokPfkHZsWEY8kmm+jpBlq6UtOttGJYiUw7RR
+	YQcU45qxxKziWZ2wo5RrV8K7L++OSyA0Pg6W4VCgKFlOrXroMKnLYbVxn6C0iXMlaNBqc55NZ+7ry
+	DAQLC5cv7ugIBp7R5NUNcrnkv6P4QXcnyZrwaQNIPaFmW3FgZted7FwYDS5UBdqKAJDVf5IQeUvr3
+	Gezyf9Lp+/2LMaVmh9DL4kYQDtD4GOp47bbpeRMV5gu/qNM87gpbm6R4yQ33Abl/XS2ElP+tzf6AO
+	XyawnGVw==;
+Received: from willy by casper.infradead.org with local (Exim 4.98.1 #2 (Red Hat Linux))
+	id 1u2Bx2-0000000GpOB-0hye;
+	Tue, 08 Apr 2025 16:37:28 +0000
+Date: Tue, 8 Apr 2025 17:37:27 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Mike Rapoport (IBM)" <rppt@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	Ryan Roberts <ryan.roberts@arm.com>, Will Deacon <will@kernel.org>,
+	Yang Shi <yang@os.amperecomputing.com>, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: Re: [PATCH v2 02/12] x86: pgtable: Always use pte_free_kernel()
+Message-ID: <Z_VQxyqkU8DV7QGy@casper.infradead.org>
+References: <20250408095222.860601-1-kevin.brodsky@arm.com>
+ <20250408095222.860601-3-kevin.brodsky@arm.com>
+ <409d2019-a409-4e97-a16f-6b345b0f5a38@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 6gWNv_Bw0XevSqtBIthyoWHVrcn2MvLC
-X-Proofpoint-GUID: -fZrXKHJloGCIvDX7whqAyynxCC3jswc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-08_06,2025-04-08_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 priorityscore=1501 adultscore=0
- clxscore=1015 suspectscore=0 bulkscore=0 mlxlogscore=779 mlxscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504080110
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <409d2019-a409-4e97-a16f-6b345b0f5a38@intel.com>
 
-The lazy MMU mode can only be entered and left under the protection
-of the page table locks for all page tables which may be modified.
-Yet, when it comes to kernel mappings apply_to_pte_range() does not
-take any locks. That does not conform arch_enter|leave_lazy_mmu_mode()
-semantics and could potentially lead to re-schedulling a process while
-in lazy MMU mode or racing on a kernel page table updates.
+On Tue, Apr 08, 2025 at 08:22:47AM -0700, Dave Hansen wrote:
+> Are there any tests for folio_test_pgtable() at free_page() time? If we
+> had that, it would make it less likely that another free_page() user
+> could sneak in without calling the destructor.
 
-Cc: stable@vger.kernel.org
-Fixes: 38e0edb15bd0 ("mm/apply_to_range: call pte function with lazy updates")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- mm/kasan/shadow.c | 7 ++-----
- mm/memory.c       | 5 ++++-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+It's hidden, but yes:
 
-diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
-index edfa77959474..6531a7aa8562 100644
---- a/mm/kasan/shadow.c
-+++ b/mm/kasan/shadow.c
-@@ -308,14 +308,14 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, unsigned long addr,
- 	__memset((void *)page, KASAN_VMALLOC_INVALID, PAGE_SIZE);
- 	pte = pfn_pte(PFN_DOWN(__pa(page)), PAGE_KERNEL);
- 
--	spin_lock(&init_mm.page_table_lock);
- 	if (likely(pte_none(ptep_get(ptep)))) {
- 		set_pte_at(&init_mm, addr, ptep, pte);
- 		page = 0;
- 	}
--	spin_unlock(&init_mm.page_table_lock);
-+
- 	if (page)
- 		free_page(page);
-+
- 	return 0;
- }
- 
-@@ -401,13 +401,10 @@ static int kasan_depopulate_vmalloc_pte(pte_t *ptep, unsigned long addr,
- 
- 	page = (unsigned long)__va(pte_pfn(ptep_get(ptep)) << PAGE_SHIFT);
- 
--	spin_lock(&init_mm.page_table_lock);
--
- 	if (likely(!pte_none(ptep_get(ptep)))) {
- 		pte_clear(&init_mm, addr, ptep);
- 		free_page(page);
- 	}
--	spin_unlock(&init_mm.page_table_lock);
- 
- 	return 0;
- }
-diff --git a/mm/memory.c b/mm/memory.c
-index f0201c8ec1ce..1f3727104e99 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -2926,6 +2926,7 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
- 			pte = pte_offset_kernel(pmd, addr);
- 		if (!pte)
- 			return err;
-+		spin_lock(&init_mm.page_table_lock);
- 	} else {
- 		if (create)
- 			pte = pte_alloc_map_lock(mm, pmd, addr, &ptl);
-@@ -2951,7 +2952,9 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
- 
- 	arch_leave_lazy_mmu_mode();
- 
--	if (mm != &init_mm)
-+	if (mm == &init_mm)
-+		spin_unlock(&init_mm.page_table_lock);
-+	else
- 		pte_unmap_unlock(mapped_pte, ptl);
- 
- 	*mask |= PGTBL_PTE_MODIFIED;
--- 
-2.45.2
+static inline bool page_expected_state(struct page *page,
+                                        unsigned long check_flags)
+{
+        if (unlikely(atomic_read(&page->_mapcount) != -1))
+                return false;
 
+PageTable uses page_type which aliases with mapcount, so this check
+covers "PageTable is still set when the last refcount to it is put".
+
+I don't think we really use the page refcount when allocating/freeing
+page tables.  Anyone want to try switching it over to using
+alloc_frozen_pages() / free_frozen_pages()?  Might need to move that API
+out of mm/internal.h ...
