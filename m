@@ -1,108 +1,148 @@
-Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0D6122A7E0
-	for <linux-s390@vger.kernel.org>; Tue,  8 Apr 2025 15:15:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83E61D5CCD;
+	Tue,  8 Apr 2025 15:22:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744125311; cv=none; b=IxbuPYvXeNJClq6yd9kd13ac/yY8ad3IuLeyFmsEBXdVMhQrl9TOBz3PDKUBcNrUgmCTi16ccUR5ZqKg9ITPPGEIxui6Y5y69q2vpH4ASsVCwi2Aa4P3zDeRasgQxPkUYFsCiUH3BGEiT8ExKyQyYXL6fUvLjikyQSiaVQXqOGo=
+	t=1744125773; cv=none; b=h7Z+j5YgWr7KPddnLD9RZDfPaf3HoWnPhXzChLYhYTB9qO6/TRcXJwrV9mjyzaABlRESKy1QJM2otEmOXYqZpxrdRqZha/KWcfCgxK/rgx8O+oq6EyQJcWIX/5bxWDaSnjb2g68GhAzb/mkpvoDMKQXkv5Tcl28TRfaJw7MdxjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744125311; c=relaxed/simple;
-	bh=3HhnmiRuLz1M5Qj5NXBbxG42T6BiHz78XH6n147Dls8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dzl5a3TUJxZo4HCPpDYeBGFNpsmUh59dseb786pIRVlru8g9RTr1XHRo3o2HfUc1F3I60WqujQm5HcOHutG/Sr+YbW684VVGnPIoFMvo2sUpN4+wVj7X+440qbBbSDzXilgB7EErgx9aiaLDn4tIqPy9HmD5rjBnaDUanalWCyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=TB19qP6W; arc=none smtp.client-ip=95.215.58.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1744125773; c=relaxed/simple;
+	bh=D9XuG7Ugb2+SGuMTNvueeFKYwGqptTWhQqYGjQrqjVo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WTriqMjNsgUCk6j8DiPcVHfZ5Gyqe0pl+XT28CGJixPP08HR3GRQex4T9QA7W+xxZO8NX6oydOpY41OimWheomjfwrGpYGMDRihbFVjtmHTYoy3jm760jjTRIOLb2czwGk+uhJmM4TDnEVyJmarx7SuJEc9zPuedBpHnkHcvMco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kI36TUkd; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="TB19qP6W"
-Date: Tue, 8 Apr 2025 17:15:00 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1744125308;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qQDjU0c2FbbyMqE7EvnqvZnYPTTk0XjInWyGR5u9l98=;
-	b=TB19qP6W0TSkS/JzrH/dfnjAIyMyKp0E32t7zyl3dQmRzp7svN2DWXRoM0L+FuOLwJOv8t
-	wlqHm4njHEv2lNIAcoLYkfo2nvZjtS/pnWFsI8JzpzKOZO3gi0lDsqO6RyaTjZZlQEKKfl
-	xNTL3KPDwoli7i0CO5a8F3ad/BM4jGk=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Andrew Jones <andrew.jones@linux.dev>
-To: kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
-	kvm-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, thuth@redhat.com, alexandru.elisei@arm.com, 
-	eric.auger@redhat.com, lvivier@redhat.com, frankja@linux.ibm.com, 
-	imbrenda@linux.ibm.com, nrb@linux.ibm.com
-Subject: Re: [kvm-unit-tests PATCH v2] Makefile: Use CFLAGS in cc-option
-Message-ID: <20250408-f7b9cefc2e8b16bad04debc3@orel>
-References: <20250307091828.57933-2-andrew.jones@linux.dev>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kI36TUkd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1744125772; x=1775661772;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=D9XuG7Ugb2+SGuMTNvueeFKYwGqptTWhQqYGjQrqjVo=;
+  b=kI36TUkdxAL1F6SaZBV+p0rrdE3AvTAFOvcke9YEJJ34JEQmxWW+Uy9M
+   pAcXbTyJo5TzGRbkITAdvchzpLVgrqfjuej2opI1tdCbBxhrPg3DSuKiN
+   n929iOw+55/p8IDmzUe/lfuhtjqgkiJCurpwXUg32WMjzDOjkzITtRjOA
+   zz6NmBWkqto21hv4imPCVb3QzGYGzRxUC3fUDkR7Zox5trM7y3guAP18e
+   mAGCvKOB0E30HEfqRdE1NEo2I9ndsd/0hDG5S2iTD0vuqXD+3bXrb7SCf
+   0onqZoTU/Rpl8Y8e+IfVozZCovjOP4soumfsGqIv8aYTosw6mzD6G+0y2
+   Q==;
+X-CSE-ConnectionGUID: iDcuMDoEQ6KTeSh6tuBVPA==
+X-CSE-MsgGUID: +EgVbc5iTOSkChp3lPQKdw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11397"; a="56936743"
+X-IronPort-AV: E=Sophos;i="6.15,198,1739865600"; 
+   d="scan'208";a="56936743"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2025 08:22:51 -0700
+X-CSE-ConnectionGUID: Ib9xckXnQRq6rJZ0mR1kdw==
+X-CSE-MsgGUID: IfuAIkdqSzeGpojNSuwg2g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,198,1739865600"; 
+   d="scan'208";a="133023105"
+Received: from ssimmeri-mobl2.amr.corp.intel.com (HELO [10.124.220.83]) ([10.124.220.83])
+  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Apr 2025 08:22:49 -0700
+Message-ID: <409d2019-a409-4e97-a16f-6b345b0f5a38@intel.com>
+Date: Tue, 8 Apr 2025 08:22:47 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250307091828.57933-2-andrew.jones@linux.dev>
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 02/12] x86: pgtable: Always use pte_free_kernel()
+To: Kevin Brodsky <kevin.brodsky@arm.com>, linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
+ Andreas Larsson <andreas@gaisler.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Matthew Wilcox <willy@infradead.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, "Mike Rapoport (IBM)"
+ <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ Peter Zijlstra <peterz@infradead.org>, Qi Zheng
+ <zhengqi.arch@bytedance.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Will Deacon <will@kernel.org>, Yang Shi <yang@os.amperecomputing.com>,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ sparclinux@vger.kernel.org, x86@kernel.org
+References: <20250408095222.860601-1-kevin.brodsky@arm.com>
+ <20250408095222.860601-3-kevin.brodsky@arm.com>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20250408095222.860601-3-kevin.brodsky@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 07, 2025 at 10:18:29AM +0100, Andrew Jones wrote:
-> When cross compiling with clang we need to specify the target in
-> CFLAGS and cc-option will fail to recognize target-specific options
-> without it. Add CFLAGS to the CC invocation in cc-option.
+On 4/8/25 02:52, Kevin Brodsky wrote:
+> Page table pages are normally freed using the appropriate helper for
+> the given page table level. On x86, pud_free_pmd_page() and
+> pmd_free_pte_page() are an exception to the rule: they call
+> free_page() directly.
 > 
-> The introduction of the realmode_bits variable is necessary to
-> avoid make failing to build x86 due to CFLAGS referencing itself.
+> Constructor/destructor calls are about to be introduced for kernel
+> PTEs. To avoid missing dtor calls in those helpers, free the PTE
+> pages using pte_free_kernel() instead of free_page().
 > 
-> Signed-off-by: Andrew Jones <andrew.jones@linux.dev>
-> ---
-> v2:
->  - Fixed x86 builds with the realmode_bits variable
-> 
->  Makefile            | 2 +-
->  x86/Makefile.common | 3 ++-
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Makefile b/Makefile
-> index 78352fced9d4..9dc5d2234e2a 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -21,7 +21,7 @@ DESTDIR := $(PREFIX)/share/kvm-unit-tests/
->  
->  # cc-option
->  # Usage: OP_CFLAGS+=$(call cc-option, -falign-functions=0, -malign-functions=0)
-> -cc-option = $(shell if $(CC) -Werror $(1) -S -o /dev/null -xc /dev/null \
-> +cc-option = $(shell if $(CC) $(CFLAGS) -Werror $(1) -S -o /dev/null -xc /dev/null \
->                > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
->  
->  libcflat := lib/libcflat.a
-> diff --git a/x86/Makefile.common b/x86/Makefile.common
-> index 0b7f35c8de85..e97464912e28 100644
-> --- a/x86/Makefile.common
-> +++ b/x86/Makefile.common
-> @@ -98,6 +98,7 @@ tests-common = $(TEST_DIR)/vmexit.$(exe) $(TEST_DIR)/tsc.$(exe) \
->  ifneq ($(CONFIG_EFI),y)
->  tests-common += $(TEST_DIR)/realmode.$(exe) \
->  		$(TEST_DIR)/la57.$(exe)
-> +realmode_bits := $(if $(call cc-option,-m16,""),16,32)
->  endif
->  
->  test_cases: $(tests-common) $(tests)
-> @@ -108,7 +109,7 @@ $(TEST_DIR)/realmode.elf: $(TEST_DIR)/realmode.o
->  	$(LD) -m elf_i386 -nostdlib -o $@ \
->  	      -T $(SRCDIR)/$(TEST_DIR)/realmode.lds $^
->  
-> -$(TEST_DIR)/realmode.o: bits = $(if $(call cc-option,-m16,""),16,32)
-> +$(TEST_DIR)/realmode.o: bits = $(realmode_bits)
->  
->  $(TEST_DIR)/access_test.$(bin): $(TEST_DIR)/access.o
->  
-> -- 
-> 2.48.1
->
+> While at it also use pmd_free() instead of calling pagetable_dtor()
+> explicitly at the PMD level.
 
-Merged through arm/queue.
+Looks sane and adding consistency is nice.
 
-Thanks,
-drew
+Are there any tests for folio_test_pgtable() at free_page() time? If we
+had that, it would make it less likely that another free_page() user
+could sneak in without calling the destructor.
+
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
