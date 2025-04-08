@@ -1,73 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03287214813;
-	Tue,  8 Apr 2025 07:47:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 561BB2676C1;
+	Tue,  8 Apr 2025 09:53:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744098423; cv=none; b=VX5yh8tZpuzchEpC5BdTVNkCf2EztL3/jdEfrRloAmck5WQk1OzI9T1ldT09KAyEhv36Xl9BN+JVc3LWW477Xa0wl4JdBcb7GRlISiJ7K3wdA+SoovMWD7Car4his38J3J++2UHlM7yYI1VngcRS0Elz15Rgp0h0j+akGsOmBYg=
+	t=1744105993; cv=none; b=Zc1yn3OQzByTYZhNiazHjzRUR41ukTIbMAoeAUhK+OpafTF0JaNoiTH6rMUN16JPqYXE55UeUHPf79ju1vooI7Js80EMUNzxXGTCdUiyrzc0UNisxcZ+m/vnXPM8MqxJcx0AXE3+LjPFOIZ1Aj1zT1Ztgs0jK3iJcOJXPJkwry0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744098423; c=relaxed/simple;
-	bh=OaoRGleOJMBsgBZS3p1bJ8GaQzCT4TbBrlI6cVkNSyQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SXrtbohrzCN1NCUkdxFg2Yaa5wOxLDhYWHIq3EuDTxgW+vFl+/7WULzz0X7KokFVV3RLy0/XqVaW2V8bFIG7TamIK9rpZWe/bImncAcwVOrYlIu5jd9I/If/cQRkjAA72vaptvxgCwWLYUJSgyTf3n9eey0qAZvzivSTUpubPxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e99RX80v; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e99RX80v"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537KcSt5027885;
-	Tue, 8 Apr 2025 07:46:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=zLV7/doQpEkhTR6ei1g5UJ/2k5+C2pZsALUCRt3FL
-	7Y=; b=e99RX80vsUuxq6VnQksfRpK/kj0C/YjqA+m+i66LLvcTy+0EdpsIgiZwk
-	Ph/dhcCX8QRDg+h/xPIyJtd+K2NsczCTXeOfJQC6lsyou4mm+JY6w8TMN7YKe+5/
-	LHjT9H0bFcRI2agws1B6XFrhqzFEUx1i4ERp7Z7jjUvFZ5aGLLL/BahXT3JVDSuz
-	yvDXC7expaYFvQJKcrTB5lA25xtsOMGvfCsts60tzcPg/cm1F2uPnZsqhHuDuoha
-	jEpek891Bq5NuyL1rSgNEYvbo3TF2y8CWhc4jiMUoc44o3gcshDb9BvsZWiswBLw
-	HyQuSPgomd2KpNd+gY2F3+rAavp3w==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vnx0j84a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 07:46:58 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 5387jvrI024572;
-	Tue, 8 Apr 2025 07:46:57 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45vnx0j849-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 07:46:57 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5387inrQ014404;
-	Tue, 8 Apr 2025 07:46:57 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45ufunhn75-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 08 Apr 2025 07:46:56 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5387krNP60162310
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Apr 2025 07:46:53 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1233C2004B;
-	Tue,  8 Apr 2025 07:46:53 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AC5B520040;
-	Tue,  8 Apr 2025 07:46:52 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  8 Apr 2025 07:46:52 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        irogers@google.com, ctshao@google.com
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-        hca@linux.ibm.com, Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH v2] perf test: Allow tolerance for leader sampling test
-Date: Tue,  8 Apr 2025 09:46:41 +0200
-Message-ID: <20250408074641.1471473-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	s=arc-20240116; t=1744105993; c=relaxed/simple;
+	bh=RmNYQb9Bay1hhCcESV2xeO534PVfNO4TiTDcUO7dtP4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ebF7GR11zZsbgO2N/BqNEanT2LcxAUDE8KF9+43WAylQ9/jaEcAaFr06PMd1PXg7UlG8dPiDSva+sBDOlmAZwo03dTqdEqyxDRqc9gYyv0KZRkf1GNY36f2jN8ugFMsPopWSswNKlzyJLj1W3PyBFfC0rKmZ0O2TE3ALEzLntwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2D2B11688;
+	Tue,  8 Apr 2025 02:53:11 -0700 (PDT)
+Received: from e123572-lin.arm.com (e123572-lin.cambridge.arm.com [10.1.194.54])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DE0F73F6A8;
+	Tue,  8 Apr 2025 02:53:05 -0700 (PDT)
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org,
+	Kevin Brodsky <kevin.brodsky@arm.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Mike Rapoport (IBM)" <rppt@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Qi Zheng <zhengqi.arch@bytedance.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Yang Shi <yang@os.amperecomputing.com>,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH v2 00/12] Always call constructor for kernel page tables
+Date: Tue,  8 Apr 2025 10:52:10 +0100
+Message-ID: <20250408095222.860601-1-kevin.brodsky@arm.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,84 +62,187 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 3rjcWCOrPulP4NogmG6aFLQWFCe_OuEt
-X-Proofpoint-ORIG-GUID: mIy3X5RvafINGC6lTK0tsehKj-MZMfYk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-08_02,2025-04-07_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=759 lowpriorityscore=0 phishscore=0 priorityscore=1501
- clxscore=1015 malwarescore=0 mlxscore=0 adultscore=0 spamscore=0
- bulkscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504080052
 
-V2: Changed bc invocation to return 0 on success and 1 on error.
+There has been much confusion around exactly when page table
+constructors/destructors (pagetable_*_[cd]tor) are supposed to be
+called. They were initially introduced for user PTEs only (to support
+split page table locks), then at the PMD level for the same purpose.
+Accounting was added later on, starting at the PTE level and then moving
+to higher levels (PMD, PUD). Finally, with my earlier series "Account
+page tables at all levels" [1], the ctor/dtor is run for all levels, all
+the way to PGD.
 
-There is a known issue that the leader sampling is inconsistent, since
-throttle only affect leader, not the slave. The detail is in [1]. To
-maintain test coverage, this patch sets a tolerance rate of 80% to
-accommodate the throttled samples and prevent test failures due to
-throttling.
+I thought this was the end of the story, and it hopefully is for user
+pgtables, but I was wrong for what concerns kernel pgtables. The current
+situation there makes very little sense:
 
-[1] lore.kernel.org/20250328182752.769662-1-ctshao@google.com
+* At the PTE level, the ctor/dtor is not called (at least in the generic
+  implementation). Specific helpers are used for kernel pgtables at this
+  level (pte_{alloc,free}_kernel()) and those have never called the
+  ctor/dtor, most likely because they were initially irrelevant in the
+  kernel case.
 
-Signed-off-by: Chun-Tse Shao <ctshao@google.com>
-Suggested-by: Ian Rogers <irogers@google.com>
-Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+* At all other levels, the ctor/dtor is normally called. This is
+  potentially wasteful at the PMD level (more on that later).
+
+This series aims to ensure that the ctor/dtor is always called for kernel
+pgtables, as it already is for user pgtables. Besides consistency, the
+main motivation is to guarantee that ctor/dtor hooks are systematically
+called; this makes it possible to insert hooks to protect page tables [2],
+for instance. There is however an extra challenge: split locks are not
+used for kernel pgtables, and it would therefore be wasteful to
+initialise them (ptlock_init()).
+
+It is worth clarifying exactly when split locks are used. They clearly
+are for user pgtables, but as illustrated in commit 61444cde9170 ("ARM:
+8591/1: mm: use fully constructed struct pages for EFI pgd
+allocations"), they also are for special page tables like efi_mm. The
+one case where split locks are definitely unused is pgtables owned by
+init_mm; this is consistent with the behaviour of apply_to_pte_range().
+
+The approach chosen in this series is therefore to pass the mm
+associated to the pgtables being constructed to
+pagetable_{pte,pmd}_ctor() (patch 1), and skip ptlock_init() if
+mm == &init_mm (patch 3 and 7). This makes it possible to call the PTE
+ctor/dtor from pte_{alloc,free}_kernel() without unintended consequences
+(patch 3). As a result the accounting functions are now called at
+all levels for kernel pgtables, and split locks are never initialised.
+
+In configurations where ptlocks are dynamically allocated (32-bit,
+PREEMPT_RT, etc.) and ARCH_ENABLE_SPLIT_PMD_PTLOCK is selected, this
+series results in the removal of a kmem_cache allocation for every
+kernel PMD. Additionally, for certain architectures that do not use
+<asm-generic/pgalloc.h> such as s390, the same optimisation occurs at
+the PTE level.
+
 ---
- tools/perf/tests/shell/record.sh | 26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
-index ba8d873d3ca7..b17e8b0680e2 100755
---- a/tools/perf/tests/shell/record.sh
-+++ b/tools/perf/tests/shell/record.sh
-@@ -238,22 +238,36 @@ test_leader_sampling() {
-     err=1
-     return
-   fi
-+  perf script -i "${perfdata}" | grep brstack > $script_output
-+  # Check if the two instruction counts are equal in each record.
-+  # However, the throttling code doesn't consider event grouping. During throttling, only the
-+  # leader is stopped, causing the slave's counts significantly higher. To temporarily solve this,
-+  # let's set the tolerance rate to 80%.
-+  # TODO: Revert the code for tolerance once the throttling mechanism is fixed.
-   index=0
--  perf script -i "${perfdata}" > $script_output
-+  valid_counts=0
-+  invalid_counts=0
-+  tolerance_rate=0.8
-   while IFS= read -r line
-   do
--    # Check if the two instruction counts are equal in each record
-     cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
-     if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
-     then
--      echo "Leader sampling [Failed inconsistent cycles count]"
--      err=1
--      return
-+      invalid_counts=$(($invalid_counts+1))
-+    else
-+      valid_counts=$(($valid_counts+1))
-     fi
-     index=$(($index+1))
-     prev_cycles=$cycles
-   done < $script_output
--  echo "Basic leader sampling test [Success]"
-+  isok=$(echo "scale=2; val=$invalid_counts/($invalid_counts+$valid_counts); if (val < (1-$tolerance_rate)) { 0 } else { 1 };" | bc -q)
-+  if [ $isok -eq 1 ]
-+  then
-+     echo "Leader sampling [Failed inconsistent cycles count]"
-+     err=1
-+  else
-+    echo "Basic leader sampling test [Success]"
-+  fi
- }
- 
- test_topdown_leader_sampling() {
+Things get more complicated when it comes to special pgtable allocators
+(patch 8-12). All architectures need such allocators to create initial
+kernel pgtables; we are not concerned with those as the ctor cannot be
+called so early in the boot sequence. However, those allocators may also
+be used later in the boot sequence or during normal operations. There
+are two main use-cases:
+
+1. Mapping EFI memory: efi_mm (arm, arm64, riscv)
+2. arch_add_memory(): init_mm
+
+The ctor is already explicitly run (at the PTE/PMD level) in the first
+case, as required for pgtables that are not associated with init_mm.
+However the same allocators may also be used for the second use-case (or
+others), and this is where it gets messy. Patch 1 calls the ctor with
+NULL as mm in those situations, as the actual mm isn't available.
+Practically this means that ptlocks will be unconditionally initialised.
+This is fine on arm - create_mapping_late() is only used for the EFI
+mapping. On arm64, __create_pgd_mapping() is also used by
+arch_add_memory(); patch 8/9/11 ensure that ctors are called at all
+levels with the appropriate mm. The situation is similar on riscv, but
+propagating the mm down to the ctor would require significant
+refactoring. Since they are already called unconditionally, this series
+leaves riscv no worse off - patch 10 adds comments to clarify the
+situation.
+
+From a cursory look at other architectures implementing
+arch_add_memory(), s390 and x86 may also need a similar treatment to add
+constructor calls. This is to be taken care of in a future version or as
+a follow-up.
+
+---
+
+The complications in those special pgtable allocators beg the question:
+does it really make sense to treat efi_mm and init_mm differently in
+e.g. apply_to_pte_range()? Maybe what we really need is a way to tell if
+an mm corresponds to user memory or not, and never use split locks for
+non-user mm's. Feedback and suggestions welcome!
+
+- Kevin
+
+[1] https://lore.kernel.org/linux-mm/20250103184415.2744423-1-kevin.brodsky@arm.com/
+[2] https://lore.kernel.org/linux-hardening/20250203101839.1223008-1-kevin.brodsky@arm.com/
+---
+Changelog
+
+v1..v2:
+
+- Added patch 2 to fix a BUG() on x86 caused by a missing dtor call at
+  the PTE level.
+
+- Patch 9: declared the new helpers with __maybe_unused to avoid a
+  warning if CONFIG_MEMORY_HOTPLUG isn't selected.
+
+v1: https://lore.kernel.org/linux-mm/20250317141700.3701581-1-kevin.brodsky@arm.com/
+---
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Andreas Larsson <andreas@gaisler.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: "Mike Rapoport (IBM)" <rppt@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Qi Zheng <zhengqi.arch@bytedance.com>
+Cc: Ryan Roberts <ryan.roberts@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yang Shi <yang@os.amperecomputing.com>
+Cc: linux-arch@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-openrisc@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: sparclinux@vger.kernel.org
+Cc: x86@kernel.org
+---
+Kevin Brodsky (12):
+  mm: Pass mm down to pagetable_{pte,pmd}_ctor
+  x86: pgtable: Always use pte_free_kernel()
+  mm: Call ctor/dtor for kernel PTEs
+  m68k: mm: Call ctor/dtor for kernel PTEs
+  powerpc: mm: Call ctor/dtor for kernel PTEs
+  sparc64: mm: Call ctor/dtor for kernel PTEs
+  mm: Skip ptlock_init() for kernel PMDs
+  arm64: mm: Use enum to identify pgtable level instead of *_SHIFT
+  arm64: mm: Always call PTE/PMD ctor in __create_pgd_mapping()
+  riscv: mm: Clarify ctor mm argument in alloc_{pte,pmd}_late
+  arm64: mm: Call PUD/P4D ctor in __create_pgd_mapping()
+  riscv: mm: Call PUD/P4D ctor in special kernel pgtable alloc
+
+ arch/arm/mm/mmu.c                        |  2 +-
+ arch/arm64/mm/mmu.c                      | 93 ++++++++++++++----------
+ arch/csky/include/asm/pgalloc.h          |  2 +-
+ arch/loongarch/include/asm/pgalloc.h     |  2 +-
+ arch/m68k/include/asm/mcf_pgalloc.h      |  8 +-
+ arch/m68k/include/asm/motorola_pgalloc.h | 10 +--
+ arch/m68k/mm/motorola.c                  |  6 +-
+ arch/microblaze/mm/pgtable.c             |  2 +-
+ arch/mips/include/asm/pgalloc.h          |  2 +-
+ arch/openrisc/mm/ioremap.c               |  2 +-
+ arch/parisc/include/asm/pgalloc.h        |  2 +-
+ arch/powerpc/mm/book3s64/pgtable.c       |  2 +-
+ arch/powerpc/mm/pgtable-frag.c           | 30 ++++----
+ arch/riscv/mm/init.c                     | 26 ++++---
+ arch/s390/include/asm/pgalloc.h          |  2 +-
+ arch/s390/mm/pgalloc.c                   |  2 +-
+ arch/sparc/mm/init_64.c                  | 29 ++++----
+ arch/sparc/mm/srmmu.c                    |  2 +-
+ arch/x86/mm/pgtable.c                    |  9 +--
+ include/asm-generic/pgalloc.h            | 11 ++-
+ include/linux/mm.h                       | 10 ++-
+ 21 files changed, 142 insertions(+), 112 deletions(-)
+
+
+base-commit: 0af2f6be1b4281385b618cb86ad946eded089ac8
 -- 
-2.49.0
+2.47.0
 
