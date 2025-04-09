@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A41A231C9F
-	for <linux-s390@vger.kernel.org>; Wed,  9 Apr 2025 11:02:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0DB25E443
+	for <linux-s390@vger.kernel.org>; Wed,  9 Apr 2025 11:12:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744196545; cv=none; b=XmXkxqf19YT3MtM3hm6IjtRXDX5IMPCT9AxZB0nfn/qehpY0RSIoBF+wirWgBH5BU+aJG3NJZSTC1ATSjknEZ9Ib+SsTVd1eeaqgfsP9kkOtbGNtAHADxXyczIzIMRYp0WjpBy0Co8Zl/9H2R1FadOnIANkSowcT0V3giwCIJNI=
+	t=1744197148; cv=none; b=nMiI75FXpZ2x6ncDdDTczrnM6kFb0Q2hH7PoA2rWMsuGg/o+iOrcDdlF/HmKqJiewAkN5dFYehuGyQTq8qIgMzShM/dCPTlo2uUIn5LHbSj3ZsakAoVnjXgieSCDlNjSQTdxQubrrDu2bcrzrQxGVG3zpIscj80hTnMiHS1J/wQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744196545; c=relaxed/simple;
-	bh=vFccTBifcMr4w0wAbFpruMpJxwc2CS5iCTeeVE95v9M=;
+	s=arc-20240116; t=1744197148; c=relaxed/simple;
+	bh=AAGrQNtBuN1ihWdkerk8c2neW/iHPIvIRrwJh+j8YW4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=i10lWwWsY0zBVLmqNgNUCxStd/UUZMJEwLx4URMjfhfujjh3zKH9ADK1VFsP5SN7dmnyD7pi5iM76DJiilDeUPa+vw95tj6QWz+7R66cSyZ49yvHxK+ju68R9qU31iPbqrfhP4c+cc1zs1j1nEaTZZAZyT3shsWTG7TbgBGczeM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cKPxKrdj; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=P6bd1RCwMuNzdFzFQwlMeucDf6iARQVxi3svxxIJhsmADcRJnN6nnVZrjfWSgm8nZnkpBdf7Oy35CNArtMIU/HksrXHzIEUdLYZgwiR5lfXe4UFrc2uBzP2MsNWdXC5cKfEEL3timtbwNutcV5twZD7r3LeAtgD5IsBuecVOgMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e3gJYrqQ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cKPxKrdj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e3gJYrqQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744196541;
+	s=mimecast20190719; t=1744197146;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=EZOvVaEoZInhqpXJxnrIlSWuUXWiFfIJgLdhkS7C9vI=;
-	b=cKPxKrdjUeA1Hsn0q30BQql50os3bvIdVl3ZPooKRapr1WdUHJCRso+tHfSU2/zyfqF2ud
-	C22edHtAfv27xSdFT/5mJ69Ro9So3QLTUFxoaAaS/ddfOWgeFTqtgu8ysEBvuKh4ehJvJ7
-	CQLdTzTqsUG4gYIKZUTsTlseIlaL76k=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9nMsTneqx3jgd8j4ujUAwXpeFm7NDC75tljzqi5ciEg=;
+	b=e3gJYrqQW9WpR5qRp3j8L/4+bTJB7BD57KUE6UBlGXRKd4S4IiBOQvLFUvrQftDdUZC1xf
+	GsK+VvGqY/+upelrt+pGfSFTJi6Ecx8Ihs6UbTCIjbxOIZxiv2PDjYrCEVz861srdrhdrn
+	3gGbPb33BhlWHjmbN4IEsDoNQTlmJMY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-642-i0sZ1O9NNSi571o5C1kUJA-1; Wed, 09 Apr 2025 07:02:19 -0400
-X-MC-Unique: i0sZ1O9NNSi571o5C1kUJA-1
-X-Mimecast-MFC-AGG-ID: i0sZ1O9NNSi571o5C1kUJA_1744196538
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3912b54611dso3643126f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 09 Apr 2025 04:02:18 -0700 (PDT)
+ us-mta-648-y-Ki3phGNJGVnnwLaeBt6Q-1; Wed, 09 Apr 2025 07:12:22 -0400
+X-MC-Unique: y-Ki3phGNJGVnnwLaeBt6Q-1
+X-Mimecast-MFC-AGG-ID: y-Ki3phGNJGVnnwLaeBt6Q_1744197142
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43d5ca7c86aso43202045e9.0
+        for <linux-s390@vger.kernel.org>; Wed, 09 Apr 2025 04:12:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744196538; x=1744801338;
+        d=1e100.net; s=20230601; t=1744197141; x=1744801941;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=EZOvVaEoZInhqpXJxnrIlSWuUXWiFfIJgLdhkS7C9vI=;
-        b=pay1pvFw9JZwPdn9or/WTSjDWnRm83lLYqeQcx1C2JShZ2zRF/ddRFXG7YKXlq0atQ
-         uwp63WxQaSP4q2zyWyHtA0lV3/Y2o02bdatBra5Qq3CvqRx46nYI4AiwZWWZ9ujDBCAZ
-         ZuE5kdctNJjreBNmBzTFKgEuko2pnFqJF+eIeJC/4X6fAzhsOj9LXp4Nm1t25jXpUK8x
-         2CA0SErwsK1Ec1LXWXr5YgqlspKIy6MYp5KBOEjjJYJSAGoQqQMzsmkK8/VBDAEHIg/6
-         bO6acV29dgBznN+egBmcxTnl5Z/EhPZuC16awF4YBA2DC/o5meBU3EQYDWgO9ZXFbN1U
-         kspw==
-X-Forwarded-Encrypted: i=1; AJvYcCXWaahVwvgrYfuGg0gjez70ncbyuVB9yClpGGH905bwWT20XkFbYzxyvWBVlEH3kCatnsBRTvBIDJ7f@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywa3Pe+Z6GB9n8Q9y7DjeZvQpGWW1XqAUna4HJRWyqAT0X31mYS
-	z92mT37Sti/Pkoq5g3MPz/8pnqJEeh4VVcHCxe49IAvRPoWPlIcwu+kGjkVaajeJXuwebZzJ2vx
-	l/zILr5qRYMDM0c8MDhyA/JNpGnjVYRgJ1AaIkxkluxSkKkymEkCJjt4tS9c=
-X-Gm-Gg: ASbGnctqg/KY6YcVNdbdysb3LWjqEHs8PROvX5Djkr88dY+SWT3jG37MJlccPRZsUUu
-	TU0yLVASoy2t1LsmYFjYHaMsgVDmCBgzU4GrOvZp3bOMBim+8x8H9L7PETz5tOk1ikiANTxV26e
-	V55s+Rl+p0hXQmCg0u7RL+SjPUyyfMNLOpU3grRuXWDvDj5eXHRuqr3Wjn7xINkcAkMP8ogrG4x
-	egZgaCHXgVF5inLcBHChGcLj8o2OfK4SlDOoETxqPJlH7o+XVMlhxkRa9CEIjyVlCjhyH7WrZi2
-	aj3+a4lJ2iewP9XjmrvyaiQ5tyGEJZvAGUeNQearnDaud7Tc5EqVFb24QOSelSd69cTZN/LMjOs
-	rS14wffzhcNITYPRgurCik8RTjOsnj7TX9A==
-X-Received: by 2002:a5d:64e6:0:b0:391:1923:5a91 with SMTP id ffacd0b85a97d-39d87cde0b9mr2236396f8f.55.1744196537641;
-        Wed, 09 Apr 2025 04:02:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG0yBYVj5sgCYfXRlJOj5ovufewuK7JcWT/I+AT3kZEv8OkYtJmZ/uTZ0a33bImrRVMti8zDw==
-X-Received: by 2002:a5d:64e6:0:b0:391:1923:5a91 with SMTP id ffacd0b85a97d-39d87cde0b9mr2236355f8f.55.1744196537163;
-        Wed, 09 Apr 2025 04:02:17 -0700 (PDT)
+        bh=9nMsTneqx3jgd8j4ujUAwXpeFm7NDC75tljzqi5ciEg=;
+        b=XrBpuoKezFc+D0V15BBAQnKTX3S3gpKFzG/39QWJGc8Y0vAEoJKwAEgTFpqcuET2Es
+         HWb4rIX5telDfSK7CW7GfKQYK7GBOo3EevQQgXSpMGN7iDPFauzc2lpsNq5wEPxrd2MQ
+         n3tBvc6+2Aq7Pg5RZhiipHIJO7hmcNkEkSBJ5IcrkU6rfhRQEh/7uOlbBSNlNuU5aPkm
+         jNzowTLkWp2F7+1yxPUdMDqBe5Ets9J5A9urRzOPTE1nr+e1owLIX2qJG9CFpvAXq3kk
+         uuYYqRWSPahb9U1vDwr+dCPfYBGnSDX9PVB3z8UibcgDSC9wFDsK4I0mSiP4LGfmRkyD
+         dkLg==
+X-Forwarded-Encrypted: i=1; AJvYcCUe1Dzoktt9EdprN7mrMrKFn7dLUWdXeDCQn5hQGYv5puF4ILRu6Sm5BwEEBt4weRQrQCf7zuS+EZuq@vger.kernel.org
+X-Gm-Message-State: AOJu0YyANpO3HgsbfDdOD8yE6JtIH63nUwec6DKuOLX4NlehlRk+KT5u
+	5Qp7refY7tefrlj4c2u6juNY2+B2lVxXKnwNuhJJJJHJzTXVVrbK8DCaz1U0yE2Eia+ddDbxqoU
+	N9nzY77xUZzQheX9OULMfUGrGFYImc3Xy6ivP9O5/WdF3OLhnnW1kHyK+1zQ=
+X-Gm-Gg: ASbGncvHlmL4FKOC6ynwLU908AH2gOKJHiivAPg5S3RFuSvxo+ZtKLVAvr0eBXnN54c
+	kGGJg02yDAv6R2cl+4lCHJie2icK3Rei7EvY2bboznM19l8IQMWt9PGd+YboWWZFvaQC1KiOfrX
+	tMi3P7atYlNbhaqnYZmmG9cj0+BwHj3tXN8X2wEXpkb9hWNREIGrpmS86Fr9zcSPan47uQsUmq8
+	rzKlhW614zx5h+DjFpHnr2OrTtseOriK31xZ5zUu/6061Yki5c3ZYbgODFw04DXX6TQpJH6rK57
+	nB+8GIUxNT7P2dQV2Gu69HkAFX6OysspQClVU0re8g2voyryKOYfWXWEDUQyLrhoxI93ZZ+Fl91
+	2AxZHQXVUZqKJP/YBazbZUiREs+ZCOysmuw==
+X-Received: by 2002:a05:600c:34c4:b0:43c:fe5e:f040 with SMTP id 5b1f17b1804b1-43f1ed4b457mr20836745e9.23.1744197141489;
+        Wed, 09 Apr 2025 04:12:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFHeq+EHpYUUJQTQEveOg8AhmUdTBJBmzjzPv6OgTA7dYxMwOEXTBGbX0Gy/p01wy2MxV6TMQ==
+X-Received: by 2002:a05:600c:34c4:b0:43c:fe5e:f040 with SMTP id 5b1f17b1804b1-43f1ed4b457mr20836585e9.23.1744197141076;
+        Wed, 09 Apr 2025 04:12:21 -0700 (PDT)
 Received: from ?IPV6:2003:cb:c70d:8400:ed9b:a3a:88e5:c6a? (p200300cbc70d8400ed9b0a3a88e50c6a.dip0.t-ipconnect.de. [2003:cb:c70d:8400:ed9b:a3a:88e5:c6a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39d8938b414sm1348203f8f.56.2025.04.09.04.02.15
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39d893fdf6dsm1343797f8f.90.2025.04.09.04.12.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Apr 2025 04:02:16 -0700 (PDT)
-Message-ID: <13f42e6a-e20b-490c-a75b-a32b5e6c5553@redhat.com>
-Date: Wed, 9 Apr 2025 13:02:15 +0200
+        Wed, 09 Apr 2025 04:12:20 -0700 (PDT)
+Message-ID: <4ad4b12e-b474-48bb-a665-6c1dc843cd51@redhat.com>
+Date: Wed, 9 Apr 2025 13:12:19 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,25 +77,18 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
  non-existing queues
-To: Daniel Verkamp <dverkamp@chromium.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- Chandra Merla <cmerla@redhat.com>, Stable@vger.kernel.org,
- Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>,
- Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Daniel Verkamp <dverkamp@chromium.org>, Halil Pasic
+ <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+ Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+ Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
  Sven Schnelle <svens@linux.ibm.com>, Wei Wang <wei.w.wang@intel.com>
-References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
- <20250404160025.3ab56f60.pasic@linux.ibm.com>
- <6f548b8b-8c6e-4221-a5d5-8e7a9013f9c3@redhat.com>
- <20250404173910.6581706a.pasic@linux.ibm.com>
- <20250407034901-mutt-send-email-mst@kernel.org>
- <2b187710-329d-4d36-b2e7-158709ea60d6@redhat.com>
- <20250407042058-mutt-send-email-mst@kernel.org>
- <0c221abf-de20-4ce3-917d-0375c1ec9140@redhat.com>
- <20250407044743-mutt-send-email-mst@kernel.org>
+References: <20250407044743-mutt-send-email-mst@kernel.org>
  <b331a780-a9db-4d76-af7c-e9e8e7d1cc10@redhat.com>
  <20250407045456-mutt-send-email-mst@kernel.org>
  <a86240bc-8417-48a6-bf13-01dd7ace5ae9@redhat.com>
@@ -103,7 +96,9 @@ References: <d6f5f854-1294-4afa-b02a-657713435435@redhat.com>
  <88d8f2d2-7b8a-458f-8fc4-c31964996817@redhat.com>
  <CABVzXAmMEsw70Tftg4ZNi0G4d8j9pGTyrNqOFMjzHwEpy0JqyA@mail.gmail.com>
  <3bbad51d-d7d8-46f7-a28c-11cc3af6ef76@redhat.com>
- <CABVzXAnLjNeTYFvBBXyvB=h63b-rkjncBMzkV=+PY-Mi5fvi3g@mail.gmail.com>
+ <20250407170239-mutt-send-email-mst@kernel.org>
+ <440de313-e470-4afa-9f8a-59598fe8dc21@redhat.com>
+ <20250409065216-mutt-send-email-mst@kernel.org>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -151,143 +146,85 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <CABVzXAnLjNeTYFvBBXyvB=h63b-rkjncBMzkV=+PY-Mi5fvi3g@mail.gmail.com>
+In-Reply-To: <20250409065216-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 07.04.25 23:09, Daniel Verkamp wrote:
-> On Mon, Apr 7, 2025 at 11:47 AM David Hildenbrand <david@redhat.com> wrote:
->>
->>>>> Heh, but that one said:
->>>>>
->>>>> +\item[ VIRTIO_BALLOON_F_WS_REPORTING(6) ] The device has support for
->>>>> Working Set
->>>>>
->>>>> Which does not seem to reflect reality ...
->>>
->>> Please feel free to disregard these features and reuse their bits and
->>> queue indexes; as far as I know, they are not actually enabled
->>> anywhere currently and the corresponding guest patches were only
->>> applied to some (no-longer-used) ChromeOS kernel trees, so the
->>> compatibility impact should be minimal. I will also try to clean up
->>> the leftover bits on the crosvm side just to clear things up.
->>
->> Thanks for your reply, and thanks for clarifying+cleaning it up.
->>
-> [...]
->>>> IIRC, in that commit they switched to the "spec" behavior.
+On 09.04.25 12:56, Michael S. Tsirkin wrote:
+> On Wed, Apr 09, 2025 at 12:46:41PM +0200, David Hildenbrand wrote:
+>> On 07.04.25 23:20, Michael S. Tsirkin wrote:
+>>> On Mon, Apr 07, 2025 at 08:47:05PM +0200, David Hildenbrand wrote:
+>>>>> In my opinion, it makes the most sense to keep the spec as it is and
+>>>>> change QEMU and the kernel to match, but obviously that's not trivial
+>>>>> to do in a way that doesn't break existing devices and drivers.
 >>>>
->>>> That's when they started hard-coding the queue indexes.
+>>>> If only it would be limited to QEMU and Linux ... :)
 >>>>
->>>> CCing Daniel. All Linux versions should be incompatible with cross-vmm regarding free page reporting.
->>>> How is that handled?
+>>>> Out of curiosity, assuming we'd make the spec match the current QEMU/Linux
+>>>> implementation at least for the 3 involved features only, would there be a
+>>>> way to adjust crossvm without any disruption?
+>>>>
+>>>> I still have the feeling that it will be rather hard to get that all
+>>>> implementations match the spec ... For new features+queues it will be easy
+>>>> to force the usage of fixed virtqueue numbers, but for free-page-hinting and
+>>>> reporting, it's a mess :(
 >>>
->>> In practice, it only works because nobody calls crosvm with
->>> --balloon-page-reporting (it's off by default), so the balloon device
->>> does not advertise the VIRTIO_BALLOON_F_PAGE_REPORTING feature.
 >>>
->>> (I just went searching now, and it does seem like there is actually
->>> one user in Android that does try to enable page reporting[1], which
->>> I'll have to look into...)
->>>
->>> In my opinion, it makes the most sense to keep the spec as it is and
->>> change QEMU and the kernel to match, but obviously that's not trivial
->>> to do in a way that doesn't break existing devices and drivers.
+>>> Still thinking about a way to fix drivers... We can discuss this
+>>> theoretically, maybe?
 >>
->> If only it would be limited to QEMU and Linux ... :)
+>> Yes, absolutely. I took the time to do some more digging; regarding drivers
+>> only Linux seems to be problematic.
 >>
->> Out of curiosity, assuming we'd make the spec match the current
->> QEMU/Linux implementation at least for the 3 involved features only,
->> would there be a way to adjust crossvm without any disruption?
+>> virtio-win, FreeBSD, NetBSD and OpenBSD and don't seem to support
+>> problematic features (free page hinting, free page reporting) in their
+>> virtio-balloon implementations.
 >>
->> I still have the feeling that it will be rather hard to get that all
->> implementations match the spec ... For new features+queues it will be
->> easy to force the usage of fixed virtqueue numbers, but for
->> free-page-hinting and reporting, it's a mess :(
+>> So from the known drivers, only Linux is applicable.
+>>
+>> reporting_vq is either at idx 4/3/2
+>> free_page_vq is either at idx 3/2
+>> statsq is at idx2 (only relevant if the feature is offered)
+>>
+>> So if we could test for the existence of a virtqueue at an idx easily, we
+>> could test from highest-to-smallest idx.
+>>
+>> But I recall that testing for the existance of a virtqueue on s390x resulted
+>> in the problem/deadlock in the first place ...
+>>
+>> -- 
+>> Cheers,
+>>
+>> David / dhildenb
 > 
-> If the spec is changed, we can certainly update crosvm to match it; I
-> think this only really affects a few devices (balloon and technically
-> filesystem, but see below), only affects features that are generally
-> not turned on, and in many cases, the guest kernel is updated
-> simultaneously with the crosvm binary. I'm not opposed to changing the
-> spec to match reality, although that feels like a bad move from a
-> spec-integrity perspective.
+> So let's talk about a new feature bit?
 
-Right. We didn't pay attention that the spec would reflect reality, and 
-the reality was a bad decision :)
+Are you thinking about a new feature that switches between "fixed queue 
+indices" and "compressed queue indices", whereby the latter would be the 
+legacy default and we would expect all devices to switch to the new 
+fixed-queue-indices layout?
 
-> 
-> Regardless of the chosen path, I think the spec should be clarified -
-> the meaning of "queue only exists if <feature> is set" leaves the
-> reader with too many questions:
-
-Right, that's what we've been discussing.
-
-> - What does "if <feature> is set" mean? If it's advertised by the
-> device? If it's acked by the driver? (To me, "set" definitely hints at
-> the latter, but it should be explicit.)
-
-Currently it's "feature is offered by the device".
-
-> - What does it mean for a virtqueue to "exist"? Does that queue index
-> disappear from the numbering if it does not exist, sliding all of the
-> later queues down?
-
-Currently it's like that, yes.
-
-> If so, the spec should really not have the static
-> queue numbers listed for the later queues, since they are only correct
-> if all previous feature-dependent queues were also "set", whatever
-> that means.
-
-Yes, that's also what we've been discussing. And that started restarted 
-the whole "can we fix device/drivers instead" :)
+We could make all new features require "fixed-queue-indices".
 
 > 
-> The way crosvm interpreted this was:
-> - "if <feature> is set" means "if the device advertised <feature>
-> *and* driver acknowledged <feature>"
-> - "queue only exists" means "if <feature> was not acked, the
-> corresponding virtqueue cannot be enabled by the driver" (attempting
-> to set queue_enable = 1 has no effect).
-> - Any later virtqueues are unaffected and still have the same queue indexes.
+> Since vqs are probed after feature negotiation, it looks like
+> we could have a feature bit trigger sane behaviour, right?
 
-Yes, that matches my understanding.
+In the Linux driver, yes. In QEMU (devices), we add the queues when 
+realizing, so we'd need some mechanism to adjust the queue indices based 
+on feature negotiation I guess?
 
-> 
-> The way QEMU interpeted this (I think, just skimming the code and
-> working from memory here):
-> - "if <feature> is set" means "if the device advertised <feature>" (it
-> is checking host_features, not guest_features)
+For virtio-balloon it might be doable to simply always create+indicate 
+free-page hinting to resolve the issue easily.
 
-Right, "offered features".
-
-> - "queue only exists" means "if <feature> was not offered by the
-> device, all later virtqueues are shifted down one index"
-
-Exactly.
+For virtio-fs it might not be that easy.
 
 > 
-> ---
-> 
-> The spec for the filesystem device has a similar issue to the balloon device:
-> - Queue 0 (hiprio) is always available regardless of features.
-> - Queue 1 (notification queue) has a note that "The notification queue
-> only exists if VIRTIO_FS_F_NOTIFICATION is set."
-> - Queue 2..n are supposed to be the request queues per the numbering
-> in the spec.
-> 
-> This is how it has been specified since virtio 1.2 when the fs device
-> was originally added. However, the Linux driver (and probably all
-> existing device implementations - at least virtiofsd and crosvm's fs
-> device) don't support VIRTIO_FS_F_NOTIFICATION and use queue 1 as a
-> request queue, which matches the QEMU/Linux interpretation but means
-> the spec doesn't match reality again.
+> I kind of dislike it that we have a feature bit for bugs though.
+> What would be a minimal new feature to add so it does not
+> feel wrong?
 
-Yes, these are the two known cases we have to sort out.
-
-Thanks for the information on crossvm, and that whatever we decide to 
-do, adjusting crossvm should not be a big problem (at least for now :) ).
+Probably as above: fixed vs. compressed virtqueue indices?
 
 -- 
 Cheers,
