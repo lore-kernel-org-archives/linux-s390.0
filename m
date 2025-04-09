@@ -1,66 +1,66 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF301265616
-	for <linux-s390@vger.kernel.org>; Wed,  9 Apr 2025 14:03:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC4C26562A
+	for <linux-s390@vger.kernel.org>; Wed,  9 Apr 2025 14:03:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744207398; cv=none; b=UpHInhWmbpO0nIlio9EgmJiUFNwC0tUaFEP8WcJS83uGFi9kIu+Foo6AnFednVSWNALw7fCFOuIoLvJB8igRrbzsBoNanX3HS2qhB4PM/VLg5KKM9llfY2Fttf+5WFh9s5b/6Y9V+915s3Zrox3cilDm28AH8dVCjDaSNZ6Fz6I=
+	t=1744207399; cv=none; b=PpKp25OxUb98B38ZDj5Jd3+E4apF+Ha0FHEXi25YciC+MJgMBFkk3WCTwTAi2ySJida20KnRl5aJ+byxxax8Oey2XxitVjW6vNLLQhlaZnOxJcvKt8ZK3swqyIvHrhqDygzhlWihoxGlmnk3h4nVCE5anJfvlSjfwniI0zF7j9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744207398; c=relaxed/simple;
-	bh=qPLnh3+6oAS+bNGrpAXYwyC/I7yqNN2K1LAIH86fHY8=;
+	s=arc-20240116; t=1744207399; c=relaxed/simple;
+	bh=JK/NcZHIyhjkkgVF6GCQwSz6Feop2mafWahdi98DAoU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=E94Y824NQex11JAgP2Y810lqWZTICA+pTTP3xS1buv76ElWmMexw7ViIwid7MbEY+UQ4k58cwhhF6cCK1GnocouNetWGy2t672telyr2fXfunOzxJr9RB4DjBYmrrzFy6TfEkju9By8ol9iLZHFCvral9ccp9z24T7UfCxZv14Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PzyfubDH; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=pjyLBBGlmMgjRDS1PTB/OxvM4SBqkzUJGFho3VizLvRaJJh/vXEe5MDsDpGZ3jr37iYJkzGy0lt2sCfMTLc/rOVVv/xfeBVnnFq3XsD2xiYIm0fyTP7tYs8jZBdbY2Y5TVw4c3NyuzG0W2GszvuZLz9JblXdLuVEdr9WKSpx3sQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bRGXd2mb; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PzyfubDH"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 539D5soL003592;
-	Wed, 9 Apr 2025 14:03:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bRGXd2mb"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5399prSD027294;
+	Wed, 9 Apr 2025 14:03:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=OjiqxwC5yacfjBCNH
-	hoyg7efGakAnWnXMmDNStkrorM=; b=PzyfubDH5cn27Zj384zBrg1BSDOLuHjWy
-	2TSqUV98GQrITljRCCkEyreFmtCgQaGwgckOthdJ4dD9SGuMCwmYjbqWFb1vN/KV
-	hxZbVkjoBvW+65qC8YbQitubwcJxnnFP+tHXEVu1oM0zmILeLNTny474HBBxHMud
-	zc2ThTkhHNBFbrT0VTIQWReO36VHrtBFwf6g/KuvLu00IPZe9k+lHyLzZ84gLj9F
-	RZuMutfXLM8UaIyxxbVgqILqLfwDjJANpjudW63ppIBV2WVq0aiUk50aD7ilPoMm
-	WZvylC7g/zM9n/NprAzoOOLvjyAozu5M/4c0FA8a+BUFbsq9IASsQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45w7yxd06m-1
+	:mime-version:references:subject:to; s=pp1; bh=ggk32wJkd35HQR6b2
+	swvkaF8po3Ft+ivI5UICFS+P7I=; b=bRGXd2mbS06TdGbdjDohjjAiuo6NAEyz5
+	c6Y8sJ4i/url53bjxL8Wy8F7dXTG8ye1wsqpZAEtUXIFZl2FQIZXacZFtLp1t/Xp
+	s/dirPKJ5NI5eY8krNTuP84x5bQYRohZHrxMaAsoloUoj+JrOyu4YrC5/Eekgt+T
+	ekWX/ofVMtiPykRG5XLGwu1timb0cIRUhfABSq+EOUZZ5RTBNfNntAVpDfOh4ENr
+	V4U7/TfMnA7PZiAjHPYiEfJslOQJbIvZyHYHgwQ1Tfixif/I36LEbDvl4GauS4Pn
+	HZl28W/cWkHcX6FkLF+A3ZSa1gotGWL4AMX4pD2sLCw5eWJptiksg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45wb10m0dm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Apr 2025 14:03:12 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 539DISGr011062;
-	Wed, 9 Apr 2025 14:03:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45uf7yr5gs-1
+	Wed, 09 Apr 2025 14:03:14 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 539CfJL7024600;
+	Wed, 9 Apr 2025 14:03:13 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 45ueutg77t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Apr 2025 14:03:11 +0000
+	Wed, 09 Apr 2025 14:03:13 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 539E381B28967462
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 539E3AIC59638208
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 9 Apr 2025 14:03:08 GMT
+	Wed, 9 Apr 2025 14:03:10 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 095E620040;
-	Wed,  9 Apr 2025 14:03:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E977420040;
+	Wed,  9 Apr 2025 14:03:09 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C85220043;
-	Wed,  9 Apr 2025 14:03:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5DA7A20043;
+	Wed,  9 Apr 2025 14:03:09 +0000 (GMT)
 Received: from funtu2.fritz.box?044ibm.com (unknown [9.171.93.164])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  9 Apr 2025 14:03:07 +0000 (GMT)
+	Wed,  9 Apr 2025 14:03:09 +0000 (GMT)
 From: Harald Freudenberger <freude@linux.ibm.com>
 To: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         seiden@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com
 Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: [PATCH v4 02/24] s390/ap/zcrypt: Rework AP message buffer allocation
-Date: Wed,  9 Apr 2025 16:02:43 +0200
-Message-ID: <20250409140305.58900-3-freude@linux.ibm.com>
+Subject: [PATCH v4 05/24] s390/ap/zcrypt: New xflag parameter
+Date: Wed,  9 Apr 2025 16:02:46 +0200
+Message-ID: <20250409140305.58900-6-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250409140305.58900-1-freude@linux.ibm.com>
 References: <20250409140305.58900-1-freude@linux.ibm.com>
@@ -72,380 +72,439 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ro57_jbtIpEJrS2W_rZxx2tHaPtewobv
-X-Proofpoint-GUID: ro57_jbtIpEJrS2W_rZxx2tHaPtewobv
+X-Proofpoint-ORIG-GUID: AvuhaY-QzOUiWgRSXUFM56BhsNYwMrar
+X-Proofpoint-GUID: AvuhaY-QzOUiWgRSXUFM56BhsNYwMrar
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-09_05,2025-04-08_04,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- spamscore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
- clxscore=1015 malwarescore=0 mlxscore=0 suspectscore=0 mlxlogscore=999
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 malwarescore=0 suspectscore=0 impostorscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 mlxlogscore=999 mlxscore=0
+ phishscore=0 clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502280000 definitions=main-2504090086
 
-Slight rework on the way how AP message buffers are allocated.
-Instead of having multiple places with kmalloc() calls all
-the AP message buffers are now allocated and freed on exactly
-one place: ap_init_apmsg() allocates the current AP bus max
-limit of ap_max_msg_size (defaults to 12KB). The AP message
-buffer is then freed in ap_release_apmsg().
+Introduce a new flag parameter for the both cprb send functions
+zcrypt_send_cprb() and zcrypt_send_ep11_cprb(). This new
+xflags parameter ("execution flags") shall be used to provide
+execution hints and flags for this crypto request.
+
+There are two flags implemented to be used with these functions:
+* ZCRYPT_XFLAG_USERSPACE - indicates to the lower layers that
+  all the ptrs address userspace. So when construction the ap msg
+  copy_from_user() is to be used. If this flag is NOT set, the ptrs
+  address kernel memory and thus memcpy() is to be used.
+* ZCRYPT_XFLAG_NOMEMALLOC - indicates that this task must not
+  allocate memory which may be allocated with io operations.
+
+For the AP bus and zcrypt message layer this means:
+* The ZCRYPT_XFLAG_USERSPACE is mapped to the already existing
+  bool variable "userspace" which is propagated to the zcrypt
+  proto implementations.
+* The ZCRYPT_XFLAG_NOMEMALLOC results in setting the AP flag
+  AP_MSG_FLAG_MEMPOOL when the AP msg buffer is initialized.
 
 Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_bus.c           | 26 ++++++++++++++
- drivers/s390/crypto/ap_bus.h           | 21 ++---------
- drivers/s390/crypto/zcrypt_api.c       | 49 +++++++++++++++-----------
- drivers/s390/crypto/zcrypt_msgtype50.c | 20 ++++++-----
- drivers/s390/crypto/zcrypt_msgtype6.c  | 35 +++++++++---------
- 5 files changed, 86 insertions(+), 65 deletions(-)
+ drivers/s390/crypto/ap_bus.c          |  6 ++--
+ drivers/s390/crypto/ap_bus.h          |  2 +-
+ drivers/s390/crypto/zcrypt_api.c      | 45 ++++++++++++++++-----------
+ drivers/s390/crypto/zcrypt_api.h      | 11 +++++--
+ drivers/s390/crypto/zcrypt_ccamisc.c  | 16 +++++-----
+ drivers/s390/crypto/zcrypt_ep11misc.c | 10 +++---
+ 6 files changed, 52 insertions(+), 38 deletions(-)
 
 diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 26e1ea1940ec..69f2d873748a 100644
+index aac227397137..0ece9348be87 100644
 --- a/drivers/s390/crypto/ap_bus.c
 +++ b/drivers/s390/crypto/ap_bus.c
-@@ -546,6 +546,32 @@ static void ap_poll_thread_stop(void)
- #define is_card_dev(x) ((x)->parent == ap_root_device)
- #define is_queue_dev(x) ((x)->parent != ap_root_device)
+@@ -571,18 +571,18 @@ static void ap_poll_thread_stop(void)
+ /*
+  * ap_init_apmsg() - Initialize ap_message.
+  */
+-int ap_init_apmsg(struct ap_message *ap_msg, bool use_mempool)
++int ap_init_apmsg(struct ap_message *ap_msg, u32 flags)
+ {
+ 	unsigned int maxmsgsize;
  
-+/*
-+ * ap_init_apmsg() - Initialize ap_message.
-+ */
-+int ap_init_apmsg(struct ap_message *ap_msg)
-+{
-+	unsigned int maxmsgsize = atomic_read(&ap_max_msg_size);
-+
-+	memset(ap_msg, 0, sizeof(*ap_msg));
-+	ap_msg->msg = kmalloc(maxmsgsize, GFP_KERNEL);
-+	if (!ap_msg->msg)
-+		return -ENOMEM;
-+	ap_msg->bufsize = maxmsgsize;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(ap_init_apmsg);
-+
-+/*
-+ * ap_release_apmsg() - Release ap_message.
-+ */
-+void ap_release_apmsg(struct ap_message *ap_msg)
-+{
-+	kfree_sensitive(ap_msg->msg);
-+}
-+EXPORT_SYMBOL(ap_release_apmsg);
-+
- /**
-  * ap_bus_match()
-  * @dev: Pointer to device
+ 	memset(ap_msg, 0, sizeof(*ap_msg));
++	ap_msg->flags = flags;
+ 
+-	if (use_mempool) {
++	if (flags & AP_MSG_FLAG_MEMPOOL) {
+ 		ap_msg->msg = mempool_alloc_preallocated(ap_msg_pool);
+ 		if (!ap_msg->msg)
+ 			return -ENOMEM;
+ 		ap_msg->bufsize = AP_DEFAULT_MAX_MSG_SIZE;
+-		ap_msg->flags |= AP_MSG_FLAG_MEMPOOL;
+ 		return 0;
+ 	}
+ 
 diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 7fd24c207bdf..483231bcdea6 100644
+index 60c41d8116ad..88b625ba1978 100644
 --- a/drivers/s390/crypto/ap_bus.h
 +++ b/drivers/s390/crypto/ap_bus.h
-@@ -237,25 +237,8 @@ struct ap_message {
- #define AP_MSG_FLAG_USAGE    0x0002	/* CCA, EP11: usage (no admin) msg */
+@@ -238,7 +238,7 @@ struct ap_message {
  #define AP_MSG_FLAG_ADMIN    0x0004	/* CCA, EP11: admin (=control) msg */
+ #define AP_MSG_FLAG_MEMPOOL  0x0008 /* ap msg buffer allocated via mempool */
  
--/**
-- * ap_init_message() - Initialize ap_message.
-- * Initialize a message before using. Otherwise this might result in
-- * unexpected behaviour.
-- */
--static inline void ap_init_message(struct ap_message *ap_msg)
--{
--	memset(ap_msg, 0, sizeof(*ap_msg));
--}
--
--/**
-- * ap_release_message() - Release ap_message.
-- * Releases all memory used internal within the ap_message struct
-- * Currently this is the message and private field.
-- */
--static inline void ap_release_message(struct ap_message *ap_msg)
--{
--	kfree_sensitive(ap_msg->msg);
--}
-+int ap_init_apmsg(struct ap_message *ap_msg);
-+void ap_release_apmsg(struct ap_message *ap_msg);
+-int ap_init_apmsg(struct ap_message *ap_msg, bool use_mempool);
++int ap_init_apmsg(struct ap_message *ap_msg, u32 flags);
+ void ap_release_apmsg(struct ap_message *ap_msg);
  
  enum ap_sm_wait ap_sm_event(struct ap_queue *aq, enum ap_sm_event event);
- enum ap_sm_wait ap_sm_event_loop(struct ap_queue *aq, enum ap_sm_event event);
 diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index 5020696f1379..78df25da0b95 100644
+index f96f596e578f..f753c0403a18 100644
 --- a/drivers/s390/crypto/zcrypt_api.c
 +++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -642,16 +642,17 @@ static long zcrypt_rsa_modexpo(struct ap_perms *perms,
- 	struct zcrypt_queue *zq, *pref_zq;
- 	struct ap_message ap_msg;
- 	unsigned int wgt = 0, pref_wgt = 0;
--	unsigned int func_code;
--	int cpen, qpen, qid = 0, rc = -ENODEV;
-+	unsigned int func_code = 0;
-+	int cpen, qpen, qid = 0, rc;
- 	struct module *mod;
+@@ -648,7 +648,7 @@ static long zcrypt_rsa_modexpo(struct ap_perms *perms,
  
  	trace_s390_zcrypt_req(mex, TP_ICARSAMODEXPO);
  
--	ap_init_message(&ap_msg);
-+	rc = ap_init_apmsg(&ap_msg);
-+	if (rc)
-+		goto out;
- 
- 	if (mex->outputdatalength < mex->inputdatalength) {
--		func_code = 0;
- 		rc = -EINVAL;
+-	rc = ap_init_apmsg(&ap_msg, false);
++	rc = ap_init_apmsg(&ap_msg, 0);
+ 	if (rc)
  		goto out;
- 	}
-@@ -728,7 +729,7 @@ static long zcrypt_rsa_modexpo(struct ap_perms *perms,
- 	spin_unlock(&zcrypt_list_lock);
  
- out:
--	ap_release_message(&ap_msg);
-+	ap_release_apmsg(&ap_msg);
- 	if (tr) {
- 		tr->last_rc = rc;
- 		tr->last_qid = qid;
-@@ -746,16 +747,17 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
- 	struct zcrypt_queue *zq, *pref_zq;
- 	struct ap_message ap_msg;
- 	unsigned int wgt = 0, pref_wgt = 0;
--	unsigned int func_code;
--	int cpen, qpen, qid = 0, rc = -ENODEV;
-+	unsigned int func_code = 0;
-+	int cpen, qpen, qid = 0, rc;
- 	struct module *mod;
+@@ -753,7 +753,7 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
  
  	trace_s390_zcrypt_req(crt, TP_ICARSACRT);
  
--	ap_init_message(&ap_msg);
-+	rc = ap_init_apmsg(&ap_msg);
-+	if (rc)
-+		goto out;
- 
- 	if (crt->outputdatalength < crt->inputdatalength) {
--		func_code = 0;
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -832,7 +834,7 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
- 	spin_unlock(&zcrypt_list_lock);
- 
- out:
--	ap_release_message(&ap_msg);
-+	ap_release_apmsg(&ap_msg);
- 	if (tr) {
- 		tr->last_rc = rc;
- 		tr->last_qid = qid;
-@@ -850,15 +852,18 @@ static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
- 	struct zcrypt_queue *zq, *pref_zq;
- 	struct ap_message ap_msg;
- 	unsigned int wgt = 0, pref_wgt = 0;
--	unsigned int func_code;
-+	unsigned int func_code = 0;
- 	unsigned short *domain, tdom;
--	int cpen, qpen, qid = 0, rc = -ENODEV;
-+	int cpen, qpen, qid = 0, rc;
- 	struct module *mod;
- 
- 	trace_s390_zcrypt_req(xcrb, TB_ZSECSENDCPRB);
- 
- 	xcrb->status = 0;
--	ap_init_message(&ap_msg);
-+
-+	rc = ap_init_apmsg(&ap_msg);
-+	if (rc)
-+		goto out;
- 
- 	rc = prep_cca_ap_msg(userspace, xcrb, &ap_msg, &func_code, &domain);
- 	if (rc)
-@@ -962,7 +967,7 @@ static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
- 	spin_unlock(&zcrypt_list_lock);
- 
- out:
--	ap_release_message(&ap_msg);
-+	ap_release_apmsg(&ap_msg);
- 	if (tr) {
- 		tr->last_rc = rc;
- 		tr->last_qid = qid;
-@@ -1033,14 +1038,16 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
- 	struct ep11_target_dev *targets;
- 	unsigned short target_num;
- 	unsigned int wgt = 0, pref_wgt = 0;
--	unsigned int func_code, domain;
-+	unsigned int func_code = 0, domain;
- 	struct ap_message ap_msg;
--	int cpen, qpen, qid = 0, rc = -ENODEV;
-+	int cpen, qpen, qid = 0, rc;
- 	struct module *mod;
- 
- 	trace_s390_zcrypt_req(xcrb, TP_ZSENDEP11CPRB);
- 
--	ap_init_message(&ap_msg);
-+	rc = ap_init_apmsg(&ap_msg);
-+	if (rc)
-+		goto out;
- 
- 	target_num = (unsigned short)xcrb->targets_num;
- 
-@@ -1164,7 +1171,7 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
- out_free:
- 	kfree(targets);
- out:
--	ap_release_message(&ap_msg);
-+	ap_release_apmsg(&ap_msg);
- 	if (tr) {
- 		tr->last_rc = rc;
- 		tr->last_qid = qid;
-@@ -1212,7 +1219,9 @@ static long zcrypt_rng(char *buffer)
- 
- 	trace_s390_zcrypt_req(buffer, TP_HWRNGCPRB);
- 
--	ap_init_message(&ap_msg);
-+	rc = ap_init_apmsg(&ap_msg);
-+	if (rc)
-+		goto out;
- 	rc = prep_rng_ap_msg(&ap_msg, &func_code, &domain);
+-	rc = ap_init_apmsg(&ap_msg, false);
++	rc = ap_init_apmsg(&ap_msg, 0);
  	if (rc)
  		goto out;
-@@ -1258,7 +1267,7 @@ static long zcrypt_rng(char *buffer)
- 	spin_unlock(&zcrypt_list_lock);
  
- out:
--	ap_release_message(&ap_msg);
-+	ap_release_apmsg(&ap_msg);
- 	trace_s390_zcrypt_rep(buffer, func_code, rc,
- 			      AP_QID_CARD(qid), AP_QID_QUEUE(qid));
- 	return rc;
-diff --git a/drivers/s390/crypto/zcrypt_msgtype50.c b/drivers/s390/crypto/zcrypt_msgtype50.c
-index 47c401f5409b..fc0a2a053dc2 100644
---- a/drivers/s390/crypto/zcrypt_msgtype50.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype50.c
-@@ -449,6 +449,10 @@ static atomic_t zcrypt_step = ATOMIC_INIT(0);
-  * @zq: pointer to zcrypt_queue structure that identifies the
-  *	CEXxA device to the request distributor
-  * @mex: pointer to the modexpo request buffer
-+ * This function assumes that ap_msg has been initialized with
-+ * ap_init_apmsg() and thus a valid buffer with the size of
-+ * ap_msg->bufsize is available within ap_msg. Also the caller has
-+ * to make sure ap_release_apmsg() is always called even on failure.
-  */
- static long zcrypt_msgtype50_modexpo(struct zcrypt_queue *zq,
- 				     struct ica_rsa_modexpo *mex,
-@@ -456,10 +460,8 @@ static long zcrypt_msgtype50_modexpo(struct zcrypt_queue *zq,
- {
- 	int rc;
- 
--	ap_msg->bufsize = MSGTYPE50_CRB3_MAX_MSG_SIZE;
--	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
--	if (!ap_msg->msg)
--		return -ENOMEM;
-+	if (ap_msg->bufsize < MSGTYPE50_CRB3_MAX_MSG_SIZE)
-+		return -EMSGSIZE;
- 	ap_msg->receive = zcrypt_msgtype50_receive;
- 	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
- 		atomic_inc_return(&zcrypt_step);
-@@ -496,6 +498,10 @@ static long zcrypt_msgtype50_modexpo(struct zcrypt_queue *zq,
-  * @zq: pointer to zcrypt_queue structure that identifies the
-  *	CEXxA device to the request distributor
-  * @crt: pointer to the modexpoc_crt request buffer
-+ * This function assumes that ap_msg has been initialized with
-+ * ap_init_apmsg() and thus a valid buffer with the size of
-+ * ap_msg->bufsize is available within ap_msg. Also the caller has
-+ * to make sure ap_release_apmsg() is always called even on failure.
-  */
- static long zcrypt_msgtype50_modexpo_crt(struct zcrypt_queue *zq,
- 					 struct ica_rsa_modexpo_crt *crt,
-@@ -503,10 +509,8 @@ static long zcrypt_msgtype50_modexpo_crt(struct zcrypt_queue *zq,
- {
- 	int rc;
- 
--	ap_msg->bufsize = MSGTYPE50_CRB3_MAX_MSG_SIZE;
--	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
--	if (!ap_msg->msg)
--		return -ENOMEM;
-+	if (ap_msg->bufsize < MSGTYPE50_CRB3_MAX_MSG_SIZE)
-+		return -EMSGSIZE;
- 	ap_msg->receive = zcrypt_msgtype50_receive;
- 	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
- 		atomic_inc_return(&zcrypt_step);
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 09ef91af1e2a..9cefbb30960f 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -1050,9 +1050,10 @@ static long zcrypt_msgtype6_modexpo_crt(struct zcrypt_queue *zq,
-  * Prepare a CCA AP msg: fetch the required data from userspace,
-  * prepare the AP msg, fill some info into the ap_message struct,
-  * extract some data from the CPRB and give back to the caller.
-- * This function allocates memory and needs an ap_msg prepared
-- * by the caller with ap_init_message(). Also the caller has to
-- * make sure ap_release_message() is always called even on failure.
-+ * This function assumes that ap_msg has been initialized with
-+ * ap_init_apmsg() and thus a valid buffer with the size of
-+ * ap_msg->bufsize is available within ap_msg. Also the caller has
-+ * to make sure ap_release_apmsg() is always called even on failure.
-  */
- int prep_cca_ap_msg(bool userspace, struct ica_xcRB *xcrb,
- 		    struct ap_message *ap_msg,
-@@ -1060,10 +1061,6 @@ int prep_cca_ap_msg(bool userspace, struct ica_xcRB *xcrb,
- {
- 	struct ap_response_type *resp_type = &ap_msg->response;
- 
--	ap_msg->bufsize = atomic_read(&ap_max_msg_size);
--	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
--	if (!ap_msg->msg)
--		return -ENOMEM;
- 	ap_msg->receive = zcrypt_msgtype6_receive;
- 	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
- 				atomic_inc_return(&zcrypt_step);
-@@ -1143,9 +1140,10 @@ static long zcrypt_msgtype6_send_cprb(bool userspace, struct zcrypt_queue *zq,
-  * Prepare an EP11 AP msg: fetch the required data from userspace,
-  * prepare the AP msg, fill some info into the ap_message struct,
-  * extract some data from the CPRB and give back to the caller.
-- * This function allocates memory and needs an ap_msg prepared
-- * by the caller with ap_init_message(). Also the caller has to
-- * make sure ap_release_message() is always called even on failure.
-+ * This function assumes that ap_msg has been initialized with
-+ * ap_init_apmsg() and thus a valid buffer with the size of
-+ * ap_msg->bufsize is available within ap_msg. Also the caller has
-+ * to make sure ap_release_apmsg() is always called even on failure.
-  */
- int prep_ep11_ap_msg(bool userspace, struct ep11_urb *xcrb,
- 		     struct ap_message *ap_msg,
-@@ -1153,10 +1151,6 @@ int prep_ep11_ap_msg(bool userspace, struct ep11_urb *xcrb,
- {
- 	struct ap_response_type *resp_type = &ap_msg->response;
- 
--	ap_msg->bufsize = atomic_read(&ap_max_msg_size);
--	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
--	if (!ap_msg->msg)
--		return -ENOMEM;
- 	ap_msg->receive = zcrypt_msgtype6_receive_ep11;
- 	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
- 				atomic_inc_return(&zcrypt_step);
-@@ -1257,15 +1251,20 @@ static long zcrypt_msgtype6_send_ep11_cprb(bool userspace, struct zcrypt_queue *
+@@ -844,10 +844,11 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
  	return rc;
  }
  
-+/*
-+ * Prepare a CEXXC get random request ap message.
-+ * This function assumes that ap_msg has been initialized with
-+ * ap_init_apmsg() and thus a valid buffer with the size of
-+ * ap_max_msg_size is available within ap_msg. Also the caller has
-+ * to make sure ap_release_apmsg() is always called even on failure.
-+ */
- int prep_rng_ap_msg(struct ap_message *ap_msg, int *func_code,
- 		    unsigned int *domain)
+-static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
++static long _zcrypt_send_cprb(u32 xflags, struct ap_perms *perms,
+ 			      struct zcrypt_track *tr,
+ 			      struct ica_xcRB *xcrb)
  {
- 	struct ap_response_type *resp_type = &ap_msg->response;
++	bool userspace = xflags & ZCRYPT_XFLAG_USERSPACE;
+ 	struct zcrypt_card *zc, *pref_zc;
+ 	struct zcrypt_queue *zq, *pref_zq;
+ 	struct ap_message ap_msg;
+@@ -861,7 +862,8 @@ static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
  
--	ap_msg->bufsize = AP_DEFAULT_MAX_MSG_SIZE;
--	ap_msg->msg = kmalloc(ap_msg->bufsize, GFP_KERNEL);
--	if (!ap_msg->msg)
--		return -ENOMEM;
-+	if (ap_msg->bufsize < AP_DEFAULT_MAX_MSG_SIZE)
-+		return -EMSGSIZE;
- 	ap_msg->receive = zcrypt_msgtype6_receive;
- 	ap_msg->psmid = (((unsigned long)current->pid) << 32) +
- 				atomic_inc_return(&zcrypt_step);
+ 	xcrb->status = 0;
+ 
+-	rc = ap_init_apmsg(&ap_msg, false);
++	rc = ap_init_apmsg(&ap_msg, xflags & ZCRYPT_XFLAG_NOMEMALLOC ?
++			   AP_MSG_FLAG_MEMPOOL : 0);
+ 	if (rc)
+ 		goto out;
+ 
+@@ -977,7 +979,7 @@ static long _zcrypt_send_cprb(bool userspace, struct ap_perms *perms,
+ 	return rc;
+ }
+ 
+-long zcrypt_send_cprb(struct ica_xcRB *xcrb)
++long zcrypt_send_cprb(struct ica_xcRB *xcrb, u32 xflags)
+ {
+ 	struct zcrypt_track tr;
+ 	int rc;
+@@ -985,13 +987,13 @@ long zcrypt_send_cprb(struct ica_xcRB *xcrb)
+ 	memset(&tr, 0, sizeof(tr));
+ 
+ 	do {
+-		rc = _zcrypt_send_cprb(false, &ap_perms, &tr, xcrb);
++		rc = _zcrypt_send_cprb(xflags, &ap_perms, &tr, xcrb);
+ 	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 
+ 	/* on ENODEV failure: retry once again after a requested rescan */
+ 	if (rc == -ENODEV && zcrypt_process_rescan())
+ 		do {
+-			rc = _zcrypt_send_cprb(false, &ap_perms, &tr, xcrb);
++			rc = _zcrypt_send_cprb(xflags, &ap_perms, &tr, xcrb);
+ 		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+ 		rc = -EIO;
+@@ -1029,10 +1031,11 @@ static bool is_desired_ep11_queue(unsigned int dev_qid,
+ 	return false;
+ }
+ 
+-static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
++static long _zcrypt_send_ep11_cprb(u32 xflags, struct ap_perms *perms,
+ 				   struct zcrypt_track *tr,
+ 				   struct ep11_urb *xcrb)
+ {
++	bool userspace = xflags & ZCRYPT_XFLAG_USERSPACE;
+ 	struct zcrypt_card *zc, *pref_zc;
+ 	struct zcrypt_queue *zq, *pref_zq;
+ 	struct ep11_target_dev *targets = NULL;
+@@ -1045,7 +1048,8 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+ 
+ 	trace_s390_zcrypt_req(xcrb, TP_ZSENDEP11CPRB);
+ 
+-	rc = ap_init_apmsg(&ap_msg, false);
++	rc = ap_init_apmsg(&ap_msg, xflags & ZCRYPT_XFLAG_NOMEMALLOC ?
++			   AP_MSG_FLAG_MEMPOOL : 0);
+ 	if (rc)
+ 		goto out;
+ 
+@@ -1180,7 +1184,7 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+ 	return rc;
+ }
+ 
+-long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb)
++long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb, u32 xflags)
+ {
+ 	struct zcrypt_track tr;
+ 	int rc;
+@@ -1188,13 +1192,13 @@ long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb)
+ 	memset(&tr, 0, sizeof(tr));
+ 
+ 	do {
+-		rc = _zcrypt_send_ep11_cprb(false, &ap_perms, &tr, xcrb);
++		rc = _zcrypt_send_ep11_cprb(xflags, &ap_perms, &tr, xcrb);
+ 	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 
+ 	/* on ENODEV failure: retry once again after a requested rescan */
+ 	if (rc == -ENODEV && zcrypt_process_rescan())
+ 		do {
+-			rc = _zcrypt_send_ep11_cprb(false, &ap_perms, &tr, xcrb);
++			rc = _zcrypt_send_ep11_cprb(xflags, &ap_perms, &tr, xcrb);
+ 		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+ 		rc = -EIO;
+@@ -1218,7 +1222,7 @@ static long zcrypt_rng(char *buffer)
+ 
+ 	trace_s390_zcrypt_req(buffer, TP_HWRNGCPRB);
+ 
+-	rc = ap_init_apmsg(&ap_msg, false);
++	rc = ap_init_apmsg(&ap_msg, 0);
+ 	if (rc)
+ 		goto out;
+ 	rc = prep_rng_ap_msg(&ap_msg, &func_code, &domain);
+@@ -1531,6 +1535,7 @@ static int zsecsendcprb_ioctl(struct ap_perms *perms, unsigned long arg)
+ 	int rc;
+ 	struct ica_xcRB xcrb;
+ 	struct zcrypt_track tr;
++	u32 xflags = ZCRYPT_XFLAG_USERSPACE;
+ 	struct ica_xcRB __user *uxcrb = (void __user *)arg;
+ 
+ 	memset(&tr, 0, sizeof(tr));
+@@ -1538,13 +1543,13 @@ static int zsecsendcprb_ioctl(struct ap_perms *perms, unsigned long arg)
+ 		return -EFAULT;
+ 
+ 	do {
+-		rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb);
++		rc = _zcrypt_send_cprb(xflags, perms, &tr, &xcrb);
+ 	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 
+ 	/* on ENODEV failure: retry once again after a requested rescan */
+ 	if (rc == -ENODEV && zcrypt_process_rescan())
+ 		do {
+-			rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb);
++			rc = _zcrypt_send_cprb(xflags, perms, &tr, &xcrb);
+ 		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+ 		rc = -EIO;
+@@ -1561,6 +1566,7 @@ static int zsendep11cprb_ioctl(struct ap_perms *perms, unsigned long arg)
+ 	int rc;
+ 	struct ep11_urb xcrb;
+ 	struct zcrypt_track tr;
++	u32 xflags = ZCRYPT_XFLAG_USERSPACE;
+ 	struct ep11_urb __user *uxcrb = (void __user *)arg;
+ 
+ 	memset(&tr, 0, sizeof(tr));
+@@ -1568,13 +1574,13 @@ static int zsendep11cprb_ioctl(struct ap_perms *perms, unsigned long arg)
+ 		return -EFAULT;
+ 
+ 	do {
+-		rc = _zcrypt_send_ep11_cprb(true, perms, &tr, &xcrb);
++		rc = _zcrypt_send_ep11_cprb(xflags, perms, &tr, &xcrb);
+ 	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 
+ 	/* on ENODEV failure: retry once again after a requested rescan */
+ 	if (rc == -ENODEV && zcrypt_process_rescan())
+ 		do {
+-			rc = _zcrypt_send_ep11_cprb(true, perms, &tr, &xcrb);
++			rc = _zcrypt_send_ep11_cprb(xflags, perms, &tr, &xcrb);
+ 		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+ 		rc = -EIO;
+@@ -1835,6 +1841,7 @@ static long trans_xcrb32(struct ap_perms *perms, struct file *filp,
+ 			 unsigned int cmd, unsigned long arg)
+ {
+ 	struct compat_ica_xcrb __user *uxcrb32 = compat_ptr(arg);
++	u32 xflags = ZCRYPT_XFLAG_USERSPACE;
+ 	struct compat_ica_xcrb xcrb32;
+ 	struct zcrypt_track tr;
+ 	struct ica_xcRB xcrb64;
+@@ -1864,13 +1871,13 @@ static long trans_xcrb32(struct ap_perms *perms, struct file *filp,
+ 	xcrb64.priority_window = xcrb32.priority_window;
+ 	xcrb64.status = xcrb32.status;
+ 	do {
+-		rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb64);
++		rc = _zcrypt_send_cprb(xflags, perms, &tr, &xcrb64);
+ 	} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 
+ 	/* on ENODEV failure: retry once again after a requested rescan */
+ 	if (rc == -ENODEV && zcrypt_process_rescan())
+ 		do {
+-			rc = _zcrypt_send_cprb(true, perms, &tr, &xcrb64);
++			rc = _zcrypt_send_cprb(xflags, perms, &tr, &xcrb64);
+ 		} while (rc == -EAGAIN && ++tr.again_counter < TRACK_AGAIN_MAX);
+ 	if (rc == -EAGAIN && tr.again_counter >= TRACK_AGAIN_MAX)
+ 		rc = -EIO;
+diff --git a/drivers/s390/crypto/zcrypt_api.h b/drivers/s390/crypto/zcrypt_api.h
+index 4ed481df57ca..94dffb01942f 100644
+--- a/drivers/s390/crypto/zcrypt_api.h
++++ b/drivers/s390/crypto/zcrypt_api.h
+@@ -76,6 +76,13 @@ struct zcrypt_track {
+ #define TRACK_AGAIN_CARD_WEIGHT_PENALTY  1000
+ #define TRACK_AGAIN_QUEUE_WEIGHT_PENALTY 10000
+ 
++/*
++ * xflags - to be used with zcrypt_send_cprb() and
++ * zcrypt_send_ep11_cprb() for the xflags parameter.
++ */
++#define ZCRYPT_XFLAG_USERSPACE  0x0001  /* data ptrs address userspace */
++#define ZCRYPT_XFLAG_NOMEMALLOC 0x0002  /* do not allocate memory via kmalloc */
++
+ struct zcrypt_ops {
+ 	long (*rsa_modexpo)(struct zcrypt_queue *, struct ica_rsa_modexpo *,
+ 			    struct ap_message *);
+@@ -161,8 +168,8 @@ void zcrypt_msgtype_unregister(struct zcrypt_ops *);
+ struct zcrypt_ops *zcrypt_msgtype(unsigned char *, int);
+ int zcrypt_api_init(void);
+ void zcrypt_api_exit(void);
+-long zcrypt_send_cprb(struct ica_xcRB *xcRB);
+-long zcrypt_send_ep11_cprb(struct ep11_urb *urb);
++long zcrypt_send_cprb(struct ica_xcRB *xcRB, u32 xflags);
++long zcrypt_send_ep11_cprb(struct ep11_urb *urb, u32 xflags);
+ void zcrypt_device_status_mask_ext(struct zcrypt_device_status_ext *devstatus);
+ int zcrypt_device_status_ext(int card, int queue,
+ 			     struct zcrypt_device_status_ext *devstatus);
+diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
+index 43a27cb3db84..521baaea06ff 100644
+--- a/drivers/s390/crypto/zcrypt_ccamisc.c
++++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+@@ -379,7 +379,7 @@ int cca_genseckey(u16 cardnr, u16 domain,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, errno %d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -517,7 +517,7 @@ int cca_clr2seckey(u16 cardnr, u16 domain, u32 keybitsize,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -644,7 +644,7 @@ int cca_sec2protkey(u16 cardnr, u16 domain,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -872,7 +872,7 @@ int cca_gencipherkey(u16 cardnr, u16 domain, u32 keybitsize, u32 keygenflags,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -1038,7 +1038,7 @@ static int _ip_cprb_helper(u16 cardnr, u16 domain,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -1249,7 +1249,7 @@ int cca_cipher2protkey(u16 cardnr, u16 domain, const u8 *ckey,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -1412,7 +1412,7 @@ int cca_ecc2protkey(u16 cardnr, u16 domain, const u8 *key,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -1526,7 +1526,7 @@ int cca_query_crypto_facility(u16 cardnr, u16 domain,
+ 	prep_xcrb(&xcrb, cardnr, preqcblk, prepcblk);
+ 
+ 	/* forward xcrb with request CPRB and reply CPRB to zcrypt dd */
+-	rc = zcrypt_send_cprb(&xcrb);
++	rc = zcrypt_send_cprb(&xcrb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_cprb (cardnr=%d domain=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
+index cb7e6da43602..b60e262bcaa3 100644
+--- a/drivers/s390/crypto/zcrypt_ep11misc.c
++++ b/drivers/s390/crypto/zcrypt_ep11misc.c
+@@ -636,7 +636,7 @@ static int ep11_query_info(u16 cardnr, u16 domain, u32 query_type,
+ 		 req, sizeof(*req) + sizeof(*req_pl),
+ 		 rep, sizeof(*rep) + sizeof(*rep_pl) + buflen);
+ 
+-	rc = zcrypt_send_ep11_cprb(urb);
++	rc = zcrypt_send_ep11_cprb(urb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+ 			       __func__, (int)cardnr, (int)domain, rc);
+@@ -892,7 +892,7 @@ static int _ep11_genaeskey(u16 card, u16 domain,
+ 		 req, sizeof(*req) + req_pl_size,
+ 		 rep, sizeof(*rep) + sizeof(*rep_pl));
+ 
+-	rc = zcrypt_send_ep11_cprb(urb);
++	rc = zcrypt_send_ep11_cprb(urb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+ 			       __func__, (int)card, (int)domain, rc);
+@@ -1049,7 +1049,7 @@ static int ep11_cryptsingle(u16 card, u16 domain,
+ 		 req, sizeof(*req) + req_pl_size,
+ 		 rep, sizeof(*rep) + rep_pl_size);
+ 
+-	rc = zcrypt_send_ep11_cprb(urb);
++	rc = zcrypt_send_ep11_cprb(urb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+ 			       __func__, (int)card, (int)domain, rc);
+@@ -1212,7 +1212,7 @@ static int _ep11_unwrapkey(u16 card, u16 domain,
+ 		 req, sizeof(*req) + req_pl_size,
+ 		 rep, sizeof(*rep) + sizeof(*rep_pl));
+ 
+-	rc = zcrypt_send_ep11_cprb(urb);
++	rc = zcrypt_send_ep11_cprb(urb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+ 			       __func__, (int)card, (int)domain, rc);
+@@ -1372,7 +1372,7 @@ static int _ep11_wrapkey(u16 card, u16 domain,
+ 		 req, sizeof(*req) + req_pl_size,
+ 		 rep, sizeof(*rep) + sizeof(*rep_pl));
+ 
+-	rc = zcrypt_send_ep11_cprb(urb);
++	rc = zcrypt_send_ep11_cprb(urb, 0);
+ 	if (rc) {
+ 		ZCRYPT_DBF_ERR("%s zcrypt_send_ep11_cprb(card=%d dom=%d) failed, rc=%d\n",
+ 			       __func__, (int)card, (int)domain, rc);
 -- 
 2.43.0
 
