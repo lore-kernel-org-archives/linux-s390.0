@@ -1,220 +1,188 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C048D1D516C
-	for <linux-s390@vger.kernel.org>; Wed,  9 Apr 2025 16:08:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA667268FEB
+	for <linux-s390@vger.kernel.org>; Wed,  9 Apr 2025 16:19:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744214900; cv=none; b=ifhOVkQce9GzQzhjxYyHOlGiWoOcITs1d2O5XCKGxXtLOdoLsCUZT9G9NBtFdrxtT1T7UpDHpy8jW5UlD4LMCclkMg2YzkzKcEhATHTZVlDkUzZLpdj7/ey3UTRAxQ8h9OvQm5fQDw6CerShPHrAOwg2YILhFfZTe9Kj45l5hso=
+	t=1744215588; cv=none; b=FjpXo+tQLmbckiO0OxgemBnXX1lzSlxLuy0hVKZ3iOHmoTEkBKyuyvHnh3Tplg1TBWYV/GwRMpmMp0lWAbv2cYd7x/ZiYhNzCr1xwqIDHMLZxTwFi4ketQD3OLBlR16G7s2nw6seImN3Spxkdq1OT9hajWmY7LR1atelDN62FCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744214900; c=relaxed/simple;
-	bh=u88iK1Z2yhXsjmCslV466RjH4vgWiCfX1hsXNmpELU4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TbXAEKSBokH5top8sFlD4w3d5rZ+rA4+sJYCs6WCmSSzqY2G7RY5tFxznaA9RhkbpTLwEF8FWRy5ITLJYz0myKbQYVhTH0KbTobJCojeWz2SkRiydcGyfx6FK/BVsQztWKbrCeCrQFJUzwCyAL07oha4pNmp83KMx7uF8ZBhjZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UQoXkSEf; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744215588; c=relaxed/simple;
+	bh=up1gEinRNM91odG0H7wty+/7LYHB2SqwZlsnj01bVPM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PiQ1Ci/SALW74iY+a7OtjfPYv410EZinAT59mQD9lAwYZ96A9VoYsba1uk8pQcAQ8ddjG25im5F7Y7bRAL+3TZmY7+pXEDqLDQKkNOCwy3y9jrCjPcWfcLgEIK5tS6vSr5YTXKDh1bVLOnaEMvLC3asG44nsUVz7ADU739gMt9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=h2T1IpkR; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UQoXkSEf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744214897;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=78AmE8RpcE4a72lQ1mWWnyl8tSqgeIRIaFNrpROmMX8=;
-	b=UQoXkSEf65vbljUlHRvM1NaZHh3RS0VA8DtvxLYuz0YTbBXA7kZilNzuJxBIvgxIe7GOdN
-	l1wtqngCI67WrPrcxuMJQmkTeg1wi/gXduocM1OO7Fi6SIn25FKpoO61CVYpoHkswoIFGQ
-	8Icw6BAOHfjEbPB/LS0v4dvlq/fMNB8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-196-nyw6Fa_aPTqDQ5yVGNNBag-1; Wed, 09 Apr 2025 12:08:16 -0400
-X-MC-Unique: nyw6Fa_aPTqDQ5yVGNNBag-1
-X-Mimecast-MFC-AGG-ID: nyw6Fa_aPTqDQ5yVGNNBag_1744214895
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-43cf5196c25so40835575e9.0
-        for <linux-s390@vger.kernel.org>; Wed, 09 Apr 2025 09:08:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744214895; x=1744819695;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=78AmE8RpcE4a72lQ1mWWnyl8tSqgeIRIaFNrpROmMX8=;
-        b=pxP2efe/yVdv9yOxKbrn3RT2Ct3CR6AmPwe1BE8E4RYJUTE6CLhM0QpFH0uqfZ24T8
-         6QQORB8IWfJD7TBLizbVgCwUm6tA6V0PWLDPeILh0VBvHloLc/wUh41hoC1xxY85ybsf
-         g8hMPuCx6LP2PqTgHy4FeD819a+8A4FT/BnBLEXD+ihnZNHSrnF1+iFxbLVsjDqmXgg1
-         GdJSkcIKAonYLSv5BbUerzAmbm+r8r5w63BIS3T/CYo7c7hX6YlmwCBg2j+TOMmxM6jb
-         TIV9qToMOsAJ5535nAHm0mcmAsAK1YrjbaBSCmuUSdUB6OqY47iixP39bzV+pmF+SyLA
-         6sOA==
-X-Forwarded-Encrypted: i=1; AJvYcCW+579A7QljhR1juwBeVFfdHLFBU9Q4IyqT3khEYvm8ptyJyA6XAIR2++4b/a1NXEU/ALM5a/BvzNBL@vger.kernel.org
-X-Gm-Message-State: AOJu0YyfVaSRtFLZrCGkI2sA5hILId4pqEOusnMcfAvt+ShIE7yEtJiE
-	cauXenys/svZa/YNLcm/yWgqOpkZ1gIlZexyAA7LVlAUROixfYeKFJw2RMqgWZhYr+MLSGedyp/
-	s2D8XhYlzAtORA53dtYJ2i+XQcnoPTZfQfSr9m6KtY/5DG8109mGEEerkVCY=
-X-Gm-Gg: ASbGncu6DHkiaIEPynEDMW6+rFhm8MlE/TlFPugZCtBRKZWVXkvbl9ugU3Q2kqaedUX
-	3w+K+yUpV9hxlSoMv7xMkrL6MinNO1gn1e55DFGC6FDlnJRrq32z9iIqm1C4u76bA37yYxgaP+4
-	CqKGg0F9vAu+Rb+sqxnf5aadf8vUJ3iDE5L6si5dj+tqwvYxdClUTTREGtL8eIO44Elc6u9259b
-	Y0QwGwgFLsdgllgPqvMiDzxtDs+pBg15FjiDG2DAYtjiyu2iBFijHdbxKNqVsFyYrYXyVIuJYiu
-	J+25Xg==
-X-Received: by 2002:a05:600c:8518:b0:439:86fb:7340 with SMTP id 5b1f17b1804b1-43f1ed693ebmr44247915e9.30.1744214895076;
-        Wed, 09 Apr 2025 09:08:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHa8WvXPvdR9mW4X+Ki70qXHwL+hlbwdViRmCYAc7xQXDBe/sMhsY1YIaOF1Gj1cQgn8/YTXA==
-X-Received: by 2002:a05:600c:8518:b0:439:86fb:7340 with SMTP id 5b1f17b1804b1-43f1ed693ebmr44247295e9.30.1744214894624;
-        Wed, 09 Apr 2025 09:08:14 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1517:1000:ea83:8e5f:3302:3575])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39d893774aasm2066312f8f.30.2025.04.09.09.08.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Apr 2025 09:08:13 -0700 (PDT)
-Date: Wed, 9 Apr 2025 12:08:10 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: Daniel Verkamp <dverkamp@chromium.org>,
-	Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
-	kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
-	Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-	Thomas Huth <thuth@redhat.com>, Eric Farman <farman@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Wei Wang <wei.w.wang@intel.com>,
-	"stefanha@redhat.com" <stefanha@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
- non-existing queues
-Message-ID: <20250409120320-mutt-send-email-mst@kernel.org>
-References: <33def1b0-d9d5-46f1-9b61-b0269753ecce@redhat.com>
- <88d8f2d2-7b8a-458f-8fc4-c31964996817@redhat.com>
- <CABVzXAmMEsw70Tftg4ZNi0G4d8j9pGTyrNqOFMjzHwEpy0JqyA@mail.gmail.com>
- <3bbad51d-d7d8-46f7-a28c-11cc3af6ef76@redhat.com>
- <20250407170239-mutt-send-email-mst@kernel.org>
- <440de313-e470-4afa-9f8a-59598fe8dc21@redhat.com>
- <20250409065216-mutt-send-email-mst@kernel.org>
- <4ad4b12e-b474-48bb-a665-6c1dc843cd51@redhat.com>
- <20250409073652-mutt-send-email-mst@kernel.org>
- <5cd8463e-21ed-4c99-a9b2-9af45c6eb7af@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h2T1IpkR"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5399pgUp008925;
+	Wed, 9 Apr 2025 16:19:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=eSF5jr
+	0uMJP0aV+h2wLjjrLGNxuZuBqK5xQ29ajex/8=; b=h2T1IpkRsiLP+Gdy4ktkJN
+	4q13mquMcMayR0GPcOi7baU2QSmoxSSOcTrbLhPNlN/MHBy070T28J65znL/+zdJ
+	ChMNPm5TNy7fc49qBPPlw15WC/dQZ/5ny0H4VJo/ogONzSnGdh/i2Em14EJj4NCR
+	1n057TGLm64QGsYI6cg9msZnQQe5LZjRig68HkPIcjIZbwchekB0/6IQPj09bz/8
+	GxQwcrrrYiktxs2AKwhhXo/2MhdCeB5mLHwGre2xm/frh2Uukt6V4ZP1UpRz/93J
+	GKt21gd9UUcUAbW6+z8a4itO9/j3wAxVmyqS11xYBUxU1sKSl/K+jOLONnDQa34A
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45wayr4qg0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 09 Apr 2025 16:19:41 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 539E2UZY025598;
+	Wed, 9 Apr 2025 16:19:41 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45ugbm0ewn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 09 Apr 2025 16:19:41 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 539GJbLE49414424
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 9 Apr 2025 16:19:37 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2BC7520043;
+	Wed,  9 Apr 2025 16:19:37 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8CC4720040;
+	Wed,  9 Apr 2025 16:19:36 +0000 (GMT)
+Received: from [9.171.58.154] (unknown [9.171.58.154])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  9 Apr 2025 16:19:36 +0000 (GMT)
+Message-ID: <ddb55814-f132-4db2-af3f-7e41b8f01cca@linux.ibm.com>
+Date: Wed, 9 Apr 2025 18:19:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5cd8463e-21ed-4c99-a9b2-9af45c6eb7af@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 04/24] s390/zcrypt: Avoid alloc and copy of ep11
+ targets if kernelspace cprb
+To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
+        fcallies@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, seiden@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+References: <20250409140305.58900-1-freude@linux.ibm.com>
+ <20250409140305.58900-5-freude@linux.ibm.com>
+Content-Language: de-DE, en-US
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250409140305.58900-5-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 7B83RVnUKXhRJCSFlkVWK-BChMMVjR-k
+X-Proofpoint-GUID: 7B83RVnUKXhRJCSFlkVWK-BChMMVjR-k
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-09_05,2025-04-08_04,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ priorityscore=1501 impostorscore=0 malwarescore=0 bulkscore=0
+ clxscore=1015 lowpriorityscore=0 spamscore=0 adultscore=0 phishscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504090102
 
-On Wed, Apr 09, 2025 at 02:24:32PM +0200, David Hildenbrand wrote:
-> On 09.04.25 14:07, Michael S. Tsirkin wrote:
-> > On Wed, Apr 09, 2025 at 01:12:19PM +0200, David Hildenbrand wrote:
-> > > On 09.04.25 12:56, Michael S. Tsirkin wrote:
-> > > > On Wed, Apr 09, 2025 at 12:46:41PM +0200, David Hildenbrand wrote:
-> > > > > On 07.04.25 23:20, Michael S. Tsirkin wrote:
-> > > > > > On Mon, Apr 07, 2025 at 08:47:05PM +0200, David Hildenbrand wrote:
-> > > > > > > > In my opinion, it makes the most sense to keep the spec as it is and
-> > > > > > > > change QEMU and the kernel to match, but obviously that's not trivial
-> > > > > > > > to do in a way that doesn't break existing devices and drivers.
-> > > > > > > 
-> > > > > > > If only it would be limited to QEMU and Linux ... :)
-> > > > > > > 
-> > > > > > > Out of curiosity, assuming we'd make the spec match the current QEMU/Linux
-> > > > > > > implementation at least for the 3 involved features only, would there be a
-> > > > > > > way to adjust crossvm without any disruption?
-> > > > > > > 
-> > > > > > > I still have the feeling that it will be rather hard to get that all
-> > > > > > > implementations match the spec ... For new features+queues it will be easy
-> > > > > > > to force the usage of fixed virtqueue numbers, but for free-page-hinting and
-> > > > > > > reporting, it's a mess :(
-> > > > > > 
-> > > > > > 
-> > > > > > Still thinking about a way to fix drivers... We can discuss this
-> > > > > > theoretically, maybe?
-> > > > > 
-> > > > > Yes, absolutely. I took the time to do some more digging; regarding drivers
-> > > > > only Linux seems to be problematic.
-> > > > > 
-> > > > > virtio-win, FreeBSD, NetBSD and OpenBSD and don't seem to support
-> > > > > problematic features (free page hinting, free page reporting) in their
-> > > > > virtio-balloon implementations.
-> > > > > 
-> > > > > So from the known drivers, only Linux is applicable.
-> > > > > 
-> > > > > reporting_vq is either at idx 4/3/2
-> > > > > free_page_vq is either at idx 3/2
-> > > > > statsq is at idx2 (only relevant if the feature is offered)
-> > > > > 
-> > > > > So if we could test for the existence of a virtqueue at an idx easily, we
-> > > > > could test from highest-to-smallest idx.
-> > > > > 
-> > > > > But I recall that testing for the existance of a virtqueue on s390x resulted
-> > > > > in the problem/deadlock in the first place ...
-> > > > > 
-> > > > > -- 
-> > > > > Cheers,
-> > > > > 
-> > > > > David / dhildenb
-> > > > 
-> > > > So let's talk about a new feature bit?
-> > > 
-> > > Are you thinking about a new feature that switches between "fixed queue
-> > > indices" and "compressed queue indices", whereby the latter would be the
-> > > legacy default and we would expect all devices to switch to the new
-> > > fixed-queue-indices layout?
-> > > 
-> > > We could make all new features require "fixed-queue-indices".
-> > 
-> > I see two ways:
-> > 1. we make driver behave correctly with in spec and out of spec devices
-> >     and we make qemu behave correctly with in spec and out of spec devices
-> > 2. a new feature bit
-> > 
-> > I prefer 1, and when we add a new feature we can also
-> > document that it should be in spec if negotiated.
-> > 
-> > My question is if 1 is practical.
+On 09/04/2025 16:02, Harald Freudenberger wrote:
+> If there is a target list of APQNs given when an CPRB is
+> to be send via zcrypt_send_ep11_cprb() there is always a
+> kmalloc() done and the targets are copied via z_copy_from_user.
 > 
-> AFAIKT, 1) implies:
+> As there are callers from kernel space (zcrypt_ep11misc.c)
+> which signal this via the userspace parameter improve this
+> code to directly use the given target list in case of
+> kernelspace thus removing the unnecessary memory alloc
+> and mem copy.
 > 
-> virtio-balloon:
-> 
-> a) Driver
-> 
-> As mentioned above, we'd need a reliable way to test for the existence of a
-> virtqueue, so we can e.g., test for reporting_vq idx 4 -> 3 -> 2
-> 
-> With that we'd be able to support compressed+fixed at the same time.
-> 
-> Q: Is it possible/feasible?
-> 
-> b) Device: virtio-balloon: we can fake existence of STAT and
-> FREE_PAGE_HINTING easily, such that the compressed layout corresponds to the
-> fixed layout easily.
-> 
-> Q: alternatives? We could try creating multiple queues for the same feature,
-> but it's going to be a mess I'm afraid ...
-> 
-> 
-> virtio-fs:
-> 
-> a) Driver
-> 
-> Linux does not even implement VIRTIO_FS_F_NOTIFICATION or respect
-> VIRTIO_FS_F_NOTIFICATION when calculating queue indices, ...
-> 
-> b) Device
-> 
-> Same applies to virtiofsd ...
-> 
-> Q: Did anybody actually implement VIRTIO_FS_F_NOTIFICATION ever? If not, can
-> we just remove it from the spec completely and resolve the issue that way?
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 
-Donnu. Vivek?
+I have a few comments below. The rest looks good to me.
 
-Or we can check for queue number 1+num_request_queues maybe?
-If that exists then it is spec compliant?
-
-
-> -- 
-> Cheers,
+> ---
+>  drivers/s390/crypto/zcrypt_api.c | 41 ++++++++++++++++----------------
+>  1 file changed, 20 insertions(+), 21 deletions(-)
 > 
-> David / dhildenb
+> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+> index ad09c5306e28..f96f596e578f 100644
+> --- a/drivers/s390/crypto/zcrypt_api.c
+> +++ b/drivers/s390/crypto/zcrypt_api.c
+[...]
+> @@ -1052,29 +1052,28 @@ static long _zcrypt_send_ep11_cprb(bool userspace, struct ap_perms *perms,
+>  	target_num = (unsigned short)xcrb->targets_num;
+>  
+>  	/* empty list indicates autoselect (all available targets) */
+> -	targets = NULL;
+> +	rc = -ENOMEM;
+
+I would prefer to set rc in the kmalloc error handling. See below.
+
+>  	if (target_num != 0) {
+>  		struct ep11_target_dev __user *uptr;
+
+*uptr is no longer required, as the userspace case is ensured by code.
+
+>  
+> -		targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+> -		if (!targets) {
+> -			func_code = 0;
+> -			rc = -ENOMEM;
+> -			goto out;
+> -		}
+> -
+> -		uptr = (struct ep11_target_dev __force __user *)xcrb->targets;
+> -		if (z_copy_from_user(userspace, targets, uptr,
+> -				     target_num * sizeof(*targets))) {
+> -			func_code = 0;
+> -			rc = -EFAULT;
+> -			goto out_free;
+> +		if (userspace) {
+> +			targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+> +			if (!targets)
+> +				goto out;
+
+Please set rc here. It makes it easier to read as it correlates with the other error case for copy_from_user().
+
+if (!targets) {
+	rc = -ENOMEM;
+	goto out;
+}
+
+> +			uptr = (struct ep11_target_dev __force __user *)xcrb->targets;
+> +			if (copy_from_user(targets, uptr,
+> +					   target_num * sizeof(*targets))) {
+
+The cast can be dropped and you can copy directly from the userspace pointer in xcrb.
+
+if (copy_from_user(targets, xcrb->targets,
+		   target_num * sizeof(*targets))) {
+
+> +				rc = -EFAULT;
+> +				goto out;
+> +			}
+> +		} else {
+> +			targets = (struct ep11_target_dev __force __kernel *)xcrb->targets;
+>  		}
+>  	}
+>  
+>  	rc = prep_ep11_ap_msg(userspace, xcrb, &ap_msg, &func_code, &domain);
+>  	if (rc)
+> -		goto out_free;
+> +		goto out;
+>  	print_hex_dump_debug("ep11req: ", DUMP_PREFIX_ADDRESS, 16, 1,
+>  			     ap_msg.msg, ap_msg.len, false);
+>  
+[...]
+
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
 
