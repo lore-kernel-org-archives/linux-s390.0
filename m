@@ -1,124 +1,100 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEFA3264A73;
-	Wed,  9 Apr 2025 14:26:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1BD452676F7;
+	Wed,  9 Apr 2025 14:50:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744208788; cv=none; b=CvIaEeWaOae1Zjp9aZGEZxbqSkC6w2i9Uq6LPzuclLQzxrx4QQYoohqDzGQYFutZy8cP634BRoH2TeK4dmZ2JdYCNDeoD+RmZSMVjh8aiordIWb8h1UWtfABV3sgj/hv6Rkb2wTkItPTrgsZDHIFQspE43Ii62kcyy6TFX34SfM=
+	t=1744210216; cv=none; b=qTwplMtUnZLobha8kJ1PmVEzhPyepG158UQl/3Cf4ho7Gvs+iOgFNNCm+Dd+Ai6glvHThWRZspMBu06fs/96Pf92zXPB8kkEUBYEG4BIbVKaQpNqCToxBT74hkFQSEeK46yiAGjmNOmw/MblswHPVmjARybfipXj7gj5wyqBomU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744208788; c=relaxed/simple;
-	bh=vYTX8tELL6LOy8MbsHqYfZ69E8Dd5ec+eRNr9hHRKEE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=b08sAO5sFYCajrIMx6GS9o0sf9IDE//gzbLmzQ7aG13QIeFRI+yeGByEF+l34TRyaJh+1YnAMTnAIbne1CwmSPi7hy7u2eQOFGu4d896sAovL+haFEs/WnP9ueMzdh6Ao/xoNlAYwiSILzf+KvX7RjAjQlf/KfuUWAR5KigCOHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IRgQg+p0; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IRgQg+p0"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5397HMTX003773;
-	Wed, 9 Apr 2025 14:25:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=dZ0mp0fbK09n1Ak/UvqxB1GCA8Znz4
-	UQv5qeUc3rPlA=; b=IRgQg+p0Df+Nfa6nCWz0aEmpIN27N+9MFzz7n1AyGBY2SS
-	cXs87tCxIwF0jtud5qNjSNgLlGskDd18xPUtz+/8MSJ/uSLwVcWXURJobKL9USL7
-	8EN7dKtn1kp0R6rIo4CDW/5JV5ErMnUDU9hiTGkoezgYSUuDWyh9D25PwHXGhYEU
-	GwDF8p5b+jp5ID0M4C+Y0j6hOMrzAaZiI9tILkqMv9kUPI6oMQCKz/g1dMx19Fy7
-	/Mi3mE2FTHiiz9sThs3WKUK09GhZCaCxCrNi4XcuR9sS8mYCsxH280QQ/YKbGiEv
-	weowmHYXdl2bXlIuZEv7vv+w3bod+XI/wwk/gkeQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45w7yxd3vs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Apr 2025 14:25:59 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 539EB8On010066;
-	Wed, 9 Apr 2025 14:25:58 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45w7yxd3vq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Apr 2025 14:25:58 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 539D3ElP011078;
-	Wed, 9 Apr 2025 14:25:58 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45uf7yr7wn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Apr 2025 14:25:57 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 539EPthu51446068
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 9 Apr 2025 14:25:56 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E2E2B20043;
-	Wed,  9 Apr 2025 14:25:55 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A20A320040;
-	Wed,  9 Apr 2025 14:25:55 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  9 Apr 2025 14:25:55 +0000 (GMT)
-Date: Wed, 9 Apr 2025 16:25:54 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Hugh Dickins <hughd@google.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>, Juergen Gross <jgross@suse.com>,
-        Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, kasan-dev@googlegroups.com,
-        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] kasan: Avoid sleepable page allocation from
- atomic context
-Message-ID: <Z/aDckdBFPfg2h/P@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <cover.1744128123.git.agordeev@linux.ibm.com>
- <2d9f4ac4528701b59d511a379a60107fa608ad30.1744128123.git.agordeev@linux.ibm.com>
- <3e245617-81a5-4ea3-843f-b86261cf8599@gmail.com>
+	s=arc-20240116; t=1744210216; c=relaxed/simple;
+	bh=4pLTv0zekgYPNEgwM2RuMiOZmFr4+wJ4i/oOyh8hrvI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Mzk/mwPJJT0jaK4hDCWlvWXwjlyO+eduEe8A0jVD9l+Gw1OQZ8Nw53l4L8W+cXME4lr7Bpj8Ls8iKGPNbBBM3ZAxKWBZPcotXqSgpQi0zSXLA7GM+gY1QnSv65Q8ILHd5GR2/r8JQa1HLCc+dxJK2chYOWccbUuDHEtviqjN3eI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 52F3115A1;
+	Wed,  9 Apr 2025 07:50:13 -0700 (PDT)
+Received: from [10.57.67.254] (unknown [10.57.67.254])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 58A653F59E;
+	Wed,  9 Apr 2025 07:50:07 -0700 (PDT)
+Message-ID: <99771f33-8ad8-4ba5-9cf0-f504588d99a0@arm.com>
+Date: Wed, 9 Apr 2025 16:50:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3e245617-81a5-4ea3-843f-b86261cf8599@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MHqebilzhsuhaERLi3oJf9wiQWwhiimV
-X-Proofpoint-GUID: uhQA63QGysorbXbRGqjCOxWiIF599GSi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-09_05,2025-04-08_04,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
- spamscore=0 impostorscore=0 lowpriorityscore=0 priorityscore=1501
- clxscore=1015 malwarescore=0 mlxscore=0 suspectscore=0 mlxlogscore=844
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504090086
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 02/12] x86: pgtable: Always use pte_free_kernel()
+To: Matthew Wilcox <willy@infradead.org>, Dave Hansen <dave.hansen@intel.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Albert Ou <aou@eecs.berkeley.edu>, Andreas Larsson <andreas@gaisler.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ "Mike Rapoport (IBM)" <rppt@kernel.org>, Palmer Dabbelt
+ <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Peter Zijlstra <peterz@infradead.org>, Qi Zheng
+ <zhengqi.arch@bytedance.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Will Deacon <will@kernel.org>, Yang Shi <yang@os.amperecomputing.com>,
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ sparclinux@vger.kernel.org, x86@kernel.org
+References: <20250408095222.860601-1-kevin.brodsky@arm.com>
+ <20250408095222.860601-3-kevin.brodsky@arm.com>
+ <409d2019-a409-4e97-a16f-6b345b0f5a38@intel.com>
+ <Z_VQxyqkU8DV7QGy@casper.infradead.org>
+ <9247436d-ae01-4eb8-bd5d-370b2fb2eebc@intel.com>
+ <Z_VfeFgrj23Oa0fX@casper.infradead.org>
+Content-Language: en-GB
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+In-Reply-To: <Z_VfeFgrj23Oa0fX@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Apr 09, 2025 at 04:10:58PM +0200, Andrey Ryabinin wrote:
+On 08/04/2025 19:40, Matthew Wilcox wrote:
+> On Tue, Apr 08, 2025 at 09:54:42AM -0700, Dave Hansen wrote:
+>> On 4/8/25 09:37, Matthew Wilcox wrote:
+>>> On Tue, Apr 08, 2025 at 08:22:47AM -0700, Dave Hansen wrote:
+>>>> Are there any tests for folio_test_pgtable() at free_page() time? If we
+>>>> had that, it would make it less likely that another free_page() user
+>>>> could sneak in without calling the destructor.
+>>> It's hidden, but yes:
+>>>
+>>> static inline bool page_expected_state(struct page *page,
+>>>                                         unsigned long check_flags)
+>>> {
+>>>         if (unlikely(atomic_read(&page->_mapcount) != -1))
+>>>                 return false;
+>>>
+>>> PageTable uses page_type which aliases with mapcount, so this check
+>>> covers "PageTable is still set when the last refcount to it is put".
+>> Huh, so shouldn't we have ended up in bad_page() for these, other than:
+>>
+>>         pagetable_dtor(virt_to_ptdesc(pmd));
+>>         free_page((unsigned long)pmd);
+> I think at this point in Kevin's series, we don't call the ctor for
+> these pages, so we never set PageTable() on them. I could be wrong;
 
-Hi Andrey,
+Correct, that's why I added this patch early in the series (the next
+patch adds the ctor call in pte_alloc_one_kernel()).
 
-> > @@ -301,7 +301,7 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, unsigned long addr,
-> >  	if (likely(!pte_none(ptep_get(ptep))))
-> >  		return 0;
-> >  
-> > -	page = __get_free_page(GFP_KERNEL);
-> > +	page = __get_free_page(GFP_ATOMIC);
-> >  	if (!page)
-> >  		return -ENOMEM;
-> >  
-> 
-> I think a better way to fix this would be moving out allocation from atomic context. Allocate page prior
-> to apply_to_page_range() call and pass it down to kasan_populate_vmalloc_pte().
+The BUG() in v1 was indeed triggered by a page_expected_state() check [1].
 
-I think the page address could be passed as the parameter to kasan_populate_vmalloc_pte().
+> as Kevin says, this is all very twisty and confusing with exceptions and
+> exceptions to exceptions.  This series should reduce the confusion.
 
-> Whenever kasan_populate_vmalloc_pte() will require additional page we could bail out with -EAGAIN,
-> and allocate another one.
+I hope so!
 
-When would it be needed? kasan_populate_vmalloc_pte() handles just one page.
+- Kevin
 
-Thanks!
+[1] https://lore.kernel.org/oe-lkp/202503211612.e11bd73f-lkp@intel.com/
