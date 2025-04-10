@@ -1,68 +1,74 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44E052686AB;
-	Thu, 10 Apr 2025 09:50:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AD19281523;
+	Thu, 10 Apr 2025 11:33:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744278659; cv=none; b=C1YIgVZZMyeL2yWby1Qu5jq0CVeTwgeOQAZfGNQjA2AjJE4/NaIy8rK9UCf/PUk43Aod3gbk1DDdk7oMO9BXuKIbrcXHIm+n8mGHm5hCopoRQnXVZreXiEocfNV6VPghycVr1CBpM8GYCu/10S108EKz5uKwz6zwOXOnEEmN/vs=
+	t=1744284834; cv=none; b=kZgsJaKnBxfmQNGjiygMNiSkru3yAJl/yIOJu3PxAY1YLR3y3jF7a04UjEMaiMm8D/6PCw2CK2N3xC/Mrs/qQM488SbqiJ9msMVguq9lfhvK7nqjFOSpdLhWFRdW7dUyCVm9XdPva4441RB4ZCRzSwAKCE8S9at8eMYFf/r7QHQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744278659; c=relaxed/simple;
-	bh=9zwCt4WL9DhM7iAXo1kLqlNoBK9UgBmf+m+uUAiOiwk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Abwu1idHmXVeV8spI8vNfq4d+nNj/wWNCC3bSH6DKH80Ph/sLQnF38bAmvYmvk8NjzCkgmpNo9yd02rOsjhPnGhk8mZUXPDgKnsBSp/DBAaBhJ4J0KKVlJ9cIFDtGeVZu5q/YYxvf1FRN0XXa7bwm0U+NgYGTieWhjvN+X0w6uI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Bi8l/MZ2; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1744284834; c=relaxed/simple;
+	bh=xwKbTBbKepb2MvuC5gD9+CWJTF8oxw5ci/TNlKFNajU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=tqfzWSQeCxyaPdKrP1FUJ1461OoazgBZt8edAjUYgDDul/PzhI657I3Mey2c61DohKgPyvtx3cDzxXqpHj8YBiAjkjE615+dKjnIOzp2tQpej1Chlm8smDocjUdyKg+IceAkYoN/l+5F+YMlhhPyDVCly5VlpLERDO+74J567GU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SSdlmAXT; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Bi8l/MZ2"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53A5p51r021780;
-	Thu, 10 Apr 2025 09:50:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=gEDQnPFlGqTWD9lpPPKxCFAgqSawbto+ETElrbgJq
-	BM=; b=Bi8l/MZ27LaY9ChO5gKHv+WJBaALCPwbEOoXo81iPthMrruyDnaFiPpHF
-	LWCg9wbGEewVowrMB9QxzNmQrhMwX+S0fx+lpodpky6ezaObZaqNRMY1MJSTBnxv
-	kQbfF2s3E8NxXy3ETUePBowlPfP9BMb4h3GRWBadYoog4v7bvmmI1LyJFH6525jm
-	Kb412OLVArbYayro1jDbeRo8r5UVG6gSkA6sETZKzflBo8pF8pY6/voAjZsHTVWu
-	3IVtbQkWUIqXQZ8oWi/ECQgNf5KFLeL0/C0d1wCyX6Q1853Rd7hzxJI6zGPQwNcZ
-	iwgMnLW6oJmNS2KdzB1XatZA56Hlw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 45x02qbw2s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 10 Apr 2025 09:50:41 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53A8DFRj011062;
-	Thu, 10 Apr 2025 09:50:41 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 45uf7ywk2x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 10 Apr 2025 09:50:40 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53A9oa2v46334368
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 10 Apr 2025 09:50:37 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DE23E2004D;
-	Thu, 10 Apr 2025 09:50:36 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8B46420043;
-	Thu, 10 Apr 2025 09:50:36 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 10 Apr 2025 09:50:36 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-watchdog@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH] watchdog: diag288_wdt: Implement module autoload
-Date: Thu, 10 Apr 2025 11:50:36 +0200
-Message-ID: <20250410095036.1525057-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SSdlmAXT"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-225477548e1so5924385ad.0;
+        Thu, 10 Apr 2025 04:33:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744284833; x=1744889633; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=vdcxMcGWeslHOma6SjvRq7Io4AouhBYz+R93jChV46U=;
+        b=SSdlmAXTOnjMLZF+oQQBGQ/RodczTml9yY2vfja7ieOmgCLM0rnZHNGcARULPqoi8s
+         JGUaKN0jXddJlpIdYHIWKfY69tGe+WN4CLlLtb1EX7E4TOpJYbpWmYeYyjt7TwovmA0J
+         5DiqjsnS9sakvzbQ9yoVezcPVxyNf+yoz3+X4z153ueRJEvz58S36xvzh8TQ7raOwU0e
+         qbmRfaoEHXALSoMq3kLJsDR5eZnhDz5QE2YI7qNN83xC+JjQk1KKAdTO8q3bOd2I/Mga
+         lu4hALIUk5M62VllKCKUeYQeZ8ice4q4xabKH0tXyztmXOEZg/YDv1a6p6tU003mlLSg
+         9VqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744284833; x=1744889633;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vdcxMcGWeslHOma6SjvRq7Io4AouhBYz+R93jChV46U=;
+        b=H9PEzCMf3/3nfVrg4llXL/XiM2DYfFSbXbhfG5wHRrIrW30WYXj84gioE6tT9J2EK0
+         uiTchi2Aun6+nE1KZ8CjM7FB70E8Vd0r4gkowEOHbo2ADqZtE5nVGrYkvkpEDcYDOl7m
+         H7kWQGCh2FtvFRoMXWPb6/ahyeOg97uRMEbqwtU4SFr0CfrpSDgUW9GPlbfOz9cS8I8q
+         DOlvOOoVmoxzmAws352nmE7qGMljeysHMvvj75O76UByvm/jNTPhx1XU0be6Tkst7+rQ
+         75ygB1rlF3udcexezNrA5TxqjpqTFZkmddIIcweww7MpKXxtVK2OF8fKUOsXsxh7pEqK
+         c4pA==
+X-Forwarded-Encrypted: i=1; AJvYcCU4gid8Tz6ozsGLIrs0QEO00dzPGTbJeZ5/7OGGY7dmZkewDaUGpDL/xSxPbGShBIunfGss1JpznpL3Qas=@vger.kernel.org, AJvYcCWLL2y4ifHJMt9kopCk7T+Vs0bJvPq/LIRc2uXZ1+eehKIPz2TN6PZxVD6R6KLjZ8eofEkTCWWvMe/NtA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw+pyWSX/tNV5sZDs7EhTlQ9V4Quw9Ykvxbdm95Zwc4dq1xO6iM
+	NgyVN/SLeuXiUr1mpOs9JzX+vRVpg5+JTjIppHjNWxsA2J0DgRPT
+X-Gm-Gg: ASbGnctLjEOt2B81TpNrcGMZTF3+pILSuRkC5arMFWjd+p+O4x1Op5PZNbva5gLx42x
+	RNlkH4WVM8r2xPttVbLHkNf3PqrZr5BUSjQB1mX4u5CG4BU3T31OMKOp4eoVSRNKS7ASab1d5tz
+	pqX1nPPUn4K9eM6ATCC5kj9mGcZQs4YkBReAogT3BJiCy04bl+zCm/sV0BfwSnYQPy97iLsl4d/
+	v7bh3rVbw9EF6Qba8/Ap1zuzFkfQ/wUIvkr2Oi+s+3BMNnfhREFjepxKa08NyQFlB1/CDn9F9xa
+	I9XGdKU0SoqE4m+efgjfBAwNtaKt9+MJb528cIklr909Mve64SCGI7s7kL0=
+X-Google-Smtp-Source: AGHT+IGbmEpXUVT5b4jUmOqc0Gktk+vzHso8uec96xMXDQnlPxXIgOdHnD7GIqeT1W8b02bCC3uLuQ==
+X-Received: by 2002:a17:902:f552:b0:225:b718:4dff with SMTP id d9443c01a7336-22be03e129emr31667495ad.53.1744284832522;
+        Thu, 10 Apr 2025 04:33:52 -0700 (PDT)
+Received: from localhost.localdomain ([2405:201:c408:a0b5:242e:867:9d6a:e7c0])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22ac7b8ea6csm28132715ad.97.2025.04.10.04.33.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Apr 2025 04:33:51 -0700 (PDT)
+From: Kevin Paul Reddy Janagari <kevinpaul468@gmail.com>
+To: hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	kevinpaul468@gmail.com
+Cc: skhan@linuxfoundation.org
+Subject: [PATCH] Removing deprecated strncpy()
+Date: Thu, 10 Apr 2025 17:02:30 +0530
+Message-Id: <20250410113230.28116-1-kevinpaul468@gmail.com>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,288 +76,34 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xszypIP9zJbmL25bdU133rbcGlkcxxoB
-X-Proofpoint-ORIG-GUID: xszypIP9zJbmL25bdU133rbcGlkcxxoB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-10_01,2025-04-08_04,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- priorityscore=1501 mlxlogscore=999 lowpriorityscore=0 spamscore=0
- clxscore=1011 suspectscore=0 mlxscore=0 adultscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504100070
 
-The s390 specific diag288_wdt watchdog driver makes use of the virtual
-watchdog timer, which is available in most machine configurations.
-If executing the diagnose instruction with subcode 0x288 results in an
-exception the watchdog timer is not available, otherwise it is available.
+This patch suggests the replacement of strncpy with strscpy
+as per the Documentation/process/deprecated
+the strncpy() fails to guarntee NULL termination
+since the function adds zero pads, this isn't really convenient
+for short strings as it may cause performce issues
 
-In order to allow module autoload of the diag288_wdt module, move the
-detection of the virtual watchdog timer to early boot code, and provide
-its availability as a cpu feature.
+strscpy() is a preffered replacement because
+it overcomes the limitations of strncpy as mentioned above
 
-This allows to make use of module_cpu_feature_match() to automatically load
-the module iff the virtual watchdog timer is available.
-
-Suggested-by: Marc Hartmayer <mhartmay@linux.ibm.com>
-Tested-by: Mete Durlu <meted@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Kevin Paul Reddy Janagari <kevinpaul468@gmail.com>
 ---
- arch/s390/boot/startup.c           | 17 ++++++++++
- arch/s390/include/asm/cpufeature.h |  1 +
- arch/s390/include/asm/diag288.h    | 41 +++++++++++++++++++++++
- arch/s390/include/asm/machine.h    |  1 +
- arch/s390/kernel/cpufeature.c      |  5 +++
- drivers/watchdog/diag288_wdt.c     | 53 ++----------------------------
- 6 files changed, 68 insertions(+), 50 deletions(-)
- create mode 100644 arch/s390/include/asm/diag288.h
+ arch/s390/boot/printk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/boot/startup.c b/arch/s390/boot/startup.c
-index 06316fb8e0fa..da8337e63a3e 100644
---- a/arch/s390/boot/startup.c
-+++ b/arch/s390/boot/startup.c
-@@ -6,6 +6,7 @@
- #include <asm/boot_data.h>
- #include <asm/extmem.h>
- #include <asm/sections.h>
-+#include <asm/diag288.h>
- #include <asm/maccess.h>
- #include <asm/machine.h>
- #include <asm/sysinfo.h>
-@@ -71,6 +72,20 @@ static void detect_machine_type(void)
- 		set_machine_feature(MFEATURE_VM);
- }
+diff --git a/arch/s390/boot/printk.c b/arch/s390/boot/printk.c
+index 8cf6331bc060..8f3b2244ef1b 100644
+--- a/arch/s390/boot/printk.c
++++ b/arch/s390/boot/printk.c
+@@ -158,7 +158,7 @@ static noinline char *strsym(char *buf, void *ip)
  
-+static void detect_diag288(void)
-+{
-+	/* "BEGIN" in EBCDIC character set */
-+	static const char cmd[] = "\xc2\xc5\xc7\xc9\xd5";
-+	unsigned long action, len;
-+
-+	action = machine_is_vm() ? (unsigned long)cmd : LPARWDT_RESTART;
-+	len = machine_is_vm() ? sizeof(cmd) : 0;
-+	if (__diag288(WDT_FUNC_INIT, MIN_INTERVAL, action, len))
-+		return;
-+	__diag288(WDT_FUNC_CANCEL, 0, 0, 0);
-+	set_machine_feature(MFEATURE_DIAG288);
-+}
-+
- static void detect_diag9c(void)
- {
- 	unsigned int cpu;
-@@ -519,6 +534,8 @@ void startup_kernel(void)
- 	detect_facilities();
- 	detect_diag9c();
- 	detect_machine_type();
-+	/* detect_diag288() needs machine type */
-+	detect_diag288();
- 	cmma_init();
- 	sanitize_prot_virt_host();
- 	max_physmem_end = detect_max_physmem_end();
-diff --git a/arch/s390/include/asm/cpufeature.h b/arch/s390/include/asm/cpufeature.h
-index e08169bd63a5..6c6a99660e78 100644
---- a/arch/s390/include/asm/cpufeature.h
-+++ b/arch/s390/include/asm/cpufeature.h
-@@ -15,6 +15,7 @@ enum {
- 	S390_CPU_FEATURE_MSA,
- 	S390_CPU_FEATURE_VXRS,
- 	S390_CPU_FEATURE_UV,
-+	S390_CPU_FEATURE_D288,
- 	MAX_CPU_FEATURES
- };
- 
-diff --git a/arch/s390/include/asm/diag288.h b/arch/s390/include/asm/diag288.h
-new file mode 100644
-index 000000000000..5e1b43cea9d6
---- /dev/null
-+++ b/arch/s390/include/asm/diag288.h
-@@ -0,0 +1,41 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#ifndef _ASM_S390_DIAG288_H
-+#define _ASM_S390_DIAG288_H
-+
-+#include <asm/asm-extable.h>
-+#include <asm/types.h>
-+
-+#define MIN_INTERVAL 15	    /* Minimal time supported by diag288 */
-+#define MAX_INTERVAL 3600   /* One hour should be enough - pure estimation */
-+
-+#define WDT_DEFAULT_TIMEOUT 30
-+
-+/* Function codes - init, change, cancel */
-+#define WDT_FUNC_INIT 0
-+#define WDT_FUNC_CHANGE 1
-+#define WDT_FUNC_CANCEL 2
-+#define WDT_FUNC_CONCEAL 0x80000000
-+
-+/* Action codes for LPAR watchdog */
-+#define LPARWDT_RESTART 0
-+
-+static inline int __diag288(unsigned int func, unsigned int timeout,
-+			    unsigned long action, unsigned int len)
-+{
-+	union register_pair r1 = { .even = func, .odd = timeout, };
-+	union register_pair r3 = { .even = action, .odd = len, };
-+	int rc = -EINVAL;
-+
-+	asm volatile(
-+		"	diag	%[r1],%[r3],0x288\n"
-+		"0:	lhi	%[rc],0\n"
-+		"1:"
-+		EX_TABLE(0b, 1b)
-+		: [rc] "+d" (rc)
-+		: [r1] "d" (r1.pair), [r3] "d" (r3.pair)
-+		: "cc", "memory");
-+	return rc;
-+}
-+
-+#endif /* _ASM_S390_DIAG288_H */
-diff --git a/arch/s390/include/asm/machine.h b/arch/s390/include/asm/machine.h
-index 54478caa5237..8abe5afdbfc4 100644
---- a/arch/s390/include/asm/machine.h
-+++ b/arch/s390/include/asm/machine.h
-@@ -18,6 +18,7 @@
- #define MFEATURE_VM		7
- #define MFEATURE_KVM		8
- #define MFEATURE_LPAR		9
-+#define MFEATURE_DIAG288	10
- 
- #ifndef __ASSEMBLY__
- 
-diff --git a/arch/s390/kernel/cpufeature.c b/arch/s390/kernel/cpufeature.c
-index 1b2ae42a0c15..76210f001028 100644
---- a/arch/s390/kernel/cpufeature.c
-+++ b/arch/s390/kernel/cpufeature.c
-@@ -5,11 +5,13 @@
- 
- #include <linux/cpufeature.h>
- #include <linux/bug.h>
-+#include <asm/machine.h>
- #include <asm/elf.h>
- 
- enum {
- 	TYPE_HWCAP,
- 	TYPE_FACILITY,
-+	TYPE_MACHINE,
- };
- 
- struct s390_cpu_feature {
-@@ -21,6 +23,7 @@ static struct s390_cpu_feature s390_cpu_features[MAX_CPU_FEATURES] = {
- 	[S390_CPU_FEATURE_MSA]	= {.type = TYPE_HWCAP, .num = HWCAP_NR_MSA},
- 	[S390_CPU_FEATURE_VXRS]	= {.type = TYPE_HWCAP, .num = HWCAP_NR_VXRS},
- 	[S390_CPU_FEATURE_UV]	= {.type = TYPE_FACILITY, .num = 158},
-+	[S390_CPU_FEATURE_D288]	= {.type = TYPE_MACHINE, .num = MFEATURE_DIAG288},
- };
- 
- /*
-@@ -38,6 +41,8 @@ int cpu_have_feature(unsigned int num)
- 		return !!(elf_hwcap & BIT(feature->num));
- 	case TYPE_FACILITY:
- 		return test_facility(feature->num);
-+	case TYPE_MACHINE:
-+		return test_machine_feature(feature->num);
- 	default:
- 		WARN_ON_ONCE(1);
- 		return 0;
-diff --git a/drivers/watchdog/diag288_wdt.c b/drivers/watchdog/diag288_wdt.c
-index 76dffc89c641..887d5a6c155b 100644
---- a/drivers/watchdog/diag288_wdt.c
-+++ b/drivers/watchdog/diag288_wdt.c
-@@ -29,26 +29,13 @@
- #include <linux/watchdog.h>
- #include <asm/machine.h>
- #include <asm/ebcdic.h>
-+#include <asm/diag288.h>
- #include <asm/diag.h>
- #include <linux/io.h>
- 
- #define MAX_CMDLEN 240
- #define DEFAULT_CMD "SYSTEM RESTART"
- 
--#define MIN_INTERVAL 15     /* Minimal time supported by diag88 */
--#define MAX_INTERVAL 3600   /* One hour should be enough - pure estimation */
--
--#define WDT_DEFAULT_TIMEOUT 30
--
--/* Function codes - init, change, cancel */
--#define WDT_FUNC_INIT 0
--#define WDT_FUNC_CHANGE 1
--#define WDT_FUNC_CANCEL 2
--#define WDT_FUNC_CONCEAL 0x80000000
--
--/* Action codes for LPAR watchdog */
--#define LPARWDT_RESTART 0
--
- static char wdt_cmd[MAX_CMDLEN] = DEFAULT_CMD;
- static bool conceal_on;
- static bool nowayout_info = WATCHDOG_NOWAYOUT;
-@@ -75,22 +62,8 @@ static char *cmd_buf;
- static int diag288(unsigned int func, unsigned int timeout,
- 		   unsigned long action, unsigned int len)
- {
--	union register_pair r1 = { .even = func, .odd = timeout, };
--	union register_pair r3 = { .even = action, .odd = len, };
--	int err;
--
- 	diag_stat_inc(DIAG_STAT_X288);
--
--	err = -EINVAL;
--	asm volatile(
--		"	diag	%[r1],%[r3],0x288\n"
--		"0:	la	%[err],0\n"
--		"1:\n"
--		EX_TABLE(0b, 1b)
--		: [err] "+d" (err)
--		: [r1] "d" (r1.pair), [r3] "d" (r3.pair)
--		: "cc", "memory");
--	return err;
-+	return __diag288(func, timeout, action, len);
- }
- 
- static int diag288_str(unsigned int func, unsigned int timeout, char *cmd)
-@@ -189,8 +162,6 @@ static struct watchdog_device wdt_dev = {
- 
- static int __init diag288_init(void)
- {
--	int ret;
--
- 	watchdog_set_nowayout(&wdt_dev, nowayout_info);
- 
- 	if (machine_is_vm()) {
-@@ -199,24 +170,6 @@ static int __init diag288_init(void)
- 			pr_err("The watchdog cannot be initialized\n");
- 			return -ENOMEM;
- 		}
--
--		ret = diag288_str(WDT_FUNC_INIT, MIN_INTERVAL, "BEGIN");
--		if (ret != 0) {
--			pr_err("The watchdog cannot be initialized\n");
--			kfree(cmd_buf);
--			return -EINVAL;
--		}
--	} else {
--		if (diag288(WDT_FUNC_INIT, WDT_DEFAULT_TIMEOUT,
--			    LPARWDT_RESTART, 0)) {
--			pr_err("The watchdog cannot be initialized\n");
--			return -EINVAL;
--		}
--	}
--
--	if (diag288(WDT_FUNC_CANCEL, 0, 0, 0)) {
--		pr_err("The watchdog cannot be deactivated\n");
--		return -EINVAL;
- 	}
- 
- 	return watchdog_register_device(&wdt_dev);
-@@ -228,5 +181,5 @@ static void __exit diag288_exit(void)
- 	kfree(cmd_buf);
- }
- 
--module_init(diag288_init);
-+module_cpu_feature_match(S390_CPU_FEATURE_D288, diag288_init);
- module_exit(diag288_exit);
+ 	p = findsym((unsigned long)ip, &off, &len);
+ 	if (p) {
+-		strncpy(buf, p, MAX_SYMLEN);
++		strscpy(buf, p, MAX_SYMLEN);
+ 		/* reserve 15 bytes for offset/len in symbol+0x1234/0x1234 */
+ 		p = buf + strnlen(buf, MAX_SYMLEN - 15);
+ 		strcpy(p, "+0x");
 -- 
-2.45.2
+2.39.5
 
