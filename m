@@ -1,163 +1,205 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468371ADC93
-	for <linux-s390@vger.kernel.org>; Thu, 10 Apr 2025 17:30:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45B454503B;
+	Thu, 10 Apr 2025 18:03:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744306260; cv=none; b=H/tD8bNp99/He7+/je77sLGYB0Sn5TGdO8Tf4PFgg24L2Klh0Lr1O5zZDNzpjL0NHsHrwb3QC8jA5SRMJqbTUgmtRxqmPyyoi7Va8K5i25G7oGm1KabVFwjsM+MMAC3MdEezDSXaobgrUDc5SOvW6x1Mqs++rnH23B1XGGVy3Ek=
+	t=1744308212; cv=none; b=Ap3w6yPr3ss+8bN6rSYU9aV9sB8mgRSLdO9T562B1lXCfFltVGMO5LQB4EboFPe/ZrV+GATst7YR60+omtL6rQlVpF38pPf3Fdz8yTUA/dOC6ToFbkjoYllgMuIqzi+cnGWcTC0ZG3btP18Zn6yczLuJtIqYu0gVr7A3luHDyDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744306260; c=relaxed/simple;
-	bh=5CYYrJD1PYEc8v13A26EEmpGoRj0xUIYoIwF293jrI8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WPXxXXmZ1ZBkog4s7CHZV3UFqXTfD7u+/j0RRpJvso19d0gefxeQCUs/yS1kSx1pKYzWSh6KWV5zDNRCq16rdGMeGXZTbHdPYZv7pTBkt1tK8JVuwhrZEtqrV4zgQbpOr7YWIoxj941ppRprf15uJso8bmS/VjsYfmBCCIpT4mE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=AbFSbj8H; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1744308212; c=relaxed/simple;
+	bh=4aWbed7EtQgLSXk51YT4NxpZ+Qur5bbbpTCLnW+5LHA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IvASCZ3wiLgexbpZK2UiBd18iuLqQXRy6YWvRU1ngx0QoNHuva8hfNOtrHHG6hb78t47NPha+OnrGiYF2kW4rMn13elAnwWWN0AMky0T4iaIAeLylRbHzCykYL/Ojav5D3T/pHV1t7isT1KEtyKY3vPGtjGLHYUTJ1n34Np8WWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BNRfKsb/; arc=none smtp.client-ip=209.85.210.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AbFSbj8H"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-ac345bd8e13so189658966b.0
-        for <linux-s390@vger.kernel.org>; Thu, 10 Apr 2025 10:30:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BNRfKsb/"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-739525d4e12so1096027b3a.3;
+        Thu, 10 Apr 2025 11:03:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1744306255; x=1744911055; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4lvtyE0JEERYRxIgahoru2kYgvFfID/Ihnb06JIlXHc=;
-        b=AbFSbj8Hmp+qUC34mjKZ3tJbgxFKuPK1ru5cGT8fj6ZEpFyCvSH2TRkdYzxm1imcV4
-         LQJ47MXAK6SAYzmyg+14zdq6JhwIcQ6Qgm2Xsu/7oLVgqTDk001EDMzmOO5OYDv+cmAt
-         nDMDVIpJh44nMbQ7beqW+R9wRPjXuKPqiOUsjOYuLVvFvevkROr20rBr1CnbdJR+khZf
-         W1rXxbu77HtVZNUfBimE7+M8Xcbaym00UTq2pvwLkw9pKDOtE2nEILEERXRIVVRbRIyl
-         pkHW6kCYJNWtHaKFCYlxEKi0f7s5qQ5tBW3ScPVwEmjrCmgSjzo9O+bmcQFh9EX8eBYx
-         Zmsg==
+        d=gmail.com; s=20230601; t=1744308210; x=1744913010; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9KspzWYWRsyEbnP31/SlUBhB9lF2Qj2qHmHRt0zLbBU=;
+        b=BNRfKsb/graCk44+65PCeq1i05nBDS1W/KIdENTNueJA7omymlELaURHJgjM2UDhkd
+         nAXkGmrqcTVILBcET1iKCoFpyifGAp/T6t+0p3JllV8XJGdfIx2KSHZ1qC3TOfV+WpT7
+         cQrsTFS12V/9iE15DO/LJZ5RNJJdOxm6EW9MmFOY0NjoPFQ9PU18ZTIrc5+4PWG5O0l7
+         VZFM4PNG5x4mMVuFd94OuUG9+pe0oVMRHNgdWHer/Z1I5ceDkzJ9uzesFQqFtK3OVGvG
+         m5sWRpqnxQ4SwJAhsXCn7QLrpqzY50Ds1P4w5ul0tr/cyVksVzXF0sh3ImSOPRrGON07
+         AL5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744306255; x=1744911055;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4lvtyE0JEERYRxIgahoru2kYgvFfID/Ihnb06JIlXHc=;
-        b=LtoJjf07WfhIwXOqmzqOW/vsZjYZIMHkCECaRh1/g14xwFgaghX3i7xe6snIESTZyH
-         6gegON5fgruuHmeW21MHODJ2eCh9/1nmPpOMPiUramiCxL9+JJbm2TwyNXcnKEasjn7E
-         jn0PcpFUX9WshzectcQet1HVZ0UCNIK9iEgQpTW6WvZcFXwyb1anU0IWi7TUDwSa/l8d
-         zzs9wsoqF8ajNNWHTlQiWd3JsCEJvwQ/utbW/fOzUgf0KB/E3z4cWCA2uR7qQ1JDpOTD
-         BMGG66QqCq/CpnE0vwjeDY3cULD9mv7Y3F5nZNHqhgfeKu6YAFwZFIE6OYoA+EOxapas
-         FY3A==
-X-Forwarded-Encrypted: i=1; AJvYcCUnh7zZiGlyn0rgVPjtnouQNE+vqgcxNl5IgPHUGtpE+hdkgFnQpu9i5LaEYNUHHgI2LPI1NeQoikL1@vger.kernel.org
-X-Gm-Message-State: AOJu0YyaNMlA0slV1KishxOh0Qlpif6EP1ueIivLK5XORuMWQY+0xcjS
-	xHcBT77Tke7j8acoSnyF3kqnCBu27plTtjbndWiawbFdpGi6uivl+5nV5U8Seo/S34a4ZOqWWci
-	+VKzGCDTR4vLqNKa6pcO3CSl0MCAudpoWrlJO
-X-Gm-Gg: ASbGncsWZHQbp8GbNSeLohyjjjAUo+JqjYRC9Qgr4aOExwRRPpG7z1orFAIdjhUJE/c
-	yEMvDWdqEfXghClZ3hPTSsp9ROrD7lCbwFtYZpouImBQNaqttzEP5flWlehC+KjL8udXNEadju4
-	c0cSuoql1bXYYgmyr0x6KN6C88Sj3rpPVF+5Wel4eKz7iDliRXeQ==
-X-Google-Smtp-Source: AGHT+IGIVRiw+Cv/qQwATtNJTY6pij2JQq0ZJjGjmjWzuhUbZKxnEfXvGQ1xO2Xzfi/rEZHAoJ61M3B4Nw6zY0b2QII=
-X-Received: by 2002:a17:907:868f:b0:ac7:cc21:48f9 with SMTP id
- a640c23a62f3a-acabd181216mr355633766b.5.1744306255368; Thu, 10 Apr 2025
- 10:30:55 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1744308210; x=1744913010;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9KspzWYWRsyEbnP31/SlUBhB9lF2Qj2qHmHRt0zLbBU=;
+        b=sU9J+6gO3Fz4dinvFJuR5u1yN2gp4f+855FmLcXAyRPhXzkF6yncTzoM5V91yNA8hH
+         HwMvtMnFUtCJqKXvfNvomtktNxRPgw84i/9dOP0Vpt+Ia65Bd9Z1zn9LY8roH3Feb5ko
+         5K7oWwvJlcrFS5r5vHDeIipSx/AGNLn/oIqRBitM7Cs5eOxuCQjH/Al6Fc74MIcwcDBh
+         UUVStwYczUgmym5GJcOEVebvp/ZLfUVxW0+XoXnGaehbMgaxoit4ja5mSwUokvdDRnup
+         fup2ztYHSIbS9ifX5Q7zq6XN3F+PB8G7ElNISnsD2HpBWlwkL4G+D1tNTWByYsDdlRuG
+         dtXg==
+X-Forwarded-Encrypted: i=1; AJvYcCU/kyKrOEgaqnIwJMf4MzQgOjs+FRxGI+rO25sUGiBU2jngaQ2Y+0vW+c9HVvsZ52bDTHnSJ7YtsnAScg==@vger.kernel.org, AJvYcCWO4VZtoLY9t1kVELc6TBifKXkE4GTpbNPcizquFFAId0aGJxpiJKgLsiAZOMDQvE48d1suAxvy+0MZpR4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxcZezSEMFJZdbgk683mNm3fL0+NWXhmlOL6c/PBc2T7ZezMFzs
+	WKDOjPjkeaOPl3jPd99RCitud3V6Ah414lUk7XRwUa3DQpuCIBKZ
+X-Gm-Gg: ASbGncsldj8PvjNBoqsn9VhYIYLCbWhVKH5/V8B5ZPPuPxnnYSQCz/dwgqfQgWE+w7f
+	A8SMUh0VM2ZSsZNx0H8Gf4/7iz9SImOh7A5BAQr+yNv5cBBPieSgEYkPEsZ8TYJeRFSxVphQ7Rs
+	fj4UCBhEOVNEJiHO/ejU4n8NA8N7VrLngPNFBpEryYIyUfLWhxsXS7BbPx818YajS6Y+BFZ1Eo/
+	r6r1h/SnHa3Obs9AU2sLhiBxI9LfD6glBYQbXfm6Zw/S07y0Tzc7pO3RNqQwR1u6CZIOKyQgJF0
+	YXjvXIkSC/Vv7+HksjmTNlQNrlGj3GIWwWSMIjk6YDC75JPv78AIHZ0G
+X-Google-Smtp-Source: AGHT+IGo7HacaL/bCpYlsLvZ/r0cXH+aP5UU2jDrusuLV2kneGlhMHN7AVzvwnv/xHVzRUqpukB9ig==
+X-Received: by 2002:a05:6a00:801:b0:736:a82a:58ad with SMTP id d2e1a72fcca58-73bbefa623bmr4027239b3a.15.1744308210343;
+        Thu, 10 Apr 2025 11:03:30 -0700 (PDT)
+Received: from localhost.localdomain ([2601:646:8f03:9fee:5e33:e006:dcd5:852d])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73bb1d2b940sm3609697b3a.8.2025.04.10.11.03.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Apr 2025 11:03:29 -0700 (PDT)
+From: nifan.cxl@gmail.com
+To: willy@infradead.org
+Cc: mcgrof@kernel.org,
+	a.manzanares@samsung.com,
+	dave@stgolabs.net,
+	akpm@linux-foundation.org,
+	david@redhat.com,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	ziy@nvidia.com,
+	Fan Ni <fan.ni@samsung.com>
+Subject: [PATCH] mm: Introduce free_folio_and_swap_cache() to replace free_page_and_swap_cache()
+Date: Thu, 10 Apr 2025 11:00:31 -0700
+Message-ID: <20250410180254.164118-1-nifan.cxl@gmail.com>
+X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250410085522.465401-1-tmricht@linux.ibm.com>
-In-Reply-To: <20250410085522.465401-1-tmricht@linux.ibm.com>
-From: Chun-Tse Shao <ctshao@google.com>
-Date: Thu, 10 Apr 2025 10:30:44 -0700
-X-Gm-Features: ATxdqUEoTmStIqytg6Rwh_dXa819gL78OYkSyS24dciTaQXPBOWtV4a_1OLJ-TA
-Message-ID: <CAJpZYjX=8SXaFU_gTJBhf6CD-CWPPL4kWVL3eFenskdoxB6ZUg@mail.gmail.com>
-Subject: Re: [PATCH v3] perf test: Allow tolerance for leader sampling test
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	rogers@google.com, agordeev@linux.ibm.com, gor@linux.ibm.com, 
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, Ian Rogers <irogers@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Apr 10, 2025 at 1:55=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
->
-> V3: Added check for missing samples as suggested by Chun-Tse.
-> V2: Changed bc invocation to return 0 on success and 1 on error.
->
-> There is a known issue that the leader sampling is inconsistent, since
-> throttle only affect leader, not the slave. The detail is in [1]. To
-> maintain test coverage, this patch sets a tolerance rate of 80% to
-> accommodate the throttled samples and prevent test failures due to
-> throttling.
->
-> [1] lore.kernel.org/20250328182752.769662-1-ctshao@google.com
->
-> Signed-off-by: Chun-Tse Shao <ctshao@google.com>
-> Suggested-by: Ian Rogers <irogers@google.com>
-> Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
-> Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Tested-by: Chun-Tse Shao <ctshao@google.com>
-> ---
->  tools/perf/tests/shell/record.sh | 33 ++++++++++++++++++++++++++------
->  1 file changed, 27 insertions(+), 6 deletions(-)
->
-> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/re=
-cord.sh
-> index ba8d873d3ca7..0075ffe783ad 100755
-> --- a/tools/perf/tests/shell/record.sh
-> +++ b/tools/perf/tests/shell/record.sh
-> @@ -238,22 +238,43 @@ test_leader_sampling() {
->      err=3D1
->      return
->    fi
-> +  perf script -i "${perfdata}" | grep brstack > $script_output
-> +  # Check if the two instruction counts are equal in each record.
-> +  # However, the throttling code doesn't consider event grouping. During=
- throttling, only the
-> +  # leader is stopped, causing the slave's counts significantly higher. =
-To temporarily solve this,
-> +  # let's set the tolerance rate to 80%.
-> +  # TODO: Revert the code for tolerance once the throttling mechanism is=
- fixed.
->    index=3D0
-> -  perf script -i "${perfdata}" > $script_output
-> +  valid_counts=3D0
-> +  invalid_counts=3D0
-> +  tolerance_rate=3D0.8
->    while IFS=3D read -r line
->    do
-> -    # Check if the two instruction counts are equal in each record
->      cycles=3D$(echo $line | awk '{for(i=3D1;i<=3DNF;i++) if($i=3D=3D"cyc=
-les:") print $(i-1)}')
->      if [ $(($index%2)) -ne 0 ] && [ ${cycles}x !=3D ${prev_cycles}x ]
->      then
-> -      echo "Leader sampling [Failed inconsistent cycles count]"
-> -      err=3D1
-> -      return
-> +      invalid_counts=3D$(($invalid_counts+1))
-> +    else
-> +      valid_counts=3D$(($valid_counts+1))
->      fi
->      index=3D$(($index+1))
->      prev_cycles=3D$cycles
->    done < $script_output
-> -  echo "Basic leader sampling test [Success]"
-> +  total_counts=3D$(bc <<< "$invalid_counts+$valid_counts")
-> +  if (( $(bc <<< "$total_counts <=3D 0") ))
-> +  then
-> +    echo "Leader sampling [No sample generated]"
-> +    err=3D1
-> +    return
-> +  fi
-> +  isok=3D$(bc <<< "scale=3D2; if (($invalid_counts/$total_counts) < (1-$=
-tolerance_rate)) { 0 } else { 1 };")
-> +  if [ $isok -eq 1 ]
-> +  then
-> +     echo "Leader sampling [Failed inconsistent cycles count]"
-> +     err=3D1
-> +  else
-> +    echo "Basic leader sampling test [Success]"
-> +  fi
->  }
->
->  test_topdown_leader_sampling() {
-> --
-> 2.49.0
->
+From: Fan Ni <fan.ni@samsung.com>
+
+The function free_page_and_swap_cache() takes a struct page pointer as
+input parameter, but it will immediately convert it to folio and all
+operations following within use folio instead of page.  It makes more
+sense to pass in folio directly.
+
+Introduce free_folio_and_swap_cache(), which takes folio as input to
+replace free_page_and_swap_cache().  And apply it to all occurrences
+where free_page_and_swap_cache() was used.
+
+Signed-off-by: Fan Ni <fan.ni@samsung.com>
+---
+ arch/s390/include/asm/tlb.h |  4 ++--
+ include/linux/swap.h        | 10 +++++++---
+ mm/huge_memory.c            |  2 +-
+ mm/khugepaged.c             |  2 +-
+ mm/swap_state.c             |  8 +++-----
+ 5 files changed, 14 insertions(+), 12 deletions(-)
+
+diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
+index f20601995bb0..e5103e8e697d 100644
+--- a/arch/s390/include/asm/tlb.h
++++ b/arch/s390/include/asm/tlb.h
+@@ -40,7 +40,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
+ /*
+  * Release the page cache reference for a pte removed by
+  * tlb_ptep_clear_flush. In both flush modes the tlb for a page cache page
+- * has already been freed, so just do free_page_and_swap_cache.
++ * has already been freed, so just do free_folio_and_swap_cache.
+  *
+  * s390 doesn't delay rmap removal.
+  */
+@@ -49,7 +49,7 @@ static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
+ {
+ 	VM_WARN_ON_ONCE(delay_rmap);
+ 
+-	free_page_and_swap_cache(page);
++	free_folio_and_swap_cache(page_folio(page));
+ 	return false;
+ }
+ 
+diff --git a/include/linux/swap.h b/include/linux/swap.h
+index db46b25a65ae..9fc8856eeed9 100644
+--- a/include/linux/swap.h
++++ b/include/linux/swap.h
+@@ -450,7 +450,7 @@ static inline unsigned long total_swapcache_pages(void)
+ }
+ 
+ void free_swap_cache(struct folio *folio);
+-void free_page_and_swap_cache(struct page *);
++void free_folio_and_swap_cache(struct folio *folio);
+ void free_pages_and_swap_cache(struct encoded_page **, int);
+ /* linux/mm/swapfile.c */
+ extern atomic_long_t nr_swap_pages;
+@@ -522,8 +522,12 @@ static inline void put_swap_device(struct swap_info_struct *si)
+ 	do { (val)->freeswap = (val)->totalswap = 0; } while (0)
+ /* only sparc can not include linux/pagemap.h in this file
+  * so leave put_page and release_pages undeclared... */
+-#define free_page_and_swap_cache(page) \
+-	put_page(page)
++#define free_folio_and_swap_cache(folio)	\
++	do {					\
++		if (!folio_test_slab(folio))	\
++			folio_put(folio);	\
++	} while (0)
++
+ #define free_pages_and_swap_cache(pages, nr) \
+ 	release_pages((pages), (nr));
+ 
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 28c87e0e036f..65a5ddf60ec7 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -3640,7 +3640,7 @@ static int __split_unmapped_folio(struct folio *folio, int new_order,
+ 		 * requires taking the lru_lock so we do the put_page
+ 		 * of the tail pages after the split is complete.
+ 		 */
+-		free_page_and_swap_cache(&new_folio->page);
++		free_folio_and_swap_cache(new_folio);
+ 	}
+ 	return ret;
+ }
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index b8838ba8207a..5cf204ab6af0 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -746,7 +746,7 @@ static void __collapse_huge_page_copy_succeeded(pte_t *pte,
+ 			ptep_clear(vma->vm_mm, address, _pte);
+ 			folio_remove_rmap_pte(src, src_page, vma);
+ 			spin_unlock(ptl);
+-			free_page_and_swap_cache(src_page);
++			free_folio_and_swap_cache(src);
+ 		}
+ 	}
+ 
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index 68fd981b514f..ac4e0994931c 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -232,13 +232,11 @@ void free_swap_cache(struct folio *folio)
+ }
+ 
+ /*
+- * Perform a free_page(), also freeing any swap cache associated with
+- * this page if it is the last user of the page.
++ * Freeing a folio and also freeing any swap cache associated with
++ * this folio if it is the last user.
+  */
+-void free_page_and_swap_cache(struct page *page)
++void free_folio_and_swap_cache(struct folio *folio)
+ {
+-	struct folio *folio = page_folio(page);
+-
+ 	free_swap_cache(folio);
+ 	if (!is_huge_zero_folio(folio))
+ 		folio_put(folio);
+-- 
+2.47.2
+
