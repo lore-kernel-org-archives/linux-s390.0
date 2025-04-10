@@ -1,72 +1,72 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 137F34503B
-	for <linux-s390@vger.kernel.org>; Thu, 10 Apr 2025 18:36:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1BA28EA4A
+	for <linux-s390@vger.kernel.org>; Thu, 10 Apr 2025 18:44:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744310201; cv=none; b=r+1OPvz1hBSaC0UaWfRX8voqHWEeG3Txkh5k3bQWk+eT9KV0pEce0dcjArSbMfaEEQSxHYMjzcmYiH2CxIHfwJIjqZh+wTl1TLqNkepFJIE8k5cOD5R4QlZ6b3wl7lmIlixgh+0eWYN3B/vT+dHx14T3oD9KfCjwl0rQsjVAB6A=
+	t=1744310656; cv=none; b=XvDF3hx32XOZdXWESyoCTPFDphpYvtLTMVJorQUEVRUOkXihu5HLM3r/ZObCQLVCcDGqqlVBUTXyrnRo0ZiZXh/NSfr5YpjdO2ZkEaDBRM0JellmMKZI5mjFulkxqUMI6YZtOAw/wGyvszQ5EmAPnTfzJOgstotEr9bNMmCQpBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744310201; c=relaxed/simple;
-	bh=gTNXq37akgqk6z+58rhQWAsjkG2V+MCF+5rA1Q6dX5U=;
+	s=arc-20240116; t=1744310656; c=relaxed/simple;
+	bh=sKywq7H/4Et9741fqSvhin/moVoNQTVDF+h4YhYybJw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eG7jcmgSFOxtpqzs6lkNSDqxkPdnBiTK9nxXOLnx6MsEdWNtaghciO2WWCphScSPvPepBE4dL++CFPx5wOokyoYf4a5Z0OoGPKoor/XSsXwFnq4A+vgqrf6kxcwOqzcuF3h7da17KxaiPVxqqB53JRbz/6PITQUjPaxcRgV6YmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Dd/JwoEH; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=RCGuvN4nsxbZlPp1pvyO5+cIJSJPIwrnSV3D06ixQ/8hTx3k+v25d/XWwbm+AjXbniw4uoDZBiqdm5FLxLpgu66rzXhBdjaLURRDjNuzRTWwQ8XOrFB/9vqM3iJ+fgXoKNlT56zo3fg25+o+T71jMybId1HqjvC6lT8LcZfoeE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R8JNKPww; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dd/JwoEH"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R8JNKPww"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744310199;
+	s=mimecast20190719; t=1744310653;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=zr+Ng4jJFOHIi/H/AZxmASCM4Qn5ASJYm7koFScbolg=;
-	b=Dd/JwoEHuR+EIcvaDoyFPJinGUVSJ10H3d2ZAB2i8/iEUZrzKy2GYXZ7JSb8V2Gm0K6Op+
-	braEldHURCzc7zcLBEGQtxx2A5Li7dGWoxCMCIQoFRfN8Xe7MUzPqIkhzodxHlSOPxhZxr
-	MfNkjCIQx1vbH8EHYky7zmHk6XjY6pQ=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Jxve4+H/G8iIVYp4eWG2z8bp0IS92tto2aBEElfrg50=;
+	b=R8JNKPwwnQFUTb1rsUXWpq1gb7+HZyhlytMY/nN5M3wUu1fSIQq3w8iigvA/EWkcgf7LNn
+	4E+lts3nZvjeEhxu7swg1yb4VBNRahDNWy81tDhzmefeccxH/RgB2wkypYdrBwbc3+ohM2
+	PPpyAkEy/noG2GAhkzwf9rKdESv+jxg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-67-qyNY_04RMhmHgrW_Z6OfoQ-1; Thu, 10 Apr 2025 14:36:37 -0400
-X-MC-Unique: qyNY_04RMhmHgrW_Z6OfoQ-1
-X-Mimecast-MFC-AGG-ID: qyNY_04RMhmHgrW_Z6OfoQ_1744310197
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43efa869b19so8445185e9.2
-        for <linux-s390@vger.kernel.org>; Thu, 10 Apr 2025 11:36:37 -0700 (PDT)
+ us-mta-657-1K-JNDXyOr6n9hT_YYHvRA-1; Thu, 10 Apr 2025 14:44:09 -0400
+X-MC-Unique: 1K-JNDXyOr6n9hT_YYHvRA-1
+X-Mimecast-MFC-AGG-ID: 1K-JNDXyOr6n9hT_YYHvRA_1744310648
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3912539665cso1298894f8f.1
+        for <linux-s390@vger.kernel.org>; Thu, 10 Apr 2025 11:44:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744310196; x=1744914996;
+        d=1e100.net; s=20230601; t=1744310648; x=1744915448;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=zr+Ng4jJFOHIi/H/AZxmASCM4Qn5ASJYm7koFScbolg=;
-        b=GrA1f6GamRrCP/j+z1i8pOo+dsgLU04HU2+87h7qwOdNmdCe97RIvoePulaGQu80yJ
-         X7x0fNDYBY96g9oNskE1raOI1JjaenIdrUQF4qcY7/0dtlfLLfwv6kLdvbZgwgeMo0rH
-         Yn6suEBXLbEAeQi2vDx47I79hg0ztfmIvievdqFTaY+gie82ZL2C2kAUp2pwVqFDNnTA
-         Ls7GBS9o9KLVFlTR3u8R1DGvGTMPTDtnKTZEhKThdzp0OPJuxbdL0/72ljd7dV8qIMMT
-         XoaKgNqL/xt4Y2kXbOB3WEnF2vA9D8r7rMjvv5DbKnePb5P52+jsZiT5xomq++5prB2u
-         DbZw==
-X-Forwarded-Encrypted: i=1; AJvYcCXDQ9aaLirQfuO92JonYmAanD8YhTXeOWA7GwQbinpblRrxBFfmcz632x9R9OzVf+AbTPiP0faNxTTq@vger.kernel.org
-X-Gm-Message-State: AOJu0YzkvESOQZxsP+Y10FknEvFVXDQxhYI3EQ9MZ0eFNfZGxiV488nq
-	60jy8ZraBEIZ09IjSwmN5FotAHTgz3vT+lSUPqPPeLMJvyQM5kR/hK1MeM8i3s7v7QMx6hBJt7I
-	X8BD9HjIsCx8/T3cY2N+sxSQsy/Cc9JY9+D1cqL/Z1wS/GUXUHYDwaHMkyCs=
-X-Gm-Gg: ASbGnctGyvaMzKjs1zcGMgR2ymfZNGWjiM+AhGFxTgKbiaI2s3FSWdhmmT3F2blWqG8
-	2SmdtwyK3mUVaFutjVswic00iQZUchbLb2rgei90O/b34wGNvv/tx0DBmor8n+hr+F/SaiyeAKO
-	NFcmdwEpnPKwOjIgo9a6hY4bSEqtdqepawoTA4l9/vJqxjA1CLF6kwjJvOUiLLys9SI1B/Yqgd9
-	OVPrqmZcfZporAvshUD5AwR33N/8Zc76sYACXsY3Qe4/S6k556Z1jRiS+7RLrkMCBCk95s9752T
-	WZ9Cwhcped08JWm2diSYaT2hbILJNM1JQDv7buhlrg==
-X-Received: by 2002:a05:6000:40c7:b0:391:487f:27e7 with SMTP id ffacd0b85a97d-39d8f4ea82amr3475364f8f.55.1744310196632;
-        Thu, 10 Apr 2025 11:36:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEVaFm+41IJ7zizfBFTSY/K1PgcFhHzilk0IMx8IpDGRbcrJzSKoZ7cYNY7rCyvPExpXJUHnA==
-X-Received: by 2002:a05:6000:40c7:b0:391:487f:27e7 with SMTP id ffacd0b85a97d-39d8f4ea82amr3475347f8f.55.1744310196268;
-        Thu, 10 Apr 2025 11:36:36 -0700 (PDT)
-Received: from [192.168.3.141] (p4ff232c1.dip0.t-ipconnect.de. [79.242.50.193])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39d89362fcbsm5439717f8f.5.2025.04.10.11.36.34
+        bh=Jxve4+H/G8iIVYp4eWG2z8bp0IS92tto2aBEElfrg50=;
+        b=KeWG+acw382H7s0/hB9Ixu6xRCYNTmvLyGbE1/KONhEDqCBDfo6lbotRhwhjtI/wFh
+         uLr+GrOvYQCsjK2F2uPmMOy+jV4osPZDuylz7RVxNbX65gajDN+f/XrjIiHWXpNPZOnJ
+         NBukSxh+Sqml2pqlnOmFnvatAIOeUqdDbRGx5d+FhS325J82KcyqJu1P2dHq0HLrP4PO
+         RYpU43aSaJQVvOPmcVJVrqOidxpQPDwfHU3EyDAD5chKjfwPiwnqKJsoJs3NZNFSuZTx
+         nqVInCapiuHlUwUtXjuu4MbC45JSCBaZky64zw7FsXt81hYO69Lv+XajJfajSMWCieW4
+         CHcg==
+X-Gm-Message-State: AOJu0YwBKwVOsGTHmEgWt5Oc+wzfwgh2mWgxIu4uo6v8EyuEnM6jIRos
+	tXko2x4ST1qs35GQYHC5+2hJ66VdPRWrCzw03UY6/gAJXE42V7pXUw8fOULzy/Vd1tMxV8PzVyO
+	IXfU2dzTSlhsML9q1/w1nNkofqzxOhW9Tc8vlA6uT5A6WRyWxp/JNhJ7+7lo=
+X-Gm-Gg: ASbGnctI6bu96MyBZrUcyM64mnbXKFWEBQoYegzAt06PaolwCAUnBjDVXBb2xPW6DYD
+	2e+r3rFkQ9m7GBq/8UM9ZB1ZQ0mfNoO6In1BbwqlnVw2vHwDSHR3iQMpPo014M6WuZaCU5v/Zmm
+	7kg6S30V0rV7t2XleNxIuHjHhLmPiSaxG/MivM1VfyKTkchRA5e7ntnJjpiK89AOEdwfym34AeR
+	8IjwUPA//z9pt7WX8sCQd5CKnBef4qXlanqKUw3OygAt2maxdnhJ8fYu12shCN1NkxcEeqBG8NN
+	XwHXfJE/+sFOu2amSV07mffi1+7voLCfukADBFfI8igOCMqm22Pc8maPtNIKfZC9MfVvfoimPpN
+	h/LocKvpVe+Wm0/QjBwf0smw9811o3eepr+otPrg=
+X-Received: by 2002:a05:6000:2910:b0:39c:1efb:eec9 with SMTP id ffacd0b85a97d-39e6e49f471mr38115f8f.13.1744310648185;
+        Thu, 10 Apr 2025 11:44:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEEvQUNgBzNubFZ9s+T+LLIrqym+NXcc1LkzcRdHUvQ0wzpouOUTK9qcrtz+IuiYAIXOqtXDw==
+X-Received: by 2002:a05:6000:2910:b0:39c:1efb:eec9 with SMTP id ffacd0b85a97d-39e6e49f471mr38093f8f.13.1744310647685;
+        Thu, 10 Apr 2025 11:44:07 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c71a:5900:d106:4706:528a:7cd5? (p200300cbc71a5900d1064706528a7cd5.dip0.t-ipconnect.de. [2003:cb:c71a:5900:d106:4706:528a:7cd5])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-39d893773b6sm5555224f8f.27.2025.04.10.11.44.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Apr 2025 11:36:35 -0700 (PDT)
-Message-ID: <83e8b1b3-fc73-4a49-9f6c-36489c3f39d6@redhat.com>
-Date: Thu, 10 Apr 2025 20:36:34 +0200
+        Thu, 10 Apr 2025 11:44:06 -0700 (PDT)
+Message-ID: <065d46ba-83c1-473a-9cbe-d5388237d1ea@redhat.com>
+Date: Thu, 10 Apr 2025 20:44:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,17 +74,19 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] mm: Introduce free_folio_and_swap_cache() to replace
- free_page_and_swap_cache()
-To: Matthew Wilcox <willy@infradead.org>, Zi Yan <ziy@nvidia.com>
-Cc: nifan.cxl@gmail.com, mcgrof@kernel.org, a.manzanares@samsung.com,
- dave@stgolabs.net, akpm@linux-foundation.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, will@kernel.org, aneesh.kumar@kernel.org,
- hca@linux.ibm.com, gor@linux.ibm.com, linux-s390@vger.kernel.org,
- Fan Ni <fan.ni@samsung.com>
-References: <20250410180254.164118-1-nifan.cxl@gmail.com>
- <C40778F7-6A22-4A0E-9566-9D3ACC697EA7@nvidia.com>
- <Z_gNBRY_1UVe2-ax@casper.infradead.org>
+Subject: Re: [PATCH v1] s390/virtio_ccw: don't allocate/assign airqs for
+ non-existing queues
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, Chandra Merla <cmerla@redhat.com>,
+ Stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+ Thomas Huth <thuth@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Wei Wang <wei.w.wang@intel.com>
+References: <20250402203621.940090-1-david@redhat.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -132,38 +134,111 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <Z_gNBRY_1UVe2-ax@casper.infradead.org>
+In-Reply-To: <20250402203621.940090-1-david@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 10.04.25 20:25, Matthew Wilcox wrote:
-> On Thu, Apr 10, 2025 at 02:16:09PM -0400, Zi Yan wrote:
->>> @@ -49,7 +49,7 @@ static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
->>>   {
->>>   	VM_WARN_ON_ONCE(delay_rmap);
->>>
->>> -	free_page_and_swap_cache(page);
->>> +	free_folio_and_swap_cache(page_folio(page));
->>>   	return false;
->>>   }
->>
->> __tlb_remove_page_size() is ruining the fun of the conversion. But it will be
->> converted to use folio eventually.
+On 02.04.25 22:36, David Hildenbrand wrote:
+> If we finds a vq without a name in our input array in
+> virtio_ccw_find_vqs(), we treat it as "non-existing" and set the vq pointer
+> to NULL; we will not call virtio_ccw_setup_vq() to allocate/setup a vq.
 > 
-> Well, hm, I'm not sure.  I haven't looked into this in detail.
-> We have a __tlb_remove_folio_pages() which removes N pages but they must
-> all be within the same folio:
+> Consequently, we create only a queue if it actually exists (name != NULL)
+> and assign an incremental queue index to each such existing queue.
 > 
->          VM_WARN_ON_ONCE(page_folio(page) != page_folio(page + nr_pages - 1));
+> However, in virtio_ccw_register_adapter_ind()->get_airq_indicator() we
+> will not ignore these "non-existing queues", but instead assign an airq
+> indicator to them.
 > 
-> but would we be better off just passing in the folio which contains the
-> page and always flush all pages in the folio? 
+> Besides never releasing them in virtio_ccw_drop_indicators() (because
+> there is no virtqueue), the bigger issue seems to be that there will be a
+> disagreement between the device and the Linux guest about the airq
+> indicator to be used for notifying a queue, because the indicator bit
+> for adapter I/O interrupt is derived from the queue index.
+> 
+> The virtio spec states under "Setting Up Two-Stage Queue Indicators":
+> 
+> 	... indicator contains the guest address of an area wherein the
+> 	indicators for the devices are contained, starting at bit_nr, one
+> 	bit per virtqueue of the device.
+> 
+> And further in "Notification via Adapter I/O Interrupts":
+> 
+> 	For notifying the driver of virtqueue buffers, the device sets the
+> 	bit in the guest-provided indicator area at the corresponding
+> 	offset.
+> 
+> For example, QEMU uses in virtio_ccw_notify() the queue index (passed as
+> "vector") to select the relevant indicator bit. If a queue does not exist,
+> it does not have a corresponding indicator bit assigned, because it
+> effectively doesn't have a queue index.
+> 
+> Using a virtio-balloon-ccw device under QEMU with free-page-hinting
+> disabled ("free-page-hint=off") but free-page-reporting enabled
+> ("free-page-reporting=on") will result in free page reporting
+> not working as expected: in the virtio_balloon driver, we'll be stuck
+> forever in virtballoon_free_page_report()->wait_event(), because the
+> waitqueue will not be woken up as the notification from the device is
+> lost: it would use the wrong indicator bit.
+> 
+> Free page reporting stops working and we get splats (when configured to
+> detect hung wqs) like:
+> 
+>   INFO: task kworker/1:3:463 blocked for more than 61 seconds.
+>         Not tainted 6.14.0 #4
+>   "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+>   task:kworker/1:3 [...]
+>   Workqueue: events page_reporting_process
+>   Call Trace:
+>    [<000002f404e6dfb2>] __schedule+0x402/0x1640
+>    [<000002f404e6f22e>] schedule+0x3e/0xe0
+>    [<000002f3846a88fa>] virtballoon_free_page_report+0xaa/0x110 [virtio_balloon]
+>    [<000002f40435c8a4>] page_reporting_process+0x2e4/0x740
+>    [<000002f403fd3ee2>] process_one_work+0x1c2/0x400
+>    [<000002f403fd4b96>] worker_thread+0x296/0x420
+>    [<000002f403fe10b4>] kthread+0x124/0x290
+>    [<000002f403f4e0dc>] __ret_from_fork+0x3c/0x60
+>    [<000002f404e77272>] ret_from_fork+0xa/0x38
+> 
+> There was recently a discussion [1] whether the "holes" should be
+> treated differently again, effectively assigning also non-existing
+> queues a queue index: that should also fix the issue, but requires other
+> workarounds to not break existing setups.
+> 
+> Let's fix it without affecting existing setups for now by properly ignoring
+> the non-existing queues, so the indicator bits will match the queue
+> indexes.
+> 
+> [1] https://lore.kernel.org/all/cover.1720611677.git.mst@redhat.com/
+> 
+> Fixes: a229989d975e ("virtio: don't allocate vqs when names[i] = NULL")
+> Reported-by: Chandra Merla <cmerla@redhat.com>
+> Cc: <Stable@vger.kernel.org>
+> Cc: Cornelia Huck <cohuck@redhat.com>
+> Cc: Thomas Huth <thuth@redhat.com>
+> Cc: Halil Pasic <pasic@linux.ibm.com>
+> Cc: Eric Farman <farman@linux.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Cc: Sven Schnelle <svens@linux.ibm.com>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Wei Wang <wei.w.wang@intel.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
 
-The delay_rmap needs the precise pages, so we cannot easily switch to 
-folio + nr_refs.
+So, given that
 
-Once the per-page mapcounts are gone for good, we might no longer need 
-page+nr_pages but folio+nr_refs would work.
+(a) people are actively running into this
+(b) we'll have to backport this quite a lot
+(c) the spec issue is not a s390x-only issue
+(d) it's still unclear how to best deal with the spec issue
+
+I suggest getting this fix here upstream asap. It will neither making 
+sorting out the spec issue easier nor harder :)
+
+I can spot it in the s390 fixes tree already.
 
 -- 
 Cheers,
