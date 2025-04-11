@@ -1,171 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21B25284B33;
-	Fri, 11 Apr 2025 21:00:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB61429C357;
+	Fri, 11 Apr 2025 21:29:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744405204; cv=none; b=HhtCN69r0YgThc1+vfcZ4R3IbUc5vgT+JYQIAAXPOI7REtXh5T5kfAXjsEx4KbsbinQfX2RI3VSN/KiDVjx22tXFeZJ7vXSNN9T+54ErEQmyBQzuNhvloiPKEJFpBJ/gUC4WnHmp0ZJd+pi3BSfFyWk+/l3vIkhxQR5nvB7Ngx4=
+	t=1744406995; cv=none; b=NdS7IUoeEx2gVRR+nsT6DYZTeJ7R1eHLNCxhhjfbUYgyTcOUc6Flz4l3qBn9R9KEZXKFl4pc4ePMU3+jbGCfT8cGX5Asl1In8QtpUxcsY8yr81X878NOb+Et9OJt992FAnbpkorHJaGQLKXat8FZuXjlTGh8NG7FzAzQBsXUOs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744405204; c=relaxed/simple;
-	bh=58p2bEquuNdeDBo6V10v9l3W14scmxAZKVaTyX4C2DU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lG3p3vAXZ49oEukR4MCkGma/IncZ7cVqWBb2+herjczIjrGVUp+E6si/ngrZvF2/rBl5Fyo/DX802N87nHWrwi2CopXO/RSAmVR+AogVf5y4Rsu3m2f/WgstqlFvYFBFafuuaZ5ObKAxybBslbusaUdllRuWlfiSZKkGOtsVrmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a/pTzjaX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744406995; c=relaxed/simple;
+	bh=+ChOOLxL7cFGhKxXGQdKLkWWQdy6VsFX3CQDM1wx2fM=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=KGJ7e34PcL1nunNhfo+gs7tm7ozTHJssugGq3TiTmeqnsnE40mX6Xvz/Vb6GZ8vQCldp+ZLCEHoYMYMuNrP2CHKauRHXsQ3c+xAwEuUFn8UZ8upPxlRv/mIcs58rZ+FcH2lHePR0Dz0Sf8JSD4KT0K+odXbsB62zDy8TaCblA7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lYxJQbql; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a/pTzjaX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 327E9C4CEE5;
-	Fri, 11 Apr 2025 21:00:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lYxJQbql"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20594C4CEE2;
+	Fri, 11 Apr 2025 21:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744405203;
-	bh=58p2bEquuNdeDBo6V10v9l3W14scmxAZKVaTyX4C2DU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=a/pTzjaXAvsi9ClqZx5p4Cr4BE6hFCH8vUC6zbaUcx5WOxNaokll3EvoYWyiM6Add
-	 JTp8sInrMJm3b8y18oMjUrcaIRK0DDdkObJ0ny1O27ZoUA2mRCAGwzxBv6mFT62pFS
-	 LIweVAqIyRESZx50DwvExRcsgfpqu8Z+QlLjm0OFCCT3E3fB40oE1lzQFn9RpjQNLc
-	 uh4HbTaM/9S+nw3mQUGLaB40EGszYS+I4HsDPZhdwBRV9dv6+yEpcxOBLqncvZZoo1
-	 y3/9wQjlGTSruOmWi7ASma0R+G6wJOaLWchWVRVQisqbdLAcMBqUx1ZmcR0cexQH6h
-	 jtcAGBcPtIKmw==
-Date: Fri, 11 Apr 2025 14:00:01 -0700
-From: Namhyung Kim <namhyung@kernel.org>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, acme@kernel.org,
-	ctshao@google.com, rogers@google.com, agordeev@linux.ibm.com,
-	gor@linux.ibm.com, sumanthk@linux.ibm.com, hca@linux.ibm.com,
-	Ian Rogers <irogers@google.com>
-Subject: Re: [PATCH v3] perf test: Allow tolerance for leader sampling test
-Message-ID: <Z_mC0d2_yRaNEb1F@z2>
-References: <20250410085522.465401-1-tmricht@linux.ibm.com>
- <Z_hkF6R9giaDGQZD@google.com>
- <27901544-619e-4704-a2a6-132e8ab6a6e4@linux.ibm.com>
+	s=k20201202; t=1744406995;
+	bh=+ChOOLxL7cFGhKxXGQdKLkWWQdy6VsFX3CQDM1wx2fM=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=lYxJQbqlhw/sRFLZu2o5Ivliss7ugOFi+6xfm/5uPzF3Iuiu2lgfVH8QUA2EU9J0Y
+	 rw8PxEi17SzRkoz2u3ScGHAe7aIjHvPj1cbqRRlUqYNvNeLtwSf5JBpPeXi+g9ya6D
+	 PEeoeJGx0pQC+mwAY4eUHdp4S/kD15H2mUFUKcMta8D6xhwnT2ghKe8ncwNwhFYze+
+	 b1soZRI6rUN8oVoB0jKbgBKn5H/mlOuFHgFUSq9r/j5PZ1n15sHw9jCweDlTaVVffr
+	 +moWQuyusKPV3e1kmlq2Sx2rmBJV4pz1cvBarEjfmMVvteedmCU5Ho63K9Ydv/QQKC
+	 WJbZQBrWrLj8g==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE8B38111E2;
+	Fri, 11 Apr 2025 21:30:33 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <27901544-619e-4704-a2a6-132e8ab6a6e4@linux.ibm.com>
+Subject: Re: [PATCH v1 net] smc: Fix lockdep false-positive for IPPROTO_SMC.
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <174440703276.491439.12735611254481125457.git-patchwork-notify@kernel.org>
+Date: Fri, 11 Apr 2025 21:30:32 +0000
+References: <20250407170332.26959-1-kuniyu@amazon.com>
+In-Reply-To: <20250407170332.26959-1-kuniyu@amazon.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, dust.li@linux.alibaba.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, kuni1840@gmail.com, netdev@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ syzbot+be6f4b383534d88989f7@syzkaller.appspotmail.com
 
-On Fri, Apr 11, 2025 at 08:58:45AM +0200, Thomas Richter wrote:
-> On 4/11/25 02:36, Namhyung Kim wrote:
-> > Hello,
-> > 
-> > On Thu, Apr 10, 2025 at 10:55:22AM +0200, Thomas Richter wrote:
-> >> V3: Added check for missing samples as suggested by Chun-Tse.
-> >> V2: Changed bc invocation to return 0 on success and 1 on error.
-> >>
-> >> There is a known issue that the leader sampling is inconsistent, since
-> >> throttle only affect leader, not the slave. The detail is in [1]. To
-> >> maintain test coverage, this patch sets a tolerance rate of 80% to
-> >> accommodate the throttled samples and prevent test failures due to
-> >> throttling.
-> >>
-> >> [1] lore.kernel.org/20250328182752.769662-1-ctshao@google.com
-> >>
-> >> Signed-off-by: Chun-Tse Shao <ctshao@google.com>
-> >> Suggested-by: Ian Rogers <irogers@google.com>
-> >> Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
-> >> Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-> >> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> >> ---
-> >>  tools/perf/tests/shell/record.sh | 33 ++++++++++++++++++++++++++------
-> >>  1 file changed, 27 insertions(+), 6 deletions(-)
-> >>
-> >> diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
-> >> index ba8d873d3ca7..0075ffe783ad 100755
-> >> --- a/tools/perf/tests/shell/record.sh
-> >> +++ b/tools/perf/tests/shell/record.sh
-> >> @@ -238,22 +238,43 @@ test_leader_sampling() {
-> >>      err=1
-> >>      return
-> >>    fi
-> >> +  perf script -i "${perfdata}" | grep brstack > $script_output
-> >> +  # Check if the two instruction counts are equal in each record.
-> >> +  # However, the throttling code doesn't consider event grouping. During throttling, only the
-> >> +  # leader is stopped, causing the slave's counts significantly higher. To temporarily solve this,
-> >> +  # let's set the tolerance rate to 80%.
-> >> +  # TODO: Revert the code for tolerance once the throttling mechanism is fixed.
-> >>    index=0
-> >> -  perf script -i "${perfdata}" > $script_output
-> >> +  valid_counts=0
-> >> +  invalid_counts=0
-> >> +  tolerance_rate=0.8
-> >>    while IFS= read -r line
-> >>    do
-> >> -    # Check if the two instruction counts are equal in each record
-> >>      cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
-> >>      if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
-> >>      then
-> >> -      echo "Leader sampling [Failed inconsistent cycles count]"
-> >> -      err=1
-> >> -      return
-> >> +      invalid_counts=$(($invalid_counts+1))
-> >> +    else
-> >> +      valid_counts=$(($valid_counts+1))
-> >>      fi
-> >>      index=$(($index+1))
-> >>      prev_cycles=$cycles
-> >>    done < $script_output
-> >> -  echo "Basic leader sampling test [Success]"
-> >> +  total_counts=$(bc <<< "$invalid_counts+$valid_counts")
-> >> +  if (( $(bc <<< "$total_counts <= 0") ))
-> >> +  then
-> >> +    echo "Leader sampling [No sample generated]"
-> >> +    err=1
-> >> +    return
-> >> +  fi
-> >> +  isok=$(bc <<< "scale=2; if (($invalid_counts/$total_counts) < (1-$tolerance_rate)) { 0 } else { 1 };")
-> > 
-> > Is 'scale=2' really needed?  Does something similar to the above like
-> > 
-> >   if (( $(bc <<< "($invalid_counts / $total_counts) < (1 - $tolerance_rate)") ))
-> > 
-> > work?
-> > 
-> > Thanks,
-> > Namhyung
-> > 
-> > 
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Mon, 7 Apr 2025 10:03:17 -0700 you wrote:
+> SMC consists of two sockets: smc_sock and kernel TCP socket.
 > 
-> From the man page of bc:
+> Currently, there are two ways of creating the sockets, and syzbot reported
+> a lockdep splat [0] for the newer way introduced by commit d25a92ccae6b
+> ("net/smc: Introduce IPPROTO_SMC").
 > 
+>   socket(AF_SMC             , SOCK_STREAM, SMCPROTO_SMC or SMCPROTO_SMC6)
+>   socket(AF_INET or AF_INET6, SOCK_STREAM, IPPROTO_SMC)
 > 
-> NUMBERS
->        The most basic element in bc is the number.  Numbers are arbitrary precision numbers.   This
->        precision  is both in the integer part and the fractional part.  All numbers are represented
->        internally in decimal and all computation is done in decimal.  (This version  truncates  re‐
->        sults from divide and multiply operations.)
->        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 
-> This can be proved with:
-> # bc <<< "2/27"
-> 0
-> # bc <<< "scale=2;2/27"
-> .07
-> #
-> 
-> Without scale there is no fractional part and integer arithmetic will lead to wrong results.
-> 
-> I think scale=2 is necessary or we need to use something different like awk.
+> [...]
 
-Ok, thanks for checking it.  Right, the scale=2 is necessary.
+Here is the summary with links:
+  - [v1,net] smc: Fix lockdep false-positive for IPPROTO_SMC.
+    https://git.kernel.org/netdev/net/c/752e2217d789
 
-  $ bc <<< '(1 / 10) < (1 - 0.8)'
-  1
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-  $ bc <<< '(3 / 10) < (1 - 0.8)'
-  1
-
-  $ bc <<< 'scale=2; (1 / 10) < (1 - 0.8)'
-  1
-
-  $ bc <<< 'scale=2; (3 / 10) < (1 - 0.8)'
-  0
-
-Thanks,
-Namhyung
 
