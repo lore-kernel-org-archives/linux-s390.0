@@ -1,107 +1,132 @@
-Received: from mail-m49197.qiye.163.com (mail-m49197.qiye.163.com [45.254.49.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5AC27CB2F;
-	Fri, 11 Apr 2025 04:45:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E7A27CCD0;
+	Fri, 11 Apr 2025 06:40:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744346709; cv=none; b=qW5kGFWhuAEXvrgelpMYNoCToswA2T1A/kLStu+gZE7As2KX8V77u0gseinU/JZMIus8FKQtzzyfwjEvXS+mow6qq9GEEi+39VSNHbj9uozWohdIKESlRW/SH0//olBe0zzQxTT2vOMWVET+sCJ5jpfB055j+QH7PUUF2/rO5LA=
+	t=1744353636; cv=none; b=nYTvhr7APzla40O7Y8mG1a+4CFFSAeWFKUbjZqNCWgJjpD6I7B5mgzUARYpOHzmuSD5KTrgIhMH7PCnPqKQS7+/m8XFmXpyygIlvVb30T2vPH/5pWHwfl5YLwAma2Bo942IEW+whTmkXtvkIeAZWjKIPK10q9BmmZAolwwkg1zc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744346709; c=relaxed/simple;
-	bh=DNTUCAbzivbGtmjnFnIu06G0T3ku4zWDyqLTUN10mns=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=d6Dvw/SJwTQ9Je7BGtXDvq4i0JSgBZUqPVjpKxOrdTQBGAbul3a/kDz+qveKcVoWHMjhudSj528JV28JWuZ0/+D8GrZt/Xwlrwu1DS9f9JRKo/C3B4/EKmmY+jt+afgllD8wsM0fLpOvv+44dCI0H1bslgvTtTCm7qStTf2cmfY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=W+XewHD5; arc=none smtp.client-ip=45.254.49.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
+	s=arc-20240116; t=1744353636; c=relaxed/simple;
+	bh=pgIERK+mFu597JGdwOKpnZyhatoi5tPncw/8irfmZQs=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=bQQ8Nrq949m5e76YkmGx6eWTDms9HhWtwZv2xBOFjVIaxeDnjupYjvRibv95v1kQnxyb8XaKkiFWG2NWFZSOFjk05y+z8VQgErYTJ8pkH0U6h/aXSqZXQX7ArFo/ZtcqsGZQWU6rNmtAsj4kY3qYGu4BYWF+tVschQ6C7xBObzc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BTcDsyXW; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="W+XewHD5"
-Received: from localhost.localdomain (unknown [202.119.23.198])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 117c6ece2;
-	Fri, 11 Apr 2025 12:44:59 +0800 (GMT+08:00)
-From: Zilin Guan <zilin@seu.edu.cn>
-To: wenjia@linux.ibm.com
-Cc: jaka@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	jianhao.xu@seu.edu.cn,
-	Zilin Guan <zilin@seu.edu.cn>
-Subject: [RFC PATCH] net/smc: Consider using kfree_sensitive() to free cpu_addr
-Date: Fri, 11 Apr 2025 04:44:56 +0000
-Message-Id: <20250411044456.1661380-1-zilin@seu.edu.cn>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BTcDsyXW"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-736b350a22cso1376118b3a.1;
+        Thu, 10 Apr 2025 23:40:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744353634; x=1744958434; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WFEK5BUAzhnm7Ls0LSYKvyunOzyOHTaf9tKVCyYIPn0=;
+        b=BTcDsyXWYAqrmVfD/7mTqHkX7E7/M9IMe+Mc7YtQnBNMzidpTtxdMztD6Gnnswdklv
+         CAtpq20at1qn3EAAQKELZbEs5NghiVFoHZttUoSQ8Pwg+s6y5ioybYoiexXkGthNyhM7
+         83+AKWCbQzLGhu32Wljy9CFeqWvxJSX+jEZoM2xysdqXz9Y/Siag0sjrT6FtbjiJglnO
+         7YtSmXASysfbfq9JkYeMTl9xjyU25UoIQvSeyKyXDeUqp8Fntptsbcfyyl1m907bpdQG
+         xh+aUf20uQVaqfDVn0SWcLTqy20LQYdqDjQYExxFO5zw2kdqovAuBhMFiyh/42aAyNHo
+         EFVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744353634; x=1744958434;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=WFEK5BUAzhnm7Ls0LSYKvyunOzyOHTaf9tKVCyYIPn0=;
+        b=kKb8cY7kbU5u/PDRc/PKaNd5YVfhabuz96plUCyyk9y5dULIiUv2y8YqfPaaffp+4j
+         YRXyX2CnWx1Cl2WoNbOjjdJwHhhqODLse2QHpiWa+EXHmNcS2c8s48b5eY5to71mdu5i
+         +pFwRht/VnZVbYF1fJ1f2fX4zviusGdwm7WpSW0eqSNfD+kSHCzwIuA91JfsTbOlQQlH
+         auUJRsAOL6yTImnGOfY4DSFqbWMNGU2ZJEA5maMbyJlLCEeXygQwD/LOL/fDd1vZsu3c
+         SZQVDvrXgWmcytj/mUIgPMG08XAVd0Y7+zD6s1689jaYGxfka03kMQrX6CSpxRR+gYfk
+         i8Kw==
+X-Forwarded-Encrypted: i=1; AJvYcCV7sqTVhATy9XbfLxGc0voRdde7r27mFSFVIusX4COBeoLcHj9IuSDl2N0cRS6lWjhodbFGXPz8715lSQ==@vger.kernel.org, AJvYcCVBGfjvNyi0N/qmrijYLdr06x17diJ3Cu9poQu3WNAJwF0+r3vux2MySI6kZ6vIJFKpu0zwfJUir1wEmQ==@vger.kernel.org, AJvYcCWeDZVrIeE8EtYR4kWsOMfxvThT+sGBj/wpKMWBVNvRvTrQiwOc1YyZ91VnhfefvJLmpVdK6TAzJ2suLVA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzgKzm62q66kEOpap+/gI06pk99lyoiZNIskVHfroeV3ByJNzzy
+	d4VEQWNA4BXkf7nLV4AMeDzx7LI891wsQoSA8UJKHJN9vXtQHjM1
+X-Gm-Gg: ASbGncuGMUEHZPpayzyAkUNuPkKcDU9hE7lTHi2jMpyIHRKs2tL8xYfa2/hU2SyTAfS
+	ez9kQ93jWJs+B27mSEOSBeLiOeyijbTT+JDbUH2NneQjyJGO/7vuk1nw7llInmtK+90QRm7QtJt
+	0PquAf1ZxoKDUMR9Q/7FESspqetMT6ZGinQRrgyjyqu9Hq6QgbLhhHesF8RS3JY9Vu4EE+xNzp1
+	R3mMAR2ksqbVWndH8ZUMKKoL2A0LbMb56KpnC0sXZFl30TyJwT5qFQYXk24sjWAnu3LhbjLrfGO
+	iiKfH4Ksy/c6Noe+z5Bj4wzeTmK7YxmG9g==
+X-Google-Smtp-Source: AGHT+IGxv2OdTwUHRm9UMQ0BxuItHKpv+vDYxaqSXEB9Rf30X+vmBhY4lLT/tgRpdLMgX439EpkNdA==
+X-Received: by 2002:a05:6a00:13a1:b0:730:927c:d451 with SMTP id d2e1a72fcca58-73bd12a9926mr2119650b3a.20.1744353633666;
+        Thu, 10 Apr 2025 23:40:33 -0700 (PDT)
+Received: from localhost ([220.253.99.94])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b029dff3b64sm4083209a12.0.2025.04.10.23.40.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Apr 2025 23:40:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWS1ZQUlXWQ8JGhUIEh9ZQVlCTEhCVkJIGh0aQkkZSUIeTlYeHw5VEwETFhoSFy
-	QUDg9ZV1kYEgtZQVlJS0lVSkpCVUlIVUpCQ1lXWRYaDxIVHRRZQVlPS0hVSktISk9ITFVKS0tVSk
-	JLS1kG
-X-HM-Tid: 0a96232a562603a1kunm117c6ece2
-X-HM-MType: 10
-X-HM-Sender-Digest: e1kMHhlZQR0aFwgeV1kSHx4VD1lBWUc6Pxg6Izo*NDJKLDUcMSkcEhoz
-	FUIKCitVSlVKTE9PSE9NTEtLTUhOVTMWGhIXVQESFxIVOwgeDlUeHw5VGBVFWVdZEgtZQVlJS0lV
-	SkpCVUlIVUpCQ1lXWQgBWUFJSE5DNwY+
-DKIM-Signature:a=rsa-sha256;
-	b=W+XewHD5T/DrVlYlf70G4CwonfJrv16/xwTI5F6FKPD1zcqZYxYBc2SH6Xf5Hsig9SYBXgEZa5tzTSoqb3EqTtzLXfZ+ATofbKKL1zlwHkZfxh4dqygk2yG+3xBRcDdD1zNxg1Up+ajZQO8HuWC7Yq6lmw3Ut42V0pCpKglAFVU=; s=default; c=relaxed/relaxed; d=seu.edu.cn; v=1;
-	bh=PL2S5ZNY/lfRwbYp6izyK3pe6SK3sLEiQc6v851Wktc=;
-	h=date:mime-version:subject:message-id:from;
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 11 Apr 2025 16:40:25 +1000
+Message-Id: <D93LR52FZ2QR.399C9CFVNU658@gmail.com>
+Cc: "Hugh Dickins" <hughd@google.com>, "Guenter Roeck" <linux@roeck-us.net>,
+ "Juergen Gross" <jgross@suse.com>, "Jeremy Fitzhardinge" <jeremy@goop.org>,
+ <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+ <kasan-dev@googlegroups.com>, <sparclinux@vger.kernel.org>,
+ <xen-devel@lists.xenproject.org>, <linuxppc-dev@lists.ozlabs.org>,
+ <linux-s390@vger.kernel.org>
+Subject: Re: [PATCH v1 1/4] kasan: Avoid sleepable page allocation from
+ atomic context
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Andrew Morton"
+ <akpm@linux-foundation.org>, "Andrey Ryabinin" <ryabinin.a.a@gmail.com>
+X-Mailer: aerc 0.19.0
+References: <cover.1744037648.git.agordeev@linux.ibm.com>
+ <ad1b313b6e3e1a84d2df6f686680ad78ae99710c.1744037648.git.agordeev@linux.ibm.com>
+In-Reply-To: <ad1b313b6e3e1a84d2df6f686680ad78ae99710c.1744037648.git.agordeev@linux.ibm.com>
 
-Hello,
+On Tue Apr 8, 2025 at 1:11 AM AEST, Alexander Gordeev wrote:
+> apply_to_page_range() enters lazy MMU mode and then invokes
+> kasan_populate_vmalloc_pte() callback on each page table walk
+> iteration. The lazy MMU mode may only be entered only under
+> protection of the page table lock. However, the callback can
+> go into sleep when trying to allocate a single page.
+>
+> Change __get_free_page() allocation mode from GFP_KERNEL to
+> GFP_ATOMIC to avoid scheduling out while in atomic context.
 
-In smcr_buf_unuse() and smc_buf_unuse(), memzero_explicit() is used to
-clear cpu_addr when it is no longer in use, suggesting that cpu_addr
-may contain sensitive information.
+It's a bit unfortunate to make this use atomic allocs for
+archs that don't need it.
 
-To ensure proper handling of this sensitive memory, I propose using
-kfree_sensitive()/kvfree_sensitive instead of kfree()/vfree() to free
-cpu_addr in both smcd_buf_free() and smc_buf_free(). This change aims
-to prevent potential sensitive data leaks.
+Could you make it depend on __HAVE_ARCH_ENTER_LAZY_MMU_MODE
+or is that overkill?
 
-I am submitting this as an RFC to seek feedback on whether this change
-is appropriate and aligns with the subsystem's expectations. If confirmed
-to be useful, I will send a formal patch.
+I wanted to remove ppc64's per-CPU page array and replace it
+with on stack or dynaimc alloc array in the thread... but
+cost/benefit of working on ppc64 hash MMU code is not
+high :(
 
-Signed-off-by: Zilin Guan <zilin@seu.edu.cn>
----
- net/smc/smc_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Fix itself for ppc64's requirement at least looks right to me
+so for that,
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ac07b963aede..1b5eb0149b89 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1388,7 +1388,7 @@ static void smcr_buf_free(struct smc_link_group *lgr, bool is_rmb,
- 	if (!buf_desc->is_vm && buf_desc->pages)
- 		__free_pages(buf_desc->pages, buf_desc->order);
- 	else if (buf_desc->is_vm && buf_desc->cpu_addr)
--		vfree(buf_desc->cpu_addr);
-+		kvfree_sensitive(buf_desc->cpu_addr, buf_desc->len);
- 	kfree(buf_desc);
- }
- 
-@@ -1400,7 +1400,7 @@ static void smcd_buf_free(struct smc_link_group *lgr, bool is_dmb,
- 		buf_desc->len += sizeof(struct smcd_cdc_msg);
- 		smc_ism_unregister_dmb(lgr->smcd, buf_desc);
- 	} else {
--		kfree(buf_desc->cpu_addr);
-+		kfree_sensitive(buf_desc->cpu_addr);
- 	}
- 	kfree(buf_desc);
- }
--- 
-2.34.1
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+
+>
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  mm/kasan/shadow.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
+> index 88d1c9dcb507..edfa77959474 100644
+> --- a/mm/kasan/shadow.c
+> +++ b/mm/kasan/shadow.c
+> @@ -301,7 +301,7 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, un=
+signed long addr,
+>  	if (likely(!pte_none(ptep_get(ptep))))
+>  		return 0;
+> =20
+> -	page =3D __get_free_page(GFP_KERNEL);
+> +	page =3D __get_free_page(GFP_ATOMIC);
+>  	if (!page)
+>  		return -ENOMEM;
+> =20
 
