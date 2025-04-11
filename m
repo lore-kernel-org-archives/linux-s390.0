@@ -1,62 +1,62 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E7A27CCD0;
-	Fri, 11 Apr 2025 06:40:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B6961EB19E;
+	Fri, 11 Apr 2025 06:47:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744353636; cv=none; b=nYTvhr7APzla40O7Y8mG1a+4CFFSAeWFKUbjZqNCWgJjpD6I7B5mgzUARYpOHzmuSD5KTrgIhMH7PCnPqKQS7+/m8XFmXpyygIlvVb30T2vPH/5pWHwfl5YLwAma2Bo942IEW+whTmkXtvkIeAZWjKIPK10q9BmmZAolwwkg1zc=
+	t=1744354027; cv=none; b=OjeUoZ4YiQPAx5MHh7OY5rfHoIiCqaJFuFhy7Y2WV1DNIxBnHSGGDB8vTVGlbnStj4SRvO63hpSRB6C5KN66wNP+jVusyztETCxc998x6dRfQmaXpBOzQGQmfb7pbwzkzDlDJ4jCUqFkIzOaN4YtwTKr/RDMsbXYKotlDZj96ic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744353636; c=relaxed/simple;
-	bh=pgIERK+mFu597JGdwOKpnZyhatoi5tPncw/8irfmZQs=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=bQQ8Nrq949m5e76YkmGx6eWTDms9HhWtwZv2xBOFjVIaxeDnjupYjvRibv95v1kQnxyb8XaKkiFWG2NWFZSOFjk05y+z8VQgErYTJ8pkH0U6h/aXSqZXQX7ArFo/ZtcqsGZQWU6rNmtAsj4kY3qYGu4BYWF+tVschQ6C7xBObzc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BTcDsyXW; arc=none smtp.client-ip=209.85.210.169
+	s=arc-20240116; t=1744354027; c=relaxed/simple;
+	bh=Z2zMUvb3ZrB/25ixTzFARoTMwKuioIJhsJ24S3PQ+jY=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=bB6b2V4P0XhSXTUR6p4Y4JX/3zmeVqloTOfOkC8ioqp/5tztcRHaCaqcoSpXFh8+9TX4eGNqdgWHXP0AZnxIQIcc1DlWQFDehyFkXQuh40JKuAmdQIkQ+vefDfDb3ky8cgpPGuM8SuJ2V9BAqQ2X2ag52ZPjDIwzdstkmQ0wVrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dyiXUwpu; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BTcDsyXW"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-736b350a22cso1376118b3a.1;
-        Thu, 10 Apr 2025 23:40:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dyiXUwpu"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-223f4c06e9fso16728975ad.1;
+        Thu, 10 Apr 2025 23:47:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744353634; x=1744958434; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
+        d=gmail.com; s=20230601; t=1744354025; x=1744958825; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
          :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WFEK5BUAzhnm7Ls0LSYKvyunOzyOHTaf9tKVCyYIPn0=;
-        b=BTcDsyXWYAqrmVfD/7mTqHkX7E7/M9IMe+Mc7YtQnBNMzidpTtxdMztD6Gnnswdklv
-         CAtpq20at1qn3EAAQKELZbEs5NghiVFoHZttUoSQ8Pwg+s6y5ioybYoiexXkGthNyhM7
-         83+AKWCbQzLGhu32Wljy9CFeqWvxJSX+jEZoM2xysdqXz9Y/Siag0sjrT6FtbjiJglnO
-         7YtSmXASysfbfq9JkYeMTl9xjyU25UoIQvSeyKyXDeUqp8Fntptsbcfyyl1m907bpdQG
-         xh+aUf20uQVaqfDVn0SWcLTqy20LQYdqDjQYExxFO5zw2kdqovAuBhMFiyh/42aAyNHo
-         EFVw==
+        bh=BlT93k3tsOOzLmAYutjlNjX6BFvDuWnFmTQ9IJuMKl4=;
+        b=dyiXUwpupfEQc4Iip3IrNNg7EttE60fJkExgb02M4xcJkJ1RcRAHrtF4mdS9XCErTZ
+         to7OXxFX8C40t1BgGfahaxgf7K2gsix/MsSZtGPQxOVUXypbcUboD0VcrTS51j5qkJZ/
+         r647lDVdreKyUWCViFCMuEbOBR1qurX+79ZYO6OSQPfVsmxBq2yDlotqcBjdgHQE6kNS
+         Sm3xhrGeiQD6FZo7blopJOH9Zyfov1PdOctNjDT25przGuwGBlhGqi7OX/S+8Z0MUBbp
+         TlxKYjbDG5eGGhJpTJ6to1JRUdC7nLvINkaco8Eo3SXGnJ5NqL+Q0ayl3os5kByeqlQS
+         VU3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744353634; x=1744958434;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
+        d=1e100.net; s=20230601; t=1744354025; x=1744958825;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
          :content-transfer-encoding:mime-version:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=WFEK5BUAzhnm7Ls0LSYKvyunOzyOHTaf9tKVCyYIPn0=;
-        b=kKb8cY7kbU5u/PDRc/PKaNd5YVfhabuz96plUCyyk9y5dULIiUv2y8YqfPaaffp+4j
-         YRXyX2CnWx1Cl2WoNbOjjdJwHhhqODLse2QHpiWa+EXHmNcS2c8s48b5eY5to71mdu5i
-         +pFwRht/VnZVbYF1fJ1f2fX4zviusGdwm7WpSW0eqSNfD+kSHCzwIuA91JfsTbOlQQlH
-         auUJRsAOL6yTImnGOfY4DSFqbWMNGU2ZJEA5maMbyJlLCEeXygQwD/LOL/fDd1vZsu3c
-         SZQVDvrXgWmcytj/mUIgPMG08XAVd0Y7+zD6s1689jaYGxfka03kMQrX6CSpxRR+gYfk
-         i8Kw==
-X-Forwarded-Encrypted: i=1; AJvYcCV7sqTVhATy9XbfLxGc0voRdde7r27mFSFVIusX4COBeoLcHj9IuSDl2N0cRS6lWjhodbFGXPz8715lSQ==@vger.kernel.org, AJvYcCVBGfjvNyi0N/qmrijYLdr06x17diJ3Cu9poQu3WNAJwF0+r3vux2MySI6kZ6vIJFKpu0zwfJUir1wEmQ==@vger.kernel.org, AJvYcCWeDZVrIeE8EtYR4kWsOMfxvThT+sGBj/wpKMWBVNvRvTrQiwOc1YyZ91VnhfefvJLmpVdK6TAzJ2suLVA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzgKzm62q66kEOpap+/gI06pk99lyoiZNIskVHfroeV3ByJNzzy
-	d4VEQWNA4BXkf7nLV4AMeDzx7LI891wsQoSA8UJKHJN9vXtQHjM1
-X-Gm-Gg: ASbGncuGMUEHZPpayzyAkUNuPkKcDU9hE7lTHi2jMpyIHRKs2tL8xYfa2/hU2SyTAfS
-	ez9kQ93jWJs+B27mSEOSBeLiOeyijbTT+JDbUH2NneQjyJGO/7vuk1nw7llInmtK+90QRm7QtJt
-	0PquAf1ZxoKDUMR9Q/7FESspqetMT6ZGinQRrgyjyqu9Hq6QgbLhhHesF8RS3JY9Vu4EE+xNzp1
-	R3mMAR2ksqbVWndH8ZUMKKoL2A0LbMb56KpnC0sXZFl30TyJwT5qFQYXk24sjWAnu3LhbjLrfGO
-	iiKfH4Ksy/c6Noe+z5Bj4wzeTmK7YxmG9g==
-X-Google-Smtp-Source: AGHT+IGxv2OdTwUHRm9UMQ0BxuItHKpv+vDYxaqSXEB9Rf30X+vmBhY4lLT/tgRpdLMgX439EpkNdA==
-X-Received: by 2002:a05:6a00:13a1:b0:730:927c:d451 with SMTP id d2e1a72fcca58-73bd12a9926mr2119650b3a.20.1744353633666;
-        Thu, 10 Apr 2025 23:40:33 -0700 (PDT)
+        bh=BlT93k3tsOOzLmAYutjlNjX6BFvDuWnFmTQ9IJuMKl4=;
+        b=LS4zbnUsGOswh08aBFzrLVdNf7zoU19xreTsHPlf7khcESgXSICLSMUNU5yJxjNIuV
+         Y/HyIoktpKDhNSrvWu7IdkBWyJRczi68Av3lHcS95U8BAJ0hLYo4y4ZE4Cm9yyVeX13v
+         1cmTlrrqte4AhTkFtPXSvO3ZQkjWzfkFfYmVkLPozmkY8S/1NQ+gUgfSIr/zKkZvn+q/
+         zqrtglv9wBgiifsDN9rsELwl9OAXhQ7+z6DqA0kDhTZTbbzXWWYLQNy8iSNcT1nLFciR
+         UoL08bPDPRYvWcrxyWBWpf5xqF3IxKyOxuTPAbqXM6m0vhXHFrPb6D3SFnlwqYqA9tJw
+         F7Vw==
+X-Forwarded-Encrypted: i=1; AJvYcCVSuMtRE6jKhTc2Fh1sddx13FONLwJwanzv2Yt9KWaJRKEJHYaXqIkJuRZY+vJY+qjX1Iw7EkLFay1tcM8=@vger.kernel.org, AJvYcCXEw+JeqdFTQLl5CzYkKKrIkFxdhD+KGDXuX71Qc937+uLkHYbFxA5+8eJBJysk1X4zhD6pOVGGbxH5WQ==@vger.kernel.org, AJvYcCXU1upOOcMAZ7Xuf7Xy5XVkDNYx9Fh5Cfms7bQ11qwcoMCNmmgG+i328XwuNAZJAPENipcB+NuuoI6urw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YznM3JlZADFvVoU/CyHRsN4sSj2ENdSsJ46bt+MPak2pULXgBxp
+	fa71ynCjF8vh1gXlJ/o4jfSsRi1gEnSETqiJtpYGhoz+MLTgi6gE
+X-Gm-Gg: ASbGncvZmI0GOt/lthLb3M6R3rNxBEEBQIZmehzyH6SaIb7YuaVSjdRig+vJmR3zv3B
+	zMIjAf1xO1nfez7Gs34Xy7AMpDNQClhHVsHgNcRnnbwc6/Sr3ksjLoueSclkb/Pi/dccN/GqC3R
+	eAOLN4IxTctz7uUQfmWypJRLJT0DJnRzrSDnWq0KdA8SUxeLCHrQARTtYQ8DsMkfv/v+STy67bw
+	G2ofM3BLlrn7KoLXnV0pkSZZC16zuyEM5qATnptyUGz68PcCyENTfwtuaIBznCMp5gh6JETMCRU
+	vjCGCjbJsAw643k/6hv524+NvfBylhfMyw==
+X-Google-Smtp-Source: AGHT+IEaCH7pfyseCsY0ABQGUFfCNsdZ0JepyMppPzef2Ij2uLIjrUD7lNR1McifQnqxw6aLmm43tw==
+X-Received: by 2002:a17:902:d489:b0:215:58be:3349 with SMTP id d9443c01a7336-22bea05e17fmr25293145ad.14.1744354025413;
+        Thu, 10 Apr 2025 23:47:05 -0700 (PDT)
 Received: from localhost ([220.253.99.94])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b029dff3b64sm4083209a12.0.2025.04.10.23.40.28
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22ac7b8b2c1sm41872295ad.59.2025.04.10.23.47.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Apr 2025 23:40:33 -0700 (PDT)
+        Thu, 10 Apr 2025 23:47:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,68 +65,101 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Fri, 11 Apr 2025 16:40:25 +1000
-Message-Id: <D93LR52FZ2QR.399C9CFVNU658@gmail.com>
+Date: Fri, 11 Apr 2025 16:46:58 +1000
+Message-Id: <D93LW58FLXOS.2U8X0CO2H9H5S@gmail.com>
+Subject: Re: [PATCH v1 2/4] mm: Cleanup apply_to_pte_range() routine
+From: "Nicholas Piggin" <npiggin@gmail.com>
+To: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Andrew Morton"
+ <akpm@linux-foundation.org>, "Andrey Ryabinin" <ryabinin.a.a@gmail.com>
 Cc: "Hugh Dickins" <hughd@google.com>, "Guenter Roeck" <linux@roeck-us.net>,
  "Juergen Gross" <jgross@suse.com>, "Jeremy Fitzhardinge" <jeremy@goop.org>,
  <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
  <kasan-dev@googlegroups.com>, <sparclinux@vger.kernel.org>,
  <xen-devel@lists.xenproject.org>, <linuxppc-dev@lists.ozlabs.org>,
  <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v1 1/4] kasan: Avoid sleepable page allocation from
- atomic context
-From: "Nicholas Piggin" <npiggin@gmail.com>
-To: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Andrew Morton"
- <akpm@linux-foundation.org>, "Andrey Ryabinin" <ryabinin.a.a@gmail.com>
 X-Mailer: aerc 0.19.0
 References: <cover.1744037648.git.agordeev@linux.ibm.com>
- <ad1b313b6e3e1a84d2df6f686680ad78ae99710c.1744037648.git.agordeev@linux.ibm.com>
-In-Reply-To: <ad1b313b6e3e1a84d2df6f686680ad78ae99710c.1744037648.git.agordeev@linux.ibm.com>
+ <93102722541b1daf541fce9fb316a1a2614d8c86.1744037648.git.agordeev@linux.ibm.com>
+In-Reply-To: <93102722541b1daf541fce9fb316a1a2614d8c86.1744037648.git.agordeev@linux.ibm.com>
 
 On Tue Apr 8, 2025 at 1:11 AM AEST, Alexander Gordeev wrote:
-> apply_to_page_range() enters lazy MMU mode and then invokes
-> kasan_populate_vmalloc_pte() callback on each page table walk
-> iteration. The lazy MMU mode may only be entered only under
-> protection of the page table lock. However, the callback can
-> go into sleep when trying to allocate a single page.
->
-> Change __get_free_page() allocation mode from GFP_KERNEL to
-> GFP_ATOMIC to avoid scheduling out while in atomic context.
-
-It's a bit unfortunate to make this use atomic allocs for
-archs that don't need it.
-
-Could you make it depend on __HAVE_ARCH_ENTER_LAZY_MMU_MODE
-or is that overkill?
-
-I wanted to remove ppc64's per-CPU page array and replace it
-with on stack or dynaimc alloc array in the thread... but
-cost/benefit of working on ppc64 hash MMU code is not
-high :(
-
-Fix itself for ppc64's requirement at least looks right to me
-so for that,
-
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-
+> Reverse 'create' vs 'mm =3D=3D &init_mm' conditions and move
+> page table mask modification out of the atomic context.
 >
 > Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 > ---
->  mm/kasan/shadow.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  mm/memory.c | 28 +++++++++++++++++-----------
+>  1 file changed, 17 insertions(+), 11 deletions(-)
 >
-> diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
-> index 88d1c9dcb507..edfa77959474 100644
-> --- a/mm/kasan/shadow.c
-> +++ b/mm/kasan/shadow.c
-> @@ -301,7 +301,7 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, un=
-signed long addr,
->  	if (likely(!pte_none(ptep_get(ptep))))
->  		return 0;
+> diff --git a/mm/memory.c b/mm/memory.c
+> index 2d8c265fc7d6..f0201c8ec1ce 100644
+> --- a/mm/memory.c
+> +++ b/mm/memory.c
+> @@ -2915,24 +2915,28 @@ static int apply_to_pte_range(struct mm_struct *m=
+m, pmd_t *pmd,
+>  				     pte_fn_t fn, void *data, bool create,
+>  				     pgtbl_mod_mask *mask)
+>  {
+> +	int err =3D create ? -ENOMEM : -EINVAL;
+
+Could you make this a new variable instead of reusing
+existing err? 'const int pte_err' or something?
+
+>  	pte_t *pte, *mapped_pte;
+> -	int err =3D 0;
+>  	spinlock_t *ptl;
 > =20
-> -	page =3D __get_free_page(GFP_KERNEL);
-> +	page =3D __get_free_page(GFP_ATOMIC);
->  	if (!page)
->  		return -ENOMEM;
+> -	if (create) {
+> -		mapped_pte =3D pte =3D (mm =3D=3D &init_mm) ?
+> -			pte_alloc_kernel_track(pmd, addr, mask) :
+> -			pte_alloc_map_lock(mm, pmd, addr, &ptl);
+> +	if (mm =3D=3D &init_mm) {
+> +		if (create)
+> +			pte =3D pte_alloc_kernel_track(pmd, addr, mask);
+> +		else
+> +			pte =3D pte_offset_kernel(pmd, addr);
+>  		if (!pte)
+> -			return -ENOMEM;
+> +			return err;
+>  	} else {
+> -		mapped_pte =3D pte =3D (mm =3D=3D &init_mm) ?
+> -			pte_offset_kernel(pmd, addr) :
+> -			pte_offset_map_lock(mm, pmd, addr, &ptl);
+> +		if (create)
+> +			pte =3D pte_alloc_map_lock(mm, pmd, addr, &ptl);
+> +		else
+> +			pte =3D pte_offset_map_lock(mm, pmd, addr, &ptl);
+>  		if (!pte)
+> -			return -EINVAL;
+> +			return err;
+> +		mapped_pte =3D pte;
+>  	}
+> =20
+> +	err =3D 0;
+>  	arch_enter_lazy_mmu_mode();
+> =20
+>  	if (fn) {
+> @@ -2944,12 +2948,14 @@ static int apply_to_pte_range(struct mm_struct *m=
+m, pmd_t *pmd,
+>  			}
+>  		} while (addr +=3D PAGE_SIZE, addr !=3D end);
+>  	}
+> -	*mask |=3D PGTBL_PTE_MODIFIED;
+> =20
+>  	arch_leave_lazy_mmu_mode();
+> =20
+>  	if (mm !=3D &init_mm)
+>  		pte_unmap_unlock(mapped_pte, ptl);
+> +
+> +	*mask |=3D PGTBL_PTE_MODIFIED;
+
+This is done just because we might as well? Less work in critical
+section?
+
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+
+> +
+>  	return err;
+>  }
 > =20
 
