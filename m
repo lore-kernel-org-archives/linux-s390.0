@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47D872DCB43;
-	Mon, 14 Apr 2025 13:32:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCEF02DE46A;
+	Mon, 14 Apr 2025 13:32:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744637522; cv=none; b=ADoHFonX44Ni119xcVtFS5yq7jHo1YWBw2yqWZwEhDfjnFAaAMAse/RZSdHMEwMlCJH8mRx+oMffRvlH+XOLx8Qy9x5RQ5pDLMmpw88Rz2Jl+yjCcez12JXgiRsAUW4whWFdrS+0ggpAjD0AmKNdNHYSaqwZVa9pBZR8gHfUHAw=
+	t=1744637546; cv=none; b=A1geZFAbDIqB/nUFUawhLGcKz2UErKlatnMa1xeifCvYcN2ioYbdMZcIK5Ikb/s5QiQ03h0q5+3xs5RE1EsxSQ1CWnnxLartpVVwRV0G+FC04339wt0juHoMPRGvKv5hVcKspGUU3kq+iPdT+d/igiyt84UEPC21M0rkioKMiOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744637522; c=relaxed/simple;
+	s=arc-20240116; t=1744637546; c=relaxed/simple;
 	bh=9J/z5T0JY/xcwsk6SXFTA+zsyiZ/gs3asCJyO6IhBN4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=rCyEfEdTNzYRcWYCouD5hMkQjJEwqCk4Eo6546vVENTXaETdTJlqu/ISifCCGln3idxuboOrE9zNiF/47cI73x563ei7We4TQjLl+7sfydZtH9uGIgagOhGNcDRDiyQKJsp8ZLw7GRWsOVbOruQ7XL7E2R8y3INO9h5EdTx0cT0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n+tmWBsz; arc=none smtp.client-ip=10.30.226.201
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=XSxxdAtNhVH2hkaC+Qd4q1XICTeBE42sNMOY35Aaq3Jwh1KsgKSBwhtjb+lY1OcB4wuuWLF503wkiY5uBWTstvM5K1kexqNPkJEOPGesMdadHdGpcTRuCfPj697EFOeHBnSDaGbN628xWn/4kQLQM6wBeODVAKO5Ym4w6PwKSxQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J03RGJEy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n+tmWBsz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F467C4CEED;
-	Mon, 14 Apr 2025 13:32:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J03RGJEy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E31C4CEE2;
+	Mon, 14 Apr 2025 13:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744637522;
+	s=k20201202; t=1744637546;
 	bh=9J/z5T0JY/xcwsk6SXFTA+zsyiZ/gs3asCJyO6IhBN4=;
 	h=From:To:Cc:Subject:Date:From;
-	b=n+tmWBszUvjpuDsrdESoGlKJr+BTzoJQqWQvurTbpSSjlnCS7HRbwCD1pTiPrRD4U
-	 JOkpP40Zphgplf6WOUZQow7+crqMtGvOA79RrUKIw6UbQI0T+11KjQmWQNvYaDnfIu
-	 ELiLvGfokXEYGoGmuNiS5zUfqlCLWamcEV8OF2GJpGgFPd1pJPpExT+RBTx8GOkv0h
-	 /EzCLgGXatlT8d8UhBObtEMK3LQKR3FDIlibHfkF8Z7b9q8WkmxuUwzTeSLH1d4yXy
-	 vRfz40s1d+ctQ86Crn4Pgrz7JqgGjkBvKW+5VFVXfsStgb/q7RyoE0CdSzswb4Hp8T
-	 enhNd9AlUUgbg==
+	b=J03RGJEyomZjf/3It0L+Clx2tw3375in/HQxmp5az86CVy6TrJ8YjjVfV0AmEtlAz
+	 rjtNG8AWN7Kdv0vTw891A6e67jSc7xyp4a3JO5sg6PhoZEQZNDGevW5bAjFtQD+5uo
+	 fe/1wnPpZ1uRXl6MJac1pv5IXJUY5DMYAZGlX/EOXEHiqn7VyHOdf0qSv0SEoB32p9
+	 0buFeAP/vglvgqVY8vQnbZU1eULAYGFtclBoMiZfRZNJg3BUJZZJGSSug8YYO9T6U9
+	 s2MbHGdbo70WCZXLJ202Uvns1v0jzbA//rC60F8c2Sh4iRrEtzl/aUCKhGJqSJV7Pn
+	 /n5ebItL6rE+A==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -39,9 +39,9 @@ Cc: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
 	agordeev@linux.ibm.com,
 	kvm@vger.kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/11] KVM: s390: Don't use %pK through tracepoints
-Date: Mon, 14 Apr 2025 09:31:48 -0400
-Message-Id: <20250414133158.681045-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 1/5] KVM: s390: Don't use %pK through tracepoints
+Date: Mon, 14 Apr 2025 09:32:19 -0400
+Message-Id: <20250414133223.681195-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -52,7 +52,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.236
+X-stable-base: Linux 5.4.292
 Content-Transfer-Encoding: 8bit
 
 From: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
