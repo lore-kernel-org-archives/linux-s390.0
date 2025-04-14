@@ -1,272 +1,144 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8096523D2AA
-	for <linux-s390@vger.kernel.org>; Mon, 14 Apr 2025 14:17:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 154272741C1;
+	Mon, 14 Apr 2025 14:18:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744640247; cv=none; b=hXdBm5q82hCsK1geXReEI0+mMl+TtGohz1l5+RPxDsxExL5jT+kK4aI5XDpzTYuMUkVHAgDvC+pzAxGCXJezGOx5CwlsPumuW1WHlomsa+mVA3HxJBo5Y4WBBc9BuQN3Iom+zdiIl4bdZGXx+D85MHBkThk6TiP/EFftj3C3DQs=
+	t=1744640303; cv=none; b=ihijau53FoHYN26I+k26OObY9hXZTbsrSmdd0YtjPj72mRaFEMPcloEF1OYOBLJ6FqjG3RwLYlaStDFE+5KmpLudtp8zA5YmjgjCYegG9VghlxKid2f0c8V85cBX/1ZqGZ/TC/Bns+aqjQNro12ph/2i2j7RJpDxM+HPyhvAhhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744640247; c=relaxed/simple;
-	bh=iz3dn5z9remWKd6Nj96Z5BQR4jzykuZrNHcb8CE4PUY=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=KsEBLWPOYm6u7V/0wFwZrOcWgakqzMQwZWc8OYtR3W3jIKgZoLKWdOEOL5OmdvYQg/eC3W7J6G60AGo7TPoQnoIA4h5/i6/5MDGWS6VMeBrHtmy1KLEOqqf2Y2n12XkJE1VcA/TOLQVRrUKLd0fWxKWrSoDMuvWLZtAVWDiinrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T6hV0He+; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1744640303; c=relaxed/simple;
+	bh=mTn3FMzsj26kIxnkZNAmti2WDoD3F3JMt47fLl0UKcQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IxTfvsTvY9q96xvFYGxTg+2/SYwH+qnQtjmlU57hF5SWyw5VqmwanLB5NIWtzMpEDifNVOU9Tac42U7Cecd5nOqKEb4jgHDCIB1mRyTsmtS0VPNypJqePMwWQBpLkxuusf/fAUUeShgYrUq9XUjpmGpUr1dShp8u6Xcz4GtIlas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ah561Kin; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T6hV0He+"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53ECXwBh003355;
-	Mon, 14 Apr 2025 14:17:22 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ah561Kin"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53EAKA71029133;
+	Mon, 14 Apr 2025 14:17:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=V2XpPQBJtW8twm2vFIwz1hYZhMsmA0Cx734nHgsBc1Q=; b=T6hV0He+7g3k
-	8rTm6dlf3B5T7PZ8hjz2YeQvrXrXCi6jWzo1yrCYSpDOUGFJ2Weyz+SsYX7mR72P
-	ikOiSXYz9oTBnfJtuiFApoOqsf8gA2YgWszRtyozNsi8TM+xNmEYN+EImKVyFdOu
-	xncWhCmWZwtaIIZLNkcdZWFgbcDbeV3D05uwzCogscwYaod+Yg433Fakrj/Qn/aV
-	svGfRnvWDDrAw5rM0t1JIVTT2MwmvwtfkVIvIrcBugMFriwGr43D7ANTitXXUjOs
-	GO0qC15Rn5OtfGo9UMSltdEoicIKxr+ulbaUPKMH7EHAQZO5x7IdGEcVUEBuJDnt
-	L5jHzexn0g==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 460ndsumby-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=J1d9DTJcE/z+4d1uC+sEutnQDyUt9v
+	5FZ9je4Eup1Ko=; b=ah561KinZjNqF6zq76DxnVBTSvamBRxYEhr7Z+gu/wYeYJ
+	j7dAB+GRAIBgfgcT4RReFRSB7Mggil+evOZs4y5hwzSYaWE4QeQ1gjZ+HGRkUdNu
+	pwXrRfEYgphoKE29KKWj5DPPBxTAdadEXNR3p1tOzlSCoHUJ64LwlntS5prWHWM/
+	ypBEt8HygnTXrT6MFoIK9aXcP6Apa1XfK3rhxUyJOl2bhpNUByVTq6q6beBiPmV1
+	wjohaUUBJj7eE9ivNowExDlwR07lfFYP7j7RrqeB2X+koXmdx0GpvTziQRFy8s24
+	0VxXFpeXm2aqdcwNxTwNhj/bC9jcAny5HST8QorQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 460nc4bs6s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Apr 2025 14:17:21 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53EDpG33016431;
-	Mon, 14 Apr 2025 14:17:21 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 460571x7pu-1
+	Mon, 14 Apr 2025 14:17:54 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 53EEDPx6027591;
+	Mon, 14 Apr 2025 14:17:53 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 460nc4bs6k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Apr 2025 14:17:21 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53EEHJxT30409356
+	Mon, 14 Apr 2025 14:17:53 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53ECwxMl017183;
+	Mon, 14 Apr 2025 14:17:52 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46040kpeha-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Apr 2025 14:17:52 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53EEHorV51577248
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Apr 2025 14:17:19 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A1DF658052;
-	Mon, 14 Apr 2025 14:17:19 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C2E7358045;
-	Mon, 14 Apr 2025 14:17:18 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 14 Apr 2025 14:17:18 +0000 (GMT)
+	Mon, 14 Apr 2025 14:17:50 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2CE2320043;
+	Mon, 14 Apr 2025 14:17:50 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2BFC320040;
+	Mon, 14 Apr 2025 14:17:49 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.171.13.82])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 14 Apr 2025 14:17:49 +0000 (GMT)
+Date: Mon, 14 Apr 2025 16:17:47 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Hugh Dickins <hughd@google.com>, Guenter Roeck <linux@roeck-us.net>,
+        Juergen Gross <jgross@suse.com>, Jeremy Fitzhardinge <jeremy@goop.org>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kasan-dev@googlegroups.com, sparclinux@vger.kernel.org,
+        xen-devel@lists.xenproject.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH v1 2/4] mm: Cleanup apply_to_pte_range() routine
+Message-ID: <Z/0ZC7HcSmoOEglw@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <cover.1744037648.git.agordeev@linux.ibm.com>
+ <93102722541b1daf541fce9fb316a1a2614d8c86.1744037648.git.agordeev@linux.ibm.com>
+ <D93LW58FLXOS.2U8X0CO2H9H5S@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 14 Apr 2025 16:17:18 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Holger Dengler <dengler@linux.ibm.com>
-Cc: ifranzki@linux.ibm.com, fcallies@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, seiden@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, linux-s390@vger.kernel.org,
-        herbert@gondor.apana.org.au
-Subject: Re: [PATCH v4 06/24] s390/zcrypt: Introduce cprb mempool for cca misc
- functions
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <53b1ca15-e679-4e62-bf3e-50ff2b62d484@linux.ibm.com>
-References: <20250409140305.58900-1-freude@linux.ibm.com>
- <20250409140305.58900-7-freude@linux.ibm.com>
- <53b1ca15-e679-4e62-bf3e-50ff2b62d484@linux.ibm.com>
-Message-ID: <75a7e907ab922aacde1231bf63bd64ea@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D93LW58FLXOS.2U8X0CO2H9H5S@gmail.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bi8kmgHNySdcWOjjA2Apv8iNicsgL0Rq
-X-Proofpoint-ORIG-GUID: bi8kmgHNySdcWOjjA2Apv8iNicsgL0Rq
+X-Proofpoint-GUID: u44-EjcfNgIEy_4sPtFf7SZelDSyFVJd
+X-Proofpoint-ORIG-GUID: DiJ-rrsNSTwxXUpWJqT680rFpek1uPzj
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-14_04,2025-04-10_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- mlxscore=0 malwarescore=0 suspectscore=0 priorityscore=1501
- mlxlogscore=999 bulkscore=0 spamscore=0 adultscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ priorityscore=1501 mlxscore=0 spamscore=0 adultscore=0 mlxlogscore=844
+ phishscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502280000 definitions=main-2504140102
 
-On 2025-04-11 14:40, Holger Dengler wrote:
-> On 09/04/2025 16:02, Harald Freudenberger wrote:
->> Introduce a new module parameter "zcrypt_mempool_threshold"
->> for the zcrypt module. This parameter controls the minimal
->> amount of mempool items which are pre-allocated for urgent
->> requests/replies and will be used with the support for the
->> new xflag ZCRYPT_XFLAG_NOMEMALLOC. The default value of 5
->> shall provide enough memory items to support up to 5 requests
->> (and their associated reply) in parallel. The minimum value
->> is 1 and is checked and maybe adjusted in the module init().
->> 
->> If the mempool is depleted upon one cca misc functions is called
->> with the named xflag set, the function will fail with -ENOMEM
->> and the caller is responsible for taking further actions.
->> 
->> For CCA each mempool item is 16KB, as a CCA CPRB needs to
->> hold the request and the reply. The pool items only support
->> requests/replies with a limit of about 8KB.
->> So by default the CCA mempool consumes
->>   5 * 16KB = 80KB
->> 
->> This is only part of an rework to support a new xflag
->> ZCRYPT_XFLAG_NOMEMALLOC but not yet complete.
->> 
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+On Fri, Apr 11, 2025 at 04:46:58PM +1000, Nicholas Piggin wrote:
+> On Tue Apr 8, 2025 at 1:11 AM AEST, Alexander Gordeev wrote:
+> > Reverse 'create' vs 'mm == &init_mm' conditions and move
+> > page table mask modification out of the atomic context.
+> >
+> > Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> > ---
+> >  mm/memory.c | 28 +++++++++++++++++-----------
+> >  1 file changed, 17 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/mm/memory.c b/mm/memory.c
+> > index 2d8c265fc7d6..f0201c8ec1ce 100644
+> > --- a/mm/memory.c
+> > +++ b/mm/memory.c
+> > @@ -2915,24 +2915,28 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
+> >  				     pte_fn_t fn, void *data, bool create,
+> >  				     pgtbl_mod_mask *mask)
+> >  {
+> > +	int err = create ? -ENOMEM : -EINVAL;
 > 
-> See my comment below. With these fixed you can keep my R-b.
-> 
->> ---
->>  drivers/s390/crypto/zcrypt_api.c     |  16 +++-
->>  drivers/s390/crypto/zcrypt_api.h     |   2 +
->>  drivers/s390/crypto/zcrypt_ccamisc.c | 116 
->> ++++++++++++++++++++-------
->>  drivers/s390/crypto/zcrypt_ccamisc.h |   1 +
->>  4 files changed, 104 insertions(+), 31 deletions(-)
->> 
->> diff --git a/drivers/s390/crypto/zcrypt_api.c 
->> b/drivers/s390/crypto/zcrypt_api.c
->> index f753c0403a18..888ab289bd10 100644
->> --- a/drivers/s390/crypto/zcrypt_api.c
->> +++ b/drivers/s390/crypto/zcrypt_api.c
->> @@ -50,6 +50,10 @@ MODULE_DESCRIPTION("Cryptographic Coprocessor 
->> interface, " \
->>  		   "Copyright IBM Corp. 2001, 2012");
->>  MODULE_LICENSE("GPL");
->> 
->> +unsigned int zcrypt_mempool_threshold = 5;
->> +module_param_named(mempool_threshold, zcrypt_mempool_threshold, uint, 
->> 0440);
->> +MODULE_PARM_DESC(mempool_threshold, "CCA and EP11 request/reply 
->> mempool minimal items.");
-> 
-> Maybe you can mention the minimum value here as well?
-> 
-> "CCA and EP11 request/reply mempool minimal items (min: 1)."
+> Could you make this a new variable instead of reusing
+> existing err? 'const int pte_err' or something?
 
-Done
+Will do, when/if repost.
 
-> 
->> +
->>  /*
->>   * zcrypt tracepoint functions
->>   */
->> @@ -2147,13 +2151,20 @@ int __init zcrypt_api_init(void)
->>  {
->>  	int rc;
->> 
->> +	/* make sure the mempool threshold is >= 1 */
->> +	zcrypt_mempool_threshold = max_t(unsigned int, 
->> zcrypt_mempool_threshold, 1);
->> +
-> 
-> BTW: As far as I can see, mempool allows 0 as minimal preallocated
-> elements. The result will be a mempool without any pre-allocated
-> elements. This means, no NOMEMALLOC request could be processed. This
-> is sad, but it is not really an error.
-> 
-> Anyhow, if you would limit the mempool to at least 1 element, a
-> threshold value < 1 is an error and should be treated as such. So, do
-> not silently fix the value, but printout an error message and return
-> with -EINVAL here.
-> 
->>  	rc = zcrypt_debug_init();
->>  	if (rc)
->>  		goto out;
->> 
->>  	rc = zcdn_init();
->>  	if (rc)
->> -		goto out;
->> +		goto out_zcdn_init_failed;
->> +
->> +	rc = zcrypt_ccamisc_init();
->> +	if (rc)
->> +		goto out_ccamisc_init_failed;
->> 
->>  	/* Register the request sprayer. */
->>  	rc = misc_register(&zcrypt_misc_device);
-> [...]
->> diff --git a/drivers/s390/crypto/zcrypt_api.h 
->> b/drivers/s390/crypto/zcrypt_api.h
->> index 94dffb01942f..84d636fd14a4 100644
->> --- a/drivers/s390/crypto/zcrypt_api.h
->> +++ b/drivers/s390/crypto/zcrypt_api.h
-> [...]
->> diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c 
->> b/drivers/s390/crypto/zcrypt_ccamisc.c
->> index 521baaea06ff..05085b40a55c 100644
->> --- a/drivers/s390/crypto/zcrypt_ccamisc.c
->> +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
-> [...]
-> 
->> @@ -229,7 +241,16 @@ static int alloc_and_prep_cprbmem(size_t 
->> paramblen,
->>  	 * allocate consecutive memory for request CPRB, request param
->>  	 * block, reply CPRB and reply param block
->>  	 */
->> -	cprbmem = kcalloc(2, cprbplusparamblen, GFP_KERNEL);
->> +	if (xflags & ZCRYPT_XFLAG_NOMEMALLOC) {
->> +		size_t len = 2 * cprbplusparamblen;
->> +
->> +		if (cprb_mempool && len <= CPRB_MEMPOOL_ITEM_SIZE) {
-> 
-> Remove the check for cprb_mempool != NULL. This case can never happen.
-> 
->> +			cprbmem = mempool_alloc_preallocated(cprb_mempool);
->> +			memset(cprbmem, 0, len);
-> 
-> Check for cprbmem != NULL before memset(), or move the memset() down.
-> 
->> +		}
->> +	} else {
->> +		cprbmem = kcalloc(2, cprbplusparamblen, GFP_KERNEL);
-> 
-> Use kmalloc here and ...
-> 
->> +	}
->>  	if (!cprbmem)
->>  		return -ENOMEM;
-> 
-> ... wait until cprbmem is always valid and do the memset() here.
-> 
-> if (xflags & ZCRYPT_XFLAG_NOMEMALLOC) {
-> 	size_t len = 2 * cprbplusparamblen;
-> 
-> 	if (len <= CPRB_MEMPOOL_ITEM_SIZE)
-> 		cprbmem = mempool_alloc_preallocated(cprb_mempool);
-> } else {
-> 	cprbmem = kmalloc(2 * cprbplusparamblen, GFP_KERNEL);
-> }
-> if (!cprbmem)
-> 	return -ENOMEM;
-> memset(cprbmem, 0, len);
-> 
-> [...]
+...
 
-Hm, not clear what exactly you mean. I changed the code to:
+> > @@ -2944,12 +2948,14 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
+> >  			}
+> >  		} while (addr += PAGE_SIZE, addr != end);
+> >  	}
+> > -	*mask |= PGTBL_PTE_MODIFIED;
+> >  
+> >  	arch_leave_lazy_mmu_mode();
+> >  
+> >  	if (mm != &init_mm)
+> >  		pte_unmap_unlock(mapped_pte, ptl);
+> > +
+> > +	*mask |= PGTBL_PTE_MODIFIED;
+> 
+> This is done just because we might as well? Less work in critical
+> section?
 
-{
-	u8 *cprbmem = NULL;
-	size_t cprbplusparamblen = sizeof(struct CPRBX) + paramblen;
-	size_t len = 2 * cprbplusparamblen;
-	struct CPRBX *preqcblk, *prepcblk;
+Yes.
 
-	/*
-	 * allocate consecutive memory for request CPRB, request param
-	 * block, reply CPRB and reply param block
-	 */
-	if (xflags & ZCRYPT_XFLAG_NOMEMALLOC) {
-		if (len <= CPRB_MEMPOOL_ITEM_SIZE)
-			cprbmem = mempool_alloc_preallocated(cprb_mempool);
-	} else {
-		cprbmem = kmalloc(len, GFP_KERNEL);
-	}
-	if (!cprbmem)
-		return -ENOMEM;
-	memset(cprbmem, 0, len);
-         ...
+Thanks!
