@@ -1,102 +1,149 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCEF02DE46A;
-	Mon, 14 Apr 2025 13:32:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 397E42472AF
+	for <linux-s390@vger.kernel.org>; Mon, 14 Apr 2025 13:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744637546; cv=none; b=A1geZFAbDIqB/nUFUawhLGcKz2UErKlatnMa1xeifCvYcN2ioYbdMZcIK5Ikb/s5QiQ03h0q5+3xs5RE1EsxSQ1CWnnxLartpVVwRV0G+FC04339wt0juHoMPRGvKv5hVcKspGUU3kq+iPdT+d/igiyt84UEPC21M0rkioKMiOQ=
+	t=1744637702; cv=none; b=kWs5ni+bQnCQLYSEGHmoQOmYjgmrQfw+VIu05fsB1rhhuYMGd2ExZaPViuKe1Y9uP2UKPDcq/P/vDvKiE/T1nZV8piO0Tb+QsLvPq06ForpRu5z5hNHeHVBn32oKxAJW8BGmtbSS0XqnJ3q0nnAPFl/wdy2vKqS+qr+yJMrQrD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744637546; c=relaxed/simple;
-	bh=9J/z5T0JY/xcwsk6SXFTA+zsyiZ/gs3asCJyO6IhBN4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=XSxxdAtNhVH2hkaC+Qd4q1XICTeBE42sNMOY35Aaq3Jwh1KsgKSBwhtjb+lY1OcB4wuuWLF503wkiY5uBWTstvM5K1kexqNPkJEOPGesMdadHdGpcTRuCfPj697EFOeHBnSDaGbN628xWn/4kQLQM6wBeODVAKO5Ym4w6PwKSxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J03RGJEy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744637702; c=relaxed/simple;
+	bh=6hEeM+uXbNNAYErZLw7nj4/mrtb5DDlX5G3Q8AhYwHA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uDdBGG6tS0qDHeSUDG1gSaZVxP6FRH4InDfcq+gW6ckJ/qvDMQkP2c1ySlR+COojuWAHOuyAOjGQdnCK93a/uc15jPpfIogdxUfXjK4x5asqCGhnkY7JS55j9q3l1ZiP6b1QgIh7oMJsfCCm1Rvkj4c6Cthhs3n7WrWJNgXWU1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fNGouoEM; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J03RGJEy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E31C4CEE2;
-	Mon, 14 Apr 2025 13:32:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744637546;
-	bh=9J/z5T0JY/xcwsk6SXFTA+zsyiZ/gs3asCJyO6IhBN4=;
-	h=From:To:Cc:Subject:Date:From;
-	b=J03RGJEyomZjf/3It0L+Clx2tw3375in/HQxmp5az86CVy6TrJ8YjjVfV0AmEtlAz
-	 rjtNG8AWN7Kdv0vTw891A6e67jSc7xyp4a3JO5sg6PhoZEQZNDGevW5bAjFtQD+5uo
-	 fe/1wnPpZ1uRXl6MJac1pv5IXJUY5DMYAZGlX/EOXEHiqn7VyHOdf0qSv0SEoB32p9
-	 0buFeAP/vglvgqVY8vQnbZU1eULAYGFtclBoMiZfRZNJg3BUJZZJGSSug8YYO9T6U9
-	 s2MbHGdbo70WCZXLJ202Uvns1v0jzbA//rC60F8c2Sh4iRrEtzl/aUCKhGJqSJV7Pn
-	 /n5ebItL6rE+A==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
-	Michael Mueller <mimu@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Sasha Levin <sashal@kernel.org>,
-	borntraeger@linux.ibm.com,
-	imbrenda@linux.ibm.com,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 1/5] KVM: s390: Don't use %pK through tracepoints
-Date: Mon, 14 Apr 2025 09:32:19 -0400
-Message-Id: <20250414133223.681195-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fNGouoEM"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53ECEaxI030941;
+	Mon, 14 Apr 2025 13:34:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=bgNAB5
+	yAQ62B+jdqq/JUDlggNypVT7VhjqkUAoBglws=; b=fNGouoEMrt6LdY5ObAzIxB
+	2Rw/twjZhB4gXkvQzM2aNbBiyVKKkATEoY3lcdYmiEZUNptKnfk5LSFofyCdcX3Y
+	OvWQkPDqbDpBwRLgz09GFm6c1RTmHrAVsYzZTMrIfC9XV4KK/EK4+i+Y9yisisve
+	kgVnqRZUNT3iFfCe3lsMzNKSjN7CWgpIGl1eCeU5UZzJbIcgPfivOaoT2wVl78Oe
+	/j/Gpbz50ueh6PVNGjzAsBY4G5uu7VQwP8UYFYGov8M33om9steJnwQ2I1fymZBo
+	5g7lvDrX6rtgqbIiwArWVPQ0vKysYMVQ41SThy0hh8vQYhA0UJvmVrel+kfUYloA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 460nc4bhsd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Apr 2025 13:34:58 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53E9cBxu010387;
+	Mon, 14 Apr 2025 13:34:57 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4604qjx4dm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Apr 2025 13:34:57 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53EDYrPG50659758
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 14 Apr 2025 13:34:53 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B1D912004B;
+	Mon, 14 Apr 2025 13:34:53 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2E90E20040;
+	Mon, 14 Apr 2025 13:34:53 +0000 (GMT)
+Received: from [9.171.15.155] (unknown [9.171.15.155])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 14 Apr 2025 13:34:53 +0000 (GMT)
+Message-ID: <c3eee1ca-78ab-4e72-bf6a-f98e2a74b9f6@linux.ibm.com>
+Date: Mon, 14 Apr 2025 15:34:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 24/24] s390/pkey/crypto: Introduce xflags param for
+ pkey in-kernel API
+To: Harald Freudenberger <freude@linux.ibm.com>, ifranzki@linux.ibm.com,
+        fcallies@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, seiden@linux.ibm.com,
+        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+References: <20250409140305.58900-1-freude@linux.ibm.com>
+ <20250409140305.58900-25-freude@linux.ibm.com>
+Content-Language: en-US
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <20250409140305.58900-25-freude@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.292
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BWPphF3sk-a8hmqsV0lWEPTscuL_PBhx
+X-Proofpoint-ORIG-GUID: BWPphF3sk-a8hmqsV0lWEPTscuL_PBhx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-14_04,2025-04-10_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
+ priorityscore=1501 mlxscore=0 spamscore=0 adultscore=0 mlxlogscore=999
+ phishscore=0 clxscore=1015 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2504140098
 
-From: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+On 09/04/2025 16:03, Harald Freudenberger wrote:
+> Add a new parameter xflags to the in-kernel API function
+> pkey_key2protkey(). Currently there is only one flag supported:
+> 
+> * PKEY_XFLAG_NOMEMALLOC:
+>   If this flag is given in the xflags parameter, the pkey
+>   implementation is not allowed to allocate memory but instead should
+>   fall back to use preallocated memory or simple fail with -ENOMEM.
+>   This flag is for protected key derive within a cipher or similar
+>   which must not allocate memory which would cause io operations - see
+>   also the CRYPTO_ALG_ALLOCATES_MEMORY flag in crypto.h.
+> 
+> The one and only user of this in-kernel API - the skcipher
+> implementations PAES in paes_s390.c set this flag upon request
+> to derive a protected key from the given raw key material.
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-[ Upstream commit 6c9567e0850be2f0f94ab64fa6512413fd1a1eb1 ]
+See one last comment below.
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-Restricted pointers ("%pK") are not meant to be used through TP_format().
-It can unintentionally expose security sensitive, raw pointer values.
+> ---
+>  arch/s390/crypto/paes_s390.c   |  6 +++---
+>  arch/s390/include/asm/pkey.h   | 15 ++++++++++++++-
+>  drivers/s390/crypto/pkey_api.c | 11 +++++++----
+>  3 files changed, 24 insertions(+), 8 deletions(-)
+> 
+[...]
+> diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+> index 55a4e70b866b..c46b57001550 100644
+> --- a/drivers/s390/crypto/pkey_api.c
+> +++ b/drivers/s390/crypto/pkey_api.c
+> @@ -53,17 +53,20 @@ static int key2protkey(const struct pkey_apqn *apqns, size_t nr_apqns,
+>   * In-Kernel function: Transform a key blob (of any type) into a protected key
+>   */
+>  int pkey_key2protkey(const u8 *key, u32 keylen,
+> -		     u8 *protkey, u32 *protkeylen, u32 *protkeytype)
+> +		     u8 *protkey, u32 *protkeylen, u32 *protkeytype, u32 xflags)
+>  {
+> +	u32 flags;
+>  	int rc;
+> -	const u32 xflags = 0;
+> +
+> +	/* as of now only the NOMEMALLOC flag is supported */
+> +	flags = xflags & PKEY_XFLAG_NOMEMALLOC ? ZCRYPT_XFLAG_NOMEMALLOC : 0;
 
-Use regular pointer formatting instead.
+Please move the mapping of the flags to the implementation of the pkey handlers. The pkey layer should stay independant to any hander implementation and should not know about any of the ZCRYPT_XFLAGs.
 
-Link: https://lore.kernel.org/lkml/20250113171731-dc10e3c1-da64-4af0-b767-7c7070468023@linutronix.de/
-Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-Reviewed-by: Michael Mueller <mimu@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250217-restricted-pointers-s390-v1-1-0e4ace75d8aa@linutronix.de
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <20250217-restricted-pointers-s390-v1-1-0e4ace75d8aa@linutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kvm/trace-s390.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+[...]
 
-diff --git a/arch/s390/kvm/trace-s390.h b/arch/s390/kvm/trace-s390.h
-index 6f0209d45164f..9c5f546a2e1a3 100644
---- a/arch/s390/kvm/trace-s390.h
-+++ b/arch/s390/kvm/trace-s390.h
-@@ -56,7 +56,7 @@ TRACE_EVENT(kvm_s390_create_vcpu,
- 		    __entry->sie_block = sie_block;
- 		    ),
- 
--	    TP_printk("create cpu %d at 0x%pK, sie block at 0x%pK",
-+	    TP_printk("create cpu %d at 0x%p, sie block at 0x%p",
- 		      __entry->id, __entry->vcpu, __entry->sie_block)
- 	);
- 
-@@ -255,7 +255,7 @@ TRACE_EVENT(kvm_s390_enable_css,
- 		    __entry->kvm = kvm;
- 		    ),
- 
--	    TP_printk("enabling channel I/O support (kvm @ %pK)\n",
-+	    TP_printk("enabling channel I/O support (kvm @ %p)\n",
- 		      __entry->kvm)
- 	);
- 
 -- 
-2.39.5
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
 
