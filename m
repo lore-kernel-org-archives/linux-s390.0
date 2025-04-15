@@ -1,176 +1,84 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED158275102
-	for <linux-s390@vger.kernel.org>; Mon, 14 Apr 2025 15:15:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B771227A91C
+	for <linux-s390@vger.kernel.org>; Tue, 15 Apr 2025 10:40:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744643743; cv=none; b=ZxXkhdotIQlWNths6bX9N9Q0YHHtxU7hv764lxkSYCQHu5+9LdzR74s3Rh3NswW2/3jwdoakHoZ2h1PZ1Yr34NIeESqAqNQ67O8KWrVLop6MP5GwAvDqRpLM59inHrw3Wb+9dNElUimorMNH/DPnJ88dP6AlnFk4Hnx2ppb/NN4=
+	t=1744713624; cv=none; b=Jx+2LcnKAotfir2yBI/Pbh+pJah/w8WsG4SosCOF6iNO3PATD8Ge/3u4d0qC8WJzyj/LY8pdeFUiS6xpIDzPS+AClSuymex6OukEs/GPZgvBDxMlaR/83m/cDIfmTodM8nBusTPktrwCa9QeDa2Y7Ib2TJMq/JzsieknfYtxIps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744643743; c=relaxed/simple;
-	bh=sZDwFzqD8jzoZTpt6iu7ABH8gyVwFauha1A+Fzor2TY=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=LBEXs5NyJPmnQ3wKIbJodNCy9zvMSanesmsjhgzxEa/W2OKPH3dptcEkOzXLDqlfJCZUJ+Chx1Zp1yTvShkrZz+ixvbN0gkV2zTvbbkfzmDtaDrA404UChkRW8XPAAFjeTAyBGfKIjF7vBIrRuyzZXdWthRD8nJPslE1PpYFkSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cbYPQuuV; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cbYPQuuV"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53ECZJgp016576;
-	Mon, 14 Apr 2025 15:15:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=OVwGdsfgN4pcgqKh+oTO2pjzd3kkV+iKy2R9+UYbmEo=; b=cbYPQuuVIsEe
-	ENFaIXe9jwnO9isTgJ5dNsp8A2I8ie9ctHnLG8QRPjS4vBIna599/c3Rk6lcZuZP
-	KxlyTLH3l+v2+1rjjX8oy6KU+/DTLe4AjWNY2DT2v6qn71b1dNwuJrApXYgxygQD
-	L3emoWsP3jVZy2+BjGnF4wFwrH/uKf7zLGB5MipZHxcZ4loogNuAAiv9Zu/iSD/C
-	IXlEOJz1LSEA1xm7lDfHi6M2qBVW8uYH97tOyQo9vwKjOuZcrVroGNVmjUwWjh8e
-	Bxq0usn5Qv+3AR03uH9txeUhqbnhn+4vw2fkIl+56qmxh6Hf3+hfATlGp4JNvDMU
-	fNF2eVSsHw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 460q7x3kre-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Apr 2025 15:15:38 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53ECBGD0031061;
-	Mon, 14 Apr 2025 15:15:38 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4603gneteg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Apr 2025 15:15:37 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53EFFax632637568
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Apr 2025 15:15:36 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7583B5805A;
-	Mon, 14 Apr 2025 15:15:36 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A9C9B58054;
-	Mon, 14 Apr 2025 15:15:35 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 14 Apr 2025 15:15:35 +0000 (GMT)
+	s=arc-20240116; t=1744713624; c=relaxed/simple;
+	bh=AgOaXgjLwCqnjPYXHap1rE1GdF6NmnxUolRQOeY/cVw=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=eZ3vLJ7AZvdFfR/QwDDUOcoapkEctNJpzGxqf5111AnD2HYcOE6y8fsiRzFkZIpBbE0K7v2do/mPhACL6ZZUyRultVAxvBOrsy98hc48SlOomsxBHBeRozyv8TUQw18CiyQlATzZoN7H4A20IH4hWWC2mpwM3A2WR/DjFnF1/ZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-3d585d76b79so43010385ab.1
+        for <linux-s390@vger.kernel.org>; Tue, 15 Apr 2025 03:40:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744713622; x=1745318422;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=eP7Hz/J1y4fMiyeT9H2f5gML4RT7x+IK4QqchZbfjmI=;
+        b=r31KrLfj5oOqwZELQgvuhEtGK+9R5PS1uY8r5ZVBC5303SZD2VJ44Sc3KuXY7qhRr6
+         A9pOjKbzmYo0M3eduHLgNbULBNkc+uMIsLBjZ8yJIW0OZypbDxp1IHr1w0ikOoeYgKET
+         7FgobcumbHts2UdguB9nIn7RJYG0WGukuu9fkdsi5CFj+oI7m1qk4LJxhxL71FM6kib5
+         jwVL3guTiIbpQX9lTTxf3fpC+n+8mBxEZ/0+1Mo5gNGmm9HuIcgVZvVJo29iE6WQqgVj
+         HyPXDc/R7s43isCoZQvROCK5eq6LW9C47MqQyxotJUv6+UXBqZN/XQqhUAUe7VoxkXoo
+         Ptdw==
+X-Forwarded-Encrypted: i=1; AJvYcCXNJEQAm2CippiThqWJYIrhxX3JxXG2Qh2RK/vVMUwsGqCpvxYlQOK2RmtgXytJ2JFNFRdsbZ2eP3u0@vger.kernel.org
+X-Gm-Message-State: AOJu0YyjIaWq4foSB9gQQy2rnAa21jpFvkOhpBM6q826exaMohDU3SwR
+	XGoAcRkNYrreMeaZOuCK036FIkwUYykstZ7YxudkYGoGwctbRbnu2JCdTGd2uj2BShlbmFRyJdD
+	4QEc6g7/jrTrmHBxFzm5lCtIT++s3C1Tgl0YQo/3j5r0JrEX1akHWzh8=
+X-Google-Smtp-Source: AGHT+IEHG4vd+gOPU+P1DxtVlQAKloyX2pka4ZAGczUOG5c6TwkAdjBAVMq6yK/FEroFMMSUuWTk4+Z5aiy2vMMA/jERtu91CWuz
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 14 Apr 2025 17:15:35 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, linux-s390@vger.kernel.org,
-        herbert@gondor.apana.org.au
-Subject: Re: [PATCH v4 21/24] s390/uv: Rename find_secret() to
- uv_find_secret() and publish
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20250414080825.19379-B-seiden@linux.ibm.com>
-References: <20250409140305.58900-1-freude@linux.ibm.com>
- <20250409140305.58900-22-freude@linux.ibm.com>
- <20250414080825.19379-B-seiden@linux.ibm.com>
-Message-ID: <34a5faeee685e97e80a53e00ec846af5@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: tKEYVExV3NGGS3_WNtzR-xtSdFMnds6Y
-X-Proofpoint-GUID: tKEYVExV3NGGS3_WNtzR-xtSdFMnds6Y
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-14_05,2025-04-10_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 adultscore=0 phishscore=0 clxscore=1015 bulkscore=0
- mlxscore=0 lowpriorityscore=0 mlxlogscore=769 suspectscore=0
- malwarescore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2502280000 definitions=main-2504140109
+X-Received: by 2002:a05:6e02:2161:b0:3d0:443d:a5c3 with SMTP id
+ e9e14a558f8ab-3d7ec1d9a8amr136253415ab.3.1744713621887; Tue, 15 Apr 2025
+ 03:40:21 -0700 (PDT)
+Date: Tue, 15 Apr 2025 03:40:21 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67fe3795.050a0220.3483fc.004f.GAE@google.com>
+Subject: [syzbot] Monthly smc report (Apr 2025)
+From: syzbot <syzbot+list9b3d6b0c7970945b664e@syzkaller.appspotmail.com>
+To: jaka@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 2025-04-14 10:08, Steffen Eiden wrote:
-> On Wed, Apr 09, 2025 at 04:03:02PM +0200, Harald Freudenberger wrote:
->> Rename the internal UV function find_secret() to uv_find_secret()
->> and publish it as new UV API in-kernel function.
->> 
->> The pkey uv handler may be called in a do-not-allocate memory
->> situation where sleeping is allowed but allocating memory which
->> may cause IO operations is not. For example when an encrypted
->> swap file is used and the encryption is done via UV retrievable
->> secrets with protected keys.
->> 
->> The UV API function uv_get_secret_metadata() allocates memory
->> and then calls the find_secret() function. By exposing the
->> find_secret() function as a new UV API function uv_find_secret()
->> it is possible to retrieve UV secret meta data without any
->> memory allocations from the UV when the caller offers space
->> for one struct uv_secret_list.
->> 
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> 
-> With the documentation improved:
-> 
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> 
->> ---
->>  arch/s390/include/asm/uv.h |  3 +++
->>  arch/s390/kernel/uv.c      | 12 ++++++++----
->>  2 files changed, 11 insertions(+), 4 deletions(-)
->> 
->> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
->> index b11f5b6d0bd1..8d7e00fa2bf0 100644
->> --- a/arch/s390/include/asm/uv.h
->> +++ b/arch/s390/include/asm/uv.h
->> @@ -616,6 +616,9 @@ static inline int uv_remove_shared(unsigned long 
->> addr)
->>  	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
->>  }
->> 
->> +int uv_find_secret(const u8 secret_id[UV_SECRET_ID_LEN],
->> +		   struct uv_secret_list *list,
->> +		   struct uv_secret_list_item_hdr *secret);
->>  int uv_get_secret_metadata(const u8 secret_id[UV_SECRET_ID_LEN],
->>  			   struct uv_secret_list_item_hdr *secret);
->>  int uv_retrieve_secret(u16 secret_idx, u8 *buf, size_t buf_size);
->> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
->> index 9f05df2da2f7..4acbbdff568f 100644
->> --- a/arch/s390/kernel/uv.c
->> +++ b/arch/s390/kernel/uv.c
->> @@ -681,12 +681,15 @@ static int find_secret_in_page(const u8 
->> secret_id[UV_SECRET_ID_LEN],
->> 
->>  /*
-> This documentation string does not make sense for an exported function. 
-> Let's
-> add documentation from the get_metadata function.
-> 
->>   * Do the actual search for `uv_get_secret_metadata`.
-> Change this to something like:
-> 
-> Locate a secret in the list by its id.
-> 
->> + * @secret_id: search pattern.
->> + * @list: ephemeral buffer space
->> + * @secret: output data, containing the secret's metadata.
->>   *
-> Add:
->     * Search for a secret with the given secret_id in the Ultravisor
-> secret store.
-> 
->>   * Context: might sleep.
->>   */
->> -static int find_secret(const u8 secret_id[UV_SECRET_ID_LEN],
->> -		       struct uv_secret_list *list,
->> -		       struct uv_secret_list_item_hdr *secret)
->> +int uv_find_secret(const u8 secret_id[UV_SECRET_ID_LEN],
->> +		   struct uv_secret_list *list,
->> +		   struct uv_secret_list_item_hdr *secret)
-> 
-> ...
+Hello smc maintainers/developers,
 
-Done as you suggested.
-Thanks
+This is a 31-day syzbot report for the smc subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/smc
+
+During the period, 0 new issues were detected and 0 were fixed.
+In total, 5 issues are still open.
+
+Some of the still happening issues:
+
+Ref Crashes Repro Title
+<1> 2917    Yes   possible deadlock in smc_vlan_by_tcpsk
+                  https://syzkaller.appspot.com/bug?extid=c75d1de73d3b8b76272f
+<2> 76      Yes   possible deadlock in smc_release
+                  https://syzkaller.appspot.com/bug?extid=621fd56ba002faba6392
+<3> 5       Yes   possible deadlock in smc_pnet_find_ism_resource
+                  https://syzkaller.appspot.com/bug?extid=f160105b2817964a0886
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
+
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.
