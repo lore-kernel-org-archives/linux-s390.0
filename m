@@ -1,60 +1,61 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42677236428;
-	Wed, 16 Apr 2025 09:19:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F8052356A2;
+	Wed, 16 Apr 2025 09:20:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744795188; cv=none; b=XBYmbyabZ1JXrfJ9O4IRK7zDEHIOfmcci2nbccZGhLMaCYguxiGCDztRnCwGjeppEwRSWHMHQshGlwnePqT3MOGKP1daptmOxNrtnPMMl/gJaeTOmsXbpyFCwKFjyUtNazG+er3Rqiuqvw8COpCch5UlW6KiNT5DyU3k+GeXYWc=
+	t=1744795210; cv=none; b=Wr79SmaoKLksTBUlsAlF4aqn/MQ8oF3EcsEDUKyWqmF7U6BQjcyyx5e8ZUzusoAyWgX6fnkCPBS3oboox0tLBT+PDSJ2yYMFbpw5uUWucuS/x3px7X3APg+E6w6tBjGtGU86rmxRGlYbg+jy6IP0myfcE16Jscw5rhgvMTW0Tbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744795188; c=relaxed/simple;
-	bh=yzjBrnLSxXbBYgWXdIeFUwz6iS1grEwnMI67d+ZThG8=;
+	s=arc-20240116; t=1744795210; c=relaxed/simple;
+	bh=kKSrxTfVMGwguU4+jro0x1CfKtFmI6/TcJWMp8JuuT0=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ON9YtHPdwwqlG2UmtYFggUMzlVUS8fWBb2cpoDlJ+lgIwRuRZmEPLM2D4vADF7wYv8d9vKI/uAAWph8/dDBfG5srScfGgjdTba+lu+gtzMCU+nh8TbaRymhaePS98pa0Ib+nWjQvAeK3qDqd3nUSwnhMVlmcmDGpYP3cXRgahg4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W6qyQtM+; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=otaFYdQoP2uLAx5tCA1wh8KSQl8P3V/oN/owr2nIr/g16tDbXWvCp92IuxaKbL+dLvYJuSjrukPeJGo8DmyNaLubDAjRbSKgR9J/LI6bwdVNwXJZkDgUgVwSf1uaRNsXD98to7D+x/DWmwvO8zQViDNWVbG/HY9+inn7bR49Z9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=d53YjI94; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W6qyQtM+"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53G7MQOR020476;
-	Wed, 16 Apr 2025 09:19:37 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d53YjI94"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53FLg5mr026666;
+	Wed, 16 Apr 2025 09:19:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JSK2+4
-	9RTmaFUMbKHTHhqFHeLpjSay7GePep6NbGOmM=; b=W6qyQtM+hRx4Uun+xCin3O
-	FBIAH8zw9Lt3ytNBUjVaxYzCaLFpaUNF28XtusCgt53evPgvqZn7dj4WvysCA91v
-	qs9bjGRqga7QTUKD3GiTFsiAkS4IH6qt3VB09ENIHWo4Rtt3hSOh3RBzkboZIzKS
-	w5zSkneU5SZ82Kt83ITdbP/txvfPnpi3tLie8PdbEhwoqxV/596R6HWFvx2kb2j0
-	gUNfn+ZH8owJnT2OVJASaBoBBpSIXLKF5g3pEJPKfntvMUayVcNEMwVipsBauyxl
-	94kRl/yVPbkuFRdzOIA8kUEO1ZDXVALfOg9t7LyzEogwpWciqKMnJXThsXbTMFrA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Qh3N+r
+	ShPUWZ6G+Klpg963dwtnehvHnsNjZ5hVHmeaU=; b=d53YjI94pSU1vMIbaifg+R
+	RQR5usgBtNDVaCT1ZGsuozZ9Phi2ibblQc4Xo382emxW272Jvqf5vw0mqyJft0Rx
+	s78yBZV1C+avo5VQUB1uT2qk7yAOaouRVzn2ZZ++hBZLPmHrh1adze1bxNMX255e
+	PgI+wGnB6ROC4cYgEfHva3OvXoduYIdT83KLNOX7hyz12pO3ogyHm37J9t7yvI2b
+	IKQJsqfnPY3cKHLpnYcaqD9Ga5cqpYQ9SQUDESZJobx4AtH4XcnObgfXHZFYdxxv
+	xVN5lrLcTEy+X/Tg7WWAnjseTyMB4mxhSnzG0+mksJBg1VUgAFJjCHJ5WcD85vfg
 	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 461nwq5k5p-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 461ykt2f9j-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Apr 2025 09:19:36 +0000 (GMT)
+	Wed, 16 Apr 2025 09:19:57 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53G81UdO016703;
-	Wed, 16 Apr 2025 09:19:35 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 46057276uq-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53G8e7iZ016689;
+	Wed, 16 Apr 2025 09:19:56 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 46057276vu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Apr 2025 09:19:35 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53G9JY5v21234308
+	Wed, 16 Apr 2025 09:19:56 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53G9JtRs29295240
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Apr 2025 09:19:34 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD09F58060;
-	Wed, 16 Apr 2025 09:19:33 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BEF8F58068;
-	Wed, 16 Apr 2025 09:19:31 +0000 (GMT)
+	Wed, 16 Apr 2025 09:19:55 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8232258059;
+	Wed, 16 Apr 2025 09:19:55 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D5C7A58053;
+	Wed, 16 Apr 2025 09:19:52 +0000 (GMT)
 Received: from [9.179.17.252] (unknown [9.179.17.252])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 16 Apr 2025 09:19:31 +0000 (GMT)
-Message-ID: <b4c96d9861420ee33ca7f78e8f525b5b8419f29c.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 0/5] iommu/s390: support additional table regions
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 16 Apr 2025 09:19:52 +0000 (GMT)
+Message-ID: <1cb8f6c28a74abfbda24f551eb9981a832b5009a.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 4/5] iommu/s390: support map/unmap for additional
+ table regions
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org, will@kernel.org,
         robin.murphy@arm.com, gerald.schaefer@linux.ibm.com
@@ -62,9 +63,10 @@ Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         svens@linux.ibm.com, borntraeger@linux.ibm.com, clg@redhat.com,
         iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
-Date: Wed, 16 Apr 2025 11:19:31 +0200
-In-Reply-To: <20250411202433.181683-1-mjrosato@linux.ibm.com>
+Date: Wed, 16 Apr 2025 11:19:52 +0200
+In-Reply-To: <20250411202433.181683-5-mjrosato@linux.ibm.com>
 References: <20250411202433.181683-1-mjrosato@linux.ibm.com>
+	 <20250411202433.181683-5-mjrosato@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -130,62 +132,143 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: H42_vYgHhOD7fG0gt8hkta-_qq4yZAri
-X-Proofpoint-GUID: H42_vYgHhOD7fG0gt8hkta-_qq4yZAri
+X-Proofpoint-GUID: gJpzFUxFP6vUViGiTZZR8c3_viSqjuVX
+X-Proofpoint-ORIG-GUID: gJpzFUxFP6vUViGiTZZR8c3_viSqjuVX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-16_03,2025-04-15_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 clxscore=1015 bulkscore=0 priorityscore=1501 mlxscore=0
- spamscore=0 malwarescore=0 mlxlogscore=865 impostorscore=0 adultscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ suspectscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
+ priorityscore=1501 phishscore=0 mlxlogscore=999 clxscore=1015
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502280000 definitions=main-2504160073
 
 On Fri, 2025-04-11 at 16:24 -0400, Matthew Rosato wrote:
-> The series extends the maximum table size allowed by s390-iommu by
-> increasing the number of table regions supported.  It also adds logic to
-> construct the table use the minimum number of regions based upon aperture
-> calculation.
+> Map and unmap ops use the shared dma_walk_cpu_trans routine, update
+> this using the origin_type of the dma_table to determine how many
+> table levels must be walked.
 >=20
-> Changes for v5:
-> - fix GFP_KERNEL under spinlock in patch 5
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>  drivers/iommu/s390-iommu.c | 127 ++++++++++++++++++++++++++++++++++---
+>  1 file changed, 119 insertions(+), 8 deletions(-)
 >=20
-> Changes for v4:
-> - rebase onto master/merge window
-> - convert patches 3 per Niklas to remove gotos
-> - convert patch 4 to also remove gotos
-> - add review tags
+> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+> index 338a7381e918..46f45b136993 100644
+> --- a/drivers/iommu/s390-iommu.c
+> +++ b/drivers/iommu/s390-iommu.c
+> @@ -67,6 +67,20 @@ static inline void set_pt_pfaa(unsigned long *entry, p=
+hys_addr_t pfaa)
+>  	*entry |=3D (pfaa & ZPCI_PTE_ADDR_MASK);
+>  }
+> =20
+> +static inline void set_rf_rso(unsigned long *entry, phys_addr_t rso)
+> +{
+> +	*entry &=3D ZPCI_RTE_FLAG_MASK;
+> +	*entry |=3D (rso & ZPCI_RTE_ADDR_MASK);
+> +	*entry |=3D ZPCI_TABLE_TYPE_RFX;
+> +}
+> +
+> +static inline void set_rs_rto(unsigned long *entry, phys_addr_t rto)
+> +{
+> +	*entry &=3D ZPCI_RTE_FLAG_MASK;
+> +	*entry |=3D (rto & ZPCI_RTE_ADDR_MASK);
+> +	*entry |=3D ZPCI_TABLE_TYPE_RSX;
+> +}
+> +
+>  static inline void set_rt_sto(unsigned long *entry, phys_addr_t sto)
+>  {
+>  	*entry &=3D ZPCI_RTE_FLAG_MASK;
+> @@ -81,6 +95,22 @@ static inline void set_st_pto(unsigned long *entry, ph=
+ys_addr_t pto)
+>  	*entry |=3D ZPCI_TABLE_TYPE_SX;
+>  }
+> =20
+> +static inline void validate_rf_entry(unsigned long *entry)
+> +{
+> +	*entry &=3D ~ZPCI_TABLE_VALID_MASK;
+> +	*entry &=3D ~ZPCI_TABLE_OFFSET_MASK;
+> +	*entry |=3D ZPCI_TABLE_VALID;
+> +	*entry |=3D ZPCI_TABLE_LEN_RFX;
+> +}
+> +
+> +static inline void validate_rs_entry(unsigned long *entry)
+> +{
+> +	*entry &=3D ~ZPCI_TABLE_VALID_MASK;
+> +	*entry &=3D ~ZPCI_TABLE_OFFSET_MASK;
+> +	*entry |=3D ZPCI_TABLE_VALID;
+> +	*entry |=3D ZPCI_TABLE_LEN_RSX;
+> +}
+> +
 >=20
-> Changes for v3:
-> - rebase onto iommu-next
-> - move IOTA region type setting into s390-iommu
-> - remove origin_type and max_table_size from zdev
-> - adjust reserved region calculation to be dependent on the domain
->=20
-> Changes for v2:
-> - rebase onto 6.13
-> - remove 'iommu/s390: add basic routines for region 1st and 2nd tables'
->   and put routines in first patch that uses each.  No functional change.
->=20
-> Matthew Rosato (5):
->   iommu/s390: set appropriate IOTA region type
->   iommu/s390: support cleanup of additional table regions
->   iommu/s390: support iova_to_phys for additional table regions
->   iommu/s390: support map/unmap for additional table regions
->   iommu/s390: allow larger region tables
->=20
->  arch/s390/include/asm/pci_dma.h |   3 +
->  drivers/iommu/s390-iommu.c      | 345 ++++++++++++++++++++++++++++----
->  2 files changed, 314 insertions(+), 34 deletions(-)
->=20
+--- snip ---
+> =20
+> -static unsigned long *dma_walk_cpu_trans(unsigned long *rto, dma_addr_t =
+dma_addr, gfp_t gfp)
+> +static unsigned long *dma_walk_region_tables(struct s390_domain *domain,
+> +					     dma_addr_t dma_addr, gfp_t gfp)
+>  {
+> -	unsigned long *sto, *pto;
+> +	switch (domain->origin_type) {
+> +	case ZPCI_TABLE_TYPE_RFX:
+> +		return dma_walk_rf_table(domain->dma_table, dma_addr, gfp);
+> +	case ZPCI_TABLE_TYPE_RSX:
+> +		return dma_walk_rs_table(domain->dma_table, dma_addr, gfp);
+> +	case ZPCI_TABLE_TYPE_RTX:
+> +		return domain->dma_table;
+> +	default:
+> +		return NULL;
+> +	}
+> +}
+> +
+> +static unsigned long *dma_walk_cpu_trans(struct s390_domain *domain,
+> +					 dma_addr_t dma_addr, gfp_t gfp)
+> +{
+> +	unsigned long *rto, *sto, *pto;
+>  	unsigned int rtx, sx, px;
+> =20
+> +	rto =3D dma_walk_region_tables(domain, dma_addr, gfp);
+> +	if (!rto)
+> +		return NULL;
+> +
+>  	rtx =3D calc_rtx(dma_addr);
+>  	sto =3D dma_get_seg_table_origin(&rto[rtx], gfp);
+>  	if (!sto)
+> @@ -690,8 +804,7 @@ static int s390_iommu_validate_trans(struct s390_doma=
+in *s390_domain,
+>  	int rc;
+> =20
+>  	for (i =3D 0; i < nr_pages; i++) {
+> -		entry =3D dma_walk_cpu_trans(s390_domain->dma_table, dma_addr,
+> -					   gfp);
+> +		entry =3D dma_walk_cpu_trans(s390_domain, dma_addr, gfp);
+>  		if (unlikely(!entry)) {
+>  			rc =3D -ENOMEM;
+>  			goto undo_cpu_trans;
+> @@ -706,8 +819,7 @@ static int s390_iommu_validate_trans(struct s390_doma=
+in *s390_domain,
+>  undo_cpu_trans:
+>  	while (i-- > 0) {
+>  		dma_addr -=3D PAGE_SIZE;
+> -		entry =3D dma_walk_cpu_trans(s390_domain->dma_table,
+> -					   dma_addr, gfp);
+> +		entry =3D dma_walk_cpu_trans(s390_domain, dma_addr, gfp);
+>  		if (!entry)
+>  			break;
+>  		dma_update_cpu_trans(entry, 0, ZPCI_PTE_INVALID);
+> @@ -724,8 +836,7 @@ static int s390_iommu_invalidate_trans(struct s390_do=
+main *s390_domain,
+>  	int rc =3D 0;
+> =20
+>  	for (i =3D 0; i < nr_pages; i++) {
+> -		entry =3D dma_walk_cpu_trans(s390_domain->dma_table, dma_addr,
+> -					   GFP_ATOMIC);
+> +		entry =3D dma_walk_cpu_trans(s390_domain, dma_addr, GFP_ATOMIC);
+>  		if (unlikely(!entry)) {
+>  			rc =3D -EINVAL;
+>  			break;
 
-I gave this v5 another test run with it applied atop v6.15-rc2. I used
-an LPAR with 11 TB of memory and 2 KVM guests each with 5 TB. The
-guests use iommu.passthrough=3D1 and have NIC VFs from the same card
-passed-through. With such large sizes we really need the newly
-supported table types. For good measure, I also used the PCI transport
-for the virtio-net NIC.
+Looks good to me and we even get nicer formatting :)
 
-Traffic between the passed-through VFs works great. Feel free to add:
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-Tested-by: Niklas Schnelle <schnelle@linux.ibm.com>
