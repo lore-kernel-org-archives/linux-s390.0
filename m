@@ -1,65 +1,65 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D169E2192F3
-	for <linux-s390@vger.kernel.org>; Wed, 16 Apr 2025 13:58:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89D3B21516B
+	for <linux-s390@vger.kernel.org>; Wed, 16 Apr 2025 13:58:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744811901; cv=none; b=bIiE3qnEuZFiWi29ZORnugvYY0e5SiHHElr9W+u+HU8MoZGdypcundiw0Im1HgVdP8Goea5Wo3lkM4vNo7nbtDl3YUjFFoyqoGW7tQdN1HPMyH5BpowkIAAch8I+V2K/gbO2YorkSbF2HC9z6g7nY8L034m3AjRf6RUorUhCVOw=
+	t=1744811901; cv=none; b=KsebD3xAfWYjlVUuaiLPKRcdur6fodNRFZKsUaWHrnS3kKjJaGJUOe4IhQuh9DaqU6KmG2GiH02ijmonhL0COSAPSsjTofWUfyY8P0V93CzVM10LlifewdmH7Wy2yrM4f63XaAa14pSxDtL8TptBICOmz5vrOqk6MxBgQGMoeQE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744811901; c=relaxed/simple;
-	bh=vRwqV8OoAzI7HDe4vbmXxSEV7+s3tZZ086EVQ1S1/Zc=;
+	bh=PNEqngqRq7IWrydiwICfVuyVxVwwvzNlRUZOYVj5I6c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DIK3m5hl0ivw8VtoFs0LwjKloXzyncJzx4quS1s5HlXcQmW4Qerh9Zh7pXFAuQSqv+lwXd47VCj0aWhxqzkQuQh8qtFQ3QyvTO+eWDnlb7fOWlitSH+YmwieaElMbhQcP5CS6b0KpI1DeHcAdSTjVi4sdOIRtFVOHUI6qbEx+Ac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=edt/izDR; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=SMqq68pjyI1KUrfcoVUEvg2caCzT/qG0atnzISCB4g1ieN2VSgPT/rSfeNTzoK9U2on3ev7iy8sMFxcP9Iiv2vcYkjolI5GBwz5sAFtFD8rYrLQZusebMzxRsXK2ckfNmJJS3gdx9MfmWR3rhi3dPZmxQqvl8jiDor/SKXbXHTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RtLL7MOY; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="edt/izDR"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53GAXsBe026911;
-	Wed, 16 Apr 2025 13:58:15 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RtLL7MOY"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53G8bklF017033;
+	Wed, 16 Apr 2025 13:58:16 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=QYrwTTCrtRfr2y8YR
-	SnyHkjsdEsa1St8XXNe07o7EQQ=; b=edt/izDRwYLPOVkcIJypvALspr816WyBj
-	T4HWwapxw/KfeX8Ir2fNWcMAHyXgR66AY4NzIWOUBsVo2FMEyuWpl9fu/ZaYwssZ
-	HvR9tp1gN0MWzxPLlytDji8QoWMkoRQ4EjNf6PzaXkOxH8VaEnDX+NQWapPiYRhi
-	M4mxqlxcQvYJ7uyPjDSS8rlJ2ZydSu4BbqttMShtvjb9RYDIwWLM0572cuB4awuW
-	X8DjbHQAnlmgdgZDgbEhdwjcv8BOxkAGp9P+1fanp8O7XcELPjAVYyQRqBOP12k1
-	6xpQniRIjJuGKL5+DwCqgGZj0n5phVSTwESP/7PhpVyM0/OyhwnUA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 461ykt3ty8-1
+	:mime-version:references:subject:to; s=pp1; bh=tpBkU+bod3j+TLA0i
+	ogawmxb1n1lwupmkPVwNFEKNyE=; b=RtLL7MOY/SiRv5ljd2Q8R62X0KKfctZJu
+	rnKWciKw9kYk8ZAVx0LkiVC5bj4joEZ9nW6/9pc7EkwMD9q632VeNRsD8Lz/IsGB
+	UDhBa/aqQjHrNczxkK12fBzfbQwbqsAs+9liq/J1hTrTGKrPLCdNy0dZhpXvwMKi
+	jAObAetPIxopyQFd+N0pwTZYbn9x7YzTZjAXuj2a2KUJa105iwsDl72VAkSWZhzX
+	0J8BeIeAG4Wpz6/KVe7TNiq1XFO2N3Bl69XKjiPXtqY4H+9ol6/bTxrBq/DRU/EC
+	lTKy0/M4w4d4Eyoo+oBHoINgZpY10gOy3Cy+B61muHS9HPZGSUyUA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 461yj542n4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Apr 2025 13:58:14 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53GBJICc017207;
-	Wed, 16 Apr 2025 13:58:14 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46040m0exh-1
+	Wed, 16 Apr 2025 13:58:16 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53GCoYas024914;
+	Wed, 16 Apr 2025 13:58:15 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4602gtgwt9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Apr 2025 13:58:14 +0000
+	Wed, 16 Apr 2025 13:58:15 +0000
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53GDwAB544630472
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53GDwCq826935616
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Apr 2025 13:58:10 GMT
+	Wed, 16 Apr 2025 13:58:12 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4A2FA2004B;
-	Wed, 16 Apr 2025 13:58:10 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 32FB22004D;
+	Wed, 16 Apr 2025 13:58:12 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF52D20043;
-	Wed, 16 Apr 2025 13:58:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id AC20F20043;
+	Wed, 16 Apr 2025 13:58:11 +0000 (GMT)
 Received: from funtu2.fritz.box?044ibm.com (unknown [9.171.41.243])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 16 Apr 2025 13:58:09 +0000 (GMT)
+	Wed, 16 Apr 2025 13:58:11 +0000 (GMT)
 From: Harald Freudenberger <freude@linux.ibm.com>
 To: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
         hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
         seiden@linux.ibm.com
 Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: [PATCH v6 13/25] s390/zcrypt: Rework cca findcard() implementation and callers
-Date: Wed, 16 Apr 2025 15:57:48 +0200
-Message-ID: <20250416135801.133909-14-freude@linux.ibm.com>
+Subject: [PATCH v6 16/25] s390/zcrypt: Propagate xflags argument with cca_get_info()
+Date: Wed, 16 Apr 2025 15:57:51 +0200
+Message-ID: <20250416135801.133909-17-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250416135801.133909-1-freude@linux.ibm.com>
 References: <20250416135801.133909-1-freude@linux.ibm.com>
@@ -71,244 +71,101 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ZqH-5GqNrowo_6w50IaLGBmYqacnSeE8
-X-Proofpoint-ORIG-GUID: ZqH-5GqNrowo_6w50IaLGBmYqacnSeE8
+X-Proofpoint-GUID: W6bMHjlXm-gB5ojqGLITtUDARjIV2Rz6
+X-Proofpoint-ORIG-GUID: W6bMHjlXm-gB5ojqGLITtUDARjIV2Rz6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-16_04,2025-04-15_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
- suspectscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
- priorityscore=1501 phishscore=0 mlxlogscore=994 clxscore=1015
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504160111
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ mlxlogscore=999 clxscore=1015 impostorscore=0 bulkscore=0 phishscore=0
+ adultscore=0 spamscore=0 suspectscore=0 malwarescore=0 priorityscore=1501
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2504160111
 
-Rework the memory usage of the cca findcard() implementation:
-- findcard does not allocate memory for the list of apqns
-  any more.
-- the callers are now responsible to provide an array of
-  apqns to store the matching apqns into.
+Propagate the xflags argument from the cca_get_info()
+caller down to the lower level functions for proper
+memory allocation hints.
 
 Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 ---
- drivers/s390/crypto/pkey_cca.c       | 25 ++++++++++------------
- drivers/s390/crypto/zcrypt_ccamisc.c | 31 +++++++---------------------
- drivers/s390/crypto/zcrypt_ccamisc.h | 12 +++++------
- 3 files changed, 23 insertions(+), 45 deletions(-)
+ drivers/s390/crypto/zcrypt_ccamisc.c | 6 +++---
+ drivers/s390/crypto/zcrypt_ccamisc.h | 2 +-
+ drivers/s390/crypto/zcrypt_cex4.c    | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/pkey_cca.c b/drivers/s390/crypto/pkey_cca.c
-index 83b02a466346..5b1f4c571c88 100644
---- a/drivers/s390/crypto/pkey_cca.c
-+++ b/drivers/s390/crypto/pkey_cca.c
-@@ -73,7 +73,7 @@ static int cca_apqns4key(const u8 *key, u32 keylen, u32 flags,
- 			 struct pkey_apqn *apqns, size_t *nr_apqns)
- {
- 	struct keytoken_header *hdr = (struct keytoken_header *)key;
--	u32 _nr_apqns, *_apqns = NULL;
-+	u32 _apqns[MAXAPQNSINLIST], _nr_apqns = ARRAY_SIZE(_apqns);
- 	int rc;
- 
- 	if (!flags)
-@@ -107,7 +107,7 @@ static int cca_apqns4key(const u8 *key, u32 keylen, u32 flags,
- 			/* unknown CCA internal token type */
- 			return -EINVAL;
- 		}
--		rc = cca_findcard2(&_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
-+		rc = cca_findcard2(_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
- 				   minhwtype, AES_MK_SET,
- 				   cur_mkvp, old_mkvp);
- 		if (rc)
-@@ -126,7 +126,7 @@ static int cca_apqns4key(const u8 *key, u32 keylen, u32 flags,
- 			/* unknown CCA internal 2 token type */
- 			return -EINVAL;
- 		}
--		rc = cca_findcard2(&_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
-+		rc = cca_findcard2(_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
- 				   ZCRYPT_CEX7, APKA_MK_SET,
- 				   cur_mkvp, old_mkvp);
- 		if (rc)
-@@ -147,7 +147,6 @@ static int cca_apqns4key(const u8 *key, u32 keylen, u32 flags,
- 	*nr_apqns = _nr_apqns;
- 
- out:
--	kfree(_apqns);
- 	pr_debug("rc=%d\n", rc);
- 	return rc;
- }
-@@ -156,7 +155,7 @@ static int cca_apqns4type(enum pkey_key_type ktype,
- 			  u8 cur_mkvp[32], u8 alt_mkvp[32], u32 flags,
- 			  struct pkey_apqn *apqns, size_t *nr_apqns)
- {
--	u32 _nr_apqns, *_apqns = NULL;
-+	u32 _apqns[MAXAPQNSINLIST], _nr_apqns = ARRAY_SIZE(_apqns);
- 	int rc;
- 
- 	zcrypt_wait_api_operational();
-@@ -171,7 +170,7 @@ static int cca_apqns4type(enum pkey_key_type ktype,
- 			old_mkvp = *((u64 *)alt_mkvp);
- 		if (ktype == PKEY_TYPE_CCA_CIPHER)
- 			minhwtype = ZCRYPT_CEX6;
--		rc = cca_findcard2(&_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
-+		rc = cca_findcard2(_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
- 				   minhwtype, AES_MK_SET,
- 				   cur_mkvp, old_mkvp);
- 		if (rc)
-@@ -184,7 +183,7 @@ static int cca_apqns4type(enum pkey_key_type ktype,
- 			cur_mkvp = *((u64 *)cur_mkvp);
- 		if (flags & PKEY_FLAGS_MATCH_ALT_MKVP)
- 			old_mkvp = *((u64 *)alt_mkvp);
--		rc = cca_findcard2(&_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
-+		rc = cca_findcard2(_apqns, &_nr_apqns, 0xFFFF, 0xFFFF,
- 				   ZCRYPT_CEX7, APKA_MK_SET,
- 				   cur_mkvp, old_mkvp);
- 		if (rc)
-@@ -205,7 +204,6 @@ static int cca_apqns4type(enum pkey_key_type ktype,
- 	*nr_apqns = _nr_apqns;
- 
- out:
--	kfree(_apqns);
- 	pr_debug("rc=%d\n", rc);
- 	return rc;
- }
-@@ -461,7 +459,7 @@ static int cca_verifykey(const u8 *key, u32 keylen,
- 			 u32 *keytype, u32 *keybitsize, u32 *flags)
- {
- 	struct keytoken_header *hdr = (struct keytoken_header *)key;
--	u32 nr_apqns, *apqns = NULL;
-+	u32 apqns[MAXAPQNSINLIST], nr_apqns = ARRAY_SIZE(apqns);
- 	int rc;
- 
- 	if (keylen < sizeof(*hdr))
-@@ -478,13 +476,13 @@ static int cca_verifykey(const u8 *key, u32 keylen,
- 			goto out;
- 		*keytype = PKEY_TYPE_CCA_DATA;
- 		*keybitsize = t->bitsize;
--		rc = cca_findcard2(&apqns, &nr_apqns, *card, *dom,
-+		rc = cca_findcard2(apqns, &nr_apqns, *card, *dom,
- 				   ZCRYPT_CEX3C, AES_MK_SET,
- 				   t->mkvp, 0);
- 		if (!rc)
- 			*flags = PKEY_FLAGS_MATCH_CUR_MKVP;
- 		if (rc == -ENODEV) {
--			rc = cca_findcard2(&apqns, &nr_apqns, *card, *dom,
-+			rc = cca_findcard2(apqns, &nr_apqns, *card, *dom,
- 					   ZCRYPT_CEX3C, AES_MK_SET,
- 					   0, t->mkvp);
- 			if (!rc)
-@@ -511,13 +509,13 @@ static int cca_verifykey(const u8 *key, u32 keylen,
- 			*keybitsize = PKEY_SIZE_AES_192;
- 		else if (!t->plfver && t->wpllen == 640)
- 			*keybitsize = PKEY_SIZE_AES_256;
--		rc = cca_findcard2(&apqns, &nr_apqns, *card, *dom,
-+		rc = cca_findcard2(apqns, &nr_apqns, *card, *dom,
- 				   ZCRYPT_CEX6, AES_MK_SET,
- 				   t->mkvp0, 0);
- 		if (!rc)
- 			*flags = PKEY_FLAGS_MATCH_CUR_MKVP;
- 		if (rc == -ENODEV) {
--			rc = cca_findcard2(&apqns, &nr_apqns, *card, *dom,
-+			rc = cca_findcard2(apqns, &nr_apqns, *card, *dom,
- 					   ZCRYPT_CEX6, AES_MK_SET,
- 					   0, t->mkvp0);
- 			if (!rc)
-@@ -535,7 +533,6 @@ static int cca_verifykey(const u8 *key, u32 keylen,
- 	}
- 
- out:
--	kfree(apqns);
- 	pr_debug("rc=%d\n", rc);
- 	return rc;
- }
 diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
-index 5ca7044846c3..6abfa3da7607 100644
+index 33e4deafadd3..51f84af09170 100644
 --- a/drivers/s390/crypto/zcrypt_ccamisc.c
 +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
-@@ -1698,13 +1698,13 @@ int cca_get_info(u16 cardnr, u16 domain, struct cca_info *ci)
- }
- EXPORT_SYMBOL(cca_get_info);
- 
--int cca_findcard2(u32 **apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
-+int cca_findcard2(u32 *apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
- 		  int minhwtype, int mktype, u64 cur_mkvp, u64 old_mkvp)
+@@ -1635,14 +1635,13 @@ EXPORT_SYMBOL(cca_query_crypto_facility);
+  * Fetch cca_info values about a CCA queue via
+  * query_crypto_facility from adapter.
+  */
+-int cca_get_info(u16 cardnr, u16 domain, struct cca_info *ci)
++int cca_get_info(u16 cardnr, u16 domain, struct cca_info *ci, u32 xflags)
  {
- 	struct zcrypt_device_status_ext *device_status;
--	u32 *_apqns = NULL, _nr_apqns = 0;
--	int i, card, dom, curmatch, oldmatch, rc;
-+	int i, card, dom, curmatch, oldmatch;
+ 	void *mem;
+ 	int rc, found = 0;
+ 	size_t rlen, vlen;
+ 	u8 *rarray, *varray;
+ 	struct zcrypt_device_status_ext devstat;
+-	u32 xflags = 0;
+ 
+ 	memset(ci, 0, sizeof(*ci));
+ 
+@@ -1721,6 +1720,7 @@ int cca_findcard2(u32 *apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
+ 	int i, card, dom, curmatch, oldmatch;
  	struct cca_info ci;
-+	u32 _nr_apqns = 0;
+ 	u32 _nr_apqns = 0;
++	u32 xflags = 0;
  
  	/* occupy the device status memory */
  	mutex_lock(&dev_status_mem_mutex);
-@@ -1716,13 +1716,6 @@ int cca_findcard2(u32 **apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
- 				      ZCRYPT_DEV_STATUS_CARD_MAX,
- 				      ZCRYPT_DEV_STATUS_QUEUE_MAX);
- 
--	/* allocate 1k space for up to 256 apqns */
--	_apqns = kmalloc_array(256, sizeof(u32), GFP_KERNEL);
--	if (!_apqns) {
--		rc = -ENOMEM;
--		goto out;
--	}
--
- 	/* walk through all the crypto apqnss */
- 	for (i = 0; i < ZCRYPT_DEV_STATUS_ENTRIES; i++) {
- 		card = AP_QID_CARD(device_status[i].qid);
-@@ -1770,26 +1763,16 @@ int cca_findcard2(u32 **apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
- 				continue;
- 		}
- 		/* apqn passed all filtering criterons, add to the array */
--		if (_nr_apqns < 256)
--			_apqns[_nr_apqns++] = (((u16)card) << 16) | ((u16)dom);
-+		if (_nr_apqns < *nr_apqns)
-+			apqns[_nr_apqns++] = (((u16)card) << 16) | ((u16)dom);
- 	}
- 
--	/* nothing found ? */
--	if (!_nr_apqns) {
--		kfree(_apqns);
--		rc = -ENODEV;
--	} else {
--		/* no re-allocation, simple return the _apqns array */
--		*apqns = _apqns;
--		*nr_apqns = _nr_apqns;
--		rc = 0;
--	}
-+	*nr_apqns = _nr_apqns;
- 
--out:
- 	/* release the device status memory */
- 	mutex_unlock(&dev_status_mem_mutex);
- 
--	return rc;
-+	return _nr_apqns ? 0 : -ENODEV;
- }
- EXPORT_SYMBOL(cca_findcard2);
- 
+@@ -1749,7 +1749,7 @@ int cca_findcard2(u32 *apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
+ 		if (domain != 0xFFFF && dom != domain)
+ 			continue;
+ 		/* get cca info on this apqn */
+-		if (cca_get_info(card, dom, &ci))
++		if (cca_get_info(card, dom, &ci, xflags))
+ 			continue;
+ 		/* current master key needs to be valid */
+ 		if (mktype == AES_MK_SET && ci.cur_aes_mk_state != '2')
 diff --git a/drivers/s390/crypto/zcrypt_ccamisc.h b/drivers/s390/crypto/zcrypt_ccamisc.h
-index cc7d362a2bad..ca41a675dd3b 100644
+index ca41a675dd3b..38d69aceefe6 100644
 --- a/drivers/s390/crypto/zcrypt_ccamisc.h
 +++ b/drivers/s390/crypto/zcrypt_ccamisc.h
-@@ -217,14 +217,12 @@ int cca_query_crypto_facility(u16 cardnr, u16 domain,
-  * - if old_mkvp != 0 only apqns where old_mkvp == mkvp
-  * The mktype determines which set of master keys to use:
-  *   0 = AES_MK_SET - AES MK set, 1 = APKA MK_SET - APKA MK set
-- * The array of apqn entries is allocated with kmalloc and returned in *apqns;
-- * the number of apqns stored into the list is returned in *nr_apqns. One apqn
-- * entry is simple a 32 bit value with 16 bit cardnr and 16 bit domain nr and
-- * may be casted to struct pkey_apqn. The return value is either 0 for success
-- * or a negative errno value. If no apqn meeting the criteria is found,
-- * -ENODEV is returned.
-+ * The caller should set *nr_apqns to the nr of elements available in *apqns.
-+ * On return *nr_apqns is then updated with the nr of apqns filled into *apqns.
-+ * The return value is either 0 for success or a negative errno value.
-+ * If no apqn meeting the criteria is found, -ENODEV is returned.
+@@ -255,7 +255,7 @@ struct cca_info {
+ /*
+  * Fetch cca information about an CCA queue.
   */
--int cca_findcard2(u32 **apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
-+int cca_findcard2(u32 *apqns, u32 *nr_apqns, u16 cardnr, u16 domain,
- 		  int minhwtype, int mktype, u64 cur_mkvp, u64 old_mkvp);
+-int cca_get_info(u16 card, u16 dom, struct cca_info *ci);
++int cca_get_info(u16 card, u16 dom, struct cca_info *ci, u32 xflags);
  
- #define AES_MK_SET  0
+ int zcrypt_ccamisc_init(void);
+ void zcrypt_ccamisc_exit(void);
+diff --git a/drivers/s390/crypto/zcrypt_cex4.c b/drivers/s390/crypto/zcrypt_cex4.c
+index ecf1fcc6315e..84cbcbab2741 100644
+--- a/drivers/s390/crypto/zcrypt_cex4.c
++++ b/drivers/s390/crypto/zcrypt_cex4.c
+@@ -85,7 +85,7 @@ static ssize_t cca_serialnr_show(struct device *dev,
+ 	memset(&ci, 0, sizeof(ci));
+ 
+ 	if (ap_domain_index >= 0)
+-		cca_get_info(ac->id, ap_domain_index, &ci);
++		cca_get_info(ac->id, ap_domain_index, &ci, 0);
+ 
+ 	return sysfs_emit(buf, "%s\n", ci.serial);
+ }
+@@ -119,7 +119,7 @@ static ssize_t cca_mkvps_show(struct device *dev,
+ 
+ 	cca_get_info(AP_QID_CARD(zq->queue->qid),
+ 		     AP_QID_QUEUE(zq->queue->qid),
+-		     &ci);
++		     &ci, 0);
+ 
+ 	if (ci.new_aes_mk_state >= '1' && ci.new_aes_mk_state <= '3')
+ 		n += sysfs_emit_at(buf, n, "AES NEW: %s 0x%016llx\n",
 -- 
 2.43.0
 
