@@ -1,70 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0714C23315B
-	for <linux-s390@vger.kernel.org>; Wed, 16 Apr 2025 08:59:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 435E3235342
+	for <linux-s390@vger.kernel.org>; Wed, 16 Apr 2025 09:00:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744793948; cv=none; b=ZlLb83bSpgvHKaCuMetin8QTFb2gkbJccdUZyeUOnfySpWqHgdfgwY04wP2bQ5pmMKrkoeJPQfMbW/AOrzMAXcO9CYEUWPDTzJKb5FCt69q95ItBTDALHjAGZWC5pS4aPDfzLVdRe/Z67vXjUE1tddq2qj3WryPD88e/g3wtAHo=
+	t=1744794018; cv=none; b=l8luO+16K2px5ZT9MpiyEkILGo2f2COv+DduTVHurbFNbawD9YgHgnu+7G9+kVMMGd6+7xRbZU1LtU34X0YKQSYGNmaM3JTiZe9v6S1tDyUM3Wkdkod++pAyLWVhEUP33tHLbDxWk3GwdtuRcNooPEL1JttqG5Jp9ieW1LjoURA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744793948; c=relaxed/simple;
-	bh=daO8Z1+7Mqg0utm4R0Jjq2/5V13neDikskQPvvrPKVs=;
+	s=arc-20240116; t=1744794018; c=relaxed/simple;
+	bh=jLVkll89c4Asy+xV695IPYH9ZPB8pgCiLFJSk8duA8c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BvPoz7HM+mRqM9oIYmgimcQSX7k//kEYbw9i405G8aRTKHgmzQHyUsc7NgdpgCX2c2LJOiTKQI+Vl4oEOUqJKcwKUPPT6/Mbsy3PE9WI1JFncNoHc1gv98qCws3nMfKc6eqY2eHldrO3w3Lyt8VnceAcumnqo+ZLB90kT6GE/eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PZ9PWyau; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=lc+LX9bErsSs/IiGhg5zPYBUNAqoXWdQHCR+FHy3Z8+bWljmFAuVm+r3oebe0WnZBdmD2R629UJPEbmSlvr1d8lbC4HsQUmNkltID//g0pz5d7IrmuWojrLpk9OhhHy8WToZILBCVF1Phku++4eeB8xnV1/BATjjao4UhA6NGlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qM+cx98b; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PZ9PWyau"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53G8sNMC028143;
-	Wed, 16 Apr 2025 08:59:04 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qM+cx98b"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53FLdqui019845;
+	Wed, 16 Apr 2025 09:00:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=KAuMNpxKGmcYf20dqGmTao2Zf6zZRI
-	3SevW8++OsbEw=; b=PZ9PWyauUfbGGEYElGBmEtf9fflxQD3tavQqD8YldpQdyq
-	Zbbqkba2GwMrw92Vw8hBp0RT1EBP38y5MTEMjWZadrcJQS84LiLoF/3z6kVDoMPw
-	HI6E7FMY0D4IiAfobPfBW4VBhZW/BVICwl7/kaflqWnyjnpkQshmW8UGSGBXu1b1
-	tjZ6TXBvua5tI6mrX4iNdZQvc4p8QhHdEGg+ShBqmuw4KSwE3fhhIcmMeU3RhKf5
-	0RrWMVMXedHjO+4KNCNbRoB7MjEyVMzB3AcI7+u/odQ4RXoU4xCkiLImUJc2DLs3
-	8L/BUOmQP0YQD8zh2c4FUse0oYyqndoBlFROH/DQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 461ykt2ats-1
+	:references:subject:to; s=pp1; bh=yiHDP7t71wL9HVp1eUD0VrQLBNtYKL
+	TeDfUwKRZc0j8=; b=qM+cx98b8plqj8wzr5gnqTlwj+Kk83F9bGl5s42O2R/+tm
+	r3VKghG6gArJGcylQZP9T4SyK4EC0tLjC0pSnwwfdYhVyNhpiRvm1HOqf8K7Uk74
+	ufz0JUGGSRxMfuP5Ngykmwppe6k5rnUj7A2TtLJ7AkRec5bkdDPjn+zCg2Kg3SkW
+	ABurg6gSgXS2lK6rM9XdcAowZkQmtoNxMQQjGC6Myf4LMxNklJ4CYYYu/vK7L4QA
+	mKDcbqT4eevN9u4JbNKGutDnKkZKc+6S0KaH2ey86AkqGrspjEmaOmOociG6l21O
+	UL+4pO5Ga61VCc7dsKuzVOZcn7cUh1TcIIlk4Bpw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 461yj52gds-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Apr 2025 08:59:04 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53G6OV4d031061;
-	Wed, 16 Apr 2025 08:59:03 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4603gnqg7q-1
+	Wed, 16 Apr 2025 09:00:13 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53G7TesN017207;
+	Wed, 16 Apr 2025 09:00:12 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46040kya6u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 16 Apr 2025 08:59:03 +0000
+	Wed, 16 Apr 2025 09:00:12 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53G8wxTY56295870
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53G908ad30278014
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Apr 2025 08:58:59 GMT
+	Wed, 16 Apr 2025 09:00:08 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 454A220049;
-	Wed, 16 Apr 2025 08:58:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 90B612005A;
+	Wed, 16 Apr 2025 09:00:08 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1353220040;
-	Wed, 16 Apr 2025 08:58:59 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4F9C120049;
+	Wed, 16 Apr 2025 09:00:08 +0000 (GMT)
 Received: from osiris (unknown [9.155.199.163])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 16 Apr 2025 08:58:59 +0000 (GMT)
-Date: Wed, 16 Apr 2025 10:58:57 +0200
+	Wed, 16 Apr 2025 09:00:08 +0000 (GMT)
+Date: Wed, 16 Apr 2025 11:00:07 +0200
 From: Steffen Eiden <seiden@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>, dengler@linux.ibm.com,
-        ifranzki@linux.ibm.com, fcallies@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
-        herbert@gondor.apana.org.au
-Subject: Re: [PATCH v5 22/25] s390/pkey: Use preallocated memory for retrieve
- of UV secret metadata
-Message-ID: <20250416085857.150408-A-seiden@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: [PATCH v5 23/25] s390/uv: Remove uv_get_secret_metadata function
+Message-ID: <20250416090007.150408-B-seiden@linux.ibm.com>
 References: <20250415142438.118474-1-freude@linux.ibm.com>
- <20250415142438.118474-23-freude@linux.ibm.com>
- <20250415145257.12735Eca-hca@linux.ibm.com>
+ <20250415142438.118474-24-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,62 +70,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250415145257.12735Eca-hca@linux.ibm.com>
+In-Reply-To: <20250415142438.118474-24-freude@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -c8wS9_5XlR-0lI8KvaE_U0QoDxI87IB
-X-Proofpoint-ORIG-GUID: -c8wS9_5XlR-0lI8KvaE_U0QoDxI87IB
+X-Proofpoint-GUID: NYMvPgERs6Pd6I_Kty0Fw00bLabF2jaD
+X-Proofpoint-ORIG-GUID: NYMvPgERs6Pd6I_Kty0Fw00bLabF2jaD
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-16_03,2025-04-15_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_spam_definite policy=outbound score=100 impostorscore=0
- mlxscore=100 suspectscore=0 lowpriorityscore=0 bulkscore=0 spamscore=100
- adultscore=0 priorityscore=1501 phishscore=0 mlxlogscore=-999
- clxscore=1015 malwarescore=0 classifier=spam adjust=0 reason=mlx
+X-Proofpoint-Spam-Details: rule=outbound_spam_definite policy=outbound score=100 mlxscore=100
+ lowpriorityscore=0 mlxlogscore=-999 clxscore=1015 impostorscore=0
+ bulkscore=0 phishscore=0 adultscore=0 spamscore=100 suspectscore=0
+ malwarescore=0 priorityscore=1501 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.19.0-2502280000 definitions=main-2504160069
 
-On Tue, Apr 15, 2025 at 04:52:57PM +0200, Heiko Carstens wrote:
-> On Tue, Apr 15, 2025 at 04:24:35PM +0200, Harald Freudenberger wrote:
-> > The pkey uv functions may be called in a situation where memory
-> > allocations which trigger IO operations are not allowed. An example:
-> > decryption of the swap partition with protected key (PAES).
-> > 
-> > The pkey uv code takes care of this by holding one preallocated
-> > struct uv_secret_list to be used with the new UV function
-> > uv_find_secret(). The older function uv_get_secret_metadata()
-> > used before always allocates/frees an ephemeral memory buffer.
-> > The preallocated struct is concurrency protected by a mutex.
-> > 
-> > Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> > Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
-> > Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> > ---
-> >  drivers/s390/crypto/pkey_uv.c | 37 ++++++++++++++++++++++++++++++++---
-> >  1 file changed, 34 insertions(+), 3 deletions(-)
+On Tue, Apr 15, 2025 at 04:24:36PM +0200, Harald Freudenberger wrote:
+> The uv_get_secret_metadata() in-kernel function was only
+> offered and used by the pkey uv handler. Remove it as there
+> is no customer any more.
 > 
-> ...
-> 
-> > +static int get_secret_metadata(const u8 secret_id[UV_SECRET_ID_LEN],
-> > +			       struct uv_secret_list_item_hdr *secret)
-> > +{
-> > +	int rc;
-> > +
-> > +	mutex_lock(&uv_list_mutex);
-> > +	rc = uv_find_secret(secret_id, uv_list, secret);
-> > +	mutex_unlock(&uv_list_mutex);
-> > +
-> > +	return rc;
-> > +}
-> 
-> This is a change to the previous code, and potentially is also a problem:
-> uvlist is not set to zero before it is used (unlike before). The condition
-> code of the uvc is partially ignored, and instead the return code of the
-> response is taken into account to tell if the uvc succeeded. This works since
-> memory was initialized, but now the contents of the previous invocation may be
-> used to tell if the uvc succeeded.
-> 
-> Or in other words: I think you need to add a memset() call to uv_find_secret()
-> before uv_list is used for the uvc.
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Suggested-by: Steffen Eiden <seiden@linux.ibm.com>
 
-Yes you do. 
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
 
-Thanks Heiko!
+Thanks for the cleanup!
