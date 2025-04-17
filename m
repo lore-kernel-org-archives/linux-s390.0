@@ -1,81 +1,66 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C36EA22AE74;
-	Thu, 17 Apr 2025 11:08:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D998460
+	for <linux-s390@vger.kernel.org>; Thu, 17 Apr 2025 11:39:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744888110; cv=none; b=WlO7qINCdn3Gf3+3oQwbBIxXpHnIBqsQJ0LKWrhvZ0wkcIzAWTOKqjRZVl/CJcB+eXyNYxf9UQymHZ1B9cCK4Mpqk9NII5uZX9CrHz1ZdG6ktaL48hX3/44yE5OvO5Pd4fnhZ55jzWPormLmbTVytJ+E1zehhKpcFYTtDsEN5Cs=
+	t=1744889993; cv=none; b=VgVOiiSG8l7NtpGkasTXhCeYMbOdx5Dqq5SJS/G4HCly9BLuEr2IEuw3rlNWdIwp1CQsm2zPmnMAFcJf2BvUobY95EttrK30lAcueCO8jCX0JNer3KpPAv0ztb73/CNiYjb/mvxrJG3HcuT6QbaphavKkI/sM5Wh0uM4MILP9/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744888110; c=relaxed/simple;
-	bh=kf+m8xUUgu1IAXHYmHlrOH5iOjyIO6w8HrS0MmeJ9p8=;
+	s=arc-20240116; t=1744889993; c=relaxed/simple;
+	bh=vxXCKnz9fyPiGAlzhXmGiA+PzlK1OU4GIoWvXCeNBkU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fUzoSPtKkFOIIHhsMgLd119ByRdo3dAvU6jdG6neOuW6ufHIroCla6jEmbVRM6XKqIPcgEwTQmJBbatK5xEhTYSe+balBngGf/M6PTwJ4cO59A4x6fXEfdsua8EOrTxwCrY6y/56jdoBTnpO8rSRJKA3GoeIaFFwz0yv/+Jf+x8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r6Ta6fxn; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=AkIGp3I4nrSLqHjgn0W818YlPXZkVocCWO69bw8WVcjBcCCW/jzmdr8X/7YKenZGGPBMdjQXwHF7Ifx37GfpjnHcgV4a5PT7XuHW/fbMEK9W3g3l6c8BMwKu0ennw07i4Jmdm/fe/JxeyQmcu1BRVd2T40NxEkrRMK4tV486ess=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=N48GCt+Z; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r6Ta6fxn"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53GLgb4t016502;
-	Thu, 17 Apr 2025 11:08:21 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="N48GCt+Z"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53H7wds7015008;
+	Thu, 17 Apr 2025 11:39:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=P0UNIGZ6BZF95FYUzENzM8m0X2UJTc
-	RGPpcS03p9BOo=; b=r6Ta6fxnFQCjEzwsk5i1covPRqIQA3PfOCVl5Ls3McFTO7
-	LnXr4TkRkQk62JSXr3RqkX0x9CqXmPlzlvpcOLU4umiPEzA61PZMFpDAbRTlZ9bH
-	C/udTOuxDUQfDUwYUB1G3z2T6jcEaGsIgn6LJTBmyNPTXxT0IQagt+tY2zaK7EXQ
-	Y4T8bTB6Y01tldutCJfMVWVEry9aprpa4DcPD9uv0FHdv1f9+ncSGwhNsB8yxxbf
-	/oXz7p+53f4rrnWGSROYtp2Zy7GRkYcG/3cCn9+aXxl15r9JtxaeoMPb2kE56pF4
-	PjvrPhUJy4CScUzAg2wlf5LJQGdrVd3bUBoowm0g==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 462mpv2y5t-1
+	:references:subject:to; s=pp1; bh=vxXCKnz9fyPiGAlzhXmGiA+PzlK1OU
+	4GIoWvXCeNBkU=; b=N48GCt+Z+WHEOSRCjmax0Ax9GV30cWdhvVlK5nAnpSLVfS
+	bL9JZzWwpObNwD75gC0v62YqdN+A6gCA0BqZ+mEiA+TTySrfVbnt0kGQe3cbeEgy
+	kBSEUUbGTjeINAEzPQ3CMt+VAHdYmkL4Op7I1LJvI1hguwYJRJEXQMjjDEL6UssL
+	q7OUjgD1Ci7/RS1XLKmPXTLGwhvNigyDpWH0EFwdxhQLpjrNCHlQdXHs0hOMXKIF
+	tzoes0puuQ5HdWk9G2O+qx3PEkupVvOG55lyzKeIY1qDel4Fh8Eh8dB3T3WNFobG
+	q4ZidC/0exB2vRbEwuH5emi9P/uReBpQfYwSngfw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 462mn7u8k4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Apr 2025 11:08:21 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 53HB73qZ002090;
-	Thu, 17 Apr 2025 11:08:20 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 462mpv2y5k-1
+	Thu, 17 Apr 2025 11:39:49 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53HAmnrS017170;
+	Thu, 17 Apr 2025 11:39:48 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46040m5as0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Apr 2025 11:08:20 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53H8e8qv024874;
-	Thu, 17 Apr 2025 11:08:20 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4602gtnmwd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Apr 2025 11:08:19 +0000
+	Thu, 17 Apr 2025 11:39:48 +0000
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53HB8GhI56754666
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53HBdiFD15663420
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Apr 2025 11:08:16 GMT
+	Thu, 17 Apr 2025 11:39:44 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6435D20043;
-	Thu, 17 Apr 2025 11:08:16 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4C0BC20040;
+	Thu, 17 Apr 2025 11:39:44 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CDBE520040;
-	Thu, 17 Apr 2025 11:08:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B55A120043;
+	Thu, 17 Apr 2025 11:39:43 +0000 (GMT)
 Received: from osiris (unknown [9.87.137.75])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 17 Apr 2025 11:08:15 +0000 (GMT)
-Date: Thu, 17 Apr 2025 13:08:14 +0200
+	Thu, 17 Apr 2025 11:39:43 +0000 (GMT)
+Date: Thu, 17 Apr 2025 13:39:42 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
-To: Simon Horman <horms@kernel.org>
-Cc: Alexandra Winter <wintera@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH net-next] s390: ism: Pass string literal as format
- argument of dev_set_name()
-Message-ID: <20250417110814.12521Bf4-hca@linux.ibm.com>
-References: <20250417-ism-str-fmt-v1-1-9818b029874d@kernel.org>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, seiden@linux.ibm.com,
+        linux-s390@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: [PATCH v6 00/25] AP bus/zcrypt/pkey/paes no-mem-alloc patches
+Message-ID: <20250417113942.12521C5d-hca@linux.ibm.com>
+References: <20250416135801.133909-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,47 +69,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250417-ism-str-fmt-v1-1-9818b029874d@kernel.org>
+In-Reply-To: <20250416135801.133909-1-freude@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=KJVaDEFo c=1 sm=1 tr=0 ts=6800e125 cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=VwQbUJbxAAAA:8 a=b4hR2L3i-z0g1OxD4QEA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: OGas9md15izUypAZmBxRwudNy2JjtbZR
-X-Proofpoint-ORIG-GUID: wFOPUcrDX8e3s09cCq8F3VSL1aHRiJQG
+X-Authority-Analysis: v=2.4 cv=ANnAolku c=1 sm=1 tr=0 ts=6800e885 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=u2_EUOgfcXWWuWfTchIA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: A4m9Ogs0NmXYQ1xzxUTee7Wcf87iYSqc
+X-Proofpoint-ORIG-GUID: A4m9Ogs0NmXYQ1xzxUTee7Wcf87iYSqc
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-17_03,2025-04-15_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1011
- priorityscore=1501 adultscore=0 lowpriorityscore=0 bulkscore=0
- impostorscore=0 suspectscore=0 spamscore=0 malwarescore=0 mlxlogscore=864
- phishscore=0 classifier=spam authscore=0 adjust=0 reason=mlx scancount=1
- engine=8.19.0-2502280000 definitions=main-2504170082
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=768 adultscore=0 spamscore=0 mlxscore=0 bulkscore=0
+ suspectscore=0 phishscore=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 lowpriorityscore=0 classifier=spam authscore=0 adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2504170086
 
-On Thu, Apr 17, 2025 at 11:28:23AM +0100, Simon Horman wrote:
-> GCC 14.2.0 reports that passing a non-string literal as the
-> format argument of dev_set_name() is potentially insecure.
-> 
-> drivers/s390/net/ism_drv.c: In function 'ism_probe':
-> drivers/s390/net/ism_drv.c:615:2: warning: format not a string literal and no format arguments [-Wformat-security]
->   615 |  dev_set_name(&ism->dev, dev_name(&pdev->dev));
->       |  ^~~~~~~~~~~~
-> 
-> It seems to me that as pdev is a PCIE device then the dev_name
-> call above should always return the device's BDF, e.g. 00:12.0.
-> That this should not contain format escape sequences. And thus
-> the current usage is safe.
-> 
-> But, it seems better to be safe than sorry. And, as a bonus, compiler
-> output becomes less verbose by addressing this issue.
-> 
-> Compile tested only.
-> No functional change intended.
-> 
-> Signed-off-by: Simon Horman <horms@kernel.org>
-> ---
->  drivers/s390/net/ism_drv.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Apr 16, 2025 at 03:57:35PM +0200, Harald Freudenberger wrote:
+> The patch series starts bottom (AP bus) and goes up the call
+> chain (PKEY). At any time in the patch stack it should compile.
+> For easier review I tried to have one logic code change by
+> each patch and thus keep the patches "small". For the upstream
+> version I intend to fold them together into only a few commits.
 
-It might make sense to say that -Wformat-security was explicitly enabled in
-order to trigger this (probably with KCFLAGS=-Wformat-security ?), since this
-warning is by default disabled.
-
-Just mentioning this, since I was wondering why I haven't seen this.
+I guess the statement about folding together into a few commits is not
+true anymore?
