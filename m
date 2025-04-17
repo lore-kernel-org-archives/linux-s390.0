@@ -1,46 +1,44 @@
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7B17F2528EF;
-	Thu, 17 Apr 2025 14:43:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744901022; cv=none; b=jpR3i/Nvsfkec26fGVRrLV0S43qMGbXUvkAIk38lszYpNebdTdTSzbk5aAGk9ECAXqCN78Jx5IeqIsdyiKbCheJ3sX/DbpMmR5p3GPybp6rwjPyjXBJBCrnT6LsCOlpIT3SR9XHRH+70O1jAPRWzbOZZgUFsd96TuGoaptMtd9Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744901022; c=relaxed/simple;
-	bh=dxTlmjDTebXWEac5ztfrfWgKTc2cMxPySJMYSK+qkVw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rY/SPstEigR0hEagggb00Hu954cxZZ8g/Yey/zgZ9GvzBQOWROyxPSk/E53gvH6168D21S0dhcUMOqBUs0PCg1pbclOWMZwX4QGJyKZXSY6x0DWuc/X9Ao8FEGH7fwu4bgmGGMA0MtN9EiKxFMV7hC6hW1SbgWE8BYOBcp3ExRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b=TP2EBB6H; arc=none smtp.client-ip=85.214.250.239
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b="TP2EBB6H"
-Received: from 8bytes.org (p4ffe03ae.dip0.t-ipconnect.de [79.254.3.174])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.8bytes.org (Postfix) with ESMTPSA id 5260648658;
-	Thu, 17 Apr 2025 16:43:39 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-	s=default; t=1744901019;
-	bh=dxTlmjDTebXWEac5ztfrfWgKTc2cMxPySJMYSK+qkVw=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1BF12DFA36;
+	Thu, 17 Apr 2025 16:32:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744907545; cv=none; b=QjMSg5F3fqnPXBr/sCdFyPngPdg/uqbgbQWb3cUzkL7R0gjeSr3IPBxN6KGPonWsQ/fMVBmVGUv4QuJcAwGniFN9iT47fIBkOOQXLFVi8bnYi9GYfSCYvm+4jqghQqKh8wzd2UxZElqZuWe9DuPUfp40ymiYtDHyMhVEPs3CPwA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744907545; c=relaxed/simple;
+	bh=IV/xW+QXt1ASDi8c6AGAf/97Q00BOAQgySjKp6oRkGQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iDT7WcJWq7gFs97Nr2AzypR4Y7KIvPaxl+sbpevk0KkxD7j9w47sQL68wBu3NlO4M7waYJjpqPl+3u8/JWgbblPDzr06c8yaV0rhr5Tiq4kyKLF/GNPluKywIrPZgLS3iGe+FoXU10K0FYFF1OC2uJFvQvzIWoLjLaaEQAGzknE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ttluGruo; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ttluGruo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7CD8C4CEE4;
+	Thu, 17 Apr 2025 16:32:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744907544;
+	bh=IV/xW+QXt1ASDi8c6AGAf/97Q00BOAQgySjKp6oRkGQ=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=TP2EBB6H5l59SwArwldVyKHLQRYTXvJyj65/7XMGJdEcHw+aiytXyCb/NSisFHyPE
-	 hntT0OoHHCtJbGPXnn5bypd5Ja8XxLPXkpnfX+ScO0HNMOKnBlJ6Wm9skXUskQjRAf
-	 4yxrao0PvUXBu583G5R1B7+3x3uRL30TaF/JyPeM7+TyBYyDrezHf++8SElyUw5alL
-	 cqLHWFj4aA8vPvW0PNol8vhVgRcKMxgfTj0dJ/BLKQppPhSWSpYZvhTyiKPA1JE/GC
-	 YBagk98Fj4jW6sj4nBHZ9snL8SLjGBbPdudiiW45LdJnHHG/6Zqvqq2MRnJ9vbpiXH
-	 3tYhI3dGgbFtg==
-Date: Thu, 17 Apr 2025 16:43:38 +0200
-From: Joerg Roedel <joro@8bytes.org>
-To: Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: will@kernel.org, robin.murphy@arm.com, gerald.schaefer@linux.ibm.com,
-	schnelle@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-	agordeev@linux.ibm.com, svens@linux.ibm.com,
-	borntraeger@linux.ibm.com, clg@redhat.com, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v5 0/5] iommu/s390: support additional table regions
-Message-ID: <aAETmiPYrK8_Toqm@8bytes.org>
-References: <20250411202433.181683-1-mjrosato@linux.ibm.com>
+	b=ttluGruoonakRWVv2QadlsnXULVOzog0Vv6+AUNJs7eFI4QI1pV/no4q9xkLONAHa
+	 ND3JGSYH6nxKKbmxpfAk3lZRxnxlKtOzXZZkoplp5mWvGpuC2Hvnh8byO5PQmx1hNB
+	 J6Y/H5VBxTyZTegf4X6qSAylixrad/WfU/iej79TEbLb4+jS16TT1JgnyCM3NBRBJl
+	 H8VmM+L/sGPSbtsZWrNRfaqDOr3siGDYmXV59DFk5upNBZclqmvezjF3RTSLQisHR5
+	 XCt6eaEq5R/CGobkqTZEIrgkFklo0zUaJigiUCOQTG8NcZjLX5p9LhBDfFIbTuRRaV
+	 06/JbYgKkSMYQ==
+Date: Thu, 17 Apr 2025 09:32:21 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+	Ard Biesheuvel <ardb@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	sparclinux@vger.kernel.org, linux-s390@vger.kernel.org,
+	x86@kernel.org
+Subject: Re: [PATCH] lib/crc: make the CPU feature static keys __ro_after_init
+Message-ID: <20250417163221.GA800@quark.localdomain>
+References: <20250413154350.10819-1-ebiggers@kernel.org>
+ <20250417125318.12521F12-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,18 +47,57 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250411202433.181683-1-mjrosato@linux.ibm.com>
+In-Reply-To: <20250417125318.12521F12-hca@linux.ibm.com>
 
-On Fri, Apr 11, 2025 at 04:24:28PM -0400, Matthew Rosato wrote:
-> Matthew Rosato (5):
->   iommu/s390: set appropriate IOTA region type
->   iommu/s390: support cleanup of additional table regions
->   iommu/s390: support iova_to_phys for additional table regions
->   iommu/s390: support map/unmap for additional table regions
->   iommu/s390: allow larger region tables
+On Thu, Apr 17, 2025 at 02:53:18PM +0200, Heiko Carstens wrote:
+> On Sun, Apr 13, 2025 at 08:43:50AM -0700, Eric Biggers wrote:
+> > From: Eric Biggers <ebiggers@google.com>
+> > 
+> > All of the CRC library's CPU feature static_keys are initialized by
+> > initcalls and never change afterwards, so there's no need for them to be
+> > in the regular .data section.  Put them in .data..ro_after_init instead.
+> > 
+> > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > ---
+> > 
+> > I'm planning to take this via the crc tree.
+> > 
+> >  arch/arm/lib/crc-t10dif-glue.c       | 4 ++--
+> >  arch/arm/lib/crc32-glue.c            | 4 ++--
+> >  arch/arm64/lib/crc-t10dif-glue.c     | 4 ++--
+> >  arch/loongarch/lib/crc32-loongarch.c | 2 +-
+> >  arch/mips/lib/crc32-mips.c           | 2 +-
+> >  arch/powerpc/lib/crc-t10dif-glue.c   | 2 +-
+> >  arch/powerpc/lib/crc32-glue.c        | 2 +-
+> >  arch/s390/lib/crc32-glue.c           | 2 +-
 > 
->  arch/s390/include/asm/pci_dma.h |   3 +
->  drivers/iommu/s390-iommu.c      | 345 ++++++++++++++++++++++++++++----
->  2 files changed, 314 insertions(+), 34 deletions(-)
+> 
+> Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
+> 
+> I just realized that we can get rid of the static key in the s390
+> piece and end up with slightly better code. Could you add the patch
+> below to your tree, please? If this would go via the s390 tree this
+> would result in a merge conflict, which is unnecessary.
+> 
+> From 6c4c0ca6fe87e43acf6192f1afc0a6346db994f4 Mon Sep 17 00:00:00 2001
+> From: Heiko Carstens <hca@linux.ibm.com>
+> Date: Thu, 17 Apr 2025 14:30:56 +0200
+> Subject: [PATCH] s390/crc32: Remove have_vxrs static key
+> 
+> Replace the have_vxrs static key with a cpu_has_vx() call.  cpu_has_vx()
+> resolves into a compile time constant (true) if the kernel is compiled for
+> z13 or newer. Otherwise it generates an unconditional one instruction
+> branch, which is patched based on CPU alternatives.
+> 
+> In any case the generated code is at least as good as before and avoids
+> static key handling.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/lib/crc32-glue.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
 
-Applied, thanks.
+Thanks!  Applied to
+https://web.git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git/log/?h=crc-next
+
+- Eric
