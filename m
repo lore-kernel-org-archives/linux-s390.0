@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 113B7226CEE;
-	Thu, 17 Apr 2025 10:15:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FF0A55;
+	Thu, 17 Apr 2025 10:28:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744884911; cv=none; b=CViYP7LG3GOBEV4gQFSZBHku5ygQMSyHSwPIFVH1Hwj4eEwyef0I/4tTXqbG2x+BOHIywVlM996CMPhR7FTSzjm2Sdd0bLcWazTUJfATJGJkRvHNroJmSyEP8DZJQAzwnNN6Y/2qhLGeumwvDYtpYpnukZOf8xmhl+JL/4kq4es=
+	t=1744885708; cv=none; b=YaY9n3u8HZnqStrzLXmLdHpPlD9MLjAyXennm1i5xvWV7IbPmE9bbnZrs7jjbqBC+7iHEqzBNsZKhhhOt2kBsl2zoobvFWgz0XhqeskcEbX6lgnQS2zbjHW470qHT/jIfwScsPTL+xR46FWopLlK0PYt3SVlOwlSpHkHUGGQ19s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744884911; c=relaxed/simple;
-	bh=ROmjIK9stdF7h78XYJoFECATRlnOtUjoflDwHaRaxGM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ndezZPvGrjP+y7vP3iKPuPpv1egdUmYGcay4qQWvO7afoIN3uSWr9ihEfYYWawuHLhSc97RnH4/DUe4xj8d3nbAkBGr7QcqeHsspJk/IvA3Ys06f3D7yk9+8Lxf2qkKsw9KgQWoTWyEGq7Fy/XCXnPZ29qjsgrqg+vOriug9NZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DZqgW4gd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744885708; c=relaxed/simple;
+	bh=PICkPqUm0CX+9/Dl7pPQQlHEsgy3kQ9EPKX+nFgBVTQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=T41gcMLAkPtjcRQ1xGvEUAdCyApDC4X/oUYSuOgMhWhFZnA7M6COidSL0UjJTGVyqWrT4Vl7n7n6AWi1o7DPCoM24GohYO2mqek2mrJsbsXQvHQAlYvXxRM5XMP6GrbwXJKOVbjm/S6hhvnwcj5OyQ9Tzc8RNjcJLUyW+7XU1K8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wn7ag7pe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DZqgW4gd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5096FC4CEED;
-	Thu, 17 Apr 2025 10:15:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wn7ag7pe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78C6C4CEE4;
+	Thu, 17 Apr 2025 10:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744884910;
-	bh=ROmjIK9stdF7h78XYJoFECATRlnOtUjoflDwHaRaxGM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=DZqgW4gd0XObqtM0z9Z9ecMrx6bEsGiBN4ThwsHPDgRx2RoGHW7IdiaeM5m5uTiEE
-	 hfb+OxfIgEmHOawRMc5s/1zDzi1UTinbVb6iX+KJhFhe4Iwl7LFZ2UNWauXAljQBin
-	 u1VBufo7XU83Z9CuoU4uskANp79bbkLh65lP/m3LbszfDvBKQBVv4UTrwpGphH7LMu
-	 849qawDsxIRpVF8Xlsh+W/vsArdyuYkzTbMgMdamOplE/hu+0DMJsuiq07gjEoARTQ
-	 U9TSUhAKgy9sOMA31VxmglgTOdJH+laxBsKI/RxAbjE7glAyb6DnzwavB6jpAxm4Uu
-	 0v6I80cA68C0w==
+	s=k20201202; t=1744885707;
+	bh=PICkPqUm0CX+9/Dl7pPQQlHEsgy3kQ9EPKX+nFgBVTQ=;
+	h=From:Date:Subject:To:Cc:From;
+	b=Wn7ag7pe9Ip88HqglwEIrZL9lWDNUlMT9XRaWFx8nz1sfNAOgUBrR7kyPKoNsfllY
+	 1cRMQaQePBV1JZaUwYYTQgxPV1swHI9Eln3FiI4vwm7zMmcXLp0CIA1Yv9TZlZ5Vd1
+	 qFNpWdmGbmV/CW4AikUzlOC7dhGaX6neThCfCPn8T138lvIYjSXWHxiZzhKHMRc9Fo
+	 nU+SrFVcAOF61qZSPgkuCmkFukcO/Tz7SvMv70SWSsiD6B5mylUTnVUkwIko6AAtYE
+	 WEvQ/q40DyGNY8Nrxekrk9HpAYwRoQh/CETeYkAqlUMrkXp7jJcKX3MQiYXrquQtCp
+	 pyETcG69ukpvw==
 From: Simon Horman <horms@kernel.org>
-Date: Thu, 17 Apr 2025 11:15:02 +0100
-Subject: [PATCH net 2/2] MAINTAINERS: Add s390 networking drivers to
- NETWORKING DRIVERS
+Date: Thu, 17 Apr 2025 11:28:23 +0100
+Subject: [PATCH net-next] s390: ism: Pass string literal as format argument
+ of dev_set_name()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,53 +37,57 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250417-ism-maint-v1-2-b001be8545ce@kernel.org>
-References: <20250417-ism-maint-v1-0-b001be8545ce@kernel.org>
-In-Reply-To: <20250417-ism-maint-v1-0-b001be8545ce@kernel.org>
+Message-Id: <20250417-ism-str-fmt-v1-1-9818b029874d@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAMbXAGgC/x3MTQqAIBBA4avIrBtIKfq5SrQIHWsWWTgSQnj3p
+ OW3eO8FocgkMKsXIj0sfIUK3SiwxxZ2QnbVYFrTt50ekOVESRH9mdDYgbQ202i9g1rckTzn/7Z
+ AoISBcoK1lA9sDpQrZwAAAA==
 To: Alexandra Winter <wintera@linux.ibm.com>, 
+ Thorsten Winkler <twinkler@linux.ibm.com>, 
  Andrew Lunn <andrew+netdev@lunn.ch>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Thorsten Winkler <twinkler@linux.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, netdev@vger.kernel.org, 
+ linux-s390@vger.kernel.org
 X-Mailer: b4 0.14.0
 
-These files are already correctly covered by the S390 NETWORKING DRIVERS
-section. In practice commits for these drivers feed into the Networking
-subsystem. So it seems appropriate to also list them under NETWORKING
-DRIVERS.
+GCC 14.2.0 reports that passing a non-string literal as the
+format argument of dev_set_name() is potentially insecure.
 
-This aids developers, and tooling such as get_maintainer.pl
-alike to CC patches to all the appropriate people and mailing lists.
-And is in keeping with an ongoing effort for NETWORKING entries
-in MAINTAINERS to more accurately reflect the way code is maintained.
+drivers/s390/net/ism_drv.c: In function 'ism_probe':
+drivers/s390/net/ism_drv.c:615:2: warning: format not a string literal and no format arguments [-Wformat-security]
+  615 |  dev_set_name(&ism->dev, dev_name(&pdev->dev));
+      |  ^~~~~~~~~~~~
+
+It seems to me that as pdev is a PCIE device then the dev_name
+call above should always return the device's BDF, e.g. 00:12.0.
+That this should not contain format escape sequences. And thus
+the current usage is safe.
+
+But, it seems better to be safe than sorry. And, as a bonus, compiler
+output becomes less verbose by addressing this issue.
+
+Compile tested only.
+No functional change intended.
 
 Signed-off-by: Simon Horman <horms@kernel.org>
 ---
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/net/ism_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fecaf05fb2e7..9dee0e85d32c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16760,6 +16760,7 @@ F:	Documentation/networking/net_cachelines/net_device.rst
- F:	drivers/connector/
- F:	drivers/net/
- F:	drivers/ptp/
-+F:	drivers/s390/net/
- F:	include/dt-bindings/net/
- F:	include/linux/cn_proc.h
- F:	include/linux/etherdevice.h
-@@ -16769,6 +16770,7 @@ F:	include/linux/fddidevice.h
- F:	include/linux/hippidevice.h
- F:	include/linux/if_*
- F:	include/linux/inetdevice.h
-+F:	include/linux/ism.h
- F:	include/linux/netdev*
- F:	include/linux/platform_data/wiznet.h
- F:	include/uapi/linux/cn_proc.h
-
--- 
-2.47.2
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 60ed70a39d2c..b7f15f303ea2 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -611,7 +611,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	ism->dev.parent = &pdev->dev;
+ 	ism->dev.release = ism_dev_release;
+ 	device_initialize(&ism->dev);
+-	dev_set_name(&ism->dev, dev_name(&pdev->dev));
++	dev_set_name(&ism->dev, "%s", dev_name(&pdev->dev));
+ 	ret = device_add(&ism->dev);
+ 	if (ret)
+ 		goto err_dev;
 
