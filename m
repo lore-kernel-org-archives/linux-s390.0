@@ -1,55 +1,52 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15FF1268C55;
-	Fri, 18 Apr 2025 08:25:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F721D5170;
+	Fri, 18 Apr 2025 11:03:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744964749; cv=none; b=gDuErHtBI1GdifPRE0MwB0sZPNbTFY1lPrG6C+gxA0LMogAuaGrGDZDzKSPdPYVNLY60bUnsVDiHtxd+DhZB29+BZaduOPpDX+HYoEfOFCxe/txEgREnN5ULtbSumFgfOMh9GPkidUBGAfIqnQj0nRguf89F6nDXInXrhWZRUXw=
+	t=1744974196; cv=none; b=i65tgg32Pbbf1Rs9o1TFjOFtdwIeZ9XNfoKJ3/29ZjkpPtv/z8deaGduOXWklJIMBR3oSq5LWqv0FL4da7cGM4Gsjc/lQQ1NvijCnFMNH5BmN8F95yN7A8qGh3FyUe1RfMl23wrTDws9Yujvk3AF3IA7FFFETVoNAAOmJW4d3sk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744964749; c=relaxed/simple;
-	bh=s2IhmVKxZhm64Wc2L/816Yw4hfryYZJNu4rC36wz9FY=;
+	s=arc-20240116; t=1744974196; c=relaxed/simple;
+	bh=PjqyHyK5COfrkquZogeuVG2kH6978BWxx66MKNuvwLQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BAqkYGXjTB/is/n5wNCYUAAJjdduomW6N0yHwgHIEqDlJJwpXgAcwLb+DHF/S1Ses1VjtLaGNbhXYv3PAWL+TCInlCtB/e0N0K6jGREAxgm3B4JnUYqEW2kHyZT+L4fyhnYcE/eCx0ndUvcNZPlA30r+yP7wqesal51qKO8LoCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=kpcJ1aZe; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	 Content-Type:Content-Disposition:In-Reply-To; b=pBT2F0KY5/PDK9aLtdQ4zqSrTz6oRkmikOHtPAx+9haLt/yfQA5VGqJ/4xQi6xDPtxIPHVxAypP5+teFoGUgE7PF3+kkthz0quk4dpQRljmNVi9jPl164PP/rfs9BM5G13VB8BQD7qE/N6Eqi/hsNqbpb7CzkuwNxGCDlx1kCsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=VehwYp+Z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="kpcJ1aZe"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=hlkg+5jDRBY5wNNnTe1hqoMZ0WqQC2CXlXJOinsVxyU=; b=kpcJ1aZefOCOmEslLOYgO5//QM
-	Ln6pMr5koiDKWOj7at3DmuXW/+yNTQNemE32nJCw0tUBk2lSSos3j+agdtU8LJ1QmGrITb33TVv2P
-	ax7x7ihD9o/9/iRWIG6o5huDo+sjBvBM8N/+4rmITe3RGNDZD3kJRIZDt9wM6vSrDQAsM8CtmlaSX
-	oieCkebA9MArb2/oiKMgpHGYdSRIx5EULaGWGCnkwKjcIqfjRnqi6KVnMh+uDMtW/pKGRh9+DYB8j
-	6L7OlrJk5uGTHv5eg8RoWUkRMy9N+wd4fu7ENI0N1H5rEEfkOX/zcPw1G7vGUetKFspJKMJxaHYWr
-	x44+Tchg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1u5h2a-00GhP1-29;
-	Fri, 18 Apr 2025 16:25:41 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 18 Apr 2025 16:25:40 +0800
-Date: Fri, 18 Apr 2025 16:25:40 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-crypto@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-	x86@kernel.org, Jason@zx2c4.com, ardb@kernel.org
-Subject: Re: [PATCH 01/15] crypto: arm - remove CRYPTO dependency of library
- functions
-Message-ID: <aAIMhLD3UMM41JkT@gondor.apana.org.au>
-References: <20250417182623.67808-2-ebiggers@kernel.org>
- <aAHDIRlSNLsYYZmW@gondor.apana.org.au>
- <20250418033236.GB38960@quark.localdomain>
- <aAHJRszwcQ4UyQ2e@gondor.apana.org.au>
- <20250418040931.GD38960@quark.localdomain>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="VehwYp+Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30A8BC4CEE2;
+	Fri, 18 Apr 2025 11:03:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1744974195;
+	bh=PjqyHyK5COfrkquZogeuVG2kH6978BWxx66MKNuvwLQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=VehwYp+Zw0bjkfYwTbzP0I7WZY54cQyqybNTZp0YpLjLtFQ+m2fjW7QBdpilF/fiX
+	 bM3axOGj4v9YzwXVzb3xM+Qr/Lf0Rqukc52i2RCb2LsgaLuhtGMBlqOa1bUOCuNjPD
+	 GfqPkYxqioc/rNtKFlGXZO7SinXX7joS1LDKIu0Q=
+Date: Fri, 18 Apr 2025 13:03:13 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev,
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+	jonathanh@nvidia.com, f.fainelli@gmail.com,
+	sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+	conor@kernel.org, hargar@microsoft.com, broonie@kernel.org,
+	PCI <linux-pci@vger.kernel.org>, linux-s390@vger.kernel.org,
+	Tudor Ambarus <tudor.ambarus@linaro.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH 6.14 000/449] 6.14.3-rc1 review
+Message-ID: <2025041852-unlined-rug-e71e@gregkh>
+References: <20250417175117.964400335@linuxfoundation.org>
+ <CA+G9fYvz0kujF4NjLwwTMcejDF-7k7_nhmroZNUJTBg4H4Kz8Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,18 +55,81 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250418040931.GD38960@quark.localdomain>
+In-Reply-To: <CA+G9fYvz0kujF4NjLwwTMcejDF-7k7_nhmroZNUJTBg4H4Kz8Q@mail.gmail.com>
 
-On Thu, Apr 17, 2025 at 09:09:31PM -0700, Eric Biggers wrote:
->
-> arch/$ARCH/lib/crypto/ is the "right" way to do it, mirroring lib/crypto/.  I
-> was just hoping to avoid a 4-deep directory.  But we can do it.
+On Fri, Apr 18, 2025 at 12:00:33PM +0530, Naresh Kamboju wrote:
+> On Thu, 17 Apr 2025 at 23:23, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 6.14.3 release.
+> > There are 449 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 19 Apr 2025 17:49:48 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.14.3-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.14.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Regressions on arm64 and s390 allmodconfig and allyesconfig builds failed
+> on the stable rc 6.14.3-rc1 with gcc-13 and clang-20.
+> 
+> There are two different types of build errors on arm64 and s390.
+> These regressions on arm64 are also found on stable-rc 6.13 and 6.12.
+> 
+> First seen on the 6.14.3-rc1
+>  Good: v6.14.2
+>  Bad:  v6.14.2-450-g0e7f2bba84c1
+> 
+> Regressions found on arm64 s390:
+>   - build/gcc-13-allmodconfig
+>   - build/gcc-13-allyesconfig
+>   - build/clang-20-allmodconfig
+>   - build/clang-20-allyesconfig
+> 
+> Regression Analysis:
+>  - New regression? Yes
+>  - Reproducibility? Yes
+> 
+> Build regression: arm64 s390 ufs-qcom.c implicit declaration
+> 'devm_of_qcom_ice_get'
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> ## Build log arm64
+> drivers/ufs/host/ufs-qcom.c: In function 'ufs_qcom_ice_init':
+> drivers/ufs/host/ufs-qcom.c:128:15: error: implicit declaration of
+> function 'devm_of_qcom_ice_get'; did you mean 'of_qcom_ice_get'?
+> [-Werror=implicit-function-declaration]
+>   128 |         ice = devm_of_qcom_ice_get(dev);
+>       |               ^~~~~~~~~~~~~~~~~~~~
+>       |               of_qcom_ice_get
+> drivers/ufs/host/ufs-qcom.c:128:13: error: assignment to 'struct
+> qcom_ice *' from 'int' makes pointer from integer without a cast
+> [-Werror=int-conversion]
+>   128 |         ice = devm_of_qcom_ice_get(dev);
+>       |             ^
+> cc1: all warnings being treated as errors
 
-You can do that in a follow-up, assuming nothing else pops for this
-series.
+Offending commit now dropped from everywhere, I'll push out new -rcs
+soon.
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> 
+> ## Build log s390
+> arch/s390/pci/pci_fixup.c: In function 'zpci_ism_bar_no_mmap':
+> arch/s390/pci/pci_fixup.c:19:13: error: 'struct pci_dev' has no member
+> named 'non_mappable_bars'
+>    19 |         pdev->non_mappable_bars = 1;
+>       |             ^~
+
+Will go drop the offending commit now too, thanks!
+
+greg k-h
