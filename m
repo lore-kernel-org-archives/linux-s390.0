@@ -1,205 +1,75 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE771226D08
-	for <linux-s390@vger.kernel.org>; Fri, 18 Apr 2025 17:50:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A2E5CB8;
+	Sat, 19 Apr 2025 02:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744998632; cv=none; b=miwxFw5SPDoGLPvQPwh1NqI7kKs/QRBkzIMbiLR3JMKOK/LPNrviGI+5+3qFXLG9+EiNMvF2QVYF2PYQo+FsgIqwGgpqCCa1x4VbTAc7/tpvzyI2gABDv/9G5i4C9Jvn3+OljCbwjaYOM6aBAZvHITa8rV170scCzls7Wj4BRO0=
+	t=1745030466; cv=none; b=V8SSRkrIFrOCw7E0jmJc0cd9RVGGjzj7Icw5pEm3AB16B+N4ASncYWY0spz+wpiT7eUEEN24b8o+WNVqIRMnz1nqwCsSLXwL/5Rgnp+Jm3sMJKvsJTW7wGxEHEuPf/bR9Q5CdcPat3b2quGfP9WuLDC6QtC/xS7u/i6Ssb31/1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744998632; c=relaxed/simple;
-	bh=AzeVQAOnRtcbGIrt74vKKg1t+G+1IlWiUF0f/IMwOvY=;
-	h=Date:Subject:In-Reply-To:CC:From:To:Message-ID; b=b2+urHPWlIZiSTkUbMYqMjSqLAazggMyrDOCSRV5wh9CS0/rqLzRowLxhCP5YgLLKyCAm5bfVUE+Cg153BH9noWyjhAXaY3MO3V4SKg38RFgxhZ+sBK9zV8FYuhgApnw3svsa3vdv2Pa3HwM/pvZ4jqV2KGgEXd1UG7K56skmOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com; spf=pass smtp.mailfrom=dabbelt.com; dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b=rNiJphm8; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dabbelt.com
+	s=arc-20240116; t=1745030466; c=relaxed/simple;
+	bh=zJ1i0szTujFfqZn7VlvO1q7cBVSlvqSyecXXOuogdHk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=s9wakLmMMijnCydMuQKD7MjIfhyZ2AdQ8XOYRv9AUvxf//h9K6caETYHA1MKpbfUzFlNH/ehMvxudd/rod4vaK2j++rA1tYhuZ73tzebft3PS0jClgqBFL+nc5cmI7XJB7hUocJPGZEvbsiPGUjniCOOslQooWwgltSc9bBqRH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=rmQd0n5F; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="rNiJphm8"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-223fb0f619dso25287385ad.1
-        for <linux-s390@vger.kernel.org>; Fri, 18 Apr 2025 10:50:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1744998628; x=1745603428; darn=vger.kernel.org;
-        h=message-id:to:from:cc:in-reply-to:subject:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=xitBrw85Cpa/PH99l1OqltSYYTa4EEM01UtrGh+UZZU=;
-        b=rNiJphm8duOFgq6fY8LWfc4D1iONPxu1H7i0MNHYxtwgxPNdD3kJcvIi6To+ZsBfKQ
-         K39iwYzygNtLkY+mRH5CTJeRHWm85WrOxQXHk/PtkJW53j2/F7Yl6L+7RQ8GMNiIqXie
-         nF9gkCu/IPPH2xyeSMC/QEGOpizuxFfwzDWQpLMQZL2Pzj2Tyl4n6bq5VkxrLUW2tgiT
-         vpzP5YT+CAqsQVZ1ZW2cxlF+ii69k8o8RztIXXFNYlYERdCoVtGeGNn5y0tVoAiknCxb
-         shJ7BEaPcCc64rTSkc2dTI1BLvrxrNmTfXguc+Hb2vTBN6jDl/K1hdRoNq2ndjHwwqzB
-         +sNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744998628; x=1745603428;
-        h=message-id:to:from:cc:in-reply-to:subject:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xitBrw85Cpa/PH99l1OqltSYYTa4EEM01UtrGh+UZZU=;
-        b=FJF5BhqTii7WPgNp/dY8nIPGFrhsMyxLa9vazhrtc4wCqIA14bubcYA43qaHNKUaw4
-         aLBM8+LE6w/yLTAjf+Pt2JdNiuIshxBRPJZnqHRKeD8lbfLN1+FynJC7gvA9eTOTxT9d
-         EZU5CYUwjKJ0AmK8TKHe84LR1uuJXCedptAFFbmcKdDzeDLomi1f/6+9kMrvEl+n93K/
-         +4L6dW8PdX90IZAZXBoQYhBgfGcMOxM3CdWW48SqZkPR0hsFjtyCmCtJd68D6Toywo+u
-         d/vq/q95bFsniWiJvTaBVdmMdjyrxMFOJv6asDpxottQW6unEGYex4fqP61zZFdhqteN
-         AMSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUrBMzWBGzJRekD+N6fTmERZaCl9FGwJiWCgmYxMYIS+YCk2lBV3MpWyrQ4zSq3W1Pu06RM5H0NCdkZ@vger.kernel.org
-X-Gm-Message-State: AOJu0YyC30nyzUq5ESTTKagCg2NtR7E1SL8C6FkntdeCaE07w0GEn/Vm
-	FZq9b1LcGLH51x1riveJoDiAQfmF3/m75aSp+1Izn/2Wm+VRwLnD3XpWiQk/3yk=
-X-Gm-Gg: ASbGncsFaDOI5PWsLFh5vAEki4+VsZ02p9wmbm4EFHr/QBCLqOp/ekMNtyB2Xm3JMJt
-	AGnjsnJKvX0GSMXlsnTOJgWA30QzR27Xb1ivMEeO3ED7vb8rIOggh5pCNoos6XX8BC02rdqgkS3
-	fAmq4Th6wfLnrP2dDFCWqFtHRkJ1LqUBcQuQK6u9TV23J1UmgZhckX/5X2FckxOlXzFJczRuYLa
-	XtpfPGpJnpMosaiUVG0X5cxz2JdvSWKE+9XsBCsxciBohERUbEC9sp/BRt9wm9KKGCNQczn9ahF
-	6dfeHGNqzH8BLwVmgah2v1TzukOigtDepQ==
-X-Google-Smtp-Source: AGHT+IHTtFpIUh9V1D/hgIg7h0JnpsXp9Bovo24GVumcqsEBZfrWrJPuzOPDear/0hml7HCNfS1GQA==
-X-Received: by 2002:a17:903:98f:b0:221:7eae:163b with SMTP id d9443c01a7336-22c53627298mr52330365ad.46.1744998628042;
-        Fri, 18 Apr 2025 10:50:28 -0700 (PDT)
-Received: from localhost ([50.145.13.30])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22c50fde845sm19513745ad.236.2025.04.18.10.50.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Apr 2025 10:50:27 -0700 (PDT)
-Date: Fri, 18 Apr 2025 10:50:27 -0700 (PDT)
-X-Google-Original-Date: Fri, 18 Apr 2025 10:50:25 PDT (-0700)
-Subject:     Re: [PATCH 08/15] crypto: riscv - remove CRYPTO dependency of library functions
-In-Reply-To: <20250417182623.67808-9-ebiggers@kernel.org>
-CC: linux-crypto@vger.kernel.org, linux-arch@vger.kernel.org,
-  linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-  linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-  linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, Jason@zx2c4.com,
-  Ard Biesheuvel <ardb@kernel.org>
-From: Palmer Dabbelt <palmer@dabbelt.com>
-To: ebiggers@kernel.org
-Message-ID: <mhng-78030c23-f066-4b83-8d7b-c1720725199d@palmer-ri-x1c9a>
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="rmQd0n5F"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=N71ulJFC7EzRy4IJC7JSkf+9aBSGBV5BXmKIuPUJx7U=; b=rmQd0n5Ffd7wgXc5CRfMsYvfej
+	vy0M0uiUROHxK3PxU1ELCUZ55bqRS7IKOzdkIx2x/h3kf6i7ueq2uF2iXk+esRyER676Vn8nn6HPl
+	/EUIRrt1qKRpgU7dPHA+0/rAdhZq8SqQqgwdPs18fXqmj5Vc6DfqBTMqCH2VeKeOqjtpsk1uVQdTB
+	7C97E7AWZ+VRMuouNeTm66I/v/5mhb++Kjp8acKAz23ZX1T1sTBZddTZjuWyEHiOyEpxbSEZiqzYd
+	8FLG2KSwbrYBgiH88lXTv2vFiWUXkF2HqN7hW+YAXzbLMgU3rYK+eiYH+SBvpg8M1ru6r24TM8ix6
+	GC1QefCQ==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1u5y8W-00Gtuw-1E;
+	Sat, 19 Apr 2025 10:40:57 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 19 Apr 2025 10:40:56 +0800
+Date: Sat, 19 Apr 2025 10:40:56 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-crypto@vger.kernel.org, linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+	x86@kernel.org, Jason@zx2c4.com, ardb@kernel.org
+Subject: Re: [PATCH 01/15] crypto: arm - remove CRYPTO dependency of library
+ functions
+Message-ID: <aAMNOJa-xcxLrmgX@gondor.apana.org.au>
+References: <20250417182623.67808-2-ebiggers@kernel.org>
+ <aAHDIRlSNLsYYZmW@gondor.apana.org.au>
+ <20250418033236.GB38960@quark.localdomain>
+ <aAHJRszwcQ4UyQ2e@gondor.apana.org.au>
+ <20250418040931.GD38960@quark.localdomain>
+ <aAIMhLD3UMM41JkT@gondor.apana.org.au>
+ <20250418150149.GB1890@quark.localdomain>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250418150149.GB1890@quark.localdomain>
 
-On Thu, 17 Apr 2025 11:26:16 PDT (-0700), ebiggers@kernel.org wrote:
-> From: Eric Biggers <ebiggers@google.com>
+On Fri, Apr 18, 2025 at 08:01:49AM -0700, Eric Biggers wrote:
 >
-> Continue disentangling the crypto library functions from the generic
-> crypto infrastructure by removing the unnecessary CRYPTO dependency of
-> CRYPTO_CHACHA_RISCV64.  To do this, make arch/riscv/crypto/Kconfig be
-> sourced regardless of CRYPTO, and explicitly list the CRYPTO dependency
-> in the symbols that do need it.
->
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
->  arch/riscv/Kconfig        |  2 ++
->  arch/riscv/crypto/Kconfig | 12 ++++++------
->  crypto/Kconfig            |  3 ---
->  3 files changed, 8 insertions(+), 9 deletions(-)
->
-> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> index bbec87b79309..baa7b8d98ed8 100644
-> --- a/arch/riscv/Kconfig
-> +++ b/arch/riscv/Kconfig
-> @@ -1349,8 +1349,10 @@ source "drivers/cpuidle/Kconfig"
->
->  source "drivers/cpufreq/Kconfig"
->
->  endmenu # "CPU Power Management"
->
-> +source "arch/riscv/crypto/Kconfig"
-> +
->  source "arch/riscv/kvm/Kconfig"
->
->  source "drivers/acpi/Kconfig"
-> diff --git a/arch/riscv/crypto/Kconfig b/arch/riscv/crypto/Kconfig
-> index 27a1f26d41bd..08547694937c 100644
-> --- a/arch/riscv/crypto/Kconfig
-> +++ b/arch/riscv/crypto/Kconfig
-> @@ -2,11 +2,11 @@
->
->  menu "Accelerated Cryptographic Algorithms for CPU (riscv)"
->
->  config CRYPTO_AES_RISCV64
->  	tristate "Ciphers: AES, modes: ECB, CBC, CTS, CTR, XTS"
-> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
-> +	depends on CRYPTO && 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
->  	select CRYPTO_ALGAPI
->  	select CRYPTO_LIB_AES
->  	select CRYPTO_SKCIPHER
->  	help
->  	  Block cipher: AES cipher algorithms
-> @@ -25,43 +25,43 @@ config CRYPTO_CHACHA_RISCV64
->  	select CRYPTO_LIB_CHACHA_GENERIC
->  	default CRYPTO_LIB_CHACHA_INTERNAL
->
->  config CRYPTO_GHASH_RISCV64
->  	tristate "Hash functions: GHASH"
-> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
-> +	depends on CRYPTO && 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
->  	select CRYPTO_GCM
->  	help
->  	  GCM GHASH function (NIST SP 800-38D)
->
->  	  Architecture: riscv64 using:
->  	  - Zvkg vector crypto extension
->
->  config CRYPTO_SHA256_RISCV64
->  	tristate "Hash functions: SHA-224 and SHA-256"
-> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
-> +	depends on CRYPTO && 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
->  	select CRYPTO_SHA256
->  	help
->  	  SHA-224 and SHA-256 secure hash algorithm (FIPS 180)
->
->  	  Architecture: riscv64 using:
->  	  - Zvknha or Zvknhb vector crypto extensions
->  	  - Zvkb vector crypto extension
->
->  config CRYPTO_SHA512_RISCV64
->  	tristate "Hash functions: SHA-384 and SHA-512"
-> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
-> +	depends on CRYPTO && 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
->  	select CRYPTO_SHA512
->  	help
->  	  SHA-384 and SHA-512 secure hash algorithm (FIPS 180)
->
->  	  Architecture: riscv64 using:
->  	  - Zvknhb vector crypto extension
->  	  - Zvkb vector crypto extension
->
->  config CRYPTO_SM3_RISCV64
->  	tristate "Hash functions: SM3 (ShangMi 3)"
-> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
-> +	depends on CRYPTO && 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
->  	select CRYPTO_HASH
->  	select CRYPTO_LIB_SM3
->  	help
->  	  SM3 (ShangMi 3) secure hash function (OSCCA GM/T 0004-2012)
->
-> @@ -69,11 +69,11 @@ config CRYPTO_SM3_RISCV64
->  	  - Zvksh vector crypto extension
->  	  - Zvkb vector crypto extension
->
->  config CRYPTO_SM4_RISCV64
->  	tristate "Ciphers: SM4 (ShangMi 4)"
-> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
-> +	depends on CRYPTO && 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
->  	select CRYPTO_ALGAPI
->  	select CRYPTO_SM4
->  	help
->  	  SM4 block cipher algorithm (OSCCA GB/T 32907-2016,
->  	  ISO/IEC 18033-3:2010/Amd 1:2021)
-> diff --git a/crypto/Kconfig b/crypto/Kconfig
-> index 2467dba73372..8c334c9f2081 100644
-> --- a/crypto/Kconfig
-> +++ b/crypto/Kconfig
-> @@ -1424,13 +1424,10 @@ endmenu
->
->  config CRYPTO_HASH_INFO
->  	bool
->
->  if !KMSAN # avoid false positives from assembly
-> -if RISCV
-> -source "arch/riscv/crypto/Kconfig"
-> -endif
->  if S390
->  source "arch/s390/crypto/Kconfig"
->  endif
->  if SPARC
->  source "arch/sparc/crypto/Kconfig"
+> Doing it as a follow-up when this series hasn't been merged yet would be kind of
+> silly, since it would undo a lot of this series.  I'll just send out a v2 of
+> this series.
 
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-
-I'm assuming you want to take this with the rest, thanks!
+OK that's fine too of course.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
