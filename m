@@ -1,198 +1,171 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42182296178;
-	Tue, 22 Apr 2025 15:28:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 988F82701A6
+	for <linux-s390@vger.kernel.org>; Wed, 23 Apr 2025 09:21:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745335701; cv=none; b=fnkkKGn6iH10JEsZjVyngg4864rvweByltrPnchsj022Av0XLqph54MPH/XKkrwRRX0JG+kZFKTifkOiO6KLhLEmgZMzK3fk5htpMfquQlAwbCiDO9tTkT6bYHTEsfmSbOe9KUvriGm9KlGFwGZ895C3HBZgwJPxf7yxchl+jYo=
+	t=1745400087; cv=none; b=QBmEhvBXK23ID1ZqQvHbU1S8/necD4h6YTei/qr5Yhm92ONpSGDvl7ouRYQ4mE6S+z6dFnBWWwJowZmW3T4WgN3l6kOW+zstl2tMOPfU64ExuFzzK0GicwWChaq8sY3araTba5kR4KrCLdOswVudlW69/3esSU/ex5TY5+z+u6M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745335701; c=relaxed/simple;
-	bh=ZcB01eEG0PyKlIVeDwX/bqMc2RbGUn9yHA+iRHbv2w8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HaSZAP57cE2kuTWcLldId4SPfjh9Zt8ddp/r+Rot7wFPE4IGct5r40cpPqpaDOuwDY5qkTKIipTXA0CBNI1F3E9yxYQSvpbv68pmzefJK0peoXwNfSa1W8aGOX3LmyZWA1rcbiVZ+SoHeFPlyCb6q9+ywLo2vQFIUKGr9MKL5IQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=flnVTBjr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745400087; c=relaxed/simple;
+	bh=HejitWKgwWIj/qqSTMu42AhsR1l+NYL/+QNAP/2iURQ=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=Duh3e+waKuyJHs+6tTPExhq9fz07LZ4apG7TYXHsU9Ap4ZataM8Y36MKXLzLTJzlOhfF7/TMjlHyP+dBqnOn4nuE6TOHTtd8iQcs6qf6oosQck4G94YrkAuFBQKfREV+dsI6w9gzyL9prDaC82LaRFJtRF8D7RuA55Tt2fYv5jI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WCcQSNit; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="flnVTBjr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E94AC4AF09;
-	Tue, 22 Apr 2025 15:28:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745335700;
-	bh=ZcB01eEG0PyKlIVeDwX/bqMc2RbGUn9yHA+iRHbv2w8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=flnVTBjrcSMGzaCSWAF3ye5NXVmpU/6srA7TV+v4bkaqFY2GYm1FaDCcYPH7hh8Um
-	 XOIMTiGX3wi1BxxUC+c8+YmYtI6H5wQwbfPtQ5z2d4dmVdVPn/MKv8ne5oWoWd4gQU
-	 uSobcfZD1j7EFl/LlBhh0gx2CmGiYh/+zFmssMJuB1uoahPQP7aVDXtiZLak68wFdh
-	 JJSl145uTsHT5mYqm8OVfUHIZ21q9UAQpINtNNXrcCiYAFOWl6j6kFTiHue6WK4wa2
-	 aProW4NNfjxsq6wAtS69b9mBF3mo2oVeqU8K7o5PqEU+5ShZrm9LNhZnL3/bUZ6jGc
-	 6UajEdWW1lTBQ==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	x86@kernel.org,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>,
-	Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH v3 13/13] crypto: lib/poly1305 - remove INTERNAL symbol and selection of CRYPTO
-Date: Tue, 22 Apr 2025 08:27:16 -0700
-Message-ID: <20250422152716.5923-14-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250422152716.5923-1-ebiggers@kernel.org>
-References: <20250422152716.5923-1-ebiggers@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WCcQSNit"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53N6fiZY002092;
+	Wed, 23 Apr 2025 09:21:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=9uA9cMWHJsttGFaMx4/dLzlxebhiDWO/OepWMoMDUac=; b=WCcQSNitSQjD
+	JpTPBxM0eiSXyUdeUI9Iaf+EaAX0RkXFzgl5XwjFYAeMgaSHMJ8fteM4bJuTg6+X
+	9zM43y9bj/4Dv4SoW5tXgf7GaSnvvT9eaOTv4vxC49MGPIQjhM1pDdNPpJaAozfk
+	d7iuSMCk8ZX2YoiyB6Kewaps3zgTptMH1kEvsPGUa2sfxuGFdK75g6znUWnk/V2D
+	AA3icij/8LrwX1+L5ySrBKBa8yneIPafN6tyiDN8qjbnI3eBNrxVqkqi4vBu9iEg
+	aUfxCzelBHR7z5cxPdAPUxOP/E6eswwuN29yTuFcOp+AxRyyISBZIbAvyP+smOwz
+	iLimEE8/0w==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 466jpt2g7g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Apr 2025 09:21:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53N6YFiO028443;
+	Wed, 23 Apr 2025 09:21:21 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 466jfvjbbs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Apr 2025 09:21:21 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53N9LIbg25756160
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 23 Apr 2025 09:21:18 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6FBA75805E;
+	Wed, 23 Apr 2025 09:21:20 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 96EE85805B;
+	Wed, 23 Apr 2025 09:21:19 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 23 Apr 2025 09:21:19 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Wed, 23 Apr 2025 11:21:19 +0200
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Holger Dengler <dengler@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, herbert@gondor.apana.org.au,
+        ifranzki@linux.ibm.com, fcallies@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, seiden@linux.ibm.com
+Subject: Re: [PATCH v6 04/25] s390/zcrypt: Avoid alloc and copy of ep11
+ targets if kernelspace cprb
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <ad59b9e8-4d53-43b0-a9de-4af6ed4b9f99@linux.ibm.com>
+References: <20250416135801.133909-1-freude@linux.ibm.com>
+ <20250416135801.133909-5-freude@linux.ibm.com>
+ <ad59b9e8-4d53-43b0-a9de-4af6ed4b9f99@linux.ibm.com>
+Message-ID: <af1862b803a58a6d78595725e4eb3740@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FhXA5nlILHooIIQNzer0Ii4MHI3Vui62
+X-Proofpoint-ORIG-GUID: FhXA5nlILHooIIQNzer0Ii4MHI3Vui62
+X-Authority-Analysis: v=2.4 cv=a/Qw9VSF c=1 sm=1 tr=0 ts=6808b112 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=VnNF1IyMAAAA:8 a=sSBaeIrVoWQDrLzOg8sA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDIzMDA2MSBTYWx0ZWRfXw9WmbHBM7T72 0PKht76/V3d8qHgsB4seEncDMIBrwNYblYN4YslzChdFm6SsYWUDTKdfttXry8z3MbWuHqKXjoZ vqwv128SsJQt712O6ND31bwMHOW4FBPaf5+tyhSNX24mwy4Z7v5KlajgFgaFkd++EXeJgdE6oN1
+ 5beGH016eQVStuaR654cby2SNNCUyHZLuBOGJXzUnk7J+2WxaOiW6j7y4qJltc8bIJXATsUUGT+ GkiHgOf+Y4DtWDox/+q3S/BbsHqgg5eA/YUPDHtEh0JT3RsgpqNs46zzM9UmMZe0PLvbH3jvOcH QK22voSediYoRNhkphRNcyxYJuvZbtD2VWV54dxLAf/uHg0Rz6LNIipVA63VjEnjdNNxV69+Qn7
+ 3XFJGafBWuSp9VoA/2QIR0bgFv49RgZaCIuv7jvLcrse3iOfDJhR2nHmH+bIpEXntMiUNPJF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-23_06,2025-04-22_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 mlxscore=0 phishscore=0 malwarescore=0 mlxlogscore=797
+ impostorscore=0 spamscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2504230061
 
-From: Eric Biggers <ebiggers@google.com>
+On 2025-04-18 09:57, Holger Dengler wrote:
+> On 16/04/2025 15:57, Harald Freudenberger wrote:
+>> If there is a target list of APQNs given when an CPRB is
+>> to be send via zcrypt_send_ep11_cprb() there is always a
+>> kmalloc() done and the targets are copied via z_copy_from_user.
+>> 
+>> As there are callers from kernel space (zcrypt_ep11misc.c)
+>> which signal this via the userspace parameter improve this
+>> code to directly use the given target list in case of
+>> kernelspace thus removing the unnecessary memory alloc
+>> and mem copy.
+>> 
+>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> 
+> With the change below
+> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+> 
+>> ---
+>>  drivers/s390/crypto/zcrypt_api.c | 41 
+>> ++++++++++++++++----------------
+>>  1 file changed, 20 insertions(+), 21 deletions(-)
+>> 
+>> diff --git a/drivers/s390/crypto/zcrypt_api.c 
+>> b/drivers/s390/crypto/zcrypt_api.c
+>> index ad09c5306e28..f96f596e578f 100644
+>> --- a/drivers/s390/crypto/zcrypt_api.c
+>> +++ b/drivers/s390/crypto/zcrypt_api.c
+> [...]
+>> @@ -1052,29 +1052,28 @@ static long _zcrypt_send_ep11_cprb(bool 
+>> userspace, struct ap_perms *perms,
+>>  	target_num = (unsigned short)xcrb->targets_num;
+>> 
+>>  	/* empty list indicates autoselect (all available targets) */
+>> -	targets = NULL;
+>> +	rc = -ENOMEM;
+>>  	if (target_num != 0) {
+>>  		struct ep11_target_dev __user *uptr;
+>> 
+>> -		targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+>> -		if (!targets) {
+>> -			func_code = 0;
+>> -			rc = -ENOMEM;
+>> -			goto out;
+>> -		}
+>> -
+>> -		uptr = (struct ep11_target_dev __force __user *)xcrb->targets;
+>> -		if (z_copy_from_user(userspace, targets, uptr,
+>> -				     target_num * sizeof(*targets))) {
+>> -			func_code = 0;
+>> -			rc = -EFAULT;
+>> -			goto out_free;
+>> +		if (userspace) {
+>> +			targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+>> +			if (!targets)
+>> +				goto out;
+>> +			uptr = (struct ep11_target_dev __force __user *)xcrb->targets;
+> 
+> I mentioned this earlier already, the cast is not required here,
+> because xcrb->targets is always a user pointer in this if clause.
+> 
+>> +			if (copy_from_user(targets, uptr,
+>> +					   target_num * sizeof(*targets))) {
+> 
+> You can use xcrb->targets directly without any cast (and also drop 
+> uptr).
+> 
+> if (copy_from_user(targets, xcrb->targets,
+>     target_num * sizeof(*targets))) {
+> 
+> [...]
 
-Now that the architecture-optimized Poly1305 kconfig symbols are defined
-regardless of CRYPTO, there is no need for CRYPTO_LIB_POLY1305 to select
-CRYPTO.  So, remove that.  This makes the indirection through the
-CRYPTO_LIB_POLY1305_INTERNAL symbol unnecessary, so get rid of that and
-just use CRYPTO_LIB_POLY1305 directly.  Finally, make the fallback to
-the generic implementation use a default value instead of a select; this
-makes it consistent with how the arch-optimized code gets enabled and
-also with how CRYPTO_LIB_BLAKE2S_GENERIC gets enabled.
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- arch/arm/lib/crypto/Kconfig     |  2 +-
- arch/arm64/lib/crypto/Kconfig   |  2 +-
- arch/mips/lib/crypto/Kconfig    |  2 +-
- arch/powerpc/lib/crypto/Kconfig |  2 +-
- arch/x86/lib/crypto/Kconfig     |  2 +-
- crypto/Kconfig                  |  2 +-
- lib/crypto/Kconfig              | 16 +++++-----------
- 7 files changed, 11 insertions(+), 17 deletions(-)
-
-diff --git a/arch/arm/lib/crypto/Kconfig b/arch/arm/lib/crypto/Kconfig
-index 5d10bd13fc8df..e8444fd0aae30 100644
---- a/arch/arm/lib/crypto/Kconfig
-+++ b/arch/arm/lib/crypto/Kconfig
-@@ -18,7 +18,7 @@ config CRYPTO_CHACHA20_NEON
- 	default CRYPTO_LIB_CHACHA
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_POLY1305_ARM
- 	tristate
--	default CRYPTO_LIB_POLY1305_INTERNAL
-+	default CRYPTO_LIB_POLY1305
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-diff --git a/arch/arm64/lib/crypto/Kconfig b/arch/arm64/lib/crypto/Kconfig
-index 2a8ff7cfc08d3..0b903ef524d85 100644
---- a/arch/arm64/lib/crypto/Kconfig
-+++ b/arch/arm64/lib/crypto/Kconfig
-@@ -8,7 +8,7 @@ config CRYPTO_CHACHA20_NEON
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_POLY1305_NEON
- 	tristate
- 	depends on KERNEL_MODE_NEON
--	default CRYPTO_LIB_POLY1305_INTERNAL
-+	default CRYPTO_LIB_POLY1305
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-diff --git a/arch/mips/lib/crypto/Kconfig b/arch/mips/lib/crypto/Kconfig
-index 454354e30d76c..0670a170c1be0 100644
---- a/arch/mips/lib/crypto/Kconfig
-+++ b/arch/mips/lib/crypto/Kconfig
-@@ -6,7 +6,7 @@ config CRYPTO_CHACHA_MIPS
- 	default CRYPTO_LIB_CHACHA
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_POLY1305_MIPS
- 	tristate
--	default CRYPTO_LIB_POLY1305_INTERNAL
-+	default CRYPTO_LIB_POLY1305
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-diff --git a/arch/powerpc/lib/crypto/Kconfig b/arch/powerpc/lib/crypto/Kconfig
-index 6627d28cd24e0..bf6d0ab22c27d 100644
---- a/arch/powerpc/lib/crypto/Kconfig
-+++ b/arch/powerpc/lib/crypto/Kconfig
-@@ -8,8 +8,8 @@ config CRYPTO_CHACHA20_P10
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_POLY1305_P10
- 	tristate
- 	depends on PPC64 && CPU_LITTLE_ENDIAN && VSX
--	default CRYPTO_LIB_POLY1305_INTERNAL
-+	default CRYPTO_LIB_POLY1305
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
- 	select CRYPTO_LIB_POLY1305_GENERIC
-diff --git a/arch/x86/lib/crypto/Kconfig b/arch/x86/lib/crypto/Kconfig
-index e44403d9677f5..546fe2afe0b51 100644
---- a/arch/x86/lib/crypto/Kconfig
-+++ b/arch/x86/lib/crypto/Kconfig
-@@ -20,7 +20,7 @@ config CRYPTO_CHACHA20_X86_64
- 	select CRYPTO_ARCH_HAVE_LIB_CHACHA
- 
- config CRYPTO_POLY1305_X86_64
- 	tristate
- 	depends on 64BIT
--	default CRYPTO_LIB_POLY1305_INTERNAL
-+	default CRYPTO_LIB_POLY1305
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 832af6363951f..9878286d1d683 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -954,12 +954,12 @@ config CRYPTO_POLYVAL
- 	  cryptographic hash function.
- 
- config CRYPTO_POLY1305
- 	tristate "Poly1305"
- 	select CRYPTO_HASH
-+	select CRYPTO_LIB_POLY1305
- 	select CRYPTO_LIB_POLY1305_GENERIC
--	select CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Poly1305 authenticator algorithm (RFC7539)
- 
- 	  Poly1305 is an authenticator algorithm designed by Daniel J. Bernstein.
- 	  It is used for the ChaCha20-Poly1305 AEAD, specified in RFC7539 for use
-diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
-index c6ab724c1dbd9..af2368799579f 100644
---- a/lib/crypto/Kconfig
-+++ b/lib/crypto/Kconfig
-@@ -112,25 +112,19 @@ config CRYPTO_ARCH_HAVE_LIB_POLY1305
- 	  accelerated implementation of the Poly1305 library interface,
- 	  either builtin or as a module.
- 
- config CRYPTO_LIB_POLY1305_GENERIC
- 	tristate
-+	default CRYPTO_LIB_POLY1305 if !CRYPTO_ARCH_HAVE_LIB_POLY1305
- 	help
--	  This symbol can be depended upon by arch implementations of the
--	  Poly1305 library interface that require the generic code as a
--	  fallback, e.g., for SIMD implementations. If no arch specific
--	  implementation is enabled, this implementation serves the users
--	  of CRYPTO_LIB_POLY1305.
--
--config CRYPTO_LIB_POLY1305_INTERNAL
--	tristate
--	select CRYPTO_LIB_POLY1305_GENERIC if CRYPTO_ARCH_HAVE_LIB_POLY1305=n
-+	  This symbol can be selected by arch implementations of the Poly1305
-+	  library interface that require the generic code as a fallback, e.g.,
-+	  for SIMD implementations. If no arch specific implementation is
-+	  enabled, this implementation serves the users of CRYPTO_LIB_POLY1305.
- 
- config CRYPTO_LIB_POLY1305
- 	tristate
--	select CRYPTO
--	select CRYPTO_LIB_POLY1305_INTERNAL
- 	help
- 	  Enable the Poly1305 library interface. This interface may be fulfilled
- 	  by either the generic implementation or an arch-specific one, if one
- 	  is available and enabled.
- 
--- 
-2.49.0
-
+All these requested changes are included in v6. So only
+Holger's signed-off was missing. Should I re-send a v7 with Holger's
+signed-off on patch #4 ?
