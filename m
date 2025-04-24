@@ -1,148 +1,200 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FED1210F5A;
-	Thu, 24 Apr 2025 09:06:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C580502B1;
+	Thu, 24 Apr 2025 12:03:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745485582; cv=none; b=DVkg+p5KTiuu7hbo0J270jYBlHaaA5sQLXR2MSAqbbf+iPojEN1KXE5nz2m0KdlloqR3Az+1k9+n50cVr/PwRqHvIRZ1RbYGsAH3fm04jJxyDspoNijz+7xs78TCwjS2U1CfuvyqGHDmGgHf0RGHKchBbReRSXp1ioPk0m54Q/U=
+	t=1745496215; cv=none; b=c5u5ZCCOphz+Cc0VS66jorhV5fhCua4vzKiQ2gTSyzU/6vwmtBvi+8a6iu1LguEL7C3n8DH98WJxl2JDPOV5N3lCjsXmjEaJB/+iKwRWfLQBwA3qQl4MSI4O/fcSlbPfC41o83uBsA9xqlLiKpVwSjCFa8MStt6IahdO0qs6CuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745485582; c=relaxed/simple;
-	bh=g6bxeBGFz+ZfAiISf78nYF5d6OuqVi+zKYMYmkzuYww=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HK3T3zdIGDpGO/TCXAxWRf0iQ/zar0OLW4YFttAblOUqXirChYvfmI8uemjkoQnmB6Vb3JnpDDLRlHt/MQVAv4OdHrWLF9sIeVyQmLcJCpCAkh54AH3oLhumaQtjEc8H20yVMyUPIJyfy3E+2mYHzKTMOazaBeYbpRqxd4/g8Mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qPzQ2EtO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745496215; c=relaxed/simple;
+	bh=Z8PDMx0Ew/K5wTTQM4IZ5TGCRv0Kr7FOrjwROTttpvo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Dckqnxt2darp50ZG5rL4oqy9HKTsjfDU0pGs22iB3Ww8D0e6/ytXr3DtBc3Utl1NGrOH0QpAZgSqaKXp+SEXyrAVgxK86W7sLP1YKvCnYmEz9/fJ3snxgJJBDURYLbsk0VtgJjSumdsvjxPNJHaFHvbSQOpFu1BSn1v3iNKQzes=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OZjGp2DO; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qPzQ2EtO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF029C4CEEB;
-	Thu, 24 Apr 2025 09:06:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745485581;
-	bh=g6bxeBGFz+ZfAiISf78nYF5d6OuqVi+zKYMYmkzuYww=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=qPzQ2EtOhRHjvqeIqmfEs41n41+fPOpo5wVb0WXRA0Y64JK63Z0piOH/6q1TuKDwD
-	 WTI9c9BorspnKyVAu3DQkYsACDPHLJTqVVPTN6kTMVKEScUaCBv3GdtHESuUO5NqC6
-	 pqjqzGFZkOK5FpMLm1+UNv77/mYGep1Zag5d47x0b6vZpoHTEkoNH1VrlBp4U0AaKU
-	 qsF/Vn2vnRvvp1Kn7/YXcOkrtYa0w4Ynlqq5gkE0B8hjxnGwh/iyaywzNfxrIZA9z+
-	 2pzSBGKxX+TFKn8wOJih4WXcFzFXNu3Sjb1AkS/krSZea9kudjKkOe+16Pk7titbWK
-	 ch3/3zyDdzWnA==
-Date: Thu, 24 Apr 2025 11:06:07 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Jan Kara <jack@suse.cz>
-Cc: Andrey Albershteyn <aalbersh@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, 
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-xfs@vger.kernel.org
-Subject: Re: [PATCH v4 3/3] fs: introduce getfsxattrat and setfsxattrat
- syscalls
-Message-ID: <20250424-zuspielen-luxus-3d49b600c3bf@brauner>
-References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
- <20250321-xattrat-syscall-v4-3-3e82e6fb3264@kernel.org>
- <20250422-abbekommen-begierde-bcf48dd74a2e@brauner>
- <rbzlwvecvrp4xawwp5nywdq6wp5hgjhrtrabpszv74xmfqbj4f@x7v6eqfc5gcd>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OZjGp2DO"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53OAevx0020647;
+	Thu, 24 Apr 2025 12:03:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=Jo6O5+zoHyUB9al+w4/VZLdlMtAo
+	GFBgTkHWrLvm7mw=; b=OZjGp2DO2KbrStUfR0J6fH6zyc70MmjIGAU/mDx8g53Q
+	MvE9y/apIm2mXevsi45Blk6a/sBn8uPj4pqsz61QKKdFHRQs8SYvVrMOHGjQjXdY
+	XGDQtTSppeJgTioR/IjcKmuKz5btxKxoQb4aDRrNHbH+SMzthLLLfwk+SIWAXJtW
+	UpstYsBV9th1S8Qvu/2698arGa6hOHi1nu7ci3xdhYpNxMw8U46nmD9tP4xTxUa0
+	KdTrpmwoYD7+X6vxLkVTVH7VeMPoTkXi8xDVM5RYC+yuaalflEtMilpjBlHhOzjP
+	K9CHsD8pJ45Ga5GH87rCRUqm96IojZJp3ESx666Apg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 467krsrcf1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Apr 2025 12:03:27 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 53OBjEKO023410;
+	Thu, 24 Apr 2025 12:03:27 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 467krsrcev-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Apr 2025 12:03:27 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53OBQi3c004062;
+	Thu, 24 Apr 2025 12:03:26 GMT
+Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 466jg003a1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Apr 2025 12:03:26 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53OC3Ok823069012
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 24 Apr 2025 12:03:24 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C53B65805C;
+	Thu, 24 Apr 2025 12:03:24 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D598258054;
+	Thu, 24 Apr 2025 12:03:21 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 24 Apr 2025 12:03:21 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Thu, 24 Apr 2025 14:02:53 +0200
+Subject: [PATCH] PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI recovery
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <rbzlwvecvrp4xawwp5nywdq6wp5hgjhrtrabpszv74xmfqbj4f@x7v6eqfc5gcd>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250424-add_err_uevents-v1-1-3384d6b779c6@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAGwoCmgC/x3MSwqAMAxF0a1Ixhaq+N+KiEjz1EyqpCqCuHeLw
+ zO496EAFQTqkocUlwTZfESWJuTWyS8wwtGU27y0RVabiXmE6njigj+CqeaGC64dbOsoVrtilvs
+ /9sP7folunTRhAAAA
+X-Change-ID: 20250417-add_err_uevents-6f8d4d7ce09c
+To: Lukas Wunner <lukas@wunner.de>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>
+Cc: linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3671;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=Z8PDMx0Ew/K5wTTQM4IZ5TGCRv0Kr7FOrjwROTttpvo=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGDK4NJolZZy1/CUrT0fynJpS3KievWzSi19MMlpLf+w6w
+ HqnyeF2RykLgxgXg6yYIsuiLme/dQVTTPcE9XfAzGFlAhnCwMUpABPRncvw32tv+q1bludjVgWF
+ Wu856lxS5brr2cKAusVXn30w7dh25Q7D/2K/R3+kYh9PPtyq+Mbo0l3pxtVz2+qM3y5YJ//m5I6
+ gdH4A
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDI0MDA3OCBTYWx0ZWRfXw+cxXmiBnkNg zhI6A4mFpotyYFSoHGmj2+Lf/XK4WZ8UQniLocLHF8Sd1RNIKeu2yd57C6ja5LvAcpdO+nWTyV/ 6Mh2MDQvJShrXuk3SHwBdpuiSpu1eEqgxF2pDaw+G7kuIarj+on/IbRBnOUOeocYQuFRvjnLcVY
+ KGQfe7Dba4t0ZbKcuQ1c2MMohbYuIFuDa1ij3jBZX/093ND0uPdFyHGYvM2hc1pi8dy9hOs6dmP HHgSVJMIcNrCu3ePZ5u4H49Yj6kmYHjH94jD07DUmhvLSY+7bD30zW0V5+Nj2R9m2PZz8+JjYjD onLK/BO85iKLXoIB935Fa2/wil4yDaexWEQD16CGC8Ve65MR/fW8/0pNZZWtimbB/Er4clov3w0
+ SgYyTfUmdZXCM9Vc7lo3v9atg7CyQTziJSQX8zoTFT12s98Mx+B8N+84r9Xjlti6epL0FVBS
+X-Proofpoint-GUID: dbnkhbxciHtsYIoLs2zglo8X1y3N0u68
+X-Authority-Analysis: v=2.4 cv=IciHWXqa c=1 sm=1 tr=0 ts=680a288f cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=IkcTkHD0fZMA:10 a=XR8D0OoHHMoA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=8LeQyvkg2U568Q-kuFUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 8f8lk5dYEoCD4mpqY5A3O5mU-rl7utfK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.680,FMLib:17.12.80.40
+ definitions=2025-04-24_05,2025-04-22_01,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 adultscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0
+ phishscore=0 bulkscore=0 clxscore=1011 spamscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2504240078
 
-On Wed, Apr 23, 2025 at 11:53:25AM +0200, Jan Kara wrote:
-> On Tue 22-04-25 16:59:02, Christian Brauner wrote:
-> > On Fri, Mar 21, 2025 at 08:48:42PM +0100, Andrey Albershteyn wrote:
-> > > From: Andrey Albershteyn <aalbersh@redhat.com>
-> > > 
-> > > Introduce getfsxattrat and setfsxattrat syscalls to manipulate inode
-> > > extended attributes/flags. The syscalls take parent directory fd and
-> > > path to the child together with struct fsxattr.
-> > > 
-> > > This is an alternative to FS_IOC_FSSETXATTR ioctl with a difference
-> > > that file don't need to be open as we can reference it with a path
-> > > instead of fd. By having this we can manipulated inode extended
-> > > attributes not only on regular files but also on special ones. This
-> > > is not possible with FS_IOC_FSSETXATTR ioctl as with special files
-> > > we can not call ioctl() directly on the filesystem inode using fd.
-> > > 
-> > > This patch adds two new syscalls which allows userspace to get/set
-> > > extended inode attributes on special files by using parent directory
-> > > and a path - *at() like syscall.
-> > > 
-> > > CC: linux-api@vger.kernel.org
-> > > CC: linux-fsdevel@vger.kernel.org
-> > > CC: linux-xfs@vger.kernel.org
-> > > Signed-off-by: Andrey Albershteyn <aalbersh@redhat.com>
-> > > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> ...
-> > > +		struct fsxattr __user *, ufsx, size_t, usize,
-> > > +		unsigned int, at_flags)
-> > > +{
-> > > +	struct fileattr fa = {};
-> > > +	struct path filepath;
-> > > +	int error;
-> > > +	unsigned int lookup_flags = 0;
-> > > +	struct filename *name;
-> > > +	struct fsxattr fsx = {};
-> > > +
-> > > +	BUILD_BUG_ON(sizeof(struct fsxattr) < FSXATTR_SIZE_VER0);
-> > > +	BUILD_BUG_ON(sizeof(struct fsxattr) != FSXATTR_SIZE_LATEST);
-> > > +
-> > > +	if ((at_flags & ~(AT_SYMLINK_NOFOLLOW | AT_EMPTY_PATH)) != 0)
-> > > +		return -EINVAL;
-> > > +
-> > > +	if (!(at_flags & AT_SYMLINK_NOFOLLOW))
-> > > +		lookup_flags |= LOOKUP_FOLLOW;
-> > > +
-> > > +	if (at_flags & AT_EMPTY_PATH)
-> > > +		lookup_flags |= LOOKUP_EMPTY;
-> > > +
-> > > +	if (usize > PAGE_SIZE)
-> > > +		return -E2BIG;
-> > > +
-> > > +	if (usize < FSXATTR_SIZE_VER0)
-> > > +		return -EINVAL;
-> > > +
-> > > +	name = getname_maybe_null(filename, at_flags);
-> > > +	if (!name) {
-> > 
-> > This is broken as it doesn't handle AT_FDCWD correctly. You need:
-> > 
-> >         name = getname_maybe_null(filename, at_flags);
-> >         if (IS_ERR(name))
-> >                 return PTR_ERR(name);
-> > 
-> >         if (!name && dfd >= 0) {
-> > 		CLASS(fd, f)(dfd);
-> 
-> Ah, you're indeed right that if dfd == AT_FDCWD and filename == NULL, the
-> we should operate on cwd but we'd bail with error here. I've missed that
-> during my review. But as far as I've checked the same bug is there in
-> path_setxattrat() and path_getxattrat() so we should fix this there as
-> well?
+Issue uevents during PCI recovery using pci_uevent_ers() as done by EEH
+and AER PCIe recovery routines.
 
-Yes, please!
+Cc: stable@vger.kernel.org
+Fixes: 4cdf2f4e24ff ("s390/pci: implement minimal PCI error recovery")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Question: pci_uevent_ers() ignores PCI_ERS_RESULT_NEED_RESET which also
+means that unless we use PCI_ERS_RESULT_NONE instead of the return of
+error_detected() like EEH also does. there is no event for beginning
+recovery. This is also true for AER and seems odd, is this intentional?
+
+Npte: The fixes tag / Cc stable is maybe a bit borderline but I think
+having the events on EEH and AER but not on s390 warrants it. Thoughts?
+---
+ arch/s390/pci/pci_event.c | 3 +++
+ drivers/pci/pci-driver.c  | 2 +-
+ include/linux/pci.h       | 2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+index 7bd7721c1239a20e13cd3c618cce6679f36b0d06..37609bc2b514c00b5b91d6edd2ec366d59ae9f49 100644
+--- a/arch/s390/pci/pci_event.c
++++ b/arch/s390/pci/pci_event.c
+@@ -91,6 +91,7 @@ static pci_ers_result_t zpci_event_notify_error_detected(struct pci_dev *pdev,
+ 	pci_ers_result_t ers_res = PCI_ERS_RESULT_DISCONNECT;
+ 
+ 	ers_res = driver->err_handler->error_detected(pdev,  pdev->error_state);
++	pci_uevent_ers(pdev, PCI_ERS_RESULT_NONE);
+ 	if (ers_result_indicates_abort(ers_res))
+ 		pr_info("%s: Automatic recovery failed after initial reporting\n", pci_name(pdev));
+ 	else if (ers_res == PCI_ERS_RESULT_NEED_RESET)
+@@ -226,6 +227,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+ 		ers_res = zpci_event_do_reset(pdev, driver);
+ 
+ 	if (ers_res != PCI_ERS_RESULT_RECOVERED) {
++		pci_uevent_ers(pdev, PCI_ERS_RESULT_DISCONNECT);
+ 		pr_err("%s: Automatic recovery failed; operator intervention is required\n",
+ 		       pci_name(pdev));
+ 		status_str = "failed (driver can't recover)";
+@@ -235,6 +237,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+ 	pr_info("%s: The device is ready to resume operations\n", pci_name(pdev));
+ 	if (driver->err_handler->resume)
+ 		driver->err_handler->resume(pdev);
++	pci_uevent_ers(pdev, PCI_ERS_RESULT_RECOVERED);
+ out_unlock:
+ 	pci_dev_unlock(pdev);
+ 	zpci_report_status(zdev, "recovery", status_str);
+diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+index c8bd71a739f724e09b4dd773fb0cf74bddda1728..5cc031fae9a0210d66959ce6082539e52cdd81b4 100644
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -1584,7 +1584,7 @@ static int pci_uevent(const struct device *dev, struct kobj_uevent_env *env)
+ 	return 0;
+ }
+ 
+-#if defined(CONFIG_PCIEAER) || defined(CONFIG_EEH)
++#if defined(CONFIG_PCIEAER) || defined(CONFIG_EEH) || defined(CONFIG_S390)
+ /**
+  * pci_uevent_ers - emit a uevent during recovery path of PCI device
+  * @pdev: PCI device undergoing error recovery
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 0e8e3fd77e96713054388bdc82f439e51023c1bf..71628a9c61bd7bc90fdbd9bc6ab68603ac8800dd 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -2688,7 +2688,7 @@ static inline bool pci_is_thunderbolt_attached(struct pci_dev *pdev)
+ 	return false;
+ }
+ 
+-#if defined(CONFIG_PCIEPORTBUS) || defined(CONFIG_EEH)
++#if defined(CONFIG_PCIEPORTBUS) || defined(CONFIG_EEH) || defined(CONFIG_S390)
+ void pci_uevent_ers(struct pci_dev *pdev, enum  pci_ers_result err_type);
+ #endif
+ 
+
+---
+base-commit: 8ffd015db85fea3e15a77027fda6c02ced4d2444
+change-id: 20250417-add_err_uevents-6f8d4d7ce09c
+
+Best regards,
+-- 
+Niklas Schnelle
+
