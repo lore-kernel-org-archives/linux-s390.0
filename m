@@ -1,189 +1,93 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A580223DF9;
-	Thu, 24 Apr 2025 15:43:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D04328A3F7;
+	Thu, 24 Apr 2025 16:28:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745509405; cv=none; b=JmQp+GxBJd8gRopnaEVR81FJbvPpTF8zedRJFWQfPbiB2agU3SZx0VHRoocAtq7TAKO/QKjC/hUt2aG/bbUGD42MMvpSAO4QTBpmdKqtNlzPaOdScd4HLaJT7q0xU+7u/y684U8NE6vSTK7dSLLT2z2UXucsusIqYzPEC+Hii3w=
+	t=1745512091; cv=none; b=bfpFrsxUn42YSWIDi1rfDcbV/YuTakAM/M03RW1i4WyODSyMC7JObPBOVuDBWBdHK8r0buG2j6WtqlM97I3e4GkjLc9GzDbR5ywaN+n3XNLFGU0I6sYmUJv0zCa6VdE7oZYcp+tW+VJ3cgVYdTBIq8/nxyOQn5pwBP9iswzQhJ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745509405; c=relaxed/simple;
-	bh=T3OMY9jrDvAQaIJkvH3xyQkyOZBkShFE0i3amndbQ0Y=;
+	s=arc-20240116; t=1745512091; c=relaxed/simple;
+	bh=59is39G0tJQyo0VGzGC284IheoKhzQgoSprG32X7hPA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UqFt19EQ5Dj+xW6Qqy3HzyIVhJT+5FLe0pU5vu28MkNS60KZKZBmPwcNiZDP6C2ymHj1r1RoM4JH8WNUogBVR8RESjg7sQSKCVYAS7sVHNDA7JEQcQ0c4scVd0DMU2ACYdCpc6lV1m4/TV82SATJgpCzq2f04qqoHs7eJIFKtcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=lK/QryIi; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2M6vSdvp; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=K5G9L7e2zPcgdj9d6VBI7BDBCbHK4Q+0W4wbl/22j3A59aJmFV2ggmXW8nAwe31+uMb63eoY8GK0SOPiKfQLJ5tf9rq7xOTGje6ZymrHMaV+eX8JbAr0P3q0+y9xtpT9PBtuH0h6r4SoxZ69Yi9sf10zxQVJAV7INjgYLyhQK44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lwhClznX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="lK/QryIi";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2M6vSdvp"
-Date: Thu, 24 Apr 2025 17:43:19 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1745509401;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nDo39tt+n8ATYguGedpesmJZxZJLtDSDAKicoCO2cI8=;
-	b=lK/QryIiV998Da/Rm919TzKOYxMOJx62tzbf+B+2e6sDZ6HfuEIr7nmMyICIJlvXLJGrSx
-	EJFEso6phLHBprXv1tluC3gRUAmPLUBwoEiSt1hYoXjVg38TTfXv9TANLhUfnZv/ISg6a1
-	Bn44d2bh/6y3Yn7pqBmkB+Ru9qpmiTtzE5h1UE8cjtRNtg63LPCOYNypxU2jIdTUxbAEG9
-	WUan0+TuDsYhyZ69GSqI3Wj4ekINOeGLpIcIiUeYKRuEO5VFVHS+iP4aediB64wTBHliqD
-	KG55Vr+C+5idEzISLVT8PzdA9d3RNjZnN3ZfcI5PWVLp9t/iVkc9RHRvMxuEtQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1745509401;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=nDo39tt+n8ATYguGedpesmJZxZJLtDSDAKicoCO2cI8=;
-	b=2M6vSdvpglYLR21147amU66kDvqCzLdGxNK0wSXT0/szoFczg5Yrh111Vgpo7OOJT/82rR
-	K7u6DAGFSh65nTBw==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Jan Stancek <jstancek@redhat.com>
-Cc: Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>
-Subject: Re: [PATCH 08/19] vdso/gettimeofday: Prepare do_hres_timens() for
- introduction of struct vdso_clock
-Message-ID: <20250424173908-ffca1ea2-e292-4df3-9391-24bfdaab33e7@linutronix.de>
-References: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
- <20250303-vdso-clock-v1-8-c1b5c69a166f@linutronix.de>
- <aApGPAoctq_eoE2g@t14ultra>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lwhClznX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E1FC4CEEE;
+	Thu, 24 Apr 2025 16:28:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1745512091;
+	bh=59is39G0tJQyo0VGzGC284IheoKhzQgoSprG32X7hPA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=lwhClznXMyo1oERZnHSNonEvORjio2lYE0iaPrrLK7zsM+BTVp4ls89r0O5cA1SS4
+	 +tHoc4Se0haMRI+VVEzLe6KMql57iGo9ZJpqX+1tTboO27dz8VEAAlSHxfsdZo4rQK
+	 Tg5Ocs4laawMQUwEA5gdaQFQAW73c2bbejKg3OcV/ucv14petCwVxiOlCXq6if5Lwc
+	 qczcqvUuQqTrIW1RomRbu65QnWITuLKI7BeDbHQGlyfiCRp3aIsQJFEmtxrFE5kBgv
+	 slsIRFtad20j5iBDiTx5BpKsEXvCD0qaAJ3qwIp0N2IodsvGF1hoAx14uO428kH5Co
+	 QBWBYV8i6eWkw==
+Date: Thu, 24 Apr 2025 17:28:05 +0100
+From: Simon Horman <horms@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexandra Winter <wintera@linux.ibm.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next] s390: ism: Pass string literal as format
+ argument of dev_set_name()
+Message-ID: <20250424162805.GI3042781@horms.kernel.org>
+References: <20250417-ism-str-fmt-v1-1-9818b029874d@kernel.org>
+ <20250417110814.12521Bf4-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aApGPAoctq_eoE2g@t14ultra>
+In-Reply-To: <20250417110814.12521Bf4-hca@linux.ibm.com>
 
-On Thu, Apr 24, 2025 at 04:10:04PM +0200, Jan Stancek wrote:
-> On Mon, Mar 03, 2025 at 12:11:10PM +0100, Thomas Weiﬂschuh wrote:
-> > From: Anna-Maria Behnsen <anna-maria@linutronix.de>
+On Thu, Apr 17, 2025 at 01:08:14PM +0200, Heiko Carstens wrote:
+> On Thu, Apr 17, 2025 at 11:28:23AM +0100, Simon Horman wrote:
+> > GCC 14.2.0 reports that passing a non-string literal as the
+> > format argument of dev_set_name() is potentially insecure.
 > > 
-> > To support multiple PTP clocks, the VDSO data structure needs to be
-> > reworked. All clock specific data will end up in struct vdso_clock and in
-> > struct vdso_time_data there will be array of it. By now, vdso_clock is
-> > simply a define which maps vdso_clock to vdso_time_data.
+> > drivers/s390/net/ism_drv.c: In function 'ism_probe':
+> > drivers/s390/net/ism_drv.c:615:2: warning: format not a string literal and no format arguments [-Wformat-security]
+> >   615 |  dev_set_name(&ism->dev, dev_name(&pdev->dev));
+> >       |  ^~~~~~~~~~~~
 > > 
-> > Prepare for the rework of these structures by adding struct vdso_clock
-> > pointer argument to do_hres_timens(), and replace the struct vdso_time_data
-> > pointer with the new pointer arugment whenever applicable.
+> > It seems to me that as pdev is a PCIE device then the dev_name
+> > call above should always return the device's BDF, e.g. 00:12.0.
+> > That this should not contain format escape sequences. And thus
+> > the current usage is safe.
 > > 
-> > No functional change.
+> > But, it seems better to be safe than sorry. And, as a bonus, compiler
+> > output becomes less verbose by addressing this issue.
 > > 
-> > Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
-> > Signed-off-by: Nam Cao <namcao@linutronix.de>
-> > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+> > Compile tested only.
+> > No functional change intended.
+> > 
+> > Signed-off-by: Simon Horman <horms@kernel.org>
 > > ---
-> > lib/vdso/gettimeofday.c | 35 ++++++++++++++++++-----------------
-> > 1 file changed, 18 insertions(+), 17 deletions(-)
-> > 
+> >  drivers/s390/net/ism_drv.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> starting with this patch, I'm seeing user-space crashes when using clock_gettime():
->   BAD  -> 83a2a6b8cfc5 vdso/gettimeofday: Prepare do_hres_timens() for introduction of struct vdso_clock
->   GOOD -> 64c3613ce31a vdso/gettimeofday: Prepare do_hres() for introduction of struct vdso_clock
+> It might make sense to say that -Wformat-security was explicitly enabled in
+> order to trigger this (probably with KCFLAGS=-Wformat-security ?), since this
+> warning is by default disabled.
 > 
-> It appears to be unique to aarch64 with 64k pages, and can be reproduced with
-> LTP clock_gettime03 [1]:
->   command: clock_gettime03   tst_kconfig.c:88: TINFO: Parsing kernel config '/lib/modules/6.15.0-0.rc3.20250423gitbc3372351d0c.30.eln147.aarch64+64k/build/.config'
->   tst_test.c:1903: TINFO: LTP version: 20250130-231-gd02c2aea3
->   tst_test.c:1907: TINFO: Tested kernel: 6.15.0-0.rc3.20250423gitbc3372351d0c.30.eln147.aarch64+64k #1 SMP PREEMPT_DYNAMIC Wed Apr 23 23:23:54 UTC 2025 aarch64
->   tst_kconfig.c:88: TINFO: Parsing kernel config '/lib/modules/6.15.0-0.rc3.20250423gitbc3372351d0c.30.eln147.aarch64+64k/build/.config'
->   tst_test.c:1720: TINFO: Overall timeout per run is 0h 05m 24s
->   clock_gettime03.c:121: TINFO: Testing variant: vDSO or syscall with libc spec
->   clock_gettime03.c:76: TPASS: Offset (CLOCK_MONOTONIC) is correct 10000ms
->   clock_gettime03.c:86: TPASS: Offset (CLOCK_MONOTONIC) is correct 0ms
->   clock_gettime03.c:76: TPASS: Offset (CLOCK_BOOTTIME) is correct 10000ms
->   clock_gettime03.c:86: TPASS: Offset (CLOCK_BOOTTIME) is correct 0ms
->   clock_gettime03.c:76: TPASS: Offset (CLOCK_MONOTONIC) is correct -10000ms
->   clock_gettime03.c:86: TPASS: Offset (CLOCK_MONOTONIC) is correct 0ms
->   clock_gettime03.c:76: TPASS: Offset (CLOCK_BOOTTIME) is correct -10000ms
->   clock_gettime03.c:86: TPASS: Offset (CLOCK_BOOTTIME) is correct 0ms
->   tst_test.c:438: TBROK: Child (233649) killed by signal SIGSEGV
-> 
-> or with:
-> --------------------- 8< ----------------------
-> #define _GNU_SOURCE
-> #include <sched.h>
-> #include <time.h>
-> #include <unistd.h>                                                                                                                                                                                                                          #include <sys/wait.h>
-> 
-> int main(void)
-> {
->         struct timespec tp;
->         pid_t child;
->         int status;
-> 
->         unshare(CLONE_NEWTIME);
-> 
->         child = fork();
->         if (child == 0) {
->                 clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
->         }
-> 
->         wait(&status);
->         return status;
-> }
-> 
-> # ./a.out ; echo $?
-> 139
-> --------------------- >8 ----------------------
-> 
-> RPMs and configs can be found at Fedora koji, latest build is at [2] (look for kernel-64k).
+> Just mentioning this, since I was wondering why I haven't seen this.
 
-Hi Jan,
+Thanks Heiko,
 
-Thanks for the great error report.
-
-Can you try the following change (on top of v6.15-rc1, should also work with current master)?
-
-diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
-index 93ef801a97ef..867ce53cca94 100644
---- a/lib/vdso/gettimeofday.c
-+++ b/lib/vdso/gettimeofday.c
-@@ -85,14 +85,18 @@ static __always_inline
- int do_hres_timens(const struct vdso_time_data *vdns, const struct vdso_clock *vcns,
- 		   clockid_t clk, struct __kernel_timespec *ts)
- {
--	const struct vdso_time_data *vd = __arch_get_vdso_u_timens_data(vdns);
- 	const struct timens_offset *offs = &vcns->offset[clk];
--	const struct vdso_clock *vc = vd->clock_data;
-+	const struct vdso_time_data *vd;
-+	const struct vdso_clock *vc;
- 	const struct vdso_timestamp *vdso_ts;
- 	u64 cycles, ns;
- 	u32 seq;
- 	s64 sec;
- 
-+	vd = vdns - (clk == CLOCK_MONOTONIC_RAW ? CS_RAW : CS_HRES_COARSE);
-+	vd = __arch_get_vdso_u_timens_data(vd);
-+	vc = vd->clock_data;
-+
- 	if (clk != CLOCK_MONOTONIC_RAW)
- 		vc = &vc[CS_HRES_COARSE];
- 	else
-
-
-I'll do some proper testing tomorrow.
-
-
-Thomas
-
-> [1] https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/syscalls/clock_gettime/clock_gettime03.c
-> [2] https://koji.fedoraproject.org/koji/buildinfo?buildID=2704401
+Yes, you are right on both counts. I should have mentioned this.
+And I did compile with KCFLAGS=-Wformat-security.
