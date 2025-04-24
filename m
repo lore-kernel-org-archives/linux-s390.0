@@ -1,117 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E0292163B9;
-	Thu, 24 Apr 2025 06:22:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BD6E1D5166
+	for <linux-s390@vger.kernel.org>; Thu, 24 Apr 2025 06:45:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745475762; cv=none; b=MP0dfVWRcS8AxqU3Lr2rEehwismCVz1ZSb2yJ+rW/8a0jnGA6sBtufgIeVigvCfNVMD36bJTRPJ1p3iiPFkxqZnmAzOZLq6Td68jmeQDMU3sZkPgcrCRD1bSs9FDdQau4HsWxraf8prIkFL1Bfhn7E/8kf4nj6sCOX1/EnhiIuQ=
+	t=1745477148; cv=none; b=l/9omx6//zoseLQW+6IfWyFGiO7hUu2QVVBpF1ReCmjms/4sE3Sg0DOlIBK7kWRAKTphGoUnFy7zmli850svrQL/fCrfHJNL7oBt45rcpgR6PrRlRGVaqbbVv+LLUTCgepiw/C7TOCcS2pba+daQtSzP6k83Pmz4cJjUp2DGQg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745475762; c=relaxed/simple;
-	bh=MnbDTkDjx7fGLQrr6aq33qeElS5aQV1V02HztW2z4QI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=frsu2ERYpofBEYhXTR6UIHDkztKUYqCzPwRGLvbfv0wCvs+0BfzAT6S6qbfWgBRCTchBt/okiWIljFDkTsUzho7twq783500eu1FPYJWFMV1im2l9GpGhMICxtbRKoKyowqCnpis+3PpZ1Zzu+SRQBAZbfrOO/gXbeVTVgZ+pQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WtboPodA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745477148; c=relaxed/simple;
+	bh=lICdyoWCvZ1ObxtTAtc6zjTt8jdNkgQXAemKvVNXkr0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rv+m/rcgTffL7EpnYILJirDNbqwHmTQyUXk37zZCwuJLvXUaOW3K5cN1IdYh/X97DbZmvqCoWEiYGgdh74fjw0oxF7q9gYmP36sT4c8l+k5amJjoFY+goROqV1vb+G7EYNSZcBZdufrVnrC3H3VVEttsPMgRx3JjuF4zBLsvojo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qHRdg0mc; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WtboPodA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E13DBC4CEE3;
-	Thu, 24 Apr 2025 06:22:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745475760;
-	bh=MnbDTkDjx7fGLQrr6aq33qeElS5aQV1V02HztW2z4QI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=WtboPodAb4If3nkaa2PXy6oXsf0a3bXZctQ2wvPcXSI0l79MWAm4Z2gSZuz96IF9H
-	 0qLlIMYtp2SHP6GDqfM8ztwqvVgTZY6FXR9F5f0adrLGLlrBdyf5RWCE1I7N7CrTTj
-	 DAPkO1+pZGzixh+Urbuscma6hbYr7IX/6giX9wVWMj2r92tTCqm0d1+78+g71USLbJ
-	 THF5D9zsliGl+VvssarcSIxgX6vlpU47E9eZMJKjYTEQ8nflTSxlLh63IVcKVnlFdc
-	 SWV4SxmWIXzI3lSv6htjlMKoZppQdBmQJNjRQ4JTvSh2Z3t/BH9C3LOESeyqGxlX14
-	 DIG6sr68pN51A==
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5498d2a8b89so561949e87.1;
-        Wed, 23 Apr 2025 23:22:40 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU+dwKdWGi/oXXv/11j017luD/6cSyRvbeiNO3r0QjubiBFfSFte6T0kd7axjJ2Hkj9+eleYdNWmT5lIA==@vger.kernel.org, AJvYcCXuh/6bjRJbOR9/eUAoB1aRDIp4OaoH5N1Ii2aif0sF/5MIqsjCpy7/Kyqzmf4gZkrFDGp1g2pKa3cBN/8=@vger.kernel.org, AJvYcCXwuHIeTBenxQd66PzjaQxJ3UZ6Qg9Vot5On3gbNx4yiWDuBmgFx9Tx4/OR0LcJ+frPOHm27OJxKI1ZlQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxOnWQp20667775jSdTbz7exANcqKgpyGzGXxaYuagK8Wredye9
-	PbhCpy9LlZ/tQQoi/iEmVB/3GOMCil8YpRbr3hLpJgJ80V4VrOigR85OiFGJ1eVLilRR2lWaYaM
-	esm4N8/ZIN1j1yaXIXSUOTK+71Lw=
-X-Google-Smtp-Source: AGHT+IEBg0GksqRUxYbq10WiBQxT674qV08e5XaXakQ/0Ux/wZi1/Em/Ff29tbRd93xidxYNQXuF7ob7W4sz3W9cDJE=
-X-Received: by 2002:a2e:b8c9:0:b0:30c:3099:13db with SMTP id
- 38308e7fff4ca-3179e5ea6f5mr4171351fa.14.1745475759305; Wed, 23 Apr 2025
- 23:22:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qHRdg0mc"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53O655d2010695;
+	Thu, 24 Apr 2025 06:45:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=p873Yz3Hblu/QI9M7GV0LqB5aBIYQO
+	TcsiGrjaknt6E=; b=qHRdg0mcUzqpdIgmMiYna9Yi+eiLNAiP29wP95wBAonhhk
+	VJRfxXEfyqWRVUQ98fWYOrZF+dljsSAokCSpQwMi5C/MIl82VuEf0fXUgUdx9u0h
+	BvTqeAKfMA7vX1UkGRlU+zyB3vRPfdfmC6KozPBfzG8Wvo5+7OvTKMYaB79ub3mT
+	dNxsAyWOhhZS8Az/wlUBmow27D6jLLwtRiMBydugysDbbCdSF87wtYxXqf1kTeTg
+	u/lZwd7XwS9WgHXvFo0sxPW6Kjqw0TpALLen3ROllNDB/g597t577UvqbgaJanRw
+	aoZDfHT+/XLOr53QSxg5yirFPsNjkxK/o/XDZypQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 466xns4spm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Apr 2025 06:45:43 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53O33Y2e008601;
+	Thu, 24 Apr 2025 06:45:42 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 466jfxpx6e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Apr 2025 06:45:42 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53O6jdqu58327342
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 24 Apr 2025 06:45:39 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F10E92004B;
+	Thu, 24 Apr 2025 06:45:38 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ABDA420040;
+	Thu, 24 Apr 2025 06:45:38 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.60])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 24 Apr 2025 06:45:38 +0000 (GMT)
+Date: Thu, 24 Apr 2025 08:45:36 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: dengler@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org, herbert@gondor.apana.org.au,
+        ifranzki@linux.ibm.com, fcallies@linux.ibm.com
+Subject: Re: [PATCH v7 02/25] s390/ap/zcrypt: Rework AP message buffer
+ allocation
+Message-ID: <20250424064536.7083A9a-hca@linux.ibm.com>
+References: <20250423101535.143137-1-freude@linux.ibm.com>
+ <20250423101535.143137-3-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250424002038.179114-1-ebiggers@kernel.org>
-In-Reply-To: <20250424002038.179114-1-ebiggers@kernel.org>
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Thu, 24 Apr 2025 08:22:28 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXFZ-Wy9Z5Rqe-o6fnKtgm+=JQeFnVMvG=jmKz36=02w6A@mail.gmail.com>
-X-Gm-Features: ATxdqUEf-FfEO6d9z_202RUFsmqfhy6LhKcEQhVv3O5CQR6i6602IFM1v6-7V-w
-Message-ID: <CAMj1kXFZ-Wy9Z5Rqe-o6fnKtgm+=JQeFnVMvG=jmKz36=02w6A@mail.gmail.com>
-Subject: Re: [PATCH 0/7] lib/crc: drop "glue" from filenames
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250423101535.143137-3-freude@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=KplN2XWN c=1 sm=1 tr=0 ts=6809de17 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=VnNF1IyMAAAA:8 a=JyunqWvMea0SjTLKC5IA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDI0MDAzOCBTYWx0ZWRfX4oHwra8rnS+j Wu4ijUHfoWfDhLmPyR7YlfRyW9mblEya3D/2+pWjzaa7LTQCP5iEXOkrHcGXmOpXDwIcymL/v1R RSNk9QxNLnR0wZqbCM27oQsiHxaN1Q+KzFeWzB+XBwpAIpRx87tY4c5XJYAIam/3V1IA6YPnhIx
+ RQoyd5QSRqHSUbHooWAZqW9cRRb7TSghCmT2hyhEeBQeKFZd98fUm3pdfrCFrlGJdNmL0T+5Vo/ iWp9tmIr9tkD+TJxxpPKi3o/Yw2yn43e6cRlkzF3fEC1q4fWv5V8532mnMdigt0twcuOZYhquuf cnhNY1w2AyudjnSw/ZQjRupY6+q4tprrJwU89o8pr5VlXvW88UwnK2e51F4e7pG5wYTk3pWAxOH
+ jbHNNS9YVW8iaqUMstF74qHeo/yRE4o6s4feJYjac2B9iUKiVNrEsjMVOiyK/F66IBaHMvbQ
+X-Proofpoint-ORIG-GUID: 4N3rRDUTBvIpWpPmprayxg1gnI2aFpEd
+X-Proofpoint-GUID: 4N3rRDUTBvIpWpPmprayxg1gnI2aFpEd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.680,FMLib:17.12.80.40
+ definitions=2025-04-24_02,2025-04-22_01,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ mlxlogscore=999 lowpriorityscore=0 impostorscore=0 clxscore=1015
+ priorityscore=1501 suspectscore=0 adultscore=0 bulkscore=0 phishscore=0
+ spamscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2504240038
 
-On Thu, 24 Apr 2025 at 02:22, Eric Biggers <ebiggers@kernel.org> wrote:
->
-> This series fixes an odd naming convention that was unnecessarily
-> carried over from the original Crypto API code.
->
-> I'm planning to take this via the crc tree.
->
-> Eric Biggers (7):
->   arm/crc: drop "glue" from filenames
->   arm64/crc: drop "glue" from filenames
->   powerpc/crc: drop "glue" from filenames
->   powerpc/crc: rename crc32-vpmsum_core.S to crc-vpmsum-template.S
->   s390/crc: drop "glue" from filenames
->   sparc/crc: drop "glue" from filenames
->   x86/crc: drop "glue" from filenames
->
+On Wed, Apr 23, 2025 at 12:15:11PM +0200, Harald Freudenberger wrote:
+> Slight rework on the way how AP message buffers are allocated.
+> Instead of having multiple places with kmalloc() calls all
+> the AP message buffers are now allocated and freed on exactly
+> one place: ap_init_apmsg() allocates the current AP bus max
+> limit of ap_max_msg_size (defaults to 12KB). The AP message
+> buffer is then freed in ap_release_apmsg().
+> 
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/ap_bus.c           | 26 ++++++++++++++
+>  drivers/s390/crypto/ap_bus.h           | 21 ++---------
+>  drivers/s390/crypto/zcrypt_api.c       | 49 +++++++++++++++-----------
+>  drivers/s390/crypto/zcrypt_msgtype50.c | 20 ++++++-----
+>  drivers/s390/crypto/zcrypt_msgtype6.c  | 35 +++++++++---------
+>  5 files changed, 86 insertions(+), 65 deletions(-)
 
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
+...
 
->  arch/arm/lib/Makefile                                       | 4 ++--
->  arch/arm/lib/{crc-t10dif-glue.c => crc-t10dif.c}            | 0
->  arch/arm/lib/{crc32-glue.c => crc32.c}                      | 0
->  arch/arm64/lib/Makefile                                     | 4 ++--
->  arch/arm64/lib/{crc-t10dif-glue.c => crc-t10dif.c}          | 0
->  arch/arm64/lib/{crc32.S => crc32-core.S}                    | 0
->  arch/arm64/lib/{crc32-glue.c => crc32.c}                    | 0
->  arch/powerpc/lib/Makefile                                   | 4 ++--
->  arch/powerpc/lib/{crc-t10dif-glue.c => crc-t10dif.c}        | 0
->  .../lib/{crc32-vpmsum_core.S => crc-vpmsum-template.S}      | 0
->  arch/powerpc/lib/{crc32-glue.c => crc32.c}                  | 0
->  arch/powerpc/lib/crc32c-vpmsum_asm.S                        | 2 +-
->  arch/powerpc/lib/crct10dif-vpmsum_asm.S                     | 2 +-
->  arch/s390/lib/Makefile                                      | 2 +-
->  arch/s390/lib/{crc32-glue.c => crc32.c}                     | 0
->  arch/sparc/lib/Makefile                                     | 2 +-
->  arch/sparc/lib/{crc32_glue.c => crc32.c}                    | 2 +-
->  arch/x86/lib/Makefile                                       | 6 +++---
->  arch/x86/lib/{crc-t10dif-glue.c => crc-t10dif.c}            | 0
->  arch/x86/lib/{crc32-glue.c => crc32.c}                      | 0
->  arch/x86/lib/{crc64-glue.c => crc64.c}                      | 0
->  21 files changed, 14 insertions(+), 14 deletions(-)
->  rename arch/arm/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
->  rename arch/arm/lib/{crc32-glue.c => crc32.c} (100%)
->  rename arch/arm64/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
->  rename arch/arm64/lib/{crc32.S => crc32-core.S} (100%)
->  rename arch/arm64/lib/{crc32-glue.c => crc32.c} (100%)
->  rename arch/powerpc/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
->  rename arch/powerpc/lib/{crc32-vpmsum_core.S => crc-vpmsum-template.S} (100%)
->  rename arch/powerpc/lib/{crc32-glue.c => crc32.c} (100%)
->  rename arch/s390/lib/{crc32-glue.c => crc32.c} (100%)
->  rename arch/sparc/lib/{crc32_glue.c => crc32.c} (97%)
->  rename arch/x86/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
->  rename arch/x86/lib/{crc32-glue.c => crc32.c} (100%)
->  rename arch/x86/lib/{crc64-glue.c => crc64.c} (100%)
->
-> base-commit: 1ec3d4ff5c77422927896c1f7d0ed01267ec1213
-> --
-> 2.49.0
->
+> diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+> index 5020696f1379..78df25da0b95 100644
+> --- a/drivers/s390/crypto/zcrypt_api.c
+> +++ b/drivers/s390/crypto/zcrypt_api.c
+> @@ -642,16 +642,17 @@ static long zcrypt_rsa_modexpo(struct ap_perms *perms,
+>  	struct zcrypt_queue *zq, *pref_zq;
+>  	struct ap_message ap_msg;
+>  	unsigned int wgt = 0, pref_wgt = 0;
+> -	unsigned int func_code;
+> -	int cpen, qpen, qid = 0, rc = -ENODEV;
+> +	unsigned int func_code = 0;
+> +	int cpen, qpen, qid = 0, rc;
+>  	struct module *mod;
+>  
+>  	trace_s390_zcrypt_req(mex, TP_ICARSAMODEXPO);
+>  
+> -	ap_init_message(&ap_msg);
+> +	rc = ap_init_apmsg(&ap_msg);
+> +	if (rc)
+> +		goto out;
+
+clang says:
+
+    CC [M]  drivers/s390/crypto/zcrypt_api.o
+      drivers/s390/crypto/zcrypt_api.c:1223:6: warning: variable 'func_code' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
+       1223 |         if (rc)
+            |             ^~
+      drivers/s390/crypto/zcrypt_api.c:1271:32: note: uninitialized use occurs here
+       1271 |         trace_s390_zcrypt_rep(buffer, func_code, rc,
+            |                                       ^~~~~~~~~
+      drivers/s390/crypto/zcrypt_api.c:1223:2: note: remove the 'if' if its condition is always false
+       1223 |         if (rc)
+            |         ^~~~~~~
+       1224 |                 goto out;
+            |                 ~~~~~~~~
+      drivers/s390/crypto/zcrypt_api.c:1214:24: note: initialize the variable 'func_code' to silence this warning
+       1214 |         unsigned int func_code;
+            |                               ^
+            |                                = 0
+
+Actually the problem that func_code may be used uninitialized existed before
+your patch series, but now at least clang can prove it and complains.
