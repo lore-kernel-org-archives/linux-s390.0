@@ -1,91 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B9EA13D531;
-	Thu, 24 Apr 2025 00:22:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E0292163B9;
+	Thu, 24 Apr 2025 06:22:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745454180; cv=none; b=UrevDruZn0UQgeeCPVUyPtFS0GFL4qhSPhR+FB5t013e6e1AAnL+HPDhsvLcwr1mr4wOS8pkMMuWBby9n6fCj2RCzsqgiuFI9bvqi7ieu74CN6UplPXl5FHIBf3NbjmwMvwoz5NsNrrieTK7mZQngZcNJW+pickNIQbVgQEc4Ic=
+	t=1745475762; cv=none; b=MP0dfVWRcS8AxqU3Lr2rEehwismCVz1ZSb2yJ+rW/8a0jnGA6sBtufgIeVigvCfNVMD36bJTRPJ1p3iiPFkxqZnmAzOZLq6Td68jmeQDMU3sZkPgcrCRD1bSs9FDdQau4HsWxraf8prIkFL1Bfhn7E/8kf4nj6sCOX1/EnhiIuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745454180; c=relaxed/simple;
-	bh=bmNtnPkT7vfqz7VYymkCYs+RWq0I1HO9RIQ1+wDAdb0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=McUdC5v3CyznkYCI/46zize9EvSdAH8mLyxVrKVcCBBW74cPBq7VabNaPzuNhAWPJTVVEUZyROu4if5VriotFLRA44p/i7tkLXvT0pZhq7qm6cQ/GSKxJPrJ3mzmb/Zavefe0IIDdKT3Am+w7Wx9biR6eJ38YbY5/bTV9xL/VNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZjLHst4b; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745475762; c=relaxed/simple;
+	bh=MnbDTkDjx7fGLQrr6aq33qeElS5aQV1V02HztW2z4QI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=frsu2ERYpofBEYhXTR6UIHDkztKUYqCzPwRGLvbfv0wCvs+0BfzAT6S6qbfWgBRCTchBt/okiWIljFDkTsUzho7twq783500eu1FPYJWFMV1im2l9GpGhMICxtbRKoKyowqCnpis+3PpZ1Zzu+SRQBAZbfrOO/gXbeVTVgZ+pQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WtboPodA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZjLHst4b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2374C4CEEF;
-	Thu, 24 Apr 2025 00:22:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WtboPodA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E13DBC4CEE3;
+	Thu, 24 Apr 2025 06:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745454179;
-	bh=bmNtnPkT7vfqz7VYymkCYs+RWq0I1HO9RIQ1+wDAdb0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZjLHst4bVDcbmK2s/0yw9jwnVejn2n2RNgkYtDcj19TnSrcTNR941Nezg68ow3IGG
-	 OWWvyd7GLInEMusl4tIdEBgGWvnXyC7jS/KhbQLMmxwkmC4mNAzxsnou9OH8/Rhaeo
-	 yorikXu6NekPONq5K0lpepo2u9ToPhVacC0I61FsEwFspybjF+wEG4KGGqEzjivZNE
-	 NDEnU7QcaQu3to8MPi6vph/yjuH35LTnDR8OtP+RRMx0Gas4KpaHV+j2zXwJ1Mcf5Z
-	 jkP4vvkXCfBanEugjydAu4QeBrQbhkac5HveHAp4hgDpO3wbrngz0kXqgz19nTpu3V
-	 axl/ON8oAh5Uw==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Ard Biesheuvel <ardb@kernel.org>,
-	linux-crypto@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH 5/7] s390/crc: drop "glue" from filenames
-Date: Wed, 23 Apr 2025 17:20:36 -0700
-Message-ID: <20250424002038.179114-6-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250424002038.179114-1-ebiggers@kernel.org>
-References: <20250424002038.179114-1-ebiggers@kernel.org>
+	s=k20201202; t=1745475760;
+	bh=MnbDTkDjx7fGLQrr6aq33qeElS5aQV1V02HztW2z4QI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=WtboPodAb4If3nkaa2PXy6oXsf0a3bXZctQ2wvPcXSI0l79MWAm4Z2gSZuz96IF9H
+	 0qLlIMYtp2SHP6GDqfM8ztwqvVgTZY6FXR9F5f0adrLGLlrBdyf5RWCE1I7N7CrTTj
+	 DAPkO1+pZGzixh+Urbuscma6hbYr7IX/6giX9wVWMj2r92tTCqm0d1+78+g71USLbJ
+	 THF5D9zsliGl+VvssarcSIxgX6vlpU47E9eZMJKjYTEQ8nflTSxlLh63IVcKVnlFdc
+	 SWV4SxmWIXzI3lSv6htjlMKoZppQdBmQJNjRQ4JTvSh2Z3t/BH9C3LOESeyqGxlX14
+	 DIG6sr68pN51A==
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5498d2a8b89so561949e87.1;
+        Wed, 23 Apr 2025 23:22:40 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCU+dwKdWGi/oXXv/11j017luD/6cSyRvbeiNO3r0QjubiBFfSFte6T0kd7axjJ2Hkj9+eleYdNWmT5lIA==@vger.kernel.org, AJvYcCXuh/6bjRJbOR9/eUAoB1aRDIp4OaoH5N1Ii2aif0sF/5MIqsjCpy7/Kyqzmf4gZkrFDGp1g2pKa3cBN/8=@vger.kernel.org, AJvYcCXwuHIeTBenxQd66PzjaQxJ3UZ6Qg9Vot5On3gbNx4yiWDuBmgFx9Tx4/OR0LcJ+frPOHm27OJxKI1ZlQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOnWQp20667775jSdTbz7exANcqKgpyGzGXxaYuagK8Wredye9
+	PbhCpy9LlZ/tQQoi/iEmVB/3GOMCil8YpRbr3hLpJgJ80V4VrOigR85OiFGJ1eVLilRR2lWaYaM
+	esm4N8/ZIN1j1yaXIXSUOTK+71Lw=
+X-Google-Smtp-Source: AGHT+IEBg0GksqRUxYbq10WiBQxT674qV08e5XaXakQ/0Ux/wZi1/Em/Ff29tbRd93xidxYNQXuF7ob7W4sz3W9cDJE=
+X-Received: by 2002:a2e:b8c9:0:b0:30c:3099:13db with SMTP id
+ 38308e7fff4ca-3179e5ea6f5mr4171351fa.14.1745475759305; Wed, 23 Apr 2025
+ 23:22:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250424002038.179114-1-ebiggers@kernel.org>
+In-Reply-To: <20250424002038.179114-1-ebiggers@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Thu, 24 Apr 2025 08:22:28 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXFZ-Wy9Z5Rqe-o6fnKtgm+=JQeFnVMvG=jmKz36=02w6A@mail.gmail.com>
+X-Gm-Features: ATxdqUEf-FfEO6d9z_202RUFsmqfhy6LhKcEQhVv3O5CQR6i6602IFM1v6-7V-w
+Message-ID: <CAMj1kXFZ-Wy9Z5Rqe-o6fnKtgm+=JQeFnVMvG=jmKz36=02w6A@mail.gmail.com>
+Subject: Re: [PATCH 0/7] lib/crc: drop "glue" from filenames
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-From: Eric Biggers <ebiggers@google.com>
+On Thu, 24 Apr 2025 at 02:22, Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> This series fixes an odd naming convention that was unnecessarily
+> carried over from the original Crypto API code.
+>
+> I'm planning to take this via the crc tree.
+>
+> Eric Biggers (7):
+>   arm/crc: drop "glue" from filenames
+>   arm64/crc: drop "glue" from filenames
+>   powerpc/crc: drop "glue" from filenames
+>   powerpc/crc: rename crc32-vpmsum_core.S to crc-vpmsum-template.S
+>   s390/crc: drop "glue" from filenames
+>   sparc/crc: drop "glue" from filenames
+>   x86/crc: drop "glue" from filenames
+>
 
-The use of the term "glue" in filenames is a Crypto API-ism that does
-not show up elsewhere in lib/.  I think adopting it there was a mistake.
-The library just uses standard functions, so the amount of code that
-could be considered "glue" is quite small.  And while often the C
-functions just wrap the assembly functions, there are also cases like
-crc32c_arch() in arch/x86/lib/crc32-glue.c that blur the line by
-in-lining the actual implementation into the C function.  That's not
-"glue code", but rather the actual code.
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
 
-Therefore, let's drop "glue" from the filenames and instead use e.g.
-crc32.c instead of crc32-glue.c.
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- arch/s390/lib/Makefile                  | 2 +-
- arch/s390/lib/{crc32-glue.c => crc32.c} | 0
- 2 files changed, 1 insertion(+), 1 deletion(-)
- rename arch/s390/lib/{crc32-glue.c => crc32.c} (100%)
-
-diff --git a/arch/s390/lib/Makefile b/arch/s390/lib/Makefile
-index 14bbfe50033c7..271a1c407121c 100644
---- a/arch/s390/lib/Makefile
-+++ b/arch/s390/lib/Makefile
-@@ -24,6 +24,6 @@ obj-$(CONFIG_S390_MODULES_SANITY_TEST_HELPERS) += test_modules_helpers.o
- lib-$(CONFIG_FUNCTION_ERROR_INJECTION) += error-inject.o
- 
- obj-$(CONFIG_EXPOLINE_EXTERN) += expoline.o
- 
- obj-$(CONFIG_CRC32_ARCH) += crc32-s390.o
--crc32-s390-y := crc32-glue.o crc32le-vx.o crc32be-vx.o
-+crc32-s390-y := crc32.o crc32le-vx.o crc32be-vx.o
-diff --git a/arch/s390/lib/crc32-glue.c b/arch/s390/lib/crc32.c
-similarity index 100%
-rename from arch/s390/lib/crc32-glue.c
-rename to arch/s390/lib/crc32.c
--- 
-2.49.0
-
+>  arch/arm/lib/Makefile                                       | 4 ++--
+>  arch/arm/lib/{crc-t10dif-glue.c => crc-t10dif.c}            | 0
+>  arch/arm/lib/{crc32-glue.c => crc32.c}                      | 0
+>  arch/arm64/lib/Makefile                                     | 4 ++--
+>  arch/arm64/lib/{crc-t10dif-glue.c => crc-t10dif.c}          | 0
+>  arch/arm64/lib/{crc32.S => crc32-core.S}                    | 0
+>  arch/arm64/lib/{crc32-glue.c => crc32.c}                    | 0
+>  arch/powerpc/lib/Makefile                                   | 4 ++--
+>  arch/powerpc/lib/{crc-t10dif-glue.c => crc-t10dif.c}        | 0
+>  .../lib/{crc32-vpmsum_core.S => crc-vpmsum-template.S}      | 0
+>  arch/powerpc/lib/{crc32-glue.c => crc32.c}                  | 0
+>  arch/powerpc/lib/crc32c-vpmsum_asm.S                        | 2 +-
+>  arch/powerpc/lib/crct10dif-vpmsum_asm.S                     | 2 +-
+>  arch/s390/lib/Makefile                                      | 2 +-
+>  arch/s390/lib/{crc32-glue.c => crc32.c}                     | 0
+>  arch/sparc/lib/Makefile                                     | 2 +-
+>  arch/sparc/lib/{crc32_glue.c => crc32.c}                    | 2 +-
+>  arch/x86/lib/Makefile                                       | 6 +++---
+>  arch/x86/lib/{crc-t10dif-glue.c => crc-t10dif.c}            | 0
+>  arch/x86/lib/{crc32-glue.c => crc32.c}                      | 0
+>  arch/x86/lib/{crc64-glue.c => crc64.c}                      | 0
+>  21 files changed, 14 insertions(+), 14 deletions(-)
+>  rename arch/arm/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
+>  rename arch/arm/lib/{crc32-glue.c => crc32.c} (100%)
+>  rename arch/arm64/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
+>  rename arch/arm64/lib/{crc32.S => crc32-core.S} (100%)
+>  rename arch/arm64/lib/{crc32-glue.c => crc32.c} (100%)
+>  rename arch/powerpc/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
+>  rename arch/powerpc/lib/{crc32-vpmsum_core.S => crc-vpmsum-template.S} (100%)
+>  rename arch/powerpc/lib/{crc32-glue.c => crc32.c} (100%)
+>  rename arch/s390/lib/{crc32-glue.c => crc32.c} (100%)
+>  rename arch/sparc/lib/{crc32_glue.c => crc32.c} (97%)
+>  rename arch/x86/lib/{crc-t10dif-glue.c => crc-t10dif.c} (100%)
+>  rename arch/x86/lib/{crc32-glue.c => crc32.c} (100%)
+>  rename arch/x86/lib/{crc64-glue.c => crc64.c} (100%)
+>
+> base-commit: 1ec3d4ff5c77422927896c1f7d0ed01267ec1213
+> --
+> 2.49.0
+>
