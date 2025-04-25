@@ -1,473 +1,674 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EAA019A2A3;
-	Fri, 25 Apr 2025 16:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2C0198E75
+	for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 18:16:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745599003; cv=none; b=cS5TwulQu84rBgDZOHZTchZORbmgywYmUSmeKlWsl5Cxk1UqBCAJuaYoDjHHUei4VxAKuGQo/wwo+mRvLuPo8S5MIDAnU4OTAocXyIo8VhMFXkRBgzOguh1LREIxO/N8GxshrNceyD2avC0aRDIrFfCxOWT+ZQ+DjpTrO5Ng2T0=
+	t=1745605020; cv=none; b=ne39ahuceKA/PNYFB6u6JqKCCkuvVtp3ce/UprT69IIti6zAAg8x8BikinvFkpi4b4nAZtEPfjeQXsXWih1+4Iyy6JEoGrcBZT3r95ZM+9x5FrHbGYdzH5iBI5bhvajWhnAZl/I12I6YSKol43yvFNttUcAonvBCULGMnmfir4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745599003; c=relaxed/simple;
-	bh=eDuPpVQfrrEHxYXwOVOoK73qECeDiWq8T7hCKEyeku0=;
+	s=arc-20240116; t=1745605020; c=relaxed/simple;
+	bh=xRwS7DIQ9xzKdaaNVSmdVjShk/A0oP6INDbbCT/nzow=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h9iZYDVAvDU4AFzNA9VZ6Rono2d6yDOcQmtP/+S1G2lG8lOD6YEcQytE/yUvrs0PQzAD3zm9BQ2NImszjjq/2OH2NKBKp2IzfiIC6jbeK2cCRnhue8cDrXMJd8G07JDNaISa1aN7u31FtIpes2x4jKwyUHrhAUpC+aGu1mEZMZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I6iMPIIM; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=uaju+/WZXJrRCW57WxrKbduSSfrSDOBcddW8ZFU4ON3GFG/zDxso62K43R6PALBvDlQlJWNvAPBaF6F5e81PRs9mK5wravme42P9bO4JKn9DCPyMJIREGF2IU02AscCHf84YfzRH+VXLuw3+DXxeixyUgJ/vWDoTquC7anQsml8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DoNPDeK2; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I6iMPIIM"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53PAftkV024809;
-	Fri, 25 Apr 2025 16:34:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=UoSIWEZjnJvFHHJcidBd9gWqF1dgFi
-	YXT2UqixJzyRw=; b=I6iMPIIMKAA98kW3WEbpflVNtKf9Vf/3RXc49Xlyb+oaEO
-	DkFcwBa5NOK/Ijyze6TsMdgIA0BN/40a01sWV1hsCHNsSDOa2h5dvitFEfqfUy+6
-	xnSPfd68+Yf4rEik84JilejXUuMTVBn27suA16fX+VK3Qvb7ZxVo9PrcJiFCcATe
-	3j0R3EI/NZmCPfZbtJ+hdnnBSKxFw9cBbHuloJ8GR+C/wlKAFKUmgNarRhmrk/aJ
-	b4DdMyARsXJ8YAojaXQutX0wjRRap+GcrAu8FQt9LLj9NxNWLYifHEJbT3VHgAWR
-	BuiJxB4OSQ9f8fl8twYhwpLsrXMUxnr7vU4Akqiw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4688ushnap-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Apr 2025 16:34:58 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53PG9Iq6005861;
-	Fri, 25 Apr 2025 16:34:58 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 466jfxp49b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Apr 2025 16:34:58 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53PGYunP34144900
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Apr 2025 16:34:56 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 117B320043;
-	Fri, 25 Apr 2025 16:34:56 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 327C120040;
-	Fri, 25 Apr 2025 16:34:54 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.73.111])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 25 Apr 2025 16:34:54 +0000 (GMT)
-Date: Fri, 25 Apr 2025 18:34:52 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Kevin Brodsky <kevin.brodsky@arm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Mike Rapoport (IBM)" <rppt@kernel.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Ryan Roberts <ryan.roberts@arm.com>, Will Deacon <will@kernel.org>,
-        Yang Shi <yang@os.amperecomputing.com>, linux-arch@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        x86@kernel.org
-Subject: Re: [PATCH v2 01/12] mm: Pass mm down to pagetable_{pte,pmd}_ctor
-Message-ID: <aAu5rHSX7w9xjqg9@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250408095222.860601-1-kevin.brodsky@arm.com>
- <20250408095222.860601-2-kevin.brodsky@arm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DoNPDeK2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1745605016;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3/H3vr0OCdDcR3s3PDhlvbwdaoTNbpfjoBVpx9IMnBk=;
+	b=DoNPDeK2STJBW2lvKOeUNdPR11BBrBQulvbvkJfkCnApgNaDujGCjbYvL+xOVVU1Z/Mxa0
+	sN52najFUYYfbwQmNKyNhBgFaH4yXbmxmGAiOJ+lbb+DFCDWNTS2PlOfYzOzXw608y9gD8
+	oVmOohrETzH6JM6n/enX+72H/1hX/tk=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-518-iz5Ngz0MOziAV8Rv2_XJTg-1; Fri, 25 Apr 2025 14:16:55 -0400
+X-MC-Unique: iz5Ngz0MOziAV8Rv2_XJTg-1
+X-Mimecast-MFC-AGG-ID: iz5Ngz0MOziAV8Rv2_XJTg_1745605014
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-ac6ebab17d8so204061966b.1
+        for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 11:16:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745605014; x=1746209814;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3/H3vr0OCdDcR3s3PDhlvbwdaoTNbpfjoBVpx9IMnBk=;
+        b=jBhEmZW7UbmYwkoN4TygJ3IkQZBs2+YnVk70oqeZ/qiv9pYe+4qc3PC+g8WcgJPLhr
+         BiX4cXYxvYKErMgoXDJcCzqNjXudNowVQn1+/y3pMfBkFU3WZ1W5L4zVCp+I7MBJK28L
+         tmugCXfbXChzptVFxzg2vB+apwwqVw39fSt4TIKMQp3jSB4MOrxO20J7itthgf36imPs
+         iDbcYnai5rnUOt+8gBH58IF8lSfySD1H7IxSblJVt6diZhpis7sHZbBxGia+DlBTZ+gy
+         WpXHR3WL0NgltR+liDQSCmoLQ0JGrqb6vINOMevD/Cttf4GPFgb5rtd8mv2VtxMlfq6o
+         p6PQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVnfXm89Pb4SdisNi6EAy+NXN1QeBEqpQqw8+HDWYogxnj2LNhEVi7crf+IqQizJL8GKYO9Nq50Ffir@vger.kernel.org
+X-Gm-Message-State: AOJu0YwgyPS3lD/G5liYzJs/C5Z+7yfJ/oLwExMFe0Wm8IyEN+WiveNQ
+	KKsEBGTrdmDXqKBmp8atB1NaaxXF/JvQ35rmjpHblQEe9MfTMZz9FYZlJGsg0KljHNmc4N6z+/q
+	vLB8TD9QrgQSUv8tZNXwbZIn4rYkYWx0Ln/0u2gW0QTt5DlzoGHeZ1aPZ6Q==
+X-Gm-Gg: ASbGnctmoT2AkfE14OljZwsA/tGmt1xSDRVmjmdbGvVBcF9GyntujNLOYYSp9C46Xy1
+	pNxDdX91areKBpTN9d3ln7Pj36oiPFVLwVQ3Q0+72L0lOkETYg/C1mdmh0Joa1njzZZgH802lP6
+	LFABRIuZXZLKnGP9AnYNzczRKwPTBZVhcd+OlTjakm2Jr0n9TNGx6JH/RmwbnLHzf8zuhVvfNm2
+	FFeJqtW/L13JJcWDly1pcsfzI9KttTW+fPJzDQVV0dfarq+URiG0V7RV4rURr6BKhgawtO8BqL8
+	irQvz1Q+DPSPyyxcMbMWlnE4WVRrtO8=
+X-Received: by 2002:a17:907:720d:b0:ac7:eb12:dc69 with SMTP id a640c23a62f3a-ace7110bb7emr344209766b.28.1745605013791;
+        Fri, 25 Apr 2025 11:16:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEcwZ2uBmoBZxtvmd2g+z9kEiApYvdSEco/tISBfW2KUfnlzh1cUwx+QqrN8Zv6maFk6XK8qg==
+X-Received: by 2002:a17:907:720d:b0:ac7:eb12:dc69 with SMTP id a640c23a62f3a-ace7110bb7emr344205866b.28.1745605013200;
+        Fri, 25 Apr 2025 11:16:53 -0700 (PDT)
+Received: from thinky (ip-217-030-074-039.aim-net.cz. [217.30.74.39])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ace6ed70606sm168961166b.160.2025.04.25.11.16.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Apr 2025 11:16:52 -0700 (PDT)
+Date: Fri, 25 Apr 2025 20:16:48 +0200
+From: Andrey Albershteyn <aalbersh@redhat.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Amir Goldstein <amir73il@gmail.com>, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-xfs@vger.kernel.org
+Subject: Re: [PATCH v4 3/3] fs: introduce getfsxattrat and setfsxattrat
+ syscalls
+Message-ID: <l33napyvz5fwbcdju4otllbu4zr6faaz6mufz652alpxnjjfvl@h7j4hu4uwqwv>
+References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
+ <20250321-xattrat-syscall-v4-3-3e82e6fb3264@kernel.org>
+ <CAOQ4uxj2Fqmc_pSD4bqqoQu7QjmgSVp2V15FbmBdTNqQ03aPGQ@mail.gmail.com>
+ <faqun3wrpvwrhwukql3niqvvauy5ngrpytx5bxbrv5xkounez3@m7j2znjuzapu>
+ <CAOQ4uxjs=Gg-ocwx_fkzc0gxQ_dHx-P9EAgz5ZwbdbrxV0T_EA@mail.gmail.com>
+ <20250422-suchen-filmpreis-3573a913457c@brauner>
+ <20250422-gefressen-faucht-8ded2c9a5375@brauner>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250408095222.860601-2-kevin.brodsky@arm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=dbeA3WXe c=1 sm=1 tr=0 ts=680bb9b3 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=7CQSdrXTAAAA:8 a=VnNF1IyMAAAA:8 a=7XQ_oYAFJgMplnqaJ0EA:9 a=CjuIK1q_8ugA:10
- a=a-qgeE7W1pNrGK8U0ZQC:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDI1MDExNCBTYWx0ZWRfX9h3njuqExHoJ HJja56Lsy6oDF9Y2PLpbY+BFxd+fFSA9eBOYUkRmoMsfaaEczHXT0eDuxVxlAIJlJaXl7Xv4svl xoD9EVVTCUr7G+SiAowO7thlblslz0QJVG0YZJ4LLob9P5jRE+9+FXgAlOa2WKV0mUz/rHhvjYU
- ZaYlhcCij+yfiw3l3u7HqsXe947Sd+mv7GgDjQ/XOdobx+p/ADROGya1SGkL7CQwpRfGrIsJeNQ SsjPFxupcxH7HW2700dNMXsuJM80DaxyYPS558iwl5L2yjVjkxzKDcnXaPT36gp6VICnX1ilHLD 17wtWOO+Bsz/H9E6NGBT7N7S3f5yQk0YK8qoc+FuXC5RN62KwcdDcYpG2DlQuYQ0y/a7g+0+cTX
- hkJE/E/TkWW9RaWs6WdeNkTOse1BsrO1K9sG/M2tJB/eJ4fHemqsaYVdBoroeLJ8IffsQG2U
-X-Proofpoint-ORIG-GUID: ySTbmFj0-W242HV95924LVB8DHS4YoGV
-X-Proofpoint-GUID: ySTbmFj0-W242HV95924LVB8DHS4YoGV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-04-25_04,2025-04-24_02,2025-02-21_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 spamscore=0 mlxscore=0
- lowpriorityscore=0 bulkscore=0 adultscore=0 mlxlogscore=999 clxscore=1011
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2504070000
- definitions=main-2504250114
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250422-gefressen-faucht-8ded2c9a5375@brauner>
 
-On Tue, Apr 08, 2025 at 10:52:11AM +0100, Kevin Brodsky wrote:
-> In preparation for calling constructors for all kernel page tables
-> while eliding unnecessary ptlock initialisation, let's pass down the
-> associated mm to the PTE/PMD level ctors. (These are the two levels
-> where ptlocks are used.)
+On 2025-04-22 17:14:10, Christian Brauner wrote:
+> On Tue, Apr 22, 2025 at 04:31:29PM +0200, Christian Brauner wrote:
+> > On Thu, Mar 27, 2025 at 12:39:28PM +0100, Amir Goldstein wrote:
+> > > On Thu, Mar 27, 2025 at 10:33 AM Andrey Albershteyn <aalbersh@redhat.com> wrote:
+> > > >
+> > > > On 2025-03-23 09:56:25, Amir Goldstein wrote:
+> > > > > On Fri, Mar 21, 2025 at 8:49 PM Andrey Albershteyn <aalbersh@redhat.com> wrote:
+> > > > > >
+> > > > > > From: Andrey Albershteyn <aalbersh@redhat.com>
+> > > > > >
+> > > > > > Introduce getfsxattrat and setfsxattrat syscalls to manipulate inode
+> > > > > > extended attributes/flags. The syscalls take parent directory fd and
+> > > > > > path to the child together with struct fsxattr.
+> > > > > >
+> > > > > > This is an alternative to FS_IOC_FSSETXATTR ioctl with a difference
+> > > > > > that file don't need to be open as we can reference it with a path
+> > > > > > instead of fd. By having this we can manipulated inode extended
+> > > > > > attributes not only on regular files but also on special ones. This
+> > > > > > is not possible with FS_IOC_FSSETXATTR ioctl as with special files
+> > > > > > we can not call ioctl() directly on the filesystem inode using fd.
+> > > > > >
+> > > > > > This patch adds two new syscalls which allows userspace to get/set
+> > > > > > extended inode attributes on special files by using parent directory
+> > > > > > and a path - *at() like syscall.
+> > > > > >
+> > > > > > CC: linux-api@vger.kernel.org
+> > > > > > CC: linux-fsdevel@vger.kernel.org
+> > > > > > CC: linux-xfs@vger.kernel.org
+> > > > > > Signed-off-by: Andrey Albershteyn <aalbersh@redhat.com>
+> > > > > > Acked-by: Arnd Bergmann <arnd@arndb.de>
+> > > > > > ---
+> > > > > ...
+> > > > > > +SYSCALL_DEFINE5(setfsxattrat, int, dfd, const char __user *, filename,
+> > > > > > +               struct fsxattr __user *, ufsx, size_t, usize,
+> > > > > > +               unsigned int, at_flags)
+> > > > > > +{
+> > > > > > +       struct fileattr fa;
+> > > > > > +       struct path filepath;
+> > > > > > +       int error;
+> > > > > > +       unsigned int lookup_flags = 0;
+> > > > > > +       struct filename *name;
+> > > > > > +       struct mnt_idmap *idmap;.
+> > > > >
+> > > > > > +       struct dentry *dentry;
+> > > > > > +       struct vfsmount *mnt;
+> > > > > > +       struct fsxattr fsx = {};
+> > > > > > +
+> > > > > > +       BUILD_BUG_ON(sizeof(struct fsxattr) < FSXATTR_SIZE_VER0);
+> > > > > > +       BUILD_BUG_ON(sizeof(struct fsxattr) != FSXATTR_SIZE_LATEST);
+> > > > > > +
+> > > > > > +       if ((at_flags & ~(AT_SYMLINK_NOFOLLOW | AT_EMPTY_PATH)) != 0)
+> > > > > > +               return -EINVAL;
+> > > > > > +
+> > > > > > +       if (!(at_flags & AT_SYMLINK_NOFOLLOW))
+> > > > > > +               lookup_flags |= LOOKUP_FOLLOW;
+> > > > > > +
+> > > > > > +       if (at_flags & AT_EMPTY_PATH)
+> > > > > > +               lookup_flags |= LOOKUP_EMPTY;
+> > > > > > +
+> > > > > > +       if (usize > PAGE_SIZE)
+> > > > > > +               return -E2BIG;
+> > > > > > +
+> > > > > > +       if (usize < FSXATTR_SIZE_VER0)
+> > > > > > +               return -EINVAL;
+> > > > > > +
+> > > > > > +       error = copy_struct_from_user(&fsx, sizeof(struct fsxattr), ufsx, usize);
+> > > > > > +       if (error)
+> > > > > > +               return error;
+> > > > > > +
+> > > > > > +       fsxattr_to_fileattr(&fsx, &fa);
+> > > > > > +
+> > > > > > +       name = getname_maybe_null(filename, at_flags);
+> > > > > > +       if (!name) {
+> > > > > > +               CLASS(fd, f)(dfd);
+> > > > > > +
+> > > > > > +               if (fd_empty(f))
+> > > > > > +                       return -EBADF;
+> > > > > > +
+> > > > > > +               idmap = file_mnt_idmap(fd_file(f));
+> > > > > > +               dentry = file_dentry(fd_file(f));
+> > > > > > +               mnt = fd_file(f)->f_path.mnt;
+> > > > > > +       } else {
+> > > > > > +               error = filename_lookup(dfd, name, lookup_flags, &filepath,
+> > > > > > +                                       NULL);
+> > > > > > +               if (error)
+> > > > > > +                       return error;
+> > > > > > +
+> > > > > > +               idmap = mnt_idmap(filepath.mnt);
+> > > > > > +               dentry = filepath.dentry;
+> > > > > > +               mnt = filepath.mnt;
+> > > > > > +       }
+> > > > > > +
+> > > > > > +       error = mnt_want_write(mnt);
+> > > > > > +       if (!error) {
+> > > > > > +               error = vfs_fileattr_set(idmap, dentry, &fa);
+> > > > > > +               if (error == -ENOIOCTLCMD)
+> > > > > > +                       error = -EOPNOTSUPP;
+> > > > >
+> > > > > This is awkward.
+> > > > > vfs_fileattr_set() should return -EOPNOTSUPP.
+> > > > > ioctl_setflags() could maybe convert it to -ENOIOCTLCMD,
+> > > > > but looking at similar cases ioctl_fiemap(), ioctl_fsfreeze() the
+> > > > > ioctl returns -EOPNOTSUPP.
+> > > > >
+> > > > > I don't think it is necessarily a bad idea to start returning
+> > > > >  -EOPNOTSUPP instead of -ENOIOCTLCMD for the ioctl
+> > > > > because that really reflects the fact that the ioctl is now implemented
+> > > > > in vfs and not in the specific fs.
+> > > > >
+> > > > > and I think it would not be a bad idea at all to make that change
+> > > > > together with the merge of the syscalls as a sort of hint to userspace
+> > > > > that uses the ioctl, that the sycalls API exists.
+> > > > >
+> > > > > Thanks,
+> > > > > Amir.
+> > > > >
+> > > >
+> > > > Hmm, not sure what you're suggesting here. I see it as:
+> > > > - get/setfsxattrat should return EOPNOTSUPP as it make more sense
+> > > >   than ENOIOCTLCMD
+> > > > - ioctl_setflags returns ENOIOCTLCMD which also expected
+> > > >
+> > > > Don't really see a reason to change what vfs_fileattr_set() returns
+> > > > and then copying this if() to other places or start returning
+> > > > EOPNOTSUPP.
+> > > 
+> > > ENOIOCTLCMD conceptually means that the ioctl command is unknown
+> > > This is not the case since ->fileattr_[gs]et() became a vfs API
+> > 
+> > vfs_fileattr_{g,s}et() should not return ENOIOCTLCMD. Change the return
+> > code to EOPNOTSUPP and then make EOPNOTSUPP be translated to ENOTTY on
+> > on overlayfs and to ENOIOCTLCMD in ecryptfs and in fs/ioctl.c. This way
+> > we get a clean VFS api while retaining current behavior. Amir can do his
+> > cleanup based on that.
 > 
-> In most cases the mm is already around at the point of calling the
-> ctor so we simply pass it down. This is however not the case for
-> special page table allocators:
+> Also this get/set dance is not something new apis should do. It should
+> be handled like setattr_prepare() or generic_fillattr() where the
+> filesystem calls a VFS helper and that does all of this based on the
+> current state of the inode instead of calling into the filesystem twice:
 > 
-> * arch/arm/mm/mmu.c
-> * arch/arm64/mm/mmu.c
-> * arch/riscv/mm/init.c
+> int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
+> 		     struct fileattr *fa)
+> {
+> <snip>
+> 	inode_lock(inode);
+> 	err = vfs_fileattr_get(dentry, &old_ma);
+> 	if (!err) {
+> 		/* initialize missing bits from old_ma */
+> 		if (fa->flags_valid) {
+> <snip>
+> 		err = fileattr_set_prepare(inode, &old_ma, fa);
+> 		if (!err && !security_inode_setfsxattr(inode, fa))
+> 			err = inode->i_op->fileattr_set(idmap, dentry, fa);
 > 
-> In those cases, the page tables being allocated are either for
-> standard kernel memory (init_mm) or special page directories, which
-> may not be associated to any mm. For now let's pass NULL as mm; this
-> will be refined where possible in future patches.
-> 
-> No functional change in this patch.
-> 
-> Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
-> ---
->  arch/arm/mm/mmu.c                        |  2 +-
->  arch/arm64/mm/mmu.c                      |  4 ++--
->  arch/loongarch/include/asm/pgalloc.h     |  2 +-
->  arch/m68k/include/asm/mcf_pgalloc.h      |  2 +-
->  arch/m68k/include/asm/motorola_pgalloc.h | 10 +++++-----
->  arch/m68k/mm/motorola.c                  |  6 +++---
->  arch/mips/include/asm/pgalloc.h          |  2 +-
->  arch/parisc/include/asm/pgalloc.h        |  2 +-
->  arch/powerpc/mm/book3s64/pgtable.c       |  2 +-
->  arch/powerpc/mm/pgtable-frag.c           |  2 +-
->  arch/riscv/mm/init.c                     |  4 ++--
->  arch/s390/include/asm/pgalloc.h          |  2 +-
->  arch/s390/mm/pgalloc.c                   |  2 +-
->  arch/sparc/mm/init_64.c                  |  2 +-
->  arch/sparc/mm/srmmu.c                    |  2 +-
->  arch/x86/mm/pgtable.c                    |  2 +-
->  include/asm-generic/pgalloc.h            |  4 ++--
->  include/linux/mm.h                       |  6 ++++--
->  18 files changed, 30 insertions(+), 28 deletions(-)
-> 
-> diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-> index f02f872ea8a9..edb7f56b7c91 100644
-> --- a/arch/arm/mm/mmu.c
-> +++ b/arch/arm/mm/mmu.c
-> @@ -735,7 +735,7 @@ static void *__init late_alloc(unsigned long sz)
->  	void *ptdesc = pagetable_alloc(GFP_PGTABLE_KERNEL & ~__GFP_HIGHMEM,
->  			get_order(sz));
->  
-> -	if (!ptdesc || !pagetable_pte_ctor(ptdesc))
-> +	if (!ptdesc || !pagetable_pte_ctor(NULL, ptdesc))
->  		BUG();
->  	return ptdesc_to_virt(ptdesc);
->  }
-> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-> index ea6695d53fb9..8c5c471cfb06 100644
-> --- a/arch/arm64/mm/mmu.c
-> +++ b/arch/arm64/mm/mmu.c
-> @@ -494,9 +494,9 @@ static phys_addr_t pgd_pgtable_alloc(int shift)
->  	 * folded, and if so pagetable_pte_ctor() becomes nop.
->  	 */
->  	if (shift == PAGE_SHIFT)
-> -		BUG_ON(!pagetable_pte_ctor(ptdesc));
-> +		BUG_ON(!pagetable_pte_ctor(NULL, ptdesc));
->  	else if (shift == PMD_SHIFT)
-> -		BUG_ON(!pagetable_pmd_ctor(ptdesc));
-> +		BUG_ON(!pagetable_pmd_ctor(NULL, ptdesc));
->  
->  	return pa;
->  }
-> diff --git a/arch/loongarch/include/asm/pgalloc.h b/arch/loongarch/include/asm/pgalloc.h
-> index b58f587f0f0a..1c63a9d9a6d3 100644
-> --- a/arch/loongarch/include/asm/pgalloc.h
-> +++ b/arch/loongarch/include/asm/pgalloc.h
-> @@ -69,7 +69,7 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
->  	if (!ptdesc)
->  		return NULL;
->  
-> -	if (!pagetable_pmd_ctor(ptdesc)) {
-> +	if (!pagetable_pmd_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/m68k/include/asm/mcf_pgalloc.h b/arch/m68k/include/asm/mcf_pgalloc.h
-> index 4c648b51e7fd..465a71101b7d 100644
-> --- a/arch/m68k/include/asm/mcf_pgalloc.h
-> +++ b/arch/m68k/include/asm/mcf_pgalloc.h
-> @@ -48,7 +48,7 @@ static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
->  
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pte_ctor(ptdesc)) {
-> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/m68k/include/asm/motorola_pgalloc.h b/arch/m68k/include/asm/motorola_pgalloc.h
-> index 5abe7da8ac5a..1091fb0affbe 100644
-> --- a/arch/m68k/include/asm/motorola_pgalloc.h
-> +++ b/arch/m68k/include/asm/motorola_pgalloc.h
-> @@ -15,7 +15,7 @@ enum m68k_table_types {
->  };
->  
->  extern void init_pointer_table(void *table, int type);
-> -extern void *get_pointer_table(int type);
-> +extern void *get_pointer_table(struct mm_struct *mm, int type);
->  extern int free_pointer_table(void *table, int type);
->  
->  /*
-> @@ -26,7 +26,7 @@ extern int free_pointer_table(void *table, int type);
->  
->  static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
->  {
-> -	return get_pointer_table(TABLE_PTE);
-> +	return get_pointer_table(mm, TABLE_PTE);
->  }
->  
->  static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
-> @@ -36,7 +36,7 @@ static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
->  
->  static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
->  {
-> -	return get_pointer_table(TABLE_PTE);
-> +	return get_pointer_table(mm, TABLE_PTE);
->  }
->  
->  static inline void pte_free(struct mm_struct *mm, pgtable_t pgtable)
-> @@ -53,7 +53,7 @@ static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pgtable,
->  
->  static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
->  {
-> -	return get_pointer_table(TABLE_PMD);
-> +	return get_pointer_table(mm, TABLE_PMD);
->  }
->  
->  static inline int pmd_free(struct mm_struct *mm, pmd_t *pmd)
-> @@ -75,7 +75,7 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
->  
->  static inline pgd_t *pgd_alloc(struct mm_struct *mm)
->  {
-> -	return get_pointer_table(TABLE_PGD);
-> +	return get_pointer_table(mm, TABLE_PGD);
->  }
->  
->  
-> diff --git a/arch/m68k/mm/motorola.c b/arch/m68k/mm/motorola.c
-> index 73651e093c4d..6ab3ef39ba7a 100644
-> --- a/arch/m68k/mm/motorola.c
-> +++ b/arch/m68k/mm/motorola.c
-> @@ -139,7 +139,7 @@ void __init init_pointer_table(void *table, int type)
->  	return;
->  }
->  
-> -void *get_pointer_table(int type)
-> +void *get_pointer_table(struct mm_struct *mm, int type)
->  {
->  	ptable_desc *dp = ptable_list[type].next;
->  	unsigned int mask = list_empty(&ptable_list[type]) ? 0 : PD_MARKBITS(dp);
-> @@ -164,10 +164,10 @@ void *get_pointer_table(int type)
->  			 * m68k doesn't have SPLIT_PTE_PTLOCKS for not having
->  			 * SMP.
->  			 */
-> -			pagetable_pte_ctor(virt_to_ptdesc(page));
-> +			pagetable_pte_ctor(mm, virt_to_ptdesc(page));
->  			break;
->  		case TABLE_PMD:
-> -			pagetable_pmd_ctor(virt_to_ptdesc(page));
-> +			pagetable_pmd_ctor(mm, virt_to_ptdesc(page));
->  			break;
->  		case TABLE_PGD:
->  			pagetable_pgd_ctor(virt_to_ptdesc(page));
-> diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-> index bbca420c96d3..942af87f1cdd 100644
-> --- a/arch/mips/include/asm/pgalloc.h
-> +++ b/arch/mips/include/asm/pgalloc.h
-> @@ -62,7 +62,7 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
->  	if (!ptdesc)
->  		return NULL;
->  
-> -	if (!pagetable_pmd_ctor(ptdesc)) {
-> +	if (!pagetable_pmd_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/parisc/include/asm/pgalloc.h b/arch/parisc/include/asm/pgalloc.h
-> index 2ca74a56415c..3b84ee93edaa 100644
-> --- a/arch/parisc/include/asm/pgalloc.h
-> +++ b/arch/parisc/include/asm/pgalloc.h
-> @@ -39,7 +39,7 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
->  	ptdesc = pagetable_alloc(gfp, PMD_TABLE_ORDER);
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pmd_ctor(ptdesc)) {
-> +	if (!pagetable_pmd_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/powerpc/mm/book3s64/pgtable.c b/arch/powerpc/mm/book3s64/pgtable.c
-> index 8f7d41ce2ca1..a282233c8785 100644
-> --- a/arch/powerpc/mm/book3s64/pgtable.c
-> +++ b/arch/powerpc/mm/book3s64/pgtable.c
-> @@ -422,7 +422,7 @@ static pmd_t *__alloc_for_pmdcache(struct mm_struct *mm)
->  	ptdesc = pagetable_alloc(gfp, 0);
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pmd_ctor(ptdesc)) {
-> +	if (!pagetable_pmd_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/powerpc/mm/pgtable-frag.c b/arch/powerpc/mm/pgtable-frag.c
-> index 713268ccb1a0..387e9b1fe12c 100644
-> --- a/arch/powerpc/mm/pgtable-frag.c
-> +++ b/arch/powerpc/mm/pgtable-frag.c
-> @@ -61,7 +61,7 @@ static pte_t *__alloc_for_ptecache(struct mm_struct *mm, int kernel)
->  		ptdesc = pagetable_alloc(PGALLOC_GFP | __GFP_ACCOUNT, 0);
->  		if (!ptdesc)
->  			return NULL;
-> -		if (!pagetable_pte_ctor(ptdesc)) {
-> +		if (!pagetable_pte_ctor(mm, ptdesc)) {
->  			pagetable_free(ptdesc);
->  			return NULL;
->  		}
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index ab475ec6ca42..e5ef693fc778 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -442,7 +442,7 @@ static phys_addr_t __meminit alloc_pte_late(uintptr_t va)
->  {
->  	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
->  
-> -	BUG_ON(!ptdesc || !pagetable_pte_ctor(ptdesc));
-> +	BUG_ON(!ptdesc || !pagetable_pte_ctor(NULL, ptdesc));
->  	return __pa((pte_t *)ptdesc_address(ptdesc));
->  }
->  
-> @@ -522,7 +522,7 @@ static phys_addr_t __meminit alloc_pmd_late(uintptr_t va)
->  {
->  	struct ptdesc *ptdesc = pagetable_alloc(GFP_KERNEL & ~__GFP_HIGHMEM, 0);
->  
-> -	BUG_ON(!ptdesc || !pagetable_pmd_ctor(ptdesc));
-> +	BUG_ON(!ptdesc || !pagetable_pmd_ctor(NULL, ptdesc));
->  	return __pa((pmd_t *)ptdesc_address(ptdesc));
->  }
->  
-> diff --git a/arch/s390/include/asm/pgalloc.h b/arch/s390/include/asm/pgalloc.h
-> index 005497ffebda..5345398df653 100644
-> --- a/arch/s390/include/asm/pgalloc.h
-> +++ b/arch/s390/include/asm/pgalloc.h
-> @@ -97,7 +97,7 @@ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long vmaddr)
->  	if (!table)
->  		return NULL;
->  	crst_table_init(table, _SEGMENT_ENTRY_EMPTY);
-> -	if (!pagetable_pmd_ctor(virt_to_ptdesc(table))) {
-> +	if (!pagetable_pmd_ctor(mm, virt_to_ptdesc(table))) {
->  		crst_table_free(mm, table);
->  		return NULL;
->  	}
-> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> index e3a6f8ae156c..619d6917e3b7 100644
-> --- a/arch/s390/mm/pgalloc.c
-> +++ b/arch/s390/mm/pgalloc.c
-> @@ -145,7 +145,7 @@ unsigned long *page_table_alloc(struct mm_struct *mm)
->  	ptdesc = pagetable_alloc(GFP_KERNEL, 0);
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pte_ctor(ptdesc)) {
-> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-> index 760818950464..5c8eabda1d17 100644
-> --- a/arch/sparc/mm/init_64.c
-> +++ b/arch/sparc/mm/init_64.c
-> @@ -2895,7 +2895,7 @@ pgtable_t pte_alloc_one(struct mm_struct *mm)
->  
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pte_ctor(ptdesc)) {
-> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-> index dd32711022f5..f8fb4911d360 100644
-> --- a/arch/sparc/mm/srmmu.c
-> +++ b/arch/sparc/mm/srmmu.c
-> @@ -350,7 +350,7 @@ pgtable_t pte_alloc_one(struct mm_struct *mm)
->  	page = pfn_to_page(__nocache_pa((unsigned long)ptep) >> PAGE_SHIFT);
->  	spin_lock(&mm->page_table_lock);
->  	if (page_ref_inc_return(page) == 2 &&
-> -			!pagetable_pte_ctor(page_ptdesc(page))) {
-> +			!pagetable_pte_ctor(mm, page_ptdesc(page))) {
->  		page_ref_dec(page);
->  		ptep = NULL;
->  	}
-> diff --git a/arch/x86/mm/pgtable.c b/arch/x86/mm/pgtable.c
-> index a05fcddfc811..7930f234c5f6 100644
-> --- a/arch/x86/mm/pgtable.c
-> +++ b/arch/x86/mm/pgtable.c
-> @@ -205,7 +205,7 @@ static int preallocate_pmds(struct mm_struct *mm, pmd_t *pmds[], int count)
->  
->  		if (!ptdesc)
->  			failed = true;
-> -		if (ptdesc && !pagetable_pmd_ctor(ptdesc)) {
-> +		if (ptdesc && !pagetable_pmd_ctor(mm, ptdesc)) {
->  			pagetable_free(ptdesc);
->  			ptdesc = NULL;
->  			failed = true;
-> diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
-> index 892ece4558a2..e164ca66f0f6 100644
-> --- a/include/asm-generic/pgalloc.h
-> +++ b/include/asm-generic/pgalloc.h
-> @@ -70,7 +70,7 @@ static inline pgtable_t __pte_alloc_one_noprof(struct mm_struct *mm, gfp_t gfp)
->  	ptdesc = pagetable_alloc_noprof(gfp, 0);
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pte_ctor(ptdesc)) {
-> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> @@ -137,7 +137,7 @@ static inline pmd_t *pmd_alloc_one_noprof(struct mm_struct *mm, unsigned long ad
->  	ptdesc = pagetable_alloc_noprof(gfp, 0);
->  	if (!ptdesc)
->  		return NULL;
-> -	if (!pagetable_pmd_ctor(ptdesc)) {
-> +	if (!pagetable_pmd_ctor(mm, ptdesc)) {
->  		pagetable_free(ptdesc);
->  		return NULL;
->  	}
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index b7f13f087954..f9b793cce2c1 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -3100,7 +3100,8 @@ static inline void pagetable_dtor_free(struct ptdesc *ptdesc)
->  	pagetable_free(ptdesc);
->  }
->  
-> -static inline bool pagetable_pte_ctor(struct ptdesc *ptdesc)
-> +static inline bool pagetable_pte_ctor(struct mm_struct *mm,
-> +				      struct ptdesc *ptdesc)
->  {
->  	if (!ptlock_init(ptdesc))
->  		return false;
-> @@ -3206,7 +3207,8 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
->  	return ptl;
->  }
->  
-> -static inline bool pagetable_pmd_ctor(struct ptdesc *ptdesc)
-> +static inline bool pagetable_pmd_ctor(struct mm_struct *mm,
-> +				      struct ptdesc *ptdesc)
->  {
->  	if (!pmd_ptlock_init(ptdesc))
->  		return false;
 
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>	# s390
+You mean something like this? (not all fs are done)
+
+-- 
+
+From 421445f054ccad3116d55ae22c8995a48bb753fd Mon Sep 17 00:00:00 2001
+From: Andrey Albershteyn <aalbersh@kernel.org>
+Date: Fri, 25 Apr 2025 17:20:42 +0200
+Subject: [PATCH] fs: push retrieval of fileattr down to filesystems
+
+Currently, vfs_fileattr_set() calls twice to the file system. Firstly,
+to retrieve current state of the inode extended attributes and secondly
+to set the new ones.
+
+This patch refactors this in a way that filesystem firstly gets current
+inode attribute state and then calls VFS helper to verify them. This way
+vfs_fileattr_set() will call filesystem just once.
+
+Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
+---
+ fs/ext2/ioctl.c          |  9 ++++++
+ fs/ext4/ioctl.c          |  9 ++++++
+ fs/f2fs/file.c           | 12 +++++++-
+ fs/file_attr.c           | 62 ++++++++++++++++++++++++----------------
+ fs/gfs2/file.c           |  9 ++++++
+ fs/hfsplus/inode.c       |  9 ++++++
+ fs/jfs/ioctl.c           |  9 +++++-
+ fs/ntfs3/file.c          | 12 +++++++-
+ fs/orangefs/inode.c      |  9 ++++++
+ fs/ubifs/ioctl.c         | 12 +++++++-
+ fs/xfs/xfs_ioctl.c       |  6 ++++
+ include/linux/fileattr.h |  2 ++
+ mm/shmem.c               |  8 ++++++
+ 13 files changed, 140 insertions(+), 28 deletions(-)
+
+diff --git a/fs/ext2/ioctl.c b/fs/ext2/ioctl.c
+index 44e04484e570..3a45ed9c12b7 100644
+--- a/fs/ext2/ioctl.c
++++ b/fs/ext2/ioctl.c
+@@ -32,6 +32,15 @@ int ext2_fileattr_set(struct mnt_idmap *idmap,
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct ext2_inode_info *ei = EXT2_I(inode);
++	struct fileattr cfa;
++	int err;
++
++	err = ext2_fileattr_get(dentry, &cfa);
++	if (err)
++		return err;
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
+ 
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index d17207386ead..f988ff4d7256 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -1002,6 +1002,15 @@ int ext4_fileattr_set(struct mnt_idmap *idmap,
+ 	struct inode *inode = d_inode(dentry);
+ 	u32 flags = fa->flags;
+ 	int err = -EOPNOTSUPP;
++	struct fileattr cfa;
++
++	err = ext4_fileattr_get(dentry, &cfa);
++	if (err)
++		return err;
++
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
+ 
+ 	if (flags & ~EXT4_FL_USER_VISIBLE)
+ 		goto out;
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index abbcbb5865a3..f196a07f1f17 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -3371,14 +3371,24 @@ int f2fs_fileattr_set(struct mnt_idmap *idmap,
+ 		      struct dentry *dentry, struct fileattr *fa)
+ {
+ 	struct inode *inode = d_inode(dentry);
+-	u32 fsflags = fa->flags, mask = F2FS_SETTABLE_FS_FL;
++	u32 fsflags, mask = F2FS_SETTABLE_FS_FL;
+ 	u32 iflags;
++	struct fileattr cfa;
+ 	int err;
+ 
+ 	if (unlikely(f2fs_cp_error(F2FS_I_SB(inode))))
+ 		return -EIO;
+ 	if (!f2fs_is_checkpoint_ready(F2FS_I_SB(inode)))
+ 		return -ENOSPC;
++
++	err = f2fs_fileattr_get(dentry, &cfa);
++	if (err)
++		return err;
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
++	fsflags = fa->flags;
++
+ 	if (fsflags & ~F2FS_GETTABLE_FS_FL)
+ 		return -EOPNOTSUPP;
+ 	fsflags &= F2FS_SETTABLE_FS_FL;
+diff --git a/fs/file_attr.c b/fs/file_attr.c
+index 5e51c5b851ef..d0a01377bca8 100644
+--- a/fs/file_attr.c
++++ b/fs/file_attr.c
+@@ -7,6 +7,8 @@
+ #include <linux/fileattr.h>
+ #include <linux/namei.h>
+ 
++#include "internal.h"
++
+ /**
+  * fileattr_fill_xflags - initialize fileattr with xflags
+  * @fa:		fileattr pointer
+@@ -225,6 +227,36 @@ static int fileattr_set_prepare(struct inode *inode,
+ 	return 0;
+ }
+ 
++/**
++ * vfs_fileattr_set_prepare - merge new filettr state and check for validity
++ * @idmap:	idmap of the mount
++ * @dentry:	the object to change
++ * @cfa:	current fileattr state
++ * @fa:		fileattr pointer with new values
++ *
++ * Return: 0 on success, or a negative error on failure.
++ */
++int vfs_fileattr_set_prepare(struct mnt_idmap *idmap, struct dentry *dentry,
++			     struct fileattr *cfa, struct fileattr *fa)
++{
++	int err;
++
++	/* initialize missing bits from cfa */
++	if (fa->flags_valid) {
++		fa->fsx_xflags |= cfa->fsx_xflags & ~FS_XFLAG_COMMON;
++		fa->fsx_extsize = cfa->fsx_extsize;
++		fa->fsx_nextents = cfa->fsx_nextents;
++		fa->fsx_projid = cfa->fsx_projid;
++		fa->fsx_cowextsize = cfa->fsx_cowextsize;
++	} else {
++		fa->flags |= cfa->flags & ~FS_COMMON_FL;
++	}
++
++	err = fileattr_set_prepare(d_inode(dentry), cfa, fa);
++	return err;
++}
++EXPORT_SYMBOL(vfs_fileattr_set_prepare);
++
+ /**
+  * vfs_fileattr_set - change miscellaneous file attributes
+  * @idmap:	idmap of the mount
+@@ -245,7 +277,6 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
+ 		     struct fileattr *fa)
+ {
+ 	struct inode *inode = d_inode(dentry);
+-	struct fileattr old_ma = {};
+ 	int err;
+ 
+ 	if (!inode->i_op->fileattr_set)
+@@ -255,29 +286,12 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
+ 		return -EPERM;
+ 
+ 	inode_lock(inode);
+-	err = vfs_fileattr_get(dentry, &old_ma);
+-	if (!err) {
+-		/* initialize missing bits from old_ma */
+-		if (fa->flags_valid) {
+-			fa->fsx_xflags |= old_ma.fsx_xflags & ~FS_XFLAG_COMMON;
+-			fa->fsx_extsize = old_ma.fsx_extsize;
+-			fa->fsx_nextents = old_ma.fsx_nextents;
+-			fa->fsx_projid = old_ma.fsx_projid;
+-			fa->fsx_cowextsize = old_ma.fsx_cowextsize;
+-		} else {
+-			fa->flags |= old_ma.flags & ~FS_COMMON_FL;
+-		}
+-
+-		err = fileattr_set_prepare(inode, &old_ma, fa);
+-		if (err)
+-			goto out;
+-		err = security_inode_file_setattr(dentry, fa);
+-		if (err)
+-			goto out;
+-		err = inode->i_op->fileattr_set(idmap, dentry, fa);
+-		if (err)
+-			goto out;
+-	}
++	err = security_inode_file_setattr(dentry, fa);
++	if (err)
++		goto out;
++	err = inode->i_op->fileattr_set(idmap, dentry, fa);
++	if (err)
++		goto out;
+ 
+ out:
+ 	inode_unlock(inode);
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index fd1147aa3891..cf796fa73af2 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -282,10 +282,19 @@ int gfs2_fileattr_set(struct mnt_idmap *idmap,
+ 	u32 fsflags = fa->flags, gfsflags = 0;
+ 	u32 mask;
+ 	int i;
++	struct fileattr cfa;
++	int error;
+ 
+ 	if (d_is_special(dentry))
+ 		return -ENOTTY;
+ 
++	error = gfs2_fileattr_get(dentry, &cfa);
++	if (error)
++		return error;
++	error = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (error)
++		return error;
++
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/fs/hfsplus/inode.c b/fs/hfsplus/inode.c
+index f331e9574217..cdb11d00faea 100644
+--- a/fs/hfsplus/inode.c
++++ b/fs/hfsplus/inode.c
+@@ -678,6 +678,15 @@ int hfsplus_fileattr_set(struct mnt_idmap *idmap,
+ 	struct inode *inode = d_inode(dentry);
+ 	struct hfsplus_inode_info *hip = HFSPLUS_I(inode);
+ 	unsigned int new_fl = 0;
++	struct fileattr cfa;
++	int err;
++
++	err = hfsplus_fileattr_get(dentry, &cfa);
++	if (err)
++		return err;
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
+ 
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+diff --git a/fs/jfs/ioctl.c b/fs/jfs/ioctl.c
+index f7bd7e8f5be4..4c62c14d15b0 100644
+--- a/fs/jfs/ioctl.c
++++ b/fs/jfs/ioctl.c
+@@ -75,11 +75,18 @@ int jfs_fileattr_set(struct mnt_idmap *idmap,
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct jfs_inode_info *jfs_inode = JFS_IP(inode);
+-	unsigned int flags;
++	unsigned int flags = jfs_inode->mode2 & JFS_FL_USER_VISIBLE;
++	struct fileattr cfa;
++	int err;
+ 
+ 	if (d_is_special(dentry))
+ 		return -ENOTTY;
+ 
++	fileattr_fill_flags(&cfa, jfs_map_ext2(flags, 0));
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
++
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/fs/ntfs3/file.c b/fs/ntfs3/file.c
+index 9b6a3f8d2e7c..bc7ee7595b70 100644
+--- a/fs/ntfs3/file.c
++++ b/fs/ntfs3/file.c
+@@ -83,12 +83,22 @@ int ntfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
+ {
+ 	struct inode *inode = d_inode(dentry);
+ 	struct ntfs_inode *ni = ntfs_i(inode);
+-	u32 flags = fa->flags;
++	u32 flags;
+ 	unsigned int new_fl = 0;
++	struct fileattr cfa;
++	int err;
++
++	err = ntfs_fileattr_get(dentry, &cfa);
++	if (err)
++		return err;
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
+ 
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+ 
++	flags = fa->flags;
+ 	if (flags & ~(FS_IMMUTABLE_FL | FS_APPEND_FL | FS_COMPR_FL))
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/fs/orangefs/inode.c b/fs/orangefs/inode.c
+index 5ac743c6bc2e..aecb61146443 100644
+--- a/fs/orangefs/inode.c
++++ b/fs/orangefs/inode.c
+@@ -910,6 +910,15 @@ static int orangefs_fileattr_set(struct mnt_idmap *idmap,
+ 				 struct dentry *dentry, struct fileattr *fa)
+ {
+ 	u64 val = 0;
++	struct fileattr cfa;
++	int error = 0;
++
++	error = orangefs_fileattr_get(dentry, &cfa);
++	if (error)
++		return error;
++	error = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (error)
++		return error;
+ 
+ 	gossip_debug(GOSSIP_FILE_DEBUG, "%s: called on %pd\n", __func__,
+ 		     dentry);
+diff --git a/fs/ubifs/ioctl.c b/fs/ubifs/ioctl.c
+index 2c99349cf537..e71e362c786b 100644
+--- a/fs/ubifs/ioctl.c
++++ b/fs/ubifs/ioctl.c
+@@ -148,14 +148,24 @@ int ubifs_fileattr_set(struct mnt_idmap *idmap,
+ 		       struct dentry *dentry, struct fileattr *fa)
+ {
+ 	struct inode *inode = d_inode(dentry);
+-	int flags = fa->flags;
++	int flags;
++	struct fileattr cfa;
++	int err;
+ 
+ 	if (d_is_special(dentry))
+ 		return -ENOTTY;
+ 
++	err = ubifs_fileattr_get(dentry, &cfa);
++	if (err)
++		return err;
++	err = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (err)
++		return err;
++
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+ 
++	flags = fa->flags;
+ 	if (flags & ~UBIFS_GETTABLE_IOCTL_FLAGS)
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
+index d250f7f74e3b..c861dc1c3cf0 100644
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -733,12 +733,18 @@ xfs_fileattr_set(
+ 	struct xfs_dquot	*pdqp = NULL;
+ 	struct xfs_dquot	*olddquot = NULL;
+ 	int			error;
++	struct fileattr		cfa;
+ 
+ 	trace_xfs_ioctl_setattr(ip);
+ 
+ 	if (d_is_special(dentry))
+ 		return -ENOTTY;
+ 
++	xfs_fill_fsxattr(ip, XFS_DATA_FORK, &cfa);
++	error = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (error)
++		return error;
++
+ 	if (!fa->fsx_valid) {
+ 		if (fa->flags & ~(FS_IMMUTABLE_FL | FS_APPEND_FL |
+ 				  FS_NOATIME_FL | FS_NODUMP_FL |
+diff --git a/include/linux/fileattr.h b/include/linux/fileattr.h
+index f62a5143eb2d..aba76d897533 100644
+--- a/include/linux/fileattr.h
++++ b/include/linux/fileattr.h
+@@ -75,6 +75,8 @@ static inline bool fileattr_has_fsx(const struct fileattr *fa)
+ }
+ 
+ int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa);
++int vfs_fileattr_set_prepare(struct mnt_idmap *idmap, struct dentry *dentry,
++			     struct fileattr *cfa, struct fileattr *fa);
+ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
+ 		     struct fileattr *fa);
+ int ioctl_getflags(struct file *file, unsigned int __user *argp);
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 99327c30507c..c2a5991f944f 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -4199,6 +4199,14 @@ static int shmem_fileattr_set(struct mnt_idmap *idmap,
+ 	struct inode *inode = d_inode(dentry);
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+ 	int ret, flags;
++	struct fileattr cfa;
++
++	ret = shmem_fileattr_get(dentry, &cfa);
++	if (ret)
++		return ret;
++	ret = vfs_fileattr_set_prepare(idmap, dentry, &cfa, fa);
++	if (ret)
++		return ret;
+ 
+ 	if (fileattr_has_fsx(fa))
+ 		return -EOPNOTSUPP;
+-- 
+2.47.2
+
