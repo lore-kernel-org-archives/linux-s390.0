@@ -1,109 +1,130 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66B6D21FF2C
-	for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 15:34:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6E226B941;
+	Fri, 25 Apr 2025 15:34:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745595249; cv=none; b=ke1hQMEozM6Xfm2CqP/sjSWvv+u8miqWDkGTn11/B1qy28OCfNsn+sqrlud1UxHaDLLjG8GHMEIOCZK/DiLoAUoWqxbhnc4UPVshU8xcSrbVOiI6OvA7pPodUdGfPILzi5v78/m2wl6XdLVqE0QTX+bhHBX/Cj9CjkfgQ9gLsAE=
+	t=1745595293; cv=none; b=jxmNHjmavHYo8RdbDjEkGtsskKI2owqLy3YALbF27vdM9bxGyNFziUkW/6H8FAuoQ3r3RrL7FVns827fMFsRTIIol6UJ2jo8OY+oPccBb5lOQurJc44wMcSsFLhNovtuReGsWzucDWSPWzuxV3IEYmOOFelZFOrUJsqY74j8svQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745595249; c=relaxed/simple;
-	bh=c/54Xbyg6+RjF2A2X1CaEcOEtfVxD69R6P/HWsx0ras=;
+	s=arc-20240116; t=1745595293; c=relaxed/simple;
+	bh=7p2Kr7K2OQYllUkkq7P6G32UugwQCExJ/BwccTnv/Yg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CKLyNllkZ2F/IojC4fmKaye3S+kaw+DU5KrCPOyz2BOxfp8B2K7dbg4THABN7Pc1mf7bRrwDapH5ZJWeiHvjfXMLw695HVD7PxYVhtlbdD8cSpEkn31XcgHIqfVkQomFCDZqzRDWjgQPLqdhD/iEyLS/i2LSnkXSdg23ztK7Xyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JUd6Z3Dh; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=harEVsEOR3FZnAXXJ8zwH6/pvHp1fe6w/mvWsV0yfTvpdOUds81uvEabaAxsQ7wv66zZmVAP8kA56XrKgV9cDFr7sO74Oo/Tx3+rn4R9hHsYIHj+/4c1BLBZRtMZ2v7n6uiEOEYMw2b/W2+QacftsnHAI5RrESjMBW1ceNGwEoU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=CAQGX5ZM; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=oeQCafVZ; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JUd6Z3Dh"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53PA4QxU027488
-	for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 15:34:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=3XgmEgtW/ADLpxBiTJpfM2FUBzAaAX
-	sD8+O0qOkLXB8=; b=JUd6Z3DhTiObwDo2OrA1CZgb1rHgH6JWPfPk72PuYkJ/Gy
-	X0K1fkFcXJzfsJxhW3SljrkW8DPjT+hyoBDicZXBjKaYLT4GXglULcGS5EBWK+js
-	yQFoFep8VvK1oSVurIQyniFsigigs23JYK9k+PPZMST5V7nAZIyZZFQsc3peAZeJ
-	zR28fkGe5h4/OsYpVAHdNOUVv/HCL7AA4GKMoUcsbkktv/A0+yLUBmoI9C94a3GS
-	SOE8U/WdrhYSSXczwbRjLt/dkCdTGWDsl+usTwwHmhlglsgfaatpjjFEne5Yq+ke
-	XKzTXt95v6hO+NnlbIfG5KLfL7h2HzTfdb9qjD+Q==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4688ajsge1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 15:34:07 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53PCkSc3005852
-	for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 15:34:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 466jfxnv3x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 25 Apr 2025 15:34:06 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53PFY2hj48169454
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Apr 2025 15:34:02 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 68D2C20043;
-	Fri, 25 Apr 2025 15:34:02 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0D7072004D;
-	Fri, 25 Apr 2025 15:34:02 +0000 (GMT)
-Received: from osiris (unknown [9.111.13.86])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 25 Apr 2025 15:34:01 +0000 (GMT)
-Date: Fri, 25 Apr 2025 17:34:00 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
-        dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
-        seiden@linux.ibm.com
-Subject: Re: [PATCH] fixup! s390/zcrypt: Rework cca findcard() implementation
- and callers
-Message-ID: <20250425153400.7180Ga7-hca@linux.ibm.com>
-References: <20250425143947.31249-1-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="CAQGX5ZM";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="oeQCafVZ"
+Date: Fri, 25 Apr 2025 17:34:46 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1745595289;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pZfB6rVZVRvFwPOC2mIb+Lex3AbasEMEJSEtzwVhu8Y=;
+	b=CAQGX5ZMKcx+gH46PjJwuLZ1t9TcvbFo6LX/q/nmTvNk7kW23MJ+hE5FxgJ1hv0yB1DRzF
+	KBOXWWgV6pIivBMErwQOuB2nWprnnWM+up3MqP4Ih22BAYn4qU07DRa9Uf//zzQtKVgwE8
+	PrStc/hUc0DrQL3XjwjkiR3COHh8ojkW7XMUpITrGH+GccFDvCHrA83Ciy/Q7mL2jN+mO9
+	RlfK6xHBf8DfsaeyHq3S8SDdGX7y16K3lUSrDrQJ7hXLypPEkTW7rOSXRjBU0M/ryqhqDz
+	Nqy0F1Q98GgBeEueZGvb5xIpOQnpcHUE+GPVlH8lQEdxyMNIS4X0gw5x7P5H4Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1745595289;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=pZfB6rVZVRvFwPOC2mIb+Lex3AbasEMEJSEtzwVhu8Y=;
+	b=oeQCafVZQ1lKq1NxkoOK+UaNraaSv3v3lJOx0jFFppeRLdPcSyF7n/HCmoLGD7aHpjxMs8
+	fv0uqcFsR4LPQCAA==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Jan Stancek <jstancek@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>
+Subject: Re: [PATCH 08/19] vdso/gettimeofday: Prepare do_hres_timens() for
+ introduction of struct vdso_clock
+Message-ID: <20250425165448-f2ba7d6d-e54e-4f3e-ac14-5986bb1a74fc@linutronix.de>
+References: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
+ <20250303-vdso-clock-v1-8-c1b5c69a166f@linutronix.de>
+ <aApGPAoctq_eoE2g@t14ultra>
+ <20250424173908-ffca1ea2-e292-4df3-9391-24bfdaab33e7@linutronix.de>
+ <CAASaF6xsMOWkhPrzKQWNz5SXaROSpxzFVBz+MOA-MNiEBty7gQ@mail.gmail.com>
+ <20250425104552-07539a73-8f56-44d2-97a2-e224c567a2fc@linutronix.de>
+ <CAASaF6yxThX3HTHgY_AGqNr7LJ-erdG09WV5-HyfN1fYN9pStQ@mail.gmail.com>
+ <20250425152733-0ff10421-b716-4a55-9b60-cb0a71769e56@linutronix.de>
+ <aAueO89ng7GX2iyl@t14ultra>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20250425143947.31249-1-freude@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDI1MDEwNyBTYWx0ZWRfXzJTH/oJTWO20 VClzB6SdRQzFZXF6q0moG6lAOF/mb6LUFwbiqzLWbVA8Qhwf5+UfGyWYsI0nHLKgEBqIXnIJxPR +OGog6OIemUTuGjZ3qSVHOcYShip5t9/WGgDt8FoBeoMF0cAkZkEsQvwYVkhlT7EiONeEtujfRS
- NxsLZDx2spJ8dHmgeSzlWM9J4mP8o1P2MjKTBHaNCBNtcV5roftddB68DenvGYtxm6X4TwMxLYT F2zLmV8F3MtE2h2LX9MYurjIRQxeOi6cisvorL28OXHYNP6AFz8OoHsMkD8OTlc8YDem4r1VpkM i/9mHYAtUMBENu8DdKktHOtTOyp00MrjCHbDWWuKvmNJjiM/w+5ychPNhKpIb7MGBSl8Fp35UoX
- nKOCFcOz34IfTFZ40Qzzfq6cv1pd2gocuDIZLDSDzhizRCX5Q98CiCmJTGgcvWdlKzw1eQwn
-X-Authority-Analysis: v=2.4 cv=F8xXdrhN c=1 sm=1 tr=0 ts=680bab6f cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=VnNF1IyMAAAA:8 a=EXrDrPNrueq3q3SAUfYA:9 a=CjuIK1q_8ugA:10 a=ZXulRonScM0A:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-GUID: ul6QH3SXIIDQv--GnxnF2j-GuqvHb3Iw
-X-Proofpoint-ORIG-GUID: ul6QH3SXIIDQv--GnxnF2j-GuqvHb3Iw
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-04-25_04,2025-04-24_02,2025-02-21_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 impostorscore=0
- mlxscore=0 priorityscore=1501 lowpriorityscore=0 mlxlogscore=510
- malwarescore=0 clxscore=1015 bulkscore=0 adultscore=0 spamscore=0
- suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
- definitions=main-2504250107
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aAueO89ng7GX2iyl@t14ultra>
 
-On Fri, Apr 25, 2025 at 04:39:47PM +0200, Harald Freudenberger wrote:
-> Ci run of the night showed that a CCA secure key which maches
-> to an old MK on the HSM is not correctly verified. The code
-> builds up an array with a given apqn array with a fixed arraysize
-> and calls findcard2() for the CURRENT MK which fails as expected.
-> So next attempt is made with trying to match the OLD MK with same
-> apqn array and same arraysize variable. But the previous call hat
-> set this arraysize variable to 0 and so the 2nd invocation finds
-> a valid apqn but the arraysize variable tells there is no space
-> in the array. Fixed and tested.
+On Fri, Apr 25, 2025 at 04:37:47PM +0200, Jan Stancek wrote:
+> On Fri, Apr 25, 2025 at 03:40:55PM +0200, Thomas Weißschuh wrote:
 > 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Reported-by: Ingo Franzki ifranzki@linux.ibm.com
-> ---
->  drivers/s390/crypto/pkey_cca.c | 2 ++
->  1 file changed, 2 insertions(+)
+> <snip>
+> 
+> > 
+> > Some more information:
+> > 
+> > The crash comes from the address arithmetic in "vc = &vc[CS_RAW]" going wrong.
+> 
+> That appears to be because it's not doing any arithmetic, but using value
+> from some linker-generated symbol (I'll refer to it as "7a8").
 
-Merged into your previous patch. Thanks!
+The compiler emits a absolute relocation:
+
+
+$ objdump -r --disassemble-all -z arch/arm64/kernel/vdso/vgettimeofday.o
+...
+Disassembly of section .text:
+
+0000000000000000 <__kernel_clock_gettime>:
+...
+ 29c:   d503201f        nop
+ 2a0:   00000000        udf     #0
+                        2a0: R_AARCH64_ABS64    vdso_u_time_data+0x100e0
+ 2a4:   00000000        udf     #0
+
+
+Which then gets resolved by the linker to the absolute address from the
+symbol table.
+As the vDSO is placed completely dynamically this can't work.
+One central idea behind the vDSO is that the compiler will only ever generate
+PC-relative relocations. To force this the symbols are marked as "hidden".
+But apparently that assumption is not always true.
+
+One way around would be to add an implementation of __arch_get_vdso_u_time_data()
+to arch/arm64/include/asm/vdso/gettimeofday.h which mirrors the one from
+arch/arm64/include/asm/vdso/compat_gettimeofday.h.
+The generated code does look a lot better (to my untrained eye).
+
+(Another workaround I stumbled upon was -fno-ipa-cp)
+
+__arch_get_vdso_u_time_data() can also be simplifed with OPTIMIZER_HIDE_VAR().
+I have been wondering before if this should be done in the generic vDSO code.
+
+And on top of that we should validate at buildtime that no absolute relocations
+sneak in.
+
+
+Thomas
