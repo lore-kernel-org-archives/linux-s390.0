@@ -1,130 +1,240 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6E226B941;
-	Fri, 25 Apr 2025 15:34:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D90161A00ED;
+	Fri, 25 Apr 2025 16:36:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745595293; cv=none; b=jxmNHjmavHYo8RdbDjEkGtsskKI2owqLy3YALbF27vdM9bxGyNFziUkW/6H8FAuoQ3r3RrL7FVns827fMFsRTIIol6UJ2jo8OY+oPccBb5lOQurJc44wMcSsFLhNovtuReGsWzucDWSPWzuxV3IEYmOOFelZFOrUJsqY74j8svQ=
+	t=1745598999; cv=none; b=n3kkRqWczoGHgUA2+7FLWUYYfQ/ncAK90h2s1kqmEzvYkwewCgTM1YUhD0LdHgoYkP4/+UykrQICnPc1x8cOla7MtSPoLVOC0oci+AMnVWn6PaWnKxc9HuRv930rqcgpTiIJTVuPfzHPL0QrXpWceFASKQC3JxyccyD8FNCkDZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745595293; c=relaxed/simple;
-	bh=7p2Kr7K2OQYllUkkq7P6G32UugwQCExJ/BwccTnv/Yg=;
+	s=arc-20240116; t=1745598999; c=relaxed/simple;
+	bh=/vmIJvhlje/pqD2i/8D/RnEkEgW1DKxruEDBt0M/FnY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=harEVsEOR3FZnAXXJ8zwH6/pvHp1fe6w/mvWsV0yfTvpdOUds81uvEabaAxsQ7wv66zZmVAP8kA56XrKgV9cDFr7sO74Oo/Tx3+rn4R9hHsYIHj+/4c1BLBZRtMZ2v7n6uiEOEYMw2b/W2+QacftsnHAI5RrESjMBW1ceNGwEoU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=CAQGX5ZM; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=oeQCafVZ; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	 Content-Type:Content-Disposition:In-Reply-To; b=o7gMnIVP/rUnjXyVT59sdv4WJwjtO58Pc/wsbdPeBHNXSr2jFyaS7pPQxlDVRusKnEkydUTdrUCciUR4YVNtiZeaXRX1xBLBRQPOeS4PckD0ZNpN/kKFkQT9QpJGQaUzqwSAWbUSL6+F0BprPSVwR9zsNUoj3/fYLR8CI44WPp4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EqpOZv1g; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="CAQGX5ZM";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="oeQCafVZ"
-Date: Fri, 25 Apr 2025 17:34:46 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1745595289;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pZfB6rVZVRvFwPOC2mIb+Lex3AbasEMEJSEtzwVhu8Y=;
-	b=CAQGX5ZMKcx+gH46PjJwuLZ1t9TcvbFo6LX/q/nmTvNk7kW23MJ+hE5FxgJ1hv0yB1DRzF
-	KBOXWWgV6pIivBMErwQOuB2nWprnnWM+up3MqP4Ih22BAYn4qU07DRa9Uf//zzQtKVgwE8
-	PrStc/hUc0DrQL3XjwjkiR3COHh8ojkW7XMUpITrGH+GccFDvCHrA83Ciy/Q7mL2jN+mO9
-	RlfK6xHBf8DfsaeyHq3S8SDdGX7y16K3lUSrDrQJ7hXLypPEkTW7rOSXRjBU0M/ryqhqDz
-	Nqy0F1Q98GgBeEueZGvb5xIpOQnpcHUE+GPVlH8lQEdxyMNIS4X0gw5x7P5H4Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1745595289;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pZfB6rVZVRvFwPOC2mIb+Lex3AbasEMEJSEtzwVhu8Y=;
-	b=oeQCafVZQ1lKq1NxkoOK+UaNraaSv3v3lJOx0jFFppeRLdPcSyF7n/HCmoLGD7aHpjxMs8
-	fv0uqcFsR4LPQCAA==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Jan Stancek <jstancek@redhat.com>
-Cc: Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-arch@vger.kernel.org, Nam Cao <namcao@linutronix.de>
-Subject: Re: [PATCH 08/19] vdso/gettimeofday: Prepare do_hres_timens() for
- introduction of struct vdso_clock
-Message-ID: <20250425165448-f2ba7d6d-e54e-4f3e-ac14-5986bb1a74fc@linutronix.de>
-References: <20250303-vdso-clock-v1-0-c1b5c69a166f@linutronix.de>
- <20250303-vdso-clock-v1-8-c1b5c69a166f@linutronix.de>
- <aApGPAoctq_eoE2g@t14ultra>
- <20250424173908-ffca1ea2-e292-4df3-9391-24bfdaab33e7@linutronix.de>
- <CAASaF6xsMOWkhPrzKQWNz5SXaROSpxzFVBz+MOA-MNiEBty7gQ@mail.gmail.com>
- <20250425104552-07539a73-8f56-44d2-97a2-e224c567a2fc@linutronix.de>
- <CAASaF6yxThX3HTHgY_AGqNr7LJ-erdG09WV5-HyfN1fYN9pStQ@mail.gmail.com>
- <20250425152733-0ff10421-b716-4a55-9b60-cb0a71769e56@linutronix.de>
- <aAueO89ng7GX2iyl@t14ultra>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EqpOZv1g"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53PAfbvU023963;
+	Fri, 25 Apr 2025 16:35:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=ejJgdqEPZKllX4jx/pva9umANCVtEB
+	T18p/3RAmx1Es=; b=EqpOZv1gbGFg4t85FrLlOnzYnqCpeD+gFp/4utrY95VCIZ
+	h75Yza2MfYXQuYTjxvakxgUr08T+r3Mnj+hSHfUHEI/TJH3S6SnAHpVSsBLQaa7h
+	JG0KhJpULlDgMiyQa50wwMo8ILPeXLFm4r9+r14ubKLH8tp+Olnoy4Y6olLQampi
+	bKI2mW6zxE3Zp4T3ddLMXjQEVPJPpJUVXKRXqHsN/ACkP1gFKFnVXc9RUmaBnLmt
+	9V0KJGIT6dCYsYT11ODN9q+MH3F7P9nNOSGqwRSGOpiw3BvM9GoSszha/eq3ZnWj
+	BZdXBLYvjmEVLPiofDOoumk+2leUg7DxcnneeHug==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4688ushned-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Apr 2025 16:35:29 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53PG93Q2000973;
+	Fri, 25 Apr 2025 16:35:29 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 466jfy650a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Apr 2025 16:35:28 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53PGZQqW21430558
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 25 Apr 2025 16:35:27 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DB01720040;
+	Fri, 25 Apr 2025 16:35:26 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DDF662004B;
+	Fri, 25 Apr 2025 16:35:23 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.73.111])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 25 Apr 2025 16:35:23 +0000 (GMT)
+Date: Fri, 25 Apr 2025 18:35:22 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Mike Rapoport (IBM)" <rppt@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Ryan Roberts <ryan.roberts@arm.com>, Will Deacon <will@kernel.org>,
+        Yang Shi <yang@os.amperecomputing.com>, linux-arch@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        x86@kernel.org
+Subject: Re: [PATCH v2 03/12] mm: Call ctor/dtor for kernel PTEs
+Message-ID: <aAu5ylJPs+Oa9iQ3@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20250408095222.860601-1-kevin.brodsky@arm.com>
+ <20250408095222.860601-4-kevin.brodsky@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aAueO89ng7GX2iyl@t14ultra>
+In-Reply-To: <20250408095222.860601-4-kevin.brodsky@arm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=dbeA3WXe c=1 sm=1 tr=0 ts=680bb9d1 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=VwQbUJbxAAAA:8 a=7CQSdrXTAAAA:8 a=VnNF1IyMAAAA:8 a=o1rnUynpLg_ZTY15UzkA:9
+ a=CjuIK1q_8ugA:10 a=a-qgeE7W1pNrGK8U0ZQC:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDI1MDExNCBTYWx0ZWRfXxfQmH6A1i1kR F0Qrpt5yak4qbEYdxPP6AWpDu4jDULgX7mdTdovae8J2DMeHPJ2D4u8gmGvG8XhP8zbhnJDUi7+ oK3yajHXRE48UbY0683PBqDQHITbNZwqnJVe1YdfWQGR3ID2SwUhxCrN+9vFaZQScLGRA9ZWojV
+ RSarM6Bq4x1756TbKQ7JAqAplyDxMSMxtJfJY+CwQCIcyeMNJ2FfwH1U67EFPMKvl1DQURmevds Pee9V6Nxdjtm224E6UAw6q6vWv3bAGwXIbvyodOLAwWqUT1Dyb1+HxugPtHlhMT5cZoObV010KU 7+GC4doRznHR8qOWZytOu/IeBX++vqFmWURUnIQCQ3D26e15+uLRNAAoyxIDX5DeSwFGcgLYsiH
+ z/1Pnm5AjA0kyrP1dqxLeXwdbYN0HQt8yyFmLroqBHwiHMLU8gJ5MxgaxSjoCKoy5BK9psby
+X-Proofpoint-ORIG-GUID: MwNYdyucMFQMOg7jYooYi3IwxTZPVWry
+X-Proofpoint-GUID: MwNYdyucMFQMOg7jYooYi3IwxTZPVWry
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-04-25_04,2025-04-24_02,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 malwarescore=0
+ suspectscore=0 priorityscore=1501 impostorscore=0 spamscore=0 mlxscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 mlxlogscore=999 clxscore=1011
+ classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2504250114
 
-On Fri, Apr 25, 2025 at 04:37:47PM +0200, Jan Stancek wrote:
-> On Fri, Apr 25, 2025 at 03:40:55PM +0200, Thomas Weißschuh wrote:
+On Tue, Apr 08, 2025 at 10:52:13AM +0100, Kevin Brodsky wrote:
+> Since [1], constructors/destructors are expected to be called for
+> all page table pages, at all levels and for both user and kernel
+> pgtables. There is however one glaring exception: kernel PTEs are
+> managed via separate helpers (pte_alloc_kernel/pte_free_kernel),
+> which do not call the [cd]tor, at least not in the generic
+> implementation.
 > 
-> <snip>
+> The most obvious reason for this anomaly is that init_mm is
+> special-cased not to use split page table locks. As a result calling
+> ptlock_init() for PTEs associated with init_mm would be wasteful,
+> potentially resulting in dynamic memory allocation. However, pgtable
+> [cd]tors perform other actions - currently related to
+> accounting/statistics, and potentially more functionally significant
+> in the future.
 > 
-> > 
-> > Some more information:
-> > 
-> > The crash comes from the address arithmetic in "vc = &vc[CS_RAW]" going wrong.
+> Now that pagetable_pte_ctor() is passed the associated mm, we can
+> make it skip the call to ptlock_init() for init_mm; this allows us
+> to call the ctor from pte_alloc_one_kernel() too. This is matched by
+> a call to the pgtable destructor in pte_free_kernel(); no
+> special-casing is needed on that path, as ptlock_free() is already
+> called unconditionally. (ptlock_free() is a no-op unless a ptlock
+> was allocated for the given PTP.)
 > 
-> That appears to be because it's not doing any arithmetic, but using value
-> from some linker-generated symbol (I'll refer to it as "7a8").
+> This patch ensures that all architectures that rely on
+> <asm-generic/pgalloc.h> call the [cd]tor for kernel PTEs.
+> pte_free_kernel() cannot be overridden so changing the generic
+> implementation is sufficient. pte_alloc_one_kernel() can be
+> overridden using __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL, and a few
+> architectures implement it by calling the page allocator directly.
+> We amend those so that they call the generic
+> __pte_alloc_one_kernel() instead, if possible, ensuring that the
+> ctor is called.
+> 
+> A few architectures do not use <asm-generic/pgalloc.h>; those will
+> be taken care of separately.
+> 
+> [1] https://lore.kernel.org/linux-mm/20250103184415.2744423-1-kevin.brodsky@arm.com/
+> 
+> Signed-off-by: Kevin Brodsky <kevin.brodsky@arm.com>
+> ---
+>  arch/csky/include/asm/pgalloc.h | 2 +-
+>  arch/microblaze/mm/pgtable.c    | 2 +-
+>  arch/openrisc/mm/ioremap.c      | 2 +-
+>  include/asm-generic/pgalloc.h   | 7 ++++++-
+>  include/linux/mm.h              | 2 +-
+>  5 files changed, 10 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/csky/include/asm/pgalloc.h b/arch/csky/include/asm/pgalloc.h
+> index 11055c574968..9ed2b15ffd94 100644
+> --- a/arch/csky/include/asm/pgalloc.h
+> +++ b/arch/csky/include/asm/pgalloc.h
+> @@ -29,7 +29,7 @@ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+>  	pte_t *pte;
+>  	unsigned long i;
+>  
+> -	pte = (pte_t *) __get_free_page(GFP_KERNEL);
+> +	pte = __pte_alloc_one_kernel(mm);
+>  	if (!pte)
+>  		return NULL;
+>  
+> diff --git a/arch/microblaze/mm/pgtable.c b/arch/microblaze/mm/pgtable.c
+> index 9f73265aad4e..e96dd1b7aba4 100644
+> --- a/arch/microblaze/mm/pgtable.c
+> +++ b/arch/microblaze/mm/pgtable.c
+> @@ -245,7 +245,7 @@ unsigned long iopa(unsigned long addr)
+>  __ref pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+>  {
+>  	if (mem_init_done)
+> -		return (pte_t *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
+> +		return __pte_alloc_one_kernel(mm);
+>  	else
+>  		return memblock_alloc_try_nid(PAGE_SIZE, PAGE_SIZE,
+>  					      MEMBLOCK_LOW_LIMIT,
+> diff --git a/arch/openrisc/mm/ioremap.c b/arch/openrisc/mm/ioremap.c
+> index 8e63e86251ca..3b352f97fecb 100644
+> --- a/arch/openrisc/mm/ioremap.c
+> +++ b/arch/openrisc/mm/ioremap.c
+> @@ -36,7 +36,7 @@ pte_t __ref *pte_alloc_one_kernel(struct mm_struct *mm)
+>  	pte_t *pte;
+>  
+>  	if (likely(mem_init_done)) {
+> -		pte = (pte_t *)get_zeroed_page(GFP_KERNEL);
+> +		pte = __pte_alloc_one_kernel(mm);
+>  	} else {
+>  		pte = memblock_alloc_or_panic(PAGE_SIZE, PAGE_SIZE);
+>  	}
+> diff --git a/include/asm-generic/pgalloc.h b/include/asm-generic/pgalloc.h
+> index e164ca66f0f6..3c8ec3bfea44 100644
+> --- a/include/asm-generic/pgalloc.h
+> +++ b/include/asm-generic/pgalloc.h
+> @@ -23,6 +23,11 @@ static inline pte_t *__pte_alloc_one_kernel_noprof(struct mm_struct *mm)
+>  
+>  	if (!ptdesc)
+>  		return NULL;
+> +	if (!pagetable_pte_ctor(mm, ptdesc)) {
+> +		pagetable_free(ptdesc);
+> +		return NULL;
+> +	}
+> +
+>  	return ptdesc_address(ptdesc);
+>  }
+>  #define __pte_alloc_one_kernel(...)	alloc_hooks(__pte_alloc_one_kernel_noprof(__VA_ARGS__))
+> @@ -48,7 +53,7 @@ static inline pte_t *pte_alloc_one_kernel_noprof(struct mm_struct *mm)
+>   */
+>  static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+>  {
+> -	pagetable_free(virt_to_ptdesc(pte));
+> +	pagetable_dtor_free(virt_to_ptdesc(pte));
+>  }
+>  
+>  /**
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index f9b793cce2c1..3f48e449574a 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -3103,7 +3103,7 @@ static inline void pagetable_dtor_free(struct ptdesc *ptdesc)
+>  static inline bool pagetable_pte_ctor(struct mm_struct *mm,
+>  				      struct ptdesc *ptdesc)
+>  {
+> -	if (!ptlock_init(ptdesc))
+> +	if (mm != &init_mm && !ptlock_init(ptdesc))
+>  		return false;
+>  	__pagetable_ctor(ptdesc);
+>  	return true;
 
-The compiler emits a absolute relocation:
-
-
-$ objdump -r --disassemble-all -z arch/arm64/kernel/vdso/vgettimeofday.o
-...
-Disassembly of section .text:
-
-0000000000000000 <__kernel_clock_gettime>:
-...
- 29c:   d503201f        nop
- 2a0:   00000000        udf     #0
-                        2a0: R_AARCH64_ABS64    vdso_u_time_data+0x100e0
- 2a4:   00000000        udf     #0
-
-
-Which then gets resolved by the linker to the absolute address from the
-symbol table.
-As the vDSO is placed completely dynamically this can't work.
-One central idea behind the vDSO is that the compiler will only ever generate
-PC-relative relocations. To force this the symbols are marked as "hidden".
-But apparently that assumption is not always true.
-
-One way around would be to add an implementation of __arch_get_vdso_u_time_data()
-to arch/arm64/include/asm/vdso/gettimeofday.h which mirrors the one from
-arch/arm64/include/asm/vdso/compat_gettimeofday.h.
-The generated code does look a lot better (to my untrained eye).
-
-(Another workaround I stumbled upon was -fno-ipa-cp)
-
-__arch_get_vdso_u_time_data() can also be simplifed with OPTIMIZER_HIDE_VAR().
-I have been wondering before if this should be done in the generic vDSO code.
-
-And on top of that we should validate at buildtime that no absolute relocations
-sneak in.
-
-
-Thomas
+Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com> # s390
