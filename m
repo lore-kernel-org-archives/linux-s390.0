@@ -1,202 +1,240 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F2B426FD9B;
-	Mon, 28 Apr 2025 15:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE6BF2797AB;
+	Mon, 28 Apr 2025 17:01:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745854341; cv=none; b=KXf0XGGTYJjj0A643WUa8mYCbNf59O+uhnRuYWt5ItatwnLJxFI5TBfjUUBKLZtrK3PFMdKZ+e/hQfE1L/FE2f7Rs2wcGBcXVQeMByY7F/WmVrHs5pHtiypDyddbHz+gCCLz54wBOOi9Nk3I8nR79FNhy3ro3gZFxk4krqKuogM=
+	t=1745859719; cv=none; b=LApsM4rWvsSCpI9JkkRRW6VFcmlLZCQfyPaR+aiElZ0EcFmRUwtk2SqoNRfREEsh1xJ0BRWlviDiWUapImWvGHH9u+8IgT9OCVjpMp76WTZWQKUtO5nXijg/zWk/QMKJfE86RZooEIdtE/6yqhfKDvRpUrQGrENVMKJzazXYs4w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745854341; c=relaxed/simple;
-	bh=1VKK+NzMMl5cq/H6Fi/Ac7nvpkeY7JQxrphUWwMILc8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uCJ3ESHK96wdmpfAj3YxiPfpNq0gSoMaEKMZxZLYFBSIetau0dVVQn+3s9qtxHxY+DYHhAiTWz59TrZQYXm/i7DkmLb/pE4Bmw96uQmN0PGT0xFGOa0lzCFkbTaTBdwF7Xnv1piomtAYCUGwdV+H+TOTaRtjxzXx76EgYMcAePg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M+HMvsKM; arc=none smtp.client-ip=209.85.208.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1745859719; c=relaxed/simple;
+	bh=XK7q7Zz0y/YmoLpjlx1FJdc0BX2x3ByOt7hnXtJHIP0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KP8tP77cxPpoN1OtyEWzaKKXrd2z3h8hWAu/r3w+6dILG5B4/euZgUskaQhvBOqfPeEQ3J3YeUj31UcarFoMlQjHf9QWf3gm5lBh4Z27eYkvSnHBx/gDWFTkJYnr4hgqfXyfHhWvMHnIDBB88QeiSLRS8mnJ3cA7HtH6m5qKnVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VzAYmKSF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M+HMvsKM"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-30dd5a93b49so45070741fa.0;
-        Mon, 28 Apr 2025 08:32:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745854337; x=1746459137; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GAzpf+jZsNURvJKJ7gEoyysj3QFQZSEE9MfXOrJ2U9U=;
-        b=M+HMvsKMJK5hDo1V1qTvqDrSMxCNNwxmGhOFpXnE0SJbNlHjo5eONRdb1zChtGyYGc
-         NBjl2abQPw6O2q6VOutmTc6nSKQrdIA494uzsMK1hWO4GyAyHL0C6b2bY/wPHOENII5O
-         OITN1hQSoqsrt/636oV/8mF1dd2DLdXS2cVaWNlxzsYIDvNcVYKRwTj4FY9Vt0XnVdDx
-         eC57uxE8QGQGu50w4ql8ZKZcC4YD9rU4ETbqVJ19N0SIfNQ6jr6aJlQi7A/5nh8/gOI1
-         nonQDGKMTwCrZHhwnuxKvkiHPPPUU27M2kqGC7slw0Dmko/8kkBhBs/Bcm5Rhf9i/Ukm
-         EeRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745854337; x=1746459137;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GAzpf+jZsNURvJKJ7gEoyysj3QFQZSEE9MfXOrJ2U9U=;
-        b=BvkIMimJoDdGG/Vbv9Hik3UHUYuZef6c0fGi2dQmKV729igPS33mH+YrAFj0UyqSWV
-         61LTK0M+IG2IM7oQcIQW4e+FnQx4l/7G0IgH8VMQM4s8ZprbA4hPjA56xG/iynx2y0Hp
-         ivgagBqmfjKK1KQMJxfKSJgL1qJQOQRaLnYgn1t8B9VIF/T4ISJVAxgboowugvtnIUPd
-         +KbvOxsNpaqVFRXRUhD835GNy/pikyWARbBeTKYbScKJ0WUpQC2xa0wVZVwZcm75h+JO
-         VeMG5KtXdtq3dNnTrGJXLr195u+zLiXEVC7BTFqRRgbteUW7D9pbOHD2VDiSGg6maG7r
-         NwyA==
-X-Forwarded-Encrypted: i=1; AJvYcCVNguww2jT+oOYr6Ltt8Gt4gXsMPxgvkMVvSw08MaFulzWsFog0D/WZLfM7Qjax4tCvm4vm4nf4qZNBbJY=@vger.kernel.org, AJvYcCW7lcBYn/MpwC2edJ1clNwV/jYsdiOxLofhvQKT34mhJLDMmFpOmpyNe6hMRUXCKstxsqHtsPxXaI3nFA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywm+AMGfDFbDJdMGTu9u/tz4mbMYnxzqFqkMW0NE0SEfaB2xaXa
-	1VIQu9QMLzORnPiNCPpvB3ybJ0zw+GTX+ck44N4EUY7mzRPuP7VFeeOpfveJnM99AYS8BNN/hP0
-	PvtyXhj0nHQpxbPaDLfo1YWFfm6tryt8bq1B6xQ==
-X-Gm-Gg: ASbGnct0wE/P8ggyCE2V3tmGLskZEV/yzIQfQkl5/DqavuZEFE0TjKTyRnvG9jg7tGc
-	gtX874xj7WURl3QuB8kGQ+yaeoOTQpXmAcMaNGzx3wjhCvrIDJIasw8rFz+qpVrxDl9Tz+iZZA2
-	GqZlTR3qg9xKqF48y8CT+Vug==
-X-Google-Smtp-Source: AGHT+IGDO5RF7kFHdr3YlOJsQV/bWcwI6CDeJu7xMIXDaCLr0podmpKKtQTarQU0HLE2O8ZNM7cyUudVK5Cb2rn9kG4=
-X-Received: by 2002:a2e:ab09:0:b0:30c:16cd:8818 with SMTP id
- 38308e7fff4ca-319dc4155fdmr29376271fa.16.1745854337149; Mon, 28 Apr 2025
- 08:32:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VzAYmKSF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF47C4CEE4;
+	Mon, 28 Apr 2025 17:01:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1745859719;
+	bh=XK7q7Zz0y/YmoLpjlx1FJdc0BX2x3ByOt7hnXtJHIP0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=VzAYmKSFPCv9LO+z3NyJNmE29HM97zw0w+cAAP5jOAtTL8J33qg/YU1iwxIu2heKa
+	 NgvfU9+nxqmhDlYra2/fB/lISwTYKj07gA7bZCE4uoCmaGoqzelQMfKCBDJy4W8M3H
+	 +uYG+DjdsY8Ac9dDs0Xf9VmjlOG2idw9zTLeLkbrYNF6Ug3VWcPmBnJX1d658fuCWM
+	 7+eA+rDBr7VUfxeFyJy0COScjZG6ut0wj+jOQOgXaSyjIcVSUi7nPW3IZxDdKYPNmQ
+	 RwkAjFjatxLfFkrNBfAJK0crnpy2Cgi4FEf8YsBDajiX4D4F58WKkkzjxPdeOEv0ZQ
+	 oqNV5J2CbRzjg==
+From: Eric Biggers <ebiggers@kernel.org>
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	sparclinux@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	x86@kernel.org,
+	Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH v4 00/13] Architecture-optimized SHA-256 library API
+Date: Mon, 28 Apr 2025 10:00:25 -0700
+Message-ID: <20250428170040.423825-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250313165935.63303-1-ryncsn@gmail.com> <20250313165935.63303-7-ryncsn@gmail.com>
- <20250428135252.25453B17-hca@linux.ibm.com>
-In-Reply-To: <20250428135252.25453B17-hca@linux.ibm.com>
-From: Kairui Song <ryncsn@gmail.com>
-Date: Mon, 28 Apr 2025 23:31:59 +0800
-X-Gm-Features: ATxdqUEjwyrY63ilHzQFlcm-QUqw8ZEEMavj_Rw7q9capd6f1ZInGGUj8CObxpg
-Message-ID: <CAMgjq7CJO-GdmZGN7_xG6gtneAv3Wv8qv6FjE9udh18_qmCgRA@mail.gmail.com>
-Subject: Re: [PATCH v3 6/7] mm, swap: remove swap slot cache
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, 
-	Chris Li <chrisl@kernel.org>, Barry Song <v-songbaohua@oppo.com>, 
-	Hugh Dickins <hughd@google.com>, Yosry Ahmed <yosryahmed@google.com>, 
-	"Huang, Ying" <ying.huang@linux.alibaba.com>, Baoquan He <bhe@redhat.com>, 
-	Nhat Pham <nphamcs@gmail.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Kalesh Singh <kaleshsingh@google.com>, 
-	Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 28, 2025 at 9:53=E2=80=AFPM Heiko Carstens <hca@linux.ibm.com> =
-wrote:
->
-> Hi Kairui,
->
-> On Fri, Mar 14, 2025 at 12:59:34AM +0800, Kairui Song wrote:
-> > From: Kairui Song <kasong@tencent.com>
-> >
-> > Slot cache is no longer needed now, removing it and all related code.
-> ...
-> > Signed-off-by: Kairui Song <kasong@tencent.com>
-> > Reviewed-by: Baoquan He <bhe@redhat.com>
-> > ---
-> >  include/linux/swap.h       |   3 -
-> >  include/linux/swap_slots.h |  28 ----
-> >  mm/Makefile                |   2 +-
-> >  mm/swap_slots.c            | 295 -------------------------------------
-> >  mm/swap_state.c            |   8 +-
-> >  mm/swapfile.c              | 194 ++++++++----------------
-> >  6 files changed, 67 insertions(+), 463 deletions(-)
-> >  delete mode 100644 include/linux/swap_slots.h
-> >  delete mode 100644 mm/swap_slots.c
-> ...
-> > diff --git a/mm/swapfile.c b/mm/swapfile.c
-> ...
-> > +swp_entry_t folio_alloc_swap(struct folio *folio)
-> >  {
-> > -     int order =3D swap_entry_order(entry_order);
-> > -     unsigned long size =3D 1 << order;
-> > +     unsigned int order =3D folio_order(folio);
-> > +     unsigned int size =3D 1 << order;
-> >       struct swap_info_struct *si, *next;
-> > -     int n_ret =3D 0;
-> > +     swp_entry_t entry =3D {};
-> > +     unsigned long offset;
-> >       int node;
-> >
-> > +     if (order) {
-> > +             /*
-> > +              * Should not even be attempting large allocations when h=
-uge
-> > +              * page swap is disabled. Warn and fail the allocation.
-> > +              */
-> > +             if (!IS_ENABLED(CONFIG_THP_SWAP) || size > SWAPFILE_CLUST=
-ER) {
-> > +                     VM_WARN_ON_ONCE(1);
-> > +                     return entry;
-> > +             }
-> > +     }
->
-> This warning triggers on s390. CONFIG_THP_SWAP is disabled and order
-> is 8 when this triggers (reproduced with ltp's swapon01 test case):
+This is based on cryptodev commit 2dfc7cd74a5e062a.  It can also be
+retrieved from:
 
-Hi Heiko,
+    git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git sha256-lib-v4
 
-Thanks for the report.
+Following the example of several other algorithms (e.g. CRC32, ChaCha,
+Poly1305, BLAKE2s), this series refactors the kernel's existing
+architecture-optimized SHA-256 code to be available via the library API,
+instead of just via the crypto_shash API as it was before.  It also
+reimplements the SHA-256 crypto_shash API on top of the library API.
 
->
-> ------------[ cut here ]------------
-> WARNING: CPU: 1 PID: 895 at mm/swapfile.c:1227 folio_alloc_swap+0x438/0x4=
-40
-> Modules linked in:
-> CPU: 1 UID: 0 PID: 895 Comm: swapon01 Not tainted 6.14.0-rc6-00227-g0ff67=
-f990bd4-dirty #25
-> Hardware name: IBM 3931 A01 704 (z/VM 7.4.0)
-> Krnl PSW : 0704d00180000000 000003ffe051210c (folio_alloc_swap+0x43c/0x44=
-0)
->            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
-> Krnl GPRS: 0000000080000000 0000000000000001 0000000000000013 00000000000=
-70000
->            0000000000000006 fffffef40e9da000 0000000000000000 0000037202f=
-c4000
->            0000037f00000100 0000000000000100 0000037fe2e4b770 0000037202f=
-c4000
->            0000000000000000 0000000000000000 000003ffe0512108 0000037fe2e=
-4b3c8
-> Krnl Code: 000003ffe05120fe: b9160044            llgfr   %r4,%r4
->            000003ffe0512102: c0e5ffdf8c0b        brasl   %r14,000003ffe01=
-03918
->           #000003ffe0512108: af000000            mc      0,0
->           >000003ffe051210c: a7f4fe94            brc     15,000003ffe0511=
-e34
->            000003ffe0512110: c0040069ce74        brcl    0,000003ffe124bd=
-f8
->            000003ffe0512116: eb8ff0580024        stmg    %r8,%r15,88(%r15=
-)
->            000003ffe051211c: b90400ef            lgr     %r14,%r15
->            000003ffe0512120: e3f0ffb8ff71        lay     %r15,-72(%r15)
-> Call Trace:
->  [<000003ffe051210c>] folio_alloc_swap+0x43c/0x440
->  [<000003ffe050afa6>] add_to_swap+0x56/0xf0
->  [<000003ffe045fdc0>] shrink_folio_list+0xe80/0x13b0
->  [<000003ffe0461946>] shrink_inactive_list+0x1a6/0x550
->  [<000003ffe04624a2>] shrink_lruvec+0x2b2/0x410
->  [<000003ffe0462840>] shrink_node_memcgs+0x240/0x2d0
->  [<000003ffe0462986>] shrink_node+0xb6/0x3e0
->  [<000003ffe046302a>] do_try_to_free_pages+0xda/0x610
->  [<000003ffe0464d2c>] try_to_free_mem_cgroup_pages+0x14c/0x2a0
->  [<000003ffe0568270>] try_charge_memcg+0x220/0x5d0
->  [<000003ffe056867a>] charge_memcg+0x5a/0x270
->  [<000003ffe056a484>] __mem_cgroup_charge+0x44/0x80
->  [<000003ffe04acf20>] alloc_anon_folio+0x280/0x610
->  [<000003ffe04ad45a>] do_anonymous_page+0x1aa/0x5e0
->  [<000003ffe04af4c4>] __handle_mm_fault+0x244/0x500
->  [<000003ffe04af820>] handle_mm_fault+0xa0/0x170
->  [<000003ffe01533f8>] do_exception+0x1d8/0x4a0
->  [<000003ffe11fb92a>] __do_pgm_check+0x13a/0x220
->  [<000003ffe120c3ce>] pgm_check_handler+0x11e/0x170
-> ---[ end trace 0000000000000000 ]---
->
+This makes it possible to use the SHA-256 library in
+performance-critical cases.  The new design is also much simpler, with a
+negative diffstat of almost 1200 lines.  Finally, this also fixes the
+longstanding issue where the arch-optimized SHA-256 was disabled by
+default, so people often forgot to enable it.
 
-The !CONFIG_THP_SWAP check existed before because slot cache should
-reject high order allocation. But slot cache is gone, so large
-allocation will directly go to the allocator.
+For now the SHA-256 library is well-covered by the crypto_shash
+self-tests, but I plan to add a test for the library directly later.
+I've fully tested this series on arm, arm64, riscv, and x86.  On mips,
+powerpc, s390, and sparc I've only been able to partially test it, since
+QEMU does not support the SHA-256 instructions on those platforms.  If
+anyone with access to a mips, powerpc, s390, or sparc system that has
+SHA-256 instructions can verify that the crypto self-tests still pass,
 
-It was not a meaningful WARN in the first place, and now the allocator
-should just fail silently for high order allocation, that's totally
-fine and expected and will just inform the caller to split the folio.
+Changed v1 => v4:
+    - Moved sha256_generic_blocks() into its own module to avoid a
+      circular module dependency.
+    - Added Ard's Reviewed-by tags.
+    - Rebased onto cryptodev.
 
-I'll just change the WARN_ON condition to `if (order && size >
-SWAPFILE_CLUSTER)` then, this should silence the WARN.
+Eric Biggers (13):
+  crypto: sha256 - support arch-optimized lib and expose through shash
+  crypto: arm/sha256 - implement library instead of shash
+  crypto: arm64/sha256 - remove obsolete chunking logic
+  crypto: arm64/sha256 - implement library instead of shash
+  crypto: mips/sha256 - implement library instead of shash
+  crypto: powerpc/sha256 - implement library instead of shash
+  crypto: riscv/sha256 - implement library instead of shash
+  crypto: s390/sha256 - implement library instead of shash
+  crypto: sparc - move opcodes.h into asm directory
+  crypto: sparc/sha256 - implement library instead of shash
+  crypto: x86/sha256 - implement library instead of shash
+  crypto: sha256 - remove sha256_base.h
+  crypto: lib/sha256 - improve function prototypes
+
+ arch/arm/configs/exynos_defconfig             |   1 -
+ arch/arm/configs/milbeaut_m10v_defconfig      |   1 -
+ arch/arm/configs/multi_v7_defconfig           |   1 -
+ arch/arm/configs/omap2plus_defconfig          |   1 -
+ arch/arm/configs/pxa_defconfig                |   1 -
+ arch/arm/crypto/Kconfig                       |  21 -
+ arch/arm/crypto/Makefile                      |   8 +-
+ arch/arm/crypto/sha2-ce-glue.c                |  87 ----
+ arch/arm/crypto/sha256_glue.c                 | 107 -----
+ arch/arm/crypto/sha256_glue.h                 |   9 -
+ arch/arm/crypto/sha256_neon_glue.c            |  75 ---
+ arch/arm/lib/crypto/.gitignore                |   1 +
+ arch/arm/lib/crypto/Kconfig                   |   6 +
+ arch/arm/lib/crypto/Makefile                  |   8 +-
+ arch/arm/{ => lib}/crypto/sha256-armv4.pl     |   0
+ .../sha2-ce-core.S => lib/crypto/sha256-ce.S} |  10 +-
+ arch/arm/lib/crypto/sha256.c                  |  64 +++
+ arch/arm64/configs/defconfig                  |   1 -
+ arch/arm64/crypto/Kconfig                     |  19 -
+ arch/arm64/crypto/Makefile                    |  13 +-
+ arch/arm64/crypto/sha2-ce-glue.c              | 138 ------
+ arch/arm64/crypto/sha256-glue.c               | 171 -------
+ arch/arm64/lib/crypto/.gitignore              |   1 +
+ arch/arm64/lib/crypto/Kconfig                 |   5 +
+ arch/arm64/lib/crypto/Makefile                |   9 +-
+ .../crypto/sha2-armv8.pl}                     |   0
+ .../sha2-ce-core.S => lib/crypto/sha256-ce.S} |  36 +-
+ arch/arm64/lib/crypto/sha256.c                |  75 +++
+ arch/mips/cavium-octeon/Kconfig               |   6 +
+ .../mips/cavium-octeon/crypto/octeon-sha256.c | 135 ++----
+ arch/mips/configs/cavium_octeon_defconfig     |   1 -
+ arch/mips/crypto/Kconfig                      |  10 -
+ arch/powerpc/crypto/Kconfig                   |  11 -
+ arch/powerpc/crypto/Makefile                  |   2 -
+ arch/powerpc/crypto/sha256-spe-glue.c         | 128 ------
+ arch/powerpc/lib/crypto/Kconfig               |   6 +
+ arch/powerpc/lib/crypto/Makefile              |   3 +
+ .../powerpc/{ => lib}/crypto/sha256-spe-asm.S |   0
+ arch/powerpc/lib/crypto/sha256.c              |  70 +++
+ arch/riscv/crypto/Kconfig                     |  11 -
+ arch/riscv/crypto/Makefile                    |   3 -
+ arch/riscv/crypto/sha256-riscv64-glue.c       | 125 -----
+ arch/riscv/lib/crypto/Kconfig                 |   7 +
+ arch/riscv/lib/crypto/Makefile                |   3 +
+ .../sha256-riscv64-zvknha_or_zvknhb-zvkb.S    |   4 +-
+ arch/riscv/lib/crypto/sha256.c                |  62 +++
+ arch/s390/configs/debug_defconfig             |   1 -
+ arch/s390/configs/defconfig                   |   1 -
+ arch/s390/crypto/Kconfig                      |  10 -
+ arch/s390/crypto/Makefile                     |   1 -
+ arch/s390/crypto/sha256_s390.c                | 144 ------
+ arch/s390/lib/crypto/Kconfig                  |   6 +
+ arch/s390/lib/crypto/Makefile                 |   2 +
+ arch/s390/lib/crypto/sha256.c                 |  47 ++
+ arch/sparc/crypto/Kconfig                     |  10 -
+ arch/sparc/crypto/Makefile                    |   2 -
+ arch/sparc/crypto/aes_asm.S                   |   3 +-
+ arch/sparc/crypto/aes_glue.c                  |   3 +-
+ arch/sparc/crypto/camellia_asm.S              |   3 +-
+ arch/sparc/crypto/camellia_glue.c             |   3 +-
+ arch/sparc/crypto/des_asm.S                   |   3 +-
+ arch/sparc/crypto/des_glue.c                  |   3 +-
+ arch/sparc/crypto/md5_asm.S                   |   3 +-
+ arch/sparc/crypto/md5_glue.c                  |   3 +-
+ arch/sparc/crypto/sha1_asm.S                  |   3 +-
+ arch/sparc/crypto/sha1_glue.c                 |   3 +-
+ arch/sparc/crypto/sha256_glue.c               | 129 ------
+ arch/sparc/crypto/sha512_asm.S                |   3 +-
+ arch/sparc/crypto/sha512_glue.c               |   3 +-
+ arch/sparc/{crypto => include/asm}/opcodes.h  |   6 +-
+ arch/sparc/lib/Makefile                       |   1 +
+ arch/sparc/lib/crc32c_asm.S                   |   3 +-
+ arch/sparc/lib/crypto/Kconfig                 |   8 +
+ arch/sparc/lib/crypto/Makefile                |   4 +
+ arch/sparc/lib/crypto/sha256.c                |  64 +++
+ arch/sparc/{ => lib}/crypto/sha256_asm.S      |   5 +-
+ arch/x86/crypto/Kconfig                       |  14 -
+ arch/x86/crypto/Makefile                      |   3 -
+ arch/x86/crypto/sha256_ssse3_glue.c           | 432 ------------------
+ arch/x86/lib/crypto/Kconfig                   |   7 +
+ arch/x86/lib/crypto/Makefile                  |   3 +
+ arch/x86/{ => lib}/crypto/sha256-avx-asm.S    |  12 +-
+ arch/x86/{ => lib}/crypto/sha256-avx2-asm.S   |  12 +-
+ .../crypto/sha256-ni-asm.S}                   |  36 +-
+ arch/x86/{ => lib}/crypto/sha256-ssse3-asm.S  |  14 +-
+ arch/x86/lib/crypto/sha256.c                  |  74 +++
+ crypto/Kconfig                                |   1 +
+ crypto/Makefile                               |   3 +-
+ crypto/sha256.c                               | 201 ++++++++
+ crypto/sha256_generic.c                       | 102 -----
+ include/crypto/internal/sha2.h                |  28 ++
+ include/crypto/sha2.h                         |  23 +-
+ include/crypto/sha256_base.h                  | 180 --------
+ lib/crypto/Kconfig                            |  22 +
+ lib/crypto/Makefile                           |   3 +
+ lib/crypto/sha256-generic.c                   | 137 ++++++
+ lib/crypto/sha256.c                           | 204 ++++-----
+ 97 files changed, 1128 insertions(+), 2319 deletions(-)
+ delete mode 100644 arch/arm/crypto/sha2-ce-glue.c
+ delete mode 100644 arch/arm/crypto/sha256_glue.c
+ delete mode 100644 arch/arm/crypto/sha256_glue.h
+ delete mode 100644 arch/arm/crypto/sha256_neon_glue.c
+ rename arch/arm/{ => lib}/crypto/sha256-armv4.pl (100%)
+ rename arch/arm/{crypto/sha2-ce-core.S => lib/crypto/sha256-ce.S} (91%)
+ create mode 100644 arch/arm/lib/crypto/sha256.c
+ delete mode 100644 arch/arm64/crypto/sha2-ce-glue.c
+ delete mode 100644 arch/arm64/crypto/sha256-glue.c
+ rename arch/arm64/{crypto/sha512-armv8.pl => lib/crypto/sha2-armv8.pl} (100%)
+ rename arch/arm64/{crypto/sha2-ce-core.S => lib/crypto/sha256-ce.S} (80%)
+ create mode 100644 arch/arm64/lib/crypto/sha256.c
+ delete mode 100644 arch/powerpc/crypto/sha256-spe-glue.c
+ rename arch/powerpc/{ => lib}/crypto/sha256-spe-asm.S (100%)
+ create mode 100644 arch/powerpc/lib/crypto/sha256.c
+ delete mode 100644 arch/riscv/crypto/sha256-riscv64-glue.c
+ rename arch/riscv/{ => lib}/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S (98%)
+ create mode 100644 arch/riscv/lib/crypto/sha256.c
+ delete mode 100644 arch/s390/crypto/sha256_s390.c
+ create mode 100644 arch/s390/lib/crypto/sha256.c
+ delete mode 100644 arch/sparc/crypto/sha256_glue.c
+ rename arch/sparc/{crypto => include/asm}/opcodes.h (96%)
+ create mode 100644 arch/sparc/lib/crypto/Kconfig
+ create mode 100644 arch/sparc/lib/crypto/Makefile
+ create mode 100644 arch/sparc/lib/crypto/sha256.c
+ rename arch/sparc/{ => lib}/crypto/sha256_asm.S (95%)
+ delete mode 100644 arch/x86/crypto/sha256_ssse3_glue.c
+ rename arch/x86/{ => lib}/crypto/sha256-avx-asm.S (98%)
+ rename arch/x86/{ => lib}/crypto/sha256-avx2-asm.S (98%)
+ rename arch/x86/{crypto/sha256_ni_asm.S => lib/crypto/sha256-ni-asm.S} (85%)
+ rename arch/x86/{ => lib}/crypto/sha256-ssse3-asm.S (98%)
+ create mode 100644 arch/x86/lib/crypto/sha256.c
+ create mode 100644 crypto/sha256.c
+ delete mode 100644 crypto/sha256_generic.c
+ create mode 100644 include/crypto/internal/sha2.h
+ delete mode 100644 include/crypto/sha256_base.h
+ create mode 100644 lib/crypto/sha256-generic.c
+
+
+base-commit: 2dfc7cd74a5e062a5405560447517e7aab1c7341
+-- 
+2.49.0
+
