@@ -1,401 +1,168 @@
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2060.outbound.protection.outlook.com [40.107.93.60])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0501F217736;
-	Tue, 29 Apr 2025 14:43:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.60
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745937833; cv=fail; b=I7fVK5x3+46zXXLB1LPymMswR9iVG04pxfWWkbLdnWJOKoraDXy0SeK0xprZI406ZfAaZY0L+R/Ywe3oeZzndzQgpDyfbk1llhawSa/GUPL3LsYgDFGc1Epp2I5RV7YCoALYV4YJujCqAdgyENddTIVqNeeES3M8Ja+AhA/LtWI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745937833; c=relaxed/simple;
-	bh=cZ3DrS4igYz/nFcJUyPqYzJczZN77oYvTq119DwEGLY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=AfhC05YQFWZpDl1WeVIJ3Bj63j7LNzfVQWlhknCjCFYvQFNK6pf78n8HMgqy9B5WujNiGPTDeTdnZp/pi5MQVUxoHNKtoTNIjuY7OiF8DVS16OI5tAMo59DBGWA1e0FH3sJ8mCKdOLf3yDVuArrGI4146PVPKJWy7VWVUTMHfjI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=D/8LNXLU; arc=fail smtp.client-ip=40.107.93.60
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F423721A443;
+	Tue, 29 Apr 2025 14:52:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1745938346; cv=none; b=HZQWaBzL/LDlKM9sI3gUx+NpxhQO8lLJ48FMGIZRq42NFzlD6RNKFAONfzeQZn7IUY493NtzkGBhIqEib08gdyqbMyR8yCZHmj8SGQaGEs2j40HuX95MvvHdR07i2pUq5NqDRzzSlyb/TlOzX7IOvUzeuQO9vH+79IjAN3syCsM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1745938346; c=relaxed/simple;
+	bh=boO/GhDvwrGxI/EyyHhHi+l9iqRNhSy8IeYhe8K3POQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=tgmmB3WUtm5lOYCNyxP6Ajqgc8Be976ZFGPgLe5RS8aVd8iLVO5lQhFhTvSHcuHtwt+N/nWJ9LK5ucJH3fxFiQc2g8sN0IIlkoeUdlp8jKft9Vc+wpgrW2ogB/itXaqe01DC2JdaXxsNALwGs1JIqqigkHsbVCh+yHORMYi7U60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M8GZ2FPf; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="D/8LNXLU"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=bYnAfFkoVKAw0+piNJcADwgMCR2WZ7wrgmxNAEzK4QI+d56qGJT9RZZXUnxlHuHeRu6CCavJDSL6TuTVuXsNlhhLoJHmhDwp3zk6iV3trHDevQvJgBs0pZ/0KyjtAWXcEbcR8bMVAIIRlmqfH+MCEfQsPi8OC96u/MGGG0bpAdASRU+0jAnynD/A185z8QDHL50jdU/T1Syex6CAFu1aALv6vIICovH4I5gS7jdV1NA1E5FA5NHexY1rhXye7IA+RRa8TTpCWXV2mBucDwlmN9Ozgk5BcPvzDIjDoKlJ+19apUTNpt1oWnqFOkPvLvS5Igk5mWwGxeEqIx8/Z5pphg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KzbLNMxiR1Sh/qc9ezJGttgA61ksVSbNYtlMAABaCiY=;
- b=KoxVLV68Ew3YHddMH7tknTi1OGzJDM/CruRudPQJhQhQT9VVi59F+4p2+KwV/Ra//Shd3QMTMy7ZCv2Tki4mPqnsrduuHtqu8lXC421bOcDQFLdD/77urprl3y3hhpV/1AOaKDuHRh7EGEmxk6/yr7VOyPP5jt8QkWG5/iG3tXQ7mZ0YFaMokepqPigmicwk2c/V0bt6njID6jNHqxL6Sp/dFclh/ebsBJPkcCL/giuWgLCc1+IrreZ1jExcJq4ITr/pdQQN09cBCyaFJ1Nx3ls7weeBD/UP7ufHLRxeB0zh6crPpgj2Y+cRdbXFliuHfk6+EycrFPXARP7de1NfFQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KzbLNMxiR1Sh/qc9ezJGttgA61ksVSbNYtlMAABaCiY=;
- b=D/8LNXLU80vJNRhUudqcJv9oPlahkMsHc1/MOIl6UAeENwIaTxwsyj0/PZq4yXJWl/IZTyNpO+vUb37DF3J4so1fv9lMPC1XUmpsiKJI/A11BPPpij0X9KyF6suf4fPPnZ9xU0VN/3tA+bDzjyCTfQ8p4Hv9dV4xYQ6EHpMKqEIs0FgmY/zV9IbUI1fMDkF3rj5Yg7OcDx2z57Y9Gh29RUTYFwdzNeDxboMmrfvXzQUgRy69tbefB4LfD5KlmLIaxQNn0zwAv3gMEjwYcZ/dpBUa1ON/ZJJketkefeFO1PpJojP1dtwyiTnmmiT5qredzgKa3jQXMQFIZseJxvp3RQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com (2603:10b6:610:17c::13)
- by CH3PR12MB8726.namprd12.prod.outlook.com (2603:10b6:610:17b::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8678.33; Tue, 29 Apr
- 2025 14:43:49 +0000
-Received: from CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732]) by CH3PR12MB8659.namprd12.prod.outlook.com
- ([fe80::6eb6:7d37:7b4b:1732%4]) with mapi id 15.20.8678.028; Tue, 29 Apr 2025
- 14:43:49 +0000
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Alexandre Ghiti <alex@ghiti.fr>,
-	Alim Akhtar <alim.akhtar@samsung.com>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	asahi@lists.linux.dev,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Stuebner <heiko@sntech.de>,
-	iommu@lists.linux.dev,
-	Janne Grunau <j@jannau.net>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	Kevin Tian <kevin.tian@intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	linux-riscv@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org,
-	linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Neal Gompa <neal@gompa.dev>,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Sven Peter <sven@svenpeter.dev>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Tomasz Jeznach <tjeznach@rivosinc.com>,
-	Krishna Reddy <vdumpa@nvidia.com>,
-	virtualization@lists.linux.dev,
-	Chen-Yu Tsai <wens@csie.org>,
-	Will Deacon <will@kernel.org>,
-	Yong Wu <yong.wu@mediatek.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>
-Cc: patches@lists.linux.dev
-Subject: [PATCH 4/7] iommu: Remove iommu_ops pgsize_bitmap from simple drivers
-Date: Tue, 29 Apr 2025 11:34:14 -0300
-Message-ID: <4-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-In-Reply-To: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-References:
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BN9PR03CA0274.namprd03.prod.outlook.com
- (2603:10b6:408:f5::9) To CH3PR12MB8659.namprd12.prod.outlook.com
- (2603:10b6:610:17c::13)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M8GZ2FPf"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 53T4ENbG028123;
+	Tue, 29 Apr 2025 14:52:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=dNyeQB
+	obZcGmWUmeuxNsNV0sU1HqmfJw4D6Zghqc2QA=; b=M8GZ2FPfCgF6URMn+e0wRl
+	Vnp4MhQWo+QK6bpxtw0aSMhpyMWa0LTtqQIPOVAQ9LH/3i8np47niWQiYG7OWE6v
+	S05gHnGhHBtD1rtQ9iSoVVGCjF0C1pbFh3cK1j9du482RgA6r3poCLYIa1MiyD9j
+	w1NFidkuqWmZ703N3PTgfL4qVnuCC7HE0hTzaWl2GQCihvC+BXImjAln3VkWx6vS
+	Nsh7qHUzKpy7BznLMGnuU14N389JIHhZcN4oMbwjBBRX1EQVUryl0mkQfQbptKWQ
+	nIxK2b3zUtxdtc8G6EQ624ntyNsZr9XjibhjCTW3DYb5rRAq/xYD+xxkPDzoS9gQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ah8mbuf3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 29 Apr 2025 14:52:09 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 53TDotUM000675;
+	Tue, 29 Apr 2025 14:52:08 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 469atpbprs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 29 Apr 2025 14:52:08 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 53TEq6Ye33358482
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 29 Apr 2025 14:52:06 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 08FBE20043;
+	Tue, 29 Apr 2025 14:52:06 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9873C2004B;
+	Tue, 29 Apr 2025 14:52:05 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.111.6.190])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 29 Apr 2025 14:52:05 +0000 (GMT)
+Date: Tue, 29 Apr 2025 16:52:03 +0200
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: Alistair Popple <apopple@nvidia.com>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List
+ <linux-mm@kvack.org>,
+        linux-s390@vger.kernel.org
+Subject: Re: drivers/s390/block/dcssblk.c:718:undefined reference to
+ `kill_dax'
+Message-ID: <20250429165203.48cc5baa@thinkpad-T15>
+In-Reply-To: <202504291604.pvjonhWX-lkp@intel.com>
+References: <202504291604.pvjonhWX-lkp@intel.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8659:EE_|CH3PR12MB8726:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0a215d26-fd65-4eea-db17-08dd872c4037
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?hDdCK0UZgH8C5u/JwuYYQCdh7ae6CRQeyzIxP+f32zJ/HBZoK7tNN/9z+jLb?=
- =?us-ascii?Q?5hXyWy9pUElFQqj41y6rdFJCAlITZpEh4JjCiC/WDkacFgwgtrEj+pluDgFp?=
- =?us-ascii?Q?wZHXnHTrJvK8qbLOkN5qOPzwwaDlOeyPKl/PYJkA0+9nT8Xp3XQjZ9iEfh7p?=
- =?us-ascii?Q?Txaff79RfibMTwvFExZh7P35cgDJ3d81VZPHflckE1eDakIfE+8z1xBGw7dZ?=
- =?us-ascii?Q?BYtiLSNx1sD/tfIKgZw957MxMY2Sz87dSRuNkqnTC12wvstHVuMIeE7S4m8W?=
- =?us-ascii?Q?1gTkAxHw9fFAVOAT5VWdm1N+3ZzJ1jGOvqykI9IyfmJ0BaRyJNGjPQsw1m1Y?=
- =?us-ascii?Q?cGygzNZeGHFRGZCE15b6BGr/ikm7JwHPcwOPU2/kE10JkBJrL8pOgmDIXR5d?=
- =?us-ascii?Q?Bw/4DpeGiR41p+N0PNMoyDFICmR3Q2g5yD3B6sHp1Kgb6DDnn+QGKKHB/pXx?=
- =?us-ascii?Q?+rTNzTuO8t8X+eMeAqYMdVV1108Y5HqIaAntT4OSx6YaVIEcJwQKr0jft8E7?=
- =?us-ascii?Q?G+EXsDYbZ2pwyKvWVRnOH1n76F6/J4ZQl6wkQsqyGuYLp+l/Sj6kyphXLrdA?=
- =?us-ascii?Q?6djg8km3jVgLcYfPu1/hWN79/aToVKm7ehEEfDDG8Rx1rXiy32YAVK04UTbv?=
- =?us-ascii?Q?CMKQzWs7eH3iIHJsdN2BJXo98wgbs9mtlENgJSa+aSJngoA0oWpFQCawsyVj?=
- =?us-ascii?Q?F9hJTRbexGpgYhKkrHdYcHzUtArbDX1KGJ2Jtw4Wu9NjDTxzNCUuFUejD/cs?=
- =?us-ascii?Q?NLpO6yuuQAZoR6W6ciK5gXWUuEoV2zfUyBIlDjKscuFisYqvsA1RLjCqFG6A?=
- =?us-ascii?Q?dCY8OY4KB9W++Jodh1cgpkjYFGDhz9VnPnLA0Z1SE2vulvxESOw3bHv210aY?=
- =?us-ascii?Q?HQdWcEMgYqTIZ1Obd8E89lhYa5RWSU/Jc/YP9FEZfhJHyuUWg2CmL6vUEmZs?=
- =?us-ascii?Q?B+V5As0xtN7esA+8u7EYaXvh8VlJLvBNoqVR1PGNobAN2EJ0/lTeIJwa2POg?=
- =?us-ascii?Q?WLRG5etV5c3Jth9VVX6Vb6y42H/5mHQ+mSS9kqMh7n8OJ1ZrrbLPs50SLmqS?=
- =?us-ascii?Q?QGez5z3y1IKtXCLPUxQODndqqGLfrfJNcN5rPLLVnRNj3oQdrPkuzwaFrPkZ?=
- =?us-ascii?Q?X0nSmxixTK3HbAwWsxAVhV/QZrgxdFpcP4hsVTQFu8PZadsB+/CJ7udb9yEH?=
- =?us-ascii?Q?tqzIwoNVlY8OWTl+pSYQxEJczfGzinjFLh8N3/Gu2l8y+yLOz1k3OHOXtQV/?=
- =?us-ascii?Q?BiUEc5aJjKOSl+JDEH3YbjKeuFc3bVk8uAeBVI75wdaXSwlKrmSGZreW0062?=
- =?us-ascii?Q?D04fiBnYpnRegnyQ+8VYxqx8QSjH9HKMxeDbaLbeCHfeEwoOro2QqMupREkr?=
- =?us-ascii?Q?E9r4pkwmZhNLUmehnW/Ce/LrmILRtSI9Nn9Zc7IfdCbSM7gpVYaAuKuKX5g/?=
- =?us-ascii?Q?FkW+20Y370JXdjVYH6uFuAqoRSCD7MBiUe8zoWviPCprUaacRhachQ=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8659.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?0gBCzSSblJifD4rIyPNKgkKJLdbM2icaW1IeKVzYBc6VYdJEzc8+pi3ykIZb?=
- =?us-ascii?Q?X7k/qMgufrHrZdkSKAVlHJBzNIMsEd5j8pNMLKXvGnJNUEgwHvDzrXwLLbJs?=
- =?us-ascii?Q?pyH4VO5aDl+Zj2JNeG7zPN0LujAeLt5EpdBpaF3gN9THqCNBQ1wrr67FixGK?=
- =?us-ascii?Q?sLB8jVSjLNR/7e4UeyjVcuKPZdZqne4Gwi+PW8fy3z07/2mLa33hFuZN3qti?=
- =?us-ascii?Q?wt21wg52aaEeAMKWXIJXRhdCVRyyofO68TntK+9i4Sa14M1Tgxjs4Fs9ZeO/?=
- =?us-ascii?Q?I1eySJ3SigZ7wEddPkGjbNqO+QEexEBZ59noZwH8GeTxuRBoDGkqR6L0ngiT?=
- =?us-ascii?Q?vpxxKeDl5VIrajveUBvSbJwo+x+3cojISFPun88jU/1Et+rlbuYh+Jpuh06H?=
- =?us-ascii?Q?hZUHGUxU0cLOtUTrt3DMKJ9Ag8mTiunNA8v1lvobOE16ovcfopQssCiS3fH4?=
- =?us-ascii?Q?twebdWTB4lZ1aT5tuBzau27uIShjOKiFRaZTlxpQ9k+27zmWJBA8pwHi1hh7?=
- =?us-ascii?Q?RBQrC1p8XuqHdhJI+ZMyN7lffwcr5wVA9Y8aXVK0ShhC6/CrhYjWPymp5vcy?=
- =?us-ascii?Q?UTMf1bVBYNTwwwS1g9g2uOooQf3og1Zz+GszflwC99LY3U/ApgW6PsY4s9Ip?=
- =?us-ascii?Q?Zi5nRqiT27h1wxm8xGMP44RTHDszRHa9Slq24kcm6nO+j/Zf8ZXAFqv8OE6G?=
- =?us-ascii?Q?hkBXx2BQJHirjdYzNfayqjojZHHKpJHW8P7pAwNvefxC6wJkR0MzB6XM/mk2?=
- =?us-ascii?Q?AfEr05xCPMg4oDDxEcjIkAhfQEaXN3Z5X/xdiqLN/P2f0+Hgu7/oru+ARpTf?=
- =?us-ascii?Q?dVY3hO7vBUwP0ZDDBagQDPGCblAYwmWsthNiYkl+NjhQb9l8r1oKDtqJf5KO?=
- =?us-ascii?Q?6iyIwcwnmolNH7BqOVM4TtQlQ4tcbmYJP+EmNZ/869c6XSnEF0y8pWE9axer?=
- =?us-ascii?Q?f4wbJgc9f8SDvbgbLkdJVVkMeK772pOjK0DwesngSLlyazj/5v1pai5l40te?=
- =?us-ascii?Q?s/i1wLSXy8d/NTblFxwPXUCbMEhVTdc2cF189Z6U058PCIHXQz78xNHtnp+q?=
- =?us-ascii?Q?2TDnz00Xa/6k2T1319AF8d9igrQLSQAsHISffA2S7EaAZ3f4zKp4DL9N8ZWQ?=
- =?us-ascii?Q?PFxILWHsmY12iasjClI+GmGkcqwnFstJPlBP9QlSuBGgcRlt+BHmqAX9OUQP?=
- =?us-ascii?Q?hY1HUqJphNHWdTvuB42wa3uI8yJ0gd+MAx4YztrA9cgixbgqRVIfYjYHZTM1?=
- =?us-ascii?Q?YF9aOV1bQ5G8z/FTo8XJ0OY8wVGlDI5PptiewlS2PzCO5k4rAEs5i3SjsfDR?=
- =?us-ascii?Q?e9H+kq0bf/ua8yezbxpSvZz3GTBRCUxSgJ/WbXvbrxlqB4CmqHXvs7a+6X4p?=
- =?us-ascii?Q?EEVfcmPg0N3USDxjjVmD8bf9oR9Z+qidzKUYLswGxBqkvj7mGzWbhrRF/JTo?=
- =?us-ascii?Q?AsXEFbAWgnZoOUllH5OdQDJnQQAWrz0eyJEJj1SLDHQVJu5yJrSoVKY9jBtJ?=
- =?us-ascii?Q?K7UuerRn5QiJSKtC+kUtTA+z+x0dzQS2Kcd3+cAoKAFRb6KNdLipaAy3mKWb?=
- =?us-ascii?Q?sOkvKkUOgD2xeMauJlUsQ3urZI3wGJ1D6K6VdyWd?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0a215d26-fd65-4eea-db17-08dd872c4037
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8659.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Apr 2025 14:43:48.9211
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: MQz94GKb27oMNlOGoPOl4BQqaztG2D3UMh6eJZdHeXuMll8zc3jEPLS4EG8nvh1c
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8726
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: uCX2BGG2_SgjW4kDNt2jbAbAh0vUAzV3
+X-Proofpoint-GUID: uCX2BGG2_SgjW4kDNt2jbAbAh0vUAzV3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNDI5MDEwOSBTYWx0ZWRfX98AZux04bRMR xYURugpYfWDlGAxJavcAc7hN5HFhWkJkPA/ut2FEkBVb7L/QVrEK/64ZAtpaorz5XWQpTTTfr2o Jc/MHSKZsZfF6tCaUy2V9HeM3Opfox+AUwFxDcYWeua25nKSCvGFG0Cu0H4MeYOJyFsf0krbf6u
+ fb4WCd6B4XuramAKPZ2h/5x/KW7Bas/E6atC0o8YpSXOJbu6RwTJhSHKGube6imJ+1ypFORBnc7 RReqRSnh3fGjbMP68aaFOsPQ4d/cv9Wu2GX6j1+ptRqj72tRpfimWHZcjPhxda/i+e2Vbk8eTXd Q56ywcTBKNsg5XaIEV5D9ZpRNBipwQeFDqXmQh+hQKYeTd1vyO2B1Ji8uEyNyxGtajq4JgZSnWV
+ ruqr8HIS6fbkiAJqx2wloH5rqG1Rdi3eyMybx/H7nGsurXF7v8rbSVrEz+YKqOg62if8ZV4H
+X-Authority-Analysis: v=2.4 cv=QNRoRhLL c=1 sm=1 tr=0 ts=6810e799 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=XR8D0OoHHMoA:10 a=VwQbUJbxAAAA:8 a=i3X5FwGiAAAA:8 a=QyXUC8HyAAAA:8 a=NEAV23lmAAAA:8 a=Ikd4Dj_1AAAA:8
+ a=Hconwz5XVgyAt6oBMeoA:9 a=CjuIK1q_8ugA:10 a=mmqRlSCDY2ywfjPLJ4af:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-04-29_05,2025-04-24_02,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ mlxlogscore=999 spamscore=0 clxscore=1015 mlxscore=0 malwarescore=0
+ bulkscore=0 priorityscore=1501 phishscore=0 impostorscore=0
+ lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2504290109
 
-These drivers just have a constant value for their page size, move it
-into their domain_alloc_paging function before setting up the geometry.
+On Tue, 29 Apr 2025 16:27:39 +0800
+kernel test robot <lkp@intel.com> wrote:
 
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
----
- drivers/iommu/exynos-iommu.c   | 3 ++-
- drivers/iommu/ipmmu-vmsa.c     | 4 ++--
- drivers/iommu/mtk_iommu_v1.c   | 3 ++-
- drivers/iommu/omap-iommu.c     | 3 ++-
- drivers/iommu/rockchip-iommu.c | 3 ++-
- drivers/iommu/s390-iommu.c     | 2 +-
- drivers/iommu/sprd-iommu.c     | 3 ++-
- drivers/iommu/sun50i-iommu.c   | 3 ++-
- drivers/iommu/tegra-smmu.c     | 3 ++-
- 9 files changed, 17 insertions(+), 10 deletions(-)
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.gi=
+t master
+> head:   ca91b9500108d4cf083a635c2e11c884d5dd20ea
+> commit: 653d7825c149932f254e0cd22153ccc945e7e545 dcssblk: mark DAX broken=
+, remove FS_DAX_LIMITED support
+> date:   6 weeks ago
+> config: s390-randconfig-r132-20250428 (https://download.01.org/0day-ci/ar=
+chive/20250429/202504291604.pvjonhWX-lkp@intel.com/config)
+> compiler: clang version 21.0.0git (https://github.com/llvm/llvm-project f=
+819f46284f2a79790038e1f6649172789734ae8)
+> reproduce: (https://download.01.org/0day-ci/archive/20250429/202504291604=
+.pvjonhWX-lkp@intel.com/reproduce)
+>=20
+> If you fix the issue in a separate patch/commit (i.e. not just a new vers=
+ion of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202504291604.pvjonhWX-lkp=
+@intel.com/
+>=20
+> All errors (new ones prefixed by >>):
+>=20
+>    s390x-linux-ld: drivers/s390/block/dcssblk.o: in function `dcssblk_add=
+_store':
+> >> drivers/s390/block/dcssblk.c:718:(.text+0x1b98): undefined reference t=
+o `kill_dax'
+> >> s390x-linux-ld: drivers/s390/block/dcssblk.c:719:(.text+0x1bb6): undef=
+ined reference to `put_dax' =20
+>    s390x-linux-ld: drivers/s390/block/dcssblk.o: in function `dcssblk_sha=
+red_store':
+>    drivers/s390/block/dcssblk.c:417:(.text+0x2c2a): undefined reference t=
+o `kill_dax'
+>    s390x-linux-ld: drivers/s390/block/dcssblk.c:418:(.text+0x2c48): undef=
+ined reference to `put_dax'
+>    s390x-linux-ld: drivers/s390/block/dcssblk.o: in function `dcssblk_rem=
+ove_store':
+>    drivers/s390/block/dcssblk.c:803:(.text+0x42e2): undefined reference t=
+o `kill_dax'
+>    s390x-linux-ld: drivers/s390/block/dcssblk.c:804:(.text+0x4300): undef=
+ined reference to `put_dax'
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index fcb6a0f7c08275..b62a8f35c3e851 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -925,6 +925,8 @@ static struct iommu_domain *exynos_iommu_domain_alloc_paging(struct device *dev)
- 	spin_lock_init(&domain->pgtablelock);
- 	INIT_LIST_HEAD(&domain->clients);
- 
-+	domain->domain.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE;
-+
- 	domain->domain.geometry.aperture_start = 0;
- 	domain->domain.geometry.aperture_end   = ~0UL;
- 	domain->domain.geometry.force_aperture = true;
-@@ -1477,7 +1479,6 @@ static const struct iommu_ops exynos_iommu_ops = {
- 	.device_group = generic_device_group,
- 	.probe_device = exynos_iommu_probe_device,
- 	.release_device = exynos_iommu_release_device,
--	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
- 	.of_xlate = exynos_iommu_of_xlate,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= exynos_iommu_attach_device,
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 90341b24a81155..ffa892f6571406 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -430,7 +430,7 @@ static int ipmmu_domain_init_context(struct ipmmu_vmsa_domain *domain)
- 	 * non-secure mode.
- 	 */
- 	domain->cfg.quirks = IO_PGTABLE_QUIRK_ARM_NS;
--	domain->cfg.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K;
-+	domain->cfg.pgsize_bitmap = domain->io_domain.pgsize_bitmap;
- 	domain->cfg.ias = 32;
- 	domain->cfg.oas = 40;
- 	domain->cfg.tlb = &ipmmu_flush_ops;
-@@ -571,6 +571,7 @@ static struct iommu_domain *ipmmu_domain_alloc_paging(struct device *dev)
- 		return NULL;
- 
- 	mutex_init(&domain->mutex);
-+	domain->io_domain.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K;
- 
- 	return &domain->io_domain;
- }
-@@ -882,7 +883,6 @@ static const struct iommu_ops ipmmu_ops = {
- 	 */
- 	.device_group = IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA)
- 			? generic_device_group : generic_single_device_group,
--	.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K,
- 	.of_xlate = ipmmu_of_xlate,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= ipmmu_attach_device,
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index 66824982e05fbf..496cfe37243ac2 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -288,6 +288,8 @@ static struct iommu_domain *mtk_iommu_v1_domain_alloc_paging(struct device *dev)
- 	if (!dom)
- 		return NULL;
- 
-+	dom->domain.pgsize_bitmap = MT2701_IOMMU_PAGE_SIZE;
-+
- 	return &dom->domain;
- }
- 
-@@ -582,7 +584,6 @@ static const struct iommu_ops mtk_iommu_v1_ops = {
- 	.probe_finalize = mtk_iommu_v1_probe_finalize,
- 	.release_device	= mtk_iommu_v1_release_device,
- 	.device_group	= generic_device_group,
--	.pgsize_bitmap	= MT2701_IOMMU_PAGE_SIZE,
- 	.owner          = THIS_MODULE,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= mtk_iommu_v1_attach_device,
-diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
-index 3c62337f43c677..21c218976143ef 100644
---- a/drivers/iommu/omap-iommu.c
-+++ b/drivers/iommu/omap-iommu.c
-@@ -1584,6 +1584,8 @@ static struct iommu_domain *omap_iommu_domain_alloc_paging(struct device *dev)
- 
- 	spin_lock_init(&omap_domain->lock);
- 
-+	omap_domain->domain.pgsize_bitmap = OMAP_IOMMU_PGSIZES;
-+
- 	omap_domain->domain.geometry.aperture_start = 0;
- 	omap_domain->domain.geometry.aperture_end   = (1ULL << 32) - 1;
- 	omap_domain->domain.geometry.force_aperture = true;
-@@ -1735,7 +1737,6 @@ static const struct iommu_ops omap_iommu_ops = {
- 	.release_device	= omap_iommu_release_device,
- 	.device_group	= generic_single_device_group,
- 	.of_xlate	= omap_iommu_of_xlate,
--	.pgsize_bitmap	= OMAP_IOMMU_PGSIZES,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= omap_iommu_attach_dev,
- 		.map_pages	= omap_iommu_map,
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index 22f74ba33a0e38..f4a5ad096343ab 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -1081,6 +1081,8 @@ static struct iommu_domain *rk_iommu_domain_alloc_paging(struct device *dev)
- 	spin_lock_init(&rk_domain->dt_lock);
- 	INIT_LIST_HEAD(&rk_domain->iommus);
- 
-+	rk_domain->domain.pgsize_bitmap = RK_IOMMU_PGSIZE_BITMAP;
-+
- 	rk_domain->domain.geometry.aperture_start = 0;
- 	rk_domain->domain.geometry.aperture_end   = DMA_BIT_MASK(32);
- 	rk_domain->domain.geometry.force_aperture = true;
-@@ -1171,7 +1173,6 @@ static const struct iommu_ops rk_iommu_ops = {
- 	.probe_device = rk_iommu_probe_device,
- 	.release_device = rk_iommu_release_device,
- 	.device_group = generic_single_device_group,
--	.pgsize_bitmap = RK_IOMMU_PGSIZE_BITMAP,
- 	.of_xlate = rk_iommu_of_xlate,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= rk_iommu_attach_device,
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 433b59f435302b..9c80d61deb2c0b 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -557,6 +557,7 @@ static struct iommu_domain *s390_domain_alloc_paging(struct device *dev)
- 	}
- 	zdev->end_dma = zdev->start_dma + aperture_size - 1;
- 
-+	s390_domain->domain.pgsize_bitmap = SZ_4K;
- 	s390_domain->domain.geometry.force_aperture = true;
- 	s390_domain->domain.geometry.aperture_start = 0;
- 	s390_domain->domain.geometry.aperture_end = max_tbl_size(s390_domain);
-@@ -1158,7 +1159,6 @@ static struct iommu_domain blocking_domain = {
- 	.domain_alloc_paging = s390_domain_alloc_paging, \
- 	.probe_device = s390_iommu_probe_device, \
- 	.device_group = generic_device_group, \
--	.pgsize_bitmap = SZ_4K, \
- 	.get_resv_regions = s390_iommu_get_resv_regions, \
- 	.default_domain_ops = &(const struct iommu_domain_ops) { \
- 		.attach_dev	= s390_iommu_attach_device, \
-diff --git a/drivers/iommu/sprd-iommu.c b/drivers/iommu/sprd-iommu.c
-index 941d1f361c8cda..c7ca1d8a0b1530 100644
---- a/drivers/iommu/sprd-iommu.c
-+++ b/drivers/iommu/sprd-iommu.c
-@@ -143,6 +143,8 @@ static struct iommu_domain *sprd_iommu_domain_alloc_paging(struct device *dev)
- 
- 	spin_lock_init(&dom->pgtlock);
- 
-+	dom->domain.pgsize_bitmap = SPRD_IOMMU_PAGE_SIZE;
-+
- 	dom->domain.geometry.aperture_start = 0;
- 	dom->domain.geometry.aperture_end = SZ_256M - 1;
- 	dom->domain.geometry.force_aperture = true;
-@@ -410,7 +412,6 @@ static const struct iommu_ops sprd_iommu_ops = {
- 	.probe_device	= sprd_iommu_probe_device,
- 	.device_group	= generic_single_device_group,
- 	.of_xlate	= sprd_iommu_of_xlate,
--	.pgsize_bitmap	= SPRD_IOMMU_PAGE_SIZE,
- 	.owner		= THIS_MODULE,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= sprd_iommu_attach_device,
-diff --git a/drivers/iommu/sun50i-iommu.c b/drivers/iommu/sun50i-iommu.c
-index 76c9620af4bba8..de10b569d9a940 100644
---- a/drivers/iommu/sun50i-iommu.c
-+++ b/drivers/iommu/sun50i-iommu.c
-@@ -697,6 +697,8 @@ sun50i_iommu_domain_alloc_paging(struct device *dev)
- 
- 	refcount_set(&sun50i_domain->refcnt, 1);
- 
-+	sun50i_domain->domain.pgsize_bitmap = SZ_4K;
-+
- 	sun50i_domain->domain.geometry.aperture_start = 0;
- 	sun50i_domain->domain.geometry.aperture_end = DMA_BIT_MASK(32);
- 	sun50i_domain->domain.geometry.force_aperture = true;
-@@ -842,7 +844,6 @@ static int sun50i_iommu_of_xlate(struct device *dev,
- 
- static const struct iommu_ops sun50i_iommu_ops = {
- 	.identity_domain = &sun50i_iommu_identity_domain,
--	.pgsize_bitmap	= SZ_4K,
- 	.device_group	= generic_single_device_group,
- 	.domain_alloc_paging = sun50i_iommu_domain_alloc_paging,
- 	.of_xlate	= sun50i_iommu_of_xlate,
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index 61897d50162dd7..fa0913e9346c71 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -318,6 +318,8 @@ static struct iommu_domain *tegra_smmu_domain_alloc_paging(struct device *dev)
- 
- 	spin_lock_init(&as->lock);
- 
-+	as->domain.pgsize_bitmap = SZ_4K;
-+
- 	/* setup aperture */
- 	as->domain.geometry.aperture_start = 0;
- 	as->domain.geometry.aperture_end = 0xffffffff;
-@@ -1002,7 +1004,6 @@ static const struct iommu_ops tegra_smmu_ops = {
- 	.probe_device = tegra_smmu_probe_device,
- 	.device_group = tegra_smmu_device_group,
- 	.of_xlate = tegra_smmu_of_xlate,
--	.pgsize_bitmap = SZ_4K,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= tegra_smmu_attach_dev,
- 		.map_pages	= tegra_smmu_map,
--- 
-2.43.0
+This is because it's now possible to have CONFIG_DCSSBLK=3Dy, but CONFIG_DA=
+X=3Dm
+with randconfig, since commit 653d7825c149 ("dcssblk: mark DAX broken,
+remove FS_DAX_LIMITED support") moved the "select DAX" from config DCSSBLK
+to the new config DCSSBLK_DAX.
 
+To fix this, I think the "select DAX" can be moved back to config DCSSBLK.
+It is still ensured that the dcssblk driver does not actually use DAX,
+because of the check for CONFIG_DCSSBLK_DAX in dcssblk_setup_dax(). The
+remaining calls to kill_dax() etc. will just pass NULL as dax_dev, and are
+ignored.
+
+Will fix this via s390 tree.
+
+BTW, Dan, your commit said "remove FS_DAX_LIMITED support", but it does
+not really remove all the special handling in common code, only makes
+sure that dcssblk (the only user of it) does not use it anymore.
+
+I'm pretty sure that there initially also was a version that did remove
+all the now useless FS_DAX_LIMITED handling in common code. Did you leave
+that out on purpose, maybe defer until after Alistairs "Remove pXX_devmap
+page table bit and pfn_t type" series?
+(https://lore.kernel.org/lkml/cover.95ff0627bc727f2bae44bea4c00ad7a83fbbcfa=
+c.1739941374.git-series.apopple@nvidia.com/)
+
+=46rom s390/dcssblk perspective, FS_DAX_LIMITED can finally be removed.
+We will either switch to proper ZONE_DEVICE if Alistairs series makes it,
+and ZONE_DEVICE won't need the extra pagetable bit, or completely remove
+DAX support for dcssblk eventually.
