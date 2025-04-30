@@ -1,342 +1,439 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com [209.85.221.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 745002505BE;
-	Wed, 30 Apr 2025 10:34:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E8A725B695
+	for <linux-s390@vger.kernel.org>; Wed, 30 Apr 2025 10:39:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746009269; cv=none; b=X5x3YfVkVaIJCAXShIG5CD9VngSHlHOTdcUI8UBU3zbeLDYgAp+Etf5X28MO/D1in55YnWaYtvfTgzW1+co9LNem5Y2/AGNClzxtytXxy4G5hNHt7w08cuThBUrQZGZsS1HFG4gvoTrLPZNGMdeJiR3P/hkJxWQgHEEIbt6Y7h4=
+	t=1746009575; cv=none; b=VPpfYUa1QWKl2HxQ5U/jST6O6Tq0d3cykfZ4gxsRwlrDOmZlyMSCK82Rq8/w2TDkNHXH0Wi6t9fx6klaJER0FNWBIv965fWnlNKmxn8lryt5MsjZm+NWxTqUj/8YfEaeEgHn8R8Be95eicGMzRSyC1wwHLiNodx5jvyrJRwmous=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746009269; c=relaxed/simple;
-	bh=XJYNywt1rWr3YArrndoLaWM96DG+2bFlaSjQ0fVDVh8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n/rel7KwTtLz3NQ7PLJtbw//HeAY3/Vqbcy4CRn7uPvC0eyYE4zGXwNeM7ZpmCZ7ejd2whltilrZdic7J5BsakAqEm5bBRni3QOszHHvDhdhVozeRe9uMQJAz8DoxGiOj2AR5iZtekNj61cclbQcVF715U5P+NstQbGTJdJ1eGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=ga09qoaV; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1746009575; c=relaxed/simple;
+	bh=d4RLgrZhyX8/Pg01VVv6h4TRP9Jm0WhqcAfzUScAuus=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bYnbfJ52EJhnsEB12ZndIWB7kbtRNUv0kvrnsvB9OVWoJ1zYfHtP6yv4kN5dMdP23+09Lftoc2Uy3XXzHzO4lu26W7E7izGbH/A+A6gnSDI57ihT3YbGS8ORcnXO6LhWLnhDeurqrR76elIynJ4D5NOsjLR7AVxhydmVsJ9CgG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=WYUJSuQi; arc=none smtp.client-ip=209.85.221.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="ga09qoaV"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=YvbyhZIVhrVcZrECRwfD/1Dt4t5xRDekoFM+vI/X2N8=; b=ga09qoaVhH5U8vCV3jeUhlCoZP
-	DjiD1VuEBTQf14I8wlurGlsiX09KJlq7GCUx81PKyYDIxDfrDGQ5Mn5LW9KbPhXSRZ//DIHN6VfjA
-	5WHdujhl3sU+eLWxrcS0Wu4WjuaPikO4Z+F8zBloYZ/LUxytgrSqZ4ry2882cZc2TTZPfl/UtI8qj
-	giN3MplvcAuay18BIly+t5hGPb5WIYmDiOgly0On6QuzvwHr/NLRsx1dkhcHjzYm3hpo4nWbs9X0y
-	nZ6ztHf3vXJvvq/UEOssCD5tp5Vlr2uT3LlzzBWq/Npup7DcTAr8y+EvPjuz8R8qt+lmk7D0wHPCF
-	DH8GR82g==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1uA4lb-002F9j-1B;
-	Wed, 30 Apr 2025 18:34:16 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 30 Apr 2025 18:34:15 +0800
-Date: Wed, 30 Apr 2025 18:34:15 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: T Pratham <t-pratham@ti.com>
-Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH] crypto: s390/hmac - Use API partial block handling
-Message-ID: <aBH8p-YEF3wEe4Qm@gondor.apana.org.au>
-References: <cover.1745916278.git.herbert@gondor.apana.org.au>
- <81cab16fad98103d8b5c28f2870de08b337c2d78.1745916278.git.herbert@gondor.apana.org.au>
- <a0a6f359-27c8-4381-8619-d4aa2cd186fc@ti.com>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="WYUJSuQi"
+Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-5241abb9761so2550842e0c.1
+        for <linux-s390@vger.kernel.org>; Wed, 30 Apr 2025 03:39:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1746009571; x=1746614371; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=ylwsJDrt4vv0hbcQwuLON7i6O6OaEoOImrGaJinpJGA=;
+        b=WYUJSuQiHnLWQFEYYBzqqz86iErDXvdI3apuelCg6jve83A0yametRUdLhmSHehiQn
+         Yh63xjU6qVvvGvlm+AbQBEvUmwccu9X6y6rEXHuyStGVErRL0TqYpd8hDLrtiAT8FBlx
+         US3achPj3jJcmcFAb49P1wHB9P5T0VndXXrPlKa8kgSpNLM3yUamrmwNHmtpdd2xjTOw
+         /LsIshelkLwlAMpFHXxck9GIvJISBUKWNriBrHQNxlYLpG3WrJAbIDMEwHPPezHUO9sk
+         7wM8CDPaj6cisAmsN0G3hSOj8a+Fr+OVHNbijwmsA1f/Q2JWpw+tratfAUVMBVJYWMvs
+         FAtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746009571; x=1746614371;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ylwsJDrt4vv0hbcQwuLON7i6O6OaEoOImrGaJinpJGA=;
+        b=AjWpKpJyApYZEQFaHjlYT37rXzc8MA4dKS1OOSUCuOeePQDUrIYlzYF/8m982xTnHP
+         73iQ8gHbF7qmV8FCIa2xz6ZLCQGwbydTJwhbK3dgAgLw70rxqR7OpiOIR22YoU2TlsPa
+         eeAqm5b2qfuqYao5vfz2NRRr8mSgDE7lWXMAKQkXtoICXP88xjlnprQvBHBzfPjEC9Wn
+         V0sVFz0knss7sfwHpehdvOg/57X8qsD+0XtWTCtgeWxPusHXu6Uk7yI/M8Ox5HGnt2TM
+         tky7S09THwGMzkWZKSh0kfDN/ezkBXIyYygA3MEqIdZIik31qT1KetlnXg4hf+eZFYMV
+         zzYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXtlSiwyc0RAY+UJVRijuTMKoLt5TJfJF8K2o4ElA4QHgjKMk+EIR+fXNc8y1rH5QCD2qDic6DtH6p2@vger.kernel.org
+X-Gm-Message-State: AOJu0YwVmbL5z0/yqUIhLVYGvGh2VcmbXLw6im9eNft5HaR9taZs1CY/
+	5JcUZw9MU/IOttc1Q0M2Aq1lnHSij/dQMJdORLFrglepKNiRGI4inZarWKtVK20VpFbNfvPmnmG
+	I6HdznasxlPRQdbODitRBWgpdxRXZLyzJ/NPjVA==
+X-Gm-Gg: ASbGncujA2xlkwAuiBzyNfDpbyG8rHHVQGHiYhe4ylGbxwRLKH2ROkGTXopwAM9y2FB
+	+pq9RKp76BfXUznTdMjz4PAdEN+FYVL6l7prninI4iqPx0mWOyfx/Fz3qbwlh+sOixXTvcgROWE
+	5FCc3RlwTtp+UDi3V4qRd/k/kJ+ZpZFZzBm7bne2deaMb4L6xge3ssOTf3W9MJImpb
+X-Google-Smtp-Source: AGHT+IEGrbJc8JxtRP89FE4xXSHbjaEwuC2CG8y2YBkTpepRUy6crz/1pfGUdfcI0IOB0Gksvo22zIGEP03RI2L25Ng=
+X-Received: by 2002:a05:6122:25d8:b0:52a:d0f3:1ec1 with SMTP id
+ 71dfb90a1353d-52ad0f31f5fmr358417e0c.0.1746009570825; Wed, 30 Apr 2025
+ 03:39:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a0a6f359-27c8-4381-8619-d4aa2cd186fc@ti.com>
+References: <20250429161051.743239894@linuxfoundation.org>
+In-Reply-To: <20250429161051.743239894@linuxfoundation.org>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Wed, 30 Apr 2025 16:09:18 +0530
+X-Gm-Features: ATxdqUGXDo7pBa4eq0bS5qcWzmVSW-p2cU-XdgUlse38VYng22TRg-n231NAwjI
+Message-ID: <CA+G9fYuNjKcxFKS_MKPRuga32XbndkLGcY-PVuoSwzv6VWbY=w@mail.gmail.com>
+Subject: Re: [PATCH 6.1 000/167] 6.1.136-rc1 review
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org, 
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org, 
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de, 
+	jonathanh@nvidia.com, f.fainelli@gmail.com, sudipm.mukherjee@gmail.com, 
+	srw@sladewatkins.net, rwarsow@gmx.de, conor@kernel.org, hargar@microsoft.com, 
+	broonie@kernel.org, clang-built-linux <llvm@lists.linux.dev>, 
+	Nathan Chancellor <nathan@kernel.org>, Anders Roxell <anders.roxell@linaro.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Dan Carpenter <dan.carpenter@linaro.org>, linux-s390@vger.kernel.org, 
+	linux-mips@vger.kernel.org, io-uring@vger.kernel.org, 
+	virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Apr 29, 2025 at 05:34:18PM +0530, T Pratham wrote:
+On Tue, 29 Apr 2025 at 23:31, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Why do pointer increment with different types through a union which is un-intuitive to understand and prone to easy errors in future. It is easy to mix up the layout of the data being stored. Why not just typecast void * to a struct exposing different fields? Same with sha512.
+> This is the start of the stable review cycle for the 6.1.136 release.
+> There are 167 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 01 May 2025 16:10:15 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.136-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-You can't cast a void * to a random struct and start writing to
-it because of alignment faults.  Now s390 actually happens to be
-OK in that respect, but this way of writing exports is used by
-my ahash patches as well and I would like to keep them consistent.
+There are three build regressions and two build warnings.
 
-> Can use uniform naming here. total_hi and total_lo.
+1)
+Regressions on x86_64 with defconfig builds with clang-nightly toolchain
+on the stable-rc 6.1.136-rc1.
 
-Thanks.  I've got rid of them altogether.
+* x86_64, build
+  - clang-nightly-lkftconfig
+  - clang-nightly-x86_64_defconfig
 
-It turns out that the patch I sent out yesterday is actually
-wrong as it predates the shash partial block API.  Here is a
-more up-to-date version:
+Regression Analysis:
+ - New regression? Yes
+ - Reproducibility? Yes
 
----8<---
-Use the Crypto API partial block handling.
+Build regression: x86_64 clang-nightly net ip.h error default
+initialization of an object of type 'typeof (rt->dst.expires)'
 
-Also switch to the generic export format.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
----
- arch/s390/crypto/hmac_s390.c | 154 ++++++++++++++++++++++++-----------
- 1 file changed, 108 insertions(+), 46 deletions(-)
+## Build error x86_64
+include/net/ip.h:462:14: error: default initialization of an object of
+type 'typeof (rt->dst.expires)' (aka 'const unsigned long') leaves the
+object uninitialized and is incompatible with C++
+[-Werror,-Wdefault-const-init-unsafe]
+  462 |                 if (mtu && time_before(jiffies, rt->dst.expires))
+      |                            ^
 
-diff --git a/arch/s390/crypto/hmac_s390.c b/arch/s390/crypto/hmac_s390.c
-index e6edf1013228..474b4233effd 100644
---- a/arch/s390/crypto/hmac_s390.c
-+++ b/arch/s390/crypto/hmac_s390.c
-@@ -9,10 +9,14 @@
- #define pr_fmt(fmt)	KMSG_COMPONENT ": " fmt
- 
- #include <asm/cpacf.h>
--#include <crypto/sha2.h>
- #include <crypto/internal/hash.h>
-+#include <crypto/hmac.h>
-+#include <crypto/sha2.h>
- #include <linux/cpufeature.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/string.h>
- 
- /*
-  * KMAC param block layout for sha2 function codes:
-@@ -71,7 +75,6 @@ union s390_kmac_gr0 {
- struct s390_kmac_sha2_ctx {
- 	u8 param[MAX_DIGEST_SIZE + MAX_IMBL_SIZE + MAX_BLOCK_SIZE];
- 	union s390_kmac_gr0 gr0;
--	u8 buf[MAX_BLOCK_SIZE];
- 	u64 buflen[2];
- };
- 
-@@ -95,8 +98,8 @@ static inline void kmac_sha2_set_imbl(u8 *param, u64 buflen_lo,
- 	}
- }
- 
--static int hash_key(const u8 *in, unsigned int inlen,
--		    u8 *digest, unsigned int digestsize)
-+static int hash_data(const u8 *in, unsigned int inlen,
-+		     u8 *digest, unsigned int digestsize, bool final)
- {
- 	unsigned long func;
- 	union {
-@@ -123,19 +126,23 @@ static int hash_key(const u8 *in, unsigned int inlen,
- 
- 	switch (digestsize) {
- 	case SHA224_DIGEST_SIZE:
--		func = CPACF_KLMD_SHA_256;
-+		func = final ? CPACF_KLMD_SHA_256 : CPACF_KIMD_SHA_256;
- 		PARAM_INIT(256, 224, inlen * 8);
-+		if (!final)
-+			digestsize = SHA256_DIGEST_SIZE;
- 		break;
- 	case SHA256_DIGEST_SIZE:
--		func = CPACF_KLMD_SHA_256;
-+		func = final ? CPACF_KLMD_SHA_256 : CPACF_KIMD_SHA_256;
- 		PARAM_INIT(256, 256, inlen * 8);
- 		break;
- 	case SHA384_DIGEST_SIZE:
--		func = CPACF_KLMD_SHA_512;
-+		func = final ? CPACF_KLMD_SHA_512 : CPACF_KIMD_SHA_512;
- 		PARAM_INIT(512, 384, inlen * 8);
-+		if (!final)
-+			digestsize = SHA512_DIGEST_SIZE;
- 		break;
- 	case SHA512_DIGEST_SIZE:
--		func = CPACF_KLMD_SHA_512;
-+		func = final ? CPACF_KLMD_SHA_512 : CPACF_KIMD_SHA_512;
- 		PARAM_INIT(512, 512, inlen * 8);
- 		break;
- 	default:
-@@ -151,6 +158,12 @@ static int hash_key(const u8 *in, unsigned int inlen,
- 	return 0;
- }
- 
-+static int hash_key(const u8 *in, unsigned int inlen,
-+		    u8 *digest, unsigned int digestsize)
-+{
-+	return hash_data(in, inlen, digest, digestsize, true);
-+}
-+
- static int s390_hmac_sha2_setkey(struct crypto_shash *tfm,
- 				 const u8 *key, unsigned int keylen)
- {
-@@ -204,50 +217,31 @@ static int s390_hmac_sha2_update(struct shash_desc *desc,
- {
- 	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
- 	unsigned int bs = crypto_shash_blocksize(desc->tfm);
--	unsigned int offset, n;
-+	unsigned int n = round_down(len, bs);
- 
--	/* check current buffer */
--	offset = ctx->buflen[0] % bs;
--	ctx->buflen[0] += len;
--	if (ctx->buflen[0] < len)
-+	ctx->buflen[0] += n;
-+	if (ctx->buflen[0] < n)
- 		ctx->buflen[1]++;
--	if (offset + len < bs)
--		goto store;
- 
--	/* process one stored block */
--	if (offset) {
--		n = bs - offset;
--		memcpy(ctx->buf + offset, data, n);
--		ctx->gr0.iimp = 1;
--		_cpacf_kmac(&ctx->gr0.reg, ctx->param, ctx->buf, bs);
--		data += n;
--		len -= n;
--		offset = 0;
--	}
- 	/* process as many blocks as possible */
--	if (len >= bs) {
--		n = (len / bs) * bs;
--		ctx->gr0.iimp = 1;
--		_cpacf_kmac(&ctx->gr0.reg, ctx->param, data, n);
--		data += n;
--		len -= n;
--	}
--store:
--	/* store incomplete block in buffer */
--	if (len)
--		memcpy(ctx->buf + offset, data, len);
--
--	return 0;
-+	ctx->gr0.iimp = 1;
-+	_cpacf_kmac(&ctx->gr0.reg, ctx->param, data, n);
-+	return len - n;
- }
- 
--static int s390_hmac_sha2_final(struct shash_desc *desc, u8 *out)
-+static int s390_hmac_sha2_finup(struct shash_desc *desc, const u8 *src,
-+				unsigned int len, u8 *out)
- {
- 	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
- 	unsigned int bs = crypto_shash_blocksize(desc->tfm);
- 
-+	ctx->buflen[0] += len;
-+	if (ctx->buflen[0] < len)
-+		ctx->buflen[1]++;
-+
- 	ctx->gr0.iimp = 0;
- 	kmac_sha2_set_imbl(ctx->param, ctx->buflen[0], ctx->buflen[1], bs);
--	_cpacf_kmac(&ctx->gr0.reg, ctx->param, ctx->buf, ctx->buflen[0] % bs);
-+	_cpacf_kmac(&ctx->gr0.reg, ctx->param, src, len);
- 	memcpy(out, ctx->param, crypto_shash_digestsize(desc->tfm));
- 
- 	return 0;
-@@ -273,22 +267,90 @@ static int s390_hmac_sha2_digest(struct shash_desc *desc,
- 	return 0;
- }
- 
--#define S390_HMAC_SHA2_ALG(x) {						\
-+static int s390_hmac_export_zero(struct shash_desc *desc, void *out)
-+{
-+	struct crypto_shash *tfm = desc->tfm;
-+	u8 ipad[SHA512_BLOCK_SIZE];
-+	struct s390_hmac_ctx *ctx;
-+	unsigned int bs;
-+	int err, i;
-+
-+	ctx = crypto_shash_ctx(tfm);
-+	bs = crypto_shash_blocksize(tfm);
-+	for (i = 0; i < bs; i++)
-+		ipad[i] = ctx->key[i] ^ HMAC_IPAD_VALUE;
-+
-+	err = hash_data(ipad, bs, out, crypto_shash_digestsize(tfm), false);
-+	memzero_explicit(ipad, sizeof(ipad));
-+	return err;
-+}
-+
-+static int s390_hmac_export(struct shash_desc *desc, void *out)
-+{
-+	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
-+	unsigned int ds = crypto_shash_digestsize(desc->tfm);
-+	union {
-+		u8 *u8;
-+		u64 *u64;
-+	} p = { .u8 = out };
-+	int err = 0;
-+
-+	if (!ctx->gr0.ikp)
-+		err = s390_hmac_export_zero(desc, out);
-+	else
-+		memcpy(p.u8, ctx->param, ds);
-+	p.u8 += ds;
-+	put_unaligned(ctx->buflen[0], p.u64++);
-+	if (ds == SHA512_DIGEST_SIZE)
-+		put_unaligned(ctx->buflen[1], p.u64);
-+	return err;
-+}
-+
-+static int s390_hmac_import(struct shash_desc *desc, const void *in)
-+{
-+	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
-+	unsigned int ds = crypto_shash_digestsize(desc->tfm);
-+	union {
-+		const u8 *u8;
-+		const u64 *u64;
-+	} p = { .u8 = in };
-+	int err;
-+
-+	err = s390_hmac_sha2_init(desc);
-+	if (err)
-+		return err;
-+
-+	memcpy(ctx->param, p.u8, ds);
-+	p.u8 += ds;
-+	ctx->buflen[0] = get_unaligned(p.u64++);
-+	if (ds == SHA512_DIGEST_SIZE)
-+		ctx->buflen[1] = get_unaligned(p.u64);
-+	if (ctx->buflen[0] | ctx->buflen[1])
-+		ctx->gr0.ikp = 1;
-+	return 0;
-+}
-+
-+#define S390_HMAC_SHA2_ALG(x, ss) {					\
- 	.fc = CPACF_KMAC_HMAC_SHA_##x,					\
- 	.alg = {							\
- 		.init = s390_hmac_sha2_init,				\
- 		.update = s390_hmac_sha2_update,			\
--		.final = s390_hmac_sha2_final,				\
-+		.finup = s390_hmac_sha2_finup,				\
- 		.digest = s390_hmac_sha2_digest,			\
- 		.setkey = s390_hmac_sha2_setkey,			\
-+		.export = s390_hmac_export,				\
-+		.import = s390_hmac_import,				\
- 		.descsize = sizeof(struct s390_kmac_sha2_ctx),		\
- 		.halg = {						\
-+			.statesize = ss,				\
- 			.digestsize = SHA##x##_DIGEST_SIZE,		\
- 			.base = {					\
- 				.cra_name = "hmac(sha" #x ")",		\
- 				.cra_driver_name = "hmac_s390_sha" #x,	\
- 				.cra_blocksize = SHA##x##_BLOCK_SIZE,	\
- 				.cra_priority = 400,			\
-+				.cra_flags = CRYPTO_AHASH_ALG_BLOCK_ONLY | \
-+					     CRYPTO_AHASH_ALG_FINUP_MAX, \
- 				.cra_ctxsize = sizeof(struct s390_hmac_ctx), \
- 				.cra_module = THIS_MODULE,		\
- 			},						\
-@@ -301,10 +363,10 @@ static struct s390_hmac_alg {
- 	unsigned int fc;
- 	struct shash_alg alg;
- } s390_hmac_algs[] = {
--	S390_HMAC_SHA2_ALG(224),
--	S390_HMAC_SHA2_ALG(256),
--	S390_HMAC_SHA2_ALG(384),
--	S390_HMAC_SHA2_ALG(512),
-+	S390_HMAC_SHA2_ALG(224, sizeof(struct crypto_sha256_state)),
-+	S390_HMAC_SHA2_ALG(256, sizeof(struct crypto_sha256_state)),
-+	S390_HMAC_SHA2_ALG(384, SHA512_STATE_SIZE),
-+	S390_HMAC_SHA2_ALG(512, SHA512_STATE_SIZE),
- };
- 
- static __always_inline void _s390_hmac_algs_unregister(void)
--- 
-2.39.5
+## Build x86_64
+* Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268204/suite/build/test/clang-nightly-x86_64_defconfig/log
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stale-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268204/suite/build/test/clang-nightly-x86_64_defconfig/history/
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268204/suite/build/test/clang-nightly-x86_64_defconfig/details/
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfmTxuT4qMCUSSj4ZwJQJrqY/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfmTxuT4qMCUSSj4ZwJQJrqY/config
+* Toolchain: Debian clang version 21.0.0
+(++20250428112741+e086d7b1464a-1~exp1~20250428112923.1416)
 
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2)
+Regressions on s390 with defconfig builds with gcc-13, gcc-8 and
+clang-20 and clang-nightly toolchains on the stable-rc 6.1.136-rc1.
+
+* s390, build
+  - clang-20-defconfig
+  - clang-nightly-defconfig
+  - gcc-13-allmodconfig
+  - gcc-13-defconfig
+  - gcc-8-defconfig-fe40093d
+
+Regression Analysis:
+ - New regression? Yes
+ - Reproducibility? Yes
+
+Build regression: s390 pci_report.c fatal error linux sprintf.h No
+such file or directory
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build error S390
+arch/s390/pci/pci_report.c:14:10: fatal error: linux/sprintf.h: No
+such file or directory
+   14 | #include <linux/sprintf.h>
+      |          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+arch/s390/pci/pci_fixup.c: In function 'zpci_ism_bar_no_mmap':
+arch/s390/pci/pci_fixup.c:19:13: error: 'struct pci_dev' has no member
+named 'non_mappable_bars'
+   19 |         pdev->non_mappable_bars = 1;
+      |             ^~
+drivers/s390/virtio/virtio_ccw.c:88:9: error: unknown type name 'dma64_t'
+   88 |         dma64_t queue;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:95:9: error: unknown type name 'dma64_t'
+   95 |         dma64_t desc;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:99:9: error: unknown type name 'dma64_t'
+   99 |         dma64_t avail;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:100:9: error: unknown type name 'dma64_t'
+  100 |         dma64_t used;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:109:9: error: unknown type name 'dma64_t'
+  109 |         dma64_t summary_indicator;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c:110:9: error: unknown type name 'dma64_t'
+  110 |         dma64_t indicator;
+      |         ^~~~~~~
+drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_drop_indicator':
+drivers/s390/virtio/virtio_ccw.c:370:25: error: implicit declaration
+of function 'virt_to_dma64'; did you mean 'virt_to_page'?
+[-Werror=implicit-function-declaration]
+  370 |                         virt_to_dma64(get_summary_indicator(airq_info));
+      |                         ^~~~~~~~~~~~~
+      |                         virt_to_page
+drivers/s390/virtio/virtio_ccw.c:374:28: error: implicit declaration
+of function 'virt_to_dma32'; did you mean 'virt_to_page'?
+[-Werror=implicit-function-declaration]
+  374 |                 ccw->cda = virt_to_dma32(thinint_area);
+      |                            ^~~~~~~~~~~~~
+      |                            virt_to_page
+drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_setup_vq':
+drivers/s390/virtio/virtio_ccw.c:552:45: error: implicit declaration
+of function 'u64_to_dma64' [-Werror=implicit-function-declaration]
+  552 |                 info->info_block->l.queue = u64_to_dma64(queue);
+      |                                             ^~~~~~~~~~~~
+drivers/s390/virtio/virtio_ccw.c: In function 'virtio_ccw_find_vqs':
+drivers/s390/virtio/virtio_ccw.c:654:9: error: unknown type name 'dma64_t'
+  654 |         dma64_t *indicatorp = NULL;
+      |         ^~~~~~~
+cc1: some warnings being treated as errors
+
+## Build s390
+* Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268210/suite/build/test/gcc-13-defconfig/log
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268210/suite/build/test/gcc-13-defconfig/history/
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28268210/suite/build/test/gcc-13-defconfig/details/
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfcqRiiDhTc38knEJ0xbygtF/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfcqRiiDhTc38knEJ0xbygtF/config
+* Toolchain: Debian clang version 21.0.0
+(++20250428112741+e086d7b1464a-1~exp1~20250428112923.1416)
+
+3)
+Regressions on mips with defconfig builds with clang-nightly
+toolchains on the stable-rc 6.1.136-rc1.
+
+* mips, build
+  - clang-nightly-allnoconfig
+  - clang-nightly-defconfig
+  - clang-nightly-tinyconfig
+
+Regression Analysis:
+ - New regression? Yes
+ - Reproducibility? Yes
+
+Build regression: mips kernel branch.c error default initialization of
+an object of type union
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build error mips
+arch/mips/kernel/branch.c:35:6: error: default initialization of an
+object of type 'union (unnamed union at
+arch/mips/kernel/branch.c:35:6)' with const member leaves the object
+uninitialized and is incompatible with C++
+[-Werror,-Wdefault-const-init-unsafe]
+   35 |         if (__get_user(inst, (u16 __user *) msk_isa16_mode(epc))) {
+      |             ^
+
+
+## Build mips
+* Build log:  https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28266863/suite/build/test/clang-nightly-tinyconfig/log
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28266863/suite/build/test/clang-nightly-tinyconfig/history/
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d/testrun/28266863/suite/build/test/clang-nightly-tinyconfig/details/
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfMHLLGL9OjZrjKvW9u8uy4b/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjfMHLLGL9OjZrjKvW9u8uy4b/config
+
+
+## Build warnings
+
+a)
+Build warnings on x86_64 builds.
+io_uring/timeout.c:410:31: warning: default initialization of an
+object of type 'typeof ((sqe->addr2))' (aka 'const unsigned long
+long') leaves the object uninitialized and is incompatible with C++
+[-Wdefault-const-init-unsafe]
+  410 |                 if (get_timespec64(&tr->ts,
+u64_to_user_ptr(sqe->addr2)))
+      |                                             ^
+
+Links:
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjeiV7BNYgKZ2oXuK3BNEYYBa/
+
+b)
+Build warnings on arm with clang-nightly with tinyconfig.
+
+clang: warning: argument unused during compilation: '-march=armv7-m'
+[-Wunused-command-line-argument]
+kernel/params.c:367:22: warning: default initialization of an object
+of type 'struct kernel_param' with const member leaves the object
+uninitialized and is incompatible with C++
+[-Wdefault-const-init-unsafe]
+  367 |         struct kernel_param dummy;
+      |                             ^
+include/linux/moduleparam.h:73:12: note: member 'perm' declared 'const' here
+   73 |         const u16 perm;
+      |                   ^
+kernel/params.c:423:22: warning: default initialization of an object
+of type 'struct kernel_param' with const member leaves the object
+uninitialized and is incompatible with C++
+[-Wdefault-const-init-unsafe]
+  423 |         struct kernel_param kp;
+      |                             ^
+include/linux/moduleparam.h:73:12: note: member 'perm' declared 'const' here
+   73 |         const u16 perm;
+      |                   ^
+2 warnings generated.
+
+Links:
+ - https://storage.tuxsuite.com/public/linaro/lkft/builds/2wPjeaX1oyIaa7F0nsdW1BymEGQ/
+
+## Build
+* kernel: 6.1.136-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+* git commit: 961a5173f29d2aa1f2c87ff9612b029c46086972
+* git describe: v6.1.134-461-g961a5173f29d
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.134-461-g961a5173f29d
+
+## Test Regressions (compared to v6.1.134-292-gb8b5da130779)
+* i386, build
+  - clang-nightly-defconfig
+  - clang-nightly-lkftconfig
+
+* mips, build
+  - clang-nightly-allnoconfig
+  - clang-nightly-defconfig
+  - clang-nightly-tinyconfig
+
+* s390, build
+  - clang-20-defconfig
+  - clang-nightly-defconfig
+  - gcc-13-allmodconfig
+  - gcc-13-defconfig
+  - gcc-8-defconfig-fe40093d
+
+* x86_64, build
+  - clang-nightly-lkftconfig
+  - clang-nightly-x86_64_defconfig
+
+## Metric Regressions (compared to v6.1.134-292-gb8b5da130779)
+
+## Test Fixes (compared to v6.1.134-292-gb8b5da130779)
+
+## Metric Fixes (compared to v6.1.134-292-gb8b5da130779)
+
+## Test result summary
+total: 96862, pass: 76665, fail: 4435, skip: 15439, xfail: 323
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 135 total, 135 passed, 0 failed
+* arm64: 43 total, 43 passed, 0 failed
+* i386: 27 total, 20 passed, 7 failed
+* mips: 26 total, 22 passed, 4 failed
+* parisc: 4 total, 4 passed, 0 failed
+* powerpc: 32 total, 31 passed, 1 failed
+* riscv: 11 total, 9 passed, 2 failed
+* s390: 14 total, 8 passed, 6 failed
+* sh: 10 total, 10 passed, 0 failed
+* sparc: 7 total, 7 passed, 0 failed
+* x86_64: 35 total, 32 passed, 3 failed
+
+## Test suites summary
+* boot
+* commands
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-exec
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-mincore
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-mptcp
+* kselftest-openat2
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-tc-testing
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user_events
+* kselftest-vDSO
+* kselftest-x86
+* kunit
+* kvm-unit-tests
+* lava
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-build-clang
+* log-parser-build-gcc
+* log-parser-test
+* ltp-capability
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-hugetlb
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-pty
+* ltp-sched
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* perf
+* rcutorture
+
+--
+Linaro LKFT
+https://lkft.linaro.org
