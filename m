@@ -1,89 +1,110 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DEE9320F;
-	Wed, 30 Apr 2025 02:27:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 573FB7F7FC;
+	Wed, 30 Apr 2025 02:37:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745980050; cv=none; b=chbfn+ciz2S/NNpeDQU7sWo5GQUL+1Mx96qwGD0KGtnJracKI9FTy3AdYEzbWx+7Ws+BHhC9bDaWW5lHDoQd1dZj4svPJh7BrlmkImHJkrFy+6ZQvM+nyL8LySUlsl7jM1h/f3xHRr30zCXwCoZHbLGbcr8RPDkMaeLEjEZMcJE=
+	t=1745980633; cv=none; b=jOTLmypxBo/CCJc7k9uxf63+MNIlKUfNZRWmnzqnW8JeXMT3Jk7XAkhv+qaMbdaawkxFvaMCeKcHxi5cletqVZNsVp+HP/NcTk0hkVG3Du2RGp8+xRZyOE7g8G82WZNG/W3e/panFHs2uu3ad3H7szku6ooleqfFw6D7PAQgOsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745980050; c=relaxed/simple;
-	bh=MjSwpfkrbJam/CzzxFxRbha1wbLDcDn5jLZbOSmWQ6I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rNh2/gfuWb7mRXT7x5F9yeaeHnoOBMOR+MoktakHUJxh4uvCv9oHI7s1fV/P1j9ViVJF8CRgNuFtwANlPLq0i6wf8sJv0lC49CQWOMfPq+oIA72LwJDq12Fb/ZjHkO/y/EcUKJikXEE+3K0H7S5db9rhlZQZRsKWKO/Zyc472aU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=Vieyc26V; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1745980633; c=relaxed/simple;
+	bh=UeVWVQMtCSgoY6I17XEsqNEXKT0TWbHaFTIMLOeTnTs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=E56n228goyoSAXxOhpFWC2KLQVS8csCsq4kC74nRfcQ0aQFqCk/Wox3cUg2geCq01QypWbua7rOUS+krIVDVhkFawPqRKWltaBOcpnHMAjlU433HVIfMfAO14PJY36s7l8OCkDeGHar7GDzUvcNtgj+RpigxJ4UjcHJnP7JZ/rE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=P39YKQ+W; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="Vieyc26V"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=k4QjAmh83yMZNLzUuAj1J5f4WZGw3kbBWCArSRYks8c=; b=Vieyc26VLhqz4zWnYRj3rYoyQj
-	H0zpuIjmCDGV04Csn9F7DAzFr4VMNjSPrC0ttYmpV9ePC4GcLW04Gh2LQ1DfIxlqp8R2aL3ipQgqS
-	Hoxj4/7XIQ9SP8MYTw9J6YxFRkgAmoixnyakr025Cu5UwmrQd+FkzC7jHq9Sv7Lbup88SHAX/kJOO
-	gCZMT32Dh2FRvOwZvUtHvMWVDl4ZzRtgK+7mmLDbkUAE5fgD6/s5zMPyYWMNXS2Dyy648liRupOcp
-	RncktiF2kCxxXhDi4UksWk66YNHf90reaqkRJHJIrq0moVeglYppY4Tl1LsVfkb0I0T9xlkGgF+Dz
-	KZjeX6Og==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1u9xAJ-0028rg-2e;
-	Wed, 30 Apr 2025 10:27:16 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 30 Apr 2025 10:27:15 +0800
-Date: Wed, 30 Apr 2025 10:27:15 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	sparclinux@vger.kernel.org, linux-s390@vger.kernel.org,
-	x86@kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld " <Jason@zx2c4.com>,
-	Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [v3 PATCH 00/13] Architecture-optimized SHA-256 library API
-Message-ID: <aBGKg5bq0zLkhy3-@gondor.apana.org.au>
-References: <cover.1745816372.git.herbert@gondor.apana.org.au>
- <20250429165749.GC1743@sol.localdomain>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="P39YKQ+W"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1745980631; x=1777516631;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=UeVWVQMtCSgoY6I17XEsqNEXKT0TWbHaFTIMLOeTnTs=;
+  b=P39YKQ+WDUIJWBYLdmNAikJEeBHobXJZVT43EQ8ec/lPeG4b+Ri7Jeni
+   8oUTHT8l6xfjHHB283HYyycd7llgUVW/pjyvS2JJx5PG59Wh0dqVaRHiu
+   Cub7pL/hiYUkB8aAcfmckFDmPO4bWUzokFQgSxB2L18Q9gwwzlgIZnFOO
+   250Ujfj0zevYSlPfCMEdP2imFBatIGYwBYVV0Ymh1+3bCxOFzDmB7O62K
+   dyzXlqD2y8+nTi0w3a+ehkfXMBNpy0w1jPb4UYN45CoQ3gvspOgOrdfMJ
+   AZQ9Rljf1CsUWPxwYyeq1kN2WoEAcPR4xdhF+LBs8SsGewoAdDbeLmNql
+   A==;
+X-CSE-ConnectionGUID: RGFc16rsR2eKTQeOmHn9LA==
+X-CSE-MsgGUID: +KcWOGdiTU+QbajX490FAQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11418"; a="51445226"
+X-IronPort-AV: E=Sophos;i="6.15,250,1739865600"; 
+   d="scan'208";a="51445226"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2025 19:37:10 -0700
+X-CSE-ConnectionGUID: rPKpQb86Qv+hi9Gbn/bOCw==
+X-CSE-MsgGUID: eN7Ab3jZTbWZDraScrUmnA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,250,1739865600"; 
+   d="scan'208";a="134508430"
+Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2025 19:37:00 -0700
+Message-ID: <0a5f2f46-f474-49d3-baee-59f2ad0a6f0a@linux.intel.com>
+Date: Wed, 30 Apr 2025 10:32:46 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250429165749.GC1743@sol.localdomain>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/7] iommu: Remove ops.pgsize_bitmap from drivers that
+ don't use it
+To: Jason Gunthorpe <jgg@nvidia.com>, Alexandre Ghiti <alex@ghiti.fr>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+ Janne Grunau <j@jannau.net>, Jean-Philippe Brucker
+ <jean-philippe@linaro.org>, Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+ Kevin Tian <kevin.tian@intel.com>, Krzysztof Kozlowski <krzk@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+ linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+ linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>,
+ Orson Zhai <orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Rob Clark <robdclark@gmail.com>,
+ Robin Murphy <robin.murphy@arm.com>, Samuel Holland <samuel@sholland.org>,
+ Niklas Schnelle <schnelle@linux.ibm.com>, Sven Peter <sven@svenpeter.dev>,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Tomasz Jeznach <tjeznach@rivosinc.com>, Krishna Reddy <vdumpa@nvidia.com>,
+ virtualization@lists.linux.dev, Chen-Yu Tsai <wens@csie.org>,
+ Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
+ Chunyan Zhang <zhang.lyra@gmail.com>
+Cc: patches@lists.linux.dev
+References: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 29, 2025 at 09:57:49AM -0700, Eric Biggers wrote:
->
-> To be clear, the objections I have on your v2 patchset still hold.  Your
-> unsolicited changes to my patches add unnecessary complexity and redundancy,
-> make the crypto_shash API even harder to use correctly, and also break the build
-> for several architectures.  If you're going to again use your maintainer
-> privileges to push these out anyway over my objections, I'd appreciate it if you
-> at least made your dubious changes as incremental patches using your own
-> authorship so that they can be properly reviewed/blamed.
+On 4/29/25 22:34, Jason Gunthorpe wrote:
+> These drivers all set the domain->pgsize_bitmap in their
+> domain_alloc_paging() functions, so the ops value is never used. Delete
+> it.
+> 
+> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> ---
+>   drivers/iommu/apple-dart.c       | 1 -
+>   drivers/iommu/intel/iommu.c      | 1 -
+>   drivers/iommu/iommufd/selftest.c | 1 -
+>   drivers/iommu/riscv/iommu.c      | 1 -
+>   drivers/iommu/virtio-iommu.c     | 6 ++----
+>   5 files changed, 2 insertions(+), 8 deletions(-)
 
-Well the main problem is that your patch introduces a regression
-in the shash sha256 code by making its export format differ from
-other shash sha256 implementations (e.g., padlock-sha).
+For intel vt-d driver,
 
-So your first patch cannot stand as is.  What I could do is split up
-the first patch so that the lib/crypto sha stuff goes in by itself
-followed by a separate patch replacing the crypto/sha256 code.
-
-> Please also note that I've sent a v4 which fixes the one real issue that my v1
-> patchset had: https://lore.kernel.org/r/20250428170040.423825-1-ebiggers@kernel.org
-
-Yes I've seen it but it still has the same issue of changing the
-shash sha256 export format.
-
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
