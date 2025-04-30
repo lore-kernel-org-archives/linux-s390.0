@@ -1,239 +1,342 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B3262206B6;
-	Wed, 30 Apr 2025 09:16:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746004600; cv=fail; b=fh6vBC3QFoxHtO5Sew8D4/KU/ZW60SDtqJ/FJiVFpAr8PbZ+nBeXsUSNdWX7lwgEBRB4xavNT0JOtLGWCLU48nvKg+zAJkA0advI8TQ/GQmh/Ytz87hHZ5pkMii5KjOAiDLidCEjIklQD+TdmVnkuFYKGichW2b+0CHH2TamX6s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746004600; c=relaxed/simple;
-	bh=yqCq7Z9xPLU+Zkh6e3IBlt49EsDRW6wuH2BTHsxPkOs=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=cvtdfDJJ7wIpF6siBPLTTusTJIib/FPHv4e0KDVrDVU2GHFLtPCT3oQR3Wa0tTVlg90vfyvRalpyrIuVcO3wSGNv/tcZeTgsKcnMdSTkrR/iCWQJnB9EtgkV82AH1vHozpIHBiSI/fT++sb86KkKPtutChIKa+U+VSSD6jde6AM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VOuJSZXF; arc=fail smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 745002505BE;
+	Wed, 30 Apr 2025 10:34:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1746009269; cv=none; b=X5x3YfVkVaIJCAXShIG5CD9VngSHlHOTdcUI8UBU3zbeLDYgAp+Etf5X28MO/D1in55YnWaYtvfTgzW1+co9LNem5Y2/AGNClzxtytXxy4G5hNHt7w08cuThBUrQZGZsS1HFG4gvoTrLPZNGMdeJiR3P/hkJxWQgHEEIbt6Y7h4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1746009269; c=relaxed/simple;
+	bh=XJYNywt1rWr3YArrndoLaWM96DG+2bFlaSjQ0fVDVh8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n/rel7KwTtLz3NQ7PLJtbw//HeAY3/Vqbcy4CRn7uPvC0eyYE4zGXwNeM7ZpmCZ7ejd2whltilrZdic7J5BsakAqEm5bBRni3QOszHHvDhdhVozeRe9uMQJAz8DoxGiOj2AR5iZtekNj61cclbQcVF715U5P+NstQbGTJdJ1eGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=ga09qoaV; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VOuJSZXF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1746004598; x=1777540598;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=yqCq7Z9xPLU+Zkh6e3IBlt49EsDRW6wuH2BTHsxPkOs=;
-  b=VOuJSZXFyuy2gP/A/PMGr0LTRAqMpGBqrVuvv4jGeMYJIz5AF5q7IwK5
-   olQAicmFd9oAHQ4Zu1HCuINYVa0J64TeXUk5GOmkdHuWlbI93APbA13qZ
-   bV70X8dP7ICz8c1NCENxaAlUax2uXxnipINcEsubt2/XzbRKxqe/MGTF5
-   CH30oB2O/ZBO+mtHKTmYpLYg3amIgT8oIauogHqRb8vVVDMuQZinZwGI/
-   u4WGs00R08rrqn7WQzQ2LDK9SYDXyaaFvdxmeNKxZSMT48GQcePKpZiTU
-   6pqBCE92ZEdSNb50EludpiHRS5Ol1mqI+WFLJcYslI4IPxFaEe6tWtbQB
-   Q==;
-X-CSE-ConnectionGUID: md7zCawXQYGA9bTUVEFQhA==
-X-CSE-MsgGUID: /4z2v5ELTOiyqFB4qp5PGQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11418"; a="47805017"
-X-IronPort-AV: E=Sophos;i="6.15,251,1739865600"; 
-   d="scan'208";a="47805017"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2025 02:16:37 -0700
-X-CSE-ConnectionGUID: Wyo4qRQqR4CW1CdyqXUTtQ==
-X-CSE-MsgGUID: 5xR87c/HRs2wjoGqEkbsdA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.15,251,1739865600"; 
-   d="scan'208";a="134581284"
-Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
-  by orviesa007.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2025 02:16:36 -0700
-Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Wed, 30 Apr 2025 02:16:36 -0700
-Received: from ORSEDG601.ED.cps.intel.com (10.7.248.6) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14 via Frontend Transport; Wed, 30 Apr 2025 02:16:36 -0700
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (104.47.58.174)
- by edgegateway.intel.com (134.134.137.102) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Wed, 30 Apr 2025 02:16:35 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=PzxJ7J+AA5+Wos4xP2uP1Wn2Jb3xKiTQRYguNLXy1tq1xvuLWWdzcpUIWH05+xImABUm6qiK77cjAI38Dm6LOvddKgkzHEl+Pw+4NYIHNsm24q4ov1BSfOtV9DxKRuEjrHZA+znOi/O/SCVBQKuU/cO4SG7h2CF0POAIOKrGIgc1VF39zCTrgR2of6fpctEC59eHJFgsQtLhDvBeAUXOTV8GtQG/yNFW+8uf4Ac8+ctnAlVAhykop71jwl8yNWfIL60GWu5apuiq5A8WQlqfyBTCydmnGVdaCWxwCo/KUmw0Lw8AfId1L7qZpoDZHETssCv7KrWDaNGOQi0oNZdWnw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=e8lQ/tQY6ZhEzEASBrBtpHwlTs0yxkNDTItdI994bhM=;
- b=RSY+5GqJF2apcRDIDLci+yfMSS1OIImfuFGNBcAbsDf8E22MescDIBXrMe+Hz0SrzQ37pjXDp03bQ35RReGXn+oUnUh+7Sl9oAaywWZHoa9FQYFGhR+MyIyyJjK3mACUzk8Tm5x3VtCmz6WuSRN5/dI6BvglCOjgh94y6pBMUDBMJ7iycd4rDcf5OJDxFwiclHe0o3SSlDHCIXYN4rcDLBR0U/8B6+OXlcGrIQ02KHU7qbD1LXsNb15NHeyYNAhHamiDQmmu3dlhgfNLC4oIaIfSCwHyqHsdp9LC1PXYBU3t80r3QlWsKqP2GfWAA0QYyrgXlmLmnUtx7vCqyuf7og==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by DM4PR11MB7205.namprd11.prod.outlook.com (2603:10b6:8:113::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8699.19; Wed, 30 Apr
- 2025 09:16:32 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::b576:d3bd:c8e0:4bc1%6]) with mapi id 15.20.8699.012; Wed, 30 Apr 2025
- 09:16:32 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Jason Gunthorpe <jgg@nvidia.com>, Alexandre Ghiti <alex@ghiti.fr>, "Alim
- Akhtar" <alim.akhtar@samsung.com>, Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, "Albert
- Ou" <aou@eecs.berkeley.edu>, "asahi@lists.linux.dev" <asahi@lists.linux.dev>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Lu Baolu
-	<baolu.lu@linux.intel.com>, David Woodhouse <dwmw2@infradead.org>, "Gerald
- Schaefer" <gerald.schaefer@linux.ibm.com>, Heiko Stuebner <heiko@sntech.de>,
-	"iommu@lists.linux.dev" <iommu@lists.linux.dev>, Janne Grunau <j@jannau.net>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Jernej Skrabec
-	<jernej.skrabec@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, "Joerg
- Roedel" <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-arm-msm@vger.kernel.org"
-	<linux-arm-msm@vger.kernel.org>, "linux-mediatek@lists.infradead.org"
-	<linux-mediatek@lists.infradead.org>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "linux-rockchip@lists.infradead.org"
-	<linux-rockchip@lists.infradead.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org"
-	<linux-samsung-soc@vger.kernel.org>, "linux-sunxi@lists.linux.dev"
-	<linux-sunxi@lists.linux.dev>, "linux-tegra@vger.kernel.org"
-	<linux-tegra@vger.kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>, Matthew Rosato
-	<mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>, Orson Zhai
-	<orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley
-	<paul.walmsley@sifive.com>, Rob Clark <robdclark@gmail.com>, Robin Murphy
-	<robin.murphy@arm.com>, Samuel Holland <samuel@sholland.org>, Niklas Schnelle
-	<schnelle@linux.ibm.com>, Sven Peter <sven@svenpeter.dev>, Thierry Reding
-	<thierry.reding@gmail.com>, Tomasz Jeznach <tjeznach@rivosinc.com>, "Krishna
- Reddy" <vdumpa@nvidia.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, Chen-Yu Tsai <wens@csie.org>, Will Deacon
-	<will@kernel.org>, Yong Wu <yong.wu@mediatek.com>, Chunyan Zhang
-	<zhang.lyra@gmail.com>
-CC: "patches@lists.linux.dev" <patches@lists.linux.dev>
-Subject: RE: [PATCH 0/7] Remove ops.pgsize_bitmap
-Thread-Topic: [PATCH 0/7] Remove ops.pgsize_bitmap
-Thread-Index: AQHbuRPVi33TepR4cUGRaenWa+TQJ7O77svQ
-Date: Wed, 30 Apr 2025 09:16:32 +0000
-Message-ID: <BN9PR11MB527642B10DAA685204CADD2E8C832@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-In-Reply-To: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|DM4PR11MB7205:EE_
-x-ms-office365-filtering-correlation-id: ae6ce83d-28e2-4e1d-c92e-08dd87c7b302
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024|38070700018|921020;
-x-microsoft-antispam-message-info: =?us-ascii?Q?Hf0EgFoXnJKiWK/H85jHyh2ND0/l+iZW0q0Dqiu3YwJKCt6+IWc0dl4IA0Mw?=
- =?us-ascii?Q?/ob5/L8G1yGnmP+2fWSApyZhN5wq3wq/KjivPksu2uIiiwOzANlwnzeeSfxF?=
- =?us-ascii?Q?J9KxaupUQbgu4BYMbaVaahA9BiaZZ85+A/ieYeEUj/V6Y7XQCJueAriDiDD/?=
- =?us-ascii?Q?YYzvjND6KzyBEuJ2s3aJtkt5ZUvjoWlKPutzM3n4ojRifRbD3xnxPrYWXtH9?=
- =?us-ascii?Q?1oNV/MSFPBdgRLnc3RVfLHPPofhFZzkwvTa6ameCACDvVYgsN+OaEfqxgi5x?=
- =?us-ascii?Q?FROZMrbS7lWKzxRzMmNJ5obY3MDoPfLTbRC6xHvInGTsHXjUc6vDtyXBq01J?=
- =?us-ascii?Q?0VP0RUcmut9kSFmej8G6+CfchnwxCB9NXyQdHn6wg3fyk/wzYHOXGCBTcFLu?=
- =?us-ascii?Q?pl2pZMZ2hbcI/nEvBKmTQE6Elle4BsseOiYzDslY6mqbMqriRGtgAKKe2+iX?=
- =?us-ascii?Q?x4jpB6YrgfOltOYHb/xD9gEbGSkccReOVG2LKZPTt+5FdDrz1LG16r+7v7R+?=
- =?us-ascii?Q?YQXqsfegCWbeQxgz6RJG0RLRW2fQIHSbDc+e8Yy0W6W2EllajwWsOHIM2Eb6?=
- =?us-ascii?Q?56Mb32KJTHj4LCcu5EKIe3wuJZmKKd6lLG+YFjGpKjCikPyb3zxX7K3gh/wt?=
- =?us-ascii?Q?oLgDQ+rjRNVokSyDmAhyNUlqfvAY/kBQrOkiYtwInyRDnUBeNLFSpT1py5uF?=
- =?us-ascii?Q?HgnmjwYeZlu5bmKsBBGqNf7H48GbgEddsmZMyvmSbmnJbZkANWo+xcaXePiw?=
- =?us-ascii?Q?IlUOuw6w0f1ND/xrQZubBgl6hLXrmM73mUfpvCTBxBeXEOFEcfUQjV3/Mmjw?=
- =?us-ascii?Q?Ri5SiUsezth/FcOUpEenKx9czX+L5Dq+L4f7WJTp7SuVxWvk8WsgMCR1k7/c?=
- =?us-ascii?Q?4OBEZ1rZ9xHabjYkmVuGjwFwzhmcHDPD5YhpuZuR5jhnX+6UciLHnlkrctUE?=
- =?us-ascii?Q?UIgGH646LmX9jVlHopHCu8WvCAB8unJ/JmGb+JvEhiU2OwRrnJKY/a9JC2m+?=
- =?us-ascii?Q?cPfnMdCy0dH0zWoUCmmhB7FrT7NYeLGF92Ok4k2yUtgPSt3Xt/PI/NsYm4Ct?=
- =?us-ascii?Q?hsnrbcK2XEHnWgkd/jbWb6z9f5RJ2/DQ+2iPkIu8YZrT43CYYZSI0mu2zmKe?=
- =?us-ascii?Q?KjxYMlzvQypzmHKmN2YJeeihWVm/55LIy2GM9a1zez7zq6c/88za2D0LEbPC?=
- =?us-ascii?Q?Hj5uwKX2zn1dJ/MI6C8wZCAc23OLEsnI5q4JkaASLVqUwtADQkWwDBP1uDQQ?=
- =?us-ascii?Q?zTkooX5ZYgrERjQ9FHGKoXZ2EljnpR8Kdi7MbmMsgvmdR6cSme+AykcoM6Il?=
- =?us-ascii?Q?csBSbTZ+Cfs+ZHPl7DsmKhrUm5P/oBlU8KTk8beDv+ET/MQgWaH1ckty1VmQ?=
- =?us-ascii?Q?G6hOsL1pG0DUbtWl0LvMX6XBfT5PudZcdy9FO7vu/n8Gzd2ald/atX6SkSDH?=
- =?us-ascii?Q?zs5cMSLtB8bwKyqupcFIKzTc3yUfxIHmZRekPCoJTUQsZ0OYWWOWHc5MRs60?=
- =?us-ascii?Q?zku6odGSFNOdpkU=3D?=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(38070700018)(921020);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?TzSDki8SE6KdQgvp4ZETyc35BmWZJALc6bnkSP74+x5ZOehubJBBEkc+6zRk?=
- =?us-ascii?Q?56mTEkteTCSHgc9BTibSvjYUZbwBmqOOROfO0cWRiR1VebHg7toE4ztgaw4J?=
- =?us-ascii?Q?Dw5s0/I+G9oZnhfy7T50JFykSvsg/NUL3ZF73CGHIL+d5BgFO+lvFD8aVB/y?=
- =?us-ascii?Q?tLLw1kmOpPfTiGmXhdQh6XNv3h28Nid2HpPyBbC/orwk/a1HxtaLIKWmjRH2?=
- =?us-ascii?Q?x1deYhCKJA+wi2TQUJ/hWeGaTzcU7F9NVgxtpYcEop1OHASukm8923kWOLD/?=
- =?us-ascii?Q?o2xWbQBXeke7vzIYSahnWMYnPjtUjXCyvN8Vx70uZxFJc6NBvMVW5t3TJeQX?=
- =?us-ascii?Q?/oimiQ0mblVmWQY6iJXbO4iLNv9YFYhVjh0NaFcmrURtSjeLG0somYIp9lOl?=
- =?us-ascii?Q?O6GNfUSv+f6bMjpxU0A9oAWwmR8RpM+XdmynkXEbA3MK4iWDYGoDlOSB8OCh?=
- =?us-ascii?Q?X5nT3pEUC+OvDqS7JaLjmaTZEDOb/JElCny7sSY4V+a9mSGKmRVm6xSQoLtw?=
- =?us-ascii?Q?lvB7boKQi+3VSYnGC871Uj9MEPUvoBbNH0O0aNAAh7gC4hFgP6h6JYvvJA8f?=
- =?us-ascii?Q?8Ii+LbYYGaxD/ooJjShYjmyOHYz7Zlkxyk5mN+swED1+EhCRvxNb8oDqpjck?=
- =?us-ascii?Q?Nmquz+QmRbw0LAnM23HzAl8P24iDt4bz81mhAmawKzwSWDsaSuBxpFmolNHd?=
- =?us-ascii?Q?5tmAh9wYqM+UyGchsis+vpwBZKomt+2WMFiL/srneYgTFF1m9MNMFPXZlzuD?=
- =?us-ascii?Q?RiV4KFsbe4UezLCbG2JFUsQiHpOUtRUfFo5yMusjkLmt7fb1Yj439JZN2U21?=
- =?us-ascii?Q?IENvQ5FqsWFv13LXKUWjJmS+07RulovGd3nG2WdXg6QgPVdFJaQnkSWWBBN7?=
- =?us-ascii?Q?SS261QyeSy0Q9dr5RmfkkISxYEypQTM7zORizXC1aVCfgGlbM/q31SZJKpzd?=
- =?us-ascii?Q?pc+OO+qH7fR0Ba0E7Dk00B5cONUO734Px/FZK6wtsUlkzHiQJT0hBcGqfKOK?=
- =?us-ascii?Q?muRvt4bNbJoS7PeSuucMRMuDifCEXBxTj7KJpFiXnuSuAES3aMg7RVQ9yAYN?=
- =?us-ascii?Q?3Jukh78Frk6oqQDEYTEiiw0ZTM6c72Dk4tXfOxbRsJJV0klWRr4s+lCOxQBJ?=
- =?us-ascii?Q?WHvkToVurYoklUFbNtXpPeO5iTEk/ISMtvWrvcwrfPxwuqCXCYX46ZNXbELP?=
- =?us-ascii?Q?LXXPxANglGDdGqyIUS27IvajZw9i4qgII11Oxhm0qVh8h+3vq88SITX0/+Fv?=
- =?us-ascii?Q?PeQAqPbYF+q5G9SdWe6Pksr7yQr3Hq1FB/dkqanOg3ErLphzWw5mmo12DPIu?=
- =?us-ascii?Q?04NwVpho3c/0ImqpAakbBwAjFXVGAxHCZa4qZU/4My/1RwA8UN7pjoXbfPpq?=
- =?us-ascii?Q?drCneAuIA7frdUNcO7pRD/gvvudJ4bQOO6JYlpFDpMWMpbfQf/LkCQSucTF/?=
- =?us-ascii?Q?CpHK8+pFD3oejppM33BjquRRZdLNdFXGB3rygl6sMYAuQK6OktWgXG3fvj6E?=
- =?us-ascii?Q?uchXhuFnd6Oyq/qAvzw+WQgTjyYnmZOpd58cLOpBk7wszrR6ZVjLR/omVsbB?=
- =?us-ascii?Q?lQLMbUpHQdjlqnV9V+qzHDhg4B/buZm6eerM1U5G?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="ga09qoaV"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=YvbyhZIVhrVcZrECRwfD/1Dt4t5xRDekoFM+vI/X2N8=; b=ga09qoaVhH5U8vCV3jeUhlCoZP
+	DjiD1VuEBTQf14I8wlurGlsiX09KJlq7GCUx81PKyYDIxDfrDGQ5Mn5LW9KbPhXSRZ//DIHN6VfjA
+	5WHdujhl3sU+eLWxrcS0Wu4WjuaPikO4Z+F8zBloYZ/LUxytgrSqZ4ry2882cZc2TTZPfl/UtI8qj
+	giN3MplvcAuay18BIly+t5hGPb5WIYmDiOgly0On6QuzvwHr/NLRsx1dkhcHjzYm3hpo4nWbs9X0y
+	nZ6ztHf3vXJvvq/UEOssCD5tp5Vlr2uT3LlzzBWq/Npup7DcTAr8y+EvPjuz8R8qt+lmk7D0wHPCF
+	DH8GR82g==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1uA4lb-002F9j-1B;
+	Wed, 30 Apr 2025 18:34:16 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Wed, 30 Apr 2025 18:34:15 +0800
+Date: Wed, 30 Apr 2025 18:34:15 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: T Pratham <t-pratham@ti.com>
+Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [PATCH] crypto: s390/hmac - Use API partial block handling
+Message-ID: <aBH8p-YEF3wEe4Qm@gondor.apana.org.au>
+References: <cover.1745916278.git.herbert@gondor.apana.org.au>
+ <81cab16fad98103d8b5c28f2870de08b337c2d78.1745916278.git.herbert@gondor.apana.org.au>
+ <a0a6f359-27c8-4381-8619-d4aa2cd186fc@ti.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ae6ce83d-28e2-4e1d-c92e-08dd87c7b302
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Apr 2025 09:16:32.7738
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: MHfHbVuVnFhbAadLUqVIOk8blq1zT+BY5YpVTeYF13I0TDsYCDawqMsHkNqfEZTvyvTNFpWLtcik+UhfWHqBNw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB7205
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a0a6f359-27c8-4381-8619-d4aa2cd186fc@ti.com>
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Tuesday, April 29, 2025 10:34 PM
->=20
-> Now that all drivers are using domain_alloc_paging() and dev is never
-> NULL, we can have all drivers correctly set domain.pgsize_bitmap during
-> their allocation function.
->=20
-> There are a few oddities that have accumulated here over past changes:
->=20
->  - Some drivers always set domain.pgsize_bitmap during their
->    domain_alloc_paging() call but still provide a value in ops. This is d=
-ead
->    code, delete it.
->=20
->  - Some drivers calculate a system global pgsize_bitmap in the ops, but
->    it is now trivial to use the per-instance value instead. In several
->    cases this is dead code, delete it. This also allows
->    constifying the ops in these drivers as a hardening measure
->=20
->  - Some drivers have a fixed pgsize_bitmap, put it next to setting up the
->    geometry in their domain_alloc_paging() functions.
->=20
->  - Finally a few drivers still use ops because they have a delayed
->    finalize operation. Set the constant pgsize_bitmap in the
->    domain_alloc_paging().
->=20
-> Then remove ops.pgsize_bitmap.
->=20
-> This is based on iommu next, and must go after the virtio
-> domain_alloc_paging() conversion.
->=20
+On Tue, Apr 29, 2025 at 05:34:18PM +0530, T Pratham wrote:
+>
+> Why do pointer increment with different types through a union which is un-intuitive to understand and prone to easy errors in future. It is easy to mix up the layout of the data being stored. Why not just typecast void * to a struct exposing different fields? Same with sha512.
 
-for entire series:
+You can't cast a void * to a random struct and start writing to
+it because of alignment faults.  Now s390 actually happens to be
+OK in that respect, but this way of writing exports is used by
+my ahash patches as well and I would like to keep them consistent.
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Can use uniform naming here. total_hi and total_lo.
+
+Thanks.  I've got rid of them altogether.
+
+It turns out that the patch I sent out yesterday is actually
+wrong as it predates the shash partial block API.  Here is a
+more up-to-date version:
+
+---8<---
+Use the Crypto API partial block handling.
+
+Also switch to the generic export format.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ arch/s390/crypto/hmac_s390.c | 154 ++++++++++++++++++++++++-----------
+ 1 file changed, 108 insertions(+), 46 deletions(-)
+
+diff --git a/arch/s390/crypto/hmac_s390.c b/arch/s390/crypto/hmac_s390.c
+index e6edf1013228..474b4233effd 100644
+--- a/arch/s390/crypto/hmac_s390.c
++++ b/arch/s390/crypto/hmac_s390.c
+@@ -9,10 +9,14 @@
+ #define pr_fmt(fmt)	KMSG_COMPONENT ": " fmt
+ 
+ #include <asm/cpacf.h>
+-#include <crypto/sha2.h>
+ #include <crypto/internal/hash.h>
++#include <crypto/hmac.h>
++#include <crypto/sha2.h>
+ #include <linux/cpufeature.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/string.h>
+ 
+ /*
+  * KMAC param block layout for sha2 function codes:
+@@ -71,7 +75,6 @@ union s390_kmac_gr0 {
+ struct s390_kmac_sha2_ctx {
+ 	u8 param[MAX_DIGEST_SIZE + MAX_IMBL_SIZE + MAX_BLOCK_SIZE];
+ 	union s390_kmac_gr0 gr0;
+-	u8 buf[MAX_BLOCK_SIZE];
+ 	u64 buflen[2];
+ };
+ 
+@@ -95,8 +98,8 @@ static inline void kmac_sha2_set_imbl(u8 *param, u64 buflen_lo,
+ 	}
+ }
+ 
+-static int hash_key(const u8 *in, unsigned int inlen,
+-		    u8 *digest, unsigned int digestsize)
++static int hash_data(const u8 *in, unsigned int inlen,
++		     u8 *digest, unsigned int digestsize, bool final)
+ {
+ 	unsigned long func;
+ 	union {
+@@ -123,19 +126,23 @@ static int hash_key(const u8 *in, unsigned int inlen,
+ 
+ 	switch (digestsize) {
+ 	case SHA224_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_256;
++		func = final ? CPACF_KLMD_SHA_256 : CPACF_KIMD_SHA_256;
+ 		PARAM_INIT(256, 224, inlen * 8);
++		if (!final)
++			digestsize = SHA256_DIGEST_SIZE;
+ 		break;
+ 	case SHA256_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_256;
++		func = final ? CPACF_KLMD_SHA_256 : CPACF_KIMD_SHA_256;
+ 		PARAM_INIT(256, 256, inlen * 8);
+ 		break;
+ 	case SHA384_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_512;
++		func = final ? CPACF_KLMD_SHA_512 : CPACF_KIMD_SHA_512;
+ 		PARAM_INIT(512, 384, inlen * 8);
++		if (!final)
++			digestsize = SHA512_DIGEST_SIZE;
+ 		break;
+ 	case SHA512_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_512;
++		func = final ? CPACF_KLMD_SHA_512 : CPACF_KIMD_SHA_512;
+ 		PARAM_INIT(512, 512, inlen * 8);
+ 		break;
+ 	default:
+@@ -151,6 +158,12 @@ static int hash_key(const u8 *in, unsigned int inlen,
+ 	return 0;
+ }
+ 
++static int hash_key(const u8 *in, unsigned int inlen,
++		    u8 *digest, unsigned int digestsize)
++{
++	return hash_data(in, inlen, digest, digestsize, true);
++}
++
+ static int s390_hmac_sha2_setkey(struct crypto_shash *tfm,
+ 				 const u8 *key, unsigned int keylen)
+ {
+@@ -204,50 +217,31 @@ static int s390_hmac_sha2_update(struct shash_desc *desc,
+ {
+ 	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
+ 	unsigned int bs = crypto_shash_blocksize(desc->tfm);
+-	unsigned int offset, n;
++	unsigned int n = round_down(len, bs);
+ 
+-	/* check current buffer */
+-	offset = ctx->buflen[0] % bs;
+-	ctx->buflen[0] += len;
+-	if (ctx->buflen[0] < len)
++	ctx->buflen[0] += n;
++	if (ctx->buflen[0] < n)
+ 		ctx->buflen[1]++;
+-	if (offset + len < bs)
+-		goto store;
+ 
+-	/* process one stored block */
+-	if (offset) {
+-		n = bs - offset;
+-		memcpy(ctx->buf + offset, data, n);
+-		ctx->gr0.iimp = 1;
+-		_cpacf_kmac(&ctx->gr0.reg, ctx->param, ctx->buf, bs);
+-		data += n;
+-		len -= n;
+-		offset = 0;
+-	}
+ 	/* process as many blocks as possible */
+-	if (len >= bs) {
+-		n = (len / bs) * bs;
+-		ctx->gr0.iimp = 1;
+-		_cpacf_kmac(&ctx->gr0.reg, ctx->param, data, n);
+-		data += n;
+-		len -= n;
+-	}
+-store:
+-	/* store incomplete block in buffer */
+-	if (len)
+-		memcpy(ctx->buf + offset, data, len);
+-
+-	return 0;
++	ctx->gr0.iimp = 1;
++	_cpacf_kmac(&ctx->gr0.reg, ctx->param, data, n);
++	return len - n;
+ }
+ 
+-static int s390_hmac_sha2_final(struct shash_desc *desc, u8 *out)
++static int s390_hmac_sha2_finup(struct shash_desc *desc, const u8 *src,
++				unsigned int len, u8 *out)
+ {
+ 	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
+ 	unsigned int bs = crypto_shash_blocksize(desc->tfm);
+ 
++	ctx->buflen[0] += len;
++	if (ctx->buflen[0] < len)
++		ctx->buflen[1]++;
++
+ 	ctx->gr0.iimp = 0;
+ 	kmac_sha2_set_imbl(ctx->param, ctx->buflen[0], ctx->buflen[1], bs);
+-	_cpacf_kmac(&ctx->gr0.reg, ctx->param, ctx->buf, ctx->buflen[0] % bs);
++	_cpacf_kmac(&ctx->gr0.reg, ctx->param, src, len);
+ 	memcpy(out, ctx->param, crypto_shash_digestsize(desc->tfm));
+ 
+ 	return 0;
+@@ -273,22 +267,90 @@ static int s390_hmac_sha2_digest(struct shash_desc *desc,
+ 	return 0;
+ }
+ 
+-#define S390_HMAC_SHA2_ALG(x) {						\
++static int s390_hmac_export_zero(struct shash_desc *desc, void *out)
++{
++	struct crypto_shash *tfm = desc->tfm;
++	u8 ipad[SHA512_BLOCK_SIZE];
++	struct s390_hmac_ctx *ctx;
++	unsigned int bs;
++	int err, i;
++
++	ctx = crypto_shash_ctx(tfm);
++	bs = crypto_shash_blocksize(tfm);
++	for (i = 0; i < bs; i++)
++		ipad[i] = ctx->key[i] ^ HMAC_IPAD_VALUE;
++
++	err = hash_data(ipad, bs, out, crypto_shash_digestsize(tfm), false);
++	memzero_explicit(ipad, sizeof(ipad));
++	return err;
++}
++
++static int s390_hmac_export(struct shash_desc *desc, void *out)
++{
++	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
++	unsigned int ds = crypto_shash_digestsize(desc->tfm);
++	union {
++		u8 *u8;
++		u64 *u64;
++	} p = { .u8 = out };
++	int err = 0;
++
++	if (!ctx->gr0.ikp)
++		err = s390_hmac_export_zero(desc, out);
++	else
++		memcpy(p.u8, ctx->param, ds);
++	p.u8 += ds;
++	put_unaligned(ctx->buflen[0], p.u64++);
++	if (ds == SHA512_DIGEST_SIZE)
++		put_unaligned(ctx->buflen[1], p.u64);
++	return err;
++}
++
++static int s390_hmac_import(struct shash_desc *desc, const void *in)
++{
++	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
++	unsigned int ds = crypto_shash_digestsize(desc->tfm);
++	union {
++		const u8 *u8;
++		const u64 *u64;
++	} p = { .u8 = in };
++	int err;
++
++	err = s390_hmac_sha2_init(desc);
++	if (err)
++		return err;
++
++	memcpy(ctx->param, p.u8, ds);
++	p.u8 += ds;
++	ctx->buflen[0] = get_unaligned(p.u64++);
++	if (ds == SHA512_DIGEST_SIZE)
++		ctx->buflen[1] = get_unaligned(p.u64);
++	if (ctx->buflen[0] | ctx->buflen[1])
++		ctx->gr0.ikp = 1;
++	return 0;
++}
++
++#define S390_HMAC_SHA2_ALG(x, ss) {					\
+ 	.fc = CPACF_KMAC_HMAC_SHA_##x,					\
+ 	.alg = {							\
+ 		.init = s390_hmac_sha2_init,				\
+ 		.update = s390_hmac_sha2_update,			\
+-		.final = s390_hmac_sha2_final,				\
++		.finup = s390_hmac_sha2_finup,				\
+ 		.digest = s390_hmac_sha2_digest,			\
+ 		.setkey = s390_hmac_sha2_setkey,			\
++		.export = s390_hmac_export,				\
++		.import = s390_hmac_import,				\
+ 		.descsize = sizeof(struct s390_kmac_sha2_ctx),		\
+ 		.halg = {						\
++			.statesize = ss,				\
+ 			.digestsize = SHA##x##_DIGEST_SIZE,		\
+ 			.base = {					\
+ 				.cra_name = "hmac(sha" #x ")",		\
+ 				.cra_driver_name = "hmac_s390_sha" #x,	\
+ 				.cra_blocksize = SHA##x##_BLOCK_SIZE,	\
+ 				.cra_priority = 400,			\
++				.cra_flags = CRYPTO_AHASH_ALG_BLOCK_ONLY | \
++					     CRYPTO_AHASH_ALG_FINUP_MAX, \
+ 				.cra_ctxsize = sizeof(struct s390_hmac_ctx), \
+ 				.cra_module = THIS_MODULE,		\
+ 			},						\
+@@ -301,10 +363,10 @@ static struct s390_hmac_alg {
+ 	unsigned int fc;
+ 	struct shash_alg alg;
+ } s390_hmac_algs[] = {
+-	S390_HMAC_SHA2_ALG(224),
+-	S390_HMAC_SHA2_ALG(256),
+-	S390_HMAC_SHA2_ALG(384),
+-	S390_HMAC_SHA2_ALG(512),
++	S390_HMAC_SHA2_ALG(224, sizeof(struct crypto_sha256_state)),
++	S390_HMAC_SHA2_ALG(256, sizeof(struct crypto_sha256_state)),
++	S390_HMAC_SHA2_ALG(384, SHA512_STATE_SIZE),
++	S390_HMAC_SHA2_ALG(512, SHA512_STATE_SIZE),
+ };
+ 
+ static __always_inline void _s390_hmac_algs_unregister(void)
+-- 
+2.39.5
+
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
