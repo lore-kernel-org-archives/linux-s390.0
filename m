@@ -1,164 +1,327 @@
-Received: from flow-a8-smtp.messagingengine.com (flow-a8-smtp.messagingengine.com [103.168.172.143])
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65754224B04;
-	Thu,  1 May 2025 19:08:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.143
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBEAD227E98;
+	Fri,  2 May 2025 09:00:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746126494; cv=none; b=VoZ5KGRyuNwLE6a1HdHbUl0bDYxqJLC1fyHRRFzkUCQh15jl17C6h7zMtmtSjML45gpF/LUSUV+pniCJ4F6922djtaX+TgdClN5/4++Np6Vu+09qIFna9H1/jjHvK7/LRYVmsgC2EE1ZJ1LUmRSjunQwQ9r2Ac7XcL5Al2gKP44=
+	t=1746176460; cv=none; b=PIRnZf5XK47jEDuPGnl0YuMRaB4tcLxM45CHRH9RLYfZTHShM8wuPK3yNdVQT/fPqs2hz2u0TPOMjGSX9JZaNwoElOOJqyj+ZjBSKar3K/sSo/z1zsKXlTqZXGqae+fVHMPhgLa7qhP4vIEM1E/PfNr/AIbG25HCL0u298ncj8g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746126494; c=relaxed/simple;
-	bh=t72V4cMXfgECq2XlBkakvc0ngW0PUat2k9kI4OAGgGQ=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=h647JfEl1mBzQaHIkIyktzt1dH0Ir2wlz0rdsuB+RBPQmKP8hmYuEpwdvHdTVuaD7xn4mS3AGAL8Kh8d8fOs97MQs5HUeTjeNVPqWa3NHGWM9ZzGWBfPdLo2FIDUtPXGXiSVj5EVVkITFsZb9lJ5F44pmY8njVtCp8Q243+X88w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svenpeter.dev; spf=pass smtp.mailfrom=svenpeter.dev; dkim=pass (2048-bit key) header.d=svenpeter.dev header.i=@svenpeter.dev header.b=gMWu11vI; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=kRRWrsXt; arc=none smtp.client-ip=103.168.172.143
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=svenpeter.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=svenpeter.dev
+	s=arc-20240116; t=1746176460; c=relaxed/simple;
+	bh=lbYCDXtoOwXlWluKTPOylbtvD/UDfULsb6hvONr1z0M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ckxeltuQeizznAtGO4dpv/+RoNJ+uh66PfMDs3indIsuXkNMkj6YPSqMXZJJ7HRvK7J3P0bDS9wbEhjCro1erxVLgVEqGwfq8mXxPX3hIBcdhi3/oufMKc7yx2Tx4uTkCDnl1d3wQ+xj3AwMcK3suEMGPHh/bft43H7bzwGMxE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=N7/nwpXN; arc=none smtp.client-ip=144.6.53.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=svenpeter.dev header.i=@svenpeter.dev header.b="gMWu11vI";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="kRRWrsXt"
-Received: from phl-compute-04.internal (phl-compute-04.phl.internal [10.202.2.44])
-	by mailflow.phl.internal (Postfix) with ESMTP id 2F84F2007A6;
-	Thu,  1 May 2025 15:08:09 -0400 (EDT)
-Received: from phl-imap-07 ([10.202.2.97])
-  by phl-compute-04.internal (MEProxy); Thu, 01 May 2025 15:08:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svenpeter.dev;
-	 h=cc:cc:content-transfer-encoding:content-type:content-type
-	:date:date:from:from:in-reply-to:in-reply-to:message-id
-	:mime-version:references:reply-to:subject:subject:to:to; s=fm1;
-	 t=1746126489; x=1746133689; bh=uy2Z23D4UX2pb4MGng/RS7Rc0DqXehjP
-	gXYL1GZyHEA=; b=gMWu11vIGwyUkebQS6FfJoMbvmG1K5I4PcYPfgos/+3IKTG9
-	gplwSngSdL9b0tzDvioUBprhL4wfVkOmTpNtoAAODeB28Xg6R/kwHB7dvxSuftFL
-	yhPHuhfnyZhbGy1Hk4LH0DS38ZnX4s0nqvPXJdj6j6YsCbSDjUNCmIVLH/A/20KP
-	oo3/VMPCqW0WLap/EGtkYjtqLqADG6I7601JRBgJjC9L0IW/fnmqPmRfywBz38B2
-	l4rECgxFIIXyjmPcKpJ3MKrLDuuogSY9AnqaHJ7N27iyCvQLDrLJO+Uzbvq2a1Ob
-	z/jW7mFvVIaWGr7pr0l6vyW2GdTQ2Hejj4c04Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1746126489; x=
-	1746133689; bh=uy2Z23D4UX2pb4MGng/RS7Rc0DqXehjPgXYL1GZyHEA=; b=k
-	RRWrsXtBP2dGvKqi4W7O8NcUE4T3criJTN4RNqnwM3jvVZB6DFHHOoJRSzF4WwTC
-	zyfSgrVfEAEZo6Ar3KWwXFFgpo9OcSnMRAJNahqn3nlXJrX0g/PcOryetxJVwBdg
-	bMvCV+WGJfrIwElsLCpZTQGf+AFh+vAPQIz7pR9L3B7fo46k+1htBqhXoVi3Nr6i
-	iPfXM7t0uPbUxV6yQuN2xxuUHDxXOhwyx1GBr0m/YPvpPLJFGrE4r55Y1vhjLJkG
-	EYbgK2ov6OqW9yBM/N3vWdDrYa4RmB3gucHV7PaTEJHhJOlijJtkhtTp35Hug9Lp
-	KdTUch2CHWx/XAiNccw8Q==
-X-ME-Sender: <xms:lMYTaGgjwoD9jvvLQF3kWWQqAITXOwX2J_Tz44npf0_rwZTz5vZWuA>
-    <xme:lMYTaHCfTlr4IcDYYP9mfLiZVIcfetmb5w7EMXV6Z0z5aHP8l6w5d06NcLSmpdfDF
-    y_HHxOzjxiGRzZWmjM>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvjedtfeekucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
-    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
-    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
-    tddtnecuhfhrohhmpedfufhvvghnucfrvghtvghrfdcuoehsvhgvnhesshhvvghnphgvth
-    gvrhdruggvvheqnecuggftrfgrthhtvghrnhepleefteeugeduudeuudeuhfefheegveek
-    ueefffdvffektdffffelveffvddvueffnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepshhvvghnsehsvhgvnhhpvghtvghrrdguvghvpdhnsggp
-    rhgtphhtthhopeegledpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepjhhorhhose
-    eksgihthgvshdrohhrghdprhgtphhtthhopehrohgsihhnrdhmuhhrphhhhiesrghrmhdr
-    tghomhdprhgtphhtthhopegrnhhgvghlohhgihhorggttghhihhnohdruggvlhhrvghgnh
-    hosegtohhllhgrsghorhgrrdgtohhmpdhrtghpthhtohepfigvnhhssegtshhivgdrohhr
-    ghdprhgtphhtthhopehprghlmhgvrhesuggrsggsvghlthdrtghomhdprhgtphhtthhope
-    grohhusegvvggtshdrsggvrhhkvghlvgihrdgvughupdhrtghpthhtoheprghlvgigsehg
-    hhhithhirdhfrhdprhgtphhtthhopehjvghrnhgvjhdrshhkrhgrsggvtgesghhmrghilh
-    drtghomhdprhgtphhtthhopehmrghtthhhihgrshdrsghgghesghhmrghilhdrtghomh
-X-ME-Proxy: <xmx:lMYTaOHaWClXa7praEdCDETzg-YVo8ghBfqAEKgcYyCNv-z3uiOvlg>
-    <xmx:lMYTaPTDyplPkZ6QrXRyRgI6CFJO6g9IDexaTEMgKEAyXB5CcIWOgQ>
-    <xmx:lMYTaDxrliDpH1IiImjsat2Qz56tDsozwSqIgW3l_ha48UqBCKavYA>
-    <xmx:lMYTaN4smmith_jw1KGBc7w4dLVQ7r3zWaP24jB2SlIhLdcRPVRmOw>
-    <xmx:mcYTaH2ZstH58KGLmGnY3MmWQlgQtyVkrQuLwkep4LE-hnCp6R9N54B6>
-Feedback-ID: i51094778:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 6CE25BA0070; Thu,  1 May 2025 15:08:04 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="N7/nwpXN"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
+	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=AVv7nYvh2USNxewHkTY08ePezuCD7JR7xnlbs2/WTIU=; b=N7/nwpXNn057A00xm87Fn43J+x
+	cMf1fG7ON+RwDkXW/830er8pJOqcfXMQzE5CkVCIz2+aMvVqA8UFEnYakrhR9ufUZ5tO82/XmH8Mx
+	BPEAWpxT0r+mTmsFvAwvqKcyOiS80Wteg1mVHEtKs/EMcFnaG5AcNgtDetof9JwGOlBP7hDwULJCf
+	muPeOCo1WKFnBNBdzW9gL/sDpIuHrBn+0C8tY0ANH7gXc6wygHQ2KcEvGzdsNN5oydMyANIe3xrIc
+	/AjlTY47aCi4p97s4NwZuT8bZ0T7zbEtoDK17fD1EraEwANG4J2RvstRor62lxAyNArvPdCktZwcD
+	TIGV6pzg==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1uAmGB-002nnt-20;
+	Fri, 02 May 2025 17:00:44 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 02 May 2025 17:00:43 +0800
+Date: Fri, 2 May 2025 17:00:43 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: T Pratham <t-pratham@ti.com>
+Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: [v2 PATCH] crypto: s390/hmac - Use API partial block handling
+Message-ID: <aBSJu3PTcPFNHViG@gondor.apana.org.au>
+References: <cover.1745916278.git.herbert@gondor.apana.org.au>
+ <81cab16fad98103d8b5c28f2870de08b337c2d78.1745916278.git.herbert@gondor.apana.org.au>
+ <a0a6f359-27c8-4381-8619-d4aa2cd186fc@ti.com>
+ <aBH8p-YEF3wEe4Qm@gondor.apana.org.au>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: T5b013bf7ff4edb46
-Date: Thu, 01 May 2025 21:07:44 +0200
-From: "Sven Peter" <sven@svenpeter.dev>
-To: "Jason Gunthorpe" <jgg@nvidia.com>, "Alexandre Ghiti" <alex@ghiti.fr>,
- "Alim Akhtar" <alim.akhtar@samsung.com>,
- "Alyssa Rosenzweig" <alyssa@rosenzweig.io>,
- "AngeloGioacchino Del Regno" <angelogioacchino.delregno@collabora.com>,
- "Albert Ou" <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
- "Baolin Wang" <baolin.wang@linux.alibaba.com>,
- "Lu Baolu" <baolu.lu@linux.intel.com>,
- "David Woodhouse" <dwmw2@infradead.org>,
- "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>,
- "Heiko Stuebner" <heiko@sntech.de>, iommu@lists.linux.dev,
- "Janne Grunau" <j@jannau.net>,
- "Jean-Philippe Brucker" <jean-philippe@linaro.org>,
- "Jernej Skrabec" <jernej.skrabec@gmail.com>,
- "Jonathan Hunter" <jonathanh@nvidia.com>,
- "Joerg Roedel" <joro@8bytes.org>, "Kevin Tian" <kevin.tian@intel.com>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
- linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org,
- "Marek Szyprowski" <m.szyprowski@samsung.com>,
- "Matthias Brugger" <matthias.bgg@gmail.com>,
- "Matthew Rosato" <mjrosato@linux.ibm.com>, "Neal Gompa" <neal@gompa.dev>,
- "Orson Zhai" <orsonzhai@gmail.com>,
- "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Paul Walmsley" <paul.walmsley@sifive.com>,
- "Rob Clark" <robdclark@gmail.com>, "Robin Murphy" <robin.murphy@arm.com>,
- "Samuel Holland" <samuel@sholland.org>,
- "Niklas Schnelle" <schnelle@linux.ibm.com>,
- "Thierry Reding" <thierry.reding@gmail.com>,
- "Tomasz Jeznach" <tjeznach@rivosinc.com>,
- "Krishna Reddy" <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
- "Chen-Yu Tsai" <wens@csie.org>, "Will Deacon" <will@kernel.org>,
- "Yong Wu" <yong.wu@mediatek.com>,
- "Chunyan Zhang" <zhang.lyra@gmail.com>
-Cc: patches@lists.linux.dev
-Message-Id: <38706b77-4e58-4dfb-add3-814746f4a3c5@app.fastmail.com>
-In-Reply-To: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-References: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-Subject: Re: [PATCH 3/7] iommu: Remove ops.pgsize_bitmap from drivers that don't use it
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aBH8p-YEF3wEe4Qm@gondor.apana.org.au>
 
-On Tue, Apr 29, 2025, at 16:34, Jason Gunthorpe wrote:
-> These drivers all set the domain->pgsize_bitmap in their
-> domain_alloc_paging() functions, so the ops value is never used. Delete
-> it.
->
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-> ---
->  drivers/iommu/apple-dart.c       | 1 -
->  drivers/iommu/intel/iommu.c      | 1 -
->  drivers/iommu/iommufd/selftest.c | 1 -
->  drivers/iommu/riscv/iommu.c      | 1 -
->  drivers/iommu/virtio-iommu.c     | 6 ++----
->  5 files changed, 2 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-> index 757d24f67ad45a..190f28d7661515 100644
-> --- a/drivers/iommu/apple-dart.c
-> +++ b/drivers/iommu/apple-dart.c
-> @@ -991,7 +991,6 @@ static const struct iommu_ops apple_dart_iommu_ops = {
->  	.of_xlate = apple_dart_of_xlate,
->  	.def_domain_type = apple_dart_def_domain_type,
->  	.get_resv_regions = apple_dart_get_resv_regions,
-> -	.pgsize_bitmap = -1UL, /* Restricted during dart probe */
->  	.owner = THIS_MODULE,
->  	.default_domain_ops = &(const struct iommu_domain_ops) {
->  		.attach_dev	= apple_dart_attach_dev_paging,
+v2 fixes the export of 224 and 384.
 
-Reviewed-by: Sven Peter <sven@svenpeter.dev> # for Apple DART
+---8<---
+Use the Crypto API partial block handling.
 
+Also switch to the generic export format.
 
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ arch/s390/crypto/hmac_s390.c | 153 ++++++++++++++++++++++++-----------
+ 1 file changed, 107 insertions(+), 46 deletions(-)
 
-Best,
+diff --git a/arch/s390/crypto/hmac_s390.c b/arch/s390/crypto/hmac_s390.c
+index e6edf1013228..93a1098d9f8d 100644
+--- a/arch/s390/crypto/hmac_s390.c
++++ b/arch/s390/crypto/hmac_s390.c
+@@ -9,10 +9,14 @@
+ #define pr_fmt(fmt)	KMSG_COMPONENT ": " fmt
+ 
+ #include <asm/cpacf.h>
+-#include <crypto/sha2.h>
+ #include <crypto/internal/hash.h>
++#include <crypto/hmac.h>
++#include <crypto/sha2.h>
+ #include <linux/cpufeature.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/string.h>
+ 
+ /*
+  * KMAC param block layout for sha2 function codes:
+@@ -71,7 +75,6 @@ union s390_kmac_gr0 {
+ struct s390_kmac_sha2_ctx {
+ 	u8 param[MAX_DIGEST_SIZE + MAX_IMBL_SIZE + MAX_BLOCK_SIZE];
+ 	union s390_kmac_gr0 gr0;
+-	u8 buf[MAX_BLOCK_SIZE];
+ 	u64 buflen[2];
+ };
+ 
+@@ -95,8 +98,8 @@ static inline void kmac_sha2_set_imbl(u8 *param, u64 buflen_lo,
+ 	}
+ }
+ 
+-static int hash_key(const u8 *in, unsigned int inlen,
+-		    u8 *digest, unsigned int digestsize)
++static int hash_data(const u8 *in, unsigned int inlen,
++		     u8 *digest, unsigned int digestsize, bool final)
+ {
+ 	unsigned long func;
+ 	union {
+@@ -123,19 +126,23 @@ static int hash_key(const u8 *in, unsigned int inlen,
+ 
+ 	switch (digestsize) {
+ 	case SHA224_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_256;
++		func = final ? CPACF_KLMD_SHA_256 : CPACF_KIMD_SHA_256;
+ 		PARAM_INIT(256, 224, inlen * 8);
++		if (!final)
++			digestsize = SHA256_DIGEST_SIZE;
+ 		break;
+ 	case SHA256_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_256;
++		func = final ? CPACF_KLMD_SHA_256 : CPACF_KIMD_SHA_256;
+ 		PARAM_INIT(256, 256, inlen * 8);
+ 		break;
+ 	case SHA384_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_512;
++		func = final ? CPACF_KLMD_SHA_512 : CPACF_KIMD_SHA_512;
+ 		PARAM_INIT(512, 384, inlen * 8);
++		if (!final)
++			digestsize = SHA512_DIGEST_SIZE;
+ 		break;
+ 	case SHA512_DIGEST_SIZE:
+-		func = CPACF_KLMD_SHA_512;
++		func = final ? CPACF_KLMD_SHA_512 : CPACF_KIMD_SHA_512;
+ 		PARAM_INIT(512, 512, inlen * 8);
+ 		break;
+ 	default:
+@@ -151,6 +158,12 @@ static int hash_key(const u8 *in, unsigned int inlen,
+ 	return 0;
+ }
+ 
++static int hash_key(const u8 *in, unsigned int inlen,
++		    u8 *digest, unsigned int digestsize)
++{
++	return hash_data(in, inlen, digest, digestsize, true);
++}
++
+ static int s390_hmac_sha2_setkey(struct crypto_shash *tfm,
+ 				 const u8 *key, unsigned int keylen)
+ {
+@@ -204,50 +217,31 @@ static int s390_hmac_sha2_update(struct shash_desc *desc,
+ {
+ 	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
+ 	unsigned int bs = crypto_shash_blocksize(desc->tfm);
+-	unsigned int offset, n;
++	unsigned int n = round_down(len, bs);
+ 
+-	/* check current buffer */
+-	offset = ctx->buflen[0] % bs;
+-	ctx->buflen[0] += len;
+-	if (ctx->buflen[0] < len)
++	ctx->buflen[0] += n;
++	if (ctx->buflen[0] < n)
+ 		ctx->buflen[1]++;
+-	if (offset + len < bs)
+-		goto store;
+ 
+-	/* process one stored block */
+-	if (offset) {
+-		n = bs - offset;
+-		memcpy(ctx->buf + offset, data, n);
+-		ctx->gr0.iimp = 1;
+-		_cpacf_kmac(&ctx->gr0.reg, ctx->param, ctx->buf, bs);
+-		data += n;
+-		len -= n;
+-		offset = 0;
+-	}
+ 	/* process as many blocks as possible */
+-	if (len >= bs) {
+-		n = (len / bs) * bs;
+-		ctx->gr0.iimp = 1;
+-		_cpacf_kmac(&ctx->gr0.reg, ctx->param, data, n);
+-		data += n;
+-		len -= n;
+-	}
+-store:
+-	/* store incomplete block in buffer */
+-	if (len)
+-		memcpy(ctx->buf + offset, data, len);
+-
+-	return 0;
++	ctx->gr0.iimp = 1;
++	_cpacf_kmac(&ctx->gr0.reg, ctx->param, data, n);
++	return len - n;
+ }
+ 
+-static int s390_hmac_sha2_final(struct shash_desc *desc, u8 *out)
++static int s390_hmac_sha2_finup(struct shash_desc *desc, const u8 *src,
++				unsigned int len, u8 *out)
+ {
+ 	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
+ 	unsigned int bs = crypto_shash_blocksize(desc->tfm);
+ 
++	ctx->buflen[0] += len;
++	if (ctx->buflen[0] < len)
++		ctx->buflen[1]++;
++
+ 	ctx->gr0.iimp = 0;
+ 	kmac_sha2_set_imbl(ctx->param, ctx->buflen[0], ctx->buflen[1], bs);
+-	_cpacf_kmac(&ctx->gr0.reg, ctx->param, ctx->buf, ctx->buflen[0] % bs);
++	_cpacf_kmac(&ctx->gr0.reg, ctx->param, src, len);
+ 	memcpy(out, ctx->param, crypto_shash_digestsize(desc->tfm));
+ 
+ 	return 0;
+@@ -273,22 +267,89 @@ static int s390_hmac_sha2_digest(struct shash_desc *desc,
+ 	return 0;
+ }
+ 
+-#define S390_HMAC_SHA2_ALG(x) {						\
++static int s390_hmac_export_zero(struct shash_desc *desc, void *out)
++{
++	struct crypto_shash *tfm = desc->tfm;
++	u8 ipad[SHA512_BLOCK_SIZE];
++	struct s390_hmac_ctx *ctx;
++	unsigned int bs;
++	int err, i;
++
++	ctx = crypto_shash_ctx(tfm);
++	bs = crypto_shash_blocksize(tfm);
++	for (i = 0; i < bs; i++)
++		ipad[i] = ctx->key[i] ^ HMAC_IPAD_VALUE;
++
++	err = hash_data(ipad, bs, out, crypto_shash_digestsize(tfm), false);
++	memzero_explicit(ipad, sizeof(ipad));
++	return err;
++}
++
++static int s390_hmac_export(struct shash_desc *desc, void *out)
++{
++	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
++	unsigned int bs = crypto_shash_blocksize(desc->tfm);
++	unsigned int ds = bs / 2;
++	union {
++		u8 *u8;
++		u64 *u64;
++	} p = { .u8 = out };
++	int err = 0;
++
++	if (!ctx->gr0.ikp)
++		err = s390_hmac_export_zero(desc, out);
++	else
++		memcpy(p.u8, ctx->param, ds);
++	p.u8 += ds;
++	put_unaligned(ctx->buflen[0], p.u64++);
++	if (ds == SHA512_DIGEST_SIZE)
++		put_unaligned(ctx->buflen[1], p.u64);
++	return err;
++}
++
++static int s390_hmac_import(struct shash_desc *desc, const void *in)
++{
++	struct s390_kmac_sha2_ctx *ctx = shash_desc_ctx(desc);
++	unsigned int bs = crypto_shash_blocksize(desc->tfm);
++	unsigned int ds = bs / 2;
++	union {
++		const u8 *u8;
++		const u64 *u64;
++	} p = { .u8 = in };
++	int err;
++
++	err = s390_hmac_sha2_init(desc);
++	memcpy(ctx->param, p.u8, ds);
++	p.u8 += ds;
++	ctx->buflen[0] = get_unaligned(p.u64++);
++	if (ds == SHA512_DIGEST_SIZE)
++		ctx->buflen[1] = get_unaligned(p.u64);
++	if (ctx->buflen[0] | ctx->buflen[1])
++		ctx->gr0.ikp = 1;
++	return err;
++}
++
++#define S390_HMAC_SHA2_ALG(x, ss) {					\
+ 	.fc = CPACF_KMAC_HMAC_SHA_##x,					\
+ 	.alg = {							\
+ 		.init = s390_hmac_sha2_init,				\
+ 		.update = s390_hmac_sha2_update,			\
+-		.final = s390_hmac_sha2_final,				\
++		.finup = s390_hmac_sha2_finup,				\
+ 		.digest = s390_hmac_sha2_digest,			\
+ 		.setkey = s390_hmac_sha2_setkey,			\
++		.export = s390_hmac_export,				\
++		.import = s390_hmac_import,				\
+ 		.descsize = sizeof(struct s390_kmac_sha2_ctx),		\
+ 		.halg = {						\
++			.statesize = ss,				\
+ 			.digestsize = SHA##x##_DIGEST_SIZE,		\
+ 			.base = {					\
+ 				.cra_name = "hmac(sha" #x ")",		\
+ 				.cra_driver_name = "hmac_s390_sha" #x,	\
+ 				.cra_blocksize = SHA##x##_BLOCK_SIZE,	\
+ 				.cra_priority = 400,			\
++				.cra_flags = CRYPTO_AHASH_ALG_BLOCK_ONLY | \
++					     CRYPTO_AHASH_ALG_FINUP_MAX, \
+ 				.cra_ctxsize = sizeof(struct s390_hmac_ctx), \
+ 				.cra_module = THIS_MODULE,		\
+ 			},						\
+@@ -301,10 +362,10 @@ static struct s390_hmac_alg {
+ 	unsigned int fc;
+ 	struct shash_alg alg;
+ } s390_hmac_algs[] = {
+-	S390_HMAC_SHA2_ALG(224),
+-	S390_HMAC_SHA2_ALG(256),
+-	S390_HMAC_SHA2_ALG(384),
+-	S390_HMAC_SHA2_ALG(512),
++	S390_HMAC_SHA2_ALG(224, sizeof(struct crypto_sha256_state)),
++	S390_HMAC_SHA2_ALG(256, sizeof(struct crypto_sha256_state)),
++	S390_HMAC_SHA2_ALG(384, SHA512_STATE_SIZE),
++	S390_HMAC_SHA2_ALG(512, SHA512_STATE_SIZE),
+ };
+ 
+ static __always_inline void _s390_hmac_algs_unregister(void)
+-- 
+2.39.5
 
-
-Sven
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
