@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F79396ECC;
-	Mon,  5 May 2025 23:06:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D85736BA37;
+	Mon,  5 May 2025 22:56:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746486392; cv=none; b=tGAzAwtjCM6F2Ie+d6XlBO2R0IaG+BsO6nAIcRSuLw39uU9CiE6DpgxmtBrtwOEB42w339nDrpOO3CCHxfJlIGR8XII+1GxJRXbUVSgO8GQH1o08FOZXDrKNblpnv8aT0fjtnLFHwl5vjEQd2CayNnQdC99huDJAKlx6fWLTmMc=
+	t=1746485801; cv=none; b=BGDCPZkMNVT/tHz0gL7f6ZhoisFsbUDSiiAOLTOTFI7BVzazUoNOI+0cVujyIp6O6Sh2vp9rVhcVOfctjnrFYP9zEX3lk391fgApoLk16S+zUM/5NT9wBeomGwFSnPkTr2dE7msQtuf7n9rYUm0CRg+T4Wy8oOcoIuZmkR5az0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746486392; c=relaxed/simple;
-	bh=DCyX/ggmKFTvRaRm0UhhLM/FFYvFtZnpQAW1/AY6Bkw=;
+	s=arc-20240116; t=1746485801; c=relaxed/simple;
+	bh=UUSulzF/CeFx9bWFcVGhDHh5pEVNzQMwjHB4ERzKxH8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=drMsoipM3KWjch4vcI6EVm58ood4Xuj+kFtRM9N2GlNi/RI5Hl2uh5oAuMD8YmMS1LuDa3l47UnvNw8Bmp0X/dgSFpcB9vOfj9oIHgITElJub9fkTnJdPau6URyUk6De55qRnwdQwDbepH2q4RFrUuCMcAfGaANnft0plMcuvTQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IAiZNw4u; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=QGPAiw5FsofNrQIPrcnbUVNAeVPxgWwXZipoMVTEy20yJyfGfVs2+abCEpIETgH9tJ8sRlt0tPbfpgKqbkInvepVLbKN403qwwF2oEW78p6SKGPD1JtjEtsLf6IE/CR8RUqjrB/KvCLS/u4uKl2wUUumWv3i8vO3Ye8bEEyBMw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YgpPuqMe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IAiZNw4u"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B2BC4CEEE;
-	Mon,  5 May 2025 23:06:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YgpPuqMe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB6A7C4CEEE;
+	Mon,  5 May 2025 22:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746486390;
-	bh=DCyX/ggmKFTvRaRm0UhhLM/FFYvFtZnpQAW1/AY6Bkw=;
+	s=k20201202; t=1746485801;
+	bh=UUSulzF/CeFx9bWFcVGhDHh5pEVNzQMwjHB4ERzKxH8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=IAiZNw4uWqO/BJAG+BWPfxhEIQYDiPtPLw1qzGQMLdxmFlMwI3n3TWJtJn7zmBeuy
-	 ophbNtT2IjYYOtFHmMS8TnlJMeb1ubHNjV61MEPAXoGujLRfkQu9lcDm/JZt5gsnJ1
-	 PSnNV+oP4Yw+TjI0Cnx/69tDMtWYczVknhobaAJQToi9hqFF2DHIu38g48LAN28G38
-	 huR/vB84QZh+dqAee/wiEp4Zp+r8ecGWM+a2uZC+btodfiihG0YhXrUs43brNOqo5Y
-	 HlX92LqFW12eLfzy1vMXYmWPfNXHHCef9eq7dAC5N3I3NvH7W5R9+Djsokra52jLsF
-	 9H0qmz8jGCaDg==
+	b=YgpPuqMeUYsjDbdDWifRuLo2QPb+bZnNbzVggVATHLVIXteqJ4cgon8h5lvzETZTt
+	 IXiJ3A/Tj39v73nPnZAoJqzmIBp8oK1/5a3ooeAinDfoEfwhe1mpjxMijd1x9DQeOu
+	 JuN03JvWxVtwfnfo8+zUgtbC08rRKbfK05c/rNfK72cumwjIfhuIRpWZBFqqzVzG5+
+	 CK0y7TKxqFBokBMQ8NK8nVhCuiX+jGlcWXJrCeCzrPVsmx/4rPLdi1QpiP0tERzhID
+	 7QFAbwQR5FMk3fuF4sck3dMSVmfv6K4nAiUArR32PJm66E/71YNzlw17Bp8URWOLbj
+	 Sj/i99etDIiAg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -39,12 +39,12 @@ Cc: Anthony Krowiak <akrowiak@linux.ibm.com>,
 	dengler@linux.ibm.com,
 	agordeev@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 002/212] s390/vfio-ap: Fix no AP queue sharing allowed message written to kernel log
-Date: Mon,  5 May 2025 19:02:54 -0400
-Message-Id: <20250505230624.2692522-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 002/294] s390/vfio-ap: Fix no AP queue sharing allowed message written to kernel log
+Date: Mon,  5 May 2025 18:51:42 -0400
+Message-Id: <20250505225634.2688578-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505230624.2692522-1-sashal@kernel.org>
-References: <20250505230624.2692522-1-sashal@kernel.org>
+In-Reply-To: <20250505225634.2688578-1-sashal@kernel.org>
+References: <20250505225634.2688578-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -53,7 +53,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.136
+X-stable-base: Linux 6.6.89
 Content-Transfer-Encoding: 8bit
 
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
@@ -109,10 +109,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 46 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 86a8bd5324899..11fe917fbd9d4 100644
+index d6ea2fd4c2a02..d4151f519e8b2 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -789,48 +789,66 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+@@ -834,48 +834,66 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
  	vfio_put_device(&matrix_mdev->vdev);
  }
  
@@ -198,7 +198,7 @@ index 86a8bd5324899..11fe917fbd9d4 100644
  			continue;
  
  		memset(apm, 0, sizeof(apm));
-@@ -840,15 +858,16 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+@@ -885,15 +903,16 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
  		 * We work on full longs, as we can only exclude the leftover
  		 * bits in non-inverse order. The leftover is all zeros.
  		 */
@@ -220,7 +220,7 @@ index 86a8bd5324899..11fe917fbd9d4 100644
  
  		return -EADDRINUSE;
  	}
-@@ -877,7 +896,8 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
+@@ -922,7 +941,8 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
  					       matrix_mdev->matrix.aqm))
  		return -EADDRNOTAVAIL;
  
@@ -230,7 +230,7 @@ index 86a8bd5324899..11fe917fbd9d4 100644
  					      matrix_mdev->matrix.aqm);
  }
  
-@@ -1945,7 +1965,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
+@@ -2271,7 +2291,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
  
  	mutex_lock(&matrix_dev->guests_lock);
  	mutex_lock(&matrix_dev->mdevs_lock);
