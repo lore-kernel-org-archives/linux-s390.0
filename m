@@ -1,48 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB3F298CC2;
-	Mon,  5 May 2025 22:19:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5862229B78E;
+	Mon,  5 May 2025 22:19:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746483549; cv=none; b=XEEs/kTl0sum6AhupKCSth7tQgjXdQr2PxCjlsTnwgqacrAz8z6SwMtKwyDDQGKZvoTzqwXp3gNeR2QjcG6Rq79sqBncX7hZWGbvdLeTvsHU7K33IAxJpy6Rd7EWUIfUUy2MSs/N1gycs7lH3Ksq3k8kuAzq05dqZqOd553pJMU=
+	t=1746483573; cv=none; b=BJPUOOrPVI/jnO0w58VJXOeWjsNsvhPUSGWxNYkAmtr3X6qEFKMhNPE+DeBHDP1wtRPua/Z1JMLW10YzhrV/SYXD/6MUeoJ6/jiEI060nXNkOTRei2Z0/2F1mEJJEkRyTMH0KMwqxWbl2alc3tPbY90EAnbfqRxZcwPSRrIsbp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746483549; c=relaxed/simple;
-	bh=BsdnqqdGhS7yq5HlRe/s5Mi+ZUThGe8SVXmwGWSnpQQ=;
+	s=arc-20240116; t=1746483573; c=relaxed/simple;
+	bh=vYBIDgjPuAT1pjrXhbJXLQ/c65u0Xv16gt1tFOp2Wa8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=loPs+hMzxKrrP2woR6r3MwW1pKdVcHzX8DEtkV4lJipAUwScAzCmvOwCRenZodj5M4GP2ZC4z4uxHXiGHHo7781is7kHI/wy9Nu5CyHbWEt/Aguq+Ps3cTanWeHYzGG+NL/FnnE5yN46nnTr8sdf/Q4Bia6p09bHAvXtR2RSxlw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eMEEUFKL; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Bl6H0K3QxU4eWlOJn1hm6/PGdISwxdQYoQMVbjzdeBqYA3S54YdoKzjCDaTF2A/0KWxjLydc/2+Nbt3yWqIyWOE4lSO5e7Df+iQpOryqXd5ls13t37I7IrP+5z9i9M8VJoAfqZRsQavGPLiYVQPefI4uaUCp8PBT+JRJs4qkXik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sGgZN9EA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eMEEUFKL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B05C4CEE4;
-	Mon,  5 May 2025 22:19:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sGgZN9EA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CD1C4CEED;
+	Mon,  5 May 2025 22:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746483548;
-	bh=BsdnqqdGhS7yq5HlRe/s5Mi+ZUThGe8SVXmwGWSnpQQ=;
+	s=k20201202; t=1746483573;
+	bh=vYBIDgjPuAT1pjrXhbJXLQ/c65u0Xv16gt1tFOp2Wa8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=eMEEUFKLeW+nz8rH3eZklmu2EYAhS1pwU65OHTngAxL7Q3lppeorYB9O6tgETwtAR
-	 OHWb7RzNHNj31CK4OvFYWQOxhejMtvxXsgHgSI0LhNGyDrL+zM4XQW71WcV7ukkIOG
-	 23xY3VgyuFWtxyFFBr9bYN6mKlQuR9gSFGoCZdQIxA+gR5jWf1FpRhWX+UXjnI+wdT
-	 qb9a8cTKJWgTb5Fa4ogd7uj0ycixDJq6wfc7RScZI5h0XpG69LHI3PxnjwahX+jYF1
-	 gakarS3ONvPym40az2Ttx8ch1P9h2oGFIudv1p22FvSX76fLEWe4pOcTPRFZk1Jgzg
-	 XEb3jCThFS17w==
+	b=sGgZN9EAG0KP74pDNmwBi5sCRTgFtrfqtU5FAJXdRQql3Qi+gXtvP9Xg8BmSKp24N
+	 2rvkILEDwerSvOAVfvXok7rM2ET7zzHeBM9K60mlMTUgkt5lsVq6u5i/hw/1p3fwjP
+	 vCqwPr5eKt72HPsu8c0+7WWmiqDCL62zqolrD1GVYCj7IY6EuBiu6aPRh3r2g66zQq
+	 FApWV4j5WtNnlWof8oRtRj/uGUTcJa+mu8pdc94yPXtAu1YO3MElkD8QiyWGMu96aC
+	 KS3BY8VpbHDANPdOXVlnSUVdx6qDT3CjY6MlhYowseH34PNReWqmCxGYj9se4s9vVA
+	 fwz3NmTiAPFPg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
+Cc: Al Viro <viro@zeniv.linux.org.uk>,
 	Sasha Levin <sashal@kernel.org>,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	peterz@infradead.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.14 109/642] s390/tlb: Use mm_has_pgste() instead of mm_alloc_pgste()
-Date: Mon,  5 May 2025 18:05:25 -0400
-Message-Id: <20250505221419.2672473-109-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.14 121/642] hypfs_create_cpu_files(): add missing check for hypfs_mkdir() failure
+Date: Mon,  5 May 2025 18:05:37 -0400
+Message-Id: <20250505221419.2672473-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
 References: <20250505221419.2672473-1-sashal@kernel.org>
@@ -57,37 +52,29 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 9291ea091b29bb3e37c4b3416c7c1e49e472c7d5 ]
+[ Upstream commit 00cdfdcfa0806202aea56b02cedbf87ef1e75df8 ]
 
-An mm has pgstes only after s390_enable_sie() has been called, while
-mm_alloc_pgste() may be always true (e.g. via sysctl setting).
-
-Limit the calls to gmap_unlink() in pte_free_tlb() to those cases
-where there might be something to unlink.
-
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/tlb.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/hypfs/hypfs_diag_fs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-index 72655fd2d867c..f20601995bb0e 100644
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -84,7 +84,7 @@ static inline void pte_free_tlb(struct mmu_gather *tlb, pgtable_t pte,
- 	tlb->mm->context.flush_mm = 1;
- 	tlb->freed_tables = 1;
- 	tlb->cleared_pmds = 1;
--	if (mm_alloc_pgste(tlb->mm))
-+	if (mm_has_pgste(tlb->mm))
- 		gmap_unlink(tlb->mm, (unsigned long *)pte, address);
- 	tlb_remove_ptdesc(tlb, virt_to_ptdesc(pte));
- }
+diff --git a/arch/s390/hypfs/hypfs_diag_fs.c b/arch/s390/hypfs/hypfs_diag_fs.c
+index 00a6d370a2803..280266a74f378 100644
+--- a/arch/s390/hypfs/hypfs_diag_fs.c
++++ b/arch/s390/hypfs/hypfs_diag_fs.c
+@@ -208,6 +208,8 @@ static int hypfs_create_cpu_files(struct dentry *cpus_dir, void *cpu_info)
+ 	snprintf(buffer, TMP_SIZE, "%d", cpu_info__cpu_addr(diag204_get_info_type(),
+ 							    cpu_info));
+ 	cpu_dir = hypfs_mkdir(cpus_dir, buffer);
++	if (IS_ERR(cpu_dir))
++		return PTR_ERR(cpu_dir);
+ 	rc = hypfs_create_u64(cpu_dir, "mgmtime",
+ 			      cpu_info__acc_time(diag204_get_info_type(), cpu_info) -
+ 			      cpu_info__lp_time(diag204_get_info_type(), cpu_info));
 -- 
 2.39.5
 
