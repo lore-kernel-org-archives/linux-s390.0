@@ -1,49 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC952D0AA0;
-	Mon,  5 May 2025 22:20:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D2929711C;
+	Mon,  5 May 2025 22:35:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746483617; cv=none; b=CD6MydcilNfTppQXmxtHOwRe5sRUhM1x8udLkWtBCs1CxZbEboIagsHPx1ZBdY7sFCZPnzliSuXq6t/ycZsXZV/8PPXirW3q6iJ1AtO+XtAFsmBH1sUEgW22B31UkWna/mYujK+RhUcXNW4tcUSRXvlxlQm1ajyBmkB96sKPIh0=
+	t=1746484523; cv=none; b=qily6+AFg1H8Gkf/kppA8dCn/vb3PdwTqvAS1QpTbz/KzFOK3Pj+YJ1aCXMu8rsEdCI8+Ynh6fvv7MerX2ZNUZl3xBMlOxNZ7jikNiFg2E2SgPRp/nB3QzuwYq0C01neO+PPKymcE/qYg25isZ50jy/hT0s6RIE8b6FqfW7oaL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746483617; c=relaxed/simple;
-	bh=YODJSnivOEZDxjFwX5FgO6CI5awOhrnlo4GZiVdtxTQ=;
+	s=arc-20240116; t=1746484523; c=relaxed/simple;
+	bh=U1ridXpLRTNZDBkHjEBPQb0jeOdaoyd2hB9o89KazIU=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=s0+TT4eimHh0hPm7KTVKUV1roLnP88NQ7daiWTcOreVK9kLAWTqgfcUnx8qSXWKMMLUYioRfg3y1VM8UeSsJ6FHEG2sisOas4YlvxXe0IDzvC5qHL0Ym+vDKd4OrdsN3p/RLYOVKnMmJilgngLdVE8g5rT9+qWcs5Gl7vI942r4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=abezoa9M; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=X2SIX+bhQm1e89tt2MOgypQEtqoAVAMLAnkfAR+HIUULEryhconH/M6UEcNX8dYmU9e/wh0ZXC19EZGLfd1w2k4WZr9F7RGNxgVRl2JO8SvfjZuJI7nLu1d8vfsm+Ekufc7As5F3Cr73yTxMtsA1S+axBwJClrxQtrVr7helc+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s0TT+32z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="abezoa9M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1097C4CEED;
-	Mon,  5 May 2025 22:20:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s0TT+32z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10FB2C4CEE4;
+	Mon,  5 May 2025 22:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746483616;
-	bh=YODJSnivOEZDxjFwX5FgO6CI5awOhrnlo4GZiVdtxTQ=;
+	s=k20201202; t=1746484522;
+	bh=U1ridXpLRTNZDBkHjEBPQb0jeOdaoyd2hB9o89KazIU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=abezoa9MdPxA2+po4EI8/gMPkmkVdcocj6mrq9jxBFKz1xmn0uHKRceIyat9FqnKa
-	 SY/gZKcgBdK2IQJ4ow0J6PDrJSKsPd5DT9eScnBACWLaaNTP8aQjXI+WvN4QFkeVKZ
-	 SEWQ6/kmzLVCW4GAWFiDRSEznMWz6F/HMOsORJGUGhH5icPRxA/dchxCwRMH2NnE9R
-	 MHFqIojKulxQeHYi4mTQnVUbImbMl7hSzjUE/EVfebBF3P8oXi9Wxco5TNpCpq9iXz
-	 llJ64WIAODCu1nDucJtekVQpnoAWjVuju+Uy22mX+cHKYIIb8nWiOpshHKWIEawhW8
-	 LnD/ko+q6FNiA==
+	b=s0TT+32zlz1R2JM7KPrCKI6GaQ6BcxgRVs2L6IbhDV8bdn/jbiHnt5wGacE8sVF2d
+	 KzVTXqR3DZeAzd+6w3U3ObF62vd4MXl6hghkxB/plhvQc3pskc8xDWmNpS8Gx3SDt8
+	 47EAoJmwlQ5BS8LTdh2NXQ9ngmeOaBDK5SMsY6hoGpOxWAO5cKy4/EY2HZ/lvOeIN0
+	 M1dXSsqPqsa5oxXOkGsTw1Qgs23a8Qorp71SM+OkWd0Gw9IPQ6zIy7owzjrk7zHuXs
+	 ela3E9XJXcbj8tGrS1wQDwTecxQsH4gGHUkn4XeoIAAvrYqCOgdrn9L5ddslpG4rLY
+	 jdry83iCYoSMQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
+Cc: Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Dave Martin <Dave.Martin@arm.com>,
+	Kees Cook <kees@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
-	jaka@linux.ibm.com,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.14 145/642] net/smc: use the correct ndev to find pnetid by pnetid table
-Date: Mon,  5 May 2025 18:06:01 -0400
-Message-Id: <20250505221419.2672473-145-sashal@kernel.org>
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	david@redhat.com,
+	zaslonko@linux.ibm.com,
+	guoweikang.kernel@gmail.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.14 513/642] s390/crash: Use note name macros
+Date: Mon,  5 May 2025 18:12:09 -0400
+Message-Id: <20250505221419.2672473-513-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
 References: <20250505221419.2672473-1-sashal@kernel.org>
@@ -58,118 +57,139 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
 
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
 
-[ Upstream commit bfc6c67ec2d64d0ca4e5cc3e1ac84298a10b8d62 ]
+[ Upstream commit d4a760fb77fdac07efa3da4fa4a18f49f178d048 ]
 
-When using smc_pnet in SMC, it will only search the pnetid in the
-base_ndev of the netdev hierarchy(both HW PNETID and User-defined
-sw pnetid). This may not work for some scenarios when using SMC in
-container on cloud environment.
-In container, there have choices of different container network,
-such as directly using host network, virtual network IPVLAN, veth,
-etc. Different choices of container network have different netdev
-hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1
-in host below is the netdev directly related to the physical device).
-            _______________________________
-           |   _________________           |
-           |  |POD              |          |
-           |  |                 |          |
-           |  | eth0_________   |          |
-           |  |____|         |__|          |
-           |       |         |             |
-           |       |         |             |
-           |   eth1|base_ndev| eth0_______ |
-           |       |         |    | RDMA  ||
-           | host  |_________|    |_______||
-           ---------------------------------
-     netdev hierarchy if directly using host network
-           ________________________________
-           |   _________________           |
-           |  |POD  __________  |          |
-           |  |    |upper_ndev| |          |
-           |  |eth0|__________| |          |
-           |  |_______|_________|          |
-           |          |lower netdev        |
-           |        __|______              |
-           |   eth1|         | eth0_______ |
-           |       |base_ndev|    | RDMA  ||
-           | host  |_________|    |_______||
-           ---------------------------------
-            netdev hierarchy if using IPVLAN
-            _______________________________
-           |   _____________________       |
-           |  |POD        _________ |      |
-           |  |          |base_ndev||      |
-           |  |eth0(veth)|_________||      |
-           |  |____________|________|      |
-           |               |pairs          |
-           |        _______|_              |
-           |       |         | eth0_______ |
-           |   veth|base_ndev|    | RDMA  ||
-           |       |_________|    |_______||
-           |        _________              |
-           |   eth1|base_ndev|             |
-           | host  |_________|             |
-           ---------------------------------
-             netdev hierarchy if using veth
-Due to some reasons, the eth1 in host is not RDMA attached netdevice,
-pnetid is needed to map the eth1(in host) with RDMA device so that POD
-can do SMC-R. Because the eth1(in host) is managed by CNI plugin(such
-as Terway, network management plugin in container environment), and in
-cloud environment the eth(in host) can dynamically be inserted by CNI
-when POD create and dynamically be removed by CNI when POD destroy and
-no POD related to the eth(in host) anymore. It is hard to config the
-pnetid to the eth1(in host). But it is easy to config the pnetid to the
-netdevice which can be seen in POD. When do SMC-R, both the container
-directly using host network and the container using veth network can
-successfully match the RDMA device, because the configured pnetid netdev
-is a base_ndev. But the container using IPVLAN can not successfully
-match the RDMA device and 0x03030000 fallback happens, because the
-configured pnetid netdev is not a base_ndev. Additionally, if config
-pnetid to the eth1(in host) also can not work for matching RDMA device
-when using veth network and doing SMC-R in POD.
+Use note name macros to match with the userspace's expectation.
 
-To resolve the problems list above, this patch extends to search user
--defined sw pnetid in the clc handshake ndev when no pnetid can be found
-in the base_ndev, and the base_ndev take precedence over ndev for backward
-compatibility. This patch also can unify the pnetid setup of different
-network choices list above in container(Config user-defined sw pnetid in
-the netdevice can be seen in POD).
-
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Akihiko Odaki <akihiko.odaki@daynix.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Dave Martin <Dave.Martin@arm.com>
+Link: https://lore.kernel.org/r/20250115-elf-v5-5-0f9e55bbb2fc@daynix.com
+Signed-off-by: Kees Cook <kees@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_pnet.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/s390/kernel/crash_dump.c | 62 +++++++++++++----------------------
+ 1 file changed, 23 insertions(+), 39 deletions(-)
 
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 716808f374a8d..b391c2ef463f2 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -1079,14 +1079,16 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
- 					 struct smc_init_info *ini)
- {
- 	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
-+	struct net_device *base_ndev;
- 	struct net *net;
+diff --git a/arch/s390/kernel/crash_dump.c b/arch/s390/kernel/crash_dump.c
+index 276cb4c1e11be..4a981266b4833 100644
+--- a/arch/s390/kernel/crash_dump.c
++++ b/arch/s390/kernel/crash_dump.c
+@@ -246,15 +246,6 @@ bool is_kdump_kernel(void)
+ }
+ EXPORT_SYMBOL_GPL(is_kdump_kernel);
  
--	ndev = pnet_find_base_ndev(ndev);
-+	base_ndev = pnet_find_base_ndev(ndev);
- 	net = dev_net(ndev);
--	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
-+	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
- 				   ndev_pnetid) &&
-+	    smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid) &&
- 	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
--		smc_pnet_find_rdma_dev(ndev, ini);
-+		smc_pnet_find_rdma_dev(base_ndev, ini);
- 		return; /* pnetid could not be determined */
+-static const char *nt_name(Elf64_Word type)
+-{
+-	const char *name = "LINUX";
+-
+-	if (type == NT_PRPSINFO || type == NT_PRSTATUS || type == NT_PRFPREG)
+-		name = KEXEC_CORE_NOTE_NAME;
+-	return name;
+-}
+-
+ /*
+  * Initialize ELF note
+  */
+@@ -279,10 +270,8 @@ static void *nt_init_name(void *buf, Elf64_Word type, void *desc, int d_len,
+ 	return PTR_ADD(buf, len);
+ }
+ 
+-static inline void *nt_init(void *buf, Elf64_Word type, void *desc, int d_len)
+-{
+-	return nt_init_name(buf, type, desc, d_len, nt_name(type));
+-}
++#define nt_init(buf, type, desc) \
++	nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc), NN_ ## type)
+ 
+ /*
+  * Calculate the size of ELF note
+@@ -298,10 +287,7 @@ static size_t nt_size_name(int d_len, const char *name)
+ 	return size;
+ }
+ 
+-static inline size_t nt_size(Elf64_Word type, int d_len)
+-{
+-	return nt_size_name(d_len, nt_name(type));
+-}
++#define nt_size(type, desc) nt_size_name(sizeof(desc), NN_ ## type)
+ 
+ /*
+  * Fill ELF notes for one CPU with save area registers
+@@ -322,18 +308,16 @@ static void *fill_cpu_elf_notes(void *ptr, int cpu, struct save_area *sa)
+ 	memcpy(&nt_fpregset.fpc, &sa->fpc, sizeof(sa->fpc));
+ 	memcpy(&nt_fpregset.fprs, &sa->fprs, sizeof(sa->fprs));
+ 	/* Create ELF notes for the CPU */
+-	ptr = nt_init(ptr, NT_PRSTATUS, &nt_prstatus, sizeof(nt_prstatus));
+-	ptr = nt_init(ptr, NT_PRFPREG, &nt_fpregset, sizeof(nt_fpregset));
+-	ptr = nt_init(ptr, NT_S390_TIMER, &sa->timer, sizeof(sa->timer));
+-	ptr = nt_init(ptr, NT_S390_TODCMP, &sa->todcmp, sizeof(sa->todcmp));
+-	ptr = nt_init(ptr, NT_S390_TODPREG, &sa->todpreg, sizeof(sa->todpreg));
+-	ptr = nt_init(ptr, NT_S390_CTRS, &sa->ctrs, sizeof(sa->ctrs));
+-	ptr = nt_init(ptr, NT_S390_PREFIX, &sa->prefix, sizeof(sa->prefix));
++	ptr = nt_init(ptr, PRSTATUS, nt_prstatus);
++	ptr = nt_init(ptr, PRFPREG, nt_fpregset);
++	ptr = nt_init(ptr, S390_TIMER, sa->timer);
++	ptr = nt_init(ptr, S390_TODCMP, sa->todcmp);
++	ptr = nt_init(ptr, S390_TODPREG, sa->todpreg);
++	ptr = nt_init(ptr, S390_CTRS, sa->ctrs);
++	ptr = nt_init(ptr, S390_PREFIX, sa->prefix);
+ 	if (cpu_has_vx()) {
+-		ptr = nt_init(ptr, NT_S390_VXRS_HIGH,
+-			      &sa->vxrs_high, sizeof(sa->vxrs_high));
+-		ptr = nt_init(ptr, NT_S390_VXRS_LOW,
+-			      &sa->vxrs_low, sizeof(sa->vxrs_low));
++		ptr = nt_init(ptr, S390_VXRS_HIGH, sa->vxrs_high);
++		ptr = nt_init(ptr, S390_VXRS_LOW, sa->vxrs_low);
  	}
- 	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
+ 	return ptr;
+ }
+@@ -346,16 +330,16 @@ static size_t get_cpu_elf_notes_size(void)
+ 	struct save_area *sa = NULL;
+ 	size_t size;
+ 
+-	size =	nt_size(NT_PRSTATUS, sizeof(struct elf_prstatus));
+-	size +=  nt_size(NT_PRFPREG, sizeof(elf_fpregset_t));
+-	size +=  nt_size(NT_S390_TIMER, sizeof(sa->timer));
+-	size +=  nt_size(NT_S390_TODCMP, sizeof(sa->todcmp));
+-	size +=  nt_size(NT_S390_TODPREG, sizeof(sa->todpreg));
+-	size +=  nt_size(NT_S390_CTRS, sizeof(sa->ctrs));
+-	size +=  nt_size(NT_S390_PREFIX, sizeof(sa->prefix));
++	size =	nt_size(PRSTATUS, struct elf_prstatus);
++	size += nt_size(PRFPREG, elf_fpregset_t);
++	size += nt_size(S390_TIMER, sa->timer);
++	size += nt_size(S390_TODCMP, sa->todcmp);
++	size += nt_size(S390_TODPREG, sa->todpreg);
++	size += nt_size(S390_CTRS, sa->ctrs);
++	size += nt_size(S390_PREFIX, sa->prefix);
+ 	if (cpu_has_vx()) {
+-		size += nt_size(NT_S390_VXRS_HIGH, sizeof(sa->vxrs_high));
+-		size += nt_size(NT_S390_VXRS_LOW, sizeof(sa->vxrs_low));
++		size += nt_size(S390_VXRS_HIGH, sa->vxrs_high);
++		size += nt_size(S390_VXRS_LOW, sa->vxrs_low);
+ 	}
+ 
+ 	return size;
+@@ -371,7 +355,7 @@ static void *nt_prpsinfo(void *ptr)
+ 	memset(&prpsinfo, 0, sizeof(prpsinfo));
+ 	prpsinfo.pr_sname = 'R';
+ 	strcpy(prpsinfo.pr_fname, "vmlinux");
+-	return nt_init(ptr, NT_PRPSINFO, &prpsinfo, sizeof(prpsinfo));
++	return nt_init(ptr, PRPSINFO, prpsinfo);
+ }
+ 
+ /*
+@@ -610,7 +594,7 @@ static size_t get_elfcorehdr_size(int phdr_count)
+ 	/* PT_NOTES */
+ 	size += sizeof(Elf64_Phdr);
+ 	/* nt_prpsinfo */
+-	size += nt_size(NT_PRPSINFO, sizeof(struct elf_prpsinfo));
++	size += nt_size(PRPSINFO, struct elf_prpsinfo);
+ 	/* regsets */
+ 	size += get_cpu_cnt() * get_cpu_elf_notes_size();
+ 	/* nt_vmcoreinfo */
 -- 
 2.39.5
 
