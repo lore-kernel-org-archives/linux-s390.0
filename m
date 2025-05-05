@@ -1,467 +1,244 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33BE92701C9;
-	Mon,  5 May 2025 18:19:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68CCD277804;
+	Mon,  5 May 2025 22:14:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746469166; cv=none; b=ehCmW45Y3DS3hn1n6/Y//hEfjGR0OIrHW/ZmOlm+cMddBCqC2FKOxD0FuR0toAf73+pW1GdTbsksO4DdWMeG0ixu3BtmDwip8GsanFunltWNtrpG0/sABVHTXuLM1YrYsMDfAP0T9neFUgalV2cxuDJJrA96e/zybghAoKnWqrU=
+	t=1746483268; cv=none; b=nl+Vznc2+hGfCrX1I5ImRNTxXsyw7UGJrzptWkGPqHDEvZlVowEmqRoOzgR7/P89grARuUnMlNMyJNgpA/NlTQQ+r6AWmgmrcyXTh8MgoUU5bY99nqx5lzw49odyojb1jW7iAS7DpT2kKSVWB7h2RjqJ54NAOT534LQqa4nbwBM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746469166; c=relaxed/simple;
-	bh=uslrcW8Rjh8Vtp1jwkYS+gns1NocaM1ysr80C17p+10=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pEPv8byS10PIOTLiXhNxV42YstkyOUn+jyXvUACFDYmBFKPVUFXSumU/KtRTy7l3Fy2TlYnQWPKJxgxzbt+bMch7HmBl6H/nisBPuZSGHcrFupynaMyPXu73hHbqGjROkHIpS+1qViyCPkzeaUnnqOQpCgy+gu6Le8bgkUYMoRs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qjLazIDP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1746483268; c=relaxed/simple;
+	bh=xqNFVYUuaQIc121zVQ7cDDAYJlbMlnGsUsu9xM2oxKQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=qvG/qWkTJnQshs0uBaA7et1hD7TYq7srU1sdom4eA9RgHfnLU8CBhyWVGAjjsYFPgV8CqXgwIGudraQlM2YM6upnC9LM7A5tH6MyPt9ThEmaZY9zJJYfZbImJpCTei+gs/R3KhhUK2trjCATaXP7C8WKVw7Mq14zB2j7ghe9KVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F4Q1jlTF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qjLazIDP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6333BC4CEEF;
-	Mon,  5 May 2025 18:19:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F4Q1jlTF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACCF3C4CEED;
+	Mon,  5 May 2025 22:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746469164;
-	bh=uslrcW8Rjh8Vtp1jwkYS+gns1NocaM1ysr80C17p+10=;
+	s=k20201202; t=1746483268;
+	bh=xqNFVYUuaQIc121zVQ7cDDAYJlbMlnGsUsu9xM2oxKQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=qjLazIDPDkm/C095UjRbYZiH2s5N7gpqYt3hMK3JSviK+dnBWkx8DT34stTwvRWa1
-	 uUtdO0i0UEOfXdoCL9knyjf2nfgVeTT2W+a8+QuZeFSaGqfhUQssF3B+Zu2avSGq67
-	 xd9zRgby65l75mxRUMgJ8mIB34uhHYW9XqvipSYtBOSCKEkOTEuzevxNKHxZbkUy8c
-	 kr0qCDllV/5OLtzYqjvDqCzj+9Le6N5jMBFbPAIGwstCX3DSTeBpVC8eixdn3W1XoB
-	 9UB09lQN5DAc8rMGmN5uWYfVcXSoWJTv53n9I1Z2RSVh3pov8ByWjjIvVLik3+NFBX
-	 foUo9yue0AqVg==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-bcachefs@vger.kernel.org,
-	"Jason A . Donenfeld " <Jason@zx2c4.com>,
-	Theodore Ts'o <tytso@mit.edu>
-Subject: [PATCH 4/4] crypto: lib/chacha - add array bounds to function prototypes
-Date: Mon,  5 May 2025 11:18:24 -0700
-Message-ID: <20250505181824.647138-5-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250505181824.647138-1-ebiggers@kernel.org>
-References: <20250505181824.647138-1-ebiggers@kernel.org>
+	b=F4Q1jlTFzMLOK7t3AeR5VrUJXJ1ldmY5KKokMxIrOpnujcbF9UFeEpwXryi2obvbW
+	 VP7D6900tPZx535/W3b6bKpuQhfmbSUygY77C4nMCrXCdaJ3Bmeoo0L1J82BEwJprS
+	 +QT9L94U96geej9k5UWKbhXN4DdxlV/FQQcehUNoBbXyM5XW68FHFlcPcYGQDcW7uV
+	 IY1W4ZEcEHlcdMTc1tujo3iL1rFJd9Iu4LXay6eWbGJ+8/T6c43CG/kcNDrhW0rkwc
+	 OlpzDl3Jhbq3AI2m3iwqcFAH5P1f5XyfoCwjPtlkyjUbqmh9u5zgx20jm2qqvjhbdB
+	 Nho1oIYVbhjRQ==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Anthony Krowiak <akrowiak@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Sasha Levin <sashal@kernel.org>,
+	pasic@linux.ibm.com,
+	jjherne@linux.ibm.com,
+	freude@linux.ibm.com,
+	dengler@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.14 003/642] s390/vfio-ap: Fix no AP queue sharing allowed message written to kernel log
+Date: Mon,  5 May 2025 18:03:39 -0400
+Message-Id: <20250505221419.2672473-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
+References: <20250505221419.2672473-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
 
-From: Eric Biggers <ebiggers@google.com>
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-Add explicit array bounds to the function prototypes for the parameters
-that didn't already get handled by the conversion to use chacha_state:
+[ Upstream commit d33d729afcc8ad2148d99f9bc499b33fd0c0d73b ]
 
-- chacha_block_*():
-  Change 'u8 *out' or 'u8 *stream' to u8 out[CHACHA_BLOCK_SIZE].
+An erroneous message is written to the kernel log when either of the
+following actions are taken by a user:
 
-- hchacha_block_*():
-  Change 'u32 *out' or 'u32 *stream' to u32 out[HCHACHA_OUT_WORDS].
+1. Assign an adapter or domain to a vfio_ap mediated device via its sysfs
+   assign_adapter or assign_domain attributes that would result in one or
+   more AP queues being assigned that are already assigned to a different
+   mediated device. Sharing of queues between mdevs is not allowed.
 
-- chacha_init():
-  Change 'const u32 *key' to 'const u32 key[CHACHA_KEY_WORDS]'.
-  Change 'const u8 *iv' to 'const u8 iv[CHACHA_IV_SIZE]'.
+2. Reserve an adapter or domain for the host device driver via the AP bus
+   driver's sysfs apmask or aqmask attribute that would result in providing
+   host access to an AP queue that is in use by a vfio_ap mediated device.
+   Reserving a queue for a host driver that is in use by an mdev is not
+   allowed.
 
-No functional changes.  This just makes it clear when fixed-size arrays
-are expected.
+In both cases, the assignment will return an error; however, a message like
+the following is written to the kernel log:
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+vfio_ap_mdev e1839397-51a0-4e3c-91e0-c3b9c3d3047d: Userspace may not
+re-assign queue 00.0028 already assigned to \
+e1839397-51a0-4e3c-91e0-c3b9c3d3047d
+
+Notice the mdev reporting the error is the same as the mdev identified
+in the message as the one to which the queue is being assigned.
+It is perfectly okay to assign a queue to an mdev to which it is
+already assigned; the assignment is simply ignored by the vfio_ap device
+driver.
+
+This patch logs more descriptive and accurate messages for both 1 and 2
+above to the kernel log:
+
+Example for 1:
+vfio_ap_mdev 0fe903a0-a323-44db-9daf-134c68627d61: Userspace may not assign
+queue 00.0033 to mdev: already assigned to \
+62177883-f1bb-47f0-914d-32a22e3a8804
+
+Example for 2:
+vfio_ap_mdev 62177883-f1bb-47f0-914d-32a22e3a8804: Can not reserve queue
+00.0033 for host driver: in use by mdev
+
+Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Link: https://lore.kernel.org/r/20250311103304.1539188-1-akrowiak@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/lib/crypto/chacha-glue.c           | 12 ++++-----
- arch/arm/lib/crypto/chacha-scalar-core.S    |  2 +-
- arch/arm64/lib/crypto/chacha-neon-glue.c    | 10 ++++----
- arch/mips/lib/crypto/chacha-glue.c          |  2 +-
- arch/powerpc/lib/crypto/chacha-p10-glue.c   |  4 +--
- arch/riscv/lib/crypto/chacha-riscv64-glue.c |  3 ++-
- arch/s390/lib/crypto/chacha-glue.c          |  4 +--
- arch/x86/lib/crypto/chacha_glue.c           |  8 +++---
- crypto/chacha.c                             |  4 +--
- include/crypto/chacha.h                     | 27 ++++++++++++---------
- lib/crypto/chacha.c                         | 15 ++++++------
- lib/crypto/chacha20poly1305.c               |  2 --
- 12 files changed, 49 insertions(+), 44 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 72 ++++++++++++++++++++-----------
+ 1 file changed, 46 insertions(+), 26 deletions(-)
 
-diff --git a/arch/arm/lib/crypto/chacha-glue.c b/arch/arm/lib/crypto/chacha-glue.c
-index 0c2b4c62d484..88ec96415283 100644
---- a/arch/arm/lib/crypto/chacha-glue.c
-+++ b/arch/arm/lib/crypto/chacha-glue.c
-@@ -21,13 +21,13 @@ asmlinkage void chacha_block_xor_neon(const struct chacha_state *state,
- 				      u8 *dst, const u8 *src, int nrounds);
- asmlinkage void chacha_4block_xor_neon(const struct chacha_state *state,
- 				       u8 *dst, const u8 *src,
- 				       int nrounds, unsigned int nbytes);
- asmlinkage void hchacha_block_arm(const struct chacha_state *state,
--				  u32 *out, int nrounds);
-+				  u32 out[HCHACHA_OUT_WORDS], int nrounds);
- asmlinkage void hchacha_block_neon(const struct chacha_state *state,
--				   u32 *out, int nrounds);
-+				   u32 out[HCHACHA_OUT_WORDS], int nrounds);
- 
- asmlinkage void chacha_doarm(u8 *dst, const u8 *src, unsigned int bytes,
- 			     const struct chacha_state *state, int nrounds);
- 
- static __ro_after_init DEFINE_STATIC_KEY_FALSE(use_neon);
-@@ -62,18 +62,18 @@ static void chacha_doneon(struct chacha_state *state, u8 *dst, const u8 *src,
- 			memcpy(dst, buf, bytes);
- 		state->x[12]++;
- 	}
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index a52c2690933fd..a6a0628979555 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -863,48 +863,66 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	vfio_put_device(&matrix_mdev->vdev);
  }
  
--void hchacha_block_arch(const struct chacha_state *state, u32 *stream,
--			int nrounds)
-+void hchacha_block_arch(const struct chacha_state *state,
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds)
+-#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
+-			 "already assigned to %s"
++#define MDEV_SHARING_ERR "Userspace may not assign queue %02lx.%04lx to mdev: already assigned to %s"
+ 
+-static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *matrix_mdev,
+-					 unsigned long *apm,
+-					 unsigned long *aqm)
++#define MDEV_IN_USE_ERR "Can not reserve queue %02lx.%04lx for host driver: in use by mdev"
++
++static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *assignee,
++					 struct ap_matrix_mdev *assigned_to,
++					 unsigned long *apm, unsigned long *aqm)
  {
- 	if (!IS_ENABLED(CONFIG_KERNEL_MODE_NEON) || !neon_usable()) {
--		hchacha_block_arm(state, stream, nrounds);
-+		hchacha_block_arm(state, out, nrounds);
- 	} else {
- 		kernel_neon_begin();
--		hchacha_block_neon(state, stream, nrounds);
-+		hchacha_block_neon(state, out, nrounds);
- 		kernel_neon_end();
- 	}
- }
- EXPORT_SYMBOL(hchacha_block_arch);
+ 	unsigned long apid, apqi;
+-	const struct device *dev = mdev_dev(matrix_mdev->mdev);
+-	const char *mdev_name = dev_name(dev);
  
-diff --git a/arch/arm/lib/crypto/chacha-scalar-core.S b/arch/arm/lib/crypto/chacha-scalar-core.S
-index d20b5de755cc..4951df05c158 100644
---- a/arch/arm/lib/crypto/chacha-scalar-core.S
-+++ b/arch/arm/lib/crypto/chacha-scalar-core.S
-@@ -406,11 +406,11 @@ ENTRY(chacha_doarm)
- 	b		0b
- ENDPROC(chacha_doarm)
- 
- /*
-  * void hchacha_block_arm(const struct chacha_state *state,
-- *			  u32 out[8], int nrounds);
-+ *			  u32 out[HCHACHA_OUT_WORDS], int nrounds);
-  */
- ENTRY(hchacha_block_arm)
- 	push		{r1,r4-r11,lr}
- 
- 	cmp		r2, #12			// ChaCha12 ?
-diff --git a/arch/arm64/lib/crypto/chacha-neon-glue.c b/arch/arm64/lib/crypto/chacha-neon-glue.c
-index 7b451b3c7240..d0188f974ca5 100644
---- a/arch/arm64/lib/crypto/chacha-neon-glue.c
-+++ b/arch/arm64/lib/crypto/chacha-neon-glue.c
-@@ -32,11 +32,11 @@ asmlinkage void chacha_block_xor_neon(const struct chacha_state *state,
- 				      u8 *dst, const u8 *src, int nrounds);
- asmlinkage void chacha_4block_xor_neon(const struct chacha_state *state,
- 				       u8 *dst, const u8 *src,
- 				       int nrounds, int bytes);
- asmlinkage void hchacha_block_neon(const struct chacha_state *state,
--				   u32 *out, int nrounds);
-+				   u32 out[HCHACHA_OUT_WORDS], int nrounds);
- 
- static __ro_after_init DEFINE_STATIC_KEY_FALSE(have_neon);
- 
- static void chacha_doneon(struct chacha_state *state, u8 *dst, const u8 *src,
- 			  int bytes, int nrounds)
-@@ -59,18 +59,18 @@ static void chacha_doneon(struct chacha_state *state, u8 *dst, const u8 *src,
- 		dst += l;
- 		state->x[12] += DIV_ROUND_UP(l, CHACHA_BLOCK_SIZE);
- 	}
- }
- 
--void hchacha_block_arch(const struct chacha_state *state, u32 *stream,
--			int nrounds)
-+void hchacha_block_arch(const struct chacha_state *state,
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds)
- {
- 	if (!static_branch_likely(&have_neon) || !crypto_simd_usable()) {
--		hchacha_block_generic(state, stream, nrounds);
-+		hchacha_block_generic(state, out, nrounds);
- 	} else {
- 		kernel_neon_begin();
--		hchacha_block_neon(state, stream, nrounds);
-+		hchacha_block_neon(state, out, nrounds);
- 		kernel_neon_end();
- 	}
- }
- EXPORT_SYMBOL(hchacha_block_arch);
- 
-diff --git a/arch/mips/lib/crypto/chacha-glue.c b/arch/mips/lib/crypto/chacha-glue.c
-index 75df4040cded..88c097594eb0 100644
---- a/arch/mips/lib/crypto/chacha-glue.c
-+++ b/arch/mips/lib/crypto/chacha-glue.c
-@@ -13,11 +13,11 @@ asmlinkage void chacha_crypt_arch(struct chacha_state *state,
- 				  u8 *dst, const u8 *src,
- 				  unsigned int bytes, int nrounds);
- EXPORT_SYMBOL(chacha_crypt_arch);
- 
- asmlinkage void hchacha_block_arch(const struct chacha_state *state,
--				   u32 *stream, int nrounds);
-+				   u32 out[HCHACHA_OUT_WORDS], int nrounds);
- EXPORT_SYMBOL(hchacha_block_arch);
- 
- bool chacha_is_arch_optimized(void)
- {
- 	return true;
-diff --git a/arch/powerpc/lib/crypto/chacha-p10-glue.c b/arch/powerpc/lib/crypto/chacha-p10-glue.c
-index a6e6a8da1b8b..fcd23c6f1590 100644
---- a/arch/powerpc/lib/crypto/chacha-p10-glue.c
-+++ b/arch/powerpc/lib/crypto/chacha-p10-glue.c
-@@ -47,13 +47,13 @@ static void chacha_p10_do_8x(struct chacha_state *state, u8 *dst, const u8 *src,
- 	if (bytes > 0)
- 		chacha_crypt_generic(state, dst, src, bytes, nrounds);
- }
- 
- void hchacha_block_arch(const struct chacha_state *state,
--			u32 *stream, int nrounds)
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds)
- {
--	hchacha_block_generic(state, stream, nrounds);
-+	hchacha_block_generic(state, out, nrounds);
- }
- EXPORT_SYMBOL(hchacha_block_arch);
- 
- void chacha_crypt_arch(struct chacha_state *state, u8 *dst, const u8 *src,
- 		       unsigned int bytes, int nrounds)
-diff --git a/arch/riscv/lib/crypto/chacha-riscv64-glue.c b/arch/riscv/lib/crypto/chacha-riscv64-glue.c
-index 57541621981e..8c3f11d79be3 100644
---- a/arch/riscv/lib/crypto/chacha-riscv64-glue.c
-+++ b/arch/riscv/lib/crypto/chacha-riscv64-glue.c
-@@ -16,11 +16,12 @@
- static __ro_after_init DEFINE_STATIC_KEY_FALSE(use_zvkb);
- 
- asmlinkage void chacha_zvkb(struct chacha_state *state, const u8 *in, u8 *out,
- 			    size_t nblocks, int nrounds);
- 
--void hchacha_block_arch(const struct chacha_state *state, u32 *out, int nrounds)
-+void hchacha_block_arch(const struct chacha_state *state,
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds)
- {
- 	hchacha_block_generic(state, out, nrounds);
- }
- EXPORT_SYMBOL(hchacha_block_arch);
- 
-diff --git a/arch/s390/lib/crypto/chacha-glue.c b/arch/s390/lib/crypto/chacha-glue.c
-index 0a9fd50c1bd8..f95ba3483bbc 100644
---- a/arch/s390/lib/crypto/chacha-glue.c
-+++ b/arch/s390/lib/crypto/chacha-glue.c
-@@ -15,14 +15,14 @@
- #include <linux/sizes.h>
- #include <asm/fpu.h>
- #include "chacha-s390.h"
- 
- void hchacha_block_arch(const struct chacha_state *state,
--			u32 *stream, int nrounds)
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds)
- {
- 	/* TODO: implement hchacha_block_arch() in assembly */
--	hchacha_block_generic(state, stream, nrounds);
-+	hchacha_block_generic(state, out, nrounds);
- }
- EXPORT_SYMBOL(hchacha_block_arch);
- 
- void chacha_crypt_arch(struct chacha_state *state, u8 *dst, const u8 *src,
- 		       unsigned int bytes, int nrounds)
-diff --git a/arch/x86/lib/crypto/chacha_glue.c b/arch/x86/lib/crypto/chacha_glue.c
-index 6f00a56e3e9a..10b2c945f541 100644
---- a/arch/x86/lib/crypto/chacha_glue.c
-+++ b/arch/x86/lib/crypto/chacha_glue.c
-@@ -17,11 +17,11 @@ asmlinkage void chacha_block_xor_ssse3(const struct chacha_state *state,
- 				       unsigned int len, int nrounds);
- asmlinkage void chacha_4block_xor_ssse3(const struct chacha_state *state,
- 					u8 *dst, const u8 *src,
- 					unsigned int len, int nrounds);
- asmlinkage void hchacha_block_ssse3(const struct chacha_state *state,
--				    u32 *out, int nrounds);
-+				    u32 out[HCHACHA_OUT_WORDS], int nrounds);
- 
- asmlinkage void chacha_2block_xor_avx2(const struct chacha_state *state,
- 				       u8 *dst, const u8 *src,
- 				       unsigned int len, int nrounds);
- asmlinkage void chacha_4block_xor_avx2(const struct chacha_state *state,
-@@ -125,17 +125,17 @@ static void chacha_dosimd(struct chacha_state *state, u8 *dst, const u8 *src,
- 		state->x[12]++;
- 	}
- }
- 
- void hchacha_block_arch(const struct chacha_state *state,
--			u32 *stream, int nrounds)
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds)
- {
- 	if (!static_branch_likely(&chacha_use_simd)) {
--		hchacha_block_generic(state, stream, nrounds);
-+		hchacha_block_generic(state, out, nrounds);
- 	} else {
- 		kernel_fpu_begin();
--		hchacha_block_ssse3(state, stream, nrounds);
-+		hchacha_block_ssse3(state, out, nrounds);
- 		kernel_fpu_end();
- 	}
- }
- EXPORT_SYMBOL(hchacha_block_arch);
- 
-diff --git a/crypto/chacha.c b/crypto/chacha.c
-index 73ce62a9ac22..c3a11f4e2d13 100644
---- a/crypto/chacha.c
-+++ b/crypto/chacha.c
-@@ -44,12 +44,12 @@ static int chacha12_setkey(struct crypto_skcipher *tfm,
- {
- 	return chacha_setkey(tfm, key, keysize, 12);
- }
- 
- static int chacha_stream_xor(struct skcipher_request *req,
--			     const struct chacha_ctx *ctx, const u8 *iv,
--			     bool arch)
-+			     const struct chacha_ctx *ctx,
-+			     const u8 iv[CHACHA_IV_SIZE], bool arch)
- {
- 	struct skcipher_walk walk;
- 	struct chacha_state state;
- 	int err;
- 
-diff --git a/include/crypto/chacha.h b/include/crypto/chacha.h
-index 7c2e6c68919b..91f6b4cf561c 100644
---- a/include/crypto/chacha.h
-+++ b/include/crypto/chacha.h
-@@ -24,32 +24,36 @@
- 
- #define CHACHA_KEY_SIZE		32
- #define CHACHA_BLOCK_SIZE	64
- #define CHACHAPOLY_IV_SIZE	12
- 
--#define CHACHA_STATE_WORDS	(CHACHA_BLOCK_SIZE / sizeof(u32))
-+#define CHACHA_KEY_WORDS	8
-+#define CHACHA_STATE_WORDS	16
-+#define HCHACHA_OUT_WORDS	8
- 
- /* 192-bit nonce, then 64-bit stream position */
- #define XCHACHA_IV_SIZE		32
- 
- struct chacha_state {
- 	u32 x[CHACHA_STATE_WORDS];
- };
- 
--void chacha_block_generic(struct chacha_state *state, u8 *stream, int nrounds);
--static inline void chacha20_block(struct chacha_state *state, u8 *stream)
-+void chacha_block_generic(struct chacha_state *state,
-+			  u8 out[CHACHA_BLOCK_SIZE], int nrounds);
-+static inline void chacha20_block(struct chacha_state *state,
-+				  u8 out[CHACHA_BLOCK_SIZE])
- {
--	chacha_block_generic(state, stream, 20);
-+	chacha_block_generic(state, out, 20);
- }
- 
--void hchacha_block_arch(const struct chacha_state *state, u32 *out,
--			int nrounds);
--void hchacha_block_generic(const struct chacha_state *state, u32 *out,
--			   int nrounds);
-+void hchacha_block_arch(const struct chacha_state *state,
-+			u32 out[HCHACHA_OUT_WORDS], int nrounds);
-+void hchacha_block_generic(const struct chacha_state *state,
-+			   u32 out[HCHACHA_OUT_WORDS], int nrounds);
- 
--static inline void hchacha_block(const struct chacha_state *state, u32 *out,
--				 int nrounds)
-+static inline void hchacha_block(const struct chacha_state *state,
-+				 u32 out[HCHACHA_OUT_WORDS], int nrounds)
- {
- 	if (IS_ENABLED(CONFIG_CRYPTO_ARCH_HAVE_LIB_CHACHA))
- 		hchacha_block_arch(state, out, nrounds);
- 	else
- 		hchacha_block_generic(state, out, nrounds);
-@@ -69,11 +73,12 @@ static inline void chacha_init_consts(struct chacha_state *state)
- 	state->x[2]  = CHACHA_CONSTANT_2_BY;
- 	state->x[3]  = CHACHA_CONSTANT_TE_K;
- }
- 
- static inline void chacha_init(struct chacha_state *state,
--			       const u32 *key, const u8 *iv)
-+			       const u32 key[CHACHA_KEY_WORDS],
-+			       const u8 iv[CHACHA_IV_SIZE])
- {
- 	chacha_init_consts(state);
- 	state->x[4]  = key[0];
- 	state->x[5]  = key[1];
- 	state->x[6]  = key[2];
-diff --git a/lib/crypto/chacha.c b/lib/crypto/chacha.c
-index ae50e441f9fb..ced87dd31a97 100644
---- a/lib/crypto/chacha.c
-+++ b/lib/crypto/chacha.c
-@@ -65,49 +65,50 @@ static void chacha_permute(struct chacha_state *state, int nrounds)
+-	for_each_set_bit_inv(apid, apm, AP_DEVICES)
++	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
++		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
++			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
++				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev)));
++		}
++	}
++}
++
++static void vfio_ap_mdev_log_in_use_err(struct ap_matrix_mdev *assignee,
++					unsigned long *apm, unsigned long *aqm)
++{
++	unsigned long apid, apqi;
++
++	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
+ 		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
+-			dev_warn(dev, MDEV_SHARING_ERR, apid, apqi, mdev_name);
++			dev_warn(mdev_dev(assignee->mdev), MDEV_IN_USE_ERR, apid, apqi);
++	}
  }
  
  /**
-  * chacha_block_generic - generate one keystream block and increment block counter
-  * @state: input state matrix
-- * @stream: output keystream block (64 bytes)
-+ * @out: output keystream block
-  * @nrounds: number of rounds (20 or 12; 20 is recommended)
+  * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by matrix mdevs
   *
-  * This is the ChaCha core, a function from 64-byte strings to 64-byte strings.
-  * The caller has already converted the endianness of the input.  This function
-  * also handles incrementing the block counter in the input matrix.
-  */
--void chacha_block_generic(struct chacha_state *state, u8 *stream, int nrounds)
-+void chacha_block_generic(struct chacha_state *state,
-+			  u8 out[CHACHA_BLOCK_SIZE], int nrounds)
- {
- 	struct chacha_state permuted_state = *state;
- 	int i;
- 
- 	chacha_permute(&permuted_state, nrounds);
- 
- 	for (i = 0; i < ARRAY_SIZE(state->x); i++)
- 		put_unaligned_le32(permuted_state.x[i] + state->x[i],
--				   &stream[i * sizeof(u32)]);
-+				   &out[i * sizeof(u32)]);
- 
- 	state->x[12]++;
- }
- EXPORT_SYMBOL(chacha_block_generic);
- 
- /**
-  * hchacha_block_generic - abbreviated ChaCha core, for XChaCha
-  * @state: input state matrix
-- * @stream: output (8 32-bit words)
-+ * @out: the output words
-  * @nrounds: number of rounds (20 or 12; 20 is recommended)
++ * @assignee: the matrix mdev to which @mdev_apm and @mdev_aqm are being
++ *	      assigned; or, NULL if this function was called by the AP bus
++ *	      driver in_use callback to verify none of the APQNs being reserved
++ *	      for the host device driver are in use by a vfio_ap mediated device
+  * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+  * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
   *
-  * HChaCha is the ChaCha equivalent of HSalsa and is an intermediate step
-  * towards XChaCha (see https://cr.yp.to/snuffle/xsalsa-20081128.pdf).  HChaCha
-  * skips the final addition of the initial state, and outputs only certain words
-  * of the state.  It should not be used for streaming directly.
+- * Verifies that each APQN derived from the Cartesian product of a bitmap of
+- * AP adapter IDs and AP queue indexes is not configured for any matrix
+- * mediated device. AP queue sharing is not allowed.
++ * Verifies that each APQN derived from the Cartesian product of APIDs
++ * represented by the bits set in @mdev_apm and the APQIs of the bits set in
++ * @mdev_aqm is not assigned to a mediated device other than the mdev to which
++ * the APQN is being assigned (@assignee). AP queue sharing is not allowed.
+  *
+  * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
   */
- void hchacha_block_generic(const struct chacha_state *state,
--			   u32 *stream, int nrounds)
-+			   u32 out[HCHACHA_OUT_WORDS], int nrounds)
+-static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
++static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *assignee,
++					  unsigned long *mdev_apm,
+ 					  unsigned long *mdev_aqm)
  {
- 	struct chacha_state permuted_state = *state;
+-	struct ap_matrix_mdev *matrix_mdev;
++	struct ap_matrix_mdev *assigned_to;
+ 	DECLARE_BITMAP(apm, AP_DEVICES);
+ 	DECLARE_BITMAP(aqm, AP_DOMAINS);
  
- 	chacha_permute(&permuted_state, nrounds);
+-	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
++	list_for_each_entry(assigned_to, &matrix_dev->mdev_list, node) {
+ 		/*
+-		 * If the input apm and aqm are fields of the matrix_mdev
+-		 * object, then move on to the next matrix_mdev.
++		 * If the mdev to which the mdev_apm and mdev_aqm is being
++		 * assigned is the same as the mdev being verified
+ 		 */
+-		if (mdev_apm == matrix_mdev->matrix.apm &&
+-		    mdev_aqm == matrix_mdev->matrix.aqm)
++		if (assignee == assigned_to)
+ 			continue;
  
--	memcpy(&stream[0], &permuted_state.x[0], 16);
--	memcpy(&stream[4], &permuted_state.x[12], 16);
-+	memcpy(&out[0], &permuted_state.x[0], 16);
-+	memcpy(&out[4], &permuted_state.x[12], 16);
+ 		memset(apm, 0, sizeof(apm));
+@@ -914,15 +932,16 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+ 		 * We work on full longs, as we can only exclude the leftover
+ 		 * bits in non-inverse order. The leftover is all zeros.
+ 		 */
+-		if (!bitmap_and(apm, mdev_apm, matrix_mdev->matrix.apm,
+-				AP_DEVICES))
++		if (!bitmap_and(apm, mdev_apm, assigned_to->matrix.apm,	AP_DEVICES))
+ 			continue;
+ 
+-		if (!bitmap_and(aqm, mdev_aqm, matrix_mdev->matrix.aqm,
+-				AP_DOMAINS))
++		if (!bitmap_and(aqm, mdev_aqm, assigned_to->matrix.aqm,	AP_DOMAINS))
+ 			continue;
+ 
+-		vfio_ap_mdev_log_sharing_err(matrix_mdev, apm, aqm);
++		if (assignee)
++			vfio_ap_mdev_log_sharing_err(assignee, assigned_to, apm, aqm);
++		else
++			vfio_ap_mdev_log_in_use_err(assigned_to, apm, aqm);
+ 
+ 		return -EADDRINUSE;
+ 	}
+@@ -951,7 +970,8 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
+ 					       matrix_mdev->matrix.aqm))
+ 		return -EADDRNOTAVAIL;
+ 
+-	return vfio_ap_mdev_verify_no_sharing(matrix_mdev->matrix.apm,
++	return vfio_ap_mdev_verify_no_sharing(matrix_mdev,
++					      matrix_mdev->matrix.apm,
+ 					      matrix_mdev->matrix.aqm);
  }
- EXPORT_SYMBOL(hchacha_block_generic);
-diff --git a/lib/crypto/chacha20poly1305.c b/lib/crypto/chacha20poly1305.c
-index 2e7bbc1a67ea..fbd3690e2531 100644
---- a/lib/crypto/chacha20poly1305.c
-+++ b/lib/crypto/chacha20poly1305.c
-@@ -16,12 +16,10 @@
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/module.h>
  
--#define CHACHA_KEY_WORDS	(CHACHA_KEY_SIZE / sizeof(u32))
--
- static void chacha_load_key(u32 *k, const u8 *in)
- {
- 	k[0] = get_unaligned_le32(in);
- 	k[1] = get_unaligned_le32(in + 4);
- 	k[2] = get_unaligned_le32(in + 8);
+@@ -2458,7 +2478,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
+ 
+ 	mutex_lock(&matrix_dev->guests_lock);
+ 	mutex_lock(&matrix_dev->mdevs_lock);
+-	ret = vfio_ap_mdev_verify_no_sharing(apm, aqm);
++	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
+ 	mutex_unlock(&matrix_dev->guests_lock);
+ 
 -- 
-2.49.0
+2.39.5
 
