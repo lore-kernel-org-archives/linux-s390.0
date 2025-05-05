@@ -1,189 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0B0B1EFFBB;
-	Fri,  2 May 2025 19:11:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E793EAE7;
+	Mon,  5 May 2025 09:57:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746213119; cv=none; b=ht3ZK3qEGXSaEtgbr+ZPgKp0fvTLJ8jxcyxYudAhWgy4enEt+B0X3VhJmuyjuhQXdRLDVcsOdhgRMdia6HOvy0q9nafmrlzWIYNlb46dlzj7RUlneixqwQCaGU30z/o1vdNUq1EZ9INuTxbn1Y9yXK14yNZGFbccR+UF1i5Fa8g=
+	t=1746439035; cv=none; b=IMm3Ll4lsmhNWsvWVmKWvFJ9Uk667MT4stxv1CjtW8Ab4RN4e3CNGzm3JqHqT8rlcRuI4krCce6bLUb+qyx4UHoOmVO79XWqDLGMfMxlnivKulKmqnWk41iKEliQPFDJ5r9COvzH2hWIWpWjNd84AnDY4Rb0ApQEUd/27EPjx74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746213119; c=relaxed/simple;
-	bh=8SeIdJB60MOAqSI90MujJ4ezCLgLTfpKSnF/Q+0MsZI=;
+	s=arc-20240116; t=1746439035; c=relaxed/simple;
+	bh=DdUUTkfnlA9fK+AY7ESBEJWr8GgX2XsTVOxe0gHjLFE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pJ899CkmSM5/r/fzk12XKrpTG2VduXPuVY+PesXOM3WXYxSprySuJJrJ+Z0qsJPVkiRpzFrWceeMEXuYZMOT4vwQ3l+yNsPMmCyF022USS4besojgFVhbR/hvSTghtcOoj8BKCXWOqEI7gs9J7TQ9vqeTLIevB5wy7OULphW9OE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dutoPjKF; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=Bni5rZoUSa7tFjJcbVho9H6VjxNaHnp5onVjsW4EdAG839Kfgf2r0py2xR7SEu2y87+1C1L95tnccpp57MXAhEhBzuCXgRFyf/1jUiV/YTzTIiE0gMAbX3dsi/ZqSsHmxjASKS0y+ADy/CaDNhAGYP20oZybWPLW9dBv2L1K7Ho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rSXq/GKo; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dutoPjKF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B6F6C4CEE4;
-	Fri,  2 May 2025 19:11:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746213118;
-	bh=8SeIdJB60MOAqSI90MujJ4ezCLgLTfpKSnF/Q+0MsZI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=dutoPjKFZIdmb/r4zhhKTTOhrU+RgPNZhP54f/Sfyyoezjk6OQbw3Qz/NDygG7k8b
-	 TeV39MEn7C1JVoPUnT+pR0pOyE1z3AkKm3J87Hk7HRDNmROdfQrHeqelp0PZm8e1VW
-	 kXw4Bhsl2ogVlzQHHBvgZhqmfjkQtPmgKRju2sp2wAqE3Gsv0xKR/eJDRRaZkaPjJ9
-	 ObwLZsUlRvHxyEDnzmzBSyHZA8kLd0joK0vmOAClgxn9HyZAXyCj8pudwc3VXeqwqI
-	 nDzB2VyPpRQ7BtO3xabN/UTrOg3PV2ECMel0eCSdkp5EgkCQEThpa7zoeCjZm+fud6
-	 YW0ndsl1aRb7w==
-Date: Fri, 2 May 2025 16:11:55 -0300
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-To: Chun-Tse Shao <ctshao@google.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, irogers@google.com
-Subject: Re: [PATCH V4] perf test: Allow tolerance for leader sampling test
-Message-ID: <aBUY-zaI6BxRvWWS@x1>
-References: <20250430140611.599078-1-tmricht@linux.ibm.com>
- <aBT0a5lGzUSLpWpX@x1>
- <CAJpZYjWW07J8J40ygx6-5q_rfKEoz2g0VYCC=Go3PM2pBKvDRw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rSXq/GKo"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 544L4Asp030724;
+	Mon, 5 May 2025 09:56:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=LhUGs6EEJ+/H8XoxFLa+sktR1zW0IF
+	WrMGyaiWI3uTk=; b=rSXq/GKoEvm8sjQA6bU+/dc88eodbGbZLyvF6AgQZiLo2S
+	WjYYCeP6GftDPgY2HF7yzJQ0soHbyonEaeaq0vCbvFQO27xFjCGQcwD20UvcQd8J
+	y7FYHmS5Etq8GRGK8567LQV2KvqmLWXE58p746hWMb37aoju6eS/msyOQAqioFwi
+	JNa5xxXgVSamEUyT8Ppr+1SUJWVXIrKcImFyV1ndvHyxVPAjhEvzarbQU+/EPnD+
+	x1sdwGR1biLXggbkXtamzJoKccuWA3lGV0++0oaIO2zXYLyBtV9sOe93euKLL4DC
+	ssebMectqwwdqBS3FABjSD26ee4qONHgpaGdNB9g==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46eftkjaxf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 05 May 2025 09:56:38 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 5459ou9E002673;
+	Mon, 5 May 2025 09:56:37 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46eftkjaxb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 05 May 2025 09:56:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54579DSq025969;
+	Mon, 5 May 2025 09:56:36 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46dwuynsg6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 05 May 2025 09:56:36 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5459uWsh59113944
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 5 May 2025 09:56:32 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2C39520043;
+	Mon,  5 May 2025 09:56:32 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F009B20040;
+	Mon,  5 May 2025 09:56:30 +0000 (GMT)
+Received: from osiris (unknown [9.111.37.115])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon,  5 May 2025 09:56:30 +0000 (GMT)
+Date: Mon, 5 May 2025 11:56:29 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Lyude Paul <lyude@redhat.com>
+Cc: rust-for-linux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm-kernel@lists.infradead.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:S390 ARCHITECTURE" <linux-s390@vger.kernel.org>,
+        "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>
+Subject: Re: [PATCH v9 2/9] preempt: Introduce __preempt_count_{sub,
+ add}_return()
+Message-ID: <20250505095629.13658Aea-hca@linux.ibm.com>
+References: <20250227221924.265259-1-lyude@redhat.com>
+ <20250227221924.265259-3-lyude@redhat.com>
+ <20250228091509.8985B18-hca@linux.ibm.com>
+ <1491bedb15db7317d2af77345b2946c2529c70b1.camel@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAJpZYjWW07J8J40ygx6-5q_rfKEoz2g0VYCC=Go3PM2pBKvDRw@mail.gmail.com>
+In-Reply-To: <1491bedb15db7317d2af77345b2946c2529c70b1.camel@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTA1MDA5MSBTYWx0ZWRfXwwP0h4V48zhW 0AVSEswbTvJIy33/TC7mPjmelx5mY/fBKGqOfZeO62vdclxmwgmEzdZ23P6nHJ79SHfb1/Cc8bM P5zZ/+4RgCWhqwoC0lFvAr4xBtyqTHVFIdavnZSF6vJ+Q+Ko+gZnR70DWEV+OnZUvab9wR1aU6l
+ /+T81fMYkazI5rIDrqnJwPRQQnPNbzT1rmL80QY1Y1gz7LWJfH/pD0WPURTfWAkA0XlhL6E2CDO e/Kug34Y7PRy9TbQV4W94TPYiVsFucZ+Xp8lFLWq73iK1sSNcSTFQjkPhM/WU2JoGLyh7aTkfz3 7oupbUF3uvbw8G5DwwczPeylex+rlypqmpZ2bTkyxxiq5CZIscj089xXeELVEjflCR3711/I7Xj
+ lB26F3+9oMDm+Jk3IU7C2kqArGZynSBmWL7vYs3vjcHt6f9oF4diQUrRNzZ5XBB07CGI5XEn
+X-Proofpoint-GUID: VP6z2O9dsYmZNNJdubnfxfxKgcPntrt1
+X-Authority-Analysis: v=2.4 cv=Q7vS452a c=1 sm=1 tr=0 ts=68188b56 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=1J5S7fVpQaFMGjp2_GYA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: QgC67dW-fUJDkaoN9Kch0MBUP2vTEdIS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-05_04,2025-04-30_01,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 phishscore=0 bulkscore=0 spamscore=0 impostorscore=0
+ suspectscore=0 mlxscore=0 mlxlogscore=833 clxscore=1015 adultscore=0
+ priorityscore=1501 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2505050091
 
-On Fri, May 02, 2025 at 11:21:07AM -0700, Chun-Tse Shao wrote:
-> Hi Arnaldo,
+On Wed, Apr 30, 2025 at 05:38:02PM -0400, Lyude Paul wrote:
+> On Fri, 2025-02-28 at 10:15 +0100, Heiko Carstens wrote:
+> > 
+> > Well.. at least it should not, but the way it is currently implemented it
+> > indeed does sometimes depending on config options - there is room for
+> > improvement. That's my fault - going to address that.
 > 
-> I submitted the patch v1 and Thomas helped me to modify and submit v2
-> and v3 while I was OOO. In this case I am not sure which one should be
-> the author, maybe just keep it as Thomas.
+> BTW - was this ever fixed? Going through and applying changes to the spinlock
+> series to get it ready for sending out again and I don't know if I should
+> leave this code as-is or not here.
 
-From the tags provided, I think it would be best to list you as the
-author and Thomas a a Co-developer, like mentioned in:
+Well, this fix was that the atomic primitives, like used in your code, would
+always fail to compile. That was address with commit 08d95a12cd28
+("s390/atomic_ops: Let __atomic_add_const() variants always return void").
 
-Documentation/process/submitting-patches.rst
-
-Co-developed-by: states that the patch was co-created by multiple developers;
-it is used to give attribution to co-authors (in addition to the author
-attributed by the From: tag) when several people work on a single patch.  Since
-Co-developed-by: denotes authorship, every Co-developed-by: must be immediately
-followed by a Signed-off-by: of the associated co-author.  Standard sign-off
-procedure applies, i.e. the ordering of Signed-off-by: tags should reflect the
-chronological history of the patch insofar as possible, regardless of whether
-the author is attributed via From: or Co-developed-by:.  Notably, the last
-Signed-off-by: must always be that of the developer submitting the patch.
-
-Note, the From: tag is optional when the From: author is also the person (and
-email) listed in the From: line of the email header.
-
-Example of a patch submitted by the From: author::
-
-        <changelog>
-
-        Co-developed-by: First Co-Author <first@coauthor.example.org>
-        Signed-off-by: First Co-Author <first@coauthor.example.org>
-        Co-developed-by: Second Co-Author <second@coauthor.example.org>
-        Signed-off-by: Second Co-Author <second@coauthor.example.org>
-        Signed-off-by: From Author <from@author.example.org>
-
-Example of a patch submitted by a Co-developed-by: author::
-
-        From: From Author <from@author.example.org>
-
-        <changelog>
-
-        Co-developed-by: Random Co-Author <random@coauthor.example.org>
-        Signed-off-by: Random Co-Author <random@coauthor.example.org>
-        Signed-off-by: From Author <from@author.example.org>
-        Co-developed-by: Submitting Co-Author <sub@coauthor.example.org>
-        Signed-off-by: Submitting Co-Author <sub@coauthor.example.org>
- 
-> Thanks,
-> CT
-> 
-> On Fri, May 2, 2025 at 9:35 AM Arnaldo Carvalho de Melo <acme@kernel.org> wrote:
-> >
-> > On Wed, Apr 30, 2025 at 04:06:11PM +0200, Thomas Richter wrote:
-> > > V4: Update to be applied onto linux-next
-> > > V3: Added check for missing samples as suggested by Chun-Tse.
-> > > V2: Changed bc invocation to return 0 on success and 1 on error.
-> > >
-> > > There is a known issue that the leader sampling is inconsistent, since
-> > > throttle only affect leader, not the slave. The detail is in [1]. To
-> > > maintain test coverage, this patch sets a tolerance rate of 80% to
-> > > accommodate the throttled samples and prevent test failures due to
-> > > throttling.
-> > >
-> > > [1] lore.kernel.org/20250328182752.769662-1-ctshao@google.com
-> > >
-> > > Signed-off-by: Chun-Tse Shao <ctshao@google.com>
-> > > Suggested-by: Ian Rogers <irogers@google.com>
-> > > Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
-> >
-> > But who is the author? As-is this patch states Thomas Richter as the
-> > author, but since there is also a Suggested-by and Tested-by Thomas
-> > Richter, it makes me believe the author is Chun-Tse Shao, is that the
-> > case?
-> >
-> > - Arnaldo
-> >
-> > > Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-> > > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > > ---
-> > >  tools/perf/tests/shell/record.sh | 33 ++++++++++++++++++++++++++------
-> > >  1 file changed, 27 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
-> > > index 05d91a663fda..587f62e34414 100755
-> > > --- a/tools/perf/tests/shell/record.sh
-> > > +++ b/tools/perf/tests/shell/record.sh
-> > > @@ -240,22 +240,43 @@ test_leader_sampling() {
-> > >      err=1
-> > >      return
-> > >    fi
-> > > +  perf script -i "${perfdata}" | grep brstack > $script_output
-> > > +  # Check if the two instruction counts are equal in each record.
-> > > +  # However, the throttling code doesn't consider event grouping. During throttling, only the
-> > > +  # leader is stopped, causing the slave's counts significantly higher. To temporarily solve this,
-> > > +  # let's set the tolerance rate to 80%.
-> > > +  # TODO: Revert the code for tolerance once the throttling mechanism is fixed.
-> > >    index=0
-> > > -  perf script -i "${perfdata}" > "${script_output}"
-> > > +  valid_counts=0
-> > > +  invalid_counts=0
-> > > +  tolerance_rate=0.8
-> > >    while IFS= read -r line
-> > >    do
-> > > -    # Check if the two instruction counts are equal in each record
-> > >      cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
-> > >      if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
-> > >      then
-> > > -      echo "Leader sampling [Failed inconsistent cycles count]"
-> > > -      err=1
-> > > -      return
-> > > +      invalid_counts=$(($invalid_counts+1))
-> > > +    else
-> > > +      valid_counts=$(($valid_counts+1))
-> > >      fi
-> > >      index=$(($index+1))
-> > >      prev_cycles=$cycles
-> > >    done < "${script_output}"
-> > > -  echo "Basic leader sampling test [Success]"
-> > > +  total_counts=$(bc <<< "$invalid_counts+$valid_counts")
-> > > +  if (( $(bc <<< "$total_counts <= 0") ))
-> > > +  then
-> > > +    echo "Leader sampling [No sample generated]"
-> > > +    err=1
-> > > +    return
-> > > +  fi
-> > > +  isok=$(bc <<< "scale=2; if (($invalid_counts/$total_counts) < (1-$tolerance_rate)) { 0 } else { 1 };")
-> > > +  if [ $isok -eq 1 ]
-> > > +  then
-> > > +     echo "Leader sampling [Failed inconsistent cycles count]"
-> > > +     err=1
-> > > +  else
-> > > +    echo "Basic leader sampling test [Success]"
-> > > +  fi
-> > >  }
-> > >
-> > >  test_topdown_leader_sampling() {
-> > > --
-> > > 2.45.2
+So yes, you need to change your code like I proposed.
