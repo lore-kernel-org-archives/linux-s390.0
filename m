@@ -1,52 +1,50 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B56EF374589;
-	Mon,  5 May 2025 22:58:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36F79396ECC;
+	Mon,  5 May 2025 23:06:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746485932; cv=none; b=kfln9k/XPngn9hLNjfzLDPTCnbxaSYtHlavtkYegcOaK9dTpz1sPBW6k49Ytmmi/2sELUJav73du+RbIfFZoHtjB7sqGMF3GBeWTjKeSP4azRGD6qOrVd+fbWfm4l/ZXPeYXQ2UfJNATT9Pj/k32h+wJV3B6OmkzqU+fj3gTmPU=
+	t=1746486392; cv=none; b=tGAzAwtjCM6F2Ie+d6XlBO2R0IaG+BsO6nAIcRSuLw39uU9CiE6DpgxmtBrtwOEB42w339nDrpOO3CCHxfJlIGR8XII+1GxJRXbUVSgO8GQH1o08FOZXDrKNblpnv8aT0fjtnLFHwl5vjEQd2CayNnQdC99huDJAKlx6fWLTmMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746485932; c=relaxed/simple;
-	bh=GK31QfUDyBBGfYjJDHgtizcta3uBh9rj9nFl+F5ZUjc=;
+	s=arc-20240116; t=1746486392; c=relaxed/simple;
+	bh=DCyX/ggmKFTvRaRm0UhhLM/FFYvFtZnpQAW1/AY6Bkw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=R63mUhldImhiLb+gJ3XGgRvGftfj9v5ZFxxKKYpZNR4KhGTxaZok6CSuH4ZIX6HjCePwITPn0KRSUzFT/9M5abf9RQQkeeTnsuAeXz0qV72BnRII5NEvxabxcyMKU2UR6dnFNTjwLaWMfpIy4Uj5SGrHKtEpoSQEKNuQGgMYqp4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z4TWE7sY; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=drMsoipM3KWjch4vcI6EVm58ood4Xuj+kFtRM9N2GlNi/RI5Hl2uh5oAuMD8YmMS1LuDa3l47UnvNw8Bmp0X/dgSFpcB9vOfj9oIHgITElJub9fkTnJdPau6URyUk6De55qRnwdQwDbepH2q4RFrUuCMcAfGaANnft0plMcuvTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IAiZNw4u; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z4TWE7sY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF9EC4CEEE;
-	Mon,  5 May 2025 22:58:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IAiZNw4u"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B2BC4CEEE;
+	Mon,  5 May 2025 23:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746485931;
-	bh=GK31QfUDyBBGfYjJDHgtizcta3uBh9rj9nFl+F5ZUjc=;
+	s=k20201202; t=1746486390;
+	bh=DCyX/ggmKFTvRaRm0UhhLM/FFYvFtZnpQAW1/AY6Bkw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Z4TWE7sYa2akso7vMYJtNIh6ZkH1PFsde3FfzLwNyXM2SsTsJGRZve7YrBPsYiRSi
-	 FkSAfH4h8m0rjJfiO9j/rSkoz+fDT/Lu8KhnQ+RXP/y8IEGBnxPW8XYqfkFY+dZxcT
-	 lwyPpZQNhICEIw5YdtjEEBN3lW5JKRKLlOEZu0VixChS9zTDNjYs7LG5nk4R7PFZ+x
-	 x1sEOtFzgDw963c5J6H/6aGIGbt/qdfaBNUGwpH6y8cntBaO7UjTIWwEEvNo3x1P4O
-	 pUB6sM/qDzCPr57647ybU98ipPbUsKGIFFAa+ll+HWY+EYa3/5ruAHLrDmmR4zcL83
-	 3gB4LxCQRz1ug==
+	b=IAiZNw4uWqO/BJAG+BWPfxhEIQYDiPtPLw1qzGQMLdxmFlMwI3n3TWJtJn7zmBeuy
+	 ophbNtT2IjYYOtFHmMS8TnlJMeb1ubHNjV61MEPAXoGujLRfkQu9lcDm/JZt5gsnJ1
+	 PSnNV+oP4Yw+TjI0Cnx/69tDMtWYczVknhobaAJQToi9hqFF2DHIu38g48LAN28G38
+	 huR/vB84QZh+dqAee/wiEp4Zp+r8ecGWM+a2uZC+btodfiihG0YhXrUs43brNOqo5Y
+	 HlX92LqFW12eLfzy1vMXYmWPfNXHHCef9eq7dAC5N3I3NvH7W5R9+Djsokra52jLsF
+	 9H0qmz8jGCaDg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Cc: Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
+Cc: Anthony Krowiak <akrowiak@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	jaka@linux.ibm.com,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 072/294] net/smc: use the correct ndev to find pnetid by pnetid table
-Date: Mon,  5 May 2025 18:52:52 -0400
-Message-Id: <20250505225634.2688578-72-sashal@kernel.org>
+	pasic@linux.ibm.com,
+	jjherne@linux.ibm.com,
+	freude@linux.ibm.com,
+	dengler@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 002/212] s390/vfio-ap: Fix no AP queue sharing allowed message written to kernel log
+Date: Mon,  5 May 2025 19:02:54 -0400
+Message-Id: <20250505230624.2692522-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505225634.2688578-1-sashal@kernel.org>
-References: <20250505225634.2688578-1-sashal@kernel.org>
+In-Reply-To: <20250505230624.2692522-1-sashal@kernel.org>
+References: <20250505230624.2692522-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,121 +53,192 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.89
+X-stable-base: Linux 6.1.136
 Content-Transfer-Encoding: 8bit
 
-From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-[ Upstream commit bfc6c67ec2d64d0ca4e5cc3e1ac84298a10b8d62 ]
+[ Upstream commit d33d729afcc8ad2148d99f9bc499b33fd0c0d73b ]
 
-When using smc_pnet in SMC, it will only search the pnetid in the
-base_ndev of the netdev hierarchy(both HW PNETID and User-defined
-sw pnetid). This may not work for some scenarios when using SMC in
-container on cloud environment.
-In container, there have choices of different container network,
-such as directly using host network, virtual network IPVLAN, veth,
-etc. Different choices of container network have different netdev
-hierarchy. Examples of netdev hierarchy show below. (eth0 and eth1
-in host below is the netdev directly related to the physical device).
-            _______________________________
-           |   _________________           |
-           |  |POD              |          |
-           |  |                 |          |
-           |  | eth0_________   |          |
-           |  |____|         |__|          |
-           |       |         |             |
-           |       |         |             |
-           |   eth1|base_ndev| eth0_______ |
-           |       |         |    | RDMA  ||
-           | host  |_________|    |_______||
-           ---------------------------------
-     netdev hierarchy if directly using host network
-           ________________________________
-           |   _________________           |
-           |  |POD  __________  |          |
-           |  |    |upper_ndev| |          |
-           |  |eth0|__________| |          |
-           |  |_______|_________|          |
-           |          |lower netdev        |
-           |        __|______              |
-           |   eth1|         | eth0_______ |
-           |       |base_ndev|    | RDMA  ||
-           | host  |_________|    |_______||
-           ---------------------------------
-            netdev hierarchy if using IPVLAN
-            _______________________________
-           |   _____________________       |
-           |  |POD        _________ |      |
-           |  |          |base_ndev||      |
-           |  |eth0(veth)|_________||      |
-           |  |____________|________|      |
-           |               |pairs          |
-           |        _______|_              |
-           |       |         | eth0_______ |
-           |   veth|base_ndev|    | RDMA  ||
-           |       |_________|    |_______||
-           |        _________              |
-           |   eth1|base_ndev|             |
-           | host  |_________|             |
-           ---------------------------------
-             netdev hierarchy if using veth
-Due to some reasons, the eth1 in host is not RDMA attached netdevice,
-pnetid is needed to map the eth1(in host) with RDMA device so that POD
-can do SMC-R. Because the eth1(in host) is managed by CNI plugin(such
-as Terway, network management plugin in container environment), and in
-cloud environment the eth(in host) can dynamically be inserted by CNI
-when POD create and dynamically be removed by CNI when POD destroy and
-no POD related to the eth(in host) anymore. It is hard to config the
-pnetid to the eth1(in host). But it is easy to config the pnetid to the
-netdevice which can be seen in POD. When do SMC-R, both the container
-directly using host network and the container using veth network can
-successfully match the RDMA device, because the configured pnetid netdev
-is a base_ndev. But the container using IPVLAN can not successfully
-match the RDMA device and 0x03030000 fallback happens, because the
-configured pnetid netdev is not a base_ndev. Additionally, if config
-pnetid to the eth1(in host) also can not work for matching RDMA device
-when using veth network and doing SMC-R in POD.
+An erroneous message is written to the kernel log when either of the
+following actions are taken by a user:
 
-To resolve the problems list above, this patch extends to search user
--defined sw pnetid in the clc handshake ndev when no pnetid can be found
-in the base_ndev, and the base_ndev take precedence over ndev for backward
-compatibility. This patch also can unify the pnetid setup of different
-network choices list above in container(Config user-defined sw pnetid in
-the netdevice can be seen in POD).
+1. Assign an adapter or domain to a vfio_ap mediated device via its sysfs
+   assign_adapter or assign_domain attributes that would result in one or
+   more AP queues being assigned that are already assigned to a different
+   mediated device. Sharing of queues between mdevs is not allowed.
 
-Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+2. Reserve an adapter or domain for the host device driver via the AP bus
+   driver's sysfs apmask or aqmask attribute that would result in providing
+   host access to an AP queue that is in use by a vfio_ap mediated device.
+   Reserving a queue for a host driver that is in use by an mdev is not
+   allowed.
+
+In both cases, the assignment will return an error; however, a message like
+the following is written to the kernel log:
+
+vfio_ap_mdev e1839397-51a0-4e3c-91e0-c3b9c3d3047d: Userspace may not
+re-assign queue 00.0028 already assigned to \
+e1839397-51a0-4e3c-91e0-c3b9c3d3047d
+
+Notice the mdev reporting the error is the same as the mdev identified
+in the message as the one to which the queue is being assigned.
+It is perfectly okay to assign a queue to an mdev to which it is
+already assigned; the assignment is simply ignored by the vfio_ap device
+driver.
+
+This patch logs more descriptive and accurate messages for both 1 and 2
+above to the kernel log:
+
+Example for 1:
+vfio_ap_mdev 0fe903a0-a323-44db-9daf-134c68627d61: Userspace may not assign
+queue 00.0033 to mdev: already assigned to \
+62177883-f1bb-47f0-914d-32a22e3a8804
+
+Example for 2:
+vfio_ap_mdev 62177883-f1bb-47f0-914d-32a22e3a8804: Can not reserve queue
+00.0033 for host driver: in use by mdev
+
+Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Link: https://lore.kernel.org/r/20250311103304.1539188-1-akrowiak@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_pnet.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 72 ++++++++++++++++++++-----------
+ 1 file changed, 46 insertions(+), 26 deletions(-)
 
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index dbcc72b43d0c0..d44d7f427fc94 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -1084,14 +1084,16 @@ static void smc_pnet_find_roce_by_pnetid(struct net_device *ndev,
- 					 struct smc_init_info *ini)
- {
- 	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
-+	struct net_device *base_ndev;
- 	struct net *net;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 86a8bd5324899..11fe917fbd9d4 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -789,48 +789,66 @@ static void vfio_ap_mdev_remove(struct mdev_device *mdev)
+ 	vfio_put_device(&matrix_mdev->vdev);
+ }
  
--	ndev = pnet_find_base_ndev(ndev);
-+	base_ndev = pnet_find_base_ndev(ndev);
- 	net = dev_net(ndev);
--	if (smc_pnetid_by_dev_port(ndev->dev.parent, ndev->dev_port,
-+	if (smc_pnetid_by_dev_port(base_ndev->dev.parent, base_ndev->dev_port,
- 				   ndev_pnetid) &&
-+	    smc_pnet_find_ndev_pnetid_by_table(base_ndev, ndev_pnetid) &&
- 	    smc_pnet_find_ndev_pnetid_by_table(ndev, ndev_pnetid)) {
--		smc_pnet_find_rdma_dev(ndev, ini);
-+		smc_pnet_find_rdma_dev(base_ndev, ini);
- 		return; /* pnetid could not be determined */
+-#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
+-			 "already assigned to %s"
++#define MDEV_SHARING_ERR "Userspace may not assign queue %02lx.%04lx to mdev: already assigned to %s"
+ 
+-static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *matrix_mdev,
+-					 unsigned long *apm,
+-					 unsigned long *aqm)
++#define MDEV_IN_USE_ERR "Can not reserve queue %02lx.%04lx for host driver: in use by mdev"
++
++static void vfio_ap_mdev_log_sharing_err(struct ap_matrix_mdev *assignee,
++					 struct ap_matrix_mdev *assigned_to,
++					 unsigned long *apm, unsigned long *aqm)
+ {
+ 	unsigned long apid, apqi;
+-	const struct device *dev = mdev_dev(matrix_mdev->mdev);
+-	const char *mdev_name = dev_name(dev);
+ 
+-	for_each_set_bit_inv(apid, apm, AP_DEVICES)
++	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
++		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
++			dev_warn(mdev_dev(assignee->mdev), MDEV_SHARING_ERR,
++				 apid, apqi, dev_name(mdev_dev(assigned_to->mdev)));
++		}
++	}
++}
++
++static void vfio_ap_mdev_log_in_use_err(struct ap_matrix_mdev *assignee,
++					unsigned long *apm, unsigned long *aqm)
++{
++	unsigned long apid, apqi;
++
++	for_each_set_bit_inv(apid, apm, AP_DEVICES) {
+ 		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
+-			dev_warn(dev, MDEV_SHARING_ERR, apid, apqi, mdev_name);
++			dev_warn(mdev_dev(assignee->mdev), MDEV_IN_USE_ERR, apid, apqi);
++	}
+ }
+ 
+ /**
+  * vfio_ap_mdev_verify_no_sharing - verify APQNs are not shared by matrix mdevs
+  *
++ * @assignee: the matrix mdev to which @mdev_apm and @mdev_aqm are being
++ *	      assigned; or, NULL if this function was called by the AP bus
++ *	      driver in_use callback to verify none of the APQNs being reserved
++ *	      for the host device driver are in use by a vfio_ap mediated device
+  * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
+  * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+  *
+- * Verifies that each APQN derived from the Cartesian product of a bitmap of
+- * AP adapter IDs and AP queue indexes is not configured for any matrix
+- * mediated device. AP queue sharing is not allowed.
++ * Verifies that each APQN derived from the Cartesian product of APIDs
++ * represented by the bits set in @mdev_apm and the APQIs of the bits set in
++ * @mdev_aqm is not assigned to a mediated device other than the mdev to which
++ * the APQN is being assigned (@assignee). AP queue sharing is not allowed.
+  *
+  * Return: 0 if the APQNs are not shared; otherwise return -EADDRINUSE.
+  */
+-static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
++static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *assignee,
++					  unsigned long *mdev_apm,
+ 					  unsigned long *mdev_aqm)
+ {
+-	struct ap_matrix_mdev *matrix_mdev;
++	struct ap_matrix_mdev *assigned_to;
+ 	DECLARE_BITMAP(apm, AP_DEVICES);
+ 	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ 
+-	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
++	list_for_each_entry(assigned_to, &matrix_dev->mdev_list, node) {
+ 		/*
+-		 * If the input apm and aqm are fields of the matrix_mdev
+-		 * object, then move on to the next matrix_mdev.
++		 * If the mdev to which the mdev_apm and mdev_aqm is being
++		 * assigned is the same as the mdev being verified
+ 		 */
+-		if (mdev_apm == matrix_mdev->matrix.apm &&
+-		    mdev_aqm == matrix_mdev->matrix.aqm)
++		if (assignee == assigned_to)
+ 			continue;
+ 
+ 		memset(apm, 0, sizeof(apm));
+@@ -840,15 +858,16 @@ static int vfio_ap_mdev_verify_no_sharing(unsigned long *mdev_apm,
+ 		 * We work on full longs, as we can only exclude the leftover
+ 		 * bits in non-inverse order. The leftover is all zeros.
+ 		 */
+-		if (!bitmap_and(apm, mdev_apm, matrix_mdev->matrix.apm,
+-				AP_DEVICES))
++		if (!bitmap_and(apm, mdev_apm, assigned_to->matrix.apm,	AP_DEVICES))
+ 			continue;
+ 
+-		if (!bitmap_and(aqm, mdev_aqm, matrix_mdev->matrix.aqm,
+-				AP_DOMAINS))
++		if (!bitmap_and(aqm, mdev_aqm, assigned_to->matrix.aqm,	AP_DOMAINS))
+ 			continue;
+ 
+-		vfio_ap_mdev_log_sharing_err(matrix_mdev, apm, aqm);
++		if (assignee)
++			vfio_ap_mdev_log_sharing_err(assignee, assigned_to, apm, aqm);
++		else
++			vfio_ap_mdev_log_in_use_err(assigned_to, apm, aqm);
+ 
+ 		return -EADDRINUSE;
  	}
- 	_smc_pnet_find_roce_by_pnetid(ndev_pnetid, ini, NULL, net);
+@@ -877,7 +896,8 @@ static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev)
+ 					       matrix_mdev->matrix.aqm))
+ 		return -EADDRNOTAVAIL;
+ 
+-	return vfio_ap_mdev_verify_no_sharing(matrix_mdev->matrix.apm,
++	return vfio_ap_mdev_verify_no_sharing(matrix_mdev,
++					      matrix_mdev->matrix.apm,
+ 					      matrix_mdev->matrix.aqm);
+ }
+ 
+@@ -1945,7 +1965,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
+ 
+ 	mutex_lock(&matrix_dev->guests_lock);
+ 	mutex_lock(&matrix_dev->mdevs_lock);
+-	ret = vfio_ap_mdev_verify_no_sharing(apm, aqm);
++	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
+ 	mutex_unlock(&matrix_dev->guests_lock);
+ 
 -- 
 2.39.5
 
