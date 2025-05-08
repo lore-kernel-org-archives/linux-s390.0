@@ -1,376 +1,401 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 794352638A0;
-	Thu,  8 May 2025 15:54:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C0B628368E
+	for <linux-s390@vger.kernel.org>; Thu,  8 May 2025 17:45:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746719695; cv=none; b=q/Tnv67h9jzi4ejFIAnAZcVuCWq+FTcXUhb2X/RfZ+MSoQ0gWSvjiv8WTSmmTAUSmMYf2vN3Lak/gbAGQDfZcz6oPOKerjxx3T0+j2HcGRyx4ylrevanaizx5qv/0nfhQePIea8WCblWhTbJhXaFWjR9lZikuZt35jhyfKnTQXE=
+	t=1746726343; cv=none; b=TEnq97n2zCdvUgTYNbqo8gqEvqFqoX3Puch+6cCGD/i3f5GFt8Ei6MAUjhV9uPLQYLby5ft0N+8TdeMXgz4vRwYYGPfJO0e+1GdFHa3Mq2Haul8oL50oIPbVu9+XyAPdPVbHJHejsEQyyk1OZg5JpApltVZtzTZpQqsk8gywxUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746719695; c=relaxed/simple;
-	bh=NSe6wG+xWEN4cvrpd7mEcW9NPJQoGI7H2DdbsrN92qw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=glmxi45pitS2oMLbHUe82CSE8BP23QxVqSE+2uZCWJXQbZM0nzdmydFutJFvvGWD4In5F25AjhgRO8UvvNMbOuLtjhhgFZH+DhvWppU51Ibh2MxemWScxliP/OwjiZ9voAp0sKRWYNLtWLtd/5hL2I5d0Bl6PHlpJE6HFtpswCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1DB761E2F;
-	Thu,  8 May 2025 08:54:42 -0700 (PDT)
-Received: from raptor (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 539973F5A1;
-	Thu,  8 May 2025 08:54:49 -0700 (PDT)
-Date: Thu, 8 May 2025 16:54:46 +0100
-From: Alexandru Elisei <alexandru.elisei@arm.com>
-To: Andrew Jones <andrew.jones@linux.dev>
-Cc: eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
-	frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
-	david@redhat.com, pbonzini@redhat.com, kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	will@kernel.org, julien.thierry.kdev@gmail.com, maz@kernel.org,
-	oliver.upton@linux.dev, suzuki.poulose@arm.com,
-	yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com
-Subject: Re: [kvm-unit-tests PATCH v3 08/16] scripts: Add 'kvmtool_params' to
- test definition
-Message-ID: <aBzTxv6pO4rWu4CU@raptor>
-References: <20250507151256.167769-1-alexandru.elisei@arm.com>
- <20250507151256.167769-9-alexandru.elisei@arm.com>
- <20250507-5b376c9bc878cbdffabdb3c2@orel>
+	s=arc-20240116; t=1746726343; c=relaxed/simple;
+	bh=0uONWRNF15Jv8uIv0B45XQKpseOb6seBoGqZpXZcw1s=;
+	h=Date:Subject:In-Reply-To:CC:From:To:Message-ID; b=E8paYyYo3+meAULQOgv7RyLl6CgdiplwFG86aLHXuCJrdj3TXUsGi1GQGs4xvIPeq9EmOslm3KuC0EVYo9DO6W90wFbicNKCAhz3WejUpsLCOvYOvjXHvYyXM5TNkIu31bfPiuXvNbO4ulri8GtrlwkOe5ZFQJMVB5QRthf5ZQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com; spf=pass smtp.mailfrom=dabbelt.com; dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b=IZZE0R//; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dabbelt.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="IZZE0R//"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-30828fc17adso1348385a91.1
+        for <linux-s390@vger.kernel.org>; Thu, 08 May 2025 10:45:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1746726340; x=1747331140; darn=vger.kernel.org;
+        h=message-id:to:from:cc:in-reply-to:subject:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=dEAIpsuCysn8s52UezknC02k+EhomijIPzdPSULwJfQ=;
+        b=IZZE0R//+7aiPGIhTrnZj55Zbew9EGCK+JHrwLw0KAa41v3/s6Z9jfamK0WzqYJPCv
+         hkBDSA4PSLhdP8O3HMMVsdxqvEaBi0ba6H1VJxQL/gRno0Vqs97M39ffN0gBRWzLBoD6
+         ANRjU5EnJLWzUPJTlKAHiHYdjLnve2Zqsq1z9xTq9wjbovVm+YWMyZ3h82cNP6UHUK45
+         e8IdrbxxoBo4Hiexx3/eIMv9RymfeiR6PbPYAHb4CQhHmwvthoJewJg4dFkXOGxwGlZe
+         mf43vhNp7OYZsXIIpV1IyjeRslZg9EnKguG1QYR96v7ETpGjPss0OaBIwdocX1FARb/0
+         fq6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746726340; x=1747331140;
+        h=message-id:to:from:cc:in-reply-to:subject:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=dEAIpsuCysn8s52UezknC02k+EhomijIPzdPSULwJfQ=;
+        b=YxWNALQhGwRzqWwl8HYNERPzJU1wLxwOqQLtCsstozEVfT05PoUirQvMfEyUpjOZ8n
+         dufox0AhObJNmL6HafXTGELXhUFw5q/jIG4PD+bgfD+g5Pr+VEObTjL/DGi8k75Tx7yk
+         qsQEoWUls+ZN5/UNnAIDID6x0MFyHwEYMBDpuxAUZ3OdeynP3isNGlMjKmxf9ZJaburV
+         0igWbHyeF7jQNdWb7Noc6NrRuelv8mEpYFp+3BeRGgsY6NbfK0FMoV8XyIY5D8Fuc/b+
+         KgRNdlJehfscIcebxKdzGsuACxdQ0Ru4pszu0v3ZPTzD495vnppBBbQu9AZItiObwvmH
+         0bTg==
+X-Forwarded-Encrypted: i=1; AJvYcCW+5UBSyZX05s2CYiQhEXRlp12pUb9JHDsrb7K9BzS1IH7g7PUtW4dRtCTon2W9mMzkyB68jOdX3Pmp@vger.kernel.org
+X-Gm-Message-State: AOJu0YyKSB5as9b+Lj5GtaSsF41EjW2TWAX/Hy+2nZi+J89idgum4uX7
+	ee2behL6903ct9riSPvsvqgcVK1qR9dfNeTpHPP5w8bLcKZHoUR31j18VC9x29E=
+X-Gm-Gg: ASbGncu/zeHftdFdSvyMuYSmqnPqswyvRiHwaz2aZMoZ+HQ3AhkY80QStDIv7ZLO3vF
+	xfP0xftdUTpSPNHSxTQScUxR+bKLMADZGcNEbIrqzMot7aXVvCrGYjCog6etz2G9EvoBtiwyxdJ
+	3gkENdnQ6lit6X55V1SRPN7In7q3jp8IhYB0cluH+4691pzTPYImAyWHv3HKrY+DzyDt3jfXKvO
+	uwwuNmX2pYZDPjcTcfA6059r1Deok7GyPUh48x8sIVjDHoHvDK1vvgldIaiclIP66rqbH9c+6Em
+	NU8esDonli1Rcog3g3ZGjBjn5s4/O3oaKA==
+X-Google-Smtp-Source: AGHT+IHeD97pMTFuyKCP/YT5KvCO+fk1gqZ4VsKAgAj3Z3vrsQq843QhamFknnUEu4uFYy+vJhv0hg==
+X-Received: by 2002:a17:90b:3f04:b0:308:539d:7577 with SMTP id 98e67ed59e1d1-30c3b915960mr891237a91.0.1746726340334;
+        Thu, 08 May 2025 10:45:40 -0700 (PDT)
+Received: from localhost ([50.145.13.30])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30c39e6101dsm259626a91.36.2025.05.08.10.45.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 May 2025 10:45:39 -0700 (PDT)
+Date: Thu, 08 May 2025 10:45:39 -0700 (PDT)
+X-Google-Original-Date: Thu, 08 May 2025 10:45:38 PDT (-0700)
+Subject:     Re: [PATCH v4 07/13] crypto: riscv/sha256 - implement library instead of shash
+In-Reply-To: <20250428170040.423825-8-ebiggers@kernel.org>
+CC: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+  linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+  linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org,
+  linux-s390@vger.kernel.org, x86@kernel.org, Ard Biesheuvel <ardb@kernel.org>, Jason@zx2c4.com,
+  Linus Torvalds <torvalds@linux-foundation.org>
+From: Palmer Dabbelt <palmer@dabbelt.com>
+To: ebiggers@kernel.org
+Message-ID: <mhng-0b1a0c43-eff8-4ea0-9aaa-46727504555c@palmer-ri-x1c9a>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250507-5b376c9bc878cbdffabdb3c2@orel>
 
-Hi Drew,
+On Mon, 28 Apr 2025 10:00:32 PDT (-0700), ebiggers@kernel.org wrote:
+> From: Eric Biggers <ebiggers@google.com>
+>
+> Instead of providing crypto_shash algorithms for the arch-optimized
+> SHA-256 code, instead implement the SHA-256 library.  This is much
+> simpler, it makes the SHA-256 library functions be arch-optimized, and
+> it fixes the longstanding issue where the arch-optimized SHA-256 was
+> disabled by default.  SHA-256 still remains available through
+> crypto_shash, but individual architectures no longer need to handle it.
+>
+> To match sha256_blocks_arch(), change the type of the nblocks parameter
+> of the assembly function from int to size_t.  The assembly function
+> actually already treated it as size_t.
+>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  arch/riscv/crypto/Kconfig                     |  11 --
+>  arch/riscv/crypto/Makefile                    |   3 -
+>  arch/riscv/crypto/sha256-riscv64-glue.c       | 125 ------------------
+>  arch/riscv/lib/crypto/Kconfig                 |   7 +
+>  arch/riscv/lib/crypto/Makefile                |   3 +
+>  .../sha256-riscv64-zvknha_or_zvknhb-zvkb.S    |   4 +-
+>  arch/riscv/lib/crypto/sha256.c                |  62 +++++++++
+>  7 files changed, 74 insertions(+), 141 deletions(-)
+>  delete mode 100644 arch/riscv/crypto/sha256-riscv64-glue.c
+>  rename arch/riscv/{ => lib}/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S (98%)
+>  create mode 100644 arch/riscv/lib/crypto/sha256.c
+>
+> diff --git a/arch/riscv/crypto/Kconfig b/arch/riscv/crypto/Kconfig
+> index 4863be2a4ec2f..cd9b776602f89 100644
+> --- a/arch/riscv/crypto/Kconfig
+> +++ b/arch/riscv/crypto/Kconfig
+> @@ -26,21 +26,10 @@ config CRYPTO_GHASH_RISCV64
+>  	  GCM GHASH function (NIST SP 800-38D)
+>
+>  	  Architecture: riscv64 using:
+>  	  - Zvkg vector crypto extension
+>
+> -config CRYPTO_SHA256_RISCV64
+> -	tristate "Hash functions: SHA-224 and SHA-256"
+> -	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
+> -	select CRYPTO_SHA256
+> -	help
+> -	  SHA-224 and SHA-256 secure hash algorithm (FIPS 180)
+> -
+> -	  Architecture: riscv64 using:
+> -	  - Zvknha or Zvknhb vector crypto extensions
+> -	  - Zvkb vector crypto extension
+> -
+>  config CRYPTO_SHA512_RISCV64
+>  	tristate "Hash functions: SHA-384 and SHA-512"
+>  	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
+>  	select CRYPTO_SHA512
+>  	help
+> diff --git a/arch/riscv/crypto/Makefile b/arch/riscv/crypto/Makefile
+> index 4ae9bf762e907..e10e8257734e3 100644
+> --- a/arch/riscv/crypto/Makefile
+> +++ b/arch/riscv/crypto/Makefile
+> @@ -5,13 +5,10 @@ aes-riscv64-y := aes-riscv64-glue.o aes-riscv64-zvkned.o \
+>  		 aes-riscv64-zvkned-zvbb-zvkg.o aes-riscv64-zvkned-zvkb.o
+>
+>  obj-$(CONFIG_CRYPTO_GHASH_RISCV64) += ghash-riscv64.o
+>  ghash-riscv64-y := ghash-riscv64-glue.o ghash-riscv64-zvkg.o
+>
+> -obj-$(CONFIG_CRYPTO_SHA256_RISCV64) += sha256-riscv64.o
+> -sha256-riscv64-y := sha256-riscv64-glue.o sha256-riscv64-zvknha_or_zvknhb-zvkb.o
+> -
+>  obj-$(CONFIG_CRYPTO_SHA512_RISCV64) += sha512-riscv64.o
+>  sha512-riscv64-y := sha512-riscv64-glue.o sha512-riscv64-zvknhb-zvkb.o
+>
+>  obj-$(CONFIG_CRYPTO_SM3_RISCV64) += sm3-riscv64.o
+>  sm3-riscv64-y := sm3-riscv64-glue.o sm3-riscv64-zvksh-zvkb.o
+> diff --git a/arch/riscv/crypto/sha256-riscv64-glue.c b/arch/riscv/crypto/sha256-riscv64-glue.c
+> deleted file mode 100644
+> index c998300ab8435..0000000000000
+> --- a/arch/riscv/crypto/sha256-riscv64-glue.c
+> +++ /dev/null
+> @@ -1,125 +0,0 @@
+> -// SPDX-License-Identifier: GPL-2.0-or-later
+> -/*
+> - * SHA-256 and SHA-224 using the RISC-V vector crypto extensions
+> - *
+> - * Copyright (C) 2022 VRULL GmbH
+> - * Author: Heiko Stuebner <heiko.stuebner@vrull.eu>
+> - *
+> - * Copyright (C) 2023 SiFive, Inc.
+> - * Author: Jerry Shih <jerry.shih@sifive.com>
+> - */
+> -
+> -#include <asm/simd.h>
+> -#include <asm/vector.h>
+> -#include <crypto/internal/hash.h>
+> -#include <crypto/internal/simd.h>
+> -#include <crypto/sha256_base.h>
+> -#include <linux/kernel.h>
+> -#include <linux/module.h>
+> -
+> -/*
+> - * Note: the asm function only uses the 'state' field of struct sha256_state.
+> - * It is assumed to be the first field.
+> - */
+> -asmlinkage void sha256_transform_zvknha_or_zvknhb_zvkb(
+> -	struct crypto_sha256_state *state, const u8 *data, int num_blocks);
+> -
+> -static void sha256_block(struct crypto_sha256_state *state, const u8 *data,
+> -			 int num_blocks)
+> -{
+> -	/*
+> -	 * Ensure struct crypto_sha256_state begins directly with the SHA-256
+> -	 * 256-bit internal state, as this is what the asm function expects.
+> -	 */
+> -	BUILD_BUG_ON(offsetof(struct crypto_sha256_state, state) != 0);
+> -
+> -	if (crypto_simd_usable()) {
+> -		kernel_vector_begin();
+> -		sha256_transform_zvknha_or_zvknhb_zvkb(state, data, num_blocks);
+> -		kernel_vector_end();
+> -	} else
+> -		sha256_transform_blocks(state, data, num_blocks);
+> -}
+> -
+> -static int riscv64_sha256_update(struct shash_desc *desc, const u8 *data,
+> -				 unsigned int len)
+> -{
+> -	return sha256_base_do_update_blocks(desc, data, len, sha256_block);
+> -}
+> -
+> -static int riscv64_sha256_finup(struct shash_desc *desc, const u8 *data,
+> -				unsigned int len, u8 *out)
+> -{
+> -	sha256_base_do_finup(desc, data, len, sha256_block);
+> -	return sha256_base_finish(desc, out);
+> -}
+> -
+> -static int riscv64_sha256_digest(struct shash_desc *desc, const u8 *data,
+> -				 unsigned int len, u8 *out)
+> -{
+> -	return sha256_base_init(desc) ?:
+> -	       riscv64_sha256_finup(desc, data, len, out);
+> -}
+> -
+> -static struct shash_alg riscv64_sha256_algs[] = {
+> -	{
+> -		.init = sha256_base_init,
+> -		.update = riscv64_sha256_update,
+> -		.finup = riscv64_sha256_finup,
+> -		.digest = riscv64_sha256_digest,
+> -		.descsize = sizeof(struct crypto_sha256_state),
+> -		.digestsize = SHA256_DIGEST_SIZE,
+> -		.base = {
+> -			.cra_blocksize = SHA256_BLOCK_SIZE,
+> -			.cra_flags = CRYPTO_AHASH_ALG_BLOCK_ONLY |
+> -				     CRYPTO_AHASH_ALG_FINUP_MAX,
+> -			.cra_priority = 300,
+> -			.cra_name = "sha256",
+> -			.cra_driver_name = "sha256-riscv64-zvknha_or_zvknhb-zvkb",
+> -			.cra_module = THIS_MODULE,
+> -		},
+> -	}, {
+> -		.init = sha224_base_init,
+> -		.update = riscv64_sha256_update,
+> -		.finup = riscv64_sha256_finup,
+> -		.descsize = sizeof(struct crypto_sha256_state),
+> -		.digestsize = SHA224_DIGEST_SIZE,
+> -		.base = {
+> -			.cra_blocksize = SHA224_BLOCK_SIZE,
+> -			.cra_flags = CRYPTO_AHASH_ALG_BLOCK_ONLY |
+> -				     CRYPTO_AHASH_ALG_FINUP_MAX,
+> -			.cra_priority = 300,
+> -			.cra_name = "sha224",
+> -			.cra_driver_name = "sha224-riscv64-zvknha_or_zvknhb-zvkb",
+> -			.cra_module = THIS_MODULE,
+> -		},
+> -	},
+> -};
+> -
+> -static int __init riscv64_sha256_mod_init(void)
+> -{
+> -	/* Both zvknha and zvknhb provide the SHA-256 instructions. */
+> -	if ((riscv_isa_extension_available(NULL, ZVKNHA) ||
+> -	     riscv_isa_extension_available(NULL, ZVKNHB)) &&
+> -	    riscv_isa_extension_available(NULL, ZVKB) &&
+> -	    riscv_vector_vlen() >= 128)
+> -		return crypto_register_shashes(riscv64_sha256_algs,
+> -					       ARRAY_SIZE(riscv64_sha256_algs));
+> -
+> -	return -ENODEV;
+> -}
+> -
+> -static void __exit riscv64_sha256_mod_exit(void)
+> -{
+> -	crypto_unregister_shashes(riscv64_sha256_algs,
+> -				  ARRAY_SIZE(riscv64_sha256_algs));
+> -}
+> -
+> -module_init(riscv64_sha256_mod_init);
+> -module_exit(riscv64_sha256_mod_exit);
+> -
+> -MODULE_DESCRIPTION("SHA-256 (RISC-V accelerated)");
+> -MODULE_AUTHOR("Heiko Stuebner <heiko.stuebner@vrull.eu>");
+> -MODULE_LICENSE("GPL");
+> -MODULE_ALIAS_CRYPTO("sha256");
+> -MODULE_ALIAS_CRYPTO("sha224");
+> diff --git a/arch/riscv/lib/crypto/Kconfig b/arch/riscv/lib/crypto/Kconfig
+> index bc7a43f33eb3a..c100571feb7e8 100644
+> --- a/arch/riscv/lib/crypto/Kconfig
+> +++ b/arch/riscv/lib/crypto/Kconfig
+> @@ -4,5 +4,12 @@ config CRYPTO_CHACHA_RISCV64
+>  	tristate
+>  	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
+>  	default CRYPTO_LIB_CHACHA
+>  	select CRYPTO_ARCH_HAVE_LIB_CHACHA
+>  	select CRYPTO_LIB_CHACHA_GENERIC
+> +
+> +config CRYPTO_SHA256_RISCV64
+> +	tristate
+> +	depends on 64BIT && RISCV_ISA_V && TOOLCHAIN_HAS_VECTOR_CRYPTO
+> +	default CRYPTO_LIB_SHA256
+> +	select CRYPTO_ARCH_HAVE_LIB_SHA256
+> +	select CRYPTO_LIB_SHA256_GENERIC
+> diff --git a/arch/riscv/lib/crypto/Makefile b/arch/riscv/lib/crypto/Makefile
+> index e27b78f317fc8..b7cb877a2c07e 100644
+> --- a/arch/riscv/lib/crypto/Makefile
+> +++ b/arch/riscv/lib/crypto/Makefile
+> @@ -1,4 +1,7 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+>
+>  obj-$(CONFIG_CRYPTO_CHACHA_RISCV64) += chacha-riscv64.o
+>  chacha-riscv64-y := chacha-riscv64-glue.o chacha-riscv64-zvkb.o
+> +
+> +obj-$(CONFIG_CRYPTO_SHA256_RISCV64) += sha256-riscv64.o
+> +sha256-riscv64-y := sha256.o sha256-riscv64-zvknha_or_zvknhb-zvkb.o
+> diff --git a/arch/riscv/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S b/arch/riscv/lib/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S
+> similarity index 98%
+> rename from arch/riscv/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S
+> rename to arch/riscv/lib/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S
+> index f1f5779e47323..fad501ad06171 100644
+> --- a/arch/riscv/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S
+> +++ b/arch/riscv/lib/crypto/sha256-riscv64-zvknha_or_zvknhb-zvkb.S
+> @@ -104,12 +104,12 @@
+>  	sha256_4rounds	\last, \k1, W1, W2, W3, W0
+>  	sha256_4rounds	\last, \k2, W2, W3, W0, W1
+>  	sha256_4rounds	\last, \k3, W3, W0, W1, W2
+>  .endm
+>
+> -// void sha256_transform_zvknha_or_zvknhb_zvkb(u32 state[8], const u8 *data,
+> -//					       int num_blocks);
+> +// void sha256_transform_zvknha_or_zvknhb_zvkb(u32 state[SHA256_STATE_WORDS],
+> +//					       const u8 *data, size_t nblocks);
+>  SYM_FUNC_START(sha256_transform_zvknha_or_zvknhb_zvkb)
+>
+>  	// Load the round constants into K0-K15.
+>  	vsetivli	zero, 4, e32, m1, ta, ma
+>  	la		t0, K256
+> diff --git a/arch/riscv/lib/crypto/sha256.c b/arch/riscv/lib/crypto/sha256.c
+> new file mode 100644
+> index 0000000000000..18b84030f0b39
+> --- /dev/null
+> +++ b/arch/riscv/lib/crypto/sha256.c
+> @@ -0,0 +1,62 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * SHA-256 (RISC-V accelerated)
+> + *
+> + * Copyright (C) 2022 VRULL GmbH
+> + * Author: Heiko Stuebner <heiko.stuebner@vrull.eu>
+> + *
+> + * Copyright (C) 2023 SiFive, Inc.
+> + * Author: Jerry Shih <jerry.shih@sifive.com>
+> + */
+> +
+> +#include <asm/simd.h>
+> +#include <asm/vector.h>
+> +#include <crypto/internal/sha2.h>
+> +#include <crypto/internal/simd.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +
+> +asmlinkage void sha256_transform_zvknha_or_zvknhb_zvkb(
+> +	u32 state[SHA256_STATE_WORDS], const u8 *data, size_t nblocks);
+> +
+> +static __ro_after_init DEFINE_STATIC_KEY_FALSE(have_extensions);
+> +
+> +void sha256_blocks_arch(u32 state[SHA256_STATE_WORDS],
+> +			const u8 *data, size_t nblocks)
+> +{
+> +	if (static_branch_likely(&have_extensions) && crypto_simd_usable()) {
+> +		kernel_vector_begin();
+> +		sha256_transform_zvknha_or_zvknhb_zvkb(state, data, nblocks);
+> +		kernel_vector_end();
+> +	} else {
+> +		sha256_blocks_generic(state, data, nblocks);
+> +	}
+> +}
+> +EXPORT_SYMBOL(sha256_blocks_arch);
+> +
+> +bool sha256_is_arch_optimized(void)
+> +{
+> +	return static_key_enabled(&have_extensions);
+> +}
+> +EXPORT_SYMBOL(sha256_is_arch_optimized);
+> +
+> +static int __init riscv64_sha256_mod_init(void)
+> +{
+> +	/* Both zvknha and zvknhb provide the SHA-256 instructions. */
+> +	if ((riscv_isa_extension_available(NULL, ZVKNHA) ||
+> +	     riscv_isa_extension_available(NULL, ZVKNHB)) &&
+> +	    riscv_isa_extension_available(NULL, ZVKB) &&
+> +	    riscv_vector_vlen() >= 128)
+> +		static_branch_enable(&have_extensions);
+> +	return 0;
+> +}
+> +arch_initcall(riscv64_sha256_mod_init);
+> +
+> +static void __exit riscv64_sha256_mod_exit(void)
+> +{
+> +}
+> +module_exit(riscv64_sha256_mod_exit);
+> +
+> +MODULE_DESCRIPTION("SHA-256 (RISC-V accelerated)");
+> +MODULE_AUTHOR("Heiko Stuebner <heiko.stuebner@vrull.eu>");
+> +MODULE_LICENSE("GPL");
 
-On Wed, May 07, 2025 at 06:28:04PM +0200, Andrew Jones wrote:
-> On Wed, May 07, 2025 at 04:12:48PM +0100, Alexandru Elisei wrote:
-> > arm/arm64 supports running tests under kvmtool, but kvmtool's syntax for
-> > running and configuring a virtual machine is different to qemu. To run
-> > tests using the automated test infrastructure, add a new test parameter,
-> > 'kvmtool_params'. The parameter serves the exact purpose as 'qemu_params',
-> > but using kvmtool's syntax.
-> > 
-> > Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-> > ---
-> >  arm/unittests.cfg   | 24 +++++++++++++++++++++++
-> >  docs/unittests.txt  |  8 ++++++++
-> >  scripts/common.bash | 47 +++++++++++++++++++++++++++++----------------
-> >  3 files changed, 62 insertions(+), 17 deletions(-)
-> > 
-> > diff --git a/arm/unittests.cfg b/arm/unittests.cfg
-> > index a4192ed7e20b..f3c773e56933 100644
-> > --- a/arm/unittests.cfg
-> > +++ b/arm/unittests.cfg
-> > @@ -17,6 +17,7 @@ file = selftest.flat
-> >  smp = 2
-> >  test_args = 'setup smp=2 mem=256'
-> >  qemu_params = -m 256
-> > +kvmtool_params = --mem 256
-> >  groups = selftest
-> >  
-> >  # Test vector setup and exception handling (kernel mode).
-> > @@ -48,66 +49,77 @@ groups = pci
-> >  file = pmu.flat
-> >  groups = pmu
-> >  test_args = "cycle-counter 0"
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-event-introspection]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-event-introspection
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-event-counter-config]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-event-counter-config
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-basic-event-count]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-basic-event-count
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-mem-access]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-mem-access
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-mem-access-reliability]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-mem-access-reliability
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-sw-incr]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-sw-incr
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-chained-counters]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-chained-counters
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-chained-sw-incr]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-chained-sw-incr
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-chain-promotion]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-chain-promotion
-> > +kvmtool_params = --pmu
-> >  
-> >  [pmu-overflow-interrupt]
-> >  file = pmu.flat
-> >  groups = pmu
-> >  arch = arm64
-> >  test_args = pmu-overflow-interrupt
-> > +kvmtool_params = --pmu
-> >  
-> >  # Test PMU support (TCG) with -icount IPC=1
-> >  #[pmu-tcg-icount-1]
-> > @@ -131,6 +143,7 @@ file = gic.flat
-> >  smp = $((($MAX_SMP < 8)?$MAX_SMP:8))
-> >  test_args = ipi
-> >  qemu_params = -machine gic-version=2
-> > +kvmtool_params = --irqchip=gicv2
-> >  groups = gic
-> >  
-> >  [gicv2-mmio]
-> > @@ -138,6 +151,7 @@ file = gic.flat
-> >  smp = $((($MAX_SMP < 8)?$MAX_SMP:8))
-> >  test_args = mmio
-> >  qemu_params = -machine gic-version=2
-> > +kvmtool_params = --irqchip=gicv2
-> >  groups = gic
-> >  
-> >  [gicv2-mmio-up]
-> > @@ -145,6 +159,7 @@ file = gic.flat
-> >  smp = 1
-> >  test_args = mmio
-> >  qemu_params = -machine gic-version=2
-> > +kvmtool_params = --irqchip=gicv2
-> >  groups = gic
-> >  
-> >  [gicv2-mmio-3p]
-> > @@ -152,6 +167,7 @@ file = gic.flat
-> >  smp = $((($MAX_SMP < 3)?$MAX_SMP:3))
-> >  test_args = mmio
-> >  qemu_params = -machine gic-version=2
-> > +kvmtool_params = --irqchip=gicv2
-> >  groups = gic
-> >  
-> >  [gicv3-ipi]
-> > @@ -159,6 +175,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = ipi
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3
-> >  groups = gic
-> >  
-> >  [gicv2-active]
-> > @@ -166,6 +183,7 @@ file = gic.flat
-> >  smp = $((($MAX_SMP < 8)?$MAX_SMP:8))
-> >  test_args = active
-> >  qemu_params = -machine gic-version=2
-> > +kvmtool_params = --irqchip=gicv2
-> >  groups = gic
-> >  
-> >  [gicv3-active]
-> > @@ -173,6 +191,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = active
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3
-> >  groups = gic
-> >  
-> >  [its-introspection]
-> > @@ -180,6 +199,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = its-introspection
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3-its
-> >  groups = its
-> >  arch = arm64
-> >  
-> > @@ -188,6 +208,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = its-trigger
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3-its
-> >  groups = its
-> >  arch = arm64
-> >  
-> > @@ -196,6 +217,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = its-migration
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3
-> >  groups = its migration
-> >  arch = arm64
-> >  
-> > @@ -204,6 +226,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = its-pending-migration
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3
-> >  groups = its migration
-> >  arch = arm64
-> >  
-> > @@ -212,6 +235,7 @@ file = gic.flat
-> >  smp = $MAX_SMP
-> >  test_args = its-migrate-unmapped-collection
-> >  qemu_params = -machine gic-version=3
-> > +kvmtool_params = --irqchip=gicv3
-> >  groups = its migration
-> >  arch = arm64
-> >  
-> > diff --git a/docs/unittests.txt b/docs/unittests.txt
-> > index ea0da959f008..a9164bccc24c 100644
-> > --- a/docs/unittests.txt
-> > +++ b/docs/unittests.txt
-> > @@ -78,6 +78,14 @@ extra_params
-> >  Alias for 'qemu_params', supported for compatibility purposes. Use
-> >  'qemu_params' for new tests.
-> >  
-> > +kvmtool_params
-> > +--------------
-> > +Extra parameters supplied to the kvmtool process. Works similarly to
-> > +'qemu_params', but uses kvmtool's syntax for command line arguments. The
-> > +example for 'qemu_params', applied to kvmtool, would be:
-> > +
-> > +kvmtool_params = --mem 256
-> > +
-> >  groups
-> >  ------
-> >  groups = <group_name1> <group_name2> ...
-> > diff --git a/scripts/common.bash b/scripts/common.bash
-> > index 649f1c737617..0645235d8baa 100644
-> > --- a/scripts/common.bash
-> > +++ b/scripts/common.bash
-> > @@ -1,6 +1,29 @@
-> >  source config.mak
-> >  source scripts/vmm.bash
-> >  
-> > +function parse_opts()
-> > +{
-> > +	local opts="$1"
-> > +	local fd="$2"
-> > +
-> > +	while read -r -u $fd; do
-> > +		#escape backslash newline, but not double backslash
-> > +		if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
-> > +			if (( ${#BASH_REMATCH[1]} % 2 == 1 )); then
-> > +				opts=${opts%\\$'\n'}
-> > +			fi
-> > +		fi
-> > +		if [[ "$REPLY" =~ ^(.*)'"""'[:blank:]*$ ]]; then
-> > +			opts+=${BASH_REMATCH[1]}
-> > +			break
-> > +		else
-> > +			opts+=$REPLY$'\n'
-> > +		fi
-> > +	done
-> > +
-> > +	echo "$opts"
-> > +}
-> > +
-> >  function for_each_unittest()
-> >  {
-> >  	local unittests="$1"
-> > @@ -46,24 +69,14 @@ function for_each_unittest()
-> >  			smp="${vmm_opts[$TARGET:nr_cpus]} ${BASH_REMATCH[1]}"
-> >  		elif [[ $line =~ ^test_args\ *=\ *(.*)$ ]]; then
-> >  			test_args="${vmm_opts[$TARGET:args]} ${BASH_REMATCH[1]}"
-> > -		elif [[ $line =~ ^(extra_params|qemu_params)\ *=\ *'"""'(.*)$ ]]; then
-> > -			opts=${BASH_REMATCH[2]}$'\n'
-> > -			while read -r -u $fd; do
-> > -				#escape backslash newline, but not double backslash
-> > -				if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
-> > -					if (( ${#BASH_REMATCH[1]} % 2 == 1 )); then
-> > -						opts=${opts%\\$'\n'}
-> > -					fi
-> > -				fi
-> > -				if [[ "$REPLY" =~ ^(.*)'"""'[:blank:]*$ ]]; then
-> > -					opts+=${BASH_REMATCH[1]}
-> > -					break
-> > -				else
-> > -					opts+=$REPLY$'\n'
-> > -				fi
-> > -			done
-> > -		elif [[ $line =~ ^(extra_params|qemu_params)\ *=\ *(.*)$ ]]; then
-> > +		elif [[ $TARGET = "qemu" ]] && [[ $line =~ ^(extra_params|qemu_params)\ *=\ *'"""'(.*)$ ]]; then
-> 
-> Should use == with [[ ]]
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-Ack.
-
-> 
-> > +			opts=$(parse_opts ${BASH_REMATCH[2]}$'\n' $fd)
-> > +		elif [[ $TARGET  = "qemu" ]] && [[ $line =~ ^(extra_params|qemu_params)\ *=\ *(.*)$ ]]; then
->                                ^ extra space
-> 
-> >  			opts=${BASH_REMATCH[2]}
-> > +		elif [[ $TARGET = "kvmtool" ]] && [[ $line =~ ^kvmtool_params\ *=\ *'"""'(.*)$ ]]; then
-> > +			opts=$(parse_opts ${BASH_REMATCH[1]}$'\n' $fd)
-> > +		elif [[ $TARGET = "kvmtool" ]] && [[ $line =~ ^kvmtool_params\ *=\ *(.*)$ ]]; then
-> > +			opts=${BASH_REMATCH[1]}
-> 
-> I think we can do something like
-> 
-> if [[ $TARGET == "qemu" ]]; then
->    params='(extra_params|qemu_params)'
-> elif [[ $TARGET == "kvmtool" ]]; then
->    params='(kvmtool_params)'
-> else
->    ...fail...
-> fi
-> 
-> And then use $params in the regular expressions and always use
-> BASH_REMATCH[2]. That would allow us to avoid duplicating the if
-> statements and then we wouldn't need to factor out parse_opts either.
-
-Sounds good. I can even wrap it with with a vmm function, something like
-vmm_get_params_name().
-
-Thanks,
-Alex
-
-> 
-> Thanks,
-> drew
-> 
-> >  		elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
-> >  			groups=${BASH_REMATCH[1]}
-> >  		elif [[ $line =~ ^arch\ *=\ *(.*)$ ]]; then
-> > -- 
-> > 2.49.0
-> > 
-> > 
-> > -- 
-> > kvm-riscv mailing list
-> > kvm-riscv@lists.infradead.org
-> > http://lists.infradead.org/mailman/listinfo/kvm-riscv
+I assume you want to keep these all together somewhere, so I'm going to 
+drop it from the RISC-V patchwork.
