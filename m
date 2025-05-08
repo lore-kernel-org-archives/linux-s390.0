@@ -1,139 +1,171 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A178521D3E2;
-	Thu,  8 May 2025 11:19:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96F5B2253F3
+	for <linux-s390@vger.kernel.org>; Thu,  8 May 2025 12:23:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746703171; cv=none; b=U3sPQLNAhJUcC23Nl8jTICBvWbB7C1OtcFMUelVFeSxzf/KRXW1r4ID86nYXE/sUlDGXRW/Buo1eak3WR4tyWSbMxmKzLxSRSV5JTrMajB56cNjjJGUU8rZmsUh5BOFD5icjYZhIIJBuNWcI2Ijzdn/ENSGCmeWHMK5nmucAtMs=
+	t=1746707008; cv=none; b=NFDnZrslL8gG9P8GSbCmz0LxTMLE117F4/aiPrdLe3Owu4HZSLaggK3EP3wvGdag6DeSHEzvubGlDff46WteL2gcCxcBza4mYMP8Gg5xyJc581OTJlNEAkWofeA6N0qTea5QPAcHqHiyspa6JNzii2ShpGV1MwVSIJbH4eYIVWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746703171; c=relaxed/simple;
-	bh=9DZuRCk2UmqT6nZhU37zM48I87ccmhLurXBFbkIfIJI=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=NL/AKEEFgXFxfcCEHSgPq2g0TciABA6BJMlfviBBy/WzIwt88cuBpzJTBlY1H24m3rnLNhoScE378V/a4clmnXmmO+wfK/8wzp8psALGjMFcmU+bDsYKgGZxQc5l3+T322hNSEe8Y0gqvLsmbuouEywuvloYgzo4TS0YUFX5uc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BWgqMnYP; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1746707008; c=relaxed/simple;
+	bh=n1DaNBSAbwSjqMNiKl3ZhnzGUtTOnVJb3kD0pUQSCf4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fL29eBfTKp2a7BxaAwKMVsuYmeaShsXpraKoVf/IYsnYdYPMzP7Nl0aX6wa8Ihv8mG0mnBMzpIcRjbV29+xr/60vIC5/cD5BNWBCNT3Ix5qgu5ax3PLEmStrfmiarhdLwesIfYjH88VGPjQsgbNLLq7mF3OnwOfKLIVbHjVh8nk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=TI3lhddp; arc=none smtp.client-ip=209.85.215.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BWgqMnYP"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 548AiceU007322;
-	Thu, 8 May 2025 11:19:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=flmZG3XdsNKG5JaJlHsVhMf6zjYlR9YiXjzwenM1vFI=; b=BWgqMnYP
-	8Ss/pPOmLjKW6iYj2t7NA5GofU1H3bb6j7bftt5D5h7ICGnV1bxJ5SnAXl5ny/4a
-	5ywZX4NPgLKYnCPRVE1Ncn0MeETGoRGPlwx1W4nV1YZMP/CgpKxeTtCkBw/yFlPR
-	qVEvG1DXvANrDVfx++Q020BRifwkzh0w4W16S7BN0FfJiXuy9isrJ2SQ8a32WI2f
-	O0+Xl/Uh84HVYmI2H4CP/Z1Rqpco4D90jiAnq0H9caf4zpTKuWdFX9AV3h5X+YxX
-	33PLoR2wcNp3mFw2NPxXeMDOEQgjUTtiKCF0gDCDyBnise4SP3R5fSaz1zAQSUZk
-	qhTnKHnMstSe+g==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ghg2aksr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 May 2025 11:19:27 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 548AWdX8014167;
-	Thu, 8 May 2025 11:19:27 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 46dypkw8af-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 May 2025 11:19:27 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 548BJNDJ40043000
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 May 2025 11:19:23 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 537B320043;
-	Thu,  8 May 2025 11:19:23 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2576520040;
-	Thu,  8 May 2025 11:19:23 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  8 May 2025 11:19:23 +0000 (GMT)
-Date: Thu, 8 May 2025 13:19:20 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [GIT PULL] s390 fixes for 6.15-rc6
-Message-ID: <20250508111920.8929B8c-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="TI3lhddp"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-af908bb32fdso803431a12.1
+        for <linux-s390@vger.kernel.org>; Thu, 08 May 2025 05:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1746707004; x=1747311804; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=YHzGR2TH3f5PkiaDuIeNupqLtaLoSxh32TBcttsiE58=;
+        b=TI3lhddpzOnan2Fj4PlAoxEtdyJhilTH0aEryFC51JWmDuTJqRXV9M9IpaZ+0Bi+Vj
+         W4IclAy3ed3oqSMRsFsQ/7rDqJHPHn6hDmRpvatvoz76F3ImVAIbE/b/2fDJjw/x6QcL
+         3O/1m4LuvMiwZncuB8KnqTiSYuh0wLDUyMZzOtiRaeUXJyb1BuhHSG0B9o050imPA/jx
+         /oD8Sj9+JsdcdPoyuu4mBZ2icyKxv4pQutD0UucwckkYnO1t0lN1NezzwlhggBGxt8jN
+         XyMZDkQwIe7C7pddABjhAdfBNSvfEtF4plZ2v0nLH43gPd7YW12ARPAGdV9pw9cUJSgE
+         QDcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746707004; x=1747311804;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=YHzGR2TH3f5PkiaDuIeNupqLtaLoSxh32TBcttsiE58=;
+        b=CjOB3NIeRGVVtwTtl5/pykQAIu31/IM5qVsWhP8bslvYi3+bga6kCm5b9Nbdeulfdn
+         MpmlKNdKO5NeHO6OvW1NMW+IQP4WsREDW4HnKkRM/uen2cD2m2vR9gXsX9+GQI7mGluR
+         zstGRM3NycJF8/zbS+Q8BinAm9yVDTOpKFHNK/AcfHKCDsJ3aLpG2nM3wKrknloGt3DS
+         hXTj000xaKxrP25qzs3freDjJwuS1NrKZD51IKM2qaxtzHmNUsLiDhowo7eCgHXB0MMq
+         HbGAp+/JpWEAsEt2iaA9uc0MnpkDAUSRynVvyu3z2TzDLx1wOgusKWsUeelMAawEZ2/b
+         GdDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVoUr4faDip+bqf91glujZsd9DE56aVhQpN8DXt8dHODbtY1q3dwYaLIju6U63qyQKv8K67Kh3Backo@vger.kernel.org
+X-Gm-Message-State: AOJu0YwRKwT6Ym0FpakN1DkfIwb7EgV2SDlWKY61HI2v+adXq6aZjttr
+	51nYqEZQdGu6tga+OiqKEdY+7sIgnhAuJhqYOcPAU7VSwd4Cm0+nq9FW9ztG8g8qDCIxzi1+DRg
+	05SPPfn2VpMpptkESkmUIpBR9IKFPgzX3fi1F
+X-Gm-Gg: ASbGncv2NPt4a0Xo7FMFBpv698Vau1WgPoND2+j6jnSRZYtMshCv5TXAo8dyUYdWl7y
+	3dz80XUwLYl12ylpp4RiIHzM1wVAblfWc/Hh2VbgeEhPUibs5IERm0Uf9i0jb+2TuzJyBp/S9PN
+	C5MMXxYKW2HYdHy6o2o1/J3rYbflohgZ5pdwUBh4x8fF4GCGyPk2MHurKoSbFIIEE=
+X-Google-Smtp-Source: AGHT+IGuazhS9joimxHTMGiamVK9GxUm2CRwvQi3+Gq6fqxsbfAnr7up4McbBtUROkgn62zEFRcy/K/C2EzHqfHG+xw=
+X-Received: by 2002:a17:90b:4b8c:b0:2fa:1d9f:c80 with SMTP id
+ 98e67ed59e1d1-30adbf6d05amr4939913a91.17.1746707003520; Thu, 08 May 2025
+ 05:23:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: NvejrbkKM-UwMkwZEujRxAojN8ifk2Ok
-X-Authority-Analysis: v=2.4 cv=VJLdn8PX c=1 sm=1 tr=0 ts=681c9340 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=smB1mK5zkJfcGVX_D5UA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTA4MDA5NCBTYWx0ZWRfX6JzaPyPiz1VE tBrIHscMNFF5NZ/1PZISWAvje86SEBIPA2zsou9tQrOd8FzyanfQ9CwryQxfQZubirrJ60QkkXT 1Lq/XDzYjwVSSAFfIuIwOLDu+cVuWvjPVDzS7ICI7G0nwsuO/ihHHXvHcEkUvSc48ZvX4s8bENU
- FDwy0nNPVSOb049o4EqrbjEHyj78+Uq8Wdwxzsbbxb98UZrSNAVcBvmF0HqhLADqkcXiVsE5q0Q qLYKi24NjEZ2MGXE6iF2HD2wqP7QkuJGWGViOVCKg/3v9tLxfgxbHgHd9nJkycOLHdR/wdKHFrD EBubxGOCV0nvzTEDmJGxWkMsgT3+DY47BW1v5E4JFzgBd7nR+JYpVgBufYhyKDlp7gON0ReawTn
- rmos450v1qdEXdToPLon2m/XpDtzVmDBYjq6KX8FUFJISRr/RDzWbFY3gtHisHInY5k5fH1Q
-X-Proofpoint-ORIG-GUID: NvejrbkKM-UwMkwZEujRxAojN8ifk2Ok
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-08_03,2025-05-07_02,2025-02-21_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
- mlxlogscore=831 malwarescore=0 lowpriorityscore=0 spamscore=0 adultscore=0
- priorityscore=1501 clxscore=1015 bulkscore=0 impostorscore=0 mlxscore=0
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2504070000
- definitions=main-2505080094
+References: <20250507180852.work.231-kees@kernel.org> <20250507181615.1947159-2-kees@kernel.org>
+In-Reply-To: <20250507181615.1947159-2-kees@kernel.org>
+From: Marco Elver <elver@google.com>
+Date: Thu, 8 May 2025 14:22:47 +0200
+X-Gm-Features: ATxdqUHttH2gHvJKzLvMz7fkEuSC2xFFktBrniyRJYj71k93n_Rm8LTTobDJ7fU
+Message-ID: <CANpmjNPcYPvnQzMT3p+Vc2=EiEbR1WnykUEjuYc0bH2HOFi6HQ@mail.gmail.com>
+Subject: Re: [PATCH 2/8] init.h: Disable sanitizer coverage for __init and __head
+To: Kees Cook <kees@kernel.org>, Dmitry Vyukov <dvyukov@google.com>, 
+	Alexander Potapenko <glider@google.com>, Aleksandr Nogikh <nogikh@google.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andrey Konovalov <andreyknvl@gmail.com>, 
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Ard Biesheuvel <ardb@kernel.org>, 
+	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>, Hou Wenlong <houwenlong.hwl@antgroup.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Masahiro Yamada <masahiroy@kernel.org>, 
+	"Peter Zijlstra (Intel)" <peterz@infradead.org>, Luis Chamberlain <mcgrof@kernel.org>, 
+	Sami Tolvanen <samitolvanen@google.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	kasan-dev@googlegroups.com, "Gustavo A. R. Silva" <gustavoars@kernel.org>, 
+	Christoph Hellwig <hch@lst.de>, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nicolas.schier@linux.dev>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org, 
+	linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	kvmarm@lists.linux.dev, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-efi@vger.kernel.org, 
+	linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	sparclinux@vger.kernel.org, llvm@lists.linux.dev, 
+	syzkaller <syzkaller@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Linus,
++Cc KCOV maintainers
 
-please pull s390 fixes for 6.15-rc6.
+On Wed, 7 May 2025 at 20:16, Kees Cook <kees@kernel.org> wrote:
+>
+> While __noinstr already contained __no_sanitize_coverage, it needs to
+> be added to __init and __head section markings to support the Clang
+> implementation of CONFIG_STACKLEAK. This is to make sure the stack depth
+> tracking callback is not executed in unsupported contexts.
+>
+> The other sanitizer coverage options (trace-pc and trace-cmp) aren't
+> needed in __head nor __init either ("We are interested in code coverage
+> as a function of a syscall inputs"[1]), so this appears safe to disable
+> for them as well.
 
-The following changes since commit 8ffd015db85fea3e15a77027fda6c02ced4d2444:
+@ Dmitry, Aleksandr - Will this produce some unwanted side-effects for
+syzbot? I also think it's safe, but just double checking.
 
-  Linux 6.15-rc2 (2025-04-13 11:54:49 -0700)
+> Link: https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/kcov.c?h=v6.14#n179 [1]
+> Signed-off-by: Kees Cook <kees@kernel.org>
 
-are available in the Git repository at:
+Acked-by: Marco Elver <elver@google.com>
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.15-4
-
-for you to fetch changes up to 05a2538f2b48500cf4e8a0a0ce76623cc5bafcf1:
-
-  s390/pci: Fix duplicate pci_dev_put() in disable_slot() when PF has child VFs (2025-05-07 13:35:05 +0200)
-
-----------------------------------------------------------------
-s390 fixes for 6.15-rc6
-
-- Fix potential use-after-free bug and missing error handling in PCI code
-
-- Fix dcssblk build error
-
-- Fix last breaking event handling in case of stack corruption to
-  allow for better error reporting
-
-- Update defconfigs
-
-----------------------------------------------------------------
-Gerald Schaefer (1):
-      s390/dcssblk: Fix build error with CONFIG_DAX=m and CONFIG_DCSSBLK=y
-
-Heiko Carstens (2):
-      s390/entry: Fix last breaking event handling in case of stack corruption
-      s390: Update defconfigs
-
-Konstantin Shkolnyy (2):
-      s390/configs: Enable VDPA on Nvidia ConnectX-6 network card
-      s390/configs: Enable options required for TC flow offload
-
-Niklas Schnelle (2):
-      s390/pci: Fix missing check for zpci_create_device() error return
-      s390/pci: Fix duplicate pci_dev_put() in disable_slot() when PF has child VFs
-
- arch/s390/configs/debug_defconfig    | 28 +++++++++++++++++++---------
- arch/s390/configs/defconfig          | 24 +++++++++++++++++-------
- arch/s390/configs/zfcpdump_defconfig |  1 -
- arch/s390/kernel/entry.S             |  3 ++-
- arch/s390/pci/pci_clp.c              |  2 ++
- drivers/pci/hotplug/s390_pci_hpc.c   |  1 -
- drivers/s390/block/Kconfig           |  3 +--
- 7 files changed, 41 insertions(+), 21 deletions(-)
+> ---
+> Cc: Marco Elver <elver@google.com>
+> Cc: Andrey Konovalov <andreyknvl@gmail.com>
+> Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: <x86@kernel.org>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+> Cc: Hou Wenlong <houwenlong.hwl@antgroup.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Masahiro Yamada <masahiroy@kernel.org>
+> Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+> Cc: Luis Chamberlain <mcgrof@kernel.org>
+> Cc: Sami Tolvanen <samitolvanen@google.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Cc: <kasan-dev@googlegroups.com>
+> ---
+>  arch/x86/include/asm/init.h | 2 +-
+>  include/linux/init.h        | 4 +++-
+>  2 files changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/x86/include/asm/init.h b/arch/x86/include/asm/init.h
+> index 8b1b1abcef15..6bfdaeddbae8 100644
+> --- a/arch/x86/include/asm/init.h
+> +++ b/arch/x86/include/asm/init.h
+> @@ -5,7 +5,7 @@
+>  #if defined(CONFIG_CC_IS_CLANG) && CONFIG_CLANG_VERSION < 170000
+>  #define __head __section(".head.text") __no_sanitize_undefined __no_stack_protector
+>  #else
+> -#define __head __section(".head.text") __no_sanitize_undefined
+> +#define __head __section(".head.text") __no_sanitize_undefined __no_sanitize_coverage
+>  #endif
+>
+>  struct x86_mapping_info {
+> diff --git a/include/linux/init.h b/include/linux/init.h
+> index ee1309473bc6..c65a050d52a7 100644
+> --- a/include/linux/init.h
+> +++ b/include/linux/init.h
+> @@ -49,7 +49,9 @@
+>
+>  /* These are for everybody (although not all archs will actually
+>     discard it in modules) */
+> -#define __init         __section(".init.text") __cold  __latent_entropy __noinitretpoline
+> +#define __init         __section(".init.text") __cold __latent_entropy \
+> +                                               __noinitretpoline       \
+> +                                               __no_sanitize_coverage
+>  #define __initdata     __section(".init.data")
+>  #define __initconst    __section(".init.rodata")
+>  #define __exitdata     __section(".exit.data")
+> --
+> 2.34.1
+>
