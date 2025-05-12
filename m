@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA90295532
-	for <linux-s390@vger.kernel.org>; Mon, 12 May 2025 13:27:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C111294A1B
+	for <linux-s390@vger.kernel.org>; Mon, 12 May 2025 13:27:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747056436; cv=none; b=KhFL35WC4BhM72nd31tPE9mn7Zu9wXLcqFaFcU4kog0WSs6mcVzbq93LzUpApUL8GEnyDf9I3Qd7Yj1HuFtdOwsYPG3U9+aG3A/lOzh/xRkefyIxll2OYnKvvDB78zdVZucgpm6F3NTMlrVcp3WiZavG7xbB8eDFFvTbbiwFv1Y=
+	t=1747056462; cv=none; b=IH1/fyuUlJGYTEA0/sKNm/k7df214eT/hRrZ8M96esVdJuqPmg5ggoA5+1pYHBhs+fRNZhgCCLEF9D2UVh8qIYvj1hsMXCak+3QF95d66TMB8/t9HPHE+/UO2zZ75lOY9U5EUOFwWLkV93hjPv7NDfL1D6w/eNKE+uPCsL+qEJ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747056436; c=relaxed/simple;
-	bh=BkEoFCauMqjqdF99XOQ04bTcBlErPYvxw1BKLlXKtUY=;
+	s=arc-20240116; t=1747056462; c=relaxed/simple;
+	bh=gScTXsZRGDYE+022QBdwDbpPUwWWidavzWWjs4WLfnQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LntSSlD7EoYettO06qtn2nW1lpV9+c9t7QevjkD4pTEZUALKDBYd1+6JZTV49eaKOwcoJl2QDUUH2I1PGb0hMgxZkuYr3J1KdKzrygluSLNb75y2lmM3SSU14FVN+98Z2mUtBzSr9dlixo7e2wshjlrUh6mjEyzHidsagV2xriw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=d246ZmiN; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=RGiDkb4LmSLIHPQOW1kA66wIINnRaXmMe33Xz+6TbwFuCOu+0EnvCGTRcLnF383R8Ffr1vbPIJY8L7w5wBrNYq8tGCGtWmMFSZN3HOoVX4Sg7G1DtgVrgPoNJy/h6hEBng5znDH/kRNfVf35F4YRiZKbU9u8xbtCxoHHvUxge80=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VM9fIjlj; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d246ZmiN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VM9fIjlj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747056432;
+	s=mimecast20190719; t=1747056459;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xT/FjlwzeW/dIJrII1zg+QW6Nufx9n56t4jpFPeTrX8=;
-	b=d246ZmiNsw2rF83nAb1Nz3KB7U7JlkwB+cGoXxZIFwQUDEQ5sElyDxHOq1e9lZTTuEAGBE
-	bZzj0SQDJlF28NbfKv07p1/gMflT7sB2tS0NxpP4N9Os7gVQ03CXM40WoXW5vnblVdsjZ5
-	3cL4BVo8qEbcOw4VvjhVs/QloIzgb50=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=iGGf03vY07V5lmldCU9BJs4LhScCZSGAvX7drfDcFVs=;
+	b=VM9fIjljqGVN+keF+iZm39iaDE4v8kU1d/Zf+K3CXfjSGlaDaidfhXo8pNnOSu8CChtSVz
+	7TWPTE62I3+smNVNX3RVPn4QSnB8/mV+DBGt2xEhCOXqPnzwtCJ5q7lFGyJPDvOP6uQdiU
+	OLEXm9WhB0IHPNHALTqLOZZ5QlKtQVY=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-504--lGSxdZbM3amERdc06yxww-1; Mon, 12 May 2025 09:27:11 -0400
-X-MC-Unique: -lGSxdZbM3amERdc06yxww-1
-X-Mimecast-MFC-AGG-ID: -lGSxdZbM3amERdc06yxww_1747056430
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-ad239523a14so161557566b.0
-        for <linux-s390@vger.kernel.org>; Mon, 12 May 2025 06:27:11 -0700 (PDT)
+ us-mta-544-0Lhc7_Q5NXWXq-JXC0PIJw-1; Mon, 12 May 2025 09:27:37 -0400
+X-MC-Unique: 0Lhc7_Q5NXWXq-JXC0PIJw-1
+X-Mimecast-MFC-AGG-ID: 0Lhc7_Q5NXWXq-JXC0PIJw_1747056456
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ac79e4764e5so397195666b.0
+        for <linux-s390@vger.kernel.org>; Mon, 12 May 2025 06:27:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747056427; x=1747661227;
+        d=1e100.net; s=20230601; t=1747056453; x=1747661253;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xT/FjlwzeW/dIJrII1zg+QW6Nufx9n56t4jpFPeTrX8=;
-        b=qBK9g5uPUurycKLRGZ5cuFWXu0s+Q0xKQeSWeuKmaGztdBcZVU3plNOJPNfvBmlLgm
-         g7/nQBLOzlNib/a0r45vcnAhclul30P2moGO5MMyk2l5rCfdU64j6tWFUe8pZ6CKlo5k
-         dkIPpIqlbGeEZWZxTYMvBLZ8vKWH9HAz9Z9TZzAx1QEAsvIwvkVBX/g+d47d0hiy1vaO
-         vW8lQWPlIO73NbsUGFMTGXFXEKTlSaX91OLzTtgrZuln6lR/UpaBp2QL49rEC+qC8Bju
-         7+eKFFn5A7EiwHMQuTATAeJNU+uH4qlMWn/lMVtKram2ChJro/cndcVto7B53rTJGvmQ
-         HqEQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWk7gwdwCqZQuaPOM5/xLg+VXkzRLu8Lx5JzpzrzNlJRjepERb5OteKT8D/n9WFvM7BzU5SBzQFmtja@vger.kernel.org
-X-Gm-Message-State: AOJu0YyrRPGMLMnoiqyF6LuicCDmoFwGWVaPeDhrFKOwRyYHPOUHnfKS
-	0N4A5kaufOSCsdPdPdZ5CMof7O3gwOEZ+GSwgzAxbmlqth0FVtRhv1kbNbeQi5m8Xfp/FhrD7dA
-	W0PEoxlYb6rt9vomO3ZQwVq+S+UOmOESYTD+LMFxKxaVzFnDIOO1RqQCKvw==
-X-Gm-Gg: ASbGncuMWhConqH2OR4YVC4ImKhN6v642Gg1uDjHM/2sTTxpCVJUSsL/emm8dO4SdXF
-	1+kmMeuCNct2OOb0xsW1xlU5iSI29/aDsAlxDyiUz1deP1MShB3bg7ke5H+3cC9itDpJ4NlROE4
-	aw9dkl6i8VyaNkMv6oP8imwjCi7PSsey05eBzx39YL4ktdySDureT3pk6J3vAcEF+VzqDT5bbz3
-	AV58V+fDCnSvEdxrvvdKFw/50kL0y/zvRGawqh2SQzrj6i4+DuR8nwHNKlh0xJH3CdON1fsfxz+
-	8icyH4hBd1FWrRfjGQQYyftQz82roH40ghcm5YmD
-X-Received: by 2002:a17:907:a08a:b0:ad2:2547:b0ae with SMTP id a640c23a62f3a-ad22547c02amr990453966b.20.1747056426488;
-        Mon, 12 May 2025 06:27:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IETa07MPJhXdQUe1GZPoJZWirIoiPraReBRPjm3PreIn0eeyX6QhW4ZzkdEEjDverm1SFgl6A==
-X-Received: by 2002:a17:907:a08a:b0:ad2:2547:b0ae with SMTP id a640c23a62f3a-ad22547c02amr990449666b.20.1747056425990;
-        Mon, 12 May 2025 06:27:05 -0700 (PDT)
+        bh=iGGf03vY07V5lmldCU9BJs4LhScCZSGAvX7drfDcFVs=;
+        b=bEGWwn4uEJnvLT4jN6GZwEWWLJg/beeTa2wWhoUos+4NUzmCo7N9GElZJNOscfUD54
+         zwq9P0vF93CRS/ggIyVOmNdXa9dFESI0iIpuU4InBsWmFCUwYFX4BqkCCrRcRls4WLYo
+         igAxF6hvPRXPeIjwG66FKr7EYgMwwVzeUsN1vzYo2i+ThzKO9h6bw53CYr6cQyJXgKI4
+         1Cb5UcY1brwmv2tyc7fmCrC48EIXp3qKF8WX3/txDcLbpDy7Qdw7PiE9rOVosi3bqbmE
+         RyuC56q2yzYIWttUTHZFynOVd3/K3tu1biPtTjPDmgEf4fSUV6Cvr5lUvTOHm/mth+95
+         KgIg==
+X-Forwarded-Encrypted: i=1; AJvYcCVydtWFR1IWawJnI8xqVnNDw4Gxr48lC6/hpyzWXk5QcjgJwVMeJLInM5VQFC4rNrq2/uK87t0MiLvf@vger.kernel.org
+X-Gm-Message-State: AOJu0YycOMNO9hmcnGz/d7tj8Zk7KrPGEPI861Eiz0qudMMn7xhZQD3b
+	q002FlBmdbNXTbS2GAqIKjjMQrj3XJiP28IpLd5VG2/QsxUdjEawMBcJwLjvri+RG5/J4dKy2V0
+	JbkF+bmFdcviJ19GcxAAncvaTOZsYjEd8gYGtBfYrOnBVf6Cgx48sLY1cnA==
+X-Gm-Gg: ASbGncv/G9prT1MTZoPTOjAOXMj0Ck9YszlQS3GQuu5bFZyFgBYLLs61aYCClhpEPS5
+	y9ECDsDY67zNJjO4VlbKSoUYyuZ0UpVxLhxCIYODJyNHpfMRvSmGw/RHFlVIPNrll6LyhXR7+2l
+	UMXqOd/1AeBJKGn8Fv0sTPJxR8Hmt7urM5xJjca1VpLY98IGSXMhOlUuPJmbozbLn5oraiLCo1q
+	2zrYyInFnqCROJqq6PQLYRkYrTKdK4dCTnjK4iFQd4J9pjtJfSd04BKiMNcFM09LGl5Lm8uADfu
+	CLRID6TG0xqcHdsBB0ZbJ53XTUa99XHMtpyjqRD/
+X-Received: by 2002:a17:907:9445:b0:ad2:4fb7:6cd7 with SMTP id a640c23a62f3a-ad24fb76ef4mr525374966b.2.1747056453497;
+        Mon, 12 May 2025 06:27:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHm4UNzZCaTm3fHiXFFpEAhvK4jv+cPjTSwVPTo38ODFU1cRFitMK9hJpp/EAl8sqqyR4widQ==
+X-Received: by 2002:a17:907:9445:b0:ad2:4fb7:6cd7 with SMTP id a640c23a62f3a-ad24fb76ef4mr525364866b.2.1747056452886;
+        Mon, 12 May 2025 06:27:32 -0700 (PDT)
 Received: from thinky (109-92-26-237.static.isp.telekom.rs. [109.92.26.237])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad219746730sm625109766b.94.2025.05.12.06.27.02
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad21988d6bdsm610935066b.180.2025.05.12.06.27.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 May 2025 06:27:05 -0700 (PDT)
-Date: Mon, 12 May 2025 15:27:02 +0200
+        Mon, 12 May 2025 06:27:32 -0700 (PDT)
+Date: Mon, 12 May 2025 15:27:29 +0200
 From: Andrey Albershteyn <aalbersh@redhat.com>
 To: Richard Henderson <richard.henderson@linaro.org>, 
 	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
@@ -98,8 +98,8 @@ Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
 Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr
  syscalls
-Message-ID: <vxjuophuvmvqloczajfyjd5jvvcbvcty2fpvfmcaz5xuh5vyqv@fxiymeww26mf>
-References: <20250512-xattrat-syscall-v5-0-a88b20e37aae@kernel.org>
+Message-ID: <akc24cmkeuna2vo6cdxxyvcdyl7jd7kblesozfjok7jy4tpiok@oxkqmcoeumo2>
+References: <20250512-xattrat-syscall-v5-0-4cd6821e8ff7@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -108,9 +108,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250512-xattrat-syscall-v5-0-a88b20e37aae@kernel.org>
+In-Reply-To: <20250512-xattrat-syscall-v5-0-4cd6821e8ff7@kernel.org>
 
-On 2025-05-12 15:18:53, Andrey Albershteyn wrote:
+On 2025-05-12 15:25:11, Andrey Albershteyn wrote:
 > This patchset introduced two new syscalls file_getattr() and
 > file_setattr(). These syscalls are similar to FS_IOC_FSSETXATTR ioctl()
 > except they use *at() semantics. Therefore, there's no need to open the
