@@ -1,92 +1,80 @@
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7989812CDAE;
-	Tue, 13 May 2025 08:07:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.6.53.87
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7867E1F2C58;
+	Tue, 13 May 2025 08:24:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747123648; cv=none; b=ekxsdcF6F3f0xcZxdddtaB41ezbcPsWEj17og9oqL16yX/9RXUyEbeMsCMWsjavLrmJqvM1Py8ojdhVfCXKxUbLF4+hW4KBqjxCXnP19iBFahMKhrP0ks9cZCyjMuYgwBJW9sHuTBnoPRqL/dUa6izg9O6RGloVzbTXrpY1m5S0=
+	t=1747124684; cv=none; b=aYWiQvgKhDLmVjxNTlkuE9/wqsMXaj5vNtpjeinRFtYpFlcHS8B/+2gWlcBkQMnLQxIqGw80nEKtswFgJx0FXzN8fjrW7qY07n+0R8mhFcpQ5DZtgzrl3QzA1zNl4G9SnEeDfZbcfbcNppxkHqf62vpgxDrHZJkYOAD49kRQJQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747123648; c=relaxed/simple;
-	bh=vud7CUVgVr2JwbnoYvC6dIKqLE5UZ6qaK+fH767KXuo=;
+	s=arc-20240116; t=1747124684; c=relaxed/simple;
+	bh=YHA/wvWEDB8CgIoUnHtp7szR/abPgZrTVkvyNlmczCA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SLbJwgU1bcUPXijoQDLGrVszYRkZYv+fU+lBRzUyD9QvuxlMGMeyMCx6M2Qu9ZB+pE2GkmmMbKUL6zKSLJha1dfahA8PgJw9EAtpjc0ct2tbf7DksmQs/Yum6gxOT6A3+zNCAlU+luo7PR+R58xcEaWUZiykllIrOaZcH09Nlag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=Rqq8c87Z; arc=none smtp.client-ip=144.6.53.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	 Content-Type:Content-Disposition:In-Reply-To; b=Sh+Z3cYqoCRgLQqbc2OcKXCCcLpwyo14xuXElZp6vfkb/AKkPEYPDUcut/FLogVpu4sZP7M7OWRVviCmwsyHetVNMQ960UF4xIA6ltEPonZQ0GuKi//2jNpiC8RkC1szEYCrfDhUwPDjTibi2cQhZ/t21VVuSpqA7nodZG7/9jE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pOsLeKXo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="Rqq8c87Z"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=Bwa5BnGhIKvbYBQdupkPabThUggiYmqnSYcORBHjVZw=; b=Rqq8c87ZhxLQLDUnilPn9Fs1pJ
-	aTOroWzL9IT3k7j/lkhp9b2LgrdHgxhA5EKZXrB6UwpqwrQHz4rTRDuUYIXMBbRkQw836BvDm8i8i
-	ywXywCgJkGwJSKoR/eLJJfZ9knuwVGCmT4C11Y5I4nanb4t14AxEf/Rf5RfZVDwDJt2R84NfVqHTA
-	LGzjDEUPg3RlyiC6fbT91eytlcC1ZfxeRsNwEgt/40r4DPblGjYJeORr4gow5TLHw9tAQVn3pYIJ5
-	TqeMtbTAUooyN0ox6MijBVgQA4WzYSljQP9wvmtgGBIREcejFRryrz9VYU9b4Wc9vXzvp/vZVtn+z
-	LUsH2rSQ==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1uEkfZ-005hTW-2K;
-	Tue, 13 May 2025 16:07:22 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 13 May 2025 16:07:21 +0800
-Date: Tue, 13 May 2025 16:07:21 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, fcallies@linux.ibm.com,
-	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 2/3] s390/crypto: Rework protected key AES for true
- asynch support
-Message-ID: <aCL9uctC5tQSea3t@gondor.apana.org.au>
-References: <20250509102402.27287-1-freude@linux.ibm.com>
- <20250509102402.27287-3-freude@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pOsLeKXo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC30C4CEE4;
+	Tue, 13 May 2025 08:24:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1747124682;
+	bh=YHA/wvWEDB8CgIoUnHtp7szR/abPgZrTVkvyNlmczCA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=pOsLeKXoaJjDR7Uej2TlJeM6ZmoE7XJ1eY2NW6EWvVbEdYKdNoHifU2oYl1NCpNcj
+	 05cGqKrPBX7tyjVBdRbn+SzIcuKHPlRsbgqJK46eiiMZYYcMLDd0yoBzk0zcctZoT5
+	 88rkSUu8KWAF+m3PM71lYiXI9gs2yzOsFIA4FLyZ0jTr5Y8FLRYvi4dISD8QFo1ATr
+	 S8P/VCDjGSYzbJcqt8ZzQMjAuYW7D/ZCcdarVIO5Bue5AhTUxLrTClQ71Dn2txfTwz
+	 OstRPVaqa7P4ms/78eMW1q+EnE6838KH/802tcNklQ2fgt7QYGzRyfY/YjRkQZm0NM
+	 uPsFhWO1hBI/A==
+Date: Tue, 13 May 2025 10:24:27 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Andrey Albershteyn <aalbersh@redhat.com>
+Cc: Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	selinux@vger.kernel.org, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr
+ syscalls
+Message-ID: <20250513-wunden-tierzucht-0cd8fb32bb0e@brauner>
+References: <20250512-xattrat-syscall-v5-0-a88b20e37aae@kernel.org>
+ <vxjuophuvmvqloczajfyjd5jvvcbvcty2fpvfmcaz5xuh5vyqv@fxiymeww26mf>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20250509102402.27287-3-freude@linux.ibm.com>
+In-Reply-To: <vxjuophuvmvqloczajfyjd5jvvcbvcty2fpvfmcaz5xuh5vyqv@fxiymeww26mf>
 
-On Fri, May 09, 2025 at 12:24:01PM +0200, Harald Freudenberger wrote:
-> This is a complete rework of the protected key AES (PAES) implementation.
-> The goal of this rework is to implement the 4 modes (ecb, cbc, ctr, xts)
-> in a real asynchronous fashion:
-> - init(), exit() and setkey() are synchronous and don't allocate any memory.
-> - the encrypt/decrypt functions first try to do the job in a synchronous
->   manner. If this fails, for example the protected key got invalid caused
->   by a guest suspend/resume or guest migration action, the encrypt/decrypt
->   is transferred to an instance of the crypto engine (see below) for
->   asynchronous processing.
->   These postponed requests are then handled by the crypto engine by
->   invoking the do_one_request() callback but may of course again run into
->   a still not converted key or the key is getting invalid. If the key is
->   still not converted, the first thread does the conversion and updates
->   the key status in the transformation context. The conversion is
->   invoked via pkey API with a new flag PKEY_XFLAG_NOMEMALLOC.
->   Note that once there is an active requests enqueued to get async
->   processed via crypto engine, further requests also need to go via
->   crypto engine to keep the request sequence.
-> 
-> This patch together with the pkey/zcrypt/AP extensions to support
-> the new PKEY_XFLAG_NOMEMMALOC should toughen the paes crypto algorithms
-> to truly meet the requirements for in-kernel skcipher implementations
-> and the usage patterns for the dm-crypt and dm-integrity layers.
-> 
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
->  arch/s390/crypto/paes_s390.c | 1812 ++++++++++++++++++++++++----------
->  1 file changed, 1270 insertions(+), 542 deletions(-)
+> Ignore please, somehow b4 crashed with timeout on gmail
 
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Ok, no worries. I wondered why I didn't get all messages of that series.
