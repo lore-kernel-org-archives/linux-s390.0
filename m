@@ -1,165 +1,144 @@
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09B56286439;
-	Tue, 13 May 2025 12:53:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C2D928DB72;
+	Tue, 13 May 2025 12:58:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747140812; cv=none; b=JA/bh2tnZzifgi4QuE05ypqtmmkoeEs0nIp1CtXE47INtiM/1BSQjqaighg9PEDAjuJXXXhbp/8NGqZfw8e9xQJ1OuLiqx4euPCR93OJmtbIsN0M5DfSY5JqOMr1fyFrprGIWWPC9x/dysugTsTNrYd5LiTkr+EyhYC2NfTa/94=
+	t=1747141125; cv=none; b=rqC6FbUU9RjDelPwBCmZsdi34tuo8dDX26z4aZm4OBtPFpxtO6eQHnqH3L9uCphkKUkyRqO/K9He9dBB98obGy3jPjpSCcMJZbrL+Dq7PMgggWtjyZzV11NWcX4p17O2GF1mLJXd7aEQhzOwNdLAtBtsYjP24GugyqORTvTzRmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747140812; c=relaxed/simple;
-	bh=i14x7HK+wQByi+0aKyFzNcOhWac1lJuJhW5b260ntpI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mumr5vF6jDD3Fy3Rp/6CfoRgl8B1iSwKyXB3b4kQ4TGyamHE7o9ukTPd6qj9zchptF83NIx2hW4cJkRbXwSp5MyPLshngHBysqThad7VV49/jdhnRpDrLvuKuTFzBPKAI4W7pfxFLdocyu9EtPuRb8JAgeFsMPEARRuXbLDT73Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QuXrkrSi; arc=none smtp.client-ip=209.85.218.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747141125; c=relaxed/simple;
+	bh=2xIaivkbZl7DdZBmxs97N/RKaoCOHaz1NNoE7jjdeNc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qVp1YIL1jwUt21rf7/Jy1WvrH0+s7Z7s6Ku5uIfBV3j8nLs0JZNA7G1aALAMKG5zu61825BghByJFk3mbhjF41LYE+XScuFKxBJZhCSxRasZ6t61gRLOlbSkMT1eJKdC9QV1qbbDTiWOr26PiiIYKdI37Cnlca36vhfeXjFA5ow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HJa03EcJ; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QuXrkrSi"
-Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-ad4ce8cc3c1so183121966b.2;
-        Tue, 13 May 2025 05:53:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747140809; x=1747745609; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lhUsGW6Aej7UtwPk8Fo3WswAje2EzwjwJ+3T+imRPIA=;
-        b=QuXrkrSiJBAik3QaKSWS+HCnTCmriB79zSscrWJTudsfLcCdBYURl4R+C+rz0p88Al
-         y1SnyopHLPBjZk1IZI7/9BLTpiykvL+HgLYdzr9hW/O2soRNiM2KXYEIfWHGpShVSoj0
-         hw3YQ/aVmyF2kh4neaYC7LbQpW39YzqrKe9Ln0rVlJB9CFYktdTKyIhc9mpw3Cx5Y5JF
-         zGN25CitcI+6r1dMoYHxd6kbeIaV3OaHJpq5dw94jhIkTgMBFWc+hTcU4e/mzNNSF6Yp
-         r0EbycRgLUdjAJ3gwHmT1mxvsAVqBAWtIBd25OXgxuXr3uuhemqkzQxKkHAye9efZZAw
-         yrRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747140809; x=1747745609;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lhUsGW6Aej7UtwPk8Fo3WswAje2EzwjwJ+3T+imRPIA=;
-        b=fk9n/0i5SHHGShj1aABH9XbUXj8VLnJ6hWskizdQ/Hv6+pvfLvJTiAtR1GIDAQ0SU6
-         8o4Mu5c6+8JMuvppWZ/HILHeh8Fi7sjXgQ7mtLefyMWCVypLu8pvfU53wqhqPjwDbOma
-         hleWf5TAmZRrQqBLkiyCQ55vNn2PbFRSsoGrJ54TSB6rZ8BTBKbSKK4+5Nb5J+bEWab8
-         M7OHcv9BLEuqfTusGLttzncsFS5ssQwKgGFwhENRWMw45jDIuM1DhjNEJwaJHTYvdE5+
-         y1RybgBw8vEx1JG+aWmuFvE1xLQquR8OP0EYaJv9cO/gUgjcGDbhuLQzfb+KaXSJH91H
-         5bNQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU7e6L9mnrLNooJ9RkHA6ife5t/gy9K25ybm6oqmgzLNPkxadcewB0Q84T3DvnsigKiwCvvyS4yIKQoxEU=@vger.kernel.org, AJvYcCU9mDM6H9T3sz3E554QZWqDrD5rf+qFMM7kw/ORDLPE+1evJYV9Pch539b5BhjgWzhA8Jy6rwz+R6CI@vger.kernel.org, AJvYcCUEDNWuYp/pxKalJXWWlVtzByDM8VpnkS4nFb5mjjSfTeVLfQIX6qLtO5R9zN/s7S37La6/MorrS3q9@vger.kernel.org, AJvYcCUUZcobAqzsK5VY+uEFVQQ7lUNMBHopNXhlDJUGmb2AivwVbTSxD1OeL1xLNunH7ymPjEuu0gYJ2ZCGOg==@vger.kernel.org, AJvYcCUq7yF5v72wOEhtTjmn+EUeTFbucWySHFISH6NMd5TehZIX5U/By+MmziKdpkfvNK8vanOQBR29mw==@vger.kernel.org, AJvYcCV08vqx9uqctDhNUHBlHsayXIP4bb5yrb4i472bEYgGkxrAbDcT7zCNXAP1kRKLnTvDUg2XhoVGvyVdcxiS@vger.kernel.org, AJvYcCVvUrHY5foOtwZ1BUZACwOSKJ/P5st1t1eXjV+nx2AMCQ/CT3gKhezSIA8fIoLY87ZL7SVOo+zzgzfrqpuGPw==@vger.kernel.org, AJvYcCWEgChK2604Cs0evHzTc6/05n6f/a+19uhiKBP7owG6oHz97yX4vgPeE1S/w13z27OUAPL+Nt/7wQ==@vger.kernel.org, AJvYcCWHFfMeaC5nxbtGT3oBViXoNCHuYxNxkHqUt6pxx2+xd7yfpxE1DzkRQo75SiEmpk1ID6I10Bt1ESbleg==@vger.kernel.org, AJvYcCWRekuiSXiiT/D559N5rQC8RIZ4ZgBFwsKO4WnCc0DSCBNpvVqrfN4NXBhQtr+sqRTESPb8NqquRB1pTw==@vger.kernel.org, AJvYcCX9zzBVchTPcWHRSkQgdLCbGa+qVaiP0Mz7gHPPRHIHoDz0fJ6ndyhSSBeI2EWwZRshzGlDTDsXF6ZNTd2vqIkdoKj/voAJ@vger.kernel.org, AJvYcCXL7+hGHVOMpQe9QxfWCmGTiLQF0ZvcyJc9HOrdCBWz3QltWhqE9S/uAzXi9u6lljMNL+yll1VOtWdiWzX+@vger.kernel.org, AJvYcCXMru4J2JwBr6AKU3hllsAf4fbuzRBxQN6HErSvZ7COW/hsvRTLry+q1FYYbFfLXHf3LotstNJ9ttlMA+EJCw==@vger.kernel.org, AJvYcCXMvsnBVLqpvPL68tOrZ8aD2pfaVy11gtH4/pkm6bZ5RLMhO+bL0nauXc1DBHaLDC1D/15JN8GlCUn6eg==@vger.kernel.org, AJvYcCXjfzn+oRwGRlQV1zQ1I4Hg/3+qNIjbrLmHuLga+e7y/rzGDP/4avrZJPfrqotEuOTUASZKQZO1rm4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyBy+xrGuTOo/BHoy2MF1yeFX5Fb7UUdoWy5+Go7SmeXOVhBDFr
-	+0jN+kq9uAGcJy+E6qzHrCzySZ+i3idSxVlzKpH5Lo0DddIHgHKs/t9dRLnYVfTEYI0OzHIFgLx
-	QE1o3gxc9o/qjMMxOZ6lJ5W3W8GI=
-X-Gm-Gg: ASbGncvgC5MxgfdU96tnDtzsnHzv0XYRKofolm7sto42gMHQcx5U/N/qLDD+WLUeLu6
-	JgaUFVTokmO1GuItT5jjFNEHv9BP4uCa+UbnlRqn+ZsBrPYWLpm3Cqre2dToPqB/FkWXhMHqEe3
-	P2TE4pHJXXqHODET9kcDOnwwvoPzJYuoQ3
-X-Google-Smtp-Source: AGHT+IE/b0BCD4zsWzgMefEsXbY+DbhCAD/XOG3dRDcg9jP4PpucFQp1j7NsiRF8Za5+3lLoqjezqR5fGVfm35+9pG4=
-X-Received: by 2002:a17:907:7617:b0:ad2:23fb:5a03 with SMTP id
- a640c23a62f3a-ad223fb7c87mr1075619066b.7.1747140808774; Tue, 13 May 2025
- 05:53:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HJa03EcJ"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54D7edHg019138;
+	Tue, 13 May 2025 12:58:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=tp3MLZ
+	KG7W7RFaoIcRBdhZwY4PyTxg2MSIoSNLmN+6A=; b=HJa03EcJYRaNtIVFYivMYr
+	komzX8EKc63Ha9FbmMMb5wDjlMjrELWY8WEWFC+1JXbexmwzu9uGS4eYgkCKfor+
+	MKfbguq5IiMxw270kSknPt36ztpf+KGduMJ0araV8iixWKKTYi3Zc5vGgW2z807f
+	14MtIu7b1JSbRZXus136GD2KxxvQlpBVo3bos920p8qE6MJ6SnKE5GQDes/eJZK0
+	++I/qpOaeaBus/eRqmP1qQP6LBpOTaMB3+B85VcrClSL4O2x6KORAXYKhUkXc2XI
+	ifFz7+rnV+BlpOvKkCn9ghJu1JAeGHcTKMm1cFVpsHWYMrQT/S2+laMOSifAXiWQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46kpp7c7qm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 13 May 2025 12:58:39 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54DBG55W003781;
+	Tue, 13 May 2025 12:58:38 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 46jkbkjwha-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 13 May 2025 12:58:38 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54DCwbx528312126
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 13 May 2025 12:58:38 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CFB655805A;
+	Tue, 13 May 2025 12:58:37 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B472858060;
+	Tue, 13 May 2025 12:58:36 +0000 (GMT)
+Received: from [9.155.201.30] (unknown [9.155.201.30])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 13 May 2025 12:58:36 +0000 (GMT)
+Message-ID: <3bd33a06-f8e2-4901-ada1-e970d18afcd4@linux.ibm.com>
+Date: Tue, 13 May 2025 14:58:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org> <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
-In-Reply-To: <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
-From: Amir Goldstein <amir73il@gmail.com>
-Date: Tue, 13 May 2025 14:53:17 +0200
-X-Gm-Features: AX0GCFu24ZFGPch6zxlVZkmp4exgi2YQWGGbqSjGo76MZv2IKCv94Wv0HRsT2OA
-Message-ID: <CAOQ4uxgOAxg7N1OUJfb1KMp7oWOfN=KV9Lzz6ZrX0=XRGOQrEQ@mail.gmail.com>
-Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr syscalls
-To: Arnd Bergmann <arnd@arndb.de>, Christian Brauner <brauner@kernel.org>
-Cc: Andrey Albershteyn <aalbersh@redhat.com>, Richard Henderson <richard.henderson@linaro.org>, 
-	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S . Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	=?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>, 
-	Miklos Szeredi <miklos@szeredi.hu>, linux-alpha@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
-	Linux-Arch <linux-arch@vger.kernel.org>, selinux@vger.kernel.org, 
-	ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCHv7 10/24] zram: add zlib compression backend support
+To: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20240902105656.1383858-1-senozhatsky@chromium.org>
+ <20240902105656.1383858-11-senozhatsky@chromium.org>
+ <6046d139-2a46-4824-bdfc-687750c1ee5b@linux.ibm.com>
+ <gekqwhcpombpm2u3b4xl7zladuyzbxybeq5wcwt47k7tsgo4bh@rfrxaeqwzypi>
+ <df805c0e-bf25-4cf6-9601-aac594fa0f45@linux.ibm.com>
+ <uaxb7sbvrg3eqn2sp66sg77urjzr7jwi2m2bwigvj5n5cta2xu@qsks2da3zrha>
+Content-Language: en-US
+From: Zaslonko Mikhail <zaslonko@linux.ibm.com>
+In-Reply-To: <uaxb7sbvrg3eqn2sp66sg77urjzr7jwi2m2bwigvj5n5cta2xu@qsks2da3zrha>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: OID9ya9tM6jNP4UBa0tR3CjUMnw5YYIm
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTEzMDEyMCBTYWx0ZWRfXwGe/IBl2fgcA LUPgZKVmYN1EYSp06KyPYbiP2liaz3/zY5INM/bhLx2YB/gR2WUFwlzVhc8DNAd054HkNrdZmAm GyDTww2ZDW2t4dRGfr0LE/CQZ9mRNvwBf0KPyLUlX+0OYGQhmc2wOzZV9jy9S/TnM1zfml4imh8
+ KidxaUGHzUEtMxl3PmnjaM8nuugB1w3fbFcgFklbT3IVCWMHE/boSnU42Nuuw8FrygyYetTCQ5K OTKIrM5hqeUy7BIk5gbyjDRcGeXsYdap5UQxacPEpQYwDDQNTm+gIEd1bahS+nKKxCbT5htPDR3 DZ+imPRTlLbKbqxYXkmPXXTlJPgGE3TGU3hOtcmik2punG7aQWgnPxS9RwYQhbWRtkWlSHpwwT5
+ KjS3d57a+eF6uTfB6GRyCzCBhyAdflr6w9lJiIh0ltT99ZI0mmT5dZLR+Tj5SUVEaYosdz9B
+X-Authority-Analysis: v=2.4 cv=ZY8dNtVA c=1 sm=1 tr=0 ts=682341ff cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=pkiKMm3ovRzUbvQedLsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: OID9ya9tM6jNP4UBa0tR3CjUMnw5YYIm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-13_01,2025-05-09_01,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 malwarescore=0
+ priorityscore=1501 phishscore=0 clxscore=1015 mlxscore=0 spamscore=0
+ impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2504070000
+ definitions=main-2505130120
 
-On Tue, May 13, 2025 at 11:53=E2=80=AFAM Arnd Bergmann <arnd@arndb.de> wrot=
-e:
->
-> On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
->
-> >
-> >       long syscall(SYS_file_getattr, int dirfd, const char *pathname,
-> >               struct fsxattr *fsx, size_t size, unsigned int at_flags);
-> >       long syscall(SYS_file_setattr, int dirfd, const char *pathname,
-> >               struct fsxattr *fsx, size_t size, unsigned int at_flags);
->
-> I don't think we can have both the "struct fsxattr" from the uapi
-> headers, and a variable size as an additional argument. I would
-> still prefer not having the extensible structure at all and just
-> use fsxattr, but if you want to make it extensible in this way,
-> it should use a different structure (name). Otherwise adding
-> fields after fsx_pad[] would break the ioctl interface.
->
+Hello,
 
-Are you are suggesting that we need to define this variant?:
+On 13.05.2025 07:41, Sergey Senozhatsky wrote:
+> Sorry for the delay,
+> 
+> On (25/05/09 17:18), Zaslonko Mikhail wrote:
+>>> When zram transitioned from Crypto API (scomp) to custom compression
+>>> API I picked the CryptoAPI deflate DEFLATE_DEF_WINBITS value:
+>>>
+>>> crypto/deflate.c: DEFLATE_DEF_WINBITS	11
+>>>
+>>> which is then passed to zlib_deflateInit2() and zlib_inflateInit2().
+>>>
+>>>> I tried to build the kernel with DEFLATE_DEF_WINBITS set to 15 and
+>>>> verified that s390 hardware deflate acceleration works for zram devices
+>>>> with a deflate compression.
+>>>
+>>> If we define it as 15 on non-s390 machines, will there be any
+>>> consequences?  Increased memory usage?  By how much?
+>>
+>> On s390, setting windowBits to 15 would lead to zlib workarea size
+>> increased by 120K (0x24dc8 -> 0x42dc8) per compression stream,
+>> i.e. per online CPU. 
+>> On non-s390 machine, that impact will be about 115K per stream. 
+>> Increasing window size should improve deflate compression,
+>> although the compression speed might be affected. Couldn't find any
+>> relevant zlib benchmarks though.
+>>
+>> Not sure what other consequences might there be for zram. Do you see any?
+> 
+> The increased per-CPU memory usage is the only thing I can think of.
+> I guess for zram we could turn this into a run-time parameter, but for
+> Crypto API compile-time is the only option, I guess.
 
---- a/include/uapi/linux/fs.h
-+++ b/include/uapi/linux/fs.h
-@@ -148,6 +148,17 @@ struct fsxattr {
-        unsigned char   fsx_pad[8];
- };
+With 'run-time parameter' you mean adding 'windowBits' as another deflate compression
+algorithm parameter for zram? Guess we could do this, using default value of 15 then.
 
-+/*
-+ * Variable size structure for file_[sg]et_attr().
-+ */
-+struct fsx_fileattr {
-+       __u32           fsx_xflags;     /* xflags field value (get/set) */
-+       __u32           fsx_extsize;    /* extsize field value (get/set)*/
-+       __u32           fsx_nextents;   /* nextents field value (get)   */
-+       __u32           fsx_projid;     /* project identifier (get/set) */
-+       __u32           fsx_cowextsize; /* CoW extsize field value (get/set=
-)*/
-+};
-+
+> 
+> Can you send a patch series (for zram and Crypto API) that sets
+> windowBits to 15?
 
-> I also find the bit confusing where the argument contains both
-> "ignored but assumed zero" flags, and "required to be zero"
-> flags depending on whether it's in the fsx_pad[] field or
-> after it. This would be fine if it was better documented.
->
-
-I think that is an oversight.
-The syscall should have required that fsx_pad is zero,
-same as patch 6/7 requires that unknown xflags are zero.
-
-If we change to:
-       error =3D copy_struct_from_user(&fsx, sizeof(struct
-fsx_fileattr), ufsx, usize);
-
-It will take care of requiring zero fsx_pad even if user calls the syscall =
-with
-sizeof(struct fsxattr).
+I can do it for zram. Not sure if Crypto should be changed as well. Or is it
+supposed to have the same compression defaults as zram?
 
 Thanks,
-Amir.
+Mikhail
