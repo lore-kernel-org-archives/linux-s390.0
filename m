@@ -1,71 +1,71 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B3E034CF9
-	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 03:17:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03CDF1DF268
+	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 03:30:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747192623; cv=none; b=YwTXmfJs9C9a9isSjHLs+83nFyRIBTrmLuwA9TXmG1xoiYnfLRnEtgPDwBiirXCdBYQ5YMm+WYiGcIl7SYkXyh3kBiFdHuXbZk88Uj8C8Tj/8rkg7yMYJqCcNCqymKKUUe9yR83597hou8UY8+pwxRdPR6/qOy0ZG8NkuL+hY68=
+	t=1747193407; cv=none; b=qstexng4y+MVMKxBx6I5ppEcrzCQ6se4a19jAeM7lG/hEj2GTznBqrfwCoVG3OieEVeukh5WUzVZ6QeFrzqC7OrBDJjDvZiDXG9IFKaOUwoqdGIR+a6b/rdcwqetLc8SJLjnMeVsKe7RnNvzomDu8N4tyPgDp42fzEMOOMMoKZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747192623; c=relaxed/simple;
-	bh=fkg9qQub+OeaXeU/7EhttgfNkXFhVSKIAVC69T2coA4=;
+	s=arc-20240116; t=1747193407; c=relaxed/simple;
+	bh=xe+r7aUNbKYL48IaCa6f/vynWducxTozNskiWKlpSl0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tI8W1b1O5xqgn9KxSTn7vmjv2sB5UBYYPxUCql57Rigo1zjUHSJREPmeqeT4ezovRiO8/gpSogvz2OozaDWfR0LLzTULWdGylagLV2T6QJ4lvI/Hss2+WlHChveIw86alat+dGHIEyzuWHuKXvZvN6WwKzAoF+7HCQEjBx46+RI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SGD6SsHE; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=p3jZY1RR5v3aAMQIqhdf3qkbBvF8hFeN+YoJzeDAktHw0twFwYEbvUEE8+Uvm3xWZ2IaLUfi4GRA7WhNSTFnpKqr6i9vptwVlQhEziNFdIhzt+WEhF1/Pf7iV5exEX4oCT1n2GW5EqBdpDx2NxSb4SgzYK6jxeC2CEW+aAAm2Go=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BLqh14AK; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SGD6SsHE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BLqh14AK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747192620;
+	s=mimecast20190719; t=1747193403;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bo1zHO1TLu57xTKrXLBF+PVswDcfMpKNQu425MUg/X4=;
-	b=SGD6SsHEuDSs8ihpcD9BnYlLBiRIvEOpz6U1UkcNyEYi1eEndA2kaj0gTMCbeOQUPLDpUS
-	GlnBqUR/EpWtDonXUuvOLeNaMLEBNxsmYuZRCacrMys2NVpBnE7sLQxReezonTZA4OTv5K
-	a2zeXtW5QIMv77YfmJvtELKOf09K7+Y=
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
- [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=zPNj1R9ALDGy4ZhAvSAe9nUoPzbthadZcf4T/oJDS44=;
+	b=BLqh14AK3i7yq/SIhFdIqLoMtEscnaCcni++vjELUvuo9ccaUuNG2PsuvRAzWtKck4lnwI
+	R2978GwDIgjes9m5so8sPcCpaEpVDmYdNs7Q867VAmHwlgvCVjTK1SR+cDKBQzJmIhvOTu
+	iTk9sAxY4VXFDq+i+orSXwd7SHR2Y5Q=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-146-vOYURqLbPp-Npal4u8E3BA-1; Tue, 13 May 2025 23:16:58 -0400
-X-MC-Unique: vOYURqLbPp-Npal4u8E3BA-1
-X-Mimecast-MFC-AGG-ID: vOYURqLbPp-Npal4u8E3BA_1747192617
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-b240fdc9c20so5173854a12.3
-        for <linux-s390@vger.kernel.org>; Tue, 13 May 2025 20:16:58 -0700 (PDT)
+ us-mta-636-FzRdU36tM3WujF0R-vLY3g-1; Tue, 13 May 2025 23:30:02 -0400
+X-MC-Unique: FzRdU36tM3WujF0R-vLY3g-1
+X-Mimecast-MFC-AGG-ID: FzRdU36tM3WujF0R-vLY3g_1747193401
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-7391d68617cso425122b3a.0
+        for <linux-s390@vger.kernel.org>; Tue, 13 May 2025 20:30:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747192617; x=1747797417;
+        d=1e100.net; s=20230601; t=1747193401; x=1747798201;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bo1zHO1TLu57xTKrXLBF+PVswDcfMpKNQu425MUg/X4=;
-        b=KyjaFm5EFc3h893JGMnHDq6uQ8NJHHj6fz3k1alpRTxvH1ELH/IICntDGzxBZu340B
-         +qMC5KWNjdD1WT9KgzZ7rPNGY0Mj8ib1dvwGlytEFLHDO1dRbF/a1YL8JNM2buc0a89T
-         gN44mGjmWFUTtERbu5wDiCL23uDCI5g/xMdUX7rQ6GiREES2iYb6NhmZTUWKLd2tuTCr
-         d7mjF00o/O9XPmxin5Jm6fnnyi5mJce8RP5YHD40W7OSdGeO88YdUYzscb69L2yPm5IH
-         S+VSxgOiMW47yeOMMCuEAfCmKKMe+a7kaYt7MAYRJ100fADqXueDv1558uz02eqWMBXG
-         To9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVCNTYIE3vLf3RaTlYEpg+79QoJNHlaeXCe9AoscY8AZLddjNx5jF8KDJDGeeb3/ZdD4lZxw/mDd5Gs@vger.kernel.org
-X-Gm-Message-State: AOJu0YwQizF+/cZfTowll0mSlj85XrytpwfEO6rQGzKKqVALnEHQZgyP
-	RWMzTrfbrhDzHk8yCShd/kRk7oeV7sgM8FGGijDtcjl+vCIVccjccwSKwJC9llWgJEsAKqTx4US
-	+XKmps3j3VE47SQ3dDBv4OaIudZH4B0ePdaldjnLgmRYcO8SDQTJgEgcpLFI=
-X-Gm-Gg: ASbGncuFjQGT3KATlnlDOrOZAeoCmP+pmVQuyn9+2rbUJ9XchqW2bj1F+ErJI7xvD6A
-	pnSXcM7ZKBaYrJp4dLCsdGdeqH1kXSdtMfrPRe0Kkz080xbqFOVOLhSYDNN/VZrzGcTpVtwuI9s
-	uWhYN2RaFrgkl+WBR6krOUKEL2YaxCaNCv6bJV5mTrcRqF3K2pqcgB6lfsHMXMb7DVOdEx5XGwb
-	EUdpn7qrHVVumNhtLGV8D8xVFF4Xv9/bwrUvMY4N605GLRQWUFAGJEIc0UihAo4CT5Z/fEurrJu
-	RmvX33g2zTfhXTTk
-X-Received: by 2002:a05:6a20:3d86:b0:215:ee6e:ee3b with SMTP id adf61e73a8af0-215ff0db94dmr2590830637.15.1747192617431;
-        Tue, 13 May 2025 20:16:57 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH6ZmEbxqIkWHONUIYBOvAIG+f/adO1+radfY7mm1COXYOKYtizQKv5r8znzX86CFmwnS3eyg==
-X-Received: by 2002:a05:6a20:3d86:b0:215:ee6e:ee3b with SMTP id adf61e73a8af0-215ff0db94dmr2590789637.15.1747192616945;
-        Tue, 13 May 2025 20:16:56 -0700 (PDT)
+        bh=zPNj1R9ALDGy4ZhAvSAe9nUoPzbthadZcf4T/oJDS44=;
+        b=SxuP6RRC0+QHszMlkvBMODqjdZHRHbcJxmgrFX1eI2yzlzhYPLFw/dC/ERl6e8INxV
+         1XEq98g7iRp9G5DGFpcJtDFIQchuYPLDiDQbdLwyCkK+wTifowqjD2cqMOQealkkP4rM
+         JsAmSCq/dyR2Yx2yONucTJBOSh8Tz8N4ey30+wzth+0UKLgB19Y8Fph25D073czlz7g2
+         XmpkwbXO+LkxV2Q8HFx0v28sBJTty6OWjtMHDi8UDPkUM93xsje7OWvy81OzeFMYWSkU
+         KhULhfwlJdRTH230oRlHRRthrfLpbvXsE09Z2lFwtTCGIa8Uvg4IuTqkyLklcN+8tBKd
+         /8Hg==
+X-Forwarded-Encrypted: i=1; AJvYcCU/H5nrXIFMM7/1rP7MeL04+pb1HIMCv16i4N+LlnQhv8qgOz1gw/Ds2nDuasXAzoAifKvtAMjlJ9ph@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywdu9OLu5UUOzF5Nn0NYg76bwL7f07iY3oKWMtR34aUN1EVM5LP
+	Oaf1ZmTjbxj3dd9jyz6PObjlFfO+EkMSzxGeSv3PwdgeETLFImm7d5DfWYAUrbSduO1W3/OCAfB
+	Ydv3HGT8hP0NzRwE8bRu0VrVQuGIbsBB9nMAceIHA2qTVMCRLknCEOOgmrSs=
+X-Gm-Gg: ASbGncvNGT0sOqk6he5vSkfbNhhRzuGVws/nidb+77ulV38/vGM9CmlVbYcg0sKQA54
+	wv76dLvkxA1XM0sd3vz+uYdenju9Zj3CmFPdzOOpXlLP2m0yGxsfrhOBJwqENLu0cV0xmZr+Vd/
+	0oMQQxQTXzjnHs7ESnaXfvg61AD325E0rw4+0T6sN8AfKe423jYqfmGz3gPBRnBQRaGDGc0CDCU
+	JbX8yjAaFZ6jSDtApbUAX5pK70ASuxcTQKuC4qLv3hOO8oDvAcBX/aQ9hAOQ0mF2A2NCKqlhVJS
+	6W//hHBdQi0onj23
+X-Received: by 2002:a05:6a00:849:b0:73e:2367:c914 with SMTP id d2e1a72fcca58-7428907dbbemr2608211b3a.7.1747193401132;
+        Tue, 13 May 2025 20:30:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE4NfRMilmo0WhS6bonXckoq6ayKF8QYGypn6TRZn6O1csy9tmwHCGt4njEOo+8VL50NM6NRQ==
+X-Received: by 2002:a05:6a00:849:b0:73e:2367:c914 with SMTP id d2e1a72fcca58-7428907dbbemr2608173b3a.7.1747193400666;
+        Tue, 13 May 2025 20:30:00 -0700 (PDT)
 Received: from [10.72.116.125] ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74237a0f14csm8775641b3a.107.2025.05.13.20.16.48
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74237a8a3adsm8406109b3a.158.2025.05.13.20.29.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 13 May 2025 20:16:56 -0700 (PDT)
-Message-ID: <7179a8d6-4548-45c6-8b53-11ea605d394e@redhat.com>
-Date: Wed, 14 May 2025 11:16:45 +0800
+        Tue, 13 May 2025 20:30:00 -0700 (PDT)
+Message-ID: <54b5bb37-5304-4e73-afc8-bf2a23e6490b@redhat.com>
+Date: Wed, 14 May 2025 11:29:51 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,8 +73,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 02/16] scripts: Add 'test_args' test
- definition parameter
+Subject: Re: [kvm-unit-tests PATCH v3 04/16] run_tests.sh: Document
+ --probe-maxsmp argument
 To: Alexandru Elisei <alexandru.elisei@arm.com>, andrew.jones@linux.dev,
  eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
  frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
@@ -85,879 +85,57 @@ Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
  maz@kernel.org, oliver.upton@linux.dev, suzuki.poulose@arm.com,
  yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com
 References: <20250507151256.167769-1-alexandru.elisei@arm.com>
- <20250507151256.167769-3-alexandru.elisei@arm.com>
+ <20250507151256.167769-5-alexandru.elisei@arm.com>
 Content-Language: en-US
 From: Shaoqin Huang <shahuang@redhat.com>
-In-Reply-To: <20250507151256.167769-3-alexandru.elisei@arm.com>
+In-Reply-To: <20250507151256.167769-5-alexandru.elisei@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 On 5/7/25 11:12 PM, Alexandru Elisei wrote:
-> kvm-unit-tests, on arm and arm64, is getting ready to support running all
-> the test automatically under kvmtool. kvmtool has a different syntax for
-> configuring and running a virtual machine, but what is common between
-> kvmtool and qemu, and any other virtual machine manager that kvm-unit-tests
-> might support in the future, is the test arguments that are passed to the
-> main() function.
+> Commit 5dd20ec76ea63 ("runtime: Update MAX_SMP probe") added the
+> --probe-maxmp argument, but the help message for run_tests.sh wasn't
+> updated. Document --probe-maxsmp.
 > 
-> So add a new test definition parameter, 'test_args', that contains only the
-> VMM-independent arguments that are passed to the main() function.
-> 
-> Suggested-by: Andrew Jones <andrew.jones@linux.dev>
+> Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
 > Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 
 Reviewed-by: Shaoqin Huang <shahuang@redhat.com>
 
 > ---
->   arm/unittests.cfg     | 94 ++++++++++++++++++++++++++-----------------
->   docs/unittests.txt    | 17 ++++++--
->   powerpc/unittests.cfg | 19 +++++----
->   riscv/unittests.cfg   |  2 +-
->   s390x/unittests.cfg   | 13 +++---
->   scripts/common.bash   |  8 +++-
->   scripts/runtime.bash  | 18 ++++++---
->   x86/unittests.cfg     | 92 ++++++++++++++++++++++++++----------------
->   8 files changed, 164 insertions(+), 99 deletions(-)
+>   run_tests.sh | 17 +++++++++--------
+>   1 file changed, 9 insertions(+), 8 deletions(-)
 > 
-> diff --git a/arm/unittests.cfg b/arm/unittests.cfg
-> index 6c6f76b2fb52..a4192ed7e20b 100644
-> --- a/arm/unittests.cfg
-> +++ b/arm/unittests.cfg
-> @@ -15,26 +15,27 @@
->   [selftest-setup]
->   file = selftest.flat
->   smp = 2
-> -qemu_params = -m 256 -append 'setup smp=2 mem=256'
-> +test_args = 'setup smp=2 mem=256'
-> +qemu_params = -m 256
->   groups = selftest
->   
->   # Test vector setup and exception handling (kernel mode).
->   [selftest-vectors-kernel]
->   file = selftest.flat
-> -qemu_params = -append 'vectors-kernel'
-> +test_args = vectors-kernel
->   groups = selftest
->   
->   # Test vector setup and exception handling (user mode).
->   [selftest-vectors-user]
->   file = selftest.flat
-> -qemu_params = -append 'vectors-user'
-> +test_args = vectors-user
->   groups = selftest
->   
->   # Test SMP support
->   [selftest-smp]
->   file = selftest.flat
->   smp = $MAX_SMP
-> -qemu_params = -append 'smp'
-> +test_args = smp
->   groups = selftest
->   
->   # Test PCI emulation
-> @@ -46,79 +47,81 @@ groups = pci
->   [pmu-cycle-counter]
->   file = pmu.flat
->   groups = pmu
-> -qemu_params = -append 'cycle-counter 0'
-> +test_args = "cycle-counter 0"
->   
->   [pmu-event-introspection]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-event-introspection'
-> +test_args = pmu-event-introspection
->   
->   [pmu-event-counter-config]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-event-counter-config'
-> +test_args = pmu-event-counter-config
->   
->   [pmu-basic-event-count]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-basic-event-count'
-> +test_args = pmu-basic-event-count
->   
->   [pmu-mem-access]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-mem-access'
-> +test_args = pmu-mem-access
->   
->   [pmu-mem-access-reliability]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-mem-access-reliability'
-> +test_args = pmu-mem-access-reliability
->   
->   [pmu-sw-incr]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-sw-incr'
-> +test_args = pmu-sw-incr
->   
->   [pmu-chained-counters]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-chained-counters'
-> +test_args = pmu-chained-counters
->   
->   [pmu-chained-sw-incr]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-chained-sw-incr'
-> +test_args = pmu-chained-sw-incr
->   
->   [pmu-chain-promotion]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-chain-promotion'
-> +test_args = pmu-chain-promotion
->   
->   [pmu-overflow-interrupt]
->   file = pmu.flat
->   groups = pmu
->   arch = arm64
-> -qemu_params = -append 'pmu-overflow-interrupt'
-> +test_args = pmu-overflow-interrupt
->   
->   # Test PMU support (TCG) with -icount IPC=1
->   #[pmu-tcg-icount-1]
->   #file = pmu.flat
-> -#qemu_params = -icount 0 -append 'cycle-counter 1'
-> +#test_args = "cycle-counter 1"
-> +#qemu_params = -icount 0
->   #groups = pmu
->   #accel = tcg
->   
->   # Test PMU support (TCG) with -icount IPC=256
->   #[pmu-tcg-icount-256]
->   #file = pmu.flat
-> -#qemu_params = -icount 8 -append 'cycle-counter 256'
-> +#test_args = "cycle-counter 256"
-> +#qemu_params = -icount 8
->   #groups = pmu
->   #accel = tcg
->   
-> @@ -126,77 +129,89 @@ qemu_params = -append 'pmu-overflow-interrupt'
->   [gicv2-ipi]
->   file = gic.flat
->   smp = $((($MAX_SMP < 8)?$MAX_SMP:8))
-> -qemu_params = -machine gic-version=2 -append 'ipi'
-> +test_args = ipi
-> +qemu_params = -machine gic-version=2
->   groups = gic
->   
->   [gicv2-mmio]
->   file = gic.flat
->   smp = $((($MAX_SMP < 8)?$MAX_SMP:8))
-> -qemu_params = -machine gic-version=2 -append 'mmio'
-> +test_args = mmio
-> +qemu_params = -machine gic-version=2
->   groups = gic
->   
->   [gicv2-mmio-up]
->   file = gic.flat
->   smp = 1
-> -qemu_params = -machine gic-version=2 -append 'mmio'
-> +test_args = mmio
-> +qemu_params = -machine gic-version=2
->   groups = gic
->   
->   [gicv2-mmio-3p]
->   file = gic.flat
->   smp = $((($MAX_SMP < 3)?$MAX_SMP:3))
-> -qemu_params = -machine gic-version=2 -append 'mmio'
-> +test_args = mmio
-> +qemu_params = -machine gic-version=2
->   groups = gic
->   
->   [gicv3-ipi]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'ipi'
-> +test_args = ipi
-> +qemu_params = -machine gic-version=3
->   groups = gic
->   
->   [gicv2-active]
->   file = gic.flat
->   smp = $((($MAX_SMP < 8)?$MAX_SMP:8))
-> -qemu_params = -machine gic-version=2 -append 'active'
-> +test_args = active
-> +qemu_params = -machine gic-version=2
->   groups = gic
->   
->   [gicv3-active]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'active'
-> +test_args = active
-> +qemu_params = -machine gic-version=3
->   groups = gic
->   
->   [its-introspection]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'its-introspection'
-> +test_args = its-introspection
-> +qemu_params = -machine gic-version=3
->   groups = its
->   arch = arm64
->   
->   [its-trigger]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'its-trigger'
-> +test_args = its-trigger
-> +qemu_params = -machine gic-version=3
->   groups = its
->   arch = arm64
->   
->   [its-migration]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'its-migration'
-> +test_args = its-migration
-> +qemu_params = -machine gic-version=3
->   groups = its migration
->   arch = arm64
->   
->   [its-pending-migration]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'its-pending-migration'
-> +test_args = its-pending-migration
-> +qemu_params = -machine gic-version=3
->   groups = its migration
->   arch = arm64
->   
->   [its-migrate-unmapped-collection]
->   file = gic.flat
->   smp = $MAX_SMP
-> -qemu_params = -machine gic-version=3 -append 'its-migrate-unmapped-collection'
-> +test_args = its-migrate-unmapped-collection
-> +qemu_params = -machine gic-version=3
->   groups = its migration
->   arch = arm64
->   
-> @@ -231,37 +246,37 @@ groups = cache
->   [debug-bp]
->   file = debug.flat
->   arch = arm64
-> -qemu_params = -append 'bp'
-> +test_args = bp
->   groups = debug
->   
->   [debug-bp-migration]
->   file = debug.flat
->   arch = arm64
-> -qemu_params = -append 'bp-migration'
-> +test_args = bp-migration
->   groups = debug migration
->   
->   [debug-wp]
->   file = debug.flat
->   arch = arm64
-> -qemu_params = -append 'wp'
-> +test_args = wp
->   groups = debug
->   
->   [debug-wp-migration]
->   file = debug.flat
->   arch = arm64
-> -qemu_params = -append 'wp-migration'
-> +test_args = wp-migration
->   groups = debug migration
->   
->   [debug-sstep]
->   file = debug.flat
->   arch = arm64
-> -qemu_params = -append 'ss'
-> +test_args = ss
->   groups = debug
->   
->   [debug-sstep-migration]
->   file = debug.flat
->   arch = arm64
-> -qemu_params = -append 'ss-migration'
-> +test_args = ss-migration
->   groups = debug migration
->   
->   # FPU/SIMD test
-> @@ -276,17 +291,20 @@ arch = arm64
->   [mte-sync]
->   file = mte.flat
->   groups = mte
-> -qemu_params = -machine mte=on -append 'sync'
-> +test_args=sync
-> +qemu_params = -machine mte=on
->   arch = arm64
->   
->   [mte-async]
->   file = mte.flat
->   groups = mte
-> -qemu_params = -machine mte=on -append 'async'
-> +test_args=async
-> +qemu_params = -machine mte=on
->   arch = arm64
->   
->   [mte-asymm]
->   file = mte.flat
->   groups = mte
-> -qemu_params = -machine mte=on -append 'asymm'
-> +test_args=asymm
-> +qemu_params = -machine mte=on
->   arch = arm64
-> diff --git a/docs/unittests.txt b/docs/unittests.txt
-> index 3d19fd70953f..6eb315618dbd 100644
-> --- a/docs/unittests.txt
-> +++ b/docs/unittests.txt
-> @@ -56,13 +56,22 @@ smp = <number>
->   Optional, the number of processors created in the machine to run the test.
->   Defaults to 1. $MAX_SMP can be used to specify the maximum supported.
->   
-> +test_args
-> +---------
-> +test_args = "..."
-> +
-> +Optional, will be used to pass arguments into the test case argv. If multiple,
-> +space separated, arguments need to be passed to a test, wrap them in quotes.
-> +Backticks can be used to pass the result of shell commands, for example:
-> +
-> +test_args = "10000000 `date +%s`"
-> +
->   qemu_params
->   ------------
-> -These are extra parameters supplied to the QEMU process. -append '...' can
-> -be used to pass arguments into the test case argv. Multiple parameters can
-> -be added, for example:
-> +These are extra parameters supplied to the QEMU process. Multiple parameters
-> +can be added, for example:
->   
-> -qemu_params = -m 256 -append 'smp=2'
-> +qemu_params = -m 256 -machine pit=off
->   
->   extra_params
->   ------------
-> diff --git a/powerpc/unittests.cfg b/powerpc/unittests.cfg
-> index 5097911e4bf3..2dd32edfa1ae 100644
-> --- a/powerpc/unittests.cfg
-> +++ b/powerpc/unittests.cfg
-> @@ -15,7 +15,8 @@
->   [selftest-setup]
->   file = selftest.elf
->   smp = 2
-> -qemu_params = -m 1g -append 'setup smp=2 mem=1024'
-> +test_args = 'setup smp=2 mem=1024'
-> +qemu_params = -m 1g
->   groups = selftest
->   
->   [selftest-migration]
-> @@ -27,7 +28,7 @@ groups = selftest migration
->   file = selftest-migration.elf
->   machine = pseries
->   groups = selftest migration
-> -qemu_params = -append "skip"
-> +test_args = "skip"
->   
->   [migration-memory]
->   file = memory-verify.elf
-> @@ -46,20 +47,21 @@ machine = pseries
->   file = rtas.elf
->   machine = pseries
->   timeout = 5
-> -qemu_params = -append "get-time-of-day date=$(date +%s)"
-> +test_args = "get-time-of-day date=$(date +%s)"
->   groups = rtas
->   
->   [rtas-get-time-of-day-base]
->   file = rtas.elf
->   machine = pseries
->   timeout = 5
-> -qemu_params = -rtc base="2006-06-17" -append "get-time-of-day date=$(date --date="2006-06-17 UTC" +%s)"
-> +test_args = "get-time-of-day date=$(date --date="2006-06-17 UTC" +%s)"
-> +qemu_params = -rtc base="2006-06-17"
->   groups = rtas
->   
->   [rtas-set-time-of-day]
->   file = rtas.elf
->   machine = pseries
-> -qemu_params = -append "set-time-of-day"
-> +test_args = "set-time-of-day"
->   timeout = 5
->   groups = rtas
->   
-> @@ -94,7 +96,7 @@ smp = 2
->   [atomics-migration]
->   file = atomics.elf
->   machine = pseries
-> -qemu_params = -append "migration -m"
-> +test_args = "migration -m"
->   groups = migration
->   
->   [timebase]
-> @@ -110,7 +112,8 @@ file = tm.elf
->   machine = pseries
->   accel = kvm
->   smp = 2,threads=2
-> -qemu_params = -machine cap-htm=on -append "h_cede_tm"
-> +test_args = "h_cede_tm"
-> +qemu_params = -machine cap-htm=on
->   groups = h_cede_tm
->   
->   [sprs]
-> @@ -119,7 +122,7 @@ file = sprs.elf
->   [sprs-migration]
->   file = sprs.elf
->   machine = pseries
-> -qemu_params = -append '-w'
-> +test_args = '-w'
->   groups = migration
->   
->   [sieve]
-> diff --git a/riscv/unittests.cfg b/riscv/unittests.cfg
-> index 5b31047f75c7..8a98ac723c2c 100644
-> --- a/riscv/unittests.cfg
-> +++ b/riscv/unittests.cfg
-> @@ -10,7 +10,7 @@
->   [selftest]
->   file = selftest.flat
->   smp = $MAX_SMP
-> -qemu_params = -append 'foo bar baz'
-> +test_args = 'foo bar baz'
->   groups = selftest
->   
->   # Set $FIRMWARE_OVERRIDE to /path/to/firmware to select the SBI implementation.
-> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-> index 1e129fef3c38..ed4d069ece38 100644
-> --- a/s390x/unittests.cfg
-> +++ b/s390x/unittests.cfg
-> @@ -10,7 +10,7 @@
->   file = selftest.elf
->   groups = selftest
->   # please keep the kernel cmdline in sync with $(TEST_DIR)/selftest.parmfile
-> -qemu_params = -append 'test 123'
-> +test_args = 'test 123'
->   
->   [selftest-migration]
->   file = selftest-migration.elf
-> @@ -22,7 +22,7 @@ accel = kvm
->   [selftest-migration-skip]
->   file = selftest-migration.elf
->   groups = selftest migration
-> -qemu_params = -append "skip"
-> +test_args = "skip"
->   
->   # This fails due to a QEMU TCG bug so KVM-only until QEMU is fixed upstream
->   [migration-memory]
-> @@ -214,13 +214,13 @@ smp = 2
->   [migration-skey-sequential]
->   file = migration-skey.elf
->   groups = migration
-> -qemu_params = -append '--sequential'
-> +test_args = '--sequential'
->   
->   [migration-skey-parallel]
->   file = migration-skey.elf
->   smp = 2
->   groups = migration
-> -qemu_params = -append '--parallel'
-> +test_args = '--parallel'
->   
->   [execute]
->   file = ex.elf
-> @@ -252,12 +252,13 @@ file = topology.elf
->   
->   [topology-2]
->   file = topology.elf
-> -qemu_params = -cpu max,ctop=on -smp sockets=31,cores=8,maxcpus=248  -append '-sockets 31 -cores 8'
-> +test_args = '-sockets 31 -cores 8'
-> +qemu_params = -cpu max,ctop=on -smp sockets=31,cores=8,maxcpus=248
->   
->   [topology-3]
->   file = topology.elf
-> +test_args = '-drawers 2 -books 2 -sockets 2 -cores 16'
->   qemu_params = """-cpu max,ctop=on -smp cpus=1,drawers=2,books=2,sockets=2,cores=16,maxcpus=128 \
-> --append '-drawers 2 -books 2 -sockets 2 -cores 16' \
->   -device max-s390x-cpu,core-id=31,drawer-id=0,book-id=0,socket-id=0,entitlement=medium,dedicated=false \
->   -device max-s390x-cpu,core-id=11,drawer-id=0,book-id=0,socket-id=0,entitlement=high,dedicated=true \
->   -device max-s390x-cpu,core-id=95,drawer-id=0,book-id=0,socket-id=0,entitlement=medium,dedicated=false \
-> diff --git a/scripts/common.bash b/scripts/common.bash
-> index bd7c82f1adda..9deb87d4050d 100644
-> --- a/scripts/common.bash
-> +++ b/scripts/common.bash
-> @@ -7,6 +7,7 @@ function for_each_unittest()
->   	local testname
->   	local smp
->   	local kernel
-> +	local test_args
->   	local opts
->   	local groups
->   	local arch
-> @@ -22,11 +23,12 @@ function for_each_unittest()
->   		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
->   			rematch=${BASH_REMATCH[1]}
->   			if [ -n "${testname}" ]; then
-> -				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$machine" "$check" "$accel" "$timeout"
-> +				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$test_args" "$opts" "$arch" "$machine" "$check" "$accel" "$timeout"
->   			fi
->   			testname=$rematch
->   			smp=1
->   			kernel=""
-> +			test_args=""
->   			opts=""
->   			groups=""
->   			arch=""
-> @@ -38,6 +40,8 @@ function for_each_unittest()
->   			kernel=$TEST_DIR/${BASH_REMATCH[1]}
->   		elif [[ $line =~ ^smp\ *=\ *(.*)$ ]]; then
->   			smp=${BASH_REMATCH[1]}
-> +		elif [[ $line =~ ^test_args\ *=\ *(.*)$ ]]; then
-> +			test_args=${BASH_REMATCH[1]}
->   		elif [[ $line =~ ^(extra_params|qemu_params)\ *=\ *'"""'(.*)$ ]]; then
->   			opts=${BASH_REMATCH[2]}$'\n'
->   			while read -r -u $fd; do
-> @@ -71,7 +75,7 @@ function for_each_unittest()
->   		fi
->   	done
->   	if [ -n "${testname}" ]; then
-> -		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$machine" "$check" "$accel" "$timeout"
-> +		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$test_args" "$opts" "$arch" "$machine" "$check" "$accel" "$timeout"
->   	fi
->   	exec {fd}<&-
->   }
-> diff --git a/scripts/runtime.bash b/scripts/runtime.bash
-> index 400e8a082528..06cc58e79b69 100644
-> --- a/scripts/runtime.bash
-> +++ b/scripts/runtime.bash
-> @@ -80,12 +80,18 @@ function run()
->       local groups="$2"
->       local smp="$3"
->       local kernel="$4"
-> -    local opts="$5"
-> -    local arch="$6"
-> -    local machine="$7"
-> -    local check="${CHECK:-$8}"
-> -    local accel="$9"
-> -    local timeout="${10:-$TIMEOUT}" # unittests.cfg overrides the default
-> +    local test_args="$5"
-> +    local opts="$6"
-> +    local arch="$7"
-> +    local machine="$8"
-> +    local check="${CHECK:-$9}"
-> +    local accel="${10}"
-> +    local timeout="${11:-$TIMEOUT}" # unittests.cfg overrides the default
-> +
-> +    # If $test_args is empty, qemu will interpret the first option after -append
-> +    # as a kernel parameter instead of a qemu option, so make sure the -append
-> +    # option is used only if $test_args is not empy.
-> +    [ -n "$test_args" ] && opts="-append $test_args $opts"
->   
->       if [ "${CONFIG_EFI}" == "y" ]; then
->           kernel=${kernel/%.flat/.efi}
-> diff --git a/x86/unittests.cfg b/x86/unittests.cfg
-> index a356f486eaec..3effddfe4207 100644
-> --- a/x86/unittests.cfg
-> +++ b/x86/unittests.cfg
-> @@ -58,27 +58,27 @@ smp = 3
->   
->   [vmexit_cpuid]
->   file = vmexit.flat
-> -qemu_params = -append 'cpuid'
-> +test_args = 'cpuid'
->   groups = vmexit
->   
->   [vmexit_vmcall]
->   file = vmexit.flat
-> -qemu_params = -append 'vmcall'
-> +test_args = 'vmcall'
->   groups = vmexit
->   
->   [vmexit_mov_from_cr8]
->   file = vmexit.flat
-> -qemu_params = -append 'mov_from_cr8'
-> +test_args = 'mov_from_cr8'
->   groups = vmexit
->   
->   [vmexit_mov_to_cr8]
->   file = vmexit.flat
-> -qemu_params = -append 'mov_to_cr8'
-> +test_args = 'mov_to_cr8'
->   groups = vmexit
->   
->   [vmexit_inl_pmtimer]
->   file = vmexit.flat
-> -qemu_params = -append 'inl_from_pmtimer'
-> +test_args = 'inl_from_pmtimer'
->   groups = vmexit
->   
->   # To allow IPIs to be accelerated by SVM AVIC when the feature is available and
-> @@ -87,40 +87,43 @@ groups = vmexit
->   [vmexit_ipi]
->   file = vmexit.flat
->   smp = 2
-> -qemu_params = -machine pit=off -append 'ipi'
-> +test_args = 'ipi'
-> +qemu_params = -machine pit=off
->   groups = vmexit
->   
->   [vmexit_ipi_halt]
->   file = vmexit.flat
->   smp = 2
-> -qemu_params = -append 'ipi_halt'
-> +test_args = 'ipi_halt'
->   groups = vmexit
->   
->   [vmexit_ple_round_robin]
->   file = vmexit.flat
-> -qemu_params = -append 'ple_round_robin'
-> +test_args = 'ple_round_robin'
->   groups = vmexit
->   
->   [vmexit_tscdeadline]
->   file = vmexit.flat
->   groups = vmexit
-> -qemu_params = -cpu qemu64,+x2apic,+tsc-deadline -append tscdeadline
-> +test_args = tscdeadline
-> +qemu_params = -cpu qemu64,+x2apic,+tsc-deadline
->   
->   [vmexit_tscdeadline_immed]
->   file = vmexit.flat
->   groups = vmexit
-> -qemu_params = -cpu qemu64,+x2apic,+tsc-deadline -append tscdeadline_immed
-> +test_args = tscdeadline_immed
-> +qemu_params = -cpu qemu64,+x2apic,+tsc-deadline
->   
->   [vmexit_cr0_wp]
->   file = vmexit.flat
->   smp = 2
-> -qemu_params = -append 'toggle_cr0_wp'
-> +test_args = 'toggle_cr0_wp'
->   groups = vmexit
->   
->   [vmexit_cr4_pge]
->   file = vmexit.flat
->   smp = 2
-> -qemu_params = -append 'toggle_cr4_pge'
-> +test_args = 'toggle_cr4_pge'
->   groups = vmexit
->   
->   [access]
-> @@ -131,7 +134,8 @@ qemu_params = -cpu max,host-phys-bits
->   [access_fep]
->   file = access_test.flat
->   arch = x86_64
-> -qemu_params = -cpu max,host-phys-bits -append force_emulation
-> +test_args = force_emulation
-> +qemu_params = -cpu max,host-phys-bits
->   groups = nodefault
->   timeout = 240
->   
-> @@ -256,13 +260,15 @@ arch = x86_64
->   [svm]
->   file = svm.flat
->   smp = 2
-> -qemu_params = -cpu max,+svm -m 4g -append "-pause_filter_test"
-> +test_args = "-pause_filter_test"
-> +qemu_params = -cpu max,+svm -m 4g
->   arch = x86_64
->   groups = svm
->   
->   [svm_pause_filter]
->   file = svm.flat
-> -qemu_params = -cpu max,+svm -overcommit cpu-pm=on -m 4g -append pause_filter_test
-> +test_args = pause_filter_test
-> +qemu_params = -cpu max,+svm -overcommit cpu-pm=on -m 4g
->   arch = x86_64
->   groups = svm
->   
-> @@ -285,7 +291,7 @@ groups = tasks
->   [kvmclock_test]
->   file = kvmclock_test.flat
->   smp = 2
-> -qemu_params = --append "10000000 `date +%s`"
-> +test_args = "10000000 `date +%s`"
->   
->   [pcid-enabled]
->   file = pcid.flat
-> @@ -320,33 +326,38 @@ qemu_params = -cpu max,host-phys-bits
->   
->   [vmx]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "-exit_monitor_from_l2_test -ept_access* -vmx_smp* -vmx_vmcs_shadow_test -atomic_switch_overflow_msrs_test -vmx_init_signal_test -vmx_apic_passthrough_tpr_threshold_test -apic_reg_virt_test -virt_x2apic_mode_test -vmx_pf_exception_test -vmx_pf_exception_forced_emulation_test -vmx_pf_no_vpid_test -vmx_pf_invvpid_test -vmx_pf_vpid_test -vmx_basic_vid_test -vmx_eoi_virt_test -vmx_posted_interrupts_test"
-> +test_args = "-exit_monitor_from_l2_test -ept_access* -vmx_smp* -vmx_vmcs_shadow_test -atomic_switch_overflow_msrs_test -vmx_init_signal_test -vmx_apic_passthrough_tpr_threshold_test -apic_reg_virt_test -virt_x2apic_mode_test -vmx_pf_exception_test -vmx_pf_exception_forced_emulation_test -vmx_pf_no_vpid_test -vmx_pf_invvpid_test -vmx_pf_vpid_test -vmx_basic_vid_test -vmx_eoi_virt_test -vmx_posted_interrupts_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx
->   
->   [ept]
->   file = vmx.flat
-> -qemu_params = -cpu max,host-phys-bits,+vmx -m 2560 -append "ept_access*"
-> +test_args = "ept_access*"
-> +qemu_params = -cpu max,host-phys-bits,+vmx -m 2560
->   arch = x86_64
->   groups = vmx
->   
->   [vmx_eoi_bitmap_ioapic_scan]
->   file = vmx.flat
->   smp = 2
-> -qemu_params = -cpu max,+vmx -m 2048 -append vmx_eoi_bitmap_ioapic_scan_test
-> +test_args = vmx_eoi_bitmap_ioapic_scan_test
-> +qemu_params = -cpu max,+vmx -m 2048
->   arch = x86_64
->   groups = vmx
->   
->   [vmx_hlt_with_rvi_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append vmx_hlt_with_rvi_test
-> +test_args = vmx_hlt_with_rvi_test
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx
->   timeout = 10
->   
->   [vmx_apicv_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "apic_reg_virt_test virt_x2apic_mode_test vmx_basic_vid_test vmx_eoi_virt_test"
-> +test_args = "apic_reg_virt_test virt_x2apic_mode_test vmx_basic_vid_test vmx_eoi_virt_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx
->   timeout = 30
-> @@ -354,7 +365,8 @@ timeout = 30
->   [vmx_posted_intr_test]
->   file = vmx.flat
->   smp = 2
-> -qemu_params = -cpu max,+vmx -append "vmx_posted_interrupts_test"
-> +test_args = "vmx_posted_interrupts_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx
->   timeout = 10
-> @@ -362,14 +374,16 @@ timeout = 10
->   [vmx_apic_passthrough_thread]
->   file = vmx.flat
->   smp = 2
-> -qemu_params = -cpu max,+vmx -m 2048 -append vmx_apic_passthrough_thread_test
-> +test_args = vmx_apic_passthrough_thread_test
-> +qemu_params = -cpu max,+vmx -m 2048
->   arch = x86_64
->   groups = vmx
->   
->   [vmx_init_signal_test]
->   file = vmx.flat
->   smp = 2
-> -qemu_params = -cpu max,+vmx -m 2048 -append vmx_init_signal_test
-> +test_args = vmx_init_signal_test
-> +qemu_params = -cpu max,+vmx -m 2048
->   arch = x86_64
->   groups = vmx
->   timeout = 10
-> @@ -377,62 +391,71 @@ timeout = 10
->   [vmx_sipi_signal_test]
->   file = vmx.flat
->   smp = 2
-> -qemu_params = -cpu max,+vmx -m 2048 -append vmx_sipi_signal_test
-> +test_args = vmx_sipi_signal_test
-> +qemu_params = -cpu max,+vmx -m 2048
->   arch = x86_64
->   groups = vmx
->   timeout = 10
->   
->   [vmx_apic_passthrough_tpr_threshold_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -m 2048 -append vmx_apic_passthrough_tpr_threshold_test
-> +test_args = vmx_apic_passthrough_tpr_threshold_test
-> +qemu_params = -cpu max,+vmx -m 2048
->   arch = x86_64
->   groups = vmx
->   timeout = 10
->   
->   [vmx_vmcs_shadow_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append vmx_vmcs_shadow_test
-> +test_args = vmx_vmcs_shadow_test
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx
->   timeout = 180
->   
->   [vmx_pf_exception_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "vmx_pf_exception_test"
-> +test_args = "vmx_pf_exception_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx nested_exception
->   
->   [vmx_pf_exception_test_fep]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "vmx_pf_exception_forced_emulation_test"
-> +test_args = "vmx_pf_exception_forced_emulation_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx nested_exception nodefault
->   timeout = 240
->   
->   [vmx_pf_vpid_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "vmx_pf_vpid_test"
-> +test_args = "vmx_pf_vpid_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx nested_exception nodefault
->   timeout = 240
->   
->   [vmx_pf_invvpid_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "vmx_pf_invvpid_test"
-> +test_args = "vmx_pf_invvpid_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx nested_exception nodefault
->   timeout = 240
->   
->   [vmx_pf_no_vpid_test]
->   file = vmx.flat
-> -qemu_params = -cpu max,+vmx -append "vmx_pf_no_vpid_test"
-> +test_args = "vmx_pf_no_vpid_test"
-> +qemu_params = -cpu max,+vmx
->   arch = x86_64
->   groups = vmx nested_exception nodefault
->   timeout = 240
->   
->   [vmx_pf_exception_test_reduced_maxphyaddr]
->   file = vmx.flat
-> -qemu_params = -cpu IvyBridge,phys-bits=36,host-phys-bits=off,+vmx -append "vmx_pf_exception_test"
-> +test_args = "vmx_pf_exception_test"
-> +qemu_params = -cpu IvyBridge,phys-bits=36,host-phys-bits=off,+vmx
->   arch = x86_64
->   groups = vmx nested_exception
->   check = /sys/module/kvm_intel/parameters/allow_smaller_maxphyaddr=Y
-> @@ -462,7 +485,8 @@ groups = hyperv
->   [hyperv_stimer_direct]
->   file = hyperv_stimer.flat
->   smp = 2
-> -qemu_params = -cpu host,hv_passthrough -append direct
-> +test_args = direct
-> +qemu_params = -cpu host,hv_passthrough
->   groups = hyperv
->   
->   [hyperv_clock]
+> diff --git a/run_tests.sh b/run_tests.sh
+> index 152323ffc8a2..f30b6dbd131c 100755
+> --- a/run_tests.sh
+> +++ b/run_tests.sh
+> @@ -17,14 +17,15 @@ cat <<EOF
+>   
+>   Usage: $0 [-h] [-v] [-a] [-g group] [-j NUM-TASKS] [-t] [-l]
+>   
+> -    -h, --help      Output this help text
+> -    -v, --verbose   Enables verbose mode
+> -    -a, --all       Run all tests, including those flagged as 'nodefault'
+> -                    and those guarded by errata.
+> -    -g, --group     Only execute tests in the given group
+> -    -j, --parallel  Execute tests in parallel
+> -    -t, --tap13     Output test results in TAP format
+> -    -l, --list      Only output all tests list
+> +    -h, --help          Output this help text
+> +    -v, --verbose       Enables verbose mode
+> +    -a, --all           Run all tests, including those flagged as 'nodefault'
+> +                        and those guarded by errata.
+> +    -g, --group         Only execute tests in the given group
+> +    -j, --parallel      Execute tests in parallel
+> +    -t, --tap13         Output test results in TAP format
+> +    -l, --list          Only output all tests list
+> +        --probe-maxsmp  Update the maximum number of VCPUs supported by host
+>   
+>   Set the environment variable QEMU=/path/to/qemu-system-ARCH to
+>   specify the appropriate qemu binary for ARCH-run.
 
 -- 
 Shaoqin
