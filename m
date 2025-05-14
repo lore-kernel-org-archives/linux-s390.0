@@ -1,71 +1,71 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 989C04438B
-	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 03:37:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65745202C48
+	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 07:49:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747193834; cv=none; b=brSEOen/jTMchTTZOmc3iQyHb7/GTaAnnL184+wnF1hpJEhBsb2nsbDwPZDrQdT8aCbqZoVeMXgFxmyl9dv9M4lAyvqm6SdZE4zoKGa9YBtmCBMB8zJ0jea10Oo1o2twpriYEXkpKyMrSyCQOtWkTHRAPh9aSudBljIARjZu0pw=
+	t=1747208960; cv=none; b=kFJ6C5H4hh7PrVBiYBtx9C08LIt83G+MP0r4qrm3sVNkYkPp8owdE9tytpS+5bXbChIEBmZDT4i6wVEoQZg/7sWGCJMyQQ76qyG3t90NB7kmXUBdD6r1iZMurtbReEFeFQtFMuY31CSIw06ClA9A1/X6DmyuyC5LPiVg5uOPo68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747193834; c=relaxed/simple;
-	bh=1V7ejfjGKrSp2ZU/3GoXfAFp+S08WBXvioRWnbZi4ck=;
+	s=arc-20240116; t=1747208960; c=relaxed/simple;
+	bh=lzfyW5te2xA5XTLbpjnHt9WakjMUlZCEwN2zoYKHIxg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nLpVKxGE2lG+j4aBMPrkg/FTMuzxu8gJJkVcxFkXERN+SnqjDmnlW3g/f+/ZU8PON0rn0jTfjqF+tSP2mZkJS0xFlt/rFlM1B0uaHCLIz05kWDYH8qOouQovtslyPjCs/zmnKaB/ZjZ3sGsocVxNPaF1bAitND5gW8hmib8l3a0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GosP4vXs; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=m8/DLJVqE20olA1UV5ypkjKKF4hn4ENEm38ioY/nktdcA6kW7EzL0G6EWCyntssladU6Zek2Itm4/q3KvZZcNeYEGtoyzum24bmu0JxSIazyUZ38SAF4cByKohczmr0dgEe/eNiivLJqFoMyrzZT6XTRFg+BnFiOPzYT0hBfS+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=elL9VmWt; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GosP4vXs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="elL9VmWt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747193831;
+	s=mimecast20190719; t=1747208956;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=sXnHSZ0Yk0pjB03hExnA/yD4CkvPU5te8D9VFkvGbRE=;
-	b=GosP4vXsN218zv4s5OohvZUcl4xx8C/iM0l2XopyKMp++Gf0pMRKMkrjhEre2EHQdxg3j1
-	s/4hfxbeNyCth419v5BulI9SF5V7H+T6n4q3qv4+JutDwM/ZV89AolvzJyrxKD7WsGqjTC
-	gFiRnt2a9zN6WBvqwT6KUx/cTb42tQs=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GY5pVLDJBE/QxHoyRscYKOYBVWh0U1cYp7B4seYFbNI=;
+	b=elL9VmWthI5UzbQx8W488snkOcAvVEf4aGR/rMNtwggOqdHwsaMNZp0HabrgX2z6EB/mqg
+	M77bgqP96/S+njXB4cJzvFoESQIUFaLXOAvXpNFCuYSlRCJ4kIoU7hfgLG7elm82K4E6Nr
+	VNZ+73hcIW3f2ObXHahMFSkmUXNd3Qg=
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
+ [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-217-lyRnQa5eNN2fyHKQp_h_qA-1; Tue, 13 May 2025 23:37:10 -0400
-X-MC-Unique: lyRnQa5eNN2fyHKQp_h_qA-1
-X-Mimecast-MFC-AGG-ID: lyRnQa5eNN2fyHKQp_h_qA_1747193829
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-30ac9abbd4bso9795890a91.3
-        for <linux-s390@vger.kernel.org>; Tue, 13 May 2025 20:37:10 -0700 (PDT)
+ us-mta-360-J3oAKIDNMdSxO-rxHrGSAw-1; Wed, 14 May 2025 03:49:15 -0400
+X-MC-Unique: J3oAKIDNMdSxO-rxHrGSAw-1
+X-Mimecast-MFC-AGG-ID: J3oAKIDNMdSxO-rxHrGSAw_1747208954
+Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-739525d4d7bso5311310b3a.2
+        for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 00:49:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747193829; x=1747798629;
+        d=1e100.net; s=20230601; t=1747208954; x=1747813754;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sXnHSZ0Yk0pjB03hExnA/yD4CkvPU5te8D9VFkvGbRE=;
-        b=NH7F5Pjji/P6twizgIPvVEYIPPFxi9OX4ePLzvnL0kkwzSzGbHqNNFAZ+eDiIiTM8m
-         RS0mwo9JmTwid6gVgWqKuo1QHwodNPI9fFnBe/1KUxF83fk4TIk7xmUyUB76ik5ZXJXK
-         R/A6vr0InBg4SYHjOAdQSnmAy8GsUoHxpVUl5ikt3Pz9ToSygbza3debLRofNmef5iSj
-         gZZarI5hVoTKVnqiNmVHVL/mTGEtQV8wkvFdvzaowkBqlL/AmiFWnezGj80nMGQ9L8Rv
-         ZE3N84TkOGpeCnZPSvfSD+w577cAC1vPxCmXq9GN3+wTBbaEwFHJFngwrj7WXDI48Dk9
-         4fOg==
-X-Forwarded-Encrypted: i=1; AJvYcCVwnDdq5HDRuPUvibzfGKR6d5QrYIlTiNylsjdA7ebZJo9QRgA6AIoRb0aIvP4BVg00uGy8czjQWc/T@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw2EVP9Q34WRLo1Dm5l9qK3lz/4/we7eoAvXGsGqmwFZlzpIEex
-	nSA9glludX6bmvJrysNp6+CPBbUy0BE8fcu1ihBwys/n574c0QAnmqQnWZa76+JeqIRwY22dFlb
-	UP32mqVjW36IUlg59D/dI8UGxqX4CizWI9qje62L4SeeQyRNzEIHOmpRto6k=
-X-Gm-Gg: ASbGncvsiNmaCu7ushzapKgIBuDtXPxLdPgFxoHO3mKykkC0lzXwx/9maHpdViliZqV
-	1yqzKXYPVvaSgRt9X1kjVdOZ94HfGtG/4hyL0pEJ3OxqmtxmeSmbDG4Fe2Us9Z05g/qcJb6zDSE
-	RciAXqo/9D01a1EAFy0YLqfjpVtu0DIcksc9dbay7tzUqyMH2KcFxlgdq5VsaGFfyNRx2tnHb43
-	5rVup/EnE9zqKQRVvrngtF8A3Inku2uYIeJL/Yhsjl4acxF+ZPmSUJ8fG4/0YzNr6gS63xpISaM
-	Zy6u/gcYCWdPRQxO
-X-Received: by 2002:a17:90b:5590:b0:2ee:f687:6acb with SMTP id 98e67ed59e1d1-30e2e5c24b0mr3049820a91.13.1747193829182;
-        Tue, 13 May 2025 20:37:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHEMic3JZfqHUduiY6RIFo4rKxWJxbdw/r/LByh2iH/VAXRKkC+svCTuRA6EfZQjPLBCUxbkg==
-X-Received: by 2002:a17:90b:5590:b0:2ee:f687:6acb with SMTP id 98e67ed59e1d1-30e2e5c24b0mr3049782a91.13.1747193828788;
-        Tue, 13 May 2025 20:37:08 -0700 (PDT)
+        bh=GY5pVLDJBE/QxHoyRscYKOYBVWh0U1cYp7B4seYFbNI=;
+        b=fUpEflyLmI6p1kJa6KU6R+R883RZFvHuYCq2c71avHnA8ICpWwNrz0H87igWYXT1wW
+         gk3EmzRK3epaeDVHDaAeZIXyE1G3pesTOhn8TC4rbxzUGFpAMfhq7ymptViDcz6YfMCE
+         xab3CEbK4wVJVxiG2qkrwM+QtrCQ/wrLd3ZMQmsjGB9q5pThz2gV2ef0vqX4WWsbhnCD
+         kHf5A2qLhVGLe3wfhgTtHX6QNS+jO8QJ+2VhtF4MDEKrHSleUzhQxVjOnL+/wAFxGJsd
+         qT+mzENKKuychHtwxeUsw/rJFfoHhm8vAcegiiL/yxktYVjuaN/NyWTXxqdSN8LFgEk8
+         q80Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVozX0b7HeXAMeqZ+ieCXh2/UdXQrqE+Qb8Pd+qxlR0+Nv47nTZspeWT6VnriPXxm0RS/6tKHWHR/aU@vger.kernel.org
+X-Gm-Message-State: AOJu0YwVzRUG+J9p7yq1z2MF9jPyEi6oeQD+CpBNldvROe7JsI/Ag59Y
+	q2oQIKdFrs/D7J2xH7Uv2faJkLvlRxQjHEqeiB20E03ixVmFnuJCOdTqNSfL+zYRvFv6PpGwI+9
+	m8z/63fVYwJWdT1wLzBg8OMzaoiVI5so6kJk6ku7zpIrEaeU02zT19YOg0zg=
+X-Gm-Gg: ASbGncuWwiuckltMiglhblFLVdp+dVGVRcIYZICYkTvG9/Ff+9rvdaMBJdCSz+5n1UL
+	DFWLh0hvO2u72/SDXiKhX7n//C7Bn0yynx7VSd3kJ6SnAQn2bEK31lwJ0hXD/36/QkILA6Wypja
+	3xUo8UxQUCD3ypH+bphZQrwm0pFvdaqLScbdnASsypf2vUhLPOJAVURzv/dfrDYUFHG8kS7PuBf
+	h47mZOTgW/fQ9RWFWGzvWvU1oSD9ibTNIryjoocGmA49FzrlgfQrTVmnLI0jHJ2tUnNk/QI/S/Z
+	wijKxoXJV4sk+pmi
+X-Received: by 2002:a05:6a00:a83:b0:740:596e:1489 with SMTP id d2e1a72fcca58-74289373d91mr3716627b3a.23.1747208953935;
+        Wed, 14 May 2025 00:49:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGxNAnjJT+LSzbpKrbMZgFeI/1Abe8EQQBbch700DZ2BLpon2TmE4Xe4l7GJrieZh9Qyjgk0Q==
+X-Received: by 2002:a05:6a00:a83:b0:740:596e:1489 with SMTP id d2e1a72fcca58-74289373d91mr3716602b3a.23.1747208953574;
+        Wed, 14 May 2025 00:49:13 -0700 (PDT)
 Received: from [10.72.116.125] ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30e334e2503sm434299a91.31.2025.05.13.20.37.00
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74237a10881sm9212477b3a.106.2025.05.14.00.49.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 13 May 2025 20:37:08 -0700 (PDT)
-Message-ID: <1ac10d00-c21c-44fd-9973-c32fd89b4ba1@redhat.com>
-Date: Wed, 14 May 2025 11:36:58 +0800
+        Wed, 14 May 2025 00:49:12 -0700 (PDT)
+Message-ID: <67fb8130-94fd-46d0-8f59-1c047ff0a881@redhat.com>
+Date: Wed, 14 May 2025 15:49:03 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -73,8 +73,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 05/16] scripts: Document environment
- variables
+Subject: Re: [kvm-unit-tests PATCH v3 06/16] scripts: Refuse to run the tests
+ if not configured for qemu
 To: Alexandru Elisei <alexandru.elisei@arm.com>, andrew.jones@linux.dev,
  eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
  frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
@@ -83,76 +83,127 @@ Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
  linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
  linux-s390@vger.kernel.org, will@kernel.org, julien.thierry.kdev@gmail.com,
  maz@kernel.org, oliver.upton@linux.dev, suzuki.poulose@arm.com,
- yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com,
- Andrew Jones <drjones@redhat.com>
+ yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com
 References: <20250507151256.167769-1-alexandru.elisei@arm.com>
- <20250507151256.167769-6-alexandru.elisei@arm.com>
+ <20250507151256.167769-7-alexandru.elisei@arm.com>
 Content-Language: en-US
 From: Shaoqin Huang <shahuang@redhat.com>
-In-Reply-To: <20250507151256.167769-6-alexandru.elisei@arm.com>
+In-Reply-To: <20250507151256.167769-7-alexandru.elisei@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 On 5/7/25 11:12 PM, Alexandru Elisei wrote:
-> Document the environment variables that influence how a test is executed
-> by the run_tests.sh test runner.
+> Arm and arm64 support running the tests under kvmtool. kvmtool has a
+> different command line syntax for configuring and running a virtual
+> machine, and the automated scripts know only how to use qemu.
 > 
-> Suggested-by: Andrew Jones <drjones@redhat.com>
-> Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
+> One issue with that is even though the tests have been configured for
+> kvmtool (with ./configure --target=kvmtool), the scripts will use qemu to
+> run the tests, and without looking at the logs there is no indication that
+> the tests haven't been run with kvmtool, as configured.
+> 
+> Another issue is that kvmtool uses a different address for the UART and
+> when running the tests with qemu via the scripts, this warning is
+> displayed:
+> 
+> WARNING: early print support may not work. Found uart at 0x9000000, but early base is 0x1000000.
+> 
+> which might trip up an unsuspected user.
+> 
+> There are four different ways to run a test using the test infrastructure:
+> with run_tests.sh, by invoking arm/run or arm/efi/run with the correct
+> parameters (only the arm directory is mentioned here because the tests can
+> be configured for kvmtool only on arm and arm64), and by creating
+> standalone tests.
+> 
+> run_tests.sh ends up execuing either arm/run or arm/efi/run, so add a check
+> to these two scripts for the test target, and refuse to run the test if
+> kvm-unit-tests has been configured for kvmtool.
+> 
+> mkstandalone.sh also executes arm/run or arm/efi run, but the usual use
+> case for standalone tests is to compile them on one machine, and then to
+> run them on a different machine. This two step process can be time
+> consuming, so save the user time (and frustration!) and add a check
+> directly to mkstandalone.sh.
+> 
 > Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 
 Reviewed-by: Shaoqin Huang <shahuang@redhat.com>
 
 > ---
->   docs/unittests.txt |  5 ++++-
->   run_tests.sh       | 12 +++++++++---
->   2 files changed, 13 insertions(+), 4 deletions(-)
+>   arm/efi/run             |  3 +++
+>   arm/run                 |  4 ++++
+>   scripts/mkstandalone.sh |  3 +++
+>   scripts/vmm.bash        | 14 ++++++++++++++
+>   4 files changed, 24 insertions(+)
+>   create mode 100644 scripts/vmm.bash
 > 
-> diff --git a/docs/unittests.txt b/docs/unittests.txt
-> index 6eb315618dbd..ea0da959f008 100644
-> --- a/docs/unittests.txt
-> +++ b/docs/unittests.txt
-> @@ -102,7 +102,8 @@ timeout
->   -------
->   timeout = <duration>
->   
-> -Optional timeout in seconds, after which the test will be killed and fail.
-> +Optional timeout in seconds, after which the test will be killed and fail. Can
-> +be overwritten with the TIMEOUT=<duration> environment variable.
->   
->   check
->   -----
-> @@ -113,3 +114,5 @@ can contain multiple files to check separated by a space, but each check
->   parameter needs to be of the form <path>=<value>
->   
->   The path and value cannot contain space, =, or shell wildcard characters.
+> diff --git a/arm/efi/run b/arm/efi/run
+> index 8f41fc02df31..53d71297cc52 100755
+> --- a/arm/efi/run
+> +++ b/arm/efi/run
+> @@ -11,6 +11,9 @@ if [ ! -f config.mak ]; then
+>   fi
+>   source config.mak
+>   source scripts/arch-run.bash
+> +source scripts/vmm.bash
 > +
-> +Can be overwritten with the CHECK environment variable with the same syntax.
-> diff --git a/run_tests.sh b/run_tests.sh
-> index f30b6dbd131c..dd9d27377905 100755
-> --- a/run_tests.sh
-> +++ b/run_tests.sh
-> @@ -27,9 +27,15 @@ Usage: $0 [-h] [-v] [-a] [-g group] [-j NUM-TASKS] [-t] [-l]
->       -l, --list          Only output all tests list
->           --probe-maxsmp  Update the maximum number of VCPUs supported by host
+> +check_vmm_supported
 >   
-> -Set the environment variable QEMU=/path/to/qemu-system-ARCH to
-> -specify the appropriate qemu binary for ARCH-run.
-> -
-> +The following environment variables are used:
+>   if [ -f /usr/share/qemu-efi-aarch64/QEMU_EFI.fd ]; then
+>   	DEFAULT_UEFI=/usr/share/qemu-efi-aarch64/QEMU_EFI.fd
+> diff --git a/arm/run b/arm/run
+> index ef58558231b7..56562ed1628f 100755
+> --- a/arm/run
+> +++ b/arm/run
+> @@ -7,7 +7,11 @@ if [ -z "$KUT_STANDALONE" ]; then
+>   	fi
+>   	source config.mak
+>   	source scripts/arch-run.bash
+> +	source scripts/vmm.bash
+>   fi
 > +
-> +    QEMU            Path to QEMU binary for ARCH-run
-> +    ACCEL           QEMU accelerator to use, e.g. 'kvm', 'hvf' or 'tcg'
-> +    ACCEL_PROPS     Extra argument(s) to ACCEL
-> +    MACHINE         QEMU machine type
-> +    TIMEOUT         Timeout duration for the timeout(1) command
-> +    CHECK           Overwrites the 'check' unit test parameter (see
-> +                    docs/unittests.txt)
->   EOF
->   }
+> +check_vmm_supported
+> +
+>   qemu_cpu="$TARGET_CPU"
 >   
+>   if [ "$QEMU" ] && [ -z "$ACCEL" ] &&
+> diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+> index c4ba81f18935..4f666cefe076 100755
+> --- a/scripts/mkstandalone.sh
+> +++ b/scripts/mkstandalone.sh
+> @@ -6,6 +6,9 @@ if [ ! -f config.mak ]; then
+>   fi
+>   source config.mak
+>   source scripts/common.bash
+> +source scripts/vmm.bash
+> +
+> +check_vmm_supported
+>   
+>   temp_file ()
+>   {
+> diff --git a/scripts/vmm.bash b/scripts/vmm.bash
+> new file mode 100644
+> index 000000000000..39325858c6b3
+> --- /dev/null
+> +++ b/scripts/vmm.bash
+> @@ -0,0 +1,14 @@
+> +source config.mak
+> +
+> +function check_vmm_supported()
+> +{
+> +	case "$TARGET" in
+> +	qemu)
+> +		return 0
+> +		;;
+> +	*)
+> +		echo "$0 does not support target '$TARGET'"
+> +		exit 2
+> +		;;
+> +	esac
+> +}
 
 -- 
 Shaoqin
