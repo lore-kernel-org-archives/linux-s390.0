@@ -1,121 +1,133 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AA0283FFA;
-	Wed, 14 May 2025 15:14:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E113D1C6FF9;
+	Wed, 14 May 2025 15:19:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747235690; cv=none; b=igpA87xSGX5n2q5hPIChZ6PU8UMtJNCvbvq8aLOVKV02Vs7AIWlc9iKsqcdPcgA1k2UKURru7oePDHquHu/P57kXKrFv9pgEMQHp0ejBePiI6eUpX8mXrdIXeKLZDm/ayOZOsNbnEECIW7ywkTdLwYB/bkLvG9owwggnyGiN1lk=
+	t=1747235965; cv=none; b=Qx3BFUgIVgkaZ5If0QV3XsoS/saEl4R+eqvJLuTJwtDA4FkRMssREWgwUz3INlDeqjW2mSIJtFW/YQF+W2NGFKCsEh5uEOKU5ZA6Ocl1jtAbVotth0W9enRy5xkgWHc5t3fB2P9Jo+yrm0umwXMjr/KjWEBRsmiOwUF1ZGFs2ZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747235690; c=relaxed/simple;
-	bh=L2nENQRMXr7cm7P8wvgZXQuelIQ1McOEGuf1n8wrLNc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=M24STAt0c0bsjwjPiBYA6QdrjkILkkTMfLUZGEM1Ft7dAEdfZIs3aS29Y/M/tzLsU3d+CGXaAODAvOWaQ0UKkPZf6IW8y2SD8T4PyE9hnCnTVs0pa8GRqHJ7pfovBZAdw3HvIQ9jXKPDqgmQkHKBz1pJE9NhZW13Ue4syPSd6Mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VwUfkSAi; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1747235965; c=relaxed/simple;
+	bh=fbDxkuzpwYjrGZLFi5VIbeGvuh+o5LtR/w6gApnTSJQ=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=PBbTx9Xys+AZ94m1F3tzBRKbIbtL7Ym3EcA5WHTc9GgRWCe4onHEXII/pIuvuwwezilFekuO5M6WdtIhTV9hfS72jrHG6RK4LYu4jZqLqJoliaxK7lpDewsYJXXdrVsIdKMCVm6AR1KMywBBFzdUUJa9gVcpQHaXEtsb9Rj7JOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=djZFgxiA; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VwUfkSAi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1747235688; x=1778771688;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=L2nENQRMXr7cm7P8wvgZXQuelIQ1McOEGuf1n8wrLNc=;
-  b=VwUfkSAiNWGNLDIyIFrgNr1Tfe0KLo2Q8+9linaeff38XkWtNjDbjL76
-   Z4m02f947RrfL0egx7x8PFJbbztPLu9WT99CfKwjPrgUqU8rKR/UDnsew
-   C9dkwW1eyl67qPDRjxBoJw5BI+5ZWg08zQgGkRgTBG11ChIeY58ME3xBf
-   E3BydHVcm+onYRqfnQrzDXeVOKawbapR6Tgu8X5rjx9ZKals4zgCVwVCv
-   nGyD+yo6HfBRyyujUwtTka7SLwu4phXStAyT6SWe5jPikuRXMgMZxtIyj
-   Usm9ICWDfqzFS73YUUY6bXJLhRe52omw4MtGtzKW6jDDMlXh/rXSTGOk7
-   w==;
-X-CSE-ConnectionGUID: 9aPlbFMYTM6iOgWY1XYODw==
-X-CSE-MsgGUID: busp4fLUStieOAFn3xRHOQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11433"; a="49072744"
-X-IronPort-AV: E=Sophos;i="6.15,288,1739865600"; 
-   d="scan'208";a="49072744"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 May 2025 08:14:45 -0700
-X-CSE-ConnectionGUID: j1d1npWEQYK184NLh4CAxQ==
-X-CSE-MsgGUID: gYZgcIb6QBuZVSdGR/Edug==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.15,288,1739865600"; 
-   d="scan'208";a="142939167"
-Received: from kanliang-dev.jf.intel.com ([10.165.154.102])
-  by fmviesa005.fm.intel.com with ESMTP; 14 May 2025 08:14:45 -0700
-From: kan.liang@linux.intel.com
-To: peterz@infradead.org,
-	mingo@redhat.com,
-	namhyung@kernel.org,
-	irogers@google.com,
-	mark.rutland@arm.com,
-	linux-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org
-Cc: eranian@google.com,
-	ctshao@google.com,
-	tmricht@linux.ibm.com,
-	Kan Liang <kan.liang@linux.intel.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH V2 06/15] s390/perf: Remove driver-specific throttle support
-Date: Wed, 14 May 2025 08:13:52 -0700
-Message-Id: <20250514151401.2547932-7-kan.liang@linux.intel.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20250514151401.2547932-1-kan.liang@linux.intel.com>
-References: <20250514151401.2547932-1-kan.liang@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="djZFgxiA"
+Received: from [127.0.0.1] ([76.133.66.138])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 54EFAEbT3012887
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Wed, 14 May 2025 08:10:15 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 54EFAEbT3012887
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1747235422;
+	bh=yapZ2s67BLNwus6ibHABzXGBCoZzVlVupFJe/q2qy/U=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=djZFgxiAUJE7iFHA0Wd/yFppU4TGqi4fxmoBT1mvTgxRmRiu+8QH1zl3CND+QbbP4
+	 97UVxN+J8QD8iz78UlxzP16emoOIxJpWaoO9qxu1Ec5we80T+FOOb4RfHy40YAODf4
+	 27XX25rvc06YcNMTsxppaOiXgVXhowu2DQa6R8gC1Tcuq8Oq9GVQp3swa9CciK5Vg/
+	 jv/tWyK4JR8CJyAVAYMpVNTUaE0Ax5AVAQfxExqancQ8ZpUjlh9FBEWFvjm5PCVbut
+	 6qwwqWO9GyDweGO8bFsU0TsmuX3ejxdQaqkTWk3Ymh6Yue7onjRsMrCGmrkfplN9Ef
+	 P/Ifsp+Ororjw==
+Date: Wed, 14 May 2025 08:10:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Arnd Bergmann <arnd@arndb.de>, Andrey Albershteyn <aalbersh@redhat.com>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.osdn.me>, Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+        =?ISO-8859-1?Q?G=FCnther_Noack?= <gnoack@google.com>,
+        =?ISO-8859-1?Q?Pali_Roh=E1r?= <pali@kernel.org>,
+        Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Amir Goldstein <amir73il@gmail.com>
+CC: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-m68k@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-api@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+        selinux@vger.kernel.org, ecryptfs@vger.kernel.org,
+        linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org,
+        Andrey Albershteyn <aalbersh@kernel.org>
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v5_0/7=5D_fs=3A_introduce_fi?=
+ =?US-ASCII?Q?le=5Fgetattr_and_file=5Fsetattr_syscalls?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org> <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+Message-ID: <B17E8366-DB80-45E6-90D6-294824C40FD9@zytor.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-From: Kan Liang <kan.liang@linux.intel.com>
+On May 13, 2025 2:53:23 AM PDT, Arnd Bergmann <arnd@arndb=2Ede> wrote:
+>On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
+>
+>>
+>> 	long syscall(SYS_file_getattr, int dirfd, const char *pathname,
+>> 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
+>> 	long syscall(SYS_file_setattr, int dirfd, const char *pathname,
+>> 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
+>
+>I don't think we can have both the "struct fsxattr" from the uapi
+>headers, and a variable size as an additional argument=2E I would
+>still prefer not having the extensible structure at all and just
+>use fsxattr, but if you want to make it extensible in this way,
+>it should use a different structure (name)=2E Otherwise adding
+>fields after fsx_pad[] would break the ioctl interface=2E
+>
+>I also find the bit confusing where the argument contains both
+>"ignored but assumed zero" flags, and "required to be zero"
+>flags depending on whether it's in the fsx_pad[] field or
+>after it=2E This would be fine if it was better documented=2E
+>
+>
+>> 		fsx=2Efsx_xflags |=3D FS_XFLAG_NODUMP;
+>> 		error =3D syscall(468, dfd, "=2E/foo", &fsx, 0);
+>
+>The example still uses the calling conventions from a previous
+>version=2E
+>
+>       Arnd
 
-The throttle support has been added in the generic code. Remove
-the driver-specific throttle support.
-
-Besides the throttle, perf_event_overflow may return true because of
-event_limit. It already does an inatomic event disable. The pmu->stop
-is not required either.
-
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/kernel/perf_cpum_cf.c | 2 --
- arch/s390/kernel/perf_cpum_sf.c | 5 +----
- 2 files changed, 1 insertion(+), 6 deletions(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index e657fad7e376..6a262e198e35 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -980,8 +980,6 @@ static int cfdiag_push_sample(struct perf_event *event,
- 	}
- 
- 	overflow = perf_event_overflow(event, &data, &regs);
--	if (overflow)
--		event->pmu->stop(event, 0);
- 
- 	perf_event_update_userpage(event);
- 	return overflow;
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index ad22799d8a7d..91469401f2c9 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1072,10 +1072,7 @@ static int perf_push_sample(struct perf_event *event,
- 	overflow = 0;
- 	if (perf_event_exclude(event, &regs, sde_regs))
- 		goto out;
--	if (perf_event_overflow(event, &data, &regs)) {
--		overflow = 1;
--		event->pmu->stop(event, 0);
--	}
-+	overflow = perf_event_overflow(event, &data, &regs);
- 	perf_event_update_userpage(event);
- out:
- 	return overflow;
--- 
-2.38.1
-
+Well, ioctls carry the structure size in the ioctl number, so changing the=
+ structure size would change the ioctl number with it=2E
