@@ -1,65 +1,108 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 440C1270571
-	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 10:39:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B478C2080F4
+	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 11:02:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747219200; cv=none; b=dn7rm98kyUWhDTo1pPA/XDLInDQhpzqaphWH+4d9/bnsL2GmwjvwNDKojPC0SBwzdwNDRHUm3vcP7qM189EPp0MWi18qlOxBqZoLMQDU6YeTCALmzBeJ1/kN5WRAXYW7nSLkvi7jzD8qcApJRAMRVrgODaDABAyv1wXZ8fjrETg=
+	t=1747220557; cv=none; b=kQPIsQDjpfvDmlCtBbBU+e/DmEHnvscvCQEbbeL5w44YJANwS1y1JKA0OEQGWrMQniAFCGbuJYzgADZLrXPkKpuYwkdZBLSeXKdyKcWHHsEid36/yQc9SEUefAiBz2du/lm9L/XncOvE3I7bIaPtrakB0O+Z1OxKk5NKMXgXbYI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747219200; c=relaxed/simple;
-	bh=M+r/sXnGBLkwxL4io3yO0T9gm2Rr/cnSm7pZQbUY12M=;
+	s=arc-20240116; t=1747220557; c=relaxed/simple;
+	bh=g6FsWqajrTcVSIHknD3zeLY9flfbWnzSw3aQFZLECpw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kNsfhkPLwwtexSpFTJ/ATKu/iK3zghoHPqyISMXI0INWncxNwFdCGq52rxkWTB/lw/7BANyRJ3Ft5vSjjEi+i8Pzv8rVDL5MPvRovkPE6wTL3vwLGbES1ql8DEdYUub7lhmHtkusZpMDZMGjLWDh4LcGAdu9bHJcDijhk7l59/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QJPKkllx; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=mmvCRlTGyrjdmDdQ9R216hwIjWsfsUXqPdqh8P6jWyqSPC1E5//vuy+7U2bq+hDd2yDGi1U/O3lc+KdIeMD+hPe7wdNFHRj+QzXy1bTTPrm10+Tf4CwI5o8ZYyRO3xLwyuUbUmXj95hXtxalKV5f93AaEPBgprXaIq7eqVDrlOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MmDo9w0y; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QJPKkllx"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54E6PoG5002482;
-	Wed, 14 May 2025 10:39:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=unDsqyPlFr1KTJgttSPnCgs9K7GMg4
-	i/QE0MYoWU06k=; b=QJPKkllxugS0p9n0S+Itmnw74dJ7MsiSvMCJx83SckuPqE
-	hL8UfVBsSf/RzxyrZ0ABFCuAixPHZLEDP0kxkHvBVHtXCBWRUrfaMIXlF7+Cy+Ly
-	0mV2E/A5wrLwM9F3zLCJOjGsme7acfex7Qa6vmW8eckbMeiakE3wuRZmT6L7uSaW
-	TRdIQ+VINBpLEXwss4lzST26oQvf+nu6TlKU5SDLrwwxQdzHjsLS2XOcOWpDrq4V
-	gjVfdVko959q8tmniZ8qlQ7a0UeiJZ41OB9REB3GO4NZCn0Dh4/vfDtM5HKC4gWA
-	PZtRLXXIa+MXFMwXfzTJUxwI9vCOoughEkBIWMtw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46mbh13npq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 May 2025 10:39:56 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54E9o7Rs015354;
-	Wed, 14 May 2025 10:39:55 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 46mbfpupn8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 May 2025 10:39:55 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54EAdpKC58327496
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 May 2025 10:39:51 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B8BD720215;
-	Wed, 14 May 2025 10:39:51 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7EF8C20210;
-	Wed, 14 May 2025 10:39:51 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.60])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 14 May 2025 10:39:51 +0000 (GMT)
-Date: Wed, 14 May 2025 12:39:49 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, linux-s390@vger.kernel.org,
-        dengler@linux.ibm.com, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH v5 0/2] Rework protected key AES for true asynch support
-Message-ID: <20250514103949.22307Ac7-hca@linux.ibm.com>
-References: <20250514090955.72370-1-freude@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MmDo9w0y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1747220553;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Cav3Z4NY5VTBc23C/qTtaVoA8kEGEB5wAcjksldNIvE=;
+	b=MmDo9w0yz1Kn3sjpYTSSjD4KrGMy642rX6NeyGw0BXVGUAJtLpNr/jiSCs78/k6kPmZONb
+	1RW8FgVKyn4Xti1ZjFxpWYaJxj2Tcu+wyggyg2xIC+GcF3d775HpKZpGvBXNYkmv52waPk
+	mrns9bc03aeESHAE3VEXBSgaL59QP5U=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-99-NpKuee6sMDucGNV13m0QOg-1; Wed, 14 May 2025 07:02:32 -0400
+X-MC-Unique: NpKuee6sMDucGNV13m0QOg-1
+X-Mimecast-MFC-AGG-ID: NpKuee6sMDucGNV13m0QOg_1747220551
+Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-5fbeee46e51so6846715a12.2
+        for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 04:02:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747220551; x=1747825351;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Cav3Z4NY5VTBc23C/qTtaVoA8kEGEB5wAcjksldNIvE=;
+        b=Ce8iFu9cBdvnSaMdNAbXHD0qcA3sSp8tx4wYt6q/kgGN17kV++JHAPhDGeBvJHq4wf
+         6B840kwvSZsO3rUOCCjtsFpM7hlurT3UI1K7jjzDgtaiqz92EoyTZIhEcHxg/eyfCNkD
+         9XMUQBwmeiVncL2T0o+VNtLhXYRZCMD0Uo2N58Cxde+V4V8UNwoa6VYwpJAkt8n/6IO+
+         e5HfNSS0BiptdWM9vFpI13tAA0mt04PztclOmDop5Q+v3vqFea8SANfKP0mbA6qZSC6j
+         xg4YmdouD4gCSHgpCzWdZUFeH2hNHfPWB56gGWC/cSDVlHGq8HoGh7ENmRBNJ7PFR6Jl
+         8SnA==
+X-Forwarded-Encrypted: i=1; AJvYcCW6Qt3Vj4prsX71u9dDY4rhkDN8KwFXQ1O0K5vqb39PtXDNAwa1DEHBhi00n+iGV9MtN7m047AxU5Ju@vger.kernel.org
+X-Gm-Message-State: AOJu0YxM+BfAVTvmkCEYzhPRFX81fnZka/iRKOcCDfF7E0bzTdqzZgQi
+	qjsHBI2mmJ9VuV8fvZDWlxUvVHLHLwQqdhTmY7mdsjK7i4P0x33ZreAhoRxngW4Gvwq5cnpgWsn
+	8IUDe20+wK3PL7iUZuINyV7HmwEEqzwtQpr+Q0ZOBhtW7ccgD4D5wEzKyyA==
+X-Gm-Gg: ASbGncvX8h9ZKc6W41EeOQU0MAka3bFdKlWpm8ORvdPeepXb8VnrhZpo+dG4GSvfwkM
+	cKXkHg3FhI49U6hcGK+iPEhY6hHn5IU60RiBKN7AE1rkpQuOv/AOLF4IDn00FMMroOetAd9bcRv
+	clkr3rUCuEJqbHNVOq7XridrRtJr8OxPLWZvCyBQcDTNiEwvUj8tuguAQ0jQIiblLw4J1STa9CA
+	lnogFvF0lUm8esENFyGfKdsFOob+lUy7KJTeNsvnKajSF2VVdYDxsK0JGwvaIk8Yl9+TnO/u00k
+	Sg==
+X-Received: by 2002:a05:6402:234d:b0:5f4:ade4:88c5 with SMTP id 4fb4d7f45d1cf-5ff988dd135mr2082961a12.34.1747220551014;
+        Wed, 14 May 2025 04:02:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEs3ORoNcv9GW9V4gupozuqWmYmwSxEEUINo5zQzLXzCm36ngPWceLYKaaZhwPfqmrqY5iYdA==
+X-Received: by 2002:a05:6402:234d:b0:5f4:ade4:88c5 with SMTP id 4fb4d7f45d1cf-5ff988dd135mr2082854a12.34.1747220550339;
+        Wed, 14 May 2025 04:02:30 -0700 (PDT)
+Received: from thinky ([2a0e:fd87:a051:1:e664:4a86:4c01:c774])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5fe43357d45sm4879817a12.54.2025.05.14.04.02.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 May 2025 04:02:29 -0700 (PDT)
+Date: Wed, 14 May 2025 13:02:13 +0200
+From: Andrey Albershteyn <aalbersh@redhat.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	selinux@vger.kernel.org, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v5 2/7] lsm: introduce new hooks for setting/getting
+ inode fsxattr
+Message-ID: <kgl5h2iruqnhmad65sonlvneu6mdj6jl3sd4aoc3us3lvrgviy@imce27t4nk2e>
+References: <20250512-xattrat-syscall-v5-0-4cd6821e8ff7@kernel.org>
+ <20250512-xattrat-syscall-v5-2-4cd6821e8ff7@kernel.org>
+ <f700845d-f332-4336-a441-08f98cd7f075@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,42 +111,61 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250514090955.72370-1-freude@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=RpTFLDmK c=1 sm=1 tr=0 ts=682472fc cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=srGfekgxjPcEHOBi6i8A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: 5brjNZqkOGApXja7EezVD5wObK4VzVRz
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE0MDA5MyBTYWx0ZWRfX4QceATM3qRMg 2E6VWWpvrR7G8JPuroilojWOS4R2Ll4msWIQsFsnv21uoQnVkY0gKzIiWuGcbi9aq/HcUTj5tuW 4KMptoym9+p2xy5gakYg3kwLB+UKrFuDfq0X97JDcFpDzmLs60iUS6eupKCA0BOJduvvtA7ujV7
- k9J0vhVwzbiPv16T1H880WbPGyFgYuT8qHSFKjx/K9kqrHSDAMmGvyVq1dUJ+eEUDkJYQQnK5FJ uXku6UwGHc5u5nJLg67xUit3oJSG4CrXIiZhnbiV/eTgQep99ky3vIRPpUYkrKCAxL27XlKQJsT FhQmVqvJ9WPtr3K6NN5zixUFLatX7REiIIHgZeYH3JdSzwXvxLUrlbtwY45leohzEGNWtAi1sfq
- 6bW71Sfijpf3SLcMiJShdPXqaCM4ccNtKO6y+WHHJ5WhlcWN8/xReVAxA4uU0o/rafHLc/sB
-X-Proofpoint-ORIG-GUID: 5brjNZqkOGApXja7EezVD5wObK4VzVRz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-14_03,2025-05-14_02,2025-02-21_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
- bulkscore=0 mlxlogscore=443 mlxscore=0 lowpriorityscore=0 malwarescore=0
- clxscore=1015 impostorscore=0 priorityscore=1501 adultscore=0 phishscore=0
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505070000
- definitions=main-2505140093
+In-Reply-To: <f700845d-f332-4336-a441-08f98cd7f075@schaufler-ca.com>
 
-On Wed, May 14, 2025 at 11:09:53AM +0200, Harald Freudenberger wrote:
-> This is a complete rework of the protected key AES (PAES) implementation.
-> The goal of this rework is to implement the 4 modes (ecb, cbc, ctr, xts)
-> in a real asynchronous fashion:
-
-...
-
-> v5 - Fixed two typos and 1 too long line in the commit message found
->      by Holger. Added Acked-by and Reviewed-by.
->      Removed patch #3 which updates the crypto engine docu - this
->      will go separate. All prepared for picking in the s390 subsystem.
+On 2025-05-12 08:43:32, Casey Schaufler wrote:
+> On 5/12/2025 6:25 AM, Andrey Albershteyn wrote:
+> > Introduce new hooks for setting and getting filesystem extended
+> > attributes on inode (FS_IOC_FSGETXATTR).
+> >
+> > Cc: selinux@vger.kernel.org
+> > Cc: Paul Moore <paul@paul-moore.com>
+> >
+> > Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
+> > ---
+> >  fs/file_attr.c                | 19 ++++++++++++++++---
+> >  include/linux/lsm_hook_defs.h |  2 ++
+> >  include/linux/security.h      | 16 ++++++++++++++++
+> >  security/security.c           | 30 ++++++++++++++++++++++++++++++
+> >  4 files changed, 64 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/fs/file_attr.c b/fs/file_attr.c
+> > index 2910b7047721..be62d97cc444 100644
+> > --- a/fs/file_attr.c
+> > +++ b/fs/file_attr.c
+> > @@ -76,10 +76,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
+> >  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+> >  {
+> >  	struct inode *inode = d_inode(dentry);
+> > +	int error;
+> >  
+> >  	if (!inode->i_op->fileattr_get)
+> >  		return -ENOIOCTLCMD;
+> >  
+> > +	error = security_inode_file_getattr(dentry, fa);
+> > +	if (error)
+> > +		return error;
+> > +
 > 
-> Harald Freudenberger (2):
->   s390/cpacf: Rework cpacf_pcc() to return condition code
->   s390/crypto: Rework protected key AES for true asynch support
-> 
->  arch/s390/crypto/paes_s390.c  | 1812 +++++++++++++++++++++++----------
->  arch/s390/include/asm/cpacf.h |   18 +-
->  2 files changed, 1285 insertions(+), 545 deletions(-)
+> If you're changing VFS behavior to depend on LSMs supporting the new
+> hooks I'm concerned about the impact it will have on the LSMs that you
+> haven't supplied hooks for. Have you tested these changes with anything
+> besides SELinux?
 
-Applied, thanks!
+Sorry, this thread is incomplete, I've resent full patchset again.
+If you have any further comments please comment in that thread [1]
+
+I haven't tested with anything except SELinux, but I suppose if
+module won't register any hooks, then security_inode_file_*() will
+return 0. Reverting SELinux implementation of the hooks doesn't
+cause any errors.
+
+I'm not that familiar with LSMs/selinux and its codebase, if you can
+recommend what need to be tested while adding new hooks, I will try
+to do that for next revision.
+
+[1]: https://lore.kernel.org/linux-fsdevel/CAOQ4uxgOAxg7N1OUJfb1KMp7oWOfN=KV9Lzz6ZrX0=XRGOQrEQ@mail.gmail.com/T/#t
+
+-- 
+- Andrey
+
