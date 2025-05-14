@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A85301B043A
-	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 17:28:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2CAF280CDC
+	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 17:34:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747243729; cv=none; b=uXh1pxu+3V9Ob2KC3iktr7ue8tDOfRiY6sNYDPnTHDCjB24+TFRExLCtB58R4UT0msOX94/JSKsb2T15K7pO2b3r37XCYYYFoBee/EjqTA36kPR21Wkp1vOwRuGSOgPfc6659A8/xjv5HhVD3VV/w+kK8mR+Dda3fCGO3x8tvUg=
+	t=1747244071; cv=none; b=tlo5Y43oFKE6Ap/x4JJ8MgzfH/GvjF4Bsr2iytcgxRtIlApmP+xiywuQiwLk/H2mnobq30K9E+xMHpS8fkPhiXa4BvCmLyoPyyPOy/ruTYYuwIOBHteoXGYB8RbANER0/AJtBgHS3vFBWPrcumfaJWeYIMgQZEmOEJK4ohXBUZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747243729; c=relaxed/simple;
-	bh=R95sEw4qMzkRsfBwJrXEv8IusmnQhk8Qwej+7+Nhnxo=;
+	s=arc-20240116; t=1747244071; c=relaxed/simple;
+	bh=kVRO3G/4PNVYlIlAQRXqbDnSY+k6vJJXhBt+6U/6DIY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cyBBC+N8CoTSifgYsrEO9FuG73WX9dYtbFvc76XRd7dAanqG3jHm/kKJ2tcfTCpKOhqtphbo0R/Zb3MOxdlkQxGpMSCtASI5hU2X+sX7Xh4GdctfYeENVSQYRJ6AoXqzQK4jOr5mNXaZftXdnA/qGXZ5wotCtmKknEga5ZrIaBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XZ8Fr1Ry; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=fXHA9Qe/Zxaws96WX2/JduBad5cP3vMW99Obaw1LVDcc88FfqKwc2oVF2guBSUk1w6ZZfJ/vnvKqjNIVAhfMu7dPiN3WvMDYCIB9apfS74iedQJlzwsml+9JKVORBTXO0Fl5rmWvuEVtiedyUsgXoFy/H5pl2N5qOq/pMVRZ6dI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W9GOeWDx; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XZ8Fr1Ry"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W9GOeWDx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747243726;
+	s=mimecast20190719; t=1747244067;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=x0NB9hHsfnvaqiaP0PTdvP3wQtEVBtbvcBvvonUuj7g=;
-	b=XZ8Fr1RyuC7I2eoXygO0o8ZQsNEAzFPhAYcRY1/M/0QVcAyXFq8mHZMJMCdjWBdPNgre0+
-	IJNc4nLwn+QnT5EZy6gBryFCPOO2vngML2YgybvNG1z5ISkwViZ4zlipiQMuHWDyWHkC2Y
-	RYWdSjPkQd2eL3UO1YBN9dAoALX58Xk=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Mi+ZyIRicg0MtDqlOGNscgLfMwwnzViispwL1nSnpp0=;
+	b=W9GOeWDxgE+5Wg+CoSnraRPp9pNcAu+wygC3HoO/faUVV235RA0X99D6Ue45EyQsxDWABR
+	3wJzGkd1sYrQqBB/+FNSpBuLsK49Hqsm8+FYIzeJY+TI/BMO1P1O8XDdPWK5MYSrARlxis
+	qFTOi6rGc/J5f2nxJEZGs2wntEMlK+c=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-680-sT-vqIToMPuXSmi3crt3TQ-1; Wed, 14 May 2025 13:28:45 -0400
-X-MC-Unique: sT-vqIToMPuXSmi3crt3TQ-1
-X-Mimecast-MFC-AGG-ID: sT-vqIToMPuXSmi3crt3TQ_1747243724
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3a0b63ca572so29371f8f.0
-        for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 10:28:44 -0700 (PDT)
+ us-mta-274-aC2dqwXENIK_q10wWbNLdg-1; Wed, 14 May 2025 13:34:24 -0400
+X-MC-Unique: aC2dqwXENIK_q10wWbNLdg-1
+X-Mimecast-MFC-AGG-ID: aC2dqwXENIK_q10wWbNLdg_1747244063
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a0b7124b5fso19686f8f.2
+        for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 10:34:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747243724; x=1747848524;
+        d=1e100.net; s=20230601; t=1747244063; x=1747848863;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=x0NB9hHsfnvaqiaP0PTdvP3wQtEVBtbvcBvvonUuj7g=;
-        b=PghRof8AeQfMQjsrM+1Vw+UCtELeDQmlsR7GrN2h7IS/bPHDUfiU51ZAaD+hFjsdRm
-         IcmCPvTm1yoWOxii/STL4d6DW3KvZVeno8ecey3iWZWbcLtdjUzLEJk+OF5LDUFWPK+P
-         /NEhcXv1Qw3AMGqnODOfWniCVBSe0ckGKxV0/0wQOU9X0OVZCNACV7B6w88LYJYNYSe0
-         YSwOGv93kHvs6zFgiBnXY3A72nA4BtvZbZBvESMqp+WXabHDrykyGMMX9jcOEJnleOHi
-         veitcnzab/Z+ylOxv9Ey273cET4oIRS5J1d3F9KOydR59ZsspM+FC0G5Mk6NHAMKgic5
-         B4vw==
-X-Forwarded-Encrypted: i=1; AJvYcCUyq9xuEAyYLsI/KxdZ5TpCzET8E6X2RdYMGb6EVydhmGJ9ykZL7Vxh0nOEtl2pnHq8jKqwjyr76Cwv@vger.kernel.org
-X-Gm-Message-State: AOJu0YzeKHwqdUdryGP/FFHvRJh3LW+dNe/6iddBaxUdgZo1jc2RvckZ
-	me0rMpp5xCc27bTdt7K7QYb7eqpO1aVslJp4s0X+kHYXDWIdl0OcaiNm4ZQiYkRdI1QRjI2ZDRk
-	bL52ZObEcn7iXqn4JTOID6aUjB5Riokz4vmJ0lOCeTdP4FIfp64Snzm0dECA=
-X-Gm-Gg: ASbGncto3yJHs4ocSnhUQCqcomY9q+xWuWlhlGijYEMR0juhr862cqrTnQ/qPxd0OMm
-	bt/PM0L5OgFk39cV+2vdhiPjCBkGNXfKs3KNv12B+Z4lfmM40qrJuDU85l42bOsdULOz67bgdpR
-	sIQRelgYIyMl7iyCBMn/4CaSUONEOoHj4mpEeC8PbqYuI6+1Wk2lKpbWRt0ikX8Tna8nU6RE4Zn
-	SKw+Cq8ADwUxZUPS2KaN553JdfvF8EeX48Hf6Eq0aHj8Neml1mKsSjCv831aZwKCN+/B31Lw2+d
-	dyfVNqg+wfg1qC6Y6z1UQaCAqAXzJlGQMJDHTHIFbVgC7XbxVClot86vhPkRwCh6lDDrl0x7keg
-	Ed19AqQffPsfd3syuk/Oy929DGvwZ1n5am4W70zA=
-X-Received: by 2002:adf:fb03:0:b0:3a3:4a11:3377 with SMTP id ffacd0b85a97d-3a34a1134ccmr2884568f8f.38.1747243723739;
-        Wed, 14 May 2025 10:28:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEILGSIK7ILwtvCfcdGj14dWXlSjZgp5iQOe3elG5M+F6AawgHo/Dw6MucQ5WANvMfSiqMc6A==
-X-Received: by 2002:adf:fb03:0:b0:3a3:4a11:3377 with SMTP id ffacd0b85a97d-3a34a1134ccmr2884544f8f.38.1747243723319;
-        Wed, 14 May 2025 10:28:43 -0700 (PDT)
+        bh=Mi+ZyIRicg0MtDqlOGNscgLfMwwnzViispwL1nSnpp0=;
+        b=aj4FdfZqSy9ytLEz11glImKFgmUOPhkPVUs/lSbm7sY/nSsEwWNdiEuqhn1H28WlDG
+         guVIEwrWVyJt46QUu5wAbrodhI1I+FD//5ORuRS/OeLM/wMPNCfVR5PRWqyFW/NhRe1K
+         2lL9pcHFTQ2psxH48mYL8YMCnUY6JTh45GcebXCMmGkpooHD7ex33rtOahpdDHV5EeCJ
+         kC2fT7BfpD/9hfDfN11lm00PvrkfSOU1QM43qFuREZp+rcRPVP7viYoUNjU+cgVSIiuW
+         BfY82/qIK2kbDwPAt0osHV+YCWYT216M6sfIH53GO+M6QAp6M6EwwCcf9GRY6T9z/Cu4
+         BnrQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXqGcGYDwQK5InKeb8tG7RQAUWyCjPJyYg4ymHsiTKeIE6di6lweb+cHFAbNGDcDFiep+yz6l4Qzj0O@vger.kernel.org
+X-Gm-Message-State: AOJu0YydZP2HalLFrKOcuUDZ/rohDdX2mUA9N6kLhNWFgwyfCvt1qpZv
+	dVkSadbntfFSbUO11jjirdwMSu7I5hm+zgXFFI9efSWlgHc1MxD24cefRJMCGHF7JJDDu8qLWSG
+	yLTGDnyTKKvne7dMKAfEsnPK13aLkBmnCLRXgvQRRK2I6NNeBeahc0IULzqg=
+X-Gm-Gg: ASbGncvuZHJ3b85TPQgLZb7xr/JLnR7fPCSGFhTMaVUrZKbTGJRBsfCfi+4+80tps8Q
+	PX59hK340piAYeMUimFM45sgCy3svnbFxBb7WDpenVdaIbgLdSswmbjUOhTLCpxYfnvYahMNBZU
+	KWW9ExtWFLXm52bRVqhTw16wbLXIu9zxPfLxZHYIFxkSyxeV3D1DDg/SXAYmSLzUMiQDpa6asNh
+	KSLy5W8n9x7LJsODIf3V5U9xEMhOuxNOSKx8ymI2HIOdQrLPgLdghoM37fujGHsv7pMFD4e2FiF
+	vY1kaIGVsP7HqEA8t1uduccfeQ1OEtBhJEw3k88b4PgG/eugtVDxK4Vwpf0msyLlCYAJPJXpxTr
+	zNLqotTw7wDokuB+A4ifx1FMziSyUqPjZJKEuwl0=
+X-Received: by 2002:a05:6000:2aa:b0:3a3:4bb4:8464 with SMTP id ffacd0b85a97d-3a34bb48467mr2686873f8f.8.1747244063465;
+        Wed, 14 May 2025 10:34:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFa3g3LP+U+uSfcYupSsUHt9Zkl25zLjBPUACeKrUZx2gS4O4Cucoe5dqK//Bex5xxb0o9t3g==
+X-Received: by 2002:a05:6000:2aa:b0:3a3:4bb4:8464 with SMTP id ffacd0b85a97d-3a34bb48467mr2686856f8f.8.1747244063070;
+        Wed, 14 May 2025 10:34:23 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f15:6200:d485:1bcd:d708:f5df? (p200300d82f156200d4851bcdd708f5df.dip0.t-ipconnect.de. [2003:d8:2f15:6200:d485:1bcd:d708:f5df])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a1f58ecadfsm20175220f8f.22.2025.05.14.10.28.42
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a1f58f2b02sm20677344f8f.51.2025.05.14.10.34.22
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 May 2025 10:28:42 -0700 (PDT)
-Message-ID: <8d23541c-0218-46e3-b865-8b12e5fe76e7@redhat.com>
-Date: Wed, 14 May 2025 19:28:41 +0200
+        Wed, 14 May 2025 10:34:22 -0700 (PDT)
+Message-ID: <2a46072c-ef97-40a4-9bb4-fe521232dea1@redhat.com>
+Date: Wed, 14 May 2025 19:34:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,18 +75,15 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] KVM: s390: rename PROT_NONE to PROT_TYPE_DUMMY
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 0/3] KVM: s390: Use ESCA instead of BSCA at VM init
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
 Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
- Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>,
- linux-mm@kvack.org, Yang Shi <yang@os.amperecomputing.com>,
- Janosch Frank <frankja@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- kvm@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, pbonzini@redhat.com
-References: <20250514163530.119582-1-lorenzo.stoakes@oracle.com>
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20250514-rm-bsca-v1-0-6c2b065a8680@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -134,42 +131,40 @@ Autocrypt: addr=david@redhat.com; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat
-In-Reply-To: <20250514163530.119582-1-lorenzo.stoakes@oracle.com>
+In-Reply-To: <20250514-rm-bsca-v1-0-6c2b065a8680@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 14.05.25 18:35, Lorenzo Stoakes wrote:
-> The enum type prot_type declared in arch/s390/kvm/gaccess.c declares an
-> unfortunate identifier within it - PROT_NONE.
+On 14.05.25 18:34, Christoph Schlameuss wrote:
+> All modern IBM Z and Linux One machines do offer support for the
+> Extended System Control Area (ESCA). The ESCA is available since the
+> z114/z196 released in 2010.
+> KVM needs to allocate and manage the SCA for guest VMs. Prior to this
+> change the SCA was setup as Basic SCA only supporting a maximum of 64
+> vCPUs when initializing the VM. With addition of the 65th vCPU the SCA
+> was needed to be converted to a ESCA.
 > 
-> This clashes with the protection bit define from the uapi for mmap()
-> declared in include/uapi/asm-generic/mman-common.h, which is indeed what
-> those casually reading this code would assume this to refer to.
+> Instead we will now allocate the ESCA directly upon VM creation
+> simplifying the code in multiple places as well as completely removing
+> the need to convert an existing SCA.
 > 
-> This means that any changes which subsequently alter headers in any way
-> which results in the uapi header being imported here will cause build
-> errors.
-> 
-> Resolve the issue by renaming PROT_NONE to PROT_TYPE_DUMMY.
-> 
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> Suggested-by: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>
-> Fixes: b3cefd6bf16e ("KVM: s390: Pass initialized arg even if unused")
-> Cc: stable@vger.kernel.org
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202505140943.IgHDa9s7-lkp@intel.com/
-> ---
-> 
-> Andrew - sorry to be a pain - this needs to land before
-> https://lore.kernel.org/all/20250508-madvise-nohugepage-noop-without-thp-v1-1-e7ceffb197f3@kuka.com/
-> 
-> I can resend this as a series with it if that makes it easier for you? Let
-> me know if there's anything I can do to make it easier to get the ordering right here.
-> 
-> Thanks!
-> 
+> In cases where the ESCA is not supported (z10 and earlier) the use of
+> the SCA entries and with that SIGP interpretation are disabled for VMs.
+> This increases the number of exits from the VM in multiprocessor
+> scenarios and thus decreases performance.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Trying to remember vsie details ... I recall that for the vsie we never 
+cared about the layout, because we simply pin+forward the given block, 
+but disable any facility that would try de-referencing the vcpu 
+pointers. So we only pin a single page.
+
+pin_blocks() documents: "As we reuse the sca, the vcpu pointers 
+contained in it are invalid. We must therefore not enable any facilities 
+that access these pointers (e.g. SIGPIF)."
+
+
+So I assume this change here will not affect (degrade) when being run as 
+a nested hypervisor, right?
 
 -- 
 Cheers,
