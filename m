@@ -1,110 +1,166 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2954A289353;
-	Thu, 15 May 2025 10:41:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE50628003F;
+	Thu, 15 May 2025 11:26:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747305709; cv=none; b=do+O8ciC6dVdniFW2hpXCaLHkzs+kQo1IFSE1EF7DmbavDIZAzlbKru0aFbQoAo755lHRTsM2sj4yJAO2tMzNYg3jFQlSMqBrvF+OSjD+zouk4QxRc4+j5EEFbmbfMcSWfn3sSg9A2AJ0kp7pgb80hS7r7BQJXHEcSjJIrgwRUo=
+	t=1747308409; cv=none; b=IXst4wa/N19pMgV2xJswL8RYGz0PtPgSGjLQrNGLNOci54e/+vjigPgvQRXNqDmhWB6Fp5wJSBjsRBAVqTTnEAz67kTKJ2JPpnJ8K51bR0pupKjxgTxg1FMkkUvy+dRJzthcd8e8T/JldRDX/z/l68nyWNojaiMDY3wcTW2kpzs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747305709; c=relaxed/simple;
-	bh=as7f2bEW46UojcmgSSs9aSH2vABUJaYN2zNdona5Hbs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QCppkRiIGSNriujuVFQY4bj3/Jgv+9QbspmPWpsBbU73h1GMJGune3aAHPHSlCR0SBIxZEkHmVDOI0ll9TQqddGYOHU0BAVZ9nGt8pEcaI9A8tJMF6LniVO3w4c8vkIvUzo95kbCQuukqpnsQI73jBqc3ltz5jqqSwUKlFrCHC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XkQiBuHP; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1747308409; c=relaxed/simple;
+	bh=wJudgktcMt4NPJ3pwlQJdKMCMJAqE9Fd/hQtuq1RWYE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Ojz5Npu866JMDEprvgWRrKdWmV+tNBKKa5f/P4/f/UCd3LBENk8UmLk6lGHywpKonD21IS3Slkefy2fJocX+YVCPjSmg1joGIXlHNW6ktrLsMdnCL+UXTMc+vAVB7PAceJYbINUyy9qCPd/9XP09W3XNS0AF64Odk96flZ4cu8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iZwlBg7w; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XkQiBuHP"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iZwlBg7w"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54F9F3gL017659;
-	Thu, 15 May 2025 10:41:40 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54F9ExKX017363;
+	Thu, 15 May 2025 11:26:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=/u6sVXUmIl0OU5rt4LugTm5/9stFbB
-	2bUferjR+mw2o=; b=XkQiBuHPhhAtMRAntWSEmOzxg3OF+K2lPQyR/xajWQmU8g
-	8To+vs2el39XEiHidryFS+LYw8sZbwduyeFS1yZ3Gr05DRtKX2pp+Gmjs1O29Sd1
-	ywiA8XSVGOOvYsi4QxyXT6/0lgSspnDHPf9JKtQ8PPMe5TGxdOn/KNuR+pIoQNlO
-	4iWC76mc1U1GkNbdUooGpLqCE2e6gOmhcWljSPvFTmAssgK8BKJ9j2PzBFC+/NPz
-	EysCI9xjJgsocmk+rjMiKMLJJAeYRKmxV99JDtRkDuJYBBWeWioIRHOgB2TkMHiu
-	9wID74IIIDOb68bEEiGE0uiOXJ6eohUya62a2zqg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ndfjrcg6-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HXZCtz
+	DhTIw9IIAml18Nk1hBS5XtAkpc0JGpvZ6czSk=; b=iZwlBg7wcd7aW4tRyMCyF4
+	psazf3KvHJ/+ksZ4UdTYLdlqqk2hdau5Vu/fOk3lRyX7FqN1HCn0eliQMA14In/o
+	jY/bbR4u3GyElHrLKEg6QDlfOE7rBiBtzJUa+Uf9pwJoOaAWTeBOQo0pv6FB5Kg7
+	y3Z2noCqW0usq1kT3DoBNoJRzECdeoBT8kC0Cn/BqtGuEgzBpj/asC/jgV0UVIaY
+	oYYpPPV7NVQ/YnGXDZ5SVuVuG21DCLK1PHPuv5zFqRvfsZaKJUykDgdCjDD4ivGf
+	ZHvMp9ptSiyl5tKZvKSr1svCGcZFo7NJdKQwz9pr3H1yIY81T2+xwODnzJyNKbhg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ndfjrktn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 10:41:39 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 54FAfddN013212;
-	Thu, 15 May 2025 10:41:39 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ndfjrcg0-1
+	Thu, 15 May 2025 11:26:45 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54FADRKJ021806;
+	Thu, 15 May 2025 11:26:44 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfpsvx8-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 10:41:39 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54F7F2G3021396;
-	Thu, 15 May 2025 10:41:38 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfrsp0g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 10:41:38 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FAfaHG58786254
+	Thu, 15 May 2025 11:26:44 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FBQe1L48496968
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 May 2025 10:41:36 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B053820071;
-	Thu, 15 May 2025 10:41:36 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9BE092004D;
-	Thu, 15 May 2025 10:41:27 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 15 May 2025 10:41:27 +0000 (GMT)
-Date: Thu, 15 May 2025 12:41:26 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Daniel Axtens <dja@axtens.net>,
-        Harry Yoo <harry.yoo@oracle.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, kasan-dev@googlegroups.com,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v8 0/1] kasan: Avoid sleepable page allocation from
- atomic context
-Message-ID: <aCXE1p4+AiYhGAuV@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <cover.1747149155.git.agordeev@linux.ibm.com>
- <53a86990-0aa5-4816-a252-43287f3451b8@gmail.com>
+	Thu, 15 May 2025 11:26:40 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9B3BD20084;
+	Thu, 15 May 2025 11:26:40 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3C9C820083;
+	Thu, 15 May 2025 11:26:40 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 15 May 2025 11:26:40 +0000 (GMT)
+Date: Thu, 15 May 2025 13:14:47 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand
+ <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven
+ Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 1/3] KVM: s390: Set KVM_MAX_VCPUS to 256
+Message-ID: <20250515131447.5d99ce69@p-imbrenda>
+In-Reply-To: <20250514-rm-bsca-v1-1-6c2b065a8680@linux.ibm.com>
+References: <20250514-rm-bsca-v1-0-6c2b065a8680@linux.ibm.com>
+	<20250514-rm-bsca-v1-1-6c2b065a8680@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <53a86990-0aa5-4816-a252-43287f3451b8@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dzjBTB1YXB_GH0AY4aIS8luY9AuQsR1r
-X-Authority-Analysis: v=2.4 cv=ecg9f6EH c=1 sm=1 tr=0 ts=6825c4e3 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=QyXUC8HyAAAA:8 a=c33pmkp9q3dSwcthHBMA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: eLYookaplGgxG-G1m8c7YaaHlMPNOwHB
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDEwNCBTYWx0ZWRfXxJAAEzW9p62n eD0G3GXOh/v1Rdf6Tztkey5ALI1/qRAnIJOP/FnPMyDC2GVfQ7ZSXzO/adPnbR/GjqzUsyjJL5f bexw/87v0sS0Rjounzdo4P5zO906eIqq4pa46Dgr9RTyDm6iDVljI7a++lEclNZHoLX8HJr6Q41
- fCuHfMftHJPXRszy0B1DuwAPG+8VpkE2zVQQHM0VA0gEqb0sngRK3UjKoz3i7YgM5mr24PYF8aZ JfdbgXx69HalthV3AunVbN74Amv+aXo6ZI/krhACzd2f2YQr2OEIwrW/scs40CABp9Hv1g6CjTC dX/Z0bDYtSSMf/fb3zb2Z/rTtoLZVEhJgXOquXpk0ww7tgTWlCTeLAKd55GKBjlr67n/VcceMMM
- k5HC4K1hpEK2UNQMEiop5JficUKNKypkQSEETGISYmW4Sod/lzXv/XjNoaabrXGBXy0CAIh/
+X-Proofpoint-GUID: qiBadI-QXyyzfmEQyMSZ2QedaS9h_qiy
+X-Authority-Analysis: v=2.4 cv=ecg9f6EH c=1 sm=1 tr=0 ts=6825cf75 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=aIpEvDJpU-EyJW3OM6wA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: qiBadI-QXyyzfmEQyMSZ2QedaS9h_qiy
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDEwOSBTYWx0ZWRfXwxjvEDAgfL9S QnZEETnTuP2R5vbnyE4Yf0vPhy++h1MTIsbNUWHGqvCv+DV93PhUr71jFa1zw6i+WO1g+lTRUvx Qv0WSMycUjoEeLOj3/UL27leNAj+HIwJiqgP9eQuUQsqv1hH4TOt6mOJcM+0QoBMCxz96fYr3OD
+ 0bPA72Rkg1R9FUWZ0WyeGNdBLQn2SFeF13KeFYIPCU0UzAISmZz9oheEJ+NeU5IYy/k0A3oGWMM FQCeuzEp4W9cFNPv6drC2AV4mxkVkv3UOIltQMlmGTXqqaweoCFZNOVmpVYkL65TUg2Mn4Wf15i Ops46q+ZIT5QwnQrjQ9eERQfUrsGjye1yi6iUtxOJ2WLsrxHO7KoDyc9xpQZtRWi84gAQblcxBa
+ 4k4h9spDH85ALrUuRdRDtUtuCi7/sXSZ1aoOf6Q0wYmMmTjpsydnAUx++MTCmFSfQfcVkfMi
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-15_04,2025-05-14_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=376
+ definitions=2025-05-15_05,2025-05-14_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=881
  impostorscore=0 spamscore=0 clxscore=1015 malwarescore=0 mlxscore=0
  lowpriorityscore=0 priorityscore=1501 adultscore=0 bulkscore=0
  suspectscore=0 phishscore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
- definitions=main-2505150104
+ definitions=main-2505150109
 
-On Tue, May 13, 2025 at 06:43:56PM +0200, Andrey Ryabinin wrote:
-> Have you looked at boot failure report from kernel test robot ?
-> https://lkml.kernel.org/r/202505121313.806a632c-lkp@intel.com
+On Wed, 14 May 2025 18:34:49 +0200
+Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
+
+> The s390x architecture allows for 256 vCPUs with a max CPUID of 255.
+> The current KVM implementation limits this to 248 when using the
+> extended system control area (ESCA). So this correction should not cause
+> any real world problems but actually correct the values returned by the
+> ioctls:
 > 
-> I think the report is for v6 version, but I don't see evidence that it was
-> addressed, so the v8 is probably affected as well?
+> * KVM_CAP_NR_VCPUS
+> * KVM_CAP_MAX_VCPUS
+> * KVM_CAP_MAX_VCPU_ID
+> 
+> KVM_MAX_VCPUS is also moved to kvm_host_types to allow using this in
+> future type definitions.
+> 
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-Yes. The problem is page_owner=on prevents bulk allcations.
-I will send an updated version.
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Thanks!
+> ---
+>  arch/s390/include/asm/kvm_host.h       | 2 --
+>  arch/s390/include/asm/kvm_host_types.h | 2 ++
+>  arch/s390/kvm/kvm-s390.c               | 2 ++
+>  3 files changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+> index cb89e54ada257eb4fdfe840ff37b2ea639c2d1cb..f51bac835260f562eaf4bbfd373a24bfdbc43834 100644
+> --- a/arch/s390/include/asm/kvm_host.h
+> +++ b/arch/s390/include/asm/kvm_host.h
+> @@ -27,8 +27,6 @@
+>  #include <asm/isc.h>
+>  #include <asm/guarded_storage.h>
+>  
+> -#define KVM_MAX_VCPUS 255
+> -
+>  #define KVM_INTERNAL_MEM_SLOTS 1
+>  
+>  /*
+> diff --git a/arch/s390/include/asm/kvm_host_types.h b/arch/s390/include/asm/kvm_host_types.h
+> index 1394d3fb648f1e46dba2c513ed26e5dfd275fad4..9697db9576f6c39a6689251f85b4b974c344769a 100644
+> --- a/arch/s390/include/asm/kvm_host_types.h
+> +++ b/arch/s390/include/asm/kvm_host_types.h
+> @@ -6,6 +6,8 @@
+>  #include <linux/atomic.h>
+>  #include <linux/types.h>
+>  
+> +#define KVM_MAX_VCPUS 256
+> +
+>  #define KVM_S390_BSCA_CPU_SLOTS 64
+>  #define KVM_S390_ESCA_CPU_SLOTS 248
+>  
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 3f3175193fd7a7a26658eb2e2533d8037447a0b4..b65e4cbe67cf70a7d614607ebdd679060e7d31f4 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -638,6 +638,8 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  			r = KVM_S390_ESCA_CPU_SLOTS;
+>  		if (ext == KVM_CAP_NR_VCPUS)
+>  			r = min_t(unsigned int, num_online_cpus(), r);
+> +		else if (ext == KVM_CAP_MAX_VCPU_ID)
+> +			r -= 1;
+>  		break;
+>  	case KVM_CAP_S390_COW:
+>  		r = machine_has_esop();
+> 
+
