@@ -1,186 +1,370 @@
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2ADA280337
-	for <linux-s390@vger.kernel.org>; Wed, 14 May 2025 18:22:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B939296FC8;
+	Thu, 15 May 2025 06:34:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747246932; cv=none; b=rdGpLrbwK/f3PWWFcGE/gHjxIqHU3EBBaW1t2Ux7Js6+oLwDfn+lS4oJUWxmotk1C1+aNjJmCs/ovasSFNW6ypd7Wt42Vzyy++yUwex+um/Q5yTpsuKDIOHaR80L+ujp1IQ+50jm2QdAq+M3HZjO8ePLK8f0QNCZ078K2UdVhfo=
+	t=1747290899; cv=none; b=cX47sEGNcc2w1nQgKBcUilNF62MMDWxpL6u+NwCky3yP6ptkAhrUUK6dqqkGOf/EiCosVi87xkRBABCjfQgY+PxCO16IFUx9YktJMr29FpFcRe2G+6rvakqw9VbipHOZaQiq+jl1SUarA6rfPsM4HtL7T7qK13QRLnx96HFbynQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747246932; c=relaxed/simple;
-	bh=hvp9AsDlC7TL+8bvq++1Xv3VIY/5QZ/Nz8QK3FfrkQ0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PIQzrypq3nhTvKziMNxnkjwWanXkZ32HKfDneBjOwV5YI1OZleTyfTyqYANB41ngL71esVGiK0kjx4lys7M2ZNI8l+2yLmpLcm4vFPXzzgj0Lcsbf6rlQ17S6k4pgY1jce5UDt2Be8PdbTop33u6nZiDAZegFU6zT7+lKJDjvg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=WWRWxFIb; arc=none smtp.client-ip=66.163.188.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1747290899; c=relaxed/simple;
+	bh=n71QVhN4fQP9N7cpZ7JHQO5yCtlXjiP3svvxPrAkgWI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aejN2eqUTMg8P4vl0Piao2Tcy+PA66wQ2wXF567YsBb0XjvvohYksKsx65eNTEAyVU8r9svsN03++NYgMd4Rdep9XW5RmHzTVqhz1Vo/oWZIAHTg6getNEeYarLC33QG1qzOlcdtdlXCah4toVvEhOf7skEfuqSyDgGM2ZiHwBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aKKXZsli; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="WWRWxFIb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1747246920; bh=4rsUJ5zSzI0wKb//W2svOsP/TtV/akPljErK2UMIick=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=WWRWxFIbj800zN1VDAZSyeF3izVPbPvd1f3T1RenAomjI4vHmILtakAVC4RhRq4w08roT62zCuTt+hJmuAwndM8oW8nf/w/heYfGtTHOMZZL4u4qR/4DGxmEHdgD3GOR5833KgQx8Bc3Tex1Pw1OypjCnHM7454gJiGhJqezx5QsCs9fU3G1oROgMTP5ahAdEQlGrMroC6ZZceiWaTreKQxilV7a0wiBp2u10ol9DwpnLc2075TaCydSY+9QGjcp9Wnx3YD9V7Crl/WT5jZIyJxDslb6wlzTtqZTRIRcnhiTtz/W4Jx+CclR3yFlgx1zdIQ+iUqZH3Ix8gH6V5BIpA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1747246920; bh=7XIVsWwpvRVuD2kUvv8jP3KMVNVcpcWLvza1lIhTR5T=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=dv8cuo0dR0+/s5svcTcefp5qM31VGmnQMyaeveWxUZf3YhM71BHVhKVW/SpFuBXDoB3+MJyeigcMHoHG5lRxzIRUNkCT4j0ZAVssrvZKE6oAbDBDFdk2f1H5vIKteiKfJjx+ZJ77u343L3jaXfXu5PMYsSDQLz0//vaFrT9c1kXt9uXC1Y0d7Woh31Ti3NbbeLaL0VKXgqkDY/wM3vMFAokJYRzpQNsljn1rzyJrbeNK5r+4kCRCPXUyltjOkXrRD5+6VeFwikzCN9d1YFkqvnvme2ux09yulI51pGazKKW2t5G7HBB+691apzZklzk/I9q2h2c7BYQjat90m6mfIA==
-X-YMail-OSG: nHPTOOIVM1ng.ulIm4wc2Ny2ydbnKy4sbBqTMSuPkDp0amWcNkMMXeYVyWztuil
- VJbnVLWjdnbKddBtA3KvWNF7f0mTgKXu1_U8J.VquvfScER2QosE1vvelxxu1ks621hTS55km3f2
- 2DDCZtEErKMYGXcVnN_G_sqjSJHfDH90pgVVbCdHxIoG8IwCL0wn0EtGtO46uv5uecqM0jOM8nX7
- RNdfo_n866OEbgZIx5eyWzbDgg3SRdeQiW.qmBd2X.pnYO8KcevYhfFCWUu8Ondx9j9JHmLjnwUg
- 3nm2aUwVkZuEudC54x16Rt7.UlZNFP94d2FTSd2mfzvgeUm.L2fxzEm310L3WOKlTERgRRz4XVnU
- y.F_qzkZUAWW5FfScZJzWWeatYXSA2f7U52noW2Czt1bvpV8_67XwUkvOqG1FYn_HgQgm52aOJP_
- b9A1DZRaFMHk5RzZltDEi8bmO4omDHIV4_LhPjYIsr8mABhGZOumnwdUaNBtfI7EnTuPMtXasiBa
- DkjMUCNYRXp.a98a56yA3GaHwekZPCACqLjqJraoASkfcz3s8AKt2TVUIFWSz1hTy_jM5KLvDzJf
- 5PqEy9zaoYAA8.v0fDjzENMmMdUSpRnUi9mKIlzaX2SC8sBtptVu8.MLb2S3aWi9vzyToedUeo7T
- 37Tr1.nXQAHTrKVoC6TYXwL.aHH4ok3FQegm9qcrkr4h1RuP.ohwB1pA3w12ZZOD6u5LxQs.x4wa
- YocMlUbBRVi2OcOlia83TXIxwSPnzVGMccuJDteRMXww6TB2BpuHyFbZHUVLQt7fcx1nXEZRGG2R
- shiokbekeYIHrWxwrrv8C.NBor3cqqmF45CPmnYFbwpPQRgfjiN7DM.gAV_3Y2yzuBnLbWqnR8l3
- 5.rqduMR.pzo8kV2cw1OtutsRKzePiLk7EpaJgzNphySEMaX_0bq7UPEjpvL6VzQXcPj2c7woYrJ
- 4pRcgG.ROQYf2XpkytoWKAf12INW16guMpjchJRNCtVoCXuMOlO0umNmOIGfeIKPjhRw1OTwEsFg
- BQ_CFUF7jLD8QxXPdcnnv6vEaAoGG3HMrI6Pv1a1gdIGVpMwwLKYxhQnvescAdrj0ii4E_nqTDgN
- 0ZHIt9vbO7XuK98HMIyBtBOWajwHVNe3_RigFk7mKZZ5AR8TIy5Q4v5f3QuyQajkbkg8cUigBm5q
- FWmBm4L2LoKA4CY6.cGG8Gc3vK9Y3vK8UPe_dU_AKqmffw5nCg7BlSnEo1HK5dh86jKHzXVe.Tvi
- HsghkhzDwokY29i7383cum6PLAl9dZA2QrfZu6PQuaovFZ3..34vcpKCNnLkfr1sv7OjvAeWv57y
- Z5aowgIXJwTXqsY0nE_8JkpEUeFd7vipcj6_U02vkltUe.k2.WJs8rGLIcAfs8WHMVJaUR_SRm9a
- kLTklbTsRnKsvGdnWZD2yMw0bopDYTl2aMAuKwoe.wc0XXBaSilMbCcepXtHlX_qjY4hYbq8tc8U
- bR.XKOnkLLroFhduQHJDprADVKx.dUefQ81QcHs.AeeJpfHuZzBtSElaCKC3fnNuJbKl11D1qMDQ
- EOjorKrlRKSps6PCkMsljkaY3szDFDPkNNsKteaBnrG8NAV1HHiNf3xUabtMdQ2TYVm1MVLFMruf
- BT0LlNoBUL7e4D_1gXY7_FrIZpyGGeHNjiNny_RiIUnec69icjUcgmERSukDs0K.f7z2eLzcc9YY
- l37ksgbNuddIamOmXkMnQwQYz47XUUlYKKPn3hVAPdrzxGjEepp80xg5zCJagMsUB3khgYkQPHhg
- xw2DqUUidVfzpoH3XrG3_dUI0xhN7NzZFQ1vTh9bKuCGStmd_ZyhnUXZ2fKGSxLpbsM3Hg96ntMN
- QNUOky2UwbmKu4ResRxhyl0rtBqHYE_neausETDs8nhbb81NBd8O6SuJLubxMwMSOeOVnOq62tdW
- 2EBIu22kkqmmuTmprVPPecu8c4bXgUZeXXGFFR_77dH2yICxf2VX1wOKrF.dXdV.fB8tuGzQrKfE
- vt755q5ZMMdC3.vqa0dLyel40TcQbpulDR7V79PDJ_qRfpXJ.ykn0q66m8VQ4Eylh45B6YUM7.VD
- DO3c4AQSEgwtqvyyHnD4aW.JE0BC0l8Mb8Rm6tkfEhNN5dM917w9MYEYKJuumfLvH28R8LCAu4hN
- faxejEjYc2FGwoTR7jWTVFq7aGVIqjsDL.kV.hP1eqs2ow8SkuYv9_NdtouNhbt8fQqs2UhfUDaR
- vO4NboQM5f1Dz0RTJ1xQMD8x4fFN5MOoT08FZDZeqdePW.ZrjOo17BfpXBkS_RBVi5_uJumnyPQ-
- -
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 1720cbeb-f9c3-4a7e-be5c-7547ab69837d
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 14 May 2025 18:22:00 +0000
-Received: by hermes--production-gq1-74d64bb7d7-dp9cd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID a94d104d78fd57954bd2c60c7ad9d5b3;
-          Wed, 14 May 2025 18:21:54 +0000 (UTC)
-Message-ID: <cb737e58-51ab-4918-b5ba-2c18bf1ad601@schaufler-ca.com>
-Date: Wed, 14 May 2025 11:21:46 -0700
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aKKXZsli"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54EM4WhL004251;
+	Thu, 15 May 2025 06:34:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ilqngs9o98RWxztFbRc42XvuL8kNsUV9/ftKEW5S8
+	Cs=; b=aKKXZsliJOrnYcxOD2MZuDqtnPwybqyiIiUgt+qat1/Z8eX7H/IADqfFC
+	7VeyuLBKPlvXzS1R0yONcR8NWF7DcbHQC7MppymCUg5PSy+J9InQ0Qx6zQpkDAtO
+	8nF1N/Xtivfp1x/SC9bX4KHFQqLIJaBF5I3zVxIfhz+hokzv/PgDaq/NPt9z7qYx
+	2HQN7vEXRRK7W1LYllQjx4dbA3qSNdUaDVMwMke6/alY2S1elAiVfQbYp/6evAQw
+	Tlk/H12MSyBdxwlkyg5ixvr35qa/pt9zLRl/+ob/pOngcW3LLwqUe/U8aXaRSqMS
+	9qj5LnifitSMRbyDJiFti5iMWjupA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46mvd3c99y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 06:34:48 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54F32RrS026656;
+	Thu, 15 May 2025 06:34:47 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 46mbfpgph6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 06:34:47 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54F6YhWh52953368
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 May 2025 06:34:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3379C200BB;
+	Thu, 15 May 2025 06:34:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 366AB201F1;
+	Thu, 15 May 2025 06:34:13 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 15 May 2025 06:34:13 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, Thomas Richter <tmricht@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>
+Subject: [PATCH] perf ftrace: Restore to original trace settings on exit
+Date: Thu, 15 May 2025 08:34:07 +0200
+Message-ID: <20250515063407.3025338-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/7] lsm: introduce new hooks for setting/getting inode
- fsxattr
-To: Andrey Albershteyn <aalbersh@redhat.com>
-Cc: Richard Henderson <richard.henderson@linaro.org>,
- Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Pali_Roh=C3=A1r?=
- <pali@kernel.org>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>,
- Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-api@vger.kernel.org, linux-arch@vger.kernel.org,
- selinux@vger.kernel.org, ecryptfs@vger.kernel.org,
- linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org,
- Andrey Albershteyn <aalbersh@kernel.org>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20250512-xattrat-syscall-v5-0-4cd6821e8ff7@kernel.org>
- <20250512-xattrat-syscall-v5-2-4cd6821e8ff7@kernel.org>
- <f700845d-f332-4336-a441-08f98cd7f075@schaufler-ca.com>
- <kgl5h2iruqnhmad65sonlvneu6mdj6jl3sd4aoc3us3lvrgviy@imce27t4nk2e>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <kgl5h2iruqnhmad65sonlvneu6mdj6jl3sd4aoc3us3lvrgviy@imce27t4nk2e>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.23840 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FlNzHUI9n733Ve7cY8OdV3pqwzf9NrTK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDA1OCBTYWx0ZWRfXwXLQqqj/lDjN Hhmu43wipkxuquemksBLECy1myCSJf9DlZtZgK4p+CbBGxWi60KQpEtaJ2++E5d7jt4V874fPbm tKMIIXq/lgfPf6t++TMeO2u+p3E0X27lIqwK6ZwVjWWnjifly7NFVpSS7LYmWItaIbESZDNvUVN
+ 6MeL3KBgpW+QGENPkY9g4FqhYv+ceto3RrsQyegtJktTffX7IfXjxHpR/QTajVjb8JyP+8OV7v2 IV8sDskMDM4stZw+1oeme1paSDEd5T5AoFu9DuwOBBG9HfXnjvWtNp8rm8nHivXlMJfM+kW4qeh KKiuTZcQzwlurVVrBdJSSWjNA6tGh1a5nLH/traeUuDdXKxPSsaPOpmobEj6z72i94Q7bFDY2A6
+ Cb5b/ZdTBHggXeRS24wRtpGmecyzohtt7tmweAqLXaiytleYS5nOJc82suJew5humTJIPEas
+X-Proofpoint-ORIG-GUID: FlNzHUI9n733Ve7cY8OdV3pqwzf9NrTK
+X-Authority-Analysis: v=2.4 cv=GbEXnRXL c=1 sm=1 tr=0 ts=68258b08 cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=f-qP7UiU29b3Nm1CaBMA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-15_02,2025-05-14_03,2025-02-21_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ clxscore=1015 priorityscore=1501 lowpriorityscore=0 suspectscore=0
+ mlxlogscore=999 phishscore=0 bulkscore=0 malwarescore=0 mlxscore=0
+ spamscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
+ definitions=main-2505150058
 
-On 5/14/2025 4:02 AM, Andrey Albershteyn wrote:
-> On 2025-05-12 08:43:32, Casey Schaufler wrote:
->> On 5/12/2025 6:25 AM, Andrey Albershteyn wrote:
->>> Introduce new hooks for setting and getting filesystem extended
->>> attributes on inode (FS_IOC_FSGETXATTR).
->>>
->>> Cc: selinux@vger.kernel.org
->>> Cc: Paul Moore <paul@paul-moore.com>
->>>
->>> Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
->>> ---
->>>  fs/file_attr.c                | 19 ++++++++++++++++---
->>>  include/linux/lsm_hook_defs.h |  2 ++
->>>  include/linux/security.h      | 16 ++++++++++++++++
->>>  security/security.c           | 30 ++++++++++++++++++++++++++++++
->>>  4 files changed, 64 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/fs/file_attr.c b/fs/file_attr.c
->>> index 2910b7047721..be62d97cc444 100644
->>> --- a/fs/file_attr.c
->>> +++ b/fs/file_attr.c
->>> @@ -76,10 +76,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
->>>  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
->>>  {
->>>  	struct inode *inode = d_inode(dentry);
->>> +	int error;
->>>  
->>>  	if (!inode->i_op->fileattr_get)
->>>  		return -ENOIOCTLCMD;
->>>  
->>> +	error = security_inode_file_getattr(dentry, fa);
->>> +	if (error)
->>> +		return error;
->>> +
->> If you're changing VFS behavior to depend on LSMs supporting the new
->> hooks I'm concerned about the impact it will have on the LSMs that you
->> haven't supplied hooks for. Have you tested these changes with anything
->> besides SELinux?
-> Sorry, this thread is incomplete, I've resent full patchset again.
-> If you have any further comments please comment in that thread [1]
->
-> I haven't tested with anything except SELinux, but I suppose if
-> module won't register any hooks, then security_inode_file_*() will
-> return 0. Reverting SELinux implementation of the hooks doesn't
-> cause any errors.
->
-> I'm not that familiar with LSMs/selinux and its codebase, if you can
-> recommend what need to be tested while adding new hooks, I will try
-> to do that for next revision.
+Executing perf ftrace commands ftrace, profile and latency
+leave tracing disabled as can seen in this output:
 
-At a minimum the Smack testsuite:
-	https://github.com/smack-team/smack-testsuite.git
-And the audit suite:
-	https://github.com/linux-audit/audit-testsuite.git
+ # echo 1 > /sys/kernel/debug/tracing/tracing_on
+ # cat /sys/kernel/debug/tracing/tracing_on
+ 1
+ # perf ftrace trace --graph-opts depth=5 sleep 0.1 > /dev/null
+ # cat /sys/kernel/debug/tracing/tracing_on
+ 0
+ #
 
-AppArmor has a suite as well, but I'm not sure where is resides.
+The tracing_on file is not restored to its value before the command.
+Fix this behavior and restore the trace setting to what
+is was before the invocation of the command.
+On Fedora 41 and 42 tracing is turned on by default.
 
-My primary concern is that you're making changes that remove existing
-hook calls and add new hook calls without verifying that the protections
-provided by the old calls are always also provided by the new ones.
+The root cause is function reset_tracing_files() which
+writes zero (0) into file tracing_on.
 
->
-> [1]: https://lore.kernel.org/linux-fsdevel/CAOQ4uxgOAxg7N1OUJfb1KMp7oWOfN=KV9Lzz6ZrX0=XRGOQrEQ@mail.gmail.com/T/#t
->
+Read tracing files on start of the program and
+restore these values just before exit.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Suggested-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+---
+ tools/perf/builtin-ftrace.c | 226 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 226 insertions(+)
+
+diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
+index 7caa18d5ffc3..11ead75fe0f7 100644
+--- a/tools/perf/builtin-ftrace.c
++++ b/tools/perf/builtin-ftrace.c
+@@ -299,6 +299,228 @@ static int reset_tracing_files(struct perf_ftrace *ftrace __maybe_unused)
+ 	return 0;
+ }
+ 
++static int read_tracing_file(const char *name, char *buf, size_t size)
++{
++	int ret = -1;
++	char *file;
++	int fd;
++
++	file = get_tracing_file(name);
++	if (!file) {
++		pr_debug("cannot get tracing file: %s\n", name);
++		return -1;
++	}
++
++	fd = open(file, O_RDONLY);
++	if (fd < 0) {
++		pr_debug("cannot open tracing file: %s: %s\n",
++			 name, str_error_r(errno, buf, size));
++		goto out;
++	}
++
++	/* read contents to stdout */
++	while (true) {
++		int n = read(fd, buf, size);
++
++		if (n == 0)
++			break;
++		else if (n < 0)
++			goto out_close;
++		buf += n;
++		size -= n;
++	}
++	ret = 0;
++
++out_close:
++	close(fd);
++out:
++	put_tracing_file(file);
++	return ret;
++}
++
++static int read_tracing_option_file(const char *name, char *val, size_t size)
++{
++	char *file;
++	int ret;
++
++	if (asprintf(&file, "options/%s", name) < 0)
++		return -1;
++
++	ret = read_tracing_file(file, val, size);
++	free(file);
++	return ret;
++}
++
++/*
++ * Save the initial trace file setting to restore them after the tests.
++ * This ensures the setting are the same as before the invocation
++ * of the program.
++ */
++static struct trace_file_list {		/* List of tracing files */
++	const char *filename;		/* File name */
++	char *contents;			/* Contents to restore */
++	int (*read_fct)(const char *fn, char *buf, size_t buf_sz);		/* Read function */
++	int (*write_fct)(const char *fn, const char *buf);		/* Write function */
++} trace_file_list[] = {
++	[0] = {
++		.filename = "tracing_on",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[1] = {
++		.filename = "current_tracer",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[2] = {
++		.filename = "set_ftrace_pid",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[3] = {
++		.write_fct = write_tracing_file,
++		.read_fct = read_tracing_file,
++		.filename = "max_graph_depth",
++	},
++	[4] = {
++		.filename = "tracing_thresh",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[5] = {
++		.filename = "tracing_cpumask",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[6] = {
++		.filename = "set_ftrace_filter",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[7] = {
++		.filename = "set_ftrace_notrace",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[8] = {
++		.filename = "set_graph_function",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++	[9] = {
++		.filename = "set_graph_notrace",
++		.read_fct = read_tracing_file,
++		.write_fct = write_tracing_file,
++	},
++			/* Files in .../options/ directory */
++	[10] = {
++		.filename = "function-fork",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[11] = {
++		.filename = "func_stack_trace",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[12] = {
++		.filename = "sleep-time",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[13] = {
++		.filename = "funcgraph-irqs",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[14] = {
++		.filename = "funcgraph-proc",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[15] = {
++		.filename = "funcgraph-abstime",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[16] = {
++		.filename = "funcgraph-tail",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[17] = {
++		.filename = "latency-format",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++	[18] = {
++		.filename = "irq-info",
++		.read_fct = read_tracing_option_file,
++		.write_fct = write_tracing_option_file,
++	},
++};
++
++static void free_tracing_content(void)
++{
++	size_t i;
++
++	for (i = 0; i < ARRAY_SIZE(trace_file_list); ++i)
++		zfree(&trace_file_list[i].contents);
++}
++
++/*
++ * Return a copy of the input string.
++ * Remove a trailing newline. It will be appended in the write
++ * function when values are restored before program termination.
++ * Change "no pid" or comment sign '#' at the beginning and replace it
++ * by an empty string. This resets to the default behavior indicated
++ * by the output. Those strings are not accepted as file input.
++ */
++static char *copy_tracing_file(char *buf)
++{
++	char *c = strrchr(buf, '\n');
++
++	if (c)
++		*c = '\0';
++	if (*buf == '#' || !strncmp(buf, "no pid", 6))
++		*buf = '\0';
++	return strdup(buf);
++}
++
++static int save_tracing_files(void)
++{
++	char buf[4096];
++	size_t i;
++
++	for (i = 0; i < ARRAY_SIZE(trace_file_list); ++i) {
++		struct trace_file_list *tp = &trace_file_list[i];
++
++		memset(buf, 0, sizeof(buf));
++		if ((*tp->read_fct)(tp->filename, buf, sizeof(buf)) < 0)
++			goto out;
++		tp->contents = copy_tracing_file(buf);
++		if (!tp->contents)
++			goto out;
++	}
++	return 0;
++
++out:
++	free_tracing_content();
++	return -1;
++}
++
++static void restore_tracing_files(void)
++{
++	size_t i;
++
++	for (i = 0; i < ARRAY_SIZE(trace_file_list); ++i) {
++		struct trace_file_list *tp = &trace_file_list[i];
++
++		(*tp->write_fct)(tp->filename, tp->contents);
++	}
++	free_tracing_content();
++}
++
+ static int set_tracing_pid(struct perf_ftrace *ftrace)
+ {
+ 	int i;
+@@ -1687,6 +1909,9 @@ int cmd_ftrace(int argc, const char **argv)
+ 	};
+ 	enum perf_ftrace_subcommand subcmd = PERF_FTRACE_NONE;
+ 
++	if (save_tracing_files())
++		return -1;
++
+ 	INIT_LIST_HEAD(&ftrace.filters);
+ 	INIT_LIST_HEAD(&ftrace.notrace);
+ 	INIT_LIST_HEAD(&ftrace.graph_funcs);
+@@ -1839,5 +2064,6 @@ int cmd_ftrace(int argc, const char **argv)
+ 	delete_filter_func(&ftrace.graph_funcs);
+ 	delete_filter_func(&ftrace.nograph_funcs);
+ 
++	restore_tracing_files();
+ 	return ret;
+ }
+-- 
+2.49.0
+
