@@ -1,231 +1,355 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C9E2481C4;
-	Thu, 15 May 2025 15:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46E3F21ADA4;
+	Thu, 15 May 2025 16:10:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747324546; cv=none; b=D/k8S+xqlFhTBQvYtHarPatP5586FA5ml7A7Fg3zmBHe7EX83++fao2YtkIjhPfuWWhq3RzMrcMiHHuHwKYLC5Cs44++3kI0GhIYU48S29fvNzsA/2SvtHAvTq+ax7YW22ofns06pUZrYFZGomaHL76ictbpb7AXzLLe9cHs2ck=
+	t=1747325460; cv=none; b=fbUUHow/VvQYryVSxU6pmO2pFvN6gMkGQxoiaAD7Oxg6oLeyZ+wuVRW0iPj6LhbB5fXaE8V3QpVNyB8F5SImDXFxJnLGUkXHxr/0MOFo7wj3Dje0VqcQrHZLWgUDVvQ7Ef96XC98uIUoAcM1y+gvAwkPaaL9XMx2oe13BfWmBBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747324546; c=relaxed/simple;
-	bh=rWO0JWxEoRf/w8MJDqvOKsYDZgxP5f41XaVpF6qf6KY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G4wxthIzRNr5f3qLXlLlQrn/6wBSAZc+i51yEjzE44Ikg6mpUCMd1YWqYP0Jg6BLco3jtgLW3nKfpYLDN2KLM9wxulrWa9ekQ41ynDDu6fuWNjrZcmeJdKRN8aHvD49z7G8fFi0pp42d/RKWqXHm30M5bMT4i0WKEBtUiFRd3hg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rrCTBBl0; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1747325460; c=relaxed/simple;
+	bh=Zs+kT9HDfhVkzbH18VsQ2/h6ip1U/R/ygxgJShA10d4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZDpMgy9tR1gTuHKYdooL+O+K1veOxvSLU+HBmBTB09chuhTXOi44q+6qNaFD19pimh+qH+TxHwq0nksudgTMFImtXIfDWA68BfmE3OeGbDtIg+8bBUMq5u5hptrkO5XuXiggVnZgDv2efU3thFhwH6IVsSwtbLhodTEkuwrFKSY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sOtk7DTM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rrCTBBl0"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54FDn3Xo032297;
-	Thu, 15 May 2025 15:55:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NDbeIq
-	zSfGVF6IdpJ2cVNjVG3CvEK6xmLyCZ9X3Wz0Q=; b=rrCTBBl0DuaPMw8x8QbUSD
-	4EiBfwzdMOcQ2iyMKRSBGC/IT5SohlXJ7rJPO+Zfhpjzn+4q2ill8a9lJpQJuiOr
-	JEwnbHWRM7Hr3Fmk3XFfpkkNa83YjxyTYs+E5Rg2PvNTbtA3xjkFvrKi+w/uBxWe
-	YencbEGnIxN+c/57h7YO28BEBHF0x5Q6hKE7MYbDGRUkmYy3VIKELrFTY4y0X44T
-	0bWQ7QbFdpQIe+lL5mLCV5h5EmqVT5e0Eeo0bDsqqz/rrRIsyb3ybB5CAkAyCbT/
-	Ty0XeAacYdwi29soyF0bdrF5RuIzxZPyEmPQjjL4pDcCWkPjs+nimipVItYTIPxA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46nhg30q2m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 15:55:40 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54FE40p4024279;
-	Thu, 15 May 2025 15:55:39 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfsb2sm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 15:55:39 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FFtZ7R45875552
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 May 2025 15:55:35 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E0DD3201D6;
-	Thu, 15 May 2025 15:29:38 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D750201D1;
-	Thu, 15 May 2025 15:29:38 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 15 May 2025 15:29:38 +0000 (GMT)
-Date: Thu, 15 May 2025 17:29:36 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>,
-        <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
-        <borntraeger@de.ibm.com>, <seiden@linux.ibm.com>, <nsg@linux.ibm.com>,
-        <nrb@linux.ibm.com>, <david@redhat.com>, <hca@linux.ibm.com>,
-        <agordeev@linux.ibm.com>, <svens@linux.ibm.com>, <gor@linux.ibm.com>
-Subject: Re: [PATCH v1 1/5] s390: remove unneeded includes
-Message-ID: <20250515172936.5447d582@p-imbrenda>
-In-Reply-To: <D9WSBQ41MJ2M.1KMCYVAHP1JFF@linux.ibm.com>
-References: <20250514163855.124471-1-imbrenda@linux.ibm.com>
-	<20250514163855.124471-2-imbrenda@linux.ibm.com>
-	<D9WSBQ41MJ2M.1KMCYVAHP1JFF@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sOtk7DTM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55AA3C4CEE7;
+	Thu, 15 May 2025 16:10:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1747325459;
+	bh=Zs+kT9HDfhVkzbH18VsQ2/h6ip1U/R/ygxgJShA10d4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=sOtk7DTMkK2nZtL92Utb0ccQSvWIX05QfUbJFPaXZIqAwaPNdxfUsKijAWFvDMRbz
+	 a4Z8sNY8QO/0pEa77u2UY7RS+eXomKrS3FuG7IZDI6W7Ab5Is54RxFpL0HhqMgi+1p
+	 MqW3YehlRUV4FKK3xiJdILFQpZVuLkofbtAV6ZUkjRpN1cO11P6DN5oC/9nUzpaRLJ
+	 6+fx9c/pangyH8bWwwRHZGLr007WLJlhbTzhmB3d4pf9LuSUL5U1LkhI0jrI7xHJHj
+	 UwpgnnGmghE9vJk1l8OuZqW/MIpjf1XTD7G/zCeKqYzHTIHldl6CxvTZxXxWjysHur
+	 m5ZR+PEizyMWw==
+Date: Thu, 15 May 2025 13:10:56 -0300
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+To: Thomas Richter <tmricht@linux.ibm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ian Rogers <irogers@google.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, namhyung@kernel.org,
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+	hca@linux.ibm.com, Alexander Egorenkov <egorenar@linux.ibm.com>
+Subject: Re: [PATCH] perf ftrace: Restore to original trace settings on exit
+Message-ID: <aCYSEMrXIwptT0d6@x1>
+References: <20250515063407.3025338-1-tmricht@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Cf0I5Krl c=1 sm=1 tr=0 ts=68260e7c cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=YI8s6InO9XsLWCBpwgcA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDE1NSBTYWx0ZWRfX8aWx3wxt8wQS T2NAgj7RpabwoPqzRrasO2EQl1q1WSadL8NiOpBmNICdQAcZ1JrW+xq6BIFJkcy43XS83X89qEI qHcz1ULSPluKcQz1aNxhX0TD/qAsWNEGRARkevi9DbE8UraLeGKcJ+TmL1JnG3ERyOUxb2UOpn8
- Rg3GRM1u4sYLOZOOiYMvZKapLXVy7Tj8smldyTS5arwAbGzSg4BGv3h5h0DR3z0b/iBBEjQZepy cxxamR+7iwRvsu8BkeQikQegfTniU9Ukkj2zsYE7U/N5FYn8kZW3mmfdexZq9dFjqrXczykfD5e jp08lM7fp5jcNjDx2B/vq2cG1e/XuVWcE9xtTZKKa9dXZBV6nM1B9Qhi8kHXG436tJdwgqneGbO
- V+SN0Fl9MgNXAa4yn5jS9fIJr3kTqCJ6hmvQ17oNFj+1zNIqUVndhQzfiKMf4Jgo8NT3DSy6
-X-Proofpoint-GUID: WaUJGBACeeYxeRGtT_2qwni0yt2MFamB
-X-Proofpoint-ORIG-GUID: WaUJGBACeeYxeRGtT_2qwni0yt2MFamB
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-15_06,2025-05-15_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- spamscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=999
- impostorscore=0 phishscore=0 priorityscore=1501 mlxscore=0 bulkscore=0
- adultscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
- definitions=main-2505150155
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250515063407.3025338-1-tmricht@linux.ibm.com>
 
-On Thu, 15 May 2025 15:56:44 +0200
-"Christoph Schlameuss" <schlameuss@linux.ibm.com> wrote:
+On Thu, May 15, 2025 at 08:34:07AM +0200, Thomas Richter wrote:
+> Executing perf ftrace commands ftrace, profile and latency
+> leave tracing disabled as can seen in this output:
+> 
+>  # echo 1 > /sys/kernel/debug/tracing/tracing_on
+>  # cat /sys/kernel/debug/tracing/tracing_on
+>  1
+>  # perf ftrace trace --graph-opts depth=5 sleep 0.1 > /dev/null
+>  # cat /sys/kernel/debug/tracing/tracing_on
+>  0
+>  #
+ 
+> The tracing_on file is not restored to its value before the command.
+> Fix this behavior and restore the trace setting to what
+> is was before the invocation of the command.
+> On Fedora 41 and 42 tracing is turned on by default.
 
-> You added one unnecessary import to arch/s390/kvm/intercept.c
-> 
-> With that removed:
-> Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> 
-> 
-> On Wed May 14, 2025 at 6:38 PM CEST, Claudio Imbrenda wrote:
-> > Many files don't need to include asm/tlb.h or asm/gmap.h.
-> > On the other hand, asm/tlb.h does need to include asm/gmap.h.
-> >
-> > Remove all unneeded includes so that asm/tlb.h is not directly used by
-> > s390 arch code anymore. Remove asm/gmap.h from a few other files as
-> > well, so that now only KVM code, mm/gmap.c, and asm/tlb.h include it.
-> >
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >  arch/s390/include/asm/tlb.h | 1 +
-> >  arch/s390/include/asm/uv.h  | 1 -
-> >  arch/s390/kvm/intercept.c   | 1 +
-> >  arch/s390/mm/fault.c        | 1 -
-> >  arch/s390/mm/gmap.c         | 1 -
-> >  arch/s390/mm/init.c         | 1 -
-> >  arch/s390/mm/pgalloc.c      | 2 --
-> >  arch/s390/mm/pgtable.c      | 1 -
-> >  8 files changed, 2 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-> > index f20601995bb0..56d5f9e0eb2e 100644
-> > --- a/arch/s390/include/asm/tlb.h
-> > +++ b/arch/s390/include/asm/tlb.h
-> > @@ -36,6 +36,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
-> >  
-> >  #include <asm/tlbflush.h>
-> >  #include <asm-generic/tlb.h>
-> > +#include <asm/gmap.h>
-> >  
-> >  /*
-> >   * Release the page cache reference for a pte removed by
-> > diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> > index 46fb0ef6f984..eeb2db4783e6 100644
-> > --- a/arch/s390/include/asm/uv.h
-> > +++ b/arch/s390/include/asm/uv.h
-> > @@ -16,7 +16,6 @@
-> >  #include <linux/bug.h>
-> >  #include <linux/sched.h>
-> >  #include <asm/page.h>
-> > -#include <asm/gmap.h>
-> >  #include <asm/asm.h>
-> >  
-> >  #define UVC_CC_OK	0
-> > diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> > index a06a000f196c..b4834bd4d216 100644
-> > --- a/arch/s390/kvm/intercept.c
-> > +++ b/arch/s390/kvm/intercept.c
-> > @@ -16,6 +16,7 @@
-> >  #include <asm/irq.h>
-> >  #include <asm/sysinfo.h>
-> >  #include <asm/uv.h>
-> > +#include <asm/gmap.h>  
-> 
-> This import is not needed.
+This looks fragile as it takes a snapshot in time of what are the files
+in some particular directory to save them and then restore it at the
+end.
 
-it is needed here, but it can be removed in patch 5
-(I'll fix that for v2)
+The tool may at some point in the future go and touch other (added in
+the future) files in that directory, etc.
 
-> 
-> >  
-> >  #include "kvm-s390.h"
-> >  #include "gaccess.h"
-> > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> > index da84ff6770de..3829521450dd 100644
-> > --- a/arch/s390/mm/fault.c
-> > +++ b/arch/s390/mm/fault.c
-> > @@ -40,7 +40,6 @@
-> >  #include <asm/ptrace.h>
-> >  #include <asm/fault.h>
-> >  #include <asm/diag.h>
-> > -#include <asm/gmap.h>
-> >  #include <asm/irq.h>
-> >  #include <asm/facility.h>
-> >  #include <asm/uv.h>
-> > diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> > index a94bd4870c65..4869555ff403 100644
-> > --- a/arch/s390/mm/gmap.c
-> > +++ b/arch/s390/mm/gmap.c
-> > @@ -24,7 +24,6 @@
-> >  #include <asm/machine.h>
-> >  #include <asm/gmap.h>
-> >  #include <asm/page.h>
-> > -#include <asm/tlb.h>
-> >  
-> >  /*
-> >   * The address is saved in a radix tree directly; NULL would be ambiguous,
-> > diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> > index afa085e8186c..074bf4fb4ce2 100644
-> > --- a/arch/s390/mm/init.c
-> > +++ b/arch/s390/mm/init.c
-> > @@ -40,7 +40,6 @@
-> >  #include <asm/kfence.h>
-> >  #include <asm/dma.h>
-> >  #include <asm/abs_lowcore.h>
-> > -#include <asm/tlb.h>
-> >  #include <asm/tlbflush.h>
-> >  #include <asm/sections.h>
-> >  #include <asm/sclp.h>
-> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> > index e3a6f8ae156c..ddab36875370 100644
-> > --- a/arch/s390/mm/pgalloc.c
-> > +++ b/arch/s390/mm/pgalloc.c
-> > @@ -12,8 +12,6 @@
-> >  #include <asm/mmu_context.h>
-> >  #include <asm/page-states.h>
-> >  #include <asm/pgalloc.h>
-> > -#include <asm/gmap.h>
-> > -#include <asm/tlb.h>
-> >  #include <asm/tlbflush.h>
-> >  
-> >  unsigned long *crst_table_alloc(struct mm_struct *mm)
-> > diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> > index 9901934284ec..7df70cd8f739 100644
-> > --- a/arch/s390/mm/pgtable.c
-> > +++ b/arch/s390/mm/pgtable.c
-> > @@ -20,7 +20,6 @@
-> >  #include <linux/ksm.h>
-> >  #include <linux/mman.h>
-> >  
-> > -#include <asm/tlb.h>
-> >  #include <asm/tlbflush.h>
-> >  #include <asm/mmu_context.h>
-> >  #include <asm/page-states.h>  
-> 
+I _think_ that instead we should move to use some "session mode" ftrace,
+which I _think_ is already available for quite some time, i.e. instead
+of touching the global ftrace files (which probably are there for
+historical reasons), we should use, lemme find the reference...
 
+I think the keyword to lookup is /sys/kernel/debug/tracing/instances/
+
+Ian did a lot of work on having 'perf test' run shell tests in parallel,
+so we need to think about ways of allowing for that by not touching
+global state.
+
+tldr; great idea, avoid global state.
+
+- Arnaldo
+ 
+> The root cause is function reset_tracing_files() which
+> writes zero (0) into file tracing_on.
+> 
+> Read tracing files on start of the program and
+> restore these values just before exit.
+> 
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Suggested-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+> ---
+>  tools/perf/builtin-ftrace.c | 226 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 226 insertions(+)
+> 
+> diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
+> index 7caa18d5ffc3..11ead75fe0f7 100644
+> --- a/tools/perf/builtin-ftrace.c
+> +++ b/tools/perf/builtin-ftrace.c
+> @@ -299,6 +299,228 @@ static int reset_tracing_files(struct perf_ftrace *ftrace __maybe_unused)
+>  	return 0;
+>  }
+>  
+> +static int read_tracing_file(const char *name, char *buf, size_t size)
+> +{
+> +	int ret = -1;
+> +	char *file;
+> +	int fd;
+> +
+> +	file = get_tracing_file(name);
+> +	if (!file) {
+> +		pr_debug("cannot get tracing file: %s\n", name);
+> +		return -1;
+> +	}
+> +
+> +	fd = open(file, O_RDONLY);
+> +	if (fd < 0) {
+> +		pr_debug("cannot open tracing file: %s: %s\n",
+> +			 name, str_error_r(errno, buf, size));
+> +		goto out;
+> +	}
+> +
+> +	/* read contents to stdout */
+> +	while (true) {
+> +		int n = read(fd, buf, size);
+> +
+> +		if (n == 0)
+> +			break;
+> +		else if (n < 0)
+> +			goto out_close;
+> +		buf += n;
+> +		size -= n;
+> +	}
+> +	ret = 0;
+> +
+> +out_close:
+> +	close(fd);
+> +out:
+> +	put_tracing_file(file);
+> +	return ret;
+> +}
+> +
+> +static int read_tracing_option_file(const char *name, char *val, size_t size)
+> +{
+> +	char *file;
+> +	int ret;
+> +
+> +	if (asprintf(&file, "options/%s", name) < 0)
+> +		return -1;
+> +
+> +	ret = read_tracing_file(file, val, size);
+> +	free(file);
+> +	return ret;
+> +}
+> +
+> +/*
+> + * Save the initial trace file setting to restore them after the tests.
+> + * This ensures the setting are the same as before the invocation
+> + * of the program.
+> + */
+> +static struct trace_file_list {		/* List of tracing files */
+> +	const char *filename;		/* File name */
+> +	char *contents;			/* Contents to restore */
+> +	int (*read_fct)(const char *fn, char *buf, size_t buf_sz);		/* Read function */
+> +	int (*write_fct)(const char *fn, const char *buf);		/* Write function */
+> +} trace_file_list[] = {
+> +	[0] = {
+> +		.filename = "tracing_on",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[1] = {
+> +		.filename = "current_tracer",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[2] = {
+> +		.filename = "set_ftrace_pid",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[3] = {
+> +		.write_fct = write_tracing_file,
+> +		.read_fct = read_tracing_file,
+> +		.filename = "max_graph_depth",
+> +	},
+> +	[4] = {
+> +		.filename = "tracing_thresh",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[5] = {
+> +		.filename = "tracing_cpumask",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[6] = {
+> +		.filename = "set_ftrace_filter",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[7] = {
+> +		.filename = "set_ftrace_notrace",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[8] = {
+> +		.filename = "set_graph_function",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +	[9] = {
+> +		.filename = "set_graph_notrace",
+> +		.read_fct = read_tracing_file,
+> +		.write_fct = write_tracing_file,
+> +	},
+> +			/* Files in .../options/ directory */
+> +	[10] = {
+> +		.filename = "function-fork",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[11] = {
+> +		.filename = "func_stack_trace",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[12] = {
+> +		.filename = "sleep-time",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[13] = {
+> +		.filename = "funcgraph-irqs",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[14] = {
+> +		.filename = "funcgraph-proc",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[15] = {
+> +		.filename = "funcgraph-abstime",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[16] = {
+> +		.filename = "funcgraph-tail",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[17] = {
+> +		.filename = "latency-format",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +	[18] = {
+> +		.filename = "irq-info",
+> +		.read_fct = read_tracing_option_file,
+> +		.write_fct = write_tracing_option_file,
+> +	},
+> +};
+> +
+> +static void free_tracing_content(void)
+> +{
+> +	size_t i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(trace_file_list); ++i)
+> +		zfree(&trace_file_list[i].contents);
+> +}
+> +
+> +/*
+> + * Return a copy of the input string.
+> + * Remove a trailing newline. It will be appended in the write
+> + * function when values are restored before program termination.
+> + * Change "no pid" or comment sign '#' at the beginning and replace it
+> + * by an empty string. This resets to the default behavior indicated
+> + * by the output. Those strings are not accepted as file input.
+> + */
+> +static char *copy_tracing_file(char *buf)
+> +{
+> +	char *c = strrchr(buf, '\n');
+> +
+> +	if (c)
+> +		*c = '\0';
+> +	if (*buf == '#' || !strncmp(buf, "no pid", 6))
+> +		*buf = '\0';
+> +	return strdup(buf);
+> +}
+> +
+> +static int save_tracing_files(void)
+> +{
+> +	char buf[4096];
+> +	size_t i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(trace_file_list); ++i) {
+> +		struct trace_file_list *tp = &trace_file_list[i];
+> +
+> +		memset(buf, 0, sizeof(buf));
+> +		if ((*tp->read_fct)(tp->filename, buf, sizeof(buf)) < 0)
+> +			goto out;
+> +		tp->contents = copy_tracing_file(buf);
+> +		if (!tp->contents)
+> +			goto out;
+> +	}
+> +	return 0;
+> +
+> +out:
+> +	free_tracing_content();
+> +	return -1;
+> +}
+> +
+> +static void restore_tracing_files(void)
+> +{
+> +	size_t i;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(trace_file_list); ++i) {
+> +		struct trace_file_list *tp = &trace_file_list[i];
+> +
+> +		(*tp->write_fct)(tp->filename, tp->contents);
+> +	}
+> +	free_tracing_content();
+> +}
+> +
+>  static int set_tracing_pid(struct perf_ftrace *ftrace)
+>  {
+>  	int i;
+> @@ -1687,6 +1909,9 @@ int cmd_ftrace(int argc, const char **argv)
+>  	};
+>  	enum perf_ftrace_subcommand subcmd = PERF_FTRACE_NONE;
+>  
+> +	if (save_tracing_files())
+> +		return -1;
+> +
+>  	INIT_LIST_HEAD(&ftrace.filters);
+>  	INIT_LIST_HEAD(&ftrace.notrace);
+>  	INIT_LIST_HEAD(&ftrace.graph_funcs);
+> @@ -1839,5 +2064,6 @@ int cmd_ftrace(int argc, const char **argv)
+>  	delete_filter_func(&ftrace.graph_funcs);
+>  	delete_filter_func(&ftrace.nograph_funcs);
+>  
+> +	restore_tracing_files();
+>  	return ret;
+>  }
+> -- 
+> 2.49.0
