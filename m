@@ -1,121 +1,97 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 803A91E9B2F;
-	Thu, 15 May 2025 16:33:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D931547E7;
+	Thu, 15 May 2025 18:18:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747326799; cv=none; b=hHgxwd6dAfhD/Xs8+obIQrhjBzIC/0bCK2pjPJiaYakrnTL84+AUUllCywHUrcXpeqDxJtzGf2icVqb3KafM/adoavA4JqFjQzzqbpWfCxX9U8Hppg6nsZcNxxxKjzlt71/ap/4CnsxBrhACokhdEym0P9d+QtPFgS1du4JYGjQ=
+	t=1747333095; cv=none; b=q+7faIgekM6erdwXRigT5h1K63N+Vr+veYfq1lxlXhb5Wqx9uV6AFO1jT90ie/8jhLfO3JEjZ9j/2v0y0qi3ScL7nkeUiGc0GJ2tJygEYcuhyVV4OqghgEMi0IokcACpRaGVE/Lv3IJPDysdXKQfoybSFvW4vwIbKRzmwkI2dcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747326799; c=relaxed/simple;
-	bh=kKPojMJd9kqH6u8NArAZ+Lui+uo9ndwDNquYyy93G0k=;
+	s=arc-20240116; t=1747333095; c=relaxed/simple;
+	bh=89cSYRfw5ySTf8D/ZfQiQlDBpPvwHutsxZSH9b1IQQ8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qFsyrOQMc3Okqe2XSTaMkfLCbg1F6RZfS1OT4At0Ain6h4SfcZ6AEeRx59lV/w4ku59wfRlNv+RCEmASCkB1O7z7fPs+dR2/u+xxlhuYDBjAkDkkPCFc+1ByT1eUv7Icnb2g4f8uKs6stDo34UaMe4VwYhSN4HZFi4qiN/W3LBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ESjhprCJ; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=kvt8XRdMnNF43DdhpmFMTrzCkh22ZxFMqcwvQPZYsQVjbXNtejISXq5vn+aZPXxT2Y/pnKdF8j4KOolv47ynXsDTeVwUxnhdHK55tau+H/0MaqgjR8HjvpqVIJ6OH3YLi2iTjdAj+9e9sGwHVjO+rfWyGoAv41B8tcjmT3hsjy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YM4rTUA5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ESjhprCJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD5EC4CEE7;
-	Thu, 15 May 2025 16:33:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YM4rTUA5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC265C4CEE7;
+	Thu, 15 May 2025 18:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747326799;
-	bh=kKPojMJd9kqH6u8NArAZ+Lui+uo9ndwDNquYyy93G0k=;
+	s=k20201202; t=1747333095;
+	bh=89cSYRfw5ySTf8D/ZfQiQlDBpPvwHutsxZSH9b1IQQ8=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ESjhprCJouXAhjQr0dZG6SyTXibttfDkEXUZ8Ep+z+gy7A2IEg74Pih3DzIhR92mQ
-	 Wg1fRLZ7AahHltL5KOdUISnA+OaOb/NOKa//4TXRGsVv+rtItX6BET9OvhMNCVjW8U
-	 De/WmZChNK1Me4d3LxDTawHPD0qDmGXiVYicOpf6dOYdfucJiAUxulmuYxUjdIzoNg
-	 rv5OilXcNBVStDgu4CYEBWfv8QrLAI7K0VbMfOL+gk/FQ5MrHdl540MrndCpVvuVnX
-	 7099wIC/Jq/PwBwkwpUYCjiluxA04ZhHxA2VwN2NdOyoYvtGtPBJorxsEY9l/w9orN
-	 6Z7TkSd+Kro/w==
-Date: Thu, 15 May 2025 17:33:07 +0100
-From: Will Deacon <will@kernel.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
-	Janne Grunau <j@jannau.net>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
-	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-	linux-tegra@vger.kernel.org,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Rob Clark <robdclark@gmail.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Sven Peter <sven@svenpeter.dev>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Tomasz Jeznach <tjeznach@rivosinc.com>,
-	Krishna Reddy <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
-	Chen-Yu Tsai <wens@csie.org>, Yong Wu <yong.wu@mediatek.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>, patches@lists.linux.dev
-Subject: Re: [PATCH 0/7] Remove ops.pgsize_bitmap
-Message-ID: <20250515163307.GA12396@willie-the-truck>
-References: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+	b=YM4rTUA5ec86as02K62yOSkmV+6W3rM0Xkxq/xscF5qx+GtU3q9Q17RBDCYhLbNGa
+	 FKLYx1rN/e7Jkesm4KB1bG8YJUatlt6OpEco+194AcVNINBenu3Ut6Y58FAgBU4iPu
+	 CluBDjoZLAzVNIAvqc7nkH/OY8xl4/cRUUw5OauKomlf9n7bCDsPsvggk22p/ySbIU
+	 rbaJ9eBIJZo45smMdCzDZP/LUfMY3XnRzXqGRcFtCMPzSw88O7dowLB984R0u2vLPR
+	 iW2Q9rWJGFTGG2QzPQPdxyW4WMY+gdM/aSvuO8UqS2f45TIoVwb2kQRlDNJW2qApcA
+	 CGi4uM0V15RqA==
+Date: Thu, 15 May 2025 11:18:13 -0700
+From: Namhyung Kim <namhyung@kernel.org>
+To: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Thomas Richter <tmricht@linux.ibm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ian Rogers <irogers@google.com>, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+	hca@linux.ibm.com, Alexander Egorenkov <egorenar@linux.ibm.com>
+Subject: Re: [PATCH] perf ftrace: Restore to original trace settings on exit
+Message-ID: <aCYv5U5u238pH1uq@google.com>
+References: <20250515063407.3025338-1-tmricht@linux.ibm.com>
+ <aCYSEMrXIwptT0d6@x1>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <aCYSEMrXIwptT0d6@x1>
 
-On Tue, Apr 29, 2025 at 11:34:10AM -0300, Jason Gunthorpe wrote:
-> Now that all drivers are using domain_alloc_paging() and dev is never
-> NULL, we can have all drivers correctly set domain.pgsize_bitmap during
-> their allocation function.
-> 
-> There are a few oddities that have accumulated here over past changes:
-> 
->  - Some drivers always set domain.pgsize_bitmap during their
->    domain_alloc_paging() call but still provide a value in ops. This is dead
->    code, delete it.
-> 
->  - Some drivers calculate a system global pgsize_bitmap in the ops, but
->    it is now trivial to use the per-instance value instead. In several
->    cases this is dead code, delete it. This also allows
->    constifying the ops in these drivers as a hardening measure
-> 
->  - Some drivers have a fixed pgsize_bitmap, put it next to setting up the
->    geometry in their domain_alloc_paging() functions.
-> 
->  - Finally a few drivers still use ops because they have a delayed
->    finalize operation. Set the constant pgsize_bitmap in the
->    domain_alloc_paging().
-> 
-> Then remove ops.pgsize_bitmap.
-> 
-> This is based on iommu next, and must go after the virtio
-> domain_alloc_paging() conversion.
-> 
-> Jason Gunthorpe (7):
->   iommu/arm-smmu-v3: Remove iommu_ops pgsize_bitmap
->   iommu/arm-smmu: Remove iommu_ops pgsize_bitmap
+Hello,
 
-These two SMMU changes look correct to me:
+On Thu, May 15, 2025 at 01:10:56PM -0300, Arnaldo Carvalho de Melo wrote:
+> On Thu, May 15, 2025 at 08:34:07AM +0200, Thomas Richter wrote:
+> > Executing perf ftrace commands ftrace, profile and latency
+> > leave tracing disabled as can seen in this output:
+> > 
+> >  # echo 1 > /sys/kernel/debug/tracing/tracing_on
+> >  # cat /sys/kernel/debug/tracing/tracing_on
+> >  1
+> >  # perf ftrace trace --graph-opts depth=5 sleep 0.1 > /dev/null
+> >  # cat /sys/kernel/debug/tracing/tracing_on
+> >  0
+> >  #
+>  
+> > The tracing_on file is not restored to its value before the command.
+> > Fix this behavior and restore the trace setting to what
+> > is was before the invocation of the command.
+> > On Fedora 41 and 42 tracing is turned on by default.
+> 
+> This looks fragile as it takes a snapshot in time of what are the files
+> in some particular directory to save them and then restore it at the
+> end.
+> 
+> The tool may at some point in the future go and touch other (added in
+> the future) files in that directory, etc.
+> 
+> I _think_ that instead we should move to use some "session mode" ftrace,
+> which I _think_ is already available for quite some time, i.e. instead
+> of touching the global ftrace files (which probably are there for
+> historical reasons), we should use, lemme find the reference...
+> 
+> I think the keyword to lookup is /sys/kernel/debug/tracing/instances/
+> 
+> Ian did a lot of work on having 'perf test' run shell tests in parallel,
+> so we need to think about ways of allowing for that by not touching
+> global state.
+> 
+> tldr; great idea, avoid global state.
 
-Acked-by: Will Deacon <will@kernel.org>
+Right, by using an tracing instance, you don't need to worry about the
+original states.
 
-Please yell if you'd like me to pick them up separately from the rest
-of the series.
+Thanks,
+Namhyung
 
-Will
