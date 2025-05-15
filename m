@@ -1,137 +1,201 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AC6117B4EC;
-	Thu, 15 May 2025 14:25:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B3FA1D5CDD;
+	Thu, 15 May 2025 15:53:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747319148; cv=none; b=tdivBMCCQ7V3ksIQkN+zJs0gjCtN6zdPzkuAz9h3gwP5ACHnp1Jx64AGPOzrsMEMW097K69NFLpDmXk6F+qNvSfKNkggPMlhheSiWGM3VjF9lJ3nSsEuk42LpWWgNP3qGrV7m3SNHHDH3rcCldnjnEVpOg3HXHjXbwmbmE74LnU=
+	t=1747324438; cv=none; b=laVg5q3KSAyoPtjW2gg6yYJvYdARTZdqhnJZiPyc+1QO8YW6YvUQrVWwPlT/5xb40/oz3pblzdymNrAfdZgqoe8Yiq7yeCImCha7xyE8pzyMXSRBqTclrI91vG1z2nGtR1FjiI9WSZ+8tdxB58NPX1MjBMzIr3H8b6Le4iIQrYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747319148; c=relaxed/simple;
-	bh=7Gfdv02jJ3Il4Aj2m1lINDWNyCUGAIAdcHZ7i+nnBIk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RDpO+E6jvuMutO1hr46J0+QhNDfNPcNsr2CV+uglNlGFY0ExPpsZYh/VVe3th1LRSKxAMaRbsbtX2zBQ7OM43jifDJcWbok2M3q0xtrECXjivd7ZAHtsdOJvO3liO3m7K8aA7uth+lYl9FZy1paYvu8GuR2z2fSO4S0K+rlLCrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WmU5zAaU; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1747324438; c=relaxed/simple;
+	bh=oQtR/k1mAclk4uJV1KOw+qqxCmz293wRmRjMSGxcXd8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LW2gLKbmcAXobA4sI9tjQwHDgFbVkmFk3TL+4sGHD7TiiT4LU2l3b28Fz3KkNyA1MS9fDOfjJ8S94hsS0zGkTCHnSpcgwTph7Wt4RH7rfPyEsf7Y0nImm1gWqVNeRn1LuAQt4BAdx9fdsWa8ua4OzRafmCVtRU4PZxFl58MOZz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O6Za27OL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WmU5zAaU"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54FCg8sJ002405;
-	Thu, 15 May 2025 14:25:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=VEW6q6K77hbBMnPiQrFGgC+mDti52fcTnsB0C6Qja
-	AM=; b=WmU5zAaUQrdWJdpRaPCcy/LYfjw7QzqX5ASFIerHXR+wy+3xWMz3ENYki
-	Mj6fpwBtqp81E35Yfx4onLXQwoKaHkhEQCvFAGUN7wynLb1cRTrdjAA4dIgH/pfA
-	SOqbw0tkgjhV9RkfbQlXHyqQkYTYw7R+gNEf6/zZGOeBrhCthdS/BR24TuciPHxr
-	JfW88piu802UJTWqOQ5H524fbW4T89VrYbzr+dBAFOha7gX0SCkbMw4IjB4Bbp01
-	HB8ikUaSrSECyHtYUEqPHLgDYwe1zwwJ5ugA9neb2BUT7ZlOKcMTfjBIA8Yp579l
-	ZmrYhWW7TAu6sOWYFYiX8cODr8r3g==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46n0v6mxmq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 14:25:38 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 54FEPbQJ021983;
-	Thu, 15 May 2025 14:25:37 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46n0v6mxme-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 14:25:37 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54FEL9Vm021574;
-	Thu, 15 May 2025 14:25:37 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfrtmt6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 14:25:36 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FEPYUv54591780
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 May 2025 14:25:35 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2E3CB2004B;
-	Thu, 15 May 2025 13:55:39 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1B6E520040;
-	Thu, 15 May 2025 13:55:39 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 15 May 2025 13:55:39 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id CFB7AE0697; Thu, 15 May 2025 15:55:38 +0200 (CEST)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Daniel Axtens <dja@axtens.net>, Harry Yoo <harry.yoo@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        kasan-dev@googlegroups.com, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v9 0/1] kasan: Avoid sleepable page allocation from atomic context
-Date: Thu, 15 May 2025 15:55:37 +0200
-Message-ID: <cover.1747316918.git.agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O6Za27OL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 847A9C4CEE7;
+	Thu, 15 May 2025 15:53:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1747324437;
+	bh=oQtR/k1mAclk4uJV1KOw+qqxCmz293wRmRjMSGxcXd8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=O6Za27OLflHibhD4ws8FWtzHc9u4v9TX6qfFNWqc6vetO9AAvwvQHqBRUZ1MbcGUT
+	 LBk879KeMQeO7xsy0vxFeJu7tHG0PnNgHmZRXREEP66Zq7w5BovG7rTwT7ivJnkr2w
+	 jLKsRZnUv/S4NNiJaZf+vTo5gRgoYJytfbJWyJvs0fsyVVWOE35Mup963P5254DPka
+	 LjlMjxjrfK83OLXgDoyDqyqT9njQBHqo4Y6QcMZ+1ZVdOHcUJ131ZbrxV2lXaZpyfP
+	 c/H+4n1RCiIGLFOdrHGtWOouv7rdHLvDsaCVpNHj1D7reLW3QJfFioltvrvFV1Avkh
+	 124gyKnz1c3xw==
+Date: Thu, 15 May 2025 12:53:55 -0300
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+To: Chun-Tse Shao <ctshao@google.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
+	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
+	sumanthk@linux.ibm.com, hca@linux.ibm.com, irogers@google.com
+Subject: Re: [PATCH V4] perf test: Allow tolerance for leader sampling test
+Message-ID: <aCYOEwgBLWyK7g3q@x1>
+References: <20250430140611.599078-1-tmricht@linux.ibm.com>
+ <aBT0a5lGzUSLpWpX@x1>
+ <CAJpZYjWW07J8J40ygx6-5q_rfKEoz2g0VYCC=Go3PM2pBKvDRw@mail.gmail.com>
+ <aBUY-zaI6BxRvWWS@x1>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=IqAecK/g c=1 sm=1 tr=0 ts=6825f962 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=dt9VzEwgFbYA:10 a=M4n5Zv9w_bjhLjlc4U8A:9 a=zZCYzV9kfG8A:10
-X-Proofpoint-ORIG-GUID: gsjWp-Ng0dC36Dn2cBR5PS3eptApZOz5
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDEzOSBTYWx0ZWRfXxmHO/rxvOS6Z 3fEjEqJhV3MG0Cl4RIn0X+tlTvzgH63kEaBU7Pf6gPK3R7u6sHrFJaENBG6tOAKgxduSdeiEMVq Mi/mFGc8J4pov1w/K5o3hWHd2YHZ4kbxtGvZLV+jK0COKPnCmK1J5oUJGiuqapxWqBy63x38TPk
- F5itjgMCxz21A0joByb3ds2Mak4sk6O8MjzIeJVqRwTKy2VfcXTgCw8OSS6Hi3/qxZarlSX7P3E wx2WamWYFoce12j03HoPx0FMPaLNKLhwWvEkllkaSI3H/Elr1A9IcQxsICkLwdBpSm6ObbAqTIh 7ftPBMdouk3FdIJAN779vddxznFJg4K7m8DlTUwaAzNKN9tMFGMTe41togkHfQ7T39WUb0GVdYF
- nRdwdoZdkpyIQ4rwX6c3jJy+Pwc2yH0nAC4oObHuF6Ecy6mxm7ow1jIEb82fy74/3wkRhW7r
-X-Proofpoint-GUID: Hz4sHBe_8I6zp0zDv4Z_aaQ_3JO_OM53
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-15_06,2025-05-14_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- adultscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
- priorityscore=1501 clxscore=1015 spamscore=0 mlxlogscore=735 bulkscore=0
- suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
- definitions=main-2505150139
+In-Reply-To: <aBUY-zaI6BxRvWWS@x1>
 
-Hi All,
+On Fri, May 02, 2025 at 04:11:55PM -0300, Arnaldo Carvalho de Melo wrote:
+> On Fri, May 02, 2025 at 11:21:07AM -0700, Chun-Tse Shao wrote:
+> > Hi Arnaldo,
+> > 
+> > I submitted the patch v1 and Thomas helped me to modify and submit v2
+> > and v3 while I was OOO. In this case I am not sure which one should be
+> > the author, maybe just keep it as Thomas.
+> 
+> >From the tags provided, I think it would be best to list you as the
+> author and Thomas a a Co-developer, like mentioned in:
+> 
+> Documentation/process/submitting-patches.rst
+> 
+> Co-developed-by: states that the patch was co-created by multiple developers;
+> it is used to give attribution to co-authors (in addition to the author
+> attributed by the From: tag) when several people work on a single patch.  Since
+> Co-developed-by: denotes authorship, every Co-developed-by: must be immediately
+> followed by a Signed-off-by: of the associated co-author.  Standard sign-off
+> procedure applies, i.e. the ordering of Signed-off-by: tags should reflect the
+> chronological history of the patch insofar as possible, regardless of whether
+> the author is attributed via From: or Co-developed-by:.  Notably, the last
+> Signed-off-by: must always be that of the developer submitting the patch.
+> 
+> Note, the From: tag is optional when the From: author is also the person (and
+> email) listed in the From: line of the email header.
+> 
+> Example of a patch submitted by the From: author::
+> 
+>         <changelog>
+> 
+>         Co-developed-by: First Co-Author <first@coauthor.example.org>
+>         Signed-off-by: First Co-Author <first@coauthor.example.org>
+>         Co-developed-by: Second Co-Author <second@coauthor.example.org>
+>         Signed-off-by: Second Co-Author <second@coauthor.example.org>
+>         Signed-off-by: From Author <from@author.example.org>
+> 
+> Example of a patch submitted by a Co-developed-by: author::
+> 
+>         From: From Author <from@author.example.org>
+> 
+>         <changelog>
+> 
+>         Co-developed-by: Random Co-Author <random@coauthor.example.org>
+>         Signed-off-by: Random Co-Author <random@coauthor.example.org>
+>         Signed-off-by: From Author <from@author.example.org>
+>         Co-developed-by: Submitting Co-Author <sub@coauthor.example.org>
+>         Signed-off-by: Submitting Co-Author <sub@coauthor.example.org>
 
-I dropped Harry Yoo's Reviewed-by from this version.
+I was expecting some reaction from you or Thomas, but since I got a ping
+from Thomas for this not being processed, I'll process it according to
+my assessment of this thread.
 
-Chages since v8:
-- fixed page_owner=on issue preventing bulk allocations on x86 
+Thanks,
 
-Chages since v7:
-- drop "unnecessary free pages" optimization
-- fix error path page leak
+- Arnaldo
 
-Chages since v6:
-- do not unnecessary free pages across iterations
 
-Chages since v5:
-- full error message included into commit description
-
-Chages since v4:
-- unused pages leak is avoided
-
-Chages since v3:
-- pfn_to_virt() changed to page_to_virt() due to compile error
-
-Chages since v2:
-- page allocation moved out of the atomic context
-
-Chages since v1:
-- Fixes: and -stable tags added to the patch description
-
-Thanks!
-
-Alexander Gordeev (1):
-  kasan: Avoid sleepable page allocation from atomic context
-
- mm/kasan/shadow.c | 92 +++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 78 insertions(+), 14 deletions(-)
-
--- 
-2.45.2
-
+>  
+> > Thanks,
+> > CT
+> > 
+> > On Fri, May 2, 2025 at 9:35 AM Arnaldo Carvalho de Melo <acme@kernel.org> wrote:
+> > >
+> > > On Wed, Apr 30, 2025 at 04:06:11PM +0200, Thomas Richter wrote:
+> > > > V4: Update to be applied onto linux-next
+> > > > V3: Added check for missing samples as suggested by Chun-Tse.
+> > > > V2: Changed bc invocation to return 0 on success and 1 on error.
+> > > >
+> > > > There is a known issue that the leader sampling is inconsistent, since
+> > > > throttle only affect leader, not the slave. The detail is in [1]. To
+> > > > maintain test coverage, this patch sets a tolerance rate of 80% to
+> > > > accommodate the throttled samples and prevent test failures due to
+> > > > throttling.
+> > > >
+> > > > [1] lore.kernel.org/20250328182752.769662-1-ctshao@google.com
+> > > >
+> > > > Signed-off-by: Chun-Tse Shao <ctshao@google.com>
+> > > > Suggested-by: Ian Rogers <irogers@google.com>
+> > > > Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
+> > >
+> > > But who is the author? As-is this patch states Thomas Richter as the
+> > > author, but since there is also a Suggested-by and Tested-by Thomas
+> > > Richter, it makes me believe the author is Chun-Tse Shao, is that the
+> > > case?
+> > >
+> > > - Arnaldo
+> > >
+> > > > Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+> > > > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> > > > ---
+> > > >  tools/perf/tests/shell/record.sh | 33 ++++++++++++++++++++++++++------
+> > > >  1 file changed, 27 insertions(+), 6 deletions(-)
+> > > >
+> > > > diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
+> > > > index 05d91a663fda..587f62e34414 100755
+> > > > --- a/tools/perf/tests/shell/record.sh
+> > > > +++ b/tools/perf/tests/shell/record.sh
+> > > > @@ -240,22 +240,43 @@ test_leader_sampling() {
+> > > >      err=1
+> > > >      return
+> > > >    fi
+> > > > +  perf script -i "${perfdata}" | grep brstack > $script_output
+> > > > +  # Check if the two instruction counts are equal in each record.
+> > > > +  # However, the throttling code doesn't consider event grouping. During throttling, only the
+> > > > +  # leader is stopped, causing the slave's counts significantly higher. To temporarily solve this,
+> > > > +  # let's set the tolerance rate to 80%.
+> > > > +  # TODO: Revert the code for tolerance once the throttling mechanism is fixed.
+> > > >    index=0
+> > > > -  perf script -i "${perfdata}" > "${script_output}"
+> > > > +  valid_counts=0
+> > > > +  invalid_counts=0
+> > > > +  tolerance_rate=0.8
+> > > >    while IFS= read -r line
+> > > >    do
+> > > > -    # Check if the two instruction counts are equal in each record
+> > > >      cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
+> > > >      if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
+> > > >      then
+> > > > -      echo "Leader sampling [Failed inconsistent cycles count]"
+> > > > -      err=1
+> > > > -      return
+> > > > +      invalid_counts=$(($invalid_counts+1))
+> > > > +    else
+> > > > +      valid_counts=$(($valid_counts+1))
+> > > >      fi
+> > > >      index=$(($index+1))
+> > > >      prev_cycles=$cycles
+> > > >    done < "${script_output}"
+> > > > -  echo "Basic leader sampling test [Success]"
+> > > > +  total_counts=$(bc <<< "$invalid_counts+$valid_counts")
+> > > > +  if (( $(bc <<< "$total_counts <= 0") ))
+> > > > +  then
+> > > > +    echo "Leader sampling [No sample generated]"
+> > > > +    err=1
+> > > > +    return
+> > > > +  fi
+> > > > +  isok=$(bc <<< "scale=2; if (($invalid_counts/$total_counts) < (1-$tolerance_rate)) { 0 } else { 1 };")
+> > > > +  if [ $isok -eq 1 ]
+> > > > +  then
+> > > > +     echo "Leader sampling [Failed inconsistent cycles count]"
+> > > > +     err=1
+> > > > +  else
+> > > > +    echo "Basic leader sampling test [Success]"
+> > > > +  fi
+> > > >  }
+> > > >
+> > > >  test_topdown_leader_sampling() {
+> > > > --
+> > > > 2.45.2
