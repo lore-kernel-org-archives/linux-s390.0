@@ -1,138 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D87221F2A;
-	Thu, 15 May 2025 09:02:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DA1D221296;
+	Thu, 15 May 2025 09:25:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747299777; cv=none; b=jtT3/N7R/lEE94yn+UGjppwZIRM1KbH6Dto8CSCGYo2zskVUPihDna11Rw9/+WY2JP+0bwkjNE9Yy8JEubE4mXo/TgYTSZmWQNu3vajVpJ3+gPSPnA1maGWSubZOOFBx7NBrF66XRT6VF23sBp1TAvijURY8GNaln7CzE83/2JM=
+	t=1747301104; cv=none; b=S7JalAyoTHhr4FeJVeccJah2LexCF6kN44xpnEATMlh6zTNb8DXCNF4gsfrelg8vPLL+48VFjKGNzO89RSzAeOT1+yneggxSxlY6APZ91+6IhRZaQpUFrDKCMlwxtgHYlcxNMulFvHPbe+pbmgOtwOTKyYX5cICjUDCUmfv8zFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747299777; c=relaxed/simple;
-	bh=DdR+iT74thckjay2jHl6JRdQgazSc4DbBO3/97MtQFI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T15HEDIukXWlB5KwHKhNImXOriKlMM/1FT4vMBj7UqHdoxjy0Kab3Xhaqy0LfhmrObr81wxAxMGibsJRk+AG4iwMzsLIwO2k8qAzeEI1bd8piDbvsTUK/SOLRpQzQD2Q3xciCUwaunxn+rRf8Yy6PtaBHbl91tfCyzmF9IQGmwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HHVHIl/G; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747301104; c=relaxed/simple;
+	bh=FOB3K3pY+F4jlai+86UarnLpNHKWWIcm3T9iHIOsqi4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=P1E5fxUgrXTqkSQ60fYKbWkhctE2PCh0Gdag4FD6sIysA6oY/4Ik0p0KsquXsw00FPxqvh2UhmSAg3PTKf+bsRmOPmOk30KGCz66esdazbVairRlSxwkoAD3UmvWbSr+iXQbHZFYroa+/cXI46h9pW7azxdu/vEMLCNcvbi3l6o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xj41abCA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HHVHIl/G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 775F2C4CEE9;
-	Thu, 15 May 2025 09:02:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747299775;
-	bh=DdR+iT74thckjay2jHl6JRdQgazSc4DbBO3/97MtQFI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=HHVHIl/GQ3OfHIKWGc8LdkQdOynuN3eRK9dIFOH9AWzvAg/+YVBY38MKu8m6DIaJ8
-	 ogZaKfyHPqx+ER/XGzvNDMaAJXfV6hrFs9q0ktQwnuejL3O9/or3b3r6zzw9MsoMlJ
-	 /FEqGnayigRX/WV/PxkJx5UYmJfSr8I8UAHI+AqvH8WkR6JLeSgXDHx4KbTPL/+Xi7
-	 MerAdihHYW10gxdyoj2xhrd476PtlJKjWgWOPqTFDM7lf3kHaaaJzyORvTLe7T8W30
-	 GJu+ICmU1x4ydKhmvpPyUWChoXSJGDFoFi0Io4h8hJxpz5alVnvt2mKo1RambfbR00
-	 hdnawvTLfvo3g==
-Date: Thu, 15 May 2025 11:02:39 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andrey Albershteyn <aalbersh@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
-	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Tyler Hicks <code@tyhicks.com>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Amir Goldstein <amir73il@gmail.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
-	Linux-Arch <linux-arch@vger.kernel.org>, selinux@vger.kernel.org, ecryptfs@vger.kernel.org, 
-	linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org, 
-	Andrey Albershteyn <aalbersh@kernel.org>
-Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr
- syscalls
-Message-ID: <20250515-bedarf-absagen-464773be3e72@brauner>
-References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org>
- <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xj41abCA"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54F6OCW7014537;
+	Thu, 15 May 2025 09:24:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=8h69w0
+	8A9QwkYhNAcKreTXG+qKfy8roG1DkTKo/70aI=; b=Xj41abCAvpx3NzcjYZxMR2
+	YFtsxFY+S0mBSGzTScOiXZArfp1+WQOXSyL2f9UVAC9FOSJtLGVu6RnTX9/wjaWj
+	foXGsaYnb8HYPonZ779p0muRhd8+S24mym0IpmyzXSzENWEJZ6oXzMl/xln8HtN4
+	+fpx/TGn1F3wqlX0PyqKCARWW0Lytz/BgCL3bnbMSwSCD3u+putGcfFSDiWBkwGt
+	IDwHs9Hq6NwbpRyYEC1fm/ClHw4HdWsks75TZd661KO/y8EuXj2ifnWFF0ytZ4aL
+	IIl6atmgXo05o9N7oa6U6cllP7WFxtFIxR6d7E0Jg4W57CblO38lstMSmrMXtjhg
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46n0v6kdj0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 09:24:46 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54F7F2u5021396;
+	Thu, 15 May 2025 09:24:46 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfrscer-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 09:24:46 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54F9Og7P55771644
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 May 2025 09:24:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F127D2007B;
+	Thu, 15 May 2025 09:24:41 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 796392007A;
+	Thu, 15 May 2025 09:24:41 +0000 (GMT)
+Received: from [9.152.224.40] (unknown [9.152.224.40])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 15 May 2025 09:24:41 +0000 (GMT)
+Message-ID: <acfad3e9-f4df-481a-8322-141c3579602b@linux.ibm.com>
+Date: Thu, 15 May 2025 11:24:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] KVM: s390: rename PROT_NONE to PROT_TYPE_DUMMY
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>,
+        linux-mm@kvack.org, Yang Shi <yang@os.amperecomputing.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        pbonzini@redhat.com
+References: <20250514163530.119582-1-lorenzo.stoakes@oracle.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20250514163530.119582-1-lorenzo.stoakes@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=IqAecK/g c=1 sm=1 tr=0 ts=6825b2df cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=QyXUC8HyAAAA:8 a=yPCof4ZbAAAA:8 a=TAZUD9gdAAAA:8 a=VnNF1IyMAAAA:8
+ a=6puILLhiXrOUVKTfem0A:9 a=QEXdDO2ut3YA:10 a=f1lSKsbWiCfrRWj5-Iac:22
+X-Proofpoint-ORIG-GUID: yZcsqEheSgMmMrQugs9qS4KVCkbgPcbu
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDA4OCBTYWx0ZWRfX9n/zFJb8L9f5 DKjXxvWP7VtulRdOLoorNI1YLivkoVzk0E+QGp5E/ONJ4Irj6yaVyQKsSnpyRwyDcY8BEa5o/IM 6SpGZvKvY/MgEao81ze72+Hwny/ODqBDcy2zzwaqNoIY2MrxYjKG9V2Tj0o7tU1CnaHwpW+u0D9
+ 1URwvRTeIqxd3UdKEynSKOsB/GFdceDPq0xTaMYAnF/3d31ZcEgbEuMNwERSjnUhWSYPJCCmG/G a01F/feD71JTquMhQbUSNmulT5LPz6AfQMwHPePO4ZveIC7DtRUcx7i1qYhXvFWGspP9tgKTBIB c+vPyIsS0gAr/Ibp70+/ykIbLQyrdRnA6rYUDmCRiO0YawgHOoi0JD+gBV/2BWriX3Y+oTRSOjW
+ 84IA61t/j5YsxaD/bt11UpeYNgGeRu2RG+mKbI7z5dTcKhOOvos+aBgux5Rqrxmk0GP8TMxP
+X-Proofpoint-GUID: yZcsqEheSgMmMrQugs9qS4KVCkbgPcbu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-15_04,2025-05-14_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ adultscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 spamscore=0 mlxlogscore=661 bulkscore=0
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
+ definitions=main-2505150088
 
-On Tue, May 13, 2025 at 11:53:23AM +0200, Arnd Bergmann wrote:
-> On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
+
+
+Am 14.05.25 um 18:35 schrieb Lorenzo Stoakes:
+> The enum type prot_type declared in arch/s390/kvm/gaccess.c declares an
+> unfortunate identifier within it - PROT_NONE.
 > 
-> >
-> > 	long syscall(SYS_file_getattr, int dirfd, const char *pathname,
-> > 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
-> > 	long syscall(SYS_file_setattr, int dirfd, const char *pathname,
-> > 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
+> This clashes with the protection bit define from the uapi for mmap()
+> declared in include/uapi/asm-generic/mman-common.h, which is indeed what
+> those casually reading this code would assume this to refer to.
 > 
-> I don't think we can have both the "struct fsxattr" from the uapi
-> headers, and a variable size as an additional argument. I would
-> still prefer not having the extensible structure at all and just
+> This means that any changes which subsequently alter headers in any way
+> which results in the uapi header being imported here will cause build
+> errors.
+> 
+> Resolve the issue by renaming PROT_NONE to PROT_TYPE_DUMMY.
+> 
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> Suggested-by: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>
+> Fixes: b3cefd6bf16e ("KVM: s390: Pass initialized arg even if unused")
+> Cc: stable@vger.kernel.org
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202505140943.IgHDa9s7-lkp@intel.com/
 
-We're not going to add new interfaces that are fixed size unless for the
-very basic cases. I don't care if we're doing that somewhere else in the
-kernel but we're not doing that for vfs apis.
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+I think its fine to go via mm tree.
 
-> use fsxattr, but if you want to make it extensible in this way,
-> it should use a different structure (name). Otherwise adding
-> fields after fsx_pad[] would break the ioctl interface.
 
-Would that really be a problem? Just along the syscall simply add
-something like:
-
-diff --git a/fs/ioctl.c b/fs/ioctl.c
-index c91fd2b46a77..d3943805c4be 100644
---- a/fs/ioctl.c
-+++ b/fs/ioctl.c
-@@ -868,12 +868,6 @@ static int do_vfs_ioctl(struct file *filp, unsigned int fd,
-        case FS_IOC_SETFLAGS:
-                return ioctl_setflags(filp, argp);
-
--       case FS_IOC_FSGETXATTR:
--               return ioctl_fsgetxattr(filp, argp);
--
--       case FS_IOC_FSSETXATTR:
--               return ioctl_fssetxattr(filp, argp);
--
-        case FS_IOC_GETFSUUID:
-                return ioctl_getfsuuid(filp, argp);
-
-@@ -886,6 +880,20 @@ static int do_vfs_ioctl(struct file *filp, unsigned int fd,
-                break;
-        }
-
-+       switch (_IOC_NR(cmd)) {
-+       case _IOC_NR(FS_IOC_FSGETXATTR):
-+               if (WARN_ON_ONCE(_IOC_TYPE(cmd) != _IOC_TYPE(FS_IOC_FSGETXATTR)))
-+                       return SOMETHING_SOMETHING;
-+               /* Only handle original size. */
-+               return ioctl_fsgetxattr(filp, argp);
-+
-+       case _IOC_NR(FFS_IOC_FSSETXATTR):
-+               if (WARN_ON_ONCE(_IOC_TYPE(cmd) != _IOC_TYPE(FFS_IOC_FSSETXATTR)))
-+                       return SOMETHING_SOMETHING;
-+               /* Only handle original size. */
-+               return ioctl_fssetxattr(filp, argp);
-+       }
-+
-        return -ENOIOCTLCMD;
- }
