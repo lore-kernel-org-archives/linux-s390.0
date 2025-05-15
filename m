@@ -1,224 +1,137 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D0F71F8724;
-	Thu, 15 May 2025 13:56:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AC6117B4EC;
+	Thu, 15 May 2025 14:25:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747317419; cv=none; b=Vi17HEHldnkixa4fpxBgcbbBc684nzFeAKaL8UdD0/QKZk1ezmUiDnTBieOt9zGR43Pnvgt/fnbmbZ63E+4NbsL6siFxNcF8PHtSgsYg4dSuHgUNapkgOlfzh6F1avHiNo5rQfthNAFuVLfP/sI0B0WUdwlkt1msG2PS77U1BSE=
+	t=1747319148; cv=none; b=tdivBMCCQ7V3ksIQkN+zJs0gjCtN6zdPzkuAz9h3gwP5ACHnp1Jx64AGPOzrsMEMW097K69NFLpDmXk6F+qNvSfKNkggPMlhheSiWGM3VjF9lJ3nSsEuk42LpWWgNP3qGrV7m3SNHHDH3rcCldnjnEVpOg3HXHjXbwmbmE74LnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747317419; c=relaxed/simple;
-	bh=2nDDcWCR3N/EKcokAfj1m0YytBCSC2Ha6IQczrqfI+0=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=CCYzqynQ3qOU/ZGKobJVXsJ8zRcgtDg8H+S9hfVMY/59F+UANPtEsuz9WjjfVVm7LCjUMN2cRyFzdhAlQSwDUCMwlg6Ivq6fVsaiBsPxiYGA42SkfCtBgQBZ/8cSR5DgvoiYUNqWAZD8MvSKoseLNRcNRVQzmtv1j76hJ0HIYh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pzqyLD5Y; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1747319148; c=relaxed/simple;
+	bh=7Gfdv02jJ3Il4Aj2m1lINDWNyCUGAIAdcHZ7i+nnBIk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RDpO+E6jvuMutO1hr46J0+QhNDfNPcNsr2CV+uglNlGFY0ExPpsZYh/VVe3th1LRSKxAMaRbsbtX2zBQ7OM43jifDJcWbok2M3q0xtrECXjivd7ZAHtsdOJvO3liO3m7K8aA7uth+lYl9FZy1paYvu8GuR2z2fSO4S0K+rlLCrI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WmU5zAaU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pzqyLD5Y"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54FCg7sT004932;
-	Thu, 15 May 2025 13:56:55 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WmU5zAaU"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54FCg8sJ002405;
+	Thu, 15 May 2025 14:25:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pr39dD
-	2yVBnwoDwzLfmx1XI5RKAQ+i72fWH/VVZv6qA=; b=pzqyLD5YUX7cUFAZAu3x86
-	kmlj40H6i/drvVeNzF6PGhK+tOm23/sgbOCjWddIHL/GSV+YbODx6KiBNyQBZqx8
-	cZ85osZC2judbRbvBDU5PLSSZOykxIWlMl7hjO1zlHHEbR/HNQgLZECdQA+wSuYs
-	QtyLQIPXpst6JwJNPcybMuKn3dHkgTk2Z7Ld1NPNJ78dj74bY4PTEvPNQLJg3cxB
-	4dcM9vTMU6dGA7fm2aK6BV7xbeDf5rRmy67up/QV1EdaJFDBxMviHnzbumACbe71
-	PwnGh6tJvkWZWoljCJUU+9QXBBxKsK22Bdg9Frx/yuwoig7RrPJcX+Qidwyg5nnA
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46navu28q2-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=VEW6q6K77hbBMnPiQrFGgC+mDti52fcTnsB0C6Qja
+	AM=; b=WmU5zAaUQrdWJdpRaPCcy/LYfjw7QzqX5ASFIerHXR+wy+3xWMz3ENYki
+	Mj6fpwBtqp81E35Yfx4onLXQwoKaHkhEQCvFAGUN7wynLb1cRTrdjAA4dIgH/pfA
+	SOqbw0tkgjhV9RkfbQlXHyqQkYTYw7R+gNEf6/zZGOeBrhCthdS/BR24TuciPHxr
+	JfW88piu802UJTWqOQ5H524fbW4T89VrYbzr+dBAFOha7gX0SCkbMw4IjB4Bbp01
+	HB8ikUaSrSECyHtYUEqPHLgDYwe1zwwJ5ugA9neb2BUT7ZlOKcMTfjBIA8Yp579l
+	ZmrYhWW7TAu6sOWYFYiX8cODr8r3g==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46n0v6mxmq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 13:56:54 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54FAasY2021809;
-	Thu, 15 May 2025 13:56:53 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfpthej-1
+	Thu, 15 May 2025 14:25:38 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 54FEPbQJ021983;
+	Thu, 15 May 2025 14:25:37 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46n0v6mxme-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 May 2025 13:56:53 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FDunCL56557852
+	Thu, 15 May 2025 14:25:37 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54FEL9Vm021574;
+	Thu, 15 May 2025 14:25:37 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfrtmt6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 14:25:36 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FEPYUv54591780
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 May 2025 13:56:49 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A7C3E200DA;
-	Thu, 15 May 2025 13:56:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 90620200D9;
-	Thu, 15 May 2025 13:56:49 +0000 (GMT)
-Received: from darkmoore (unknown [9.155.210.150])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 15 May 2025 13:56:49 +0000 (GMT)
+	Thu, 15 May 2025 14:25:35 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2E3CB2004B;
+	Thu, 15 May 2025 13:55:39 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1B6E520040;
+	Thu, 15 May 2025 13:55:39 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 15 May 2025 13:55:39 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id CFB7AE0697; Thu, 15 May 2025 15:55:38 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Daniel Axtens <dja@axtens.net>, Harry Yoo <harry.yoo@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kasan-dev@googlegroups.com, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v9 0/1] kasan: Avoid sleepable page allocation from atomic context
+Date: Thu, 15 May 2025 15:55:37 +0200
+Message-ID: <cover.1747316918.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 15 May 2025 15:56:44 +0200
-Message-Id: <D9WSBQ41MJ2M.1KMCYVAHP1JFF@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>,
-        <seiden@linux.ibm.com>, <nsg@linux.ibm.com>, <nrb@linux.ibm.com>,
-        <david@redhat.com>, <hca@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <svens@linux.ibm.com>, <gor@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v1 1/5] s390: remove unneeded includes
-X-Mailer: aerc 0.20.1
-References: <20250514163855.124471-1-imbrenda@linux.ibm.com>
- <20250514163855.124471-2-imbrenda@linux.ibm.com>
-In-Reply-To: <20250514163855.124471-2-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: A6hc7nsUSQuFPFwMmveKVF8tce6Uo9XM
-X-Authority-Analysis: v=2.4 cv=XK4wSRhE c=1 sm=1 tr=0 ts=6825f2a7 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=G8SUIm368mfTC3sML14A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: A6hc7nsUSQuFPFwMmveKVF8tce6Uo9XM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDEzNCBTYWx0ZWRfX6tndEkttQfgL OCjj1NhC5HVRqugOBJYp2pdWm3RGwgbQz504zR2fM6P4e47NTShALW4FPsLL6TwIjvdJ8m+OAhd cxGVrhabyfVJR6DmoT1R0rnGVzQrLLTyo7kcvOO4qwfF1euPIBMHu1xSLoE23cHYDtvU0wHC1+h
- +Qll/SfqEgw/GnOBv5+ZX92NIPWWkfOVcizUCg1QSgV5Er1INq+nwAJPw3zcYh4vsJm87iSt6eL myrfq+DgR9GWHSr5jW90NaayM78NooKi21yzKZZtmqxkfH5RScC8YdwTrjZu5jY0bL3nxz4sObf hOSsTvNVxA2P/AGvA/7CJPddgSS+Xzxe2Bgp/TCq/bxhojjCq14LUhNRgP33kcluyOOpohOprwh
- VUYfE78ZrZBKyVGA4bWUFTYSNNN6JreoUWkcsd6Y+IzLYYM1zuCnMmHQTTetNQ30GPzFUEur
+X-Authority-Analysis: v=2.4 cv=IqAecK/g c=1 sm=1 tr=0 ts=6825f962 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=dt9VzEwgFbYA:10 a=M4n5Zv9w_bjhLjlc4U8A:9 a=zZCYzV9kfG8A:10
+X-Proofpoint-ORIG-GUID: gsjWp-Ng0dC36Dn2cBR5PS3eptApZOz5
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDEzOSBTYWx0ZWRfXxmHO/rxvOS6Z 3fEjEqJhV3MG0Cl4RIn0X+tlTvzgH63kEaBU7Pf6gPK3R7u6sHrFJaENBG6tOAKgxduSdeiEMVq Mi/mFGc8J4pov1w/K5o3hWHd2YHZ4kbxtGvZLV+jK0COKPnCmK1J5oUJGiuqapxWqBy63x38TPk
+ F5itjgMCxz21A0joByb3ds2Mak4sk6O8MjzIeJVqRwTKy2VfcXTgCw8OSS6Hi3/qxZarlSX7P3E wx2WamWYFoce12j03HoPx0FMPaLNKLhwWvEkllkaSI3H/Elr1A9IcQxsICkLwdBpSm6ObbAqTIh 7ftPBMdouk3FdIJAN779vddxznFJg4K7m8DlTUwaAzNKN9tMFGMTe41togkHfQ7T39WUb0GVdYF
+ nRdwdoZdkpyIQ4rwX6c3jJy+Pwc2yH0nAC4oObHuF6Ecy6mxm7ow1jIEb82fy74/3wkRhW7r
+X-Proofpoint-GUID: Hz4sHBe_8I6zp0zDv4Z_aaQ_3JO_OM53
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-15_06,2025-05-14_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
- mlxscore=0 bulkscore=0 mlxlogscore=999 clxscore=1011 lowpriorityscore=0
- priorityscore=1501 suspectscore=0 impostorscore=0 adultscore=0
- malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ adultscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
+ priorityscore=1501 clxscore=1015 spamscore=0 mlxlogscore=735 bulkscore=0
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
- definitions=main-2505150134
+ definitions=main-2505150139
 
-You added one unnecessary import to arch/s390/kvm/intercept.c
+Hi All,
 
-With that removed:
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+I dropped Harry Yoo's Reviewed-by from this version.
 
+Chages since v8:
+- fixed page_owner=on issue preventing bulk allocations on x86 
 
-On Wed May 14, 2025 at 6:38 PM CEST, Claudio Imbrenda wrote:
-> Many files don't need to include asm/tlb.h or asm/gmap.h.
-> On the other hand, asm/tlb.h does need to include asm/gmap.h.
->
-> Remove all unneeded includes so that asm/tlb.h is not directly used by
-> s390 arch code anymore. Remove asm/gmap.h from a few other files as
-> well, so that now only KVM code, mm/gmap.c, and asm/tlb.h include it.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/include/asm/tlb.h | 1 +
->  arch/s390/include/asm/uv.h  | 1 -
->  arch/s390/kvm/intercept.c   | 1 +
->  arch/s390/mm/fault.c        | 1 -
->  arch/s390/mm/gmap.c         | 1 -
->  arch/s390/mm/init.c         | 1 -
->  arch/s390/mm/pgalloc.c      | 2 --
->  arch/s390/mm/pgtable.c      | 1 -
->  8 files changed, 2 insertions(+), 7 deletions(-)
->
-> diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-> index f20601995bb0..56d5f9e0eb2e 100644
-> --- a/arch/s390/include/asm/tlb.h
-> +++ b/arch/s390/include/asm/tlb.h
-> @@ -36,6 +36,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_=
-gather *tlb,
-> =20
->  #include <asm/tlbflush.h>
->  #include <asm-generic/tlb.h>
-> +#include <asm/gmap.h>
-> =20
->  /*
->   * Release the page cache reference for a pte removed by
-> diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-> index 46fb0ef6f984..eeb2db4783e6 100644
-> --- a/arch/s390/include/asm/uv.h
-> +++ b/arch/s390/include/asm/uv.h
-> @@ -16,7 +16,6 @@
->  #include <linux/bug.h>
->  #include <linux/sched.h>
->  #include <asm/page.h>
-> -#include <asm/gmap.h>
->  #include <asm/asm.h>
-> =20
->  #define UVC_CC_OK	0
-> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-> index a06a000f196c..b4834bd4d216 100644
-> --- a/arch/s390/kvm/intercept.c
-> +++ b/arch/s390/kvm/intercept.c
-> @@ -16,6 +16,7 @@
->  #include <asm/irq.h>
->  #include <asm/sysinfo.h>
->  #include <asm/uv.h>
-> +#include <asm/gmap.h>
+Chages since v7:
+- drop "unnecessary free pages" optimization
+- fix error path page leak
 
-This import is not needed.
+Chages since v6:
+- do not unnecessary free pages across iterations
 
-> =20
->  #include "kvm-s390.h"
->  #include "gaccess.h"
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index da84ff6770de..3829521450dd 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -40,7 +40,6 @@
->  #include <asm/ptrace.h>
->  #include <asm/fault.h>
->  #include <asm/diag.h>
-> -#include <asm/gmap.h>
->  #include <asm/irq.h>
->  #include <asm/facility.h>
->  #include <asm/uv.h>
-> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-> index a94bd4870c65..4869555ff403 100644
-> --- a/arch/s390/mm/gmap.c
-> +++ b/arch/s390/mm/gmap.c
-> @@ -24,7 +24,6 @@
->  #include <asm/machine.h>
->  #include <asm/gmap.h>
->  #include <asm/page.h>
-> -#include <asm/tlb.h>
-> =20
->  /*
->   * The address is saved in a radix tree directly; NULL would be ambiguou=
-s,
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index afa085e8186c..074bf4fb4ce2 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -40,7 +40,6 @@
->  #include <asm/kfence.h>
->  #include <asm/dma.h>
->  #include <asm/abs_lowcore.h>
-> -#include <asm/tlb.h>
->  #include <asm/tlbflush.h>
->  #include <asm/sections.h>
->  #include <asm/sclp.h>
-> diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-> index e3a6f8ae156c..ddab36875370 100644
-> --- a/arch/s390/mm/pgalloc.c
-> +++ b/arch/s390/mm/pgalloc.c
-> @@ -12,8 +12,6 @@
->  #include <asm/mmu_context.h>
->  #include <asm/page-states.h>
->  #include <asm/pgalloc.h>
-> -#include <asm/gmap.h>
-> -#include <asm/tlb.h>
->  #include <asm/tlbflush.h>
-> =20
->  unsigned long *crst_table_alloc(struct mm_struct *mm)
-> diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-> index 9901934284ec..7df70cd8f739 100644
-> --- a/arch/s390/mm/pgtable.c
-> +++ b/arch/s390/mm/pgtable.c
-> @@ -20,7 +20,6 @@
->  #include <linux/ksm.h>
->  #include <linux/mman.h>
-> =20
-> -#include <asm/tlb.h>
->  #include <asm/tlbflush.h>
->  #include <asm/mmu_context.h>
->  #include <asm/page-states.h>
+Chages since v5:
+- full error message included into commit description
+
+Chages since v4:
+- unused pages leak is avoided
+
+Chages since v3:
+- pfn_to_virt() changed to page_to_virt() due to compile error
+
+Chages since v2:
+- page allocation moved out of the atomic context
+
+Chages since v1:
+- Fixes: and -stable tags added to the patch description
+
+Thanks!
+
+Alexander Gordeev (1):
+  kasan: Avoid sleepable page allocation from atomic context
+
+ mm/kasan/shadow.c | 92 +++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 78 insertions(+), 14 deletions(-)
+
+-- 
+2.45.2
 
