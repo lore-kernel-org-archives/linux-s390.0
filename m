@@ -1,201 +1,231 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B3FA1D5CDD;
-	Thu, 15 May 2025 15:53:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C9E2481C4;
+	Thu, 15 May 2025 15:55:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747324438; cv=none; b=laVg5q3KSAyoPtjW2gg6yYJvYdARTZdqhnJZiPyc+1QO8YW6YvUQrVWwPlT/5xb40/oz3pblzdymNrAfdZgqoe8Yiq7yeCImCha7xyE8pzyMXSRBqTclrI91vG1z2nGtR1FjiI9WSZ+8tdxB58NPX1MjBMzIr3H8b6Le4iIQrYA=
+	t=1747324546; cv=none; b=D/k8S+xqlFhTBQvYtHarPatP5586FA5ml7A7Fg3zmBHe7EX83++fao2YtkIjhPfuWWhq3RzMrcMiHHuHwKYLC5Cs44++3kI0GhIYU48S29fvNzsA/2SvtHAvTq+ax7YW22ofns06pUZrYFZGomaHL76ictbpb7AXzLLe9cHs2ck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747324438; c=relaxed/simple;
-	bh=oQtR/k1mAclk4uJV1KOw+qqxCmz293wRmRjMSGxcXd8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LW2gLKbmcAXobA4sI9tjQwHDgFbVkmFk3TL+4sGHD7TiiT4LU2l3b28Fz3KkNyA1MS9fDOfjJ8S94hsS0zGkTCHnSpcgwTph7Wt4RH7rfPyEsf7Y0nImm1gWqVNeRn1LuAQt4BAdx9fdsWa8ua4OzRafmCVtRU4PZxFl58MOZz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O6Za27OL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747324546; c=relaxed/simple;
+	bh=rWO0JWxEoRf/w8MJDqvOKsYDZgxP5f41XaVpF6qf6KY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=G4wxthIzRNr5f3qLXlLlQrn/6wBSAZc+i51yEjzE44Ikg6mpUCMd1YWqYP0Jg6BLco3jtgLW3nKfpYLDN2KLM9wxulrWa9ekQ41ynDDu6fuWNjrZcmeJdKRN8aHvD49z7G8fFi0pp42d/RKWqXHm30M5bMT4i0WKEBtUiFRd3hg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rrCTBBl0; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O6Za27OL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 847A9C4CEE7;
-	Thu, 15 May 2025 15:53:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747324437;
-	bh=oQtR/k1mAclk4uJV1KOw+qqxCmz293wRmRjMSGxcXd8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=O6Za27OLflHibhD4ws8FWtzHc9u4v9TX6qfFNWqc6vetO9AAvwvQHqBRUZ1MbcGUT
-	 LBk879KeMQeO7xsy0vxFeJu7tHG0PnNgHmZRXREEP66Zq7w5BovG7rTwT7ivJnkr2w
-	 jLKsRZnUv/S4NNiJaZf+vTo5gRgoYJytfbJWyJvs0fsyVVWOE35Mup963P5254DPka
-	 LjlMjxjrfK83OLXgDoyDqyqT9njQBHqo4Y6QcMZ+1ZVdOHcUJ131ZbrxV2lXaZpyfP
-	 c/H+4n1RCiIGLFOdrHGtWOouv7rdHLvDsaCVpNHj1D7reLW3QJfFioltvrvFV1Avkh
-	 124gyKnz1c3xw==
-Date: Thu, 15 May 2025 12:53:55 -0300
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-To: Chun-Tse Shao <ctshao@google.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
-	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com,
-	sumanthk@linux.ibm.com, hca@linux.ibm.com, irogers@google.com
-Subject: Re: [PATCH V4] perf test: Allow tolerance for leader sampling test
-Message-ID: <aCYOEwgBLWyK7g3q@x1>
-References: <20250430140611.599078-1-tmricht@linux.ibm.com>
- <aBT0a5lGzUSLpWpX@x1>
- <CAJpZYjWW07J8J40ygx6-5q_rfKEoz2g0VYCC=Go3PM2pBKvDRw@mail.gmail.com>
- <aBUY-zaI6BxRvWWS@x1>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rrCTBBl0"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54FDn3Xo032297;
+	Thu, 15 May 2025 15:55:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=NDbeIq
+	zSfGVF6IdpJ2cVNjVG3CvEK6xmLyCZ9X3Wz0Q=; b=rrCTBBl0DuaPMw8x8QbUSD
+	4EiBfwzdMOcQ2iyMKRSBGC/IT5SohlXJ7rJPO+Zfhpjzn+4q2ill8a9lJpQJuiOr
+	JEwnbHWRM7Hr3Fmk3XFfpkkNa83YjxyTYs+E5Rg2PvNTbtA3xjkFvrKi+w/uBxWe
+	YencbEGnIxN+c/57h7YO28BEBHF0x5Q6hKE7MYbDGRUkmYy3VIKELrFTY4y0X44T
+	0bWQ7QbFdpQIe+lL5mLCV5h5EmqVT5e0Eeo0bDsqqz/rrRIsyb3ybB5CAkAyCbT/
+	Ty0XeAacYdwi29soyF0bdrF5RuIzxZPyEmPQjjL4pDcCWkPjs+nimipVItYTIPxA
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46nhg30q2m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 15:55:40 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54FE40p4024279;
+	Thu, 15 May 2025 15:55:39 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46mbfsb2sm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 May 2025 15:55:39 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54FFtZ7R45875552
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 May 2025 15:55:35 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0DD3201D6;
+	Thu, 15 May 2025 15:29:38 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7D750201D1;
+	Thu, 15 May 2025 15:29:38 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 15 May 2025 15:29:38 +0000 (GMT)
+Date: Thu, 15 May 2025 17:29:36 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>,
+        <linux-s390@vger.kernel.org>, <frankja@linux.ibm.com>,
+        <borntraeger@de.ibm.com>, <seiden@linux.ibm.com>, <nsg@linux.ibm.com>,
+        <nrb@linux.ibm.com>, <david@redhat.com>, <hca@linux.ibm.com>,
+        <agordeev@linux.ibm.com>, <svens@linux.ibm.com>, <gor@linux.ibm.com>
+Subject: Re: [PATCH v1 1/5] s390: remove unneeded includes
+Message-ID: <20250515172936.5447d582@p-imbrenda>
+In-Reply-To: <D9WSBQ41MJ2M.1KMCYVAHP1JFF@linux.ibm.com>
+References: <20250514163855.124471-1-imbrenda@linux.ibm.com>
+	<20250514163855.124471-2-imbrenda@linux.ibm.com>
+	<D9WSBQ41MJ2M.1KMCYVAHP1JFF@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aBUY-zaI6BxRvWWS@x1>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Cf0I5Krl c=1 sm=1 tr=0 ts=68260e7c cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=YI8s6InO9XsLWCBpwgcA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE1MDE1NSBTYWx0ZWRfX8aWx3wxt8wQS T2NAgj7RpabwoPqzRrasO2EQl1q1WSadL8NiOpBmNICdQAcZ1JrW+xq6BIFJkcy43XS83X89qEI qHcz1ULSPluKcQz1aNxhX0TD/qAsWNEGRARkevi9DbE8UraLeGKcJ+TmL1JnG3ERyOUxb2UOpn8
+ Rg3GRM1u4sYLOZOOiYMvZKapLXVy7Tj8smldyTS5arwAbGzSg4BGv3h5h0DR3z0b/iBBEjQZepy cxxamR+7iwRvsu8BkeQikQegfTniU9Ukkj2zsYE7U/N5FYn8kZW3mmfdexZq9dFjqrXczykfD5e jp08lM7fp5jcNjDx2B/vq2cG1e/XuVWcE9xtTZKKa9dXZBV6nM1B9Qhi8kHXG436tJdwgqneGbO
+ V+SN0Fl9MgNXAa4yn5jS9fIJr3kTqCJ6hmvQ17oNFj+1zNIqUVndhQzfiKMf4Jgo8NT3DSy6
+X-Proofpoint-GUID: WaUJGBACeeYxeRGtT_2qwni0yt2MFamB
+X-Proofpoint-ORIG-GUID: WaUJGBACeeYxeRGtT_2qwni0yt2MFamB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-15_06,2025-05-15_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ spamscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=999
+ impostorscore=0 phishscore=0 priorityscore=1501 mlxscore=0 bulkscore=0
+ adultscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
+ definitions=main-2505150155
 
-On Fri, May 02, 2025 at 04:11:55PM -0300, Arnaldo Carvalho de Melo wrote:
-> On Fri, May 02, 2025 at 11:21:07AM -0700, Chun-Tse Shao wrote:
-> > Hi Arnaldo,
-> > 
-> > I submitted the patch v1 and Thomas helped me to modify and submit v2
-> > and v3 while I was OOO. In this case I am not sure which one should be
-> > the author, maybe just keep it as Thomas.
-> 
-> >From the tags provided, I think it would be best to list you as the
-> author and Thomas a a Co-developer, like mentioned in:
-> 
-> Documentation/process/submitting-patches.rst
-> 
-> Co-developed-by: states that the patch was co-created by multiple developers;
-> it is used to give attribution to co-authors (in addition to the author
-> attributed by the From: tag) when several people work on a single patch.  Since
-> Co-developed-by: denotes authorship, every Co-developed-by: must be immediately
-> followed by a Signed-off-by: of the associated co-author.  Standard sign-off
-> procedure applies, i.e. the ordering of Signed-off-by: tags should reflect the
-> chronological history of the patch insofar as possible, regardless of whether
-> the author is attributed via From: or Co-developed-by:.  Notably, the last
-> Signed-off-by: must always be that of the developer submitting the patch.
-> 
-> Note, the From: tag is optional when the From: author is also the person (and
-> email) listed in the From: line of the email header.
-> 
-> Example of a patch submitted by the From: author::
-> 
->         <changelog>
-> 
->         Co-developed-by: First Co-Author <first@coauthor.example.org>
->         Signed-off-by: First Co-Author <first@coauthor.example.org>
->         Co-developed-by: Second Co-Author <second@coauthor.example.org>
->         Signed-off-by: Second Co-Author <second@coauthor.example.org>
->         Signed-off-by: From Author <from@author.example.org>
-> 
-> Example of a patch submitted by a Co-developed-by: author::
-> 
->         From: From Author <from@author.example.org>
-> 
->         <changelog>
-> 
->         Co-developed-by: Random Co-Author <random@coauthor.example.org>
->         Signed-off-by: Random Co-Author <random@coauthor.example.org>
->         Signed-off-by: From Author <from@author.example.org>
->         Co-developed-by: Submitting Co-Author <sub@coauthor.example.org>
->         Signed-off-by: Submitting Co-Author <sub@coauthor.example.org>
+On Thu, 15 May 2025 15:56:44 +0200
+"Christoph Schlameuss" <schlameuss@linux.ibm.com> wrote:
 
-I was expecting some reaction from you or Thomas, but since I got a ping
-from Thomas for this not being processed, I'll process it according to
-my assessment of this thread.
+> You added one unnecessary import to arch/s390/kvm/intercept.c
+> 
+> With that removed:
+> Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> 
+> 
+> On Wed May 14, 2025 at 6:38 PM CEST, Claudio Imbrenda wrote:
+> > Many files don't need to include asm/tlb.h or asm/gmap.h.
+> > On the other hand, asm/tlb.h does need to include asm/gmap.h.
+> >
+> > Remove all unneeded includes so that asm/tlb.h is not directly used by
+> > s390 arch code anymore. Remove asm/gmap.h from a few other files as
+> > well, so that now only KVM code, mm/gmap.c, and asm/tlb.h include it.
+> >
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > ---
+> >  arch/s390/include/asm/tlb.h | 1 +
+> >  arch/s390/include/asm/uv.h  | 1 -
+> >  arch/s390/kvm/intercept.c   | 1 +
+> >  arch/s390/mm/fault.c        | 1 -
+> >  arch/s390/mm/gmap.c         | 1 -
+> >  arch/s390/mm/init.c         | 1 -
+> >  arch/s390/mm/pgalloc.c      | 2 --
+> >  arch/s390/mm/pgtable.c      | 1 -
+> >  8 files changed, 2 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
+> > index f20601995bb0..56d5f9e0eb2e 100644
+> > --- a/arch/s390/include/asm/tlb.h
+> > +++ b/arch/s390/include/asm/tlb.h
+> > @@ -36,6 +36,7 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
+> >  
+> >  #include <asm/tlbflush.h>
+> >  #include <asm-generic/tlb.h>
+> > +#include <asm/gmap.h>
+> >  
+> >  /*
+> >   * Release the page cache reference for a pte removed by
+> > diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+> > index 46fb0ef6f984..eeb2db4783e6 100644
+> > --- a/arch/s390/include/asm/uv.h
+> > +++ b/arch/s390/include/asm/uv.h
+> > @@ -16,7 +16,6 @@
+> >  #include <linux/bug.h>
+> >  #include <linux/sched.h>
+> >  #include <asm/page.h>
+> > -#include <asm/gmap.h>
+> >  #include <asm/asm.h>
+> >  
+> >  #define UVC_CC_OK	0
+> > diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> > index a06a000f196c..b4834bd4d216 100644
+> > --- a/arch/s390/kvm/intercept.c
+> > +++ b/arch/s390/kvm/intercept.c
+> > @@ -16,6 +16,7 @@
+> >  #include <asm/irq.h>
+> >  #include <asm/sysinfo.h>
+> >  #include <asm/uv.h>
+> > +#include <asm/gmap.h>  
+> 
+> This import is not needed.
 
-Thanks,
+it is needed here, but it can be removed in patch 5
+(I'll fix that for v2)
 
-- Arnaldo
+> 
+> >  
+> >  #include "kvm-s390.h"
+> >  #include "gaccess.h"
+> > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> > index da84ff6770de..3829521450dd 100644
+> > --- a/arch/s390/mm/fault.c
+> > +++ b/arch/s390/mm/fault.c
+> > @@ -40,7 +40,6 @@
+> >  #include <asm/ptrace.h>
+> >  #include <asm/fault.h>
+> >  #include <asm/diag.h>
+> > -#include <asm/gmap.h>
+> >  #include <asm/irq.h>
+> >  #include <asm/facility.h>
+> >  #include <asm/uv.h>
+> > diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> > index a94bd4870c65..4869555ff403 100644
+> > --- a/arch/s390/mm/gmap.c
+> > +++ b/arch/s390/mm/gmap.c
+> > @@ -24,7 +24,6 @@
+> >  #include <asm/machine.h>
+> >  #include <asm/gmap.h>
+> >  #include <asm/page.h>
+> > -#include <asm/tlb.h>
+> >  
+> >  /*
+> >   * The address is saved in a radix tree directly; NULL would be ambiguous,
+> > diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> > index afa085e8186c..074bf4fb4ce2 100644
+> > --- a/arch/s390/mm/init.c
+> > +++ b/arch/s390/mm/init.c
+> > @@ -40,7 +40,6 @@
+> >  #include <asm/kfence.h>
+> >  #include <asm/dma.h>
+> >  #include <asm/abs_lowcore.h>
+> > -#include <asm/tlb.h>
+> >  #include <asm/tlbflush.h>
+> >  #include <asm/sections.h>
+> >  #include <asm/sclp.h>
+> > diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
+> > index e3a6f8ae156c..ddab36875370 100644
+> > --- a/arch/s390/mm/pgalloc.c
+> > +++ b/arch/s390/mm/pgalloc.c
+> > @@ -12,8 +12,6 @@
+> >  #include <asm/mmu_context.h>
+> >  #include <asm/page-states.h>
+> >  #include <asm/pgalloc.h>
+> > -#include <asm/gmap.h>
+> > -#include <asm/tlb.h>
+> >  #include <asm/tlbflush.h>
+> >  
+> >  unsigned long *crst_table_alloc(struct mm_struct *mm)
+> > diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
+> > index 9901934284ec..7df70cd8f739 100644
+> > --- a/arch/s390/mm/pgtable.c
+> > +++ b/arch/s390/mm/pgtable.c
+> > @@ -20,7 +20,6 @@
+> >  #include <linux/ksm.h>
+> >  #include <linux/mman.h>
+> >  
+> > -#include <asm/tlb.h>
+> >  #include <asm/tlbflush.h>
+> >  #include <asm/mmu_context.h>
+> >  #include <asm/page-states.h>  
+> 
 
-
->  
-> > Thanks,
-> > CT
-> > 
-> > On Fri, May 2, 2025 at 9:35 AM Arnaldo Carvalho de Melo <acme@kernel.org> wrote:
-> > >
-> > > On Wed, Apr 30, 2025 at 04:06:11PM +0200, Thomas Richter wrote:
-> > > > V4: Update to be applied onto linux-next
-> > > > V3: Added check for missing samples as suggested by Chun-Tse.
-> > > > V2: Changed bc invocation to return 0 on success and 1 on error.
-> > > >
-> > > > There is a known issue that the leader sampling is inconsistent, since
-> > > > throttle only affect leader, not the slave. The detail is in [1]. To
-> > > > maintain test coverage, this patch sets a tolerance rate of 80% to
-> > > > accommodate the throttled samples and prevent test failures due to
-> > > > throttling.
-> > > >
-> > > > [1] lore.kernel.org/20250328182752.769662-1-ctshao@google.com
-> > > >
-> > > > Signed-off-by: Chun-Tse Shao <ctshao@google.com>
-> > > > Suggested-by: Ian Rogers <irogers@google.com>
-> > > > Suggested-by: Thomas Richter <tmricht@linux.ibm.com>
-> > >
-> > > But who is the author? As-is this patch states Thomas Richter as the
-> > > author, but since there is also a Suggested-by and Tested-by Thomas
-> > > Richter, it makes me believe the author is Chun-Tse Shao, is that the
-> > > case?
-> > >
-> > > - Arnaldo
-> > >
-> > > > Tested-by: Thomas Richter <tmricht@linux.ibm.com>
-> > > > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > > > ---
-> > > >  tools/perf/tests/shell/record.sh | 33 ++++++++++++++++++++++++++------
-> > > >  1 file changed, 27 insertions(+), 6 deletions(-)
-> > > >
-> > > > diff --git a/tools/perf/tests/shell/record.sh b/tools/perf/tests/shell/record.sh
-> > > > index 05d91a663fda..587f62e34414 100755
-> > > > --- a/tools/perf/tests/shell/record.sh
-> > > > +++ b/tools/perf/tests/shell/record.sh
-> > > > @@ -240,22 +240,43 @@ test_leader_sampling() {
-> > > >      err=1
-> > > >      return
-> > > >    fi
-> > > > +  perf script -i "${perfdata}" | grep brstack > $script_output
-> > > > +  # Check if the two instruction counts are equal in each record.
-> > > > +  # However, the throttling code doesn't consider event grouping. During throttling, only the
-> > > > +  # leader is stopped, causing the slave's counts significantly higher. To temporarily solve this,
-> > > > +  # let's set the tolerance rate to 80%.
-> > > > +  # TODO: Revert the code for tolerance once the throttling mechanism is fixed.
-> > > >    index=0
-> > > > -  perf script -i "${perfdata}" > "${script_output}"
-> > > > +  valid_counts=0
-> > > > +  invalid_counts=0
-> > > > +  tolerance_rate=0.8
-> > > >    while IFS= read -r line
-> > > >    do
-> > > > -    # Check if the two instruction counts are equal in each record
-> > > >      cycles=$(echo $line | awk '{for(i=1;i<=NF;i++) if($i=="cycles:") print $(i-1)}')
-> > > >      if [ $(($index%2)) -ne 0 ] && [ ${cycles}x != ${prev_cycles}x ]
-> > > >      then
-> > > > -      echo "Leader sampling [Failed inconsistent cycles count]"
-> > > > -      err=1
-> > > > -      return
-> > > > +      invalid_counts=$(($invalid_counts+1))
-> > > > +    else
-> > > > +      valid_counts=$(($valid_counts+1))
-> > > >      fi
-> > > >      index=$(($index+1))
-> > > >      prev_cycles=$cycles
-> > > >    done < "${script_output}"
-> > > > -  echo "Basic leader sampling test [Success]"
-> > > > +  total_counts=$(bc <<< "$invalid_counts+$valid_counts")
-> > > > +  if (( $(bc <<< "$total_counts <= 0") ))
-> > > > +  then
-> > > > +    echo "Leader sampling [No sample generated]"
-> > > > +    err=1
-> > > > +    return
-> > > > +  fi
-> > > > +  isok=$(bc <<< "scale=2; if (($invalid_counts/$total_counts) < (1-$tolerance_rate)) { 0 } else { 1 };")
-> > > > +  if [ $isok -eq 1 ]
-> > > > +  then
-> > > > +     echo "Leader sampling [Failed inconsistent cycles count]"
-> > > > +     err=1
-> > > > +  else
-> > > > +    echo "Basic leader sampling test [Success]"
-> > > > +  fi
-> > > >  }
-> > > >
-> > > >  test_topdown_leader_sampling() {
-> > > > --
-> > > > 2.45.2
