@@ -1,239 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34B14242925
-	for <linux-s390@vger.kernel.org>; Fri, 16 May 2025 12:39:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C1E14A4F9
+	for <linux-s390@vger.kernel.org>; Fri, 16 May 2025 14:08:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747399201; cv=none; b=AR36VmhrFR1DWuDAnD1rJor9r+Q+qiLkDwc0dFYebad02ccDulFATs1+M46o1enmCIz9olE/y3cWchm8vzzJyaVzhkcAWaUnm0PUv2Gg9nBQ8M9032yfTm8h9iuxxsN3Bq19fpt5PK1S1STcDWQn9cIBULDuipNsvFCzDHAnLr8=
+	t=1747404485; cv=none; b=L0dcTTTlvtJHE0/iBMo+M6C2jalwTJLvij4YI0q5NH++peAjjQSkVGNIzzTPMLGPKz6Yu1XqAV0w60f+rvwBEHqi1/Nx4WbzHaQXjZoKhfuV3/cnVKEXBImos0CDfbJYkEGF3EALQ1z4TOhTefTp1dV3oTlNRfabzHweqxu3xtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747399201; c=relaxed/simple;
-	bh=rdOAlDn565rE1FqMI4nBJDb9BzleRulrsucs0xSkJLA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Se/yej7UG69lC+DTh7bMbAVnz/EWuhFcyx2W+Cvshbi/9KhY/+vC8Vkrkb3la4aWm0rMGbahxfvdP7enjx6l4Cnl5VRAFRHV9lQkeEzSU9rrYs//EYgkUYvDkVjxAEXPl+GOgy05WhgeuOv22YKELR9N8Z68My2Ciip4sk+grVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a8tg98+G; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1747404485; c=relaxed/simple;
+	bh=RK9aBFyd79+Q/HcASRcOyCtzdOyDdFJ0ghx50/zDN/w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nw9S+NbBXWgpmy2Kgmk5OxTfBLHN2iF41LMLoNQKbc+W7kHR85UO+YuvIS/wF64/8Fp7CJoOKuJzoN32QCxo+/2rBtwpNNZp+3+GcOkK38c6f8VzHiH5Y2MmvfXY/0JKN73LKnN/73zv1U1i1P+KUUKERFo4csTLfq+fxTipcVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gIy91Ko6; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a8tg98+G"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gIy91Ko6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747399198;
+	s=mimecast20190719; t=1747404482;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hiLZZy7QAtq/50XMExKGpNPia0HeTXt82qBD/QjAX4s=;
-	b=a8tg98+GvyQ4oA8fHZ1RYO2AK4cEYGhr5Dc6etsEV7j+0sehPQLB25vR1xWJw3wuZJ6TOR
-	K+hJqEvCRBdf4HYp61zVi5XArIuX9kO3LwygwQB9pcSquTONY3EOlBQIloDOcK6haDGVyv
-	GoMgXEcrE84eRY8mmbnBXnf//nrQCz4=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=Uq6KURHAsdiUcEMvv/uoqzWtUBzSDdD1xyqnhIAzcWM=;
+	b=gIy91Ko6Zbi19nU8rgJ7ljd69lfRlzHvPlJF/eUHAoc0BnklSpLOafokRDt+lOOAWUbOvE
+	MqhyaiFwTAVrNQDdxGSfoWbu1C+BeNjjZKQzXhTCstPTkMuGw2A4BoFLSeX1OZUbS36jZa
+	U2namWy3pu3bg9wntkmxEdQryUqdc78=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-582-CNhRKyjlN-2okdBU2f4zAQ-1; Fri, 16 May 2025 08:39:57 -0400
-X-MC-Unique: CNhRKyjlN-2okdBU2f4zAQ-1
-X-Mimecast-MFC-AGG-ID: CNhRKyjlN-2okdBU2f4zAQ_1747399196
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-441c96c1977so13386465e9.0
-        for <linux-s390@vger.kernel.org>; Fri, 16 May 2025 05:39:56 -0700 (PDT)
+ us-mta-211-WSYYvIcrNxezQtxjp3Oaug-1; Fri, 16 May 2025 10:08:00 -0400
+X-MC-Unique: WSYYvIcrNxezQtxjp3Oaug-1
+X-Mimecast-MFC-AGG-ID: WSYYvIcrNxezQtxjp3Oaug_1747404480
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-43ce8f82e66so11631965e9.3
+        for <linux-s390@vger.kernel.org>; Fri, 16 May 2025 07:08:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747399196; x=1748003996;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hiLZZy7QAtq/50XMExKGpNPia0HeTXt82qBD/QjAX4s=;
-        b=hxSusETRpPMl1beFpjR/IYaoMYm3kyrsNqR5shkQ0B9nhyWrdZULinsrIRRlsC21fQ
-         FQtsxaTssG7fYwNhJNqafmYathkrQ/Gjpvlxq5zBaTzx1MIiSYU11gQGdOv/DSgcdAxt
-         DzOtvVmADOCabYrb8+IV8ls5q2yXWZIDEfBN2RzcWe2j/jlEkOvmPpIJJRUgG/tMle2H
-         yXFCwRRVr+bYu5FiWAmjFRtzMRMARuOg6FeSTUKkvI7nfW7iL/U+qWJOxjBbdlrixfGa
-         VJb26YinzY8+Xrs1VeoyGHL0HL0gzY7RsRmjtRyM9yBM37n8aIL5iJeUQ0NlPkaG4DS3
-         coGw==
-X-Gm-Message-State: AOJu0YzwnOVNlkXWrCteQvXKK0Srf9qw2gW3r2azuSJZ60upnAVjUTCN
-	J6yRp5DZNbr2qUCtLcYgFbfvF8068zlFfw6G4iGqfIkBDHjotIrugE/IoBwo5KJdLUnjzORRYUi
-	Foqm/ce9QKwJ4cclxLJBQ2iJ7lRjVhXLH2KsDuSgf36k3zBEbLGzj1JwRKbot+gURiFfzcWfEjQ
-	==
-X-Gm-Gg: ASbGncuBzVJ6mQBjRSl23g7slA7gke+SEDLNo2FyvhcLKW+xzhH1PuB0bnwx1mAqglN
-	t/ospt6I/Mof9j4YibS2uu8Wi8tIxpSNK5oTZ77uSnuY3OJmkvHIG3gEnPgiNsBf+x7I3vFOQIv
-	ACjg11pAJ06Wh8UtqKIgFfycHAghHuKqzSiz01O0KeBER85zyr3N6zS52EBJlxopri9f079HuNo
-	U4bkEmp8tucVkynQ/EojGJe/dm2y8qVRVgO8ONUQ980cGGUKuNilQLO0dJcboVFJritsKAVadYD
-	gHagQj8++iamG2z7bpfhzUQJk0xa+9roAR74TLVrR3XFVPzXpfB+AemprrhD41cmlWtkbiIj
-X-Received: by 2002:a05:600c:c1b:b0:43c:e481:3353 with SMTP id 5b1f17b1804b1-442feffbb8dmr28003425e9.17.1747399195776;
-        Fri, 16 May 2025 05:39:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHPCjYc5Wqc+yI//ttOUMN3UV92gYVHaHXlQYA3K8J/bBkEM9DoFCaA+VbVbF4V9/mI2J6diA==
-X-Received: by 2002:a05:600c:c1b:b0:43c:e481:3353 with SMTP id 5b1f17b1804b1-442feffbb8dmr28002955e9.17.1747399195319;
-        Fri, 16 May 2025 05:39:55 -0700 (PDT)
-Received: from localhost (p200300d82f474700e6f9f4539ece7602.dip0.t-ipconnect.de. [2003:d8:2f47:4700:e6f9:f453:9ece:7602])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-442f3380498sm108750375e9.11.2025.05.16.05.39.54
+        d=1e100.net; s=20230601; t=1747404479; x=1748009279;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt
+         :content-language:from:references:cc:to:subject:user-agent
+         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Uq6KURHAsdiUcEMvv/uoqzWtUBzSDdD1xyqnhIAzcWM=;
+        b=NWtaU1xyUtJ957F84KJsRGnVMHuYEgNIFtHw/D+Q7RMLYqnyRvESkphur/swKNcHPe
+         f5Y6Xcw5kPY6UYyWn2gECYcdjpOR2JKnVcVOwvcJMKN2VX0hvArHmlWie6OY3jw7WQmE
+         eFXN5f4xe+xZAuq+sKGcf0Plfx92D9w9q41Bx6pZXDeUrY6Mg8HWKKL5OE5TrHn6Dx5j
+         RCvPG5Y5qr8DOOSDqMO5ttWhAeA0zZKg/uFBKBSvznnd/duPiXcYRy/2TC7Etkzs6yhH
+         RpNZzV+YlD4djqaEJVWtGRf2/YX1lNO3VBbYAQLofT/cwqPyrGNSRlnyP/p1hJmmt8z0
+         VcVg==
+X-Gm-Message-State: AOJu0YwRtEaiaCp9Y5/OKIdxRd2dhkuKm6NbhcFaOUBIFo9QhjjJuJyu
+	LHT/jYDFf9/TP/SUN+4n0Ho/1RmuanIJCK+0mA/CPqz17e9A4UDG808zXxaU9Pdn43VqIHsQlFe
+	bu+Pnzq2A3M0wL3BC0XQ26euSwO8WVHPEg+MTxSpowhjJSTiA36/qtnrXHr/P0KA=
+X-Gm-Gg: ASbGnctGEma8bqZciE9wgUv5TnhbtXWijiwDfsJqB/gmuACrf5z/0ySfCLP7A/wNdd6
+	w9BcDTPIfeZmQsZNyEAtYM7i5G787O7/f4g03pVD6wrtwt6pfVNtmJ0SHRwGa5itj/s+q1mHgDC
+	Te8UBErZS1TP1Iz1Q0dmMVWHiUfcV5o5yT5hNyObq5HrY+trKYCpIgOyJGlLNmgSw6ABnf3WAI/
+	RkAfba2GX/mpxz38KvJuI7CCZVnBJZRsnBMDlGFuPXru9dNkb5w2NVflwdQA589qY9c/f2FjXFU
+	1tCuGxdcYqOKsJbFqVv2LbIQROOygxxDHqdGGB1zj1v1UUg8kwk9sc7ZV2FuexppkCfXlODu42d
+	hNeN3SFNjRzm19bYZTJ9PE9Yn/cHNzeq18XrWWrs=
+X-Received: by 2002:a05:600c:3f07:b0:43d:77c5:9c1a with SMTP id 5b1f17b1804b1-442fd60b516mr39862105e9.4.1747404479444;
+        Fri, 16 May 2025 07:07:59 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IErUF+kUAa2DUbbfcj03racps/O2R2c/jJuyRwdI2xUqjpHejuSvMBsI2MJ8NaMr9Z5ueg8yA==
+X-Received: by 2002:a05:600c:3f07:b0:43d:77c5:9c1a with SMTP id 5b1f17b1804b1-442fd60b516mr39861295e9.4.1747404479012;
+        Fri, 16 May 2025 07:07:59 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f47:4700:e6f9:f453:9ece:7602? (p200300d82f474700e6f9f4539ece7602.dip0.t-ipconnect.de. [2003:d8:2f47:4700:e6f9:f453:9ece:7602])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-442f39e851bsm111513665e9.28.2025.05.16.07.07.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 May 2025 05:39:54 -0700 (PDT)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org,
-	linux-mm@kvack.org,
-	David Hildenbrand <david@redhat.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Huth <thuth@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Zi Yan <ziy@nvidia.com>,
-	Sebastian Mitterle <smitterl@redhat.com>
-Subject: [PATCH v1 3/3] s390/uv: improve splitting of large folios that cannot be split while dirty
-Date: Fri, 16 May 2025 14:39:46 +0200
-Message-ID: <20250516123946.1648026-4-david@redhat.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250516123946.1648026-1-david@redhat.com>
-References: <20250516123946.1648026-1-david@redhat.com>
+        Fri, 16 May 2025 07:07:57 -0700 (PDT)
+Message-ID: <a8632cbd-704f-4ca8-b44b-fdc7e641b943@redhat.com>
+Date: Fri, 16 May 2025 16:07:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/3] s390/uv: don't return 0 from make_hva_secure() if
+ the operation was not successful
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-mm@kvack.org,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
+ Matthew Wilcox <willy@infradead.org>, Zi Yan <ziy@nvidia.com>,
+ Sebastian Mitterle <smitterl@redhat.com>, stable@vger.kernel.org
+References: <20250516123946.1648026-1-david@redhat.com>
+ <20250516123946.1648026-2-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat
+In-Reply-To: <20250516123946.1648026-2-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Currently, starting a PV VM on an iomap-based filesystem with large
-folio support, such as XFS, will not work. We'll be stuck in
-unpack_one()->gmap_make_secure(), because we can't seem to make progress
-splitting the large folio.
+On 16.05.25 14:39, David Hildenbrand wrote:
+> If s390_wiggle_split_folio() returns 0 because splitting a large folio
+> succeeded, we will return 0 from make_hva_secure() even though a retry
+> is required. Return -EAGAIN in that case.
+> 
+> Otherwise, we'll return 0 from gmap_make_secure(), and consequently from
+> unpack_one(). In kvm_s390_pv_unpack(), we assume that unpacking
+> succeeded and skip unpacking this page. Later on, we run into issues
+> and fail booting the VM.
+> 
+> So far, this issue was only observed with follow-up patches where we
+> split large pagecache XFS folios. Maybe it can also be triggered with
+> shmem?
 
-The problem is that we require a writable PTE but a writable PTE under such
-filesystems will imply a dirty folio.
+Yes! I can reproduce it when allocating pages outside of the qemu process.
 
-So whenever we have a writable PTE, we'll have a dirty folio, and dirty
-iomap folios cannot currently get split, because
-split_folio()->split_huge_page_to_list_to_order()->filemap_release_folio()
-will fail in iomap_release_folio().
+$ echo force > /sys/kernel/mm/transparent_hugepage/shmem_enabled
+$ rm /dev/shm/vm-ram
+$ fallocate -l 4G /dev/shm/vm-ram
+$ /usr/libexec/qemu-kvm ... -object 
+memory-backend-file,id=mem0,size=4g,share=on,mem-path=/dev/shm/vm-ram -M 
+memory-backend=mem0
 
-So we will not make any progress splitting such large folios.
+LOADPARM=[        ]
 
-Until dirty folios can be split more reliably, let's manually trigger
-writeback of the problematic folio using
-filemap_write_and_wait_range(), and retry the split immediately
-afterwards exactly once, before looking up the folio again.
+Using virtio-blk.
+Using SCSI scheme.
+.........................................................................................................................
+qemu-kvm: KVM PV command 4 (KVM_PV_VERIFY) failed: header rc 102 rrc 1a 
+IOCTL rc: -22
+Protected boot has failed: 0xa02
+Guest crashed on cpu 0: disabled-wait
+PSW: 0x0002000080000000 0x0000000000004608
 
-Should this logic be part of split_folio()? Likely not; most split users
-don't have to split so eagerly to make any progress.
 
-For now, this seems to affect xfs, zonefs and erofs, and this patch
-makes it work again (tested on xfs only).
-
-While this could be considered a fix for 6795801366da ("xfs: Support
-large folios"), df2f9708ff1f ("zonefs: enable support for large folios")
-and ce529cc25b18 ("erofs: enable large folios for iomap mode"), before
-commit eef88fe45ac9 ("s390/uv: Split large folios in gmap_make_secure()"),
-we did not try splitting large folios at all. So it's all rather part of
-making SE compatible with file systems that support large folios. But to
-have some "Fixes:" tag, let's just use eef88fe45ac9.
-
-Not CCing stable, because there are a lot of dependencies, and it simply
-not working is not critical in stable kernels.
-
-Reported-by: Sebastian Mitterle <smitterl@redhat.com>
-Closes: https://issues.redhat.com/browse/RHEL-58218
-Fixes: eef88fe45ac9 ("s390/uv: Split large folios in gmap_make_secure()")
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/kernel/uv.c | 66 +++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 60 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index f6ddb2b54032e..d278bf0c09d1b 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -15,6 +15,7 @@
- #include <linux/pagemap.h>
- #include <linux/swap.h>
- #include <linux/pagewalk.h>
-+#include <linux/backing-dev.h>
- #include <asm/facility.h>
- #include <asm/sections.h>
- #include <asm/uv.h>
-@@ -338,22 +339,75 @@ static int make_folio_secure(struct mm_struct *mm, struct folio *folio, struct u
-  */
- static int s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio)
- {
--	int rc;
-+	int rc, tried_splits;
- 
- 	lockdep_assert_not_held(&mm->mmap_lock);
- 	folio_wait_writeback(folio);
- 	lru_add_drain_all();
- 
--	if (folio_test_large(folio)) {
-+	if (!folio_test_large(folio))
-+		return 0;
-+
-+	for (tried_splits = 0; tried_splits < 2; tried_splits++) {
-+		struct address_space *mapping;
-+		loff_t lstart, lend;
-+		struct inode *inode;
-+
- 		folio_lock(folio);
- 		rc = split_folio(folio);
-+		if (rc != -EBUSY) {
-+			folio_unlock(folio);
-+			return rc;
-+		}
-+
-+		/*
-+		 * Splitting with -EBUSY can fail for various reasons, but we
-+		 * have to handle one case explicitly for now: some mappings
-+		 * don't allow for splitting dirty folios; writeback will
-+		 * mark them clean again, including marking all page table
-+		 * entries mapping the folio read-only, to catch future write
-+		 * attempts.
-+		 *
-+		 * While the system should be writing back dirty folios in the
-+		 * background, we obtained this folio by looking up a writable
-+		 * page table entry. On these problematic mappings, writable
-+		 * page table entries imply dirty folios, preventing the
-+		 * split in the first place.
-+		 *
-+		 * To prevent a livelock when trigger writeback manually and
-+		 * letting the caller look up the folio again in the page
-+		 * table (turning it dirty), immediately try to split again.
-+		 *
-+		 * This is only a problem for some mappings (e.g., XFS);
-+		 * mappings that do not support writeback (e.g., shmem) do not
-+		 * apply.
-+		 */
-+		if (!folio_test_dirty(folio) || folio_test_anon(folio) ||
-+		    !folio->mapping || !mapping_can_writeback(folio->mapping)) {
-+			folio_unlock(folio);
-+			break;
-+		}
-+
-+		/*
-+		 * Ideally, we'd only trigger writeback on this exact folio. But
-+		 * there is no easy way to do that, so we'll stabilize the
-+		 * mapping while we still hold the folio lock, so we can drop
-+		 * the folio lock to trigger writeback on the range currently
-+		 * covered by the folio instead.
-+		 */
-+		mapping = folio->mapping;
-+		lstart = folio_pos(folio);
-+		lend = lstart + folio_size(folio) - 1;
-+		inode = igrab(mapping->host);
- 		folio_unlock(folio);
- 
--		if (rc != -EBUSY)
--			return rc;
--		return -EAGAIN;
-+		if (unlikely(!inode))
-+			break;
-+
-+		filemap_write_and_wait_range(mapping, lstart, lend);
-+		iput(mapping->host);
- 	}
--	return 0;
-+	return -EAGAIN;
- }
- 
- int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb)
 -- 
-2.49.0
+Cheers,
+
+David / dhildenb
 
