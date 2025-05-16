@@ -1,267 +1,275 @@
-Received: from smtp-fw-80009.amazon.com (smtp-fw-80009.amazon.com [99.78.197.220])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A161526AF3;
-	Fri, 16 May 2025 15:28:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=99.78.197.220
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747409309; cv=none; b=u4uxtwKI6oITiwih+wVp1a9yyuNcbV2zgExs6wWo6RiGouBlGqGocGOrlmuFx8Qxmu07BWXa1WCma20NbdDrfJCa9PHik9eQf+v7HG6mltIzwMS64fqc4wjdJUAxfefGtKZm/HdWg0HD1nEDpPn7diKYG+vY0gQim5n1cUjBgeg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747409309; c=relaxed/simple;
-	bh=KS18mCmBwG/oVexqoftqFNnI2Pv+d2v1jXLpreeKDCY=;
-	h=From:To:CC:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=ih/86XbS3vXjD6IVim48diR750ka/SbiPF/gIIcF/kZpkUob0vAXiQG4oLfJEI2PbhC/8Olz3ALt8fR6/aPgWuH+us4+uv7dEF6RvtD6Q/Pjy9N94ae+L5cZ/8woH2Ob2B7YKocCpy2K+GsU9rtBy/7hQGWvb19i6ycriiLalko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b=FeIM8Z8K; arc=none smtp.client-ip=99.78.197.220
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E61F71B4F09;
+	Fri, 16 May 2025 15:39:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1747409996; cv=fail; b=d2p2fXubuUB4TVHb3vNuJJfFU1/JmTbVhgnVGDtz87OweiEEFAMGANq0mpCvAAHBM5bUAGzxd5y1pC3QUsmIfgzeGfkkbrjqXAan/fMaaXu5XYXu5p01GrB+i2SatJxrT6jr+E3WRM/IlhvtoVh3MphVgAihq4zOHuO9EwXdwwk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1747409996; c=relaxed/simple;
+	bh=/wrIrNplj0BvfgWh/gdgWU5/YLwtOKPJaErkHiYwAhA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=H+HaH6u91tXxl8lIM18exxA8VZDf1oeLQLW76NUe8m+iJqdUDUnjVXW32fa56lJdjRVKNojQO9v4VmeNkZER4fG2g6eZP3x3CngWTDHYZsiCWiguGZ0yLbsdP1VgC+KhsGG/cV37QXQbcAV/YnYMn8wHPQagNumeHdty8QhSr50=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=LUwr/4+Y; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=Lci3kHIV; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.de header.i=@amazon.de header.b="FeIM8Z8K"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="LUwr/4+Y";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="Lci3kHIV"
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54GF0hxV020301;
+	Fri, 16 May 2025 15:39:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2025-04-25; bh=2CY+ZCJkSj77oKkC0A
+	gTsb9SPLdFuaYk8lLmC4ODvN4=; b=LUwr/4+YW4ajJwWMhC6bPzUE8QGlQ7auPY
+	fW/EIoCSDDuBmYIsWqel5gBkefWEYQ3WKeJ3dvwVt2TnKJcmhkzMTYPAL5m77ge6
+	H9OGKnjZ3boeF7XqzNNEKaQo1fIiQ92vLKleRTE11LfQ3TvzjBHn82tsKGjy0hjr
+	0eMIpxntazTP//x6nMJqSiRgmAYbuLy/mrq7cLWC0TeILpJWZzqHXVBXTpBCDDY0
+	fXRH37GzVLHzuAb6G8+6oyIR6vhYwqHSMy+85QNuGCJXiRRngZ8jONzABmS0j8+b
+	u6KX0FkK0AtZGvzHikRSTKC9mtxK7eEXGE9iAjvlz9ISeT8E4zXQ==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 46nre01nja-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 May 2025 15:39:33 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 54GEsrNp026127;
+	Fri, 16 May 2025 15:39:31 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2042.outbound.protection.outlook.com [104.47.66.42])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 46mbtard1w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 May 2025 15:39:31 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=y0py5ZuDZrblErc11kZ6086U6wIlZKbETi+fx7DxJwX4rO8hrMtSi1OZerO5JL7pC1MJAVmXXvPPyv22bUn5csaJtYsAPUqvGbCeSS69XWiDjmBUS1IFisAdqmCS4vulKkwl+PYNO7F9lMvw3IT5x/bpVwNBDIcLM7pg/lpDcYZX/Z9YxR63xy6G+afIIXTggXpmsHDLWZW2IOswBojdpCpDg5ZHQkL2wgWh7rsxnfWbs1qNB/b0BcM1l+vvaGY5if2WEq9wi3zzxVmOTFZxSCdV+oo1lt92Yxeq40mjbVadT32Z2qUiC6gydBywQW8BEgUUCUcSyNP0A+mgbcRuyw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2CY+ZCJkSj77oKkC0AgTsb9SPLdFuaYk8lLmC4ODvN4=;
+ b=mkjeHZVcC7+DEyHJY8d4wBrDod5QSgWnIy56vJDZeOz8mjsp1Fgbm+Y/1XT8Djpct25GzE/JBFKrCKSBSa+ZAbfnXnSwj7ZyIRxNjeL1motB1QaLhLojyjlK0BTwBqEvzqHpVzswgMQiMmXLcPtKcM99W/JAkQBvsc3zQVEn5Y6hAQRbRUziKvbCagZP4u+WoHuVYjcQUA6OvPLYW+TYbLRbeQWvPmjShAz1XRMKVA/nDsmdK5kcuqmo9DQrbU6/DNCX1d7OnA1GsqaJqKChRmEzKMC1xW2oT1cz0IkOICqHzUZJQXm2VvbT69yIzxoQjhRliUmKQhxTaSQESsjFUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazoncorp2;
-  t=1747409306; x=1778945306;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=/YGeJfXKIquYSt90tYMJ+el7wnECiC9xpMwa6JMR6os=;
-  b=FeIM8Z8KuDAPcndq66uQEdPjn33Y0ubbuJDxci9SWbN/isGE9HAWsRPl
-   YrgLTNX69DPbSddR+GOFTQT+H3sjcjy+1C3chTy+rFEHZsQltlbepszi9
-   hSvuzQVkT3Es9RKKeoKLDy39yU5Chrqll5eflmae1RQRHQu5yZ5uy9juK
-   c1VarOclAca951HhniU0ltYeL1SV9U5aedUJ9Phihk5uFU/FD3rmlu0Hf
-   8fkxRXUGREVku0pmmr32GDaxxWAgs9zSm6ZcH/DuAi6l7xkvgTxgMpqgY
-   VVy099TelrAdRRCY5BfSoBYumBYDhUtqcdCfCGMdalVk4Fk/vrCuNR3UO
-   g==;
-X-IronPort-AV: E=Sophos;i="6.15,294,1739836800"; 
-   d="scan'208";a="201345194"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
-  by smtp-border-fw-80009.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2025 15:28:22 +0000
-Received: from EX19MTAUWB001.ant.amazon.com [10.0.38.20:47743]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.49.20:2525] with esmtp (Farcaster)
- id 1137334b-40d1-491e-811e-d1ae65cd81a3; Fri, 16 May 2025 15:28:22 +0000 (UTC)
-X-Farcaster-Flow-ID: 1137334b-40d1-491e-811e-d1ae65cd81a3
-Received: from EX19EXOUWA001.ant.amazon.com (10.250.64.209) by
- EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Fri, 16 May 2025 15:28:20 +0000
-Received: from EX19MTAUWC001.ant.amazon.com (10.250.64.145) by
- EX19EXOUWA001.ant.amazon.com (10.250.64.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Fri, 16 May 2025 15:28:18 +0000
-Received: from email-imr-corp-prod-pdx-all-2b-5ec155c2.us-west-2.amazon.com
- (10.25.36.210) by mail-relay.amazon.com (10.250.64.145) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id
- 15.2.1544.14 via Frontend Transport; Fri, 16 May 2025 15:28:18 +0000
-Received: from dev-dsk-ptyadav-1c-43206220.eu-west-1.amazon.com (dev-dsk-ptyadav-1c-43206220.eu-west-1.amazon.com [172.19.91.144])
-	by email-imr-corp-prod-pdx-all-2b-5ec155c2.us-west-2.amazon.com (Postfix) with ESMTP id 00E5840281;
-	Fri, 16 May 2025 15:28:18 +0000 (UTC)
-Received: by dev-dsk-ptyadav-1c-43206220.eu-west-1.amazon.com (Postfix, from userid 23027615)
-	id 89B166204; Fri, 16 May 2025 17:28:17 +0200 (CEST)
-From: Pratyush Yadav <ptyadav@amazon.de>
-To: Mike Rapoport <rppt@kernel.org>
-CC: Andrew Morton <akpm@linux-foundation.org>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Andreas Larsson <andreas@gaisler.com>, "Andy
- Lutomirski" <luto@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, "Arnd
- Bergmann" <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Brian Cain
-	<bcain@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen
-	<dave.hansen@linux.intel.com>, "David S. Miller" <davem@davemloft.net>, "Dinh
- Nguyen" <dinguyen@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Guo Ren <guoren@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, "Huacai
- Chen" <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, Jiaxun Yang
-	<jiaxun.yang@flygoat.com>, Johannes Berg <johannes@sipsolutions.net>, "John
- Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>, Madhavan Srinivasan
-	<maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>, Matt Turner
-	<mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman
-	<mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Palmer Dabbelt
-	<palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>, "Richard
- Weinberger" <richard@nod.at>, Russell King <linux@armlinux.org.uk>, "Stafford
- Horne" <shorne@gmail.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
-	Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>, "Praveen
- Kumar" <pravkmr@amazon.de>, <linux-alpha@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-snps-arc@lists.infradead.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-csky@vger.kernel.org>,
-	<linux-hexagon@vger.kernel.org>, <loongarch@lists.linux.dev>,
-	<linux-m68k@lists.linux-m68k.org>, <linux-mips@vger.kernel.org>,
-	<linux-openrisc@vger.kernel.org>, <linux-parisc@vger.kernel.org>,
-	<linuxppc-dev@lists.ozlabs.org>, <linux-riscv@lists.infradead.org>,
-	<linux-s390@vger.kernel.org>, <linux-sh@vger.kernel.org>,
-	<sparclinux@vger.kernel.org>, <linux-um@lists.infradead.org>,
-	<linux-arch@vger.kernel.org>, <linux-mm@kvack.org>, <x86@kernel.org>
-Subject: Re: [PATCH v2 10/13] arch, mm: set high_memory in free_area_init()
-In-Reply-To: <20250313135003.836600-11-rppt@kernel.org>
-References: <20250313135003.836600-1-rppt@kernel.org>
-	<20250313135003.836600-11-rppt@kernel.org>
-Date: Fri, 16 May 2025 17:28:17 +0200
-Message-ID: <mafs05xi0o9ri.fsf@amazon.de>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2CY+ZCJkSj77oKkC0AgTsb9SPLdFuaYk8lLmC4ODvN4=;
+ b=Lci3kHIV4BRk0D5AaQ0NrMu2F3JGF2yp6rQ0D/pyIx24ggl4gPM9Jj/thRoEv/fb1VMabDrhESQpdoxnE+mlGj0FAJ78pm9YqyhDuKv8RDTS6KOKJEjxbNBRFDpbmP+mT+N5+CCLp65kHxF5lB9UnBqMP9sdAUZVb7fGssDVVj4=
+Received: from PH0PR10MB5777.namprd10.prod.outlook.com (2603:10b6:510:128::16)
+ by DS0PR10MB8173.namprd10.prod.outlook.com (2603:10b6:8:1f9::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8722.30; Fri, 16 May
+ 2025 15:39:23 +0000
+Received: from PH0PR10MB5777.namprd10.prod.outlook.com
+ ([fe80::75a8:21cc:f343:f68c]) by PH0PR10MB5777.namprd10.prod.outlook.com
+ ([fe80::75a8:21cc:f343:f68c%6]) with mapi id 15.20.8722.027; Fri, 16 May 2025
+ 15:39:22 +0000
+Date: Fri, 16 May 2025 11:39:19 -0400
+From: "Liam R. Howlett" <Liam.Howlett@oracle.com>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        James Houghton <jthoughton@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>,
+        Yang Shi <yang@os.amperecomputing.com>,
+        David Hildenbrand <david@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, pbonzini@redhat.com,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] KVM: s390: rename PROT_NONE to PROT_TYPE_DUMMY
+Message-ID: <fka5tjy7m75csanhm5sbagzp64yj7rc2hlklvd2qolesjjalx2@bkx4ul3a6byf>
+Mail-Followup-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	James Houghton <jthoughton@google.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>, Yang Shi <yang@os.amperecomputing.com>, 
+	David Hildenbrand <david@redhat.com>, Matthew Wilcox <willy@infradead.org>, 
+	Janosch Frank <frankja@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, pbonzini@redhat.com, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <cover.1747338438.git.lorenzo.stoakes@oracle.com>
+ <3cbd58e6fb573f9591b43abeec66e6e2f3682f7e.1747338438.git.lorenzo.stoakes@oracle.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3cbd58e6fb573f9591b43abeec66e6e2f3682f7e.1747338438.git.lorenzo.stoakes@oracle.com>
+User-Agent: NeoMutt/20240425
+X-ClientProxiedBy: YT4PR01CA0417.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:10b::21) To PH0PR10MB5777.namprd10.prod.outlook.com
+ (2603:10b6:510:128::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR10MB5777:EE_|DS0PR10MB8173:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7db15255-e415-49e3-f9c2-08dd948fd4c7
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?QbTdrxEZcslJjGulcnTmoRdl3xllkSJ5AAhJGINT10oRJ5ysNsCUi8ZzZb/j?=
+ =?us-ascii?Q?pBLGcqgr/No6He745DNH8/FWSDtK0VmoA0PG/hVLR7NRAOdAVxZplFCTt0M5?=
+ =?us-ascii?Q?siIxkq6NUxL8g31AdXuNIbPSaHcekVhejmYoRoJT3K9TnYVtqnMP1/cx2nN8?=
+ =?us-ascii?Q?GgzYun0678OzT8uiXIE5NlfSeUt0IfhnOiLBoQUzKp1hm10CTqV7SUpvX8Pp?=
+ =?us-ascii?Q?jOLaDyi5fUgtOGo8coq8eXK4KBJ3bsYKFPGXP5wUJFZEgI5V4ozsjI2T9xFr?=
+ =?us-ascii?Q?fj+GxFpe37I6Cti2OjB9qs/cDue1EoqvCulUudTLytfn+JkZSTTdr7HtueZM?=
+ =?us-ascii?Q?moAOMaBtvlzN+x3++agoJyE3zSnl+NFBX8bg7SxDpL0m4TS6zdwn7pKWwbtu?=
+ =?us-ascii?Q?r10nsyJYHA4PrqSHJlF3YbLVxtbeBn+/Eb3kK6+tCf3UYzpNeTxFCFd1xyoz?=
+ =?us-ascii?Q?S2UOdgpX1jP2E2MtruWKJgR910ThcVk4qLcit194WHd16rEOkAEc6OAkm4CO?=
+ =?us-ascii?Q?kFevceR3OX+VJkGPmEGfn0g7OPnnns1cnQphhV+ncC5CnDpvAs/tSdq3v23k?=
+ =?us-ascii?Q?Lvpz3/sw6k2wP8X5NE4v3hDteiLxqqkwrESb+YTKGTNDk0cvMh7gaj9mXEBL?=
+ =?us-ascii?Q?U85Qtp3761Py6faTwLvOeF32wJ+GG8GZudbQYIRtG7DCw3zx7ebaIQLtLPSK?=
+ =?us-ascii?Q?oB2My0VjA5/rA0FIhAuUh4ueBfIQgkZQWZtultEnRrAdGnhqtJa1W2FXeX8P?=
+ =?us-ascii?Q?JTgx42dgBPc2Eoajyv39Kh7wc8xlCkex+EyJy6scneL3u5O3dysMPBVklOyg?=
+ =?us-ascii?Q?ZgfMY8noIINoWA4s6Vb9DnLYvN3lRCffT4HS7nGTrEV/8athOE2S9ivgEqAI?=
+ =?us-ascii?Q?X0Kfh2YRKdQVTp7MUfn10PcYdh6s9YDF3yqpxBU4YmlEKk5N+9jEEiW8R5tF?=
+ =?us-ascii?Q?I6o0qNp+v6LyVBaIY1uPXAKDj3ba62mqREOPweV0PnxxVfOnSfFCOfd8mOHW?=
+ =?us-ascii?Q?CXwXfQQnzsWQlM4hAxFnD9docJc99lOfX1qEx5d3l7evz9qZqtGKf3LKgjIB?=
+ =?us-ascii?Q?K6t9bhj+sFiH1ModDH+bELXbRPCuR3QAxNbqcDoxGsJ+BuT1f1wplffqlqgP?=
+ =?us-ascii?Q?wZ9RD3qtxY3yaQ2x41Kw4k5hSYYnRoQ8HVadS5AaSAXpoPNpwJ7GpmNylndG?=
+ =?us-ascii?Q?4vReTkRyybIZ71+8rgSG7OrQhmWQjSnNeQG8GWdAdXk6eYSlTHRM5Dvrk6kK?=
+ =?us-ascii?Q?dv5b52P1aLPgN4GI0PTul/Q+wSIubWz8xy++pcFvpZU5kuHq1N+KX9EtV6O0?=
+ =?us-ascii?Q?Tsuq/BDsGF+Gwz9u4jCvNSA1im4taX3tcdJb4+2t1697LU3aShDoQVJhG4pt?=
+ =?us-ascii?Q?PVC/wWBSxrNePOrnQ0J894Uzu9wpoDMbCAjvS1GDAuwvbmLt+55On4/k4jgn?=
+ =?us-ascii?Q?mNIxFQ4wIBA=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5777.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?ChcAC6xPYcnJKZ6CnviNOwi+0xU407dP2A9mQkZemM1/lxKDg2dcVPH8sksO?=
+ =?us-ascii?Q?KsWaZGJjqmcQf1FgSzc19NZA6FbpeePIYX8dvOYHFBEEd71wbRLbrYp4VJ3J?=
+ =?us-ascii?Q?SsGKPBlyytjCkAQVAikFkya/zWUoAXvskIV9cRxK+RlLOqJ3fv7ZqTQFtMgy?=
+ =?us-ascii?Q?KQep4aL2ZkJ+F2lI63rYbKU3rnQA/6kbqqq8ius7lDHCrIRZbLOOQEYD82I2?=
+ =?us-ascii?Q?TUZ7BfBq9wCiEjZmz7XyM9omtXTm9ngzOj3r+roXnq1iRMcp4UTcW3CvbO+g?=
+ =?us-ascii?Q?gIRklPR8uL/+Qxm7io85drkDMIl3zLEDxjZOZ/h7zctmJen23AUsbm9ZW/kB?=
+ =?us-ascii?Q?X62+Z8FCC8fzBPMh2T0NsgnX9hho+iKDAdegj6PDp1gDVOeGr+JGDoeIJ/Az?=
+ =?us-ascii?Q?XQgJ5xclulKpLWXTmI01ueGFwv+DBST+Q8Ognrm7C6QRwVlW1fFhV54ogTcJ?=
+ =?us-ascii?Q?vXzUvPnM9ehmWKuaWo0nwr7YdjPbMkNC3weOpmeXUjN2YFYZQPCqxBa4x0vz?=
+ =?us-ascii?Q?kE4/vLqA61hbml/s6QiPJHhqC0DH28AB0XxkA2Ja3uZq2ekhqkdxlrXZr41C?=
+ =?us-ascii?Q?+sxAbHwTvMFdmDjBHI/e8DQMNcwTuJ6g1s6IaS00Y/4cc8ojAWka9Y8wpEzM?=
+ =?us-ascii?Q?TUGuEarijYwkVJyp7T4/h7NfO1WAQ8qiBPCSwfmhavTBTpfJdyBXkiDV919w?=
+ =?us-ascii?Q?YV9HiDP+grY6HwQINSEAOs84hPbtsQOv1BtrtqRU9NEbngGKywq4yBNU4sDH?=
+ =?us-ascii?Q?aTSkXIOgz2nQwWeDM99n19GXYkLXSE6EPSWHBQlLt/9is+97l8cXukLsaLRr?=
+ =?us-ascii?Q?8B6QJ7Awov4SSHjacs2gl93pxXX+271yK9iO0II1uyiT5S6nbjs5gfpke8Gx?=
+ =?us-ascii?Q?r+AhpnOn3AcDIiJh5xrxUb5gPhhJexsBz6GoyM5aSID3zxORiv0IT2IGz0MN?=
+ =?us-ascii?Q?+7if0oEn0DKH8YtZ49SnkH69oLqoGiFkGxLcbQM/S7Za/I+Fq5H1eTIQ7wZy?=
+ =?us-ascii?Q?4TdDZLVpKAQ+QihsUVLlVwyV/QtSMMWqL/Yi0bkxTaSL+qu3VR6C56lxm1ok?=
+ =?us-ascii?Q?W3cKkpjUzipXASprG69JYQ0sQEgJZ79dzHxrsNlIbqWDGghaCOYEKi98Qpap?=
+ =?us-ascii?Q?Kgrbl45AyqUkU1yT8cnlNAZRACJlHtFw0CgTYv7bBDK/tuPz2wZ8DR1LWxmT?=
+ =?us-ascii?Q?xjj8OOGOxH1aasQaeR9gcp/P9c6sl3WmiVboDZfANEE3qfrvb5DgljdDn4Fv?=
+ =?us-ascii?Q?4u1QAAxPJOA2G70BuyR9vV83b6uWh+SB81J/TRrf/BTMJzyRm3BSqbOsu1oa?=
+ =?us-ascii?Q?0Eveq4sg0NPwhhP7r3MCJ8GdKC3Y/cOz/fupBEweXk5y0DC1yhZNJioqH8QA?=
+ =?us-ascii?Q?KdnWqzZrHqmibyRtvvWNqnRhMr7+yLKMcg4QtEJMDZbiGNdscbR1/xLCEo0H?=
+ =?us-ascii?Q?cpNAmWT6KUhTNeRhvbnDyOEwEih6Yo5nL69SdP1cWIXAy9Tyb6dccSNFu6OC?=
+ =?us-ascii?Q?X4GHMnIiEXctt4DRmxHSpDhSH3SAOrXKEC6wqaamSKsDOHPrdgNI0nDI4wXl?=
+ =?us-ascii?Q?8RwuVCFsXNiEcuk36LB2xLb0bckE+E/NJBjy6/1b?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	mgs+8ZD+VbodeWromJoX7vXouXvRTGQwFDA3O5lXcqtaSR6dA/B0I1pBrNP6UoSKm373bbWyN4qkdCnz9uzJX4GnWzZMMnd+gsiA0BNAEKcucXCqkrS0D0858an68xb2A0yDSzJRg8KlXyDI+RsSFg6w1ifZ+mpuSxdVWqWi8RcVcrnbAlAPv8LKIFMikSoBP/xW0fi6+0pgeD0PDN2iuVSrZZ5jUJvOwTVkMkGxXrZYJ82iYiW5kRZPzTagLwkfwDrOC3Kmcn9Q6Ci1mWvGMkC2kIXqmzh+IZLKEGnQVVVhcyT2Y+/iU6uAO3A/ZVI4s1WoWMHL8iHqGM5MquGTmBhkrKvbv+cAPC3Xo8xV975I4VMp+oXlLSLL7E/l/pbT7oaryY/r5lkVm4Qr59pXe/vzqbHT7MSrQy/lSqK6qWkWrt9syGiMgxqSXzvVggEGmZsNzEMML8vjcJ438JD8PqyhXp0jsbQnnSjWDR3RXTy8c1MqZRe6soKGawIEjVVYWLRJdVg7jqQrvlYfzln4z+A/DFTF3v9bsDsVifexQwkqvTyYcE0Fvd+m/kLE8clTwdxd1oWjZN876Y6LPDoye5P3p1bx7nfVRnEwniNEvhQ=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7db15255-e415-49e3-f9c2-08dd948fd4c7
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5777.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2025 15:39:22.8828
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: FRhPpa+wY8OetoN+Vkd0xeizM5rCrtwGCfwKvpLQrXQ/ynMHjOD6iTQSUXxvVtzR54DzaqTBXRCiBgH4DrrQGg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR10MB8173
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-16_05,2025-05-16_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0
+ mlxlogscore=999 phishscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2505070000 definitions=main-2505160153
+X-Proofpoint-GUID: 4dWwFwenUX9_zc9S0QLnwA0s9smKudjI
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE2MDE1MiBTYWx0ZWRfXzNlt4g0oRUyb cVlZLB4Dz7ieK23u0rFT3nHpJp3IVD1dKr/2m/Deo1lngssS65kt3+1nlw3zDZVxMVAZrhc9Ib1 FWO3kjVsk4lCR1js6SWulVSfeYDGofwTGiSychexhDz8rKZI89oCIV56lsK3x+lhx4a7c1idpob
+ GMxnMfXoyUqumDYJxhUcTKu7eAz0vCE8f6A+IMVPpu3PdgsKLc1fsRK+K/VOoYb+pdcrL/rjbRD 2pPgsRiYJG8C/zFz3dXKDhGEvd8cYue8LTYwdQ8soAwSLiH2PNLfdDT5DK8TwVj9+CqRXRZ6ixq f6Ezcu21hLF5mZhz6Ylbi35KYif4OVL0CeHha/mP3zm2ufxptiLOQL4WhxYujQBjRaechjrO1AJ
+ AfjdfSbXV32JsSCMakj34/5C22da5cAZtOZhMlc4KQ8S2NGGlOU1TVqATxlo8WHVDajm3fNX
+X-Proofpoint-ORIG-GUID: 4dWwFwenUX9_zc9S0QLnwA0s9smKudjI
+X-Authority-Analysis: v=2.4 cv=O9s5vA9W c=1 sm=1 tr=0 ts=68275c35 b=1 cx=c_pps a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17 a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19 a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19
+ a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=GoEa3M9JfhUA:10 a=VwQbUJbxAAAA:8 a=QyXUC8HyAAAA:8 a=yPCof4ZbAAAA:8 a=TAZUD9gdAAAA:8 a=VnNF1IyMAAAA:8 a=vzhER2c_AAAA:8 a=20KFwNOVAAAA:8 a=qOAbiPNdiR3Q5f66-8UA:9 a=CjuIK1q_8ugA:10
+ a=f1lSKsbWiCfrRWj5-Iac:22 a=0YTRHmU2iG2pZC6F1fw2:22 cc=ntf awl=host:14694
 
-Hi Mike, Andrew,
+* Lorenzo Stoakes <lorenzo.stoakes@oracle.com> [250515 16:15]:
+> The enum type prot_type declared in arch/s390/kvm/gaccess.c declares an
+> unfortunate identifier within it - PROT_NONE.
+> 
+> This clashes with the protection bit define from the uapi for mmap()
+> declared in include/uapi/asm-generic/mman-common.h, which is indeed what
+> those casually reading this code would assume this to refer to.
+> 
+> This means that any changes which subsequently alter headers in any way
+> which results in the uapi header being imported here will cause build
+> errors.
+> 
+> Resolve the issue by renaming PROT_NONE to PROT_TYPE_DUMMY.
+> 
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> Suggested-by: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>
+> Fixes: b3cefd6bf16e ("KVM: s390: Pass initialized arg even if unused")
+> Cc: stable@vger.kernel.org
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202505140943.IgHDa9s7-lkp@intel.com/
+> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Acked-by: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>
+> Acked-by: Yang Shi <yang@os.amperecomputing.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
 
-On Thu, Mar 13 2025, Mike Rapoport wrote:
+Acked-by: Liam R. Howlett <Liam.Howlett@oracle.com>
 
-> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
->
-> high_memory defines upper bound on the directly mapped memory.
-> This bound is defined by the beginning of ZONE_HIGHMEM when a system has
-> high memory and by the end of memory otherwise.
->
-> All this is known to generic memory management initialization code that
-> can set high_memory while initializing core mm structures.
->
-> Add a generic calculation of high_memory to free_area_init() and remove
-> per-architecture calculation except for the architectures that set and
-> use high_memory earlier than that.
->
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>	# x86
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > ---
->  arch/alpha/mm/init.c         |  1 -
->  arch/arc/mm/init.c           |  2 --
->  arch/arm64/mm/init.c         |  2 --
->  arch/csky/mm/init.c          |  1 -
->  arch/hexagon/mm/init.c       |  6 ------
->  arch/loongarch/kernel/numa.c |  1 -
->  arch/loongarch/mm/init.c     |  2 --
->  arch/microblaze/mm/init.c    |  2 --
->  arch/mips/mm/init.c          |  2 --
->  arch/nios2/mm/init.c         |  6 ------
->  arch/openrisc/mm/init.c      |  2 --
->  arch/parisc/mm/init.c        |  1 -
->  arch/riscv/mm/init.c         |  1 -
->  arch/s390/mm/init.c          |  2 --
->  arch/sh/mm/init.c            |  7 -------
->  arch/sparc/mm/init_32.c      |  1 -
->  arch/sparc/mm/init_64.c      |  2 --
->  arch/um/kernel/um_arch.c     |  1 -
->  arch/x86/kernel/setup.c      |  2 --
->  arch/x86/mm/init_32.c        |  3 ---
->  arch/x86/mm/numa_32.c        |  3 ---
->  arch/xtensa/mm/init.c        |  2 --
->  mm/memory.c                  |  8 --------
->  mm/mm_init.c                 | 30 ++++++++++++++++++++++++++++++
->  mm/nommu.c                   |  2 --
->  25 files changed, 30 insertions(+), 62 deletions(-)
-
-This patch causes a BUG() when built with CONFIG_DEBUG_VIRTUAL and
-passing in the cma= commandline parameter:
-
-    ------------[ cut here ]------------
-    kernel BUG at arch/x86/mm/physaddr.c:23!
-    ception 0x06 IP 10:ffffffff812ebbf8 error 0 cr2 0xffff88903ffff000
-    CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.15.0-rc6+ #231 PREEMPT(undef)
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Arch Linux 1.16.3-1-1 04/01/2014
-    RIP: 0010:__phys_addr+0x58/0x60
-    Code: 01 48 89 c2 48 d3 ea 48 85 d2 75 05 e9 91 52 cf 00 0f 0b 48 3d ff ff ff 1f 77 0f 48 8b 05 20 54 55 01 48 01 d0 e9 78 52 cf 00 <0f> 0b 90 0f 1f 44 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90
-    RSP: 0000:ffffffff82803dd8 EFLAGS: 00010006 ORIG_RAX: 0000000000000000
-    RAX: 000000007fffffff RBX: 00000000ffffffff RCX: 0000000000000000
-    RDX: 000000007fffffff RSI: 0000000280000000 RDI: ffffffffffffffff
-    RBP: ffffffff82803e68 R08: 0000000000000000 R09: 0000000000000000
-    R10: ffffffff83153180 R11: ffffffff82803e48 R12: ffffffff83c9aed0
-    R13: 0000000000000000 R14: 0000001040000000 R15: 0000000000000000
-    FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
-    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    CR2: ffff88903ffff000 CR3: 0000000002838000 CR4: 00000000000000b0
-    Call Trace:
-     <TASK>
-     ? __cma_declare_contiguous_nid+0x6e/0x340
-     ? cma_declare_contiguous_nid+0x33/0x70
-     ? dma_contiguous_reserve_area+0x2f/0x70
-     ? setup_arch+0x6f1/0x870
-     ? start_kernel+0x52/0x4b0
-     ? x86_64_start_reservations+0x29/0x30
-     ? x86_64_start_kernel+0x7c/0x80
-     ? common_startup_64+0x13e/0x141
-
-The reason is that __cma_declare_contiguous_nid() does:
-
-    	highmem_start = __pa(high_memory - 1) + 1;
-
-If dma_contiguous_reserve_area() (or any other CMA declaration) is
-called before free_area_init(), high_memory is uninitialized. Without
-CONFIG_DEBUG_VIRTUAL, it will likely work but use the wrong value for
-highmem_start.
-
-Among the architectures this patch touches, the below call
-dma_contiguous_reserve_area() _before_ free_area_init():
-
-- x86
-- s390
-- mips
-- riscv
-- xtensa
-- loongarch
-- csky
-
-The below call it _after_ free_area_init():
-- arm64
-
-And the below don't call it at all:
-- sparc
-- nios2
-- openrisc
-- hexagon
-- sh
-- um
-- alpha
-
-One possible fix would be to move the calls to
-dma_contiguous_reserve_area() after free_area_init(). On x86, it would
-look like the diff below. The obvious downside is that moving the call
-later increases the chances of allocation failure. I'm not sure how much
-that actually matters, but at least on x86, that means crash kernel and
-hugetlb reservations go before DMA reservation. Also, adding a patch
-like that at rc7 is a bit risky.
-
-The other option would be to revert this. I tried a revert, but it isn't
-trivial. It runs into merge conflicts in pretty much all of the arch
-files. Maybe reverting patches 11, 12, and 13 as well would make it
-easier but I didn't try that.
-
-Which option should we take? If we want to move
-dma_contiguous_reserve_area() a bit further down the line then I can
-send a patch doing that on the rest of the architectures. Otherwise I
-can try my hand at the revert.
-
---- 8< ---
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 9d2a13b37833..ca6928dde0c9 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -1160,7 +1160,6 @@ void __init setup_arch(char **cmdline_p)
- 	x86_flattree_get_config();
- 
- 	initmem_init();
--	dma_contiguous_reserve(max_pfn_mapped << PAGE_SHIFT);
- 
- 	if (boot_cpu_has(X86_FEATURE_GBPAGES)) {
- 		hugetlb_cma_reserve(PUD_SHIFT - PAGE_SHIFT);
-@@ -1178,6 +1177,8 @@ void __init setup_arch(char **cmdline_p)
- 
- 	x86_init.paging.pagetable_init();
- 
-+	dma_contiguous_reserve(max_pfn_mapped << PAGE_SHIFT);
-+
- 	kasan_init();
- 
- 	/*
-
--- 
-Regards,
-Pratyush Yadav
-
-
-
-Amazon Web Services Development Center Germany GmbH
-Tamara-Danz-Str. 13
-10243 Berlin
-Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-Eingetragen am Amtsgericht Charlottenburg unter HRB 257764 B
-Sitz: Berlin
-Ust-ID: DE 365 538 597
-
+>  arch/s390/kvm/gaccess.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+> index f6fded15633a..4e5654ad1604 100644
+> --- a/arch/s390/kvm/gaccess.c
+> +++ b/arch/s390/kvm/gaccess.c
+> @@ -318,7 +318,7 @@ enum prot_type {
+>  	PROT_TYPE_DAT  = 3,
+>  	PROT_TYPE_IEP  = 4,
+>  	/* Dummy value for passing an initialized value when code != PGM_PROTECTION */
+> -	PROT_NONE,
+> +	PROT_TYPE_DUMMY,
+>  };
+>  
+>  static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva, u8 ar,
+> @@ -334,7 +334,7 @@ static int trans_exc_ending(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+>  	switch (code) {
+>  	case PGM_PROTECTION:
+>  		switch (prot) {
+> -		case PROT_NONE:
+> +		case PROT_TYPE_DUMMY:
+>  			/* We should never get here, acts like termination */
+>  			WARN_ON_ONCE(1);
+>  			break;
+> @@ -804,7 +804,7 @@ static int guest_range_to_gpas(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+>  			gpa = kvm_s390_real_to_abs(vcpu, ga);
+>  			if (!kvm_is_gpa_in_memslot(vcpu->kvm, gpa)) {
+>  				rc = PGM_ADDRESSING;
+> -				prot = PROT_NONE;
+> +				prot = PROT_TYPE_DUMMY;
+>  			}
+>  		}
+>  		if (rc)
+> @@ -962,7 +962,7 @@ int access_guest_with_key(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar,
+>  		if (rc == PGM_PROTECTION)
+>  			prot = PROT_TYPE_KEYC;
+>  		else
+> -			prot = PROT_NONE;
+> +			prot = PROT_TYPE_DUMMY;
+>  		rc = trans_exc_ending(vcpu, rc, ga, ar, mode, prot, terminate);
+>  	}
+>  out_unlock:
+> -- 
+> 2.49.0
+> 
