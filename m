@@ -1,23 +1,60 @@
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 671A71B0F1E;
-	Mon, 19 May 2025 15:54:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B0328852F;
+	Mon, 19 May 2025 16:12:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747670079; cv=none; b=rBLlsLhodv5aVC3fnOC3DtAvQndgp1+rnpVZXw3ayFaiGuwzftCkmPYOzjg91wMp/1DI/R5WF437eCecFmcJH0RxlvHFhjjPOgzOYMhzHVfmiPUWcvd3GqRpWoVIIFhw3IAJ343VdmINPmR5QWAth3Zry/5PA8dG43/Z2eG9AIQ=
+	t=1747671173; cv=none; b=hT9zcbqW1uEE1feeAQusW8sLYFPLdDKAEWiURQvUxgeLewxZvYQP8tNyx5Ji/RMfP4ZuUW/ToT3lrcIyYCC5d8/aIld8Hgi7fyCnUGxVkTMPOvcwRq/HQhnq9hMjzU1ruWganNMNjnOqst/1jGpSZVrrUKa6rqNo3eJ5BRl24U4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747670079; c=relaxed/simple;
-	bh=7gl9V0TLl5TRxN17sl3UTzjQlT+qwCRe+E7UdTNWZ/w=;
+	s=arc-20240116; t=1747671173; c=relaxed/simple;
+	bh=0FGdQRX9yNviOG8w2LZFl68BDWbCCJVv9JvAf65PiDk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uR8V0tTQL4TpINh7JtrDaIbgUo170Uj68pa3Z16FsFiBxVDaZer3N/X5unW4RxoRDdaDDXyT12BbHbTQVsLDFNss4AAtXTiIlPbw1BDPS0wskDj1KLmN11i2ZoxByECfqmOg4YHwjfo9XxI4AO6by3Dk2BdpPBr8ubohpwk5MK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr; spf=pass smtp.mailfrom=ghiti.fr; arc=none smtp.client-ip=217.70.183.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghiti.fr
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 1B1DD43A66;
-	Mon, 19 May 2025 15:54:23 +0000 (UTC)
-Message-ID: <dc4e60dc-9b78-473a-9c18-3a2f128a02d2@ghiti.fr>
-Date: Mon, 19 May 2025 17:54:23 +0200
+	 In-Reply-To:Content-Type; b=KjvDcjnBvOM5nfqdYi9EyAwnEe+Meexlm9XGjTt++FqKqe5SXnDwyjkGQkeYUr0ZtCzQ6Lp/X+9CnL+hkV9IYPmMziaoweZOF2WzB+MahGBCU3Jhk1kZnM+88E4Jcg3uMLnC3HkQFLAArwQrfSHvdIskHBYeQk5hHGs8yjfjmyY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M2KhjROW; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M2KhjROW"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54JFQLM8000802;
+	Mon, 19 May 2025 16:12:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=nqnqfE
+	7gub+NUOX2zT4UR7GMAyLzSWzrgGteEK4vUZw=; b=M2KhjROWh+BYDJ9C1yd0iD
+	SoHUSv2K/Tc7WzRYMa0CiPBQ95hWM3GgM20cXq3izgvem3JIRgfSlXezGWi8FQtj
+	1oij6g67MxXYt3l3MbYIEjbpnj0uwvOlkrZVqZl7T/Xa7CM0as+1pBET8wKkVvBU
+	48QoTwmy0OrhRec+16MuH5bfFNpJg2dljijtch38sD3LQcg5WBbkpT+EouTZj29K
+	nR62ENOxgKJb0IMqVb7HebjKQsQjsKUZL0XHa1WZyizd+cfr0SR/K+q0ybxe3LFr
+	/OXYxfbfx8moiw1hIOaDQC68eRL40oy+PAQTw7smFHOhq+ytxotDIRhvH4bLGEWA
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46r2qhsq0k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 19 May 2025 16:12:47 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54JDMUBi028874;
+	Mon, 19 May 2025 16:12:46 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46q55yqku0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 19 May 2025 16:12:46 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54JGCjB529491900
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 19 May 2025 16:12:45 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 52201201A2;
+	Mon, 19 May 2025 16:12:45 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0ED242019F;
+	Mon, 19 May 2025 16:12:45 +0000 (GMT)
+Received: from [9.87.157.62] (unknown [9.87.157.62])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 19 May 2025 16:12:44 +0000 (GMT)
+Message-ID: <a44deb14-8c48-44fc-8773-432c00bcaf06@linux.ibm.com>
+Date: Mon, 19 May 2025 18:12:44 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -25,230 +62,56 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 10/13] arch, mm: set high_memory in free_area_init()
-To: Mike Rapoport <rppt@kernel.org>, Pratyush Yadav <ptyadav@amazon.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>,
- Ard Biesheuvel <ardb@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Guo Ren
- <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
- Matt Turner <mattst88@gmail.com>, Max Filippov <jcmvbkbc@gmail.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>,
- Palmer Dabbelt <palmer@dabbelt.com>, Peter Zijlstra <peterz@infradead.org>,
- Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>,
- Stafford Horne <shorne@gmail.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>,
- Vineet Gupta <vgupta@kernel.org>, Will Deacon <will@kernel.org>,
- Praveen Kumar <pravkmr@amazon.de>, linux-alpha@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org
-References: <20250313135003.836600-1-rppt@kernel.org>
- <20250313135003.836600-11-rppt@kernel.org> <mafs05xi0o9ri.fsf@amazon.de>
- <aCdveN2w9ThjVhae@kernel.org>
-Content-Language: en-US
-From: Alexandre Ghiti <alex@ghiti.fr>
-In-Reply-To: <aCdveN2w9ThjVhae@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdefvddujeelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkffggfgfuvfevfhfhjggtgfesthejredttddvjeenucfhrhhomheptehlvgigrghnughrvgcuifhhihhtihcuoegrlhgvgiesghhhihhtihdrfhhrqeenucggtffrrghtthgvrhhnpedthfelfeejgeehveegleejleelgfevhfekieffkeeujeetfedvvefhledvgeegieenucfkphepvddttddumeekiedumeeffeekvdemvghfledtmeejjeeiudemiegsgeeimegrsgguugemfhgvtgefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvddttddumeekiedumeeffeekvdemvghfledtmeejjeeiudemiegsgeeimegrsgguugemfhgvtgefpdhhvghloheplgfkrfggieemvddttddumeekiedumeeffeekvdemvghfledtmeejjeeiudemiegsgeeimegrsgguugemfhgvtgefngdpmhgrihhlfhhrohhmpegrlhgvgiesghhhihhtihdrfhhrpdhnsggprhgtphhtthhopeeiuddprhgtphhtthhopehrphhptheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepphhthigruggrvhesrghmrgiiohhnrdguvgdprhgtphhtthhopegrkhhpmheslhhinhhugidqfhhouhhnuggrthhiohhnrdhorhhgpdhrtghpt
- hhtoheprghgohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheprghnughrvggrshesghgrihhslhgvrhdrtghomhdprhgtphhtthhopehluhhtoheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghruggssehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrrhhnugesrghrnhgusgdruggv
-X-GND-Sasl: alex@ghiti.fr
+Subject: Re: [v2 PATCH] crypto: s390/hmac - Use API partial block handling
+To: Herbert Xu <herbert@gondor.apana.org.au>, T Pratham <t-pratham@ti.com>
+Cc: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        linux-s390@vger.kernel.org
+References: <cover.1745916278.git.herbert@gondor.apana.org.au>
+ <81cab16fad98103d8b5c28f2870de08b337c2d78.1745916278.git.herbert@gondor.apana.org.au>
+ <a0a6f359-27c8-4381-8619-d4aa2cd186fc@ti.com>
+ <aBH8p-YEF3wEe4Qm@gondor.apana.org.au> <aBSJu3PTcPFNHViG@gondor.apana.org.au>
+Content-Language: de-DE
+From: Holger Dengler <dengler@linux.ibm.com>
+In-Reply-To: <aBSJu3PTcPFNHViG@gondor.apana.org.au>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTE5MDE0NSBTYWx0ZWRfX041MjvNXJT+F 5ag6WvA5Cy9qrBlfpBdQCNitNqkiVevWajNMRJIQDVpWkFxeN/sPoJN9oxXPRCHAQCZhXl6yj5D mMlYKM1pVZAvUJn9EmE30Eo9Dvq/JHKTpDcIR6BoxH1O6MXZCX+FhsBHHD0iiRdqWec/jcO6sJj
+ PX2dcpkndu9NArPTkj13QSlOZLbP5ET3a0XfO9Gua1wEWA7m/X5TF4yoe86ox+lh8HrZ4MIbDhN AVpoCA53cIVn8v9jx/wt41FAoDbNVusVpsRkEzVnGQyZVCll18pxe2UajEzaeLUVQsX3ihkbYd6 6dVk08RgWA5ZV0zuOPSyCXBFo8vTPH/Sya2Y9oGD4h8VJF4iKafL41Zn4/TwHZswf7HjGoMpM9m
+ nT1nj4I11F/orHmlHLRa68wj1oPjXR/eXsfs3N+/wV6PG3kDyQZXMPPwlwbiu+M1zzArJamu
+X-Proofpoint-ORIG-GUID: HkfdU7EHESaKEhSmEdi22nOIYypfZQrw
+X-Proofpoint-GUID: HkfdU7EHESaKEhSmEdi22nOIYypfZQrw
+X-Authority-Analysis: v=2.4 cv=P406hjAu c=1 sm=1 tr=0 ts=682b587f cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=FNyBlpCuAAAA:8 a=VnNF1IyMAAAA:8 a=w4HzK-rsqA_2YikTyBoA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=RlW-AWeGUCXs_Nkyno-6:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-19_06,2025-05-16_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1011 mlxscore=0 adultscore=0 impostorscore=0 spamscore=0
+ malwarescore=0 priorityscore=1501 mlxlogscore=973 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
+ definitions=main-2505190145
 
-Hi Mike,
+On 02/05/2025 11:00, Herbert Xu wrote:
+> v2 fixes the export of 224 and 384.
+> 
+> ---8<---
+> Use the Crypto API partial block handling.
+> 
+> Also switch to the generic export format.
+> 
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-On 5/16/25 19:01, Mike Rapoport wrote:
-> Hi Pratyush,
->
-> On Fri, May 16, 2025 at 05:28:17PM +0200, Pratyush Yadav wrote:
->> Hi Mike, Andrew,
->>
->> On Thu, Mar 13 2025, Mike Rapoport wrote:
->>
->>> From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
->>>
->>> high_memory defines upper bound on the directly mapped memory.
->>> This bound is defined by the beginning of ZONE_HIGHMEM when a system has
->>> high memory and by the end of memory otherwise.
->>>
->>> All this is known to generic memory management initialization code that
->>> can set high_memory while initializing core mm structures.
->>>
->>> Add a generic calculation of high_memory to free_area_init() and remove
->>> per-architecture calculation except for the architectures that set and
->>> use high_memory earlier than that.
->>>
->>> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>	# x86
->>> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
->>> ---
->>>   arch/alpha/mm/init.c         |  1 -
->>>   arch/arc/mm/init.c           |  2 --
->>>   arch/arm64/mm/init.c         |  2 --
->>>   arch/csky/mm/init.c          |  1 -
->>>   arch/hexagon/mm/init.c       |  6 ------
->>>   arch/loongarch/kernel/numa.c |  1 -
->>>   arch/loongarch/mm/init.c     |  2 --
->>>   arch/microblaze/mm/init.c    |  2 --
->>>   arch/mips/mm/init.c          |  2 --
->>>   arch/nios2/mm/init.c         |  6 ------
->>>   arch/openrisc/mm/init.c      |  2 --
->>>   arch/parisc/mm/init.c        |  1 -
->>>   arch/riscv/mm/init.c         |  1 -
->>>   arch/s390/mm/init.c          |  2 --
->>>   arch/sh/mm/init.c            |  7 -------
->>>   arch/sparc/mm/init_32.c      |  1 -
->>>   arch/sparc/mm/init_64.c      |  2 --
->>>   arch/um/kernel/um_arch.c     |  1 -
->>>   arch/x86/kernel/setup.c      |  2 --
->>>   arch/x86/mm/init_32.c        |  3 ---
->>>   arch/x86/mm/numa_32.c        |  3 ---
->>>   arch/xtensa/mm/init.c        |  2 --
->>>   mm/memory.c                  |  8 --------
->>>   mm/mm_init.c                 | 30 ++++++++++++++++++++++++++++++
->>>   mm/nommu.c                   |  2 --
->>>   25 files changed, 30 insertions(+), 62 deletions(-)
->> This patch causes a BUG() when built with CONFIG_DEBUG_VIRTUAL and
->> passing in the cma= commandline parameter:
->>
->>      ------------[ cut here ]------------
->>      kernel BUG at arch/x86/mm/physaddr.c:23!
->>      ception 0x06 IP 10:ffffffff812ebbf8 error 0 cr2 0xffff88903ffff000
->>      CPU: 0 UID: 0 PID: 0 Comm: swapper Not tainted 6.15.0-rc6+ #231 PREEMPT(undef)
->>      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Arch Linux 1.16.3-1-1 04/01/2014
->>      RIP: 0010:__phys_addr+0x58/0x60
->>      Code: 01 48 89 c2 48 d3 ea 48 85 d2 75 05 e9 91 52 cf 00 0f 0b 48 3d ff ff ff 1f 77 0f 48 8b 05 20 54 55 01 48 01 d0 e9 78 52 cf 00 <0f> 0b 90 0f 1f 44 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90
->>      RSP: 0000:ffffffff82803dd8 EFLAGS: 00010006 ORIG_RAX: 0000000000000000
->>      RAX: 000000007fffffff RBX: 00000000ffffffff RCX: 0000000000000000
->>      RDX: 000000007fffffff RSI: 0000000280000000 RDI: ffffffffffffffff
->>      RBP: ffffffff82803e68 R08: 0000000000000000 R09: 0000000000000000
->>      R10: ffffffff83153180 R11: ffffffff82803e48 R12: ffffffff83c9aed0
->>      R13: 0000000000000000 R14: 0000001040000000 R15: 0000000000000000
->>      FS:  0000000000000000(0000) GS:0000000000000000(0000) knlGS:0000000000000000
->>      CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>      CR2: ffff88903ffff000 CR3: 0000000002838000 CR4: 00000000000000b0
->>      Call Trace:
->>       <TASK>
->>       ? __cma_declare_contiguous_nid+0x6e/0x340
->>       ? cma_declare_contiguous_nid+0x33/0x70
->>       ? dma_contiguous_reserve_area+0x2f/0x70
->>       ? setup_arch+0x6f1/0x870
->>       ? start_kernel+0x52/0x4b0
->>       ? x86_64_start_reservations+0x29/0x30
->>       ? x86_64_start_kernel+0x7c/0x80
->>       ? common_startup_64+0x13e/0x141
->>
->> The reason is that __cma_declare_contiguous_nid() does:
->>
->>      	highmem_start = __pa(high_memory - 1) + 1;
->>
->> If dma_contiguous_reserve_area() (or any other CMA declaration) is
->> called before free_area_init(), high_memory is uninitialized. Without
->> CONFIG_DEBUG_VIRTUAL, it will likely work but use the wrong value for
->> highmem_start.
->>
->> Among the architectures this patch touches, the below call
->> dma_contiguous_reserve_area() _before_ free_area_init():
->>
->> - x86
->> - s390
->> - mips
->> - riscv
->> - xtensa
->> - loongarch
->> - csky
-> For most of those this patch didn't really change anything because they
-> initialized high_memory in mem_init() which is a part of free_area_init().
-> In those cases cma just did
->
-> 	highmem_start = __pa(-1) + 1;
->
-> and everyone was happy :)
->   
->> The below call it _after_ free_area_init():
->> - arm64
->>
->> And the below don't call it at all:
->> - sparc
->> - nios2
->> - openrisc
->> - hexagon
->> - sh
->> - um
->> - alpha
->>
->> One possible fix would be to move the calls to
->> dma_contiguous_reserve_area() after free_area_init(). On x86, it would
->> look like the diff below. The obvious downside is that moving the call
->> later increases the chances of allocation failure. I'm not sure how much
->> that actually matters, but at least on x86, that means crash kernel and
->> hugetlb reservations go before DMA reservation. Also, adding a patch
->> like that at rc7 is a bit risky.
-> I don't think there's a risk of allocation failure, but moving things
-> around in setup_arch() is always risky :)
->   
->> The other option would be to revert this. I tried a revert, but it isn't
->> trivial. It runs into merge conflicts in pretty much all of the arch
->> files. Maybe reverting patches 11, 12, and 13 as well would make it
->> easier but I didn't try that.
-> What I think we can do is to add this to mm/cma.c (not even compile tested)
->
-> diff --git a/mm/cma.c b/mm/cma.c
-> index 15632939f20a..c04be488b099 100644
-> --- a/mm/cma.c
-> +++ b/mm/cma.c
-> @@ -608,7 +608,10 @@ static int __init __cma_declare_contiguous_nid(phys_addr_t *basep,
->   	 * complain. Find the boundary by adding one to the last valid
->   	 * address.
->   	 */
-> -	highmem_start = __pa(high_memory - 1) + 1;
-> +	if (IS_ENABLED(CONFIG_HIGHMEM))
-> +		highmem_start = __pa(high_memory - 1) + 1;
-> +	else
-> +		highmem_start = memblock_end_of_DRAM();
->   	pr_debug("%s(size %pa, base %pa, limit %pa alignment %pa)\n",
->   		__func__, &size, &base, &limit, &alignment);
+This patch was also included in the test. Looks good to me.
+Tested-by: Holger Dengler <dengler@linux.ibm.com>
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
+--
+IBM Systems, Linux on IBM Z Development
+dengler@linux.ibm.com
 
-I encountered the same error as Pratyush and the above diff fixes it: do 
-you plan on sending this fix for 6.15?
-
-If so, you can add:
-
-Tested-by: Alexandre Ghiti <alexghiti@rivosinc.com>
-
-If not, let me know how you want to proceed :)
-
-Thanks,
-
-Alex
-
-
->   
-> so that highmem_start in __cma_declare_contiguous_nid() will be always
-> correct for !HIGHMEM configs and then restore setting of highmem_start in
-> mips::paging_init() as mips is the only architecture that actually set
-> high_memory before free_area_init() before this patch.
->
-> (for 32 bit configs of x86 there alrady a fixup d893aca973c3 ("x86/mm: restore
-> early initialization of high_memory for 32-bits"))
->
