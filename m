@@ -1,151 +1,155 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C94B8BE49
-	for <linux-s390@vger.kernel.org>; Tue, 20 May 2025 05:43:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DEBF264A9C
+	for <linux-s390@vger.kernel.org>; Tue, 20 May 2025 08:33:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747719790; cv=none; b=dbIcpPCMa7qsrQ0rgCsXWU25tomG+peNaFQupuySG/eeBaPwT1KL3hUV6wzG8Zk1zveh9oOV4l4Q+gQCIiY7cd1d9pegSH9wdUu5omyUI3NU5dY41vX9bCx74Z35fUSdGEwekmnd0iauJN8u7D0D4OKTYvJWS3K/ZxU8hyXqFXs=
+	t=1747730002; cv=none; b=FW7AzBzFY4uMly5HDTVqafQEXnRAd9q7WKZxVGKqvq3igyPUfXNHVdzNIGtgoQGmJrroAsGRuiKumImKyHWJnbrCWZ4QyRoqie9j58ZgIDOUuOEZEg43wz3OLM318ZPGf7meYFT3lY3oBzggG42Ncu05cxF89+ko8+ezxnzEeUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747719790; c=relaxed/simple;
-	bh=wGLA9UW3i8e2fUmOovywO53VpSW0/b5aC1FAzfOEWiE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=a2eR9NEqL6hJBQ7/wzdRCFRcgotHMHx0cokqrpP4k8KTmxV60PrI/KfzoGh6CFH+sZrCLo+hYK0jAn0UHVQ7CpQTOMH3CMu+sUN/H8jkyC5EU8RKcnP/HIVRyPtXlcpXgLDDblh9egxLg86pVZB/dWAA7zTYqFKOQEznh3YPnmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bxCATRYk; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1747730002; c=relaxed/simple;
+	bh=gZlYFM7lX7TkWpTV+6o7guEG13fRDeniCefNu4L8P0A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Uw75pjdrHCXSzfBtTS9C3/J7vS69tM7lu0AN+4jTUuOF/VtZ7SlRVtkbIApBrdsbw7wH/wpEjas9RWBFlvMTy0aouP2pg3+XLXoi1ybVJn3tJ9wt1DBVochejIG/CNGroERrj1JfSZz//dcIMoghXm2ihg+VOSJISC3CrJAL81s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=YgkV93AW; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=46djWSt1; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=pLOmC0iK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=fM59v9qA; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bxCATRYk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747719787;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=IXgKREbXw8JOX7wRebCRg043QolDwSg2zAUdVPK1KQ0=;
-	b=bxCATRYkGbTgWv+V2rUsQIAuZhQOkOPdCUZLTMsbQ594so9cAVdPXSutbUXo7AfSMjeUvf
-	3+w+/8tUAVrt6eJfwNf/n7T7GBOWVeS+gSx4uuPYTgz9CRjMAVSU48MuIA6OWE4YSvCS9U
-	M4yDIilRfq0mPetBTMf7sIlON11QZ8Q=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-685-tK8-94peNF-UOVRZXwZe_g-1; Tue, 20 May 2025 01:43:06 -0400
-X-MC-Unique: tK8-94peNF-UOVRZXwZe_g-1
-X-Mimecast-MFC-AGG-ID: tK8-94peNF-UOVRZXwZe_g_1747719785
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-43cf172ffe1so39292915e9.3
-        for <linux-s390@vger.kernel.org>; Mon, 19 May 2025 22:43:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747719785; x=1748324585;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=IXgKREbXw8JOX7wRebCRg043QolDwSg2zAUdVPK1KQ0=;
-        b=fSYnxglcEpm5U8gGwT32DfcmCR8FP82ReKqxQYSAlS4U+Y1r0WZCwAExZld+Nqutum
-         XidgUW5Tvo+1LCn30Mr37QXt25Qyw85aK12XF7F/MTWM1xgF3POwGJ9ERSw1HZItkIz+
-         /I4Je2s7i0/jXDsKFlgGmtpwJKv4yl3UxfFgYdhYfEb+W/KfiUqn6FwsDC+aUJIWANYE
-         CbV7q4KetVMZW8vdtaRWLmozq16+3ZpP+SHc78+E5KnynHr+JRl2itYbjkOEMMRgHnSI
-         UOhbLhoKof5GlGsx3FvPvuYVjO9FCkQ26wKHr2Xl3XWwt36SAwFS6hsEZ4ot/NCXVRv5
-         dENg==
-X-Gm-Message-State: AOJu0Yz1LlYxcYkTtuOfpdyeKH/BXSbYnV0/4R23EK2QwQyuHJ0ezbJ6
-	EWKA8xCXEBQr1bZTC8LVDxTuDNDsold+8bmlS9OKxrN7zK8fIsvAZ+Uz4dd5SffTCIyTPIjSEIr
-	wd9tnWoAJEJUWC9JDe6yfNAkKHlTGYpKgLw47aR4allD+l8YztuzyUnBWfCPUp5o=
-X-Gm-Gg: ASbGnctSJa8PvOhuwz6+wtyrg7gaFAJ6hN6TXLu0285Qxhyn5aZqOhSYbXAYnHSYfKP
-	6ubaw8H/SUw4uBcl691XLnMEIrDh8H7S8G1Efyb1rmbrN0JcRDF727dxOIf1X6Hnd25KiD7OSvk
-	NBmMZPPWg0pHfdxcYKQbXdSFRSETTLt4xClPK6e01o1p8+GqVDMpjr+oOLGuWc4EtvM6Z3z4aJr
-	K20aN3140l8GV4csj/R4mRkgWMqVXkYRCCOnGEIIrDaUI0WEeeOWpuwH+CSNh1WHb+1/Kkc31gb
-	zqGm5begwXs1ljX3Ktfn6ga7ANYFEu5DtLQroup0J9E=
-X-Received: by 2002:a05:600c:548e:b0:442:cd03:3e2 with SMTP id 5b1f17b1804b1-442fefd77a2mr146509175e9.2.1747719784958;
-        Mon, 19 May 2025 22:43:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHd8GGWSj0p7IGH/FLOhkyp6Q8E4hyCeidUKsb74iDDbO1SfEAhR2sP0lZfWY9LlxVamb9kDQ==
-X-Received: by 2002:a05:600c:548e:b0:442:cd03:3e2 with SMTP id 5b1f17b1804b1-442fefd77a2mr146509055e9.2.1747719784641;
-        Mon, 19 May 2025 22:43:04 -0700 (PDT)
-Received: from [192.168.0.7] (ip-109-42-49-201.web.vodafone.de. [109.42.49.201])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-447f1825193sm16679705e9.5.2025.05.19.22.43.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 May 2025 22:43:04 -0700 (PDT)
-Message-ID: <afdc34e0-2dbe-4c5c-ac59-61530c45827d@redhat.com>
-Date: Tue, 20 May 2025 07:43:02 +0200
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="YgkV93AW";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="46djWSt1";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="pLOmC0iK";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="fM59v9qA"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 8B1F520634;
+	Tue, 20 May 2025 08:33:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1747729997; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LpHAVQCkyfQV4gQBT/q8vfa5AfukF+uSKRXPvXO1Lv8=;
+	b=YgkV93AWk6oYNSn25eCgMYDr8t1OCQ4txtEZ2sKqcECD/u9pVVpVbCgK5TcyYFIp2Jue87
+	AOt8wHWCvU4adEg8yo761/iB+DZD7iU2wiet0ctnoYazU9IkU94Bb1edgbdzVmY5qFUtDm
+	FsRKpiNStVf09B/RzgvyfMYAh+/REuI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1747729997;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LpHAVQCkyfQV4gQBT/q8vfa5AfukF+uSKRXPvXO1Lv8=;
+	b=46djWSt1BoTOT6Cv0KTWEL/4WlR2fmp/LmDL89W20itXHCjvfRUmHdgoF7rYbJbKKto+oc
+	VzIcPPfETmVJGDAQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1747729996; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LpHAVQCkyfQV4gQBT/q8vfa5AfukF+uSKRXPvXO1Lv8=;
+	b=pLOmC0iKY2mRPJQI1/PeDaLdNWGpD5FSB+G3N/EQV4r12Y0Ys3gIH4x3Wi7Q1kw2rIDhgj
+	17Y+wTZSpycakeX0Y6vUjMZqlMqq0aQtoFqPAbRKMFLxSWFPBlUoVAbdeGvBASNGsD5CFl
+	tlyMOnN++hpQC89Pfg/Vvksw8GkUiPA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1747729996;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LpHAVQCkyfQV4gQBT/q8vfa5AfukF+uSKRXPvXO1Lv8=;
+	b=fM59v9qAb/+UTZ9o2j0slAPoTnvUK96heiGHwn7fGjj+02VfMjLTLdaKgE8vMQGg1/9KmV
+	TxJYIsvdJPNU+KAg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4C66013888;
+	Tue, 20 May 2025 08:33:16 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 8T36EUw+LGihSwAAD6G6ig
+	(envelope-from <osalvador@suse.de>); Tue, 20 May 2025 08:33:16 +0000
+Date: Tue, 20 May 2025 10:33:15 +0200
+From: Oscar Salvador <osalvador@suse.de>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	James Houghton <jthoughton@google.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>,
+	Yang Shi <yang@os.amperecomputing.com>,
+	David Hildenbrand <david@redhat.com>,
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, pbonzini@redhat.com,
+	kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [RESEND PATCH] KVM: s390: rename PROT_NONE to PROT_TYPE_DUMMY
+Message-ID: <aCw-S8Fj-OCSsPqW@localhost.localdomain>
+References: <20250519145657.178365-1-lorenzo.stoakes@oracle.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] KVM: s390: Specify kvm->arch.sca as esca_block
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- David Hildenbrand <david@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>
-References: <20250519-rm-bsca-v2-0-e3ea53dd0394@linux.ibm.com>
- <20250519-rm-bsca-v2-3-e3ea53dd0394@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20250519-rm-bsca-v2-3-e3ea53dd0394@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250519145657.178365-1-lorenzo.stoakes@oracle.com>
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -1.30
+X-Spamd-Result: default: False [-1.30 / 50.00];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCPT_COUNT_TWELVE(0.00)[19];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,localhost.localdomain:mid,suse.de:email,intel.com:email]
 
-On 19/05/2025 13.36, Christoph Schlameuss wrote:
-> We are no longer referencing a bsca_block in kvm->arch.sca. This will
-> always be esca_block instead.
-> By specifying the type of the sca as esca_block we can simplify access
-> to the sca and get rid of some helpers while making the code clearer.
+On Mon, May 19, 2025 at 03:56:57PM +0100, Lorenzo Stoakes wrote:
+> The enum type prot_type declared in arch/s390/kvm/gaccess.c declares an
+> unfortunate identifier within it - PROT_NONE.
 > 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host.h |  4 ++--
->   arch/s390/kvm/gaccess.c          | 10 +++++-----
->   arch/s390/kvm/kvm-s390.c         |  4 ++--
->   arch/s390/kvm/kvm-s390.h         |  7 -------
->   4 files changed, 9 insertions(+), 16 deletions(-)
+> This clashes with the protection bit define from the uapi for mmap()
+> declared in include/uapi/asm-generic/mman-common.h, which is indeed what
+> those casually reading this code would assume this to refer to.
+> 
+> This means that any changes which subsequently alter headers in any way
+> which results in the uapi header being imported here will cause build
+> errors.
+> 
+> Resolve the issue by renaming PROT_NONE to PROT_TYPE_DUMMY.
+> 
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> Suggested-by: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>
+> Fixes: b3cefd6bf16e ("KVM: s390: Pass initialized arg even if unused")
+> Cc: stable@vger.kernel.org
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202505140943.IgHDa9s7-lkp@intel.com/
+> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Acked-by: Ignacio Moreno Gonzalez <Ignacio.MorenoGonzalez@kuka.com>
+> Acked-by: Yang Shi <yang@os.amperecomputing.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Acked-by: Liam R. Howlett <Liam.Howlett@oracle.com>
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
 
+
+-- 
+Oscar Salvador
+SUSE Labs
