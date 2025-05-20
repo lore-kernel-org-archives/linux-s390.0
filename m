@@ -1,276 +1,549 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6169258CF9
-	for <linux-s390@vger.kernel.org>; Tue, 20 May 2025 10:23:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8C022094;
+	Tue, 20 May 2025 12:50:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747736637; cv=none; b=bpkKq7HLqYxVyC9RK4hBmzP8FYHYdQcIZPbzh3f1acT4yzOtK0spjKu4DZkomTfTchUXBuCM8/832VJuv9lHASNLPevaXu3u/A343y6ZdO3sLy9CK4DKMqPtNi2cj65MACIw2VP+4aGOUuKHCTqwKmTkA3emvGtOWIkFrWOLpyY=
+	t=1747745405; cv=none; b=VEROtrGg0YSTCj3wgClvc9Lf+/hct/dDAUe6cY5T6WWozErRE7fjj0CjVwVh8VA0r8wiI+prkqu/2nKvd7TEQ+SgXelKezQPwjD+WWyEF9S6JYgRNA3dEdzwv0lpDhzUixlp5ROSdjAbiiLTXiOOl0DOj6OOuOnjrysxu02vGCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747736637; c=relaxed/simple;
-	bh=7umWF2YvjD0jJBYWzItANOsXOC6KvAB92RgO5GBJkBs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=KmJepsKxf59ELGkF56bYzQ2wGUBqxF9z9hzHs2XvaFR4Lxg5Fs5lyB43eEBMd0MM3J/fq7Vpo3U+uIKij8rF3v7rx5g3yr/KRW3a+j0fJzmqe8n39By/mH5jrAf0TunqRAMN72hwZQK2kjEar9iOFq93tRgkN87v+vukicgfM8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZhKDGg+j; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1747745405; c=relaxed/simple;
+	bh=tx5Fhlyi0WT43GMsBYiY6GKYtSism583/NOqcXx/bTk=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=HAzezphnW/RXlk/5Rei3EZpiC5xDoUbh16ukKbux7IFCN68FHL8g2rai2UDQKgMuDpThgGPvdDuaKomFclVBlk/M9C3mFlZXWEqER0KOsPcOP7pDcU5/UzTROTLI/j1ADHzjyeDD3x5dTp1HN9JFWpJFJ7GCtBViNtmHQ2T9FLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Hd1zctH6; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZhKDGg+j"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54K9FBYt008525;
-	Tue, 20 May 2025 10:23:47 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Hd1zctH6"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54K7DxFd012193;
+	Tue, 20 May 2025 12:50:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=C7NNio
-	cntfbPCZ588WWdSr/qkTQ63q8aMHfq3MfUcVk=; b=ZhKDGg+jX0NDwvNbNJDPpM
-	ciueLmM8Ul/P0nAZ+eL0pr1p0EMagJMLvRwhXYy9LLiio/dDQqGBQKre8wKSDHG2
-	cHQvlkoMkASAhKCgUyJ/8yRohTbJ3Z/vS5Ynka2c9FK6MOndGor2FzAGcz3zbIE2
-	FFvQ1QQJ1Xd/B62Lm0JosLF1grsUSKUR09k3oyuZQjyNPcQo7VOWiRQbz4EfxKkr
-	X86+JZ38/EzIGX6SDsLPCzUHkkthCJhY/9Sud56b1Pq6qhjch89DMqDdxTEy3Qg0
-	fvlQ8G04rZ4FB8yOEkagxk3vTumAeCWFMeqImoOCBkMKWEkIFaOsN44MZ7lNGR+g
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Y5hAs2
+	Vu2uJiHwYvCJKlCJ1rlCh3gofMaf9x7KOpJH4=; b=Hd1zctH69zNAq9wTIisW40
+	Qc6KFNBpn9wbU8uCNjhNJAAHCbIMAcxel2TkfkU+G6kP19i6hl4LLCulzPWnouJ6
+	MQ4QPtGvD+W+c6C+CeBYrWmSg7zSU8Zrt19k/l0aCtKJkIJSgHngG2voU2uHyL6K
+	HYksWAchF5+BD/cmIHAnVkgI8GzRhSZtUAScIkhgQ5YccYTMXtDNsy5pGCSFKaVK
+	GrgzVo0CpP8w9pZFDEa1nbMWVZ4+L96nvfWINm/ewjn7iap+1mG4x6klbFidhn++
+	pxG5R72+o0FsXrZELRvM+hwpykAoouX4tP0RScXpMp68lPaB+pD2vXIcrPV13iYg
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46rpxkray7-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46rab744ms-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 May 2025 10:23:46 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 54KANkGL031679;
-	Tue, 20 May 2025 10:23:46 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46rpxkray3-1
+	Tue, 20 May 2025 12:50:00 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54KBf2Ux015851;
+	Tue, 20 May 2025 12:49:59 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 46q7g2bm7h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 May 2025 10:23:46 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54K713kH002449;
-	Tue, 20 May 2025 10:23:45 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46q5snubhj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 May 2025 10:23:45 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54KANhhV59703782
+	Tue, 20 May 2025 12:49:59 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54KCnurB53150000
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 May 2025 10:23:43 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3419201CB;
-	Tue, 20 May 2025 10:23:43 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1F63D201CA;
-	Tue, 20 May 2025 10:23:43 +0000 (GMT)
-Received: from li-1de7cd4c-3205-11b2-a85c-d27f97db1fe1.ibm.com (unknown [9.111.10.158])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 20 May 2025 10:23:43 +0000 (GMT)
-From: "Marc Hartmayer" <mhartmay@linux.ibm.com>
-To: Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-        Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>,
-        Baolin Wang
- <baolin.wang@linux.alibaba.com>, linux-mm@kvack.org,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: page type is 0, migratetype passed is 2 (nr=256)
-In-Reply-To: <20250512171429.GB615800@cmpxchg.org>
-References: <87wmalyktd.fsf@linux.ibm.com>
- <1fc8eb08-7e34-4b16-a08f-c81a531ec3fb@lucifer.local>
- <A82049B8-B1B5-4234-BCFA-55779F76EDBB@nvidia.com>
- <20250512171429.GB615800@cmpxchg.org>
-Date: Tue, 20 May 2025 12:23:42 +0200
-Message-ID: <87zff7r369.fsf@linux.ibm.com>
+	Tue, 20 May 2025 12:49:56 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2373020040;
+	Tue, 20 May 2025 12:49:56 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6EB612004D;
+	Tue, 20 May 2025 12:49:55 +0000 (GMT)
+Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.111.32.248])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 May 2025 12:49:55 +0000 (GMT)
+Message-ID: <9fdc24a2288201b966864e11dd39fc3b009a1b93.camel@linux.ibm.com>
+Subject: Re: [PATCH v1 3/5] KVM: s390: refactor some functions in priv.c
+From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com,
+        david@redhat.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, gor@linux.ibm.com
+Date: Tue, 20 May 2025 14:49:55 +0200
+In-Reply-To: <20250514163855.124471-4-imbrenda@linux.ibm.com>
+References: <20250514163855.124471-1-imbrenda@linux.ibm.com>
+		 <20250514163855.124471-4-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.1 (3.56.1-1.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=EM8G00ZC c=1 sm=1 tr=0 ts=682c5832 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=ufHFDILaAAAA:8 a=cxcNUk2sTnefaYOuv1sA:9 a=QEXdDO2ut3YA:10
- a=ZmIg1sZ3JBWsdXgziEIF:22
-X-Proofpoint-GUID: n9cYqIxbMlZ_ELpfT3uYHINE_T4Z7Smc
-X-Proofpoint-ORIG-GUID: kgnyDFtKd5ZtmrNp8vH6cGcogc4EHzw6
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIwMDA4MyBTYWx0ZWRfX/cSH9kWPSnpy 3MoPgsNQLpW4YtwZzujox0ChhKY84LYKm9Rq6tBD9lhGBBhb9R3rWXuqNbc/VhnwMNGyUBR9dsa KYhV6FoJUiZ9WZ2ys0iyDo91sXryoLziUn7pw6fPNA1NDuLGxCx6gRuAc99sz+bNChx4myRwhqI
- lDR8iMn89DdBzn961Ui/YM1nCcp9MDcKUQvuWwV4oywemTBkUWlIwtPzL8KS7JWpJSZUawKVENg RaIiGVYoz97eykxAOjbQIuUnOFZRCR8rcf3LWYJXfWwI4Lo0M2ER5SxArAuG1/1+lBvPhyFjHl0 6+1J6nUFdKiKE1EBjaSR6M2M1NrQNJOxbnooXxDDL6MrDKxePARf76VzagsZnd30NnWQqEMXuer
- TcMX9vC3FvYh2k01L4kBC3k1fY/AvY8Gg68dip2fK8rJNyriKhGhw/4D2cZudJONNgtZqAFr
+X-Authority-Analysis: v=2.4 cv=ELgG00ZC c=1 sm=1 tr=0 ts=682c7a78 cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=ABTJbWSwloqCcYxGV6IA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: Ej0ovqtqoIRJnftlClfT5bA9rxNF7tkd
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIwMDEwMSBTYWx0ZWRfX9c7bYuU2PaH0 HTg1lYJ2BdLcOASdFrDtdHjgPuSxoER9xJ7qF0n4SALEUPf8n7+7dRtOHt7OizeJjrpepgVJeYS 3YjB4QI4HCnPoEIfBL/LY/tV6aJFm4U6zIWfkmSJxbKH2UWMjARAun7QN/9JAQxop+kLV92UUwm
+ GuNql5urZB4f2nJSjy3dIRBaoXGz1atcj1A0LVUZYC4ZsgrLbSVApv0zGphJzWWcaHzc7QP1KX1 BUVxAiadnsXTWG3EbJ5uYtavxPlZ+WTUYt78zSbKWcEom8EcZN5l5k1SBxncjsoGRlAB0+gWXR5 DHlXlo5ya52Kt3Ev2JkPQWXyDE/2sr0Q3bDI+6FpUpPpb5cJ5fQN3a/+UF6sG0WGSyM0S88mucV
+ HCIHsx/5fGUzRcpE58ecFNz7PSjdo00zR+Xf6tBYCcYbvzqAsd38ifUrQdQU5ceiAqlijdbe
+X-Proofpoint-GUID: Ej0ovqtqoIRJnftlClfT5bA9rxNF7tkd
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-20_04,2025-05-16_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 impostorscore=0
- mlxscore=0 lowpriorityscore=0 mlxlogscore=999 spamscore=0
- priorityscore=1501 suspectscore=0 adultscore=0 phishscore=0 clxscore=1015
- malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505070000
- definitions=main-2505200083
+ definitions=2025-05-20_05,2025-05-16_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ adultscore=0 lowpriorityscore=0 spamscore=0 bulkscore=0 suspectscore=0
+ phishscore=0 priorityscore=1501 impostorscore=0 mlxscore=0 malwarescore=0
+ classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2505070000
+ definitions=main-2505200101
 
-On Mon, May 12, 2025 at 01:14 PM -0400, Johannes Weiner <hannes@cmpxchg.org=
-> wrote:
-> On Mon, May 12, 2025 at 12:35:39PM -0400, Zi Yan wrote:
->> On 12 May 2025, at 12:16, Lorenzo Stoakes wrote:
->>=20
->> > +cc Zi
->> >
->> > Hi Marc,
->> >
->> > I noticed this same bug as reported in [0], but only for a _very_ rece=
-nt
->> > patch series by Zi, which is only present in mm-new, which is the most
->> > unstable mm branch right now :)
->> >
->> > So I wonder if related or a coincidence caused by something else?
->>=20
->> Unless Marc's branch has my "make MIGRATE_ISOLATE a standalone bit" patc=
-hset,
->> it should be caused by something else.
->>=20
->> A bisect would be very helpful.
->>=20
->> >
->> > This is triggered by the mm self-test (in tools/testing/selftests/mm, =
-you
->> > can just make -jXX there) transhuge-stress, invoked as:
->> >
->> > $ sudo ./transhuge-stress -d 20
->> >
->> > The stack traces do look very different though so perhaps unrelated?
->>=20
->> The warning is triggered, in the both cases, a pageblock with MIGRATE_UN=
-MOVABLE(0)
->> is moved to MIGRATE_RECLAIMABLE(2). The pageblock is supposed to have
->> MIGRATE_RECLAIMABLE(2) before the movement.
->
-> The weird thing is that the warning is from expand(), when the broken
-> up chunks are put *back*. Marc, can you confirm that this is the only
-> warning in dmesg, and there aren't any before this one?
+On Wed, 2025-05-14 at 18:38 +0200, Claudio Imbrenda wrote:
+> Refactor some functions in priv.c to make them more readable.
+>=20
+> handle_{iske,rrbe,sske}: move duplicated checks into a single function.
+> handle{pfmf,epsw}: improve readability.
+> handle_lpswe{,y}: merge implementations since they are almost the same.
+>=20
+> Use u64_replace_bits() where it makes sense.
+>=20
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.h |  15 ++
+>  arch/s390/kvm/priv.c     | 288 ++++++++++++++++++---------------------
+>  2 files changed, 148 insertions(+), 155 deletions(-)
+>=20
+[...]
 
-Yep, I=E2=80=99ve just checked, it was the first warning and `panic_on_warn=
-` is
-set to 1.
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 758cefb5bac7..1a26aa591c2e 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/mm_types.h>
+>  #include <linux/pgtable.h>
+>  #include <linux/io.h>
+> +#include <linux/bitfield.h>
+>  #include <asm/asm-offsets.h>
+>  #include <asm/facility.h>
+>  #include <asm/current.h>
+> @@ -253,29 +254,50 @@ static int try_handle_skey(struct kvm_vcpu *vcpu)
+>  	return 0;
+>  }
+> =20
+> +struct skeys_ops_state {
+> +	int reg1;
+> +	int reg2;
+> +	int rc;
+> +	unsigned long gaddr;
+> +};
+> +
+> +static bool skeys_common_checks(struct kvm_vcpu *vcpu, struct skeys_ops_=
+state *state, bool abs)
+> +{
+> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE) {
+> +		state->rc =3D kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> +		return true;
+> +	}
+> +
+> +	state->rc =3D try_handle_skey(vcpu);
+> +	if (state->rc)
+> +		return true;
+> +
+> +	kvm_s390_get_regs_rre(vcpu, &state->reg1, &state->reg2);
+> +
+> +	state->gaddr =3D vcpu->run->s.regs.gprs[state->reg2] & PAGE_MASK;
+> +	state->gaddr =3D kvm_s390_logical_to_effective(vcpu, state->gaddr);
+> +	if (!abs)
+> +		state->gaddr =3D kvm_s390_real_to_abs(vcpu, state->gaddr);
+> +
+> +	return false;
+> +}
 
-I managed to reproduce a similar crash using 6.15.0-rc7 (this time THP
-seems to be involved):
+I don't really like this function, IMO it makes the calling functions harde=
+r to read.
+If it was just a chain of checks it be fine, but with the differing control=
+ flow
+base on the abs parameter and the complex return value it becomes too compl=
+icated.
 
-  =E2=80=A6
-  root@qemus390x:~# [   40.442403] ------------[ cut here ]------------
-  [   40.442471] page type is 0, passed migratetype is 1 (nr=3D256)
-  [   40.442525] WARNING: CPU: 0 PID: 350 at mm/page_alloc.c:669 expand (mm=
-/page_alloc.c:669 (discriminator 2) mm/page_alloc.c:1572 (discriminator 2))
-  [   40.442558] Modules linked in: pkey_pckmo(E) pkey(E) diag288_wdt(E) wa=
-tchdog(E) s390_trng(E) virtio_console(E) rng_core(E) vmw_vsock_virtio_trans=
-port(E) vmw_vsock_virtio_transport_common(E) vsock(E) ghash_s390(E) prng(E)=
- aes_s390(E) des_s390(E) libdes(E) sha3_512_s390(E) sha3_256_s390(E) sha512=
-_s390(E) sha256_s390(E) sha1_s390(E) sha_common(E) vfio_ccw(E) mdev(E) vfio=
-_iommu_type1(E) vfio(E) sch_fq_codel(E) drm(E) i2c_core(E) drm_panel_orient=
-ation_quirks(E) nfnetlink(E) autofs4(E)
-  [   40.442651] Unloaded tainted modules: hmac_s390(E):1
-  [   40.442677] CPU: 0 UID: 0 PID: 350 Comm: mempig_verify Tainted: G     =
-       E       6.15.0-rc7-11557-ga01c92c55b53 #1 PREEMPT
-  [   40.442683] Tainted: [E]=3DUNSIGNED_MODULE
-  [   40.442687] Hardware name: IBM 3931 A01 701 (KVM/Linux)
-  [   40.442692] Krnl PSW : 0404d00180000000 000002ff929af40c expand (mm/pa=
-ge_alloc.c:669 (discriminator 10) mm/page_alloc.c:1572 (discriminator 10))
-  [   40.442696]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 P=
-M:0 RI:0 EA:3
-  [   40.442699] Krnl GPRS: 000002ff80000004 0000000000000005 0000000000000=
-030 0000000000000000
-  [   40.442701]            0000000000000005 0000027f80000005 0000000000000=
-100 0000000000000008
-  [   40.442703]            000002ff93f99290 000001f63a415900 0000027500000=
-008 00000275829f4000
-  [   40.442704]            0000000000000000 0000000000000008 000002ff929af=
-408 0000027f928c36f8
-  [ 40.442722] Krnl Code: 000002ff929af3fc: c02000883f4b larl %r2,000002ff9=
-3ab7292
+> +
+>  static int handle_iske(struct kvm_vcpu *vcpu)
+>  {
+> -	unsigned long gaddr, vmaddr;
+> +	struct skeys_ops_state state;
+> +	unsigned long vmaddr;
+>  	unsigned char key;
+> -	int reg1, reg2;
+>  	bool unlocked;
+> +	u64 *r1;
+>  	int rc;
+> =20
+>  	vcpu->stat.instruction_iske++;
+> =20
+> -	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+> -		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
 
-  Code starting with the faulting instruction
-  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-  [   40.442722]            000002ff929af402: c0e5ffe7bd17        brasl   %=
-r14,000002ff926a6e30
-  [   40.442722]           #000002ff929af408: af000000            mc      0=
-,0
-  [   40.442722]           >000002ff929af40c: a7f4ff49            brc     1=
-5,000002ff929af29e
-  [   40.442722]            000002ff929af410: b904002b            lgr     %=
-r2,%r11
-  [   40.442722]            000002ff929af414: c03000881980        larl    %=
-r3,000002ff93ab2714
-  [   40.442722]            000002ff929af41a: c0e5fffdd883        brasl   %=
-r14,000002ff9296a520
-  [   40.442722]            000002ff929af420: af000000            mc      0=
-,0
-  [   40.442736] Call Trace:
-  [   40.442738] expand (mm/page_alloc.c:669 (discriminator 10) mm/page_all=
-oc.c:1572 (discriminator 10))
-  [   40.442741] expand (mm/page_alloc.c:669 (discriminator 2) mm/page_allo=
-c.c:1572 (discriminator 2))
-  [   40.442743] rmqueue_bulk (mm/page_alloc.c:1587 mm/page_alloc.c:1758 mm=
-/page_alloc.c:2311 mm/page_alloc.c:2364)
-  [   40.442745] __rmqueue_pcplist (mm/page_alloc.c:3086)
-  [   40.442748] rmqueue.isra.0 (mm/page_alloc.c:3124 mm/page_alloc.c:3155)
-  [   40.442751] get_page_from_freelist (mm/page_alloc.c:3683)
-  [   40.442754] __alloc_frozen_pages_noprof (mm/page_alloc.c:4967 (discrim=
-inator 1))
-  [   40.442756] alloc_pages_mpol (mm/mempolicy.c:2290)
-  [   40.442764] folio_alloc_mpol_noprof (mm/mempolicy.c:2322)
-  [   40.442766] vma_alloc_folio_noprof (mm/mempolicy.c:2355 (discriminator=
- 1))
-  [   40.442769] vma_alloc_anon_folio_pmd (mm/huge_memory.c:1167 (discrimin=
-ator 1))
-  [   40.442773] __do_huge_pmd_anonymous_page (mm/huge_memory.c:1227 (discr=
-iminator 1))
-  [   40.442775] __handle_mm_fault (mm/memory.c:5862 mm/memory.c:6111)
-  [   40.442781] handle_mm_fault (mm/memory.c:6321)
-  [   40.442783] do_exception (arch/s390/mm/fault.c:298)
-  [   40.442792] __do_pgm_check (arch/s390/kernel/traps.c:345)
-  [   40.442802] pgm_check_handler (arch/s390/kernel/entry.S:334)
-  [   40.442805] Last Breaking-Event-Address:
-  [   40.442806] __warn_printk (kernel/panic.c:801)
-  [   40.442818] Kernel panic - not syncing: kernel: panic_on_warn set ...
-  [   40.442822] CPU: 0 UID: 0 PID: 350 Comm: mempig_verify Tainted: G     =
-       E       6.15.0-rc7-11557-ga01c92c55b53 #1 PREEMPT
-  [   40.442825] Tainted: [E]=3DUNSIGNED_MODULE
-  [   40.442826] Hardware name: IBM 3931 A01 701 (KVM/Linux)
-  [   40.442827] Call Trace:
-  [   40.442828] dump_stack_lvl (lib/dump_stack.c:122)
-  [   40.442831] panic (kernel/panic.c:372)
-  [   40.442833] check_panic_on_warn (kernel/panic.c:247)
-  [   40.442836] __warn (kernel/panic.c:751)
-  [   40.443057] report_bug (lib/bug.c:176 lib/bug.c:215)
-  [   40.443064] monitor_event_exception (arch/s390/kernel/traps.c:227 (dis=
-criminator 1))
-  [   40.443067] __do_pgm_check (arch/s390/kernel/traps.c:345)
-  [   40.443071] pgm_check_handler (arch/s390/kernel/entry.S:334)
-  [   40.443074] expand (mm/page_alloc.c:669 (discriminator 10) mm/page_all=
-oc.c:1572 (discriminator 10))
-  [   40.443077] expand (mm/page_alloc.c:669 (discriminator 2) mm/page_allo=
-c.c:1572 (discriminator 2))
-  [   40.443080] rmqueue_bulk (mm/page_alloc.c:1587 mm/page_alloc.c:1758 mm=
-/page_alloc.c:2311 mm/page_alloc.c:2364)
-  [   40.443087] __rmqueue_pcplist (mm/page_alloc.c:3086)
-  [   40.443090] rmqueue.isra.0 (mm/page_alloc.c:3124 mm/page_alloc.c:3155)
-  [   40.443093] get_page_from_freelist (mm/page_alloc.c:3683)
-  [   40.443097] __alloc_frozen_pages_noprof (mm/page_alloc.c:4967 (discrim=
-inator 1))
-  [   40.443100] alloc_pages_mpol (mm/mempolicy.c:2290)
-  [   40.443104] folio_alloc_mpol_noprof (mm/mempolicy.c:2322)
-  [   40.443110] vma_alloc_folio_noprof (mm/mempolicy.c:2355 (discriminator=
- 1))
-  [   40.443114] vma_alloc_anon_folio_pmd (mm/huge_memory.c:1167 (discrimin=
-ator 1))
-  [   40.443117] __do_huge_pmd_anonymous_page (mm/huge_memory.c:1227 (discr=
-iminator 1))
-  [   40.443120] __handle_mm_fault (mm/memory.c:5862 mm/memory.c:6111)
-  [   40.443123] handle_mm_fault (mm/memory.c:6321)
-  [   40.443126] do_exception (arch/s390/mm/fault.c:298)
-  [   40.443129] __do_pgm_check (arch/s390/kernel/traps.c:345)
-  [   40.443132] pgm_check_handler (arch/s390/kernel/entry.S:334)
+How about a macro INJECT_PGM_ON: INJECT_PGM_ON(kvm_s390_problem_state(vcpu)=
+, PGM_PRIVILEGED_OP)
 
-This time, the setup is even simpler:
 
-1. Start a 2GB QEMU/KVM guest
-2. Now run some memory stress test
+> -
+> -	rc =3D try_handle_skey(vcpu);
+> -	if (rc)
+> -		return rc !=3D -EAGAIN ? rc : 0;
 
-I run this test in a loop (with starting/shutting down the VM) and after
-many iterations, the bug occurs.
+You are not replicating this behavior, are you?
+> -
+> -	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
 
-[=E2=80=A6snip=E2=80=A6]
+You could introduce a helper
+
+void _kvm_s390_get_gpr_ptrs_rre(vcpu, u64 **reg1, u64 **reg2)
+{
+	int r1, r2;
+
+	kvm_s390_get_regs_rre(vcpu, &r1, &r2);
+	*reg1 =3D &vcpu->run->s.regs.gprs[r1];
+	*reg2 =3D &vcpu->run->s.regs.gprs[r2];
+}
+
+which would remove some clutter from the original function implementations.
+
+> +	if (skeys_common_checks(vcpu, &state, false))
+> +		return state.rc;
+> +	r1 =3D vcpu->run->s.regs.gprs + state.reg1;
+> =20
+> -	gaddr =3D vcpu->run->s.regs.gprs[reg2] & PAGE_MASK;
+> -	gaddr =3D kvm_s390_logical_to_effective(vcpu, gaddr);
+> -	gaddr =3D kvm_s390_real_to_abs(vcpu, gaddr);
+> -	vmaddr =3D gfn_to_hva(vcpu->kvm, gpa_to_gfn(gaddr));
+> +	vmaddr =3D gfn_to_hva(vcpu->kvm, gpa_to_gfn(state.gaddr));
+>  	if (kvm_is_error_hva(vmaddr))
+>  		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+>  retry:
+> @@ -296,33 +318,23 @@ static int handle_iske(struct kvm_vcpu *vcpu)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+>  	if (rc < 0)
+>  		return rc;
+> -	vcpu->run->s.regs.gprs[reg1] &=3D ~0xff;
+> -	vcpu->run->s.regs.gprs[reg1] |=3D key;
+> +	*r1 =3D u64_replace_bits(*r1, key, 0xff);
+>  	return 0;
+>  }
+> =C2=A0
+>=20
+[...]
+
+>  retry:
+> @@ -353,40 +365,30 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
+>  static int handle_sske(struct kvm_vcpu *vcpu)
+>  {
+>  	unsigned char m3 =3D vcpu->arch.sie_block->ipb >> 28;
+> +	struct skeys_ops_state state;
+>  	unsigned long start, end;
+>  	unsigned char key, oldkey;
+> -	int reg1, reg2;
+> +	bool nq, mr, mc, mb;
+>  	bool unlocked;
+> +	u64 *r1, *r2;
+>  	int rc;
+> =20
+>  	vcpu->stat.instruction_sske++;
+> =20
+> -	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+> -		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> -
+> -	rc =3D try_handle_skey(vcpu);
+> -	if (rc)
+> -		return rc !=3D -EAGAIN ? rc : 0;
+> -
+> -	if (!test_kvm_facility(vcpu->kvm, 8))
+> -		m3 &=3D ~SSKE_MB;
+> -	if (!test_kvm_facility(vcpu->kvm, 10))
+> -		m3 &=3D ~(SSKE_MC | SSKE_MR);
+> -	if (!test_kvm_facility(vcpu->kvm, 14))
+> -		m3 &=3D ~SSKE_NQ;
+> +	mb =3D test_kvm_facility(vcpu->kvm, 8) && (m3 & SSKE_MB);
+> +	mr =3D test_kvm_facility(vcpu->kvm, 10) && (m3 & SSKE_MR);
+> +	mc =3D test_kvm_facility(vcpu->kvm, 10) && (m3 & SSKE_MC);
+> +	nq =3D test_kvm_facility(vcpu->kvm, 14) && (m3 & SSKE_NQ);
+
+That is indeed much nicer.
+
+> =20
+> -	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
+> +	/* start already designates an absolute address if MB is set */
+> +	if (skeys_common_checks(vcpu, &state, mb))
+> +		return state.rc;
+> =20
+> -	key =3D vcpu->run->s.regs.gprs[reg1] & 0xfe;
+> -	start =3D vcpu->run->s.regs.gprs[reg2] & PAGE_MASK;
+> -	start =3D kvm_s390_logical_to_effective(vcpu, start);
+> -	if (m3 & SSKE_MB) {
+> -		/* start already designates an absolute address */
+> -		end =3D (start + _SEGMENT_SIZE) & ~(_SEGMENT_SIZE - 1);
+> -	} else {
+> -		start =3D kvm_s390_real_to_abs(vcpu, start);
+> -		end =3D start + PAGE_SIZE;
+> -	}
+> +	start =3D state.gaddr;
+> +	end =3D mb ? ALIGN(start + 1, _SEGMENT_SIZE) : start + PAGE_SIZE;
+
+Alternatively you could do ALIGN_DOWN(start, _SEGMENT_SIZE) + _SEGMENT_SIZE=
+,
+which seems a bit easier to read, but it's really minor.
+
+> +	r1 =3D vcpu->run->s.regs.gprs + state.reg1;
+> +	r2 =3D vcpu->run->s.regs.gprs + state.reg2;
+> +	key =3D *r1 & 0xfe;
+> =20
+>  	while (start !=3D end) {
+>  		unsigned long vmaddr =3D gfn_to_hva(vcpu->kvm, gpa_to_gfn(start));
+> @@ -396,9 +398,7 @@ static int handle_sske(struct kvm_vcpu *vcpu)
+>  			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+> =20
+>  		mmap_read_lock(current->mm);
+> -		rc =3D cond_set_guest_storage_key(current->mm, vmaddr, key, &oldkey,
+> -						m3 & SSKE_NQ, m3 & SSKE_MR,
+> -						m3 & SSKE_MC);
+> +		rc =3D cond_set_guest_storage_key(current->mm, vmaddr, key, &oldkey, n=
+q, mr, mc);
+> =20
+>  		if (rc < 0) {
+>  			rc =3D fixup_user_fault(current->mm, vmaddr,
+> @@ -415,23 +415,21 @@ static int handle_sske(struct kvm_vcpu *vcpu)
+>  		start +=3D PAGE_SIZE;
+>  	}
+> =20
+> -	if (m3 & (SSKE_MC | SSKE_MR)) {
+> -		if (m3 & SSKE_MB) {
+> +	if (mc || mr) {
+> +		if (mb) {
+>  			/* skey in reg1 is unpredictable */
+>  			kvm_s390_set_psw_cc(vcpu, 3);
+>  		} else {
+>  			kvm_s390_set_psw_cc(vcpu, rc);
+> -			vcpu->run->s.regs.gprs[reg1] &=3D ~0xff00UL;
+> -			vcpu->run->s.regs.gprs[reg1] |=3D (u64) oldkey << 8;
+> +			*r1 =3D u64_replace_bits(*r1, oldkey << 8, 0xff00);
+
+Uh, u64_replace_bits does the shift for you, no?
+So it should be u64_replace_bits(*r1, oldkey, 0xff00)
+
+You could also do u64p_replace_bits(r1, oldkey, 0xff00) but I'd actually pr=
+efer the assignment
+as you do it.
+
+>  		}
+>  	}
+> -	if (m3 & SSKE_MB) {
+> -		if (psw_bits(vcpu->arch.sie_block->gpsw).eaba =3D=3D PSW_BITS_AMODE_64=
+BIT)
+> -			vcpu->run->s.regs.gprs[reg2] &=3D ~PAGE_MASK;
+> -		else
+> -			vcpu->run->s.regs.gprs[reg2] &=3D ~0xfffff000UL;
+> +	if (mb) {
+>  		end =3D kvm_s390_logical_to_effective(vcpu, end);
+> -		vcpu->run->s.regs.gprs[reg2] |=3D end;
+> +		if (kvm_s390_is_amode_64(vcpu))
+> +			*r2 =3D u64_replace_bits(*r2, end, PAGE_MASK);
+> +		else
+> +			*r2 =3D u64_replace_bits(*r2, end, 0xfffff000);
+
+This does not work because of the implicit shift.
+So you need to use gpa_to_gfn(end) instead.
+(I think I would prefer using start instead of end, since it better shows
+the interruptible nature of the instruction, but start =3D=3D end if
+we get here so ...)
+
+>  	}
+>  	return 0;
+>  }
+> @@ -773,46 +771,28 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
+>  	return 0;
+>  }
+> =20
+> -static int handle_lpswe(struct kvm_vcpu *vcpu)
+> +static int handle_lpswe_y(struct kvm_vcpu *vcpu, bool lpswey)
+>  {
+>  	psw_t new_psw;
+>  	u64 addr;
+>  	int rc;
+>  	u8 ar;
+> =20
+> -	vcpu->stat.instruction_lpswe++;
+> -
+> -	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+> -		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> -
+> -	addr =3D kvm_s390_get_base_disp_s(vcpu, &ar);
+> -	if (addr & 7)
+> -		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> -	rc =3D read_guest(vcpu, addr, ar, &new_psw, sizeof(new_psw));
+> -	if (rc)
+> -		return kvm_s390_inject_prog_cond(vcpu, rc);
+> -	vcpu->arch.sie_block->gpsw =3D new_psw;
+> -	if (!is_valid_psw(&vcpu->arch.sie_block->gpsw))
+> -		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> -	return 0;
+> -}
+> -
+> -static int handle_lpswey(struct kvm_vcpu *vcpu)
+> -{
+> -	psw_t new_psw;
+> -	u64 addr;
+> -	int rc;
+> -	u8 ar;
+> -
+> -	vcpu->stat.instruction_lpswey++;
+> +	if (lpswey)
+> +		vcpu->stat.instruction_lpswey++;
+> +	else
+> +		vcpu->stat.instruction_lpswe++;
+> =20
+> -	if (!test_kvm_facility(vcpu->kvm, 193))
+> +	if (lpswey && !test_kvm_facility(vcpu->kvm, 193))
+>  		return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
+> =20
+>  	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> =20
+> -	addr =3D kvm_s390_get_base_disp_siy(vcpu, &ar);
+> +	if (!lpswey)
+> +		addr =3D kvm_s390_get_base_disp_s(vcpu, &ar);
+> +	else
+> +		addr =3D kvm_s390_get_base_disp_siy(vcpu, &ar);
+>  	if (addr & 7)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+
+I'd prefer a helper function _do_lpswe_y_swap(struct kvm_vcpu *vcpu, gpa_t =
+addr)
+
+and then just
+
+static int handle_lpswey(struct kvm_vcpu *vcpu)
+{
+        u64 addr;
+        u8 ar;
+
+        vcpu->stat.instruction_lpswey++;
+
+        if (!test_kvm_facility(vcpu->kvm, 193))
+                return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
+
+        addr =3D kvm_s390_get_base_disp_siy(vcpu, &ar);
+	return _do_lpswe_y_swap(vcpu, addr);
+}
+
+Makes it easier to read IMO because of the simpler control flow.
+> =20
+> @@ -1034,7 +1014,7 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+>  	case 0xb1:
+>  		return handle_stfl(vcpu);
+>  	case 0xb2:
+> -		return handle_lpswe(vcpu);
+> +		return handle_lpswe_y(vcpu, false);
+>  	default:
+>  		return -EOPNOTSUPP;
+>  	}
+> @@ -1043,42 +1023,50 @@ int kvm_s390_handle_b2(struct kvm_vcpu *vcpu)
+>  static int handle_epsw(struct kvm_vcpu *vcpu)
+>  {
+>  	int reg1, reg2;
+> +	u64 *r1, *r2;
+> =20
+>  	vcpu->stat.instruction_epsw++;
+> =20
+>  	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
+> +	r1 =3D vcpu->run->s.regs.gprs + reg1;
+> +	r2 =3D vcpu->run->s.regs.gprs + reg2;
+> =20
+>  	/* This basically extracts the mask half of the psw. */
+> -	vcpu->run->s.regs.gprs[reg1] &=3D 0xffffffff00000000UL;
+> -	vcpu->run->s.regs.gprs[reg1] |=3D vcpu->arch.sie_block->gpsw.mask >> 32=
+;
+> -	if (reg2) {
+> -		vcpu->run->s.regs.gprs[reg2] &=3D 0xffffffff00000000UL;
+> -		vcpu->run->s.regs.gprs[reg2] |=3D
+> -			vcpu->arch.sie_block->gpsw.mask & 0x00000000ffffffffUL;
+> -	}
+> +	*r1 =3D u64_replace_bits(*r1, vcpu->arch.sie_block->gpsw.mask >> 32, 0x=
+ffffffff);
+> +	if (reg2)
+> +		*r2 =3D u64_replace_bits(*r2, vcpu->arch.sie_block->gpsw.mask, 0xfffff=
+fff);
+
+LGTM although I don't hate the original implementation, which is very easy =
+to understand
+compared to u64_replace_bits whose implementation is anything but.
+It would be nice to make gprs a union, which I think should be fine from a =
+backwards
+compatibility point of view. So:
+
+struct kvm_sync_regs {
+	__u64 prefix;	/* prefix register */
+	union {
+		__u64 gprs[16];	/* general purpose registers */
+		struct { __u32 h; __u32 l} gprs32[16];
+		struct { __u16 hh; __u16 hl; ...} gprs16[16];
+		...=20
+...
+
+But I don't expect you to do the refactor.
+You could of course also contribute documentation to bitfield.h :)
+
+>  	return 0;
+>  }
+
+[...]
+
+>  static int handle_pfmf(struct kvm_vcpu *vcpu)
+>  {
+
+[...]
+
+> -	if (vcpu->run->s.regs.gprs[reg1] & PFMF_FSC) {
+> -		if (psw_bits(vcpu->arch.sie_block->gpsw).eaba =3D=3D PSW_BITS_AMODE_64=
+BIT) {
+> -			vcpu->run->s.regs.gprs[reg2] =3D end;
+> -		} else {
+> -			vcpu->run->s.regs.gprs[reg2] &=3D ~0xffffffffUL;
+> -			end =3D kvm_s390_logical_to_effective(vcpu, end);
+> -			vcpu->run->s.regs.gprs[reg2] |=3D end;
+> -		}
+> +	if (r1.fsc) {
+> +		u64 *r2 =3D vcpu->run->s.regs.gprs + reg2;
+> +
+> +		end =3D kvm_s390_logical_to_effective(vcpu, end);
+> +		if (kvm_s390_is_amode_64(vcpu))
+> +			*r2 =3D u64_replace_bits(*r2, end, PAGE_MASK);
+> +		else
+> +			*r2 =3D u64_replace_bits(*r2, end, 0xfffff000);
+
+Same issue as above regarding the shift.
+
+>  	}
+>  	return 0;
+>  }
+> @@ -1361,8 +1338,9 @@ int kvm_s390_handle_lctl(struct kvm_vcpu *vcpu)
+>  	reg =3D reg1;
+>  	nr_regs =3D 0;
+>  	do {
+> -		vcpu->arch.sie_block->gcr[reg] &=3D 0xffffffff00000000ul;
+> -		vcpu->arch.sie_block->gcr[reg] |=3D ctl_array[nr_regs++];
+> +		u64 *cr =3D vcpu->arch.sie_block->gcr + reg;
+> +
+> +		*cr =3D u64_replace_bits(*cr, ctl_array[nr_regs++], 0xffffffff);
+>  		if (reg =3D=3D reg3)
+>  			break;
+>  		reg =3D (reg + 1) % 16;
+> @@ -1489,7 +1467,7 @@ int kvm_s390_handle_eb(struct kvm_vcpu *vcpu)
+>  	case 0x62:
+>  		return handle_ri(vcpu);
+>  	case 0x71:
+> -		return handle_lpswey(vcpu);
+> +		return handle_lpswe_y(vcpu, true);
+>  	default:
+>  		return -EOPNOTSUPP;
+>  	}
+
+--=20
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+Gesch=C3=A4ftsf=C3=BChrung: David Faller
+Sitz der Gesellschaft: B=C3=B6blingen / Registergericht: Amtsgericht Stuttg=
+art, HRB 243294
