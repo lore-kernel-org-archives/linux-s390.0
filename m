@@ -1,72 +1,71 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70A629A0
-	for <linux-s390@vger.kernel.org>; Tue, 20 May 2025 05:31:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4439E2550A6
+	for <linux-s390@vger.kernel.org>; Tue, 20 May 2025 05:41:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747719073; cv=none; b=lo2+gm0nqzbnwCBpdwe0QM/WuM3ick6jn9hh3lCZmIoNPHgDK7Ofo8II/AWyPfEUZg8JiAJjx3O0K/Wj/WHgi2i7Fe7SPhg4TMNfO2LHm4Gcr1sKMW/x7i7g4qE+NZZfllvgk5sjPUHk/piFZKXdmvIY+mocnyWsgeXPYGt2nJ4=
+	t=1747719674; cv=none; b=k2VlqSD5ZepLbR0XHRwtUG7eHl+3vbzVIjqxb5BezvmaUtyanr936tR3Qbi9zJcyAbXYy6Mgvq0UkgcZZl1gFipfjQIsBk+TKqbC5yf0VswHsRVh9x8WvlhSotnSF9Zb0yv/qu7wsUjDT91vwlswbxGdU9lkYDzCbKO40XkEUBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747719073; c=relaxed/simple;
-	bh=ubVOdsZhts8GALuRYWKRnYBe847+zLQoctpXZA/1YEo=;
+	s=arc-20240116; t=1747719674; c=relaxed/simple;
+	bh=WyWlqnS7MYr2qEx+FkVsXEFiqGDvYUOxuHq29eKdl5w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H7xJ7KMx/JyjoeWnF5pk68BhxQOtx6UKHxMCib1FoEz0xq5TOeqZYFGn0ySQpnC+GLUUhAMfvm6UZGmAWT9ATa0s6KSK9OeLF2t/KfkhiHlCvvZrWOhqveUWoR3P6/qc1wRASTGkBi6H42loo9FCY42w8AhZCI+nLHGk+4zhaSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XQ9Avn+U; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=JRHfI2z4Cg9WG49slLHNUEiiiRAXzIAG6p7ZPLWTrIAQFrOeYkubi3cmZsXWC+mZuD+4BShNB/VCG/Keeg5x5WskOb8n8fYIKbMPEVvxD9b7uNn9plNnoW0D3KgNqd3of8jg8rASnL8HnHwMsY0tF7W8naPXNe9UjgSvTRx1ZNA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=inDgpo8v; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XQ9Avn+U"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="inDgpo8v"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747719069;
+	s=mimecast20190719; t=1747719671;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GVKkcno9p26a+ewrPEs8zuPwnUGlqJrw02ZZV1EftGU=;
-	b=XQ9Avn+U9HOQH+mDp2LxMtoHV/m3lZN/yobFkgn0tmLs6/cs0zk/EoWkXoDoXIhmsfG39z
-	YIEToooKZgRotJ3F5CLymt9VsxCGX+zs6iGiI0tdI+ThNIPaWM6MrkYaVZSpoYw/HX9RrX
-	6gGwppMtKMgfnR7mJoZWmB2L2Ouq90o=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=GSDjHjiyG4ta8/DF1rRY8RLjHpjIX3oj5thps18bh7c=;
+	b=inDgpo8vVf7kaxyaBmB+LBHZ70s6KD64/YDAfWazP+h7oIHePgDLeD8DeyTaLQSAcd917o
+	TPjnO+8fnBTzTbPvMfGS5eOfl6Q7jtg4ycaa90OE3myDSTLF88JZfWxsCffEymhPAV0CKk
+	7iuIotELhCjXhFdPzGtHtLQ03QbI46g=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-214-cP1dDBEhMn-BucVchNLoVA-1; Tue, 20 May 2025 01:31:08 -0400
-X-MC-Unique: cP1dDBEhMn-BucVchNLoVA-1
-X-Mimecast-MFC-AGG-ID: cP1dDBEhMn-BucVchNLoVA_1747719067
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-445135eb689so14925075e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 19 May 2025 22:31:08 -0700 (PDT)
+ us-mta-563-gy424JGKM9GrOPvSjnMB8A-1; Tue, 20 May 2025 01:41:09 -0400
+X-MC-Unique: gy424JGKM9GrOPvSjnMB8A-1
+X-Mimecast-MFC-AGG-ID: gy424JGKM9GrOPvSjnMB8A_1747719668
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a367b3bb78so1681788f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 19 May 2025 22:41:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747719067; x=1748323867;
+        d=1e100.net; s=20230601; t=1747719668; x=1748324468;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GVKkcno9p26a+ewrPEs8zuPwnUGlqJrw02ZZV1EftGU=;
-        b=G/aqJebkZrYaePSXyuB3dqEjTWJXMVjlU5nzh6BxbEZ+kRIfsvr9aP3Nd1OeAZspU7
-         /3dSyhknnwURtVrecV/PjhJiLjMqzHenqVhkcn5DIuJMzso1BJ0pROuhGSHvdgTs4k6O
-         T2lqfhFSVVvWThnY1EbvbWOZoHRlA/EgMaPnlf4ibMTumOOguYJtEM6sPuKFwhgZG9TA
-         K7S7mmjGVaWJfvzwRnhHLlI7AqmQPC91cermapu3khlk9O+v4E6XoQiopp+evdL0kRjs
-         pTcVGpc16syvB2Br8a8a+xPfJZLJiEJriSxZXd/pL4HRGcWzSZHTK2yv+SoBytdoCTAC
-         SZjw==
-X-Gm-Message-State: AOJu0YxyBEKeWFdQ6TTmk7pJj+gQbPokBCGQPsNcx2FAFZMaCX7HsqI6
-	jasgVDmuyGjV36LlBEiPNaflOF+iW3jIBNs3H/iKTDX99N4OAzoHhgP38IuTwmCQ4xOa5c2+P6k
-	u+IjIz1AF6z3pvHyEmWTCp9qym0V6EqucZuECVUi61SD+mHfGGLduSYfT2rAOxyt0Yk1BfHASxw
-	==
-X-Gm-Gg: ASbGnctHFkN0f/VDUQVUnnd4eM/VYlP8RuWSxG8luPKOl2ThI7EOhaxfrqND+Vo4y8D
-	KopubyFNhOAnLOS6uHfyqMNx7km7KiTo7Tr3bcL0bwK+WhNFG3hdYtICIg2iU3YkAfhj2u2nSxE
-	IVxfnbb3cmSf4j26R3NPVU0AvchlMAMbbpnYec/wl+p3lONiTqBqvIZs6kz8fiGqvvNnqJ5E6FP
-	fqroyHz4ZfXQlxJ5fJad1m+zZ2luKiTjbr89U3faxhnmPXyZ5uAkCY0vcSo0wYcnEITFgt+xsX5
-	GA8Voqfru+MDSFBSfi1QyDN/7wTaosQ/BNyc9ysNRms=
-X-Received: by 2002:a05:600c:3588:b0:442:d5dd:5b4b with SMTP id 5b1f17b1804b1-442fd67861amr153166075e9.31.1747719066946;
-        Mon, 19 May 2025 22:31:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHAFa2IC/lG7oLV6XJ2W5wOhiQejVFDTE5WpqeFqIeOSQz+TQVtfrmQQHVNh9NCND4LG/ti/g==
-X-Received: by 2002:a05:600c:3588:b0:442:d5dd:5b4b with SMTP id 5b1f17b1804b1-442fd67861amr153165845e9.31.1747719066593;
-        Mon, 19 May 2025 22:31:06 -0700 (PDT)
+        bh=GSDjHjiyG4ta8/DF1rRY8RLjHpjIX3oj5thps18bh7c=;
+        b=V0SOZ5mgrJ8hhgjbidSwr8FG5rQnU6b6cujiEPVI9tRKz09gHM7SkOe+8NRlsXm9Sq
+         8kFW+ZwL/ZnqkZKzh+a5NNba+K0LN3zuPl78RoKNy28X9YGXKdugJxdc1S2dKxxxdESj
+         3gXV7a/+YRhd0yYQ0LIOxuPDRxrK86D3RdgJJwWTd0yRmRZt6hKqy2IgyYqzdL9pvZBJ
+         QJnNfp5a4nGwGkEbQdRmddYDHq4/o49ibiFwOIp+LuEiQzEdRUiGiGOThMNgsKPQhzZ9
+         U/svhhWBeiy2JfKk7/hBUSzAEMcUuDAPOAbv1DWIBjAMFum3sYT1FajvR6rjGWvPGQJ1
+         IzPw==
+X-Gm-Message-State: AOJu0Yz76bRw2KNQg11G2qMPqRPdlHEc/gKF9POjRagqpeEqhLtLQL+y
+	YlTTtbzG16suS2arBhnDrYkNxT5llG5kDxl7p6K6N9hzMwKVykG27c2+OGeWeRIp+7cYINWBuHh
+	FX/GvRQ0pM+PMACgOL0K9+AZkd0MWmEXlKrNiy0WHa2/glzMZ1NrHfFADRoylLPQ=
+X-Gm-Gg: ASbGncsvxWAEH789a3h7U7iK5epQB6lOS9C0wwmVL5SylozJPNiAdIfx9geA9eSkUyh
+	WiSC1tVYXHfnHi8yLqQV7umLUCditWlaMGSxgJ8h7CQWD0M9fhjSAqKgL0I9NpuRx8oefBR/5b+
+	Yflhp8Lt0YPiylwfbUrnFsqd9VshHxN4KXabVxjPldQt5svSy4zYKAG5i5C95e1f4mQ4PPY5wk+
+	gRPzbAa9kZ4GUrSdVZ35AxmTzn/1kbo/ACE+rH55xAJ7orsLAzC2K8k8EID6GPpvwr7d839T09t
+	kR1trtsG/uUT7dT9I0Xe2pq2wOTX1Lpjga6P50MfPXU=
+X-Received: by 2002:a05:6000:2285:b0:3a3:68c7:e473 with SMTP id ffacd0b85a97d-3a368c7e5ffmr8209955f8f.25.1747719668460;
+        Mon, 19 May 2025 22:41:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGuycopOJusc8rTS60UM5x4PeNiP+r3U47qLyI54tDLex8IQxQ5RKBFVz3uxVnyO2oeQQ89pA==
+X-Received: by 2002:a05:6000:2285:b0:3a3:68c7:e473 with SMTP id ffacd0b85a97d-3a368c7e5ffmr8209935f8f.25.1747719668104;
+        Mon, 19 May 2025 22:41:08 -0700 (PDT)
 Received: from [192.168.0.7] (ip-109-42-49-201.web.vodafone.de. [109.42.49.201])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-447f1ef0b20sm16181065e9.14.2025.05.19.22.31.04
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a35ca88899sm14911875f8f.80.2025.05.19.22.41.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 May 2025 22:31:05 -0700 (PDT)
-Message-ID: <253bb086-972e-4908-a006-4429232e8dcf@redhat.com>
-Date: Tue, 20 May 2025 07:31:03 +0200
+        Mon, 19 May 2025 22:41:07 -0700 (PDT)
+Message-ID: <e5f67090-07a4-4818-b83e-33386313b2af@redhat.com>
+Date: Tue, 20 May 2025 07:41:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,7 +73,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/3] KVM: s390: Set KVM_MAX_VCPUS to 256
+Subject: Re: [PATCH v2 2/3] KVM: s390: Always allocate esca_block
 To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
@@ -84,7 +83,7 @@ Cc: linux-s390@vger.kernel.org,
  Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
  <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>
 References: <20250519-rm-bsca-v2-0-e3ea53dd0394@linux.ibm.com>
- <20250519-rm-bsca-v2-1-e3ea53dd0394@linux.ibm.com>
+ <20250519-rm-bsca-v2-2-e3ea53dd0394@linux.ibm.com>
 From: Thomas Huth <thuth@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=thuth@redhat.com; keydata=
@@ -129,72 +128,60 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20250519-rm-bsca-v2-1-e3ea53dd0394@linux.ibm.com>
+In-Reply-To: <20250519-rm-bsca-v2-2-e3ea53dd0394@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 19/05/2025 13.36, Christoph Schlameuss wrote:
-> The s390x architecture allows for 256 vCPUs with a max CPUID of 255.
-> The current KVM implementation limits this to 248 when using the
-> extended system control area (ESCA). So this correction should not cause
-> any real world problems but actually correct the values returned by the
-> ioctls:
+> Instead of allocating a BSCA and upgrading it for PV or when adding the
+> 65th cpu we can always use the ESCA.
 > 
-> * KVM_CAP_NR_VCPUS
-> * KVM_CAP_MAX_VCPUS
-> * KVM_CAP_MAX_VCPU_ID
+> The only downside of the change is that we will always allocate 4 pages
+> for a 248 cpu ESCA instead of a single page for the BSCA per VM.
+> In return we can delete a bunch of checks and special handling depending
+> on the SCA type as well as the whole BSCA to ESCA conversion.
 > 
-> KVM_MAX_VCPUS is also moved to kvm_host_types to allow using this in
-> future type definitions.
+> As a fallback we can still run without SCA entries when the SIGP
+> interpretation facility or ESCA are not available.
 > 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 > ---
->   arch/s390/include/asm/kvm_host.h       | 2 --
->   arch/s390/include/asm/kvm_host_types.h | 2 ++
->   arch/s390/kvm/kvm-s390.c               | 2 ++
->   3 files changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index cb89e54ada257eb4fdfe840ff37b2ea639c2d1cb..f51bac835260f562eaf4bbfd373a24bfdbc43834 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -27,8 +27,6 @@
->   #include <asm/isc.h>
->   #include <asm/guarded_storage.h>
->   
-> -#define KVM_MAX_VCPUS 255
-> -
->   #define KVM_INTERNAL_MEM_SLOTS 1
->   
->   /*
-> diff --git a/arch/s390/include/asm/kvm_host_types.h b/arch/s390/include/asm/kvm_host_types.h
-> index 1394d3fb648f1e46dba2c513ed26e5dfd275fad4..9697db9576f6c39a6689251f85b4b974c344769a 100644
-> --- a/arch/s390/include/asm/kvm_host_types.h
-> +++ b/arch/s390/include/asm/kvm_host_types.h
-> @@ -6,6 +6,8 @@
->   #include <linux/atomic.h>
->   #include <linux/types.h>
->   
-> +#define KVM_MAX_VCPUS 256
-> +
->   #define KVM_S390_BSCA_CPU_SLOTS 64
->   #define KVM_S390_ESCA_CPU_SLOTS 248
->   
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 3f3175193fd7a7a26658eb2e2533d8037447a0b4..b65e4cbe67cf70a7d614607ebdd679060e7d31f4 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -638,6 +638,8 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->   			r = KVM_S390_ESCA_CPU_SLOTS;
->   		if (ext == KVM_CAP_NR_VCPUS)
->   			r = min_t(unsigned int, num_online_cpus(), r);
-> +		else if (ext == KVM_CAP_MAX_VCPU_ID)
-> +			r -= 1;
->   		break;
->   	case KVM_CAP_S390_COW:
->   		r = machine_has_esop();
-> 
+>   arch/s390/include/asm/kvm_host.h |   1 -
+>   arch/s390/kvm/interrupt.c        |  67 ++++-------------
+>   arch/s390/kvm/kvm-s390.c         | 159 ++++++---------------------------------
+>   arch/s390/kvm/kvm-s390.h         |   4 +-
+>   4 files changed, 42 insertions(+), 189 deletions(-)
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Could you now also remove struct bsca_block from the kvm_host_types.h header?
+
+...
+> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+> index 8d3bbb2dd8d27802bbde2a7bd1378033ad614b8e..2c8e177e4af8f2dab07fd42a904cefdea80f6855 100644
+> --- a/arch/s390/kvm/kvm-s390.h
+> +++ b/arch/s390/kvm/kvm-s390.h
+> @@ -531,7 +531,7 @@ int kvm_s390_handle_per_event(struct kvm_vcpu *vcpu);
+>   /* support for Basic/Extended SCA handling */
+>   static inline union ipte_control *kvm_s390_get_ipte_control(struct kvm *kvm)
+>   {
+> -	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
+> +	struct esca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
+
+You might want to adjust/remove the comment here now.
+
+  Thomas
+
+
+
+>   	return &sca->ipte_control;
+>   }
+> @@ -542,7 +542,7 @@ static inline int kvm_s390_use_sca_entries(void)
+>   	 * might use the entries. By not setting the entries and keeping them
+>   	 * invalid, hardware will not access them but intercept.
+>   	 */
+> -	return sclp.has_sigpif;
+> +	return sclp.has_sigpif && sclp.has_esca;
+>   }
+>   void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
+>   				     struct mcck_volatile_info *mcck_info);
+> 
 
