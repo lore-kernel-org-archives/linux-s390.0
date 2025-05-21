@@ -1,253 +1,318 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BBC325EFBD;
-	Wed, 21 May 2025 10:35:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C65725FA07;
+	Wed, 21 May 2025 10:44:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747823716; cv=none; b=fYwSv/sf8ZrfVL8gIx1pLlAfIupp2ZWsk/I1TVAGMU0AeNxKPZ1jgDCb/niMP6BajUaRrFOVQkdpufnKLPvj33uq+8giqKNnq6cZLY43mqXFXE//qxF6k5J5qx9xCIKrXa9/TE74peRKDJy2hUfMbibJDQvL1BHo6jSwiQRljRg=
+	t=1747824287; cv=none; b=stYi1LKk2hl1ZaB1qX+iJVUVBxDYmaj2fEVACF2uotquJEsJOjU/9iY1lr4yjr2NGFIVi6B7+PZoHdG+ZPZ1NpxbaD7o9+Rppf8QzwlpxKjvBm3wLmTaVHcJWWG82FJRy4MMM7rElA7supSDAZNEO5ltkuhY06ZTWK857MniLkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747823716; c=relaxed/simple;
-	bh=Bc0tuxh6FuJgjjna2ZA5ICMvztWDekZiHjGH1e4t3aQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kPH5t+xFWw/F+h3IOjqWeLCTzUSP+F3oe0pyYuE6D+9wAWGHhfTFg+nNvQ+/wW+eL94wy73FcEWVcgP2VnOACS3gpAFnXfWuOJavds0T4ElNMAJBGrPit3XJoqM+2vKa9/lr8AjCT1tOdH/ZGJL8kq6tQ/BFEM5BSevJU8ousrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eDq/77FY; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1747824287; c=relaxed/simple;
+	bh=wdYyMOldSs5J7ZV607pnOvS2tgtojBPdZ8GgMIEtaqw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hGsbBqOCjxDDnfJZ2KR91axELJpA1fNP/wMuNe9LNz2pzV4iE3jmheIwQ0r+sRzs7QEaUtCZ3f7H6bhXb+KdX+8hND2GpoxT4EH/yW9Tw4q/RuRrYBhAyPoHhbjd3CdQNpJyYoG8fE3sdQFJ0DApv/caT8jTB1lbwPjyvBpzSss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fxr+lJOM; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eDq/77FY"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54L8pd6Z014503;
-	Wed, 21 May 2025 10:35:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=OnL2JX
-	aeHotq86V5UBxO4l5O+IBgRMNGBuvWWVOJgCw=; b=eDq/77FYm2qIZjkTd8ZBSk
-	Z6egjzV6wPflUaml1pHfFzppoS464s17qIPib/LO/VbzBhsq2ZfB8oHoamsj8SXR
-	suieV+YEtyENELG4iv2YvILt5IY6Z7x72vV/dtp16fzrM6oEHUDJcrdCzyj4ICiX
-	FWlnueZSMkFGKc4XRvoij0SOT+MicVGUXRCCrzyJ8ZCME+bl1wkCPyXb6vTY8+mH
-	Y/B4AfIy564zHVpgkTuA6xXqVRVfWZedWP/h6v8D+bsJfBEyAXI+7xUIPL+zaqRG
-	3iAzw3Rr3xwFYl9gHRSxnYfVOuM3QuUm/Xgo/VE+g4AcmzabzUf+1l5BowHIB7OQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46sbph0ekd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 May 2025 10:35:05 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54L9u1Qn010595;
-	Wed, 21 May 2025 10:35:03 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46rwnmbqhu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 May 2025 10:35:03 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54LAYxgU53018952
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 21 May 2025 10:34:59 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C53042004B;
-	Wed, 21 May 2025 10:34:59 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 34E3E20040;
-	Wed, 21 May 2025 10:34:59 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.87.130.155])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 21 May 2025 10:34:59 +0000 (GMT)
-Date: Wed, 21 May 2025 12:34:57 +0200
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH 1/4] mm/memory_hotplug: Add interface for runtime
- (de)configuration of memory
-Message-ID: <aC2sUdhavboOgS83@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20241202082732.3959803-1-sumanthk@linux.ibm.com>
- <20241202082732.3959803-2-sumanthk@linux.ibm.com>
- <3151b9a0-3e96-4820-b6af-9f9ec4996ee1@redhat.com>
- <Z08WpCxt4lsIsjcN@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <1b9285ba-4118-4572-9392-42ec6ba6728c@redhat.com>
- <aCx-SJdHd-3Z12af@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <fca5fe72-55a8-456c-a179-56776848091d@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fxr+lJOM"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-ad5533c468cso610946766b.0;
+        Wed, 21 May 2025 03:44:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1747824284; x=1748429084; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=U7s86C99en4rKIGw3tj+5ymWyZfNfw27U2XEo8biwfc=;
+        b=Fxr+lJOMM2Dj/pu+FcHG2Snsq569dNIu5kfWdhVPrdZdJNwYlt4xtdenN5+TQ62299
+         jwoigc+cJnnO4qg6MZlZSl0MJODfh1cV+S8ccJIl++safjsjCX40siAHRmb9Hnnv8bdY
+         ma16oUfTiq3AOu8qVGPV60YmJIMT88BoNR/lC1C0rD9A3QJVmhl43qTeckROAPpC/zFE
+         ltpg5rtgOXg7OBoqltR0QjGtI3EGRdiRjtIIO0pEE4x/HdvfkgdaTF4kQ7n5DgUvd6jh
+         GkIIGgadHH+tslKze77rybI7BDQTzLh7z0oDvw8eJftjHIr4mdsoipc9laKvr7YMjPfi
+         o3Bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747824284; x=1748429084;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=U7s86C99en4rKIGw3tj+5ymWyZfNfw27U2XEo8biwfc=;
+        b=DX/l/wj5zcxuUCp7iEenK9AQXCZ3VGAQ9uamV9JGywliYQa6hqTLPMbvJQWnJ9J/2j
+         SBbz1YHB42GufOlOc35uFaeupK2MVj3v9OPew50FfB63dfti/jaHLklW3vniGoEqksrK
+         AK/0aLvTIY7ByMWTh+S3sho+kzYDtz/Js7sFS7CtR6wNgmtKPXBdKMSGXsNab3qO5XdT
+         KHXF682bdcb8HOzhEUbxDUDc5//pL+q5ZiBHOrYK5QkBxoe3ewQNUMiaTZKlcFssDJ7p
+         dzbK/qaJSFzc9h4OUIsKdVF8Y4DV+d6XWZWnxo1B/a0iOt1RZUKXwAYUJJJvHu06RDmS
+         4BRg==
+X-Forwarded-Encrypted: i=1; AJvYcCU0+7jXcjs2H1E/XHhSTuwT2NqZiijO/uxHa1UPliW49hyQME2jHX1aTRFd/7VPTQapS/rbuuVBh/+vlw==@vger.kernel.org, AJvYcCU0FKD6LkY6oBPJLDVfYSoDObq5cMy3q8M4kyOg2JWmDgDMaJuYHEGkr99bi7MVTlEPmLMYzN2ROBJFethLAw==@vger.kernel.org, AJvYcCUXPUAzOn4sjQ+LIBgUgBblkW57jGU+iWABTCYRa5/5Q7td6bWvC600VeJoeSaqcpYXJA6ciR3HQBbmVInC@vger.kernel.org, AJvYcCUfSHrsyy9j1lWm0lnAEP6UxdjEnOFrseaxu37C6OflTmxLKZXY8xdZgL7i5xd0bqtKSPYj+08gOA==@vger.kernel.org, AJvYcCUgJQfS6rBm2s1cpofPbw4ravhgVmYh2gJBGxEGQPBbDnXaboo9yLnDphgG1VXZWIh8DTCRbR7rL2n+@vger.kernel.org, AJvYcCV8I2dkht/kFEkzhCg+vvUiEmLV7O6dt76Y7DMoP1y4e+KGxZb+eLvjJLMIFzhtzvBKTL/CUUN5hGIVyhKW@vger.kernel.org, AJvYcCVdiqVGO1ZB4aGxHyfgaCiOFZX1FgP6bXzkJJCpkSl9nN8uCa20I6mFfA68/x3/Q81/nNOKYLt7x7EgIg==@vger.kernel.org, AJvYcCVrFsm3DWnTZKw6eFtrOeUL/mWY9XIIfidMaUypXsHN/YUSU3kus+liMco+gFgqapSrgrlBalVvZLU8Xw==@vger.kernel.org, AJvYcCWLfwcrim/ew4rr3PkSW8STxkVJ1lEOXKXqgKDdpQswV1DLY9Jzk2hnUSigCIehskN8Ayvuz4KNCF0EVi5qpg==@vger.kernel.org, AJvYcCWkld2qZp2B7uEOIYZQocLNXVafeGZHjfty89xAq3emLBtwopAj1wBxbPs+n5SaDiQY86fXe4J4nJFa@vger.kernel.org, AJvYcCWndX0BfQ670sixJpRei6Zw8NWzjdIqXjyPWdX2K7WFPd6MHmH6HRE2zRKHhzGbhHcl/xWG6jBrwCN5WIM=@vger.kernel.org, AJvYcCXRIi/ElYSmLckD8Qxd6hbKkhsiSgQrXHDo8MrZIJ6lDlg/HGRSiuG0wLNP7ANVUHBlAopJFZF5FhFj6w==@vger.kernel.org, AJvYcCXW+hg1lvlMf2W0bWuzwDFIc7NOl6ZeYqXS7SneA94cZv3gCLjYnb/gDFhdWyyPtEGGW9+jQ281cwK4vRXKf/ybxa1z/DGp@vger.kernel.org, AJvYcCXcJpHYDW94fVnOa+VxAu5Tg9r3s+V3v55odxXgLwuB7WcLRaGI9WfJLMxeBH5Qu3DYbO5OVOpiKQo=@vger.kernel.org, AJvYcCXjSJmQb59MExu3C+RHra9wKni8Gd9SmYbLW1A+tNIGv7tm3lPD3oSOXQn+VmycJbIuziyA5XVD0w==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw4qYKRT5xb+WuCfdYzdysMAi3klDPsZnRUd6sCmEK2OtEB2fYQ
+	2mJcJvPNpVtz4E0G4E4Vq2RU/FzleXEZo2IcRb+fiDYkOX++G10x7qUgLBqeh18UClRbE5YPUkO
+	lBHtG9BPVeEtL+d46dh0CvnSM/gGfL8M=
+X-Gm-Gg: ASbGnct3SUalzdgTVriCGobDctZJ1azNRdnEs32RNrlIq6M13T1hGxbB0szMIV1gyX5
+	XH/I1kF+/lYNqcnwmO1skh3SXOjxEpkUNtaT2urUTsGAAJM185PSpY7ApJy08S4w1DhD7XopFj5
+	g5GyqcK+1QlGZCU24V5yk3zlicknBtqv+G
+X-Google-Smtp-Source: AGHT+IHjdKaldjnagUYeAkZaxVv0PKTrOg3dvgceCo3K5CfAqPJX4ttSEQJcVm5rFWRa63l5bGpXFWyRh6DbM0BJP0M=
+X-Received: by 2002:a17:906:8f8a:b0:ad2:1a66:a1ad with SMTP id
+ a640c23a62f3a-ad536b7de17mr1674734766b.6.1747824283278; Wed, 21 May 2025
+ 03:44:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fca5fe72-55a8-456c-a179-56776848091d@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIxMDA5NCBTYWx0ZWRfX1Ir7nocZ0ZE7 VwLaSFnCBcLO9gRJZ9hYfiAMbU76FNh4iApIpKJXzmSoT4vn8Lg/IQsyfdLK+Zoo+3Lltk+M4dt WLrbH+L/w3uVcn3PaOptjzibwO6gX4snCn68eKGHOUgnSg7AqiEQacJX/TW1NIyLk74DiQa0Kgo
- 3R7kuIRsH/LnPCinvoUJmCM19GWwY1dJ//Vw3W6duRncWG7Jqh//UHn22WpssalgytAR8cIoag0 Oeb43/6GaKAoiElpSR4dB9sRvAK9zqI4j0huC1qZOk5Op7TdXK7eqC9GNpwOP4c/u0wJCs3cD0R Ra69DlOVVZSqzCex62bUhtmAUEiRT5ul8SfAXwBLSFxpR68pfPZrOBzhsxUEJteLPiOSFg6Skg4
- lbXbrBX+iK02e+5l/C8DEBK9bgfaBj1C6lfu/yb5kOcWtiQROKDDVPJeIG/baEMajccqj7t3
-X-Proofpoint-ORIG-GUID: n9icrul-5QQRR8-0XybbBDzAXo3tLAj0
-X-Authority-Analysis: v=2.4 cv=L5kdQ/T8 c=1 sm=1 tr=0 ts=682dac59 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=E8j359MtUMzoLxJxKO8A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: n9icrul-5QQRR8-0XybbBDzAXo3tLAj0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-21_02,2025-05-20_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 lowpriorityscore=0 spamscore=0 clxscore=1015
- mlxlogscore=999 suspectscore=0 phishscore=0 impostorscore=0 malwarescore=0
- mlxscore=0 bulkscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
- definitions=main-2505210094
+References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org>
+ <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com> <20250515-bedarf-absagen-464773be3e72@brauner>
+ <CAOQ4uxicuEkOas2UR4mqfus9Q2RAeKKYTwbE2XrkcE_zp8oScQ@mail.gmail.com>
+ <aCsX4LTpAnGfFjHg@dread.disaster.area> <sfmrojifgnrpeilqxtixyqrdjj5uvvpbvirxmlju5yce7z72vi@ondnx7qbie4y>
+ <CAOQ4uxiM+BBNODHfxu=v3XN2ezA-0k54qC5R4qdELbZW+W-xkg@mail.gmail.com> <mw2d36mqwzqoveguw5vlggrnw2wirsbhdxkox33z3fg7k6huz6@hj4ntgg3oj7p>
+In-Reply-To: <mw2d36mqwzqoveguw5vlggrnw2wirsbhdxkox33z3fg7k6huz6@hj4ntgg3oj7p>
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Wed, 21 May 2025 12:44:30 +0200
+X-Gm-Features: AX0GCFtzhzw8HQOfKpcxXaUXYfRoIUIi0dE2W9yfpQHIc06WbddDr0-sckzPkGU
+Message-ID: <CAOQ4uxiOaYusURMrjozD_s24Swih2g0x5_nTTYXO=+=EPCYtjw@mail.gmail.com>
+Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr syscalls
+To: Andrey Albershteyn <aalbersh@redhat.com>
+Cc: pali@kernel.org, Dave Chinner <david@fromorbit.com>, 
+	Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
+	Linux-Arch <linux-arch@vger.kernel.org>, selinux@vger.kernel.org, 
+	ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > Introduce new interface on s390 with the following attributes:
-> > 
-> > 1) Attribute1:
-> > /sys/firmware/memory/block_size_bytes
-> 
-> I assume this will be the storage increment size.
+On Wed, May 21, 2025 at 12:06=E2=80=AFPM Andrey Albershteyn <aalbersh@redha=
+t.com> wrote:
+>
+> On 2025-05-21 11:36:31, Amir Goldstein wrote:
+> > On Wed, May 21, 2025 at 10:48=E2=80=AFAM Andrey Albershteyn <aalbersh@r=
+edhat.com> wrote:
+> > >
+> > > On 2025-05-19 21:37:04, Dave Chinner wrote:
+> > > > On Thu, May 15, 2025 at 12:33:31PM +0200, Amir Goldstein wrote:
+> > > > > On Thu, May 15, 2025 at 11:02=E2=80=AFAM Christian Brauner <braun=
+er@kernel.org> wrote:
+> > > > > >
+> > > > > > On Tue, May 13, 2025 at 11:53:23AM +0200, Arnd Bergmann wrote:
+> > > > > > > On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
+> > > > > > >
+> > > > > > > >
+> > > > > > > >     long syscall(SYS_file_getattr, int dirfd, const char *p=
+athname,
+> > > > > > > >             struct fsxattr *fsx, size_t size, unsigned int =
+at_flags);
+> > > > > > > >     long syscall(SYS_file_setattr, int dirfd, const char *p=
+athname,
+> > > > > > > >             struct fsxattr *fsx, size_t size, unsigned int =
+at_flags);
+> > > > > > >
+> > > > > > > I don't think we can have both the "struct fsxattr" from the =
+uapi
+> > > > > > > headers, and a variable size as an additional argument. I wou=
+ld
+> > > > > > > still prefer not having the extensible structure at all and j=
+ust
+> > > > > >
+> > > > > > We're not going to add new interfaces that are fixed size unles=
+s for the
+> > > > > > very basic cases. I don't care if we're doing that somewhere el=
+se in the
+> > > > > > kernel but we're not doing that for vfs apis.
+> > > > > >
+> > > > > > > use fsxattr, but if you want to make it extensible in this wa=
+y,
+> > > > > > > it should use a different structure (name). Otherwise adding
+> > > > > > > fields after fsx_pad[] would break the ioctl interface.
+> > > > > >
+> > > > > > Would that really be a problem? Just along the syscall simply a=
+dd
+> > > > > > something like:
+> > > > > >
+> > > > > > diff --git a/fs/ioctl.c b/fs/ioctl.c
+> > > > > > index c91fd2b46a77..d3943805c4be 100644
+> > > > > > --- a/fs/ioctl.c
+> > > > > > +++ b/fs/ioctl.c
+> > > > > > @@ -868,12 +868,6 @@ static int do_vfs_ioctl(struct file *filp,=
+ unsigned int fd,
+> > > > > >         case FS_IOC_SETFLAGS:
+> > > > > >                 return ioctl_setflags(filp, argp);
+> > > > > >
+> > > > > > -       case FS_IOC_FSGETXATTR:
+> > > > > > -               return ioctl_fsgetxattr(filp, argp);
+> > > > > > -
+> > > > > > -       case FS_IOC_FSSETXATTR:
+> > > > > > -               return ioctl_fssetxattr(filp, argp);
+> > > > > > -
+> > > > > >         case FS_IOC_GETFSUUID:
+> > > > > >                 return ioctl_getfsuuid(filp, argp);
+> > > > > >
+> > > > > > @@ -886,6 +880,20 @@ static int do_vfs_ioctl(struct file *filp,=
+ unsigned int fd,
+> > > > > >                 break;
+> > > > > >         }
+> > > > > >
+> > > > > > +       switch (_IOC_NR(cmd)) {
+> > > > > > +       case _IOC_NR(FS_IOC_FSGETXATTR):
+> > > > > > +               if (WARN_ON_ONCE(_IOC_TYPE(cmd) !=3D _IOC_TYPE(=
+FS_IOC_FSGETXATTR)))
+> > > > > > +                       return SOMETHING_SOMETHING;
+> > > > > > +               /* Only handle original size. */
+> > > > > > +               return ioctl_fsgetxattr(filp, argp);
+> > > > > > +
+> > > > > > +       case _IOC_NR(FFS_IOC_FSSETXATTR):
+> > > > > > +               if (WARN_ON_ONCE(_IOC_TYPE(cmd) !=3D _IOC_TYPE(=
+FFS_IOC_FSSETXATTR)))
+> > > > > > +                       return SOMETHING_SOMETHING;
+> > > > > > +               /* Only handle original size. */
+> > > > > > +               return ioctl_fssetxattr(filp, argp);
+> > > > > > +       }
+> > > > > > +
+> > > > >
+> > > > > I think what Arnd means is that we will not be able to change str=
+uct
+> > > > > sfxattr in uapi
+> > > > > going forward, because we are not going to deprecate the ioctls a=
+nd
+> > > >
+> > > > There's no need to deprecate anything to rev an ioctl API.  We have
+> > > > had to solve this "changing struct size" problem previously in XFS
+> > > > ioctls. See XFS_IOC_FSGEOMETRY and the older XFS_IOC_FSGEOMETRY_V4
+> > > > and XFS_IOC_FSGEOMETRY_V1 versions of the API/ABI.
+> > > >
+> > > > If we need to increase the structure size, we can rename the existi=
+ng
+> > > > ioctl and struct to fix the version in the API, then use the
+> > > > original name for the new ioctl and structure definition.
+> > > >
+> > > > The only thing we have to make sure of is that the old and new
+> > > > structures have exactly the same overlapping structure. i.e.
+> > > > extension must always be done by appending new varibles, they can't
+> > > > be put in the middle of the structure.
+> > > >
+> > > > This way applications being rebuild will pick up the new definition
+> > > > automatically when the system asserts that it is suppored, whilst
+> > > > existing binaries will always still be supported by the kernel.
+> > > >
+> > > > If the application wants/needs to support all possible kernels, the=
+n
+> > > > if XFS_IOC_FSGEOMETRY is not supported, call XFS_IOC_FSGEOMETRY_V4,
+> > > > and if that fails (only on really old irix!) or you only need
+> > > > something in that original subset, call XFS_IOC_FSGEOMETRY_V1 which
+> > > > will always succeed....
+> > > >
+> > > > > Should we will need to depart from this struct definition and we =
+might
+> > > > > as well do it for the initial release of the syscall rather than =
+later on, e.g.:
+> > > > >
+> > > > > --- a/include/uapi/linux/fs.h
+> > > > > +++ b/include/uapi/linux/fs.h
+> > > > > @@ -148,6 +148,17 @@ struct fsxattr {
+> > > > >         unsigned char   fsx_pad[8];
+> > > > >  };
+> > > > >
+> > > > > +/*
+> > > > > + * Variable size structure for file_[sg]et_attr().
+> > > > > + */
+> > > > > +struct fsx_fileattr {
+> > > > > +       __u32           fsx_xflags;     /* xflags field value (ge=
+t/set) */
+> > > > > +       __u32           fsx_extsize;    /* extsize field value (g=
+et/set)*/
+> > > > > +       __u32           fsx_nextents;   /* nextents field value (=
+get)   */
+> > > > > +       __u32           fsx_projid;     /* project identifier (ge=
+t/set) */
+> > > > > +       __u32           fsx_cowextsize; /* CoW extsize field valu=
+e (get/set)*/
+> > > > > +};
+> > > > > +
+> > > > > +#define FSXATTR_SIZE_VER0 20
+> > > > > +#define FSXATTR_SIZE_LATEST FSXATTR_SIZE_VER0
+> > > >
+> > > > If all the structures overlap the same, all that is needed in the
+> > > > code is to define the structure size that should be copied in and
+> > > > parsed. i.e:
+> > > >
+> > > >       case FSXATTR..._V1:
+> > > >               return ioctl_fsxattr...(args, sizeof(fsx_fileattr_v1)=
+);
+> > > >       case FSXATTR..._V2:
+> > > >               return ioctl_fsxattr...(args, sizeof(fsx_fileattr_v2)=
+);
+> > > >       case FSXATTR...:
+> > > >               return ioctl_fsxattr...(args, sizeof(fsx_fileattr));
+> > > >
+> > > > -Dave.
+> > > > --
+> > > > Dave Chinner
+> > > > david@fromorbit.com
+> > > >
+> > >
+> > > So, looks like there's at least two solutions to this concern.
+> > > Considering also that we have a bit of space in fsxattr,
+> > > 'fsx_pad[8]', I think it's fine to stick with the current fsxattr
+> > > for now.
+> >
+> > Not sure which two solutions you are referring to.
+>
+> Suggested by Christian and Dave
+>
 
-Hi David,
+IIUC, those are suggestions of how we could cope with changing
+struct fsxattr in the future, but it is easier not to have to do that.
 
-No, this is memory block size.
+> >
+> > I proposed fsx_fileattr as what I think is the path of least resistance=
+.
+> > There are opinions that we may be able to avoid defining
+> > this struct, but I don't think there was any objection to adding it.
+> >
+> > So unless I am missing an objection that I did not understand
+> > define it and get over this hurdle?
+>
+> I see, sure, I misinterpreted the communication :) no problems, I
+> will create 'struct fsx_fileattr' then.
+>
+> Pali, ah sorry, I forgot that you will extend fsxattr right away
+>
 
-> > > 2) Attribute2:
-> > /sys/firmware/memory/memoryX/config
-> > echo 0 > /sys/firmware/memory/memoryX/config  -> deconfigure memoryX
-> > echo 1 > /sys/firmware/memory/memoryX/config ->  configure memoryX
-> 
-> And these would configure individual storage increments, essentially calling
-> add_memory() and (if possible because we could offline the memory)
-> remove_memory().
+Much less problems could be caused if fsxattr remain frozen in
+time along with the ioctls as we continue to extend the syscalls.
 
-configure or deconfigure memory in units of entire memory blocks.
+Thanks,
+Amir.
 
-As I understand it, add_memory() operates on memory block granularity,
-and this is enforced by check_hotplug_memory_range(), which ensures the
-requested range aligns with the memory block size.
+P.S. your CC list is a bit much.
+I wouldn't trust get_maintainer.pl output when it provides such a huge list
+it has some emails that bounce - not nice.
 
-> > 3) Attribute3:
-> > /sys/firmware/memory/memoryX/altmap_required
-> > echo 0 > /sys/firmware/memory/memoryX/altmap_required -> noaltmap
-> > echo 1 > /sys/firmware/memory/memoryX/altmap_required -> altmap
-> > echo N > /sys/firmware/memory/memoryX/altmap_required -> variable size
-> > 	 altmap grouping (possible future requirements),
-> > 	 where N specifies the number of memory blocks that the current
-> > 	 memory block manages altmap. There are two possibilities here:
-> >          * If the altmap cannot fit entirely within memoryX, it can
-> >            extend into memoryX+1, meaning the altmap metadata will span
-> >            across multiple memory blocks.
-> >          * If the altmap for memory range cannot fit within memoryX,
-> >            then config will return -EINVAL.
-> 
-> Do we really still need this when we can configure/deconfigure?
-> 
-> I mean, on s390x, the most important use case for memmap-on-memory was not
-> wasting memory for offline memory blocks.
-> 
-> But with a configuration interface like this ... the only benefit is being
-> able to more-reliably add memory in low-memory conditions. An unlikely
-> scenario with standby storage IMHO.
-> 
-> Note that I dislike exposing "altmap" to the user :) Dax calls it
-> "memmap_on_memory", and it is a device attrivute.
-> 
-> As soon as we go down that path we have the complexity of having to group
-> memory blocks etc, and if we can just not go down that path right now it
-> will make things a lot simpler.
-> 
-> (especially, as you document above, the semantics become *really* weird)
-> 
-> As yet another point, I am not sure if someone really needs a per-memory
-> block control of the memmap-on-memory feature.
-> 
-> If we could simplify here, that would be great ...
-
-The original motivation for introducing memmap_on_memory on s390 was to
-avoid using online memory to store struct page metadata, particularly
-for standby memory blocks. This became critical in cases where there was
-an imbalance between standby and online memory, potentially leading to
-boot failures due to insufficient memory for metadata allocation.
-
-To address this, memmap_on_memory was utilized on s390. However, in its
-current form, it adds altmap metadata at the start of each memory block
-at the time of addition, and this configuration is static. It cannot be
-changed at runtime.
-
-I was wondering about the following practical scenario:
-
-When online memory is nearly full, the user can add a standby memory
-block with memmap_on_memory enabled. This allows the system to avoid
-consuming already scarce online memory for metadata.
-
-After enabling and bringing that standby memory online, the user now
-has enough free online memory to add additional memory blocks without
-memmap_on_memory. These later blocks can provide physically contiguous
-memory, which is important for workloads or devices requiring continuous
-physical address space.
-
-If my interpretation is correct, I see good potential for this be be
-useful.
-
-As you pointed out, how about having something similar to
-73954d379efd ("dax: add a sysfs knob to control memmap_on_memory behavior")
-
-i.e.
-
-1) To configure/deconfigure a memory block
-/sys/firmware/memory/memoryX/config
-
-1 -> configure
-0 -> deconfigure
-
-2) Determine whether memory block should have memmap_on_memory or not.
-/sys/firmware/memory/memoryX/memmap_on_memory
-1 -> with altmap
-0 -> without altmap
-
-This attribute must be set before the memoryX is configured. Or else, it
-will default to CONFIG_MHP_MEMMAP_ON_MEMORY / memmap_on_memory parameter.
-
-
-> > NOTE: “altmap_required” attribute must be set before setting the block as
-> > configured via “config” attribute. (Dependancy)
-> > 
-> > 4) Additionally add the patch to check if the memory block is configured
-> > with altmap or not. Similar to [RFC PATCH 2/4] mm/memory_hotplug: Add
-> > memory block altmap sysfs attribute.
-> > 
-> > Most of the code changes will be s390 specific with this interface.
-> > 
-> > Request your inputs on the potential interface. Thank you.
-> > 
-> > Other questions:
-> > 1. I’m just wondering how variable-sized altmap grouping will be
-> > structured in the future. Is it organized by grouping the memory blocks
-> > that require altmap, with the first memory block storing the altmap
-> > metadata for all of them? Or is it possible for the altmap metadata to
-> > span across multiple memory blocks?
-> 
-> That exactly is unclear, which is why we should probably avoid doing that
-> for now. Also, with other developments happening (memdesc), and ongoing
-> effort to shrink "struct page", maybe we will not even need most of this in
-> the future?
-> 
-> > 
-> > 2. OR, will dedicated memory blocks be used exclusively for altmap
-> > metadata, which the memory blocks requiring altmap would then consume? (To
-> > prevent fragmentation) ?
-> 
-> One idea I had was that you would do the add_memory() in bigger granularity.
-> 
-> Then, the memory blocks hosting the memmap would have to get onlined first.
-> And offlining of them would fail until all dependent ones were offlined.
-> 
-> That would at least limit the impact.
-> 
-> Then, the question would be, how could you "group" these memory blocks from
-> your interface to do a single add_memory() etc.
-> 
-> But again, maybe we can leave that part out for now ...
-
-Thank you David for the details. I will ignore/leave variable sized
-altmap grouping for now.
+When you are at v5 you should be able to have figured out who is
+participating in the review and for the rest, the public lists
+linux-fsdevel, linux-api and linux-xfs should be enough.
