@@ -1,210 +1,260 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD77C21CA04
-	for <linux-s390@vger.kernel.org>; Wed, 21 May 2025 06:20:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7D26231852
+	for <linux-s390@vger.kernel.org>; Wed, 21 May 2025 08:48:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747808453; cv=none; b=AMnszfSxWrgJ26bua5hypbXrI9qZQCyerkLN/VMFc5vB+/O6f1IFHsj18HSQfiezSKFaKn8KSsiQ4simgQtnUKwCvj7sy7JAzTW+t6HNaahQRBdBZ5J9B0GV8qNYaGwMz1dlcVMgaK9hWLHLrp4CpQNZgxSM1GvKSMIFV6w6Cx4=
+	t=1747817340; cv=none; b=rwsWqKqpxcqe8JVeL6h61GbfGPM2Gf6iqiWlD2ez0JHT2rRwhV8a9H29nDwwKKGdMgJLE5Sxw1zNzVQ7wmbFBeMAE/5G3mcpIz8WkFQSAVWo3MneQw/RC5V+IswQGzT3Gjx7GXxhvtcyp083RygOVNIbCFEaQXPv1JZyIUeM5Tw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747808453; c=relaxed/simple;
-	bh=YHL1BO9Yw2qVuykoMrFywasyGMLqP7T8KUotdskXsco=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lonpAe5nyTWSgxuXJi1KMxgwpA6kKLLGlN9kGs2HTRgHA+lSTgsDk6DQp3W5btFy1ul0SP5JXE7bEkKR1IcYnEiopoGBFZMcYlPDcO7eu63JpYCg23JobPPYwJUnFdmxYUl2osZ+tb5EgWfG2mK6cJXi22gMGiNM732ncnsv2Dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YO8ZZB3T; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1747817340; c=relaxed/simple;
+	bh=oks16V55Al3cIwa3tzMhKIQg+6JISq/7X+SJWpAWNGk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AW/QNGyQ+t9p98qFHTkPn4QKXyfKjDg5EXHASzNILuoXvKjYzWTv0LQlxliQ7ZFj56VBwkXJkE7fJRdlTgHBezRbN427RGNmiDDXx5aMdpADTwR3tQ6GTVdmcG8YpfNr7dMYMFUM/O/DHX4p5MuD9A/x/R0rr3s4rZuIoCiztqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QlAq5mpv; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YO8ZZB3T"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QlAq5mpv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1747808450;
+	s=mimecast20190719; t=1747817338;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=27vdWwqXm6Qw7dfKd1dwnOUfre6U0zDeEbDFMcZZEZY=;
-	b=YO8ZZB3TTR/zXjMFSbg+PGXI8w8Lihatm6FXuPBn5/5PBI8yqnb5xYV7dOyH7Ckvh4QBda
-	La5ewSn0ZDmWnSvbHbsA/QxQ611ubsQbnbkV1Xf4Q/YNKjhy5i74p+bKFV4SwZhBZZrkv4
-	8BF7d6INgvTMorkM1fIA6fa6srhVvuU=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=UBrTKYMZkRkR/+obIFDmt3FxVCfGaAspFXfSUz2lNvE=;
+	b=QlAq5mpvGOfL8WUvEul/ZfxH+Pfjxq35t2HhDHKBhV+qP1jbvcFJW1x1cLWsiGPHen9DJ+
+	cQOuVD+YbN+BBIdl68mKQo0sMx3n05F0vEj6khC65qgZ7CbV9D8w7fpvVSXohS5uV7cvna
+	aAGZAMKuUGHhJNwN8AQkoc2I+qwIzoY=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-2xJRhlZCPFmdwtHjTAJuug-1; Wed, 21 May 2025 02:20:49 -0400
-X-MC-Unique: 2xJRhlZCPFmdwtHjTAJuug-1
-X-Mimecast-MFC-AGG-ID: 2xJRhlZCPFmdwtHjTAJuug_1747808448
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-30ebfc28a1eso5278376a91.2
-        for <linux-s390@vger.kernel.org>; Tue, 20 May 2025 23:20:49 -0700 (PDT)
+ us-mta-64-aCDTHNOZM86HkCrr2UQq7w-1; Wed, 21 May 2025 04:48:41 -0400
+X-MC-Unique: aCDTHNOZM86HkCrr2UQq7w-1
+X-Mimecast-MFC-AGG-ID: aCDTHNOZM86HkCrr2UQq7w_1747817320
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-ad56c5412f2so254827266b.1
+        for <linux-s390@vger.kernel.org>; Wed, 21 May 2025 01:48:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747808448; x=1748413248;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1747817320; x=1748422120;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=27vdWwqXm6Qw7dfKd1dwnOUfre6U0zDeEbDFMcZZEZY=;
-        b=kAEssv8a3NqjSPf+3f2VRPCs65VRxEZKihBL3T9Q65gocRLkBHFURu6YKbrS4CJOPm
-         sAaKh46VW3cf+gsUD3YyqaP9gcoa7+tOHzufCJN4KKlGROfSVGXhQtu7Iyms8o7swpGd
-         Y4eGI/2kzGXwl9pJE4W2eUMtiP5L/sVX6UT2gLj1s/RiUyu8M3w7N8awUMVQ2T601C8b
-         RXEyXaxDH/JufPn+X6kRjj42IyFfPfUYDEMMdwu5YKLh8Kqh/9wWmbNzf9Nie4Ow6o5j
-         OXcPk1tgLIiJ1wvl9SZ1JVg2x5qYSgLUF75XlXJdYY7mjFslw0TWCrRr0u0zM1ePiQQI
-         hndA==
-X-Forwarded-Encrypted: i=1; AJvYcCUoIgJuEsL9hlkI3UrRrd0w9uXgK7COPjTyQ76Ov+yvISR7amHj9VIih7pVzczmSdf8VYhI3vS2b2rR@vger.kernel.org
-X-Gm-Message-State: AOJu0YybPqNk3mIzq884gB5xJlo1V1BO8NfAM7peTxd/w4udN+wjcRD3
-	T8J2GC9JqeuP5COO9BbUDhAUa13qgr65bBnWxsRQ1bg7EI3ko2Zrgg2D3e7ZFtkwOA1bpDD6Ygi
-	6x94M8deO0Kp81A5Pj9lkK6hu7HkDn5xLNYPy3Th7PaYUAai6VpA16Sb5/8r+xEzLiC/QWKQ=
-X-Gm-Gg: ASbGncuu4ObZykufuNxXnHEsStiFbSByfCjwkkXhz5FnbR3FIMfQyBOz0rDjb6x3ijF
-	RVYnnaLYbTazeUr7P2hk29B2mhQNo4uRCeglS04XAzAmLz7iILPiLD55+pGEWTCl36Pk5G3+cOb
-	DJCRdxhA/XrnVlj7oUBds/I2YaVeTnVGFBom2bkqTgBn0otyXL0+gd8qb7VhWiH8oK05m4aEXf1
-	hB5b1joVg0IKhWtCM2IQHGCtWxSJxdDqako3zfoi6sPIYcPW7/tLmzFejuhvgzkCJ86HSTNfrgd
-	RQ+csCLC9HMqKIk=
-X-Received: by 2002:a17:90b:35ca:b0:2fe:baa3:b8bc with SMTP id 98e67ed59e1d1-30e832258eamr23096820a91.23.1747808447863;
-        Tue, 20 May 2025 23:20:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGCcJqZvem5ZOsw0GUieRAaMuIKN6FQwGBBKSGgLmmfZRpS0KvtQJGPwRUgMl3I4UcNRsWE9Q==
-X-Received: by 2002:a17:90b:35ca:b0:2fe:baa3:b8bc with SMTP id 98e67ed59e1d1-30e832258eamr23096785a91.23.1747808447373;
-        Tue, 20 May 2025 23:20:47 -0700 (PDT)
-Received: from [10.72.116.61] ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30f365b2d8fsm2847557a91.7.2025.05.20.23.20.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 May 2025 23:20:46 -0700 (PDT)
-Message-ID: <5b284638-2082-4d85-9e4d-4514ee15e193@redhat.com>
-Date: Wed, 21 May 2025 14:20:37 +0800
+        bh=UBrTKYMZkRkR/+obIFDmt3FxVCfGaAspFXfSUz2lNvE=;
+        b=PNYHql7qW1j70MRb7UooFN4bqYcqA7P/7YQGP+6WiIrfI7lG4o5oAjxzahafVLRTKm
+         CrT164HvbOiH15p7FmcNX788xHfcoXfAdXGDwzqSNDfQv99eE5dqAhmIMR0JPiOiObeW
+         w5PaW4YRBi09AFcCxy8YMMhHckoxVhYQEEcF0Ghj98CeCJcLensTUTLONb8ZXpqbdsZF
+         +7kZhSvnJUxqKcZivCjC7fQZufBTvDBAE/pgkjVTQPAL2yaQj8ZAMg1HqWRBpY1kQPOW
+         cc9EMGGUWrvgewyGSvZlmv5JoTY56k5bVe0h4xCbJIXa4EvrcepPoRe84wzNB09g/dqm
+         J5bA==
+X-Forwarded-Encrypted: i=1; AJvYcCVl9cNMSdgb/jyiiCqQjV8spLN6Lj8masumK/+8ftHZy1rJbRh4a4LGY8HL6tmuH+D2RhzMoKoAD+Hp@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzwi9FsEpdhx6Hv8Y369DanIk8t+XuwVqZPJIsWO/vxcxdszxVU
+	yQB879kcLa2ZMEZvGggGbWCtC5DPeAkYKTVCpjw+vl7lZ53fJyDEu+EKxsyKl6fUWhFMbpzwWd4
+	7gqyGzxI5H81LkcmtkgCSGSyA3DzQhMnSDmF1961/q7/hVtzudwWtQFgInW1uHw==
+X-Gm-Gg: ASbGnctsKcPkBSZ2PewJsiJ2RRSjh3iy1dsHu1vJTlYR0ZrXzTHFNvBVMlHfA7XKSbX
+	WH+I3XSsphXmWeEHh0ucd62KUMljeVo7X0X72SA/zfZniqEV1wL+vruPivwb8bZfTCpNKAafI+1
+	y+puKh8zaeoyLg2MDtBV7MbqFNa5QpuGkNErRF+mnVNSrwYPecdjpJNxRpmSfLVRdfg0UirQ/st
+	M6kuZLm7Ci6BRlEOGacp5ALxnijd6UUV1Y/95LKYEk3bgdlcXmudUbftfnw7TONTwAIRSA0KrcW
+	sg==
+X-Received: by 2002:a17:907:96a1:b0:ad4:cfbd:efd0 with SMTP id a640c23a62f3a-ad536c1a813mr1851020066b.36.1747817319663;
+        Wed, 21 May 2025 01:48:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG4Uad4LLY/qbicMx/bjSP1amiyVw6y5+cI+R+l9yVSKq3rctv7sT91m06PC9V35nY4DdIi0w==
+X-Received: by 2002:a17:907:96a1:b0:ad4:cfbd:efd0 with SMTP id a640c23a62f3a-ad536c1a813mr1851012766b.36.1747817319102;
+        Wed, 21 May 2025 01:48:39 -0700 (PDT)
+Received: from thinky ([2a0e:fd87:a051:1:d224:1f1f:6cfc:763a])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ad5505131f7sm659880666b.67.2025.05.21.01.48.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 May 2025 01:48:38 -0700 (PDT)
+Date: Wed, 21 May 2025 10:48:26 +0200
+From: Andrey Albershteyn <aalbersh@redhat.com>
+To: Dave Chinner <david@fromorbit.com>
+Cc: Amir Goldstein <amir73il@gmail.com>, 
+	Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S . Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Tyler Hicks <code@tyhicks.com>, Miklos Szeredi <miklos@szeredi.hu>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
+	Linux-Arch <linux-arch@vger.kernel.org>, selinux@vger.kernel.org, ecryptfs@vger.kernel.org, 
+	linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org, 
+	Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr
+ syscalls
+Message-ID: <sfmrojifgnrpeilqxtixyqrdjj5uvvpbvirxmlju5yce7z72vi@ondnx7qbie4y>
+References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org>
+ <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+ <20250515-bedarf-absagen-464773be3e72@brauner>
+ <CAOQ4uxicuEkOas2UR4mqfus9Q2RAeKKYTwbE2XrkcE_zp8oScQ@mail.gmail.com>
+ <aCsX4LTpAnGfFjHg@dread.disaster.area>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH v3 16/16] scripts: Enable kvmtool
-To: Alexandru Elisei <alexandru.elisei@arm.com>, andrew.jones@linux.dev,
- eric.auger@redhat.com, lvivier@redhat.com, thuth@redhat.com,
- frankja@linux.ibm.com, imbrenda@linux.ibm.com, nrb@linux.ibm.com,
- david@redhat.com, pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, will@kernel.org, julien.thierry.kdev@gmail.com,
- maz@kernel.org, oliver.upton@linux.dev, suzuki.poulose@arm.com,
- yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com
-References: <20250507151256.167769-1-alexandru.elisei@arm.com>
- <20250507151256.167769-17-alexandru.elisei@arm.com>
-Content-Language: en-US
-From: Shaoqin Huang <shahuang@redhat.com>
-In-Reply-To: <20250507151256.167769-17-alexandru.elisei@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aCsX4LTpAnGfFjHg@dread.disaster.area>
 
-
-
-On 5/7/25 11:12 PM, Alexandru Elisei wrote:
-> Everything is in place to run the tests using kvmtool:
+On 2025-05-19 21:37:04, Dave Chinner wrote:
+> On Thu, May 15, 2025 at 12:33:31PM +0200, Amir Goldstein wrote:
+> > On Thu, May 15, 2025 at 11:02 AM Christian Brauner <brauner@kernel.org> wrote:
+> > >
+> > > On Tue, May 13, 2025 at 11:53:23AM +0200, Arnd Bergmann wrote:
+> > > > On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
+> > > >
+> > > > >
+> > > > >     long syscall(SYS_file_getattr, int dirfd, const char *pathname,
+> > > > >             struct fsxattr *fsx, size_t size, unsigned int at_flags);
+> > > > >     long syscall(SYS_file_setattr, int dirfd, const char *pathname,
+> > > > >             struct fsxattr *fsx, size_t size, unsigned int at_flags);
+> > > >
+> > > > I don't think we can have both the "struct fsxattr" from the uapi
+> > > > headers, and a variable size as an additional argument. I would
+> > > > still prefer not having the extensible structure at all and just
+> > >
+> > > We're not going to add new interfaces that are fixed size unless for the
+> > > very basic cases. I don't care if we're doing that somewhere else in the
+> > > kernel but we're not doing that for vfs apis.
+> > >
+> > > > use fsxattr, but if you want to make it extensible in this way,
+> > > > it should use a different structure (name). Otherwise adding
+> > > > fields after fsx_pad[] would break the ioctl interface.
+> > >
+> > > Would that really be a problem? Just along the syscall simply add
+> > > something like:
+> > >
+> > > diff --git a/fs/ioctl.c b/fs/ioctl.c
+> > > index c91fd2b46a77..d3943805c4be 100644
+> > > --- a/fs/ioctl.c
+> > > +++ b/fs/ioctl.c
+> > > @@ -868,12 +868,6 @@ static int do_vfs_ioctl(struct file *filp, unsigned int fd,
+> > >         case FS_IOC_SETFLAGS:
+> > >                 return ioctl_setflags(filp, argp);
+> > >
+> > > -       case FS_IOC_FSGETXATTR:
+> > > -               return ioctl_fsgetxattr(filp, argp);
+> > > -
+> > > -       case FS_IOC_FSSETXATTR:
+> > > -               return ioctl_fssetxattr(filp, argp);
+> > > -
+> > >         case FS_IOC_GETFSUUID:
+> > >                 return ioctl_getfsuuid(filp, argp);
+> > >
+> > > @@ -886,6 +880,20 @@ static int do_vfs_ioctl(struct file *filp, unsigned int fd,
+> > >                 break;
+> > >         }
+> > >
+> > > +       switch (_IOC_NR(cmd)) {
+> > > +       case _IOC_NR(FS_IOC_FSGETXATTR):
+> > > +               if (WARN_ON_ONCE(_IOC_TYPE(cmd) != _IOC_TYPE(FS_IOC_FSGETXATTR)))
+> > > +                       return SOMETHING_SOMETHING;
+> > > +               /* Only handle original size. */
+> > > +               return ioctl_fsgetxattr(filp, argp);
+> > > +
+> > > +       case _IOC_NR(FFS_IOC_FSSETXATTR):
+> > > +               if (WARN_ON_ONCE(_IOC_TYPE(cmd) != _IOC_TYPE(FFS_IOC_FSSETXATTR)))
+> > > +                       return SOMETHING_SOMETHING;
+> > > +               /* Only handle original size. */
+> > > +               return ioctl_fssetxattr(filp, argp);
+> > > +       }
+> > > +
+> > 
+> > I think what Arnd means is that we will not be able to change struct
+> > sfxattr in uapi
+> > going forward, because we are not going to deprecate the ioctls and
 > 
-> $ ./configure --target=kvmtool
-> $ make clean && make
-> $ KVMTOOL=<path/to/kvmtool> ./run_tests.sh
+> There's no need to deprecate anything to rev an ioctl API.  We have
+> had to solve this "changing struct size" problem previously in XFS
+> ioctls. See XFS_IOC_FSGEOMETRY and the older XFS_IOC_FSGEOMETRY_V4
+> and XFS_IOC_FSGEOMETRY_V1 versions of the API/ABI.
 > 
-> so enable it, and remove ERRATA_FORCE=y when configuring for kvmtool,
-> because the runner will generate and pass the correct environment to
-> kvmtool.
+> If we need to increase the structure size, we can rename the existing
+> ioctl and struct to fix the version in the API, then use the
+> original name for the new ioctl and structure definition.
 > 
-> Missing is support for EFI tests. That's because distros don't ship a
-
-Missing should be Nothing?
-
-> EDK2 binary compiled for kvmtool, and on top of that kvm-unit-tests as
-> an EFI app hasn't been tested to work with kvmtool.
+> The only thing we have to make sure of is that the old and new
+> structures have exactly the same overlapping structure. i.e.
+> extension must always be done by appending new varibles, they can't
+> be put in the middle of the structure.
 > 
-> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-
-Reviewed-by: Shaoqin Huang <shahuang@redhat.com>
-
-> ---
->   README.md        | 18 +++++++++++++++++-
->   arm/efi/run      |  5 +++++
->   configure        |  1 -
->   scripts/vmm.bash |  2 +-
->   4 files changed, 23 insertions(+), 3 deletions(-)
+> This way applications being rebuild will pick up the new definition
+> automatically when the system asserts that it is suppored, whilst
+> existing binaries will always still be supported by the kernel.
 > 
-> diff --git a/README.md b/README.md
-> index be07dc28a094..723ce04cd978 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -65,6 +65,9 @@ or:
->   
->   to run them all.
->   
-> +All tests can be run using QEMU. On arm and arm64, tests can also be run using
-> +kvmtool.
-> +
->   By default the runner script searches for a suitable QEMU binary in the system.
->   To select a specific QEMU binary though, specify the QEMU=path/to/binary
->   environment variable:
-> @@ -78,12 +81,25 @@ ACCEL=name environment variable:
->   
->   For running tests that involve migration from one QEMU instance to another
->   you also need to have the "ncat" binary (from the nmap.org project) installed,
-> -otherwise the related tests will be skipped.
-> +otherwise the related tests will be skipped. kvmtool does not support migration.
-> +
-> +As for running a test with kvmtool, please configure kvm-unit-tests accordingly
-> +first:
-> +
-> +   ./configure --arch=arm64 --target=kvmtool
-> +
-> +then run the test(s) like with QEMU above.
-> +
-> +To select a kvmtool binary, specify the KVMTOOL=path/to/binary environment
-> +variable. kvmtool supports only kvm as the accelerator.
->   
->   ## Running the tests with UEFI
->   
->   Check [x86/efi/README.md](./x86/efi/README.md).
->   
-> +On arm and arm64, this is only supported with QEMU; kvmtool cannot run the
-> +tests under UEFI.
-> +
->   # Tests configuration file
->   
->   The test case may need specific runtime configurations, for
-> diff --git a/arm/efi/run b/arm/efi/run
-> index 53d71297cc52..0843725ec360 100755
-> --- a/arm/efi/run
-> +++ b/arm/efi/run
-> @@ -15,6 +15,11 @@ source scripts/vmm.bash
->   
->   check_vmm_supported
->   
-> +if [[ $TARGET = "kvmtool" ]]; then
-> +	echo "kvmtool does not support EFI tests."
-> +	exit 2
-> +fi
-> +
->   if [ -f /usr/share/qemu-efi-aarch64/QEMU_EFI.fd ]; then
->   	DEFAULT_UEFI=/usr/share/qemu-efi-aarch64/QEMU_EFI.fd
->   elif [ -f /usr/share/edk2/aarch64/QEMU_EFI.silent.fd ]; then
-> diff --git a/configure b/configure
-> index 8c4400db42bc..d5f9995172f8 100755
-> --- a/configure
-> +++ b/configure
-> @@ -392,7 +392,6 @@ elif [ "$arch" = "arm" ] || [ "$arch" = "arm64" ]; then
->           : "${uart_early_addr:=0x9000000}"
->       elif [ "$target" = "kvmtool" ]; then
->           : "${uart_early_addr:=0x1000000}"
-> -        errata_force=1
->       else
->           echo "--target must be one of 'qemu' or 'kvmtool'!"
->           usage
-> diff --git a/scripts/vmm.bash b/scripts/vmm.bash
-> index ef9819f4132c..4ae60c37a6e8 100644
-> --- a/scripts/vmm.bash
-> +++ b/scripts/vmm.bash
-> @@ -159,7 +159,7 @@ declare -A vmm_opts=(
->   function check_vmm_supported()
->   {
->   	case "$TARGET" in
-> -	qemu)
-> +	qemu | kvmtool)
->   		return 0
->   		;;
->   	*)
+> If the application wants/needs to support all possible kernels, then
+> if XFS_IOC_FSGEOMETRY is not supported, call XFS_IOC_FSGEOMETRY_V4,
+> and if that fails (only on really old irix!) or you only need
+> something in that original subset, call XFS_IOC_FSGEOMETRY_V1 which
+> will always succeed....
+> 
+> > Should we will need to depart from this struct definition and we might
+> > as well do it for the initial release of the syscall rather than later on, e.g.:
+> > 
+> > --- a/include/uapi/linux/fs.h
+> > +++ b/include/uapi/linux/fs.h
+> > @@ -148,6 +148,17 @@ struct fsxattr {
+> >         unsigned char   fsx_pad[8];
+> >  };
+> > 
+> > +/*
+> > + * Variable size structure for file_[sg]et_attr().
+> > + */
+> > +struct fsx_fileattr {
+> > +       __u32           fsx_xflags;     /* xflags field value (get/set) */
+> > +       __u32           fsx_extsize;    /* extsize field value (get/set)*/
+> > +       __u32           fsx_nextents;   /* nextents field value (get)   */
+> > +       __u32           fsx_projid;     /* project identifier (get/set) */
+> > +       __u32           fsx_cowextsize; /* CoW extsize field value (get/set)*/
+> > +};
+> > +
+> > +#define FSXATTR_SIZE_VER0 20
+> > +#define FSXATTR_SIZE_LATEST FSXATTR_SIZE_VER0
+> 
+> If all the structures overlap the same, all that is needed in the
+> code is to define the structure size that should be copied in and
+> parsed. i.e:
+> 
+> 	case FSXATTR..._V1:
+> 		return ioctl_fsxattr...(args, sizeof(fsx_fileattr_v1));
+> 	case FSXATTR..._V2:
+> 		return ioctl_fsxattr...(args, sizeof(fsx_fileattr_v2));
+> 	case FSXATTR...:
+> 		return ioctl_fsxattr...(args, sizeof(fsx_fileattr));
+> 
+> -Dave.
+> -- 
+> Dave Chinner
+> david@fromorbit.com
+> 
+
+So, looks like there's at least two solutions to this concern.
+Considering also that we have a bit of space in fsxattr,
+'fsx_pad[8]', I think it's fine to stick with the current fsxattr
+for now.
 
 -- 
-Shaoqin
+- Andrey
 
