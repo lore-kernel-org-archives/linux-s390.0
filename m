@@ -1,181 +1,177 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 890511EB18D;
-	Wed, 21 May 2025 15:46:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FCFE202F7C;
+	Wed, 21 May 2025 15:52:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747842416; cv=none; b=RbcpGhQmShYkfgGTr2NH9P5F3uNAV9ngWDhRs09Cx+iUB8dxSPLHK+jnWyF18At0aS3PsfEv9JJwzeZO08OWv2RC92Y5UYQjOqXAo3lmW8Rm7MNYYDKkW0NygCSC7tJq/Cg82Foc+rO72WS0IyJXgvqRi0FHIhd4Q0lus4dZTdc=
+	t=1747842744; cv=none; b=MQ201BBVE9KZH4rFOZAeWJXGnVGznCWHCy1yVtD/XVCH4fOs9g3fJwwoYIzq0XPTqYgzrhBS9UX1EXjRoFNUh5F3mu33w/89HvJA9rEJt4IL8MnaRv1vuLcpH89KIoA6r/B+yvj/+BgygysMAESo7bOE7hs8WEnd1qBvjfjW4xE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747842416; c=relaxed/simple;
-	bh=xs6MyiJsl4816VLbkiYJIjZ52nVBNYDg6IflP+yXM5o=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ozyabUKB9ceBH35oSMyqlLIgBFFobE5D496v196aZWNE6ky5jWR0naXCttl6PY+MiDfc4SEIWnrgviCB0bivTOLxMkng7ACibcZAFkoZcFdVDTE602THaTHqSQm7S6Np2Gjo7PFEHgU/nF/axysWeUVc6I/fgvKMn+mRnzA9hzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KAHkfWdQ; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1747842744; c=relaxed/simple;
+	bh=G3q19HiN669ttmrnizWZ+QjhZHbzZgAeZ5tO1aNwb8M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hjUr+C/epiqXT6jV09mQ2Gfc05OG/DDt5IhBaB/FmOnua3iYW4Z9GcyKkV+E8FW0eA7biN9BQzBXNH9htNLXAX6qPTzUYxOKUyE9DbZ26wZt3/6yRj1dS6OqlzmL/QLDSA5H0mE+F8mOCuyHAmuZew/Jcvb+BVLcu7Q4afu44V0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IA294N4V; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KAHkfWdQ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54LDnJmq006706;
-	Wed, 21 May 2025 15:46:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IA294N4V"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54LAmYob030456;
+	Wed, 21 May 2025 15:52:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Wx1Lgm
-	ZxF+Xwm4tlerhs5YqUIvIJlk0ChbGGpQkmSYs=; b=KAHkfWdQZKB4cbteFbtz8V
-	Ex11MQzhuBFamyqER/nkOQ/MauwI77DW+qYZ99McBOsljKu1a+be6TXhWp9NtFpV
-	E29jRXfNEWkrwWqsw0qzLMFY+filt+GqOO5tqvpa8mhF6qxHZ3v/L1WwyEqNI2t7
-	epxbY/Pyh7KVpU3yh0OHQ3lYUK6XJYwqLQ/xMR72duwd/jiphwZiLGMEqgqAOULC
-	9mkikP/HC7oaLVc71+wocKIotZVUZj9ciu4dvV5qSywMEjFtcgc2S5/4SB9nN0mu
-	q6oDGFDvgkNZsX7Gjq2DA/fHFD2TQsIEwAaVb0Tz6seNflsUtORmrVrLpVvnKouQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46sg230m3d-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=gDHHhtfQbx1ibmUx3WjgdrsAL3LQpt
+	CHzJzATlXUBLk=; b=IA294N4VIYz7Xl9khOmSndHrrcCfrEEriWXkB4zsnxTCsz
+	e7fUQm8MrpzHcCH3xwZvbvFHKLjrUWBl3oJX6Uay3oO/igoOPCE597YI6IogQcu7
+	fpffqH44RXhag6eHpqJLb8KttVugdQzBJmf+sonKyUMfZBu3d5HLMAYKGCayaJna
+	5TQ3/tKs0UbCPYP6PZo5YhZzPH7tlmLucg5jDI5EVzIP7LHSsNsM31gPK1NZT0iZ
+	SqCl/p93HKtxXSRFG3MGvoo03bZnQZlI0WgUO9C9FULibcAaD0nm7EGKUkpfArqo
+	ln8cvbnxkE2Jq1pyAgwjmfbpLypc3WVgcEdK8LpQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46s3d5m54n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 May 2025 15:46:50 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54LDu4Oj015444;
-	Wed, 21 May 2025 15:46:50 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 46rwnncv3j-1
+	Wed, 21 May 2025 15:52:20 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54LDfsI8010640;
+	Wed, 21 May 2025 15:52:19 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46rwnmcvv1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 21 May 2025 15:46:49 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54LFkkhn19136806
+	Wed, 21 May 2025 15:52:19 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54LFqFfn42009004
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 21 May 2025 15:46:46 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F366A20043;
-	Wed, 21 May 2025 15:46:45 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8E1B620040;
-	Wed, 21 May 2025 15:46:45 +0000 (GMT)
-Received: from li-978a334c-2cba-11b2-a85c-a0743a31b510.ibm.com (unknown [9.152.224.80])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 21 May 2025 15:46:45 +0000 (GMT)
-Message-ID: <bfec98c2f53cc71603445b0339f53111cbf86e9e.camel@linux.ibm.com>
-Subject: Re: [PATCH v1 4/5] KVM: s390: refactor and split some gmap helpers
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+	Wed, 21 May 2025 15:52:15 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ED7F220043;
+	Wed, 21 May 2025 15:52:14 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A57A20040;
+	Wed, 21 May 2025 15:52:14 +0000 (GMT)
+Received: from osiris (unknown [9.87.128.135])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 21 May 2025 15:52:14 +0000 (GMT)
+Date: Wed, 21 May 2025 17:52:12 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, seiden@linux.ibm.com, nrb@linux.ibm.com,
-        david@redhat.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, gor@linux.ibm.com
-Date: Wed, 21 May 2025 17:46:46 +0200
-In-Reply-To: <20250521174137.5b2baaf6@p-imbrenda>
-References: <20250514163855.124471-1-imbrenda@linux.ibm.com>
-		<20250514163855.124471-5-imbrenda@linux.ibm.com>
-		<277aa125e8edaf55e82ca66a15b26eee6ba3320b.camel@linux.ibm.com>
-		<20250521171930.2edaaa8a@p-imbrenda>
-		<d495d17902955839b0d7d092334b47efbdcb55a1.camel@linux.ibm.com>
-	 <20250521174137.5b2baaf6@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.1 (3.56.1-1.fc42) 
+        borntraeger@de.ibm.com, seiden@linux.ibm.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com, david@redhat.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, gor@linux.ibm.com, schlameuss@linux.ibm.com
+Subject: Re: [PATCH v2 3/5] KVM: s390: refactor some functions in priv.c
+Message-ID: <20250521155212.11483Da8-hca@linux.ibm.com>
+References: <20250520182639.80013-1-imbrenda@linux.ibm.com>
+ <20250520182639.80013-4-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250520182639.80013-4-imbrenda@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Hq-FJRa7WzcXG0d_ztc0OJq8XzVcwHOx
-X-Authority-Analysis: v=2.4 cv=RPmzH5i+ c=1 sm=1 tr=0 ts=682df56a cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=TZB5Y_STSF-BKAUI658A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIxMDE1MyBTYWx0ZWRfX2h2c5+cRJedL Btxuig7rXmaT4u4xFJsmDoQZsnvLG2JRPPiwN4wj85jOWRnEVYnGgYQOle6D9dspSwxihNiDiru hBy3ESEcCJ9fR19MwT5fl1JoOy/RjWeScK5GSs2RSnWgykrPV12/jWA55wbEkqvvQDv2D5cWNOE
- zSE41r0GpqUNYZ+278mp4SriXauIS5ljvGr4tKaGGnHCkOgOkrl+kRzNm/dUMtzsZ+LLuWZ+4DV o4vBxGSnG6w73pTaQ0RtI69jPnmBjj+E/hASyrzD4fdrsy4az9P6hIYwiNcLRPYP7EYqVZKRour xZ4gIiEdkNCeUpqvLg7dgw9KmX2QC1xcdeMnk7aPR/e0zlUrNFRNAOYZS+RcbJe2MRmx1H7EE9e
- exykHny+ksWE7iCnEmwCcj9+mEr84d+0B8KZsfd0ed5Ln/kvMfe+fL0fJZ7vVMhW3VvcyCbX
-X-Proofpoint-GUID: Hq-FJRa7WzcXG0d_ztc0OJq8XzVcwHOx
+X-Proofpoint-GUID: S7fu4XbAOMOOqfUWSoTbebCrKoHHOhPb
+X-Proofpoint-ORIG-GUID: S7fu4XbAOMOOqfUWSoTbebCrKoHHOhPb
+X-Authority-Analysis: v=2.4 cv=cM/gskeN c=1 sm=1 tr=0 ts=682df6b4 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=5jWV00l8V3tV8VPG5IkA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIxMDE1MyBTYWx0ZWRfXww4dJDpaXsUr Nv2v0WaTNoS9cvU+oe7AewTWCw9nQWwXBZEC1Xeuw6dOSvfcpcHPpLBO8XGuXzVgTAuOZ/kJTfW EqsfgDYx+o/xkmPLblFaFPm7mk7FeknU3ynulPoCY5Q6ZyEmP22H89lp8FHbsxy7QH0uWDtgeAr
+ 6e+fhCH0fSnimr3L4Dd1E2qi2CbSzXCX1dVwtw4y0EGJopG5kAcLb8A6O8M2nc/WTSyJvVnxt3A 05NU0/Xlh+mUW9XzCgARJKq6QylW8hD9YJq92xQ01Mfl4SRLk1EsRJfEZV2J1Ot7l/MnvtxdzTm xgWp8es4ERV32cVDvHXligaY7NrcQF9F/FZIzpuFQ/ElGB0WELZa9+wbpTqPLpRqQYi2yd3o+Fq
+ aHt7EmuLOOsXKKm7Zu7TRvwLU44bV/sf9WaZ5fFheX1WGU6ofcynL2ijcLkRN6HgmNLjXRnA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-21_05,2025-05-20_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- lowpriorityscore=0 impostorscore=0 adultscore=0 priorityscore=1501
- bulkscore=0 phishscore=0 mlxscore=0 malwarescore=0 spamscore=0
- mlxlogscore=999 suspectscore=0 classifier=spam authscore=0 authtc=n/a
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ lowpriorityscore=0 phishscore=0 adultscore=0 malwarescore=0
+ impostorscore=0 bulkscore=0 clxscore=1015 spamscore=0 mlxscore=0
+ priorityscore=1501 mlxlogscore=647 classifier=spam authscore=0 authtc=n/a
  authcc= route=outbound adjust=0 reason=mlx scancount=1
  engine=8.19.0-2505160000 definitions=main-2505210153
 
-On Wed, 2025-05-21 at 17:41 +0200, Claudio Imbrenda wrote:
-> On Wed, 21 May 2025 17:30:00 +0200
-> Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
->=20
-> > On Wed, 2025-05-21 at 17:19 +0200, Claudio Imbrenda wrote:
-> > > On Wed, 21 May 2025 16:55:18 +0200
-> > > Nina Schoetterl-Glausch <nsg@linux.ibm.com> wrote:
-> > >  =20
-> > > > On Wed, 2025-05-14 at 18:38 +0200, Claudio Imbrenda wrote: =20
-> > > > > Refactor some gmap functions; move the implementation into a sepa=
-rate
-> > > > > file with only helper functions. The new helper functions work on=
- vm
-> > > > > addresses, leaving all gmap logic in the gmap functions, which mo=
-stly
-> > > > > become just wrappers.
-> > > > >=20
-> > > > > The whole gmap handling is going to be moved inside KVM soon, but=
- the
-> > > > > helper functions need to touch core mm functions, and thus need t=
-o
-> > > > > stay in the core of kernel.
-> > > > >=20
-> > > > > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > > > > ---
-> > > > >  MAINTAINERS                          |   2 +
-> > > > >  arch/s390/include/asm/gmap_helpers.h |  18 ++
-> > > > >  arch/s390/kvm/diag.c                 |  11 +-
-> > > > >  arch/s390/kvm/kvm-s390.c             |   3 +-
-> > > > >  arch/s390/mm/Makefile                |   2 +
-> > > > >  arch/s390/mm/gmap.c                  |  46 ++---
-> > > > >  arch/s390/mm/gmap_helpers.c          | 266 +++++++++++++++++++++=
-++++++
-> > > > >  7 files changed, 307 insertions(+), 41 deletions(-)
-> > > > >  create mode 100644 arch/s390/include/asm/gmap_helpers.h
-> > > > >  create mode 100644 arch/s390/mm/gmap_helpers.c
-> > > > >    =20
-> > [...]
-> >=20
-> > > > > +void __gmap_helper_zap_one(struct mm_struct *mm, unsigned long v=
-maddr)   =20
-> > > >=20
-> > > > __gmap_helper_zap_mapping_pte ? =20
-> > >=20
-> > > but I'm not taking a pte as parameter =20
-> >=20
-> > The pte being zapped is the one mapping vmaddr, right?
->=20
-> I don't know, _pte kinda sounds to me as the function would be taking a
-> pte as parameter
+On Tue, May 20, 2025 at 08:26:37PM +0200, Claudio Imbrenda wrote:
+> Refactor some functions in priv.c to make them more readable.
+> 
+> handle_{iske,rrbe,sske}: move duplicated checks into a single function.
+> handle{pfmf,epsw}: improve readability.
+> handle_lpswe{,y}: merge implementations since they are almost the same.
+> 
+> Use a helper function to replace open-coded bit twiddling operations.
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-__gmap_helper_zap_pte_mapping_addr ?
+...since you asked me to look into this... :)
 
-IMO __gmap_helper_zap_one is rather vague. Zap one? Which one?
+For the sake of reviewability: I guess this really should be split
+into separate patches which address one function each.
 
-[...]
+> +static inline void replace_selected_bits(u64 *w, unsigned long mask, unsigned long val)
+> +{
+> +	*w = (*w & ~mask) | (val & mask);
+> +}
+> +
+> +struct skeys_ops_state {
+> +	int reg1;
+> +	int reg2;
+> +	u64 *r1;
+> +	u64 *r2;
+> +	unsigned long effective;
+> +	unsigned long absolute;
+> +};
+> +
+> +static void get_regs_rre_ptr(struct kvm_vcpu *vcpu, int *reg1, int *reg2, u64 **r1, u64 **r2)
+> +{
+> +	kvm_s390_get_regs_rre(vcpu, reg1, reg2);
+> +	*r1 = vcpu->run->s.regs.gprs + *reg1;
+> +	*r2 = vcpu->run->s.regs.gprs + *reg2;
+> +}
 
-> > >=20
-> > > > The stuff below is from arch/s390/mm/gmap.c right?
-> > > > Are you going to delete it from there? =20
-> > >=20
-> > > not in this series, but the next series will remove mm/gmap.c altoget=
-her =20
-> >=20
-> > Can't you do it with this one?
->=20
-> if you mean removing mm/gmap.c, no. I would need to push the whole gmap
-> rewrite series, which is not ready yet.
->=20
-> if you mean removing the redundant functions... I guess I could
+Ewww...
 
-The latter. I think that would be cleaner.
->=20
-> >=20
-> >=20
-> > [...]
+> +static int skeys_common_checks(struct kvm_vcpu *vcpu, struct skeys_ops_state *state)
+> +{
+> +	int rc;
+> +
+> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE) {
+> +		rc = kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> +		return rc ? rc : -EAGAIN;
+> +	}
 
---=20
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-Gesch=C3=A4ftsf=C3=BChrung: David Faller
-Sitz der Gesellschaft: B=C3=B6blingen / Registergericht: Amtsgericht Stuttg=
-art, HRB 243294
+Hm.. first you introduce helper functions which use psw_bits() and now
+this is open-coded again?
+
+> +	rc = try_handle_skey(vcpu);
+> +	if (rc)
+> +		return rc;
+> +
+> +	get_regs_rre_ptr(vcpu, &state->reg1, &state->reg2, &state->r1, &state->r2);
+> +
+> +	state->effective = vcpu->run->s.regs.gprs[state->reg2] & PAGE_MASK;
+> +	state->effective = kvm_s390_logical_to_effective(vcpu, state->effective);
+> +	state->absolute = kvm_s390_real_to_abs(vcpu, state->effective);
+> +
+> +	return 0;
+> +}
+
+So a function which is called "*common_checks" actually may or may not
+set up a state which is later used. This is anything but obvious.
+
+>  static int handle_iske(struct kvm_vcpu *vcpu)
+>  {
+
+...
+
+> -	vcpu->run->s.regs.gprs[reg1] &= ~0xff;
+> -	vcpu->run->s.regs.gprs[reg1] |= key;
+> +	replace_selected_bits(state.r1, 0xff, key);
+
+Who is supposed to understand that this replace_selected_bits() call
+actually changes vcpu->run->s.regs.gprs[reg1]? To me this obfuscates
+the code and makes it much less understandable.
+
+From my point of view this state structure and passing it back and
+forth is a mistake, since it hides way too much what is actually going
+on.
+
+Anyway, just my 0.02. :)
