@@ -1,329 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051F4BE5E;
-	Tue, 20 May 2025 20:58:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4CCC4430;
+	Wed, 21 May 2025 02:19:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747774699; cv=none; b=rFolH3+65iApjASc4IfphjgNFazoK619ZlhZausofvqgY+tm0XSUA1BZOCX68lDuqFarTpZ6ITgDiKykKettrnPgzpQpLd4pW3K19GpBGsT0lprX4IFqsunSYuXcEgGDQ+/kUzUt5xy5fXDmP6m+s1NMADMZEnvAT+nTDc5YtTU=
+	t=1747793995; cv=none; b=ainW5DmhERCHY0HZd5eh91eWsV2dCA/+7EwhceHacdQPDBrPPKKQlCwz4ITYT/yczqM68L4GYaSp6db1nUpJYeI9bRHAvB2W0FgrBYqvvQN1uDVJuQj06ISCmuoA6AJJsqPSU+MPWmd0kglL5SKTuPuPBum96Q4HUpmlPZK4im0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747774699; c=relaxed/simple;
-	bh=vjBOBT2RpUdaxCZk0wTsxRrqGDPLiEQBWGYV9BYr3W8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=S/Rb+rE2+qHIyWP1bncvtLLST867CaKZMiRxT0G3XTu28Vx3fUJa+VJP/ILA/MttN6slTPMG9E8tABP7/idsfzZTIhCRkOTB7XNQkMwW7ELbNqiUqhpbHias9MPHZYQCb5i9jrC7TYc/iW4xTrg7ZFPkppKuPNVKKWJ7efl/ua0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mPnTrowE; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747793995; c=relaxed/simple;
+	bh=AGT1ZE6/R7v107HaChzUqCzIGgch4xMNDRg3DkmpN4Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bqImbpGdRdujsye81IcaPUXAwjs3FKjksF2uJsQf0uZXtjCxDmXG1Mm+1DdZtTV8AuCebvkffCstknhB6aOsDwd5wwMO+bMOxQ+UAeorrk5dYv1mrfpgf9fioreKCTOQol35wG0RO4fcLrVo6zyZ/RCy6njX1F6dQFCDOks2Av8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=pr8+UwuG; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mPnTrowE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3FEDC4CEE9;
-	Tue, 20 May 2025 20:58:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747774696;
-	bh=vjBOBT2RpUdaxCZk0wTsxRrqGDPLiEQBWGYV9BYr3W8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mPnTrowEu3n+/nxVmwYGOFqfG2CO/onOWj8MOS98sC15GSYCn2f8ZLb9x88c7aAop
-	 GBKoyA1aTeC9eBco3aIg5nA+kPu4USUamTMVB9ahuX9GXU1KcYxF43dienJ1NC4HwU
-	 q+pkc72LW1AA0R1z3JOqK1DxcF3ms4cY80GgTqkmpUGj/JRcXVwOEOheQjKay2FMsF
-	 XRWEYh+GqedcnDqLKRtwRWYyC9UJKaYJL9dN+g9KSup/xFRJOUTXy1teJ8RMzx81t4
-	 NLweQ4tcJmREm/Zzdq+byUBclkjMjjWGWxC7OpgsgPmuiTD8O6yzgyR2iJPYtZTptc
-	 LmZXDXeqjc9VA==
-Date: Tue, 20 May 2025 17:58:09 -0300
-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, namhyung@kernel.org,
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
-	hca@linux.ibm.com, Alexander Egorenkov <egorenar@linux.ibm.com>
-Subject: Re: [PATCH V3] perf ftrace: Use process/session specific trace
- settings
-Message-ID: <aCzs4ZP1tIPkbD9N@x1>
-References: <20250520093726.2009696-1-tmricht@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="pr8+UwuG"
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54L20ZAL019538;
+	Wed, 21 May 2025 02:19:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	corp-2025-04-25; bh=gB9auwAMQ8uG2NCJ5YgMTwqXXKspFiOQZRDIWFE7Zp0=; b=
+	pr8+UwuGA/zUx/yrump7KVrS2uCpKPJ1rg6RRgfMU1c4m2oJdmVgGk35DD2OmcqQ
+	4b64vO2i0NO1goFVJW+5w6iKZ/AGdEbbJToEt0CRs42E1iI/Qo/G3tSuAnvXTTo5
+	6/nRhIBLh+eszvj2eoYO4d9z68qQeOd1Azw/3eYbb1vaYKkKObxHGJXkeaPkiliQ
+	XcWdwKbXzJzKCjIURGHRtTi46H2qqTE45bi5Fx47e5MRTJkhvklHlvGAlFpNj01r
+	znZBTHvhIGYbSxlglGFSdu7p4B+HDHnIUIVH1rFVHh9hANm/TG4wGMV33YpUzddj
+	7kZa4jIldCou0At+uUeqBQ==
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 46s5nng114-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 21 May 2025 02:19:50 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 54L2DlIL032202;
+	Wed, 21 May 2025 02:19:49 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 46rweks9hk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 21 May 2025 02:19:49 +0000
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 54L2JmZv004389;
+	Wed, 21 May 2025 02:19:49 GMT
+Received: from ca-mkp2.ca.oracle.com.com (mpeterse-ol9.allregionaliads.osdevelopmeniad.oraclevcn.com [100.100.251.135])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 46rweks9h2-2;
+	Wed, 21 May 2025 02:19:49 +0000
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+To: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Nihar Panda <niharp@linux.ibm.com>
+Cc: "Martin K . Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH] zfcp: simplify workqueue allocation
+Date: Tue, 20 May 2025 22:19:17 -0400
+Message-ID: <174777706869.55368.13052714087766349823.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250507042854.3607038-3-niharp@linux.ibm.com>
+References: <20250507042854.3607038-1-niharp@linux.ibm.com> <20250507042854.3607038-3-niharp@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250520093726.2009696-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-21_01,2025-05-20_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxlogscore=768
+ suspectscore=0 phishscore=0 mlxscore=0 malwarescore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2505160000 definitions=main-2505210021
+X-Authority-Analysis: v=2.4 cv=AKGD+0P9 c=1 sm=1 tr=0 ts=682d3846 cx=c_pps a=XiAAW1AwiKB2Y8Wsi+sD2Q==:117 a=XiAAW1AwiKB2Y8Wsi+sD2Q==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=uFN64bXh-R9ueDPmG3UA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: RLxVmp8F1BDO6KsLgV2UNiTdoB9pSo-I
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIxMDAyMSBTYWx0ZWRfXzQaPsuVpLIMz eRm3ZBBXyiiscLfZFthyuKVvZsu6LUfp3o/FBm4xGiO2XGqtKykW1g7UW21UG4bctYO2QSWRFGU TAlANjvoMyfQ27BRIY0oWGRteleKFlCIWd2+wfhLKXX9trPry3DMxvmNb+sPIPo60mWX0d5hg0c
+ S621s1TR5tOX6A+bB9TXyz/wbXc4yyQTK6Yta1uFSgdpRa+5dR/ysTRuA8u0Iba+XVcXjuM9BJ4 xmG8/nRoskxaC2RLemQcEnvbmRI+jUdr/ELi3s27R0dUQit8pUQAiuAu7aCndrmXnyCOZVOel0F m9QNfBsT3f7Hv7yWq0fqvndMMVLu51WkpHivcdgvLBYjGUrzbpluZQwILwfUAGcC9WbRyxHBw7h
+ SpoeABEx1GODq0EhufGIKCCw7WdPJ3mnB07Rbu616ImaxFpIBJ+3bt2LvPEjoAEfI/lxT97A
+X-Proofpoint-GUID: RLxVmp8F1BDO6KsLgV2UNiTdoB9pSo-I
 
-On Tue, May 20, 2025 at 11:37:26AM +0200, Thomas Richter wrote:
-> V2 --> V3: Use Arnaldo's proposal for the commit message.
->            Add Namhyung's review comments.
-> V1 --> V2: Add Suggestion from Arnaldo Cavalho de Melo confirmed by
->            Steven Rostedt. Use rmdir(../tracing/instances/dir) to stop
-> 	   process/session specific tracing and delete all
-> 	   process/session specific setings.
+On Wed, 07 May 2025 06:28:07 +0200, Nihar Panda wrote:
 
-I added it to my branch, will do more tests later together with the
-other patches in tmp.perf-tools-next and barring more reviewing comments
-to address, push it out for testing in linux-next.
+> `alloc_ordered_workqueue()` accepts a format string and format arguments
+> as part of the call, so there is no need for the indirection of first
+> using `snprintf()` to print the name into an local array, and then
+> passing that array to the allocation call.
+> 
+> Also make the error-/non-error-case handling more canonical in that the
+> error case is tested in the `if` that follows the allocation call, and
+> the default return value of the function is `0`.
+> 
+> [...]
 
-Thanks,
+Applied to 6.16/scsi-queue, thanks!
 
-- Arnaldo
- 
-> Executing 'perf ftrace' commands 'ftrace', 'profile' and 'latency' leave
-> tracing disabled as can seen in this output:
-> 
->  # echo 1 > /sys/kernel/debug/tracing/tracing_on
->  # cat /sys/kernel/debug/tracing/tracing_on
->  1
->  # perf ftrace trace --graph-opts depth=5 sleep 0.1 > /dev/null
->  # cat /sys/kernel/debug/tracing/tracing_on
->  0
->  #
-> 
-> The 'tracing_on' file is not restored to its value before the command.
-> 
-> To fix that this patch uses the .../tracing/instances/XXX subdirectory
-> feature.
-> 
-> Each 'perf ftrace' invocation creates its own session/process
-> specific subdirectory and does not change the global state
-> in the .../tracing directory itself.
-> 
-> Use rmdir(../tracing/instances/dir) to stop process/session specific
-> tracing and delete all process/session specific setings.
-> 
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Suggested-by: Arnaldo Carvalho de Melo <acme@kernel.org>
-> Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-> ---
->  tools/perf/builtin-ftrace.c | 101 +++++++++++++++++++++++++++++++-----
->  1 file changed, 87 insertions(+), 14 deletions(-)
-> 
-> diff --git a/tools/perf/builtin-ftrace.c b/tools/perf/builtin-ftrace.c
-> index 7caa18d5ffc3..bba36ebc2aa7 100644
-> --- a/tools/perf/builtin-ftrace.c
-> +++ b/tools/perf/builtin-ftrace.c
-> @@ -19,6 +19,7 @@
->  #include <ctype.h>
->  #include <linux/capability.h>
->  #include <linux/string.h>
-> +#include <sys/stat.h>
->  
->  #include "debug.h"
->  #include <subcmd/pager.h>
-> @@ -45,6 +46,8 @@ static volatile sig_atomic_t done;
->  
->  static struct stats latency_stats;  /* for tracepoints */
->  
-> +static char tracing_instance[PATH_MAX];	/* Trace instance directory */
-> +
->  static void sig_handler(int sig __maybe_unused)
->  {
->  	done = true;
-> @@ -100,6 +103,34 @@ static bool is_ftrace_supported(void)
->  	return supported;
->  }
->  
-> +/*
-> + * Wrapper to test if a file in directory .../tracing/instances/XXX
-> + * exists. If so return the .../tracing/instances/XXX file for use.
-> + * Otherwise the file exists only in directory .../tracing and
-> + * is applicable to all instances, for example file available_filter_functions.
-> + * Return that file name in this case.
-> + *
-> + * This functions works similar to get_tracing_file() and expects its caller
-> + * to free the returned file name.
-> + *
-> + * The global variable tracing_instance is set in init_tracing_instance()
-> + * called at the  beginning to a process specific tracing subdirectory.
-> + */
-> +static char *get_tracing_instance_file(const char *name)
-> +{
-> +	char *file;
-> +
-> +	if (asprintf(&file, "%s/%s", tracing_instance, name) < 0)
-> +		return NULL;
-> +
-> +	if (!access(file, F_OK))
-> +		return file;
-> +
-> +	free(file);
-> +	file = get_tracing_file(name);
-> +	return file;
-> +}
-> +
->  static int __write_tracing_file(const char *name, const char *val, bool append)
->  {
->  	char *file;
-> @@ -109,7 +140,7 @@ static int __write_tracing_file(const char *name, const char *val, bool append)
->  	char errbuf[512];
->  	char *val_copy;
->  
-> -	file = get_tracing_file(name);
-> +	file = get_tracing_instance_file(name);
->  	if (!file) {
->  		pr_debug("cannot get tracing file: %s\n", name);
->  		return -1;
-> @@ -167,7 +198,7 @@ static int read_tracing_file_to_stdout(const char *name)
->  	int fd;
->  	int ret = -1;
->  
-> -	file = get_tracing_file(name);
-> +	file = get_tracing_instance_file(name);
->  	if (!file) {
->  		pr_debug("cannot get tracing file: %s\n", name);
->  		return -1;
-> @@ -209,7 +240,7 @@ static int read_tracing_file_by_line(const char *name,
->  	char *file;
->  	FILE *fp;
->  
-> -	file = get_tracing_file(name);
-> +	file = get_tracing_instance_file(name);
->  	if (!file) {
->  		pr_debug("cannot get tracing file: %s\n", name);
->  		return -1;
-> @@ -299,6 +330,39 @@ static int reset_tracing_files(struct perf_ftrace *ftrace __maybe_unused)
->  	return 0;
->  }
->  
-> +/* Remove .../tracing/instances/XXX subdirectory created with
-> + * init_tracing_instance().
-> + */
-> +static void exit_tracing_instance(void)
-> +{
-> +	if (rmdir(tracing_instance))
-> +		pr_err("failed to delete tracing/instances directory\n");
-> +}
-> +
-> +/* Create subdirectory within .../tracing/instances/XXX to have session
-> + * or process specific setup. To delete this setup, simply remove the
-> + * subdirectory.
-> + */
-> +static int init_tracing_instance(void)
-> +{
-> +	char dirname[] = "instances/perf-ftrace-XXXXXX";
-> +	char *path;
-> +
-> +	path = get_tracing_file(dirname);
-> +	if (!path)
-> +		goto error;
-> +	strncpy(tracing_instance, path, sizeof(tracing_instance) - 1);
-> +	put_tracing_file(path);
-> +	path = mkdtemp(tracing_instance);
-> +	if (!path)
-> +		goto error;
-> +	return 0;
-> +
-> +error:
-> +	pr_err("failed to create tracing/instances directory\n");
-> +	return -1;
-> +}
-> +
->  static int set_tracing_pid(struct perf_ftrace *ftrace)
->  {
->  	int i;
-> @@ -629,14 +693,17 @@ static int __cmd_ftrace(struct perf_ftrace *ftrace)
->  
->  	select_tracer(ftrace);
->  
-> +	if (init_tracing_instance() < 0)
-> +		goto out;
-> +
->  	if (reset_tracing_files(ftrace) < 0) {
->  		pr_err("failed to reset ftrace\n");
-> -		goto out;
-> +		goto out_reset;
->  	}
->  
->  	/* reset ftrace buffer */
->  	if (write_tracing_file("trace", "0") < 0)
-> -		goto out;
-> +		goto out_reset;
->  
->  	if (set_tracing_options(ftrace) < 0)
->  		goto out_reset;
-> @@ -648,7 +715,7 @@ static int __cmd_ftrace(struct perf_ftrace *ftrace)
->  
->  	setup_pager();
->  
-> -	trace_file = get_tracing_file("trace_pipe");
-> +	trace_file = get_tracing_instance_file("trace_pipe");
->  	if (!trace_file) {
->  		pr_err("failed to open trace_pipe\n");
->  		goto out_reset;
-> @@ -723,7 +790,7 @@ static int __cmd_ftrace(struct perf_ftrace *ftrace)
->  out_close_fd:
->  	close(trace_fd);
->  out_reset:
-> -	reset_tracing_files(ftrace);
-> +	exit_tracing_instance();
->  out:
->  	return (done && !workload_exec_errno) ? 0 : -1;
->  }
-> @@ -924,6 +991,9 @@ static int prepare_func_latency(struct perf_ftrace *ftrace)
->  	if (ftrace->target.use_bpf)
->  		return perf_ftrace__latency_prepare_bpf(ftrace);
->  
-> +	if (init_tracing_instance() < 0)
-> +		return -1;
-> +
->  	if (reset_tracing_files(ftrace) < 0) {
->  		pr_err("failed to reset ftrace\n");
->  		return -1;
-> @@ -942,7 +1012,7 @@ static int prepare_func_latency(struct perf_ftrace *ftrace)
->  		return -1;
->  	}
->  
-> -	trace_file = get_tracing_file("trace_pipe");
-> +	trace_file = get_tracing_instance_file("trace_pipe");
->  	if (!trace_file) {
->  		pr_err("failed to open trace_pipe\n");
->  		return -1;
-> @@ -993,7 +1063,7 @@ static int cleanup_func_latency(struct perf_ftrace *ftrace)
->  	if (ftrace->target.use_bpf)
->  		return perf_ftrace__latency_cleanup_bpf(ftrace);
->  
-> -	reset_tracing_files(ftrace);
-> +	exit_tracing_instance();
->  	return 0;
->  }
->  
-> @@ -1304,17 +1374,20 @@ static int __cmd_profile(struct perf_ftrace *ftrace)
->  		goto out;
->  	}
->  
-> +	if (init_tracing_instance() < 0)
-> +		goto out;
-> +
->  	if (reset_tracing_files(ftrace) < 0) {
->  		pr_err("failed to reset ftrace\n");
-> -		goto out;
-> +		goto out_reset;
->  	}
->  
->  	/* reset ftrace buffer */
->  	if (write_tracing_file("trace", "0") < 0)
-> -		goto out;
-> +		goto out_reset;
->  
->  	if (set_tracing_options(ftrace) < 0)
-> -		return -1;
-> +		goto out_reset;
->  
->  	if (write_tracing_file("current_tracer", ftrace->tracer) < 0) {
->  		pr_err("failed to set current_tracer to %s\n", ftrace->tracer);
-> @@ -1323,7 +1396,7 @@ static int __cmd_profile(struct perf_ftrace *ftrace)
->  
->  	setup_pager();
->  
-> -	trace_file = get_tracing_file("trace_pipe");
-> +	trace_file = get_tracing_instance_file("trace_pipe");
->  	if (!trace_file) {
->  		pr_err("failed to open trace_pipe\n");
->  		goto out_reset;
-> @@ -1385,7 +1458,7 @@ static int __cmd_profile(struct perf_ftrace *ftrace)
->  out_close_fd:
->  	close(trace_fd);
->  out_reset:
-> -	reset_tracing_files(ftrace);
-> +	exit_tracing_instance();
->  out:
->  	return (done && !workload_exec_errno) ? 0 : -1;
->  }
-> -- 
-> 2.49.0
-> 
+[1/1] zfcp: simplify workqueue allocation
+      https://git.kernel.org/mkp/scsi/c/769d7fbe01f6
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
