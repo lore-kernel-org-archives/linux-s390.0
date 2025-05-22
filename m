@@ -1,120 +1,126 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EA961754B;
-	Thu, 22 May 2025 18:40:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37655270EA5
+	for <linux-s390@vger.kernel.org>; Thu, 22 May 2025 22:26:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747939221; cv=none; b=jvgrG4QdepBBAOt8nRJnMdhqJFX2ImJsjjuXx6eqV/tCv3wYNwb0tviW6yYN2wXD27HhzQH3Vnwa5KBRHOFwOzmMbyFcgOSf6HE/0l2EHDRdLptbWKG5J2ADZMEUA+ihHVYSJ4i0hDyggvfNdPGZcBBvrGpffWcqT8v/3PxxLbQ=
+	t=1747952771; cv=none; b=ZVb96weL69JPgJlYPVwOaJj+gIz5oPqZ3e/OlP/+eaiu+qkcp+9D/6qwcn/G6VLDRu/J4sUCHtmJ7FY53/uAL0fscLuFyimMPSYBE5979rD8NRDKNCe0w3/pgkmR0997+W8Lo+G1WUrXTNeaNOE3Z3JQNDSuGEoUQ6sHahb0n4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747939221; c=relaxed/simple;
-	bh=AFofXElkAhmkpRFDBLFw9vKz74c/zXyf0JT7/zM93ok=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:Cc:To:
-	 References:In-Reply-To; b=OO+pPq9mrshzYi+LE3Ehtxd40k0pWrgE9mMFYFcGoRxFJhg3cN5n4ovC+uIwpRS6ysx/zfoQGCOULyctKG50lrZN0gkdxHN33MaDAJuP6+FsvL2abhuV5lvJYBOllOXPQnns3jp4P0s7dcC218i3+aOp6e4rrzZ3RoO0G+q/4j4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hrIqrLg9; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1747952771; c=relaxed/simple;
+	bh=yXfmq+fsOH2ydhYAaJ/O8G8cyrnfKS0KGUVUMAH0MGk=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=fnKWeAaFLq80DpzOku++YFW3CvvlOyj8PURboDOpGuxRv88gbqsFhS2SrHcTinGSmU4oSwQ0uryyaKbQle4WlEFwCQSKvoWcRvBGbWvSCJZ6fw6nVrB2ZQHAs26a1gl+B81JjmyibQf2//4b818ywHg6BjrDaJqePsLT/OvtS3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PE8bp2bC; arc=none smtp.client-ip=209.85.219.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hrIqrLg9"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54MGVmds003213;
-	Thu, 22 May 2025 18:40:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ICRlwm
-	OFBVmYXPqHcJNlglcgxxegBefmUdMKnvYmHfQ=; b=hrIqrLg93L/fYcUYCloC0Z
-	Z4g5Do5wYa0lNJTrUe6RSoCT7iDF5iZi/Orz4wI6Tlzqh7lrczfQInizNpVwWclO
-	GXI8ruMGvGdPI7/9An75Igf8+i2Pm/pQn1UAveuSs2+xQi5hdSS1HqOqHb8LHtxP
-	XRmWFLItMMawvSQvs7vltKofWr2HJFdHgMpfZrn0bPVhvZwXGlFDeNPBJsXaSAzY
-	dZBFU5jxGw3RPP0WmV6V5i6VtfBic9QHYAuQitUaWoG4bGysA6joADLiWNzHV+Zk
-	ptHCjClzwRMYiEmEueMjXcBPwfO89O3iRzIdO8WQi3wn8i5yJZP3k1EOqU2ImeiQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46smh75v4e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 May 2025 18:40:16 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54MHMGZF024617;
-	Thu, 22 May 2025 18:40:15 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46rwkras24-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 May 2025 18:40:15 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54MIeAA833882860
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 22 May 2025 18:40:11 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E056E2004B;
-	Thu, 22 May 2025 18:40:10 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BB90820043;
-	Thu, 22 May 2025 18:40:10 +0000 (GMT)
-Received: from darkmoore (unknown [9.111.55.188])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 22 May 2025 18:40:10 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PE8bp2bC"
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-6f8ce89468cso55845116d6.3
+        for <linux-s390@vger.kernel.org>; Thu, 22 May 2025 15:26:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1747952767; x=1748557567; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Jmptf5RMBQqSn8lkxlWoyMCjmS+Mv7H8iKTTl/Kwouo=;
+        b=PE8bp2bC2u+7hVMWFXDxIhgHhKxulbXWcGxnUpIhrgzangQno0wz8wTj2SBpQlx+RH
+         HWbPzJONY/k5V5KhKxFzRg0mqcSuevNUob7nbBRkNe4zNv5ta0ZZRbKuMkupvRu1j4H/
+         L5g61hkwn3G2TrJtCWpQppB/pCl9f/CPqdvv0wvc5m0YvonN/44WK2eHjcRrBNO9b+Bz
+         rMI5Soc4po1JoBDybn3lJlA6EaENodtYQjDPfzlCn/d0jltsqZogc7KaymbExTqk6b2E
+         5S0ojIzkilaxs5NcdiEorb9gq51ZYUhzmmerYI6Csq70Rwqskc1RTDHHPC4a/b2ToWTE
+         +pXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747952767; x=1748557567;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Jmptf5RMBQqSn8lkxlWoyMCjmS+Mv7H8iKTTl/Kwouo=;
+        b=qyeOaAM5A9T/KO+E/Srh/XLISbbVAXN3PA+Hfd8qeyPaq1z9MNlnXK0pxRpwiBs5eU
+         OcbCvWfkEp5wLktAmyQAKfjYbNORMKGXcXu9Qk9s5YD4ibOygJXq34uOK5n9TMv+2Uns
+         wfnDcT29Jpyg3Lxho1yac3D8gkQvti5GIkkq+3EP2Z3p49AKd6KzJLpH4wR2puOCa7ky
+         56fpKOg3FF23ekBa8bkazzObZWBTjmBE6crnNd/BgbG+hPjixbGLN2DCeb9HKS7IOyuH
+         L/YU/HU3sD2AqXHG/AIgJ7S+VEKfl23D9hpdDoLT+zijuqL1jYrkjAARG4HlRsAA0ESD
+         qL2w==
+X-Forwarded-Encrypted: i=1; AJvYcCXTrN2ZfrLzq0CbV9edwmzm3NmJSyN7+DRTg7NCAYvJxW9zQRsXnxuRVoXCICj4rxSfUKHkw0lYSkvA@vger.kernel.org
+X-Gm-Message-State: AOJu0YwP9sF/QLsOZMEStCH1/9KJ6bX+BR1zoIqQ/Y9/gPTny/HkqFvk
+	AD8pjQ0SYyc0579bXulak4WfP3z3iMQf4WX5LaNktfqzDvDqImV0CEQBOBnTL2zRpA==
+X-Gm-Gg: ASbGncv2PlbAm4xN+d7mHU/UQ4acjy2G9IpT2OsBkaov8XMwUGyDd0iLkPR1B4pt6Si
+	YHIBY5uduDRz4Y/e/BC8WFPMHq/EAak8NyHq9QPuaJjiAQYyPBb4RHSZ5tzvJV+kFdPH+9cJsHy
+	hv8XR20dGXdob9xdSDpRGF0M1d5YASCz0wmfGVgdzEFW91+eA31mxsvRVT9KavghLtnbYI2p96R
+	hn5zNKThe5htWhzE14UZY6Xe19gApNq7pbccdkan50sSeFkukUn3FscT5Vh6qfEYnfSby2VeAbO
+	sesZv5gm0KAc7QjITzJkAunde6jdSuEO0voROtoFnLwre69gsjXulxp4MogRwGcwz4ZV0LGZx25
+	IH4eHg/w8sMmWx7sDLukV
+X-Google-Smtp-Source: AGHT+IE2zN7SH+0SaGrs2tzepSFkLMKNXBgIbbn8M9DQcRbDJBs1dDzlx85ZuSxbIPErdUE31K4qXg==
+X-Received: by 2002:a05:6214:1947:b0:6f2:b094:430e with SMTP id 6a1803df08f44-6f8b0829131mr503375636d6.25.1747952766984;
+        Thu, 22 May 2025 15:26:06 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6f8b0987259sm105076766d6.120.2025.05.22.15.26.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 May 2025 15:26:06 -0700 (PDT)
+Date: Thu, 22 May 2025 18:26:05 -0400
+Message-ID: <0bb73a49ccbc93e90ea87c0dbb4097ae@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 22 May 2025 20:40:05 +0200
-Message-Id: <DA2WQHJVQTVF.I7EBYCRLLWEW@linux.ibm.com>
-Subject: Re: [PATCH v3 4/4] KVM: s390: simplify and move pv code
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>,
-        <seiden@linux.ibm.com>, <nsg@linux.ibm.com>, <nrb@linux.ibm.com>,
-        <david@redhat.com>, <hca@linux.ibm.com>, <agordeev@linux.ibm.com>,
-        <svens@linux.ibm.com>, <gor@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-X-Mailer: aerc 0.20.1
-References: <20250522132259.167708-1-imbrenda@linux.ibm.com>
- <20250522132259.167708-5-imbrenda@linux.ibm.com>
-In-Reply-To: <20250522132259.167708-5-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIyMDE4NyBTYWx0ZWRfX5wQFowz08rK0 GJp/+ixhDHecRSLfJ953MhkmwvfuCyVvY35MGLmwkp4yyX04iC0Scl6CUIlCNep0t4N3jpkG7+4 hmVeRIPRN5Pzt0Wcx4qKQ6Dj+aPrdjlV1L3tGtm8BDCZ0tfxIx43RyYs80ENAaqvHpjU5pfQ0kP
- 3pnyotPXkVEp6Ocve1uLQpVBCXG4pEeM+zYIb6eccGXEE0flxGBVx1IF832Np5XL56G354Az71D 8QWXP9LBkN7xN9lypmJc7U5QR5nWoysZi3HFKQCgGgMa3NMZwSgNJfHw75+Px8f5HKV4VwOtPLu ekAbxcFjuD8EYF7MJST3pgmVJs9NxRyd0nUr5MMS1InpYmdI07KtqUHRXtPbPhlsrBMi9MWMDnL
- VdpgeGCVtIe5rEGngnfm9riCKSKghfEz3pQqUrj09Fzv+9LB1i3+iMNtwWScxbn4R2zyA5GS
-X-Proofpoint-GUID: 7a5pZeJ1Btroad3V3ZtnIG-CM8hjPiWa
-X-Proofpoint-ORIG-GUID: 7a5pZeJ1Btroad3V3ZtnIG-CM8hjPiWa
-X-Authority-Analysis: v=2.4 cv=EdfIQOmC c=1 sm=1 tr=0 ts=682f6f90 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=w2SwtR9liJ8HvoPeYG4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-22_09,2025-05-22_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- suspectscore=0 adultscore=0 mlxscore=0 lowpriorityscore=0 malwarescore=0
- phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1015 mlxlogscore=753
- spamscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
- definitions=main-2505220187
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250522_1740/pstg-lib:20250522_1730/pstg-pwork:20250522_1740
+From: Paul Moore <paul@paul-moore.com>
+To: Andrey Albershteyn <aalbersh@redhat.com>, Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Tyler Hicks <code@tyhicks.com>, Miklos Szeredi <miklos@szeredi.hu>, 
+	Amir Goldstein <amir73il@gmail.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, selinux@vger.kernel.org, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v5 2/7] lsm: introduce new hooks for setting/getting inode  fsxattr
+References: <20250513-xattrat-syscall-v5-2-22bb9c6c767f@kernel.org>
+In-Reply-To: <20250513-xattrat-syscall-v5-2-22bb9c6c767f@kernel.org>
 
-On Thu May 22, 2025 at 3:22 PM CEST, Claudio Imbrenda wrote:
-> All functions in kvm/gmap.c fit better in kvm/pv.c instead.
-> Move and rename them appropriately, then delete the now empty
-> kvm/gmap.c and kvm/gmap.h.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-
+On May 13, 2025 Andrey Albershteyn <aalbersh@redhat.com> wrote:
+> 
+> Introduce new hooks for setting and getting filesystem extended
+> attributes on inode (FS_IOC_FSGETXATTR).
+> 
+> Cc: selinux@vger.kernel.org
+> Cc: Paul Moore <paul@paul-moore.com>
+> 
+> Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
 > ---
->  arch/s390/kernel/uv.c     |  12 ++--
->  arch/s390/kvm/Makefile    |   2 +-
->  arch/s390/kvm/gaccess.c   |   3 +-
->  arch/s390/kvm/gmap-vsie.c |   1 -
->  arch/s390/kvm/gmap.c      | 121 --------------------------------------
->  arch/s390/kvm/gmap.h      |  39 ------------
->  arch/s390/kvm/intercept.c |  10 +---
->  arch/s390/kvm/kvm-s390.c  |   5 +-
->  arch/s390/kvm/kvm-s390.h  |  42 +++++++++++++
->  arch/s390/kvm/pv.c        |  61 ++++++++++++++++++-
->  arch/s390/kvm/vsie.c      |  19 +++++-
->  11 files changed, 133 insertions(+), 182 deletions(-)
->  delete mode 100644 arch/s390/kvm/gmap.c
->  delete mode 100644 arch/s390/kvm/gmap.h
+>  fs/file_attr.c                | 19 ++++++++++++++++---
+>  include/linux/lsm_hook_defs.h |  2 ++
+>  include/linux/security.h      | 16 ++++++++++++++++
+>  security/security.c           | 30 ++++++++++++++++++++++++++++++
+>  4 files changed, 64 insertions(+), 3 deletions(-)
+
+The only thing that gives me a slight pause is that on a set operation
+we are going to hit both the get and set LSM hooks, but since the code
+does call into the getter on a set operation this is arguably the right
+thing.
+
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+--
+paul-moore.com
