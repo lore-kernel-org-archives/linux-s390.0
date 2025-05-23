@@ -1,128 +1,158 @@
-Received: from fllvem-ot03.ext.ti.com (fllvem-ot03.ext.ti.com [198.47.19.245])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86F522AE41;
-	Fri, 23 May 2025 11:20:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.19.245
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B06D155C88;
+	Fri, 23 May 2025 13:03:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747999236; cv=none; b=Zc2jeWM5T8VQkj9UUjWVkBB/BkMGZFFOaLJsu8+Dr07uoqb+s8LqginWip4/0lAy+yu8mLO+mZNAfLQu0MrHsgN5MgZlTbnsHH8nVuRjfwV1OI0iRr6JWnjrjhYzn2tJzc41OMOetWIBDtrZ8LlH6EAJ4dxEbAGEkXy5cGvK3l4=
+	t=1748005438; cv=none; b=qubJr1nC2G+AQ8G1M2pyaThPELx5cCX5Y7RbNaRlfdBgEH4bgE6AZhV3AmTKSfRH211QK66mXxUeiRHBP6xjwwAgEsKA2d4IP2aZ0+vkvY+FPIasoLp4khgx7plsclaRzUa9I/ZSws98p1AMZJ6z6eYGzUc3k2FTx6teefvQAjw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747999236; c=relaxed/simple;
-	bh=XmeiGBXI70ukFbp2wX31QSqHU/R9FyAhU/P3DDXoibQ=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fYLDUdCtLo2Nmv9UlQIhB+OX16Al9gH4nM+uIdcs3ZhTpwKjBfkBnZaezvoeTwzwUAIvDju7/FrE1DlSOZZduzYioPVdv3YI3LKxioP8o4DUmMYE+I885ELWCH0dFBlqFY3OAj3LT+FVPtOVQy9ni2JGpoK0fQj4rdI74Epvzvc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=pGrh4cl5; arc=none smtp.client-ip=198.47.19.245
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	s=arc-20240116; t=1748005438; c=relaxed/simple;
+	bh=0zSq4fWRgRO6hnZPy+gwnjOr0jfAYOIAROJ8L7Lxjfo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HdMZVnyfDyuN21q+2FRmgz9Fn/2GljNdfm+R4PZ2H3HlTYxQPP/9Rc8isIKnQjLsDZzzwkv/6Y4jUQfgqlKg/oqC2CmkaYBvNfdk3Fn8xHkMgVMo2P4Iy8t7HihBrspx6EGh5i27tcIi+u/Ty2n6pfHN+4a6/SdgUD6HH0s73Gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rG//iVox; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="pGrh4cl5"
-Received: from fllvem-sh03.itg.ti.com ([10.64.41.86])
-	by fllvem-ot03.ext.ti.com (8.15.2/8.15.2) with ESMTP id 54NBJc1K2086996;
-	Fri, 23 May 2025 06:19:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1747999178;
-	bh=G3eBoRI6ajKzQj7PIYgoVul0HEV9Bq6GwjJIxWdrMvs=;
-	h=Date:From:To:CC:Subject:References:In-Reply-To;
-	b=pGrh4cl5UNwlzQb/0t74988xZoSrBH7x4348QMBKDmfEIEnMxH8v3P122scZKOLoq
-	 WcvICifTw0IpvVBp7SlgqxN1dmooOa4XIXH6VEXHmwzZMIPuwOd/B/40p6zsECZIL9
-	 nKV7oX048/6bbOEblbgcqX9fFjhONqR8xG9NOzpE=
-Received: from DFLE110.ent.ti.com (dfle110.ent.ti.com [10.64.6.31])
-	by fllvem-sh03.itg.ti.com (8.18.1/8.18.1) with ESMTPS id 54NBJcAC023157
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA256 bits=128 verify=FAIL);
-	Fri, 23 May 2025 06:19:38 -0500
-Received: from DFLE101.ent.ti.com (10.64.6.22) by DFLE110.ent.ti.com
- (10.64.6.31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23; Fri, 23
- May 2025 06:19:37 -0500
-Received: from lelvem-mr06.itg.ti.com (10.180.75.8) by DFLE101.ent.ti.com
- (10.64.6.22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23 via
- Frontend Transport; Fri, 23 May 2025 06:19:37 -0500
-Received: from localhost (uda0133052.dhcp.ti.com [128.247.81.232])
-	by lelvem-mr06.itg.ti.com (8.18.1/8.18.1) with ESMTP id 54NBJblW1172257;
-	Fri, 23 May 2025 06:19:37 -0500
-Date: Fri, 23 May 2025 06:19:37 -0500
-From: Nishanth Menon <nm@ti.com>
-To: Kees Cook <kees@kernel.org>
-CC: Arnd Bergmann <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner
-	<tglx@linutronix.de>,
-        Santosh Shilimkar <ssantosh@kernel.org>, Lee Jones
-	<lee@kernel.org>,
-        Allison Randal <allison@lohutok.net>,
-        Greg Kroah-Hartman
-	<gregkh@linuxfoundation.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Christoph Hellwig
-	<hch@lst.de>, Marco Elver <elver@google.com>,
-        Andrey Konovalov
-	<andreyknvl@gmail.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Ard
- Biesheuvel <ardb@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nathan
- Chancellor <nathan@kernel.org>,
-        Nicolas Schier <nicolas.schier@linux.dev>,
-        Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-        Bill Wendling
-	<morbo@google.com>,
-        Justin Stitt <justinstitt@google.com>, <linux-kernel@vger.kernel.org>,
-        <x86@kernel.org>, <kasan-dev@googlegroups.com>,
-        <linux-doc@vger.kernel.org>, <kvmarm@lists.linux.dev>,
-        <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-        <linux-efi@vger.kernel.org>, <linux-hardening@vger.kernel.org>,
-        <linux-kbuild@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kselftest@vger.kernel.org>, <sparclinux@vger.kernel.org>,
-        <llvm@lists.linux.dev>
-Subject: Re: [PATCH v2 05/14] arm: Handle KCOV __init vs inline mismatches
-Message-ID: <20250523111937.f2fqhoshqevdoxcl@snowbird>
-References: <20250523043251.it.550-kees@kernel.org>
- <20250523043935.2009972-5-kees@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rG//iVox"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54NBeikn009197;
+	Fri, 23 May 2025 13:03:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=bD0F4R81TtBIcuipJEl/B87JuiKQthCz8AWdILdeA
+	aU=; b=rG//iVoxAFJXnzeLE8h1Mvj7JQA4v5jreXmdZWa1SRQRkbKIknuEnC5EN
+	a8O8WUD7Qzxl+hWrXpA+lSBH4gtjtZTsEBMuc9gmQIM9rYdsWAjxjZDqiV8FcPjN
+	TkOCdIS1xPnXcdBQbX0kL3Aak8j0B3LS0CYJRPul7ChENp+uxPhCimr/GUepbdqU
+	LElK5bqf01X45+vXiG+56sKu5Usk2RKm4d5dKMIl+1SX/kHfIEqfifGNUbv56QZb
+	LsgpnN4ClVXYli7wvqYYpI/nEf7pFGVZ7lQV6+ZxXPpPKoOwFo90j8dhlBgqGhSP
+	LUbxZv8uzQneD39bJqFkHmQrxz/2w==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46t5535mct-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 May 2025 13:03:53 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54NAi0cv024711;
+	Fri, 23 May 2025 13:03:53 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46rwkren12-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 May 2025 13:03:53 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54ND3ncE45351190
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 23 May 2025 13:03:49 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 447142004B;
+	Fri, 23 May 2025 13:03:49 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D12A820043;
+	Fri, 23 May 2025 13:03:48 +0000 (GMT)
+Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 23 May 2025 13:03:48 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, seiden@linux.ibm.com, nsg@linux.ibm.com,
+        nrb@linux.ibm.com, david@redhat.com, hca@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com, gor@linux.ibm.com,
+        schlameuss@linux.ibm.com
+Subject: [PATCH v4 0/4] KVM: s390: some cleanup and small fixes
+Date: Fri, 23 May 2025 15:03:44 +0200
+Message-ID: <20250523130348.247446-1-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20250523043935.2009972-5-kees@kernel.org>
-X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: ll6WVQqF9rDZ1FHToOX3KjjPMfgdEVqz
+X-Proofpoint-ORIG-GUID: ll6WVQqF9rDZ1FHToOX3KjjPMfgdEVqz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTIzMDExNSBTYWx0ZWRfXz1SJbpmcqrZ+ sT+IbqelthAQhwej7Swj2bY1z+f5W5mAkXO3B7Dj5+uA06pfispRt+aHhhOl7E/X3FnwpLZpO9p mOr8sCzwUqqeZ3a/c31OmPyWOPJ3RmF0oiTc9UFt62omiYotL7oWo5o/s0CHoju/egVwO0HWzwI
+ bcjkFyg0zoXubEN5eXU5d59vSYaKKH3U1iYLydB/oEx0cZ77f1qIeMcEPCETJTpnp9A+KRMpuVn sA4ALMF5TaIMjpXcWBkok1Zt/RnkdZpvGXNL8RwYngHMNM3aEMDmYiQ3ep7SONKFue5bS5SIh15 R/zvU3kotVtVmZjUl9u7txfZshxykwk8y+JGs68f07A7QgaJniBA55+hwTi0roaj4oloXm5vowl
+ t8YmcRwKm0we9VBvDZpiwpvqdXtw02aJYkMnWmW4Ml+ddCNXhbLZ1Czo+GwOUF1V/jVH4Uur
+X-Authority-Analysis: v=2.4 cv=BOmzrEQG c=1 sm=1 tr=0 ts=68307239 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=dt9VzEwgFbYA:10 a=gRRxI3zbkkyk7srOQjYA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-23_03,2025-05-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=580
+ priorityscore=1501 malwarescore=0 phishscore=0 spamscore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0 mlxscore=0
+ adultscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2505230115
 
-On 21:39-20250522, Kees Cook wrote:
-> When KCOV is enabled all functions get instrumented, unless
-> the __no_sanitize_coverage attribute is used. To prepare for
-> __no_sanitize_coverage being applied to __init functions, we have to
-> handle differences in how GCC's inline optimizations get resolved. For
-> arm this exposed several places where __init annotations were missing
-> but ended up being "accidentally correct". Fix these cases and force
-> several functions to be inline with __always_inline.
-> 
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
-[...]
-> diff --git a/drivers/soc/ti/pm33xx.c b/drivers/soc/ti/pm33xx.c
-> index dfdff186c805..dc52a2197d24 100644
-> --- a/drivers/soc/ti/pm33xx.c
-> +++ b/drivers/soc/ti/pm33xx.c
-> @@ -145,7 +145,7 @@ static int am33xx_do_sram_idle(u32 wfi_flags)
->  	return pm_ops->cpu_suspend(am33xx_do_wfi_sram, wfi_flags);
->  }
->  
-> -static int __init am43xx_map_gic(void)
-> +static int am43xx_map_gic(void)
->  {
->  	gic_dist_base = ioremap(AM43XX_GIC_DIST_BASE, SZ_4K);
->  
-> -- 
-> 2.34.1
-> 
-Acked-by: Nishanth Menon <nm@ti.com>
+This series has some cleanups and small fixes in preparation of the
+upcoming series that will finally completely move all guest page table
+handling into kvm. The cleaups and fixes in this series are good enough
+on their own, hence why they are being sent now.
+
+v3->v4
+* remove orphaned find_zeropage_ops and find_zeropage_pte_entry() from
+  mm/gmap.c (thanks kernel test robot)
+* add missing #include <linux/swapops.h> to mm/gmap_helpers.c (thanks
+  kernel test robot)
+
+v2->v3  (mainly addresses Nina's and Heiko's comments)
+* drop patch 3 - it was just an attempt to clean up the code a little
+  and make it more readable, but there were too many issues to address
+* remove all dead code from s390/mm/gmap.c that is being replaced by
+  code in s390/mm/gmap_helpers.c
+* remove a couple of unused functions from s390/mm/gmap_helpers.c, some
+  of them will be introduced again in a later series when they are
+  actually needed
+* added documentation to the functions in s390/mm/gmap_helpers.c
+* general readability improvements
+
+v1->v2
+* remove uneeded "gmap.h" include from gaccess.c (thanks Christph)
+* use a custom helper instead of u64_replace_bits() (thanks Nina)
+* new helper functions in priv.c to increase readability (thanks Nina)
+* add lockdep assertion in handle_essa() (thanks Nina)
+* gmap_helper_disable_cow_sharing() will not take the mmap lock, and
+  must now be called while already holding the mmap lock in write mode
+
+Claudio Imbrenda (4):
+  s390: remove unneeded includes
+  KVM: s390: remove unneeded srcu lock
+  KVM: s390: refactor and split some gmap helpers
+  KVM: s390: simplify and move pv code
+
+ MAINTAINERS                          |   2 +
+ arch/s390/include/asm/gmap.h         |   2 -
+ arch/s390/include/asm/gmap_helpers.h |  15 ++
+ arch/s390/include/asm/tlb.h          |   1 +
+ arch/s390/include/asm/uv.h           |   1 -
+ arch/s390/kernel/uv.c                |  12 +-
+ arch/s390/kvm/Makefile               |   2 +-
+ arch/s390/kvm/diag.c                 |  13 +-
+ arch/s390/kvm/gaccess.c              |   3 +-
+ arch/s390/kvm/gmap-vsie.c            |   1 -
+ arch/s390/kvm/gmap.c                 | 121 ---------------
+ arch/s390/kvm/gmap.h                 |  39 -----
+ arch/s390/kvm/intercept.c            |   9 +-
+ arch/s390/kvm/kvm-s390.c             |  10 +-
+ arch/s390/kvm/kvm-s390.h             |  42 +++++
+ arch/s390/kvm/priv.c                 |   6 +-
+ arch/s390/kvm/pv.c                   |  61 +++++++-
+ arch/s390/kvm/vsie.c                 |  19 ++-
+ arch/s390/mm/Makefile                |   2 +
+ arch/s390/mm/fault.c                 |   1 -
+ arch/s390/mm/gmap.c                  | 185 +---------------------
+ arch/s390/mm/gmap_helpers.c          | 224 +++++++++++++++++++++++++++
+ arch/s390/mm/init.c                  |   1 -
+ arch/s390/mm/pgalloc.c               |   2 -
+ arch/s390/mm/pgtable.c               |   1 -
+ 25 files changed, 396 insertions(+), 379 deletions(-)
+ create mode 100644 arch/s390/include/asm/gmap_helpers.h
+ delete mode 100644 arch/s390/kvm/gmap.c
+ delete mode 100644 arch/s390/kvm/gmap.h
+ create mode 100644 arch/s390/mm/gmap_helpers.c
+
 -- 
-Regards,
-Nishanth Menon
-Key (0xDDB5849D1736249D) / Fingerprint: F8A2 8693 54EB 8232 17A3  1A34 DDB5 849D 1736 249D
+2.49.0
+
