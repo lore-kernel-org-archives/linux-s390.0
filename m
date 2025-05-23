@@ -1,76 +1,94 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 627C623F413;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF76324E4C6;
 	Fri, 23 May 2025 04:39:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747975181; cv=none; b=IUsaWgkNXVOsf8yAPh6MuH+LpxouXhK+UlTItQxir7sgrft9eSgOW76lzOIptlEy/KTsMeMAGj6gPRg4AtLCiodQaRWBNyR/d21M3pqvYnvu+VFjNOGNyoLOwxYZq2iu/a5PS5bt606ydWuLkJoZ0rVhcefl4ZyNQYnqQQDYAq4=
+	t=1747975181; cv=none; b=OfOfZmfJXazlLwWWO05oWMJCS3jRW1QyVGAF/P/Oco9HcD8GXZumlYGzTGx4thv8BE8OtzjPlshYLZ+oC1XzvGkJ5AR5Q6pJwLWLw32Ovij9cetRkWNdepitLQBWjQ9CgQHFgO4WNe48Xj5rQKK9kGSvEFBg6y6QABSJbZL5LOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747975181; c=relaxed/simple;
-	bh=9V+bffTinVGVEjmw6TF+C5G0YfQpy53YZa3Wm2q7aj4=;
+	bh=NLp+yNLHFbt0GV+WqSgZP5Jpw7SgnlmemsBZjPqNKQ0=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=diEEh8vVRwaU8RwZ9kcHdqInccht8umu0ZKL0Kg4YNohfcQHDJfXg0BLA7YPepmuW3o9qAFbPT5clI+zwswYK5roEiWahCj32MRBQMZm8gj1kxmmX9nKAzUt41zK9GuVPNs5jJfJQb6p313rW76JhL+Z2FQzuw7n1DMWw9tUvEU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CQzG9oRP; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=NqJJ+zrUyRiEmYRLkkQBqTTSwHJ+1+p6epCc0In4xElz/ElQNFFhkZXw3zB9AeLPxLC1GipZLbcf8Mz/U7pTpOA1uc2Q0pZjS16YLScM8pHLtHI9Y5mGoCeQ6Elu2L8G9CUiaz3XM4PKBBrMEkCwgMGj5Z2TOvcQHfEuci9/+AM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rj3s+e3m; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CQzG9oRP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 382C3C4AF0C;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rj3s+e3m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3635CC4CEE9;
 	Fri, 23 May 2025 04:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1747975181;
-	bh=9V+bffTinVGVEjmw6TF+C5G0YfQpy53YZa3Wm2q7aj4=;
+	bh=NLp+yNLHFbt0GV+WqSgZP5Jpw7SgnlmemsBZjPqNKQ0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=CQzG9oRPTanTBH3Dl63lrA8eEch+sC2faTWSG3nXeBdtxalGP1gnN8dEyqbNm7ZXn
-	 unsRVKOVKuk4zIpHq+kubtAx/ANRaNUShS+XdLXy5eWh9u9l90J7Pk39eFPenhTzFI
-	 s88j8rHEiHN+CZFLnQibZIfBwwIqHbwSX4WB9TfOUjfLpncwqy+6gCMmtokBaHeHFd
-	 td4pqOqMiOa9CAAHlhha/9wqCjbuNaHn+lvQ3tGWRTuzfrDMFNSWT2M1eS/Y7wg3ii
-	 H3nDMaOAzTetrFxbuGu8UNrCL6D3sy363qcc7zOe/Dyr3b0I5ttw/k+A/YYw0fDMXt
-	 ahJiVX+qUi50A==
+	b=Rj3s+e3mE3W4aIysRoKZFNxm9vD2ek1huWH4Vn0crUEGAbKJwFulKN6m0+LDN4Aln
+	 XTkNK1mH9zOlLXf7FFTGL9Hc+gsp/JQpJfgx+hC9w/yyjXWfEJNgzqLEzNQyzv+LTn
+	 oxehudMtjyuOgnOccQomiSSYSAM9uLxKgYHBMJU1Q7fkn2wwOX0bCFGYNM0HOdfsYr
+	 cl0BaSwZwFwDWjrVNBwZrOcsmN8ydAPwT5gU9Sl36aB8F4iIIh+L32zFmkZiZNG8WE
+	 /xdL3qIg2hbWBC7ZuHTze9Sty41eTTtKnbIn8L1FWsb+X57lFIMyIVNqg/L9Oi12EV
+	 CBe9AnINRA1vA==
 From: Kees Cook <kees@kernel.org>
 To: Arnd Bergmann <arnd@arndb.de>
 Cc: Kees Cook <kees@kernel.org>,
-	Marco Elver <elver@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
 	Thomas Gleixner <tglx@linutronix.de>,
 	Ingo Molnar <mingo@redhat.com>,
 	Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
 	x86@kernel.org,
 	"H. Peter Anvin" <hpa@zytor.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+	Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Len Brown <lenb@kernel.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
 	Ard Biesheuvel <ardb@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Michal Wilczynski <michal.wilczynski@intel.com>,
+	Juergen Gross <jgross@suse.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Hou Wenlong <houwenlong.hwl@antgroup.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	"Peter Zijlstra (Intel)" <peterz@infradead.org>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	kasan-dev@googlegroups.com,
+	Roger Pau Monne <roger.pau@citrix.com>,
+	David Woodhouse <dwmw@amazon.co.uk>,
+	Usama Arif <usama.arif@bytedance.com>,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Thomas Huth <thuth@redhat.com>,
+	Brian Gerst <brgerst@gmail.com>,
+	kvm@vger.kernel.org,
+	ibm-acpi-devel@lists.sourceforge.net,
+	platform-driver-x86@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-efi@vger.kernel.org,
+	linux-mm@kvack.org,
 	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
 	Christoph Hellwig <hch@lst.de>,
+	Marco Elver <elver@google.com>,
+	Andrey Konovalov <andreyknvl@gmail.com>,
+	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+	Masahiro Yamada <masahiroy@kernel.org>,
 	Nathan Chancellor <nathan@kernel.org>,
 	Nicolas Schier <nicolas.schier@linux.dev>,
 	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
 	Bill Wendling <morbo@google.com>,
 	Justin Stitt <justinstitt@google.com>,
 	linux-kernel@vger.kernel.org,
+	kasan-dev@googlegroups.com,
 	linux-doc@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	kvmarm@lists.linux.dev,
 	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org,
-	linux-efi@vger.kernel.org,
 	linux-hardening@vger.kernel.org,
 	linux-kbuild@vger.kernel.org,
 	linux-security-module@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
 	sparclinux@vger.kernel.org,
 	llvm@lists.linux.dev
-Subject: [PATCH v2 11/14] init.h: Disable sanitizer coverage for __init and __head
-Date: Thu, 22 May 2025 21:39:21 -0700
-Message-Id: <20250523043935.2009972-11-kees@kernel.org>
+Subject: [PATCH v2 04/14] x86: Handle KCOV __init vs inline mismatches
+Date: Thu, 22 May 2025 21:39:14 -0700
+Message-Id: <20250523043935.2009972-4-kees@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250523043251.it.550-kees@kernel.org>
 References: <20250523043251.it.550-kees@kernel.org>
@@ -80,77 +98,188 @@ List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2887; i=kees@kernel.org; h=from:subject; bh=9V+bffTinVGVEjmw6TF+C5G0YfQpy53YZa3Wm2q7aj4=; b=owGbwMvMwCVmps19z/KJym7G02pJDBn6v39z3tX005Y/rnL4YOLkChWuJ+9Wl0ZxtHAnf5w+4 +zlC8f3dZSyMIhxMciKKbIE2bnHuXi8bQ93n6sIM4eVCWQIAxenAEzk8SRGhsnn/rn8m/7L8JvJ sSfzOhSq+TU4fvE+u8S/Metrj/ZaW1eGfyYVhxIUl7qsrup9tc1w3of4xW0amTu32l3mnx7BlO2 twQEA
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6526; i=kees@kernel.org; h=from:subject; bh=NLp+yNLHFbt0GV+WqSgZP5Jpw7SgnlmemsBZjPqNKQ0=; b=owGbwMvMwCVmps19z/KJym7G02pJDBn6v3/M6Lj0TL3UZvEPryO2U1XiwmeUWRnm7Ltu8Tv7T fejWHWxjhIWBjEuBlkxRZYgO/c4F4+37eHucxVh5rAygQxh4OIUgIncPMDIMF2RL/S7vLKpfM2M t8x3m+UdDqwvS9xyTbb4p4asf8qChQw/nnGmzL67VZLb8E8Q7+r/36asCDud1Su0ufrUxFOvRAJ YAA==
 X-Developer-Key: i=kees@kernel.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
 
-While __noinstr already contained __no_sanitize_coverage, it needs to
-be added to __init and __head section markings to support the Clang
-implementation of CONFIG_KSTACK_ERASE. This is to make sure the stack
-depth tracking callback is not executed in unsupported contexts.
+When KCOV is enabled all functions get instrumented, unless the
+__no_sanitize_coverage attribute is used. To prepare for
+__no_sanitize_coverage being applied to __init functions, we have to
+handle differences in how GCC's inline optimizations get resolved. For
+x86 this means forcing several functions to be inline with
+__always_inline.
 
-The other sanitizer coverage options (trace-pc and trace-cmp) aren't
-needed in __head nor __init either ("We are interested in code coverage
-as a function of a syscall inputs"[1]), so this is fine to disable for
-them as well.
-
-Link: https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/kcov.c?h=v6.14#n179 [1]
-Acked-by: Marco Elver <elver@google.com>
 Signed-off-by: Kees Cook <kees@kernel.org>
 ---
-Cc: Marco Elver <elver@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: <x86@kernel.org>
 Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: "Ilpo Järvinen" <ilpo.jarvinen@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Michal Wilczynski <michal.wilczynski@intel.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Hou Wenlong <houwenlong.hwl@antgroup.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: <kasan-dev@googlegroups.com>
+Cc: Roger Pau Monne <roger.pau@citrix.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Usama Arif <usama.arif@bytedance.com>
+Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc: Thomas Huth <thuth@redhat.com>
+Cc: Brian Gerst <brgerst@gmail.com>
+Cc: <kvm@vger.kernel.org>
+Cc: <ibm-acpi-devel@lists.sourceforge.net>
+Cc: <platform-driver-x86@vger.kernel.org>
+Cc: <linux-acpi@vger.kernel.org>
+Cc: <linux-trace-kernel@vger.kernel.org>
+Cc: <linux-efi@vger.kernel.org>
+Cc: <linux-mm@kvack.org>
 ---
- arch/x86/include/asm/init.h | 2 +-
- include/linux/init.h        | 4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/acpi.h          | 4 ++--
+ arch/x86/include/asm/realmode.h      | 2 +-
+ include/linux/acpi.h                 | 4 ++--
+ include/linux/bootconfig.h           | 2 +-
+ include/linux/efi.h                  | 2 +-
+ include/linux/memblock.h             | 2 +-
+ arch/x86/kernel/kvm.c                | 2 +-
+ drivers/platform/x86/thinkpad_acpi.c | 4 ++--
+ 8 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/include/asm/init.h b/arch/x86/include/asm/init.h
-index 8b1b1abcef15..6bfdaeddbae8 100644
---- a/arch/x86/include/asm/init.h
-+++ b/arch/x86/include/asm/init.h
-@@ -5,7 +5,7 @@
- #if defined(CONFIG_CC_IS_CLANG) && CONFIG_CLANG_VERSION < 170000
- #define __head	__section(".head.text") __no_sanitize_undefined __no_stack_protector
- #else
--#define __head	__section(".head.text") __no_sanitize_undefined
-+#define __head	__section(".head.text") __no_sanitize_undefined __no_sanitize_coverage
+diff --git a/arch/x86/include/asm/acpi.h b/arch/x86/include/asm/acpi.h
+index 5ab1a4598d00..a03aa6f999d1 100644
+--- a/arch/x86/include/asm/acpi.h
++++ b/arch/x86/include/asm/acpi.h
+@@ -158,13 +158,13 @@ static inline bool acpi_has_cpu_in_madt(void)
+ }
+ 
+ #define ACPI_HAVE_ARCH_SET_ROOT_POINTER
+-static inline void acpi_arch_set_root_pointer(u64 addr)
++static __always_inline void acpi_arch_set_root_pointer(u64 addr)
+ {
+ 	x86_init.acpi.set_root_pointer(addr);
+ }
+ 
+ #define ACPI_HAVE_ARCH_GET_ROOT_POINTER
+-static inline u64 acpi_arch_get_root_pointer(void)
++static __always_inline u64 acpi_arch_get_root_pointer(void)
+ {
+ 	return x86_init.acpi.get_root_pointer();
+ }
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index f607081a022a..e406a1e92c63 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -78,7 +78,7 @@ extern unsigned char secondary_startup_64[];
+ extern unsigned char secondary_startup_64_no_verify[];
  #endif
  
- struct x86_mapping_info {
-diff --git a/include/linux/init.h b/include/linux/init.h
-index ee1309473bc6..c65a050d52a7 100644
---- a/include/linux/init.h
-+++ b/include/linux/init.h
-@@ -49,7 +49,9 @@
+-static inline size_t real_mode_size_needed(void)
++static __always_inline size_t real_mode_size_needed(void)
+ {
+ 	if (real_mode_header)
+ 		return 0;	/* already allocated. */
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index e72100c0684f..ae76c8915000 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -759,13 +759,13 @@ int acpi_arch_timer_mem_init(struct arch_timer_mem *timer_mem, int *timer_count)
+ #endif
  
- /* These are for everybody (although not all archs will actually
-    discard it in modules) */
--#define __init		__section(".init.text") __cold  __latent_entropy __noinitretpoline
-+#define __init		__section(".init.text") __cold __latent_entropy	\
-+						__noinitretpoline	\
-+						__no_sanitize_coverage
- #define __initdata	__section(".init.data")
- #define __initconst	__section(".init.rodata")
- #define __exitdata	__section(".exit.data")
+ #ifndef ACPI_HAVE_ARCH_SET_ROOT_POINTER
+-static inline void acpi_arch_set_root_pointer(u64 addr)
++static __always_inline void acpi_arch_set_root_pointer(u64 addr)
+ {
+ }
+ #endif
+ 
+ #ifndef ACPI_HAVE_ARCH_GET_ROOT_POINTER
+-static inline u64 acpi_arch_get_root_pointer(void)
++static __always_inline u64 acpi_arch_get_root_pointer(void)
+ {
+ 	return 0;
+ }
+diff --git a/include/linux/bootconfig.h b/include/linux/bootconfig.h
+index 3f4b4ac527ca..25df9260d206 100644
+--- a/include/linux/bootconfig.h
++++ b/include/linux/bootconfig.h
+@@ -290,7 +290,7 @@ int __init xbc_get_info(int *node_size, size_t *data_size);
+ /* XBC cleanup data structures */
+ void __init _xbc_exit(bool early);
+ 
+-static inline void xbc_exit(void)
++static __always_inline void xbc_exit(void)
+ {
+ 	_xbc_exit(false);
+ }
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index 7d63d1d75f22..e3776d9cad07 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1334,7 +1334,7 @@ struct linux_efi_initrd {
+ 
+ bool xen_efi_config_table_is_usable(const efi_guid_t *guid, unsigned long table);
+ 
+-static inline
++static __always_inline
+ bool efi_config_table_is_usable(const efi_guid_t *guid, unsigned long table)
+ {
+ 	if (!IS_ENABLED(CONFIG_XEN_EFI))
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index bb19a2534224..b96746376e17 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -463,7 +463,7 @@ static inline void *memblock_alloc_raw(phys_addr_t size,
+ 					  NUMA_NO_NODE);
+ }
+ 
+-static inline void *memblock_alloc_from(phys_addr_t size,
++static __always_inline void *memblock_alloc_from(phys_addr_t size,
+ 						phys_addr_t align,
+ 						phys_addr_t min_addr)
+ {
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 921c1c783bc1..72f13d643fca 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -420,7 +420,7 @@ static u64 kvm_steal_clock(int cpu)
+ 	return steal;
+ }
+ 
+-static inline void __set_percpu_decrypted(void *ptr, unsigned long size)
++static __always_inline void __set_percpu_decrypted(void *ptr, unsigned long size)
+ {
+ 	early_set_memory_decrypted((unsigned long) ptr, size);
+ }
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index e7350c9fa3aa..0518d5b1f4ec 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -559,12 +559,12 @@ static unsigned long __init tpacpi_check_quirks(
+ 	return 0;
+ }
+ 
+-static inline bool __pure __init tpacpi_is_lenovo(void)
++static __always_inline bool __pure tpacpi_is_lenovo(void)
+ {
+ 	return thinkpad_id.vendor == PCI_VENDOR_ID_LENOVO;
+ }
+ 
+-static inline bool __pure __init tpacpi_is_ibm(void)
++static __always_inline bool __pure tpacpi_is_ibm(void)
+ {
+ 	return thinkpad_id.vendor == PCI_VENDOR_ID_IBM;
+ }
 -- 
 2.34.1
 
