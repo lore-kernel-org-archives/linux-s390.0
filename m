@@ -1,117 +1,164 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78F3D270EB5
-	for <linux-s390@vger.kernel.org>; Thu, 22 May 2025 22:26:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7C9A20DD5C;
+	Fri, 23 May 2025 01:07:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747952771; cv=none; b=BxlZkqcQQbA6ICwMIYc4rG6gULC29WUrUzbhq9nWcTk8jSCav7jNiFGiYLubr+nP39DYEXx9V3oJ7YPIrQrUSZEx/qiG8n2tpXj5Ly/aR/TtPD4nOKrBRDA2JCJC4eGTQao0SoA36Ym11fU1c/sYZ/5oJU5VGNt+xohdQpbPCY8=
+	t=1747962447; cv=none; b=Jahi2Twkr0fDCJWk8WErOArN4gwZhY94MAlMDSKk64KMZEekGJowlQ4JpNFJW7Ni89Wgm/2Q5VH96ZMlHhNf3mghNOsgTvoVXK/rVYJOk/joxuYzqYdLX4/HhU3/172WO8Oupoav/J4txH/KwLfQKhYcw9M7mGHmbebU9dzVJEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747952771; c=relaxed/simple;
-	bh=ERIIFgKxrnPwjSVA6jXYtUfeYroUqJBM9v+L48OiIjw=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=SsNfVJvJKG6/EnyBB7OXfiLMdynXrM+4oFJCh1S5BClPTcoWc0s3Qd1Bc+PvRESyUQFpQB7+lxouXnAvnrD8+NrkvU0BNdWCMkDidCgJ8Yckym09VqXazLzNXxtEatzaGrTDN74c0DB1bAF/OjySnDbu2WOm7Xwi8fjmWJKe3ug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ToVMF8Pc; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1747962447; c=relaxed/simple;
+	bh=w9DtJ/Ec6NdrV3VRufCS8WfeJ21qaZi19s5/soSvQJo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VnAomO0EgNxdWEVR+uZYHrlo1qQmIJ8ATlmRBZXmaBOMBVq/MF6z5QPbigLqejaDS0kWql9lvQ0LrVGl6BBhq0/GbA/dtGU4KD2wEqo9dNwpSaY0lcUFitt/4uAa6v6CFoRxhvg8NjO7x2CZb0wieyv5Z2Pcv9PEENepsLSOWpU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FCkDZCdz; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ToVMF8Pc"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7c597760323so963196285a.3
-        for <linux-s390@vger.kernel.org>; Thu, 22 May 2025 15:26:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1747952768; x=1748557568; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yW4BwrWRPMGZw+m/ri6EFRKCjP4k+SeXSk6ZWrWvJiA=;
-        b=ToVMF8PcVy37DRcyydOqAzRtU8MIfxnsQYcyTujtaPP+6rNuh10GiSxHl8BpEOL7Vl
-         xP549yj/DsBJfMi3qCROE0CjVVteyRyHylhdLw04oGcxRiQntTqkGaj0qxDt91en7Yaf
-         k+SmxoaFBB+G/5sErCk+bkQleUrTH6XQJe2p+LIipbvb4fbPmu1wnSD2q+VMoi0xxJsW
-         gaMrvrcaiHSnHiky9rJUvXODz2114Xg3/bkQmKiZIEtphocJflv5aC1cQ1XzMR2q+5M1
-         e5C3pB8Uc+2bJywG7HLAABdlrHUZ45rP3ykqZkmL5ezlodK/YayNjCLBFI5pn3kcMbPH
-         Giow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747952768; x=1748557568;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=yW4BwrWRPMGZw+m/ri6EFRKCjP4k+SeXSk6ZWrWvJiA=;
-        b=qNs5UYZJvEYH1ptpPESzaDJk3ijb3/Xp8908c4xlUV1JuJUHYR+t4KcIYSxcaBjqXl
-         URhjwypOxdNpiGsMfvYIM79DjsGCRZ6PRmY9XQwm4ai7Hh+4dM1FZE1Yo+WXZ1mMeICA
-         s+m+1zJPeX5W4K1ddbIoTaaq8qVVUKr3HNScinMaur0+UKd49AuGeu5IFgUliuNLzL5D
-         5ZVIKBCmM3qdqWoepb9V1QgIxjK6dE2s9ws/GQouxv34W90DdxFla3PNVlqTvWPbbt1/
-         iW1FRV5p3ZWwxYYcrIOnKJDH1oa5ByuQHJT9oPBgjPphsO8avLnmSXI3GV0TstSj0m29
-         raTQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUvAyIccnXvbTeyQulQELdztjWeQzhhKpg53qQGVYKQPln9m9fCVrqdKJPK9FwmIfYkQN82h23RO+7O@vger.kernel.org
-X-Gm-Message-State: AOJu0YwYjKIauJ6Sx3cql5nWGIDF/TvuYbRPOdwcTglGJL1gfPYyC7q2
-	PNgLpL3j5OY4pEhzzs6Xizsc5dGatsXZKuf+3VFk/jT9eS4Lg49svJXKq3DmhRdCnQ==
-X-Gm-Gg: ASbGncuo/U5bXviseUow7VjLlO03KSj8AzP1ZK4Yq7t3TBqzlYjeQlu/dI9dBcx+LOc
-	tRd8eCHWsV5XqxTbx5M8XDcZXNv8F4Bvq0mBMUpkU0uGyj5XoyFPLZYK5Cz492EcZjF/0T1B7pq
-	oXEFBOHdw2AfMtUARlC+K9lyB0xELJGxAO18T66o2TQhr+v73ODnYbIFVqH1cHq3W+IwqjiwSJZ
-	4x5WmIJiAo9r4ptFcLPlUrM48De0MjV5Uosex8QKrRMlaMxvVWvKuutYlhev/y8mydfepKfnQfU
-	g1oGhzyrNdO53215gXsjWY+OJIylw1/WSwqf6hoBrnaGX8pbSvhMmOkz5l/BPi74ZshgH/Xd3sC
-	TCPc4bflMuh78Sc1Wk9Bu
-X-Google-Smtp-Source: AGHT+IHmIlyqjG6e3vdHM+wi0UqPbDaDdVTY/IdBlClNAbyXhci/B2Ul0PB2ozu0sL7+1EWeTaPM2w==
-X-Received: by 2002:a05:620a:408e:b0:7ce:d352:668f with SMTP id af79cd13be357-7ced352670emr1334278485a.47.1747952768087;
-        Thu, 22 May 2025 15:26:08 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7cd468b69dfsm1089029585a.79.2025.05.22.15.26.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 May 2025 15:26:07 -0700 (PDT)
-Date: Thu, 22 May 2025 18:26:07 -0400
-Message-ID: <8bf36078ef8f3e884a1d3d8415834680@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FCkDZCdz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1747962446; x=1779498446;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=w9DtJ/Ec6NdrV3VRufCS8WfeJ21qaZi19s5/soSvQJo=;
+  b=FCkDZCdzjUNt/EvTRkfZvKPIyL2jPcDjXsKoyKbUWZSLNsaCfyehyOnh
+   r8PePVcoE7uzwXE4lzok3rFt46yRqEBjmbO1fnM+qrncWUGwT2Sn21j2V
+   dPBWoHjoAD/KhGcOscO1V7h8Fla/XnEU8Gl1BBngRin9SLlzy9bNOTcnC
+   nQZwGvuFWsPwCLZ+ImtAAauzic8rFTuGkfHZ37QpOP3q+fM+3UcDGXVlW
+   y2hN/J/Dpzd+yyd2DFzfZQAn2rCvScUVWSCfNPgwROjvvzQlxR2W3ca3W
+   /iHiGkS6oWHWcqTCiHOR1BGReQGSDi+kH1pfCEPH64sJ/+LeR++Fg0ogo
+   w==;
+X-CSE-ConnectionGUID: ZbT0D0JtTiG9C2/l5FVBsg==
+X-CSE-MsgGUID: CiIgomToRWSi7ppES484Tw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11441"; a="50158448"
+X-IronPort-AV: E=Sophos;i="6.15,307,1739865600"; 
+   d="scan'208";a="50158448"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 May 2025 18:07:25 -0700
+X-CSE-ConnectionGUID: kc9Qse5SQIuRChyaR9R6hA==
+X-CSE-MsgGUID: zSFq8ZiPTLWPgdCBJjrS/Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,307,1739865600"; 
+   d="scan'208";a="171831188"
+Received: from lkp-server01.sh.intel.com (HELO 1992f890471c) ([10.239.97.150])
+  by fmviesa001.fm.intel.com with ESMTP; 22 May 2025 18:03:46 -0700
+Received: from kbuild by 1992f890471c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uIGp6-000Ppq-1D;
+	Fri, 23 May 2025 01:03:44 +0000
+Date: Fri, 23 May 2025 09:03:43 +0800
+From: kernel test robot <lkp@intel.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev, kvm@vger.kernel.org,
+	linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+	borntraeger@de.ibm.com, seiden@linux.ibm.com, nsg@linux.ibm.com,
+	nrb@linux.ibm.com, david@redhat.com, hca@linux.ibm.com,
+	agordeev@linux.ibm.com, svens@linux.ibm.com, gor@linux.ibm.com,
+	schlameuss@linux.ibm.com
+Subject: Re: [PATCH v3 3/4] KVM: s390: refactor and split some gmap helpers
+Message-ID: <202505230839.LAF8wtzO-lkp@intel.com>
+References: <20250522132259.167708-4-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250522_1740/pstg-lib:20250522_1730/pstg-pwork:20250522_1740
-From: Paul Moore <paul@paul-moore.com>
-To: Andrey Albershteyn <aalbersh@redhat.com>, Richard Henderson <richard.henderson@linaro.org>, 
-	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Arnd Bergmann <arnd@arndb.de>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Tyler Hicks <code@tyhicks.com>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Amir Goldstein <amir73il@gmail.com>
-Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, selinux@vger.kernel.org, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
-Subject: Re: [PATCH v5 3/7] selinux: implement inode_file_[g|s]etattr hooks
-References: <20250513-xattrat-syscall-v5-3-22bb9c6c767f@kernel.org>
-In-Reply-To: <20250513-xattrat-syscall-v5-3-22bb9c6c767f@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250522132259.167708-4-imbrenda@linux.ibm.com>
 
-On May 13, 2025 Andrey Albershteyn <aalbersh@redhat.com> wrote:
-> 
-> These hooks are called on inode extended attribute retrieval/change.
-> 
-> Cc: selinux@vger.kernel.org
-> Cc: Paul Moore <paul@paul-moore.com>
-> 
-> Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
-> ---
->  security/selinux/hooks.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+Hi Claudio,
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+kernel test robot noticed the following build warnings:
 
+[auto build test WARNING on kvms390/next]
+[also build test WARNING on s390/features kvm/queue kvm/next mst-vhost/linux-next linus/master v6.15-rc7 next-20250522]
+[cannot apply to kvm/linux-next]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Claudio-Imbrenda/s390-remove-unneeded-includes/20250522-212623
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git next
+patch link:    https://lore.kernel.org/r/20250522132259.167708-4-imbrenda%40linux.ibm.com
+patch subject: [PATCH v3 3/4] KVM: s390: refactor and split some gmap helpers
+config: s390-randconfig-001-20250523 (https://download.01.org/0day-ci/archive/20250523/202505230839.LAF8wtzO-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250523/202505230839.LAF8wtzO-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202505230839.LAF8wtzO-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   arch/s390/mm/gmap_helpers.c: In function 'ptep_zap_swap_entry':
+   arch/s390/mm/gmap_helpers.c:26:7: error: implicit declaration of function 'non_swap_entry'; did you mean 'init_wait_entry'? [-Werror=implicit-function-declaration]
+     if (!non_swap_entry(entry))
+          ^~~~~~~~~~~~~~
+          init_wait_entry
+   arch/s390/mm/gmap_helpers.c:28:11: error: implicit declaration of function 'is_migration_entry'; did you mean 'list_first_entry'? [-Werror=implicit-function-declaration]
+     else if (is_migration_entry(entry))
+              ^~~~~~~~~~~~~~~~~~
+              list_first_entry
+   arch/s390/mm/gmap_helpers.c:29:33: error: implicit declaration of function 'pfn_swap_entry_folio'; did you mean 'filemap_dirty_folio'? [-Werror=implicit-function-declaration]
+      dec_mm_counter(mm, mm_counter(pfn_swap_entry_folio(entry)));
+                                    ^~~~~~~~~~~~~~~~~~~~
+                                    filemap_dirty_folio
+>> arch/s390/mm/gmap_helpers.c:29:33: warning: passing argument 1 of 'mm_counter' makes pointer from integer without a cast [-Wint-conversion]
+      dec_mm_counter(mm, mm_counter(pfn_swap_entry_folio(entry)));
+                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+   In file included from arch/s390/mm/gmap_helpers.c:9:
+   include/linux/mm.h:2725:44: note: expected 'struct folio *' but argument is of type 'int'
+    static inline int mm_counter(struct folio *folio)
+                                 ~~~~~~~~~~~~~~^~~~~
+   arch/s390/mm/gmap_helpers.c:30:2: error: implicit declaration of function 'free_swap_and_cache'; did you mean 'free_pgd_range'? [-Werror=implicit-function-declaration]
+     free_swap_and_cache(entry);
+     ^~~~~~~~~~~~~~~~~~~
+     free_pgd_range
+   arch/s390/mm/gmap_helpers.c: In function 'gmap_helper_zap_one_page':
+   arch/s390/mm/gmap_helpers.c:60:27: error: implicit declaration of function 'pte_to_swp_entry'; did you mean 'ptep_zap_swap_entry'? [-Werror=implicit-function-declaration]
+      ptep_zap_swap_entry(mm, pte_to_swp_entry(*ptep));
+                              ^~~~~~~~~~~~~~~~
+                              ptep_zap_swap_entry
+   arch/s390/mm/gmap_helpers.c:60:27: error: incompatible type for argument 2 of 'ptep_zap_swap_entry'
+      ptep_zap_swap_entry(mm, pte_to_swp_entry(*ptep));
+                              ^~~~~~~~~~~~~~~~~~~~~~~
+   arch/s390/mm/gmap_helpers.c:24:67: note: expected 'swp_entry_t' {aka 'struct <anonymous>'} but argument is of type 'int'
+    static void ptep_zap_swap_entry(struct mm_struct *mm, swp_entry_t entry)
+                                                          ~~~~~~~~~~~~^~~~~
+   cc1: some warnings being treated as errors
 --
-paul-moore.com
+>> arch/s390/mm/gmap.c:2251:33: warning: 'find_zeropage_ops' defined but not used [-Wunused-const-variable=]
+    static const struct mm_walk_ops find_zeropage_ops = {
+                                    ^~~~~~~~~~~~~~~~~
+
+
+vim +/mm_counter +29 arch/s390/mm/gmap_helpers.c
+
+    14	
+    15	/**
+    16	 * ptep_zap_swap_entry() - discard a swap entry.
+    17	 * @mm: the mm
+    18	 * @entry: the swap entry that needs to be zapped
+    19	 *
+    20	 * Discards the given swap entry. If the swap entry was an actual swap
+    21	 * entry (and not a migration entry, for example), the actual swapped
+    22	 * page is also discarded from swap.
+    23	 */
+    24	static void ptep_zap_swap_entry(struct mm_struct *mm, swp_entry_t entry)
+    25	{
+    26		if (!non_swap_entry(entry))
+    27			dec_mm_counter(mm, MM_SWAPENTS);
+    28		else if (is_migration_entry(entry))
+  > 29			dec_mm_counter(mm, mm_counter(pfn_swap_entry_folio(entry)));
+    30		free_swap_and_cache(entry);
+    31	}
+    32	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
