@@ -1,148 +1,118 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46F64409;
-	Mon, 26 May 2025 13:22:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F9C28EB;
+	Mon, 26 May 2025 13:58:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748265730; cv=none; b=PUyzBBloMiTeGZGVHStHkepDKeHC5ao61F/wHiknfQKHi0gG1VxwB4sXoGiPktXFyjRMsonbAVkp237rhybeG6nozuGeuu2jVY90al7LanjEE3ca6QjdX0SHaEkbUJwQ1pvazvPpW/SKihLrFsoFaAelTOrlpFtRBTMWpcVxFEk=
+	t=1748267935; cv=none; b=bY4H7XyaJM3J5sOHw5xVnU10AFvuGKfDn/TgXGmKvCcZi13IQ+GeqJ9XnZWPMEUqP1K2EsxTQPbsCr0qabKHZZkv46OaxWTfOIcIfDPbp5hO3FagmnEDuCQpUZ1fMJQZAVfvGPp+4OJ6tJh/fDr8Hc3fSks82xmHrKq8mQn+7D4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748265730; c=relaxed/simple;
-	bh=QEwxMziYfSsvPUSHqi9KFZOix51JVvyBUAscp5W1A1E=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Z3neYDFN54yHrUVZADXYax/cpUpZGRuWwVjjpuqqvrxJnUeooPT80l6oKp6nsDjnZ8aoUajWC/IK4bY7rWNEgToe1EFmsGSlrhqmZr86b8KskUVqDrcE1eBs7BtqQcFzld67uYe1OceTSw9qrKQ6G2O67vuX338Pctu5uW8iDPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sxNZXlnN; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1748267935; c=relaxed/simple;
+	bh=aDc2QWj3ux3lR1MK3l1CPZh50mq+BrFqL7Y8B4peIJ0=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=Pk5hQDNDv4ZW1Sz5Lz38JMy4vCPg5714LW3pGrJrOKvknYdpyuG3z0t7We4ZGTV37pQrw74Pn5J/tRsmnfcvg69wPfd7LS9AH7yh3ySsx90kMGmXEpzMGDvk3ou8S7e0aq5jd5Q68uD8Fbw9aUNm4BZBNESxqAXGIBY+eMmQ2Cg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rxhoWR6E; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sxNZXlnN"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54Q64cWW025403;
-	Mon, 26 May 2025 13:22:06 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rxhoWR6E"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54QCsw6H008601;
+	Mon, 26 May 2025 13:58:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=kkl4DN
-	P3JEJBsSyH+8pkIGF5rvzwqPBwP/ZvDHmWFZ8=; b=sxNZXlnN5ykOmPo9E9FRaJ
-	eYd+aqexLEFEQkE+iB4gPVr7BNBUqG1mZP2DPZe8JWL+n+oPSRhKVw7oYQ7Wqh7X
-	ZLKxm+iGsv1wTa+gd55NsEUuAVm0CSsy0nuJzVqLcG5gtqj3s75Hx8DhxeEX1BPv
-	6wbyrjg+QGnMTWgSIuFQi+F+B1tSK7Wdzj+UUZAJU5MJQmlkMMPwqJUeKJ6dfcEa
-	x39iA6BCLNnDe539JrIeUn51dZ0nTWVnTern7kIWeEnGbVH8zdIAiMl7rJhrVDDP
-	E21uAx1chQ7psbnN9e8vT8FWYIeRJCNCgCoUV4aQyVc+ses4CixgMHQ7VSApk8lw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46v0p2d4ph-1
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=ifjTnUTdKWwGYR5ht4WmoUiJvuuR+EF5YQU0WjPAK7A=; b=rxhoWR6EO8wf
+	IlbGnGUn9XrgSwb/9FI18LBFUQVo6fcvO42oCewkPB2f3xq1MZPRC1TAgZaE7VBR
+	ZN9FgZLdK/1ZU8RJ/XfXbDG9RwdIbgA+AH/m3iunPGwf08MfzoLdtwpPcklzD6Pj
+	OQ8wfBhA5OsV2BCpiCtj2Trf3IHmjjZ1V3Z66oGuotqwyWTU6lQQcynlxfvmBqjf
+	hmCm5v/uRGJWoom9zI9nnydQVjK1bzHJ+onTSsCpvs8xHYqosCfVNACpK5oe6OP7
+	FBHtJBPuxPnL7OBFFVT5yAa9AFBQA24W6yOINjfuOlQryNhRsGIw0F4mib6gkdjo
+	BcU2HGtlzg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46u5uchfmb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 May 2025 13:22:06 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54QBhHMH016674;
-	Mon, 26 May 2025 13:22:05 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 46ureu6fnx-1
+	Mon, 26 May 2025 13:58:49 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54Q9PFd5007966;
+	Mon, 26 May 2025 13:58:49 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 46uu52x3fc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 May 2025 13:22:05 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54QDM1T539846220
+	Mon, 26 May 2025 13:58:49 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54QDwlXx30671528
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 May 2025 13:22:01 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7E5F020040;
-	Mon, 26 May 2025 13:22:01 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B6DD22004D;
-	Mon, 26 May 2025 13:22:00 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.57.35])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon, 26 May 2025 13:22:00 +0000 (GMT)
-Date: Mon, 26 May 2025 15:21:57 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        seiden@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        david@redhat.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, gor@linux.ibm.com, schlameuss@linux.ibm.com
-Subject: Re: [PATCH v2 4/5] KVM: s390: refactor and split some gmap helpers
-Message-ID: <20250526152157.23743974@p-imbrenda>
-In-Reply-To: <5e058fd1-ccee-43c3-92eb-ad72d2dbc1f3@linux.ibm.com>
-References: <20250520182639.80013-1-imbrenda@linux.ibm.com>
-	<20250520182639.80013-5-imbrenda@linux.ibm.com>
-	<5e058fd1-ccee-43c3-92eb-ad72d2dbc1f3@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	Mon, 26 May 2025 13:58:48 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B66F95805D;
+	Mon, 26 May 2025 13:58:47 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 32DFE58054;
+	Mon, 26 May 2025 13:58:47 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 May 2025 13:58:47 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Mon, 26 May 2025 15:58:46 +0200
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com,
+        linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        fcallies@linux.ibm.com
+Subject: Re: [PATCH v11 5/6] s390/crypto: Add selftest support for phmac
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <aC7qCsLN84LfWy-e@gondor.apana.org.au>
+References: <20250522085755.40732-1-freude@linux.ibm.com>
+ <20250522085755.40732-6-freude@linux.ibm.com>
+ <aC7qCsLN84LfWy-e@gondor.apana.org.au>
+Message-ID: <48c8cfa0a00d34f271d04d9d68dc7337@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jpUVLp4_ROZXgsfvS9Wg_FMBwZpDBDtq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI2MDExMSBTYWx0ZWRfX0bMSC/zCelth YwvHq5RHxCe4AAzzPwP0U1RrTYIpqWpFbMUrY+yHd+8vpgWBHAm5chhtvQmqapeN288wtxDqEQP K59pzp32c2hwk7+NNlpHfFy1SyXUwH6U30Ibm++Q55ULnu03jF1qKDK1yxX0jR+bw0au5jgEyNa
- hwBoyuA2I3yqOGyp+6/sXt/39KFPO99cUDiFXg1ShEpe4wLl3F+SpcOFc1zhhXWpSkoV+EnJx7p /Y0VKxDFRemrgGem2XHKjjmIZrO17I0057GWZ86GcfUArf1X00x6Ppok6m8qaaFwj87a+yq9GOV 2jFYJaDGUr1uTMg9pdOz8cHByTFyYTOW7mapA3CJGkXc36eInS/vmUcI5d1HmWRr4iWgI75qiIh
- egD4Le5OEZg9I9xPTpD7WrhaxKGBkCGPCNFFChQ0l2DSbI6yf5/5jLEw+5CT9YF4PcHyI+HE
-X-Authority-Analysis: v=2.4 cv=Q7TS452a c=1 sm=1 tr=0 ts=68346afe cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=yrhbBQRmuIknczaptVAA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: jpUVLp4_ROZXgsfvS9Wg_FMBwZpDBDtq
+X-Proofpoint-ORIG-GUID: AlXWfV11KkYpjJGypux9VtuWWNQ-j3Pn
+X-Proofpoint-GUID: AlXWfV11KkYpjJGypux9VtuWWNQ-j3Pn
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI2MDExNSBTYWx0ZWRfX89Ykae1Rq9Dp Ak7TB4yTCnoDoAFvK97s0EQYCuBxjQRqZ2kA1OGCqNF3gJ3JueBQ9j60fvBq9wlcEt6Iv0cCFgX Yz7MoTwksHkSlln0MMddCcYcLYA3qu/smwbRzXNd0Snd9hleWiHCeGGnsdDsoyG0yPO6xm+99tp
+ oAzyJQaNemJ6roGq1pbcJwX1re9iQXVETUQQJTG5j1HUnnwpvegZNID4MzUlwJ8qrXs4DJynzJz tOPfUJILABNfBeh3m18JkWyx8uBEJyRP5LoGFlyQQu3X7FabrEOZmh8B3t8T7QuOP9ssWyFfAeN 8GYqjC91Utl7RTgEXmMbaQzk/F97Y/E21Hc9LmOaGxfEPfEumqflAjWzh8yks8SPWGeYZ103uKg
+ cvzhHNdFTeeI5TtansQ5bEXHqPgM3Gc2MAsGciJWeeVAzS148v+xruw7+B9oh+68i0C33EXH
+X-Authority-Analysis: v=2.4 cv=fJM53Yae c=1 sm=1 tr=0 ts=6834739a cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VtAC8mx2-aAPUfWygUgA:9 a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-26_06,2025-05-26_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 mlxlogscore=999 phishscore=0 clxscore=1015
- malwarescore=0 adultscore=0 mlxscore=0 impostorscore=0 spamscore=0
- suspectscore=0 lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a
- authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2505160000 definitions=main-2505260111
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ priorityscore=1501 bulkscore=0 adultscore=0 mlxlogscore=657 suspectscore=0
+ phishscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2505260115
 
-On Mon, 26 May 2025 13:17:35 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
-> On 5/20/25 8:26 PM, Claudio Imbrenda wrote:
-> > Refactor some gmap functions; move the implementation into a separate
-> > file with only helper functions. The new helper functions work on vm
-> > addresses, leaving all gmap logic in the gmap functions, which mostly
-> > become just wrappers.
-> > 
-> > The whole gmap handling is going to be moved inside KVM soon, but the
-> > helper functions need to touch core mm functions, and thus need to
-> > stay in the core of kernel.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >   MAINTAINERS                          |   2 +
-> >   arch/s390/include/asm/gmap_helpers.h |  18 ++
-> >   arch/s390/kvm/diag.c                 |  11 +-
-> >   arch/s390/kvm/kvm-s390.c             |   5 +-
-> >   arch/s390/mm/Makefile                |   2 +
-> >   arch/s390/mm/gmap.c                  |  46 ++---
-> >   arch/s390/mm/gmap_helpers.c          | 259 +++++++++++++++++++++++++++
-> >   7 files changed, 302 insertions(+), 41 deletions(-)
-> >   create mode 100644 arch/s390/include/asm/gmap_helpers.h
-> >   create mode 100644 arch/s390/mm/gmap_helpers.c  
+On 2025-05-22 11:10, Herbert Xu wrote:
+> On Thu, May 22, 2025 at 10:57:54AM +0200, Harald Freudenberger wrote:
+>> 
+>> +	if (!(crypto_tfm_alg_get_flags(tfm_base) & CRYPTO_ALG_TESTED)) {
 > 
-> [...]
+> I think a better helper would be
 > 
-> > diff --git a/arch/s390/mm/Makefile b/arch/s390/mm/Makefile
-> > index 9726b91fe7e4..bd0401cc7ca5 100644
-> > --- a/arch/s390/mm/Makefile
-> > +++ b/arch/s390/mm/Makefile
-> > @@ -12,3 +12,5 @@ obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
-> >   obj-$(CONFIG_PTDUMP)		+= dump_pagetables.o
-> >   obj-$(CONFIG_PGSTE)		+= gmap.o
-> >   obj-$(CONFIG_PFAULT)		+= pfault.o
-> > +
-> > +obj-$(subst m,y,$(CONFIG_KVM))	+= gmap_helpers.o  
+> 	if (!crypto_ahash_tested(tfm)) {
 > 
-> So gmap.o depends on PGSTE but gmap_helpers.o depends on KVM.
-> Yes, PGSTE is Y if KVM is set, but this looks really strange.
+> Thanks,
 
-yes, CONFIG_PGSTE will go away in the final series
+Done, there is now a new inline function:
 
-No point in using CONFIG_PGSTE here knowing it will go away soon anyway
+static inline bool crypto_ahash_tested(struct crypto_ahash *tfm)
+{
+	struct crypto_tfm *tfm_base = crypto_ahash_tfm(tfm);
 
-> 
-> 
-> @Heiko:
-> Can we move away from CONFIG_PGSTE and start using CONFIG_KVM instead?
-> Well, maybe this goes away with Claudio's rework anyway.
+	return tfm_base->__crt_alg->cra_flags & CRYPTO_ALG_TESTED;
+}
 
+in include/crypto/internal/hash.h
+see v12 of this patch series.
