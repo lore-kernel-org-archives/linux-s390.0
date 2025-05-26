@@ -1,146 +1,127 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f169.google.com (mail-vk1-f169.google.com [209.85.221.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A7E720D4EB;
-	Mon, 26 May 2025 14:06:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755798632E
+	for <linux-s390@vger.kernel.org>; Mon, 26 May 2025 14:49:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748268389; cv=none; b=ePAjfB27yv7ZU64SGfFoyu4tMmjlDVMh0y9Kq5salYn4a/unP8vv0W40ApSMA7gkQfnb7GXTtLmTElMJU4DgKtZVu8mZhhLCWuN2HFrgUn+0QaS4SWLkvBRfl8bSg2m4/GSNJoWBYudI3BMNQQqpattCLB4wtilX4Z1plndFv4s=
+	t=1748271001; cv=none; b=lXe7S0/X6fs362SrpYI+t3OgE3UDHmhBBa3dKt6b+mKhVs0SmimwMsKLSnmXJd0Gkm8R9VionyCPyaACp3LYJ05BRTsWeU8LVBQdLBkLLb/zGWFBKngFJNKUSP/5ImLgBv5YEkUAyKP5SjmyQW4tsIiIKm45Oxqf1l9wfSDKqu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748268389; c=relaxed/simple;
-	bh=8VsKYZ6KxeMZthY7JuoI1Xwf/1MRGBmthAsokXCpm2o=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=GzptA05E7DKkYts24CJzm4J0++Hp+EtTKcTlC7kfCU5+tQHAToiJj3RsPGczzXAjY8TPThvL+S4J2LvDz4+ROELiIgS6bu4gK1e2Q2/8P8D4DIkWwdJXG8ownszQS442/rJwsEPTQgjDyK9+FvdrQ1o6rCZXaVH/BazXS71N+2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=da+3YxPB; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1748271001; c=relaxed/simple;
+	bh=zfitFxB7TLlYSZl2n8OvoUs1pS/YDRXYg4yZgpeEH24=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=IqAy0SXaAZzQWkdPQ3XUNoegHs2BxBrrF9Baq5dVYpU71wzN5RFXW2o8hn1tre3h58nLGhZyIEvbwL7SfhTJO/NXq++3RUKIQD6gN437pZHikJtEQL4hozz8Zflu3PF1zfPRjgQvmXGFE1bxXtMFg1t8l7+JYDfmdCD5Pd0Kf2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=rrAMw9hE; arc=none smtp.client-ip=209.85.221.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="da+3YxPB"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54QC90CM020497;
-	Mon, 26 May 2025 14:06:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=zJOGFon2tbDPZRVzsu1EKQfawFr2x4HjZswhWTL7SBo=; b=da+3YxPBQAVi
-	rBFFSeNmC23R4UTCEyIX14c8j0fM7hBgzeFZGueazI/cZ6S0PZH4M11ZOE6pZRNK
-	H8BQiACw+YEx2x78tjuwjHU2bm34OGZ05FwkPMJf1ybdM4vg7283YVmihUiiv2ng
-	7LCfApOQ3Hub19scKlw1XZrDKcokB/GSwGXODCp+Rku39+Z1l6GpWifN+Z3+ZvBx
-	WQJrO/lJC4UP0Y5eQjbdaikNbGzMDRosa9VgKfIlScjJSpBc9ZiMD0IsibDvKl0m
-	A6S3MfRp6RqGAPX6ek+PIuE0k7c9JOe1q1kNJqVPmwzuxySK5tZUSJUNDXPkCrww
-	0FwnTbWvzA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46v0p2daev-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 May 2025 14:06:24 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54QDBvxk009546;
-	Mon, 26 May 2025 14:06:23 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46usxmpc06-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 May 2025 14:06:23 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54QE6Lj126870452
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 May 2025 14:06:22 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D07F95805E;
-	Mon, 26 May 2025 14:06:21 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3C7D358045;
-	Mon, 26 May 2025 14:06:21 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 26 May 2025 14:06:21 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="rrAMw9hE"
+Received: by mail-vk1-f169.google.com with SMTP id 71dfb90a1353d-5242f137a1eso593086e0c.1
+        for <linux-s390@vger.kernel.org>; Mon, 26 May 2025 07:49:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1748270998; x=1748875798; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=FPt3TJeeSWlSX7gMhtUXG84+XDQKLnMOq5NBKVq0EzE=;
+        b=rrAMw9hErUZzO9Ch4Ma/veu6UZ2pBbxq59BUKlBFNnWvpz6m00mh5djPczsb3Ubn7D
+         wtYqVt68eg/osksGwK5McRv7yQ5M3enxz4Vcr/1Qi7iccmq0wE7QDlFCIWtzhgTQEGhm
+         blZkgFuCCS2x6L2LyG2k5FXXPExDPxRdBkQLTa+KyLUUZJclnHQ07fNRZJ0kIY2ZkNhd
+         JxVLoULeF8PVtbLkjyf9RcoU1XeXJ55akZHN3OOtH18EcnN8IEgcFLTjqBSQGmIhuWK/
+         qpnd6VdLNoyS1dChDBAq6t97yjhVZea6b7FU662KqgG2d964bsEUOdihYj3A23TdDG2w
+         zYZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748270998; x=1748875798;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FPt3TJeeSWlSX7gMhtUXG84+XDQKLnMOq5NBKVq0EzE=;
+        b=U/c5f98mwBlwnRtKBgnG4C82TD/kbKXXfQKpjkBXnsqsY13ubG+qnTgRnMrVWBee6r
+         jqkAbgLjC5H+JG+Re3HGMO6aKi2qktK8BG3T8lBUJnGVcG76L9htaZ/W2XCQ0eMAuNSl
+         wzte6Th3MX9D2vZsNX48yFUG5CKgecmcJrNTlvX/OM9LY4F6G4qI7+pnJBwNv2dYQeoz
+         H6rturOkerdbWUuJ5onZRJ3fAjXRxQYJxF1//b2yTO2HV1+qiwumq4hL/0IkYRaNj9Mw
+         B6PuITXd/jHYt8lfrPjz3OYtFAqE7kK7gckaqJT2aQT9pQc0XD4DUuvljX3A4y/3Ggrt
+         yhwQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVu3Vxy26hrXUkQ1nPeXoQj0jQgilx+WmhA1dLA9TQXVFDftzFW83Y3wUCiphyGHVLVxgQ4xIHxsx6G@vger.kernel.org
+X-Gm-Message-State: AOJu0YxEP8TC+Gbx7fGupCO/vAljQVndEuk2jy7jMche6s29ViWEEk/a
+	b2BaqXg0WEKlo1tcNDz4FhET1CT/0/uc02+Wu3boXOEf3gH/VzGSWLqluNf+LwJtsmnky7ABOYk
+	AV5oQ7ABSIHSS40YgacPY5l+yhgQEOT3Ua+dEI0Y1LA==
+X-Gm-Gg: ASbGncsKINxiRJpyaedXEj+lnbK6q6NMtwh1OZJ1F17KuIEIouo2L5g3yKHwaC5DoCT
+	G/DODLy5M6PE57ndfmXJpp1viC5KfHajpmBjE8TrsSg9F2TJVR8VZRNhsSBeekTZUFS5ebvppBs
+	xCaA+wUDOXGvidu6l7hjIcsptMm6GlPTw8Do9JbUpypNaRuWQntiPL5Tre0jhqlFVKeg==
+X-Google-Smtp-Source: AGHT+IFAwHkN7yPij1DIkj7z46mEiXlTGAcwIz2YT+ZMH8oPDmB5X5hWuI846iTsf1oWgfSFkOzQJJJIW+9kBdiXyIc=
+X-Received: by 2002:a05:6122:8c8:b0:528:f40f:347f with SMTP id
+ 71dfb90a1353d-52f2c4fb8efmr7658464e0c.2.1748270998229; Mon, 26 May 2025
+ 07:49:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 26 May 2025 16:06:20 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Holger Dengler <dengler@linux.ibm.com>
-Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        fcallies@linux.ibm.com, herbert@gondor.apana.org.au,
-        ifranzki@linux.ibm.com
-Subject: Re: [PATCH v11 5/6] s390/crypto: Add selftest support for phmac
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <5c7ef880-15a2-4f24-96a4-75b6d29f7c4e@linux.ibm.com>
-References: <20250522085755.40732-1-freude@linux.ibm.com>
- <20250522085755.40732-6-freude@linux.ibm.com>
- <5c7ef880-15a2-4f24-96a4-75b6d29f7c4e@linux.ibm.com>
-Message-ID: <f24b49ae2c25815913fffd82dbecadcb@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: V7ZcBwBskD6joKpztyK3nf8NwdefkC3-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI2MDExOSBTYWx0ZWRfXzq8P0LEEayPG adBEaqldtR1qiT0TFuLvzn6EkMuW5NRGteHi8OC8myfnzfTLWpTzn6Q6T9tzYQDCPRTOKzoyuJv X+DEKpSCh7Jxp3WHiFgPqX15xjfg5T7V0Ud1N9eJkf/oUSpp3dY5igJ01wARVkMhC/Ulu6GZ5Nj
- Xk/EbujRWXdQPsAKR1FAi6ki+j+5sqhNxk1Q51kJ/VpFF6+nvTMa+4K5d7aAXlvKgBrCuBB2lnO 7iaAd37teSL6LToMqtS3PUcYST2NkmhuCCRCNSEschEaX+Nfz4vhLJKLT7Dxqooxr9AGkp6XnbS QP1dn3tp7tZVROkkcXd4DAwsQS3XmSYHloat10NtNFrc9tqwUj9mwoKQpDsDZTsOa2sWWeb6zTo
- vs04iu6V23Rk7pBcYsxsQtXtStMFlpAq9IcG7MvqCNmWqcD6XGxB7q7Yf0PqaPqxSDF2QhFP
-X-Authority-Analysis: v=2.4 cv=Q7TS452a c=1 sm=1 tr=0 ts=68347560 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=m2qi5rkTakaL2VkNlNkA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: V7ZcBwBskD6joKpztyK3nf8NwdefkC3-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-05-26_07,2025-05-26_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- priorityscore=1501 mlxlogscore=746 phishscore=0 clxscore=1015
- malwarescore=0 adultscore=0 mlxscore=0 impostorscore=0 spamscore=0
- suspectscore=0 lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a
- authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2505160000 definitions=main-2505260119
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Mon, 26 May 2025 20:19:46 +0530
+X-Gm-Features: AX0GCFvxh27JNfDxKLaqsriHok2z-zPYobJmZed9nNW7mlvIzu0hQJg4gxzXv60
+Message-ID: <CA+G9fYtSrmuXzvYbCrmT_4RHggpaYi__Qwr2SB2Y0=X3mB=byw@mail.gmail.com>
+Subject: stable-rc/queue/6.14: S390: devres.h:111:16: error: implicit
+ declaration of function 'IOMEM_ERR_PTR' [-Werror=implicit-function-declaration]
+To: linux-stable <stable@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
+	linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, 
+	lkft-triage@lists.linaro.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sasha Levin <sashal@kernel.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Anders Roxell <anders.roxell@linaro.org>, 
+	Dan Carpenter <dan.carpenter@linaro.org>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 2025-05-23 16:55, Holger Dengler wrote:
-> On 22/05/2025 10:57, Harald Freudenberger wrote:
->> Add key preparation code in case of selftest running to the phmac
->> setkey function:
->> 
->> As long as the CRYPTO_ALG_TESTED flag is not set, all setkey()
->> invocations are assumed to carry sheer hmac clear key values and thus
->> need some preparation to work with the phmac implementation. Thus it
->> is possible to use the already available hmac test vectors implemented
->> in the testmanager to test the phmac code.
->> 
->> When the CRYPTO_ALG_TESTED flag is set (after larval state) the phmac
->> code assumes the key material is a blob digestible by the pkey kernel
->> module which converts the blob into a working key for the phmac code.
->> 
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> 
-> For this series, the explicit calls of CPACF for hashing long keys is
-> ok. Long term, I would suggest to switch to introduce library
-> functions for sha224(), sha384() and sha512(), all similar to
-> sha256(), and use them for hashing the clear key. This will remove the
-> hard dependency to CPACF SHA function codes for this module. But we
-> should do this in a separate series and do the same for clear-key
-> hmac.
-> 
+Regressions on S390 tinyconfig builds failing with gcc-13, gcc-8 and
+clang-20 and clang-nightly tool chains on the stable-rc/queue/6.14.
 
-D'accord - but let's first focus on the real implementation and when all
-this rework on the next kernel is done, we can start to use the library
-functions instead.
+Regression Analysis:
+ - New regression? Yes
+ - Reproducible? Yes
 
-> See another comment below. The rest looks good.
-> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
-> 
-> 
-> [...]
->> @@ -854,6 +986,17 @@ static int __init s390_phmac_init(void)
-> [...]
->> +	/* register a simple phmac pseudo misc device */
->> +	rc = misc_register(&phmac_dev);
->> +	if (rc)
->> +		return rc;
->> +
-> 
-> These 5 lines should go into patch 3/6, as it uses `phmac_dev` already.
-> 
->>  	/* with this pseudo device alloc and start a crypto engine */
->>  	phmac_crypto_engine =
->>  		crypto_engine_alloc_init_and_set(phmac_dev.this_device,
+Build regression: S390 tinyconfig devres.h 'devm_ioremap_resource'
+implicit declaration of function 'IOMEM_ERR_PTR'
 
-Done - this code piece really should have been in patch #3.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+
+Build log:
+---------
+In file included from include/linux/device.h:31,
+                 from include/linux/node.h:18,
+                 from include/linux/cpu.h:17,
+                 from arch/s390/kernel/traps.c:28:
+include/linux/device/devres.h: In function 'devm_ioremap_resource':
+include/linux/device/devres.h:111:16: error: implicit declaration of
+function 'IOMEM_ERR_PTR' [-Werror=implicit-function-declaration]
+  111 |         return IOMEM_ERR_PTR(-EINVAL);
+      |                ^~~~~~~~~~~~~
+
+
+## Source
+* kernel version: 6.14.8
+* git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+* git sha: 3413aa4d097e291186719c26f341c52f8550e22c
+* git describe: v6.14.8-756-g3413aa4d097e
+* project details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_6.14/build/v6.14.8-756-g3413aa4d097e/
+* architecture: S390
+* toolchain: gcc-8, gcc-13, clang-20, clang-nightly
+* config : tinyconfig
+* Build config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2xbEAey3MY3M8lp7doND4hPoZo3/config
+* Build: https://storage.tuxsuite.com/public/linaro/lkft/builds/2xbEAey3MY3M8lp7doND4hPoZo3/
+
+## Boot log
+* Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_6.14/build/v6.14.8-756-g3413aa4d097e/testrun/28546580/suite/build/test/gcc-13-tinyconfig/log
+* Build details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_6.14/build/v6.14.8-756-g3413aa4d097e/testrun/28546580/suite/build/test/gcc-13-tinyconfig/details/
+* Build history:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-queues-queue_6.14/build/v6.14.8-756-g3413aa4d097e/testrun/28546580/suite/build/test/gcc-13-tinyconfig/history/
+
+## Steps to reproduce
+ - tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
+--kconfig tinyconfig
+
+--
+Linaro LKFT
+https://lkft.linaro.org
