@@ -1,140 +1,177 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E750721D5A4;
-	Tue, 27 May 2025 07:18:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FD1246797
+	for <linux-s390@vger.kernel.org>; Tue, 27 May 2025 07:31:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748330294; cv=none; b=jyUYJZo5sZn5i4w/izoKW2FJ++xb8CuchlD1MIazgP33/dm9kfqH88izPbhvq3bQ8RTueumNmfXb1TUhpN+XosoXFMX2R3ibIbmlpYSWXaT1YbPMr9ppIMGhnDHZS/sgv4GiZ/SurubGce2a2DgjsZ9yh1L1gBi9Wdqe7McCJdw=
+	t=1748331108; cv=none; b=OSXq8blTqluLH5i8+gkBoDZXE+KqXuG488trsCWmQJzM1TCrAubWYHcmuVUabtRP0uIKKpRD/uQ+P5V/ICUT2MJK6uyckMEnBM9ZUiDVuSdHpV5xmFWVIsbm0gMeW8VXQLpsRI2w6R8u9/KCflz1Xf25Pi+4Fa1/sIbvBv4lOTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748330294; c=relaxed/simple;
-	bh=f4Hx8Tpui0PKRNM7Z+70KH3fALemtKbbPYlfhdi1ilc=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=URYX1Js542lN1XumDQtD74NVJ0p6Nx1gWZ0cuMvSg4F2N8mJ6QLjb/zOkxa1qHtTuRaF/ThQbBw++bS/DCME+y0H+UtFpwDZAvi6KUORuUPIoMxjJZ8fdyEtpf/SOTP6KEkBCMK5+t2R71jnRzzWLs/S0G4E9anZciFLNOamgek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ViYhpYcx; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1748331108; c=relaxed/simple;
+	bh=bb9jsHitSaonBbnn/AkzteC/y0EIkxui/jlrPwUehI4=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=r94oDCaRl0To6AzCccj8NMMCf48Rjq9Eoga4gKirdY1rmX/lEUQ76ziW8XG3r5+6BbFMNdtn4cbMKruHbPyKVGIigUjsSnkMqJRJCRIZFvhBLEA+PKmWrIqy1VjqHe1rxPTuMFv5qU8SRA3HMR5Gg8rMW4b+G2wcf3gOZHpoQPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UBWtmvIy; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ViYhpYcx"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54R2U6UE032558;
-	Tue, 27 May 2025 07:18:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UBWtmvIy"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54QNO1dt015998;
+	Tue, 27 May 2025 07:31:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=opYd4H
-	OG5d2/EA2ZMhabVToKW7wW7XkK5OwqUHeJdEA=; b=ViYhpYcxsrDnpC2Al8UVDK
-	PetRGcNbaDNVJjig7a1NPcWA4zg4/8dyDmdB1IacZqC8dppI7eg3CCn29kiWq+zJ
-	Fm7/bmN+WqZqkmNv8sIpV38wIX+4KhOzW3BaKZqQGqBVDKzWHta9wk4ayhY7jLHx
-	DS7g4nsehaV+Z+2nVq5dXOuduqrefdYHREQ/HZRuz9OsRRKjkkjVBsk33iAv+FBD
-	uJPQyJ1iDkE9prH8tOPfjVE1JkApSVSeq8AYeXNCCFkJJd+rHpQMvLSqlQwjJ15U
-	yC62AfdLMBlt66iTffO4asIELz+n5RNmMTHWV4r0b1EBI6721IUJ1BRzBJ2XQLHA
-	==
+	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
+	 bh=2iVlWZrpsW/Q1vse7AU9Lg9RgERYa5fMreUBelBvjCc=; b=UBWtmvIyzRQR
+	vgRWtsgDCf/wc6j/G+SiY59vmBrUpXOrNxIr+jbNvjaDvWTjh3jD/YiMNWPDbNeq
+	uUAYHCo1tvV4x5w5KEEkTz2xplvbDPtJp7CNkSP4PwkpLpGeYUE9dIotSZF/u7uH
+	EZ52aUBlvCqbitX2XYEnnmGQO252GekUzMHzTfo3XS7iom87vwv2tGO/hgck6CH1
+	1WGiLRQxrl7GFeXuEkmbKGhfmBNw8MeFYiwg2PRHPW6+InV1ckuYaX0zx5nE5p55
+	SSbqgzPRE43TFMN2Ph+6bpUni8R/uDDQIOoO1pj1wiNlGq7kd7Bmy9gtTnEcV/FW
+	vhqf6A6PCw==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46u3hrw75h-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46v0p2gn9u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 May 2025 07:18:10 +0000 (GMT)
+	Tue, 27 May 2025 07:31:43 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54R74F3H010750;
-	Tue, 27 May 2025 07:18:06 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46uru0hq5m-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54R70MbI010744;
+	Tue, 27 May 2025 07:31:43 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46uru0hran-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 27 May 2025 07:18:05 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54R7I2LK35520932
+	Tue, 27 May 2025 07:31:43 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54R7VgTu15598276
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 27 May 2025 07:18:02 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0A5142004E;
-	Tue, 27 May 2025 07:18:02 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5076B20040;
-	Tue, 27 May 2025 07:18:01 +0000 (GMT)
-Received: from t14-nrb (unknown [9.87.142.254])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 27 May 2025 07:18:01 +0000 (GMT)
+	Tue, 27 May 2025 07:31:42 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 247B35805C;
+	Tue, 27 May 2025 07:31:42 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8FB0858054;
+	Tue, 27 May 2025 07:31:41 +0000 (GMT)
+Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 27 May 2025 07:31:41 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 27 May 2025 09:18:01 +0200
-Message-Id: <DA6RCZ7FOBOS.1U1CX5REWAGTN@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>,
-        <seiden@linux.ibm.com>, <nsg@linux.ibm.com>, <david@redhat.com>,
-        <hca@linux.ibm.com>, <agordeev@linux.ibm.com>, <svens@linux.ibm.com>,
-        <gor@linux.ibm.com>, <schlameuss@linux.ibm.com>
-Subject: Re: [PATCH v2 3/5] KVM: s390: refactor some functions in priv.c
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-X-Mailer: aerc 0.20.1
-References: <20250520182639.80013-1-imbrenda@linux.ibm.com>
- <20250520182639.80013-4-imbrenda@linux.ibm.com>
-In-Reply-To: <20250520182639.80013-4-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Date: Tue, 27 May 2025 09:31:41 +0200
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        linux-s390@vger.kernel.org, dengler@linux.ibm.com
+Subject: Re: [PATCH v5 2/2] s390/crypto: Rework protected key AES for true
+ asynch support
+Reply-To: freude@linux.ibm.com
+Mail-Reply-To: freude@linux.ibm.com
+In-Reply-To: <f958f869-8da3-48d9-a118-f3cf9a9ea75c@redhat.com>
+References: <20250514090955.72370-1-freude@linux.ibm.com>
+ <20250514090955.72370-3-freude@linux.ibm.com>
+ <f958f869-8da3-48d9-a118-f3cf9a9ea75c@redhat.com>
+Message-ID: <9939f4a9dcabae4c739b73b3f9e6cdb1@linux.ibm.com>
+X-Sender: freude@linux.ibm.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AOOMbaiN c=1 sm=1 tr=0 ts=68356732 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=R0-nb_ruKWFPPYddgEsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: _bFAT-T7cIq5VrWfdSN6tW9kmVHCpUgr
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI3MDA1NSBTYWx0ZWRfX2sIR4aWwn1/l kzPWbutHOie+M9vJQzJHePAaTgXdzA8NVbGRU2mgNhGCk5Pfcn7nMsGK3LBV/IYuJI7RfXoyavq nYvEUc/kiNfESZBeR8QTZrnbiwDwMlkB9XnUMs06U3VTU2tUSSdQorCMj0wJTr/ltqHKhSoqqXT
- EGIjfffO/bakDsAXIV3c8TBmczNPzq3KvgwWkRHhJlubeEJmfepu3BkqDonn0h4e17if88YR6Je ggaE6VN7bQTIxYMeCi5QRuJ+VvS4wq5mpWJ8myctN/EYDjNi3LHtUnsP++HA9CGoC5iT/E/uPUJ acCE1QfLdKXf7FYYumE3X21B4s7TelhFaKPtE49fjCBehpivoa03oHIi7WUQa+sTXNyQNow6ZTt
- TKrZijIYFqN2DxjRehDVOSibIfnL/N/0enkZvG0Ckud2lBf64/feYInDELH5O9tWrsvyJNea
-X-Proofpoint-GUID: _bFAT-T7cIq5VrWfdSN6tW9kmVHCpUgr
+X-Proofpoint-ORIG-GUID: i08NfntCwl5i0-voOZzDa1vnJXklIiRY
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI3MDA1NSBTYWx0ZWRfX7cnufSwjM8bV LfMKNKnfxVcaWcjsr85QSvKGxTigKkYuNoCDY11sNuOiN85OjFe8BUXJI+rTGHsFc9/7tVOvxM/ q9s9PK2m/CHCSmmFZN38jJ4mjrzXEMUlSPLXC0PBLHktgP5zSFypqD8MwYn2zNrSqvc/MXpucVT
+ Z93crOmTyDDg/tzKyKBzHdoyWUTwZPLZsPaNPJIPh2EL4a/l30RLk7CRoFCxzhGfisVmHpb7OAM 0V4XCQjET+AX5V0YBWzHtgnkP7gI1khsK8UdvrWuVPtfeyfN3FlxBioMesA+QQ6R+vp3AntS2L2 WhL8gR7wdBNkvpRy5CpICsVjU7ZHGov2Gvxd30c5b0rlDs0XaWUZ2gsSVrr7RzYaUpklXMHCU5K
+ LzPkHNLrqsgobJn6BVY5tk9rRLEfI6R9iZThKlxLro0tgB6jGSUXkEimp74BKMbkeeJ9pYJ9
+X-Authority-Analysis: v=2.4 cv=Q7TS452a c=1 sm=1 tr=0 ts=68356a60 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=FNyBlpCuAAAA:8 a=XJWaxHopa2zISUNvkqwA:9 a=CjuIK1q_8ugA:10
+ a=RlW-AWeGUCXs_Nkyno-6:22
+X-Proofpoint-GUID: i08NfntCwl5i0-voOZzDa1vnJXklIiRY
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-27_03,2025-05-26_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 mlxscore=0 spamscore=0
- impostorscore=0 mlxlogscore=605 malwarescore=0 lowpriorityscore=0
- phishscore=0 clxscore=1011 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
- definitions=main-2505270055
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 mlxlogscore=999 phishscore=0 clxscore=1011
+ malwarescore=0 adultscore=0 mlxscore=0 impostorscore=0 spamscore=0
+ suspectscore=0 lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a
+ authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2505160000 definitions=main-2505270055
 
-On Tue May 20, 2025 at 8:26 PM CEST, Claudio Imbrenda wrote:
-[...]
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 9253c70897a8..15843e7e57e6 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-[...]
-> +static int skeys_common_checks(struct kvm_vcpu *vcpu, struct skeys_ops_s=
-tate *state)
-> +{
-> +	int rc;
-> +
-> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE) {
-> +		rc =3D kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
-> +		return rc ? rc : -EAGAIN;
+On 2025-05-26 17:25, Thomas Huth wrote:
+> On 14/05/2025 11.09, Harald Freudenberger wrote:
+>> This is a complete rework of the protected key AES (PAES) 
+>> implementation.
+>> The goal of this rework is to implement the 4 modes (ecb, cbc, ctr, 
+>> xts)
+>> in a real asynchronous fashion:
+>> - init(), exit() and setkey() are synchronous and don't allocate any
+>>    memory.
+>> - the encrypt/decrypt functions first try to do the job in a 
+>> synchronous
+>>    manner. If this fails, for example the protected key got invalid 
+>> caused
+>>    by a guest suspend/resume or guest migration action, the 
+>> encrypt/decrypt
+>>    is transferred to an instance of the crypto engine (see below) for
+>>    asynchronous processing.
+>>    These postponed requests are then handled by the crypto engine by
+>>    invoking the do_one_request() callback but may of course again run 
+>> into
+>>    a still not converted key or the key is getting invalid. If the key 
+>> is
+>>    still not converted, the first thread does the conversion and 
+>> updates
+>>    the key status in the transformation context. The conversion is
+>>    invoked via pkey API with a new flag PKEY_XFLAG_NOMEMALLOC.
+>>    Note that once there is an active requests enqueued to get async
+>>    processed via crypto engine, further requests also need to go via
+>>    crypto engine to keep the request sequence.
+>> 
+>> This patch together with the pkey/zcrypt/AP extensions to support
+>> the new PKEY_XFLAG_NOMEMMALOC should toughen the paes crypto 
+>> algorithms
+>> to truly meet the requirements for in-kernel skcipher implementations
+>> and the usage patterns for the dm-crypt and dm-integrity layers.
+>> 
+>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+>> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+>> Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+>> ---
+>>   arch/s390/crypto/paes_s390.c | 1812 
+>> ++++++++++++++++++++++++----------
+>>   1 file changed, 1270 insertions(+), 542 deletions(-)
+> 
+>  Hi Harald,
+> 
+> I'm currently facing these errors when building linux-next:
+> 
+> ERROR: modpost: "crypto_engine_stop" [arch/s390/crypto/paes_s390.ko] 
+> undefined!
+> ERROR: modpost: "crypto_engine_exit" [arch/s390/crypto/paes_s390.ko] 
+> undefined!
+> ERROR: modpost: "crypto_engine_unregister_skcipher"
+> [arch/s390/crypto/paes_s390.ko] undefined!
+> ERROR: modpost: "crypto_engine_alloc_init_and_set"
+> [arch/s390/crypto/paes_s390.ko] undefined!
+> ERROR: modpost: "crypto_engine_start" [arch/s390/crypto/paes_s390.ko] 
+> undefined!
+> ERROR: modpost: "crypto_engine_register_skcipher"
+> [arch/s390/crypto/paes_s390.ko] undefined!
+> ERROR: modpost: "crypto_finalize_skcipher_request"
+> [arch/s390/crypto/paes_s390.ko] undefined!
+> ERROR: modpost: "crypto_transfer_skcipher_request_to_engine"
+> [arch/s390/crypto/paes_s390.ko] undefined!
+> 
+> I think the Kconfig is missing a "select CRYPTO_ENGINE" somewhere?
+> 
+>  Thomas
 
-What has changed that
+Well, with the rework the paes_s390 module has a dependency to the
+crypto engine which is the kernel module "crypto_engine". There is
+a kernel config CONFIG_CRYPTO_ENGINE but this is not defined in our
+defconfig and debug_defconfig. However, when I build a defconfig
+kernel I automatically get CONFIG_CRYPTO_ENGINE=m in my .config.
 
-return kvm_s390_inject_program_int()
+However, I'll check if there is a
+SELECT CRYPTO_ENGINE
+needed in the paes entry in drivers/crypto/Kconfig
 
-is not sufficient any more?
-
-[...]
-> +	get_regs_rre_ptr(vcpu, &state->reg1, &state->reg2, &state->r1, &state->=
-r2);
-> +
-> +	state->effective =3D vcpu->run->s.regs.gprs[state->reg2] & PAGE_MASK;
-
-*state->r2?
-
-[...]
->  static int handle_pfmf(struct kvm_vcpu *vcpu)
->  {
-[...]
-> +	if (r1.fsc) {
-> +		end =3D kvm_s390_logical_to_effective(vcpu, end);
-> +		if (kvm_s390_is_amode_64(vcpu))
-> +			replace_selected_bits(r2, PAGE_MASK, end);
-> +		else
-> +			replace_selected_bits(r2, 0xfffff000, end);
-
-Maybe I'm missing something, but I don't get why you need replace_selected_=
-bits
-here.  kvm_s390_logical_to_effective() already does the neccesary masking, =
-no?
+Thanks for this hint
