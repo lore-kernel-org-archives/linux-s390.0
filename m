@@ -1,168 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C3D13D8A3;
-	Tue, 27 May 2025 03:30:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E750721D5A4;
+	Tue, 27 May 2025 07:18:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748316656; cv=none; b=BkAoTSY7oPxTj22whIgesem09KbHz0sz4yKkAmbhHl+vaI4OG/EzqLtVUSyb+y4NO+ec6SpV0z82XFzUaGvOd/wlxrZMgXaZmkqfuFeYG6VZQRTY5I9DzIG39w07WI4x++9qivMurScmmviEzOydti47tAg6LnxynDc0J1+JW+c=
+	t=1748330294; cv=none; b=jyUYJZo5sZn5i4w/izoKW2FJ++xb8CuchlD1MIazgP33/dm9kfqH88izPbhvq3bQ8RTueumNmfXb1TUhpN+XosoXFMX2R3ibIbmlpYSWXaT1YbPMr9ppIMGhnDHZS/sgv4GiZ/SurubGce2a2DgjsZ9yh1L1gBi9Wdqe7McCJdw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748316656; c=relaxed/simple;
-	bh=4+1dYOsA3kHiY8rIfLnjAgd8wOHuIeN0O4AklhVQ26M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tNgPsuz+bFx9p4F0t8inlF8y/5XUgtuJWyWiqw1UWQ9oGu6l6IO65YMF0CREu1OjL3Ep3yJ46a6AMQJRjElZoTmOoio1FfNbYDqdGQeYu3oRKjtivEtMl4AgB1ll4ehm2YLqpTirZM2ZqP1bkAXKVCAmB1Afo+54aksJr/hfP5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PDpCasoc; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1748330294; c=relaxed/simple;
+	bh=f4Hx8Tpui0PKRNM7Z+70KH3fALemtKbbPYlfhdi1ilc=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=URYX1Js542lN1XumDQtD74NVJ0p6Nx1gWZ0cuMvSg4F2N8mJ6QLjb/zOkxa1qHtTuRaF/ThQbBw++bS/DCME+y0H+UtFpwDZAvi6KUORuUPIoMxjJZ8fdyEtpf/SOTP6KEkBCMK5+t2R71jnRzzWLs/S0G4E9anZciFLNOamgek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ViYhpYcx; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PDpCasoc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D81B4C4CEED;
-	Tue, 27 May 2025 03:30:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748316655;
-	bh=4+1dYOsA3kHiY8rIfLnjAgd8wOHuIeN0O4AklhVQ26M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PDpCasocKfbRpFVO+Gva5E2erDIv83oOIdsyR75Vq2GGa56oNa5MOdQa5qay1G54y
-	 S3D805nuKzNhvN1MGkOcNzDYg75XhUCqp/yL2uAtapUbK1S3n1G1UqKFxjn4ntxa2t
-	 CxK7rnXc/L95iZlTUmMOfPm+tWQHp0eHX8ylQn1MLkMLwWEVbEIqOGdVT8vlbCWjXx
-	 1q7/F23sOsIArXHlRGvPt/BGFksZoRCqKz9JnzG/1PYvusJQ1vfQN1bIMcZcy537wE
-	 EtK8ERnZ0Vf1prle9VJ/upLUeNrvka0s29uYXbrEKAL1WDGe39ZbtoexMTV0Oi8rty
-	 ACZ9lz8fPa0vg==
-Date: Mon, 26 May 2025 20:30:52 -0700
-From: Kees Cook <kees@kernel.org>
-To: Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
-	Hans de Goede <hdegoede@redhat.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Len Brown <lenb@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
-	Ard Biesheuvel <ardb@kernel.org>, Mike Rapoport <rppt@kernel.org>,
-	Michal Wilczynski <michal.wilczynski@intel.com>,
-	Juergen Gross <jgross@suse.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Roger Pau Monne <roger.pau@citrix.com>,
-	David Woodhouse <dwmw@amazon.co.uk>,
-	Usama Arif <usama.arif@bytedance.com>,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Thomas Huth <thuth@redhat.com>, Brian Gerst <brgerst@gmail.com>,
-	kvm@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net,
-	platform-driver-x86@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, linux-efi@vger.kernel.org,
-	linux-mm@kvack.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Christoph Hellwig <hch@lst.de>, Marco Elver <elver@google.com>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	LKML <linux-kernel@vger.kernel.org>, kasan-dev@googlegroups.com,
-	linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	kvmarm@lists.linux.dev, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, linux-security-module@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org,
-	llvm@lists.linux.dev
-Subject: Re: [PATCH v2 04/14] x86: Handle KCOV __init vs inline mismatches
-Message-ID: <202505262028.E5B7A7E8@keescook>
-References: <20250523043251.it.550-kees@kernel.org>
- <20250523043935.2009972-4-kees@kernel.org>
- <ba4f4fd0-1bcf-3d84-c08e-ba0dd040af16@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ViYhpYcx"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54R2U6UE032558;
+	Tue, 27 May 2025 07:18:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=opYd4H
+	OG5d2/EA2ZMhabVToKW7wW7XkK5OwqUHeJdEA=; b=ViYhpYcxsrDnpC2Al8UVDK
+	PetRGcNbaDNVJjig7a1NPcWA4zg4/8dyDmdB1IacZqC8dppI7eg3CCn29kiWq+zJ
+	Fm7/bmN+WqZqkmNv8sIpV38wIX+4KhOzW3BaKZqQGqBVDKzWHta9wk4ayhY7jLHx
+	DS7g4nsehaV+Z+2nVq5dXOuduqrefdYHREQ/HZRuz9OsRRKjkkjVBsk33iAv+FBD
+	uJPQyJ1iDkE9prH8tOPfjVE1JkApSVSeq8AYeXNCCFkJJd+rHpQMvLSqlQwjJ15U
+	yC62AfdLMBlt66iTffO4asIELz+n5RNmMTHWV4r0b1EBI6721IUJ1BRzBJ2XQLHA
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46u3hrw75h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 May 2025 07:18:10 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54R74F3H010750;
+	Tue, 27 May 2025 07:18:06 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46uru0hq5m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 May 2025 07:18:05 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54R7I2LK35520932
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 27 May 2025 07:18:02 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A5142004E;
+	Tue, 27 May 2025 07:18:02 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5076B20040;
+	Tue, 27 May 2025 07:18:01 +0000 (GMT)
+Received: from t14-nrb (unknown [9.87.142.254])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 27 May 2025 07:18:01 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ba4f4fd0-1bcf-3d84-c08e-ba0dd040af16@linux.intel.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 27 May 2025 09:18:01 +0200
+Message-Id: <DA6RCZ7FOBOS.1U1CX5REWAGTN@linux.ibm.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <frankja@linux.ibm.com>, <borntraeger@de.ibm.com>,
+        <seiden@linux.ibm.com>, <nsg@linux.ibm.com>, <david@redhat.com>,
+        <hca@linux.ibm.com>, <agordeev@linux.ibm.com>, <svens@linux.ibm.com>,
+        <gor@linux.ibm.com>, <schlameuss@linux.ibm.com>
+Subject: Re: [PATCH v2 3/5] KVM: s390: refactor some functions in priv.c
+From: "Nico Boehr" <nrb@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+X-Mailer: aerc 0.20.1
+References: <20250520182639.80013-1-imbrenda@linux.ibm.com>
+ <20250520182639.80013-4-imbrenda@linux.ibm.com>
+In-Reply-To: <20250520182639.80013-4-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=AOOMbaiN c=1 sm=1 tr=0 ts=68356732 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=R0-nb_ruKWFPPYddgEsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: _bFAT-T7cIq5VrWfdSN6tW9kmVHCpUgr
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI3MDA1NSBTYWx0ZWRfX2sIR4aWwn1/l kzPWbutHOie+M9vJQzJHePAaTgXdzA8NVbGRU2mgNhGCk5Pfcn7nMsGK3LBV/IYuJI7RfXoyavq nYvEUc/kiNfESZBeR8QTZrnbiwDwMlkB9XnUMs06U3VTU2tUSSdQorCMj0wJTr/ltqHKhSoqqXT
+ EGIjfffO/bakDsAXIV3c8TBmczNPzq3KvgwWkRHhJlubeEJmfepu3BkqDonn0h4e17if88YR6Je ggaE6VN7bQTIxYMeCi5QRuJ+VvS4wq5mpWJ8myctN/EYDjNi3LHtUnsP++HA9CGoC5iT/E/uPUJ acCE1QfLdKXf7FYYumE3X21B4s7TelhFaKPtE49fjCBehpivoa03oHIi7WUQa+sTXNyQNow6ZTt
+ TKrZijIYFqN2DxjRehDVOSibIfnL/N/0enkZvG0Ckud2lBf64/feYInDELH5O9tWrsvyJNea
+X-Proofpoint-GUID: _bFAT-T7cIq5VrWfdSN6tW9kmVHCpUgr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-27_03,2025-05-26_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 mlxscore=0 spamscore=0
+ impostorscore=0 mlxlogscore=605 malwarescore=0 lowpriorityscore=0
+ phishscore=0 clxscore=1011 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2505270055
 
-On Mon, May 26, 2025 at 12:53:13AM +0300, Ilpo Järvinen wrote:
-> On Thu, 22 May 2025, Kees Cook wrote:
-> 
-> > When KCOV is enabled all functions get instrumented, unless the
-> > __no_sanitize_coverage attribute is used. To prepare for
-> > __no_sanitize_coverage being applied to __init functions, we have to
-> > handle differences in how GCC's inline optimizations get resolved. For
-> > x86 this means forcing several functions to be inline with
-> > __always_inline.
-> > 
-> > Signed-off-by: Kees Cook <kees@kernel.org>
-> > ---
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Ingo Molnar <mingo@redhat.com>
-> > Cc: Borislav Petkov <bp@alien8.de>
-> > Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> > Cc: <x86@kernel.org>
-> > Cc: "H. Peter Anvin" <hpa@zytor.com>
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-> > Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-> > Cc: Hans de Goede <hdegoede@redhat.com>
-> > Cc: "Ilpo Järvinen" <ilpo.jarvinen@linux.intel.com>
-> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Len Brown <lenb@kernel.org>
-> > Cc: Masami Hiramatsu <mhiramat@kernel.org>
-> > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > Cc: Mike Rapoport <rppt@kernel.org>
-> > Cc: Michal Wilczynski <michal.wilczynski@intel.com>
-> > Cc: Juergen Gross <jgross@suse.com>
-> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-> > Cc: Roger Pau Monne <roger.pau@citrix.com>
-> > Cc: David Woodhouse <dwmw@amazon.co.uk>
-> > Cc: Usama Arif <usama.arif@bytedance.com>
-> > Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-> > Cc: Thomas Huth <thuth@redhat.com>
-> > Cc: Brian Gerst <brgerst@gmail.com>
-> > Cc: <kvm@vger.kernel.org>
-> > Cc: <ibm-acpi-devel@lists.sourceforge.net>
-> > Cc: <platform-driver-x86@vger.kernel.org>
-> > Cc: <linux-acpi@vger.kernel.org>
-> > Cc: <linux-trace-kernel@vger.kernel.org>
-> > Cc: <linux-efi@vger.kernel.org>
-> > Cc: <linux-mm@kvack.org>
-> > ---
-> 
-> > diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-> > index e7350c9fa3aa..0518d5b1f4ec 100644
-> > --- a/drivers/platform/x86/thinkpad_acpi.c
-> > +++ b/drivers/platform/x86/thinkpad_acpi.c
-> > @@ -559,12 +559,12 @@ static unsigned long __init tpacpi_check_quirks(
-> >  	return 0;
-> >  }
-> >  
-> > -static inline bool __pure __init tpacpi_is_lenovo(void)
-> > +static __always_inline bool __pure tpacpi_is_lenovo(void)
-> >  {
-> >  	return thinkpad_id.vendor == PCI_VENDOR_ID_LENOVO;
-> >  }
-> >  
-> > -static inline bool __pure __init tpacpi_is_ibm(void)
-> > +static __always_inline bool __pure tpacpi_is_ibm(void)
-> >  {
-> >  	return thinkpad_id.vendor == PCI_VENDOR_ID_IBM;
-> >  }
-> 
-> Hi Kees,
-> 
-> What's your plan on upstreaming route/timeline for this? I'd prefer to 
-> retain full control over this file as we were planning on some 
-> reorganization of files into lenovo/ subdir.
+On Tue May 20, 2025 at 8:26 PM CEST, Claudio Imbrenda wrote:
+[...]
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 9253c70897a8..15843e7e57e6 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+[...]
+> +static int skeys_common_checks(struct kvm_vcpu *vcpu, struct skeys_ops_s=
+tate *state)
+> +{
+> +	int rc;
+> +
+> +	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE) {
+> +		rc =3D kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+> +		return rc ? rc : -EAGAIN;
 
-I'm not in a big rush. I'm hoping to have this all in place for v6.17,
-but the Clang feature won't be in a released compiler version until
-September. :) I can send this bit separately for your tree.
+What has changed that
 
-Thanks for taking a look!
+return kvm_s390_inject_program_int()
 
--- 
-Kees Cook
+is not sufficient any more?
+
+[...]
+> +	get_regs_rre_ptr(vcpu, &state->reg1, &state->reg2, &state->r1, &state->=
+r2);
+> +
+> +	state->effective =3D vcpu->run->s.regs.gprs[state->reg2] & PAGE_MASK;
+
+*state->r2?
+
+[...]
+>  static int handle_pfmf(struct kvm_vcpu *vcpu)
+>  {
+[...]
+> +	if (r1.fsc) {
+> +		end =3D kvm_s390_logical_to_effective(vcpu, end);
+> +		if (kvm_s390_is_amode_64(vcpu))
+> +			replace_selected_bits(r2, PAGE_MASK, end);
+> +		else
+> +			replace_selected_bits(r2, 0xfffff000, end);
+
+Maybe I'm missing something, but I don't get why you need replace_selected_=
+bits
+here.  kvm_s390_logical_to_effective() already does the neccesary masking, =
+no?
