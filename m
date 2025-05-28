@@ -1,64 +1,67 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CDD728C5A6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99BCA1632C8;
 	Wed, 28 May 2025 16:16:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748449015; cv=none; b=kndJIFIFcvqzy3PcnK26ZXMeawHpGqXIWMsZdUUd5qKzpnRx6+1KV/VP4IHXQz1+9okS1uQs78bFKyZj3W3vYc4nXn9BLG9gZtvVN9iX0VuG3jcLuHdRh0BSz0x+MyxCNxxUS1QM7rqafLBvAQIBZExNQvnTb+hbUKbJGdSp8mY=
+	t=1748449015; cv=none; b=rkv/p/uK8aN+BbGNq4BaJaLmZNThXtoi+HT7Kp1zbXr0Qma1+D82ciP34oYV5p6gGgVjXBClAIF9dDOqnkkKCaxKfM1aTcw3374rS2o9g2ZHDepEzNkHnMdB/tqHAwA3N+Tc1wcNP0qYJRgm790Euk5n7D/5EkTUYb2zRGZVUtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1748449015; c=relaxed/simple;
-	bh=4C/qgM8ewvDh80NuAA/pJldhZN2gQzE9q1EJ+adOGlo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tikLMvXaad4b5Z/m55HzxtaaCxl9IZqOhK9oS6sOL+K9ABL1D/Lo186x2779k/5biP6rPJTUkbno0LT6uSN2l6N3aclyULjHwWjONmDAB/doIdBFWNiTbw8Lt1ujB3nEurRPC3MqaABTMIxGcxizGUcYLSCk7I73RZ2tY/bdOKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=njVbXHry; arc=none smtp.client-ip=148.163.156.1
+	bh=n4C+Q8YVTD4n31+MHi5xHCXBfKpPM+V5+e3fDehR9eE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=KJGKWhAj2VLYgv8WwM2LWmbTiEvHmh389KKTD36Vhw8utrDQKAX5VEeRbpS96m6G7/LJr5Byqpr2VhGSVDQ+P3odqQXb0N05KzwwPYCJFG6/Pw+wgpLWdsL7nVKhBWFM+a41JaxhozXqdNnzImNVnyQ0pKdes6Xgw/RxfYje/Lw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HTu3e+pQ; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="njVbXHry"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54SE9XXQ032017;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HTu3e+pQ"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54SE9KVf032128;
 	Wed, 28 May 2025 16:16:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=IE9J5sR8L+vcgV6mQoHdHxyI+RrX/jwPojdG3ehAR
-	Y4=; b=njVbXHry0e6S2MFPkeO8iSK1LOQb40mRofxnIuHsrTOF6Qk+wfEEyDGU7
-	tuS5ORZiiLH2UASKeytoui3IMJexjpaWP0jUxk5MbqXuyRTg8BAGu2R6pwhDm7yZ
-	g666I7/dhIY9LNnaqw+AfZyFPGFGa0Q9ydguCf01GXsYNKiLlnU7Os1cdYz5q/wD
-	ROWym4FSARwFhU/cQYNSdxWEaOS1ag00to3Xjpf0Emnkf6CrPbtksGRB+81SqsBB
-	65X3ynCtnTNQjgzWZ6KOXNYT5qeU174pc14/8sFi0AG2MqNhazo4uB5LrgTU6b5L
-	PM3jWZako4Q4IgTHElonhjfD5nEwg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40jrpnm-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=9I62/8BNmQsGgYGrn
+	PM0WTP4yZzdrfP0bPsdeLfr5ks=; b=HTu3e+pQ3uAfD/yl9fl0sDLLpxpiBs2Td
+	Z20b2qLkQg3a8nOXOIAtu3bLCE/5TuiswP2WHfwWJMdPd/Knv2ByCW/+mnlXy45O
+	KnwrX0YsjXZ3CAYr6M2oboEra/YSam9jBiu9pbcOumfE6bZHnD5XTO4BZgZS6KiF
+	3VaBYMDYlwdhzBdf5jd66kBEigb3gWf//Ebpieq6Axp8yYNQkIjwtbpkr3i/9H96
+	z7YZ2wzCBlfIHJYUS+geyBWnBoTlxhq3rJ3Y/YlQlhzTyKWJezK3SqIrt+JNvpCX
+	46Tobc8jz0S+1ReKm7+1GjZDbnzoJR4qowgUzdQJzA6B26nf+UDUw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40ggphc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 28 May 2025 16:16:50 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54SF1t4L028909;
-	Wed, 28 May 2025 16:16:49 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46useq08x1-1
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54SF1wcd026388;
+	Wed, 28 May 2025 16:16:50 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46usxn07eg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 28 May 2025 16:16:49 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54SGGjOM55443914
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54SGGkCW16843258
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 28 May 2025 16:16:45 GMT
+	Wed, 28 May 2025 16:16:46 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2504E20049;
+	by IMSVA (Postfix) with ESMTP id EF3E120049;
 	Wed, 28 May 2025 16:16:45 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C589E20040;
-	Wed, 28 May 2025 16:16:44 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9CBFB20040;
+	Wed, 28 May 2025 16:16:45 +0000 (GMT)
 Received: from localhost.localdomain (unknown [9.111.56.81])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 28 May 2025 16:16:44 +0000 (GMT)
+	Wed, 28 May 2025 16:16:45 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
         borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v1 0/7] KVM: s390: A fix and some refactoring
-Date: Wed, 28 May 2025 18:16:29 +0200
-Message-ID: <20250528161636.280717-1-imbrenda@linux.ibm.com>
+Subject: [GIT PULL v1 2/7] s390/uv: Always return 0 from s390_wiggle_split_folio() if successful
+Date: Wed, 28 May 2025 18:16:31 +0200
+Message-ID: <20250528161636.280717-3-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250528161636.280717-1-imbrenda@linux.ibm.com>
+References: <20250528161636.280717-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,95 +70,102 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=SdL3duRu c=1 sm=1 tr=0 ts=683736f2 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=mIUbo4bBOdFWAsOasuAA:9
-X-Proofpoint-GUID: 48wB08JM3CN3rngp5u8_b8q6yBwgkxQ7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI4MDEzOSBTYWx0ZWRfX8t08jpQ/1GEq pMqB4Gppv23TIkBM+9FnzYOvyYuFlGY1xp6ZGl54yUbDXp6Ro1HT1AsRWy4T0hidignbocVIUkq y5NTRuZDz7Ikqvz8w3DpC6V9zdleggNJyUcjZRwU5lDo2NiBfJcyuOJK6mwt2gdmJJBLrIu0hpI
- 07OJ61N1KBrUMsj+eROl8rfeD3PA/bn3Up5NiXWfgGOPg92s+RnYxSyAxuQJNbPfOuNBUtfMIU/ u++5PkB+aU++yoS4f++ubpZrIz02sCIwa7ONKIJG7jUREsJN/VK6potkKypPEESbI/TFeG7Yryf uCY2BV3lBS56SO+CcboG1U5PIZ2eLDYAG+GEuW+AVDc0f6EZw3gwwN3zYikl0B7AiRuDI0YEz47
- ZryF+mu77sn74yiHKVra8eANWxku+BBJEswjcHwgnqX5CdQ2O+jgvr7WUOrTBUc/X9e6CX+R
-X-Proofpoint-ORIG-GUID: 48wB08JM3CN3rngp5u8_b8q6yBwgkxQ7
+X-Proofpoint-GUID: q3lyDWDZ5g_lygEfnxrrLJjreL1mSkKK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI4MDEzOSBTYWx0ZWRfX1gGlEkcRxA6i io8YQHcqk0zv1NIczp/Lha37xtZR3jjlnTH0JKFkxxmCzSPqXZ/O3381yngDDciN96k4m2K7mIN xWPQOEl9Qa4hWx/b1CgJ2I7PD3UniEwNQpJkCbAuILpKdlix8Ix5wVg0CmP7rMAsJkmQy8Ag+rH
+ 3RZC9HLQaj4NTniqFQpd6LJNy59HHBu+oolmGdO3pxilLjLieqy4D3w8Z9/AxbX0LQADJIO8H5g x7vUU3CwkkZDW7XFMa7suUYONU/uJ9WiiZnAcx4K2225WcmmkREqgUTOd//2mP4Ajz9AqJfgHOb KgAo3St3ig3ZllURrnMShHYGg2wuGdDwDlaZDYvWOuAgAdCdwdLWFSNQVcYnYXVjsL6po0p9sEr
+ W++w0GrOTbe6qUml50eNJF9RETf4gtad6vs9fSym7V7hhfjgZA3/TTqzBMmBznN7pfbEGaJY
+X-Proofpoint-ORIG-GUID: q3lyDWDZ5g_lygEfnxrrLJjreL1mSkKK
+X-Authority-Analysis: v=2.4 cv=UflRSLSN c=1 sm=1 tr=0 ts=683736f2 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=acadoT-tMDuuzB1kdcIA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-28_08,2025-05-27_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 mlxscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
- spamscore=0 clxscore=1015 classifier=spam authscore=0 authtc=n/a authcc=
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ clxscore=1015 suspectscore=0 mlxscore=0 priorityscore=1501 adultscore=0
+ spamscore=0 impostorscore=0 phishscore=0 bulkscore=0 malwarescore=0
+ mlxlogscore=999 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
  definitions=main-2505280139
 
-Ciao Paolo,
+From: David Hildenbrand <david@redhat.com>
 
-In this pull request you find a fix by David and some refactoring in
-preparation for a bigger upcoming series (hopefully 6.17, but might end
-up being 6.18)
+Let's consistently return 0 if the operation was successful, and just
+detect ourselves whether splitting is required -- folio_test_large() is
+a cheap operation.
 
-David's patches fix an issue with the interaction between protected
-guests and some filesystems. The issue was due to how those
-filesystems handled large folios, which with the existing code could
-not be split and led to hanging. David's fix allows those large folios
-to be split, thus solving the hangs.
+Update the documentation.
 
-My cleanup / refactoring patches are in preparation for a bigger
-series where gmap handling will be moved entirely within kvm. Since
-these patches are good enough on their own, I figured I could send them
-out now and have a smaller series later.
+Should we simply always return -EAGAIN instead of 0, so we don't have
+to handle it in the caller? Not sure, staring at the documentation, this
+way looks a bit cleaner.
 
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20250516123946.1648026-3-david@redhat.com
+Message-ID: <20250516123946.1648026-3-david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kernel/uv.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-The following changes since commit 8ffd015db85fea3e15a77027fda6c02ced4d2444:
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 2cc3b599c7fe..f6ddb2b54032 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -324,34 +324,36 @@ static int make_folio_secure(struct mm_struct *mm, struct folio *folio, struct u
+ }
+ 
+ /**
+- * s390_wiggle_split_folio() - try to drain extra references to a folio and optionally split.
++ * s390_wiggle_split_folio() - try to drain extra references to a folio and
++ *			       split the folio if it is large.
+  * @mm:    the mm containing the folio to work on
+  * @folio: the folio
+- * @split: whether to split a large folio
+  *
+  * Context: Must be called while holding an extra reference to the folio;
+  *          the mm lock should not be held.
+- * Return: 0 if the folio was split successfully;
+- *         -EAGAIN if the folio was not split successfully but another attempt
+- *                 can be made, or if @split was set to false;
+- *         -EINVAL in case of other errors. See split_folio().
++ * Return: 0 if the operation was successful;
++ *	   -EAGAIN if splitting the large folio was not successful,
++ *		   but another attempt can be made;
++ *	   -EINVAL in case of other folio splitting errors. See split_folio().
+  */
+-static int s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio, bool split)
++static int s390_wiggle_split_folio(struct mm_struct *mm, struct folio *folio)
+ {
+ 	int rc;
+ 
+ 	lockdep_assert_not_held(&mm->mmap_lock);
+ 	folio_wait_writeback(folio);
+ 	lru_add_drain_all();
+-	if (split) {
++
++	if (folio_test_large(folio)) {
+ 		folio_lock(folio);
+ 		rc = split_folio(folio);
+ 		folio_unlock(folio);
+ 
+ 		if (rc != -EBUSY)
+ 			return rc;
++		return -EAGAIN;
+ 	}
+-	return -EAGAIN;
++	return 0;
+ }
+ 
+ int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header *uvcb)
+@@ -394,7 +396,7 @@ int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header
+ 	mmap_read_unlock(mm);
+ 
+ 	if (rc == -E2BIG || rc == -EBUSY) {
+-		rc = s390_wiggle_split_folio(mm, folio, rc == -E2BIG);
++		rc = s390_wiggle_split_folio(mm, folio);
+ 		if (!rc)
+ 			rc = -EAGAIN;
+ 	}
+-- 
+2.49.0
 
-  Linux 6.15-rc2 (2025-04-13 11:54:49 -0700)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-next-6.16-1
-
-for you to fetch changes up to d6c8097803cbc3bb8d875baef542e6d77d10c203:
-
-  KVM: s390: Simplify and move pv code (2025-05-28 17:48:04 +0200)
-
-----------------------------------------------------------------
-* Fix interaction between some filesystems and Secure Execution
-* Some cleanups and refactorings, preparing for an upcoming big series
-
-----------------------------------------------------------------
-Claudio Imbrenda (4):
-      s390: Remove unneeded includes
-      KVM: s390: Remove unneeded srcu lock
-      KVM: s390: Refactor and split some gmap helpers
-      KVM: s390: Simplify and move pv code
-
-David Hildenbrand (3):
-      s390/uv: Don't return 0 from make_hva_secure() if the operation was not successful
-      s390/uv: Always return 0 from s390_wiggle_split_folio() if successful
-      s390/uv: Improve splitting of large folios that cannot be split while dirty
-
- MAINTAINERS                          |   2 +
- arch/s390/include/asm/gmap.h         |   2 -
- arch/s390/include/asm/gmap_helpers.h |  15 +++
- arch/s390/include/asm/tlb.h          |   1 +
- arch/s390/include/asm/uv.h           |   1 -
- arch/s390/kernel/uv.c                |  97 ++++++++++++---
- arch/s390/kvm/Makefile               |   2 +-
- arch/s390/kvm/diag.c                 |  30 ++++-
- arch/s390/kvm/gaccess.c              |   3 +-
- arch/s390/kvm/gmap-vsie.c            |   1 -
- arch/s390/kvm/gmap.c                 | 121 -------------------
- arch/s390/kvm/gmap.h                 |  39 -------
- arch/s390/kvm/intercept.c            |   9 +-
- arch/s390/kvm/kvm-s390.c             |  10 +-
- arch/s390/kvm/kvm-s390.h             |  42 +++++++
- arch/s390/kvm/priv.c                 |   6 +-
- arch/s390/kvm/pv.c                   |  61 +++++++++-
- arch/s390/kvm/vsie.c                 |  19 ++-
- arch/s390/mm/Makefile                |   2 +
- arch/s390/mm/fault.c                 |   1 -
- arch/s390/mm/gmap.c                  | 185 +----------------------------
- arch/s390/mm/gmap_helpers.c          | 221 +++++++++++++++++++++++++++++++++++
- arch/s390/mm/init.c                  |   1 -
- arch/s390/mm/pgalloc.c               |   2 -
- arch/s390/mm/pgtable.c               |   1 -
- 25 files changed, 482 insertions(+), 392 deletions(-)
- create mode 100644 arch/s390/include/asm/gmap_helpers.h
- delete mode 100644 arch/s390/kvm/gmap.c
- delete mode 100644 arch/s390/kvm/gmap.h
- create mode 100644 arch/s390/mm/gmap_helpers.c
