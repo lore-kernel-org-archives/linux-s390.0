@@ -1,177 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167FF26A0BF;
-	Wed, 28 May 2025 08:52:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5ACC274FFC;
+	Wed, 28 May 2025 09:14:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748422357; cv=none; b=dCxE6zCVX7RUwYy/tAiWORiamv94eIpn8WLTTdTEPA+g6+6NEZdS7vw9GkkN9wuMdwhoBcmsIC4zYxhd65+zWaqJCNhaiOPE0rdALkvc7X8eNUbATGCWWzJuWqda8yOgKfSmCcFISO/616ScCVrMKIOKgoXuLk+Dv/tGpsdVg0Y=
+	t=1748423698; cv=none; b=iT/TVGh9rnlKFANa+WDKyh0UR630JcMbdnfxJnW4fn+lo4fL1FQTbhhwJMuvfQs+AmY/rvvCzeyCq4YVoqzkI/+aw0HeKnbqthDj5qpjdLrNtDNiycBdJqKiL6XAWPDMO6zh+NPK//+P4LwZKqljOylOEse3x/1Fx2yCkdiC8hg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748422357; c=relaxed/simple;
-	bh=BmYME872G2HKJBR/wdLI4h4RnelU/w385HSGJ/Nngpg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rmM7beHYHsy1Tegwa2TM0ePuiERwfEBHqxaETkjEz1NiihG/48MIsOaDPYwVueW+Gu2Y/9nHzxevbKynd/jEQFg+LUiFEQprwCM6UUJ4oXX0TRZImXIZwggaQbUVOFrNAg13bwSoCAUsGRDuvjZwB2pvrRVYjoscvmO9D/E9ZUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=V+IJMmF7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1748423698; c=relaxed/simple;
+	bh=7Dk3zmErUKZlJgxAcY+StxJwW4GQveQR445ku3WDVjw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cWLuUcf+gvR8PAc1hbd5lnI0nQnp216yVhTPIOjKw0z+Kk7dwsLa5YVyK12LapVPIzRVF8uaivWGwdLpVmQ6TaNZ7zahjQKVjchcm+UYhbL957EgHPNgmu7e9rHtOMcCSqTSemjwhj5MqtbLvZhdepV0IjpBVPEe076bKGNabXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oUzVzA5B; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="V+IJMmF7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B18C4CEED;
-	Wed, 28 May 2025 08:52:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1748422356;
-	bh=BmYME872G2HKJBR/wdLI4h4RnelU/w385HSGJ/Nngpg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=V+IJMmF7A9LPOcBmCxMUAACufm6xiV1ZyHyycFYXdgE0lWfb5gG6zjebdjGlk8wSG
-	 YzcJTlmtH7nWSId+lwsWhxNY3pMgO7X6/Qlfn+R2zocZOLyc05Rooj67UP9n8oyq3e
-	 195jqT4JP5wo63S+2nq0DOj6NiIO48+Bu7kRr3y0=
-Date: Wed, 28 May 2025 10:50:42 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: stable@vger.kernel.org, patches@lists.linux.dev,
-	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-	jonathanh@nvidia.com, f.fainelli@gmail.com,
-	sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-	conor@kernel.org, hargar@microsoft.com, broonie@kernel.org,
-	Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org,
-	Linux trace kernel <linux-trace-kernel@vger.kernel.org>,
-	Dan Carpenter <dan.carpenter@linaro.org>,
-	Anders Roxell <anders.roxell@linaro.org>,
-	Akihiko Odaki <akihiko.odaki@daynix.com>
-Subject: Re: [PATCH 6.14 000/783] 6.14.9-rc1 review
-Message-ID: <2025052824-turret-crank-48ee@gregkh>
-References: <20250527162513.035720581@linuxfoundation.org>
- <CA+G9fYsvuqySTdV0Yqi3i-cyBh6j4Rw2_ze46RSUPrz0sbA2Xg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oUzVzA5B"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54S8ebuq003189;
+	Wed, 28 May 2025 09:14:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=9ALM3yCJhqSPs4OCeRMCLjrqPRQIc90Ugcj/JJP3W
+	/4=; b=oUzVzA5BZJzhxx/TZtE/qeWQay/C+GgeMoMYXzEsNseC3NvVaR5/X60WR
+	nY2KyuWR0hrvG6JEOZXyv2184f7nJM+xwhEmGiS1nBkcLG3k3Aw1PwOAfEMXKQxF
+	pqXnp7RqqxtAjfOllHcGrzu9Q9kjfOaCwUSfUKbKCwndms5Yx0r/633e79bpa9R1
+	0ZB5gGjY5wVeJ3lYWb48jOrkHIO23kFCpIMuvoKHxv16I7DhiNFXJDzo1yE0MhGB
+	o0ftjPOx3YlKQFuNJthlrdy8XiscDU4WoE+1nYqHBL5lFf7RWkqJJs0rfNMNMJHn
+	Kz69dLh91yV9XMcB+aXZoKwXCSFzQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46wy69054f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 May 2025 09:14:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54S62EHS016212;
+	Wed, 28 May 2025 09:14:53 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46uru0px8v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 May 2025 09:14:53 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54S9EnSW23134472
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 May 2025 09:14:49 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7447720043;
+	Wed, 28 May 2025 09:14:49 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 33BBA20040;
+	Wed, 28 May 2025 09:14:49 +0000 (GMT)
+Received: from a46lp67.lnxne.boe (unknown [9.152.108.100])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 28 May 2025 09:14:49 +0000 (GMT)
+From: Janosch Frank <frankja@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
+        david@redhat.com, nrb@linux.ibm.com
+Subject: [kvm-unit-tests PATCH 0/2] s390x: diag10: Fixup
+Date: Wed, 28 May 2025 09:13:48 +0000
+Message-ID: <20250528091412.19483-1-frankja@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYsvuqySTdV0Yqi3i-cyBh6j4Rw2_ze46RSUPrz0sbA2Xg@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=UP3dHDfy c=1 sm=1 tr=0 ts=6836d40e cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=dt9VzEwgFbYA:10 a=YbkSLyDRy1wxu5pb_RcA:9
+X-Proofpoint-GUID: oBiJ6PvbGtXnDGns6I46HKfi0SsKEyen
+X-Proofpoint-ORIG-GUID: oBiJ6PvbGtXnDGns6I46HKfi0SsKEyen
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI4MDA3OCBTYWx0ZWRfX42yw3zAH5dAI HzNw/DEVa1Pgwq7tG0vRFElbhbqwBZdpqfELlhIKDdy+bLpVnHHR7/PP3fxcOXpF2AY8XPPdFWj 2o+aWowMit5OjzU/QW1wHs1JtuLDU3rbS9oBRgfpMCdfVbC9EOpY6uS3E4pg5BATqkxEkGnWAla
+ OQJJtyHV3cOJYqSZKY4EbIXu+cI1m0oOZw0JyZCsNc4U51ydgRFuCMz9PEdPgDm7UgcXMocaC8/ RGkPX4KUjHSoaxqA9gN3+jpMvP4sg/yt89lSZH3ZAToK6Eg7/F0Iaq7t/2fbAemHEuhgVxIvqY4 G5mw32dnr47+MeLoDmgugUW5U7BE2JJ7fQA2pRqhRmDpt0QRHAQbhU/JHxaHj0bhNbJat63pJgY
+ GSr+02KdLUh6zIIa0Nb1aooS3tR7HWBaUOX1OgaqBPvJeucMDDEi0xOYi2ONvxHovponeZfa
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-05-28_04,2025-05-27_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 impostorscore=0
+ mlxlogscore=835 clxscore=1015 priorityscore=1501 bulkscore=0 phishscore=0
+ spamscore=0 mlxscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2505280078
 
-On Wed, May 28, 2025 at 12:40:10AM +0530, Naresh Kamboju wrote:
-> On Tue, 27 May 2025 at 22:48, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 6.14.9 release.
-> > There are 783 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 29 May 2025 16:22:51 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.14.9-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.14.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Regressions on S390 defconfig builds failing with gcc-13, gcc-8 and
-> clang-20 and clang-nightly tool chains on 6.14.9-rc1.
-> 
-> Regression Analysis:
->  - New regression? Yes
->  - Reproducible? Yes
-> 
-> Build regression: S390 defconfig crash_dump.c use of undeclared
-> identifier 'NN_PRSTATUS'
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> 
-> Build log:
-> ---------
-> arch/s390/kernel/crash_dump.c:312:8: error: use of undeclared
-> identifier 'NN_PRFPREG'
->   312 |         ptr = nt_init(ptr, PRFPREG, nt_fpregset);
->       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
->   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
-> NN_ ## type)
->       |
-> ^~~~~~~~~~~
-> <scratch space>:85:1: note: expanded from here
->    85 | NN_PRFPREG
->       | ^~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:313:8: error: use of undeclared
-> identifier 'NN_S390_TIMER'
->   313 |         ptr = nt_init(ptr, S390_TIMER, sa->timer);
->       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
->   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
-> NN_ ## type)
->       |
-> ^~~~~~~~~~~
-> <scratch space>:87:1: note: expanded from here
->    87 | NN_S390_TIMER
->       | ^~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:314:8: error: use of undeclared
-> identifier 'NN_S390_TODCMP'
->   314 |         ptr = nt_init(ptr, S390_TODCMP, sa->todcmp);
->       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
->   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
-> NN_ ## type)
->       |
-> ^~~~~~~~~~~
-> <scratch space>:89:1: note: expanded from here
->    89 | NN_S390_TODCMP
->       | ^~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:315:8: error: use of undeclared
-> identifier 'NN_S390_TODPREG'
->   315 |         ptr = nt_init(ptr, S390_TODPREG, sa->todpreg);
->       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
->   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
-> NN_ ## type)
->       |
-> ^~~~~~~~~~~
-> <scratch space>:91:1: note: expanded from here
->    91 | NN_S390_TODPREG
->       | ^~~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:316:8: error: use of undeclared
-> identifier 'NN_S390_CTRS'
->   316 |         ptr = nt_init(ptr, S390_CTRS, sa->ctrs);
->       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
->   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
-> NN_ ## type)
->       |
-> ^~~~~~~~~~~
-> 
-> ## Source
-> * kernel version: 6.14.9-rc1
-> * git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> * git sha: 10804dbee7fa8cfb895bbffcc7be97d8221748b6
-> * git describe: v6.14.8-784-g10804dbee7fa
-> * project details:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/
-> * architecture: S390
-> * toolchain: gcc-8, gcc-13, clang-20, clang-nightly
-> * config : defconfig
-> * Build config:
-> https://storage.tuxsuite.com/public/linaro/lkft/builds/2xgl51jcJfVGQZw8dKSuEJNFtd4/config
-> * Build: https://storage.tuxsuite.com/public/linaro/lkft/builds/2xgl51jcJfVGQZw8dKSuEJNFtd4/
-> 
-> ## Boot log
-> * Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/testrun/28574235/suite/build/test/gcc-13-defconfig/log
-> * Build details:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/testrun/28574235/suite/build/test/gcc-13-defconfig/details/
-> * Build history:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/testrun/28574235/suite/build/test/gcc-13-defconfig/history/
-> 
-> ## Steps to reproduce
->  - tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
-> --kconfig defconfig
+While reviewing Claudio's patch set I found a problem that should've
+been caught by the diag10 test but wasn't.
 
-Thanks, offending patch is now removed.
+Not only does the test never check the good case but it also doesn't
+fence against environments where diag10 is not available. The part
+that makes this problematic is the fact that this test only tests priv
+and spec PGMs. These PGMs are presented even if no diag10 support is
+provided since they are also part of the base diagnose architecture.
 
-greg k-h
+The tests currently succeed in TCG emulation and PV, both of which do
+not implement this specific diagnose.
+
+Therefore this series fences TCG & PV as well as adding a check if the page has
+really been cleared.
+
+
+Janosch Frank (2):
+  s390x: diag10: Fence tcg and pv environments
+  s390x: diag10: Check page clear
+
+ s390x/diag10.c      | 26 ++++++++++++++++++++++++++
+ s390x/unittests.cfg |  1 +
+ 2 files changed, 27 insertions(+)
+
+-- 
+2.48.1
+
