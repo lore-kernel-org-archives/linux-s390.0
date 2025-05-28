@@ -1,161 +1,177 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B9E26A092
-	for <linux-s390@vger.kernel.org>; Wed, 28 May 2025 08:40:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167FF26A0BF;
+	Wed, 28 May 2025 08:52:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748421631; cv=none; b=u5GejBWJSL2tbRBfUqXhEJlVIhhx/DbelULvQpG7Dsk71WEJnYKLwfzJ1yuwzhlyhZKt2NzfdEbmteiBI3KLYPWtUIF26+5rFv98cpkmwwuurNBaTHyZzXDjLXcNYaWANbmNJErwk4mU67wxNPRh9Bx4M7y6Dk8WITbi5r8Uch4=
+	t=1748422357; cv=none; b=dCxE6zCVX7RUwYy/tAiWORiamv94eIpn8WLTTdTEPA+g6+6NEZdS7vw9GkkN9wuMdwhoBcmsIC4zYxhd65+zWaqJCNhaiOPE0rdALkvc7X8eNUbATGCWWzJuWqda8yOgKfSmCcFISO/616ScCVrMKIOKgoXuLk+Dv/tGpsdVg0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748421631; c=relaxed/simple;
-	bh=kOYgxBQ+W9YBQlbDfJxZWISizVFAJVzuLdaup+JArFE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uA/nP7y8HixZK7Mpq+y2jCurFpvRHO/+uIEMGybXqINEj454ChF1ZgHW+15M1NOGh+J1nQtwUVRnaJK6SaBAnnrZ46WowFLntPZs8gjYP+yblQYTlqbEKIeae6lBKHalwrHfpqYhX6iDMFkPa+9MoStYW2JabZdGPseGJeClqV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ckv6Mhdq; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1748422357; c=relaxed/simple;
+	bh=BmYME872G2HKJBR/wdLI4h4RnelU/w385HSGJ/Nngpg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rmM7beHYHsy1Tegwa2TM0ePuiERwfEBHqxaETkjEz1NiihG/48MIsOaDPYwVueW+Gu2Y/9nHzxevbKynd/jEQFg+LUiFEQprwCM6UUJ4oXX0TRZImXIZwggaQbUVOFrNAg13bwSoCAUsGRDuvjZwB2pvrRVYjoscvmO9D/E9ZUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=V+IJMmF7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ckv6Mhdq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1748421628;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=INjMFoNZHli30THsJWwrfUpqbZL3EPutJNE/DS1WKGo=;
-	b=ckv6MhdqdHnBPi0/g6+qJZ8OPh3G7uH/nZYP3mSnxnXo+leP587dsIVjXTT8WK0aX6a1L6
-	v3UT15GZBdorqx47XN6al3U8h1iuRf59bGAJ3UgD7rPcmuyx/meNwyTKv8AfKoDjN404fJ
-	qwC78e6bZM19b9KwY0q1XHQRZyJFMcA=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-XZAUlkphPCW8zDCa6Auj-Q-1; Wed, 28 May 2025 04:40:24 -0400
-X-MC-Unique: XZAUlkphPCW8zDCa6Auj-Q-1
-X-Mimecast-MFC-AGG-ID: XZAUlkphPCW8zDCa6Auj-Q_1748421621
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-43d209dc2d3so26007425e9.3
-        for <linux-s390@vger.kernel.org>; Wed, 28 May 2025 01:40:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748421621; x=1749026421;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=INjMFoNZHli30THsJWwrfUpqbZL3EPutJNE/DS1WKGo=;
-        b=OzLrC7PpcbwUFd0Ar5p6jW8ky7s2qNDjjh4Awu4I8ZnIyHhfJD6jPUd0U+uQZl6olQ
-         VZUh7MBW36hlpRXD3bbXqtT1k1d/A+wJYrqgVWXY7PcnkieSPX1pSmvjgiaOido7AJ+9
-         GQbVjlQrI1Mf8oh9PehSkc7GJLXf5+r5xhWdtLKoqGnlr8TiBhIHZl1/lXdSobe+ecgi
-         hYYJQBEE/cjTnJgpU60M8pf2TgFdC4uNBbAwRPkdi1+UVz1V7gsp8B8wJ9tS4VC107PT
-         jHWsoF15y32K3HhMOt/PF65X9ea8xyvHUk+xRNS1IazjbUxAWcLggjV0pgVrhIpgjo8o
-         p+3A==
-X-Forwarded-Encrypted: i=1; AJvYcCUYHJL+TNWmj5s1h9XQD0ktjUpDHmgqWy0g39eJBZ/5Xq76VeE9ob/FPp/d4KmdMUHOCioMaIPxSi9T@vger.kernel.org
-X-Gm-Message-State: AOJu0YwimNgBzQ7NVn0Fl50XgyZ2xUMAhwApxIkXoIejAZrdi0A+eEBR
-	vd5qqZlimVrA75rpJ79pIIYD5SdlOQzT7t73j0NJ/gESw12AnByLNhc6IFXGDtxiqpE3vhvT00/
-	7khaO/DlzPwk7NtuaEVSAI/sxvBrCIoo3XBAACUPahZTJKJ4uBG+3wgT0sTS/efk=
-X-Gm-Gg: ASbGncsWpGAuPU1H7ZyJO50TPxuT13dpKNZZgqMmeHwQI05e8tzyL39QK/qLYR4vyAJ
-	3BikAxVxwto187qgLyJ1RIuVuFY5TC7DQLwYaTjvVU8GqukVu7OvuCwBwGVeAzgSq1QIS9UEegu
-	DKdpj5s2JUziTskZQ2/E8kh6hQdSWPptDkxihTvVK7ib8M+lQ/esrvSvt/CmqM/2GRDxqhAvp/7
-	T9GYV68H62VmyrDix5BmrNt8GTkwbkF2pxahvnYBTxh6GeWGbBqDPe0w1GrdJzqupP7GrASkggk
-	8SsqFDMQBJeDe2syWEE5labYW1uOBdkaXBcJG1f/U2qgaIYC8Twy
-X-Received: by 2002:a05:600c:4f52:b0:43d:42b:e186 with SMTP id 5b1f17b1804b1-44c919e1860mr138715265e9.8.1748421621379;
-        Wed, 28 May 2025 01:40:21 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEhh35eLWa25sJGBNJ3wzugUQ+UJpuEvv/sKuwgl1VLRBK6qEuCU7qUOJpDXND7/xuAILpFkg==
-X-Received: by 2002:a05:600c:4f52:b0:43d:42b:e186 with SMTP id 5b1f17b1804b1-44c919e1860mr138715055e9.8.1748421620993;
-        Wed, 28 May 2025 01:40:20 -0700 (PDT)
-Received: from [192.168.0.7] (ltea-047-064-112-237.pools.arcor-ip.net. [47.64.112.237])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4507253bbe8sm10680335e9.7.2025.05.28.01.40.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 28 May 2025 01:40:20 -0700 (PDT)
-Message-ID: <73092561-2878-4251-a54e-2b81d1bb9e45@redhat.com>
-Date: Wed, 28 May 2025 10:40:19 +0200
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="V+IJMmF7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B18C4CEED;
+	Wed, 28 May 2025 08:52:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1748422356;
+	bh=BmYME872G2HKJBR/wdLI4h4RnelU/w385HSGJ/Nngpg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=V+IJMmF7A9LPOcBmCxMUAACufm6xiV1ZyHyycFYXdgE0lWfb5gG6zjebdjGlk8wSG
+	 YzcJTlmtH7nWSId+lwsWhxNY3pMgO7X6/Qlfn+R2zocZOLyc05Rooj67UP9n8oyq3e
+	 195jqT4JP5wo63S+2nq0DOj6NiIO48+Bu7kRr3y0=
+Date: Wed, 28 May 2025 10:50:42 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev,
+	linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+	akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+	patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+	jonathanh@nvidia.com, f.fainelli@gmail.com,
+	sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+	conor@kernel.org, hargar@microsoft.com, broonie@kernel.org,
+	Arnd Bergmann <arnd@arndb.de>, linux-s390@vger.kernel.org,
+	Linux trace kernel <linux-trace-kernel@vger.kernel.org>,
+	Dan Carpenter <dan.carpenter@linaro.org>,
+	Anders Roxell <anders.roxell@linaro.org>,
+	Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: Re: [PATCH 6.14 000/783] 6.14.9-rc1 review
+Message-ID: <2025052824-turret-crank-48ee@gregkh>
+References: <20250527162513.035720581@linuxfoundation.org>
+ <CA+G9fYsvuqySTdV0Yqi3i-cyBh6j4Rw2_ze46RSUPrz0sbA2Xg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] s390/crypto: Select crypto engine in Kconfig when PAES
- is chosen
-To: Harald Freudenberger <freude@linux.ibm.com>, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com
-Cc: linux390-list@tuxmaker.boeblingen.de.ibm.com, dengler@linux.ibm.com,
- linux-s390@vger.kernel.org
-References: <20250528083032.224430-1-freude@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=thuth@redhat.com; keydata=
- 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
-In-Reply-To: <20250528083032.224430-1-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYsvuqySTdV0Yqi3i-cyBh6j4Rw2_ze46RSUPrz0sbA2Xg@mail.gmail.com>
 
-On 28/05/2025 10.30, Harald Freudenberger wrote:
-> The s390 PAES crypto algorithm has a dependency to the
-> crypto engine. So enable the crypto engine via
-> SELECT CRYPTO_ENGINE in drivers/crypto/Kconfig when
-> CRYPTO_PAES_S390 is chosen.
+On Wed, May 28, 2025 at 12:40:10AM +0530, Naresh Kamboju wrote:
+> On Tue, 27 May 2025 at 22:48, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 6.14.9 release.
+> > There are 783 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 29 May 2025 16:22:51 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.14.9-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.14.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> Fixes: 6cd87cb5ef6c ("s390/crypto: Rework protected key AES for true asynch support")
-> Reported-by: Thomas Huth <thuth@redhat.com>
-> Closes: https://lore.kernel.org/linux-s390/f958f869-8da3-48d9-a118-f3cf9a9ea75c@redhat.com/
-> Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> ---
->   drivers/crypto/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
+> Regressions on S390 defconfig builds failing with gcc-13, gcc-8 and
+> clang-20 and clang-nightly tool chains on 6.14.9-rc1.
 > 
-> diff --git a/drivers/crypto/Kconfig b/drivers/crypto/Kconfig
-> index 47082782008a..226fdaaa2efa 100644
-> --- a/drivers/crypto/Kconfig
-> +++ b/drivers/crypto/Kconfig
-> @@ -180,6 +180,7 @@ config CRYPTO_PAES_S390
->   	depends on PKEY
->   	select CRYPTO_ALGAPI
->   	select CRYPTO_SKCIPHER
-> +	select CRYPTO_ENGINE
->   	help
->   	  This is the s390 hardware accelerated implementation of the
->   	  AES cipher algorithms for use with protected key.
+> Regression Analysis:
+>  - New regression? Yes
+>  - Reproducible? Yes
+> 
+> Build regression: S390 defconfig crash_dump.c use of undeclared
+> identifier 'NN_PRSTATUS'
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> 
+> Build log:
+> ---------
+> arch/s390/kernel/crash_dump.c:312:8: error: use of undeclared
+> identifier 'NN_PRFPREG'
+>   312 |         ptr = nt_init(ptr, PRFPREG, nt_fpregset);
+>       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
+>   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
+> NN_ ## type)
+>       |
+> ^~~~~~~~~~~
+> <scratch space>:85:1: note: expanded from here
+>    85 | NN_PRFPREG
+>       | ^~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:313:8: error: use of undeclared
+> identifier 'NN_S390_TIMER'
+>   313 |         ptr = nt_init(ptr, S390_TIMER, sa->timer);
+>       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
+>   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
+> NN_ ## type)
+>       |
+> ^~~~~~~~~~~
+> <scratch space>:87:1: note: expanded from here
+>    87 | NN_S390_TIMER
+>       | ^~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:314:8: error: use of undeclared
+> identifier 'NN_S390_TODCMP'
+>   314 |         ptr = nt_init(ptr, S390_TODCMP, sa->todcmp);
+>       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
+>   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
+> NN_ ## type)
+>       |
+> ^~~~~~~~~~~
+> <scratch space>:89:1: note: expanded from here
+>    89 | NN_S390_TODCMP
+>       | ^~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:315:8: error: use of undeclared
+> identifier 'NN_S390_TODPREG'
+>   315 |         ptr = nt_init(ptr, S390_TODPREG, sa->todpreg);
+>       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
+>   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
+> NN_ ## type)
+>       |
+> ^~~~~~~~~~~
+> <scratch space>:91:1: note: expanded from here
+>    91 | NN_S390_TODPREG
+>       | ^~~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:316:8: error: use of undeclared
+> identifier 'NN_S390_CTRS'
+>   316 |         ptr = nt_init(ptr, S390_CTRS, sa->ctrs);
+>       |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> arch/s390/kernel/crash_dump.c:274:56: note: expanded from macro 'nt_init'
+>   274 |         nt_init_name(buf, NT_ ## type, &(desc), sizeof(desc),
+> NN_ ## type)
+>       |
+> ^~~~~~~~~~~
+> 
+> ## Source
+> * kernel version: 6.14.9-rc1
+> * git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> * git sha: 10804dbee7fa8cfb895bbffcc7be97d8221748b6
+> * git describe: v6.14.8-784-g10804dbee7fa
+> * project details:
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/
+> * architecture: S390
+> * toolchain: gcc-8, gcc-13, clang-20, clang-nightly
+> * config : defconfig
+> * Build config:
+> https://storage.tuxsuite.com/public/linaro/lkft/builds/2xgl51jcJfVGQZw8dKSuEJNFtd4/config
+> * Build: https://storage.tuxsuite.com/public/linaro/lkft/builds/2xgl51jcJfVGQZw8dKSuEJNFtd4/
+> 
+> ## Boot log
+> * Build log: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/testrun/28574235/suite/build/test/gcc-13-defconfig/log
+> * Build details:
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/testrun/28574235/suite/build/test/gcc-13-defconfig/details/
+> * Build history:
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.14.y/build/v6.14.8-784-g10804dbee7fa/testrun/28574235/suite/build/test/gcc-13-defconfig/history/
+> 
+> ## Steps to reproduce
+>  - tuxmake --runtime podman --target-arch s390 --toolchain gcc-13
+> --kconfig defconfig
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Thanks, offending patch is now removed.
 
+greg k-h
