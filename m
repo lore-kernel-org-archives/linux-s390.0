@@ -1,124 +1,137 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B31C1B043C;
-	Wed, 28 May 2025 14:56:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED2602874E0;
+	Wed, 28 May 2025 16:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748444202; cv=none; b=Dw4lt+pmf6rJDQ6utIhv7+bXfyqVdmEfOhNtyB+9HgyV7KtR4lD+D12jKopJmMC4Csu8IynlNjRLfCTzWaqAVcfylt3Am4DqjHJ9GEjNWMpSOo0QcYlqBT3xgAd5ByQSXs/BDDGjSSG3eaBxWmP8GxZMs+qtdd7KouJsFtftOzQ=
+	t=1748449014; cv=none; b=F/yo3bbyxPdA3BpUVvCUoLhiJ4xnsdhWIUVCHWxrHt5GzXMjzXEw7fUd1sJvvFgtviym4zzlYD6FhFMtqm2GFNQezXfQc45XE6/V8JApUzUqQQU9r+NVA7hdCWOU0DFCD+Y6MdNO9mbWTHRT0tX7SfitgQkcwYxhiKgBnWNwsDg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748444202; c=relaxed/simple;
-	bh=SCjFxV7DRhYT96XnLNL4doQAQylPnnal991GszSA+uo=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=KUBvJP8pOV/9TT4MLxYhUsoC59BiwPut+3enInSf932VYKJ8V4S6F3BhhTciBhXGMBHrBO9yTPhGW8l1Ox0+VIiyeqWF6Cry9TWaOeqg0BGGVsGXTd0UL6b9gCwJofSrgKhT7y07qKcdLlNDNs8FsohWohVgCIjwFH5ftrTwvkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ewSQBIPJ; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1748449014; c=relaxed/simple;
+	bh=qqwoqiY+PkmxZAOOT5oERTLVKSgjAD1ubBoDHdJMh3A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=BiyJ4PoZS517SDeeNXOK7STf4sIbENwPeb/WeoWohOMiyqpayULPCjm2aHOu3Ayp3KYfRot99wSns+kNbeGhEukyO/DEktssO0lPAnvglt7rgF08hVgwp96nMVK/mva/5qltEY3pFkFF0jvdky16nMHXz60xkTS7CVkLPjDyOUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oNq48NfY; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ewSQBIPJ"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54SE9JCo032092;
-	Wed, 28 May 2025 14:56:38 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oNq48NfY"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54SE9lZm018466;
+	Wed, 28 May 2025 16:16:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=eq85do
-	RDjRzy/Cw0PdNFOEyNJqv98vYq1aKo8ImVJnk=; b=ewSQBIPJNXBHx+SpCWwXv8
-	rCUGg18owxsM97zqTSHyu1CD2WnOmqrBTObMoMMa82l36VSae3u9lY+95j32T12t
-	KMwEKLnMH8pbLRK2K4dw5ORAPYPwPJz6aOBsV/e/gnzjqnWs8nnS8lAWTnkHP13c
-	rWOPlka4TCH3oU1OJzE7W6VSXhuuqN7xT3V+4aa5a0PhG+Ekkt6ER/1folRwQG1h
-	2bkB7Ob6r6n7+1Esg931WvsNqtXKErvwq/Q3uKk0QEhOZIQLS8aT2xFTrAPVqPRn
-	xw7MHRjvuoK/z65Zxjrkt4oK577aSWClc1zguHpnT3CPZevDZq2/w2fEYepWZI1w
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40gg9ce-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=9rbmBX28N8S1GsFFI
+	k0mSVvSli42qcynagHl94Uh1wE=; b=oNq48NfY4AyEmqduwl+/iqDDWbCuuKQJT
+	8NjuAQxDjtXAiVomwprgIvIxWTYcKCD8y/GcB+J0lqhUWpfDKvLttB+DuYKOO2CK
+	PhN/En/2NUxdhgmxCKqtC5YzZBJYXZWxsrApeBHzO3wnTxP9SJFielpGEpnftLEi
+	oNjU1msk7lKJBIgj0glYC9cAD/jP66fgWxLEKRyU89Dg8pKaB0TzPvo1h+ggoz9L
+	NuQasaIRrK0IjP22mV8EQMR9qeG10ZiLBiHqkxiGOsPFs+yIIMhXqSoFNPCbtZRi
+	FqUVU12hv3+ZlqakxXfnPUEUknyUUHPPioIUKX1QBsClB/m4YXueg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40hgpyj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 28 May 2025 14:56:37 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54SAlHPL026424;
-	Wed, 28 May 2025 14:56:37 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46usxmyx4q-1
+	Wed, 28 May 2025 16:16:50 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54SEq9d9021346;
+	Wed, 28 May 2025 16:16:49 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 46utnmr2g5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 28 May 2025 14:56:37 +0000
+	Wed, 28 May 2025 16:16:49 +0000
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54SEuXIG52691220
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54SGGjve55443916
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 28 May 2025 14:56:33 GMT
+	Wed, 28 May 2025 16:16:45 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75ADF20049;
-	Wed, 28 May 2025 14:56:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8ADF220049;
+	Wed, 28 May 2025 16:16:45 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4A4A720040;
-	Wed, 28 May 2025 14:56:33 +0000 (GMT)
-Received: from t14-nrb (unknown [9.152.224.43])
+	by IMSVA (Postfix) with ESMTP id 372E520040;
+	Wed, 28 May 2025 16:16:45 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.111.56.81])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 28 May 2025 14:56:33 +0000 (GMT)
+	Wed, 28 May 2025 16:16:45 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        borntraeger@de.ibm.com, david@redhat.com
+Subject: [GIT PULL v1 1/7] s390/uv: Don't return 0 from make_hva_secure() if the operation was not successful
+Date: Wed, 28 May 2025 18:16:30 +0200
+Message-ID: <20250528161636.280717-2-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250528161636.280717-1-imbrenda@linux.ibm.com>
+References: <20250528161636.280717-1-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 28 May 2025 16:56:33 +0200
-Message-Id: <DA7VQLOWWTUJ.P37SCGP032T3@linux.ibm.com>
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
-Cc: <linux-s390@vger.kernel.org>, <imbrenda@linux.ibm.com>, <thuth@redhat.com>,
-        <david@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH 2/2] s390x: diag10: Check page clear
-X-Mailer: aerc 0.20.1
-References: <20250528091412.19483-1-frankja@linux.ibm.com>
- <20250528091412.19483-3-frankja@linux.ibm.com>
-In-Reply-To: <20250528091412.19483-3-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zQuP73n3wxLvxjO3YBhD0q4fr-eRXa9S
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI4MDEyNyBTYWx0ZWRfX6P9sy2iZpRgT NwTRBR/NvqfnDjMF3pZD3dL1cZ9G6OwjTLONdv3BxlEEhUG2QIaBRL7oOW5AoWEG5tRMLrg5ps3 l359PsN7uvlMng5PFNNIb1bjuTkOVy1Kvx6/giCfvGnD+YOpItuxdGBqUy9R4vwOiZEPvWCIpnf
- SbyE3Ae15vVISlA2/K/v58BZtLHfTFqv/CzNxRRqEQ5w+9PGenau5JC+/omSpiRWOiuBtb4MIll K3xE2YsFpJ5eG97MZ5YwE/5awF1feu76njGpOSj0kbA+03ZDSi7Y1PqlrAUIaMmYm44BEHaoW6J q+Cs0FSmiaV+RuVe7hYkRzfRRD/hzXZ9SJ9UIAjiCXWygBJgWGtJMveQRp84dVQKHTxDEtc0kL7
- cVmNMB06KWbfU4HiWgvysui6WHJfdTzHMuna6JBj0MRRSpIac5L+PG5Zb94LIhd5HfBC1fPz
-X-Proofpoint-ORIG-GUID: zQuP73n3wxLvxjO3YBhD0q4fr-eRXa9S
-X-Authority-Analysis: v=2.4 cv=UflRSLSN c=1 sm=1 tr=0 ts=68372425 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=icPLxu_JyErhSN4pVxMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTI4MDEzNCBTYWx0ZWRfX1+GNHBUppdwp SUFCAPGlWEA902CjvU0FQvusY7sLzVMR3ivbjTOfnskxKgeRRr+dYJIcQtoQoQ7NQGPtCCMyqGK HhO+j07NkjYukBEU2mHJBYiOaXy3/MMb44GdfFKlnNYgPEfPTHROHlOOroE9+03eJAWBsR60Rq2
+ XID+xN5pQ192Z/V+fwUHix0iu/tTSp2iOQnfMaphtzuFuMjiC+oNRvoXzT9fCAWOfhsO6/jtrsQ ChvlwUdv5+fyo5SDVbcq/WKO8SYCH9sbmNI+8Md2h3oz6gItiuOk9q4DngEA6HHV16TtTOZBJlT oojXcuO1pUzLXJ9fkORM0y0A07mJNems5zwH9l1MFhzX3Oma0fSnQwZZf10G4qJoOHH7453iu66
+ 7Lw6ciR/5cESMUqZAKkMp4vmgC7JEsfgxNpIHBkzO4riqvAOVeCDe6YCuNYGb6njX7hOAq+U
+X-Proofpoint-GUID: HNW834naVDyBENZrwviYekHpuNygMLea
+X-Authority-Analysis: v=2.4 cv=WOd/XmsR c=1 sm=1 tr=0 ts=683736f2 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=07g3GG6zAUHADp5N:21 a=dt9VzEwgFbYA:10 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=aOG7VxYrwdY-fDjLD2EA:9
+X-Proofpoint-ORIG-GUID: HNW834naVDyBENZrwviYekHpuNygMLea
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-28_07,2025-05-27_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- clxscore=1015 suspectscore=0 mlxscore=0 priorityscore=1501 adultscore=0
- spamscore=0 impostorscore=0 phishscore=0 bulkscore=0 malwarescore=0
- mlxlogscore=999 classifier=spam authscore=0 authtc=n/a authcc=
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ bulkscore=0 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
+ impostorscore=0 clxscore=1015 malwarescore=0 priorityscore=1501
+ adultscore=0 phishscore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
- definitions=main-2505280127
+ definitions=main-2505280134
 
-On Wed May 28, 2025 at 11:13 AM CEST, Janosch Frank wrote:
-> We should get a new page after we discarded the page.
-> So let's check for that.
->
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  s390x/diag10.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->
-> diff --git a/s390x/diag10.c b/s390x/diag10.c
-> index 00725f58..b68481ad 100644
-> --- a/s390x/diag10.c
-> +++ b/s390x/diag10.c
-> @@ -94,6 +94,16 @@ static void test_priv(void)
->  	report_prefix_pop();
->  }
-> =20
-> +static void test_content(void)
-> +{
-> +	report_prefix_push("content");
-> +	memset((void *)page0, 0x42, PAGE_SIZE);
-> +	memset((void *)page1, 0, PAGE_SIZE);
-> +	diag10(page0, page0);
-> +	report(!memcmp((void *)page0, (void *)page1, PAGE_SIZE), "Page cleared"=
-);
-> +	report_prefix_pop();
-> +}
+From: David Hildenbrand <david@redhat.com>
 
-Would be nice to test that we don't clear too much, but this is clearly bet=
-ter
-than what we had before so:
+If s390_wiggle_split_folio() returns 0 because splitting a large folio
+succeeded, we will return 0 from make_hva_secure() even though a retry
+is required. Return -EAGAIN in that case.
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
+Otherwise, we'll return 0 from gmap_make_secure(), and consequently from
+unpack_one(). In kvm_s390_pv_unpack(), we assume that unpacking
+succeeded and skip unpacking this page. Later on, we run into issues
+and fail booting the VM.
+
+So far, this issue was only observed with follow-up patches where we
+split large pagecache XFS folios. Maybe it can also be triggered with
+shmem?
+
+We'll cleanup s390_wiggle_split_folio() a bit next, to also return 0
+if no split was required.
+
+Fixes: d8dfda5af0be ("KVM: s390: pv: fix race when making a page secure")
+Cc: stable@vger.kernel.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20250516123946.1648026-2-david@redhat.com
+Message-ID: <20250516123946.1648026-2-david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+---
+ arch/s390/kernel/uv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 9a5d5be8acf4..2cc3b599c7fe 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -393,8 +393,11 @@ int make_hva_secure(struct mm_struct *mm, unsigned long hva, struct uv_cb_header
+ 	folio_walk_end(&fw, vma);
+ 	mmap_read_unlock(mm);
+ 
+-	if (rc == -E2BIG || rc == -EBUSY)
++	if (rc == -E2BIG || rc == -EBUSY) {
+ 		rc = s390_wiggle_split_folio(mm, folio, rc == -E2BIG);
++		if (!rc)
++			rc = -EAGAIN;
++	}
+ 	folio_put(folio);
+ 
+ 	return rc;
+-- 
+2.49.0
+
