@@ -1,57 +1,57 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8956221E0AF
-	for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 22:19:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A50E21D5A4
+	for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 22:19:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748557186; cv=none; b=YdlsrOtLE0V6upRKHmHRJP3zXjTeDr0xRKMyYgk7NO0UvcI8OveWXZVFXlrMRWkhUyu65w8+BQNcTXrEmU+IW4F0+z5SyWGYwUP7TsmwcQ1O8xzU4pXnnzeyaPZIDurd3X6ylX2tUTTsHmQ2e8xEgVWHm7Al5FqQrKVKLg/VGZ8=
+	t=1748557187; cv=none; b=QXu+2tRswy/qLMS9nJDk0KLnje3WqGvC0JV9M7CLNCRWntOGgL5YmLhdp3Aq1hOON6ZegtbzU7EzHpMivbQRBzhtalbwFniiyKTKRsM1JVJcvZU4xCk929abj+QHg78atPsrGgeLnE95/W5KSFhLkD8MVzRQBIPfOLX8GTGxFws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748557186; c=relaxed/simple;
-	bh=cgiL6zTZDbFWyh/srJt9OQvAvRIx7sitjitOvoD+hiw=;
+	s=arc-20240116; t=1748557187; c=relaxed/simple;
+	bh=88sHu9dXYdQx8HCgs2uDBPizga3f4r49hwzbtHYDrCM=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=dFmNoufuOvHHPIMc7wGOzohXXXuvHwnZSuA/LYu9o5cWx0n+AX9VT7fG/ZzgDk1K8/aXvo7nvYB9YfFSK3NU+PBbngyKCpyscgx6CzjnzRkOnu+YqJucerk+b1zcXZVpcpgn+crWNX/d35R3ktxrZOwVceUJipgEDvfTATm6jBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=SOAPcdR7; arc=none smtp.client-ip=209.85.216.74
+	 To:Cc:Content-Type; b=Mon/m8RAC8shiElA6ujCPgkFrNdqDcUiBdq+2UHp/ggDiUXVpq6HbfuHGd9G6bNGm7Jt2FSWGSk+jQXBY76YHhET7QqKpJqJ2rqxv6h3sV+aQjrYQ9AHS72+WXZGEyIaxBW1THN3PW67GcQa92ealgGi7oOnWuXFQj2NWhdhU5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=3Bd3gI3j; arc=none smtp.client-ip=209.85.214.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SOAPcdR7"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-311e98ee3fcso1919198a91.0
-        for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 15:19:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3Bd3gI3j"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2326a6d667eso13349865ad.1
+        for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 15:19:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1748557184; x=1749161984; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1748557185; x=1749161985; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=NjAP5WxBtyibNQurKYgxEnwWA84IR2Dkaa6sBfwiN+Y=;
-        b=SOAPcdR7WeWTYLdCzytPV8vBBc7Jh8y/s/pJz2HauEkfy6XM5U3+01/5JC1u3LTJCL
-         w74GdQn6iqfp+/doMlQ+rZUvWn9B7fq/SkjLvIRhX19rX4ttcePq5UCePLWF+PM10kP3
-         LiEUO3zfJrG1aronQLft5i+VtdQk/qQb2onMloPg/MgV44VxqnB8p98c6GQBMugR8iLc
-         p5PbRNLbf0C3uurSlhm+p9JvAIkwcULf5EZbAD4r8saLw4U4riFQt+RiXbNlmYrcrrMk
-         qF+yF0jEASLBi/nT9Uu4X2hC5r1PaEJyHHHGn9TUjIdrHVN+GjHLyAn0nBML/srQrs2N
-         qKMg==
+        bh=4p/1kmWiRyp+7Os+63Z9VcctJJrswAn8XSplAjfBM7Q=;
+        b=3Bd3gI3jmEnb3AOjqAEofc4Iv2A/RR36MYo7GxgaAHYVzdI7JEUZ/TSE5wThfpwPgf
+         kahZlQayDn60GnaSjWnp57LtbIwCWLMqqAuFo2oBnCoBOJQ8MWNBrTTM95Dvs1FQCJ/T
+         nTDfuF5sFcso8BoipjIjVoqnJt2+ssj46IhNST9tUmAN+ZE8ko3XSsdiNBJzUbtqph8X
+         VEeinW5kcRZSXt+UbtbrmR/ocgBWVR/XGm0N+Ebs3arPA6QhizWpgWKyYCqfLYuBXvt+
+         aEyE/dK0qNl/3eMiSDiIWZDfp5AK9atR72WucVUE+Cwl7D1g8AmdcsBPwxBrFcctsrvn
+         ZaqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748557184; x=1749161984;
+        d=1e100.net; s=20230601; t=1748557185; x=1749161985;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=NjAP5WxBtyibNQurKYgxEnwWA84IR2Dkaa6sBfwiN+Y=;
-        b=HUPls3ciGirRCb6Lx6Kg3C7VacpgzmFXwkVg42QYY5x1ef1Qx4kvNGhNHWXiFyMQzh
-         CASpazYSzuHoLjge9FJbEqjL7XIKZ/I5ioasDM0uRpgUxiVc1spiysoEFaRptWFVVJBy
-         Z9KPXx3zCt/fs4c05QNI5c6kaYoVJDqxzNpeB2nH3aWm2ZC35nT3R3BXkdAasbJV0nI+
-         ncNlXg/+bK7cIS3+1Tvv0dY4IRqFDUQK1378ro56trY+SXthZArVM+DLzRLke1I7IyP1
-         kAhnfMPYl9SCC7nwiroY0EdmH00XkgtXmDDeJn080i7zbz8ajDDFgoz9rN+nfsHqIT6L
-         G2sA==
-X-Forwarded-Encrypted: i=1; AJvYcCWx5cp+NRJwt9qcvoY7B+Ba8RUTp8/TY9Y66+2Mn5RnL5U3MG0J1I+wlZ7GoWRjDcyPEZuFczW+dKO/@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMMqf7W7F+ICbXAUt1WKlUrtZYqw8NQsk8caeCLkCs+3qasx09
-	WxrX/XQCMWDnvtqrZaRy3S4j0z7ONI0HlJCPuCUgRSxRERrKUHQ3ARKOV2ZkgxfsTiiPm63Wgu9
-	ZWpwbdg==
-X-Google-Smtp-Source: AGHT+IHh1a1Qp61K+GgQUYaz4jvy6YU1W428UbF736aOyyksea78LtwhAKn7hxiOh4DjAgu/TTS3ZiEv+gY=
-X-Received: from pjtq15.prod.google.com ([2002:a17:90a:c10f:b0:311:e9bb:f8d4])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3eca:b0:310:7486:d60b
- with SMTP id 98e67ed59e1d1-31214ecdba7mr7484658a91.14.1748557183846; Thu, 29
- May 2025 15:19:43 -0700 (PDT)
+        bh=4p/1kmWiRyp+7Os+63Z9VcctJJrswAn8XSplAjfBM7Q=;
+        b=hcy9Pd2Np21JmOITWaadcy7dkl1l2SZJ12rziGqMRh4lAJuWYZ1IUSvBkrf3TQIlVP
+         JH4R/kBm3VKBpJaiDySuZTvjZ0wW/r/UdF7bUsJlduabMCWm1vdWuGPQkM2zcMtxQHfh
+         3QlgjMGfjILSqb58obUUelzc96cTqG0wEHbe6hdJuYYluSHxLhcuVUq6V7c5v4lHyV/9
+         +Ovpqxu+yqDKjn9q8Kcyn+3RA7+Cfq4rJ9y0pcs21kK4NBmcQFKz2IYB5+vjFfKu2VhQ
+         8rs2vuvZGo8aThb38UjJ5IokTegZdP1u9OX8572q1xSZol+VPWLV+2OLTg/VFlucJ+hy
+         jj7g==
+X-Forwarded-Encrypted: i=1; AJvYcCXlDgD1KUEV5YAGStpX8ZrH6g+uKYg1B4wEvhNMEPEl/6m97bzX2LOo9knpDmGsFjkQXYE5A/j2M0wH@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxjm0WkQ4RNz1o2fMcL/ilQtvGNYEhjqK4iaGpuvuEkSwa5k/5+
+	XF1eFmwwtMHQI1n0v/7jc0JsVkgceXZ/305pKwk7wBH6IJHP9Bkegy4W8lwyshQbmjFuPYjn4LR
+	cmch5rw==
+X-Google-Smtp-Source: AGHT+IFXNSXg+8D9lEWdatr1QLsM7ddqiFyaZCdJAHYIj0LYqIW7eMgV61Z0Am2ItpUnNaFhrVXuA51YgQQ=
+X-Received: from plrd21.prod.google.com ([2002:a17:902:aa95:b0:234:e3a2:5b21])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:2312:b0:234:9656:7db9
+ with SMTP id d9443c01a7336-2352990511fmr17903355ad.32.1748557185478; Thu, 29
+ May 2025 15:19:45 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Thu, 29 May 2025 15:19:15 -0700
+Date: Thu, 29 May 2025 15:19:16 -0700
 In-Reply-To: <20250529221929.3807680-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -61,9 +61,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250529221929.3807680-1-seanjc@google.com>
 X-Mailer: git-send-email 2.49.0.1204.g71687c7c1d-goog
-Message-ID: <20250529221929.3807680-3-seanjc@google.com>
-Subject: [kvm-unit-tests PATCH 02/16] x86: Encode X86_FEATURE_* definitions
- using a structure
+Message-ID: <20250529221929.3807680-4-seanjc@google.com>
+Subject: [kvm-unit-tests PATCH 03/16] x86: Add X86_PROPERTY_* framework to
+ retrieve CPUID values
 From: Sean Christopherson <seanjc@google.com>
 To: Andrew Jones <andrew.jones@linux.dev>, Janosch Frank <frankja@linux.ibm.com>, 
 	Claudio Imbrenda <imbrenda@linux.ibm.com>, "=?UTF-8?q?Nico=20B=C3=B6hr?=" <nrb@linux.ibm.com>, 
@@ -72,224 +72,160 @@ Cc: kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
 	kvm@vger.kernel.org, Sean Christopherson <seanjc@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-Encode X86_FEATURE_* macros using a new "struct x86_cpu_feature" instead
-of manually packing the values into a u64.  Using a structure eliminates
-open code shifts and masks, and is largely self-documenting.
+Introduce X86_PROPERTY_* to allow retrieving values/properties from CPUID
+leafs, e.g. MAXPHYADDR from CPUID.0x80000008.  Use the same core code as
+X86_FEATURE_*, the primary difference is that properties are multi-bit
+values, whereas features enumerate a single bit.
 
-Note, the code and naming scheme are stolen from KVM selftests.
+Add this_cpu_has_p() to allow querying whether or not a property exists
+based on the maximum leaf associated with the property, e.g. MAXPHYADDR
+doesn't exist if the max leaf for 0x8000_xxxx is less than 0x8000_0008.
+
+Use the new property infrastructure in cpuid_maxphyaddr() to prove that
+the code works as intended.  Future patches will convert additional code.
+
+Note, the code, nomenclature, changelog, etc. are all stolen from KVM
+selftests.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- lib/x86/processor.h | 171 ++++++++++++++++++++++++--------------------
- 1 file changed, 95 insertions(+), 76 deletions(-)
+ lib/x86/processor.h | 109 +++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 102 insertions(+), 7 deletions(-)
 
 diff --git a/lib/x86/processor.h b/lib/x86/processor.h
-index a0be04c5..3ac6711d 100644
+index 3ac6711d..6b61a38b 100644
 --- a/lib/x86/processor.h
 +++ b/lib/x86/processor.h
-@@ -6,6 +6,7 @@
- #include "msr.h"
- #include <bitops.h>
- #include <stdint.h>
-+#include <util.h>
- 
- #define CANONICAL_48_VAL 0xffffaaaaaaaaaaaaull
- #define CANONICAL_57_VAL 0xffaaaaaaaaaaaaaaull
-@@ -232,100 +233,118 @@ static inline bool is_intel(void)
- 	return strcmp((char *)name, "GenuineIntel") == 0;
+@@ -218,13 +218,6 @@ static inline struct cpuid cpuid(u32 function)
+ 	return cpuid_indexed(function, 0);
  }
  
--#define	CPUID(a, b, c, d) ((((unsigned long long) a) << 32) | (b << 16) | \
--			  (c << 8) | d)
+-static inline u8 cpuid_maxphyaddr(void)
+-{
+-	if (raw_cpuid(0x80000000, 0).a < 0x80000008)
+-	return 36;
+-	return raw_cpuid(0x80000008, 0).a & 0xff;
+-}
 -
- /*
-- * Each X86_FEATURE_XXX definition is 64-bit and contains the following
-- * CPUID meta-data:
-- *
-- * 	[63:32] :  input value for EAX
-- * 	[31:16] :  input value for ECX
-- * 	[15:8]  :  output register
-- * 	[7:0]   :  bit position in output register
-+ * Pack the information into a 64-bit value so that each X86_FEATURE_XXX can be
-+ * passed by value with no overhead.
-  */
-+struct x86_cpu_feature {
+ static inline bool is_intel(void)
+ {
+ 	struct cpuid c = cpuid(0);
+@@ -329,6 +322,74 @@ struct x86_cpu_feature {
+ #define X86_FEATURE_VNMI		X86_CPU_FEATURE(0x8000000A, 0, EDX, 25)
+ #define	X86_FEATURE_AMD_PMU_V2		X86_CPU_FEATURE(0x80000022, 0, EAX, 0)
+ 
++/*
++ * Same idea as X86_FEATURE_XXX, but X86_PROPERTY_XXX retrieves a multi-bit
++ * value/property as opposed to a single-bit feature.  Again, pack the info
++ * into a 64-bit value to pass by value with no overhead on 64-bit builds.
++ */
++struct x86_cpu_property {
 +	u32	function;
-+	u16	index;
++	u8	index;
 +	u8	reg;
-+	u8	bit;
++	u8	lo_bit;
++	u8	hi_bit;
 +};
-+
-+#define	X86_CPU_FEATURE(fn, idx, gpr, __bit)					\
++#define	X86_CPU_PROPERTY(fn, idx, gpr, low_bit, high_bit)			\
 +({										\
-+	struct x86_cpu_feature feature = {					\
++	struct x86_cpu_property property = {					\
 +		.function = fn,							\
 +		.index = idx,							\
 +		.reg = gpr,							\
-+		.bit = __bit,							\
++		.lo_bit = low_bit,						\
++		.hi_bit = high_bit,						\
 +	};									\
 +										\
++	static_assert(low_bit < high_bit);					\
 +	static_assert((fn & 0xc0000000) == 0 ||					\
 +		      (fn & 0xc0000000) == 0x40000000 ||			\
 +		      (fn & 0xc0000000) == 0x80000000 ||			\
 +		      (fn & 0xc0000000) == 0xc0000000);				\
-+	static_assert(idx < BIT(sizeof(feature.index) * BITS_PER_BYTE));	\
-+	feature;								\
++	static_assert(idx < BIT(sizeof(property.index) * BITS_PER_BYTE));	\
++	property;								\
 +})
- 
- /*
-  * Basic Leafs, a.k.a. Intel defined
-  */
--#define	X86_FEATURE_MWAIT		(CPUID(0x1, 0, ECX, 3))
--#define	X86_FEATURE_VMX			(CPUID(0x1, 0, ECX, 5))
--#define	X86_FEATURE_PDCM		(CPUID(0x1, 0, ECX, 15))
--#define	X86_FEATURE_PCID		(CPUID(0x1, 0, ECX, 17))
--#define X86_FEATURE_X2APIC		(CPUID(0x1, 0, ECX, 21))
--#define	X86_FEATURE_MOVBE		(CPUID(0x1, 0, ECX, 22))
--#define	X86_FEATURE_TSC_DEADLINE_TIMER	(CPUID(0x1, 0, ECX, 24))
--#define	X86_FEATURE_XSAVE		(CPUID(0x1, 0, ECX, 26))
--#define	X86_FEATURE_OSXSAVE		(CPUID(0x1, 0, ECX, 27))
--#define	X86_FEATURE_RDRAND		(CPUID(0x1, 0, ECX, 30))
--#define	X86_FEATURE_MCE			(CPUID(0x1, 0, EDX, 7))
--#define	X86_FEATURE_APIC		(CPUID(0x1, 0, EDX, 9))
--#define	X86_FEATURE_CLFLUSH		(CPUID(0x1, 0, EDX, 19))
--#define	X86_FEATURE_DS			(CPUID(0x1, 0, EDX, 21))
--#define	X86_FEATURE_XMM			(CPUID(0x1, 0, EDX, 25))
--#define	X86_FEATURE_XMM2		(CPUID(0x1, 0, EDX, 26))
--#define	X86_FEATURE_TSC_ADJUST		(CPUID(0x7, 0, EBX, 1))
--#define	X86_FEATURE_HLE			(CPUID(0x7, 0, EBX, 4))
--#define	X86_FEATURE_SMEP		(CPUID(0x7, 0, EBX, 7))
--#define	X86_FEATURE_INVPCID		(CPUID(0x7, 0, EBX, 10))
--#define	X86_FEATURE_RTM			(CPUID(0x7, 0, EBX, 11))
--#define	X86_FEATURE_SMAP		(CPUID(0x7, 0, EBX, 20))
--#define	X86_FEATURE_PCOMMIT		(CPUID(0x7, 0, EBX, 22))
--#define	X86_FEATURE_CLFLUSHOPT		(CPUID(0x7, 0, EBX, 23))
--#define	X86_FEATURE_CLWB		(CPUID(0x7, 0, EBX, 24))
--#define X86_FEATURE_INTEL_PT		(CPUID(0x7, 0, EBX, 25))
--#define	X86_FEATURE_UMIP		(CPUID(0x7, 0, ECX, 2))
--#define	X86_FEATURE_PKU			(CPUID(0x7, 0, ECX, 3))
--#define	X86_FEATURE_LA57		(CPUID(0x7, 0, ECX, 16))
--#define	X86_FEATURE_RDPID		(CPUID(0x7, 0, ECX, 22))
--#define	X86_FEATURE_SHSTK		(CPUID(0x7, 0, ECX, 7))
--#define	X86_FEATURE_IBT			(CPUID(0x7, 0, EDX, 20))
--#define	X86_FEATURE_SPEC_CTRL		(CPUID(0x7, 0, EDX, 26))
--#define	X86_FEATURE_FLUSH_L1D		(CPUID(0x7, 0, EDX, 28))
--#define	X86_FEATURE_ARCH_CAPABILITIES	(CPUID(0x7, 0, EDX, 29))
--#define	X86_FEATURE_PKS			(CPUID(0x7, 0, ECX, 31))
--#define	X86_FEATURE_LAM			(CPUID(0x7, 1, EAX, 26))
-+#define	X86_FEATURE_MWAIT		X86_CPU_FEATURE(0x1, 0, ECX, 3)
-+#define	X86_FEATURE_VMX			X86_CPU_FEATURE(0x1, 0, ECX, 5)
-+#define	X86_FEATURE_PDCM		X86_CPU_FEATURE(0x1, 0, ECX, 15)
-+#define	X86_FEATURE_PCID		X86_CPU_FEATURE(0x1, 0, ECX, 17)
-+#define X86_FEATURE_X2APIC		X86_CPU_FEATURE(0x1, 0, ECX, 21)
-+#define	X86_FEATURE_MOVBE		X86_CPU_FEATURE(0x1, 0, ECX, 22)
-+#define	X86_FEATURE_TSC_DEADLINE_TIMER	X86_CPU_FEATURE(0x1, 0, ECX, 24)
-+#define	X86_FEATURE_XSAVE		X86_CPU_FEATURE(0x1, 0, ECX, 26)
-+#define	X86_FEATURE_OSXSAVE		X86_CPU_FEATURE(0x1, 0, ECX, 27)
-+#define	X86_FEATURE_RDRAND		X86_CPU_FEATURE(0x1, 0, ECX, 30)
-+#define	X86_FEATURE_MCE			X86_CPU_FEATURE(0x1, 0, EDX, 7)
-+#define	X86_FEATURE_APIC		X86_CPU_FEATURE(0x1, 0, EDX, 9)
-+#define	X86_FEATURE_CLFLUSH		X86_CPU_FEATURE(0x1, 0, EDX, 19)
-+#define	X86_FEATURE_DS			X86_CPU_FEATURE(0x1, 0, EDX, 21)
-+#define	X86_FEATURE_XMM			X86_CPU_FEATURE(0x1, 0, EDX, 25)
-+#define	X86_FEATURE_XMM2		X86_CPU_FEATURE(0x1, 0, EDX, 26)
-+#define	X86_FEATURE_TSC_ADJUST		X86_CPU_FEATURE(0x7, 0, EBX, 1)
-+#define	X86_FEATURE_HLE			X86_CPU_FEATURE(0x7, 0, EBX, 4)
-+#define	X86_FEATURE_SMEP		X86_CPU_FEATURE(0x7, 0, EBX, 7)
-+#define	X86_FEATURE_INVPCID		X86_CPU_FEATURE(0x7, 0, EBX, 10)
-+#define	X86_FEATURE_RTM			X86_CPU_FEATURE(0x7, 0, EBX, 11)
-+#define	X86_FEATURE_SMAP		X86_CPU_FEATURE(0x7, 0, EBX, 20)
-+#define	X86_FEATURE_PCOMMIT		X86_CPU_FEATURE(0x7, 0, EBX, 22)
-+#define	X86_FEATURE_CLFLUSHOPT		X86_CPU_FEATURE(0x7, 0, EBX, 23)
-+#define	X86_FEATURE_CLWB		X86_CPU_FEATURE(0x7, 0, EBX, 24)
-+#define X86_FEATURE_INTEL_PT		X86_CPU_FEATURE(0x7, 0, EBX, 25)
-+#define	X86_FEATURE_UMIP		X86_CPU_FEATURE(0x7, 0, ECX, 2)
-+#define	X86_FEATURE_PKU			X86_CPU_FEATURE(0x7, 0, ECX, 3)
-+#define	X86_FEATURE_LA57		X86_CPU_FEATURE(0x7, 0, ECX, 16)
-+#define	X86_FEATURE_RDPID		X86_CPU_FEATURE(0x7, 0, ECX, 22)
-+#define	X86_FEATURE_SHSTK		X86_CPU_FEATURE(0x7, 0, ECX, 7)
-+#define	X86_FEATURE_IBT			X86_CPU_FEATURE(0x7, 0, EDX, 20)
-+#define	X86_FEATURE_SPEC_CTRL		X86_CPU_FEATURE(0x7, 0, EDX, 26)
-+#define	X86_FEATURE_FLUSH_L1D		X86_CPU_FEATURE(0x7, 0, EDX, 28)
-+#define	X86_FEATURE_ARCH_CAPABILITIES	X86_CPU_FEATURE(0x7, 0, EDX, 29)
-+#define	X86_FEATURE_PKS			X86_CPU_FEATURE(0x7, 0, ECX, 31)
-+#define	X86_FEATURE_LAM			X86_CPU_FEATURE(0x7, 1, EAX, 26)
- 
- /*
-  * KVM defined leafs
-  */
--#define	KVM_FEATURE_ASYNC_PF		(CPUID(0x40000001, 0, EAX, 4))
--#define	KVM_FEATURE_ASYNC_PF_INT	(CPUID(0x40000001, 0, EAX, 14))
-+#define	KVM_FEATURE_ASYNC_PF		X86_CPU_FEATURE(0x40000001, 0, EAX, 4)
-+#define	KVM_FEATURE_ASYNC_PF_INT	X86_CPU_FEATURE(0x40000001, 0, EAX, 14)
- 
- /*
-  * Extended Leafs, a.k.a. AMD defined
-  */
--#define	X86_FEATURE_SVM			(CPUID(0x80000001, 0, ECX, 2))
--#define	X86_FEATURE_PERFCTR_CORE	(CPUID(0x80000001, 0, ECX, 23))
--#define	X86_FEATURE_NX			(CPUID(0x80000001, 0, EDX, 20))
--#define	X86_FEATURE_GBPAGES		(CPUID(0x80000001, 0, EDX, 26))
--#define	X86_FEATURE_RDTSCP		(CPUID(0x80000001, 0, EDX, 27))
--#define	X86_FEATURE_LM			(CPUID(0x80000001, 0, EDX, 29))
--#define	X86_FEATURE_RDPRU		(CPUID(0x80000008, 0, EBX, 4))
--#define	X86_FEATURE_AMD_IBPB		(CPUID(0x80000008, 0, EBX, 12))
--#define	X86_FEATURE_NPT			(CPUID(0x8000000A, 0, EDX, 0))
--#define	X86_FEATURE_LBRV		(CPUID(0x8000000A, 0, EDX, 1))
--#define	X86_FEATURE_NRIPS		(CPUID(0x8000000A, 0, EDX, 3))
--#define X86_FEATURE_TSCRATEMSR		(CPUID(0x8000000A, 0, EDX, 4))
--#define X86_FEATURE_PAUSEFILTER		(CPUID(0x8000000A, 0, EDX, 10))
--#define X86_FEATURE_PFTHRESHOLD		(CPUID(0x8000000A, 0, EDX, 12))
--#define	X86_FEATURE_VGIF		(CPUID(0x8000000A, 0, EDX, 16))
--#define X86_FEATURE_VNMI		(CPUID(0x8000000A, 0, EDX, 25))
--#define	X86_FEATURE_AMD_PMU_V2		(CPUID(0x80000022, 0, EAX, 0))
-+#define	X86_FEATURE_SVM			X86_CPU_FEATURE(0x80000001, 0, ECX, 2)
-+#define	X86_FEATURE_PERFCTR_CORE	X86_CPU_FEATURE(0x80000001, 0, ECX, 23)
-+#define	X86_FEATURE_NX			X86_CPU_FEATURE(0x80000001, 0, EDX, 20)
-+#define	X86_FEATURE_GBPAGES		X86_CPU_FEATURE(0x80000001, 0, EDX, 26)
-+#define	X86_FEATURE_RDTSCP		X86_CPU_FEATURE(0x80000001, 0, EDX, 27)
-+#define	X86_FEATURE_LM			X86_CPU_FEATURE(0x80000001, 0, EDX, 29)
-+#define	X86_FEATURE_RDPRU		X86_CPU_FEATURE(0x80000008, 0, EBX, 4)
-+#define	X86_FEATURE_AMD_IBPB		X86_CPU_FEATURE(0x80000008, 0, EBX, 12)
-+#define	X86_FEATURE_NPT			X86_CPU_FEATURE(0x8000000A, 0, EDX, 0)
-+#define	X86_FEATURE_LBRV		X86_CPU_FEATURE(0x8000000A, 0, EDX, 1)
-+#define	X86_FEATURE_NRIPS		X86_CPU_FEATURE(0x8000000A, 0, EDX, 3)
-+#define X86_FEATURE_TSCRATEMSR		X86_CPU_FEATURE(0x8000000A, 0, EDX, 4)
-+#define X86_FEATURE_PAUSEFILTER		X86_CPU_FEATURE(0x8000000A, 0, EDX, 10)
-+#define X86_FEATURE_PFTHRESHOLD		X86_CPU_FEATURE(0x8000000A, 0, EDX, 12)
-+#define	X86_FEATURE_VGIF		X86_CPU_FEATURE(0x8000000A, 0, EDX, 16)
-+#define X86_FEATURE_VNMI		X86_CPU_FEATURE(0x8000000A, 0, EDX, 25)
-+#define	X86_FEATURE_AMD_PMU_V2		X86_CPU_FEATURE(0x80000022, 0, EAX, 0)
- 
--static inline bool this_cpu_has(u64 feature)
-+static inline u32 __this_cpu_has(u32 function, u32 index, u8 reg, u8 lo, u8 hi)
- {
--	u32 input_eax = feature >> 32;
--	u32 input_ecx = (feature >> 16) & 0xffff;
--	u32 output_reg = (feature >> 8) & 0xff;
--	u8 bit = feature & 0xff;
--	struct cpuid c;
--	u32 *tmp;
-+	union {
-+		struct cpuid cpuid;
-+		u32 gprs[4];
-+	} c;
- 
--	c = cpuid_indexed(input_eax, input_ecx);
--	tmp = (u32 *)&c;
-+	c.cpuid = cpuid_indexed(function, index);
- 
--	return ((*(tmp + (output_reg % 32))) & (1 << bit));
-+	return (c.gprs[reg] & GENMASK(hi, lo)) >> lo;
-+}
 +
-+static inline bool this_cpu_has(struct x86_cpu_feature feature)
-+{
-+	return __this_cpu_has(feature.function, feature.index,
-+			      feature.reg, feature.bit, feature.bit);
++#define X86_PROPERTY_MAX_BASIC_LEAF		X86_CPU_PROPERTY(0, 0, EAX, 0, 31)
++#define X86_PROPERTY_PMU_VERSION		X86_CPU_PROPERTY(0xa, 0, EAX, 0, 7)
++#define X86_PROPERTY_PMU_NR_GP_COUNTERS		X86_CPU_PROPERTY(0xa, 0, EAX, 8, 15)
++#define X86_PROPERTY_PMU_GP_COUNTERS_BIT_WIDTH	X86_CPU_PROPERTY(0xa, 0, EAX, 16, 23)
++#define X86_PROPERTY_PMU_EBX_BIT_VECTOR_LENGTH	X86_CPU_PROPERTY(0xa, 0, EAX, 24, 31)
++#define X86_PROPERTY_PMU_EVENTS_MASK		X86_CPU_PROPERTY(0xa, 0, EBX, 0, 7)
++#define X86_PROPERTY_PMU_FIXED_COUNTERS_BITMASK	X86_CPU_PROPERTY(0xa, 0, ECX, 0, 31)
++#define X86_PROPERTY_PMU_NR_FIXED_COUNTERS	X86_CPU_PROPERTY(0xa, 0, EDX, 0, 4)
++#define X86_PROPERTY_PMU_FIXED_COUNTERS_BIT_WIDTH	X86_CPU_PROPERTY(0xa, 0, EDX, 5, 12)
++
++#define X86_PROPERTY_SUPPORTED_XCR0_LO		X86_CPU_PROPERTY(0xd,  0, EAX,  0, 31)
++#define X86_PROPERTY_XSTATE_MAX_SIZE_XCR0	X86_CPU_PROPERTY(0xd,  0, EBX,  0, 31)
++#define X86_PROPERTY_XSTATE_MAX_SIZE		X86_CPU_PROPERTY(0xd,  0, ECX,  0, 31)
++#define X86_PROPERTY_SUPPORTED_XCR0_HI		X86_CPU_PROPERTY(0xd,  0, EDX,  0, 31)
++
++#define X86_PROPERTY_XSTATE_TILE_SIZE		X86_CPU_PROPERTY(0xd, 18, EAX,  0, 31)
++#define X86_PROPERTY_XSTATE_TILE_OFFSET		X86_CPU_PROPERTY(0xd, 18, EBX,  0, 31)
++#define X86_PROPERTY_AMX_MAX_PALETTE_TABLES	X86_CPU_PROPERTY(0x1d, 0, EAX,  0, 31)
++#define X86_PROPERTY_AMX_TOTAL_TILE_BYTES	X86_CPU_PROPERTY(0x1d, 1, EAX,  0, 15)
++#define X86_PROPERTY_AMX_BYTES_PER_TILE		X86_CPU_PROPERTY(0x1d, 1, EAX, 16, 31)
++#define X86_PROPERTY_AMX_BYTES_PER_ROW		X86_CPU_PROPERTY(0x1d, 1, EBX, 0,  15)
++#define X86_PROPERTY_AMX_NR_TILE_REGS		X86_CPU_PROPERTY(0x1d, 1, EBX, 16, 31)
++#define X86_PROPERTY_AMX_MAX_ROWS		X86_CPU_PROPERTY(0x1d, 1, ECX, 0,  15)
++
++#define X86_PROPERTY_MAX_KVM_LEAF		X86_CPU_PROPERTY(0x40000000, 0, EAX, 0, 31)
++
++#define X86_PROPERTY_MAX_EXT_LEAF		X86_CPU_PROPERTY(0x80000000, 0, EAX, 0, 31)
++#define X86_PROPERTY_MAX_PHY_ADDR		X86_CPU_PROPERTY(0x80000008, 0, EAX, 0, 7)
++#define X86_PROPERTY_MAX_VIRT_ADDR		X86_CPU_PROPERTY(0x80000008, 0, EAX, 8, 15)
++#define X86_PROPERTY_GUEST_MAX_PHY_ADDR		X86_CPU_PROPERTY(0x80000008, 0, EAX, 16, 23)
++#define X86_PROPERTY_SEV_C_BIT			X86_CPU_PROPERTY(0x8000001F, 0, EBX, 0, 5)
++#define X86_PROPERTY_PHYS_ADDR_REDUCTION	X86_CPU_PROPERTY(0x8000001F, 0, EBX, 6, 11)
++#define X86_PROPERTY_NR_PERFCTR_CORE		X86_CPU_PROPERTY(0x80000022, 0, EBX, 0, 3)
++#define X86_PROPERTY_NR_PERFCTR_NB		X86_CPU_PROPERTY(0x80000022, 0, EBX, 10, 15)
++
++#define X86_PROPERTY_MAX_CENTAUR_LEAF		X86_CPU_PROPERTY(0xC0000000, 0, EAX, 0, 31)
++
+ static inline u32 __this_cpu_has(u32 function, u32 index, u8 reg, u8 lo, u8 hi)
+ {
+ 	union {
+@@ -347,6 +408,40 @@ static inline bool this_cpu_has(struct x86_cpu_feature feature)
+ 			      feature.reg, feature.bit, feature.bit);
  }
  
++static inline uint32_t this_cpu_property(struct x86_cpu_property property)
++{
++	return __this_cpu_has(property.function, property.index,
++			      property.reg, property.lo_bit, property.hi_bit);
++}
++
++static __always_inline bool this_cpu_has_p(struct x86_cpu_property property)
++{
++	uint32_t max_leaf;
++
++	switch (property.function & 0xc0000000) {
++	case 0:
++		max_leaf = this_cpu_property(X86_PROPERTY_MAX_BASIC_LEAF);
++		break;
++	case 0x40000000:
++		max_leaf = this_cpu_property(X86_PROPERTY_MAX_KVM_LEAF);
++		break;
++	case 0x80000000:
++		max_leaf = this_cpu_property(X86_PROPERTY_MAX_EXT_LEAF);
++		break;
++	case 0xc0000000:
++		max_leaf = this_cpu_property(X86_PROPERTY_MAX_CENTAUR_LEAF);
++	}
++	return max_leaf >= property.function;
++}
++
++static inline u8 cpuid_maxphyaddr(void)
++{
++	if (!this_cpu_has_p(X86_PROPERTY_MAX_PHY_ADDR))
++		return 36;
++
++	return this_cpu_property(X86_PROPERTY_MAX_PHY_ADDR);
++}
++
  struct far_pointer32 {
+ 	u32 offset;
+ 	u16 selector;
 -- 
 2.49.0.1204.g71687c7c1d-goog
 
