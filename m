@@ -1,158 +1,143 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47EA029292C
-	for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 20:14:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 316B328E56B
+	for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 20:46:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748549696; cv=none; b=KDZubF6399md0qhUk8dm6EKDsXQKRmhCOQehf0/0xMk+GbdxTI1PqOZFnHUqH3ASl6xkxstoNrNvSH/7uqThbUlAj4YTYcSp7kJxZFDvGaUiHuRQC6wdcSamAwx3DkUOPAAKUEUT6Rwi4xQIhQy05FJIaHltZ7GPmoLQ0E2ldws=
+	t=1748551584; cv=none; b=eWewVQRo/GrbTY/+9OSIgatSpRQvM69SbdwqRYUwTHf05jIYgShdnRFUWdbELMzIcwdkOGe6f2Pz+bqA5okCaV5r4DFVzJUzRT3IcYi1Ykp8SlvCQoqULRWRiHzqoBbNl1epo1b4yevsYtSCexQgYxylvt7sckKPFDp6MygbUMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748549696; c=relaxed/simple;
-	bh=pEGh+FyMPK3zT/zV3uCRaiREChKfcHdnfIXKiv+KGVs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UHs+cA3OkarERiiaXSMXN8pYrLhAE38lMO6/d9yrAmr3gxtXTgZNnCoLeLBxOqQCDtDdKqOkgicwKNn4cY1jWKAoOmMXe4Sta9qEmYhdiv+rOk5KTdE4BvmY0seoX2I6WeG46g/GkWIIP+yH7VXptIBeRfL4OlysxA2670bvsDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=BdPbfjkL; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1748551584; c=relaxed/simple;
+	bh=/6z1v/qNBfUFOoxicD1V48QdZQfp4IVH4S3L1yiqKHc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GG/v2WNJjHQJxtGTpNnqkmK58a4+V4yJbrmeT3r6tweIDOuvcBlfvjNeEpeXAarg+K0eTI+Qoy4khcaCp8c3wj/3fomzADpLubVg5qubQyDi/28ScPTOopBk1LnNZTmUwLsQhxd5zjaROm/UdM26LcvgnoiwSZA84Ujf6WdRHyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com; spf=pass smtp.mailfrom=rivosinc.com; dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b=XIvqNns9; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=rivosinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rivosinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="BdPbfjkL"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-ad89f9bb725so261806166b.2
-        for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 13:14:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=rivosinc-com.20230601.gappssmtp.com header.i=@rivosinc-com.20230601.gappssmtp.com header.b="XIvqNns9"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-311e2cc157bso983844a91.2
+        for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 13:46:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1748549690; x=1749154490; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=HVSRhT5MS1pvdu2dqLDEs9T4cWr5CB+FRQ66tAe+RVE=;
-        b=BdPbfjkLjjkO1/oLlwT3lAWZPfHD13gdaYU3q6sVGjzcvPH9gqr0k0ksLcw60W53rM
-         60gGnVpZc7PYhL41D23BcS+a/08BEXMYeDijNeXA1CiEBXc7RLACJZq0LyrXhNWMR3Yx
-         WAlfO0WlPnwPxO+XWdYb7sperMTrYrkefisfQ=
+        d=rivosinc-com.20230601.gappssmtp.com; s=20230601; t=1748551581; x=1749156381; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=6TtaMd1HywfsuyRcNH/42AXM3iz/qus8mLnXbozVUkA=;
+        b=XIvqNns9ls/HGWvWQNu791RDA+NMA/YEPxyggEhVbL2i+z4BXfGCTpY52IwPgra9FR
+         d1nN6q5UEyqlfXLtzpmbgCycsZqlJS77ZGVQwjxfqRRxYz8/iduVhtR4rR+75I0Boa2M
+         GbIfASXNfsS8lh1k49srFIfuXeZy439ELQVnqPpABa8uTRERxvt5T3mkBvWyChbub969
+         KecqPD0gn/3PPWUqnQ8g3HIUuWYlICf833vlxY4RUNnTo4nMLlizX5sSP0GG9y++98P3
+         ocnHf7RM5v0M4SuEeJtuf6crf48EKIjY8EUO8ks+d0MjXoKoH79KiLc5SPN3uwPD70In
+         LVdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748549690; x=1749154490;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HVSRhT5MS1pvdu2dqLDEs9T4cWr5CB+FRQ66tAe+RVE=;
-        b=JRLwIvJTH5//Q+TBhMqTetESq5SoIqCX/gjFTE/Mev00KnJ7F8MT30RLqdLwnA92FS
-         fWWSUmM1r4Xs3DaPfR1CtRghZbu2DZhjuMt47F9cBVPA/KmLh8RAdmiLVsoD4yqxxrZR
-         D6PqkRe7UYf+jxe6M4wjI5pA2Cw2fejYz12eSK2RFfkODg4Rel8XASBq85RJNZKoWly4
-         3f8Q+TuEx5VKXSslTWZHiBR44C7IM77hxxPX4XMtfXDLqmO7CDQ+CZ09NCUyG07LKUfs
-         11jZByV2aGYJTwBPTpJy9Jf3G+v7mVWBPu2drNUpjvtZgIfA1YNB/FO7PFMBV8KSDSij
-         VfOg==
-X-Forwarded-Encrypted: i=1; AJvYcCWRFQ8DCNXYXpI/qeNlZmkMrpi1r/QMAIS2352kRfc8hsMW9e4g96gVhUK1ezCrMWBXfCbyczFh9FGt@vger.kernel.org
-X-Gm-Message-State: AOJu0YwrbKT9TF3ysgDXvjcoN9ilaBS7Izd/Ze8+JyFfhiscKOgitH8Q
-	wnx/j/cTYkp5U47S35DpXga6sOxGt8FTDqrjW5agM1F9hnSNwvsSE2bctM76HESOTBIQFNEdwWK
-	4Tc8vQbg=
-X-Gm-Gg: ASbGncu6iwIY99pk8seFle9nj+kFRgHBiRh8YGGjnJQ4j5lWPklCeaekuMh+YI8EUvG
-	g+8dR97W2wrWW8AdU5+RkwTmGmrocdhzD6QStdAwVohZQDxN4yWEknEhdaDWvLkcl4Lg/ZLl6N4
-	596Rp46+0k1UKjnZwCvnRVlvtqClVhhxON7k43TDOUo8KAwA7ndxrbvAhklflSZcQ0IpDhzLLqj
-	01XpjKx9DQdeZmJBd2TIB+jFjNvQMPiT6yf583jY6CGi5WIHNkP+bJCiywnWZlNRZWIm5zLe7IA
-	z2YfgoXjw5FcxzQuPvTgWTbfVIX9X3YCM/gdjyWSOk95dhtv5wB1J+Ie3YllhXqYMT6IVkg6Cij
-	RIU2b6t8BKZz65YRZtB0c3tWP74tA/QZilrNV
-X-Google-Smtp-Source: AGHT+IE1POOYtayVg0hLxQZAwPPjl/iZ0mR2Js47/kG4Zg6q0i2sfNuEAAkUoAYR7U/CrkA5h0xssQ==
-X-Received: by 2002:a17:907:3d16:b0:ad8:9ff4:c047 with SMTP id a640c23a62f3a-adb3225d2f1mr72770366b.35.1748549690337;
-        Thu, 29 May 2025 13:14:50 -0700 (PDT)
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com. [209.85.208.47])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-adb2dbcd459sm81255466b.167.2025.05.29.13.14.48
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 May 2025 13:14:48 -0700 (PDT)
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-60497d07279so2562149a12.3
-        for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 13:14:48 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWFQ2TtWJe3bRdg1SugqO7cF/qDlWSqyslHA1lAkoHjYB1u79gpWntsRzSxZcc0gAprXCWRIhSkdZ1R@vger.kernel.org
-X-Received: by 2002:a05:6402:2346:b0:602:1d01:2883 with SMTP id
- 4fb4d7f45d1cf-6056db10b4emr581444a12.1.1748549687775; Thu, 29 May 2025
- 13:14:47 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1748551581; x=1749156381;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6TtaMd1HywfsuyRcNH/42AXM3iz/qus8mLnXbozVUkA=;
+        b=ZY9lBqURu8HNfnFfbB6We+KMGvnnfURRQKddvWLxUP8QNd94oF6FxsjsM1OH+C3KqP
+         XhCcfo1L/zcWjSmDh5VAWuWg3piBNFrrhNa2JxK4k+97hKcCaP3p9Keyyb+ZX1lftsD4
+         nXpkX2w29ifSjvq5bMFAN7gdOHMZzg9X8YU1mFb8OuX+J4yySSCeROZ6iJ//O6vjB7pi
+         0U6BoemX/M1QrIvyEfS9y+yU2AZulZr1FABoypdfXVECZpYI2MvvX7RjfIh7XUdYfKzF
+         ki5SeR906YdDtLaWTXMARQeIf3CmFaOK3ZJ2ML++guBdQwF/Nd7yCrXHxlMs4iEL+CIA
+         NjVw==
+X-Forwarded-Encrypted: i=1; AJvYcCUK8MN6Rl4E0pzBtLvXSx2dXVPqqUizRP0izvyd+p2Rc5SxypKSAX40XgMeMeCQ6RGkHwWdqqi9bJf2@vger.kernel.org
+X-Gm-Message-State: AOJu0YzzugKLfJFcd0/0eRfLV2edui0cllQAa6XsLHq9KqeNcIvoHvg0
+	wyZ2lWodNDpXMrKzNEoAUn7GSRDRmp8S6Exy5qTLFzqC17hZ8AnIuxZZAcrCQB45hPc=
+X-Gm-Gg: ASbGncuvPKpiLqEiAHiDhcztaxluuRymJpT2qMAQiPtG9ldfYVlz7Jy4aKjs7zKwBzw
+	DaDFQJM90OSE+h1pHvwUjLNKP72j3IrX1wS+sSknFrvMaQfyZw2xacosuLCfkD7hQcE5M/ozuNb
+	euUKB3GKatDXHO6r5rpkcDMEy6s++5+aiP6mSVqHQrDqy1X+RM4nSOPkDyxvI05Tj2mX+c0/wiX
+	7bm7eQtGF+gS02yBueKTuMxMP/vep6SiAJSqntkEGeKpCY8isb5de6R3YSlf/4yuukh8TzmhQLv
+	meX6I8ua28Ub8y8OGLEJ4/t/6J5VYgAOEgRo9A0xvNpi9Sd+7bxJgvmIFFzuylXu7f+2LA==
+X-Google-Smtp-Source: AGHT+IEO8HwssTrnrLL8DGNfi7UDT2JfkJIUURFRStahz0gCmflYidew8g3m8w3QvBPF+GZDsBP2sw==
+X-Received: by 2002:a17:90b:1d89:b0:311:f99e:7f51 with SMTP id 98e67ed59e1d1-312415329famr1432137a91.18.1748551581341;
+        Thu, 29 May 2025 13:46:21 -0700 (PDT)
+Received: from tjeznach.ba.rivosinc.com ([64.71.180.162])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-23506bd9486sm16245345ad.67.2025.05.29.13.46.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 May 2025 13:46:20 -0700 (PDT)
+Date: Thu, 29 May 2025 13:46:17 -0700
+From: Tomasz Jeznach <tjeznach@rivosinc.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>,
+	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+	Janne Grunau <j@jannau.net>,
+	Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Joerg Roedel <joro@8bytes.org>, Kevin Tian <kevin.tian@intel.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+	linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Rob Clark <robdclark@gmail.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Sven Peter <sven@svenpeter.dev>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Krishna Reddy <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
+	Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+	Yong Wu <yong.wu@mediatek.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>, patches@lists.linux.dev
+Subject: Re: [PATCH 3/7] iommu: Remove ops.pgsize_bitmap from drivers that
+ don't use it
+Message-ID: <aDjHmR7ZVTbsSITO@tjeznach.ba.rivosinc.com>
+References: <0-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
+ <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250428170040.423825-1-ebiggers@kernel.org> <20250428170040.423825-9-ebiggers@kernel.org>
- <20250529110526.6d2959a9.alex.williamson@redhat.com> <20250529173702.GA3840196@google.com>
-In-Reply-To: <20250529173702.GA3840196@google.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Thu, 29 May 2025 13:14:31 -0700
-X-Gmail-Original-Message-ID: <CAHk-=whCp-nMWyLxAot4e6yVMCGANTUCWErGfvmwqNkEfTQ=Sw@mail.gmail.com>
-X-Gm-Features: AX0GCFuiJcryO_X7sE1ePk8yCEY5HNa9j_jPT14Gm93VGY22kOHLk2kIn44ZkWY
-Message-ID: <CAHk-=whCp-nMWyLxAot4e6yVMCGANTUCWErGfvmwqNkEfTQ=Sw@mail.gmail.com>
-Subject: Re: [PATCH v4 08/13] crypto: s390/sha256 - implement library instead
- of shash
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>, linux-crypto@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	sparclinux@vger.kernel.org, linux-s390@vger.kernel.org, x86@kernel.org, 
-	Ard Biesheuvel <ardb@kernel.org>, "Jason A . Donenfeld" <Jason@zx2c4.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3-v1-7c5282b0c334+2db-iommu_rm_ops_pgsize_jgg@nvidia.com>
 
-On Thu, 29 May 2025 at 10:37, Eric Biggers <ebiggers@kernel.org> wrote:
->
-> Long-term, I'd like to find a clean way to consolidate the library code for each
-> algorithm into a single module.
+On Tue, Apr 29, 2025 at 11:34:13AM -0300, Jason Gunthorpe wrote:
+> These drivers all set the domain->pgsize_bitmap in their
+> domain_alloc_paging() functions, so the ops value is never used. Delete
+> it.
+> 
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/iommu/apple-dart.c       | 1 -
+>  drivers/iommu/intel/iommu.c      | 1 -
+>  drivers/iommu/iommufd/selftest.c | 1 -
+>  drivers/iommu/riscv/iommu.c      | 1 -
+>  drivers/iommu/virtio-iommu.c     | 6 ++----
+>  5 files changed, 2 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/iommu/riscv/iommu.c b/drivers/iommu/riscv/iommu.c
+> index bb57092ca90110..2d0d31ba28860a 100644
+> --- a/drivers/iommu/riscv/iommu.c
+> +++ b/drivers/iommu/riscv/iommu.c
+> @@ -1533,7 +1533,6 @@ static void riscv_iommu_release_device(struct device *dev)
+>  }
+>  
+>  static const struct iommu_ops riscv_iommu_ops = {
+> -	.pgsize_bitmap = SZ_4K,
+>  	.of_xlate = riscv_iommu_of_xlate,
+>  	.identity_domain = &riscv_iommu_identity_domain,
+>  	.blocked_domain = &riscv_iommu_blocking_domain,
 
-No, while I think the current situation isn't great, I think the "make
-it one single module" is even worse.
+Reviewed-by: Tomasz Jeznach <tjeznach@rivosinc.com> # for RISC-V
 
-For most architectures - including s390 - you end up being in the
-situation that these kinds of hw accelerated crypto things depend on
-some CPU capability, and aren't necessarily statically always
-available.
-
-So these things end up having stupid extra overhead due to having some
-conditional.
-
-That extra overhead is then in turn minimized with tricks like static
-branches, but that's all just just piling more ugly hacks on top
-because it picked a bad choice to begin with.
-
-So what's the *right* thing to do?
-
-The right thing to do is to just link the right routine in the first
-place, and *not* have static branch hackery at all. Because you didn't
-need it.
-
-And we already do runtime linking at module loading time. So if it's a
-module, if the hardware acceleration doesn't exist, the module load
-should just fail, and the loader should go on to load the next option.
-
-Not any silly "one module to rule them all" hackery that only results
-in worse code. Just a simple "if this module loads successfully,
-you'll link the optimal hw acceleration".
-
-Now, the problem with this all is the *non*modular case.
-
-For modules, we already have the optimal solution in the form of
-init-module error handling and runtime linking.
-
-So I think the module case is "solved" (except the solution is not
-what we actually do).
-
-For the non-module case, the problem is that "I linked this
-unconditionally, and now it turns out I run on hardware that doesn't
-have the capability to run this".
-
-And that's when you need to do things like static_call_update() to
-basically do runtime re-linking of a static decision.
-
-And currently we very much do this wrong. See how s390 and x86-64 (and
-presumably others) basically have the *exact* same problems, but they
-then mix static branches and static calls (in the case of x86-64) and
-just have non-optimal code in general.
-
-What I think the generic code should do (for the built-in case) is just have
-
-        DEFINE_STATIC_CALL(sha256_blocks_fn, sha256_blocks_generic);
-
-and do
-
-        static_call(sha256_blocks_fn)(args..);
-
-and then architecture code can do the static_call_update() to set
-their optimal version.
-
-And yeah, we'd presumably need multiple versions, since there's the
-whole "is simd usable" thing. Although maybe that's going away?
-
-                   Linus
+Sorry for the delayed response.
+- Tomasz
