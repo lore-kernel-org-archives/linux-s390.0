@@ -1,167 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 164C020C469;
-	Thu, 29 May 2025 21:16:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 248792192F4
+	for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 22:19:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748553418; cv=none; b=uVjK1ilo1hlViR3XEbg698u5MPs/s3MGXyQtSY05YPa58eqPBJk0r/esdZ5Uf4hSEGu+1N0YFN7V2w0qS4yyDQec0X4tdJl8A/5JTy9uTd+fEHDSAJ0IRnW4Bh4VDYL6n9tuiN44v9K15XQtEjLZd4QXeiK7QzNyvE7m1PuH16A=
+	t=1748557182; cv=none; b=lV9y6lZjTHOS6ToSDosjpR8me4hsCU6vXGP9fOqj9YIRD3bHRnXGv50AUAiau6lhkbDdwWBfLzjogvnKemWFEcebPMJVVO4wd+M+XwoAVBytDk0jt1DWbDc3L/EtdQ4WHHLIu7OykbIXgJN4c0YNREOYoe5xCckJVOkQPQDasZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748553418; c=relaxed/simple;
-	bh=XwSNpCLmOFYgZlT+vqB/zkYXZoNvF9LKBVo7R5SnQvU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BKzyoZxXP13Kv9lVMHX4rafLlUBf+c1feBxn0HrVF0Pr15kH/ZtPZCRhFQzIx3OqGwancjwnwqGg3KH1KBhWX0WUN89G5AePD8MmDqCrwKAfRWnhvQ3JqZpqF7JdZ2xs1rR5cFobK2Qip3UFqbJOx95gKBcgnP1xUIIZMS9LhxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QE8FafhO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1748557182; c=relaxed/simple;
+	bh=KbEcLrZyNHW1ZbQGmI3ZdoR7aGESto+rOYcZmQV/p0Y=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=V/OgvD/CtQ5C5pp1rjfhRpn7mKuZ8YqbTvJqflvcMFjw3gqbEnR14TEBxr4/e8MYYAEXaaggmyzhlX2fL+1jTyHdyqHSNmE4vyusMHkeBEax2U1BQSdO3aF1CTArPPdJGXmu85Ep8LWl6iKCwUqiimY0BpZG2lrbxWGUXrDDINg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cHf1GyFw; arc=none smtp.client-ip=209.85.214.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QE8FafhO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1369DC4CEE7;
-	Thu, 29 May 2025 21:16:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748553416;
-	bh=XwSNpCLmOFYgZlT+vqB/zkYXZoNvF9LKBVo7R5SnQvU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=QE8FafhOJkbO0j8ajuGRE3oOAuSmqOSe7+1Bbv1xaRWE+GEqFHoQqKjHSPvlNvh8X
-	 xaUXj42tdidF41Kr/O4VBBHdBcT46ME5JSAvysORACebdBaYt/za2ZLB9918zp+HG/
-	 MnTpyOhxty75uU+RXJ/hyhZ6ZnSbvFM0C/SEeS/SzucQNcldj5qInocL0jscgQrZRV
-	 HhOFx1gcMCLB7GCwEsyACsRzhuz4ZFAVektyXrTVvZu3lyC0ag9CwrjioZ4ERbFnpv
-	 2HihaHdw1NUs7EO0PJ+YiMAi46LzXEFvynTHxRPB6/YcS/xwivV8yxQqvqZb39Kokc
-	 VTl+yzDZkdWRA==
-Date: Thu, 29 May 2025 14:16:39 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>,
-	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org,
-	linux-s390@vger.kernel.org, x86@kernel.org,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH v4 08/13] crypto: s390/sha256 - implement library instead
- of shash
-Message-ID: <20250529211639.GD23614@sol>
-References: <20250428170040.423825-1-ebiggers@kernel.org>
- <20250428170040.423825-9-ebiggers@kernel.org>
- <20250529110526.6d2959a9.alex.williamson@redhat.com>
- <20250529173702.GA3840196@google.com>
- <CAHk-=whCp-nMWyLxAot4e6yVMCGANTUCWErGfvmwqNkEfTQ=Sw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cHf1GyFw"
+Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-23446aa30d1so15126765ad.3
+        for <linux-s390@vger.kernel.org>; Thu, 29 May 2025 15:19:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1748557180; x=1749161980; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2WiZvL65gJWBhQxETywMJkkZAmvBLGCJuVJmqPemzNU=;
+        b=cHf1GyFwbCd5C9NXoLSQgJ/4YjvMkijMTzk6+b4gDCRwaoNT8cb2P0LoMyILiyfpB/
+         DQxAUKVX6dubTGXlCu0o14T5X11EqbwPXxRSDiIK5AxOU/Y0cDB9qxZ08bXM/lR2r0dy
+         1qvxXe4+kUCI1RJ7EcwKRKTrv81NqGXnE1zHbZQUNVcIhk9UYgsWntcZC1UPk/13sxvb
+         GAArsjiGvqKMflFZDoQ5EV0FzdC7vckKYJykLZrarUWHR3eW6CLieP+/NCiqRiWRHyW2
+         m/6RIN4Gm9S7M/o156MhipBwyQuzxBKL8FI6rXQFKBs2Y6DdLjz1XjWlb/nC0PPq05Fr
+         VwGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748557180; x=1749161980;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2WiZvL65gJWBhQxETywMJkkZAmvBLGCJuVJmqPemzNU=;
+        b=HGrT/VI2MOjnA1/1//qDl8D5pfruCI12J5gXuVt0nPMFqouCer39d1YJ84G5k0DRhx
+         rzy4GzeItr3ao05eFqnmPgnbPs8CyWoTv395JciQfAxg7ToanbQTRla75CLT0YNcyrl2
+         124xg1suy7+jWX46nBjJLaMyr/u5e/+5Ik7HFP2hQzz02Ojy18dLBEnslK3zgwLOuAbw
+         mTCVOKu9/Xi3kcmIMOXaj+g8Ng5/FKolJ2w8nrlU7uIuwmzM5IIExb12rykdsafbA7q2
+         MRUHEA9lomOOcylBGDT5wccDkWJ46rv+qu4GDouxKV6hZEz+RLaEbbjgbK56XZEEf/0g
+         yrhA==
+X-Forwarded-Encrypted: i=1; AJvYcCWZi+uxo/M6MQOYAhziwOUphvCO2ephrgJX5FWSMLduTivHk1Cti3+kL+tyL0Is7MUZNGhgO6qJeVqT@vger.kernel.org
+X-Gm-Message-State: AOJu0YyuVPfvMBcZ6nLqLirgyYhxoxR8GvYYW3RxD/NYg2dfe8mlwML/
+	xmAy2IEqWRUCPG9Dzp7VtNhWBYi7/b1ZFTyNkub6TzWYEbZyVx+5hqATphHiOA7GmNUKjxMaCkA
+	QiJo1rQ==
+X-Google-Smtp-Source: AGHT+IE/KnIFPcTR33Ni+A0ag2QlB6J3OqTksKtrH9lZLuske3p06HrhdBLvdwE6B6sOh/7FJilM1pbp4Qk=
+X-Received: from plhc1.prod.google.com ([2002:a17:903:2341:b0:234:d7c5:a0e3])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:19cb:b0:234:f1ac:c036
+ with SMTP id d9443c01a7336-23529a1357amr17181895ad.50.1748557180372; Thu, 29
+ May 2025 15:19:40 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date: Thu, 29 May 2025 15:19:13 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=whCp-nMWyLxAot4e6yVMCGANTUCWErGfvmwqNkEfTQ=Sw@mail.gmail.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.49.0.1204.g71687c7c1d-goog
+Message-ID: <20250529221929.3807680-1-seanjc@google.com>
+Subject: [kvm-unit-tests PATCH 00/16] x86: Add CPUID properties, clean up
+ related code
+From: Sean Christopherson <seanjc@google.com>
+To: Andrew Jones <andrew.jones@linux.dev>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, "=?UTF-8?q?Nico=20B=C3=B6hr?=" <nrb@linux.ibm.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	kvm@vger.kernel.org, Sean Christopherson <seanjc@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, May 29, 2025 at 01:14:31PM -0700, Linus Torvalds wrote:
-> On Thu, 29 May 2025 at 10:37, Eric Biggers <ebiggers@kernel.org> wrote:
-> >
-> > Long-term, I'd like to find a clean way to consolidate the library code for each
-> > algorithm into a single module.
-> 
-> No, while I think the current situation isn't great, I think the "make
-> it one single module" is even worse.
-> 
-> For most architectures - including s390 - you end up being in the
-> situation that these kinds of hw accelerated crypto things depend on
-> some CPU capability, and aren't necessarily statically always
-> available.
-> 
-> So these things end up having stupid extra overhead due to having some
-> conditional.
-> 
-> That extra overhead is then in turn minimized with tricks like static
-> branches, but that's all just just piling more ugly hacks on top
-> because it picked a bad choice to begin with.
-> 
-> So what's the *right* thing to do?
-> 
-> The right thing to do is to just link the right routine in the first
-> place, and *not* have static branch hackery at all. Because you didn't
-> need it.
-> 
-> And we already do runtime linking at module loading time. So if it's a
-> module, if the hardware acceleration doesn't exist, the module load
-> should just fail, and the loader should go on to load the next option.
+Copy KVM selftests' X86_PROPERTY_* infrastructure (multi-bit CPUID
+fields), and use the properties to clean up various warts.  The SEV code
+is particular makes things much harder than they need to be (I went down
+this rabbit hole purely because the stupid MSR_SEV_STATUS definition was
+buried behind CONFIG_EFI=y, *sigh*).
 
-So using crc32c() + ext4 + x86 as an example (but SHA-256 would be very
-similar), the current behavior is that ext4.ko depends on the crc32c_arch()
-symbol.  That causes crc32-x86.ko to be loaded, which then depends on the
-crc32c_base() symbol as a fallback, which causes crc32.ko to be loaded too.  My
-idea is to consolidate the two crc32 modules into one (they always go together,
-after all), keeping the same symbols.  The main challenge is just the current
-directory structure.
+The first patch is a common change to add static_assert() as a wrapper
+to _Static_assert().  Forcing code to provide an error message just leads
+to useless error messages.
 
-Your suggestion sounds like: ext4.ko would depend on the crc32c() symbol, which
-would be defined in *both* crc32-x86.ko and crc32.ko.  The module loader would
-try to load crc32-x86.ko first.  If the CPU does not support any of the x86
-accelerated CRC32 code, then loading that module would fail.  The module loader
-would then load crc32.ko instead.
+Compile tested on arm64, riscv64, and s390x.
 
-Does any of the infrastructure to handle "this symbol is in multiple modules and
-they must be loaded in this particular order" actually exist, though?
+Sean Christopherson (16):
+  lib: Add and use static_assert() convenience wrappers
+  x86: Encode X86_FEATURE_* definitions using a structure
+  x86: Add X86_PROPERTY_* framework to retrieve CPUID values
+  x86: Use X86_PROPERTY_MAX_VIRT_ADDR in is_canonical()
+  x86: Implement get_supported_xcr0() using
+    X86_PROPERTY_SUPPORTED_XCR0_{LO,HI}
+  x86: Add and use X86_PROPERTY_INTEL_PT_NR_RANGES
+  x86/pmu: Rename pmu_gp_counter_is_available() to
+    pmu_arch_event_is_available()
+  x86/pmu: Rename gp_counter_mask_length to arch_event_mask_length
+  x86/pmu: Mark all arch events as available on AMD
+  x86/pmu: Use X86_PROPERTY_PMU_* macros to retrieve PMU information
+  x86/sev: Use VC_VECTOR from processor.h
+  x86/sev: Skip the AMD SEV test if SEV is unsupported/disabled
+  x86/sev: Define and use X86_FEATURE_* flags for CPUID 0x8000001F
+  x86/sev: Use X86_PROPERTY_SEV_C_BIT to get the AMD SEV C-bit location
+  x86/sev: Use amd_sev_es_enabled() to detect if SEV-ES is enabled
+  x86: Move SEV MSR definitions to msr.h
 
-And how do we avoid the issues the crypto API often has where the accelerated
-modules don't get loaded, causing slow generic code to unnecessarily be used?
+ lib/riscv/asm/isa.h      |   4 +-
+ lib/s390x/asm/arch_def.h |   6 +-
+ lib/s390x/fault.c        |   3 +-
+ lib/util.h               |   3 +
+ lib/x86/amd_sev.c        |  48 ++----
+ lib/x86/amd_sev.h        |  29 ----
+ lib/x86/msr.h            |   6 +
+ lib/x86/pmu.c            |  22 ++-
+ lib/x86/pmu.h            |   8 +-
+ lib/x86/processor.h      | 312 ++++++++++++++++++++++++++++-----------
+ x86/amd_sev.c            |  63 ++------
+ x86/la57.c               |   2 +-
+ x86/lam.c                |   4 +-
+ x86/pmu.c                |   8 +-
+ x86/xsave.c              |  11 +-
+ 15 files changed, 284 insertions(+), 245 deletions(-)
 
-IMO this sounds questionable compared to just using static keys and/or branches,
-which we'd need anyway to support the non-modular case.
 
-> Not any silly "one module to rule them all" hackery that only results
-> in worse code. Just a simple "if this module loads successfully,
-> you'll link the optimal hw acceleration".
-> 
-> Now, the problem with this all is the *non*modular case.
-> 
-> For modules, we already have the optimal solution in the form of
-> init-module error handling and runtime linking.
-> 
-> So I think the module case is "solved" (except the solution is not
-> what we actually do).
-> 
-> For the non-module case, the problem is that "I linked this
-> unconditionally, and now it turns out I run on hardware that doesn't
-> have the capability to run this".
-> 
-> And that's when you need to do things like static_call_update() to
-> basically do runtime re-linking of a static decision.
-> 
-> And currently we very much do this wrong. See how s390 and x86-64 (and
-> presumably others) basically have the *exact* same problems, but they
-> then mix static branches and static calls (in the case of x86-64) and
-> just have non-optimal code in general.
-> 
-> What I think the generic code should do (for the built-in case) is just have
-> 
->         DEFINE_STATIC_CALL(sha256_blocks_fn, sha256_blocks_generic);
-> 
-> and do
-> 
->         static_call(sha256_blocks_fn)(args..);
-> 
-> and then architecture code can do the static_call_update() to set
-> their optimal version.
-> 
-> And yeah, we'd presumably need multiple versions, since there's the
-> whole "is simd usable" thing. Although maybe that's going away?
+base-commit: 72d110d8286baf1b355301cc8c8bdb42be2663fb
+-- 
+2.49.0.1204.g71687c7c1d-goog
 
-Moving the static_call into the generic code might make sense.  I don't think
-it's a win in all cases currently, though.  Only x86 and PPC32 actually have a
-real static_call implementation; everywhere else it's an indirect call which is
-slower than a static branch.  Also, some arch code is just usable
-unconditionally without any CPU feature check, e.g. the MIPS ChaCha code.  That
-doesn't use (or need to use) a static call or branch at all.
-
-Also, while the centralized static_call would *allow* for the generic code to be
-loaded while the arch code is not, in the vast majority of cases that would be a
-bug, not a feature.  The generic crypto infrastructure has that bug, and this
-has caused a huge amount of pain over the years.  People have to go out of the
-way to ensure that the arch-optimized crypto code gets loaded.  And they often
-forget, resulting in the slow generic code being used unnecessarily...
-
-Making the arch-optimized code be loaded through a direct symbol dependency
-solves that problem.
-
-- Eric
