@@ -1,52 +1,43 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-181.mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C888E632;
-	Fri, 30 May 2025 00:19:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CD4E155C87
+	for <linux-s390@vger.kernel.org>; Fri, 30 May 2025 06:04:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748564340; cv=none; b=M3n9WKcZM/jouy45uvOUx1o1IuD9GsNBUicwPvdHtsR3ErEAe85ffJRPviqWfNL1fnw4KEJ7d1Plper7QJ456WmPYMLZ3vj1l/gJP/NNeut0f1vtRsy5II5YHbo1l8MLEJdFtlBkhULjVFK+dOHDZR6HRtsCeumBFByLhHN5XOY=
+	t=1748585053; cv=none; b=DiiT1mLge6ijwLQiVcvWldEQxAacI+qiIrJGs7j3b+wiZulI0iIThjx2cx78fE5/Hk8i989Hlp6SVVlo9WUJZOsgTinol6TFebY4fBSnvI7bWaZdb1MxC+J42m1UbfyxG0PNyv1lxtnm1RrVKKu3gGJLV4ajkXo+xiCPPe46JJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748564340; c=relaxed/simple;
-	bh=fzOvslZ2yd+4RFEep1dbc5ORhnJiU65cwMbwzfxOuJk=;
+	s=arc-20240116; t=1748585053; c=relaxed/simple;
+	bh=Mr5ab+RNAEooPaLWh/kq0l7aF/f2frfB3WGbkt1h4xs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FQxp6A9RY1nrq88AxmE7wiBVZX7blhSHevBzx+sojjrN0DUiFH5kI1VIOO147QRejlMXG46zd6yytpkout9LQjxGe1k0NSssh4/eqdEE84uyNF6oiE4BbTSwvBiVAYMKKQTSg9MgQEfhE1FNKvKZvQm6V6R/GLVDLuJY53UPxOs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=orABEw9G; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=lvHxgNf7wzNN8FiXWfDLuUioefhJut5IbEyRH+lz+aJviqOEipqoz6ME71CWRP4vHK8ws1qaNTBcECHRtF78nx9NfRjFH8bKzd+GoXyOHoINjI2cY1szmT/lPDEBhe/ZVIXoR0nkgUo//IrMQSKA/c2CyRGyQ0SXaUEF6MGsDG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=KwCSC3mc; arc=none smtp.client-ip=95.215.58.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="orABEw9G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1318DC4CEE7;
-	Fri, 30 May 2025 00:19:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748564340;
-	bh=fzOvslZ2yd+4RFEep1dbc5ORhnJiU65cwMbwzfxOuJk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=orABEw9GW8hha5WEfX4nOeo6UClo8SCkt06HiIxuvuXY7GIfYcPzgNE32XTnhzdfX
-	 kKMuYGPwMqs+WLu0Qj8v4D5q6qNBKBDogc8zbaCiVXEQrnWp9+f4G6a49QkyH5AQMF
-	 dDx8VrJ3wVC7iECbcZX0SpWm8aiThHGfvOpkVjVWpDL+74WBH03Q2Ykt1cb+GFASa2
-	 NU60WR7MaU4No+If0hsqwvEwuY0P3bfo2S5jzwxo83RXY/5/tgfmwQm04dF8NWmBDR
-	 v1DbNr/Hjp64FvFbXKbCNsalVpnA3MSbZXY5ojWWQl9zts6A8OtUTG4mPMeo4MMzkm
-	 Ln6fC4JypHUAQ==
-Date: Fri, 30 May 2025 00:18:58 +0000
-From: Eric Biggers <ebiggers@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Alex Williamson <alex.williamson@redhat.com>,
-	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, sparclinux@vger.kernel.org,
-	linux-s390@vger.kernel.org, x86@kernel.org,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH v4 08/13] crypto: s390/sha256 - implement library instead
- of shash
-Message-ID: <20250530001858.GD3840196@google.com>
-References: <20250428170040.423825-1-ebiggers@kernel.org>
- <20250428170040.423825-9-ebiggers@kernel.org>
- <20250529110526.6d2959a9.alex.williamson@redhat.com>
- <20250529173702.GA3840196@google.com>
- <CAHk-=whCp-nMWyLxAot4e6yVMCGANTUCWErGfvmwqNkEfTQ=Sw@mail.gmail.com>
- <20250529211639.GD23614@sol>
- <CAHk-=wh+H-9649NHK5cayNKn0pmReH41rvG6hWee+oposb3EUg@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="KwCSC3mc"
+Date: Fri, 30 May 2025 08:03:55 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1748585039;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Kt+Vc3qTvvhvRuKl8DLuOB5hRxkIZdLx7zBcCNyOWIg=;
+	b=KwCSC3mc9hChL91h8ijG31sFo6JZLkOHVU3kPqunRa9nvZkRj9H/0XekGqrcYFI8mMTOXx
+	74DS+TacKbnBgQ57OMcvSQ3yCBOT18ruxjWgXZ40tWNPnWyApnUZEyw3Xde839qzuQPDpx
+	/dKeHpvhzaPHRVmJGD1AfWNgR1Pj3zQ=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Andrew Jones <andrew.jones@linux.dev>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Nico =?utf-8?B?QsO2aHI=?= <nrb@linux.ibm.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	kvm@vger.kernel.org
+Subject: Re: [kvm-unit-tests PATCH 01/16] lib: Add and use static_assert()
+ convenience wrappers
+Message-ID: <20250530-02c84c0db9cd2199b2cf6d28@orel>
+References: <20250529221929.3807680-1-seanjc@google.com>
+ <20250529221929.3807680-2-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,31 +46,26 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wh+H-9649NHK5cayNKn0pmReH41rvG6hWee+oposb3EUg@mail.gmail.com>
+In-Reply-To: <20250529221929.3807680-2-seanjc@google.com>
+X-Migadu-Flow: FLOW_OUT
 
-On Thu, May 29, 2025 at 04:54:34PM -0700, Linus Torvalds wrote:
-> On Thu, 29 May 2025 at 14:16, Eric Biggers <ebiggers@kernel.org> wrote:
-> >
-> > So using crc32c() + ext4 + x86 as an example (but SHA-256 would be very
-> > similar), the current behavior is that ext4.ko depends on the crc32c_arch()
-> > symbol.
+On Thu, May 29, 2025 at 03:19:14PM -0700, Sean Christopherson wrote:
+> Add static_assert() to wrap _Static_assert() with stringification of the
+> tested expression as the assert message.  In most cases, the failed
+> expression is far more helpful than a human-generated message (usually
+> because the developer is forced to add _something_ for the message).
 > 
-> Yes, I think that's a good example.
+> For API consistency, provide a double-underscore variant for specifying a
+> custom message.
 > 
-> I think it's an example of something that "works", but it certainly is
-> a bit hacky.
-> 
-> Wouldn't it be nicer if just plain "crc32c()" did the right thing,
-> instead of users having to do strange hacks just to get the optimized
-> version that they are looking for?
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> ---
+>  lib/riscv/asm/isa.h      | 4 +++-
+>  lib/s390x/asm/arch_def.h | 6 ++++--
+>  lib/s390x/fault.c        | 3 ++-
+>  lib/util.h               | 3 +++
+>  x86/lam.c                | 4 ++--
+>  5 files changed, 14 insertions(+), 6 deletions(-)
+>
 
-For crc32c() that's exactly how it works (since v6.14, when I implemented it).
-The users call crc32c() which is an inline function, which then calls
-crc32c_arch() or crc32c_base() depending on the kconfig.  So that's why I said
-the symbol dependency is currently on crc32c_arch.  Sorry if I wasn't clear.
-The SHA-256, ChaCha, and Poly1305 library code now has a similar design too.
-
-If we merged the arch and generic modules together, then the symbol would become
-crc32c.  But in either case crc32c() is the API that all the users call.
-
-- Eric
+Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
