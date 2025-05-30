@@ -1,60 +1,67 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A650B1A0728;
-	Fri, 30 May 2025 07:39:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF1E21859A;
+	Fri, 30 May 2025 09:01:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748590786; cv=none; b=TetqeMW4fvSF7KCx+z+zp/WI+Cb/POvqNFfWSBkgnVBGf714MkU8CGu0fqbxg1GnCDR4NRhIOZCpmen3u0Ue1lYQggYunQ/86BUMD4n1Dih9Dltpyu4eSkVm/MJPEjp+eEcOdIF1Fz3o02dlerC1wafcvuPUW4jE/dc6QBYenNA=
+	t=1748595710; cv=none; b=PUaz8eImIyk2xnyY9X/+XHQnskOZuIXL+4DWFWYcH+a0JxCcD5mMWV+MObxy0cOLCYG6k1DJrLXURvJ9knhPQcJhX8NEE1V8A+plS8Q5DUqqfUGcuqOC9Y8iJnIcBn8JUrytx/t36W/tYWR3mEt+VPE+J1mNUQYdADoyXBm9ZrM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748590786; c=relaxed/simple;
-	bh=wB1SE95KN7NJHuM8MAkkQhq66vP7wmN6W0MbPCDarbU=;
+	s=arc-20240116; t=1748595710; c=relaxed/simple;
+	bh=mYjt1FxT16mfBu/utcwC46bkDJswYi+Y0SotcOIHF4g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=o1VFfAnaDb7q3oUgWsRaHxs5UrUXrmBlZuWypMWDYe61QSM4jS1ywDOQIzJ7wucWGARB1napNWN2kjR8geXV3Yj2pKpuovZil7Cgpk0gJQeUuVEDxWKM7NZ7tWqosXbsqbNzDheoOB/K3AAXFtjcfgy5OT9d3S9U0eCd9sKZfgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AWBnHOO8; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=is3UEfNcsiPHuu8/NH/3MrFXD8OFKLeotUUyPi/KOrU8mrBuQ+YyOF9mlysKXrZv2dcfDEy2HcCdxl10aVUcsZtju5ycSJE79+d8phn3UK15mvTtzr6/yVwYksgIe9342fu3Bu5INl3R4aA2lfGCMvE+TB79yeK4F/TZQ+jCN68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r15qq0Iz; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AWBnHOO8"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54U3moaa025476;
-	Fri, 30 May 2025 07:39:41 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r15qq0Iz"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 54U3mYmm013493;
+	Fri, 30 May 2025 09:01:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=BqFfgN
-	VCREIIj9Mnd2DOPwtUGsL8Sf0vQL1t8Nt/4cg=; b=AWBnHOO8moonQCMhZo2Dgz
-	A+ho15PnbvtE4f1PfcfmHZQb3MocCwM+3lBPgTy/XXskJBvwTB9eWyygA2l17M4b
-	uK3Lr9SvpxF5j8/RFcIY+EQjZWa8r/ml0VAOAferELC2tEnUFVtD4gYNGnVeTAji
-	gxH9xNQZ8v3xY90jQeTySfQXedHmHYYjIow9zTR0ao9xwJ9RUAwzSr2xG4HmJlyf
-	ZLlWdToXlUHp1H/h9QL2wb0tIPyb/8yL0bHYaFEhzV/lPxbctg+01190qvVNEYhG
-	Xs2GFj+gEUBOb0X7dXjpmCBUoBMKso+HRYACOlewzQdARfNdFeFLLiVK5MNy1PmQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=cvKmnh
+	bvQugOgJmwHlqzzGiYtpVlCxG3UmaLP47V/7g=; b=r15qq0IzX+jbw1eNNDI7+z
+	63CU+JgBrGDACYDIEcYTEdAOdusfTzuTJivmH4lE6jrAZfxsOnBDrCjQC3OCy2J1
+	XRaVAFSH8rc9dGJXK2H2XSCEQOdjD3O3MUxiCx/H2LHOdzYRbf9YevTOMqFsPz4L
+	fbaym82Jbc7g4GaRDltXFhm670XuCaBnsYBpvnDO6tqfNFY2Z652q3oMwHyhsOCB
+	ScEdVWoiF06SIeKqeUUcCzFqpWjq7iR3vmZpN4c173w6WsjaREsLhMaHw2U5/nsD
+	6hDbDLszcPEVRaTTNXjJhvcXwFVwH+qh4OWTnD1OeimIbxUQ/IFdcMkTaZXiGn8g
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40k25xu-1
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40kjgu7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 30 May 2025 07:39:40 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54U6meBe030849;
-	Fri, 30 May 2025 07:39:39 GMT
+	Fri, 30 May 2025 09:01:34 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 54U8wdWf010112;
+	Fri, 30 May 2025 09:01:33 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46x40kjgu2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 30 May 2025 09:01:33 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 54U6k3S7001577;
+	Fri, 30 May 2025 09:01:32 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 46uru10eqg-1
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 46utnn0dnx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 30 May 2025 07:39:39 +0000
+	Fri, 30 May 2025 09:01:32 +0000
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54U7dZ6t26935870
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 54U91Tmd34275926
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 30 May 2025 07:39:35 GMT
+	Fri, 30 May 2025 09:01:29 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 64EF02004B;
-	Fri, 30 May 2025 07:39:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6344E20040;
+	Fri, 30 May 2025 09:01:29 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C487E20043;
-	Fri, 30 May 2025 07:39:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E3B6A2004E;
+	Fri, 30 May 2025 09:01:28 +0000 (GMT)
 Received: from [9.111.57.132] (unknown [9.111.57.132])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 30 May 2025 07:39:34 +0000 (GMT)
-Message-ID: <2b9f0a39-2a97-45ab-a59e-bba0e1e3b2f0@linux.ibm.com>
-Date: Fri, 30 May 2025 09:39:34 +0200
+	Fri, 30 May 2025 09:01:28 +0000 (GMT)
+Message-ID: <99fedb03-fcf5-4bf9-80fb-ca2ddd192d4d@linux.ibm.com>
+Date: Fri, 30 May 2025 11:01:28 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,18 +69,18 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/3] KVM: s390: Set KVM_MAX_VCPUS to 256
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
+Subject: Re: [kvm-unit-tests PATCH 01/16] lib: Add and use static_assert()
+ convenience wrappers
+To: Sean Christopherson <seanjc@google.com>,
+        Andrew Jones <andrew.jones@linux.dev>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
-References: <20250522-rm-bsca-v3-0-51d169738fcf@linux.ibm.com>
- <20250522-rm-bsca-v3-1-51d169738fcf@linux.ibm.com>
+        =?UTF-8?Q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+References: <20250529221929.3807680-1-seanjc@google.com>
+ <20250529221929.3807680-2-seanjc@google.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -118,65 +125,37 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20250522-rm-bsca-v3-1-51d169738fcf@linux.ibm.com>
+In-Reply-To: <20250529221929.3807680-2-seanjc@google.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=SdL3duRu c=1 sm=1 tr=0 ts=683960bc cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8 a=t99LfBpkyTFO0i67b_EA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: Gxc3jkhqxxu33ty6JLajp9yWTIVLYHNs
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTMwMDA2MiBTYWx0ZWRfX7lTbV55hRShX OtwnQTG4dapiDAQItYPMBXFEjmilQPk6H61kYNp3AjwCU3tzKaab4jl8b5DgEsRfWNlqVkpFTPI LUotv1XPZAx9M59OUgnHprBYaCvFVjecD/t5/v+8QMkkBHu3dEOnYl2g7oy38QAX4wInJ40iycG
- W4vckehjVsZ7b+YgqX8N6P7MN7BUpUsbAspZtMKpjMgQ6I/V2IIiIY35MbxcUJdu5AOMLzmN23f KpmpFELP5oBzpIabhpGww4y/gowukHgHM84VxenvhjL+YlyfY83QR5jODaeKp2CemoTc4HItIoK aOYwl1tQdlNo3GNAPPzEdSJXdds1zwAOhYD5n5cKXyh8ULnvgKRGUViJVuR2aTa4LBMCAaYJg2C
- yB7atsGivd3fGMjum4fimfsGSTvyjH9QfzY4YuOkW5rybOyAi6G0b6n0WPHrzbFiXqiO34pn
-X-Proofpoint-ORIG-GUID: Gxc3jkhqxxu33ty6JLajp9yWTIVLYHNs
+X-Proofpoint-ORIG-GUID: EqBGWOFJXgaoO3Ow94Nr8ddaXYhNtNXD
+X-Authority-Analysis: v=2.4 cv=fuPcZE4f c=1 sm=1 tr=0 ts=683973ee cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=IkcTkHD0fZMA:10 a=dt9VzEwgFbYA:10 a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8 a=MIZ-Z9qH2iArDYU4K_cA:9
+ a=NqO74GWdXPXpGKcKHaDJD/ajO6k=:19 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 4LWOXh_1k8eAqK_Pv6X25Z7NSK3Q7Cl-
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNTMwMDA3MSBTYWx0ZWRfXxdeNyF540oIZ qklE/6L4nZddP2n+iCvjCwBQ8HwUtuB1Xg8107QoNuiNT3wVHbJbj0ha2yqOGCYoLvc2fi9+dgA wY7wNohzY1R2A2lGn0ZCye8WifIkEFYO/LaqWjlv2SEu5C9DWowPIHrZS+jl0dmBdrwVwAbLggK
+ MLtOuOelpKuSJxS3RdZ3j3CID8N3SUG+QomTtIXqo74GDbMvb517IiohDJ2nOljJ4S5DaApC+Ex mc+a7uKQk//Kd8mQqA8LhyrHs5xWzNSfq/1ZNANuGvkipJmMEs+5BVEKU50XOxdVT171GjIS1TB jLZIy6/gxBNW92Ti/xodZVBqYUE0qvo+Jrj2im4O1YIVrT71JoR5HBTgM6YSHHx6zJ7CRjnxCMe
+ 4+sXKbnwdvL7x6Rf0R8Jb//5YmabQRgemkqZH66TzIGQqdT2A7lXM+8VueqmqUaK4wh8nDdP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-05-30_03,2025-05-29_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 mlxscore=0 adultscore=0 priorityscore=1501
- impostorscore=0 malwarescore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
- spamscore=0 clxscore=1015 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
- definitions=main-2505300062
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 suspectscore=0
+ mlxlogscore=955 priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
+ classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2505300071
 
-On 5/22/25 11:31 AM, Christoph Schlameuss wrote:
-> The s390x architecture allows for 256 vCPUs with a max CPUID of 255.
-> The current KVM implementation limits this to 248 when using the
-> extended system control area (ESCA). So this correction should not cause
-> any real world problems but actually correct the values returned by the
-> ioctls:
+On 5/30/25 12:19 AM, Sean Christopherson wrote:
+> Add static_assert() to wrap _Static_assert() with stringification of the
+> tested expression as the assert message.  In most cases, the failed
+> expression is far more helpful than a human-generated message (usually
+> because the developer is forced to add _something_ for the message).
 > 
-> * KVM_CAP_NR_VCPUS
-> * KVM_CAP_MAX_VCPUS
-> * KVM_CAP_MAX_VCPU_ID
+> For API consistency, provide a double-underscore variant for specifying a
+> custom message.
 > 
-> KVM_MAX_VCPUS is also moved to kvm_host_types to allow using this in
-> future type definitions.
-> 
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> ---
->   arch/s390/include/asm/kvm_host.h       | 2 --
->   arch/s390/include/asm/kvm_host_types.h | 2 ++
->   arch/s390/kvm/kvm-s390.c               | 2 ++
->   3 files changed, 4 insertions(+), 2 deletions(-)
-
-[...]
-
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index 3f3175193fd7a7a26658eb2e2533d8037447a0b4..b65e4cbe67cf70a7d614607ebdd679060e7d31f4 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -638,6 +638,8 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
->   			r = KVM_S390_ESCA_CPU_SLOTS;
->   		if (ext == KVM_CAP_NR_VCPUS)
->   			r = min_t(unsigned int, num_online_cpus(), r);
-> +		else if (ext == KVM_CAP_MAX_VCPU_ID)
-> +			r -= 1;
-
-I went on a wild goose chase since this change broke the max vcpu 
-selftest. Turns out that KVM_CAP_MAX_VCPU_ID is actually 
-KVM_CAP_MAX_VCPU_ID_S_ but we can't rename it since it's part of the API 
-(sigh). Have a look at the KVM changes and it will make a bit more sense.
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 
 
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
