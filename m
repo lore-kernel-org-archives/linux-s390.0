@@ -1,122 +1,234 @@
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [62.89.141.173])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99ABA182B7;
-	Mon,  2 Jun 2025 04:11:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.89.141.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09FC91D516F;
+	Mon,  2 Jun 2025 09:24:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748837490; cv=none; b=L37878dKjSGJWh6H7C3iiwwRaTn7cNAskkzzx0xVd5wP9g7N1gdxGryTUhSeC/VmEjqvS8Z7Jg47T8k9NMQrDArdt28wRSDapEJsr/MVSgXdsxL97gxjuja1UmieWoLtQSw4D8KXi6hR2h4MmBlCzPTYVABM4OaPlFlbQGD5RQ4=
+	t=1748856289; cv=none; b=BEXK7S/1JnIf4bxVIJ7wVwBcGm2IhvO5nYfxpm8f5NwyR/LjZ+hXOgLU8bzm/HDfgApwgHVlmy8xdOSk2SWiVVgBlSrli5NVwWk0HoqZd5FC2Fn3eaQ3KQpipyFfjxmziUh6ax24OjzaJEcuXXnqJ/TIVRF1HozXJrl+SMhi5+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748837490; c=relaxed/simple;
-	bh=VNUqtAL1SHKb0pozQoeZywC6qZxi9oGNe5rRKbOsy4Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=biseBkn2Y23CItRRBVvCR4j8+4WkWsZP3wcAcZ9CKxU1Jm0DyzouZiMdZoEb1AEwAOybmqXY4GdbCBndC9f2dDedKD1tuNYeQpfbSaUxfgnhHHqtyrjHUuA9trfjY0Pwa6BD4jC6CZr4AJHmY2XDsriuUY2PzQ8aG5jYMHkp9H8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk; spf=none smtp.mailfrom=ftp.linux.org.uk; dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b=cDLc7AG1; arc=none smtp.client-ip=62.89.141.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zeniv.linux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ftp.linux.org.uk
+	s=arc-20240116; t=1748856289; c=relaxed/simple;
+	bh=0MJrTG0AIvkwugChi+McuCSaHdDoHbP30WWs0aFxFck=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=HUzl0oLICCW65WNWokWkQ8Gymz3SJCuF0N7lhE09VP/wYyNpxMyq9dMwcN7917Zn+6sykEcQeslgiyMwKJOCnMdRbwonPN2J0/FFzoWsnd//8RZ1XWGChCMe/4feqha/084u04RHsxnu46cAG/x0qPXJ2zRLVdz2l5mRWiVu4LI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UHLppZaa; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="cDLc7AG1"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=iuH08HhCzFKCMOC8/O0swKDH+rpWOadfk7Rm4fI946Q=; b=cDLc7AG1xVeGrDIh1peeN0IWEk
-	zSPl9poJhEGT0YoB/3XnvH6rSM6bY3xjL0IUqjUntiObN7RMhtlCPHuD3A62GgdK0UEACC5R8vd1k
-	nGJkZRQS6J7IpGD5Cac8ckt2eGuQw0ldn0T1SIMMph5HBpFztRTyZBhVmy8+xkbQoA7OwVtDKj3OZ
-	76BRcTLzVJZLqbCzOHiBTXoFLI5gsn+T2zZ4MU1RCovTNxA1K7wQ4w3A4hqY1qW3qspeqQLRXJ12A
-	qO/+nks1w4qOwDF7mdiodEdOvdFTMW5W0MgrK6eRVtCQ084Z11K100prR+Fy/v0Uyq+f2T84t8Tki
-	2y66Yf/A==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uLwW6-0000000BUl8-1UDJ;
-	Mon, 02 Jun 2025 04:11:18 +0000
-Date: Mon, 2 Jun 2025 05:11:18 +0100
-From: Al Viro <viro@zeniv.linux.org.uk>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linmag7@gmail.com, Al Viro <viro@ftp.linux.org.uk>, arnd@arndb.de,
-	chris@zankel.net, dinguyen@kernel.org, glaubitz@physik.fu-berlin.de,
-	ink@unseen.parts, jcmvbkbc@gmail.com, kees@kernel.org,
-	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	mattst88@gmail.com, monstr@monstr.eu, richard.henderson@linaro.org,
-	sparclinux@vger.kernel.org, x86@kernel.org,
-	Sam James <sam@gentoo.org>
-Subject: Re: [PATCH v2 1/1] mm: pgtable: fix pte_swp_exclusive
-Message-ID: <20250602041118.GA2675383@ZenIV>
-References: <87cyfejafj.fsf@gentoo.org>
- <87v7rik020.fsf@gentoo.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UHLppZaa"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5523jb7X026824;
+	Mon, 2 Jun 2025 09:24:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=McNrdU
+	DjPTSMsOb7FRfFlWB3rFg2R0cVQwd1Ssz9TKw=; b=UHLppZaaG7CVEE/kubluV+
+	atLt0BgX4OEDRa7c0aH9F8qjxF4jGIUsqgG6qE9o4I6fhR1RybJUi6HhE7Rr9vGv
+	cCmbzfdlubhydPnOR5qKyWIBG0usIxhowS0wUfBWlCyOdrxNaSQ+nCYnmF8+ike4
+	H1jx/l/AATD3WNTpx/UxEaZ/QkzWmhZeHhfKFIYtrFaVG/5YAUjmu8rYIdo/v6i6
+	pjUHAEVxHTSAoi5tBh2H85NIHMKz0fja52Mhz+ZeXpxpMZvcYt9rQp+KYIPPIXD2
+	zIRuD4FGfaQwTQaz9z8IUWzGgkTJjnoUZgYLM+cTYyLfkm1UyPtVPHPvy6GOQGTg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46yr6p8ca4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Jun 2025 09:24:45 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5528UfTs014640;
+	Mon, 2 Jun 2025 09:24:44 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 470dkm5exf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Jun 2025 09:24:44 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5529Oegg52167052
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Jun 2025 09:24:40 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 69C0A20043;
+	Mon,  2 Jun 2025 09:24:40 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B2FD20040;
+	Mon,  2 Jun 2025 09:24:40 +0000 (GMT)
+Received: from darkmoore (unknown [9.111.39.121])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Jun 2025 09:24:40 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87v7rik020.fsf@gentoo.org>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 02 Jun 2025 11:24:34 +0200
+Message-Id: <DABXT5G4XDH2.36Y0Z944ORJCQ@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>,
+        "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>,
+        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        "David Hildenbrand" <david@redhat.com>,
+        "Heiko Carstens"
+ <hca@linux.ibm.com>,
+        "Vasily Gorbik" <gor@linux.ibm.com>,
+        "Alexander
+ Gordeev" <agordeev@linux.ibm.com>,
+        "Sven Schnelle" <svens@linux.ibm.com>,
+        "Thomas Huth" <thuth@redhat.com>
+To: "Janosch Frank" <frankja@linux.ibm.com>, <kvm@vger.kernel.org>
+Subject: Re: [PATCH v3 2/3] KVM: s390: Always allocate esca_block
+X-Mailer: aerc 0.20.1
+References: <20250522-rm-bsca-v3-0-51d169738fcf@linux.ibm.com>
+ <20250522-rm-bsca-v3-2-51d169738fcf@linux.ibm.com>
+ <609a3511-4dae-47b8-a6a6-45b8f3b989a8@linux.ibm.com>
+In-Reply-To: <609a3511-4dae-47b8-a6a6-45b8f3b989a8@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjAyMDA3NyBTYWx0ZWRfX5ia+JkJgjIL7 8hj6MaeBIWa3vrj12eMjyhkmyUBK6RyUoDQJEMW0NGnu85VADAEsNSL4bNTCkdzZrEKNM8fg7n3 KjDqOq2M+PFqcf4ZjQZbNrU+QOGYINj+VRtpTovWYxnZ+X2UlzyX0FTuJMVxXz0wbqW9/2+dAoS
+ n3ohxcVJ7RzYGx6cQ56gAdEr/YezP5gJArBX7cz1ARhcxl9n73qQBlE2E7BFJiuAQfyRzAKu9zH U30okLMrPJC5Vdk9oochLTdYTR+uVOulCJ80o2oBwNAGGCIvULiiP+LbnvAPKtRTAtGOyZhiwMw lwfteG/PH+XIBSlCtgOSaHfCcaRcZguOoSwMhp+2okBp5jvWHdNSHnSy6GX9X/2M8vKG/vHSpyk
+ pxYcN8qMzwYUYg4Jq1PoY7XgEzGAu8JZSUYUaaWt7HVGJS78FmWUc4V5mkZzwJs9R/gybKY0
+X-Proofpoint-ORIG-GUID: c9Uit-S1SVv8_MvAw67rZ3O8-MUKgkH4
+X-Proofpoint-GUID: c9Uit-S1SVv8_MvAw67rZ3O8-MUKgkH4
+X-Authority-Analysis: v=2.4 cv=V4l90fni c=1 sm=1 tr=0 ts=683d6ddd cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=L1-7jygj_eJouCaRcvEA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-06-02_03,2025-05-30_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 mlxscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 malwarescore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
+ definitions=main-2506020077
 
-On Sat, Apr 05, 2025 at 06:09:11PM +0100, Sam James wrote:
-> Sam James <sam@gentoo.org> writes:
-> 
-> > Lovely cleanup and a great suggestion from Al.
-> >
-> > Reviewed-by: Sam James <sam@gentoo.org>
-> >
-> > I'd suggest adding a:
-> > Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-> 
-> Al, were you planning on taking this through your tree?
+On Mon May 26, 2025 at 12:36 PM CEST, Janosch Frank wrote:
+> On 5/22/25 11:31 AM, Christoph Schlameuss wrote:
+>> Instead of allocating a BSCA and upgrading it for PV or when adding the
+>> 65th cpu we can always use the ESCA.
+>>=20
+>> The only downside of the change is that we will always allocate 4 pages
+>> for a 248 cpu ESCA instead of a single page for the BSCA per VM.
+>> In return we can delete a bunch of checks and special handling depending
+>> on the SCA type as well as the whole BSCA to ESCA conversion.
+>>=20
+>> As a fallback we can still run without SCA entries when the SIGP
+>> interpretation facility or ESCA are not available.
+>>=20
+>> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/kvm_host.h |   1 -
+>>   arch/s390/kvm/interrupt.c        |  71 +++++------------
+>>   arch/s390/kvm/kvm-s390.c         | 161 ++++++-------------------------=
+--------
+>>   arch/s390/kvm/kvm-s390.h         |   4 +-
+>>   4 files changed, 45 insertions(+), 192 deletions(-)
+>>=20
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kv=
+m_host.h
+>> index f51bac835260f562eaf4bbfd373a24bfdbc43834..d03e354a63d9c931522c1a16=
+07eba8685c24527f 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -631,7 +631,6 @@ struct kvm_s390_pv {
+>>  =20
+>
+> [...]
+>
+>>   int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>   {
+>> -	gfp_t alloc_flags =3D GFP_KERNEL_ACCOUNT;
+>> -	int i, rc;
+>> +	gfp_t alloc_flags =3D GFP_KERNEL_ACCOUNT | __GFP_ZERO;
+>>   	char debug_name[16];
+>> -	static unsigned long sca_offset;
+>> +	int i, rc;
+>>  =20
+>>   	rc =3D -EINVAL;
+>>   #ifdef CONFIG_KVM_S390_UCONTROL
+>> @@ -3358,17 +3341,12 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned l=
+ong type)
+>>   	if (!sclp.has_64bscao)
+>>   		alloc_flags |=3D GFP_DMA;
+>>   	rwlock_init(&kvm->arch.sca_lock);
+>> -	/* start with basic SCA */
+>> -	kvm->arch.sca =3D (struct bsca_block *) get_zeroed_page(alloc_flags);
+>> -	if (!kvm->arch.sca)
+>> -		goto out_err;
+>>   	mutex_lock(&kvm_lock);
+>> -	sca_offset +=3D 16;
+>> -	if (sca_offset + sizeof(struct bsca_block) > PAGE_SIZE)
+>> -		sca_offset =3D 0;
+>> -	kvm->arch.sca =3D (struct bsca_block *)
+>> -			((char *) kvm->arch.sca + sca_offset);
+>> +
+>> +	kvm->arch.sca =3D alloc_pages_exact(sizeof(*kvm->arch.sca), alloc_flag=
+s);
+>
+> kvm->arch.sca is (void *) at the point of this patch, which makes this a=
+=20
+> very bad idea. Granted, you fix that up in the next patch but this is=20
+> still wrong.
+>
+> Any reason why you have patch #3 at all?
+> We could just squash it and avoid this problem?
+>
 
-FWIW, I expected it to get sent to Linus as "please, run this
-sed script before -rc1" kind of thing, script being something
-like
+Yes, I can just roll that up into a single patch. Just thought it would be =
+a bit
+easier to review this way.
 
-sed -i -e 's/int pte_swp_exclusive/bool pte_swp_exclusive/' \
-	`git grep -l 'int pte_swp_exclusive'`
+>>   	mutex_unlock(&kvm_lock);
+>> +	if (!kvm->arch.sca)
+>> +		goto out_err;
+>>  =20
+>>   	sprintf(debug_name, "kvm-%u", current->pid);
+>>  =20
+>
+> [...]
+>
+>>   /* needs disabled preemption to protect from TOD sync and vcpu_load/pu=
+t */
+>> @@ -3919,7 +3808,7 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vc=
+pu)
+>>   		vcpu->arch.sie_block->eca |=3D ECA_IB;
+>>   	if (sclp.has_siif)
+>>   		vcpu->arch.sie_block->eca |=3D ECA_SII;
+>> -	if (sclp.has_sigpif)
+>> +	if (kvm_s390_use_sca_entries())
+>>   		vcpu->arch.sie_block->eca |=3D ECA_SIGPI;
+>>   	if (test_kvm_facility(vcpu->kvm, 129)) {
+>>   		vcpu->arch.sie_block->eca |=3D ECA_VX;
+>> diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
+>> index 8d3bbb2dd8d27802bbde2a7bd1378033ad614b8e..2c8e177e4af8f2dab07fd42a=
+904cefdea80f6855 100644
+>> --- a/arch/s390/kvm/kvm-s390.h
+>> +++ b/arch/s390/kvm/kvm-s390.h
+>> @@ -531,7 +531,7 @@ int kvm_s390_handle_per_event(struct kvm_vcpu *vcpu)=
+;
+>>   /* support for Basic/Extended SCA handling */
+>>   static inline union ipte_control *kvm_s390_get_ipte_control(struct kvm=
+ *kvm)
+>>   {
+>> -	struct bsca_block *sca =3D kvm->arch.sca; /* SCA version doesn't matte=
+r */
+>> +	struct esca_block *sca =3D kvm->arch.sca; /* SCA version doesn't matte=
+r */
+>
+> Remove the comment as well please
+>
 
-with suggested commit message...  It's absolutely regular and
-that kind of tree-wide change is easier handled that way.
+That's also fully removed in patch 3 along with he whole method.
 
-	Oh, well...  To restore the context: Magnus had spotted a fun
-bug on Alpha back in February - pte_swp_exclusive() there returned
-pte_val(pte) & _PAGE_SWP_EXCLUSIVE as int.  The problem is that
-_PAGE_SWP_EXCLUSIVE is 1UL<<39 there, with obvious results...
-
-	I looked at the originally posted patch and suggested to
-make pte_swp_exclusive() return bool instead of int.  All users
-are in explicitly boolean contexts:
-
-include/linux/swapops.h:        if (pte_swp_exclusive(pte))
-mm/debug_vm_pgtable.c:  WARN_ON(pte_swp_exclusive(pte));
-mm/debug_vm_pgtable.c:  WARN_ON(!pte_swp_exclusive(pte));
-mm/debug_vm_pgtable.c:  WARN_ON(pte_swp_exclusive(pte));
-mm/internal.h:  if (pte_swp_exclusive(pte))
-mm/memory.c:            if (pte_swp_exclusive(orig_pte)) {
-mm/memory.c:            exclusive = pte_swp_exclusive(vmf->orig_pte);
-mm/swapfile.c:          if (pte_swp_exclusive(old_pte))
-mm/userfaultfd.c:               if (!pte_swp_exclusive(orig_src_pte)) {
-
-	Magnus posted patch of that form (see
-https://lore.kernel.org/all/20250218175735.19882-2-linmag7@gmail.com/),
-got no serious objections and then it went nowhere.
-
-	Bug is real and fairly obvious, fix is entirely mechanical and
-affects one line in each asm/pgtable.h out there.  Linus, could you
-run that sed script just before -rc1?  Commit message from the patch refered
-above looks sane:
-
-mm: pgtable: fix pte_swp_exclusive
-
-Make pte_swp_exclusive return bool instead of int. This will better reflect
-how pte_swp_exclusive is actually used in the code. This fixes swap/swapoff
-problems on Alpha due pte_swp_exclusive not returning correct values when
-_PAGE_SWP_EXCLUSIVE bit resides in upper 32-bits of PTE (like on alpha).
-
-Signed-off-by: Magnus Lindholm <linmag7@gmail.com>
+>>  =20
+>>   	return &sca->ipte_control;
+>>   }
+>> @@ -542,7 +542,7 @@ static inline int kvm_s390_use_sca_entries(void)
+>>   	 * might use the entries. By not setting the entries and keeping them
+>>   	 * invalid, hardware will not access them but intercept.
+>>   	 */
+>> -	return sclp.has_sigpif;
+>> +	return sclp.has_sigpif && sclp.has_esca;
+>>   }
+>>   void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
+>>   				     struct mcck_volatile_info *mcck_info);
+>>=20
 
