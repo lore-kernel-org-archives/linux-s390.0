@@ -1,666 +1,406 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36DF82236E8;
-	Mon,  2 Jun 2025 16:38:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACD84221DB3;
+	Mon,  2 Jun 2025 18:13:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748882294; cv=none; b=S9t9JOR/4pmarPje+iAcn2pPJFOO8ZRCfZejcL/DiA0EhY7a8rU+RULPyx/roICdQwGoqUvl5fxxnVwLi3RJMr5YMFc0zIfOO0j0p1vWJwmxAXPGKy4EbDk5HEu2WCus80fB1BLc2BIqFeo9tebJQyiighHOH0buDqVofvgZUAM=
+	t=1748887997; cv=none; b=L2724L2mWk2vjpTloicoiGrzAjsi3DC6QTaCvPhjTFOYBToAQO2htUxTJMeE1BRiNKHipPRRg5ofCwkYcslbAi7k0CPYUC/MXDhM/UtBGDxWWoS1bptYLg2vLT1fZGldyk8x5N6cH2qlrM9CKGm43JLYcRTXCR4rDFksV+/L718=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748882294; c=relaxed/simple;
-	bh=rXsvwSThKZhRhy1BQSlE64rTZLu9+hAdC/WMzpdLB4M=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=e/2WYebyAZl/Sk6iEeZwcER0cxd4PGrQmWrFMyUhmNTImo5PetTuMUDGYYXVP+nZskRKxkeqvuD0aNuVoMDJhy98Wg2E9jUVAuOaC2lp3J7EEZNgJxD8ft9+CcVSZljOEsF+jO2BiXq6fNTh4Wuamuf03D1ClCML2gdWP/EcIsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MylGOMap; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1748887997; c=relaxed/simple;
+	bh=qa8AH5yyfN8ivCtH6KKbi6UjJPoeSHgACfvx6p82UVQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rMqgaIqfAkCAFG8WVKddTiyg8O2mqwweSaC07+H9EbFRAGBwYcfuf/qKEOs3BSfEdF+kix3vEK5pfO6lD9CcDmkLMo///nwgiolFNuAzxbdDBzsC0CrGJHf2apnN5u9sn40IH9Vg3l5dbe6nrZygGsYLZPPsthX3R9rkPOEtrK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZO0XGW5l; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MylGOMap"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5529lJFG021647;
-	Mon, 2 Jun 2025 16:38:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=UVMbLdalhBrs2lfslv+nFyhI/Vv4
-	BOC+hjpLba8cnrI=; b=MylGOMapxhLcxMK3aW2pX6XU5OspvLXyrCBJd2XKm3p5
-	Z9Ohpke05kHjLbMh+x+gjAjeXO3TlEP761NmW1OQyA7w+CGJ8C3A+ecCJHnekzH0
-	Q2PZXoaxgYKQtQolp4DemXshlBVWoJrdKZKVTTM28Ep73sc3x84h62xTtPEs4BFZ
-	raLty6N1fkKcBQcXZQtk4M33zFgr07cWPR+KXJfwLuckGnCHfCA+JWX7UhmTesXi
-	elyW1Lqbr+KVFUzTJmG55C6N2afVsvqh1ewip+Ia7EuuHkcqPoG6tSsw56GLT+dP
-	lElkdE2HODqn9BKSh713V3OMaqChkxKFtW+FoO2iZw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 46ysgd2byc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Jun 2025 16:38:06 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 552F1iOM022530;
-	Mon, 2 Jun 2025 16:38:05 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 470c3t779f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Jun 2025 16:38:05 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 552Gc2A356689064
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Jun 2025 16:38:02 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 054BF20043;
-	Mon,  2 Jun 2025 16:38:02 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4445320040;
-	Mon,  2 Jun 2025 16:38:01 +0000 (GMT)
-Received: from [192.168.88.251] (unknown [9.87.151.85])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Jun 2025 16:38:01 +0000 (GMT)
-From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Mon, 02 Jun 2025 18:34:44 +0200
-Subject: [PATCH v4] KVM: s390: Use ESCA instead of BSCA at VM init
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZO0XGW5l"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE857C4AF09;
+	Mon,  2 Jun 2025 18:13:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1748887995;
+	bh=qa8AH5yyfN8ivCtH6KKbi6UjJPoeSHgACfvx6p82UVQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=ZO0XGW5lLK29yuyQZLKbuTypO2yfiYLAXvTsMKfnOxyqa4WDKkEHhfMJJ32sfLEos
+	 DOeLzEnkkke0Wq5C4YoX2/jZu6moJANqPLz69FVX7r3tAHs00Oav+icyQFKU4yz31A
+	 hsNWbFIPLueyYmwueGhnoBxCd++gZFKL53bgn5p8xjCcS5AUwfR7UnE8rJFcBTU6Fn
+	 F05mRWCFBYs9CRS71Q2IcDcIk5NLmyVNTQmkQrxDw0g2evWhhIMvRlhrES6h2bnCOz
+	 o1yoxPs0siFs4nmCCsV63K5LBV8qAHR8pX6ddAclgCQbjlF2Rm1QE69mW2bzvdvNbp
+	 a3xbz3896LL1g==
+From: Masahiro Yamada <masahiroy@kernel.org>
+To: linux-kbuild@vger.kernel.org
+Cc: Masahiro Yamada <masahiroy@kernel.org>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Chris Zankel <chris@zankel.net>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonas Bonn <jonas@southpole.se>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Matt Turner <mattst88@gmail.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Michal Simek <monstr@monstr.eu>,
+	Naveen N Rao <naveen@kernel.org>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Rich Felker <dalias@libc.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Richard Weinberger <richard@nod.at>,
+	Russell King <linux@armlinux.org.uk>,
+	Stafford Horne <shorne@gmail.com>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Vineet Gupta <vgupta@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Will Deacon <will@kernel.org>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-um@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org,
+	loongarch@lists.linux.dev,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH 2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
+Date: Tue,  3 Jun 2025 03:12:54 +0900
+Message-ID: <20250602181256.529033-2-masahiroy@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250602181256.529033-1-masahiroy@kernel.org>
+References: <20250602181256.529033-1-masahiroy@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250602-rm-bsca-v4-1-67c09d1ee835@linux.ibm.com>
-X-B4-Tracking: v=1; b=H4sIAKPSPWgC/23MSw6CMBSF4a2Qji3pm+LIfRgHfSFNBEyrDYawd
- wuJQozDc3O/fwLRBe8iOBYTCC756Ic+D3YogGlVf3XQ27wBQYQjjikMHdTRKKg0dlKwWhlVgfx
- 9D67x41o6X/JufXwM4bWGE16unwb7NhKGCApDNBJcSSHR6eb751h63ZVm6MDSSWRv682SbB11i
- lNrEa3ZP0t3lpDN0mw5tljUFZWNaX7tPM9vivJ62RoBAAA=
-X-Change-ID: 20250513-rm-bsca-ab1e8649aca7
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>,
-        Christoph Schlameuss <schlameuss@linux.ibm.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=19383;
- i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=rXsvwSThKZhRhy1BQSlE64rTZLu9+hAdC/WMzpdLB4M=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDBm2lzN/qd0MaLnu5vztXMZ8q8Y3RxIFD6lMv52nnhRfe
- G6PQIB4RykLgxgXg6yYIku1uHVeVV/r0jkHLa/BzGFlAhnCwMUpABM5cJ7hv6v1lOCcaTKTNyxW
- 2pTXI7jZetU91Tu6uozVgrn5Ei1t+xkZXi5scnddsa43cGfNi+f7+U49VDG+vJ356tT7Ewzi/Ni
- r+AA=
-X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
- fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=GdwXnRXL c=1 sm=1 tr=0 ts=683dd36e cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=de-QwB0P1ltAAbzrJ-MA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: GMBjYl8sLnv8CwtDLzWIK4kkQhJraZB4
-X-Proofpoint-ORIG-GUID: GMBjYl8sLnv8CwtDLzWIK4kkQhJraZB4
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjAyMDEzNSBTYWx0ZWRfX8EM5HKwkUX1/ jG+d/s5rdBZY3h7Yo/I+dJbhmb+Ea6U4h6r+CBxD0jV1FQWQGiD9aroeOMOz+zRNXaISCwA9mg2 RbALaKkT6vThu1NHoOAPAXTjzbjJcMuJksKXfmLTjMRa/jUvl80qpVeoT5wF7QGtB1JiXmB7vmJ
- Sb7ix6hqAntk/9iB1Ta6ynJpkEGwLCf1TK24UBwF1YMV3eH+dQhaYdJVy8YV33+OqSMdGeSXcuW LqLNmPpg0fyTavccBEWynrUmlnsNwi5+mphibal0awpH1kQ6Ci1zHtSfc/bAwuqxcm9IOXBxKda o74mXeUr0ZezWcNT+Dtk61f32Bx1lOPj5WcqSQcLdJ0A/pgMkDq/4K0FM4YwlGz99pvVoFYj2Kb
- GSjboHAWl4uvHCvU3BE/DWpem34Uomd6tKkV8IQcAUsXjSmk/SYF/39SNKaQwuEt+ZGHKBau
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-02_07,2025-06-02_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- lowpriorityscore=0 suspectscore=0 spamscore=0 malwarescore=0 clxscore=1015
- mlxscore=0 impostorscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- phishscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505160000
- definitions=main-2506020135
+Content-Transfer-Encoding: 8bit
 
-All modern IBM Z and Linux One machines do offer support for the
-Extended System Control Area (ESCA). The ESCA is available since the
-z114/z196 released in 2010.
-KVM needs to allocate and manage the SCA for guest VMs. Prior to this
-change the SCA was setup as Basic SCA only supporting a maximum of 64
-vCPUs when initializing the VM. With addition of the 65th vCPU the SCA
-was needed to be converted to a ESCA.
+The extra-y syntax is deprecated. Instead, use always-$(KBUILD_BUILTIN),
+which behaves equivalently.
 
-Instead of allocating a BSCA and upgrading it for PV or when adding the
-65th cpu we can always allocate the ESCA directly upon VM creation
-simplifying the code in multiple places as well as completely removing
-the need to convert an existing SCA.
-
-In cases where the ESCA is not supported (z10 and earlier) the use of
-the SCA entries and with that SIGP interpretation are disabled for VMs.
-This increases the number of exits from the VM in multiprocessor
-scenarios and thus decreases performance.
-The same is true for VSIE where SIGP is currently disabled and thus no
-SCA entries are used.
-
-The only downside of the change is that we will always allocate 4 pages
-for a 248 cpu ESCA instead of a single page for the BSCA per VM.
-In return we can delete a bunch of checks and special handling depending
-on the SCA type as well as the whole BSCA to ESCA conversion.
-
-With that behavior change we are no longer referencing a bsca_block in
-kvm->arch.sca. This will always be esca_block instead.
-By specifying the type of the sca as esca_block we can simplify access
-to the sca and get rid of some helpers while making the code clearer.
-
-KVM_MAX_VCPUS is also moved to kvm_host_types to allow using this in
-future type definitions.
-
-Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 ---
-Changes in v4:
-- Squash patches into single patch
-- Revert KVM_CAP_MAX_VCPUS to return KVM_CAP_MAX_VCPU_ID (255) again
-- Link to v3: https://lore.kernel.org/r/20250522-rm-bsca-v3-0-51d169738fcf@linux.ibm.com
 
-Changes in v3:
-- do not enable sigp for guests when kvm_s390_use_sca_entries() is false
-  - consistently use kvm_s390_use_sca_entries() instead of sclp.has_sigpif
-- Link to v2: https://lore.kernel.org/r/20250519-rm-bsca-v2-0-e3ea53dd0394@linux.ibm.com
+ arch/alpha/kernel/Makefile      | 2 +-
+ arch/arc/kernel/Makefile        | 2 +-
+ arch/arm/kernel/Makefile        | 2 +-
+ arch/arm64/kernel/Makefile      | 2 +-
+ arch/csky/kernel/Makefile       | 2 +-
+ arch/hexagon/kernel/Makefile    | 2 +-
+ arch/loongarch/kernel/Makefile  | 2 +-
+ arch/m68k/kernel/Makefile       | 2 +-
+ arch/microblaze/kernel/Makefile | 2 +-
+ arch/mips/kernel/Makefile       | 2 +-
+ arch/nios2/kernel/Makefile      | 2 +-
+ arch/openrisc/kernel/Makefile   | 2 +-
+ arch/parisc/kernel/Makefile     | 2 +-
+ arch/powerpc/kernel/Makefile    | 2 +-
+ arch/riscv/kernel/Makefile      | 2 +-
+ arch/s390/kernel/Makefile       | 2 +-
+ arch/sh/kernel/Makefile         | 2 +-
+ arch/sparc/kernel/Makefile      | 2 +-
+ arch/um/kernel/Makefile         | 2 +-
+ arch/x86/kernel/Makefile        | 2 +-
+ arch/xtensa/kernel/Makefile     | 2 +-
+ 21 files changed, 21 insertions(+), 21 deletions(-)
 
-Changes in v2:
-- properly apply checkpatch --strict (Thanks Claudio)
-- some small comment wording changes
-- rebased
-- Link to v1: https://lore.kernel.org/r/20250514-rm-bsca-v1-0-6c2b065a8680@linux.ibm.com
----
- arch/s390/include/asm/kvm_host.h       |   7 +-
- arch/s390/include/asm/kvm_host_types.h |   2 +
- arch/s390/kvm/gaccess.c                |  10 +-
- arch/s390/kvm/interrupt.c              |  71 ++++----------
- arch/s390/kvm/kvm-s390.c               | 167 ++++++---------------------------
- arch/s390/kvm/kvm-s390.h               |   9 +-
- 6 files changed, 58 insertions(+), 208 deletions(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index cb89e54ada257eb4fdfe840ff37b2ea639c2d1cb..2a2b557357c8e40c82022eb338c3e98aa8f03a2b 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -27,8 +27,6 @@
- #include <asm/isc.h>
- #include <asm/guarded_storage.h>
+diff --git a/arch/alpha/kernel/Makefile b/arch/alpha/kernel/Makefile
+index b6c862dff1f6..187cd8df2faf 100644
+--- a/arch/alpha/kernel/Makefile
++++ b/arch/alpha/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the linux kernel.
+ #
  
--#define KVM_MAX_VCPUS 255
--
- #define KVM_INTERNAL_MEM_SLOTS 1
+-extra-y		:= vmlinux.lds
++always-$(KBUILD_BUILTIN)	:= vmlinux.lds
+ asflags-y	:= $(KBUILD_CFLAGS)
+ ccflags-y	:= -Wno-sign-compare
  
- /*
-@@ -631,9 +629,8 @@ struct kvm_s390_pv {
- 	struct mmu_notifier mmu_notifier;
- };
+diff --git a/arch/arc/kernel/Makefile b/arch/arc/kernel/Makefile
+index 95fbf9364c67..fa94fff02419 100644
+--- a/arch/arc/kernel/Makefile
++++ b/arch/arc/kernel/Makefile
+@@ -26,4 +26,4 @@ ifdef CONFIG_ISA_ARCOMPACT
+ CFLAGS_fpu.o   += -mdpfp
+ endif
  
--struct kvm_arch{
--	void *sca;
--	int use_esca;
-+struct kvm_arch {
-+	struct esca_block *sca;
- 	rwlock_t sca_lock;
- 	debug_info_t *dbf;
- 	struct kvm_s390_float_interrupt float_int;
-diff --git a/arch/s390/include/asm/kvm_host_types.h b/arch/s390/include/asm/kvm_host_types.h
-index 1394d3fb648f1e46dba2c513ed26e5dfd275fad4..9697db9576f6c39a6689251f85b4b974c344769a 100644
---- a/arch/s390/include/asm/kvm_host_types.h
-+++ b/arch/s390/include/asm/kvm_host_types.h
-@@ -6,6 +6,8 @@
- #include <linux/atomic.h>
- #include <linux/types.h>
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
+diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
+index b3333d070390..afc9de7ef9a1 100644
+--- a/arch/arm/kernel/Makefile
++++ b/arch/arm/kernel/Makefile
+@@ -104,4 +104,4 @@ obj-$(CONFIG_HAVE_ARM_SMCCC)	+= smccc-call.o
  
-+#define KVM_MAX_VCPUS 256
-+
- #define KVM_S390_BSCA_CPU_SLOTS 64
- #define KVM_S390_ESCA_CPU_SLOTS 248
+ obj-$(CONFIG_GENERIC_CPU_VULNERABILITIES) += spectre.o
  
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index f6fded15633ad87f6b02c2c42aea35a3c9164253..ee37d397d9218a4d33c7a33bd877d0b974ca9003 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -112,7 +112,7 @@ int ipte_lock_held(struct kvm *kvm)
- 		int rc;
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
+diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
+index 71c29a2a2f19..2920b0a51403 100644
+--- a/arch/arm64/kernel/Makefile
++++ b/arch/arm64/kernel/Makefile
+@@ -78,7 +78,7 @@ $(obj)/vdso32-wrap.o: $(obj)/vdso32/vdso.so
  
- 		read_lock(&kvm->arch.sca_lock);
--		rc = kvm_s390_get_ipte_control(kvm)->kh != 0;
-+		rc = kvm->arch.sca->ipte_control.kh != 0;
- 		read_unlock(&kvm->arch.sca_lock);
- 		return rc;
- 	}
-@@ -129,7 +129,7 @@ static void ipte_lock_simple(struct kvm *kvm)
- 		goto out;
- retry:
- 	read_lock(&kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(kvm);
-+	ic = &kvm->arch.sca->ipte_control;
- 	old = READ_ONCE(*ic);
- 	do {
- 		if (old.k) {
-@@ -154,7 +154,7 @@ static void ipte_unlock_simple(struct kvm *kvm)
- 	if (kvm->arch.ipte_lock_count)
- 		goto out;
- 	read_lock(&kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(kvm);
-+	ic = &kvm->arch.sca->ipte_control;
- 	old = READ_ONCE(*ic);
- 	do {
- 		new = old;
-@@ -172,7 +172,7 @@ static void ipte_lock_siif(struct kvm *kvm)
+ obj-y					+= probes/
+ obj-y					+= head.o
+-extra-y					+= vmlinux.lds
++always-$(KBUILD_BUILTIN)		+= vmlinux.lds
  
- retry:
- 	read_lock(&kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(kvm);
-+	ic = &kvm->arch.sca->ipte_control;
- 	old = READ_ONCE(*ic);
- 	do {
- 		if (old.kg) {
-@@ -192,7 +192,7 @@ static void ipte_unlock_siif(struct kvm *kvm)
- 	union ipte_control old, new, *ic;
+ ifeq ($(CONFIG_DEBUG_EFI),y)
+ AFLAGS_head.o += -DVMLINUX_PATH="\"$(realpath $(objtree)/vmlinux)\""
+diff --git a/arch/csky/kernel/Makefile b/arch/csky/kernel/Makefile
+index de1c3472e8f0..a406a4ac2378 100644
+--- a/arch/csky/kernel/Makefile
++++ b/arch/csky/kernel/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
  
- 	read_lock(&kvm->arch.sca_lock);
--	ic = kvm_s390_get_ipte_control(kvm);
-+	ic = &kvm->arch.sca->ipte_control;
- 	old = READ_ONCE(*ic);
- 	do {
- 		new = old;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 60c360c18690f6b94e8483dab2c25f016451204b..95a876ff7aca9c632c3e361275da6781ec070c07 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -51,21 +51,11 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
+ obj-y += head.o entry.o atomic.o signal.o traps.o irq.o time.o vdso.o vdso/
+ obj-y += power.o syscall.o syscall_table.o setup.o
+diff --git a/arch/hexagon/kernel/Makefile b/arch/hexagon/kernel/Makefile
+index 3fdf937eb572..8e0fb4a62315 100644
+--- a/arch/hexagon/kernel/Makefile
++++ b/arch/hexagon/kernel/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
  
- 	BUG_ON(!kvm_s390_use_sca_entries());
- 	read_lock(&vcpu->kvm->arch.sca_lock);
--	if (vcpu->kvm->arch.use_esca) {
--		struct esca_block *sca = vcpu->kvm->arch.sca;
--		union esca_sigp_ctrl sigp_ctrl =
--			sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-+	struct esca_block *sca = vcpu->kvm->arch.sca;
-+	union esca_sigp_ctrl sigp_ctrl = sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+ obj-y += head.o
+ obj-$(CONFIG_SMP) += smp.o
+diff --git a/arch/loongarch/kernel/Makefile b/arch/loongarch/kernel/Makefile
+index f9dcaa60033d..6f5a4574a911 100644
+--- a/arch/loongarch/kernel/Makefile
++++ b/arch/loongarch/kernel/Makefile
+@@ -5,7 +5,7 @@
  
--		c = sigp_ctrl.c;
--		scn = sigp_ctrl.scn;
--	} else {
--		struct bsca_block *sca = vcpu->kvm->arch.sca;
--		union bsca_sigp_ctrl sigp_ctrl =
--			sca->cpu[vcpu->vcpu_id].sigp_ctrl;
--
--		c = sigp_ctrl.c;
--		scn = sigp_ctrl.scn;
--	}
-+	c = sigp_ctrl.c;
-+	scn = sigp_ctrl.scn;
- 	read_unlock(&vcpu->kvm->arch.sca_lock);
+ OBJECT_FILES_NON_STANDARD_head.o := y
  
- 	if (src_id)
-@@ -80,33 +70,17 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+-extra-y		:= vmlinux.lds
++always-$(KBUILD_BUILTIN)	:= vmlinux.lds
  
- 	BUG_ON(!kvm_s390_use_sca_entries());
- 	read_lock(&vcpu->kvm->arch.sca_lock);
--	if (vcpu->kvm->arch.use_esca) {
--		struct esca_block *sca = vcpu->kvm->arch.sca;
--		union esca_sigp_ctrl *sigp_ctrl =
--			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl new_val = {0}, old_val;
--
--		old_val = READ_ONCE(*sigp_ctrl);
--		new_val.scn = src_id;
--		new_val.c = 1;
--		old_val.c = 0;
--
--		expect = old_val.value;
--		rc = cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
--	} else {
--		struct bsca_block *sca = vcpu->kvm->arch.sca;
--		union bsca_sigp_ctrl *sigp_ctrl =
--			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl new_val = {0}, old_val;
-+	struct esca_block *sca = vcpu->kvm->arch.sca;
-+	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
-+	union esca_sigp_ctrl new_val = {0}, old_val;
+ obj-y		+= head.o cpu-probe.o cacheinfo.o env.o setup.o entry.o genex.o \
+ 		   traps.o irq.o idle.o process.o dma.o mem.o reset.o switch.o \
+diff --git a/arch/m68k/kernel/Makefile b/arch/m68k/kernel/Makefile
+index 6c732ed3998b..57c1b3e8d60e 100644
+--- a/arch/m68k/kernel/Makefile
++++ b/arch/m68k/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the linux kernel.
+ #
  
--		old_val = READ_ONCE(*sigp_ctrl);
--		new_val.scn = src_id;
--		new_val.c = 1;
--		old_val.c = 0;
-+	old_val = READ_ONCE(*sigp_ctrl);
-+	new_val.scn = src_id;
-+	new_val.c = 1;
-+	old_val.c = 0;
+-extra-y			+= vmlinux.lds
++always-$(KBUILD_BUILTIN)	+= vmlinux.lds
  
--		expect = old_val.value;
--		rc = cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
--	}
-+	expect = old_val.value;
-+	rc = cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
- 	read_unlock(&vcpu->kvm->arch.sca_lock);
+ obj-$(CONFIG_MMU_MOTOROLA)	:= head.o
+ obj-$(CONFIG_SUN3)		:= sun3-head.o
+diff --git a/arch/microblaze/kernel/Makefile b/arch/microblaze/kernel/Makefile
+index 85c4d29ef43e..241e466e7333 100644
+--- a/arch/microblaze/kernel/Makefile
++++ b/arch/microblaze/kernel/Makefile
+@@ -11,7 +11,7 @@ CFLAGS_REMOVE_ftrace.o = -pg
+ CFLAGS_REMOVE_process.o = -pg
+ endif
  
- 	if (rc != expect) {
-@@ -123,19 +97,10 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 		return;
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
- 	read_lock(&vcpu->kvm->arch.sca_lock);
--	if (vcpu->kvm->arch.use_esca) {
--		struct esca_block *sca = vcpu->kvm->arch.sca;
--		union esca_sigp_ctrl *sigp_ctrl =
--			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
-+	struct esca_block *sca = vcpu->kvm->arch.sca;
-+	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
  
--		WRITE_ONCE(sigp_ctrl->value, 0);
--	} else {
--		struct bsca_block *sca = vcpu->kvm->arch.sca;
--		union bsca_sigp_ctrl *sigp_ctrl =
--			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--
--		WRITE_ONCE(sigp_ctrl->value, 0);
--	}
-+	WRITE_ONCE(sigp_ctrl->value, 0);
- 	read_unlock(&vcpu->kvm->arch.sca_lock);
- }
+ obj-y += head.o dma.o exceptions.o \
+ 	hw_exception_handler.o irq.o \
+diff --git a/arch/mips/kernel/Makefile b/arch/mips/kernel/Makefile
+index ecf3278a32f7..95a1e674fd67 100644
+--- a/arch/mips/kernel/Makefile
++++ b/arch/mips/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the Linux/MIPS kernel.
+ #
  
-@@ -1223,7 +1188,7 @@ int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+-extra-y		:= vmlinux.lds
++always-$(KBUILD_BUILTIN)	:= vmlinux.lds
  
--	if (!sclp.has_sigpif)
-+	if (!kvm_s390_use_sca_entries())
- 		return test_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs);
+ obj-y		+= head.o branch.o cmpxchg.o elf.o entry.o genex.o idle.o irq.o \
+ 		   process.o prom.o ptrace.o reset.o setup.o signal.o \
+diff --git a/arch/nios2/kernel/Makefile b/arch/nios2/kernel/Makefile
+index 78a913181fa1..4dce965a7b73 100644
+--- a/arch/nios2/kernel/Makefile
++++ b/arch/nios2/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the nios2 linux kernel.
+ #
  
- 	return sca_ext_call_pending(vcpu, NULL);
-@@ -1547,7 +1512,7 @@ static int __inject_extcall(struct kvm_vcpu *vcpu, struct kvm_s390_irq *irq)
- 	if (kvm_get_vcpu_by_id(vcpu->kvm, src_id) == NULL)
- 		return -EINVAL;
+-extra-y	+= vmlinux.lds
++always-$(KBUILD_BUILTIN)	+= vmlinux.lds
  
--	if (sclp.has_sigpif && !kvm_s390_pv_cpu_get_handle(vcpu))
-+	if (kvm_s390_use_sca_entries() && !kvm_s390_pv_cpu_get_handle(vcpu))
- 		return sca_inject_ext_call(vcpu, src_id);
+ obj-y	+= head.o
+ obj-y	+= cpuinfo.o
+diff --git a/arch/openrisc/kernel/Makefile b/arch/openrisc/kernel/Makefile
+index e4c7d9bdd598..58e6a1b525b7 100644
+--- a/arch/openrisc/kernel/Makefile
++++ b/arch/openrisc/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the linux kernel.
+ #
  
- 	if (test_and_set_bit(IRQ_PEND_EXT_EXTERNAL, &li->pending_irqs))
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3f3175193fd7a7a26658eb2e2533d8037447a0b4..4f6c31b452be49d7dd731a4b953c676bf48ee6cb 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -271,7 +271,6 @@ debug_info_t *kvm_s390_dbf_uv;
- /* forward declarations */
- static void kvm_gmap_notifier(struct gmap *gmap, unsigned long start,
- 			      unsigned long end);
--static int sca_switch_to_extended(struct kvm *kvm);
+-extra-y	:= vmlinux.lds
++always-$(KBUILD_BUILTIN)	:= vmlinux.lds
  
- static void kvm_clock_sync_scb(struct kvm_s390_sie_block *scb, u64 delta)
- {
-@@ -631,11 +630,13 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_NR_VCPUS:
- 	case KVM_CAP_MAX_VCPUS:
- 	case KVM_CAP_MAX_VCPU_ID:
--		r = KVM_S390_BSCA_CPU_SLOTS;
-+		/*
-+		 * Return the same value for KVM_CAP_MAX_VCPUS and
-+		 * KVM_CAP_MAX_VCPU_ID to pass the kvm_create_max_vcpus selftest.
-+		 */
-+		r = KVM_S390_ESCA_CPU_SLOTS;
- 		if (!kvm_s390_use_sca_entries())
--			r = KVM_MAX_VCPUS;
--		else if (sclp.has_esca && sclp.has_64bscao)
--			r = KVM_S390_ESCA_CPU_SLOTS;
-+			r = KVM_MAX_VCPUS - 1;
- 		if (ext == KVM_CAP_NR_VCPUS)
- 			r = min_t(unsigned int, num_online_cpus(), r);
- 		break;
-@@ -1930,13 +1931,11 @@ static int kvm_s390_get_cpu_model(struct kvm *kvm, struct kvm_device_attr *attr)
-  * Updates the Multiprocessor Topology-Change-Report bit to signal
-  * the guest with a topology change.
-  * This is only relevant if the topology facility is present.
-- *
-- * The SCA version, bsca or esca, doesn't matter as offset is the same.
-  */
- static void kvm_s390_update_topology_change_report(struct kvm *kvm, bool val)
- {
- 	union sca_utility new, old;
--	struct bsca_block *sca;
-+	struct esca_block *sca;
+ obj-y	:= head.o setup.o or32_ksyms.o process.o dma.o \
+ 	   traps.o time.o irq.o entry.o ptrace.o signal.o \
+diff --git a/arch/parisc/kernel/Makefile b/arch/parisc/kernel/Makefile
+index 5ab0467be70a..d5055ba33722 100644
+--- a/arch/parisc/kernel/Makefile
++++ b/arch/parisc/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for arch/parisc/kernel
+ #
  
- 	read_lock(&kvm->arch.sca_lock);
- 	sca = kvm->arch.sca;
-@@ -1967,7 +1966,7 @@ static int kvm_s390_get_topo_change_indication(struct kvm *kvm,
- 		return -ENXIO;
+-extra-y		:= vmlinux.lds
++always-$(KBUILD_BUILTIN)		:= vmlinux.lds
  
- 	read_lock(&kvm->arch.sca_lock);
--	topo = ((struct bsca_block *)kvm->arch.sca)->utility.mtcr;
-+	topo = kvm->arch.sca->utility.mtcr;
- 	read_unlock(&kvm->arch.sca_lock);
+ obj-y		:= head.o cache.o pacache.o setup.o pdt.o traps.o time.o irq.o \
+ 		   syscall.o entry.o sys_parisc.o firmware.o \
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index db367fee08b2..ac01cedad107 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -126,7 +126,7 @@ obj-$(CONFIG_PPC_BOOK3S_32)	+= head_book3s_32.o
+ obj-$(CONFIG_44x)		+= head_44x.o
+ obj-$(CONFIG_PPC_8xx)		+= head_8xx.o
+ obj-$(CONFIG_PPC_85xx)		+= head_85xx.o
+-extra-y				+= vmlinux.lds
++always-$(KBUILD_BUILTIN)	+= vmlinux.lds
  
- 	return put_user(topo, (u8 __user *)attr->addr);
-@@ -2666,14 +2665,6 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		if (kvm_s390_pv_is_protected(kvm))
- 			break;
+ obj-$(CONFIG_RELOCATABLE)	+= reloc_$(BITS).o
  
--		/*
--		 *  FMT 4 SIE needs esca. As we never switch back to bsca from
--		 *  esca, we need no cleanup in the error cases below
--		 */
--		r = sca_switch_to_extended(kvm);
--		if (r)
--			break;
--
- 		r = s390_disable_cow_sharing();
- 		if (r)
- 			break;
-@@ -3314,10 +3305,7 @@ static void kvm_s390_crypto_init(struct kvm *kvm)
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index f7480c9c6f8d..48dcaf2efae8 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -43,7 +43,7 @@ CFLAGS_sbi_ecall.o += -D__NO_FORTIFY
+ endif
+ endif
  
- static void sca_dispose(struct kvm *kvm)
- {
--	if (kvm->arch.use_esca)
--		free_pages_exact(kvm->arch.sca, sizeof(struct esca_block));
--	else
--		free_page((unsigned long)(kvm->arch.sca));
-+	free_pages_exact(kvm->arch.sca, sizeof(*kvm->arch.sca));
- 	kvm->arch.sca = NULL;
- }
+-extra-y += vmlinux.lds
++always-$(KBUILD_BUILTIN) += vmlinux.lds
  
-@@ -3331,10 +3319,9 @@ void kvm_arch_free_vm(struct kvm *kvm)
+ obj-y	+= head.o
+ obj-y	+= soc.o
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index db5f3a3faefb..ea5ed6654050 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -46,7 +46,7 @@ obj-y	+= nospec-branch.o ipl_vmparm.o machine_kexec_reloc.o unwind_bc.o
+ obj-y	+= smp.o text_amode31.o stacktrace.o abs_lowcore.o facility.o uv.o wti.o
+ obj-y	+= diag/
  
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
--	gfp_t alloc_flags = GFP_KERNEL_ACCOUNT;
--	int i, rc;
-+	gfp_t alloc_flags = GFP_KERNEL_ACCOUNT | __GFP_ZERO;
- 	char debug_name[16];
--	static unsigned long sca_offset;
-+	int i, rc;
+-extra-y				+= vmlinux.lds
++always-$(KBUILD_BUILTIN)	+= vmlinux.lds
  
- 	rc = -EINVAL;
- #ifdef CONFIG_KVM_S390_UCONTROL
-@@ -3356,17 +3343,12 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (!sclp.has_64bscao)
- 		alloc_flags |= GFP_DMA;
- 	rwlock_init(&kvm->arch.sca_lock);
--	/* start with basic SCA */
--	kvm->arch.sca = (struct bsca_block *) get_zeroed_page(alloc_flags);
--	if (!kvm->arch.sca)
--		goto out_err;
- 	mutex_lock(&kvm_lock);
--	sca_offset += 16;
--	if (sca_offset + sizeof(struct bsca_block) > PAGE_SIZE)
--		sca_offset = 0;
--	kvm->arch.sca = (struct bsca_block *)
--			((char *) kvm->arch.sca + sca_offset);
-+
-+	kvm->arch.sca = alloc_pages_exact(sizeof(*kvm->arch.sca), alloc_flags);
- 	mutex_unlock(&kvm_lock);
-+	if (!kvm->arch.sca)
-+		goto out_err;
+ obj-$(CONFIG_SYSFS)		+= nospec-sysfs.o
+ CFLAGS_REMOVE_nospec-branch.o	+= $(CC_FLAGS_EXPOLINE)
+diff --git a/arch/sh/kernel/Makefile b/arch/sh/kernel/Makefile
+index 7b453592adaf..5ef123bc63f8 100644
+--- a/arch/sh/kernel/Makefile
++++ b/arch/sh/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the Linux/SuperH kernel.
+ #
  
- 	sprintf(debug_name, "kvm-%u", current->pid);
+-extra-y	:= vmlinux.lds
++always-$(KBUILD_BUILTIN)	:= vmlinux.lds
  
-@@ -3548,17 +3530,10 @@ static void sca_del_vcpu(struct kvm_vcpu *vcpu)
- 	if (!kvm_s390_use_sca_entries())
- 		return;
- 	read_lock(&vcpu->kvm->arch.sca_lock);
--	if (vcpu->kvm->arch.use_esca) {
--		struct esca_block *sca = vcpu->kvm->arch.sca;
-+	struct esca_block *sca = vcpu->kvm->arch.sca;
+ ifdef CONFIG_FUNCTION_TRACER
+ # Do not profile debug and lowlevel utilities
+diff --git a/arch/sparc/kernel/Makefile b/arch/sparc/kernel/Makefile
+index 58ea4ef9b622..2859842d6bb7 100644
+--- a/arch/sparc/kernel/Makefile
++++ b/arch/sparc/kernel/Makefile
+@@ -9,7 +9,7 @@ asflags-y := -ansi
+ # Undefine sparc when processing vmlinux.lds - it is used
+ # And teach CPP we are doing $(BITS) builds (for this case)
+ CPPFLAGS_vmlinux.lds := -Usparc -m$(BITS)
+-extra-y              += vmlinux.lds
++always-$(KBUILD_BUILTIN) += vmlinux.lds
  
--		clear_bit_inv(vcpu->vcpu_id, (unsigned long *) sca->mcn);
--		sca->cpu[vcpu->vcpu_id].sda = 0;
--	} else {
--		struct bsca_block *sca = vcpu->kvm->arch.sca;
--
--		clear_bit_inv(vcpu->vcpu_id, (unsigned long *) &sca->mcn);
--		sca->cpu[vcpu->vcpu_id].sda = 0;
--	}
-+	clear_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
-+	sca->cpu[vcpu->vcpu_id].sda = 0;
- 	read_unlock(&vcpu->kvm->arch.sca_lock);
- }
+ ifdef CONFIG_FUNCTION_TRACER
+ # Do not profile debug and lowlevel utilities
+diff --git a/arch/um/kernel/Makefile b/arch/um/kernel/Makefile
+index 4df1cd0d2017..821bf4027a23 100644
+--- a/arch/um/kernel/Makefile
++++ b/arch/um/kernel/Makefile
+@@ -12,7 +12,7 @@ CPPFLAGS_vmlinux.lds := -DSTART=$(LDS_START)		\
+                         -DELF_ARCH=$(LDS_ELF_ARCH)	\
+                         -DELF_FORMAT=$(LDS_ELF_FORMAT)	\
+ 			$(LDS_EXTRA)
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
  
-@@ -3573,105 +3548,23 @@ static void sca_add_vcpu(struct kvm_vcpu *vcpu)
- 		return;
- 	}
- 	read_lock(&vcpu->kvm->arch.sca_lock);
--	if (vcpu->kvm->arch.use_esca) {
--		struct esca_block *sca = vcpu->kvm->arch.sca;
--		phys_addr_t sca_phys = virt_to_phys(sca);
--
--		sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
--		vcpu->arch.sie_block->scaoh = sca_phys >> 32;
--		vcpu->arch.sie_block->scaol = sca_phys & ESCA_SCAOL_MASK;
--		vcpu->arch.sie_block->ecb2 |= ECB2_ESCA;
--		set_bit_inv(vcpu->vcpu_id, (unsigned long *) sca->mcn);
--	} else {
--		struct bsca_block *sca = vcpu->kvm->arch.sca;
--		phys_addr_t sca_phys = virt_to_phys(sca);
--
--		sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
--		vcpu->arch.sie_block->scaoh = sca_phys >> 32;
--		vcpu->arch.sie_block->scaol = sca_phys;
--		set_bit_inv(vcpu->vcpu_id, (unsigned long *) &sca->mcn);
--	}
-+	struct esca_block *sca = vcpu->kvm->arch.sca;
-+	phys_addr_t sca_phys = virt_to_phys(sca);
-+
-+	sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
-+	vcpu->arch.sie_block->scaoh = sca_phys >> 32;
-+	vcpu->arch.sie_block->scaol = sca_phys & ESCA_SCAOL_MASK;
-+	vcpu->arch.sie_block->ecb2 |= ECB2_ESCA;
-+	set_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
- 	read_unlock(&vcpu->kvm->arch.sca_lock);
- }
+ obj-y = config.o exec.o exitcode.o irq.o ksyms.o mem.o \
+ 	physmem.o process.o ptrace.o reboot.o sigio.o \
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 84cfa179802c..9a30c9816b16 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the linux kernel.
+ #
  
--/* Basic SCA to Extended SCA data copy routines */
--static inline void sca_copy_entry(struct esca_entry *d, struct bsca_entry *s)
--{
--	d->sda = s->sda;
--	d->sigp_ctrl.c = s->sigp_ctrl.c;
--	d->sigp_ctrl.scn = s->sigp_ctrl.scn;
--}
--
--static void sca_copy_b_to_e(struct esca_block *d, struct bsca_block *s)
--{
--	int i;
--
--	d->ipte_control = s->ipte_control;
--	d->mcn[0] = s->mcn;
--	for (i = 0; i < KVM_S390_BSCA_CPU_SLOTS; i++)
--		sca_copy_entry(&d->cpu[i], &s->cpu[i]);
--}
--
--static int sca_switch_to_extended(struct kvm *kvm)
--{
--	struct bsca_block *old_sca = kvm->arch.sca;
--	struct esca_block *new_sca;
--	struct kvm_vcpu *vcpu;
--	unsigned long vcpu_idx;
--	u32 scaol, scaoh;
--	phys_addr_t new_sca_phys;
--
--	if (kvm->arch.use_esca)
--		return 0;
--
--	new_sca = alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL_ACCOUNT | __GFP_ZERO);
--	if (!new_sca)
--		return -ENOMEM;
--
--	new_sca_phys = virt_to_phys(new_sca);
--	scaoh = new_sca_phys >> 32;
--	scaol = new_sca_phys & ESCA_SCAOL_MASK;
--
--	kvm_s390_vcpu_block_all(kvm);
--	write_lock(&kvm->arch.sca_lock);
--
--	sca_copy_b_to_e(new_sca, old_sca);
--
--	kvm_for_each_vcpu(vcpu_idx, vcpu, kvm) {
--		vcpu->arch.sie_block->scaoh = scaoh;
--		vcpu->arch.sie_block->scaol = scaol;
--		vcpu->arch.sie_block->ecb2 |= ECB2_ESCA;
--	}
--	kvm->arch.sca = new_sca;
--	kvm->arch.use_esca = 1;
--
--	write_unlock(&kvm->arch.sca_lock);
--	kvm_s390_vcpu_unblock_all(kvm);
--
--	free_page((unsigned long)old_sca);
--
--	VM_EVENT(kvm, 2, "Switched to ESCA (0x%p -> 0x%p)",
--		 old_sca, kvm->arch.sca);
--	return 0;
--}
--
- static int sca_can_add_vcpu(struct kvm *kvm, unsigned int id)
- {
--	int rc;
--
--	if (!kvm_s390_use_sca_entries()) {
--		if (id < KVM_MAX_VCPUS)
--			return true;
--		return false;
--	}
--	if (id < KVM_S390_BSCA_CPU_SLOTS)
--		return true;
--	if (!sclp.has_esca || !sclp.has_64bscao)
--		return false;
--
--	rc = kvm->arch.use_esca ? 0 : sca_switch_to_extended(kvm);
-+	if (!kvm_s390_use_sca_entries())
-+		return id < KVM_MAX_VCPUS;
+-extra-y	+= vmlinux.lds
++always-$(KBUILD_BUILTIN)	+= vmlinux.lds
  
--	return rc == 0 && id < KVM_S390_ESCA_CPU_SLOTS;
-+	return id < KVM_S390_ESCA_CPU_SLOTS;
- }
+ CPPFLAGS_vmlinux.lds += -U$(UTS_MACHINE)
  
- /* needs disabled preemption to protect from TOD sync and vcpu_load/put */
-@@ -3917,7 +3810,7 @@ static int kvm_s390_vcpu_setup(struct kvm_vcpu *vcpu)
- 		vcpu->arch.sie_block->eca |= ECA_IB;
- 	if (sclp.has_siif)
- 		vcpu->arch.sie_block->eca |= ECA_SII;
--	if (sclp.has_sigpif)
-+	if (kvm_s390_use_sca_entries())
- 		vcpu->arch.sie_block->eca |= ECA_SIGPI;
- 	if (test_kvm_facility(vcpu->kvm, 129)) {
- 		vcpu->arch.sie_block->eca |= ECA_VX;
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 8d3bbb2dd8d27802bbde2a7bd1378033ad614b8e..0c5e8ae07b77648d554668cc0536607545636a68 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -528,13 +528,6 @@ void kvm_s390_prepare_debug_exit(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_per_ifetch_icpt(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_per_event(struct kvm_vcpu *vcpu);
+diff --git a/arch/xtensa/kernel/Makefile b/arch/xtensa/kernel/Makefile
+index f28b8e3d717e..d3ef0407401f 100644
+--- a/arch/xtensa/kernel/Makefile
++++ b/arch/xtensa/kernel/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for the Linux/Xtensa kernel.
+ #
  
--/* support for Basic/Extended SCA handling */
--static inline union ipte_control *kvm_s390_get_ipte_control(struct kvm *kvm)
--{
--	struct bsca_block *sca = kvm->arch.sca; /* SCA version doesn't matter */
--
--	return &sca->ipte_control;
--}
- static inline int kvm_s390_use_sca_entries(void)
- {
- 	/*
-@@ -542,7 +535,7 @@ static inline int kvm_s390_use_sca_entries(void)
- 	 * might use the entries. By not setting the entries and keeping them
- 	 * invalid, hardware will not access them but intercept.
- 	 */
--	return sclp.has_sigpif;
-+	return sclp.has_sigpif && sclp.has_esca;
- }
- void kvm_s390_reinject_machine_check(struct kvm_vcpu *vcpu,
- 				     struct mcck_volatile_info *mcck_info);
-
----
-base-commit: 0ff41df1cb268fc69e703a08a57ee14ae967d0ca
-change-id: 20250513-rm-bsca-ab1e8649aca7
-
-Best regards,
+-extra-y := vmlinux.lds
++always-$(KBUILD_BUILTIN) := vmlinux.lds
+ 
+ obj-y := head.o align.o coprocessor.o entry.o irq.o platform.o process.o \
+ 	 ptrace.o setup.o signal.o stacktrace.o syscall.o time.o traps.o \
 -- 
-Christoph Schlameuss <schlameuss@linux.ibm.com>
+2.43.0
 
