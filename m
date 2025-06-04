@@ -1,177 +1,258 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0DB42A87;
-	Wed,  4 Jun 2025 13:53:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2BC2BE67;
+	Wed,  4 Jun 2025 14:32:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749045216; cv=none; b=tkExubze3aT58s8LnMaDpKmSl7/Xep4o8eRiN8cQdTn7HeFWjzLOnBtHS/pFUFaVBuPd3ooRa2fG8YXXU/xv/qF7JoBzrfx7NKUaIwOURBSShEORztJxP+x7kGtUFT6ghDFduZiooXjfZ9ZmGyn1U+hHpnL2u2oNh0t3bAWg+fU=
+	t=1749047529; cv=none; b=Ca3pnJeStk3PpNQ4xGbFlyh3CiXlMLqHddkW2/S8CqP7Cznb9vlzlZm9mIpcdxNtpHSZWigDh1O/MXYCiBXY1hVBIbR0/V8mpIkoDzRM1ngDXn5eKr3SO0zu/vH2t9cHk/eZTR5KS+nx1Uy3hk9mbYHTvCof7j2m6pH/6X7/3oc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749045216; c=relaxed/simple;
-	bh=gEaec+r6HaRvOWsI9UxPmbcF79etZ2qgODjTDrDOwyI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cT89hcU1kNR5rIZHMHrcde+L6qFBgTh7kwSLNYQAoh7V6E3MSzz64zcFS2z/mmTdBKSNDsbzelT2g4O72Gmk5ke6qLXrM3qmpGToZzbW5Kob5Bd3FPZ1i40zbggsAWGbC1s8i5GDk/yKpEIR+yPb0GbmQpHMR2oSXnV60ngU/JI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Uje3IDdS; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1749047529; c=relaxed/simple;
+	bh=JG2zNqDlXJmA8nGR+UV80727OLA7TFr1cYIv/6hX7jA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=M9IkDV2q9mcklkug6okvm2y28U4r1Ou2zQniUf4mS9dxFkjY8fgtzivgb1E8w/Rsv+GAgWDLpNxqsh0gPEI7pHKniFDVYkh0qGpbAJ0XbSS0U6uzIYFYlbDIn4zvm2OL6KuHEAkBtfOmyRBuPUzL33WZcFZPuaKt5IkJnyiAdxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PPeu9FpP; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Uje3IDdS"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 554Cr7Ys027917;
-	Wed, 4 Jun 2025 13:53:30 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PPeu9FpP"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 554CsJC5022824;
+	Wed, 4 Jun 2025 14:32:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=mTxob+
-	3AN6+5NNCmHiHdX7KGjxH7xfoNmONml4Cdnx0=; b=Uje3IDdSEkqrUrvRBdZcCt
-	nBT7CYFlz6nwIvCvEmjtNZkTuc/cRw3vxpTqErq1jV4om+g4MhCtNfxHrWswwyF5
-	12bRc+xV1VVnXHNvZs9Ed5BShuDXaJjFZ9I2qG5TDrLpuRvqZKaJ44HkQbvTr1DV
-	mCTWgJ3MpcXFYnNdjbhpNU4YjZfYp8IMkFjBtzZRPQJEkEj6xLPNrgpG7pB3rATz
-	aPx3QX+vZJi/vvxi0/5ia5t7rAL/GibOdihYA1Ikj3MMNaD7JoeOAyMAWTJ/Uifb
-	qFcNpPr9goZ1W/YqlqvjCkkhG2PLky7rTFJtn5zx8jQzbZAfpQG4phGB2t06Kd/w
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RD36AZ
+	6O+NyH2BE78jm6a6gNDHOVGjSKIZ6reJoX/1o=; b=PPeu9FpPjJIj/fIAgJ3UHn
+	n0R58W7XEsDiWs+QPJtUCkvfqaX8NpA9s4ORbRPV1gHosytFE0GVvMByzDWTfssQ
+	FWjbksDFDiyXRgim/CiRiLNI14/jjjm4WsZCLRPlbsY8gJFqulvwL7M8taeos0n/
+	QVmjXgKw5D/3LVEFMIG0ZADQgCTdFQGOeRLj6eJqePp9eBVNBGJK1Y512Q/T21ip
+	ucS2zVkLvYte6CJPi2PK4PuMW1j2R2bI+KgW8SuWK9oCkDZGNlVW3eHIDCrwVoVE
+	VAdZLUQe/CiKoo7VsIx/r71+En/PWmO+UE77N3iDFsq376nfBekCefzNuEgSj0rA
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 471geyb1gt-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 471geyu8kw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Jun 2025 13:53:29 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 554Bx5aw031700;
-	Wed, 4 Jun 2025 13:53:28 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 470cg003u3-1
+	Wed, 04 Jun 2025 14:32:02 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 554BSpfw019898;
+	Wed, 4 Jun 2025 14:31:53 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 470d3p05am-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Jun 2025 13:53:28 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 554DrOR151511664
+	Wed, 04 Jun 2025 14:31:53 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 554EVnti57278920
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Jun 2025 13:53:24 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 68AE620043;
-	Wed,  4 Jun 2025 13:53:24 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D96A420040;
-	Wed,  4 Jun 2025 13:53:23 +0000 (GMT)
-Received: from [9.111.35.118] (unknown [9.111.35.118])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Jun 2025 13:53:23 +0000 (GMT)
-Message-ID: <618a014d-5deb-4d66-b2d9-cea930f8f050@linux.ibm.com>
-Date: Wed, 4 Jun 2025 15:53:23 +0200
+	Wed, 4 Jun 2025 14:31:49 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0AD6920043;
+	Wed,  4 Jun 2025 14:31:49 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AD00F20040;
+	Wed,  4 Jun 2025 14:31:48 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.152.224.66])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  4 Jun 2025 14:31:48 +0000 (GMT)
+Date: Wed, 4 Jun 2025 16:31:46 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David
+ Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
+Subject: Re: [PATCH v5] KVM: s390: Use ESCA instead of BSCA at VM init
+Message-ID: <20250604163146.21dd9334@p-imbrenda>
+In-Reply-To: <20250603-rm-bsca-v5-1-f691288ada5c@linux.ibm.com>
+References: <20250603-rm-bsca-v5-1-f691288ada5c@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] KVM: s390: Use ESCA instead of BSCA at VM init
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
-References: <20250603-rm-bsca-v5-1-f691288ada5c@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20250603-rm-bsca-v5-1-f691288ada5c@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=ea09f6EH c=1 sm=1 tr=0 ts=68404fda cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=aytlwjwg4dCizeVP_UwA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: MVw8LoSiXmCwLMQF8LVry3anz_Ll0GlP
-X-Proofpoint-ORIG-GUID: MVw8LoSiXmCwLMQF8LVry3anz_Ll0GlP
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjA0MDEwMyBTYWx0ZWRfX+6oTeaE2wR4S sXnShZdCtl42YiJbkVvsaTY09fbg+rV0VxsxuK4Ixnuu++KqYTFPdwQ4Up4JO6AgO34+ekzmQUq lCx4bvj9i7ScvquIk815zDpp5saJhDBmY6Z/7K+MH+8Bw5TU5rJUyvRrGVqmAt+5qCYq3Mczk+O
- H2M34dMdjDwxFaEZugkdu2e4B7iPaaE7LhBmOl60GrhppMPPWWxV25q+sMeBW0COey6fD5t6Liu K6kU9oHrKGoInnB4tRUViH4lhG0BVPC/502djw3tZoTzbygs///w6FJG1gZcShC/yJNn9mxZ/IH lDUMMSaF/ugjASPmYxshO+LLT9nP7wKK+xH+ERQT1V7WBDZ08lyF91+2tayIO1uR5EL0v4ETFPE
- k0jvwByJvzvFOzx+v5+oVSjiAUgiNda4g0ROYgycrJWXs6//P5Un2WOrSXFBWe9XqJs5wHok
+X-Authority-Analysis: v=2.4 cv=Pq2TbxM3 c=1 sm=1 tr=0 ts=684058e3 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=MXesND9z0vXNllD8JNgA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjA0MDExMCBTYWx0ZWRfXxvFWW+YHv6jh UHTi9ST2j/vn91ta7u3isx+Q061dIZ9KeiKWa3MKg5OjZYqzb1B3+VUvPdf1u+i40t3UQ3G+m5L J+HqcR+FvS7EbJFZCdIrog0+xs0wHGE2pDPs17xpQR0a0ggA/RqtuJv4Ji/Il1a/x1dkMgkzXUH
+ IZu0izi18xtwwRVHva5LMG+sGVQoXZJA1w/9RvyG1MHJHw08LaDK8XK7DSjmbSD97bz54ba01um sIQG38uvl62L6CmfXtuvFsgyo9+Xn4kzPx/M8QnREyWINcnLjIJXCcddD0NxrfQjOmT/PdX5bk7 XfHm0bW1qIa/n5pudU3DtLWtQWfTWoExIaRela0vu6/C6KUkpGxT8TErcYjSY9uS5+iboJjmsoz
+ Zc6KbMBOtz6tJD29nPG+Wxxnx3pXoRrSkMDFIG00W+yM/ouBhWZgQD+98GqhF7nSLm1IEGU6
+X-Proofpoint-GUID: PNhog90wIJtjMGESaqBdlfSOIyWbgpXY
+X-Proofpoint-ORIG-GUID: PNhog90wIJtjMGESaqBdlfSOIyWbgpXY
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-06-04_03,2025-06-03_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=717 bulkscore=0
- spamscore=0 suspectscore=0 lowpriorityscore=0 malwarescore=0
- impostorscore=0 phishscore=0 mlxscore=0 adultscore=0 clxscore=1015
- priorityscore=1501 classifier=spam authscore=0 authtc=n/a authcc=
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 clxscore=1015 malwarescore=0 mlxlogscore=960
+ phishscore=0 bulkscore=0 spamscore=0 suspectscore=0 priorityscore=1501
+ mlxscore=0 adultscore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506040103
+ definitions=main-2506040110
 
-On 6/3/25 6:35 PM, Christoph Schlameuss wrote:
-> All modern IBM Z and Linux One machines do offer support for the
-> Extended System Control Area (ESCA). The ESCA is available since the
-> z114/z196 released in 2010.
-> KVM needs to allocate and manage the SCA for guest VMs. Prior to this
-> change the SCA was setup as Basic SCA only supporting a maximum of 64
-> vCPUs when initializing the VM. With addition of the 65th vCPU the SCA
-> was needed to be converted to a ESCA.
-> 
-> Instead of allocating a BSCA and upgrading it for PV or when adding the
-> 65th cpu we can always allocate the ESCA directly upon VM creation
-> simplifying the code in multiple places as well as completely removing
-> the need to convert an existing SCA.
-> 
-> In cases where the ESCA is not supported (z10 and earlier) the use of
-> the SCA entries and with that SIGP interpretation are disabled for VMs.
-> This increases the number of exits from the VM in multiprocessor
-> scenarios and thus decreases performance.
-> The same is true for VSIE where SIGP is currently disabled and thus no
-> SCA entries are used.
-> 
-> The only downside of the change is that we will always allocate 4 pages
-> for a 248 cpu ESCA instead of a single page for the BSCA per VM.
-> In return we can delete a bunch of checks and special handling depending
-> on the SCA type as well as the whole BSCA to ESCA conversion.
-> 
-> With that behavior change we are no longer referencing a bsca_block in
-> kvm->arch.sca. This will always be esca_block instead.
-> By specifying the type of the sca as esca_block we can simplify access
-> to the sca and get rid of some helpers while making the code clearer.
-> 
-> KVM_MAX_VCPUS is also moved to kvm_host_types to allow using this in
-> future type definitions.
-> 
+On Tue, 03 Jun 2025 18:35:42 +0200
+Christoph Schlameuss <schlameuss@linux.ibm.com> wrote:
 
-Thanks for taking care of this, it makes the code a lot nicer to read.
+[...]
 
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 60c360c18690f6b94e8483dab2c25f016451204b..95a876ff7aca9c632c3e361275da6781ec070c07 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -51,21 +51,11 @@ static int sca_ext_call_pending(struct kvm_vcpu *vcpu, int *src_id)
+>  
+>  	BUG_ON(!kvm_s390_use_sca_entries());
+>  	read_lock(&vcpu->kvm->arch.sca_lock);
+> -	if (vcpu->kvm->arch.use_esca) {
+> -		struct esca_block *sca = vcpu->kvm->arch.sca;
+> -		union esca_sigp_ctrl sigp_ctrl =
+> -			sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+> +	struct esca_block *sca = vcpu->kvm->arch.sca;
+> +	union esca_sigp_ctrl sigp_ctrl = sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+
+those variables can now be declared at the top of the function, no need
+to declare them in the middle.
+
+>  
+> -		c = sigp_ctrl.c;
+> -		scn = sigp_ctrl.scn;
+> -	} else {
+> -		struct bsca_block *sca = vcpu->kvm->arch.sca;
+> -		union bsca_sigp_ctrl sigp_ctrl =
+> -			sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+> -
+> -		c = sigp_ctrl.c;
+> -		scn = sigp_ctrl.scn;
+> -	}
+> +	c = sigp_ctrl.c;
+> +	scn = sigp_ctrl.scn;
+>  	read_unlock(&vcpu->kvm->arch.sca_lock);
+>  
+>  	if (src_id)
+> @@ -80,33 +70,17 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
+>  
+>  	BUG_ON(!kvm_s390_use_sca_entries());
+>  	read_lock(&vcpu->kvm->arch.sca_lock);
+> -	if (vcpu->kvm->arch.use_esca) {
+> -		struct esca_block *sca = vcpu->kvm->arch.sca;
+> -		union esca_sigp_ctrl *sigp_ctrl =
+> -			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+> -		union esca_sigp_ctrl new_val = {0}, old_val;
+> -
+> -		old_val = READ_ONCE(*sigp_ctrl);
+> -		new_val.scn = src_id;
+> -		new_val.c = 1;
+> -		old_val.c = 0;
+> -
+> -		expect = old_val.value;
+> -		rc = cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
+> -	} else {
+> -		struct bsca_block *sca = vcpu->kvm->arch.sca;
+> -		union bsca_sigp_ctrl *sigp_ctrl =
+> -			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+> -		union bsca_sigp_ctrl new_val = {0}, old_val;
+> +	struct esca_block *sca = vcpu->kvm->arch.sca;
+> +	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+> +	union esca_sigp_ctrl new_val = {0}, old_val;
+
+..same here..
+
+also, since you're touching this anyway, can you rewrite the
+declaration so that the initialisation is at the end?
+
+	union esca_sigp_ctrl old_val, new_val = {0};
+
+>  
+> -		old_val = READ_ONCE(*sigp_ctrl);
+> -		new_val.scn = src_id;
+> -		new_val.c = 1;
+> -		old_val.c = 0;
+> +	old_val = READ_ONCE(*sigp_ctrl);
+> +	new_val.scn = src_id;
+> +	new_val.c = 1;
+> +	old_val.c = 0;
+>  
+> -		expect = old_val.value;
+> -		rc = cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
+> -	}
+> +	expect = old_val.value;
+> +	rc = cmpxchg(&sigp_ctrl->value, old_val.value, new_val.value);
+>  	read_unlock(&vcpu->kvm->arch.sca_lock);
+>  
+>  	if (rc != expect) {
+> @@ -123,19 +97,10 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
+>  		return;
+>  	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_ECALL_PEND);
+>  	read_lock(&vcpu->kvm->arch.sca_lock);
+> -	if (vcpu->kvm->arch.use_esca) {
+> -		struct esca_block *sca = vcpu->kvm->arch.sca;
+> -		union esca_sigp_ctrl *sigp_ctrl =
+> -			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+> +	struct esca_block *sca = vcpu->kvm->arch.sca;
+> +	union esca_sigp_ctrl *sigp_ctrl = &sca->cpu[vcpu->vcpu_id].sigp_ctrl;
+
+..and here..
+
+>  
+> -		WRITE_ONCE(sigp_ctrl->value, 0);
+> -	} else {
+> -		struct bsca_block *sca = vcpu->kvm->arch.sca;
+> -		union bsca_sigp_ctrl *sigp_ctrl =
+> -			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
+> -
+> -		WRITE_ONCE(sigp_ctrl->value, 0);
+> -	}
+> +	WRITE_ONCE(sigp_ctrl->value, 0);
+>  	read_unlock(&vcpu->kvm->arch.sca_lock);
+>  }
+>  
+
+[...]
+
+> @@ -3573,105 +3548,23 @@ static void sca_add_vcpu(struct kvm_vcpu *vcpu)
+>  		return;
+>  	}
+>  	read_lock(&vcpu->kvm->arch.sca_lock);
+> -	if (vcpu->kvm->arch.use_esca) {
+> -		struct esca_block *sca = vcpu->kvm->arch.sca;
+> -		phys_addr_t sca_phys = virt_to_phys(sca);
+> -
+> -		sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
+> -		vcpu->arch.sie_block->scaoh = sca_phys >> 32;
+> -		vcpu->arch.sie_block->scaol = sca_phys & ESCA_SCAOL_MASK;
+> -		vcpu->arch.sie_block->ecb2 |= ECB2_ESCA;
+> -		set_bit_inv(vcpu->vcpu_id, (unsigned long *) sca->mcn);
+> -	} else {
+> -		struct bsca_block *sca = vcpu->kvm->arch.sca;
+> -		phys_addr_t sca_phys = virt_to_phys(sca);
+> -
+> -		sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
+> -		vcpu->arch.sie_block->scaoh = sca_phys >> 32;
+> -		vcpu->arch.sie_block->scaol = sca_phys;
+> -		set_bit_inv(vcpu->vcpu_id, (unsigned long *) &sca->mcn);
+> -	}
+> +	struct esca_block *sca = vcpu->kvm->arch.sca;
+> +	phys_addr_t sca_phys = virt_to_phys(sca);
+
+..and here
+
+> +
+> +	sca->cpu[vcpu->vcpu_id].sda = virt_to_phys(vcpu->arch.sie_block);
+> +	vcpu->arch.sie_block->scaoh = sca_phys >> 32;
+> +	vcpu->arch.sie_block->scaol = sca_phys & ESCA_SCAOL_MASK;
+> +	vcpu->arch.sie_block->ecb2 |= ECB2_ESCA;
+> +	set_bit_inv(vcpu->vcpu_id, (unsigned long *)sca->mcn);
+>  	read_unlock(&vcpu->kvm->arch.sca_lock);
+>  }
+>  
+
+[...]
+
+
