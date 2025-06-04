@@ -1,163 +1,177 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EB1B2C327E;
-	Wed,  4 Jun 2025 12:17:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0DB42A87;
+	Wed,  4 Jun 2025 13:53:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749039425; cv=none; b=IiYHdMQTsKlH6A8vk+cxq/ga5dPmwYQSkR03HcGYpb+/PFyg6/XovoVUrN0JYzgeBFP6DOQBNTGUZNnZ1u717IbhHHhIVooVDwNo0nj2T5vQDuZxa+dVSAlx0EPXgA5epgZn4IP36omXvHb9nYyUEOeSFiFHjDSK2L5mxHjulKg=
+	t=1749045216; cv=none; b=tkExubze3aT58s8LnMaDpKmSl7/Xep4o8eRiN8cQdTn7HeFWjzLOnBtHS/pFUFaVBuPd3ooRa2fG8YXXU/xv/qF7JoBzrfx7NKUaIwOURBSShEORztJxP+x7kGtUFT6ghDFduZiooXjfZ9ZmGyn1U+hHpnL2u2oNh0t3bAWg+fU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749039425; c=relaxed/simple;
-	bh=BYEG8UxhrVg4vmXnOWAFZdFKVOOqkdCNcXJaeBUyLEQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tKrNQ2AmsPFpzs7qriWRdgTL5FUM5wRWXf8c9UPDxGM+V2T/Eg5XaPSz7UCUnSzsw28henMCX7arJ0ui/aGJRIK7g+qooor2RD9N3zabLMAImqnvqIICjalwBY8aD0tBxa76SBJJuZH1wTBSEcGEA5SHNrpbY4BJu874z1tAutM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZDG7755E; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1749045216; c=relaxed/simple;
+	bh=gEaec+r6HaRvOWsI9UxPmbcF79etZ2qgODjTDrDOwyI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cT89hcU1kNR5rIZHMHrcde+L6qFBgTh7kwSLNYQAoh7V6E3MSzz64zcFS2z/mmTdBKSNDsbzelT2g4O72Gmk5ke6qLXrM3qmpGToZzbW5Kob5Bd3FPZ1i40zbggsAWGbC1s8i5GDk/yKpEIR+yPb0GbmQpHMR2oSXnV60ngU/JI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Uje3IDdS; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZDG7755E"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5543t1k6000498;
-	Wed, 4 Jun 2025 12:17:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Uje3IDdS"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 554Cr7Ys027917;
+	Wed, 4 Jun 2025 13:53:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Lm/EAk
-	8MgrTQ6UY9tgv52aZyMMIBuRgmYq2fBE2YC0E=; b=ZDG7755EGZieZn6nscDqtK
-	3JH18HSi5iArGyxDVfWZwxSoZnV/q0+aYLuTKA50qFQfc3VukJta73g561xboQ5t
-	1qM14Q0XiUmIjQNHGblpQRJtwosHui9uLw0WWjolBlNzgikdyHbCeF4iFkz4D8NO
-	hUTXLMz5wrtKYKvq2ZYv9NnLlJPjgOljWiXlhVyP+ZUIFpppUdUyKwx65u3G4865
-	tV/Rmka2JfFuOpcv1B7k9goGcoMLXJ5gtysUqLv69wtOXHf05NWE85F8HDkCziZA
-	yitWvZgjG15hc5OgpzsNozHnzXUKFWryk4lpAvR2ZtzVOX9+SomLJy6pxehC2YaA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=mTxob+
+	3AN6+5NNCmHiHdX7KGjxH7xfoNmONml4Cdnx0=; b=Uje3IDdSEkqrUrvRBdZcCt
+	nBT7CYFlz6nwIvCvEmjtNZkTuc/cRw3vxpTqErq1jV4om+g4MhCtNfxHrWswwyF5
+	12bRc+xV1VVnXHNvZs9Ed5BShuDXaJjFZ9I2qG5TDrLpuRvqZKaJ44HkQbvTr1DV
+	mCTWgJ3MpcXFYnNdjbhpNU4YjZfYp8IMkFjBtzZRPQJEkEj6xLPNrgpG7pB3rATz
+	aPx3QX+vZJi/vvxi0/5ia5t7rAL/GibOdihYA1Ikj3MMNaD7JoeOAyMAWTJ/Uifb
+	qFcNpPr9goZ1W/YqlqvjCkkhG2PLky7rTFJtn5zx8jQzbZAfpQG4phGB2t06Kd/w
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 471geyt9tf-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 471geyb1gt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Jun 2025 12:17:01 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 554C4aLr019873;
-	Wed, 4 Jun 2025 12:17:00 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 470d3nymq4-1
+	Wed, 04 Jun 2025 13:53:29 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 554Bx5aw031700;
+	Wed, 4 Jun 2025 13:53:28 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 470cg003u3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Jun 2025 12:17:00 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 554CGuvQ10092834
+	Wed, 04 Jun 2025 13:53:28 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 554DrOR151511664
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Jun 2025 12:16:56 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44C5620049;
-	Wed,  4 Jun 2025 12:16:56 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC0C520040;
-	Wed,  4 Jun 2025 12:16:55 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Jun 2025 12:16:55 +0000 (GMT)
-Date: Wed, 4 Jun 2025 14:16:43 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>,
-        Christian Borntraeger
- <borntraeger@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/mm: Fix in_atomic() handling in
- do_secure_storage_access()
-Message-ID: <20250604141643.3c04ae4e@p-imbrenda>
-In-Reply-To: <20250603134936.1314139-1-hca@linux.ibm.com>
-References: <20250603134936.1314139-1-hca@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	Wed, 4 Jun 2025 13:53:24 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 68AE620043;
+	Wed,  4 Jun 2025 13:53:24 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D96A420040;
+	Wed,  4 Jun 2025 13:53:23 +0000 (GMT)
+Received: from [9.111.35.118] (unknown [9.111.35.118])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  4 Jun 2025 13:53:23 +0000 (GMT)
+Message-ID: <618a014d-5deb-4d66-b2d9-cea930f8f050@linux.ibm.com>
+Date: Wed, 4 Jun 2025 15:53:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5] KVM: s390: Use ESCA instead of BSCA at VM init
+To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
+References: <20250603-rm-bsca-v5-1-f691288ada5c@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20250603-rm-bsca-v5-1-f691288ada5c@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _P9ZkWimBNBdfVwAV3mJrxSqWo5a6d15
-X-Proofpoint-ORIG-GUID: _P9ZkWimBNBdfVwAV3mJrxSqWo5a6d15
-X-Authority-Analysis: v=2.4 cv=X4dSKHTe c=1 sm=1 tr=0 ts=6840393d cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=RnnUVUEQLhJupq3Ke2AA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjA0MDA5MSBTYWx0ZWRfXwP53MNcpGtg6 G4L640dVTTsxnFjMXrZqQT+xljyvfB5WteVweKOJMhu2lnj+UGmrw1GQaq1fMU9iMsC7qkaDEN7 HKx65XdVHAYjzA7p/VztMfHS39VUIRfrFYMLI75v3WhTyv7xmc0Meko5Aw48uYe/Q42juPR7H8e
- Vu/AfGxbADat+OH/9jS6GpWLAxRYaabEohCsoOTVSaMQ1BNA76I9AWnfjX/8/r42EK43m8tbw/S pVsKKOD2kbW9aogqZpMYjBdMyZGu3kZCpvKRKTm7+3lTPNIji/EmtrxrRCWSJWr7Ndr5Fh5pDH6 v41B8ytHhW3ZNFCGqE4oD9ro4KmDEW+CIyzoCFV7C8mpSPcThfmd6iVghFf2aoE7hD7UOdOPcIA
- AoGrJnumstEbERMdaVJJpUl/g6cRYEKFk+QYK5h4VjEeXeadBxkefqVjszAwAYeUxGjfmd5f
+X-Authority-Analysis: v=2.4 cv=ea09f6EH c=1 sm=1 tr=0 ts=68404fda cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=aytlwjwg4dCizeVP_UwA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: MVw8LoSiXmCwLMQF8LVry3anz_Ll0GlP
+X-Proofpoint-ORIG-GUID: MVw8LoSiXmCwLMQF8LVry3anz_Ll0GlP
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjA0MDEwMyBTYWx0ZWRfX+6oTeaE2wR4S sXnShZdCtl42YiJbkVvsaTY09fbg+rV0VxsxuK4Ixnuu++KqYTFPdwQ4Up4JO6AgO34+ekzmQUq lCx4bvj9i7ScvquIk815zDpp5saJhDBmY6Z/7K+MH+8Bw5TU5rJUyvRrGVqmAt+5qCYq3Mczk+O
+ H2M34dMdjDwxFaEZugkdu2e4B7iPaaE7LhBmOl60GrhppMPPWWxV25q+sMeBW0COey6fD5t6Liu K6kU9oHrKGoInnB4tRUViH4lhG0BVPC/502djw3tZoTzbygs///w6FJG1gZcShC/yJNn9mxZ/IH lDUMMSaF/ugjASPmYxshO+LLT9nP7wKK+xH+ERQT1V7WBDZ08lyF91+2tayIO1uR5EL0v4ETFPE
+ k0jvwByJvzvFOzx+v5+oVSjiAUgiNda4g0ROYgycrJWXs6//P5Un2WOrSXFBWe9XqJs5wHok
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-06-04_03,2025-06-03_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- priorityscore=1501 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=924 adultscore=0 clxscore=1015 phishscore=0 bulkscore=0
- malwarescore=0 spamscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=717 bulkscore=0
+ spamscore=0 suspectscore=0 lowpriorityscore=0 malwarescore=0
+ impostorscore=0 phishscore=0 mlxscore=0 adultscore=0 clxscore=1015
+ priorityscore=1501 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506040091
+ definitions=main-2506040103
 
-On Tue,  3 Jun 2025 15:49:36 +0200
-Heiko Carstens <hca@linux.ibm.com> wrote:
-
-> Kernel user spaces accesses to not exported pages in atomic context
-> incorrectly try to resolve the page fault.
-> With debug options enabled call traces like this can be seen:
+On 6/3/25 6:35 PM, Christoph Schlameuss wrote:
+> All modern IBM Z and Linux One machines do offer support for the
+> Extended System Control Area (ESCA). The ESCA is available since the
+> z114/z196 released in 2010.
+> KVM needs to allocate and manage the SCA for guest VMs. Prior to this
+> change the SCA was setup as Basic SCA only supporting a maximum of 64
+> vCPUs when initializing the VM. With addition of the 65th vCPU the SCA
+> was needed to be converted to a ESCA.
 > 
-> BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1523
-> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 419074, name: qemu-system-s39
-> preempt_count: 1, expected: 0
-> RCU nest depth: 0, expected: 0
-> INFO: lockdep is turned off.
-> Preemption disabled at:
-> [<00000383ea47cfa2>] copy_page_from_iter_atomic+0xa2/0x8a0
-> CPU: 12 UID: 0 PID: 419074 Comm: qemu-system-s39
-> Tainted: G        W           6.16.0-20250531.rc0.git0.69b3a602feac.63.fc42.s390x+debug #1 PREEMPT
-> Tainted: [W]=WARN
-> Hardware name: IBM 3931 A01 703 (LPAR)
-> Call Trace:
->  [<00000383e990d282>] dump_stack_lvl+0xa2/0xe8
->  [<00000383e99bf152>] __might_resched+0x292/0x2d0
->  [<00000383eaa7c374>] down_read+0x34/0x2d0
->  [<00000383e99432f8>] do_secure_storage_access+0x108/0x360
->  [<00000383eaa724b0>] __do_pgm_check+0x130/0x220
->  [<00000383eaa842e4>] pgm_check_handler+0x114/0x160
->  [<00000383ea47d028>] copy_page_from_iter_atomic+0x128/0x8a0
-> ([<00000383ea47d016>] copy_page_from_iter_atomic+0x116/0x8a0)
->  [<00000383e9c45eae>] generic_perform_write+0x16e/0x310
->  [<00000383e9eb87f4>] ext4_buffered_write_iter+0x84/0x160
->  [<00000383e9da0de4>] vfs_write+0x1c4/0x460
->  [<00000383e9da123c>] ksys_write+0x7c/0x100
->  [<00000383eaa7284e>] __do_syscall+0x15e/0x280
->  [<00000383eaa8417e>] system_call+0x6e/0x90
-> INFO: lockdep is turned off.
+> Instead of allocating a BSCA and upgrading it for PV or when adding the
+> 65th cpu we can always allocate the ESCA directly upon VM creation
+> simplifying the code in multiple places as well as completely removing
+> the need to convert an existing SCA.
 > 
-> It is not allowed to take the mmap_lock while in atomic context. Therefore
-> handle such a secure storage access fault as if the accessed page is not
-> mapped: the uaccess function will return -EFAULT, and the caller has to
-> deal with this. Usually this means that the access is retried in process
-> context, which allows to resolve the page fault (or in this case export the
-> page).
+> In cases where the ESCA is not supported (z10 and earlier) the use of
+> the SCA entries and with that SIGP interpretation are disabled for VMs.
+> This increases the number of exits from the VM in multiprocessor
+> scenarios and thus decreases performance.
+> The same is true for VSIE where SIGP is currently disabled and thus no
+> SCA entries are used.
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  arch/s390/mm/fault.c | 2 ++
->  1 file changed, 2 insertions(+)
+> The only downside of the change is that we will always allocate 4 pages
+> for a 248 cpu ESCA instead of a single page for the BSCA per VM.
+> In return we can delete a bunch of checks and special handling depending
+> on the SCA type as well as the whole BSCA to ESCA conversion.
 > 
-> diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-> index 3829521450dd..e1ad05bfd28a 100644
-> --- a/arch/s390/mm/fault.c
-> +++ b/arch/s390/mm/fault.c
-> @@ -441,6 +441,8 @@ void do_secure_storage_access(struct pt_regs *regs)
->  		if (rc)
->  			BUG();
->  	} else {
-> +		if (faulthandler_disabled())
-> +			return handle_fault_error_nolock(regs, 0);
->  		mm = current->mm;
->  		mmap_read_lock(mm);
->  		vma = find_vma(mm, addr);
+> With that behavior change we are no longer referencing a bsca_block in
+> kvm->arch.sca. This will always be esca_block instead.
+> By specifying the type of the sca as esca_block we can simplify access
+> to the sca and get rid of some helpers while making the code clearer.
+> 
+> KVM_MAX_VCPUS is also moved to kvm_host_types to allow using this in
+> future type definitions.
+> 
 
+Thanks for taking care of this, it makes the code a lot nicer to read.
+
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
