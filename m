@@ -1,73 +1,47 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A907820FABA;
-	Mon,  9 Jun 2025 15:57:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81F2521FF2C;
+	Mon,  9 Jun 2025 18:55:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749484636; cv=none; b=SqCbyta3x/00nVLpdBAG2pv+4l1II3YSCNiwRi6L4O6kboyG+F4qme0yi0NehEyEsISfCVpgRhmftqBSVOpyE9QFjsYcruRlU32Q0LGYwFe9E+KAvPNGSI9QZVe5LbzWxYGbePQTYWMozsUZvo0pD/w/9zOeaNM1hiIPeeVsfzA=
+	t=1749495302; cv=none; b=TYSBvpaRkeZvfaLDlifvyZPrXWvlCdLCR0COJaJwOebG3wWMlFM7UPPDrainYfQJWYWOIUSnVFC76SQAcA1vbC9P4LD5KyZoluOz73NavNztY01qvmR+Izo0j8HAMAX1A0TKrTBXnO+y18x1iWvd2buP8x7zjUtWQgY76t9BKJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749484636; c=relaxed/simple;
-	bh=WVN4Rk8eFlSf26V+gHVby7ROOyqmVgdva3yS0D4ZzAg=;
+	s=arc-20240116; t=1749495302; c=relaxed/simple;
+	bh=i03d00nCfUWfOdFAfB3hz6pL/gDpm+GCWlrY8GYnNSU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tOJsIfElXu+8Q2S2mhXP5gn9wUElVTmrbQ9cct7RfOgtmFHbX61ybcS82fDlUTxDJGJ9fUDSiLA31kZA7OaslyDkIituxz1vdbUoGPGuUMFUfQoEKEih1f+jl/MOQkwMNp4CS5Gi086LsRMQGCokf7oWjZGuziHga+uB/Hg/s50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DutVtiPq; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=VN5y8XXwDjhllHSlqqyHftpN63TvX77qFjKEm5u2cauGQEloYnwdDkidQNPRu2W+434hvIIs5Zj6yUU1OpRyLZnwWFeV52Oj6v6vokQFK59lTYXXnMu7MH4bgcNqsurt2M6N47WAbkCdpMFPrXtyeRsTTlElS+gsUiN3YPDSdDg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cOGXtZ0b; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DutVtiPq"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 559B6Q2E017406;
-	Mon, 9 Jun 2025 15:57:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=mdHOKqWabxLvDWTcu89UeJRrFDbtbY
-	dwbmCuWQ0Vc6g=; b=DutVtiPqUVTsIL4JJim4pw+Fp+IxFJD5gyucLIbOtK2JxM
-	oQIrv1LxkuKnbhOK+VevYOKuzU5rsotX7MeevcAR6rKwJzH4MLHMfyuWHse61JfZ
-	iXcg3zG+kvDJYXe4f+Bv62ttTlj8O8BvqA1c74LI8DiGSxGeofMOLI5IQuUUBEmU
-	H0oVwp49lDs27iMqr0KBrFe4O1F9Jty7fct4C6zq++vL6F/0i3NEmox7Mfhp/Q9t
-	EX3wZWvtb+UFlFgsY7b/aktpMsyS/1GaVmcBw60llxjVThgC/OQTsr+n88oMiSqh
-	O3M0TsOVHYaTjQsD0MN+r9tPRVNUR9PuxsgbGVzg==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474hgu8kvb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Jun 2025 15:57:03 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 559Ed3nJ014912;
-	Mon, 9 Jun 2025 15:57:03 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4750rnxbun-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 09 Jun 2025 15:57:03 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 559FuxUi35193454
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 9 Jun 2025 15:56:59 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1BA8920043;
-	Mon,  9 Jun 2025 15:56:59 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 933312004B;
-	Mon,  9 Jun 2025 15:56:58 +0000 (GMT)
-Received: from osiris (unknown [9.111.49.56])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  9 Jun 2025 15:56:58 +0000 (GMT)
-Date: Mon, 9 Jun 2025 17:56:57 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cOGXtZ0b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DDEAC4CEEF;
+	Mon,  9 Jun 2025 18:55:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749495302;
+	bh=i03d00nCfUWfOdFAfB3hz6pL/gDpm+GCWlrY8GYnNSU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cOGXtZ0bxE5c/cKVjIahkTcrKCRAsE2Gfxn3UIhlFlFiZLaC+zKdF7VWxfKm8/ETS
+	 6AhGs0umiRMCJ5JgdBhNOOkRxSsFWAtxF3SJIcO4BKZGFJs1ZQtGYfS9ZJ9KjnFtXu
+	 CoUuDzdDeoQNA3IJviIlNiJi7ydg2ehdcQ5OXBzI0xl+XsUGv/gmofveqW1cZVJlxj
+	 7S5NNv/e7xF0C/H29trUyZ+4svuZFkbjIOhn5nXwrlL711gYmP+gm6Ewk+tz2CReoY
+	 NFWzzRmLR5sYfJufJHFK1j4djDnBCF+UiHFg8rnM/mFlrhQ4MNaEJcQxnaEuTEhFf3
+	 PK9kqt1NEZKGw==
+Date: Mon, 9 Jun 2025 11:54:39 -0700
+From: Eric Biggers <ebiggers@kernel.org>
 To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>, linux-arch@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 16/15] bugs/s390: Use in 'cond_str' to __EMIT_BUG()
-Message-ID: <20250609155657.8183A92-hca@linux.ibm.com>
-References: <20250515124644.2958810-1-mingo@kernel.org>
- <20250515124644.2958810-11-mingo@kernel.org>
- <20250520133927.7932C19-hca@linux.ibm.com>
- <aEabAPB5Y9EbSPkt@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, x86@kernel.org,
+	linux-arch@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v2 00/12] lib/crc: improve how arch-optimized code is
+ integrated
+Message-ID: <20250609185439.GB1255@sol>
+References: <20250607200454.73587-1-ebiggers@kernel.org>
+ <aEaP-A21IB4ufbZT@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -76,46 +50,94 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aEabAPB5Y9EbSPkt@gmail.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Pfr/hjhd c=1 sm=1 tr=0 ts=6847044f cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=mP1wJ5fc1yCHjsL5jbEA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: pIF64b1PPfd49sEebyRFZmxtT0EY6wZL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjA5MDExNyBTYWx0ZWRfX+AQo1stHFX8g yOWiu/SoaoxK5WIrbD+RLkixeakAugcZMuM9mjN2AuHfPk8tCT/QcVFGJMtcOYH18TduiNUYFyd Q9EkLBj4pejJ07587Hn7ByW7vxGa/kClTI2ldhyQ/A9JMtL8IL8k3bbL1kUflQ+yub6P453TBTk
- qTSUkEQYM+vZoXxgomd05egRu+8JeCvGRsi90SSiPK1te97sPN7i5nw6DsqtV0XJL8GV+S/q6Gs amqVDabJjesKVwJt8zzqEOD3U8wyXv4CMMi/qgrQMFNiUTEb3SI6C8TArWSrEYsSHLosVN/6WTD zDDJHyB/fCGoypcUyPNeXqnfGakQYrfXn/PA/3j8dYH9RwHsp5GZfxM2Oe2qUwY6EPzB09twi1k
- pq2KOVOZfnxJsFyaUDdecJr9SCwLJYyBV3vXbRfzodCnOsLQrdC1bS9nMg3yoWArTH9T/nso
-X-Proofpoint-ORIG-GUID: pIF64b1PPfd49sEebyRFZmxtT0EY6wZL
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-09_06,2025-06-09_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 impostorscore=0 suspectscore=0 adultscore=0
- clxscore=1015 phishscore=0 bulkscore=0 malwarescore=0 mlxlogscore=363
- mlxscore=0 lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a
- authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2505280000 definitions=main-2506090117
+In-Reply-To: <aEaP-A21IB4ufbZT@gmail.com>
 
-On Mon, Jun 09, 2025 at 10:27:44AM +0200, Ingo Molnar wrote:
-> So I'm not sure what happened: I tried to reproduce what I did 
-> originally, but my naive patch ran into assembler build errors when a 
-> WARN_ON() macro tried to use the '%' C operator, such as 
-> fs/crypto/crypto.c:123:
+On Mon, Jun 09, 2025 at 09:40:40AM +0200, Ingo Molnar wrote:
 > 
->  include/linux/compiler_types.h:497:20: error: invalid 'asm': invalid %-code
->  arch/s390/include/asm/bug.h:12:2: note: in expansion of macro 'asm_inline'
->  arch/s390/include/asm/bug.h:50:2: note: in expansion of macro '__EMIT_BUG'
->  include/asm-generic/bug.h:119:3: note: in expansion of macro '__WARN_FLAGS'
->  fs/crypto/crypto.c:123:6: note: in expansion of macro 'WARN_ON_ONCE'
+> * Eric Biggers <ebiggers@kernel.org> wrote:
 > 
-> Which corresponds to:
+> > This series is also available at:
+> > 
+> >     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git lib-crc-arch-v2
+> > 
+> > This series improves how lib/crc supports arch-optimized code.  First,
+> > instead of the arch-optimized CRC code being in arch/$(SRCARCH)/lib/, it
+> > will now be in lib/crc/$(SRCARCH)/.  Second, the API functions (e.g.
+> > crc32c()), arch-optimized functions (e.g. crc32c_arch()), and generic
+> > functions (e.g. crc32c_base()) will now be part of a single module for
+> > each CRC type, allowing better inlining and dead code elimination.  The
+> > second change is made possible by the first.
+> > 
+> > As an example, consider CONFIG_CRC32=m on x86.  We'll now have just
+> > crc32.ko instead of both crc32-x86.ko and crc32.ko.  The two modules
+> > were already coupled together and always both got loaded together via
+> > direct symbol dependency, so the separation provided no benefit.
+> > 
+> > Note: later I'd like to apply the same design to lib/crypto/ too, where
+> > often the API functions are out-of-line so this will work even better.
+> > In those cases, for each algorithm we currently have 3 modules all
+> > coupled together, e.g. libsha256.ko, libsha256-generic.ko, and
+> > sha256-x86.ko.  We should have just one, inline things properly, and
+> > rely on the compiler's dead code elimination to decide the inclusion of
+> > the generic code instead of manually setting it via kconfig.
+> > 
+> > Having arch-specific code outside arch/ was somewhat controversial when
+> > Zinc proposed it back in 2018.  But I don't think the concerns are
+> > warranted.  It's better from a technical perspective, as it enables the
+> > improvements mentioned above.  This model is already successfully used
+> > in other places in the kernel such as lib/raid6/.  The community of each
+> > architecture still remains free to work on the code, even if it's not in
+> > arch/.  At the time there was also a desire to put the library code in
+> > the same files as the old-school crypto API, but that was a mistake; now
+> > that the library is separate, that's no longer a constraint either.
+> > 
+> > Changed in v2:
+> >    - Fixed build warning on architectures without any optimized CRC code
+> >    - Fixed build warning in sparc/crc32.h by removing pr_fmt
+> >    - Moved fallback definitions of crc32*_arch back into arch files
+> >    - Remove ARCH_HAS_CRC* symbols at end of series instead of beginning,
+> >      so that they're not removed until they're no longer being selected
+> >    - Slightly improved some commit messages
+> >    - Rebased onto other pending lib/crc changes
+> > 
+> > Eric Biggers (12):
+> >   lib/crc: move files into lib/crc/
+> >   lib/crc: prepare for arch-optimized code in subdirs of lib/crc/
+> >   lib/crc/arm: migrate arm-optimized CRC code into lib/crc/
+> >   lib/crc/arm64: migrate arm64-optimized CRC code into lib/crc/
+> >   lib/crc/loongarch: migrate loongarch-optimized CRC code into lib/crc/
+> >   lib/crc/mips: migrate mips-optimized CRC code into lib/crc/
+> >   lib/crc/powerpc: migrate powerpc-optimized CRC code into lib/crc/
+> >   lib/crc/riscv: migrate riscv-optimized CRC code into lib/crc/
+> >   lib/crc/s390: migrate s390-optimized CRC code into lib/crc/
+> >   lib/crc/sparc: migrate sparc-optimized CRC code into lib/crc/
+> >   lib/crc/x86: migrate x86-optimized CRC code into lib/crc/
+> >   lib/crc: remove ARCH_HAS_* kconfig symbols
 > 
->         if (WARN_ON_ONCE(len % FSCRYPT_CONTENTS_ALIGNMENT != 0))
->                 return -EINVAL;
+> For the movement of the x86 bits:
 > 
-> I'm quite sure I never saw these build errors - I saw linker errors 
-> related to the u16 overflow I documented in the changelog. (Note to 
-> self: copy & paste more of the build error context next time around.)
+>   Acked-by: Ingo Molnar <mingo@kernel.org>
 > 
-> Your version doesn't have that build problem, so I picked it up with 
-> the changelog below and your Signed-off-by. Does that look good to you?
+> >  rename {arch/s390/lib => lib/crc/s390}/crc32be-vx.c (100%)
+> >  rename {arch/s390/lib => lib/crc/s390}/crc32le-vx.c (100%)
+> >  rename arch/sparc/lib/crc32.c => lib/crc/sparc/crc32.h (60%)
+> >  rename {arch/sparc/lib => lib/crc/sparc}/crc32c_asm.S (100%)
+> >  create mode 100644 lib/crc/tests/Makefile
+> >  rename lib/{ => crc}/tests/crc_kunit.c (100%)
+> >  rename {arch/x86/lib => lib/crc/x86}/crc-pclmul-consts.h (100%)
+> >  rename {arch/x86/lib => lib/crc/x86}/crc-pclmul-template.S (100%)
+> >  rename {arch/x86/lib => lib/crc/x86}/crc-pclmul-template.h (100%)
+> >  rename arch/x86/lib/crc-t10dif.c => lib/crc/x86/crc-t10dif.h (56%)
+> >  rename {arch/x86/lib => lib/crc/x86}/crc16-msb-pclmul.S (100%)
+> >  rename {arch/x86/lib => lib/crc/x86}/crc32-pclmul.S (100%)
+> 
+> One small namespace suggestion: wouldn't it be better to move the arch 
+> support code to lib/crc/arch/, instead of lib/crc/? That way any 
+> generic code will stand out better and architecture directories don't 
+> crowd out what is supposed to be generic code.
 
-Yes, fine with me.
+I don't think that yet another level of directories would provide much value
+here.  The only non-arch subdirectory of lib/crc/ is "tests", so it's not like
+there are a lot of subdirectories that could be confused with arch names.
+
+- Eric
