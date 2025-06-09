@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4195722539F;
-	Mon,  9 Jun 2025 22:52:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EABAD224895;
+	Mon,  9 Jun 2025 22:52:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749509542; cv=none; b=PQonEjTUzjzzToPPuQjmOVRBBWLxFOJOIxuNKgU/5yMlhxgdeiRVKYXnBKrh6tYvJ5Uy0ME8UIzQHH5x0UZOr9r+LBm9ro4dyLpJD0Vw3wjVkjHGRl+lJc5XPWFtpOll/g45cUSY/DfXfjlL1lxJav4S75MFG5yq694IAL2GD1w=
+	t=1749509571; cv=none; b=PxqJHdF8qYPMZWwkBEbuzjqEYct9hw/hLnE/kdZM7mpk8faA3l4eaF+Yuq8o1W7/4mzJvHJx8zh+lDHyHmQ76TYZavWVEWYSYHywRu/T4294kau0f5L9Ws1/VIogbGURGxwZG3+mZ2in/R89OUYKzBvs35J4DepQyJVBXzqlXRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749509542; c=relaxed/simple;
-	bh=pKyh1RP7KnM5fhShnYRftVmuaWIJXf6FA0W4M/+AfDg=;
+	s=arc-20240116; t=1749509571; c=relaxed/simple;
+	bh=mXnTrxzvxMrMSoN9AedQRZfQ//FnJf/8LILs/nZ2BP4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YS878C5ycrYEWI7ZPKGce71UNnBJ80G0GnTUX622D8ry5JKtdH+q+G4UuN0WkefqBPMu5rTGSzrCxgIoA1lX+mTZ+rec6RMn5Liic+sGGF7vpB/LeY5XqokACXkGVfasW8uaW9zrImksU3zt33Yqa8Dd8Vo52ViyeXa5XqsUYsk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GyzcZpON; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=f+nDc6L5tHcMTgYskNbs377lj9tW0435NVn5Ihydg/OZllrUWCDPKWaokM7OiV3G6SGxAwstmZWTeBXyGfhGCpBz6SwaaItEBaN6EHSk3QgCFFcm1od3FV+No5QRi0pdeVhoSjzXfAoyxnZLP40naHta76eHwWFqqiVANj0fJMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jucrb0Bt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GyzcZpON"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C07B7C4CEED;
-	Mon,  9 Jun 2025 22:52:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jucrb0Bt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 806F5C4CEED;
+	Mon,  9 Jun 2025 22:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749509541;
-	bh=pKyh1RP7KnM5fhShnYRftVmuaWIJXf6FA0W4M/+AfDg=;
+	s=k20201202; t=1749509570;
+	bh=mXnTrxzvxMrMSoN9AedQRZfQ//FnJf/8LILs/nZ2BP4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=GyzcZpONZmyzregMQEjNn4grrSxdx7RwaBTQQNQ/oYqnv2rGJY8KrklU0zDYGuRBA
-	 NmH4qzp04rE9rLRk9qKhk30IAoDf1V46FrntMPhuq1Lkz2DSm/1F8pRtbqRk1SJoqB
-	 u3l3iH6QVeVuuIXc7vu0DsbB3q1NoML5QeH/9A580BziGAzTU0ptBhkthghR+anZvs
-	 GVoDaxyljmxZDLpo02HO6K7OL5SB/Ts8Z9gHQjsluKo8mUkGyDQZMVzgSxxwjO/jTs
-	 rBLquCd7MsNgpVQWcD8kyeB3AE9cjyPbi94fHVMQTOenGiGUexHSD1mqv5nds+oRPR
-	 r7/VSLOZcQzZQ==
+	b=Jucrb0BtBe/Kcf61lmfC+80uaAEBjvqiHskyYes9lfwP0sZD4qsPJVIk2FVJd9dMD
+	 CPRc9VwJJn7a/dYh/AJ0qbzXa0Pz+h7wu7FGNN1bpnKdV1eSUQEudY/rOra0FmEssf
+	 2gh6Wx7t36R9A/OdTDNodBJaUxDCkMGykOVnMhfG0ZqmCc74N04bck1LkGdUiE+ZN9
+	 V/XR5Cic88GRGUFi7qnLghgNKMubINfLrrP9H5SBescyBQoNXkqblK9BlOzE6YwMT9
+	 yDF+27V9sKLzUbhUK5eTuNKFDyMprfF9Vap/tFxlqeSZn74e4TM8R7dXnOhaxaQftz
+	 64zfgCSA1+1KQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
@@ -36,12 +36,12 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
 	gerald.schaefer@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.15 02/11] s390/mm: Fix in_atomic() handling in do_secure_storage_access()
-Date: Mon,  9 Jun 2025 18:52:07 -0400
-Message-Id: <20250609225217.1443387-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.14 02/11] s390/mm: Fix in_atomic() handling in do_secure_storage_access()
+Date: Mon,  9 Jun 2025 18:52:36 -0400
+Message-Id: <20250609225246.1443679-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250609225217.1443387-1-sashal@kernel.org>
-References: <20250609225217.1443387-1-sashal@kernel.org>
+In-Reply-To: <20250609225246.1443679-1-sashal@kernel.org>
+References: <20250609225246.1443679-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.15.1
+X-stable-base: Linux 6.14.10
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
@@ -231,10 +231,10 @@ handling used throughout the rest of the kernel's fault handling code.
  1 file changed, 2 insertions(+)
 
 diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index da84ff6770dec..8b3f6dd00eab2 100644
+index 9b681f74dccc1..c40dea3f85917 100644
 --- a/arch/s390/mm/fault.c
 +++ b/arch/s390/mm/fault.c
-@@ -442,6 +442,8 @@ void do_secure_storage_access(struct pt_regs *regs)
+@@ -434,6 +434,8 @@ void do_secure_storage_access(struct pt_regs *regs)
  		if (rc)
  			BUG();
  	} else {
