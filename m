@@ -1,248 +1,173 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EABAD224895;
-	Mon,  9 Jun 2025 22:52:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FA061519BA;
+	Mon,  9 Jun 2025 22:59:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749509571; cv=none; b=PxqJHdF8qYPMZWwkBEbuzjqEYct9hw/hLnE/kdZM7mpk8faA3l4eaF+Yuq8o1W7/4mzJvHJx8zh+lDHyHmQ76TYZavWVEWYSYHywRu/T4294kau0f5L9Ws1/VIogbGURGxwZG3+mZ2in/R89OUYKzBvs35J4DepQyJVBXzqlXRM=
+	t=1749509989; cv=none; b=ZOPa2M06NoGk7s06kB8cZCvRq33J7SjKW4zuJ8o0BhVWQAx2ehJpfhfxd+6A7gokJvoOafdP9IWgYgDU+3gpXv55Ns99+nIfuKq/j1vhdOVJ2zRyVNuaKhuvrEZD6CmzuSZx6M4z7teVKtI7BuOfTtRTQu+z6qIMpeOw9vCWNEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749509571; c=relaxed/simple;
-	bh=mXnTrxzvxMrMSoN9AedQRZfQ//FnJf/8LILs/nZ2BP4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=f+nDc6L5tHcMTgYskNbs377lj9tW0435NVn5Ihydg/OZllrUWCDPKWaokM7OiV3G6SGxAwstmZWTeBXyGfhGCpBz6SwaaItEBaN6EHSk3QgCFFcm1od3FV+No5QRi0pdeVhoSjzXfAoyxnZLP40naHta76eHwWFqqiVANj0fJMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jucrb0Bt; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749509989; c=relaxed/simple;
+	bh=U4vhsJXM46e+0Mfc4PBs3bseTa3h9UosBlHtozqeIf8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=B7JCme5vD0DNL+6n75FdM5qPiHxCgzKtZ/4pNt3j8hjwHqc1d2wsL3PoGSMdDsvfU0BFtxyQErKVNE9RQC2jNUkf54etvqASNiM+/Upd7+7TlZvYS57oDemdCNiCQLmE5vdGx7pVbf9ZV1qhUVIYc+YmYxu7Vc8u9U1z59GgC3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bZ2q/LWi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jucrb0Bt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 806F5C4CEED;
-	Mon,  9 Jun 2025 22:52:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bZ2q/LWi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A46C4CEEB;
+	Mon,  9 Jun 2025 22:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749509570;
-	bh=mXnTrxzvxMrMSoN9AedQRZfQ//FnJf/8LILs/nZ2BP4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Jucrb0BtBe/Kcf61lmfC+80uaAEBjvqiHskyYes9lfwP0sZD4qsPJVIk2FVJd9dMD
-	 CPRc9VwJJn7a/dYh/AJ0qbzXa0Pz+h7wu7FGNN1bpnKdV1eSUQEudY/rOra0FmEssf
-	 2gh6Wx7t36R9A/OdTDNodBJaUxDCkMGykOVnMhfG0ZqmCc74N04bck1LkGdUiE+ZN9
-	 V/XR5Cic88GRGUFi7qnLghgNKMubINfLrrP9H5SBescyBQoNXkqblK9BlOzE6YwMT9
-	 yDF+27V9sKLzUbhUK5eTuNKFDyMprfF9Vap/tFxlqeSZn74e4TM8R7dXnOhaxaQftz
-	 64zfgCSA1+1KQ==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sasha Levin <sashal@kernel.org>,
-	gerald.schaefer@linux.ibm.com,
-	linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.14 02/11] s390/mm: Fix in_atomic() handling in do_secure_storage_access()
-Date: Mon,  9 Jun 2025 18:52:36 -0400
-Message-Id: <20250609225246.1443679-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250609225246.1443679-1-sashal@kernel.org>
-References: <20250609225246.1443679-1-sashal@kernel.org>
+	s=k20201202; t=1749509988;
+	bh=U4vhsJXM46e+0Mfc4PBs3bseTa3h9UosBlHtozqeIf8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bZ2q/LWijEpaEq00igAvU15ZFA2btFmPEoPv0oTqawn+MjrxKEc4/OqXy2N38kxpV
+	 AFvy2lrAzn2djDaUY1swfzB9EZ627MitJD6/avaXEMt58zpc+17thB5+o+L/NCFmXx
+	 Bbahqr8beEaE9JLR92svUSP/oo9HcH3K/MV2jUx5drdibhmczFNStuOfZD9lCWMysz
+	 P11+Cs72P7BkkpWfSW0Wc/UiWNcR1xk5ksNxTizKDn6BSr0mEtJF/ezlntceoWJxAz
+	 yys2b1O4D36HQh8H0QW/vQ0doPIIwaleXhHsMUSvkGTKjPZAQluFZIrFMruyPgxt0i
+	 IRxGum7RmzoYw==
+Date: Mon, 9 Jun 2025 15:59:26 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Julian Calaby <julian.calaby@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, x86@kernel.org,
+	linux-arch@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v2 00/12] lib/crc: improve how arch-optimized code is
+ integrated
+Message-ID: <20250609225926.GE1255@sol>
+References: <20250607200454.73587-1-ebiggers@kernel.org>
+ <CAGRGNgV_4X3O-qo3XFGexi9_JqJXK9Mf82=p8CQ4BoD3o-Hypw@mail.gmail.com>
+ <20250609194845.GC1255@sol>
+ <CAGRGNgXw5LcykjiRS3yteb0K8FmYtb9wp1CJPM+GCKAw7j4ktQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.14.10
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAGRGNgXw5LcykjiRS3yteb0K8FmYtb9wp1CJPM+GCKAw7j4ktQ@mail.gmail.com>
 
-From: Heiko Carstens <hca@linux.ibm.com>
+On Tue, Jun 10, 2025 at 08:36:39AM +1000, Julian Calaby wrote:
+> Hi Eric,
+> 
+> On Tue, Jun 10, 2025 at 5:49 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > On Mon, Jun 09, 2025 at 06:15:24PM +1000, Julian Calaby wrote:
+> > > Hi Eric,
+> > >
+> > > On Sun, Jun 8, 2025 at 6:07 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> > > >
+> > > > This series is also available at:
+> > > >
+> > > >     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git lib-crc-arch-v2
+> > > >
+> > > > This series improves how lib/crc supports arch-optimized code.  First,
+> > > > instead of the arch-optimized CRC code being in arch/$(SRCARCH)/lib/, it
+> > > > will now be in lib/crc/$(SRCARCH)/.  Second, the API functions (e.g.
+> > > > crc32c()), arch-optimized functions (e.g. crc32c_arch()), and generic
+> > > > functions (e.g. crc32c_base()) will now be part of a single module for
+> > > > each CRC type, allowing better inlining and dead code elimination.  The
+> > > > second change is made possible by the first.
+> > > >
+> > > > As an example, consider CONFIG_CRC32=m on x86.  We'll now have just
+> > > > crc32.ko instead of both crc32-x86.ko and crc32.ko.  The two modules
+> > > > were already coupled together and always both got loaded together via
+> > > > direct symbol dependency, so the separation provided no benefit.
+> > > >
+> > > > Note: later I'd like to apply the same design to lib/crypto/ too, where
+> > > > often the API functions are out-of-line so this will work even better.
+> > > > In those cases, for each algorithm we currently have 3 modules all
+> > > > coupled together, e.g. libsha256.ko, libsha256-generic.ko, and
+> > > > sha256-x86.ko.  We should have just one, inline things properly, and
+> > > > rely on the compiler's dead code elimination to decide the inclusion of
+> > > > the generic code instead of manually setting it via kconfig.
+> > > >
+> > > > Having arch-specific code outside arch/ was somewhat controversial when
+> > > > Zinc proposed it back in 2018.  But I don't think the concerns are
+> > > > warranted.  It's better from a technical perspective, as it enables the
+> > > > improvements mentioned above.  This model is already successfully used
+> > > > in other places in the kernel such as lib/raid6/.  The community of each
+> > > > architecture still remains free to work on the code, even if it's not in
+> > > > arch/.  At the time there was also a desire to put the library code in
+> > > > the same files as the old-school crypto API, but that was a mistake; now
+> > > > that the library is separate, that's no longer a constraint either.
+> > >
+> > > Quick question, and apologies if this has been covered elsewhere.
+> > >
+> > > Why not just use choice blocks in Kconfig to choose the compiled-in
+> > > crc32 variant instead of this somewhat indirect scheme?
+> > >
+> > > This would keep the dependencies grouped by arch and provide a single place to
+> > > choose whether the generic or arch-specific method is used.
+> >
+> > It's not clear exactly what you're suggesting, but it sounds like you're
+> > complaining about this:
+> >
+> >     config CRC32_ARCH
+> >             bool
+> >             depends on CRC32 && CRC_OPTIMIZATIONS
+> >             default y if ARM && KERNEL_MODE_NEON
+> >             default y if ARM64
+> >             default y if LOONGARCH
+> >             default y if MIPS && CPU_MIPSR6
+> >             default y if PPC64 && ALTIVEC
+> >             default y if RISCV && RISCV_ISA_ZBC
+> >             default y if S390
+> >             default y if SPARC64
+> >             default y if X86
+> 
+> I was suggesting something roughly like:
+> 
+> choice
+>     prompt "CRC32 Variant"
+>     depends on CRC32 && CRC_OPTIMIZATIONS
+> 
+> config CRC32_ARCH_ARM_NEON
+>     bool "ARM NEON"
+>     default y
+>     depends ARM && KERNEL_MODE_NEON
+> 
+> ...
+> 
+> config CRC32_GENERIC
+>     bool "Generic"
+> 
+> endchoice
+> 
+> > This patchset strikes a balance where the vast majority of the arch-specific CRC
+> > code is isolated in lib/crc/$(SRCARCH), and the exceptions are just
+> > lib/crc/Makefile and lib/crc/Kconfig.  I think these exceptions make sense,
+> > given that we're building a single module per CRC variant.  We'd have to go
+> > through some hoops to isolate the arch-specific Kconfig and Makefile snippets
+> > into per-arch files, which don't seem worth it here IMO.
+> 
+> I was only really concerned with the Kconfig structure, I was
+> expecting Kbuild to look roughly like this: (filenames are wrong)
+> 
+> crc32-y += crc32-base.o
+> crc32-$(CRC32_ARCH_ARM_NEON) += arch/arm/crc32-neon.o
+> ...
+> crc32-$(CRC32_GENERIC) += crc32-generic.o
+> 
+> but yeah, your proposal here has grown on me now that I think about it
+> and the only real "benefit" mine has is that architectures can display
+> choices for variants that have Kconfig-visible requirements, which
+> probably isn't that many so it wouldn't be useful in practice.
+> 
+> Thanks for answering my question,
 
-[ Upstream commit 11709abccf93b08adde95ef313c300b0d4bc28f1 ]
+The CRC32 implementation did used to be user-selectable, but that was already
+removed in v6.14 (except for the coarse-grained knob CONFIG_CRC_OPTIMIZATIONS
+that remains and can be disabled only when CONFIG_EXPERT=y) since the vast
+majority of users simply want the optimized CRC32 code enabled.  The fact that
+it wasn't just enabled by default was a longstanding bug.
 
-Kernel user spaces accesses to not exported pages in atomic context
-incorrectly try to resolve the page fault.
-With debug options enabled call traces like this can be seen:
-
-BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1523
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 419074, name: qemu-system-s39
-preempt_count: 1, expected: 0
-RCU nest depth: 0, expected: 0
-INFO: lockdep is turned off.
-Preemption disabled at:
-[<00000383ea47cfa2>] copy_page_from_iter_atomic+0xa2/0x8a0
-CPU: 12 UID: 0 PID: 419074 Comm: qemu-system-s39
-Tainted: G        W           6.16.0-20250531.rc0.git0.69b3a602feac.63.fc42.s390x+debug #1 PREEMPT
-Tainted: [W]=WARN
-Hardware name: IBM 3931 A01 703 (LPAR)
-Call Trace:
- [<00000383e990d282>] dump_stack_lvl+0xa2/0xe8
- [<00000383e99bf152>] __might_resched+0x292/0x2d0
- [<00000383eaa7c374>] down_read+0x34/0x2d0
- [<00000383e99432f8>] do_secure_storage_access+0x108/0x360
- [<00000383eaa724b0>] __do_pgm_check+0x130/0x220
- [<00000383eaa842e4>] pgm_check_handler+0x114/0x160
- [<00000383ea47d028>] copy_page_from_iter_atomic+0x128/0x8a0
-([<00000383ea47d016>] copy_page_from_iter_atomic+0x116/0x8a0)
- [<00000383e9c45eae>] generic_perform_write+0x16e/0x310
- [<00000383e9eb87f4>] ext4_buffered_write_iter+0x84/0x160
- [<00000383e9da0de4>] vfs_write+0x1c4/0x460
- [<00000383e9da123c>] ksys_write+0x7c/0x100
- [<00000383eaa7284e>] __do_syscall+0x15e/0x280
- [<00000383eaa8417e>] system_call+0x6e/0x90
-INFO: lockdep is turned off.
-
-It is not allowed to take the mmap_lock while in atomic context. Therefore
-handle such a secure storage access fault as if the accessed page is not
-mapped: the uaccess function will return -EFAULT, and the caller has to
-deal with this. Usually this means that the access is retried in process
-context, which allows to resolve the page fault (or in this case export the
-page).
-
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250603134936.1314139-1-hca@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
-
-Based on my comprehensive analysis of the commit and the surrounding
-kernel context, here is my assessment:
-
-**YES**
-
-This commit should be backported to stable kernel trees. Here's my
-extensive explanation:
-
-## Why This Should Be Backported
-
-### 1. **Critical Sleeping-in-Atomic Bug Fix**
-
-The commit addresses a fundamental kernel correctness issue where
-`do_secure_storage_access()` was incorrectly attempting to acquire
-`mmap_read_lock()` while in atomic context. The stack trace in the
-commit message clearly shows:
-
-```
-BUG: sleeping function called from invalid context at
-kernel/locking/rwsem.c:1523
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 419074, name:
-qemu-system-s39
-preempt_count: 1, expected: 0
-Preemption disabled at:
-[<00000383ea47cfa2>] copy_page_from_iter_atomic+0xa2/0x8a0
-```
-
-This shows the fault occurred during `copy_page_from_iter_atomic()`,
-which explicitly runs in atomic context with preemption disabled
-(`preempt_count: 1`).
-
-### 2. **Minimal and Safe Code Change**
-
-The fix is exactly 2 lines of code:
-```c
-+if (faulthandler_disabled())
-+    return handle_fault_error_nolock(regs, 0);
-```
-
-This follows the **exact same pattern** already established in the same
-file at line 277 in `do_exception()`. The change is:
-- **Consistent**: Uses the same `faulthandler_disabled()` check as other
-  fault handlers
-- **Safe**: Uses `handle_fault_error_nolock()` which is designed for
-  atomic contexts
-- **Non-invasive**: Doesn't change any existing logic paths, only adds
-  an early return
-
-### 3. **Matches Established Kernel Patterns**
-
-Looking at similar commits in my reference set, this matches the pattern
-of **Backport Status: YES** commits:
-
-**Similar to Reference Commit #2** (sja1105): Also fixed sleeping-in-
-atomic by using atomic-safe alternatives
-**Similar to Reference Commit #3** (PM domains): Also moved a
-potentially sleeping operation out of atomic context
-**Similar to Reference Commit #5** (RDMA/rxe): Also handled sleeping
-operations that were incorrectly called from atomic context
-
-### 4. **Affects Critical Kernel Subsystem**
-
-This bug affects **s390 memory management**, which is a critical kernel
-subsystem. The secure storage access functionality is used in:
-- **IBM Z mainframes** with Protected Execution (Ultravisor)
-- **KVM virtualization** environments
-- **Enterprise workloads** running on s390 architecture
-
-A sleeping-in-atomic bug in MM fault handling can cause system
-instability, deadlocks, or crashes.
-
-### 5. **Production Impact Evidence**
-
-The commit message shows this affecting **qemu-system-s39**, indicating
-this hits production virtualization workloads. The call trace shows a
-realistic scenario:
-```
-copy_page_from_iter_atomic+0x128/0x8a0
-generic_perform_write+0x16e/0x310
-ext4_buffered_write_iter+0x84/0x160
-vfs_write+0x1c4/0x460
-```
-
-This is a common I/O path that can trigger secure storage access
-violations in protected execution environments.
-
-### 6. **Low Regression Risk**
-
-The change has **minimal regression risk** because:
-- **Fallback behavior**: It makes the code return `-EFAULT` instead of
-  hanging/crashing
-- **Retry mechanism**: The commit message explicitly states "Usually
-  this means that the access is retried in process context"
-- **Defensive programming**: Better to fail gracefully than crash the
-  system
-- **Existing pattern**: Uses the same error handling path already used
-  elsewhere
-
-### 7. **Stable Tree Criteria Met**
-
-This commit meets all stable tree criteria:
-- ✅ **Important bugfix**: Fixes kernel crashes/hangs
-- ✅ **Small and contained**: Only 2 lines changed
-- ✅ **No new features**: Pure bugfix
-- ✅ **Minimal risk**: Uses established error handling patterns
-- ✅ **Affects users**: Impacts virtualization workloads
-
-### 8. **Architecture-Specific but Critical**
-
-While this only affects s390 architecture, it's critical for that
-platform. s390 is used in enterprise environments where stability is
-paramount, and sleeping-in-atomic bugs can cause service outages.
-
-### Conclusion
-
-This is a textbook example of a commit that should be backported: it
-fixes a clear kernel correctness issue (sleeping while atomic), uses a
-minimal and safe fix that follows established patterns, has low
-regression risk, and affects production workloads. The fix brings
-`do_secure_storage_access()` in line with the same atomic context
-handling used throughout the rest of the kernel's fault handling code.
-
- arch/s390/mm/fault.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 9b681f74dccc1..c40dea3f85917 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -434,6 +434,8 @@ void do_secure_storage_access(struct pt_regs *regs)
- 		if (rc)
- 			BUG();
- 	} else {
-+		if (faulthandler_disabled())
-+			return handle_fault_error_nolock(regs, 0);
- 		mm = current->mm;
- 		mmap_read_lock(mm);
- 		vma = find_vma(mm, addr);
--- 
-2.39.5
-
+- Eric
