@@ -1,141 +1,103 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FB711EB5B
-	for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 15:58:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93B541F0984
+	for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 16:16:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749571099; cv=none; b=mGmLdIUqFngPxTCWLlnGBiQQ/HuN0+SMcOhRtp8pwvrbZdTrMOgV3nhcfbz1k1T1ZraNS4g4k/INJFJDivZfk5fOIUVfd/8ntkYGYRjJb5boBMc72hRDv6nZQ/Y+tXUGzij8pLRrlbOm46ywMRltt/zCxjuVWME5Z3OXfhf/DMA=
+	t=1749572164; cv=none; b=ed4WZ4ll3rE/OpqwzL9/emLzUe90h/qDHY5O7uQRkrd1FRXYuewrlOxe/w6mlqFowyMgAlgjMgK2k2X2hIiqC24FJ473PLtuH6kTLS7xckDjKGEKJgziaZZskXoIfgTFQ74TWQVgFzBm1VmUg2gA5ENKes4Tofpb23/SlpG+UNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749571099; c=relaxed/simple;
-	bh=JnvDsI2V0SfYirDWe8D7vHoy0/Tmj2p6mupoH7x8L9c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FfhWtixnqUHheIVa20tUXufKT/EGWJ4ql1IkpI8NEsEw1F6+Dy+vymgMhluNpBaMdcZqcFIznhi+mQapub7s3lO7ADF7VtTT6qGoKABSfELKkqvhIocQCgRG/eJAoNG+e35EPuQmghSSA+/XNxHdWCyqFYsWZjn89oJLgT+J3TE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fpzcavzY; arc=none smtp.client-ip=209.85.218.53
+	s=arc-20240116; t=1749572164; c=relaxed/simple;
+	bh=i1wysgW5zGZ4yIMcnwwg65sgoJiICB3in7hX8h58OOs=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=Jx5xUK/8mqjEFU0cOWXaaUcHP3RCjGhrlnWkG4PZlxAYVj/95DBuDeK/oiHYbc0qnbpOtW4dwuDQBHmaE8F7Y5DT5o1Rt3BOYM6bx7D4PXKJc59NSDqq/5cx7HcD2QpLXZmG2xw/O2awYDdp5hhdQe1Y/WZXzscaAncvTB05jCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WoSkqB/Y; arc=none smtp.client-ip=209.85.216.74
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fpzcavzY"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-acae7e7587dso853538766b.2
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 08:58:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WoSkqB/Y"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-3138e65efe2so2031104a91.1
+        for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 09:16:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1749571095; x=1750175895; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/nrvEV1OyFqB896sh+D7+1KEv79egMokePh1tw2xdC8=;
-        b=fpzcavzYpIFPLSAsNFuceyxcoukQwA42mDMP7WkiNYl3VbbETe0oyw2peWRl2bLMaF
-         m/G+viYKo5WKUWWt21kyyNcd5BGhibYnOZCD74L4CGCZQ3mbPI8PQcZzyzLhe/xQ/74r
-         nzoK7uqRek5xAubfXo/eJKFBf6U54T+zfppK8V4o27lKtNak0uW+rn+VHOLZJuuS9au7
-         LiSiUvWFg9kR8zqSuEHCXcTH5oUPnTFMuUx3DNf51gQ8OJoL5L/pDAzidKBE97HYkK9V
-         VEAeHIh7wG0+ZQMug+94NSLRDRK/cVr9LDcWptW35if8PFdp8AjDbcsMvopwL92YpTG8
-         /Bfw==
+        d=google.com; s=20230601; t=1749572162; x=1750176962; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=cUiAnBaABBi8MmezG61ur8Gw02SUWXIVP1zr4GYN+eo=;
+        b=WoSkqB/YtB3i5+UxGLQqkpT5EmTOmLMJfo2UD0yxuDvN9CY0ZOQE1nlGImbfxxFuCq
+         cfitA5mFGzYltFmQfaY3S8+57TCuTj3zHkJKpL+05u+A1rTjBrpnfbJdxq1aFKFIDyG5
+         rpYZTnBsjWEk1XoBd71F+C/HSjbVmWGtizcX9UOTdGenPlKB98ayB021aJYLVZP0agOp
+         XLrtMlMKIOeEBeBbJc4hLy1dMzCFGeoVwiAszzB4zCwcubb/1enwaUTX68ryqbpUleCn
+         pJb+Gdh1PyhW8ettAFdMSkXY558+kvbYk3/g+s5+5UcbnyPXKHR3zGT1B4P96VAGZsKv
+         rbmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749571095; x=1750175895;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/nrvEV1OyFqB896sh+D7+1KEv79egMokePh1tw2xdC8=;
-        b=vhMskW/ZElXjYHiX8LfPYmaX6EEOF6Yxu24sjkUVR+0HjL2QaEpzVawf3hUcaOSzki
-         SHm29AtW9F41rvpjAFx5lAVC/u6mfWKHuAvwrNHUN/v2qcRuD4SCZ9cj+KyIZq84lWT4
-         YbIajXA93JBVUfc20Qv0mnrJm5uOV3zpxGIUkyQZOSH+R6EcpiYQBw32y9fHbzcZJnuq
-         Ce1L6KsOBTG/pPpekrZvLgPDO8HM8WmZwYttAtGDrA9g/aIqiOpI9WEZ7CQqEIXKgfUP
-         ePNK1bZ+7vHj1gslKd5ANymdVshhFtvFFWBK9l79Ir3ku3nrA7Wla0pfLaaP2VfC5mpi
-         /3xA==
-X-Forwarded-Encrypted: i=1; AJvYcCVoo5asiIWRwFUmG5cyMMW0wtD0sNGiawHV4EQ3pBjWonEnHnp9iMFqYAREoyRFMDN5bM9boURWE6yd@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzy7o+iNZKhS2JrzTjAFHsxEu/Gfp2cnd/KeaURd4aAPFtcepQ3
-	k8f778UwSPz6V/V30PoJMjvcUdq8wa5wSud00+yx16SWyrnRavR9j5E+dx9rEbnKw6h3JnAx4ho
-	ECdn/KjHhon5R0JLM4MpG3IWRHjWWpAvmHWLsN1zD
-X-Gm-Gg: ASbGnctBV1C9uoAITdVovjqxxyukbaXMHQ23YpT14G9yfEWgYrv0eMAWwj3AolE0Vat
-	c68Q9ihUDcKrC5ejZzmYuDevqWMqzHOg3lJhFWM0h1GdSvcGLxj2iuk/X5OhzENswwmMubilSAV
-	8u2vYd3ydBpwQv5jFXRVg0NFJZ5Cs7VQ1BsO1kTUAOMK+vC64NtTqGmhE5IhYQ4ihPk/Xyo6c=
-X-Google-Smtp-Source: AGHT+IGnT2C8qqzfjiqBjWATFVDFEKGYo5bsTw0MRS4kvRY+vyWG7uSjPLyA0jhrMN5sAXMyjjxyLuUOF8Q/Cd3r9Hw=
-X-Received: by 2002:a17:907:1c8e:b0:ad8:9466:3354 with SMTP id
- a640c23a62f3a-ade1a9e9335mr1661481266b.54.1749571094854; Tue, 10 Jun 2025
- 08:58:14 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749572162; x=1750176962;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=cUiAnBaABBi8MmezG61ur8Gw02SUWXIVP1zr4GYN+eo=;
+        b=vAG1wMhcYPcQERJmj3A1wLHwBpmJRQBUP3qb+qoqzgCCJTYI81BAciwh3bhpQd4ntR
+         yTTI0CaUAkQP6jskdRuOQdTg/E0deHLXvGxOKBxSE5B1YTeymj9jWgQq3zGEQkomZP0o
+         bdb1pg3aSC0vnNG0Ou8wVrf1hPSYBSOOQ/BPiIHu8voXBQsVpgiu2MwbIM5Ea49iWT9p
+         yDWozfeS16xU1z7eXSL3GT6StqQlMYx0QMq8Xmau+wZvVsKHPAo3L+zUgn1V1xGVEUmQ
+         D+NpztXzaNKHCoCjFIbeNsMRmVFOlcu9/7kztS/mqDhmCble12KGliNns/fcU+mgERur
+         sroQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVvrXonQczeg2mWTdqVGaDO7jiWUGYQKXtb/H7Nltn2/UGRKai6YWayFTqfUa0hqjGUGwiBr8b5K9rk@vger.kernel.org
+X-Gm-Message-State: AOJu0YwFWzSOyuyukr1uHfWWgsk4Nj/grZ8sBKuogL6casvmpoEc0bKC
+	M0Q5YE8KKcxCqccAVCf61YxYac/P7MqfPYGqhgk3WeLl2HuZtH8Ydw06fUcNJE6QWScwc+fWM5K
+	1rSUfeg==
+X-Google-Smtp-Source: AGHT+IFXepQ7WyapQC/S8+sadNNKa7dRlJl1xoZOq4ObQKiG309XNQlCV5UWTBLTlgr03UbH2Wtya4oGIg8=
+X-Received: from pjbst14.prod.google.com ([2002:a17:90b:1fce:b0:2ea:29de:af10])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3906:b0:311:ad7f:3281
+ with SMTP id 98e67ed59e1d1-313af10ad5dmr288344a91.12.1749572161888; Tue, 10
+ Jun 2025 09:16:01 -0700 (PDT)
+Date: Tue, 10 Jun 2025 09:16:00 -0700
+In-Reply-To: <ffb5e853-dedc-45bb-acd8-c58ff2fc0b71@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250610144507.2839326-1-tmricht@linux.ibm.com>
-In-Reply-To: <20250610144507.2839326-1-tmricht@linux.ibm.com>
-From: Chun-Tse Shao <ctshao@google.com>
-Date: Tue, 10 Jun 2025 08:58:02 -0700
-X-Gm-Features: AX0GCFvf4WqpGFzStiZrH2ln41VV3jtPIe_kDsffbZb2HUEZr5ZRe6tnhFUMJk8
-Message-ID: <CAJpZYjWpcmqZfVFkCPa7ou6C+4zK0J07Q6iGmEPN4-zS9oDsiw@mail.gmail.com>
-Subject: Re: [PATCH] perf test: Skip stat uniquifying test if unavailable
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
-	hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+References: <20250529221929.3807680-1-seanjc@google.com> <20250529221929.3807680-8-seanjc@google.com>
+ <ffb5e853-dedc-45bb-acd8-c58ff2fc0b71@linux.intel.com>
+Message-ID: <aEhaQITromUV7lIO@google.com>
+Subject: Re: [kvm-unit-tests PATCH 07/16] x86/pmu: Rename pmu_gp_counter_is_available()
+ to pmu_arch_event_is_available()
+From: Sean Christopherson <seanjc@google.com>
+To: Dapeng Mi <dapeng1.mi@linux.intel.com>
+Cc: Andrew Jones <andrew.jones@linux.dev>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, "Nico =?utf-8?B?QsO2aHI=?=" <nrb@linux.ibm.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, kvm-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
 
-Hi Thomas,
+On Tue, Jun 10, 2025, Dapeng Mi wrote:
+> On 5/30/2025 6:19 AM, Sean Christopherson wrote:
+> > @@ -51,7 +51,7 @@ void pmu_init(void)
+> >  		}
+> >  		pmu.gp_counter_width = PMC_DEFAULT_WIDTH;
+> >  		pmu.gp_counter_mask_length = pmu.nr_gp_counters;
+> > -		pmu.gp_counter_available = (1u << pmu.nr_gp_counters) - 1;
+> > +		pmu.arch_event_available = (1u << pmu.nr_gp_counters) - 1;
+> 
+> "available architectural events" and "available GP counters" are two
+> different things. I know this would be changed in later patch 09/16, but
+> it's really confusing. Could we merge the later patch 09/16 into this patch?
 
-Thanks for the fix. Arnaldo also had a fix and should fix this issue.
+Ya.  I was trying to not mix too many things in one patch, but looking at this
+again, I 100% agree that squashing 7-9 into one patch is better overall.
 
-https://lore.kernel.org/all/aEHugAPinlWLuTAS@x1/
+> > @@ -463,7 +463,7 @@ static void check_counters_many(void)
+> >  	int i, n;
+> >  
+> >  	for (i = 0, n = 0; n < pmu.nr_gp_counters; i++) {
+> > -		if (!pmu_gp_counter_is_available(i))
+> > +		if (!pmu_arch_event_is_available(i))
+> >  			continue;
+> 
+> The intent of check_counters_many() is to verify all available GP and fixed
+> counters can count correctly at the same time. So we should select another
+> available event to verify the counter instead of skipping the counter if an
+> event is not available.
 
-Thanks,
-CT
-
-
-On Tue, Jun 10, 2025 at 7:45=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
->
-> Commit cb422594d6206 ("perf test: Add stat uniquifying test")
-> introduced a new test case which uses an event named clockticks
-> which is exported as sysfs file .../uncore_imc_0/clockticks.
-> This file does not exist on s390 and causes the test case to
-> always fail.
->
-> Check for the existence of file clockticks and skip this
-> test if the event does not exist.
->
-> Output before:
->  #  perf test 87
->  87: perf stat events uniquifying       : FAILED!
->  # ./perf stat -e clockticks -A
->    event syntax error: 'clockticks'
->                         \___ Bad event name
->    ...
->  #
->
-> Output after:
->  #  perf test 87
->  87: perf stat events uniquifying       : Skip
->  #
->
-> Fixes: cb422594d6206 ("perf test: Add stat uniquifying test")
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-> Cc: Chun-Tse Shao <ctshao@google.com>
-> ---
->  tools/perf/tests/shell/stat+event_uniquifying.sh | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/tools/perf/tests/shell/stat+event_uniquifying.sh b/tools/per=
-f/tests/shell/stat+event_uniquifying.sh
-> index 5ec35c52b7d9..485ee6e8f574 100755
-> --- a/tools/perf/tests/shell/stat+event_uniquifying.sh
-> +++ b/tools/perf/tests/shell/stat+event_uniquifying.sh
-> @@ -49,6 +49,11 @@ test_event_uniquifying() {
->      uniquified_event_array+=3D("${uniquified_event}")
->    done < <(${perf_tool} list -v ${event} | grep "\[Kernel PMU event\]")
->
-> +  if [ -z "$uniquified_event" ]
-> +  then
-> +    err=3D2
-> +    return
-> +  fi
->    perf_command=3D"${perf_tool} stat -e $event -A -o ${stat_output} -- tr=
-ue"
->    $perf_command
->
-> --
-> 2.49.0
->
+Agreed, but I'm going to defer that for now, this series already wanders in too
+many directions.  Definitely feel free to post a patch.
