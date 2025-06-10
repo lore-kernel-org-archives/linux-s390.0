@@ -1,119 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3B8024166B;
-	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24CD5242D96;
+	Tue, 10 Jun 2025 17:39:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749572889; cv=none; b=N3/2lJnIY02UVZgxjMqRzEHCY+RY4TTJ3LN+XhfnP3S6109zEamIbWOLmlfdmGgC7M2tm+VyPR60PazJpE83t2366uh0FwYVV2Xdt+3uLoVtd2AjAlaO4MNTTjYXB5C6lLkChM/mThOv2YabC1duX18SVSKS0ItHXSADx+jZydw=
+	t=1749577168; cv=none; b=jL3K2rmhXRVf5nXv6EsLTfKaOYPxLRJAVtLXrQh2dgbeHpvogeZp2qP6TeahTAqz1aKrLHFGfgYOLhEBK8i7b3y2bP/J5yj78Gq53w5j32rYNyoy7ZU3fk0Ud6bEbr2VqZ/EalBeugu/AWNnkJBfHFfJoAmCo+9upyAz4MQpe28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749572889; c=relaxed/simple;
-	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=cRL7VOGtrA/8IooI67lQAjAprtTkDPiTx4O/41+GvUl8+VEw7vM6ER/AI6HbVFIkTa2jxIllHPB2aNTZ4Ce/JFppjOd657tuePT1QPUl+aBL1ETTcqyYKXnJxawLT859Tzm16ccrs0zdCq5AFXKKEHhbBfeuxuqSrqTm4YHYfZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JJ1f2Y7N; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749577168; c=relaxed/simple;
+	bh=3MVevzdmKY2MoaSr9fLPlF7MVVG4u5Yky4WnC3OmSRk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=D0yGvmX2gBy55GCNpLJG7dyhMiGYQydWNF41GAW6h8hM0EIvG3jtKgy6XFw9KYx9YjhbgIOKLMT1FkG2HVQfrckrtjx/r4AaiWhDLcE1r1W+azw6YIJ1ey2Jx1OX3Z23A0RZhTUvdy7cI80cGILnyx2j1mzgXEd44CHOwHlj7Zw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=TLokPYgU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JJ1f2Y7N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E19C4CEF0;
-	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749572889;
-	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=JJ1f2Y7NQSd54tSszQLRiQIl7dD277rRFw5CD03cct8JsOIa9MeckGxwgeTNERJbY
-	 /Aq7k/QdxMobJHlLVMWLaBVYiO7WUz7b5oZF8aZHHmpn5SGMFxfrabCx4zi/NelVA7
-	 9tpmie/ZR7eRtm/GQUxR12kWA/MXW8KxThnLlIuGSON9FK96/TttZtzzrp91aMtCTf
-	 nkrgxszvlyVUm0gGo8/i60pLDKogQxJCIy6qqOtv6fYwtbh3P8fqWAcjVqLwJncDb0
-	 2wdFJTUv8YDSR+ksvQyqg1NCDe5af7sVQqmJb6cWow02fsajDICno0naOHZ+D1dFYd
-	 UMToThilj3zfw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33D5B39D6540;
-	Tue, 10 Jun 2025 16:28:41 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="TLokPYgU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D748C4CEED;
+	Tue, 10 Jun 2025 17:39:26 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="TLokPYgU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+	t=1749577164;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ijj/kgQ1/3fFIkkk9vUFgfYNo0mzKr6rXHhJ9w9nI50=;
+	b=TLokPYgU2JOEdQndAvw9+JV28T5jssbviJD7hlMW/fJJWgwg7N1xBB6JMMINtsdD2jc1wR
+	9vxPjpyhcdGVqfZKknbrL3tvYcbtlmFpSutoV8Knv518B4pawM2wjrJYa0svP2Pstv+4eW
+	hu9USEEBUy1uuH8Mnd+AajCHjJgPyQQ=
+Received: 
+	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id dec6911f (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
+	Tue, 10 Jun 2025 17:39:24 +0000 (UTC)
+Date: Tue, 10 Jun 2025 11:39:22 -0600
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, x86@kernel.org,
+	linux-arch@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v2 00/12] lib/crc: improve how arch-optimized code is
+ integrated
+Message-ID: <aEhtyvBajGE80_2Z@zx2c4.com>
+References: <20250607200454.73587-1-ebiggers@kernel.org>
+ <aETPdvg8qXv18MDu@zx2c4.com>
+ <20250608234817.GG1259@sol>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <174957291974.2454024.16546912662876416180.git-patchwork-notify@kernel.org>
-Date: Tue, 10 Jun 2025 16:28:39 +0000
-References: <20250602181256.529033-2-masahiroy@kernel.org>
-In-Reply-To: <20250602181256.529033-2-masahiroy@kernel.org>
-To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: linux-riscv@lists.infradead.org, linux-kbuild@vger.kernel.org,
- aou@eecs.berkeley.edu, agordeev@linux.ibm.com, alex@ghiti.fr,
- andreas@gaisler.com, anton.ivanov@cambridgegreys.com, bp@alien8.de,
- bcain@kernel.org, catalin.marinas@arm.com, chris@zankel.net,
- borntraeger@linux.ibm.com, christophe.leroy@csgroup.eu,
- dave.hansen@linux.intel.com, davem@davemloft.net, dinguyen@kernel.org,
- geert@linux-m68k.org, guoren@kernel.org, hpa@zytor.com, hca@linux.ibm.com,
- deller@gmx.de, chenhuacai@kernel.org, mingo@redhat.com,
- James.Bottomley@HansenPartnership.com, johannes@sipsolutions.net,
- glaubitz@physik.fu-berlin.de, jonas@southpole.se, maddy@linux.ibm.com,
- mattst88@gmail.com, jcmvbkbc@gmail.com, mpe@ellerman.id.au, monstr@monstr.eu,
- naveen@kernel.org, npiggin@gmail.com, palmer@dabbelt.com,
- paul.walmsley@sifive.com, dalias@libc.org, richard.henderson@linaro.org,
- richard@nod.at, linux@armlinux.org.uk, shorne@gmail.com,
- stefan.kristiansson@saunalahti.fi, svens@linux.ibm.com,
- tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
- vgupta@kernel.org, kernel@xen0n.name, will@kernel.org,
- ysato@users.sourceforge.jp, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
- linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- sparclinux@vger.kernel.org, x86@kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250608234817.GG1259@sol>
 
-Hello:
-
-This patch was applied to riscv/linux.git (fixes)
-by Masahiro Yamada <masahiroy@kernel.org>:
-
-On Tue,  3 Jun 2025 03:12:54 +0900 you wrote:
-> The extra-y syntax is deprecated. Instead, use always-$(KBUILD_BUILTIN),
-> which behaves equivalently.
+On Sun, Jun 08, 2025 at 04:48:17PM -0700, Eric Biggers wrote:
+> On Sat, Jun 07, 2025 at 05:47:02PM -0600, Jason A. Donenfeld wrote:
+> > On Sat, Jun 07, 2025 at 01:04:42PM -0700, Eric Biggers wrote:
+> > > Having arch-specific code outside arch/ was somewhat controversial when
+> > > Zinc proposed it back in 2018.  But I don't think the concerns are
+> > > warranted.  It's better from a technical perspective, as it enables the
+> > > improvements mentioned above.  This model is already successfully used
+> > > in other places in the kernel such as lib/raid6/.  The community of each
+> > > architecture still remains free to work on the code, even if it's not in
+> > > arch/.  At the time there was also a desire to put the library code in
+> > > the same files as the old-school crypto API, but that was a mistake; now
+> > > that the library is separate, that's no longer a constraint either.
+> > 
+> > I can't express how happy I am to see this revived. It's clearly the
+> > right way forward and makes it a lot simpler for us to dispatch to
+> > various arch implementations and also is organizationally simpler.
+> > 
+> > Jason
 > 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
->  arch/alpha/kernel/Makefile      | 2 +-
->  arch/arc/kernel/Makefile        | 2 +-
->  arch/arm/kernel/Makefile        | 2 +-
->  arch/arm64/kernel/Makefile      | 2 +-
->  arch/csky/kernel/Makefile       | 2 +-
->  arch/hexagon/kernel/Makefile    | 2 +-
->  arch/loongarch/kernel/Makefile  | 2 +-
->  arch/m68k/kernel/Makefile       | 2 +-
->  arch/microblaze/kernel/Makefile | 2 +-
->  arch/mips/kernel/Makefile       | 2 +-
->  arch/nios2/kernel/Makefile      | 2 +-
->  arch/openrisc/kernel/Makefile   | 2 +-
->  arch/parisc/kernel/Makefile     | 2 +-
->  arch/powerpc/kernel/Makefile    | 2 +-
->  arch/riscv/kernel/Makefile      | 2 +-
->  arch/s390/kernel/Makefile       | 2 +-
->  arch/sh/kernel/Makefile         | 2 +-
->  arch/sparc/kernel/Makefile      | 2 +-
->  arch/um/kernel/Makefile         | 2 +-
->  arch/x86/kernel/Makefile        | 2 +-
->  arch/xtensa/kernel/Makefile     | 2 +-
->  21 files changed, 21 insertions(+), 21 deletions(-)
+> Thanks!  Can I turn that into an Acked-by?
 
-Here is the summary with links:
-  - [2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
-    https://git.kernel.org/riscv/c/e21efe833eae
+Took me a little while longer to fully review it. Sure,
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+    Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
 
+Side note: I wonder about eventually turning some of the static branches
+into static calls.
 
+Jason
