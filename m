@@ -1,103 +1,119 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93B541F0984
-	for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 16:16:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3B8024166B;
+	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749572164; cv=none; b=ed4WZ4ll3rE/OpqwzL9/emLzUe90h/qDHY5O7uQRkrd1FRXYuewrlOxe/w6mlqFowyMgAlgjMgK2k2X2hIiqC24FJ473PLtuH6kTLS7xckDjKGEKJgziaZZskXoIfgTFQ74TWQVgFzBm1VmUg2gA5ENKes4Tofpb23/SlpG+UNw=
+	t=1749572889; cv=none; b=N3/2lJnIY02UVZgxjMqRzEHCY+RY4TTJ3LN+XhfnP3S6109zEamIbWOLmlfdmGgC7M2tm+VyPR60PazJpE83t2366uh0FwYVV2Xdt+3uLoVtd2AjAlaO4MNTTjYXB5C6lLkChM/mThOv2YabC1duX18SVSKS0ItHXSADx+jZydw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749572164; c=relaxed/simple;
-	bh=i1wysgW5zGZ4yIMcnwwg65sgoJiICB3in7hX8h58OOs=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Jx5xUK/8mqjEFU0cOWXaaUcHP3RCjGhrlnWkG4PZlxAYVj/95DBuDeK/oiHYbc0qnbpOtW4dwuDQBHmaE8F7Y5DT5o1Rt3BOYM6bx7D4PXKJc59NSDqq/5cx7HcD2QpLXZmG2xw/O2awYDdp5hhdQe1Y/WZXzscaAncvTB05jCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WoSkqB/Y; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1749572889; c=relaxed/simple;
+	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=cRL7VOGtrA/8IooI67lQAjAprtTkDPiTx4O/41+GvUl8+VEw7vM6ER/AI6HbVFIkTa2jxIllHPB2aNTZ4Ce/JFppjOd657tuePT1QPUl+aBL1ETTcqyYKXnJxawLT859Tzm16ccrs0zdCq5AFXKKEHhbBfeuxuqSrqTm4YHYfZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JJ1f2Y7N; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WoSkqB/Y"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-3138e65efe2so2031104a91.1
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 09:16:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1749572162; x=1750176962; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=cUiAnBaABBi8MmezG61ur8Gw02SUWXIVP1zr4GYN+eo=;
-        b=WoSkqB/YtB3i5+UxGLQqkpT5EmTOmLMJfo2UD0yxuDvN9CY0ZOQE1nlGImbfxxFuCq
-         cfitA5mFGzYltFmQfaY3S8+57TCuTj3zHkJKpL+05u+A1rTjBrpnfbJdxq1aFKFIDyG5
-         rpYZTnBsjWEk1XoBd71F+C/HSjbVmWGtizcX9UOTdGenPlKB98ayB021aJYLVZP0agOp
-         XLrtMlMKIOeEBeBbJc4hLy1dMzCFGeoVwiAszzB4zCwcubb/1enwaUTX68ryqbpUleCn
-         pJb+Gdh1PyhW8ettAFdMSkXY558+kvbYk3/g+s5+5UcbnyPXKHR3zGT1B4P96VAGZsKv
-         rbmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749572162; x=1750176962;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cUiAnBaABBi8MmezG61ur8Gw02SUWXIVP1zr4GYN+eo=;
-        b=vAG1wMhcYPcQERJmj3A1wLHwBpmJRQBUP3qb+qoqzgCCJTYI81BAciwh3bhpQd4ntR
-         yTTI0CaUAkQP6jskdRuOQdTg/E0deHLXvGxOKBxSE5B1YTeymj9jWgQq3zGEQkomZP0o
-         bdb1pg3aSC0vnNG0Ou8wVrf1hPSYBSOOQ/BPiIHu8voXBQsVpgiu2MwbIM5Ea49iWT9p
-         yDWozfeS16xU1z7eXSL3GT6StqQlMYx0QMq8Xmau+wZvVsKHPAo3L+zUgn1V1xGVEUmQ
-         D+NpztXzaNKHCoCjFIbeNsMRmVFOlcu9/7kztS/mqDhmCble12KGliNns/fcU+mgERur
-         sroQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVvrXonQczeg2mWTdqVGaDO7jiWUGYQKXtb/H7Nltn2/UGRKai6YWayFTqfUa0hqjGUGwiBr8b5K9rk@vger.kernel.org
-X-Gm-Message-State: AOJu0YwFWzSOyuyukr1uHfWWgsk4Nj/grZ8sBKuogL6casvmpoEc0bKC
-	M0Q5YE8KKcxCqccAVCf61YxYac/P7MqfPYGqhgk3WeLl2HuZtH8Ydw06fUcNJE6QWScwc+fWM5K
-	1rSUfeg==
-X-Google-Smtp-Source: AGHT+IFXepQ7WyapQC/S8+sadNNKa7dRlJl1xoZOq4ObQKiG309XNQlCV5UWTBLTlgr03UbH2Wtya4oGIg8=
-X-Received: from pjbst14.prod.google.com ([2002:a17:90b:1fce:b0:2ea:29de:af10])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3906:b0:311:ad7f:3281
- with SMTP id 98e67ed59e1d1-313af10ad5dmr288344a91.12.1749572161888; Tue, 10
- Jun 2025 09:16:01 -0700 (PDT)
-Date: Tue, 10 Jun 2025 09:16:00 -0700
-In-Reply-To: <ffb5e853-dedc-45bb-acd8-c58ff2fc0b71@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JJ1f2Y7N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89E19C4CEF0;
+	Tue, 10 Jun 2025 16:28:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749572889;
+	bh=VGaA2UjcATw5usDRARWAGHoyvA3nRCcXodZF/+d4fPQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=JJ1f2Y7NQSd54tSszQLRiQIl7dD277rRFw5CD03cct8JsOIa9MeckGxwgeTNERJbY
+	 /Aq7k/QdxMobJHlLVMWLaBVYiO7WUz7b5oZF8aZHHmpn5SGMFxfrabCx4zi/NelVA7
+	 9tpmie/ZR7eRtm/GQUxR12kWA/MXW8KxThnLlIuGSON9FK96/TttZtzzrp91aMtCTf
+	 nkrgxszvlyVUm0gGo8/i60pLDKogQxJCIy6qqOtv6fYwtbh3P8fqWAcjVqLwJncDb0
+	 2wdFJTUv8YDSR+ksvQyqg1NCDe5af7sVQqmJb6cWow02fsajDICno0naOHZ+D1dFYd
+	 UMToThilj3zfw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33D5B39D6540;
+	Tue, 10 Jun 2025 16:28:41 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20250529221929.3807680-1-seanjc@google.com> <20250529221929.3807680-8-seanjc@google.com>
- <ffb5e853-dedc-45bb-acd8-c58ff2fc0b71@linux.intel.com>
-Message-ID: <aEhaQITromUV7lIO@google.com>
-Subject: Re: [kvm-unit-tests PATCH 07/16] x86/pmu: Rename pmu_gp_counter_is_available()
- to pmu_arch_event_is_available()
-From: Sean Christopherson <seanjc@google.com>
-To: Dapeng Mi <dapeng1.mi@linux.intel.com>
-Cc: Andrew Jones <andrew.jones@linux.dev>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, "Nico =?utf-8?B?QsO2aHI=?=" <nrb@linux.ibm.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, kvm-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <174957291974.2454024.16546912662876416180.git-patchwork-notify@kernel.org>
+Date: Tue, 10 Jun 2025 16:28:39 +0000
+References: <20250602181256.529033-2-masahiroy@kernel.org>
+In-Reply-To: <20250602181256.529033-2-masahiroy@kernel.org>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: linux-riscv@lists.infradead.org, linux-kbuild@vger.kernel.org,
+ aou@eecs.berkeley.edu, agordeev@linux.ibm.com, alex@ghiti.fr,
+ andreas@gaisler.com, anton.ivanov@cambridgegreys.com, bp@alien8.de,
+ bcain@kernel.org, catalin.marinas@arm.com, chris@zankel.net,
+ borntraeger@linux.ibm.com, christophe.leroy@csgroup.eu,
+ dave.hansen@linux.intel.com, davem@davemloft.net, dinguyen@kernel.org,
+ geert@linux-m68k.org, guoren@kernel.org, hpa@zytor.com, hca@linux.ibm.com,
+ deller@gmx.de, chenhuacai@kernel.org, mingo@redhat.com,
+ James.Bottomley@HansenPartnership.com, johannes@sipsolutions.net,
+ glaubitz@physik.fu-berlin.de, jonas@southpole.se, maddy@linux.ibm.com,
+ mattst88@gmail.com, jcmvbkbc@gmail.com, mpe@ellerman.id.au, monstr@monstr.eu,
+ naveen@kernel.org, npiggin@gmail.com, palmer@dabbelt.com,
+ paul.walmsley@sifive.com, dalias@libc.org, richard.henderson@linaro.org,
+ richard@nod.at, linux@armlinux.org.uk, shorne@gmail.com,
+ stefan.kristiansson@saunalahti.fi, svens@linux.ibm.com,
+ tsbogend@alpha.franken.de, tglx@linutronix.de, gor@linux.ibm.com,
+ vgupta@kernel.org, kernel@xen0n.name, will@kernel.org,
+ ysato@users.sourceforge.jp, linux-alpha@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ sparclinux@vger.kernel.org, x86@kernel.org
 
-On Tue, Jun 10, 2025, Dapeng Mi wrote:
-> On 5/30/2025 6:19 AM, Sean Christopherson wrote:
-> > @@ -51,7 +51,7 @@ void pmu_init(void)
-> >  		}
-> >  		pmu.gp_counter_width = PMC_DEFAULT_WIDTH;
-> >  		pmu.gp_counter_mask_length = pmu.nr_gp_counters;
-> > -		pmu.gp_counter_available = (1u << pmu.nr_gp_counters) - 1;
-> > +		pmu.arch_event_available = (1u << pmu.nr_gp_counters) - 1;
+Hello:
+
+This patch was applied to riscv/linux.git (fixes)
+by Masahiro Yamada <masahiroy@kernel.org>:
+
+On Tue,  3 Jun 2025 03:12:54 +0900 you wrote:
+> The extra-y syntax is deprecated. Instead, use always-$(KBUILD_BUILTIN),
+> which behaves equivalently.
 > 
-> "available architectural events" and "available GP counters" are two
-> different things. I know this would be changed in later patch 09/16, but
-> it's really confusing. Could we merge the later patch 09/16 into this patch?
-
-Ya.  I was trying to not mix too many things in one patch, but looking at this
-again, I 100% agree that squashing 7-9 into one patch is better overall.
-
-> > @@ -463,7 +463,7 @@ static void check_counters_many(void)
-> >  	int i, n;
-> >  
-> >  	for (i = 0, n = 0; n < pmu.nr_gp_counters; i++) {
-> > -		if (!pmu_gp_counter_is_available(i))
-> > +		if (!pmu_arch_event_is_available(i))
-> >  			continue;
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
 > 
-> The intent of check_counters_many() is to verify all available GP and fixed
-> counters can count correctly at the same time. So we should select another
-> available event to verify the counter instead of skipping the counter if an
-> event is not available.
+>  arch/alpha/kernel/Makefile      | 2 +-
+>  arch/arc/kernel/Makefile        | 2 +-
+>  arch/arm/kernel/Makefile        | 2 +-
+>  arch/arm64/kernel/Makefile      | 2 +-
+>  arch/csky/kernel/Makefile       | 2 +-
+>  arch/hexagon/kernel/Makefile    | 2 +-
+>  arch/loongarch/kernel/Makefile  | 2 +-
+>  arch/m68k/kernel/Makefile       | 2 +-
+>  arch/microblaze/kernel/Makefile | 2 +-
+>  arch/mips/kernel/Makefile       | 2 +-
+>  arch/nios2/kernel/Makefile      | 2 +-
+>  arch/openrisc/kernel/Makefile   | 2 +-
+>  arch/parisc/kernel/Makefile     | 2 +-
+>  arch/powerpc/kernel/Makefile    | 2 +-
+>  arch/riscv/kernel/Makefile      | 2 +-
+>  arch/s390/kernel/Makefile       | 2 +-
+>  arch/sh/kernel/Makefile         | 2 +-
+>  arch/sparc/kernel/Makefile      | 2 +-
+>  arch/um/kernel/Makefile         | 2 +-
+>  arch/x86/kernel/Makefile        | 2 +-
+>  arch/xtensa/kernel/Makefile     | 2 +-
+>  21 files changed, 21 insertions(+), 21 deletions(-)
 
-Agreed, but I'm going to defer that for now, this series already wanders in too
-many directions.  Definitely feel free to post a patch.
+Here is the summary with links:
+  - [2/2] arch: use always-$(KBUILD_BUILTIN) for vmlinux.lds
+    https://git.kernel.org/riscv/c/e21efe833eae
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
