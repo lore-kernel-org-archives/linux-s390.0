@@ -1,97 +1,145 @@
-Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A0AA2918F1
-	for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 13:56:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FFD71A3154;
+	Tue, 10 Jun 2025 14:45:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749563767; cv=none; b=BMgdokKGoydHCsrVEWK0dgFmKEpuxq8ecr2waNW8Zfa+v1zTMmTOOK6pCTaHMh1fW1KkEZLIJxcdDxIm0TzBsnV3hj1y8arCDLfKXvQtv1s/ikMW0GXFO7B56dacFkJwyvXw4iGQKZ4lURR9MSjMuYxqOtvjGGkZ6SGdzVuTA6Q=
+	t=1749566739; cv=none; b=k7PqCrRJjqIG89wf/jgrw8x9liuMiX01RU/wUcRgMqLBQScWVqBD8bDul2BG11LRlKJ8IcxNAmPy3ZY1aYSZXVvEnd9onMXQkpw+e4lOK+Us8XU6NlL0FmQ0CJTvNAHDoxcD2/RqELjwUqmPoUkwuFKvLPz6vCzsn3EcPdZxufQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749563767; c=relaxed/simple;
-	bh=JKwJX9Zf9neB3fBz9oZayEpOcOA5ARWO67UpRj6yp5A=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=FRDtvgjTanwgUnc17wPFJ/Jw0rKvSRcY6bKrkPujyNqhW1dXd5YdZAB5P+8T0HIrFymCJnkeSRDIbeWwZ3nksGvW4nrrdNkyBRJFqyj0LrZxSLkUracUtbtmSLz6g0nC9qI9UdrqDEFg1Ags4IMEviKxzQ0GzAZMJa8fAdgnAIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ZAqHms4w; arc=none smtp.client-ip=209.85.214.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1749566739; c=relaxed/simple;
+	bh=h4BXOA8m9IzkD8xuRE/hKW1UduicT/oYQq3M+0Z1/W8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FdcpC9QBAIyuCG2hrCBaPvVfFrGli71pcRoZdNHB+5e+sGG3mvfif5dbGMyIohKSRdM56c0OESKHolxipPvhFsHjo1Y4MaAl4nrc86a8zFjuAjpoARO242KSe2qcWNa+1iVn9OcNatxCWE3v5nLJZwROxbBw6gs4+dtkhPm6mZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=owW6zf2d; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ZAqHms4w"
-Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-235842baba4so46732605ad.3
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 06:56:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1749563765; x=1750168565; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=x3KVVoKoPgb7czEnOr1ErvqynWAnhwXrGnn4+KyAYR4=;
-        b=ZAqHms4wnyqX99ecUjs96ygSAUKnnphdx3P5nIcDcfXIh6TfU0SOExlDZHQWwW2kS+
-         9mYTi8mkS8qt7Xkm96tOXU2iJY2Gmnqx+yyJ2SpLTU6Wjuw9ciWzjFesYwzd/BGYC7zG
-         zpD3zcePeY7yUQm+MKZB2bL7gyPQWpeD7unScO9V10BweZuOuwfDb3Rl7v4ksCvtb4rB
-         Vb1NPmwL1brz+Kykw9ZQlRRldxo/MQ1TanjDTNEKvbvKdMPeruBCOT1ugzsweyRIUBm/
-         c8/5DvLAt1vjbO/mjliAEVzW30r1ouV2ehhBPe2HQtywnD+2Cqu0AY2HaB4bP/Ty1A6W
-         KG3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749563765; x=1750168565;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=x3KVVoKoPgb7czEnOr1ErvqynWAnhwXrGnn4+KyAYR4=;
-        b=g+HlqzhFABMCH5zc5WOf4ynOdtPp9zKEYcuJ+d3CZEFNxRTJea3WfBN0tZQticT4ao
-         EJQfVcvEe9t42OnCjkOcJDjboOG4QtfcRmQ9n4eoiVfsCysUPAdmFkVoH2VWEU4kRLLV
-         iabQN/VVD3NFvfFij9c8JqAmNtUPZ4KALEFxMA60nDb3Az1FXzjYKneow+1DslCft8TY
-         NijWdPHGOs44IonwnmuiXo6OSykw21/XJ5LyxLpoBdCSSHx2tYeUtChPWbdxDrLnRBXb
-         yWNtAEwirIh5golG/mGgXyqPSsxBblxWx1+O7kyjSgOdF2+GbrXZ5Dwx0oSx1ggrnu9W
-         fBbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXSaIYRxWffWs3IrdVzpAbpvvkA5AbxkYS22JQNRvipPY8ajD0avtQ2joeRC9TZ0mgG0Vj3bRzBTkfI@vger.kernel.org
-X-Gm-Message-State: AOJu0YwETFuzsWYnxT1KiceqGg2HSHWzLGp0g3vriKePC4HX+icgatpS
-	MvQtyzgTCTj08znOlxKDPIerbXbVfUAHjc3FxpRSmZkOWB762WYxgmElBxWYCgSvZvG7W0jXwFO
-	/j37umw==
-X-Google-Smtp-Source: AGHT+IF5iWO+Sp3cyEnRYuhYT7CW/Xfid4XVEYLemf3GthWwx71VVskqhGeToz1gNCmRF8eGLZ45Y+Wg+lg=
-X-Received: from plbmo12.prod.google.com ([2002:a17:903:a8c:b0:235:895:2564])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:c952:b0:22e:421b:49b1
- with SMTP id d9443c01a7336-236383b08f1mr41011285ad.48.1749563764685; Tue, 10
- Jun 2025 06:56:04 -0700 (PDT)
-Date: Tue, 10 Jun 2025 06:56:02 -0700
-In-Reply-To: <27a6c2fe-8bdf-414f-a49c-19ad626cd131@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="owW6zf2d"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55A8w8MO010507;
+	Tue, 10 Jun 2025 14:45:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=AVzjx8YcOGkcDa5cp1k9DlHp09myGhb7fHCMAy89p
+	6Y=; b=owW6zf2dgP8XWwIJeeRC+lO5Mt1wgivi1W/eHIY4vKlwelcKX/Y9ERBsu
+	3QmeXUPEQvMUfDi09e8AYU+MlP1iHL+aS4KoL2rsIm0iGG5aSkMQj7zQpPM3brHU
+	A0Hqjm1NW2XczaYCGA4YuqfN3kRm88ZqpKLtGBsL0PEGGR1qsbgjRnVf+i2xt+TK
+	LhEhwuR2pb+rc4rWdN9GRcGGI3DrE7/NOVR4Vzqeb2jgRVh2vgAkLuTBwNA0n6MS
+	xVvYaVbYKlXMBWmlXoDw7QyRLMTYUIWssWF5r78IcaAZAap6LigbeuZJYdyfPd/I
+	+K1zPm+OeFtf8tRszsO2AsZTu69/A==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv7eu44-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Jun 2025 14:45:35 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55AEdkZc029977;
+	Tue, 10 Jun 2025 14:45:35 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv7eu40-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Jun 2025 14:45:35 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55AArRUC019575;
+	Tue, 10 Jun 2025 14:45:34 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4752f2ah6c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Jun 2025 14:45:33 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55AEjUSC47251906
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 10 Jun 2025 14:45:30 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E9E2020043;
+	Tue, 10 Jun 2025 14:45:29 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8C59B20040;
+	Tue, 10 Jun 2025 14:45:29 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 10 Jun 2025 14:45:29 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        ctshao@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH] perf test: Skip stat uniquifying test if unavailable
+Date: Tue, 10 Jun 2025 16:45:07 +0200
+Message-ID: <20250610144507.2839326-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20250529221929.3807680-1-seanjc@google.com> <20250529221929.3807680-3-seanjc@google.com>
- <27a6c2fe-8bdf-414f-a49c-19ad626cd131@linux.intel.com>
-Message-ID: <aEg5ckEXzQnF8PkH@google.com>
-Subject: Re: [kvm-unit-tests PATCH 02/16] x86: Encode X86_FEATURE_*
- definitions using a structure
-From: Sean Christopherson <seanjc@google.com>
-To: Dapeng Mi <dapeng1.mi@linux.intel.com>
-Cc: Andrew Jones <andrew.jones@linux.dev>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, "Nico =?utf-8?B?QsO2aHI=?=" <nrb@linux.ibm.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, kvm-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: DkYUqJIahu_RGpeAuuxtmsYUEbkv42jW
+X-Proofpoint-GUID: Yigdxh6nR7NsuaXdm_z6wpJANY5wzi_t
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEwMDEwOSBTYWx0ZWRfX4PkCIA420wi4 ovwIQJwhxIosc2SFiyw38L7Ym9/HSQQC3xaMG0v6uYsFq8/ikFlPPU0HC3aK6pYm/qpYPEExnOy plfB+O80vBHt5tYOiWYR4p/iSjqlb+WpadlhPveTk6zlYwOk7C4ryGOjQ6UpqTDDD3Vh/LXmM0y
+ ROxXRfJHK307hPhJrDCXZD8fhm2DQoUR01Lo7KApSdB0SGYmzzdIOevF4fDK+UGQv/1r008jYkb 7uOZMXemgW5k/cjkWq3wutiAUsHoDa3zAdSiZpfJAOa3T5JVNc1nMjgYz0PzX7oIynV5YJ9lMOf 0Qa7qpZBjpTxoeEv48iFWHpaSzSqifxFLwZv6/2vPaY5TRV3/eh6J25HfrWM6EKHPXcn2uC9vVU
+ dmzFg/oCD6oiqz6efvfHUDE9Fteh2BiAIf/Z8Tgmy1+7UuQ7VWVcSC2xReGZFOFwxFRuzSh5
+X-Authority-Analysis: v=2.4 cv=CfMI5Krl c=1 sm=1 tr=0 ts=6848450f cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8 a=TZVNMe80M5Pr-4RzpDkA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-06-10_05,2025-06-10_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 clxscore=1011 impostorscore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506100109
 
-On Tue, Jun 10, 2025, Dapeng Mi wrote:
-> On 5/30/2025 6:19 AM, Sean Christopherson wrote:
-> > +#define	X86_FEATURE_SVM			X86_CPU_FEATURE(0x80000001, 0, ECX, 2)
-> > +#define	X86_FEATURE_PERFCTR_CORE	X86_CPU_FEATURE(0x80000001, 0, ECX, 23)
-> > +#define	X86_FEATURE_NX			X86_CPU_FEATURE(0x80000001, 0, EDX, 20)
-> > +#define	X86_FEATURE_GBPAGES		X86_CPU_FEATURE(0x80000001, 0, EDX, 26)
-> > +#define	X86_FEATURE_RDTSCP		X86_CPU_FEATURE(0x80000001, 0, EDX, 27)
-> > +#define	X86_FEATURE_LM			X86_CPU_FEATURE(0x80000001, 0, EDX, 29)
-> > +#define	X86_FEATURE_RDPRU		X86_CPU_FEATURE(0x80000008, 0, EBX, 4)
-> > +#define	X86_FEATURE_AMD_IBPB		X86_CPU_FEATURE(0x80000008, 0, EBX, 12)
-> > +#define	X86_FEATURE_NPT			X86_CPU_FEATURE(0x8000000A, 0, EDX, 0)
-> > +#define	X86_FEATURE_LBRV		X86_CPU_FEATURE(0x8000000A, 0, EDX, 1)
-> > +#define	X86_FEATURE_NRIPS		X86_CPU_FEATURE(0x8000000A, 0, EDX, 3)
-> > +#define X86_FEATURE_TSCRATEMSR		X86_CPU_FEATURE(0x8000000A, 0, EDX, 4)
-> > +#define X86_FEATURE_PAUSEFILTER		X86_CPU_FEATURE(0x8000000A, 0, EDX, 10)
-> > +#define X86_FEATURE_PFTHRESHOLD		X86_CPU_FEATURE(0x8000000A, 0, EDX, 12)
-> > +#define	X86_FEATURE_VGIF		X86_CPU_FEATURE(0x8000000A, 0, EDX, 16)
-> > +#define X86_FEATURE_VNMI		X86_CPU_FEATURE(0x8000000A, 0, EDX, 25)
-> 
-> The code looks good to me except the indent style (mixed tab and space).
-> Although it's not introduced by this patch, we'd better make them identical
-> by this chance.
+Commit cb422594d6206 ("perf test: Add stat uniquifying test")
+introduced a new test case which uses an event named clockticks
+which is exported as sysfs file .../uncore_imc_0/clockticks.
+This file does not exist on s390 and causes the test case to
+always fail.
 
-Agreed, that is weird.  I didn't notice it in the code, but looking at this diff
-again, it really stands out.
+Check for the existence of file clockticks and skip this
+test if the event does not exist.
+
+Output before:
+ #  perf test 87
+ 87: perf stat events uniquifying       : FAILED!
+ # ./perf stat -e clockticks -A
+   event syntax error: 'clockticks'
+                        \___ Bad event name
+   ...
+ #
+
+Output after:
+ #  perf test 87
+ 87: perf stat events uniquifying       : Skip
+ #
+
+Fixes: cb422594d6206 ("perf test: Add stat uniquifying test")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Chun-Tse Shao <ctshao@google.com>
+---
+ tools/perf/tests/shell/stat+event_uniquifying.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/tools/perf/tests/shell/stat+event_uniquifying.sh b/tools/perf/tests/shell/stat+event_uniquifying.sh
+index 5ec35c52b7d9..485ee6e8f574 100755
+--- a/tools/perf/tests/shell/stat+event_uniquifying.sh
++++ b/tools/perf/tests/shell/stat+event_uniquifying.sh
+@@ -49,6 +49,11 @@ test_event_uniquifying() {
+     uniquified_event_array+=("${uniquified_event}")
+   done < <(${perf_tool} list -v ${event} | grep "\[Kernel PMU event\]")
+ 
++  if [ -z "$uniquified_event" ]
++  then
++    err=2
++    return
++  fi
+   perf_command="${perf_tool} stat -e $event -A -o ${stat_output} -- true"
+   $perf_command
+ 
+-- 
+2.49.0
+
