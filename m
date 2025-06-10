@@ -1,115 +1,205 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8BB811712;
-	Tue, 10 Jun 2025 03:53:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2533525F961;
+	Tue, 10 Jun 2025 06:04:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749527585; cv=none; b=hvluul7jwDipk1VuLXeadU/QIAuMxvSRukCZ9N8piIGG9aAiHaoqdvoMhPSige8LPmIn87uh3gBRqwBfn296EfqB5vSR+mgO+VBhOUKYdBSTICAGm/dmdWp4ZrdlTDqxYSmTg2nuCbqPj+HNJ0zCEnptdfyH9k1wy7LIcgU4THc=
+	t=1749535482; cv=none; b=lloAPzppqKP7QvxN1H2vLri5nrs0N70WFIMaW25D13o8awHGISc7XIvXnk9veof+xMH8PwJHVL+KzWYfw1RFIea944mU20JnvapLqN3JnruTmlRwH9655UwIlrjtZNKeFdTr+V9IUiMXfkC3WwBfcyWlV1ppN/2Cd+vvNuCozUY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749527585; c=relaxed/simple;
-	bh=SuVp9AFmt8gLD64j4a+SRLxEwyPAPmST5oVeKyyVGVI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dr+17gViv/G3wrJCZeqh9AV9Xk5h1zZ9drqhlzuFey/seFcpT3+MkFNIu6O5oui2pWUHAwB7ZPG7jYXbsWfT017/Zj2rOPxREYQnlpGpxU3q5/wkUDJgpNdanFSUlu1pPxM6WmN+4WFl7F+FPu0y3ZI35gZALur86Ic3U3ir0hU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=csie.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5532e0ad84aso5208945e87.2;
-        Mon, 09 Jun 2025 20:53:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749527581; x=1750132381;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :reply-to:in-reply-to:references:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=nZk/7/4MvcJfckdyvA+r+JfqYVWkeTH5dDDkcVRzYjI=;
-        b=KhhcGJSgZ5PvBScI9Ax7F48s/ybhfF6fvS3bqrzPZIfjD2jlT25mfIRFJguj1ea57r
-         BpCHH7wJ4BVRD3wrCfN0IlcmrZ6pTX3XIy5FMgkXJjXkvBXMRnV2NNlYKMJnPjHCtpMA
-         o0Et7UbgXc6pxENvjOOh8dku+B5AR605THKkY49sd8XiTkzBMQOycS+Z+rJp3Y6xHt3L
-         6jovsTxbaksrNBUMcaA9FG++WFG8fRd4xd/Mb0U75xEiEEWg0sN2EhSkKjPiEE2EMBTQ
-         X52Ya4NhXFPcmHtKO5gIbPrvokRcfrnr0UF/wJchxIAhpIgfr2EwHOizANJTyLmRXQNp
-         qp4g==
-X-Forwarded-Encrypted: i=1; AJvYcCU9/FJZuFGLfbbkg2vIw/reXkvkPO3h/aVc/2KrGu1birjDnxfXqyWueS4YKM5JvSKLtCSZ1i3fxo8Miw==@vger.kernel.org, AJvYcCW+HqwT+OTsKkEaAbslDnRJlz+bI1nYph23aDy2We5ct8VE7uRDFoQ8LoluDNoM+uOFBsoW+10WF9OltUex@vger.kernel.org, AJvYcCWi4iwzU36BvEhRSLupeTZIoEbdT3vFrOYqmalnuhnayrajAi4VSApwpjzKEXpDwq+aLj4/RnU3M7nfJPk=@vger.kernel.org, AJvYcCX0CGgMmXMNb+LMul6MbVbHRd0HjuSJtZsbVq3/NodqAYA0oIJ0l+F4QPg/XcAI9w1TKIVIEUl6ud0ZRh6rSB/6Yoc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxyiTg3S2Tv/ybAu+aUHISgZT2q8gboVBjzpA652HqMd1DUO2//
-	clugsNf8vljHdgnOP1JLko4xnwSzIJ35JGf+dKsSUaUswXVKFlZlVeHdCtEbe8a0rPQRxQ==
-X-Gm-Gg: ASbGncsCsD9uxztsGJe732e3OLpJgthnZLEjJlUclnNs6jheoe/ubbz3IEq3PALu11Q
-	mt/7dwjHU7NvEgPf+3bqVn0rb8wG+tPHbGoyYq4vUPHIgqJHb9oeLUKkkALyidBDW4sLkF28U8N
-	qva5arm79zRaiKIr6pFr7/84fgw+4aJH3suIErADceo6HN+s6xdfjmwprVuceqm7NBtV0ojCHWq
-	d77XguqkppbonIZhbBgd9G18rufdjMsnmsTcHlIHIZQPmZjkkbCV1mUxlOxDjc0GfugV1oWc3Rq
-	AirPOC6UyeFJG0qfsuVc9ilWjqKlC8a/mcqCARydXEjk3J8Qp2DaMrBl9Tz6j9kZnNtfkgd9RXz
-	8BpQq/B92y1UDPr2tjc3XDRx+9g==
-X-Google-Smtp-Source: AGHT+IEjqIl/G//+0L2PG04SCS4x7CxnAtsVII5K2shRbeMMFO+P5s1IyWnobe6Hdd+bWTuBmFu+IA==
-X-Received: by 2002:a05:651c:1508:b0:32a:7a12:9286 with SMTP id 38308e7fff4ca-32adfd366d6mr36284881fa.31.1749527581287;
-        Mon, 09 Jun 2025 20:53:01 -0700 (PDT)
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com. [209.85.167.42])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-32ae1d03507sm13378511fa.113.2025.06.09.20.53.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Jun 2025 20:53:01 -0700 (PDT)
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-54e98f73850so5370718e87.1;
-        Mon, 09 Jun 2025 20:53:01 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUOTsd/Kq0p5rPpjxHBGg3JsQ/kWwn6lIfNotPtyxU7ZshUtqLLmXmJIeRPEr17cIomF0meIkrPHVt1GA==@vger.kernel.org, AJvYcCUrr+gkm9kJ7C3W1pcMkrqFUjJuzlNGbPvXRg4Q9t1BVMpG4x3Wwv70gDO4YvPfaRo6iilKddHd31m62FuQ@vger.kernel.org, AJvYcCVeTQhlzr0mPNb4h7V4eHKQBbWVmeBKCncIyPwK666cavh0e0zMFoCWLWcqawY8JXKvYXIOPtkUXM70yDeIY7gno6M=@vger.kernel.org, AJvYcCVnxFLxzQUkwzcHO0uyFV7YzNcnccwzaz835xx5W7FnOPPPS/RQSRZhzDaPmyAcgO4dFZ6GLEPHurVaTY4=@vger.kernel.org
-X-Received: by 2002:a2e:b693:0:b0:32a:ddd2:208e with SMTP id
- 38308e7fff4ca-32adfc06f41mr30364041fa.9.1749527274652; Mon, 09 Jun 2025
- 20:47:54 -0700 (PDT)
+	s=arc-20240116; t=1749535482; c=relaxed/simple;
+	bh=36UM9scINuSxOcq71r1D+EjNcNuwMHJaxBerjlV5uvw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rtAHOYqZB+C6EGpPNZub6JUv9ygz/TmZg2wRi2Tzq9UjZXAGHawq9XYGNCIndnyWU05kRfmmZJr2XWtaxUigKyGlYnn4+cIWMfqEYRR08GywbfbsGJ3a+e2r2rCvHdTOo25zFKEnrNNUri3Bf8hbuwbfJSkz+7BjSgqLMFsaYdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BFeoQojw; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BFeoQojw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1749535481; x=1781071481;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=36UM9scINuSxOcq71r1D+EjNcNuwMHJaxBerjlV5uvw=;
+  b=BFeoQojwyUCwSp0XCKDF4ri0qwBPPRyAKfgricKiq35TsAHfLOfdKf7V
+   fcrwNnhHkhTE7xt4CbFW/ajRP2oDrH3b5XqeNHvBeoRA8u+hM5BrmfT5A
+   PLDI+Qw0bZyuWgy8KlcJiIZ/XkCvzc/ebTgfJaTU4rYBgEWQLsKW/vQjD
+   Ju3XwZPFNDhjNkbks1X5ZINPYvmkyNPjEedpSU9L8Hc94FXZjl/NegRfh
+   XyUXeeTna7G4OpDJN1vA+xzaMSLtjZ/jdaN5v7CwvkEQGgyMN4VP6JCOd
+   Qfo1NhjPoAIzDejhU5ylzznE/rCE4pzdXPlakmxKqpjxt9stz/f04odc8
+   g==;
+X-CSE-ConnectionGUID: fq9UB+pkQ6uoyqlzSdc2iw==
+X-CSE-MsgGUID: GwTM4LnqReSB47b0ADhyrQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11459"; a="51769386"
+X-IronPort-AV: E=Sophos;i="6.16,224,1744095600"; 
+   d="scan'208";a="51769386"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2025 23:04:40 -0700
+X-CSE-ConnectionGUID: rrwtHIuOT5Kh/SrxVy6GTw==
+X-CSE-MsgGUID: k7yHa89ORIeV1yvV3umy/g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,224,1744095600"; 
+   d="scan'208";a="146651956"
+Received: from dapengmi-mobl1.ccr.corp.intel.com (HELO [10.124.245.144]) ([10.124.245.144])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2025 23:04:39 -0700
+Message-ID: <04c70eb3-4323-45b5-9a07-020d627c64a4@linux.intel.com>
+Date: Tue, 10 Jun 2025 14:04:35 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <0-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com> <4-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
-In-Reply-To: <4-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
-Reply-To: wens@csie.org
-From: Chen-Yu Tsai <wens@csie.org>
-Date: Tue, 10 Jun 2025 11:47:42 +0800
-X-Gmail-Original-Message-ID: <CAGb2v672aLfjX2_+=gnYEt09Z2m+sDoUi-weN2VsgtqnrK_fDw@mail.gmail.com>
-X-Gm-Features: AX0GCFvT3cfnNTYictCtJSVKUrXJH3fCgSrvu85ggYc6KyathRV-zklZHWwYSnM
-Message-ID: <CAGb2v672aLfjX2_+=gnYEt09Z2m+sDoUi-weN2VsgtqnrK_fDw@mail.gmail.com>
-Subject: Re: [PATCH v2 4/7] iommu: Remove iommu_ops pgsize_bitmap from simple drivers
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	asahi@lists.linux.dev, Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	David Woodhouse <dwmw2@infradead.org>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev, Janne Grunau <j@jannau.net>, 
-	Jean-Philippe Brucker <jean-philippe@linaro.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, 
-	linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, 
-	linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>, 
-	Orson Zhai <orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Paul Walmsley <paul.walmsley@sifive.com>, Rob Clark <robin.clark@oss.qualcomm.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>, 
-	Thierry Reding <thierry.reding@gmail.com>, Krishna Reddy <vdumpa@nvidia.com>, 
-	virtualization@lists.linux.dev, Will Deacon <will@kernel.org>, 
-	Yong Wu <yong.wu@mediatek.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
-	Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>, patches@lists.linux.dev, 
-	Niklas Schnelle <schnelle@linux.ibm.com>, Sven Peter <sven@svenpeter.dev>, 
-	Tomasz Jeznach <tjeznach@rivosinc.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH 01/16] lib: Add and use static_assert()
+ convenience wrappers
+To: Sean Christopherson <seanjc@google.com>,
+ Andrew Jones <andrew.jones@linux.dev>, Janosch Frank
+ <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ =?UTF-8?Q?Nico_B=C3=B6hr?= <nrb@linux.ibm.com>,
+ Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org
+References: <20250529221929.3807680-1-seanjc@google.com>
+ <20250529221929.3807680-2-seanjc@google.com>
+Content-Language: en-US
+From: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>
+In-Reply-To: <20250529221929.3807680-2-seanjc@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jun 10, 2025 at 4:41=E2=80=AFAM Jason Gunthorpe <jgg@nvidia.com> wr=
-ote:
+
+On 5/30/2025 6:19 AM, Sean Christopherson wrote:
+> Add static_assert() to wrap _Static_assert() with stringification of the
+> tested expression as the assert message.  In most cases, the failed
+> expression is far more helpful than a human-generated message (usually
+> because the developer is forced to add _something_ for the message).
 >
-> These drivers just have a constant value for their page size, move it
-> into their domain_alloc_paging function before setting up the geometry.
+> For API consistency, provide a double-underscore variant for specifying a
+> custom message.
 >
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com> # for s390-iommu.c
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 > ---
->  drivers/iommu/exynos-iommu.c   | 3 ++-
->  drivers/iommu/ipmmu-vmsa.c     | 4 ++--
->  drivers/iommu/mtk_iommu_v1.c   | 3 ++-
->  drivers/iommu/omap-iommu.c     | 3 ++-
->  drivers/iommu/rockchip-iommu.c | 3 ++-
->  drivers/iommu/s390-iommu.c     | 2 +-
->  drivers/iommu/sprd-iommu.c     | 3 ++-
->  drivers/iommu/sun50i-iommu.c   | 3 ++-
+>  lib/riscv/asm/isa.h      | 4 +++-
+>  lib/s390x/asm/arch_def.h | 6 ++++--
+>  lib/s390x/fault.c        | 3 ++-
+>  lib/util.h               | 3 +++
+>  x86/lam.c                | 4 ++--
+>  5 files changed, 14 insertions(+), 6 deletions(-)
+>
+> diff --git a/lib/riscv/asm/isa.h b/lib/riscv/asm/isa.h
+> index df874173..fb3af67d 100644
+> --- a/lib/riscv/asm/isa.h
+> +++ b/lib/riscv/asm/isa.h
+> @@ -1,7 +1,9 @@
+>  /* SPDX-License-Identifier: GPL-2.0-only */
+>  #ifndef _ASMRISCV_ISA_H_
+>  #define _ASMRISCV_ISA_H_
+> +
+>  #include <bitops.h>
+> +#include <util.h>
+>  #include <asm/setup.h>
+>  
+>  /*
+> @@ -14,7 +16,7 @@ enum {
+>  	ISA_SSTC,
+>  	ISA_MAX,
+>  };
+> -_Static_assert(ISA_MAX <= __riscv_xlen, "Need to increase thread_info.isa");
+> +__static_assert(ISA_MAX <= __riscv_xlen, "Need to increase thread_info.isa");
+>  
+>  static inline bool cpu_has_extension(int cpu, int ext)
+>  {
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 03adcd3c..4c11df74 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -8,6 +8,8 @@
+>  #ifndef _ASMS390X_ARCH_DEF_H_
+>  #define _ASMS390X_ARCH_DEF_H_
+>  
+> +#include <util.h>
+> +
+>  struct stack_frame {
+>  	struct stack_frame *back_chain;
+>  	uint64_t reserved;
+> @@ -62,7 +64,7 @@ struct psw {
+>  	};
+>  	uint64_t	addr;
+>  };
+> -_Static_assert(sizeof(struct psw) == 16, "PSW size");
+> +static_assert(sizeof(struct psw) == 16);
+>  
+>  #define PSW(m, a) ((struct psw){ .mask = (m), .addr = (uint64_t)(a) })
+>  
+> @@ -194,7 +196,7 @@ struct lowcore {
+>  	uint8_t		pad_0x1400[0x1800 - 0x1400];	/* 0x1400 */
+>  	uint8_t		pgm_int_tdb[0x1900 - 0x1800];	/* 0x1800 */
+>  } __attribute__ ((__packed__));
+> -_Static_assert(sizeof(struct lowcore) == 0x1900, "Lowcore size");
+> +static_assert(sizeof(struct lowcore) == 0x1900);
+>  
+>  extern struct lowcore lowcore;
+>  
+> diff --git a/lib/s390x/fault.c b/lib/s390x/fault.c
+> index a882d5d9..ad5a5f66 100644
+> --- a/lib/s390x/fault.c
+> +++ b/lib/s390x/fault.c
+> @@ -9,6 +9,7 @@
+>   */
+>  #include <libcflat.h>
+>  #include <bitops.h>
+> +#include <util.h>
+>  #include <asm/arch_def.h>
+>  #include <asm/page.h>
+>  #include <fault.h>
+> @@ -40,7 +41,7 @@ static void print_decode_pgm_prot(union teid teid)
+>  			"LAP",
+>  			"IEP",
+>  		};
+> -		_Static_assert(ARRAY_SIZE(prot_str) == PROT_NUM_CODES, "ESOP2 prot codes");
+> +		static_assert(ARRAY_SIZE(prot_str) == PROT_NUM_CODES);
+>  		int prot_code = teid_esop2_prot_code(teid);
+>  
+>  		printf("Type: %s\n", prot_str[prot_code]);
+> diff --git a/lib/util.h b/lib/util.h
+> index f86af6d3..00d0b47d 100644
+> --- a/lib/util.h
+> +++ b/lib/util.h
+> @@ -8,6 +8,9 @@
+>   * This work is licensed under the terms of the GNU LGPL, version 2.
+>   */
+>  
+> +#define static_assert(expr, ...) __static_assert(expr, ##__VA_ARGS__, #expr)
+> +#define __static_assert(expr, msg, ...) _Static_assert(expr, msg)
+> +
+>  /*
+>   * parse_keyval extracts the integer from a string formatted as
+>   * string=integer. This is useful for passing expected values to
+> diff --git a/x86/lam.c b/x86/lam.c
+> index a1c98949..ad91deaf 100644
+> --- a/x86/lam.c
+> +++ b/x86/lam.c
+> @@ -13,6 +13,7 @@
+>  #include "libcflat.h"
+>  #include "processor.h"
+>  #include "desc.h"
+> +#include <util.h>
+>  #include "vmalloc.h"
+>  #include "alloc_page.h"
+>  #include "vm.h"
+> @@ -236,8 +237,7 @@ static void test_lam_user(void)
+>  	 * address for both LAM48 and LAM57.
+>  	 */
+>  	vaddr = alloc_pages_flags(0, AREA_NORMAL);
+> -	_Static_assert((AREA_NORMAL_PFN & GENMASK(63, 47)) == 0UL,
+> -			"Identical mapping range check");
+> +	static_assert((AREA_NORMAL_PFN & GENMASK(63, 47)) == 0UL);
+>  
+>  	/*
+>  	 * Note, LAM doesn't have a global control bit to turn on/off LAM
 
-Acked-by: Chen-Yu Tsai <wens@csie.org> # sun50i-iommu.c
+Reviewed-by: Dapeng Mi <dapeng1.mi@linux.intel.com>
+
+
