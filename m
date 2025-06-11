@@ -1,86 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2E64EAF9;
-	Wed, 11 Jun 2025 03:59:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 215BA2609F0;
+	Wed, 11 Jun 2025 09:40:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749614347; cv=none; b=Ts3JD+ZAwCUjXF0MZ9uZw7eKSgLRGK3Fqzd7q5ylA2J6WRwoPNvM2IqXDCJ47oGQb3cYtVQFajOe+HVpq/8UGgXDo/f/3fx39oFqMGCx1h8tX2iIBNvjLS6C9CxYMlO4IRQhMI6r0/TLpBXiI+saP6UJvEaZgkq9kmFkiarFVxw=
+	t=1749634819; cv=none; b=cf0tBekk9n2CgXA50m+8J6HqWdaCvq4JEeeZBS0PCb44zkuNAO9Vt1evpwvnjH/r3BsC8DmsIf3O86ZbFVTjmkMTGVsLpxOUqAiptnF4THX4ZLWzD2bpV0Bnk4HcaPsIBlEu1z67hLDL2Ch7SI1pydqDgyIK1U5N8OIC++ckt+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749614347; c=relaxed/simple;
-	bh=szt+yu2QyA/QhUjatSBOr43sMK30sECLXWC5HWNvAj0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GQcD2msF3gO+1V7uQv4b4STuLWSR2qmXqFMLY5SebuM159R5ves8hmgsHWCPlXwMB/Lgwws4DpRMsgChyaqLRUWVNFbw/SdmgPOkBbh1FDBUv9YBRorAYLkRPjrqHBl3XfumE6dmGMg0v6HasOLLzlb4rsXcz7y76oC5FlsJ4Vo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oCI/NgO6; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749634819; c=relaxed/simple;
+	bh=EOF0wPKaDO4VgvfGSVrXCHsbhCfTQG4KN/6dg+9yv4s=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=hE9ZrSywuDAB8B9Ty7kfGOVbaR2FJCOidO4+xjCYa1RVdgx+leegRXmkErMX075rvqOBH2DJ5DXrBcQ+9esFl6JWEYgu91e6sYGvOV1iE2I13RVJq9uEvF41Echp0BSIrusz8o3J4vT5VWEC7ZoKep8oIQwU7kikLM+8wWgdQ+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=G1EFhqLh; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oCI/NgO6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27A1EC4CEEE;
-	Wed, 11 Jun 2025 03:59:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749614346;
-	bh=szt+yu2QyA/QhUjatSBOr43sMK30sECLXWC5HWNvAj0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=oCI/NgO6t82+0dt4rZ58DB+IkwRvjcNZ8pj5AEN6fKZSLEVlNEcF2b+DBphS2gu8/
-	 soA6FLw7oMdHnpjUO+8dOJvlRr1p33bXZWdRSPljd2QvQe3FkrsUr+3IlRuy+lY705
-	 8OIZGNq6+RStoCDw3miB+z/Emh3WsYmaW7T5NQTVBV/iG//6cY5agrJleSTHWSbuGH
-	 eFd8ehhhWiUy0B2yIimmqk8TwvGDygZZ14r7jQYOb7GPEXoSNehfYGl1FkahLvK4x5
-	 IGbF4jVwt+BqNJ8PquUrLFiUbiNyU8mcnJGot5yfNv+gOb2msM+oiMu2P4k9vYt2YW
-	 nReNvxvHkbt1w==
-Date: Tue, 10 Jun 2025 20:58:42 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, x86@kernel.org, ardb@kernel.org,
-	Jason@zx2c4.com, torvalds@linux-foundation.org
-Subject: Re: [PATCH 07/16] crypto: sha512 - replace sha512_generic with
- wrapper around SHA-512 library
-Message-ID: <20250611035842.GB1484147@sol>
-References: <20250611020923.1482701-8-ebiggers@kernel.org>
- <aEjo6YZn59m5FnZ_@gondor.apana.org.au>
- <20250611033957.GA1484147@sol>
- <aEj8J3ZIYEFp_XT4@gondor.apana.org.au>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="G1EFhqLh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1749634815;
+	bh=EOF0wPKaDO4VgvfGSVrXCHsbhCfTQG4KN/6dg+9yv4s=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
+	b=G1EFhqLhpfUNHYRce2Shf7OUW7CiLa9zTxIYeMK9msSvQcpGRddVYbboJFxp09cTw
+	 pfCXxWcB111nao4H/6Un1OT5MRE1keyyNcCbWArEQxEoS4sKk6cKLDyN5wQmCcFRe0
+	 6ULMq4cpFtCfLIVeK1Vn1ahRyCQau3XZn5ofNA0qvwhRWHfYxuoovAr99sRCcgUx2z
+	 P6tlwpz/dHR3L5Keiq4qtZ7yTZES8vavuGGH4aTGckSgw/BhIDDk1c1a8p1aR852Yb
+	 iTSEbqL8vlmj9ANW56RRvQAKnFqOpvUFvx70VMhHzOFWrfwNI15zoQoSEU0wkePWUt
+	 D6rgOCsNCAr2A==
+Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id D4FA517E0FAD;
+	Wed, 11 Jun 2025 11:40:12 +0200 (CEST)
+Message-ID: <d5f0a339-11a4-42d1-82b6-807e6e45953b@collabora.com>
+Date: Wed, 11 Jun 2025 11:40:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aEj8J3ZIYEFp_XT4@gondor.apana.org.au>
+User-Agent: Mozilla Thunderbird
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Subject: Re: [PATCH v2 4/7] iommu: Remove iommu_ops pgsize_bitmap from simple
+ drivers
+To: Jason Gunthorpe <jgg@nvidia.com>, Alexandre Ghiti <alex@ghiti.fr>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Alyssa Rosenzweig <alyssa@rosenzweig.io>, Albert Ou <aou@eecs.berkeley.edu>,
+ asahi@lists.linux.dev, Baolin Wang <baolin.wang@linux.alibaba.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Stuebner <heiko@sntech.de>, iommu@lists.linux.dev,
+ Janne Grunau <j@jannau.net>, Jean-Philippe Brucker
+ <jean-philippe@linaro.org>, Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+ Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org,
+ linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org,
+ linux-riscv@lists.infradead.org, linux-rockchip@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+ Marek Szyprowski <m.szyprowski@samsung.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>, Neal Gompa <neal@gompa.dev>,
+ Orson Zhai <orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ Rob Clark <robin.clark@oss.qualcomm.com>, Robin Murphy
+ <robin.murphy@arm.com>, Samuel Holland <samuel@sholland.org>,
+ Sven Peter <sven@kernel.org>, Thierry Reding <thierry.reding@gmail.com>,
+ Krishna Reddy <vdumpa@nvidia.com>, virtualization@lists.linux.dev,
+ Chen-Yu Tsai <wens@csie.org>, Will Deacon <will@kernel.org>,
+ Yong Wu <yong.wu@mediatek.com>, Chunyan Zhang <zhang.lyra@gmail.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
+ patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
+ Sven Peter <sven@svenpeter.dev>, Tomasz Jeznach <tjeznach@rivosinc.com>
+References: <4-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
+Content-Language: en-US
+In-Reply-To: <4-v2-68a2e1ba507c+1fb-iommu_rm_ops_pgsize_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jun 11, 2025 at 11:46:47AM +0800, Herbert Xu wrote:
-> On Tue, Jun 10, 2025 at 08:39:57PM -0700, Eric Biggers wrote:
-> >
-> > Do you have a concrete example (meaning, a specific driver) where this actually
-> > matters?  Historically, export and import have always had to be paired for the
-> > same transformation object, i.e. import was called only with the output of
-> > export.  There is, and has never been, any test that tests otherwise.  This
-> > seems like a brand new "requirement" that you've made up unnecessarily.
+Il 09/06/25 22:41, Jason Gunthorpe ha scritto:
+> These drivers just have a constant value for their page size, move it
+> into their domain_alloc_paging function before setting up the geometry.
 > 
-> It's not just drivers that may be using fallbacks, the ahash API
-> code itself now relies on this to provide fallbacks for cases that
-> drivers can't handle, such as linear addresses.
-> 
-> I did add the testing for it, which revealed a few problems with
-> s390 so it was reverted for 6.16.  But I will be adding it back
-> after the s390 issues have been resolved.
+> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com> # for s390-iommu.c
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
-Okay, so it sounds like in practice this is specific to ahash_do_req_chain()
-which you recently added.  I'm not sure what it's meant to be doing.
+For MediaTek:
 
-> > I'll add export and import functions if you insist, but it seems pointless.
-> >
-> > Could you at least provide proper definitions for the legacy structs so that I
-> > don't have to do pointer arithmetic to generate them?
-> 
-> Just expose the sha512 block functions and use them as is.  There
-> is no need to do the export/import dance.
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-We're not going to support direct access to the SHA-512 compression function as
-part of the library API.  It's just unnecessary and error-prone.  crypto/ will
-just use the same well-documented and well-tested public API as everyone else.
 
-- Eric
