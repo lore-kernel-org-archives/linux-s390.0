@@ -1,93 +1,106 @@
-Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B499126462E
-	for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 19:42:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB4D32D5400;
+	Wed, 11 Jun 2025 00:41:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749584579; cv=none; b=S3Tqg4f6t6/B6t2yB5ctW9/4v4uyKGTQm+JUweEOQMstKM2+fVYvuxHiCX5JeKBecWenborpvJpSr1ynGAiTA9pUTC+QR7TFQGUK6VTJoTUXHXn56mrrtG6n/ZihnYfFtWUce19719+mw/wlnGH4lHSM7O3j1YJw4UWHjdwzY68=
+	t=1749602471; cv=none; b=uZhXpUblRVpjdEcRoNvOVew1e6q5H9a+D8NTQCjyfwdXC0/eC4GfAbbC8CLWT0RqNmFeN7uaDftG0+S7mV2OHaLt1GU/YqwAqCaZ5a/dNpcl8g1xFTvoQvZO5lTDfdJYfBg7D+GB2P19w6JS+X1zNxFjkAjdz98dQvZr72qYaQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749584579; c=relaxed/simple;
-	bh=9YkBVxUtVEzf2g1l+3bgcHOa0H7naeg11KxKDKi9ITM=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=SMZ7eAuEYj4ht7R/vWx7TUGeX0v1sOwlIAB+2eY/Y+IAwPSJVclclBoqg8Q8YJGDfLo7TMSvmlQL0UdPjfnmnDirosReHJmRlxtWqc0l55gJjTgI8R7ru4BcngIEP1eovr58nhdxRxR+a8iHO86ZkXs5GEe26GU+zmdWelGbnrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Lm/HMCf7; arc=none smtp.client-ip=209.85.210.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1749602471; c=relaxed/simple;
+	bh=wv69m7y3xJ8R+WjJkkxUqUFXthhnGnUkVzQhoJmrwhQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nseg6npIFTQpOi3xSnq2XT8fOeqgmmyCqhrPJ1aCDypuHrsYnKertQsz3DZ9fh9dOKoNAoXHIPJo1jbLYCdfggrP8+LxAUCxIwf59jaMp2SHdAYOfLg8SfMWDKiJe0g/ZN+usINQHIO4JLuvRz9Gq8L9guSRmaaLMiGhOdH8sL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cK5FL11X; arc=none smtp.client-ip=192.198.163.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Lm/HMCf7"
-Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-74841f2aee2so1510592b3a.2
-        for <linux-s390@vger.kernel.org>; Tue, 10 Jun 2025 12:42:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1749584577; x=1750189377; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=oDALznD/3c9MVqTY3u+MwmZHInHphiU0CPL0RvaHEeA=;
-        b=Lm/HMCf78V4tnhNLad87rPhOl+vMHJIhrwdUz28m3EYTlCrvPz1FXt/BOVVB9W84ts
-         9kNfnLGj11T0y9LAYxY4TIYYWAsZFbVFy6olP4urmx6VPDvasI9vJjODZACraJT+OlrM
-         J1fWMjRLwyCd2B+6A5tk1/QVQoV+f8nWhn5nyu2k5iWfCd4dBpVx8haOFr3MfPFVTZPT
-         YxsxtN+g7JJhGkInAbXUYKl/k5G9XeZNlknKN/js4wZuDhkgg1Ciiv7oJEUFFcAh9CIs
-         2bCAnweAAXJirVH91jPKgE9DS0trw0zkfImkayyTM/ezp5cUb4c6V39hBXbk2Uo8DfVK
-         erHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749584577; x=1750189377;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oDALznD/3c9MVqTY3u+MwmZHInHphiU0CPL0RvaHEeA=;
-        b=fRfbwKtBAYyaYfX9kllrejS9n5ouu6Z8yzwqD0tQd+d8dN8i0kB07kM8Kg6EBDdF3U
-         vhdYHbX1hgNrqUAta09XEr4JUvivZsPrD0zEavD7xKr+qoAjm2u2OLF4aJjuP8lDICIt
-         py6x16CpwTNKMaEoy14L5ZGraZV2+nRV0NdPbODh9d3X8Qx1DFOAo9sVsCanXarQkxTl
-         Je5MAdBYKbwWTxRRZ6D7BHkP0AR2t6e5as9vSzdbvl//GLdZ/X5morswZG7hQevOz0Gq
-         JhwPVLb/m933KC4UV06otFRoy3yUghOCXL/6KbtM5HcU3JQqvkwPajY3Vwd6gQKEXI6m
-         CpwA==
-X-Forwarded-Encrypted: i=1; AJvYcCVhPOgER196OI2kiR0g+P93KbZTXF2KeWNCy90Wp1csXfaqrOZXUgo5u0zNchyE+nnIpwyLlzEsj2ha@vger.kernel.org
-X-Gm-Message-State: AOJu0YxxfpmSC/uG3xZhDvxRmbW4/CFkrJNDLPv52X04g8RUGsELXFyh
-	cBAxrBGvEhN/FVxTyjvPY+DCdsX/rkw9JcmBPHP0G+lzM6gCwWeJWiheWEFjQXpvNGLUHuNjuaJ
-	/vXdacA==
-X-Google-Smtp-Source: AGHT+IFcAOO3RSRtE5/jK1DkybZihifw/RBRr2CZFZLIL3K3lAfdD4oPG0LZgY/dzFkx0SmxXZyKAYsG10A=
-X-Received: from pfbhe19.prod.google.com ([2002:a05:6a00:6613:b0:746:19fc:f077])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1703:b0:736:6ecd:8e32
- with SMTP id d2e1a72fcca58-7486cdfcc3amr980353b3a.21.1749584576971; Tue, 10
- Jun 2025 12:42:56 -0700 (PDT)
-Date: Tue, 10 Jun 2025 12:42:18 -0700
-In-Reply-To: <20250529221929.3807680-1-seanjc@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cK5FL11X"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1749602470; x=1781138470;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=wv69m7y3xJ8R+WjJkkxUqUFXthhnGnUkVzQhoJmrwhQ=;
+  b=cK5FL11XM5olRLCDO0WINS95j2X9m0sT6annQP3+PH3zJah85XcVMhwE
+   NVrYCirAGfLR6MS3DcAnzJ6Eyiky6KPPuKat+cCd4ZneNcvO0qatg6Ya8
+   xPz8QY1qlg2WlXwU4Cg4ao3BzOlQNkxki46naTyk0uW3TKfJPCe765LAg
+   xlLsJeTw5TPHPwqP+/rRzpbuSUHlwf5Z8rLBjpuhAFz28lQvC8YIdjCvG
+   bLCWIqK2s3jtkqm01ZiNltn1irT5o/fR48A5revOZiDIxGKJ5RvksNKdG
+   aMZfr4u0WoAVodbIUEzcRNGE73stbemlLtjnBJsucf2+bRP9M3icYPmLE
+   w==;
+X-CSE-ConnectionGUID: aOeSHgh8R9+rwMIgQ1IGeQ==
+X-CSE-MsgGUID: tjAcDx9nQOK4KiKEhM0EOw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11460"; a="50957705"
+X-IronPort-AV: E=Sophos;i="6.16,226,1744095600"; 
+   d="scan'208";a="50957705"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2025 17:41:09 -0700
+X-CSE-ConnectionGUID: +3sEoNirRQWj7lm2LYpISg==
+X-CSE-MsgGUID: IkS75glYQImOsEKmFYhVBw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,226,1744095600"; 
+   d="scan'208";a="184176087"
+Received: from dapengmi-mobl1.ccr.corp.intel.com (HELO [10.124.245.144]) ([10.124.245.144])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2025 17:41:06 -0700
+Message-ID: <e6d1f2de-125e-4741-8f50-eebd42c3474c@linux.intel.com>
+Date: Wed, 11 Jun 2025 08:41:03 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH 07/16] x86/pmu: Rename
+ pmu_gp_counter_is_available() to pmu_arch_event_is_available()
+To: Sean Christopherson <seanjc@google.com>
+Cc: Andrew Jones <andrew.jones@linux.dev>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, =?UTF-8?Q?Nico_B=C3=B6hr?=
+ <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org
 References: <20250529221929.3807680-1-seanjc@google.com>
-X-Mailer: git-send-email 2.50.0.rc0.642.g800a2b2222-goog
-Message-ID: <174958127087.101429.2266783610076724411.b4-ty@google.com>
-Subject: Re: [kvm-unit-tests PATCH 00/16] x86: Add CPUID properties, clean up
- related code
-From: Sean Christopherson <seanjc@google.com>
-To: Sean Christopherson <seanjc@google.com>, Andrew Jones <andrew.jones@linux.dev>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	"=?UTF-8?q?Nico=20B=C3=B6hr?=" <nrb@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org
-Content-Type: text/plain; charset="utf-8"
+ <20250529221929.3807680-8-seanjc@google.com>
+ <ffb5e853-dedc-45bb-acd8-c58ff2fc0b71@linux.intel.com>
+ <aEhaQITromUV7lIO@google.com>
+Content-Language: en-US
+From: "Mi, Dapeng" <dapeng1.mi@linux.intel.com>
+In-Reply-To: <aEhaQITromUV7lIO@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, 29 May 2025 15:19:13 -0700, Sean Christopherson wrote:
-> Copy KVM selftests' X86_PROPERTY_* infrastructure (multi-bit CPUID
-> fields), and use the properties to clean up various warts.  The SEV code
-> is particular makes things much harder than they need to be (I went down
-> this rabbit hole purely because the stupid MSR_SEV_STATUS definition was
-> buried behind CONFIG_EFI=y, *sigh*).
-> 
-> The first patch is a common change to add static_assert() as a wrapper
-> to _Static_assert().  Forcing code to provide an error message just leads
-> to useless error messages.
-> 
-> [...]
 
-To avoid spamming non-x86 folks with noise, applied patch 1 to kvm-x86 next.
-I'll send a v2 for the rest.
+On 6/11/2025 12:16 AM, Sean Christopherson wrote:
+> On Tue, Jun 10, 2025, Dapeng Mi wrote:
+>> On 5/30/2025 6:19 AM, Sean Christopherson wrote:
+>>> @@ -51,7 +51,7 @@ void pmu_init(void)
+>>>  		}
+>>>  		pmu.gp_counter_width = PMC_DEFAULT_WIDTH;
+>>>  		pmu.gp_counter_mask_length = pmu.nr_gp_counters;
+>>> -		pmu.gp_counter_available = (1u << pmu.nr_gp_counters) - 1;
+>>> +		pmu.arch_event_available = (1u << pmu.nr_gp_counters) - 1;
+>> "available architectural events" and "available GP counters" are two
+>> different things. I know this would be changed in later patch 09/16, but
+>> it's really confusing. Could we merge the later patch 09/16 into this patch?
+> Ya.  I was trying to not mix too many things in one patch, but looking at this
+> again, I 100% agree that squashing 7-9 into one patch is better overall.
+>
+>>> @@ -463,7 +463,7 @@ static void check_counters_many(void)
+>>>  	int i, n;
+>>>  
+>>>  	for (i = 0, n = 0; n < pmu.nr_gp_counters; i++) {
+>>> -		if (!pmu_gp_counter_is_available(i))
+>>> +		if (!pmu_arch_event_is_available(i))
+>>>  			continue;
+>> The intent of check_counters_many() is to verify all available GP and fixed
+>> counters can count correctly at the same time. So we should select another
+>> available event to verify the counter instead of skipping the counter if an
+>> event is not available.
+> Agreed, but I'm going to defer that for now, this series already wanders in too
+> many directions.  Definitely feel free to post a patch.
 
-[01/16] lib: Add and use static_assert() convenience wrappers
-        https://github.com/kvm-x86/kvm-unit-tests/commit/863e0b90fb88
+Sure. Thanks.
 
---
-https://github.com/kvm-x86/kvm-unit-tests/tree/next
+
