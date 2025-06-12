@@ -1,130 +1,153 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467C41EA65;
-	Thu, 12 Jun 2025 12:16:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52EE629B8D8;
+	Thu, 12 Jun 2025 17:36:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749730580; cv=none; b=jLe6s9CVUWEpwvwgKwg7KKq/hZRhn9cY4Wb2NJnO4ybHtRp3f608szOIp64FJ+ZZeJ56QOhAUXlouH48zIyENc+pPBbWC7S7Xo5Vbdadu+ZEZGtV9K97eEXDh7kEAC/1U4bH5J8qwaM0Li5YePiY2P860Oie36CzYUEh7NWpN28=
+	t=1749749809; cv=none; b=tDUDDnMF969hoN+5g1+bYHSiiyhoJ5cLA3PvwUHuWALiSL7qUdX+RgNoREAYi9rpcnVBqyrT5cE9Ai3sG9o6NgLSaub0VQSa6Sixrb2NnFZbfdY6MhBWrJCIu2NDPEVZ8K5MXuL7crSrIiqc2fbNrvm+4OUOuup+L4g7M9rBro0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749730580; c=relaxed/simple;
-	bh=QYKln1FWkJkewV6m9D9iVAYsU7JrXPL0itElPg1yRp0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d00DC/PH06VHmK1VHmElc9aXw1YXMzTGjtdKWqSiBRVjI9TnGnOqBW1pw2FvBX0os1JqBJqa0vj5Q8qUv9n5P2igjgFTHEhaGaWyCY7nJVFWc0bjEtp+stAiYqhVw7Xw95i4L8jOVId8sqE7f4gIfYvxkMafes+w147t5tvTuVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZRCoBG68; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1749749809; c=relaxed/simple;
+	bh=Se1kv5v15PXSnxvpQY8zYf3zFp+uZCAbnl5JZqIlXQ8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LmFarj0uo9vRsfCh6yEsljIvaWCmN+IvVLWTIz8JdlSI6qkY/SvzBoIM7zcVMqQQIejbHKl3ie6Qpb6ByM7y2T8DzxwB0RWnF+5bRup7jffvsty9nGRwB4NsWTE0NT/X+wje2X0qQ2A2gs/AWmX7j1f1pp5ezf0QULRegg38ntI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gPjOJz2D; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZRCoBG68"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55C8QlUb000795;
-	Thu, 12 Jun 2025 12:15:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gPjOJz2D"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55C9xpHh005022;
+	Thu, 12 Jun 2025 17:36:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=oWUl518ENhE+I//VZIwKOVmltiU0OD
-	OamU9HtHFT4ko=; b=ZRCoBG689NVVhqLKP7vze5DKf2BAnmXTflsjNIThBvGPlI
-	uIEJjP7Oxdueu/uF/ilUISry/+blVmZrdj1lI4jwmIajuM02kQ5aDHC/waEHNGXE
-	ZgjTahqs6XRKDwMwJjxn8qbmWyZetP6waqHk6dZiPSsact1WHPo/WMIeNovJYUhF
-	lMl6tMhY4UP5duvOTtZ82rXt3LhhcnVlad71gbpqMG5o8t7tIK2j/YypwZQ7mEY4
-	8DMYXv1nYzmb6NVT530Uhx5rx1q5hjKlfdSEC58ezgD4lFfQUP+UxuejtKCvbLxX
-	soIZ/o8ePAlbVKhv19rd4cllToF/i83nwTy1RSwg==
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ANjAB/i+3wqbtm/fqKC9pjVNNGYd+LvuX5UmSeokV
+	jQ=; b=gPjOJz2DlLLAahuxLsMvga8P96e5QtjjssuX3WnL7wfNwU9S7odZ1iF9n
+	AHXZaL0QgY2Yvv6+PISmVU8AGURt3TkfFKWYn1x50taMSKAa7h1Py0L08hzBockn
+	sQx28XfA83iutCkSgewhPkGk2hg9n0qPC6L8fNJUmDuqW9yEPkMry4L+GC9tTYO0
+	SD4Ldvr2NfjhdTYVv7Rn944LtNQhipOioR+F7fsnJ9kdle/XbEcv+ONZ2kYaVUYJ
+	/VTaRAakSqlZ1oK9rnq/4HmKpkaucRMwQY60+eLDS+xgc8bSOsXNrs+da1Mm5Jx9
+	DxiiZIL4w7ZQHN8ei7UjgxYir2X1w==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4769wyy8wq-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474x4mhdbs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Jun 2025 12:15:54 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55CCFCUT001664;
-	Thu, 12 Jun 2025 12:15:53 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4769wyy8wk-1
+	Thu, 12 Jun 2025 17:36:16 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55CHaGIg029272;
+	Thu, 12 Jun 2025 17:36:16 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474x4mhdbp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Jun 2025 12:15:53 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55CB5COG028110;
-	Thu, 12 Jun 2025 12:15:52 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47518mmhw8-1
+	Thu, 12 Jun 2025 17:36:16 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55CGbdNq015205;
+	Thu, 12 Jun 2025 17:36:15 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 474yrtp6b1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Jun 2025 12:15:51 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55CCFmwq52822512
+	Thu, 12 Jun 2025 17:36:15 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55CHaE2S46072192
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 12 Jun 2025 12:15:48 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0788E20043;
-	Thu, 12 Jun 2025 12:15:48 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BBD7120040;
-	Thu, 12 Jun 2025 12:15:46 +0000 (GMT)
-Received: from osiris (unknown [9.87.144.171])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 12 Jun 2025 12:15:46 +0000 (GMT)
-Date: Thu, 12 Jun 2025 14:15:45 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Hao Ge <hao.ge@linux.dev>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        David Hildenbrand <david@redhat.com>,
-        Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        Matt Turner <mattst88@gmail.com>, Dennis Zhou <dennis@kernel.org>,
-        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Kent Overstreet <kent.overstreet@linux.dev>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-        linux-s390@vger.kernel.org, Hao Ge <gehao@kylinos.cn>
-Subject: Re: [PATCH 2/5] alpha: Modify the definition logic of WEAK_PER_CPU
-Message-ID: <20250612121545.10868G00-hca@linux.ibm.com>
-References: <cover.1749715979.git.gehao@kylinos.cn>
- <4d78498def57e0df4c768ad9eb672cac68fb51dc.1749715979.git.gehao@kylinos.cn>
- <20250612112215.10868Da1-hca@linux.ibm.com>
- <496a782f-25f8-44c5-88dd-d2c56a585898@linux.dev>
+	Thu, 12 Jun 2025 17:36:14 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F201B20043;
+	Thu, 12 Jun 2025 17:36:13 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DE45420040;
+	Thu, 12 Jun 2025 17:36:13 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 12 Jun 2025 17:36:13 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
+	id 9B577E0157; Thu, 12 Jun 2025 19:36:13 +0200 (CEST)
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        sparclinux@vger.kernel.org, xen-devel@lists.xenproject.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        Hugh Dickins <hughd@google.com>, Nicholas Piggin <npiggin@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>, Juergen Gross <jgross@suse.com>,
+        Jeremy Fitzhardinge <jeremy@goop.org>,
+        Ryan Roberts <ryan.roberts@arm.com>
+Subject: [PATCH 0/6] mm: Consolidate lazy MMU mode context
+Date: Thu, 12 Jun 2025 19:36:07 +0200
+Message-ID: <cover.1749747752.git.agordeev@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <496a782f-25f8-44c5-88dd-d2c56a585898@linux.dev>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5ECCCBaGq-b_DYDsiRkDmnLOEbpQwJim
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEyMDA5MCBTYWx0ZWRfXxUECaCqM6x6t s7fRYZxCkwb+mfNdorKCrdr9h/2Kd4a8ptgDxMXlhfwJhlnf4o9fYI3szL9PEzFn1EKlYFBHcqP G30vWpgQIxhLvtBJNMBfpj8TIO0lqXNbcNzgvYYuEG1/3AmcfyzoBAijj/vGkQ1kRg7QhstqhO3
- Q5o1etjsLGxmuaOTnSNxQn9GuOMbSKlYl5TeA9wrog8RdFr6+WfMn6kbHJHJG50gAH/1a0Fg1nE nbdiY39ZoeTcdD++XEWZcVQfurnvkixl3gxvBRhWHQGjfCDaRtCvXNbTExpYbE7OxmhYD03Tmag 1frXCKZ0FWX1VSlu+1XRb/XqvAmxiPVe+qrQQdKPtT08EDcHLOj3G8FOW8FFdgG9gbP5wq9DLDH
- 9kZfXuXfr1QTd7E+0m1yGiG7bLJNpRC+ec+YSs6AaHnYevnOAAgMqw6xtkL5+BZ43RjyNkv5
-X-Authority-Analysis: v=2.4 cv=YKGfyQGx c=1 sm=1 tr=0 ts=684ac4fa cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=PvjgP0zBWn8W4tAsNlkA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: uWhc6G93y2Cxo5Tu8uuCIUnZGVE0d5xZ
+X-Authority-Analysis: v=2.4 cv=Y4X4sgeN c=1 sm=1 tr=0 ts=684b1011 cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=_adeEUt4WAeD9YfioJwA:9
+X-Proofpoint-GUID: qr5W2YIzc2A8ZYU2dsRpP1AphHqeKos2
+X-Proofpoint-ORIG-GUID: y6xW9IJSAE1JE6kcXuiy_mrCImk2ZWSK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEyMDEzMiBTYWx0ZWRfXwOXjIkbbpepd OoV77Zxzv1DOdGZHdC1rjgNBCs+WzETf7mIinKv8drROUhS3PC4S3Ul3Eq1Rd7PKATmFyM+TDvL kAnBooerznbgDsNZ+/ZPaU+KOsEBXC93w8q9w6KmW11m/vgE/aUeMTSFQFutpSKrQJxT61mMBuv
+ KSDxU4i8iMDqRaETa8beoNjTewS286bfktL7BQreW7c9kRIZcei0lJ9aqGyaWPDFPjwcafICCtq M+2fDqSlBJ149EKa1BJjaYXJjRiLvX/CmWd9wRa81Sdbs49mWKwGJKFbJ7AczMoR5fjZJzIohlx h7ggGzYUtbK6qCOXcSYaA1viUBK2oMNNt7ackAbJO+mupvs+X1Tc6Jccl69/IVghIosL27dXHPA
+ isXNAQ9475tlf5eWUprb3n3jaqwe+zULK27nDf9N0r4ezafy+XnKcezzdAsVHSGEj7SQHlPp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-12_08,2025-06-10_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
- malwarescore=0 bulkscore=0 priorityscore=1501 phishscore=0 mlxscore=0
- lowpriorityscore=0 impostorscore=0 adultscore=0 mlxlogscore=621
- suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506120090
+ definitions=2025-06-12_10,2025-06-12_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=994 spamscore=0
+ clxscore=1011 lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0
+ impostorscore=0 suspectscore=0 phishscore=0 mlxscore=0 priorityscore=1501
+ classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506120132
 
-On Thu, Jun 12, 2025 at 08:06:25PM +0800, Hao Ge wrote:
-> > Furthermore this removes ARCH_NEEDS_WEAK_PER_CPU and defines
-> > MODULE_NEEDS_WEAK_PER_CPU while the common code conversion happens
-> > only with patch 4. Or in other words: if patches are split like this
-> > things break.
-> > 
-> > Same is true for patch 3. Just merging patches 2-4 would be the
-> > easiest solution to this problem.
-> 
-> I think this should be CC'd to the stable branch.
+Hi All,
 
-Why should this go to stable? This is just a minor optimization.
+Consolidate arch_enter|leave|flush_lazy_mmu_mode() context and protect
+with a lock not only user, but also kernel mappings before entering
+the lazy MMU mode.
 
-> I'm wondering if these need to be integrated into a single patch.
-> 
-> I'm not sure. What do you think?
+For not fully preemptible (Real-Time) kernels that simplifies semantics -
+while the mode is active the code should assume it is executing in atomic
+context. That paves the way for cleanups, such as suggested for sparc and
+powerpc and hopefully brings a bit more clarity in what labeled in commit
+691ee97e1a9d ("mm: fix lazy mmu docs and usage") as "a bit of a mess (to
+put it politely)".
 
-stable or not: this series must be bisectable, which is currently not the case.
+The fully preemptible (Real-Time) kernels could probably also be brought
+into the fold, but I am not sure about implications (to say at least).
+
+This series is continuation of [1] and [2], with commit b6ea95a34cbd
+("kasan: avoid sleepable page allocation from atomic context") already
+upstream.
+
+I dared to keep Nicholas Piggin R-b on patch 3, but dropped it from
+patch 2 due to new bits.
+
+Except the optional sparc (untested) and powerpc (complile-tested)
+updates this series is a prerequisite for implementation of lazy MMU
+mode on s390.
+
+1. https://lore.kernel.org/linux-mm/cover.1744037648.git.agordeev@linux.ibm.com/#r
+2. https://lore.kernel.org/linux-mm/cover.1744128123.git.agordeev@linux.ibm.com/#r
+
+Thanks!
+
+Alexander Gordeev (6):
+  mm: Cleanup apply_to_pte_range() routine
+  mm: Lock kernel page tables before entering lazy MMU mode
+  mm/debug: Detect wrong arch_enter_lazy_mmu_mode() contexts
+  sparc/mm: Do not disable preemption in lazy MMU mode
+  powerpc/64s: Do not disable preemption in lazy MMU mode
+  powerpc/64s: Do not re-activate batched TLB flush
+
+ .../include/asm/book3s/64/tlbflush-hash.h     | 13 ++++----
+ arch/powerpc/include/asm/thread_info.h        |  2 --
+ arch/powerpc/kernel/process.c                 | 25 --------------
+ arch/sparc/include/asm/tlbflush_64.h          |  2 +-
+ arch/sparc/mm/tlb.c                           | 12 ++++---
+ include/linux/pgtable.h                       | 32 +++++++++++++-----
+ mm/kasan/shadow.c                             |  5 ---
+ mm/memory.c                                   | 33 ++++++++++++-------
+ mm/vmalloc.c                                  |  6 ++++
+ 9 files changed, 65 insertions(+), 65 deletions(-)
+
+-- 
+2.48.1
+
