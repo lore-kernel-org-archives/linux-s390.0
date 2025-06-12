@@ -1,32 +1,32 @@
-Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
+Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [95.215.58.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E492F22173A
-	for <linux-s390@vger.kernel.org>; Thu, 12 Jun 2025 08:27:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 071402288C6
+	for <linux-s390@vger.kernel.org>; Thu, 12 Jun 2025 08:28:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749716880; cv=none; b=t7OPolypXq0q3DZJD4eDMB1MeU3wX96cMQM/ew6OfAG1VNcv+isw9R/mUsBb08PSRrye2UaOS5ZtjQ23z1koQnJa5ZbhJu1bWkgjrPxdMc/y4x546hkj4ccYtRXYbCqEj0h23tIYW7DXBQuI6QUO0/M9gxWXHL0p7rNO0MzgbXY=
+	t=1749716890; cv=none; b=Fn+L1/Hg3v+VA0L0kB3k6BItZUUEqZl71CXUHcFFluBUb2/3J1AH/wdY2Cfu4aB/kp5m6tELow87EbINGEzXA7K177ud6ersFOwAlHPnOGz3MbLkXnvOvqOdcAqeTzZUKaZTGss62EYlMJg7oO6ETI9TxiEQOcJfdbSYS7hiOAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749716880; c=relaxed/simple;
-	bh=Nz1hoxeCVid4KDiYsbry1h75tkpxToMSbYYTBDfpWX0=;
+	s=arc-20240116; t=1749716890; c=relaxed/simple;
+	bh=wa3NJsPEjZo2b/QKbicW0EiI4fSq+OLPcvk7PO4wrSQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=EOAwscAGVW9/h/ZI3jdDpdqpsT2xsoEQN6uRcgpmkBtC8U13+ket4xffqQ6PqHNbV6SfQr+xIPSHP3SA6+3rA3ULjYf+90RthtGVQMiKXEsyi1AqqhbwAfgs2EJRf4S0F3Ow1/L5IukgfVy7UdFJsH6Kk2Y6TuFK0wJPllXtutE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=nmPzjN15; arc=none smtp.client-ip=95.215.58.188
+	 MIME-Version; b=aKmPWakYaOMGt5Ju5XqIf5hvOufK1LEW6isV1G+K/vopLxqgSmMoWt/IbDAIyORJkXTLKG4GQUvGMKWNwhwLslFnOSVkaK4fppG/jCsDEchsLM4Egjsr4EVy0r7E0NL4lPANXZV6iXzx+Kp64xopw3NTNx7ZudBdM7G/9zWq4P0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=lC689Via; arc=none smtp.client-ip=95.215.58.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="nmPzjN15"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="lC689Via"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1749716876;
+	t=1749716885;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=DkwHp5gNVL4KbrY8qJCfk1r1LfLJg5q3t6hNJxRz8qU=;
-	b=nmPzjN15kNg2zZxVlReQNakgS5TF3ho91Ph6hVAfiA4oJKSrWfJCp+pQEPZJtlhCTA4Lyu
-	0cRw1Owdsye3SJJjmFPVqo6b2hHxZzWDOoiQ3NswjOECaZ5DWipIDY5grB5UAaXWwwG2ly
-	2xJVBI8AEgg5oaEnRvQhSiqvPS/z6Mc=
+	bh=1+SMqaJRr2gw7tiajb6Lxu2Z2z8tbEjCcRQA4pFVOF8=;
+	b=lC689Viaz/2NV57fIl0BJ1lVZVPTi4rseVn5hKRgU9tieWXVdp4iqPcGcsbWmAFMS9wQK8
+	3feriPh5QlfbgT6OtRljSbkKI2MtbpLkU1WYvKdb/9nvHpz6olrwacdtPA3wZRdvvQxB1S
+	evIAzeIU/aX82uOb2THJm4a/3/IAThU=
 From: Hao Ge <hao.ge@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	David Hildenbrand <david@redhat.com>,
@@ -52,9 +52,9 @@ Cc: linux-mm@kvack.org,
 	linux-s390@vger.kernel.org,
 	Hao Ge <hao.ge@linux.dev>,
 	Hao Ge <gehao@kylinos.cn>
-Subject: [PATCH 1/5] mm/Kconfig: add ARCH_NEEDS_WEAK_PER_CPU option
-Date: Thu, 12 Jun 2025 16:27:26 +0800
-Message-Id: <c7e5c5d737c2373f18320e5589e1921c662f8e35.1749715979.git.gehao@kylinos.cn>
+Subject: [PATCH 2/5] alpha: Modify the definition logic of WEAK_PER_CPU
+Date: Thu, 12 Jun 2025 16:27:27 +0800
+Message-Id: <4d78498def57e0df4c768ad9eb672cac68fb51dc.1749715979.git.gehao@kylinos.cn>
 In-Reply-To: <cover.1749715979.git.gehao@kylinos.cn>
 References: <cover.1749715979.git.gehao@kylinos.cn>
 Precedence: bulk
@@ -68,55 +68,49 @@ X-Migadu-Flow: FLOW_OUT
 
 From: Hao Ge <gehao@kylinos.cn>
 
-Recently discovered this entry while checking kallsyms on ARM64:
-ffff800083e509c0 D _shared_alloc_tag
+As stated in the first patch of this patch series,
+we make ARCH_NEEDS_WEAK_PER_CPU a Kconfig option,
+and replace all instances of ARCH_NEEDS_WEAK_PER_CPU
+in the kernel code with MODULE_NEEDS_WEAK_PER_CPU,
+gated by #ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU.
 
-If ARCH_NEEDS_WEAK_PER_CPU is not defined((it is only defined for
-s390 and alpha architectures),there's no need to statically define
-the percpu variable _shared_alloc_tag. As the number of CPUs
-increases,the wasted memory will grow correspondingly.
-
-Therefore,we need to implement isolation for this purpose.
-
-However,currently ARCH_NEEDS_WEAK_PER_CPU is a #define and
-is enclosed within the #if defined(MODULE) conditional block.
-
-When building the core kernel code for s390 or alpha architectures,
-ARCH_NEEDS_WEAK_PER_CPU remains undefined (as it is gated
-by #if defined(MODULE)).However,when building modules for these
-architectures,the macro is explicitly defined.
-
-Therefore,we need to make ARCH_NEEDS_WEAK_PER_CPU a Kconfig option.
-And replace all instances of ARCH_NEEDS_WEAK_PER_CPU in the kernel
-code with MODULE_NEEDS_WEAK_PER_CPU,gated
-by #ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU.Then,when defining
-the percpu variable _shared_alloc_tag,wrap it
-with the CONFIG_ARCH_NEEDS_WEAK_PER_CPU condition.
-
-Therefore,we should add the ARCH_NEEDS_WEAK_PER_CPU option
-to the mm Kconfig file.
+We'll make corresponding changes for the alpha
+architecture.
 
 Suggested-by: Suren Baghdasaryan <surenb@google.com>
 Signed-off-by: Hao Ge <gehao@kylinos.cn>
 ---
- mm/Kconfig | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/alpha/Kconfig              | 1 +
+ arch/alpha/include/asm/percpu.h | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mm/Kconfig b/mm/Kconfig
-index e113f713b493..36bb4d6fd360 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -929,6 +929,10 @@ config ARCH_SUPPORTS_PUD_PFNMAP
- 	def_bool y
- 	depends on ARCH_SUPPORTS_HUGE_PFNMAP && HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
+index 109a4cddcd13..ce9bc842e384 100644
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -7,6 +7,7 @@ config ALPHA
+ 	select ARCH_HAS_DMA_OPS if PCI
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
++	select ARCH_NEEDS_WEAK_PER_CPU
+ 	select ARCH_NO_PREEMPT
+ 	select ARCH_NO_SG_CHAIN
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+diff --git a/arch/alpha/include/asm/percpu.h b/arch/alpha/include/asm/percpu.h
+index 6923249f2d49..5d8b75ec3bf2 100644
+--- a/arch/alpha/include/asm/percpu.h
++++ b/arch/alpha/include/asm/percpu.h
+@@ -10,8 +10,8 @@
+  *
+  * Always use weak definitions for percpu variables in modules.
+  */
+-#if defined(MODULE) && defined(CONFIG_SMP)
+-#define ARCH_NEEDS_WEAK_PER_CPU
++#if defined(MODULE) && defined(CONFIG_SMP) && defined(CONFIG_ARCH_NEEDS_WEAK_PER_CPU)
++#define MODULE_NEEDS_WEAK_PER_CPU
+ #endif
  
-+# s390 and alpha be enabled,see comments for DECLARE_PER_CPU_SECTION
-+config ARCH_NEEDS_WEAK_PER_CPU
-+       bool
-+
- #
- # UP and nommu archs use km based percpu allocator
- #
+ #include <asm-generic/percpu.h>
 -- 
 2.25.1
 
