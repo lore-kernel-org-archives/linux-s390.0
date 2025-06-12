@@ -1,49 +1,58 @@
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from out-172.mta1.migadu.com (out-172.mta1.migadu.com [95.215.58.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B862198A1A;
-	Wed, 11 Jun 2025 19:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.149.199.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90C1A2036EC
+	for <linux-s390@vger.kernel.org>; Thu, 12 Jun 2025 07:55:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749669631; cv=none; b=TMxsuSSDhQibFZomhLBS15EPqmzLymAELZ61DVjUwsA1HaaEVZOmjmBGex7SbZKCD66OX+SAOWrR+3DCtl57evARcHoGsmYZXmlFCetBQ8F7gT+cbSJsg4VNNKP+uhfibb+UbuP3YPCH12BraiVJNkTEXQWpW0Q9yqXP0A+M0Aw=
+	t=1749714958; cv=none; b=Y/lR4zdHTAKvEOBN2Wwz8d3nw19rlLn0O6kWTbMZYu+FfU0UAV1C/QW1yy2XAZQXnSUuIS9VDmr/l+IRB/+YKe9wa/fL1FqAjCbaVlkQPBNXC5TP2VD4ad3Ub+cPZicUN6DJ+LFJjDLKAX1DgiIPuRfgXU2yhh/HP4ODz1gOvic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749669631; c=relaxed/simple;
-	bh=9LJHRT+E/wk94eKXUDQqXwO8zes7SwCEbBLxYOlLXPs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NmGdGHUCN2d8ALfC4B4PZ/wldL87kbhI+jBnHo3DZDznb9qSgKsZY1zMjYvoDURxxvhpHMw49X9IPWnFcUl864qoHiaDtL6QTLidCvJAOjKZCsM/QIRALgvlYDVq5SMNw2GZ5Ws3F36IzWSpbC4dgXM2uFll/q5kZy2m0F80ycg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ispras.ru; spf=pass smtp.mailfrom=ispras.ru; dkim=pass (1024-bit key) header.d=ispras.ru header.i=@ispras.ru header.b=sWBPtAcx; arc=none smtp.client-ip=83.149.199.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ispras.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ispras.ru
+	s=arc-20240116; t=1749714958; c=relaxed/simple;
+	bh=73V610p+9JZCKE+W4vZAInC+NFR9o3D7SoSIakug6IQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VhEz7MWl2+q/frg20XOy27R+m8/4ione2otH3rU9dTQVbX/3F2dt/8yuqZvQrSozNXwMHyJdCt48oGZNwJUn3UZlHoFal2mKlBSLZeFInmG0phL5FWqSKXbaErC5aFwTttDI5dS5dn7LyrRuhqWFqWfxQ2pv2UCH1jZIxob6SW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=pAt24u3e; arc=none smtp.client-ip=95.215.58.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ispras.ru header.i=@ispras.ru header.b="sWBPtAcx"
-Received: from fedora.intra.ispras.ru (unknown [10.10.165.2])
-	by mail.ispras.ru (Postfix) with ESMTPSA id BC85340755EE;
-	Wed, 11 Jun 2025 19:20:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru BC85340755EE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-	s=default; t=1749669624;
-	bh=X1XLZomizBfNBgtVPwKunjP0EbzXC94GEAJ74eLqJBI=;
-	h=From:To:Cc:Subject:Date:From;
-	b=sWBPtAcxFeab/kzIPH+A4A90p8TL0GUs/6Zbs6bR0Qt9HevJaYWCNNUB0hLvSck+T
-	 fq97cZQrBNLj2MxLY7Uqif9HIg3AEKV26duY3eb6MasBY4eQaxh+wmf7bJBKDPwi4U
-	 L4VJSRNWaA/NrxxUE/zx+VQXdUCjORoXEcoUqEeo=
-From: Fedor Pchelkin <pchelkin@ispras.ru>
-To: Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>,
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="pAt24u3e"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1749714942;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=6LY4vo/bZ3YMDxVE6i6Ie0OrWW95nPMauCx+hjveabo=;
+	b=pAt24u3e6DtqHI3n6q714oL8sqKPM+Ragc6XP+y6q755JG00eCl7OA+DlnvcPn+25YcBxJ
+	juQr09jumKVG3bXGKcS4eMhi5pCXVXD1jxh+2oWhewoqv3uHp1ewyRGSiHelHz4vt7/eTN
+	blBCVG4IA6VWg16y48+NCwpOQ4HC2jE=
+From: Hao Ge <hao.ge@linux.dev>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@redhat.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@linux.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Ingo Franzki <ifranzki@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
+	Kent Overstreet <kent.overstreet@linux.dev>
+Cc: linux-mm@kvack.org,
 	linux-kernel@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] s390/pkey: prevent overflow in size calculation for memdup_user()
-Date: Wed, 11 Jun 2025 22:20:10 +0300
-Message-ID: <20250611192011.206057-1-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.49.0
+	linux-alpha@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Hao Ge <hao.ge@linux.dev>,
+	Hao Ge <gehao@kylinos.cn>
+Subject: [PATCH 0/5] mm: Restrict the static definition of the per-CPU variable _shared_alloc_tag to s390 and alpha architectures only 
+Date: Thu, 12 Jun 2025 15:54:23 +0800
+Message-Id: <cover.1749698249.git.gehao@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,45 +60,83 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-Number of apqn target list entries contained in 'nr_apqns' variable is
-determined by userspace via an ioctl call so the result of the product in
-calculation of size passed to memdup_user() may overflow.
+From: Hao Ge <gehao@kylinos.cn>
 
-In this case the actual size of the allocated area and the value
-describing it won't be in sync leading to various types of unpredictable
-behaviour later.
+Recently discovered this entry while checking kallsyms on ARM64:
+ffff800083e509c0 D _shared_alloc_tag
 
-Use a proper memdup_array_user() helper which returns an error if an
-overflow is detected. Note that it is different from when nr_apqns is
-initially zero - that case is considered valid and should be handled in
-subsequent pkey_handler implementations.
+If ARCH_NEEDS_WEAK_PER_CPU is not defined((it is only defined for
+s390 and alpha architectures),there's no need to statically define
+the percpu variable _shared_alloc_tag. As the number of CPUs
+increases,the wasted memory will grow correspondingly.
 
-Found by Linux Verification Center (linuxtesting.org).
+Therefore,we need to implement isolation for this purpose.
 
-Fixes: f2bbc96e7cfa ("s390/pkey: add CCA AES cipher key support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
----
+However,currently ARCH_NEEDS_WEAK_PER_CPU is a #define and
+is enclosed within the #if defined(MODULE) conditional block.
 
-v2: use memdup_array_user() helper (Heiko Carstens)
+When building the core kernel code for s390 or alpha architectures,
+ARCH_NEEDS_WEAK_PER_CPU remains undefined (as it is gated
+by #if defined(MODULE)). However,when building modules for these
+architectures,the macro is explicitly defined.
 
- drivers/s390/crypto/pkey_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Therefore,we need to make ARCH_NEEDS_WEAK_PER_CPU a Kconfig option.
+And replace all instances of ARCH_NEEDS_WEAK_PER_CPU in the kernel
+code with MODULE_NEEDS_WEAK_PER_CPU,gated
+by#ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU. Then,when defining the percpu
+variable _shared_alloc_tag,wrap it with the
+CONFIG_ARCH_NEEDS_WEAK_PER_CPU condition.
 
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index cef60770f68b..b3fcdcae379e 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -86,7 +86,7 @@ static void *_copy_apqns_from_user(void __user *uapqns, size_t nr_apqns)
- 	if (!uapqns || nr_apqns == 0)
- 		return NULL;
- 
--	return memdup_user(uapqns, nr_apqns * sizeof(struct pkey_apqn));
-+	return memdup_array_user(uapqns, nr_apqns, sizeof(struct pkey_apqn));
- }
- 
- static int pkey_ioctl_genseck(struct pkey_genseck __user *ugs)
+The following version could be regarded as Version 1:
+https://lore.kernel.org/all/20250529073537.563107-1-hao.ge@linux.dev/
+But unfortunately,it caused build errors on s390.
+Based on Suren's guidance and suggestions,
+I've refined it into this patch series.
+Many thanks to Suren for his patient instruction.
+
+Verify:
+     1. On Arm64:
+	nm vmlinux | grep "_shared_alloc_tag",no output is returned.
+     2. On S390:
+	Compile tested.
+	nm vmlinux | grep "_shared_alloc_tag"
+	00000000015605b4 r __crc__shared_alloc_tag
+	0000000001585fef r __kstrtab__shared_alloc_tag
+	0000000001586897 r __kstrtabns__shared_alloc_tag
+	00000000014f6548 r __ksymtab__shared_alloc_tag
+	0000000001a8fa28 D _shared_alloc_tag
+	nm net/ceph/libceph.ko | grep "_shared"
+	U _shared_alloc_tag
+     3. On alpha
+	Compile tested.
+	nm vmlinux | grep "_shared_alloc_tag"
+	fffffc0000b080fa r __kstrtab__shared_alloc_tag
+	fffffc0000b07ee7 r __kstrtabns__shared_alloc_tag
+	fffffc0000adee98 r __ksymtab__shared_alloc_tag
+	fffffc0000b83d38 D _shared_alloc_tag
+	nm crypto/cryptomgr.ko | grep "_share"
+	U _shared_alloc_tag
+
+Hao Ge (5):
+  mm/Kconfig: add ARCH_NEEDS_WEAK_PER_CPU option
+  alpha: Modify the definition logic of WEAK_PER_CPU
+  s390: Modify the definition logic of WEAK_PER_CPU
+  mm: use MODULE_NEEDS_WEAK_PER_CPU instead of ARCH_NEEDS_WEAK_PER_CPU
+  mm/alloc_tag: add the CONFIG_ARCH_NEEDS_WEAK_PER_CPU macro when
+    statically defining the percpu variable _shared_alloc_tag
+
+ arch/alpha/Kconfig              | 1 +
+ arch/alpha/include/asm/percpu.h | 4 ++--
+ arch/s390/Kconfig               | 1 +
+ arch/s390/include/asm/percpu.h  | 4 ++--
+ include/linux/alloc_tag.h       | 6 +++---
+ include/linux/percpu-defs.h     | 4 ++--
+ lib/alloc_tag.c                 | 2 ++
+ mm/Kconfig                      | 4 ++++
+ 8 files changed, 17 insertions(+), 9 deletions(-)
+
 -- 
-2.49.0
+2.25.1
 
