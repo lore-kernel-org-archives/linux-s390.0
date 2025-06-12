@@ -1,66 +1,66 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77C2B29DB7E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DAE42BCF7C;
 	Thu, 12 Jun 2025 17:36:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749749811; cv=none; b=kz2DthY7XAbdNfwDw4Oa6tC8LtiAnh6eHuMDhcHceHVKzSEOi2rdMOxjFQuoX48EfrqHYp7HuR3AO/+z7wGs8EX20/AbjN28ncnElzUQMCHkrpW+wlcNMRF+JpAFfuflgVhh50/wi2MLsBvr19DcG5fD9wHWXeR0j8+OS6viPTA=
+	t=1749749811; cv=none; b=OTKS5LVBubP/l8fiWoN9NELS0ctjgfBJV06qcBplgMewddBgu7W9o5LZzODw3Iq3j20tvl9Xb9yY6v0kDHQReMVRNrH6PAq4aEvdEI0TxiKWFPsgMnPZjSb5H6aMHQdUc8NPPTtu0k/lrOJoyi8Y3Nw7WFMjl32mJ21CEMiiNwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749749811; c=relaxed/simple;
-	bh=raje+Qi5vZjGXqBAYcs41/lc0szO3wDpV/wLMhyLClU=;
+	bh=DJCgbz7P7ke/myhNlZxItSAxHUOmPn/o9dEQTyHF0Z4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KngGXKYLlzQ5w27ft8XFQ2EszayLe7H8fEgWrQkkpR3Cs8PSv9CZ2tAHEPDPlpGhFU3AtSQzW3hm5lvz/sO7jm8bAp6tK4+iSsiHMzH0rLdsBmyQn6MZaSxxBo2k9VaMPa1YBAzQj3ho0Ss4zuleb+s86KBI5QbIHJTAV05qgkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jqMrmg9P; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=XpWO8nDHxxhVu9V1k3zK5wHKttpgqQkqLk3rPkJUONd3hj16GTMd3NJWwtRzsIydLSgAEQGJJEFl1CPilV4Jvwal4NiauH53wVNYQfFp5VZN4KLRCUkY86iROgvaiTHDpnf8Qcq6HAG/4n8r7gS0RkRod6zYm7OT/nB4BXEWU+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qzApvk7S; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jqMrmg9P"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55CDJP2V021059;
-	Thu, 12 Jun 2025 17:36:17 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qzApvk7S"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55CBGWVP017713;
+	Thu, 12 Jun 2025 17:36:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=lzDJpUIXBz/mvS0mb
-	FYxHi8XUevGZ8hUcNGEGhasovg=; b=jqMrmg9P9k4as1yQGOTnccjGWG4WF7DEd
-	kBXZ1I/97XSYVJbQ+zJBG+JgVx32TNUOqAFmET9+GHhIolrdsQYgYJ2idUI/YD4s
-	/xUki5YiOsCOWB0+AVe6rTijtZk1rs6M50nDxRavBOMoS4SGnhy/c7sgJNTotjGi
-	6sHMEPK/4npj5FfsZvDdx7jicu1aU5DQMLUhDTl2TpSTAMuwTZfKAnXRxT3UkPF3
-	ZIbIMaHnARDwFnGT4yVd8DLscyKbq+WfXuWGn4G+cz7HIOzlYlL6g2UMRNBBQL+M
-	8Zy82y8ly2Bvl1bgxesKbgKejydEi6fT68K8HNFyFta7GIJKlnKig==
+	:mime-version:references:subject:to; s=pp1; bh=QpzxDfFD94KWII9K+
+	6HadLtwTM81QAZAX1ucAb3kQ9o=; b=qzApvk7S2hlxQl1Bn2Btpu10ZAllpo5Ln
+	KoZtJ5Dc5ebsGHYL7NJYxYDOAJV+QiKhNPjGUzyi5/p4smraFWFFpufSpMGzAkSs
+	ijMES3tEQCL80ZymilIYQDcLGmaNEIE8zYtWSd1n3DnwRCmSMWFFrnWXVIMOvcU4
+	3FTlbLfkovMjrogcNOJQy/OWjWG8T3XeFB0lZLwFpm4+bdXr+w/UwmyypaAsne2r
+	gAzSFTJPL3eValXHYUhK4dMMnMvOe2n9ysA28sfKgF+EgtHkCd2WJoBbECxNmdyG
+	yGLdYwa2Z/ZiCy8108YXetwWubfWr/782ZiXt2qPAO1hZCRLEMGhQ==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474cxjmf0n-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv7v8mc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 12 Jun 2025 17:36:18 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55CHUNNC007629;
+	Thu, 12 Jun 2025 17:36:17 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv7v8m4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 12 Jun 2025 17:36:17 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55CHZKKa027345;
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55CENRRG027927;
 	Thu, 12 Jun 2025 17:36:16 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474cxjmf0g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Jun 2025 17:36:16 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55CF2fhL003405;
-	Thu, 12 Jun 2025 17:36:15 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4751ykwr2m-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47518mnu86-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Jun 2025 17:36:15 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55CHaE2d23134776
+	Thu, 12 Jun 2025 17:36:16 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55CHaE0J13173194
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 12 Jun 2025 17:36:14 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 01F1220040;
-	Thu, 12 Jun 2025 17:36:14 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DF1282004B;
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F41CA20043;
+	Thu, 12 Jun 2025 17:36:13 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E0ED420040;
 	Thu, 12 Jun 2025 17:36:13 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
 	Thu, 12 Jun 2025 17:36:13 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id A01ECE1994; Thu, 12 Jun 2025 19:36:13 +0200 (CEST)
+	id A255BE19B9; Thu, 12 Jun 2025 19:36:13 +0200 (CEST)
 From: Alexander Gordeev <agordeev@linux.ibm.com>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
@@ -70,9 +70,9 @@ Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Guenter Roeck <linux@roeck-us.net>, Juergen Gross <jgross@suse.com>,
         Jeremy Fitzhardinge <jeremy@goop.org>,
         Ryan Roberts <ryan.roberts@arm.com>
-Subject: [PATCH 2/6] mm: Lock kernel page tables before entering lazy MMU mode
-Date: Thu, 12 Jun 2025 19:36:09 +0200
-Message-ID: <7bd3a45dbc375dc2c15cebae09cb2bb972d6039f.1749747752.git.agordeev@linux.ibm.com>
+Subject: [PATCH 3/6] mm/debug: Detect wrong arch_enter_lazy_mmu_mode() contexts
+Date: Thu, 12 Jun 2025 19:36:10 +0200
+Message-ID: <2d516308df177f169e3e158687852bf91c95c427.1749747752.git.agordeev@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <cover.1749747752.git.agordeev@linux.ibm.com>
 References: <cover.1749747752.git.agordeev@linux.ibm.com>
@@ -84,169 +84,73 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Tb8VA6zUpjW5k1WLGI1WWxPCHUixj1UW
-X-Proofpoint-GUID: EYQIsAXzx8ssoXkn44spur2V7kFJyFNc
-X-Authority-Analysis: v=2.4 cv=fZWty1QF c=1 sm=1 tr=0 ts=684b1011 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=nMoVGufP4iL6dWhmM1oA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEyMDEzMiBTYWx0ZWRfX7wfxBioE0ali sfc9SNNLuo/uwJWDA3c2xkqqH6rfdv8VXDTQiKWPjoWwN5+YNEn8jTxawLHSc7kSvcbTRzlAEEL 6pE4EG7uVAXP0cTCdUVctrhAA4dPIy9K280bl6EZsHWeiac5dQkU3M23hors8FvuTbzgDf1h9Fp
- 4/5hS9LAZnskUMvo6VVxjD1ejeCUnSJ9GDLuknHP+02KFBqLWFqJX4Uj1GH9ITY9ehAeYHg8CPo +NXj5bCNfgunV/T0oR4Y7LXv81qmzH4CP/fN90LYdPGDzAKY9KoFLxiARID9WfB4E8JGYFRMR8X KU0u1kTIIScAeHrSUf7iG+tUJ+YeiYm2VyY0+i/fL8MGK6FCaPHEVVMgFI0JFtKLssBxImKqXFF
- +8XQ7Gu5M/Tz5OkRu7P75cBzlchWZR0cnEVFWg54GBSdDJyxQ+nNXw3MOOvDg1EdtYnL8aNA
+X-Proofpoint-ORIG-GUID: 9voeh4bv5cl5bR8-1UbklMpr0vy5aE9k
+X-Proofpoint-GUID: 9Au_5T7dJBReJY8qjL4lDoqAoOEk9nHN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEyMDEzMiBTYWx0ZWRfXwvHzXkw1Ghwo VTWHN+cE0QcyT8/988a5Oy+uAOazKG7OlmsNXf6ZvKU2OyjqEb00Sa9h8VlU6IHLn1MggoDaL63 J4VspSDKrq2+1hsiPGGebKrNx1EbL+82psEcU80PFvDCmekkqaZ0vPpe50F3A5EaUR4LmuwQ/0/
+ 5epCz7Ptq9XMUYKeq1zKwhT+tfKcNQIo5OBB6gHBUbG+j6+i6nLPuvYTfHveUXDpsZodJnk3zhE dYIyrVXtl4+cv0sSN2VcggnidQvKiNBmeIRb1oZr2g8ApheWzI/LFgHDf9f1hikiirl+WDTTu2o hrO0CgP9O7GbjWJ1Qv5gnL+YaCYVb0XAW2qQksVnQpXkvM1+8blus9YJd/GZULoBxkCwuh7NK+D
+ rogA/0jqvGwDi1VvpGA1UI8O2sBoSl5dajC9s32rmbJOY1rQ4pEeWsPUoLCQb5SieKUycFW4
+X-Authority-Analysis: v=2.4 cv=CfMI5Krl c=1 sm=1 tr=0 ts=684b1013 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=6IFa9wvqVegA:10 a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8 a=RJXGA7rP2o630YCXQOwA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
  definitions=2025-06-12_10,2025-06-12_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 impostorscore=0
- priorityscore=1501 spamscore=0 bulkscore=0 phishscore=0 suspectscore=0
- adultscore=0 mlxscore=0 malwarescore=0 lowpriorityscore=0 mlxlogscore=965
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505280000
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 clxscore=1011 impostorscore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=914 adultscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
  definitions=main-2506120132
 
-As a follow-up to commit 691ee97e1a9d ("mm: fix lazy mmu docs and
-usage") take a step forward and protect with a lock not only user,
-but also kernel mappings before entering the lazy MMU mode. With
-that the semantics of arch_enter|leave_lazy_mmu_mode() callbacks
-is consolidated, which allows further simplifications.
+Make default arch_enter|leave|flush_lazy_mmu_mode() callbacks
+complain on enabled preemption to detect wrong contexts. That
+could help to prevent the complicated lazy MMU mode semantics
+misuse, such like one that was solved with commit b9ef323ea168
+("powerpc/64s: Disable preemption in hash lazy mmu mode").
 
-The effect of this consolidation is not fully preemptible (Real-Time)
-kernels can not enter the context switch while the lazy MMU mode is
-active - which is easier to comprehend.
+Skip fully preemptible kernels, since in such case taking the
+page table lock does not disable preemption, so the described
+check would be wrong.
 
+Most platforms do not implement the lazy MMU mode callbacks,
+so to aovid a performance impact allow the complaint when
+CONFIG_DEBUG_VM option is enabled only.
+
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 ---
- include/linux/pgtable.h | 12 ++++++------
- mm/kasan/shadow.c       |  5 -----
- mm/memory.c             |  5 ++++-
- mm/vmalloc.c            |  6 ++++++
- 4 files changed, 16 insertions(+), 12 deletions(-)
+ include/linux/pgtable.h | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
 diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index 0b6e1f781d86..33bf2b13c219 100644
+index 33bf2b13c219..0cb8abdc58a8 100644
 --- a/include/linux/pgtable.h
 +++ b/include/linux/pgtable.h
-@@ -224,12 +224,12 @@ static inline int pmd_dirty(pmd_t pmd)
-  * a raw PTE pointer after it has been modified are not guaranteed to be
-  * up to date.
-  *
-- * In the general case, no lock is guaranteed to be held between entry and exit
-- * of the lazy mode. So the implementation must assume preemption may be enabled
-- * and cpu migration is possible; it must take steps to be robust against this.
-- * (In practice, for user PTE updates, the appropriate page table lock(s) are
-- * held, but for kernel PTE updates, no lock is held). Nesting is not permitted
-- * and the mode cannot be used in interrupt context.
-+ * For PREEMPT_RT kernels implementation must assume that preemption may
-+ * be enabled and cpu migration is possible between entry and exit of the
-+ * lazy MMU mode; it must take steps to be robust against this. There is
-+ * no such assumption for non-PREEMPT_RT kernels, since both kernel and
-+ * user page tables are protected with a spinlock while in lazy MMU mode.
-+ * Nesting is not permitted and the mode cannot be used in interrupt context.
+@@ -232,9 +232,23 @@ static inline int pmd_dirty(pmd_t pmd)
+  * Nesting is not permitted and the mode cannot be used in interrupt context.
   */
  #ifndef __HAVE_ARCH_ENTER_LAZY_MMU_MODE
- #define arch_enter_lazy_mmu_mode()	do {} while (0)
-diff --git a/mm/kasan/shadow.c b/mm/kasan/shadow.c
-index d2c70cd2afb1..45115bd770a9 100644
---- a/mm/kasan/shadow.c
-+++ b/mm/kasan/shadow.c
-@@ -313,12 +313,10 @@ static int kasan_populate_vmalloc_pte(pte_t *ptep, unsigned long addr,
- 	__memset(page_to_virt(page), KASAN_VMALLOC_INVALID, PAGE_SIZE);
- 	pte = pfn_pte(page_to_pfn(page), PAGE_KERNEL);
+-#define arch_enter_lazy_mmu_mode()	do {} while (0)
+-#define arch_leave_lazy_mmu_mode()	do {} while (0)
+-#define arch_flush_lazy_mmu_mode()	do {} while (0)
++static inline void arch_enter_lazy_mmu_mode(void)
++{
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		VM_WARN_ON_ONCE(preemptible());
++}
++
++static inline void arch_leave_lazy_mmu_mode(void)
++{
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		VM_WARN_ON_ONCE(preemptible());
++}
++
++static inline void arch_flush_lazy_mmu_mode(void)
++{
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		VM_WARN_ON_ONCE(preemptible());
++}
+ #endif
  
--	spin_lock(&init_mm.page_table_lock);
- 	if (likely(pte_none(ptep_get(ptep)))) {
- 		set_pte_at(&init_mm, addr, ptep, pte);
- 		data->pages[index] = NULL;
- 	}
--	spin_unlock(&init_mm.page_table_lock);
- 
- 	return 0;
- }
-@@ -465,13 +463,10 @@ static int kasan_depopulate_vmalloc_pte(pte_t *ptep, unsigned long addr,
- 
- 	page = (unsigned long)__va(pte_pfn(ptep_get(ptep)) << PAGE_SHIFT);
- 
--	spin_lock(&init_mm.page_table_lock);
--
- 	if (likely(!pte_none(ptep_get(ptep)))) {
- 		pte_clear(&init_mm, addr, ptep);
- 		free_page(page);
- 	}
--	spin_unlock(&init_mm.page_table_lock);
- 
- 	return 0;
- }
-diff --git a/mm/memory.c b/mm/memory.c
-index 71b3d3f98999..1ddc532b1f13 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3017,6 +3017,7 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
- 			pte = pte_offset_kernel(pmd, addr);
- 		if (!pte)
- 			return err;
-+		spin_lock(&init_mm.page_table_lock);
- 	} else {
- 		if (create)
- 			pte = pte_alloc_map_lock(mm, pmd, addr, &ptl);
-@@ -3042,7 +3043,9 @@ static int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
- 
- 	arch_leave_lazy_mmu_mode();
- 
--	if (mm != &init_mm)
-+	if (mm == &init_mm)
-+		spin_unlock(&init_mm.page_table_lock);
-+	else
- 		pte_unmap_unlock(mapped_pte, ptl);
- 
- 	*mask |= PGTBL_PTE_MODIFIED;
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index ab986dd09b6a..57b11000ae36 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -105,6 +105,7 @@ static int vmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
- 	if (!pte)
- 		return -ENOMEM;
- 
-+	spin_lock(&init_mm.page_table_lock);
- 	arch_enter_lazy_mmu_mode();
- 
- 	do {
-@@ -132,6 +133,7 @@ static int vmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
- 	} while (pte += PFN_DOWN(size), addr += size, addr != end);
- 
- 	arch_leave_lazy_mmu_mode();
-+	spin_unlock(&init_mm.page_table_lock);
- 	*mask |= PGTBL_PTE_MODIFIED;
- 	return 0;
- }
-@@ -359,6 +361,7 @@ static void vunmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
- 	unsigned long size = PAGE_SIZE;
- 
- 	pte = pte_offset_kernel(pmd, addr);
-+	spin_lock(&init_mm.page_table_lock);
- 	arch_enter_lazy_mmu_mode();
- 
- 	do {
-@@ -379,6 +382,7 @@ static void vunmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
- 	} while (pte += (size >> PAGE_SHIFT), addr += size, addr != end);
- 
- 	arch_leave_lazy_mmu_mode();
-+	spin_unlock(&init_mm.page_table_lock);
- 	*mask |= PGTBL_PTE_MODIFIED;
- }
- 
-@@ -525,6 +529,7 @@ static int vmap_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 	if (!pte)
- 		return -ENOMEM;
- 
-+	spin_lock(&init_mm.page_table_lock);
- 	arch_enter_lazy_mmu_mode();
- 
- 	do {
-@@ -542,6 +547,7 @@ static int vmap_pages_pte_range(pmd_t *pmd, unsigned long addr,
- 	} while (pte++, addr += PAGE_SIZE, addr != end);
- 
- 	arch_leave_lazy_mmu_mode();
-+	spin_unlock(&init_mm.page_table_lock);
- 	*mask |= PGTBL_PTE_MODIFIED;
- 	return 0;
- }
+ #ifndef pte_batch_hint
 -- 
 2.48.1
 
