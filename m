@@ -1,32 +1,30 @@
 Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6030021CC6D
-	for <linux-s390@vger.kernel.org>; Thu, 12 Jun 2025 07:56:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83528221F08
+	for <linux-s390@vger.kernel.org>; Thu, 12 Jun 2025 08:27:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749715009; cv=none; b=qRt9TW6Kmkjduiuw2vzr8K/8FbdCBSwRtCaBBtu/x/yN0MiNrmwv9h04HKPqqxcIBJpZoWxaVjBmZcXx9bA7zPW4NjZ6r/mYv6a/gXPCqzMGAGs7ewhxM1kviTVhQHEifxLLRqpFVoWPa51ImrrvAMi+Ia/luGo0lId0HVGAokI=
+	t=1749716879; cv=none; b=gIaC0s3L2z5fHXtide1y7nVAurdpCXlGUMtSaTGiM/9KfTXsokiAHpvHT3ybkYOvPMT4tKfXGNmz1V9vhPkFyyF8L0ZFW9G79bTQsNecFWO82hv5LjMD9TjrYVAbcZWTDrf1KoEIN3DVp9ndXML/Mlzdb+gYSi0dDV7d2JQfdF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749715009; c=relaxed/simple;
-	bh=LvsURw/nqMWRXkm+nrhQDBaJHU6fMAmmLXpVcAQ1/T0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=C+0FdsLea1EYSyZVqujjYRyf1e+K9fjnlVIYAxc1OZrq1Q/vvshLMQ7CZ6HHbb9kOveZ9TiWawR17d5DaorjXwk5UQbVMn9iBSHpStxScGiBa1eswVHWkI/sFKL2OHJBbrcDGQnM7Z91UxTqTQwmpI3scv/mJWJ1d+38JNinnsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=O6Ge+pdM; arc=none smtp.client-ip=95.215.58.174
+	s=arc-20240116; t=1749716879; c=relaxed/simple;
+	bh=OlOkpX+27E62xweUQY2HPe2M4qZwUU7u3eOuok4hafw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bCSXNi6Xq4eGbRrfncCE4R06tWaVcJFRGWkyQcXq+kpRhGiCkTqM/zvgxSEMoZfoDclz3FAEarrepDtWPJrpjW/EkoYRJwaN7ZyjUENPWu8Xm6FrhGJYpFIi7tSL9X8Wk2AZX2oy4gHQkjC4qVA24lD7myF6Pz1cecayUc720Bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=bEhb0s39; arc=none smtp.client-ip=95.215.58.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="O6Ge+pdM"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="bEhb0s39"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1749715004;
+	t=1749716865;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=q9di4IfgIfQZ0n6KWtQk6/b40WsXW7j7pcH/DrSfee4=;
-	b=O6Ge+pdM8WhzjFbEcRkFEMPi0hWkm1bRsbb+9aLEUiEw+eBxXLBoOBuyLHCknQYpOxC/wx
-	3c2ZDtaG5QiVgAQAVs+qUmgP/N/vFR5szvcGIeWWGOmpxPLobrrCB6jZtXWX+JkL7gevc4
-	lPnhNMYdV/KQWuq2GdQqdz3t5nNpDD4=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=6LY4vo/bZ3YMDxVE6i6Ie0OrWW95nPMauCx+hjveabo=;
+	b=bEhb0s39/6AQKKVdCFbOMmoI15dEpoQaV8yY83TzAs7evlOAtNSZ0+pITLk40TnFfE6ohR
+	fsEV0pa90UGBoDbSZM68jdF1sDyw+t+/u81ktgRZGwp2TkjNMMtM3IEp+aKd/elHEeQPZV
+	Lqbtq7ExfRq0FIb0TeHJWP0Kn7RYMYk=
 From: Hao Ge <hao.ge@linux.dev>
 To: Andrew Morton <akpm@linux-foundation.org>,
 	David Hildenbrand <david@redhat.com>,
@@ -52,11 +50,9 @@ Cc: linux-mm@kvack.org,
 	linux-s390@vger.kernel.org,
 	Hao Ge <hao.ge@linux.dev>,
 	Hao Ge <gehao@kylinos.cn>
-Subject: [PATCH 3/5] s390: Modify the definition logic of WEAK_PER_CPU
-Date: Thu, 12 Jun 2025 15:54:26 +0800
-Message-Id: <ec8f82c68710869a310059d1a13dd071a79b1f74.1749702889.git.gehao@kylinos.cn>
-In-Reply-To: <cover.1749702889.git.gehao@kylinos.cn>
-References: <cover.1749702889.git.gehao@kylinos.cn>
+Subject: [PATCH 0/5] mm: Restrict the static definition of the per-CPU variable _shared_alloc_tag to s390 and alpha architectures only
+Date: Thu, 12 Jun 2025 16:27:25 +0800
+Message-Id: <cover.1749715979.git.gehao@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,49 +64,79 @@ X-Migadu-Flow: FLOW_OUT
 
 From: Hao Ge <gehao@kylinos.cn>
 
-As stated in the first patch of this patch series,
-we make ARCH_NEEDS_WEAK_PER_CPU a Kconfig option,
-and replace all instances of ARCH_NEEDS_WEAK_PER_CPU
-in the kernel code with MODULE_NEEDS_WEAK_PER_CPU,
-gated by #ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU.
+Recently discovered this entry while checking kallsyms on ARM64:
+ffff800083e509c0 D _shared_alloc_tag
 
-We'll make corresponding changes for the s390
-architecture.
+If ARCH_NEEDS_WEAK_PER_CPU is not defined((it is only defined for
+s390 and alpha architectures),there's no need to statically define
+the percpu variable _shared_alloc_tag. As the number of CPUs
+increases,the wasted memory will grow correspondingly.
 
-Suggested-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Hao Ge <gehao@kylinos.cn>
----
- arch/s390/Kconfig              | 1 +
- arch/s390/include/asm/percpu.h | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+Therefore,we need to implement isolation for this purpose.
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 0c16dc443e2f..716031d22346 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -132,6 +132,7 @@ config S390
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQ
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
- 	select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
-+	select ARCH_NEEDS_WEAK_PER_CPU
- 	select ARCH_STACKWALK
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 84f6b8357b45..a202baef86fb 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -17,8 +17,8 @@
-  * per cpu area, use weak definitions to force the compiler to
-  * generate external references.
-  */
--#if defined(MODULE)
--#define ARCH_NEEDS_WEAK_PER_CPU
-+#if defined(MODULE) && defined(CONFIG_ARCH_NEEDS_WEAK_PER_CPU)
-+#define MODULE_NEEDS_WEAK_PER_CPU
- #endif
- 
- /*
+However,currently ARCH_NEEDS_WEAK_PER_CPU is a #define and
+is enclosed within the #if defined(MODULE) conditional block.
+
+When building the core kernel code for s390 or alpha architectures,
+ARCH_NEEDS_WEAK_PER_CPU remains undefined (as it is gated
+by #if defined(MODULE)). However,when building modules for these
+architectures,the macro is explicitly defined.
+
+Therefore,we need to make ARCH_NEEDS_WEAK_PER_CPU a Kconfig option.
+And replace all instances of ARCH_NEEDS_WEAK_PER_CPU in the kernel
+code with MODULE_NEEDS_WEAK_PER_CPU,gated
+by#ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU. Then,when defining the percpu
+variable _shared_alloc_tag,wrap it with the
+CONFIG_ARCH_NEEDS_WEAK_PER_CPU condition.
+
+The following version could be regarded as Version 1:
+https://lore.kernel.org/all/20250529073537.563107-1-hao.ge@linux.dev/
+But unfortunately,it caused build errors on s390.
+Based on Suren's guidance and suggestions,
+I've refined it into this patch series.
+Many thanks to Suren for his patient instruction.
+
+Verify:
+     1. On Arm64:
+        nm vmlinux | grep "_shared_alloc_tag",no output is returned.
+     2. On S390:
+        Compile tested.
+        nm vmlinux | grep "_shared_alloc_tag"
+        00000000015605b4 r __crc__shared_alloc_tag
+        0000000001585fef r __kstrtab__shared_alloc_tag
+        0000000001586897 r __kstrtabns__shared_alloc_tag
+        00000000014f6548 r __ksymtab__shared_alloc_tag
+        0000000001a8fa28 D _shared_alloc_tag
+        nm net/ceph/libceph.ko | grep "_shared"
+        U _shared_alloc_tag
+     3. On alpha
+        Compile tested.
+        nm vmlinux | grep "_shared_alloc_tag"
+        fffffc0000b080fa r __kstrtab__shared_alloc_tag
+        fffffc0000b07ee7 r __kstrtabns__shared_alloc_tag
+        fffffc0000adee98 r __ksymtab__shared_alloc_tag
+        fffffc0000b83d38 D _shared_alloc_tag
+        nm crypto/cryptomgr.ko | grep "_share"
+        U _shared_alloc_tag
+
+Hao Ge (5):
+  mm/Kconfig: add ARCH_NEEDS_WEAK_PER_CPU option
+  alpha: Modify the definition logic of WEAK_PER_CPU
+  s390: Modify the definition logic of WEAK_PER_CPU
+  mm: use MODULE_NEEDS_WEAK_PER_CPU instead of ARCH_NEEDS_WEAK_PER_CPU
+  mm/alloc_tag: add the CONFIG_ARCH_NEEDS_WEAK_PER_CPU macro when
+    statically defining the percpu variable _shared_alloc_tag
+
+ arch/alpha/Kconfig              | 1 +
+ arch/alpha/include/asm/percpu.h | 4 ++--
+ arch/s390/Kconfig               | 1 +
+ arch/s390/include/asm/percpu.h  | 4 ++--
+ include/linux/alloc_tag.h       | 6 +++---
+ include/linux/percpu-defs.h     | 4 ++--
+ lib/alloc_tag.c                 | 2 ++
+ mm/Kconfig                      | 4 ++++
+ 8 files changed, 17 insertions(+), 9 deletions(-)
+
 -- 
 2.25.1
 
