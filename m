@@ -1,39 +1,39 @@
 Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53BE02F2C49;
-	Fri, 13 Jun 2025 07:37:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 524202F2C48;
+	Fri, 13 Jun 2025 07:37:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749800262; cv=none; b=YBE/WLE8ZshQEok3T8Mi3v2WOij60RueKMm9KDYqZp55SNaBEoarN2+4ww6RvmPqkTzORu9UR/L/sAHVjVaie93HV63pW8MIKXAohSFmfHgMgDiTQ5g2s4GrmkgAWaqTCAglnVAxrvw9Y4qw8RHH4kC+uqS4NCHCe/8cjRTWCr0=
+	t=1749800262; cv=none; b=tYw9Bgvb1ohUnXE+934SlG4FpMITrmqlW/QkTR1TN/InxLdtRNeuOiYDygTPE6XDqEJa1Uifq9RlXuk1SMQw1v6fOdVtcn8paiTdMtmQQzWs2naQ/bnYYz4Fpi2EsYx5dd0sLXmbrp/YZogqaFumo6jE6/HEsGbasdd6O2BtsUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749800262; c=relaxed/simple;
-	bh=X3/qNFrhRreT64m2S7ky/c4+A/JzChsq4eXa99Zhu/w=;
+	bh=r99sJfu4ewPRyz0zJbWXJMYkpw47S2rIyZaupP+jn1g=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ji96+Ocg4aSbSF9kkxKq51orl80eOTnCfzjWjzT9ZQo4nLFxSVwj+Iutb7bf69jCzA+W5PqixggN9m6VGbBeqz99ri4qvVvnvU7EKsJPdGNAabDHpUdPmsPAAQwb0HAY05KASa45ed6PY/uEcQhNg8ran74pMESdwEbYDILmUXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=fYTs9Jbt; arc=none smtp.client-ip=217.70.183.196
+	 In-Reply-To:To:Cc; b=Asnr47XufE5fM8TKd2uS9Q22SnFePE6xGBSbevUIqLe4fp0vfNcbj68wTFcECBqwsgG7OOgzYYpy1yk8THmF000Mq1b6jGeuyrnIqEfUu3pcKIFV1ExjtSiqOQFaWGCm9fshQScR1/dF5bAPKh4uSOleAK/74+XlUI8Nx2lN5Ic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=cAFx4niw; arc=none smtp.client-ip=217.70.183.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="fYTs9Jbt"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 4737044515;
-	Fri, 13 Jun 2025 07:37:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="cAFx4niw"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id CCC6B44506;
+	Fri, 13 Jun 2025 07:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1749800257;
+	t=1749800250;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=WLtF15o+Ex4Ed3vWHcKorxdQYUZ/IggFlAe1+Bvb1bQ=;
-	b=fYTs9JbtnbQa0LG78Ip8By4e8kxfeBYaAkBZGd4wF2a4/6esqJ7MVj2PbEj1VGMwdzrKHn
-	7XSJaqODDAiuBQDbcyOJ7ITyuZE+Zts95dmJNmUCOudt2D1o/fCHsHwfW7ERCyNo9O1egn
-	/LwdsL+26wj2ktOlxMEyz4YwoQPhxWG3YI5wtVxeYPnSz7g19gMYyM6asNdvVsnq2m9Nud
-	WCK4DjKtHb+62+sqH6m5ov7tSnrcJSJbY8GgNj68E54TrE24BXl7RVaYv4PAxT+EIQDmaB
-	TM9B8Eacu+Xd3qzw1RWvru499qrPa8XL5GB3APEztX4F4YDKWoL4Z2Ne93qTdQ==
+	bh=rWrXudQ87v1aByOGhl67T4UU7KUM5mT6FEm5oZqhcLg=;
+	b=cAFx4niwDDsyQFKGdmMcGf11CvIpcE6i60PNTLVL6XAEHr8QsvAnUtPgghd0BMq2R+ppDC
+	FFai5U507SCN+pyoN6wuDoWlTMOjSSoP4TnpNxYiC+w0QbX1ZUzPQlhl134JonesXJvjFx
+	OWDw6aSbLFZe7FDXXsBj2S+b7DQHMXAKYwDHAWLiIwLUr5ryMSKFEAsH//6LX4WvBNf7+B
+	RTSk1TpiSwF389Xnh71A9SzYutIAanBG+/eJ2O3NS8i6MD2qG3qY8IPYR+kJcbwUdA/tQF
+	SzpnBSDBVvIxVqUtGLlQS7VmjGVpj6a1tNP17AMJbhSHMVv02WVX06WVxtBTDQ==
 From: =?utf-8?q?Alexis_Lothor=C3=A9_=28eBPF_Foundation=29?= <alexis.lothore@bootlin.com>
-Date: Fri, 13 Jun 2025 09:37:12 +0200
-Subject: [PATCH bpf 3/7] bpf/riscv: prevent trampoline attachment when args
- location on stack is uncertain
+Date: Fri, 13 Jun 2025 09:37:10 +0200
+Subject: [PATCH bpf 1/7] bpf/x86: use define for max regs count used for
+ arguments
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -42,7 +42,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250613-deny_trampoline_structs_on_stack-v1-3-5be9211768c3@bootlin.com>
+Message-Id: <20250613-deny_trampoline_structs_on_stack-v1-1-5be9211768c3@bootlin.com>
 References: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
 In-Reply-To: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
 To: Alexei Starovoitov <ast@kernel.org>, 
@@ -85,72 +85,81 @@ Cc: ebpf@linuxfoundation.org,
 X-Mailer: b4 0.14.2
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddugddujeefjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtkeertdertdejnecuhfhrohhmpeetlhgvgihishcunfhothhhohhrroculdgvuefrhfcuhfhouhhnuggrthhiohhnmdcuoegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepleejkeetffefveelgeeklefhtefhgfeigeduveffjeehleeifeefjedtudejgeeunecukfhppedvrgdtvdemkeegvdekmehfleegtgemvgdttdemmehfkeehnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehinhgvthepvdgrtddvmeekgedvkeemfhelgegtmegvtddtmeemfhekhedphhgvlhhopegludelvddrudeikedruddrudeljegnpdhmrghilhhfrhhomheprghlvgigihhsrdhlohhthhhorhgvsegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopeehkedprhgtphhtthhopehsohhngheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghgohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdhoiihlrggsshdrohhrghdprhgtphhtthhopehlihhnuhigq
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddugddujeefjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtkeertdertdejnecuhfhrohhmpeetlhgvgihishcunfhothhhohhrroculdgvuefrhfcuhfhouhhnuggrthhiohhnmdcuoegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepleejkeetffefveelgeeklefhtefhgfeigeduveffjeehleeifeefjedtudejgeeunecukfhppedvrgdtvdemkeegvdekmehfleegtgemvgdttdemmehfkeehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddvmeekgedvkeemfhelgegtmegvtddtmeemfhekhedphhgvlhhopegludelvddrudeikedruddrudeljegnpdhmrghilhhfrhhomheprghlvgigihhsrdhlohhthhhorhgvsegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopeehkedprhgtphhtthhopehsohhngheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghgohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdhoiihlrggsshdrohhrghdprhgtphhtthhopehlihhnuhigq
  dhkshgvlhhfthgvshhtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshhtmhefvdesshhtqdhmugdqmhgrihhlmhgrnhdrshhtohhrmhhrvghplhihrdgtohhmpdhrtghpthhtoheprghlvgigrghnughrvgdrthhorhhguhgvsehfohhsshdrshhtrdgtohhmpdhrtghpthhtohepmhihkhholhgrlhesfhgsrdgtohhmpdhrtghpthhtohepshhvvghnsheslhhinhhugidrihgsmhdrtghomh
 X-GND-Sasl: alexis.lothore@bootlin.com
 
-When the target function receives more arguments than available
-registers, the additional arguments are passed on stack, and so the
-generated trampoline needs to read those to prepare the bpf context, but
-also to prepare the target function stack when it is in charge of
-calling it. This works well for scalar types, but if the value is a
-struct, we can not know for sure the exact struct location, as it may
-have been packed or manually aligned to a greater value.
+x86 allows using up to 6 registers to pass arguments between function
+calls. This value is hardcoded in multiple places, use a define for this
+value.
 
-Prevent wrong readings by refusing trampoline attachment if the target
-function receives a struct on stack. While at it, move the max bpf args
-check in the new function.
-
-Fixes: 6801b0aef79d ("riscv, bpf: Add 12-argument support for RV64 bpf trampoline")
 Signed-off-by: Alexis Lothoré (eBPF Foundation) <alexis.lothore@bootlin.com>
 ---
- arch/riscv/net/bpf_jit_comp64.c | 26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ arch/x86/net/bpf_jit_comp.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/riscv/net/bpf_jit_comp64.c b/arch/riscv/net/bpf_jit_comp64.c
-index 10e01ff06312d9f1e6e213bb069c6ea749ea9af2..ea3a1c3af6bc129057c16a4070c33dbf00e6c611 100644
---- a/arch/riscv/net/bpf_jit_comp64.c
-+++ b/arch/riscv/net/bpf_jit_comp64.c
-@@ -1005,6 +1005,24 @@ static int invoke_bpf_prog(struct bpf_tramp_link *l, int args_off, int retval_of
- 	return ret;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 15672cb926fc1817f97d2cd1c55d1575803f6958..9689834de1bb1a90fdc28156e0e2a56ac0ff2076 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -61,6 +61,8 @@ static u8 *emit_code(u8 *ptr, u32 bytes, unsigned int len)
+ #define EMIT_ENDBR_POISON()
+ #endif
+ 
++#define MAX_REGS_FOR_ARGS	6
++
+ static bool is_imm8(int value)
+ {
+ 	return value <= 127 && value >= -128;
+@@ -2710,10 +2712,10 @@ static int get_nr_used_regs(const struct btf_func_model *m)
+ 
+ 	for (i = 0; i < min_t(int, m->nr_args, MAX_BPF_FUNC_ARGS); i++) {
+ 		arg_regs = (m->arg_size[i] + 7) / 8;
+-		if (nr_used_regs + arg_regs <= 6)
++		if (nr_used_regs + arg_regs <= MAX_REGS_FOR_ARGS)
+ 			nr_used_regs += arg_regs;
+ 
+-		if (nr_used_regs >= 6)
++		if (nr_used_regs >= MAX_REGS_FOR_ARGS)
+ 			break;
+ 	}
+ 
+@@ -2751,7 +2753,7 @@ static void save_args(const struct btf_func_model *m, u8 **prog,
+ 		 * the arg1-5,arg7 will be passed by regs, and arg6 will
+ 		 * by stack.
+ 		 */
+-		if (nr_regs + arg_regs > 6) {
++		if (nr_regs + arg_regs > MAX_REGS_FOR_ARGS) {
+ 			/* copy function arguments from origin stack frame
+ 			 * into current stack frame.
+ 			 *
+@@ -2811,7 +2813,7 @@ static void restore_regs(const struct btf_func_model *m, u8 **prog,
+ 	 */
+ 	for (i = 0; i < min_t(int, m->nr_args, MAX_BPF_FUNC_ARGS); i++) {
+ 		arg_regs = (m->arg_size[i] + 7) / 8;
+-		if (nr_regs + arg_regs <= 6) {
++		if (nr_regs + arg_regs <= MAX_REGS_FOR_ARGS) {
+ 			for (j = 0; j < arg_regs; j++) {
+ 				emit_ldx(prog, BPF_DW,
+ 					 nr_regs == 5 ? X86_REG_R9 : BPF_REG_1 + nr_regs,
+@@ -2824,7 +2826,7 @@ static void restore_regs(const struct btf_func_model *m, u8 **prog,
+ 			stack_size -= 8 * arg_regs;
+ 		}
+ 
+-		if (nr_regs >= 6)
++		if (nr_regs >= MAX_REGS_FOR_ARGS)
+ 			break;
+ 	}
  }
+@@ -3149,7 +3151,7 @@ static int __arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *rw_im
+ 	stack_size += (sizeof(struct bpf_tramp_run_ctx) + 7) & ~0x7;
+ 	run_ctx_off = stack_size;
  
-+static int validate_args(const struct btf_func_model *m)
-+{
-+	int i, nr_arg_slots, nr_regs = 0;
-+
-+	if (m->nr_args > MAX_BPF_FUNC_ARGS)
-+		return -ENOTSUPP;
-+
-+	for (i = 0; i < m->nr_args; i++) {
-+		nr_arg_slots = round_up(m->arg_size[i], 8) / 8;
-+		if (nr_regs + nr_arg_slots > RV_MAX_REG_ARGS &&
-+		    m->arg_flags[i] & BTF_FMODEL_STRUCT_ARG)
-+			return -ENOTSUPP;
-+		nr_regs += nr_arg_slots;
-+	}
-+
-+	return 0;
-+}
-+
- static int __arch_prepare_bpf_trampoline(struct bpf_tramp_image *im,
- 					 const struct btf_func_model *m,
- 					 struct bpf_tramp_links *tlinks,
-@@ -1069,8 +1087,12 @@ static int __arch_prepare_bpf_trampoline(struct bpf_tramp_image *im,
- 	if (flags & (BPF_TRAMP_F_ORIG_STACK | BPF_TRAMP_F_SHARE_IPMODIFY))
- 		return -ENOTSUPP;
- 
--	if (m->nr_args > MAX_BPF_FUNC_ARGS)
--		return -ENOTSUPP;
-+	/* make sure that any argument can be located and processed by the
-+	 * trampoline
-+	 */
-+	ret = validate_args(m);
-+	if (ret)
-+		return ret;
- 
- 	for (i = 0; i < m->nr_args; i++)
- 		nr_arg_slots += round_up(m->arg_size[i], 8) / 8;
+-	if (nr_regs > 6 && (flags & BPF_TRAMP_F_CALL_ORIG)) {
++	if (nr_regs > MAX_REGS_FOR_ARGS && (flags & BPF_TRAMP_F_CALL_ORIG)) {
+ 		/* the space that used to pass arguments on-stack */
+ 		stack_size += (nr_regs - get_nr_used_regs(m)) * 8;
+ 		/* make sure the stack pointer is 16-byte aligned if we
 
 -- 
 2.49.0
