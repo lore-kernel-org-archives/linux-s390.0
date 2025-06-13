@@ -1,38 +1,39 @@
 Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8202F2ECEA4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D6082ED850;
 	Fri, 13 Jun 2025 07:37:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749800259; cv=none; b=OUFegeSyudUZ3cheypbr0wuG61UgurJAEi/1eg4zEXVbrS7hkS1vEpwVS8ymctToBPRwRloLYSVkhR3Pyl1pClrJFTyQWS8AGNn2TiHdr0KxXspwJAlFdJEySr/D+AmOwnM+1LLJkEWudlrA4ehVCo4ApYxdCkhgyn2FLsx/bpg=
+	t=1749800261; cv=none; b=mZBLvEjRET+4HCcOS4BLI6ET4W4mRqis8DbnT7LSG2gF4SCHiqTh+jaVgX9kT3rV2BhFM6FDmI/h8a2pOFuTsTHcy5QB2QDvljd4TN5tFFnSLTKMh8B7eUgPh8bp6puTPuszCzZUUAFfJ9CXaXmQj1d9F/adMYYJAjUadmf/sXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749800259; c=relaxed/simple;
-	bh=3XpS0uEyYaGnFNwFWsHdUwFaHYKDE5DLUYR9YOCDzdw=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=XaN3xXaK3G/8XJajzPIbe8kNGA/XPoi+JWctzXcmCJMq6S2FBMdHbvPvIsqgd1xft/gA8IrRxZx+N645WzDHjn3uaeXeLHCznP/jlRRNib76umbXldDOT2l8Gd81WhBhasKhw0aNI6r8irG/2FcoeOxrXcCPOqHiNlWfnqt2HSg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kbxOkqLB; arc=none smtp.client-ip=217.70.183.196
+	s=arc-20240116; t=1749800261; c=relaxed/simple;
+	bh=idff8F+7CyV7Nz6myK6drIDa22L2irpitNy5yJ9Rr7s=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=OXHT4g6cV3Fh8mbqPONK8UXENQh1+4mHARxedI5WPe98TFW0uicV5QSH+KV5EfRwpiz9gJoLykYGuTPow7/7Qp/Baf7M9mPpnp/LurS+EGcC+NENtwNFMnXLlNsAo+zXsPXqbQ6+PXm2D7Yr0dkVMvssf+8yWsKDurlJAcKeHEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=hjz+up3o; arc=none smtp.client-ip=217.70.183.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kbxOkqLB"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 86F1944503;
-	Fri, 13 Jun 2025 07:37:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="hjz+up3o"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 09B4044504;
+	Fri, 13 Jun 2025 07:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1749800247;
+	t=1749800254;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=beEBVGnU6qU0wggmtWKWRNXrz1xxl7Gdx9jeDS6+tJk=;
-	b=kbxOkqLBWMYw2LKAd/IW2RyGj/nP5qTDA3nQe30746ZNf401cfIfLbPiuY4UCGLIThgg52
-	3SDjkKUlcjrkpsB7uie+NFd+q+khw4Qzg1V7FhH7kqzzDUETsK2pGbu4SLKi+3xHGZA5Px
-	K8dourdAUK5hDgryw11qFf0uNWCLOjes5mH1frWPNr1onGZSx9hzPoBxJ8F4ePD6fSr9AO
-	tPte1M9ivmGyxjku7Xi4XGOT8+ifFHjA0HhTgsLAKFka6UJZWMMHXlJDmbcy5ef57nUIR7
-	33LybB/oSKZ4GDWXEWCuppTs2482C4hbZA/bJ1nk+is7e8e0Di4ud3snPwKt0Q==
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MnHGDvZzrjKVg91VYE4fUbD95rOheLuWrUC1SCUNvho=;
+	b=hjz+up3owp19jC1PLRYly2+dyctAQgkbxpKo1hqYq1HETrfATLqzq1SfruQePM9/7t5pLa
+	0zTgV4Mt+jHNfjm41uNZRq3n71py93L9O+7KZhUPST/iQHmzyaGpfn7MSZ8OgZbCmciiE7
+	GxM/QOW8RLxX86eh4eiqAagDX+1Yh47rRt5h5IfedzZXFQZhW4NYI7kCZJcYIItqps3uLX
+	BZnHjMANkEjvI0mf6/VMLdo44AkZvBkC/epgTg/TqottCOybUirzxNFNynKpbkqAqLHbRi
+	dv/ae9NbgtJ9xY7jGbo/ojuHvNaSLl6MZIZ/7dtwKDtTbHVzpUbjlkT5KrLJbQ==
 From: =?utf-8?q?Alexis_Lothor=C3=A9_=28eBPF_Foundation=29?= <alexis.lothore@bootlin.com>
-Subject: [PATCH bpf 0/7] bpf: deny trampoline attachment if args can not be
- located exactly on stack
-Date: Fri, 13 Jun 2025 09:37:09 +0200
-Message-Id: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
+Date: Fri, 13 Jun 2025 09:37:11 +0200
+Subject: [PATCH bpf 2/7] bpf/x86: prevent trampoline attachment when args
+ location on stack is uncertain
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,10 +42,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIACXVS2gC/x2NQQrCMBAAv1L2bCANtKJfEQnJZquLugnZKErp3
- xu8zVxmVlCqTArnYYVKH1bO0mU8DID3IDcynLqDs26ysz2ZRPLzrYZXyU8W8trqG5v6LB0DPsw
- UIx4jOpvSCD1TKi38/S8uEMsC123bAYJUNa93AAAA
-X-Change-ID: 20250609-deny_trampoline_structs_on_stack-5bbc7bc20dd1
+Message-Id: <20250613-deny_trampoline_structs_on_stack-v1-2-5be9211768c3@bootlin.com>
+References: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
+In-Reply-To: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
 To: Alexei Starovoitov <ast@kernel.org>, 
  Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
  Martin KaFai Lau <martin.lau@linux.dev>, 
@@ -85,69 +85,89 @@ Cc: ebpf@linuxfoundation.org,
 X-Mailer: b4 0.14.2
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddugddujeefjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffufffkgggtgffvvefosehtkeertdertdejnecuhfhrohhmpeetlhgvgihishcunfhothhhohhrroculdgvuefrhfcuhfhouhhnuggrthhiohhnmdcuoegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepheeuuefggeeiuedutdeghffhtefguefffeelledttdfgjeejueeggeeugfdugfevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpsghoohhtlhhinhdrtghomhenucfkphepvdgrtddvmeekgedvkeemfhelgegtmegvtddtmeemfhekheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtvdemkeegvdekmehfleegtgemvgdttdemmehfkeehpdhhvghloheplgduledvrdduieekrddurdduleejngdpmhgrihhlfhhrohhmpegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepheekpdhrtghpthhtohepshhonhhgsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrghhorhguvggvvheslhhinhhugidrihgsmhdrtghomhdprhgtphhtthhopehlihhnuhigphhptgdquggvvhesl
- hhishhtshdrohiilhgrsghsrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhhsvghlfhhtvghsthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhsthhmfedvsehsthdqmhguqdhmrghilhhmrghnrdhsthhorhhmrhgvphhlhidrtghomhdprhgtphhtthhopegrlhgvgigrnhgurhgvrdhtohhrghhuvgesfhhoshhsrdhsthdrtghomhdprhgtphhtthhopehmhihkohhlrghlsehfsgdrtghomhdprhgtphhtthhopehsvhgvnhhssehlihhnuhigrdhisghmrdgtohhm
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddugddujeefjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtkeertdertdejnecuhfhrohhmpeetlhgvgihishcunfhothhhohhrroculdgvuefrhfcuhfhouhhnuggrthhiohhnmdcuoegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepleejkeetffefveelgeeklefhtefhgfeigeduveffjeehleeifeefjedtudejgeeunecukfhppedvrgdtvdemkeegvdekmehfleegtgemvgdttdemmehfkeehnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehinhgvthepvdgrtddvmeekgedvkeemfhelgegtmegvtddtmeemfhekhedphhgvlhhopegludelvddrudeikedruddrudeljegnpdhmrghilhhfrhhomheprghlvgigihhsrdhlohhthhhorhgvsegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopeehkedprhgtphhtthhopehsohhngheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghgohhruggvvghvsehlihhnuhigrdhisghmrdgtohhmpdhrtghpthhtoheplhhinhhugihpphgtqdguvghvsehlihhsthhsrdhoiihlrggsshdrohhrghdprhgtphhtthhopehlihhnuhigq
+ dhkshgvlhhfthgvshhtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshhtmhefvdesshhtqdhmugdqmhgrihhlmhgrnhdrshhtohhrmhhrvghplhihrdgtohhmpdhrtghpthhtoheprghlvgigrghnughrvgdrthhorhhguhgvsehfohhsshdrshhtrdgtohhmpdhrtghpthhtohepmhihkhholhgrlhesfhgsrdgtohhmpdhrtghpthhtohepshhvvghnsheslhhinhhugidrihgsmhdrtghomh
 X-GND-Sasl: alexis.lothore@bootlin.com
 
-Hello,
-this series follows some discussions started in [1] around bpf
-trampolines limitations on specific cases. When a trampoline is
-generated for a target function involving many arguments, it has to
-properly find and save the arguments that has been passed through stack.
-While this is doable with basic types (eg: scalars), it brings more
-uncertainty when dealing with specific types like structs (many ABIs
-allow to pass structures by value if they fit in a register or a pair of
-registers). The issue is that those structures layout and location on
-the stack can be altered (ie with attributes, like packed or
-aligned(x)), and this kind of alteration is not encoded in dwarf or BTF,
-making the trampolines clueless about the needed adjustments. Rather
-than trying to support this specific case, as agreed in [2], this series
-aims to properly deny it.
+When the target function receives more arguments than available
+registers, the additional arguments are passed on stack, and so the
+generated trampoline needs to read those to prepare the bpf context,
+but also to prepare the target function stack when it is in charge of
+calling it. This works well for scalar types, but if the value is a
+struct, we can not know for sure the exact struct location, as it may
+have been packed or manually aligned to a greater value.
 
-It targets all the architectures currently implementing
-arch_prepare_bpf_trampoline (except aarch64, since it has been handled
-while adding the support for many args):
-- x86
-- s390
-- riscv
-- powerpc
+Prevent wrong readings by refusing trampoline attachment if the target
+function receives a struct on stack. While at it, move the max bpf args
+check in the new function.
 
-A small validation function is added in the JIT compiler for each of
-those architectures, ensuring that no argument passed on stack is a
-struct. If so, the trampoline creation is cancelled. Any check on args
-already implemented in a JIT comp has been moved in this new function.
-On top of that, it updates the tracing_struct_many_args test, which
-now merely checks that this case is indeed denied.
-
-[1] https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-0-0a32fe72339e@bootlin.com/
-[2] https://lore.kernel.org/bpf/CAADnVQKr3ftNt1uQVrXBE0a2o37ZYRo2PHqCoHUnw6PE5T2LoA@mail.gmail.com/
-
+Fixes: 473e3150e30a ("bpf, x86: allow function arguments up to 12 for TRACING")
 Signed-off-by: Alexis Lothoré (eBPF Foundation) <alexis.lothore@bootlin.com>
 ---
-Alexis Lothoré (eBPF Foundation) (7):
-      bpf/x86: use define for max regs count used for arguments
-      bpf/x86: prevent trampoline attachment when args location on stack is uncertain
-      bpf/riscv: prevent trampoline attachment when args location on stack is uncertain
-      bpf/s390: prevent trampoline attachment when args location on stack is uncertain
-      bpf/powerpc64: use define for max regs count used for arguments
-      bpf/powerpc64: prevent trampoline attachment when args location on stack is uncertain
-      selftests/bpf: ensure that functions passing structs on stack can not be hooked
+ arch/x86/net/bpf_jit_comp.c | 36 ++++++++++++++++++++++++++++++------
+ 1 file changed, 30 insertions(+), 6 deletions(-)
 
- arch/powerpc/net/bpf_jit_comp.c                    | 38 ++++++++++--
- arch/riscv/net/bpf_jit_comp64.c                    | 26 +++++++-
- arch/s390/net/bpf_jit_comp.c                       | 33 ++++++++--
- arch/x86/net/bpf_jit_comp.c                        | 50 ++++++++++++----
- .../selftests/bpf/prog_tests/tracing_struct.c      | 37 +-----------
- .../selftests/bpf/progs/tracing_struct_many_args.c | 70 ----------------------
- .../testing/selftests/bpf/test_kmods/bpf_testmod.c | 43 ++-----------
- 7 files changed, 129 insertions(+), 168 deletions(-)
----
-base-commit: c4f4f8da70044d8b28fccf73016b4119f3e2fd50
-change-id: 20250609-deny_trampoline_structs_on_stack-5bbc7bc20dd1
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 9689834de1bb1a90fdc28156e0e2a56ac0ff2076..120e05a978679c046631cc94d942800c3051ad0a 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -3001,6 +3001,29 @@ static int invoke_bpf_mod_ret(const struct btf_func_model *m, u8 **pprog,
+ 	return 0;
+ }
+ 
++static int validate_args(const struct btf_func_model *m)
++{
++	int i, arg_regs = 0, nr_regs = 0;
++
++	for (i = 0; i < min_t(int, m->nr_args, MAX_BPF_FUNC_ARGS); i++) {
++		arg_regs = (m->arg_size[i] + 7) / 8;
++
++		if (nr_regs + arg_regs > MAX_REGS_FOR_ARGS &&
++		    m->arg_flags[i] & BTF_FMODEL_STRUCT_ARG)
++			return -ENOTSUPP;
++		nr_regs += arg_regs;
++	}
++
++	/* x86-64 supports up to MAX_BPF_FUNC_ARGS arguments. 1-6
++	 * are passed through regs, the remains are through stack.
++	 */
++	if (nr_regs > MAX_BPF_FUNC_ARGS)
++		return -ENOTSUPP;
++
++
++	return 0;
++}
++
+ /* mov rax, qword ptr [rbp - rounded_stack_depth - 8] */
+ #define LOAD_TRAMP_TAIL_CALL_CNT_PTR(stack)	\
+ 	__LOAD_TCC_PTR(-round_up(stack, 8) - 8)
+@@ -3089,18 +3112,19 @@ static int __arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *rw_im
+ 	WARN_ON_ONCE((flags & BPF_TRAMP_F_INDIRECT) &&
+ 		     (flags & ~(BPF_TRAMP_F_INDIRECT | BPF_TRAMP_F_RET_FENTRY_RET)));
+ 
++	/* make sure that any argument can be located and processed by the
++	 * trampoline
++	 */
++	ret = validate_args(m);
++	if (ret)
++		return ret;
++
+ 	/* extra registers for struct arguments */
+ 	for (i = 0; i < m->nr_args; i++) {
+ 		if (m->arg_flags[i] & BTF_FMODEL_STRUCT_ARG)
+ 			nr_regs += (m->arg_size[i] + 7) / 8 - 1;
+ 	}
+ 
+-	/* x86-64 supports up to MAX_BPF_FUNC_ARGS arguments. 1-6
+-	 * are passed through regs, the remains are through stack.
+-	 */
+-	if (nr_regs > MAX_BPF_FUNC_ARGS)
+-		return -ENOTSUPP;
+-
+ 	/* Generated trampoline stack layout:
+ 	 *
+ 	 * RBP + 8         [ return address  ]
 
-Best regards,
 -- 
-Alexis Lothoré, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.49.0
 
