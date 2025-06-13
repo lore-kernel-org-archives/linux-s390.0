@@ -1,105 +1,80 @@
-Received: from out-177.mta1.migadu.com (out-177.mta1.migadu.com [95.215.58.177])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6723F18DB1A
-	for <linux-s390@vger.kernel.org>; Fri, 13 Jun 2025 03:06:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF9127082A;
+	Fri, 13 Jun 2025 05:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749783990; cv=none; b=d49zyUcEf3WrHlbeAKysSCvWBYXyC32ts8QT12NKL7HWo5L9oeGpXmjUJCmGbynHXXLn72mKWPpk+CMYr5AmfWvqyv6KPbW1ieQoSFs4NyVuR1UlGH7pdraX6zKgjRxxhdICVZCTAqyVQWPLZqz6o4caGsni3Ul85GIenyB+qqg=
+	t=1749793012; cv=none; b=aA4VoHcofyKH1BvliJbxeElMcs7er7bwkKuKQQbRf/Zu/11IQ0mcqOKCBiB9n2Xhln6PI/0AfP87BUUiTtTOaQRcPR/pxqY3KmIWsj5w/kf3+qoWckFT6sDMwMWdzXWYSftZe3OPNfuekQ0Nj6FSPT3Oa9Yle1mZ/6QRtNpd+yI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749783990; c=relaxed/simple;
-	bh=w5lvnxdf7nXQzABIUueKfM2G7ZWWXlgNS18Oez8SQuk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=r3Ci+t7iGp4dOibm3EUSZx1xZjCDUPGelozPYei31Ug3FTNNQBHhqiurdQNGyfSuIgkeuU7fj0hanJLmbQw3j+oeN0KO8DAP1I22A4vUJKMLM7s9wJ/HdcC96FsSEoYRMIrKdxRHXEMFmaAsPzLQxU+DeieKqaYRIff7fya4tyc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VmrD+p0k; arc=none smtp.client-ip=95.215.58.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1749793012; c=relaxed/simple;
+	bh=JJcCqKW7LXqyOZrK1HJFUxRa9D1FKrSjC3MG6GISIC0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=G6RD579znklgnx53Ort0mSS5/iRDJj2fbHWESxkG+Xx/991CJJ2LE1XrDCbu/WXDyfkZMr6UjxaDaXj5dXdWOSGYa0Z/lz3muiU1Jd/0Bg+fNuOYUT0LAENctU8XxbokM0aKrLl8QXkwYrjQYC2pSwVBtwhnDbFPRn9rj9ma4s8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bVFtVRcp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VmrD+p0k"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1749783986;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FK5GViGeaS0eKXb1CGklOs8Lcazv9ig1sTbfs/WnUDs=;
-	b=VmrD+p0k1+hGglgFMyD3kLFYXh+SMTmVlSrsl5nL5sfKCHcBwrkI++kzMSRi0v0hWA09jU
-	Awtwc4OjwwnWnH73KWQTYi0o6jxXhNdzlAKgW0UJDfP8s6cB0zbAizCjx0Z9fBoQOYtHrV
-	eO24fkJuo68McBVD7RaFUCIN/zpBRWU=
-From: Hao Ge <hao.ge@linux.dev>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@redhat.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Dennis Zhou <dennis@kernel.org>,
-	Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@linux.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Kent Overstreet <kent.overstreet@linux.dev>
-Cc: linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Hao Ge <hao.ge@linux.dev>,
-	Hao Ge <gehao@kylinos.cn>
-Subject: [PATCH v2 3/3] mm/alloc_tag: add the CONFIG_ARCH_NEEDS_WEAK_PER_CPU macro when statically defining the percpu variable _shared_alloc_tag
-Date: Fri, 13 Jun 2025 11:05:07 +0800
-Message-Id: <099651f46b0b57f6c7890a64608dc7ca44df7764.1749779391.git.gehao@kylinos.cn>
-In-Reply-To: <cover.1749779391.git.gehao@kylinos.cn>
-References: <cover.1749779391.git.gehao@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bVFtVRcp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DD44C4CEE3;
+	Fri, 13 Jun 2025 05:36:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749793011;
+	bh=JJcCqKW7LXqyOZrK1HJFUxRa9D1FKrSjC3MG6GISIC0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bVFtVRcpRQIFO4mHnvudrWjYj+HKuvEE1lRRW865Rh/YuC4AuPraomY3jpJ1Mgioe
+	 27LxYK0VXLKuqkY3VxF95GJkwlpNeUobZJpI0eA9EfyssFCuVb/rsH2drEMNSlJZAV
+	 EeMOAIQpyL6cciRHEYIEug2c2dzBlEEWw8fC2fRuGu4YTWfCzKV/ffw0iDvBHL/0HW
+	 rT2WjUvss4//18xLvlPwHrKosYGf/KAGpbTRQYlOlNTiU7phKS/1Db9DbdAx3v4hlO
+	 rH9i8gaA8VSTgrMIS3G96zjIEsaMnAsYIBvQMOvq6M3hNsU0v1/GNZD/YOosrCmVRJ
+	 2p5S7tN5Pfd7w==
+Date: Thu, 12 Jun 2025 22:36:24 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org, x86@kernel.org, ardb@kernel.org,
+	Jason@zx2c4.com, torvalds@linux-foundation.org
+Subject: Re: [PATCH 07/16] crypto: sha512 - replace sha512_generic with
+ wrapper around SHA-512 library
+Message-ID: <20250613053624.GA163131@sol>
+References: <20250611020923.1482701-8-ebiggers@kernel.org>
+ <aEjo6YZn59m5FnZ_@gondor.apana.org.au>
+ <20250611033957.GA1484147@sol>
+ <aEj8J3ZIYEFp_XT4@gondor.apana.org.au>
+ <20250611035842.GB1484147@sol>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250611035842.GB1484147@sol>
 
-From: Hao Ge <gehao@kylinos.cn>
+On Tue, Jun 10, 2025 at 08:58:42PM -0700, Eric Biggers wrote:
+> On Wed, Jun 11, 2025 at 11:46:47AM +0800, Herbert Xu wrote:
+> > On Tue, Jun 10, 2025 at 08:39:57PM -0700, Eric Biggers wrote:
+> > >
+> > > Do you have a concrete example (meaning, a specific driver) where this actually
+> > > matters?  Historically, export and import have always had to be paired for the
+> > > same transformation object, i.e. import was called only with the output of
+> > > export.  There is, and has never been, any test that tests otherwise.  This
+> > > seems like a brand new "requirement" that you've made up unnecessarily.
+> > 
+> > It's not just drivers that may be using fallbacks, the ahash API
+> > code itself now relies on this to provide fallbacks for cases that
+> > drivers can't handle, such as linear addresses.
+> > 
+> > I did add the testing for it, which revealed a few problems with
+> > s390 so it was reverted for 6.16.  But I will be adding it back
+> > after the s390 issues have been resolved.
+> 
+> Okay, so it sounds like in practice this is specific to ahash_do_req_chain()
+> which you recently added.  I'm not sure what it's meant to be doing.
 
-Recently discovered this entry while checking kallsyms on ARM64:
-ffff800083e509c0 D _shared_alloc_tag
+You do know that most of the sha512 asynchronous hash drivers use custom state
+formats and not your new one, right?  So your code in ahash_do_req_chain() is
+broken for most asynchronous hash drivers anyway.
 
-If CONFIG_ARCH_NEEDS_WEAK_PER_CPU is not defined(it is only defined for
-s390 and alpha architectures),there's no need to statically define
-the percpu variable _shared_alloc_tag. As the number of CPUs
-increases,the wasted memory will grow correspondingly.
-
-Enclose the definition of _shared_alloc_tag within the
-CONFIG_ARCH_NEEDS_WEAK_PER_CPU condition.
-
-Suggested-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Hao Ge <gehao@kylinos.cn>
----
- lib/alloc_tag.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/lib/alloc_tag.c b/lib/alloc_tag.c
-index c7f602fa7b23..14fd66f26e42 100644
---- a/lib/alloc_tag.c
-+++ b/lib/alloc_tag.c
-@@ -24,8 +24,10 @@ static bool mem_profiling_support;
- 
- static struct codetag_type *alloc_tag_cttype;
- 
-+#ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU
- DEFINE_PER_CPU(struct alloc_tag_counters, _shared_alloc_tag);
- EXPORT_SYMBOL(_shared_alloc_tag);
-+#endif
- 
- DEFINE_STATIC_KEY_MAYBE(CONFIG_MEM_ALLOC_PROFILING_ENABLED_BY_DEFAULT,
- 			mem_alloc_profiling_key);
--- 
-2.25.1
-
+- Eric
