@@ -1,127 +1,195 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9B7224C06A
-	for <linux-s390@vger.kernel.org>; Fri, 13 Jun 2025 19:21:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57A9223814C;
+	Fri, 13 Jun 2025 22:36:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749842506; cv=none; b=syF+Bs0bdnMjmOOdPi+MWDbuuqoXoEF+WRE99INqt/fhgVUzqQh4h2hdZbtL9cqCvGM+MLF+54gWzrcR9G1PgjWI1CKLqCfr5Hx7e7URY3gmzhmTIyJETE/M4IovCLIhUWaFIaqse/4FQR5VKT1ZOcRyxHNNICi8bM7S22zwcHE=
+	t=1749854172; cv=none; b=tbwGRjLunBM+irSwTSWAtqUzhJfvjVlUD9qIkY189vZ/I2P079zW5jaYic7HWs1d+B0xkNxUG4Nfw7a9kjSJ3b7cFZk3xMSzxOAsAEjgtlJHrHNqEvxozu07FAV3CxNP1KuNXbfEDO+yrOMDzmmKxsoCyqHs5k7g1rReKdHUqE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749842506; c=relaxed/simple;
-	bh=YLKpZILOwVtOfA0AbaKsPcVtXLdl14+iX8YDYOFnlek=;
+	s=arc-20240116; t=1749854172; c=relaxed/simple;
+	bh=ZDhN0PQzQ9wgEHlw7OXTzGjuQH3XOnQA5xq1WBIqnek=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DTU4CJOcgAI0z4NM9Wc7E6cvkudcCAlpf2jkGZsvH8pqWrIzfv91hchrDorMh5jpbJf5jKuGajjkDpl2DlD1KI5me1xp9lK+3cXmA31/+FaSeJLkSnECk4cmMcRyelIztpJh5gs0hozda+uCJ7eXjCSbRc5hPDvQnfBbnANn8l8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mlNBO0dc; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=K/sp72YL0BJbPMytT+pI1ho62UuE4i9Do923g1q7FvJW9gbIOPwG/c9mh3nTpUiwCTpkonNtBEyejikBLd+s3vw13gC4LIJF6EB/LpBx6M+wM5q8Nci/vfLJofi7dY2ly5lOR9iS7GRB0kXk6m4rGcY0xobBRVuwM8MfyhqRjWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V0MMfQ9L; arc=none smtp.client-ip=209.85.221.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mlNBO0dc"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-47e9fea29easo72801cf.1
-        for <linux-s390@vger.kernel.org>; Fri, 13 Jun 2025 12:21:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V0MMfQ9L"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-3a503d9ef59so2243830f8f.3;
+        Fri, 13 Jun 2025 15:36:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1749842504; x=1750447304; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1749854169; x=1750458969; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SwsnYZZ63LvvlkMeoABDBQxLgrkaQY4fLJ1Enbyh2EY=;
-        b=mlNBO0dccpiO7+jQvbeerASq3RyS7Oi7OdU+ylF1Wo/q4R9HYGfR693IeLwJrQEobW
-         AajOpTIuGPc4M+ARRGccQn6G0YbG/Jkbxzjfw6AiTczfsoC6eH3UXVEZIy6W6RvT2mIN
-         hMqRl64ER+V7Y23LbqJeMNxn8MNABwvxDwoG+M9pR7n2gC1JTRRAbqddHUwlQm2mgu6F
-         RN1pYOsVM0MtnZDiMdm/GeRgSlGf6eic0hHiqG1U50AuzFOEoLUQL7LL1gXgXcqpfuuu
-         L0mziAHEjElMhVRNsbyPrRBY1LcB/vramXvFXj/HXXjpDhr8Q7jy2QQVvrWp0f2jQGTt
-         Jg6Q==
+        bh=ZDhN0PQzQ9wgEHlw7OXTzGjuQH3XOnQA5xq1WBIqnek=;
+        b=V0MMfQ9LnVFjKTXF/j9wodh39meUoxLTRuYmqR6UlVLco4MCSPFkyZ3TVgdbc03eYA
+         3yLlwoGSG8T4HnLNgLKGfhQmKhx/l8jvCN44pZddh1c66IhJH1mpigG5C2Rl2vYo3SkP
+         naMo0QZn/e4SHNMPnJmhf8taujDmwIM6EAJU6rMmOH1NsbjUVuf1dexFHDZvksmOrXf6
+         T9hBS2h32S+1atZsl91SDUhqF3R93ohXZkld4EjaIxb4gTaTfbLMBK/IoBLUJpRMCGJo
+         RL3uZXsh7n7njkZyWbpNqa7Kk/bdp1R655+0koEKH6yziNKQMpoiBKcfha2Apt23VLTA
+         FtPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749842504; x=1750447304;
+        d=1e100.net; s=20230601; t=1749854169; x=1750458969;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SwsnYZZ63LvvlkMeoABDBQxLgrkaQY4fLJ1Enbyh2EY=;
-        b=YngMQfp0hunL4ULmYE7a5JEqkisv3J76s7sGrgF/3fuO3n0DgV+yiyO8wlJU1wU1no
-         hFSg51/WO4LH6a/Dsnj3Pxx8jIftxLcP83vuzulRBLmfdV696R2TzrqAKQidyiOHLr1G
-         XTUmW09vKPOjOyyi4tmKDOygh0+07aRThupODdZvcsxI2jigt2S7eqpdDPaihOzaFyXE
-         TiIGoZQ/MPXs6kGXsKVDNEOJWup+UpNgA4CX5QyziudutPN6wbvuMVYuLW3yynQmjbYX
-         /Oeo7/z9s+iSaysGhyVhGyz6PngXolAUawQlwpUWgdwlUEial56rSQFSmLUX+bmMl01Q
-         /9Rw==
-X-Forwarded-Encrypted: i=1; AJvYcCV85fFSuDhPzzfEza7iAliEki0Obxlew+4r4e5DPRh+7Q6uGKgOOVRjVnFsq8cx0qoZILYB6icql7sU@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz+8RFkfXy6hX7AvETv1g6hoYz54lk/10r71ZSK0P1HHjABLtYm
-	cEBmSw/pPgGLG1bKylvgSV5mQrSujqnzuexZ1saXiOomOSxfKaTQfH26WIZhDBLGfnmgTYcKZPY
-	KF/0NRkvUroh7UbKcYqSZ03Kk8O20GOCIqdP9puDi
-X-Gm-Gg: ASbGncvof5Scf79d/vztEcfO76Nv3QC+/T7yMdA5rJbMppbnHicpzY3YTVlLu3jR9ie
-	DiQrlE5V1wrjPVwll3K+wCk+S+UTdh5TNTxgm9+FAZ5AKrYKpS9goIOX6P6DDDcdYYWgSEjLNj3
-	pKZlrPkHpEiuJR3Q5NewJC7nOBJlsz2KXjaaCKFbANHg==
-X-Google-Smtp-Source: AGHT+IEO+7tih5cXcAlJg0Vw2/Sois18XRurWIS2/frgQdC8+3vTxmNKORl6AWRcNFb2EewoNPpA6PIVNKd9BEEx0hI=
-X-Received: by 2002:ac8:5883:0:b0:47b:840:7f5b with SMTP id
- d75a77b69052e-4a73c763a87mr516731cf.29.1749842503097; Fri, 13 Jun 2025
- 12:21:43 -0700 (PDT)
+        bh=ZDhN0PQzQ9wgEHlw7OXTzGjuQH3XOnQA5xq1WBIqnek=;
+        b=DP4LeCxipuEqfRH/A2U6e54gykEjP3H8WEMNZ2815004YhU+gJAM75Ep86mc6cwu0U
+         sU0lWog3PIuRrhr87ACxCbJu7XbTX2LBbY4voVmOssDG5FOI4w6VINVtXwyTFBv3Kj5v
+         68MbKplggEERqahkd5FDqvUvjyjurLaJrkrQs8bI3Ncwcv65x8A8wlSrknk+tjYXzy95
+         o6H4I54gLkz2BJRvbBElZpQmog6M9fgU7OD5TfQGoBl8hDmJWCXV8Y1CEp/tCtqTOWE3
+         DPpZH0WyhmNp80DpS9/yw/eq2nIAlSc39UAiju6m2uYHUPJGOUjNCtwwxlUAX2OFf5i3
+         ee+A==
+X-Forwarded-Encrypted: i=1; AJvYcCUoYtPXQA1uonZ073rI2MQTnx7vh8vbs0CZCRSym1QzwDQuv6NwLIXJ0+NeznFNyNSH1+50HKyNLXsQfKs8@vger.kernel.org, AJvYcCVjXZP1T8WApTDB6z5tsMrbFQK12GdZtuo4tF1USUF5uaYuXR2eAKSRCFplpm43sH0Xqz7FFrSh@vger.kernel.org, AJvYcCVvlhQTmGOtxaZxoUYXhwk+c+TEffvp7aCFl3iix3+LUllcrwP/LyWhXfdwAg6fqLDx6b6w1Vo/TNxhbg==@vger.kernel.org, AJvYcCW3aYg3AI9cYfEnKrLIjIa4yyUWU8gi3edaUgLhE+ZyKNzma1VxhqXyt2J6oLyQkokz4pnutWegtkcPiswZSOPV@vger.kernel.org, AJvYcCXujocvSLLDKiMDLrc+W8B812qxkbpNvwDvihIZpAXdUL6+MoYyRv1ApO9qe+KFQ2hLtv8=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzeBjcDMLiKMO1E2tsO4XxqMmBq8cy2hRZqk9/D8n8ENQ6nHbp2
+	tMBJ2GlIYAB4j6mYC5V+xcZTAID5mBkkV3ZElSkKV8xouQ8Vg2hXJkZE7sFdIj/9a4cKURft0HI
+	nlXc/yCSSeQNS2chc7tmRzkuIoAKmPC0=
+X-Gm-Gg: ASbGncvQSz/Iq49Vxr/l0p1voHBV7BElZxSaGoeGsxsXfe4RwBsu5iI/OnOZ9Q1f/Vw
+	+OoJABUOAz43h3Ow0Hnutijz3BbX8PzfCduLtMxZupYAeLY3vmEUTY5cqvdMlWD4OZA5JYaf3Bx
+	V15Ez1gewM9qaYhaTTbkZatLJ7ukp6Ac/XZSBrNLRVOntN6oWqJOzHP3fSwhqNGe8apV5nJ05y
+X-Google-Smtp-Source: AGHT+IGvAZU4d5tXw0nhgWlSwGRKFbuaQhR8GZiHa22TV57O0MRl7T0f9v9YaYzOJredMJW3TgBMxueem5pPB3YsBNg=
+X-Received: by 2002:a05:6000:40dd:b0:3a5:2694:d75f with SMTP id
+ ffacd0b85a97d-3a572e895fbmr1535518f8f.52.1749854168416; Fri, 13 Jun 2025
+ 15:36:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1749779391.git.gehao@kylinos.cn> <099651f46b0b57f6c7890a64608dc7ca44df7764.1749779391.git.gehao@kylinos.cn>
-In-Reply-To: <099651f46b0b57f6c7890a64608dc7ca44df7764.1749779391.git.gehao@kylinos.cn>
-From: Suren Baghdasaryan <surenb@google.com>
-Date: Fri, 13 Jun 2025 12:21:32 -0700
-X-Gm-Features: AX0GCFu-OOwfRLFxcwNjR_GNWx_Buv2sRyKB524WUep1Vz9r7UOBtNhv2b7PdpU
-Message-ID: <CAJuCfpGkUk5RXm-HDLB2mr_mRbSxPV+kx116FFBhyYsf6pXNCg@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] mm/alloc_tag: add the CONFIG_ARCH_NEEDS_WEAK_PER_CPU
- macro when statically defining the percpu variable _shared_alloc_tag
-To: Hao Ge <hao.ge@linux.dev>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, 
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
-	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+References: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
+ <20250613-deny_trampoline_structs_on_stack-v1-2-5be9211768c3@bootlin.com>
+ <20250613081150.GJ2273038@noisy.programming.kicks-ass.net>
+ <DAL9GRMH74F4.2IV0HN0NGU65X@bootlin.com> <20250613083232.GL2273038@noisy.programming.kicks-ass.net>
+ <DALA5WYA04OG.1283TZDOVLBPS@bootlin.com>
+In-Reply-To: <DALA5WYA04OG.1283TZDOVLBPS@bootlin.com>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Fri, 13 Jun 2025 15:35:57 -0700
+X-Gm-Features: AX0GCFvxnM-s8AungljiWEt_LCtzKmPe0DGMu2VqQrNsxFmjrZ6Pec_NoZEOn-E
+Message-ID: <CAADnVQ+sj9XhscN9PdmTzjVa7Eif21noAUH3y1K6x5bWcL-5pg@mail.gmail.com>
+Subject: Re: [PATCH bpf 2/7] bpf/x86: prevent trampoline attachment when args
+ location on stack is uncertain
+To: =?UTF-8?Q?Alexis_Lothor=C3=A9?= <alexis.lothore@bootlin.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
+	Jiri Olsa <jolsa@kernel.org>, "David S. Miller" <davem@davemloft.net>, David Ahern <dsahern@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, X86 ML <x86@kernel.org>, 
+	"H. Peter Anvin" <hpa@zytor.com>, Menglong Dong <imagedong@tencent.com>, 
+	=?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
+	Pu Lehui <pulehui@huawei.com>, Puranjay Mohan <puranjay@kernel.org>, 
+	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+	Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
 	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Kent Overstreet <kent.overstreet@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, 
-	linux-s390@vger.kernel.org, Hao Ge <gehao@kylinos.cn>
+	Sven Schnelle <svens@linux.ibm.com>, Hari Bathini <hbathini@linux.ibm.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	ebpf@linuxfoundation.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+	Bastien Curutchet <bastien.curutchet@bootlin.com>, 
+	Network Development <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>, 
+	LKML <linux-kernel@vger.kernel.org>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, 
+	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
+	ppc-dev <linuxppc-dev@lists.ozlabs.org>, 
+	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 12, 2025 at 8:06=E2=80=AFPM Hao Ge <hao.ge@linux.dev> wrote:
+On Fri, Jun 13, 2025 at 1:59=E2=80=AFAM Alexis Lothor=C3=A9
+<alexis.lothore@bootlin.com> wrote:
 >
-> From: Hao Ge <gehao@kylinos.cn>
+> On Fri Jun 13, 2025 at 10:32 AM CEST, Peter Zijlstra wrote:
+> > On Fri, Jun 13, 2025 at 10:26:37AM +0200, Alexis Lothor=C3=A9 wrote:
+> >> Hi Peter,
+> >>
+> >> On Fri Jun 13, 2025 at 10:11 AM CEST, Peter Zijlstra wrote:
+> >> > On Fri, Jun 13, 2025 at 09:37:11AM +0200, Alexis Lothor=C3=A9 (eBPF =
+Foundation) wrote:
 >
-> Recently discovered this entry while checking kallsyms on ARM64:
-> ffff800083e509c0 D _shared_alloc_tag
+> [...]
 >
-> If CONFIG_ARCH_NEEDS_WEAK_PER_CPU is not defined(it is only defined for
-> s390 and alpha architectures),there's no need to statically define
-> the percpu variable _shared_alloc_tag. As the number of CPUs
-> increases,the wasted memory will grow correspondingly.
+> >> Maybe my commit wording is not precise enough, but indeed, there's not
+> >> doubt about whether the struct value is passed on the stack or through=
+ a
+> >> register/a pair of registers. The doubt is rather about the struct loc=
+ation
+> >> when it is passed _by value_ and _on the stack_: the ABI indeed clearl=
+y
+> >> states that "Structures and unions assume the alignment of their most
+> >> strictly aligned component" (p.13), but this rule is "silently broken"=
+ when
+> >> a struct has an __attribute__((packed)) or and __attribute__((aligned(=
+X))),
+> >> and AFAICT this case can not be detected at runtime with current BTF i=
+nfo.
+> >
+> > Ah, okay. So it is a failure of BTF. That was indeed not clear.
+>
+> If I need to respin, I'll rewrite the commit message to include the detai=
+ls
+> above.
 
-I don't think this patch needs all this background. Just say that
-_shared_alloc_tag is not used when CONFIG_ARCH_NEEDS_WEAK_PER_CPU=3Dn,
-so you want to compile it out.
+No need to respin. The cover letter is quite detailed already.
 
->
-> Enclose the definition of _shared_alloc_tag within the
-> CONFIG_ARCH_NEEDS_WEAK_PER_CPU condition.
->
-> Suggested-by: Suren Baghdasaryan <surenb@google.com>
-> Signed-off-by: Hao Ge <gehao@kylinos.cn>
-> ---
->  lib/alloc_tag.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/lib/alloc_tag.c b/lib/alloc_tag.c
-> index c7f602fa7b23..14fd66f26e42 100644
-> --- a/lib/alloc_tag.c
-> +++ b/lib/alloc_tag.c
-> @@ -24,8 +24,10 @@ static bool mem_profiling_support;
->
->  static struct codetag_type *alloc_tag_cttype;
->
-> +#ifdef CONFIG_ARCH_NEEDS_WEAK_PER_CPU
->  DEFINE_PER_CPU(struct alloc_tag_counters, _shared_alloc_tag);
->  EXPORT_SYMBOL(_shared_alloc_tag);
-> +#endif
->
->  DEFINE_STATIC_KEY_MAYBE(CONFIG_MEM_ALLOC_PROFILING_ENABLED_BY_DEFAULT,
->                         mem_alloc_profiling_key);
-> --
-> 2.25.1
->
+But looking at the patch and this thread I think we need to agree
+on the long term approach to BTF, since people assume that
+it's a more compact dwarf and any missing information
+should be added to it.
+Like in this case special alignment case and packed attributes
+are not expressed in BTF and I believe they should not be.
+BTF is not a debug format and not a substitute for dwarf.
+There is no goal to express everything possible in C.
+It's minimal, because BTF is _practical_ description of
+types and data present in the kernel.
+I don't think the special case of packing and alignment exists
+in the kernel today, so the current format is sufficient.
+It doesn't miss anything.
+I think we made arm64 JIT unnecessary restrictive and now considering
+to make all other JITs restrictive too for hypothetical case
+of some future kernel functions.
+I feel we're going in the wrong direction.
+Instead we should teach pahole to sanitize BTF where functions
+are using this fancy alignment and packed structs.
+pahole can see it in dwarf and can skip emitting BTF for such
+functions. Then the kernel JITs on all architectures won't even
+see such cases.
+
+The issue was initially discovered by a selftest:
+https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-3-0a32fe72339e@boot=
+lin.com/
+that attempted to support these two types:
++struct bpf_testmod_struct_arg_4 {
++ __u64 a;
++ __u64 b;
++};
++
++struct bpf_testmod_struct_arg_5 {
++ __int128 a;
++};
+
+The former is present in the kernel. It's more or less sockptr_t,
+and people want to access it for observability in tracing.
+The latter doesn't exist in the kernel and we cannot represent
+it properly in BTF without losing alignment.
+
+So I think we should go back to that series:
+https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-0-0a32fe72339e@boot=
+lin.com/
+
+remove __int128 selftest, but also teach pahole
+to recognize types that cannot be represented in BTF and
+don't emit them either into vmlinux or in kernel module
+(like in this case it was bpf_testmod.ko)
+I think that would be a better path forward aligned
+with the long term goal of BTF.
+
+And before people ask... pahole is a trusted component of the build
+system. We trust it just as we trust gcc, clang, linker, objtool.
