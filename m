@@ -1,116 +1,125 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8603E1F4628;
-	Fri, 13 Jun 2025 16:02:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CCBE1F37D4
+	for <linux-s390@vger.kernel.org>; Fri, 13 Jun 2025 16:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749830525; cv=none; b=pIGV8tWduKnOaPKhvVMpMd2undb3g1DMbNiqAU/LgvoidqVj8krF6m/tZhS4L5YRvevTzPnfT6zjvRgdfbNBVi6HV5cJEXA/rRCB1ctrZoyTa+10WT2k3grMyPlRR817xIbv2I5gIN9zMBWkaUAWL+32oVOdM4mRQISxvFJ7YEY=
+	t=1749832582; cv=none; b=jR6ZQjYFfJ0odby9eH/wwRrjIBXUbGHn+DraSt10KV6jvZVw4m5ZKilODgJrR9E+G2+5tLQxZUUZYEXuMaNR9LQ+VBW+xftg0GCWH4Hg0XQuBdzCQXJMJQTGL9Z8nnd8eyrSqGY54J9imqTObp1ec/IjVCzFeuJgOE2Fpr1E8uA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749830525; c=relaxed/simple;
-	bh=sP+WTByBn7c1i+cE70EYSmAqeZL2rfsXlCl547H8JHo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ew1ZCXNIAwp9XvWPA5m8NmJqH4OYu6M/mAj6rr1l5iXQwN8gJeYAc/INNk3D8duOers/n0rnrZgLYxhouqjvzrxxuZK8b2yX/0c23akbhFTdEW5Vs1htu+adpdkE2PY0fdr19daMiq35qhJoBdHxPTiSuuXJinVaj79wnbFMndA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Zhfihg3Q; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1749832582; c=relaxed/simple;
+	bh=6IDK3mFK3aUcD6DqmEoL/rBAW6jbXc5FxEXCTke0bD8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XRJZN4PHpFciT2WagpjjJ/8hs9wRInXU/SWCaYvZWTS334uqny3pIR/Q0Bvh9NjWiDc3Rhldk/cT8iMnNa2ZS+EQp+98+iNQdY71gq1htN7QVn+f2XZvR1OuzT0IAMT4LQOQXou/1UfM0DjPiGbDvx3TrYnZDZ2Hu6T9WwuL3i0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=PI5Rveho; arc=none smtp.client-ip=209.85.208.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Zhfihg3Q"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55DATE0P029060;
-	Fri, 13 Jun 2025 16:01:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=dxMSfWlJLSP1Q2CznlmbgSk8Q0tBnI
-	ErVGASW4hTcD0=; b=Zhfihg3QYV80iCtJFIZNXzwNsO28/CBzBPA1NW4+cP5VWr
-	k5l0f/92cmSa5uH4HyGSN7MW6sSZu3gD2JREmvkY9IWiDksFl/haBc28Yev1eh2p
-	fR3cqw2RD+tVrXIr7ijzmVyteuDmhjWOR5YkS2N2qTSLKs3rs5KGToPoP9lOHn28
-	Zc0+P608Mn4Oofwq9OObNNP0q5WFKuFHs7VgiBgMYGALGpI5XLkpWYhrNGGVAIJg
-	CsvXGDatoWJVdD4D+XIN/bR1Z2kVnng6dv251wWZwQ5XqU8LCwiGj9YrhbE5Yqqs
-	c0WIsVuRjG1it6BmiiXjCc1Dtc3+1matXW8Zfx8g==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv8225n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Jun 2025 16:01:47 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55DFim5F019573;
-	Fri, 13 Jun 2025 16:01:46 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4752f2tec9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Jun 2025 16:01:45 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55DG1irx33227464
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Jun 2025 16:01:44 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3311620040;
-	Fri, 13 Jun 2025 16:01:44 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4533A20043;
-	Fri, 13 Jun 2025 16:01:43 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.81.121])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 13 Jun 2025 16:01:43 +0000 (GMT)
-Date: Fri, 13 Jun 2025 18:01:41 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        sparclinux@vger.kernel.org, x86@kernel.org, linux-arch@vger.kernel.org,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v2 09/12] lib/crc/s390: migrate s390-optimized CRC code
- into lib/crc/
-Message-ID: <aExLZaoBCg55rZWJ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250607200454.73587-1-ebiggers@kernel.org>
- <20250607200454.73587-10-ebiggers@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="PI5Rveho"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-607873cc6c4so4726871a12.1
+        for <linux-s390@vger.kernel.org>; Fri, 13 Jun 2025 09:36:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1749832578; x=1750437378; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=76g08zX1QgiOXgDWQ+4Q63FmolLqjqLzmJdnqen2jZI=;
+        b=PI5RvehogUMvTtnZ9NT+nSQkeUjvDQn3WINLD3naZhlnHdHoiwzfw4PB8oyeNV7oDE
+         VrHfQJGMeqLG/pNd3WOoWMrlR6AladBALeW/89jAhhvNPpu5dfKbt2xlyQEemCm0h6s4
+         FDkroMjWJCWEClLaDHi+R/BMqAC4Nlc/tEs3Q=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749832578; x=1750437378;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=76g08zX1QgiOXgDWQ+4Q63FmolLqjqLzmJdnqen2jZI=;
+        b=hH2YkXABVUfXXP6/wpjn3/qCvPJLlxOwDob+gV0vAfkQ1S0ErD7X6rXaBd0i0aqkx9
+         qqtG1XbOoNaRr2q7T262J1V1nxTgCHYe18SMYRtjcn8pFbR0SL/j+vtvYbiEHWXZgc4s
+         gzZ4nnZn+j5Xt7u7YMEDVWeefcz9SeTgP0mHcfewRmYEhn1q/eCy3XXWMrksgk0ZMWVq
+         1QdvWn4rTbNuTdFxoC76sHwrQG2Jt+nlRystiChLPdtRMLt4CueILEu0uCE+EzmtE0Ox
+         VZOo/pKlWF21cawDjzCv7xDL9ZaDcb8fer/oWv9nhrTR0mfqJtbCtnbyiRBc+rGQPbWr
+         sJJg==
+X-Forwarded-Encrypted: i=1; AJvYcCU5WU6qVnmFr2v7Ry3YhUaIkHl71aeaiFmaekfRuotQI39/r7uuXo4LMEIHMIfQxQjT8qpUBT2NUEqV@vger.kernel.org
+X-Gm-Message-State: AOJu0YyIVWodOwfxP0OTN7luJhsU48mo9xm9NDCDrUQLva5lqv2ApcPA
+	ljAMHuHBAmgvnrFNh+1pLlXnUWYnAlRtZMBZgV0JuqEvY4GxGgRjeaPI+2JsZRM6pEkB0yA2VdT
+	UALRjdDtNGQ==
+X-Gm-Gg: ASbGncv32C8S0dYhrb/fybg6OkiS93JxW3RS7+d3NifSL1hCLF1G0eygFnsI0rTfIrS
+	c/v4aRh4CI0yaW2PF/Dl6dE2i9iGNr8XLEPcTXGZ1lchszTuGjSO6QY2x16PjruVwgoll1fvhg/
+	75PXxG8XX7NQSmVEf1vdLeBdCIf2yywvj8i2BMbBLYCwBADz88sNMEPdSokopB9DzU2x8MpHWLZ
+	LT4WxVDbURFZBvpENE1VrowJJMurUqXqvrfcqjAOkMS59vWMc8mAIjS6LqzOB9TxweWVziNGzrT
+	AaFPtJ1Pod+GKNSb5pD6I0y2x8CMSh11HEOhr0fktulPNrhkxdicJ021ZUjMkmXvTQfpocSrZEN
+	BvSfoH9xUD1u1iUESv6VlU/0R4Bbs6w5garVS
+X-Google-Smtp-Source: AGHT+IF2FBQMa9k3Pte/6yd5biYKqmt3/8SKhDzYjl5pT2tvfnskkxfuE9SBsx1+EdXH7q/FjuKIfw==
+X-Received: by 2002:a05:6402:34ca:b0:608:199e:df25 with SMTP id 4fb4d7f45d1cf-608c6de00a7mr1425748a12.2.1749832578296;
+        Fri, 13 Jun 2025 09:36:18 -0700 (PDT)
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com. [209.85.208.47])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-608b48faf6asm1416342a12.31.2025.06.13.09.36.16
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 13 Jun 2025 09:36:16 -0700 (PDT)
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-607873cc6c4so4726790a12.1
+        for <linux-s390@vger.kernel.org>; Fri, 13 Jun 2025 09:36:16 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXlFoup7rO4eQ9W2vCjT4gT2XYjz1UD/g909kwW5ua0/umahKP4qpLjoqp2/aNhHbjwGnpsBhl8UOfO@vger.kernel.org
+X-Received: by 2002:a05:6402:35cd:b0:602:427c:452b with SMTP id
+ 4fb4d7f45d1cf-608ce49d897mr365341a12.3.1749832576184; Fri, 13 Jun 2025
+ 09:36:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250607200454.73587-10-ebiggers@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: oqxWeEseK0qommY-tA52lM8_yDgYBZ8b
-X-Proofpoint-GUID: oqxWeEseK0qommY-tA52lM8_yDgYBZ8b
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEzMDExNSBTYWx0ZWRfX2SFXW8bIydO8 QijS4XnzPyWGv7hUAVPhEsrOB00xE8g+gtnZ5TKc3xm/6m22RAo7pWDdkAUOPF1K6LO6qJEf193 PxiDvBNjb2KojolH7uIG4xIF5aoOVAuWCvsnLPUnzUljRW/4dT+d6yR8TGdRxod4wQd7u9oXLyt
- 960X1pKDQBdkA9i2fSfl/dxiyGZuXG6X5RlU4ZS8JXRnJlDwSVv11Yh0NZ3so0jxjPrI/YVMcT2 6jW8eHHK29fMPvF4SWZi3ZgmFX9oL1/VYz01noMZpHwwtcEMmmSVoqdhzy0/dmzN0+Go88V0p57 Weg2+fyKZ+PNLuJB+wyFM7SDDMfP0OJ1UZqOon8sp39ETo2dKYj4MRErDeC122oOtE8J8jykSry
- lFdOt02pLQfhwmo1MyS48Be/xFyI96QJGhA1Fc1zghsJy38d3Mb+b7BSNKN7KQSA+ld6RejI
-X-Authority-Analysis: v=2.4 cv=CfMI5Krl c=1 sm=1 tr=0 ts=684c4b6b cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=1XWaLZrsAAAA:8 a=DtkNC_JpMhehFE-g-C8A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-13_01,2025-06-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- phishscore=0 priorityscore=1501 clxscore=1011 impostorscore=0 mlxscore=0
- suspectscore=0 mlxlogscore=403 adultscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506130115
+References: <20250611020923.1482701-8-ebiggers@kernel.org> <aEjo6YZn59m5FnZ_@gondor.apana.org.au>
+ <20250611033957.GA1484147@sol> <aEj8J3ZIYEFp_XT4@gondor.apana.org.au>
+ <20250611035842.GB1484147@sol> <20250613053624.GA163131@sol>
+ <aEu5cyDOMcKteW_b@gondor.apana.org.au> <20250613055439.GB163131@sol>
+ <CAMj1kXEDCRfCgvtuhRc+a=m1kVt-zkcCqi_=_WOFTmt4Hz2gGg@mail.gmail.com> <aEvjrhkLnB_GEKnV@gondor.apana.org.au>
+In-Reply-To: <aEvjrhkLnB_GEKnV@gondor.apana.org.au>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 13 Jun 2025 09:35:59 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiewoOfhK=NVQT2uf+29Kngv9F9J6ObJRFUKi6n-=B06g@mail.gmail.com>
+X-Gm-Features: AX0GCFu7lGsyyFJqLRh6z7a562txhJJOyTpVqIIzlie72BRGPF0wH2A3ccvLGV0
+Message-ID: <CAHk-=wiewoOfhK=NVQT2uf+29Kngv9F9J6ObJRFUKi6n-=B06g@mail.gmail.com>
+Subject: Re: [PATCH 07/16] crypto: sha512 - replace sha512_generic with
+ wrapper around SHA-512 library
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ard Biesheuvel <ardb@kernel.org>, Eric Biggers <ebiggers@kernel.org>, linux-crypto@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, 
+	Jason@zx2c4.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Sat, Jun 07, 2025 at 01:04:51PM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> Move the s390-optimized CRC code from arch/s390/lib/crc* into its new
-> location in lib/crc/s390/, and wire it up in the new way.  This new way
-> of organizing the CRC code eliminates the need to artificially split the
-> code for each CRC variant into separate arch and generic modules,
-> enabling better inlining and dead code elimination.  For more details,
-> see "lib/crc: prepare for arch-optimized code in subdirs of lib/crc/".
-> 
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-...
+On Fri, 13 Jun 2025 at 01:39, Herbert Xu <herbert@gondor.apana.org.au> wrote:
+>
+> First of all the export format is being made consistent so that
+> any hardware hash can switch over to a software fallback after
+> it has started, e.g., in the event of a memory allocation failure.
 
-Hi Eric,
+Can we please instead aim to *simplify* the crypto thing?
 
-With this series I am getting on s390:
+Just say that hw accelerators that have this kind of issue shouldn't
+be used. At all. And certainly not be catered to by generic code.
 
-alg: hash: skipping comparison tests for crc32c-s390 because crc32c-generic is unavailable
+The whole hw acceleration is very dubious to begin with unless it's
+directly tied to the source (or destination) of the data in the first
+place, so that there isn't extra data movement.
 
-Thanks!
+And if there are any software fallbacks, that "dubious to begin with"
+pretty much becomes "entirely pointless".
+
+If the point is that there are existing stupid hw drivers that already
+do that fallback internally, then please just *keep* that kind of
+idiocy and workarounds in the drivers.
+
+It's actually *better* to have a broken garbage hardware driver - that
+you can easily just disable on its own - than having a broken garbage
+generic crypto layer that people just don't want to use at all because
+it's such a ess.
+
+This whole "make the mess that is the crypto layer EVEN MORE OF A
+MESS" model of development is completely broken in my opinion.
+
+There's a reason people prefer to have just the sw library without any
+of the indirection or complexity of the crypto layer.
+
+           Linus
