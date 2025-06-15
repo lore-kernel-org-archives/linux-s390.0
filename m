@@ -1,210 +1,115 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE6917BCE;
-	Sun, 15 Jun 2025 15:44:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64C1127BF95;
+	Sun, 15 Jun 2025 18:47:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750002281; cv=none; b=jdinFbuTZpfmAm137QtlK65dtnUYbRcIiwstV2+fPmh6EAWRaR98ae7myZtdFzukjqoQ0R6YElPNwK8b9Kw00gLgtFklZHEXdLf7jBrOGcOowcWTGHDdrMN2rY4y9+PABKfgV/nWeSalud3cgi4B9n5c58EeSwD1yNAeWC/PsV4=
+	t=1750013226; cv=none; b=nQBKTC5rc6Kk+M+QzUWUM6Ug9p6LJ3fiqkqd03pbnBca/5pB7iNXmqxPtiCTeFjh3vD6PmDQDgYecXjTOulj99KpMeBDMP4AWBWTOopOHgkbNaSCr4CPtv3orxz9exSZ3+ZeU+2EJyqATkmUk6obyVPPwaidoHjs1WL5XyEfgZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750002281; c=relaxed/simple;
-	bh=pWRdTeTn/1OegzG4ltWn5U5SgZqMCMMLHaPU9vAtyKk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ibYPepd5YRBXbIcTWpFIMClurkbJao5ZfAm/ZvbziOeH5JlIe4a7azICptpuwFUx9ya0lmmgAcrc6i7Wv78ueSda9gA2kksXbCZi/uMyEeGLp9p5Cu202/BWzN8JKevZuUzKctibGizBuNOE2r0lpPybvSI/cD8+iefcf6g8ma8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dA10Xkxz; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750013226; c=relaxed/simple;
+	bh=5b3uNryP074LRzS0e8lRw21Ibl8znCFGJk8dG32zXQw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=b2w4MYW2vJCtPQcnzMs8C37/SmewTwzXzd6Sd6TVE89eHo4yzn8VS6qFmYA+TqZ9vU2iiqn/ks+oUR7AbCZxjpAaua8eTLNAfcPZ4S8XQLn0QkbNZS74amdp/p6Zh4VV4TmHcK6hFAxC6ltVLxX1CNcwrzmGhGWrM1Delb+Ldk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dBPtFxhS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dA10Xkxz"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3a53359dea5so2437508f8f.0;
-        Sun, 15 Jun 2025 08:44:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750002275; x=1750607075; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Q24V+OwPQTKaIgjR+NjdUiOeSoG4NNmYTDA2NhEIjAI=;
-        b=dA10XkxzSI/fHK2luyIGGkG5SXbzX3TwJIiqgInP3v9mHgZxVn12OUeGPFaUBgvJr2
-         OyNOGYYh6JofO1+9Sevl/6F/vmn4RetkQG0F88RTgImmPcCMN/EYPyxX2opJN3HMUbhM
-         5LFmqqckPGtBtIB/a9bvjEGEAOP90OjrcM0/HeIZk6x/BxxVtZ3XuPJ5pwXGhgl/P1c1
-         ofxhNqIN5xBmGOE5LhYHa9z2w1MTyF4o2JX+7ucQVa00wvvMtHOzO/U7lIYESLfBeiAI
-         jkuoLniSOEcDjhQgeu7u8dynaKXxf4ovotMb1bzZzTbUycbGmUXv+cQzB/iH686UAK9U
-         v95w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750002275; x=1750607075;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Q24V+OwPQTKaIgjR+NjdUiOeSoG4NNmYTDA2NhEIjAI=;
-        b=nxOElu68sjHS40dc0nmGHT7fzU4U5wY0Ye5M9KPtsSBAkueENBCVbRhYkr3QDyM6gF
-         ADWgUa22R1xAhxvT8Dxk+NFVIycme30ECD52v7BmZeRXLbKSRgpTdr37pFS5q/4/D9Q0
-         Iit5KjRBbI3MVvvDK8VbgGbfL3zD2TEA6RTybM41ty7k5T8JfmLMVd2/w3m7DY6CNzXM
-         FzMMIbDy4bUV+nJGIe/pQ+NncrCWGxBH4Mjkpd6GD2qVBNxcjwlUFSWiLScvEzfcXrqC
-         +0rzSWqiAkhg+Vl52mOaFVkzul+1+6nAVqCZAYjSbGnR2pFWwYuGUf0UYqoM71ts88fN
-         DQ9A==
-X-Forwarded-Encrypted: i=1; AJvYcCUqF+sH0BVxoSz1a3XFrl7qQL4akjOoZbMWdGX/Ddq4j5LDUoM+PzuQKWayyfGC0T0I2S3OYRZci8r4TxXC9rGK@vger.kernel.org, AJvYcCUqTjPyRE+TK/FFK3GKhL344S/4sVWMkUmxSYAvlD3GSg0MZ475BaEVtqIauLFWyW4zk8M=@vger.kernel.org, AJvYcCVSX+jCxW2UyvH4mz3DNSDOFe2W/GhcncI+1b1LWaI2oRrsbhiomGHFHeomsYOW9tmebjO0rEyrIqZbTn6U@vger.kernel.org, AJvYcCWGDN9btWAiDc5xwf1tmQCFkCnnX8osaIN/5FecQvSrdJslsmQgXNI9Tewfx5/croosdz25RBxj@vger.kernel.org, AJvYcCX51SRTh1eye9qHU7BL16tUYjXHfIqix8+IrbPmtvEoP3Ckq1oEsj3kR+TJ8EDhP1wGsPUzmLrjV1wo4A==@vger.kernel.org, AJvYcCXeNAne4/qEsjvjCFZ9+iR959uOeP2EHJ98nAdoJ4vKuv5ny3y1xdHu4aZY7efxyQnb8Rb2Ujx/vg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0/I+xzvokvfS1a2EgdZAcsURvXoH7dylCRxL9wVaQNd1Ma2Ta
-	fOTO0dQQWzGmoUCcXQBAqQQpC5Ut6cF/SMsNcOP98LvmDN1O0lXPFSezanFYHJGM66xmoeg5vBn
-	sOjj5cscxFpQ9eTvpJzm3XeDrJsjVYng=
-X-Gm-Gg: ASbGncvJxNgTmeazZsqW/ffCmJ/xCW32eyB1/lstN3sq5HKdIZLyIPSRQ4CCtfxiV3w
-	TIyBjWD2nhstLSyccafZk/4zCbXzAT7/6k0odhzwp1OGE1NjW9jvPAZRlvDvJSHn9sVP9QlKtZi
-	bPthxsaoAp5qYHhtDrv9dEmAW+PM2bj7VgFPWXxtFkRgypmtrbKyGb4A==
-X-Google-Smtp-Source: AGHT+IEVMqrf36wFDwIu+Qav+T1hxhMtiOfYIpsqMlJITLohO7pPVX7dQmL5OFhL7NsYv2qBiULo8wqoJRikRf0wek4=
-X-Received: by 2002:a05:6000:718:b0:3a5:3b63:58f0 with SMTP id
- ffacd0b85a97d-3a57237178dmr4884718f8f.18.1750002274959; Sun, 15 Jun 2025
- 08:44:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dBPtFxhS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA633C4CEE3;
+	Sun, 15 Jun 2025 18:47:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1750013226;
+	bh=5b3uNryP074LRzS0e8lRw21Ibl8znCFGJk8dG32zXQw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=dBPtFxhSJMUXxmaT/KxQ35nsgIcXL/g9ImLlDTQb++SUrhRAv5BrYEyhMzlivQTnA
+	 b5r6qgTgn/HKGqJKv8iIJZIrBrbSU8quRUHzUx02dyadCT/fXANUmLE4BYuuyerOk5
+	 syWDFFmKz8D7g32RagfLqYXxRSTC1HcHir74l/R1J5sHSjE1peKYYs60gZCL3eQPFb
+	 cTq1v0r+DKJnH6n9ApPtKk3wepQy940tpEOG1qlya7EY3CViKAzbLFJr2wnU1AGoVG
+	 WMCEPfl0m7mcUWeu5p5Yg2rrbz49hc8W2AJ7VRhT2wOOyNch3zWfyN/nLXRv7u5Cna
+	 suPZqRSuvlvJQ==
+Date: Sun, 15 Jun 2025 11:46:38 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Ard Biesheuvel <ardb@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+	x86@kernel.org, Jason@zx2c4.com, torvalds@linux-foundation.org
+Subject: Re: [PATCH] crypto: ahash - Stop legacy tfms from using the set_virt
+ fallback path
+Message-ID: <20250615184638.GA1480@sol>
+References: <aEjo6YZn59m5FnZ_@gondor.apana.org.au>
+ <20250611033957.GA1484147@sol>
+ <aEj8J3ZIYEFp_XT4@gondor.apana.org.au>
+ <20250611035842.GB1484147@sol>
+ <20250613053624.GA163131@sol>
+ <aEu5cyDOMcKteW_b@gondor.apana.org.au>
+ <20250613055439.GB163131@sol>
+ <aEvmmr0huGGd2Psv@gondor.apana.org.au>
+ <20250615031807.GA81869@sol>
+ <CAMj1kXGd93Kg0Vs8ExLhK=fxhRBASU9sOPfgYUogv+rwVqgUsg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com>
- <20250613-deny_trampoline_structs_on_stack-v1-2-5be9211768c3@bootlin.com>
- <20250613081150.GJ2273038@noisy.programming.kicks-ass.net>
- <DAL9GRMH74F4.2IV0HN0NGU65X@bootlin.com> <20250613083232.GL2273038@noisy.programming.kicks-ass.net>
- <DALA5WYA04OG.1283TZDOVLBPS@bootlin.com> <CAADnVQ+sj9XhscN9PdmTzjVa7Eif21noAUH3y1K6x5bWcL-5pg@mail.gmail.com>
- <DAN5THWRO6KS.XXZ00IOTQZH9@bootlin.com>
-In-Reply-To: <DAN5THWRO6KS.XXZ00IOTQZH9@bootlin.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Sun, 15 Jun 2025 08:44:23 -0700
-X-Gm-Features: AX0GCFum0GptEjJNe1zyPyz2oALA4PaNl_E8ueRtmTM4_c9kw_4GcQiqb2A1p90
-Message-ID: <CAADnVQJPQNC5VaybR_GZry5YZhNcJmWSSouuTSsU1XKhDfXYwQ@mail.gmail.com>
-Subject: Re: [PATCH bpf 2/7] bpf/x86: prevent trampoline attachment when args
- location on stack is uncertain
-To: =?UTF-8?Q?Alexis_Lothor=C3=A9?= <alexis.lothore@bootlin.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, 
-	Jiri Olsa <jolsa@kernel.org>, "David S. Miller" <davem@davemloft.net>, David Ahern <dsahern@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, X86 ML <x86@kernel.org>, 
-	"H. Peter Anvin" <hpa@zytor.com>, Menglong Dong <imagedong@tencent.com>, 
-	=?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
-	Pu Lehui <pulehui@huawei.com>, Puranjay Mohan <puranjay@kernel.org>, 
-	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Hari Bathini <hbathini@linux.ibm.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	ebpf@linuxfoundation.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
-	Bastien Curutchet <bastien.curutchet@bootlin.com>, 
-	Network Development <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>, 
-	LKML <linux-kernel@vger.kernel.org>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@rivosinc.com>, 
-	linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, 
-	ppc-dev <linuxppc-dev@lists.ozlabs.org>, 
-	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, dwarves <dwarves@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXGd93Kg0Vs8ExLhK=fxhRBASU9sOPfgYUogv+rwVqgUsg@mail.gmail.com>
 
-On Sun, Jun 15, 2025 at 7:00=E2=80=AFAM Alexis Lothor=C3=A9
-<alexis.lothore@bootlin.com> wrote:
->
-> On Sat Jun 14, 2025 at 12:35 AM CEST, Alexei Starovoitov wrote:
-> > On Fri, Jun 13, 2025 at 1:59=E2=80=AFAM Alexis Lothor=C3=A9
-> > <alexis.lothore@bootlin.com> wrote:
-> >>
-> >> On Fri Jun 13, 2025 at 10:32 AM CEST, Peter Zijlstra wrote:
-> >> > On Fri, Jun 13, 2025 at 10:26:37AM +0200, Alexis Lothor=C3=A9 wrote:
->
-> [...]
->
-> >> If I need to respin, I'll rewrite the commit message to include the de=
-tails
-> >> above.
+On Sun, Jun 15, 2025 at 09:22:51AM +0200, Ard Biesheuvel wrote:
+> On Sun, 15 Jun 2025 at 05:18, Eric Biggers <ebiggers@kernel.org> wrote:
 > >
-> > No need to respin. The cover letter is quite detailed already.
+> ...
+> > After disabling the crypto self-tests, I was then able to run a benchmark of
+> > SHA-256 hashing 4096-byte messages, which fortunately didn't encounter the
+> > recursion bug.  I got the following results:
 > >
-> > But looking at the patch and this thread I think we need to agree
-> > on the long term approach to BTF, since people assume that
-> > it's a more compact dwarf and any missing information
-> > should be added to it.
-> > Like in this case special alignment case and packed attributes
-> > are not expressed in BTF and I believe they should not be.
-> > BTF is not a debug format and not a substitute for dwarf.
-> > There is no goal to express everything possible in C.
-> > It's minimal, because BTF is _practical_ description of
-> > types and data present in the kernel.
-> > I don't think the special case of packing and alignment exists
-> > in the kernel today, so the current format is sufficient.
-> > It doesn't miss anything.
-> > I think we made arm64 JIT unnecessary restrictive and now considering
-> > to make all other JITs restrictive too for hypothetical case
-> > of some future kernel functions.
-> > I feel we're going in the wrong direction.
-> > Instead we should teach pahole to sanitize BTF where functions
-> > are using this fancy alignment and packed structs.
-> > pahole can see it in dwarf and can skip emitting BTF for such
-> > functions. Then the kernel JITs on all architectures won't even
-> > see such cases.
+> >     ARMv8 crypto extensions: 1864 MB/s
+> >     Generic C code: 358 MB/s
+> >     Qualcomm Crypto Engine: 55 MB/s
 > >
-> > The issue was initially discovered by a selftest:
-> > https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-3-0a32fe72339e@=
-bootlin.com/
-> > that attempted to support these two types:
-> > +struct bpf_testmod_struct_arg_4 {
-> > + __u64 a;
-> > + __u64 b;
-> > +};
-> > +
-> > +struct bpf_testmod_struct_arg_5 {
-> > + __int128 a;
-> > +};
+> > So just to clarify, you believe that asynchronous hash drivers like the Qualcomm
+> > Crypto Engine one are useful, and the changes that you're requiring to the
+> > CPU-based code are to support these drivers?
 > >
-> > The former is present in the kernel. It's more or less sockptr_t,
-> > and people want to access it for observability in tracing.
-> > The latter doesn't exist in the kernel and we cannot represent
-> > it properly in BTF without losing alignment.
-> >
-> > So I think we should go back to that series:
-> > https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-0-0a32fe72339e@=
-bootlin.com/
-> >
-> > remove __int128 selftest, but also teach pahole
-> > to recognize types that cannot be represented in BTF and
-> > don't emit them either into vmlinux or in kernel module
-> > (like in this case it was bpf_testmod.ko)
-> > I think that would be a better path forward aligned
-> > with the long term goal of BTF.
-> >
-> > And before people ask... pahole is a trusted component of the build
-> > system. We trust it just as we trust gcc, clang, linker, objtool.
->
-> So if I understand correctly your point, it would be better to just move =
-out
-> those constraints from the JIT compilers, and just not represent those sp=
-ecial
-> cases in BTF, so that it becomes impossible to hook programs on those fun=
-ctions,
-> since they are not event present in BTF info.
-> And so:
-> - cancel this series
-> - revert the small ARM64 check about struct passed on stack
-> - update pahole to make sure that it does not encode info about this spec=
-ific
->   kind of functions.
+> 
+> And this offload engine only has one internal queue, right? Whereas
+> the CPU results may be multiplied by the number of cores on the soc.
+> It would still be interesting how much of this is due to latency
+> rather than limited throughput but it seems highly unlikely that there
+> are any message sizes large enough where QCE would catch up with the
+> CPUs. (AIUI, the only use case we have in the kernel today for message
+> sizes that are substantially larger than this is kTLS, but I'm not
+> sure how well it works with crypto_aead compared to offload at a more
+> suitable level in the networking stack, and this driver does not
+> implement GCM in the first place)
+> 
+> On ARM socs, these offload engines usually exist primarily for the
+> benefit of the verified boot implementation in mask ROM, which
+> obviously needs to be minimal but doesn't have to be very fast in
+> order to get past the first boot stages and hand over to software.
+> Then, since the IP block is there, it's listed as a feature in the
+> data sheet, even though it is not very useful when running under the
+> OS.
 
-yes
+With 1 MiB messages, I get 1913 MB/s with ARMv8 CE and 142 MB/s with QCE.
 
-> I still expect some challenges with this. AFAIU pahole uses DWARF to gene=
-rate
-> BTF, and discussions in [1] highlighted the fact that the attributes alte=
-ring
-> the structs alignment are not reliably encoded in DWARF. Maybe pahole can
-> "guess" if a struct has been altered, by doing something like
-> btf_is_struct_packed in libbpf ? As Andrii mentioned in [2], it may not b=
-e
-> able to cover all cases, but that could  be a start. If that's indeed the
-> desired direction, I can take a further look at this.
+(BTW, that's single-buffer ARMv8 CE.  My two-buffer code is over 3000 MB/s.)
 
-so be it. If syzbot was taught to fuzz dwarf I'm sure it would
-have exposed hundreds of bugs in the format itself and compilers,
-but since such convoluted constructs are not present in the kernel
-source code it's not a concern.
+I then changed my benchmark code to take full advantage of the async API and
+submit as many requests as the hardware can handle.  (This would be a best-case
+scenario for QCE; in many real use cases this is not possible.)  Result with QCE
+was 58 MB/s with 4 KiB messages or 155 MB/s for 1 MiB messages.
+
+So yes, QCE seems to have only one queue, and even that one queue is *much*
+slower than just using the CPU.  It's even slower than the generic C code.
+
+And until I fixed it recently, the Crypto API defaulted to using QCE instead of
+ARMv8 CE.
+
+But this seems to be a common pattern among the offload engines.
+I noticed a similar issue with Intel QAT, which I elaborate on in this patch:
+https://lore.kernel.org/r/20250615045145.224567-1-ebiggers@kernel.org
+
+- Eric
