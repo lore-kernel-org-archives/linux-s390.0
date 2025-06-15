@@ -1,99 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ED4B16FF44;
-	Sun, 15 Jun 2025 07:23:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801A33A1BA;
+	Sun, 15 Jun 2025 14:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749972185; cv=none; b=E7+joPWWd6TcR4j2xDZ1cvn7lxvOlQ2RPtE5Ny82T1TKErW6tC8okMi0ByHBW0z2SzcxW+heuPexcIX+Lx4kA2B3Z8rfEZ4AW12g5ltxCEwrBcR8H2w3EMOxeaqRoektzB9YDgtJPxoim5QlT9BvzePd8vBvZd+56/NPrmvBT+4=
+	t=1749996050; cv=none; b=RwXPbOBOndyo1bOT6Gx6Rdrd/Lx5lxwb1DQCae+A7KIqa/deBIrfw6HEn/10iYuN5YQZE4I1aa+UNdRmxr9puVh8RGMJEctZbTOazfhxYPlchC3NVpyuNXJ+kqy3pQUdTHcpCjuTa22DcT2MpsCPQXJZF0wBxilpXmIpOLKn46Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749972185; c=relaxed/simple;
-	bh=JWX10x0tUiGyirZtdUuM+U6VGu/piK3QA70v8Z35YDs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Fa5HWBC0rcq3cu6aAU/f86yjVOESiCfvUHXJvXbLa8AAHM2R0btwNci3hZ9eUFuz3ayqK3GOY3ngGEoZG44qcuYDjNtXUCO/wVLYALGKfqYTtvclyzGAsT5ZgffB1gl6W7TFM4Vc+MwWgfEC7UM8RzPxgWKQjEOPVtZfygQ3HFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mHOYBjaS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749996050; c=relaxed/simple;
+	bh=tzBgEfNbszZFjneQrhgK2sYcgixJ885U9DAEQALxusE=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=kSzcFHteaYoeGMavDklN0+PjIXX1jeftU40ZsklZ7btepxqWgq13OV/JUahTXFq2asRrWbRLMXxCsLFTj8U5ZdC7cfNN/GKiLKQdguoj0heH0eYSSjGoW6yWz5b8CAoBl/BNvszvnlcS4mqHfMD1BU7jruJMFZUDDs1CR+GiQPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=A7TiUfOZ; arc=none smtp.client-ip=217.70.183.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mHOYBjaS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC817C4CEEA;
-	Sun, 15 Jun 2025 07:23:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749972185;
-	bh=JWX10x0tUiGyirZtdUuM+U6VGu/piK3QA70v8Z35YDs=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=mHOYBjaS6N/P3MQVSPNDgkB2ZPVndEKFhnLyvzv/fasdndLB/ZfnRqO3HO9tbl5Hz
-	 ASOS4PllJ4N3B0Jty2tMB5EVYST9S/KbGE6aR0wcSRi2I6SFiNX+uD/Aer+vTXFVSG
-	 x1SjiUOG84xT0MtsQsVLROPIGEwMbeUdOpRAHXsPaIX7y+FgpvhAEzunmHZiKTEumw
-	 2OnwztHAw0xiyxCfjZ34QTAiziJzN5kNnMFuPVWBTWiUQme1zt5chpnJPVlRaJ5OQ8
-	 aZq5Ey6tYWoKshCvB3PNrqq9B4bN/nRfYtL/Hew7nI3Yydc8D+/uY7ABTIzUl8Cz8W
-	 gCbad41CUqXwg==
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-553644b8f56so3535156e87.1;
-        Sun, 15 Jun 2025 00:23:04 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU84TnjfWQGwUCZhXqpDNDwYTtMLEhtQ6GZ8qccRWIEDtzdh4NuXkbsUhEMjZmjzBpn76L/DjfB9G7kSw==@vger.kernel.org, AJvYcCVHw3AzRLpjeWwR2OyvQpPH2BwrJhqeobuO/4w9O9PVm7XmA531MYDDWbT2IwYGypJ8Z7icBD4QtTalh7I=@vger.kernel.org, AJvYcCWsPDFnhEXB3w5pQu6BC7bEdeC9GR0cyboS7ALPK9LbbTNRJf2pU6/wrvpt7VTK0NZ0fWiq2W+QGsL4zA==@vger.kernel.org, AJvYcCXRpEB6gYbBVR8APS5QeianR++4A69GznMl55/2xYd1kixJInK9RCKJ5mIAsPWqXc+Qapr5d8tFe5893w==@vger.kernel.org, AJvYcCXY+SsY0a9af1G3iO4XfUCCssyM4+l/IZNhN4uYg0zgzG3ENvg7i28w+TmluCQ0ppGVHvTBu3wy24glMYpA@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzlf/h8yFbxalgrBMAQkRmCTeRrEnvXbaBbEp5mXnJzqtFWs0gK
-	0AL76/3uN5LvReHDLmGKNNYvWtevS4FhRMPO09eygIHumfRJMe8Uvg4uyqJTwBF5QlqSYKsTRCd
-	spjMuxi/XglRe5+bFYQsQXMXAsnhWCyA=
-X-Google-Smtp-Source: AGHT+IFn3BKZ/4LSxVR5KXcXwLoaa2Kdc1AeLDkxaymXoA6lOBMJ71ueZOjsj/pywa+41S2R3jXWsdX5Y53gLyxvvYg=
-X-Received: by 2002:a05:6512:691:b0:553:2759:7db4 with SMTP id
- 2adb3069b0e04-553b6f0b1aamr933983e87.26.1749972183272; Sun, 15 Jun 2025
- 00:23:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="A7TiUfOZ"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id D7A6B205B1;
+	Sun, 15 Jun 2025 14:00:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1749996037;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=YxXS5lj0DrF49L/g0V9R5FkVyXH9S7gR1QjB4hu3uuE=;
+	b=A7TiUfOZSoNCNlpd3feyEIMq7JweNSA26Ki+asH1Rd/WvFZi6wU8mGFvLOiyagoFjwL8JL
+	xo9M58/kDnjnSORKMzRqxzrCLgPAGB8Bu5MzN3EMIYoY6aN+6oHKGrYFTIO3qN/Pw67h/B
+	IMc2jyqqF5WnGXYgwIPTBVuwK7QfL9I9ZUJ6sI7veC8g4rtStWZ/IVP4WS757EaSs2cq3B
+	2xNCG4rBNC84HJC/1B3ddFVbvd1E5riocXBoJdq4moXdkt4MuVYmrwo0+OjTp/wdmH6h4R
+	eSQhByt4F2xarijNXWHhMAAbmtcVLzvls0lGIxnTZz73uWzR5oqhqzM6rTospw==
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250611020923.1482701-8-ebiggers@kernel.org> <aEjo6YZn59m5FnZ_@gondor.apana.org.au>
- <20250611033957.GA1484147@sol> <aEj8J3ZIYEFp_XT4@gondor.apana.org.au>
- <20250611035842.GB1484147@sol> <20250613053624.GA163131@sol>
- <aEu5cyDOMcKteW_b@gondor.apana.org.au> <20250613055439.GB163131@sol>
- <aEvmmr0huGGd2Psv@gondor.apana.org.au> <20250615031807.GA81869@sol>
-In-Reply-To: <20250615031807.GA81869@sol>
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Sun, 15 Jun 2025 09:22:51 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXGd93Kg0Vs8ExLhK=fxhRBASU9sOPfgYUogv+rwVqgUsg@mail.gmail.com>
-X-Gm-Features: AX0GCFvXujBEz2gg1idEYRihdjR7urozsbmjreTha85WA-Kix9z2xocGepFq-cI
-Message-ID: <CAMj1kXGd93Kg0Vs8ExLhK=fxhRBASU9sOPfgYUogv+rwVqgUsg@mail.gmail.com>
-Subject: Re: [PATCH] crypto: ahash - Stop legacy tfms from using the set_virt
- fallback path
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, 
-	Jason@zx2c4.com, torvalds@linux-foundation.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 15 Jun 2025 16:00:30 +0200
+Message-Id: <DAN5THWRO6KS.XXZ00IOTQZH9@bootlin.com>
+Cc: "Peter Zijlstra" <peterz@infradead.org>, "Alexei Starovoitov"
+ <ast@kernel.org>, "Daniel Borkmann" <daniel@iogearbox.net>, "Andrii
+ Nakryiko" <andrii@kernel.org>, "Martin KaFai Lau" <martin.lau@linux.dev>,
+ "Eduard Zingerman" <eddyz87@gmail.com>, "Song Liu" <song@kernel.org>,
+ "Yonghong Song" <yonghong.song@linux.dev>, "John Fastabend"
+ <john.fastabend@gmail.com>, "KP Singh" <kpsingh@kernel.org>, "Stanislav
+ Fomichev" <sdf@fomichev.me>, "Hao Luo" <haoluo@google.com>, "Jiri Olsa"
+ <jolsa@kernel.org>, "David S. Miller" <davem@davemloft.net>, "David Ahern"
+ <dsahern@kernel.org>, "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar"
+ <mingo@redhat.com>, "Borislav Petkov" <bp@alien8.de>, "Dave Hansen"
+ <dave.hansen@linux.intel.com>, "X86 ML" <x86@kernel.org>, "H. Peter Anvin"
+ <hpa@zytor.com>, "Menglong Dong" <imagedong@tencent.com>,
+ =?utf-8?q?Bj=C3=B6rn_T=C3=B6pel?= <bjorn@kernel.org>, "Pu Lehui"
+ <pulehui@huawei.com>, "Puranjay Mohan" <puranjay@kernel.org>, "Paul
+ Walmsley" <paul.walmsley@sifive.com>, "Palmer Dabbelt"
+ <palmer@dabbelt.com>, "Albert Ou" <aou@eecs.berkeley.edu>, "Alexandre
+ Ghiti" <alex@ghiti.fr>, "Ilya Leoshkevich" <iii@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>, "Hari
+ Bathini" <hbathini@linux.ibm.com>, "Christophe Leroy"
+ <christophe.leroy@csgroup.eu>, "Naveen N Rao" <naveen@kernel.org>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>, "Michael Ellerman"
+ <mpe@ellerman.id.au>, "Nicholas Piggin" <npiggin@gmail.com>, "Mykola
+ Lysenko" <mykolal@fb.com>, "Shuah Khan" <shuah@kernel.org>, "Maxime
+ Coquelin" <mcoquelin.stm32@gmail.com>, "Alexandre Torgue"
+ <alexandre.torgue@foss.st.com>, <ebpf@linuxfoundation.org>, "Thomas
+ Petazzoni" <thomas.petazzoni@bootlin.com>, "Bastien Curutchet"
+ <bastien.curutchet@bootlin.com>, "Network Development"
+ <netdev@vger.kernel.org>, "bpf" <bpf@vger.kernel.org>, "LKML"
+ <linux-kernel@vger.kernel.org>, =?utf-8?q?Bj=C3=B6rn_T=C3=B6pel?=
+ <bjorn@rivosinc.com>, "linux-riscv" <linux-riscv@lists.infradead.org>,
+ "linux-s390" <linux-s390@vger.kernel.org>, "ppc-dev"
+ <linuxppc-dev@lists.ozlabs.org>, "open list:KERNEL SELFTEST FRAMEWORK"
+ <linux-kselftest@vger.kernel.org>,
+ <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel"
+ <linux-arm-kernel@lists.infradead.org>, "dwarves" <dwarves@vger.kernel.org>
+Subject: Re: [PATCH bpf 2/7] bpf/x86: prevent trampoline attachment when
+ args location on stack is uncertain
+From: =?utf-8?q?Alexis_Lothor=C3=A9?= <alexis.lothore@bootlin.com>
+To: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
+X-Mailer: aerc 0.20.1-0-g2ecb8770224a
+References: <20250613-deny_trampoline_structs_on_stack-v1-0-5be9211768c3@bootlin.com> <20250613-deny_trampoline_structs_on_stack-v1-2-5be9211768c3@bootlin.com> <20250613081150.GJ2273038@noisy.programming.kicks-ass.net> <DAL9GRMH74F4.2IV0HN0NGU65X@bootlin.com> <20250613083232.GL2273038@noisy.programming.kicks-ass.net> <DALA5WYA04OG.1283TZDOVLBPS@bootlin.com> <CAADnVQ+sj9XhscN9PdmTzjVa7Eif21noAUH3y1K6x5bWcL-5pg@mail.gmail.com>
+In-Reply-To: <CAADnVQ+sj9XhscN9PdmTzjVa7Eif21noAUH3y1K6x5bWcL-5pg@mail.gmail.com>
+X-GND-State: clean
+X-GND-Score: -100
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddugddvfeekkecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepggfgtgffkfevuffhvffofhgjsehtqhertdertdejnecuhfhrohhmpeetlhgvgihishcunfhothhhohhrrocuoegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepteekleehffevvedvudfhueelffeugfdtveefvdfguefgffehtdekleetheelleffnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepvdgrtddvmeekgedvkeemfhelgegtmegvtddtmeemsgehvgenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtvdemkeegvdekmehfleegtgemvgdttdemmegshegvpdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpegrlhgvgihishdrlhhothhhohhrvgessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepiedtpdhrtghpthhtoheprghlvgigvghirdhsthgrrhhovhhoihhtohhvsehgmhgrihhlrdgtohhmpdhrtghpthhtohepphgvthgvrhiisehinhhfrhgruggvrggurdhorhhgpdhrtghpthhtoheprghstheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepuggrnhhivghlsehiohhgvggrrhgso
+ higrdhnvghtpdhrtghpthhtoheprghnughrihhisehkvghrnhgvlhdrohhrghdprhgtphhtthhopehmrghrthhinhdrlhgruheslhhinhhugidruggvvhdprhgtphhtthhopegvugguhiiikeejsehgmhgrihhlrdgtohhmpdhrtghpthhtohepshhonhhgsehkvghrnhgvlhdrohhrgh
+X-GND-Sasl: alexis.lothore@bootlin.com
 
-On Sun, 15 Jun 2025 at 05:18, Eric Biggers <ebiggers@kernel.org> wrote:
->
-...
-> After disabling the crypto self-tests, I was then able to run a benchmark of
-> SHA-256 hashing 4096-byte messages, which fortunately didn't encounter the
-> recursion bug.  I got the following results:
->
->     ARMv8 crypto extensions: 1864 MB/s
->     Generic C code: 358 MB/s
->     Qualcomm Crypto Engine: 55 MB/s
->
-> So just to clarify, you believe that asynchronous hash drivers like the Qualcomm
-> Crypto Engine one are useful, and the changes that you're requiring to the
-> CPU-based code are to support these drivers?
->
+On Sat Jun 14, 2025 at 12:35 AM CEST, Alexei Starovoitov wrote:
+> On Fri, Jun 13, 2025 at 1:59=E2=80=AFAM Alexis Lothor=C3=A9
+> <alexis.lothore@bootlin.com> wrote:
+>>
+>> On Fri Jun 13, 2025 at 10:32 AM CEST, Peter Zijlstra wrote:
+>> > On Fri, Jun 13, 2025 at 10:26:37AM +0200, Alexis Lothor=C3=A9 wrote:
 
-And this offload engine only has one internal queue, right? Whereas
-the CPU results may be multiplied by the number of cores on the soc.
-It would still be interesting how much of this is due to latency
-rather than limited throughput but it seems highly unlikely that there
-are any message sizes large enough where QCE would catch up with the
-CPUs. (AIUI, the only use case we have in the kernel today for message
-sizes that are substantially larger than this is kTLS, but I'm not
-sure how well it works with crypto_aead compared to offload at a more
-suitable level in the networking stack, and this driver does not
-implement GCM in the first place)
+[...]
 
-On ARM socs, these offload engines usually exist primarily for the
-benefit of the verified boot implementation in mask ROM, which
-obviously needs to be minimal but doesn't have to be very fast in
-order to get past the first boot stages and hand over to software.
-Then, since the IP block is there, it's listed as a feature in the
-data sheet, even though it is not very useful when running under the
-OS.
+>> If I need to respin, I'll rewrite the commit message to include the deta=
+ils
+>> above.
+>
+> No need to respin. The cover letter is quite detailed already.
+>
+> But looking at the patch and this thread I think we need to agree
+> on the long term approach to BTF, since people assume that
+> it's a more compact dwarf and any missing information
+> should be added to it.
+> Like in this case special alignment case and packed attributes
+> are not expressed in BTF and I believe they should not be.
+> BTF is not a debug format and not a substitute for dwarf.
+> There is no goal to express everything possible in C.
+> It's minimal, because BTF is _practical_ description of
+> types and data present in the kernel.
+> I don't think the special case of packing and alignment exists
+> in the kernel today, so the current format is sufficient.
+> It doesn't miss anything.
+> I think we made arm64 JIT unnecessary restrictive and now considering
+> to make all other JITs restrictive too for hypothetical case
+> of some future kernel functions.
+> I feel we're going in the wrong direction.
+> Instead we should teach pahole to sanitize BTF where functions
+> are using this fancy alignment and packed structs.
+> pahole can see it in dwarf and can skip emitting BTF for such
+> functions. Then the kernel JITs on all architectures won't even
+> see such cases.
+>
+> The issue was initially discovered by a selftest:
+> https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-3-0a32fe72339e@bo=
+otlin.com/
+> that attempted to support these two types:
+> +struct bpf_testmod_struct_arg_4 {
+> + __u64 a;
+> + __u64 b;
+> +};
+> +
+> +struct bpf_testmod_struct_arg_5 {
+> + __int128 a;
+> +};
+>
+> The former is present in the kernel. It's more or less sockptr_t,
+> and people want to access it for observability in tracing.
+> The latter doesn't exist in the kernel and we cannot represent
+> it properly in BTF without losing alignment.
+>
+> So I think we should go back to that series:
+> https://lore.kernel.org/bpf/20250411-many_args_arm64-v1-0-0a32fe72339e@bo=
+otlin.com/
+>
+> remove __int128 selftest, but also teach pahole
+> to recognize types that cannot be represented in BTF and
+> don't emit them either into vmlinux or in kernel module
+> (like in this case it was bpf_testmod.ko)
+> I think that would be a better path forward aligned
+> with the long term goal of BTF.
+>
+> And before people ask... pahole is a trusted component of the build
+> system. We trust it just as we trust gcc, clang, linker, objtool.
+
+So if I understand correctly your point, it would be better to just move ou=
+t
+those constraints from the JIT compilers, and just not represent those spec=
+ial
+cases in BTF, so that it becomes impossible to hook programs on those funct=
+ions,
+since they are not event present in BTF info.
+And so:
+- cancel this series
+- revert the small ARM64 check about struct passed on stack
+- update pahole to make sure that it does not encode info about this specif=
+ic
+  kind of functions.
+
+I still expect some challenges with this. AFAIU pahole uses DWARF to genera=
+te
+BTF, and discussions in [1] highlighted the fact that the attributes alteri=
+ng
+the structs alignment are not reliably encoded in DWARF. Maybe pahole can
+"guess" if a struct has been altered, by doing something like
+btf_is_struct_packed in libbpf ? As Andrii mentioned in [2], it may not be
+able to cover all cases, but that could  be a start. If that's indeed the
+desired direction, I can take a further look at this.
+
++ CC dwarves ML
+
+Alexis
+
+[1] https://lore.kernel.org/bpf/9a2ba0ad-b34d-42f8-89a6-d9a44f007bdc@linux.=
+dev/
+[2] https://lore.kernel.org/bpf/CAEf4BzZHMYyGDZ4c4eNXG7Fm=3DecxCCbKhKbQTbCj=
+vWmKtdwvBw@mail.gmail.com/
+
