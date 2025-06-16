@@ -1,138 +1,84 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DA0B2E4245
-	for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 12:06:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 571F6285C92
+	for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 12:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750075604; cv=none; b=GmJ9N5takz+v3AR33PDoNqhWcIf2j83kKDbXndVw8qT2dENrebsfGTcIK6VkP0/pHkACLiQs/pnHNn6zD/jGra/Hc3WqKsEZRXdADNWAU7NRcwC0vHUoZVsful0aIjuTMgV0ZJ7VzgTHYSFS1NuZ9Z0ArCFiqvW7TTS+78NqX4U=
+	t=1750077265; cv=none; b=KOYIdD1qe0WcY0OE2XAAeHAb/caI10R8xx4+xpFBeA/I//deNC8AZ332u6kmO1Ep1ziTpEElb334y4/7Jkrtv01f/+Ffe2jvfTiFFABzf9fneg49bzAwPxmbKGTEGSmKBOTpALJnNNqWbva4b5qEv6H+Ei23tMze61BpHiEhbDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750075604; c=relaxed/simple;
-	bh=IbZZvF1YeIlcvUq/+fdnzFkqnxbyQDarbgl2bwQ6gi0=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=Rcnx9Tgg25XEZtcFkbMnixLTYKkG9dA72dpTH9KUhVEMpv6XWob/bfL5PnRS6NnQiGUHZsFoDVpWO7idbREocEPUhJKq5BP3gyulwgAL01YXsmdhB22eWCge22GRFh4ZZ8MrFvThp11Hl5H0bocSNeP/TaBIQ5Pasou537GFhJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=QabkmsMZ; arc=none smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="QabkmsMZ"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6faf66905adso23754306d6.2
-        for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 05:06:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1750075601; x=1750680401; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=TpU5wAMG3sQlhcsZQZqrmEByJp0SllVR0AKHGW2r9qE=;
-        b=QabkmsMZGZGM7UgddHYe/E4Rf0XLN+OpoVp43UzJQbcPCZX1sYJqXP/7+APpyrcQPO
-         h8icBlzTk1OClCCdvR+LlvUBMJk4EhIWnDjqLxpxgm2XKstO/tldaFNWkn0uGcycLrx6
-         ai064qmkabXS/rR/6/k9uLwyqzpSBXk0IXMFNKbyNaz/NrpUnoZqPp3/XQzFK5lXpNEd
-         HLrYWt53ripbyDSjBtkvEtHoaxrZqKdaErx9sqezsNxbbpUBwNyzXr4WxtWNCwE94jKj
-         6CAB+cOxWL9ye54RESo2WjiDCy/mXcrgBH4tfsmvJbWYGv5zpM0i2jlblADRy0ri4Oxb
-         /AsA==
+	s=arc-20240116; t=1750077265; c=relaxed/simple;
+	bh=KZNprXaoNfoaHYjHemA6YofvAUOkORsU2bqHvO7dDUs=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=XYWhL1BBgEWy6bHYhay1TVQI1x/l6mTOdPSDk6WytpkcHEXtlsAFxeE6knJByiFg80w9+n8vfb9Vey18nugWQ7mrUESXeZuQpgpNF7u1XrN+g5q3p1PzRe5pxg5wY7EJ5u2jNTN9SYyQ5wu9cH+dSXEN+rqlyLnAJHg8WW78ZVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3de0f73f9e0so12877945ab.1
+        for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 05:34:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750075601; x=1750680401;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+        d=1e100.net; s=20230601; t=1750077263; x=1750682063;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=TpU5wAMG3sQlhcsZQZqrmEByJp0SllVR0AKHGW2r9qE=;
-        b=Yvon8dHEZRnnOYTUm588cpoTdNw+WyOzDcFIQCYG2t63/9chlU+9T6v1PDhiPZRa04
-         1kO/QYqYo5fRxxzlYmlvt93M8OYmGQbA/nYeJD8Khuord5cAUSKJoVE8dudcef9ifJax
-         hkNdesE81C2GMUIUBtrOPWG7rp1kw+eoT/mDFPW3ooobzZ3WST/T1ScEp0B8DrVIH/90
-         IW6rKFjB1kqH9OFLonaAauAfiPTFel3uwlclSq4rt9tJY+M42yfeYaVVm+P/OVDlyNnw
-         AfRoRd2PJcT/fVhhIBCICbIySPvbWLzRMVyS6p7s146DTlfJ9DuFnC2LDmSx/j0CixPd
-         0Tfw==
-X-Forwarded-Encrypted: i=1; AJvYcCXowUN7qYCNAkUCB7bhtors2RKYCyc/AZbhGxljoyoghR+QJsNJG4t1byoIvOCrrKGJtyk/I59f4NC5@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjDSj55SXJhXLwJuDWhUBzsdsISLrx9+f+Y5NqB9e8Ew9EiJsl
-	gLKEtCMFyu9SG6jG1PJrOdNPkTrHl/VoWSKd4S3Mc5WOjJVsi0laTKV1qvm/FvA6fRz8Hj2THvc
-	5yj7enV714aP42crV2f6EajQoLD6Gv4vsa7VjV8F8wrXk/sTUDOT27ClsLw==
-X-Gm-Gg: ASbGncvtwkHa+VTiZ+kjveUG46Q1nNs/Ykpybs2d5upPrtqpJQ39BN3jzIB5sRSD5RM
-	U+6dXLSskqKT9RVHv9BqZvGk5vbHWVu5woJIYgre8y/YCR9y8kMcvBGoRRZaCmNGBnpW2Jjd3zC
-	tEE/3zgmY4AiVX18/rt0R9WbIzMSI4ID9iNe8hxX3aKYdeW6CRfAbMATVkwwn6jQQ0DRLJRB9U6
-	fOr
-X-Google-Smtp-Source: AGHT+IFeUKnKrR3PiU9rxHEIRNQyrCJR8n4GoHXj1LshKjqrOlDxmNum5ASc/NWBGVeJbSNt1PqkzC0aodOI1wfeH5o=
-X-Received: by 2002:a05:6214:500c:b0:6fa:c6ad:1618 with SMTP id
- 6a1803df08f44-6fb4776e76cmr143231416d6.27.1750075601411; Mon, 16 Jun 2025
- 05:06:41 -0700 (PDT)
+        bh=EywSoWx1oh75bdKkhb/CF3mvca8guENbG+VQo+//llY=;
+        b=bhDTGVAE2n9qoAio4jTw3sKgq0MLFoByNQalzp6sGf9ZFgNlxhnpUaKojgTfHWKyP9
+         szAAYMeaVaC9AMsD7h1ryxnH3eIhyMUfq9VnhnLPV9zGDW49/u9HAcjIMq3m2esGvU6e
+         hW/wm8zN8M8ZpvnjgpEZzAh2Q0/JDNO+m6jDEanm9zm7YvJaX8LPtKQgacklRVM7Fxwd
+         pqOl5akqt+JO1WinNrIQuurJVYsn0xTfWsCSzRpGrg5u17umEUiX6xo8fxaepFtnPt5B
+         oknR90iBU7NSWXfpreb/bkwIdYyf3gfjsNerwFLA1dcMBJEtqO19TskwAw0Ne3ea2lCq
+         0S2w==
+X-Forwarded-Encrypted: i=1; AJvYcCWe42T96PEW+qahngHeOnLo9k7j2TGMtx2ZSpVX+qyBPkbzsgPkMmjm8fWMVIZsz90K5D2GHCOs0F3/@vger.kernel.org
+X-Gm-Message-State: AOJu0YzE07WfgpUUeWMTy9jOHztQK1dviw8CRWuG2H8NDzIhoIDnM2wp
+	y/A4p/VonIdgf9y1GDj5A+3SlFSVysvs5YlhphwU8gl0jXOmJy1LSZpJwXTPDw9l/Q+s9uqKzS5
+	8IL4Mm2I4wE2lxKPAPFn79QYM9yAAjrb/hGN3PSa2JwrtFuozJ6MV2FECNeQ=
+X-Google-Smtp-Source: AGHT+IELIt9EJpzp0lXMB6qbr/z7PV1C/VGfrhZiQunu8N7r/BP9kLgcRjsJMR1aWG1N/ZdBaa3Twfku9bGlKYiuSPN8oW9SZGGG
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Mon, 16 Jun 2025 17:36:29 +0530
-X-Gm-Features: AX0GCFs0r1nB19T1N_2PPwY-kXlE37v4o6Iuua4hbniHaojK4KFbc8YBvkBv6Uc
-Message-ID: <CA+G9fYuDOnN6TrcVYcMZT5UPNc34mOHQZsfyFvpq+Ndhz8p48w@mail.gmail.com>
-Subject: next-20250616: S390 gcc-8 allnoconfig mm mempool.c In function remove_element
-To: open list <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, 
-	lkft-triage@lists.linaro.org, Linux Regressions <regressions@lists.linux.dev>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Anders Roxell <anders.roxell@linaro.org>, Dan Carpenter <dan.carpenter@linaro.org>
+X-Received: by 2002:a05:6e02:194f:b0:3dd:ebb5:5370 with SMTP id
+ e9e14a558f8ab-3de07d3404bmr99194745ab.22.1750077263538; Mon, 16 Jun 2025
+ 05:34:23 -0700 (PDT)
+Date: Mon, 16 Jun 2025 05:34:23 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68500f4f.050a0220.2608ac.0001.GAE@google.com>
+Subject: [syzbot] Monthly smc report (Jun 2025)
+From: syzbot <syzbot+list7085bff455d583cbad1e@syzkaller.appspotmail.com>
+To: jaka@linux.ibm.com, linux-kernel@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, wenjia@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
 
-Regression while building S390 with the Linux next-20250616
-with gcc-8 the following kernel warnings found.
+Hello smc maintainers/developers,
 
-Regressions found on S390
- -  build/gcc-8-lkftconfig-allnoconfig
- -  build/gcc-8-lkftconfig-hardening
+This is a 31-day syzbot report for the smc subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/smc
 
-Regression Analysis:
- - New regression? Yes
- - Reproducibility? Yes
+During the period, 0 new issues were detected and 0 were fixed.
+In total, 10 issues are still open.
 
-First seen on the next-20250616
-Good: next-20250613
-Bad:  next-20250616
+Some of the still happening issues:
 
-Build regression: S390 gcc-8 allnoconfig mm mempool.c In function remove_element
+Ref Crashes Repro Title
+<1> 340     Yes   general protection fault in smc_diag_dump_proto
+                  https://syzkaller.appspot.com/bug?extid=f69bfae0a4eb29976e44
+<2> 93      Yes   possible deadlock in smc_release
+                  https://syzkaller.appspot.com/bug?extid=621fd56ba002faba6392
+<3> 92      Yes   general protection fault in __smc_diag_dump (3)
+                  https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-## Build errors
-mm/mempool.c: In function 'remove_element':
-include/linux/compiler_types.h:497:20: warning: asm operand 0 probably
-doesn't match constraints
- #define asm_inline asm __inline
-                    ^~~
-arch/s390/include/asm/bug.h:12:2: note: in expansion of macro 'asm_inline'
-  asm_inline volatile(     \
-  ^~~~~~~~~~
-arch/s390/include/asm/bug.h:43:2: note: in expansion of macro '__EMIT_BUG'
-  __EMIT_BUG("", 0);    \
-  ^~~~~~~~~~
-include/asm-generic/bug.h:77:57: note: in expansion of macro 'BUG'
- #define BUG_ON(condition) do { if (unlikely(condition)) BUG(); } while (0)
-                                                         ^~~
-mm/mempool.c:149:2: note: in expansion of macro 'BUG_ON'
-  BUG_ON(pool->curr_nr < 0);
-  ^~~~~~
-include/linux/compiler_types.h:497:20: error: impossible constraint in 'asm'
- #define asm_inline asm __inline
-                    ^~~
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
-## Source
-* Kernel version: 6.16.0-rc2
-* Git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/next/linux-next.git
-* Git sha: 050f8ad7b58d9079455af171ac279c4b9b828c11
-* Git describe: next-20250616
-* Project details:
-https://qa-reports.linaro.org/lkft/linux-next-master/build/next-20250616/
-* Architectures: S390
-* Toolchains: gcc-8
-* Kconfigs: allnoconfig
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
 
-## Build S390
-* Build log: https://qa-reports.linaro.org/api/testruns/28763376/log_file/
-* Build details:
-https://regressions.linaro.org/lkft/linux-next-master/next-20250616/build/gcc-8-allnoconfig/
-* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/2ya0wQbvgatYAbcvC2OTZls5D91/
-* Kernel config:
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2ya0wQbvgatYAbcvC2OTZls5D91/config
-
-## Steps to reproduce on S390
- - tuxmake --runtime podman --target-arch s390 --toolchain gcc-8
---kconfig allnoconfig
-
---
-Linaro LKFT
-https://lkft.linaro.org
+You may send multiple commands in a single email message.
