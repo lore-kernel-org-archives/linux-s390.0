@@ -1,113 +1,162 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD5811E492
-	for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 16:32:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46F0C22F74A
+	for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 23:49:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750091573; cv=none; b=FPqJyfZGZLEoo/ZO47HfRpIWaKhIGhEs74iwOHokzHPYRqHJc1jOeqJrwnaqFMaKu28ECVLCnMlpFRjy3zW3wqGf2d+uQzPy+l+x7qqlTc/tLroAGUs4IL5s79OtwtvOCJqrPMh4t19Hq7ZeBtKWD8LvTlwEAk/2ip2Ks6ZKPcM=
+	t=1750117792; cv=none; b=iZ1KqhQhUKPut52PUVRX6tW5a47Bqjh5rGsJLUilvRLAE60Ux1XAoccYIX1gx6jl3WjpDYCYb9mLfyouofWwt+S1dXHTf7buzIS4R5JtBCJ+VVq9wngbmUy/D/6jtjDxTuDjB72Ju65Df6Xojv+CZf/XPEHumvFsJ8gC1642Ro8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750091573; c=relaxed/simple;
-	bh=twYFduWC9wJCrV9qqKjUJe/QHyM3m2kgSYUiYXImyBg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sgIj6MafjeuUwnwaoawVEeaCO0p/uTAs/Pi7BcTerhrc4C2y5PoTjQ0ej3xerqnpdvf/mi1aHJdGgaEHZwiKWO0iaU9BHoCmkX4cdjEmqfga3BIroCUb+2NonDuYaQquN35HMqmys3AxSyD/SzvsCoueOxCoWeLlvnpylKEL4Y0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bRausBq4; arc=none smtp.client-ip=209.85.221.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750117792; c=relaxed/simple;
+	bh=b3zKHLKAb1cvtSdrw3XxiNDONuchbnrNwEblCi3jEpo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hYx9pftXQlcYqXecJh2LUgYd7SGfqzfnnqn5g/TmJVJW3v/zD/x6IXHlDi1YuO5O6325ioswyjNah7v0bH9AB5M0qPTP2sTDztytcU9ulAgkxBrpQTAw+nWlaQm7hg76pXxFJVhVnoSkOATOQOH29DNXni5hfAtiHxacmblUsv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vJG/Afws; arc=none smtp.client-ip=209.85.160.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bRausBq4"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-3a4e575db1aso583818f8f.2
-        for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 09:32:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vJG/Afws"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-4a58197794eso53911cf.1
+        for <linux-s390@vger.kernel.org>; Mon, 16 Jun 2025 16:49:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750091570; x=1750696370; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=H2K9WEA7lNr7K4DhnEavCZJYvbJZ0Xneo0jIPcE8RRA=;
-        b=bRausBq4YYsPGYqGDeMRCMgpdbQajxxgTtJPiXiO/CxKszkKayz8A36Xk/6IPkwcix
-         slGNC+iCBTF/CLsjx00gHh3w2gFhowjAn/m3npN2zrI7Safu3/z3Af4iszSWuqzdRP4g
-         Ulrn0hkqS018kjTildYzAp5NopVe32c/z2WA3OGI4RoefFfpkZWCpWNGJfnUGWGhm248
-         JpAs2Wx5DAA+k8N5k7iQ+aKrYnuJBOJmpK1NcMmFR9eW/QHOS8dpFfJ/1qGidFPynXAM
-         N8TphUb3BYsUJgR6MC1ozzOIg12q8e0++SvWWcF/k7M2iyw8sN0NR+NINpc/lLIU0EyR
-         haxw==
+        d=google.com; s=20230601; t=1750117790; x=1750722590; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=b3zKHLKAb1cvtSdrw3XxiNDONuchbnrNwEblCi3jEpo=;
+        b=vJG/AfwsnMTMQI+IIqawW80lra0d3rIVjDMK/VIdjtKQMQQyxOKjQAFimnmQJMnwRl
+         hAHTj9hFf0aGXLGD0TXKP/3xU2tMD16/pll2Kwwkgj4J9ESgy+TfSo+z3HtIkj1yPpsC
+         T4tmKDyrKX1d2KhvBIRKSNNXbv4cHUUCpHmHXYl1tyaJkNWpFq925t/tDmVQLwxRL/hJ
+         R+fdZkh6fMdMGQQ+C7xYS9j/zdBWxmflE5i8XwFSw7xuGmc9c6eqKvhgAf8j0B5lLPJa
+         SKHXRyY90QWrCx6UfShuz6AzVhqFSpzHszYupy3XXD12qmme5qNK7CxvKii8G1o9X0/Z
+         yaCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750091570; x=1750696370;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=H2K9WEA7lNr7K4DhnEavCZJYvbJZ0Xneo0jIPcE8RRA=;
-        b=f2HxwDLZNdlrETsXOaDrF5i5blezxZUAX2kt1CpwATlUGtT3vtf06Myx6cz7p1UXhK
-         spP5wpvYyN2mf1nLGT2yohfbRlxiGhvfbOltvZJtq6mXQ18AAnOAWCDIhWuz4ANA84Hb
-         cEWUfX5fv0PgWRO5/O/6VZYQvD5ccI7+VxKGxo4CLzw7BhAeuURnwxSPyWDY8lLMh0UE
-         hCYioOvoAcXKhcdHz6iyeFg1MkMkO6WnVKnEUSu70pIfDHW5X98/JI3Rif/ZsaNTxHGu
-         4NWkuj77wGvYcBcmLYRY78QTAGwZx+ShB32bPtPYuSs7iWwAb5c84WDriZ+YjC0ml7N6
-         0QiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXs/AJs8uvs0UCn4TG4ZVnkez+xF2KpcFym87FaPQ5wsm6P8Hw4AWVni3gtx/7u/YaqQd9BGViVaeK6@vger.kernel.org
-X-Gm-Message-State: AOJu0YyqyZ2BwFO2eKMj8YgJubk6ys//GzIzdfuLN3H1eu5Y1WzhgEUy
-	hbXYaiCLf2FfX7yfyphEh9zj58M5zgCHiQPUwsLDX2f2TnW8t/BLiwM=
-X-Gm-Gg: ASbGnctm8zm5ar5m/q/ObZZfJw8FAcUhy1FAeFUlFGxMGJmUec/Lq+0OtqLLdr4OcdA
-	1iNmAWVzNImEQ1YN4+dweai2wP7JLnKrO0GWbN4eViJxPA+UUWIdUxRgkVHvRY+VEZBxWksmBie
-	rOyjbIb2UDMByv6nd+DWOGIlFnBX8lKZg/gDFCJz5HEYHLEPAF9gieRItw002gj0o++wjr+A5TV
-	XOsdsmHscZUCO6KQOW1eP87W4S4sYFv+oZGe0iucto1Zt/Qpfxy2kzgyZRTj6TYvGP7qD9Hlj7c
-	lhlG00bhKuhCmKzKPw1TfblFTulqYdIJcOpknwX/abOvuejb52gDjVwSG4bW5iUIrndl1tObx3H
-	V38Qsi/6d5fZuwJnY5eIVbV8lx+/3vVnPoN7Umg==
-X-Google-Smtp-Source: AGHT+IG07Z/iJqXGznWLTbuyIJKwvq17rWq22mhGnNYvjkuhNpNKrYP93y3meOzAGbLAuNwlx3Golw==
-X-Received: by 2002:a05:6000:240a:b0:3a5:3399:51b1 with SMTP id ffacd0b85a97d-3a57237a705mr3562215f8f.6.1750091569832;
-        Mon, 16 Jun 2025 09:32:49 -0700 (PDT)
-Received: from localhost (85.red-80-39-146.dynamicip.rima-tde.net. [80.39.146.85])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a568a7cb65sm11691496f8f.38.2025.06.16.09.32.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jun 2025 09:32:49 -0700 (PDT)
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-To: 
-Cc: Xose Vazquez Perez <xose.vazquez@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	S390 ML <linux-s390@vger.kernel.org>
-Subject: [PATCH] s390/boot: use the full title of the manual for facility bits
-Date: Mon, 16 Jun 2025 18:32:47 +0200
-Message-ID: <20250616163248.77951-1-xose.vazquez@gmail.com>
-X-Mailer: git-send-email 2.49.0
+        d=1e100.net; s=20230601; t=1750117790; x=1750722590;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=b3zKHLKAb1cvtSdrw3XxiNDONuchbnrNwEblCi3jEpo=;
+        b=dhPfYp9omHaakYa+AE5053JDklvkoAPJEvtK0QJlnDSYm2M/fmZTs/4YiPJb/Os1dQ
+         QY1XS0O1kRCJZATnAO2Bp/RxlCZwxHfGdTbnFMix+K+mRhGK82YhnTyoFm1fBTCtGrqU
+         Z+/l/n5M9feF1xOGNI/yXaXACOlNw0H3WxXSyEu0gaJxq4IuqqNXDj1LjCp2NQJC1uIr
+         Gbo1Makl1yGhtwk2zQ9t2qD6NJZegkksi2Q8cm2LdzVP80kNh39Kz++q7hibXtvbugMt
+         QGd+2oQa5KALlKz7Duk4H3sJIpii5c179O5iMXNzuu+iHA17VRp28KO7tGOajV7La6Jd
+         Y0KA==
+X-Forwarded-Encrypted: i=1; AJvYcCXc4jll/HJYTuWI00APhGlrh1kuVFbYHjb0NdbB1WtQhXrzeuNnSZaF7vtDkes7V9QRfYqEWT8UnUcm@vger.kernel.org
+X-Gm-Message-State: AOJu0YwWEtEz7fshcUf0StTCMdCCS1N8qqQJ1uwtQD/Dqfd4KOPQs6U6
+	Fmq+JrTklTj6SalyVsC6/BUh/7cIghSIuW91OXaIKxmrZmV12tIVxOQL9hA7bjLJ7fNPFxY+Jos
+	6lZs4clxS/vZytUSCGvuE/3cESnEtZ5XseHkKilxx
+X-Gm-Gg: ASbGncszat6msEbcDP5J/Gxm32YNE0IgxV2pwzI+xUZdpeyXxMVZ5wX+D3BTpq70amV
+	8Jh8AjgL89i1vHQplwWC2xNFHph40As5GD4wkc9rgai1h7QIx/pYXUVTGgGt8Yj420tF1BSZi7q
+	8uLEhGWETrGuL8ZiySImCy3EVLSW05tIf90a4CjfK44kbKeAZn9jJ3
+X-Google-Smtp-Source: AGHT+IGfjcKJ8IuE5R9fjsgG5YLqJwjRuDqVQ24dCynAkDWc2+kl3bY0GD7TukkBzbd98jTpPP1I6GXluwgK3ALK8Nc=
+X-Received: by 2002:a05:622a:4d0:b0:4a6:f9d2:b538 with SMTP id
+ d75a77b69052e-4a73d78a66bmr9184781cf.28.1750117789687; Mon, 16 Jun 2025
+ 16:49:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Patchwork-Bot: notify
-Content-Transfer-Encoding: 8bit
+References: <cover.1750040317.git.gehao@kylinos.cn> <57e110be6d8387e403b4ef1f3b10714c36afbb51.1750040317.git.gehao@kylinos.cn>
+ <afcdc872-680e-40c6-98d0-6b6a43daedbf@redhat.com> <aE_b5X7NmOd5-SC5@kernel.org>
+In-Reply-To: <aE_b5X7NmOd5-SC5@kernel.org>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Mon, 16 Jun 2025 16:49:38 -0700
+X-Gm-Features: AX0GCFuAg0WOrYYwGLiRGPPUQaw6f_v9xmxf5R_loH7rX4qxsikqGy9OZp4O2vA
+Message-ID: <CAJuCfpFOw+b_U8CiBpjm-4ehm-mGY5fRO8M-YiQ2PqvShCV04A@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] mm: Optimize the ARCH_NEEDS_WEAK_PER_CPU logic for
+ s390/alpha architectures
+To: Mike Rapoport <rppt@kernel.org>
+Cc: David Hildenbrand <david@redhat.com>, Hao Ge <hao.ge@linux.dev>, 
+	Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Kent Overstreet <kent.overstreet@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-s390@vger.kernel.org, Hao Ge <gehao@kylinos.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Also indicate the name of the section where they are listed, because it has a
-length of 2124 pages:
-z/Architecture Principles of Operation - Facility Indications
+On Mon, Jun 16, 2025 at 1:55=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wro=
+te:
+>
+> On Mon, Jun 16, 2025 at 09:59:09AM +0200, David Hildenbrand wrote:
+> > On 16.06.25 04:29, Hao Ge wrote:
+> > > From: Hao Ge <gehao@kylinos.cn>
+> >
+> > subject is misleading: we are not optimizing anything in this patch, do=
+ we?
+> >
+> > It should probably be called
+> >
+> > "mm/percpu: rename ARCH_NEEDS_WEAK_PER_CPU to MODULE_NEED_WEAK_PER_CPU"=
+ or
+> > sth. like that.
+> >
+> >
+> > > Add the ARCH_NEEDS_WEAK_PER_CPU option to the mm Kconfig file
+> > > and enable it for the s390 and alpha architectures.
+> > > And replace all instances of ARCH_NEEDS_WEAK_PER_CPU
+> > > in the kernel code with MODULE_NEEDS_WEAK_PER_CPU.
+> >
+> > Most of the description here should likely go to patch #2. See below.
+>
+> ...
+>
+> > So what you could do is move the actual introduction of
+> > CONFIG_ARCH_NEEDS_WEAK_PER_CPU to patch #2, where it is actually used, =
+and
+> > limit this patch to the rename.
+> >
+> > Similarly, teak the patch description to reflect only that.
+>
+> Right, if the patch only renames ARCH_NEEDS_WEAK_PER_CPU to
+> MODULE_NEEDS_WEAK_PER_CPU the description can be as simple as
+>
+> mm/percpu: rename ARCH_NEEDS_WEAK_PER_CPU to MODULE_NEEDS_WEAK_PER_CPU
+>
+> as a preparation for introduction of CONFIG_ARCH_NEEDS_WEAK_PER_CPU.
+> No functional changes.
 
-The current version is: Fourteenth Edition (May, 2022) SA22-7832-13
+Yeah, the title is misleading and the description is too complicated.
 
-Cc: Heiko Carstens <hca@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:3/4=75%,authored:2/4=50%,added_lines:8/14=57%,removed_lines:41/47=87%)
-Cc: Vasily Gorbik <gor@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/4=25%,authored:1/4=25%,added_lines:5/14=36%,removed_lines:5/47=11%)
-Cc: Alexander Gordeev <agordeev@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/4=25%)
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com> (reviewer:S390 ARCHITECTURE)
-Cc: Sven Schnelle <svens@linux.ibm.com> (reviewer:S390 ARCHITECTURE,commit_signer:2/4=50%)
-Cc: S390 ML <linux-s390@vger.kernel.org> (open list:S390 ARCHITECTURE)
-Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
----
- arch/s390/boot/als.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Mike's suggested title sounds better to me and for description I would
+say something like:
 
-diff --git a/arch/s390/boot/als.c b/arch/s390/boot/als.c
-index 79afb5fa7f1f..7d4cec1975c6 100644
---- a/arch/s390/boot/als.c
-+++ b/arch/s390/boot/als.c
-@@ -65,7 +65,7 @@ static void facility_mismatch(void)
- 	boot_emerg("The Linux kernel requires more recent processor hardware\n");
- 	boot_emerg("Detected machine-type number: %4x\n", id.machine);
- 	print_missing_facilities();
--	boot_emerg("See Principles of Operations for facility bits\n");
-+	boot_emerg("For facility bits, see: z/Architecture Principles of Operation - Facility Indications\n");
- 	disabled_wait();
- }
- 
--- 
-2.49.0
+ARCH_NEEDS_WEAK_PER_CPU is currently defined only for modules and
+therefore fails to represent requirements of the architecture. This
+prevents us using it for conditions which are applicable when building
+both modules and the kernel. To handle such conditions, make it a
+Kconfig option and add MODULE_NEEDS_WEAK_PER_CPU for the cases when
+the condition applies only to modules.
 
+And now that I'm looking at the change I realize that we probably
+don't even need a separate MODULE_NEEDS_WEAK_PER_CPU. It will be used
+only in one place and can be replaced with:
+
+#if defined(CONFIG_ARCH_NEEDS_WEAK_PER_CPU) && defined(MODULE)
+
+The code inside arch/{alpha|s390}/include/asm/percpu.h that defines
+MODULE_NEEDS_WEAK_PER_CPU can be completely removed and in
+arch/alpha/Kconfig you can have:
+
+select ARCH_NEEDS_WEAK_PER_CPU if CONFIG_SMP
+
+to preserve CONFIG_SMP dependency.
+That seems to me like a nicer cleanup.
+
+>
+> > --
+> > Cheers,
+> >
+> > David / dhildenb
+> >
+>
+> --
+> Sincerely yours,
+> Mike.
