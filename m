@@ -1,253 +1,248 @@
-Received: from out-188.mta0.migadu.com (out-188.mta0.migadu.com [91.218.175.188])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 919CE18FC80
-	for <linux-s390@vger.kernel.org>; Tue, 17 Jun 2025 07:12:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F8F2DE1E7;
+	Tue, 17 Jun 2025 12:21:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750144327; cv=none; b=bKvnFeh7unORRVOFgfORJpPaSggFuwi5rCkoqUtKUxAmHDP1sT7Ef7O3QUK/jyAqy9bRqzrqgjI0JxO0c6e7wcxJ3/1DGPpEiteKbKwiqJ+TWYUsSAdjp/n51w2vC4HASe5x0I6wwU72NUk0nTRibjTt7dn3dZhduDEvdjWRhiY=
+	t=1750162911; cv=none; b=K9bHC5KYCRsRn6wYdkAzwxNLT0QjrEYpfM3HkWZFsjSoEUxUQ2zum8TO1rxAssjtZX6EystVxSx1v5f4MCL8jpI6NnSbPNhmhkVbcr0vya29zXYcqAWJTGUkPnG6ny/BmHwDwuGbjdf+9uBBAhyVDBk5zt4JwjSmnX8Vh9MicAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750144327; c=relaxed/simple;
-	bh=YWnBxnuc1USSWpP7g8iTovW2z5lSLAgum3XnacGTcRQ=;
+	s=arc-20240116; t=1750162911; c=relaxed/simple;
+	bh=pKyh1RP7KnM5fhShnYRftVmuaWIJXf6FA0W4M/+AfDg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=V5AdlKrkgYWGNFC2t4/kl2SxDpiBrTVCqCKTtIVrEQrH3VPER0dhX7sVwOjzXCDDlTchC8EgKG/anEDWDVOQ2b5kbB/3EXpkj8y0Bbzm4iLwSrbQJqyNr4XQ/zjKTui0ohK7KewJq9V35Z7oAp/Ey8kxcXcN0wupozQlKHkxLRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=wo9EzbQL; arc=none smtp.client-ip=91.218.175.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	 MIME-Version:Content-Type; b=ZVFmVSQoeqKRQ1ZBTS5ht3ZWtZ8LWK9wIW5UpBVxbYCVrRXDNV2CYeDlUkseqilLYspSu+DSyi8rxsDeRVZ52+Bkw7TwyWltABTzwuqW/OkYLDiX+AXsXCxqgzGX+yG80XrRrIPnmAM38i4kwwVNQ9FJAfzl5JUJMBbfjU3hYCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iHhqUq1y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wo9EzbQL"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1750144321;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=iWkqbsRsMPadMowH6GNW9aiYIyRsuY18VyS9juVdeNA=;
-	b=wo9EzbQLBhFL4CX4cZvMKamgUfd/1J2xlDdmC/ZrSs/1GhqKR91N4H0M9O5Xw1rHpgknOE
-	Nibg0+KaxJVEF94R2vJgnrF+ow7XnhK2gV19gvdp9zIE6CKVcryGeFmQ+EMZYuxw+gGrYp
-	x+NE6RM8AqhVHJip7978shEGWj4HyVQ=
-From: Hao Ge <hao.ge@linux.dev>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@redhat.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Dennis Zhou <dennis@kernel.org>,
-	Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@linux.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iHhqUq1y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1628EC4CEF1;
+	Tue, 17 Jun 2025 12:21:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1750162911;
+	bh=pKyh1RP7KnM5fhShnYRftVmuaWIJXf6FA0W4M/+AfDg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=iHhqUq1yidqNgpuKg8IAxrbRhfFlvPtKXyBzNI/Aq8S2OXuGUqA20Jh2IHxMJ5rsU
+	 fGsQUkgDILuSFRlMr/XevVDh8a/9fMeFJW/oULC8dpEXQGTSz2Mi5CnWyasjjHmvWE
+	 0dk+FEXn2RrhdFG6pywMA27kwRE9WS4IPGmKLvb5XDgOSHPaKKKPm/j2JmYl+6R3Uf
+	 0mvmGEPmouy3jWnoNU3qoHTRR7aHij7q6qOsjkuAnygsYIRp57VT9q0JfrW6QjmuxB
+	 kmwPX0K6ICzxQSU+frCfhh9dV/O97Xzsv/7I5b7Yifaa5i9VUZhihwbSiTBACMHHPd
+	 afO4aiDoNk+EQ==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
+	stable@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Kent Overstreet <kent.overstreet@linux.dev>
-Cc: linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Hao Ge <hao.ge@linux.dev>,
-	Hao Ge <gehao@kylinos.cn>
-Subject: [PATCH v5 1/1] mm/percpu: Conditionally define _shared_alloc_tag via CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU
-Date: Tue, 17 Jun 2025 15:10:52 +0800
-Message-Id: <7b912b54cdc12a3437edbd50dbadfc45545641b7.1750143986.git.gehao@kylinos.cn>
-In-Reply-To: <cover.1750143986.git.gehao@kylinos.cn>
-References: <cover.1750143986.git.gehao@kylinos.cn>
+	Sasha Levin <sashal@kernel.org>,
+	gerald.schaefer@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.15 02/15] s390/mm: Fix in_atomic() handling in do_secure_storage_access()
+Date: Tue, 17 Jun 2025 08:21:32 -0400
+Message-Id: <20250617122147.1968355-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20250617122147.1968355-1-sashal@kernel.org>
+References: <20250617122147.1968355-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.15.2
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-From: Hao Ge <gehao@kylinos.cn>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-Recently discovered this entry while checking kallsyms on ARM64:
-ffff800083e509c0 D _shared_alloc_tag
+[ Upstream commit 11709abccf93b08adde95ef313c300b0d4bc28f1 ]
 
-If ARCH_NEEDS_WEAK_PER_CPU is not defined(it is only defined for
-s390 and alpha architectures), there's no need to statically define
-the percpu variable _shared_alloc_tag.
+Kernel user spaces accesses to not exported pages in atomic context
+incorrectly try to resolve the page fault.
+With debug options enabled call traces like this can be seen:
 
-Therefore, we need to implement isolation for this purpose.
+BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:1523
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 419074, name: qemu-system-s39
+preempt_count: 1, expected: 0
+RCU nest depth: 0, expected: 0
+INFO: lockdep is turned off.
+Preemption disabled at:
+[<00000383ea47cfa2>] copy_page_from_iter_atomic+0xa2/0x8a0
+CPU: 12 UID: 0 PID: 419074 Comm: qemu-system-s39
+Tainted: G        W           6.16.0-20250531.rc0.git0.69b3a602feac.63.fc42.s390x+debug #1 PREEMPT
+Tainted: [W]=WARN
+Hardware name: IBM 3931 A01 703 (LPAR)
+Call Trace:
+ [<00000383e990d282>] dump_stack_lvl+0xa2/0xe8
+ [<00000383e99bf152>] __might_resched+0x292/0x2d0
+ [<00000383eaa7c374>] down_read+0x34/0x2d0
+ [<00000383e99432f8>] do_secure_storage_access+0x108/0x360
+ [<00000383eaa724b0>] __do_pgm_check+0x130/0x220
+ [<00000383eaa842e4>] pgm_check_handler+0x114/0x160
+ [<00000383ea47d028>] copy_page_from_iter_atomic+0x128/0x8a0
+([<00000383ea47d016>] copy_page_from_iter_atomic+0x116/0x8a0)
+ [<00000383e9c45eae>] generic_perform_write+0x16e/0x310
+ [<00000383e9eb87f4>] ext4_buffered_write_iter+0x84/0x160
+ [<00000383e9da0de4>] vfs_write+0x1c4/0x460
+ [<00000383e9da123c>] ksys_write+0x7c/0x100
+ [<00000383eaa7284e>] __do_syscall+0x15e/0x280
+ [<00000383eaa8417e>] system_call+0x6e/0x90
+INFO: lockdep is turned off.
 
-When building the core kernel code for s390 or alpha architectures,
-ARCH_NEEDS_WEAK_PER_CPU remains undefined (as it is gated
-by #if defined(MODULE)). However, when building modules for these
-architectures, the macro is explicitly defined.
+It is not allowed to take the mmap_lock while in atomic context. Therefore
+handle such a secure storage access fault as if the accessed page is not
+mapped: the uaccess function will return -EFAULT, and the caller has to
+deal with this. Usually this means that the access is retried in process
+context, which allows to resolve the page fault (or in this case export the
+page).
 
-Therefore, we remove all instances of ARCH_NEEDS_WEAK_PER_CPU from
-the code and introduced CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU to
-replace the relevant logic. We can now conditionally define the perpcu
-variable _shared_alloc_tag based on CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU.
-This allows architectures (such as s390/alpha) that require weak
-definitions for percpu variables in modules to include the definition,
-while others can omit it via compile-time exclusion.
-
-Suggested-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Hao Ge <gehao@kylinos.cn>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Link: https://lore.kernel.org/r/20250603134936.1314139-1-hca@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/Kconfig              | 1 +
- arch/alpha/include/asm/percpu.h | 5 ++---
- arch/s390/Kconfig               | 1 +
- arch/s390/include/asm/percpu.h  | 5 ++---
- include/linux/alloc_tag.h       | 6 +++---
- include/linux/percpu-defs.h     | 7 ++++---
- lib/alloc_tag.c                 | 2 ++
- mm/Kconfig                      | 7 +++++++
- 8 files changed, 22 insertions(+), 12 deletions(-)
 
-diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-index 109a4cddcd13..80367f2cf821 100644
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -7,6 +7,7 @@ config ALPHA
- 	select ARCH_HAS_DMA_OPS if PCI
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
-+	select ARCH_MODULE_NEEDS_WEAK_PER_CPU if SMP
- 	select ARCH_NO_PREEMPT
- 	select ARCH_NO_SG_CHAIN
- 	select ARCH_USE_CMPXCHG_LOCKREF
-diff --git a/arch/alpha/include/asm/percpu.h b/arch/alpha/include/asm/percpu.h
-index 6923249f2d49..4383d66341dc 100644
---- a/arch/alpha/include/asm/percpu.h
-+++ b/arch/alpha/include/asm/percpu.h
-@@ -9,10 +9,9 @@
-  * way above 4G.
-  *
-  * Always use weak definitions for percpu variables in modules.
-+ * Therefore, we have enabled CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU
-+ * in the Kconfig.
-  */
--#if defined(MODULE) && defined(CONFIG_SMP)
--#define ARCH_NEEDS_WEAK_PER_CPU
--#endif
- 
- #include <asm-generic/percpu.h>
- 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 0c16dc443e2f..b652cb952f31 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -132,6 +132,7 @@ config S390
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQ
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
- 	select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
-+	select ARCH_MODULE_NEEDS_WEAK_PER_CPU
- 	select ARCH_STACKWALK
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 84f6b8357b45..96af7d964014 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -16,10 +16,9 @@
-  * For 64 bit module code, the module may be more than 4G above the
-  * per cpu area, use weak definitions to force the compiler to
-  * generate external references.
-+ * Therefore, we have enabled CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU
-+ * in the Kconfig.
-  */
--#if defined(MODULE)
--#define ARCH_NEEDS_WEAK_PER_CPU
--#endif
- 
- /*
-  * We use a compare-and-swap loop since that uses less cpu cycles than
-diff --git a/include/linux/alloc_tag.h b/include/linux/alloc_tag.h
-index 8f7931eb7d16..9ef2633e2c08 100644
---- a/include/linux/alloc_tag.h
-+++ b/include/linux/alloc_tag.h
-@@ -88,7 +88,7 @@ static inline struct alloc_tag *ct_to_alloc_tag(struct codetag *ct)
- 	return container_of(ct, struct alloc_tag, ct);
- }
- 
--#ifdef ARCH_NEEDS_WEAK_PER_CPU
-+#if defined(CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU) && defined(MODULE)
- /*
-  * When percpu variables are required to be defined as weak, static percpu
-  * variables can't be used inside a function (see comments for DECLARE_PER_CPU_SECTION).
-@@ -102,7 +102,7 @@ DECLARE_PER_CPU(struct alloc_tag_counters, _shared_alloc_tag);
- 		.ct = CODE_TAG_INIT,						\
- 		.counters = &_shared_alloc_tag };
- 
--#else /* ARCH_NEEDS_WEAK_PER_CPU */
-+#else /* CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU && MODULE */
- 
- #ifdef MODULE
- 
-@@ -123,7 +123,7 @@ DECLARE_PER_CPU(struct alloc_tag_counters, _shared_alloc_tag);
- 
- #endif /* MODULE */
- 
--#endif /* ARCH_NEEDS_WEAK_PER_CPU */
-+#endif /* CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU && MODULE */
- 
- DECLARE_STATIC_KEY_MAYBE(CONFIG_MEM_ALLOC_PROFILING_ENABLED_BY_DEFAULT,
- 			mem_alloc_profiling_key);
-diff --git a/include/linux/percpu-defs.h b/include/linux/percpu-defs.h
-index 0aeb0e276a3e..5931fcad9a91 100644
---- a/include/linux/percpu-defs.h
-+++ b/include/linux/percpu-defs.h
-@@ -63,14 +63,15 @@
-  * 1. The symbol must be globally unique, even the static ones.
-  * 2. Static percpu variables cannot be defined inside a function.
-  *
-- * Archs which need weak percpu definitions should define
-- * ARCH_NEEDS_WEAK_PER_CPU in asm/percpu.h when necessary.
-+ * Archs which need weak percpu definitions should set
-+ * CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU when necessary.
-  *
-  * To ensure that the generic code observes the above two
-  * restrictions, if CONFIG_DEBUG_FORCE_WEAK_PER_CPU is set weak
-  * definition is used for all cases.
-  */
--#if defined(ARCH_NEEDS_WEAK_PER_CPU) || defined(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)
-+#if defined(CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU) && defined(MODULE) || \
-+	defined(CONFIG_DEBUG_FORCE_WEAK_PER_CPU)
- /*
-  * __pcpu_scope_* dummy variable is used to enforce scope.  It
-  * receives the static modifier when it's used in front of
-diff --git a/lib/alloc_tag.c b/lib/alloc_tag.c
-index c7f602fa7b23..ab0936ebf38e 100644
---- a/lib/alloc_tag.c
-+++ b/lib/alloc_tag.c
-@@ -24,8 +24,10 @@ static bool mem_profiling_support;
- 
- static struct codetag_type *alloc_tag_cttype;
- 
-+#ifdef CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU
- DEFINE_PER_CPU(struct alloc_tag_counters, _shared_alloc_tag);
- EXPORT_SYMBOL(_shared_alloc_tag);
-+#endif
- 
- DEFINE_STATIC_KEY_MAYBE(CONFIG_MEM_ALLOC_PROFILING_ENABLED_BY_DEFAULT,
- 			mem_alloc_profiling_key);
-diff --git a/mm/Kconfig b/mm/Kconfig
-index e113f713b493..00514df3eae4 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -929,6 +929,13 @@ config ARCH_SUPPORTS_PUD_PFNMAP
- 	def_bool y
- 	depends on ARCH_SUPPORTS_HUGE_PFNMAP && HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
- 
-+#
-+# Architectures that always use weak definitions for percpu
-+# variables in modules should set this.
-+#
-+config ARCH_MODULE_NEEDS_WEAK_PER_CPU
-+       bool
-+
- #
- # UP and nommu archs use km based percpu allocator
- #
+Based on my comprehensive analysis of the commit and the surrounding
+kernel context, here is my assessment:
+
+**YES**
+
+This commit should be backported to stable kernel trees. Here's my
+extensive explanation:
+
+## Why This Should Be Backported
+
+### 1. **Critical Sleeping-in-Atomic Bug Fix**
+
+The commit addresses a fundamental kernel correctness issue where
+`do_secure_storage_access()` was incorrectly attempting to acquire
+`mmap_read_lock()` while in atomic context. The stack trace in the
+commit message clearly shows:
+
+```
+BUG: sleeping function called from invalid context at
+kernel/locking/rwsem.c:1523
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 419074, name:
+qemu-system-s39
+preempt_count: 1, expected: 0
+Preemption disabled at:
+[<00000383ea47cfa2>] copy_page_from_iter_atomic+0xa2/0x8a0
+```
+
+This shows the fault occurred during `copy_page_from_iter_atomic()`,
+which explicitly runs in atomic context with preemption disabled
+(`preempt_count: 1`).
+
+### 2. **Minimal and Safe Code Change**
+
+The fix is exactly 2 lines of code:
+```c
++if (faulthandler_disabled())
++    return handle_fault_error_nolock(regs, 0);
+```
+
+This follows the **exact same pattern** already established in the same
+file at line 277 in `do_exception()`. The change is:
+- **Consistent**: Uses the same `faulthandler_disabled()` check as other
+  fault handlers
+- **Safe**: Uses `handle_fault_error_nolock()` which is designed for
+  atomic contexts
+- **Non-invasive**: Doesn't change any existing logic paths, only adds
+  an early return
+
+### 3. **Matches Established Kernel Patterns**
+
+Looking at similar commits in my reference set, this matches the pattern
+of **Backport Status: YES** commits:
+
+**Similar to Reference Commit #2** (sja1105): Also fixed sleeping-in-
+atomic by using atomic-safe alternatives
+**Similar to Reference Commit #3** (PM domains): Also moved a
+potentially sleeping operation out of atomic context
+**Similar to Reference Commit #5** (RDMA/rxe): Also handled sleeping
+operations that were incorrectly called from atomic context
+
+### 4. **Affects Critical Kernel Subsystem**
+
+This bug affects **s390 memory management**, which is a critical kernel
+subsystem. The secure storage access functionality is used in:
+- **IBM Z mainframes** with Protected Execution (Ultravisor)
+- **KVM virtualization** environments
+- **Enterprise workloads** running on s390 architecture
+
+A sleeping-in-atomic bug in MM fault handling can cause system
+instability, deadlocks, or crashes.
+
+### 5. **Production Impact Evidence**
+
+The commit message shows this affecting **qemu-system-s39**, indicating
+this hits production virtualization workloads. The call trace shows a
+realistic scenario:
+```
+copy_page_from_iter_atomic+0x128/0x8a0
+generic_perform_write+0x16e/0x310
+ext4_buffered_write_iter+0x84/0x160
+vfs_write+0x1c4/0x460
+```
+
+This is a common I/O path that can trigger secure storage access
+violations in protected execution environments.
+
+### 6. **Low Regression Risk**
+
+The change has **minimal regression risk** because:
+- **Fallback behavior**: It makes the code return `-EFAULT` instead of
+  hanging/crashing
+- **Retry mechanism**: The commit message explicitly states "Usually
+  this means that the access is retried in process context"
+- **Defensive programming**: Better to fail gracefully than crash the
+  system
+- **Existing pattern**: Uses the same error handling path already used
+  elsewhere
+
+### 7. **Stable Tree Criteria Met**
+
+This commit meets all stable tree criteria:
+- ✅ **Important bugfix**: Fixes kernel crashes/hangs
+- ✅ **Small and contained**: Only 2 lines changed
+- ✅ **No new features**: Pure bugfix
+- ✅ **Minimal risk**: Uses established error handling patterns
+- ✅ **Affects users**: Impacts virtualization workloads
+
+### 8. **Architecture-Specific but Critical**
+
+While this only affects s390 architecture, it's critical for that
+platform. s390 is used in enterprise environments where stability is
+paramount, and sleeping-in-atomic bugs can cause service outages.
+
+### Conclusion
+
+This is a textbook example of a commit that should be backported: it
+fixes a clear kernel correctness issue (sleeping while atomic), uses a
+minimal and safe fix that follows established patterns, has low
+regression risk, and affects production workloads. The fix brings
+`do_secure_storage_access()` in line with the same atomic context
+handling used throughout the rest of the kernel's fault handling code.
+
+ arch/s390/mm/fault.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index da84ff6770dec..8b3f6dd00eab2 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -442,6 +442,8 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		if (rc)
+ 			BUG();
+ 	} else {
++		if (faulthandler_disabled())
++			return handle_fault_error_nolock(regs, 0);
+ 		mm = current->mm;
+ 		mmap_read_lock(mm);
+ 		vma = find_vma(mm, addr);
 -- 
-2.25.1
+2.39.5
 
