@@ -1,113 +1,156 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DACA92E88BD;
-	Tue, 17 Jun 2025 12:26:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E34B22E266D;
+	Tue, 17 Jun 2025 13:08:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750163176; cv=none; b=hnTZhObO0kV0l4BNC748Suj1OFrhdBHKfI7RU2AjKPaB+i4hIffpSqLcd09PC+Krlk9hIUtOvHz0ZZ5cbMTFCajN3hg6zZ0mZ5X4hvHGEUY4/49Y5L9myu9a414zuY0EkVtrXgfLJvMfQsYyeKymgME7lBCFmbOth3JCItyDM7k=
+	t=1750165721; cv=none; b=iV8eApQNmQ5VexkC7HHpO03UnyWdJWHxUS9VC2bhdfpvibgUhiV4hYgUrtZnhjnOdMrxCC+9vDGhGCD9Z0naNeBXWubzD7d/vTg2RlSqytQLSZ4R/Oyfu87aH3n+DPOObPzYGmqZnr99mlghkRM3XsS3UbQNz9PJVFA4LuBnK/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750163176; c=relaxed/simple;
-	bh=GapOKwyflP+ZpWPmihqgp7HGJ5ycxWDkT3/PcFW1nHY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B7cbOapGt2sUzbHHrKQ3mhOGAWgNWEohqOh8l5MRNO3A36gYzHi99avng0LYp4OJM1hwDS9DbnU0ORU27cDNBX3GeT5+P1I7Qm62HdED0rZi2LTxlXRmr539xU+myQ/CMHeZhsZI1fshx3H0clcQBidFyQzBHD7r9/dxvVsaDmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hbjIGwNo; arc=none smtp.client-ip=209.85.215.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750165721; c=relaxed/simple;
+	bh=4cMoozZix6jwpccdOFxjg09XGLJZ1sQdbLitLppvKqY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IOYClryabrG7kEVaAkocJy+YZAz7rTymBAwTuHHPxZ5fbpVFsq0PoixHqxkv96vzZNy8dlvLmDbbCzC7TqVPA1jW3uM5AC0cKECKmxtdHJoHnsRfTzE8sn/K5LhRc/ex5Q4CIy07x7mEdkeMF5JzhRkqUb09wkGaV+xYIL2CfUc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cE4g/NAP; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hbjIGwNo"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b2c4331c50eso4394581a12.3;
-        Tue, 17 Jun 2025 05:26:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750163174; x=1750767974; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=lmhCyj3oG+9b2plobKfmAomghZ2eZwtkaPqpuGuysqw=;
-        b=hbjIGwNonfDbIJWHykv5PlLghhDAchW2zh4j0FZzebHjZeOyfvlbPO79y9NIhPVoKS
-         XCOWNCnJW4gs2MLM5934X7KHxcMP8zjH/EvdywdVRJQrXEu3xW+AyIuBF2qFkikX6/bq
-         f6YYFQRl48gY/f/08M1EFQclM2ZOxp1+2rauRiHpLV8trbd+HXPy7aKxDiPi/q8TNEjb
-         6J+O9nQkOpPq72L4waYTU0r4GU5ZxH0yW+myOFMHfrV7mUoCauqM/4F9LTcTduNIJcL+
-         YO/ao2eMfJw7qn93GylmEHDkJCj88SoIe6jPI6rRcaTWGys36CvdwJUCLb3TbqBx9JZR
-         7mVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750163174; x=1750767974;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lmhCyj3oG+9b2plobKfmAomghZ2eZwtkaPqpuGuysqw=;
-        b=qyleUwNnB7FEq2zRacSFyKUAZr1qCznXkNedlvnWtpEDl/YfhBSECzd+BxGAQsNFaS
-         Idi7FBt50vC0ZqVWae1RW00OwHeT/bOw7ciUL4FtlkvoIklKKZsJjyLTxzk2s9xW5FFI
-         s5uMOCE8u2hTErEgRqyLhxL3AQiOSAcp549OYlC7FahvPw4/U+44VmGPTVpfK4xxUGJo
-         ywbTQ+FQKbSHchP3g4HGEtLnPxd9cz/AEGDEsXpzct3RGNYMAtHqufFmO3ccUMktlZpf
-         MfOuMYcE+nAzqnl5Ps5PL6dx3T0ALo0hxQjNBVfAey31wqm+JQRPPs8+gx6rr3rM8yeG
-         mCgQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUsGJnhQ/PMGAx1Qbgf8WSAhlzk7MBwm1/NmGnlpTfF0c0bcpGPAcVmfIlFtB84tD2LT7+jpoHf03sLfQ==@vger.kernel.org, AJvYcCW7+/y3wk21XXKDPDBf1QFyOV9WccymIszA+uxuUe/cJ83kso8NQ+ZN1ldgDuWbWj4OO2xDbSDEYeLVCQ==@vger.kernel.org, AJvYcCWZqT2+TupiMn7LQEyD5Wlhjmd5UK3T2JyJcSZrhvWF4wPsqAw2uEP240iPXRMNv5wbdfV+EQyccYobfCk=@vger.kernel.org, AJvYcCXra89shL1lH11vQyJrFSBzJv+7XpNpAni6JTqXFcO3/7LbbTDbIAjP7IIPN6sAy2zf6TC05462@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyjmmtrm0Yl24GRtskX+o0YOJBEVzeoKwyz4wjj9Q5exQ+iJzhc
-	Mb9WnLaJU7JSNAwoqzQqNb6WTG1DgGb6YoJEeKZPuIWt2xdYN6zVwO73
-X-Gm-Gg: ASbGncv/ypp7pb/GD+HRFk2tT+9+ULz0Ua9jddOVbAzzWl/pW+Gf7aGnOtv2RYkXvtk
-	OnWwIqAjnrIZKjEAn257L8o1yGGcmlOAgT4NzRDndQfSWE7SwtRLzuHaR5mwuhOCwH4jmcI1ngE
-	H36cGCmXQPTd6KBKpQKnG06S3+274fJ5gm7aBD6VjFxogv8lVcMUtnM6gn1SIfuKv15968eZT4v
-	hpOnSe6RNOhfBYbfJpwkLQ3UYuuyzkR8mgmyaB8Qzh7rzuLtF8fYIvrLHhhH6L632cDqnzSBTq0
-	MwDKmh6H5C8li1bL9cJpjda7HWwSa0ND9PeVJZTbqnhUxidkfGfV2nxYD3v+YDF9cYHS+Mtfij4
-	HQeTYB+o=
-X-Google-Smtp-Source: AGHT+IGTCN29BMxfXIJrKeN0ocQnXkWRuyj77RMW84BLrUAULMGJo41/CNVAbBqbUTHg6VLKB3GoSQ==
-X-Received: by 2002:a17:90b:134f:b0:311:e8cc:425d with SMTP id 98e67ed59e1d1-313f1c00e26mr22432756a91.10.1750163173798;
-        Tue, 17 Jun 2025 05:26:13 -0700 (PDT)
-Received: from manjaro.domain.name ([2401:4900:1c68:884c:5800:7324:c411:408d])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-313c19b8139sm10573302a91.1.2025.06.17.05.26.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jun 2025 05:26:13 -0700 (PDT)
-From: Pranav Tyagi <pranav.tyagi03@gmail.com>
-To: wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	horms@kernel.org,
-	skhan@linuxfoundation.org,
-	linux-kernel-mentees@lists.linux.dev,
-	Pranav Tyagi <pranav.tyagi03@gmail.com>
-Subject: [PATCH] net/smc: replace strncpy with strscpy
-Date: Tue, 17 Jun 2025 17:55:12 +0530
-Message-ID: <20250617122512.21979-1-pranav.tyagi03@gmail.com>
-X-Mailer: git-send-email 2.49.0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cE4g/NAP"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55H8SBTp017991;
+	Tue, 17 Jun 2025 13:08:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=p5Zxse7e33GhKYCPPhVo4RKuXPasj0
+	vsR46SoWT4Vlo=; b=cE4g/NAPVIOb4hSoMezqqe56UDUnOWbhBgMDTohME8XUXH
+	frMOH50hyGZB+NuHEmUPTqHQ9anDmljvxvqNUbhoQcO+hj4tQcPxtvm2bwNzGVzN
+	uZsGUds6S+UaGkigEibjc5KrT8v81ptbDv5mIEpiIE+C9S9ZUZBER+AWj1iQs0Ii
+	9V0BjKlJtYjRvvYtmAzkYDdd98nEzFT5ONP3E+IqerJ5NLSlSjzKTyUwJ9RhiCMc
+	PC/DPy+Ma4URaicfr0svf2qhzm4pqh5Yg84w8rnBkPSM/3KLLIVypD1nPfeU/Jn/
+	4IfNF4Ah0AhVgUcwYAUy3Ct7dgdXTJnoE1Y7JCFw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4790ktgjry-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Jun 2025 13:08:10 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55HCsuMf010266;
+	Tue, 17 Jun 2025 13:08:10 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4790ktgjrw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Jun 2025 13:08:10 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55HAODNF014278;
+	Tue, 17 Jun 2025 13:08:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 479p42b7rp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 17 Jun 2025 13:08:08 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55HD85Sl20382042
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 17 Jun 2025 13:08:05 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3EBE42004B;
+	Tue, 17 Jun 2025 13:08:05 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9C93120040;
+	Tue, 17 Jun 2025 13:08:04 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 17 Jun 2025 13:08:04 +0000 (GMT)
+Date: Tue, 17 Jun 2025 15:08:03 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Hao Ge <hao.ge@linux.dev>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Matt Turner <mattst88@gmail.com>, Dennis Zhou <dennis@kernel.org>,
+        Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Kent Overstreet <kent.overstreet@linux.dev>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+        linux-s390@vger.kernel.org, Hao Ge <gehao@kylinos.cn>
+Subject: Re: [PATCH v5 1/1] mm/percpu: Conditionally define _shared_alloc_tag
+ via CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU
+Message-ID: <aFFos/pmtkur+Vmd@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <cover.1750143986.git.gehao@kylinos.cn>
+ <7b912b54cdc12a3437edbd50dbadfc45545641b7.1750143986.git.gehao@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7b912b54cdc12a3437edbd50dbadfc45545641b7.1750143986.git.gehao@kylinos.cn>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kur0rvAEx469uj5a4sV_PVMfgwluIMH1
+X-Proofpoint-ORIG-GUID: qeKjDJ8XglqOooSmeigyj6AVgCg4ohGO
+X-Authority-Analysis: v=2.4 cv=KaDSsRYD c=1 sm=1 tr=0 ts=685168ba cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8 a=PyGK1ZaQhdLI2C9XA_0A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjE3MDA5OCBTYWx0ZWRfX3O1mozk6l+7U qZmBnT6UGHDnfuTVGo5MP+yTvQAyDOhlzpgWd5VtyDHCL3hXrZMcmhAIlX+U1oNetUntb6vqTjE buYjbbRwSMPoEnwV2F2dwj4UPObc4qQDFB2Hleqp2iy2CD4ZKtNb6pFL10OEjQkCuqA0tP8mnjk
+ vq+/UYKJEWMsaxR62JJc3xp4pfO5Dtu70cvfdRHqvBOrS04p9ehWoGW0r3G+cfU6VrNfdsGc6K5 pf2ai71sc8+8xZ3mp81VL3GKW0iBCcSxoRl72XqFFfDsHcw9bE/7t+/+78pzDzzkdBvfIOJjA+2 sNfc34cr+IpSGsSri7SE0L3xZbd8CbVvMNphj17GWXhXaN8uFnFEmPdIbE4tojSC+dU8DekLMmD
+ Z7DzGkt1sGK+pU8bsVIyJVcXw4FJ4SMQzxgn1Y5/KaY1+WeGi+Xjild7nh9fMI9JNbW8pYzF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-06-17_05,2025-06-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ spamscore=0 clxscore=1011 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 mlxlogscore=999 adultscore=0 phishscore=0
+ priorityscore=1501 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506170098
 
-Replace the deprecated strncpy() with strscpy() as the destination
-buffer should be NUL-terminated and does not require any trailing
-NUL-padding.
+On Tue, Jun 17, 2025 at 03:10:52PM +0800, Hao Ge wrote:
 
-Signed-off-by: Pranav Tyagi <pranav.tyagi03@gmail.com>
----
- net/smc/smc_pnet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Hao,
 
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index b391c2ef463f..b70e1f3179c5 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -370,7 +370,7 @@ static int smc_pnet_add_eth(struct smc_pnettable *pnettable, struct net *net,
- 		goto out_put;
- 	new_pe->type = SMC_PNET_ETH;
- 	memcpy(new_pe->pnet_name, pnet_name, SMC_MAX_PNETID_LEN);
--	strncpy(new_pe->eth_name, eth_name, IFNAMSIZ);
-+	strscpy(new_pe->eth_name, eth_name, IFNAMSIZ);
- 	rc = -EEXIST;
- 	new_netdev = true;
- 	mutex_lock(&pnettable->lock);
--- 
-2.49.0
+> From: Hao Ge <gehao@kylinos.cn>
+> 
+> Recently discovered this entry while checking kallsyms on ARM64:
+> ffff800083e509c0 D _shared_alloc_tag
+> 
+> If ARCH_NEEDS_WEAK_PER_CPU is not defined(it is only defined for
+> s390 and alpha architectures), there's no need to statically define
+> the percpu variable _shared_alloc_tag.
+> 
+> Therefore, we need to implement isolation for this purpose.
+> 
+> When building the core kernel code for s390 or alpha architectures,
+> ARCH_NEEDS_WEAK_PER_CPU remains undefined (as it is gated
+> by #if defined(MODULE)). However, when building modules for these
+> architectures, the macro is explicitly defined.
+> 
+> Therefore, we remove all instances of ARCH_NEEDS_WEAK_PER_CPU from
+> the code and introduced CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU to
+> replace the relevant logic. We can now conditionally define the perpcu
+> variable _shared_alloc_tag based on CONFIG_ARCH_MODULE_NEEDS_WEAK_PER_CPU.
+> This allows architectures (such as s390/alpha) that require weak
+> definitions for percpu variables in modules to include the definition,
+> while others can omit it via compile-time exclusion.
+> 
+> Suggested-by: Suren Baghdasaryan <surenb@google.com>
+> Signed-off-by: Hao Ge <gehao@kylinos.cn>
+> ---
+>  arch/alpha/Kconfig              | 1 +
+>  arch/alpha/include/asm/percpu.h | 5 ++---
+>  arch/s390/Kconfig               | 1 +
+>  arch/s390/include/asm/percpu.h  | 5 ++---
+>  include/linux/alloc_tag.h       | 6 +++---
+>  include/linux/percpu-defs.h     | 7 ++++---
+>  lib/alloc_tag.c                 | 2 ++
+>  mm/Kconfig                      | 7 +++++++
+>  8 files changed, 22 insertions(+), 12 deletions(-)
+...
 
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com> # s390
+
+Thanks!
