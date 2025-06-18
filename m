@@ -1,120 +1,135 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4EC22857DA
-	for <linux-s390@vger.kernel.org>; Wed, 18 Jun 2025 11:43:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 987EB2EAD16;
+	Wed, 18 Jun 2025 14:32:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750247005; cv=none; b=E6Ywa0T567MnLeQn1ex16NfTPEjnuqqzwFgq0zL0C8lRKds1GVah8peaHlV+N+ulTpqDp3H5EDc5fsDB9QlCK83zDV6S5vd8VxrgCQ2kPmdg5XP4muV9I8jeJaKbiIqcH5C2iOqX95jeCIspuovPaLqu3MVgRE2J32ofAGk6ZF0=
+	t=1750257162; cv=none; b=jNdZeOavzfBLq5aI01nclJAL1yYIiovG00pB/dNuQ1WShXzAfXGHCui+tB+uJ/YXoo6pzqLaotwbbA1DBduj0nxAYhIMW5srANri+VeQiJlz74fERct+ybSDoTno1/NTdnUbmycIqDm00InsKBhhCOGwWGz80JF2bRhSUeRrogI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750247005; c=relaxed/simple;
-	bh=PXzO0DqCEAMuc9okNRkK7gtwtsBXxaIQT84lVzxsHp0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gXuNVDowI2DAtbXlgFKipTdUTlPBis1azLox+AR74PiLCb2yalltfgVPPpzgle5hpG/9pBpXWkDVIGpprxG/nptByNngJZZAXb9cGgOKPLD87d++ui2tK1fXaFep6/sXLTK/violHVeQ6ln/ed2R1iDdmYAltOq5Lq2ZgHlUjgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oYfnnsCc; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1750257162; c=relaxed/simple;
+	bh=rUMIy7WMDIqMX5nqHFhcWEJhMU/5V3MUoPXR1atiSL4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RySqOiCIV4HJGcvZNi7bBmVTCs93W/c1DpILXrRaiqUrsB+Z5o7PictnvFl7MGG2VM15fn3X53y61LxcydNUlli7elGR29ulAf5M+XwdicNAmP7eaGXZKo4RQIWrKDUJwZRT+FMsipGdJ9euAA5SmOR2NeFk7I6+ethMfmN//tU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GmfhVi2h; arc=none smtp.client-ip=209.85.167.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oYfnnsCc"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55I8E5Rx019152
-	for <linux-s390@vger.kernel.org>; Wed, 18 Jun 2025 11:43:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=YGW9Z78c5ZPpYQe9xokdiYmnd8OTZD
-	C7P43P4PliJ38=; b=oYfnnsCc1yNtmyuffAXWCtv+GaVEMh9ivJH2svxFiCxhTY
-	8YZpTLGVUiT0zmozHiU4IOpEOSxvoutIZGIPipeAwAuaXGBwxXv5q6xJwSpJyDo5
-	9sQ8BEbyscH5nKD4qkBZhGZtC/e5vdrzicMTHmZLPl5NabWie4j78ZYm4Y+kqIpG
-	4vhlUs+/ZbYKomHZs/HvmfC9C/5iGM1hKrZaqcIYV9MndelbhhSFF8LgJtujTv6+
-	p5DbTzbJLkcZwYKepbCEKzeb1FhQ3EerEhX7ugINaHUc6zPwcAH3idzeGuj4Qu4j
-	h8bQweRAhNY7MD5fNhWdG5vLq2JViFgROvEN9Sgg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 478ygne8y9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 18 Jun 2025 11:43:21 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55IBhCrV026321
-	for <linux-s390@vger.kernel.org>; Wed, 18 Jun 2025 11:43:21 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 478ygne8y6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Jun 2025 11:43:21 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55I9GC3T014267;
-	Wed, 18 Jun 2025 11:43:20 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 479p42gbvc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 18 Jun 2025 11:43:20 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55IBhGLO53608884
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 18 Jun 2025 11:43:16 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C0D9720043;
-	Wed, 18 Jun 2025 11:43:16 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7B20720040;
-	Wed, 18 Jun 2025 11:43:16 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 18 Jun 2025 11:43:16 +0000 (GMT)
-Date: Wed, 18 Jun 2025 13:43:15 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        S390 ML <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH] s390/boot: use the full title of the manual for facility
- bits
-Message-ID: <aFKmUxi7d33rCvsQ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250616163248.77951-1-xose.vazquez@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GmfhVi2h"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-553bcf41440so4438392e87.3;
+        Wed, 18 Jun 2025 07:32:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750257159; x=1750861959; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ihCXHRZ1nufqzjmG/TdDihkEo5FvL+VMlNINtJVdES0=;
+        b=GmfhVi2huNFHVtMaEdi8TRMLScTcMBjWlZ/iVhiYgo7fBtupUY3VtbFelL+H0rfUFe
+         s6v+vYpRSobdxnhL67HDdOmw89NOu36tY9k5ePZ6Fj9H37hlulwBPYpNNqrRwwOrhv6d
+         q0/jZ5Qz+UpovPrKe8uut0x2wg4/lVUwokKvdpLUUNtMSGFgeSMawfsccrImMQuQYtqI
+         N76XY5GToYiC/IR6/ENsQQ/f4uWwW8Zl7GR1XvRVi+9/ZlUaquP0uXMScMWv/XDicowi
+         PfJ5GBzTyCckihP1zBlQFndga+s8Yni5N+OEnikGnAQYMXpOEKwB4fNtpo5Oe8xCeIyg
+         OJHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750257159; x=1750861959;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ihCXHRZ1nufqzjmG/TdDihkEo5FvL+VMlNINtJVdES0=;
+        b=Ddn+hX+mJeeVQgtkoWADnlsRvrJYcrpnmYYJbm6g2/LgN3KbTS++IVSwqYf1V6DSYL
+         j9cp/UuAoMcSBsmZeGUzMEMr+ZR2TlAd/XxaN+6L1t+v2ZcIgo9A/WLFLb5Q8U4KQwxw
+         bCYFAEIhcT4hN66f+BLBunGl1108cZeCfnDai+3ERT1beqlDFHnsz0xoDD9ZAS+x7pyr
+         A5ZQZP6GrKyNkRAj/6DC7fniKpIDEmZOoCDaELwtg6mLpr8SG8scNrKBw5aaQjZJmtj8
+         N+ygjKthZCl6EOmyww5p330RAgJb+1CxhxW8xkL7ikiMbMvHufwMBEm+Wu0hIcMlyeli
+         n+jg==
+X-Forwarded-Encrypted: i=1; AJvYcCVb0od7qu4hx8ksgEaKkQXYBYleqUYGO7XLxxjpXzZYK0q0Lp6vnTZOharX+fIGo20jbnV5SXV8ubJYqQ==@vger.kernel.org, AJvYcCVevqQ06+Igxa9wy8wUxpfhBVJGTa1z2TOKYmR4NY5Vj7kbPBg8tcLCMoWJLVaJAEGfc9Kj3O3nWPARuQ==@vger.kernel.org, AJvYcCVpI4wyFaY+27IYPS+EMVn8cC6ec8q/DwY8eGAurVRrbgnWO35SfJLHwkgKDuv+cFHP9mwUjkp9UpwqDgg=@vger.kernel.org, AJvYcCXEaQn4r40zauy4OU/1dThrkWlPt7OqoFZeIboomz3ugqwHrClcIOHdOiRk1dqYk+A1FSeXVZHE@vger.kernel.org
+X-Gm-Message-State: AOJu0YxqBJSv1ou9NvJ3k1ZkGLfUGfxpRyFHbInH9CEgZ4Isk5Kj02Pq
+	GImD94Xm5wXftgPAOMfOSSRg6bCQ+d5N9FshAec79U4B2VhtNktwxM56hFCcGFn3kmLteieBtTh
+	9rpwAQn7EaB/gEhTF/DgrE5topDXJDOQ=
+X-Gm-Gg: ASbGncuoKMSmYGTqGHud0K3hChy1940esGRs3V6WKzYk9VDmg4XXkrkhzTs0JbNpJzS
+	uohX1uoqodGEuFi1tu3uQgq3PjEfK1jSmh1A4tu4E+2qHG1DvaxMwmBX9F6SCRG1gX26j9KCzbI
+	jg74X6mHhOtZuNNCCunjYrAGIsqQeRoJNC1rZQ+gOdayw170Up8TCK/vJsieRr24PAbTrF9Slmv
+	ziCxg==
+X-Google-Smtp-Source: AGHT+IE9LWXuzf5K5WiugQZzr59mWmBCSO8Dngn+hDqQ+L7WD83q+dR609mZpacuubkSA72ZHmRLknqpUnl4K69yegE=
+X-Received: by 2002:a05:6512:39c3:b0:553:23f9:bb3b with SMTP id
+ 2adb3069b0e04-553b6f43089mr4423414e87.49.1750257158310; Wed, 18 Jun 2025
+ 07:32:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250616163248.77951-1-xose.vazquez@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjE4MDA5NiBTYWx0ZWRfX56u/auZ4ygLp yR1UZ+DKUSPj0yffe7zjqVWERXUvFZI68O4EA9cIokvxfmbOfnubG2ym1gBxx/kr2m+aOH7LtNs WaC41tDQXnc/zVG0DPN7kOwkYhyAxqL9sA7Up28zJvaSRhrhAL+VLi968rvKL7OkTR6ZgSSGJ9n
- fjRnWjpP7mJhZ83c5YD++uwfYlivROW0oXISgtTNsa6qgAL+c5etclMIrYHiDMof3A1kxRyQQM9 kAExPsdA0ASeQcdnsCEI0N8BWtsCsaKn+DFqNqrPvDgspRq2JNDcG0/RSs7YGYGmbzvMGQ0IMRm u5etNsn0KZUcFrmtqHOkT59JVoWIQ52Z8x+kzbJqy5bm4U2sAzUHlo8WqpO9oTPxvccKSjr0zgw
- iUbbZEwFIz6GM7pxoA/YmRr29jSp49uCJv85TYqxNLADDDjkf6LEBwzdMmwzeyQnHaF/8gv2
-X-Authority-Analysis: v=2.4 cv=fYSty1QF c=1 sm=1 tr=0 ts=6852a659 cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=7wVFnhiujdsryNmK0soA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: 5raP64lLQEUIl0ZgzRuKu2uquONEXjjO
-X-Proofpoint-GUID: 1qSYCBux1HA8B6ibM80oDTWqjp-4mPLI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-18_04,2025-06-18_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- spamscore=0 mlxlogscore=515 lowpriorityscore=0 adultscore=0 mlxscore=0
- impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506180096
+References: <20250617122512.21979-1-pranav.tyagi03@gmail.com> <20250618105039.GE1699@horms.kernel.org>
+In-Reply-To: <20250618105039.GE1699@horms.kernel.org>
+From: Pranav Tyagi <pranav.tyagi03@gmail.com>
+Date: Wed, 18 Jun 2025 20:02:26 +0530
+X-Gm-Features: Ac12FXw90DPxRpXgVMbGiXurWYc-LHuM_yqfq7DYOEEK79nbIo_aIr8UtNR_8e8
+Message-ID: <CAH4c4j+Cx3gTh0aBjBVJqvZjETR6ijphi=x1rQAy_S9fA48NJw@mail.gmail.com>
+Subject: Re: [PATCH] net/smc: replace strncpy with strscpy
+To: Simon Horman <horms@kernel.org>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com, 
+	skhan@linuxfoundation.org, linux-kernel-mentees@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 16, 2025 at 06:32:47PM +0200, Xose Vazquez Perez wrote:
-> Also indicate the name of the section where they are listed, because it has a
-> length of 2124 pages:
-> z/Architecture Principles of Operation - Facility Indications
-> 
-> The current version is: Fourteenth Edition (May, 2022) SA22-7832-13
-> 
-> Cc: Heiko Carstens <hca@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:3/4=75%,authored:2/4=50%,added_lines:8/14=57%,removed_lines:41/47=87%)
-> Cc: Vasily Gorbik <gor@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/4=25%,authored:1/4=25%,added_lines:5/14=36%,removed_lines:5/47=11%)
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/4=25%)
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com> (reviewer:S390 ARCHITECTURE)
-> Cc: Sven Schnelle <svens@linux.ibm.com> (reviewer:S390 ARCHITECTURE,commit_signer:2/4=50%)
-> Cc: S390 ML <linux-s390@vger.kernel.org> (open list:S390 ARCHITECTURE)
-> Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
-> ---
->  arch/s390/boot/als.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Wed, Jun 18, 2025 at 4:20=E2=80=AFPM Simon Horman <horms@kernel.org> wro=
+te:
+>
+> On Tue, Jun 17, 2025 at 05:55:12PM +0530, Pranav Tyagi wrote:
+> > Replace the deprecated strncpy() with strscpy() as the destination
+> > buffer should be NUL-terminated and does not require any trailing
+> > NUL-padding.
+> >
+> > Signed-off-by: Pranav Tyagi <pranav.tyagi03@gmail.com>
+> > ---
+> >  net/smc/smc_pnet.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+> > index b391c2ef463f..b70e1f3179c5 100644
+> > --- a/net/smc/smc_pnet.c
+> > +++ b/net/smc/smc_pnet.c
+> > @@ -370,7 +370,7 @@ static int smc_pnet_add_eth(struct smc_pnettable *p=
+nettable, struct net *net,
+> >               goto out_put;
+> >       new_pe->type =3D SMC_PNET_ETH;
+> >       memcpy(new_pe->pnet_name, pnet_name, SMC_MAX_PNETID_LEN);
+> > -     strncpy(new_pe->eth_name, eth_name, IFNAMSIZ);
+> > +     strscpy(new_pe->eth_name, eth_name, IFNAMSIZ);
+>
+> Hi Pranav,
+>
+> I think that because strscpy always results in a NULL terminated string
+> the length argument can be increased by one to IFNAMSIZ + 1, matching
+> the size of the destination.
+>
+> But I also think that we can handle this automatically by switching
+> to the two-argument version of strscpy() because the destination is an
+> array.
+>
+>         strscpy(new_pe->eth_name, eth_name);
+>
+> >       rc =3D -EEXIST;
+> >       new_netdev =3D true;
+> >       mutex_lock(&pnettable->lock);
+> > --
+> > 2.49.0
+> >
+>
+> --
+> pw-bot: changes-requested
 
-Reformatted the commit message and applied.
+Hi,
 
-Thanks!
+Thanks for the feedback. Apologies for the oversight.
+The size parameter should match the size of the destination.
+Anyway, I will now use the two-argument version
+send a v2.
+
+Regards
+Pranav Tyagi
