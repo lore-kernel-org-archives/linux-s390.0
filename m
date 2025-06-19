@@ -1,49 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D533B28E572;
-	Thu, 19 Jun 2025 19:22:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26C0A2980A2;
+	Thu, 19 Jun 2025 23:20:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750360931; cv=none; b=pQspgrUG3RLq/xukBMNSfU7rN2BOGBErv6hEn1BPmRE3X8UXi0lvHDXorkKYfqYHMvLyPyNBQLu3E6X7wwONINRWJYH6s0ptB1X9RePswvnpXT3qA6cZM1GFHINRWwFP2QwhJ9eRomEIvU+y3iVxVKiAynGmKrKxx4YaS7OOPJw=
+	t=1750375202; cv=none; b=Az8e9ECr9aNridRpaN1NN4NQYxXz9TSfT12iSrpkr0NmQ7RA03cGlv22vw8vqaGP4zfkiFZ3XpVQDm0hEyAf5q3eFIppgG4++1NYbY7gZVw6FTzcWQQqTSENqLIkSI9nQ50XKgfsOXnyKup5kH0xDolI57qW11fNDFnTc5uLNBk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750360931; c=relaxed/simple;
-	bh=TvyRRr0Q9p57RHCbNRzLmr80cK6DSzs3Te1JHJiic8A=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bfnEuOn0kGYIxyjs27J1SJiHzuKekYSMUCy5dhndePPRUGHgIQrW5n8F5XGpmM5MT18pVzN6TIr3dBghhG8XlXZDEnGYQ+cPBmDyQrlPdis1+taLwNF8kT3K7x3ljNBkCqSbFCybp9SzWAcggkpvu+Pk6fw48nJBGgkDdGb9qTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gsWHI6uC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1750375202; c=relaxed/simple;
+	bh=j6/M6lV5AgkmjUTUcqy+FGFH7p1rumsUY4miWwtlLPs=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=r/uQMfubWQhQfCmHpm3UhtAIiL5gLnxqZb36j+pPlv9FMykSv2YbXBK1wN99Kgs32wztmRaGIe2ZT2iIH9H6ocPt0KwDmA8MmtZr2QHAy76ddwmd3SL49cxP5pkY4GjLLCePfwI5X1t5QFiBGYYOkPa1Ziy0YSODUIcdpO/8ZtQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T26uVoHH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gsWHI6uC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7F8C4CEEA;
-	Thu, 19 Jun 2025 19:22:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T26uVoHH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F35F6C4CEF8;
+	Thu, 19 Jun 2025 23:20:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1750360930;
-	bh=TvyRRr0Q9p57RHCbNRzLmr80cK6DSzs3Te1JHJiic8A=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=gsWHI6uCzGtgTFS0+9VVGWSKxIlVRoAXr7ncQjaX5JwXgHpNeTiXfuOdhYkgBgHlJ
-	 YQL+IwHGvkSc1iwP/qogzJwScgBGmtDDqgVmXHbv1uR/qUAz+wTmjf+9RfsQ9xDMXt
-	 cx09P6ml5LT5uoXwPMu9X1MNzCP//2MHKBcUUMASgM0/fV4ggydLqclno7rm2SDVnv
-	 ONIUBY64Njs+//9An/TZjwOxs648bB/vuUO+DLFNNZV/7HJSplry+6xHCOjC37RY1I
-	 BLeB2leI6kKtRZ0xNTVxiSLCJo6HP4VbBMk/fOsC2kXM/UVnKAzfqEAO22jUF5/WYU
-	 gM0TVdi6sVQnQ==
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	"Jason A . Donenfeld " <Jason@zx2c4.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH v2 9/9] MAINTAINERS: drop arch/*/lib/crypto/ pattern
-Date: Thu, 19 Jun 2025 12:19:08 -0700
-Message-ID: <20250619191908.134235-10-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.50.0
-In-Reply-To: <20250619191908.134235-1-ebiggers@kernel.org>
-References: <20250619191908.134235-1-ebiggers@kernel.org>
+	s=k20201202; t=1750375202;
+	bh=j6/M6lV5AgkmjUTUcqy+FGFH7p1rumsUY4miWwtlLPs=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=T26uVoHHXD8fwNi39piwckyrUqyver196+QfUiG5WkoU6Grf7ri8ozUlACNwJ/0lT
+	 rfctU19R1CfkaP+hP2HmfwFMP2xyT6wqU2tlOvZnHTHcpFrGGxRyReCnVa+aeqOokZ
+	 ltEWPtHuiBOOeV19TjLle09GgB3whTkq+ziDZP4YKmSH5RXgEHMjJdGOYR0+Ooo1XK
+	 wiFC0eX+CXHpTwkANWgUdrSmxeoeZ6FXxVxb3ysUiLyyWFsNqW0in6w7WfwLElH6KL
+	 cTKckAefKJ6tvCGB59C+SKok1T/wi9alPzkK9D226L20qz2aBECf0aDr7Sdq5hD7gs
+	 L85KdEhQAwIPQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33C7E38111DD;
+	Thu, 19 Jun 2025 23:20:31 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,33 +37,43 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] net/smc: remove unused input parameters in
+ smc_buf_get_slot
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175037522974.1016629.11778548886817850645.git-patchwork-notify@kernel.org>
+Date: Thu, 19 Jun 2025 23:20:29 +0000
+References: <20250618103342.1423913-1-wangliang74@huawei.com>
+In-Reply-To: <20250618103342.1423913-1-wangliang74@huawei.com>
+To: Wang Liang <wangliang74@huawei.com>
+Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, alibuda@linux.alibaba.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ yuehaibing@huawei.com, zhangchangzhong@huawei.com,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+Hello:
 
-Since all files arch/*/lib/crypto/* have been moved into lib/crypto/,
-remove the arch/*/lib/crypto/ file pattern from MAINTAINERS.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
+On Wed, 18 Jun 2025 18:33:42 +0800 you wrote:
+> The input parameter "compressed_bufsize" of smc_buf_get_slot is unused,
+> remove it.
+> 
+> Signed-off-by: Wang Liang <wangliang74@huawei.com>
+> ---
+>  net/smc/smc_core.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a92290fffa163..8ca374b24a806 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6408,11 +6408,10 @@ M:	Jason A. Donenfeld <Jason@zx2c4.com>
- M:	Ard Biesheuvel <ardb@kernel.org>
- L:	linux-crypto@vger.kernel.org
- S:	Maintained
- T:	git https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git libcrypto-next
- T:	git https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git libcrypto-fixes
--F:	arch/*/lib/crypto/
- F:	lib/crypto/
- 
- CRYPTO SPEED TEST COMPARE
- M:	Wang Jinchao <wangjinchao@xfusion.com>
- L:	linux-crypto@vger.kernel.org
+Here is the summary with links:
+  - [net-next] net/smc: remove unused input parameters in smc_buf_get_slot
+    https://git.kernel.org/netdev/net-next/c/c3ee72ded0d2
+
+You are awesome, thank you!
 -- 
-2.50.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
