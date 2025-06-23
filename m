@@ -1,165 +1,122 @@
-Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944C129CB2B
-	for <linux-s390@vger.kernel.org>; Mon, 23 Jun 2025 17:53:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01B3C22A4CC
+	for <linux-s390@vger.kernel.org>; Mon, 23 Jun 2025 23:23:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750701229; cv=none; b=E+SQP85SqfWWT07lXbjDwkr3H5Wtfxdv/zjjn5VcacyTAM/Bn+pV7W/79Hn5/6xIstq3Oz4ZyiAQdW6ziYpv8ZL1eLyK54qUnwrLYO8tmdDiO5XqvHiVklX/yCGS7apQOCm28ngRQpt10skdnjRqmkABxvoJxbaIIv2p5UcF17s=
+	t=1750721035; cv=none; b=YFLpmUh4TfmgLr3IXSgVddapt2MW0MybIYwccj3S5fvjiDeCmxkCupSaXbkYRweHjK/mEDr4gxMPg4bxxOFgewCDfCF/WlZbOcCvYyET3PgUeGl4+hnxWnHY7EeMWPN4jx/DqkjTNvdGwoojkJ5umQTpJBXLSyPi2AaA+QIzVd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750701229; c=relaxed/simple;
-	bh=3QhJtzFP7oTRzX4HiLlB5ZhYEtFGRUp8DPuyNCN6c9E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Pbk79XTxkrDK6rFvG3zYie1jiulzqEf2O7YFrVsf84cL0EMTNFv79akSvkIo9mZEVD8zTU+D2G8ny4LQR+jXXVPR3Rgdkvdao0gOQ8Z4l6TksgWVdpTbvlrPAgYE7VqLF6Le0j69j7OhLyIr84f30Szcn1p7j0t0RBoObYJNFA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UnA1bkWZ; arc=none smtp.client-ip=209.85.166.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1750721035; c=relaxed/simple;
+	bh=vP5+0drxEJoLf9RIzIy0U7Sua2x4szgGO0Sc8NDmFPY=;
+	h=Date:Subject:In-Reply-To:CC:From:To:Message-ID:Mime-Version:
+	 Content-Type; b=ciQyUMKwPWdd9HmfgcO9DRRH0QZZ/ccsRih8df6tJqhNBKf4DFUpxlDp8zy+AnTmWnM8GoTYN5DlhFw5vLXIpAWcg0DItpMI1WdW5MRD9/oweHSY7Y9qpP2vtkTl686NgSHBR9YPQIwElnuitnNywZDHXCCZprO1pALTzKsQ/4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com; spf=pass smtp.mailfrom=dabbelt.com; dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b=JwfU6mSU; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dabbelt.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UnA1bkWZ"
-Received: by mail-il1-f171.google.com with SMTP id e9e14a558f8ab-3ddc99e0b77so22035ab.0
-        for <linux-s390@vger.kernel.org>; Mon, 23 Jun 2025 10:53:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="JwfU6mSU"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7426c44e014so4173478b3a.3
+        for <linux-s390@vger.kernel.org>; Mon, 23 Jun 2025 16:23:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1750701227; x=1751306027; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FfbdOGI6POgkEzM2U+zncQi7e79zC2DbeGl/tT1At+s=;
-        b=UnA1bkWZs7ux1gGFGMGKyrDN4QC4IGpP5cM/D7FamcDRRbfJ8U5QgtzUH0OUQ83LvL
-         3fUL5bbF/J6+RWocPnDf+yVQqy74SjHhC6YUte/j6BJ0uw8Y3tfom4cYEBWCPyCj9V5L
-         hSdiasAxgRdVIbfXZ3yoXYMnO8UV4++wbyuWC7Aycy7KHi1OlKiHos6MvjDGT4L4jtew
-         1StTDWqLpmsEsfA8ADSl6msqsySADOXdoWVWQ7J7I/yEyDeYXbMiSl99+xtb3I+Xl7ug
-         wJVjGMF0pl+AnMgrK48KSpzKozulna0fVxcCMJGYnR8wCmol5ZsQAD6aQAiVms/et9I7
-         gTmQ==
+        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1750721033; x=1751325833; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IgHNU976VfrOwOD3ulvb2vI7O/PDlbsrK2gzKqrmtPs=;
+        b=JwfU6mSUsC5mp9UqArTdPwKYB01CULbnSZqskytJbCWAESCTo/Om2jgCjth64lfuwv
+         QY7Invz4kz7w8wA1QnVhIB1zfvpsylExkZToowQleJ8Dm4S9za+I1ulsC1ujc7HOxMdm
+         PI/GC1G8svz/s7RSqbwdESd9mSbnnw3Xm3a/vhoeHo37t0BbQ9H/MEmfCNdjkgpQDLl3
+         hii2WYCXQ+CqyXjVZcLHqv2Y1qWaqjastaCfCsxwo7h8haE42j9i8BrTql/62+Ioxvyg
+         i6KLHsqDgBNx/zNymf7LTo1y4vHC4i+m5zO/CZbbM+S/spcOUl8xKixEsqk3MyZbI0e7
+         enIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750701227; x=1751306027;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FfbdOGI6POgkEzM2U+zncQi7e79zC2DbeGl/tT1At+s=;
-        b=ErBKfmT6EHgZggkccgypYQ3OGddkCuUQ9Sl5G1csMz5Ru5gV4Qj/tstHVK9YyGh7k/
-         aI7KXm1G1cfXuXSNIHIyCbgpWu69LQkevuSiUD6Kx6QzawiM2+rJzbItqrEgAmKcZawX
-         oR1cgSI9WX2aZ5on8UjlplIrmA7V+fG7aqtpIPdwe/+pTmKG2oBaNDXZ2Upy4MC39sXO
-         C7wwvGPdw0p7/fAKZ8UEmvlmZ4zU3FsBTuX/sHOaEBHs+goOyi7Q3eCgu0ecvOC8eWfy
-         iHewUIT60oEQBiMgx2Sqge79ABxlub5z/LB6BzHskuHA8BLt/oWZ3r1lZVfZd3mEtR3H
-         5K4g==
-X-Forwarded-Encrypted: i=1; AJvYcCW0MAlUiGReymfIkY1qk/5+pJ8nnxY8ZxY92aeVKSPzgppmNWbYHbnhjmtN26fm+/4t49tDP9WitLyS@vger.kernel.org
-X-Gm-Message-State: AOJu0YwosiyvkoGGCVdjp4TA/2nc7JXegWcY1lcyCxaiDV8okTRPntaa
-	Jj0BkGvUWTGK6aMaPvprtBefQ9JVVwQecp3iRnvo6esPtNAPj59OiZ/1YQiiWVWBKBef2Frnu1w
-	pntpUXUNByFe15FhI9arSJbPz9CLy9wD3j2jokwtp
-X-Gm-Gg: ASbGnctlcbV3AFohlbWGTj9hgCiO8/PyJ+XrXxlKnrlC5FuxLnpH0JDA16Fjm3x3u+m
-	E0agyyCHgcGH9QNPg5sUH1xuP7qfYCp3BroojKk/sR2M8RjSnYlVikHscU/NltHo1AUXZwhXyek
-	QlT8ZIF/y6ilZJ5CgNkrKqpNw/JhnEAvrITAas7TxSotjv2KmYXrKXwor3jhcCbnWgkJifm1Hm
-X-Google-Smtp-Source: AGHT+IG9Kq5uHE16PKPlpcy4O1JeDUSo9YlkwbbeoAcnIyRyfQbVBGQVhbRkTfyQSGrCunqluTUKIJxkTfad+mvP74E=
-X-Received: by 2002:a05:6e02:3a04:b0:3dd:d664:7e0d with SMTP id
- e9e14a558f8ab-3df0da3ce15mr5927995ab.25.1750701226425; Mon, 23 Jun 2025
- 10:53:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1750721033; x=1751325833;
+        h=content-transfer-encoding:mime-version:message-id:to:from:cc
+         :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IgHNU976VfrOwOD3ulvb2vI7O/PDlbsrK2gzKqrmtPs=;
+        b=bBDX2yZMsZ5DY8WabNhe3pJisqXWc5Df/tG53+6pIAPW8VsPJiya/rDftZ31x7N6rZ
+         pXxfhjIwrBsoBtts3W1+S6Wi/tnOJjefP9WUFf5zS325B2dnjNsISMf9VhLPIsy8QbtX
+         Q2RJmkgzB8vocM9z2Yn/LK0k9+8hJqUsrh/d5LjgL+rXcISZxiTPWljEoJHhm8693sWv
+         wFutfhBy4g1rGliV3VVG7uS3a3Z/Nvv2E1ZZzH39GUgx2xzgP7yYD7LwGj+cN/o9Cwho
+         FedW7zRrnzI3ZIwMuhFC9SJRbTN+m20EHsNeR77vIg8MZqcN+UIHTN6/qtQ6I+tIwUQz
+         XH5w==
+X-Forwarded-Encrypted: i=1; AJvYcCVackWF+pYkSVaF9Kd0fGAHN8r99WeJWlMoygcaA5sJDoqsGYjxZXqN/EqHFS49AaiSCQkKS1mHCBnR@vger.kernel.org
+X-Gm-Message-State: AOJu0YyoBHPSb90y6ymUlNByG/UlA/pjBOzp1YaUjTPhVEdEgd+roFb9
+	zy4dKIj8LsvxSsrXVmw3cjInpnLj1Ch+SmGUFzg+ghLMFDyDi02q1jZ6IswAl6ufQPY=
+X-Gm-Gg: ASbGncvtYzZmIVVcQ6iC79CMO3HnK8b+oeCR4EU4FuGs1B8nDDJLXUePc/EhzxXJw1e
+	9WRmIHxMmEi0hbAwqEUMxPHO9Sf40RB+Dua6xjkfpNiDYPISay6Aw7HXcB2UUb6oxMmJ6GOLPKy
+	DdNaODckGNVIwV0D+48ye2/MO2iss7PM89LA2pI60gbzelqyT1j2wJdpSY+QYyVOqZ1y4Xg3+05
+	fN3+G9c3KXCxmRZ06e1inARddkb/b1hOmiWX6tPyBm8/B2vKL+Shuiyx9BvKUQ/ScvhDd+SC8Ft
+	taGruSDI4Bq630zwLt0fF4vfKE8dkzJG8ubzyS7XjZCuCr4KGQfamDIEb5PJ
+X-Google-Smtp-Source: AGHT+IGv2SJju6xgRevma8Cx/i6GeIJiS1WAChIRaAqec6j+z8o+1u/uy+Lb1YfHwJThHoUvyYrxYQ==
+X-Received: by 2002:a05:6a00:3cd4:b0:748:e38d:fecc with SMTP id d2e1a72fcca58-7490d71c76amr16954440b3a.22.1750721033150;
+        Mon, 23 Jun 2025 16:23:53 -0700 (PDT)
+Received: from localhost ([2620:10d:c090:500::4:8d10])
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-749b5e211d1sm243166b3a.44.2025.06.23.16.23.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Jun 2025 16:23:52 -0700 (PDT)
+Date: Mon, 23 Jun 2025 16:23:52 -0700 (PDT)
+X-Google-Original-Date: Mon, 23 Jun 2025 16:23:50 PDT (-0700)
+Subject:     Re: [PATCH v2 5/9] lib/crypto: riscv: move arch/riscv/lib/crypto/ into lib/crypto/
+In-Reply-To: <20250619191908.134235-6-ebiggers@kernel.org>
+CC: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, Jason@zx2c4.com,
+  Ard Biesheuvel <ardb@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+  linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+  sparclinux@vger.kernel.org, x86@kernel.org
+From: Palmer Dabbelt <palmer@dabbelt.com>
+To: ebiggers@kernel.org
+Message-ID: <mhng-8FC37478-859D-40EA-A0E9-3EA86429DC53@palmerdabbelt-mac>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250623132731.899525-1-tmricht@linux.ibm.com>
-In-Reply-To: <20250623132731.899525-1-tmricht@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 23 Jun 2025 10:53:34 -0700
-X-Gm-Features: AX0GCFsCdOV-pfO9KZoCtwTrRPoKjKDvuzlbIOliBOG07bc30kwRiDQ7Fy8yOHc
-Message-ID: <CAP-5=fV_hXzq0A-91NakejcQGnvPp+uJGGe=vccwM+47JVCmtA@mail.gmail.com>
-Subject: Re: [PATCH] perf list: Add IBM z17 event descriptions
-To: Thomas Richter <tmricht@linux.ibm.com>, sumanthk@linux.ibm.com
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
-	japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jun 23, 2025 at 6:35=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
+On Thu, 19 Jun 2025 12:19:04 PDT (-0700), ebiggers@kernel.org wrote:
+> From: Eric Biggers <ebiggers@google.com>
 >
-> Update IBM z17 counter description using document SA23-2260-08:
-> "The Load-Program-Parameter and the CPU-Measurement Facilities"
-> released in May 2025 to include counter definitions for IBM z17
-> counter sets:
-> * Basic counter set
-> * Problem/user counter set
-> * Crypto counter set.
+> Move the contents of arch/riscv/lib/crypto/ into lib/crypto/riscv/.
 >
-> Use document SA23-2261-09:
-> "The CPU-Measurement Facility Extended Counters Definition
->  for z10, z196/z114, zEC12/zBC12, z13/z13s, z14, z15, z16 and z17"
-> released on April 2025 to include counter definitions for IBM z17
-> * Extended counter set
-> * MT-Diagnostic counter set.
+> The new code organization makes a lot more sense for how this code
+> actually works and is developed.  In particular, it makes it possible to
+> build each algorithm as a single module, with better inlining and dead
+> code elimination.  For a more detailed explanation, see the patchset
+> which did this for the CRC library code:
+> https://lore.kernel.org/r/20250607200454.73587-1-ebiggers@kernel.org/.
+> Also see the patchset which did this for SHA-512:
+> https://lore.kernel.org/linux-crypto/20250616014019.415791-1-ebiggers@kernel.org/
 >
-> Use document SA22-7832-14:
-> "z/Architecture Principles of Operation."
-> released in April 2025 to include counter definitions for IBM z17
-> * PAI-Crypto counter set
-> * PAI-Extention counter set.
+> This is just a preparatory commit, which does the move to get the files
+> into their new location but keeps them building the same way as before.
+> Later commits will make the actual improvements to the way the
+> arch-optimized code is integrated for each algorithm.
 >
-> Use document
-> "CPU MF Formulas and Updates April 2025"
-> released in April 2025 to include metric calculations.
->
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  arch/riscv/lib/Makefile                                         | 1 -
+>  lib/crypto/Kconfig                                              | 2 +-
+>  lib/crypto/Makefile                                             | 1 +
+>  {arch/riscv/lib/crypto => lib/crypto/riscv}/Kconfig             | 0
+>  {arch/riscv/lib/crypto => lib/crypto/riscv}/Makefile            | 0
+>  .../riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-glue.c | 0
+>  .../riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-zvkb.S | 0
+>  .../crypto/riscv}/sha256-riscv64-zvknha_or_zvknhb-zvkb.S        | 0
+>  {arch/riscv/lib/crypto => lib/crypto/riscv}/sha256.c            | 0
+>  9 files changed, 2 insertions(+), 2 deletions(-)
+>  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/Kconfig (100%)
+>  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/Makefile (100%)
+>  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-glue.c (100%)
+>  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-zvkb.S (100%)
+>  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/sha256-riscv64-zvknha_or_zvknhb-zvkb.S (100%)
+>  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/sha256.c (100%)
 
-[snip]
+I'm assuming you want to keep these all together.
 
-> +       {
-> +               "Unit": "CPU-M-CF",
-> +               "EventCode": "143",
-> +               "EventName": "L1C_TLB2_MISSES",
-> +               "BriefDescription": "L1C TLB2 Misses",
-> +               "PublicDescription": "Increments by one for any cycle whe=
-re a Level-1 cache or Level-2 TLB miss is in progress."
-> +       },
+Acked-by: Palmer Dabbelt <palmer@dabbelt.com>
 
-[snip]
-
-> +  {
-> +    "BriefDescription": "Cycles per Instructions from Finite cache/memor=
-y",
-> +    "MetricName": "finite_cpi",
-> +    "MetricExpr": "L1C_TLB2_MISSES / INSTRUCTIONS if has_event(L1C_TLB2_=
-MISSES) else 0"
-> +  },
-> +  {
-> +    "BriefDescription": "Estimated Instruction Complexity CPI infinite L=
-evel 1",
-> +    "MetricName": "est_cpi",
-> +    "MetricExpr": "(CPU_CYCLES / INSTRUCTIONS) - (L1C_TLB2_MISSES / INST=
-RUCTIONS) if has_event(INSTRUCTIONS) else 0"
-> +  },
-> +  {
-> +    "BriefDescription": "Estimated Sourcing Cycles per Level 1 Miss",
-> +    "MetricName": "scpl1m",
-> +    "MetricExpr": "L1C_TLB2_MISSES / (L1I_DIR_WRITES + L1D_DIR_WRITES) i=
-f has_event(L1C_TLB2_MISSES) else 0"
-> +  },
-
-Just a quick check. If the PMU CPU-M-CF is always present then the
-"has_event(L1C_TLB2_MISSES)" check will always be true as the event is
-in json and not in sysfs. I'm guessing this is being done for the
-benefit of hypervisors.
-
-> +  {
-> +    "BriefDescription": "Estimated TLB CPU percentage of Total CPU",
-> +    "MetricName": "tlb_percent",
-> +    "MetricExpr": "((DTLB2_MISSES + ITLB2_MISSES) / CPU_CYCLES) * (L1C_T=
-LB2_MISSES / (L1I_PENALTY_CYCLES + L1D_PENALTY_CYCLES)) * 100 if has_event(=
-CPU_CYCLES) else 0"
-> +  },
-> +  {
-> +    "BriefDescription": "Estimated Cycles per TLB Miss",
-> +    "MetricName": "tlb_miss",
-> +    "MetricExpr": "((DTLB2_MISSES + ITLB2_MISSES) / (DTLB2_WRITES + ITLB=
-2_WRITES)) * (L1C_TLB2_MISSES / (L1I_PENALTY_CYCLES + L1D_PENALTY_CYCLES)) =
-if has_event(DTLB2_MISSES) else 0"
-> +  }
-
-Similar here but with different events.
-
-Thanks,
-Ian
+Thanks!
