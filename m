@@ -1,113 +1,165 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4439A937;
-	Mon, 23 Jun 2025 15:39:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944C129CB2B
+	for <linux-s390@vger.kernel.org>; Mon, 23 Jun 2025 17:53:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750693179; cv=none; b=d+sTFV35ptfmOVX0Eo1Iq0Nv623CN3UP/Orebe0u48pkly4VMfk1kqTBNZbjBff7uIGNr+uPxFMKvIQQuEer/+UVmF/l9b9awSKVZad6n8Ba7U8R2IRo0BjTMrYON8cdUjFMRj3LGGe+3jyALdi4As6y7nTDtg6PqlBGaODICtc=
+	t=1750701229; cv=none; b=E+SQP85SqfWWT07lXbjDwkr3H5Wtfxdv/zjjn5VcacyTAM/Bn+pV7W/79Hn5/6xIstq3Oz4ZyiAQdW6ziYpv8ZL1eLyK54qUnwrLYO8tmdDiO5XqvHiVklX/yCGS7apQOCm28ngRQpt10skdnjRqmkABxvoJxbaIIv2p5UcF17s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750693179; c=relaxed/simple;
-	bh=Agb4s8yFfOc4EUdCKON5wzhzGt5/IWxyJQUTOetmPeo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XRKevVU8uy2nUOMqvtACupBAxTdmcoMoJ6PeYkeg3FGkb/lZiDtBGnx+aye5LOAXuVsuLJjEcJet8kwq7scN4iUWDMvCKe7Aye8SSLAL+Fuf7i6o/hwsFdvhTX5EWZAGKy0O3RFUmedllZhyYViNdm9s0H72Kq1To+eCR09gQak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GjiKbONO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1750701229; c=relaxed/simple;
+	bh=3QhJtzFP7oTRzX4HiLlB5ZhYEtFGRUp8DPuyNCN6c9E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Pbk79XTxkrDK6rFvG3zYie1jiulzqEf2O7YFrVsf84cL0EMTNFv79akSvkIo9mZEVD8zTU+D2G8ny4LQR+jXXVPR3Rgdkvdao0gOQ8Z4l6TksgWVdpTbvlrPAgYE7VqLF6Le0j69j7OhLyIr84f30Szcn1p7j0t0RBoObYJNFA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=UnA1bkWZ; arc=none smtp.client-ip=209.85.166.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GjiKbONO"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55NAI8jL031109;
-	Mon, 23 Jun 2025 15:39:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Nx/ahc6Pz+bp64mF9iOFx7uxMl9Opg
-	Y/wT7kWk7dD5g=; b=GjiKbONOG49OGAfgywyQNLj2Zg493IF5aqFeLu9vn0O5rT
-	QImKIQPYIwLpEm7E+fdVV1B6iZie+8OmHz2Ez9jnE59aKWAgF57w7V2YRsEA0ZSM
-	atzf/TjxosG2aT/omXqEOQfCZpR2wMkWkueBmrah65Bk2vNz9kK6IgJeLBczg/i4
-	fkaIOL2yPG+ac4kRoHOzoZQr0HJX3JCdsCZ7KuLQ0ubizreI5bj6NcOSOdnsNUKF
-	tsNLZe85K6mVSLvOK07lWJmm0V0Uo4A0beTlnQY3iH//iOL6+Usc6pXM7fj3SUVN
-	IL9IEJytnLLjD16btBBV3EypWFDkIAGl4sLgAtnw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dm8j340q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Jun 2025 15:39:35 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55NEvPU1004643;
-	Mon, 23 Jun 2025 15:39:34 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 47e99kf9uv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 23 Jun 2025 15:39:34 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55NFdUkd19071366
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 23 Jun 2025 15:39:30 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BA7482004E;
-	Mon, 23 Jun 2025 15:39:30 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7F4242004B;
-	Mon, 23 Jun 2025 15:39:30 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.155.204.135])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 23 Jun 2025 15:39:30 +0000 (GMT)
-Date: Mon, 23 Jun 2025 17:39:29 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Petr Pavlu <petr.pavlu@suse.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/boot: Use -D__DISABLE_EXPORTS
-Message-ID: <aFl1MU8RBymnFTso@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-References: <20250620154649.116068-1-petr.pavlu@suse.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="UnA1bkWZ"
+Received: by mail-il1-f171.google.com with SMTP id e9e14a558f8ab-3ddc99e0b77so22035ab.0
+        for <linux-s390@vger.kernel.org>; Mon, 23 Jun 2025 10:53:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1750701227; x=1751306027; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FfbdOGI6POgkEzM2U+zncQi7e79zC2DbeGl/tT1At+s=;
+        b=UnA1bkWZs7ux1gGFGMGKyrDN4QC4IGpP5cM/D7FamcDRRbfJ8U5QgtzUH0OUQ83LvL
+         3fUL5bbF/J6+RWocPnDf+yVQqy74SjHhC6YUte/j6BJ0uw8Y3tfom4cYEBWCPyCj9V5L
+         hSdiasAxgRdVIbfXZ3yoXYMnO8UV4++wbyuWC7Aycy7KHi1OlKiHos6MvjDGT4L4jtew
+         1StTDWqLpmsEsfA8ADSl6msqsySADOXdoWVWQ7J7I/yEyDeYXbMiSl99+xtb3I+Xl7ug
+         wJVjGMF0pl+AnMgrK48KSpzKozulna0fVxcCMJGYnR8wCmol5ZsQAD6aQAiVms/et9I7
+         gTmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750701227; x=1751306027;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FfbdOGI6POgkEzM2U+zncQi7e79zC2DbeGl/tT1At+s=;
+        b=ErBKfmT6EHgZggkccgypYQ3OGddkCuUQ9Sl5G1csMz5Ru5gV4Qj/tstHVK9YyGh7k/
+         aI7KXm1G1cfXuXSNIHIyCbgpWu69LQkevuSiUD6Kx6QzawiM2+rJzbItqrEgAmKcZawX
+         oR1cgSI9WX2aZ5on8UjlplIrmA7V+fG7aqtpIPdwe/+pTmKG2oBaNDXZ2Upy4MC39sXO
+         C7wwvGPdw0p7/fAKZ8UEmvlmZ4zU3FsBTuX/sHOaEBHs+goOyi7Q3eCgu0ecvOC8eWfy
+         iHewUIT60oEQBiMgx2Sqge79ABxlub5z/LB6BzHskuHA8BLt/oWZ3r1lZVfZd3mEtR3H
+         5K4g==
+X-Forwarded-Encrypted: i=1; AJvYcCW0MAlUiGReymfIkY1qk/5+pJ8nnxY8ZxY92aeVKSPzgppmNWbYHbnhjmtN26fm+/4t49tDP9WitLyS@vger.kernel.org
+X-Gm-Message-State: AOJu0YwosiyvkoGGCVdjp4TA/2nc7JXegWcY1lcyCxaiDV8okTRPntaa
+	Jj0BkGvUWTGK6aMaPvprtBefQ9JVVwQecp3iRnvo6esPtNAPj59OiZ/1YQiiWVWBKBef2Frnu1w
+	pntpUXUNByFe15FhI9arSJbPz9CLy9wD3j2jokwtp
+X-Gm-Gg: ASbGnctlcbV3AFohlbWGTj9hgCiO8/PyJ+XrXxlKnrlC5FuxLnpH0JDA16Fjm3x3u+m
+	E0agyyCHgcGH9QNPg5sUH1xuP7qfYCp3BroojKk/sR2M8RjSnYlVikHscU/NltHo1AUXZwhXyek
+	QlT8ZIF/y6ilZJ5CgNkrKqpNw/JhnEAvrITAas7TxSotjv2KmYXrKXwor3jhcCbnWgkJifm1Hm
+X-Google-Smtp-Source: AGHT+IG9Kq5uHE16PKPlpcy4O1JeDUSo9YlkwbbeoAcnIyRyfQbVBGQVhbRkTfyQSGrCunqluTUKIJxkTfad+mvP74E=
+X-Received: by 2002:a05:6e02:3a04:b0:3dd:d664:7e0d with SMTP id
+ e9e14a558f8ab-3df0da3ce15mr5927995ab.25.1750701226425; Mon, 23 Jun 2025
+ 10:53:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250620154649.116068-1-petr.pavlu@suse.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjIzMDA5MiBTYWx0ZWRfX/HtxD0ioiQMp ZSpEYx2AC8dcppBmNtgjAmxCkBhPUgEygpMxKlAg4dMcpM73qYBq846HK8Zyt3kmIs3ggcsGcbu 4JaqX/GrFo/w3QLqOvwajX69m7YDjvfcNWS9pDU5frQIRBxwOrGt+HHav5ldhtNX0lteF3/OlfO
- 6IZilBXhb/GyXHFM+Hc8a5N9cZfu6hRLAbI4cl3Ha28SS7e1PSaOZqxUtkCwBVkg3d8C9ifF/5R pAMqFhlvmXaH1RXx9Tu3TnjqaEDgiFzPeLh32zSrrj5dFy8TwBpx2ty609ZpiXsTVuL7iqnWla7 P/9q1yU+dozMoyiZsMTVbmA/5sJyG6chQ3xJwiCVw8Gw5xv7pGyVfuN/VE39HlqQZE9dnUZHnV0
- nA5gU1U0wXxUJxpRD86E4TEdkF3Dr+OoY6/3K65tEPfNM1S/JV2HbTp7w6YPWxT0cgMuBbhI
-X-Proofpoint-GUID: c_v-99qjdliSBGbtzNcGCrE35ZVuGdom
-X-Proofpoint-ORIG-GUID: c_v-99qjdliSBGbtzNcGCrE35ZVuGdom
-X-Authority-Analysis: v=2.4 cv=combk04i c=1 sm=1 tr=0 ts=68597537 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=iox4zFpeAAAA:8 a=Qwefet294171jl4ETmQA:9 a=CjuIK1q_8ugA:10
- a=WzC6qhA0u3u7Ye7llzcV:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-06-23_04,2025-06-23_06,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 spamscore=0 adultscore=0 mlxlogscore=699 clxscore=1011
- impostorscore=0 suspectscore=0 mlxscore=0 phishscore=0 lowpriorityscore=0
- bulkscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506230092
+References: <20250623132731.899525-1-tmricht@linux.ibm.com>
+In-Reply-To: <20250623132731.899525-1-tmricht@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 23 Jun 2025 10:53:34 -0700
+X-Gm-Features: AX0GCFsCdOV-pfO9KZoCtwTrRPoKjKDvuzlbIOliBOG07bc30kwRiDQ7Fy8yOHc
+Message-ID: <CAP-5=fV_hXzq0A-91NakejcQGnvPp+uJGGe=vccwM+47JVCmtA@mail.gmail.com>
+Subject: Re: [PATCH] perf list: Add IBM z17 event descriptions
+To: Thomas Richter <tmricht@linux.ibm.com>, sumanthk@linux.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
+	agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com, 
+	japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 20, 2025 at 05:45:49PM +0200, Petr Pavlu wrote:
-> Files in the arch/s390/boot directory reuse logic from the rest of the
-> kernel by including certain C and assembly files from the kernel and lib
-> directories. Some of these included files contain EXPORT_SYMBOL directives.
-> For instance, arch/s390/boot/cmdline.c includes lib/cmdline.c, which
-> exports the get_option() function.
-> 
-> This inclusion triggers genksyms processing for the files in
-> arch/s390/boot, which is unnecessary and slows down the build.
-> Additionally, when KBUILD_SYMTYPES=1 is set, the generated symtypes data
-> contain exported symbols that are duplicated with the main kernel. This
-> duplication can confuse external kABI tools that process the symtypes data.
-> 
-> Address this issue by compiling the files in arch/s390/boot with
-> -D__DISABLE_EXPORTS.
-> 
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-> ---
->  arch/s390/boot/Makefile | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On Mon, Jun 23, 2025 at 6:35=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
+>
+> Update IBM z17 counter description using document SA23-2260-08:
+> "The Load-Program-Parameter and the CPU-Measurement Facilities"
+> released in May 2025 to include counter definitions for IBM z17
+> counter sets:
+> * Basic counter set
+> * Problem/user counter set
+> * Crypto counter set.
+>
+> Use document SA23-2261-09:
+> "The CPU-Measurement Facility Extended Counters Definition
+>  for z10, z196/z114, zEC12/zBC12, z13/z13s, z14, z15, z16 and z17"
+> released on April 2025 to include counter definitions for IBM z17
+> * Extended counter set
+> * MT-Diagnostic counter set.
+>
+> Use document SA22-7832-14:
+> "z/Architecture Principles of Operation."
+> released in April 2025 to include counter definitions for IBM z17
+> * PAI-Crypto counter set
+> * PAI-Extention counter set.
+>
+> Use document
+> "CPU MF Formulas and Updates April 2025"
+> released in April 2025 to include metric calculations.
+>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 
-Applied, thanks!
+[snip]
+
+> +       {
+> +               "Unit": "CPU-M-CF",
+> +               "EventCode": "143",
+> +               "EventName": "L1C_TLB2_MISSES",
+> +               "BriefDescription": "L1C TLB2 Misses",
+> +               "PublicDescription": "Increments by one for any cycle whe=
+re a Level-1 cache or Level-2 TLB miss is in progress."
+> +       },
+
+[snip]
+
+> +  {
+> +    "BriefDescription": "Cycles per Instructions from Finite cache/memor=
+y",
+> +    "MetricName": "finite_cpi",
+> +    "MetricExpr": "L1C_TLB2_MISSES / INSTRUCTIONS if has_event(L1C_TLB2_=
+MISSES) else 0"
+> +  },
+> +  {
+> +    "BriefDescription": "Estimated Instruction Complexity CPI infinite L=
+evel 1",
+> +    "MetricName": "est_cpi",
+> +    "MetricExpr": "(CPU_CYCLES / INSTRUCTIONS) - (L1C_TLB2_MISSES / INST=
+RUCTIONS) if has_event(INSTRUCTIONS) else 0"
+> +  },
+> +  {
+> +    "BriefDescription": "Estimated Sourcing Cycles per Level 1 Miss",
+> +    "MetricName": "scpl1m",
+> +    "MetricExpr": "L1C_TLB2_MISSES / (L1I_DIR_WRITES + L1D_DIR_WRITES) i=
+f has_event(L1C_TLB2_MISSES) else 0"
+> +  },
+
+Just a quick check. If the PMU CPU-M-CF is always present then the
+"has_event(L1C_TLB2_MISSES)" check will always be true as the event is
+in json and not in sysfs. I'm guessing this is being done for the
+benefit of hypervisors.
+
+> +  {
+> +    "BriefDescription": "Estimated TLB CPU percentage of Total CPU",
+> +    "MetricName": "tlb_percent",
+> +    "MetricExpr": "((DTLB2_MISSES + ITLB2_MISSES) / CPU_CYCLES) * (L1C_T=
+LB2_MISSES / (L1I_PENALTY_CYCLES + L1D_PENALTY_CYCLES)) * 100 if has_event(=
+CPU_CYCLES) else 0"
+> +  },
+> +  {
+> +    "BriefDescription": "Estimated Cycles per TLB Miss",
+> +    "MetricName": "tlb_miss",
+> +    "MetricExpr": "((DTLB2_MISSES + ITLB2_MISSES) / (DTLB2_WRITES + ITLB=
+2_WRITES)) * (L1C_TLB2_MISSES / (L1I_PENALTY_CYCLES + L1D_PENALTY_CYCLES)) =
+if has_event(DTLB2_MISSES) else 0"
+> +  }
+
+Similar here but with different events.
+
+Thanks,
+Ian
