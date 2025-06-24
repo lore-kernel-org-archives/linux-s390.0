@@ -1,80 +1,99 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CDD4136E;
-	Tue, 24 Jun 2025 00:09:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B360C5680;
+	Tue, 24 Jun 2025 02:45:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750723794; cv=none; b=KfUMdK1b5mUi0slIx+tDBUrGjip3Ev4YqSXoxdHQKCM0+aUtn3/8VCrUec7AmUHhAmT1uEEba4lOCrFLKG3Viz8vmgd/4j92lxvHa7p9RqMzXP8k7QeA8YuQIcMvHPgEkWHr35roJn5k9X1E8ofmOGZhJHdnGHIegORscLbx59k=
+	t=1750733126; cv=none; b=VRxxo0bU9d0Gokl7uAlC+errRDMAJ0gesTcqTawHlsHoiEzd+pFY4Gq/7qVhifNWQcJ4bSpsC/USC5FLQoG1gWE0ZGb4rVrR+cCUgTap9MW/Urg7pqQ0p1ko7T0Pz4DvaynKxyGWVMOYE3sOIy467Qo7QVvfoyxuyhLMdfA5is0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750723794; c=relaxed/simple;
-	bh=j11/ciCuhRoDr2ClyRyAZr7gXWei/2uKPJ+siviuBqM=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=fFJ0e6sZzN1VPIcnaw5oDpZiagELPUqSKVd7FHkGXdrzzLJ1OB9oTST6eG9M1l79sx9HCZbcJ6yvQ75PYdw3CuO2bTrsd7p62UgdqcosuGp2Qb4oXPMMv+ixCbnzYzPsxsws2npO7L90OsLGlWuE0je677WoTAlpwHDxNNs+0iQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=An/Cht6b; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1750733126; c=relaxed/simple;
+	bh=wvw4KZrFb3bDpFyljDt13+2hzP7dlyNidFKreU0+rGc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gu8f9Q8i/M/GAZWaVSE0YpW3E2uFmKFLptD4TXdoEnla8Vnl2ZsWRcJ38dPmIL8pnWqoqPi7XSWM1EB7cqH8YMQKZWOCTBispOVZDtYgm7jI8JM5MLgxDeUXXOomh9oUU8LRA2eOU61l9RhIpFF5fYQL1v5PfVRr2RtwoBs2nLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oIipPcPU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="An/Cht6b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6225C4CEEA;
-	Tue, 24 Jun 2025 00:09:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oIipPcPU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A0AC4CEEA;
+	Tue, 24 Jun 2025 02:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1750723793;
-	bh=j11/ciCuhRoDr2ClyRyAZr7gXWei/2uKPJ+siviuBqM=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=An/Cht6bS1Pt763i9NNU03BuRs6LDxXt9gT8VM+wUt1KEzKXELHUs89EXh3im7JQ9
-	 TygkS+UoGuMqnQN38Rns+vUyOBNlpIJGsmLyzcPUUGGgGO0R/MNspcOR1uXZng1xG6
-	 M1TK+waHji8meIdA0bvPzRXbvlic9Dao9dWfbyPe9mjK+xkt+36YrT53pB+CAJh3L9
-	 r7xbcJGafVGoiHc0UYWziwqU+Vz9txXCsPW5Cy5GrRlLTYSer3gs6ghU5uHrkj3c8/
-	 ua8/83fCKq8vBl7GlzArBMUNOPsBeZJLZCVMjkhsBwLcrlwwFS+LI1+bazc249BIzW
-	 sQ4fu36e1K/2Q==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB3FB39FEB7D;
-	Tue, 24 Jun 2025 00:10:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1750733126;
+	bh=wvw4KZrFb3bDpFyljDt13+2hzP7dlyNidFKreU0+rGc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=oIipPcPUENDbB1DVaM2klpFxZLymtMC1278ktKPXQMNZt41mnhj+ZJexStFH5JK2u
+	 nFXCl0kaNRAtFSccN6WfWV998QOsGwbB+qf9yeRG2pfUiPe5aPfG7a5fiaJzXH3RE/
+	 FIJSmpv+ncH9OqsDWsdaTgdlboVcC2ABX1ghnprIEbIl3QAUqvV2QqsDjZ1079FYkn
+	 jPt0nzSxpOunutckTus8H/G0ofSpk6ztujnJoy+KSEri/GKc+oFI2MLNBYknXyAgdT
+	 3HUYlPxE9SjpaR0UWveXbgSzRwttALUuqVwFQiG2HmGYrj+2QgHF3a3xvoxS0gN2+S
+	 O5Eof0eJUCorA==
+Date: Mon, 23 Jun 2025 19:44:51 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jason@zx2c4.com, Ard Biesheuvel <ardb@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+	x86@kernel.org
+Subject: Re: [PATCH v2 5/9] lib/crypto: riscv: move arch/riscv/lib/crypto/
+ into lib/crypto/
+Message-ID: <20250624024451.GA7127@sol>
+References: <20250619191908.134235-6-ebiggers@kernel.org>
+ <mhng-8FC37478-859D-40EA-A0E9-3EA86429DC53@palmerdabbelt-mac>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2] net/smc: replace strncpy with strscpy
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175072382074.3339593.8252198682877965206.git-patchwork-notify@kernel.org>
-Date: Tue, 24 Jun 2025 00:10:20 +0000
-References: <20250620102559.6365-1-pranav.tyagi03@gmail.com>
-In-Reply-To: <20250620102559.6365-1-pranav.tyagi03@gmail.com>
-To: Pranav Tyagi <pranav.tyagi03@gmail.com>
-Cc: wenjia@linux.ibm.com, jaka@linux.ibm.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- horms@kernel.org, skhan@linuxfoundation.org,
- linux-kernel-mentees@lists.linux.dev
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <mhng-8FC37478-859D-40EA-A0E9-3EA86429DC53@palmerdabbelt-mac>
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Fri, 20 Jun 2025 15:55:59 +0530 you wrote:
-> Replace the deprecated strncpy() with two-argument version of
-> strscpy() as the destination is an array
-> and should be NUL-terminated.
+On Mon, Jun 23, 2025 at 04:23:52PM -0700, Palmer Dabbelt wrote:
+> On Thu, 19 Jun 2025 12:19:04 PDT (-0700), ebiggers@kernel.org wrote:
+> > From: Eric Biggers <ebiggers@google.com>
+> > 
+> > Move the contents of arch/riscv/lib/crypto/ into lib/crypto/riscv/.
+> > 
+> > The new code organization makes a lot more sense for how this code
+> > actually works and is developed.  In particular, it makes it possible to
+> > build each algorithm as a single module, with better inlining and dead
+> > code elimination.  For a more detailed explanation, see the patchset
+> > which did this for the CRC library code:
+> > https://lore.kernel.org/r/20250607200454.73587-1-ebiggers@kernel.org/.
+> > Also see the patchset which did this for SHA-512:
+> > https://lore.kernel.org/linux-crypto/20250616014019.415791-1-ebiggers@kernel.org/
+> > 
+> > This is just a preparatory commit, which does the move to get the files
+> > into their new location but keeps them building the same way as before.
+> > Later commits will make the actual improvements to the way the
+> > arch-optimized code is integrated for each algorithm.
+> > 
+> > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > ---
+> >  arch/riscv/lib/Makefile                                         | 1 -
+> >  lib/crypto/Kconfig                                              | 2 +-
+> >  lib/crypto/Makefile                                             | 1 +
+> >  {arch/riscv/lib/crypto => lib/crypto/riscv}/Kconfig             | 0
+> >  {arch/riscv/lib/crypto => lib/crypto/riscv}/Makefile            | 0
+> >  .../riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-glue.c | 0
+> >  .../riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-zvkb.S | 0
+> >  .../crypto/riscv}/sha256-riscv64-zvknha_or_zvknhb-zvkb.S        | 0
+> >  {arch/riscv/lib/crypto => lib/crypto/riscv}/sha256.c            | 0
+> >  9 files changed, 2 insertions(+), 2 deletions(-)
+> >  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/Kconfig (100%)
+> >  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/Makefile (100%)
+> >  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-glue.c (100%)
+> >  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/chacha-riscv64-zvkb.S (100%)
+> >  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/sha256-riscv64-zvknha_or_zvknhb-zvkb.S (100%)
+> >  rename {arch/riscv/lib/crypto => lib/crypto/riscv}/sha256.c (100%)
 > 
-> Signed-off-by: Pranav Tyagi <pranav.tyagi03@gmail.com>
-> ---
->  net/smc/smc_pnet.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I'm assuming you want to keep these all together.
+> 
+> Acked-by: Palmer Dabbelt <palmer@dabbelt.com>
+> 
 
-Here is the summary with links:
-  - [v2] net/smc: replace strncpy with strscpy
-    https://git.kernel.org/netdev/net-next/c/ae2402bf882b
+Yes, I'm taking this series through libcrypto-next.  Thanks!
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+- Eric
