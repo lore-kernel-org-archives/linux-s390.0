@@ -1,184 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2472AD58;
-	Wed, 25 Jun 2025 01:09:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D417A33E1;
+	Wed, 25 Jun 2025 04:50:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750813757; cv=none; b=YfbjfnCbhUHL5kQrj8xgS5x0DIyWhhVbGI2r48aDF1QWXvRfaBJLE0qhdJIHzpY1Ica2isWjyiCNOUxbTdtAAdFoXfyg8LqaCiQdSc/pwwiJQ2W/L19BiKYTUQYfqH3hOo0TL2nci6Wwv+KMH2xdNSelMezmrMaAo7jMYJNd1Gc=
+	t=1750827043; cv=none; b=TJ5lY8EC2DqzQTTdk6qEuCfGX05gtIPCcdr7hJN9xYcg+qj5Zay7P5gzecTJ80qKk6/SPhWk1vrITqPfuinck0mQF/cJa9cvwIHgKCF8NEQN7ivaULy/TSVT3dP7y/MiMo2ZVdRaCyj5H2MQs9r9k8w0HUUDQEf70oIuPe7rVtI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750813757; c=relaxed/simple;
-	bh=ar+M7uOS6NGMBXnGsSfhmdY2/NIrFzzFwB2vQ2UdzzU=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=Lqkw544z7nEnHYzbIOoMDtLajewAAV6RVrA7tDGQIOxWtcHK+kuLIn2j5w49sDUwlY2fCCaAkXRrufDWM5+1fUlgrmkCoJAkav6C/qgM142QAEVwLSQ9P9He8RAMJBXXqkUtLot5U/m+ZfFjCq/TFqEb325RvAZrTecsNXhdw7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=si3Mv9bY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1750827043; c=relaxed/simple;
+	bh=aqc+gMpA1+DN/Tgx5x6Ya26P2nW7j0pFtfe7QzjlQQk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V6IfYiDwZT7jnf4ih/woS9aUpPMlt4OtA5/H2Zd7FIONLehDIDMyhnB6oBn2d+rrDyNXf6z25dKVUHZopnLLJ68/HUj2OWSQit0emwPw77D0iacSFzuMjLfwlzOXG3wFTxW6W2HdmgEhvOr1k8lC5vixFXJFCJfE6rLvXF1LTNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MUEcDAHu; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="si3Mv9bY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F5E3C4CEE3;
-	Wed, 25 Jun 2025 01:09:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1750813756;
-	bh=ar+M7uOS6NGMBXnGsSfhmdY2/NIrFzzFwB2vQ2UdzzU=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=si3Mv9bYY/8kBwTkVAcQqZoJK6oPCfQbERzoeHQNnnjouaaju9cDPj5M/XH+LGCGf
-	 sutZ2TLPTDRMtEiUcTLAfcucjlB1tBOK027s1ZYe+qpQm8YtBXVVCggwf2H8yIixe+
-	 IDVtaRLnE7OYk8omFmO1wVvMArdpG+qU6ghcCXqwDH3eSeR/zt8PJr47crwpodU4K/
-	 +SdYth5GpIqN7Rkz05vHh/vtCMrcnD2wmTD+63kR8qXgeUEYggdfeNmyLdKPgxxZY0
-	 Z7hF7LuReE6Xw0PlrdhJ4M022p1QhH6fci9WuRh8Uql2D6xK1hPUmyC7uoJ+Q8UvXd
-	 gbu4rtou3gcJw==
-Date: Tue, 24 Jun 2025 18:09:18 -0700
-From: Kees Cook <kees@kernel.org>
-To: Huacai Chen <chenhuacai@kernel.org>
-CC: Arnd Bergmann <arnd@arndb.de>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Gleixner <tglx@linutronix.de>,
- Tianyang Zhang <zhangtianyang@loongson.cn>, Bibo Mao <maobibo@loongson.cn>,
- Jiaxun Yang <jiaxun.yang@flygoat.com>, loongarch@lists.linux.dev,
- "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Christoph Hellwig <hch@lst.de>, Marco Elver <elver@google.com>,
- Andrey Konovalov <andreyknvl@gmail.com>,
- Andrey Ryabinin <ryabinin.a.a@gmail.com>, Ard Biesheuvel <ardb@kernel.org>,
- Masahiro Yamada <masahiroy@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>,
- Nicolas Schier <nicolas.schier@linux.dev>,
- Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
- linux-kernel@vger.kernel.org, x86@kernel.org, kasan-dev@googlegroups.com,
- linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- kvmarm@lists.linux.dev, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-efi@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-kselftest@vger.kernel.org,
- sparclinux@vger.kernel.org, llvm@lists.linux.dev
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v2_10/14=5D_loongarch=3A_Han?=
- =?US-ASCII?Q?dle_KCOV_=5F=5Finit_vs_inline_mismatches?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <CAAhV-H5oHPG+etNawAmVwyDtg80iKUrAM_m3Vj57bBO0scHqvQ@mail.gmail.com>
-References: <20250523043251.it.550-kees@kernel.org> <20250523043935.2009972-10-kees@kernel.org> <CAAhV-H4WxAwXTYVFOnphgHN80-_6jt77YZ_rw-sOBoBjjiN-yQ@mail.gmail.com> <CAAhV-H5oHPG+etNawAmVwyDtg80iKUrAM_m3Vj57bBO0scHqvQ@mail.gmail.com>
-Message-ID: <B5A11282-CB0E-46E0-A5D7-EF4D8BFC23B4@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MUEcDAHu"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55OHo9tt012444;
+	Wed, 25 Jun 2025 04:50:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Gl2wiN
+	HMAFt67+IRnkJBFBrLINO7jV0ZGXoIV4h5SFU=; b=MUEcDAHuC94c2fXhhbmN97
+	JURgjCfOSkUbzfvC1w2la5J8rRXPPDQdJcpEmCNaP3elTN9tFIjRqcZc55REMEYP
+	YALjywxZ5JHsvi2ID6ckDd1g9RqE+q+QSPFOR4HNJK2J2TnOXW9gKH0O3mBeL1fN
+	mp6vvGwYl5HdOVC7Nr1rm0mddT/AzVbpQXIG28P0p54XjD5D8sOsj/SaFYe85yGg
+	roSXuQ5Ax3pId9vV/VPKaBAq3RGKqFtpPWwO1jLjd93cZmCvJwjtZ/oR32FpIvg9
+	fDXEkNMBUSsHsvtj/CxUzlzIqyzdIHlATBvqEkTSOj1mI+GnRtSR9Zyi/9AP2udw
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmfed3h3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Jun 2025 04:50:27 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55P4d2Fi006952;
+	Wed, 25 Jun 2025 04:50:26 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmfed3gu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Jun 2025 04:50:26 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55P1lQfN006497;
+	Wed, 25 Jun 2025 04:50:25 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e82p7kpm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Jun 2025 04:50:25 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55P4oNet24511216
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Jun 2025 04:50:24 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BF6D55805C;
+	Wed, 25 Jun 2025 04:50:23 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1BE0F58058;
+	Wed, 25 Jun 2025 04:50:18 +0000 (GMT)
+Received: from [9.109.246.12] (unknown [9.109.246.12])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 25 Jun 2025 04:50:17 +0000 (GMT)
+Message-ID: <f2e3188b-02b4-4e23-8910-a180661dccba@linux.ibm.com>
+Date: Wed, 25 Jun 2025 10:20:16 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] MAINTAINERS: update smc section
+To: Jan Karcher <jaka@linux.ibm.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter
+ <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Halil Pasic
+ <pasic@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>
+References: <20250623085053.10312-1-jaka@linux.ibm.com>
+Content-Language: en-US
+From: Sidraya Jayagond <sidraya@linux.ibm.com>
+In-Reply-To: <20250623085053.10312-1-jaka@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: bWdCRdCC0O040g0SDJB3bfhSIJ2cT4os
+X-Proofpoint-GUID: JqIB68JLk1AU1IpRxK_2PzTWzGThMiH4
+X-Authority-Analysis: v=2.4 cv=BpqdwZX5 c=1 sm=1 tr=0 ts=685b8013 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=SRrdq9N9AAAA:8 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=ThVKj-xsHEq-ROeZF2sA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI1MDAzNCBTYWx0ZWRfX+hXs07Y7fe72 HfrsRPeqB7/JzSAepNkvavzObo0PXhUaDCkbTBmUtYsPS1NHpkweAJWC+dWTK9l91INc3ZzfPx2 tdbaqk3BqggyCMCwV8UTS5NZbE5JQLHKRzjJyeTIzCG2qVwJNb09ggAOOwUs9rK24AnseHtM/8/
+ fPSKtz48LwjbhnmoVbAcRhRy5gi0Fvl4uWPMXuPxrDDiYmeGNnPkpuj66yZYUu2GiC8lX5MzqwJ NgOWvkZvtszSQ6PZ+HCDbkXqFhU5OoRPpWwgDjgqC+jnb//21O3wWXq/FdThJYnMt+QKWtd8EBh UOvNJSG8dMFQbsWbMIRd5E9SLKYy22DBB7sFEgBJS5JU7PKm6Nf+YTO/nDj0ICtTcIol0cmVFVO
+ mjuZiJiVcONKcCcbRDQrT/5kwPAWGrDM8Ggmv65wu8TU4AewxTkLL/+h8TN4G1M+zU2BwuWL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-06-25_01,2025-06-23_07,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ impostorscore=0 clxscore=1011 spamscore=0 mlxlogscore=999
+ priorityscore=1501 phishscore=0 malwarescore=0 adultscore=0 bulkscore=0
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506250034
 
 
 
-On June 24, 2025 5:31:12 AM PDT, Huacai Chen <chenhuacai@kernel=2Eorg> wro=
-te:
->Hi, Kees,
->
->On Thu, Jun 19, 2025 at 4:55=E2=80=AFPM Huacai Chen <chenhuacai@kernel=2E=
-org> wrote:
->>
->> Hi, Kees,
->>
->> On Fri, May 23, 2025 at 12:39=E2=80=AFPM Kees Cook <kees@kernel=2Eorg> =
-wrote:
->> >
->> > When KCOV is enabled all functions get instrumented, unless
->> > the __no_sanitize_coverage attribute is used=2E To prepare for
->> > __no_sanitize_coverage being applied to __init functions, we have to
->> > handle differences in how GCC's inline optimizations get resolved=2E =
-For
->> > loongarch this exposed several places where __init annotations were
->> > missing but ended up being "accidentally correct"=2E Fix these cases =
-and
->> > force one function to be inline with __always_inline=2E
->> >
->> > Signed-off-by: Kees Cook <kees@kernel=2Eorg>
->> > ---
->> > Cc: Huacai Chen <chenhuacai@kernel=2Eorg>
->> > Cc: WANG Xuerui <kernel@xen0n=2Ename>
->> > Cc: Thomas Gleixner <tglx@linutronix=2Ede>
->> > Cc: Tianyang Zhang <zhangtianyang@loongson=2Ecn>
->> > Cc: Bibo Mao <maobibo@loongson=2Ecn>
->> > Cc: Jiaxun Yang <jiaxun=2Eyang@flygoat=2Ecom>
->> > Cc: <loongarch@lists=2Elinux=2Edev>
->> > ---
->> >  arch/loongarch/include/asm/smp=2Eh | 2 +-
->> >  arch/loongarch/kernel/time=2Ec     | 2 +-
->> >  arch/loongarch/mm/ioremap=2Ec      | 4 ++--
->> >  3 files changed, 4 insertions(+), 4 deletions(-)
->> >
->> > diff --git a/arch/loongarch/include/asm/smp=2Eh b/arch/loongarch/incl=
-ude/asm/smp=2Eh
->> > index ad0bd234a0f1=2E=2E88e19d8a11f4 100644
->> > --- a/arch/loongarch/include/asm/smp=2Eh
->> > +++ b/arch/loongarch/include/asm/smp=2Eh
->> > @@ -39,7 +39,7 @@ int loongson_cpu_disable(void);
->> >  void loongson_cpu_die(unsigned int cpu);
->> >  #endif
->> >
->> > -static inline void plat_smp_setup(void)
->> > +static __always_inline void plat_smp_setup(void)
->> Similar to x86 and arm, I prefer to mark it as __init rather than
->> __always_inline=2E
->If you have no objections, I will apply this patch with the above modific=
-ation=2E
+On 23/06/25 2:20 pm, Jan Karcher wrote:
+> Due to changes of my responsibilities within IBM i
+> can no longer act as maintainer for smc.
+> 
+> As a result of the co-operation with Alibaba over
+> the last years we decided to, once more, give them
+> more responsibility for smc by appointing
+> D. Wythe <alibuda@linux.alibaba.com> and
+> Dust Li <dust.li@linux.alibaba.com>
+> as maintainers as well.
+> 
+> Within IBM Sidraya Jayagond <sidraya@linux.ibm.com>
+> and Mahanta Jambigi <mjambigi@linux.ibm.com>
+> are going to take over the maintainership for smc.
+> 
+Hi Jan,
 
-That's fine by me; thank you! I didn't have a chance yet to verify that it=
- actually fixes the mismatches I saw, but if it looks good to you, yes plea=
-se=2E :)
+I would like to extend my sincere thanks to Jan Karcher
+for his long-standing and dedicated
+efforts in maintaining the SMC code.
+Jan's contributions have been instrumental in driving
+its stability and adoption. Contributors from Alibaba
+have also been actively engaged in the development
+of SMC over the past years. We look forward to working
+closely with them and the wider community to continue
+evolving SMC in the upstream kernel.
 
--Kees
+Best regards,
+Sidraya
+> Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
+> ---
+>   MAINTAINERS | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index a92290fffa16..88837e298d9f 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -22550,9 +22550,11 @@ S:	Maintained
+>   F:	drivers/misc/sgi-xp/
+>   
+>   SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
+> +M:	D. Wythe <alibuda@linux.alibaba.com>
+> +M:	Dust Li <dust.li@linux.alibaba.com>
+> +M:	Mahanta Jambigi <mjambigi@linux.ibm.com>
+> +M:	Sidraya Jayagond <sidraya@linux.ibm.com>
+>   M:	Wenjia Zhang <wenjia@linux.ibm.com>
+> -M:	Jan Karcher <jaka@linux.ibm.com>
+> -R:	D. Wythe <alibuda@linux.alibaba.com>
+>   R:	Tony Lu <tonylu@linux.alibaba.com>
+>   R:	Wen Gu <guwen@linux.alibaba.com>
+>   L:	linux-rdma@vger.kernel.org
 
->
->
->Huacai
->
->>
->> Huacai
->>
->> >  {
->> >         loongson_smp_setup();
->> >  }
->> > diff --git a/arch/loongarch/kernel/time=2Ec b/arch/loongarch/kernel/t=
-ime=2Ec
->> > index bc75a3a69fc8=2E=2E367906b10f81 100644
->> > --- a/arch/loongarch/kernel/time=2Ec
->> > +++ b/arch/loongarch/kernel/time=2Ec
->> > @@ -102,7 +102,7 @@ static int constant_timer_next_event(unsigned lon=
-g delta, struct clock_event_dev
->> >         return 0;
->> >  }
->> >
->> > -static unsigned long __init get_loops_per_jiffy(void)
->> > +static unsigned long get_loops_per_jiffy(void)
->> >  {
->> >         unsigned long lpj =3D (unsigned long)const_clock_freq;
->> >
->> > diff --git a/arch/loongarch/mm/ioremap=2Ec b/arch/loongarch/mm/iorema=
-p=2Ec
->> > index 70ca73019811=2E=2Edf949a3d0f34 100644
->> > --- a/arch/loongarch/mm/ioremap=2Ec
->> > +++ b/arch/loongarch/mm/ioremap=2Ec
->> > @@ -16,12 +16,12 @@ void __init early_iounmap(void __iomem *addr, uns=
-igned long size)
->> >
->> >  }
->> >
->> > -void *early_memremap_ro(resource_size_t phys_addr, unsigned long siz=
-e)
->> > +void * __init early_memremap_ro(resource_size_t phys_addr, unsigned =
-long size)
->> >  {
->> >         return early_memremap(phys_addr, size);
->> >  }
->> >
->> > -void *early_memremap_prot(resource_size_t phys_addr, unsigned long s=
-ize,
->> > +void * __init early_memremap_prot(resource_size_t phys_addr, unsigne=
-d long size,
->> >                     unsigned long prot_val)
->> >  {
->> >         return early_memremap(phys_addr, size);
->> > --
->> > 2=2E34=2E1
->> >
-
---=20
-Kees Cook
