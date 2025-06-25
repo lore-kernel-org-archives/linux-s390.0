@@ -1,95 +1,111 @@
-Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 803CE25BF19;
-	Wed, 25 Jun 2025 12:24:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 259FA260567;
+	Wed, 25 Jun 2025 12:45:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750854264; cv=none; b=kXc9irVM6NKaS+UkxUZOw06xSql4osFQYkXL2csha/Ifc7/hP7VsT1OqgNq7aHpCZoXAfO3fbOSfjQrkrP4lhI3NbOW45ISXiKZC6YnfRmkt0XE+M4bD2Q/Hs4Ac86k0asJANDwOWsLVlZ3ocxYrKZVWj+3Ry5c3VdLEUUa/iEY=
+	t=1750855555; cv=none; b=MrsMlEuMqMhKY4xv3gZ0A7pcLP6iyP2RansTSmJZe4HGEeFHWZ1MXy6AS+hvWFMHTlsNA6qg5JPWglSz4Pz/XZNjAzrniG+01CUNTX5gLvESmII6KcWMNYtzIjsjFT9VomTIPiA+eYjMpa2I6SWF0dfWQ2BW9YCkL0OZ828hMSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750854264; c=relaxed/simple;
-	bh=SJ5NkjC+cOiMPwKXMdsR+3xgXJFhGnL3/wL1U2zUcWg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=CbwLjtuX35yZQLJ6KpL4NsHxJzIMsBmMQO+VDJf6YjJft4xC18ofFqeNPGZq1j2q3Ts12JJT6Gml37+aG6TX7aOXJR1o3D1vQy6Utnmcs6tGbMLx0Mhoej561Sk6o/5G+q2PnbYlJaQYcIaDrY7bXKu0IAnNYs7/nRcyr2uh+sw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=deQNk4HU; arc=none smtp.client-ip=168.119.38.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sipsolutions.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
+	s=arc-20240116; t=1750855555; c=relaxed/simple;
+	bh=aeUHbst5u6uAyR1ycfeU07wkwThxzbqj2XsMrc/HWnM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TGDQx2s8o9U76ExiU6VyG4ZZ/cbOsppqhBEuD7JFrq4CktUDlsK8bPIdiSIkD25KKgbQ/glJj7uzEyBFumesZ3FAvJwNDrBeVMBw+fdrbTEXf7wJ+VZC0nyW+JWXSQGN2HarWoxYjCz4ScX8LQl2STr01DU9+Ik94MlyyyGgzdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xax0JKeS; arc=none smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="deQNk4HU"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-	Resent-Cc:Resent-Message-ID; bh=SJ5NkjC+cOiMPwKXMdsR+3xgXJFhGnL3/wL1U2zUcWg=;
-	t=1750854263; x=1752063863; b=deQNk4HU4w9n6Q8YM9nROna5D6UmUkojSYkeC7SyJS9vG2k
-	m5YaFzxq+paAWGwrpk0U0BrBUtLZpwVtrXmOqmQz51P3vib/jGV2ZFInyuQOO9FgwS3hMDpVgDDwb
-	wYRiDsDXzQXlaxHt8zYDGpEeiow5sPWKHgQYmRA3Cl4CCSGWzwa+h+R2XuhElJNpcUtFA89xYiyUj
-	50DNayGV1i57mfzR1A4uQulxN4Wc45SczI2y4vEHTCuHxEjAckeXEGFgXkjIDF3cDYxjKqAyscjJs
-	GDOvT2np43KU62jyCcgbth7wtOb8uRYRhtVsO+kwjUkpkCSUyb20jLbplEDuPvYg==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.98.2)
-	(envelope-from <johannes@sipsolutions.net>)
-	id 1uUPAV-00000009xvR-1M4X;
-	Wed, 25 Jun 2025 14:23:59 +0200
-Message-ID: <81a8b60be5b99ecd9b322d188738016376aff4aa.camel@sipsolutions.net>
-Subject: Re: [PATCH 2/9] kasan: replace kasan_arch_is_ready with
- kasan_enabled
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>, Sabyrzhan Tasbolatov	
- <snovitoll@gmail.com>, ryabinin.a.a@gmail.com, glider@google.com, 
-	andreyknvl@gmail.com, dvyukov@google.com, vincenzo.frascino@arm.com, 
-	catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
- kernel@xen0n.name, 	maddy@linux.ibm.com, mpe@ellerman.id.au,
- npiggin@gmail.com, hca@linux.ibm.com, 	gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 	svens@linux.ibm.com,
- richard@nod.at, anton.ivanov@cambridgegreys.com, 
-	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
- hpa@zytor.com, 	chris@zankel.net, jcmvbkbc@gmail.com,
- akpm@linux-foundation.org
-Cc: guoweikang.kernel@gmail.com, geert@linux-m68k.org, rppt@kernel.org, 
-	tiwei.btw@antgroup.com, richard.weiyang@gmail.com, benjamin.berg@intel.com,
- 	kevin.brodsky@arm.com, kasan-dev@googlegroups.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
-Date: Wed, 25 Jun 2025 14:23:57 +0200
-In-Reply-To: <750b6617-7abf-4adc-b3e6-6194ff10c547@csgroup.eu>
-References: <20250625095224.118679-1-snovitoll@gmail.com>
-	 <20250625095224.118679-3-snovitoll@gmail.com>
-	 <750b6617-7abf-4adc-b3e6-6194ff10c547@csgroup.eu>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-1.fc42) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xax0JKeS"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-553b60de463so7105732e87.3;
+        Wed, 25 Jun 2025 05:45:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750855552; x=1751460352; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aeUHbst5u6uAyR1ycfeU07wkwThxzbqj2XsMrc/HWnM=;
+        b=Xax0JKeSGxE88hvWuvO4lIYb8pAGDKfLqzOC0P0PiKgL2F+Y2ki6OIrpxKIm1fgw0c
+         QfApuUagqZVw4U+Gjl8KfpFIEl1175lSXz8fzqHzdPjesJz+Si+0ukTTbM1dpoZurvyl
+         0kRdv7ewfOltY0o9ntH6xoLjLRjrd/0LoSKhK4DaEeaw1KvSB1DLiU5hp/yT7jylDxVE
+         oETJU0GbSQv2dHLrJg5AHXqDLwbQZodyk4nNGEfJh2c+rckpS2hEWfVkV9VeHzEKivKK
+         fSVK96iH0ksFSHeRwIh/dAidfmX0nE5jWvh2OtYvHLsbw6KgJ0vYtT6BrEVLenDN0mpe
+         UK2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750855552; x=1751460352;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aeUHbst5u6uAyR1ycfeU07wkwThxzbqj2XsMrc/HWnM=;
+        b=t5GV5d5C2J4YQKdwZqwqY5EDr5y2A+lhEfTShIKBwNvgbtAjx7SK8NNckLj5UsyUys
+         HrTYFCBkGQpM5RInCyEqvenboQO8RFXWcCJoVFYnkwuMciAr/YDlF4neVNnOdiWkE7oz
+         GjGkTtabxvstOZzlfaobEl8sGvUbefbAkwvuGIejzS7TnY6zfc38OVx+Qn1IPMziYIUy
+         Y3015kiLVk7u3pMANyL41TawrZ8RYydMLbi+HA/b8/qEF+OqubRDB9Ve9tZ5R0vXH7a4
+         juQPtuKUWZyRJTsmOkctYA5nJKpWYRF9vpyzbFpa86YaSe5XcTAt9ogAJp6COWUiDaFT
+         hbhA==
+X-Forwarded-Encrypted: i=1; AJvYcCUIuuhqOrmX3o6Unw90y0knmN7gdlLwLp6uxr0P1E0IafShYWs8S9LQuBGXyg8EKupoLM5tNzW8Mn/c5A==@vger.kernel.org, AJvYcCWvQPyntQ6SZH0DHarNCMs2dTdi9Tm8rhrpKaai/+ksRPEqadPw2L6kJ6+3CEHJGiL3mfLc+TY5bm+xVls=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzc4Gc0cRezlo0DZCWppEnYkRohKIs3KyL3PjV+/rxX7aP2RyOz
+	kPjF4ufKDMAH0/3Y63ap3oif1Y99Nbx7F1/qgIOkeoGEwCYCDcTHUZgQUPj/dW00ccilShstBuE
+	LGvDxRaZa7HO7rcYLIxPCjOS1XaCNZV8=
+X-Gm-Gg: ASbGncsdyrI3LiW/kswrSBNp7zWzQAzSf2IRvc5pazhNYOAKV9Rc9FZTeuQpFKYTav/
+	qjGk27Odf80Tx+mMlFWAg+uEi5rWOfuQ+RY3xn20FsOMx6Slp8ihHlNCFrh6XwrCSQ6gbIEo0jJ
+	lEh8+9e95I4dQX9lxuarMH5ZZgr+c99ysUQT3WCj4ALA==
+X-Google-Smtp-Source: AGHT+IGd+VQCTiJwy9G1ykD/0Nzx0GAzsfPqUCVqghBLVmwOBzPwEbsyyeyH2J2LllM1nMa0CK079KR9Ekpv1ITEkm8=
+X-Received: by 2002:a05:6512:1591:b0:553:abe6:e3e7 with SMTP id
+ 2adb3069b0e04-554fdf5cefbmr869898e87.47.1750855551832; Wed, 25 Jun 2025
+ 05:45:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
+References: <20250625095224.118679-1-snovitoll@gmail.com> <20250625095224.118679-10-snovitoll@gmail.com>
+ <4d568111-9615-4fba-884a-f2ae629776fe@csgroup.eu>
+In-Reply-To: <4d568111-9615-4fba-884a-f2ae629776fe@csgroup.eu>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Date: Wed, 25 Jun 2025 17:45:34 +0500
+X-Gm-Features: Ac12FXyn774raFC9M0P_m_Yp5o7tYNYYaJPlJbUzpj4u5O7z5JIOhc_ux4m2QSg
+Message-ID: <CACzwLxgVj3YD5faPj=09Z9e4WSEe-sD7Sqn4jhaT7eiePaUUMw@mail.gmail.com>
+Subject: Re: [PATCH 9/9] kasan/powerpc: call kasan_init_generic in kasan_init
+To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: ryabinin.a.a@gmail.com, glider@google.com, andreyknvl@gmail.com, 
+	dvyukov@google.com, vincenzo.frascino@arm.com, catalin.marinas@arm.com, 
+	will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name, 
+	maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, hca@linux.ibm.com, 
+	gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 
+	svens@linux.ibm.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 
+	johannes@sipsolutions.net, dave.hansen@linux.intel.com, luto@kernel.org, 
+	peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	x86@kernel.org, hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com, 
+	akpm@linux-foundation.org, guoweikang.kernel@gmail.com, geert@linux-m68k.org, 
+	rppt@kernel.org, tiwei.btw@antgroup.com, richard.weiyang@gmail.com, 
+	benjamin.berg@intel.com, kevin.brodsky@arm.com, kasan-dev@googlegroups.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2025-06-25 at 12:27 +0200, Christophe Leroy wrote:
->=20
-> Le 25/06/2025 =C3=A0 11:52, Sabyrzhan Tasbolatov a =C3=A9crit=C2=A0:
-> > Replace the existing kasan_arch_is_ready() calls with kasan_enabled().
-> > Drop checks where the caller is already under kasan_enabled() condition=
-.
->=20
-> If I understand correctly, it means that KASAN won't work anymore=20
-> between patch 2 and 9, because until the arch calls kasan_init_generic()=
-=20
-> kasan_enabled() will return false.
->=20
-> The transition should be smooth and your series should remain bisectable.
->=20
-> Or am I missing something ?
->=20
+On Wed, Jun 25, 2025 at 3:33=E2=80=AFPM Christophe Leroy
+<christophe.leroy@csgroup.eu> wrote:
+>
+>
+>
+> Le 25/06/2025 =C3=A0 11:52, Sabyrzhan Tasbolatov a =C3=A9crit :
+> > Call kasan_init_generic() which enables the static flag
+> > to mark generic KASAN initialized, otherwise it's an inline stub.
+> > Also prints the banner from the single place.
+>
+> What about:
+>
+> arch/powerpc/mm/kasan/init_32.c:void __init kasan_init(void)
+> arch/powerpc/mm/kasan/init_book3e_64.c:void __init kasan_init(void)
 
-Seems right to me, it won't work for architectures that define
-kasan_arch_is_ready themselves I think?
+Thanks, I've missed them. Will add in v2.
+I've also found out that I've missed:
+arch/arm/mm/kasan_init.c
+arch/riscv/mm/kasan_init.c
 
-But since they have to literally #define it, could #ifdef on that
-temporarily?
-
-johannes
+>
+> Christophe
+>
