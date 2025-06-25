@@ -1,63 +1,63 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C728B2877F8;
-	Wed, 25 Jun 2025 09:53:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C379E29AAF9;
+	Wed, 25 Jun 2025 09:53:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750845220; cv=none; b=YrWx11fNOTmv5ixXPWmXinj5GB1XMitTduxo98jS9Wu5POUZU95Q/lfuF7Iu8m8+oh4G/KBq/4Jo6CXVaEH+MwfICyY8TuwfEc6isCTmWYCGZHWWsjvO6CNq7LR2dAQW7bPw6xPYN7rl02vZrBbnRoS7m/mQXM4HJb7y/MXlvvs=
+	t=1750845222; cv=none; b=SDR3/2xz9+v94zloCRKQt270DSZdDBuCvm2yZzyl3kPAc8rzv7DoZbDkUKMLwtObob04oUStdcbvYmQpWxFWwq9SDfWN+aLoe9CDAXnrtFgqhTsgeMS/HpsdkHbhiOoN+CVpxJhLKoA1YxDWz+DmnS+8TO3SDZ2vAU9DAxtON44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750845220; c=relaxed/simple;
-	bh=9TRhdQ972K330SQZmWrhzPzVpDmeg4Vy1yztZoga44U=;
+	s=arc-20240116; t=1750845222; c=relaxed/simple;
+	bh=LmYJYUckHoTag0ZtlFjSwbcxbgwbsaAwVj2xOxG+evk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=YPn/VzhqvxoUSAlYU0z/PtIHfrsd/A1NnlkmqSZzCEHYgHwR6vKYg9cITHOYLUO8UheCAqFfCd5zhyRgjqBd/UfhnL6wDLit6+MHocnyXyOEXnboW4caxUFLH62nktzq10eZtRdXDD45RtRYbOSCiuhZiIKd1PgvBwJt/nPhNqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jprfp27f; arc=none smtp.client-ip=209.85.208.181
+	 MIME-Version; b=hapfW0nU6aEs368bBwv7dRQddPm2tv+SoDgv1fs5XzUos+N41ejeQlowhT4Klim07rKEqUjHCP+8hZc7T9gr0dT0sEDzP8JkU5iIexwqW6iTnsEKgMu6/Jnt+Cv3yyj+9HajzWUB+k0i581jRFjlquF1+dKGhNSnfsEfT6x+zpM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FBtzcsaM; arc=none smtp.client-ip=209.85.167.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jprfp27f"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-32b78b5aa39so65438521fa.1;
-        Wed, 25 Jun 2025 02:53:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FBtzcsaM"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-55220699ba8so6788084e87.2;
+        Wed, 25 Jun 2025 02:53:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750845214; x=1751450014; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750845219; x=1751450019; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BEyx1UFRvpVo+G4N42POvQdsD1hWzSpAcJ0U0Tlc1dQ=;
-        b=Jprfp27fzlQQT7CxVTX+Od8aXOtzPsyzUnDT8NtfibwdVJ704rr6nflSkeizla1+fJ
-         /Atj9QQ+AePV403dtsztyiyenRxawn0vcggHFpvoDsKNBUMByVAk/7oE674M22+looRV
-         c9z0F060eOWrcPIQzajNtZGQ7vSU0EWKNw0m1UwPUnM8p5VSyixwbia+UQHLRTuC+t1m
-         hUuDA9nZ891C2a5SadY7gWMxE+LFeQ4UG6Of+51YCDWDORYYmhjA9Ufbjupu/y2BHiNe
-         vHT6xo2y+jRI+bi0I6mBAewDL6uXicOh45fW1dCHHxZTA+zuIC1iZxl6dBXaLya+g7ze
-         EFqw==
+        bh=ovwzGubQ7EZCWb++7xcfiusg6EJnFDR8lh6aTJ/PpoI=;
+        b=FBtzcsaMQxL3WLlGLt37z4YqhrUYrO9rgGb+KjekWJY0rLDpE9F+DoLtqIPWB85MsO
+         3xxDVbAhZbfj52FVsT3+k49xBqoLcRAOm/zBAN5hjUNipJNL3qxGoq+Czg4iDR/owykd
+         LlvkLX9sUphLpIFFIu5l4Q0IWJ8b8OLFgEi+Us+MvmsGXkygkOC7YOIeKhd1Zs5xwuj9
+         +yJy3h66WJtt8Y/pxbHqK080pqeifDvLR+xovdVQuqogi6SZkA7O8SyMu8UAdzD01XdV
+         Qqx6i6kZ3q1fwWKwGTmJcNFhwcg31ruOPLolnSZKyvQ3jhFXsjamFM5HFHOdMvnbczTF
+         8rtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750845214; x=1751450014;
+        d=1e100.net; s=20230601; t=1750845219; x=1751450019;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BEyx1UFRvpVo+G4N42POvQdsD1hWzSpAcJ0U0Tlc1dQ=;
-        b=lmwl6pXA8OEmXVK2A5JUVjbofgxfC13XPzA39byhyvcsHq8v7O9/I6atwXvRGcUPD8
-         iEJWhnhqzz3F2QjtiTcJfLqQMCxENMNo/9BWfd+g433dkvAhZq45/Jcmf05HWn1EMZsV
-         OEz5g59xyicqx1cAFFSeiFogqwYwqbAwOXemKH6fAK0pQMYRWn7FW5/5xX4GVxUPaPi0
-         n9m15gmEt2UR9HFrW93iQvHKdqluW14IsuJJzPvA/p4APKDEbuChb8ZBhpwa0nVotJfd
-         KriAXgBjvIYlAm3rUHonskeZHGjhNjJMAgOoA7woCJASLUbjD0y4js2CLlsZNLxwWsJD
-         46dA==
-X-Forwarded-Encrypted: i=1; AJvYcCWjxQo5W+ifcaSjKMu8Z7SRtNoNCRkAnTXEcKexw8pf8rikD/YnWmDk2R5Dr4vINO1G5l8/bHKqLDwovO4=@vger.kernel.org, AJvYcCXNSsUby5IcUtsREV1RTiba45UwvVHnqSHf2XytpCi+Z40oYjEpZr6/EpxpcKZPI8Xik3fX/5J8oGBMLQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzjz3oICco50rAqU+BpRqeGQnl2FQ6eN52RGk3PSenchDPt99kA
-	Lt3DQRQ1yMyjYZyCZYPG8bQBVCVwPq4UD62Rns88bt+ksk28Bet3+Ye0
-X-Gm-Gg: ASbGncvVi4QEmdy/7SXs+1zybuFECBnJZXd8izkZ/o0moYWVsrdQIKX4K7sYC0KlC54
-	XHPVK5x3H8Co0x7BNqx8q5kvmd371oN48eeHL54lpzOVxtqO6JDUBixLuMDNjyGMTjUY6+TZZ84
-	wPZEXpJpPgFLERlOUHhVO5bMHsCPuLkMBDIkz7+7h6XevtDmDoocoopY9XbeLd02n+CVIfklXuS
-	ngoKm4T6rbGyfXZO+x6Otv7K5Q9dNkz12YsY+PPBF1P7Cuvb7rTxQQDU2Q099l5wqkeZTnBwWMj
-	0TYR3CU8MMhsVTqUWgoVevnjMugWPB6vzJMNB4pBkmzcCJl1Rzk3Jq7cfja4DIYd0OEduv2o6gx
-	/T4rgAOgBmhhu/rF/UBCfJ8DoICttmg==
-X-Google-Smtp-Source: AGHT+IEcjLY1beu9wht7welDNsEE9aAi3GLekIAB8d1qrA4KC0EwxtCdVmkKJY06lTM1Yl9RfqTm0Q==
-X-Received: by 2002:a05:651c:514:b0:32b:3c94:992d with SMTP id 38308e7fff4ca-32cc65755dbmr8009981fa.28.1750845213516;
-        Wed, 25 Jun 2025 02:53:33 -0700 (PDT)
+        bh=ovwzGubQ7EZCWb++7xcfiusg6EJnFDR8lh6aTJ/PpoI=;
+        b=id2JLI/8RUzc4xkjEwMM9j+1+6WHzTuArcDiBfVf/unBm1lD7oX5L7finsXfHV3Lds
+         y6QzmwI6nP2MYWXWYOdQCYG/1g3LHgF+KaD2QdOwvdilYske3iqSeV9EChv7V3wZ9624
+         ywmNAxJHQdymj0CnuaphUltih3kC3MgjHgMJ0xpd9AwrREj7dESfCPswvooa7syOFZeU
+         deBtDphXKYa2mm4mGksPobHziP2Fg3sl4SWQOr+DV2CdrOX1a0yuqiTWhxsdUYhaDqU9
+         Op0aJHHTMQxq/G0tOXuU7IVSYhzOBmYQX8McDVYact+09kgNSzX351PxDHd494CZIlmc
+         S0mA==
+X-Forwarded-Encrypted: i=1; AJvYcCUW0FvbM/p4ucjVyBapvHQutDP6IpEhMz/dIDlDMu4D0anG+m11ExPHYhXNz0eszE0zsAzqgENeX5SExg==@vger.kernel.org, AJvYcCWXTcKiLNSNHZinCbzKkXnqkEJSAeNOtYdfRxk9V3Duh+VucV/hwoiysHwtrOGbOew15Txvn5sHaVzZELk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxUnGcWst5cFKo6VtkX20aMBfORe+2owj286TDY+Rx4QHX4B/5q
+	HGLK40kZo+orMsw5+yGMxdxw6ijqO00lCDdG/xhawPkLc8SeimzeDiF6
+X-Gm-Gg: ASbGncscigSCrfwz+BAcH/ehDzlX12jfsuRIvpU68OZK1bA7lizj9zLCn3Wu3s1jvGq
+	61DO2G70YiUkBroSE+VOt5ppc/+btx9pJ2We0yf83UIduLXBcFWecbIs6a7u+qc172pfXl9bNks
+	AgZXjwTQX/wi8Je6yh7OHSmgNC8lwVodx8LrEcIZnJGLOAW7yUc6WZvGYqma6cR0BmSrt8kdy2f
+	t83fgsdhLWM+oYb82fwTTu/85Z1CzJ1qceupGQolNYPAdnGO3j0bAP7fRNXidJdch1mzsfPIDu+
+	ndAuIcIK+HSG8MMm7U+hL0MDgq89TcSKSzSl0LiPaZzF7UqFZHMCyZgxsLTHIqLzNXaoTvOpUbG
+	XEb47fsZzAz5l3UX9Lva0s7+Lnb12og==
+X-Google-Smtp-Source: AGHT+IHEtWnCbJrLGTsCzIsOmvfz7XrCUuinYoJ1YMkmnRrIevIL2qUouOt7T42E5UqDFgQKhJfguA==
+X-Received: by 2002:a05:6512:3dab:b0:553:26f6:bbfd with SMTP id 2adb3069b0e04-554fdce00cdmr639671e87.8.1750845218713;
+        Wed, 25 Jun 2025 02:53:38 -0700 (PDT)
 Received: from localhost.localdomain (2.135.54.165.dynamic.telecom.kz. [2.135.54.165])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-32b980a36c0sm19311851fa.62.2025.06.25.02.53.28
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-32b980a36c0sm19311851fa.62.2025.06.25.02.53.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Jun 2025 02:53:33 -0700 (PDT)
+        Wed, 25 Jun 2025 02:53:38 -0700 (PDT)
 From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 To: ryabinin.a.a@gmail.com,
 	glider@google.com,
@@ -107,9 +107,9 @@ Cc: guoweikang.kernel@gmail.com,
 	linux-um@lists.infradead.org,
 	linux-mm@kvack.org,
 	snovitoll@gmail.com
-Subject: [PATCH 8/9] kasan/s390: call kasan_init_generic in kasan_init
-Date: Wed, 25 Jun 2025 14:52:23 +0500
-Message-Id: <20250625095224.118679-9-snovitoll@gmail.com>
+Subject: [PATCH 9/9] kasan/powerpc: call kasan_init_generic in kasan_init
+Date: Wed, 25 Jun 2025 14:52:24 +0500
+Message-Id: <20250625095224.118679-10-snovitoll@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250625095224.118679-1-snovitoll@gmail.com>
 References: <20250625095224.118679-1-snovitoll@gmail.com>
@@ -126,24 +126,64 @@ to mark generic KASAN initialized, otherwise it's an inline stub.
 Also prints the banner from the single place.
 
 Closes: https://bugzilla.kernel.org/show_bug.cgi?id=218315
+Fixes: 55d77bae7342 ("kasan: fix Oops due to missing calls to kasan_arch_is_ready()")
 Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 ---
- arch/s390/kernel/early.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/kasan.h       | 14 --------------
+ arch/powerpc/mm/kasan/init_book3s_64.c |  6 +-----
+ 2 files changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index 54cf0923050..da7a13d9ab7 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -65,7 +65,7 @@ static void __init kasan_early_init(void)
- {
- #ifdef CONFIG_KASAN
- 	init_task.kasan_depth = 0;
--	pr_info("KernelAddressSanitizer initialized\n");
-+	kasan_init_generic();
+diff --git a/arch/powerpc/include/asm/kasan.h b/arch/powerpc/include/asm/kasan.h
+index b5bbb94c51f..23a06fbec72 100644
+--- a/arch/powerpc/include/asm/kasan.h
++++ b/arch/powerpc/include/asm/kasan.h
+@@ -52,20 +52,6 @@
+ 
  #endif
+ 
+-#ifdef CONFIG_KASAN
+-#ifdef CONFIG_PPC_BOOK3S_64
+-DECLARE_STATIC_KEY_FALSE(powerpc_kasan_enabled_key);
+-
+-static __always_inline bool kasan_arch_is_ready(void)
+-{
+-	if (static_branch_likely(&powerpc_kasan_enabled_key))
+-		return true;
+-	return false;
+-}
+-
+-#define kasan_arch_is_ready kasan_arch_is_ready
+-#endif
+-
+ void kasan_early_init(void);
+ void kasan_mmu_init(void);
+ void kasan_init(void);
+diff --git a/arch/powerpc/mm/kasan/init_book3s_64.c b/arch/powerpc/mm/kasan/init_book3s_64.c
+index 7d959544c07..dcafa641804 100644
+--- a/arch/powerpc/mm/kasan/init_book3s_64.c
++++ b/arch/powerpc/mm/kasan/init_book3s_64.c
+@@ -19,8 +19,6 @@
+ #include <linux/memblock.h>
+ #include <asm/pgalloc.h>
+ 
+-DEFINE_STATIC_KEY_FALSE(powerpc_kasan_enabled_key);
+-
+ static void __init kasan_init_phys_region(void *start, void *end)
+ {
+ 	unsigned long k_start, k_end, k_cur;
+@@ -92,11 +90,9 @@ void __init kasan_init(void)
+ 	 */
+ 	memset(kasan_early_shadow_page, 0, PAGE_SIZE);
+ 
+-	static_branch_inc(&powerpc_kasan_enabled_key);
+-
+ 	/* Enable error messages */
+ 	init_task.kasan_depth = 0;
+-	pr_info("KASAN init done\n");
++	kasan_init_generic();
  }
  
+ void __init kasan_early_init(void) { }
 -- 
 2.34.1
 
