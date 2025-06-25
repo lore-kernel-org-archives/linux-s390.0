@@ -1,105 +1,228 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2BED2BD011;
-	Wed, 25 Jun 2025 09:32:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7155284686;
+	Wed, 25 Jun 2025 09:52:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750843922; cv=none; b=Fyh6J+PwYKPH4w37DwHQkycGMfWyD3ig1VFMUga5quLPscbdf/4sQt03qK0d9DHy7b34Q/96eOiumNPjlwUYGn/rYQBNgR460Rb+JiQIJpSD71jXfldNr9JccivV5zCZFw8gd1lpK+hV2MM+UlKtlm77rvnOZV0krsBu86puw1g=
+	t=1750845166; cv=none; b=JOI6A18xKYgvTMSHQzV8oZF9im//kZ05pt9VSVt9ImuLaFakF5BR5vXswve9NHUDFVJaOoftYYrOelwRGL2FP3Li5pRMN1TdCxWStqBWNKXFQ1CurLgNyC0akNcmc3yNECR2y8RRCb5lJBP8GQXAJzgq9mCBNfKQjPw28eRLwWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750843922; c=relaxed/simple;
-	bh=8WdkpHh9ihGxDLz1l3NF+mD7rcsSpB/4RzlTSLNQQgg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WZTt6EMRuKnMEomNtaIdE4pxvHpyrOmHoA9wxjvMaseXL7ht0zNPT26iuX1u9br+eLNSVVPa5MuXXg9NzzBoRgDCQOBLmO4pqTE4QERcRs5gOgd7cdExQsEmZvCdcsRhN5ykUu7fH0L9bvfVt5EN/QtNLJcXK1Eiv0VPoZt+MIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oYb6ahlJ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1750845166; c=relaxed/simple;
+	bh=ayHAWnJ4zAM8Uxay2AHX7vMtSuGiCPetlz8IAlBI+nE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=gMr05xZzJ4znndR6/QbHygZj+1K4MMeAjAwAmwKuyn+H0dpE6r8QqTTjtAYnx71spijlObcGDajArdPrfZLqSM9qCTYAPnB1odLAsqDiEun4uLd0EsjyH2ZNYjkjStEuw8R1CKvjWPuSXnA7Qomf3QdiC7ZIIbrWO3Q3Q3FoKdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QP1plxyA; arc=none smtp.client-ip=209.85.167.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oYb6ahlJ"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55P2h1iK029075;
-	Wed, 25 Jun 2025 09:31:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=pW+mWi87HkS2sbIpDcichjdcRzMO14
-	+ztmmlTG3x5nU=; b=oYb6ahlJunQv6zxmgWbY0FacUt6QNm9xJoL8Wff0jdv9ef
-	C7F6Q942tzbIJhPHZFQnRfPxF7Bww9YHOIZ5BxYAfyijc5T0+k40laQ6EjY71MLv
-	qWpBngUIytL0VFpNM7YXQ9sIWAriaBMWLmoQ7JUjVYxoHmqVqpVyptLGxm7TDXnX
-	xL/2b6dvJVQ8RpYP98TTfjWn6H29i5OlHhfyiTyenhIW6QmHghKCn6D1fgku5rII
-	zDVOLMFYS99VCWurP3Gu1zCZkojXFNrXClvQys7jQ1VMBcSHOww/0WMwYj97nWRR
-	zifStx9mNpHjc7W4YiCZ65yFue59rVIZexUrwslg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dme1eb6a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Jun 2025 09:31:57 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55P7YWkP014723;
-	Wed, 25 Jun 2025 09:31:56 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 47e9s2ga3h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Jun 2025 09:31:56 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55P9VqCH44499408
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Jun 2025 09:31:52 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C18E20049;
-	Wed, 25 Jun 2025 09:31:52 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4423220040;
-	Wed, 25 Jun 2025 09:31:52 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.133])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 25 Jun 2025 09:31:52 +0000 (GMT)
-Date: Wed, 25 Jun 2025 11:31:50 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/2] bugs/s390: Fix compile error with old gcc versions
-Message-ID: <20250625093150.7485A0e-hca@linux.ibm.com>
-References: <20250617135042.1878068-1-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QP1plxyA"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-553b60de463so6902476e87.3;
+        Wed, 25 Jun 2025 02:52:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750845162; x=1751449962; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7imy3yTxK1noZpQDmXpRegf9/Y5dUmZKs6ukLVxlc1E=;
+        b=QP1plxyAYHZ+Q77ZQgix9nsX83jnpgMNx6Ewa256QKCWbfIxaRSTkEioyMn5ai9ogd
+         mk0u8NmMnx0T81K3MpVf24esYm9v+9AQ0cajf2DT4lSX4NgX7FeB0fgvclxHpCZStBW2
+         w63/xvIqNDO4Y635V8OqCZ3+LmrNFSSwLeD/lMtsZpq+khuk3+1+xn0vNIFhEkkp9Voz
+         QDixxHSrsBRUZKodGxdUYLkATD7eGG8ddNy+4Q8fEs9Flab/jPeGAcVmsWilyW9pKH7D
+         uNUHnzkknq260K9I5l6HL0n0KnLzRfrKCeFQKhLayn2a22yyaHQFiQ0n+GRGYhq05CSK
+         RHoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750845162; x=1751449962;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7imy3yTxK1noZpQDmXpRegf9/Y5dUmZKs6ukLVxlc1E=;
+        b=FVxatbDE33RlVbmmJzmfWV5naQXyoXlE2DPkNO589wf3sWCThuG1436YIzDOEAgjCL
+         PWdn9xEenioI9+uQxUFvTYAikm7FD2wBV3DQhViyC3Fp8qtIB2MvXcJ0JH1Lrqeio1Bi
+         mVT9Rj1W8ZJ1A+C0wZ8EbYP5cY15SRr+jQ1ZfpzBkG9jxnNGCLySK2Vcv1Ku7hsTD/WU
+         fjlpLP5BoFYITLh6lmxrT3wK0C8V6dCqa3tmA3R5Pag86K/9aFhEVCNcvzWD8bPlhnQ1
+         jje29ZkBbU4/cQouB8uEc4bxNz4jdnUHQTnbDAvu9OchBARtvqzEeI2HWUKumoj9dV/E
+         c5vw==
+X-Forwarded-Encrypted: i=1; AJvYcCWJqUzt4R1pP8HHljL8T5dDfBE9ngisDwlminHnEwWHpU2TB2HF/X7mc3WLfGiyn9P5tyiatdcDDJKKGg==@vger.kernel.org, AJvYcCXDZedeeM1Md8aarHbR6wOs/Y1m4rzoWcfyn8Ue3aqcN2egsBrB97PUgwmkJvzDMBtGRsc4Tkwl78TiJu8=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx6Ue+RWAXoL16HIVweaRqxQuXs4UeEMZbKPX2PGizQpzBL+P6o
+	Tu7yscJwmJFecOrW3rFQGFHaM2bLImcy341R2fcDwC/bILALTPQi32f4
+X-Gm-Gg: ASbGncvXJHvp/cxPJVDVSBq+NCzf74vdW91gqzCD/EaiKQsNRmm9ifmSeRZseLPw9tc
+	1sjhusnH/rCEBST/NTZSRXACwewVdchebQQlMuwWhPPGqNpIHQH77PKgIGhZfNP8dOABAkZv48a
+	CN/gGJjaa82cazZ4nAVn4VwKL2YCm0X6IlKL81BGDn8Eciiu6aaJmVAd+m10+lAZMDSyTLtN1p4
+	F6/rGHbiOR/nm2c4jR/lSx6dQFlxkmq4khoPPJqWAks9QN/a6h3v0k/FmJZ/zQhA9M+AWIN2Rz7
+	KGc35DpslIk3zTqf4flD+5cfg5CdO8yPQM/kowR1+uB9/6/VQfrUMhWvIT10oyQUmKJ/2kM0HiD
+	iYqCcwv+ILQ6qhEKQ0E0tUAcNJR8qtQ==
+X-Google-Smtp-Source: AGHT+IH5ApOZ+lbBvE2ggWIBLKt7ZlvSOrm/LIiyhhxX4cx6KdoLX4TpLfXvTX3dCD4pGEuZuPz4ow==
+X-Received: by 2002:a2e:be03:0:b0:32b:3879:ce7f with SMTP id 38308e7fff4ca-32cc63451f0mr7075061fa.0.1750845161589;
+        Wed, 25 Jun 2025 02:52:41 -0700 (PDT)
+Received: from localhost.localdomain (2.135.54.165.dynamic.telecom.kz. [2.135.54.165])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-32b980a36c0sm19311851fa.62.2025.06.25.02.52.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Jun 2025 02:52:41 -0700 (PDT)
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+To: ryabinin.a.a@gmail.com,
+	glider@google.com,
+	andreyknvl@gmail.com,
+	dvyukov@google.com,
+	vincenzo.frascino@arm.com,
+	catalin.marinas@arm.com,
+	will@kernel.org,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	christophe.leroy@csgroup.eu,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	richard@nod.at,
+	anton.ivanov@cambridgegreys.com,
+	johannes@sipsolutions.net,
+	dave.hansen@linux.intel.com,
+	luto@kernel.org,
+	peterz@infradead.org,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	chris@zankel.net,
+	jcmvbkbc@gmail.com,
+	akpm@linux-foundation.org
+Cc: guoweikang.kernel@gmail.com,
+	geert@linux-m68k.org,
+	rppt@kernel.org,
+	tiwei.btw@antgroup.com,
+	richard.weiyang@gmail.com,
+	benjamin.berg@intel.com,
+	kevin.brodsky@arm.com,
+	kasan-dev@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-mm@kvack.org,
+	snovitoll@gmail.com
+Subject: [PATCH 0/9] kasan: unify kasan_arch_is_ready with kasan_enabled
+Date: Wed, 25 Jun 2025 14:52:15 +0500
+Message-Id: <20250625095224.118679-1-snovitoll@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250617135042.1878068-1-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Tc6WtQQh c=1 sm=1 tr=0 ts=685bc20d cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=gleN7Cury3K8distblQA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: P-VPh-kXSaVvALZUE4udkEr2-dv12pnm
-X-Proofpoint-ORIG-GUID: P-VPh-kXSaVvALZUE4udkEr2-dv12pnm
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI1MDA2OSBTYWx0ZWRfX0rHDKHvjFhKI CrsMHIaO2gRYSntwOKapPQ7wrhS/oYODvyKE/H6gAIpIKzL7B9ySEkabw0SfyDK9vEz+Jfcnuic VLyYcpZgReEj0r7N+R7Syl0twyuu+9UmUrjxjv009zAvu/ngRbtZH83JCoLehtsNc4SoxK9O8U8
- n3AUuvvUrBxtZA1kgwvVdAyD/golXpGtjpHAhbaBTEMtad0FOzmO4o01G86onK+y+DVMUQgZgu8 WN6f1CQurMoe646wV5ieSA7p4rOv1KRE5qC88mUZay6Q9yHlw/NaIM6B6aWjY1NJAgJkeBttd4G 6KZRGPumQpNhMyiGXWatR6a9+hnwmt7xtEsh/bQE8EoxghhxvJZvGFxbuWtAyOR//IEx7DNyuEs
- XzvuYgukG9WkXEhflbcGSR8VR3RwWpLc0PT36u9IOYMCY6Q7uOX0wZypa/on2OR9io0OXJHC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-06-25_02,2025-06-23_07,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=694 phishscore=0 spamscore=0
- malwarescore=0 suspectscore=0 impostorscore=0 clxscore=1015 adultscore=0
- bulkscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506250069
+Content-Transfer-Encoding: 8bit
 
-Hi Ingo,
+This patch series unifies the kasan_arch_is_ready() and kasan_enabled()
+interfaces by extending the existing kasan_enabled() infrastructure to
+work consistently across all KASAN modes (Generic, SW_TAGS, HW_TAGS).
 
-> As reported by Naresh and Anders old gcc variants cannot handle
-> strings as input operands for inline assemblies. Rewrite the s390
-> generic bug support very similar to arm64 and loongarch to fix this.
-> 
-> Also use the opportunity to drop the rather pointless s390 specific
-> WARN_ON() implementation.
-> 
-> Ingo, I think the two patches should also go via the core/bugs branch
-> of the tip repository.
+Currently, kasan_enabled() only works for HW_TAGS mode using a static key,
+while other modes either return IS_ENABLED(CONFIG_KASAN) (compile-time
+constant) or rely on architecture-specific kasan_arch_is_ready()
+implementations with custom static keys and global variables.
 
-You might have missed this, but this was directed to you :)
+This leads to:
+- Code duplication across architectures  
+- Inconsistent runtime behavior between KASAN modes
+- Architecture-specific readiness tracking
+
+After this series:
+- All KASAN modes use the same kasan_flag_enabled static key
+- Consistent runtime enable/disable behavior across modes
+- Simplified architecture code with unified kasan_init_generic() calls
+- Elimination of arch specific kasan_arch_is_ready() implementations
+- Unified vmalloc integration using kasan_enabled() checks
+
+This addresses the bugzilla issue [1] about making
+kasan_flag_enabled and kasan_enabled() work for Generic mode,
+and extends it to provide true unification across all modes.
+
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=217049
+
+=== Current mainline KUnit status
+
+To see if there is any regression, I've tested first on the following
+commit 739a6c93cc75 ("Merge tag 'nfsd-6.16-1' of
+git://git.kernel.org/pub/scm/linux/kernel/git/cel/linux").
+
+Tested via compiling a kernel with CONFIG_KASAN_KUNIT_TEST and running
+QEMU VM. There are failing tests in SW_TAGS and GENERIC modes in arm64:
+
+arm64 CONFIG_KASAN_HW_TAGS:
+	# kasan: pass:62 fail:0 skip:13 total:75
+	# Totals: pass:62 fail:0 skip:13 total:75
+	ok 1 kasan
+
+arm64 CONFIG_KASAN_SW_TAGS=y:
+	# kasan: pass:65 fail:1 skip:9 total:75
+	# Totals: pass:65 fail:1 skip:9 total:75
+	not ok 1 kasan
+	# kasan_strings: EXPECTATION FAILED at mm/kasan/kasan_test_c.c:1598
+	KASAN failure expected in "strscpy(ptr, src + KASAN_GRANULE_SIZE, KASAN_GRANULE_SIZE)", but none occurred
+
+arm64 CONFIG_KASAN_GENERIC=y, CONFIG_KASAN_OUTLINE=y:
+	# kasan: pass:61 fail:1 skip:13 total:75
+	# Totals: pass:61 fail:1 skip:13 total:75
+	not ok 1 kasan
+	# same failure as above
+
+x86_64 CONFIG_KASAN_GENERIC=y:
+	# kasan: pass:58 fail:0 skip:17 total:75
+	# Totals: pass:58 fail:0 skip:17 total:75
+	ok 1 kasan
+
+=== Testing with the patches:
+
+* arm64  (GENERIC, HW_TAGS, SW_TAGS): no regression, same above results.
+* x86_64 (GENERIC): no regression, no errors
+
+=== NB
+
+I haven't tested on the following arch. due to the absence of qemu-system-
+support on those arch on my machine. So I defer this to relevant arch
+people to test KASAN initialization:
+- loongarch
+- s390
+- um
+- xtensa
+- powerpc
+
+Sabyrzhan Tasbolatov (9):
+  kasan: unify static kasan_flag_enabled across modes
+  kasan: replace kasan_arch_is_ready with kasan_enabled
+  kasan/arm64: call kasan_init_generic in kasan_init
+  kasan/xtensa: call kasan_init_generic in kasan_init
+  kasan/loongarch: call kasan_init_generic in kasan_init
+  kasan/um: call kasan_init_generic in kasan_init
+  kasan/x86: call kasan_init_generic in kasan_init
+  kasan/s390: call kasan_init_generic in kasan_init
+  kasan/powerpc: call kasan_init_generic in kasan_init
+
+ arch/arm64/mm/kasan_init.c             |  4 +---
+ arch/loongarch/include/asm/kasan.h     |  7 -------
+ arch/loongarch/mm/kasan_init.c         |  7 ++-----
+ arch/powerpc/include/asm/kasan.h       | 14 --------------
+ arch/powerpc/mm/kasan/init_book3s_64.c |  6 +-----
+ arch/s390/kernel/early.c               |  2 +-
+ arch/um/include/asm/kasan.h            |  5 -----
+ arch/um/kernel/mem.c                   |  4 ++--
+ arch/x86/mm/kasan_init_64.c            |  2 +-
+ arch/xtensa/mm/kasan_init.c            |  2 +-
+ include/linux/kasan-enabled.h          | 22 ++++++++++++++++------
+ include/linux/kasan.h                  |  6 ++++++
+ mm/kasan/common.c                      | 15 +++++++++++----
+ mm/kasan/generic.c                     | 17 ++++++++++++++---
+ mm/kasan/hw_tags.c                     |  7 -------
+ mm/kasan/kasan.h                       |  6 ------
+ mm/kasan/shadow.c                      | 15 +++------------
+ mm/kasan/sw_tags.c                     |  2 ++
+ 18 files changed, 61 insertions(+), 82 deletions(-)
+
+-- 
+2.34.1
+
