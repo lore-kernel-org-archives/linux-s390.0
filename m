@@ -1,128 +1,83 @@
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 040421E4AE;
-	Wed, 25 Jun 2025 12:51:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 86310267721;
+	Wed, 25 Jun 2025 15:44:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750855867; cv=none; b=rRt7IeH1ReAYxYnKf8WmVvcvciZMwwVLOKjWTSHQ77DDOiw+7kxnjGp5dvHHhzKWMqfygPKcyze/7965yFj9Do+CdnsKXgcGTkAZH7xYqBH6BrOYf3PcX059609GuFbsgbyunV+X/UoWjpWwf/dIn0IMvsYtLmwAWrm4EuWhixE=
+	t=1750866250; cv=none; b=Fo8VTCeTxLfXSC5RjSxWdPS23+R90EFesnCyl4ck7P5ghwQ4HYNQoUsVxHkxQ2cSdS1M9BXPk+fS861edcXSn/emXWZF9+Adh71eBXPYODbYPfAojj6I66LT2nQ556ehtxGJWfsF1SJsJwTKI0ssQ94JbHuEf+gtkVAUSmoJ9hM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750855867; c=relaxed/simple;
-	bh=CRwRhM1MtMEUcOGQgquJfle4LDepcccXWla+ZKxsdwI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jwaLVQdzNktI9jxw4zSlN1ssmyfwEVLDTp+vu9rxeHWi2rmC6uold47bGSXwLcaW0lfRraDEItjhpz/zF9MqgpsUhnpimE+nrf/BRTZqfyOuhkQqwlCiSdgq/VkJw1sfV5dG/zEh8tLxq5rb8DSEPKNakH5WPPtnNXkPwETRLCQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ChxHDxM0; arc=none smtp.client-ip=209.85.167.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ChxHDxM0"
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-555024588b1so22054e87.1;
-        Wed, 25 Jun 2025 05:51:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750855864; x=1751460664; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CRwRhM1MtMEUcOGQgquJfle4LDepcccXWla+ZKxsdwI=;
-        b=ChxHDxM0oreHKDK8D8eoA5qosDZ9oozJ7EkiKDJPm9z1nBAZnJGldW6EpwSimFuleT
-         d3iiN/BxAehuY2/4QaUIkaEdwuVTdAX7fkql9ZNi4FzheZOM1qbjXRTM/UGU+2vwejdn
-         sJkw5zaJhm4cs2YhoHWICfjlP78aXY0SQP41kGr0LGmDwo2fVDCCGZBM+PfHn4Ih6wm3
-         EqNWT1QlcUyyJpWddf23L4uIT+luWdsfHp5QIdi31CajZmflgzSqanZsLKoEZ7TBFswK
-         Qi8PWEelbZc55oGxbCQfdqXstgmvfAGJLGr7l6fk91rnvDGGRxlcWGlWNIaRYpGo/eAQ
-         KbGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750855864; x=1751460664;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=CRwRhM1MtMEUcOGQgquJfle4LDepcccXWla+ZKxsdwI=;
-        b=ujBcojSZbqbJ2688BFCZmX8y88Cpb6e2c1VxreoI0GluE9g0EFe1jLrCLdkW5lgLCq
-         rZRs1GpQ7AbmA+rKK01LTRWH1qsWqFhNwESOx5wyAZ6PCQ5r8yPMR9lLH2FeCWXVRvvc
-         RXTlSy6S0TfobwINu3G6EJJHu6u4nPJaGqFGzKgql8UiZ06TIFPDYhY/h7ybd3YmDgTa
-         HMBTSvQcLN0aE5Ui38Ihve/bCQnwpawEvasxMfe4/sTqpiS3bG9WrO0zPYhyNEp7fQ6N
-         wdGS6SlNscPGTQpj4JREp9S5xe3JRfpx9zge1hB+SURM28LImzXAMckKRciYt15Rj8bv
-         nQ3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXWSLoawUrTYAe26lmVw4fosk9b6JdZrl9tn9K9vILNtcV/rJ3/PdQylb4eAzuj2/EeE0ktkygA5QgRmxk=@vger.kernel.org, AJvYcCXZ0VCsFzN5XT2MOJ9rqIdo+/XCv42GAqDu5HaEtcOD1NToRDEnhFFZup4xvS86HaUhcevyuKcyFJ5baQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxL38bXNMi0wZegT1mdueJ6QFZjPCggGys7KLnfppsO7SssOPzv
-	udsNx/1+YqOcb3AlNaMoGnbAFy0MdJGN5RcS6HNaG0BDigyWgWun0aTWONDrXsAKRLSI7e0jIgM
-	ECKat+mgxCP3VQulEEvkJ4L3GisyojWw=
-X-Gm-Gg: ASbGncu078D/ke3ylg+kAZmGVE2yc1n8V68+hmTnQSihBYAQtXpj8y7WQ+5yo9XNe5d
-	mtvB1xyC6cqYr2xyshpBlj1U0Wpd9KMongAA+sZZ9T2b0QAtPbOCVep5U6qTO8hsS3NYuo8UtBI
-	V48E5XkgANtzAQt73w4nrnYqju7dxGk2OXhTsLAkMLwQ==
-X-Google-Smtp-Source: AGHT+IH4AdTi7obPWXsCps0Kqqd3RJ5D/he3Lezfcy1G4Eg5fA0HGJmj1VDSyHt6qyIqHAybfxlMpWZQjVgI2Xx3Mto=
-X-Received: by 2002:a05:6512:4011:b0:553:297b:3d45 with SMTP id
- 2adb3069b0e04-554fde58124mr1020525e87.43.1750855863865; Wed, 25 Jun 2025
- 05:51:03 -0700 (PDT)
+	s=arc-20240116; t=1750866250; c=relaxed/simple;
+	bh=dh0kZGnwTXRsEH9Unk+fFTGBQ1vm6Q6J0nATL3YIPKA=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=DyQdUpuqjxcJmzYtdemaau6cGbN8E+s1Z+4D4u/wUE68afBcPpXK92QZGjzyxDqfkgjkq42RNoPBGlAq2gLv4dAmqg/tCoqxJ4mNGg/8O2ozhyIH9umRh0xhp0iletn+jmUk9o+6woQ0GZFAmrhpS4ZBVtTf4s4LQcM7li9QUbw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8B91E106F;
+	Wed, 25 Jun 2025 08:43:48 -0700 (PDT)
+Received: from raptor (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C26323F58B;
+	Wed, 25 Jun 2025 08:44:03 -0700 (PDT)
+From: Alexandru Elisei <alexandru.elisei@arm.com>
+To: kvm@vger.kernel.org,
+	andrew.jones@linux.dev,
+	lvivier@redhat.com,
+	thuth@redhat.com,
+	frankja@linux.ibm.com,
+	imbrenda@linux.ibm.com,
+	nrb@linux.ibm.com,
+	pbonzini@redhat.com,
+	alexandru.elisei@arm.com,
+	eric.auger@redhat.com,
+	kvmarm@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	kvm-riscv@lists.infradead.org,
+	david@redhat.com,
+	linux-s390@vger.kernel.org
+Subject: [kvm-unit-tests PATCH 0/2] scripts: extra_params rework
+Date: Wed, 25 Jun 2025 16:43:52 +0100
+Message-ID: <20250625154354.27015-1-alexandru.elisei@arm.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250625095224.118679-1-snovitoll@gmail.com> <20250625095224.118679-3-snovitoll@gmail.com>
- <750b6617-7abf-4adc-b3e6-6194ff10c547@csgroup.eu> <81a8b60be5b99ecd9b322d188738016376aff4aa.camel@sipsolutions.net>
-In-Reply-To: <81a8b60be5b99ecd9b322d188738016376aff4aa.camel@sipsolutions.net>
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Date: Wed, 25 Jun 2025 17:50:46 +0500
-X-Gm-Features: Ac12FXwt1iee6Yaba3PMavifTn-RFaMv0HhE7s3qnJv0p52DgpRl1n7RcMDkzZs
-Message-ID: <CACzwLxgCH6KuVDRS3d9MrmA=wY_rMA6R5TPB_v37BkD8-A9yuw@mail.gmail.com>
-Subject: Re: [PATCH 2/9] kasan: replace kasan_arch_is_ready with kasan_enabled
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>, ryabinin.a.a@gmail.com, glider@google.com, 
-	andreyknvl@gmail.com, dvyukov@google.com, vincenzo.frascino@arm.com, 
-	catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org, 
-	kernel@xen0n.name, maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
-	hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
-	borntraeger@linux.ibm.com, svens@linux.ibm.com, richard@nod.at, 
-	anton.ivanov@cambridgegreys.com, dave.hansen@linux.intel.com, luto@kernel.org, 
-	peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
-	x86@kernel.org, hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com, 
-	akpm@linux-foundation.org, guoweikang.kernel@gmail.com, geert@linux-m68k.org, 
-	rppt@kernel.org, tiwei.btw@antgroup.com, richard.weiyang@gmail.com, 
-	benjamin.berg@intel.com, kevin.brodsky@arm.com, kasan-dev@googlegroups.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 25, 2025 at 5:24=E2=80=AFPM Johannes Berg <johannes@sipsolution=
-s.net> wrote:
->
-> On Wed, 2025-06-25 at 12:27 +0200, Christophe Leroy wrote:
-> >
-> > Le 25/06/2025 =C3=A0 11:52, Sabyrzhan Tasbolatov a =C3=A9crit :
-> > > Replace the existing kasan_arch_is_ready() calls with kasan_enabled()=
-.
-> > > Drop checks where the caller is already under kasan_enabled() conditi=
-on.
-> >
-> > If I understand correctly, it means that KASAN won't work anymore
-> > between patch 2 and 9, because until the arch calls kasan_init_generic(=
-)
-> > kasan_enabled() will return false.
-> >
-> > The transition should be smooth and your series should remain bisectabl=
-e.
-> >
-> > Or am I missing something ?
-> >
->
-> Seems right to me, it won't work for architectures that define
-> kasan_arch_is_ready themselves I think?
->
-> But since they have to literally #define it, could #ifdef on that
-> temporarily?
+This series was split from the series that adds support to use kvmtool when
+using the scripts to run the tests [1]. kvmtool will be supported only for arm
+and arm64, as they are the only architectures that compile the tests to run with
+kvmtool.
 
-Thanks for catching it. You're right. I need to change the order of patches=
- :
+The justification for these changes is to be able to introduce
+kvmtool_params for kvmtool specific command line options, and to make a
+clear distinction between the qemu options and the kvmtool options. This is
+why qemu_params was added as a replacement for extra_params. extra_params
+was kept for compatibility purposes for user's custom test definitions.
 
-- kasan: unify static kasan_flag_enabled across modes
+To avoid duplication of the arguments that are passed to a test's main()
+function, test_args has been split from qemu_params. The same test_args
+will be used by both qemu and kvmtool.
 
-, then we should apply arch specific changes
-where we call kasan_init_generic in kasan_init.
+[1] https://lore.kernel.org/kvm/20250507151256.167769-1-alexandru.elisei@arm.com/
 
-- kasan: replace kasan_arch_is_ready with kasan_enabled
+Alexandru Elisei (2):
+  scripts: unittests.cfg: Rename 'extra_params' to 'qemu_params'
+  scripts: Add 'test_args' test definition parameter
 
->
-> johannes
+ arm/unittests.cfg     |  94 ++++++++++++++----------
+ docs/unittests.txt    |  30 +++++---
+ powerpc/unittests.cfg |  21 +++---
+ riscv/unittests.cfg   |   2 +-
+ s390x/unittests.cfg   |  53 +++++++-------
+ scripts/common.bash   |  16 +++--
+ scripts/runtime.bash  |  24 ++++---
+ x86/unittests.cfg     | 164 ++++++++++++++++++++++++------------------
+ 8 files changed, 237 insertions(+), 167 deletions(-)
+
+
+base-commit: 507612326c9417b6330b91f7931678a4c6866395
+-- 
+2.50.0
+
