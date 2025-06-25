@@ -1,189 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF5E8273D86
-	for <linux-s390@vger.kernel.org>; Wed, 25 Jun 2025 16:47:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB9A25BF11;
+	Wed, 25 Jun 2025 21:50:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750870069; cv=none; b=Kd7ro3Z98UfsxTmg8aZvDJSaaYSpes7tKgcr0bGGxiAH0DVvCWY7FOa+i7RXIeoNtvoGRoHdhjBAwX6wSJ91HO86SSEWrgQ/l7TQRQjRPjf9CbsME+zpqqCn3+8qB3wiQhjnfKHcXXVmlfUFJ3Is6926D3E0OLb7Y31eiNbjsDo=
+	t=1750888246; cv=none; b=n7k7cDntJJEp1sWOzoRSoON3eDndn4uCvjofGNK+P2upvQzZytUeEsNxGRWq8WNflZwkcr3x8Z//c9nZAiKIdaMhE+Fw20mjs45mmMId9VHb2NKWOWtuVol/VVAeVxcv2DSmE2+r6tm3qGYOb5SpjVcYaFoF7w2RBD9F1BDLxok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750870069; c=relaxed/simple;
-	bh=ZIcwd55I+y4/P3j3gLsFy59kLpT72V5RSK8H+BKGMpc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jYZvgB2dfYEN7jM9ZZ9XOgqpM3ZpQo4tp3yxvoC86uM3M+rW5WrxQ9sWHO3sCnhIOXLUjVMkR6dcY4F/Yu0/WqH5iiIapPKbfkFz3kfekpA7qjxmozUvbdTzntsBP/YJq+xBZMc0iUK8jzOT99h0DaqJNhi1g9kbu/5BiMo3BEU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RSO/sub5; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750888246; c=relaxed/simple;
+	bh=f15bvMJjHUKr1oWhItNtYOyUqyPLEvzybv2hLaqBxn8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ia1dANMzep8FRKvSYMw+eq2SkmlSVZOzU98v2/1Uq7YUhlNHHOhvu1odQLXu7MTptyB+H5xd3COv8EdSTLboaFboCEhfKU4P77rpIGcZn590uM3aPdNVm0vY1WTxCcK/sw19SX+O/Qu6Xj0t726q2lYHpdxrPknBrrpLegahTCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ITsBzgya; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RSO/sub5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750870066;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=9M1vHfXIFS9l+R39Mf9youJQuWwRJBkeTDzWO25k2Ts=;
-	b=RSO/sub57C+r+0vNeYcck2XsZV1aGNPvqusCKQhiYGVF6TjX0xokuSKqNrEDwUmiG1JZB8
-	ses1cuQRqD8/aMe+rvTZb+Vv04n8XM8oFWuUlyGcIpllFB0vbvcl3Eko1n5tZUfI6DkOR/
-	1zryi/3SYb+usMhHS7NiZpdzNslY8NA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-614-H4XdQCNEPKeLOMSXRvXSyA-1; Wed, 25 Jun 2025 12:47:45 -0400
-X-MC-Unique: H4XdQCNEPKeLOMSXRvXSyA-1
-X-Mimecast-MFC-AGG-ID: H4XdQCNEPKeLOMSXRvXSyA_1750870064
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a523ce0bb2so17634f8f.0
-        for <linux-s390@vger.kernel.org>; Wed, 25 Jun 2025 09:47:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750870064; x=1751474864;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:from:references:cc:to:subject:user-agent
-         :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=9M1vHfXIFS9l+R39Mf9youJQuWwRJBkeTDzWO25k2Ts=;
-        b=fGAguTNRAXlLza8lnmuheyzqBKxCcrmZsdv+rp6LPMG8fCl3OJ63HAspUcgpQ4qTrK
-         t8TfJfI8hW36Ei0PvNxa8peXbimgVhL+onlWiNLQUgLMWKs25BO1cHro8y5KM9lJcXg7
-         77xJcAbnySenFfEG7vtxxPpccsjfmyHTdIF9bUjhRA3dOfSTCfUz+z6G/vVrxvQpvElv
-         rjwsM0DYKoJ85d+yTF1boyXsLWUHwstLSaPECDQNkjx37+xxKxz1SUs7K/MlCAfqjXQV
-         OCamLdpyEUdASdAYXIXl/1s/ElUA75jwVobSMXyVSsNxhpYLkKNulSo+68IQ4U7FiXmd
-         rdJA==
-X-Forwarded-Encrypted: i=1; AJvYcCUAfoBLhSNvEG+ZcJWg9bIeXqr1bge9aOXEfrlS0WBeXzme+Z0EV5X7CxTu2JLjs1+41tykXi45+TIA@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUK6toQKnSHGmEgRZiGbTAlxnMW5nfNMABLDukH5mevFp7CQBu
-	V66mdEl2D/Vp4d9L6j2s8YNBQGlMGvyUAo7KHK8C26zbbq4ndIWrcDxa6FRJIG03w/DC2T3hhOG
-	Tv6SgfTY52TtUojNaZLiNZRB6dHAWjhrChsERWBHoewGWpsAay639Yzb/fofMgHk=
-X-Gm-Gg: ASbGncudCpYcL7w5NKdXAAPdJIdnv+PGWnFAnQRgouH4Sxui0v3N+hNBWmtl23g/e5W
-	3X8QhJQ8ojKCG1RBlFtJ9Dakexcvn6nW0rg+Lxr+XPALJ5VloHQZ5EEyog/zRblYqNTQw0CbWRU
-	NgCBaxBUaGRTyfJq3aEZola9k//N8NGDkta6nqAw60vTV/2OVUmZ1yZEfTHSJF280Ugh6rcVeQ3
-	3BdP/r0uLRkYw7QqmxCKJYFejSNHblLy2mhiiGuZ0UsTd4rfyduP7LXju5V97d3p1d3mp5RxR+4
-	7WFVEGEKJABqhKzAYZkt5hekrkwLphDV1VUEt/Uq7fSnHgaLlDJ8FVgTGyDBnG637qFZ0xMKEni
-	HaakAoOH0DRcyJUfoVFTHfHNevNxDARS4nWbGiS9jFtwE
-X-Received: by 2002:a05:6000:1888:b0:3a4:f038:af74 with SMTP id ffacd0b85a97d-3a6ed65b664mr3237859f8f.51.1750870064310;
-        Wed, 25 Jun 2025 09:47:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF9YekvGRPkYe/kZTrXaL/81esEkFz4ElnXXiExctA2VcZJSnui1u8qYRsgiNhzuyyjmJbBvg==
-X-Received: by 2002:a05:6000:1888:b0:3a4:f038:af74 with SMTP id ffacd0b85a97d-3a6ed65b664mr3237838f8f.51.1750870063878;
-        Wed, 25 Jun 2025 09:47:43 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f12:1b00:5d6b:db26:e2b7:12? (p200300d82f121b005d6bdb26e2b70012.dip0.t-ipconnect.de. [2003:d8:2f12:1b00:5d6b:db26:e2b7:12])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a6e80f2b8fsm5089801f8f.59.2025.06.25.09.47.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Jun 2025 09:47:43 -0700 (PDT)
-Message-ID: <db8ab8d0-20f5-4922-a1e2-6f7409747664@redhat.com>
-Date: Wed, 25 Jun 2025 18:47:42 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ITsBzgya"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55PL6vdN024856;
+	Wed, 25 Jun 2025 21:50:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=MSnpKg
+	kxXepRZ5XjUnuBrBNAmAPDuZs3X7Cqt1d6wys=; b=ITsBzgyal3SSFDchigMW+I
+	IK9wBz8RFyiNTa/flmSIkHBkImLHUP6teDUWLG1wyO4D8lZh+Vil0wbacffB0gyp
+	J1wYWoGXod5y/R2PZfsK/8od+3plVIZQE6bTIzWpZlJFHwMz9eUkyI7quTq7ll1Q
+	w9gPvxwuXjDhAtoSPmnXbXOrgAn1ZTBLFzvxivdISkE/QS8LOnuoi8BlsX/Fevvo
+	8y/sPiIKQK6S2f8qD17KSBe5y6CJLlNmBc2xjKQX1IWFqcOFhzMO1oCdRGEa355N
+	QFxiratZ+/AgMy1l0opmjKERgVgAQXXlLVWPNziDnU7SO7uylOGJL+CugYLD5SrQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dj5u23rd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Jun 2025 21:50:34 +0000 (GMT)
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55PLoYjI018410;
+	Wed, 25 Jun 2025 21:50:34 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dj5u23r5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Jun 2025 21:50:34 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55PL7OPW006414;
+	Wed, 25 Jun 2025 21:50:33 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e82pbh21-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 25 Jun 2025 21:50:33 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55PLoTRg46006706
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 25 Jun 2025 21:50:29 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6BDBD2004B;
+	Wed, 25 Jun 2025 21:50:29 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4C34820049;
+	Wed, 25 Jun 2025 21:50:28 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.111.66.135])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Wed, 25 Jun 2025 21:50:28 +0000 (GMT)
+Date: Wed, 25 Jun 2025 23:50:23 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Jan Karcher <jaka@linux.ibm.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+        David Miller <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra
+ Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Sidraya Jayagond
+ <sidraya@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        "D. Wythe"
+ <alibuda@linux.alibaba.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH net] MAINTAINERS: update smc section
+Message-ID: <20250625235023.2c4a3e8d.pasic@linux.ibm.com>
+In-Reply-To: <20250624164406.50dd21e6@kernel.org>
+References: <20250623085053.10312-1-jaka@linux.ibm.com>
+	<20250624164406.50dd21e6@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/1] mm/debug_vm_pgtable: Use a swp_entry_t input
- value for swap tests
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Matthew Wilcox <willy@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
- linux-mm <linux-mm@kvack.org>, linux-s390@vger.kernel.org
-References: <20250623184321.927418-1-gerald.schaefer@linux.ibm.com>
- <20250623184321.927418-2-gerald.schaefer@linux.ibm.com>
- <9fb04185-5b71-46c0-b62c-0e0e6ee59e6e@arm.com>
- <20250625182846.5bce1aaf@thinkpad-T15>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat
-In-Reply-To: <20250625182846.5bce1aaf@thinkpad-T15>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ILyUOOWGH3G2v5fzypxdm2JPCNec9Nsg
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI1MDE2OCBTYWx0ZWRfXx38yk2gb/bMd zvS4OK9ZzwXihNwdSxn2gUKoMFKOA2fI01FIvrutdnxodmv8TEjvW/lNYCaD7/kLU9UXRaHg73s 5D0L7KTdq20sGpLPO0RJBTuJQwi/cvczwubQqrVTFtsWG4htIi0S+StYu36Youorp0fgUAZtdq9
+ H+I/rizalnKr+AwLk68jTBhtkdlgjjlDNhKq3bmJeU+ssR83zQ5TPefiQ/oIsm/mY5wj7xKQ86N JPuPe3VMmUVCowSNUwkPovcyCeuWegZiyAoTLon0bBkdqrthlhiWjzpJkhWInSCJ0XTBQPW0epS r+yTAous7o8Afc1Wdv8t1MJNZFp2IbVg4QW1DiNH20kw30WYv9eihKpxy0k/9ZbzWweYGcik2q2
+ kBGUd1inU9zMD3kixCu7USWiFqfqs3DhMUhDqs1YfLK7qB4VGzP8abE0Zk0BVOpXW+ntbqti
+X-Authority-Analysis: v=2.4 cv=MshS63ae c=1 sm=1 tr=0 ts=685c6f2a cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=SRrdq9N9AAAA:8 a=mT-SxY4RSD4c5V0lxYAA:9
+ a=CjuIK1q_8ugA:10 a=n2qFYuOBGOEA:10 a=DfoyO1XrIf4A:10
+X-Proofpoint-GUID: oHATqPXp7jbabRt_PNxH81CXiAL3Meq7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-06-25_07,2025-06-25_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
+ lowpriorityscore=0 spamscore=0 mlxlogscore=999 impostorscore=0
+ clxscore=1011 phishscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506250168
 
-> [...]
->>> @@ -1166,6 +1173,7 @@ static void __init init_fixed_pfns(struct pgtable_debug_args *args)
->>>   
->>>   static int __init init_args(struct pgtable_debug_args *args)
->>>   {
->>> +	unsigned long max_swap_offset;
->>>   	struct page *page = NULL;
->>>   	int ret = 0;
->>>   
->>> @@ -1248,6 +1256,11 @@ static int __init init_args(struct pgtable_debug_args *args)
->>>   
->>>   	init_fixed_pfns(args);
->>>   
->>> +	/* See generic_max_swapfile_size(): probe the maximum offset */
->>> +	max_swap_offset = swp_offset(pte_to_swp_entry(swp_entry_to_pte(swp_entry(0, ~0UL))));
->> Why not directly use generic_max_swapfile_size() which is doing exact same thing.
->>
->> unsigned long generic_max_swapfile_size(void)
->> {
->> 	return swp_offset(pte_to_swp_entry(
->> 			swp_entry_to_pte(swp_entry(0, ~0UL)))) + 1;
->> }
+On Tue, 24 Jun 2025 16:44:06 -0700
+Jakub Kicinski <kuba@kernel.org> wrote:
+
+> > +M:	Mahanta Jambigi <mjambigi@linux.ibm.com>
+> > +M:	Sidraya Jayagond <sidraya@linux.ibm.com>
+> >  M:	Wenjia Zhang <wenjia@linux.ibm.com>
+> > -M:	Jan Karcher <jaka@linux.ibm.com>
+> > -R:	D. Wythe <alibuda@linux.alibaba.com>
+> >  R:	Tony Lu <tonylu@linux.alibaba.com>
+> >  R:	Wen Gu <guwen@linux.alibaba.com>
+> >  L:	linux-rdma@vger.kernel.org  
 > 
-> Good question. I just moved this code here from pte_swap_exclusive_tests(),
-> see above, and did not think about that. Now I also wonder why
-> generic_max_swapfile_size() wasn't used before.
+> Great to see the cooperation with Alibaba!
 > 
-> But it is not exactly the same thing, there is an extra "+ 1" there.
-> Maybe that is the reason, but I don't really understand the details /
-> difference, and therefore would not want to change it.
+> I'm not sure we can add Mahanta Jambigi, according to community
+> standards. Quoting documentation:
+>   
+>   The following characteristics of a person selected as a maintainer
+>   are clear red flags:
+>   
+>    - unknown to the community, never sent an email to the list before
+>    - did not author any of the code
+>    - (when development is contracted) works for a company which paid
+>      for the development rather than the company which did the work
 > 
-> David, do you remember why you didn't use generic_max_swapfile_size()
-> in your pte_swap_exclusive_tests()?
+> I think the first two bullets apply:
+> 
+> $ git log --grep=Jambigi
+> $ 
+> 
+> See:
+>   https://www.kernel.org/doc/html/next/maintainer/feature-and-driver-maintainers.html#corporate-structures
 
-Excellent question. If only I would remember :)
+I fully agree, unfortunately, the first two bullets do apply to Mahanta.
+I believe the SMC team within IBM (including myself) was not aware of
+these community standards, and on top of that I was certainly not aware
+that Mahanta has still to make his first code and review contributions
+to the community. The timing turned out to be quite unfortunate; I
+happen to know that Mahanta has already his first SMC patch in the pipe
+and is about to fix an issue with the PNETID table. We were about to
+give it a round of IBM internal review, @Mahanta: given how this turned
+out maybe you can send it as an RFC right away and we can do the entire
+review upstream.
 
-generic_max_swapfile_size() resides in mm/swapfile.c, which is only 
-around with CONFIG_SWAP.
+Jakub, would a respin with
+s/+M:	Mahanta/+R:	Mahanta/
+and the necessary reordering work for you?
 
-It makes sense to have that function only if there are ... actual swapfiles.
+I'm with you, we should observe those rules, not only because they are a
+community standard, but also because they make a ton of sense IMHO. So
+my proposal is to make Mahanta a reviewer and revisit the topic of making
+him a maintainer after none of those bullets apply to him.
 
-These checks here are independent of CONFIG_SWAP (at least in theory -- 
-for migration entries etc we don't need CONFIG_SWAP), and we simply want 
-to construct a swap PTE with all possible bits set.
-
--- 
-Cheers,
-
-David / dhildenb
-
+Regards,
+Halil
