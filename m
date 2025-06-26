@@ -1,39 +1,67 @@
-Received: from pegase1.c-s.fr (pegase1.c-s.fr [93.17.236.30])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 968A01DE2DC;
-	Thu, 26 Jun 2025 11:20:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.236.30
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E19A28C009;
+	Thu, 26 Jun 2025 13:26:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750936844; cv=none; b=GhwZaooK4TRUjw9wqiP+eyV8OXoMzjH1/u73gEgMfjBjOOFR713/Sk51miYYaitdAfdtdr7xpfsYOcdp2+exjfWAWkMswBHmyFRIc8aLmGD1EajMOJTHEkuVjQu9ifAwd84DLmuoWnapt8FvwAjB4L9B3/qj47VDSOL5mFifm+0=
+	t=1750944375; cv=none; b=ksoa58Fp1sbhSqEpEHbiVJ68+RZ+EAdnjrIqwp8iIMkjPQTguHVWbohtG5b+dpjqm+OhXKTs3QtAHT7bF4AsHK2Xly2hEKKWrvG6FV5ni4+JKoMkGu2HdpecxXJlWFaunjHYc6phrqv9X9lHEzRwIZbm5vEeDl+WSKncnir1ies=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750936844; c=relaxed/simple;
-	bh=C4f7VtU2IxWUn/+6CtPz+hcR/TxIpvkTdAdow77mhkk=;
+	s=arc-20240116; t=1750944375; c=relaxed/simple;
+	bh=WrztCgo/u9U/MdwKZA9o7yX+ZBLJewFK4uNbWKPb1fw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UsF4wNNwOQGUwacVgxHLQQp7h1K/+1JYCjckRW50m6ornAh2O7621y0tgIbkV9wNob4zD/N9epX5eSZt/K48R1/TG1OohxGu/JU6I1LnazCiiRDu/PweEzC2VzOw+ZZx+fuphXBJD5rfz6/tpOdl9jVLLWYIizFR1yIb739M3P0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.236.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub3.si.c-s.fr [192.168.12.233])
-	by localhost (Postfix) with ESMTP id 4bSbB02K49z9vGJ;
-	Thu, 26 Jun 2025 12:52:40 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase1.c-s.fr ([192.168.12.234])
-	by localhost (pegase1.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uDQegORpF3hS; Thu, 26 Jun 2025 12:52:40 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase1.c-s.fr (Postfix) with ESMTP id 4bSbB017ZFz9vGH;
-	Thu, 26 Jun 2025 12:52:40 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 1B36F8B7B7;
-	Thu, 26 Jun 2025 12:52:40 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id 1FFBuvr_5nqx; Thu, 26 Jun 2025 12:52:39 +0200 (CEST)
-Received: from [192.168.235.99] (unknown [192.168.235.99])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 8F3C38B7A7;
-	Thu, 26 Jun 2025 12:52:37 +0200 (CEST)
-Message-ID: <3b6ff3a9-6b88-4a28-a0fd-31f31ae3e84b@csgroup.eu>
-Date: Thu, 26 Jun 2025 12:52:37 +0200
+	 In-Reply-To:Content-Type; b=BjgQ9YWyajm1g4wSSIako+FYaK9zLoCraNPPtR1YOyz4lE5K+V4if/9im06HRulyBbuM1LIXP9fuPR0mbxz9IQseO2EYF5mD3U+2Ee4Q6QqR60+4+u8zDAiuom6CnPk3jKVhXLkgYU/l6Wny8vM14o/IGEl9okHQYUA8AQKJBu8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mBhj5Ean; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mBhj5Ean"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55QBTrMb019605;
+	Thu, 26 Jun 2025 13:25:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=KIhS+X
+	0s3emxbkTkmLwZ1E9uauCzQCnaacBuXWC4txA=; b=mBhj5Eanlu3oE/dcWEXSON
+	bs+nUNHFhj52nhZTNcBcQnD8w4MOqR1APPdKOy/2Z4xqo7W+AlfHq5zcimMH/p7M
+	SPoerEsOmWn7EMwali96VcM/n0hJ419D/uqK2I1GxGpeeHHrKz2oUjDKeX2IDvQR
+	e8DyC2Z8/a7sMAlTqrOgwjayce/JIKNykjPEnik4k+QyBvx3ICHSumvr835me32j
+	pw6sRI5KW1QXWeKspVOSszhIPBkgyV6zT72qSrYqYXuxku+hPfdBeXAEMFgzToNk
+	gebjadwYVFjSnB1a30iBWmt+TtehjXzXfa6GDOZ6GcmIL/TAyooEzyV6KSgnwg8g
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3eb8h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Jun 2025 13:25:41 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55QDG2ji007108;
+	Thu, 26 Jun 2025 13:25:40 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3eb8b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Jun 2025 13:25:40 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55QD932l003994;
+	Thu, 26 Jun 2025 13:25:39 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 47e99kxu6v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Jun 2025 13:25:39 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55QDPce926018338
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 26 Jun 2025 13:25:38 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 27C3E58056;
+	Thu, 26 Jun 2025 13:25:38 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C24AB5803F;
+	Thu, 26 Jun 2025 13:25:31 +0000 (GMT)
+Received: from [9.43.40.242] (unknown [9.43.40.242])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 26 Jun 2025 13:25:31 +0000 (GMT)
+Message-ID: <59f869f7-586b-4021-b44d-dfd5df36d17a@linux.ibm.com>
+Date: Thu, 26 Jun 2025 18:55:30 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,129 +69,72 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 9/9] kasan/powerpc: call kasan_init_generic in kasan_init
-To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>, ryabinin.a.a@gmail.com,
- glider@google.com, andreyknvl@gmail.com, dvyukov@google.com,
- vincenzo.frascino@arm.com, catalin.marinas@arm.com, will@kernel.org,
- chenhuacai@kernel.org, kernel@xen0n.name, maddy@linux.ibm.com,
- mpe@ellerman.id.au, npiggin@gmail.com, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- richard@nod.at, anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
- dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org,
- tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
- hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com,
- akpm@linux-foundation.org
-Cc: guoweikang.kernel@gmail.com, geert@linux-m68k.org, rppt@kernel.org,
- tiwei.btw@antgroup.com, richard.weiyang@gmail.com, benjamin.berg@intel.com,
- kevin.brodsky@arm.com, kasan-dev@googlegroups.com,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
-References: <20250625095224.118679-1-snovitoll@gmail.com>
- <20250625095224.118679-10-snovitoll@gmail.com>
-Content-Language: fr-FR
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20250625095224.118679-10-snovitoll@gmail.com>
+Subject: Re: [PATCH net-next v2 7/9] net/smc: Drop nr_pages_max initialization
+To: Michal Luczaj <mhal@rbox.co>, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Neal Cardwell <ncardwell@google.com>,
+        Kuniyuki Iwashima <kuniyu@google.com>,
+        David Ahern <dsahern@kernel.org>, Boris Pismenny <borisp@nvidia.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Ayush Sawal <ayush.sawal@chelsio.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20250626-splice-drop-unused-v2-0-3268fac1af89@rbox.co>
+ <20250626-splice-drop-unused-v2-7-3268fac1af89@rbox.co>
+Content-Language: en-US
+From: Sidraya Jayagond <sidraya@linux.ibm.com>
+In-Reply-To: <20250626-splice-drop-unused-v2-7-3268fac1af89@rbox.co>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=M5FNKzws c=1 sm=1 tr=0 ts=685d4a55 cx=c_pps a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=WDAXKTNUUXuyYHq0jyUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI2MDExMiBTYWx0ZWRfXy3bcL4KxEbLd qBpE+zXX99M5NXGzAZREjCuHb+lSyQK/AuEmVpmsTwmc6w3jMPFpoS6yLoICU6wkS+ebCvSdM2P yIgGPCsQPpD7KZoLsgjUGqbHDqHqNTLXr/yY5zc4JP5jrc6NPNAkyoZB1ZEiAuOLXPZZG8v7UOS
+ x3Wh8HgNZnewlgj/ZIAg4bB9sEtlP09rKfcXucJbpKqLrRxHEfcgkAdlOAYu3Sg0bPcwR42/SQK kPAUfm1RVb7a6I66nG14rCcSleb1Te1++q1TeGJOxa2zVOvXsyaTT5rKIVdrL8mX1fOoFr7M7kz +tOkqOsr9ue6Ql7vrQRm9oUb1rnBoUuNvrGsrxMOwwYxay1tP+50OuJF1FZo7ME76DCujjM/HnJ
+ hwMcproKNFhT195vJbBB4Hc4pLCusxWDl5P43/Rbo/TIW/DAbWWnWhYppko8zmbuHrGlVZcY
+X-Proofpoint-GUID: mXg7mT2CW3aKLbyhfQI2l7s2PzaJ7Rh8
+X-Proofpoint-ORIG-GUID: ib18akj9XBROQCGZlfP3AB-I4y3i0s5P
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-06-26_05,2025-06-26_04,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 clxscore=1011 adultscore=0
+ mlxscore=0 mlxlogscore=999 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506260112
 
 
 
-Le 25/06/2025 à 11:52, Sabyrzhan Tasbolatov a écrit :
-> Call kasan_init_generic() which enables the static flag
-> to mark generic KASAN initialized, otherwise it's an inline stub.
-> Also prints the banner from the single place.
+On 26/06/25 2:03 pm, Michal Luczaj wrote:
+> splice_pipe_desc::nr_pages_max was initialized unnecessarily in
+> commit b8d199451c99 ("net/smc: Allow virtually contiguous sndbufs or RMBs
+> for SMC-R"). Struct's field is unused in this context.
 > 
-> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=218315
-> Fixes: 55d77bae7342 ("kasan: fix Oops due to missing calls to kasan_arch_is_ready()")
-> Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+> Remove the assignment. No functional change intended.
+> 
+> Suggested-by: Simon Horman <horms@kernel.org>
+> Signed-off-by: Michal Luczaj <mhal@rbox.co>
 > ---
->   arch/powerpc/include/asm/kasan.h       | 14 --------------
->   arch/powerpc/mm/kasan/init_book3s_64.c |  6 +-----
->   2 files changed, 1 insertion(+), 19 deletions(-)
+>   net/smc/smc_rx.c | 1 -
+>   1 file changed, 1 deletion(-)
 > 
-> diff --git a/arch/powerpc/include/asm/kasan.h b/arch/powerpc/include/asm/kasan.h
-> index b5bbb94c51f..23a06fbec72 100644
-> --- a/arch/powerpc/include/asm/kasan.h
-> +++ b/arch/powerpc/include/asm/kasan.h
-> @@ -52,20 +52,6 @@
->   
->   #endif
->   
-> -#ifdef CONFIG_KASAN
-
-The above #ifdef must remain, at the moment I get:
-
-   CC      arch/powerpc/kernel/asm-offsets.s
-In file included from ./arch/powerpc/include/asm/nohash/32/pgtable.h:65,
-                  from ./arch/powerpc/include/asm/nohash/pgtable.h:13,
-                  from ./arch/powerpc/include/asm/pgtable.h:20,
-                  from ./include/linux/pgtable.h:6,
-                  from ./arch/powerpc/include/asm/kup.h:43,
-                  from ./arch/powerpc/include/asm/uaccess.h:8,
-                  from ./include/linux/uaccess.h:12,
-                  from ./include/linux/sched/task.h:13,
-                  from ./include/linux/sched/signal.h:9,
-                  from ./include/linux/rcuwait.h:6,
-                  from ./include/linux/percpu-rwsem.h:7,
-                  from ./include/linux/fs.h:34,
-                  from ./include/linux/compat.h:17,
-                  from arch/powerpc/kernel/asm-offsets.c:12:
-./arch/powerpc/include/asm/kasan.h:70:2: error: #endif without #if
-  #endif
-   ^~~~~
-In file included from ./include/linux/kasan.h:21,
-                  from ./include/linux/slab.h:260,
-                  from ./include/linux/fs.h:46,
-                  from ./include/linux/compat.h:17,
-                  from arch/powerpc/kernel/asm-offsets.c:12:
-./arch/powerpc/include/asm/kasan.h:70:2: error: #endif without #if
-  #endif
-   ^~~~~
-make[2]: *** [scripts/Makefile.build:182: 
-arch/powerpc/kernel/asm-offsets.s] Error 1
-
-
-> -#ifdef CONFIG_PPC_BOOK3S_64
-> -DECLARE_STATIC_KEY_FALSE(powerpc_kasan_enabled_key);
-> -
-> -static __always_inline bool kasan_arch_is_ready(void)
-> -{
-> -	if (static_branch_likely(&powerpc_kasan_enabled_key))
-> -		return true;
-> -	return false;
-> -}
-> -
-> -#define kasan_arch_is_ready kasan_arch_is_ready
-> -#endif
-> -
->   void kasan_early_init(void);
->   void kasan_mmu_init(void);
->   void kasan_init(void);
-> diff --git a/arch/powerpc/mm/kasan/init_book3s_64.c b/arch/powerpc/mm/kasan/init_book3s_64.c
-> index 7d959544c07..dcafa641804 100644
-> --- a/arch/powerpc/mm/kasan/init_book3s_64.c
-> +++ b/arch/powerpc/mm/kasan/init_book3s_64.c
-> @@ -19,8 +19,6 @@
->   #include <linux/memblock.h>
->   #include <asm/pgalloc.h>
->   
-> -DEFINE_STATIC_KEY_FALSE(powerpc_kasan_enabled_key);
-> -
->   static void __init kasan_init_phys_region(void *start, void *end)
->   {
->   	unsigned long k_start, k_end, k_cur;
-> @@ -92,11 +90,9 @@ void __init kasan_init(void)
->   	 */
->   	memset(kasan_early_shadow_page, 0, PAGE_SIZE);
->   
-> -	static_branch_inc(&powerpc_kasan_enabled_key);
-> -
->   	/* Enable error messages */
->   	init_task.kasan_depth = 0;
-> -	pr_info("KASAN init done\n");
-> +	kasan_init_generic();
->   }
->   
->   void __init kasan_early_init(void) { }
-
+> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+> index e7f1134453ef40dd81a9574d6df4ead95acd8ae5..bbba5d4dc7eb0dbb31a9800023b0caab33e87842 100644
+> --- a/net/smc/smc_rx.c
+> +++ b/net/smc/smc_rx.c
+> @@ -202,7 +202,6 @@ static int smc_rx_splice(struct pipe_inode_info *pipe, char *src, size_t len,
+>   			offset = 0;
+>   		}
+>   	}
+> -	spd.nr_pages_max = nr_pages;
+>   	spd.nr_pages = nr_pages;
+>   	spd.pages = pages;
+>   	spd.partial = partial;
+> 
+LGTM.
+Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
