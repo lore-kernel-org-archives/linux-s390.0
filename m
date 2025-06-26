@@ -1,63 +1,63 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D0C82EBDF1;
-	Thu, 26 Jun 2025 15:32:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F87D2EBDF3;
+	Thu, 26 Jun 2025 15:32:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750951973; cv=none; b=p0JMehmB7Di/pD2PMW+zXBbjufBCK0apaGBVPQ6T+E1c/dTmEPUYCb6tbtL9JhXK4rqyJBBEoByaoUdmwruTTjZwKDzrIPpj5Q+u29UXY/gWZf2DG8Hel6AE6MMPe2VbEL3yq+yadEes5zruDow75FUwWV/OFwstvyOw0txu0BI=
+	t=1750951980; cv=none; b=jsP4/orhHTkhj5Bnwp/1gKeOZFOsMagYTpXMytUjfebQzl1IWDERbbkoz3eSM6faaGxH6+scRqC+qvEnkR4oYEcOiLoYVxLfHnzpUpE7OTJyxLS/yuFD4AYj5VQrnB4j38EunDNYDLfG3d211u9VqsAje1ISFuo9zGSdLnQTyJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750951973; c=relaxed/simple;
-	bh=lhF1+oDAAfZTQLsvxX1VmCxIOVKQmNCDXyIFJsn0eiM=;
+	s=arc-20240116; t=1750951980; c=relaxed/simple;
+	bh=afvhZBgmT2YwrMa1SlTy5Vlucrmbj6usF3J+30vljzg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=UVzSsedLWe8sRM8a65/ZEW+a3bj3E8+8lPko0CpNuWWbHyLLcX9ii8H5tkqkzY5XF/VRXj92EFYu1HYfCe8IJ5UFRX4OzTO6kjDWtd5YA4gJ1KWo1MTUbACoIBH3vpsISz8EjXSuE8DmolhP2bvh4vc22cLhXZ5zGl9rO4r3uxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lfo5DLrA; arc=none smtp.client-ip=209.85.167.43
+	 MIME-Version; b=M07e4kCletBe1Errbzb97Wn+mLITJd8xDgz0G4+sviEOVajonP0UId89tJ5hfBbsgRgvFMLaLuejXFUBQuIEENtkE3qWx+INBAwNgJrgw9AjAmTYUtMQMkLFIVUsY2x/qD0IojBWJPT/tjrSj7PTCEDqQ7foRgNfUiz3S6ectWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mzC7JWai; arc=none smtp.client-ip=209.85.167.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lfo5DLrA"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-553be4d2fbfso1330173e87.0;
-        Thu, 26 Jun 2025 08:32:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mzC7JWai"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-55502821bd2so1198625e87.2;
+        Thu, 26 Jun 2025 08:32:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750951970; x=1751556770; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750951976; x=1751556776; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iNdRW1IbQwaJLK3IU9ZGilulsvtFwP6FJhql802bOZE=;
-        b=lfo5DLrApADYanOYH81NntFNlRyPLp4YsdSQ5AztJWGjYBCSsjsP6/QKLsHYSagDwr
-         Y1WZgIcPjmuN5tKNdNCZixwEXqjNkmVJyrDarBz2+wFJVl50WEM6OPSNmgclbW7iTTrM
-         3Ub93HL6vcA1WRO0jWnosJrvbCnKTVCkTuQAA/a6iH//YrempYmuiodQhcqw2tzT7e4k
-         yg7ITZ7XIBaTdX+q4YYntq1UzdO7PW0XGBiBULxR2fFKSLJ75eBSNG4dL2XEVyH9ZgkP
-         zuGKWdSXJlZCTIit9CVBMOg6hVUjnGozyfiGYqTidr/MuVbWAeMRIrJuTVeYzk8RvZHT
-         ni7w==
+        bh=ZBJYqNEFUsGcSKAGhcxt9dDlG97Ga+bpIV5ghyvlETw=;
+        b=mzC7JWai+DeW2sv+oxGa1KqEQXXNvPg+ZDYh7kge8D9G9faiCCL4ksMDkB3DxCQtOx
+         L6oBurdbQp47DsyhwOpBmKv9zYvFjAwx0NvlWUAlMqmIR0CTi6Gu/DAxar6nrfCK7Q39
+         yJjP0o6bJKnGdQk+1tP1WiWGh8kgikv8+J/ElxBRA3br9YUA6ohhIqjF4O3EciUpH093
+         MvxRQs+lGs0joCbB7hmvU8C3K/SxVX+o6DzGoJhZ81UgYlRB4FN7GiXtSHbbUhy2le5l
+         C3UTQ8QwHz/rIfuyvy18uPHvQ3k5cmLTe85MCTdWxsOjUx4HtQt/eImh0IHBD+qsr8/X
+         wvbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750951970; x=1751556770;
+        d=1e100.net; s=20230601; t=1750951976; x=1751556776;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iNdRW1IbQwaJLK3IU9ZGilulsvtFwP6FJhql802bOZE=;
-        b=DiBUlDpJOF8Kz9sZ/tkzgI7w8GSEoWzVs1pEOBfwptNGx1mT5EuB2Fdhp+G7iCEF13
-         s9nmnT9gOQIGnfAd02DR4JVkKuOXp3S8QLM6l8VCQVazrqwiUkCkH8nE0Eidy60UJ9uK
-         4rhORtrcnLUJGycYcM8BDqe5qkMqXtvUQyWlWvRs2kHk5UO6OcJqCswpEdQ9EALe9ug6
-         UkC9qs60vzXgtr5+CLojNirQ5uWX2+Z71JB42VX+PnZegc4ig0nXy150mCD64UdJDSyK
-         Ve2ks2QBHDAterujiaVNWUzy4hzdy4yqDyf4snHoWLzq/oOhK0k9jQkUELmStQiAy/jg
-         LfxA==
-X-Forwarded-Encrypted: i=1; AJvYcCWqL4tf4awpoDYXJgHrEXuyoosGiDmtyCFCHo2cLqY8hPVbIyYUYcvIBfZkrtk47AMBraMZJd0+flchPrk=@vger.kernel.org, AJvYcCXMj7xqq7gk51NHe0mUL7emPCXupv2u5kAZ4mGsTDJjcctyj0C25T726AJkxXKWl50rGMYuXoHQRbDecA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzI5GVVDmGH+lRv/KoUXWdkadb3Nu3LVEOH3XCpqvpdKl3+CkML
-	IkHI2dJ4OSKGwMUmlY9Vkd3YKdVjGEvBOb3DphiVsQL6tgPjmqaYlRRz
-X-Gm-Gg: ASbGncuJulIl+RZwAAYcvrkIL/h4bef4k8s3xD/gqru/QQcxa/PGrWgxPJFU9Av/7OG
-	5hWN5Zh+DixtliBDSzB38VKoQUwBF0S/B+iEvs7mUwLVwZfQYKgb4RedyatNNeCHbONoYKe/19O
-	tooev1EgLBLngS0HdlZE6/b11JqqTZEaxOx562k2mfhIzbvtHej4E2MyQ9oLqfC0XFEinsQ7fnv
-	flQ5hznB/0RM3BfzlyMvukeh7XT/mHuwn4KykWioxSVHUGzlJfD3T/VguDyCWZ9XvenuZObBumS
-	JgQMROIJLSO7k6ew5DMxjS1NbdHGSkukUlB6UjJwPMsLhvNgLJuMmT3Keq/OOwF4UO8aazRzAkV
-	FW+j8KQug0P0aWU+rboGAJiKZSu9ghg==
-X-Google-Smtp-Source: AGHT+IEJ8rUJC6ORRfCQpyeVpgt13wcImWaXJ02l+Sh7w1+4iNgFiJrQa6DpXH1RNUwTGuIGr0B3/g==
-X-Received: by 2002:a05:6512:3d8d:b0:553:d637:1e96 with SMTP id 2adb3069b0e04-554fdd1d556mr3088387e87.31.1750951969599;
-        Thu, 26 Jun 2025 08:32:49 -0700 (PDT)
+        bh=ZBJYqNEFUsGcSKAGhcxt9dDlG97Ga+bpIV5ghyvlETw=;
+        b=MxS409HiYJ6eSew2lWEnI9GpJGUq2B1qsqnf4pqtoSkmivkfyrlXnHwQ7zK/i0V84R
+         Ep6xedj35eYQPM2IG+6zr/AobXQdbKo4q275bjdtVVBWMiCs2bypoF3L1kMj0ujtHjVZ
+         gs8Ty+c0jk2TwH0s0xw59aKj2cY/RiJhny5VGuV6AcvfECKjQ+7M/+raDtJhDmxUwB03
+         bpw5gYY8V4uo+ugxljczzXhL3+RW/ckh2DwV2N9cJ+JXRabbuK0ZhXoyShSTUGmGRJG1
+         eTaWUavp0mcVPI+VwFZxpPACtIWHckmHyhdA9SDu7yIm9h2ztNROZOM5PqVhz5lu/69P
+         bBfw==
+X-Forwarded-Encrypted: i=1; AJvYcCU9ySy9sF7Wlmo67O4k2BQ1n/eqB2D5ZY45tYd8zDH5xPO8lLpUSyRRjtqocCd87encT7f4kRBvo6diK8s=@vger.kernel.org, AJvYcCWnjAG+gp90nklTJKwuMcxWcU/XvK/K7UI3FsKs6KH/CzPRNwEmPkPfQU7FVywiFuaSX6cvBr+o3rXr9Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxJiMmanHIjA8MIUjm0k95ZunGcWyW5tqBQDHjcerjy66xBlAGR
+	IHhHH7BqLVALSLGZE0hQ4IwUfHegVbsMKH4G4jvsaMj7Klisio5gqWnH
+X-Gm-Gg: ASbGncthXusMHTNXTfH3sJT3wC5GFju8IbAc1O/O++JAT4G4dRnqUV4BtOpWmw2fujH
+	QE8jc5EOXC3m5gApHablTn/Pxlwaayv+Se920xtTP5lmI0AmQArf/ErdN5FD+lT6S5/IZsqSDVg
+	krZh50tNopC6XVpFoOpSFvzTq2Mw8rwjZN34qevKQgTBELrGC3IcfMpAZ5QJWzedOX6wtmI2Ujc
+	MIHx6UToRHGGAu9xjcvl4gj0THLIU5t1XRhD/nhr7KonKNS6bxpGwm3mcug4Zlztytw48QFhiSf
+	INdR2LhLde0TqmQ85gPBcGLrx+6CnE5IsrAaWj/dFCONvunFDGk4TNKwYeBAxNSMdH9q6yIjnMt
+	KWiWryYPG6j+P+YD6uSe1IrboTc7fXnBLZFNhfTUG
+X-Google-Smtp-Source: AGHT+IEFT2kc8D9hjhRCI4Kut+1atHj8fN6ClIv95YfFL1i2Q+3r8LuVnLNmbJZfRzfJp4+oWdZNgw==
+X-Received: by 2002:a05:6512:3dab:b0:553:26f6:bbfd with SMTP id 2adb3069b0e04-554fdce00cdmr2633203e87.8.1750951976245;
+        Thu, 26 Jun 2025 08:32:56 -0700 (PDT)
 Received: from localhost.localdomain (2.135.54.165.dynamic.telecom.kz. [2.135.54.165])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5550b2ce1fasm42792e87.174.2025.06.26.08.32.43
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5550b2ce1fasm42792e87.174.2025.06.26.08.32.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Jun 2025 08:32:49 -0700 (PDT)
+        Thu, 26 Jun 2025 08:32:55 -0700 (PDT)
 From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 To: ryabinin.a.a@gmail.com,
 	glider@google.com,
@@ -119,9 +119,9 @@ Cc: arnd@arndb.de,
 	linux-mm@kvack.org,
 	llvm@lists.linux.dev,
 	snovitoll@gmail.com
-Subject: [PATCH v2 07/11] kasan/x86: call kasan_init_generic in kasan_init
-Date: Thu, 26 Jun 2025 20:31:43 +0500
-Message-Id: <20250626153147.145312-8-snovitoll@gmail.com>
+Subject: [PATCH v2 08/11] kasan/s390: call kasan_init_generic in kasan_init
+Date: Thu, 26 Jun 2025 20:31:44 +0500
+Message-Id: <20250626153147.145312-9-snovitoll@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250626153147.145312-1-snovitoll@gmail.com>
 References: <20250626153147.145312-1-snovitoll@gmail.com>
@@ -140,20 +140,30 @@ Also prints the banner from the single place.
 Closes: https://bugzilla.kernel.org/show_bug.cgi?id=218315
 Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 ---
- arch/x86/mm/kasan_init_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/early.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/kasan_init_64.c b/arch/x86/mm/kasan_init_64.c
-index 0539efd0d21..998b6010d6d 100644
---- a/arch/x86/mm/kasan_init_64.c
-+++ b/arch/x86/mm/kasan_init_64.c
-@@ -451,5 +451,5 @@ void __init kasan_init(void)
- 	__flush_tlb_all();
- 
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 54cf0923050..7ada1324f6a 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -21,6 +21,7 @@
+ #include <linux/kernel.h>
+ #include <asm/asm-extable.h>
+ #include <linux/memblock.h>
++#include <linux/kasan.h>
+ #include <asm/access-regs.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/machine.h>
+@@ -65,7 +66,7 @@ static void __init kasan_early_init(void)
+ {
+ #ifdef CONFIG_KASAN
  	init_task.kasan_depth = 0;
 -	pr_info("KernelAddressSanitizer initialized\n");
 +	kasan_init_generic();
+ #endif
  }
+ 
 -- 
 2.34.1
 
