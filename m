@@ -1,46 +1,81 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB65415ADB4;
-	Thu, 26 Jun 2025 02:24:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CD61E545;
+	Thu, 26 Jun 2025 05:17:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750904668; cv=none; b=hD/i94CV1jaIcGnslr6yHuL7TEBvpfTb6RKFGfvnF6BpFBKx6AyNDQgJhTHa1hqZLVaCOsALY8RMagVxsQpAxx4DGJLVlrDq+vDPdZ5HGBxjHIt6H33CZ61XRpA+56ijRqF7cHs2HRbDvHcST8CrOVO3ie2VExdQK7imfr0gChY=
+	t=1750915064; cv=none; b=JCTDj9z6JklPO4tNE/cBs9BlX1ubwXBLvGJGzBJN50jwxb6nhSiGHCFKYOYkFG1XCj3Y5j4SSDgHcmotK5bAyxhDikHWkrQIXZUYqrzpxRdGqhzvL86qELNzoVDG4eyz52e7lc1sChpSpldVaMeHC/7bdoZG9EAASFHgIk0NMuU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750904668; c=relaxed/simple;
-	bh=OZQ3H/JIEn8bCjBlXw94lDCSHn31RGiofhuJjyb66Fc=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=hRshQ+IhSBJKAI7dhYn61e2TV/knaFlQAMtst9Ld4hInIKHtfeK16eCnTXoiVJdhhMLE8kB+IJge/t5i/OsixcO3bapcvG6ZEsGASoNJs6yietP9T8d3h3fc3qVTPogDuEdLGxxOKAb6gWNcAeRfDlU+0R3QLa+ew88+PzBOAjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.44])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4bSMrf0sY6z1W3Vj;
-	Thu, 26 Jun 2025 10:21:54 +0800 (CST)
-Received: from kwepemg100016.china.huawei.com (unknown [7.202.181.57])
-	by mail.maildlp.com (Postfix) with ESMTPS id 4C4471400E8;
-	Thu, 26 Jun 2025 10:24:22 +0800 (CST)
-Received: from huawei.com (10.67.174.33) by kwepemg100016.china.huawei.com
- (7.202.181.57) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 26 Jun
- 2025 10:24:21 +0800
-From: GONG Ruiqi <gongruiqi1@huawei.com>
-To: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
-	<roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>, Madhavan Srinivasan
-	<maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens
-	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>
-CC: Eric Snowberg <eric.snowberg@oracle.com>, Christophe Leroy
-	<christophe.leroy@csgroup.eu>, Nicholas Piggin <npiggin@gmail.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	"Lee, Chun-Yi" <jlee@suse.com>, <linuxppc-dev@lists.ozlabs.org>,
-	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<linux-integrity@vger.kernel.org>, <keyrings@vger.kernel.org>, Lu Jialin
-	<lujialin4@huawei.com>, <gongruiqi1@huawei.com>
-Subject: [PATCH RESEND] integrity: Extract secure boot enquiry function out of IMA
-Date: Thu, 26 Jun 2025 10:36:17 +0800
-Message-ID: <20250626023617.3885806-1-gongruiqi1@huawei.com>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1750915064; c=relaxed/simple;
+	bh=7pDiatASWg3dksMGPUf9Q1jgVSSLuS8UeB4OcJQOaNA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LaFoNUuAuWDjfTthVmKign8qG6ePK5SmpgDzCSsZUWyxmxKwEBRFfjXoPLq/HFqb7J7ACreZb950otieO/pcVjiOOuCqYSzYAbwMpoDhQ1rbeGJVv2Mq/0xdqHWVgDVkc680UdykjRhcdQZvntvAELOVsIRoonqesm1hXXHFwFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hXhgJHil; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hXhgJHil"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55Q4An3k019590;
+	Thu, 26 Jun 2025 05:17:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=VRE/3PBW3+oTGB+4b4bhY8mH41mjdoc/AXbX/9qR5
+	n0=; b=hXhgJHilC8j7Q66Djk1uIdbsAO1Uj3dmdyMH80+WeY2tVuxyzm+DnEwPW
+	J7f9yxa/WOqQTezBboPY+3uW3lKMUPiOeY17uYdqj87AQ+/f5qbP6NbE8CvqCqzh
+	us69zrhp59j8w9tLXHMxQHxc974QdUd5CWsEdR6uasgXN7c/hhM/r5njXoWinr1g
+	4KJbOeZTcny5MYq+PYjfLjpP2Iv/zaXtuhfP7LY85YseWlL47flwiPN28A5uXp1A
+	QiVjNVPIzJ0jgHcEA4Fhf7gRG0IK37URhfVlF40dfIreC4brfeMRwPW8RF/vm952
+	ItV6VxHpgo1E/9mT572Eh7wNIB5YA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3btyq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Jun 2025 05:17:27 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55Q5HRkZ017031;
+	Thu, 26 Jun 2025 05:17:27 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3btyn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Jun 2025 05:17:27 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55Q4wohH002499;
+	Thu, 26 Jun 2025 05:17:26 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e8jmd4r3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Jun 2025 05:17:26 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55Q5HMx856426902
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 26 Jun 2025 05:17:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 729A02004B;
+	Thu, 26 Jun 2025 05:17:22 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3B8B520043;
+	Thu, 26 Jun 2025 05:17:21 +0000 (GMT)
+Received: from LAPTOP-8S6R7U4L.ibm.com (unknown [9.111.56.205])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 26 Jun 2025 05:17:21 +0000 (GMT)
+From: Jan Karcher <jaka@linux.ibm.com>
+To: Andrew Lunn <andrew+netdev@lunn.ch>, David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Jan Karcher <jaka@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>
+Subject: [PATCH net v2] MAINTAINERS: update smc section
+Date: Thu, 26 Jun 2025 07:16:53 +0200
+Message-ID: <20250626051653.4259-1-jaka@linux.ibm.com>
+X-Mailer: git-send-email 2.43.2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,292 +83,64 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
- kwepemg100016.china.huawei.com (7.202.181.57)
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=M5FNKzws c=1 sm=1 tr=0 ts=685cd7e7 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=6IFa9wvqVegA:10 a=SRrdq9N9AAAA:8 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=9JzLZ8vFzxP9H69fwZ8A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI2MDA0MCBTYWx0ZWRfX3h+0JGGmTTqL ybIwV9vnUkpLKKoaJKmb/je2Jtsz93MSuPQ27xGSCBfnWSVCbo3qZtUs1ncKDFWl0yM9su4H6Te qbTMV0kJ4gEWft7Wi3GO0iBj2XZMZj7FpQOTzd6tBYqtD28dEIgk1NS4ox4JpxL4BRKyK+YydEa
+ EY8UVSmYJ4oEV8H2QBOT/AJ8wS+ZREZbuR+c/DH6dLrzacnEbd6aWe3MpCoMOWolTU2XMKIcW0j GYTKdEkmTdQVzuRAoydH5zzpfyMISOvgiscjqRT1pfK3uRNJy58jmEyiqwFk+/paboUwpfLv02K yRu81VJByk/YE2hikSkjy33Kqbw3D4EZrfQxhUmqDAnqpIPyeQrH3aFpIV/colAvarZAn8WVgOo
+ A8hcnYTfMwnZfSI8iaaYsKHAeTkeQhN1vXehryGpLVCfPP51e0L+3YRUk4ViLtWEKVSFb9D/
+X-Proofpoint-GUID: MWReB_C4pjvLduocTBNfzyqN9x032dQ6
+X-Proofpoint-ORIG-GUID: 2dILJEqJbjZDEM8XfV_jEJfIlvWbNfqF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-06-26_02,2025-06-25_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 clxscore=1015 adultscore=0
+ mlxscore=0 mlxlogscore=824 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506260040
 
-Commit 92ad19559ea9 ("integrity: Do not load MOK and MOKx when secure
-boot be disabled") utilizes arch_ima_get_secureboot() to perform a
-secure boot status check before loading the Machine Owner Key (MOK).
-However, only when CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT=y can this
-function be functional, while this config has nothing to do with secure
-boot or MOK loading.
+Due to changes of my responsibilities within IBM i
+can no longer act as maintainer for smc.
 
-Given that arch_ima_get_secureboot() is just a helper to retrieve info
-about secure boot via EFI and doesn't necessarily be a part of IMA,
-rename it to arch_integrity_get_secureboot(), decouple its functionality
-from IMA and extract it to be a integrity subsystem helper, so that both
-certificate loading and IMA can make use of it.
+As a result of the co-operation with Alibaba over
+the last years we decided to, once more, give them
+more responsibility for smc by appointing
+D. Wythe <alibuda@linux.alibaba.com> and
+Dust Li <dust.li@linux.alibaba.com>
+as maintainers as well.
 
-Compile-tested for powerpc, s390 and x86, all with allmodconfig.
+Within IBM Sidraya Jayagond <sidraya@linux.ibm.com>
+and Mahanta Jambigi <mjambigi@linux.ibm.com>
+are going to take over the maintainership for smc.
 
-Signed-off-by: GONG Ruiqi <gongruiqi1@huawei.com>
+v1 -> v2:
+* Added Mahanta as reviewer for the time being due
+to missing contributions.
+
+Signed-off-by: Jan Karcher <jaka@linux.ibm.com>
 ---
+ MAINTAINERS | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-RESEND: Remove duplicated paragraph in commit message. Apology for the
-mistake.
-
- arch/powerpc/kernel/ima_arch.c                |  3 +-
- arch/s390/kernel/ima_arch.c                   |  3 +-
- include/linux/ima.h                           |  6 ---
- include/linux/integrity.h                     |  1 +
- security/integrity/Makefile                   |  3 +-
- security/integrity/ima/Makefile               |  2 +-
- security/integrity/ima/ima_appraise.c         |  2 +-
- security/integrity/ima/ima_efi.c              | 47 +-----------------
- security/integrity/ima/ima_main.c             |  2 +-
- security/integrity/platform_certs/load_uefi.c |  2 +-
- security/integrity/secureboot.c               | 48 +++++++++++++++++++
- 11 files changed, 61 insertions(+), 58 deletions(-)
- create mode 100644 security/integrity/secureboot.c
-
-diff --git a/arch/powerpc/kernel/ima_arch.c b/arch/powerpc/kernel/ima_arch.c
-index b7029beed847..4ceda3f534bd 100644
---- a/arch/powerpc/kernel/ima_arch.c
-+++ b/arch/powerpc/kernel/ima_arch.c
-@@ -5,9 +5,10 @@
-  */
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c3f7fbd0d67a..cfe9d000fbff 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -22550,9 +22550,11 @@ S:	Maintained
+ F:	drivers/misc/sgi-xp/
  
- #include <linux/ima.h>
-+#include <linux/integrity.h>
- #include <asm/secure_boot.h>
- 
--bool arch_ima_get_secureboot(void)
-+bool arch_integrity_get_secureboot(void)
- {
- 	return is_ppc_secureboot_enabled();
- }
-diff --git a/arch/s390/kernel/ima_arch.c b/arch/s390/kernel/ima_arch.c
-index f3c3e6e1c5d3..6fb2d551e2c2 100644
---- a/arch/s390/kernel/ima_arch.c
-+++ b/arch/s390/kernel/ima_arch.c
-@@ -1,9 +1,10 @@
- // SPDX-License-Identifier: GPL-2.0
- 
- #include <linux/ima.h>
-+#include <linux/integrity.h>
- #include <asm/boot_data.h>
- 
--bool arch_ima_get_secureboot(void)
-+bool arch_integrity_get_secureboot(void)
- {
- 	return ipl_secure_flag;
- }
-diff --git a/include/linux/ima.h b/include/linux/ima.h
-index 8e29cb4e6a01..9faf3b964314 100644
---- a/include/linux/ima.h
-+++ b/include/linux/ima.h
-@@ -72,14 +72,8 @@ int __init ima_get_kexec_buffer(void **addr, size_t *size);
- #endif
- 
- #ifdef CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT
--extern bool arch_ima_get_secureboot(void);
- extern const char * const *arch_get_ima_policy(void);
- #else
--static inline bool arch_ima_get_secureboot(void)
--{
--	return false;
--}
--
- static inline const char * const *arch_get_ima_policy(void)
- {
- 	return NULL;
-diff --git a/include/linux/integrity.h b/include/linux/integrity.h
-index f5842372359b..4bc81fe4253e 100644
---- a/include/linux/integrity.h
-+++ b/include/linux/integrity.h
-@@ -61,5 +61,6 @@ integrity_inode_attrs_changed(const struct integrity_inode_attributes *attrs,
- 		!inode_eq_iversion(inode, attrs->version));
- }
- 
-+extern bool arch_integrity_get_secureboot(void);
- 
- #endif /* _LINUX_INTEGRITY_H */
-diff --git a/security/integrity/Makefile b/security/integrity/Makefile
-index 92b63039c654..0770c6554a8f 100644
---- a/security/integrity/Makefile
-+++ b/security/integrity/Makefile
-@@ -11,7 +11,8 @@ integrity-$(CONFIG_INTEGRITY_SIGNATURE) += digsig.o
- integrity-$(CONFIG_INTEGRITY_ASYMMETRIC_KEYS) += digsig_asymmetric.o
- integrity-$(CONFIG_INTEGRITY_PLATFORM_KEYRING) += platform_certs/platform_keyring.o
- integrity-$(CONFIG_INTEGRITY_MACHINE_KEYRING) += platform_certs/machine_keyring.o
--integrity-$(CONFIG_LOAD_UEFI_KEYS) += platform_certs/efi_parser.o \
-+integrity-$(CONFIG_LOAD_UEFI_KEYS) += secureboot.o \
-+				      platform_certs/efi_parser.o \
- 				      platform_certs/load_uefi.o \
- 				      platform_certs/keyring_handler.o
- integrity-$(CONFIG_LOAD_IPL_KEYS) += platform_certs/load_ipl_s390.o
-diff --git a/security/integrity/ima/Makefile b/security/integrity/ima/Makefile
-index b376d38b4ee6..f81be17e25a8 100644
---- a/security/integrity/ima/Makefile
-+++ b/security/integrity/ima/Makefile
-@@ -16,5 +16,5 @@ ima-$(CONFIG_IMA_MEASURE_ASYMMETRIC_KEYS) += ima_asymmetric_keys.o
- ima-$(CONFIG_IMA_QUEUE_EARLY_BOOT_KEYS) += ima_queue_keys.o
- 
- ifeq ($(CONFIG_EFI),y)
--ima-$(CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT) += ima_efi.o
-+ima-$(CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT) += ima_efi.o ../secureboot.o
- endif
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index f435eff4667f..41bece645348 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -27,7 +27,7 @@ core_param(ima_appraise, ima_appraise_cmdline_default, charp, 0);
- void __init ima_appraise_parse_cmdline(void)
- {
- 	const char *str = ima_appraise_cmdline_default;
--	bool sb_state = arch_ima_get_secureboot();
-+	bool sb_state = arch_integrity_get_secureboot();
- 	int appraisal_state = ima_appraise;
- 
- 	if (!str)
-diff --git a/security/integrity/ima/ima_efi.c b/security/integrity/ima/ima_efi.c
-index 138029bfcce1..fcbc0727469e 100644
---- a/security/integrity/ima/ima_efi.c
-+++ b/security/integrity/ima/ima_efi.c
-@@ -2,52 +2,9 @@
- /*
-  * Copyright (C) 2018 IBM Corporation
-  */
--#include <linux/efi.h>
- #include <linux/module.h>
- #include <linux/ima.h>
--#include <asm/efi.h>
--
--#ifndef arch_ima_efi_boot_mode
--#define arch_ima_efi_boot_mode efi_secureboot_mode_unset
--#endif
--
--static enum efi_secureboot_mode get_sb_mode(void)
--{
--	enum efi_secureboot_mode mode;
--
--	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE)) {
--		pr_info("ima: secureboot mode unknown, no efi\n");
--		return efi_secureboot_mode_unknown;
--	}
--
--	mode = efi_get_secureboot_mode(efi.get_variable);
--	if (mode == efi_secureboot_mode_disabled)
--		pr_info("ima: secureboot mode disabled\n");
--	else if (mode == efi_secureboot_mode_unknown)
--		pr_info("ima: secureboot mode unknown\n");
--	else
--		pr_info("ima: secureboot mode enabled\n");
--	return mode;
--}
--
--bool arch_ima_get_secureboot(void)
--{
--	static enum efi_secureboot_mode sb_mode;
--	static bool initialized;
--
--	if (!initialized && efi_enabled(EFI_BOOT)) {
--		sb_mode = arch_ima_efi_boot_mode;
--
--		if (sb_mode == efi_secureboot_mode_unset)
--			sb_mode = get_sb_mode();
--		initialized = true;
--	}
--
--	if (sb_mode == efi_secureboot_mode_enabled)
--		return true;
--	else
--		return false;
--}
-+#include <linux/integrity.h>
- 
- /* secureboot arch rules */
- static const char * const sb_arch_rules[] = {
-@@ -67,7 +24,7 @@ static const char * const sb_arch_rules[] = {
- 
- const char * const *arch_get_ima_policy(void)
- {
--	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) && arch_ima_get_secureboot()) {
-+	if (IS_ENABLED(CONFIG_IMA_ARCH_POLICY) && arch_integrity_get_secureboot()) {
- 		if (IS_ENABLED(CONFIG_MODULE_SIG))
- 			set_module_sig_enforced();
- 		if (IS_ENABLED(CONFIG_KEXEC_SIG))
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index f99ab1a3b0f0..9974d89f3eca 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -899,7 +899,7 @@ static int ima_load_data(enum kernel_load_data_id id, bool contents)
- 	switch (id) {
- 	case LOADING_KEXEC_IMAGE:
- 		if (IS_ENABLED(CONFIG_KEXEC_SIG)
--		    && arch_ima_get_secureboot()) {
-+		    && arch_integrity_get_secureboot()) {
- 			pr_err("impossible to appraise a kernel image without a file descriptor; try using kexec_file_load syscall.\n");
- 			return -EACCES;
- 		}
-diff --git a/security/integrity/platform_certs/load_uefi.c b/security/integrity/platform_certs/load_uefi.c
-index d1fdd113450a..3042a0c536d6 100644
---- a/security/integrity/platform_certs/load_uefi.c
-+++ b/security/integrity/platform_certs/load_uefi.c
-@@ -212,7 +212,7 @@ static int __init load_uefi_certs(void)
- 	}
- 
- 	/* the MOK/MOKx can not be trusted when secure boot is disabled */
--	if (!arch_ima_get_secureboot())
-+	if (!arch_integrity_get_secureboot())
- 		return 0;
- 
- 	mokx = get_cert_list(L"MokListXRT", &mok_var, &mokxsize, &status);
-diff --git a/security/integrity/secureboot.c b/security/integrity/secureboot.c
-new file mode 100644
-index 000000000000..5c50f8be6053
---- /dev/null
-+++ b/security/integrity/secureboot.c
-@@ -0,0 +1,48 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Copyright (C) 2025 Huawei Technologies Co., Ltd
-+ */
-+#include <linux/module.h>
-+#include <linux/efi.h>
-+#include <linux/integrity.h>
-+
-+#include <asm/efi.h>
-+
-+#ifndef arch_integrity_efi_boot_mode
-+#define arch_integrity_efi_boot_mode efi_secureboot_mode_unset
-+#endif
-+
-+static enum efi_secureboot_mode get_sb_mode(void)
-+{
-+	enum efi_secureboot_mode mode;
-+
-+	if (!efi_rt_services_supported(EFI_RT_SUPPORTED_GET_VARIABLE)) {
-+		pr_info("integrity: secureboot mode unknown, no efi\n");
-+		return efi_secureboot_mode_unknown;
-+	}
-+
-+	mode = efi_get_secureboot_mode(efi.get_variable);
-+	if (mode == efi_secureboot_mode_disabled)
-+		pr_info("integrity: secureboot mode disabled\n");
-+	else if (mode == efi_secureboot_mode_unknown)
-+		pr_info("integrity: secureboot mode unknown\n");
-+	else
-+		pr_info("integrity: secureboot mode enabled\n");
-+	return mode;
-+}
-+
-+bool __weak arch_integrity_get_secureboot(void)
-+{
-+	static enum efi_secureboot_mode sb_mode;
-+	static bool initialized;
-+
-+	if (!initialized && efi_enabled(EFI_BOOT)) {
-+		sb_mode = arch_integrity_efi_boot_mode;
-+
-+		if (sb_mode == efi_secureboot_mode_unset)
-+			sb_mode = get_sb_mode();
-+		initialized = true;
-+	}
-+
-+	return sb_mode == efi_secureboot_mode_enabled;
-+}
+ SHARED MEMORY COMMUNICATIONS (SMC) SOCKETS
++M:	D. Wythe <alibuda@linux.alibaba.com>
++M:	Dust Li <dust.li@linux.alibaba.com>
++M:	Sidraya Jayagond <sidraya@linux.ibm.com>
+ M:	Wenjia Zhang <wenjia@linux.ibm.com>
+-M:	Jan Karcher <jaka@linux.ibm.com>
+-R:	D. Wythe <alibuda@linux.alibaba.com>
++R:	Mahanta Jambigi <mjambigi@linux.ibm.com>
+ R:	Tony Lu <tonylu@linux.alibaba.com>
+ R:	Wen Gu <guwen@linux.alibaba.com>
+ L:	linux-rdma@vger.kernel.org
 -- 
-2.25.1
+2.43.2
 
