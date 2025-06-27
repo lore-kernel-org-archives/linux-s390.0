@@ -1,60 +1,67 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6CD921ABCF;
-	Fri, 27 Jun 2025 07:13:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2B83224AE0;
+	Fri, 27 Jun 2025 08:13:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751008426; cv=none; b=s1JFNPX88W6q9JK6MfcKle/X73n2Mg01fWBoAuf+KgzDOqkuSxdT+PXUBgFT/4jCZNko/cnrHWUxotbJwz+xzNrhy8E5DdGHlKH8iEZsvfNoqlANqvisk679aqjla0p4h8ENfz5S12YqsGbZrcyEfwSEZfC1pF0xcNbZH2U5CG0=
+	t=1751012029; cv=none; b=sFEXyOiMtl6miwoyP+kUpsjN53hHG4DzVtVKrVE2WkyRPSHOyxnzxCvLVrdRQBB0nFmESJPYhnt1fr/qEaaY5AzN7nE3RAuNiiqIifEHAJEFKd24yXJWWMR58Ym7hir89y9M63tBAr2iyLgMQpc0KdTjmT49RQ/dlKTfwsIQTfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751008426; c=relaxed/simple;
-	bh=oRuObBtJMtdBKai9YZobdenr/0LZEFyJ3a9I12B3qtU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LEkXt4LEb35glHnWVDmvOTemcDuQOwtETopnfgY0vV9FXQMLlcs69pR0oR4b6A8g9kiVIeWx3aclfYlLEh78fFkHK+hO6F7uszBp/Z/VefoGvbo80xVsWnKVtyMe0fXWZ3eu4iN4FrgRYMz/QEI7tHpL4TBNuAT43jPnFqZtBe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H13tz36R; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1751012029; c=relaxed/simple;
+	bh=o6hJzsHfwa7l8QymsFAPFL0BssPaa5+yNqxXr8OOqGI=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=f/Y2L+NuT6jdHrL2YQbQkKJMZXCgBUzvGgNVgSBCocLo5cUDrBADALtAqhRLml0rj/AHKZPvcLgCf+JMaRTatf4YLVtif4EBRrYElw2ynXzZCeToTgWW6Rd+CnbddKrOrLlGgSShhoxKLx0mu0+7gPcdF0VBJ2aSJo8A5jpgl6I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gsdC/VKN; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H13tz36R"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55QNKWdo031037;
-	Fri, 27 Jun 2025 07:13:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gsdC/VKN"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55QMGbdt019573;
+	Fri, 27 Jun 2025 08:13:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XWRt4G
-	RXhBmxphzhbfGlkUq+/WLGTB8nhodH4wYi1xc=; b=H13tz36RvleqtiC7TAKN0d
-	P2BLWcFKahhE1j6gxEijFPCJ0WYpnm74ZJJPZWdkRE0jT/dXt0njJaUFwoohOiIZ
-	6FPa81AHcW1ARa2h9EpI0sys5jHEiKBDDM22DU0a6fn+eI/G//KDvXPqIzPHY+C+
-	CybX/8DaIfhKUEzhM/j98kTPh4glAzyx4iFW6JqM/ZlXstis64Gwd59UVwtn18NA
-	EO3NucMys5DI2UjFRCXG1J8039Exd/vnZQYLZvPa24vjeYiyBOpapMffkcTh7hTN
-	yq3wz8/eKfuenAlgXbB6WZFPkpeYNzBe+if3PKI6bH/CUw3FfYCJKuy9GMKZhIGg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=FRv+jf
+	+H2WOoOyo2DrESPYPWQcOAbheMqs0hH1dSsC0=; b=gsdC/VKNSU+UJ+Kcn/+wtu
+	yJCxzlTOYh3GGpn1VLdgrMabickgPWQEi7EDVtMgY/nTKEFysxFiFHb+oRYm7XpN
+	V/qlAKAc4U+71qUzZet1qHqVWu2L+yMyUslWkUyeTyCO3NXXt913EnJ/DBtaxFzD
+	bggmXNoGq/14AL781KTrszjV00NDUKV0OmZbmMR4xHZXWwzXVe1nzugMNgebXrwe
+	ynzCKJgbVLVk+hO84zW+2yyLrN79I8rhJ331Lfscbas64hXXiOjyW8M31xUyoD9R
+	U6s62xYtD4m4zTL7kPEjT/AVQh3TJcGlnuykaiDCwzq3Ak/1WfPO8R2ZDfIJ5+ng
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dk64baud-1
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3kgva-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Jun 2025 07:13:32 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55R5FM3q002918;
-	Fri, 27 Jun 2025 07:13:31 GMT
+	Fri, 27 Jun 2025 08:13:43 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55R8BC8A015251;
+	Fri, 27 Jun 2025 08:13:43 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3kgv8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 27 Jun 2025 08:13:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55R4OUEJ031277;
+	Fri, 27 Jun 2025 08:13:42 GMT
 Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e8jmjtxt-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e7f0b8su-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Jun 2025 07:13:31 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55R7DNiN58720700
+	Fri, 27 Jun 2025 08:13:42 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55R8Dc6F56295772
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Jun 2025 07:13:23 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6B9B120040;
-	Fri, 27 Jun 2025 07:13:22 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 408922004D;
-	Fri, 27 Jun 2025 07:13:22 +0000 (GMT)
-Received: from [9.111.221.254] (unknown [9.111.221.254])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Jun 2025 07:13:22 +0000 (GMT)
-Message-ID: <8bd4f8d6-394c-4d3e-b0cb-59ba7da518ae@linux.ibm.com>
-Date: Fri, 27 Jun 2025 09:13:22 +0200
+	Fri, 27 Jun 2025 08:13:39 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CED5C2004B;
+	Fri, 27 Jun 2025 08:13:38 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4D0C920040;
+	Fri, 27 Jun 2025 08:13:38 +0000 (GMT)
+Received: from [9.111.10.20] (unknown [9.111.10.20])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 27 Jun 2025 08:13:38 +0000 (GMT)
+Message-ID: <283e109b-9eb5-4e7d-b7df-215f54496503@linux.ibm.com>
+Date: Fri, 27 Jun 2025 10:13:37 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,96 +69,150 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: Syzbot finding: invalid-load in arch/s390/crypto/sha_common.c
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>, linux-crypto@vger.kernel.org,
-        linux-s390@vger.kernel.org, Joerg Schmidbauer <jschmidb@de.ibm.com>
-References: <12740696-595c-4604-873e-aefe8b405fbf@linux.ibm.com>
- <20250626173441.GA1207@sol> <20250626231357.GA3143208@google.com>
-Content-Language: en-US, de-DE
-From: Ingo Franzki <ifranzki@linux.ibm.com>
-In-Reply-To: <20250626231357.GA3143208@google.com>
+Subject: [Ping][PATCH] perf list: Add IBM z17 event descriptions
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: Ian Rogers <irogers@google.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
+        japo@linux.ibm.com
+References: <20250623132731.899525-1-tmricht@linux.ibm.com>
+ <CAP-5=fV_hXzq0A-91NakejcQGnvPp+uJGGe=vccwM+47JVCmtA@mail.gmail.com>
+ <ad905a68-a89b-458d-8a8b-2081a6656b91@linux.ibm.com>
+Content-Language: en-US
+Organization: IBM
+In-Reply-To: <ad905a68-a89b-458d-8a8b-2081a6656b91@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI3MDA1MyBTYWx0ZWRfX3H9yFcv3Ixk6 dXVJQXyM5zqCHn9jJvSlmzt0B33ONuEhCuuriwvAD6RgOIPHkto9lCgMnTcyHfYEvtbYCl849zD qw52BeDZSgZiuWJEUqWhTfIBu8/rU9/zR6LSwqqMsn7pwnC0034fmx5furlJgh434tKul2iN2x4
- M5JFSdVr7neQ9joDzkIOp+RpG6JbRFKBFi0WHNN+F3LbjJNeUemEm86qETWRvDO5N3+Tr2QhZvX 6QTZX+OoaOFJFt97Dj1AYkZVYvILpckJgfs5XMa2OarpssEZT79jtjxfjnkRZfAVeXoboCZEruO nXP8VQbK89JZ3qYZ6+Cug7dqUYRyAcCIzmYsq28ggdQm4BuZQlwZWZUEChr6wk1qtvpzlmwGEwC
- cSnJc+HleKnRKif8EQX/G9kgIBtXLRRmvuKXKBi/uhXY7lh9/ZMJ1gikor0L21CNtqRcHnse
-X-Proofpoint-ORIG-GUID: CB24ixmxRbY4hLFMNSP4KsQE1__P_1X0
-X-Proofpoint-GUID: CB24ixmxRbY4hLFMNSP4KsQE1__P_1X0
-X-Authority-Analysis: v=2.4 cv=BfvY0qt2 c=1 sm=1 tr=0 ts=685e449c cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=FNyBlpCuAAAA:8 a=R9pBmaMNjwuukGYZFQAA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=RlW-AWeGUCXs_Nkyno-6:22
+X-Authority-Analysis: v=2.4 cv=M5FNKzws c=1 sm=1 tr=0 ts=685e52b8 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=NzcymgBwEkHtfacI-E8A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI3MDA2MiBTYWx0ZWRfX+Z3hlRaHsMty 5w8fwgVXRRbsE8H9zke3lhvmZyEMj6pDkpSDpASIrAw90DYXYcLuya9GZ+i+3P+XYNdQryLdP+b 3/iNWPpCv3jTDTJXWkp+LahcZil7g29OdYO/SEE7UFLR03KqI9JDFbm1/RbxYsDVPJw4iDENfhd
+ XHoArKJo+GTqD+fHMaDXKVC1R5kJCv/aI+z6rvSBGMePajpZdvVNJjYUR/Z/MCNx8lZwOMY4iNc Xuw6iu7pVXkOieCvCaVDseecUDcrNf7Y6mwf+x0La1zy5ad/zi0bKO3Ynz4UtvZphHkhuCsBBXr qyrknjgSxa2VDGlcovmYMlPqlp5/Ylvbmv2Wdy94+0KOW/pbtkIIZFysuOkdyMnSzeSjxb14WQW
+ 1yCS3RcWUqC9GaXOoEYkeNQaFpNWDDIG11VGdD0ZJmFl0Do1JVwLatz2Gm8+5IOKiM0Gpngy
+X-Proofpoint-GUID: H2R94vQXsgPCdjztjCGfVvEv9kHIMcb_
+X-Proofpoint-ORIG-GUID: USYL82GF2n57L5lrjJkladDPLAScSt2A
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
  definitions=2025-06-27_02,2025-06-26_05,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
- lowpriorityscore=0 clxscore=1011 suspectscore=0 adultscore=0 spamscore=0
- impostorscore=0 mlxlogscore=999 malwarescore=0 phishscore=0 bulkscore=0
- classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506270053
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
+ priorityscore=1501 phishscore=0 spamscore=0 clxscore=1015 adultscore=0
+ mlxscore=0 mlxlogscore=999 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506270062
 
-On 27.06.2025 01:13, Eric Biggers wrote:
+On 6/24/25 08:35, Thomas Richter wrote:
 
-> 
-> Sorry, looking at the stack trace again, I realize that's not quite correct:
-> 
->  [<00026a33d51d0d6e>] s390_sha_update_blocks+0x2ae/0x310 arch/s390/crypto/sha_common.c:26
->  [<00026a33d7de95c4>] crypto_shash_finup+0x424/0x720 crypto/shash.c:152
->  [<00026a33d7e06022>] crypto_shash_update include/crypto/hash.h:992 [inline]
->  [<00026a33d7e06022>] hmac_setkey+0x5c2/0x7a0 crypto/hmac.c:73
->  [<00026a33d7de8e1c>] crypto_shash_setkey+0x8c/0x1f0 crypto/shash.c:56
->  [<00026a33d7dee7c2>] hkdf_extract+0x42/0xa0 crypto/hkdf.c:50
->  [<00026a33d5fd5c16>] fscrypt_init_hkdf+0x146/0x280 fs/crypto/hkdf.c:73
-> 
-> This issue actually occurred with hmac(sha512-s390), i.e. the hmac template on
-> top of the algorithm with driver name sha512-s390.  So this seems to be a
-> regression from earlier commits.  I think this one:
-> 
->     commit 88c02b3f79a61e659749773865998e0c33247e86
->     Author: Joerg Schmidbauer <jschmidb@de.ibm.com>
->     Date:   Wed Aug 28 13:52:30 2024 +0200
-> 
->         s390/sha3: Support sha3 performance enhancements
-> 
-> That introduced 'first_message_part' but forgot to make sha512_init() set it.
+Gently Ping
 
-Right first_message_part should be set to zero in sha512_init(), also in sha384_init() as well as in s390_sha1_init().
+Ian, I have responded to your comments some days ago.
+See below.
 
-> So s390_sha_update() started using an uninitialized variable.
-> 
-> The following more recent commit then changed 'first_message_part' to a bool,
-> which made UBSAN sometimes able to report its uninitialized use:
-> 
->     commit 7b83638f962c30cb6271b5698dc52cdf9b638b48
->     Author: Herbert Xu <herbert@gondor.apana.org.au>
->     Date:   Fri Apr 18 10:59:34 2025 +0800
-> 
->         crypto: s390/sha1 - Use API partial block handling
-> 
-> Fortunately, this issue no longer exists in SHA-512 in the latest linux-next,
-> since my SHA-512 library work
-> (https://lore.kernel.org/linux-crypto/20250616014019.415791-15-ebiggers@kernel.org/).
-> greatly simplified how the s390-optimized SHA-512 code is integrated.
-> 
-> However, my SHA-512 library work is targeting 6.17.  I think you'll need a fix
-> for 6.16 and Cc'ed to stable that just initializes 'first_message_part' in the
-> old code...
-> 
-> - Eric
-> 
+Thanks a lot.
 
+> On 6/23/25 19:53, Ian Rogers wrote:
+>> On Mon, Jun 23, 2025 at 6:35 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
+>>>
+>>> Update IBM z17 counter description using document SA23-2260-08:
+>>> "The Load-Program-Parameter and the CPU-Measurement Facilities"
+>>> released in May 2025 to include counter definitions for IBM z17
+>>> counter sets:
+>>> * Basic counter set
+>>> * Problem/user counter set
+>>> * Crypto counter set.
+>>>
+>>> Use document SA23-2261-09:
+>>> "The CPU-Measurement Facility Extended Counters Definition
+>>>  for z10, z196/z114, zEC12/zBC12, z13/z13s, z14, z15, z16 and z17"
+>>> released on April 2025 to include counter definitions for IBM z17
+>>> * Extended counter set
+>>> * MT-Diagnostic counter set.
+>>>
+>>> Use document SA22-7832-14:
+>>> "z/Architecture Principles of Operation."
+>>> released in April 2025 to include counter definitions for IBM z17
+>>> * PAI-Crypto counter set
+>>> * PAI-Extention counter set.
+>>>
+>>> Use document
+>>> "CPU MF Formulas and Updates April 2025"
+>>> released in April 2025 to include metric calculations.
+>>>
+>>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+>>> Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+>>
+>> [snip]
+>>
+>>> +       {
+>>> +               "Unit": "CPU-M-CF",
+>>> +               "EventCode": "143",
+>>> +               "EventName": "L1C_TLB2_MISSES",
+>>> +               "BriefDescription": "L1C TLB2 Misses",
+>>> +               "PublicDescription": "Increments by one for any cycle where a Level-1 cache or Level-2 TLB miss is in progress."
+>>> +       },
+>>
+>> [snip]
+>>
+>>> +  {
+>>> +    "BriefDescription": "Cycles per Instructions from Finite cache/memory",
+>>> +    "MetricName": "finite_cpi",
+>>> +    "MetricExpr": "L1C_TLB2_MISSES / INSTRUCTIONS if has_event(L1C_TLB2_MISSES) else 0"
+>>> +  },
+>>> +  {
+>>> +    "BriefDescription": "Estimated Instruction Complexity CPI infinite Level 1",
+>>> +    "MetricName": "est_cpi",
+>>> +    "MetricExpr": "(CPU_CYCLES / INSTRUCTIONS) - (L1C_TLB2_MISSES / INSTRUCTIONS) if has_event(INSTRUCTIONS) else 0"
+>>> +  },
+>>> +  {
+>>> +    "BriefDescription": "Estimated Sourcing Cycles per Level 1 Miss",
+>>> +    "MetricName": "scpl1m",
+>>> +    "MetricExpr": "L1C_TLB2_MISSES / (L1I_DIR_WRITES + L1D_DIR_WRITES) if has_event(L1C_TLB2_MISSES) else 0"
+>>> +  },
+>>
+>> Just a quick check. If the PMU CPU-M-CF is always present then the
+>> "has_event(L1C_TLB2_MISSES)" check will always be true as the event is
+>> in json and not in sysfs. I'm guessing this is being done for the
+>> benefit of hypervisors.
+>>
+> 
+> The issue is indeed with z/VM, where the CPU Measurement facility is not exported to
+> any guest OS including linux.
+> If you run Linux on top of z/VM then these events do not exist.
+> 
+> # uname -a
+> Linux a8345022.lnxne.boe 6.16.0-rc1m-perf #14 SMP Tue Jun 10 07:39:06 CEST 2025 s390x GNU/Linux
+> # grep VM /proc/sysinfo 
+> VM00 Name:            A8345022
+> VM00 Control Program: z/VM    7.4.0   
+> VM00 Adjustment:      50
+> VM00 CPUs Total:      4
+> VM00 CPUs Configured: 4
+> VM00 CPUs Standby:    0
+> VM00 CPUs Reserved:   0
+> # lscpumf 
+> lscpumf: No CPU-measurement facilities detected
+> # 
+> 
+> Without this if..else the perf stat -e metric fail when Linux is installed on top of z/VM systems.
+> See commit c2f3d7dfc7373 ("perf stat: Do not fail on metrics on s390 z/VM systems")
+> 
+> which fixed it for z16 machine generation.
+> 
+> Hope this helps.
+> 
+>> Thanks,
+>> Ian
+> 
+> 
 
 -- 
-Ingo Franzki
-eMail: ifranzki@linux.ibm.com  
-Tel: ++49 (0)7031-16-4648
-Linux on IBM Z Development, Schoenaicher Str. 220, 71032 Boeblingen, Germany
-
+Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
+--
 IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Gregor Pillen
+
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+
 Geschäftsführung: David Faller
+
 Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
-IBM DATA Privacy Statement: https://www.ibm.com/privacy/us/en/
