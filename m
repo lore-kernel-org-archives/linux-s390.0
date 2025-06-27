@@ -1,63 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f169.google.com (mail-il1-f169.google.com [209.85.166.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE1FC2EACEE;
-	Fri, 27 Jun 2025 16:28:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08688185E7F
+	for <linux-s390@vger.kernel.org>; Fri, 27 Jun 2025 16:55:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751041730; cv=none; b=pystnMPzFs3vtDdFpi3lVbJMaP+/T/iz1xBG3IZZ3uG3Tc0B/DeugUnfXsp0tHa827bFaWwRs8yrLZnTL+9sev3keYUqu8JeG4gHXOrfqIFhtJB8kSoTCkWy/9XpiXswvYsoD9MjjRgKjB4ndbxBqve8Fp29d15S1pgjylxWP8c=
+	t=1751043329; cv=none; b=FuHaxW6CaIxvXCJz8jQxSI5P4Z2b91VbOQJyREb3VusWg1NYC+SwbnZZOtRoDkx5UqyfXkjJ8WgUeCBzddQefbvbCyfozmt3euRMJ7VEauupxkJC+88ADr0NIWzFEDX04Uq6y34Fvv3JHrwmpU3Uss0YqHJ6zw/QW9nDR2dKlNs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751041730; c=relaxed/simple;
-	bh=zccJajHHp4c7bwHuPvHIAEfCRoeMWJn4yaFj2VHAqqg=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=H7B8hmD4oK8bjTGE5gkTtsRivmavO2cyyDs6DbAAs4Dk3q6uy/qga7/qYZliTKqfAjHed5eMrFQtujjU/Ej23b3snCbTCTLujo1qh76Go92tAu6eESiwhnfVJi1OrkVkXLpDiL86vfSQLDD+KDUqF2vs/1nMgdTJv+XpUbbwkYE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ocha7P8y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751043329; c=relaxed/simple;
+	bh=WzuNp8fggmNQSdOMdCp9Rv2L2qJowlPOrqD/MfoEN2o=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nw0KOrTPcv59Xbph0mYRKSqDXyWychfzBI0CMk9b5s88m5oy4w/elicNTnXTbInNo1wtiq1rHNPdPs/esKqFOh20Mh18CM2NZZqM5lLladCjEKPsIGgw1UVKe6sGONpd5M4uvyLyiyU8Iu9/1J6FFqB9aK16OoWHfmRhb/65w1A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fC0QAzTV; arc=none smtp.client-ip=209.85.166.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ocha7P8y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1367C4CEF1;
-	Fri, 27 Jun 2025 16:28:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751041730;
-	bh=zccJajHHp4c7bwHuPvHIAEfCRoeMWJn4yaFj2VHAqqg=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=ocha7P8y4mTUNp9WJMLs/2KDNMmdl9pdBbo3Rjkbweuwp7c2lgE6JNWUyhxmOWUj+
-	 iNVmz/GdgcyhXpPb3o40e/xFyCgKpAOAkAZjTnhIkJETwc2/gdPZpgMseV+368GUit
-	 7Ts0Od6OVHI29wlYoRRJ+TDOyRnZEWqrd9Gt3PmBQhvYfuemyb9fIOFvf9UlgTKEDK
-	 sjr7vUgCCqqYodjbo2zhm9cwAAlkHuI5slItyceC7l/mz4zcFP+0h69aQ+6i1VHl2+
-	 b4hGL2Ub/fY8Lb5NhQgqmb6PSfCvwaSVrM47pzY016R5jCr2hLJObINmvAGCEKXF/0
-	 iPhxR67FHwLIQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAD8B380DBEE;
-	Fri, 27 Jun 2025 16:29:17 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 fixes for 6.16-rc4
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <5038bf76-cdda-4ecf-a9d5-b5ded666356f@agordeev.local>
-References: <5038bf76-cdda-4ecf-a9d5-b5ded666356f@agordeev.local>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <5038bf76-cdda-4ecf-a9d5-b5ded666356f@agordeev.local>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.16-3
-X-PR-Tracked-Commit-Id: 7f8073cfb04a97842fe891ca50dad60afd1e3121
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 51df97f90002cb055e966189bd46d831af69e155
-Message-Id: <175104175662.1986529.323673224830433894.pr-tracker-bot@kernel.org>
-Date: Fri, 27 Jun 2025 16:29:16 +0000
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fC0QAzTV"
+Received: by mail-il1-f169.google.com with SMTP id e9e14a558f8ab-3df2fa612c4so14695ab.1
+        for <linux-s390@vger.kernel.org>; Fri, 27 Jun 2025 09:55:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1751043327; x=1751648127; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WzuNp8fggmNQSdOMdCp9Rv2L2qJowlPOrqD/MfoEN2o=;
+        b=fC0QAzTV4BP9BuVx6X1bN1S8/6V96d6Sj1VrZxXcCwMt3yWeZOYYGeb8RECeI26GXz
+         z+TTdkbnGwBxAmgNLsbDrY8/a9qmNvELI/N+xPUoiczG7FmUX2Sn5lwlK2oV/3Jl70wG
+         ATxc5/3Smsib9NcsZHZvDuxLDXfrEx9LgIxlUkE5sxB8xo3OHGH9iZyrrHxZzeXkNdva
+         kEjM0PsUoqdncJljllR/fOyFQZgcNAoUlffvYwSi1eLqCbhxEFFNP/v8doUjmfTqhZcG
+         xvirimfP7co7Dr3GI9EmBxxMg15iYaHr5uEKC0rYPA1pkeoJBD6MXBq9XKIJgOQReu19
+         e1IQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751043327; x=1751648127;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WzuNp8fggmNQSdOMdCp9Rv2L2qJowlPOrqD/MfoEN2o=;
+        b=DpwtSfydTVuxJuqLO/0k+3JNVTYcTK64D01ATOVaLQfmEM00nBN4TmXqIS1LiHL/Zf
+         XqflpPp8nTHKOVPCj/yLAipUb6G5QYUNNonzWdmRTwxV0Xk151i4EFzeIIua2FOSftGa
+         PTfn7biVrGeas736EY5kFWtpV4ZPSNICCWJy2tIJMUNbqT+URT3+pD6vLlcBaDuj+Gaf
+         /R3GMl/cBpTKQQaWwSEDj0E02w5dYeYxoqUNOYXIZVeiJpzSt/JoNXz8Es3UgRA7nPn4
+         T9i4A+ALyEeJ8W8NWQWRmLGJsIukZRo3hiEMrrLEvMz/9ew1jZN3TUybakfXm2gIBrHk
+         Zxlg==
+X-Forwarded-Encrypted: i=1; AJvYcCUtADfEuseFJIvZM6lZ7v0D55qDGmcX8Aa4rN2z8KpMCVbLpUs/BKsao6MtjOGSMzlIZABrcQaLwvHK@vger.kernel.org
+X-Gm-Message-State: AOJu0YxEsJ8Bzo5rGGor0FoG9y/oEirz/SSFt5zzj3i1hrGvcrHvGKb1
+	Gk+zfyb/WHOdPoBedZeH8dXD56f5u4rHK7tpiJ334DbKwt2EHq86DZXTDNmQ18EcR2JYv4QICEF
+	JCQJphVsMYpzwhK0l7nfxXKjlFyq7B2C8Gy0Wokw0
+X-Gm-Gg: ASbGncthTkN7hg9KNmPZUeKNjD+XUuDfTC5B9aYJIpUK+8CNkR84nr/At/t9ifCTY6m
+	w9PZb3RxgoYPo5pOvPvTfXQqjO7Hzc0POcu1u9avhR1udW8kf49nJiB9FDQeNuQtjKMGe7ZqS7j
+	bOXfD/EXPsymK7wCwzDjSCm3rYmc57rGg9t31W/P7Bqf12
+X-Google-Smtp-Source: AGHT+IE5bGgRxFzXmQ/GK/K2hDeu4kZV1vxh0NaCBm134jFcoqYIxFe7n/gmLkBp4tcqZHW1FSxbKy0H3FhyJhjAvAs=
+X-Received: by 2002:a05:6e02:4719:b0:3dd:a562:ce54 with SMTP id
+ e9e14a558f8ab-3df53c25bacmr505685ab.15.1751043326954; Fri, 27 Jun 2025
+ 09:55:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20250623132731.899525-1-tmricht@linux.ibm.com>
+ <CAP-5=fV_hXzq0A-91NakejcQGnvPp+uJGGe=vccwM+47JVCmtA@mail.gmail.com>
+ <ad905a68-a89b-458d-8a8b-2081a6656b91@linux.ibm.com> <283e109b-9eb5-4e7d-b7df-215f54496503@linux.ibm.com>
+In-Reply-To: <283e109b-9eb5-4e7d-b7df-215f54496503@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Fri, 27 Jun 2025 09:55:14 -0700
+X-Gm-Features: Ac12FXzYMDHRBdMmNG-uDcOa6V7yaYqEFMkI9NCQ5NDul3g-e1u9_oRedp0lZFU
+Message-ID: <CAP-5=fVcNqE9txXQgO+EUV6xz3Mvsqin9FP8FNUztPp35LW2Ng@mail.gmail.com>
+Subject: Re: [Ping][PATCH] perf list: Add IBM z17 event descriptions
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, 
+	namhyung@kernel.org, agordeev@linux.ibm.com, gor@linux.ibm.com, 
+	hca@linux.ibm.com, japo@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The pull request you sent on Fri, 27 Jun 2025 10:21:45 +0200:
+On Fri, Jun 27, 2025 at 1:13=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
+om> wrote:
+>
+> On 6/24/25 08:35, Thomas Richter wrote:
+>
+> Gently Ping
+>
+> Ian, I have responded to your comments some days ago.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.16-3
+Thanks Thomas, minor nit in your explanation the events must exist as
+they are in json, but the json events are only exposed if the PMU is
+present, so the has_event is more of a has_pmu test. Maybe we should
+add a function like this to the metrics to make this kind of case
+clearer. Maybe `perf list` should test the events of a metric and hide
+metrics when the events aren't available to avoid the have_event
+logic. I'm a bit uncomfortable with that as the events may not be
+available because of permission issues, but it'd still be useful to
+know the metrics are around. Anyway I'm digressing.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/51df97f90002cb055e966189bd46d831af69e155
+Reviewed-by: Ian Rogers <irogers@google.com>
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Thanks,
+Ian
