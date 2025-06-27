@@ -1,218 +1,151 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2B83224AE0;
-	Fri, 27 Jun 2025 08:13:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0ED1237164;
+	Fri, 27 Jun 2025 08:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751012029; cv=none; b=sFEXyOiMtl6miwoyP+kUpsjN53hHG4DzVtVKrVE2WkyRPSHOyxnzxCvLVrdRQBB0nFmESJPYhnt1fr/qEaaY5AzN7nE3RAuNiiqIifEHAJEFKd24yXJWWMR58Ym7hir89y9M63tBAr2iyLgMQpc0KdTjmT49RQ/dlKTfwsIQTfE=
+	t=1751012515; cv=none; b=sMrDbB+fhQFr2R24LAaBcX7MUIsNiOHdkP//waXNl/I1qL0hAFVemnMlWa7RbDlBfdfEU8/7S90+Wz7k3i74PbJ/xJth7z4OALn9nHwhOX7NWOnmUUxl9C1RqZQmzhTWU7d8TZh4+/HuEe7TksoAt1P+OFfDYMds4sQPLbZbIm0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751012029; c=relaxed/simple;
-	bh=o6hJzsHfwa7l8QymsFAPFL0BssPaa5+yNqxXr8OOqGI=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=f/Y2L+NuT6jdHrL2YQbQkKJMZXCgBUzvGgNVgSBCocLo5cUDrBADALtAqhRLml0rj/AHKZPvcLgCf+JMaRTatf4YLVtif4EBRrYElw2ynXzZCeToTgWW6Rd+CnbddKrOrLlGgSShhoxKLx0mu0+7gPcdF0VBJ2aSJo8A5jpgl6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gsdC/VKN; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1751012515; c=relaxed/simple;
+	bh=DI6dsYu4kQgpnaRia4IpKX7prmm2uj8F/0HVOrRH6CI=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=U5lS6Yynxp/WzGBkgNQ15rS+kPeYR/vbHMNOao7vpRyPgs/s24GQFE1jicJ+iuqDNKris1FqqXLuJC0BoxD0cmH24S8QY5GDSyL3vfNrGNCywbXXJSIGyoPWm0ZJKwKZnX+DbrUfziAWJgjI6dKwJ/55i1POLKAmbUe+pWXpuqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eLtUEvbi; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gsdC/VKN"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55QMGbdt019573;
-	Fri, 27 Jun 2025 08:13:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eLtUEvbi"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55QLbw2o010678;
+	Fri, 27 Jun 2025 08:21:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=FRv+jf
-	+H2WOoOyo2DrESPYPWQcOAbheMqs0hH1dSsC0=; b=gsdC/VKNSU+UJ+Kcn/+wtu
-	yJCxzlTOYh3GGpn1VLdgrMabickgPWQEi7EDVtMgY/nTKEFysxFiFHb+oRYm7XpN
-	V/qlAKAc4U+71qUzZet1qHqVWu2L+yMyUslWkUyeTyCO3NXXt913EnJ/DBtaxFzD
-	bggmXNoGq/14AL781KTrszjV00NDUKV0OmZbmMR4xHZXWwzXVe1nzugMNgebXrwe
-	ynzCKJgbVLVk+hO84zW+2yyLrN79I8rhJ331Lfscbas64hXXiOjyW8M31xUyoD9R
-	U6s62xYtD4m4zTL7kPEjT/AVQh3TJcGlnuykaiDCwzq3Ak/1WfPO8R2ZDfIJ5+ng
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3kgva-1
+	:content-type:date:from:message-id:mime-version:subject:to; s=
+	pp1; bh=lKFCoWumeX6i41q6QCz+fyt3hfK6+kplYjOdsf8CfYc=; b=eLtUEvbi
+	wAgBa9DZJvuq500WiPQoecVF3wlc2wEpUdNogCfrXTQspczp/eM7f8pkqN/KRAs7
+	2wiHLZNUEJ46WkTam37qBOYAsW4EEUvYgEk3+rVnFmGuobIf8OSts+CmnoFC6BEg
+	5PgOHDKxdtEI3phmtMhW0l3yYpX1D3MUqTdtZDkurQ0VSHoQ/n/Tg858SnAKObGJ
+	SssiOCKBUYMVPcqWG67a3uJr56Ze9coLB8m/vUTIpVOND6nW2fWBhtJmSxOXiHN0
+	23h1gJ+sz/aw07H0FCdOrd51TKyOb/dyvXncUuPS3cYnvnTmLWtoiy9RbMcRaqca
+	vM6m74uJye1b5w==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47gsphswka-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Jun 2025 08:13:43 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55R8BC8A015251;
-	Fri, 27 Jun 2025 08:13:43 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47dmf3kgv8-1
+	Fri, 27 Jun 2025 08:21:51 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55R5XSks002908;
+	Fri, 27 Jun 2025 08:21:50 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e8jmk334-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Jun 2025 08:13:43 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55R4OUEJ031277;
-	Fri, 27 Jun 2025 08:13:42 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47e7f0b8su-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Jun 2025 08:13:42 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55R8Dc6F56295772
+	Fri, 27 Jun 2025 08:21:50 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55R8Lk0p35652100
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 27 Jun 2025 08:13:39 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CED5C2004B;
-	Fri, 27 Jun 2025 08:13:38 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4D0C920040;
-	Fri, 27 Jun 2025 08:13:38 +0000 (GMT)
-Received: from [9.111.10.20] (unknown [9.111.10.20])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 27 Jun 2025 08:13:38 +0000 (GMT)
-Message-ID: <283e109b-9eb5-4e7d-b7df-215f54496503@linux.ibm.com>
-Date: Fri, 27 Jun 2025 10:13:37 +0200
+	Fri, 27 Jun 2025 08:21:46 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9B21420043;
+	Fri, 27 Jun 2025 08:21:46 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7BCD420040;
+	Fri, 27 Jun 2025 08:21:46 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 27 Jun 2025 08:21:46 +0000 (GMT)
+Date: Fri, 27 Jun 2025 10:21:45 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] s390 fixes for 6.16-rc4
+Message-ID: <5038bf76-cdda-4ecf-a9d5-b5ded666356f@agordeev.local>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: [Ping][PATCH] perf list: Add IBM z17 event descriptions
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: Ian Rogers <irogers@google.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
-        agordeev@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
-        japo@linux.ibm.com
-References: <20250623132731.899525-1-tmricht@linux.ibm.com>
- <CAP-5=fV_hXzq0A-91NakejcQGnvPp+uJGGe=vccwM+47JVCmtA@mail.gmail.com>
- <ad905a68-a89b-458d-8a8b-2081a6656b91@linux.ibm.com>
-Content-Language: en-US
-Organization: IBM
-In-Reply-To: <ad905a68-a89b-458d-8a8b-2081a6656b91@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=M5FNKzws c=1 sm=1 tr=0 ts=685e52b8 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VnNF1IyMAAAA:8 a=NzcymgBwEkHtfacI-E8A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI3MDA2MiBTYWx0ZWRfX+Z3hlRaHsMty 5w8fwgVXRRbsE8H9zke3lhvmZyEMj6pDkpSDpASIrAw90DYXYcLuya9GZ+i+3P+XYNdQryLdP+b 3/iNWPpCv3jTDTJXWkp+LahcZil7g29OdYO/SEE7UFLR03KqI9JDFbm1/RbxYsDVPJw4iDENfhd
- XHoArKJo+GTqD+fHMaDXKVC1R5kJCv/aI+z6rvSBGMePajpZdvVNJjYUR/Z/MCNx8lZwOMY4iNc Xuw6iu7pVXkOieCvCaVDseecUDcrNf7Y6mwf+x0La1zy5ad/zi0bKO3Ynz4UtvZphHkhuCsBBXr qyrknjgSxa2VDGlcovmYMlPqlp5/Ylvbmv2Wdy94+0KOW/pbtkIIZFysuOkdyMnSzeSjxb14WQW
- 1yCS3RcWUqC9GaXOoEYkeNQaFpNWDDIG11VGdD0ZJmFl0Do1JVwLatz2Gm8+5IOKiM0Gpngy
-X-Proofpoint-GUID: H2R94vQXsgPCdjztjCGfVvEv9kHIMcb_
-X-Proofpoint-ORIG-GUID: USYL82GF2n57L5lrjJkladDPLAScSt2A
+X-Proofpoint-GUID: BfYhlY6uWN4jzswOzc6SlrW3D0pcGyRk
+X-Proofpoint-ORIG-GUID: BfYhlY6uWN4jzswOzc6SlrW3D0pcGyRk
+X-Authority-Analysis: v=2.4 cv=Hul2G1TS c=1 sm=1 tr=0 ts=685e54a0 cx=c_pps a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=jgawQoxS9akQ2SvUetwA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjI3MDA2NiBTYWx0ZWRfX511zUGP3YHrh BflqcgVVdKHMbv2uFW3LQrGDZOVyjFlmfCxlxqn2DnVSW/yfpUC7athVUeD8BNOzVUu8EVFvzy8 N/vLxF3VOceEohimfgeclOnkl4cfkru1nJiQ7r/9NV4PQh+tZNTk6TGMOJ42jMAiQ1nXqJHtbrn
+ 7C+qEDilSUxVma+9jn9lfcjnYZOy3+WGXyyTOFqNLGxVYlJwbko2L1NRsG0XTJDDFLg2h3uTQY/ ZuFNrCf3NXNr6q06boc77u+EICCzxHJjRY1Dv4L14NVFOisIo9IS0uREz0LID4rrbXVjbFxMh0c apE3Cp1KhBMVgZypgOO/IdqxcPcu43Nj4W1cYiJs3mbcKnwmzxtaAhM22oH57oddgAw5CNroyWI
+ d0W1RveblVS9kYamqmOAebLPrk8NBp7H+xjErnpTzNdoaFpUGh6RFSxfDvNN1YZLa6bNHGdF
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-06-27_02,2025-06-26_05,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- priorityscore=1501 phishscore=0 spamscore=0 clxscore=1015 adultscore=0
- mlxscore=0 mlxlogscore=999 classifier=spam authscore=0 authtc=n/a authcc=
+ definitions=2025-06-27_03,2025-06-26_05,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ mlxlogscore=545 bulkscore=0 mlxscore=0 adultscore=0 spamscore=0
+ impostorscore=0 clxscore=1015 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 phishscore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506270062
+ definitions=main-2506270066
 
-On 6/24/25 08:35, Thomas Richter wrote:
+Hi Linus,
 
-Gently Ping
+please pull s390 fixes for 6.16-rc4.
 
-Ian, I have responded to your comments some days ago.
-See below.
+Thanks,
+Alexander
 
-Thanks a lot.
+The following changes since commit e04c78d86a9699d136910cfc0bdcf01087e3267e:
 
-> On 6/23/25 19:53, Ian Rogers wrote:
->> On Mon, Jun 23, 2025 at 6:35 AM Thomas Richter <tmricht@linux.ibm.com> wrote:
->>>
->>> Update IBM z17 counter description using document SA23-2260-08:
->>> "The Load-Program-Parameter and the CPU-Measurement Facilities"
->>> released in May 2025 to include counter definitions for IBM z17
->>> counter sets:
->>> * Basic counter set
->>> * Problem/user counter set
->>> * Crypto counter set.
->>>
->>> Use document SA23-2261-09:
->>> "The CPU-Measurement Facility Extended Counters Definition
->>>  for z10, z196/z114, zEC12/zBC12, z13/z13s, z14, z15, z16 and z17"
->>> released on April 2025 to include counter definitions for IBM z17
->>> * Extended counter set
->>> * MT-Diagnostic counter set.
->>>
->>> Use document SA22-7832-14:
->>> "z/Architecture Principles of Operation."
->>> released in April 2025 to include counter definitions for IBM z17
->>> * PAI-Crypto counter set
->>> * PAI-Extention counter set.
->>>
->>> Use document
->>> "CPU MF Formulas and Updates April 2025"
->>> released in April 2025 to include metric calculations.
->>>
->>> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
->>> Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
->>
->> [snip]
->>
->>> +       {
->>> +               "Unit": "CPU-M-CF",
->>> +               "EventCode": "143",
->>> +               "EventName": "L1C_TLB2_MISSES",
->>> +               "BriefDescription": "L1C TLB2 Misses",
->>> +               "PublicDescription": "Increments by one for any cycle where a Level-1 cache or Level-2 TLB miss is in progress."
->>> +       },
->>
->> [snip]
->>
->>> +  {
->>> +    "BriefDescription": "Cycles per Instructions from Finite cache/memory",
->>> +    "MetricName": "finite_cpi",
->>> +    "MetricExpr": "L1C_TLB2_MISSES / INSTRUCTIONS if has_event(L1C_TLB2_MISSES) else 0"
->>> +  },
->>> +  {
->>> +    "BriefDescription": "Estimated Instruction Complexity CPI infinite Level 1",
->>> +    "MetricName": "est_cpi",
->>> +    "MetricExpr": "(CPU_CYCLES / INSTRUCTIONS) - (L1C_TLB2_MISSES / INSTRUCTIONS) if has_event(INSTRUCTIONS) else 0"
->>> +  },
->>> +  {
->>> +    "BriefDescription": "Estimated Sourcing Cycles per Level 1 Miss",
->>> +    "MetricName": "scpl1m",
->>> +    "MetricExpr": "L1C_TLB2_MISSES / (L1I_DIR_WRITES + L1D_DIR_WRITES) if has_event(L1C_TLB2_MISSES) else 0"
->>> +  },
->>
->> Just a quick check. If the PMU CPU-M-CF is always present then the
->> "has_event(L1C_TLB2_MISSES)" check will always be true as the event is
->> in json and not in sysfs. I'm guessing this is being done for the
->> benefit of hypervisors.
->>
-> 
-> The issue is indeed with z/VM, where the CPU Measurement facility is not exported to
-> any guest OS including linux.
-> If you run Linux on top of z/VM then these events do not exist.
-> 
-> # uname -a
-> Linux a8345022.lnxne.boe 6.16.0-rc1m-perf #14 SMP Tue Jun 10 07:39:06 CEST 2025 s390x GNU/Linux
-> # grep VM /proc/sysinfo 
-> VM00 Name:            A8345022
-> VM00 Control Program: z/VM    7.4.0   
-> VM00 Adjustment:      50
-> VM00 CPUs Total:      4
-> VM00 CPUs Configured: 4
-> VM00 CPUs Standby:    0
-> VM00 CPUs Reserved:   0
-> # lscpumf 
-> lscpumf: No CPU-measurement facilities detected
-> # 
-> 
-> Without this if..else the perf stat -e metric fail when Linux is installed on top of z/VM systems.
-> See commit c2f3d7dfc7373 ("perf stat: Do not fail on metrics on s390 z/VM systems")
-> 
-> which fixed it for z16 machine generation.
-> 
-> Hope this helps.
-> 
->> Thanks,
->> Ian
-> 
-> 
+  Linux 6.16-rc2 (2025-06-15 13:49:41 -0700)
 
--- 
-Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
---
-IBM Deutschland Research & Development GmbH
+are available in the Git repository at:
 
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
+  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.16-3
 
-Geschäftsführung: David Faller
+for you to fetch changes up to 7f8073cfb04a97842fe891ca50dad60afd1e3121:
 
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+  s390/ptrace: Fix pointer dereferencing in regs_get_kernel_stack_nth() (2025-06-17 18:15:25 +0200)
+
+----------------------------------------------------------------
+s390 fixes for 6.16-rc4
+
+- Fix incorrectly dropped dereferencing of the stack nth entry
+  introduced with a previous KASAN false positive fix
+
+- Use a proper memdup_array_user() helper to prevent overflow
+  in a protected key size calculation
+
+----------------------------------------------------------------
+Fedor Pchelkin (1):
+      s390/pkey: Prevent overflow in size calculation for memdup_user()
+
+Heiko Carstens (1):
+      s390/ptrace: Fix pointer dereferencing in regs_get_kernel_stack_nth()
+
+ arch/s390/include/asm/ptrace.h | 2 +-
+ drivers/s390/crypto/pkey_api.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/s390/include/asm/ptrace.h b/arch/s390/include/asm/ptrace.h
+index 62c0ab4a4b9d..0905fa99a31e 100644
+--- a/arch/s390/include/asm/ptrace.h
++++ b/arch/s390/include/asm/ptrace.h
+@@ -265,7 +265,7 @@ static __always_inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *r
+ 	addr = kernel_stack_pointer(regs) + n * sizeof(long);
+ 	if (!regs_within_kernel_stack(regs, addr))
+ 		return 0;
+-	return READ_ONCE_NOCHECK(addr);
++	return READ_ONCE_NOCHECK(*(unsigned long *)addr);
+ }
+ 
+ /**
+diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
+index cef60770f68b..b3fcdcae379e 100644
+--- a/drivers/s390/crypto/pkey_api.c
++++ b/drivers/s390/crypto/pkey_api.c
+@@ -86,7 +86,7 @@ static void *_copy_apqns_from_user(void __user *uapqns, size_t nr_apqns)
+ 	if (!uapqns || nr_apqns == 0)
+ 		return NULL;
+ 
+-	return memdup_user(uapqns, nr_apqns * sizeof(struct pkey_apqn));
++	return memdup_array_user(uapqns, nr_apqns, sizeof(struct pkey_apqn));
+ }
+ 
+ static int pkey_ioctl_genseck(struct pkey_genseck __user *ugs)
