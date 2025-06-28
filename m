@@ -1,82 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C64C2219E8;
-	Fri, 27 Jun 2025 22:19:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A2C5661;
+	Sat, 28 Jun 2025 02:37:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751062780; cv=none; b=pFJp5vkBzqelwEiFi983VPd1ss6r7Oln0nKV2ys2dADTHqMvmsf9dHsFWHxnPU+ChLsAMQCy81HVjj4S0/GHJiu+rA6Hm94A/KY5D+q68s7d5yx8hfuiEDD4Dw3sq0AVDmOxjL/yzbxigjwpm6pS5q98e/qofrClSS33a4MnFwA=
+	t=1751078252; cv=none; b=Ev1FOYcgtBjVkYP1blP8fsfJdtqN8l7Rm1Yd3jsrw/wQDzksM36GfTf45CPHmm17VUMbsvbZSSNPPy/p/fAgYHzMYtAWLXpG98Mqle4oeQj+67Ib0KIRamXsj6COm1qL0O1L5wbg1Sn/r/UPc+6ms6a2oSPMvKzcbqfVJhOj94M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751062780; c=relaxed/simple;
-	bh=6quqVvu/Z9JLnoWia/dIUJKzUyovKEVlzIcedxWAH68=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=X0i7J6Ge/Pa4y3UenMOyqQGnlJFdQ0R0gF8ZPJJ3qAp1g2hgV3J9F4eoKqTwShAwEUIGOeUrS45BC6htObiMkx2iEwEFgMLLzY8B52XodT7SSswQ2xAAeADc7FAFkXmEviFhqSkK12SlLSPtGV1Shkm5NFtq9ob1yBVazNnt9rY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rP3lW8ad; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rP3lW8ad"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5152AC4CEE3;
-	Fri, 27 Jun 2025 22:19:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751062780;
-	bh=6quqVvu/Z9JLnoWia/dIUJKzUyovKEVlzIcedxWAH68=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=rP3lW8ad5MjlhUOgE5Z52zH5exQsBOT4ErWWrJhzXupEamVOZCZ/pY9HgaC2cb2wN
-	 FyMtR/JSv42CKkylLDVJIjClemWSo6DzsTTD+QLSmByIkjYw+zVd8ipsAaqZxS2WZs
-	 on7ZrmKQTrHekO6uDXa1Ax3abb2BKb5NEImf+sATLT/B0P09ASFab9Yf6udoW6eGY9
-	 Jdw+16gHmRTkoC9FUdlHPrFL1IzFli6oK1Ja1XkvZf0ty+aZWaFZoI8I8kw+/HcgyR
-	 pcSJ6icMihM16B7b1E+toi8dhkSQ81Lb+tlpxU+E01eul+SURLoomWuHxA4qPS6BFR
-	 lU5Uv5FtY3Q4g==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70DE338111CE;
-	Fri, 27 Jun 2025 22:20:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1751078252; c=relaxed/simple;
+	bh=pupNprCGYkqHbXsGtNUn13adsLGhlEmWMtEyoD/BQ5g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Q6jzPBhujLVNALVpt2rdsOEybOZKfay017WAjV33K/otJhveOBBWV9A9LOOk3MfoU8m8kzW4o+pfPLW5IEA3Ph85Q8ad0N8ZUNfRkOk63wgjlonb8HizbYzXvwT3KGSS/mhqgrev9kXBwaWG8rAoavTuzuqNRDduyPy2BCj9ECk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.252])
+	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4bTc0x6GgWzdbgF;
+	Sat, 28 Jun 2025 10:33:21 +0800 (CST)
+Received: from kwepemg100016.china.huawei.com (unknown [7.202.181.57])
+	by mail.maildlp.com (Postfix) with ESMTPS id D61BC180B3F;
+	Sat, 28 Jun 2025 10:37:20 +0800 (CST)
+Received: from [10.67.110.48] (10.67.110.48) by kwepemg100016.china.huawei.com
+ (7.202.181.57) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Sat, 28 Jun
+ 2025 10:37:19 +0800
+Message-ID: <267d0e56-6040-426c-8b1e-a53b18829871@huawei.com>
+Date: Sat, 28 Jun 2025 10:37:18 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] MAINTAINERS: update smc section
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175106280626.2076129.2564280805496966509.git-patchwork-notify@kernel.org>
-Date: Fri, 27 Jun 2025 22:20:06 +0000
-References: <20250626051653.4259-1-jaka@linux.ibm.com>
-In-Reply-To: <20250626051653.4259-1-jaka@linux.ibm.com>
-To: Jan Karcher <jaka@linux.ibm.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, kuba@kernel.org,
- edumazet@google.com, pabeni@redhat.com, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, hca@linux.ibm.com, wintera@linux.ibm.com,
- wenjia@linux.ibm.com, twinkler@linux.ibm.com, pasic@linux.ibm.com,
- sidraya@linux.ibm.com, mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, alibuda@linux.alibaba.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND] integrity: Extract secure boot enquiry function
+ out of IMA
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+CC: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
+	<roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>, Madhavan Srinivasan
+	<maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens
+	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Eric Snowberg
+	<eric.snowberg@oracle.com>, Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Nicholas Piggin <npiggin@gmail.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, "Lee,
+ Chun-Yi" <jlee@suse.com>, <linuxppc-dev@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<linux-integrity@vger.kernel.org>, <keyrings@vger.kernel.org>, Lu Jialin
+	<lujialin4@huawei.com>
+References: <20250626023617.3885806-1-gongruiqi1@huawei.com>
+ <aF6/ItTfd7oVN+Sn@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Language: en-US
+From: GONG Ruiqi <gongruiqi1@huawei.com>
+In-Reply-To: <aF6/ItTfd7oVN+Sn@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemg100016.china.huawei.com (7.202.181.57)
 
-Hello:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
 
-On Thu, 26 Jun 2025 07:16:53 +0200 you wrote:
-> Due to changes of my responsibilities within IBM i
-> can no longer act as maintainer for smc.
+On 2025/06/27 23:56, Alexander Gordeev wrote:
+> On Thu, Jun 26, 2025 at 10:36:17AM +0800, GONG Ruiqi wrote:
 > 
-> As a result of the co-operation with Alibaba over
-> the last years we decided to, once more, give them
-> more responsibility for smc by appointing
-> D. Wythe <alibuda@linux.alibaba.com> and
-> Dust Li <dust.li@linux.alibaba.com>
-> as maintainers as well.
+> Hi GONG,
 > 
-> [...]
+> ...
+>> Compile-tested for powerpc, s390 and x86, all with allmodconfig.
+> 
+> This breaks defconfig and debug_defconfig builds on s390
+> since IMA_ARCH_POLICY=n in these configurations and thus
+> CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT=n as well:
 
-Here is the summary with links:
-  - [net,v2] MAINTAINERS: update smc section
-    https://git.kernel.org/netdev/net/c/8550821a1535
+Hi Alexander,
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Thanks for the feedback! I'll fix it and send a V2 asap.
 
+BR,
+Ruiqi
 
+> 
+> s390x-15.1.0-ld: security/integrity/ima/ima_main.o: in function `ima_load_data':
+> /home/agordeev/linux.c3/security/integrity/ima/ima_main.c:902:(.text+0x54e): undefined reference to `arch_integrity_get_secureboot'
+> s390x-15.1.0-ld: security/integrity/ima/ima_appraise.o: in function `ima_appraise_parse_cmdline':
+> /home/agordeev/linux.c3/security/integrity/ima/ima_appraise.c:30:(.init.text+0x44): undefined reference to `arch_integrity_get_secureboot'
+> make[2]: *** [scripts/Makefile.vmlinux:91: vmlinux.unstripped] Error 1
+> make[1]: *** [/home/agordeev/linux.c3/Makefile:1236: vmlinux] Error 2
+> make: *** [Makefile:248: __sub-make] Error 2
+> 
+>> Signed-off-by: GONG Ruiqi <gongruiqi1@huawei.com>
+> 
+> Thanks!
