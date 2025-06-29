@@ -1,258 +1,180 @@
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32CA523535A
-	for <linux-s390@vger.kernel.org>; Sun, 29 Jun 2025 16:00:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690D81D618A;
+	Sun, 29 Jun 2025 20:05:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751212806; cv=none; b=DqbT3j5LdHAUE8td+TGwqVX34ASRyDEf0T+6F2pTilvAR1d8DPTjzI9Ph3qJOvWUkeMUCqSDkEzo/YvdEbGHQCRN1ZKOVPnL193WQ7e7o6oa6S8wy5WM48Nnd/PVreBZdiyI3W5rpSQVY0iQ5Y2l+C48peJiB5wc5NNhf+vk6hQ=
+	t=1751227537; cv=none; b=Mt76adHMYew0riQ+q+SDtfRw8fzk24VfkEYQ0MM979QudXXsnmgSmDLmwW7wIv/FUeVLIZW+4ht8WEBX+lymeVajr2L32fpBjA3F4rP+/T0wYaBoKIOprz/lZsPn06x+H/3AsvU6gPnROEhPxNQytQzoSmhAsMK9cSMNNyDmbTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751212806; c=relaxed/simple;
-	bh=RdX76I8Jtbco4EHRpcErR5wyT9kP9gH35W2Qq58wcRs=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=eKFUkzwa0EvesXrRpADp4KczRfHZXD6ag2LeG4pgqC9iSx3R1QqQ736rRF8pdMk1lCnisfTkp9ml6ofyIUaxCQT//Rl6kb6dtoiLvCbkJ+efwf+fwjuD3NWf9OOtIFhx+dCtd9ODqm+qNEZdapVDc/d0AM91UwKlM7TJoZT3AuE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3df40bd8fa3so76387145ab.3
-        for <linux-s390@vger.kernel.org>; Sun, 29 Jun 2025 09:00:04 -0700 (PDT)
+	s=arc-20240116; t=1751227537; c=relaxed/simple;
+	bh=qpjVZvBcIo5G28UGMNZaBkJZF6ITVDpFyOxvjBVjrQo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QpT3wigx9p+uMVsFPlzB7ZdlMUkl5s1KF+ZYZiXb/t8Fx7b9AZUlT/zt4GZBT5oR0sSotnl5MUA0+efzRd5QVhBHSuUIbwPr83Qbv9EJNOMPA4Oi0vowZzAI6+geT35Yw7mJHY2HkMeMwQOF+xiIfIP8wzKNzJhuoo1zLHnmhAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NcBnlgmw; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NcBnlgmw"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-3a52874d593so1198323f8f.0;
+        Sun, 29 Jun 2025 13:05:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751227534; x=1751832334; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qpjVZvBcIo5G28UGMNZaBkJZF6ITVDpFyOxvjBVjrQo=;
+        b=NcBnlgmwXFJ/lb1m/J2cG12Ykp6Z7L/WhvfFcF8NjSPcbsHZ+rY0MMlLKhGc8mlO6m
+         MyARVdjcoTQPDkA/hjsIziI945yO4cyoJc+eUfd2WCDpLqo+Xf20LPiKkCg0+RgJfv1G
+         dI0mqrR+4ga3hFcxgc2xI7+b9YoAjqegeDZmB/lfEZa41I9eS5pvB4iRd6Cj2AkAKgVV
+         oDg9x7EH4UiJAcuGeDhfNSzLf0PzcqqdCahj9JfBRrsV3Ud4+rli0CAyuP7VSxIUOaao
+         EfsmV4VmBKG+IdbqDKaML1eP0Z13Ho2kYDmj3krPeXbNGcIuREz+TR2OoA7LW10eUjwf
+         JWrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751212803; x=1751817603;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/md0O0bsDN1yE9cV3610rKJ+Q88r7SDmqU6eKa8w6h0=;
-        b=GcHJmXVApDSKvoMKUU00TrJEgL9uOlJZcV3U7YnWcOT2iodo1pQVWfjwU7aD7kZicA
-         Rxxr93L1YLY554v1dTDxK1I/KoMx65g1fLMEQ6hb9v8faFe+r452N5LIynroDcHT2GF3
-         B0cSVzsO+94c/8/ig20Mx+KMBmmhRDr88YoF0ptVSY375xTzEgDfpMBBuFzSUWvVfwUd
-         aRORltqANOrFXVwex61TxjRYnLrid6vI7cvOIFLHoBroqVE2qcYsqBRNZSZlhAKhkap7
-         spmkHkFakFj9Ok1MTu9aeFvXKR09Mk8yO+ZMsQddmy2cZRDp/taKVUP6Jsp4vGQHaWA7
-         qL8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWUT+Roujv2tFCBSN5RZ3gqYoCseOuiExEcovkZLfgHLVEX11DR7GY3DiSMk+gydu75GG/UFo/bJB4h@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxf1pLRKAH9oyEjIGAVeLuOg+tgK5uncuviBx1m9X/P12KmK+tH
-	9I/5ZudPICtny662RAuIv8RMluVM12CgkjrdVZBEMKbzL3GJK+HhZcPMlqKDIFvrNDndBYEdrgS
-	ezqSvZT+nkVEPvumhUEZruMSVR+FspZNXvpkLCGnBOhDVdiZcKL9P0WbCYlQ=
-X-Google-Smtp-Source: AGHT+IHiNHd675Er2iND1VfHmPsBnABv98ZRFXGLT3s92fDhW/rvCd4Emr7bmzsom/Bwq+s2MW5uf2n6H57Rs7k1Oj19cDnkq3oP
+        d=1e100.net; s=20230601; t=1751227534; x=1751832334;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qpjVZvBcIo5G28UGMNZaBkJZF6ITVDpFyOxvjBVjrQo=;
+        b=dE6RGHe9C/dFRw1vdz/sE4HfcEc0nccHcahmmbRI2vBAHko6RMwnrbp45z8/wa3dZt
+         aqwZixnUwa/qwxAN1y+CzGqCf5Am2QZKF8mSXtW82269vEcD6ARKyqJB71TQyj5D3zwt
+         /uHnf7/QG8kQxtzf1hK48kLSk2BPv2Rst5mM/bWrPuRSF11FyIgZJmWsGjbN5ydl6a9r
+         1pXwUr9zvxAZqLri3LZwBneAlLTeCZzDDFZk4zofznxApqzymg1Ma+CgxpOYrvg8+jLh
+         XVpUhDNuBMdAkGIxR99nXhwXOE7Rgws5sWyHx7WC3EAa5g6JwIozVEOlM2C3DpsIw46p
+         6vTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWE/vwLT7JqpAIe/OKEHz9lHg7S7ACiF03267Xxhx2OLIw4Cf49t89We3606ygAV6WhH+imOLx/AsuB6ho=@vger.kernel.org, AJvYcCWEmgNSjQmK9kSA2XrpOgREmx2aW6GU9fX/La6DCm1y/7mj1BhQ92ZS43VgUdiHorYRVqiYjr4nmXVlyw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwGiKQqFie6BmmUjyqjH+OBztb9d/oKTwWjkPcXGDkRo9CI97BK
+	Yq60UUhOSpB6otsniAf36DefbUmB412CN8oN2ebFfIZNP333pU/mmkPheAf0g018jyEx9LRaG3x
+	r/i2VA5jjk2zDWZjkYbubJi5LzuIdHw8=
+X-Gm-Gg: ASbGnctikwQ5A/ggzMYCXVFF2phFuVLVTEhlRUfNPF7/mOHaKvxjGaEbWLQQHblP9p/
+	rdU3qwHE3559BJPK4GFKDkaevbneUuPTH5gq3PJxsvW3pjVP1hPQc5TX8CpJ3IDj1oJVtV2J+c8
+	2HX8H86kTXK0P+f0G1fyZ36r+PNGznYufK79UGuVItxauOsWgMoUM9VjM=
+X-Google-Smtp-Source: AGHT+IG9Jnr7utU7Trd4lqTg8GWi9uRNVbru2WXxMPFleBJfH4kInx+LP9kDmy2SL/eaM5dKaQqnO/o2Ok4MjECqA8k=
+X-Received: by 2002:a5d:59c7:0:b0:3a4:fc3f:ed28 with SMTP id
+ ffacd0b85a97d-3a8fee64fafmr10710844f8f.29.1751227533501; Sun, 29 Jun 2025
+ 13:05:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:3046:b0:3dd:d189:6511 with SMTP id
- e9e14a558f8ab-3df4acca120mr131241825ab.21.1751212803450; Sun, 29 Jun 2025
- 09:00:03 -0700 (PDT)
-Date: Sun, 29 Jun 2025 09:00:03 -0700
-In-Reply-To: <20250629151042.50986-1-contact@arnaud-lcm.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <68616303.a00a0220.c1739.000a.GAE@google.com>
-Subject: Re: [syzbot] [smc?] KASAN: null-ptr-deref Read in smc_tcp_syn_recv_sock
-From: syzbot <syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com>
-To: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, contact@arnaud-lcm.com, 
-	davem@davemloft.net, edumazet@google.com, guwen@linux.alibaba.com, 
-	horms@kernel.org, jaka@linux.ibm.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
-	syzkaller-bugs@googlegroups.com, tonylu@linux.alibaba.com, 
-	wenjia@linux.ibm.com
+References: <20250626153147.145312-1-snovitoll@gmail.com> <CA+fCnZfAtKWx=+to=XQBREhou=Snb0Yms4D8GNGaxE+BQUYm4A@mail.gmail.com>
+ <CACzwLxgsVkn98VDPpmm7pKcbvu87UBwPgYJmLfKixu4-x+yjSA@mail.gmail.com>
+In-Reply-To: <CACzwLxgsVkn98VDPpmm7pKcbvu87UBwPgYJmLfKixu4-x+yjSA@mail.gmail.com>
+From: Andrey Konovalov <andreyknvl@gmail.com>
+Date: Sun, 29 Jun 2025 22:05:22 +0200
+X-Gm-Features: Ac12FXwSsH6fvJE1vEp59zDWu481tFenq-ukDXNa3gyvAGzFlMqgNHF8VfcuM6Y
+Message-ID: <CA+fCnZcGyTECP15VMSPh+duLmxNe=ApHfOnbAY3NqtFHZvceZw@mail.gmail.com>
+Subject: Re: [PATCH v2 00/11] kasan: unify kasan_arch_is_ready with kasan_enabled
+To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Cc: ryabinin.a.a@gmail.com, glider@google.com, dvyukov@google.com, 
+	vincenzo.frascino@arm.com, linux@armlinux.org.uk, catalin.marinas@arm.com, 
+	will@kernel.org, chenhuacai@kernel.org, kernel@xen0n.name, 
+	maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
+	christophe.leroy@csgroup.eu, paul.walmsley@sifive.com, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com, 
+	richard@nod.at, anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net, 
+	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, 
+	hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com, 
+	akpm@linux-foundation.org, nathan@kernel.org, nick.desaulniers+lkml@gmail.com, 
+	morbo@google.com, justinstitt@google.com, arnd@arndb.de, rppt@kernel.org, 
+	geert@linux-m68k.org, mcgrof@kernel.org, guoweikang.kernel@gmail.com, 
+	tiwei.btw@antgroup.com, kevin.brodsky@arm.com, benjamin.berg@intel.com, 
+	kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org, 
+	llvm@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Sat, Jun 28, 2025 at 3:25=E2=80=AFPM Sabyrzhan Tasbolatov
+<snovitoll@gmail.com> wrote:
+>
+> On Sat, Jun 28, 2025 at 3:57=E2=80=AFPM Andrey Konovalov <andreyknvl@gmai=
+l.com> wrote:
+> >
+> > On Thu, Jun 26, 2025 at 5:32=E2=80=AFPM Sabyrzhan Tasbolatov
+> > <snovitoll@gmail.com> wrote:
+> > >
+> > > This patch series unifies the kasan_arch_is_ready() and kasan_enabled=
+()
+> > > interfaces by extending the existing kasan_enabled() infrastructure t=
+o
+> > > work consistently across all KASAN modes (Generic, SW_TAGS, HW_TAGS).
+> > >
+> > > Currently, kasan_enabled() only works for HW_TAGS mode using a static=
+ key,
+> > > while other modes either return IS_ENABLED(CONFIG_KASAN) (compile-tim=
+e
+> > > constant) or rely on architecture-specific kasan_arch_is_ready()
+> > > implementations with custom static keys and global variables.
+> > >
+> > > This leads to:
+> > > - Code duplication across architectures
+> > > - Inconsistent runtime behavior between KASAN modes
+> > > - Architecture-specific readiness tracking
+> > >
+> > > After this series:
+> > > - All KASAN modes use the same kasan_flag_enabled static key
+> > > - Consistent runtime enable/disable behavior across modes
+> > > - Simplified architecture code with unified kasan_init_generic() call=
+s
+> > > - Elimination of arch specific kasan_arch_is_ready() implementations
+> > > - Unified vmalloc integration using kasan_enabled() checks
+> > >
+> > > This addresses the bugzilla issue [1] about making
+> > > kasan_flag_enabled and kasan_enabled() work for Generic mode,
+> > > and extends it to provide true unification across all modes.
+> > >
+> > > [1] https://bugzilla.kernel.org/show_bug.cgi?id=3D217049
+> >
+> > Hi Sabyrzhan,
+> >
+> > Thank you for working on this!
+> >
+> > One aspect that is missing from the patches is moving the
+> > kasan_arch_is_ready() calls into the include/linux/kasan.h (this is
+> > not explicitly mentioned in the issue, but this is what the "adding
+> > __wrappers" part is about).
+> >
+> > Another thing that needs careful consideration is whether it's
+> > possible to combine kasan_arch_is_ready() and kasan_enabled() into the
+> > same check logically at all. There's one issue mentioned in [1]:
+>
+> Hello,
+> I've removed kasan_arch_is_ready() at all in this series:
+> [PATCH v2 11/11] kasan: replace kasan_arch_is_ready with kasan_enabled
+>
+> Is it not what's expected by unification?
 
-syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-possible deadlock in inet_child_forget
+I guess the issue description diverged a bit from what needs to be
+done, sorry about that.
 
-======================================================
-WARNING: possible circular locking dependency detected
-6.16.0-rc3-syzkaller-gdfba48a70cb6-dirty #0 Not tainted
-------------------------------------------------------
-syz.2.23/6591 is trying to acquire lock:
-ffff88805b87ac70 (k-clock-AF_INET6){++.-}-{3:3}, at: sock_orphan include/net/sock.h:2075 [inline]
-ffff88805b87ac70 (k-clock-AF_INET6){++.-}-{3:3}, at: inet_child_forget+0x7e/0x2e0 net/ipv4/inet_connection_sock.c:1383
+The core 2 things I wanted to address with the unification are:
 
-but task is already holding lock:
-ffff88805b87aa58 (k-slock-AF_INET6){+.-.}-{3:3}, at: spin_lock include/linux/spinlock.h:351 [inline]
-ffff88805b87aa58 (k-slock-AF_INET6){+.-.}-{3:3}, at: inet_csk_listen_stop+0x203/0x1090 net/ipv4/inet_connection_sock.c:1495
+1. Avoid spraying kasan_arch_is_ready() throughout the KASAN
+implementation and move these checks into include/linux/kasan.h (and
+add __wrappers when required).
 
-which lock already depends on the new lock.
+2. Avoid architectures redefining the same kasan_enabled global
+variable/static key.
 
+Initially, I thought that s/kasan_arch_is_ready/kasan_enabled + simply
+moving the calls into affected include/linux/kasan.h functions would
+be enough. But then, based on [1], turns out it's not that simple.
 
-the existing dependency chain (in reverse order) is:
+So now, I think we likely still need two separate checks/flags:
+kasan_enabled() that controls whether KASAN is enabled at all and
+kasan_arch_is_ready() that gets turned on by kasan_init() when shadow
+is initialized (should we rename it to kasan_shadow_initialized()?).
+But then we can still move kasan_arch_is_ready() into
+include/linux/kasan.h and use the proper combination of checks for
+each affected function before calling __wrappers. And we can still
+remove the duplicated flags/keys code from the arch code.
 
--> #1 (k-slock-AF_INET6){+.-.}-{3:3}:
-       __raw_spin_lock include/linux/spinlock_api_smp.h:133 [inline]
-       _raw_spin_lock+0x2e/0x40 kernel/locking/spinlock.c:154
-       spin_lock include/linux/spinlock.h:351 [inline]
-       sk_clone_lock+0x334/0x1330 net/core/sock.c:2499
-       inet_csk_clone_lock+0x2a/0x750 net/ipv4/inet_connection_sock.c:1232
-       tcp_create_openreq_child+0x34/0x1980 net/ipv4/tcp_minisocks.c:526
-       tcp_v4_syn_recv_sock+0x115/0x1250 net/ipv4/tcp_ipv4.c:1774
-       tcp_v6_syn_recv_sock+0x1353/0x2480 net/ipv6/tcp_ipv6.c:1382
-       smc_tcp_syn_recv_sock+0x24b/0x500 net/smc/af_smc.c:144
-       tcp_check_req+0x69d/0x1f80 net/ipv4/tcp_minisocks.c:874
-       tcp_v4_rcv+0x19b0/0x4650 net/ipv4/tcp_ipv4.c:2283
-       ip_protocol_deliver_rcu+0xba/0x4c0 net/ipv4/ip_input.c:205
-       ip_local_deliver_finish+0x316/0x570 net/ipv4/ip_input.c:233
-       NF_HOOK include/linux/netfilter.h:317 [inline]
-       NF_HOOK include/linux/netfilter.h:311 [inline]
-       ip_local_deliver+0x18e/0x1f0 net/ipv4/ip_input.c:254
-       dst_input include/net/dst.h:469 [inline]
-       ip_rcv_finish net/ipv4/ip_input.c:447 [inline]
-       NF_HOOK include/linux/netfilter.h:317 [inline]
-       NF_HOOK include/linux/netfilter.h:311 [inline]
-       ip_rcv+0x2c3/0x5d0 net/ipv4/ip_input.c:567
-       __netif_receive_skb_one_core+0x197/0x1e0 net/core/dev.c:5977
-       __netif_receive_skb+0x1d/0x160 net/core/dev.c:6090
-       process_backlog+0x442/0x15e0 net/core/dev.c:6442
-       __napi_poll.constprop.0+0xba/0x550 net/core/dev.c:7414
-       napi_poll net/core/dev.c:7478 [inline]
-       net_rx_action+0xa9f/0xfe0 net/core/dev.c:7605
-       handle_softirqs+0x219/0x8e0 kernel/softirq.c:579
-       do_softirq kernel/softirq.c:480 [inline]
-       do_softirq+0xb2/0xf0 kernel/softirq.c:467
-       __local_bh_enable_ip+0x100/0x120 kernel/softirq.c:407
-       local_bh_enable include/linux/bottom_half.h:33 [inline]
-       rcu_read_unlock_bh include/linux/rcupdate.h:910 [inline]
-       __dev_queue_xmit+0x8ab/0x43e0 net/core/dev.c:4740
-       dev_queue_xmit include/linux/netdevice.h:3355 [inline]
-       neigh_hh_output include/net/neighbour.h:523 [inline]
-       neigh_output include/net/neighbour.h:537 [inline]
-       ip_finish_output2+0xc38/0x21a0 net/ipv4/ip_output.c:235
-       __ip_finish_output net/ipv4/ip_output.c:313 [inline]
-       __ip_finish_output+0x49e/0x950 net/ipv4/ip_output.c:295
-       ip_finish_output+0x35/0x380 net/ipv4/ip_output.c:323
-       NF_HOOK_COND include/linux/netfilter.h:306 [inline]
-       ip_output+0x13b/0x2a0 net/ipv4/ip_output.c:433
-       dst_output include/net/dst.h:459 [inline]
-       ip_local_out net/ipv4/ip_output.c:129 [inline]
-       __ip_queue_xmit+0x1d7d/0x26c0 net/ipv4/ip_output.c:527
-       __tcp_transmit_skb+0x2686/0x3e90 net/ipv4/tcp_output.c:1479
-       __tcp_send_ack.part.0+0x3de/0x700 net/ipv4/tcp_output.c:4279
-       __tcp_send_ack net/ipv4/tcp_output.c:4285 [inline]
-       tcp_send_ack+0x84/0xa0 net/ipv4/tcp_output.c:4285
-       tcp_rcv_synsent_state_process net/ipv4/tcp_input.c:6632 [inline]
-       tcp_rcv_state_process+0x4236/0x4ed0 net/ipv4/tcp_input.c:6826
-       tcp_v4_do_rcv+0x1ad/0xa90 net/ipv4/tcp_ipv4.c:1948
-       sk_backlog_rcv include/net/sock.h:1148 [inline]
-       __release_sock+0x31b/0x400 net/core/sock.c:3213
-       release_sock+0x5a/0x220 net/core/sock.c:3767
-       mptcp_connect+0xccd/0xfe0 net/mptcp/protocol.c:3695
-       __inet_stream_connect+0x3c8/0x1020 net/ipv4/af_inet.c:677
-       inet_stream_connect+0x57/0xa0 net/ipv4/af_inet.c:748
-       __sys_connect_file+0x141/0x1a0 net/socket.c:2038
-       __sys_connect+0x13b/0x160 net/socket.c:2057
-       __do_sys_connect net/socket.c:2063 [inline]
-       __se_sys_connect net/socket.c:2060 [inline]
-       __x64_sys_connect+0x72/0xb0 net/socket.c:2060
-       do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-       do_syscall_64+0xcd/0x4c0 arch/x86/entry/syscall_64.c:94
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
--> #0 (k-clock-AF_INET6){++.-}-{3:3}:
-       check_prev_add kernel/locking/lockdep.c:3168 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3287 [inline]
-       validate_chain kernel/locking/lockdep.c:3911 [inline]
-       __lock_acquire+0x126f/0x1c90 kernel/locking/lockdep.c:5240
-       lock_acquire kernel/locking/lockdep.c:5871 [inline]
-       lock_acquire+0x179/0x350 kernel/locking/lockdep.c:5828
-       __raw_write_lock_bh include/linux/rwlock_api_smp.h:202 [inline]
-       _raw_write_lock_bh+0x33/0x40 kernel/locking/spinlock.c:334
-       sock_orphan include/net/sock.h:2075 [inline]
-       inet_child_forget+0x7e/0x2e0 net/ipv4/inet_connection_sock.c:1383
-       inet_csk_listen_stop+0x323/0x1090 net/ipv4/inet_connection_sock.c:1523
-       tcp_disconnect+0x18a4/0x1ec0 net/ipv4/tcp.c:3340
-       inet_shutdown+0x26f/0x440 net/ipv4/af_inet.c:935
-       smc_close_active+0xc2a/0x1070 net/smc/smc_close.c:223
-       __smc_release+0x634/0x880 net/smc/af_smc.c:282
-       smc_release+0x1fc/0x5f0 net/smc/af_smc.c:349
-       __sock_release+0xb3/0x270 net/socket.c:647
-       sock_close+0x1c/0x30 net/socket.c:1391
-       __fput+0x402/0xb70 fs/file_table.c:465
-       task_work_run+0x150/0x240 kernel/task_work.c:227
-       resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
-       exit_to_user_mode_loop+0xeb/0x110 kernel/entry/common.c:114
-       exit_to_user_mode_prepare include/linux/entry-common.h:330 [inline]
-       syscall_exit_to_user_mode_work include/linux/entry-common.h:414 [inline]
-       syscall_exit_to_user_mode include/linux/entry-common.h:449 [inline]
-       do_syscall_64+0x3f6/0x4c0 arch/x86/entry/syscall_64.c:100
-       entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(k-slock-AF_INET6);
-                               lock(k-clock-AF_INET6);
-                               lock(k-slock-AF_INET6);
-  lock(k-clock-AF_INET6);
-
- *** DEADLOCK ***
-
-4 locks held by syz.2.23/6591:
- #0: ffff88805b065608 (&sb->s_type->i_mutex_key#11){+.+.}-{4:4}, at: inode_lock include/linux/fs.h:869 [inline]
- #0: ffff88805b065608 (&sb->s_type->i_mutex_key#11){+.+.}-{4:4}, at: __sock_release+0x86/0x270 net/socket.c:646
- #1: ffff888058b0a4d8 (sk_lock-AF_SMC/1){+.+.}-{0:0}, at: smc_release+0x378/0x5f0 net/smc/af_smc.c:341
- #2: ffff88805b878fd8 (k-sk_lock-AF_INET6){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1667 [inline]
- #2: ffff88805b878fd8 (k-sk_lock-AF_INET6){+.+.}-{0:0}, at: inet_shutdown+0x67/0x440 net/ipv4/af_inet.c:905
- #3: ffff88805b87aa58 (k-slock-AF_INET6){+.-.}-{3:3}, at: spin_lock include/linux/spinlock.h:351 [inline]
- #3: ffff88805b87aa58 (k-slock-AF_INET6){+.-.}-{3:3}, at: inet_csk_listen_stop+0x203/0x1090 net/ipv4/inet_connection_sock.c:1495
-
-stack backtrace:
-CPU: 0 UID: 0 PID: 6591 Comm: syz.2.23 Not tainted 6.16.0-rc3-syzkaller-gdfba48a70cb6-dirty #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 05/07/2025
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
- print_circular_bug+0x275/0x350 kernel/locking/lockdep.c:2046
- check_noncircular+0x14c/0x170 kernel/locking/lockdep.c:2178
- check_prev_add kernel/locking/lockdep.c:3168 [inline]
- check_prevs_add kernel/locking/lockdep.c:3287 [inline]
- validate_chain kernel/locking/lockdep.c:3911 [inline]
- __lock_acquire+0x126f/0x1c90 kernel/locking/lockdep.c:5240
- lock_acquire kernel/locking/lockdep.c:5871 [inline]
- lock_acquire+0x179/0x350 kernel/locking/lockdep.c:5828
- __raw_write_lock_bh include/linux/rwlock_api_smp.h:202 [inline]
- _raw_write_lock_bh+0x33/0x40 kernel/locking/spinlock.c:334
- sock_orphan include/net/sock.h:2075 [inline]
- inet_child_forget+0x7e/0x2e0 net/ipv4/inet_connection_sock.c:1383
- inet_csk_listen_stop+0x323/0x1090 net/ipv4/inet_connection_sock.c:1523
- tcp_disconnect+0x18a4/0x1ec0 net/ipv4/tcp.c:3340
- inet_shutdown+0x26f/0x440 net/ipv4/af_inet.c:935
- smc_close_active+0xc2a/0x1070 net/smc/smc_close.c:223
- __smc_release+0x634/0x880 net/smc/af_smc.c:282
- smc_release+0x1fc/0x5f0 net/smc/af_smc.c:349
- __sock_release+0xb3/0x270 net/socket.c:647
- sock_close+0x1c/0x30 net/socket.c:1391
- __fput+0x402/0xb70 fs/file_table.c:465
- task_work_run+0x150/0x240 kernel/task_work.c:227
- resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
- exit_to_user_mode_loop+0xeb/0x110 kernel/entry/common.c:114
- exit_to_user_mode_prepare include/linux/entry-common.h:330 [inline]
- syscall_exit_to_user_mode_work include/linux/entry-common.h:414 [inline]
- syscall_exit_to_user_mode include/linux/entry-common.h:449 [inline]
- do_syscall_64+0x3f6/0x4c0 arch/x86/entry/syscall_64.c:100
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fec9fd7e719
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fec9effe038 EFLAGS: 00000246 ORIG_RAX: 00000000000001b4
-RAX: 0000000000000000 RBX: 00007fec9ff35f80 RCX: 00007fec9fd7e719
-RDX: 0000000000000000 RSI: ffffffffffffffff RDI: 0000000000000003
-RBP: 00007fec9fdf132e R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000000000 R14: 00007fec9ff35f80 R15: 00007ffd574ead88
- </TASK>
-
-
-Tested on:
-
-commit:         dfba48a7 Merge tag 'i2c-for-6.16-rc4' of git://git.ker..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=11cd688c580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=d3e0d55231e0c89c
-dashboard link: https://syzkaller.appspot.com/bug?extid=827ae2bfb3a3529333e9
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=10e2a982580000
-
+[1] https://lore.kernel.org/linux-mm/CA+fCnZf7JqTH46C7oG2Wk9NnLU7hgiVDEK0EA=
+8RAtyr-KgkHdg@mail.gmail.com/
