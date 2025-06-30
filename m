@@ -1,115 +1,93 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F175194A44;
-	Mon, 30 Jun 2025 03:49:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BF7C41A0BE0;
+	Mon, 30 Jun 2025 04:18:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751255348; cv=none; b=T7QHycx2x3KXfRmwqjQOVK0ekevqZ7IEY7SAixgr/9EC3VeveI28E9qm3WdmsfukPI8izZVv1uhROLQ1z2kTY/Di0lQkma2rG52xeIobfkfktyxHx5tc3J3FHIPwaKyGEXg2AhIuJ4+8fGo/7UP0esD0Q6qc3JRRj0Kki5P0/cA=
+	t=1751257099; cv=none; b=Dlc04b/8caKNzdg6IkLx6geytB7cry+Kjvw6AMdA5qjdN+FEgmdffpVLLEie1NsKrHxjJ48yrMuZ12fCS8ostq46xSrpizEUWxbmBmaFLtkbtznt6fgJKWmMw0k8GOO7t80dpEDIj9LVMM3PDVr6KBG3rq93Aag5gSouoId3uvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751255348; c=relaxed/simple;
-	bh=QPyADK9zPp0ngvuNL56VT5gNsd2clYF5WbJ46q3uXaA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UsP/uUY/OjGjUPGOWr98bU2TXCAEVuXZEk9VT3tLtPR2N9pTaW2YpZL1/kAUOgeAmpFA4KIcrAvdCLYNdE6d6hC/cYyvhIkVwbXOCxkKaaruyYOFkL0HspYkeEWK/HjpHdvRPoJfNOhv2UPACN0gedxsw1DWbf1oMw0beii4sQY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jvlrBwED; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jvlrBwED"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1751255346; x=1782791346;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=QPyADK9zPp0ngvuNL56VT5gNsd2clYF5WbJ46q3uXaA=;
-  b=jvlrBwEDABjfnDySfFpwDzRE7FkRo71yuLzBmtKfC3HyVWAZhcFkWlyt
-   N7dsjx5RAF0btPtSBIfYwPTFS4JTWBL07ac5ejo2UK8L9CQzrWs4sO6/M
-   CV/WmuDxAi1T/wqM7pJP1yGC8DxuLuU5fMKcyQAfJV4IBlTxg6W5SsnXl
-   yu48PeGnqpALp+R6Ufeee6WIIJAkxJolKdJYQRdzi39+YDB27/ep07189
-   1TPV1MzxqYVujbWeUCSmxB4LeGRu0nQyP6BtbFXLiooZHmMraKIoDHG4u
-   f6ESqyVRCrCvz5OmKvvImArICiDAIdGI1exro3MwcgeCpKEWAt9OJzcZn
-   A==;
-X-CSE-ConnectionGUID: +uMWrFreTHWI/3n/lD9IUQ==
-X-CSE-MsgGUID: wrWGeLEgROGGwNjWF1JxMg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11479"; a="53412535"
-X-IronPort-AV: E=Sophos;i="6.16,276,1744095600"; 
-   d="scan'208";a="53412535"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2025 20:49:05 -0700
-X-CSE-ConnectionGUID: KQUAA6GzTP+FamccfauLqQ==
-X-CSE-MsgGUID: q8TfAvgnTNqN40i//1jc3w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.16,276,1744095600"; 
-   d="scan'208";a="154049717"
-Received: from lkp-server01.sh.intel.com (HELO e8142ee1dce2) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 29 Jun 2025 20:49:00 -0700
-Received: from kbuild by e8142ee1dce2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1uW5Vq-000YRG-1Z;
-	Mon, 30 Jun 2025 03:48:58 +0000
-Date: Mon, 30 Jun 2025 11:48:49 +0800
-From: kernel test robot <lkp@intel.com>
-To: GONG Ruiqi <gongruiqi1@huawei.com>, Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: oe-kbuild-all@lists.linux.dev, Eric Snowberg <eric.snowberg@oracle.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, "Lee, Chun-Yi" <jlee@suse.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org,
-	keyrings@vger.kernel.org, Lu Jialin <lujialin4@huawei.com>,
-	gongruiqi1@huawei.com
-Subject: Re: [PATCH v2] integrity: Extract secure boot enquiry function out
- of IMA
-Message-ID: <202506301150.yT6MxuHD-lkp@intel.com>
-References: <20250628063251.321370-1-gongruiqi1@huawei.com>
+	s=arc-20240116; t=1751257099; c=relaxed/simple;
+	bh=BB9ldwwmhQ6qsTGTQmSmbS2RMinxLObrzW6LV6RLqPM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EkxnY+p11rWuqU+kADzCAdaVkGaCNz75x9EQFgUR9jfJP4AXDvquiNfx+xc5hNUwRCjFQFb/vGXka6RdzvX84g4Bnltjcg569o482+pHhQOHaiR/nHxJX2G4x4ZVDTs9ozzSgl8JXYTQrcX9FbHdRIYLG8uug5QSXGUHEIgLiwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3E4AD1F60;
+	Sun, 29 Jun 2025 21:17:54 -0700 (PDT)
+Received: from [10.163.39.2] (unknown [10.163.39.2])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BC4BF3F58B;
+	Sun, 29 Jun 2025 21:18:07 -0700 (PDT)
+Message-ID: <e60539ab-e319-4a7c-a7ee-493df3f7f833@arm.com>
+Date: Mon, 30 Jun 2025 09:48:04 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250628063251.321370-1-gongruiqi1@huawei.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/1] mm/debug_vm_pgtable: Use a swp_entry_t input
+ value for swap tests
+To: David Hildenbrand <david@redhat.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Matthew Wilcox <willy@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+ linux-mm <linux-mm@kvack.org>, linux-s390@vger.kernel.org
+References: <20250623184321.927418-1-gerald.schaefer@linux.ibm.com>
+ <20250623184321.927418-2-gerald.schaefer@linux.ibm.com>
+ <9fb04185-5b71-46c0-b62c-0e0e6ee59e6e@arm.com>
+ <20250625182846.5bce1aaf@thinkpad-T15>
+ <db8ab8d0-20f5-4922-a1e2-6f7409747664@redhat.com>
+Content-Language: en-US
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+In-Reply-To: <db8ab8d0-20f5-4922-a1e2-6f7409747664@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi GONG,
 
-kernel test robot noticed the following build errors:
 
-[auto build test ERROR on zohar-integrity/next-integrity]
-[also build test ERROR on powerpc/next powerpc/fixes s390/features linus/master v6.16-rc4 next-20250627]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+On 25/06/25 10:17 PM, David Hildenbrand wrote:
+>> [...]
+>>>> @@ -1166,6 +1173,7 @@ static void __init init_fixed_pfns(struct pgtable_debug_args *args)
+>>>>     static int __init init_args(struct pgtable_debug_args *args)
+>>>>   {
+>>>> +    unsigned long max_swap_offset;
+>>>>       struct page *page = NULL;
+>>>>       int ret = 0;
+>>>>   @@ -1248,6 +1256,11 @@ static int __init init_args(struct pgtable_debug_args *args)
+>>>>         init_fixed_pfns(args);
+>>>>   +    /* See generic_max_swapfile_size(): probe the maximum offset */
+>>>> +    max_swap_offset = swp_offset(pte_to_swp_entry(swp_entry_to_pte(swp_entry(0, ~0UL))));
+>>> Why not directly use generic_max_swapfile_size() which is doing exact same thing.
+>>>
+>>> unsigned long generic_max_swapfile_size(void)
+>>> {
+>>>     return swp_offset(pte_to_swp_entry(
+>>>             swp_entry_to_pte(swp_entry(0, ~0UL)))) + 1;
+>>> }
+>>
+>> Good question. I just moved this code here from pte_swap_exclusive_tests(),
+>> see above, and did not think about that. Now I also wonder why
+>> generic_max_swapfile_size() wasn't used before.
+>>
+>> But it is not exactly the same thing, there is an extra "+ 1" there.
+>> Maybe that is the reason, but I don't really understand the details /
+>> difference, and therefore would not want to change it.
+>>
+>> David, do you remember why you didn't use generic_max_swapfile_size()
+>> in your pte_swap_exclusive_tests()?
+> 
+> Excellent question. If only I would remember :)
+> 
+> generic_max_swapfile_size() resides in mm/swapfile.c, which is only around with CONFIG_SWAP.
+> 
+> It makes sense to have that function only if there are ... actual swapfiles.
+> 
+> These checks here are independent of CONFIG_SWAP (at least in theory -- for migration entries etc we don't need CONFIG_SWAP), and we simply want to construct a swap PTE with all possible bits set.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/GONG-Ruiqi/integrity-Extract-secure-boot-enquiry-function-out-of-IMA/20250628-142236
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git next-integrity
-patch link:    https://lore.kernel.org/r/20250628063251.321370-1-gongruiqi1%40huawei.com
-patch subject: [PATCH v2] integrity: Extract secure boot enquiry function out of IMA
-config: x86_64-randconfig-102-20250630 (https://download.01.org/0day-ci/archive/20250630/202506301150.yT6MxuHD-lkp@intel.com/config)
-compiler: clang version 20.1.7 (https://github.com/llvm/llvm-project 6146a88f60492b520a36f8f8f3231e15f3cc6082)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250630/202506301150.yT6MxuHD-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202506301150.yT6MxuHD-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> ld.lld: error: undefined symbol: arch_integrity_get_secureboot
-   >>> referenced by ima_main.c:922 (security/integrity/ima/ima_main.c:922)
-   >>>               vmlinux.o:(ima_load_data)
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+After this modification of PMD based swap test - there will be now
+two uses for generic_max_swapfile_size(). Rather than refactoring
+these into a similar helper in mm/debug_vm_pgtable.c - should the
+existing helper just be moved outside of CONFIG_SWAP, thus making
+it available in general ?
