@@ -1,169 +1,267 @@
-Received: from mail-il1-f182.google.com (mail-il1-f182.google.com [209.85.166.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D4B621D3D2
-	for <linux-s390@vger.kernel.org>; Mon, 30 Jun 2025 16:38:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 854AF8460;
+	Mon, 30 Jun 2025 16:47:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751301501; cv=none; b=lQdExKwexKuukw+nY+WOY0hwzWbzsCeESLMD7azyOBNJWPOE9erHB0/j6WkqQDHzpQetmYSbdG3iQ2fNdZPVvU2lWh1FGoeDFCArPd5rZkQhi0s5pfpIbpIguPpq8iVGGqRe23qMTQgjj7Wzd21ClTSG9jHMbGJH4jUP3MuLvzE=
+	t=1751302076; cv=none; b=g8aPd1d0O1IY1hq4UwTBTRXGJr5EhrSfD+SL4nEHG5O+bNAXPN9Mw3IF5YyIZgLXKAGpCC8tireVmpSht7JNCr+WgDueOovcqBztXvh2BHu5eFc767pzciA0EZvnGl7vUyeWMZtPeKkEnnLOZhem8ywZY14+dGcG6+FY2UQK4zA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751301501; c=relaxed/simple;
-	bh=3SSJe22EI0/zwdN3+ptsJEa9SF2HCC8v9PBFh6uZZj8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QaYcGb+qiIw5UQMh7wW4uB+zq7SrBFhX+dS2UsrWof5l4/PtcJbE7sSXPy79FYzEcXUQxWc8UzHBHebmpW89N5C9EExUfwlQ3tro73L4iWIvfzqtGivypehfWyPvBRi8CAhnasZ74MTja/GlYA7lbZoU4ZZLgdYIz0qeJmeQy0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4QqvQG6o; arc=none smtp.client-ip=209.85.166.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1751302076; c=relaxed/simple;
+	bh=rsfOEOJugX34XA+jCFmt6YE10O4CFvj6rkIm5zunCpA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JacmMgIgZQisktcrzl3yUDzUOVURPHzH03rLPaCKix8M1Z0gt2ikdzHAGsLIZRT5aR2aQzMTcDDglUXdHiBi7DxQxPzVwBo30f7Qrh9d6gn12QgihDvp4zI/9trvRhXPIqGmB+Zd+Qedf67U+yPob8Ze5JeJxJi1Gq9CsVRetPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FIyFedhA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4QqvQG6o"
-Received: by mail-il1-f182.google.com with SMTP id e9e14a558f8ab-3df371e1d29so1825ab.0
-        for <linux-s390@vger.kernel.org>; Mon, 30 Jun 2025 09:38:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1751301498; x=1751906298; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OqFV3vdLcpqk0WIu5m/78ZKQUMwnbH0yFrWHYwtacwc=;
-        b=4QqvQG6oz6GmA806y9A8338eG8GtOIJRkEteF5+t/tfJOYz+qamcglr1r70pD62q5i
-         f0ZR8hGPB1BzP1gj0ofaBSpR5DCrEcG3xXgIVwrUZXN6OfzJEh8pM64pWsrH9kfqzckD
-         CKbKgq/EmCBeUVWX05WCDnlSDGCWNbKHjLOA68IhvKf2VfleqsCcDuAUJ6taEEg+JQ3u
-         NgHd4GxQslbAIRULD3nrrUv3YUsDizBgbSb/weTlKzy4iHtYReBzVAckBQWqOeaO0ZWu
-         fMdeJQy47oxqXTf9yRZ3AcUH1nnzvxK+LMtF9k0gpTbk0F7btSRoYhuupn3EPWE3ZkML
-         gxwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751301498; x=1751906298;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OqFV3vdLcpqk0WIu5m/78ZKQUMwnbH0yFrWHYwtacwc=;
-        b=QAof/Oak6ln+vMEBpA0+HYQw/EP7/OTongtpW/F/8qw0PAbrpHP+jWuNIUAUpfgLUC
-         3bON2ZsG5szfkEInjb8LcCOYW4qx42CjzqztbWiSajCaoYsqaGn/atHz45wt/6mYTC+Q
-         ZI3GwXctZxhws9QFlm6s3V+ZqUaEGEfsoLJI4/xUFSjaG+gWW5iIWhVqvTZU97reWSgt
-         ouvJ8QOnRVwX8ViyyP8s/y4bgsrhX9l3mH24vYBLcl1hXCUZQWXUeM/UT3FTL6veu09d
-         jK5Iiu+qhYgGTqmd9fD4N5OvUe4PFwXVPXdtZb6oOxBSzmxNi0wHb6u3Si+NGH8LQpo+
-         e5MA==
-X-Forwarded-Encrypted: i=1; AJvYcCVmcg14+9j7Vz+Fmd+/7LmLSPr/JvlcL/odsuPNVRsckoSXdOAnNKyG+gOHeaBmsOqn8zLJIBnt3OV6@vger.kernel.org
-X-Gm-Message-State: AOJu0YwM0IUlonHakCsJ7C7mbPXFYY0RapBCHn8b4WjtNkFbyMqacrnL
-	d8XuO/u1wKSnZV7gSla9zF8nO8G7OyqI+gPALoVkcp8qTvooZMH+ltmCMuSrE36kughYpP1DKGN
-	87eo9J/C0sbH4de4fy7LfRvTzJIJZjZRCCdKOvaJC
-X-Gm-Gg: ASbGncvlUG1wyricIHTN9zgcaAk/SCK3LuYWvd7hyL53XoSJag7hTvW1SoEY2x82J9I
-	5MGxBSAkMrwtXNHxbg4r87B8fR9vFUbCKpEknzcx7fToe0rX3v7eW7oHvOjN8RotagwmyHu2dOx
-	S4xDtBgJIuutxfJSPEdfDGgQ9ohYBkOo5dNOc5SO0+0bLyyPG/oGBmsQdYhSP3WUQctxrNTWA=
-X-Google-Smtp-Source: AGHT+IEV4ws06I3PBKCP3xfx6fJYQY/7epzwWRJpF5/I1Oop+DfcLvxUlkyWMCvWvFPEidAUpvsHHwmLeU2IN8EN8pY=
-X-Received: by 2002:a05:6e02:2281:b0:3df:16a1:6874 with SMTP id
- e9e14a558f8ab-3df56d202d8mr6648955ab.29.1751301497806; Mon, 30 Jun 2025
- 09:38:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FIyFedhA"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55UBD7Hb023854;
+	Mon, 30 Jun 2025 16:47:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=AufIWocE5AuvJtPV1wlgowl9nYF3OzzI2gj6BnaMb
+	ts=; b=FIyFedhA/dGopM8gjgfb77ELLHTz2d+5DUgWSOfJIb3tEQIaAuXjH9w0r
+	wQIJBZgDc1JjfTOo6mDTLaJzfVoLPWnVIDg0HdM2PrBPvEmRyC7Kx/WqX70GJuCD
+	48dc1bHa8cihoN3DcaCKSFm5Wru+yGC78IDA7G4F9SmUYz+NGqDN3nOumoTXN2eq
+	EJ5PDw3FuZYOT3/z6v1WCQEA4YHZxEVpM6EEbbDyuCGRwhybT7RHC+49nY4Buog+
+	3iTLlEMNoMryGaZiJVYBL04Uz8sBZvqJxF0/SMG67Ir0tJ0I6xjK4A8ScUZPyJI2
+	lIJ53RHhxYlAqz2M2Q7vpCs91/0xw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47j6u1jmpk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Jun 2025 16:47:37 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55UE6N6f021945;
+	Mon, 30 Jun 2025 16:47:36 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47juqpepwg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Jun 2025 16:47:36 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55UGlYeJ51053014
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 30 Jun 2025 16:47:34 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8009420040;
+	Mon, 30 Jun 2025 16:47:34 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 55BFA2004B;
+	Mon, 30 Jun 2025 16:47:34 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 30 Jun 2025 16:47:34 +0000 (GMT)
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Matthew Wilcox <willy@infradead.org>, David Hildenbrand <david@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+        linux-s390 <linux-s390@vger.kernel.org>
+Subject: [PATCH] mm/debug_vm_pgtable: Use a swp_entry_t input value for swap tests
+Date: Mon, 30 Jun 2025 18:47:25 +0200
+Message-ID: <20250630164726.930405-1-gerald.schaefer@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250630091613.3061664-1-tmricht@linux.ibm.com>
- <CAP-5=fWGiitgromQRTxEsU3cY99gFAU6WPLnmiS7-Q8vQNGbYw@mail.gmail.com> <aGK2xQNQOd1WoDVk@google.com>
-In-Reply-To: <aGK2xQNQOd1WoDVk@google.com>
-From: Ian Rogers <irogers@google.com>
-Date: Mon, 30 Jun 2025 09:38:06 -0700
-X-Gm-Features: Ac12FXyb9pIGay8KgAhrAvwHn4i8z7MPif2V10yaHDvHwigTzIW6u1Pg_N--RW0
-Message-ID: <CAP-5=fWb=7qnAcE8i5Kv8yTnmdFOzX2jPvR88bmzqRtGhSbDzQ@mail.gmail.com>
-Subject: Re: [PATCH] perf test: perf header test fails on s390
-To: Namhyung Kim <namhyung@kernel.org>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org, acme@kernel.org, 
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
-	hca@linux.ibm.com, japo@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ry2V18RJOMmtSxE0l4oahA2WZlmSjeeJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjMwMDEzOCBTYWx0ZWRfX0kvpwDntTdUg 0+0ZeQMZlFBp3uT7tL5Qx9+tPHwjJD05c1iCfNbFF1YIeLEepNS3COO91oyyuYKsX/SvbOElP4r LycnGSTdSapD/Rw+KRYXz/Ye04S2eiggr+xuQlABM8sin22fUiRUajjlZGmfbmWAZlYWzdwg3h8
+ y3Hz6sCImfOlz66E/6nabSYgEp2Dg5amWOcDogZiQi/IeGJzq8jX8AIZ0GZ2OyAfgYJejMB9tG2 KF/hBedYQWBH3ChJe9Yvs9qEGXxDEVt9IT1GwjP4eQj/eMgWEMby3nD5BYFCizEQcQRJ+KA4cW8 S5ysEgCknJnY39XQzMJf4j2fi3V6Wg2TlvWPPk7aX3cThwrlLSm4e2+d6dREUi38Y2TCcN0OK3+
+ YAYen7p/bTPTyFPV7ovOFQphAbGzESj9/lt9bn65yKLGLPrJUudKDzZNwJ1CFYWXJOP3A2lv
+X-Proofpoint-GUID: ry2V18RJOMmtSxE0l4oahA2WZlmSjeeJ
+X-Authority-Analysis: v=2.4 cv=GrRC+l1C c=1 sm=1 tr=0 ts=6862bfa9 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=ZTx8QE4AkKJnx8U2w1UA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-06-30_04,2025-06-27_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
+ priorityscore=1501 adultscore=0 mlxlogscore=999 mlxscore=0 impostorscore=0
+ phishscore=0 spamscore=0 suspectscore=0 bulkscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506300138
 
-On Mon, Jun 30, 2025 at 9:09=E2=80=AFAM Namhyung Kim <namhyung@kernel.org> =
-wrote:
->
-> On Mon, Jun 30, 2025 at 08:42:01AM -0700, Ian Rogers wrote:
-> > On Mon, Jun 30, 2025 at 2:16=E2=80=AFAM Thomas Richter <tmricht@linux.i=
-bm.com> wrote:
-> > >
-> > > commit 2d584688643fa ("perf test: Add header shell test")
-> > > introduced a new test case for perf header. It fails on s390
-> > > because call graph option -g is not supported on s390.
-> > > Also the option --call-graph dwarf is only supported for
-> > > the event cpu-clock.
-> > >
-> > > Remove this option and the test succeeds.
-> > >
-> > > Output after:
-> > >  # ./perf test 76
-> > >  76: perf header tests                           : Ok
-> > >
-> > > Fixes: 2d584688643fa ("perf test: Add header shell test")
-> > > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > > Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-> > > Cc: Ian Rogers <irogers@google.com>
-> >
-> > Thanks Thomas! Given the s390 restriction to require dwarf, should we
-> > switch the default "-g" meaning on s390 to mean use dwarf? James Clark
-> > proposed this previously. It doesn't affect the change here so:
-> >
-> > Reviewed-by: Ian Rogers <irogers@google.com>
->
-> Unrelated but I found this test is failing on my machine.
->
->   $ ./perf test -v header
->   --- start ---
->   test child forked, pid 42799
->   Test perf header file
->   [ perf record: Woken up 1 times to write data ]
->   [ perf record: Captured and wrote 0.182 MB /tmp/__perf_test_header.perf=
-.data.vvFUf (4114 samples) ]
->   Test perf header file [Done]
->   Test perf header pipe
->   Failed to find expect hostname in output
->   Failed to find expect os release in output
->   Failed to find expect arch in output
->   Failed to find expect cpuid in output
->   Failed to find expect nrcpus in output
->   Failed to find expect event in output
->   Failed to find expect cmdline in output
->   Failed to find expect perf version in output
->   Failed to find expect sibling (cores|dies|threads) in output
->   Failed to find expect sibling threads in output
->   Failed to find expect total memory in output
->   Test perf header pipe [Done]
->   ---- end(-1) ----
->    83: perf header tests                                               : =
-FAILED!
->
-> The pipe mode doesn't have the headers.
->
->   $ ./perf record -o- -g -- ./perf test -w noploop | ./perf report -i- -I=
- --header-only
->   # =3D=3D=3D=3D=3D=3D=3D=3D
->   # captured on    : Mon Jun 30 09:02:09 2025
->   # header version : 1
->   # data offset    : 0
->   # data size      : 0
->   # feat offset    : 0
->   # =3D=3D=3D=3D=3D=3D=3D=3D
->   #
+The various __pte/pmd_to_swp_entry and __swp_entry_to_pte/pmd helper
+functions are expected to operate on swap PTE/PMD entries, not on
+present and mapped entries.
 
-Strange, permissions? I see:
+Reflect this in the swap tests by using a swp_entry_t as input value,
+and convert it to a swap PTE/PMD for testing, similar to how it is already
+done in pte_swap_exclusive_tests(). Move the swap entry creation from
+there to init_args() and store it in args, so it can also be used in other
+functions.
 
-```
-$ /tmp/perf/perf record -o- -g -- /tmp/perf/perf test -w noploop |
-/tmp/perf/perf report -i- -I --header-only
-# =3D=3D=3D=3D=3D=3D=3D=3D
-# captured on    : Mon Jun 30 09:35:21 2025
-# header version : 1
-# data offset    : 0
-# data size      : 0
-# feat offset    : 0
-# =3D=3D=3D=3D=3D=3D=3D=3D
-#
-# hostname : ...
-# os release : ...
-# perf version : 6.16.rc3.g8f2bc25ec32d
-# arch : x86_64
-etc.
-```
+The pte/pmd_swap_tests() are also changed to compare entries instead of
+pfn values, again similar to pte_swap_exclusive_tests(). pte/pmd_pfn()
+helpers are also not expected to operate on swap PTE/PMD entries at all.
 
-Thanks,
-Ian
+Also update documentation, to reflect that the helpers operate on swap
+PTE/PMD entries and not present and mapped entries, and use correct names,
+i.e. __swp_to_pte/pmd_entry -> __swp_entry_to_pte/pmd.
+
+For consistency, also change pte/pmd_swap_soft_dirty_tests() to use
+args->swp_entry instead of a present and mapped PTE/PMD.
+
+Link: https://lore.kernel.org/all/20250623184321.927418-1-gerald.schaefer@linux.ibm.com
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+---
+ Documentation/mm/arch_pgtable_helpers.rst |  8 ++--
+ mm/debug_vm_pgtable.c                     | 53 ++++++++++++++---------
+ 2 files changed, 36 insertions(+), 25 deletions(-)
+
+diff --git a/Documentation/mm/arch_pgtable_helpers.rst b/Documentation/mm/arch_pgtable_helpers.rst
+index c88c7fa665d6..ba2f658bc241 100644
+--- a/Documentation/mm/arch_pgtable_helpers.rst
++++ b/Documentation/mm/arch_pgtable_helpers.rst
+@@ -236,13 +236,13 @@ SWAP Page Table Helpers
+ ========================
+ 
+ +---------------------------+--------------------------------------------------+
+-| __pte_to_swp_entry        | Creates a swapped entry (arch) from a mapped PTE |
++| __pte_to_swp_entry        | Creates a swp_entry_t (arch) from a swap PTE     |
+ +---------------------------+--------------------------------------------------+
+-| __swp_to_pte_entry        | Creates a mapped PTE from a swapped entry (arch) |
++| __swp_entry_to_pte        | Creates a swap PTE from a swp_entry_t (arch)     |
+ +---------------------------+--------------------------------------------------+
+-| __pmd_to_swp_entry        | Creates a swapped entry (arch) from a mapped PMD |
++| __pmd_to_swp_entry        | Creates a swp_entry_t (arch) from a swap PMD     |
+ +---------------------------+--------------------------------------------------+
+-| __swp_to_pmd_entry        | Creates a mapped PMD from a swapped entry (arch) |
++| __swp_entry_to_pmd        | Creates a swap PMD from a swp_entry_t (arch)     |
+ +---------------------------+--------------------------------------------------+
+ | is_migration_entry        | Tests a migration (read or write) swapped entry  |
+ +-------------------------------+----------------------------------------------+
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+index bd8f9317b025..d19031f275a3 100644
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -72,6 +72,8 @@ struct pgtable_debug_args {
+ 	unsigned long		fixed_pud_pfn;
+ 	unsigned long		fixed_pmd_pfn;
+ 	unsigned long		fixed_pte_pfn;
++
++	swp_entry_t		swp_entry;
+ };
+ 
+ static void __init pte_basic_tests(struct pgtable_debug_args *args, int idx)
+@@ -698,12 +700,15 @@ static void __init pte_soft_dirty_tests(struct pgtable_debug_args *args)
+ 
+ static void __init pte_swap_soft_dirty_tests(struct pgtable_debug_args *args)
+ {
+-	pte_t pte = pfn_pte(args->fixed_pte_pfn, args->page_prot);
++	pte_t pte;
+ 
+ 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
+ 		return;
+ 
+ 	pr_debug("Validating PTE swap soft dirty\n");
++	pte = swp_entry_to_pte(args->swp_entry);
++	WARN_ON(!is_swap_pte(pte));
++
+ 	WARN_ON(!pte_swp_soft_dirty(pte_swp_mksoft_dirty(pte)));
+ 	WARN_ON(pte_swp_soft_dirty(pte_swp_clear_soft_dirty(pte)));
+ }
+@@ -737,7 +742,9 @@ static void __init pmd_swap_soft_dirty_tests(struct pgtable_debug_args *args)
+ 		return;
+ 
+ 	pr_debug("Validating PMD swap soft dirty\n");
+-	pmd = pfn_pmd(args->fixed_pmd_pfn, args->page_prot);
++	pmd = swp_entry_to_pmd(args->swp_entry);
++	WARN_ON(!is_swap_pmd(pmd));
++
+ 	WARN_ON(!pmd_swp_soft_dirty(pmd_swp_mksoft_dirty(pmd)));
+ 	WARN_ON(pmd_swp_soft_dirty(pmd_swp_clear_soft_dirty(pmd)));
+ }
+@@ -748,17 +755,11 @@ static void __init pmd_swap_soft_dirty_tests(struct pgtable_debug_args *args) {
+ 
+ static void __init pte_swap_exclusive_tests(struct pgtable_debug_args *args)
+ {
+-	unsigned long max_swap_offset;
+ 	swp_entry_t entry, entry2;
+ 	pte_t pte;
+ 
+ 	pr_debug("Validating PTE swap exclusive\n");
+-
+-	/* See generic_max_swapfile_size(): probe the maximum offset */
+-	max_swap_offset = swp_offset(pte_to_swp_entry(swp_entry_to_pte(swp_entry(0, ~0UL))));
+-
+-	/* Create a swp entry with all possible bits set */
+-	entry = swp_entry((1 << MAX_SWAPFILES_SHIFT) - 1, max_swap_offset);
++	entry = args->swp_entry;
+ 
+ 	pte = swp_entry_to_pte(entry);
+ 	WARN_ON(pte_swp_exclusive(pte));
+@@ -782,30 +783,34 @@ static void __init pte_swap_exclusive_tests(struct pgtable_debug_args *args)
+ 
+ static void __init pte_swap_tests(struct pgtable_debug_args *args)
+ {
+-	swp_entry_t swp;
+-	pte_t pte;
++	swp_entry_t arch_entry;
++	pte_t pte1, pte2;
+ 
+ 	pr_debug("Validating PTE swap\n");
+-	pte = pfn_pte(args->fixed_pte_pfn, args->page_prot);
+-	swp = __pte_to_swp_entry(pte);
+-	pte = __swp_entry_to_pte(swp);
+-	WARN_ON(args->fixed_pte_pfn != pte_pfn(pte));
++	pte1 = swp_entry_to_pte(args->swp_entry);
++	WARN_ON(!is_swap_pte(pte1));
++
++	arch_entry = __pte_to_swp_entry(pte1);
++	pte2 = __swp_entry_to_pte(arch_entry);
++	WARN_ON(memcmp(&pte1, &pte2, sizeof(pte1)));
+ }
+ 
+ #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
+ static void __init pmd_swap_tests(struct pgtable_debug_args *args)
+ {
+-	swp_entry_t swp;
+-	pmd_t pmd;
++	swp_entry_t arch_entry;
++	pmd_t pmd1, pmd2;
+ 
+ 	if (!has_transparent_hugepage())
+ 		return;
+ 
+ 	pr_debug("Validating PMD swap\n");
+-	pmd = pfn_pmd(args->fixed_pmd_pfn, args->page_prot);
+-	swp = __pmd_to_swp_entry(pmd);
+-	pmd = __swp_entry_to_pmd(swp);
+-	WARN_ON(args->fixed_pmd_pfn != pmd_pfn(pmd));
++	pmd1 = swp_entry_to_pmd(args->swp_entry);
++	WARN_ON(!is_swap_pmd(pmd1));
++
++	arch_entry = __pmd_to_swp_entry(pmd1);
++	pmd2 = __swp_entry_to_pmd(arch_entry);
++	WARN_ON(memcmp(&pmd1, &pmd2, sizeof(pmd1)));
+ }
+ #else  /* !CONFIG_ARCH_ENABLE_THP_MIGRATION */
+ static void __init pmd_swap_tests(struct pgtable_debug_args *args) { }
+@@ -1110,6 +1115,7 @@ static void __init init_fixed_pfns(struct pgtable_debug_args *args)
+ 
+ static int __init init_args(struct pgtable_debug_args *args)
+ {
++	unsigned long max_swap_offset;
+ 	struct page *page = NULL;
+ 	int ret = 0;
+ 
+@@ -1192,6 +1198,11 @@ static int __init init_args(struct pgtable_debug_args *args)
+ 
+ 	init_fixed_pfns(args);
+ 
++	/* See generic_max_swapfile_size(): probe the maximum offset */
++	max_swap_offset = swp_offset(pte_to_swp_entry(swp_entry_to_pte(swp_entry(0, ~0UL))));
++	/* Create a swp entry with all possible bits set */
++	args->swp_entry = swp_entry((1 << MAX_SWAPFILES_SHIFT) - 1, max_swap_offset);
++
+ 	/*
+ 	 * Allocate (huge) pages because some of the tests need to access
+ 	 * the data in the pages. The corresponding tests will be skipped
+-- 
+2.48.1
+
