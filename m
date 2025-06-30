@@ -1,143 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02FE41FBE83
-	for <linux-s390@vger.kernel.org>; Mon, 30 Jun 2025 06:51:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D562258A;
+	Mon, 30 Jun 2025 07:37:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751266304; cv=none; b=snd8k4SNwAQQTrwZyW+o6a3Bgc6tKvFEtR++FkKum/ENtzFGyuywaCapY0ViIOax6TZb2IhnNpZIPNL+IPBX86j58v1hLxhIyVjvffIKTlIFbHMRcLsCvPL4lAwbYYhHA8t/sH33LaB/fBZb6MaIlLIalvJUv6IgLoje948vPRQ=
+	t=1751269065; cv=none; b=fLlyZhzcfqqgblC6KsTu8rQQjLLElfvsAGgmufB4oJQXGABTzMvlw3gEPYKmFFyfoYoKMiE86i6bcW4/Ic96CT2P9f6bR2i5S/nlmx9g4Ry0bgHd7xuW1vxZySzMDP1OuGX/Cc330Y5phRcea+xab5a6fW++izSIi0qRaOnkjT8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751266304; c=relaxed/simple;
-	bh=1j/BOe6+uj6Rz+5EFQPn/l2EbhGasamVZqKuVWNilXc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NMxfTvQa+d/VX+o+4coWl33CSCA9jXybhoIoXJfu8GDC7v2NC+lNYgB7H0xN6tfFbtMe6ra/4lrh+R7EwXCRU/ASuvhb/pYt5Yj7bbqC8wil3sRQOC8jyVm4LDIDJ1Ybhva5/z7Ggh0A1af3QWAhQdOyCfCeUJUFYBDEz/ImTrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XL12VkNx; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1751269065; c=relaxed/simple;
+	bh=sG18V9YH6xwaMCKoP5b6EmXZZdF6kA34hDti89/UFzA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CljHt8S2S18CiSD8ZayDEqVl12z3nDtAVBZL9ezhVBi+JGwpg8A2k82vnJNmLSYYgsaM7CaqPQaFDWGBbxkS4jJ8Oi/RsZglxEqdEU0bb1UN+S6Ruf4gjdARHL4caJ+sW2zwk5GvtRpmNx1yMhKP55pLM//Ef1yiMWSbYewCIiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e1i4YqiD; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XL12VkNx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751266301;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=14L4bSmzMK+Na24jtHZlikcuCB46GClv+lCWBOsYn3k=;
-	b=XL12VkNxRj85syYOQHSpKb9ocN7rCtq1D0rKSh1cOaBoMY14rglkWKs/CqfMeSAb0pa7sJ
-	njGphRe9YeCXsq2JKXXNBhilGNedRMq210b4SkjkCpKbd5muDeZZmC6Pj/yFxq/rXRXu5N
-	8EE75N8vzmzBPZIVSAkYYGDJUY9HnOM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-121-ifXXjupMOKCchycWxhfG9g-1; Mon, 30 Jun 2025 02:51:39 -0400
-X-MC-Unique: ifXXjupMOKCchycWxhfG9g-1
-X-Mimecast-MFC-AGG-ID: ifXXjupMOKCchycWxhfG9g_1751266298
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4535ad64d30so14174425e9.3
-        for <linux-s390@vger.kernel.org>; Sun, 29 Jun 2025 23:51:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751266298; x=1751871098;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=14L4bSmzMK+Na24jtHZlikcuCB46GClv+lCWBOsYn3k=;
-        b=Ic5Sl+wpxKuYToS+7d4wGJZGRS8wZJhgZSYpE7lbsijQM7vmDS3mLxFA4sPSQB9WIv
-         WL2T4YIYEbOoOZSvo1Pmn5s5jUl1yO9tacY0OFokQxyhex4qot92GJYPBjq6H8Vkkkvn
-         HmPHkWx3OnYn+pzvLs2bQ7NVWOurVVruIeCCrVef71sRA2MX3ZJOj1C9GyS8YzLgZK+8
-         036bUVAGg/n5+wYvTY2CpjeR6KPX28Ua1IFh9i+Y3skWtCVfgemrVaRrcclrKgZgdJ9l
-         w5AGQuwT9jYFmqx/B0K0G3pDquWng7hrJ/pqaGPKextZfmjIN5PVJtRrQ2sLbvUmG7Hw
-         GGtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUjWME2OakoA1wcUvA3a1xq2jLLqp3bg5N4JwjyH7Am2bK8cMqG8yU/h3kEfXvYL7Ug5ZeUPfyzTGPs@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGbvfRd/vrTaHep5ox4TuoV1XLp1AKIvivdMfqcZ//i7hbR8p2
-	1H+hVBDdPoPPS5EZc3IyHyfUQzCZCcPb/RbRczKqhMmXaIZ4xSe/1agfcZIAaSYIqq8oFv29Q5j
-	CO+lWIYW46Ys6I8rt/v0QzvSmxcNgAcnOUJpuD01yfLltIKVhFWzmvFy+v7L2xMQ=
-X-Gm-Gg: ASbGncsIedryecXR+kL7r2Dp0AJJID4YYf3sHxbiv5Dxy9lzhas5UhK0O91Ja0TZKWC
-	HtUCxpuusjK4iP0xkH5ct8MrQZ42IlMWJ7VfPfv6Lo/hhvgtFk89Nv10RrOQsKkck1UZLqIULCU
-	ZV9xJkc7sKTmSZIzGGfFLc3up8fHPgHpbf7oVGfdoRfE/uL/Z8xJqGAYyqixifAIfO6WiqX7v7q
-	boHrpCk/0+DLC1VfM3OfYg17e/Jigi7ZkbrHUwQgCNVvPX4F066sSo47mLg9/qT8PduGMD6kuIr
-	+j2jIESOmq55siT6nB2Afjr2dLEppW8XHtYrMHP5ryJhmRRDZ5WGXKmdQlRv/GsZpmPQAQ==
-X-Received: by 2002:a05:600c:3e8e:b0:442:e9ec:4654 with SMTP id 5b1f17b1804b1-4538ee5ce0cmr113844415e9.8.1751266298033;
-        Sun, 29 Jun 2025 23:51:38 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE8OzcnlTDoCi5GaakFcUjFo98VZ0Lu6zkZMiLKUwkNiF4+gQI+xZELrNOEu2y/m9jGEUvL0Q==
-X-Received: by 2002:a05:600c:3e8e:b0:442:e9ec:4654 with SMTP id 5b1f17b1804b1-4538ee5ce0cmr113844085e9.8.1751266297611;
-        Sun, 29 Jun 2025 23:51:37 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:247b:5810:4909:7796:7ec9:5af2? ([2a0d:3344:247b:5810:4909:7796:7ec9:5af2])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3aba76e40c0sm5286272f8f.59.2025.06.29.23.51.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 29 Jun 2025 23:51:37 -0700 (PDT)
-Message-ID: <83640113-ae18-4d5a-945a-44eef600d42e@redhat.com>
-Date: Mon, 30 Jun 2025 08:51:35 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e1i4YqiD"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55TKuAvD027682;
+	Mon, 30 Jun 2025 07:36:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=LRuxJGeazOAFE04HqsIYG5vhTHeYxo
+	okmIsQ4rJ0tr8=; b=e1i4YqiDY8naXnepnWvjDRT1icKqYeUPy0sKroEwdegooK
+	XhfgAqCcIHNY99Fo1ms6mc8/sunnG8B0qa4T2RyDa7atatmN9GaAEi0trTxO8t59
+	5BmkOURCLWZwzeqRt2LbBek/J5GYoEjShxtT4Hiu/BXe7lXlVFk6SWg583iLQS/+
+	VadCkhXg93j+UrNuKOmxrmNcWeVHKWcy8HRfraiNw1XkdkASwbhZjSkSW0bIhPBc
+	axodA+w9wi8dyp+cvXjrHNRgMuX+tcJVkcIELmUf/W6S5oKzKx4pxIO7Sjz2y43d
+	8apG/Ixb+L7BRxxnBDKsdy8lz7aU/gEtGWkWHT/w==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47j84cyw1f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Jun 2025 07:36:39 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55U4P3Yt032250;
+	Mon, 30 Jun 2025 07:36:37 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47ju40d014-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 30 Jun 2025 07:36:37 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55U7aVQC19136952
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 30 Jun 2025 07:36:31 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2CCCE200F7;
+	Mon, 30 Jun 2025 07:36:31 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9864200FD;
+	Mon, 30 Jun 2025 07:36:23 +0000 (GMT)
+Received: from osiris (unknown [9.111.82.77])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 30 Jun 2025 07:36:23 +0000 (GMT)
+Date: Mon, 30 Jun 2025 09:36:11 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Eric Biggers <ebiggers@kernel.org>
+Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Joerg Schmidbauer <jschmidb@de.ibm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+        Ingo Franzki <ifranzki@linux.ibm.com>
+Subject: Re: [PATCH] crypto: s390/sha - Fix uninitialized variable in SHA-1
+ and SHA-2
+Message-ID: <20250630073611.15284Ab6-hca@linux.ibm.com>
+References: <20250627185649.35321-1-ebiggers@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: syztest
-To: Arnaud Lecomte <contact@arnaud-lcm.com>,
- syzbot+827ae2bfb3a3529333e9@syzkaller.appspotmail.com
-Cc: agordeev@linux.ibm.com, alibuda@linux.alibaba.com, davem@davemloft.net,
- edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org,
- jaka@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com,
- tonylu@linux.alibaba.com, wenjia@linux.ibm.com
-References: <67eaf9b8.050a0220.3c3d88.004a.GAE@google.com>
- <20250629132933.33599-1-contact@arnaud-lcm.com>
-Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250629132933.33599-1-contact@arnaud-lcm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250627185649.35321-1-ebiggers@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lUTN_MH2-aHDhXdBvhoSJxnHTj2BMH8s
+X-Proofpoint-GUID: lUTN_MH2-aHDhXdBvhoSJxnHTj2BMH8s
+X-Authority-Analysis: v=2.4 cv=Ib6HWXqa c=1 sm=1 tr=0 ts=68623e87 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=kj9zAlcOel0A:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=adFIAS80RBVZD6iCsq0A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjMwMDA1OSBTYWx0ZWRfX4fBph0upJLoJ qAnseUygVc31k1QlUokbrLSgo1tcxWae2LXhVcad06UInBCAzoYSneVvU8zkzrsd+ooHLNqKLBs JGHGyAP6assaCXlMdDjozBidzIik70S5p5lVsG4sNoCW6rI4MWSikRASdJg80OsbMoqwoId1VhM
+ OvN3aI2Z0vqXTxr2B3WqBB/1Gc3zEBdDkUnBHBeUtJf95/JYI4nN4eo9Le/p+Ycer41iFDxI6qu /o0aGbFJZiFftAWvI4Mqm2PmwiyyPN4vM9JIba+Wn4txqeiuxoFBCo6tuDKkpYOat3XpWYhovo3 td/MKH5hU42E9OAdoO4AYx4/LE6L5yqc1cs2HI1hJlxwKqJNtgwjXID2GeA6CK8plmzQNkiNePt
+ 87rmZVMpdZvYUtjrjHYUeaB5w9a+4vFM2PUlxTPAUK7AYdg7f9VcT9P1UrTHI3kzp1hzpLNX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-06-30_01,2025-06-27_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 suspectscore=0
+ clxscore=1015 mlxlogscore=442 lowpriorityscore=0 impostorscore=0
+ mlxscore=0 malwarescore=0 spamscore=0 priorityscore=1501 adultscore=0
+ bulkscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506300059
 
-On 6/29/25 3:29 PM, Arnaud Lecomte wrote:
-> #syz test
+On Fri, Jun 27, 2025 at 11:56:49AM -0700, Eric Biggers wrote:
+> Commit 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
+> added the field s390_sha_ctx::first_message_part and made it be used by
+> s390_sha_update_blocks().  At the time, s390_sha_update_blocks() was
+> used by all the s390 SHA-1, SHA-2, and SHA-3 algorithms.  However, only
+> the initialization functions for SHA-3 were updated, leaving SHA-1 and
+> SHA-2 using first_message_part uninitialized.
 > 
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -123,11 +123,14 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
->  					  struct request_sock *req_unhash,
->  					  bool *own_req)
->  {
-> +        read_lock_bh(&((struct sock *)sk)->sk_callback_lock);
->  	struct smc_sock *smc;
->  	struct sock *child;
-> -
->  	smc = smc_clcsock_user_data(sk);
->  
-> +	if (!smc)
-> +		goto drop;
-> +
->  	if (READ_ONCE(sk->sk_ack_backlog) + atomic_read(&smc->queued_smc_hs) >
->  				sk->sk_max_ack_backlog)
->  		goto drop;
-> @@ -148,9 +151,11 @@ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
->  		if (inet_csk(child)->icsk_af_ops == inet_csk(sk)->icsk_af_ops)
->  			inet_csk(child)->icsk_af_ops = smc->ori_af_ops;
->  	}
-> +	read_unlock_bh(&((struct sock *)sk)->sk_callback_lock);
->  	return child;
->  
->  drop:
-> +	read_unlock_bh(&((struct sock *)sk)->sk_callback_lock);
->  	dst_release(dst);
->  	tcp_listendrop(sk);
->  	return NULL;
-> @@ -2613,7 +2618,7 @@ int smc_listen(struct socket *sock, int backlog)
->  	int rc;
->  
->  	smc = smc_sk(sk);
-> -	lock_sock(sk);
-> +	lock_sock(sock->sk);
->  
->  	rc = -EINVAL;
->  	if ((sk->sk_state != SMC_INIT && sk->sk_state != SMC_LISTEN) ||
+> This could cause e.g. CPACF_KIMD_SHA_512 | CPACF_KIMD_NIP to be used
+> instead of just CPACF_KIMD_NIP.  It's unclear why this didn't cause a
+> problem earlier; this bug was found only when UBSAN detected the
+> uninitialized boolean.  Perhaps the CPU ignores CPACF_KIMD_NIP for SHA-1
+> and SHA-2.  Regardless, let's fix this.  For now just initialize to
+> false, i.e. don't try to "optimize" the SHA state initialization.
+> 
+> Note: in 6.16, we need to patch SHA-1, SHA-384, and SHA-512.  In 6.15
+> and earlier, we'll also need to patch SHA-224 and SHA-256, as they
+> hadn't yet been librarified (which incidentally fixed this bug).
+> 
+> Fixes: 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
+> Cc: stable@vger.kernel.org
+> Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
+> Closes: https://lore.kernel.org/r/12740696-595c-4604-873e-aefe8b405fbf@linux.ibm.com
+> Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+> ---
+> 
+> This is targeting 6.16.  I'd prefer to take this through
+> libcrypto-fixes, since the librarification work is also touching this
+> area.  But let me know if there's a preference for the crypto tree or
+> the s390 tree instead.
+> 
+>  arch/s390/crypto/sha1_s390.c   | 1 +
+>  arch/s390/crypto/sha512_s390.c | 2 ++
+>  2 files changed, 3 insertions(+)
 
-Please stop cc-ing netdev and other kernel ML with this tests. You
-should keep just the syzkaller related MLs and a very restricted list of
-individuals (i.e. no maintainers).
+Routing this via libcrypto-fixes is fine.
 
-Thanks,
-
-Paolo
-
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
