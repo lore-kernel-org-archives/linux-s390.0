@@ -1,44 +1,71 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735C772627;
-	Tue,  1 Jul 2025 07:28:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528AD26AA8C
+	for <linux-s390@vger.kernel.org>; Tue,  1 Jul 2025 09:02:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751354892; cv=none; b=NO7CBtgCQqj9PjnTDT7GLIYv4N11pnRiGV21ge4gC56UNbdGevtFB0fjbL0QjvOewiJZ8mnhhy/eTt/g3iRIVPaTH9upS1c9PCPCx4vC85FJtBt1DsrIDgtsPB/l3xgoyXvR0STC59BMDxblI65JL7sPqMZ1ul96+C0LqHPfLQI=
+	t=1751360579; cv=none; b=kch/xNaKxsImWliezv3v4aJ0e8OVjJ34kLaHZYLgATlci1oUd3vJXETlRUigI5QTy4CmZBA07UYhW0jLNaGz5k6AS4spShjV/Sd5L3w+Ks6GtE3BSRACmTJj4iEYRpc7feV3z4Il7qjSnbto+zkBVrTFq9a0kXPe8C0wuJ7ESxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751354892; c=relaxed/simple;
-	bh=YDEbnGhuOWLsVA+sCNJxV/TpybCXlMAB4+pgRB4AFgQ=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=VoLulGQ7m6deCn8WSj1nKxct2k+BnPCjJWmcwivO8C+54LHZwLpX5d8MygqIyKl7aaSCv0wQ/wdr+XzFTRDkhuwkJ+1JXdWja5QA58K3FLMjJpMdKQg7hq4OkRqKJtRA8BJJm76xoYFPMlEYazk55C7mkVCTqDA1hEEGr3G8o5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=GfhxbFUk; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1751360579; c=relaxed/simple;
+	bh=1CRUAXr5GBbRdmumb0+cV0Od7MCxxqW2fhnqqDHHk8w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XxDYgVOJqxcs4ejrNr5V4VIZ4Er5seu+PNeZstB8+OhhrpzInGUcJ5eoLwlU3BqVsEnN2AvrCx8/w62jeNWxLtz/7SU3zm9mrJSKUjI3x0yFNlNGMsWwYiwQ8zzntQ7ERB64E84ZtkWBIzoFolevVU0ELC3sDAm1EBSpgJtVkcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q+gHXcV8; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="GfhxbFUk"
-Received: from mailtransmit02.runbox ([10.9.9.162] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1uWVOt-00DBu9-Kt; Tue, 01 Jul 2025 09:27:31 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:References:
-	Cc:To:Subject:From:MIME-Version:Date:Message-ID;
-	bh=Rkdk2rPksLpTTEM7JfKIBHo3x2rKNHPrlN3G2XHmJyE=; b=GfhxbFUkoy8GS/INc8QHy3peIx
-	zAk3bRrn5f22LX1XhffCbRVtSG+IYOYUXmC1eqG8GcYmhckSwbJ6DPzJVW2/NkXn6DVcg571sDI8W
-	SBaiZX9KdVOX2NxHUQvl+wMDViHZz+OPBtof82UPBLiSEM906u4K3k6c1hYe96ZxN3+JUQszHcP30
-	j7791qWTu0J4Msgw5d5I38wcYToDoRC4UNlZx+N+vEju0IE6ooDRvIDj1jqHLXZ0yOUpE4D9BC9kb
-	7m3+oUF+k2A1/XqBip9cjSX6OsFA5oEZIEudkXa+7eB/myI6rAi/i8cQTYcTNp3/as9IzM1JwI7rp
-	7p/Am+Xw==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-	by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1uWVOs-0000QG-4G; Tue, 01 Jul 2025 09:27:30 +0200
-Received: by submission01.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1uWVOZ-001vyL-CH; Tue, 01 Jul 2025 09:27:11 +0200
-Message-ID: <beea4b9f-657f-4f98-a853-e40a503e2274@rbox.co>
-Date: Tue, 1 Jul 2025 09:27:09 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q+gHXcV8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751360576;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=odFmyP7U2sVYXt+ILmpIyMRKTHdQ4Z+Ben4YpGt3RBA=;
+	b=Q+gHXcV88/pQIu1kcI4uU1ZtbqLwG6jQDQw7WkWsAtQgFx6Ftg1WbMqueMTf7Kw2EiSOJM
+	1kCyrQKFST4ByxR6QRkZOQMc9SWFVpBuzrkpF269h/VjfptgJJi3KwXYwcK6+8+HWOyEdo
+	ikpEsIXlJUHIO56Q54iyNKaMUFQ0f0c=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-595-2G90n_ciPzefeVrRDPhy0A-1; Tue, 01 Jul 2025 05:02:55 -0400
+X-MC-Unique: 2G90n_ciPzefeVrRDPhy0A-1
+X-Mimecast-MFC-AGG-ID: 2G90n_ciPzefeVrRDPhy0A_1751360574
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3a4edf5bb4dso3552298f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 01 Jul 2025 02:02:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751360574; x=1751965374;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=odFmyP7U2sVYXt+ILmpIyMRKTHdQ4Z+Ben4YpGt3RBA=;
+        b=do7Bh98S58xZg3comW8jonx1gDk1nPdJeksJcOd5QDgmalKsrFCDTSIAqIOC0o6Dsg
+         Az+3hyUVdnBv2LpiIUpcQ+waEP36i3KWtIYhH7PYd2JlYD3Q4RTkxuBc74ggN3k7W9SH
+         n+pYVplh0hocnrnHNLUDXPVmvQHShMo0mX0Utc7GoDin5Vk+1vL1BwV6t7p3I4z92ERx
+         XR1BTJile4WbV0Ffy1q3LYJ7RPFIUq6XSVAApDWfnzHrJifcrrZpZwNaElCtbqwbjbxy
+         x7YO5C5+ozi+U+fE3277Md3ynZ2HUy4soZji7oMelxuR68dBP2kSCnn6FMJFd4OXpGw3
+         lu6g==
+X-Forwarded-Encrypted: i=1; AJvYcCV0fsPZqCxz14aVJmEZ/n/+pVZgEIaZjgNU0iVwSJWs8GHXeBs8pLPW4OVX8ZVGm20t1nq7aPps9k8l@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHh5vQahayIQahQdTfGkiFNmXwT/ju0kzdegRROQmXhn89Iagh
+	qkMqxu6TzEMPr+PnlclOy8uWBloC5w6Aah2PMpTtScEUfZx21z1m5ap+71zksJjHxj4OrfL/TS6
+	LhPJe57LyykzCtW8SqDecJlo5k/V+ihXkC1XpinIEYQL7E+gsG/xxvEcf7ZJN8NI=
+X-Gm-Gg: ASbGnctmf0EXvK2419qWPHXiNoIbM097XMoyvcQEPkE36aJpsm+ydNgVna6TQJzSdHi
+	xl71H0zhSLg+IiYxTfrMlpkXHsQFgMTrCGEEYG3UcTqcKfbhPqhNvF5zc5u7ijtq/RmcMjMfz6M
+	M4iUMun4kELPifIODnL/Oy3g9bivQ8QPEwM3A6B/KbPR1rImEWlrjIh7B4LzpBh6yfssazhZV7Y
+	VedSjykGnoa5uDn/r2UMSTVCLsz6Y9ETRindoXaDuxeLZtJKOxrxpFvAweLU9obOv2Zl1eTtF5I
+	jIqddOTk3HlBgJj5oOn2lDYyrEuXj02eYnDUHZHM8Pxorw1f3rpF23Y2nQhBuse4daIWHw==
+X-Received: by 2002:adf:f6d1:0:b0:3a5:52cc:5e29 with SMTP id ffacd0b85a97d-3a90d0d7317mr11929790f8f.7.1751360573691;
+        Tue, 01 Jul 2025 02:02:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGYRKtwQ5aZnc0XqPhfEJjz3LC5qLMurZ/9vUE7Xlx2VhB/BrreyXJkwS9hDRJ79YaRjeUeIA==
+X-Received: by 2002:adf:f6d1:0:b0:3a5:52cc:5e29 with SMTP id ffacd0b85a97d-3a90d0d7317mr11929762f8f.7.1751360573210;
+        Tue, 01 Jul 2025 02:02:53 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:247b:5810:4909:7796:7ec9:5af2? ([2a0d:3344:247b:5810:4909:7796:7ec9:5af2])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538a4064b1sm161825945e9.29.2025.07.01.02.02.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Jul 2025 02:02:52 -0700 (PDT)
+Message-ID: <c405f957-0f88-4c88-98d7-3a27e5230fc8@redhat.com>
+Date: Tue, 1 Jul 2025 11:02:50 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -46,47 +73,53 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Michal Luczaj <mhal@rbox.co>
 Subject: Re: [PATCH net-next v2 0/9] net: Remove unused function parameters in
  skbuff.c
-To: Jakub Kicinski <kuba@kernel.org>
+To: Michal Luczaj <mhal@rbox.co>, Jakub Kicinski <kuba@kernel.org>
 Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Neal Cardwell <ncardwell@google.com>,
- Kuniyuki Iwashima <kuniyu@google.com>, David Ahern <dsahern@kernel.org>,
- Boris Pismenny <borisp@nvidia.com>, John Fastabend
- <john.fastabend@gmail.com>, Ayush Sawal <ayush.sawal@chelsio.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Wenjia Zhang <wenjia@linux.ibm.com>,
- Jan Karcher <jaka@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
+ Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ David Ahern <dsahern@kernel.org>, Boris Pismenny <borisp@nvidia.com>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Ayush Sawal <ayush.sawal@chelsio.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Wenjia Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org
 References: <20250626-splice-drop-unused-v2-0-3268fac1af89@rbox.co>
  <20250630181847.525a0ad6@kernel.org>
-Content-Language: pl-PL, en-GB
-In-Reply-To: <20250630181847.525a0ad6@kernel.org>
+ <beea4b9f-657f-4f98-a853-e40a503e2274@rbox.co>
+Content-Language: en-US
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <beea4b9f-657f-4f98-a853-e40a503e2274@rbox.co>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 7/1/25 03:18, Jakub Kicinski wrote:
-> On Thu, 26 Jun 2025 10:33:33 +0200 Michal Luczaj wrote:
->> Couple of cleanup patches to get rid of unused function parameters around
->> skbuff.c, plus little things spotted along the way.
+On 7/1/25 9:27 AM, Michal Luczaj wrote:
+> On 7/1/25 03:18, Jakub Kicinski wrote:
+>> On Thu, 26 Jun 2025 10:33:33 +0200 Michal Luczaj wrote:
+>>> Couple of cleanup patches to get rid of unused function parameters around
+>>> skbuff.c, plus little things spotted along the way.
+>>>
+>>> Offshoot of my question in [1], but way more contained. Found by adding
+>>> "-Wunused-parameter -Wno-error" to KBUILD_CFLAGS and grepping for specific
+>>> skbuff.c warnings.
 >>
->> Offshoot of my question in [1], but way more contained. Found by adding
->> "-Wunused-parameter -Wno-error" to KBUILD_CFLAGS and grepping for specific
->> skbuff.c warnings.
+>> I feel a little ambivalent about the removal of the flags arguments.
+>> I understand that they are unused now, but theoretically the operation
+>> as a whole has flags so it's not crazy to pass them along.. Dunno.
 > 
-> I feel a little ambivalent about the removal of the flags arguments.
-> I understand that they are unused now, but theoretically the operation
-> as a whole has flags so it's not crazy to pass them along.. Dunno.
+> I suspect you can say the same about @gfp. Even though they've both became
+> irrelevant for the functions that define them. But I understand your
+> hesitation. Should I post v3 without this/these changes?
 
-I suspect you can say the same about @gfp. Even though they've both became
-irrelevant for the functions that define them. But I understand your
-hesitation. Should I post v3 without this/these changes?
+Yes please, I think it would make the series less controversial.
 
-What's netdev's stance on using __always_unused in such cases?
+Also I feel like the gfp flag removal is less controversial, as is IMHO
+reasonable that skb_splice_from_iter() would not allocate any memory.
 
 Thanks,
-Michal
+
+Paolo
 
