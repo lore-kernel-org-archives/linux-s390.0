@@ -1,65 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59061FC0A;
-	Tue,  1 Jul 2025 17:55:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F33AF2192F4;
+	Tue,  1 Jul 2025 23:52:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751392514; cv=none; b=OQSuPNpisEuop47Xte6+P22njzFWOOvWjj/ZJ6pd9e0vbsPXSTrHHbNbUbVB5jLuq2q50IYBK0pGfXEwLAfDF2SdMaakW4asBRSTumFvwpBRDLnNsxabPFMNMPxh2K/8vptOV5QX7g8mQrTn0SbJtNBSCKtMsdZtxyurEY2KpQI=
+	t=1751413930; cv=none; b=a+SxPIJTfojyXMknuphFHE5qfMlsFCWqBN67rPhN3BVkqgnjT+MZgM2Hn6Dfpiv8DApERVMRB9EWWzTENMnJGKNDf9k6NcHl9/p1GES+k8TEobn+l8kGoaUZZWP90In22ZZvxOley9TGKRYZ4TEQpmtVI82lt2BR9wII9pDiyq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751392514; c=relaxed/simple;
-	bh=mmJjoTZnRRpWNZphf6pjaNzOYayd41EX93Q6Qq8RYqU=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=GcYGCpibV8L+q+XlFVh6dts1EZbCDhaUyGumVcL9PlfEXrXnkk4CeGyb48zrly8C21x/uBrRgsgE7LmupjzGUXcdaWMb27UaAqJXvTAA/2giLYXmsIb3VXzKYIdqFQ2kghIe3MPS56y/2eqNlkX3IPtEPSNKWBvxYikX8+td4Ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j5tfX3sA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751413930; c=relaxed/simple;
+	bh=+uG+vjDFrpA/LC1O/R/RAZPKUIfakduvGLBMULSE3rU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oZguOi+lAZIa9UczhwN/3y5yd+2P/apr1uOkw1qNxKFrkPHSQl3EzcerRU6RiKEzNZ+MaEd3WRDe1tKLVif/kOpFRtC3+Gj+AC0ZF8T21ia1x5nkqJFvYZrnJLW3ai9Yi1v9G0uiyjP1cN2pVtnGD/S0PkyN3E1HVQs/j4XXOEU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eNhSx3eI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j5tfX3sA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB85C4CEEB;
-	Tue,  1 Jul 2025 17:55:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eNhSx3eI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA9BDC4CEEB;
+	Tue,  1 Jul 2025 23:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751392513;
-	bh=mmJjoTZnRRpWNZphf6pjaNzOYayd41EX93Q6Qq8RYqU=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=j5tfX3sA3w9FTZlxot+ZE9FyfwB/J2/OlscAYwBtf8gXmysP3IjrUwHibMmOApwJs
-	 PBuOayHEeGXFbORxbbZQ8tlpzH09RynMef9jf0ess32IbjE7BwWLewweZNeUFgRngC
-	 nE6MsMTKbeHJc06Arl7noRxzog9dAIcqHMIzwUZIVP8yMdS282L/TJXbnQ0LeLBp5i
-	 9eescFs2hjOzsR/bnobYEM/400Z/6uEA/OU6vxS49WL+ORy2+qzhkIrn19Rz//E9/1
-	 3NyuoC0kxTDXFnmfDOZlwJMB8dO8gaXlJ5TidVLbgoFeOILfGKUuCYl1LFEyTC3n8Z
-	 vEK8onslal8MA==
-From: Namhyung Kim <namhyung@kernel.org>
-To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
- linux-perf-users@vger.kernel.org, acme@kernel.org, irogers@google.com, 
- Thomas Richter <tmricht@linux.ibm.com>
-Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
- hca@linux.ibm.com, japo@linux.ibm.com
-In-Reply-To: <20250630091613.3061664-1-tmricht@linux.ibm.com>
-References: <20250630091613.3061664-1-tmricht@linux.ibm.com>
-Subject: Re: [PATCH] perf test: perf header test fails on s390
-Message-Id: <175139251355.738306.5236113669917576265.b4-ty@kernel.org>
-Date: Tue, 01 Jul 2025 10:55:13 -0700
+	s=k20201202; t=1751413929;
+	bh=+uG+vjDFrpA/LC1O/R/RAZPKUIfakduvGLBMULSE3rU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=eNhSx3eImVJzNJpQRWlN1v90JVow5O0ge9WJVC+Q+ixzJOpv3nlGNngnD/+5cMedN
+	 4HFP6fhfS/RTqSLw7NrEltAC09f9WHi7egLRHZc/VK9ML2fNBUhwKCXNAHWPlbMuPK
+	 hsaeEiKCxZpnKuyBRXJBGRZAikqONXyupBJjuWznJpzZDkIZo54syOvRJ8gNLIqfND
+	 SuQZPpRVAx7K8dfjJfHyJiwDxfFrWuGSbNpKfKQ5pEt9zjHnRYjHJKu2nCOabz0+2g
+	 d/8M+wvy9tNshMhxP4cxF+TVNJF8Gs6MC2KhlbjO465SS8Fgtd7hrbQwj1qjiInuRX
+	 KcLv6HaIz29MQ==
+Date: Tue, 1 Jul 2025 16:52:08 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Michal Luczaj <mhal@rbox.co>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>, Neal
+ Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ David Ahern <dsahern@kernel.org>, Boris Pismenny <borisp@nvidia.com>, John
+ Fastabend <john.fastabend@gmail.com>, Ayush Sawal
+ <ayush.sawal@chelsio.com>, Andrew Lunn <andrew+netdev@lunn.ch>, Wenjia
+ Zhang <wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, "D. Wythe"
+ <alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen Gu
+ <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next v2 0/9] net: Remove unused function parameters
+ in skbuff.c
+Message-ID: <20250701165208.2e3443a0@kernel.org>
+In-Reply-To: <c405f957-0f88-4c88-98d7-3a27e5230fc8@redhat.com>
+References: <20250626-splice-drop-unused-v2-0-3268fac1af89@rbox.co>
+	<20250630181847.525a0ad6@kernel.org>
+	<beea4b9f-657f-4f98-a853-e40a503e2274@rbox.co>
+	<c405f957-0f88-4c88-98d7-3a27e5230fc8@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15-dev-c04d2
 
-On Mon, 30 Jun 2025 11:16:13 +0200, Thomas Richter wrote:
-> commit 2d584688643fa ("perf test: Add header shell test")
-> introduced a new test case for perf header. It fails on s390
-> because call graph option -g is not supported on s390.
-> Also the option --call-graph dwarf is only supported for
-> the event cpu-clock.
+On Tue, 1 Jul 2025 11:02:50 +0200 Paolo Abeni wrote:
+> >> I feel a little ambivalent about the removal of the flags arguments.
+> >> I understand that they are unused now, but theoretically the operation
+> >> as a whole has flags so it's not crazy to pass them along.. Dunno.  
+> > 
+> > I suspect you can say the same about @gfp. Even though they've both became
+> > irrelevant for the functions that define them. But I understand your
+> > hesitation. Should I post v3 without this/these changes?  
 > 
-> Remove this option and the test succeeds.
+> Yes please, I think it would make the series less controversial.
 > 
-> [...]
-Applied to perf-tools-next, thanks!
+> Also I feel like the gfp flag removal is less controversial, as is IMHO
+> reasonable that skb_splice_from_iter() would not allocate any memory.
 
-Best regards,
-Namhyung
++1, FWIW, gfp flags are more as need be the callee.
 
+> > What's netdev's stance on using __always_unused in such cases?
 
+Subjectively, I find the unused argument warnings in the kernel
+to usually be counter-productive. If a maintainer of a piece of code
+wants to clean them up -- perfectly fine. But taking cleanup patches
+and annotating with __always_unused doesn't see very productive.
