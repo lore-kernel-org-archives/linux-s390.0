@@ -1,72 +1,72 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71ED127D782
-	for <linux-s390@vger.kernel.org>; Wed,  2 Jul 2025 14:07:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66F3E275846
+	for <linux-s390@vger.kernel.org>; Wed,  2 Jul 2025 14:10:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751465270; cv=none; b=iT3owioXij8W/bN8x+RIQufAHiwV8vQcQSeaTrZB8SOlDSNSZQ2XG//LS7TvfNQcodUHtXdcprMUFp1xvSWJPudnuaeiVD3QfyYIyvR8sERwOUcvsqSjcvVF/2VF53oLOamt735qY4WPjsm8LohAViugCUZMswSHeBFR8debqJc=
+	t=1751465408; cv=none; b=DB8SSLWRiRyLJOtbtbgkgXlh7u8UbEDwZFbM1nyvjI8Wb5HnKJiTV7joCrku1RPZ0lmwbsbxESDJg+TX4BFxFWvz2+T3k9gMPD606kkCm7fRVcJ6gho/tQcWeuTfzjlz2nARduRFp78MwuTZZGKC50qQfhd6wP67EGlQ/khN0KU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751465270; c=relaxed/simple;
-	bh=JgM6uQPOSTPbn7vlABRvzmnevYaSVFtfopF3IcRPT3s=;
+	s=arc-20240116; t=1751465408; c=relaxed/simple;
+	bh=UUBdzAZ3c9ouEkqzG/IpqaN+2UX9mqsjR40U3uwz+0o=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UVWFIhoRUTQbVKlO70fQ4dhVjKSCH04X8aW+YWE4yY6rKdUZJrXOL4O1NtnCy645Ohy5PGECB6uJObqdN7fVEvYFiH6xtCRuQ/8gZWgJL0L4BmGFMfKE674oLKlBhDHJpka4Xpm1FbwyB2GdMhIKldHVD6lE3LiU4Sbo3HCAHZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W3nj7FYN; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=cDedVj/VsFNiL2ihBMdpmkhx0BEfT7BpC6u2IosuxBlIqEzD5MvIGKLXseEiIEbKB9R2LTxtaZoloAWHdupPtlqAc+UFjyj5etKv5TYKOhiVwx2E3gKVOXnfpKxZwvOzEH+tHLHmj3/Ieh/D7nsp6hWiNFSTadvYFnN5mseK0V8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XId41UTg; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W3nj7FYN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XId41UTg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751465267;
+	s=mimecast20190719; t=1751465406;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=QtugXBwpmof8PtjrVGSF5iQiiRq53WoQXJVBl10e0QY=;
-	b=W3nj7FYNTone4dR2rcLyY2nGIsKfua+T0DD4VUPrUfMUF41YDMF24SiBVYnZPtSG41tV/A
-	noHtR4uEqSHUkBiDA7fGWEJqjIrEwOtNu0LxC82pjRRj9EhSRjEqzjzhDCTGCyB9BmmxBE
-	ImeVTWJ4u7JKV4OK9+8i9T+B0WlmYEg=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=TgZwYQY/6//7Y1IiL72sIvHhk7c1rsqVRlKePVxyg/g=;
+	b=XId41UTgFG2m8aM2hiqC98De0w8e7iaGitmLuKdhhI5xeJifYi7cgG3jv8+KJAH5rDMnSh
+	7zkhIynV0xYrcAe4DTgpQ/M8y5cgdxWM8n9VxO7QsFaWZNUqSnaR9QarnJF3642c/hSruG
+	5bCEadorrkK0oWtTlOQ3R9GzT59I090=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-42-kbOzbMNaOBqjMRrO-r_Sug-1; Wed, 02 Jul 2025 10:07:46 -0400
-X-MC-Unique: kbOzbMNaOBqjMRrO-r_Sug-1
-X-Mimecast-MFC-AGG-ID: kbOzbMNaOBqjMRrO-r_Sug_1751465265
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-451d3f03b74so36209535e9.3
-        for <linux-s390@vger.kernel.org>; Wed, 02 Jul 2025 07:07:46 -0700 (PDT)
+ us-mta-403-NjFu-Q3JMTqYW213VHFQXg-1; Wed, 02 Jul 2025 10:10:05 -0400
+X-MC-Unique: NjFu-Q3JMTqYW213VHFQXg-1
+X-Mimecast-MFC-AGG-ID: NjFu-Q3JMTqYW213VHFQXg_1751465404
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3a523ce0bb2so2388917f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 02 Jul 2025 07:10:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751465265; x=1752070065;
+        d=1e100.net; s=20230601; t=1751465404; x=1752070204;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=QtugXBwpmof8PtjrVGSF5iQiiRq53WoQXJVBl10e0QY=;
-        b=qumBpB7aAgLNsq5ry+ATtO/YcngX4Kp0P7EctQPhHAGWf5t8l9T0wGnWNVSEZVZG+D
-         tyJYjmwvFSf2DlGmpDiSSe/yCBgpSXc39mgwIy7H86j4+kFq0kow+h/hkxSMD+i2cQr3
-         MjwLKoUrS4Dta9KukOKYbuqwKCqMB9ugMThKt5vZWJNb0GMrLsX+TbeOYG3bvpL9R29h
-         LdwFjzcmep+jdH9IxiLf6AqZhnlIjSvu/6gj4rb8ip8sEhUrWFTwnJ95tFViHTahDHDK
-         p3bDLsVjzWYJscmboEpUzTwFf1tR4ZUWlW7qmmsjQbO0mJ8Ktyzt1KsTOxPav/Ho4RUp
-         4bKg==
-X-Forwarded-Encrypted: i=1; AJvYcCUc5bwnVf6yyV69eKaD49j5XAWPe/d3s5L25URgOUtyQ3LrBCfjHHHd57sYdrOGlcdoObN6HGSSqF9J@vger.kernel.org
-X-Gm-Message-State: AOJu0YyvfJarE1D8OTOIfaPZLg0tNxHB1w/COkaRDZguSFmEAXPByzb7
-	y3EUacmyVPQzZcJ7c801274MMURjGB6fjQ58ZfInPijhINgY3jzExovWa+epppRXb69/9aWjSj0
-	upv9xFi/Sy+1/rldQ0Pofe5WmN8rvrXXYmKRz3XfVGgB7oqZPDe7gmbRDq6lCZ78=
-X-Gm-Gg: ASbGncv+Aq5dCTQNX1lR0vSsru8ei412OAUhQ3olR42lWH0264+ZdVMMofpckk1WWno
-	tPoHBmVF0Qn5vjXU321hAafXS6PcmmMbOLsC3anFwdsfZ7w/A6l5jj+Jl+VCl02+p6HPUKu3G3/
-	SvIzGwXtGrq/TQu9iPPy+dzSYJMItTwYz/A/xKe0cL9xZD0EecfB1wXYs0aolxfe7PRw+JeW9km
-	ik9EjlJuBcrhLhnWe4x3Osj/DvSNkOK/UyX8i5BJ3qVbv4mdh2DlvFqMO3LQcq0IrHcvDJWBSS4
-	vxRalbVYxpUPUd7YheOFApZ7XLlPWGzgqasZGawzF3Yepc+wngbvs19mSwI3+w==
-X-Received: by 2002:a05:600c:3b01:b0:453:99f:b1b0 with SMTP id 5b1f17b1804b1-454a3706e45mr28815115e9.20.1751465263155;
-        Wed, 02 Jul 2025 07:07:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF5YuCq5rpUy6RMv0jfgdQbgLyOb/XAUKuoXtz40yFdPi0MgOsaJG33C7l4K2KM2eHAFCoDsQ==
-X-Received: by 2002:a05:600c:3b01:b0:453:99f:b1b0 with SMTP id 5b1f17b1804b1-454a3706e45mr28812865e9.20.1751465261164;
-        Wed, 02 Jul 2025 07:07:41 -0700 (PDT)
+        bh=TgZwYQY/6//7Y1IiL72sIvHhk7c1rsqVRlKePVxyg/g=;
+        b=hOwEfguOTw92igTx4Ifw7+Xd86nH6XQXgJydmrVxWNRGTeIw+IWjbvyE5sbXLjtb1g
+         /MyOfW0Odp0KyilPYorhvZpD2i/lFPGpICNl36GCY/ho7zO6i9VzGXqR5wBNejnx3+xY
+         hdD7XDIUexPZRlO/knXGBWjB/UrpQA0F09E7NP6Pm1oppB1O7oi0d/4tR3XsPBx/X10y
+         ksCoO+g1ndYkrkSfsX9EdbR+fbypoCxDTt13EjaMMTtHa0G62WZtGlKuy6wD4pue44R+
+         nFKmSrHXu/vb1iqSiDC/kNp6hjcQohmk8uFkfhFbZW1smPGsQ4SPMkgWbEOU11qbAqqM
+         u7BQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU2bQYnvgL/vQUsXiFwn8V/c9qDLScowh063mQuqjbdP56W2L1tLUyCVAmcj1xTYYByF16DvI2Ks8Rp@vger.kernel.org
+X-Gm-Message-State: AOJu0YzB4/7yliCx1zCBxc6+O89YyGF3xVrSXRuld67XtGS8DqF78/HV
+	NzfWsnrDdt8e1qQNq7oimFOy7k6sIbVoOnPl7DCzrbWU6OmGFd76KMhfxYqSCNx4GG4TjR6WZQw
+	cLDfjRh0I/0m6UNQ/TXv3E3qiPR+ySIcqS+fqzvD85Xc6ZfzupJFGQA0dwDJsOJY=
+X-Gm-Gg: ASbGncuq58IYntLueQXj61/svRoNxODA56ZaK0/CEt872XhZX7iayQmhP0WEqPjxxOr
+	xWUByMbqp8DmLRlXelxEVSb4ufst2u9GfPbfsPoqZBqMDRNC3x+EDsOS7POrj/53vgjF3+MhUn0
+	rekccM1LAb3oTE1Ys5s0Icl9Zir0xHqOCnJEdrzng9nWcY8zttLJeAu332IoTjW/2b4I34kqela
+	jM3GNTiKMFXSF6IN5i3azInQP9l0GP62g5Tc79gDRzdskcc68WTo6B/7zSok6nsxwDuwNK8mOPy
+	JlGDd0r8mZr+8Q55EZvl0S3uMkXQlh8kGUJ1yky9VI58PaNEJR8lfzEpn0+7rA==
+X-Received: by 2002:a05:6000:18a5:b0:3a3:5f36:33ee with SMTP id ffacd0b85a97d-3b20048e6acmr2349182f8f.32.1751465402229;
+        Wed, 02 Jul 2025 07:10:02 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHTHkYd/ujfN4fgDDxoyAu+QvDaaEzPHy6fqG+fLvYE5NiiLRk5DOmUub4YoMfZz682a8//Nw==
+X-Received: by 2002:a05:6000:18a5:b0:3a3:5f36:33ee with SMTP id ffacd0b85a97d-3b20048e6acmr2349116f8f.32.1751465401643;
+        Wed, 02 Jul 2025 07:10:01 -0700 (PDT)
 Received: from [192.168.0.6] (ltea-047-064-114-041.pools.arcor-ip.net. [47.64.114.41])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453a85b3d44sm36303505e9.0.2025.07.02.07.07.39
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453823c57d7sm240986715e9.40.2025.07.02.07.10.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Jul 2025 07:07:40 -0700 (PDT)
-Message-ID: <69c1b5df-2b49-4a3c-811c-ad6141a22dbe@redhat.com>
-Date: Wed, 2 Jul 2025 16:07:39 +0200
+        Wed, 02 Jul 2025 07:10:01 -0700 (PDT)
+Message-ID: <627b4dd5-b08c-41b4-a3cb-99d522fc2063@redhat.com>
+Date: Wed, 2 Jul 2025 16:09:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,8 +74,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [kvm-unit-tests PATCH 1/2] scripts: unittests.cfg: Rename
- 'extra_params' to 'qemu_params'
+Subject: Re: [kvm-unit-tests PATCH 2/2] scripts: Add 'test_args' test
+ definition parameter
 To: Alexandru Elisei <alexandru.elisei@arm.com>, kvm@vger.kernel.org,
  andrew.jones@linux.dev, lvivier@redhat.com, frankja@linux.ibm.com,
  imbrenda@linux.ibm.com, nrb@linux.ibm.com, pbonzini@redhat.com,
@@ -84,7 +84,7 @@ To: Alexandru Elisei <alexandru.elisei@arm.com>, kvm@vger.kernel.org,
  david@redhat.com, linux-s390@vger.kernel.org
 Cc: Shaoqin Huang <shahuang@redhat.com>
 References: <20250625154354.27015-1-alexandru.elisei@arm.com>
- <20250625154354.27015-2-alexandru.elisei@arm.com>
+ <20250625154354.27015-3-alexandru.elisei@arm.com>
 From: Thomas Huth <thuth@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=thuth@redhat.com; keydata=
@@ -129,55 +129,36 @@ Autocrypt: addr=thuth@redhat.com; keydata=
  oiT+z+/E59qj/EKfyce3sbC9XLjXv3mHMrq1tKX4G7IJGnS989E/fg6crv6NHae9Ckm7+lSs
  IQu4bBP2GxiRQ+NV3iV/KU3ebMRzqIC//DCOxzQNFNJAKldPe/bKZMCxEqtVoRkuJtNdp/5a
  yXFZ6TfE1hGKrDBYAm4vrnZ4CXFSBDllL59cFFOJCkn4Xboj/aVxxJxF30bn
-In-Reply-To: <20250625154354.27015-2-alexandru.elisei@arm.com>
+In-Reply-To: <20250625154354.27015-3-alexandru.elisei@arm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 25/06/2025 17.43, Alexandru Elisei wrote:
-> The arm and arm64 architectures can also be run with kvmtool, and work is
-> under way to have it supported by the run_tests.sh test runner. Not
-> suprisingly, kvmtool's syntax for running a virtual machine is different to
-> qemu's.
+> kvm-unit-tests, on arm and arm64, is getting ready to support running all
+> the test automatically under kvmtool. Even though kvmtool has a different
+> syntax for configuring and running a virtual machine, kvmtool and qemu have
+> in common the test arguments that are passed to the main() function.
 > 
-> Add a new unittest parameter, 'qemu_params', with the goal to add a similar
-> parameter for kvmtool, when that's supported.
+> Add a new test definition parameter, 'test_args', that contains only the
+> VMM-independent arguments that are passed to the main() function, with the
+> intention for the parameter to be used by both qemu and kvmtool, when
+> support for kvmtool is added.
 > 
-> 'extra_params' has been kept in the scripts as an alias for 'qemu_params'
-> to preserve compatibility with custom test definition, but it is expected
-> that going forward new tests will use 'qemu_params'.
-> 
+> Suggested-by: Andrew Jones <andrew.jones@linux.dev>
 > Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
 > Reviewed-by: Shaoqin Huang <shahuang@redhat.com>
 > Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
 > ---
-...
-> diff --git a/docs/unittests.txt b/docs/unittests.txt
-> index c4269f6230c8..3d19fd70953f 100644
-> --- a/docs/unittests.txt
-> +++ b/docs/unittests.txt
-> @@ -24,9 +24,9 @@ param = value format.
->   
->   Available parameters
->   ====================
-> -Note! Some parameters like smp and extra_params modify how a test is run,
-> -while others like arch and accel restrict the configurations in which the
-> -test is run.
-> +Note! Some parameters like smp and qemu_params/extra_params modify how a
-> +test is run, while others like arch and accel restrict the configurations
-> +in which the test is run.
->   
->   file
->   ----
-> @@ -56,13 +56,18 @@ smp = <number>
->  Optional, the number of processors created in the machine to run the test.
->  Defaults to 1. $MAX_SMP can be used to specify the maximum supported.
->   
-> -extra_params
-> +qemu_params
->  ------------
+>   arm/unittests.cfg     | 94 ++++++++++++++++++++++++++-----------------
+>   docs/unittests.txt    | 17 ++++++--
+>   powerpc/unittests.cfg | 19 +++++----
+>   riscv/unittests.cfg   |  2 +-
+>   s390x/unittests.cfg   | 13 +++---
+>   scripts/common.bash   |  8 +++-
+>   scripts/runtime.bash  | 18 ++++++---
+>   x86/unittests.cfg     | 92 ++++++++++++++++++++++++++----------------
+>   8 files changed, 164 insertions(+), 99 deletions(-)
 
-Please adjust the length of the "---" line now, too.
-
-With that nit fixed:
+FWIW,
 Acked-by: Thomas Huth <thuth@redhat.com>
 
