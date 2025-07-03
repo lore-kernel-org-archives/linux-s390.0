@@ -1,107 +1,98 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0830D29C346
-	for <linux-s390@vger.kernel.org>; Thu,  3 Jul 2025 07:59:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2683D2EFDB8;
+	Thu,  3 Jul 2025 17:21:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751529552; cv=none; b=X/bMlXEZiawA+X3WLnnxg6m1N3fLlMl/tbbLGa+bHWjp5QtsEMzBrBcsByWn5/K6fUUMTU0Q6Z5343P+mCauttrEBZhsx89MAApN5EO+8rDHDs6y7OOe4DwhN+EP79gJDqe581Mq+i607nHv6E6AssflcMQuuEjCfrTQ8qhxlqg=
+	t=1751563277; cv=none; b=lAWuysgeTeaEisHhPeMG2ezFZ7K7O1J3cn1LZA7MKVhPZ2CpxIlxnV5AiFTfF1W3KWmi9M5E3J9HcdPcC/wrMY8JwpYJ4KJbyvqcBB979EwGVuMbCUtb69lK2Wyi8/vhhqgJ5ldl9ZjjfsMhGMqMK2w7YgqQ/ByhyiPrgvbMEWg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751529552; c=relaxed/simple;
-	bh=DFhsksleZELpBYX9Wg732XNn3fZCMbEoBRkbYvWFECs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=km2WH0E6ZrXY40gdryosusRGf20B1It3K3kscdqrZUPLTlWGTz/JvmJQ02WqV3p2ClSWICCtXjACf8iWBzkF2svQ55xo8M/dDmteXN3n3zav52HzhIMFrNSdn/khOUsZ9CKJWBgtC6f0OEgPd5E2THHSjRBcWG7iqyopWioC3YE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bFfRSf7W; arc=none smtp.client-ip=209.85.221.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751563277; c=relaxed/simple;
+	bh=QSWSgP88K9/XOwXn+0LAYcUUYUYzmhBKlB//U0h7uNs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PUDJVLz0256+h/9EDeUxMaAfKM+maLpoJIJQKrwvPRa2wahrdsp7OxG73gHqdZQxHZNtTBiuXHdvAMuDR+YOjx2X6OilmUIdJDTJWxW7/vG9oxxue8mxb/8tI+Hj2rzg+l8BI+Ch1YW0ptjDLpLLSkOnMmgnSWFqZ5FtOqAjLug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cmcCscFG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bFfRSf7W"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-3b20fcbaf3aso261114f8f.0
-        for <linux-s390@vger.kernel.org>; Thu, 03 Jul 2025 00:59:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751529549; x=1752134349; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n7nTatEuPQJPZOqO3DolrOHt+0WgfQqAgk2itWSVCOc=;
-        b=bFfRSf7WSbbHfCHGUK6M6PLOyob/8hg/UNs2XJA6MFD7Ec02L+mVoWD8PqZPyw9dPR
-         sydalsl1wsjpidxar9ZGQKdc/83aBoJvwxDnwnAKU9CvNZbAd/Gr8qD7GwH0u9Ui/sTD
-         yIEdvRgDXZtaXIPVXavmcb2x/28moixvIooDp2KqgULsUkBTfOAOwbHO6geXPrkWwCbz
-         s1Q57KZ3N9fsfIhGQm6WXEl0cZnVRxBFxje5/yOLnuTGvjA0GjJPY23kXoO413DBxkg2
-         gnuPU+A8noJuUoxIM8Y5Ormhemq1nk9RbJb/DcBF18BFdcrlxmNQ5/T6ev49Sx93aHO2
-         OKPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751529549; x=1752134349;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=n7nTatEuPQJPZOqO3DolrOHt+0WgfQqAgk2itWSVCOc=;
-        b=slEHbtnY1DBAVw1D8+TgkwY9nPmvVTWyHDd4kx2Vvwffj2DeO4c/Nk/J5W0InoT6kg
-         rSlemNkHfNtrZeOgZ5iPzlyumzWfzD/USCXCIJ0ba5HqIpv70iZY8LT0pbHGOpU2n+zs
-         PykoZTaDnaM1kbU3GTNLH5mDvZpZCN6BRffX80K6jS+yCA20MZxiyTj9Y4mQkBBQvKu8
-         7LYVeFgXF0VNhPziBpWQnvd40ej+PIpViAhcQNwT65H/lnSegaQFUEkXw4ibNOchoTjP
-         uXp0+lBLtZKDyut44ZtMsSybwpe0ytLvnShi1jC0ajCQIhAxO7ErXeGtpCSISC32ctTg
-         zQgw==
-X-Forwarded-Encrypted: i=1; AJvYcCWIwyl/OUTrgnjviQ3bJEmd2x3/JuTVGetJ7Kkfll9YGMQspTA24rAnwY3ilOkbYz2tUD2UTTaCVVjg@vger.kernel.org
-X-Gm-Message-State: AOJu0YxqP7Mcs+PO5m3WF/SBd8ZnSW2hVkb+/LlkNhEGwxxBOfMyb1V6
-	C4zc+27ddZjR1phvS43ZGTc6HKmfeJXch+NI0OuxfemNKX9cDLt/m1JJHH0cEaqJ+s3x
-X-Gm-Gg: ASbGncueB29tYdfFkxvo6IQUts65LRu0zenmZwSy28+zVvv1uNkJPyfeeitZv0zYT74
-	eoD5wuYTeLkxDxKW3QIus+mo7L5K5PBlp0nxUQosZSSIEmZUYkanaUHmiwOl7xo4QjxkR1x5L4E
-	aPjm96qSGhQGDGORiDfSprwHUALTpxpTVBlEi8doAamiem2eygNUaKUgKH/bBZb+8wC2uFZN54E
-	QGZrux0UOM6JuU47e52ITkew8h2BLwY01rpgumyjG/B32lkvJ/uZpzx2BreYrYhQbXqPrhB5Dnd
-	AyiTpC/wqYdhmx0ab9naJI/Hxtij5t8mE0/K4EGg/TMh71VVrk2wxwG2zgGqkBLFGP6TmoYGHZo
-	ZdR+LACQfsnFxh4Bhp01YH1Ft0A==
-X-Google-Smtp-Source: AGHT+IEttJlbBJ9Z/+WUuk5WL3MDjNbJ2QC1WtOu67Gg0W2mAIJTNMPHTXvuxM2Brf+qufb3h5Gt0w==
-X-Received: by 2002:a05:600c:4ec7:b0:43b:c825:6cde with SMTP id 5b1f17b1804b1-454ad075c14mr3691405e9.3.1751529548826;
-        Thu, 03 Jul 2025 00:59:08 -0700 (PDT)
-Received: from localhost (148.red-80-39-52.staticip.rima-tde.net. [80.39.52.148])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-453a85b3d44sm49734945e9.0.2025.07.03.00.59.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 03 Jul 2025 00:59:08 -0700 (PDT)
-Message-ID: <c79ca6c5-1908-40ce-83a4-56159408cb63@gmail.com>
-Date: Thu, 3 Jul 2025 09:59:07 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cmcCscFG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D17C4CEE3;
+	Thu,  3 Jul 2025 17:21:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751563274;
+	bh=QSWSgP88K9/XOwXn+0LAYcUUYUYzmhBKlB//U0h7uNs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=cmcCscFGjUVTvi02LFPDrtB4XhBXhIkok/0xvyZvccqVpa4psFK6L82D2SPVCgnSP
+	 UdPJc3izafcoHPP8TTH5V6WG52EYUvCR88QaT+1MMONc7pcor0o4bgRAzThfxGcT3A
+	 FSH6//LbV9m6na8XsSQZmtvjnGuPaKzSj6CwIvpaGSBEcgCZghfBCKvE6zdoC33ijp
+	 +e6dPq/CnEOb4b9LRtSbwgWjcgoK7BPakxin+/56rx+M6egpBw0a2ZzCnxrZEYC0Fu
+	 J8UwCAyzEFVzEVJ1YCFwqGK2qEOpKNPFGO4KoKUFjIqjbSi/hBQ3Zxmox1SA9rQjmY
+	 RqwZKWNOvznQw==
+Date: Thu, 3 Jul 2025 10:20:32 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: linux-crypto@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Joerg Schmidbauer <jschmidb@de.ibm.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>, stable@vger.kernel.org,
+	Ingo Franzki <ifranzki@linux.ibm.com>
+Subject: Re: [PATCH] crypto: s390/sha - Fix uninitialized variable in SHA-1
+ and SHA-2
+Message-ID: <20250703172032.GA2284@sol>
+References: <20250627185649.35321-1-ebiggers@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH] s390/boot: use the full title of the manual for facility
- bits
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, S390 ML <linux-s390@vger.kernel.org>
-References: <20250616163248.77951-1-xose.vazquez@gmail.com>
- <aFKmUxi7d33rCvsQ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Language: en-US, en-GB, es-ES
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-In-Reply-To: <aFKmUxi7d33rCvsQ@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250627185649.35321-1-ebiggers@kernel.org>
 
-On 6/18/25 1:43 PM, Alexander Gordeev wrote:
-
-> On Mon, Jun 16, 2025 at 06:32:47PM +0200, Xose Vazquez Perez wrote:
->> Also indicate the name of the section where they are listed, because it has a
->> length of 2124 pages:
->> z/Architecture Principles of Operation - Facility Indications
->>
->> The current version is: Fourteenth Edition (May, 2022) SA22-7832-13
->>
->> Cc: Heiko Carstens <hca@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:3/4=75%,authored:2/4=50%,added_lines:8/14=57%,removed_lines:41/47=87%)
->> Cc: Vasily Gorbik <gor@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/4=25%,authored:1/4=25%,added_lines:5/14=36%,removed_lines:5/47=11%)
->> Cc: Alexander Gordeev <agordeev@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/4=25%)
->> Cc: Christian Borntraeger <borntraeger@linux.ibm.com> (reviewer:S390 ARCHITECTURE)
->> Cc: Sven Schnelle <svens@linux.ibm.com> (reviewer:S390 ARCHITECTURE,commit_signer:2/4=50%)
->> Cc: S390 ML <linux-s390@vger.kernel.org> (open list:S390 ARCHITECTURE)
->> Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
->> ---
->>   arch/s390/boot/als.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, Jun 27, 2025 at 11:56:49AM -0700, Eric Biggers wrote:
+> Commit 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
+> added the field s390_sha_ctx::first_message_part and made it be used by
+> s390_sha_update_blocks().  At the time, s390_sha_update_blocks() was
+> used by all the s390 SHA-1, SHA-2, and SHA-3 algorithms.  However, only
+> the initialization functions for SHA-3 were updated, leaving SHA-1 and
+> SHA-2 using first_message_part uninitialized.
 > 
-> Reformatted the commit message and applied.
+> This could cause e.g. CPACF_KIMD_SHA_512 | CPACF_KIMD_NIP to be used
+> instead of just CPACF_KIMD_NIP.  It's unclear why this didn't cause a
+> problem earlier; this bug was found only when UBSAN detected the
+> uninitialized boolean.  Perhaps the CPU ignores CPACF_KIMD_NIP for SHA-1
+> and SHA-2.  Regardless, let's fix this.  For now just initialize to
+> false, i.e. don't try to "optimize" the SHA state initialization.
+> 
+> Note: in 6.16, we need to patch SHA-1, SHA-384, and SHA-512.  In 6.15
+> and earlier, we'll also need to patch SHA-224 and SHA-256, as they
+> hadn't yet been librarified (which incidentally fixed this bug).
+> 
+> Fixes: 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
+> Cc: stable@vger.kernel.org
+> Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
+> Closes: https://lore.kernel.org/r/12740696-595c-4604-873e-aefe8b405fbf@linux.ibm.com
+> Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+> ---
+> 
+> This is targeting 6.16.  I'd prefer to take this through
+> libcrypto-fixes, since the librarification work is also touching this
+> area.  But let me know if there's a preference for the crypto tree or
+> the s390 tree instead.
+> 
+>  arch/s390/crypto/sha1_s390.c   | 1 +
+>  arch/s390/crypto/sha512_s390.c | 2 ++
+>  2 files changed, 3 insertions(+)
 
-For the record, there is a new version of the manual:
-Fifteenth Edition (April, 2025) SA22-7832-14
-https://www.ibm.com/docs/en/module_1678991624569/pdf/SA22-7832-14.pdf
+I just realized this patch is incomplete: it updated s390_sha1_init(),
+sha384_init(), and sha512_init(), but not s390_sha1_import() and sha512_import()
+which need the same fix...  I'll send a v2.
+
+- Eric
