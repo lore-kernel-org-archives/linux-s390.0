@@ -1,119 +1,65 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FB2C22CBD8;
-	Thu,  3 Jul 2025 17:39:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585572AD3E;
+	Thu,  3 Jul 2025 18:16:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751564369; cv=none; b=ClysAL9BKORFBjnP0qvLaNPLxTzhBr2A/S+27VlqTJo8RcxidZ/in/ImhQYXh+jwbBEK7ARhhpglFr5OYLiVLJ301kvGn0vIR7xKARMhvhmqUyiq+kOBZr/APUi1922AP6GVQrL1v/Y7HFAzwRGdTwvc1bBWGXpvJtjgmEOxoCs=
+	t=1751566612; cv=none; b=rVKnZtGoLhpvj+LdMv7H7bjf6STZzs6/DBrVhE615PZeF/AEWP2nTYkAxCO3gmB97brdzF5VREuCfpgB9U5BrS9ZwFdNN64wqrDLOZNNIqQSdDgJGi5WDC9WqOn+BZ6woFjyPYL5zIOSzNtxsa+sHq4yGVcEuzI43LZ07uRWrhM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751564369; c=relaxed/simple;
-	bh=CjXapFJRn6jr02iNiY/fdYyplTrLIb9R/H97pjZWheY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f+ilpelmdOm7rtKw4U7Hns7LGJeL/L5zpOg9XWZDWRhu9agFCKBwh0Lkp6VhQV/wIIfOidSJpQYPr4pkDYjXth/jUSVkcK774X/8PbT07K4moI63zkJdHmVRrzcL/cpPa/Dy8cXf548+t8pODEse8DeHIhsx59HyZcqkPpzYOxg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O0dZv+fn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751566612; c=relaxed/simple;
+	bh=jqsvENx3Fc0ITmwnzAoELZCWoKd18bErYznEf9tX6SE=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=BKZiKPx1KqgnK4B959jcLOsrPDhphm2GZzrJ2MzBPyRH52Dhav7qE+iA2jJhRQ2BO3va/jiy0Ec72f22NM9DJP917h24vwgjSJc7acn1fU2e+S/6e5MOqM2PcvtugD3UJQWPWO8ttAEQYjV/3lgTy8RN/Ek+x/ZDew19oMhnHog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GALNq40T; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O0dZv+fn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A728FC4CEEE;
-	Thu,  3 Jul 2025 17:39:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GALNq40T"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F076C4CEE3;
+	Thu,  3 Jul 2025 18:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751564369;
-	bh=CjXapFJRn6jr02iNiY/fdYyplTrLIb9R/H97pjZWheY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=O0dZv+fn7ZOGn/n+ubYI9NUTtwxmvb9diBgsUdEhHae7Zutp0YZ/+WA2QVDvdceiE
-	 O7nTHh2055ZVNVomkVuKLY51txoTK4sQYkxGKJLuNGWjgzMCqLrTSI5Zrmre6E3N9d
-	 fCqJIJIrxGQVxECwKzwOsl0MmJKaXvuoOJBu7JvuajS+a7E5T7s6Jw4u0HPzn2fuBc
-	 54A/tyxdEBU9TN8TDN+tWrXb6uTuzTklHPasl0pvtNY3Cpy1Z6/shg/mObJA41LApq
-	 X+dBhsWzfe+qFZKn+tPjo/AztvrCYwi/805NTK1OeGQuHpPC0XEgAeQNLWLO7L2VOg
-	 LRPocxpDJ4F5w==
-Date: Thu, 3 Jul 2025 10:38:47 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, x86@kernel.org,
-	Ard Biesheuvel <ardb@kernel.org>,
-	"Jason A . Donenfeld" <Jason@zx2c4.com>
-Subject: Re: [PATCH v2 00/14] SHA-256 library improvements
-Message-ID: <20250703173847.GB2284@sol>
-References: <20250630160645.3198-1-ebiggers@kernel.org>
+	s=k20201202; t=1751566611;
+	bh=jqsvENx3Fc0ITmwnzAoELZCWoKd18bErYznEf9tX6SE=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=GALNq40T7sIeGZgZxlsszEEAweaV76HBHEJJVR+p6xles8O0OUSpWKhCBorQi6Txj
+	 Lrjwh0JnU80nP5CpQQk5kh+xLNRh1UaX2sQeCMQIjIOBF56K//baJXFPaKOoku2lrL
+	 3ZzN6rWa4e4wFYlfStqmU7D3RERQKzRpVsTFuITmEfYvTXF4RuMs0bd6pppiaupkeF
+	 XMbCZF5yq1xbUHnKnFdS1AWyi9UEU3OUr10L0b1ufrBaE0tVe/ieNsBWyTqQ2ZdDod
+	 bn2zux/XB8tKdGX4T/VYKbi2pbwKRKNQuP6qpmzlF4qTaZ76eeMFeQgZC4a7bjZP5o
+	 g7bh/m7TXWfzw==
+From: Namhyung Kim <namhyung@kernel.org>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, acme@kernel.org, 
+ Thomas Richter <tmricht@linux.ibm.com>
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
+ hca@linux.ibm.com, japo@linux.ibm.com
+In-Reply-To: <20250623132731.899525-1-tmricht@linux.ibm.com>
+References: <20250623132731.899525-1-tmricht@linux.ibm.com>
+Subject: Re: [PATCH] perf list: Add IBM z17 event descriptions
+Message-Id: <175156661154.2551523.16915400489545554468.b4-ty@kernel.org>
+Date: Thu, 03 Jul 2025 11:16:51 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250630160645.3198-1-ebiggers@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15-dev-c04d2
 
-On Mon, Jun 30, 2025 at 09:06:31AM -0700, Eric Biggers wrote:
-> This series is also available at:
+On Mon, 23 Jun 2025 15:27:31 +0200, Thomas Richter wrote:
+> Update IBM z17 counter description using document SA23-2260-08:
+> "The Load-Program-Parameter and the CPU-Measurement Facilities"
+> released in May 2025 to include counter definitions for IBM z17
+> counter sets:
+> * Basic counter set
+> * Problem/user counter set
+> * Crypto counter set.
 > 
->     git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git sha256-lib-cleanup-v2
-> 
-> This series improves the SHA-224 and SHA-256 library code to be
-> consistent with what I did for SHA-384 and SHA-512.  This includes:
-> 
-> - Use stronger typing in the SHA-224 and SHA-256 functions.
-> 
-> - Add support for HMAC-SHA224 and HMAC-SHA256.  (I'll send a separate
->   patch with KUnit test cases for this.)
-> 
-> - Make the old-school crypto API's support for sha224 and sha256 just
->   use the actual library API, instead of unsafe low-level functions.
-> 
-> - Consolidate the CPU-based SHA-224 and SHA-256 code into a single
->   module, with better inlining and dead code elimination.
-> 
-> - Properly document the SHA-224 and SHA-256 functions.
-> 
-> - Other changes to synchronize the code with SHA-384 and SHA-512.
-> 
-> Changed in v2:
-> - Dropped sha224_kunit.c changes; it will be added later in the history
-> - Dropped some patches that I folded into the SHA-512 series
-> - Removed redundant checks of IS_ENABLED(CONFIG_KERNEL_MODE_NEON)
-> - Removed obsolete setting of -DARCH for sha256.o
-> - Fixed a commit title to mention sha256 instead of sha512
-> - Excluded HMAC-SHA{224,256} code from purgatory, where it isn't needed
-> 
-> Eric Biggers (14):
->   libceph: Rename hmac_sha256() to ceph_hmac_sha256()
->   cxl/test: Simplify fw_buf_checksum_show()
->   lib/crypto: sha256: Reorder some code
->   lib/crypto: sha256: Remove sha256_blocks_simd()
->   lib/crypto: sha256: Add sha224() and sha224_update()
->   lib/crypto: sha256: Make library API use strongly-typed contexts
->   lib/crypto: sha256: Propagate sha256_block_state type to
->     implementations
->   lib/crypto: sha256: Add HMAC-SHA224 and HMAC-SHA256 support
->   crypto: sha256 - Wrap library and add HMAC support
->   crypto: sha256 - Use same state format as legacy drivers
->   lib/crypto: sha256: Remove sha256_is_arch_optimized()
->   lib/crypto: sha256: Consolidate into single module
->   lib/crypto: sha256: Sync sha256_update() with sha512_update()
->   lib/crypto: sha256: Document the SHA-224 and SHA-256 API
+> [...]
+Applied to perf-tools-next, thanks!
 
-FYI, applied to libcrypto-next.  Reviews and acks would be greatly appreciated,
-though!
+Best regards,
+Namhyung
 
-To fix https://lore.kernel.org/r/202507010837.ERX7aWw7-lkp@intel.com/
-I applied the following fixup to
-"lib/crypto: sha256: Propagate sha256_block_state type to implementations".
 
-diff --git a/lib/crypto/powerpc/sha256.c b/lib/crypto/powerpc/sha256.c
-index c3f844ae0aceb..55f42403d572a 100644
---- a/lib/crypto/powerpc/sha256.c
-+++ b/lib/crypto/powerpc/sha256.c
-@@ -26,7 +26,8 @@
-  */
- #define MAX_BYTES 1024
- 
--extern void ppc_spe_sha256_transform(u32 *state, const u8 *src, u32 blocks);
-+extern void ppc_spe_sha256_transform(struct sha256_block_state *state,
-+				     const u8 *src, u32 blocks);
- 
- static void spe_begin(void)
- {
