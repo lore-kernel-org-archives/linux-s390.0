@@ -1,251 +1,154 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2078.outbound.protection.outlook.com [40.107.223.78])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8718525A353;
-	Mon,  7 Jul 2025 05:34:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.78
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751866452; cv=fail; b=Mt8EbgPI2W0N1qKXzllZH6LrRDLBFdlq9BcoqHxmOImD7DVRTGoDFhAfxBs/Ns6//tMcvT2Tsr7K4trNXAcjVYUG/w592Ha3onOlOvqIiilbYYnzxBkCfuj5Jwh89nMayfy74aHZqWbp2ekrLfTVnP0AAXQtWbZjlgbVy3nskgk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751866452; c=relaxed/simple;
-	bh=F51P3JZTHNqqqGp2u4HH32yVAWWiEAtF2vNmta35ONo=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=kwitLRoz+rUlhZTlEpS8cxwfL3116kqpcoG/DL6Bu9Q6YokIimo83NWHNmJmf/yd8iyVhk+pvF9IPdt76KU3RN27C3fTLieIEaYAA2eSL/ZMkG2ycayuCJYzAt6mDkJ9DPTFU4yasbYEdnq4u4Bu0a6Gj0QFTqLT/9Uiwcv4OlE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=pi16vUvQ; arc=fail smtp.client-ip=40.107.223.78
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9247F13AF2;
+	Mon,  7 Jul 2025 06:47:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1751870881; cv=none; b=KcVL7Fy1Iw0J0w/lfIUL/KqJ+AbDPfN9N+/vOW8RhpNOnPTzK5WvsQwZpd2PZZtloB41JaDfiyZjsLr0H2JuF8hlIObC2ul6n0LlmMvc6DsJZ/qHdQt1gxJmR3v5+b9VPNOaOZVG89VoYq0GJYKdil6HRKkJvip0pMptw2MC/Kw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1751870881; c=relaxed/simple;
+	bh=yqjGONfEVTT7qruYx6XGVxkfroAmgEahVUULQjcwk7o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EJdOx3dirpwdXEpXpco0ETY48SqqEf+4RQMtjjooGUw3NzXVVY7YNXNOQd749fKMlbinY8ymHIVoCk6ejYRqua3ByzJ+03EfOSZigVwhqUY+KQ1qVll0bEeqLrJCLdCpoRJuxJA9Wy+23z5MAyzoZKztTK5Z4ASx1Z+bHJisSEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k/IoXyEd; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="pi16vUvQ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=mhls1bCCa6qmwfJfP+UCnXlbDMvdevmKohsZ796xlNUZ94wY0oPuxmh/vzU3LnuwptO5TGmf4FOyn9HLjpVft0xtUzsg60Pc8mmR6xHPD+85FKqnPzFzEt7OrL2NE6JxusZxDu7CAoUJIMwOMSjy8LTu0VYRraHdxYa5VbUnYnoCNRZWsGVLxnszy5syXIcbSIusLi4eHIZ7+gzI9jNPtJSOTm+VMMT1HCFXhVbkQIG4fWrUMlpW79vTlOI05a4OAZCgppH6YNHpav9m++uIeNqXddglEMWYxK9/qO0i1cuj5djBSnu8D1HaMtxOCv989A2uIjzH2on1c5OVkA6i1Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rFYs6phsJXYk26yKTPuOm0vvkC9Oc5hbt14qeyXmbtU=;
- b=njQp/bySC5TruqjKmIGHPzcmx2El7Wg3N1GwA93+8oCx8sxLgxuih5RRePqOTaSkmzx4G/s+jaRJia37kaFjyCfEqWGD/OQf1UwE7RMgyecvgzHULJ94/nATIfZW/ctpfmt+BDatrY6jhIhnoyr//oDJp8t+XleXSnAbHHUXwvu3LzKhhC5U2tL3SmXx7Y1RJ50g3YAGOzwy4ihkx55aIcD+m3AcdRayZ3ondRd1apAlxZ6WOuiM443Zt2s73QWK8fi4Ol2qwSlQXwwjzHvgf6QSCW+Nb/h8XQUyjuGrEOFdpjZq+jFD3yDf3Vh1oTQGxuyf9kU655CMgKphnov2yA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rFYs6phsJXYk26yKTPuOm0vvkC9Oc5hbt14qeyXmbtU=;
- b=pi16vUvQRwqyHi5QmnYc97kTPAWh+1m8RbK5LAdBEaKuElgyX5oqv+dXgrZh/XCjf6T9pakdYyfN4ynhttIgxpqg5Es8AobXzQBcBMAv7P7dnhaPp4xD770f1mmLp52HdDrYNyViLjWr4Q6jVvIexznUmrYRaZW7L2oCXbdvK5Q=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CH3PR12MB8658.namprd12.prod.outlook.com (2603:10b6:610:175::8)
- by CY1PR12MB9560.namprd12.prod.outlook.com (2603:10b6:930:fd::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.25; Mon, 7 Jul
- 2025 05:34:08 +0000
-Received: from CH3PR12MB8658.namprd12.prod.outlook.com
- ([fe80::d5cc:cc84:5e00:2f42]) by CH3PR12MB8658.namprd12.prod.outlook.com
- ([fe80::d5cc:cc84:5e00:2f42%4]) with mapi id 15.20.8901.021; Mon, 7 Jul 2025
- 05:34:07 +0000
-Message-ID: <f391491d-f886-4579-9b40-78a57f2ed1b5@amd.com>
-Date: Mon, 7 Jul 2025 11:03:53 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/4] smpboot: introduce SDTL() helper to tidy sched
- topology setup
-To: Li Chen <me@linux.beauty>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H . Peter Anvin" <hpa@zytor.com>,
- "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
- Peter Zijlstra <peterz@infradead.org>, Sohil Mehta <sohil.mehta@intel.com>,
- Brian Gerst <brgerst@gmail.com>,
- Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
- linux-kernel@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
- =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Bibo Mao <maobibo@loongson.cn>, Li Chen <chenl311@chinatelecom.cn>,
- Huacai Chen <chenhuacai@kernel.org>, Tobias Huschle <huschle@linux.ibm.com>,
- Mete Durlu <meted@linux.ibm.com>, Joel Granados <joel.granados@kernel.org>,
- Guo Weikang <guoweikang.kernel@gmail.com>,
- Swapnil Sapkal <swapnil.sapkal@amd.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org
-References: <20250706030636.397197-1-me@linux.beauty>
- <20250706030636.397197-2-me@linux.beauty>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <20250706030636.397197-2-me@linux.beauty>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: PN3PR01CA0058.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:c01:99::17) To CH3PR12MB8658.namprd12.prod.outlook.com
- (2603:10b6:610:175::8)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k/IoXyEd"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 566LsOCa000560;
+	Mon, 7 Jul 2025 06:47:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=C6SFfQ
+	5N16J80f8wETQkLOQv2hbA4g31/sA9BAGHgEY=; b=k/IoXyEdMvnjwzzDGIlHrV
+	MXeMK7qI+p1BcF3mxVOQakZvYIcxnYFGPojv5YgmJuUtouIEP6teiNujqJzuTDYH
+	0pfqbhMjikPFuW/J2LsGbU+MBna5jqyDgQdWqPy7MhRHu8iDO+vxlkOtymRkWn9h
+	DEV+W2EmGpLFI7fYd/DvBOsBwApZK5aG5zHMd72ESI64IgPqT3yV+qc/l5B6eU3p
+	RQQQogz890X5SU4V2Tgzc0qBePsfOXuue0++HPq6w+1gjJvhLoO8gjX4NsKNe7MP
+	JPaUufUkviirXBls9i8IlnEn/tnporM/L32HhJGtvIcSLttPMWILx5YUUVQMcFbg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47ptjqqmdm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Jul 2025 06:47:53 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5676ILuB024284;
+	Mon, 7 Jul 2025 06:47:15 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 47qh324hwx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Jul 2025 06:47:15 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5676lC5v41484716
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 7 Jul 2025 06:47:12 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E693220043;
+	Mon,  7 Jul 2025 06:47:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B5DF520040;
+	Mon,  7 Jul 2025 06:47:11 +0000 (GMT)
+Received: from [9.111.159.38] (unknown [9.111.159.38])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  7 Jul 2025 06:47:11 +0000 (GMT)
+Message-ID: <4f939109-60b8-441f-b9c5-b27fa9efd9f4@linux.ibm.com>
+Date: Mon, 7 Jul 2025 08:47:11 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8658:EE_|CY1PR12MB9560:EE_
-X-MS-Office365-Filtering-Correlation-Id: 482da397-a9b0-4c11-bc8a-08ddbd17e482
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?bFhIYnJzd2M1ZEdkNExBaEllcEFUUjdRRGdwaXZRWTZMcysrdHQ2RUpPNVF5?=
- =?utf-8?B?MXlVTGVSdEM4eWdrOE5nVFVTOTBzTHRHOTZab0UxWWRNWE5RT3U4Rk9yaERi?=
- =?utf-8?B?MFNDM0g2Z0JCVmpzU1dkR2lNMTBHSzZnSnh6cWthT2diektuYm0yZ0s1VFRM?=
- =?utf-8?B?cHJiRFA3dTM5TzVoN0JpekQ3UjNLeDcraW9VVEs2Um12cVdJcXR3VjI2SnpJ?=
- =?utf-8?B?dWxzKzFLUDl1SVlmZXMvbzFMY2hGM3EvOGF2RldMNUo5dGhrRHlXcGJKUkZ6?=
- =?utf-8?B?aUliVTNJVThleDZ2MVR6VG5nOWhJMHMwT3oySE1pMVluT013eHlwMjk5ZE81?=
- =?utf-8?B?NGp0NVBQMDdONWpxWEVsakxVdmJJZXFVQlhVT0pzTnhNTzBWSXVTOGRSZ3V5?=
- =?utf-8?B?MitUS2k2Tks4T3NmbTQ2d3NNOVJqTDlHelRBR3Znc3Vod2xScnVzMVQxUjNP?=
- =?utf-8?B?SDJmd25RQ2xVa3lHcCtxcDByMDFXV2wrK25zRkZ2TWRoNlM5NEdLbU0xZ2Fm?=
- =?utf-8?B?d1ZMR24xMStGRkpGczg4SkZOUjVSUXFsRlpDM1kyUUFybmNSYTE0QXg3UTA5?=
- =?utf-8?B?N1lwREp0cjJOOTBBdnJQMmtKQVFLZU92L0lXWmxMNWlZTytTbzZKU0NjWlRv?=
- =?utf-8?B?bXBqVFFSbGZoWncyNEUzck9IUEVEcXg4NWFvS0VYUTR6Vm5OcTA3RDUxalpj?=
- =?utf-8?B?WTMrNyt6U1hVNkI0VndYZHkyNjl1NnFBMEIzOWN2NXFwZlF0VDJRSWZxVXQy?=
- =?utf-8?B?aGkwRTRHeUJkeEZtaWxwcUNmaE8xMkR1ejIwVHp4anVsMU1zSlpIVzB0cVdS?=
- =?utf-8?B?Yi9YMXNmT2RWN1lLQ2dDdi9GbzJ1c2xEbXNUZ2ZpazMwam1sTHF1K2hmTGo1?=
- =?utf-8?B?ZzI0R1oyaGxydHBGS2xpZEozTm1qdkRETHUzUUtYYXd2V25JZWpRdFR1elRp?=
- =?utf-8?B?N1VCVzVaZlBtMDBwZHNyMlVOcTA2aEJCeVVxaThqSm8vR3N5VWg0S2FkbFNj?=
- =?utf-8?B?ZFpVYzV0R09GaDlqYmF1UU5CaWk1YWRUNWw1YitGVFVBd1J5bjM0c0NZZ2RR?=
- =?utf-8?B?VmgvaUdmRjN6OWxBNzJsTTBUUVJNZkFTSHNFbktWd0pFaW1jaFZwNjJldWMy?=
- =?utf-8?B?T2pwQlI2QWROU0hKUzJyaGNMZXVPd0pmZ3N3cVVZSmMrNE1ycXZmTERmRXQ0?=
- =?utf-8?B?aEJQTmxtL0hTVm1XR25Zc29naTdkV01QMEpOcFZCVHg0eWxrT0tJWGROakFz?=
- =?utf-8?B?V3ZGTUFLQjY1eHV3YnJaVis2V08vQVZDK3p2TVV0d0ZBZXZ5V1NoU1dvU1ZB?=
- =?utf-8?B?L0NnK3FQNnhYTjQxVkxxOXluTnFIY2p1K010SGk2Q1ljRDVKaUNLUm1qMVNr?=
- =?utf-8?B?Ny9iZHBzMFlrbXo4UW1aQ0FZK2JHOTJkdk5wUGlkdFBHelVLOS8xeDdMSWNQ?=
- =?utf-8?B?Z3g3S2dnWWRZRWJMOWRFazRLOGVsOWxXTE9rLzZTM3J4aW5nRkFHWWh6WjV6?=
- =?utf-8?B?elM0NklDbExCSEl1UzJyejRZVXF6a3pjM0xGb2U1VVVPWUh6QWdWNmI5aUh2?=
- =?utf-8?B?S1IyaGw3RFZ5Z3lyLzRUczVFMDlsNTU0TS90TTg4YW0zanYvMGkzTVlBV29R?=
- =?utf-8?B?R2w3WHJJQlNxaTQ2MUlMT3FmbHFLS1Q4WmIrdmRGcnlFVGg0dnREbXNKMXp4?=
- =?utf-8?B?bEI1b2U4TDRYVlkzK21TZmg4RkxVdUZKMERMN0NBRkd5QjRwQk5YRjMxWmpx?=
- =?utf-8?B?UzFiSVUyZjIyZTdpaStzN3Fwd2FvTHloYlZXbGFSREk3Mm9TSTlTU1pxbEc2?=
- =?utf-8?B?WG1lanpPR1BoSERZUU9WNjBZTDc2VUdseHFpS1BqTk1VUXpveWhmWjlrS0Zt?=
- =?utf-8?B?Zk1QVXNkWHFlNFFPSDkyS0xUMUwvTU9rcmE0ZFNtZ2FMak1qYnVVNUVObTdY?=
- =?utf-8?Q?h688Es4hoTQ=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8658.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Q01wMFA5V05XaUVHaHVhQTg4WXVKSkFrYk41OHNMeE9vN1VBU3U3amcxN3JC?=
- =?utf-8?B?SHp6aHVkRGJaSWxNTjF6OHI4c2l1dDNxMGM0RGFMU0hTakVOR2hwYVhkM1JH?=
- =?utf-8?B?cVFQM0hVRHVjZjlLTERxNndHY1pRR3R2UW9EWDB2bW5zQ3ZKU25kb25FS2c1?=
- =?utf-8?B?Znd1YzBvSWxaRjdZYVZ3QW1kMCt2bVQ2Q0o2K1FhRWRvL1h6V285aTdmOGdk?=
- =?utf-8?B?QTc3ZnE3SDJqQmZIM2orL0tQV3MxMnlRY3dDSWwrYTNYWHNjYURGUkt2UFhX?=
- =?utf-8?B?TUM1eUVVcWRYT3B5T1B6NzVaV3hJbURnb2RteUlHeXJSTjZNWk5iNGE3dmor?=
- =?utf-8?B?Z2xTQTE0S1doUUJSUFc0d3VyanZ1V3JrUEowcldhQS9WQVVkZHNOOVMyWTZZ?=
- =?utf-8?B?U0FNZFpaeUFtMWw1SVNuZjM3b3ZydmVOME1rVlA3MDJhdVNCNTJMNUJobUJi?=
- =?utf-8?B?UVcwSzFaYUs0UTMrdGI2dU5GbmM1dHB6YjAzZUttbkYxeWhnQUhxRnV1US9t?=
- =?utf-8?B?NmtmNDMwVTVoQ1VTczZienB5WGpsY0h3YytpSnBEUUhRaGhFQk9Va3dMb0I0?=
- =?utf-8?B?MGhZcHBpQWI2ZVNSS1N1VUwzN0lsajlud0h6UkFQWGNzd2VIT2lvR2VoTkFU?=
- =?utf-8?B?WFlKMHgrRmkzWmtZMEdSYXVTWkEva0lDbGlvWldYNkdXcG1MS1VER0xKUXk1?=
- =?utf-8?B?WGIwM3VXR1BVNmlLdlk4RUVmR1U1WFgyU3NINVQrQng5MDRVOGdKQmlaS1Rt?=
- =?utf-8?B?V2RxMXV1OUZVd1hneXc2bzlZbTZEdEt3OUU0N3VHaVg5azNSQk8wdlZIN0Qx?=
- =?utf-8?B?dzgvVTV1ZGNobHhLVlI3RS80RHlCMGc1SUNiZ3Mrck5NZ09Rbm5pcHl2WlNs?=
- =?utf-8?B?TWMyN3NxM09KUHdnbnZxQkJzYXFGb3haL3J3TUpXbVdmd1FVOHByRXQ4SDNZ?=
- =?utf-8?B?NDNHV3NBd0FkM1VPTEp0MEF2UzVNRW5sMmMvNHBnU2FCRTNHN1o0RU9sWTBj?=
- =?utf-8?B?Q1RqTm9sOGZrZnpZcm5WVTVDWnhYeWJXZkZwbkZHejZsZ0JrQ0VPZVd5TDl1?=
- =?utf-8?B?MEVqWmxiT1Y5UW05YkJXTHUrR1E3THArME51MjBvMmU5bXovcXp1UlVGb1Zk?=
- =?utf-8?B?Vkc5UmJFeDYwS1hRM0JHTGlpN3FuUXgyMWxXM3BhbUNZT2gydnVuUDQ5VmZL?=
- =?utf-8?B?anpIMUk3NDdJdU9Oam9QSTRpVTV1bWJ6NXB2Y2t2QmliUFYxanVIUDllcWtF?=
- =?utf-8?B?ZVJHdldVZldmM3pqZ2lycXpvUERUV282OWtOWElpK05HZnFJVVNsSTVrNFh2?=
- =?utf-8?B?alBSZ3BKdEFQNFZBYTFLWmhiSmpXMUV6NThVenVWK2VNL2RGSFBjTkhTdGlD?=
- =?utf-8?B?T2c4OHlqaFk4L3RHKzJQay90Yk1XQzhpLzlmSzdNNXlNS282a000dnMzMWMz?=
- =?utf-8?B?dU5aWWpNSjVKR1JEaFk0eXRQa2NDUkFOVGI1R3VwR0dHWi8ybXhUNXo1MDRF?=
- =?utf-8?B?OWM4bnZLZ0Y4QTJHNElOQXlZcVNpTXk0MXJBUzJyRUQvSmxhV0k2MVI1ZnZP?=
- =?utf-8?B?YU5oTDVHQ0Z1VjI1Y2xVSC9TTmVtNm9GcmdoS2ROSVU3WXdnck5zNk9sbG1j?=
- =?utf-8?B?TldHOEc1c2diNUNneHhlY1Z6TS9Fc0VGdEJtbm1UNTdIckFSL3QvdVh1K2RE?=
- =?utf-8?B?V1padVRTK0E1U1ZCQnQ0TjJiN05uRFZlSG1JamdDK1YvaEFKK2pqWGE5R3N0?=
- =?utf-8?B?bGFCa2dyZDRDSExhUEsrTVVsaTlmT0F1cUEwZnpsb2pYaUNwazJzU3p0dzFL?=
- =?utf-8?B?MnVRTEEvYzFqL3ZCa3UwVUVJQW9VWEUrTE5aa0E2aVFXMWFEM3I5THhoVVln?=
- =?utf-8?B?VTJ6dlUrV1VyQUExaWZjd2xRNEtYR2taQ3Ixd2ZUblh3NXB3Q3dISVhrYjdU?=
- =?utf-8?B?NmMwTUZRKzU1N0dva0ptdEgyZlVaempWZmVXZUFIbFlkUkN0dWQwQVBYWU1D?=
- =?utf-8?B?ZWV2S3l3TC8zMUZQVWRVckEraU1yVVZDUUtsVlAzc0lEYmV1THdzYmZycC83?=
- =?utf-8?B?K1lINmF5SlpJYURpNWhRS01QWHg5b3J1amd4M0JOUEpMTEdCYk8zWitEN2NS?=
- =?utf-8?Q?7/VKHI99OEHcZf3Zm09nVvV6W?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 482da397-a9b0-4c11-bc8a-08ddbd17e482
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8658.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jul 2025 05:34:07.7189
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: J/97Mv9opq+Ls57ZA4NnMT0xWPrz90t1MWsUrdibDB5VGPilDTMVY3st/nFZllxUMC0T+bnQb8W5jW2rcrpesg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR12MB9560
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] crypto: s390/sha - Fix uninitialized variable in SHA-1
+ and SHA-2
+To: Eric Biggers <ebiggers@kernel.org>, linux-crypto@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>, stable@vger.kernel.org
+References: <20250627185649.35321-1-ebiggers@kernel.org>
+ <20250703172032.GA2284@sol>
+Content-Language: en-US, de-DE
+From: Ingo Franzki <ifranzki@linux.ibm.com>
+In-Reply-To: <20250703172032.GA2284@sol>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=GL8IEvNK c=1 sm=1 tr=0 ts=686b6d99 cx=c_pps a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=60ngpZ1s_TQx9FQ4v-QA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: P-8VuKcr_hXJCPy2aGgZlGXQVItTCWWs
+X-Proofpoint-GUID: P-8VuKcr_hXJCPy2aGgZlGXQVItTCWWs
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzA3MDAzNyBTYWx0ZWRfX7tkR9rx0uRZj MN2n67xReVirI58bh8hc3WredlwTtcLzqRXwW3Od1n+GY9i7SlV1JSD0OvBWJUA80SwVyoloQkj BlTQo+1s9T+GSabYcd7c9xpzvqZhG14VzO/DZGaHs6YYPBKK09fFFhW6gkBIRCR8JF7PVSTIaK4
+ 0GbQX71MzuUR3rTlZ4wgIckeZv41vFSta7R+zo5fhbqLegih+zbgPEoKVKXsrienQlObgjGx7ok P59i5nsiSzFtm1/UnR0N4xYsqIzItiJLW3y7JlkZ/b783TLO3i3ZjCTF051jFNwxmEXD/Uj8ynk 6dy7/st55VBHigFF6A8sES3PwuzrUjoTRp9XJYpj/z3HWtRRqUSAf9cZh96dI8d9sgUDBP10Cqg
+ EpVgAMRTb+xt1cPgr2kP3Tq535G6T6Voeoocu7tHPBQHEyeHUsHYof2tgBaSQmgbeG2I/Quv
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-07_01,2025-07-06_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ clxscore=1015 impostorscore=0 suspectscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 mlxscore=0 spamscore=0 mlxlogscore=999
+ lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507070037
 
-Hello Li,
+On 03.07.2025 19:20, Eric Biggers wrote:
+> On Fri, Jun 27, 2025 at 11:56:49AM -0700, Eric Biggers wrote:
+>> Commit 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
+>> added the field s390_sha_ctx::first_message_part and made it be used by
+>> s390_sha_update_blocks().  At the time, s390_sha_update_blocks() was
+>> used by all the s390 SHA-1, SHA-2, and SHA-3 algorithms.  However, only
+>> the initialization functions for SHA-3 were updated, leaving SHA-1 and
+>> SHA-2 using first_message_part uninitialized.
+>>
+>> This could cause e.g. CPACF_KIMD_SHA_512 | CPACF_KIMD_NIP to be used
+>> instead of just CPACF_KIMD_NIP.  It's unclear why this didn't cause a
+>> problem earlier; this bug was found only when UBSAN detected the
+>> uninitialized boolean.  Perhaps the CPU ignores CPACF_KIMD_NIP for SHA-1
+>> and SHA-2.  Regardless, let's fix this.  For now just initialize to
+>> false, i.e. don't try to "optimize" the SHA state initialization.
+>>
+>> Note: in 6.16, we need to patch SHA-1, SHA-384, and SHA-512.  In 6.15
+>> and earlier, we'll also need to patch SHA-224 and SHA-256, as they
+>> hadn't yet been librarified (which incidentally fixed this bug).
+>>
+>> Fixes: 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
+>> Closes: https://lore.kernel.org/r/12740696-595c-4604-873e-aefe8b405fbf@linux.ibm.com
+>> Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+>> ---
+>>
+>> This is targeting 6.16.  I'd prefer to take this through
+>> libcrypto-fixes, since the librarification work is also touching this
+>> area.  But let me know if there's a preference for the crypto tree or
+>> the s390 tree instead.
+>>
+>>  arch/s390/crypto/sha1_s390.c   | 1 +
+>>  arch/s390/crypto/sha512_s390.c | 2 ++
+>>  2 files changed, 3 insertions(+)
+> 
+> I just realized this patch is incomplete: it updated s390_sha1_init(),
+> sha384_init(), and sha512_init(), but not s390_sha1_import() and sha512_import()
+> which need the same fix...  I'll send a v2.
 
-Apart from few comments inline below, feel free to include:
+Good finding. Yes the import functions also need the fix.
+Your updates in "[PATCH v2] crypto: s390/sha - Fix uninitialized variable in SHA-1 and SHA-2" look good.
 
-Tested-by: K Prateek Nayak <kprateek.nayak@amd.com>
+> 
+> - Eric
 
-for the entire series.
-
-On 7/6/2025 8:36 AM, Li Chen wrote:
-> diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
-> index 198bb5cc1774b..0b53e372c445c 100644
-> --- a/include/linux/sched/topology.h
-> +++ b/include/linux/sched/topology.h
-> @@ -197,9 +197,9 @@ struct sched_domain_topology_level {
->  extern void __init set_sched_topology(struct sched_domain_topology_level *tl);
->  extern void sched_update_asym_prefer_cpu(int cpu, int old_prio, int new_prio);
->  
-> -
-> -# define SD_INIT_NAME(type)		.name = #type
-> -
-> +#define SDTL(maskfn, flagsfn, dname) \
-> +	((struct sched_domain_topology_level) \
-> +	    { .mask = maskfn, .sd_flags = flagsfn, .name = #dname, .numa_level = 0 })
-
-I prefer the following alignment:
-
-#define SDTL(maskfn, flagsfn, dname) ((struct sched_domain_topology_level) \
-	{ .mask = maskfn, .sd_flags = flagsfn, .name = #dname })
-
-instead of having 3 lines. "numa_level" is 0 by default so I don't think
-we need to explicitly specify it again.
-
-Also perhaps the macro can be named "SDTL_INIT()" to keep consistent
-with the naming convention.
-
->  #else /* CONFIG_SMP */
-
-A bunch of the CONFIG_SMP related ifdeffry is being removed for the
-next cycle. You can perhaps rebase the series on top of the tip tree
-(git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git)
-
->  
->  struct sched_domain_attr;
-
-[..snip..]
-
-> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-> index b958fe48e0205..e6ec65ae4b75d 100644
-> --- a/kernel/sched/topology.c
-> +++ b/kernel/sched/topology.c
-> @@ -2025,7 +2021,7 @@ void sched_init_numa(int offline_node)
->  			.sd_flags = cpu_numa_flags,
->  			.flags = SDTL_OVERLAP,
->  			.numa_level = j,
-> -			SD_INIT_NAME(NUMA)
-> +			.name = "NUMA",
-
-This can use SDTL() macro too. Just explicitly set "tl[i].numa_level" to
-"j" after.
-
->  		};
->  	}
->  
 
 -- 
-Thanks and Regards,
-Prateek
+Ingo Franzki
+eMail: ifranzki@linux.ibm.com  
+Tel: ++49 (0)7031-16-4648
+Linux on IBM Z Development, Schoenaicher Str. 220, 71032 Boeblingen, Germany
 
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen
+Geschäftsführung: David Faller
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+IBM DATA Privacy Statement: https://www.ibm.com/privacy/us/en/
