@@ -1,291 +1,251 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2078.outbound.protection.outlook.com [40.107.223.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36D933207;
-	Sun,  6 Jul 2025 03:08:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8718525A353;
+	Mon,  7 Jul 2025 05:34:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.223.78
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751771316; cv=pass; b=jHheDfP4LlqH0UyN4+KvWOKRB9DErCluBu+up803Huzek3N+wkU4FqfbK0Udbsy4KN9y/HwwGeOPsJjDQPfPC2JXJYKZjgK/c+chjlqHnTHe6Hawn5DCSgwq9GIcSG1nbdViCoCLpXiHqgGk5opK3mFwLfwlkE4zIwZ7oVcVZ/E=
+	t=1751866452; cv=fail; b=Mt8EbgPI2W0N1qKXzllZH6LrRDLBFdlq9BcoqHxmOImD7DVRTGoDFhAfxBs/Ns6//tMcvT2Tsr7K4trNXAcjVYUG/w592Ha3onOlOvqIiilbYYnzxBkCfuj5Jwh89nMayfy74aHZqWbp2ekrLfTVnP0AAXQtWbZjlgbVy3nskgk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751771316; c=relaxed/simple;
-	bh=J6DPmMM4CoEw2rEmRprBuicLduxbutp6nC+XHSkbI0g=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ski2e6bn7gpogU56O8Qds+zZPz7bAzcgixQ3s1q0VPJ2nij70xGA79ulEFOOoXwOwBKeHzaJBy90mSzGRsmCALFFnL1NGdjxXvNYmT6Tsv7g2FoMWH9blz7ZCTDkqaQOKr4qpE4rsSj5q/Fm9mVvHET5gfaX5RZclKZ87Y+RqRQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=n/85JIut; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.beauty
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
+	s=arc-20240116; t=1751866452; c=relaxed/simple;
+	bh=F51P3JZTHNqqqGp2u4HH32yVAWWiEAtF2vNmta35ONo=;
+	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=kwitLRoz+rUlhZTlEpS8cxwfL3116kqpcoG/DL6Bu9Q6YokIimo83NWHNmJmf/yd8iyVhk+pvF9IPdt76KU3RN27C3fTLieIEaYAA2eSL/ZMkG2ycayuCJYzAt6mDkJ9DPTFU4yasbYEdnq4u4Bu0a6Gj0QFTqLT/9Uiwcv4OlE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=pi16vUvQ; arc=fail smtp.client-ip=40.107.223.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="n/85JIut"
-ARC-Seal: i=1; a=rsa-sha256; t=1751771224; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=BANOU2jht3RDtVqHFtPKzQFFX64aZ9pNNhCxDSPZ5o4rFU3pY8BB9ufK6On5Ro7fYeO5yUfmYRP2kJ7Q7pYdXa85MLJCtmgCyytA2rnEMGwQuzJxOfuCPX8WyXa383o2V5BxMEGz4EvWL8VRqdQbyrufidet65E3MLt/uxt3Njc=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1751771224; h=Content-Transfer-Encoding:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To:Cc; 
-	bh=jePSSp++5Batv5PK3k9r42c2ScL6/PQrLL8WfPRMBYI=; 
-	b=HtMuRgmCMpd0TDfSFbGbgHeQEzXnZTlNfJU3Q/AGKRSSEv/dpCDQE1AXqEaulX9dzvhEi7uPm8FkKSdeqEtBKxILLNi0ot7OK8z5Sjqs+u/2JIYPZHPnqMICM4Ve0rBx9i5IzBF8Js3DTe+/vpA27WfkyOzmTIfn3WqGnlp/eCc=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=linux.beauty;
-	spf=pass  smtp.mailfrom=me@linux.beauty;
-	dmarc=pass header.from=<me@linux.beauty>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1751771224;
-	s=zmail; d=linux.beauty; i=me@linux.beauty;
-	h=From:From:To:To:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To:Cc;
-	bh=jePSSp++5Batv5PK3k9r42c2ScL6/PQrLL8WfPRMBYI=;
-	b=n/85JIutx8NKp8cgQQQcnme0fbNI1Md8Bo347hSfTgCCepfJwTHYrMoXbChrSoAL
-	Jw533PBuKIhVmTsAQ+EntIH+85wGK7WQWwtVpgq71Sv75bSQAIKYgWZ5mjOci6vwFQl
-	xJr7g9fZSvZx7KQKUI6AZ8JQwym7AHl5Rz89i6O4=
-Received: by mx.zohomail.com with SMTPS id 1751771221451549.3655482599792;
-	Sat, 5 Jul 2025 20:07:01 -0700 (PDT)
-From: Li Chen <me@linux.beauty>
-To: Li Chen  <me@linux.beauty>," Thomas Gleixner "<tglx@linutronix.de>," Ingo Molnar "<mingo@redhat.com>," Borislav Petkov "<bp@alien8.de>," Dave Hansen "<dave.hansen@linux.intel.com>,<x86@kernel.org>," H . Peter Anvin "<hpa@zytor.com>," Rafael J . Wysocki "<rafael.j.wysocki@intel.com>," Peter Zijlstra "<peterz@infradead.org>," Sohil Mehta "<sohil.mehta@intel.com>," Brian Gerst "<brgerst@gmail.com>," Patryk Wlazlyn " <patryk.wlazlyn@linux.intel.com>,
-	linux-kernel@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>,
-	Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	=?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
-	Bibo Mao <maobibo@loongson.cn>,
-	Li Chen <chenl311@chinatelecom.cn>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Tobias Huschle <huschle@linux.ibm.com>,
-	Mete Durlu <meted@linux.ibm.com>,
-	Joel Granados <joel.granados@kernel.org>,
-	Guo Weikang <guoweikang.kernel@gmail.com>,
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Sohil Mehta <sohil.mehta@intel.com>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Brian Gerst <brgerst@gmail.com>,
-	Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
-	Swapnil Sapkal <swapnil.sapkal@amd.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org
-Subject: [PATCH v4 1/4] smpboot: introduce SDTL() helper to tidy sched topology setup
-Date: Sun,  6 Jul 2025 11:06:29 +0800
-Message-ID: <20250706030636.397197-2-me@linux.beauty>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250706030636.397197-1-me@linux.beauty>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="pi16vUvQ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=mhls1bCCa6qmwfJfP+UCnXlbDMvdevmKohsZ796xlNUZ94wY0oPuxmh/vzU3LnuwptO5TGmf4FOyn9HLjpVft0xtUzsg60Pc8mmR6xHPD+85FKqnPzFzEt7OrL2NE6JxusZxDu7CAoUJIMwOMSjy8LTu0VYRraHdxYa5VbUnYnoCNRZWsGVLxnszy5syXIcbSIusLi4eHIZ7+gzI9jNPtJSOTm+VMMT1HCFXhVbkQIG4fWrUMlpW79vTlOI05a4OAZCgppH6YNHpav9m++uIeNqXddglEMWYxK9/qO0i1cuj5djBSnu8D1HaMtxOCv989A2uIjzH2on1c5OVkA6i1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=rFYs6phsJXYk26yKTPuOm0vvkC9Oc5hbt14qeyXmbtU=;
+ b=njQp/bySC5TruqjKmIGHPzcmx2El7Wg3N1GwA93+8oCx8sxLgxuih5RRePqOTaSkmzx4G/s+jaRJia37kaFjyCfEqWGD/OQf1UwE7RMgyecvgzHULJ94/nATIfZW/ctpfmt+BDatrY6jhIhnoyr//oDJp8t+XleXSnAbHHUXwvu3LzKhhC5U2tL3SmXx7Y1RJ50g3YAGOzwy4ihkx55aIcD+m3AcdRayZ3ondRd1apAlxZ6WOuiM443Zt2s73QWK8fi4Ol2qwSlQXwwjzHvgf6QSCW+Nb/h8XQUyjuGrEOFdpjZq+jFD3yDf3Vh1oTQGxuyf9kU655CMgKphnov2yA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rFYs6phsJXYk26yKTPuOm0vvkC9Oc5hbt14qeyXmbtU=;
+ b=pi16vUvQRwqyHi5QmnYc97kTPAWh+1m8RbK5LAdBEaKuElgyX5oqv+dXgrZh/XCjf6T9pakdYyfN4ynhttIgxpqg5Es8AobXzQBcBMAv7P7dnhaPp4xD770f1mmLp52HdDrYNyViLjWr4Q6jVvIexznUmrYRaZW7L2oCXbdvK5Q=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from CH3PR12MB8658.namprd12.prod.outlook.com (2603:10b6:610:175::8)
+ by CY1PR12MB9560.namprd12.prod.outlook.com (2603:10b6:930:fd::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.25; Mon, 7 Jul
+ 2025 05:34:08 +0000
+Received: from CH3PR12MB8658.namprd12.prod.outlook.com
+ ([fe80::d5cc:cc84:5e00:2f42]) by CH3PR12MB8658.namprd12.prod.outlook.com
+ ([fe80::d5cc:cc84:5e00:2f42%4]) with mapi id 15.20.8901.021; Mon, 7 Jul 2025
+ 05:34:07 +0000
+Message-ID: <f391491d-f886-4579-9b40-78a57f2ed1b5@amd.com>
+Date: Mon, 7 Jul 2025 11:03:53 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/4] smpboot: introduce SDTL() helper to tidy sched
+ topology setup
+To: Li Chen <me@linux.beauty>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H . Peter Anvin" <hpa@zytor.com>,
+ "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+ Peter Zijlstra <peterz@infradead.org>, Sohil Mehta <sohil.mehta@intel.com>,
+ Brian Gerst <brgerst@gmail.com>,
+ Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
+ linux-kernel@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ Bibo Mao <maobibo@loongson.cn>, Li Chen <chenl311@chinatelecom.cn>,
+ Huacai Chen <chenhuacai@kernel.org>, Tobias Huschle <huschle@linux.ibm.com>,
+ Mete Durlu <meted@linux.ibm.com>, Joel Granados <joel.granados@kernel.org>,
+ Guo Weikang <guoweikang.kernel@gmail.com>,
+ Swapnil Sapkal <swapnil.sapkal@amd.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org
 References: <20250706030636.397197-1-me@linux.beauty>
+ <20250706030636.397197-2-me@linux.beauty>
+Content-Language: en-US
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+In-Reply-To: <20250706030636.397197-2-me@linux.beauty>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PN3PR01CA0058.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:c01:99::17) To CH3PR12MB8658.namprd12.prod.outlook.com
+ (2603:10b6:610:175::8)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8658:EE_|CY1PR12MB9560:EE_
+X-MS-Office365-Filtering-Correlation-Id: 482da397-a9b0-4c11-bc8a-08ddbd17e482
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?bFhIYnJzd2M1ZEdkNExBaEllcEFUUjdRRGdwaXZRWTZMcysrdHQ2RUpPNVF5?=
+ =?utf-8?B?MXlVTGVSdEM4eWdrOE5nVFVTOTBzTHRHOTZab0UxWWRNWE5RT3U4Rk9yaERi?=
+ =?utf-8?B?MFNDM0g2Z0JCVmpzU1dkR2lNMTBHSzZnSnh6cWthT2diektuYm0yZ0s1VFRM?=
+ =?utf-8?B?cHJiRFA3dTM5TzVoN0JpekQ3UjNLeDcraW9VVEs2Um12cVdJcXR3VjI2SnpJ?=
+ =?utf-8?B?dWxzKzFLUDl1SVlmZXMvbzFMY2hGM3EvOGF2RldMNUo5dGhrRHlXcGJKUkZ6?=
+ =?utf-8?B?aUliVTNJVThleDZ2MVR6VG5nOWhJMHMwT3oySE1pMVluT013eHlwMjk5ZE81?=
+ =?utf-8?B?NGp0NVBQMDdONWpxWEVsakxVdmJJZXFVQlhVT0pzTnhNTzBWSXVTOGRSZ3V5?=
+ =?utf-8?B?MitUS2k2Tks4T3NmbTQ2d3NNOVJqTDlHelRBR3Znc3Vod2xScnVzMVQxUjNP?=
+ =?utf-8?B?SDJmd25RQ2xVa3lHcCtxcDByMDFXV2wrK25zRkZ2TWRoNlM5NEdLbU0xZ2Fm?=
+ =?utf-8?B?d1ZMR24xMStGRkpGczg4SkZOUjVSUXFsRlpDM1kyUUFybmNSYTE0QXg3UTA5?=
+ =?utf-8?B?N1lwREp0cjJOOTBBdnJQMmtKQVFLZU92L0lXWmxMNWlZTytTbzZKU0NjWlRv?=
+ =?utf-8?B?bXBqVFFSbGZoWncyNEUzck9IUEVEcXg4NWFvS0VYUTR6Vm5OcTA3RDUxalpj?=
+ =?utf-8?B?WTMrNyt6U1hVNkI0VndYZHkyNjl1NnFBMEIzOWN2NXFwZlF0VDJRSWZxVXQy?=
+ =?utf-8?B?aGkwRTRHeUJkeEZtaWxwcUNmaE8xMkR1ejIwVHp4anVsMU1zSlpIVzB0cVdS?=
+ =?utf-8?B?Yi9YMXNmT2RWN1lLQ2dDdi9GbzJ1c2xEbXNUZ2ZpazMwam1sTHF1K2hmTGo1?=
+ =?utf-8?B?ZzI0R1oyaGxydHBGS2xpZEozTm1qdkRETHUzUUtYYXd2V25JZWpRdFR1elRp?=
+ =?utf-8?B?N1VCVzVaZlBtMDBwZHNyMlVOcTA2aEJCeVVxaThqSm8vR3N5VWg0S2FkbFNj?=
+ =?utf-8?B?ZFpVYzV0R09GaDlqYmF1UU5CaWk1YWRUNWw1YitGVFVBd1J5bjM0c0NZZ2RR?=
+ =?utf-8?B?VmgvaUdmRjN6OWxBNzJsTTBUUVJNZkFTSHNFbktWd0pFaW1jaFZwNjJldWMy?=
+ =?utf-8?B?T2pwQlI2QWROU0hKUzJyaGNMZXVPd0pmZ3N3cVVZSmMrNE1ycXZmTERmRXQ0?=
+ =?utf-8?B?aEJQTmxtL0hTVm1XR25Zc29naTdkV01QMEpOcFZCVHg0eWxrT0tJWGROakFz?=
+ =?utf-8?B?V3ZGTUFLQjY1eHV3YnJaVis2V08vQVZDK3p2TVV0d0ZBZXZ5V1NoU1dvU1ZB?=
+ =?utf-8?B?L0NnK3FQNnhYTjQxVkxxOXluTnFIY2p1K010SGk2Q1ljRDVKaUNLUm1qMVNr?=
+ =?utf-8?B?Ny9iZHBzMFlrbXo4UW1aQ0FZK2JHOTJkdk5wUGlkdFBHelVLOS8xeDdMSWNQ?=
+ =?utf-8?B?Z3g3S2dnWWRZRWJMOWRFazRLOGVsOWxXTE9rLzZTM3J4aW5nRkFHWWh6WjV6?=
+ =?utf-8?B?elM0NklDbExCSEl1UzJyejRZVXF6a3pjM0xGb2U1VVVPWUh6QWdWNmI5aUh2?=
+ =?utf-8?B?S1IyaGw3RFZ5Z3lyLzRUczVFMDlsNTU0TS90TTg4YW0zanYvMGkzTVlBV29R?=
+ =?utf-8?B?R2w3WHJJQlNxaTQ2MUlMT3FmbHFLS1Q4WmIrdmRGcnlFVGg0dnREbXNKMXp4?=
+ =?utf-8?B?bEI1b2U4TDRYVlkzK21TZmg4RkxVdUZKMERMN0NBRkd5QjRwQk5YRjMxWmpx?=
+ =?utf-8?B?UzFiSVUyZjIyZTdpaStzN3Fwd2FvTHloYlZXbGFSREk3Mm9TSTlTU1pxbEc2?=
+ =?utf-8?B?WG1lanpPR1BoSERZUU9WNjBZTDc2VUdseHFpS1BqTk1VUXpveWhmWjlrS0Zt?=
+ =?utf-8?B?Zk1QVXNkWHFlNFFPSDkyS0xUMUwvTU9rcmE0ZFNtZ2FMak1qYnVVNUVObTdY?=
+ =?utf-8?Q?h688Es4hoTQ=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8658.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?Q01wMFA5V05XaUVHaHVhQTg4WXVKSkFrYk41OHNMeE9vN1VBU3U3amcxN3JC?=
+ =?utf-8?B?SHp6aHVkRGJaSWxNTjF6OHI4c2l1dDNxMGM0RGFMU0hTakVOR2hwYVhkM1JH?=
+ =?utf-8?B?cVFQM0hVRHVjZjlLTERxNndHY1pRR3R2UW9EWDB2bW5zQ3ZKU25kb25FS2c1?=
+ =?utf-8?B?Znd1YzBvSWxaRjdZYVZ3QW1kMCt2bVQ2Q0o2K1FhRWRvL1h6V285aTdmOGdk?=
+ =?utf-8?B?QTc3ZnE3SDJqQmZIM2orL0tQV3MxMnlRY3dDSWwrYTNYWHNjYURGUkt2UFhX?=
+ =?utf-8?B?TUM1eUVVcWRYT3B5T1B6NzVaV3hJbURnb2RteUlHeXJSTjZNWk5iNGE3dmor?=
+ =?utf-8?B?Z2xTQTE0S1doUUJSUFc0d3VyanZ1V3JrUEowcldhQS9WQVVkZHNOOVMyWTZZ?=
+ =?utf-8?B?U0FNZFpaeUFtMWw1SVNuZjM3b3ZydmVOME1rVlA3MDJhdVNCNTJMNUJobUJi?=
+ =?utf-8?B?UVcwSzFaYUs0UTMrdGI2dU5GbmM1dHB6YjAzZUttbkYxeWhnQUhxRnV1US9t?=
+ =?utf-8?B?NmtmNDMwVTVoQ1VTczZienB5WGpsY0h3YytpSnBEUUhRaGhFQk9Va3dMb0I0?=
+ =?utf-8?B?MGhZcHBpQWI2ZVNSS1N1VUwzN0lsajlud0h6UkFQWGNzd2VIT2lvR2VoTkFU?=
+ =?utf-8?B?WFlKMHgrRmkzWmtZMEdSYXVTWkEva0lDbGlvWldYNkdXcG1MS1VER0xKUXk1?=
+ =?utf-8?B?WGIwM3VXR1BVNmlLdlk4RUVmR1U1WFgyU3NINVQrQng5MDRVOGdKQmlaS1Rt?=
+ =?utf-8?B?V2RxMXV1OUZVd1hneXc2bzlZbTZEdEt3OUU0N3VHaVg5azNSQk8wdlZIN0Qx?=
+ =?utf-8?B?dzgvVTV1ZGNobHhLVlI3RS80RHlCMGc1SUNiZ3Mrck5NZ09Rbm5pcHl2WlNs?=
+ =?utf-8?B?TWMyN3NxM09KUHdnbnZxQkJzYXFGb3haL3J3TUpXbVdmd1FVOHByRXQ4SDNZ?=
+ =?utf-8?B?NDNHV3NBd0FkM1VPTEp0MEF2UzVNRW5sMmMvNHBnU2FCRTNHN1o0RU9sWTBj?=
+ =?utf-8?B?Q1RqTm9sOGZrZnpZcm5WVTVDWnhYeWJXZkZwbkZHejZsZ0JrQ0VPZVd5TDl1?=
+ =?utf-8?B?MEVqWmxiT1Y5UW05YkJXTHUrR1E3THArME51MjBvMmU5bXovcXp1UlVGb1Zk?=
+ =?utf-8?B?Vkc5UmJFeDYwS1hRM0JHTGlpN3FuUXgyMWxXM3BhbUNZT2gydnVuUDQ5VmZL?=
+ =?utf-8?B?anpIMUk3NDdJdU9Oam9QSTRpVTV1bWJ6NXB2Y2t2QmliUFYxanVIUDllcWtF?=
+ =?utf-8?B?ZVJHdldVZldmM3pqZ2lycXpvUERUV282OWtOWElpK05HZnFJVVNsSTVrNFh2?=
+ =?utf-8?B?alBSZ3BKdEFQNFZBYTFLWmhiSmpXMUV6NThVenVWK2VNL2RGSFBjTkhTdGlD?=
+ =?utf-8?B?T2c4OHlqaFk4L3RHKzJQay90Yk1XQzhpLzlmSzdNNXlNS282a000dnMzMWMz?=
+ =?utf-8?B?dU5aWWpNSjVKR1JEaFk0eXRQa2NDUkFOVGI1R3VwR0dHWi8ybXhUNXo1MDRF?=
+ =?utf-8?B?OWM4bnZLZ0Y4QTJHNElOQXlZcVNpTXk0MXJBUzJyRUQvSmxhV0k2MVI1ZnZP?=
+ =?utf-8?B?YU5oTDVHQ0Z1VjI1Y2xVSC9TTmVtNm9GcmdoS2ROSVU3WXdnck5zNk9sbG1j?=
+ =?utf-8?B?TldHOEc1c2diNUNneHhlY1Z6TS9Fc0VGdEJtbm1UNTdIckFSL3QvdVh1K2RE?=
+ =?utf-8?B?V1padVRTK0E1U1ZCQnQ0TjJiN05uRFZlSG1JamdDK1YvaEFKK2pqWGE5R3N0?=
+ =?utf-8?B?bGFCa2dyZDRDSExhUEsrTVVsaTlmT0F1cUEwZnpsb2pYaUNwazJzU3p0dzFL?=
+ =?utf-8?B?MnVRTEEvYzFqL3ZCa3UwVUVJQW9VWEUrTE5aa0E2aVFXMWFEM3I5THhoVVln?=
+ =?utf-8?B?VTJ6dlUrV1VyQUExaWZjd2xRNEtYR2taQ3Ixd2ZUblh3NXB3Q3dISVhrYjdU?=
+ =?utf-8?B?NmMwTUZRKzU1N0dva0ptdEgyZlVaempWZmVXZUFIbFlkUkN0dWQwQVBYWU1D?=
+ =?utf-8?B?ZWV2S3l3TC8zMUZQVWRVckEraU1yVVZDUUtsVlAzc0lEYmV1THdzYmZycC83?=
+ =?utf-8?B?K1lINmF5SlpJYURpNWhRS01QWHg5b3J1amd4M0JOUEpMTEdCYk8zWitEN2NS?=
+ =?utf-8?Q?7/VKHI99OEHcZf3Zm09nVvV6W?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 482da397-a9b0-4c11-bc8a-08ddbd17e482
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8658.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jul 2025 05:34:07.7189
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: J/97Mv9opq+Ls57ZA4NnMT0xWPrz90t1MWsUrdibDB5VGPilDTMVY3st/nFZllxUMC0T+bnQb8W5jW2rcrpesg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR12MB9560
 
-From: Li Chen <chenl311@chinatelecom.cn>
+Hello Li,
 
-Define a small SDTL(maskfn, flagsfn, name) macro and use it to build the
-sched_domain_topology_level. Purely a cleanup; behaviour is unchanged.
+Apart from few comments inline below, feel free to include:
 
-Signed-off-by: Li Chen <chenl311@chinatelecom.cn>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
----
- arch/powerpc/kernel/smp.c      | 34 +++++++++++++---------------------
- arch/s390/kernel/topology.c    | 10 +++++-----
- arch/x86/kernel/smpboot.c      | 21 ++++++---------------
- include/linux/sched/topology.h |  6 +++---
- kernel/sched/topology.c        | 16 ++++++----------
- 5 files changed, 33 insertions(+), 54 deletions(-)
+Tested-by: K Prateek Nayak <kprateek.nayak@amd.com>
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 5ac7084eebc0b..b05995e272134 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -1700,28 +1700,20 @@ static void __init build_sched_topology(void)
- #ifdef CONFIG_SCHED_SMT
- 	if (has_big_cores) {
- 		pr_info("Big cores detected but using small core scheduling\n");
--		powerpc_topology[i++] = (struct sched_domain_topology_level){
--			smallcore_smt_mask, powerpc_smt_flags, SD_INIT_NAME(SMT)
--		};
--	} else {
--		powerpc_topology[i++] = (struct sched_domain_topology_level){
--			cpu_smt_mask, powerpc_smt_flags, SD_INIT_NAME(SMT)
--		};
--	}
-+		powerpc_topology[i++] =
-+			SDTL(smallcore_smt_mask, powerpc_smt_flags, SMT);
-+	} else
-+		powerpc_topology[i++] = SDTL(cpu_smt_mask, powerpc_smt_flags, SMT);
- #endif
--	if (shared_caches) {
--		powerpc_topology[i++] = (struct sched_domain_topology_level){
--			shared_cache_mask, powerpc_shared_cache_flags, SD_INIT_NAME(CACHE)
--		};
--	}
--	if (has_coregroup_support()) {
--		powerpc_topology[i++] = (struct sched_domain_topology_level){
--			cpu_mc_mask, powerpc_shared_proc_flags, SD_INIT_NAME(MC)
--		};
--	}
--	powerpc_topology[i++] = (struct sched_domain_topology_level){
--		cpu_cpu_mask, powerpc_shared_proc_flags, SD_INIT_NAME(PKG)
--	};
-+	if (shared_caches)
-+		powerpc_topology[i++] =
-+			SDTL(shared_cache_mask, powerpc_shared_cache_flags, CACHE);
-+
-+	if (has_coregroup_support())
-+		powerpc_topology[i++] =
-+			SDTL(cpu_mc_mask, powerpc_shared_proc_flags, MC);
-+
-+	powerpc_topology[i++] = SDTL(cpu_cpu_mask, powerpc_shared_proc_flags, PKG);
- 
- 	/* There must be one trailing NULL entry left.  */
- 	BUG_ON(i >= ARRAY_SIZE(powerpc_topology) - 1);
-diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-index 3df048e190b11..ccf5dcc56f86d 100644
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -531,11 +531,11 @@ static const struct cpumask *cpu_drawer_mask(int cpu)
- }
- 
- static struct sched_domain_topology_level s390_topology[] = {
--	{ cpu_thread_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
--	{ cpu_coregroup_mask, cpu_core_flags, SD_INIT_NAME(MC) },
--	{ cpu_book_mask, SD_INIT_NAME(BOOK) },
--	{ cpu_drawer_mask, SD_INIT_NAME(DRAWER) },
--	{ cpu_cpu_mask, SD_INIT_NAME(PKG) },
-+	SDTL(cpu_thread_mask, cpu_smt_flags, SMT),
-+	SDTL(cpu_coregroup_mask, cpu_core_flags, MC),
-+	SDTL(cpu_book_mask, NULL, BOOK),
-+	SDTL(cpu_drawer_mask, NULL, DRAWER),
-+	SDTL(cpu_cpu_mask, NULL, PKG),
- 	{ NULL, },
- };
- 
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 58ede3fa6a75b..55f09946c791b 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -485,35 +485,26 @@ static void __init build_sched_topology(void)
- 	int i = 0;
- 
- #ifdef CONFIG_SCHED_SMT
--	x86_topology[i++] = (struct sched_domain_topology_level){
--		cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT)
--	};
-+	x86_topology[i++] = SDTL(cpu_smt_mask, cpu_smt_flags, SMT);
- #endif
- #ifdef CONFIG_SCHED_CLUSTER
--	x86_topology[i++] = (struct sched_domain_topology_level){
--		cpu_clustergroup_mask, x86_cluster_flags, SD_INIT_NAME(CLS)
--	};
-+	x86_topology[i++] = SDTL(cpu_clustergroup_mask, x86_cluster_flags, CLS);
- #endif
- #ifdef CONFIG_SCHED_MC
--	x86_topology[i++] = (struct sched_domain_topology_level){
--		cpu_coregroup_mask, x86_core_flags, SD_INIT_NAME(MC)
--	};
-+	x86_topology[i++] = SDTL(cpu_coregroup_mask, x86_core_flags, MC);
- #endif
- 	/*
- 	 * When there is NUMA topology inside the package skip the PKG domain
- 	 * since the NUMA domains will auto-magically create the right spanning
- 	 * domains based on the SLIT.
- 	 */
--	if (!x86_has_numa_in_package) {
--		x86_topology[i++] = (struct sched_domain_topology_level){
--			cpu_cpu_mask, x86_sched_itmt_flags, SD_INIT_NAME(PKG)
--		};
--	}
-+	if (!x86_has_numa_in_package)
-+		x86_topology[i++] = SDTL(cpu_cpu_mask, x86_sched_itmt_flags, PKG);
- 
- 	/*
- 	 * There must be one trailing NULL entry left.
- 	 */
--	BUG_ON(i >= ARRAY_SIZE(x86_topology)-1);
-+	BUG_ON(i >= ARRAY_SIZE(x86_topology) - 1);
- 
- 	set_sched_topology(x86_topology);
- }
-diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
-index 198bb5cc1774b..0b53e372c445c 100644
---- a/include/linux/sched/topology.h
-+++ b/include/linux/sched/topology.h
-@@ -197,9 +197,9 @@ struct sched_domain_topology_level {
- extern void __init set_sched_topology(struct sched_domain_topology_level *tl);
- extern void sched_update_asym_prefer_cpu(int cpu, int old_prio, int new_prio);
- 
--
--# define SD_INIT_NAME(type)		.name = #type
--
-+#define SDTL(maskfn, flagsfn, dname) \
-+	((struct sched_domain_topology_level) \
-+	    { .mask = maskfn, .sd_flags = flagsfn, .name = #dname, .numa_level = 0 })
- #else /* CONFIG_SMP */
- 
- struct sched_domain_attr;
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index b958fe48e0205..e6ec65ae4b75d 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -1739,17 +1739,17 @@ sd_init(struct sched_domain_topology_level *tl,
-  */
- static struct sched_domain_topology_level default_topology[] = {
- #ifdef CONFIG_SCHED_SMT
--	{ cpu_smt_mask, cpu_smt_flags, SD_INIT_NAME(SMT) },
-+	SDTL(cpu_smt_mask, cpu_smt_flags, SMT),
- #endif
- 
- #ifdef CONFIG_SCHED_CLUSTER
--	{ cpu_clustergroup_mask, cpu_cluster_flags, SD_INIT_NAME(CLS) },
-+	SDTL(cpu_clustergroup_mask, cpu_cluster_flags, CLS),
- #endif
- 
- #ifdef CONFIG_SCHED_MC
--	{ cpu_coregroup_mask, cpu_core_flags, SD_INIT_NAME(MC) },
-+	SDTL(cpu_coregroup_mask, cpu_core_flags, MC),
- #endif
--	{ cpu_cpu_mask, SD_INIT_NAME(PKG) },
-+	SDTL(cpu_cpu_mask, NULL, PKG),
- 	{ NULL, },
- };
- 
-@@ -2010,11 +2010,7 @@ void sched_init_numa(int offline_node)
- 	/*
- 	 * Add the NUMA identity distance, aka single NODE.
- 	 */
--	tl[i++] = (struct sched_domain_topology_level){
--		.mask = sd_numa_mask,
--		.numa_level = 0,
--		SD_INIT_NAME(NODE)
--	};
-+	tl[i++] = SDTL(sd_numa_mask, NULL, NODE);
- 
- 	/*
- 	 * .. and append 'j' levels of NUMA goodness.
-@@ -2025,7 +2021,7 @@ void sched_init_numa(int offline_node)
- 			.sd_flags = cpu_numa_flags,
- 			.flags = SDTL_OVERLAP,
- 			.numa_level = j,
--			SD_INIT_NAME(NUMA)
-+			.name = "NUMA",
- 		};
- 	}
- 
+for the entire series.
+
+On 7/6/2025 8:36 AM, Li Chen wrote:
+> diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
+> index 198bb5cc1774b..0b53e372c445c 100644
+> --- a/include/linux/sched/topology.h
+> +++ b/include/linux/sched/topology.h
+> @@ -197,9 +197,9 @@ struct sched_domain_topology_level {
+>  extern void __init set_sched_topology(struct sched_domain_topology_level *tl);
+>  extern void sched_update_asym_prefer_cpu(int cpu, int old_prio, int new_prio);
+>  
+> -
+> -# define SD_INIT_NAME(type)		.name = #type
+> -
+> +#define SDTL(maskfn, flagsfn, dname) \
+> +	((struct sched_domain_topology_level) \
+> +	    { .mask = maskfn, .sd_flags = flagsfn, .name = #dname, .numa_level = 0 })
+
+I prefer the following alignment:
+
+#define SDTL(maskfn, flagsfn, dname) ((struct sched_domain_topology_level) \
+	{ .mask = maskfn, .sd_flags = flagsfn, .name = #dname })
+
+instead of having 3 lines. "numa_level" is 0 by default so I don't think
+we need to explicitly specify it again.
+
+Also perhaps the macro can be named "SDTL_INIT()" to keep consistent
+with the naming convention.
+
+>  #else /* CONFIG_SMP */
+
+A bunch of the CONFIG_SMP related ifdeffry is being removed for the
+next cycle. You can perhaps rebase the series on top of the tip tree
+(git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git)
+
+>  
+>  struct sched_domain_attr;
+
+[..snip..]
+
+> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+> index b958fe48e0205..e6ec65ae4b75d 100644
+> --- a/kernel/sched/topology.c
+> +++ b/kernel/sched/topology.c
+> @@ -2025,7 +2021,7 @@ void sched_init_numa(int offline_node)
+>  			.sd_flags = cpu_numa_flags,
+>  			.flags = SDTL_OVERLAP,
+>  			.numa_level = j,
+> -			SD_INIT_NAME(NUMA)
+> +			.name = "NUMA",
+
+This can use SDTL() macro too. Just explicitly set "tl[i].numa_level" to
+"j" after.
+
+>  		};
+>  	}
+>  
+
 -- 
-2.49.0
+Thanks and Regards,
+Prateek
 
