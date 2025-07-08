@@ -1,92 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10C8B2E0B58;
-	Tue,  8 Jul 2025 15:59:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 214312DC34C;
+	Tue,  8 Jul 2025 16:46:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751990399; cv=none; b=s7vAFOv+wzFi4k+DQEznw0cyRh821traw15Jh2dDMsLXjOgfXEPdJr+kl63pwBpNdAtrMLH5Z/9NmwRp7tNGA1qJ1+LLNzgx30LL4MlEUOww+9r7TCxF5riGwjP5WomnnmKd6oo/BhmqoubNx0eZlad58PWY16PMAe+/fmneGqI=
+	t=1751993161; cv=none; b=a6PXSD7774mT1rwXj/AJXaLQCZdf0DZ0ryRws5MByf4PdNYQAV7mSOdE91M0Xp+6YikshU5LZQ2K97m68jhAiTxTDsx2nKCZaAGkn7YMToFKWmKCYVjbw/XtaeJUJyR/LMhWIkeaVJ5sMEPARhYj3epuM5A1yPROZvurQhgkY3M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751990399; c=relaxed/simple;
-	bh=PVtjGWbHxgxwh9Sjq5IV6QMU4TmKcrY2ABdzMpTe7C0=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=fmMpUBbCh2m6v+CEWBoj13OeEtHV1OP9gHMloMYQ3O5L6kNs+Y3m2oA6fb+bn19BDmFaKnIPKKHpC5vWz4xLXmFqFBQrjUlVppnsxuxCrZbqM4O1w41uo+LysQu0+87W//lh/5ZH7OZpghNF0NuAE07y+nb74NnUqgeqIRGD1+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SRcaajSE; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1751993161; c=relaxed/simple;
+	bh=4ddaXVIyv3r5pSRFFdHzns9XwfAeX8Wt7e0TkkY10t0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=WTKAGFxRrcT+kAsXEddAtaB9VtdIOrSg5E+4tlKkGy5niOh11UctqHZn2Vk8cQ6TVVyJpF9MFeUjOBUR48b/HG8Brsy2+osqAAhx4KEPnXr5qX1PqdlXq86+JEhH2o4H1rvLvv7Vx93nagSFYo9RtkVY6s/wIwkYs6GhEr2+qaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zh2v2Mvf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SRcaajSE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95F4BC4CEED;
-	Tue,  8 Jul 2025 15:59:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zh2v2Mvf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D476C4CEF6;
+	Tue,  8 Jul 2025 16:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1751990398;
-	bh=PVtjGWbHxgxwh9Sjq5IV6QMU4TmKcrY2ABdzMpTe7C0=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=SRcaajSE7wM5jKY/za/I85TGN3JY88KOXnMYvjy7u9DSqqoIJ8jnQe1ycJ78tXbxY
-	 RrLpHvED/l0mRz921k4uO2jEh1aI7LF2Rb1C98MJXYul1/Zg1yJZpvnjexZwbEAsT5
-	 Gth7zTg+eK+UKurhT4qOSSbWaMo2YcksRxaMKRB3qXq9HKdKwwpb30B3PkaNVvJaGP
-	 VvrjHaIGz39GcA+uihWVlYPNJCmpdf1WEuRcZqxF/xz8DHCJ/RqFY3sSEMJ5MfyUpu
-	 nc4chBt+XJAS+f6xMcqOzlr0U60PCycTH27Q65QY6f8C7YgXr2hxq58mSX41ctaPwu
-	 /R2sXrEyUd6fw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADBCF380DBEE;
-	Tue,  8 Jul 2025 16:00:22 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1751993160;
+	bh=4ddaXVIyv3r5pSRFFdHzns9XwfAeX8Wt7e0TkkY10t0=;
+	h=Date:From:To:Cc:Subject:From;
+	b=Zh2v2MvfqEVna8Ib4zaYMflt575hNTyunDCAcTU+rucu8qU3LnAZKPpA8fymjjwVe
+	 TAYVmSElWDRon2vslBozv3Z9L5a/vpu2F9vxNTrbKquiXgtelibtfYzkD5bMDDlrgB
+	 0HCzLpdeuUmogd7NJuAy83k5pP4ppqe2Y3MHKUsi3jsXXM+JX5fVGSwa7TyCYnQdFB
+	 u7YS9/tSQAawY3h4gnXuhczRq8ccBy+Yrd1d67390ey+lNbpiXCCLuPnkCLEoHf+o2
+	 fs4KRUAuIdJOCKvQH7cEGb00VX0buH41/vW+dxHFhG3UW3s7G18S6nvVXEOwEzexO3
+	 YO1y63bXUL6ag==
+Date: Tue, 8 Jul 2025 09:45:17 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Ingo Franzki <ifranzki@linux.ibm.com>
+Subject: [GIT PULL] Crypto library fix for v6.16-rc6
+Message-ID: <20250708164517.GA1255@sol>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v3 0/6] net: Remove unused function parameters in
- skbuff.c
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175199042124.4117860.11392671467837095763.git-patchwork-notify@kernel.org>
-Date: Tue, 08 Jul 2025 16:00:21 +0000
-References: <20250702-splice-drop-unused-v3-0-55f68b60d2b7@rbox.co>
-In-Reply-To: <20250702-splice-drop-unused-v3-0-55f68b60d2b7@rbox.co>
-To: Michal Luczaj <mhal@rbox.co>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, ayush.sawal@chelsio.com,
- andrew+netdev@lunn.ch, dsahern@kernel.org, ncardwell@google.com,
- kuniyu@google.com, wenjia@linux.ibm.com, jaka@linux.ibm.com,
- alibuda@linux.alibaba.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- sidraya@linux.ibm.com, dust.li@linux.alibaba.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hello:
+The following changes since commit 64f7548aad63d2fbca2eeb6eb33361c218ebd5a5:
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+  lib/crypto: sha256: Mark sha256_choose_blocks as __always_inline (2025-06-20 13:22:03 -0700)
 
-On Wed, 02 Jul 2025 15:38:06 +0200 you wrote:
-> Couple of cleanup patches to get rid of unused function parameters around
-> skbuff.c, plus little things spotted along the way.
-> 
-> Offshoot of my question in [1], but way more contained. Found by adding
-> "-Wunused-parameter -Wno-error" to KBUILD_CFLAGS and grepping for specific
-> skbuff.c warnings.
-> 
-> [...]
+are available in the Git repository at:
 
-Here is the summary with links:
-  - [net-next,v3,1/6] net: splice: Drop unused @pipe
-    https://git.kernel.org/netdev/net-next/c/1024f1207161
-  - [net-next,v3,2/6] net: splice: Drop unused @gfp
-    https://git.kernel.org/netdev/net-next/c/25489a4f5564
-  - [net-next,v3,3/6] net: splice: Drop nr_pages_max initialization
-    (no matching commit)
-  - [net-next,v3,4/6] net/smc: Drop nr_pages_max initialization
-    (no matching commit)
-  - [net-next,v3,5/6] net: skbuff: Drop unused @skb
-    https://git.kernel.org/netdev/net-next/c/ad0ac6cd9c04
-  - [net-next,v3,6/6] net: skbuff: Drop unused @skb
-    https://git.kernel.org/netdev/net-next/c/ab34e14258cd
+  https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git tags/libcrypto-for-linus
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+for you to fetch changes up to 68279380266a5fa70e664de754503338e2ec3f43:
 
+  crypto: s390/sha - Fix uninitialized variable in SHA-1 and SHA-2 (2025-07-03 10:27:26 -0700)
 
+----------------------------------------------------------------
+
+Fix an uninitialized variable in the s390 optimized SHA-1 and SHA-2.
+
+Note that my librarification changes also fix this by greatly
+simplifying how the s390 optimized SHA code is integrated.  However, we
+need this separate fix for 6.16 and older versions.
+
+----------------------------------------------------------------
+Eric Biggers (1):
+      crypto: s390/sha - Fix uninitialized variable in SHA-1 and SHA-2
+
+ arch/s390/crypto/sha1_s390.c   | 2 ++
+ arch/s390/crypto/sha512_s390.c | 3 +++
+ 2 files changed, 5 insertions(+)
