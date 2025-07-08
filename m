@@ -1,110 +1,83 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8F3A328BAB9;
-	Mon,  7 Jul 2025 22:03:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1450C21D3E2;
+	Tue,  8 Jul 2025 02:01:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751925824; cv=none; b=S9dmOj+61dR/iEG0XycSbr+GasP2RcvcPkQlu1EnmmbMaScIsdTjghTaaxwZtFG/ftw2FKYb1h1Sa4GXSeW+5PHjuXb5C81yDGNLqzGjld+IEohhVLZ9hkMxtLUT3TCxeGEhXsewP+eKBYazPTArdHpyTFMDZjslnAXGCZAQ/v4=
+	t=1751940087; cv=none; b=sMbNHDCy2lbNP9EARjGtiUzLYgRuoVhLGBGUKQlyY2HJ7jXachhaNuZSAwtdADYcxmO50fawcdYru+91JRs5XybFWhIAW+nKVNvKg8/UXdv6c6N1EBPbZNMslb6ZBbUh9KplEnuS9DdrXSEgNO6wyQzVjTfvowLRBNOwuULlzfg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751925824; c=relaxed/simple;
-	bh=VIoB7qiTLaV7Z1JX5PmXLYanxXX/r8BMP27IJazNm84=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=T0JkALTgE9JtJo4+zsayPQEDgE7IERPaKn+L7esIgeRbGUTDiZ/in83m8PO8EhYCfJxJDevmgJIcEX0QU9QAVfeXMYiRYfslU9y6H1T2s4NmGJctYTeGRVfCHCYsDqUnALxmoxw/A/BXUTnGh+ZVHO1JjXl9KPYvcY8xZzlunIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=iUJy5S40; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1751940087; c=relaxed/simple;
+	bh=vdenrLS+6YN2aEQcaYc5Lh42yH2LI08mDnidM+eFRp0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PTXrY7szFKvn9z1pjlemiTkd0h3DGofpQV+9tqvSWmtWe9vUIKPIep7Nj9vL+ZGQeVsxXNGPnGXZATVcMv82obDW1D3DkwA20CwP9mMOnqvZ7teT+ClzND/xihqjIR8BDsxGmr17pYlmKufUOK+2AUCDkqeX00CgBtbfgctfIW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=kEnFOwcL; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="iUJy5S40"
-Received: from easwarh-mobl2. (unknown [20.29.225.195])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 80DEF2054689;
-	Mon,  7 Jul 2025 15:03:42 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 80DEF2054689
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1751925823;
-	bh=ZQBUkjDtvUw42acvYUgd6vDbgxWPxXM2A3fBzrkCpHM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=iUJy5S402vW9QcG4yGSfhRWs8qDBqFXFp3IkaUFVFzW5hQOyEWnpgi4tW1UbfLlj+
-	 +boa03gPqNmBv5uvN7aWJNvIaDZLz9Hv1+CzGVEk89Jxl+duextke1Xz8uKTQbZ1HS
-	 8foQuORd+bKXJB85V9fjNiD+GRWt+jOvD5OqUNV8=
-From: Easwar Hariharan <eahariha@linux.microsoft.com>
-Date: Mon, 07 Jul 2025 15:03:33 -0700
-Subject: [PATCH net-next v2 2/2] net: ipconfig: convert timeouts to
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="kEnFOwcL"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1751940081; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=30BX8zo3tqsnhx5SV2GQKzrU9gHS62rwrKyEO3a8EYU=;
+	b=kEnFOwcL8HJMxFpaDXAMwl8kqnTQFhvzKtVOE9ONC1BPMWHu0Wx+WJEKmltgdl1RbGCOxtMrt3bNpi2fnbxDoWkYmduIIQt7FldhOjWp7+/v5NAxK5bBm9QB2SRI4oV1a0e7xhuUEwqkcC0Zv9ZqTq+tvL3jWQzD6ygYYCiq4pY=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WiIMpoe_1751940080 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 08 Jul 2025 10:01:20 +0800
+Date: Tue, 8 Jul 2025 10:01:20 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Easwar Hariharan <eahariha@linux.microsoft.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v2 1/2] net/smc: convert timeouts to
  secs_to_jiffies()
+Message-ID: <20250708020120.GA21846@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250707-netdev-secs-to-jiffies-part-2-v2-0-b7817036342f@linux.microsoft.com>
+ <20250707-netdev-secs-to-jiffies-part-2-v2-1-b7817036342f@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250707-netdev-secs-to-jiffies-part-2-v2-2-b7817036342f@linux.microsoft.com>
-References: <20250707-netdev-secs-to-jiffies-part-2-v2-0-b7817036342f@linux.microsoft.com>
-In-Reply-To: <20250707-netdev-secs-to-jiffies-part-2-v2-0-b7817036342f@linux.microsoft.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>, 
- Dust Li <dust.li@linux.alibaba.com>, 
- Sidraya Jayagond <sidraya@linux.ibm.com>, 
- Wenjia Zhang <wenjia@linux.ibm.com>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, 
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-rdma@vger.kernel.org, 
- linux-s390@vger.kernel.org, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- Easwar Hariharan <eahariha@linux.microsoft.com>
-X-Mailer: b4 0.14.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250707-netdev-secs-to-jiffies-part-2-v2-1-b7817036342f@linux.microsoft.com>
 
-Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
-secs_to_jiffies().  As the value here is a multiple of 1000, use
-secs_to_jiffies() instead of msecs_to_jiffies to avoid the multiplication.
+On 2025-07-07 15:03:32, Easwar Hariharan wrote:
+>Commit b35108a51cf7 ("jiffies: Define secs_to_jiffies()") introduced
+>secs_to_jiffies().  As the value here is a multiple of 1000, use
+>secs_to_jiffies() instead of msecs_to_jiffies to avoid the multiplication.
+>
+>This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci with
+>the following Coccinelle rules:
+>
+>@depends on patch@
+>expression E;
+>@@
+>
+>-msecs_to_jiffies(E * 1000)
+>+secs_to_jiffies(E)
+>
+>-msecs_to_jiffies(E * MSEC_PER_SEC)
+>+secs_to_jiffies(E)
+>
+>Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
 
-This is converted using scripts/coccinelle/misc/secs_to_jiffies.cocci with
-the following Coccinelle rules:
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-@depends on patch@
-expression E;
-@@
-
--msecs_to_jiffies(E * 1000)
-+secs_to_jiffies(E)
-
--msecs_to_jiffies(E * MSEC_PER_SEC)
-+secs_to_jiffies(E)
-
-While here, manually convert a couple timeouts denominated in seconds
-
-Signed-off-by: Easwar Hariharan <eahariha@linux.microsoft.com>
----
- net/ipv4/ipconfig.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/ipv4/ipconfig.c b/net/ipv4/ipconfig.c
-index c56b6fe6f0d771e9275bb66c159d9abb330bdf4c..22a7889876c1cf7d5233fe8a0ee12e134b20c1cd 100644
---- a/net/ipv4/ipconfig.c
-+++ b/net/ipv4/ipconfig.c
-@@ -274,9 +274,9 @@ static int __init ic_open_devs(void)
- 
- 	/* wait for a carrier on at least one device */
- 	start = jiffies;
--	next_msg = start + msecs_to_jiffies(20000);
-+	next_msg = start + secs_to_jiffies(20);
- 	while (time_before(jiffies, start +
--			   msecs_to_jiffies(carrier_timeout * 1000))) {
-+			   secs_to_jiffies(carrier_timeout))) {
- 		int wait, elapsed;
- 
- 		rtnl_lock();
-@@ -295,7 +295,7 @@ static int __init ic_open_devs(void)
- 		elapsed = jiffies_to_msecs(jiffies - start);
- 		wait = (carrier_timeout * 1000 - elapsed + 500) / 1000;
- 		pr_info("Waiting up to %d more seconds for network.\n", wait);
--		next_msg = jiffies + msecs_to_jiffies(20000);
-+		next_msg = jiffies + secs_to_jiffies(20);
- 	}
- have_carrier:
- 
-
--- 
-2.43.0
+Best regards,
+Dust
 
