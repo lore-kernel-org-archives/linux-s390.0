@@ -1,194 +1,245 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46D972192F9;
-	Tue,  8 Jul 2025 21:44:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C0F174C08;
+	Wed,  9 Jul 2025 05:13:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752011089; cv=none; b=G/qeEDfhLiTtC9wcjCDZ1bVkC9CDdcUJuRgmZjSIw2532M6VxlxfmLkn62RthvSB5WtdmMgShyGxBTekVlJ6gL8ByRzFmMNnXSKCB/utC9v+xZ+kirOQ0A/bDtbeWIP/OyJwy+6GI4IrUwajHIro6N/OPSeJH8+hS2wPUQmhZM8=
+	t=1752038034; cv=none; b=cYNceocUiHN7nmUHZm3xfZqQ9l+jSV8and5OxWDnUgOUb7IHSi1Sdy0XkjEBHzy5Q2m6v0uBFRd+X613+2tB9LV5xSxdwRJeaC10G0vRoseQ1XO7X2sAbSGZQfCk7YiAErXR8tEZ751T+qeSanFDNxz4acBxGvJ7NxkVApq9lMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752011089; c=relaxed/simple;
-	bh=7Jf91Uu04pu+2C+bUdrSkKkCPNCAdHpoDzfsFFQwnSU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AmT8pn2UNhXKJsH5P8SnBNrg+vNdE7eewn8LsfUsg92IKIJ8TEZRWtCzhJrsJBl/S8J//ChTL3nxmlgi8KESP4awe/rSAsSZWS8HgmwX8Yvva+EaVgUMmRZXBqY9WUJhcBnrwUHAg2ypalEUWRkkAqm7txjMQx8yQx6oVXUSDMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ar3U1XoX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1752038034; c=relaxed/simple;
+	bh=EN5ByLBGywGLTiCp1bK3fyTglM7Zbn5pwSVlzcDFN2s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pGaipwUU/aWjK1ythTQJVB8GAk8/oF60HBsfg6QT1XCQjprEGRFucFBWqmHYIaM3ejuBgZ/jCUyxmBwom6aUfqrJ0vh1E8NKq2nX79cFGQHyA9TWijFUzHMFWfgbCQzhY4jrJSPu8MAc6O0OLzDJm7f+MPTYH/P8/ezZAE14tFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=P+9TWd4x reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ar3U1XoX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65905C4CEF1;
-	Tue,  8 Jul 2025 21:44:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752011088;
-	bh=7Jf91Uu04pu+2C+bUdrSkKkCPNCAdHpoDzfsFFQwnSU=;
-	h=From:To:Cc:Subject:Date:From;
-	b=Ar3U1XoXkziTibmwnOYMYVcBQLAdcE080fj9vJ+YXi1hJp2HgB5J5aAK0kd4tQ+FL
-	 /5cPMXE/BLXPyY9L6dhk/zrsABU6NSAJ+tMLbeyTO9UdkOQUPX6Udt9ok6BmXeXHdy
-	 7fHMF5JmY3mJNs0+DVvb9lw62eE/y4CnZ8zHUlQkUD118FyWpmgZ49vn4GVa0HNy6V
-	 vFdzdmITQYFJiQ86ljGe2YFZdtVpdcRTPAswUfXn1Rv48gA8n8Oq+Oc7us0Kkmmla8
-	 BhLFgZw0gZkuH39DDkXZEL2H2y92O8ojPT+5d5PIK5YgmMKVJdeOsUMwqxWJEiQ0Uw
-	 AylIjmKyJkLqg==
-From: Eric Biggers <ebiggers@kernel.org>
-To: stable@vger.kernel.org
-Cc: linux-crypto@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Eric Biggers <ebiggers@kernel.org>,
-	Ingo Franzki <ifranzki@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 6.12,6.15] crypto: s390/sha - Fix uninitialized variable in SHA-1 and SHA-2
-Date: Tue,  8 Jul 2025 21:44:23 +0000
-Message-ID: <20250708214423.3786226-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.50.0.727.gbf7dc18ff4-goog
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="P+9TWd4x"
+Received: from [157.82.206.39] ([157.82.206.39])
+	(authenticated bits=0)
+	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 56955rZV065688
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Wed, 9 Jul 2025 14:05:53 +0900 (JST)
+	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
+DKIM-Signature: a=rsa-sha256; bh=4clTUl4sMeFn+3+ZKeZuCK2i1/1ZYbUuPzsuXuco86k=;
+        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
+        h=Message-ID:Date:Subject:To:From;
+        s=rs20250326; t=1752037554; v=1;
+        b=P+9TWd4xgbOJt4IAGxHHsFZCUP5mU2LruCqB6XvGSTxPuNiG88lEdFqKSI5e8GV9
+         IZQ027gIzqE6R884yIAbqFDeeb+QV4d98ETFvdXUnoX+FYopiMFnNscVsB2zI9Wa
+         2l2RcZyKqEBQDUjGZTaMI0r6Rf5IedBu6hCBpXk/895FEVdR2zQg58ehwJmyxgfF
+         XT9yXnMK/B98pfOeSBYxC5A9B18qaCU6AclyvtM00Ovo46CMOeuPcCCb07Ssut/I
+         yGZrAOC9hnteaFT0HuEm66QoaIAFlJenYdCL8L9SlWdVr/Lxm01+5vFw0NVbVwNR
+         jKgFire83dealgPIcgL8rg==
+Message-ID: <36c0213c-6b14-4ad2-969e-3d8e356bb680@rsg.ci.i.u-tokyo.ac.jp>
+Date: Wed, 9 Jul 2025 14:05:53 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/23] binfmt_elf,arch/*: Use elf.h for coredump note
+ names
+To: Dave Martin <Dave.Martin@arm.com>, linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, "H. Peter Anvin"
+ <hpa@zytor.com>,
+        "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandre Ghiti <alex@ghiti.fr>, Andreas Larsson <andreas@gaisler.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Chris Zankel <chris@zankel.net>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dinh Nguyen
+ <dinguyen@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
+        Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Jonas Bonn <jonas@southpole.se>, Kees Cook <kees@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Max Filippov
+ <jcmvbkbc@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>, Oleg Nesterov <oleg@redhat.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley
+ <paul.walmsley@sifive.com>,
+        Rich Felker <dalias@libc.org>, Richard Weinberger <richard@nod.at>,
+        Russell King <linux@armlinux.org.uk>,
+        Stafford Horne <shorne@gmail.com>,
+        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        loongarch@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
+References: <20250701135616.29630-1-Dave.Martin@arm.com>
+Content-Language: en-US
+From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+In-Reply-To: <20250701135616.29630-1-Dave.Martin@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-commit 68279380266a5fa70e664de754503338e2ec3f43 upstream.
+On 2025/07/01 22:55, Dave Martin wrote:
+> This series aims to clean up an aspect of coredump generation:
+> 
+> ELF coredumps contain a set of notes describing the state of machine
+> registers and other information about the dumped process.
+> 
+> Notes are identified by a numeric identifier n_type and a "name"
+> string, although this terminology is somewhat misleading.  Officially,
+> the "name" of a note is really an "originator" or namespace identifier
+> that indicates how to interpret n_type [1], although in practice it is
+> often used more loosely.
+> 
+> Either way, each kind of note needs _both_ a specific "name" string and
+> a specific n_type to identify it robustly.
+> 
+> To centralise this knowledge in one place and avoid the need for ad-hoc
+> code to guess the correct name for a given note, commit 7da8e4ad4df0
+> ("elf: Define note name macros") [2] added an explicit NN_<foo> #define
+> in elf.h to give the name corresponding to each named note type
+> NT_<foo>.
+> 
+> Now that the note name for each note is specified explicitly, the
+> remaining guesswork for determining the note name for common and
+> arch-specific regsets in ELF core dumps can be eliminated.
+> 
+> This series aims to do just that:
+> 
+>   * Patch 2 adds a user_regset field to specify the note name, and a
+>     helper macro to populate it correctly alongside the note type.
+> 
+>   * Patch 3 ports away the ad-hoc note names in the common coredump
+>     code.
+> 
+>   * Patches 4-22 make the arch-specific changes.  (This is pretty
+>     mechanical for most arches.)
+> 
+>   * The final patch adds a WARN() when no note name is specified,
+>     and simplifies the fallback guess.  This should only be applied
+>     when all arches have ported across.
+> 
+> See the individual patches for details.
+> 
+> 
+> Testing:
+> 
+>   * x86, arm64: Booted in a VM and triggered a core dump with no WARN(),
+>     and verified that the dumped notes are the same.
+> 
+>   * arm: Build-tested only (for now).
+> 
+>   * Other arches: not tested yet
+> 
+> Any help with testing is appreciated.  If the following generates the
+> same notes (as dumped by readelf -n core) and doesn't trigger a WARN,
+> then we are probably good.
+> 
+> $ sleep 60 &
+> $ kill -QUIT $!
+> 
+> (Register content might differ between runs, but it should be safe to
+> ignore that -- this series only deals with the note names and types.)
+> 
+> Cheers
+> ---Dave
+> 
+> 
+> [1] System V Application Binary Interface, Edition 4.1,
+> Section 5 (Program Loading and Dynamic Linking) -> "Note Section"
+> 
+> https://refspecs.linuxfoundation.org/elf/gabi41.pdf
+> 
+> [2] elf: Define note name macros
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/include/uapi/linux/elf.h?id=7da8e4ad4df0dd12f37357af62ce1b63e75ae2e6
+> 
+> 
+> Dave Martin (23):
+>    regset: Fix kerneldoc for struct regset_get() in user_regset
+>    regset: Add explicit core note name in struct user_regset
+>    binfmt_elf: Dump non-arch notes with strictly matching name and type
+>    ARC: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    ARM: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    arm64: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    csky: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    hexagon: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    LoongArch: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    m68k: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    MIPS: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    nios2: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    openrisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    parisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    powerpc/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    s390/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    sh: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    sparc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    x86/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    um: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+>    xtensa: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
+>      names
+>    binfmt_elf: Warn on missing or suspicious regset note names
+> 
+>   arch/arc/kernel/ptrace.c                 |  4 +-
+>   arch/arm/kernel/ptrace.c                 |  6 +-
+>   arch/arm64/kernel/ptrace.c               | 52 ++++++++---------
+>   arch/csky/kernel/ptrace.c                |  4 +-
+>   arch/hexagon/kernel/ptrace.c             |  2 +-
+>   arch/loongarch/kernel/ptrace.c           | 16 ++---
+>   arch/m68k/kernel/ptrace.c                |  4 +-
+>   arch/mips/kernel/ptrace.c                | 20 +++----
+>   arch/nios2/kernel/ptrace.c               |  2 +-
+>   arch/openrisc/kernel/ptrace.c            |  4 +-
+>   arch/parisc/kernel/ptrace.c              |  8 +--
+>   arch/powerpc/kernel/ptrace/ptrace-view.c | 74 ++++++++++++------------
+>   arch/riscv/kernel/ptrace.c               | 12 ++--
+>   arch/s390/kernel/ptrace.c                | 42 +++++++-------
+>   arch/sh/kernel/ptrace_32.c               |  4 +-
+>   arch/sparc/kernel/ptrace_32.c            |  4 +-
+>   arch/sparc/kernel/ptrace_64.c            |  8 +--
+>   arch/x86/kernel/ptrace.c                 | 22 +++----
+>   arch/x86/um/ptrace.c                     | 10 ++--
+>   arch/xtensa/kernel/ptrace.c              |  4 +-
+>   fs/binfmt_elf.c                          | 36 +++++++-----
+>   fs/binfmt_elf_fdpic.c                    | 17 +++---
+>   include/linux/regset.h                   | 12 +++-
+>   23 files changed, 194 insertions(+), 173 deletions(-)
+> 
+> 
+> base-commit: 86731a2a651e58953fc949573895f2fa6d456841
 
-Commit 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
-added the field s390_sha_ctx::first_message_part and made it be used by
-s390_sha_update() (now s390_sha_update_blocks()).  At the time,
-s390_sha_update() was used by all the s390 SHA-1, SHA-2, and SHA-3
-algorithms.  However, only the initialization functions for SHA-3 were
-updated, leaving SHA-1 and SHA-2 using first_message_part uninitialized.
+For the whole series:
+Reviewed-by: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
 
-This could cause e.g. the function code CPACF_KIMD_SHA_512 |
-CPACF_KIMD_NIP to be used instead of just CPACF_KIMD_SHA_512.  This
-apparently was harmless, as the SHA-1 and SHA-2 function codes ignore
-CPACF_KIMD_NIP; it is recognized only by the SHA-3 function codes
-(https://lore.kernel.org/r/73477fe9-a1dc-4e38-98a6-eba9921e8afa@linux.ibm.com/).
-Therefore, this bug was found only when first_message_part was later
-converted to a boolean and UBSAN detected its uninitialized use.
-Regardless, let's fix this by just initializing to zero.
-
-Note: in 6.16, we need to patch SHA-1, SHA-384, and SHA-512.  In 6.15
-and earlier, we'll also need to patch SHA-224 and SHA-256, as they
-hadn't yet been librarified (which incidentally fixed this bug).
-
-Fixes: 88c02b3f79a6 ("s390/sha3: Support sha3 performance enhancements")
-Cc: stable@vger.kernel.org
-Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
-Closes: https://lore.kernel.org/r/12740696-595c-4604-873e-aefe8b405fbf@linux.ibm.com
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250703172316.7914-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@kernel.org>
----
- arch/s390/crypto/sha1_s390.c   | 2 ++
- arch/s390/crypto/sha256_s390.c | 3 +++
- arch/s390/crypto/sha512_s390.c | 3 +++
- 3 files changed, 8 insertions(+)
-
-diff --git a/arch/s390/crypto/sha1_s390.c b/arch/s390/crypto/sha1_s390.c
-index bc3a22704e09..10950953429e 100644
---- a/arch/s390/crypto/sha1_s390.c
-+++ b/arch/s390/crypto/sha1_s390.c
-@@ -36,10 +36,11 @@ static int s390_sha1_init(struct shash_desc *desc)
- 	sctx->state[2] = SHA1_H2;
- 	sctx->state[3] = SHA1_H3;
- 	sctx->state[4] = SHA1_H4;
- 	sctx->count = 0;
- 	sctx->func = CPACF_KIMD_SHA_1;
-+	sctx->first_message_part = 0;
- 
- 	return 0;
- }
- 
- static int s390_sha1_export(struct shash_desc *desc, void *out)
-@@ -60,10 +61,11 @@ static int s390_sha1_import(struct shash_desc *desc, const void *in)
- 
- 	sctx->count = ictx->count;
- 	memcpy(sctx->state, ictx->state, sizeof(ictx->state));
- 	memcpy(sctx->buf, ictx->buffer, sizeof(ictx->buffer));
- 	sctx->func = CPACF_KIMD_SHA_1;
-+	sctx->first_message_part = 0;
- 	return 0;
- }
- 
- static struct shash_alg alg = {
- 	.digestsize	=	SHA1_DIGEST_SIZE,
-diff --git a/arch/s390/crypto/sha256_s390.c b/arch/s390/crypto/sha256_s390.c
-index 6f1ccdf93d3e..0204d4bca340 100644
---- a/arch/s390/crypto/sha256_s390.c
-+++ b/arch/s390/crypto/sha256_s390.c
-@@ -29,10 +29,11 @@ static int s390_sha256_init(struct shash_desc *desc)
- 	sctx->state[5] = SHA256_H5;
- 	sctx->state[6] = SHA256_H6;
- 	sctx->state[7] = SHA256_H7;
- 	sctx->count = 0;
- 	sctx->func = CPACF_KIMD_SHA_256;
-+	sctx->first_message_part = 0;
- 
- 	return 0;
- }
- 
- static int sha256_export(struct shash_desc *desc, void *out)
-@@ -53,10 +54,11 @@ static int sha256_import(struct shash_desc *desc, const void *in)
- 
- 	sctx->count = ictx->count;
- 	memcpy(sctx->state, ictx->state, sizeof(ictx->state));
- 	memcpy(sctx->buf, ictx->buf, sizeof(ictx->buf));
- 	sctx->func = CPACF_KIMD_SHA_256;
-+	sctx->first_message_part = 0;
- 	return 0;
- }
- 
- static struct shash_alg sha256_alg = {
- 	.digestsize	=	SHA256_DIGEST_SIZE,
-@@ -88,10 +90,11 @@ static int s390_sha224_init(struct shash_desc *desc)
- 	sctx->state[5] = SHA224_H5;
- 	sctx->state[6] = SHA224_H6;
- 	sctx->state[7] = SHA224_H7;
- 	sctx->count = 0;
- 	sctx->func = CPACF_KIMD_SHA_256;
-+	sctx->first_message_part = 0;
- 
- 	return 0;
- }
- 
- static struct shash_alg sha224_alg = {
-diff --git a/arch/s390/crypto/sha512_s390.c b/arch/s390/crypto/sha512_s390.c
-index 04f11c407763..b53a7793bd24 100644
---- a/arch/s390/crypto/sha512_s390.c
-+++ b/arch/s390/crypto/sha512_s390.c
-@@ -30,10 +30,11 @@ static int sha512_init(struct shash_desc *desc)
- 	*(__u64 *)&ctx->state[10] = SHA512_H5;
- 	*(__u64 *)&ctx->state[12] = SHA512_H6;
- 	*(__u64 *)&ctx->state[14] = SHA512_H7;
- 	ctx->count = 0;
- 	ctx->func = CPACF_KIMD_SHA_512;
-+	ctx->first_message_part = 0;
- 
- 	return 0;
- }
- 
- static int sha512_export(struct shash_desc *desc, void *out)
-@@ -58,10 +59,11 @@ static int sha512_import(struct shash_desc *desc, const void *in)
- 	sctx->count = ictx->count[0];
- 
- 	memcpy(sctx->state, ictx->state, sizeof(ictx->state));
- 	memcpy(sctx->buf, ictx->buf, sizeof(ictx->buf));
- 	sctx->func = CPACF_KIMD_SHA_512;
-+	sctx->first_message_part = 0;
- 	return 0;
- }
- 
- static struct shash_alg sha512_alg = {
- 	.digestsize	=	SHA512_DIGEST_SIZE,
-@@ -95,10 +97,11 @@ static int sha384_init(struct shash_desc *desc)
- 	*(__u64 *)&ctx->state[10] = SHA384_H5;
- 	*(__u64 *)&ctx->state[12] = SHA384_H6;
- 	*(__u64 *)&ctx->state[14] = SHA384_H7;
- 	ctx->count = 0;
- 	ctx->func = CPACF_KIMD_SHA_512;
-+	ctx->first_message_part = 0;
- 
- 	return 0;
- }
- 
- static struct shash_alg sha384_alg = {
-
-base-commit: 7b59ab988c01c190f1b528cf750d6f33b738d1e2
--- 
-2.50.0.727.gbf7dc18ff4-goog
-
+Regards,
+Akihiko Odaki
