@@ -1,245 +1,174 @@
-Received: from www3579.sakura.ne.jp (www3579.sakura.ne.jp [49.212.243.89])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C0F174C08;
-	Wed,  9 Jul 2025 05:13:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.212.243.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5885E26B955;
+	Wed,  9 Jul 2025 07:25:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752038034; cv=none; b=cYNceocUiHN7nmUHZm3xfZqQ9l+jSV8and5OxWDnUgOUb7IHSi1Sdy0XkjEBHzy5Q2m6v0uBFRd+X613+2tB9LV5xSxdwRJeaC10G0vRoseQ1XO7X2sAbSGZQfCk7YiAErXR8tEZ751T+qeSanFDNxz4acBxGvJ7NxkVApq9lMQ=
+	t=1752045915; cv=none; b=DV7gIBson3a7bBF7NC2WlTo3N0NnJRWshxmN0EH56tcsZC8rmSvFWstPj4uEG7sQ4MQkXwdNJuJACnzJ243vUgmvZoJusGMoGkbjIjN1Xtnlj74buTCxZkewjhrzi9VjZ1GKENOJwICiXF9nRoDz00JH9pllhT1zBmhpMCtFNoU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752038034; c=relaxed/simple;
-	bh=EN5ByLBGywGLTiCp1bK3fyTglM7Zbn5pwSVlzcDFN2s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pGaipwUU/aWjK1ythTQJVB8GAk8/oF60HBsfg6QT1XCQjprEGRFucFBWqmHYIaM3ejuBgZ/jCUyxmBwom6aUfqrJ0vh1E8NKq2nX79cFGQHyA9TWijFUzHMFWfgbCQzhY4jrJSPu8MAc6O0OLzDJm7f+MPTYH/P8/ezZAE14tFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp; dkim=fail (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b=P+9TWd4x reason="key not found in DNS"; arc=none smtp.client-ip=49.212.243.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rsg.ci.i.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rsg.ci.i.u-tokyo.ac.jp
+	s=arc-20240116; t=1752045915; c=relaxed/simple;
+	bh=CaY+xDiUF61Ss4ZxV+ubwoLn+N1hFeUPiQ5PClx/bKU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OudGmYpS8yzsAI0NhcVlLwcwl6E5NxvxFAYt0Bz9O59gXSlOnmbVNeOD3kfZwvYwjecIbRJwnVo/w0An5/q/EoN6UkZd1akgNVrl14zNX5sHbpGaKDk1to9H+lNXN9czUbENQCE/abx5vuZdUYP/jpZ0l66Ogv2llliWTtVjMcM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TCSzG2BR; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=rsg.ci.i.u-tokyo.ac.jp header.i=@rsg.ci.i.u-tokyo.ac.jp header.b="P+9TWd4x"
-Received: from [157.82.206.39] ([157.82.206.39])
-	(authenticated bits=0)
-	by www3579.sakura.ne.jp (8.16.1/8.16.1) with ESMTPSA id 56955rZV065688
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Wed, 9 Jul 2025 14:05:53 +0900 (JST)
-	(envelope-from odaki@rsg.ci.i.u-tokyo.ac.jp)
-DKIM-Signature: a=rsa-sha256; bh=4clTUl4sMeFn+3+ZKeZuCK2i1/1ZYbUuPzsuXuco86k=;
-        c=relaxed/relaxed; d=rsg.ci.i.u-tokyo.ac.jp;
-        h=Message-ID:Date:Subject:To:From;
-        s=rs20250326; t=1752037554; v=1;
-        b=P+9TWd4xgbOJt4IAGxHHsFZCUP5mU2LruCqB6XvGSTxPuNiG88lEdFqKSI5e8GV9
-         IZQ027gIzqE6R884yIAbqFDeeb+QV4d98ETFvdXUnoX+FYopiMFnNscVsB2zI9Wa
-         2l2RcZyKqEBQDUjGZTaMI0r6Rf5IedBu6hCBpXk/895FEVdR2zQg58ehwJmyxgfF
-         XT9yXnMK/B98pfOeSBYxC5A9B18qaCU6AclyvtM00Ovo46CMOeuPcCCb07Ssut/I
-         yGZrAOC9hnteaFT0HuEm66QoaIAFlJenYdCL8L9SlWdVr/Lxm01+5vFw0NVbVwNR
-         jKgFire83dealgPIcgL8rg==
-Message-ID: <36c0213c-6b14-4ad2-969e-3d8e356bb680@rsg.ci.i.u-tokyo.ac.jp>
-Date: Wed, 9 Jul 2025 14:05:53 +0900
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TCSzG2BR"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 568MoE2R026957;
+	Wed, 9 Jul 2025 07:25:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=qoIMtXbg2MHTy+lDCsyvThab9zvRkop7eIpWtzvnR
+	U8=; b=TCSzG2BRW4Cl7MbuH+3zpj6aLlRRYn+/oX2Flm07S2NgDYd9rECKOnJmw
+	Xj96uiWShWDrPxYMjxn0nhve+zvVto59wE5kFRKRRAWebnLh7q1TgcAFfbewJGVL
+	rQIPGJoB4JeVKmfmEpf8580VcdViGKCsxA0nq80uFI25edl8tsBJhBn/okK+lH6d
+	lCX5SmsHuEjSYFCVR9wzgMxZc733De0KerDicg+Djez2ObSFVTM9a/n+ZAt/IUQy
+	gwDstg5EH/QHUSYbXXydZyFtHMF+Ni364QtuS/EGgLQWnamEz9SgRhSXUbqmkOe7
+	2FbC+rEUR6VyJWWgancZ7MFHYP8zA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47pur74r1u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 09 Jul 2025 07:25:11 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56971Lcm025642;
+	Wed, 9 Jul 2025 07:25:10 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47qfcp733t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 09 Jul 2025 07:25:10 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5697P6rF50397594
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 9 Jul 2025 07:25:06 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0B7052004F;
+	Wed,  9 Jul 2025 07:25:06 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB4522004E;
+	Wed,  9 Jul 2025 07:25:05 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  9 Jul 2025 07:25:05 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Ingo Franzki <ifranzki@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH] perf list: Remove trailing A in PAI crypto event 4210
+Date: Wed,  9 Jul 2025 09:24:52 +0200
+Message-ID: <20250709072452.1595257-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/23] binfmt_elf,arch/*: Use elf.h for coredump note
- names
-To: Dave Martin <Dave.Martin@arm.com>, linux-kernel@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>, "H. Peter Anvin"
- <hpa@zytor.com>,
-        "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Alexandre Ghiti <alex@ghiti.fr>, Andreas Larsson <andreas@gaisler.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Chris Zankel <chris@zankel.net>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dinh Nguyen
- <dinguyen@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>,
-        Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Jonas Bonn <jonas@southpole.se>, Kees Cook <kees@kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Max Filippov
- <jcmvbkbc@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>, Oleg Nesterov <oleg@redhat.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley
- <paul.walmsley@sifive.com>,
-        Rich Felker <dalias@libc.org>, Richard Weinberger <richard@nod.at>,
-        Russell King <linux@armlinux.org.uk>,
-        Stafford Horne <shorne@gmail.com>,
-        Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
-        WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-        linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
-        linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        loongarch@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
-References: <20250701135616.29630-1-Dave.Martin@arm.com>
-Content-Language: en-US
-From: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
-In-Reply-To: <20250701135616.29630-1-Dave.Martin@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzA5MDA2NCBTYWx0ZWRfX8NjUdxGHd4Zc 0gKr+a6efRHbMbRVznqESTiaNaf17PuYXmZwmAkaxyrcLqxVvidKmrLB1nrkLdLOKLDhM7O4l0+ F9QlW8PaqwnAhDzwZ61/x7guSuh8ErEQJf06YMkluDKFdyzt0qqZzcmavZbxZaUjbbhr5pQDmxX
+ UznN7IS04BbhvEZ8y9wl9T7ynXyhSxM8hXCsGtx493AisT7jdOhnGq1x2VVblfUqMm/4/NXHhvd 5HRJiO794tN4X2LgrocQ4FTvxmZuudxtnHDD05+mIKsUF8TzGZmoMfUFnXw71szNXwumddYd5Cn cX4wOYooQ715xtyfc3FxHUzpJwswm/KSMBKpe4jMMd3w15c497lOBSXxFlW4Z3oCOzCB2nvFyaR
+ NkRURJY9f0RmamDuYw1t8JTo/1HoaVnmXHyoEyCq3Hf7XEWTqNx3g3BFizfVq8HCj1+Vu9Ta
+X-Proofpoint-GUID: WR3eQ-oe2qYdsKJk_LawaHXVSbdj-Zeo
+X-Proofpoint-ORIG-GUID: WR3eQ-oe2qYdsKJk_LawaHXVSbdj-Zeo
+X-Authority-Analysis: v=2.4 cv=W/M4VQWk c=1 sm=1 tr=0 ts=686e1957 cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=Wb1JkmetP80A:10 a=VnNF1IyMAAAA:8 a=HSx2QSFV-y9RVaElNDMA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-09_02,2025-07-08_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
+ mlxscore=0 priorityscore=1501 adultscore=0 clxscore=1015 suspectscore=0
+ spamscore=0 lowpriorityscore=0 mlxlogscore=999 bulkscore=0 impostorscore=0
+ classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507090064
 
-On 2025/07/01 22:55, Dave Martin wrote:
-> This series aims to clean up an aspect of coredump generation:
-> 
-> ELF coredumps contain a set of notes describing the state of machine
-> registers and other information about the dumped process.
-> 
-> Notes are identified by a numeric identifier n_type and a "name"
-> string, although this terminology is somewhat misleading.  Officially,
-> the "name" of a note is really an "originator" or namespace identifier
-> that indicates how to interpret n_type [1], although in practice it is
-> often used more loosely.
-> 
-> Either way, each kind of note needs _both_ a specific "name" string and
-> a specific n_type to identify it robustly.
-> 
-> To centralise this knowledge in one place and avoid the need for ad-hoc
-> code to guess the correct name for a given note, commit 7da8e4ad4df0
-> ("elf: Define note name macros") [2] added an explicit NN_<foo> #define
-> in elf.h to give the name corresponding to each named note type
-> NT_<foo>.
-> 
-> Now that the note name for each note is specified explicitly, the
-> remaining guesswork for determining the note name for common and
-> arch-specific regsets in ELF core dumps can be eliminated.
-> 
-> This series aims to do just that:
-> 
->   * Patch 2 adds a user_regset field to specify the note name, and a
->     helper macro to populate it correctly alongside the note type.
-> 
->   * Patch 3 ports away the ad-hoc note names in the common coredump
->     code.
-> 
->   * Patches 4-22 make the arch-specific changes.  (This is pretty
->     mechanical for most arches.)
-> 
->   * The final patch adds a WARN() when no note name is specified,
->     and simplifies the fallback guess.  This should only be applied
->     when all arches have ported across.
-> 
-> See the individual patches for details.
-> 
-> 
-> Testing:
-> 
->   * x86, arm64: Booted in a VM and triggered a core dump with no WARN(),
->     and verified that the dumped notes are the same.
-> 
->   * arm: Build-tested only (for now).
-> 
->   * Other arches: not tested yet
-> 
-> Any help with testing is appreciated.  If the following generates the
-> same notes (as dumped by readelf -n core) and doesn't trigger a WARN,
-> then we are probably good.
-> 
-> $ sleep 60 &
-> $ kill -QUIT $!
-> 
-> (Register content might differ between runs, but it should be safe to
-> ignore that -- this series only deals with the note names and types.)
-> 
-> Cheers
-> ---Dave
-> 
-> 
-> [1] System V Application Binary Interface, Edition 4.1,
-> Section 5 (Program Loading and Dynamic Linking) -> "Note Section"
-> 
-> https://refspecs.linuxfoundation.org/elf/gabi41.pdf
-> 
-> [2] elf: Define note name macros
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/include/uapi/linux/elf.h?id=7da8e4ad4df0dd12f37357af62ce1b63e75ae2e6
-> 
-> 
-> Dave Martin (23):
->    regset: Fix kerneldoc for struct regset_get() in user_regset
->    regset: Add explicit core note name in struct user_regset
->    binfmt_elf: Dump non-arch notes with strictly matching name and type
->    ARC: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    ARM: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    arm64: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    csky: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    hexagon: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    LoongArch: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    m68k: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    MIPS: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    nios2: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    openrisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    parisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    powerpc/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    s390/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    sh: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    sparc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    x86/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    um: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
->    xtensa: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note
->      names
->    binfmt_elf: Warn on missing or suspicious regset note names
-> 
->   arch/arc/kernel/ptrace.c                 |  4 +-
->   arch/arm/kernel/ptrace.c                 |  6 +-
->   arch/arm64/kernel/ptrace.c               | 52 ++++++++---------
->   arch/csky/kernel/ptrace.c                |  4 +-
->   arch/hexagon/kernel/ptrace.c             |  2 +-
->   arch/loongarch/kernel/ptrace.c           | 16 ++---
->   arch/m68k/kernel/ptrace.c                |  4 +-
->   arch/mips/kernel/ptrace.c                | 20 +++----
->   arch/nios2/kernel/ptrace.c               |  2 +-
->   arch/openrisc/kernel/ptrace.c            |  4 +-
->   arch/parisc/kernel/ptrace.c              |  8 +--
->   arch/powerpc/kernel/ptrace/ptrace-view.c | 74 ++++++++++++------------
->   arch/riscv/kernel/ptrace.c               | 12 ++--
->   arch/s390/kernel/ptrace.c                | 42 +++++++-------
->   arch/sh/kernel/ptrace_32.c               |  4 +-
->   arch/sparc/kernel/ptrace_32.c            |  4 +-
->   arch/sparc/kernel/ptrace_64.c            |  8 +--
->   arch/x86/kernel/ptrace.c                 | 22 +++----
->   arch/x86/um/ptrace.c                     | 10 ++--
->   arch/xtensa/kernel/ptrace.c              |  4 +-
->   fs/binfmt_elf.c                          | 36 +++++++-----
->   fs/binfmt_elf_fdpic.c                    | 17 +++---
->   include/linux/regset.h                   | 12 +++-
->   23 files changed, 194 insertions(+), 173 deletions(-)
-> 
-> 
-> base-commit: 86731a2a651e58953fc949573895f2fa6d456841
+According to the z16 and z17 Principle of Operation documents
+SA22-7832-13 and SA22-7832-14 the event 4210 is named
+   PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256
+without a trailing 'A'. Adjust the json definition files
+for this event and remove the trailing 'A' character.
+   PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256A
 
-For the whole series:
-Reviewed-by: Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>
+Also remove a black ' ' between the dash '-' and the number:
+   xxx-AES- 192 ----> xxx-AES-192
 
-Regards,
-Akihiko Odaki
+Suggested-by: Ingo Franzki <ifranzki@linux.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+---
+ .../pmu-events/arch/s390/cf_z16/pai_crypto.json    | 14 +++++++-------
+ .../pmu-events/arch/s390/cf_z17/pai_crypto.json    |  6 +++---
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json b/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json
+index cf8563d059b9..a82674f62409 100644
+--- a/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json
++++ b/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json
+@@ -753,14 +753,14 @@
+ 		"EventCode": "4203",
+ 		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_TDEA_128",
+ 		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED TDEA 128",
+-		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-TDEA- 128 function ending with CC=0"
++		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-TDEA-128 function ending with CC=0"
+ 	},
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+ 		"EventCode": "4204",
+ 		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_TDEA_192",
+ 		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED TDEA 192",
+-		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-TDEA- 192 function ending with CC=0"
++		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-TDEA-192 function ending with CC=0"
+ 	},
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+@@ -788,21 +788,21 @@
+ 		"EventCode": "4208",
+ 		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_128",
+ 		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED AES 128",
+-		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES- 128 function ending with CC=0"
++		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES-128 function ending with CC=0"
+ 	},
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+ 		"EventCode": "4209",
+ 		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_192",
+ 		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED AES 192",
+-		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES- 192 function ending with CC=0"
++		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES-192 function ending with CC=0"
+ 	},
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+ 		"EventCode": "4210",
+-		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256A",
+-		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED AES 256A",
+-		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES- 256A function ending with CC=0"
++		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256",
++		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED AES 256",
++		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES-256 function ending with CC=0"
+ 	},
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+diff --git a/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json b/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json
+index a7176c988b8a..fd2eb536ecc7 100644
+--- a/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json
++++ b/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json
+@@ -800,9 +800,9 @@
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+ 		"EventCode": "4210",
+-		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256A",
+-		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED AES 256A",
+-		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES-256A function ending with CC=0"
++		"EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256",
++		"BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING ENCRYPTED AES 256",
++		"PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-Encrypted-AES-256 function ending with CC=0"
+ 	},
+ 	{
+ 		"Unit": "PAI-CRYPTO",
+-- 
+2.49.0
+
