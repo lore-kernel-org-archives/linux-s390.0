@@ -1,202 +1,129 @@
-Received: from mail-il1-f181.google.com (mail-il1-f181.google.com [209.85.166.181])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1579C2E5B39
-	for <linux-s390@vger.kernel.org>; Wed,  9 Jul 2025 15:42:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 861FC21D3FD
+	for <linux-s390@vger.kernel.org>; Wed,  9 Jul 2025 16:38:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752075748; cv=none; b=rd0nqm4AQ8vH7Grx6E0dG6ULlS9pTZxeNW5BlB50CNxHQxhnDmvXq0Rhm+tueJgChQ6OqMW1nM0MTE15ogIn8aROm8e4QUlM9KGlnwCML6mtfnMCj+lKQskvQ4LA9tHKAnfbakO5EGZnt+p67ym9dMeR1fFwmC2JInmvpIcVajE=
+	t=1752079123; cv=none; b=Jj3ZWhxMv9HyyFHy6DVNGmLdb3zz+hcbDPDgmVt920nOrbyDwy6/EsAkSCiYeTbwnkIpl88VQHyMRAH9RJda1EelPxC7eubP80L6cwtJ+iKrCll+nUYdlZACWSJOPal69L2g67H3J93J9KikxZ2lRbKZcM5EzSUWG7eP8lNv4+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752075748; c=relaxed/simple;
-	bh=QovcFoD8Krfi+xLDMqZWIXliDqU55FCONFA7+cA4UIU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TobwAXCx2B3/jh0Eqox52hnvzw/3BZyrQj0lquR3ItC14zrZL6qkHoCREJL76vAEfoU9TF2ws6A3ptTSK7GcmdVuKEoMcHGCn3oHI3sJUINAd8Yn6qU2n7y+UPAUQzudXqOZuXEWHAwiik6bHkvaT8ID4PygJLyJsKu2RXdEAd0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cAC/lPvk; arc=none smtp.client-ip=209.85.166.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1752079123; c=relaxed/simple;
+	bh=K3mGEVB9OXXy53IUpoSEGCGrzW+DpgCjD5x0ANJoyMQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l+IadDBjYGHvtqrgGBRyF9tdzA4iQGspuSERcXjN8oVnz6k5hdB3/BQ5M7G0cqzaEqMHpk4Mg/PEOR+o1q5yhn6TdUc8Hzx9uNhhwo4h+9lYaGUqQuVOu+dK6brtMmx8W5uon2PDvaOJtVumV2snrvY6FHnfd3va6KcpfpTCB5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VXbf1+KX; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cAC/lPvk"
-Received: by mail-il1-f181.google.com with SMTP id e9e14a558f8ab-3e2429bd4b3so42705ab.1
-        for <linux-s390@vger.kernel.org>; Wed, 09 Jul 2025 08:42:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VXbf1+KX"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-3a4eed70f24so17146f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 09 Jul 2025 09:38:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1752075746; x=1752680546; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hSU5dKke9DWZIUFmbSQUTLS3E3YudP6op3KtOW7lXs8=;
-        b=cAC/lPvkR4pN0tQBsZtysBPM1gtAj2bCFYMsLGX0Xr38nae2v6eVoY2AAzk3Wqzrkz
-         2ugGy0Z2VsusKuXUJr37DbDcHit/KW5jNlU5LLYuFx3s745XQWuGi+o3T0lFvNpy/CLT
-         vuZndPeZQ2Q5IwB+k+QSZmEz7hjkRxfsgpHP22g+2TCnGOY7pkHF01JYFEn0MdpfSdIx
-         UOp0ENnehb/BsMwzFQUDEl9YJswbasR4hxnH45kuMs2LxXzDFajrs1wSbx50muHc3vTW
-         MTlIgaaTuv8GAPFqiIi89Bqb7T9LplJQUyxS3d6pXAp87t2D6n1xhyxoYrHNVGTzsSLx
-         OfWA==
+        d=gmail.com; s=20230601; t=1752079120; x=1752683920; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=yKNxbdlhpE49Kl8ILq3eDcvgjYm6Tevsb2iR/FTQCb4=;
+        b=VXbf1+KXFJLRxUXAx8E6tVVA9y+3pf/kLKr1MNynabQnnwiRz0raJveKqYhkg7TFOY
+         vCu/q71me0Ki9ThnLJ94B3ZqraLHxKjLgll8zimns8D9wby0PB1rFJeW5cHH99bHNwQy
+         DBaSVQu0B2i1WOLM/ffCdVtnme0e6loYPEXYjZgSpI3ROrJgj4QNhioWNrcX43cKUZel
+         j5Vk7/zCHE8cLNiB4kX1lKVhyV+08z7eyh/MiXpGxvrLVEwT3rE4+siKOjV/mwsDXl6n
+         VEoCG0i3Rk/bI2sbh7gD3jWJRSHifKzViORleICSZugx71iDvOvD47bZGT0FLpI7xQp+
+         1nHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752075746; x=1752680546;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hSU5dKke9DWZIUFmbSQUTLS3E3YudP6op3KtOW7lXs8=;
-        b=idHoKjZroY646A1RN/iVOxSrQVK3ZoVF6xqkGcAL5coa14mYjNndEuiq7EGiqpX/wU
-         QH/0BKIShmk0MBNw3kiADcMjNHFODmMXADIIhMarhgmFve/RMBdZ8ljcVSeONIcjdqra
-         xdVI55HakwN0zbey+ABe/KcelXossZeT46bBwAVB5v+UEzdGxMfq3Tsh+Lf40mTWJznM
-         4Kh19hZ+Jf6dBUmQNIHMw59fzhAgVD5HZhKw7rVOy302F+VseOgmg37wyiLHSVBDhPEt
-         nQx3zJYvSWdeaUWsC3odp/bbLDcTPVffm59T9Xi0Q7Y0fEkVIOaizpkIdH68ViBYdPpS
-         LqRA==
-X-Forwarded-Encrypted: i=1; AJvYcCWblxCGwMJ5HklVRQAy45HgJPq165JFHi83+DsW41U0DlQ/s5NYXbwZkIdGb4yc53u4fLpnngHtpkYt@vger.kernel.org
-X-Gm-Message-State: AOJu0YwE+ZTmN4jQHcr19NU+PQbYo9WS3BK3MiMPc0WoC6Ll5yESC5nF
-	9r4dHbtbtGc2DR8UBsPRSzsIV13GnixUBa40DYNbW//Qe6XwrUzZk17G16b3q93hUSTprdYIsxl
-	BKODDOBShXOXmrfRphjsLtP0cX3X7wuOD+KCyOE7w
-X-Gm-Gg: ASbGncveWFcFpGR6GIRjRlJk94b2AEhAWDumfip8Ft+rvUDsxYzFp0orev3T9Wn7Zcw
-	No8IEqjCfovUhOu6PNGobGEzhGlRoOI2sjWk+PkVT4XQ00Zq1U//npCaxP5rrwro/ZfrUmgp0rs
-	G5IXoftbRAt5CpiPxua5dhRufg1pVp50PR46cOh5Dax55+lf8Pxna7W7uh9+8ZDsJOR2yCNnBU
-X-Google-Smtp-Source: AGHT+IHQ9PIy+XOkJNK2AeN146I3YHYL5hcrX407J/wgmZ1WsclScTG1u4s0DXxAV86N/BucOJUHKJySsgYRtBjAxHA=
-X-Received: by 2002:a05:6e02:2592:b0:3dd:a4b7:c737 with SMTP id
- e9e14a558f8ab-3e167228593mr4070965ab.19.1752075745880; Wed, 09 Jul 2025
- 08:42:25 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1752079120; x=1752683920;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yKNxbdlhpE49Kl8ILq3eDcvgjYm6Tevsb2iR/FTQCb4=;
+        b=Gob76q/GOFafdoWEidm9AwQ6kbG2WI5M9hxGjN7BGnNjEiDN2nZlXe0efOvs19yKgK
+         v4zzDFrnu8Y39OlsljS+rhHE5Xsc5LUVV7kvqKNFAsB5hDRR1mHdhL4ZxVh+nU3vy33+
+         VUaAfpEFwd7dpaBtb9tUwXX0k6dQoddffl9kZDDi54SVu/wLFkUj5eeGKie708P1jaPk
+         23WGqglqz7GiZuvNJKn8ju6kXTD9NjNbCTGFxzDHodJsJLSHSOk22+oyz8rzvWfgfJOx
+         jWJd57BIMhHJa6zMTMwg4WF/m0842+dvf2dMUnngq34Et9AE6lSEChsnjpOQjwsuoEbU
+         68rA==
+X-Forwarded-Encrypted: i=1; AJvYcCWvnsyvJ0vSO/IBdEL30r+5Cwh8iGPSEc+hGvABQnkoi5WfXVyXNwQnrzIXtbsI8zfIsDAZGr8d5S3t@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1kMEJxGw0FdJ0gLAeQU/y3PIEVLEeJ7yMKP1hI+Ansd01w7Vh
+	63lLpVLi/zhnDJxLaPlKk+bpFBCLT24ULZBaAkn0sdWejqrg6aUoEMY=
+X-Gm-Gg: ASbGncv1/Hz5DyXMZtz/J4r7GMKbGZQIoi+6kmz+gKx6DvXE69qhgE0x5D5+vZEeSeo
+	E9rff0wv+N+7kMao8mDd4ERy8duuCNjSfAND+/EIsP2mbHw/Cb2KFf80sQd+3IEKkM0lkaLrmXi
+	oxZMfO9vYUygmbXL7ZpR57TuZs4psYXcIiBehL3RStpn/qC8Vm4Qg14NVY9SYp1n+uurt/N5N3H
+	rKf7ib4wRIiD2+qfcqLv0JR47YOiokhDjVep4Yl1D/oix3uF8/5rkcxSXxYS/FBD/FQraGDD0yO
+	PIFBL2eydo7vP/ugP0wP5zN98Lv6p4L+twCFjiDzuvfqzBJU7haJV/M52bqO0d9AfExsmlJQRO6
+	7wzK0OUI0ABoaHLb398r+3inYZQ==
+X-Google-Smtp-Source: AGHT+IGZSftk1CerjZZQT5Wf9gUwjnt4q3mg+UA81pqTtzJ8PmtOyT1Wo+qV8bkgZkzGKOfrMPmboQ==
+X-Received: by 2002:a05:6000:4024:b0:3a4:eeeb:7e89 with SMTP id ffacd0b85a97d-3b5e44e9162mr931179f8f.7.1752079119552;
+        Wed, 09 Jul 2025 09:38:39 -0700 (PDT)
+Received: from localhost (182.red-80-39-24.staticip.rima-tde.net. [80.39.24.182])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b47030bd42sm16201650f8f.5.2025.07.09.09.38.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Jul 2025 09:38:39 -0700 (PDT)
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+To: 
+Cc: Xose Vazquez Perez <xose.vazquez@gmail.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	S390 ML <linux-s390@vger.kernel.org>
+Subject: [PATCH] s390/sclp_tty: Use macros for hardcoded values
+Date: Wed,  9 Jul 2025 18:38:37 +0200
+Message-ID: <20250709163837.8118-1-xose.vazquez@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250709072452.1595257-1-tmricht@linux.ibm.com>
-In-Reply-To: <20250709072452.1595257-1-tmricht@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Wed, 9 Jul 2025 08:42:14 -0700
-X-Gm-Features: Ac12FXyiyh8qm4Co47ZF3XtMQKMC2KU6LdngoTLT_7JWPX0CgPlWYz3wnTXAFQk
-Message-ID: <CAP-5=fWTc==g=DAS83Eed_Jg9EgE8QiRgM7Jf3vGhmq=8TTdVg@mail.gmail.com>
-Subject: Re: [PATCH] perf list: Remove trailing A in PAI crypto event 4210
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, 
-	agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com, 
-	hca@linux.ibm.com, japo@linux.ibm.com, Ingo Franzki <ifranzki@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Patchwork-Bot: notify
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 9, 2025 at 12:25=E2=80=AFAM Thomas Richter <tmricht@linux.ibm.c=
-om> wrote:
->
-> According to the z16 and z17 Principle of Operation documents
-> SA22-7832-13 and SA22-7832-14 the event 4210 is named
->    PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256
-> without a trailing 'A'. Adjust the json definition files
-> for this event and remove the trailing 'A' character.
->    PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED_AES_256A
->
-> Also remove a black ' ' between the dash '-' and the number:
->    xxx-AES- 192 ----> xxx-AES-192
->
-> Suggested-by: Ingo Franzki <ifranzki@linux.ibm.com>
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Similar as in sclp_vt220
 
-Reviewed-by: Ian Rogers <irogers@google.com>
+Cc: Heiko Carstens <hca@linux.ibm.com> (maintainer:S390 ARCHITECTURE,commit_signer:1/2=50%)
+Cc: Vasily Gorbik <gor@linux.ibm.com> (maintainer:S390 ARCHITECTURE)
+Cc: Alexander Gordeev <agordeev@linux.ibm.com> (maintainer:S390 ARCHITECTURE)
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com> (reviewer:S390 ARCHITECTURE)
+Cc: Sven Schnelle <svens@linux.ibm.com> (reviewer:S390 ARCHITECTURE,commit_signer:1/2=50%)
+Cc: S390 ML <linux-s390@vger.kernel.org> (open list:S390 ARCHITECTURE)
+Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
+---
+Trivial, but uncompiled!!
+---
+ drivers/s390/char/sclp_tty.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-Thanks,
-Ian
+diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
+index 0a92d08830e7..4e06dc70534c 100644
+--- a/drivers/s390/char/sclp_tty.c
++++ b/drivers/s390/char/sclp_tty.c
+@@ -23,6 +23,11 @@
+ #include "sclp_rw.h"
+ #include "sclp_tty.h"
+ 
++#define SCLP_TTY_MAJOR		TTY_MAJOR
++#define SCLP_TTY_MINOR		64
++#define SCLP_TTY_DRIVER_NAME	"sclp_line"
++#define SCLP_TTY_DEVICE_NAME	"sclp_line"
++
+ /*
+  * size of a buffer that collects single characters coming in
+  * via sclp_tty_put_char()
+@@ -550,10 +555,10 @@ sclp_tty_init(void)
+ 
+ 	tty_port_init(&sclp_port);
+ 
+-	driver->driver_name = "sclp_line";
+-	driver->name = "sclp_line";
+-	driver->major = TTY_MAJOR;
+-	driver->minor_start = 64;
++	driver->driver_name = SCLP_TTY_DRIVER_NAME;
++	driver->name = SCLP_TTY_DEVICE_NAME;
++	driver->major = SCLP_TTY_MAJOR;
++	driver->minor_start = SCLP_TTY_MINOR;
+ 	driver->type = TTY_DRIVER_TYPE_SYSTEM;
+ 	driver->subtype = SYSTEM_TYPE_TTY;
+ 	driver->init_termios = tty_std_termios;
+-- 
+2.50.0
 
-> ---
->  .../pmu-events/arch/s390/cf_z16/pai_crypto.json    | 14 +++++++-------
->  .../pmu-events/arch/s390/cf_z17/pai_crypto.json    |  6 +++---
->  2 files changed, 10 insertions(+), 10 deletions(-)
->
-> diff --git a/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json b/too=
-ls/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json
-> index cf8563d059b9..a82674f62409 100644
-> --- a/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json
-> +++ b/tools/perf/pmu-events/arch/s390/cf_z16/pai_crypto.json
-> @@ -753,14 +753,14 @@
->                 "EventCode": "4203",
->                 "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_TDEA_128",
->                 "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED TDEA 128",
-> -               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-TDEA- 128 function ending with CC=3D0"
-> +               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-TDEA-128 function ending with CC=3D0"
->         },
->         {
->                 "Unit": "PAI-CRYPTO",
->                 "EventCode": "4204",
->                 "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_TDEA_192",
->                 "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED TDEA 192",
-> -               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-TDEA- 192 function ending with CC=3D0"
-> +               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-TDEA-192 function ending with CC=3D0"
->         },
->         {
->                 "Unit": "PAI-CRYPTO",
-> @@ -788,21 +788,21 @@
->                 "EventCode": "4208",
->                 "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_AES_128",
->                 "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED AES 128",
-> -               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES- 128 function ending with CC=3D0"
-> +               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES-128 function ending with CC=3D0"
->         },
->         {
->                 "Unit": "PAI-CRYPTO",
->                 "EventCode": "4209",
->                 "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_AES_192",
->                 "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED AES 192",
-> -               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES- 192 function ending with CC=3D0"
-> +               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES-192 function ending with CC=3D0"
->         },
->         {
->                 "Unit": "PAI-CRYPTO",
->                 "EventCode": "4210",
-> -               "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_AES_256A",
-> -               "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED AES 256A",
-> -               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES- 256A function ending with CC=3D0"
-> +               "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_AES_256",
-> +               "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED AES 256",
-> +               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES-256 function ending with CC=3D0"
->         },
->         {
->                 "Unit": "PAI-CRYPTO",
-> diff --git a/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json b/too=
-ls/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json
-> index a7176c988b8a..fd2eb536ecc7 100644
-> --- a/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json
-> +++ b/tools/perf/pmu-events/arch/s390/cf_z17/pai_crypto.json
-> @@ -800,9 +800,9 @@
->         {
->                 "Unit": "PAI-CRYPTO",
->                 "EventCode": "4210",
-> -               "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_AES_256A",
-> -               "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED AES 256A",
-> -               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES-256A function ending with CC=3D0"
-> +               "EventName": "PCC_COMPUTE_LAST_BLOCK_CMAC_USING_ENCRYPTED=
-_AES_256",
-> +               "BriefDescription": "PCC COMPUTE LAST BLOCK CMAC USING EN=
-CRYPTED AES 256",
-> +               "PublicDescription": "PCC-Compute-Last-Block-CMAC-Using-E=
-ncrypted-AES-256 function ending with CC=3D0"
->         },
->         {
->                 "Unit": "PAI-CRYPTO",
-> --
-> 2.49.0
->
->
