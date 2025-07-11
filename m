@@ -1,376 +1,288 @@
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2049.outbound.protection.outlook.com [40.107.243.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 938501A2547;
-	Fri, 11 Jul 2025 05:50:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752213049; cv=fail; b=LQFG+Frv5GsqWhhvlcvo8U9kv9hm2NjcnyN1VZsbaR/y2vE/QY7i85ijzjIkxO0+SGMRjpiEDO3QgW2yKXj+uWkgOnc57ym/bovrjC3OrnFla2bthV4fTnGUhNN28bPzaQ62gWGR7oQy+Snt/+Pcz9fwiOYEPvrJnmgX3xJzJhw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752213049; c=relaxed/simple;
-	bh=cfE9ETrvFaLwSflDPw+pgqBEnT6R0s2kPOlSoGxUIs4=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=cdV7H8nYD1Z/h75P+7Y2Axwbp4IKyqucwDt7FPEsnjEsak/3XNXHm36BzJmnadfTu0VRql71oxbtp4MMdKYE7zIA6QZJXJgplRTx6lX8wzHVdGnJSE3dSP9mYqOICpZC5KSRGXNgxUA0x+FyjtSm1q3FjL00GFLX8QeGCb39Gss=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=EUKHdO40; arc=fail smtp.client-ip=40.107.243.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4BAD1CF5C0
+	for <linux-s390@vger.kernel.org>; Fri, 11 Jul 2025 06:08:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1752214093; cv=none; b=Pb7Bv6fEQY+NfpWDaGISc4Z868m6nC++amiZGUhkQQFR9N861NSEuaUUQEN5YqbmYYIDL3zym/l85VYgN8xsEwm43nc/HGPfGbzXrrb5DisM+kpdzpIEF+4tySfjzgz95UryHoWfPN2CcxXfCX836juMQ1Inowc654TUJbSC8Ds=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1752214093; c=relaxed/simple;
+	bh=gNpih8xnCGQu+jdA+AvUDEylqB16lTu84yaWKyKEg74=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=Qd6QThSYvjCLX8aVh2MropRk4Q/6nwhMgiiiWDbo4hYKZMBRMUhtIsBw2lkCALBk7c2vQxkQdGafE25l8Y9ldAtCNMDdI8oWFyIZ2QLNWT2xeCJmafMxg6d7X6+n56v5/6ep0x/Y3dzt0Bj/OOfz0Qa5hGn+ChQ6VBrPbxqUuUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=wzGbmC+J; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="EUKHdO40"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CLL+Lh3lHlnduD0McY3lymmzRRw5cCIHMwjzd8k1HrJUSyjgHCYfWKrI5qYdkc0TNaPtVw7wyT3fdM4cH41re/2sKzqqDwMpn3lL2cKiGaSUDVu8fPliwuA+CjbdJOMQGQS3CRvZaFv8KI6N7Xr6Wt+B8Dc4/Wye5TE8L9i3hs5VNaKOzaMNFVJC2Qs3eME8wAVwmVzONgOfGifBtNg/Q4kMJlVmD1k+GUXfGngdf1hwIbmOMHR58QbfN2TiM22YNaoE4QDlpInn/LXargUdOO0fOBp4zKxzP2eX80PG62MSszEdQ4zjDkzp6s/wN/vi7mH4iCJG31RdtSHjWMx8pA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=U4Kk+aQlZms6jBTV6SiMXXXnJALmvbM39zcQ8TP6q4w=;
- b=ryIqJ5PACt4XasT6wGCY2ODhbn7tuj9IOr0EX+NyPaW9++4cgLP/XTMVK3Xdh0tGKy0uOdDCx2Cc3cNdMXmeZ62up7Zep0SioJjNLN0Z2dEiTP1PMBNsQ/aXTkVBOvxZiSZEABRd1MHMxwXGS56l9M1UR/y04KTS5k+ublg+o5lkV3jTvc1qgRzq/WhnBBgB29rHXZNA/73mMdrCtd2NxyF0uUSxY2oLR6mZ3cGYd06xEPfN9622xPGt4fj1Ukj7W3hfVTktc5PLIvxveczeB3mxqjHsaVIyULC2j86Y9y0Qd75BaJd24qxrLQcnTV2jBp9PVQEuu8hwlkuJeZbIDA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=U4Kk+aQlZms6jBTV6SiMXXXnJALmvbM39zcQ8TP6q4w=;
- b=EUKHdO40imnmNbMNLrbM4c9xhdNIha+0h3ViyrR8qctUUWpwI1B0K1P+yXqgVXhZrp1fvlZ7VB6X+/ZwW0Xag5ofEnQtu57FUvV6AyTRxhxoMsIwF4bnqLL5wycY5ROrWaberK2M40n+VRxqhvfG67gEmCSJtWIXtcxDUKiEaw0=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CH3PR12MB8658.namprd12.prod.outlook.com (2603:10b6:610:175::8)
- by SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8901.26; Fri, 11 Jul
- 2025 05:50:45 +0000
-Received: from CH3PR12MB8658.namprd12.prod.outlook.com
- ([fe80::d5cc:cc84:5e00:2f42]) by CH3PR12MB8658.namprd12.prod.outlook.com
- ([fe80::d5cc:cc84:5e00:2f42%4]) with mapi id 15.20.8901.024; Fri, 11 Jul 2025
- 05:50:44 +0000
-Message-ID: <ba4dbdf8-bc37-493d-b2e0-2efb00ea3e19@amd.com>
-Date: Fri, 11 Jul 2025 11:20:30 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 1/4] smpboot: introduce SDTL_INIT() helper to tidy
- sched topology setup
-To: Li Chen <me@linux.beauty>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H . Peter Anvin" <hpa@zytor.com>,
- "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
- Peter Zijlstra <peterz@infradead.org>, Sohil Mehta <sohil.mehta@intel.com>,
- Brian Gerst <brgerst@gmail.com>,
- Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
- linux-kernel@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
- =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Li Chen <chenl311@chinatelecom.cn>, Huacai Chen <chenhuacai@kernel.org>,
- Bibo Mao <maobibo@loongson.cn>, Tobias Huschle <huschle@linux.ibm.com>,
- Mete Durlu <meted@linux.ibm.com>, Joel Granados <joel.granados@kernel.org>,
- Guo Weikang <guoweikang.kernel@gmail.com>,
- Swapnil Sapkal <swapnil.sapkal@amd.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org
-References: <20250710105715.66594-1-me@linux.beauty>
- <20250710105715.66594-2-me@linux.beauty>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <20250710105715.66594-2-me@linux.beauty>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: PN2PR01CA0181.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:c01:e8::7) To CH3PR12MB8658.namprd12.prod.outlook.com
- (2603:10b6:610:175::8)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="wzGbmC+J"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-3122368d82bso2730107a91.0
+        for <linux-s390@vger.kernel.org>; Thu, 10 Jul 2025 23:08:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1752214091; x=1752818891; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=HOCCIU1Dxti53uyBexUi4fVJk3Iwlf50sIMO8h+C3FI=;
+        b=wzGbmC+J6pvPg1nwdNCJjWuSttPnvhobFboU+BXaau6jFmINsY039v29fAYcuwXTKD
+         LYK59S6Tsgh2JLCOpIS4xTcd0XluyeMm/erKtj+Q2+8yf5BVa5AZfqI1fdUWkxNwtghR
+         /XQmdoCbaynenFbv93BUFqoFQC6N9X0I/6qdxUZlWw5z/YhIG+ypydYmsKofRuNYhMJV
+         dYbwS5m6OVoozlBVJ482d/UX4Dvk6Mz3HtMpcfSLEridYdjGIiYqTQld9ftiI5MIUi2q
+         WfkV5KgOqCSEE9P204x1E2eCPSDGKdYBFARbehndSFhkiy4EfECRjgoetrjvoIZ0EBc2
+         CutA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752214091; x=1752818891;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=HOCCIU1Dxti53uyBexUi4fVJk3Iwlf50sIMO8h+C3FI=;
+        b=RKGyLiIjZ1Z2C8SlHl/EgMpMDVfLcB7EMexUFwdPId4eqlDixE1OQ0WuzJu2NDkqsU
+         nNte1307o2IbqubZUi3/bwLstuf6Ldm5VUEQWD/MNuJK649T35dUv1d0vIXurJrGRNQW
+         SkurMGoiiy1aJDMAp/V2ttagB4N2x0nvMnkI+ITVsYmnJEqpIncnSCBo0U+ThL+XMmbD
+         elsC+G7JU97CGuDukYoWb8b+IwKeEjgkkTZ3bZRwyQOFM6F/3oBeiwemU7KIcVFI/bi9
+         bFpBer2GJnmcDMbHvDObFF9zCtMC/4Jqn/FlpJ43rmWePbtxs54TW00RBmqSv3yDjHGT
+         VtyA==
+X-Forwarded-Encrypted: i=1; AJvYcCUMDmFp5g31/9AoKDTHiCEgPlWR+FzNvvuAiznyqadaP7uRTNduJ/ex52YKS5SNB3tzbQV7xxnIi02k@vger.kernel.org
+X-Gm-Message-State: AOJu0YyL4cgvhmGwT2nLNs2YOd0KJ0kJlGb+umnzuUsJ0i71JOTDGKJd
+	YjQOwPL67u6lEHvJ0Dt48C/fefGm3NPjb6zjXBBWl4gkKWkY71NE76VCxuvVLT6Xp8YFy5lSK+6
+	WnQowvw==
+X-Google-Smtp-Source: AGHT+IHBnhk857mznsVRtZ1LhvG8NmTW9v1reo6FosSdstl+x90K1TdQYfY6yvbBDBcLJ8YfIbf5Eax50aQ=
+X-Received: from pjf12.prod.google.com ([2002:a17:90b:3f0c:b0:312:3b05:5f44])
+ (user=kuniyu job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1c07:b0:311:9e59:7aba
+ with SMTP id 98e67ed59e1d1-31c4ca64db7mr3337736a91.2.1752214090989; Thu, 10
+ Jul 2025 23:08:10 -0700 (PDT)
+Date: Fri, 11 Jul 2025 06:07:52 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8658:EE_|SA3PR12MB7901:EE_
-X-MS-Office365-Filtering-Correlation-Id: 22c17b1c-d5be-487b-a475-08ddc03ee04f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|921020;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NkxOL1MwdTVKNkoxa0d2Z2ZTaVVrMjh4dWhnYUZxT3JXZ0llOUNtLzNVenRH?=
- =?utf-8?B?Q2VTMVc0Unl1dUc3WTJaZkdvYWlkSGdwbGdpc2JOSFRDUURqZ21OTVA2aGF5?=
- =?utf-8?B?Y2hnL1o5cjRuZTRNY3ROekJtYmVTbzlkdnRQU1kxUmNYdktVTW1EZzgyUFFo?=
- =?utf-8?B?TGpDdmw4YWJFUFduQ1B5U3BvYXdIcFdqWnpkTDV4L3B5eDE4YjZoNW15RTB1?=
- =?utf-8?B?TldHc0cxVXlXUE9pWEpIUndUclRscUxoWmNQemhtTGdJT1dCSk9uU1p4QXQ4?=
- =?utf-8?B?NGhPbFZkMFQvV3B3YldvRFlQWU4xUDRRRFZBdEhxKzdVTTdybGRHamVmS3Zk?=
- =?utf-8?B?elBaMmkyOE42MzVkMkpFbTQ3SXBkQ1RHTk5xaFV6KzZtdk5XT09jaWEvaFJs?=
- =?utf-8?B?dFlsRklpRTMxekowaHlXTUh6dkFvYmZ4RytBbnloNXVRa1EzTGJPeVBvU3BG?=
- =?utf-8?B?Q2MyY1IzdTZ0R0FuaGFvT0I4VCs2eVVNOUM4Y1RpaXNGTTB5TzZaRnZubFVN?=
- =?utf-8?B?QndUbnRoL0g0MGVyY3hQNys4N25PMmtVSXJkV2hDS3lxVGY4bkZpSUw3M293?=
- =?utf-8?B?a3lQZVNOM3B6ZllaOGx3Wmo0bEMydHpyVkF0SkhLakZITXUzajcwUTZmOWFL?=
- =?utf-8?B?ZkpJejd4Sk1XZmFTZ0hQMzVFTGNoajlHRWJwaWtxU3ZRMWhHaWlnQU9NQjhY?=
- =?utf-8?B?TXhaakk4Wk9xOVBvZmliSk14OGtoZ3JkeFZFSWRhVW5vZ1VGeWRWUzg4a0RD?=
- =?utf-8?B?Q0tqM01QK0JHNlh4RWplRm9uQ2hPQmF2TkRhckhsbWRxcDFFcTVyYzgxTUZy?=
- =?utf-8?B?RXEvaG1VOWwyaDduRmJ2TEZ2dWF1VUhvd21SWTg2R3VRdzhzYmNsRDIrL1JU?=
- =?utf-8?B?QWNxQjRKd0daTFFaMG5OUE5RK3FXQW8rNVBPREZkSDNZUWRSQmNMUzRvaW5G?=
- =?utf-8?B?N0p6dklDZ0NMRXZndy9xNU9nYkxYRityZExpQmFXeE1ZaUp0RFlaL3hQOEx2?=
- =?utf-8?B?cE5zem1rakpWaTR3YmJXMjkyZUJIQlVBS0FKK1JaM0pQZk5McmZkVjB3T0JL?=
- =?utf-8?B?MTdmSkkzbEZXQ3NVU2pTdkFCR1hBZFhpb0R1M09qcmdxR1B5aDQ2WTNFVmp5?=
- =?utf-8?B?ekxZVXVudmxMNnoyMnRyc09oQlRrVjM5d20zWnhnUEF1R2dKT2N5ZnJUV1NC?=
- =?utf-8?B?QmRQU3JkSnZHbjM2SlNzVUtTcVVwTlpqM0U1cSt4UHNvS3VJYml4blJPM2hH?=
- =?utf-8?B?UFRIOXhUbjQrTnRtblVyZlcrUXBXeG9tR0JNQUxrazJNK2EzL2dXbkJTL3N4?=
- =?utf-8?B?N0NRK1ZOM0JJU1NsQzJrbEFMUmg2N2ZEME56TVRFbHZDRGtrVWZZdXBSaVdN?=
- =?utf-8?B?SlRRaUhQZGVtc0RHVnhmWXZma1A0QklTRW1YRExSS2ZKRXQvdW5OT1NZV3d1?=
- =?utf-8?B?cHhaMVgyR1hSdVo3d3VtS0M2M0Qza2NUN0M4RU1tTXdzTEw3eldJMTU3NU5u?=
- =?utf-8?B?ZG9sM3FESWM5RGpLTzY0YW9PcE5iYXlQRFplSVpqdmkvVEV4N1VmdFIrMUZ6?=
- =?utf-8?B?OGt5N2lrZms5L3J2Y05rWUkva1RDdjBNc21OSXFiWGlUMnlBbVpKTmt5Z3FE?=
- =?utf-8?B?dmI4UTVEZTY2UHh5bFpta1N4VWZQNCtCYnJveDdsSmVaam10NndUY1FNQWFQ?=
- =?utf-8?B?R1Z3QS81TSswdWdNQ0RxRFlOWFpZTlhtdWVtbUJvdTM4ZExOeDljdlpQNWcw?=
- =?utf-8?B?R082ZkQyTGhSS05BVS9BQ3JoSmkwZHhYN29qcTcwYWlKVVd5U05VeUsxZGFJ?=
- =?utf-8?B?ZzRUN1BpNVlXd2dKZzErNTh6SDhKQXdyaEVaZXZqRXBVb3lTUE1TODBsN2lr?=
- =?utf-8?B?U2lCcjdlTVd3V0JHZUNFNVJvSk1DQmdhcXZYZVFMZjZrOWVkcFdGSGNGZGd6?=
- =?utf-8?B?T25WUVFBNG1NRnpVL3VDK1UxT012SUVzanZLRzB2dXNMbHVOeU5od3kzVWVD?=
- =?utf-8?B?b0ZsN0ZtRHdnPT0=?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8658.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?b1JTS3NUTU0yeUd6cEIvRDBjdlNUMVFsSkFDZmZ1SWxXQ3VVN1ppMGEzeGJS?=
- =?utf-8?B?S09UWE5FQUlEajN4SlhhMWVJdmhoVklRM29BTDM2SEg2UGRUaEtrQnAxWmxa?=
- =?utf-8?B?aWxQSGxDYjkrdnJZcE5zd2NNNXVpWVZNbHhTSG45MGl5V2VqOUxISzlsckMx?=
- =?utf-8?B?SEhhZElxLy9MT2JGYStpaHRzeGdmQ3owNjc4UllIbUtNR0FNYmhEV3ViV2NI?=
- =?utf-8?B?UVhFeENDZUhSQjJEZ3gvektDdk9UOE9SZUZNUGU3SFpZc1N5SE04UEpVamdF?=
- =?utf-8?B?Mlg3cFVqTVVjdjVKSGRmRVlMVGp3SEJ1TXZtQWF0VElZOXRCUHVtOHJkV09u?=
- =?utf-8?B?NHU0SUltOU9rc3NQTkY2amQvSnRnSXZmeW1nWTQ1Y3ZCSDBHb1RPakNyQWR5?=
- =?utf-8?B?dVhsTGFxcGJXb3JqNkdqUkc3WFZ1VzlBWXAyeW4reCs2ZVpsd0xIUDVlZmlp?=
- =?utf-8?B?WWU2RTlOZnR4YkM5bHhtemd0cTN5UGtpS3ZUYngyaW12NktPWERSZ0xPOXpB?=
- =?utf-8?B?S1JMN0dDTWpISEltbTVkZ2h3VDZOeVJjYlNSSWtoc3FjMjlhdWxjWlE4TkpW?=
- =?utf-8?B?ajRDbTlKb3cwN3UySjh0WWtBSDQzUFB1QXhWOStZcHcreGNHRTI3ZEJTNmtW?=
- =?utf-8?B?T3RXTE9SOU9BRGZIdDJkTEV5dGVvc1F1TEMzcUlRRG0xSG4wOXIyc1Mva3Zo?=
- =?utf-8?B?TFN4VHpOL3FRSkpDUmcxOG9pbVJNTVFwejJHQVUxNnp2d1hsR3JrL2ZHY2dw?=
- =?utf-8?B?WmEvWHRST0RURUQ5WExHcEhuQW5GVTBoU2hJa2JCZ0J1QzN6YVFiRWc5TFFP?=
- =?utf-8?B?U1hFOE5aMnBqVFg0TVlSQWxhVmJBMTBvOFZLeUZ0a2U1STFjU052SHR6Y1Zs?=
- =?utf-8?B?cSs3V0YzV0FVamU4L0lRQlQ1VnFucGVXeWFmSjVrendRL201b3dteWdWQVJ0?=
- =?utf-8?B?cndUK0VxTkFoTThXMGRGL3Rzdm90Tjd2elBIYi9hK1VrZFdJY2hydGlNVXVY?=
- =?utf-8?B?eG9IUUlyNTRFakk2ajJzL2dnaEdrRXA0TWw5QXNZVlU1VHNqYnhGN0hFTTdH?=
- =?utf-8?B?RWExZTBKL1lnM0lNYXYvY2hESjk5eGlmRHV0RW4zajFjc3lkQXZ1MFN1b25G?=
- =?utf-8?B?aGhyZWpYSGxhLzdLRTVmRzRPa0V1TWVKVytEZThmTFAvRk9YZThPUkI3bGxm?=
- =?utf-8?B?dmN4Y0l6NGZybVh6ZXEyNWVDUGF0S1hXTThFdlR2Z09CWWJYRUVORVJJSll3?=
- =?utf-8?B?TXRvaFFzQnNyRjBlZDBWdUJzUkdCQW9vWGVxOWdVUVJlNUcrbmF4KzdNZ3BU?=
- =?utf-8?B?Z0ticTRaSytheEpxdDZubmNBT0Nod2dPNEt5ZFd0dnFzeGM3MEI4WlUwZ01Q?=
- =?utf-8?B?TFRkRFB6RCtiRmdwRkViN3U5NlBvdWRzUFlIV2NSdDdWc1hqdElKTllJYUlu?=
- =?utf-8?B?cmZPRElDdVhXVDVJd3EzSEVjS3hvWWVVaGZUZHRkdUVyUjc1SUpDeWF5bHR4?=
- =?utf-8?B?V1RoQ1JRckp3a0lCTyt2aTZ5NHg2aUJpVmtlNkFXTFJNeTF5N3NIQlRSQnh0?=
- =?utf-8?B?TTM3bWRIaEZVZFkxRHpMY1FNM1lTNUtETXhFSVVjQWVnVDU5MHRUemgvdVcz?=
- =?utf-8?B?b1BMZDVTekVnQjZhdzFoYVJMUEg1Mjkvb01oVlg1aGZLRWRZVVpXK0hsUGxl?=
- =?utf-8?B?ckJscEVlZ2ZIUDNlODJNL2V4MDVCNUZXdS9GRzB3bWF3d1FQaFd6amNFdXZX?=
- =?utf-8?B?T0N1RThyRGtWUUR3YVNlWnYyNVdkQlNBWDJXMTZOdm1iSXlNVGtZR1lodXBQ?=
- =?utf-8?B?dFA4OTROc1NSNDVMZ01NaEIrSXBtUks1Q0ZZSkQxZnZJdXFobFRSOUxGck9s?=
- =?utf-8?B?YnNXd0lkWmpJQ29BKzZCcisxUWQ3am04cGRkQmFwQU9abE55bGRVN2NxSmFj?=
- =?utf-8?B?akptM1RmclQrbXFOaVhmemtmc0NhWVpYVjZDK00vV3FLSmYraElIdjJVQVJm?=
- =?utf-8?B?ZTNJYSsxdjNHQkFBZ2ZpdFBHTHhCVEdkWGtmS0toU1JyN21zUW1iRmxlUHcw?=
- =?utf-8?B?T205ZTFndG1UNjYwQVgyREEvSlJBUXI5ZFlJMlo2ZHZsOWtBajNxSk14NkpI?=
- =?utf-8?Q?3EVveZ/TSf4bg7FW7iifDmC8p?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22c17b1c-d5be-487b-a475-08ddc03ee04f
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8658.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jul 2025 05:50:44.4540
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vpr2UWyX7FNz+9VsSSoAKRcheGuTkF0mRYSOjBR6ep+MPw+Fi62WYHOG0Gk+qFErQDxBtAdo6NJeZx/aegPavg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7901
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.50.0.727.gbf7dc18ff4-goog
+Message-ID: <20250711060808.2977529-1-kuniyu@google.com>
+Subject: [PATCH v1 net] smc: Fix various oops due to inet_sock type confusion.
+From: Kuniyuki Iwashima <kuniyu@google.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
+	Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>, 
+	Kuniyuki Iwashima <kuniyu@google.com>, Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com, 
+	syzbot+f22031fad6cbe52c70e7@syzkaller.appspotmail.com, 
+	syzbot+271fed3ed6f24600c364@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 7/10/2025 4:27 PM, Li Chen wrote:
->  	/*
->  	 * .. and append 'j' levels of NUMA goodness.
->  	 */
->  	for (j = 1; j < nr_levels; i++, j++) {
-> -		tl[i] = (struct sched_domain_topology_level){
-> -			.mask = sd_numa_mask,
-> -			.sd_flags = cpu_numa_flags,
-> -			.flags = SDTL_OVERLAP,
-> -			.numa_level = j,
-> -			SD_INIT_NAME(NUMA)
-> -		};
-> +		tl[i] = SDTL_INIT(sd_numa_mask, cpu_numa_flags, NUMA);
-> +		tl[i].numa_level = j;
-> +		tl[i].flags = SDTL_OVERLAP;
+syzbot reported weird splats [0][1] in cipso_v4_sock_setattr() while
+freeing inet_sk(sk)->inet_opt.
 
-Tangential discussion: I was looking at this and was wondering why we
-need a "tl->flags" when there is already sd_flags() function and we can
-simply add SD_OVERLAP to sd_numa_flags().
+The address was freed multiple times even though it was read-only memory.
 
-I think "tl->flags" was needed when the idea of overlap domains was
-added in commit e3589f6c81e4 ("sched: Allow for overlapping sched_domain
-spans") when it depended on "FORCE_SD_OVERLAP" sched_feat() which
-allowed toggling this off but that was done away with in commit
-af85596c74de ("sched/topology: Remove FORCE_SD_OVERLAP") so perhaps we
-can get rid of it now?
+cipso_v4_sock_setattr() did nothing wrong, and the root cause was type
+confusion.
 
-Relying on SD_NUMA should be enough currently. Peter, Valentin, what do
-you think of something like below?
+The cited commit made it possible to create smc_sock as an INET socket.
 
-(Build and boot tested on top of this series on tip:sched/core)
+The issue is that struct smc_sock does not have struct inet_sock as the
+first member but hijacks AF_INET and AF_INET6 sk_family, which confuses
+various places.
 
-diff --git a/include/linux/sched/sd_flags.h b/include/linux/sched/sd_flags.h
-index b04a5d04dee9..42839cfa2778 100644
---- a/include/linux/sched/sd_flags.h
-+++ b/include/linux/sched/sd_flags.h
-@@ -153,14 +153,6 @@ SD_FLAG(SD_ASYM_PACKING, SDF_NEEDS_GROUPS)
-  */
- SD_FLAG(SD_PREFER_SIBLING, SDF_NEEDS_GROUPS)
- 
--/*
-- * sched_groups of this level overlap
-- *
-- * SHARED_PARENT: Set for all NUMA levels above NODE.
-- * NEEDS_GROUPS: Overlaps can only exist with more than one group.
-- */
--SD_FLAG(SD_OVERLAP, SDF_SHARED_PARENT | SDF_NEEDS_GROUPS)
--
- /*
-  * Cross-node balancing
-  *
-diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
-index 0d5daaa277b7..5263746b63e8 100644
---- a/include/linux/sched/topology.h
-+++ b/include/linux/sched/topology.h
-@@ -175,8 +175,6 @@ bool cpus_share_resources(int this_cpu, int that_cpu);
- typedef const struct cpumask *(*sched_domain_mask_f)(int cpu);
- typedef int (*sched_domain_flags_f)(void);
- 
--#define SDTL_OVERLAP	0x01
--
- struct sd_data {
- 	struct sched_domain *__percpu *sd;
- 	struct sched_domain_shared *__percpu *sds;
-@@ -187,7 +185,6 @@ struct sd_data {
- struct sched_domain_topology_level {
- 	sched_domain_mask_f mask;
- 	sched_domain_flags_f sd_flags;
--	int		    flags;
- 	int		    numa_level;
- 	struct sd_data      data;
- 	char                *name;
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 20a845697c1d..b9b4bbbf0af6 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -9926,9 +9926,9 @@ void update_group_capacity(struct sched_domain *sd, int cpu)
- 	min_capacity = ULONG_MAX;
- 	max_capacity = 0;
- 
--	if (child->flags & SD_OVERLAP) {
-+	if (child->flags & SD_NUMA) {
- 		/*
--		 * SD_OVERLAP domains cannot assume that child groups
-+		 * SD_NUMA domains cannot assume that child groups
- 		 * span the current group.
- 		 */
- 
-@@ -9941,7 +9941,7 @@ void update_group_capacity(struct sched_domain *sd, int cpu)
- 		}
- 	} else  {
- 		/*
--		 * !SD_OVERLAP domains can assume that child groups
-+		 * !SD_NUMA domains can assume that child groups
- 		 * span the current group.
- 		 */
- 
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index d01f5a49f2e7..977e133bb8a4 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -89,7 +89,7 @@ static int sched_domain_debug_one(struct sched_domain *sd, int cpu, int level,
- 			break;
- 		}
- 
--		if (!(sd->flags & SD_OVERLAP) &&
-+		if (!(sd->flags & SD_NUMA) &&
- 		    cpumask_intersects(groupmask, sched_group_span(group))) {
- 			printk(KERN_CONT "\n");
- 			printk(KERN_ERR "ERROR: repeated CPUs\n");
-@@ -102,7 +102,7 @@ static int sched_domain_debug_one(struct sched_domain *sd, int cpu, int level,
- 				group->sgc->id,
- 				cpumask_pr_args(sched_group_span(group)));
- 
--		if ((sd->flags & SD_OVERLAP) &&
-+		if ((sd->flags & SD_NUMA) &&
- 		    !cpumask_equal(group_balance_mask(group), sched_group_span(group))) {
- 			printk(KERN_CONT " mask=%*pbl",
- 				cpumask_pr_args(group_balance_mask(group)));
-@@ -1344,7 +1344,7 @@ void sched_update_asym_prefer_cpu(int cpu, int old_prio, int new_prio)
- 		 * "sg->asym_prefer_cpu" to "sg->sgc->asym_prefer_cpu"
- 		 * which is shared by all the overlapping groups.
- 		 */
--		WARN_ON_ONCE(sd->flags & SD_OVERLAP);
-+		WARN_ON_ONCE(sd->flags & SD_NUMA);
- 
- 		sg = sd->groups;
- 		if (cpu != sg->asym_prefer_cpu) {
-@@ -2016,7 +2016,6 @@ void sched_init_numa(int offline_node)
- 	for (j = 1; j < nr_levels; i++, j++) {
- 		tl[i] = SDTL_INIT(sd_numa_mask, cpu_numa_flags, NUMA);
- 		tl[i].numa_level = j;
--		tl[i].flags = SDTL_OVERLAP;
- 	}
- 
- 	sched_domain_topology_saved = sched_domain_topology;
-@@ -2327,7 +2326,7 @@ static void __sdt_free(const struct cpumask *cpu_map)
- 
- 			if (sdd->sd) {
- 				sd = *per_cpu_ptr(sdd->sd, j);
--				if (sd && (sd->flags & SD_OVERLAP))
-+				if (sd && (sd->flags & SD_NUMA))
- 					free_sched_groups(sd->groups, 0);
- 				kfree(*per_cpu_ptr(sdd->sd, j));
- 			}
-@@ -2393,9 +2392,13 @@ static bool topology_span_sane(const struct cpumask *cpu_map)
- 	id_seen = sched_domains_tmpmask2;
- 
- 	for_each_sd_topology(tl) {
-+		int tl_common_flags = 0;
-+
-+		if (tl->sd_flags)
-+			tl_common_flags = (*tl->sd_flags)();
- 
- 		/* NUMA levels are allowed to overlap */
--		if (tl->flags & SDTL_OVERLAP)
-+		if (tl_common_flags & SD_NUMA)
- 			continue;
- 
- 		cpumask_clear(covered);
-@@ -2466,8 +2469,6 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
- 
- 			if (tl == sched_domain_topology)
- 				*per_cpu_ptr(d.sd, i) = sd;
--			if (tl->flags & SDTL_OVERLAP)
--				sd->flags |= SD_OVERLAP;
- 			if (cpumask_equal(cpu_map, sched_domain_span(sd)))
- 				break;
- 		}
-@@ -2480,7 +2481,7 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
- 	for_each_cpu(i, cpu_map) {
- 		for (sd = *per_cpu_ptr(d.sd, i); sd; sd = sd->parent) {
- 			sd->span_weight = cpumask_weight(sched_domain_span(sd));
--			if (sd->flags & SD_OVERLAP) {
-+			if (sd->flags & SD_NUMA) {
- 				if (build_overlap_sched_groups(sd, i))
- 					goto error;
- 			} else {
+In this case, inet_sock.inet_opt was actually smc_sock.clcsk_data_ready(),
+which is an address of a function in the text segment.
+
+  $ pahole -C inet_sock vmlinux
+  struct inet_sock {
+  ...
+          struct ip_options_rcu *    inet_opt;             /*   784     8 */
+
+  $ pahole -C smc_sock vmlinux
+  struct smc_sock {
+  ...
+          void                       (*clcsk_data_ready)(struct sock *); /*   784     8 */
+
+The same issue for another field was reported before. [2][3]
+
+At that time, an ugly hack was suggested [4], but it makes both INET
+and SMC code error-prone and hard to change.
+
+Also, yet another variant was fixed by a hacky commit 98d4435efcbf3
+("net/smc: prevent NULL pointer dereference in txopt_get").
+
+Instead of papering over the root cause by such hacks, we should not
+allow non-INET socket to reuse the INET infra.
+
+Let's add inet_sock as the first member of smc_sock.
+
+[0]:
+kvfree_call_rcu(): Double-freed call. rcu_head 000000006921da73
+WARNING: CPU: 0 PID: 6718 at mm/slab_common.c:1956 kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955
+Modules linked in:
+CPU: 0 UID: 0 PID: 6718 Comm: syz.0.17 Tainted: G        W           6.16.0-rc4-syzkaller-g7482bb149b9f #0 PREEMPT
+Tainted: [W]=WARN
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 05/07/2025
+pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955
+lr : kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955
+sp : ffff8000a03a7730
+x29: ffff8000a03a7730 x28: 00000000fffffff5 x27: 1fffe000184823d3
+x26: dfff800000000000 x25: ffff0000c2411e9e x24: ffff0000dd88da00
+x23: ffff8000891ac9a0 x22: 00000000ffffffea x21: ffff8000891ac9a0
+x20: ffff8000891ac9a0 x19: ffff80008afc2480 x18: 00000000ffffffff
+x17: 0000000000000000 x16: ffff80008ae642c8 x15: ffff700011ede14c
+x14: 1ffff00011ede14c x13: 0000000000000004 x12: ffffffffffffffff
+x11: ffff700011ede14c x10: 0000000000ff0100 x9 : 5fa3c1ffaf0ff000
+x8 : 5fa3c1ffaf0ff000 x7 : 0000000000000001 x6 : 0000000000000001
+x5 : ffff8000a03a7078 x4 : ffff80008f766c20 x3 : ffff80008054d360
+x2 : 0000000000000000 x1 : 0000000000000201 x0 : 0000000000000000
+Call trace:
+ kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955 (P)
+ cipso_v4_sock_setattr+0x2f0/0x3f4 net/ipv4/cipso_ipv4.c:1914
+ netlbl_sock_setattr+0x240/0x334 net/netlabel/netlabel_kapi.c:1000
+ smack_netlbl_add+0xa8/0x158 security/smack/smack_lsm.c:2581
+ smack_inode_setsecurity+0x378/0x430 security/smack/smack_lsm.c:2912
+ security_inode_setsecurity+0x118/0x3c0 security/security.c:2706
+ __vfs_setxattr_noperm+0x174/0x5c4 fs/xattr.c:251
+ __vfs_setxattr_locked+0x1ec/0x218 fs/xattr.c:295
+ vfs_setxattr+0x158/0x2ac fs/xattr.c:321
+ do_setxattr fs/xattr.c:636 [inline]
+ file_setxattr+0x1b8/0x294 fs/xattr.c:646
+ path_setxattrat+0x2ac/0x320 fs/xattr.c:711
+ __do_sys_fsetxattr fs/xattr.c:761 [inline]
+ __se_sys_fsetxattr fs/xattr.c:758 [inline]
+ __arm64_sys_fsetxattr+0xc0/0xdc fs/xattr.c:758
+ __invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
+ invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
+ el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
+ do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
+ el0_svc+0x58/0x180 arch/arm64/kernel/entry-common.c:879
+ el0t_64_sync_handler+0x84/0x12c arch/arm64/kernel/entry-common.c:898
+ el0t_64_sync+0x198/0x19c arch/arm64/kernel/entry.S:600
+
+[1]:
+Unable to handle kernel write to read-only memory at virtual address ffff8000891ac9a8
+KASAN: probably user-memory-access in range [0x0000000448d64d40-0x0000000448d64d47]
+Mem abort info:
+  ESR = 0x000000009600004e
+  EC = 0x25: DABT (current EL), IL = 32 bits
+  SET = 0, FnV = 0
+  EA = 0, S1PTW = 0
+  FSC = 0x0e: level 2 permission fault
+Data abort info:
+  ISV = 0, ISS = 0x0000004e, ISS2 = 0x00000000
+  CM = 0, WnR = 1, TnD = 0, TagAccess = 0
+  GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
+swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000207144000
+[ffff8000891ac9a8] pgd=0000000000000000, p4d=100000020f950003, pud=100000020f951003, pmd=0040000201000781
+Internal error: Oops: 000000009600004e [#1]  SMP
+Modules linked in:
+CPU: 0 UID: 0 PID: 6946 Comm: syz.0.69 Not tainted 6.16.0-rc4-syzkaller-g7482bb149b9f #0 PREEMPT
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 05/07/2025
+pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+pc : kvfree_call_rcu+0x31c/0x3f0 mm/slab_common.c:1971
+lr : add_ptr_to_bulk_krc_lock mm/slab_common.c:1838 [inline]
+lr : kvfree_call_rcu+0xfc/0x3f0 mm/slab_common.c:1963
+sp : ffff8000a28a7730
+x29: ffff8000a28a7730 x28: 00000000fffffff5 x27: 1fffe00018b09bb3
+x26: 0000000000000001 x25: ffff80008f66e000 x24: ffff00019beaf498
+x23: ffff00019beaf4c0 x22: 0000000000000000 x21: ffff8000891ac9a0
+x20: ffff8000891ac9a0 x19: 0000000000000000 x18: 00000000ffffffff
+x17: ffff800093363000 x16: ffff80008052c6e4 x15: ffff700014514ecc
+x14: 1ffff00014514ecc x13: 0000000000000004 x12: ffffffffffffffff
+x11: ffff700014514ecc x10: 0000000000000001 x9 : 0000000000000001
+x8 : ffff00019beaf7b4 x7 : ffff800080a94154 x6 : 0000000000000000
+x5 : ffff8000935efa60 x4 : 0000000000000008 x3 : ffff80008052c7fc
+x2 : 0000000000000001 x1 : ffff8000891ac9a0 x0 : 0000000000000001
+Call trace:
+ kvfree_call_rcu+0x31c/0x3f0 mm/slab_common.c:1967 (P)
+ cipso_v4_sock_setattr+0x2f0/0x3f4 net/ipv4/cipso_ipv4.c:1914
+ netlbl_sock_setattr+0x240/0x334 net/netlabel/netlabel_kapi.c:1000
+ smack_netlbl_add+0xa8/0x158 security/smack/smack_lsm.c:2581
+ smack_inode_setsecurity+0x378/0x430 security/smack/smack_lsm.c:2912
+ security_inode_setsecurity+0x118/0x3c0 security/security.c:2706
+ __vfs_setxattr_noperm+0x174/0x5c4 fs/xattr.c:251
+ __vfs_setxattr_locked+0x1ec/0x218 fs/xattr.c:295
+ vfs_setxattr+0x158/0x2ac fs/xattr.c:321
+ do_setxattr fs/xattr.c:636 [inline]
+ file_setxattr+0x1b8/0x294 fs/xattr.c:646
+ path_setxattrat+0x2ac/0x320 fs/xattr.c:711
+ __do_sys_fsetxattr fs/xattr.c:761 [inline]
+ __se_sys_fsetxattr fs/xattr.c:758 [inline]
+ __arm64_sys_fsetxattr+0xc0/0xdc fs/xattr.c:758
+ __invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
+ invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
+ el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
+ do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
+ el0_svc+0x58/0x180 arch/arm64/kernel/entry-common.c:879
+ el0t_64_sync_handler+0x84/0x12c arch/arm64/kernel/entry-common.c:898
+ el0t_64_sync+0x198/0x19c arch/arm64/kernel/entry.S:600
+Code: aa1f03e2 52800023 97ee1e8d b4000195 (f90006b4)
+
+Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
+Reported-by: syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/686d9b50.050a0220.1ffab7.0020.GAE@google.com/
+Tested-by: syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com
+Reported-by: syzbot+f22031fad6cbe52c70e7@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/686da0f3.050a0220.1ffab7.0022.GAE@google.com/
+Reported-by: syzbot+271fed3ed6f24600c364@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364 # [2]
+Link: https://lore.kernel.org/netdev/99f284be-bf1d-4bc4-a629-77b268522fff@huawei.com/ # [3]
+Link: https://lore.kernel.org/netdev/20250331081003.1503211-1-wangliang74@huawei.com/ # [4]
+Signed-off-by: Kuniyuki Iwashima <kuniyu@google.com>
 ---
+ net/smc/af_smc.c | 14 ++++++++++++++
+ net/smc/smc.h    |  8 ++++----
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-We can also keep SD_OVERLAP and only remove SDTL_OVERLAP, tl->flags if
-that is preferred or just have them both if you see a future !NUMA
-usecases for overlapping domains.
-
->  	}
->  
->  	sched_domain_topology_saved = sched_domain_topology;
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 3760131f14845..1882bab8e00e7 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -30,6 +30,10 @@
+ #include <linux/splice.h>
+ 
+ #include <net/sock.h>
++#include <net/inet_common.h>
++#if IS_ENABLED(CONFIG_IPV6)
++#include <net/ipv6.h>
++#endif
+ #include <net/tcp.h>
+ #include <net/smc.h>
+ #include <asm/ioctls.h>
+@@ -360,6 +364,16 @@ static void smc_destruct(struct sock *sk)
+ 		return;
+ 	if (!sock_flag(sk, SOCK_DEAD))
+ 		return;
++	switch (sk->sk_family) {
++	case AF_INET:
++		inet_sock_destruct(sk);
++		break;
++#if IS_ENABLED(CONFIG_IPV6)
++	case AF_INET6:
++		inet6_sock_destruct(sk);
++		break;
++#endif
++	}
+ }
+ 
+ static struct lock_class_key smc_key;
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 78ae10d06ed2e..2c90849637398 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -283,10 +283,10 @@ struct smc_connection {
+ };
+ 
+ struct smc_sock {				/* smc sock container */
+-	struct sock		sk;
+-#if IS_ENABLED(CONFIG_IPV6)
+-	struct ipv6_pinfo	*pinet6;
+-#endif
++	union {
++		struct sock		sk;
++		struct inet_sock	icsk_inet;
++	};
+ 	struct socket		*clcsock;	/* internal tcp socket */
+ 	void			(*clcsk_state_change)(struct sock *sk);
+ 						/* original stat_change fct. */
 -- 
-Thanks and Regards,
-Prateek
+2.50.0.727.gbf7dc18ff4-goog
 
