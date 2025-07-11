@@ -1,288 +1,289 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4BAD1CF5C0
-	for <linux-s390@vger.kernel.org>; Fri, 11 Jul 2025 06:08:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E54F1DED5B
+	for <linux-s390@vger.kernel.org>; Fri, 11 Jul 2025 11:32:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752214093; cv=none; b=Pb7Bv6fEQY+NfpWDaGISc4Z868m6nC++amiZGUhkQQFR9N861NSEuaUUQEN5YqbmYYIDL3zym/l85VYgN8xsEwm43nc/HGPfGbzXrrb5DisM+kpdzpIEF+4tySfjzgz95UryHoWfPN2CcxXfCX836juMQ1Inowc654TUJbSC8Ds=
+	t=1752233562; cv=none; b=ZzvbRrkZ2LW9hYyeIq49bBrNI/deC0i342Ma3Il5N9wo3qZfi03AjFzmdnOL0MgozufAk41/tdfq46jYpthpKss37W/4Klb69ossPdKZMNtQfiBXjciQRXsKegN42O6oHcS1MvcM+5xaoCUtVjGjg5I6C48dx5yt/ZvY2FiMxp4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752214093; c=relaxed/simple;
-	bh=gNpih8xnCGQu+jdA+AvUDEylqB16lTu84yaWKyKEg74=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=Qd6QThSYvjCLX8aVh2MropRk4Q/6nwhMgiiiWDbo4hYKZMBRMUhtIsBw2lkCALBk7c2vQxkQdGafE25l8Y9ldAtCNMDdI8oWFyIZ2QLNWT2xeCJmafMxg6d7X6+n56v5/6ep0x/Y3dzt0Bj/OOfz0Qa5hGn+ChQ6VBrPbxqUuUM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=wzGbmC+J; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com
+	s=arc-20240116; t=1752233562; c=relaxed/simple;
+	bh=BZCvv/2hXsvGb//PtywPu9ICAftZQyJos5tYaQ8MH0U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qZuV1LCfO/wAwo84dalRldqYmLBmc2J+omoMr7xXetl522uYrQ47JipQY5yBn4O50xTsKBYM7VOLe6VATYMarFRHN8kaXk8fuIGaa2A8PQAICBDk5NHvCrsxt/7M+p/cQN/PsnOxiIJXSjSsC3od43Z/qowl0dkf8hOb8danLeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bzIWP2tn; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="wzGbmC+J"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-3122368d82bso2730107a91.0
-        for <linux-s390@vger.kernel.org>; Thu, 10 Jul 2025 23:08:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1752214091; x=1752818891; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=HOCCIU1Dxti53uyBexUi4fVJk3Iwlf50sIMO8h+C3FI=;
-        b=wzGbmC+J6pvPg1nwdNCJjWuSttPnvhobFboU+BXaau6jFmINsY039v29fAYcuwXTKD
-         LYK59S6Tsgh2JLCOpIS4xTcd0XluyeMm/erKtj+Q2+8yf5BVa5AZfqI1fdUWkxNwtghR
-         /XQmdoCbaynenFbv93BUFqoFQC6N9X0I/6qdxUZlWw5z/YhIG+ypydYmsKofRuNYhMJV
-         dYbwS5m6OVoozlBVJ482d/UX4Dvk6Mz3HtMpcfSLEridYdjGIiYqTQld9ftiI5MIUi2q
-         WfkV5KgOqCSEE9P204x1E2eCPSDGKdYBFARbehndSFhkiy4EfECRjgoetrjvoIZ0EBc2
-         CutA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bzIWP2tn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752233559;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rBaMeUalwqPGHF1pXuNNlqoOhLhH/XgvIyFgh+zaVmk=;
+	b=bzIWP2tndwrpfLntciHmC7Ids+RwLi2qqR8f9kT7KiiwWgml1ItpN/Z5BInLNEKOFUtxmG
+	DBW7+asXLzgkVejXXwPxOur2f4rldFmtFkr6f0fuYqBBxY7rlgyBcYipILBL5avSZGrzic
+	DUx/prDBHXVmsOAEMw6EZr4hW+/1n8g=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-644-6_kRCas-OPOfd6FSNhXpPQ-1; Fri, 11 Jul 2025 07:32:38 -0400
+X-MC-Unique: 6_kRCas-OPOfd6FSNhXpPQ-1
+X-Mimecast-MFC-AGG-ID: 6_kRCas-OPOfd6FSNhXpPQ_1752233557
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4532514dee8so15984325e9.0
+        for <linux-s390@vger.kernel.org>; Fri, 11 Jul 2025 04:32:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752214091; x=1752818891;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HOCCIU1Dxti53uyBexUi4fVJk3Iwlf50sIMO8h+C3FI=;
-        b=RKGyLiIjZ1Z2C8SlHl/EgMpMDVfLcB7EMexUFwdPId4eqlDixE1OQ0WuzJu2NDkqsU
-         nNte1307o2IbqubZUi3/bwLstuf6Ldm5VUEQWD/MNuJK649T35dUv1d0vIXurJrGRNQW
-         SkurMGoiiy1aJDMAp/V2ttagB4N2x0nvMnkI+ITVsYmnJEqpIncnSCBo0U+ThL+XMmbD
-         elsC+G7JU97CGuDukYoWb8b+IwKeEjgkkTZ3bZRwyQOFM6F/3oBeiwemU7KIcVFI/bi9
-         bFpBer2GJnmcDMbHvDObFF9zCtMC/4Jqn/FlpJ43rmWePbtxs54TW00RBmqSv3yDjHGT
-         VtyA==
-X-Forwarded-Encrypted: i=1; AJvYcCUMDmFp5g31/9AoKDTHiCEgPlWR+FzNvvuAiznyqadaP7uRTNduJ/ex52YKS5SNB3tzbQV7xxnIi02k@vger.kernel.org
-X-Gm-Message-State: AOJu0YyL4cgvhmGwT2nLNs2YOd0KJ0kJlGb+umnzuUsJ0i71JOTDGKJd
-	YjQOwPL67u6lEHvJ0Dt48C/fefGm3NPjb6zjXBBWl4gkKWkY71NE76VCxuvVLT6Xp8YFy5lSK+6
-	WnQowvw==
-X-Google-Smtp-Source: AGHT+IHBnhk857mznsVRtZ1LhvG8NmTW9v1reo6FosSdstl+x90K1TdQYfY6yvbBDBcLJ8YfIbf5Eax50aQ=
-X-Received: from pjf12.prod.google.com ([2002:a17:90b:3f0c:b0:312:3b05:5f44])
- (user=kuniyu job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1c07:b0:311:9e59:7aba
- with SMTP id 98e67ed59e1d1-31c4ca64db7mr3337736a91.2.1752214090989; Thu, 10
- Jul 2025 23:08:10 -0700 (PDT)
-Date: Fri, 11 Jul 2025 06:07:52 +0000
+        d=1e100.net; s=20230601; t=1752233557; x=1752838357;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rBaMeUalwqPGHF1pXuNNlqoOhLhH/XgvIyFgh+zaVmk=;
+        b=Ke9U8x7LNeT2+MNvU3Wc7mxUkCou4Qmh4qGX2ijuNrdhhW+XY3LoB6JU3y25kVf1gN
+         I+CsX6tK0tZNBOsz89WGLGqR5zbk5358wTWGOKa/Y8o6cPUP/dMySEdv6bXK0t5JXI2y
+         8FD3ugFiP3K9knEbxsxaERfR6sDtCn409PditA9PiTKMkxQQUnR3cWrleQ+NrMsUCWOr
+         Md1Mdx+Yanmr3DfGz2wFTQmcuxsPByDtxu07CDDyK7hnvjsAH59+TXw7Mt0xjM4d1Lub
+         IESlwF33RaGmUOkTDXfRjkjx4BPReJ/sipBes2970jd1xwFLcXUIwBGhGLOets6i4Ok8
+         Wuqw==
+X-Forwarded-Encrypted: i=1; AJvYcCUnl0sJWlLreX00v9Ya59K0Fk9YtRvzbcnJul1dAwScnXZFDMe6mhnzbR3qkk1IKuttJ5vTf60iT2zA@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfEK9JaESsX5V/CTApOc1wUoMQGwvnZijzKR2oSViskx4G2gyX
+	XbWmQXpU0x28CwL7fqLRhrVItj5Mr691rqI8HIi/mYson17yTPzz0mDHxDmexBq/4e4PL8DMUWU
+	nYVnOFWw1fEw5Id7Wm0zkUwCulx3Pth5afVMLfbR+8gwG7g3CPrzOV02Vum/jgoc=
+X-Gm-Gg: ASbGncsLW9Y36532O0bJJykPQgQtsqW3w1TvrqJkgsphWGRduYRdlWRmTaLQRhDlFs9
+	EPoaBpQ669fq8fTvttoSDVUy2wSLucZz5Qagbub384A43XOYDmebGOsZMn/lfz/8VPN+/ZHNqL6
+	M9La/eAIewwnrD6RDmcWYoJymrW2bF3fQtbpYoaoD18CqxAEES/OO/obHZLGxnp9d0DDTmEQm0s
+	qqRgFpqXjo51ZDaWp7mx0OLJZkGF214meQkmV4v/SiEH5GnWI8bNpefG8ZDvjY5lJNqlta3UKkI
+	eqOQPBHq6vR7YR7hSf+6AXIa8mNRMZ5tyLN6AOrEVy52dzVa8jFa+1S6VMacqGHIxCh1l0fPdza
+	CTFPP
+X-Received: by 2002:a05:600c:1549:b0:43d:300f:fa1d with SMTP id 5b1f17b1804b1-454f425585amr28408725e9.31.1752233556750;
+        Fri, 11 Jul 2025 04:32:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE61oWTKweMEXZfo4uTm9GgpnpWiVgolfLMo+v8sGn4fN8oDtJ8j83cwuweqsXezmErlhJuKA==
+X-Received: by 2002:a05:600c:1549:b0:43d:300f:fa1d with SMTP id 5b1f17b1804b1-454f425585amr28408305e9.31.1752233556153;
+        Fri, 11 Jul 2025 04:32:36 -0700 (PDT)
+Received: from [192.168.0.6] (ltea-047-064-115-149.pools.arcor-ip.net. [47.64.115.149])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454d5032ff4sm83722835e9.8.2025.07.11.04.32.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 11 Jul 2025 04:32:35 -0700 (PDT)
+Message-ID: <ce92db8c-6d26-4953-9f74-142d00d2bc2a@redhat.com>
+Date: Fri, 11 Jul 2025 13:32:33 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.50.0.727.gbf7dc18ff4-goog
-Message-ID: <20250711060808.2977529-1-kuniyu@google.com>
-Subject: [PATCH v1 net] smc: Fix various oops due to inet_sock type confusion.
-From: Kuniyuki Iwashima <kuniyu@google.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
-	Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, 
-	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>, 
-	Kuniyuki Iwashima <kuniyu@google.com>, Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
-	syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com, 
-	syzbot+f22031fad6cbe52c70e7@syzkaller.appspotmail.com, 
-	syzbot+271fed3ed6f24600c364@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [kvm-unit-tests PATCH v4 07/13] scripts: Add default arguments
+ for kvmtool
+To: Alexandru Elisei <alexandru.elisei@arm.com>, andrew.jones@linux.dev,
+ eric.auger@redhat.com, lvivier@redhat.com, frankja@linux.ibm.com,
+ imbrenda@linux.ibm.com, nrb@linux.ibm.com, david@redhat.com,
+ pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, kvm-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, will@kernel.org, julien.thierry.kdev@gmail.com,
+ maz@kernel.org, oliver.upton@linux.dev, suzuki.poulose@arm.com,
+ yuzenghui@huawei.com, joey.gouly@arm.com, andre.przywara@arm.com,
+ shahuang@redhat.com, Boqiao Fu <bfu@redhat.com>
+References: <20250625154813.27254-1-alexandru.elisei@arm.com>
+ <20250625154813.27254-8-alexandru.elisei@arm.com>
+Content-Language: en-US
+From: Thomas Huth <thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <20250625154813.27254-8-alexandru.elisei@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-syzbot reported weird splats [0][1] in cipso_v4_sock_setattr() while
-freeing inet_sk(sk)->inet_opt.
+On 25/06/2025 17.48, Alexandru Elisei wrote:
+> kvmtool, unless told otherwise, will do its best to make sure that a kernel
+> successfully boots in a virtual machine. It does things like automatically
+> creating a rootfs and adding extra parameters to the kernel command line.
+> This is actively harmful to kvm-unit-tests, because some tests parse the
+> kernel command line and they will fail if they encounter the options added
+> by kvmtool.
+> 
+> Fortunately for us, kvmtool commit 5613ae26b998 ("Add --nodefaults command
+> line argument") addded the --nodefaults kvmtool parameter which disables
+> all the implicit virtual machine configuration that cannot be disabled by
+> using other parameters, like modifying the kernel command line. So always
+> use --nodefaults to allow a test to run.
+> 
+> kvmtool can also be too verbose when running a virtual machine, and this is
+> controlled by several parameters. Add those to the default kvmtool command
+> line to reduce this verbosity to a minimum.
+> 
+> Before:
+> 
+> $ vm run arm/selftest.flat --cpus 2 --mem 256 --params "setup smp=2 mem=256"
+> Info: # lkvm run -k arm/selftest.flat -m 256 -c 2 --name guest-5035
+> Unknown subtest
+> 
+> EXIT: STATUS=127
+> Warning: KVM compatibility warning.
+>      virtio-9p device was not detected.
+>      While you have requested a virtio-9p device, the guest kernel did not initialize it.
+>      Please make sure that the guest kernel was compiled with CONFIG_NET_9P_VIRTIO=y enabled in .config.
+> Warning: KVM compatibility warning.
+>      virtio-net device was not detected.
+>      While you have requested a virtio-net device, the guest kernel did not initialize it.
+>      Please make sure that the guest kernel was compiled with CONFIG_VIRTIO_NET=y enabled in .config.
+> Info: KVM session ended normally.
+> 
+> After:
+> 
+> $ vm run arm/selftest.flat --nodefaults --network mode=none --loglevel=warning --cpus 2 --mem 256 --params "setup smp=2 mem=256"
+> PASS: selftest: setup: smp: number of CPUs matches expectation
+> INFO: selftest: setup: smp: found 2 CPUs
+> PASS: selftest: setup: mem: memory size matches expectation
+> INFO: selftest: setup: mem: found 256 MB
+> SUMMARY: 2 tests
+> 
+> EXIT: STATUS=1
+> 
+> Note that KVMTOOL_DEFAULT_OPTS can be overwritten by an environment
+> variable with the same name, but it's not documented in the help string for
+> run_tests.sh. This has been done on purpose, since overwritting
+> KVMTOOL_DEFAULT_OPTS should only be necessary for debugging or development
+> purposes.
+> 
+> Reviewed-by: Andrew Jones <andrew.jones@linux.dev>
+> Reviewed-by: Shaoqin Huang <shahuang@redhat.com>
+> Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+> ---
+> 
+> Changes v3->v4:
+> 
+> * Use vmm_default_opts() instead of indexing into vmm_optname
+> * Reworded the help test for --nodefaults as per Shaoqin's suggestion.
+> 
+>   scripts/common.bash |  6 +++---
+>   scripts/vmm.bash    | 18 ++++++++++++++++++
+>   2 files changed, 21 insertions(+), 3 deletions(-)
+> 
+> diff --git a/scripts/common.bash b/scripts/common.bash
+> index 7c1b89f1b3c2..d5d3101c8089 100644
+> --- a/scripts/common.bash
+> +++ b/scripts/common.bash
+> @@ -37,7 +37,7 @@ function for_each_unittest()
+>   			# -append as a kernel parameter instead of a command
+>   			# line option.
+>   			test_args=""
+> -			opts=""
+> +			opts="$(vmm_default_opts)"
+>   			groups=""
+>   			arch=""
+>   			machine=""
+> @@ -51,7 +51,7 @@ function for_each_unittest()
+>   		elif [[ $line =~ ^test_args\ *=\ *(.*)$ ]]; then
+>   			test_args="$(vmm_optname_args) ${BASH_REMATCH[1]}"
+>   		elif [[ $line =~ ^$params_name\ *=\ *'"""'(.*)$ ]]; then
+> -			opts=${BASH_REMATCH[1]}$'\n'
+> +			opts="$(vmm_defaults_opts) ${BASH_REMATCH[1]}$'\n'"
+>   			while read -r -u $fd; do
+>   				#escape backslash newline, but not double backslash
+>   				if [[ $opts =~ [^\\]*(\\*)$'\n'$ ]]; then
+> @@ -67,7 +67,7 @@ function for_each_unittest()
+>   				fi
+>   			done
+>   		elif [[ $line =~ ^$params_name\ *=\ *(.*)$ ]]; then
+> -			opts=${BASH_REMATCH[1]}
+> +			opts="$(vmm_default_opts) ${BASH_REMATCH[1]}"
+>   		elif [[ $line =~ ^groups\ *=\ *(.*)$ ]]; then
+>   			groups=${BASH_REMATCH[1]}
+>   		elif [[ $line =~ ^arch\ *=\ *(.*)$ ]]; then
+> diff --git a/scripts/vmm.bash b/scripts/vmm.bash
+> index 0dd3f971ecdf..368690d62473 100644
+> --- a/scripts/vmm.bash
+> +++ b/scripts/vmm.bash
+> @@ -1,3 +1,14 @@
+> +# The following parameters are enabled by default when running a test with
+> +# kvmtool:
+> +# --nodefaults: suppress VM configuration that cannot be disabled (like
+> +#               modifying the supplied kernel command line). Otherwise tests
+> +#               that use the command line will fail without this parameter.
+> +# --network mode=none: do not create a network device. kvmtool tries to help the
+> +#               user by automatically create one, and then prints a warning
+> +#               when the VM terminates if the device hasn't been initialized.
+> +# --loglevel=warning: reduce verbosity
+> +: "${KVMTOOL_DEFAULT_OPTS:="--nodefaults --network mode=none --loglevel=warning"}"
+> +
+>   ##############################################################################
+>   # qemu_fixup_return_code translates the ambiguous exit status in Table1 to that
+>   # in Table2.  Table3 simply documents the complete status table.
+> @@ -82,11 +93,13 @@ function kvmtool_fixup_return_code()
+>   
+>   declare -A vmm_optname=(
+>   	[qemu,args]='-append'
+> +	[qemu,default_opts]=''
+>   	[qemu,fixup_return_code]=qemu_fixup_return_code
+>   	[qemu,initrd]='-initrd'
+>   	[qemu,nr_cpus]='-smp'
+>   
+>   	[kvmtool,args]='--params'
+> +	[kvmtool,default_opts]="$KVMTOOL_DEFAULT_OPTS"
+>   	[kvmtool,fixup_return_code]=kvmtool_fixup_return_code
+>   	[kvmtool,initrd]='--initrd'
+>   	[kvmtool,nr_cpus]='--cpus'
+> @@ -97,6 +110,11 @@ function vmm_optname_args()
+>   	echo ${vmm_optname[$(vmm_get_target),args]}
+>   }
+>   
+> +function vmm_default_opts()
+> +{
+> +	echo ${vmm_optname[$(vmm_get_target),default_opts]}
+> +}
 
-The address was freed multiple times even though it was read-only memory.
 
-cipso_v4_sock_setattr() did nothing wrong, and the root cause was type
-confusion.
+This causes now a problem on s390x:
 
-The cited commit made it possible to create smc_sock as an INET socket.
+https://gitlab.com/kvm-unit-tests/kvm-unit-tests/-/jobs/10604334029#L591
 
-The issue is that struct smc_sock does not have struct inet_sock as the
-first member but hijacks AF_INET and AF_INET6 sk_family, which confuses
-various places.
+scripts/common.bash: line 56: vmm_defaults_opts: command not found
 
-In this case, inet_sock.inet_opt was actually smc_sock.clcsk_data_ready(),
-which is an address of a function in the text segment.
+... any ideas how to fix it?
 
-  $ pahole -C inet_sock vmlinux
-  struct inet_sock {
-  ...
-          struct ip_options_rcu *    inet_opt;             /*   784     8 */
-
-  $ pahole -C smc_sock vmlinux
-  struct smc_sock {
-  ...
-          void                       (*clcsk_data_ready)(struct sock *); /*   784     8 */
-
-The same issue for another field was reported before. [2][3]
-
-At that time, an ugly hack was suggested [4], but it makes both INET
-and SMC code error-prone and hard to change.
-
-Also, yet another variant was fixed by a hacky commit 98d4435efcbf3
-("net/smc: prevent NULL pointer dereference in txopt_get").
-
-Instead of papering over the root cause by such hacks, we should not
-allow non-INET socket to reuse the INET infra.
-
-Let's add inet_sock as the first member of smc_sock.
-
-[0]:
-kvfree_call_rcu(): Double-freed call. rcu_head 000000006921da73
-WARNING: CPU: 0 PID: 6718 at mm/slab_common.c:1956 kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955
-Modules linked in:
-CPU: 0 UID: 0 PID: 6718 Comm: syz.0.17 Tainted: G        W           6.16.0-rc4-syzkaller-g7482bb149b9f #0 PREEMPT
-Tainted: [W]=WARN
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 05/07/2025
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955
-lr : kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955
-sp : ffff8000a03a7730
-x29: ffff8000a03a7730 x28: 00000000fffffff5 x27: 1fffe000184823d3
-x26: dfff800000000000 x25: ffff0000c2411e9e x24: ffff0000dd88da00
-x23: ffff8000891ac9a0 x22: 00000000ffffffea x21: ffff8000891ac9a0
-x20: ffff8000891ac9a0 x19: ffff80008afc2480 x18: 00000000ffffffff
-x17: 0000000000000000 x16: ffff80008ae642c8 x15: ffff700011ede14c
-x14: 1ffff00011ede14c x13: 0000000000000004 x12: ffffffffffffffff
-x11: ffff700011ede14c x10: 0000000000ff0100 x9 : 5fa3c1ffaf0ff000
-x8 : 5fa3c1ffaf0ff000 x7 : 0000000000000001 x6 : 0000000000000001
-x5 : ffff8000a03a7078 x4 : ffff80008f766c20 x3 : ffff80008054d360
-x2 : 0000000000000000 x1 : 0000000000000201 x0 : 0000000000000000
-Call trace:
- kvfree_call_rcu+0x94/0x3f0 mm/slab_common.c:1955 (P)
- cipso_v4_sock_setattr+0x2f0/0x3f4 net/ipv4/cipso_ipv4.c:1914
- netlbl_sock_setattr+0x240/0x334 net/netlabel/netlabel_kapi.c:1000
- smack_netlbl_add+0xa8/0x158 security/smack/smack_lsm.c:2581
- smack_inode_setsecurity+0x378/0x430 security/smack/smack_lsm.c:2912
- security_inode_setsecurity+0x118/0x3c0 security/security.c:2706
- __vfs_setxattr_noperm+0x174/0x5c4 fs/xattr.c:251
- __vfs_setxattr_locked+0x1ec/0x218 fs/xattr.c:295
- vfs_setxattr+0x158/0x2ac fs/xattr.c:321
- do_setxattr fs/xattr.c:636 [inline]
- file_setxattr+0x1b8/0x294 fs/xattr.c:646
- path_setxattrat+0x2ac/0x320 fs/xattr.c:711
- __do_sys_fsetxattr fs/xattr.c:761 [inline]
- __se_sys_fsetxattr fs/xattr.c:758 [inline]
- __arm64_sys_fsetxattr+0xc0/0xdc fs/xattr.c:758
- __invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
- invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
- el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
- do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
- el0_svc+0x58/0x180 arch/arm64/kernel/entry-common.c:879
- el0t_64_sync_handler+0x84/0x12c arch/arm64/kernel/entry-common.c:898
- el0t_64_sync+0x198/0x19c arch/arm64/kernel/entry.S:600
-
-[1]:
-Unable to handle kernel write to read-only memory at virtual address ffff8000891ac9a8
-KASAN: probably user-memory-access in range [0x0000000448d64d40-0x0000000448d64d47]
-Mem abort info:
-  ESR = 0x000000009600004e
-  EC = 0x25: DABT (current EL), IL = 32 bits
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-  FSC = 0x0e: level 2 permission fault
-Data abort info:
-  ISV = 0, ISS = 0x0000004e, ISS2 = 0x00000000
-  CM = 0, WnR = 1, TnD = 0, TagAccess = 0
-  GCS = 0, Overlay = 0, DirtyBit = 0, Xs = 0
-swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000207144000
-[ffff8000891ac9a8] pgd=0000000000000000, p4d=100000020f950003, pud=100000020f951003, pmd=0040000201000781
-Internal error: Oops: 000000009600004e [#1]  SMP
-Modules linked in:
-CPU: 0 UID: 0 PID: 6946 Comm: syz.0.69 Not tainted 6.16.0-rc4-syzkaller-g7482bb149b9f #0 PREEMPT
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 05/07/2025
-pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : kvfree_call_rcu+0x31c/0x3f0 mm/slab_common.c:1971
-lr : add_ptr_to_bulk_krc_lock mm/slab_common.c:1838 [inline]
-lr : kvfree_call_rcu+0xfc/0x3f0 mm/slab_common.c:1963
-sp : ffff8000a28a7730
-x29: ffff8000a28a7730 x28: 00000000fffffff5 x27: 1fffe00018b09bb3
-x26: 0000000000000001 x25: ffff80008f66e000 x24: ffff00019beaf498
-x23: ffff00019beaf4c0 x22: 0000000000000000 x21: ffff8000891ac9a0
-x20: ffff8000891ac9a0 x19: 0000000000000000 x18: 00000000ffffffff
-x17: ffff800093363000 x16: ffff80008052c6e4 x15: ffff700014514ecc
-x14: 1ffff00014514ecc x13: 0000000000000004 x12: ffffffffffffffff
-x11: ffff700014514ecc x10: 0000000000000001 x9 : 0000000000000001
-x8 : ffff00019beaf7b4 x7 : ffff800080a94154 x6 : 0000000000000000
-x5 : ffff8000935efa60 x4 : 0000000000000008 x3 : ffff80008052c7fc
-x2 : 0000000000000001 x1 : ffff8000891ac9a0 x0 : 0000000000000001
-Call trace:
- kvfree_call_rcu+0x31c/0x3f0 mm/slab_common.c:1967 (P)
- cipso_v4_sock_setattr+0x2f0/0x3f4 net/ipv4/cipso_ipv4.c:1914
- netlbl_sock_setattr+0x240/0x334 net/netlabel/netlabel_kapi.c:1000
- smack_netlbl_add+0xa8/0x158 security/smack/smack_lsm.c:2581
- smack_inode_setsecurity+0x378/0x430 security/smack/smack_lsm.c:2912
- security_inode_setsecurity+0x118/0x3c0 security/security.c:2706
- __vfs_setxattr_noperm+0x174/0x5c4 fs/xattr.c:251
- __vfs_setxattr_locked+0x1ec/0x218 fs/xattr.c:295
- vfs_setxattr+0x158/0x2ac fs/xattr.c:321
- do_setxattr fs/xattr.c:636 [inline]
- file_setxattr+0x1b8/0x294 fs/xattr.c:646
- path_setxattrat+0x2ac/0x320 fs/xattr.c:711
- __do_sys_fsetxattr fs/xattr.c:761 [inline]
- __se_sys_fsetxattr fs/xattr.c:758 [inline]
- __arm64_sys_fsetxattr+0xc0/0xdc fs/xattr.c:758
- __invoke_syscall arch/arm64/kernel/syscall.c:35 [inline]
- invoke_syscall+0x98/0x2b8 arch/arm64/kernel/syscall.c:49
- el0_svc_common+0x130/0x23c arch/arm64/kernel/syscall.c:132
- do_el0_svc+0x48/0x58 arch/arm64/kernel/syscall.c:151
- el0_svc+0x58/0x180 arch/arm64/kernel/entry-common.c:879
- el0t_64_sync_handler+0x84/0x12c arch/arm64/kernel/entry-common.c:898
- el0t_64_sync+0x198/0x19c arch/arm64/kernel/entry.S:600
-Code: aa1f03e2 52800023 97ee1e8d b4000195 (f90006b4)
-
-Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-Reported-by: syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/all/686d9b50.050a0220.1ffab7.0020.GAE@google.com/
-Tested-by: syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com
-Reported-by: syzbot+f22031fad6cbe52c70e7@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/all/686da0f3.050a0220.1ffab7.0022.GAE@google.com/
-Reported-by: syzbot+271fed3ed6f24600c364@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=271fed3ed6f24600c364 # [2]
-Link: https://lore.kernel.org/netdev/99f284be-bf1d-4bc4-a629-77b268522fff@huawei.com/ # [3]
-Link: https://lore.kernel.org/netdev/20250331081003.1503211-1-wangliang74@huawei.com/ # [4]
-Signed-off-by: Kuniyuki Iwashima <kuniyu@google.com>
----
- net/smc/af_smc.c | 14 ++++++++++++++
- net/smc/smc.h    |  8 ++++----
- 2 files changed, 18 insertions(+), 4 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 3760131f14845..1882bab8e00e7 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -30,6 +30,10 @@
- #include <linux/splice.h>
- 
- #include <net/sock.h>
-+#include <net/inet_common.h>
-+#if IS_ENABLED(CONFIG_IPV6)
-+#include <net/ipv6.h>
-+#endif
- #include <net/tcp.h>
- #include <net/smc.h>
- #include <asm/ioctls.h>
-@@ -360,6 +364,16 @@ static void smc_destruct(struct sock *sk)
- 		return;
- 	if (!sock_flag(sk, SOCK_DEAD))
- 		return;
-+	switch (sk->sk_family) {
-+	case AF_INET:
-+		inet_sock_destruct(sk);
-+		break;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case AF_INET6:
-+		inet6_sock_destruct(sk);
-+		break;
-+#endif
-+	}
- }
- 
- static struct lock_class_key smc_key;
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 78ae10d06ed2e..2c90849637398 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -283,10 +283,10 @@ struct smc_connection {
- };
- 
- struct smc_sock {				/* smc sock container */
--	struct sock		sk;
--#if IS_ENABLED(CONFIG_IPV6)
--	struct ipv6_pinfo	*pinet6;
--#endif
-+	union {
-+		struct sock		sk;
-+		struct inet_sock	icsk_inet;
-+	};
- 	struct socket		*clcsock;	/* internal tcp socket */
- 	void			(*clcsk_state_change)(struct sock *sk);
- 						/* original stat_change fct. */
--- 
-2.50.0.727.gbf7dc18ff4-goog
+  Thomas
 
