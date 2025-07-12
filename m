@@ -1,112 +1,249 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D90E422DF85
-	for <linux-s390@vger.kernel.org>; Sat, 12 Jul 2025 22:11:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4713229B36;
+	Sat, 12 Jul 2025 23:26:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752358296; cv=none; b=WEHP2N8hLfySLpjaum2YT34HVVmsNo3yAYxS2XMgY7JyLcIjARcBetcVwjhJqczyrnQTblzy7aJU/HhXsSgfGOstuynPTnQvqsFKSOtezcn0EV4pjs/FMCkHJWiY90rNqXWa4V2Rp786urjyb2AZW5stNn6vBKwX2Vf+qMbkYMg=
+	t=1752362781; cv=none; b=rAdirqH+SNe2MgNvPW2Xk+Gxh8kxWwXyEIMlcblJsuT5V9q/Y7EAqdw/1bKY+68pUTBZVn3DwEBo9UvG4xmBzTafNelt/YekCfNyXy/50Hnl8xNAgQNrCbuzIS8L3gUwgnWKtmnByaVXgWeBAqK/zIHszya1CiGjNO7/4euGdwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752358296; c=relaxed/simple;
-	bh=Ae8NoXwXSlJEHjBfj9+SvAwqq53ABo/o138ibg61o/8=;
-	h=Message-ID:Date:MIME-Version:Subject:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RxocBS8lxMz/9+RArsNL70z8mEyRBbT0IHXFljGRllsLWJmHnTkqJTJXtKxww/Vm2F7+0sSdKPMLjpHDG0pML92XtPfwAFIAgW/fT9igSI8B8jvmf45t5xhOQBiYbMhYt9h9SEHn8IHAzZxmt3XnO+diqnt/GDtDk0D1ITkzpBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aaLnbdc/; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1752362781; c=relaxed/simple;
+	bh=Wm+b+cUSHRkFTh2D1w+em+29oqKwtZr3rYSZ3dM2NKk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AGHH4XtsyG0LEP2bAuXLOua1JmVnVgWeZ542PnhvtTo+BhKCJHPRs0IZcMrxeKAYXcOYF7ZyJ1SVYtb2WVIY1QRuFQCY2WujSGJdSJybLxyjOX6ooeQUTg+UMgtBVMBmB5OSJMm1Jpcqi5FVX1XP9xWYJZemeVal/QU4iMpPGZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BXGecH2O; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aaLnbdc/"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-456107181f8so58815e9.2
-        for <linux-s390@vger.kernel.org>; Sat, 12 Jul 2025 15:11:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1752358293; x=1752963093; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:subject:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rIEQX44X/NeDZwLNKmN4YY266j4thbPs2H0dkeS01cM=;
-        b=aaLnbdc/GNqsktAtLbxNGs+okmttUPGZNhMZ56RGTxk/xlO7fom0qc4NW4eWJcUeZh
-         D/q+5dRvDuSHibmgsmnSQpSrgWt7TWLmwYS3QdFjH7OgKbjKEW+/VmiqbnBcRsUPEXc2
-         1XNR7xpiHuA9cZBEaxXW/tOorWed8VQeyfTZthzQFexohrIX8ddeNDsEa1MYYHYuoR0M
-         0iOMYckiOZ6P1taIkp+ipcq4zU6BfLV2lrbO3dVnAxqvxbVK3BL7Xv3krnIshJSqiNBI
-         Gw8M+hsH3KDiW91jF7pu8oo0jVOyx01GDaQlM68zBbYiVHZqHLKzaTiSipCXut6pxpPp
-         Mlpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752358293; x=1752963093;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:subject:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rIEQX44X/NeDZwLNKmN4YY266j4thbPs2H0dkeS01cM=;
-        b=rHOYOQPsqrOalITso5a9gIHH7z4D9Hl2gsoSP6xmHLeuCzP27p72eZAJ4JNIqiKdQ/
-         DTPnxoSzIPL0Pje6UxaInV5WAvSTkxjN0BvQHtMi0T1fnSxTZ2a/D21bIOX9jMZJxZeP
-         Q4zFPbcVV1qgBhjFWhbDYOCoD+BCWWeWT7BmycS7FNIUZPLsXJmINy+QlCTD0GM4bSkx
-         mPDXNpJsaVTZcSMfNyYVvfd3jqZ7FnHZuj2XIf2Mslng2T6nEJDP0kmqrnPsQ6stF1Bm
-         Bez85dEv9PTJvl/MCeAhyuaIWFy2PVDCPG8MFCarqRFUAOsrcRdTaj6G8YaaBDBHyw7b
-         rEBw==
-X-Forwarded-Encrypted: i=1; AJvYcCUOQg95RmGSuxIftFoLcqM2wYMfr5OJVfQ28iXn8OReOTI1mu2DS8eR4XgLBhNG4Gv4Iccj/Y6vOjDz@vger.kernel.org
-X-Gm-Message-State: AOJu0YxA9eyFsUccAmU0rBeymJQA2X/dzxu0ET0yIQ0ItE0r/qAN+48Q
-	6rTj2o2fi91kAlPE4JHUlTwVJbdgFpkrUTGSNz0IUOrDfg2fmc2n+mw=
-X-Gm-Gg: ASbGncvhwyWcx76ufYTssFVav1QzJnLfb09I1J2xg9Onuaa6ikcQ+lrFBjQ6koUdO9A
-	lC9vRCXubonQ/M8ZXZPpf0OSvwwGKLmaOU2FAnUs21x9b1SLrZX2vY72I1oN73Nbrlwv20sPsuA
-	ayLdEWMLDGMsjTXD9EN8mQJVOt3qbMx+sH9CB3podyvgR2OTdYU5fuRlKcDnF67y1hTmg97d2EZ
-	xOEGGcSESW2uQJlYl/xRAeW7AzBZOocWzUpvyjW7PSBlLMoaU2OLu6uROyfh5A4gSeo2/Mw8828
-	Ze2aoEGGYuO3Jgg/HoFUiHxazXXDaF8sYGwLw2g5eZG5KgHeprdsstmEshuDltkcu+EalU1deni
-	/E7is9GI7jSOsprbvSwpvWo6+TT6KHZ7s3IYqhDka5OzpBKOrS0eTniy6ndZrznH2ST4t6A3T
-X-Google-Smtp-Source: AGHT+IH6BHzG3H2KccIJu8rf1vckh5EEY0odAEa8FuernOJ/eh7pAdASrImw9HeMXjAV1lg5R54kSA==
-X-Received: by 2002:a05:600c:4f52:b0:43d:fa58:81d2 with SMTP id 5b1f17b1804b1-454f4286ee1mr26157335e9.9.1752358292709;
-        Sat, 12 Jul 2025 15:11:32 -0700 (PDT)
-Received: from localhost (182.red-80-39-24.staticip.rima-tde.net. [80.39.24.182])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-454d5032e9esm125825635e9.3.2025.07.12.15.11.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 12 Jul 2025 15:11:32 -0700 (PDT)
-Message-ID: <76bde3f1-0f06-46fc-8e0a-729e6629024c@gmail.com>
-Date: Sun, 13 Jul 2025 00:11:30 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BXGecH2O"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA2EEC4CEEF;
+	Sat, 12 Jul 2025 23:26:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1752362780;
+	bh=Wm+b+cUSHRkFTh2D1w+em+29oqKwtZr3rYSZ3dM2NKk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=BXGecH2Oi09zYYogLQHo2bcCstSs3o8GTy/y92HPFCq1Vd1rAkWZDhHndg8qF7W9t
+	 hY7U8iag2AUbYsiKLN3G0YIlG4R3dwHnDcePSMDa4a/qmR6ruDaJYbtFY8Two6AY4+
+	 7qzComryaIIpcoUBCP4hHCTfmnsSsJzMbgLZH62EkCgnIIOWHpuygf4BYTME+XdxXI
+	 zXtsID8UasU+xHkOi2LOcQC4dX9EBk5jnaAjd22aerVY2n7+JISpevPL8uzubPkLTn
+	 jzSWK2I+AzXSQ6LPbtB5yzjG7yed3vDW9oqHq9T9T+XfD+wHRIRpSNmG/aMOAzNcDm
+	 N4SU7huVFEjrA==
+From: Eric Biggers <ebiggers@kernel.org>
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Ard Biesheuvel <ardb@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	x86@kernel.org,
+	Eric Biggers <ebiggers@kernel.org>
+Subject: [PATCH 00/26] SHA-1 library functions
+Date: Sat, 12 Jul 2025 16:22:51 -0700
+Message-ID: <20250712232329.818226-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH] multipath-tools: fix default blacklist of s390 devices
-Cc: Stefan Haberland <sth@linux.ibm.com>, Nigel Hislop
- <hislop_nigel@emc.com>,
- Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Hannes Reinecke <hare@suse.de>,
- Martin Wilck <mwilck@suse.com>, Benjamin Marzinski <bmarzins@redhat.com>,
- Christophe Varoqui <christophe.varoqui@opensvc.com>,
- S390-ML <linux-s390@vger.kernel.org>, DM-DEVEL-ML
- <dm-devel@lists.linux.dev>, Nigel Hislop <hislop_nigel@dell.com>
-References: <20250712201454.215404-1-xose.vazquez@gmail.com>
-Content-Language: en-US, en-GB, es-ES
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-In-Reply-To: <20250712201454.215404-1-xose.vazquez@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 7/12/25 10:14 PM, Xose Vazquez Perez wrote:
+This series is also available at:
 
->   libmultipath/hwtable.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/libmultipath/hwtable.c b/libmultipath/hwtable.c
-> index 081d119c..4ca4245c 100644
-> --- a/libmultipath/hwtable.c
-> +++ b/libmultipath/hwtable.c
-> @@ -687,7 +687,7 @@ static struct hwentry default_hw[] = {
->   		/* PAV DASD FBA */
->   		.vendor        = "IBM",
->   		.product       = "S/390 DASD FBA",
-> -		.bl_product    = "S/390",
-> +		.bl_product    = "S/390 DASD FBA",
->   		.uid_attribute = "ID_UID",
->   		.no_path_retry = NO_PATH_RETRY_QUEUE,
->   		.pgpolicy      = MULTIBUS,
+    git fetch https://git.kernel.org/pub/scm/linux/kernel/git/ebiggers/linux.git sha1-lib-v1
 
-Is PAV really supported on FBA devices ???
-And other than 3390 and 3380(3390 model 2/3 in track-compatibility mode) ECKD types ?
+Patches 1-14 reorganize the kernel's SHA-1 code to be consistent with
+the way the SHA-2 code is now organized:
 
-Source, z/vm docs: https://www.vm.ibm.com/storman/pav/pav2.html#2001
+- Add SHA-1 and HMAC-SHA1 library functions.
+- Make the SHA-1 (and HMAC-SHA1) library functions use the existing
+  architecture-optimized SHA-1 code, which is moved into lib/crypto/.
+- Reimplement the old-school crypto API's "sha1" and "hmac(sha1)"
+  algorithms on top of the SHA-1 and HMAC-SHA1 library functions.
 
-Thanks.
+The diffstat for that part is:
+
+    65 files changed, 1052 insertions(+), 1582 deletions(-)
+
+This hopefully should look quite boring and familiar by now, as
+essentially the same cleanup was already applied to SHA-2.
+
+Patch 15 adds sha1_kunit.
+
+Note that while SHA-1 is a legacy algorithm, it still has many in-kernel
+users for legacy protocols.  So it's not like we'll be able to remove
+the SHA-1 code from the kernel anytime soon.  And some of these users
+are currently having to jump through some *major* hoops to work around
+the limitations of the old-school crypto API.  The library API greatly
+simplifies things, and it makes the SHA-1 code consistent with the SHA-2
+code.  So, IMO it's well worth doing this reorganization of the SHA-1
+code, even though SHA-1 is a legacy algorithm.
+
+To show this even more clearly, patches 16-26 convert various users to
+use the SHA-1 library API (or both SHA-1 and SHA-2, in the case of some
+users that use both algorithms).  The diffstat for that part is:
+
+    27 files changed, 169 insertions(+), 903 deletions(-)
+
+For 6.17, I'd like to take patches 1-15 at the most.  Patches 16-26
+would be for later, and I'll probably resend them individually later for
+subsystem maintainers to take.
+
+Eric Biggers (26):
+  crypto: x86/sha1 - Rename conflicting symbol
+  lib/crypto: sha1: Rename sha1_init() to sha1_init_raw()
+  lib/crypto: sha1: Add SHA-1 library functions
+  lib/crypto: sha1: Add HMAC support
+  crypto: sha1 - Wrap library and add HMAC support
+  crypto: sha1 - Use same state format as legacy drivers
+  lib/crypto: arm/sha1: Migrate optimized code into library
+  lib/crypto: arm64/sha1: Migrate optimized code into library
+  lib/crypto: mips/sha1: Migrate optimized code into library
+  lib/crypto: powerpc/sha1: Migrate optimized code into library
+  lib/crypto: s390/sha1: Migrate optimized code into library
+  lib/crypto: sparc/sha1: Migrate optimized code into library
+  lib/crypto: x86/sha1: Migrate optimized code into library
+  crypto: sha1 - Remove sha1_base.h
+  lib/crypto: tests: Add KUnit tests for SHA-1 and HMAC-SHA1
+  bpf: Use sha1() instead of sha1_transform() in bpf_prog_calc_tag()
+  sctp: Use HMAC-SHA1 and HMAC-SHA256 library functions
+  ipv6: sr: Use HMAC-SHA1 and HMAC-SHA256 library functions
+  tee: Use SHA-1 library instead of crypto_shash
+  lib/digsig: Use SHA-1 library instead of crypto_shash
+  drm/bridge: it6505: Use SHA-1 library instead of crypto_shash
+  nfc: s3fwrn5: Use SHA-1 library instead of crypto_shash
+  ppp: mppe: Use SHA-1 library instead of crypto_shash
+  KEYS: trusted_tpm1: Use SHA-1 library instead of crypto_shash
+  ipv6: Switch to higher-level SHA-1 functions
+  lib/crypto: sha1: Remove low-level functions from API
+
+ arch/arm/configs/exynos_defconfig             |   1 -
+ arch/arm/configs/milbeaut_m10v_defconfig      |   2 -
+ arch/arm/configs/multi_v7_defconfig           |   2 -
+ arch/arm/configs/omap2plus_defconfig          |   1 -
+ arch/arm/configs/pxa_defconfig                |   1 -
+ arch/arm/crypto/Kconfig                       |  31 --
+ arch/arm/crypto/Makefile                      |   6 -
+ arch/arm/crypto/sha1-ce-glue.c                |  72 ----
+ arch/arm/crypto/sha1_glue.c                   |  75 ----
+ arch/arm/crypto/sha1_neon_glue.c              |  83 -----
+ arch/arm64/configs/defconfig                  |   1 -
+ arch/arm64/crypto/Kconfig                     |  11 -
+ arch/arm64/crypto/Makefile                    |   3 -
+ arch/arm64/crypto/sha1-ce-glue.c              | 118 -------
+ arch/mips/cavium-octeon/crypto/Makefile       |   1 -
+ arch/mips/cavium-octeon/crypto/octeon-sha1.c  | 146 --------
+ arch/mips/configs/cavium_octeon_defconfig     |   1 -
+ arch/mips/crypto/Kconfig                      |  10 -
+ arch/powerpc/configs/44x/akebono_defconfig    |   1 -
+ arch/powerpc/configs/powernv_defconfig        |   1 -
+ arch/powerpc/configs/ppc64_defconfig          |   1 -
+ arch/powerpc/crypto/Kconfig                   |  16 -
+ arch/powerpc/crypto/Makefile                  |   4 -
+ arch/powerpc/crypto/sha1-spe-glue.c           | 107 ------
+ arch/powerpc/crypto/sha1.c                    |  78 -----
+ arch/s390/configs/debug_defconfig             |   1 -
+ arch/s390/configs/defconfig                   |   1 -
+ arch/s390/crypto/Kconfig                      |  10 -
+ arch/s390/crypto/Makefile                     |   1 -
+ arch/s390/crypto/sha1_s390.c                  | 103 ------
+ arch/sparc/crypto/Kconfig                     |  10 -
+ arch/sparc/crypto/Makefile                    |   2 -
+ arch/sparc/crypto/sha1_glue.c                 |  94 -----
+ arch/x86/crypto/Kconfig                       |  14 -
+ arch/x86/crypto/Makefile                      |   3 -
+ arch/x86/crypto/sha1_ssse3_glue.c             | 324 ------------------
+ crypto/Makefile                               |   2 +-
+ crypto/sha1.c                                 | 201 +++++++++++
+ crypto/sha1_generic.c                         |  87 -----
+ crypto/testmgr.c                              |   6 +
+ drivers/crypto/img-hash.c                     |   2 +-
+ drivers/gpu/drm/bridge/Kconfig                |   3 +-
+ drivers/gpu/drm/bridge/ite-it6505.c           |  33 +-
+ drivers/net/ppp/Kconfig                       |   3 +-
+ drivers/net/ppp/ppp_mppe.c                    | 109 +-----
+ drivers/nfc/s3fwrn5/Kconfig                   |   3 +-
+ drivers/nfc/s3fwrn5/firmware.c                |  17 +-
+ drivers/tee/Kconfig                           |   3 +-
+ drivers/tee/tee_core.c                        |  55 +--
+ include/crypto/sha1.h                         | 186 +++++++++-
+ include/crypto/sha1_base.h                    |  82 -----
+ include/linux/filter.h                        |   6 -
+ include/net/sctp/auth.h                       |  12 +-
+ include/net/sctp/constants.h                  |   2 -
+ include/net/sctp/structs.h                    |   5 -
+ include/net/seg6_hmac.h                       |  12 -
+ kernel/bpf/core.c                             |  49 +--
+ lib/Kconfig                                   |   3 +-
+ lib/crypto/Kconfig                            |  14 +
+ lib/crypto/Makefile                           |  23 +-
+ .../crypto/arm}/sha1-armv4-large.S            |   0
+ .../crypto/arm}/sha1-armv7-neon.S             |  13 +-
+ .../crypto => lib/crypto/arm}/sha1-ce-core.S  |   4 +-
+ lib/crypto/arm/sha1.h                         |  46 +++
+ .../crypto/arm64}/sha1-ce-core.S              |  40 +--
+ lib/crypto/arm64/sha1.h                       |  39 +++
+ lib/crypto/mips/sha1.h                        |  81 +++++
+ .../crypto/powerpc}/sha1-powerpc-asm.S        |   0
+ .../crypto/powerpc}/sha1-spe-asm.S            |   0
+ lib/crypto/powerpc/sha1.h                     |  67 ++++
+ lib/crypto/s390/sha1.h                        |  28 ++
+ lib/crypto/sha1.c                             | 267 ++++++++++++---
+ lib/crypto/sparc/sha1.h                       |  43 +++
+ .../crypto => lib/crypto/sparc}/sha1_asm.S    |   0
+ lib/crypto/tests/Kconfig                      |  10 +
+ lib/crypto/tests/Makefile                     |   1 +
+ lib/crypto/tests/sha1-testvecs.h              | 212 ++++++++++++
+ lib/crypto/tests/sha1_kunit.c                 |  39 +++
+ .../crypto/x86/sha1-avx2-asm.S                |   7 +-
+ .../crypto/x86/sha1-ni-asm.S                  |  23 +-
+ .../crypto/x86/sha1-ssse3-and-avx.S           |  13 +-
+ lib/crypto/x86/sha1.h                         |  75 ++++
+ lib/digsig.c                                  |  46 +--
+ net/ipv6/Kconfig                              |   6 +-
+ net/ipv6/addrconf.c                           |  23 +-
+ net/ipv6/seg6.c                               |   7 -
+ net/ipv6/seg6_hmac.c                          | 199 ++---------
+ net/sctp/Kconfig                              |  15 +-
+ net/sctp/auth.c                               | 153 ++-------
+ net/sctp/socket.c                             |  10 -
+ security/keys/trusted-keys/Kconfig            |   4 +-
+ security/keys/trusted-keys/trusted_tpm1.c     | 221 ++----------
+ 92 files changed, 1472 insertions(+), 2474 deletions(-)
+ delete mode 100644 arch/arm/crypto/sha1-ce-glue.c
+ delete mode 100644 arch/arm/crypto/sha1_glue.c
+ delete mode 100644 arch/arm/crypto/sha1_neon_glue.c
+ delete mode 100644 arch/arm64/crypto/sha1-ce-glue.c
+ delete mode 100644 arch/mips/cavium-octeon/crypto/octeon-sha1.c
+ delete mode 100644 arch/powerpc/crypto/sha1-spe-glue.c
+ delete mode 100644 arch/powerpc/crypto/sha1.c
+ delete mode 100644 arch/s390/crypto/sha1_s390.c
+ delete mode 100644 arch/sparc/crypto/sha1_glue.c
+ delete mode 100644 arch/x86/crypto/sha1_ssse3_glue.c
+ create mode 100644 crypto/sha1.c
+ delete mode 100644 crypto/sha1_generic.c
+ delete mode 100644 include/crypto/sha1_base.h
+ rename {arch/arm/crypto => lib/crypto/arm}/sha1-armv4-large.S (100%)
+ rename {arch/arm/crypto => lib/crypto/arm}/sha1-armv7-neon.S (98%)
+ rename {arch/arm/crypto => lib/crypto/arm}/sha1-ce-core.S (96%)
+ create mode 100644 lib/crypto/arm/sha1.h
+ rename {arch/arm64/crypto => lib/crypto/arm64}/sha1-ce-core.S (76%)
+ create mode 100644 lib/crypto/arm64/sha1.h
+ create mode 100644 lib/crypto/mips/sha1.h
+ rename {arch/powerpc/crypto => lib/crypto/powerpc}/sha1-powerpc-asm.S (100%)
+ rename {arch/powerpc/crypto => lib/crypto/powerpc}/sha1-spe-asm.S (100%)
+ create mode 100644 lib/crypto/powerpc/sha1.h
+ create mode 100644 lib/crypto/s390/sha1.h
+ create mode 100644 lib/crypto/sparc/sha1.h
+ rename {arch/sparc/crypto => lib/crypto/sparc}/sha1_asm.S (100%)
+ create mode 100644 lib/crypto/tests/sha1-testvecs.h
+ create mode 100644 lib/crypto/tests/sha1_kunit.c
+ rename arch/x86/crypto/sha1_avx2_x86_64_asm.S => lib/crypto/x86/sha1-avx2-asm.S (98%)
+ rename arch/x86/crypto/sha1_ni_asm.S => lib/crypto/x86/sha1-ni-asm.S (90%)
+ rename arch/x86/crypto/sha1_ssse3_asm.S => lib/crypto/x86/sha1-ssse3-and-avx.S (97%)
+ create mode 100644 lib/crypto/x86/sha1.h
+
+-- 
+2.50.1
+
