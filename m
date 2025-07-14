@@ -1,136 +1,180 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89AA624888F
-	for <linux-s390@vger.kernel.org>; Mon, 14 Jul 2025 12:41:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10B00246BBA
+	for <linux-s390@vger.kernel.org>; Mon, 14 Jul 2025 16:23:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752496874; cv=none; b=SoswoildJQZ72sDJetp/yaxkqBt4ek8ghaXvZUQy4RmAkE+u2Jjo4mYuicKrGT68mPmIpdegwvLBRchJfAsK3W8vFxH0CYYZ6jAJG8AO/K8GxQJKNixFdQTw0A5aWDF3xz0vIMexHyTsQ4SKqFIKJoQpUzFjrg/wz1oibaFSWw4=
+	t=1752510234; cv=none; b=MdXR2EWDzL9TZ+wUJBJq5tjnlXqkbTXVh9VSEv5iIRJZG2AuoGlaYUplUHk4wIxWnBlX0xlvOfdxmnyPgCe0QDCLdK8TGVf2hIpqUOpUtgoouKzv2fyb9WnjB1XjcbEa/gUUC9xUPiymSY4WrydA3+y2ij9ci1PtH/ZN69KgOK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752496874; c=relaxed/simple;
-	bh=gLlxaBFAjAXm8IAoonxaRI3yf3e97ScXgTzdsSqiLPs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SOeCSUBul3fuuQePgCMFb2ruu0CvryKq8ETp1W7Yavs6RXmqbuhb/kTMKg8IzDHz7tEcvz+w/bg7DuuPp+FYo/GvTyzIhCoA0psicjWT0j3+2hXq/As7ZnJoB8oWwQ9WsOK2bzT3i96vugqpHbrymZRdj+C1acq3jdmFQoWRXG0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iE198p78; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1752510234; c=relaxed/simple;
+	bh=99KgSQThYEi+muPi3NbKqxLa98OPPNRwJiXJuLspEuM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iMw6++vwujTm+g871wspm0Hm3wI/w+5U/9khfbq4MLcLVd4U9jYlX03BZntSunK5hMJMUssF0G7rrFmWqVp3S0Z0MbJ3N2xKL2b7u9779iy8t3I547XeVbCruocKRLTj7CB9v1wNPoRwuI3S4SPn8R6fvQhbohUM0MOoUglvWvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=tElVESDD; arc=none smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iE198p78"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56E7Mdxg012723;
-	Mon, 14 Jul 2025 12:40:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gLlxaB
-	FAjAXm8IAoonxaRI3yf3e97ScXgTzdsSqiLPs=; b=iE198p78QtElS8A55QtzyG
-	FcU6dBQZxTvmxbawfEhPOTRl3FSeo/AdQcO6VnAnoZAVHS96E9FVnJNoTxeGnEya
-	zttQHGQgTYnxKdvNyLTS5OVoPupramSYdilBUnJXbuyu/uJpYnyupy+kmnsUkKfK
-	iamhzvE8WzjJ24UMBHzWxrRGlae9Xs9sOMWLoSmd6QqXpWXo3O7u3Qjr6tscIfjV
-	vfUJh6p6ihVzNI98mphwqGXDUmlkWyB9ah4K8/Z6i02ysSYKsA8+TN7V+LvU1PI7
-	9CfMdPhEFixa96QJhcuZqlJW9tWWTVjB6MCDmRmtH0XIvXh+eOfbYrwY8lC7UrOA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47ufeesprd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Jul 2025 12:40:58 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 56ECWvkN029228;
-	Mon, 14 Jul 2025 12:40:57 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47ufeespr8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Jul 2025 12:40:57 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56E8VxbY031904;
-	Mon, 14 Jul 2025 12:40:56 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 47v21tx3nk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Jul 2025 12:40:56 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56ECeq5J48890148
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Jul 2025 12:40:52 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6F2AA20043;
-	Mon, 14 Jul 2025 12:40:52 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A531920040;
-	Mon, 14 Jul 2025 12:40:51 +0000 (GMT)
-Received: from [9.111.33.153] (unknown [9.111.33.153])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 14 Jul 2025 12:40:51 +0000 (GMT)
-Message-ID: <22ddcdeb-7cd3-4d26-9ac7-25570ac0fef3@linux.ibm.com>
-Date: Mon, 14 Jul 2025 14:40:51 +0200
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="tElVESDD"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-b3508961d43so3970495a12.3
+        for <linux-s390@vger.kernel.org>; Mon, 14 Jul 2025 09:23:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1752510232; x=1753115032; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CtFi1sRNGmlQS4pE8nXz6NVOa+/bYBo/j5rKrMyjft4=;
+        b=tElVESDDQHOPd0f2S/KiirbHEMtBfXbvf1IgLZm71PWQufELd1S1Sfng+tKLzUdjEj
+         Amwata7FWJCPVOQvPz+4Umyr04M8rDonX0xB3Elpppx3K/zjkGBXasfbEkVfJ7DvE+4G
+         dviJhSuQLCwaCngSJfnHAT6Zy0VpOlHLp7jprqUQEuL/1sjH56NejSeZmDLyJ4m0fFRc
+         numvvvu6ZQXVPsuR9EmvSOMvlN5wDUsHphxss2R7uV+iUtrl63t8WpTilioYU/WXwccJ
+         CzXusCrQ8yoB/KVTfPsEBZZ7sVUV9Q2PG3on7doybjEIRcpwQtLABNaM9xsWk68tvIXl
+         YiSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752510232; x=1753115032;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CtFi1sRNGmlQS4pE8nXz6NVOa+/bYBo/j5rKrMyjft4=;
+        b=QodHfxc0Y9KjJ+bwUTKUCgr4J1pJHdPrGd/0Ml/PcLGrbSIyyH2EfNJ+eJeuRgA8Kf
+         5kxveXagAjIT3vNrzPtEPQv6wNOKsQMdN4Ja0fkKGm/L30UKg1rlyfVUyCHPISPQlvqp
+         Tbapum3q74tf1rsEJFk5WgzssKGZDtVGf6/WK1jWo9nsGmSxiG7IeNOnk2NyuG9ZxkxL
+         4iUGWYtzxYLDxLv4gpcJ0ZCoCGVBuY1bW4OD9js2/Shv+sI0GS0DJzd42CVT30C8kmUK
+         nGnCvA31iMbJ7eLwRMoaCqJXfwC5Cbp/gH2AreMcH0alBJFrsn3vqJ0SNBhrUjPAKxV7
+         2wnw==
+X-Forwarded-Encrypted: i=1; AJvYcCWo7Io2WhRtGR3+42eCkFkK8uI1vjHUynufoptyLAuHKhmm8MaeHvyT3Sk0EWJSEMnqknCEXGNU0kWY@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz1Eq/14Vxd35Pls9V7sTSrui7dR9heYgP8q8e/El7iPDNGMnEu
+	oRu+f726W/aCBga0kAg7auGWc9F/WaEQbF/d1asWnSOsH2jwB5uh5Og/mh2jgNhqxaq+hvqNEsZ
+	YKyi3qX/o6zTXF9wLrprO+JEf6aSNTLOPZK9Rnrhk
+X-Gm-Gg: ASbGncsXZ2HBVhAJ6c3FrsV4ie8+DK/1so+irXPpgBNpN78NcdWIY5jSiKB7wC7Q/Yl
+	/PjY+HM3yog+SsFyWtvnJfv0JOrw13S42cTHkIydmvsiPjyw7oksr6AaWq97a534lxfBlzTrQYQ
+	TsCz3hafhPGGGsmamrVTJp8xty/GBaJ5MU08dGq6CRmqIZWX1nW6p+W3+EYqOhgqo98zx9nh22C
+	le5ZCd8oSWyD2dNdToGVbIq91GS1b0BkLdDuA==
+X-Google-Smtp-Source: AGHT+IHqlWFWWNDjDX/Iogv1k6KaZniLPyiFXJh0sCPuaZ5V2ewUcGPV2Q8bNACpYvEK0fixjvOVjjDDM2nZ2gYCvLg=
+X-Received: by 2002:a17:90b:2e4f:b0:313:271a:af56 with SMTP id
+ 98e67ed59e1d1-31c4cdad83emr20081422a91.30.1752510232008; Mon, 14 Jul 2025
+ 09:23:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] multipath-tools: fix default blacklist of s390 devices
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>
-Cc: Nigel Hislop <hislop_nigel@emc.com>,
-        Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Hannes Reinecke <hare@suse.de>,
-        Martin Wilck <mwilck@suse.com>,
-        Benjamin Marzinski <bmarzins@redhat.com>,
-        Christophe Varoqui <christophe.varoqui@opensvc.com>,
-        S390-ML <linux-s390@vger.kernel.org>,
-        DM-DEVEL-ML <dm-devel@lists.linux.dev>
-References: <20250712201454.215404-1-xose.vazquez@gmail.com>
-Content-Language: en-US
-From: Stefan Haberland <sth@linux.ibm.com>
-In-Reply-To: <20250712201454.215404-1-xose.vazquez@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzE0MDA3MiBTYWx0ZWRfXxLO55zMArkbp EXsmPa0mIx3PB9wFOM9vG8d6Yk+5BjAuGoWyzM75G9XNrBftxVwkIgCQSdWjajN+M5KpBBGes+U 45ANSAmwzH8jLR3WQrxOQPgaUAQj9O6HEqnHavPkXve+oiTuYvCgAXPznCpAbqLiHWRfqshVw95
- 9Tb/uBt1noYL/+Wl41XMvnmCRGpr7U/2NmqKa0CP/Q28qxKzvqgCSyrH5OfiwoQwPTLNcx/MZCJ OtLk2/6RooCeJa0jDpBauYaDTHzOSEEt+3STSl2z3fPFsF317dkJWUYHOrM+ErFSJspnQBlmY2M 2H+B87Aq4ropkzLpN+vhmzfyrG779P8ihgt9GUj7l32CQZzOgPqpxGjVIq4/4NUn/A84ejbEMUY
- sCQvletfVGAXx7x4Ak6uDMK2d2BHTmHQCC1BgLVcHfpSp2j3lk5Rh8nK7g4IkqVAUdevzc5q
-X-Proofpoint-ORIG-GUID: LyUoVM0SW5z_bPzjpsXEZmV6mG3qrilt
-X-Authority-Analysis: v=2.4 cv=C9/pyRP+ c=1 sm=1 tr=0 ts=6874fada cx=c_pps a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17 a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=NEAV23lmAAAA:8 a=VnNF1IyMAAAA:8 a=G0_B3m8xAAAA:8 a=3Up_VBsHAAAA:8 a=iox4zFpeAAAA:8
- a=20KFwNOVAAAA:8 a=J4EkDXhdAAAA:8 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=9iZY6TRnBY2AT0LN0igA:9 a=QEXdDO2ut3YA:10 a=gBgTPrObzSPeouD7eQ2s:22 a=p-kn8v_atdPrL5O0KNWa:22 a=WzC6qhA0u3u7Ye7llzcV:22 a=XV5PuULvsUy3P8kbSbK6:22
-X-Proofpoint-GUID: U6Uam8mJM5UTNDjbX0aOmTfLxmS4s1TU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
- definitions=2025-07-14_01,2025-07-14_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- impostorscore=0 spamscore=0 suspectscore=0 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=999 bulkscore=0 adultscore=0 clxscore=1011
- mlxscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507140072
+References: <20250711060808.2977529-1-kuniyu@google.com> <965af724-c3b4-4e47-97d6-8591ca9790db@linux.ibm.com>
+In-Reply-To: <965af724-c3b4-4e47-97d6-8591ca9790db@linux.ibm.com>
+From: Kuniyuki Iwashima <kuniyu@google.com>
+Date: Mon, 14 Jul 2025 09:23:40 -0700
+X-Gm-Features: Ac12FXzhMnuOr2Yor8xWWkSSz6suRHysgvVNWOynlvLw1cpJlOlTesXvNOUzeSE
+Message-ID: <CAAVpQUAQVVwPo5fi6rCcJQhH=jqQnkNaAMrBSJju85taEiTdkQ@mail.gmail.com>
+Subject: Re: [PATCH v1 net] smc: Fix various oops due to inet_sock type confusion.
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
+	Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+	Wen Gu <guwen@linux.alibaba.com>, Simon Horman <horms@kernel.org>, 
+	Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, 
+	syzbot+40bf00346c3fe40f90f2@syzkaller.appspotmail.com, 
+	syzbot+f22031fad6cbe52c70e7@syzkaller.appspotmail.com, 
+	syzbot+271fed3ed6f24600c364@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-Am 12.07.25 um 22:14 schrieb Xose Vazquez Perez:
-> Each blacklist only their own devices.
+On Mon, Jul 14, 2025 at 12:42=E2=80=AFAM Alexandra Winter <wintera@linux.ib=
+m.com> wrote:
+> On 11.07.25 08:07, Kuniyuki Iwashima wrote:
+> > syzbot reported weird splats [0][1] in cipso_v4_sock_setattr() while
+> > freeing inet_sk(sk)->inet_opt.
+> >
+> > The address was freed multiple times even though it was read-only memor=
+y.
+> >
+> > cipso_v4_sock_setattr() did nothing wrong, and the root cause was type
+> > confusion.
+> >
+> > The cited commit made it possible to create smc_sock as an INET socket.
+> >
+> > The issue is that struct smc_sock does not have struct inet_sock as the
+> > first member but hijacks AF_INET and AF_INET6 sk_family, which confuses
+> > various places.
+> >
+> > In this case, inet_sock.inet_opt was actually smc_sock.clcsk_data_ready=
+(),
+> > which is an address of a function in the text segment.
+> >
+> >   $ pahole -C inet_sock vmlinux
+> >   struct inet_sock {
+> >   ...
+> >           struct ip_options_rcu *    inet_opt;             /*   784    =
+ 8 */
+> >
+> >   $ pahole -C smc_sock vmlinux
+> >   struct smc_sock {
+> >   ...
+> >           void                       (*clcsk_data_ready)(struct sock *)=
+; /*   784     8 */
+> >
+> > The same issue for another field was reported before. [2][3]
+> >
+> > At that time, an ugly hack was suggested [4], but it makes both INET
+> > and SMC code error-prone and hard to change.
+> >
+> > Also, yet another variant was fixed by a hacky commit 98d4435efcbf3
+> > ("net/smc: prevent NULL pointer dereference in txopt_get").
+> >
+> > Instead of papering over the root cause by such hacks, we should not
+> > allow non-INET socket to reuse the INET infra.
+> >
+> > Let's add inet_sock as the first member of smc_sock.
+> >
+> [...]
+> >
+> >  static struct lock_class_key smc_key;
+> > diff --git a/net/smc/smc.h b/net/smc/smc.h
+> > index 78ae10d06ed2e..2c90849637398 100644
+> > --- a/net/smc/smc.h
+> > +++ b/net/smc/smc.h
+> > @@ -283,10 +283,10 @@ struct smc_connection {
+> >  };
+> >
+> >  struct smc_sock {                            /* smc sock container */
+> > -     struct sock             sk;
+> > -#if IS_ENABLED(CONFIG_IPV6)
+> > -     struct ipv6_pinfo       *pinet6;
+> > -#endif
+> > +     union {
+> > +             struct sock             sk;
+> > +             struct inet_sock        icsk_inet;
+> > +     };
+> >       struct socket           *clcsock;       /* internal tcp socket */
+> >       void                    (*clcsk_state_change)(struct sock *sk);
+> >                                               /* original stat_change f=
+ct. */
 >
-> Cc: Stefan Haberland <sth@linux.ibm.com>
-> Cc: Nigel Hislop <hislop_nigel@emc.com>
-> Cc: Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Cc: Sven Schnelle <svens@linux.ibm.com>
-> Cc: Hannes Reinecke <hare@suse.de>
-> Cc: Martin Wilck <mwilck@suse.com>
-> Cc: Benjamin Marzinski <bmarzins@redhat.com>
-> Cc: Christophe Varoqui <christophe.varoqui@opensvc.com>
-> Cc: S390-ML <linux-s390@vger.kernel.org>
-> Cc: DM-DEVEL-ML <dm-devel@lists.linux.dev>
-> Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
-> ---
-> DASD devices been blacklisted twice, since:
-> https://github.com/opensvc/multipath-tools/commit/a6ff4f957c78bd15c49278ad359671a705eaf4b5
-> In the current code:
-> https://github.com/opensvc/multipath-tools/blob/de16cf82c5263fc148118be56ebf44c8f0ee60b8/libmultipath/blacklist.c#L233
-> ---
+> I would like to remind us of the discussions August 2024 around a patchse=
+t
+> called "net/smc: prevent NULL pointer dereference in txopt_get".
+> That discussion eventually ended up in the reduced (?)
+> commit 98d4435efcbf ("net/smc: prevent NULL pointer dereference in txopt_=
+get")
+> without a union.
+>
+> I still think this union looks dangerous, but don't understand the code w=
+ell enough to
+> propose an alternative.
+>
+> Maybe incorporate inet_sock in smc_sock? Like Paoplo suggested in
+> https://lore.kernel.org/lkml/20240815043714.38772-1-aha310510@gmail.com/T=
+/#maf6ee926f782736cb6accd2ba162dea0a34e02f9
+>
+> He also asked for at least some explanatory comments in the union. Which =
+would help me as well.
 
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+I agree with Paolo that smc_sock should "eventually" have only
+inet_sock as the first member, but I think this should/can be done
+in net-next as follow-up.
 
+The thread above shows such code churn was distracting enough
+and the improper fix was introduced.
