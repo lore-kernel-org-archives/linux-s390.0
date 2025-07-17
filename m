@@ -1,123 +1,221 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE18C1E520A
-	for <linux-s390@vger.kernel.org>; Thu, 17 Jul 2025 15:18:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0456B20E334
+	for <linux-s390@vger.kernel.org>; Thu, 17 Jul 2025 18:41:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752765496; cv=none; b=rwhhFFLJZdLgI1L20ykChOGdYbVcZukcAcZw9e364rXlaMPBKmh/vAIMKssu9EWRxCmzDkr8lnvY8t6md2XKcOJvPDB7BiOGmI4fZHWSeiXkwUvHbFntu1pv4ODjQUzjDuwkszlGjU1nvrBHu9g7P2hJ55lqf0+WrT1B3cS5ka0=
+	t=1752777694; cv=none; b=oerm2o7JG8CQqBxNNVmHfgNqnYR+cd3hbb1b906vjGylAn+1I+X622D9vDfaVJoPy1JBGZL9FAij+9OyuLHxliJWSsg8aEW5bLAK3+ZTTZ5gLsVj7pZzhY8aJhYr8FDmZfq/e2MSU47pjkd5vDic1sVcr97W2JsdFvc4dQ2oB4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752765496; c=relaxed/simple;
-	bh=iFSBrwv1TbSOx/vvsQuD9W3iV6kqDQrTbHO2R3cfZLI=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=m9315nPNLhN1qGmxoDFHbZBumgs6McXQk0mC6e9q4nRmfBT1oLKvCWh8myEhrQNNYJ9LLwYNdzfe0nylKI5dKzs6aODmZqpyst58m1xjbRY6uq2y3j1kjyaqnK7CJZe/XO+V5nNjsfI1ICsfFzMDiM71whwF8h+xUXNK0CA6aIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rCV1f4CX; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1752777694; c=relaxed/simple;
+	bh=/lloMq8FKGFq1Pg7OFRuTAjacQjZtuy1PfQUjPheMXk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ovmsl1lvHQqH/yllZlLdKRVNIARkyHsHM/i2Qe3CLHbf2o50aqqRTwzRNuh1yXwgYJkTSNpXv8Rv4lu85KtsOV8i90bGS/t0fYZypZXGvEYgClgA1Q+OXaAD3ykXCJvMAQnW7djByflkZnUOsdNuJmgtAB7VI70V9nROqQut+9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TVlRio/z; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rCV1f4CX"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56H8xPxf026978;
-	Thu, 17 Jul 2025 15:18:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=vaA/jPd9BMYcIbkQnvJiQmco3UvFFgfnc/uXiJ4paxY=; b=rCV1f4CXvzOx
-	e1H1UBT8R8yicVTrVDsFLZH2GTK3qvmLuv+v8HuQ4c+2tx71PhUtQK95xhusd270
-	M0Ml5Y4dANFfMlT3b/i7HRYpbPLw3OcGxNPz//f7Go0OOx+6yXcMaAbXkX85hLiI
-	kQtZ15+rLtoy1KWpE9zpcqV6SpEVnXaS46l7ck7Rqpl8qmtMMf+ol8aguh9KkS0W
-	V5tDopWauhZBmiNeAYA+bRpFltednqvQ7Xx0VfQwwr0UFja9dSIxDpL+NutMAGMc
-	gvPTtFb8I5DAoQdyb6c6cW1icp+GacMVRv/ll5pqmraJmhr+vcRA+hlTwidRJdiY
-	RhezmLgByQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47uf7dbvve-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Jul 2025 15:18:05 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 56HEwgdK020702;
-	Thu, 17 Jul 2025 15:18:05 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 47uf7dbvv9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Jul 2025 15:18:05 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56HCr87p025788;
-	Thu, 17 Jul 2025 15:18:03 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 47v31pvw2v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Jul 2025 15:18:03 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56HFI2W72490984
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Jul 2025 15:18:02 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2B92158066;
-	Thu, 17 Jul 2025 15:18:02 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 55D8B58065;
-	Thu, 17 Jul 2025 15:18:01 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 17 Jul 2025 15:18:01 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TVlRio/z"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752777691;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dGrxhCeS1UihQtSyLwZYefdsHJ3gt32bAk+gCeT3YuQ=;
+	b=TVlRio/zUNCrd5doW3bpKegqsA0/8tsVLBjViQ3jMbB8mmG7pmKpYnsmNyXWlMMnFrfj4G
+	ezrT56sMkhbq9T8R1q7GHmGVX+e4ApZkpQROYjGqoVU4XYdgjn7x4szi3sbIeakQJDsfUr
+	TO/bBjpe+eWtx0K/sJpsoV6UFki+miU=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-58-_31ifGVKPp6mZ4YwN5wsEA-1; Thu,
+ 17 Jul 2025 14:41:26 -0400
+X-MC-Unique: _31ifGVKPp6mZ4YwN5wsEA-1
+X-Mimecast-MFC-AGG-ID: _31ifGVKPp6mZ4YwN5wsEA_1752777683
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E0CAC1800368;
+	Thu, 17 Jul 2025 18:41:22 +0000 (UTC)
+Received: from chopper.redhat.com (unknown [10.22.66.69])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 86CC6196664F;
+	Thu, 17 Jul 2025 18:41:17 +0000 (UTC)
+From: Lyude Paul <lyude@redhat.com>
+To: rust-for-linux@vger.kernel.org,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Daniel Almeida <daniel.almeida@collabora.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Juergen Christ <jchrist@linux.ibm.com>,
+	Uros Bizjak <ubizjak@gmail.com>,
+	Brian Gerst <brgerst@gmail.com>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)),
+	linux-s390@vger.kernel.org (open list:S390 ARCHITECTURE),
+	linux-arch@vger.kernel.org (open list:GENERIC INCLUDE/ASM HEADER FILES)
+Subject: [PATCH v11 02/14] preempt: Introduce __preempt_count_{sub, add}_return()
+Date: Thu, 17 Jul 2025 14:37:54 -0400
+Message-ID: <20250717184055.2071216-3-lyude@redhat.com>
+In-Reply-To: <20250717184055.2071216-1-lyude@redhat.com>
+References: <20250717184055.2071216-1-lyude@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Thu, 17 Jul 2025 17:18:00 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: dengler@linux.ibm.com, ifranzki@linux.ibm.com, agk@redhat.com,
-        snitzer@kernel.org, linux-s390@vger.kernel.org,
-        dm-devel@lists.linux.dev, herbert@gondor.apana.org.au,
-        Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH v4 2/2] dm-integrity: introduce ahash support for the
- internal hash
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <50a28342-9d3c-b4e4-de13-40304eabb8b1@redhat.com>
-References: <50a28342-9d3c-b4e4-de13-40304eabb8b1@redhat.com>
-Message-ID: <7c019761106ce58f2e833c38d2a77063@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: k4sHELeTaAV1tc-jPFvZyczy6WZVbMny
-X-Authority-Analysis: v=2.4 cv=LoGSymdc c=1 sm=1 tr=0 ts=6879142d cx=c_pps a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17 a=kj9zAlcOel0A:10 a=Wb1JkmetP80A:10 a=xhkaElq_hg_zilitdiYA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: pFRjF0OzQnpeh798dwO3FiuLQohwBWb0
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzE3MDEzNCBTYWx0ZWRfX38cQGmNrUFwp O1LV7UydeMqeS+MC88QMzc95626bZYIzjXwfZQZhRzWrgd2UpC5puPpesyK4hL6fQz88lifaC5c 0qTYSNzDXXaYp8XOp3g5Kl6OmkEJF0lCmEIAHsUqrtjgCPRdH7+4KIRlcQyCgk5iTFKzpZFVQjb
- KjtBpAdgTLTzU66cK7V1PtrP6v7zDNhF6+JO5a73tilVMVoP4Bh8199ghEKAzazZNMfwTgigD4Y B0xIo9WjWpaiRyOjhHVLMjYUNNKeNyW9NIi3t8ndtywACFdHn1VX2pm8ljr67ftAcekM5LU7+j4 UARSomG8Ry5tyOYKJUSnZlvoesLlHUIN0zOiQ0Fmp2VKuldkyblcnR5rLM9tk94LjgCiAAlslFy
- bkSGTnVsJb/I8Mcm6JHrHOFUElxIsCd7DcGdj3UbI+XKzKZdT1BkKC9gF0Kn2vnby2hAPMDr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-17_01,2025-07-17_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
- lowpriorityscore=0 spamscore=0 malwarescore=0 impostorscore=0
- clxscore=1011 phishscore=0 mlxlogscore=608 priorityscore=1501
- suspectscore=0 mlxscore=0 adultscore=0 classifier=spam authscore=0
- authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2505280000 definitions=main-2507170134
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-Hi Mikulas
+From: Boqun Feng <boqun.feng@gmail.com>
 
-I just want to inform you that I picked up my phmac / dm-integrity work
-again after the phmac implementation is about to be merged into the next
-mainline kernel 6.17 :-) It has been a long long time to get the phmac
-integrated with all the pre-requirements...
+In order to use preempt_count() to tracking the interrupt disable
+nesting level, __preempt_count_{add,sub}_return() are introduced, as
+their name suggest, these primitives return the new value of the
+preempt_count() after changing it. The following example shows the usage
+of it in local_interrupt_disable():
 
-There where some issues with running a kernel with your ahash patch
-causing a wired kernel crash. However, I'll set up my development
-environment now and then let's see if these crashes still occur and
-maybe investigate and fix them.
+	// increase the HARDIRQ_DISABLE bit
+	new_count = __preempt_count_add_return(HARDIRQ_DISABLE_OFFSET);
 
-On 2025-02-05 21:23, Mikulas Patocka wrote:
-> Introduce ahash support for the "internal hash" algorithm.
-> 
-> Rework the dm-integrity code to be able to run the "internal hash"
-> either with a synchronous ("shash") or asynchronous ("ahash") hash
-> algorithm implementation.
-> 
-...
+	// if it's the first-time increment, then disable the interrupt
+	// at hardware level.
+	if (new_count & HARDIRQ_DISABLE_MASK == HARDIRQ_DISABLE_OFFSET) {
+		local_irq_save(flags);
+		raw_cpu_write(local_interrupt_disable_state.flags, flags);
+	}
+
+Having these primitives will avoid a read of preempt_count() after
+changing preempt_count() on certain architectures.
+
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+
+---
+V10:
+* Add commit message I forgot
+* Rebase against latest pcpu_hot changes
+V11:
+* Remove CONFIG_PROFILE_ALL_BRANCHES workaround from
+  __preempt_count_add_return()
+
+---
+ arch/arm64/include/asm/preempt.h | 18 ++++++++++++++++++
+ arch/s390/include/asm/preempt.h  | 10 ++++++++++
+ arch/x86/include/asm/preempt.h   | 10 ++++++++++
+ include/asm-generic/preempt.h    | 14 ++++++++++++++
+ 4 files changed, 52 insertions(+)
+
+diff --git a/arch/arm64/include/asm/preempt.h b/arch/arm64/include/asm/preempt.h
+index 0159b625cc7f0..49cb886c8e1dd 100644
+--- a/arch/arm64/include/asm/preempt.h
++++ b/arch/arm64/include/asm/preempt.h
+@@ -56,6 +56,24 @@ static inline void __preempt_count_sub(int val)
+ 	WRITE_ONCE(current_thread_info()->preempt.count, pc);
+ }
+ 
++static inline int __preempt_count_add_return(int val)
++{
++	u32 pc = READ_ONCE(current_thread_info()->preempt.count);
++	pc += val;
++	WRITE_ONCE(current_thread_info()->preempt.count, pc);
++
++	return pc;
++}
++
++static inline int __preempt_count_sub_return(int val)
++{
++	u32 pc = READ_ONCE(current_thread_info()->preempt.count);
++	pc -= val;
++	WRITE_ONCE(current_thread_info()->preempt.count, pc);
++
++	return pc;
++}
++
+ static inline bool __preempt_count_dec_and_test(void)
+ {
+ 	struct thread_info *ti = current_thread_info();
+diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
+index 6ccd033acfe52..5ae366e26c57d 100644
+--- a/arch/s390/include/asm/preempt.h
++++ b/arch/s390/include/asm/preempt.h
+@@ -98,6 +98,16 @@ static __always_inline bool should_resched(int preempt_offset)
+ 	return unlikely(READ_ONCE(get_lowcore()->preempt_count) == preempt_offset);
+ }
+ 
++static __always_inline int __preempt_count_add_return(int val)
++{
++	return val + __atomic_add(val, &get_lowcore()->preempt_count);
++}
++
++static __always_inline int __preempt_count_sub_return(int val)
++{
++	return __preempt_count_add_return(-val);
++}
++
+ #define init_task_preempt_count(p)	do { } while (0)
+ /* Deferred to CPU bringup time */
+ #define init_idle_preempt_count(p, cpu)	do { } while (0)
+diff --git a/arch/x86/include/asm/preempt.h b/arch/x86/include/asm/preempt.h
+index 578441db09f0b..1220656f3370b 100644
+--- a/arch/x86/include/asm/preempt.h
++++ b/arch/x86/include/asm/preempt.h
+@@ -85,6 +85,16 @@ static __always_inline void __preempt_count_sub(int val)
+ 	raw_cpu_add_4(__preempt_count, -val);
+ }
+ 
++static __always_inline int __preempt_count_add_return(int val)
++{
++	return raw_cpu_add_return_4(__preempt_count, val);
++}
++
++static __always_inline int __preempt_count_sub_return(int val)
++{
++	return raw_cpu_add_return_4(__preempt_count, -val);
++}
++
+ /*
+  * Because we keep PREEMPT_NEED_RESCHED set when we do _not_ need to reschedule
+  * a decrement which hits zero means we have no preempt_count and should
+diff --git a/include/asm-generic/preempt.h b/include/asm-generic/preempt.h
+index 51f8f3881523a..c8683c046615d 100644
+--- a/include/asm-generic/preempt.h
++++ b/include/asm-generic/preempt.h
+@@ -59,6 +59,20 @@ static __always_inline void __preempt_count_sub(int val)
+ 	*preempt_count_ptr() -= val;
+ }
+ 
++static __always_inline int __preempt_count_add_return(int val)
++{
++	*preempt_count_ptr() += val;
++
++	return *preempt_count_ptr();
++}
++
++static __always_inline int __preempt_count_sub_return(int val)
++{
++	*preempt_count_ptr() -= val;
++
++	return *preempt_count_ptr();
++}
++
+ static __always_inline bool __preempt_count_dec_and_test(void)
+ {
+ 	/*
+-- 
+2.50.0
+
