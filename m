@@ -1,87 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D5451EF092;
-	Thu, 17 Jul 2025 01:29:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A91512989BC;
+	Thu, 17 Jul 2025 12:29:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752715798; cv=none; b=Tf+sNzR3hii3IjHLSxL2DrUzLn3wPi9LXNAgOuVirb5Y486ZSO3sK156qhpidxr0SyM5CMMzEQtdQo2jNU8TM5kbojrI4oHris2Pw7joDZSu6+W+5Hgc5lWxzXfWq4W9A3aaIjm7jxsQkOQ9CZMX3Mv8uJ6HP1E95EmFPBE0DNE=
+	t=1752755361; cv=none; b=uAdxCNvfwam7vdvrTfm0629z1kddvwKbjAzAf4I4ZUzxaF8n/u4GO1n8enQdAiqs9K648DvE2wN+sw5lLUu/eMW1TLa9Hf6XnWdrpBBzjzrB/WkcvqjIQp6b8FgezsUHGYXE4afKMJ06Rc4j9KSnJnShAe7JIuz3D2gXWYPcdT0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752715798; c=relaxed/simple;
-	bh=edzSWKCa2PNYzid9Z7i3xsZJb+XNXsnNlEF99MtCEjM=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=u9/l7IwPZnxHlL7THxOBv7xaXUs3rcD8nJ2YUpj78n8myMQb7F9LPn57ssmVU8Zmd4dWFKR+GRa8cklRSa1C4et9gpnSxkSbwPnAqMi+YoEjQ8q0QzVpGkVzUGCfBw9jzqlRyeWF+2CqFV3odrstIAUf4b4kmJOoIcDXIUJHMGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jTalCS5P; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jTalCS5P"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F23FC4CEE7;
-	Thu, 17 Jul 2025 01:29:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752715798;
-	bh=edzSWKCa2PNYzid9Z7i3xsZJb+XNXsnNlEF99MtCEjM=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=jTalCS5Pfm40u1apBaJsDFYqsHr00l8KZ5e3NqIMDtSRkNn5/9v+hi4R+39JSnrLH
-	 ddb/mT1EAK9L4N3SZwMlsRuHQpSdSQh/AP4n+j6eHRDFsJVWZSOrn/FaLeEcrCEgG6
-	 Eas7S31QhbdpKNnlbx1iZ1iUch/D60fK8VkDEftvyTHDBl4cnbOBW1Nz3g04PXWS5D
-	 0qQPY8qPhWMD8tguhe0lhfp+zClsKmcwGR9GpKYKgDXcmEuBIm7j3uu35GA7vx+h/Y
-	 0WNTKsdgpxMIMRzLNZCFVgOOY20ZytWv3o00BPtHSQXuJYn074NS+jTh7UEULJOBNy
-	 tvCaZwXbTTGqw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 71110383BA38;
-	Thu, 17 Jul 2025 01:30:19 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1752755361; c=relaxed/simple;
+	bh=rUMZyQff5ZmD3KADfcyWUpSRiydZT7kOQan8y+z/Y0k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=CeQzXRNHq4N492ewRrVYaamhAJuMfaky1hvGf9p728MQ2E9GhqLYs5iwt0X9eaKSoGVHb9//koFhj35aq0e6kO0nObp5iLu4JLUbrBNKqD6Nwrhp/vPCe1f32/D/d0QizfrG5ldE/4wHcsbdEzi6Bujj2lXY6V7HnolEd4A0WQQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.252])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4bjXGT3dmMzZhwR;
+	Thu, 17 Jul 2025 20:26:25 +0800 (CST)
+Received: from kwepemg100016.china.huawei.com (unknown [7.202.181.57])
+	by mail.maildlp.com (Postfix) with ESMTPS id D0B1D180B3F;
+	Thu, 17 Jul 2025 20:29:14 +0800 (CST)
+Received: from [10.67.110.48] (10.67.110.48) by kwepemg100016.china.huawei.com
+ (7.202.181.57) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Thu, 17 Jul
+ 2025 20:29:13 +0800
+Message-ID: <362b3e8a-0949-42d1-a1d0-90bd12d86b09@huawei.com>
+Date: Thu, 17 Jul 2025 20:29:07 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] integrity: Extract secure boot enquiry function out of
+ IMA
+To: Nayna Jain <nayna@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin
+	<dmitry.kasatkin@gmail.com>, Jarkko Sakkinen <jarkko@kernel.org>, Madhavan
+ Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+CC: Eric Snowberg <eric.snowberg@oracle.com>, Christophe Leroy
+	<christophe.leroy@csgroup.eu>, Nicholas Piggin <npiggin@gmail.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+	"Lee, Chun-Yi" <jlee@suse.com>, <linuxppc-dev@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<linux-integrity@vger.kernel.org>, <keyrings@vger.kernel.org>, Lu Jialin
+	<lujialin4@huawei.com>
+References: <20250628063251.321370-1-gongruiqi1@huawei.com>
+ <eb91dcf034db28e457a4482faa397dd7632f00fd.camel@linux.ibm.com>
+ <4c59f417-86cc-4dec-ae45-8fcf8c7eb16a@huawei.com>
+ <e8aa7f94-3e52-488d-a858-564d3d1edd4b@linux.ibm.com>
+Content-Language: en-US
+From: GONG Ruiqi <gongruiqi1@huawei.com>
+In-Reply-To: <e8aa7f94-3e52-488d-a858-564d3d1edd4b@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] s390/net: Remove NETIUCV device driver
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175271581800.1388574.4454566301754879755.git-patchwork-notify@kernel.org>
-Date: Thu, 17 Jul 2025 01:30:18 +0000
-References: <20250715074210.3999296-1-wintera@linux.ibm.com>
-In-Reply-To: <20250715074210.3999296-1-wintera@linux.ibm.com>
-To: Alexandra Winter <wintera@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
- agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- twinkler@linux.ibm.com, horms@kernel.org, corbet@lwn.net,
- linux-doc@vger.kernel.org, nagamani@linux.ibm.com
+X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
+ kwepemg100016.china.huawei.com (7.202.181.57)
 
-Hello:
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Tue, 15 Jul 2025 09:42:10 +0200 you wrote:
-> From: Nagamani PV <nagamani@linux.ibm.com>
+On 7/8/2025 4:35 AM, Nayna Jain wrote:
 > 
-> The netiucv driver creates TCP/IP interfaces over IUCV between Linux
-> guests on z/VM and other z/VM entities.
+> On 7/2/25 10:07 PM, GONG Ruiqi wrote:
+>> 
+>> ...
+>>
+>> "We encountered a boot failure issue in an in-house testing, where the
+>> kernel refused to load its modules since it couldn't verify their
+>> signature. The root cause turned out to be the early return of
+>> load_uefi_certs(), where arch_ima_get_secureboot() returned false
+>> unconditionally due to CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT=n, even
+>> though the secure boot was enabled.
+> Thanks for sharing additional details.
 > 
-> Rationale for removal:
-> - NETIUCV connections are only supported for compatibility with
->   earlier versions and not to be used for new network setups,
->   since at least Linux kernel 4.0.
-> - No known active users, use cases, or product dependencies
-> - The driver is no longer relevant for z/VM networking;
->   preferred methods include:
-> 	* Device pass-through (e.g., OSA, RoCE)
-> 	* z/VM Virtual Switch (VSWITCH)
+> From x86 Kconfig:
 > 
-> [...]
+> /For config x86:
+> 
+>     imply IMA_SECURE_AND_OR_TRUSTED_BOOT    if EFI
+> /
+> And IMA_SECURE_AND_OR_TRUSTED_BOOT is dependent on IMA_ARCH_POLICY .
+> 
+> And from Linux Kernel Kbuild documentation( https://docs.kernel.org/
+> kbuild/kconfig-language.html) :
+> 
+> /weak reverse dependencies: “imply” <symbol> [“if” <expr>]
+> 
+> This is similar to “select” as it enforces a lower limit on another
+> symbol except that the “implied” symbol’s value may still be set to n
+> from a direct dependency or with a visible prompt.
+> 
+> /Following the example from the documentation, if  it is EFI enabled and
+> IMA_ARCH_POLICY is set to y then this config should be default enabled.
+> 
+> If it is EFI enabled and IMA_ARCH_POLICY is set to N, then the setting
+> for IMA_SECURE_AND_OR_TRUSTED_BOOT should be prompted during the build.
+> The default setting for prompt is N. So, the person doing the build
+> should actually select Y to enable IMA_ARCH_POLICY.
+> 
+> Wondering what is the scenario for you? Unless you have IMA_ARCH_POLICY
+> set to N, this config should have been ideally enabled. If you have
+> explicitly set it to N, am curious any specific reason for that.
 
-Here is the summary with links:
-  - [net-next] s390/net: Remove NETIUCV device driver
-    https://git.kernel.org/netdev/net-next/c/727258025b93
+Hi Nayna. Sorry for the late reply. Super busy these days...
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Yes, IMA_ARCH_POLICY was not set. The testing was conducted on
+openEuler[1], a Linux distro mainly for arm64 & x86, and the kernel was
+compiled based on its own openeuler_defconfig[2], which set
+IMA_ARCH_POLICY to N.
 
+-Ruiqi
+
+[1]: https://www.openeuler.org/en/
+[2]:
+https://gitee.com/openeuler/kernel/blob/OLK-6.6/arch/arm64/configs/openeuler_defconfig
+
+
+> 
+> Thanks & Regards,
+> 
+>    - Nayna
+>>
+>> ...
 
