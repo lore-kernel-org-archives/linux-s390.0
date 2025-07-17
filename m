@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0456B20E334
-	for <linux-s390@vger.kernel.org>; Thu, 17 Jul 2025 18:41:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4CB32F7D0D
+	for <linux-s390@vger.kernel.org>; Thu, 17 Jul 2025 19:17:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752777694; cv=none; b=oerm2o7JG8CQqBxNNVmHfgNqnYR+cd3hbb1b906vjGylAn+1I+X622D9vDfaVJoPy1JBGZL9FAij+9OyuLHxliJWSsg8aEW5bLAK3+ZTTZ5gLsVj7pZzhY8aJhYr8FDmZfq/e2MSU47pjkd5vDic1sVcr97W2JsdFvc4dQ2oB4s=
+	t=1752779871; cv=none; b=cZZyd3lT1Cq42ZY956J3saagVQdjMc5e6v9pJQsdBYS/aGxKeiJ7WGfodPfQm0VKwr2es9XZ/5wA8NDD0ir9GqTiHwxW7nddxVojYjmc/UnwTrL+YcJPBgoBuxoxTmYhuerYUJCJ/zYXaZhfC3XWyztgtNUM5goEyVMN8DDP3eQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752777694; c=relaxed/simple;
-	bh=/lloMq8FKGFq1Pg7OFRuTAjacQjZtuy1PfQUjPheMXk=;
+	s=arc-20240116; t=1752779871; c=relaxed/simple;
+	bh=ZTCj3HNplmaLIWYytLOyVyFhD7xFJzDj/yA79stFljE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ovmsl1lvHQqH/yllZlLdKRVNIARkyHsHM/i2Qe3CLHbf2o50aqqRTwzRNuh1yXwgYJkTSNpXv8Rv4lu85KtsOV8i90bGS/t0fYZypZXGvEYgClgA1Q+OXaAD3ykXCJvMAQnW7djByflkZnUOsdNuJmgtAB7VI70V9nROqQut+9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TVlRio/z; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=JQK0syz4PS/okorgLjnUT6kHNMqBNX9oTPwTkAuGhGyWqu/DrDhvAdL7mZ/70Xy78c3EFmrZJuMa8xogXKTl5uYyQnjl6SvS9IQ47SsIhN4o5JI/Q94wuHwqnatACS7oNC1Q0n+kUVyxfN9RbbL8lhbQZUZT8RvyY3/YitXWPqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JGqIpWc7; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TVlRio/z"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JGqIpWc7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752777691;
+	s=mimecast20190719; t=1752779867;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=dGrxhCeS1UihQtSyLwZYefdsHJ3gt32bAk+gCeT3YuQ=;
-	b=TVlRio/zUNCrd5doW3bpKegqsA0/8tsVLBjViQ3jMbB8mmG7pmKpYnsmNyXWlMMnFrfj4G
-	ezrT56sMkhbq9T8R1q7GHmGVX+e4ApZkpQROYjGqoVU4XYdgjn7x4szi3sbIeakQJDsfUr
-	TO/bBjpe+eWtx0K/sJpsoV6UFki+miU=
+	bh=pgbqc2byaduB6oA4fQByf+JaGcP0jYWqwMPFb3GyxXA=;
+	b=JGqIpWc7gaTtetA5YqujYy/Arf0XJojRxQLu6SXhHBMEhnn5Ja5SjGMlXMMy13WIaxs4VC
+	naRggYb86q829D07WVnzZBth0MoGblrDOP8ecNI8MVm7vKAwvwMZOTMgcw0Dfh5uZ5j6iP
+	3AclywHLo64Az9iooUxl6J6IxQlAIVc=
 Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-58-_31ifGVKPp6mZ4YwN5wsEA-1; Thu,
- 17 Jul 2025 14:41:26 -0400
-X-MC-Unique: _31ifGVKPp6mZ4YwN5wsEA-1
-X-Mimecast-MFC-AGG-ID: _31ifGVKPp6mZ4YwN5wsEA_1752777683
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-505-UGXMtMRgN5qBHs7wokkJvw-1; Thu,
+ 17 Jul 2025 15:17:43 -0400
+X-MC-Unique: UGXMtMRgN5qBHs7wokkJvw-1
+X-Mimecast-MFC-AGG-ID: UGXMtMRgN5qBHs7wokkJvw_1752779860
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E0CAC1800368;
-	Thu, 17 Jul 2025 18:41:22 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E99CE1800D82;
+	Thu, 17 Jul 2025 19:17:39 +0000 (UTC)
 Received: from chopper.redhat.com (unknown [10.22.66.69])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 86CC6196664F;
-	Thu, 17 Jul 2025 18:41:17 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B834C30001B1;
+	Thu, 17 Jul 2025 19:17:33 +0000 (UTC)
 From: Lyude Paul <lyude@redhat.com>
 To: rust-for-linux@vger.kernel.org,
 	Thomas Gleixner <tglx@linutronix.de>,
@@ -62,16 +62,16 @@ Cc: Catalin Marinas <catalin.marinas@arm.com>,
 	"H. Peter Anvin" <hpa@zytor.com>,
 	Arnd Bergmann <arnd@arndb.de>,
 	Juergen Christ <jchrist@linux.ibm.com>,
-	Uros Bizjak <ubizjak@gmail.com>,
 	Brian Gerst <brgerst@gmail.com>,
+	Uros Bizjak <ubizjak@gmail.com>,
 	linux-arm-kernel@lists.infradead.org (moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)),
 	linux-s390@vger.kernel.org (open list:S390 ARCHITECTURE),
 	linux-arch@vger.kernel.org (open list:GENERIC INCLUDE/ASM HEADER FILES)
-Subject: [PATCH v11 02/14] preempt: Introduce __preempt_count_{sub, add}_return()
-Date: Thu, 17 Jul 2025 14:37:54 -0400
-Message-ID: <20250717184055.2071216-3-lyude@redhat.com>
-In-Reply-To: <20250717184055.2071216-1-lyude@redhat.com>
-References: <20250717184055.2071216-1-lyude@redhat.com>
+Subject: [PATCH v12 02/15] preempt: Introduce __preempt_count_{sub, add}_return()
+Date: Thu, 17 Jul 2025 15:15:41 -0400
+Message-ID: <20250717191719.2076270-3-lyude@redhat.com>
+In-Reply-To: <20250717191719.2076270-1-lyude@redhat.com>
+References: <20250717191719.2076270-1-lyude@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -79,7 +79,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
 From: Boqun Feng <boqun.feng@gmail.com>
 
@@ -103,7 +103,6 @@ Having these primitives will avoid a read of preempt_count() after
 changing preempt_count() on certain architectures.
 
 Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
 
 ---
 V10:
@@ -113,6 +112,7 @@ V11:
 * Remove CONFIG_PROFILE_ALL_BRANCHES workaround from
   __preempt_count_add_return()
 
+Signed-off-by: Lyude Paul <lyude@redhat.com>
 ---
  arch/arm64/include/asm/preempt.h | 18 ++++++++++++++++++
  arch/s390/include/asm/preempt.h  | 10 ++++++++++
