@@ -1,102 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6562B262815;
-	Thu, 17 Jul 2025 23:25:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04334292B59;
+	Fri, 18 Jul 2025 08:05:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752794721; cv=none; b=PiJRkhooH1afwxsGdRJtuJVFE3DqlgG7AI9TroXDp/yph8CMNKuju6ggm8ARMrrayQicXusKR0cds2LuGaBPaBITdLuDFTqWZH0sIJalo/+GUEcEplXK7bH2m9hbkozArmO03lB0uGlln1UZ7V4DXjmxi4TzNgwtRrQ1X0KPpwY=
+	t=1752825953; cv=none; b=XaVZv7zVc6/0AxL0yAf1KvI1auv/h+vuRuFZ3/W9+VpH9dcTv5h7/3rgY2oJEXvs4sqVVGcjoZ/MT5R+Z8k7fk5DBIi8tmq8qeBMpqgW/lf/sZtgQq+hckDmIsHhcwaRDmdSl0+FEUq+5VxJpXMxXkVVgApq5Hphd30sqxU1D4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752794721; c=relaxed/simple;
-	bh=hftQ+JwDBzI0zRNacsurrBG64kHnxlfHAL+GJc3UtlU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pcPO4mDGdAafO2KAr6atUTCti74qydyxJ6nmOzgaMho8DxAcr78PKStlTjaAzOCcU/cECwuP1PqMOjaEuOEGX1fIKApCyMu6XWlMFAoEqCRgOGxwpR/kSqaGUaLTL3PNgJDt9Qqmsy0ssHkUbnKAro2cp/9wWK7ZkAW5IxVeAO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FsqjdsQS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1752825953; c=relaxed/simple;
+	bh=ICkx4RQog4OKxJFuHNw5QWQDaxZatIGPBHQ0QRAHuic=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jqPkJfy4+ruPVKpuwEwnnmxkI0paNwGsbFAjiYy4m9oP5gFHFI3M6WCtsJkWcYKVtLA01nFmD/2PoKkEhPbuOE00ZDqujnSBSX1T3XSZ2HnjOlx/mm+f0wJ7py3SGdRDJGRgZacA6xWWAyknsyl5lAM/19yQYnCHVnAOG1W1w4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eE+bP5TA; arc=none smtp.client-ip=209.85.208.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FsqjdsQS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B589AC4DDE4;
-	Thu, 17 Jul 2025 23:25:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752794720;
-	bh=hftQ+JwDBzI0zRNacsurrBG64kHnxlfHAL+GJc3UtlU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=FsqjdsQS75ijp4EewZkFNnZ7oGWM+bQuK2TZnkPG1i4tUtkePSQGvhT3cJzizICIP
-	 n7VsETLWXSDSuNlB4j5w4GFk77PgUesXjhwz6yMoT31mNWaWjswPyAxrArx7XoTrzv
-	 qwRQ4j9gCoTu0mZgFXm9mV43Qt0uBu3ieYyCdmQG53nX22891/8O+gwogWE5UBED26
-	 ScLxadVl8C+/OHTvTZH1MoVS2hlIEz8r+PE+d+h/fgLqGQh1uU2RoHTiTONCiUEx+a
-	 5pAsMwG5Sv8s6jqrUJ/cIcIw1BL4yue1cJRn64/wKIgKX5LH0prSsOZ29wNitGYIID
-	 IN144gC7uUisA==
-From: Kees Cook <kees@kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	linux-hardening@vger.kernel.org,
-	Ingo Molnar <mingo@kernel.org>,
-	Christoph Hellwig <hch@lst.de>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	kasan-dev@googlegroups.com,
-	linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	kvmarm@lists.linux.dev,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-efi@vger.kernel.org,
-	linux-kbuild@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	llvm@lists.linux.dev
-Subject: [PATCH v3 12/13] configs/hardening: Enable CONFIG_KSTACK_ERASE
-Date: Thu, 17 Jul 2025 16:25:17 -0700
-Message-Id: <20250717232519.2984886-12-kees@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250717231756.make.423-kees@kernel.org>
-References: <20250717231756.make.423-kees@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eE+bP5TA"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-32b561a861fso15390401fa.0;
+        Fri, 18 Jul 2025 01:05:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1752825950; x=1753430750; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mE5OlSABnLgWhYl6SAq4PjOG8cGD+M3libfM2kaqTAg=;
+        b=eE+bP5TAXl70TuY2rfrjLFLBvt7iDd11k8gthOKQhH9B5u/3SWrOyM1ntbxXfpxn+1
+         hnjLpthDGGHBrrSGv9TbiP8du3C15V6+54h301jdpEk1rWrXhuV2PaEeRYsItpZPhD+x
+         vb/wsNxOTiAedbwQxTi/fBmm62qUuRnT+ueHRt63cyCz9/P4GNNU20uSnshYnLzFsPA5
+         kkE0SZFHVYxgecq19bogFnU0jLFfHMbwF1LLwTfVP8TLobBSvdpyXmn0Gc4zZ09RqpkA
+         3NNBRGHCo8ExYOWXabk3S/8App5x9V2BcAWwzPvp5t81igGBtpWrTAAGaIlf9frjbpxs
+         x1Dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752825950; x=1753430750;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mE5OlSABnLgWhYl6SAq4PjOG8cGD+M3libfM2kaqTAg=;
+        b=ACJt6ilr+wUXFl3VoA603SkvkiMUjTWiDx/3RENvKsuJ6gRxGClTiWTSQFV8rjYOaK
+         ur201h8NT/KqEKod3jnOE+ts5VPbD7TSQy2YcjwJVIiQye1rDxeGTF78oNSD/VJUZVKl
+         ZUS6IKwB/9CoX3h+jJ+0qe4ATmPcLCBXjkIhRV+mXOnbWQLIy/+6/OdCQ4l1mPlHB1aN
+         91sEwN1LzklscLm9KnPcVdPTXLd4O6QFrsSUn8cKTU0ulD3k3mH4PQw5CBaUq8G3AeQj
+         Bnb2WSv2kGfitqdzFa+1j+ER1L7Xai/9bjKHSTV+6UBise0IX4xjwUnHg3UhfzH57UgC
+         Q8Ig==
+X-Forwarded-Encrypted: i=1; AJvYcCVJsddYAkb+SksEulBeERAyYDLH7M/PqSR0R0ZcazYZmayddyjk0qdz9PS803MFryod4BwhV/Cbb17JY6E=@vger.kernel.org, AJvYcCXPdgimOP+qRZd4q52WWaTGbRq/gb04BSfslBLMclWfcf14iMf+d+jaGfXBof+O9oWCK3rcYjfoh060Hg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxdltMdHw5Nx2cVy6REe/l0P1zMwG0j952GcJGN2VMShK02Cs7t
+	l4hnCZkBYElAWbvBg5p8/EVX0qWhedMC6bfu4nRCSlzqAi0/nqWZb/oQd3riGE9gjbFAfhs4be4
+	WUWmKgeDCTdnrHfF5o7TkBEHamf639jM=
+X-Gm-Gg: ASbGncsg+NXpTneiebpVuEY336cz+uqf9rOZJBgx4p3O5RdvUhRlhQMZWDrukIR4G06
+	Pc89+btR1sVnoo1xfzmhnpY4/J1HeAf1Uiq+A9XJrnlT4QRqG78xf6sSHzz/Rul5XpNQFiCANSU
+	IPJLcLjGpR+8axrdf9X4UtHDilCjr0vvsXLMFOdIIxAJSavtJ/0aGTEj4v27uH6bqWxpUG4YJfN
+	Xxe92E=
+X-Google-Smtp-Source: AGHT+IHyLMKDBrDr7Srvy/Ikd0HaWMaoK7ylFo11Rc1uD9JBuJ8oBsq1gin5zNroA8IEeJqMbuI/vDPTs3/MNmSKtdw=
+X-Received: by 2002:a2e:80d4:0:b0:32b:755e:6cd7 with SMTP id
+ 38308e7fff4ca-3308e56e179mr28488571fa.32.1752825949700; Fri, 18 Jul 2025
+ 01:05:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1038; i=kees@kernel.org; h=from:subject; bh=hftQ+JwDBzI0zRNacsurrBG64kHnxlfHAL+GJc3UtlU=; b=owGbwMvMwCVmps19z/KJym7G02pJDBmVbbFBctklSlm/hUWtYmesmm/+4Mz/o2oveebseJx+3 f2N065JHaUsDGJcDLJiiixBdu5xLh5v28Pd5yrCzGFlAhnCwMUpABPZrM/wT/+s9b/zj2UjKz2d 0opOWQdaqM192v1qrb5mpnFiz/LKFYwMM5YFnp723f9/aP7hJMnrxuH6yRfrcxYbWx+zavrULTm NDwA=
-X-Developer-Key: i=kees@kernel.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
+References: <20250717142732.292822-1-snovitoll@gmail.com> <20250717142732.292822-2-snovitoll@gmail.com>
+ <20250717151048.bb6124bea54a31cd2b41faaf@linux-foundation.org>
+In-Reply-To: <20250717151048.bb6124bea54a31cd2b41faaf@linux-foundation.org>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Date: Fri, 18 Jul 2025 13:05:32 +0500
+X-Gm-Features: Ac12FXz9YqNA1eFVik-g2DCaFm9kQISkxpcsj01QS2Zo6EkvjPY09aiUDIQMxqs
+Message-ID: <CACzwLxgyd9yd3ah=LK93Bn7SwAy7H1Hhi=ncFzZYUs+6YGEqvg@mail.gmail.com>
+Subject: Re: [PATCH v3 01/12] lib/kasan: introduce CONFIG_ARCH_DEFER_KASAN option
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: hca@linux.ibm.com, christophe.leroy@csgroup.eu, andreyknvl@gmail.com, 
+	agordeev@linux.ibm.com, ryabinin.a.a@gmail.com, glider@google.com, 
+	dvyukov@google.com, kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-mm@kvack.org, 
+	Peter Zijlstra <peterz@infradead.org>, Johannes Berg <johannes@sipsolutions.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Since we can wipe the stack with both Clang and GCC plugins, enable this
-for the "hardening.config" for wider testing.
+On Fri, Jul 18, 2025 at 3:10=E2=80=AFAM Andrew Morton <akpm@linux-foundatio=
+n.org> wrote:
+>
+> On Thu, 17 Jul 2025 19:27:21 +0500 Sabyrzhan Tasbolatov <snovitoll@gmail.=
+com> wrote:
+>
+> > Introduce CONFIG_ARCH_DEFER_KASAN to identify architectures that need
+> > to defer KASAN initialization until shadow memory is properly set up.
+> >
+> > Some architectures (like PowerPC with radix MMU) need to set up their
+> > shadow memory mappings before KASAN can be safely enabled, while others
+> > (like s390, x86, arm) can enable KASAN much earlier or even from the
+> > beginning.
+> >
+> > This option allows us to:
+> > 1. Use static keys only where needed (avoiding overhead)
+> > 2. Use compile-time constants for arch that don't need runtime checks
+> > 3. Maintain optimal performance for both scenarios
+> >
+> > Architectures that need deferred KASAN should select this option.
+> > Architectures that can enable KASAN early will get compile-time
+> > optimizations instead of runtime checks.
+>
+> Looks nice and appears quite mature.  I'm reluctant to add it to mm.git
+> during -rc6, especially given the lack of formal review and ack tags.
+>
+> But but but, that's what the mm-new branch is for.  I guess I'll add it
+> to get some additional exposure, but whether I'll advance it into
+> mm-unstable/linux-next for this cycle is unclear.
+>
+> What do you (and others) think?
 
-Signed-off-by: Kees Cook <kees@kernel.org>
----
-Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: <linux-hardening@vger.kernel.org>
----
- kernel/configs/hardening.config | 3 +++
- 1 file changed, 3 insertions(+)
+Thanks for the positive feedback!
+Adding it to mm-new for additional exposure would be great.
+Given the complexity of this cross-architecture change,
+I think of taking the conservative approach of:
+1. mm-new branch for exposure and review collection
+2. Advancing to mm-unstable/linux-next only after we get proper acks from
+    KASAN maintainers/reviewers, at least.
 
-diff --git a/kernel/configs/hardening.config b/kernel/configs/hardening.config
-index dd7c32fb5ac1..d24c2772d04d 100644
---- a/kernel/configs/hardening.config
-+++ b/kernel/configs/hardening.config
-@@ -63,6 +63,9 @@ CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
- # Initialize all stack variables to zero on function entry.
- CONFIG_INIT_STACK_ALL_ZERO=y
- 
-+# Wipe kernel stack after syscall completion to reduce stale data lifetime.
-+CONFIG_KSTACK_ERASE=y
-+
- # Wipe RAM at reboot via EFI. For more details, see:
- # https://trustedcomputinggroup.org/resource/pc-client-work-group-platform-reset-attack-mitigation-specification/
- # https://bugzilla.redhat.com/show_bug.cgi?id=1532058
--- 
-2.34.1
+The series has been thoroughly tested by me - compiled all affected arch an=
+d
+ran QEMU on arm64, x86 with KUnits.
 
++ Forgot to add in CC Johannes Berg, Peter Zijlstra who commented in v1.
+https://lore.kernel.org/all/20250625095224.118679-1-snovitoll@gmail.com/
