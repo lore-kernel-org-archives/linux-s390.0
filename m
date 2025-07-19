@@ -1,149 +1,129 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59AD42561D4
-	for <linux-s390@vger.kernel.org>; Sat, 19 Jul 2025 12:34:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A061FA94F
+	for <linux-s390@vger.kernel.org>; Sat, 19 Jul 2025 13:46:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752928454; cv=none; b=T/jS4mdMPo1HxSBfOYPs9PV/ePwyVxFkDKP8tDp0cDGxKsHf2lvrihF8muZ0638MDGcnvKehfFqKjMouTz6vU3jmbGHwAuHqwKvHOcN9/wU0jNcVYI2/lFGIEtVyfEAh2tgs0OjhkX9Co3ngwjPbugP5Ng5rakckOgGIVVwK1J4=
+	t=1752932784; cv=none; b=K+QxMH/sb/6+8WWy8kEYSGvzmLZiP2J2HhLz+wSB909P0P31jmUTmaxbblBG09Gts0Cq1I/NIQsdtRVlifaU/MUVPxzAg8Wpi56ipmDOTPiOL9o5wDu1pSCTD2Vhc18qQE3rNbMlt0eWUcg9ZhfGLUA2fZsEcYa2rast8owgKeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752928454; c=relaxed/simple;
-	bh=Rm0zbEwk9KHzDBMQzX9y4GKYY3gBP0Ni04OTqXxNEEg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=c2cukNNlJCOZxgd7rCtcqPqEwyNTJaZQYLKWKImx/t5PvJF8ofR3NH+Tnrz/3NzLoKccQqeXrFGuriDEGuMosUSvpzn7ylZouVKxAN62JXqoDBeoL/9Il/Wkw8iA1HqLWCAwzhHhC8fx6OfHQylf2w7bEWQnvH6OMhQCwP7NfOk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=R+X0qvTY; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=R+X0qvTY; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1752932784; c=relaxed/simple;
+	bh=DjzqGzUlo/sIT2JaiMrDdXX5dhs5Yx23SsPHmVKfofo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HQkK4Zjggn+r+LF/We7QDKJYXbne11MxiROhyK4wC0nOSDWpb09mvopGFJtSDkvwsY4ZdQKDgxP9HtdYWVLj2YzDym1rynz4DHgqg+bWxOOHBiTBSkGLBV1g7P97TZOvJHArcKvF2+tRRS96J+IP6Gkc/RH9/m5KuHVaeHvIhyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZwRCWLDp; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="R+X0qvTY";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="R+X0qvTY"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id E8630211F5;
-	Sat, 19 Jul 2025 12:34:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1752928444; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Rm0zbEwk9KHzDBMQzX9y4GKYY3gBP0Ni04OTqXxNEEg=;
-	b=R+X0qvTYFWwhoz/BDnNraNsW25p4kcYSZTz3HseyXG7mQnVfM+g+oH7ZIX+2RgHEPgWtD7
-	1dz+kxriFqJswx/lQus1e8QFL3ZHEHw4vSzDJBz23Y7MY8U9u7hFnjrJP9DZfq8vFaQJMV
-	DIQUp/w+vtyEUGLOc3U12ZftxeS4L7Q=
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=R+X0qvTY
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1752928444; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Rm0zbEwk9KHzDBMQzX9y4GKYY3gBP0Ni04OTqXxNEEg=;
-	b=R+X0qvTYFWwhoz/BDnNraNsW25p4kcYSZTz3HseyXG7mQnVfM+g+oH7ZIX+2RgHEPgWtD7
-	1dz+kxriFqJswx/lQus1e8QFL3ZHEHw4vSzDJBz23Y7MY8U9u7hFnjrJP9DZfq8vFaQJMV
-	DIQUp/w+vtyEUGLOc3U12ZftxeS4L7Q=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 978F9136A8;
-	Sat, 19 Jul 2025 12:34:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id OCHyI7uQe2jpcgAAD6G6ig
-	(envelope-from <mwilck@suse.com>); Sat, 19 Jul 2025 12:34:03 +0000
-Message-ID: <cc3cf74ef6c394b371f4ce0e0dfe09f783403617.camel@suse.com>
-Subject: Re: [PATCH] multipath-tools: fix default blacklist of s390 devices
-From: Martin Wilck <mwilck@suse.com>
-To: Xose Vazquez Perez <xose.vazquez@gmail.com>, Stefan Haberland
-	 <sth@linux.ibm.com>
-Cc: Nigel Hislop <hislop_nigel@emc.com>, Matthias Rudolph	
- <Matthias.Rudolph@hitachivantara.com>, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger	
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Hannes
- Reinecke <hare@suse.de>, Benjamin Marzinski <bmarzins@redhat.com>,
- Christophe Varoqui	 <christophe.varoqui@opensvc.com>, S390-ML
- <linux-s390@vger.kernel.org>,  DM-DEVEL-ML <dm-devel@lists.linux.dev>,
- Nigel Hislop <hislop_nigel@dell.com>
-Date: Sat, 19 Jul 2025 14:34:03 +0200
-In-Reply-To: <2c83b76c-46cc-4632-a930-d023c7d3d7b0@gmail.com>
-References: <20250712201454.215404-1-xose.vazquez@gmail.com>
-	 <76bde3f1-0f06-46fc-8e0a-729e6629024c@gmail.com>
-	 <d5e08375-211d-405b-9a00-f44c857cedac@linux.ibm.com>
-	 <2c83b76c-46cc-4632-a930-d023c7d3d7b0@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZwRCWLDp"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-3a4e62619afso314098f8f.1
+        for <linux-s390@vger.kernel.org>; Sat, 19 Jul 2025 06:46:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1752932781; x=1753537581; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mHg5YvItvmX572ShvjvkOAwdnvh5M+a6tgw6nkYQPfY=;
+        b=ZwRCWLDpJgiSeduVXA6s0lZhX3BohO0KiuTHI84sK2qhHSHlBO6Kek84rBwh1DApk1
+         xT7O7ga1PQxtkI+zkCaCvfeIdrIdd7iwFXE+6w//O1MC0yLMO4JVkW65FBjCpLxQCTdb
+         Vur2cRmleUqQuu3H3iL8HJomZDpVhPGBE2MpGlCJxj1IzR5XcFDIL3oFc+oskmHxiQx9
+         M2DCx8GZPekpZIM0hKes1t79rSl/v+Z3CA0LtX5Ydfas9vPXv+puzbwE41KvOc3bxge6
+         8uFYCpfH9HyyJQXgsfm6NygjQV+b2yRRoC8zS/O6+FKqeVqxjFy9wA2NPI35RCGipwZY
+         Lujw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752932781; x=1753537581;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mHg5YvItvmX572ShvjvkOAwdnvh5M+a6tgw6nkYQPfY=;
+        b=RpbwK65RiD3GvkfkPNF758sq8v0piTa+4eJrv622+CcnBbQ7dW/jycRPCWAZdBTD12
+         tUCeJXUboNWOtve+n8cZi0d4RsNnzAIAiSCRk1fq8CNZuGCBHVC8t/2ustpmrek1835K
+         R6/A803cCjzF/AZ3pnrdpjabcR8X+F/0No1KrVEyb+u8eP7P94DZ6JZ88fKe6EYxOlTS
+         xKug57qnXLj0Oo2Gjy0Jjqh5lVzY1Eowia3bBnaC1feHeuuAfigFkT/Yad0Ed903ME4N
+         OXw0egMk1MNxbjdPgyFfM876mhAQlUqZcQdBSjdu4yiG9u09gNtJ3kb3T1mZNaKNZGxU
+         diBQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUd1E4xJ0/J5GT+PnZDVh9JfbJDOWhiBO9jhoeR1w3xnb2Hbf2KOk0fOH+IvhcrT0cupVOEzx/U4pV8@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzc4/TmVi6yQCoJ4/RXc/O93+kG0+24aTQWhcB+hTyABHmlDlAA
+	VQt4TcfmVtdpSZ6Mh/xG4lfRzJVty00jZCmew+eOJiC9mF4AIBQPl1Q=
+X-Gm-Gg: ASbGncsLEUw4GMpWYDdml/b9VQnC2xbt4qWoY3NsljtW5yll2j0mbQClKrQv0FEGSKp
+	VPyN7xsbpm8F39TW8bLfiqtHqo8Ui9NLT7/qeTpN7M7RmXhYedp97qY7DjTuGTE/URSXQpRdFjU
+	2O2gPUwUpDiAAlaPR+ZvueMndLXNfHSV9q18cnwRVSET9zpBPS6/ye2Eo+3lPNLsnjAgR62nZ+x
+	9yVCYGzf5jCLIDatvKsfZOpAahAc+5qsXLnG04eSZgxM0hJ+466haGjPNtK8NT+XKyec2W/8Trm
+	4x1NCZdWv/h2uWVAoaBBTSDrhP7sX2rzb0IFbRA3fIF79RU7eIDhdwWCB8ez/UNMMh87iA6mvv1
+	XvDyEz3LKJDgQX+QAo+8BOTS6I4n1Q4Uao2qnQclAcGOrbsH9Q3cBnlWudPRd6KZsUQ==
+X-Google-Smtp-Source: AGHT+IHJqkICjwjj4UeIVLdGFt/DJFe0i2365dtr+EpU6Sfit/vU9mDnwJT2eThsTkixMejgmYenIA==
+X-Received: by 2002:a05:6000:43c9:b0:3a4:dc42:a0c2 with SMTP id ffacd0b85a97d-3b60dd4da51mr3277301f8f.1.1752932780664;
+        Sat, 19 Jul 2025 06:46:20 -0700 (PDT)
+Received: from localhost (179.red-80-39-133.dynamicip.rima-tde.net. [80.39.133.179])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b61ca4d807sm4853763f8f.73.2025.07.19.06.46.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Jul 2025 06:46:20 -0700 (PDT)
+From: Xose Vazquez Perez <xose.vazquez@gmail.com>
+To: 
+Cc: Xose Vazquez Perez <xose.vazquez@gmail.com>,
+	Stefan Haberland <sth@linux.ibm.com>,
+	Nigel Hislop <hislop_nigel@emc.com>,
+	Nigel Hislop <hislop_nigel@dell.com>,
+	Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Hannes Reinecke <hare@suse.de>,
+	Martin Wilck <mwilck@suse.com>,
+	Benjamin Marzinski <bmarzins@redhat.com>,
+	Christophe Varoqui <christophe.varoqui@opensvc.com>,
+	S390-ML <linux-s390@vger.kernel.org>,
+	DM-DEVEL-ML <dm-devel@lists.linux.dev>
+Subject: [PATCH v2] multipath-tools: add a comment about DASD arrays vendors
+Date: Sat, 19 Jul 2025 15:46:18 +0200
+Message-ID: <20250719134619.331400-1-xose.vazquez@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: E8630211F5
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_ALL(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com,linux.ibm.com];
-	MIME_TRACE(0.00)[0:+];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.com:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[15];
-	MID_RHS_MATCH_FROM(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:dkim,suse.com:mid]
-X-Spam-Score: -3.01
+X-Patchwork-Bot: notify
+Content-Transfer-Encoding: 8bit
 
-On Fri, 2025-07-18 at 22:54 +0200, Xose Vazquez Perez wrote:
-> On 7/14/25 2:38 PM, Stefan Haberland wrote:
->=20
-> > > Is PAV really supported on FBA devices ???
-> > > And other than 3390 and 3380(3390 model 2/3 in track-
-> > > compatibility mode) ECKD types ?
-> >=20
-> > Currently there is no support in the driver for PAV with FBA
-> > devices.
-> > But the devices itself are capable of PAV.
->=20
-> If there is no PAV support for FBA devices on Linux, and it looks
-> like it won't be
-> implemented even in the distant future. The detection code, and the
-> device, could
-> be deleted from multipath-tools:
+vendorid for DASD devices is always identified as "IBM". But EMC, HDS (HITACHI),
+or any other PAV (STK (StorageTek), AM1 (Amdahl) ???) array vendor, are also
+supported.
 
-I agree. @Stefan, it would be appreciated if you or someone from your
-group could send a patch.
+v2 - remove list of vendors from the comment
 
-Martin
+Cc: Stefan Haberland <sth@linux.ibm.com>
+Cc: Nigel Hislop <hislop_nigel@emc.com>
+Cc: Nigel Hislop <hislop_nigel@dell.com>
+Cc: Matthias Rudolph <Matthias.Rudolph@hitachivantara.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Martin Wilck <mwilck@suse.com>
+Cc: Benjamin Marzinski <bmarzins@redhat.com>
+Cc: Christophe Varoqui <christophe.varoqui@opensvc.com>
+Cc: S390-ML <linux-s390@vger.kernel.org>
+Cc: DM-DEVEL-ML <dm-devel@lists.linux.dev>
+Signed-off-by: Xose Vazquez Perez <xose.vazquez@gmail.com>
+---
+ libmultipath/discovery.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> https://github.com/opensvc/multipath-tools/blob/de16cf82c5263fc148118be56=
-ebf44c8f0ee60b8/libmultipath/hwtable.c#L688-L697
-> https://github.com/opensvc/multipath-tools/blob/de16cf82c5263fc148118be56=
-ebf44c8f0ee60b8/libmultipath/discovery.c#L1674-L1685
->=20
-> Is PAV supported on 9343/9345 (cutype/devtype) ECKD devices?
->=20
->=20
-> Thanks.
+diff --git a/libmultipath/discovery.c b/libmultipath/discovery.c
+index c4bc6df6..c78e8b33 100644
+--- a/libmultipath/discovery.c
++++ b/libmultipath/discovery.c
+@@ -1669,6 +1669,7 @@ ccw_sysfs_pathinfo (struct path *pp, const struct vector_s *hwtable)
+ 	if (!parent)
+ 		return PATHINFO_FAILED;
+ 
++	// Identified as IBM, but any other PAV array vendor is also supported
+ 	sprintf(pp->vendor_id, "IBM");
+ 
+ 	condlog(3, "%s: vendor = %s", pp->dev, pp->vendor_id);
+-- 
+2.50.1
