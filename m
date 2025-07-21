@@ -1,168 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6BD423B600;
-	Mon, 21 Jul 2025 20:49:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 848A917996;
+	Mon, 21 Jul 2025 22:59:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753130994; cv=none; b=XcF5tWe03lfzSPFwvh9DS8+1MX74O3iRvJOvF9EbsgSwioqcLgmaPwHtiunOnwHPf16v10FsTUXRoTD+1pCFNZu1G5gAOm4VPlddyagvA2gxIWOWN4II1j2v1s+JpKiHsiE3FnOPOHhSLJE/K4aV6DxWgLYdQkN3FSS6UMnB7Es=
+	t=1753138789; cv=none; b=jT7OFexhU8Iqx5N4L+eWxMmoXHXwC1kg1Q54lhzxhsus4tku7yLfnjdE2xV8AOmBLUM4gT8n2TbH2IpX1yZfBZ8JnGDfNrTSjgR0A+MxCpDVK4NyHymnbxPIzX13hRAjNoDulZiC52ja2jePkVCuRAemFfMjWesFP8NJ8+s6MGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753130994; c=relaxed/simple;
-	bh=RGpMFousrm9JXr2aga1XoiQZq81gXpkDZQCrU7p8kG4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J+n0C7+8nLAWgOnQW0vsAOF+FaLhTTplzKC54xFgeQ6Gu6Yfxn82pTzBXT7OIcicQDss77m0fR5TKg4i6AgdpM5k8LR3a1Qvi/HMsV6fjtQoClC2B2Nh+HMcxqviyz4ogdjjtSdxhmiUaMIn2yEw5re21gJzMp9WCXi7VWIa34g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=USwBlGGy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753138789; c=relaxed/simple;
+	bh=+7tVxomXlBN2ep8coxou7cFT9C4R2OKsqiwHvfpGarw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aFYf7cIcB5l3wEoBwU8H2TyTXE51Y7+dDm1sp7vwcE0H4LS1JaFbjlpnnTE/uHZaZWbA4v74W6fczNCmro8aS2aGQyAf/IWerJVTeeqYD7WsQczaJkRuTPKt6aPvImoRN3VsmJJEDJ396AuggeLNUwS8xTbhjGQlkPOkawpDwfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dkibj3Gt; arc=none smtp.client-ip=209.85.208.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="USwBlGGy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EA0DC4CEF7;
-	Mon, 21 Jul 2025 20:49:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753130994;
-	bh=RGpMFousrm9JXr2aga1XoiQZq81gXpkDZQCrU7p8kG4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=USwBlGGycUbYKwRlz8H1PUciShFkTuZXfVpLM5MtEpyQ2A97ZmBOIYa0cGOwBplAM
-	 P/UloDehuLPGSIqgqNRVeLye3ZQJwvjrIvND/8XbCEE/heb6TuWjlHXRTmnHic7i+/
-	 ufyzJfA+Tj1dnxW4WNlS2ijwfnLETqFwratBaRXG4lRw2vboY071pv4Rgj4gG0uneL
-	 vJADYIT6M2Sug0BnFp+wdbmKStgy/2g++iMRLOa45PAedgg8EJByYxkT5u6rz9xzId
-	 7//OhF3fMircm2SYJfkHca/mWkXbMTQEr5KB9GUZB1xfjt2aV3YLzdWsmNabD0jVLY
-	 gzg6qfQMQz07w==
-Date: Mon, 21 Jul 2025 13:49:53 -0700
-From: Kees Cook <kees@kernel.org>
-To: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>, Mike Rapoport <rppt@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Len Brown <lenb@kernel.org>, Masami Hiramatsu <mhiramat@kernel.org>,
-	Michal Wilczynski <michal.wilczynski@intel.com>,
-	Juergen Gross <jgross@suse.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	"Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-	Roger Pau Monne <roger.pau@citrix.com>,
-	David Woodhouse <dwmw@amazon.co.uk>,
-	Usama Arif <usama.arif@bytedance.com>,
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-	Thomas Huth <thuth@redhat.com>, Brian Gerst <brgerst@gmail.com>,
-	kvm@vger.kernel.org, ibm-acpi-devel@lists.sourceforge.net,
-	platform-driver-x86@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, linux-efi@vger.kernel.org,
-	linux-mm@kvack.org, Ingo Molnar <mingo@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Christoph Hellwig <hch@lst.de>,
-	Andrey Konovalov <andreyknvl@gmail.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-	Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org,
-	kasan-dev@googlegroups.com, linux-doc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, sparclinux@vger.kernel.org,
-	llvm@lists.linux.dev
-Subject: Re: [PATCH v3 04/13] x86: Handle KCOV __init vs inline mismatches
-Message-ID: <202507211349.D93679FB25@keescook>
-References: <20250717231756.make.423-kees@kernel.org>
- <20250717232519.2984886-4-kees@kernel.org>
- <aHoHkDvvp4AHIzU1@kernel.org>
- <202507181541.B8CFAC7E@keescook>
- <CAMj1kXGAwjChyFvjQcTbL8dFXkFWnn9n47bkN7FP=+EsLNsJdg@mail.gmail.com>
- <aH42--h-ARsvX5Wk@willie-the-truck>
- <202507211311.8DAC4C7@keescook>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dkibj3Gt"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6089c0d376eso876150a12.2;
+        Mon, 21 Jul 2025 15:59:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753138785; x=1753743585; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=qziS/qpONFFAWWmGEcjsGqxLtdqROLsiMhv3HQa+DVo=;
+        b=dkibj3GtJ3A72iRfMmZiueDCm448Cts9EW9n8/0z6a9I1KGF45kv+tkxhmqPJiEQAS
+         W3fJ9DfMmRIhSLNIpLcN2NdhaJ5Zmu1vuMiFM1u6B0+okMroXwi7PYaHOwGX03Jc8rel
+         b31UOVHesoo3uoXxlSl40QQXOxsF4WsLJSXjpL7ifg0WzN5I8Vy1YNdMb8c3Q6T/V/oR
+         3WZWDztQy8sto2sY3s8Olf4YEMafKwoF7oR7LdC/O1HVQnDu3ZgXYvG7XCTTzMQu9lr4
+         pvoW7uMWLK55OYz+fPbioEkEQxtb9qPL4IdV8AmNRQhfZ4DquMoVdBZqla11G9zPju8i
+         07dA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753138785; x=1753743585;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=qziS/qpONFFAWWmGEcjsGqxLtdqROLsiMhv3HQa+DVo=;
+        b=rDoN2iZ6uAQGVWjUmAy2XrEE6OdQiC/9ha8d9tpE3QT53WYTPkGAu+UANXbwxQE5Vr
+         suwChQ5JmxI0gUZyyvYcNcZR/nZGyfRgVhfscSI8UoSH6LFtcALha8w0izB70lr0eBqU
+         vZLThutU0/Mn9VOC/SoiHNSC0a5hIQIGA11iKYQS4JJ/vPWtJkRwWdfx0GB2oXXsPuDZ
+         ZruI5MR6xNjBTLq6GodZdK3lmFyGrzDvZ6H7S+dUYRtYWyxGKvWOifpCwYV2W5PsUrs4
+         7cYY6eaMwTEjqFq+A/rKfTXwDBG/9/Klv6R0PU5rbqKlHA3X3CInVjU3t5FqyWF/T0KX
+         WXRQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUE64Yu/zqi4aQhkHNjEPLqmPmXGNpiBdOjEj6+h3+H4qsJwO6wxEksCL9o/CoVnteKWCHVemDqhRMLjQ==@vger.kernel.org, AJvYcCUmV2+ytcbQirMXJTvznRb3T/sdX0yduaS1oqaKXPCOdldZI6WezaZ4H/2sYXi0vj0FZuK8u5jm9Wur4dc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyHIqQ/Kdw68RMCVtJ2a5s91UzrtVx7rDuAsn9VxTSCsgWtxU1v
+	CAOuMcVeywKF0FsD6nwDZGDrcMzAHaSNEZGcIOAMhdb3t/8eBcFo2f0dZzsVuGyALDc=
+X-Gm-Gg: ASbGnctu6ynzt5O8682V39paxkhvbBd2QtGit2PsQQCItWX9mBVApBUISSBqQU9h2BX
+	P72Aphtp3RTnkb8KcgvC4WFSinp6iP8flOsYCGii0KNMGlsCJS+sJ9WvMJ/ly5NC2zrkejsSFvZ
+	7bTqzQbKeoac1ZnS5WxTtkuRdCIILmQBYWrDy7TRHRGJ3wgkimQpumgfmmwN6mdCrO7+MHUAz1z
+	HX3x0lbaPakwF7Ube4edGfp1D1DSfPWJUO1VgXjNac+tNyLAu44ARweHON70bTn2ltg3E1WgGGP
+	IgrFrgnrzKA5euqzhA2Efwtfqbdft5xzr8ERzPoP2ZaQpiGBHnUys+h1Q+QBXFhuCYlNnzwxTSJ
+	AZZhHGZ4FFqK0IKqOS4DPx2BbWUlqQy/9Hrr1yFI+mB7D69kcx4foe0547o7MCvWMFEIA
+X-Google-Smtp-Source: AGHT+IFBO2iP/n38Feyyqa7ON62IpV2R/kvBKzJAAeBv02jcMXCr2o0KVEmn950sS2xc+ad0bPTgUA==
+X-Received: by 2002:a17:907:1b05:b0:ae3:bd92:e6aa with SMTP id a640c23a62f3a-ae9c99adb7amr852181266b.6.1753138784434;
+        Mon, 21 Jul 2025 15:59:44 -0700 (PDT)
+Received: from [192.168.0.18] (cable-94-189-142-142.dynamic.sbb.rs. [94.189.142.142])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aec6ca7d330sm755829066b.126.2025.07.21.15.59.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Jul 2025 15:59:43 -0700 (PDT)
+Message-ID: <f10f3599-509d-4455-94a3-fcbeeffd8219@gmail.com>
+Date: Tue, 22 Jul 2025 00:59:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202507211311.8DAC4C7@keescook>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 00/12] kasan: unify kasan_arch_is_ready() and remove
+ arch-specific implementations
+To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>, hca@linux.ibm.com,
+ christophe.leroy@csgroup.eu, andreyknvl@gmail.com, agordeev@linux.ibm.com,
+ akpm@linux-foundation.org
+Cc: glider@google.com, dvyukov@google.com, kasan-dev@googlegroups.com,
+ linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
+References: <20250717142732.292822-1-snovitoll@gmail.com>
+Content-Language: en-US
+From: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+In-Reply-To: <20250717142732.292822-1-snovitoll@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jul 21, 2025 at 01:14:36PM -0700, Kees Cook wrote:
-> On Mon, Jul 21, 2025 at 01:47:55PM +0100, Will Deacon wrote:
-> > On Sun, Jul 20, 2025 at 04:10:01PM +1000, Ard Biesheuvel wrote:
-> > > On Sat, 19 Jul 2025 at 08:51, Kees Cook <kees@kernel.org> wrote:
-> > > > On Fri, Jul 18, 2025 at 11:36:32AM +0300, Mike Rapoport wrote:
-> > > > > On Thu, Jul 17, 2025 at 04:25:09PM -0700, Kees Cook wrote:
-> > > > > > When KCOV is enabled all functions get instrumented, unless the
-> > > > > > __no_sanitize_coverage attribute is used. To prepare for
-> > > > > > __no_sanitize_coverage being applied to __init functions, we have to
-> > > > > > handle differences in how GCC's inline optimizations get resolved. For
-> > > > > > x86 this means forcing several functions to be inline with
-> > > > > > __always_inline.
-> > > > > >
-> > > > > > Signed-off-by: Kees Cook <kees@kernel.org>
-> > > > >
-> > > > > ...
-> > > > >
-> > > > > > diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> > > > > > index bb19a2534224..b96746376e17 100644
-> > > > > > --- a/include/linux/memblock.h
-> > > > > > +++ b/include/linux/memblock.h
-> > > > > > @@ -463,7 +463,7 @@ static inline void *memblock_alloc_raw(phys_addr_t size,
-> > > > > >                                       NUMA_NO_NODE);
-> > > > > >  }
-> > > > > >
-> > > > > > -static inline void *memblock_alloc_from(phys_addr_t size,
-> > > > > > +static __always_inline void *memblock_alloc_from(phys_addr_t size,
-> > > > > >                                             phys_addr_t align,
-> > > > > >                                             phys_addr_t min_addr)
-> > > > >
-> > > > > I'm curious why from all memblock_alloc* wrappers this is the only one that
-> > > > > needs to be __always_inline?
-> > > >
-> > > > Thread-merge[1], adding Will Deacon, who was kind of asking the same
-> > > > question.
-> > > >
-> > > > Based on what I can tell, GCC has kind of fragile inlining logic, in the
-> > > > sense that it can change whether or not it inlines something based on
-> > > > optimizations. It looks like the kcov instrumentation being added (or in
-> > > > this case, removed) from a function changes the optimization results,
-> > > > and some functions marked "inline" are _not_ inlined. In that case, we end up
-> > > > with __init code calling a function not marked __init, and we get the
-> > > > build warnings I'm trying to eliminate.
-> > 
-> > Got it, thanks for the explanation!
-> > 
-> > > > So, to Will's comment, yes, the problem is somewhat fragile (though
-> > > > using either __always_inline or __init will deterministically solve it).
-> > > > We've tripped over this before with GCC and the solution has usually
-> > > > been to just use __always_inline and move on.
-> > > >
-> > > 
-> > > Given that 'inline' is already a macro in the kernel, could we just
-> > > add __attribute__((__always_inline__)) to it when KCOV is enabled?
-> > 
-> > That sounds like a more robust approach and, by the sounds of it, we
-> > could predicate it on GCC too. That would also provide a neat place for
-> > a comment describing the problem.
-> > 
-> > Kees, would that work for you?
+
+
+On 7/17/25 4:27 PM, Sabyrzhan Tasbolatov wrote:
+
+> === Testing with patches
 > 
-> That seems like an extremely large hammer for this problem, IMO. It
-> feels like it could cause new strange corner cases. I'd much prefer the
-> small fixes I've currently got since it keeps it focused. KCOV is
-> already enabled for "allmodconfig", so any new instances would be found
-> very quickly, etc. (And GCC's fragility in this regard has already been
-> exposed to these cases -- it's just that I changed one of the
-> combinations of __init vs inline vs instrumentation.
+> Testing in v3:
 > 
-> I could give it a try, if you really prefer the big hammer approach...
+> - Compiled every affected arch with no errors:
+> 
+> $ make CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \
+> 	OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump READELF=llvm-readelf \
+> 	HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar HOSTLD=ld.lld \
+> 	ARCH=$ARCH
+> 
+> $ clang --version
+> ClangBuiltLinux clang version 19.1.4
+> Target: x86_64-unknown-linux-gnu
+> Thread model: posix
+> 
+> - make ARCH=um produces the warning during compiling:
+> 	MODPOST Module.symvers
+> 	WARNING: modpost: vmlinux: section mismatch in reference: \
+> 		kasan_init+0x43 (section: .ltext) -> \
+> 		kasan_init_generic (section: .init.text)
+> 
+> AFAIU, it's due to the code in arch/um/kernel/mem.c, where kasan_init()
+> is placed in own section ".kasan_init", which calls kasan_init_generic()
+> which is marked with "__init".
+> 
+> - Booting via qemu-system- and running KUnit tests:
+> 
+> * arm64  (GENERIC, HW_TAGS, SW_TAGS): no regression, same above results.
+> * x86_64 (GENERIC): no regression, no errors
+> 
 
-I gave it a try -- it fails spectacularly. ;) Let's stick to my small
-fixes instead?
+It would be interesting to see whether ARCH_DEFER_KASAN=y arches work.
+These series add static key into __asan_load*()/_store*() which are called
+from everywhere, including the code patching static branches during the switch.
 
--- 
-Kees Cook
+I have suspicion that the code patching static branches during static key switch
+might not be prepared to the fact the current CPU might try to execute this static
+branch in the middle of switch.
