@@ -1,198 +1,190 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B1291DDA32;
-	Tue, 22 Jul 2025 16:18:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFAF62E36FD;
+	Tue, 22 Jul 2025 18:21:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753201126; cv=none; b=QjuS7OToIgiWuN9nrAdvPTRAr10dUsAwifNcwU/VeOkmWDZXmR52ewMVQ86hd57v4ijBeZgnsX0fZjPMj+vam4PgIVKDyBl/KRZS/h+K1qy5EN/zovVtsPy+oONDXLa8oVSUdTpmOWoRkLQf6bQmqzL8IdavB+t6LrgrLWI1gxA=
+	t=1753208494; cv=none; b=Y/ipf6qXFX57Cix1ByyYgmCh2ziSbJ+q99novPXewbKvJky42LYCPD2Xfsmcv85ubXDUaFveexb0wqb18LTAp7G06DJmguXfto/rWESC6pOOWaZJBAv8I/bQIWV1V6bcOU7VfmXH3pkk40vg6009260pUIqoBVnWMNvBZ9RaEcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753201126; c=relaxed/simple;
-	bh=wC2QBmKD1GTiNhv+rPLf7dvvsC36d9AYwBdxKUY5G1w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hzd67NuVQJj548yX2lmleTMWzrSFxvTfxAc+xA7oJO2t40azkxEM4rEPQEWhmZvCIgTpor6xOjNAspl/RsRVjRYEmPN1tJQSU8UOSvKetDX4xJ2UBPaBSIOC9vg56PJlDRblVZCPlR+Gly4APQpVQTsrjujnpSEpMRO3m3eEjpI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bxeVVGzE; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1753208494; c=relaxed/simple;
+	bh=qUqSSv3ifayW+xtWbyUpGpvV2Zozny15J74dw4n6dzM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=W4sBQdou+m8AAEhTVTkJmwhnjslfnQ1wX/xlOGspzueupLnPzYf6CXlnaJSHhz3pqNt1MmKFE1Nwkdn/rIuqTFRV9V/tnmLFofUig5oGOuNYAKDpppbxp6WwMvYD/F1NP8/EZjlybdWiMwu617nY13OzxEumRHrotyQo4xmRh0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H7HtROlz; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bxeVVGzE"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56MG8o3f025065;
-	Tue, 22 Jul 2025 16:18:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=FrBUCus7BzHqtCvlsfkIewdsWUpoQYpZWe9EbvaOH
-	rM=; b=bxeVVGzEv2aQ8j1pNhoybAwQnp1prdoJ/fJambV7teSFyPlmC1dF3UdqJ
-	32iXxzGGWwMR4zfOm1e3diq9awmKSIeQR48WDllrri/EG0IOg1dmV9+O4z0fuaj5
-	R5WVRxq43LKltmHbxkSJeHRNKnkZ08MiBk/LlzbC11Ij6IJQLNfqUy68ZwwbfUKT
-	1AzIa0OtU64RL/yEcxt1Q5MunXLCKe/th9mSIx/dQDpfKMV1siMLKH+9NovZjIPE
-	wz5ZnMOgOHm5KH2Az0DJUdjV08IPLb5VAsyTr1G4a27Qb44saDx/wHePUFNav3UN
-	+4BjrP4R582mV9Ij6P7MWTLOmkHgQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4805ut7tu9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Jul 2025 16:18:24 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 56MGBEms030471;
-	Tue, 22 Jul 2025 16:18:23 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4805ut7tu4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Jul 2025 16:18:23 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56MEwLuU024972;
-	Tue, 22 Jul 2025 16:18:21 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 480nptku1v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Jul 2025 16:18:21 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56MGIHEB34799924
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Jul 2025 16:18:17 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 936672004D;
-	Tue, 22 Jul 2025 16:18:17 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 80F7E20043;
-	Tue, 22 Jul 2025 16:18:17 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 22 Jul 2025 16:18:17 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-	id 50AC3E03BC; Tue, 22 Jul 2025 18:18:17 +0200 (CEST)
-From: Alexandra Winter <wintera@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>, Halil Pasic <pasic@linux.ibm.com>,
-        Aliaksei Makarau <Aliaksei.Makarau@ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>
-Subject: [PATCH net v2] s390/ism: fix concurrency management in ism_cmd()
-Date: Tue, 22 Jul 2025 18:18:17 +0200
-Message-ID: <20250722161817.1298473-1-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H7HtROlz"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5561d41fc96so6755431e87.1;
+        Tue, 22 Jul 2025 11:21:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753208491; x=1753813291; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=s1bfHAcPl/XMz8xDguK3teTl09r5v0kLVciBst2DtbI=;
+        b=H7HtROlz+aCNBCEWL4P2T3zZjLURX5opQ92DGhXslcAW5Ke9jjPbnnNOTDStH9kzA5
+         aNFyJy79XnPl5EjwK9ymx7CDr8FDnjm4G845TYzn1ctznvC8Ae8a+V8ObzvpRVRGkPDx
+         JRlpsARcFsKUv4TRKpeRlQ383gKy4bwnqnc5FZ/Wg59ygoSgEcRMBcgSorw9Da1FU4lE
+         LCEQAWZRUAHhCYhyXtvehGWRokMhcsz6muAiEQGwuvU7RTvN6jhzhICIVU9jowYitFGs
+         uaYfUUhOHoOh5Cq3zvaBpr4jti1G8RJ6usgZ5/S4KmDRjIVhj4ydwreS7TwQqWVCFEs1
+         phbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753208491; x=1753813291;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=s1bfHAcPl/XMz8xDguK3teTl09r5v0kLVciBst2DtbI=;
+        b=jj/dvmibnm2XtzeZ2swtZJb6Zk/K7oANEkiKenutEHiUZIAh73Pbd9N21pUxWSRGo+
+         3I2gV6veVyCDodsz4EBs49TrrWy5C59nEDtKnUCnRgDpeg+cKQbKDHw0m8lI4g6tWmro
+         Vi/J++WrU7uG+vQQ8C3TbmGU/iQlPaBdJihUz66N1K0IRV3L5TERUs8Zp0roxOcF44hp
+         MMn55ySbiePvxTbyZ3M0aJoXccXApGOt2NK8nGQYA48p2sgBfoI2ICLt0Qtu+mze+DCg
+         GffoIJz5hZtw0fGj+iYDvd9SM4s8V3K2+OK40dTVyWlFAy0vh2xlev3902TLYE61Xhlh
+         HYng==
+X-Forwarded-Encrypted: i=1; AJvYcCUGpLYwdkBKhmytdHVEkRVQkFcJXjPmoiancQdXzuyYzZ3BAbm9HTCOTRmtpn+ba1S0J3cCdZXf749OO0E=@vger.kernel.org, AJvYcCUgHEmvjtazkEILwLpAd+tzQO8Hm3nfsqdlg92+zK9/IoA9vAx3VNVAL+ZqIINBv2DDAzTQPxUzVHAjYg==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz5PVeGwtLb6/RQQR/6ICPhWM7xS159Cs5oDh50lLY5ppnzmtTl
+	4jihM1WIbdQLQy+h1sfI5xeX12fyUY8oypL+ALWdX67CdJKoUingguPm9N1iDDzqG7V5mrMF849
+	hXEvR7jPuoJNDJ5vUWhtX/7Kaf5mqEjM=
+X-Gm-Gg: ASbGnctI0lkaeSHWQHtrx8DWu5cH8QJgM94g/Soua5KZs+rbFhBRqOiRI2xQBNRI2Hw
+	73xQ2t2PuUKh9dNkvUUg9fL7zYMkMR2odfehXptqumYcPoDj0R//T8GXzSjHLerme8D+JwcvlxB
+	p5ve1zTjRhr4Adk+0KfHExSmGr7SsF/nR8+PDL0g1G3abifVVkG11jTPQaGvTnkjKFP1HLUaBI/
+	krsAps=
+X-Google-Smtp-Source: AGHT+IHgqZRO4CHZDXwO8i4qviF6GOSHLcIqgaK9MAu32BIYgiKkWD327bPslpy0X0mdn5DHRJd+TcwlCu2XTW4y0IA=
+X-Received: by 2002:a05:6512:4021:b0:553:2190:fef8 with SMTP id
+ 2adb3069b0e04-55a513998a5mr31899e87.7.1753208490745; Tue, 22 Jul 2025
+ 11:21:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzIyMDEzNSBTYWx0ZWRfX5Ydx/ykd9rnp
- sXmuvN2jYY//1d1zmICdyCTGOFSd0DCyOLkeSOF8dzja4O82Ryor24/lqXdM29svW9bIeajp8px
- goHkWKtC8P3xw9UfMLPX8TcOCM07wYEWqEtU+jYKhEprjHUuypnW5aI0Vcv4/MGgHE2MVS4a18u
- fQGUFl7iS7wzHOR9lT5D8Htijyv4wazymRh2TRo55YrSfEw+C4OXGP3H6LyUtE/Rxutrvqt3bv8
- B6yfnFE6/If3AxvxpX32TXgTkngOenPbFxtfvapuTHu64FApEKjUF29AzhPn0RsojQV5npK4ak6
- 8y9HapPB76k6Hf8F3eBx9jWF/PlmmJ2xiXi4N7OZvp3vHQVD5bnssym70SYEuKJuuIN/KqL6Hpx
- gR66Jj4An1/l2sKY8wYbhMUWf8BAgNC8eEbbYIl+yL9qjOoW4N6iXD3XqlPo395cjQxJb3T+
-X-Authority-Analysis: v=2.4 cv=Nd/m13D4 c=1 sm=1 tr=0 ts=687fb9d0 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=Wb1JkmetP80A:10 a=VnNF1IyMAAAA:8 a=qzj1OK7t_Lbxma-giU4A:9
-X-Proofpoint-ORIG-GUID: _j6Io_zSFu_arDUvDmqp8N3lbMkZYYCS
-X-Proofpoint-GUID: yY_nvzCCWQVugYrAVL_p68T5xZHZ9Smg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-22_02,2025-07-21_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
- mlxlogscore=999 malwarescore=0 lowpriorityscore=0 suspectscore=0 adultscore=0
- impostorscore=0 phishscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507220135
+References: <20250717142732.292822-1-snovitoll@gmail.com> <f10f3599-509d-4455-94a3-fcbeeffd8219@gmail.com>
+In-Reply-To: <f10f3599-509d-4455-94a3-fcbeeffd8219@gmail.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Date: Tue, 22 Jul 2025 23:21:13 +0500
+X-Gm-Features: Ac12FXzOVMCIvnTEhZltt3TS4XKarYeDIkGkWcMAqG0GgJ62pPTw9Xni6fYiOgs
+Message-ID: <CACzwLxjD0oXGGm2dkDdXjX0sxoNC2asQbjigkDWGCn48bitxSw@mail.gmail.com>
+Subject: Re: [PATCH v3 00/12] kasan: unify kasan_arch_is_ready() and remove
+ arch-specific implementations
+To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: hca@linux.ibm.com, christophe.leroy@csgroup.eu, andreyknvl@gmail.com, 
+	agordeev@linux.ibm.com, akpm@linux-foundation.org, glider@google.com, 
+	dvyukov@google.com, kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org, 
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Halil Pasic <pasic@linux.ibm.com>
+On Tue, Jul 22, 2025 at 3:59=E2=80=AFAM Andrey Ryabinin <ryabinin.a.a@gmail=
+.com> wrote:
+>
+>
+>
+> On 7/17/25 4:27 PM, Sabyrzhan Tasbolatov wrote:
+>
+> > =3D=3D=3D Testing with patches
+> >
+> > Testing in v3:
+> >
+> > - Compiled every affected arch with no errors:
+> >
+> > $ make CC=3Dclang LD=3Dld.lld AR=3Dllvm-ar NM=3Dllvm-nm STRIP=3Dllvm-st=
+rip \
+> >       OBJCOPY=3Dllvm-objcopy OBJDUMP=3Dllvm-objdump READELF=3Dllvm-read=
+elf \
+> >       HOSTCC=3Dclang HOSTCXX=3Dclang++ HOSTAR=3Dllvm-ar HOSTLD=3Dld.lld=
+ \
+> >       ARCH=3D$ARCH
+> >
+> > $ clang --version
+> > ClangBuiltLinux clang version 19.1.4
+> > Target: x86_64-unknown-linux-gnu
+> > Thread model: posix
+> >
+> > - make ARCH=3Dum produces the warning during compiling:
+> >       MODPOST Module.symvers
+> >       WARNING: modpost: vmlinux: section mismatch in reference: \
+> >               kasan_init+0x43 (section: .ltext) -> \
+> >               kasan_init_generic (section: .init.text)
+> >
+> > AFAIU, it's due to the code in arch/um/kernel/mem.c, where kasan_init()
+> > is placed in own section ".kasan_init", which calls kasan_init_generic(=
+)
+> > which is marked with "__init".
+> >
+> > - Booting via qemu-system- and running KUnit tests:
+> >
+> > * arm64  (GENERIC, HW_TAGS, SW_TAGS): no regression, same above results=
+.
+> > * x86_64 (GENERIC): no regression, no errors
+> >
+>
+> It would be interesting to see whether ARCH_DEFER_KASAN=3Dy arches work.
+> These series add static key into __asan_load*()/_store*() which are calle=
+d
+> from everywhere, including the code patching static branches during the s=
+witch.
+>
+> I have suspicion that the code patching static branches during static key=
+ switch
+> might not be prepared to the fact the current CPU might try to execute th=
+is static
+> branch in the middle of switch.
 
-The s390x ISM device data sheet clearly states that only one
-request-response sequence is allowable per ISM function at any point in
-time.  Unfortunately as of today the s390/ism driver in Linux does not
-honor that requirement. This patch aims to rectify that.
+AFAIU, you're referring to this function in mm/kasan/generic.c:
 
-This problem was discovered based on Aliaksei's bug report which states
-that for certain workloads the ISM functions end up entering error state
-(with PEC 2 as seen from the logs) after a while and as a consequence
-connections handled by the respective function break, and for future
-connection requests the ISM device is not considered -- given it is in a
-dysfunctional state. During further debugging PEC 3A was observed as
-well.
+static __always_inline bool check_region_inline(const void *addr,
 
-A kernel message like
-[ 1211.244319] zpci: 061a:00:00.0: Event 0x2 reports an error for PCI function 0x61a
-is a reliable indicator of the stated function entering error state
-with PEC 2. Let me also point out that a kernel message like
-[ 1211.244325] zpci: 061a:00:00.0: The ism driver bound to the device does not support error recovery
-is a reliable indicator that the ISM function won't be auto-recovered
-because the ISM driver currently lacks support for it.
+      size_t size, bool write,
 
-On a technical level, without this synchronization, commands (inputs to
-the FW) may be partially or fully overwritten (corrupted) by another CPU
-trying to issue commands on the same function. There is hard evidence that
-this can lead to DMB token values being used as DMB IOVAs, leading to
-PEC 2 PCI events indicating invalid DMA. But this is only one of the
-failure modes imaginable. In theory even completely losing one command
-and executing another one twice and then trying to interpret the outputs
-as if the command we intended to execute was actually executed and not
-the other one is also possible.  Frankly, I don't feel confident about
-providing an exhaustive list of possible consequences.
+      unsigned long ret_ip)
+{
+        if (!kasan_shadow_initialized())
+                return true;
+...
+}
 
-Fixes: 684b89bc39ce ("s390/ism: add device driver for internal shared memory")
-Reported-by: Aliaksei Makarau <Aliaksei.Makarau@ibm.com>
-Tested-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Tested-by: Aliaksei Makarau <Aliaksei.Makarau@ibm.com>
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/s390/net/ism_drv.c | 3 +++
- include/linux/ism.h        | 1 +
- 2 files changed, 4 insertions(+)
+and particularly, to architectures that selects ARCH_DEFER_KASAN=3Dy, which=
+ are
+loongarch, powerpc, um. So when these arch try to enable the static key:
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index b7f15f303ea2..967dc4f9eea8 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -130,6 +130,7 @@ static int ism_cmd(struct ism_dev *ism, void *cmd)
- 	struct ism_req_hdr *req = cmd;
- 	struct ism_resp_hdr *resp = cmd;
- 
-+	spin_lock(&ism->cmd_lock);
- 	__ism_write_cmd(ism, req + 1, sizeof(*req), req->len - sizeof(*req));
- 	__ism_write_cmd(ism, req, 0, sizeof(*req));
- 
-@@ -143,6 +144,7 @@ static int ism_cmd(struct ism_dev *ism, void *cmd)
- 	}
- 	__ism_read_cmd(ism, resp + 1, sizeof(*resp), resp->len - sizeof(*resp));
- out:
-+	spin_unlock(&ism->cmd_lock);
- 	return resp->ret;
- }
- 
-@@ -606,6 +608,7 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		return -ENOMEM;
- 
- 	spin_lock_init(&ism->lock);
-+	spin_lock_init(&ism->cmd_lock);
- 	dev_set_drvdata(&pdev->dev, ism);
- 	ism->pdev = pdev;
- 	ism->dev.parent = &pdev->dev;
-diff --git a/include/linux/ism.h b/include/linux/ism.h
-index 5428edd90982..8358b4cd7ba6 100644
---- a/include/linux/ism.h
-+++ b/include/linux/ism.h
-@@ -28,6 +28,7 @@ struct ism_dmb {
- 
- struct ism_dev {
- 	spinlock_t lock; /* protects the ism device */
-+	spinlock_t cmd_lock; /* serializes cmds */
- 	struct list_head list;
- 	struct pci_dev *pdev;
- 
--- 
-2.48.1
+1. static_branch_enable(&kasan_flag_enabled) called
+2. Kernel patches code - changes jump instructions
+3. Code patching involves memory writes
+4. Memory writes can trigger any KASAN wrapper function
+5. Wrapper calls kasan_shadow_initialized()
+6. kasan_shadow_initialized() calls static_branch_likely(&kasan_flag_enable=
+d)
+7. This reads the static key being patched --- this is the potential issue?
 
+The current runtime check is following in tis v3 patch series:
+
+#ifdef CONFIG_ARCH_DEFER_KASAN
+...
+static __always_inline bool kasan_shadow_initialized(void)
+{
+        return static_branch_likely(&kasan_flag_enabled);
+}
+...
+#endif
+
+I wonder, if I should add some protection only for KASAN_GENERIC,
+where check_region_inline() is called (or for all KASAN modes?):
+
+#ifdef CONFIG_ARCH_DEFER_KASAN
+...
+static __always_inline bool kasan_shadow_initialized(void)
+{
+        /* Avoid recursion (?) during static key patching */
+        if (static_key_count(&kasan_flag_enabled.key) < 0)
+                return false;
+        return static_branch_likely(&kasan_flag_enabled);
+}
+...
+#endif
+
+Please suggest where the issue is and if I understood the problem.
+I might try to run QEMU on powerpc with KUnits to see if I see any logs.
