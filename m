@@ -1,72 +1,84 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1CBE13C81B;
-	Tue, 22 Jul 2025 00:35:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077CE1624C0;
+	Tue, 22 Jul 2025 00:49:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753144522; cv=none; b=EbVRQmJV+rAVogdhwi1uxbZ0EVcwrM5XOeob8p9P8kTGd9sni/zGP1Kr0RWAiwNJ1gZnf8lnuYQ4j/q8zyF/TAUQdc2+7hBF1lpwqwkv3Epl319ThUPzRdHo8xx6JpgiFBqF90KA9DOxaGW9wou8US0eSmg0+GJXH4oydGRCQUs=
+	t=1753145392; cv=none; b=iHNkwnNeOUrX/Vi6Rub1E/JonAOoneLtPHsk50EMzQZJo32DqbmE+Rofqej3CyPqYrNVOfS64DxmQXLf67x5GiDrvQd9RTT9k6Xue1ayDPS/6kuA7XP+SaXyEGvKyDSDBTmfi/33i2O0TYXfLHf09rlN2T2n6gbyYWZpUSnqEiM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753144522; c=relaxed/simple;
-	bh=AT7biWnsDCxaCvU7U+iSpw4vNS5TBQoe3SiDN0kL4kw=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=CZ0NtP0fSQmo9csBKyhdmwvd3sBLe+bA8M6EaCQXdJdxYWRsLxmzpB/OGTDxJwbIiYMHLaWtVfbflaGSGqwn6chNYqycH3tZITEzEMfEbZtngy1ZTCMk2J8xJyPTnulo3/tQVbYzoo1t18SPqKZ0wylpwOkLLvckGOC+PFxUNDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=INuAml7a; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753145392; c=relaxed/simple;
+	bh=lh7m0LgtL9aJE/iOfdTHANgA3YGFDv5un0xLUHMKMMU=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=Tod3dYM7aVVqX1xgOdgLyxkwrnYrU0dQBso5PK04P9ybKt6+OSIHq58603PEU8lB9maFAQa63ymxDWZEnDBH9l1BrqqKbiONfELRJKW9N+57ouDLBpo6g1TRR2sWTzvqMLRkUFDgBJJ6bAURsXlvLD7PIj5ELdGSLF/VgFa6WqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U5xWR6xK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="INuAml7a"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7F17C4CEF6;
-	Tue, 22 Jul 2025 00:35:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1753144521;
-	bh=AT7biWnsDCxaCvU7U+iSpw4vNS5TBQoe3SiDN0kL4kw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=INuAml7aaOfZKzIUxI4Jtp5dIRPXceDiGCMSn/BcpBEsTc1817QQF/mLnLo7zVGvC
-	 tbq9rI4BZrhjCeeHWJKHB4TAfP28laWLUpmcWr4W9hiZ6ObpNJJQoYLudeaLJcdFFn
-	 UTOfW5v0jeh5cKAcLjqgeLQM4saR33e63KErjkHU=
-Date: Mon, 21 Jul 2025 17:35:20 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Sabyrzhan Tasbolatov <snovitoll@gmail.com>, hca@linux.ibm.com,
- christophe.leroy@csgroup.eu, andreyknvl@gmail.com, agordeev@linux.ibm.com,
- glider@google.com, dvyukov@google.com, kasan-dev@googlegroups.com,
- linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
- linux-mm@kvack.org
-Subject: Re: [PATCH v3 01/12] lib/kasan: introduce CONFIG_ARCH_DEFER_KASAN
- option
-Message-Id: <20250721173520.a24c29782de519dab1c59fec@linux-foundation.org>
-In-Reply-To: <a1bc7a9d-817d-49cc-b7f1-79a900090136@gmail.com>
-References: <20250717142732.292822-1-snovitoll@gmail.com>
-	<20250717142732.292822-2-snovitoll@gmail.com>
-	<20250717151048.bb6124bea54a31cd2b41faaf@linux-foundation.org>
-	<a1bc7a9d-817d-49cc-b7f1-79a900090136@gmail.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U5xWR6xK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F0BC4CEED;
+	Tue, 22 Jul 2025 00:49:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753145391;
+	bh=lh7m0LgtL9aJE/iOfdTHANgA3YGFDv5un0xLUHMKMMU=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=U5xWR6xK3gRV9FkoOTUARHsXZi1vt7TD3gbGuGCpSAjhGuNqJ9vn8mvJARf7vkeka
+	 Ff41y/8sRxwtY7jOKjw+41ykuqWgpEnHVYTSatYZhpwF7j//YM9pd5zYXD4NPJOMLt
+	 FlmHliRhe3FaCmpz/h1rUu9JSCyth7sfkZBG0fXv67Y8wmcx8kCdOxHLld4s+/tTkx
+	 WOwsN+LQOgygTRu1Z6eS0dUUbC+RtDrA17j4DZxOBlHoMWC/MHuN6IHT5irv427RkY
+	 gcDuTMlTjbummbKEPV7eib6zqtOfhETCEYdLT/x6WsOjZjOH6S5dp2iHnOImvzQcur
+	 YzI1W7Wzjz0qw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70CC7383B267;
+	Tue, 22 Jul 2025 00:50:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] s390/qeth: Make hw_trap sysfs attribute
+ idempotent
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175314540996.247888.18318407456120980462.git-patchwork-notify@kernel.org>
+Date: Tue, 22 Jul 2025 00:50:09 +0000
+References: <20250718141711.1141049-1-wintera@linux.ibm.com>
+In-Reply-To: <20250718141711.1141049-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ twinkler@linux.ibm.com, horms@kernel.org, aswin@linux.ibm.com
 
-On Tue, 22 Jul 2025 01:18:52 +0200 Andrey Ryabinin <ryabinin.a.a@gmail.com> wrote:
+Hello:
 
-> >> Architectures that need deferred KASAN should select this option.
-> >> Architectures that can enable KASAN early will get compile-time
-> >> optimizations instead of runtime checks.
-> > 
-> > Looks nice and appears quite mature.  I'm reluctant to add it to mm.git
-> > during -rc6, especially given the lack of formal review and ack tags.
-> > 
-> > But but but, that's what the mm-new branch is for.  I guess I'll add it
-> > to get some additional exposure, but whether I'll advance it into
-> > mm-unstable/linux-next for this cycle is unclear.
-> > 
-> > What do you (and others) think?
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Fri, 18 Jul 2025 16:17:11 +0200 you wrote:
+> From: Aswin Karuvally <aswin@linux.ibm.com>
 > 
-> After looking a bit, it breaks UM and probably LoongArch too.
-> I'd say it needs more work and not ready even for mm-new.
+> Update qeth driver to allow writing an existing value to the "hw_trap"
+> sysfs attribute. Attempting such a write earlier resulted in -EINVAL.
+> In other words, make the sysfs attribute idempotent.
+> 
+> After:
+>     $ cat hw_trap
+>     disarm
+>     $ echo disarm > hw_trap
+>     $
+> 
+> [...]
 
-OK, thanks.  I'll drop the v3 series.
+Here is the summary with links:
+  - [net-next] s390/qeth: Make hw_trap sysfs attribute idempotent
+    https://git.kernel.org/netdev/net-next/c/1b02c861714b
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
