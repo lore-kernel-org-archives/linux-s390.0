@@ -1,190 +1,294 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFAF62E36FD;
-	Tue, 22 Jul 2025 18:21:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B12362797A4;
+	Wed, 23 Jul 2025 08:06:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753208494; cv=none; b=Y/ipf6qXFX57Cix1ByyYgmCh2ziSbJ+q99novPXewbKvJky42LYCPD2Xfsmcv85ubXDUaFveexb0wqb18LTAp7G06DJmguXfto/rWESC6pOOWaZJBAv8I/bQIWV1V6bcOU7VfmXH3pkk40vg6009260pUIqoBVnWMNvBZ9RaEcU=
+	t=1753258005; cv=none; b=VXv7DWPthCBIydKhIFWuB/sttzYbGZMMdF6gzQG5VJhG8sznXpmwAG3IxUy+yPMgrHIH67S/rlI5DhB62YgaDl/YzloZyPcJNYk85J4gGucipxLNwK1gCTbYmZHsTWpIdb3MteepBT/uLaBmxWXQqw8zXnZ4eCnBud9oWyPjLl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753208494; c=relaxed/simple;
-	bh=qUqSSv3ifayW+xtWbyUpGpvV2Zozny15J74dw4n6dzM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=W4sBQdou+m8AAEhTVTkJmwhnjslfnQ1wX/xlOGspzueupLnPzYf6CXlnaJSHhz3pqNt1MmKFE1Nwkdn/rIuqTFRV9V/tnmLFofUig5oGOuNYAKDpppbxp6WwMvYD/F1NP8/EZjlybdWiMwu617nY13OzxEumRHrotyQo4xmRh0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H7HtROlz; arc=none smtp.client-ip=209.85.167.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1753258005; c=relaxed/simple;
+	bh=7wxD8Yrjg6ZlsoNeZb1eFvzqUhJjLEB9d0SVb221OC0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RLdjmxlLgnFO4ZQMyvpNdnIoL0H2ydGg11wM6S9aJ5/S1jLmMKGxv4czOh+Jx4Iod3nbZlJFi+7DdgpGRe/e0VM+sHpmi0zvB9qLHZy2EPjzgGARyT0+PQmXhuH/0k3lP5NCHoDp5yfxlDsMhEyk+5WOOusNZLdcVfWPAqnFy8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c/ApPuz6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H7HtROlz"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5561d41fc96so6755431e87.1;
-        Tue, 22 Jul 2025 11:21:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753208491; x=1753813291; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=s1bfHAcPl/XMz8xDguK3teTl09r5v0kLVciBst2DtbI=;
-        b=H7HtROlz+aCNBCEWL4P2T3zZjLURX5opQ92DGhXslcAW5Ke9jjPbnnNOTDStH9kzA5
-         aNFyJy79XnPl5EjwK9ymx7CDr8FDnjm4G845TYzn1ctznvC8Ae8a+V8ObzvpRVRGkPDx
-         JRlpsARcFsKUv4TRKpeRlQ383gKy4bwnqnc5FZ/Wg59ygoSgEcRMBcgSorw9Da1FU4lE
-         LCEQAWZRUAHhCYhyXtvehGWRokMhcsz6muAiEQGwuvU7RTvN6jhzhICIVU9jowYitFGs
-         uaYfUUhOHoOh5Cq3zvaBpr4jti1G8RJ6usgZ5/S4KmDRjIVhj4ydwreS7TwQqWVCFEs1
-         phbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753208491; x=1753813291;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=s1bfHAcPl/XMz8xDguK3teTl09r5v0kLVciBst2DtbI=;
-        b=jj/dvmibnm2XtzeZ2swtZJb6Zk/K7oANEkiKenutEHiUZIAh73Pbd9N21pUxWSRGo+
-         3I2gV6veVyCDodsz4EBs49TrrWy5C59nEDtKnUCnRgDpeg+cKQbKDHw0m8lI4g6tWmro
-         Vi/J++WrU7uG+vQQ8C3TbmGU/iQlPaBdJihUz66N1K0IRV3L5TERUs8Zp0roxOcF44hp
-         MMn55ySbiePvxTbyZ3M0aJoXccXApGOt2NK8nGQYA48p2sgBfoI2ICLt0Qtu+mze+DCg
-         GffoIJz5hZtw0fGj+iYDvd9SM4s8V3K2+OK40dTVyWlFAy0vh2xlev3902TLYE61Xhlh
-         HYng==
-X-Forwarded-Encrypted: i=1; AJvYcCUGpLYwdkBKhmytdHVEkRVQkFcJXjPmoiancQdXzuyYzZ3BAbm9HTCOTRmtpn+ba1S0J3cCdZXf749OO0E=@vger.kernel.org, AJvYcCUgHEmvjtazkEILwLpAd+tzQO8Hm3nfsqdlg92+zK9/IoA9vAx3VNVAL+ZqIINBv2DDAzTQPxUzVHAjYg==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5PVeGwtLb6/RQQR/6ICPhWM7xS159Cs5oDh50lLY5ppnzmtTl
-	4jihM1WIbdQLQy+h1sfI5xeX12fyUY8oypL+ALWdX67CdJKoUingguPm9N1iDDzqG7V5mrMF849
-	hXEvR7jPuoJNDJ5vUWhtX/7Kaf5mqEjM=
-X-Gm-Gg: ASbGnctI0lkaeSHWQHtrx8DWu5cH8QJgM94g/Soua5KZs+rbFhBRqOiRI2xQBNRI2Hw
-	73xQ2t2PuUKh9dNkvUUg9fL7zYMkMR2odfehXptqumYcPoDj0R//T8GXzSjHLerme8D+JwcvlxB
-	p5ve1zTjRhr4Adk+0KfHExSmGr7SsF/nR8+PDL0g1G3abifVVkG11jTPQaGvTnkjKFP1HLUaBI/
-	krsAps=
-X-Google-Smtp-Source: AGHT+IHgqZRO4CHZDXwO8i4qviF6GOSHLcIqgaK9MAu32BIYgiKkWD327bPslpy0X0mdn5DHRJd+TcwlCu2XTW4y0IA=
-X-Received: by 2002:a05:6512:4021:b0:553:2190:fef8 with SMTP id
- 2adb3069b0e04-55a513998a5mr31899e87.7.1753208490745; Tue, 22 Jul 2025
- 11:21:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c/ApPuz6"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56N5LmIv021999;
+	Wed, 23 Jul 2025 08:06:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=58wkRkSKcLcDEF5ZpxWaTthSD+CKaD
+	ykasPLRcT80yk=; b=c/ApPuz6OliBbckWbDjKtnmlPUcms020Ik98ZSaVtLrV/w
+	GoJG8rTwwk9QieM14bFJokKaUQMo9RFIuCc9z5nYu+B565O0P0mWYuRZ6XuQ0o7y
+	TcSd4qgXaCK+nvVkZECN/ekec2JwGutHNDPi7NszWNncFTsK2Pu8GRK1DMJ9f3JR
+	Q4WG+8Avv21eQfnSfx5Mv5qsaroL+K1o6mvyfhFZu+MM86tJLn+zlsLUaZ96kQ5u
+	TeVyXfmwcPVJDd7CNB3g41e7QQq5qyK4ggNtZrvSxSlRnxSi9L6MNmhaYFwcNGXM
+	t++5GaeUXo1QbzRYuyjrllXGG2ncG3bGXMfkIa/A==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 482ffbbfk8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Jul 2025 08:06:32 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 56N86VBJ030152;
+	Wed, 23 Jul 2025 08:06:31 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 482ffbbfk3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Jul 2025 08:06:31 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56N418eo014301;
+	Wed, 23 Jul 2025 08:06:30 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 480ppp6x8x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Jul 2025 08:06:30 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56N86Sj754722954
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 23 Jul 2025 08:06:28 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 773FA2004E;
+	Wed, 23 Jul 2025 08:06:28 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E7ADC20040;
+	Wed, 23 Jul 2025 08:06:27 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.19.130])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 23 Jul 2025 08:06:27 +0000 (GMT)
+Date: Wed, 23 Jul 2025 10:06:26 +0200
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: kan.liang@linux.intel.com
+Cc: peterz@infradead.org, mingo@redhat.com, namhyung@kernel.org,
+        irogers@google.com, mark.rutland@arm.com, linux-kernel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, eranian@google.com,
+        ctshao@google.com, tmricht@linux.ibm.com, leo.yan@arm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH V4 07/16] s390/perf: Remove driver-specific throttle
+ support
+Message-ID: <aICYAqM5EQUlTqtX@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20250520181644.2673067-1-kan.liang@linux.intel.com>
+ <20250520181644.2673067-8-kan.liang@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250717142732.292822-1-snovitoll@gmail.com> <f10f3599-509d-4455-94a3-fcbeeffd8219@gmail.com>
-In-Reply-To: <f10f3599-509d-4455-94a3-fcbeeffd8219@gmail.com>
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Date: Tue, 22 Jul 2025 23:21:13 +0500
-X-Gm-Features: Ac12FXzOVMCIvnTEhZltt3TS4XKarYeDIkGkWcMAqG0GgJ62pPTw9Xni6fYiOgs
-Message-ID: <CACzwLxjD0oXGGm2dkDdXjX0sxoNC2asQbjigkDWGCn48bitxSw@mail.gmail.com>
-Subject: Re: [PATCH v3 00/12] kasan: unify kasan_arch_is_ready() and remove
- arch-specific implementations
-To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: hca@linux.ibm.com, christophe.leroy@csgroup.eu, andreyknvl@gmail.com, 
-	agordeev@linux.ibm.com, akpm@linux-foundation.org, glider@google.com, 
-	dvyukov@google.com, kasan-dev@googlegroups.com, linux-kernel@vger.kernel.org, 
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-um@lists.infradead.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250520181644.2673067-8-kan.liang@linux.intel.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: UTGLOoyD7eJ7cIMYlST5sCU3mdpQlqP1
+X-Authority-Analysis: v=2.4 cv=De8XqutW c=1 sm=1 tr=0 ts=68809808 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=Wb1JkmetP80A:10 a=QyXUC8HyAAAA:8 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=k1CFeq3D6HfWPww2QuQA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: k3aRQo9I_5iPyc5ns6G-HrgSk84Jim1i
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzIzMDA2NCBTYWx0ZWRfXz4XBSkNWq/nF
+ AtnF7eFSlj+Xvytj4a/39E60iU3A65LOzhQE8mL8nCPQ2rNMgQPzsqlkRjrD1sPmfZk0GSGqXrw
+ ogTLsDLFX+1gT9/F094rseC2aE4Z+D06wz4saj4aP2UulT+nJI6hOoSFbpJDmgL8PG8NSbmiEXI
+ XoJqy/FAkJ390bnTZbv7zEylXziEJ2zgBut5FgPBhHfp4ROWNMm4dvWGrpP6jn42nKryIi/oTjh
+ z49UZjyPlCQbFs0i2MPjwBU50obx4EiPyQUolwa9WByxOyD3pT2VRcRiIBW79X64EguE/glPxh7
+ hKSkraIoFQUJ1jjclHvD0/KGQhLeND0KJzHSjMYaaUZgrohuZHB/GqOtBg29i/DLIyip/VQlDbv
+ fvNgBhfoJGyD54UFH7MHWBbapUTIATTRgYwSXelhBG48MmAGsO1Zpzc6Fp9DbBwAjw2uyHUw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-07-23_01,2025-07-22_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 lowpriorityscore=0 mlxscore=0 mlxlogscore=999
+ suspectscore=0 priorityscore=1501 clxscore=1011 phishscore=0 adultscore=0
+ malwarescore=0 impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507230064
 
-On Tue, Jul 22, 2025 at 3:59=E2=80=AFAM Andrey Ryabinin <ryabinin.a.a@gmail=
-.com> wrote:
->
->
->
-> On 7/17/25 4:27 PM, Sabyrzhan Tasbolatov wrote:
->
-> > =3D=3D=3D Testing with patches
-> >
-> > Testing in v3:
-> >
-> > - Compiled every affected arch with no errors:
-> >
-> > $ make CC=3Dclang LD=3Dld.lld AR=3Dllvm-ar NM=3Dllvm-nm STRIP=3Dllvm-st=
-rip \
-> >       OBJCOPY=3Dllvm-objcopy OBJDUMP=3Dllvm-objdump READELF=3Dllvm-read=
-elf \
-> >       HOSTCC=3Dclang HOSTCXX=3Dclang++ HOSTAR=3Dllvm-ar HOSTLD=3Dld.lld=
- \
-> >       ARCH=3D$ARCH
-> >
-> > $ clang --version
-> > ClangBuiltLinux clang version 19.1.4
-> > Target: x86_64-unknown-linux-gnu
-> > Thread model: posix
-> >
-> > - make ARCH=3Dum produces the warning during compiling:
-> >       MODPOST Module.symvers
-> >       WARNING: modpost: vmlinux: section mismatch in reference: \
-> >               kasan_init+0x43 (section: .ltext) -> \
-> >               kasan_init_generic (section: .init.text)
-> >
-> > AFAIU, it's due to the code in arch/um/kernel/mem.c, where kasan_init()
-> > is placed in own section ".kasan_init", which calls kasan_init_generic(=
-)
-> > which is marked with "__init".
-> >
-> > - Booting via qemu-system- and running KUnit tests:
-> >
-> > * arm64  (GENERIC, HW_TAGS, SW_TAGS): no regression, same above results=
-.
-> > * x86_64 (GENERIC): no regression, no errors
-> >
->
-> It would be interesting to see whether ARCH_DEFER_KASAN=3Dy arches work.
-> These series add static key into __asan_load*()/_store*() which are calle=
-d
-> from everywhere, including the code patching static branches during the s=
-witch.
->
-> I have suspicion that the code patching static branches during static key=
- switch
-> might not be prepared to the fact the current CPU might try to execute th=
-is static
-> branch in the middle of switch.
+On Tue, May 20, 2025 at 11:16:35AM -0700, kan.liang@linux.intel.com wrote:
+> From: Kan Liang <kan.liang@linux.intel.com>
+> 
+> The throttle support has been added in the generic code. Remove
+> the driver-specific throttle support.
+> 
+> Besides the throttle, perf_event_overflow may return true because of
+> event_limit. It already does an inatomic event disable. The pmu->stop
+> is not required either.
+> 
+> Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+> Cc: Thomas Richter <tmricht@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> ---
+>  arch/s390/kernel/perf_cpum_cf.c | 2 --
+>  arch/s390/kernel/perf_cpum_sf.c | 5 +----
+>  2 files changed, 1 insertion(+), 6 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+> index e657fad7e376..6a262e198e35 100644
+> --- a/arch/s390/kernel/perf_cpum_cf.c
+> +++ b/arch/s390/kernel/perf_cpum_cf.c
+> @@ -980,8 +980,6 @@ static int cfdiag_push_sample(struct perf_event *event,
+>  	}
+>  
+>  	overflow = perf_event_overflow(event, &data, &regs);
+> -	if (overflow)
+> -		event->pmu->stop(event, 0);
+>  
+>  	perf_event_update_userpage(event);
+>  	return overflow;
+> diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+> index ad22799d8a7d..91469401f2c9 100644
+> --- a/arch/s390/kernel/perf_cpum_sf.c
+> +++ b/arch/s390/kernel/perf_cpum_sf.c
+> @@ -1072,10 +1072,7 @@ static int perf_push_sample(struct perf_event *event,
+>  	overflow = 0;
+>  	if (perf_event_exclude(event, &regs, sde_regs))
+>  		goto out;
+> -	if (perf_event_overflow(event, &data, &regs)) {
+> -		overflow = 1;
+> -		event->pmu->stop(event, 0);
+> -	}
+> +	overflow = perf_event_overflow(event, &data, &regs);
+>  	perf_event_update_userpage(event);
+>  out:
+>  	return overflow;
+> -- 
+> 2.38.1
 
-AFAIU, you're referring to this function in mm/kasan/generic.c:
+Hi all,
 
-static __always_inline bool check_region_inline(const void *addr,
+This seems to break POLL_HUP delivery to userspace - when event_limit reaches 0
 
-      size_t size, bool write,
+From perf_event_open man page:
+PERF_EVENT_IOC_REFRESH
+              Non-inherited overflow counters can use this to enable a
+              counter for a number of overflows specified by the
+              argument, after which it is disabled.  Subsequent calls of
+              this ioctl add the argument value to the current count.  An
+              overflow notification with POLL_IN set will happen on each
+              overflow until the count reaches 0; when that happens a
+              notification with POLL_HUP set is sent and the event is
+              disabled.
 
-      unsigned long ret_ip)
+When the event_limit reaches 0, the POLL_HUP signal is expected to be
+sent. Prior to this patch, an explicit call to event->stop() was made,
+which may have contributed to ensuring that the POLL_HUP signal was
+ultimately delivered. However, after  this change, I often did not
+observe the POLL_HUP signal being delivered as expected in the end
+
+Example program:
+output:
+Computation result: 49951804672
+count.hup: 0 count.pollin: 22
+
+Expected output should be:
+count.hup: 1 in the end
+
+#define _GNU_SOURCE
+#include <time.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <poll.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <time.h>
+
+#include <sys/ioctl.h>
+#include <sys/syscall.h>
+#include <linux/perf_event.h>
+
+static struct signal_counts {
+        int in;
+	int out;
+	int hup;
+	int unknown;
+} count;
+
+
+static unsigned long sample_type = PERF_SAMPLE_IP | PERF_SAMPLE_TID |
+		PERF_SAMPLE_TIME | PERF_SAMPLE_ADDR | PERF_SAMPLE_READ |
+		PERF_SAMPLE_ID | PERF_SAMPLE_CPU |
+		PERF_SAMPLE_PERIOD | PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW;
+
+static void sighandler(int signum, siginfo_t *info, void *uc)
 {
-        if (!kasan_shadow_initialized())
-                return true;
-...
+	switch(info->si_code) {
+                case POLL_IN:  count.in++;  break;
+                case POLL_OUT: count.out++; break;
+                case POLL_HUP: count.hup++; break;
+                default: count.unknown++; break;
+        }
 }
 
-and particularly, to architectures that selects ARCH_DEFER_KASAN=3Dy, which=
- are
-loongarch, powerpc, um. So when these arch try to enable the static key:
+void generate_load(unsigned long long iterations) {
+    unsigned long long sum = 0;
+    srand(time(0));
 
-1. static_branch_enable(&kasan_flag_enabled) called
-2. Kernel patches code - changes jump instructions
-3. Code patching involves memory writes
-4. Memory writes can trigger any KASAN wrapper function
-5. Wrapper calls kasan_shadow_initialized()
-6. kasan_shadow_initialized() calls static_branch_likely(&kasan_flag_enable=
-d)
-7. This reads the static key being patched --- this is the potential issue?
-
-The current runtime check is following in tis v3 patch series:
-
-#ifdef CONFIG_ARCH_DEFER_KASAN
-...
-static __always_inline bool kasan_shadow_initialized(void)
-{
-        return static_branch_likely(&kasan_flag_enabled);
+    for (unsigned long long i = 0; i < iterations; ++i) {
+        int rnd = rand();
+        sum += (rnd ^ (rnd >> 3)) % 1000;
+    }
+    printf("Computation result: %llu\n", sum);
 }
-...
-#endif
 
-I wonder, if I should add some protection only for KASAN_GENERIC,
-where check_region_inline() is called (or for all KASAN modes?):
-
-#ifdef CONFIG_ARCH_DEFER_KASAN
-...
-static __always_inline bool kasan_shadow_initialized(void)
+void perf_attr(struct perf_event_attr *pe,
+		       unsigned long config, unsigned long period, bool freq,
+		       unsigned long bits)
 {
-        /* Avoid recursion (?) during static key patching */
-        if (static_key_count(&kasan_flag_enabled.key) < 0)
-                return false;
-        return static_branch_likely(&kasan_flag_enabled);
+	memset(pe, 0, sizeof(struct perf_event_attr));
+	pe->size = sizeof(struct perf_event_attr);
+	pe->type = PERF_TYPE_HARDWARE;
+	pe->config = PERF_COUNT_HW_CPU_CYCLES;
+	pe->exclude_kernel = 0;
+	pe->sample_period = 50000;
+	pe->freq = 1;
+	pe->disabled = 1;
+	pe->config = config;
+	pe->freq = freq;
+	pe->sample_type = bits;
 }
-...
-#endif
 
-Please suggest where the issue is and if I understood the problem.
-I might try to run QEMU on powerpc with KUnits to see if I see any logs.
+int main(int argc, char **argv)
+{
+	int fd, signo = SIGIO, rc = -1;
+	struct sigaction sa, sa_old;
+	struct perf_event_attr pe;
+
+	perf_attr(&pe, PERF_COUNT_HW_CPU_CYCLES, 50000, 1, sample_type);
+	/* Set up overflow handler */
+	memset(&sa, 0, sizeof(struct sigaction));
+	memset(&sa_old, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = sighandler;
+	sa.sa_flags = SA_SIGINFO;
+	if (sigaction(signo, &sa, &sa_old) < 0)
+		goto out;
+
+	fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
+	if (fd < 0)
+		return rc;
+
+	rc = fcntl(fd, F_SETFL, O_RDWR | O_NONBLOCK | O_ASYNC);
+	rc |= fcntl(fd, F_SETSIG, signo);
+	rc |= fcntl(fd, F_SETOWN, getpid());
+	if (rc)
+		goto out;
+
+	rc = ioctl(fd, PERF_EVENT_IOC_REFRESH, 2500);
+	if (rc)
+		goto out;
+
+	generate_load(100000000ULL);
+	sigaction(signo, &sa_old, NULL);
+	printf("count.hup: %d count.pollin: %d\n", count.hup, count.in);
+	close(fd);
+	return 0;
+out:
+	return rc;
+}
+
+Thank you,
+Sumanth
