@@ -1,59 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CF522D4B68
-	for <linux-s390@vger.kernel.org>; Thu, 24 Jul 2025 13:31:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55B5E2DEA89;
+	Thu, 24 Jul 2025 13:50:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753363874; cv=none; b=thIcbB+vY3c1HuPBNGbCo9jiRgUBsaC0Z+cg9teX6Qqv5cfo3dHEpkJONlNt/sz2B7h0f6JbJSTRrXSbmqOnQ/76vEFGHxtWoNU1wOqgt781aTCZOP5kEFhZm7Rj8XYSRpgdzi1zB+VQceyca10qDIfb66gFYInwv589zjlhYe8=
+	t=1753365039; cv=none; b=afM94P7crHD3lVZBV73J5ZEbs+sbkAhAFkBzrEtn/P1D8NPqWSDhBDfnU7EQR0r8FJzJrEW+H8DLnfAzB8SPsgcA4V1MfrfOc8mFAkPAdMGUkaMDBVJuZnG5SkgC9056oXr35Bshc9rc+koj3hxqzdlJZ/RwDSWr8OunA/rrG4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753363874; c=relaxed/simple;
-	bh=0WJ+3UFOLj0EjL30KYoYtpD8DQbBcXcXMSak85Blh+g=;
+	s=arc-20240116; t=1753365039; c=relaxed/simple;
+	bh=iJjLNDfFc1+GOOk7iXnO04IQxxZdux2GznFTgHowxBk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=M/UO8b3Rau8kPXqACrztSRJjkzYm0lV4Xgdl9GFMKNC5f+3eby2Ew7zECbDwV5lS6GGrNf0pIvOOCgd+z88R/M8IHwErngojD+Vcg8PzGnBnDaQryJ0sSGOaPFMLYP6nu8c7NFs+ZBzam5xPI/1afN2nb0pjET5SxX0tC7+ol+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JrPZh5ev; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 MIME-Version; b=pitqFfH4EIzopM3wlDs0FW2tlGGSOg3F5rPhcpybmdcSTbTyGTXS1efaQynBEyfIRWEwZSTcAmvr6cDxv6UnQBKSkLH9u6P2JraDr61m4icMK0qvUkwqwrBHtbsMP2bCjz6JG/bohmXrcn89ICiOx1wvcQXF2Yj+dTeJA5o9jhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OqpCqpa8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JrPZh5ev"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753363872;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=duaQyAVRbkBAk+diiySFaCJuDFBkhYfgf7V2EYmBFeg=;
-	b=JrPZh5evsyzWZDdzlj33LdG4Bw/SU7XKDsYX6T4UHrrvmJWSZuDWZR46pTU0OGPKDHwpds
-	8CYwDA72l0aJ5rjpY47rkvGCM8sUMuU38S3VI7CAua5xazSCQqBpfKjR2Z54TVRDy8vGop
-	k7pgemItOO0rlwItDLaRRFmwA0t4plQ=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-244-3tnBbaBgP7aCulIIFfy5Gg-1; Thu,
- 24 Jul 2025 09:31:08 -0400
-X-MC-Unique: 3tnBbaBgP7aCulIIFfy5Gg-1
-X-Mimecast-MFC-AGG-ID: 3tnBbaBgP7aCulIIFfy5Gg_1753363867
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 67B361800360;
-	Thu, 24 Jul 2025 13:31:07 +0000 (UTC)
-Received: from thuth-p1g4.redhat.com (unknown [10.45.224.82])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id F3211300018D;
-	Thu, 24 Jul 2025 13:30:59 +0000 (UTC)
-From: Thomas Huth <thuth@redhat.com>
-To: kvm@vger.kernel.org,
-	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>,
-	linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 2/3] .gitlab-ci.yml: Add the s390x panic-loop tests to the CI
-Date: Thu, 24 Jul 2025 15:30:50 +0200
-Message-ID: <20250724133051.44045-3-thuth@redhat.com>
-In-Reply-To: <20250724133051.44045-1-thuth@redhat.com>
-References: <20250724133051.44045-1-thuth@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OqpCqpa8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A40C4CEED;
+	Thu, 24 Jul 2025 13:50:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753365038;
+	bh=iJjLNDfFc1+GOOk7iXnO04IQxxZdux2GznFTgHowxBk=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=OqpCqpa8IWuCzkJ3Alf+tjYsASPgZIrtdsqjDLkugG365FO7HHKm/9A1Y3rAKIf1I
+	 mrELj6E07kyVhr5+roursPmMQeUhe0cb4TIqEEgZ7c/DT2htlkoshQ8dNKz1JleFtd
+	 G4WYnENA2jclojwypGF2Wwyk4vvZbqRNVWcF3+mGd4+qvSGWlwemCBAmwTkjYJMpTH
+	 krghYq51KSAHWhiu/HjnxfqxQtpog6JnwBKweo6q2kvnhJpfVoqKjuDyv2YH2bY0Fh
+	 k8+HxjJ2sOVGL4X/2YWO6K8emN/kxlCPAygYV5awwPLs9zVuYUyttdJacAF2bj8+g0
+	 3bJNbckxIlSoQ==
+From: Alexey Gladkov <legion@kernel.org>
+To: Masahiro Yamada <masahiroy@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Daniel Gomez <da.gomez@samsung.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nicolas Schier <nicolas.schier@linux.dev>
+Cc: linux-kernel@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-kbuild@vger.kernel.org,
+	Alexey Gladkov <legion@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH v5 10/10] s390: vmlinux.lds.S: Reorder sections
+Date: Thu, 24 Jul 2025 15:49:47 +0200
+Message-ID: <2860d5a5e7c6279b3836537e20b0fa0c40d2ba0f.1753354215.git.legion@kernel.org>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <cover.1753354215.git.legion@kernel.org>
+References: <cover.1753354215.git.legion@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -61,31 +56,54 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-From: Thomas Huth <thuth@redhat.com>
+Reorder the sections to be placed in the default segment. The
+.vmlinux.info use :NONE to override the default segment and tell the
+linker to not put the section in any segment at all.
 
-Now that these tests should work reliable, we should also run them
-in our CI.
+>> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' not in segment
+>> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' not in segment
+>> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modinfo' not in segment
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202506062053.zbkFBEnJ-lkp@intel.com/
+Signed-off-by: Alexey Gladkov <legion@kernel.org>
 ---
- .gitlab-ci.yml | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kernel/vmlinux.lds.S | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
-index aa69ca59..7e3d4661 100644
---- a/.gitlab-ci.yml
-+++ b/.gitlab-ci.yml
-@@ -517,6 +517,8 @@ s390x-kvm:
-       migration-sck
-       migration-skey-parallel
-       migration-skey-sequential
-+      panic-loop-extint
-+      panic-loop-pgm
-       pfmf
-       sclp-1g
-       sclp-3g
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index ff1ddba96352..3f2f90e38808 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -202,6 +202,11 @@ SECTIONS
+ 	. = ALIGN(PAGE_SIZE);
+ 	_end = . ;
+ 
++	/* Debugging sections.	*/
++	STABS_DEBUG
++	DWARF_DEBUG
++	ELF_DETAILS
++
+ 	/*
+ 	 * uncompressed image info used by the decompressor
+ 	 * it should match struct vmlinux_info
+@@ -232,11 +237,6 @@ SECTIONS
+ #endif
+ 	} :NONE
+ 
+-	/* Debugging sections.	*/
+-	STABS_DEBUG
+-	DWARF_DEBUG
+-	ELF_DETAILS
+-
+ 	/*
+ 	 * Make sure that the .got.plt is either completely empty or it
+ 	 * contains only the three reserved double words.
 -- 
 2.50.1
 
