@@ -1,45 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4C37224F6
-	for <linux-s390@vger.kernel.org>; Thu, 24 Jul 2025 13:31:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E42302D372C
+	for <linux-s390@vger.kernel.org>; Thu, 24 Jul 2025 13:31:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753363867; cv=none; b=ntRCt0ljjwhJlczOn4nUhELjvO6PUjXnxTbHAvL8ERN52QcgZ1YmeLVh57raIKsLYxVQx/5BnnHd7FUyUlIzCNTOAQdG4gmLSrmwxgUbAj06eISXigmw+zN8K+OjIr+sssMfUy1oj6WYVhl2f75ZYwv3zyK2dlXbuZV96MGFKEQ=
+	t=1753363868; cv=none; b=NTq7ZDMnJmOuHOhMQJKNoQNgT3o31rnzvdOv0dwWOSNKRmIvmhAktusk7zjobnZiyDgzD7tud0CWsoNyqIR0TwKRhBpxqiOvaL4dRgYIYm1JXvI9SBkBpMVkcw1FgKjJnNEa8ozhrDyaJrmk0xX3Xk8QuTjR4tC/qW4S1+PgO5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753363867; c=relaxed/simple;
-	bh=k9gAyqzok4sTUtsAlTBlX+YJidX+nmDzcjoqbBXlurs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T7cu34o5uixKXJF8GpLn1/DIurI1/jo60prn3BV9+kt51u8OZZlRErOYWoFayK8+wHE2mHGl3oj9/Q3SilSt18GoTKlcxOdIeAWn23SqSKcTOXnUN5PQp5kEy85fydXjDoe2D42fdtLSBOQadgfGbLVBpGhfgzPxJMnDyaChPLo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BUh0gOxD; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1753363868; c=relaxed/simple;
+	bh=U1LTQH2xlIG9oWXXMkOsck6Dd8eOF46Ie/UNd+mfeyk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qOEUKe60FIdqtq89SziS6BRL7OvwbtciALRJOXFlfEbzxbDGexnWSy9o+0f2KhlUp2Qvv2XgPRoP8+wVbjfyYm+tvBAUIFiGsihRYxEVBiTuJhJlDmNmealyIviSMibEpmYoK8kt6M/z1+7q5fDdREMy7VNBNlORRy9HVRPnVh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gGDH3IAG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BUh0gOxD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gGDH3IAG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753363864;
+	s=mimecast20190719; t=1753363865;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=uh6BZwyJXcSYQ1q1apdUOd5VW0oyNqWbdqse1odGKyE=;
-	b=BUh0gOxDIqQabVSjuSDNKNnbnx/yCnddIBwaPWV5zPSeiszYc5p5/Ezafobm1T4d+OA1xZ
-	5zK4cIIKxJf7xcQkma74rnYydP5uBTNXuNoxovQ1A4uEsD0QxTUFt/2c3GzGu6hvN246bh
-	e7tNGgFQNNLdUMUb74HGzebaVpzUmTc=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=o73t0OD4VwQtJXUCdj8mKcSys4yhjAHxfbmFUYFSglg=;
+	b=gGDH3IAGyLb6uSf20IZ3CCeVKRpmZjfHvu3ipofZvTYWdnpFXYhfJHG0+XGc9swX4Grmn4
+	FypF4tbIQKy0+uqGDl3IUkfm8oZyCztq1v+uCQccupxz9Ja0LkFc6ypBm/6nyolyI/ZSSg
+	jcUzatt72Mo96yUu048tSrNUVjPtp54=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-33-eOIwZvrxM1merg-WiKMiDA-1; Thu,
- 24 Jul 2025 09:30:58 -0400
-X-MC-Unique: eOIwZvrxM1merg-WiKMiDA-1
-X-Mimecast-MFC-AGG-ID: eOIwZvrxM1merg-WiKMiDA_1753363856
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-394-ERAbxcrHNdC1f9mHGjXdlg-1; Thu,
+ 24 Jul 2025 09:31:00 -0400
+X-MC-Unique: ERAbxcrHNdC1f9mHGjXdlg-1
+X-Mimecast-MFC-AGG-ID: ERAbxcrHNdC1f9mHGjXdlg_1753363859
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9145D1800446;
-	Thu, 24 Jul 2025 13:30:56 +0000 (UTC)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7304619560B6;
+	Thu, 24 Jul 2025 13:30:59 +0000 (UTC)
 Received: from thuth-p1g4.redhat.com (unknown [10.45.224.82])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 82693300018D;
-	Thu, 24 Jul 2025 13:30:53 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2127B3000199;
+	Thu, 24 Jul 2025 13:30:56 +0000 (UTC)
 From: Thomas Huth <thuth@redhat.com>
 To: kvm@vger.kernel.org,
 	=?UTF-8?q?Nico=20B=C3=B6hr?= <nrb@linux.ibm.com>
@@ -47,9 +49,11 @@ Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>,
 	Janosch Frank <frankja@linux.ibm.com>,
 	David Hildenbrand <david@redhat.com>,
 	linux-s390@vger.kernel.org
-Subject: [kvm-unit-tests PATCH 0/3] Improvements for the s390x panic-loop tests
-Date: Thu, 24 Jul 2025 15:30:48 +0200
-Message-ID: <20250724133051.44045-1-thuth@redhat.com>
+Subject: [kvm-unit-tests PATCH 1/3] s390x: Fix unreliable panic-loop tests
+Date: Thu, 24 Jul 2025 15:30:49 +0200
+Message-ID: <20250724133051.44045-2-thuth@redhat.com>
+In-Reply-To: <20250724133051.44045-1-thuth@redhat.com>
+References: <20250724133051.44045-1-thuth@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,20 +63,77 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-The panic-loop tests sometimes fail in our downstream CI. The first
-patch fixes this issue. While we're at it, add the tests to the
-upstream CI, too (second patch). The third patch is a RFC: Is it ok
-to drop our dependecy on "jq" for these tests by replacing it with "grep"?
+From: Thomas Huth <thuth@redhat.com>
 
-Thomas Huth (3):
-  s390x: Fix unreliable panic-loop tests
-  .gitlab-ci.yml: Add the s390x panic-loop tests to the CI
-  scripts/arch-run.bash: Drop the dependency on "jq"
+In our CI, the s390x panic-loop-extint and panic-loop-pgm tests
+are sometimes failing. Having a closer look, this seems to be caused
+by ncat sometimes complaining about "Connection reset by peer" on stderr,
+likely because QEMU terminated (due to the panic) before ncat could
+properly tear down the connection. But having some output on stderr is
+interpreted as test failure in qemu_fixup_return_code(), so the test is
+marked as failed, even though the panic event occurred as expected.
 
- .gitlab-ci.yml        |  2 ++
- scripts/arch-run.bash | 27 +++++----------------------
- 2 files changed, 7 insertions(+), 22 deletions(-)
+To fix it, drop the usage of ncat here and simply handle the QMP
+input and output via normal fifos instead. This has also the advantage
+that we do not need an additional program for these tests anymore
+that might not be available in the installation.
 
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+---
+ scripts/arch-run.bash | 21 +++++----------------
+ 1 file changed, 5 insertions(+), 16 deletions(-)
+
+diff --git a/scripts/arch-run.bash b/scripts/arch-run.bash
+index c440f216..58e4f93f 100644
+--- a/scripts/arch-run.bash
++++ b/scripts/arch-run.bash
+@@ -63,14 +63,6 @@ qmp ()
+ 	echo '{ "execute": "qmp_capabilities" }{ "execute":' "$2" '}' | ncat -U $1
+ }
+ 
+-qmp_events ()
+-{
+-	while ! test -S "$1"; do sleep 0.1; done
+-	echo '{ "execute": "qmp_capabilities" }{ "execute": "cont" }' |
+-		ncat --no-shutdown -U $1 |
+-		jq -c 'select(has("event"))'
+-}
+-
+ filter_quiet_msgs ()
+ {
+ 	grep -v "Now migrate the VM (quiet)" |
+@@ -295,26 +287,23 @@ do_migration ()
+ 
+ run_panic ()
+ {
+-	if ! command -v ncat >/dev/null 2>&1; then
+-		echo "${FUNCNAME[0]} needs ncat (netcat)" >&2
+-		return 77
+-	fi
+-
+ 	if ! command -v jq >/dev/null 2>&1; then
+ 		echo "${FUNCNAME[0]} needs jq" >&2
+ 		return 77
+ 	fi
+ 
+ 	trap 'trap - TERM ; kill 0 ; exit 2' INT TERM
+-	trap 'rm -f ${qmp}' RETURN EXIT
++	trap 'rm -f ${qmp}.in ${qmp}.out' RETURN EXIT
+ 
+ 	qmp=$(mktemp -u -t panic-qmp.XXXXXXXXXX)
++	mkfifo ${qmp}.in ${qmp}.out
+ 
+ 	# start VM stopped so we don't miss any events
+-	"$@" -chardev socket,id=mon,path=${qmp},server=on,wait=off \
++	"$@" -chardev pipe,id=mon,path=${qmp} \
+ 		-mon chardev=mon,mode=control -S &
++	echo '{ "execute": "qmp_capabilities" }{ "execute": "cont" }' > ${qmp}.in
+ 
+-	panic_event_count=$(qmp_events ${qmp} | jq -c 'select(.event == "GUEST_PANICKED")' | wc -l)
++	panic_event_count=$(jq -c 'select(.event == "GUEST_PANICKED")' < ${qmp}.out | wc -l)
+ 	if [ "$panic_event_count" -lt 1 ]; then
+ 		echo "FAIL: guest did not panic"
+ 		ret=3
 -- 
 2.50.1
 
