@@ -1,137 +1,186 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10F52747F;
-	Sat, 26 Jul 2025 10:59:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D81EC19F135;
+	Sat, 26 Jul 2025 21:39:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753527594; cv=none; b=lneEMiTuNoXJlQ6PnIjr2EG3awLMEG3z0UNDfub0PZ9wZtho4WGjfVLmr8Hhh3xA4R4UWjwNpD1imNdl0pUBDRDa+An0TnH1vVTieigZCSP1uq92hSLfmIZrrOjvSRCWQ2EUjq6sQdRUW4s+Es3utmJK08WUKkZI2PcPscvEjQI=
+	t=1753565961; cv=none; b=AYW6DX/jJbWAa/YeYROeslCdtVtKC3bgtd7uXQOAV/TeuLZEybb7ml7pBNz3Jpfqr+bcUW/UtU7YuFe2L3V1WM+a+JvLXfXM/ADNXnE3TNkUWfng9gNC6LBWexsCRrMADEvgeSy/qpIAc7jcauOFOaaza4km8rODsW5RVxyPuTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753527594; c=relaxed/simple;
-	bh=g+gsOrD6DrMOM9hwmAbfMGxWrCneIpbSg9t1G3B3KiM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c+iJkBoUC4Fd4IH15iPPxzzvo4ZdTXIP7xTI6q2tt9FPatBZ5YLehCCvZJG5V1wdlaFrlvdkOMX5ZPt03N89+qXk5UwGgs+ngrg5i1i1bQhGYd+Q2bzFza+QGX6sA+YaZtGAHlWeQ5JtUnEDdqFeTUxbfiQECDH9HickXrlny1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rGMm9Ag5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753565961; c=relaxed/simple;
+	bh=bE8gOgUvTZi4vI0lg9qUYLnf/GEXOkxooNHihx3vuJw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=sBGjGdkGKPUtN645G7k253uakuUi42RnGpsHMRz2Y/seKy898lgIfL+Xit52iEESYEqlo3cryRrQI5O7taXO8jUkJWHOmH7aKWnib+Kug1OKvwSxjrS6c829qpIFbi/ydI3HdKw0bBQEFkWaW04FtVU3Js1b6qmrRm9DgZP1UYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XHrb3axi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rGMm9Ag5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3FDEC4CEF4;
-	Sat, 26 Jul 2025 10:59:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XHrb3axi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85239C4CEF4;
+	Sat, 26 Jul 2025 21:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753527593;
-	bh=g+gsOrD6DrMOM9hwmAbfMGxWrCneIpbSg9t1G3B3KiM=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=rGMm9Ag5q8RrsMNUHK7IY+2VTiUCBUsrJW59hvvViujoTtrzJWHMtrNj8lFmfFEHQ
-	 iFDrTKCxuHKAE1SabyhdL1Dtcz0TdiaODagaiVEdXJE1Qzevr2ktj6WzuU4haV+WrG
-	 oL/Ca84oO93/StZ5pe9/qk4cXIVEjFNBBTidDZ5znmZ9sTkKUHSzVbz8zljm6sIyQd
-	 wQBSSRAqKNDFGuX0xRh4t/n573hkzbkEmrtz8Ob8eKJb1z1DOZEd5dRqI1pX3m/lVB
-	 CwP+c9JzY5OOa+30ZmcA33vRUrb4Ueck/+OLGTLYfnR1V1MU4TsQRGcdZ9j1CAid9v
-	 tCZPGhE9U68cg==
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-553be4d2fbfso2942590e87.0;
-        Sat, 26 Jul 2025 03:59:53 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWGUuuszqo7e0eQ34hlLt7QB2GSZO5iQc1LggUj2VmJr+h8V/WKnzSz20NfXEDuLWvu6ES/dPv1Wx5EmQ==@vger.kernel.org, AJvYcCWbDOzCJDwRl7E9VeH0V337iWUFLnQl4bLUcniAs3EIrF2KvqTqD3BubkZAEiYXickSiE6TdP0vpHHqJwl9ZA==@vger.kernel.org, AJvYcCWxbNaoa2zLo5lNMBKUUxM889a/pzfZ4H1eZadtJ9IbaIt/F0i2ZJ9jh3R6F2O5NbQ/Rim6rk7Igx9tNfd8@vger.kernel.org, AJvYcCXK7hk+vkJklEcSsrQ8P3Pxewry+Qw8fEGDmsfX0Pdv2BwL9sDiC+sCj3r8UIB6xDF/j6zwCBf1IHMoRmM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz8pjKml7+9LwSC1GtJf/vqOYzOb8l5Yc8HncEzpj4P5hm25QoG
-	D+gXOg071aWAj4gduUTMvGPiFXKz+Ktl9n9t5FykYhMbT8aZdqZ5s6o0EkcZB8zl5CPHKnsN9R6
-	8/006ic0PGqOYQFNt6w50CM3BObTcYJ0=
-X-Google-Smtp-Source: AGHT+IHlNlEPyc5mSQJkStepGru4y0Q4yNkOgUcGZgXwg5ckZuEGwpg/qbcmo19sVrfTSq/RGHzvYtX0TkI5gkcfF7c=
-X-Received: by 2002:a05:6512:3996:b0:550:d4f3:8491 with SMTP id
- 2adb3069b0e04-55b5f496125mr1541036e87.41.1753527592436; Sat, 26 Jul 2025
- 03:59:52 -0700 (PDT)
+	s=k20201202; t=1753565960;
+	bh=bE8gOgUvTZi4vI0lg9qUYLnf/GEXOkxooNHihx3vuJw=;
+	h=Date:From:To:Cc:Subject:From;
+	b=XHrb3axiSsGzIoF2z2Ix7pQjSMf1Hy42ar894fKLOABDtiMSiJhU7EOw7iJrgd6tB
+	 IbaRdb5qeWEpZin3fRvADFhKWu6rwXZK251hn0vmJbDMaGw9ALbzwGt5jlO4g1Ev/5
+	 38kyT5jk9ILeJA/C732uod/apU+rxyQj7EYgW1D/FfLwRv3xciKcU+EEYDtA1K1HQw
+	 89qGLSJb5I1UF5EVZNysHbVA4poyaagUpDWiSn+7w1Wkxrul3aS8xbgWpQmDVmq97o
+	 1XX7DFiDUydJ2ZJduymhDp4XdKL9MxP2XYT1rwFJYEc0IFFTjUHBVSjh8qB39SdIcg
+	 FmVRs5hgMDysg==
+Date: Sat, 26 Jul 2025 14:39:20 -0700
+From: Kees Cook <kees@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, Akihiko Odaki <akihiko.odaki@daynix.com>,
+	Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Chris Zankel <chris@zankel.net>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dave Martin <Dave.Martin@arm.com>,
+	David Hildenbrand <david@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Dishank Jogi <dishank.jogi@siqol.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Helge Deller <deller@gmx.de>, "H. Peter Anvin" <hpa@zytor.com>,
+	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Jonas Bonn <jonas@southpole.se>, Kees Cook <kees@kernel.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+	linux-um@lists.infradead.org, loongarch@lists.linux.dev,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Max Filippov <jcmvbkbc@gmail.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Oleg Nesterov <oleg@redhat.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Richard Weinberger <richard@nod.at>, Rich Felker <dalias@libc.org>,
+	Russell King <linux@armlinux.org.uk>, sparclinux@vger.kernel.org,
+	Stafford Horne <shorne@gmail.com>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>,
+	x86@kernel.org, Yin Fengwei <fengwei_yin@linux.alibaba.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>
+Subject: [GIT PULL] execve updates for v6.17
+Message-ID: <202507261437.F2079B3B7@keescook>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1753354215.git.legion@kernel.org> <2860d5a5e7c6279b3836537e20b0fa0c40d2ba0f.1753354215.git.legion@kernel.org>
-In-Reply-To: <2860d5a5e7c6279b3836537e20b0fa0c40d2ba0f.1753354215.git.legion@kernel.org>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Sat, 26 Jul 2025 19:59:16 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARV+8vZPUtX8iG_hEAt8tCchRPFobK85tv9dbJwVqYgsw@mail.gmail.com>
-X-Gm-Features: Ac12FXwWZK-s9uK4FNdURazz50HqFOZm92a27Khcsg-e7lt7_nQEyv1C0fLpN1I
-Message-ID: <CAK7LNARV+8vZPUtX8iG_hEAt8tCchRPFobK85tv9dbJwVqYgsw@mail.gmail.com>
-Subject: Re: [PATCH v5 10/10] s390: vmlinux.lds.S: Reorder sections
-To: Alexey Gladkov <legion@kernel.org>
-Cc: Petr Pavlu <petr.pavlu@suse.com>, Luis Chamberlain <mcgrof@kernel.org>, 
-	Sami Tolvanen <samitolvanen@google.com>, Daniel Gomez <da.gomez@samsung.com>, 
-	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas.schier@linux.dev>, 
-	linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, 
-	kernel test robot <lkp@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, Jul 24, 2025 at 10:50=E2=80=AFPM Alexey Gladkov <legion@kernel.org>=
- wrote:
->
-> Reorder the sections to be placed in the default segment. The
-> .vmlinux.info use :NONE to override the default segment and tell the
-> linker to not put the section in any segment at all.
->
-> >> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' n=
-ot in segment
-> >> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' n=
-ot in segment
-> >> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modin=
-fo' not in segment
+Hi Linus,
 
-Thank you for root-causing!
+Please pull these execve updates for v6.17. Note that while the REGSET
+macro changes touch all the architectures, they are fairly mechanical
+and have been in linux-next for almost the entire development window.
 
+Thanks!
 
+-Kees
 
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
+The following changes since commit e04c78d86a9699d136910cfc0bdcf01087e3267e:
 
+  Linux 6.16-rc2 (2025-06-15 13:49:41 -0700)
 
-Hi s390 maintainers,
-I need this patch for kbuild tree.
-Ack is appreciated.
+are available in the Git repository at:
 
+  https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/execve-v6.17
 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202506062053.zbkFBEnJ-lkp@i=
-ntel.com/
-> Signed-off-by: Alexey Gladkov <legion@kernel.org>
-> ---
->  arch/s390/kernel/vmlinux.lds.S | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.ld=
-s.S
-> index ff1ddba96352..3f2f90e38808 100644
-> --- a/arch/s390/kernel/vmlinux.lds.S
-> +++ b/arch/s390/kernel/vmlinux.lds.S
-> @@ -202,6 +202,11 @@ SECTIONS
->         . =3D ALIGN(PAGE_SIZE);
->         _end =3D . ;
->
-> +       /* Debugging sections.  */
-> +       STABS_DEBUG
-> +       DWARF_DEBUG
-> +       ELF_DETAILS
-> +
->         /*
->          * uncompressed image info used by the decompressor
->          * it should match struct vmlinux_info
-> @@ -232,11 +237,6 @@ SECTIONS
->  #endif
->         } :NONE
->
-> -       /* Debugging sections.  */
-> -       STABS_DEBUG
-> -       DWARF_DEBUG
-> -       ELF_DETAILS
-> -
->         /*
->          * Make sure that the .got.plt is either completely empty or it
->          * contains only the three reserved double words.
-> --
-> 2.50.1
->
+for you to fetch changes up to 7f71195c15dcf5f34c4c7f056603659374e3a525:
 
+  fork: reorder function qualifiers for copy_clone_args_from_user (2025-07-17 16:37:05 -0700)
 
---=20
-Best Regards
-Masahiro Yamada
+----------------------------------------------------------------
+execve updates for v6.17
+
+- Introduce regular REGSET note macros arch-wide (Dave Martin)
+
+- Remove arbitrary 4K limitation of program header size (Yin Fengwei)
+
+- Reorder function qualifiers for copy_clone_args_from_user() (Dishank Jogi)
+
+----------------------------------------------------------------
+Dave Martin (23):
+      regset: Fix kerneldoc for struct regset_get() in user_regset
+      regset: Add explicit core note name in struct user_regset
+      binfmt_elf: Dump non-arch notes with strictly matching name and type
+      ARC: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      ARM: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      arm64: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      csky: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      hexagon: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      LoongArch: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      m68k: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      MIPS: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      nios2: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      openrisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      parisc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      powerpc/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      s390/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      sh: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      sparc: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      x86/ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      um: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      xtensa: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
+      binfmt_elf: Warn on missing or suspicious regset note names
+
+Dishank Jogi (1):
+      fork: reorder function qualifiers for copy_clone_args_from_user
+
+Yin Fengwei (1):
+      binfmt_elf: remove the 4k limitation of program header size
+
+ include/linux/regset.h                   | 12 +++++-
+ arch/arc/kernel/ptrace.c                 |  4 +-
+ arch/arm/kernel/ptrace.c                 |  6 +--
+ arch/arm64/kernel/ptrace.c               | 52 +++++++++++-----------
+ arch/csky/kernel/ptrace.c                |  4 +-
+ arch/hexagon/kernel/ptrace.c             |  2 +-
+ arch/loongarch/kernel/ptrace.c           | 16 +++----
+ arch/m68k/kernel/ptrace.c                |  4 +-
+ arch/mips/kernel/ptrace.c                | 20 ++++-----
+ arch/nios2/kernel/ptrace.c               |  2 +-
+ arch/openrisc/kernel/ptrace.c            |  4 +-
+ arch/parisc/kernel/ptrace.c              |  8 ++--
+ arch/powerpc/kernel/ptrace/ptrace-view.c | 74 ++++++++++++++++----------------
+ arch/riscv/kernel/ptrace.c               | 12 +++---
+ arch/s390/kernel/ptrace.c                | 42 +++++++++---------
+ arch/sh/kernel/ptrace_32.c               |  4 +-
+ arch/sparc/kernel/ptrace_32.c            |  4 +-
+ arch/sparc/kernel/ptrace_64.c            |  8 ++--
+ arch/x86/kernel/ptrace.c                 | 22 +++++-----
+ arch/x86/um/ptrace.c                     | 10 ++---
+ arch/xtensa/kernel/ptrace.c              |  4 +-
+ fs/binfmt_elf.c                          | 38 ++++++++++------
+ fs/binfmt_elf_fdpic.c                    | 17 ++++----
+ kernel/fork.c                            |  2 +-
+ 24 files changed, 196 insertions(+), 175 deletions(-)
+
+-- 
+Kees Cook
