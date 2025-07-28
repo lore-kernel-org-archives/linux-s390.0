@@ -1,207 +1,112 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADFC8221557
-	for <linux-s390@vger.kernel.org>; Mon, 28 Jul 2025 10:11:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D257A3B280;
+	Mon, 28 Jul 2025 12:17:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753697485; cv=none; b=PYDO32gTpBfQEMyKMC9IL+zAEFbmwhQvi+NxXRPMrCT7vhksrmcZChwmf1fSzhUmEnKUEz6DnmnMnNTX75/RMpyvsj9Hmwz7vP8lzA+9WxfA3sAKvy4Eeye8SQWcojTNrr1mfNcVuQScAr1lWHfkw8WblzKABv9OTxgJ/5iiBjM=
+	t=1753705041; cv=none; b=OOVvGuI+UJ9vqYkW2UjTCVoUgeU5WsdnI2Xdh+zgC4Z7XXNw+OIik3z935jMoLD3A8ltgNn2NGpRtYZwwYGkc0x8ckgj8eF0syUxwt1eIsROWSh/WW0qREjSX36DuhGhgK3qxOEx0K8jFbX9w5Ny0mI9yAc8IkcKy5ze6V/r+Qs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753697485; c=relaxed/simple;
-	bh=2AHT2HrXCidfiMYyXCgWDganUiockFMnX41WbtEaC5A=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=S1rSL40ST3vos8AViiI1IBM2ecI8SC9X30V8IMNpfsHGNekfM0CGilGw3Ts2sLDmigrjRN/Q4MZ+0tCsWKN4VcFm5KAWxF8rlCrZg6D0JpmVtrKmQayhytqBPPDkwh0sXA7w519QGKgllkKurCf0T7XrMSttdM49NuYBB/+M32w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DrbHBFNd; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DrbHBFNd"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56SAA33A017128;
-	Mon, 28 Jul 2025 10:11:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=H1F2kzGZo9TRtbmeci8Fz7YLA9FgA/VxbaR20eVIzNg=; b=DrbHBFNdck76
-	HRcjzEPBmtvfRAMNXoWfsxuYAEY64na5UK/jWLT0vvY5pXF/0d1p8m67CPJ+9xJ+
-	XG51isuvEdwP554KbP6P6DeM10vzCI7YRLlaBBiWmMyo1KkvrwJOlniW378w/Zym
-	l8ikc8pA5CZk9044wRyqigsbTgGnbHIJkTENLONEFM5mO0IYqjfq0CV8Vtk4wanq
-	lzrhRmtONHymYkcgEJu2AWk2X6DfLemDZM4nElqQ+oNeLahvSDDb5HfWwlcdbFjS
-	6Ikp6x5Rlvc4wa0ZlINy9LLazlIUdyPjXSlVGB89bnVJT/tMCscdk8q3c4Ss9UEr
-	TAmBBLqlzA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qfqgbkp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Jul 2025 10:11:08 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 56SAB7b1023636;
-	Mon, 28 Jul 2025 10:11:07 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qfqgbkm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Jul 2025 10:11:07 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56S69WCH015929;
-	Mon, 28 Jul 2025 10:11:06 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 485aumd7af-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Jul 2025 10:11:06 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56SAB5P230868170
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 28 Jul 2025 10:11:05 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AE8A5805A;
-	Mon, 28 Jul 2025 10:11:05 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E3AC58054;
-	Mon, 28 Jul 2025 10:11:04 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 28 Jul 2025 10:11:04 +0000 (GMT)
+	s=arc-20240116; t=1753705041; c=relaxed/simple;
+	bh=my8xQtIIqget5FC/01hNyxi+xx7G96/J8OXPtSZnfCs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=QQJwn4XqcCeZhqpttzNjHWCkYWaVLZ498t1B7s2+5aMj9VFGa4c+KjrgXy9R2YSC+DyMUgn2pMRMwZgXZzhYSv5CAq/OVQmoBlA52tyQRk3E8uEzJIXXTCa4XFaUxnZ9HUK37784R1H7BWcj3OKC/gVfFDSpve90Y158VTMf9i8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4brHRw6X1Bzdbw2;
+	Mon, 28 Jul 2025 20:13:00 +0800 (CST)
+Received: from kwepemg100016.china.huawei.com (unknown [7.202.181.57])
+	by mail.maildlp.com (Postfix) with ESMTPS id 939681402EA;
+	Mon, 28 Jul 2025 20:17:13 +0800 (CST)
+Received: from [10.67.110.48] (10.67.110.48) by kwepemg100016.china.huawei.com
+ (7.202.181.57) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 28 Jul
+ 2025 20:17:12 +0800
+Message-ID: <a8bec841-149c-4349-b7a0-ffebe43dd671@huawei.com>
+Date: Mon, 28 Jul 2025 20:17:12 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 28 Jul 2025 12:11:04 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Mikulas Patocka <mpatocka@redhat.com>, dengler@linux.ibm.com,
-        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-        herbert@gondor.apana.org.au, ifranzki@linux.ibm.com, agk@redhat.com,
-        snitzer@kernel.org, gmazyland@gmail.com
-Subject: Re: [PATCH v5 0/2] dm-integrity: Implement asynch digest support
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20250725173811.GA3642931@google.com>
-References: <20250722133832.319226-1-freude@linux.ibm.com>
- <5fc734af-a2c1-b7bb-85fb-cba6b8722c13@redhat.com>
- <56aa9892c7825a443f8a6153e17b4c46@linux.ibm.com>
- <20250725173811.GA3642931@google.com>
-Message-ID: <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI4MDA3MiBTYWx0ZWRfXwqu73ZBGZUae
- DK9P0ZHGW9paO8KkpgZuQEUR9EQoMzrZHrwau372Db2xBceMS2OFSVxehL5YRZtEvh9vEmNAR5D
- KsVWRapLOboSdH+P4BoK33AQ3lkYTRqxF8TyDbWgxvwlLenXVAsTtdOGidbEYvnBUu3F3KEjYFV
- jRPvuaVU/zynVGVffDuzg5gy1yLVX2OBBROZsm5XlkAMdCiasOyGEY3fJEs5B3DxxN/fRFt2UvU
- Nh2raPXbJLDIRJtpMQRwr/UkD5Xr0nBO/bwNL2Hmg2hsskqYg9DRVJm7q2MmHhNPiQlu6A5Tgaq
- ssG7StPaOKqD8ikxiL6GXQUxdSDW/hzw3nTeML/PtvjkQwYjYWlAP819uQ0QMNa099AIs4j3EVG
- zpf8Dy5SRlYnuhsyo50q9C3n2ub+JaH7mlHw7jpwquQR8Usow3QfE5M7wnQvucwtNqLvuKJL
-X-Authority-Analysis: v=2.4 cv=Je28rVKV c=1 sm=1 tr=0 ts=68874cbc cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=Wb1JkmetP80A:10 a=Oh2cFVv5AAAA:8 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=dOe7xV1rp7CYrx8qEOIA:9 a=CjuIK1q_8ugA:10
- a=7KeoIwV6GZqOttXkcoxL:22
-X-Proofpoint-GUID: vdzAylm_eHkhCexEmjXY4_VXgCRBMkq0
-X-Proofpoint-ORIG-GUID: 0J_ccrVgstyRVBDm6p183kwP9zFbtnc1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-28_03,2025-07-24_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- mlxlogscore=965 clxscore=1015 lowpriorityscore=0 spamscore=0 adultscore=0
- suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 phishscore=0
- mlxscore=0 impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507280072
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] integrity: Extract secure boot enquiry function out of
+ IMA
+To: Nayna Jain <nayna@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin
+	<dmitry.kasatkin@gmail.com>, Jarkko Sakkinen <jarkko@kernel.org>, Madhavan
+ Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+CC: Eric Snowberg <eric.snowberg@oracle.com>, Christophe Leroy
+	<christophe.leroy@csgroup.eu>, Nicholas Piggin <npiggin@gmail.com>, Christian
+ Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+	"Lee, Chun-Yi" <jlee@suse.com>, <linuxppc-dev@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<linux-integrity@vger.kernel.org>, <keyrings@vger.kernel.org>, Lu Jialin
+	<lujialin4@huawei.com>
+References: <20250628063251.321370-1-gongruiqi1@huawei.com>
+ <eb91dcf034db28e457a4482faa397dd7632f00fd.camel@linux.ibm.com>
+ <4c59f417-86cc-4dec-ae45-8fcf8c7eb16a@huawei.com>
+ <e8aa7f94-3e52-488d-a858-564d3d1edd4b@linux.ibm.com>
+ <362b3e8a-0949-42d1-a1d0-90bd12d86b09@huawei.com>
+ <683380bb-ef1b-44ab-b7df-83c23dd76ff7@linux.ibm.com>
+Content-Language: en-US
+From: GONG Ruiqi <gongruiqi1@huawei.com>
+In-Reply-To: <683380bb-ef1b-44ab-b7df-83c23dd76ff7@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
+ kwepemg100016.china.huawei.com (7.202.181.57)
 
-On 2025-07-25 19:38, Eric Biggers wrote:
-> On Fri, Jul 25, 2025 at 10:14:30AM +0200, Harald Freudenberger wrote:
->> On 2025-07-24 16:40, Mikulas Patocka wrote:
->> > On Tue, 22 Jul 2025, Harald Freudenberger wrote:
->> >
->> > > Support for ahashes in dm-integrity.
->> > >
->> > > Changelog:
->> > >
->> > > v1: First implementation. Tested with crc32, sha256, hmac-sha256 and
->> > >     the s390 specific implementations for hmac-sha256 and protected
->> > >     key phmac-sha256. Also ran with some instrumented code (in the
->> > > digest
->> > >     implementation) to verify that in fact now the code runs
->> > > asynchronous.
->> > > v2: Support shash and ahash. Based on Mikulas' idea about implementing
->> > >     ahash support similar to dm-verity this version now adds support
->> > >     for ahash but does not replace the shash support. For more details
->> > >     see the text of the patch header.
->> > > v3: The line to store the digestsize into the new internal variable
->> > >     did not make it into the patch set which was sent out. So now
->> > >     this important code piece is also there. Also rebuilded, sparse
->> > >     checked and tested to make sure the patches are ok.
->> > > v4: Thanks to Mikulas a total new implementation of the ahash support
->> > >     for the dm-integrity layer :-)
->> > > v5: Slight rework around the allocation and comparing of ahash and
->> > >     shash algorithm.
->> > >     V5 has been tested with the new introduced ahash phmac which is a
->> > >     protected key ("hardware key") version of a hmac for s390. As of
->> > > now
->> > >     phmac is only available in Herbert Xu's cryptodev-2.6 kernel tree
->> > >     but will be merged into mainline with the next merge window for
->> > >     the 6.17 development kernel.
->> > >
->> > > Mikulas Patocka (2):
->> > >   dm-integrity: use internal variable for digestsize
->> > >   dm-integrity: introduce ahash support for the internal hash
->> > >
->> > >  drivers/md/dm-integrity.c | 370
->> > > +++++++++++++++++++++++++++-----------
->> > >  1 file changed, 265 insertions(+), 105 deletions(-)
->> > >
->> > >
->> > > base-commit: 89be9a83ccf1f88522317ce02f854f30d6115c41
->> > > --
->> > > 2.43.0
->> > >
->> >
->> > Hi
->> >
->> > Eric Biggers recently removed ahash support from dm-verity - see this
->> > commit:
->> > https://kernel.googlesource.com/pub/scm/linux/kernel/git/device-mapper/linux-dm/+/f43309c6743257244f11f14d31c297ee6a410ded
->> >
->> > Should I revert Eric's patch? - would you need dm-verity with
->> > asynchronous
->> > hashes on zseries too?
->> >
->> > Is this patch series needed for performance (does it perform better than
->> > the in-cpu instructions)? Or is it need because of better security (the
->> > keys are hidden in the hardware)?
->> >
->> > Mikulas
->> 
->> I've seen this. Well as of now we don't need dm-verity. However, I'll 
->> check
->> our plans and let you know within the next days.
->> 
->> Thanks
+
+On 7/26/2025 2:29 AM, Nayna Jain wrote:
 > 
-> Isn't your use case the "s390 specific protected key hash phmac"
-> (https://lore.kernel.org/linux-crypto/20250617134440.48000-1-freude@linux.ibm.com/)?
-> dm-verity uses an unkeyed hash, so that isn't applicable there.
+> On 7/17/25 8:29 AM, GONG Ruiqi wrote:
+>> On 7/8/2025 4:35 AM, Nayna Jain wrote:
+>>> On 7/2/25 10:07 PM, GONG Ruiqi wrote:
+>>>> ...
+>>
+>> Yes, IMA_ARCH_POLICY was not set. The testing was conducted on
+>> openEuler[1], a Linux distro mainly for arm64 & x86, and the kernel was
+>> compiled based on its own openeuler_defconfig[2], which set
+>> IMA_ARCH_POLICY to N.
 > 
+> Thanks Ruiqi for the response.
+> 
+> It seems the main cause of the problem was that IMA_ARCH_POLICY config
+> wasn't enabled; and it sounds like you don't need IMA arch policies but
+> you do need the arch specific function to get the secure boot status.
+> 
+> In that case, removing IMA_SECURE_AND_OR_TRUSTED_BOOT config dependency
+> on IMA_ARCH_POLICY config and updating the corresponding help is all
+> that is needed.
 
-Yes, I've also found this out. For our purpose it is enough to have
-dm-integrity with phmac support - dm-verity is fine with the 
-(synchronous)
-s390 sha implementations and so no need for asynchronous support.
+I think it doesn't solve the real problems, which are: 1. the implicit
+dependency of LOAD_UEFI_KEYS to IMA_SECURE_AND_OR_TRUSTED_BOOT, which
+surprises people, and 2. what arch_ima_get_secureboot() does is
+essentially a stand-alone function and it's not necessarily be a part of
+IMA, but it's still controlled by IMA_SECURE_AND_OR_TRUSTED_BOOT.
 
-> BTW, did you consider a lib/crypto/ API for phmac?  I suspect it could
-> be much simpler than the asynchronous hash based version.
+I agree that adjusting Kconfig could be simpler, but breaking
+IMA_SECURE_AND_OR_TRUSTED_BOOT's dependency to IMA_ARCH_POLICY doesn't
+help on both. If that's gonna be the way we will take, what I would
+propose is to let LOAD_UEFI_KEYS select IMA_SECURE_AND_OR_TRUSTED_BOOT,
+which states the dependency explicitly so at least solves the problem 1.
 
-This is an option for the future. However, as of now I did not 
-investigate
-in how to exactly implement this as a lib. Maybe a work item for the 
-next
-months...
+-Ruiqi
 
 > 
-> - Eric
+> The help text can be updated to:
+> This option is selected by architectures to detect systems with secure
+> and/or trusted boot enabled, in order to load the appropriate IMA
+> runtime policies and keys.
+> 
+> Thanks & Regards,
+> 
+>     - Nayna
+> 
 
-Thanks for your feedback and hints
-Harald Freudenberger
