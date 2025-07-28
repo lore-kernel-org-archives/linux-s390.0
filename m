@@ -1,92 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61F4427380C;
-	Mon, 28 Jul 2025 15:18:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46392222C0
+	for <linux-s390@vger.kernel.org>; Mon, 28 Jul 2025 21:24:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753715890; cv=none; b=MbMSDWdQzvKsBuddC0YJgcN0Oxt/lqAytfniasTUlRgwTDx0AS8UDdBlJBqd4raFnUM48b/mNL3fkMVuGcEk+1dR/8Dw3Ha9RuzyeWGT7OIxikSaGxgVA+oWAJHIElJo3RmuaHJJG3YlH0FWJwiTOSDJAl5wIMRM810/pnilxko=
+	t=1753737880; cv=none; b=lSjDMCZicMb1J5bXrTfo/ncO8afPkMqlehfQjlcNngNjlBbfK1rZK25OlZj0t/8PgKEZry4eAlHejkg8mIv5tv8QqtH4NWI605CoT+jQeRQItjT7+Xr0QT+OOhp9NJ0JINGjcpcYgh7775kn8W5j2gOWm4OHi2GgWs6Lz4KTrWQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753715890; c=relaxed/simple;
-	bh=bG4zIdy+dA3Y/597WfQz5S9Yzld1+fhveqk83VwKwGo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kEHTmKnlW9ahQ1Qk3TyXBAMUt5ZonxomOIwE+lilqv195mZiZ0NgyyimRodmYhEJlBMdiqUAsC79vUGCIvdgAdKvMT6edW7X14PMD8GXDny3db/SrixUTv2Ke8CQfzA05z8wh2l5Ndhai//KLH+v3VuLRHhCvG0c94G320FZ8PY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ABCZHSXj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753737880; c=relaxed/simple;
+	bh=8XiYl/24Fz8YluCXVGw1UZjSQjjU5nrgDvqyZkSFeMM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=hEp7DOE8slsoZBtUFEI+sexLHhnFSlt6tcpWMpb+FvLeTOlpesL46BcBO+eq34RyGeQjOoXQOA82/6S7vTm5PKRQgx26dZQPBA8i1i6C65vS1kZoeKikSyYUsTu4Y1b64afPzJbyswnmumbsi28EAY8YV7SSU/Eo1ejKaLbbidk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Eddh5qcm; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ABCZHSXj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8689C4CEE7;
-	Mon, 28 Jul 2025 15:18:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753715889;
-	bh=bG4zIdy+dA3Y/597WfQz5S9Yzld1+fhveqk83VwKwGo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ABCZHSXjOos49tL59Dk8cHCSKeO/de1eGKwhkkjOA9b/Ozn/9BnHzniY9uP64taSY
-	 m9ipeATvUo2PWSb6yXWgll6sRPVATUU7sA9AO4cnC/QDFNaOTldN+Fw2FPVSMzwuTZ
-	 TJ6J3ZVIB7b19KsYe0H4Am5Tuqx4IJLYl6U4faFUtgGNLhy2AQf6rGd8EDxqdPiDer
-	 L5MQFjICo5WQzyGXdBhXprJUCwFujIMeRNsvwXbefV4JMF+spHFyySgBGkENVzl+4w
-	 I6IwDOoaDltotLINExzJbRySrGQW5KC+SEbwMA/uFST5xL/zmFBgmeQcxQ2jWr4ypp
-	 EWyAkZpwcBXGQ==
-Date: Mon, 28 Jul 2025 17:18:03 +0200
-From: Alexey Gladkov <legion@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>,
-	Petr Pavlu <petr.pavlu@suse.com>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Daniel Gomez <da.gomez@samsung.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas.schier@linux.dev>,
-	linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v5 10/10] s390: vmlinux.lds.S: Reorder sections
-Message-ID: <aIeUq0qYXoNIePwd@example.org>
-References: <cover.1753354215.git.legion@kernel.org>
- <2860d5a5e7c6279b3836537e20b0fa0c40d2ba0f.1753354215.git.legion@kernel.org>
- <CAK7LNARV+8vZPUtX8iG_hEAt8tCchRPFobK85tv9dbJwVqYgsw@mail.gmail.com>
- <20250728140109.7289Ae1-hca@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Eddh5qcm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1753737875;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yuIREg0vHg/P9bdPomjeuKcV8q9uTeEu4xskF9nTU4I=;
+	b=Eddh5qcmS6TO8MTftajSCD8npawH6BAAXdKZLD9NCLv5g5y7jysilACh5ayqRiIpyav5wE
+	CjQjpxh4we+s1hADMQ8tPN/SY9iC474+4ghCBQm1q8n1An9L2xXnfdlJoBxgp4ku3AexkT
+	mCfrfeTasN+5zpFjSurHkqeNXzCz9ps=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-352-N_iO1YcpMh-hne13Bdp-iw-1; Mon,
+ 28 Jul 2025 17:24:34 -0400
+X-MC-Unique: N_iO1YcpMh-hne13Bdp-iw-1
+X-Mimecast-MFC-AGG-ID: N_iO1YcpMh-hne13Bdp-iw_1753737872
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 403DE180034C;
+	Mon, 28 Jul 2025 21:24:32 +0000 (UTC)
+Received: from [10.22.80.24] (unknown [10.22.80.24])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E27B6180035E;
+	Mon, 28 Jul 2025 21:24:28 +0000 (UTC)
+Date: Mon, 28 Jul 2025 23:24:25 +0200 (CEST)
+From: Mikulas Patocka <mpatocka@redhat.com>
+To: Harald Freudenberger <freude@linux.ibm.com>, 
+    Herbert Xu <herbert@gondor.apana.org.au>, 
+    "David S. Miller" <davem@davemloft.net>
+cc: Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com, 
+    linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, 
+    ifranzki@linux.ibm.com, agk@redhat.com, snitzer@kernel.org, 
+    gmazyland@gmail.com
+Subject: Re: [PATCH v5 0/2] dm-integrity: Implement asynch digest support
+In-Reply-To: <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
+Message-ID: <51dc2ccd-c06d-e719-9568-35a8d3a1010f@redhat.com>
+References: <20250722133832.319226-1-freude@linux.ibm.com> <5fc734af-a2c1-b7bb-85fb-cba6b8722c13@redhat.com> <56aa9892c7825a443f8a6153e17b4c46@linux.ibm.com> <20250725173811.GA3642931@google.com> <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250728140109.7289Ae1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Mon, Jul 28, 2025 at 04:01:09PM +0200, Heiko Carstens wrote:
-> On Sat, Jul 26, 2025 at 07:59:16PM +0900, Masahiro Yamada wrote:
-> > On Thu, Jul 24, 2025 at 10:50 PM Alexey Gladkov <legion@kernel.org> wrote:
-> > >
-> > > Reorder the sections to be placed in the default segment. The
-> > > .vmlinux.info use :NONE to override the default segment and tell the
-> > > linker to not put the section in any segment at all.
-> > >
-> > > >> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' not in segment
-> > > >> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' not in segment
-> > > >> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modinfo' not in segment
-> > 
-> > Thank you for root-causing!
-> > 
-> > > Cc: Heiko Carstens <hca@linux.ibm.com>
-> > > Cc: Vasily Gorbik <gor@linux.ibm.com>
-> > > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> > > Cc: linux-s390@vger.kernel.org
-> > 
-> > Hi s390 maintainers,
-> > I need this patch for kbuild tree.
-> > Ack is appreciated.
-> 
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> 
-> But can you reorder the series so this patch comes before any of the
-> patches which introduces the above warnings, please?
 
-Sure. I will put it first to avoid warnings.
 
--- 
-Rgrds, legion
+On Mon, 28 Jul 2025, Harald Freudenberger wrote:
+
+> > > > > Mikulas Patocka (2):
+> > > > >   dm-integrity: use internal variable for digestsize
+> > > > >   dm-integrity: introduce ahash support for the internal hash
+> > > > >
+> > > > >  drivers/md/dm-integrity.c | 370
+> > > > > +++++++++++++++++++++++++++-----------
+> > > > >  1 file changed, 265 insertions(+), 105 deletions(-)
+
+Hi
+
+I reviewed the code and unfortunatelly I found out that it is buggy (I 
+didn't notice the bugs before, when I was working on it).
+
+integrity_ahash_sector_checksum uses sg_set_buf and sg_set_buf needs 
+directly mapped memory. It doesn't work with vmalloc memory and it doesn't 
+work with memory obtained from kmap.
+
+The result buffer may be vmallocated memory (if we have 
+CONFIG_VMAP_STACK).
+
+I'd like to ask the maintainers of crypto-api - Herbert or David - what if 
+I pass vmalloc-allocated memory (or possibly stack memory) as "result" to 
+ahash_request_set_crypt(req, sg, result, nbytes);? Is it legal or not?
+
+Mikulas
 
