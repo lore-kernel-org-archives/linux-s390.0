@@ -1,112 +1,143 @@
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D257A3B280;
-	Mon, 28 Jul 2025 12:17:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D7F1262FF0;
+	Mon, 28 Jul 2025 14:01:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753705041; cv=none; b=OOVvGuI+UJ9vqYkW2UjTCVoUgeU5WsdnI2Xdh+zgC4Z7XXNw+OIik3z935jMoLD3A8ltgNn2NGpRtYZwwYGkc0x8ckgj8eF0syUxwt1eIsROWSh/WW0qREjSX36DuhGhgK3qxOEx0K8jFbX9w5Ny0mI9yAc8IkcKy5ze6V/r+Qs=
+	t=1753711303; cv=none; b=H/qeRVls85WRh5v7iI8lvd2C14c+11/TvA3V/+/p8LIu/mnsGhdxeRP2kIhe6rJwWrXI6Fik519tCKvD48Cc4i+V21h3AUmSG56Ne3LHtDaD8i/LEcFOYEtQ2emrgNHFZF2ddpBS1AUXuJyTCLu3hPunSnfafpb3/yhYRT7GDvc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753705041; c=relaxed/simple;
-	bh=my8xQtIIqget5FC/01hNyxi+xx7G96/J8OXPtSZnfCs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=QQJwn4XqcCeZhqpttzNjHWCkYWaVLZ498t1B7s2+5aMj9VFGa4c+KjrgXy9R2YSC+DyMUgn2pMRMwZgXZzhYSv5CAq/OVQmoBlA52tyQRk3E8uEzJIXXTCa4XFaUxnZ9HUK37784R1H7BWcj3OKC/gVfFDSpve90Y158VTMf9i8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4brHRw6X1Bzdbw2;
-	Mon, 28 Jul 2025 20:13:00 +0800 (CST)
-Received: from kwepemg100016.china.huawei.com (unknown [7.202.181.57])
-	by mail.maildlp.com (Postfix) with ESMTPS id 939681402EA;
-	Mon, 28 Jul 2025 20:17:13 +0800 (CST)
-Received: from [10.67.110.48] (10.67.110.48) by kwepemg100016.china.huawei.com
- (7.202.181.57) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 28 Jul
- 2025 20:17:12 +0800
-Message-ID: <a8bec841-149c-4349-b7a0-ffebe43dd671@huawei.com>
-Date: Mon, 28 Jul 2025 20:17:12 +0800
+	s=arc-20240116; t=1753711303; c=relaxed/simple;
+	bh=hJSzyysV725MXCMSKkwkSQRVtfZ+yRvc1GJ3v6QkPlI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g/r/5Fynk79TFf4ggW9OwYaDQbnV1gHniC/79SEZdBmUcwb5Jv+Yi4c2N0FK1JU4IlHAnnjJm7OanR3AWoQ6mBoiYhoaKo3VYmxhvTspcBauIm93HAn+vipOukjlzXDJsJNuVihrDkv8pEGspfuDy96eFGdhhihNQkxN07yPjaY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LJ+eHBO6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LJ+eHBO6"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56S97klR012673;
+	Mon, 28 Jul 2025 14:01:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=CFik1r
+	KaWQ3CDMiu0Ph73wlR8+18iGh/KaEQ3etowo4=; b=LJ+eHBO676jjwSFh6YtW+z
+	Speb9aNsORV1VJs72of1o/vvLDFdniYEqSKWl11T1NYhim8ls74cUurqzraDjCQB
+	N5sy2m2ycOXmCRA2/fs8dn520CFug5QX7m7UgXWauabheyDMCbP7Wcn8FtwuuWaR
+	ACDyP4Q5o+A1Cxoc9FDhc+utxnrxAw9SuaXacZ3mPo5FTgLIRenp6ViffOB7HbNj
+	XXNV9SpdPmEBXR1056w6TJJRIJyBcRZ4DJY5YIlSg4YI0NKQ7Qi5kFYo7L0sSyJR
+	T+yepEaVsbEsxHdZJTzOHQrQQhNUV+JeO+ch5hMDHnVgVxqUQNllxppHTwgw8/nQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qemhdqj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 28 Jul 2025 14:01:18 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 56SDlFFR022438;
+	Mon, 28 Jul 2025 14:01:18 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qemhdq9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 28 Jul 2025 14:01:18 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56SAm0JD016016;
+	Mon, 28 Jul 2025 14:01:16 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 485aumdy4m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 28 Jul 2025 14:01:16 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56SE1ClD55509412
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 28 Jul 2025 14:01:12 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1E2132004E;
+	Mon, 28 Jul 2025 14:01:12 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 488AF20040;
+	Mon, 28 Jul 2025 14:01:11 +0000 (GMT)
+Received: from osiris (unknown [9.111.42.157])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 28 Jul 2025 14:01:11 +0000 (GMT)
+Date: Mon, 28 Jul 2025 16:01:09 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Alexey Gladkov <legion@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Daniel Gomez <da.gomez@samsung.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nicolas Schier <nicolas.schier@linux.dev>,
+        linux-kernel@vger.kernel.org, linux-modules@vger.kernel.org,
+        linux-kbuild@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH v5 10/10] s390: vmlinux.lds.S: Reorder sections
+Message-ID: <20250728140109.7289Ae1-hca@linux.ibm.com>
+References: <cover.1753354215.git.legion@kernel.org>
+ <2860d5a5e7c6279b3836537e20b0fa0c40d2ba0f.1753354215.git.legion@kernel.org>
+ <CAK7LNARV+8vZPUtX8iG_hEAt8tCchRPFobK85tv9dbJwVqYgsw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] integrity: Extract secure boot enquiry function out of
- IMA
-To: Nayna Jain <nayna@linux.ibm.com>, Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin
-	<dmitry.kasatkin@gmail.com>, Jarkko Sakkinen <jarkko@kernel.org>, Madhavan
- Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-CC: Eric Snowberg <eric.snowberg@oracle.com>, Christophe Leroy
-	<christophe.leroy@csgroup.eu>, Nicholas Piggin <npiggin@gmail.com>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	"Lee, Chun-Yi" <jlee@suse.com>, <linuxppc-dev@lists.ozlabs.org>,
-	<linux-kernel@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<linux-integrity@vger.kernel.org>, <keyrings@vger.kernel.org>, Lu Jialin
-	<lujialin4@huawei.com>
-References: <20250628063251.321370-1-gongruiqi1@huawei.com>
- <eb91dcf034db28e457a4482faa397dd7632f00fd.camel@linux.ibm.com>
- <4c59f417-86cc-4dec-ae45-8fcf8c7eb16a@huawei.com>
- <e8aa7f94-3e52-488d-a858-564d3d1edd4b@linux.ibm.com>
- <362b3e8a-0949-42d1-a1d0-90bd12d86b09@huawei.com>
- <683380bb-ef1b-44ab-b7df-83c23dd76ff7@linux.ibm.com>
-Content-Language: en-US
-From: GONG Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <683380bb-ef1b-44ab-b7df-83c23dd76ff7@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
- kwepemg100016.china.huawei.com (7.202.181.57)
+In-Reply-To: <CAK7LNARV+8vZPUtX8iG_hEAt8tCchRPFobK85tv9dbJwVqYgsw@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: BpN6t-kwEAlZRnz5ZPCv9sPjjbBLhHRh
+X-Proofpoint-GUID: zxepZsb5zJ1uI0blirAJ6f0FPt0BIFI3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzI4MDEwMSBTYWx0ZWRfX79u1++/Y1O71
+ MQRRK7Pup2EyhLxvfBbbluaYkQabYdt8qxBzET/TnrkjJ3s1dJP/cQxQ9Pt0nnxhC0Okh+lTGzY
+ yfblsNfds0zRnpy7EL7zRnHO6fy0rj/ANUSgF5L5YAlEaXEZOMfRwkTGj2hfitr989RuaH177EJ
+ Y5xnJ4n+U/ENBv2VESf97LWCieQb5XZWN92F7ckEwp1KwjSkF8M7RHCKrRFQintKoGmQClYQblJ
+ atvw/X5lyOUTiMHCgDOXEgi679RT24VT2Aa2WgvG1paDRFgFtxfSPPR8o9UBQks1EDIjxHtAb7e
+ Rkjgm4vpqJ95+pOYEkVLkHQ8mU1KKfiMPMgOjtutt8VujOY1wwcvr4lB1Kz9pTEdoAFRLbyVZcs
+ ThVh2JbSqcjXrnu/kTHLfHI1yc4Vk7aEscM3fG/AQsnoqjPvxWe6f3hPb7FPGcn08+8+wF31
+X-Authority-Analysis: v=2.4 cv=BJOzrEQG c=1 sm=1 tr=0 ts=688782ae cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VwQbUJbxAAAA:8 a=tkzU3b79AAAA:8
+ a=VnNF1IyMAAAA:8 a=MV5UOnR8UQctMGFKOh0A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=uCXMw2ptROQ0LevMJYzM:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-07-28_03,2025-07-28_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 suspectscore=0 spamscore=0 lowpriorityscore=0
+ mlxlogscore=292 priorityscore=1501 malwarescore=0 mlxscore=0 bulkscore=0
+ adultscore=0 clxscore=1011 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2507280101
 
+On Sat, Jul 26, 2025 at 07:59:16PM +0900, Masahiro Yamada wrote:
+> On Thu, Jul 24, 2025 at 10:50 PM Alexey Gladkov <legion@kernel.org> wrote:
+> >
+> > Reorder the sections to be placed in the default segment. The
+> > .vmlinux.info use :NONE to override the default segment and tell the
+> > linker to not put the section in any segment at all.
+> >
+> > >> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' not in segment
+> > >> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' not in segment
+> > >> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modinfo' not in segment
+> 
+> Thank you for root-causing!
+> 
+> > Cc: Heiko Carstens <hca@linux.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
+> 
+> Hi s390 maintainers,
+> I need this patch for kbuild tree.
+> Ack is appreciated.
 
-On 7/26/2025 2:29 AM, Nayna Jain wrote:
-> 
-> On 7/17/25 8:29 AM, GONG Ruiqi wrote:
->> On 7/8/2025 4:35 AM, Nayna Jain wrote:
->>> On 7/2/25 10:07 PM, GONG Ruiqi wrote:
->>>> ...
->>
->> Yes, IMA_ARCH_POLICY was not set. The testing was conducted on
->> openEuler[1], a Linux distro mainly for arm64 & x86, and the kernel was
->> compiled based on its own openeuler_defconfig[2], which set
->> IMA_ARCH_POLICY to N.
-> 
-> Thanks Ruiqi for the response.
-> 
-> It seems the main cause of the problem was that IMA_ARCH_POLICY config
-> wasn't enabled; and it sounds like you don't need IMA arch policies but
-> you do need the arch specific function to get the secure boot status.
-> 
-> In that case, removing IMA_SECURE_AND_OR_TRUSTED_BOOT config dependency
-> on IMA_ARCH_POLICY config and updating the corresponding help is all
-> that is needed.
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 
-I think it doesn't solve the real problems, which are: 1. the implicit
-dependency of LOAD_UEFI_KEYS to IMA_SECURE_AND_OR_TRUSTED_BOOT, which
-surprises people, and 2. what arch_ima_get_secureboot() does is
-essentially a stand-alone function and it's not necessarily be a part of
-IMA, but it's still controlled by IMA_SECURE_AND_OR_TRUSTED_BOOT.
+But can you reorder the series so this patch comes before any of the
+patches which introduces the above warnings, please?
 
-I agree that adjusting Kconfig could be simpler, but breaking
-IMA_SECURE_AND_OR_TRUSTED_BOOT's dependency to IMA_ARCH_POLICY doesn't
-help on both. If that's gonna be the way we will take, what I would
-propose is to let LOAD_UEFI_KEYS select IMA_SECURE_AND_OR_TRUSTED_BOOT,
-which states the dependency explicitly so at least solves the problem 1.
-
--Ruiqi
-
-> 
-> The help text can be updated to:
-> This option is selected by architectures to detect systems with secure
-> and/or trusted boot enabled, in order to load the appropriate IMA
-> runtime policies and keys.
-> 
-> Thanks & Regards,
-> 
->     - Nayna
-> 
-
+Thanks!
