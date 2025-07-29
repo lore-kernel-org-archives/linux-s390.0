@@ -1,78 +1,95 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 553821DE4CA;
-	Tue, 29 Jul 2025 01:40:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B27CCA4B;
+	Tue, 29 Jul 2025 12:46:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753753254; cv=none; b=Anm+W0+F3OS3IWLtT8QCL+/lFjBTegntPmLA2nq9bAqxF+rLEKmxO1BA4KiUOnsKCaStVKzez5HGWfFytnoO5wIT0ZeN9J6GlZAPgemo7Lim3s5n3DBamzXow0bdYu1pMNGFryIq8RBau9ldPNkgAha7LzQ1Hl4spWO4IVQkrYo=
+	t=1753793220; cv=none; b=TEImRU6vAcYToF3QLFXQ4EKZyodkjV7IoapjOUipTEU23bMMhVubxwoagDe80z0OFkAdqJ4QdfQVDqAsFlnesjyP07xnMqlzYSBCqrqqavA+fbd6ysiM86yo1EzAS40Krc7AjeYix/0hof74HGR2O0NsYYrYjmKsof1RDAmlsBM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753753254; c=relaxed/simple;
-	bh=NFfZfS6SZss3OmqP+XzfF5OHf8CGFTiZe0bfLFBsYLE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d2z2HqV2FMe4Ig3NLXjFeqElG8k5MgBG/ke8Zl6DfVULYZeMeHhqFwbrfZTS7ZroVrO1SWwHTe3YQG3U2i/wxW4njHCvBXHF6LJCb03aCw0Ay7hzkUXayQoFDQjx/YgDmlMX25RzHtSkZEgmSubDeV8Zs+wg/aAc68ICzo1rphc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=aVYrFzom; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1753793220; c=relaxed/simple;
+	bh=pSxZrRtKB37RBXfgQilXYs9qwW4mXmPqnlcZ4Q26lnI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Q9YfpfNKwjDSceu96S02QI8LjwAkdAXESKtAzwCr/jBhV2xrHfiAtsl+z7fQCCBD/mtyXpD0WuOUX3jd1M9+l817LAkzEsU2OOmh9qQ93mdTdkgMn8w63xLe8vjuWmkywo/DamrqZ+hkAGQU5Da3DQzkhIV6ofLvkIk3fy2RLW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RE6iphOR; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="aVYrFzom"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-	Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=TbK1Lxvn1+k9G8UrrepIdAmU03gfYhnB58b7iSj/tvc=; b=aVYrFzomGQLUbgUiA0apliCIC+
-	7kxqwUp9NC684rODuHIW7MonONF2kmJoL7ZhiM9hE+vHokPgEEkl5NL1bOC7n9RK/ZrztAcBEBGK7
-	LN1ADlVp0hXxjt2oyZ5ZVBTMG00NCgT5bgoKo2R94PE6qmTibZWHxus+yQLfCDIxokeRob41w6YWk
-	fZmWpd65d3ETF6howBszoSc6nqH1EfKEJLUkLJS5ZQt1MIW+2icx5uo30/rs8u+GalUiqiq/4H6Yi
-	QOfsUOrmOGVM76CXWqj79cWiqsDYFpHWT/h5SA73PS/XbBXtV4ftggj7FzO5nEOSQ6+xX0knQUpTO
-	HC+rou/A==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1ugZ58-00APbp-2h;
-	Tue, 29 Jul 2025 09:40:40 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 29 Jul 2025 09:40:39 +0800
-Date: Tue, 29 Jul 2025 09:40:39 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-	linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-	ifranzki@linux.ibm.com, agk@redhat.com, snitzer@kernel.org,
-	gmazyland@gmail.com
-Subject: Re: [PATCH v5 0/2] dm-integrity: Implement asynch digest support
-Message-ID: <aIgml2oqM9FyIyys@gondor.apana.org.au>
-References: <20250722133832.319226-1-freude@linux.ibm.com>
- <5fc734af-a2c1-b7bb-85fb-cba6b8722c13@redhat.com>
- <56aa9892c7825a443f8a6153e17b4c46@linux.ibm.com>
- <20250725173811.GA3642931@google.com>
- <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
- <51dc2ccd-c06d-e719-9568-35a8d3a1010f@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RE6iphOR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1BEFC4AF0C;
+	Tue, 29 Jul 2025 12:46:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753793219;
+	bh=pSxZrRtKB37RBXfgQilXYs9qwW4mXmPqnlcZ4Q26lnI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=RE6iphORHcN0tWT8qmyo4mXCB6S/ZSnDEhyVMoI3iTjyDEPpmlRKi/V4iieaS5mSN
+	 mn888xGhsygukPllLlalrpXi0lXYa9F9omcHbe5mYCfYbkWrfrxUDrj32kqtiKfZK1
+	 HKbuaVpeWsFCK2enCpoWvS0GAktZTZgXTov+uQ+fO+LymJ+mgFQRzLDGZL9IbQbuwP
+	 tOGWsi23PX7kqkDXwuo5L+dvNt3Ft0Zcooa+c8RJTpznmwvC07QV7Y9Oy6+8mZRHvx
+	 uUF0JMomoUrRgJTISm2YgWcwe4ruSK4i3HnKsKRw1+W88BGBssUfrjImbaaICQFd1v
+	 iBvDgWd9oBGEA==
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-55a4befb8ccso5834906e87.2;
+        Tue, 29 Jul 2025 05:46:59 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCU6LqnI5LoCYMtDXuJxhjfbCTa7DmQCsOB1C7vdqadOqzKc+qwM+mVpFjvpkFFKex0cdbewsOjv4FN5Kg==@vger.kernel.org, AJvYcCV4lDuS7nVndlxMrGPaAd85+tS7BI0MRC4/ybwEmTRi5X/UVgN5PrPkUOjPOq2/26OBTxVAVA7HktoUxJVV@vger.kernel.org, AJvYcCWxvhnbNHfLzdFwozxbWQ2viSeuYKAhck9VpbchRog9iHScj4DGWunk33Cgc3TYnSlLiRpTBcg7Oi4TFdQ=@vger.kernel.org, AJvYcCXGG8T5bCBKqS2XSuS7bp1xOCtS+5vxmMaX89MIq8u2NaWe5lvUrJOiyhfz64T7HTcr30A5Lg+q8HHfT4d9lA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMvspD/dgDe2tuytP3U0QPzJQrsyJ0/F8U3f3waKqi9mqtx3ou
+	4FH8inFlKgA42OX8Ii2xrwvzt/So2smC3JQKzN9jYVtVWkjRBJ3buuhTxlfIComdm09XmSUZFad
+	giAiyyHY5RXEf66DeukupRYgLVdUAH20=
+X-Google-Smtp-Source: AGHT+IHG+v0gW453Oab/t2M4dM8um3OPyy+KQvBlwatRkdx+gp+IKZffTxCqTgYu9lnvHSgMNlUVlZYfaEkykY94Bnk=
+X-Received: by 2002:a05:6512:a8e:b0:553:2f8c:e631 with SMTP id
+ 2adb3069b0e04-55b5f3d61f9mr4497071e87.9.1753793218480; Tue, 29 Jul 2025
+ 05:46:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51dc2ccd-c06d-e719-9568-35a8d3a1010f@redhat.com>
+References: <cover.1753354215.git.legion@kernel.org> <2860d5a5e7c6279b3836537e20b0fa0c40d2ba0f.1753354215.git.legion@kernel.org>
+ <CAK7LNARV+8vZPUtX8iG_hEAt8tCchRPFobK85tv9dbJwVqYgsw@mail.gmail.com>
+ <20250728140109.7289Ae1-hca@linux.ibm.com> <aIeUq0qYXoNIePwd@example.org>
+In-Reply-To: <aIeUq0qYXoNIePwd@example.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Tue, 29 Jul 2025 21:46:21 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAQ2kZncvHHbpupH+hi2-fM1sN56-9x87bCn0m8yq8kyrg@mail.gmail.com>
+X-Gm-Features: Ac12FXx0Y0CXjfDuMmhy2bf7AH9tpUINCH5Zoxp2_WwCVs36c26t-Zu6bwCkN1Y
+Message-ID: <CAK7LNAQ2kZncvHHbpupH+hi2-fM1sN56-9x87bCn0m8yq8kyrg@mail.gmail.com>
+Subject: Re: [PATCH v5 10/10] s390: vmlinux.lds.S: Reorder sections
+To: Alexey Gladkov <legion@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Petr Pavlu <petr.pavlu@suse.com>, 
+	Luis Chamberlain <mcgrof@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
+	Daniel Gomez <da.gomez@samsung.com>, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nicolas.schier@linux.dev>, linux-kernel@vger.kernel.org, 
+	linux-modules@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	kernel test robot <lkp@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 28, 2025 at 11:24:25PM +0200, Mikulas Patocka wrote:
+On Tue, Jul 29, 2025 at 12:18=E2=80=AFAM Alexey Gladkov <legion@kernel.org>=
+ wrote:
 >
-> I'd like to ask the maintainers of crypto-api - Herbert or David - what if 
-> I pass vmalloc-allocated memory (or possibly stack memory) as "result" to 
-> ahash_request_set_crypt(req, sg, result, nbytes);? Is it legal or not?
+> On Mon, Jul 28, 2025 at 04:01:09PM +0200, Heiko Carstens wrote:
+> > On Sat, Jul 26, 2025 at 07:59:16PM +0900, Masahiro Yamada wrote:
+> > > On Thu, Jul 24, 2025 at 10:50=E2=80=AFPM Alexey Gladkov <legion@kerne=
+l.org> wrote:
+> > > >
+> > > > Reorder the sections to be placed in the default segment. The
+> > > > .vmlinux.info use :NONE to override the default segment and tell th=
+e
+> > > > linker to not put the section in any segment at all.
+> > > >
+> > > > >> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modi=
+nfo' not in segment
+> > > > >> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modi=
+nfo' not in segment
+> > > > >> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `=
+.modinfo' not in segment
+> > >
+> > > Thank you for root-causing!
 
-It's perfectly legal to pass a stack-allocated or vmallc pointer
-for the result field in ahash.
 
-Only SG lists require DMA memory.
+I applied this series with patch re-ordering.
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+
+--=20
+Best Regards
+Masahiro Yamada
