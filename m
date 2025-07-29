@@ -1,95 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46392222C0
-	for <linux-s390@vger.kernel.org>; Mon, 28 Jul 2025 21:24:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ACF21A3179;
+	Tue, 29 Jul 2025 01:11:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753737880; cv=none; b=lSjDMCZicMb1J5bXrTfo/ncO8afPkMqlehfQjlcNngNjlBbfK1rZK25OlZj0t/8PgKEZry4eAlHejkg8mIv5tv8QqtH4NWI605CoT+jQeRQItjT7+Xr0QT+OOhp9NJ0JINGjcpcYgh7775kn8W5j2gOWm4OHi2GgWs6Lz4KTrWQ=
+	t=1753751496; cv=none; b=RVpD+xGwXaZxurLmjchsBAqEqWExB29AytC+MKATHC3dkrWJfm+XLk8hquTlGPVQrzm8ez3C/PAOfOWiSghsacnHXw70RFlcBKY1e6FO+fhcIeI1rKCGCubn5Puh04Od3Wyuhnb7oBLlukmN8xrqV8qqHgmD5P95WYT4tyUtIS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753737880; c=relaxed/simple;
-	bh=8XiYl/24Fz8YluCXVGw1UZjSQjjU5nrgDvqyZkSFeMM=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=hEp7DOE8slsoZBtUFEI+sexLHhnFSlt6tcpWMpb+FvLeTOlpesL46BcBO+eq34RyGeQjOoXQOA82/6S7vTm5PKRQgx26dZQPBA8i1i6C65vS1kZoeKikSyYUsTu4Y1b64afPzJbyswnmumbsi28EAY8YV7SSU/Eo1ejKaLbbidk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Eddh5qcm; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1753751496; c=relaxed/simple;
+	bh=8ZaxoHBTEhVL12axKf/WX+LwUM3Y/BFGh5lAMOgD5zg=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=UTZZzhhFFmnHGy8MNxOlmms2pMURZYHdtKvwv0UpDYQU9lfj91GU3qIo4VDYcJfmG7+q2m2wUqDlVojK1TpJEpnTKKEb0HGqAlcx6jaBYhXwgwTaadWEtTRJRkhB8dzbDVX+NLY4i40IC+gcGsZ92xznkGXwsdEYHgAT+pMfZ24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VYacduDB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Eddh5qcm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753737875;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yuIREg0vHg/P9bdPomjeuKcV8q9uTeEu4xskF9nTU4I=;
-	b=Eddh5qcmS6TO8MTftajSCD8npawH6BAAXdKZLD9NCLv5g5y7jysilACh5ayqRiIpyav5wE
-	CjQjpxh4we+s1hADMQ8tPN/SY9iC474+4ghCBQm1q8n1An9L2xXnfdlJoBxgp4ku3AexkT
-	mCfrfeTasN+5zpFjSurHkqeNXzCz9ps=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-352-N_iO1YcpMh-hne13Bdp-iw-1; Mon,
- 28 Jul 2025 17:24:34 -0400
-X-MC-Unique: N_iO1YcpMh-hne13Bdp-iw-1
-X-Mimecast-MFC-AGG-ID: N_iO1YcpMh-hne13Bdp-iw_1753737872
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 403DE180034C;
-	Mon, 28 Jul 2025 21:24:32 +0000 (UTC)
-Received: from [10.22.80.24] (unknown [10.22.80.24])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E27B6180035E;
-	Mon, 28 Jul 2025 21:24:28 +0000 (UTC)
-Date: Mon, 28 Jul 2025 23:24:25 +0200 (CEST)
-From: Mikulas Patocka <mpatocka@redhat.com>
-To: Harald Freudenberger <freude@linux.ibm.com>, 
-    Herbert Xu <herbert@gondor.apana.org.au>, 
-    "David S. Miller" <davem@davemloft.net>
-cc: Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com, 
-    linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, 
-    ifranzki@linux.ibm.com, agk@redhat.com, snitzer@kernel.org, 
-    gmazyland@gmail.com
-Subject: Re: [PATCH v5 0/2] dm-integrity: Implement asynch digest support
-In-Reply-To: <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
-Message-ID: <51dc2ccd-c06d-e719-9568-35a8d3a1010f@redhat.com>
-References: <20250722133832.319226-1-freude@linux.ibm.com> <5fc734af-a2c1-b7bb-85fb-cba6b8722c13@redhat.com> <56aa9892c7825a443f8a6153e17b4c46@linux.ibm.com> <20250725173811.GA3642931@google.com> <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VYacduDB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A163C4CEE7;
+	Tue, 29 Jul 2025 01:11:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1753751496;
+	bh=8ZaxoHBTEhVL12axKf/WX+LwUM3Y/BFGh5lAMOgD5zg=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=VYacduDBsz15Xg+SgB5nuf2LLCwR/ZQLnHAeY89QssQwJkwueQk+gOc3P9X3M8ERc
+	 StQHaCIjU+ApLe7jJ1kkQ1SZSrlnoE0XfZBTw8Yh+roL1ES9ZIfl3oMlPK7Nd5vIme
+	 keZEIUjTWzO7k+Xn5laz3kmccx4u/wXUQCxvKazPAkCcbgCoN5asGQOK49wsxNUWzg
+	 4V8Tr4vXYS3H1wOaKUIe57TRZzvYstxc8p2ZRo6fWA+RbWlSndzB3fEL4aGd9Fgn3b
+	 ZBNnQvFR6RJKhSTgEfjDhuJgvmCxPS2qK55MY85inxik6zCKjNO7RH2cHI8IhVIhst
+	 yOtThARlrGBsA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 34A0C383BF5F;
+	Tue, 29 Jul 2025 01:11:54 +0000 (UTC)
+Subject: Re: [GIT PULL] execve updates for v6.17
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <202507261437.F2079B3B7@keescook>
+References: <202507261437.F2079B3B7@keescook>
+X-PR-Tracked-List-Id: <linux-sh.vger.kernel.org>
+X-PR-Tracked-Message-Id: <202507261437.F2079B3B7@keescook>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/execve-v6.17
+X-PR-Tracked-Commit-Id: 7f71195c15dcf5f34c4c7f056603659374e3a525
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: d900c4ce638d707f09c7e5c2afa71e035c0bb33d
+Message-Id: <175375151288.918485.7118599213274098690.pr-tracker-bot@kernel.org>
+Date: Tue, 29 Jul 2025 01:11:52 +0000
+To: Kees Cook <kees@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, Akihiko Odaki <akihiko.odaki@daynix.com>, Akihiko Odaki <odaki@rsg.ci.i.u-tokyo.ac.jp>, Albert Ou <aou@eecs.berkeley.edu>, Alexander Gordeev <agordeev@linux.ibm.com>, Alexandre Ghiti <alex@ghiti.fr>, Andreas Larsson <andreas@gaisler.com>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Borislav Petkov <bp@alien8.de>, Brian Cain <bcain@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, Chris Zankel <chris@zankel.net>, Dave Hansen <dave.hansen@linux.intel.com>, Dave Martin <Dave.Martin@arm.com>, David Hildenbrand <david@redhat.com>, "David S. Miller" <davem@davemloft.net>, Dinh Nguyen <dinguyen@kernel.org>, Dishank Jogi <dishank.jogi@siqol.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Guo Ren <guoren@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, "H. Peter Anvin" <hpa@
+ zytor.com>, Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Johannes Berg <johannes@sipsolutions.net>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Jonas Bonn <jonas@southpole.se>, Kees Cook <kees@kernel.org>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, loongarch@lists.linux.dev, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Oleg Nesterov
+  <oleg@redhat.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>, Richard Weinberger <richard@nod.at>, Rich Felker <dalias@libc.org>, Russell King <linux@armlinux.org.uk>, sparclinux@vger.kernel.org, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Sven Schnelle <svens@linux.ibm.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vineet Gupta <vgupta@kernel.org>, WANG Xuerui <kernel@xen0n.name>, Will Deacon <will@kernel.org>, x86@kernel.org, Yin Fengwei <fengwei_yin@linux.alibaba.com>, Yoshinori Sato <ysato@users.sourceforge.jp>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
+The pull request you sent on Sat, 26 Jul 2025 14:39:20 -0700:
 
+> https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/execve-v6.17
 
-On Mon, 28 Jul 2025, Harald Freudenberger wrote:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/d900c4ce638d707f09c7e5c2afa71e035c0bb33d
 
-> > > > > Mikulas Patocka (2):
-> > > > >   dm-integrity: use internal variable for digestsize
-> > > > >   dm-integrity: introduce ahash support for the internal hash
-> > > > >
-> > > > >  drivers/md/dm-integrity.c | 370
-> > > > > +++++++++++++++++++++++++++-----------
-> > > > >  1 file changed, 265 insertions(+), 105 deletions(-)
+Thank you!
 
-Hi
-
-I reviewed the code and unfortunatelly I found out that it is buggy (I 
-didn't notice the bugs before, when I was working on it).
-
-integrity_ahash_sector_checksum uses sg_set_buf and sg_set_buf needs 
-directly mapped memory. It doesn't work with vmalloc memory and it doesn't 
-work with memory obtained from kmap.
-
-The result buffer may be vmallocated memory (if we have 
-CONFIG_VMAP_STACK).
-
-I'd like to ask the maintainers of crypto-api - Herbert or David - what if 
-I pass vmalloc-allocated memory (or possibly stack memory) as "result" to 
-ahash_request_set_crypt(req, sg, result, nbytes);? Is it legal or not?
-
-Mikulas
-
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
