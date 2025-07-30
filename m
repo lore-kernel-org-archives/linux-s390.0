@@ -1,1327 +1,253 @@
-Received: from mail-pg1-f202.google.com (mail-pg1-f202.google.com [209.85.215.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4062329B783
-	for <linux-s390@vger.kernel.org>; Tue, 29 Jul 2025 17:42:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.202
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753810977; cv=none; b=FTAPHZwmv6n2elD4H2hNV6MU1/k8MIghTC9PKV3AvlOsMB9t4rGTlQBOT7fP4MlFbpaL7DQKCka2erOAFm0DAYhWe/DMG13vDsoJpfX1ke641tzBxWWvilWlL55vLFh2VafMqVQVPZxOZXZTnLBuHV2Vhc2CcKkAxjOzWVkGXuQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753810977; c=relaxed/simple;
-	bh=Ga7MGr7rXsuNDxGuWSOOb7wvB4KZTH1L02zLs1Lj2eM=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Ql6IhE7rp6eJVphOfLWIf8yNxbxeCQxCVW0Eb/EjTSqai4Kx7Rr4bApeSD2B4YTQ3KcQjN50knXC1NpLYvAXj4smlYKW6zXcrOQ0lZwhVrNi+q/GvF0WY8cVf1GXwcO9Doscp8hX5EkAQEUDDfvdNxIQ0Xxmzxr06LVIneyN4RA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JkXV7Ndx; arc=none smtp.client-ip=209.85.215.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2334B134CF;
+	Wed, 30 Jul 2025 02:15:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1753841732; cv=fail; b=lDEibYXmwzXf5yeWmdpXAukB0a0rhaO2FY+jZ5S4+I7HE1xthtDaTNZ1cgyDPjX3fYXQ54jIoXGdr/ck+ORZnOHfBtNjwP36ZAZsYutNyc90O1QB0yAhlznuzrX3cYiC2QjYOtglV5E0HAdZbOHKRLQaXs1CDxhV5H+ysyyNiQg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1753841732; c=relaxed/simple;
+	bh=QEvwMVfAXSrn8cKRLKesU/eQwtWxMgprgWX3sDx8I7A=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=IyyjqvGJwwCwqStUmsIzdp+DlYfeMmZJios4fz7QwZ+5Cl82CqucKsiz8nF5E10oRnCZ01diUXVTaCsWiqwgxqWSbejJ/8gFM4r0jfDNFpxApOsCepo71/aCoD8SHIOeDx7DcFWIlH3BQT2f7UTnNsJ8so3WdQ+3Kq4Qe9RgsN8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hkTPJScd; arc=fail smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JkXV7Ndx"
-Received: by mail-pg1-f202.google.com with SMTP id 41be03b00d2f7-b1ffc678adfso4204657a12.0
-        for <linux-s390@vger.kernel.org>; Tue, 29 Jul 2025 10:42:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1753810974; x=1754415774; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=zBwnBSkL9rhJYWurRlCWyKaUzSq9fJX2MjMTW/ih42U=;
-        b=JkXV7Ndx620OGgoYBScVDDCRVtBSyZcKQkXAZPfFzGB6m9chkpVqTlpwfv7fti4VuX
-         K7pcxq9T6GgtjDXcUajgeWKwnK3EYVJ9BX6NZZ8u1EJgRlheuv2+0j/7dkd50PB9dgDp
-         urZWHGKAWR8PnIaRhcWBiv0FmYHF1CMVnuBT0m4Z+J6TTCMISYPvE6KdUDPpDhgqiJBA
-         OGXUvpHl02JpXE8etMsvuo1V4T6WYtXGDaT7uTEWKFz/tn6ecRUMbnm/Urxxbc0bA7Du
-         nBDdtDJM9wfTNRygfPfp6ZVIhGrLkFok1kMUH3pAEQkWreh46ae/KM9OMzOb3K+N/VVs
-         MOZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753810974; x=1754415774;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=zBwnBSkL9rhJYWurRlCWyKaUzSq9fJX2MjMTW/ih42U=;
-        b=iSfe4inJyPCD3KLecnFNvjd3lEtGglj+YS0Qbm0vskzkuy7alvfjmPl3EPx1V1EyM7
-         U4ovC6qlgyyAZ+FU3Yx/6XNeNlcOoezmvNNY7Hk7j/+iZpJOQ/lP7paw1tc1WFMHr7kH
-         Xg+uGGoV5jWLV9uqmmAn9U3FYmeYHvIWFCo1CXEDrOipTAt3OkG1nG5osCbspX7u5GAw
-         JFJCz73XS5TgxFnrzUFdQ8jTiQ88etpMJ0IWZTyBOWMZ+YWbDMc8xJotLltsRyHtu/i2
-         ADw1FU6MzCUf0Ve7xCHOuMaBjhsPNll+nZ2CYtIczG+7GMhwqXZ9MKn8SzlVv6/YJSNQ
-         61nw==
-X-Forwarded-Encrypted: i=1; AJvYcCU1oWO22QOnEOeuo+4vmdh0rwOx59W4fL6TLCJTLy0QDR047pdPHomwaT5BBlvwqSt0y8HytGSeYVIB@vger.kernel.org
-X-Gm-Message-State: AOJu0YzCuT/MvQ3WL7c5id/YqMZxbkAlOtTWgFgaPScHnFl4qDHGaND/
-	Yn/5kU/0W3YzHZEBNJQWKs/y4IwxxDQqNAGBHNI1cahARWF8uAABOXIWBvaV4foUq+ifT1qx+E1
-	uGdAbGg==
-X-Google-Smtp-Source: AGHT+IEpOmy40vDFCiONIhzTIzLKN2AuWJocp42dCS5K3oolGB8Mze9xosKvNjDUUAqfkE9xtUP2v9nDV9Y=
-X-Received: from pjg11.prod.google.com ([2002:a17:90b:3f4b:b0:31e:c87a:ce95])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:28c4:b0:31e:c62b:477b
- with SMTP id 98e67ed59e1d1-31f5dd9deb9mr577076a91.11.1753810973679; Tue, 29
- Jul 2025 10:42:53 -0700 (PDT)
-Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Tue, 29 Jul 2025 10:42:38 -0700
-In-Reply-To: <20250729174238.593070-1-seanjc@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hkTPJScd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1753841731; x=1785377731;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=QEvwMVfAXSrn8cKRLKesU/eQwtWxMgprgWX3sDx8I7A=;
+  b=hkTPJScdi94myQk7Y7D7bjHAHFFzmxrhweyrArufnOp2KglVIfplmijz
+   NKgG1rwrFAXz3B2vmXhwA2tDaBwkGYAurN4vK3QOKKRHmSboC5xn8nd8r
+   mEaTDFLalJmDbGfe3pD/ci7e266Pu7EJewJv4kGSgSQaRYWevzkOWd+gD
+   RfKHDkNIVvqva4gN/lAInXVKKcYIL9ZQJ5x/RCXZ2CUWzD/1FgDTFUKM1
+   ijQFvyPcTB9+wTUGdL9o4RcgEvsWuziIlLhrx/likCnl837n/yuZuYZWt
+   MBcsSYSHIVQ37phlKXmfPnZmaPnQ+8DnEu7vtm7xQ4EEcZQJZLXL07OF/
+   w==;
+X-CSE-ConnectionGUID: hpjJ8bV/Suaa4e1XskIdyQ==
+X-CSE-MsgGUID: l583q45fRZW2bYyGLK+7tQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11506"; a="67211542"
+X-IronPort-AV: E=Sophos;i="6.16,350,1744095600"; 
+   d="scan'208";a="67211542"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2025 19:15:14 -0700
+X-CSE-ConnectionGUID: gHvXZ2sySp2J0j96ut1yag==
+X-CSE-MsgGUID: hqiQDHvMRACX4b99a/DGjg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.16,350,1744095600"; 
+   d="scan'208";a="168149446"
+Received: from orsmsx902.amr.corp.intel.com ([10.22.229.24])
+  by fmviesa004.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jul 2025 19:15:09 -0700
+Received: from ORSMSX901.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1748.26; Tue, 29 Jul 2025 19:14:49 -0700
+Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
+ ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1748.26 via Frontend Transport; Tue, 29 Jul 2025 19:14:49 -0700
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (40.107.220.53)
+ by edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1748.26; Tue, 29 Jul 2025 19:14:48 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ssjIy+86oGHa7p8pxb8ZbOgCsyiQahNiEFutlPmczfBIgiYRN11wGpOdBa3Vkn6mK+Uq+XEVt7C21HKuN8kOK8QWkFrkMme8LzictnvihC+oTowODIFm53QAFQgkqEoLVhsScB4GgbsF87azUr7RC/nB0/DcH81XstkAk3A/7b+CH0n6B+5FiBeTDI8QJrUR4jgCKwVx5SHDFxURPdFx5gehy3ZecANl0cA/VWKPKjopT+lJpsE+M+klGMEd+aOY3CIO53T+mcJIXiY6haKpng6aWgVurqgp+6LRxoIuPX4U8qqxYvoKLtM/OoeAgU1rZEEDq/jgzPjrjdj7McWhWA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QEvwMVfAXSrn8cKRLKesU/eQwtWxMgprgWX3sDx8I7A=;
+ b=kDbUgHKracE2On4/hB7/qRZKCM+DSEzFo27Y0Uf/L5LUFh5yF7rb6DZ/ONRk1dGUAj1PNj9JGsWsafHpUyKcvomOjcfAQx3iztTqw1Z6xoiGLMkSBVq/82WjLBQ13+950ZHnl/mXNzheEvudm7xDHVqupe3j2K0Q+Ehbeq7hQndKICDTcNSs2xvZsr5YxsQqc/T4WCPD/tZAScCobXd5me8QUztPldfP1V5cjTxCPsEGVgAi6QGNtKgFNtGrAiEkf8/dvTpLFPymptFgibaFka5mc3r2V0w8PJB04KqrFx2HC/od7uqJL93eWwq2wpSHfAKxQqq7A17XawZ6bvEJ9w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BL1PR11MB5525.namprd11.prod.outlook.com (2603:10b6:208:31f::10)
+ by PH0PR11MB7447.namprd11.prod.outlook.com (2603:10b6:510:28b::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8964.25; Wed, 30 Jul
+ 2025 02:14:14 +0000
+Received: from BL1PR11MB5525.namprd11.prod.outlook.com
+ ([fe80::1a2f:c489:24a5:da66]) by BL1PR11MB5525.namprd11.prod.outlook.com
+ ([fe80::1a2f:c489:24a5:da66%6]) with mapi id 15.20.8964.023; Wed, 30 Jul 2025
+ 02:14:14 +0000
+From: "Huang, Kai" <kai.huang@intel.com>
+To: "akrowiak@linux.ibm.com" <akrowiak@linux.ibm.com>, "frankja@linux.ibm.com"
+	<frankja@linux.ibm.com>, "luto@kernel.org" <luto@kernel.org>,
+	"jpoimboe@kernel.org" <jpoimboe@kernel.org>, "borntraeger@linux.ibm.com"
+	<borntraeger@linux.ibm.com>, "dave.hansen@linux.intel.com"
+	<dave.hansen@linux.intel.com>, "dengler@linux.ibm.com"
+	<dengler@linux.ibm.com>, "pasic@linux.ibm.com" <pasic@linux.ibm.com>,
+	"kas@kernel.org" <kas@kernel.org>, "seanjc@google.com" <seanjc@google.com>,
+	"mingo@redhat.com" <mingo@redhat.com>, "pbonzini@redhat.com"
+	<pbonzini@redhat.com>, "tglx@linutronix.de" <tglx@linutronix.de>,
+	"maddy@linux.ibm.com" <maddy@linux.ibm.com>, "freude@linux.ibm.com"
+	<freude@linux.ibm.com>, "xin@zytor.com" <xin@zytor.com>,
+	"imbrenda@linux.ibm.com" <imbrenda@linux.ibm.com>, "hpa@zytor.com"
+	<hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>,
+	"vkuznets@redhat.com" <vkuznets@redhat.com>, "bp@alien8.de" <bp@alien8.de>,
+	"acme@kernel.org" <acme@kernel.org>, "jjherne@linux.ibm.com"
+	<jjherne@linux.ibm.com>, "jarkko@kernel.org" <jarkko@kernel.org>,
+	"namhyung@kernel.org" <namhyung@kernel.org>
+CC: "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org"
+	<x86@kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-perf-users@vger.kernel.org"
+	<linux-perf-users@vger.kernel.org>, "kvm@vger.kernel.org"
+	<kvm@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org"
+	<linuxppc-dev@lists.ozlabs.org>, "linux-coco@lists.linux.dev"
+	<linux-coco@lists.linux.dev>
+Subject: Re: [PATCH 6/6] x86: Restrict KVM-induced symbol exports to KVM
+ modules where obvious/possible
+Thread-Topic: [PATCH 6/6] x86: Restrict KVM-induced symbol exports to KVM
+ modules where obvious/possible
+Thread-Index: AQHcALCBg6j5Hkn7N0SjwLU6zeGNfbRJ7eWA
+Date: Wed, 30 Jul 2025 02:14:14 +0000
+Message-ID: <745fe95bb826db5a1f8bb0723c482e1c68d984dc.camel@intel.com>
+References: <20250729174238.593070-1-seanjc@google.com>
+	 <20250729174238.593070-7-seanjc@google.com>
+In-Reply-To: <20250729174238.593070-7-seanjc@google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Evolution 3.56.2 (3.56.2-1.fc42) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BL1PR11MB5525:EE_|PH0PR11MB7447:EE_
+x-ms-office365-filtering-correlation-id: e87172b7-bd23-40d9-4529-08ddcf0ec7df
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024|921020|38070700018;
+x-microsoft-antispam-message-info: =?utf-8?B?d1pIMjJLQW5QQmEyRUoxRmJqd2FuN25oeFc4eW01UkJkRHZCZVJJZit1L01z?=
+ =?utf-8?B?ZDhiU05KUWlaMDJlVG9nRitPTWJRL3AzOVJWVTlyYXQ4dzBSd1k0dFEzRDlV?=
+ =?utf-8?B?SSswZnZoUkg3SXh0b2lSVzBxNjVzWk9wU0YrUmR0NXVOUXpoc25Sd1pHSUlP?=
+ =?utf-8?B?N3RoZStGengrUG1KNWEzU0FMeGpJRGxab1VqMWR1Ly9sTE1STzJrMzlJY1cx?=
+ =?utf-8?B?bm1BNnQxT1VvS0tKUElnbk1SbENaUkpPRGkrd0M3L3hoUXBrWSt1bmh0N1RY?=
+ =?utf-8?B?WWJqRlhGWmFaUWJSTnhweTZHUVFqaFBqeU1TRUhNeXBOWW9QRGFWN0JCaU9V?=
+ =?utf-8?B?TFV4ekh2K25ZZCtEWHBFWTgzK01HNzhUMGFiOTBuMEhUemJtd21kQkVlR3FB?=
+ =?utf-8?B?QWFkWVl1QVRwdjMySUMwRGgyRkZocTVzNldIbEhqQUUybFNWenpqR044aFBO?=
+ =?utf-8?B?MXAvWFNRUFJmS2FWOTlOckxTaUFoNUkvUU95U1ZiK3lxVWFXc1NUL3VsTDQy?=
+ =?utf-8?B?eHV5NkFXWG5GMFh6YVZxTHU4cEVHY3RjRWkvdDJaY2Q2VmJEQUFrb2p3eU5k?=
+ =?utf-8?B?WkZ3bm5GVkROUXhEN2s2ZHlxRS9mTzREZTdUTGlnT1pMM0h0d1dCWDFFb1Zs?=
+ =?utf-8?B?M3Z6N2diU3d1SENuYWVZanNzT3hwTzZiWEpDQ1RXT0JFbjd6YTNNcUpWMXJC?=
+ =?utf-8?B?b1JIcUR1VTVpWHBDeWdoSDRuZkJ0bW5weWR0N05tOTRkOGIxc1RNcDNIYysx?=
+ =?utf-8?B?VXR5YW1xWmRkcFJ5ODZUNWNMdEpUQ050UVp5NGhQZm9Ya1hhRjVmcFBlSVkx?=
+ =?utf-8?B?MVAwR0lBMnNZdExoZERzMC9yL3M0eGpUbjRpcGE1YmdUbHlyeUVqNElJbldV?=
+ =?utf-8?B?SGd1Y0pMcHV0SUErcmZpa3NvRkhXZWQ5UzdUMllWQUZia2VaWHJ1Qm1xVGZO?=
+ =?utf-8?B?bFFpU0VvZmNSczFsMm8zQzZXdkZMaXFuKzVmNmlQeUNNUkkxYnRKdk5DZ3Fq?=
+ =?utf-8?B?OEZVRXoxUFltajdVR1NueFg3Q0VIOEY4QUhxTFZSVFZiS2g1VGh1SERRZURu?=
+ =?utf-8?B?b0lQeXNxNVRYK2ttT2VxdGVBcGRFQjBVTElnK05odVhLMTZoVkVKclVtSmVo?=
+ =?utf-8?B?OGJGNUxQalgrTU9CaFByMm5KdzBiREpJN25DWHhJY0xjcXptelM5KzIrQk8r?=
+ =?utf-8?B?REE4anpORENKNVQzRDVNYU52Y1B2L0dOa093NGFMVy9NM2xpTWtaMjlTK0Jr?=
+ =?utf-8?B?YjdmUEhTb3BzcGJBVUdER1FTWitwS0tUM2xRdnY2VUJGL2F2RjFyeFB3U0dL?=
+ =?utf-8?B?QzBuTUV1Ni9PZHJEcDJnbG43cEFiQ0xNdlRsTlAzUWVRbm5xR0YxYmg4aG4v?=
+ =?utf-8?B?Qi9XVVRjWmQ3QURCMzVUdXpLT3A4VDROczMrWFYvR2JELzFnblJ5MDVGU2R3?=
+ =?utf-8?B?YkJFSC9zZ1hjWUt6cU1TTWp6WG1ITlpSOTZscFJBSnMwUkVROHlMQzJQNUpz?=
+ =?utf-8?B?Z0RQUm9yYXZhRVBKb2ZLSUgydkpTMnVNUnBZY3dCeDBlc3RhTERaVzJzRUVq?=
+ =?utf-8?B?M25nTDc3SzJqaURNbWloUUNxdFRPeENFWXlYMlFLdmZMZnQ4RVNIcUZvMmZN?=
+ =?utf-8?B?M01udFAydTdmazIvVU5DWmdQTjMvL1BrQklmVzlrK3dVM05Ma2RHMkgvc1ln?=
+ =?utf-8?B?SUsvbnZTb21tU1N0bGE1c0RpTFBwQ3NtUEx4MTg2eHhaYzhocEJKbUJ1Ujl1?=
+ =?utf-8?B?SlA2VDd6bTJSUk83YWJVWmg4RXVndFlJMU00MHkyTWdXUUhrQVZ0UnJkcS8r?=
+ =?utf-8?B?bWFjeXR5M1FhclIzTTFWWUtoNnNvdFZHekhreFhMOFdxZlovS3dvaXRobU8z?=
+ =?utf-8?B?bUNCT3dUOWE0c3VnbFd0TFdEOXBDYnEySlpXZ2M0dHRBZWdFOFVicmRUbXAx?=
+ =?utf-8?B?aTZmUEd3UlJyVmJYRTRUcVExeTFUaVN4SUxYTXZLaW1HV05GMDRUVVUyWXIw?=
+ =?utf-8?Q?0HDgVVWDci170AHhdbI783A+ZPyyIE=3D?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR11MB5525.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(921020)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?eTVjMytVbEJvTzM5S2twVTI0U2N2WFJpZUF3MFo4QWFybGp4bzFwMzZRRHRi?=
+ =?utf-8?B?RkdaZ0l2WVlSVlFQZ2xnYlJYZkNCNHE2cTVudzg3NjlaMS8zc1NyUGNaY0Rx?=
+ =?utf-8?B?UklJQ3c0THNFSE1TQzhXbS9vcjdpNnlod05qRVMrMTBIaitFN3FrNmEzRXBF?=
+ =?utf-8?B?dlV1c1RNU2RBc0liY0sybU5SQy9WTE03YnFtLzFtTmhjcnMrbVR2YVJkYURo?=
+ =?utf-8?B?blVING1objc5M2ZFcTIza092aGI4Zm9SWDZWL3MrQmdvRWtUdjhKbFloMExs?=
+ =?utf-8?B?SVRweUFBRFZoZy9udVpxV0lqQmpZbWxsdmp1QUZMa3NsSDhRMnVITnl1MXd5?=
+ =?utf-8?B?c2xRam1TWHB3N0JGMEQ1SEJEN2JnU3pZbkx2SEJEUWRwazM0cmVFWlptY1Jm?=
+ =?utf-8?B?di9aUDlDSXptMk9rdDYrdTJ3WWRCWG90WDhPMXVjRmwrZnM3RVF4eVpJaHhq?=
+ =?utf-8?B?bGs2bmpsS3MrRkVMVHRuRXl6dUpsWm5kZ2JhUVJFdzB4cXRXSWpuYU5NVDlh?=
+ =?utf-8?B?MFlXL2hsTW1VaUsxdWd0TjNrbXNIdmdsUDF0WHo1bEJyMllxdktVWDc5czZ5?=
+ =?utf-8?B?aW5kRE01Mmp0bkh6VzdMenFDVGxjK0pEcTVjclgxTm1PZlNJa3JzUzZUREI4?=
+ =?utf-8?B?UnUrNFNoc1BVWlRWWEN6V2J1ZHd6VmE3VFAyQkhlZ1orN1drNWVKdmVuOHpM?=
+ =?utf-8?B?ZkVhTjFtU1FJRXFmTERDM0M0Sm5yTWhBN3luMUs3RG1pZUlDUkNqVWJEK3R4?=
+ =?utf-8?B?YUN1RmNDVUNzeFdlYjhSTkI2YTQrb3IwdE5Ta2RqWS9iREllalE4emt1WXRj?=
+ =?utf-8?B?ZVVtSlJsbzh2R1hsamhwcjhsNjRLb245REdvQVBMY1BMSG9aUEZ1SFZXRVBY?=
+ =?utf-8?B?Q3FMbWc3dDFRNXZCN1lCWThiUFlId1ZicjlFSkRvQTRrdGh3Qmh6b3I3eklM?=
+ =?utf-8?B?YWU2MEloWVpqL093VFVwTHM4Vyt0KzNvY1VDRkdCVXpUQktrRDBlUkJITFo0?=
+ =?utf-8?B?Y1NDQVVpZXU3aVZlS2UzZXBzVUI5YnA3RmxPUnkrd28xbDR4Q1g1YmtlTmd4?=
+ =?utf-8?B?WXZoVUdmOU5rcnBKY0tLWEtjWkpzNUhHRDgxMlNIQysxNVkvU1BVamQwWnVR?=
+ =?utf-8?B?aFBNYmZ2MTd1Z0Z5ZUhJeFZzWHViR1hhU3kxSlpld3kwdzdrWVpIdHptZjZy?=
+ =?utf-8?B?dHVaTjYyaVdZbG10bTYxS2pHOFJBT0ZXcmx3VXNMMlJIZGtXV3NRdm8zcHBo?=
+ =?utf-8?B?a09ncllhOGJqcVZQUGdkTnBTMHhJZ0ZtT3hobjdSTlJJOUt0d1B3Mkx3bW5r?=
+ =?utf-8?B?OXVXcE1hb1JOMVNBd0xIa0xJcUM4KzIyMUZIM2g0Nldpc0kyaGFvek9WTUJC?=
+ =?utf-8?B?U3Z5MmhiTS84R0IweTZSSTdTK3pOK1lvbEFsdUtoSWxlMWVvQXhIWEdBTzNW?=
+ =?utf-8?B?VittSWhLM1JFc1l3UlBqd3ovcjVJV29Gb3psTzVNS3BybFFhTmJxWlVzNm80?=
+ =?utf-8?B?dFVPb3MrMEFrOFNCV2x0dTJ6b0RITkllUHVJMzFiRU1PYU4zY3ZlRy9XR2hv?=
+ =?utf-8?B?MG40RTFZcmx0K1RRcVZuSUNoazhId0pQMmdkY0NNSHRpYk1wTVZpYTFhTFU5?=
+ =?utf-8?B?ZTloZzRJMytNQUEvbmVPRnRCamhLanN6ZlJpalJ1dHljT0hkVXNhM2x0N0g2?=
+ =?utf-8?B?U0xXUm53eHEzMEE3WTRZRnkrM0NPb3pTdjFkNFdLK3cyTVdPKzBUbHhlSk5V?=
+ =?utf-8?B?c1g1b1ViUEs4RWNUQVhWTXkyaXBIRFlaT0pjSEwzYW43R3lzQnM1elRXaUJP?=
+ =?utf-8?B?MDl0SExDUmh0NEZoMUUwQVFkQXArQmNETFNCTm16eGxHZ202b1dkbFErb2t2?=
+ =?utf-8?B?dlh4cHBTTlpkNnVad1dUTG02ajdiNjQvOVFHTU1TY1lhZENlcndLajBRMEpY?=
+ =?utf-8?B?azg2bGpZdlZObzFjNUNvLzZDQThwRUQ0OUtmeTF5U2E0ZU50aXFWUkdLMy9O?=
+ =?utf-8?B?V0xoNTRhQ0s4bllFMHBYL3phZ3R3aXFKeHNndkRGUEQ3NHloYzNjVzJ6OWE1?=
+ =?utf-8?B?M0M5dy9tVGJ1NnNLYmFsSXVLZTZ2QitqMHBsZlhNUmhveXVacEhYQk1mN2h4?=
+ =?utf-8?Q?3GKbKR2weeAbITlzlRzJoyzQ0?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <C6C65F26F9785D4A9C4D40BC6B1611D9@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20250729174238.593070-1-seanjc@google.com>
-X-Mailer: git-send-email 2.50.1.552.g942d659e1b-goog
-Message-ID: <20250729174238.593070-7-seanjc@google.com>
-Subject: [PATCH 6/6] x86: Restrict KVM-induced symbol exports to KVM modules
- where obvious/possible
-From: Sean Christopherson <seanjc@google.com>
-To: Madhavan Srinivasan <maddy@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	Andy Lutomirski <luto@kernel.org>, Xin Li <xin@zytor.com>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, Josh Poimboeuf <jpoimboe@kernel.org>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "Kirill A. Shutemov" <kas@kernel.org>, 
-	Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, 
-	Jason Herne <jjherne@linux.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, 
-	Holger Dengler <dengler@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, 
-	linux-sgx@vger.kernel.org, x86@kernel.org, linux-coco@lists.linux.dev, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BL1PR11MB5525.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e87172b7-bd23-40d9-4529-08ddcf0ec7df
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Jul 2025 02:14:14.5948
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: CWIi5BGLpAY/tmDMWaVFz04W2feSP07VG5lqwBo1v2w+Keu3SNsBiZ2FPU9xid4xF7z9Ktw5WrPLAwHkzUoDTA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR11MB7447
+X-OriginatorOrg: intel.com
 
-Extend KVM's export macro framework to provide EXPORT_SYMBOL_GPL_FOR_KVM(),
-and use the helper macro to export symbols for KVM throughout x86 if and
-only if KVM will build one or more modules, and only for those modules.
-
-To avoid unnecessary exports when CONFIG_KVM=m but kvm.ko will not be
-built (because no vendor modules are selected), let arch code #define
-EXPORT_SYMBOL_GPL_FOR_KVM to suppress/override the exports.
-
-Note, the set of symbols to restrict to KVM was generated by manual search
-and audit; any "misses" are due to human error, not some grand plan.
-
-Signed-off-by: Sean Christopherson <seanjc@google.com>
----
- arch/x86/entry/entry.S             |  7 ++--
- arch/x86/entry/entry_64_fred.S     |  3 +-
- arch/x86/events/amd/core.c         |  5 ++-
- arch/x86/events/core.c             |  7 ++--
- arch/x86/events/intel/lbr.c        |  3 +-
- arch/x86/events/intel/pt.c         |  7 ++--
- arch/x86/include/asm/kvm_types.h   |  5 +++
- arch/x86/kernel/apic/apic.c        |  3 +-
- arch/x86/kernel/apic/apic_common.c |  3 +-
- arch/x86/kernel/cpu/amd.c          |  4 +-
- arch/x86/kernel/cpu/bugs.c         | 17 ++++----
- arch/x86/kernel/cpu/bus_lock.c     |  3 +-
- arch/x86/kernel/cpu/common.c       |  7 ++--
- arch/x86/kernel/cpu/sgx/main.c     |  3 +-
- arch/x86/kernel/cpu/sgx/virt.c     |  5 ++-
- arch/x86/kernel/e820.c             |  3 +-
- arch/x86/kernel/fpu/core.c         | 21 +++++-----
- arch/x86/kernel/fpu/xstate.c       |  7 ++--
- arch/x86/kernel/hw_breakpoint.c    |  3 +-
- arch/x86/kernel/irq.c              |  3 +-
- arch/x86/kernel/kvm.c              |  5 ++-
- arch/x86/kernel/nmi.c              |  5 +--
- arch/x86/kernel/process_64.c       |  5 +--
- arch/x86/kernel/reboot.c           |  5 ++-
- arch/x86/kernel/tsc.c              |  1 +
- arch/x86/lib/cache-smp.c           |  9 +++--
- arch/x86/lib/msr.c                 |  5 ++-
- arch/x86/mm/pat/memtype.c          |  3 +-
- arch/x86/mm/tlb.c                  |  5 ++-
- arch/x86/virt/vmx/tdx/tdx.c        | 65 +++++++++++++++---------------
- include/linux/kvm_types.h          | 14 +++++++
- 31 files changed, 140 insertions(+), 101 deletions(-)
-
-diff --git a/arch/x86/entry/entry.S b/arch/x86/entry/entry.S
-index 8e9a0cc20a4a..0a94e9c93d1e 100644
---- a/arch/x86/entry/entry.S
-+++ b/arch/x86/entry/entry.S
-@@ -4,6 +4,7 @@
-  */
- 
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- #include <linux/linkage.h>
- #include <linux/objtool.h>
- #include <asm/msr-index.h>
-@@ -29,8 +30,7 @@ SYM_FUNC_START(write_ibpb)
- 	FILL_RETURN_BUFFER %rax, RSB_CLEAR_LOOPS, X86_BUG_IBPB_NO_RET
- 	RET
- SYM_FUNC_END(write_ibpb)
--/* For KVM */
--EXPORT_SYMBOL_GPL(write_ibpb);
-+EXPORT_SYMBOL_GPL_FOR_KVM(write_ibpb);
- 
- .popsection
- 
-@@ -48,8 +48,7 @@ SYM_CODE_START_NOALIGN(x86_verw_sel)
- 	.word __KERNEL_DS
- .align L1_CACHE_BYTES, 0xcc
- SYM_CODE_END(x86_verw_sel);
--/* For KVM */
--EXPORT_SYMBOL_GPL(x86_verw_sel);
-+EXPORT_SYMBOL_GPL_FOR_KVM(x86_verw_sel);
- 
- .popsection
- 
-diff --git a/arch/x86/entry/entry_64_fred.S b/arch/x86/entry/entry_64_fred.S
-index 29c5c32c16c3..629cbed9061e 100644
---- a/arch/x86/entry/entry_64_fred.S
-+++ b/arch/x86/entry/entry_64_fred.S
-@@ -4,6 +4,7 @@
-  */
- 
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/asm.h>
- #include <asm/fred.h>
-@@ -128,5 +129,5 @@ SYM_FUNC_START(asm_fred_entry_from_kvm)
- 	RET
- 
- SYM_FUNC_END(asm_fred_entry_from_kvm)
--EXPORT_SYMBOL_GPL(asm_fred_entry_from_kvm);
-+EXPORT_SYMBOL_GPL_FOR_KVM(asm_fred_entry_from_kvm);
- #endif
-diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
-index b20661b8621d..0c7c8022b07c 100644
---- a/arch/x86/events/amd/core.c
-+++ b/arch/x86/events/amd/core.c
-@@ -2,6 +2,7 @@
- #include <linux/perf_event.h>
- #include <linux/jump_label.h>
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- #include <linux/types.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-@@ -1569,7 +1570,7 @@ void amd_pmu_enable_virt(void)
- 	/* Reload all events */
- 	amd_pmu_reload_virt();
- }
--EXPORT_SYMBOL_GPL(amd_pmu_enable_virt);
-+EXPORT_SYMBOL_GPL_FOR_KVM(amd_pmu_enable_virt);
- 
- void amd_pmu_disable_virt(void)
- {
-@@ -1586,4 +1587,4 @@ void amd_pmu_disable_virt(void)
- 	/* Reload all events */
- 	amd_pmu_reload_virt();
- }
--EXPORT_SYMBOL_GPL(amd_pmu_disable_virt);
-+EXPORT_SYMBOL_GPL_FOR_KVM(amd_pmu_disable_virt);
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 7610f26dfbd9..54d0228333be 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -20,6 +20,7 @@
- #include <linux/export.h>
- #include <linux/init.h>
- #include <linux/kdebug.h>
-+#include <linux/kvm_types.h>
- #include <linux/sched/mm.h>
- #include <linux/sched/clock.h>
- #include <linux/uaccess.h>
-@@ -714,7 +715,7 @@ struct perf_guest_switch_msr *perf_guest_get_msrs(int *nr, void *data)
- {
- 	return static_call(x86_pmu_guest_get_msrs)(nr, data);
- }
--EXPORT_SYMBOL_GPL(perf_guest_get_msrs);
-+EXPORT_SYMBOL_GPL_FOR_KVM(perf_guest_get_msrs);
- 
- /*
-  * There may be PMI landing after enabled=0. The PMI hitting could be before or
-@@ -3104,7 +3105,7 @@ void perf_get_x86_pmu_capability(struct x86_pmu_capability *cap)
- 	cap->events_mask_len	= x86_pmu.events_mask_len;
- 	cap->pebs_ept		= x86_pmu.pebs_ept;
- }
--EXPORT_SYMBOL_GPL(perf_get_x86_pmu_capability);
-+EXPORT_SYMBOL_GPL_FOR_KVM(perf_get_x86_pmu_capability);
- 
- u64 perf_get_hw_event_config(int hw_event)
- {
-@@ -3115,4 +3116,4 @@ u64 perf_get_hw_event_config(int hw_event)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(perf_get_hw_event_config);
-+EXPORT_SYMBOL_GPL_FOR_KVM(perf_get_hw_event_config);
-diff --git a/arch/x86/events/intel/lbr.c b/arch/x86/events/intel/lbr.c
-index 7aa59966e7c3..972017b2fd35 100644
---- a/arch/x86/events/intel/lbr.c
-+++ b/arch/x86/events/intel/lbr.c
-@@ -1,4 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <linux/kvm_types.h>
- #include <linux/perf_event.h>
- #include <linux/types.h>
- 
-@@ -1705,7 +1706,7 @@ void x86_perf_get_lbr(struct x86_pmu_lbr *lbr)
- 	lbr->info = x86_pmu.lbr_info;
- 	lbr->has_callstack = x86_pmu_has_lbr_callstack();
- }
--EXPORT_SYMBOL_GPL(x86_perf_get_lbr);
-+EXPORT_SYMBOL_GPL_FOR_KVM(x86_perf_get_lbr);
- 
- struct event_constraint vlbr_constraint =
- 	__EVENT_CONSTRAINT(INTEL_FIXED_VLBR_EVENT, (1ULL << INTEL_PMC_IDX_FIXED_VLBR),
-diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
-index e8cf29d2b10c..fbe1ac90499a 100644
---- a/arch/x86/events/intel/pt.c
-+++ b/arch/x86/events/intel/pt.c
-@@ -17,6 +17,7 @@
- #include <linux/limits.h>
- #include <linux/slab.h>
- #include <linux/device.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/cpuid/api.h>
- #include <asm/perf_event.h>
-@@ -82,13 +83,13 @@ u32 intel_pt_validate_cap(u32 *caps, enum pt_capabilities capability)
- 
- 	return (c & cd->mask) >> shift;
- }
--EXPORT_SYMBOL_GPL(intel_pt_validate_cap);
-+EXPORT_SYMBOL_GPL_FOR_KVM(intel_pt_validate_cap);
- 
- u32 intel_pt_validate_hw_cap(enum pt_capabilities cap)
- {
- 	return intel_pt_validate_cap(pt_pmu.caps, cap);
- }
--EXPORT_SYMBOL_GPL(intel_pt_validate_hw_cap);
-+EXPORT_SYMBOL_GPL_FOR_KVM(intel_pt_validate_hw_cap);
- 
- static ssize_t pt_cap_show(struct device *cdev,
- 			   struct device_attribute *attr,
-@@ -1590,7 +1591,7 @@ void intel_pt_handle_vmx(int on)
- 
- 	local_irq_restore(flags);
- }
--EXPORT_SYMBOL_GPL(intel_pt_handle_vmx);
-+EXPORT_SYMBOL_GPL_FOR_KVM(intel_pt_handle_vmx);
- 
- /*
-  * PMU callbacks
-diff --git a/arch/x86/include/asm/kvm_types.h b/arch/x86/include/asm/kvm_types.h
-index 23268a188e70..9597fe3a6c87 100644
---- a/arch/x86/include/asm/kvm_types.h
-+++ b/arch/x86/include/asm/kvm_types.h
-@@ -10,6 +10,11 @@
- #define KVM_SUB_MODULES kvm-intel
- #else
- #undef KVM_SUB_MODULES
-+/*
-+ * Don't export symbols for KVM without vendor modules, as kvm.ko is built iff
-+ * at least one vendor module is enabled.
-+ */
-+#define EXPORT_SYMBOL_GPL_FOR_KVM(symbol)
- #endif
- 
- #define KVM_ARCH_NR_OBJS_PER_MEMORY_CACHE 40
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index d73ba5a7b623..1c2a810e8dab 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -36,6 +36,7 @@
- #include <linux/dmi.h>
- #include <linux/smp.h>
- #include <linux/mm.h>
-+#include <linux/kvm_types.h>
- 
- #include <xen/xen.h>
- 
-@@ -2311,7 +2312,7 @@ u32 x86_msi_msg_get_destid(struct msi_msg *msg, bool extid)
- 		dest |= msg->arch_addr_hi.destid_8_31 << 8;
- 	return dest;
- }
--EXPORT_SYMBOL_GPL(x86_msi_msg_get_destid);
-+EXPORT_SYMBOL_GPL_FOR_KVM(x86_msi_msg_get_destid);
- 
- static void __init apic_bsp_up_setup(void)
- {
-diff --git a/arch/x86/kernel/apic/apic_common.c b/arch/x86/kernel/apic/apic_common.c
-index 9ef3be866832..df1436a3a76f 100644
---- a/arch/x86/kernel/apic/apic_common.c
-+++ b/arch/x86/kernel/apic/apic_common.c
-@@ -4,6 +4,7 @@
-  * SPDX-License-Identifier: GPL-2.0
-  */
- #include <linux/irq.h>
-+#include <linux/kvm_types.h>
- #include <asm/apic.h>
- 
- #include "local.h"
-@@ -25,7 +26,7 @@ u32 default_cpu_present_to_apicid(int mps_cpu)
- 	else
- 		return BAD_APICID;
- }
--EXPORT_SYMBOL_GPL(default_cpu_present_to_apicid);
-+EXPORT_SYMBOL_GPL_FOR_KVM(default_cpu_present_to_apicid);
- 
- /*
-  * Set up the logical destination ID when the APIC operates in logical
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 329ee185d8cc..e382a81ea35b 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -3,7 +3,7 @@
- #include <linux/bitops.h>
- #include <linux/elf.h>
- #include <linux/mm.h>
--
-+#include <linux/kvm_types.h>
- #include <linux/io.h>
- #include <linux/sched.h>
- #include <linux/sched/clock.h>
-@@ -1281,7 +1281,7 @@ unsigned long amd_get_dr_addr_mask(unsigned int dr)
- 
- 	return per_cpu(amd_dr_addr_mask[dr], smp_processor_id());
- }
--EXPORT_SYMBOL_GPL(amd_get_dr_addr_mask);
-+EXPORT_SYMBOL_GPL_FOR_KVM(amd_get_dr_addr_mask);
- 
- static void zenbleed_check_cpu(void *unused)
- {
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index f4d3abb12317..855cc523618a 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -16,6 +16,7 @@
- #include <linux/sched/smt.h>
- #include <linux/pgtable.h>
- #include <linux/bpf.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/spec-ctrl.h>
- #include <asm/cmdline.h>
-@@ -169,7 +170,7 @@ DEFINE_STATIC_KEY_FALSE(switch_mm_always_ibpb);
- 
- /* Control IBPB on vCPU load */
- DEFINE_STATIC_KEY_FALSE(switch_vcpu_ibpb);
--EXPORT_SYMBOL_GPL(switch_vcpu_ibpb);
-+EXPORT_SYMBOL_GPL_FOR_KVM(switch_vcpu_ibpb);
- 
- /* Control CPU buffer clear before idling (halt, mwait) */
- DEFINE_STATIC_KEY_FALSE(cpu_buf_idle_clear);
-@@ -188,7 +189,7 @@ DEFINE_STATIC_KEY_FALSE(switch_mm_cond_l1d_flush);
-  * mitigation is required.
-  */
- DEFINE_STATIC_KEY_FALSE(cpu_buf_vm_clear);
--EXPORT_SYMBOL_GPL(cpu_buf_vm_clear);
-+EXPORT_SYMBOL_GPL_FOR_KVM(cpu_buf_vm_clear);
- 
- void __init cpu_select_mitigations(void)
- {
-@@ -318,7 +319,7 @@ x86_virt_spec_ctrl(u64 guest_virt_spec_ctrl, bool setguest)
- 		speculation_ctrl_update(tif);
- 	}
- }
--EXPORT_SYMBOL_GPL(x86_virt_spec_ctrl);
-+EXPORT_SYMBOL_GPL_FOR_KVM(x86_virt_spec_ctrl);
- 
- static void x86_amd_ssb_disable(void)
- {
-@@ -904,7 +905,7 @@ bool gds_ucode_mitigated(void)
- 	return (gds_mitigation == GDS_MITIGATION_FULL ||
- 		gds_mitigation == GDS_MITIGATION_FULL_LOCKED);
- }
--EXPORT_SYMBOL_GPL(gds_ucode_mitigated);
-+EXPORT_SYMBOL_GPL_FOR_KVM(gds_ucode_mitigated);
- 
- void update_gds_msr(void)
- {
-@@ -2806,7 +2807,7 @@ void x86_spec_ctrl_setup_ap(void)
- }
- 
- bool itlb_multihit_kvm_mitigation;
--EXPORT_SYMBOL_GPL(itlb_multihit_kvm_mitigation);
-+EXPORT_SYMBOL_GPL_FOR_KVM(itlb_multihit_kvm_mitigation);
- 
- #undef pr_fmt
- #define pr_fmt(fmt)	"L1TF: " fmt
-@@ -2814,11 +2815,9 @@ EXPORT_SYMBOL_GPL(itlb_multihit_kvm_mitigation);
- /* Default mitigation for L1TF-affected CPUs */
- enum l1tf_mitigations l1tf_mitigation __ro_after_init =
- 	IS_ENABLED(CONFIG_MITIGATION_L1TF) ? L1TF_MITIGATION_AUTO : L1TF_MITIGATION_OFF;
--#if IS_ENABLED(CONFIG_KVM_INTEL)
--EXPORT_SYMBOL_GPL(l1tf_mitigation);
--#endif
-+EXPORT_SYMBOL_GPL_FOR_KVM(l1tf_mitigation);
- enum vmx_l1d_flush_state l1tf_vmx_mitigation = VMENTER_L1D_FLUSH_AUTO;
--EXPORT_SYMBOL_GPL(l1tf_vmx_mitigation);
-+EXPORT_SYMBOL_GPL_FOR_KVM(l1tf_vmx_mitigation);
- 
- /*
-  * These CPUs all support 44bits physical address space internally in the
-diff --git a/arch/x86/kernel/cpu/bus_lock.c b/arch/x86/kernel/cpu/bus_lock.c
-index 981f8b1f0792..90fe42911432 100644
---- a/arch/x86/kernel/cpu/bus_lock.c
-+++ b/arch/x86/kernel/cpu/bus_lock.c
-@@ -6,6 +6,7 @@
- #include <linux/workqueue.h>
- #include <linux/delay.h>
- #include <linux/cpuhotplug.h>
-+#include <linux/kvm_types.h>
- #include <asm/cpu_device_id.h>
- #include <asm/cmdline.h>
- #include <asm/traps.h>
-@@ -289,7 +290,7 @@ bool handle_guest_split_lock(unsigned long ip)
- 	force_sig_fault(SIGBUS, BUS_ADRALN, NULL);
- 	return false;
- }
--EXPORT_SYMBOL_GPL(handle_guest_split_lock);
-+EXPORT_SYMBOL_GPL_FOR_KVM(handle_guest_split_lock);
- 
- void bus_lock_init(void)
- {
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index fb50c1dd53ef..72f5c32d0e64 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -7,6 +7,7 @@
- #include <linux/bitops.h>
- #include <linux/kernel.h>
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- #include <linux/percpu.h>
- #include <linux/string.h>
- #include <linux/ctype.h>
-@@ -459,14 +460,14 @@ void cr4_update_irqsoff(unsigned long set, unsigned long clear)
- 		__write_cr4(newval);
- 	}
- }
--EXPORT_SYMBOL(cr4_update_irqsoff);
-+EXPORT_SYMBOL_GPL_FOR_KVM(cr4_update_irqsoff);
- 
- /* Read the CR4 shadow. */
- unsigned long cr4_read_shadow(void)
- {
- 	return this_cpu_read(cpu_tlbstate.cr4);
- }
--EXPORT_SYMBOL_GPL(cr4_read_shadow);
-+EXPORT_SYMBOL_GPL_FOR_KVM(cr4_read_shadow);
- 
- void cr4_init(void)
- {
-@@ -721,7 +722,7 @@ void load_direct_gdt(int cpu)
- 	gdt_descr.size = GDT_SIZE - 1;
- 	load_gdt(&gdt_descr);
- }
--EXPORT_SYMBOL_GPL(load_direct_gdt);
-+EXPORT_SYMBOL_GPL_FOR_KVM(load_direct_gdt);
- 
- /* Load a fixmap remapping of the per-cpu GDT */
- void load_fixmap_gdt(int cpu)
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 2de01b379aa3..c8da7984d9d8 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -5,6 +5,7 @@
- #include <linux/freezer.h>
- #include <linux/highmem.h>
- #include <linux/kthread.h>
-+#include <linux/kvm_types.h>
- #include <linux/miscdevice.h>
- #include <linux/node.h>
- #include <linux/pagemap.h>
-@@ -915,7 +916,7 @@ int sgx_set_attribute(unsigned long *allowed_attributes,
- 	*allowed_attributes |= SGX_ATTR_PROVISIONKEY;
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(sgx_set_attribute);
-+EXPORT_SYMBOL_GPL_FOR_KVM(sgx_set_attribute);
- 
- static int __init sgx_init(void)
- {
-diff --git a/arch/x86/kernel/cpu/sgx/virt.c b/arch/x86/kernel/cpu/sgx/virt.c
-index 7aaa3652e31d..1c8318f1004a 100644
---- a/arch/x86/kernel/cpu/sgx/virt.c
-+++ b/arch/x86/kernel/cpu/sgx/virt.c
-@@ -5,6 +5,7 @@
-  * Copyright(c) 2021 Intel Corporation.
-  */
- 
-+#include <linux/kvm_types.h>
- #include <linux/miscdevice.h>
- #include <linux/mm.h>
- #include <linux/mman.h>
-@@ -363,7 +364,7 @@ int sgx_virt_ecreate(struct sgx_pageinfo *pageinfo, void __user *secs,
- 	WARN_ON_ONCE(ret);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(sgx_virt_ecreate);
-+EXPORT_SYMBOL_GPL_FOR_KVM(sgx_virt_ecreate);
- 
- static int __sgx_virt_einit(void __user *sigstruct, void __user *token,
- 			    void __user *secs)
-@@ -432,4 +433,4 @@ int sgx_virt_einit(void __user *sigstruct, void __user *token,
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(sgx_virt_einit);
-+EXPORT_SYMBOL_GPL_FOR_KVM(sgx_virt_einit);
-diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
-index c3acbd26408b..b06be3af86c8 100644
---- a/arch/x86/kernel/e820.c
-+++ b/arch/x86/kernel/e820.c
-@@ -16,6 +16,7 @@
- #include <linux/firmware-map.h>
- #include <linux/sort.h>
- #include <linux/memory_hotplug.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/e820/api.h>
- #include <asm/setup.h>
-@@ -95,7 +96,7 @@ bool e820__mapped_raw_any(u64 start, u64 end, enum e820_type type)
- {
- 	return _e820__mapped_any(e820_table_firmware, start, end, type);
- }
--EXPORT_SYMBOL_GPL(e820__mapped_raw_any);
-+EXPORT_SYMBOL_GPL_FOR_KVM(e820__mapped_raw_any);
- 
- bool e820__mapped_any(u64 start, u64 end, enum e820_type type)
- {
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index ea138583dd92..94346f59f7d4 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -18,6 +18,7 @@
- #include <uapi/asm/kvm.h>
- 
- #include <linux/hardirq.h>
-+#include <linux/kvm_types.h>
- #include <linux/pkeys.h>
- #include <linux/vmalloc.h>
- 
-@@ -273,7 +274,7 @@ bool fpu_alloc_guest_fpstate(struct fpu_guest *gfpu)
- 
- 	return true;
- }
--EXPORT_SYMBOL_GPL(fpu_alloc_guest_fpstate);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_alloc_guest_fpstate);
- 
- void fpu_free_guest_fpstate(struct fpu_guest *gfpu)
- {
-@@ -288,7 +289,7 @@ void fpu_free_guest_fpstate(struct fpu_guest *gfpu)
- 	gfpu->fpstate = NULL;
- 	vfree(fpstate);
- }
--EXPORT_SYMBOL_GPL(fpu_free_guest_fpstate);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_free_guest_fpstate);
- 
- /*
-   * fpu_enable_guest_xfd_features - Check xfeatures against guest perm and enable
-@@ -310,7 +311,7 @@ int fpu_enable_guest_xfd_features(struct fpu_guest *guest_fpu, u64 xfeatures)
- 
- 	return __xfd_enable_feature(xfeatures, guest_fpu);
- }
--EXPORT_SYMBOL_GPL(fpu_enable_guest_xfd_features);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_enable_guest_xfd_features);
- 
- #ifdef CONFIG_X86_64
- void fpu_update_guest_xfd(struct fpu_guest *guest_fpu, u64 xfd)
-@@ -321,7 +322,7 @@ void fpu_update_guest_xfd(struct fpu_guest *guest_fpu, u64 xfd)
- 		xfd_update_state(guest_fpu->fpstate);
- 	fpregs_unlock();
- }
--EXPORT_SYMBOL_GPL(fpu_update_guest_xfd);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_update_guest_xfd);
- 
- /**
-  * fpu_sync_guest_vmexit_xfd_state - Synchronize XFD MSR and software state
-@@ -345,7 +346,7 @@ void fpu_sync_guest_vmexit_xfd_state(void)
- 		__this_cpu_write(xfd_state, fpstate->xfd);
- 	}
- }
--EXPORT_SYMBOL_GPL(fpu_sync_guest_vmexit_xfd_state);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_sync_guest_vmexit_xfd_state);
- #endif /* CONFIG_X86_64 */
- 
- int fpu_swap_kvm_fpstate(struct fpu_guest *guest_fpu, bool enter_guest)
-@@ -387,7 +388,7 @@ int fpu_swap_kvm_fpstate(struct fpu_guest *guest_fpu, bool enter_guest)
- 	fpregs_unlock();
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(fpu_swap_kvm_fpstate);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_swap_kvm_fpstate);
- 
- void fpu_copy_guest_fpstate_to_uabi(struct fpu_guest *gfpu, void *buf,
- 				    unsigned int size, u64 xfeatures, u32 pkru)
-@@ -406,7 +407,7 @@ void fpu_copy_guest_fpstate_to_uabi(struct fpu_guest *gfpu, void *buf,
- 		ustate->xsave.header.xfeatures = XFEATURE_MASK_FPSSE;
- 	}
- }
--EXPORT_SYMBOL_GPL(fpu_copy_guest_fpstate_to_uabi);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_copy_guest_fpstate_to_uabi);
- 
- int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
- 				   u64 xcr0, u32 *vpkru)
-@@ -436,7 +437,7 @@ int fpu_copy_uabi_to_guest_fpstate(struct fpu_guest *gfpu, const void *buf,
- 
- 	return copy_uabi_from_kernel_to_xstate(kstate, ustate, vpkru);
- }
--EXPORT_SYMBOL_GPL(fpu_copy_uabi_to_guest_fpstate);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpu_copy_uabi_to_guest_fpstate);
- #endif /* CONFIG_KVM */
- 
- void kernel_fpu_begin_mask(unsigned int kfpu_mask)
-@@ -829,7 +830,7 @@ void switch_fpu_return(void)
- 
- 	fpregs_restore_userregs();
- }
--EXPORT_SYMBOL_GPL(switch_fpu_return);
-+EXPORT_SYMBOL_GPL_FOR_KVM(switch_fpu_return);
- 
- void fpregs_lock_and_load(void)
- {
-@@ -864,7 +865,7 @@ void fpregs_assert_state_consistent(void)
- 
- 	WARN_ON_FPU(!fpregs_state_valid(fpu, smp_processor_id()));
- }
--EXPORT_SYMBOL_GPL(fpregs_assert_state_consistent);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpregs_assert_state_consistent);
- #endif
- 
- void fpregs_mark_activate(void)
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index 9aa9ac8399ae..a3bfa0613e99 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -8,6 +8,7 @@
- #include <linux/compat.h>
- #include <linux/cpu.h>
- #include <linux/mman.h>
-+#include <linux/kvm_types.h>
- #include <linux/nospec.h>
- #include <linux/pkeys.h>
- #include <linux/seq_file.h>
-@@ -1032,7 +1033,7 @@ void *get_xsave_addr(struct xregs_state *xsave, int xfeature_nr)
- 
- 	return __raw_xsave_addr(xsave, xfeature_nr);
- }
--EXPORT_SYMBOL_GPL(get_xsave_addr);
-+EXPORT_SYMBOL_GPL_FOR_KVM(get_xsave_addr);
- 
- /*
-  * Given an xstate feature nr, calculate where in the xsave buffer the state is.
-@@ -1456,7 +1457,7 @@ void fpstate_clear_xstate_component(struct fpstate *fpstate, unsigned int xfeatu
- 	if (addr)
- 		memset(addr, 0, xstate_sizes[xfeature]);
- }
--EXPORT_SYMBOL_GPL(fpstate_clear_xstate_component);
-+EXPORT_SYMBOL_GPL_FOR_KVM(fpstate_clear_xstate_component);
- #endif
- 
- #ifdef CONFIG_X86_64
-@@ -1792,7 +1793,7 @@ u64 xstate_get_guest_group_perm(void)
- {
- 	return xstate_get_group_perm(true);
- }
--EXPORT_SYMBOL_GPL(xstate_get_guest_group_perm);
-+EXPORT_SYMBOL_GPL_FOR_KVM(xstate_get_guest_group_perm);
- 
- /**
-  * fpu_xstate_prctl - xstate permission operations
-diff --git a/arch/x86/kernel/hw_breakpoint.c b/arch/x86/kernel/hw_breakpoint.c
-index b01644c949b2..a37f12a978e4 100644
---- a/arch/x86/kernel/hw_breakpoint.c
-+++ b/arch/x86/kernel/hw_breakpoint.c
-@@ -24,6 +24,7 @@
- #include <linux/percpu.h>
- #include <linux/kdebug.h>
- #include <linux/kernel.h>
-+#include <linux/kvm_types.h>
- #include <linux/export.h>
- #include <linux/sched.h>
- #include <linux/smp.h>
-@@ -489,7 +490,7 @@ void hw_breakpoint_restore(void)
- 	set_debugreg(DR6_RESERVED, 6);
- 	set_debugreg(__this_cpu_read(cpu_dr7), 7);
- }
--EXPORT_SYMBOL_GPL(hw_breakpoint_restore);
-+EXPORT_SYMBOL_GPL_FOR_KVM(hw_breakpoint_restore);
- 
- /*
-  * Handle debug exception notifications.
-diff --git a/arch/x86/kernel/irq.c b/arch/x86/kernel/irq.c
-index 9ed29ff10e59..6aecd1a7524d 100644
---- a/arch/x86/kernel/irq.c
-+++ b/arch/x86/kernel/irq.c
-@@ -12,6 +12,7 @@
- #include <linux/delay.h>
- #include <linux/export.h>
- #include <linux/irq.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/irq_stack.h>
- #include <asm/apic.h>
-@@ -328,7 +329,7 @@ void kvm_set_posted_intr_wakeup_handler(void (*handler)(void))
- 		synchronize_rcu();
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_set_posted_intr_wakeup_handler);
-+EXPORT_SYMBOL_GPL_FOR_KVM(kvm_set_posted_intr_wakeup_handler);
- 
- /*
-  * Handler for POSTED_INTERRUPT_VECTOR.
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 921c1c783bc1..d70e1b5a255c 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -29,6 +29,7 @@
- #include <linux/syscore_ops.h>
- #include <linux/cc_platform.h>
- #include <linux/efi.h>
-+#include <linux/kvm_types.h>
- #include <asm/timer.h>
- #include <asm/cpu.h>
- #include <asm/traps.h>
-@@ -162,7 +163,7 @@ void kvm_async_pf_task_wait_schedule(u32 token)
- 	}
- 	finish_swait(&n.wq, &wait);
- }
--EXPORT_SYMBOL_GPL(kvm_async_pf_task_wait_schedule);
-+EXPORT_SYMBOL_GPL_FOR_KVM(kvm_async_pf_task_wait_schedule);
- 
- static void apf_task_wake_one(struct kvm_task_sleep_node *n)
- {
-@@ -254,7 +255,7 @@ noinstr u32 kvm_read_and_reset_apf_flags(void)
- 
- 	return flags;
- }
--EXPORT_SYMBOL_GPL(kvm_read_and_reset_apf_flags);
-+EXPORT_SYMBOL_GPL_FOR_KVM(kvm_read_and_reset_apf_flags);
- 
- noinstr bool __kvm_handle_async_pf(struct pt_regs *regs, u32 token)
- {
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index be93ec7255bf..5b6874554ab1 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -24,6 +24,7 @@
- #include <linux/export.h>
- #include <linux/atomic.h>
- #include <linux/sched/clock.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/cpu_entry_area.h>
- #include <asm/traps.h>
-@@ -613,9 +614,7 @@ DEFINE_IDTENTRY_RAW(exc_nmi_kvm_vmx)
- {
- 	exc_nmi(regs);
- }
--#if IS_MODULE(CONFIG_KVM_INTEL)
--EXPORT_SYMBOL_GPL(asm_exc_nmi_kvm_vmx);
--#endif
-+EXPORT_SYMBOL_GPL_FOR_KVM(asm_exc_nmi_kvm_vmx);
- #endif
- 
- #ifdef CONFIG_NMI_CHECK_CPU
-diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
-index b972bf72fb8b..14f2bae0042d 100644
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -30,6 +30,7 @@
- #include <linux/interrupt.h>
- #include <linux/delay.h>
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- #include <linux/ptrace.h>
- #include <linux/notifier.h>
- #include <linux/kprobes.h>
-@@ -303,9 +304,7 @@ void current_save_fsgs(void)
- 	save_fsgs(current);
- 	local_irq_restore(flags);
- }
--#if IS_ENABLED(CONFIG_KVM)
--EXPORT_SYMBOL_GPL(current_save_fsgs);
--#endif
-+EXPORT_SYMBOL_GPL_FOR_KVM(current_save_fsgs);
- 
- static __always_inline void loadseg(enum which_selector which,
- 				    unsigned short sel)
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 964f6b0a3d68..e550515b1fc1 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -13,6 +13,7 @@
- #include <linux/objtool.h>
- #include <linux/pgtable.h>
- #include <linux/kexec.h>
-+#include <linux/kvm_types.h>
- #include <acpi/reboot.h>
- #include <asm/io.h>
- #include <asm/apic.h>
-@@ -541,7 +542,7 @@ void cpu_emergency_register_virt_callback(cpu_emergency_virt_cb *callback)
- 
- 	rcu_assign_pointer(cpu_emergency_virt_callback, callback);
- }
--EXPORT_SYMBOL_GPL(cpu_emergency_register_virt_callback);
-+EXPORT_SYMBOL_GPL_FOR_KVM(cpu_emergency_register_virt_callback);
- 
- void cpu_emergency_unregister_virt_callback(cpu_emergency_virt_cb *callback)
- {
-@@ -551,7 +552,7 @@ void cpu_emergency_unregister_virt_callback(cpu_emergency_virt_cb *callback)
- 	rcu_assign_pointer(cpu_emergency_virt_callback, NULL);
- 	synchronize_rcu();
- }
--EXPORT_SYMBOL_GPL(cpu_emergency_unregister_virt_callback);
-+EXPORT_SYMBOL_GPL_FOR_KVM(cpu_emergency_unregister_virt_callback);
- 
- /*
-  * Disable virtualization, i.e. VMX or SVM, to ensure INIT is recognized during
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index 87e749106dda..7d3e13e14eab 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -11,6 +11,7 @@
- #include <linux/cpufreq.h>
- #include <linux/delay.h>
- #include <linux/clocksource.h>
-+#include <linux/kvm_types.h>
- #include <linux/percpu.h>
- #include <linux/timex.h>
- #include <linux/static_key.h>
-diff --git a/arch/x86/lib/cache-smp.c b/arch/x86/lib/cache-smp.c
-index c5c60d07308c..23bab469c6c6 100644
---- a/arch/x86/lib/cache-smp.c
-+++ b/arch/x86/lib/cache-smp.c
-@@ -2,6 +2,7 @@
- #include <asm/paravirt.h>
- #include <linux/smp.h>
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- 
- static void __wbinvd(void *dummy)
- {
-@@ -12,7 +13,7 @@ void wbinvd_on_cpu(int cpu)
- {
- 	smp_call_function_single(cpu, __wbinvd, NULL, 1);
- }
--EXPORT_SYMBOL(wbinvd_on_cpu);
-+EXPORT_SYMBOL_GPL_FOR_KVM(wbinvd_on_cpu);
- 
- void wbinvd_on_all_cpus(void)
- {
-@@ -24,7 +25,7 @@ void wbinvd_on_cpus_mask(struct cpumask *cpus)
- {
- 	on_each_cpu_mask(cpus, __wbinvd, NULL, 1);
- }
--EXPORT_SYMBOL_GPL(wbinvd_on_cpus_mask);
-+EXPORT_SYMBOL_GPL_FOR_KVM(wbinvd_on_cpus_mask);
- 
- static void __wbnoinvd(void *dummy)
- {
-@@ -35,10 +36,10 @@ void wbnoinvd_on_all_cpus(void)
- {
- 	on_each_cpu(__wbnoinvd, NULL, 1);
- }
--EXPORT_SYMBOL_GPL(wbnoinvd_on_all_cpus);
-+EXPORT_SYMBOL_GPL_FOR_KVM(wbnoinvd_on_all_cpus);
- 
- void wbnoinvd_on_cpus_mask(struct cpumask *cpus)
- {
- 	on_each_cpu_mask(cpus, __wbnoinvd, NULL, 1);
- }
--EXPORT_SYMBOL_GPL(wbnoinvd_on_cpus_mask);
-+EXPORT_SYMBOL_GPL_FOR_KVM(wbnoinvd_on_cpus_mask);
-diff --git a/arch/x86/lib/msr.c b/arch/x86/lib/msr.c
-index 4ef7c6dcbea6..0544a8af9f5b 100644
---- a/arch/x86/lib/msr.c
-+++ b/arch/x86/lib/msr.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/export.h>
-+#include <linux/kvm_types.h>
- #include <linux/percpu.h>
- #include <linux/preempt.h>
- #include <asm/msr.h>
-@@ -103,7 +104,7 @@ int msr_set_bit(u32 msr, u8 bit)
- {
- 	return __flip_bit(msr, bit, true);
- }
--EXPORT_SYMBOL_GPL(msr_set_bit);
-+EXPORT_SYMBOL_GPL_FOR_KVM(msr_set_bit);
- 
- /**
-  * msr_clear_bit - Clear @bit in a MSR @msr.
-@@ -119,7 +120,7 @@ int msr_clear_bit(u32 msr, u8 bit)
- {
- 	return __flip_bit(msr, bit, false);
- }
--EXPORT_SYMBOL_GPL(msr_clear_bit);
-+EXPORT_SYMBOL_GPL_FOR_KVM(msr_clear_bit);
- 
- #ifdef CONFIG_TRACEPOINTS
- void do_trace_write_msr(u32 msr, u64 val, int failed)
-diff --git a/arch/x86/mm/pat/memtype.c b/arch/x86/mm/pat/memtype.c
-index 2e7923844afe..0829d054dbf4 100644
---- a/arch/x86/mm/pat/memtype.c
-+++ b/arch/x86/mm/pat/memtype.c
-@@ -43,6 +43,7 @@
- #include <linux/highmem.h>
- #include <linux/fs.h>
- #include <linux/rbtree.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/cpu_device_id.h>
- #include <asm/cacheflush.h>
-@@ -698,7 +699,7 @@ bool pat_pfn_immune_to_uc_mtrr(unsigned long pfn)
- 	       cm == _PAGE_CACHE_MODE_UC_MINUS ||
- 	       cm == _PAGE_CACHE_MODE_WC;
- }
--EXPORT_SYMBOL_GPL(pat_pfn_immune_to_uc_mtrr);
-+EXPORT_SYMBOL_GPL_FOR_KVM(pat_pfn_immune_to_uc_mtrr);
- 
- /**
-  * memtype_reserve_io - Request a memory type mapping for a region of memory
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 39f80111e6f1..33dd1c7a8b67 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -12,6 +12,7 @@
- #include <linux/task_work.h>
- #include <linux/mmu_notifier.h>
- #include <linux/mmu_context.h>
-+#include <linux/kvm_types.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/mmu_context.h>
-@@ -1562,7 +1563,7 @@ unsigned long __get_current_cr3_fast(void)
- 	VM_BUG_ON(cr3 != __read_cr3());
- 	return cr3;
- }
--EXPORT_SYMBOL_GPL(__get_current_cr3_fast);
-+EXPORT_SYMBOL_GPL_FOR_KVM(__get_current_cr3_fast);
- 
- /*
-  * Flush one page in the kernel mapping
-@@ -1703,7 +1704,7 @@ void __flush_tlb_all(void)
- 		flush_tlb_local();
- 	}
- }
--EXPORT_SYMBOL_GPL(__flush_tlb_all);
-+EXPORT_SYMBOL_GPL_FOR_KVM(__flush_tlb_all);
- 
- void arch_tlbbatch_flush(struct arch_tlbflush_unmap_batch *batch)
- {
-diff --git a/arch/x86/virt/vmx/tdx/tdx.c b/arch/x86/virt/vmx/tdx/tdx.c
-index c7a9a087ccaf..426fefdd2b60 100644
---- a/arch/x86/virt/vmx/tdx/tdx.c
-+++ b/arch/x86/virt/vmx/tdx/tdx.c
-@@ -29,6 +29,7 @@
- #include <linux/acpi.h>
- #include <linux/suspend.h>
- #include <linux/idr.h>
-+#include <linux/kvm_types.h>
- #include <asm/page.h>
- #include <asm/special_insns.h>
- #include <asm/msr-index.h>
-@@ -181,7 +182,7 @@ int tdx_cpu_enable(void)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(tdx_cpu_enable);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdx_cpu_enable);
- 
- /*
-  * Add a memory region as a TDX memory block.  The caller must make sure
-@@ -1214,7 +1215,7 @@ int tdx_enable(void)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdx_enable);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdx_enable);
- 
- static bool is_pamt_page(unsigned long phys)
- {
-@@ -1475,13 +1476,13 @@ const struct tdx_sys_info *tdx_get_sysinfo(void)
- 
- 	return p;
- }
--EXPORT_SYMBOL_GPL(tdx_get_sysinfo);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdx_get_sysinfo);
- 
- u32 tdx_get_nr_guest_keyids(void)
- {
- 	return tdx_nr_guest_keyids;
- }
--EXPORT_SYMBOL_GPL(tdx_get_nr_guest_keyids);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdx_get_nr_guest_keyids);
- 
- int tdx_guest_keyid_alloc(void)
- {
-@@ -1489,13 +1490,13 @@ int tdx_guest_keyid_alloc(void)
- 			       tdx_guest_keyid_start + tdx_nr_guest_keyids - 1,
- 			       GFP_KERNEL);
- }
--EXPORT_SYMBOL_GPL(tdx_guest_keyid_alloc);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdx_guest_keyid_alloc);
- 
- void tdx_guest_keyid_free(unsigned int keyid)
- {
- 	ida_free(&tdx_guest_keyid_pool, keyid);
- }
--EXPORT_SYMBOL_GPL(tdx_guest_keyid_free);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdx_guest_keyid_free);
- 
- static inline u64 tdx_tdr_pa(struct tdx_td *td)
- {
-@@ -1524,7 +1525,7 @@ noinstr __flatten u64 tdh_vp_enter(struct tdx_vp *td, struct tdx_module_args *ar
- 
- 	return __seamcall_saved_ret(TDH_VP_ENTER, args);
- }
--EXPORT_SYMBOL_GPL(tdh_vp_enter);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_enter);
- 
- u64 tdh_mng_addcx(struct tdx_td *td, struct page *tdcs_page)
- {
-@@ -1536,7 +1537,7 @@ u64 tdh_mng_addcx(struct tdx_td *td, struct page *tdcs_page)
- 	tdx_clflush_page(tdcs_page);
- 	return seamcall(TDH_MNG_ADDCX, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mng_addcx);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_addcx);
- 
- u64 tdh_mem_page_add(struct tdx_td *td, u64 gpa, struct page *page, struct page *source, u64 *ext_err1, u64 *ext_err2)
- {
-@@ -1556,7 +1557,7 @@ u64 tdh_mem_page_add(struct tdx_td *td, u64 gpa, struct page *page, struct page
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mem_page_add);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mem_page_add);
- 
- u64 tdh_mem_sept_add(struct tdx_td *td, u64 gpa, int level, struct page *page, u64 *ext_err1, u64 *ext_err2)
- {
-@@ -1575,7 +1576,7 @@ u64 tdh_mem_sept_add(struct tdx_td *td, u64 gpa, int level, struct page *page, u
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mem_sept_add);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mem_sept_add);
- 
- u64 tdh_vp_addcx(struct tdx_vp *vp, struct page *tdcx_page)
- {
-@@ -1587,7 +1588,7 @@ u64 tdh_vp_addcx(struct tdx_vp *vp, struct page *tdcx_page)
- 	tdx_clflush_page(tdcx_page);
- 	return seamcall(TDH_VP_ADDCX, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_vp_addcx);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_addcx);
- 
- u64 tdh_mem_page_aug(struct tdx_td *td, u64 gpa, int level, struct page *page, u64 *ext_err1, u64 *ext_err2)
- {
-@@ -1606,7 +1607,7 @@ u64 tdh_mem_page_aug(struct tdx_td *td, u64 gpa, int level, struct page *page, u
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mem_page_aug);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mem_page_aug);
- 
- u64 tdh_mem_range_block(struct tdx_td *td, u64 gpa, int level, u64 *ext_err1, u64 *ext_err2)
- {
-@@ -1623,7 +1624,7 @@ u64 tdh_mem_range_block(struct tdx_td *td, u64 gpa, int level, u64 *ext_err1, u6
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mem_range_block);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mem_range_block);
- 
- u64 tdh_mng_key_config(struct tdx_td *td)
- {
-@@ -1633,7 +1634,7 @@ u64 tdh_mng_key_config(struct tdx_td *td)
- 
- 	return seamcall(TDH_MNG_KEY_CONFIG, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mng_key_config);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_key_config);
- 
- u64 tdh_mng_create(struct tdx_td *td, u16 hkid)
- {
-@@ -1645,7 +1646,7 @@ u64 tdh_mng_create(struct tdx_td *td, u16 hkid)
- 	tdx_clflush_page(td->tdr_page);
- 	return seamcall(TDH_MNG_CREATE, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mng_create);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_create);
- 
- u64 tdh_vp_create(struct tdx_td *td, struct tdx_vp *vp)
- {
-@@ -1657,7 +1658,7 @@ u64 tdh_vp_create(struct tdx_td *td, struct tdx_vp *vp)
- 	tdx_clflush_page(vp->tdvpr_page);
- 	return seamcall(TDH_VP_CREATE, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_vp_create);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_create);
- 
- u64 tdh_mng_rd(struct tdx_td *td, u64 field, u64 *data)
- {
-@@ -1674,7 +1675,7 @@ u64 tdh_mng_rd(struct tdx_td *td, u64 field, u64 *data)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mng_rd);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_rd);
- 
- u64 tdh_mr_extend(struct tdx_td *td, u64 gpa, u64 *ext_err1, u64 *ext_err2)
- {
-@@ -1691,7 +1692,7 @@ u64 tdh_mr_extend(struct tdx_td *td, u64 gpa, u64 *ext_err1, u64 *ext_err2)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mr_extend);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mr_extend);
- 
- u64 tdh_mr_finalize(struct tdx_td *td)
- {
-@@ -1701,7 +1702,7 @@ u64 tdh_mr_finalize(struct tdx_td *td)
- 
- 	return seamcall(TDH_MR_FINALIZE, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mr_finalize);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mr_finalize);
- 
- u64 tdh_vp_flush(struct tdx_vp *vp)
- {
-@@ -1711,7 +1712,7 @@ u64 tdh_vp_flush(struct tdx_vp *vp)
- 
- 	return seamcall(TDH_VP_FLUSH, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_vp_flush);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_flush);
- 
- u64 tdh_mng_vpflushdone(struct tdx_td *td)
- {
-@@ -1721,7 +1722,7 @@ u64 tdh_mng_vpflushdone(struct tdx_td *td)
- 
- 	return seamcall(TDH_MNG_VPFLUSHDONE, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mng_vpflushdone);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_vpflushdone);
- 
- u64 tdh_mng_key_freeid(struct tdx_td *td)
- {
-@@ -1731,7 +1732,7 @@ u64 tdh_mng_key_freeid(struct tdx_td *td)
- 
- 	return seamcall(TDH_MNG_KEY_FREEID, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mng_key_freeid);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_key_freeid);
- 
- u64 tdh_mng_init(struct tdx_td *td, u64 td_params, u64 *extended_err)
- {
-@@ -1747,7 +1748,7 @@ u64 tdh_mng_init(struct tdx_td *td, u64 td_params, u64 *extended_err)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mng_init);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mng_init);
- 
- u64 tdh_vp_rd(struct tdx_vp *vp, u64 field, u64 *data)
- {
-@@ -1764,7 +1765,7 @@ u64 tdh_vp_rd(struct tdx_vp *vp, u64 field, u64 *data)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_vp_rd);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_rd);
- 
- u64 tdh_vp_wr(struct tdx_vp *vp, u64 field, u64 data, u64 mask)
- {
-@@ -1777,7 +1778,7 @@ u64 tdh_vp_wr(struct tdx_vp *vp, u64 field, u64 data, u64 mask)
- 
- 	return seamcall(TDH_VP_WR, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_vp_wr);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_wr);
- 
- u64 tdh_vp_init(struct tdx_vp *vp, u64 initial_rcx, u32 x2apicid)
- {
-@@ -1790,7 +1791,7 @@ u64 tdh_vp_init(struct tdx_vp *vp, u64 initial_rcx, u32 x2apicid)
- 	/* apicid requires version == 1. */
- 	return seamcall(TDH_VP_INIT | (1ULL << TDX_VERSION_SHIFT), &args);
- }
--EXPORT_SYMBOL_GPL(tdh_vp_init);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_vp_init);
- 
- /*
-  * TDX ABI defines output operands as PT, OWNER and SIZE. These are TDX defined fomats.
-@@ -1812,7 +1813,7 @@ u64 tdh_phymem_page_reclaim(struct page *page, u64 *tdx_pt, u64 *tdx_owner, u64
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_phymem_page_reclaim);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_phymem_page_reclaim);
- 
- u64 tdh_mem_track(struct tdx_td *td)
- {
-@@ -1822,7 +1823,7 @@ u64 tdh_mem_track(struct tdx_td *td)
- 
- 	return seamcall(TDH_MEM_TRACK, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_mem_track);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mem_track);
- 
- u64 tdh_mem_page_remove(struct tdx_td *td, u64 gpa, u64 level, u64 *ext_err1, u64 *ext_err2)
- {
-@@ -1839,7 +1840,7 @@ u64 tdh_mem_page_remove(struct tdx_td *td, u64 gpa, u64 level, u64 *ext_err1, u6
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(tdh_mem_page_remove);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_mem_page_remove);
- 
- u64 tdh_phymem_cache_wb(bool resume)
- {
-@@ -1849,7 +1850,7 @@ u64 tdh_phymem_cache_wb(bool resume)
- 
- 	return seamcall(TDH_PHYMEM_CACHE_WB, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_phymem_cache_wb);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_phymem_cache_wb);
- 
- u64 tdh_phymem_page_wbinvd_tdr(struct tdx_td *td)
- {
-@@ -1859,7 +1860,7 @@ u64 tdh_phymem_page_wbinvd_tdr(struct tdx_td *td)
- 
- 	return seamcall(TDH_PHYMEM_PAGE_WBINVD, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_phymem_page_wbinvd_tdr);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_phymem_page_wbinvd_tdr);
- 
- u64 tdh_phymem_page_wbinvd_hkid(u64 hkid, struct page *page)
- {
-@@ -1869,4 +1870,4 @@ u64 tdh_phymem_page_wbinvd_hkid(u64 hkid, struct page *page)
- 
- 	return seamcall(TDH_PHYMEM_PAGE_WBINVD, &args);
- }
--EXPORT_SYMBOL_GPL(tdh_phymem_page_wbinvd_hkid);
-+EXPORT_SYMBOL_GPL_FOR_KVM(tdh_phymem_page_wbinvd_hkid);
-diff --git a/include/linux/kvm_types.h b/include/linux/kvm_types.h
-index 92a7051c1c9c..4df5a1c19612 100644
---- a/include/linux/kvm_types.h
-+++ b/include/linux/kvm_types.h
-@@ -11,8 +11,22 @@
- #ifdef KVM_SUB_MODULES
- #define EXPORT_SYMBOL_GPL_FOR_KVM_INTERNAL(symbol) \
- 	EXPORT_SYMBOL_GPL_FOR_MODULES(symbol, __stringify(KVM_SUB_MODULES))
-+#define EXPORT_SYMBOL_GPL_FOR_KVM(symbol) \
-+	EXPORT_SYMBOL_GPL_FOR_MODULES(symbol, "kvm," __stringify(KVM_SUB_MODULES))
- #else
- #define EXPORT_SYMBOL_GPL_FOR_KVM_INTERNAL(symbol)
-+/*
-+ * Allow architectures to provide a custom EXPORT_SYMBOL_GPL_FOR_KVM, but only
-+ * if there are no submodules, e.g. to allow suppressing exports if KVM=m, but
-+ * kvm.ko won't actually be built (due to lack of at least one submodule).
-+ */
-+#ifndef EXPORT_SYMBOL_GPL_FOR_KVM
-+#if IS_MODULE(CONFIG_KVM)
-+#define EXPORT_SYMBOL_GPL_FOR_KVM(symbol) EXPORT_SYMBOL_GPL_FOR_MODULES(symbol, "kvm")
-+#else
-+#define EXPORT_SYMBOL_GPL_FOR_KVM(symbol)
-+#endif /* IS_MODULE(CONFIG_KVM) */
-+#endif /* EXPORT_SYMBOL_GPL_FOR_KVM */
- #endif
- 
- #ifndef __ASSEMBLER__
--- 
-2.50.1.552.g942d659e1b-goog
-
+T24gVHVlLCAyMDI1LTA3LTI5IGF0IDEwOjQyIC0wNzAwLCBTZWFuIENocmlzdG9waGVyc29uIHdy
+b3RlOg0KPiBFeHRlbmQgS1ZNJ3MgZXhwb3J0IG1hY3JvIGZyYW1ld29yayB0byBwcm92aWRlIEVY
+UE9SVF9TWU1CT0xfR1BMX0ZPUl9LVk0oKSwNCj4gYW5kIHVzZSB0aGUgaGVscGVyIG1hY3JvIHRv
+IGV4cG9ydCBzeW1ib2xzIGZvciBLVk0gdGhyb3VnaG91dCB4ODYgaWYgYW5kDQo+IG9ubHkgaWYg
+S1ZNIHdpbGwgYnVpbGQgb25lIG9yIG1vcmUgbW9kdWxlcywgYW5kIG9ubHkgZm9yIHRob3NlIG1v
+ZHVsZXMuDQo+IA0KPiBUbyBhdm9pZCB1bm5lY2Vzc2FyeSBleHBvcnRzIHdoZW4gQ09ORklHX0tW
+TT1tIGJ1dCBrdm0ua28gd2lsbCBub3QgYmUNCj4gYnVpbHQgKGJlY2F1c2Ugbm8gdmVuZG9yIG1v
+ZHVsZXMgYXJlIHNlbGVjdGVkKSwgbGV0IGFyY2ggY29kZSAjZGVmaW5lDQo+IEVYUE9SVF9TWU1C
+T0xfR1BMX0ZPUl9LVk0gdG8gc3VwcHJlc3Mvb3ZlcnJpZGUgdGhlIGV4cG9ydHMuDQo+IA0KPiBO
+b3RlLCB0aGUgc2V0IG9mIHN5bWJvbHMgdG8gcmVzdHJpY3QgdG8gS1ZNIHdhcyBnZW5lcmF0ZWQg
+YnkgbWFudWFsIHNlYXJjaA0KPiBhbmQgYXVkaXQ7IGFueSAibWlzc2VzIiBhcmUgZHVlIHRvIGh1
+bWFuIGVycm9yLCBub3Qgc29tZSBncmFuZCBwbGFuLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogU2Vh
+biBDaHJpc3RvcGhlcnNvbiA8c2VhbmpjQGdvb2dsZS5jb20+DQo+IC0tLQ0KDQpbLi4uXQ0KDQo+
+ICBhcmNoL3g4Ni9rZXJuZWwvY3B1L3NneC9tYWluLmMgICAgIHwgIDMgKy0NCj4gIGFyY2gveDg2
+L2tlcm5lbC9jcHUvc2d4L3ZpcnQuYyAgICAgfCAgNSArKy0NCj4gDQoNClsuLi5dDQoNCj4gIGFy
+Y2gveDg2L3ZpcnQvdm14L3RkeC90ZHguYyAgICAgICAgfCA2NSArKysrKysrKysrKysrKystLS0t
+LS0tLS0tLS0tLS0NCj4gIGluY2x1ZGUvbGludXgva3ZtX3R5cGVzLmggICAgICAgICAgfCAxNCAr
+KysrKysrDQo+ICAzMSBmaWxlcyBjaGFuZ2VkLCAxNDAgaW5zZXJ0aW9ucygrKSwgMTAxIGRlbGV0
+aW9ucygtKQ0KPiANCg0KWy4uLl0NCg0KPiANCj4gLS0tIGEvaW5jbHVkZS9saW51eC9rdm1fdHlw
+ZXMuaA0KPiArKysgYi9pbmNsdWRlL2xpbnV4L2t2bV90eXBlcy5oDQo+IEBAIC0xMSw4ICsxMSwy
+MiBAQA0KPiAgI2lmZGVmIEtWTV9TVUJfTU9EVUxFUw0KPiAgI2RlZmluZSBFWFBPUlRfU1lNQk9M
+X0dQTF9GT1JfS1ZNX0lOVEVSTkFMKHN5bWJvbCkgXA0KPiAgCUVYUE9SVF9TWU1CT0xfR1BMX0ZP
+Ul9NT0RVTEVTKHN5bWJvbCwgX19zdHJpbmdpZnkoS1ZNX1NVQl9NT0RVTEVTKSkNCj4gKyNkZWZp
+bmUgRVhQT1JUX1NZTUJPTF9HUExfRk9SX0tWTShzeW1ib2wpIFwNCj4gKwlFWFBPUlRfU1lNQk9M
+X0dQTF9GT1JfTU9EVUxFUyhzeW1ib2wsICJrdm0sIiBfX3N0cmluZ2lmeShLVk1fU1VCX01PRFVM
+RVMpKQ0KPiANCg0KSSB3YXMgdGhpbmtpbmcgdG8gc2VuZCBvdXQgc2VwYXJhdGUgcGF0Y2hlcyBm
+b3IgU0dYIGFuZCBURFggYnkganVzdA0KY2hhbmdpbmcgdG8gdXNlIEVYUE9SVF9TWU1CT0xfR1BM
+X0ZPUl9NT0RVTEVTKC4uLCAia3ZtLGt2bS1pbnRlbCIpDQp1bmNvbmRpdGlvbmFsbHksIGJ1dCB5
+ZWFoIEkgYWdyZWUgaGF2aW5nIEVYUE9SVF9TWU1CT0xfR1BMX0ZPUl9LVk0oKSBhbmQNCm9ubHkg
+aGF2aW5nIHRoZSBhY3R1YWwgZXhwb3J0IHdoZW4gS1ZNIHN1YiBtb2R1bGUgaXMgZW5hYmxlZCBp
+cyBiZXR0ZXIuDQoNCkkgdGVzdGVkIHRoYXQgd2l0aCB0aGlzIHNlcmllcyBJIGNhbiBzdGlsbCBz
+dWNjZXNzZnVsbHkgY3JlYXRlIFREWCBhbmQgU0dYDQpndWVzdHMsIHNvIGZvciBURFggYW5kIFNH
+WCBiaXRzOg0KDQpBY2tlZC1ieTogS2FpIEh1YW5nIDxrYWkuaHVhbmdAaW50ZWwuY29tPg0KVGVz
+dGVkLWJ5OiBLYWkgSHVhbmcgPGthaS5odWFuZ0BpbnRlbC5jb20+DQo=
