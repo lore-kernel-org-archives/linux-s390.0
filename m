@@ -1,201 +1,158 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEACD254AFF;
-	Wed, 30 Jul 2025 08:13:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0361F293C6C;
+	Wed, 30 Jul 2025 11:21:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753863238; cv=none; b=Ft4+yelyUZ3FabmTXJcc7Ox9buOrKYPeSC57P6hncr2qfQYFmaDDbrPSYYY52ROUySJC/YYoY++61/qXcyNuzQXGXesOdgqVA0GCPM2JscuJMQ4QSk9Ly5eo3+nOThdqZ6CU1bC7zNKAFZDkCGNufBEgX6eXoNbEuf+oNlqlEr0=
+	t=1753874487; cv=none; b=o+oehWilKb+a12Jh/A3XQs/zJyg42zwksKo2WF0cywjPFJFNPO/rpuT0X/uqIy27rCNSNfBXr2YorYo8HoVEoXByTPyViyRocSfEYJw5fbiTtU0hR7ZCvspWTL6uY7K44UNKQQaQaKOjYcWhq8Pga0sey+3kpUrXlHM2AlFagcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753863238; c=relaxed/simple;
-	bh=OZwyWhIkomiEJFBzpbtykcKC3w3QM/xcB+Z2wpkSUCc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=owhmQ7vzbokfIBY77rCW2ji4jZM7k7y2IB7nBQrdebIa9ttqRyT1byYK+BvPPCb5IOKUS2bgbRrtUePgiR3q8hx8Oymyl1TOXhnW/s6T8j2Z4ghKEkmo3lfQjJMVmkVIEEOjhJC0HGnjFFCqYspBbiGIhDlU5i5PrzHH5MrAkZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gmvLdFPL; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1753874487; c=relaxed/simple;
+	bh=lFOsaGCqPFeMuSYl12T0qvZETcU/iSpEinVY4COc/Iw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=SpIvyrDpzzifWEkc9Xa9SNRZfKgmZiIuanwrBNxGQAXIJfsIukFFMlhqrd29qGGEpeYCROQInU7yvW1DILeVoxMw2JKbTFu2QFOxBF5xwapHK+vID5KmwYBW7xot94t49QE7mny7G25q3sPsOTRoWKrZujNYbs0uVBJX1isAztM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YeINPCD5; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gmvLdFPL"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56U099Wj009401;
-	Wed, 30 Jul 2025 08:13:15 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YeINPCD5"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56U1vf7v017098;
+	Wed, 30 Jul 2025 11:21:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=04mMiwdw81mNFgvME
-	OetQUsgLgTuzznXCq7UE6rNtr0=; b=gmvLdFPLJ/x5IAwEQN4ai1IvpnBIIOmad
-	iBp4IUzwVC8Zq3NnhnlWB21qxdwFtcM47bUXt4KWlcHW9hcZ19K437wMv+ExzWjV
-	UBJa2v4ywnEwzQvgU5k6PEi+p0EFugvB+IM6gUNbK6Bv8XZk9qUgTSuN/BDERBuu
-	SUWZXP2El1TxF4vv9iEyIhC5wMSFBrB2LM1a57zqDwglEt8udJf9wVEbxZOdaZLH
-	dK5+hK6oG1aMz/2MkcQYLJA9M7YclIPbH1tF97Xkcapt0HwWwdVKpi2FMQMRlmtt
-	gPh8VAB1d0qmincrCoqtJTUY/qLXW3N0r2VP7wwUdiY0SB6RXDwIQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 484qcg3j3c-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=5obXgh
+	oBDb03rk0VDSAZ7lFDc9v2p/DdlGM67CP3lvw=; b=YeINPCD5Zn7mxdOAOZz4X3
+	sOWifwBVDfptouS6zG/lGjDm5xLelNZqh4y9K/Tn0RWntrLpAqERT1Smu96XsXm6
+	dk+aR739qUAOajVEIawcQS23fSzKxrHisVha9fMbRPjVGPIvuZYDErjMr/3jEyuJ
+	bx2yTdyXPACSNryIZGQe6RtyGV8EkOXMm/g0mj3HRlY0/51sMWiPbQ/XbCQt6gzT
+	qTvme6SPrPXhnx8QQKL+Rfa9Cj1eafCdToWtmI8itdU2721wP7VWtE4/TIYMLT3K
+	/rnmaUwYfWQXCZTdn/w08TNUdN9tLavitHldKx10oEc4KnGgRX8uWR4FoCGc946Q
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4864k7vt1j-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Jul 2025 08:13:14 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56U6bMR3018665;
-	Wed, 30 Jul 2025 08:13:14 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 485abp6h86-1
+	Wed, 30 Jul 2025 11:21:17 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 56UBJHiF000365;
+	Wed, 30 Jul 2025 11:21:16 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4864k7vt1h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Jul 2025 08:13:13 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56U8DA7P53346560
+	Wed, 30 Jul 2025 11:21:16 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 56U6tlaO006252;
+	Wed, 30 Jul 2025 11:21:15 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 485bjm6xuy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Jul 2025 11:21:15 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 56UBL6dM6357748
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Jul 2025 08:13:10 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 317C02004E;
-	Wed, 30 Jul 2025 08:13:10 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6FE4420040;
-	Wed, 30 Jul 2025 08:13:09 +0000 (GMT)
-Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.ibm.com.com (unknown [9.87.148.140])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 30 Jul 2025 08:13:09 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, borntraeger@linux.ibm.com,
-        linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, ajd@linux.ibm.com,
-        sfr@canb.auug.org.au, Mark Rutland <mark.rutland@arm.com>,
-        Andy Lutomirski <luto@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [GIT PULL 1/2] entry: Add arch_in_rcu_eqs()
-Date: Wed, 30 Jul 2025 10:10:32 +0200
-Message-ID: <20250730081224.38778-2-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250730081224.38778-1-frankja@linux.ibm.com>
-References: <20250730081224.38778-1-frankja@linux.ibm.com>
+	Wed, 30 Jul 2025 11:21:06 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9412D58051;
+	Wed, 30 Jul 2025 11:21:13 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BBA815805C;
+	Wed, 30 Jul 2025 11:21:10 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 30 Jul 2025 11:21:10 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Date: Wed, 30 Jul 2025 13:20:57 +0200
+Subject: [PATCH v3 1/2] PCI/AER: Fix missing uevent on recovery when a
+ reset is requested
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250730-add_err_uevents-v3-1-540b158c070f@linux.ibm.com>
+References: <20250730-add_err_uevents-v3-0-540b158c070f@linux.ibm.com>
+In-Reply-To: <20250730-add_err_uevents-v3-0-540b158c070f@linux.ibm.com>
+To: Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>
+Cc: Linas Vepstas <linasvepstas@gmail.com>,
+        =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Keith Busch <kbusch@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1194;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=lFOsaGCqPFeMuSYl12T0qvZETcU/iSpEinVY4COc/Iw=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGDK6GJSk4jaJNjX7s/FWTOpfuz64bd+0bWGFfELFOh8vr
+ ty2ZsvejlIWBjEuBlkxRZZFXc5+6wqmmO4J6u+AmcPKBDKEgYtTACbitpqR4cW8zzoSlcG3t01a
+ zZu9jZHx0yydLpOP1U239ddzPLeadIuRoeV8y1E/tSDDPmY1aQ+Vdd4mzCv+FofNbp/Wd/8m35G
+ nnAA=
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzMwMDA1MyBTYWx0ZWRfXxMLtWpquGS8x
- C44CK6swq4jYBe/PNfaVEZ6FShTsPNd+qCsV4tCprB9u5ZxRlbJ1wYdWt8vDy/n0XDMsBGYeuOP
- QnkvvdfIMZLTKcmQy8uEAqymdaD/zF4sTj0I63CQywOzvpxAVZN7Nlx0LnhcVOYPJmnrjV9JLMl
- IfPuQhEYb05MHP81rmWU2A2Sxvg9u7BOsAcv8u9dqESLqLBj8YaB4IDp8m/l3//LUKAq1uE2Va6
- oP05urQFgwoc0zDFpdu3DjG1IZU5ma+IbJzHtIfmNuWb4ZYuAXx/0R2g6HzhaOFz1BZcxLE/oQB
- B3lmrpXrtRCxqqo1nR2CyxjpE/9JFR2XkXJW+NIvnlxaej53HaEKCAhUCp9eCfQPvBZBodncDdt
- 7jfWihhCSpWr9EfOXlWX8v4wGAkkAhA9KSrcFxkaRszhJR4Nx0T7sPSSQcXHNPFaSld6KOum
-X-Proofpoint-ORIG-GUID: 2TuBFecMa449mD8HLGO5-2agDq8oK6jl
-X-Authority-Analysis: v=2.4 cv=Lp2Symdc c=1 sm=1 tr=0 ts=6889d41a cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=Wb1JkmetP80A:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=7CQSdrXTAAAA:8
- a=20KFwNOVAAAA:8 a=JfrnYn6hAAAA:8 a=OIHnq4nhO9tdK0j1QDAA:9
- a=a-qgeE7W1pNrGK8U0ZQC:22 a=1CNFftbPRP8L7MoqJWF3:22
-X-Proofpoint-GUID: 2TuBFecMa449mD8HLGO5-2agDq8oK6jl
+X-Proofpoint-ORIG-GUID: 6MJwY2lVKJ9sB9BqXhPQys5sLr_GtI_0
+X-Proofpoint-GUID: n-WJ77-aeipZPH3QSgiqjW3G6l4Vdl5y
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNzMwMDA4MCBTYWx0ZWRfX6L0NDNj6R8IM
+ ltSnttOoAB+UftZvh3fv7wlkUsputRSD8wGW1PUMVzPFBX7rbGs6Aj4rHSBOWzuA+SfZ0mO+S8w
+ i+pQdfJLDFLKPCPidg8rnBbsfmy1rbiwlfgNZiV9x+qFzFLkKOsnluhAWbyn3UT/q37rh9YfKlW
+ sfub98Zj5X9jmiQCRR9AtQItY0XzqDXR96btjFXXpmzB/utpdjT2v1YeCgpoGiyzt8LIm3Iw/jb
+ 5Bc7cTr9jAaWqhgUFJSqBQovftUm1pRHObCDNT/y1u3IakcXIOEFT+bFoVs6Y5eYu4wb7GnBvO3
+ MhJhc+zg1GIpVSDdZPeqvXcEpcYtVAVqf+I7w882yzdbm9w2eHY6ucnQZglvZPU8YbvHFZI2TcZ
+ fL6+PkPoKc0v3Okj69DdJxkV3ZPC7quQuIymcf8Hd6oPpjdykCG+K+xaNafj6XTUHFLK/O6q
+X-Authority-Analysis: v=2.4 cv=ZoDtK87G c=1 sm=1 tr=0 ts=688a002d cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=Wb1JkmetP80A:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=Tbr2KL6GNvhcKcAIiBYA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-30_03,2025-07-30_01,2025-03-28_01
+ definitions=2025-07-30_04,2025-07-30_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 bulkscore=0 impostorscore=0 mlxscore=0 priorityscore=1501
- adultscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0 suspectscore=0
- mlxlogscore=858 spamscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ spamscore=0 priorityscore=1501 lowpriorityscore=0 mlxscore=0 clxscore=1011
+ adultscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0 phishscore=0
+ suspectscore=0 malwarescore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2507300053
+ definitions=main-2507300080
 
-From: Mark Rutland <mark.rutland@arm.com>
+Since commit 7b42d97e99d3 ("PCI/ERR: Always report current recovery
+status for udev") AER uses the result of error_detected() as parameter
+to pci_uevent_ers(). As pci_uevent_ers() however does not handle
+PCI_ERS_RESULT_NEED_RESET this results in a missing uevent for the
+beginning of recovery if drivers request a reset. Fix this by treating
+PCI_ERS_RESULT_NEED_RESET as beginning recovery.
 
-All architectures have an interruptible RCU extended quiescent state
-(EQS) as part of their idle sequences, where interrupts can occur
-without RCU watching. Entry code must account for this and wake RCU as
-necessary; the common entry code deals with this in irqentry_enter() by
-treating any interrupt from an idle thread as potentially having
-occurred within an EQS and waking RCU for the duration of the interrupt
-via rcu_irq_enter() .. rcu_irq_exit().
-
-Some architectures may have other interruptible EQSs which require
-similar treatment. For example, on s390 it is necessary to enable
-interrupts around guest entry in the middle of a period where core KVM
-code has entered an EQS.
-
-So that architectures can wake RCU in these cases, this patch adds a
-new arch_in_rcu_eqs() hook to the common entry code which is checked in
-addition to the existing is_idle_thread() check, with RCU woken if
-either returns true. A default implementation is provided which always
-returns false, which suffices for most architectures.
-
-As no architectures currently implement arch_in_rcu_eqs(), there should
-be no functional change as a result of this patch alone. A subsequent
-patch will add an s390 implementation to fix a latent bug with missing
-RCU wakeups.
-
-[ajd@linux.ibm.com: rebase, fix commit message]
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20250708092742.104309-2-ajd@linux.ibm.com
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <20250708092742.104309-2-ajd@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: 7b42d97e99d3 ("PCI/ERR: Always report current recovery status for udev")
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 ---
- include/linux/entry-common.h | 16 ++++++++++++++++
- kernel/entry/common.c        |  3 ++-
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/pci/pci-driver.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/entry-common.h b/include/linux/entry-common.h
-index f94f3fdf15fc..3bf99cbad8a3 100644
---- a/include/linux/entry-common.h
-+++ b/include/linux/entry-common.h
-@@ -86,6 +86,22 @@ static __always_inline void arch_enter_from_user_mode(struct pt_regs *regs);
- static __always_inline void arch_enter_from_user_mode(struct pt_regs *regs) {}
- #endif
- 
-+/**
-+ * arch_in_rcu_eqs - Architecture specific check for RCU extended quiescent
-+ * states.
-+ *
-+ * Returns: true if the CPU is potentially in an RCU EQS, false otherwise.
-+ *
-+ * Architectures only need to define this if threads other than the idle thread
-+ * may have an interruptible EQS. This does not need to handle idle threads. It
-+ * is safe to over-estimate at the cost of redundant RCU management work.
-+ *
-+ * Invoked from irqentry_enter()
-+ */
-+#ifndef arch_in_rcu_eqs
-+static __always_inline bool arch_in_rcu_eqs(void) { return false; }
-+#endif
-+
- /**
-  * enter_from_user_mode - Establish state when coming from user mode
-  *
-diff --git a/kernel/entry/common.c b/kernel/entry/common.c
-index a8dd1f27417c..eb52d38e8099 100644
---- a/kernel/entry/common.c
-+++ b/kernel/entry/common.c
-@@ -220,7 +220,8 @@ noinstr irqentry_state_t irqentry_enter(struct pt_regs *regs)
- 	 * TINY_RCU does not support EQS, so let the compiler eliminate
- 	 * this part when enabled.
- 	 */
--	if (!IS_ENABLED(CONFIG_TINY_RCU) && is_idle_task(current)) {
-+	if (!IS_ENABLED(CONFIG_TINY_RCU) &&
-+	    (is_idle_task(current) || arch_in_rcu_eqs())) {
- 		/*
- 		 * If RCU is not watching then the same careful
- 		 * sequence vs. lockdep and tracing is required
+diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+index 67db34fd10ee7101baeeaae1bb9bec3b13e2fdeb..94ba6938b7c6271b557cc7f17ffb89631d83827e 100644
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -1592,6 +1592,7 @@ void pci_uevent_ers(struct pci_dev *pdev, enum pci_ers_result err_type)
+ 	switch (err_type) {
+ 	case PCI_ERS_RESULT_NONE:
+ 	case PCI_ERS_RESULT_CAN_RECOVER:
++	case PCI_ERS_RESULT_NEED_RESET:
+ 		envp[idx++] = "ERROR_EVENT=BEGIN_RECOVERY";
+ 		envp[idx++] = "DEVICE_ONLINE=0";
+ 		break;
+
 -- 
-2.50.1
+2.48.1
 
