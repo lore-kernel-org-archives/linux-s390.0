@@ -1,30 +1,53 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 529C013B58D;
-	Fri,  1 Aug 2025 16:55:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9120B19C546;
+	Fri,  1 Aug 2025 17:20:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754067311; cv=none; b=dCl5Y4HCtrpAwOeUSkJr0Ol5LwWksL38GpqHeXu7NrdtwtJrVY7j42IsmHus0aiETIgnJ0zz9GV1L2B/q5/dwiF5aump5d4mNeQbFInuH/SK23I0VFOlFU2pKAmmvj/jzZEMqHtzGMUH8d6ucSmRMQcnWktBKtIiDTh9s54plao=
+	t=1754068849; cv=none; b=ddXVN1MB/eUVJzfmO8KTZ5WtbdXIEldSy1Y20sCdxdCT6Na4kTgDuDTDfpKUfOX6e5b8K0Ks6oaQyExaGVkcxH3nvTUqPJRuXnDJPc5JgDdczD/0HR7pggdpbfP/hjOhLBicX7ZyP/p2iw5TFl+ux6C4IZ1eNE8J26cscrw62fw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754067311; c=relaxed/simple;
-	bh=E1oHwcjz1UkMy5n80W7KOoeyrVlY8354cvfcN9IThP8=;
+	s=arc-20240116; t=1754068849; c=relaxed/simple;
+	bh=DWBXfCvR6lt84c6Psk2frdJburkpSgkJO5zbV9ApcSc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=D7uCPrPyyH+fFNV1Bsh2f6j0jWZdHfgf7JJliHRXmSOkyOB98OXHyefFvQVSh/jruHntUAnber7Zoj1pH6+yJDZwS1CjLrcDR4NUxBtto1tyKxIsAw+It3MK2o0ypRf3/TqqDvgZ7rlPt6MAjpPaSbatRRYWnnkB/QaizMcvthg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=YiczCgXe; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	 In-Reply-To:Content-Type; b=NpG3u0XtNQk4HYquHb2+o8ZEdH43qz227eaT498HHgsSA9rZDtvUD5q6J6B87Tgq50NSmVw6f2IrUEBgN0friUEamssBJYNlAraFMx2IMK40+5EwLbxEBqiPfSpW5t8X+02av88XvY41EePCW/QF8fD9fMfbKWsWG7Xj2roZ2zs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SGx01Ar/; arc=none smtp.client-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="YiczCgXe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=ZHD4zlqBg4vyKNckG/xTKO9RRemj+oorW2za/dflA9A=;
-	b=YiczCgXe8uRiXNXEQutI/0eyQsKmiCUAjO63yc6w1YHPv53KfWNx+lGGz+wZm2
-	SaomrFgD5jXGiYHR2KteTkIeeGW9GVL8eJ/ahMCD8OSD3u0hd81pu3XA14b5RH9b
-	1DlAOkK9y7DO67g1T1gcmEQUXo1jmcF2c7I54XQ1GQoDE=
-Received: from [IPV6:240e:b8f:919b:3100:ecd9:c243:2a5f:12dd] (unknown [])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wDnn5VD8YxoofS4Iw--.19322S2;
-	Sat, 02 Aug 2025 00:54:29 +0800 (CST)
-Message-ID: <659b8389-16a7-423b-a231-5489c7cc0da9@163.com>
-Date: Sat, 2 Aug 2025 00:54:27 +0800
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SGx01Ar/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1754068848; x=1785604848;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=DWBXfCvR6lt84c6Psk2frdJburkpSgkJO5zbV9ApcSc=;
+  b=SGx01Ar/MSx3c2WaMljTFfFuPG8CSpOIhS2zpZW9rCgP646+jWkYWZ4P
+   v/RKbLPwjVQKzjpAn0AsBp7Cy9Y3fOBQgQbRkVnmgjImicy2VozZrB2mc
+   6Hg21ynuIGPTv9CFZa4Onsfsq5DR0fjWh140VUkTunB/wYkQoYI6abYJ5
+   VlILT+uH+51FuPs9TPgyC2YwqcqP9q3bXNqgq0kCOH02h0Ko+IkRrLNKy
+   n52HvvVHfSA11El9VSSfJB88cFLS9ZhRU8hj2X8sWbYihh0e+tQW4jGq1
+   f4qmwjU8EnzWd0fFpbpmsv5+unGLGqqsx3YyY6lybnBGYuA5L0zOhbtoK
+   w==;
+X-CSE-ConnectionGUID: LSKRgRX1QbeaFWSdTeqktg==
+X-CSE-MsgGUID: XE6ySvpxQVCS7Wi1LA5VTw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11508"; a="56125364"
+X-IronPort-AV: E=Sophos;i="6.17,255,1747724400"; 
+   d="scan'208";a="56125364"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Aug 2025 10:20:45 -0700
+X-CSE-ConnectionGUID: XHBnGVulTByiK5/G+LgD8w==
+X-CSE-MsgGUID: PUZotDJoRi6tlTVHvOgLSA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.17,255,1747724400"; 
+   d="scan'208";a="164068288"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmviesa008.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Aug 2025 10:20:45 -0700
+Received: from [10.124.222.201] (unknown [10.124.222.201])
+	by linux.intel.com (Postfix) with ESMTP id 829A020B571C;
+	Fri,  1 Aug 2025 10:20:43 -0700 (PDT)
+Message-ID: <f496fc0f-64d7-46a4-8562-dba74e31a956@linux.intel.com>
+Date: Fri, 1 Aug 2025 10:20:43 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -32,221 +55,119 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
-To: Gerd Bayer <gbayer@linux.ibm.com>, Manivannan Sadhasivam
- <mani@kernel.org>, Hans Zhang <hans.zhang@cixtech.com>
-Cc: Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
- bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
+Subject: Re: [PATCH v3 1/2] PCI/AER: Fix missing uevent on recovery when a
+ reset is requested
+To: Lukas Wunner <lukas@wunner.de>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+ Bjorn Helgaas <bhelgaas@google.com>,
+ Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+ Linas Vepstas <linasvepstas@gmail.com>,
  =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- jingoohan1@gmail.com, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?=
- <kwilczynski@kernel.org>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-next <linux-next@vger.kernel.org>,
- linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Rob Herring <robh@kernel.org>, Niklas Schnelle <schnelle@linux.ibm.com>,
- geert@linux-m68k.org
-References: <20250731183944.GA3424583@bhelgaas>
- <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
- <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
- <9a155e45-f723-4eec-81d3-2547bfe9a4e9@cixtech.com>
- <ofsbfhor5ah3yzvkc5g5kb4fpjlzoqkkzukctmr3f6ur4vl2e7@7zvudt63ucbk>
- <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
- <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
- <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
+ Manivannan Sadhasivam <mani@kernel.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>, Oliver O'Halloran
+ <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+ Keith Busch <kbusch@kernel.org>
+References: <20250730-add_err_uevents-v3-0-540b158c070f@linux.ibm.com>
+ <20250730-add_err_uevents-v3-1-540b158c070f@linux.ibm.com>
+ <aIp6LiKJor9KLVpv@wunner.de> <aIp_Z9IdwSjMtDho@wunner.de>
+ <aItpKIhYr0T8jf7A@wunner.de>
+ <4969c441-fe2a-470f-9efd-4661efca56ec@linux.intel.com>
+ <aIxULlDfQw4yhFDv@wunner.de>
 Content-Language: en-US
-From: Hans Zhang <18255117159@163.com>
-In-Reply-To: <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
+From: Sathyanarayanan Kuppuswamy <sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <aIxULlDfQw4yhFDv@wunner.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:_____wDnn5VD8YxoofS4Iw--.19322S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxJw18XFy3AryrGFWfAryxKrg_yoWrtr1fpF
-	W5Aayjyr48tr1ayrn2va18Xw1jyFn7tF4UZF1fG342vFn0yr1SqryjgF4agr1jqw48XF18
-	Z39YgFZ7Cw1DAFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UulksUUUUU=
-X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/1tbiOgyco2iM6Nr5SgAAss
+Content-Transfer-Encoding: 8bit
+
+Hi Lukas,
+
+On 7/31/25 10:44 PM, Lukas Wunner wrote:
+> On Thu, Jul 31, 2025 at 10:04:38AM -0700, Sathyanarayanan Kuppuswamy wrote:
+>> On 7/31/25 6:01 AM, Lukas Wunner wrote:
+>>> +++ b/drivers/pci/pcie/err.c
+>>> @@ -165,6 +165,12 @@ static int report_resume(struct pci_dev *dev, void *data)
+>>>    	return 0;
+>>>    }
+>>> +static int report_disconnect(struct pci_dev *dev, void *data)
+>>> +{
+>>> +	pci_uevent_ers(dev, PCI_ERS_RESULT_DISCONNECT);
+>>> +	return 0;
+>>> +}
+>> Since you are notifying the user space, I am wondering whether the drivers
+>> should be notified about the recovery failure?
+> The drivers are usually *causing* the recovery failure by returning
+> PCI_ERS_RESULT_DISCONNECT from their pci_error_handlers callbacks
+> (or by lacking pci_error_handlers, in particular ->error_detected()).
+>
+> So in principle the drivers should be aware of recovery failure.
+>
+> There are cases where multiple drivers are involved.  E.g. on GPUs,
+> there's often a PCIe switch with a graphics device and various sound
+> or telemetry devices.  Typically errors are reported by the Upstream
+> Port, so the Secondary Bus Reset occurs at the Root or Downstream Port
+> above the Upstream Port and affects the switch and all subordinate
+> devices.  In cases like this, recovery failure may be caused by a
+> single driver (e.g. GPU) and the other drivers (e.g. telemetry) may
+> be unaware of it.
+
+Yes, my comment was referring to the scenario mentioned above. If one of the
+subordinate devices fails recovery, then recovery effectively fails for all devices
+under that downstream port (or root port). Notifying all devices under that port
+would allow their drivers to perform the necessary cleanup
+
+>
+> The recovery flow documented in Documentation/PCI/pci-error-recovery.rst
+> was originally conceived for EEH and indeed EEH does notify all drivers
+> of recovery failures by invoking the ->error_detected() callback with
+> channel_state pci_channel_io_perm_failure.  See this call ...
+>
+> 	eeh_pe_report("error_detected(permanent failure)", pe,
+> 		      eeh_report_failure, NULL);
+>
+> ... in arch/powerpc/kernel/eeh_driver.c below the recover_failed label
+> in eeh_handle_normal_event().
+
+Agree. The current implementation does not seem to follow the steps
+mentioned in the Documentation/PCI/pci-error-recovery.rst.
+
+STEP 6: Permanent Failure
+-------------------------
+A "permanent failure" has occurred, and the platform cannot recover
+the device.  The platform will call error_detected() with a
+pci_channel_state_t value of pci_channel_io_perm_failure.
+
+The device driver should, at this point, assume the worst. It should
+cancel all pending I/O, refuse all new I/O, returning -EIO to
+higher layers. The device driver should then clean up all of its
+memory and remove itself from kernel operations, much as it would
+during system shutdown.
 
 
+>
+> I don't know why pcie_do_recovery() doesn't do the same on recovery
+> failure.  This is one of several annoying deviations between AER and
+> EEH.  Ideally the behavior should be the same across all platforms
+> so that drivers don't have to cope with platform-specific quirks.
+>
+> However I think that's orthogonal to the pci_uevent_ers() invocation
+> in pcie_do_recovery().
 
-On 2025/8/1 19:30, Gerd Bayer wrote:
-> On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
-> 
-> <--- snip --->
-> 
->>>>>>> The pci_bus_read_config() interface itself may have been a
->>>>>>> mistake, can't the callers just use the underlying helpers
->>>>>>> directly?
->>>>>>>
->>>>>>
->>>>>> They can! Since the callers of this API is mostly the macros, we can easily
->>>>>> implement the logic to call relevant accessors based on the requested size.
->>>>>>
->>>>>> Hans, could you please respin the series based the feedback since the series is
->>>>>> dropped for 6.17.
->>>>>>
->>>>>
->>>>> Dear all,
->>>>>
->>>>> I am once again deeply sorry for the problems that occurred in this series.
->>>>> I only test pulling the ARM platform.
->>>>>
->>>>> Thank you very much, Gerd, for reporting the problem.
-> 
-> no worries!
-> 
->>>>> Thank you all for your discussions and suggestions for revision.
->>>>>
->>>>> Hi Mani,
->>>>>
->>>>> Geert provided a solution. My patch based on this is as follows. Please
->>>>> check if there are any problems.
->>>>> https://lore.kernel.org/linux-pci/CAMuHMdVwFeV46oCid_sMHjXfP+yyGTpBfs9t3uaa=wRxNcSOAQ@mail.gmail.com/
->>>>>
->>>>> Also, please ask Gerd to help test whether it works properly. Thank you very
->>>>> much.
->>>>>
-> 
-> I found Geert's proposal intriguing for a quick resolution of the
-> issue. Yet, I have not tried that proposal, though.
-> 
+Agree. My thought is, since there is an attempt to fix the user notification
+side of things, may be the driver side should also be fixed together .
 
-Hi Gerd,
+> Thanks,
+>
+> Lukas
 
-As I mentioned in my reply to Mani's email, the data ultimately read 
-here is also a forced type conversion.
-
-#define PCI_OP_READ(size, type, len) \
-int noinline pci_bus_read_config_##size \
-	(struct pci_bus *bus, unsigned int devfn, int pos, type *value)	\
-{									\
-	unsigned long flags;						\
-	u32 data = 0;							\
-	int res;							\
-									\
-	if (PCI_##size##_BAD)						\
-		return PCIBIOS_BAD_REGISTER_NUMBER;			\
-									\
-	pci_lock_config(flags);						\
-	res = bus->ops->read(bus, devfn, pos, len, &data);		\
-	if (res)							\
-		PCI_SET_ERROR_RESPONSE(value);				\
-	else								\
-		*value = (type)data;					\
-	pci_unlock_config(flags);					\
-									\
-	return res;							\
-}
-
-And this function. Could it be that I misunderstood something?
-
-int pci_generic_config_read(struct pci_bus *bus, unsigned int devfn,
-			    int where, int size, u32 *val)
-{
-	void __iomem *addr;
-
-	addr = bus->ops->map_bus(bus, devfn, where);
-	if (!addr)
-		return PCIBIOS_DEVICE_NOT_FOUND;
-
-	if (size == 1)
-		*val = readb(addr);
-	else if (size == 2)
-		*val = readw(addr);
-	else
-		*val = readl(addr);
-
-	return PCIBIOS_SUCCESSFUL;
-}
-EXPORT_SYMBOL_GPL(pci_generic_config_read);
-
-> Instead I spent some more cycles on Lukas' and Mani's question about
-> the value of the pci_bus_read_config() helper. So I changed
-> PCI_FIND_NEXT_CAP and PCI_FIND_NEXT_EXT_CAP to use size-aware versions
-> of read_cfg accessor functions like this:
-> 
-> diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-> index ac954584d991..9e2f75ede95f 100644
-> --- a/drivers/pci/pci.h
-> +++ b/drivers/pci/pci.h
-> @@ -109,17 +109,17 @@ int pci_bus_read_config(void *priv, unsigned int
-> devfn, int where, u32 size,
->   ({
-> \
->          int __ttl = PCI_FIND_CAP_TTL;
-> \
->          u8 __id, __found_pos = 0;
-> \
-> -       u32 __pos = (start);
-> \
-> -       u32 __ent;
-> \
-> +       u8 __pos = (start);
-> \
-> +       u16 __ent;
-> \
->                                                                        
-> \
-> -       read_cfg(args, __pos, 1, &__pos);
-> \
-> +       read_cfg##_byte(args, __pos, &__pos);
-> \
->                                                                        
-> \
->          while (__ttl--) {
-> \
->                  if (__pos < PCI_STD_HEADER_SIZEOF)
-> \
->                          break;
-> \
->                                                                        
-> \
->                  __pos = ALIGN_DOWN(__pos, 4);
-> \
-> -               read_cfg(args, __pos, 2, &__ent);
-> \
-> +               read_cfg##_word(args, __pos, &__ent);
-> \
->                                                                        
-> \
->                  __id = FIELD_GET(PCI_CAP_ID_MASK, __ent);
-> \
->                  if (__id == 0xff)
-> \
-> @@ -158,7 +158,7 @@ int pci_bus_read_config(void *priv, unsigned int
-> devfn, int where, u32 size,
->                                                                        
-> \
->          __ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
-> \
->          while (__ttl-- > 0 && __pos >= PCI_CFG_SPACE_SIZE) {
-> \
-> -               __ret = read_cfg(args, __pos, 4, &__header);
-> \
-> +               __ret = read_cfg##_dword(args, __pos, &__header);
-> \
->                  if (__ret != PCIBIOS_SUCCESSFUL)
-> \
->                          break;
-> \
->                                                                        
-> \
-> 
-> 
-> This fixes the issue for s390's use-cases. With that
-> pci_bus_read_config() becomes unused - and could be removed in further
-> refinements.
->                                                                        
-> However, this probably breaks your dwc and cdns use-cases. I think,
-> with the accessor functions for dwc and cadence changed to follow the
-> {_byte|_word|_dword} naming pattern they could be used straight out of
-> PCI_FIND_NEXT_{EXT_}CAP, too. Then, dw_pcie_read_cfg() and
-> cdns_pcie_read_cfg become obsolete as well.
-> 
-> Thoughts?
-
-In my opinion, it's no problem. I can provide the corresponding function 
-of {_byte / _word / _dword}. But it is necessary to know Bjorn, Mani, 
-Arnd, Lukas... Their viewpoints or suggestions.
-
-Best regards,
-Hans
+-- 
+Sathyanarayanan Kuppuswamy
+Linux Kernel Developer
 
