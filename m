@@ -1,117 +1,155 @@
-Received: from bmailout2.hostsharing.net (bmailout2.hostsharing.net [83.223.78.240])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com [209.85.217.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43E4CAD4B;
-	Fri,  1 Aug 2025 05:44:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.223.78.240
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C491273FD;
+	Fri,  1 Aug 2025 07:53:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754027076; cv=none; b=BjHCnOItPiUIRn8VtFvZXSsTSTKGloYomGdbfasYjl9uUkcYir8dkL332YkmdNyBOjf7KaSzywd/XkhKfIZctFTg18EHL8I8d1pC4nTi1HRXpOlwDiLW8x1ViEG06Lo4EqcbbfMm7S93ToQiIkz33ISeiW4m4dlb8HG5hMUil+0=
+	t=1754034794; cv=none; b=ORuHGUx1Uqr5WPlN5c5uMbce2gwhhFjFDT/YkznnTBQcZQxhcEGbGmvDIKIYSvR/0ADh/GSo0U78gmJLsGsEcrByca0MJkM6biCdIExFSGoQUR207YnY7gqrdrAmADUmNI6ACXxuHXD/Fz69fDhDRKC3MVEG1++htDUzpIZXrsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754027076; c=relaxed/simple;
-	bh=RkCsCxuwv0+qxSCr9cyr4vDB1+qbUwftbbBFarELzfA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nqjVnaFQxa1pLyJxX9mdnl8giyo1GJxDrQohZX1bmimKxVW17qjKeJQYGgOLISHoqSk9eZilhRWgX/0EAMPsuHRFOKoWbFRuH68ZnbSSlUKL00MUZLhhBMdlcwN/5albZWXDw7llrueyDXHeDcGtXQ3ncwxVQ3wDdiqRNKBfL1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=none smtp.mailfrom=h08.hostsharing.net; arc=none smtp.client-ip=83.223.78.240
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=h08.hostsharing.net
-Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by bmailout2.hostsharing.net (Postfix) with ESMTPS id 69F252012A16;
-	Fri,  1 Aug 2025 07:44:14 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-	id 3BF1B38CA21; Fri,  1 Aug 2025 07:44:14 +0200 (CEST)
-Date: Fri, 1 Aug 2025 07:44:14 +0200
-From: Lukas Wunner <lukas@wunner.de>
-To: Sathyanarayanan Kuppuswamy <sathyanarayanan.kuppuswamy@linux.intel.com>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
-	Linas Vepstas <linasvepstas@gmail.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Oliver O'Halloran <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-	Keith Busch <kbusch@kernel.org>
-Subject: Re: [PATCH v3 1/2] PCI/AER: Fix missing uevent on recovery when a
- reset is requested
-Message-ID: <aIxULlDfQw4yhFDv@wunner.de>
-References: <20250730-add_err_uevents-v3-0-540b158c070f@linux.ibm.com>
- <20250730-add_err_uevents-v3-1-540b158c070f@linux.ibm.com>
- <aIp6LiKJor9KLVpv@wunner.de>
- <aIp_Z9IdwSjMtDho@wunner.de>
- <aItpKIhYr0T8jf7A@wunner.de>
- <4969c441-fe2a-470f-9efd-4661efca56ec@linux.intel.com>
+	s=arc-20240116; t=1754034794; c=relaxed/simple;
+	bh=oLgt1/cGb6EuE5nSEM0TtuVrL7A1aY7RnNmfEhjf0n8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=g0PLYgi3Wz066GhZoNd1bApQ0e59gkDKByZLZW3Oyub6ljNo7nKqpJr722aEeRxYaGXhNvV2exK/igvYWqUd7Q8wN/bCD9UxoYash+1W9cbT6m1d+kVnwJbocbaPRc/BVxLqlLHgS+y1NKcQwWHRIaiPASl6UE/k+0ocBpaiVWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vs1-f48.google.com with SMTP id ada2fe7eead31-4efbfe9c7a5so1911453137.0;
+        Fri, 01 Aug 2025 00:53:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754034792; x=1754639592;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DzFKrk5qEr4Es0kahjlnt5GIGR4PQyQRZQNgTseC61A=;
+        b=vryZUWSRRCI44yxBAjBHKelBomnZ2acDL5oLyJJLahRklYO9wm64G/aFFasYdw51iT
+         CsN+sQa/uoWaskdNW649GlTtL+sTE1YDL7Ay6Zrik4zkJZqvknprEYRG61mopv7nTOvs
+         8JAKoWschVh4TIJNza3r81LVluw/G01wVcRz4RX5Kd7YukW7QTCZ7SC/3G4r0AXipOvJ
+         Cx03fVc38btJGz9vJN7IJryArUazkvomH0PFixEAwh/6MFSw4u/V8aAIfXZU0fOFR/RT
+         D99cXbjfleHysMyI68NxN/vNG5K/M0CYdSostkvfII4NOnY9hKQZj32noD8OG5qSXifk
+         a/EQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUCUb4Zq8eidVQYYMIFjMc63FOwciGEAzqIr3IDedI3b061NSEpiBwuos87GQ1tx5XdQ+TjFoSJVo/TZg==@vger.kernel.org, AJvYcCUdNNGXbwfi2/I/q0fSBwPfznZk5qIbICBJjwvtyb9Z701nP92QhCCzLjwl9uCpSaFvPbZjovMO8i7oqQw=@vger.kernel.org, AJvYcCUvqv2ySP5whsoIpXyPL23jFX1mxlEKFp2YgzamqlYVs6COqP9ZXIt4nYK8QCf3DwfJHGjELDRw02Iu@vger.kernel.org, AJvYcCXHiZC4T8AVbT/5N2d968rOZtLv/G+njlby6/sNsfsErAi9p/qWF8fUvrPeR+2Gxnh7ay4e+qMAP2W+Og==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxs/icqbCPrUZTO1jhxuoKChFX3/0EoxhFqbxtWl/cLOFWnocYB
+	OenYADsmSafiu1iwHzk8MyI1ZUY6oKpKVOHFIQv0iY2MVUe9XpK6OEqRvI+XXbXV
+X-Gm-Gg: ASbGncvDbXoMGbaJEJPNa9cUEYzxfiXjAqmTobfrcZZYvd8UsF8eM2GTUcMfoeqVDib
+	UGiIoIl/lje80WiJkiqStMi3IbhGKH+GE/FHLwtRUMEqNe8FnQzvGvjJbZ9jYXdPY0jXSConZkn
+	pzlZlQRxXLEqJbPxd7oqxqMMoEENVgkZsnwat8Bi3NhM4hW+PsbFZ5far+litpRGZ9W4KBR1MKf
+	OBo6wm3DKN1FTXAinkBElYpz0jkBEHQ+FtJ3TRqjUDFQoJSGWvwC9UAOEX4KK5r+BSi2CBn9KAb
+	0NJiWOcJmHyvWEQCFi/RBPpk9pXofLTkgJ2srJQjEtw80gv3lpCIM9jBYqSlc/tVQK9UnUk7/C1
+	djCghDjTdIOSgAK7Mb3z71vjgHYBy6J6BCacIc+zBHkOQh85C1JfKH199kvPM
+X-Google-Smtp-Source: AGHT+IH8ZCF1y9qER27dQCY8WWuoBK9OLgaVzKvECUpp4rg+YPt02uN4bfERbxFbjgUdHD1tauAoJw==
+X-Received: by 2002:a05:6102:324e:10b0:4f3:2f5f:c2e8 with SMTP id ada2fe7eead31-4fc0fe5e086mr1838199137.1.1754034791710;
+        Fri, 01 Aug 2025 00:53:11 -0700 (PDT)
+Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com. [209.85.217.49])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-88d8f3f0c5dsm754672241.13.2025.08.01.00.53.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 01 Aug 2025 00:53:10 -0700 (PDT)
+Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-4fc2132cc97so538634137.1;
+        Fri, 01 Aug 2025 00:53:10 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWSAkB8dMewm47egHPwhelcGYuhFEE57+rhCo1mKCwGhm+7eLi7MEr2pTyLL1ZWw33UcjjdI+DeLpM/tVo=@vger.kernel.org, AJvYcCX4cQ3aArJw8nVnqS5OMX1BROBpt3Ir4KwsiR2FdgRwOxKoeQnHPUzSTeGoedOieaUKVA+qPLtLXL+d@vger.kernel.org, AJvYcCX4qh0yT+F8IrFCZMSwzuZh5h3JO/waU8jkDGvL8p3T6hUv/TQZKjtl/hEAwDwJB6bPyN88wmnfTkd9EQ==@vger.kernel.org, AJvYcCXAuoD9ZlDWx+KDhut2KvIkBMwqFhrgwjG0cM21mvK2HbcG01Hf3drkOT0GDuz1n8hV9NHkmOm3ShgDKw==@vger.kernel.org
+X-Received: by 2002:a05:6102:6102:10b0:4fb:f495:43ec with SMTP id
+ ada2fe7eead31-4fc1014a568mr1725889137.12.1754034790307; Fri, 01 Aug 2025
+ 00:53:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4969c441-fe2a-470f-9efd-4661efca56ec@linux.intel.com>
+References: <4e10bea3aa91ee721bb40e9388e8f72f930908fe.camel@linux.ibm.com> <20250731173858.1173442-1-gbayer@linux.ibm.com>
+In-Reply-To: <20250731173858.1173442-1-gbayer@linux.ibm.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 1 Aug 2025 09:52:58 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdVwFeV46oCid_sMHjXfP+yyGTpBfs9t3uaa=wRxNcSOAQ@mail.gmail.com>
+X-Gm-Features: Ac12FXxryTPC1ndd8ms1Hjwe7h8qRvkBWHnbRS0kseU5i-4Dc5zEC3g15MUQeuA
+Message-ID: <CAMuHMdVwFeV46oCid_sMHjXfP+yyGTpBfs9t3uaa=wRxNcSOAQ@mail.gmail.com>
+Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
+To: Gerd Bayer <gbayer@linux.ibm.com>
+Cc: 18255117159@163.com, bhelgaas@google.com, helgaas@kernel.org, 
+	agordeev@linux.ibm.com, borntraeger@linux.ibm.com, 
+	ilpo.jarvinen@linux.intel.com, jingoohan1@gmail.com, kwilczynski@kernel.org, 
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-next@vger.kernel.org, linux-pci@vger.kernel.org, lpieralisi@kernel.org, 
+	mani@kernel.org, robh@kernel.org, schnelle@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Jul 31, 2025 at 10:04:38AM -0700, Sathyanarayanan Kuppuswamy wrote:
-> On 7/31/25 6:01 AM, Lukas Wunner wrote:
-> > +++ b/drivers/pci/pcie/err.c
-> > @@ -165,6 +165,12 @@ static int report_resume(struct pci_dev *dev, void *data)
-> >   	return 0;
-> >   }
-> > +static int report_disconnect(struct pci_dev *dev, void *data)
-> > +{
-> > +	pci_uevent_ers(dev, PCI_ERS_RESULT_DISCONNECT);
-> > +	return 0;
-> > +}
-> 
-> Since you are notifying the user space, I am wondering whether the drivers
-> should be notified about the recovery failure?
+Hi Gerd,
 
-The drivers are usually *causing* the recovery failure by returning
-PCI_ERS_RESULT_DISCONNECT from their pci_error_handlers callbacks
-(or by lacking pci_error_handlers, in particular ->error_detected()).
+On Thu, 31 Jul 2025 at 20:57, Gerd Bayer <gbayer@linux.ibm.com> wrote:
+> Simple pointer-casts to map byte and word reads from PCI config space
+> into dwords (i.e. u32) produce unintended results on big-endian systems.
+> Add the necessary adjustments under compile-time switch
+> CONFIG_CPU_BIG_ENDIAN.
+>
+> pci_bus_read_config() was just introduced with
+> https://lore.kernel.org/all/20250716161203.83823-2-18255117159@163.com/
+>
+> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 
-So in principle the drivers should be aware of recovery failure.
+Thanks for your patch!
 
-There are cases where multiple drivers are involved.  E.g. on GPUs,
-there's often a PCIe switch with a graphics device and various sound
-or telemetry devices.  Typically errors are reported by the Upstream
-Port, so the Secondary Bus Reset occurs at the Root or Downstream Port
-above the Upstream Port and affects the switch and all subordinate
-devices.  In cases like this, recovery failure may be caused by a
-single driver (e.g. GPU) and the other drivers (e.g. telemetry) may
-be unaware of it.
+> --- a/drivers/pci/access.c
+> +++ b/drivers/pci/access.c
+> @@ -89,15 +89,24 @@ int pci_bus_read_config(void *priv, unsigned int devfn, int where, u32 size,
+>                         u32 *val)
+>  {
+>         struct pci_bus *bus = priv;
+> +       int rc;
+>
+> -       if (size == 1)
+> -               return pci_bus_read_config_byte(bus, devfn, where, (u8 *)val);
+> -       else if (size == 2)
+> -               return pci_bus_read_config_word(bus, devfn, where, (u16 *)val);
+> -       else if (size == 4)
+> -               return pci_bus_read_config_dword(bus, devfn, where, val);
+> -       else
+> -               return PCIBIOS_BAD_REGISTER_NUMBER;
+> +       if (size == 1) {
+> +               rc = pci_bus_read_config_byte(bus, devfn, where, (u8 *)val);
+> +#if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+> +               *val = ((*val >> 24) & 0xff);
+> +#endif
 
-The recovery flow documented in Documentation/PCI/pci-error-recovery.rst
-was originally conceived for EEH and indeed EEH does notify all drivers
-of recovery failures by invoking the ->error_detected() callback with
-channel_state pci_channel_io_perm_failure.  See this call ...
+IMHO this looks ugly and error-prone.  In addition, it still relies
+on the caller initializing the upper bits to zero on little-endian.
 
-	eeh_pe_report("error_detected(permanent failure)", pe,
-		      eeh_report_failure, NULL);
+What about:
 
-... in arch/powerpc/kernel/eeh_driver.c below the recover_failed label
-in eeh_handle_normal_event().
+    u8 byte;
 
-I don't know why pcie_do_recovery() doesn't do the same on recovery
-failure.  This is one of several annoying deviations between AER and
-EEH.  Ideally the behavior should be the same across all platforms
-so that drivers don't have to cope with platform-specific quirks.
+    rc = pci_bus_read_config_byte(bus, devfn, where, &byte);
+    *val = byte;
 
-However I think that's orthogonal to the pci_uevent_ers() invocation
-in pcie_do_recovery().
+> +       } else if (size == 2) {
+> +               rc = pci_bus_read_config_word(bus, devfn, where, (u16 *)val);
+> +#if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
+> +               *val = ((*val >> 16) & 0xffff);
+> +#endif
 
-Thanks,
+and:
 
-Lukas
+    u16 word;
+
+    rc = pci_bus_read_config_word(bus, devfn, where, &word);
+    *val = word;
+
+> +       } else if (size == 4) {
+> +               rc = pci_bus_read_config_dword(bus, devfn, where, val);
+> +       } else {
+> +               rc =  PCIBIOS_BAD_REGISTER_NUMBER;
+> +       }
+> +       return rc;
+>  }
+>
+>  int pci_generic_config_read(struct pci_bus *bus, unsigned int devfn,
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
