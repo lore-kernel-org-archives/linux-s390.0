@@ -1,50 +1,51 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CBC0188CC9;
-	Fri,  1 Aug 2025 18:09:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 371FB15C158;
+	Sat,  2 Aug 2025 15:24:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754071742; cv=none; b=sgGgOYqANm6b0Ze/FXR3aZaldzBaYEiTmj/2fElm3JpEVrXOo3kUYSsVE34/ujueNf/PBM+/4J807M26x9j1wtj7oPLjk+v9d4SihNphb7QMO13SrjI50BvEj1yMuxojIQqgKKNDlrn+hnm/vC6dFxboFvc3uTZldAz5ViNN8IE=
+	t=1754148255; cv=none; b=L6wbDfvxukC4GSU6yN5//bcY2nTYtt7cgScDt4JTqA338YI/uREo7f/xXiWrElRz/GiM0drSSgs5S+ZLRNunpPrzR0nw9lpeHLg9uOgkEUrUf6TZ4+44sawGFRMUXvHFhoSbhM/YT7v59U4qd3KuB/UJuMS0ohqqJtIyTNSAmOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754071742; c=relaxed/simple;
-	bh=P7L2cubhAgXEB6EZdVMzRyHwCAk6GbODDnnzBqOIslc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jfs/6zLlu+jmjoTPo+Oz8Km9RS8vAPf6qvilwjaZ84ApnouxP5a42eQ/nS3WknzEu3bSIbm5AfFxrowgctznZJWWCOcESAqTnGecmfycvQHlUeV910ceDTJqzgRgjdFsk1Wdr5sxNgcglbbKBWRRpCac2sh6ge9xiUBb6p+wIwY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iiSLwHpR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1754148255; c=relaxed/simple;
+	bh=7SwuS0e5Mm7qBSNVIoorKKIp0KpAUiVnT7Ez9QhYRNM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=J5GNzxOydWkiT+LxacETc8K6H2QxlEG4a48UlS7wTaavMShSEVHBab+vmog9us8BsiJRIpRG4JnBo+4ne9t6uh1hNhAH6xn9QvVvtwsrK0iOVyFYybaIOaiH4iWj1DFLDQMlHbmiF9gOB0TWYS8JdIXpwZ71sSvf3CIs4DSHhLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Yok6GSQO; arc=none smtp.client-ip=220.197.31.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iiSLwHpR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5694C4CEE7;
-	Fri,  1 Aug 2025 18:09:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1754071742;
-	bh=P7L2cubhAgXEB6EZdVMzRyHwCAk6GbODDnnzBqOIslc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=iiSLwHpR4qPaT8zHyzBFYi1+V2nfjEasrfYAJMGFvJttrKti9VG5YGoY0tUXgN/1a
-	 64F4vdbR4K5q7R6kBr8QrGtFLoEBUtvkYBQGr+elBhUc6K65aur8CDtHK+ffH3Dugi
-	 TXpnN6n+jkZcYcFNt0wO+B3XnRLtD+soDyDY5sitq9klYpPq/BJQduDixJqSXBZLCH
-	 FEQ4TZ0amgmU6WBI344SgjOaaQbZXAUXkew2F932ndSI0B/0N8EfLMzPEervm15gER
-	 d3pjxhyVdigTuYFPJIG3TC8tuyJoeyeCX+igv+Mj2GCXEuuiFb0cRri8IW0Q9rRj9V
-	 SvaBxK2DrSj7Q==
-Date: Fri, 1 Aug 2025 12:08:58 -0600
-From: Keith Busch <kbusch@kernel.org>
-To: Hans Zhang <18255117159@163.com>
-Cc: Gerd Bayer <gbayer@linux.ibm.com>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Hans Zhang <hans.zhang@cixtech.com>,
-	Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
-	bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	jingoohan1@gmail.com,
-	Krzysztof =?iso-8859-1?Q?Wilczy=B4nski?= <kwilczynski@kernel.org>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-next <linux-next@vger.kernel.org>, linux-pci@vger.kernel.org,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Niklas Schnelle <schnelle@linux.ibm.com>, geert@linux-m68k.org
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Yok6GSQO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
+	Content-Type; bh=qo72/01PN/hdR6lvl9jgxOqtELAkEE3dNJ7kNf8Dy4s=;
+	b=Yok6GSQOtap/8Ngzi0apy2swWSbV1qpuj+qp3AdJdU4SAABisbK5frg3ZxuONE
+	nd5ZVFyeeI8YI7SCkXjOf630uRWc0CmXXbABArWQidGrC2H//ouJOjPrM9RulPvu
+	AK4EGTMJKi8FEgDNhPOflGYmmWhOJ+F3dbmikNzqIXYQg=
+Received: from [IPV6:240e:b8f:919b:3100:ecd9:c243:2a5f:12dd] (unknown [])
+	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wAXprp2LY5oEFSLJQ--.61565S2;
+	Sat, 02 Aug 2025 23:23:35 +0800 (CST)
+Message-ID: <d2240ab0-5d91-4b41-945f-e29b40f7b7f4@163.com>
+Date: Sat, 2 Aug 2025 23:23:34 +0800
+Precedence: bulk
+X-Mailing-List: linux-s390@vger.kernel.org
+List-Id: <linux-s390.vger.kernel.org>
+List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
-Message-ID: <aI0CupiFvyOvgNQY@kbusch-mbp>
+To: Keith Busch <kbusch@kernel.org>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>, Manivannan Sadhasivam
+ <mani@kernel.org>, Hans Zhang <hans.zhang@cixtech.com>,
+ Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
+ bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ jingoohan1@gmail.com, =?UTF-8?Q?Krzysztof_Wilczy=C2=B4nski?=
+ <kwilczynski@kernel.org>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-next <linux-next@vger.kernel.org>,
+ linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Rob Herring <robh@kernel.org>, Niklas Schnelle <schnelle@linux.ibm.com>,
+ geert@linux-m68k.org
 References: <20250731183944.GA3424583@bhelgaas>
  <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
  <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
@@ -53,66 +54,87 @@ References: <20250731183944.GA3424583@bhelgaas>
  <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
  <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
  <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
- <659b8389-16a7-423b-a231-5489c7cc0da9@163.com>
-Precedence: bulk
-X-Mailing-List: linux-s390@vger.kernel.org
-List-Id: <linux-s390.vger.kernel.org>
-List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <659b8389-16a7-423b-a231-5489c7cc0da9@163.com>
+ <659b8389-16a7-423b-a231-5489c7cc0da9@163.com> <aI0CupiFvyOvgNQY@kbusch-mbp>
+Content-Language: en-US
+From: Hans Zhang <18255117159@163.com>
+In-Reply-To: <aI0CupiFvyOvgNQY@kbusch-mbp>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID:_____wAXprp2LY5oEFSLJQ--.61565S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7WF4DGw1UuFy7KFWkXryrJFb_yoW8AFWrpF
+	y5ta18tF4kJrySvw1vq34vq3WSvanrKayDAr9xu3sIv3Z0yw1FvFyjgFy2qrWYga1kuF48
+	Zw43JFW3Cw1qyaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UtuciUUUUU=
+X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/1tbiWw6do2iOJ0KXvAAAsD
 
-On Sat, Aug 02, 2025 at 12:54:27AM +0800, Hans Zhang wrote:
-> As I mentioned in my reply to Mani's email, the data ultimately read here is
-> also a forced type conversion.
-> 
-> #define PCI_OP_READ(size, type, len) \
-> int noinline pci_bus_read_config_##size \
-> 	(struct pci_bus *bus, unsigned int devfn, int pos, type *value)	\
-> {									\
-> 	unsigned long flags;						\
-> 	u32 data = 0;							\
-> 	int res;							\
-> 									\
-> 	if (PCI_##size##_BAD)						\
-> 		return PCIBIOS_BAD_REGISTER_NUMBER;			\
-> 									\
-> 	pci_lock_config(flags);						\
-> 	res = bus->ops->read(bus, devfn, pos, len, &data);		\
-> 	if (res)							\
-> 		PCI_SET_ERROR_RESPONSE(value);				\
-> 	else								\
-> 		*value = (type)data;					\
-> 	pci_unlock_config(flags);					\
-> 									\
-> 	return res;							\
-> }
-> 
-> And this function. Could it be that I misunderstood something?
 
-The above macro retains the caller's type for "value". If the caller
-passes a "u8 *", the value is deferenced as a u8.
 
-The function below promotes everything to a u32 pointer and deferences
-it as such regardless of what type the user passed in.
- 
-> int pci_generic_config_read(struct pci_bus *bus, unsigned int devfn,
-> 			    int where, int size, u32 *val)
-> {
-> 	void __iomem *addr;
+On 2025/8/2 02:08, Keith Busch wrote:
+> On Sat, Aug 02, 2025 at 12:54:27AM +0800, Hans Zhang wrote:
+>> As I mentioned in my reply to Mani's email, the data ultimately read here is
+>> also a forced type conversion.
+>>
+>> #define PCI_OP_READ(size, type, len) \
+>> int noinline pci_bus_read_config_##size \
+>> 	(struct pci_bus *bus, unsigned int devfn, int pos, type *value)	\
+>> {									\
+>> 	unsigned long flags;						\
+>> 	u32 data = 0;							\
+>> 	int res;							\
+>> 									\
+>> 	if (PCI_##size##_BAD)						\
+>> 		return PCIBIOS_BAD_REGISTER_NUMBER;			\
+>> 									\
+>> 	pci_lock_config(flags);						\
+>> 	res = bus->ops->read(bus, devfn, pos, len, &data);		\
+>> 	if (res)							\
+>> 		PCI_SET_ERROR_RESPONSE(value);				\
+>> 	else								\
+>> 		*value = (type)data;					\
+>> 	pci_unlock_config(flags);					\
+>> 									\
+>> 	return res;							\
+>> }
+>>
+>> And this function. Could it be that I misunderstood something?
 > 
-> 	addr = bus->ops->map_bus(bus, devfn, where);
-> 	if (!addr)
-> 		return PCIBIOS_DEVICE_NOT_FOUND;
+> The above macro retains the caller's type for "value". If the caller
+> passes a "u8 *", the value is deferenced as a u8.
+
+Dear Keith,
+
+In this macro definition, bus->ops->read needs to ensure the byte order 
+of the read, as Lukas mentioned; otherwise, there is also a big-endian 
+issue at this location.
+
 > 
-> 	if (size == 1)
-> 		*val = readb(addr);
-> 	else if (size == 2)
-> 		*val = readw(addr);
-> 	else
-> 		*val = readl(addr);
-> 
-> 	return PCIBIOS_SUCCESSFUL;
-> }
+> The function below promotes everything to a u32 pointer and deferences
+> it as such regardless of what type the user passed in.
+
+I searched and learned that readb/readw/readl automatically handle byte 
+order, so there is no big-endian order issue.
+
+>   
+>> int pci_generic_config_read(struct pci_bus *bus, unsigned int devfn,
+>> 			    int where, int size, u32 *val)
+>> {
+>> 	void __iomem *addr;
+>>
+>> 	addr = bus->ops->map_bus(bus, devfn, where);
+>> 	if (!addr)
+>> 		return PCIBIOS_DEVICE_NOT_FOUND;
+>>
+>> 	if (size == 1)
+>> 		*val = readb(addr);
+>> 	else if (size == 2)
+>> 		*val = readw(addr);
+>> 	else
+>> 		*val = readl(addr);
+>>
+>> 	return PCIBIOS_SUCCESSFUL;
+>> }
+
+
+Best regards,
+Hans
+
