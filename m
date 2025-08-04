@@ -1,169 +1,136 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3D327241673;
-	Mon,  4 Aug 2025 08:26:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7CB1FAC4E;
+	Mon,  4 Aug 2025 09:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754295986; cv=none; b=XrP2sGE/2HpnMN+O+UtVhyfjehxnrGyY3Zjm6yjrZSd2DgEgqPef3elEDn34Qw3Dyn5DWTYFK+D7aY3YggUV3jZs95LsPJ8mkC64iIVeZsXvPzNR4vVhjAzJxszyePKJzNc1hCdarNO3vaSz81TEt3ihoQaZSd980myANZFMhug=
+	t=1754298573; cv=none; b=EbZZrOuqIQEnaCYay0gxphYKekbc31ys7NqJrCFMjysw5XrpggMZ/JE8EPwjjIjZUYxVc+9r4RhLHJCf+Jov32DgD1ur07Lzk2lSZ5paFbx6u/KCm4YBjDZ+rliw8xVcFySU1/bUxopObektaMHFRaXWu1WpqKYzwNAJw+CNfOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754295986; c=relaxed/simple;
-	bh=4nz2pQeFXCsvdMKj0bF/k07bhoSmBAiNp2ChdL1jFzo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=frUe/QE8MxWKGgTt5BfLTjmU/H8Ln4FrLLfkdOCApE8yt6SITRRlLqAfArBoewLQLvor+KXZLuRADPU9Y4XtWb90n+HfaLN2DlsMZtEEhN/FxzJxn09JQ3Pu+3QnIRBwIFP7XT0Ju0b7PTs6UF2o8Wxrmb5YV1/BzgcLYhGYWi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=e+6ibFyJ; arc=none smtp.client-ip=117.135.210.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1754298573; c=relaxed/simple;
+	bh=LXaJJmPQqXnbL/bmZnzqXb0txLVlMmOtBWlErQC9Kr4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B/XP+1cT2O0cZ5DFdqALpRcdjvmcvmTseSQSfx4NwwxXKvhP/OGBWp5m7xRAz9FotZ5sMVR8rVXU6XhyklSDIoVBdzFOduCJ0TwBIzn7ErFPpDT3JMuoAOEu/30xtUlgHy2T+qnYaNlO4SoDergi3Uj1zNIcUEpQIPwoRpSlr00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fWb3SHUg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="e+6ibFyJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=hf1vje5kyoKYOcmhLP1VHV7D/dW4HdknY9UdhcGoZdM=;
-	b=e+6ibFyJF1BjSOiseLpLnkNuk553jPYcnTOS2E5AGSqDF9L0hXkZZChIeIbDux
-	0QhKjaqnhF2RKC1eqiFYZHeCRjFCFixMVWaciK9yGq0SPhCLqsJX6Y767k2yYx+T
-	rZmHGs2rLSXhapWARp+KpSztDCRo4Qaj94jPGlTHWzk8A=
-Received: from [192.168.106.52] (unknown [])
-	by gzga-smtp-mtada-g1-3 (Coremail) with SMTP id _____wCHQqGAbpBohEodJg--.27698S2;
-	Mon, 04 Aug 2025 16:25:39 +0800 (CST)
-Message-ID: <f4dfc405-1841-4254-95e9-2079c183277d@163.com>
-Date: Mon, 4 Aug 2025 16:25:35 +0800
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fWb3SHUg"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 573Kfcls029457;
+	Mon, 4 Aug 2025 09:09:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=DAQV0AwXeHE/PwMvOBgIQg+ASlsQc1X48WemPBpqA
+	p8=; b=fWb3SHUg47YjoUVNywFxRPTsnu/Wezkhd2rU3UvNgA/pAP9FTpxFEjxPP
+	Agd74NEokr2BHiA6vSZJMZgYBju4FucUXFjPRAzUZwyrx+KPfsM1gu4UhYThI71s
+	YV3FCGqacauCfc6SfG79AT+Wx9yUaRNMDtdng+I2y6tEw1MIJR2ArWXQ+5Adk8EO
+	7ebYvx4Ef+xuMq0qx/jl3D4jZysMZ5OASnA7UH3YbM5UPdrrDPM93GSr0Qyvfkth
+	6MNukVXhEZWT/NnbBeUZ2Oj3L7MJWls/vEFLGOcGUum9r5i3H2Ke9wBuH61bGe5l
+	fnJ5ObrkB2Be0iVkRbHr3YmM3FLsQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 489ab3fxj8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Aug 2025 09:09:25 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5745fU3C002484;
+	Mon, 4 Aug 2025 09:09:24 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 489wcyw3qq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Aug 2025 09:09:24 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57499Kxs47776186
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 4 Aug 2025 09:09:20 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1CC542033F;
+	Mon,  4 Aug 2025 09:09:20 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3C95B2034D;
+	Mon,  4 Aug 2025 09:09:14 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  4 Aug 2025 09:09:14 +0000 (GMT)
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        David Hildenbrand <david@redhat.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>, sumanthk@linux.ibm.com
+Subject: [PATCH] mm: fix accounting of memmap pages for early sections
+Date: Mon,  4 Aug 2025 11:08:59 +0200
+Message-ID: <20250804090859.727207-1-sumanthk@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
-To: Arnd Bergmann <arnd@kernel.org>, Gerd Bayer <gbayer@linux.ibm.com>,
- Manivannan Sadhasivam <mani@kernel.org>, Hans Zhang <hans.zhang@cixtech.com>
-Cc: Bjorn Helgaas <helgaas@kernel.org>, bhelgaas@google.com,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- jingoohan1@gmail.com, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?=
- <kwilczynski@kernel.org>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-next <linux-next@vger.kernel.org>,
- linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Rob Herring <robh@kernel.org>, Niklas Schnelle <schnelle@linux.ibm.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>
-References: <20250731183944.GA3424583@bhelgaas>
- <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
- <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
- <9a155e45-f723-4eec-81d3-2547bfe9a4e9@cixtech.com>
- <ofsbfhor5ah3yzvkc5g5kb4fpjlzoqkkzukctmr3f6ur4vl2e7@7zvudt63ucbk>
- <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
- <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
- <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
- <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
- <74c17623-f1b5-4b28-a118-4e828e1e711a@app.fastmail.com>
-Content-Language: en-US
-From: Hans Zhang <18255117159@163.com>
-In-Reply-To: <74c17623-f1b5-4b28-a118-4e828e1e711a@app.fastmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:_____wCHQqGAbpBohEodJg--.27698S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxXFykWF4DAF45JrW7Zr1rCrg_yoW5CryDpF
-	Z8Cr4Fyw45Grn2krW0v3W0q3W0qa1rtFsIkwn5X34UuFsYgr13GFWY9w4a9r1ak3y8X3WI
-	vFZrKFy7G3Z0yFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jbR6wUUUUU=
-X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/1tbiWxafo2iQaIvKrgAAsO
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Z+jsHGRA c=1 sm=1 tr=0 ts=689078c5 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=KawUSfIWrfKEQJWuwW8A:9
+X-Proofpoint-ORIG-GUID: Mqcg8VsFLq_ouAd6ooDn7elCav4_qeSW
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA0MDA0NyBTYWx0ZWRfX69T6gTqLTtTk
+ gNMtzS5VDmmjbCVGiGeAdc3H4texRhpBLJQusvAaX1ZmQNPnsBfeEAR5VHx7tNOeOwFAWyiCbhn
+ QU48qNiDoEWQr+TkTLD2/mO4hRvUJBIGQ9dFDBjp4gwhhS0WSifIZpx2HigXqXM/xoDS4OkhfhL
+ tfNHl+IvS2r75+pLnwBMV0jGKqia+H7O2gzwgEk0LmlqxS1N9mqO++gpN5jYcxDTZPDCz8epJmW
+ puCNvnRlC46oejNbzP5yjH1OBJresuJWBv70SZQSZ6OCzxpCjkEDG0UsciM/93/CebN27iOtrIB
+ BZiQnu+gV6MA7dQgAVr9TAYCVhgUIHzZGK9xsswwHO8n7rFKSCWoP+BtZndpSOkU0OGqQ2zHRG0
+ ZEkd2KVmhWrOjPBx6Gk4VSb08FA274TH4Hw3huVDjJA9D7wyV1nrx4S7t4Hd5He5rZJlajS8
+X-Proofpoint-GUID: Mqcg8VsFLq_ouAd6ooDn7elCav4_qeSW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-04_03,2025-08-04_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 spamscore=0 malwarescore=0 clxscore=1011 suspectscore=0
+ priorityscore=1501 mlxlogscore=434 adultscore=0 phishscore=0 mlxscore=0
+ bulkscore=0 impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2508040047
 
+memmap pages  can be allocated either from the memblock (boot) allocator
+during early boot or from the buddy allocator.
 
+When these memmap pages are removed via arch_remove_memory(), the
+deallocation path depends on their source:
 
-On 2025/8/4 16:03, Arnd Bergmann wrote:
-> On Mon, Aug 4, 2025, at 05:06, Hans Zhang wrote:
->> On 2025/8/1 19:30, Gerd Bayer wrote:
->>> On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
->>    }
->>
->> +#define CDNS_PCI_OP_READ(size, type, len)		\
->> +static inline int cdns_pcie_read_cfg_##size		\
->> +	(struct cdns_pcie *pcie, int where, type *val)	\
->> +{							\
->> +	if (len == 4)					\
->> +		*val = cdns_pcie_readl(pcie, where);	\
->> +	else if (len == 2)				\
->> +		*val = cdns_pcie_readw(pcie, where);	\
->> +	else if (len == 1)				\
->> +		*val = cdns_pcie_readb(pcie, where);	\
->> +	else						\
->> +		return PCIBIOS_BAD_REGISTER_NUMBER;	\
->> +							\
->> +	return PCIBIOS_SUCCESSFUL;			\
->> +}
->> +
->> +CDNS_PCI_OP_READ(byte, u8, 1)
->> +CDNS_PCI_OP_READ(word, u16, 2)
->> +CDNS_PCI_OP_READ(dword, u32, 4)
->> +
-> 
-> This is fine for the calling conventions, but the use of a macro
-> doesn't really help readability, so I'd suggest just having
-> separate inline functions if they are even needed.
-> 
+* For pages from the buddy allocator, depopulate_section_memmap() is
+  called, which also decrements the count of nr_memmap_pages.
 
-Dear Arnd,
+* For pages from the boot allocator, free_map_bootmem() is called. But
+  it currently does not adjust the nr_memmap_boot_pages.
 
-Thank you very much for your reply.
+To fix this inconsistency, update free_map_bootmem() to also decrement
+the nr_memmap_boot_pages count by invoking memmap_boot_pages_add(),
+mirroring how free_vmemmap_page() handles this for boot-allocated pages.
 
-Will change.
+This ensures correct tracking of memmap pages regardless of allocation
+source.
 
->> @@ -112,17 +110,17 @@ int pci_bus_read_config(void *priv, unsigned int
->> devfn, int where, u32 size,
->>    ({									\
->>    	int __ttl = PCI_FIND_CAP_TTL;					\
->>    	u8 __id, __found_pos = 0;					\
->> -	u32 __pos = (start);						\
->> -	u32 __ent;							\
->> +	u8 __pos = (start);						\
->> +	u16 __ent;							\
->>    									\
->> -	read_cfg(args, __pos, 1, &__pos);				\
->> +	read_cfg##_byte(args, __pos, &__pos);				\
->>    									\
->>    	while (__ttl--) {						\
->>    		if (__pos < PCI_STD_HEADER_SIZEOF)			\
->>    			break;						\
->>    									\
->>    		__pos = ALIGN_DOWN(__pos, 4);				\
->> -		read_cfg(args, __pos, 2, &__ent);			\
->> +		read_cfg##_word(args, __pos, &__ent);			\
->>    									\
->>    		__id = FIELD_GET(PCI_CAP_ID_MASK, __ent);		\
->>    		if (__id == 0xff)					\
-> 
-> I still don't feel great about this macro either, and suspect
-> we should have a better abstraction with fixed types and a
-> global function to do it, but I don't see anything obviously
-> wrong here either.
+Cc: stable@vger.kernel.org
+Fixes: 15995a352474 ("mm: report per-page metadata information")
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+---
+ mm/sparse.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-Here is the history of communication with Bjorn and Ilpo. Because 
-variable parameters need to be used, otherwise it will be very difficult 
-to unify. I'll also think about your proposal again.
-
-
-Bjorn:
-https://lore.kernel.org/linux-pci/20250715224705.GA2504490@bhelgaas/
- > > I would like this a lot better if it could be implemented as a
- > > function, but I assume it has to be a macro for some varargs reason.
- > >
- >
-Hans:
-https://lore.kernel.org/linux-pci/903ea9c4-87d6-45a8-9825-4a0d45ec608f@163.com/
- > Yes. The macro definitions used in combination with the previous review
- > opinions of Ilpo.
-
-Ilpo:
-https://lore.kernel.org/linux-pci/d59fde6e-3e4a-248a-ae56-c35b4c6ec44c@linux.intel.com/
-The other option would be to standardize the accessor interface signature
-and pass the function as a pointer. One might immediately think of generic
-PCI core accessors making it sound simpler than it is but here the
-complication is the controller drivers want to pass some internal
-structure due to lack of pci_dev so it would need to be void
-*read_cfg_data. Then we'd need to deal with those voids also in some
-generic PCI accessors which is a bit ugly.
-
-
-Best regards,
-Hans
+diff --git a/mm/sparse.c b/mm/sparse.c
+index 3c012cf83cc2..d7c128015397 100644
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -688,6 +688,7 @@ static void free_map_bootmem(struct page *memmap)
+ 	unsigned long start = (unsigned long)memmap;
+ 	unsigned long end = (unsigned long)(memmap + PAGES_PER_SECTION);
+ 
++	memmap_boot_pages_add(-1L * (DIV_ROUND_UP(end - start, PAGE_SIZE)));
+ 	vmemmap_free(start, end, NULL);
+ }
+ 
+-- 
+2.48.1
 
