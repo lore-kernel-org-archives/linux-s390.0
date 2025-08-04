@@ -1,136 +1,165 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD691245031;
-	Mon,  4 Aug 2025 09:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3882200113;
+	Mon,  4 Aug 2025 10:10:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754301346; cv=none; b=dSZb5dL+Sp/U9Mc2mYIum+o9g8HMZkzM/gNuhf0OkjjwQWlWqohlxomZQAfEJ1I0RVwF6F7G2Tf32M9XFmtAr32aAimFz/SssuBYF24+1kZrIcv8U8viwHib1/DM+hsSLnUw0cIuGhTzdZVq59JcijecA6xj2DJlLO7J7cJmr3U=
+	t=1754302208; cv=none; b=aq1i8MeNtoJVP/TksOQ3pdQWKCpIqPyOyJ3faaUMoFR+6Z2D2jjZ2i/qCcSLGmAeoW36ijG6UAZHHRiJ00AIFMgUHmJ325eeqeZYLFJgSE7Jlv7kNGoxT5PtM1s/zDFsgblrA7SCGsJlDQxv3wJ+93XXr0x8dOQi5yNDnI9VHu0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754301346; c=relaxed/simple;
-	bh=LXaJJmPQqXnbL/bmZnzqXb0txLVlMmOtBWlErQC9Kr4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=urXng2deX39EQv1UFo9TLVFW0hZL94dm7j/LPsSFUzwzzfBswYD3WN25oNPtMvcHLD6QCSYnd9JgvtkLEOjcpr+Ji8dC+WXS9U8+OZ76LmQGHd7f3TPCFiF+RauRB1PLEJ3ImmHCQbj5fHTvBGMlQQ/j8kIwfiAxm95RDSZqqRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JX8u+a3c; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1754302208; c=relaxed/simple;
+	bh=kCIchFC91452xWiDloGI6pBYIBOUJAAvwMrZE/NTCJE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=F2jKOVpRZjbLNQP3MgN3A0NrHi+b+EAqamkpe8SizqDzUgplVJkKmAyQZOxevMSQVYw6SCz1AcP5KYE0HTJ5TAb3ymsPujtAHmrYyhGNDHLzpgj+EcETMd49VxO+7dcLf0nrlgLDX5QBsloEWC51ok/W+i98zr207dPG3XTK2wg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UY9Vi8HB; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JX8u+a3c"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 573IecYw009060;
-	Mon, 4 Aug 2025 09:55:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UY9Vi8HB"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5744Y4d7023414;
+	Mon, 4 Aug 2025 10:09:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=DAQV0AwXeHE/PwMvOBgIQg+ASlsQc1X48WemPBpqA
-	p8=; b=JX8u+a3cp4KDC/RV+NejW54b99E6nfTYDShlIaekUf1ehXchWAO2YpvP/
-	tgAIFJUbMXx3+jiGiGH0PQH2a02nZWyCLNpMCrIPaRqGNN6EZiLD7sTfV0C1vNs4
-	XLquDB49vtvYYvlSZjVaABXxwIg4WDEjKPow34Bc1a1I+CuqJp8wH/e2qV3mRUmq
-	GXzLbIITjlyj8AvLfNr2uvyC6uX7gfQ7n8DV3Wi//saBdgVbRW9ITKSApHjdQTBF
-	SCYKxFP/4ksZ4h38AJ/2KTVM0lSrlJL8qUhRON3ROTC0SdcooDEegCMqDSQes8If
-	VtnxKCD4nv+oJPGeeOsTfhwW+9iHg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48983t0ggv-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=kCIchF
+	C91452xWiDloGI6pBYIBOUJAAvwMrZE/NTCJE=; b=UY9Vi8HB7cvg0CNVS4+YgH
+	QhZjl91sJ7RvUL0RFfLBiZ8XuqWC8AfkSh4hVRKGCbHTS3oJXv5EvWRTdxbQ7Vuh
+	lccBuFbJKTWZ4jPHLIp613jpW/v+4qT5ch87wS4womSGMtatY7n6EUjmwptaACxk
+	SQ+ENRAw0MsC3+wAsuTWS6dsiYP/S0IB5ZXDJwE6RW+mhIDqFR8vcKozmDFtNSm7
+	pp5r1ii+kyu5v+0ASyGNCtku4TCZix0kf0xNYrvobIuHEao4LgRlmM50k9Lpu4LT
+	+dvMwQUEz1zodHGVpcFmaUUfFjBkiLZ2LHf760lvVnQ3H7KVmJYZQkHksfbO7blg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48a4a9v802-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Aug 2025 09:55:39 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5746go6e006876;
-	Mon, 4 Aug 2025 09:55:39 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 489xgmd38b-1
+	Mon, 04 Aug 2025 10:09:56 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5749vnmU011650;
+	Mon, 4 Aug 2025 10:09:55 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48a4a9v800-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 04 Aug 2025 09:55:38 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5749tYsA39715282
+	Mon, 04 Aug 2025 10:09:55 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5749lLPB001893;
+	Mon, 4 Aug 2025 10:09:54 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 489wcywc8y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 04 Aug 2025 10:09:53 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 574A9o7I19333514
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 4 Aug 2025 09:55:34 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 748E420328;
-	Mon,  4 Aug 2025 08:40:30 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5238D20326;
-	Mon,  4 Aug 2025 08:40:30 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  4 Aug 2025 08:40:30 +0000 (GMT)
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        David Hildenbrand <david@redhat.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>, sumanthk@linux.ibm.com
-Subject: [PATCH] mm: fix accounting of memmap pages for early sections
-Date: Mon,  4 Aug 2025 10:40:15 +0200
-Message-ID: <20250804084015.270570-1-sumanthk@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	Mon, 4 Aug 2025 10:09:50 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 06A8A20091;
+	Mon,  4 Aug 2025 10:09:50 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 127F12009C;
+	Mon,  4 Aug 2025 10:09:49 +0000 (GMT)
+Received: from [9.111.44.231] (unknown [9.111.44.231])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  4 Aug 2025 10:09:48 +0000 (GMT)
+Message-ID: <6efa10219a41907ebdd7b75fc8d9249e115e8864.camel@linux.ibm.com>
+Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Hans Zhang <18255117159@163.com>, Manivannan Sadhasivam
+ <mani@kernel.org>,
+        Hans Zhang <hans.zhang@cixtech.com>
+Cc: Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
+        bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        Ilpo =?ISO-8859-1?Q?J=E4rvinen?=
+ <ilpo.jarvinen@linux.intel.com>,
+        jingoohan1@gmail.com,
+        Krzysztof
+ =?UTF-8?Q?Wilczy=C5=84ski?=	 <kwilczynski@kernel.org>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-next
+ <linux-next@vger.kernel.org>, linux-pci@vger.kernel.org,
+        Lorenzo Pieralisi
+ <lpieralisi@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Niklas Schnelle
+ <schnelle@linux.ibm.com>, geert@linux-m68k.org
+Date: Mon, 04 Aug 2025 12:09:48 +0200
+In-Reply-To: <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
+References: <20250731183944.GA3424583@bhelgaas>
+	 <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
+	 <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
+	 <9a155e45-f723-4eec-81d3-2547bfe9a4e9@cixtech.com>
+	 <ofsbfhor5ah3yzvkc5g5kb4fpjlzoqkkzukctmr3f6ur4vl2e7@7zvudt63ucbk>
+	 <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
+	 <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
+	 <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
+	 <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-1.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA0MDA1MyBTYWx0ZWRfX9UqKj1uDacui
- qq95fm1prsbYncAw2VJR/2hLoXU2AqQa4QXuYW3LutQBIZId2CnnxZqTbXsqoAZvQjl6BNc1SyF
- Yw/4ArdNT74fBp+fXzfEaRz7j/Geihorx3YRrZskAV9y5OSvP2RuULBc+QrjyAlBVHNOD/Zg8tc
- WIQmobi9rnIrPFgtzmsueEcoKBkpMH0u/nD9Zixw0+QQ5yaFnS/7KB3OXEj8KQeimDOQ4JNrTxT
- Lbyz0xBl7SZ31ni2rxEvlS/g6NDsAzN/fE3M0yB0RclbL1pCEkxQL+mFKRmNgYomit8p+tefSVS
- Pd9+ztjHpBn1yZMC/+9aaLmQkUIU0uenFiDJye4d6x1mPiWGHQ9Xv7lJPmIULd+2t9cVzER1IeC
- L4pgNYl7iJhDxjKvQCI9BARrrl2r6dSVgZO52vAQ/dtWoFvYktlF73iDeIK2Yzms/hk/Fwio
-X-Proofpoint-GUID: PFTZoDSImDPPihjzNlw7i8WSy-lbRLhl
-X-Proofpoint-ORIG-GUID: PFTZoDSImDPPihjzNlw7i8WSy-lbRLhl
-X-Authority-Analysis: v=2.4 cv=AZSxH2XG c=1 sm=1 tr=0 ts=6890839b cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=KawUSfIWrfKEQJWuwW8A:9
+X-Proofpoint-GUID: OZzhOq8J5iZn496zPRbscm-5Hy0dBrtO
+X-Authority-Analysis: v=2.4 cv=dNummPZb c=1 sm=1 tr=0 ts=689086f4 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=KeptLckSEblKyysDGeUA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: j6p5zJLpsip5j-2v6i90-PlIrzZuLfHR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA0MDA1MyBTYWx0ZWRfX6aNNP/68Zpyr
+ 8lpqw2QcidMFKrCzDxDrKDKQtaQhnZnnhaW5MyvRF/wzvR1lklNLeZE53DsQwtU72NNYXxpo8O6
+ dpivStlLuL8nzhybh2j8vaXk+vN+pALHKh92OR9DzrnXXXaPVRPikwBjsR6rjOWfpjQto57Axo+
+ +41/yohAugkeJX6QlN0GyqdPqiNsUE/EvrQkBrQN8yEJt3+ixkFU8CqwOp8BfDKvfry2CFHqFFN
+ yEoB2fdweG1nsFm0naIhGOhKStSmoce5DX6EUN5urVkZNVfy5cLWX4GtRBgKeDlHEL43HPVJwZF
+ 4D/WXX37Uir8pTwm6hWFc+aen0fQ0X8eh0WZ8v5SCJZD3jkwKLIo+YdWANJBZNTl9hCLPBrItbY
+ TRnCuec3P3YVHPDFKC2qL7/Ihhq5NDELATMOcQ0mbEoFFEX0msYqYoToWq4tTBCw6x8N4qzP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-08-04_04,2025-08-04_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 impostorscore=0 bulkscore=0
- lowpriorityscore=0 mlxscore=0 spamscore=0 malwarescore=0 phishscore=0
- suspectscore=0 mlxlogscore=434 adultscore=0 classifier=spam authscore=0
- authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2505280000 definitions=main-2508040053
+ phishscore=0 bulkscore=0 mlxscore=0 clxscore=1015 mlxlogscore=970
+ malwarescore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0 spamscore=0
+ suspectscore=0 impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2508040053
 
-memmap pages  can be allocated either from the memblock (boot) allocator
-during early boot or from the buddy allocator.
+On Mon, 2025-08-04 at 11:06 +0800, Hans Zhang wrote:
+>=20
+> On 2025/8/1 19:30, Gerd Bayer wrote:
+> > On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
+> >=20
+> > <--- snip --->
+> >=20
+> > > > >=20
+>=20
+> Dear all,
+>=20
+> According to the issue mentioned by Lukas and Mani. Gerd has already=20
+> been tested on the s390. I have tested it on the RK3588 and it works=20
+> fine. RK3588 uses Synopsys' PCIe IP, that is, the DWC driver. Our=20
+> company's is based on Cadence's PCIe 4.0 IP, and the test function is=20
+> normal. All the platforms I tested were based on ARM.
+>=20
+> The following is the patch based on the capability-search branch. May I=
+=20
+> ask everyone, do you have any more questions?
+>=20
+> Gerd, if there's no problem, I'll add your Tested-by label.
 
-When these memmap pages are removed via arch_remove_memory(), the
-deallocation path depends on their source:
+Before you add that I'd like to re-test with the "final" patch.
 
-* For pages from the buddy allocator, depopulate_section_memmap() is
-  called, which also decrements the count of nr_memmap_pages.
+> Branch:=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git/log/?h=3Dcapa=
+bility-search
+>=20
+> Patch:
 
-* For pages from the boot allocator, free_map_bootmem() is called. But
-  it currently does not adjust the nr_memmap_boot_pages.
+<--- snip --->
 
-To fix this inconsistency, update free_map_bootmem() to also decrement
-the nr_memmap_boot_pages count by invoking memmap_boot_pages_add(),
-mirroring how free_vmemmap_page() handles this for boot-allocated pages.
+Please bear with me while I'm working on that.
 
-This ensures correct tracking of memmap pages regardless of allocation
-source.
-
-Cc: stable@vger.kernel.org
-Fixes: 15995a352474 ("mm: report per-page metadata information")
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
- mm/sparse.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/mm/sparse.c b/mm/sparse.c
-index 3c012cf83cc2..d7c128015397 100644
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -688,6 +688,7 @@ static void free_map_bootmem(struct page *memmap)
- 	unsigned long start = (unsigned long)memmap;
- 	unsigned long end = (unsigned long)(memmap + PAGES_PER_SECTION);
- 
-+	memmap_boot_pages_add(-1L * (DIV_ROUND_UP(end - start, PAGE_SIZE)));
- 	vmemmap_free(start, end, NULL);
- }
- 
--- 
-2.48.1
-
+Thanks, Gerd
