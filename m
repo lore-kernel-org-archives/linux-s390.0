@@ -1,50 +1,90 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 159121C5489;
-	Mon,  4 Aug 2025 03:07:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B045A230BCB
+	for <linux-s390@vger.kernel.org>; Mon,  4 Aug 2025 08:04:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754276830; cv=none; b=WsP8VDcrgIdCVmAwY9FpofjOIEqpbPBb/+8lL4XB0D+i3lIcE7za4eE+8zTWDJA2ZsA9DU72j2xtvdgcliF5AL8O8m/NamuCRFNmUnOMhTmXX+4GEhwnXZWigE1dqhpX9G+UVZPfOI8Y5xNiSFI1UQe3/IUZOzwpsu2idJkZIWg=
+	t=1754294665; cv=none; b=DEeEW4xyrJo8YqS0XGH1qogHBPbc4KGYWPDI/QI+R9hJ4QxzUMTmDujarqrndjBmEOePoEcClvTIDdpPOexgHLs82RXL5DqeqqbYk4Zdb5XJ7X386z+QCOgvoHc2SwXUHXwWRXMMWyJUfM0x1IRsAMZrDFh30oCsF5hw/pVexks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754276830; c=relaxed/simple;
-	bh=TwJoaDQgjVcBZ/Ds/fVDfTurh1evbR9XWagpeyFztPY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oqzE4Msf8JO9Oa1rpPemMecjQIruNEWwit7Zw7zdqLEvT+tSlK1rcJ7hRTj/9S9Q93WE4pauOhnxaDLcXSnzUrpphanjPw7Dlk0lsH3Xzy9ATv548ZLAp9rw4cYYj3YYWHcm80uzfuCe2gsAo/a7zd+eRMpm98Qx7QNdKWd1CJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=NLaKte2x; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1754294665; c=relaxed/simple;
+	bh=RKECXLolZ0+Hcz5RAIsl9N60kpDeOYEqxiBHrrjYHco=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=VnG9hUzvTISnZVUHz6dIyY+DQH1sKNoxaIaNyzQAtm1Re2//Y2wWZfssPgKXedXac48VU9f04kl69HsmV7Z2Dcp6RTjDMzqYVIc/fMJ24qG4OPpSNWvhkmLVyttVxy+L7C3yAldDdywQnFXGf3hu7MBiCvcMjR9URlaRb6E/yDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ntIloNWl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="NLaKte2x"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=WSRh6+t5rUrNqeI8tjL+kgapeu0a9X7Koe+QVVPQggw=;
-	b=NLaKte2xzIJfCoUol1muGvNPINJvPlmYrHdxHas/1L0GffTUoiolr+YuAATbTe
-	Lb3g+e/Zuq1zOz7OTYhjdeXQ0sJobj8hWeTC3l4TXXNNzOUIEZ7RRk1e2DvyxGDA
-	+m/WtQnVPPGSlK8y25HWhpSZpNlbfqcBirb9SVQjdLOY0=
-Received: from [192.168.106.52] (unknown [])
-	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wD3fyq7I5BokTAbJw--.39897S2;
-	Mon, 04 Aug 2025 11:06:38 +0800 (CST)
-Message-ID: <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
-Date: Mon, 4 Aug 2025 11:06:36 +0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ntIloNWl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDA90C4CEF0;
+	Mon,  4 Aug 2025 08:04:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1754294665;
+	bh=RKECXLolZ0+Hcz5RAIsl9N60kpDeOYEqxiBHrrjYHco=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
+	b=ntIloNWl7dkUnA4Ud+WOESb+RaoQQ2dR5bm9FGDhn5ciK3RJJyMAjXjrx1vHHvMPM
+	 M2igx1ffKbH7yH0zcxq7TUWxp6Ba1cHkGzTTj5ucJVSwaG5vqyrjSZu1V0bLCIurh4
+	 srMH/SJTozryxgsT7eP/BzFAXr2g/YsSQ3Ml5a5gp13dpfqvjxtA1Vu/xQj1i51Ojz
+	 n0lbw9Oo2dbLPEyQwOcrP/nEWPd/D1bj2K3uj1CY+MAVqbEoDYxO3IPFCHDTXrnsrN
+	 PhxqZJoCnC9hlA5kirTsfzVsit0ZKyjKGeUOiwrWNAj7p55hcFWs6OG6gzsDvjiQv5
+	 dwfAr6v6QMVmw==
+Received: from phl-compute-05.internal (phl-compute-05.phl.internal [10.202.2.45])
+	by mailfauth.phl.internal (Postfix) with ESMTP id DEE52F40066;
+	Mon,  4 Aug 2025 04:04:23 -0400 (EDT)
+Received: from phl-imap-02 ([10.202.2.81])
+  by phl-compute-05.internal (MEProxy); Mon, 04 Aug 2025 04:04:23 -0400
+X-ME-Sender: <xms:h2mQaOTvDGl2k3J9v9cSKPnak2UIF77Lx8E02Vnu7KRqqNt9ZJkqPg>
+    <xme:h2mQaDwYL4BsiFCdjGVDjyt8YjfmxjfKAQ_gmgUoZ6npolQqU5lXmv4l8N4Mj4HEx
+    uz9uDU8roPztJ3svSg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdduuddujeeiucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusehkvghrnhgvlhdrohhrgheqnecuggftrfgrth
+    htvghrnhepjeejffetteefteekieejudeguedvgfeffeeitdduieekgeegfeekhfduhfel
+    hfevnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhguodhmvghsmhhtphgruhhthhhpvghrshhonhgrlhhithihqdduvdekhedujedtvdeg
+    qddvkeejtddtvdeigedqrghrnhgupeepkhgvrhhnvghlrdhorhhgsegrrhhnuggsrdguvg
+    dpnhgspghrtghpthhtohepudelpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopedu
+    kedvheehuddujeduheelseduieefrdgtohhmpdhrtghpthhtohephhgrnhhsrdiihhgrnh
+    hgsegtihigthgvtghhrdgtohhmpdhrtghpthhtohepjhhinhhgohhohhgrnhdusehgmhgr
+    ihhlrdgtohhmpdhrtghpthhtohepsghhvghlghgrrghssehgohhoghhlvgdrtghomhdprh
+    gtphhtthhopehhvghlghgrrghssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkfihi
+    lhgtiiihnhhskhhisehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlphhivghrrghlih
+    hsiheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhgrnhhisehkvghrnhgvlhdrohhr
+    ghdprhgtphhtthhopehrohgshheskhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:h2mQaFu7LhuyRrCKWhVwBTFKZTy29wc0MNFkqT6qbXBuqu7n9fT67Q>
+    <xmx:h2mQaHSV16-CTyAh22EXVWSltH71ro2e80F6WNAkqDuefzyQ6pJ6Sw>
+    <xmx:h2mQaKGL0ovkpIZnJ3tp8_ETHmsv9mhFdALfraI-euVJwXNXOapq2Q>
+    <xmx:h2mQaBces6M1nvOF6jd5Rr51louf-pmXq0oy6IhxkJz2wY5zQC6_5w>
+    <xmx:h2mQaJshPPqjSUIluVDY9rFZ3XsSShNj4P2CCMSyTl4P_ckuQRyQ413e>
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id B3B7E700065; Mon,  4 Aug 2025 04:04:23 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
-To: Gerd Bayer <gbayer@linux.ibm.com>, Manivannan Sadhasivam
- <mani@kernel.org>, Hans Zhang <hans.zhang@cixtech.com>
-Cc: Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
- bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
+X-ThreadId: Tea76caf5b1f73f76
+Date: Mon, 04 Aug 2025 10:03:43 +0200
+From: "Arnd Bergmann" <arnd@kernel.org>
+To: "Hans Zhang" <18255117159@163.com>, "Gerd Bayer" <gbayer@linux.ibm.com>,
+ "Manivannan Sadhasivam" <mani@kernel.org>,
+ "Hans Zhang" <hans.zhang@cixtech.com>
+Cc: "Bjorn Helgaas" <helgaas@kernel.org>, bhelgaas@google.com,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
  =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- jingoohan1@gmail.com, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?=
- <kwilczynski@kernel.org>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-next <linux-next@vger.kernel.org>,
- linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Rob Herring <robh@kernel.org>, Niklas Schnelle <schnelle@linux.ibm.com>,
- geert@linux-m68k.org
+ jingoohan1@gmail.com,
+ =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-next <linux-next@vger.kernel.org>, linux-pci@vger.kernel.org,
+ "Lorenzo Pieralisi" <lpieralisi@kernel.org>, "Rob Herring" <robh@kernel.org>,
+ "Niklas Schnelle" <schnelle@linux.ibm.com>,
+ "Geert Uytterhoeven" <geert@linux-m68k.org>
+Message-Id: <74c17623-f1b5-4b28-a118-4e828e1e711a@app.fastmail.com>
+In-Reply-To: <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
 References: <20250731183944.GA3424583@bhelgaas>
  <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
  <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
@@ -53,365 +93,68 @@ References: <20250731183944.GA3424583@bhelgaas>
  <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
  <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
  <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
-Content-Language: en-US
-From: Hans Zhang <18255117159@163.com>
-In-Reply-To: <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
+Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:_____wD3fyq7I5BokTAbJw--.39897S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW3tFWkWrWUJry8ZFyktF18Krg_yoWDAF1xpF
-	W5JFWIyF48tF1avF1vva4DXw1YyF9IyFZrWa97Ca4IvFnakryUJFyYgFWagr1agw48Wr1a
-	vws8tFZrAws8AF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UNXocUUUUU=
-X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/1tbiOhGfo2iQIIRxnAAAsm
 
+On Mon, Aug 4, 2025, at 05:06, Hans Zhang wrote:
+> On 2025/8/1 19:30, Gerd Bayer wrote:
+>> On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
+>   }
+>
+> +#define CDNS_PCI_OP_READ(size, type, len)		\
+> +static inline int cdns_pcie_read_cfg_##size		\
+> +	(struct cdns_pcie *pcie, int where, type *val)	\
+> +{							\
+> +	if (len == 4)					\
+> +		*val = cdns_pcie_readl(pcie, where);	\
+> +	else if (len == 2)				\
+> +		*val = cdns_pcie_readw(pcie, where);	\
+> +	else if (len == 1)				\
+> +		*val = cdns_pcie_readb(pcie, where);	\
+> +	else						\
+> +		return PCIBIOS_BAD_REGISTER_NUMBER;	\
+> +							\
+> +	return PCIBIOS_SUCCESSFUL;			\
+> +}
+> +
+> +CDNS_PCI_OP_READ(byte, u8, 1)
+> +CDNS_PCI_OP_READ(word, u16, 2)
+> +CDNS_PCI_OP_READ(dword, u32, 4)
+> +
 
+This is fine for the calling conventions, but the use of a macro
+doesn't really help readability, so I'd suggest just having
+separate inline functions if they are even needed.
 
-On 2025/8/1 19:30, Gerd Bayer wrote:
-> On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
-> 
-> <--- snip --->
-> 
->>>>>>> The pci_bus_read_config() interface itself may have been a
->>>>>>> mistake, can't the callers just use the underlying helpers
->>>>>>> directly?
->>>>>>>
->>>>>>
->>>>>> They can! Since the callers of this API is mostly the macros, we can easily
->>>>>> implement the logic to call relevant accessors based on the requested size.
->>>>>>
->>>>>> Hans, could you please respin the series based the feedback since the series is
->>>>>> dropped for 6.17.
->>>>>>
->>>>>
->>>>> Dear all,
->>>>>
->>>>> I am once again deeply sorry for the problems that occurred in this series.
->>>>> I only test pulling the ARM platform.
->>>>>
->>>>> Thank you very much, Gerd, for reporting the problem.
-> 
-> no worries!
-> 
->>>>> Thank you all for your discussions and suggestions for revision.
->>>>>
->>>>> Hi Mani,
->>>>>
->>>>> Geert provided a solution. My patch based on this is as follows. Please
->>>>> check if there are any problems.
->>>>> https://lore.kernel.org/linux-pci/CAMuHMdVwFeV46oCid_sMHjXfP+yyGTpBfs9t3uaa=wRxNcSOAQ@mail.gmail.com/
->>>>>
->>>>> Also, please ask Gerd to help test whether it works properly. Thank you very
->>>>> much.
->>>>>
-> 
-> I found Geert's proposal intriguing for a quick resolution of the
-> issue. Yet, I have not tried that proposal, though.
-> 
-> Instead I spent some more cycles on Lukas' and Mani's question about
-> the value of the pci_bus_read_config() helper. So I changed
-> PCI_FIND_NEXT_CAP and PCI_FIND_NEXT_EXT_CAP to use size-aware versions
-> of read_cfg accessor functions like this:
-> 
-> diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-> index ac954584d991..9e2f75ede95f 100644
-> --- a/drivers/pci/pci.h
-> +++ b/drivers/pci/pci.h
-> @@ -109,17 +109,17 @@ int pci_bus_read_config(void *priv, unsigned int
+> @@ -112,17 +110,17 @@ int pci_bus_read_config(void *priv, unsigned int 
 > devfn, int where, u32 size,
->   ({
-> \
->          int __ttl = PCI_FIND_CAP_TTL;
-> \
->          u8 __id, __found_pos = 0;
-> \
-> -       u32 __pos = (start);
-> \
-> -       u32 __ent;
-> \
-> +       u8 __pos = (start);
-> \
-> +       u16 __ent;
-> \
->                                                                        
-> \
-> -       read_cfg(args, __pos, 1, &__pos);
-> \
-> +       read_cfg##_byte(args, __pos, &__pos);
-> \
->                                                                        
-> \
->          while (__ttl--) {
-> \
->                  if (__pos < PCI_STD_HEADER_SIZEOF)
-> \
->                          break;
-> \
->                                                                        
-> \
->                  __pos = ALIGN_DOWN(__pos, 4);
-> \
-> -               read_cfg(args, __pos, 2, &__ent);
-> \
-> +               read_cfg##_word(args, __pos, &__ent);
-> \
->                                                                        
-> \
->                  __id = FIELD_GET(PCI_CAP_ID_MASK, __ent);
-> \
->                  if (__id == 0xff)
-> \
-> @@ -158,7 +158,7 @@ int pci_bus_read_config(void *priv, unsigned int
-> devfn, int where, u32 size,
->                                                                        
-> \
->          __ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
-> \
->          while (__ttl-- > 0 && __pos >= PCI_CFG_SPACE_SIZE) {
-> \
-> -               __ret = read_cfg(args, __pos, 4, &__header);
-> \
-> +               __ret = read_cfg##_dword(args, __pos, &__header);
-> \
->                  if (__ret != PCIBIOS_SUCCESSFUL)
-> \
->                          break;
-> \
->                                                                        
-> \
-> 
-> 
-> This fixes the issue for s390's use-cases. With that
-> pci_bus_read_config() becomes unused - and could be removed in further
-> refinements.
->                                                                        
-> However, this probably breaks your dwc and cdns use-cases. I think,
-> with the accessor functions for dwc and cadence changed to follow the
-> {_byte|_word|_dword} naming pattern they could be used straight out of
-> PCI_FIND_NEXT_{EXT_}CAP, too. Then, dw_pcie_read_cfg() and
-> cdns_pcie_read_cfg become obsolete as well.
-> 
-> Thoughts?
+>   ({									\
+>   	int __ttl = PCI_FIND_CAP_TTL;					\
+>   	u8 __id, __found_pos = 0;					\
+> -	u32 __pos = (start);						\
+> -	u32 __ent;							\
+> +	u8 __pos = (start);						\
+> +	u16 __ent;							\
+>   									\
+> -	read_cfg(args, __pos, 1, &__pos);				\
+> +	read_cfg##_byte(args, __pos, &__pos);				\
+>   									\
+>   	while (__ttl--) {						\
+>   		if (__pos < PCI_STD_HEADER_SIZEOF)			\
+>   			break;						\
+>   									\
+>   		__pos = ALIGN_DOWN(__pos, 4);				\
+> -		read_cfg(args, __pos, 2, &__ent);			\
+> +		read_cfg##_word(args, __pos, &__ent);			\
+>   									\
+>   		__id = FIELD_GET(PCI_CAP_ID_MASK, __ent);		\
+>   		if (__id == 0xff)					\
 
-Dear all,
+I still don't feel great about this macro either, and suspect
+we should have a better abstraction with fixed types and a
+global function to do it, but I don't see anything obviously
+wrong here either.
 
-According to the issue mentioned by Lukas and Mani. Gerd has already 
-been tested on the s390. I have tested it on the RK3588 and it works 
-fine. RK3588 uses Synopsys' PCIe IP, that is, the DWC driver. Our 
-company's is based on Cadence's PCIe 4.0 IP, and the test function is 
-normal. All the platforms I tested were based on ARM.
-
-The following is the patch based on the capability-search branch. May I 
-ask everyone, do you have any more questions?
-
-Gerd, if there's no problem, I'll add your Tested-by label.
-
-Branch: 
-ttps://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git/log/?h=capability-search
-
-
-Patch:
-diff --git a/drivers/pci/access.c b/drivers/pci/access.c
-index ba66f55d2524..b123da16b63b 100644
---- a/drivers/pci/access.c
-+++ b/drivers/pci/access.c
-@@ -85,21 +85,6 @@ EXPORT_SYMBOL(pci_bus_write_config_byte);
-  EXPORT_SYMBOL(pci_bus_write_config_word);
-  EXPORT_SYMBOL(pci_bus_write_config_dword);
-
--int pci_bus_read_config(void *priv, unsigned int devfn, int where, u32 
-size,
--			u32 *val)
--{
--	struct pci_bus *bus = priv;
--
--	if (size == 1)
--		return pci_bus_read_config_byte(bus, devfn, where, (u8 *)val);
--	else if (size == 2)
--		return pci_bus_read_config_word(bus, devfn, where, (u16 *)val);
--	else if (size == 4)
--		return pci_bus_read_config_dword(bus, devfn, where, val);
--	else
--		return PCIBIOS_BAD_REGISTER_NUMBER;
--}
--
-  int pci_generic_config_read(struct pci_bus *bus, unsigned int devfn,
-  			    int where, int size, u32 *val)
-  {
-diff --git a/drivers/pci/controller/cadence/pcie-cadence.c 
-b/drivers/pci/controller/cadence/pcie-cadence.c
-index 7b2955e4fafb..c45585ae1746 100644
---- a/drivers/pci/controller/cadence/pcie-cadence.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence.c
-@@ -10,22 +10,6 @@
-  #include "pcie-cadence.h"
-  #include "../../pci.h"
-
--static int cdns_pcie_read_cfg(void *priv, int where, int size, u32 *val)
--{
--	struct cdns_pcie *pcie = priv;
--
--	if (size == 4)
--		*val = cdns_pcie_readl(pcie, where);
--	else if (size == 2)
--		*val = cdns_pcie_readw(pcie, where);
--	else if (size == 1)
--		*val = cdns_pcie_readb(pcie, where);
--	else
--		return PCIBIOS_BAD_REGISTER_NUMBER;
--
--	return PCIBIOS_SUCCESSFUL;
--}
--
-  u8 cdns_pcie_find_capability(struct cdns_pcie *pcie, u8 cap)
-  {
-  	return PCI_FIND_NEXT_CAP(cdns_pcie_read_cfg, PCI_CAPABILITY_LIST,
-diff --git a/drivers/pci/controller/cadence/pcie-cadence.h 
-b/drivers/pci/controller/cadence/pcie-cadence.h
-index f0fdeb3863f1..4ad874e68783 100644
---- a/drivers/pci/controller/cadence/pcie-cadence.h
-+++ b/drivers/pci/controller/cadence/pcie-cadence.h
-@@ -392,6 +392,26 @@ static inline u8 cdns_pcie_readb(struct cdns_pcie 
-*pcie, u32 reg)
-  	return readb(pcie->reg_base + reg);
-  }
-
-+#define CDNS_PCI_OP_READ(size, type, len)		\
-+static inline int cdns_pcie_read_cfg_##size		\
-+	(struct cdns_pcie *pcie, int where, type *val)	\
-+{							\
-+	if (len == 4)					\
-+		*val = cdns_pcie_readl(pcie, where);	\
-+	else if (len == 2)				\
-+		*val = cdns_pcie_readw(pcie, where);	\
-+	else if (len == 1)				\
-+		*val = cdns_pcie_readb(pcie, where);	\
-+	else						\
-+		return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+							\
-+	return PCIBIOS_SUCCESSFUL;			\
-+}
-+
-+CDNS_PCI_OP_READ(byte, u8, 1)
-+CDNS_PCI_OP_READ(word, u16, 2)
-+CDNS_PCI_OP_READ(dword, u32, 4)
-+
-  static inline u32 cdns_pcie_read_sz(void __iomem *addr, int size)
-  {
-  	void __iomem *aligned_addr = PTR_ALIGN_DOWN(addr, 0x4);
-diff --git a/drivers/pci/controller/dwc/pcie-designware.c 
-b/drivers/pci/controller/dwc/pcie-designware.c
-index b503cb4bcb28..befb9df3123f 100644
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -213,22 +213,6 @@ void dw_pcie_version_detect(struct dw_pcie *pci)
-  		pci->type = ver;
-  }
-
--static int dw_pcie_read_cfg(void *priv, int where, int size, u32 *val)
--{
--	struct dw_pcie *pci = priv;
--
--	if (size == 4)
--		*val = dw_pcie_readl_dbi(pci, where);
--	else if (size == 2)
--		*val = dw_pcie_readw_dbi(pci, where);
--	else if (size == 1)
--		*val = dw_pcie_readb_dbi(pci, where);
--	else
--		return PCIBIOS_BAD_REGISTER_NUMBER;
--
--	return PCIBIOS_SUCCESSFUL;
--}
--
-  u8 dw_pcie_find_capability(struct dw_pcie *pci, u8 cap)
-  {
-  	return PCI_FIND_NEXT_CAP(dw_pcie_read_cfg, PCI_CAPABILITY_LIST, cap,
-diff --git a/drivers/pci/controller/dwc/pcie-designware.h 
-b/drivers/pci/controller/dwc/pcie-designware.h
-index ce9e18554e42..3b429a8ade70 100644
---- a/drivers/pci/controller/dwc/pcie-designware.h
-+++ b/drivers/pci/controller/dwc/pcie-designware.h
-@@ -614,6 +614,26 @@ static inline void dw_pcie_writel_dbi2(struct 
-dw_pcie *pci, u32 reg, u32 val)
-  	dw_pcie_write_dbi2(pci, reg, 0x4, val);
-  }
-
-+#define DW_PCI_OP_READ(size, type, len)			\
-+static inline int dw_pcie_read_cfg_##size		\
-+	(struct dw_pcie *pci, int where, type *val)	\
-+{							\
-+	if (len == 4)					\
-+		*val = dw_pcie_readl_dbi(pci, where);	\
-+	else if (len == 2)				\
-+		*val = dw_pcie_readw_dbi(pci, where);	\
-+	else if (len == 1)				\
-+		*val = dw_pcie_readb_dbi(pci, where);	\
-+	else						\
-+		return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+							\
-+	return PCIBIOS_SUCCESSFUL;			\
-+}
-+
-+DW_PCI_OP_READ(byte, u8, 1)
-+DW_PCI_OP_READ(word, u16, 2)
-+DW_PCI_OP_READ(dword, u32, 4)
-+
-  static inline unsigned int dw_pcie_ep_get_dbi_offset(struct dw_pcie_ep 
-*ep,
-  						     u8 func_no)
-  {
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index e53706d1d806..9c410e47e19a 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -92,8 +92,6 @@ extern bool pci_early_dump;
-  bool pcie_cap_has_lnkctl(const struct pci_dev *dev);
-  bool pcie_cap_has_lnkctl2(const struct pci_dev *dev);
-  bool pcie_cap_has_rtctl(const struct pci_dev *dev);
--int pci_bus_read_config(void *priv, unsigned int devfn, int where, u32 
-size,
--			u32 *val);
-
-  /* Standard Capability finder */
-  /**
-@@ -112,17 +110,17 @@ int pci_bus_read_config(void *priv, unsigned int 
-devfn, int where, u32 size,
-  ({									\
-  	int __ttl = PCI_FIND_CAP_TTL;					\
-  	u8 __id, __found_pos = 0;					\
--	u32 __pos = (start);						\
--	u32 __ent;							\
-+	u8 __pos = (start);						\
-+	u16 __ent;							\
-  									\
--	read_cfg(args, __pos, 1, &__pos);				\
-+	read_cfg##_byte(args, __pos, &__pos);				\
-  									\
-  	while (__ttl--) {						\
-  		if (__pos < PCI_STD_HEADER_SIZEOF)			\
-  			break;						\
-  									\
-  		__pos = ALIGN_DOWN(__pos, 4);				\
--		read_cfg(args, __pos, 2, &__ent);			\
-+		read_cfg##_word(args, __pos, &__ent);			\
-  									\
-  		__id = FIELD_GET(PCI_CAP_ID_MASK, __ent);		\
-  		if (__id == 0xff)					\
-@@ -161,7 +159,7 @@ int pci_bus_read_config(void *priv, unsigned int 
-devfn, int where, u32 size,
-  									\
-  	__ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;	\
-  	while (__ttl-- > 0 && __pos >= PCI_CFG_SPACE_SIZE) {		\
--		__ret = read_cfg(args, __pos, 4, &__header);		\
-+		__ret = read_cfg##_dword(args, __pos, &__header);	\
-  		if (__ret != PCIBIOS_SUCCESSFUL)			\
-  			break;						\
-  									\
-
-
-
-Best regards,
-Hans
-
-
+     Arnd
