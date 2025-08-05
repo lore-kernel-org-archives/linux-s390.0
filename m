@@ -1,131 +1,195 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01F4D292B36;
-	Tue,  5 Aug 2025 17:14:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 179191DE4E5;
+	Tue,  5 Aug 2025 17:18:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754414068; cv=none; b=ChkffV5944aysZgcN1okqGsV+nktBxyTTKmxHbP1mUrHqBPIpApMiDVdwLFmrmsNB4j3EhRS0vJwrqQx04itlZMjeU4Ji2dpbWPmeUHggl1Bv4WDHKgKAHmPVNuvAGPMgOgrmO1b/+WT0KjU5to84UmhXegbEVASs6R3DZp7cHQ=
+	t=1754414295; cv=none; b=WcICaYM96TCbEKsseV0exYc7kkg0pVRokVS9HyDv4sg0bSje4Z5SgEtwrDmHnkySN/x/bV52naxhIQl0oEZiYTM0c2s+KtcgKnjB+YGFvYJXdbZblrHAsPjV2DbZ1FokEJC4N5plp9vYbwzkLEJnWMSPcCfnqh+mRyeRk5FYnIE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754414068; c=relaxed/simple;
-	bh=6lbYw/Td/NTUPgIOaVNkmO7VINv3ZdqXK0a+RuwbjxU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Istc4ttuE47mzvfCXLioYQXPwkIHgkHNA3LZsA52Rb7hKjsRdr75/PjmZ1GPvz6ON2iIfbQATl9MHzgx26r+ZOK/j8peXDsLTYS4Jjx7dhKwa/imH1VHviUPJAPpuGBiOQ+HEYYrYkHl5HG9r286/hSzYEZSjBerVbnIikha/bs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=buCjQPph; arc=none smtp.client-ip=209.85.216.49
+	s=arc-20240116; t=1754414295; c=relaxed/simple;
+	bh=Dp2GyHI4dzctyfp4h46cod7uoopNyhYVZ/lSu2yu7R8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eTihwvydfC0qNLPhbQc5XAehOc2BrVaUAEoz+Ozk5OzSkduzFsF6y0QhQILKz0jPmPQ1xM/cLWUlEnJVDviWeDuqrC3mAwnSWeSxiX4wGO1O256zlP1sXlKsn77akLVWJ4njgd9CHxoqVE/Lfi7Gj+BBryq6HLYEPMvzJ0CFbxg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DV8q45Zk; arc=none smtp.client-ip=209.85.208.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="buCjQPph"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-31effad130bso3668071a91.3;
-        Tue, 05 Aug 2025 10:14:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DV8q45Zk"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-332308477easo6581761fa.0;
+        Tue, 05 Aug 2025 10:18:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754414066; x=1755018866; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=z5OOTXzGWVVgmVRg0X1KfTB1dkMRMeD/PW1OHO9QcZE=;
-        b=buCjQPphA11cw06j2PTN3dB4UoVSQWIIOElUcnsgLkEI+RIajm887p2kkzkRbPSqLs
-         mlugGFML7oDl7HS9AmXrbQ+/EN4aHsNyVQefuZ6rEIhvWHXhotmSIihLJkZF24xFGMlq
-         4PBf0/SN/u8UE4eWTiO6a9E4kTH1cE7saN/ltbcLjvO1Y8jnvmpoy72Rhr/ihB8G0GPq
-         emGtQJO6FJw2AmMpXvU9R0I9cmi9+7WeuUDPKraUvFaKcB5BfmgbrpvIPKnXhr3oaOlb
-         lP1fgg+/u2aKlKbV42Y4IrNU7ew2htvBAH4i4WUX2cN/LDkwVFVPbvZC2hB+cDQ4Hhpo
-         kKtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754414066; x=1755018866;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+        d=gmail.com; s=20230601; t=1754414292; x=1755019092; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=z5OOTXzGWVVgmVRg0X1KfTB1dkMRMeD/PW1OHO9QcZE=;
-        b=Z7Xd03uU4vjaQfdUDlSY1iC5SyJsirt3wnjuQNHdgAcoZ1ron71c04d/m9kUbHFaOA
-         R0MTD5cjPZaf1Yq6xAf7phIr1tMTr2X/tPFu/RjvrrMkbGJ0txYVElQlkQzoy33rAdXw
-         ML2kqX+JxVz2KqZjqTI8g6i7PFXenAR5eUWRrFIXhAyAVJbVFtNHChc6cd2Vn6lH9YhH
-         uAo2R915Q5OwIO1Yp6Js6EmkOrYvW+4SuYv6EA3jcBMyYFR3Da3Yux7ZZyFwFu1f9+2j
-         3xqssXSUbVyH8maTWcbz486njxAY6wQf16hOR1ueB5DXnFmTLqYQ7fgalxO9HmZ7XVjQ
-         Y4Nw==
-X-Forwarded-Encrypted: i=1; AJvYcCUE72zlH2HGUkotJqcdiPNGIYjobPmNj6NxIQ8qCH56VxnIui2EueIxMzQG7uhcM5tzl6q8zuM62GPmSZ4bwNFVMw==@vger.kernel.org, AJvYcCUnq+G0bC/8YY/eZMv0Z+mSwhOv0U8uhqerwBYGXH9sKLybk6v2gY/qufNulACqvC5OeLO/bvxOe7EIfQ==@vger.kernel.org, AJvYcCWwn1pUPiADufwKji5qkuaLPWeX3agPHdymzTVmBixq4Y5//G8HtpNr80Zl17PNdCgW8xc=@vger.kernel.org, AJvYcCXmFW72r7DAESUCVOtosFsQYzv/iN4GnzePO3s778hbSDe5nufqTsA1AIvCo5vK4UpTykesvHzX3zEz5J51@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy3OJVmpWHQo2PmXgi4T/2K9W6Wk2agxxAuEUSCdmJM9XplcNxs
-	VysRuJB4d/s+MkU4N4wYV1vjUHaw3N5Q8tYceEeY4Q/PYDf1mc/nOR1/EbMOCft3
-X-Gm-Gg: ASbGncsOut6KLYqepuAZln6oPYDFLWbFqEla7zCMc4czko2nDEAtMC4BMv7pnbx/0V1
-	/E4p4sgWo5qm6XByxkxd4ivi7U/+TJd870atCcogFy+le6NkSUr4EpGsRNHUm+mCaQ5pY2Y0ja9
-	OUh1ojXPBiYaevsaq/6t1JN9F2lwaBCUjysozHwnHZqPJzbeDovoDoQN/wJ2hs82DpktrMVC8eq
-	V8Is4xZkZC3UNsjmvDLwAmpifRnhWEFA4lwXchGyftmV8RbVLKHn9qWPbWiAY1/k1cEnYoTnSaU
-	LsTEY9dv/WdHSVj5tgVERV+Z1QOSaF2+5tkDhdGpxp9/gNCG9gI9x7pYO4oFMekz2OgdiLKQn27
-	uIv5u10mEVp4r7JW524AAZhtVpQ==
-X-Google-Smtp-Source: AGHT+IFo45A+ox/+HcyhDozQVdTe0ElxogJQCoID3RNAqDuP/D63LOZ2vEtEwf7P4gdQW62O97NqaQ==
-X-Received: by 2002:a17:90b:58c4:b0:31e:cb1a:3dc5 with SMTP id 98e67ed59e1d1-3211620acdfmr21293942a91.11.1754414066250;
-        Tue, 05 Aug 2025 10:14:26 -0700 (PDT)
-Received: from ?IPv6:2620:10d:c096:14a::6? ([2620:10d:c090:600::1:255e])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-31f63da5719sm17523330a91.6.2025.08.05.10.14.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Aug 2025 10:14:25 -0700 (PDT)
-Message-ID: <d71dc18f397becb9e7120a0f3253828d045e1ae0.camel@gmail.com>
-Subject: Re: [PATCH v3 1/2] libbpf: Add the ability to suppress perf event
- enablement
-From: Eduard Zingerman <eddyz87@gmail.com>
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Ilya Leoshkevich
-	 <iii@linux.ibm.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann
- <daniel@iogearbox.net>,  Andrii Nakryiko <andrii@kernel.org>, Ian Rogers
- <irogers@google.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,  bpf
- <bpf@vger.kernel.org>, "linux-perf-use."
- <linux-perf-users@vger.kernel.org>, LKML	 <linux-kernel@vger.kernel.org>,
- linux-s390 <linux-s390@vger.kernel.org>,  Thomas Richter
- <tmricht@linux.ibm.com>, Jiri Olsa <jolsa@kernel.org>, Heiko Carstens
- <hca@linux.ibm.com>,  Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>
-Date: Tue, 05 Aug 2025 10:14:23 -0700
-In-Reply-To: <CAADnVQ+6WuHrrAg1bQ+-6p1zZAWQVC_EGtt9ocv5aZE9=CxB5g@mail.gmail.com>
-References: <20250805130346.1225535-1-iii@linux.ibm.com>
-	 <20250805130346.1225535-2-iii@linux.ibm.com>
-	 <CAADnVQ+6WuHrrAg1bQ+-6p1zZAWQVC_EGtt9ocv5aZE9=CxB5g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-1.fc42) 
+        bh=RZ2R+1+DK7TrYxovSWYDOowvbSOnIqHJEfLqNkyHn6I=;
+        b=DV8q45ZkvUMNCri6ZjyngdhxkZ2rC+bK3lHPcwzVdErPj7YEBK13ABfNtvQxB+kn2Q
+         WggFL9OwiZhEiV7mJ18Qg8o+XSZAt+NTTQ0rJOq84ltSMJIsQ9JXaHh1W7/A8K2p86Dq
+         GkSOPl1UDR1ifTWfZHAyO0udFQhkZ4DKcgukboHAngxRlIkIM9UExuNl/+SPIU4FxUkQ
+         M5kK9F2Llr1QVLNep7XrZ50ygpafY7vAHRdAp5LGWn0blkjsyhCLS4U4TMpcwBK+CQY5
+         V+tA+fFiAs9tstTk7XKNxerE3tUx97jWXxmkeazG/LiEHAH5Hjh67VBWdT7EFBkNX7BL
+         SwZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754414292; x=1755019092;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RZ2R+1+DK7TrYxovSWYDOowvbSOnIqHJEfLqNkyHn6I=;
+        b=dellUabMFG9gpX0a9OzReQERHInMiMj6oaV9dCOyPRdZmtdHGZz9CzCYQRVMXdACjd
+         P9z4+dZGTYeWNd+pK1WLWAAWPOhKyIvv+hVR0HodWFA5lHu7e6TrOVH4ZF1T6GeYV/SB
+         KUcsUP38K4RwZvR7tgtRsNDW/BTvBoh/kKAJgTge+Ej7wwVeL9A8FY4YEJjOtRg3poam
+         WSz+8my56fvCUpzisLXIXOl7oa5VOKXOfzVdWQEfJRasRU4TXDSBU2gyTVtNZCDaK72Y
+         FzTAz7qNqmIEzOnGezJp9PSofIfaJsFqk82yPGBDP1y9PR/jXBIuQpE21CnGHgXdNVJ8
+         iQ1w==
+X-Forwarded-Encrypted: i=1; AJvYcCWHnGudijM0oLEsHHYubs+vvh3Jw2IT9atWXE+7dyJ8kUCOBcyGngRuG76PJDfb1U16I63zZdz1EhUegA==@vger.kernel.org, AJvYcCWaJT5WyAdc5BHpqlTSB1LyaCtgFpMvtamyk33WSIGmU+j1Kg/GRLb+20zAiOAqy2ma/frU4/nLOjS87oQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZdy97ZH+9/25N2UeA32S+BEf+cZRRWkqmPPNgjHOsPu9B2GOe
+	wHGacz3L6g0RUEjNEA+JCIYqLq1EnLvaOZqPIdNCBxD/qXtjgZaHFxyi
+X-Gm-Gg: ASbGncudbOD8L72FJPJmyBydXGhxEt097gRdzPqW5oEH2MTK/0z9hnYb6Y/1KD9iFT0
+	Pijdg3XucE9zUpv22t0OVIuVsnWYxo/B99A4ELBGezGYV/e0SsePE2RvXGkgg3LPxn2mj2qItpG
+	YyP7QMFl9qYuKIo+9sN0ZJQaluyDkKVN69Clr+Av/A2SssYFAUQmszLdbwAtWT/xLG4tinagyOX
+	MnikTRFifCMR1gNz8Iq/4hF+qg2AlQe87tXQo/WIUwVKWHWkYga/Xu1eLMEvSJDN/Np+Df+gPoA
+	rYcJ+xpQCr2xXYMJuhUrZFzWG9HOLyGDXsNFF7bqxAVWd4lEHT0coXRC/GeFv3bm+Q7bNCfmFr2
+	FsyHH8dcgDaI88VeUwkN2wOouS8rlWR79oaBDTOBlnGAberjrFQ==
+X-Google-Smtp-Source: AGHT+IFS2HbTLqS5A/HgTtiIoYjwUumHARImAD+oD4FUxoQg3JqtFBL0/dOcC7iWrPVn65io3WaVpA==
+X-Received: by 2002:a2e:be24:0:b0:32b:5a24:b9d8 with SMTP id 38308e7fff4ca-33256856534mr14686731fa.8.1754414291879;
+        Tue, 05 Aug 2025 10:18:11 -0700 (PDT)
+Received: from [10.214.35.248] ([80.93.240.68])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-332382be4a7sm21072541fa.32.2025.08.05.10.18.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Aug 2025 10:18:11 -0700 (PDT)
+Message-ID: <e15e1012-566f-45a7-81d5-fd504af780da@gmail.com>
+Date: Tue, 5 Aug 2025 19:17:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 5/9] kasan/loongarch: select ARCH_DEFER_KASAN and call
+ kasan_init_generic
+To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>, hca@linux.ibm.com,
+ christophe.leroy@csgroup.eu, andreyknvl@gmail.com, agordeev@linux.ibm.com,
+ akpm@linux-foundation.org, zhangqing@loongson.cn, chenhuacai@loongson.cn,
+ trishalfonso@google.com, davidgow@google.com
+Cc: glider@google.com, dvyukov@google.com, kasan-dev@googlegroups.com,
+ linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
+References: <20250805142622.560992-1-snovitoll@gmail.com>
+ <20250805142622.560992-6-snovitoll@gmail.com>
+Content-Language: en-US
+From: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+In-Reply-To: <20250805142622.560992-6-snovitoll@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, 2025-08-05 at 09:45 -0700, Alexei Starovoitov wrote:
-> On Tue, Aug 5, 2025 at 6:04=E2=80=AFAM Ilya Leoshkevich <iii@linux.ibm.co=
-m> wrote:
-> >=20
-> > Automatically enabling a perf event after attaching a BPF prog to it is
-> > not always desirable.
-> >=20
-> > Add a new no_ioctl_enable field to struct bpf_perf_event_opts. While
-> > introducing ioctl_enable instead would be nicer in that it would avoid
-> > a double negation in the implementation, it would make
-> > DECLARE_LIBBPF_OPTS() less efficient.
-> >=20
-> > Suggested-by: Jiri Olsa <jolsa@kernel.org>
-> > Co-developed-by: Thomas Richter <tmricht@linux.ibm.com>
-> > Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-> > Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> > ---
 
-Acked-by: Eduard Zingerman <eddyz87@gmail.com>
 
-[...]
+On 8/5/25 4:26 PM, Sabyrzhan Tasbolatov wrote:
+> LoongArch needs deferred KASAN initialization as it has a custom
+> kasan_arch_is_ready() implementation that tracks shadow memory
+> readiness via the kasan_early_stage flag.
+> 
+> Select ARCH_DEFER_KASAN to enable the unified static key mechanism
+> for runtime KASAN control. Call kasan_init_generic() which handles
+> Generic KASAN initialization and enables the static key.
+> 
+> Replace kasan_arch_is_ready() with kasan_enabled() and delete the
+> flag kasan_early_stage in favor of the unified kasan_enabled()
+> interface.
+> 
+> Note that init_task.kasan_depth = 0 is called after kasan_init_generic(),
+> which is different than in other arch kasan_init(). This is left
+> unchanged as it cannot be tested.
+> 
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=217049
+> Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+> ---
+> Changes in v4:
+> - Replaced !kasan_enabled() with !kasan_shadow_initialized() in
+>   loongarch which selects ARCH_DEFER_KASAN (Andrey Ryabinin)
+> ---
+>  arch/loongarch/Kconfig             | 1 +
+>  arch/loongarch/include/asm/kasan.h | 7 -------
+>  arch/loongarch/mm/kasan_init.c     | 8 ++------
+>  3 files changed, 3 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+> index f0abc38c40a..f6304c073ec 100644
+> --- a/arch/loongarch/Kconfig
+> +++ b/arch/loongarch/Kconfig
+> @@ -9,6 +9,7 @@ config LOONGARCH
+>  	select ACPI_PPTT if ACPI
+>  	select ACPI_SYSTEM_POWER_STATES_SUPPORT	if ACPI
+>  	select ARCH_BINFMT_ELF_STATE
+> +	select ARCH_DEFER_KASAN
+>  	select ARCH_DISABLE_KASAN_INLINE
+>  	select ARCH_ENABLE_MEMORY_HOTPLUG
+>  	select ARCH_ENABLE_MEMORY_HOTREMOVE
+> diff --git a/arch/loongarch/include/asm/kasan.h b/arch/loongarch/include/asm/kasan.h
+> index 62f139a9c87..0e50e5b5e05 100644
+> --- a/arch/loongarch/include/asm/kasan.h
+> +++ b/arch/loongarch/include/asm/kasan.h
+> @@ -66,7 +66,6 @@
+>  #define XKPRANGE_WC_SHADOW_OFFSET	(KASAN_SHADOW_START + XKPRANGE_WC_KASAN_OFFSET)
+>  #define XKVRANGE_VC_SHADOW_OFFSET	(KASAN_SHADOW_START + XKVRANGE_VC_KASAN_OFFSET)
+>  
+> -extern bool kasan_early_stage;
+>  extern unsigned char kasan_early_shadow_page[PAGE_SIZE];
+>  
+>  #define kasan_mem_to_shadow kasan_mem_to_shadow
+> @@ -75,12 +74,6 @@ void *kasan_mem_to_shadow(const void *addr);
+>  #define kasan_shadow_to_mem kasan_shadow_to_mem
+>  const void *kasan_shadow_to_mem(const void *shadow_addr);
+>  
+> -#define kasan_arch_is_ready kasan_arch_is_ready
+> -static __always_inline bool kasan_arch_is_ready(void)
+> -{
+> -	return !kasan_early_stage;
+> -}
+> -
+>  #define addr_has_metadata addr_has_metadata
+>  static __always_inline bool addr_has_metadata(const void *addr)
+>  {
+> diff --git a/arch/loongarch/mm/kasan_init.c b/arch/loongarch/mm/kasan_init.c
+> index d2681272d8f..57fb6e98376 100644
+> --- a/arch/loongarch/mm/kasan_init.c
+> +++ b/arch/loongarch/mm/kasan_init.c
+> @@ -40,11 +40,9 @@ static pgd_t kasan_pg_dir[PTRS_PER_PGD] __initdata __aligned(PAGE_SIZE);
+>  #define __pte_none(early, pte) (early ? pte_none(pte) : \
+>  ((pte_val(pte) & _PFN_MASK) == (unsigned long)__pa(kasan_early_shadow_page)))
+>  
+> -bool kasan_early_stage = true;
+> -
+>  void *kasan_mem_to_shadow(const void *addr)
+>  {
+> -	if (!kasan_arch_is_ready()) {
+> +	if (!kasan_shadow_initialized()) {
+>  		return (void *)(kasan_early_shadow_page);
+>  	} else {
+>  		unsigned long maddr = (unsigned long)addr;
+> @@ -298,8 +296,6 @@ void __init kasan_init(void)
+>  	kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_START),
+>  					kasan_mem_to_shadow((void *)KFENCE_AREA_END));
+>  
+> -	kasan_early_stage = false;
+> -
 
-> > --- a/tools/lib/bpf/libbpf.h
-> > +++ b/tools/lib/bpf/libbpf.h
-> > @@ -499,9 +499,11 @@ struct bpf_perf_event_opts {
-> >         __u64 bpf_cookie;
-> >         /* don't use BPF link when attach BPF program */
-> >         bool force_ioctl_attach;
-> > +       /* don't automatically enable the event */
-> > +       bool no_ioctl_enable;
->=20
-> The patch logic looks fine, but I feel the knob name is too
-> implementation oriented.
-> imo "dont_auto_enable" is more descriptive and easier
-> to reason about.
->=20
-> Let's wait for Eduard/Andrii reviews. This patch has to go
-> via bpf trees first while the latter via perf.
+There is a reason for this line to be here.
+Your patch will change the result of the follow up kasan_mem_to_shadow() call and
+feed the wrong address to kasan_map_populate()
 
-Agree with Alexei,
-something like "dont_enable" should be simpler to read.
+
+>  	/* Populate the linear mapping */
+>  	for_each_mem_range(i, &pa_start, &pa_end) {
+>  		void *start = (void *)phys_to_virt(pa_start);
+> @@ -329,5 +325,5 @@ void __init kasan_init(void)
+>  
+>  	/* At this point kasan is fully initialized. Enable error messages */
+>  	init_task.kasan_depth = 0;
+> -	pr_info("KernelAddressSanitizer initialized.\n");
+> +	kasan_init_generic();
+>  }
+
