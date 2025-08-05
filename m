@@ -1,63 +1,63 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5035627A47E;
-	Tue,  5 Aug 2025 14:26:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE60727B4F7;
+	Tue,  5 Aug 2025 14:26:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754404004; cv=none; b=m8r8BKfJSRJ8iRBHUnTrtUw3m7/H4STst0w6vvSp9c9KaXBgbMQjDebfO+Qolh6LrbDQCLCGOulsXEDmI9zJs1L0RO+raJYacB99rhE5ZAlxTKwMVvzH7blcOdsUHnc1E+jGwRp+jOFgAte7qWJjvGXBsVmJkPxUjxl6bBi99pA=
+	t=1754404006; cv=none; b=CpaIbCwIto4EZEmWuLyJEi2MAbqj+kRd19fuuIKHZ3VLHuZqUSTV/Qv3o+DmoMdOM6+J92fxCs4wZckx+00vA1OUtgCX6H799qyla5r2z6l8+Qo89MuSSqz7QCodM3NJaUjTebZbnfQ0MuzIlwHljb+KOJA6DGUTV5d0pAhIvc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754404004; c=relaxed/simple;
-	bh=7epp5zkqN4XDShph3ucilCsVpuCVnzjWU33NaR7AXbM=;
+	s=arc-20240116; t=1754404006; c=relaxed/simple;
+	bh=0+YxMXVG8MURIRmahEKn+nTfC5J8vQnslz9SF4x43H4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=H8Mfj4HCdXy7OHfn3QwBut5EIbadFbCSAkoVaJzj1LngPlwOG3/DZpNe1RgkooNcURGM7TaidtqxJ5fwtr2BOmRu0s+3K4antl8N+b1LU5ylF4j/JwLkGneMIQOrXZIHEiKt8tYmEnheUVTU59xQKBnuiSx2cZ5Lxn6IFy9PBfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZkETZsJN; arc=none smtp.client-ip=209.85.167.44
+	 MIME-Version; b=faEELvYdBomi9sZlul6iwIakfHnj23XML6vl4mdgm5pN+tFb79Z/fDmWiBf7y3AIBBQHpy5/VHNHPOOk7+hZZjtA95uuw3kAq5Rglly65sZ4igXBfGSXkpqpH1SYY9u6Wx1SjeY4huv+4l1gVOeGkzmFlNUV1GOlfp58YWV2YnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y87AjhHy; arc=none smtp.client-ip=209.85.167.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZkETZsJN"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-55b827aba01so3852348e87.0;
-        Tue, 05 Aug 2025 07:26:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y87AjhHy"
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-55b85413019so6016399e87.0;
+        Tue, 05 Aug 2025 07:26:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754404000; x=1755008800; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754404003; x=1755008803; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DndoJEoEU+djai/jF18bii/cwZvYONRQ0C6xs3DhJyU=;
-        b=ZkETZsJNq2TD6twfQnvTBHi8qv5isC9D1kAUj5jc4TKGyiOQmwz1pPyUxaz023x7wl
-         olurgpvRMNQrw5tDRmnZt2cXivnEakVU2UBcb3EQq9LArQHhrlvBRTtpeLyDO07GemWf
-         j8puVw0g59OppkqIs5a1qzcHCv4zO7d6Wr4lGsMzzaIfTtidkgOGzKkHkVj3J8eyMMlK
-         BfhKGC1tiooLxk/SxmugJ+4Pa5XNU9eUJ1YDMTeXomHARzcVaPr/Ia4nmuw+P9TTFsSp
-         RVETXZBzZuw01/icpB7UJctPO37rePy2lc+LcvtN75URps7eW4U+JoW2oK7ZA6ldaq5/
-         1xhg==
+        bh=Pl3xBvbmXoSLjMyBTIqb051cyNY5upcj2qfXScxGTG8=;
+        b=Y87AjhHyUou+tJhv43AkRByseg23fFi3J3KHHq+vK2Ob4+SEpLPdi5vqLPtfZ1AtrD
+         bfXg6+1cGmpe/SZ/XffLJwAgdOA0470rD4dEkedtXHqbfsRlmA48OqZli9XoXDKw/fmW
+         SaYS2gaVhd35qK4VTkcoY7p0nDZZcxPTKXx8ViRcL7mTMuNYgSAaEIcuEMvjDCbeTqjD
+         csJK1Vl/XKZqNkWWxgZOtn/PIuUPSYrwQJ2ui74kaxvN1rinFvxY92FZGlnvXeotW4l+
+         30kTz0CNcrIB69T/55FfZghh1CPQPn7N/gENnsTabprlndcFy6DQ0pg2EFA/45SELJlb
+         rCmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754404000; x=1755008800;
+        d=1e100.net; s=20230601; t=1754404003; x=1755008803;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DndoJEoEU+djai/jF18bii/cwZvYONRQ0C6xs3DhJyU=;
-        b=LysKlHEgjY9g730W1KLvalq9lfoIQKvhjrkHab7DB5oMYRxcjtxbq0kBCoXely7cus
-         FTQdqAEVtiX2pCl8B8td4ffQlHL+HCpJYOfVWJ642hRg1QeU36amhDkUW6kNlGhSI0bo
-         5cVfafFotu8l8/+Kve4QxyR29XMKYX7Dx1ljCZcebeUhMDJJrIt4fbrFKiFkQ6O0HBMY
-         75kM7ggQfdrQKFjxmT4c1KmTkF9zJxxoCYum3D+6nHaMPHvZmw95+H95EqFW3tpWPSTi
-         ndHF/T8gb4fVl0oIqBcREY3zZGy5t0hgJzCAIO9XqsfZb3lpnsXtMapaCCyotplAVBmc
-         GsmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUf0J3hucLoPUpRQQEqqok77mNkDuoAmkhNT8ONC9A9zOC0tMEt+8xk5bXUi+eTaxea5HE6QnXe/MJp+Bo=@vger.kernel.org, AJvYcCVbJ5VrgzhrR03U3DcAtLQRW4GQx+WALNNa6iQ9sr7SdkVMqVJAcSJn1CzgzJiPP5pLpwyHWlj8KGd9qA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLhJBpFKTGKA8GxbNNgjWk6/JyxfM7bpKG6YJW/qwteL53fEDC
-	HwUZCUWpz3rOvj00NWrZbFt4ULkWGSddEznL6+pzH0GJ09E58qY0NJhr
-X-Gm-Gg: ASbGncvg4HK6ux4yUjT2pov2aVj/2Lfpq2JCe9xlKMScxWJKUFGguvkR/+gZEW8blN2
-	qXdvulF8uZIJGiG6PnoE1w2VN5nYTaKjzbVcE8qrBYjAMjeOKcDhUg57/HjiSMbERg0sdlM+wL4
-	Jl5FNv+1MAGYhbaTM7mxmi58O5QcZxStU7oCywTRvy9RW+54N+serhSbvh44GVjgOCAG4un3dCa
-	wr6zR87KpqF9fIajooTNksfrPNkWYTjYwOJcAuLqW/A+UCq6GlepuQsvpTpn18jlKLJQ2iosXaI
-	+AtF8WbcELqyjOMLktNH3PAmDun6LwQPMfcnk499HshNnhmczJbDMwK7lCe+Ml9OOu9J3V5fhfN
-	RGPk+mJa40o+3t4leo+xb3yFM/FkRDTcgJ3oPE15eATrgrPtoxqHwTpQheK3PhiKZdFSXAg==
-X-Google-Smtp-Source: AGHT+IG8YXFpsfEvWLWpJ0j6eFW8/n9npKWJxSkpHVdxT2hyDgxCfNXo+mPOdolEzpL3+MkF6IOdvw==
-X-Received: by 2002:a05:6512:1387:b0:553:25f4:695c with SMTP id 2adb3069b0e04-55b97bc54b1mr4200362e87.50.1754404000307;
-        Tue, 05 Aug 2025 07:26:40 -0700 (PDT)
+        bh=Pl3xBvbmXoSLjMyBTIqb051cyNY5upcj2qfXScxGTG8=;
+        b=TLZEBdSGN1uSixXsTm860cQrDLRMfxDIBjlAlW1NjWXMPImUXJCJifiSKYjSO3s2m+
+         54+JU8SOEeqxY+MeJr+FN9HnIerss1na8NtGiAiVYDjR6feeFe+qfBeIlngbS3LU/o8G
+         sJNVZGbbG9ujiJ+WeZPlkgkAqs0mqa7fu6F0t063h/69gb6yCcvdkGhhdfB3v9109Sfy
+         ZewwWsRkax611nAVAhxGNwpgVJboTHphVJ+segtkpdIjnE7Vq73hG6Rtka87u71eEGaC
+         BCpN3w7xXy9G8hxHgomXeZEqSV9LmuIMn08o5lh9syE0g6mgTsesBPMDklmOe8UpY4mv
+         AuTQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVXseex/SLYgtUyg1QjMLIb6sjPhR/yFO45Xc7JtalYc4upFWvGg1Grih3kCPQmVzncw62zoin6Vutyj/w=@vger.kernel.org, AJvYcCXuGZxQ6Bt2zo1DRTddBOJ7DPDpFYb3CrvKgBAdWGubZOmCQSCHJ5garAZZnY9yQwneBdlSwtWW7R0oXw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YwDPEYNUpg9zJe/FF5gOxt7YaP7Bn47HEEa7Mx1vKcG4XcajRCE
+	EF3K7OcwifQw4P1g9GgMaP38pbZYIKxI9JfkTA8OBsNUm2wc7eX9Zoow
+X-Gm-Gg: ASbGncsu+HdOk8G5+uf9OPJLE+rJLNMa9ODp5U6WN2gQHQWfvEUmbSA1tHWtJi3dfnr
+	dt7ss2A2ZTNhVqkMaQEKhgat+s9AT/pBLCOuM8j1pnFih2EFQZSh/IstvWOnwnsyWKjw4db8myR
+	Tv5xwr2p2efSFa9KsMkesHyB3agNpSI+IhMRtJ44G/KoM0Bocr0g92ny/C1raTIAUindMUKc9Sd
+	YkldkTW7rGxUcZUWGG76dkTjdzv45LU+dWBCYhUG1wfx2erWstP9NmF0+008oBPwyE/Slo9YN9M
+	1jeWV4yRhxaXYvsm+IkBeqkIJFA+/EvvMg4gS9bQR0PefFKVQqCveq57rIFCiEAtpnJpx1pgY96
+	NhB8IvDI6kACpR4G8FfdR5eTW4GyXESfouUtgM69tTNb5bzY4qfZ0Wjz8xvT9k2H0EpQ0Pg==
+X-Google-Smtp-Source: AGHT+IGVveeqR4Cp++JX2gYkKHclckYO0JnGR061NIJDmvQ7jhspWng2d4EVRtNzF0MnSLGE8X42Dw==
+X-Received: by 2002:a05:6512:ba8:b0:55b:8e3e:2be6 with SMTP id 2adb3069b0e04-55b97b2971dmr4253074e87.24.1754404002655;
+        Tue, 05 Aug 2025 07:26:42 -0700 (PDT)
 Received: from localhost.localdomain (178.90.89.143.dynamic.telecom.kz. [178.90.89.143])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-55b889a290fsm1976379e87.54.2025.08.05.07.26.38
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-55b889a290fsm1976379e87.54.2025.08.05.07.26.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Aug 2025 07:26:39 -0700 (PDT)
+        Tue, 05 Aug 2025 07:26:42 -0700 (PDT)
 From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 To: ryabinin.a.a@gmail.com,
 	hca@linux.ibm.com,
@@ -80,9 +80,9 @@ Cc: glider@google.com,
 	linux-um@lists.infradead.org,
 	linux-mm@kvack.org,
 	snovitoll@gmail.com
-Subject: [PATCH v4 5/9] kasan/loongarch: select ARCH_DEFER_KASAN and call kasan_init_generic
-Date: Tue,  5 Aug 2025 19:26:18 +0500
-Message-Id: <20250805142622.560992-6-snovitoll@gmail.com>
+Subject: [PATCH v4 6/9] kasan/um: select ARCH_DEFER_KASAN and call kasan_init_generic
+Date: Tue,  5 Aug 2025 19:26:19 +0500
+Message-Id: <20250805142622.560992-7-snovitoll@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250805142622.560992-1-snovitoll@gmail.com>
 References: <20250805142622.560992-1-snovitoll@gmail.com>
@@ -94,104 +94,130 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-LoongArch needs deferred KASAN initialization as it has a custom
-kasan_arch_is_ready() implementation that tracks shadow memory
-readiness via the kasan_early_stage flag.
+UserMode Linux needs deferred KASAN initialization as it has a custom
+kasan_arch_is_ready() implementation that tracks shadow memory readiness
+via the kasan_um_is_ready flag.
 
-Select ARCH_DEFER_KASAN to enable the unified static key mechanism
-for runtime KASAN control. Call kasan_init_generic() which handles
-Generic KASAN initialization and enables the static key.
+As it's explained in commit 5b301409e8bc("UML: add support for KASAN
+under x86_64"), if CONFIG_STATIC_LINK=y, then it works only with
+CONFIG_KASAN_OUTLINE instrumentation.
 
-Replace kasan_arch_is_ready() with kasan_enabled() and delete the
-flag kasan_early_stage in favor of the unified kasan_enabled()
-interface.
+Calling kasan_init_generic() in the end of kasan_init() like in other
+arch does not work for UML as kasan_init() is called way before
+main()->linux_main(). It produces the SEGFAULT in:
+kasan_init()
+	kasan_init_generic
+		kasan_enable
+		static_key_enable
+			STATIC_KEY_CHECK_USE
+...
+<kasan_init+173>    movabs r9, kasan_flag_enabled
+<kasan_init+183>    movabs r8, __func__.2
+<kasan_init+193>    movabs rcx, 0x60a04540
+<kasan_init+203>    movabs rdi, 0x60a045a0
+<kasan_init+213>    movabs r10, warn_slowpath_fmt
+	 WARN_ON_ONCE("static key '%pS' used before call to jump_label_init()")
+<kasan_init+226>    movabs r12, kasan_flag_enabled
 
-Note that init_task.kasan_depth = 0 is called after kasan_init_generic(),
-which is different than in other arch kasan_init(). This is left
-unchanged as it cannot be tested.
+That's why we need to call kasan_init_generic() which enables the
+static flag after jump_label_init(). The earliest available place
+is arch_mm_preinit().
+
+kasan_init()
+main()
+	start_kernel
+		setup_arch
+		jump_label_init
+		...
+		mm_core_init
+			arch_mm_preinit
+				kasan_init_generic()
+
+PowerPC, for example, has kasan_late_init() in arch_mm_preinit().
+Though there is no static key enabling there, but it should be the best
+place to enable KASAN "fully".
+
+Verified with defconfig, enabling KASAN.
 
 Closes: https://bugzilla.kernel.org/show_bug.cgi?id=217049
 Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 ---
 Changes in v4:
-- Replaced !kasan_enabled() with !kasan_shadow_initialized() in
-  loongarch which selects ARCH_DEFER_KASAN (Andrey Ryabinin)
+- Addressed the issue in UML arch, where kasan_init_generic() is
+  called before jump_label_init() (Andrey Ryabinin)
 ---
- arch/loongarch/Kconfig             | 1 +
- arch/loongarch/include/asm/kasan.h | 7 -------
- arch/loongarch/mm/kasan_init.c     | 8 ++------
- 3 files changed, 3 insertions(+), 13 deletions(-)
+ arch/um/Kconfig             |  1 +
+ arch/um/include/asm/kasan.h |  5 -----
+ arch/um/kernel/mem.c        | 12 +++++++++---
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-index f0abc38c40a..f6304c073ec 100644
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -9,6 +9,7 @@ config LOONGARCH
- 	select ACPI_PPTT if ACPI
- 	select ACPI_SYSTEM_POWER_STATES_SUPPORT	if ACPI
- 	select ARCH_BINFMT_ELF_STATE
+diff --git a/arch/um/Kconfig b/arch/um/Kconfig
+index 9083bfdb773..8d14c8fc2cd 100644
+--- a/arch/um/Kconfig
++++ b/arch/um/Kconfig
+@@ -5,6 +5,7 @@ menu "UML-specific options"
+ config UML
+ 	bool
+ 	default y
 +	select ARCH_DEFER_KASAN
- 	select ARCH_DISABLE_KASAN_INLINE
- 	select ARCH_ENABLE_MEMORY_HOTPLUG
- 	select ARCH_ENABLE_MEMORY_HOTREMOVE
-diff --git a/arch/loongarch/include/asm/kasan.h b/arch/loongarch/include/asm/kasan.h
-index 62f139a9c87..0e50e5b5e05 100644
---- a/arch/loongarch/include/asm/kasan.h
-+++ b/arch/loongarch/include/asm/kasan.h
-@@ -66,7 +66,6 @@
- #define XKPRANGE_WC_SHADOW_OFFSET	(KASAN_SHADOW_START + XKPRANGE_WC_KASAN_OFFSET)
- #define XKVRANGE_VC_SHADOW_OFFSET	(KASAN_SHADOW_START + XKVRANGE_VC_KASAN_OFFSET)
+ 	select ARCH_WANTS_DYNAMIC_TASK_STRUCT
+ 	select ARCH_HAS_CACHE_LINE_SIZE
+ 	select ARCH_HAS_CPU_FINALIZE_INIT
+diff --git a/arch/um/include/asm/kasan.h b/arch/um/include/asm/kasan.h
+index f97bb1f7b85..81bcdc0f962 100644
+--- a/arch/um/include/asm/kasan.h
++++ b/arch/um/include/asm/kasan.h
+@@ -24,11 +24,6 @@
  
--extern bool kasan_early_stage;
- extern unsigned char kasan_early_shadow_page[PAGE_SIZE];
- 
- #define kasan_mem_to_shadow kasan_mem_to_shadow
-@@ -75,12 +74,6 @@ void *kasan_mem_to_shadow(const void *addr);
- #define kasan_shadow_to_mem kasan_shadow_to_mem
- const void *kasan_shadow_to_mem(const void *shadow_addr);
- 
--#define kasan_arch_is_ready kasan_arch_is_ready
--static __always_inline bool kasan_arch_is_ready(void)
--{
--	return !kasan_early_stage;
--}
+ #ifdef CONFIG_KASAN
+ void kasan_init(void);
+-extern int kasan_um_is_ready;
 -
- #define addr_has_metadata addr_has_metadata
- static __always_inline bool addr_has_metadata(const void *addr)
+-#ifdef CONFIG_STATIC_LINK
+-#define kasan_arch_is_ready() (kasan_um_is_ready)
+-#endif
+ #else
+ static inline void kasan_init(void) { }
+ #endif /* CONFIG_KASAN */
+diff --git a/arch/um/kernel/mem.c b/arch/um/kernel/mem.c
+index 76bec7de81b..704a26211ed 100644
+--- a/arch/um/kernel/mem.c
++++ b/arch/um/kernel/mem.c
+@@ -21,10 +21,10 @@
+ #include <os.h>
+ #include <um_malloc.h>
+ #include <linux/sched/task.h>
++#include <linux/kasan.h>
+ 
+ #ifdef CONFIG_KASAN
+-int kasan_um_is_ready;
+-void kasan_init(void)
++void __init kasan_init(void)
  {
-diff --git a/arch/loongarch/mm/kasan_init.c b/arch/loongarch/mm/kasan_init.c
-index d2681272d8f..57fb6e98376 100644
---- a/arch/loongarch/mm/kasan_init.c
-+++ b/arch/loongarch/mm/kasan_init.c
-@@ -40,11 +40,9 @@ static pgd_t kasan_pg_dir[PTRS_PER_PGD] __initdata __aligned(PAGE_SIZE);
- #define __pte_none(early, pte) (early ? pte_none(pte) : \
- ((pte_val(pte) & _PFN_MASK) == (unsigned long)__pa(kasan_early_shadow_page)))
- 
--bool kasan_early_stage = true;
--
- void *kasan_mem_to_shadow(const void *addr)
- {
--	if (!kasan_arch_is_ready()) {
-+	if (!kasan_shadow_initialized()) {
- 		return (void *)(kasan_early_shadow_page);
- 	} else {
- 		unsigned long maddr = (unsigned long)addr;
-@@ -298,8 +296,6 @@ void __init kasan_init(void)
- 	kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_START),
- 					kasan_mem_to_shadow((void *)KFENCE_AREA_END));
- 
--	kasan_early_stage = false;
--
- 	/* Populate the linear mapping */
- 	for_each_mem_range(i, &pa_start, &pa_end) {
- 		void *start = (void *)phys_to_virt(pa_start);
-@@ -329,5 +325,5 @@ void __init kasan_init(void)
- 
- 	/* At this point kasan is fully initialized. Enable error messages */
+ 	/*
+ 	 * kasan_map_memory will map all of the required address space and
+@@ -32,7 +32,10 @@ void kasan_init(void)
+ 	 */
+ 	kasan_map_memory((void *)KASAN_SHADOW_START, KASAN_SHADOW_SIZE);
  	init_task.kasan_depth = 0;
--	pr_info("KernelAddressSanitizer initialized.\n");
-+	kasan_init_generic();
+-	kasan_um_is_ready = true;
++	/* Since kasan_init() is called before main(),
++	 * KASAN is initialized but the enablement is deferred after
++	 * jump_label_init(). See arch_mm_preinit().
++	 */
  }
+ 
+ static void (*kasan_init_ptr)(void)
+@@ -58,6 +61,9 @@ static unsigned long brk_end;
+ 
+ void __init arch_mm_preinit(void)
+ {
++	/* Safe to call after jump_label_init(). Enables KASAN. */
++	kasan_init_generic();
++
+ 	/* clear the zero-page */
+ 	memset(empty_zero_page, 0, PAGE_SIZE);
+ 
 -- 
 2.34.1
 
