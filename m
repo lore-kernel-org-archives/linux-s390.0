@@ -1,73 +1,72 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16A72550DD
-	for <linux-s390@vger.kernel.org>; Tue,  5 Aug 2025 12:09:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 704E326F45D
+	for <linux-s390@vger.kernel.org>; Tue,  5 Aug 2025 12:12:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754395760; cv=none; b=j4XMC2MSeABGDAtvPZgkLgjEu4pVPYqGXnkneKVs8Btla4Awdrx6Oei4VgRXTGHNljfEPXzOWaLiYE7PdiQXzP7uR8QeMj4ug5dKhYUCYSKN8v65FrJO6AjCXFmfXiMgs2LavwQKhwdJJ0JgG3Dhx1j7TtMd9loQxhnFfmeNbj8=
+	t=1754395924; cv=none; b=CCFUGljqsZF8wGPWnxvx3j0lXH4w8TSwremR+MgopfAmoV2cZz0/wl89wvXwD+fnuIvAFAO+OMaNMMxhVn/qZOHhZONPdIei9gAr7BmaueFjDWMvyzkQRzVrQy1m3Qb8LoQLEzwBhp4rUbneVswFup08XWDAsncdCrpVolyFYZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754395760; c=relaxed/simple;
-	bh=4YEkrQgKpa9tyVagW9cBfffSfEXxSwg1X6OxfJYO19g=;
+	s=arc-20240116; t=1754395924; c=relaxed/simple;
+	bh=PkN2XX7pLKcIUWqfRErxMi4SNlpWdneWn9/g4TS296g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aiEy/A0Qer9ayHQBPSy7H00DhisJaLVkhice+WboQo+T8pBLxCEqPQc2bMjmooaiFUrS/UXd0phn7InBSpsIkzj3drxQB512hI9pIuprDdKR1vzQFj4pp77cCN9mlDSkDMqN4N93opixjyeD3upX8L/VD+KTGvJlHqpwDk8mt9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O66zRrwb; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=eqMhXQqn6UVdc884EMV2GYhUzT+l1Xg7/oyLMF6RHKxs6e6hGS0z1p+rEG7W2j05ZOc5u20t/QynNOewF4zinO/e18/WYY9Eot+CIG67sX9noe7+pRdc0h4ECQIpDOXrxFOqt4UXA0vzjIXc71THnZK8we7s37HblMgySyS84Uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e3vlgZOf; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O66zRrwb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e3vlgZOf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754395756;
+	s=mimecast20190719; t=1754395921;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=yHxtl1DwwIyTZIgGScRCJCvFqJGnoli7ahv7PabNDIs=;
-	b=O66zRrwbJ12fy2NfFic/qDGlkfd19bZhsBGVtjHd0yH1oGvbJLGAx1T1j/62avMLrJ0xWc
-	SBXI5hEkknoYcgHJwo48QNjiU77VwyJSaEkaH8w3zOekucNa2uECVHohicWOfTjbMpTvh/
-	UCxJX0QLDeB3rdt5ifBHVmCJ6PEnLqY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=SILdafDIUq6T1vxmByNHoLz/yQ+KxKADC56XxDUmCig=;
+	b=e3vlgZOfrho3yMxs/tt04e65k3T6GBxaRuNIfNrWjwaRJ3bLWJ2k6IGjCKs16txR2bBm7Z
+	SZCMzlkyn28y/mfbMTVrG2CbYMDvE+xDQuXZbL6anSPEVtrMoHiqoAiWo9M3AhlPlUmyb8
+	CzIHhO6BFET+mo44PbrcEEYypx80t/g=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-692-169GcxoYNnqT8vGB8J3qzw-1; Tue, 05 Aug 2025 08:09:14 -0400
-X-MC-Unique: 169GcxoYNnqT8vGB8J3qzw-1
-X-Mimecast-MFC-AGG-ID: 169GcxoYNnqT8vGB8J3qzw_1754395754
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45526e19f43so14062285e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 05 Aug 2025 05:09:14 -0700 (PDT)
+ us-mta-490--L15lSi8PvuplTT79PZtYA-1; Tue, 05 Aug 2025 08:12:00 -0400
+X-MC-Unique: -L15lSi8PvuplTT79PZtYA-1
+X-Mimecast-MFC-AGG-ID: -L15lSi8PvuplTT79PZtYA_1754395919
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-458c0845b34so15102065e9.2
+        for <linux-s390@vger.kernel.org>; Tue, 05 Aug 2025 05:11:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754395753; x=1755000553;
+        d=1e100.net; s=20230601; t=1754395919; x=1755000719;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt
          :content-language:from:references:cc:to:subject:user-agent
          :mime-version:date:message-id:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=yHxtl1DwwIyTZIgGScRCJCvFqJGnoli7ahv7PabNDIs=;
-        b=FtU8Fb1N12pf/TcMIixmWMLdR+lWkAnPlEmoR0cllztDA8r5buI6n9IFehbA2bIXdD
-         mTltpI7x6HKtA2VdfIvvXxyAbwktA38Ln8DhOkQfLyW8ZA8ZKDwQIGvelaADAthnopcx
-         BwlBeRUhISCAo+v8Acvj0UoBoj9XKq+dBZsf5z5e488hnRrgDl+gyaSRnS4th4zLxxO5
-         AZjsBu89el28SdMXlcPoOW/u1M9hO1pcEu4Pd/QFYTXRL/vUrGu0B+TBkcd4exKBCEVC
-         7GHARKz0uR+vyweLwECNnID4MNRDgw3pgl1XoVRjM9f0UtT64RAcf3TMjLGi0z5jJILN
-         zeXg==
-X-Gm-Message-State: AOJu0YwuqI7XxPWuX3vzUl9PLxVliTNBOs5Z5o4uUjw0HDM8XGTjJfjV
-	N1kuldfQuRzcolIGkX7NtR+5czywr6+oMnQJMxy/REmQFLb2ip6nbCTlGw4AJT4RGewR4LEhHhK
-	rLFC+gJN/Dw76mTtGNSTPIbYUevi23fVQ+BDDBXFlk+GowaOja9UuZAPEKTMLIqOWSrzCrIvOcw
-	==
-X-Gm-Gg: ASbGncuwRJ4LKHL04QROFc+xjKcECgaMlROI+9mK9q3p+5FG8Neyz5lkmmsxMvm23h0
-	3vUzN4UTjEqg//8oItm1a6W7D1cjx2bdZTKKE9Ptvdqd1qKEI64/Igx35Vg+YJK2pkwSoU0AWz9
-	Enn9fAGxhBmViX5U+6WV9IH5OrsqQJ/IUmg04RIqeSu7HpfGvAZx6/5f2Fb4v13SUjFqPUjKSxR
-	C3hPQfHKMxjCKSwITrHCi2ZW0Er+PSvfq2V4YzD/PqbqTgTwvM/K+bc3vtZr791w72TPYxrBTen
-	4EF7WlpYpHrv9Io1VX6ij/Q6UuoI/7Fo5ogNoBcm1lqjlWA7wDI5NLiZL0NvqNAIuM7kN1Jswm2
-	IifVsTe98IzuCwrx4OtBcfKdJ7DwW22gDEEt62p+fxLwlc9b0s9+tjKRB3GDYsytI9PI=
-X-Received: by 2002:a05:600c:1394:b0:456:43c:dcdc with SMTP id 5b1f17b1804b1-458b6b551b3mr92294905e9.33.1754395753490;
-        Tue, 05 Aug 2025 05:09:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGFY4u/tbqYyR0GlQ3KYjriQcoM4+gDZW9pPzBsR4N1Fxy3JYB8s/h/fvR/GiL/Mh7ntOC+ng==
-X-Received: by 2002:a05:600c:1394:b0:456:43c:dcdc with SMTP id 5b1f17b1804b1-458b6b551b3mr92294665e9.33.1754395753053;
-        Tue, 05 Aug 2025 05:09:13 -0700 (PDT)
+        bh=SILdafDIUq6T1vxmByNHoLz/yQ+KxKADC56XxDUmCig=;
+        b=GTpOKJMNG7cIl11Vkh1DI7OiO0QWQg2wiC+A4fQDMMUMopJ6rS7FYGxEny21sxXVm2
+         rt9Spl8ffh6K8zRFOjUrqdcKmUWsR5jHM4fEzS2jCfQXPBuXWNNlWpv1pQN+MT/Mdzay
+         fdkYbfbeEehOx4s7CABJIVxSQwFgQUnyIIpxTTS4RF5ClLObGyutgqOeBXkHMudbbC9i
+         u7WF9s6XIPSOHwOdnLdk+pegn4w1zP794exiromQIobor2yyHR+NHK40Pe0d4XOz5fPO
+         kO6Xn5r7bTZPi91/CiJhB7GfTpAzB1gHvd59wbAlzDURrUfujszxgL8PpQX75Z3P8noq
+         Ia5w==
+X-Gm-Message-State: AOJu0YzgQ7+CwFG+Skx6areW67fN/JPfYULNGIPlrurEzeaYrk8SAgjc
+	M4uOnHeawfAsFavelWvhzdm+RrJFluXfFcrvPFwTVdEo8xeW9z0RMirsmguFwYQNYLerZ48b1Mq
+	40RsDBBnU/9GfpWiZsn6u/BPSpaU/gMgYxqecLkQPjRWjquQ5wHVAxXIpVTdiIts=
+X-Gm-Gg: ASbGncsbGCv03o0M5oKmyGeNZ7ksYfPS3AaAksytHUkP3jb4+gzhxfy/4oa7YnPKrj7
+	vVheJa37uFlw5Uw7tGaq1LnvvdoO58x7JpyCOeHxy+yzN5rYBINya3WRzMyvw6l9eEfI/P7OhLH
+	WHr7faAUcCcxfhVuBAHtLT85J+yzJO44OVRKp7wOFzvhJtriVKI07CgBhgxSxChfG4Zu+izb6nj
+	Y4l6mE8soxjSFINPmtS34zkUjJ6Vp+pmmMNg8qrTF4fGQSaxK7FSB9Jcy2TVMTPQOE77h8lN2ZQ
+	rEi7oVhYv/ZSXnvpwpPpkgQSpuVVI7iavrpwc17kYywLzS5aDvXphyN9VHlcmyOraKYdcZq520o
+	Fy8IVFRpQgYuM9e8Ff+N8DKwENXw8Wl2PypFiIwj7g1Nkp33yoBgCpftU+n6wqAvmBkU=
+X-Received: by 2002:a05:600c:1d08:b0:459:db5a:b0b9 with SMTP id 5b1f17b1804b1-459db5ab3a2mr48234325e9.28.1754395918803;
+        Tue, 05 Aug 2025 05:11:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGxZPzHZOSJwMEcCot86poc9UZ/c44aOsLDwgU/vzU4XSjaGj8F0yKq7r0fWaYJ4jtRH1ng3A==
+X-Received: by 2002:a05:600c:1d08:b0:459:db5a:b0b9 with SMTP id 5b1f17b1804b1-459db5ab3a2mr48233995e9.28.1754395918402;
+        Tue, 05 Aug 2025 05:11:58 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f2b:b200:607d:d3d2:3271:1be0? (p200300d82f2bb200607dd3d232711be0.dip0.t-ipconnect.de. [2003:d8:2f2b:b200:607d:d3d2:3271:1be0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c3b9eddsm18971490f8f.22.2025.08.05.05.09.11
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b79c3c4d02sm18618858f8f.33.2025.08.05.05.11.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Aug 2025 05:09:12 -0700 (PDT)
-Message-ID: <0bd8a969-e8e0-4eb6-97a2-300fc322f8a2@redhat.com>
-Date: Tue, 5 Aug 2025 14:09:11 +0200
+        Tue, 05 Aug 2025 05:11:57 -0700 (PDT)
+Message-ID: <0c778373-3805-4dd2-b8ac-97d5ce77235f@redhat.com>
+Date: Tue, 5 Aug 2025 14:11:56 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,15 +74,14 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/2] KVM: s390: Fix incorrect usage of
- mmu_notifier_register()
+Subject: Re: [PATCH v1 2/2] KVM: s390: Fix FOLL_*/FAULT_FLAG_* confusion
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, frankja@linux.ibm.com,
  seiden@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
  schlameuss@linux.ibm.com, hca@linux.ibm.com, mhartmay@linux.ibm.com,
  borntraeger@de.ibm.com
 References: <20250805111446.40937-1-imbrenda@linux.ibm.com>
- <20250805111446.40937-2-imbrenda@linux.ibm.com>
+ <20250805111446.40937-3-imbrenda@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -131,25 +129,20 @@ Autocrypt: addr=david@redhat.com; keydata=
  WBe5lqcozu9LpNDH/brVSzHCSb7vjNGvvSVESDuoiHK8gNlf0v+epy5WYd7CGAgODPvDShGN
  g3eXuA==
 Organization: Red Hat
-In-Reply-To: <20250805111446.40937-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20250805111446.40937-3-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 05.08.25 13:14, Claudio Imbrenda wrote:
-> If mmu_notifier_register() fails, for example because a signal was
-> pending, the mmu_notifier will not be registered. But when the VM gets
-> destroyed, it will get unregistered anyway and that will cause one
-> extra mmdrop(), which will eventually cause the mm of the process to
-> be freed too early, and cause a use-after free.
+> Pass the right type of flag to vcpu_dat_fault_handler(); it expects a
+> FOLL_* flag (in particular FOLL_WRITE), but FAULT_FLAG_WRITE is passed
+> instead.
 > 
-> This bug happens rarely, and only when secure guests are involved.
+> This still works because they happen to have the same integer value,
+> but it's a mistake, thus the fix.
 > 
-> The solution is to check the return value of mmu_notifier_register()
-> and return it to the caller (ultimately it will be propagated all the
-> way to userspace). In case of -EINTR, userspace will try again.
-> 
-> Fixes: ca2fd0609b5d ("KVM: s390: pv: add mmu_notifier")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Fixes: 05066cafa925 ("s390/mm/fault: Handle guest-related program interrupts in KVM")
 > ---
 
 Reviewed-by: David Hildenbrand <david@redhat.com>
