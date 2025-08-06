@@ -1,337 +1,224 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB2C121ABDD;
-	Wed,  6 Aug 2025 19:52:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2A1D13A3F2;
+	Wed,  6 Aug 2025 22:53:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754509922; cv=none; b=Sxfvx2zCAfdZYVppGGp4xYQ/iEZYS3y0tZpGdpBFCWufPlLj74fXmI7zBx9X2ga4Kw4xQdcYA/HXUXqHtmjnZ4+e5w/H+LEn8P1P8G9ad+OsKtmgD/jH+hU1jVg8zPbWykwbMaBELFFKY0TIO3+g2CJBATSIMvHsmceWIsnJgpM=
+	t=1754520794; cv=none; b=TAzR9fBYvllJZ09sbu+bWizZAaHWNZhDiZPz/+Jd2RMLjkiCazarZSp9e53fgf0r+VND2q2a3rtVyfzeOaOfe4WQxWNxhA408vkaeI6z+FLG0uxj60fsY0jjnIuOynAd9p9o+QRE5lZmQ2PFskOp1l5OMKPtSLWuRU4e1/D0ezg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754509922; c=relaxed/simple;
-	bh=OsNLdYEDPWVAYqJM7OPgFhWCLz6bTVMGHKwDcqf2sWQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fAt9VsiHqSfSr8w5duY9BLC5hNZJ5+pyJKq1219BMb9SWd0dAmRWjFwW/KACdjfM4gvfBYIxXgww1QrF+YjcuZQG+8XQ7xKRSJ7atLWAiMOlHIBaNqOqevDorJrbDJLwj3y/MkBU2YZ+CN4qvzdcek0/tlal6ATUhxQGSdfCKn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UrA2IT7u; arc=none smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1754520794; c=relaxed/simple;
+	bh=aQ/0Dh3y8KRuO5nNN3e4yGDJrs5zHxpjrom8VAttomI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=F6tF1Fcnxvx+RhuSL/swA8l9oua6pyJ4MTXKhNLbdLJTH70QbITMptP37Q3Kb+lH1ZhVRSvrJyjA0VkOmRtZg0txE80V4CTBqxMbh2WdtF9ZPS+5Ns5rUTJ1dWyce0XKw/WDhyT1Y1o3DvFgsP18ijSM59RALIMytv2jJIVYJp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FIM0ppN8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UrA2IT7u"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7e684d49270so1372785a.3;
-        Wed, 06 Aug 2025 12:52:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754509919; x=1755114719; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=jOJUufvksrkNMkhUfUMzFksoWwIudiaNrjydPYTPe/E=;
-        b=UrA2IT7ufkialFpuRF8UWqnfv7jSGqsqvJjQJkLjguH8n3xFFPoOuu89gdLZVjzBji
-         cT5hUDrbKxS1L0R/rOi0w2UWApwtUKaQTyJIS6MeQUIy9cCknNoQYSpw5xZSouXw+dhI
-         0iT68UIxiv1+wz6e8FH/JxhxzdJ17ua3xe++kzUFXZcKj7NZIHR64Mmd9qBB7vL4VdhM
-         eBeATxDS+sKHm/sxdYg703M3OMCOflHWKvWIz3ILL2gEZrsEE3Je/Uew802kaSQ7xURY
-         sHFnUw8Wt9vw0YT0fUlP3ZJSyToSvp5o4yfDhoEr3FxjqScoxjAaF6AjhvDyXqIvmt5a
-         bWrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754509919; x=1755114719;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jOJUufvksrkNMkhUfUMzFksoWwIudiaNrjydPYTPe/E=;
-        b=lQbcgpvRXa9z8tr2K/Dfcfwl3VcXjZXVmBI5/qX/7sGxnFSi317d9ZWGxfCOo9/btI
-         ZxyUUO4FXTbsLLQdsc4rLNkE+adfNQTqm9UsbqkV9kIv5yhWaZleVQb/ExnLDsrHxgKA
-         HM7NAPb7hSJH9GmrdlcWxdsxqiRfCAqOyi8inxM3gLkGmRdcFLHzROSa8FcDpuubIgvc
-         b0I9y23dKXQoOegaNFnMX2iPyz4MUC37vaKS0zQwt6zhZGm9hNVTLQHsVl38R2UFx7BM
-         RYd3bnoCNwUlnTWCQfY3B8BKxZq4XTyPZbWbja4vSX0Yi+fT8hst441L6/Z4S+V9YPmb
-         Pcrg==
-X-Forwarded-Encrypted: i=1; AJvYcCVooS9q4oVADQpcVGnGwDhPrNVRBDkCNkEAg4ygFLrBVPq+ONayIiuBy9FAb/JjQ/Gs+S0NvDSj52NgrQ==@vger.kernel.org, AJvYcCWHWVetCjlpdREU7W97CyBodH5Gmw2ttfT7TBnhQ0d+5QCC8Jmsb1I2TEYhiB2MrTgJ/r8aI/QBM38IwjY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxTGyzqVKdFYxX5gvSW6aATOyciefs4DOMsO7WRrFdEXEWcbw7
-	sisVVvDqGFOVJZaKqm4rvT6Ghjceh35UGAPydiXjkLwm9+j5++LGtlel
-X-Gm-Gg: ASbGncv25hd/OM+3v8U4QFAaiyvnUEDGZ4x/UFq9aXYS12h7WS3PBwsFwZRr+5sJXzH
-	A0EzCHcMRwr84PccSfDv1rgJo09ZsHSbSpaNEXW7bhY1knj8kgagSsLxY1mkssXSZpxFkERqxFT
-	CMSmhSxRC7QwKgtuZ2kgo+9vgbo5GeZ6qqV3Y//XBK6eKouO7u5B5GjKKnt9/OkCZXLn5DTbeGM
-	5fS+/JHP6QUnFvRb+PF9Cf8NrNWVgeC9bKD+x7bVdX46mydepFc0magT1y268/yQpHNh5YozAVr
-	Hl+FQADvmjBTcMC67KoBqwTNlz3ZKKo16MKrOA5q6vMFG30Hziy5NLAVc7ZM6DSHzvGt/7wIKD1
-	aIB6PSTM4zXqTu5zTsncTd1JK1IBjslxBnBWgKcbAXiLE5T/R1Jk0uAh606Isb+MRyvP5
-X-Google-Smtp-Source: AGHT+IFmzUMSDyUQoeXjvqgYHBfr+pQThJ0xtd5NGlSxIHAVfwgMAAXU9ZJsjUzM039DpZsjSBydog==
-X-Received: by 2002:a05:620a:1a04:b0:7e2:6be2:38eb with SMTP id af79cd13be357-7e814d64573mr316228785a.4.1754509919359;
-        Wed, 06 Aug 2025 12:51:59 -0700 (PDT)
-Received: from [192.168.0.18] (cable-94-189-140-132.dynamic.sbb.rs. [94.189.140.132])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7e67f5c55a2sm866617085a.36.2025.08.06.12.51.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Aug 2025 12:51:58 -0700 (PDT)
-Message-ID: <dd25cb14-5df1-4b2c-bff7-0ca901dfd824@gmail.com>
-Date: Wed, 6 Aug 2025 21:51:07 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FIM0ppN8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C1FEC4CEE7;
+	Wed,  6 Aug 2025 22:53:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1754520794;
+	bh=aQ/0Dh3y8KRuO5nNN3e4yGDJrs5zHxpjrom8VAttomI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=FIM0ppN88Z7flsAgbKGOZcK6GIwviab7UaqjGLaSnHIRa1Yup7lsN5JZzecYTk/7j
+	 OcxABp1dPJ4Iw7UTtcHJCYD4eWVhHBvZwljJAH+ntNK1xpKRatojIViTxBKtKBV4+C
+	 np8iZu46T7YEkqoZgPMBC/Neb19nESIsqf5GB5IZkLd1dpvK3m7BNVB3shuSRR1MS+
+	 82CG69YMAAFg37R6qV6tp1X2aXm7Nm4VNyoif9+WxUGwsBLDl+G4e5DVb3EESqvD6q
+	 K/cq/0R/XJXpGMDOtdmqDqKkG7+EvG444pIHwJCXL4H9DG9Qy1PVgiL8eEVm8M3UpE
+	 k5CI8GNw/nqOg==
+Date: Wed, 6 Aug 2025 15:53:12 -0700
+From: Namhyung Kim <namhyung@kernel.org>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Ian Rogers <irogers@google.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>, bpf@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+	Jiri Olsa <jolsa@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v4 2/2] perf bpf-filter: Enable events manually
+Message-ID: <aJPc2NvJqLOGaIKl@google.com>
+References: <20250806114227.14617-1-iii@linux.ibm.com>
+ <20250806114227.14617-3-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/9] kasan: introduce ARCH_DEFER_KASAN and unify static
- key across modes
-To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Cc: hca@linux.ibm.com, christophe.leroy@csgroup.eu, andreyknvl@gmail.com,
- agordeev@linux.ibm.com, akpm@linux-foundation.org, zhangqing@loongson.cn,
- chenhuacai@loongson.cn, trishalfonso@google.com, davidgow@google.com,
- glider@google.com, dvyukov@google.com, kasan-dev@googlegroups.com,
- linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
-References: <20250805142622.560992-1-snovitoll@gmail.com>
- <20250805142622.560992-2-snovitoll@gmail.com>
- <5a73e633-a374-47f2-a1e1-680e24d9f260@gmail.com>
- <CACzwLxg=zC-82sY6f-z0VOnmbpN2E8tQxe7RyOnynpbJEFP+NA@mail.gmail.com>
-Content-Language: en-US
-From: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-In-Reply-To: <CACzwLxg=zC-82sY6f-z0VOnmbpN2E8tQxe7RyOnynpbJEFP+NA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250806114227.14617-3-iii@linux.ibm.com>
 
+Hello,
 
-
-On 8/6/25 4:15 PM, Sabyrzhan Tasbolatov wrote:
-> On Wed, Aug 6, 2025 at 6:35 PM Andrey Ryabinin <ryabinin.a.a@gmail.com> wrote:
->>
->>
->>
->> On 8/5/25 4:26 PM, Sabyrzhan Tasbolatov wrote:
->>> Introduce CONFIG_ARCH_DEFER_KASAN to identify architectures that need
->>> to defer KASAN initialization until shadow memory is properly set up,
->>> and unify the static key infrastructure across all KASAN modes.
->>>
->>> Some architectures (like PowerPC with radix MMU) need to set up their
->>> shadow memory mappings before KASAN can be safely enabled, while others
->>> (like s390, x86, arm) can enable KASAN much earlier or even from the
->>> beginning.
->>>
->>> Historically, the runtime static key kasan_flag_enabled existed only for
->>> CONFIG_KASAN_HW_TAGS mode. Generic and SW_TAGS modes either relied on
->>> architecture-specific kasan_arch_is_ready() implementations or evaluated
->>> KASAN checks unconditionally, leading to code duplication.
->>>
->>> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=217049
->>> Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
->>> ---
->>> Changes in v4:
->>> - Fixed HW_TAGS static key functionality (was broken in v3)
->>
->> I don't think it fixed. Before you patch kasan_enabled() esentially
->> worked like this:
->>
->>  if (IS_ENABLED(CONFIG_KASAN_HW_TAGS))
->>         return static_branch_likely(&kasan_flag_enabled);
->>  else
->>         return IS_ENABLED(CONFIG_KASAN);
->>
->> Now it's just IS_ENABLED(CONFIG_KASAN);
+On Wed, Aug 06, 2025 at 01:40:35PM +0200, Ilya Leoshkevich wrote:
+> On s390, and, in general, on all platforms where the respective event
+> supports auxiliary data gathering, the command:
 > 
-> In v4 it is:
+>    # ./perf record -u 0 -aB --synth=no -- ./perf test -w thloop
+>    [ perf record: Woken up 1 times to write data ]
+>    [ perf record: Captured and wrote 0.011 MB perf.data ]
+>    # ./perf report --stats | grep SAMPLE
+>    #
 > 
->         #if defined(CONFIG_ARCH_DEFER_KASAN) || defined(CONFIG_KASAN_HW_TAGS)
->         static __always_inline bool kasan_shadow_initialized(void)
->         {
->                 return static_branch_likely(&kasan_flag_enabled);
->         }
->         #else
->         static __always_inline bool kasan_shadow_initialized(void)
->         {
->                 return kasan_enabled(); // which is IS_ENABLED(CONFIG_KASAN);
->         }
->         #endif
+> does not generate samples in the perf.data file. On x86 the command:
 > 
-> So for HW_TAGS, KASAN is enabled in kasan_init_hw_tags().
+>   # sudo perf record -e intel_pt// -u 0 ls
+> 
+> is broken too.
+> 
+> Looking at the sequence of calls in 'perf record' reveals this
+> behavior:
+> 
+> 1. The event 'cycles' is created and enabled:
+> 
+>    record__open()
+>    +-> evlist__apply_filters()
+>        +-> perf_bpf_filter__prepare()
+> 	   +-> bpf_program.attach_perf_event()
+> 	       +-> bpf_program.attach_perf_event_opts()
+> 	           +-> __GI___ioctl(..., PERF_EVENT_IOC_ENABLE, ...)
+> 
+>    The event 'cycles' is enabled and active now. However the event's
+>    ring-buffer to store the samples generated by hardware is not
+>    allocated yet.
+> 
+> 2. The event's fd is mmap()ed to create the ring buffer:
+> 
+>    record__open()
+>    +-> record__mmap()
+>        +-> record__mmap_evlist()
+> 	   +-> evlist__mmap_ex()
+> 	       +-> perf_evlist__mmap_ops()
+> 	           +-> mmap_per_cpu()
+> 	               +-> mmap_per_evsel()
+> 	                   +-> mmap__mmap()
+> 	                       +-> perf_mmap__mmap()
+> 	                           +-> mmap()
+> 
+>    This allocates the ring buffer for the event 'cycles'. With mmap()
+>    the kernel creates the ring buffer:
+> 
+>    perf_mmap(): kernel function to create the event's ring
+>    |            buffer to save the sampled data.
+>    |
+>    +-> ring_buffer_attach(): Allocates memory for ring buffer.
+>        |        The PMU has auxiliary data setup function. The
+>        |        has_aux(event) condition is true and the PMU's
+>        |        stop() is called to stop sampling. It is not
+>        |        restarted:
+>        |
+>        |        if (has_aux(event))
+>        |                perf_event_stop(event, 0);
+>        |
+>        +-> cpumsf_pmu_stop():
+> 
+>    Hardware sampling is stopped. No samples are generated and saved
+>    anymore.
+> 
+> 3. After the event 'cycles' has been mapped, the event is enabled a
+>    second time in:
+> 
+>    __cmd_record()
+>    +-> evlist__enable()
+>        +-> __evlist__enable()
+> 	   +-> evsel__enable_cpu()
+> 	       +-> perf_evsel__enable_cpu()
+> 	           +-> perf_evsel__run_ioctl()
+> 	               +-> perf_evsel__ioctl()
+> 	                   +-> __GI___ioctl(., PERF_EVENT_IOC_ENABLE, .)
+> 
+>    The second
+> 
+>       ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+> 
+>    is just a NOP in this case. The first invocation in (1.) sets the
+>    event::state to PERF_EVENT_STATE_ACTIVE. The kernel functions
+> 
+>    perf_ioctl()
+>    +-> _perf_ioctl()
+>        +-> _perf_event_enable()
+>            +-> __perf_event_enable()
+> 
+>    return immediately because event::state is already set to
+>    PERF_EVENT_STATE_ACTIVE.
+> 
+> This happens on s390, because the event 'cycles' offers the possibility
+> to save auxilary data. The PMU callbacks setup_aux() and free_aux() are
+> defined. Without both callback functions, cpumsf_pmu_stop() is not
+> invoked and sampling continues.
+> 
+> To remedy this, remove the first invocation of
+> 
+>    ioctl(..., PERF_EVENT_IOC_ENABLE, ...).
+> 
+> in step (1.) Create the event in step (1.) and enable it in step (3.)
+> after the ring buffer has been mapped.
+> 
+> Output after:
+> 
+>  # ./perf record -aB --synth=no -u 0 -- ./perf test -w thloop 2
+>  [ perf record: Woken up 3 times to write data ]
+>  [ perf record: Captured and wrote 0.876 MB perf.data ]
+>  # ./perf  report --stats | grep SAMPLE
+>               SAMPLE events:      16200  (99.5%)
+>               SAMPLE events:      16200
+>  #
+> 
+> The software event succeeded both before and after the patch:
+> 
+>  # ./perf record -e cpu-clock -aB --synth=no -u 0 -- \
+> 					  ./perf test -w thloop 2
+>  [ perf record: Woken up 7 times to write data ]
+>  [ perf record: Captured and wrote 2.870 MB perf.data ]
+>  # ./perf  report --stats | grep SAMPLE
+>               SAMPLE events:      53506  (99.8%)
+>               SAMPLE events:      53506
+>  #
+> 
+> Fixes: b4c658d4d63d61 ("perf target: Remove uid from target")
+> Suggested-by: Jiri Olsa <jolsa@kernel.org>
+> Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+> Co-developed-by: Thomas Richter <tmricht@linux.ibm.com>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
-You are referring to  kasan_shadow_initialized(), but I was talking about kasan_enabled() specifically.
-E.g. your patch changes behavior for kasan_init_slab_obj() which doesn't use kasan_shadow_initialized()
- (in the case of HW_TAGS=y && kasan_flag_enabled = false) :
+Acked-by: Namhyung Kim <namhyung@kernel.org>
 
-static __always_inline void * __must_check kasan_init_slab_obj(
-                                struct kmem_cache *cache, const void *object)
-{
-        if (kasan_enabled())
-                return __kasan_init_slab_obj(cache, object);
-        return (void *)object;
-}
+Thanks,
+Namhyung
 
-
-
->>> +#if defined(CONFIG_ARCH_DEFER_KASAN) || defined(CONFIG_KASAN_HW_TAGS)
->>> +/*
->>> + * Global runtime flag for KASAN modes that need runtime control.
->>> + * Used by ARCH_DEFER_KASAN architectures and HW_TAGS mode.
->>> + */
->>>  DECLARE_STATIC_KEY_FALSE(kasan_flag_enabled);
->>>
->>> -static __always_inline bool kasan_enabled(void)
->>> +/*
->>> + * Runtime control for shadow memory initialization or HW_TAGS mode.
->>> + * Uses static key for architectures that need deferred KASAN or HW_TAGS.
->>> + */
->>> +static __always_inline bool kasan_shadow_initialized(void)
->>
->> Don't rename it, just leave as is - kasan_enabled().
->> It's better name, shorter and you don't need to convert call sites, so
->> there is less chance of mistakes due to unchanged kasan_enabled() -> kasan_shadow_initialized().
+> ---
+>  tools/perf/util/bpf-filter.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> I actually had the only check "kasan_enabled()" in v2, but went to
-> double check approach in v3
-> after this comment:
-> https://lore.kernel.org/all/CA+fCnZcGyTECP15VMSPh+duLmxNe=ApHfOnbAY3NqtFHZvceZw@mail.gmail.com/
-
-AFAIU the comment suggest that we need two checks/flags, one in kasan_enabled() which checks
-whether kasan was enabled via cmdline (currently only for HW_TAGS)
- and one in kasan_arch_is_ready()(or kasan_shadow_initialized()) which checks if arch initialized KASAN.
-And this not what v3/v4 does. v4 basically  have one check, just under different name. 
-
-Separate checks might be needed if we have code paths that need 'kasan_arch_is_ready() && !kasan_enabled()'
-and vise versa '!kasan_arch_is_ready() && kasan_enabled()'.
-
-From the top of my head, I can't say if we have such cases.
-
+> diff --git a/tools/perf/util/bpf-filter.c b/tools/perf/util/bpf-filter.c
+> index d0e013eeb0f7..a0b11f35395f 100644
+> --- a/tools/perf/util/bpf-filter.c
+> +++ b/tools/perf/util/bpf-filter.c
+> @@ -451,6 +451,8 @@ int perf_bpf_filter__prepare(struct evsel *evsel, struct target *target)
+>  	struct bpf_link *link;
+>  	struct perf_bpf_filter_entry *entry;
+>  	bool needs_idx_hash = !target__has_cpu(target);
+> +	DECLARE_LIBBPF_OPTS(bpf_perf_event_opts, pe_opts,
+> +			    .dont_enable = true);
+>  
+>  	entry = calloc(MAX_FILTERS, sizeof(*entry));
+>  	if (entry == NULL)
+> @@ -522,7 +524,8 @@ int perf_bpf_filter__prepare(struct evsel *evsel, struct target *target)
+>  	prog = skel->progs.perf_sample_filter;
+>  	for (x = 0; x < xyarray__max_x(evsel->core.fd); x++) {
+>  		for (y = 0; y < xyarray__max_y(evsel->core.fd); y++) {
+> -			link = bpf_program__attach_perf_event(prog, FD(evsel, x, y));
+> +			link = bpf_program__attach_perf_event_opts(prog, FD(evsel, x, y),
+> +								   &pe_opts);
+>  			if (IS_ERR(link)) {
+>  				pr_err("Failed to attach perf sample-filter program\n");
+>  				ret = PTR_ERR(link);
+> -- 
+> 2.50.1
 > 
-> Ok, we will have the **only** check kasan_enabled() then in
-> kasan-enabled.h which
-> 
->         #if defined(CONFIG_ARCH_DEFER_KASAN) || defined(CONFIG_KASAN_HW_TAGS)
->         static __always_inline bool kasan_enabled(void)
->         {
->                 return static_branch_likely(&kasan_flag_enabled);
->         }
->         #else
->         static inline bool kasan_enabled(void)
->         {
->                 return IS_ENABLED(CONFIG_KASAN);
->         }
-> 
-> And will remove kasan_arch_is_ready (current kasan_shadow_initialized in v4).
-> 
-> So it is the single place to check if KASAN is enabled for all arch
-> and internal KASAN code.
-> Same behavior is in the current mainline code but only for HW_TAGS.
-> 
-> Is this correct?
-> 
-
-Yep, that's what I meant.
-
->>
->>
->>>  {
->>>       return static_branch_likely(&kasan_flag_enabled);
->>>  }
->>>
->>> -static inline bool kasan_hw_tags_enabled(void)
->>> +static inline void kasan_enable(void)
->>> +{
->>> +     static_branch_enable(&kasan_flag_enabled);
->>> +}
->>> +#else
->>> +/* For architectures that can enable KASAN early, use compile-time check. */
->>> +static __always_inline bool kasan_shadow_initialized(void)
->>>  {
->>>       return kasan_enabled();
->>>  }
->>>
->>
->> ...
->>
->>>
->>>  void kasan_populate_early_vm_area_shadow(void *start, unsigned long size);
->>> -int kasan_populate_vmalloc(unsigned long addr, unsigned long size);
->>> -void kasan_release_vmalloc(unsigned long start, unsigned long end,
->>> +
->>> +int __kasan_populate_vmalloc(unsigned long addr, unsigned long size);
->>> +static inline int kasan_populate_vmalloc(unsigned long addr, unsigned long size)
->>> +{
->>> +     if (!kasan_shadow_initialized())
->>> +             return 0;
->>
->>
->> What's the point of moving these checks to header?
->> Leave it in C, it's easier to grep and navigate code this way.
-> 
-> Andrey Konovalov had comments [1] to avoid checks in C
-> by moving them to headers under __wrappers.
-> 
-> : 1. Avoid spraying kasan_arch_is_ready() throughout the KASAN
-> : implementation and move these checks into include/linux/kasan.h (and
-> : add __wrappers when required).
-> 
-> [1] https://lore.kernel.org/all/CA+fCnZcGyTECP15VMSPh+duLmxNe=ApHfOnbAY3NqtFHZvceZw@mail.gmail.com/
-> 
-
-I think Andrey K. meant cases when we have multiple implementations of one function for each mode.
-In such case it makes sense to merge multiple kasan_arch_is_ready() checks into one in the header.
-But in case like with kasan_populate_vmalloc() we have only one implementation so I don't see any
-value in adding wrapper/moving to header. 
-
->>
->>
->>> +     return __kasan_populate_vmalloc(addr, size);
->>> +}
->>> +
->>> +void __kasan_release_vmalloc(unsigned long start, unsigned long end,
->>>                          unsigned long free_region_start,
->>>                          unsigned long free_region_end,
->>>                          unsigned long flags);
->>> +static inline void kasan_release_vmalloc(unsigned long start,
->>> +                        unsigned long end,
->>> +                        unsigned long free_region_start,
->>> +                        unsigned long free_region_end,
->>> +                        unsigned long flags)
->>> +{
->>> +     if (kasan_shadow_initialized())
->>> +             __kasan_release_vmalloc(start, end, free_region_start,
->>> +                        free_region_end, flags);
->>> +}
->>>
->>
->> ...> @@ -250,7 +259,7 @@ static inline void poison_slab_object(struct kmem_cache *cache, void *object,
->>>  bool __kasan_slab_pre_free(struct kmem_cache *cache, void *object,
->>>                               unsigned long ip)
->>>  {
->>> -     if (!kasan_arch_is_ready() || is_kfence_address(object))
->>> +     if (is_kfence_address(object))
->>>               return false;
->>>       return check_slab_allocation(cache, object, ip);
->>>  }
->>> @@ -258,7 +267,7 @@ bool __kasan_slab_pre_free(struct kmem_cache *cache, void *object,
->>>  bool __kasan_slab_free(struct kmem_cache *cache, void *object, bool init,
->>>                      bool still_accessible)
->>>  {
->>> -     if (!kasan_arch_is_ready() || is_kfence_address(object))
->>> +     if (is_kfence_address(object))
->>>               return false;
->>>
->>>       poison_slab_object(cache, object, init, still_accessible);
->>> @@ -282,9 +291,6 @@ bool __kasan_slab_free(struct kmem_cache *cache, void *object, bool init,
->>>
->>>  static inline bool check_page_allocation(void *ptr, unsigned long ip)
->>>  {
->>> -     if (!kasan_arch_is_ready())
->>> -             return false;
->>> -
->>
->>
->> Well, you can't do this yet, because no arch using ARCH_DEFER_KASAN yet, so this breaks
->> bisectability.
->> Leave it, and remove with separate patch only when there are no users left.
-> 
-> Will do in v5 at the end of patch series.
-> 
->>
->>>       if (ptr != page_address(virt_to_head_page(ptr))) {
->>>               kasan_report_invalid_free(ptr, ip, KASAN_REPORT_INVALID_FREE);
->>>               return true;
->>> @@ -511,7 +517,7 @@ bool __kasan_mempool_poison_object(void *ptr, unsigned long ip)
->>>               return true;
->>>       }
->>>
->>> -     if (is_kfence_address(ptr) || !kasan_arch_is_ready())
->>> +     if (is_kfence_address(ptr))
->>>               return true;
->>>
->>>       slab = folio_slab(folio);
->>
->>
-
