@@ -1,243 +1,299 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A3C4431;
-	Wed,  6 Aug 2025 04:37:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F95721ABA2;
+	Wed,  6 Aug 2025 08:38:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754455079; cv=none; b=hibSMP//TbZJuR10asDfVUJxgWcigsA5C6jMXons8MaT0sfzGE4HjvbsPFHuSCaPpjpZcv2CqbZmFEGOqQvWXeem/izcovUJtgXoZVz81MBhgeZQLoBl1dYpPUuW3kLeOppt7ifktDNTmIAPDztRTZF0+AuD275ATkhCnDKMPRs=
+	t=1754469504; cv=none; b=X+QbvxKu4yQh7C1pTBfRD+pTezJq5pThd+Suru2c08tlnCHDEqgv5MFuUW4BHMA7Xm4Cr92cUnYiYxkDRS9X2GHYD+8v3AIfvUH0fDH7ZYM5T6ZqoSh5PlHkj4Hp7baC8YXuPvCJD6NGg2ATTKaq2l3wpwFhJ/BuQzEhuzIAmio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754455079; c=relaxed/simple;
-	bh=9nHRt5BtZeZhDnL6jV7L7PCFuH5fnkwqdN9wXO/76Hw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=o0UXHRYDhp8h9s7haD96kolf6na9vBIffQG7gLw4R1HPQtf3o2oQ973/T2xLlk9L5hNW2eSMUGxKpSHMr/5DLqpQKyvysCAgxRhUDEHz8uBz+TR2CocH+zsR2ZwDEG3wACm8+/Gtwqn4FGv4judFXsv4LWYu34i3OswinsAloMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DpAwiErY; arc=none smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1754469504; c=relaxed/simple;
+	bh=INZZW86BTHBinp5CUjHA7l3SdNfTRdSs53V6aTM3PIc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nN30oYoPmDBwp8zvYck0K26AtT8fKmHk/3Q0dAkTl8KTO0oP8qt5QnbIv5LkO97ZRoayWC5Rrej/RUfxAwa84/efK10d10kSgb4wA0f9CWp9Q/G63Zg+jzlC+WYUCBo9ytaqpkX/HTHFa/e/4U9OldyuwDJ1LnyPEtB/vYD8WGo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KjP+rwxK; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DpAwiErY"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3338252b2e6so1641931fa.2;
-        Tue, 05 Aug 2025 21:37:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754455075; x=1755059875; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Qo/Viw2qcvpv/MoBS3iI99BxX9ghV/qd2Tz3ezwRf/E=;
-        b=DpAwiErYR3KOt8t4CA0PiH8l25PYG6pBYcIa5YKjnOIt9nA5OBSF17+fetojwoEqb8
-         vT+RdGI8C2bEJq2l52n/7lEr3ksZBWi141EDzo3xNHxMatbe87H1yy+NeD+CsAa8moCh
-         OKKxhIzuZaki3gzCJ/Mx3JigYiZ71iw7LSVwk/WnQ88sGgJa/0YLsxoU+UqZdVsZqa2a
-         txXkK57g0WghJdXOkaJwZ8+1qimdbHWv89PgRXjAM8sDocSDpOyZEhn2c6DjmIpZY/rn
-         SrDSfZYfmW4+AK+C1NJzYfljI8jOMihPcJ8TrDorryK3Dcif2sZB7XxqaXjFw7nL/SFD
-         iHLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754455075; x=1755059875;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Qo/Viw2qcvpv/MoBS3iI99BxX9ghV/qd2Tz3ezwRf/E=;
-        b=YWVrmACFIX7qyKrkL6Eu0gx4bJRHNuSxf+LmZqUyjG5aRN604iULE0LtxVI5li6mem
-         /l0MVtBqQdx1mKR2j2ddVy0DBUOYnfnnyImbRXo1ZeSGCUlZzkm6RWhRwdzuLuXmQzv+
-         mNQtJtsIEOMK108k/8bHMY6QxOdPHimqb7gcYcWBAweb2Nloz9TXOMVSpSv9T3bj2YKq
-         yLciXYqO5bghjLlIZa5YIFh3QhdQXGyP8jXQOKjNDdcTeqvbCGHEZtuo0NuVFU/MqL9/
-         XFhw3d8L3p0pp8Yiy5IFBf/+VY6CKgcK/esgQS2BNPTsr+FIEDuu/j7l7IKkE9yGZ7mr
-         pl0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUQGATaC8cFIpc/jS9WqInGn0FA4NIsvxg7uw8VzR0ekYfzH3ISncPr+zuAtlHQij1s2vHp/wSOuiTCDtI=@vger.kernel.org, AJvYcCXICTevFFTePIH9xtDutIn63G7xsW7Mc4zse0iPpdsUtTo1EGrh60QeCBqjH/ePkqUU9m0a0HosObIxtg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXUKdhztjUIaaSRixSxnoSOpp9AxSYitiLyMknJdbwBmc4kQPa
-	urOkcTTvgz8QoLhpLmzlm37/DC3ub1wPIWjOuxmgjjJ8IfCSHOMHpJXSFw/SlUvzHVCF88DmNNj
-	JWagOXyvnXWGBsOtUxK+xP4Nvx98TMEo=
-X-Gm-Gg: ASbGncs869ErVRHt0KbDF/A6e9kOptnKMmyVE87ij5hLybTUZfT4Vzym9jua6wWiaAn
-	jsfuD94kOebuKit770qtgD0uCbZBauo2Vl9cNpwNeYBQeBAr4/Kcm23K9684A+XM9RFMhScE1Al
-	u8Wig3BWMvLUiqDnv0Uku36UxzLwCXY+7emfQfJreUVQ14A3nWABSoT8X59FwUXfIsZujbVd1Eq
-	OvrA/c=
-X-Google-Smtp-Source: AGHT+IFdsEW+IENwPRijll82h/DPiknLKACQZ/o9KWIJ/PhoBk1+OGng4Q7CbEgSQ8dHEzo+wdS/ckXYJp2kTJF5j88=
-X-Received: by 2002:a05:651c:1509:b0:32a:739d:fac with SMTP id
- 38308e7fff4ca-3338144cd8fmr3796161fa.36.1754455075078; Tue, 05 Aug 2025
- 21:37:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KjP+rwxK"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5768QAHr021615;
+	Wed, 6 Aug 2025 08:38:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=BFRcT+PNR7FsIXduEUPRQV6M3wexi+
+	hFcjbQ3v0Iu0c=; b=KjP+rwxKxhPVJDapoCQhL/BHcamX30+0byZWwxaRoc79JG
+	6+zEBkpmP7xndvFCvCMZwwqN6z7YCX49FQMN1yJzzt1oA3e+PD3erfe++Zek+rEa
+	6AlYX0sLnOKj4npfmKTwSTspdEzo/ZC0XodZToH4rCUW1Lo1AACzK1RUzGEQBE2b
+	x9C9y/gdGPaWVA2fe+IAwFDcaSdj3ETL9pQSXlm3yGtP0T85Qn9q6IAbascPLv7B
+	cwuujKS2rBT8ELLLMboBozsi12IqXsNo5O9TJj9nFRCkqvTYTW7Aey8a/CDugnLW
+	6FlRQAYTQk4aJGHQjr1/38Vq5moUPaL5SqQ0cQtA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq61u11h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Aug 2025 08:38:04 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5768KIiY004961;
+	Wed, 6 Aug 2025 08:38:04 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq61u10a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Aug 2025 08:38:04 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57683FVA020612;
+	Wed, 6 Aug 2025 08:38:01 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48bpwmtrkh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 06 Aug 2025 08:38:01 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5768bx8n53281060
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 6 Aug 2025 08:37:59 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9728C20043;
+	Wed,  6 Aug 2025 08:37:59 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0BF1E2004B;
+	Wed,  6 Aug 2025 08:37:59 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.70.156])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  6 Aug 2025 08:37:58 +0000 (GMT)
+Date: Wed, 6 Aug 2025 10:37:57 +0200
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: kan.liang@linux.intel.com
+Cc: peterz@infradead.org, mingo@redhat.com, namhyung@kernel.org,
+        irogers@google.com, mark.rutland@arm.com, linux-kernel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, eranian@google.com,
+        ctshao@google.com, tmricht@linux.ibm.com, leo.yan@arm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH V4 07/16] s390/perf: Remove driver-specific throttle
+ support
+Message-ID: <aJMUZTJ7FmB9FW9r@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20250520181644.2673067-1-kan.liang@linux.intel.com>
+ <20250520181644.2673067-8-kan.liang@linux.intel.com>
+ <aICYAqM5EQUlTqtX@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250805142622.560992-1-snovitoll@gmail.com> <20250805142622.560992-6-snovitoll@gmail.com>
- <e15e1012-566f-45a7-81d5-fd504af780da@gmail.com>
-In-Reply-To: <e15e1012-566f-45a7-81d5-fd504af780da@gmail.com>
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Date: Wed, 6 Aug 2025 09:37:38 +0500
-X-Gm-Features: Ac12FXyJN7pElMlaw_o-aZoTkQ3byDjTMvUiVf1-1J0u8uF_nrAwTbgiBAXxjhE
-Message-ID: <CACzwLxj0nOQT0+Z+AFDG3Cvun5jGaET6C3mp9PnLbCHjdw51Pg@mail.gmail.com>
-Subject: Re: [PATCH v4 5/9] kasan/loongarch: select ARCH_DEFER_KASAN and call kasan_init_generic
-To: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: hca@linux.ibm.com, christophe.leroy@csgroup.eu, andreyknvl@gmail.com, 
-	agordeev@linux.ibm.com, akpm@linux-foundation.org, zhangqing@loongson.cn, 
-	chenhuacai@loongson.cn, trishalfonso@google.com, davidgow@google.com, 
-	glider@google.com, dvyukov@google.com, kasan-dev@googlegroups.com, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aICYAqM5EQUlTqtX@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA2MDA1MCBTYWx0ZWRfXzLQszVLavcpk
+ MFZxR1mRWK8/PGyE/RAus43GApDs8wsIgKz59S79YaUGSBUBvI3q5/2EJvjezfpyxU0a7snHNhk
+ 1Ji1rckwlVvxdxefLMEvTd2F2dwKhS+qZSGU1oBBwqExEBFbnkgmVNtVU+bTeMEbTDZxbknr8wR
+ P0XX6YZDhEQ1JDCoSqWN/2Cn46jv7BjJteniA9+VwHEJ+qBiqBLu+Kz+hG1nbvCdq6v0JzjKueq
+ UpTkIYtte/0e0v8wg2QvKeZGuHL09atjhAMibgQlb4deSL3gUjrtQWm5FekO3j/lpSFzA8PapMK
+ uqq8uIeEyKmV55FcBcegoGaY6z/WfxegUN7uE+jbd5OWUR6q/baO2bQd4M/3Xo7GN/29My5a9P/
+ WkGSdA5R/rb2GyRYtW8iWZ2LsNZunmFWzx5tebB+0qwxntsPGB8hKMZh8wHKmqmEV/VcZSJU
+X-Proofpoint-GUID: hFnD0kb1fyAEcLYEHj9ZK07E2WjMpeGm
+X-Authority-Analysis: v=2.4 cv=BIuzrEQG c=1 sm=1 tr=0 ts=6893146c cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=2OwXVqhp2XgA:10 a=QyXUC8HyAAAA:8 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=Uf_jtusGSZTfHGq8c9EA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: t7K-OPae5mdZWsx89JZINyHOaEdoW6Nm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-06_01,2025-08-04_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ mlxscore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 spamscore=0 mlxlogscore=999 adultscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 bulkscore=0 classifier=spam authscore=0
+ authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508060050
 
-On Tue, Aug 5, 2025 at 10:18=E2=80=AFPM Andrey Ryabinin <ryabinin.a.a@gmail=
-.com> wrote:
->
->
->
-> On 8/5/25 4:26 PM, Sabyrzhan Tasbolatov wrote:
-> > LoongArch needs deferred KASAN initialization as it has a custom
-> > kasan_arch_is_ready() implementation that tracks shadow memory
-> > readiness via the kasan_early_stage flag.
-> >
-> > Select ARCH_DEFER_KASAN to enable the unified static key mechanism
-> > for runtime KASAN control. Call kasan_init_generic() which handles
-> > Generic KASAN initialization and enables the static key.
-> >
-> > Replace kasan_arch_is_ready() with kasan_enabled() and delete the
-> > flag kasan_early_stage in favor of the unified kasan_enabled()
-> > interface.
-> >
-> > Note that init_task.kasan_depth =3D 0 is called after kasan_init_generi=
-c(),
-> > which is different than in other arch kasan_init(). This is left
-> > unchanged as it cannot be tested.
-> >
-> > Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D217049
-> > Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+On Wed, Jul 23, 2025 at 10:06:26AM +0200, Sumanth Korikkar wrote:
+> On Tue, May 20, 2025 at 11:16:35AM -0700, kan.liang@linux.intel.com wrote:
+> > From: Kan Liang <kan.liang@linux.intel.com>
+> > 
+> > The throttle support has been added in the generic code. Remove
+> > the driver-specific throttle support.
+> > 
+> > Besides the throttle, perf_event_overflow may return true because of
+> > event_limit. It already does an inatomic event disable. The pmu->stop
+> > is not required either.
+> > 
+> > Tested-by: Thomas Richter <tmricht@linux.ibm.com>
+> > Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+> > Cc: Thomas Richter <tmricht@linux.ibm.com>
+> > Cc: linux-s390@vger.kernel.org
 > > ---
-> > Changes in v4:
-> > - Replaced !kasan_enabled() with !kasan_shadow_initialized() in
-> >   loongarch which selects ARCH_DEFER_KASAN (Andrey Ryabinin)
-> > ---
-> >  arch/loongarch/Kconfig             | 1 +
-> >  arch/loongarch/include/asm/kasan.h | 7 -------
-> >  arch/loongarch/mm/kasan_init.c     | 8 ++------
-> >  3 files changed, 3 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
-> > index f0abc38c40a..f6304c073ec 100644
-> > --- a/arch/loongarch/Kconfig
-> > +++ b/arch/loongarch/Kconfig
-> > @@ -9,6 +9,7 @@ config LOONGARCH
-> >       select ACPI_PPTT if ACPI
-> >       select ACPI_SYSTEM_POWER_STATES_SUPPORT if ACPI
-> >       select ARCH_BINFMT_ELF_STATE
-> > +     select ARCH_DEFER_KASAN
-> >       select ARCH_DISABLE_KASAN_INLINE
-> >       select ARCH_ENABLE_MEMORY_HOTPLUG
-> >       select ARCH_ENABLE_MEMORY_HOTREMOVE
-> > diff --git a/arch/loongarch/include/asm/kasan.h b/arch/loongarch/includ=
-e/asm/kasan.h
-> > index 62f139a9c87..0e50e5b5e05 100644
-> > --- a/arch/loongarch/include/asm/kasan.h
-> > +++ b/arch/loongarch/include/asm/kasan.h
-> > @@ -66,7 +66,6 @@
-> >  #define XKPRANGE_WC_SHADOW_OFFSET    (KASAN_SHADOW_START + XKPRANGE_WC=
-_KASAN_OFFSET)
-> >  #define XKVRANGE_VC_SHADOW_OFFSET    (KASAN_SHADOW_START + XKVRANGE_VC=
-_KASAN_OFFSET)
-> >
-> > -extern bool kasan_early_stage;
-> >  extern unsigned char kasan_early_shadow_page[PAGE_SIZE];
-> >
-> >  #define kasan_mem_to_shadow kasan_mem_to_shadow
-> > @@ -75,12 +74,6 @@ void *kasan_mem_to_shadow(const void *addr);
-> >  #define kasan_shadow_to_mem kasan_shadow_to_mem
-> >  const void *kasan_shadow_to_mem(const void *shadow_addr);
-> >
-> > -#define kasan_arch_is_ready kasan_arch_is_ready
-> > -static __always_inline bool kasan_arch_is_ready(void)
-> > -{
-> > -     return !kasan_early_stage;
-> > -}
-> > -
-> >  #define addr_has_metadata addr_has_metadata
-> >  static __always_inline bool addr_has_metadata(const void *addr)
-> >  {
-> > diff --git a/arch/loongarch/mm/kasan_init.c b/arch/loongarch/mm/kasan_i=
-nit.c
-> > index d2681272d8f..57fb6e98376 100644
-> > --- a/arch/loongarch/mm/kasan_init.c
-> > +++ b/arch/loongarch/mm/kasan_init.c
-> > @@ -40,11 +40,9 @@ static pgd_t kasan_pg_dir[PTRS_PER_PGD] __initdata _=
-_aligned(PAGE_SIZE);
-> >  #define __pte_none(early, pte) (early ? pte_none(pte) : \
-> >  ((pte_val(pte) & _PFN_MASK) =3D=3D (unsigned long)__pa(kasan_early_sha=
-dow_page)))
-> >
-> > -bool kasan_early_stage =3D true;
-> > -
-> >  void *kasan_mem_to_shadow(const void *addr)
-> >  {
-> > -     if (!kasan_arch_is_ready()) {
-> > +     if (!kasan_shadow_initialized()) {
-> >               return (void *)(kasan_early_shadow_page);
-> >       } else {
-> >               unsigned long maddr =3D (unsigned long)addr;
-> > @@ -298,8 +296,6 @@ void __init kasan_init(void)
-> >       kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_S=
-TART),
-> >                                       kasan_mem_to_shadow((void *)KFENC=
-E_AREA_END));
-> >
-> > -     kasan_early_stage =3D false;
-> > -
->
-> There is a reason for this line to be here.
-> Your patch will change the result of the follow up kasan_mem_to_shadow() =
-call and
-> feed the wrong address to kasan_map_populate()
+> >  arch/s390/kernel/perf_cpum_cf.c | 2 --
+> >  arch/s390/kernel/perf_cpum_sf.c | 5 +----
+> >  2 files changed, 1 insertion(+), 6 deletions(-)
+> > 
+> > diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+> > index e657fad7e376..6a262e198e35 100644
+> > --- a/arch/s390/kernel/perf_cpum_cf.c
+> > +++ b/arch/s390/kernel/perf_cpum_cf.c
+> > @@ -980,8 +980,6 @@ static int cfdiag_push_sample(struct perf_event *event,
+> >  	}
+> >  
+> >  	overflow = perf_event_overflow(event, &data, &regs);
+> > -	if (overflow)
+> > -		event->pmu->stop(event, 0);
+> >  
+> >  	perf_event_update_userpage(event);
+> >  	return overflow;
+> > diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+> > index ad22799d8a7d..91469401f2c9 100644
+> > --- a/arch/s390/kernel/perf_cpum_sf.c
+> > +++ b/arch/s390/kernel/perf_cpum_sf.c
+> > @@ -1072,10 +1072,7 @@ static int perf_push_sample(struct perf_event *event,
+> >  	overflow = 0;
+> >  	if (perf_event_exclude(event, &regs, sde_regs))
+> >  		goto out;
+> > -	if (perf_event_overflow(event, &data, &regs)) {
+> > -		overflow = 1;
+> > -		event->pmu->stop(event, 0);
+> > -	}
+> > +	overflow = perf_event_overflow(event, &data, &regs);
+> >  	perf_event_update_userpage(event);
+> >  out:
+> >  	return overflow;
+> > -- 
+> > 2.38.1
+> 
+> Hi all,
+> 
+> This seems to break POLL_HUP delivery to userspace - when event_limit reaches 0
+> 
+> From perf_event_open man page:
+> PERF_EVENT_IOC_REFRESH
+>               Non-inherited overflow counters can use this to enable a
+>               counter for a number of overflows specified by the
+>               argument, after which it is disabled.  Subsequent calls of
+>               this ioctl add the argument value to the current count.  An
+>               overflow notification with POLL_IN set will happen on each
+>               overflow until the count reaches 0; when that happens a
+>               notification with POLL_HUP set is sent and the event is
+>               disabled.
+> 
+> When the event_limit reaches 0, the POLL_HUP signal is expected to be
+> sent. Prior to this patch, an explicit call to event->stop() was made,
+> which may have contributed to ensuring that the POLL_HUP signal was
+> ultimately delivered. However, after  this change, I often did not
+> observe the POLL_HUP signal being delivered as expected in the end
+> 
+> Example program:
+> output:
+> Computation result: 49951804672
+> count.hup: 0 count.pollin: 22
+> 
+> Expected output should be:
+> count.hup: 1 in the end
+> 
+> #define _GNU_SOURCE
+> #include <time.h>
+> #include <stdbool.h>
+> #include <signal.h>
+> #include <poll.h>
+> #include <fcntl.h>
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <string.h>
+> #include <unistd.h>
+> #include <time.h>
+> 
+> #include <sys/ioctl.h>
+> #include <sys/syscall.h>
+> #include <linux/perf_event.h>
+> 
+> static struct signal_counts {
+>         int in;
+> 	int out;
+> 	int hup;
+> 	int unknown;
+> } count;
+> 
+> 
+> static unsigned long sample_type = PERF_SAMPLE_IP | PERF_SAMPLE_TID |
+> 		PERF_SAMPLE_TIME | PERF_SAMPLE_ADDR | PERF_SAMPLE_READ |
+> 		PERF_SAMPLE_ID | PERF_SAMPLE_CPU |
+> 		PERF_SAMPLE_PERIOD | PERF_SAMPLE_STREAM_ID | PERF_SAMPLE_RAW;
+> 
+> static void sighandler(int signum, siginfo_t *info, void *uc)
+> {
+> 	switch(info->si_code) {
+>                 case POLL_IN:  count.in++;  break;
+>                 case POLL_OUT: count.out++; break;
+>                 case POLL_HUP: count.hup++; break;
+>                 default: count.unknown++; break;
+>         }
+> }
+> 
+> void generate_load(unsigned long long iterations) {
+>     unsigned long long sum = 0;
+>     srand(time(0));
+> 
+>     for (unsigned long long i = 0; i < iterations; ++i) {
+>         int rnd = rand();
+>         sum += (rnd ^ (rnd >> 3)) % 1000;
+>     }
+>     printf("Computation result: %llu\n", sum);
+> }
+> 
+> void perf_attr(struct perf_event_attr *pe,
+> 		       unsigned long config, unsigned long period, bool freq,
+> 		       unsigned long bits)
+> {
+> 	memset(pe, 0, sizeof(struct perf_event_attr));
+> 	pe->size = sizeof(struct perf_event_attr);
+> 	pe->type = PERF_TYPE_HARDWARE;
+> 	pe->config = PERF_COUNT_HW_CPU_CYCLES;
+> 	pe->exclude_kernel = 0;
+> 	pe->sample_period = 50000;
+> 	pe->freq = 1;
+> 	pe->disabled = 1;
+> 	pe->config = config;
+> 	pe->freq = freq;
+> 	pe->sample_type = bits;
+> }
+> 
+> int main(int argc, char **argv)
+> {
+> 	int fd, signo = SIGIO, rc = -1;
+> 	struct sigaction sa, sa_old;
+> 	struct perf_event_attr pe;
+> 
+> 	perf_attr(&pe, PERF_COUNT_HW_CPU_CYCLES, 50000, 1, sample_type);
+> 	/* Set up overflow handler */
+> 	memset(&sa, 0, sizeof(struct sigaction));
+> 	memset(&sa_old, 0, sizeof(struct sigaction));
+> 	sa.sa_sigaction = sighandler;
+> 	sa.sa_flags = SA_SIGINFO;
+> 	if (sigaction(signo, &sa, &sa_old) < 0)
+> 		goto out;
+> 
+> 	fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
+> 	if (fd < 0)
+> 		return rc;
+> 
+> 	rc = fcntl(fd, F_SETFL, O_RDWR | O_NONBLOCK | O_ASYNC);
+> 	rc |= fcntl(fd, F_SETSIG, signo);
+> 	rc |= fcntl(fd, F_SETOWN, getpid());
+> 	if (rc)
+> 		goto out;
+> 
+> 	rc = ioctl(fd, PERF_EVENT_IOC_REFRESH, 2500);
+> 	if (rc)
+> 		goto out;
+> 
+> 	generate_load(100000000ULL);
+> 	sigaction(signo, &sa_old, NULL);
+> 	printf("count.hup: %d count.pollin: %d\n", count.hup, count.in);
+> 	close(fd);
+> 	return 0;
+> out:
+> 	return rc;
+> }
 
-Thanks, I've missed it. Here the upcoming v5 for this:
+Hi Kan,
 
-diff --git a/arch/loongarch/mm/kasan_init.c b/arch/loongarch/mm/kasan_init.=
-c
-index d2681272d8f..0e6622b57ce 100644
---- a/arch/loongarch/mm/kasan_init.c
-+++ b/arch/loongarch/mm/kasan_init.c
-@@ -40,11 +40,9 @@ static pgd_t kasan_pg_dir[PTRS_PER_PGD] __initdata
-__aligned(PAGE_SIZE);
-#define __pte_none(early, pte) (early ? pte_none(pte) : \
-((pte_val(pte) & _PFN_MASK) =3D=3D (unsigned long)__pa(kasan_early_shadow_p=
-age)))
--bool kasan_early_stage =3D true;
--
-void *kasan_mem_to_shadow(const void *addr)
-{
-- if (!kasan_arch_is_ready()) {
-+ if (!kasan_shadow_initialized()) {
-return (void *)(kasan_early_shadow_page);
-} else {
-unsigned long maddr =3D (unsigned long)addr;
-@@ -298,7 +296,10 @@ void __init kasan_init(void)
-kasan_populate_early_shadow(kasan_mem_to_shadow((void *)VMALLOC_START),
-kasan_mem_to_shadow((void *)KFENCE_AREA_END));
-- kasan_early_stage =3D false;
-+ /* Enable KASAN here before kasan_mem_to_shadow() which checks
-+ * if kasan_shadow_initialized().
-+ */
-+ kasan_init_generic();
-/* Populate the linear mapping */
-for_each_mem_range(i, &pa_start, &pa_end) {
-@@ -329,5 +330,4 @@ void __init kasan_init(void)
-/* At this point kasan is fully initialized. Enable error messages */
-init_task.kasan_depth =3D 0;
-- pr_info("KernelAddressSanitizer initialized.\n");
-}
---=20
-2.34.1
+It would be great if you could share your feedback on this issue.
 
->
->
-> >       /* Populate the linear mapping */
-> >       for_each_mem_range(i, &pa_start, &pa_end) {
-> >               void *start =3D (void *)phys_to_virt(pa_start);
-> > @@ -329,5 +325,5 @@ void __init kasan_init(void)
-> >
-> >       /* At this point kasan is fully initialized. Enable error message=
-s */
-> >       init_task.kasan_depth =3D 0;
-> > -     pr_info("KernelAddressSanitizer initialized.\n");
-> > +     kasan_init_generic();
-> >  }
->
+Thank you.
