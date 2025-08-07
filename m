@@ -1,125 +1,82 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D0781E5B73;
-	Thu,  7 Aug 2025 16:17:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A5DD146A72;
+	Thu,  7 Aug 2025 16:19:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754583449; cv=none; b=MbL/MTzFVX9z94PbMBUc7FYjl+K9GAcT0w5vW5hUEZFAPA+NA7RG7iMepTWD3IJuXCM4TerDXi88LPeH5lZEzbfREu9+JhMIW4sArYwl7BZF0gl8B4uYRJCEO7lR4BdRV8e1+F2TDdZffwEJtqZ9U0rRDU1nxJAcMxvRBx7IFtM=
+	t=1754583596; cv=none; b=Hjlss8uQQf5dX9lnoYorX7MvtWNjDbfe5hnVZdsTD6IW6ZiK7+tdgDtDK0XJYzpIeP6SlfKsyZLmsOv+blhLiUDxVgcjdSqLI2vNz0aTPARI6TUclLq3PAg7wzvB+ltT4mZJbovqIOh0KegMqz4TF9Gmqo5hRbFFhNeV/vHPfq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754583449; c=relaxed/simple;
-	bh=KXJ0W+Rq8+ZxkmoRIeTdA/TynKxtfU0rBAxR7DcWJ/U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NBSLlZ4FnDL7ttVugY7OKhQEh9H2GQUqwtpv8edkKd3pTEU2k6377iSO8mVOdkmPNEQy0smJSzqtq+hYBQAcvNdT06nCnO/cppnZ/SWF9/U5TGW4xXSgddU11A8VYwDFdJBIOy0Z7OB9oO60VuwaurxdhHluCf53LP7w5eQApvo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TaQDW1X1; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1754583596; c=relaxed/simple;
+	bh=XEfHPKSktUmKnDddPO998nRTlmFtkYWmxCYrK5ds3IY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=luuPm3VGxv3ovo9nwF6lV5TwEkhn/W9Im4G5ofoNuRLqjC9qiHk7aEOXYFRkNkENsBJ7Qz4iKKFr1M7jnQuf7e7U5+d7Pyw/zu20YKpA6C3W05B13vskGtApiADOip6Tu43EmaVLJ3lVPRqi5rHaKVPRtPlFuvcDNcI0EcVwmHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H/dDvxZr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TaQDW1X1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1754583447; x=1786119447;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=KXJ0W+Rq8+ZxkmoRIeTdA/TynKxtfU0rBAxR7DcWJ/U=;
-  b=TaQDW1X1gMNS30U9folm0N/JHhzk2uetBLKsIrYWsBHrQ9uxQy2tO0rv
-   b6iBcaj643ko+1ME6uWITsDmIJoYNcGUknlft8RZ5EiMAi7z9ctQbog7J
-   axnDYh7/fGDVHK6gpm94D/mzGpVI/739V14KUHuShg+L7xcRL7QwPVdBl
-   2TAdAhqQtVE3b3HmfnjtI46Zw4IJbrO62tfUPQTwQjHG4xUG8b2JE706u
-   b8JOTFwhFHdKuyX/Xe43VxqYlB6e5stLIU4DVpSGcQR0jLKfMyMegHKVO
-   hWD2c60/AqWupyQZke+nYCPxRZj4STNBnU2F+UJaOgaUdHxx0nC2cmuPX
-   Q==;
-X-CSE-ConnectionGUID: XziIi5xHR/euVGMjSk03ww==
-X-CSE-MsgGUID: Bk/y86h+Sye/+QrQ/Sta9g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11514"; a="55961731"
-X-IronPort-AV: E=Sophos;i="6.17,271,1747724400"; 
-   d="scan'208";a="55961731"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2025 09:17:26 -0700
-X-CSE-ConnectionGUID: 8mkpCRJiRXydb7NU38x8CA==
-X-CSE-MsgGUID: OhVh0fWGS5KxXNRWyyZs+g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.17,271,1747724400"; 
-   d="scan'208";a="169230907"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmviesa003.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Aug 2025 09:17:26 -0700
-Received: from [10.124.220.198] (unknown [10.124.220.198])
-	by linux.intel.com (Postfix) with ESMTP id 928B720B571C;
-	Thu,  7 Aug 2025 09:17:24 -0700 (PDT)
-Message-ID: <64741634-6e61-48eb-84f3-2e8da6aea2b7@linux.intel.com>
-Date: Thu, 7 Aug 2025 09:17:24 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H/dDvxZr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB7F9C4CEEB;
+	Thu,  7 Aug 2025 16:19:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1754583596;
+	bh=XEfHPKSktUmKnDddPO998nRTlmFtkYWmxCYrK5ds3IY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=H/dDvxZrxxn6SyFIQHQTJZDmho3MOWpLXQuPi6kPIOamraCjq8XYlkuX1rSKjv8gm
+	 yZgUjAZDgrU4iaOPM/snpGjtIeC41nCi5h7++CTNVaN5Yf6f4trKy4UZMPzplXByco
+	 Ccz8E8e3S8J4mAdfXqMOoEA/ckwjPuwL4HkCDZ3tcW6uisHDkv4VHJ3TNvasywnDyp
+	 XVBj8Xqu9d97lH1ZrEf13mzZgJuYkiiEnyB41EhHQ0zTeLle0U2ZcDnBCOsL4JFRak
+	 xAymfXRScKNgr8JlOUzCzSy0NMCKccAx/WCGUhD/FpdmvGHJDStY5Yrd0KzUUKUW3Q
+	 idKuNnXQbRLBg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id AE006383BF4E;
+	Thu,  7 Aug 2025 16:20:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 3/3] powerpc/eeh: Use result of error_detected() in
- uevent
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
- Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
- Mahesh J Salgaonkar <mahesh@linux.ibm.com>
-Cc: Linas Vepstas <linasvepstas@gmail.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Manivannan Sadhasivam <mani@kernel.org>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>,
- Matthew Rosato <mjrosato@linux.ibm.com>, Oliver O'Halloran
- <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
- Keith Busch <kbusch@kernel.org>
-References: <20250807-add_err_uevents-v5-0-adf85b0620b0@linux.ibm.com>
- <20250807-add_err_uevents-v5-3-adf85b0620b0@linux.ibm.com>
-Content-Language: en-US
-From: Sathyanarayanan Kuppuswamy <sathyanarayanan.kuppuswamy@linux.intel.com>
-In-Reply-To: <20250807-add_err_uevents-v5-3-adf85b0620b0@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v5 0/2] perf/s390: Regression: Move uid filtering to BPF
+ filters
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175458360947.3615598.15789792776386317397.git-patchwork-notify@kernel.org>
+Date: Thu, 07 Aug 2025 16:20:09 +0000
+References: <20250806162417.19666-1-iii@linux.ibm.com>
+In-Reply-To: <20250806162417.19666-1-iii@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+ irogers@google.com, acme@kernel.org, bpf@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, tmricht@linux.ibm.com, jolsa@kernel.org,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
 
+Hello:
 
-On 8/7/25 6:55 AM, Niklas Schnelle wrote:
-> Ever since uevent support was added for AER and EEH with commit
-> 856e1eb9bdd4 ("PCI/AER: Add uevents in AER and EEH error/resume"), it
-> reported PCI_ERS_RESULT_NONE as uevent when recovery begins.
->
-> Commit 7b42d97e99d3 ("PCI/ERR: Always report current recovery status for
-> udev") subsequently amended AER to report the actual return value of
-> error_detected().
->
-> Make the same change to EEH to align it with AER and s390.
->
-> Suggested-by: Lukas Wunner <lukas@wunner.de>
-> Link: https://lore.kernel.org/linux-pci/aIp6LiKJor9KLVpv@wunner.de/
-> Reviewed-by: Lukas Wunner <lukas@wunner.de>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
+This series was applied to bpf/bpf.git (master)
+by Alexei Starovoitov <ast@kernel.org>:
 
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+On Wed,  6 Aug 2025 18:22:40 +0200 you wrote:
+> v4: https://lore.kernel.org/bpf/20250806114227.14617-1-iii@linux.ibm.com/
+> v4 -> v5: Fix a typo in the commit message (Yonghong).
+> 
+> v3: https://lore.kernel.org/bpf/20250805130346.1225535-1-iii@linux.ibm.com/
+> v3 -> v4: Rename the new field to dont_enable (Alexei, Eduard).
+>           Switch the Fixes: tag in patch 2 (Alexander, Thomas).
+>           Fix typos in the cover letter (Thomas).
+> 
+> [...]
 
->   arch/powerpc/kernel/eeh_driver.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
-> index 7efe04c68f0fe3fb1c3c13d97d58e79e47cf103b..20ed9685da8b7e6d419a4b02f715b52acfe715d3 100644
-> --- a/arch/powerpc/kernel/eeh_driver.c
-> +++ b/arch/powerpc/kernel/eeh_driver.c
-> @@ -334,7 +334,7 @@ static enum pci_ers_result eeh_report_error(struct eeh_dev *edev,
->   	rc = driver->err_handler->error_detected(pdev, pci_channel_io_frozen);
->   
->   	edev->in_error = true;
-> -	pci_uevent_ers(pdev, PCI_ERS_RESULT_NONE);
-> +	pci_uevent_ers(pdev, rc);
->   	return rc;
->   }
->   
->
+Here is the summary with links:
+  - [v5,1/2] libbpf: Add the ability to suppress perf event enablement
+    https://git.kernel.org/bpf/bpf/c/9474e27a24a4
+  - [v5,2/2] perf bpf-filter: Enable events manually
+    https://git.kernel.org/bpf/bpf/c/5e2ac8e8571d
+
+You are awesome, thank you!
 -- 
-Sathyanarayanan Kuppuswamy
-Linux Kernel Developer
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
