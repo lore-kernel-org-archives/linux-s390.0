@@ -1,75 +1,91 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE10535959;
-	Thu,  7 Aug 2025 18:36:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65CA74AEE2;
+	Thu,  7 Aug 2025 19:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754591777; cv=none; b=nrzk1ECyj+3ZLt+8CzJUXcWeMswAZ0MUOJ2BXhweGGd7ghHTsxYCBsnutOap8cvfz3v/BBNeyUe0WTViCzJFIkNAtHYNYI757zn0ahOP4g6CNyo2dxkdNqCPHqdT+lXUCYGKim3RgnyxMSXwRB51M9be8udw4WSlJr2ottdIJr4=
+	t=1754595623; cv=none; b=kNHMBFMwd6v01T3wJDK8Zp5JT9PVDXJFTt/4/zSQ+Agj34R3TCXjt7MDrbswWIgQnfolZ2RVT7vSE7vyRsfDSDl16pGuM8uNnPsNeRAJaPm8qKby/h1jt74fYIWrYrljC3qotgcIJct/4x/hyfkjBTzBk6xPRjirX4qZlbR5ebc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754591777; c=relaxed/simple;
-	bh=ZoQzIXp3rakOxPPgb+1zQCTb3aKhJz4zxp+ORodGSfM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r9Lj6LK5ATnqZljrJ3AnPwfKRQ2QYdy/R85adP1DAalHZtFA5ih01grfRFGiuKBh39BucA4wpi/1OwGiVLnUhqCu8xTReTvYkqI/Pmk44CDa6vrFFQvz2PKCadE0jdRRHj5FijE4XMpDiqC1tE7IeRakk38ftV1mhSw6yI65wZc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mof9kBKP; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1754595623; c=relaxed/simple;
+	bh=SNgRUuXsM+/JAIsgLn5lkTKNqSnmIVr4NG3YvOWD4gg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=WMtpCuQg/3VmXimAV7LPv7JpktzfVegQZqtuenk4RHMuhOSJTogC8ur8cxwsKE9nZswv2eKAVulKmiUT7tmX8/S3AkdM2rVKzMXTTj+6W5nMIs+y7StxZdnVh5HkBeerK32CbAlNgCXZ1LkVADbIRjuV3yJKkE+1zp05Szwmys4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eCIb83xm; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mof9kBKP"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 577FK01Y019425;
-	Thu, 7 Aug 2025 18:36:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=aKhneyAzDdfZGjI0wau8ksWW5iYO6xcbL43ns9QOC
-	Zs=; b=mof9kBKPdjsZeCBrQDBVlm/p4u6oxZBgLpqgrk/EIf/EqANKdmzqXnWdp
-	np5K+dxnbK3XyYO7kAAawTkhyYwl7b/53NMwuVpbSDqwQSsoPF8zSQKs0aBx23Pi
-	/8oQUHDTxgNz2jPIQVye7btQtlouYVStUoGxA1IHEX8l3vkjFVWlmB+ZJ9Rcrk3N
-	l/4R3aZ5+BSMVc5FPesHA0jts/hVMs+EQd0tpCiKFqfbFXtfaeqgnh4+PzNPS4ps
-	6u/JJJe7Lw/gnvk1dJVDuYfZM3B+3F5H1NpqS4u/AWmc+k31lwf7BlmdZqCvqziJ
-	E/9DeyfwwL/Ffn+F8HfSV9rAQkmQQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48c26u1ef0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 18:36:07 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 577ITA8c029483;
-	Thu, 7 Aug 2025 18:36:06 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48c26u1eeu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 18:36:06 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 577Gq7Yf022661;
-	Thu, 7 Aug 2025 18:36:05 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48bpwqj5pn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 18:36:05 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 577Ia19l48890134
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Aug 2025 18:36:01 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4CEBB20043;
-	Thu,  7 Aug 2025 18:36:01 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2259A20040;
-	Thu,  7 Aug 2025 18:36:01 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  7 Aug 2025 18:36:01 +0000 (GMT)
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        David Hildenbrand <david@redhat.com>, richard.weiyang@gmail.com
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-s390 <linux-s390@vger.kernel.org>, sumanthk@linux.ibm.com
-Subject: [PATCH v4] mm: fix accounting of memmap pages
-Date: Thu,  7 Aug 2025 20:35:45 +0200
-Message-ID: <20250807183545.1424509-1-sumanthk@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eCIb83xm"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-32b5931037eso11126641fa.2;
+        Thu, 07 Aug 2025 12:40:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1754595619; x=1755200419; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZxujgbgbPZueP+pnQ5s6H3MUryeO1an975QxEYXuWHk=;
+        b=eCIb83xmagdITxOChQ4WUm7j0a/kThTL9mQd5YM1R1wanYRoePYc2IoFh0913/P2vK
+         kncSbb4eKEpCk3RGScqrEx6uUL3t/LVT5fBWvlf0bOFCCWVxln52jA8XSmdoQW1m47Qp
+         7qooNAEzABNkVfPvEaKhJef4U137WNKHocQviNgeAOvMt4w8CcI5oMQYZ3shFjlM/aLl
+         AKutFrh0GjK/+P9qSIzRxTQADIA5bZaYOZy3xsz7sEQBOS+puZLkBZbKVxnGRo99/Hkz
+         GtGTvPhaqxNbe7jf0l7lcLmM4LBDqI6w6vQY7IuOgtztNxanuC43gH6oWOeRyUczb30Q
+         mmIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754595619; x=1755200419;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZxujgbgbPZueP+pnQ5s6H3MUryeO1an975QxEYXuWHk=;
+        b=kDG8e3JfAjJ9SEW2sV7238wk0ocYlZnKh8j1wJTUV9E0SF1f+TIluY4E8DrhwJ2yfV
+         iHtRfXbBr1eITeMEAcKaPa6lWZIXcfJuSvL7Xj08GRyZdjUBWHYzU+RvJ5o5a9pcxPFT
+         hQ0oKz+jBcVZgRC3bCjjuh+bTgCj/HeuZWIDVovj37mmqAwF+MtIcbyL9J2Ox2VMSAqI
+         7T563By/0vyzMYK2aV/B5fM/gABj2ZbHF7fTqams6zGxOrzq53+fza24QgLXI7T4DvqK
+         oiqfrrRjAxLALsvbSvMwEt1AbN8/vmaz7Lv8bwHKDdoRKgAA/TIYzKyeC6iSf14KgVtc
+         bu3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUTMC5EPUQU0SrryfGQ0qvPhJnCYjLz42+wl+8O4uf7nXOLOpcUz97qhHuBF9oEkQFjCVcu+1BrMCcx1w==@vger.kernel.org, AJvYcCVy8IdmzuuercM4SMQMGF6N0OV6HHYuP94rNYe3mBjowdc0TxMh/UjYTlTHMI794bDlXfOsnBo/oJ6gS5s=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCJqpxDJbiVO8Uf4a4GEbShL/GoaEIe0vOa3YvIgwv2BDStQ9t
+	6F1PV3w1cbOyEG4JXiToUQXj/4eyXd8sJV+qToOjWE68MNNjokjLuNvwFFBogaS9g/5oAQ==
+X-Gm-Gg: ASbGnctfs4922fwXpJ69XZEhTcDTyZx/AyyNLxYkNfBJZImKoOVcFf+H6tAOczlhEIe
+	L2XvXXrm/EmVlJM6D2AXwwdtMzsDvmeUvA1/dX1TsjqzBAkH6jCjlavM6s0XLyusN1jI5Vf6Of2
+	kSFQEav1y8cTE4UbcKVYIQNni3v8XIF0gFNbU4glsdy0btU2UbRJwNwYLG0LZttESnSD11b51y1
+	fapcRSRHJc7az9lRXywSoS3TIC52ZkHHAxbD5whUM5b9DuRBkhNvY6VmQ1FSXwseXpbBD9op5Y+
+	ro1BmNdU6NI3fogco3A8A2+oLzOBj+Jidv+FB1rjtEqhzJ2DGq10dv1ZcT9yfPYSYAAQFFxvS0C
+	NsHv2mKKwkuekUytXbvkGCKPgkHq86xZyuq/CzcEP/vZM/SLRPl+7NJ4OohgDoPrCiDK32A==
+X-Google-Smtp-Source: AGHT+IE3k4ZwCdWcT+X+hcq7vhHbrmZfaduJaslrnOP/WdlfOXcdLd8Kfq+JS+ZAkrsMnQsJjZ39NA==
+X-Received: by 2002:a05:6512:3d09:b0:55b:57e8:16c4 with SMTP id 2adb3069b0e04-55cc012c003mr7357e87.30.1754595619107;
+        Thu, 07 Aug 2025 12:40:19 -0700 (PDT)
+Received: from localhost.localdomain (178.90.89.143.dynamic.telecom.kz. [178.90.89.143])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-55b88c98c2asm2793570e87.77.2025.08.07.12.40.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Aug 2025 12:40:18 -0700 (PDT)
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+To: ryabinin.a.a@gmail.com,
+	bhe@redhat.com,
+	hca@linux.ibm.com,
+	christophe.leroy@csgroup.eu,
+	andreyknvl@gmail.com,
+	akpm@linux-foundation.org,
+	zhangqing@loongson.cn,
+	chenhuacai@loongson.cn,
+	davidgow@google.co,
+	glider@google.com,
+	dvyukov@google.com
+Cc: alex@ghiti.fr,
+	agordeev@linux.ibm.com,
+	vincenzo.frascino@arm.com,
+	elver@google.com,
+	kasan-dev@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-mm@kvack.org,
+	snovitoll@gmail.com
+Subject: [PATCH v5 0/2] kasan: unify kasan_enabled() and remove arch-specific implementations
+Date: Fri,  8 Aug 2025 00:40:10 +0500
+Message-Id: <20250807194012.631367-1-snovitoll@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,142 +93,113 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Q6gTKsj0jKKFacG6gPQXzsemAJFWNtlj
-X-Authority-Analysis: v=2.4 cv=F/xXdrhN c=1 sm=1 tr=0 ts=6894f217 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8
- a=cUr1TRy4Y1kx_8V_9hMA:9
-X-Proofpoint-GUID: zyRnUKR7nx37eiBWiP3FzLDWANvrDLTR
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDE1MCBTYWx0ZWRfXxAj55tLiecDX
- ZawhDJzPQ98PWwrQ282eCqurzzmouxKExGZuL82WEpF/C1GtVaqMUjm1TFyJVCeKZ8GehrrSvlO
- foGcE4RTwsTs5KABA/ZBr/j6a4PYQ7JloGXYU7GpSSDZ6ojC6iN+7x3K+r66RoyU7qdypCM/kuk
- wthcc89EeopQhctjFvnHcf7PZFQ0u+i3eSBEIjP7eHE67DPhw3u+7M//QLeoiJAiFDagdssVabA
- 2MA2kDG2a/Nfz+iZrvFaBC1BQOsGQiknUiiPrJoaSDyugq+mWDsPo54QMcFN5H/OPdtmvbH4E0i
- FF6O5W6bOMJw9D02JgYfbgRwz6ppmTf7gvG6a2fef6lYpMsaRSBODafigN3kBwOw9Z2/3CrH0gU
- Bi1cnXU0KVYeJwnbP47DvN0HFGIa5Oa4tv4BT5bwiVS19M5StY+eafBU6uvBU3bttjGISXPe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-07_04,2025-08-06_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- mlxscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- clxscore=1015 spamscore=0 bulkscore=0 adultscore=0 mlxlogscore=737
- malwarescore=0 phishscore=0 suspectscore=0 classifier=spam authscore=0
- authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508070150
 
-For !CONFIG_SPARSEMEM_VMEMMAP, memmap page accounting is currently done
-upfront in sparse_buffer_init(). However, sparse_buffer_alloc() may
-return NULL in failure scenario.
+This patch series addresses the fragmentation in KASAN initialization
+across architectures by introducing a unified approach that eliminates
+duplicate static keys and arch-specific kasan_arch_is_ready()
+implementations.
 
-Also, memmap pages may be allocated either from the memblock allocator
-during early boot or from the buddy allocator. When removed via
-arch_remove_memory(), accounting of memmap pages must reflect the
-original allocation source.
+The core issue is that different architectures have inconsistent approaches
+to KASAN readiness tracking:
+- PowerPC, LoongArch, and UML arch, each implement own kasan_arch_is_ready()
+- Only HW_TAGS mode had a unified static key (kasan_flag_enabled)
+- Generic and SW_TAGS modes relied on arch-specific solutions
+  or always-on behavior
 
-To ensure correctness:
-* Account memmap pages after successful allocation in sparse_init_nid()
-  and section_activate().
-* Account memmap pages in section_deactivate() based on allocation
-  source.
+Changes in v5:
+- Unified patches where arch (powerpc, UML, loongarch) selects
+  ARCH_DEFER_KASAN in the first patch not to break
+  bisectability. So in v5 we have 2 patches now in the series instead of 9.
+- Removed kasan_arch_is_ready completely as there is no user
+- Removed __wrappers in v4, left only those where it's necessary
+  due to different implementations
 
-Cc: stable@vger.kernel.org
-Fixes: 15995a352474 ("mm: report per-page metadata information")
-Suggested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
-v4:
-* Add fixes and suggested-by.
+Tested on:
+- powerpc - selects ARCH_DEFER_KASAN
+Built ppc64_defconfig (PPC_BOOK3S_64) - OK
+Booted via qemu-system-ppc64 - OK
 
-v3: 
-* Account memmap pages for !CONFIG_SPARSEMEM_VMEMMAP and only when memmap
-  allocation succeeds. Thanks Wei Yang.
+I have not tested in v4 powerpc without KASAN enabled.
 
-v2: 
-* Account memmap pages for  !CONFIG_SPARSEMEM_VMEMMAP in
-  section_deactivate().  Thanks David.
-* https://lore.kernel.org/all/20250804151328.2326642-1-sumanthk@linux.ibm.com/
+In v4 arch/powerpc/Kconfig it was:
+	select ARCH_DEFER_KASAN			if PPC_RADIX_MMU
 
-v1: 
-* Account memmap pages for early sections.
-* https://lore.kernel.org/all/20250804084015.270570-1-sumanthk@linux.ibm.com/
+and compiling with ppc64_defconfig caused:
+  lib/stackdepot.o:(__jump_table+0x8): undefined reference to `kasan_flag_enabled'
 
- mm/sparse-vmemmap.c |  5 -----
- mm/sparse.c         | 15 +++++++++------
- 2 files changed, 9 insertions(+), 11 deletions(-)
+I have fixed it in v5 via adding KASAN condition:
+	select ARCH_DEFER_KASAN			if KASAN && PPC_RADIX_MMU
 
-diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
-index fd2ab5118e13..41aa0493eb03 100644
---- a/mm/sparse-vmemmap.c
-+++ b/mm/sparse-vmemmap.c
-@@ -578,11 +578,6 @@ struct page * __meminit __populate_section_memmap(unsigned long pfn,
- 	if (r < 0)
- 		return NULL;
- 
--	if (system_state == SYSTEM_BOOTING)
--		memmap_boot_pages_add(DIV_ROUND_UP(end - start, PAGE_SIZE));
--	else
--		memmap_pages_add(DIV_ROUND_UP(end - start, PAGE_SIZE));
--
- 	return pfn_to_page(pfn);
- }
- 
-diff --git a/mm/sparse.c b/mm/sparse.c
-index 066cbf82acb8..24323122f6cb 100644
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -454,9 +454,6 @@ static void __init sparse_buffer_init(unsigned long size, int nid)
- 	 */
- 	sparsemap_buf = memmap_alloc(size, section_map_size(), addr, nid, true);
- 	sparsemap_buf_end = sparsemap_buf + size;
--#ifndef CONFIG_SPARSEMEM_VMEMMAP
--	memmap_boot_pages_add(DIV_ROUND_UP(size, PAGE_SIZE));
--#endif
- }
- 
- static void __init sparse_buffer_fini(void)
-@@ -567,6 +564,8 @@ static void __init sparse_init_nid(int nid, unsigned long pnum_begin,
- 				sparse_buffer_fini();
- 				goto failed;
- 			}
-+			memmap_boot_pages_add(DIV_ROUND_UP(PAGES_PER_SECTION * sizeof(struct page),
-+							   PAGE_SIZE));
- 			sparse_init_early_section(nid, map, pnum, 0);
- 		}
- 	}
-@@ -680,7 +679,6 @@ static void depopulate_section_memmap(unsigned long pfn, unsigned long nr_pages,
- 	unsigned long start = (unsigned long) pfn_to_page(pfn);
- 	unsigned long end = start + nr_pages * sizeof(struct page);
- 
--	memmap_pages_add(-1L * (DIV_ROUND_UP(end - start, PAGE_SIZE)));
- 	vmemmap_free(start, end, altmap);
- }
- static void free_map_bootmem(struct page *memmap)
-@@ -856,10 +854,14 @@ static void section_deactivate(unsigned long pfn, unsigned long nr_pages,
- 	 * The memmap of early sections is always fully populated. See
- 	 * section_activate() and pfn_valid() .
- 	 */
--	if (!section_is_early)
-+	if (!section_is_early) {
-+		memmap_pages_add(-1L * (DIV_ROUND_UP(nr_pages * sizeof(struct page), PAGE_SIZE)));
- 		depopulate_section_memmap(pfn, nr_pages, altmap);
--	else if (memmap)
-+	} else if (memmap) {
-+		memmap_boot_pages_add(-1L * (DIV_ROUND_UP(nr_pages * sizeof(struct page),
-+							  PAGE_SIZE)));
- 		free_map_bootmem(memmap);
-+	}
- 
- 	if (empty)
- 		ms->section_mem_map = (unsigned long)NULL;
-@@ -904,6 +906,7 @@ static struct page * __meminit section_activate(int nid, unsigned long pfn,
- 		section_deactivate(pfn, nr_pages, altmap);
- 		return ERR_PTR(-ENOMEM);
- 	}
-+	memmap_pages_add(DIV_ROUND_UP(nr_pages * sizeof(struct page), PAGE_SIZE));
- 
- 	return memmap;
- }
+- um - selects ARCH_DEFER_KASAN
+
+KASAN_GENERIC && KASAN_INLINE && STATIC_LINK
+	Before:
+		In file included from mm/kasan/common.c:32:
+		mm/kasan/kasan.h:550:2: error: #error kasan_arch_is_ready only works in KASAN generic outline mode!
+		550 | #error kasan_arch_is_ready only works in KASAN generic outline mode
+
+	After (with auto-selected ARCH_DEFER_KASAN):
+		./arch/um/include/asm/kasan.h:29:2: error: #error UML does not work in KASAN_INLINE mode with STATIC_LINK enabled!
+		29 | #error UML does not work in KASAN_INLINE mode with STATIC_LINK enabled!
+
+KASAN_GENERIC && KASAN_OUTLINE && STATIC_LINK && 
+	Before:
+		./linux boots.
+
+	After (with auto-selected ARCH_DEFER_KASAN):
+		./linux boots.
+
+KASAN_GENERIC && KASAN_OUTLINE && !STATIC_LINK
+	Before:
+		./linux boots
+
+	After (with auto-disabled !ARCH_DEFER_KASAN):
+		./linux boots
+
+- loongarch - selects ARCH_DEFER_KASAN
+Built defconfig with KASAN_GENERIC - OK
+Haven't tested the boot. Asking Loongarch developers to verify - N/A
+But should be good, since Loongarch does not have specific "kasan_init()"
+call like UML does. It selects ARCH_DEFER_KASAN and calls kasan_init()
+in the end of setup_arch() after jump_label_init().
+
+Previous v4 thread: https://lore.kernel.org/all/20250805142622.560992-1-snovitoll@gmail.com/
+Previous v3 thread: https://lore.kernel.org/all/20250717142732.292822-1-snovitoll@gmail.com/
+Previous v2 thread: https://lore.kernel.org/all/20250626153147.145312-1-snovitoll@gmail.com/
+
+Sabyrzhan Tasbolatov (2):
+  kasan: introduce ARCH_DEFER_KASAN and unify static key across modes
+  kasan: call kasan_init_generic in kasan_init
+
+ arch/arm/mm/kasan_init.c               |  2 +-
+ arch/arm64/mm/kasan_init.c             |  4 +---
+ arch/loongarch/Kconfig                 |  1 +
+ arch/loongarch/include/asm/kasan.h     |  7 ------
+ arch/loongarch/mm/kasan_init.c         |  8 +++----
+ arch/powerpc/Kconfig                   |  1 +
+ arch/powerpc/include/asm/kasan.h       | 12 ----------
+ arch/powerpc/mm/kasan/init_32.c        |  2 +-
+ arch/powerpc/mm/kasan/init_book3e_64.c |  2 +-
+ arch/powerpc/mm/kasan/init_book3s_64.c |  6 +----
+ arch/riscv/mm/kasan_init.c             |  1 +
+ arch/s390/kernel/early.c               |  3 ++-
+ arch/um/Kconfig                        |  1 +
+ arch/um/include/asm/kasan.h            |  5 ++--
+ arch/um/kernel/mem.c                   | 10 ++++++--
+ arch/x86/mm/kasan_init_64.c            |  2 +-
+ arch/xtensa/mm/kasan_init.c            |  2 +-
+ include/linux/kasan-enabled.h          | 32 ++++++++++++++++++--------
+ include/linux/kasan.h                  |  6 +++++
+ lib/Kconfig.kasan                      |  8 +++++++
+ mm/kasan/common.c                      | 17 ++++++++++----
+ mm/kasan/generic.c                     | 19 +++++++++++----
+ mm/kasan/hw_tags.c                     |  9 +-------
+ mm/kasan/kasan.h                       |  8 ++++++-
+ mm/kasan/shadow.c                      | 12 +++++-----
+ mm/kasan/sw_tags.c                     |  1 +
+ mm/kasan/tags.c                        |  2 +-
+ 27 files changed, 107 insertions(+), 76 deletions(-)
+
 -- 
-2.48.1
+2.34.1
 
