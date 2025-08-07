@@ -1,165 +1,189 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755DF2E36EC;
-	Thu,  7 Aug 2025 13:09:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83D7A1EB5B;
+	Thu,  7 Aug 2025 13:55:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754572200; cv=none; b=i6bL7BC1HkN7YcJGbxQZMMqXw8ntrXGvmWRsiSZanFXnmZlNSiUCaBTHHmFGss6QUjWDJIPlXR2Wpyjt3iOiTcQywSOhKQqY4im45UXGfJ4ZdCXOG6I1zMwQ319AO5DHffOC66Y2wb1o4e11WLXUkkL/gJ6RybWyvu9V6yQCSzg=
+	t=1754574958; cv=none; b=XXdnm1E8D2t8FOH0EO3UcKDz+uWPa8O+e5MgtfkGWBfl+W8C+ohmHLG/l/b4BdkCEHSEfZRhR8g8DDtHimikbnvEqZipSmufJB7O6DmUcuaGJqhMz1SvcbC9v48V5zzfJdD85ugcb1e5/j7oH9BiN1AinSHkKvC1da8qRFcp2VM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754572200; c=relaxed/simple;
-	bh=NhAS2kDezo3m8PwFKscrSj7mqzam+NvpBnxO73urFck=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=DCpdfl8RXNOl6moZcAF5mFEGcSjDDBpN6FC04+iA6DGtvZxmByrNYeHv1mJ65hAuMfsRek9ZuThgNVBYm5RIZFIfaeSFx+jw6CjG5xZ3C7Vf9Mrt1qHkB2bu3n/oLhzsrx9Y6Qtrb2qUxM9QHo8hhNP+myPiGrdmIe41YcAOgWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F8QvmU5w; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1754574958; c=relaxed/simple;
+	bh=genfLilDQilTlrVR+XjImpQdVjsDL45CfUIKqnfk+5E=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=OmhEEAu9n4huoVqBKY6+XfzLOEHZeezUjwFr1JZd5/Nj2qGvn6z/dIhQGQzMKz8cwiUXBJHg30MkXmfz8C3XKT8wdL4mwt8vStmaF48JgaALzIAN0SQMmWtaC1M6AOUIT/bRU2LA43Nv7d4ZCsbN1rDtB2Ldo+wk5u6VscQToCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c88eQYTU; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F8QvmU5w"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5775CLEq021001;
-	Thu, 7 Aug 2025 13:09:56 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c88eQYTU"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5778csZI021572;
+	Thu, 7 Aug 2025 13:55:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:message-id:mime-version:subject:to; s=
-	pp1; bh=IKOA5vTBDey4K9y0ryP3ZJcPpVfj5ngQjdLp4oyotBo=; b=F8QvmU5w
-	f5zc0xuSTQMsrd+NoKFcwnKrtB4kAQExBZIt6OQiqxgyTuADN8kSUbLapRm3AGhn
-	UkFoUqv2awOJ93DNR+L8pSeo9mn7qbHa0M3KSzk9uYQHfV8SzZK6/D8aWeDuhrqR
-	xsNj566oKy/HVgxrHdsZaiJsOp/YnusT7WvBvbintkVedEiTqlmOK7kuftcK9oRZ
-	9QcOLBEJsASXDLZzHUMt7gcXoJwnzzAu3u4dqN7MJoU2RLu+aFYF11Sd4U2JcDJx
-	W3Yb/gsrd7x2Li1bM9JNW2zA0Kqvd4+YuTykdq83L/4J+fCROyZpMtX0wY5PJPiR
-	Eie+2pPyvouxWw==
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=y3+fywtBg7WA4g2vIVfSuzo1cv1w
+	/rMDMqYu2v+Dabg=; b=c88eQYTU5kYHu2kzEIaOcgGzXPUwEE6Cf1Hj31bDnbpB
+	PCwXQDMFGqjHb1e2Xl8cbNDwt7UIce6pb8rqTotHV8Uuh6E199wJBO5NanSwRyzn
+	q+w4xiCxGM9GkYy3KQsT+pwECZwkWapnRq9XMEaH/mWtli3V8UHvAiHQ54XZf+za
+	cbEI5GA80rl0QguSMBvMpcurrkGng/8jWfTbGSUvs50RHo5GGlGkJf6DnSwGLNkx
+	Yt2Es8vX17bKsyIsBleDcXaKl5SyKZoq2D9BVHrZrN56diphU94whURjxkTUslFr
+	nQfuu6uh+xf1E3m2kX9s7EOsRPm+RVHYeg9pim2HUw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq622fym-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Aug 2025 13:55:48 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 577DnxdR022588;
+	Thu, 7 Aug 2025 13:55:48 GMT
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq63a3q8-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq622fyk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 13:09:56 +0000 (GMT)
+	Thu, 07 Aug 2025 13:55:48 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5779kM9g001627;
-	Thu, 7 Aug 2025 13:09:55 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 48bpwr0pwu-1
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 577DjUMV001627;
+	Thu, 7 Aug 2025 13:55:47 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 48bpwr0vm6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 13:09:55 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 577D9pMj57082122
+	Thu, 07 Aug 2025 13:55:47 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 577Dtjed24707804
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Aug 2025 13:09:51 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 81D482004B;
-	Thu,  7 Aug 2025 13:09:51 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6694020040;
-	Thu,  7 Aug 2025 13:09:51 +0000 (GMT)
+	Thu, 7 Aug 2025 13:55:45 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 462B358062;
+	Thu,  7 Aug 2025 13:55:45 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 712C95805A;
+	Thu,  7 Aug 2025 13:55:42 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  7 Aug 2025 13:09:51 +0000 (GMT)
-Date: Thu, 7 Aug 2025 15:09:50 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] more s390 updates for 6.17 merge window
-Message-ID: <20250807130950.4053091Adb-agordeev@linux.ibm.com>
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Aug 2025 13:55:42 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH v5 0/3] PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI
+ recovery
+Date: Thu, 07 Aug 2025 15:55:37 +0200
+Message-Id: <20250807-add_err_uevents-v5-0-adf85b0620b0@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFmwlGgC/23QTQrCMBAF4KtI1kYmP02iK+8hUtpkogFtJdFQk
+ d7dKEIXcfkG5nvDvEjCGDCR3epFIuaQwjiU0KxXxJ674YQ0uJIJB96AZJp2zrUYY/vAjMM9UeW
+ Nk05bhK0lZesW0YfpKx6OJZ9Duo/x+S3I7DP9WVxWVmaUUSGMdKrXemvV/hKGx7QJ/XVjxyv5e
+ JkvhuKiNjgF2omOW29QM+b+GWIxtIDaEMVoJPSsMRY0+H+GXAwD9V+yLIZVXPbeGSVMdcc8z2+
+ 4gbhAfgEAAA==
+X-Change-ID: 20250417-add_err_uevents-6f8d4d7ce09c
+To: Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>
+Cc: Linas Vepstas <linasvepstas@gmail.com>,
+        =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Keith Busch <kbusch@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2241;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=genfLilDQilTlrVR+XjImpQdVjsDL45CfUIKqnfk+5E=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGDKmbIg1SJr82zwgzr6o7XfzXyGLXbq7WBrPaTy69SIkJ
+ J2nt0awo5SFQYyLQVZMkWVRl7PfuoIppnuC+jtg5rAygQxh4OIUgIlMb2b4H9MyX+rrE87HlfpB
+ NaXt57w5p8tHNC3qv3bLePmCSbO57jEybPLROi1xRLDVT2TPW8/l/PwtC+a2Py5OWMOeeV9nQhE
+ jDwA=
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=NInV+16g c=1 sm=1 tr=0 ts=6894a5a4 cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDEwOCBTYWx0ZWRfXypIpd6Ht8VBA
+ 4ArXLqP2NeA+aCDpkBLKklqTGdIxkINzfNJFQjXXXSf1ErVwcYbTBHpj9cXIWyais+yCLk9MkB3
+ ckOecV26LKsFKvyfHHmgFWqGo7/iIQ7SGSNZuqMkyDbVjCpzTvd9cTb/eQeICPisBcxg8arCujq
+ zSB+vJUNXsp048WZgbg8sIdsSV+uPBXI6dtalMZDb7t+SEpeTEtQWROtxzcuc5sqK8V4Q2obLxn
+ UwC1g4rXhvhgfMdwsv1lLtf2bdbO56yLzNyIBxfDJ+4butBi83tPhh4+9069fRzLMpkqlB0Ppmp
+ Wuxe8gxVJo2x0iC77SwJ0a85d6YIv1UaJsGJi5oX287BqiN2wPiF6+owwznm2YaneW6/ElcvhD/
+ HHtg65EWEnt+RRUfj/+mart8NEX4/jpo46e14Vyum4DORBHZB93XnSKUlCDyN3XiUW8dYJLZ
+X-Proofpoint-GUID: mjFpNY3XYbn_IxSgE3fyv19oNXETZZ82
+X-Authority-Analysis: v=2.4 cv=BIuzrEQG c=1 sm=1 tr=0 ts=6894b064 cx=c_pps
  a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=WR95G3A0MTiJF30CLH4A:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: cqCGx4S1k40MIadIvIeO-7l0qsSs0Xyl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDEwMyBTYWx0ZWRfXzBmgQR1Awh+P
- vRhIe/dDuDsiIfjqs5JTt6svjKvhEgGlca52r8ZrVE3IHq5KEycoNcuxn7UNqQvwaKnutxeDsig
- KQvwAJ0bD/QXtpIBHXKnZoGXDdUbRHRAaoBLbyh5ZHHziiJjkNPo/j3o9bYofjtJ/bhECbeYt7L
- S7T7kclftauVnnGyZoD35ofxQr8tcMSxFsvwlxgwWm7phgxVWWfOYmcAH8ZBItL3ka3++bE/xW2
- TD8dJa6GriSF9lGtKCfdrbTAIs2lA2rWYbX6qdN7y4Lqsd8TndRiu6GxZpNZLZIuDiCopFBog6/
- QQua55ybprcy5qptNwkH6qsDV0iqmOJNfL5y/XsfTP/y78QCKeTh92Vmc9NeMW3A+DBsaMcaRQO
- ZaNIKiX+fO2SKSqKKb+2jMCO7KVJP1RcSDzhr3M9E+2cdpAgL/LK6yYaPk6Re3z5sOiss1Be
-X-Proofpoint-ORIG-GUID: cqCGx4S1k40MIadIvIeO-7l0qsSs0Xyl
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=Ot2KE7TKgi5QPKB6m9EA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 8dDb7rlIF5q5c9sp3xjcYHl_LrCS16l-
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-08-07_02,2025-08-06_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_spam_definite policy=outbound
- score=100 phishscore=0 suspectscore=0 impostorscore=0 mlxlogscore=-999
- lowpriorityscore=0 malwarescore=0 clxscore=1015 adultscore=0 mlxscore=100
- bulkscore=0 priorityscore=1501 spamscore=100 classifier=spam authscore=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ mlxscore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 spamscore=0 mlxlogscore=999 adultscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 bulkscore=0 classifier=spam authscore=0
  authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508070103
+ engine=8.19.0-2507300000 definitions=main-2508070108
 
-Hi Linus,
+Hi Bjorn, Lukas, Mahesh,
 
-please pull more s390 updates for the 6.17 merge window.
+This series adds issuing of uevents during PCI recovery on s390. In
+developing this I noticed that pci_uevent_ers() ignores
+PCI_ERS_RESULT_NEED_RESET. I think this will result in AER not generating a uevent
+at the beginning of recovery if drivers request a reset via the voting
+on error_detected() returns. This is fixed in the first patch and relied
+upon by the s390 recovery code as it also uses the result of
+error_detected() though with one device/driver at a time.
+
 Thanks,
+Niklas
 
-Alexander
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Changes in v5:
+- Add R-b from Lukas Wunner for EEH
+- Improve commit message for EEH (Lukas Wunner)
+- Move the EEH patch to the end so the reference to s390 relies on the
+  as is and not future state ;)
+- Link to v4: https://lore.kernel.org/r/20250807-add_err_uevents-v4-0-c624bfd8638d@linux.ibm.com
 
-The following changes since commit bc46b7cbc58c4cb562b6a45a1fbc7b8e7b23df58:
+Changes in v4:
+- Add change in EEH to use the return of error_detected() in the uevent
+  just like AER and the new s390 code
+- Add R-b from Lukas
+- Link to v3: https://lore.kernel.org/r/20250730-add_err_uevents-v3-0-540b158c070f@linux.ibm.com
 
-  Merge tag 's390-6.17-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2025-07-29 20:17:08 -0700)
+Changes in v3:
+- Reworded cover letter
+- Rebase on v6.16
+- Link to v2: https://lore.kernel.org/r/20250623-add_err_uevents-v2-0-a3a2cf8e711d@linux.ibm.com
 
-are available in the Git repository at:
+Changes in v2:
+- Add a patch fixing pci_uevent_ers() mistakenly ignoring PCI_ERS_RESULT_NEED_RESET
+- Use the result of error_detected() for initial pci_uevent_ers()
+- Drop fixes tag in s390 patch
+- Rebase and re-test on current master
+- Link to v1: https://lore.kernel.org/r/20250424-add_err_uevents-v1-1-3384d6b779c6@linux.ibm.com
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.17-2
+---
+Niklas Schnelle (3):
+      PCI/AER: Fix missing uevent on recovery when a reset is requested
+      PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI recovery
+      powerpc/eeh: Use result of error_detected() in uevent
 
-for you to fetch changes up to 2baf16f381decee303da406ca5a0991134260270:
+ arch/powerpc/kernel/eeh_driver.c | 2 +-
+ arch/s390/pci/pci_event.c        | 3 +++
+ drivers/pci/pci-driver.c         | 3 ++-
+ include/linux/pci.h              | 2 +-
+ 4 files changed, 7 insertions(+), 3 deletions(-)
+---
+base-commit: 038d61fd642278bab63ee8ef722c50d10ab01e8f
+change-id: 20250417-add_err_uevents-6f8d4d7ce09c
 
-  s390/debug: Fix typo in debug_sprintf_format_fn() comment (2025-08-06 17:18:27 +0200)
+Best regards,
+-- 
+Niklas Schnelle
 
-----------------------------------------------------------------
-more s390 updates for 6.17 merge window
-
-- Support MMIO read/write tracing
-
-- Enable THP swapping and THP migration
-
-- Unmask SLCF bit ("stateless command filtering") introduced with
-  CEX8 cards, so that user space applications like lszcrypt could
-  evaluate and list this feature
-
-- Fix the value of high_memory variable, so it considers possible
-  tailing offline memory blocks
-
-- Make vmem_pte_alloc() consistent and always allocate memory of
-  PAGE_SIZE for page tables. This ensures a page table occupies
-  the whole page, as the rest of the code assumes
-
-- Fix kernel image end address in the decompressor debug output
-
-- Fix a typo in debug_sprintf_format_fn() comment
-
-----------------------------------------------------------------
-Alexander Gordeev (1):
-      s390/mm: Set high_memory at the end of the identity mapping
-
-Gerald Schaefer (1):
-      s390/mm: Enable THP_SWAP and THP_MIGRATION
-
-Harald Freudenberger (1):
-      s390/ap: Unmask SLCF bit in card and queue ap functions sysfs
-
-Mikhail Zaslonko (1):
-      s390/boot: Fix startup debugging log
-
-Steffen Maier (1):
-      s390: Support CONFIG_TRACE_MMIO_ACCESS
-
-Sumanth Korikkar (1):
-      s390/mm: Allocate page table with PAGE_SIZE granularity
-
-Tigran Mkrtchyan (1):
-      s390/debug: Fix typo in debug_sprintf_format_fn() comment
-
- arch/s390/Kconfig               |  3 +++
- arch/s390/boot/startup.c        |  2 +-
- arch/s390/include/asm/ap.h      |  2 +-
- arch/s390/include/asm/pgtable.h | 45 +++++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/debug.c        |  2 +-
- arch/s390/kernel/setup.c        |  6 ++++++
- arch/s390/mm/vmem.c             |  5 ++---
- drivers/s390/crypto/ap_bus.h    |  2 +-
- 8 files changed, 60 insertions(+), 7 deletions(-)
