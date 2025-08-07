@@ -1,67 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3E11F0E34;
-	Thu,  7 Aug 2025 07:01:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EE7376F1;
+	Thu,  7 Aug 2025 09:47:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754550119; cv=none; b=ngyYvzUFhJWBKvejrL0+2Bl856IYFZEncA84jOmiRjdCkohdvGcICFy7jHmrtgQxxZOR+it/ZkdLu4EaVgAhwegIVsrI6+QN3o8EtH5gVG2GBv5xaswLeexnywFeQx+5QgPHfexd0dBzkgby6JAvYMDk+GM2DAn3FQDNUDTnxF8=
+	t=1754560034; cv=none; b=WSiYB1sov9r+MyOLLEO6RGAWbcL0l17FwXQ+H2xTTEzkXWesvR/IAHJIm6psFUlXLyOB5RQ9OVjVO9KZtqTGtQxxikQnDDz8KOVw7s5Mta7lCrfrkyjSMU1RwpNirg67TwJODNuYxfUDTODaXao3bbHjqeKRr0aMcc7CaTJhLRA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754550119; c=relaxed/simple;
-	bh=RxgJWx/CRPO16SNAZNIMksl/YmJs/4TUq+ajDi59q1U=;
+	s=arc-20240116; t=1754560034; c=relaxed/simple;
+	bh=TDeiBApOh1NcX4yBW9i2CsFOUdCFeSFRwM+KeVVkTrQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FoRfTgqBfZO5sKe7oomYFar+/nzS1DYBgo8G1eykj8pDbts6vhLfQBZ92E4IR2O8mjiPRFp4jPRwVJkxeALmY7tqgzEMzwBezPBqZxDQUISeeSBjSz5Q9rJovuIXDGP7yDwpJnY5oN9OIFb9Ku0fjPh1avngaKIsZXiqQWtFIqc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=J6MsBPLl; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=sTQXZgV5k76/7a0JzNMXmvVyerfb5kbE2Z9SZ+vSuXIkpMJ96HGqPuMrGfj3LQpL8Hj6uA8Y4DjmETc2k6OEA9b88Wi81VGjdUJG8lE58o7qxeoHndmrEauBy+PK8S7lEU8W8+vr+zPNgDLO3iE5cfFF+aJd3M7XQNMho7+aKgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=go9qRIE7; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="J6MsBPLl"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57743JQG028175;
-	Thu, 7 Aug 2025 07:01:50 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="go9qRIE7"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57790AX3021567;
+	Thu, 7 Aug 2025 09:46:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=HYqzOl
-	Zpv1tnyRF/96MpKpFlFZUSpL6fqTmJlP5wiVM=; b=J6MsBPLlIJIBnKgFnmefrR
-	B/1g/Z6CGO047CS9k8OukAFFIKusislOgAgYQZgBjlNhDF+KrheSSTT0WKtAbR24
-	zyvSl1ZvvFuj7z/iYlyFLiMf0UIRxD04OwulFULfq/3vXlz5mdZBz/g/bIDWeuJs
-	F8QzDAjEKNvHib2whjGg9o4od3cnSI7XszmjxmuscwE6kFz3ZX9Ix83KNMlVBuHO
-	AbiumTydd3rejA73lYciPu7OMicq56rgWjJoq6hfxJgDgciu7SUzHyDcskxcH869
-	ohN6xjGBHUQJulTuUHtQLRb2gufGavV6fj7IerbfWQbL2KJ4KF4xZHCBnHjtbCrg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ImRZUe
+	6tVuS8TT869/9J1UoTQ8hVJxjnFHqcKjWzkmg=; b=go9qRIE70CfPyS9Kn8TPsq
+	JkZyaxDOMfgvgd9oOkezsaYQ7nO6H1+vyJlxnFf+6IS8gazLQFoHJPSCtC/ozPKm
+	6VKICh++4mFIXlvEA+Fv861i489NybwU9awUyTQXXGMIfzvBpYV01KVsDF9Iz4YI
+	Ww/eXWrOH1iZah1GKzst8ykQD8OdLbBS52aH5gpTLX9hzYzJnzq1Wj6ghnhGN7K+
+	HeSCbGXR0u5BWfqTnzNxp7wSohfiND9Ay/p0FkDgE9Qit35GSbcVN7CqdFOj9pan
+	uk5bsEsgRkx16zjIPUzdIH9a6QpTBUGyN7bRfWvIADnQUc0lqNAVn74p649+uPzA
 	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq610nuc-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq621brx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 07:01:50 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5776tL5F032415;
-	Thu, 7 Aug 2025 07:01:49 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq610nu7-1
+	Thu, 07 Aug 2025 09:46:53 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5779eRBP008042;
+	Thu, 7 Aug 2025 09:46:52 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48bpwmyygs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 07:01:49 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57754ksk020626;
-	Thu, 7 Aug 2025 07:01:48 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48bpwmycem-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 07:01:48 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57771iQ715139074
+	Thu, 07 Aug 2025 09:46:52 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5779kpb241746786
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Aug 2025 07:01:44 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6498E20043;
-	Thu,  7 Aug 2025 07:01:44 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0F61120040;
-	Thu,  7 Aug 2025 07:01:44 +0000 (GMT)
-Received: from [9.152.224.240] (unknown [9.152.224.240])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  7 Aug 2025 07:01:44 +0000 (GMT)
-Message-ID: <c1a8b08a-680b-4cd6-a0b2-c94388304fe1@linux.ibm.com>
-Date: Thu, 7 Aug 2025 09:01:43 +0200
+	Thu, 7 Aug 2025 09:46:51 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 450E158055;
+	Thu,  7 Aug 2025 09:46:51 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2F5705804E;
+	Thu,  7 Aug 2025 09:46:39 +0000 (GMT)
+Received: from [9.197.227.8] (unknown [9.197.227.8])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Aug 2025 09:46:38 +0000 (GMT)
+Message-ID: <7f4f4d07-38f7-444c-adff-ec2a2387e86b@linux.ibm.com>
+Date: Thu, 7 Aug 2025 15:16:35 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,75 +62,99 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC net-next 01/17] net/smc: Remove __init marker from
- smc_core_init()
-To: dust.li@linux.alibaba.com, David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>,
-        Wenjia Zhang
- <wenjia@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu
- <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        Halil Pasic <pasic@linux.ibm.com>, linux-rdma@vger.kernel.org
-References: <20250806154122.3413330-1-wintera@linux.ibm.com>
- <20250806154122.3413330-2-wintera@linux.ibm.com>
- <aJQex0Ey-eaysumJ@linux.alibaba.com>
+Subject: Re: [PATCH 05/17] powerpc: Add __attribute_const__ to ffs()-family
+ implementations
+To: Kees Cook <kees@kernel.org>, linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, llvm@lists.linux.dev,
+        linux-hardening@vger.kernel.org
+References: <20250804163910.work.929-kees@kernel.org>
+ <20250804164417.1612371-5-kees@kernel.org>
 Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <aJQex0Ey-eaysumJ@linux.alibaba.com>
+From: Madhavan Srinivasan <maddy@linux.ibm.com>
+In-Reply-To: <20250804164417.1612371-5-kees@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: lmR-3Ln4TZeURc2IHvscMh7bjqHpGojR
-X-Proofpoint-ORIG-GUID: talQW7ZRVHpUpI4CcA4rvay4LQqHE8NU
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDA1MiBTYWx0ZWRfX46nwaotJnd07
- 6NXUIDcmz3Apb++2dNmpu7A+vx5rk9aw357xhr+s+aRCYUewiM364tEMlldNA02f+AReZUg9GJ0
- lket/dWisf4ydY22roNQQOQP91JSFQqR0ApaaHYlxf4SNbsRdux48WGSbdK2OTXtduvA62WHsFH
- btmUlzaGT0rq2hfFDOPahsTPxGE4kB4S3rjdPYdxXz/Nr9ElonP0s9q7Gq6gGLKhYR5wJmPfGmD
- Sq/qTo1/+Uasdh1dAO/3TKgevuFGnAVmaENppEdu+duxPyjq/HeijIYXuLUvWnGdDfvX20H/+jM
- gF36KuV/irVAQxRSixJ8OVoeMBfmAIJqI7MLv7Q+4PrYPzvr9NY375ptOuDoq3mxsAHOXHqnPRe
- sGT3M5XVck42AsdYROzK2b+qcbIxAJYUggSE6n7KvxmmRGdnVWbOXk2Wg+JZzISXyc72fEYI
-X-Authority-Analysis: v=2.4 cv=TayWtQQh c=1 sm=1 tr=0 ts=68944f5e cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=rCoTjgMRcGilsMQW6BcA:9
- a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDA3MyBTYWx0ZWRfX0unUnmBlk9BR
+ JyFnhjGUCcX72+ZTvzudrWhw0DB4YVlTamytH3O0p7bgfe1t3RFHu6oXmijVRlkSINNESQcI2ed
+ WV3l/gYRQ2VZynkYP3Tav0+7jWhZaLSgpYND2noyaRsJ968IyHQXslrcztFRDh0MZBgxPGbCx8b
+ +uiLKSt+6Y6IffZklEx4VluWHkjrCmfWHrp45aQanh3SGagw7gHzrJqpepYvNT4HS8EbCADH/Wn
+ zPt3JFi7B14TKcENIp/5NLm0esF1T5EYGCGzXF9hdI2cf8y7VhMMiJqeZefBkl9p6Z1CLp13muG
+ PGN5oX3iZrejuEHJm8J9sJaxrIF5Rg9tb8/6Jc0aiE3VKei/f3z6YRAKdY8HGg4pDBW4p1GLl1f
+ BVmzVXfbgFB6avmCIX9UByEecqNiyQFlc4BOgzcQYghhJIGa/JLCPKcNMH7ACy88lL+pl3p9
+X-Proofpoint-GUID: _d76WmYcTWXQ7iz_O6QVqZlqoAE5ZdTK
+X-Authority-Analysis: v=2.4 cv=BIuzrEQG c=1 sm=1 tr=0 ts=6894760d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=NEAV23lmAAAA:8 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=ob59Q8BqYF9JHPHMJZcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: _d76WmYcTWXQ7iz_O6QVqZlqoAE5ZdTK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-06_05,2025-08-06_01,2025-03-28_01
+ definitions=2025-08-07_01,2025-08-06_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
- mlxlogscore=670 bulkscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0
- malwarescore=0 clxscore=1015 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2507300000
- definitions=main-2508070052
+ mlxscore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ suspectscore=0 spamscore=0 mlxlogscore=999 adultscore=0 clxscore=1011
+ malwarescore=0 phishscore=0 bulkscore=0 classifier=spam authscore=0
+ authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508070073
 
 
 
-On 07.08.25 05:34, Dust Li wrote:
-> On 2025-08-06 17:41:06, Alexandra Winter wrote:
->> Remove the __init marker because smc_core_init() is not the
->> init function of the smc module and for consistency with
->> smc_core_exit() which neither has an __exit marker.
-> Have you seen a real warning or error because of the __init marker ?
+On 8/4/25 10:14 PM, Kees Cook wrote:
+> While tracking down a problem where constant expressions used by
+> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
+> initializer was convincing the compiler that it couldn't track the state
+> of the prior statically initialized value. Tracing this down found that
+> ffs() was used in the initializer macro, but since it wasn't marked with
+> __attribute__const__, the compiler had to assume the function might
+> change variable states as a side-effect (which is not true for ffs(),
+> which provides deterministic math results).
 > 
-> I think the __init marker is just to tell the kernel this function
-> will only be called during initialization. So it doesn't need to
-> be the module's init function.
+> Add missing __attribute_const__ annotations to PowerPC's implementations of
+> fls() function. These are pure mathematical functions that always return
+> the same result for the same input with no side effects, making them eligible
+> for compiler optimization.
 > 
-> Best regards,
-> Dust
+> Build tested ARCH=powerpc defconfig with GCC powerpc-linux-gnu 14.2.0.
+> 
 
-My bad. Thank you Dust, for pointing this out.
-This patch will be removed from the series.
+Also tested with gcc 8.1.
+
+Acked-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+
+
+> Link: https://github.com/KSPP/linux/issues/364 [1]
+> Signed-off-by: Kees Cook <kees@kernel.org>
+> ---
+>  arch/powerpc/include/asm/bitops.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/powerpc/include/asm/bitops.h b/arch/powerpc/include/asm/bitops.h
+> index 671ecc6711e3..0d0470cd5ac3 100644
+> --- a/arch/powerpc/include/asm/bitops.h
+> +++ b/arch/powerpc/include/asm/bitops.h
+> @@ -276,7 +276,7 @@ static inline void arch___clear_bit_unlock(int nr, volatile unsigned long *addr)
+>   * fls: find last (most-significant) bit set.
+>   * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
+>   */
+> -static __always_inline int fls(unsigned int x)
+> +static __always_inline __attribute_const__ int fls(unsigned int x)
+>  {
+>  	int lz;
+>  
+> @@ -294,7 +294,7 @@ static __always_inline int fls(unsigned int x)
+>   * 32-bit fls calls.
+>   */
+>  #ifdef CONFIG_PPC64
+> -static __always_inline int fls64(__u64 x)
+> +static __always_inline __attribute_const__ int fls64(__u64 x)
+>  {
+>  	int lz;
+>  
+
