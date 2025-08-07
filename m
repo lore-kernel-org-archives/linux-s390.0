@@ -1,160 +1,181 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91EE7376F1;
-	Thu,  7 Aug 2025 09:47:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A97418871F;
+	Thu,  7 Aug 2025 10:15:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754560034; cv=none; b=WSiYB1sov9r+MyOLLEO6RGAWbcL0l17FwXQ+H2xTTEzkXWesvR/IAHJIm6psFUlXLyOB5RQ9OVjVO9KZtqTGtQxxikQnDDz8KOVw7s5Mta7lCrfrkyjSMU1RwpNirg67TwJODNuYxfUDTODaXao3bbHjqeKRr0aMcc7CaTJhLRA=
+	t=1754561751; cv=none; b=iNTuy1EDQPmPGfvIgQvO8yWzPbE9qFex2Z13NmU3FWQ6vRI/blqDmmUvy5UxdRhJU7h90KsA+n4M5SVwDeVWz7ZhhX02Y9ZsZxzczfEq2dUuEO7Z+lZGFca9bSwBJeLHxJFP0xcsOd96Tbo+dogy5nzhXnFWpWnVm87XhPcbZ6k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754560034; c=relaxed/simple;
-	bh=TDeiBApOh1NcX4yBW9i2CsFOUdCFeSFRwM+KeVVkTrQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sTQXZgV5k76/7a0JzNMXmvVyerfb5kbE2Z9SZ+vSuXIkpMJ96HGqPuMrGfj3LQpL8Hj6uA8Y4DjmETc2k6OEA9b88Wi81VGjdUJG8lE58o7qxeoHndmrEauBy+PK8S7lEU8W8+vr+zPNgDLO3iE5cfFF+aJd3M7XQNMho7+aKgE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=go9qRIE7; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1754561751; c=relaxed/simple;
+	bh=QwR/g9gCl0cuQrGYwZYsUDmIdsP7KonbdNDOCnypE+c=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Kkkun+mVS0oVMtPUGZS8t3SC8eCHcIfTw4Eh9qzteekPz8otTE3P2lxjQc2xVV5frDaGuSJ3cD2OOpFpnQZBrYZ1jRuzOZ673X1AS0lbvQ/+b7M0Uiv2lLOAAUfwxghRHdbJgGlQ57pezPgdiFS2FLhDtyQsUIJYonChv0bY+64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SrBV9kem; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="go9qRIE7"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57790AX3021567;
-	Thu, 7 Aug 2025 09:46:53 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SrBV9kem"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57768gGX019393;
+	Thu, 7 Aug 2025 10:15:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ImRZUe
-	6tVuS8TT869/9J1UoTQ8hVJxjnFHqcKjWzkmg=; b=go9qRIE70CfPyS9Kn8TPsq
-	JkZyaxDOMfgvgd9oOkezsaYQ7nO6H1+vyJlxnFf+6IS8gazLQFoHJPSCtC/ozPKm
-	6VKICh++4mFIXlvEA+Fv861i489NybwU9awUyTQXXGMIfzvBpYV01KVsDF9Iz4YI
-	Ww/eXWrOH1iZah1GKzst8ykQD8OdLbBS52aH5gpTLX9hzYzJnzq1Wj6ghnhGN7K+
-	HeSCbGXR0u5BWfqTnzNxp7wSohfiND9Ay/p0FkDgE9Qit35GSbcVN7CqdFOj9pan
-	uk5bsEsgRkx16zjIPUzdIH9a6QpTBUGyN7bRfWvIADnQUc0lqNAVn74p649+uPzA
-	==
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=l/+SEP9W1HI808c+t26c8v/UhqRx
+	C5G02OyRBCZLA0E=; b=SrBV9kemVKcu1yOAiMe/EHT4vVcf3TvfSbbghgfQHY0E
+	hMY0mOGcR8fv5Je9NzZWxy/02UHW2A0QvXCMV0+ixUqxZbCCAHUY+HB/UPtcvkoG
+	ngcDH75CgM93rGSbODw9wtqKuQ1NnzIuu+LALnXq6hHRkABssVYMgYi0de9QPOgC
+	kSVmZ8AGGFwjL2HeHr6Jji7vEh+zN3H/tArn0K34g4xwFiEZGtp3x9wbkDiYZIm1
+	7ozRsIg9Dt2vwf4DDuE0QVbO/olUTrcZEJibHXLWpFVHXFByuiWYpx4m+ptrDGpu
+	aQcWp7tQo8nqeW8rS8J0KCJHCr0p9s9aHUb0plocYA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48c26txucj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Aug 2025 10:15:43 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 577AFgss021851;
+	Thu, 7 Aug 2025 10:15:42 GMT
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq621brx-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48c26txuce-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 09:46:53 +0000 (GMT)
+	Thu, 07 Aug 2025 10:15:42 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5779eRBP008042;
-	Thu, 7 Aug 2025 09:46:52 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48bpwmyygs-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5779T0BV007997;
+	Thu, 7 Aug 2025 10:15:41 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48bpwn02rc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Aug 2025 09:46:52 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5779kpb241746786
+	Thu, 07 Aug 2025 10:15:41 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 577AFV5T31523364
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Aug 2025 09:46:51 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 450E158055;
-	Thu,  7 Aug 2025 09:46:51 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2F5705804E;
-	Thu,  7 Aug 2025 09:46:39 +0000 (GMT)
-Received: from [9.197.227.8] (unknown [9.197.227.8])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  7 Aug 2025 09:46:38 +0000 (GMT)
-Message-ID: <7f4f4d07-38f7-444c-adff-ec2a2387e86b@linux.ibm.com>
-Date: Thu, 7 Aug 2025 15:16:35 +0530
+	Thu, 7 Aug 2025 10:15:32 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 36A3C5805F;
+	Thu,  7 Aug 2025 10:15:39 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 63C8E58055;
+	Thu,  7 Aug 2025 10:15:36 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  7 Aug 2025 10:15:36 +0000 (GMT)
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH v4 0/3] PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI
+ recovery
+Date: Thu, 07 Aug 2025 12:15:30 +0200
+Message-Id: <20250807-add_err_uevents-v4-0-c624bfd8638d@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 05/17] powerpc: Add __attribute_const__ to ffs()-family
- implementations
-To: Kees Cook <kees@kernel.org>, linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, linux-alpha@vger.kernel.org,
-        linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-        linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-        sparclinux@vger.kernel.org, llvm@lists.linux.dev,
-        linux-hardening@vger.kernel.org
-References: <20250804163910.work.929-kees@kernel.org>
- <20250804164417.1612371-5-kees@kernel.org>
-Content-Language: en-US
-From: Madhavan Srinivasan <maddy@linux.ibm.com>
-In-Reply-To: <20250804164417.1612371-5-kees@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMJ8lGgC/23N3wqCMBTH8VeJXTfZP5121XtEiG7HHOSMTYchv
+ ntTAiG7/P7gfM6MPDgDHl1OM3IQjDe9jSHOJ6Tayj4AGx0bMcJSIqjEldYlOFeOEMAOHmdNroW
+ WCkihULx6OWjMtIm3e+zW+KF37+1BoOv6tZg4WIFiijnPhc5qKQuVXZ/GjlNi6i5RfYdWL7Ddy
+ Bg/GgwTXPGKqSYHSan+Z/DdkJwcDR6NVJCaprkikjS/xrIsH3yogd06AQAA
+X-Change-ID: 20250417-add_err_uevents-6f8d4d7ce09c
+To: Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>
+Cc: Linas Vepstas <linasvepstas@gmail.com>,
+        =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Keith Busch <kbusch@kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1934;
+ i=schnelle@linux.ibm.com; h=from:subject:message-id;
+ bh=QwR/g9gCl0cuQrGYwZYsUDmIdsP7KonbdNDOCnypE+c=;
+ b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGDKm1Bzdx2O597Pf9h9Hpk57P3einfr5zta1tzXygjqiR
+ UqCJ3Q5dZSyMIhxMciKKbIs6nL2W1cwxXRPUH8HzBxWJpAhDFycAjARxb0M/8s3B2f/LtKX2LPb
+ YN2Rtnn3/YVePjWefyqqe1lwDkdTzlWG/0U9dpMW6wsrPaniEePc+Xu12J6dl7//CPJjzTQIunL
+ jNA8A
+X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
+ fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDA3MyBTYWx0ZWRfX0unUnmBlk9BR
- JyFnhjGUCcX72+ZTvzudrWhw0DB4YVlTamytH3O0p7bgfe1t3RFHu6oXmijVRlkSINNESQcI2ed
- WV3l/gYRQ2VZynkYP3Tav0+7jWhZaLSgpYND2noyaRsJ968IyHQXslrcztFRDh0MZBgxPGbCx8b
- +uiLKSt+6Y6IffZklEx4VluWHkjrCmfWHrp45aQanh3SGagw7gHzrJqpepYvNT4HS8EbCADH/Wn
- zPt3JFi7B14TKcENIp/5NLm0esF1T5EYGCGzXF9hdI2cf8y7VhMMiJqeZefBkl9p6Z1CLp13muG
- PGN5oX3iZrejuEHJm8J9sJaxrIF5Rg9tb8/6Jc0aiE3VKei/f3z6YRAKdY8HGg4pDBW4p1GLl1f
- BVmzVXfbgFB6avmCIX9UByEecqNiyQFlc4BOgzcQYghhJIGa/JLCPKcNMH7ACy88lL+pl3p9
-X-Proofpoint-GUID: _d76WmYcTWXQ7iz_O6QVqZlqoAE5ZdTK
-X-Authority-Analysis: v=2.4 cv=BIuzrEQG c=1 sm=1 tr=0 ts=6894760d cx=c_pps
+X-Proofpoint-ORIG-GUID: UQ8b2gZMgDFxw_ehMZi0GX83mVCpFKRQ
+X-Authority-Analysis: v=2.4 cv=F/xXdrhN c=1 sm=1 tr=0 ts=68947ccf cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=NEAV23lmAAAA:8 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=ob59Q8BqYF9JHPHMJZcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: _d76WmYcTWXQ7iz_O6QVqZlqoAE5ZdTK
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=akVQnn9Ajh7wPi5GvloA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: LBtR00s-TY3MdBWy78IPVMvB4fsARNX9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA3MDA3MyBTYWx0ZWRfX0z0IzgHqDF5s
+ H/zb2dl4gCb+hXFmcSm5mU6NPolZu63JtpXEQVLIBUndJk8nMcRa/9pu4702Erlk8UdfFMl8ha/
+ imzhXircjMy+MA8XrqdKXPKla+5Z6lbRTkOhN0w2EDqF1u5i+cyEUcF7C4xggONECyQbe1Njr6F
+ zbuKWldLxUJIbJownnjuK9YxVJbC+LxJxfYkgtNr3HPobwoR8lhjhAsR5jwkYdwHeSFz8PavWa5
+ lTaKaSLfghp+CokcuxfeWpcHLkVdovObDiWUtK7biyQjdhsnTpEQSYAnRw6mNXMkJlk4UomesV4
+ kMW2jhKK4wXStS77beJLxmRbDSxWd1gPGi9mPoX/kfTrepo6w3AKbF9FI39BezNfVXPq0jKvYod
+ +bj0cDfhPTBKg4Rq5SRT08FAQp591j9AQ3Jf5D/nxFGhth4bO2u5MTvmO/nFYsCate+p1Gd4
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-08-07_01,2025-08-06_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- mlxscore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
- suspectscore=0 spamscore=0 mlxlogscore=999 adultscore=0 clxscore=1011
- malwarescore=0 phishscore=0 bulkscore=0 classifier=spam authscore=0
+ mlxscore=0 lowpriorityscore=0 priorityscore=1501 impostorscore=0
+ clxscore=1015 spamscore=0 bulkscore=0 adultscore=0 mlxlogscore=999
+ malwarescore=0 phishscore=0 suspectscore=0 classifier=spam authscore=0
  authtc=n/a authcc= route=outbound adjust=0 reason=mlx scancount=1
  engine=8.19.0-2507300000 definitions=main-2508070073
 
+Hi Bjorn, Lukas, Mahesh,
 
+This series adds issuing of uevents during PCI recovery on s390. In
+developing this I noticed that pci_uevent_ers() ignores
+PCI_ERS_RESULT_NEED_RESET. I think this will result in AER not generating a uevent
+at the beginning of recovery if drivers request a reset via the voting
+on error_detected() returns. This is fixed in the first patch and relied
+upon by the s390 recovery code as it also uses the result of
+error_detected() though with one device/driver at a time.
 
-On 8/4/25 10:14 PM, Kees Cook wrote:
-> While tracking down a problem where constant expressions used by
-> BUILD_BUG_ON() suddenly stopped working[1], we found that an added static
-> initializer was convincing the compiler that it couldn't track the state
-> of the prior statically initialized value. Tracing this down found that
-> ffs() was used in the initializer macro, but since it wasn't marked with
-> __attribute__const__, the compiler had to assume the function might
-> change variable states as a side-effect (which is not true for ffs(),
-> which provides deterministic math results).
-> 
-> Add missing __attribute_const__ annotations to PowerPC's implementations of
-> fls() function. These are pure mathematical functions that always return
-> the same result for the same input with no side effects, making them eligible
-> for compiler optimization.
-> 
-> Build tested ARCH=powerpc defconfig with GCC powerpc-linux-gnu 14.2.0.
-> 
+Thanks,
+Niklas
 
-Also tested with gcc 8.1.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+Changes in v4:
+- Add change in EEH to use the return of error_detected() in the uevent
+  just like AER and the new s390 code
+- Add R-b from Lukas
+- Link to v3: https://lore.kernel.org/r/20250730-add_err_uevents-v3-0-540b158c070f@linux.ibm.com
 
-Acked-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Changes in v3:
+- Reworded cover letter
+- Rebase on v6.16
+- Link to v2: https://lore.kernel.org/r/20250623-add_err_uevents-v2-0-a3a2cf8e711d@linux.ibm.com
 
+Changes in v2:
+- Add a patch fixing pci_uevent_ers() mistakenly ignoring PCI_ERS_RESULT_NEED_RESET
+- Use the result of error_detected() for initial pci_uevent_ers()
+- Drop fixes tag in s390 patch
+- Rebase and re-test on current master
+- Link to v1: https://lore.kernel.org/r/20250424-add_err_uevents-v1-1-3384d6b779c6@linux.ibm.com
 
-> Link: https://github.com/KSPP/linux/issues/364 [1]
-> Signed-off-by: Kees Cook <kees@kernel.org>
-> ---
->  arch/powerpc/include/asm/bitops.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/powerpc/include/asm/bitops.h b/arch/powerpc/include/asm/bitops.h
-> index 671ecc6711e3..0d0470cd5ac3 100644
-> --- a/arch/powerpc/include/asm/bitops.h
-> +++ b/arch/powerpc/include/asm/bitops.h
-> @@ -276,7 +276,7 @@ static inline void arch___clear_bit_unlock(int nr, volatile unsigned long *addr)
->   * fls: find last (most-significant) bit set.
->   * Note fls(0) = 0, fls(1) = 1, fls(0x80000000) = 32.
->   */
-> -static __always_inline int fls(unsigned int x)
-> +static __always_inline __attribute_const__ int fls(unsigned int x)
->  {
->  	int lz;
->  
-> @@ -294,7 +294,7 @@ static __always_inline int fls(unsigned int x)
->   * 32-bit fls calls.
->   */
->  #ifdef CONFIG_PPC64
-> -static __always_inline int fls64(__u64 x)
-> +static __always_inline __attribute_const__ int fls64(__u64 x)
->  {
->  	int lz;
->  
+---
+Niklas Schnelle (3):
+      PCI/AER: Fix missing uevent on recovery when a reset is requested
+      powerpc/eeh: Use result of error_detected() in uevent
+      PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI recovery
+
+ arch/powerpc/kernel/eeh_driver.c | 2 +-
+ arch/s390/pci/pci_event.c        | 3 +++
+ drivers/pci/pci-driver.c         | 3 ++-
+ include/linux/pci.h              | 2 +-
+ 4 files changed, 7 insertions(+), 3 deletions(-)
+---
+base-commit: 038d61fd642278bab63ee8ef722c50d10ab01e8f
+change-id: 20250417-add_err_uevents-6f8d4d7ce09c
+
+Best regards,
+-- 
+Niklas Schnelle
 
