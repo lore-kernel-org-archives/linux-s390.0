@@ -1,39 +1,67 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C470C1DED70;
-	Fri,  8 Aug 2025 17:20:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F4E1DA3D;
+	Fri,  8 Aug 2025 18:36:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754673637; cv=none; b=IM5uCw+dGeNDKnX+sLcjU7sNdn8EeNMBWCNcuVz973BPMfn3S79nAlDc2zBggF+NAL1H8yAN9jDuYrE1Fw1VXIOsB3OBXe5JU7nvbZvwzTk47ihW5Re/Nx9ow32vpiExPKwdU+kGfKq1z8I1v4MM3jHbtxt1OOFE3BOmvH4duRs=
+	t=1754678192; cv=none; b=MuSxPIG7+Ea6FCYoBoGFK8+8pVxgB5mPGLfw5jab6qkcv+kJBaCMusPL+Yg7rsiPJs/lVKFCimxFywy08sScJad3z1sD1VjBKIG9JfcRYt6swAqlmW0ou7BAYbOaw+OnrsIa0t/CKfouNlNUJSOPgrIPqGAZKZ6YoKeIuUvX6dE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754673637; c=relaxed/simple;
-	bh=iD7fszDVOfvNGAR45L+YflGQxZ3kkSiCUF5Sy7HR4T8=;
+	s=arc-20240116; t=1754678192; c=relaxed/simple;
+	bh=0GF2ljKEjQ491gKMnoqBJKgzgyQa8GhapbLk9wLShKc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GWf77OHZD+nYpv56UWeojKTaOIduQuqesZ2xm2+YpcU0dIRXFD1mQF6B2qqeBTAn45Zkj6Okb8aMyykCBWnSD1g3XygmqNgEbiw+si1nmgrva5g4jzqPpisv91TsUkNjPk26VfbpfKovB4DcaojHqVzxrVbLcHhkjRUQ4Qfflww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4bz9NX4Hmyz9sSb;
-	Fri,  8 Aug 2025 19:03:56 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4LtEzBBocysS; Fri,  8 Aug 2025 19:03:56 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4bz9NX36z3z9sSZ;
-	Fri,  8 Aug 2025 19:03:56 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 55AF68B770;
-	Fri,  8 Aug 2025 19:03:56 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id Z2c0fwWGRIPg; Fri,  8 Aug 2025 19:03:56 +0200 (CEST)
-Received: from [192.168.235.99] (unknown [192.168.235.99])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 20F878B763;
-	Fri,  8 Aug 2025 19:03:55 +0200 (CEST)
-Message-ID: <af677847-e625-43d7-8750-b2ce4ba9626c@csgroup.eu>
-Date: Fri, 8 Aug 2025 19:03:54 +0200
+	 In-Reply-To:Content-Type; b=jx8qg0ktmE/QM49rTu4Vk0Ceu7j8NNIudB/0cQ1ZmRM/uhth5ZOM6nclEkvHnwGMVMvh4CKkQ9aLNw2EgbjIAkA4jV4DOjfkGF32vqdeyQyebzDnbrCgDqYBSKKO0bG74EUcDBWjpvh0tWKQk+3UNBBL6t9c3/A+09Pmi5qYIYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YkrsW4bi; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YkrsW4bi"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 578HWTbF014430;
+	Fri, 8 Aug 2025 18:36:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ElguPr
+	EmC2Gv+xO8Bcq14qmS927rjAXW2jcbrSh3788=; b=YkrsW4bi5jeMVvk81EUOtU
+	a4i9yTA/giM7SaHYSNeGwt7YggPuSefwEVjqH6qqQKMbax8byiZ24MkvSSJslejN
+	2lGH5/HVyfcQyuo5LVHl+h/aqs97Tk0a9p7pFUaoM3RI42jG8JIs8r5kfXQ88WkE
+	Md5sfSdVlYN9YcF8CrGjz2kyl5MUaGU1yM3WvNwyLvCPylbxx04lAudgcEFBWaho
+	Hy21SCkHpFEnfRnOXwI7mF739jTxVmPX0MOtldMxCuU8by1sdxDuYuWiZMNeb31H
+	uINedH5DIL273cPmuHnjCrq7wdQSSrIrVqATtsg4aiRomwuV2FMfOgCgJL+LPMiQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq61a8jr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Aug 2025 18:36:23 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 578IUbTp028937;
+	Fri, 8 Aug 2025 18:36:22 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48bq61a8jn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Aug 2025 18:36:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 578F0qSq020616;
+	Fri, 8 Aug 2025 18:36:21 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48bpwn6vx8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Aug 2025 18:36:21 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 578IaH9u52822286
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 Aug 2025 18:36:17 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 46F8D20043;
+	Fri,  8 Aug 2025 18:36:17 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C34C220040;
+	Fri,  8 Aug 2025 18:36:16 +0000 (GMT)
+Received: from [9.111.169.241] (unknown [9.111.169.241])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  8 Aug 2025 18:36:16 +0000 (GMT)
+Message-ID: <39c63e1d-0fec-47f8-8847-4b9402b97325@linux.ibm.com>
+Date: Fri, 8 Aug 2025 20:36:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,144 +69,108 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 1/2] kasan: introduce ARCH_DEFER_KASAN and unify static
- key across modes
-To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Cc: ryabinin.a.a@gmail.com, bhe@redhat.com, hca@linux.ibm.com,
- andreyknvl@gmail.com, akpm@linux-foundation.org, zhangqing@loongson.cn,
- chenhuacai@loongson.cn, davidgow@google.co, glider@google.com,
- dvyukov@google.com, alex@ghiti.fr, agordeev@linux.ibm.com,
- vincenzo.frascino@arm.com, elver@google.com, kasan-dev@googlegroups.com,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-um@lists.infradead.org, linux-mm@kvack.org
-References: <20250807194012.631367-1-snovitoll@gmail.com>
- <20250807194012.631367-2-snovitoll@gmail.com>
- <22872a3f-85dc-4740-b605-ba80b5a3b1bc@csgroup.eu>
- <CACzwLxjnofD0EsxrtgbG3svXHL+TpYcio4B67SCY9Mi3C-jdsQ@mail.gmail.com>
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Content-Language: fr-FR
-In-Reply-To: <CACzwLxjnofD0EsxrtgbG3svXHL+TpYcio4B67SCY9Mi3C-jdsQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: [RFC net-next 08/17] net/dibs: Register ism as dibs device
+To: Simon Horman <horms@kernel.org>
+Cc: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond
+ <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        Halil Pasic <pasic@linux.ibm.com>, linux-rdma@vger.kernel.org
+References: <20250806154122.3413330-1-wintera@linux.ibm.com>
+ <20250806154122.3413330-9-wintera@linux.ibm.com>
+ <20250807163700.GL61519@horms.kernel.org>
+ <20250807181934.GM61519@horms.kernel.org>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20250807181934.GM61519@horms.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: dwHmZjXJqnRup2aKOS8uBmHkomFu7yYU
+X-Proofpoint-ORIG-GUID: N4FKWOqUFgF6SWT92P9yPcMolbKrBbyz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODA4MDE0OSBTYWx0ZWRfX45Zz20vBYnqw
+ WduIZM4xZk6ohI6d5vOqG2f49Id/cGY9PTwZB88VL5zUOpDCIEfE4rLTQk4eObuh6Lab6B828bL
+ 8aJVaaZObH2piuT9NRpJr5JBEvQwSA61YAOcDFoOreblK2/rlIhHsSfLA5iOtyXwEaTPGzu7rhs
+ 1o13FAKZfCUlDlRzq5p4sK3eSxk99PuGwQTB8zvt7uxQTlWuZ6pSDy2LEieHbDdCHDZMrDj9oZl
+ CIsICUnC6yfZrhl/mmqGlW5jYHT9wpHTESeRnGgo/04CnGcDH1HINq6LiogooRwdvr13dEfOMuU
+ paV40cw6fmtJbWaF2aNjhUK9tKZusy8A7xPS7VcKoboNJPUmhu5vZL2ZoCy50TBijnXK2lZi+hn
+ KWtW6FO/B6oHueDjjh4ZtFD6taFHQ+WEm8DoTZ+MlhEh6j9ebB0L6HrAq+Jatoj0X7qL3ljP
+X-Authority-Analysis: v=2.4 cv=TayWtQQh c=1 sm=1 tr=0 ts=689643a7 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VnNF1IyMAAAA:8 a=QyXUC8HyAAAA:8
+ a=VwzbkYuV4N9bOHfolB0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-08_06,2025-08-06_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 adultscore=0 phishscore=0 impostorscore=0 spamscore=0
+ mlxlogscore=719 bulkscore=0 priorityscore=1501 mlxscore=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1015 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2507300000
+ definitions=main-2508080149
 
 
 
-Le 08/08/2025 à 17:33, Sabyrzhan Tasbolatov a écrit :
-> On Fri, Aug 8, 2025 at 10:03 AM Christophe Leroy
-> <christophe.leroy@csgroup.eu> wrote:
->>
->>
->>
->> Le 07/08/2025 à 21:40, Sabyrzhan Tasbolatov a écrit :
->>> Introduce CONFIG_ARCH_DEFER_KASAN to identify architectures [1] that need
->>> to defer KASAN initialization until shadow memory is properly set up,
->>> and unify the static key infrastructure across all KASAN modes.
->>
->> That probably desserves more details, maybe copy in informations from
->> the top of cover letter.
->>
->> I think there should also be some exeplanations about
->> kasan_arch_is_ready() becoming kasan_enabled(), and also why
->> kasan_arch_is_ready() completely disappear from mm/kasan/common.c
->> without being replaced by kasan_enabled().
->>
+On 07.08.25 20:19, Simon Horman wrote:
+> On Thu, Aug 07, 2025 at 05:37:00PM +0100, Simon Horman wrote:
+>> On Wed, Aug 06, 2025 at 05:41:13PM +0200, Alexandra Winter wrote:
+>>> Register ism devices with the dibs layer. Follow-on patches will move
+>>> functionality to the dibs layer.
 >>>
->>> [1] PowerPC, UML, LoongArch selects ARCH_DEFER_KASAN.
+>>> As DIBS is only a shim layer without any dependencies, we can depend ISM
+>>> on DIBS without adding indirect dependencies. A follow-on patch will
+>>> remove implication of SMC by ISM.
 >>>
->>> Closes: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugzilla.kernel.org%2Fshow_bug.cgi%3Fid%3D217049&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7Cfe4f5a759ad6452b047408ddd691024a%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C638902640503259176%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=UM4uvQihJdeWwcC6DIiJXbn4wGsrijjRcHc55uCMErI%3D&reserved=0
->>> Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
->>> ---
->>> Changes in v5:
->>> - Unified patches where arch (powerpc, UML, loongarch) selects
->>>     ARCH_DEFER_KASAN in the first patch not to break
->>>     bisectability
->>> - Removed kasan_arch_is_ready completely as there is no user
->>> - Removed __wrappers in v4, left only those where it's necessary
->>>     due to different implementations
+>>> Define struct dibs_dev. Follow-on patches will move more content into
+>>> dibs_dev.  The goal of follow-on patches is that ism_dev will only
+>>> contain fields that are special for this device driver. The same concept
+>>> will apply to other dibs device drivers.
 >>>
->>> Changes in v4:
->>> - Fixed HW_TAGS static key functionality (was broken in v3)
->>> - Merged configuration and implementation for atomicity
->>> ---
->>>    arch/loongarch/Kconfig                 |  1 +
->>>    arch/loongarch/include/asm/kasan.h     |  7 ------
->>>    arch/loongarch/mm/kasan_init.c         |  8 +++----
->>>    arch/powerpc/Kconfig                   |  1 +
->>>    arch/powerpc/include/asm/kasan.h       | 12 ----------
->>>    arch/powerpc/mm/kasan/init_32.c        |  2 +-
->>>    arch/powerpc/mm/kasan/init_book3e_64.c |  2 +-
->>>    arch/powerpc/mm/kasan/init_book3s_64.c |  6 +----
->>>    arch/um/Kconfig                        |  1 +
->>>    arch/um/include/asm/kasan.h            |  5 ++--
->>>    arch/um/kernel/mem.c                   | 10 ++++++--
->>>    include/linux/kasan-enabled.h          | 32 ++++++++++++++++++--------
->>>    include/linux/kasan.h                  |  6 +++++
->>>    lib/Kconfig.kasan                      |  8 +++++++
->>>    mm/kasan/common.c                      | 17 ++++++++++----
->>>    mm/kasan/generic.c                     | 19 +++++++++++----
->>>    mm/kasan/hw_tags.c                     |  9 +-------
->>>    mm/kasan/kasan.h                       |  8 ++++++-
->>>    mm/kasan/shadow.c                      | 12 +++++-----
->>>    mm/kasan/sw_tags.c                     |  1 +
->>>    mm/kasan/tags.c                        |  2 +-
->>>    21 files changed, 100 insertions(+), 69 deletions(-)
+>>> Define dibs_dev_alloc(), dibs_dev_add() and dibs_dev_del() to be called
+>>> by dibs device drivers and call them from ism_drv.c
+>>> Use ism_dev.dibs for a pointer to dibs_dev.
 >>>
->>> diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
->>> index f0abc38c40a..cd64b2bc12d 100644
->>> --- a/arch/loongarch/Kconfig
->>> +++ b/arch/loongarch/Kconfig
->>> @@ -9,6 +9,7 @@ config LOONGARCH
->>>        select ACPI_PPTT if ACPI
->>>        select ACPI_SYSTEM_POWER_STATES_SUPPORT if ACPI
->>>        select ARCH_BINFMT_ELF_STATE
->>> +     select ARCH_DEFER_KASAN if KASAN
+>>> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 >>
->> Instead of adding 'if KASAN' in all users, you could do in two steps:
+>> ...
 >>
->> Add a symbol ARCH_NEEDS_DEFER_KASAN.
+>>> diff --git a/net/dibs/dibs_main.c b/net/dibs/dibs_main.c
 >>
->> +config ARCH_NEEDS_DEFER_KASAN
->> +       bool
+>> ...
 >>
->> And then:
+>>> @@ -56,6 +65,33 @@ int dibs_unregister_client(struct dibs_client *client)
+>>>  }
+>>>  EXPORT_SYMBOL_GPL(dibs_unregister_client);
+>>>  
+>>> +struct dibs_dev *dibs_dev_alloc(void)
+>>> +{
+>>> +	struct dibs_dev *dibs;
+>>> +
+>>> +	dibs = kzalloc(sizeof(*dibs), GFP_KERNEL);
 >>
->> +config ARCH_DEFER_KASAN
->> +       def_bool
->> +       depends on KASAN
->> +       depends on ARCH_DEFER_KASAN
->> +       help
->> +         Architectures should select this if they need to defer KASAN
->> +         initialization until shadow memory is properly set up. This
->> +         enables runtime control via static keys. Otherwise, KASAN uses
->> +         compile-time constants for better performance.
+>> Hi Alexandra,
 >>
+>> It is not the case for x86_64, arm64, or s390 (at least).
+>> But for x86_32 and arm (at least) it seems that linux/slab.h should
+>> be included in order for kzalloc to be available for compilation.
 > 
-> Actually, I don't see the benefits from this option. Sorry, have just
-> revisited this again.
-> With the new symbol, arch (PowerPC, UML, LoongArch) still needs select
-> 2 options:
-> 
-> select ARCH_NEEDS_DEFER_KASAN
-> select ARCH_DEFER_KASAN
-
-Sorry, my mistake, ARCH_DEFER_KASAN has to be 'def_bool y'. Missing the 
-'y'. That way it is automatically set to 'y' as long as KASAN and 
-ARCH_NEEDS_DEFER_KASAN are selected. Should be:
-
-config ARCH_DEFER_KASAN
-	def_bool y
-	depends on KASAN
-	depends on ARCH_NEEDS_DEFER_KASAN
+> Similarly for dibs_loopback.c in the following patch.
 
 
-> 
-> and the oneline with `if` condition is cleaner.
-> select ARCH_DEFER_KASAN if KASAN
-> 
-
-I don't think so because it requires all architectures to add 'if KASAN' 
-which is not convenient.
-
-Christophe
+Thank you Simon. It will be included in next version.
+(I also got notified by kernel test robot <lkp@intel.com> about this).
