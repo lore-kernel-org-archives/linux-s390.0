@@ -1,114 +1,63 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D008EDDAD;
-	Fri,  8 Aug 2025 03:40:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE101E51EC;
+	Fri,  8 Aug 2025 03:59:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754624429; cv=none; b=ZHTDhynEGwl3cD/e0fFmjQ947TUaZ1LCO8k+OJDzK8+hzzEQGYPfLi7+txe+K06aeDr1Gw/lRYQCOL4fdtK0vmc4eoj8nj9IRNgP2RqwjavgOPHhP5+mCofvhuKQvFfSjVmm17PiauZtbVoI7di71HnPaaf4MeIPKRYs7uref7Y=
+	t=1754625579; cv=none; b=YR4bebyWjGWtAtjc/B3wk1Swrp85//I6CmpkE8RhPC1tZhoMkbgwUsAEmx9c7yduF1ag1AXOY6RNvAqdw+iLnxrRt1rtsvJVJIU1DZv1fi2q58zmwfw5zvoisYrSk6Nrzcu6COxa6d/wCQ6QXca/LirbpJ/JfWvfONe3CE3l5Ek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754624429; c=relaxed/simple;
-	bh=vPtGs1H6VkSKXEpEOKQdx0uKSIef9i2bCqdRYgqi/OQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rwJ7+CQVHpr2bhczb3jbHMW8SLxDMP+XEdtyuXRsFXEtU+NYHW9iZFyh6gmzoAy/wjno5g7sNDiBAA5ciNtBP1rHI5nigVzriMN9zfU2y73atiOlftscQhUD+gEDAPPYLUQZY1hc2crj9ijgrtKjYsGD+RIufsH8YwtaPKQXDkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AvzjlbRi; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1754625579; c=relaxed/simple;
+	bh=Fye8ziIpotRJnx/DuT0UD9ZtU5LN/M7BZL+vh8cMTDc=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=F0ySKInN7IV6wEXuM7xgZ5MKLXK0VIxJhagm6dSWGahWzw6O7odB3rV/a8VR3a+9fJp4xz9WunuThQT66QztzGCK4Ci5ewkD+hglUW/wnym1v5PQWgvpgCZk80ir8ubLBleBUMCnHXYEZSyqtEXbdYorlcvhb1oUPXT8O+OGRAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bxoTW5Ma; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AvzjlbRi"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-ae9c2754a00so333515266b.2;
-        Thu, 07 Aug 2025 20:40:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754624426; x=1755229226; darn=vger.kernel.org;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3VwJdv2/aTZlGvHmbtM9UzrCVsyM+3NNVAJCeNgjzdo=;
-        b=AvzjlbRiFhGjdr6sBKnjTzOLMecOiZVeIujRoyPK9I/OufFI2mdtWztbvnlwP9yab6
-         cpwceJpVD83CkXg2f4N6uX7TXwMWyVtAx4ck5tmpEq/DWwNheD05GleQGFu00vT7Gkjv
-         bIj2puNae2ZeVQVk09CnSpo2y35VtI4nPyQHkAoYTlaH2CzPy1EPYbX1pWkQU37ZF1uK
-         Bgk2Cl8Tk6f00QiHNdnMbyUC1XmENh5HULF7aE2X6mHSItSD+Sx6VYhU4uGuilwsHFgk
-         Rr+UBIy3iuvINYxkPfiOZ7QufRr+To4Na6U6h/JzkCvdA1KXZW9PWoZ5A8AUJvpvT5xm
-         WeAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754624426; x=1755229226;
-        h=user-agent:in-reply-to:content-disposition:mime-version:references
-         :reply-to:message-id:subject:cc:to:from:date:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=3VwJdv2/aTZlGvHmbtM9UzrCVsyM+3NNVAJCeNgjzdo=;
-        b=C/06YYzryrO2zzGYnv+abdNVhXmIdXJuWvXfv4R6FUG//HngvSGt9/AH2xjZNX7taG
-         6vku8cdTbbxpg2u8/idx1arohEk/Zm6zETUlb6PviCn3NO9wbIuykA9k/MsgzXMuxUcC
-         meYU150tceI3UJtPw/9+xvqUlgNwchhxZc/Fui0laESI45GmnmzQMnflS+laMx2UpnJX
-         37Ix+djm3KdDjbKw+sHY3qz5j998Zco92NVye5T3RLrRoT4ZNQZuQzr2CM1g7k+jvUHS
-         luqxIMKYz9NdqaAABW3IYKvS8E+RTogDoKr5NmL+0XsgksN4LmRKmEdlGe3UghUoRrpg
-         SdbA==
-X-Forwarded-Encrypted: i=1; AJvYcCUxfU6vugwwf57gOZrbDUNabeIOzsD5oHn6NL2YRbiIZ3FzEAXfizBkuHOynhZWglM6Tma+/1X9GiFanQ==@vger.kernel.org, AJvYcCVdCpiKp5sNSuYpPe9WDoLulrpyLdaXhp+hxaUtKHYCnvW/hYT13OgFUURrakX50J8wTXpa4MUTsbHQw6k=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwGhDyargg7LFRd6BteDZ/k3ZVY8g4FwPOrIxAoM3lJ+vAKl7UM
-	Pc7h02H4Y2KtrA45g8YOKmOaICVfvps6TcbN54HXwCiXXZM+rYlWxNmx
-X-Gm-Gg: ASbGnctyvqnm5PjfetCpF+ShMhXiDL78Bx4uYqlQdihjq5BVsbdXIVw1kR4AZJfOCg2
-	Qm7HSdGgex/QLix9X3qDvqpFyafH+UJGbAED3FpqHvUb24akBTth2EtN5fuXFLYLs/6XtSSQj8j
-	afBh5MAsRMuhZ6Zinv4lJIX4taE8PdYEP+b5THOtAYsYBLY5fointN0F1ch7PRuNZGFl5MK6OkU
-	HGrHy9am3PBrcMK2DDvdCx5S7Og31ufGEmx02vfUI+p0RIn4l11LaUrkS8ewL8Ditboh1XO2Mfu
-	oKKNaCFbuCg9HshAMEUWxi3SBx75cX1WqKdhPpbTyrfprpdKBdl8KFiuotKQwJqcgfY02illwj/
-	+HnvXBQiLEXiU8xtjdFn87A==
-X-Google-Smtp-Source: AGHT+IHtPlYQF9NDTtoDpiah0Zgc7+o2I8oA3L3L8/8DtlWIli216aBTAesdtybo8gOA0RWRG7TehQ==
-X-Received: by 2002:a17:907:1c22:b0:af9:71c2:9f7 with SMTP id a640c23a62f3a-af9c63b0ca7mr102202366b.2.1754624426029;
-        Thu, 07 Aug 2025 20:40:26 -0700 (PDT)
-Received: from localhost ([185.92.221.13])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a07659dsm1405214566b.21.2025.08.07.20.40.25
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 07 Aug 2025 20:40:25 -0700 (PDT)
-Date: Fri, 8 Aug 2025 03:40:25 +0000
-From: Wei Yang <richard.weiyang@gmail.com>
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
-	David Hildenbrand <david@redhat.com>, richard.weiyang@gmail.com,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390 <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v4] mm: fix accounting of memmap pages
-Message-ID: <20250808034025.bh5giuozvz7ri34m@master>
-Reply-To: Wei Yang <richard.weiyang@gmail.com>
-References: <20250807183545.1424509-1-sumanthk@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bxoTW5Ma"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CAC7C4CEF0;
+	Fri,  8 Aug 2025 03:59:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1754625579;
+	bh=Fye8ziIpotRJnx/DuT0UD9ZtU5LN/M7BZL+vh8cMTDc=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=bxoTW5MaxHSKxSp/xoYgZU41yAqZ2N9oOSunjDOHUDZXw4RerD0LPIDeKLLsRLNRn
+	 QIbFwMPRf6VGMmx/5qzYAfHoEjwo0hHL3JLjsZ90KJXfeezNrJYoJWPU9cXxY4BAhk
+	 L47mPAorAd2acijOofgtriHKE1CCwzWczTpC5kfZ/o6vOUpmUD0CdPkb1IIW69tzyC
+	 rMZVyTbp1XC3C3KB/UAasQmYFxHt+h+3/2y70EnMkaLpBfIRUEOgrkYbEvCASp9aDl
+	 L46NCsMnL0RV0qDvcKwvlLpcfLpgEuefv6emXOSWB9WRUvAzYnvXj0RTYt/1cX9x5k
+	 799RmiuYyWy/g==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE0D383BF4E;
+	Fri,  8 Aug 2025 03:59:53 +0000 (UTC)
+Subject: Re: [GIT PULL] more s390 updates for 6.17 merge window
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <20250807130950.4053091Adb-agordeev@linux.ibm.com>
+References: <20250807130950.4053091Adb-agordeev@linux.ibm.com>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20250807130950.4053091Adb-agordeev@linux.ibm.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.17-2
+X-PR-Tracked-Commit-Id: 2baf16f381decee303da406ca5a0991134260270
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: bec077162bd0017c21288919757809656094a157
+Message-Id: <175462559258.3795225.15037481834266940166.pr-tracker-bot@kernel.org>
+Date: Fri, 08 Aug 2025 03:59:52 +0000
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250807183545.1424509-1-sumanthk@linux.ibm.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
 
-On Thu, Aug 07, 2025 at 08:35:45PM +0200, Sumanth Korikkar wrote:
->For !CONFIG_SPARSEMEM_VMEMMAP, memmap page accounting is currently done
->upfront in sparse_buffer_init(). However, sparse_buffer_alloc() may
->return NULL in failure scenario.
->
->Also, memmap pages may be allocated either from the memblock allocator
->during early boot or from the buddy allocator. When removed via
->arch_remove_memory(), accounting of memmap pages must reflect the
->original allocation source.
->
->To ensure correctness:
->* Account memmap pages after successful allocation in sparse_init_nid()
->  and section_activate().
->* Account memmap pages in section_deactivate() based on allocation
->  source.
->
->Cc: stable@vger.kernel.org
->Fixes: 15995a352474 ("mm: report per-page metadata information")
->Suggested-by: David Hildenbrand <david@redhat.com>
->Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+The pull request you sent on Thu, 7 Aug 2025 15:09:50 +0200:
 
-LGTM
+> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-6.17-2
 
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/bec077162bd0017c21288919757809656094a157
+
+Thank you!
 
 -- 
-Wei Yang
-Help you, Help me
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
