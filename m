@@ -1,153 +1,216 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 647FB1EA7E1;
-	Sun, 10 Aug 2025 11:03:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8402F1E50E;
+	Sun, 10 Aug 2025 12:58:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754823813; cv=none; b=FFy2xFdQjJSZZVSL83tVp5aWmoOaYD4yWTRyvhCyqJvLxx6FS+zVpzN6uygR6Gh+dYIKVU3rXSxvYZDjgYhmUoD5O5SVjiADBLdcyQIi9CSPS/TggluJeyX1zwLHaBvYw2bIDm8JIN7BT02bfmzxXjkjnmALIaNRUz7psikAc38=
+	t=1754830683; cv=none; b=nKiAl1J9fdWhpbt7SsbRzzRN38AILbEMKFledUjmiWs5M6En7sr2+eOc+hUkWzyF3tswtLNfjmeP9u1XOnTfp9kRF6o7Urx3U3wZ4X0ll9y4vajmHtaDI0pVtB+0DJNJiN+UYpim0AF9YfqzKi8OvwXdUlCKdNRKl74IfVjjZsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754823813; c=relaxed/simple;
-	bh=bphesJRfQi0YyEjtJa/JKB1e1im6/E7Xx40SXKYZZGI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Xc+e+SysJNHqSzWCZECzGmixyh/XGkX2dxUS92bNako4/swOK/m689gkTiHOxFgovY146n4o/F/pJq3Qz9eDHs8yI7N68LeCBvlqTEAhCPtwU5uZxYZ0AJaV36l9pa7IK1J++6mfgNQhVfRRN488+cytjk3uhKQxdl3HVpjT1G8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=yN6Frhie; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1754830683; c=relaxed/simple;
+	bh=EhLsZojnCpTP6DR0ZKTrGtcX/QnBRFrvIOrMtYcrMLQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=W4ZYZ+NKcNL+oHiXQ3oFA8U4Wwqm7OxlFyXVMkg7wjz1PBNyXjHC5x+KPpgtYvzowHv/ikE5BpUNIrrRyGMmNHxoyJUQFQkz1i6iu6cMfK21sQwTH4PpVRo3UndDNpDYVCxGpfxMPqQaMcnpvhh38zQXGtxcdz+I9UECdCW1NPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NCbMYt/U; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="yN6Frhie"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1754823801; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=ZtoelG/o5LnvdZZ5OVJFqpnm0J/y8Z9hU0mYduqhpmI=;
-	b=yN6FrhiePnrIdQTjlhP9X6E6FJ9a7lSsU/iRC5YF1YgPF1Tqj/i5lCb8eX5mmE2mzraK1VnuXTGSp/hjYCeuFcztsDVNexgw6zKRyk1zRIV5vsSST7LYqyb2sh0pCpU2FrlowuD4mGRQlmDl0NAEUiB+OUY8liAANitOGZAy2NI=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WlM6izw_1754823799 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Sun, 10 Aug 2025 19:03:19 +0800
-Date: Sun, 10 Aug 2025 19:03:19 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Halil Pasic <pasic@linux.ibm.com>,
-	linux-rdma@vger.kernel.org
-Subject: Re: [RFC net-next 03/17] net/smc: Remove error handling of
- unregister_dmb()
-Message-ID: <aJh8d2G9-veAynO1@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250806154122.3413330-1-wintera@linux.ibm.com>
- <20250806154122.3413330-4-wintera@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NCbMYt/U"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-55b93104888so4506041e87.1;
+        Sun, 10 Aug 2025 05:58:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1754830680; x=1755435480; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fLpTR6tAuSk7MmdRr1bx3cY7Ji1Fi9DhOlpvPdNYklM=;
+        b=NCbMYt/U4MIDHV68kIz6cRr4GvYdlL8tP+LHvM20vkHvNFvNUjGAI9CBF7fXo9rI3T
+         jEDFMQ6VCA/wUsWT2uGz5SXyuaR5fIJtV8kZ88cbyu90zouK/CrqMW4HxRZg68xpbdwF
+         an4e30B3S6KgNO1ElGryncczmaJADREGQVQFOhT39AgQBrwohOCGVpiWeVyL10+Jh+Ij
+         2UhJ4u65DhO1EXsDdtv8ZWSWqcZqYL1VqINwbgLp2s1gXjaO9HULWAA6Xic3N1mI0wg7
+         BYck9Xp/bzfQXxuTPhZIUscUSO5wdj/I1A6jhJqzxXvE+E3xyfAwAMYBOKDRj4IKSfEg
+         zH0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754830680; x=1755435480;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fLpTR6tAuSk7MmdRr1bx3cY7Ji1Fi9DhOlpvPdNYklM=;
+        b=GqfA0PjHzRdq1JwwRQFrCEluS/ceLyMt01PzXqZyieohKmR5yPYT+0/8g6//OXRGTR
+         P/kBQcpfcD7NSw9ewceuo13NEoyrSNiCb6bfPJBiRxDvcO4e9szvMN8OxSpvZFNRLzAH
+         US9PF2CRLJT2hR0co6JE3ZshIX8TtOdkLqe0u+kac6kMCBeYSuT0ASVm8SWfclH5HabA
+         7fv1ZMet6lUGX9OXNcRwh3Eu2vcj1D+iUnLyOWk2yWvwtLAysD539wv9tmmc00WcFLcj
+         WUTJx0UL4mvYSUX82yL3gLQO+aDSB38V+UbNk7si1Z1U5JImJKzS1I0ht0ZI1aeYpLyD
+         kAAg==
+X-Forwarded-Encrypted: i=1; AJvYcCUxatSrdEsn9KagUhZwKeWeXJdVxOaOFMZi5FMBX1M6DQtTxhX41qDc4V762ZlWjQ9QvYTQXHZ692u2PA==@vger.kernel.org, AJvYcCVYSpp7Luigg7Yn3KWnc1sZodPOrGCoj91/gAhdzwxFoGXA8EX8qX3s86GX8hBLcHU+N3CtAcPOZKXVnIQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxuoEgfNGtiiDMfjmlqvCuqzuOFlwBQWe1tjmUBfGWOIQmNn88y
+	uI9l+tKLFKXeym1h6xRdrJWwli0T1lnx5Vrw75hrx+KfF0jb/7cJx746
+X-Gm-Gg: ASbGncsyHa2mQgw3C+hgKETmmXkVKCFYV7ZoYNTZ8DLz+w1+tMWe0DEAh1FGY8G553k
+	MwP+oQm0qYvvbvRtdqz+xR6BBIicUcKLIqS2UAhSeRrFFl8lBum/AiMaXp7Wg8ZwTisPuEJQ2Vh
+	xvpdZCOAaFdZJ6hFWi16QjdHYd43RWDjNFuopQLQxPQKDs7o4BwCzn/8yfKGndZ9i9qGSxmT1UT
+	+O/9BkDG6SfcUq16TqNodn7NbLyhkjj6F1er6exp+U+B1h3J4NnWGrTTP0OxtumthbXn3lOgW7G
+	uJ6+1sQuCD9ev1mUFrU3fZDSiCcmuRNsekF+AiU7/QVrr45Nu3DRdqEZOk4kCmyTckUJiOrWIne
+	4h3QXUd+61H1gWotAVoQS5vBhs0dAmK+S3+JTUQ==
+X-Google-Smtp-Source: AGHT+IGP/4+VH4qZJqmI6pqOQcdamwMMjmUjwyAr9JTcQGvwe1pb2iGdV8kKhr91VYx69eEOJbHKcQ==
+X-Received: by 2002:a05:6512:2313:b0:55b:8397:cffd with SMTP id 2adb3069b0e04-55cc00ada77mr2589766e87.9.1754830679327;
+        Sun, 10 Aug 2025 05:57:59 -0700 (PDT)
+Received: from localhost.localdomain ([2a03:32c0:2e:37dd:bfc4:9fdc:ddc6:5962])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-55b88c9908esm3804561e87.76.2025.08.10.05.57.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 10 Aug 2025 05:57:58 -0700 (PDT)
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+To: ryabinin.a.a@gmail.com,
+	christophe.leroy@csgroup.eu,
+	bhe@redhat.com,
+	hca@linux.ibm.com,
+	andreyknvl@gmail.com,
+	akpm@linux-foundation.org,
+	zhangqing@loongson.cn,
+	chenhuacai@loongson.cn,
+	davidgow@google.com,
+	glider@google.com,
+	dvyukov@google.com,
+	alexghiti@rivosinc.com
+Cc: alex@ghiti.fr,
+	agordeev@linux.ibm.com,
+	vincenzo.frascino@arm.com,
+	elver@google.com,
+	kasan-dev@googlegroups.com,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-mm@kvack.org,
+	snovitoll@gmail.com
+Subject: [PATCH v6 0/2] kasan: unify kasan_enabled() and remove arch-specific implementations
+Date: Sun, 10 Aug 2025 17:57:44 +0500
+Message-Id: <20250810125746.1105476-1-snovitoll@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250806154122.3413330-4-wintera@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 
-On 2025-08-06 17:41:08, Alexandra Winter wrote:
->smcd_buf_free() calls smc_ism_unregister_dmb(lgr->smcd, buf_desc) and
->then unconditionally frees buf_desc.
->
->Remove the cleaning up of fields of buf_desc in
->smc_ism_unregister_dmb(), because it is not helpful.
->
->This removes the only usage of ISM_ERROR from the smc module. So move it
->to drivers/s390/net/ism.h.
->
->Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
->Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->---
-> drivers/s390/net/ism.h |  1 +
-> include/net/smc.h      |  2 --
-> net/smc/smc_ism.c      | 14 +++++---------
-> net/smc/smc_ism.h      |  3 ++-
-> 4 files changed, 8 insertions(+), 12 deletions(-)
->
->diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
->index 047fa6101555..b5b03db52fce 100644
->--- a/drivers/s390/net/ism.h
->+++ b/drivers/s390/net/ism.h
->@@ -10,6 +10,7 @@
-> #include <asm/pci_insn.h>
-> 
-> #define UTIL_STR_LEN	16
->+#define ISM_ERROR	0xFFFF
-> 
-> /*
->  * Do not use the first word of the DMB bits to ensure 8 byte aligned access.
->diff --git a/include/net/smc.h b/include/net/smc.h
->index db84e4e35080..a9c023dd1380 100644
->--- a/include/net/smc.h
->+++ b/include/net/smc.h
->@@ -44,8 +44,6 @@ struct smcd_dmb {
-> 
-> #define ISM_RESERVED_VLANID	0x1FFF
-> 
->-#define ISM_ERROR	0xFFFF
->-
-> struct smcd_dev;
-> 
-> struct smcd_gid {
->diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
->index 84f98e18c7db..a94e1450d095 100644
->--- a/net/smc/smc_ism.c
->+++ b/net/smc/smc_ism.c
->@@ -205,13 +205,13 @@ int smc_ism_put_vlan(struct smcd_dev *smcd, unsigned short vlanid)
-> 	return rc;
-> }
-> 
->-int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
->+void smc_ism_unregister_dmb(struct smcd_dev *smcd,
->+			    struct smc_buf_desc *dmb_desc)
-> {
-> 	struct smcd_dmb dmb;
->-	int rc = 0;
-> 
-> 	if (!dmb_desc->dma_addr)
->-		return rc;
->+		return;
-> 
-> 	memset(&dmb, 0, sizeof(dmb));
-> 	dmb.dmb_tok = dmb_desc->token;
->@@ -219,13 +219,9 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
-> 	dmb.cpu_addr = dmb_desc->cpu_addr;
-> 	dmb.dma_addr = dmb_desc->dma_addr;
-> 	dmb.dmb_len = dmb_desc->len;
->-	rc = smcd->ops->unregister_dmb(smcd, &dmb);
->-	if (!rc || rc == ISM_ERROR) {
->-		dmb_desc->cpu_addr = NULL;
->-		dmb_desc->dma_addr = 0;
->-	}
->+	smcd->ops->unregister_dmb(smcd, &dmb);
+This patch series addresses the fragmentation in KASAN initialization
+across architectures by introducing a unified approach that eliminates
+duplicate static keys and arch-specific kasan_arch_is_ready()
+implementations.
 
-Hmm, I think the old way of handling error here is certainly not good.
-But completely ignoring error handling here would make bugs harder
-to detect.
+The core issue is that different architectures have inconsistent approaches
+to KASAN readiness tracking:
+- PowerPC, LoongArch, and UML arch, each implement own kasan_arch_is_ready()
+- Only HW_TAGS mode had a unified static key (kasan_flag_enabled)
+- Generic and SW_TAGS modes relied on arch-specific solutions
+  or always-on behavior
 
-What about adding a WARN_ON_ONCE(rc) ?
+Changes in v6:
+- Call kasan_init_generic() in arch/riscv _after_ local_flush_tlb_all()
+- Added more details in git commit message
+- Fixed commenting format per coding style in UML (Christophe Leroy)
+- Changed exporting to GPL for kasan_flag_enabled (Christophe Leroy)
+- Converted ARCH_DEFER_KASAN to def_bool depending on KASAN to avoid
+        arch users to have `if KASAN` condition (Christophe Leroy)
+- Forgot to add __init for kasan_init in UML
 
-Also, I think we can just remove the rc == ISM_ERROR to remove
-the dependency of ISM_ERROR in smc.
+Changes in v5:
+- Unified patches where arch (powerpc, UML, loongarch) selects
+  ARCH_DEFER_KASAN in the first patch not to break
+  bisectability. So in v5 we have 2 patches now in the series instead of 9.
+- Removed kasan_arch_is_ready completely as there is no user
+- Removed __wrappers in v4, left only those where it's necessary
+  due to different implementations
 
-Best regards,
-Dust
+Tested on:
+- powerpc - selects ARCH_DEFER_KASAN
+Built ppc64_defconfig (PPC_BOOK3S_64) - OK
+Booted via qemu-system-ppc64 - OK
+
+I have not tested in v4 powerpc without KASAN enabled.
+
+In v4 arch/powerpc/Kconfig it was:
+	select ARCH_DEFER_KASAN			if PPC_RADIX_MMU
+
+and compiling with ppc64_defconfig caused:
+  lib/stackdepot.o:(__jump_table+0x8): undefined reference to `kasan_flag_enabled'
+
+I have fixed it in v5 via adding KASAN condition:
+	select ARCH_DEFER_KASAN			if KASAN && PPC_RADIX_MMU
+
+- um - selects ARCH_DEFER_KASAN
+
+KASAN_GENERIC && KASAN_INLINE && STATIC_LINK
+	Before:
+		In file included from mm/kasan/common.c:32:
+		mm/kasan/kasan.h:550:2: error: #error kasan_arch_is_ready only works in KASAN generic outline mode!
+		550 | #error kasan_arch_is_ready only works in KASAN generic outline mode
+
+	After (with auto-selected ARCH_DEFER_KASAN):
+		./arch/um/include/asm/kasan.h:29:2: error: #error UML does not work in KASAN_INLINE mode with STATIC_LINK enabled!
+		29 | #error UML does not work in KASAN_INLINE mode with STATIC_LINK enabled!
+
+KASAN_GENERIC && KASAN_OUTLINE && STATIC_LINK && 
+	Before:
+		./linux boots.
+
+	After (with auto-selected ARCH_DEFER_KASAN):
+		./linux boots.
+
+KASAN_GENERIC && KASAN_OUTLINE && !STATIC_LINK
+	Before:
+		./linux boots
+
+	After (with auto-disabled !ARCH_DEFER_KASAN):
+		./linux boots
+
+- loongarch - selects ARCH_DEFER_KASAN
+Built defconfig with KASAN_GENERIC - OK
+Haven't tested the boot. Asking Loongarch developers to verify - N/A
+But should be good, since Loongarch does not have specific "kasan_init()"
+call like UML does. It selects ARCH_DEFER_KASAN and calls kasan_init()
+in the end of setup_arch() after jump_label_init().
+
+Previous v5 thread: https://lore.kernel.org/all/20250807194012.631367-1-snovitoll@gmail.com/
+Previous v4 thread: https://lore.kernel.org/all/20250805142622.560992-1-snovitoll@gmail.com/
+Previous v3 thread: https://lore.kernel.org/all/20250717142732.292822-1-snovitoll@gmail.com/
+Previous v2 thread: https://lore.kernel.org/all/20250626153147.145312-1-snovitoll@gmail.com/
+
+Sabyrzhan Tasbolatov (2):
+  kasan: introduce ARCH_DEFER_KASAN and unify static key across modes
+  kasan: call kasan_init_generic in kasan_init
+
+ arch/arm/mm/kasan_init.c               |  2 +-
+ arch/arm64/mm/kasan_init.c             |  4 +---
+ arch/loongarch/Kconfig                 |  1 +
+ arch/loongarch/include/asm/kasan.h     |  7 ------
+ arch/loongarch/mm/kasan_init.c         |  8 +++----
+ arch/powerpc/Kconfig                   |  1 +
+ arch/powerpc/include/asm/kasan.h       | 12 ----------
+ arch/powerpc/mm/kasan/init_32.c        |  2 +-
+ arch/powerpc/mm/kasan/init_book3e_64.c |  2 +-
+ arch/powerpc/mm/kasan/init_book3s_64.c |  6 +----
+ arch/riscv/mm/kasan_init.c             |  1 +
+ arch/s390/kernel/early.c               |  3 ++-
+ arch/um/Kconfig                        |  1 +
+ arch/um/include/asm/kasan.h            |  5 ++--
+ arch/um/kernel/mem.c                   | 13 ++++++++---
+ arch/x86/mm/kasan_init_64.c            |  2 +-
+ arch/xtensa/mm/kasan_init.c            |  2 +-
+ include/linux/kasan-enabled.h          | 32 ++++++++++++++++++--------
+ include/linux/kasan.h                  |  6 +++++
+ lib/Kconfig.kasan                      | 12 ++++++++++
+ mm/kasan/common.c                      | 17 ++++++++++----
+ mm/kasan/generic.c                     | 19 +++++++++++----
+ mm/kasan/hw_tags.c                     |  9 +-------
+ mm/kasan/kasan.h                       |  8 ++++++-
+ mm/kasan/shadow.c                      | 12 +++++-----
+ mm/kasan/sw_tags.c                     |  1 +
+ mm/kasan/tags.c                        |  2 +-
+ 27 files changed, 113 insertions(+), 77 deletions(-)
+
+-- 
+2.34.1
 
