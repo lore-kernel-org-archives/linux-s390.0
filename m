@@ -1,101 +1,179 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3ED827BF7E;
-	Sun, 10 Aug 2025 21:12:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 53CDB26E71F;
+	Mon, 11 Aug 2025 05:50:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754860351; cv=none; b=aYhCmA1wcMmdwi4LMrSPG+ppKTdybylLhkYs4Jb7QOLy8yD5XWGE62tfWDuN4YZ6SGUk11tr8esAdxNyKMxPW6A2cmfqD0s3rScas9vvbBpAxJXSk9D/IiMyp8zBnHrNveWJBznjFcxs4bGf3DaDtABWeLU4uPIFmMAdUIukylU=
+	t=1754891438; cv=none; b=o+hfy+3/eRRHCQc/1a8lEk2H4b8ju/PxnVUVvpqGI2sKBE5dLm74JgCe/woe7sRlr1qLGbGiVM8GI/tJ3Pgm1M87yZ4Kzr5lHdBZUEihKdyG28QOFv2sezZSiizp52JrPDiuFH++z6WRwKWgg9fXTcSHm4udF/Qu9ByZ5xshGlc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754860351; c=relaxed/simple;
-	bh=+EPDIqigYF0dLwDVKm4n7P07Soa8UCdwgsSbIhQglhg=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=oyUgp3qRB2j4IMdggGxG2kfr9C3Dp9FbXnN2SAJV4dQgskndKgIrP57GITai/O90fWuVpif9A9ruVSCtGy7JSHrqy4KYKpSVlfz1Naco4FfKvprxsZz4qCP/YZ/fCzlEvmBjjzjAC6lyNFc1oJ437rv4W/K3oZIPDFW8mzvZuUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PRWX9qby; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PRWX9qby"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E2A6C4CEF1;
-	Sun, 10 Aug 2025 21:12:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1754860351;
-	bh=+EPDIqigYF0dLwDVKm4n7P07Soa8UCdwgsSbIhQglhg=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=PRWX9qbyv9u6FbnKrFjePyfsaZ737MOhr4mO7TsZ7R+GzU8zlYvZAYf8JD/OXtEUT
-	 hA9ZGe4MgMB70B1Zw0njMIw4A2/fhOmu8/xlsiHxmIUZJvNyZW6a8uiunB9JTjc62k
-	 WQvCcnsGvL3edUrU5mU3msfwtOhFXOborJRekZFipn3fdTQKLp1K+FdaZrtWvHMoCG
-	 BjGMfqHcgkkIzLtrpEo6cyj4t26pG93hr2845rzETZe270MpglUmq+wxcG1OLi+DB/
-	 81Kg/BR1SiRTfzYt5r1OrTvGUw8lrqFdyiU9Eqy8LtRG2Wu0knKnUQq5VbApAR7XFV
-	 wpBAVMLGZQIKw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33BB739D0C2B;
-	Sun, 10 Aug 2025 21:12:45 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1754891438; c=relaxed/simple;
+	bh=W8N+9T3GwRiE6nS55sm/L2P+TWEETv7v1ISfhrS0rjA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MhsuPi5ei6JnwajX0UhAgkBlbcUl9O+oeXDJ1yOsMtF4UvfFjtt0K8Zr9AMHefrUug7+s2rbMlWfZ4HeUZmS7SlYIfCZBJG4jzz3GDN/cXgzbk0kxHVj6mpMG9dQZ5ztVMlwsc6GDGea5wGhZ3IMLuLkMnu4GA8b9sIbrzOyZlY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
+Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
+	by localhost (Postfix) with ESMTP id 4c0k2w2kRcz9sSL;
+	Mon, 11 Aug 2025 07:39:04 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3Mxf0H61E1tl; Mon, 11 Aug 2025 07:39:04 +0200 (CEST)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4c0k2w1bMnz9sSK;
+	Mon, 11 Aug 2025 07:39:04 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 199008B764;
+	Mon, 11 Aug 2025 07:39:04 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+	with ESMTP id bIxmuQ19phXS; Mon, 11 Aug 2025 07:39:03 +0200 (CEST)
+Received: from [10.25.207.160] (unknown [10.25.207.160])
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id BAC418B763;
+	Mon, 11 Aug 2025 07:39:03 +0200 (CEST)
+Message-ID: <b8345cfe-0bde-44cd-b9b7-9a946ff8fc36@csgroup.eu>
+Date: Mon, 11 Aug 2025 07:39:03 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 2/2] kasan: call kasan_init_generic in kasan_init
+To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>, ryabinin.a.a@gmail.com,
+ bhe@redhat.com, hca@linux.ibm.com, andreyknvl@gmail.com,
+ akpm@linux-foundation.org, zhangqing@loongson.cn, chenhuacai@loongson.cn,
+ davidgow@google.com, glider@google.com, dvyukov@google.com,
+ alexghiti@rivosinc.com
+Cc: alex@ghiti.fr, agordeev@linux.ibm.com, vincenzo.frascino@arm.com,
+ elver@google.com, kasan-dev@googlegroups.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-um@lists.infradead.org, linux-mm@kvack.org
+References: <20250810125746.1105476-1-snovitoll@gmail.com>
+ <20250810125746.1105476-3-snovitoll@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Content-Language: fr-FR
+In-Reply-To: <20250810125746.1105476-3-snovitoll@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 00/23] binfmt_elf,arch/*: Use elf.h for coredump note
- names
-From: patchwork-bot+linux-riscv@kernel.org
-Message-Id: 
- <175486036374.1221929.319441619761028585.git-patchwork-notify@kernel.org>
-Date: Sun, 10 Aug 2025 21:12:43 +0000
-References: <20250701135616.29630-1-Dave.Martin@arm.com>
-In-Reply-To: <20250701135616.29630-1-Dave.Martin@arm.com>
-To: Dave Martin <Dave.Martin@arm.com>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- davem@davemloft.net, hpa@zytor.com, James.Bottomley@HansenPartnership.com,
- akihiko.odaki@daynix.com, aou@eecs.berkeley.edu, agordeev@linux.ibm.com,
- alex@ghiti.fr, andreas@gaisler.com, anton.ivanov@cambridgegreys.com,
- bp@alien8.de, bcain@kernel.org, catalin.marinas@arm.com, chris@zankel.net,
- borntraeger@linux.ibm.com, christophe.leroy@csgroup.eu,
- dave.hansen@linux.intel.com, dinguyen@kernel.org, geert@linux-m68k.org,
- guoren@kernel.org, hca@linux.ibm.com, deller@gmx.de, chenhuacai@kernel.org,
- mingo@redhat.com, johannes@sipsolutions.net, glaubitz@physik.fu-berlin.de,
- jonas@southpole.se, kees@kernel.org, maddy@linux.ibm.com, jcmvbkbc@gmail.com,
- mpe@ellerman.id.au, npiggin@gmail.com, oleg@redhat.com, palmer@dabbelt.com,
- paul.walmsley@sifive.com, dalias@libc.org, richard@nod.at,
- linux@armlinux.org.uk, shorne@gmail.com, stefan.kristiansson@saunalahti.fi,
- svens@linux.ibm.com, tsbogend@alpha.franken.de, tglx@linutronix.de,
- gor@linux.ibm.com, vgupta@kernel.org, kernel@xen0n.name, will@kernel.org,
- ysato@users.sourceforge.jp, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- linux-um@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- loongarch@lists.linux.dev, sparclinux@vger.kernel.org, x86@kernel.org
 
-Hello:
 
-This patch was applied to riscv/linux.git (fixes)
-by Kees Cook <kees@kernel.org>:
 
-On Tue,  1 Jul 2025 14:55:53 +0100 you wrote:
-> This series aims to clean up an aspect of coredump generation:
+Le 10/08/2025 à 14:57, Sabyrzhan Tasbolatov a écrit :
+> Call kasan_init_generic() which handles Generic KASAN initialization.
+> For architectures that do not select ARCH_DEFER_KASAN,
+> this will be a no-op for the runtime flag but will
+> print the initialization banner.
 > 
-> ELF coredumps contain a set of notes describing the state of machine
-> registers and other information about the dumped process.
+> For SW_TAGS and HW_TAGS modes, their respective init functions will
+> handle the flag enabling, if they are enabled/implemented.
 > 
-> Notes are identified by a numeric identifier n_type and a "name"
-> string, although this terminology is somewhat misleading.  Officially,
-> the "name" of a note is really an "originator" or namespace identifier
-> that indicates how to interpret n_type [1], although in practice it is
-> often used more loosely.
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=217049
+> Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+> Tested-by: Alexandre Ghiti <alexghiti@rivosinc.com> # riscv
+> Acked-by: Alexander Gordeev <agordeev@linux.ibm.com> # s390
+
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+
+> ---
+> Changes in v6:
+> - Call kasan_init_generic() in arch/riscv _after_ local_flush_tlb_all()
+> ---
+>   arch/arm/mm/kasan_init.c    | 2 +-
+>   arch/arm64/mm/kasan_init.c  | 4 +---
+>   arch/riscv/mm/kasan_init.c  | 1 +
+>   arch/s390/kernel/early.c    | 3 ++-
+>   arch/x86/mm/kasan_init_64.c | 2 +-
+>   arch/xtensa/mm/kasan_init.c | 2 +-
+>   6 files changed, 7 insertions(+), 7 deletions(-)
 > 
-> [...]
-
-Here is the summary with links:
-  - [16/23] riscv: ptrace: Use USER_REGSET_NOTE_TYPE() to specify regset note names
-    https://git.kernel.org/riscv/c/c9502cc7bef5
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+> diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
+> index 111d4f703136..c6625e808bf8 100644
+> --- a/arch/arm/mm/kasan_init.c
+> +++ b/arch/arm/mm/kasan_init.c
+> @@ -300,6 +300,6 @@ void __init kasan_init(void)
+>   	local_flush_tlb_all();
+>   
+>   	memset(kasan_early_shadow_page, 0, PAGE_SIZE);
+> -	pr_info("Kernel address sanitizer initialized\n");
+>   	init_task.kasan_depth = 0;
+> +	kasan_init_generic();
+>   }
+> diff --git a/arch/arm64/mm/kasan_init.c b/arch/arm64/mm/kasan_init.c
+> index d541ce45daeb..abeb81bf6ebd 100644
+> --- a/arch/arm64/mm/kasan_init.c
+> +++ b/arch/arm64/mm/kasan_init.c
+> @@ -399,14 +399,12 @@ void __init kasan_init(void)
+>   {
+>   	kasan_init_shadow();
+>   	kasan_init_depth();
+> -#if defined(CONFIG_KASAN_GENERIC)
+> +	kasan_init_generic();
+>   	/*
+>   	 * Generic KASAN is now fully initialized.
+>   	 * Software and Hardware Tag-Based modes still require
+>   	 * kasan_init_sw_tags() and kasan_init_hw_tags() correspondingly.
+>   	 */
+> -	pr_info("KernelAddressSanitizer initialized (generic)\n");
+> -#endif
+>   }
+>   
+>   #endif /* CONFIG_KASAN_GENERIC || CONFIG_KASAN_SW_TAGS */
+> diff --git a/arch/riscv/mm/kasan_init.c b/arch/riscv/mm/kasan_init.c
+> index 41c635d6aca4..c4a2a9e5586e 100644
+> --- a/arch/riscv/mm/kasan_init.c
+> +++ b/arch/riscv/mm/kasan_init.c
+> @@ -533,4 +533,5 @@ void __init kasan_init(void)
+>   
+>   	csr_write(CSR_SATP, PFN_DOWN(__pa(swapper_pg_dir)) | satp_mode);
+>   	local_flush_tlb_all();
+> +	kasan_init_generic();
+>   }
+> diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+> index 9adfbdd377dc..544e5403dd91 100644
+> --- a/arch/s390/kernel/early.c
+> +++ b/arch/s390/kernel/early.c
+> @@ -21,6 +21,7 @@
+>   #include <linux/kernel.h>
+>   #include <asm/asm-extable.h>
+>   #include <linux/memblock.h>
+> +#include <linux/kasan.h>
+>   #include <asm/access-regs.h>
+>   #include <asm/asm-offsets.h>
+>   #include <asm/machine.h>
+> @@ -65,7 +66,7 @@ static void __init kasan_early_init(void)
+>   {
+>   #ifdef CONFIG_KASAN
+>   	init_task.kasan_depth = 0;
+> -	pr_info("KernelAddressSanitizer initialized\n");
+> +	kasan_init_generic();
+>   #endif
+>   }
+>   
+> diff --git a/arch/x86/mm/kasan_init_64.c b/arch/x86/mm/kasan_init_64.c
+> index 0539efd0d216..998b6010d6d3 100644
+> --- a/arch/x86/mm/kasan_init_64.c
+> +++ b/arch/x86/mm/kasan_init_64.c
+> @@ -451,5 +451,5 @@ void __init kasan_init(void)
+>   	__flush_tlb_all();
+>   
+>   	init_task.kasan_depth = 0;
+> -	pr_info("KernelAddressSanitizer initialized\n");
+> +	kasan_init_generic();
+>   }
+> diff --git a/arch/xtensa/mm/kasan_init.c b/arch/xtensa/mm/kasan_init.c
+> index f39c4d83173a..0524b9ed5e63 100644
+> --- a/arch/xtensa/mm/kasan_init.c
+> +++ b/arch/xtensa/mm/kasan_init.c
+> @@ -94,5 +94,5 @@ void __init kasan_init(void)
+>   
+>   	/* At this point kasan is fully initialized. Enable error messages. */
+>   	current->kasan_depth = 0;
+> -	pr_info("KernelAddressSanitizer initialized\n");
+> +	kasan_init_generic();
+>   }
 
