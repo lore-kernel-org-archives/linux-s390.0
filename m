@@ -1,122 +1,119 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1622C2ED15A;
-	Tue, 12 Aug 2025 11:07:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BEDFB2C159B;
+	Tue, 12 Aug 2025 14:44:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754996869; cv=none; b=TBSAnkv2a9AW5BCVbQOGOcCKLnVC6J6fAyOv66QdlLwiCfEuStpoAvK+5mSm1eS+Mgu1AyH2iq7a+xFlHoSIkxIvDn4OqOywLUNPKiGsHHiATleJdQIqZknnrnhw7HE9np+mUhkTZb5VAXiYcAYgSve31SBRlTd7YomqTZEUZ5w=
+	t=1755009881; cv=none; b=AnDn7hbKdrmQ2vhAwo9f5iPpeLw/fg7K8/R5qKljuErXC6vt5++csrQ4j8wQFKAAj/n99Z7iBVT07I+qhcUR0wQNh0JCn7sDW7qjMj7wHR8qaHp4cYHCt+RlXysQYrnZK2bMUPxt524jJHkLT7k4SsrT+S6kVtLgZ/Z0ErRAzMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754996869; c=relaxed/simple;
-	bh=mM1oIijYsTieBVXwDdbk88e2RvtyWnf8BqoF2nILFwk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MXt6qnyaqM9oTWgDY7v3lowa9uqIxKYzDTiOooTT/gBfW65Y2gC0DAjruZppDAHuZNtfZ/fMzxwqiridGaawPw2HZRDQPHP9wVYVHUyK/B6qsqNGM8Rm6LmjzGczHh1OB2r6zGNvRDYbJcbfBSZn5kEFQosLNkDrMSJaxd7kp7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NZbEhp4v; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1755009881; c=relaxed/simple;
+	bh=xuGaNBZVtuATaDvw043eDtsOmUQ4CSlU6fJHQ6dnGP8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EWm6lakr/kdCYPmA5NzwAfIH30ZamW6JPK6+5QzBLDJ2CC45u4ZySC7239GWRFJ30aB85/+YvatLrdY5/Hf/tQnTVZARoxZLSSnM9YvGQf9TNhAbuSGfiKccU+0j9V6QxpaqwBsEj3Emlpf38t3eOpSJFmvJ4kEH0JqYvYjN7Q4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=hSn9NDoP; arc=none smtp.client-ip=117.135.210.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NZbEhp4v"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-24286ed4505so10303595ad.3;
-        Tue, 12 Aug 2025 04:07:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754996867; x=1755601667; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mM1oIijYsTieBVXwDdbk88e2RvtyWnf8BqoF2nILFwk=;
-        b=NZbEhp4vn+EP/XmzUJFdBF80tngRBymjuHYcNg4ukpIba/WRM0CEEGOiR/GzhMEVh9
-         u8WROr5Si2zb4McFRIscoUT7fgB8nalCBpqweF+yApa+psnaUSvoSuDEaIc3F5Z42dkm
-         7cj04DDxC8eYINnu53+i1GR8ueB+mtzvYdMbScM0BgmAYzbh7lNcLChHhdp1olNroq2S
-         jAcPYAJjCFoAmf0Sf/ooC6Dc2TGLpsAJwzP9kJjRGFQxQA3IXi9C4OKD/i5sw+HdBZ3v
-         ElB/+cM2a2pGvuroznTnU6wMnY9PGyIRTHxf9FP2RXVz1IGQteCTa0sY5kzK7oQT/ZNA
-         ThYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754996867; x=1755601667;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mM1oIijYsTieBVXwDdbk88e2RvtyWnf8BqoF2nILFwk=;
-        b=ancB9ImStV4gYpR53A1Eyj9ulJuIzf6DLkP7YM19DLlWCayFrhkTKV35Pgljn2Vuch
-         wCrs8l8AkpQpWIx38N9ZiLMBTY0OPP8F7Y7gDYcDM03ZcWkpG15UEdY9SK6U6c3a6U00
-         tRGoRGGykEuIyrLV1ipcq32HwoV9O2ttz6+NWbrAhXR1E0VRIgOLuJdHx/vbu33arnM9
-         3M1dz7qgcLkiQnoSKEZOhdTuzkOCTtoj8FTLCRwsB/w95PBjGkVaTU+X+e38VVmwucSm
-         +AGN8npHNnfGpdMiH4fLSu5pan7O+K/JxQFMFcPmeEk3oiOOsVVMKqyac9ARX2oumRm/
-         zPyA==
-X-Forwarded-Encrypted: i=1; AJvYcCUPF0r3bZI1QAHfCRaMmBIVQsJ5VWBDdVcqbuuENvEcBX37AoJubpqXhtbNNe4/QkWueF5Tku/pKNaH0xYm@vger.kernel.org, AJvYcCUQGxzxygN/rT9eGlSo0r/TkbssitpDuaNfCu0Pw29cM5icH9C0yxW8DhrcXT6EELKaa+o4iukp+8j1wS76saA=@vger.kernel.org, AJvYcCUSHtutdT0m64oM3UndSqi8hVhVYW+4dBVvCfMntz31yCKlcxIhKEs8jk+zYlNqGhq88sE0tPowDIzz3XI=@vger.kernel.org, AJvYcCVefoaZxOU58kECtiIfVxfvr5Ig0rG4RBweQroX4mMe/ioB0/ejXG9UjjfDTdnYFvqKv8+oFBorSFHH7w==@vger.kernel.org, AJvYcCXgFlttS1dWIcCq5tHPMQ7iK/cHTHOhkJWa4hohtuDqOQEjB3cRHZgEL/Vm41db1BfAmKbuxxJm0hhYKg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxpC2oHZBw/PTmDFhCUq6KO3juEUYhb8twDoVofAnCqq5KPoLfY
-	5N4FxZnOzd0OasbVbaA15OUdawRezkxLjzCgrPdqkAcFCHv1HQITzeFnk5C2hQh765KsurNGC4H
-	lYlf8DNY94CRzDgGvwf/leu5gJJmj/8w=
-X-Gm-Gg: ASbGncsUeWeL9hftL5PGf/OI5axFaj/uJa/iDMKRawGtRqW1O4euIPSCzktwQY8p0Og
-	Uasal2/leGF8nsDr5BzTW969BRWxBTWLj2bl8rjHjraJnH+Z4cq9x/sVgGAVoC4MgzPtVSNP9ho
-	AlGtpU+7efRIIOzXfJTr5UR/azOCzdUwik0hPWFzoNXMPeMH8rPJyeBuBrKlV8wP8yl56frqUru
-	XU2XHUBf1KLRldb83o=
-X-Google-Smtp-Source: AGHT+IGLTgav5Ly0pJQ7DxONlyuqSGpB75/R07ZLvB4KvAdVZt2KEevtP/u+Z9PPdrxzblYTwfgzUXYmCR2PQbfj+a0=
-X-Received: by 2002:a17:903:1a70:b0:240:5c13:979a with SMTP id
- d9443c01a7336-24306da5537mr4831165ad.9.1754996867136; Tue, 12 Aug 2025
- 04:07:47 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="hSn9NDoP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
+	Content-Type; bh=ZhsbIXFNOoOJ8ZX4+6Y1Tfv+zUQqehas4lLbJyxnt9U=;
+	b=hSn9NDoPDyVhJnamiV1TQi5v2FbGParWsrEUpuyRTzLUf6FBtm1rShLeKJBBid
+	FL1mEVeHMijfXyuRQC3YGTNVXGwfAyZMoHcG51t0wq5UeEhStFvixibXvzhecrWo
+	kWeK52d4wF+kzzTxmS7B+5o91Aihk2LDJL7OUvMIxUrMg=
+Received: from [IPV6:240e:b8f:919b:3100:3980:6173:5059:2d2a] (unknown [])
+	by gzsmtp1 (Coremail) with SMTP id PCgvCgD3XxQ2U5toJw+iAA--.23507S2;
+	Tue, 12 Aug 2025 22:44:08 +0800 (CST)
+Message-ID: <9d0cce06-25fa-4ca6-8cd1-388e932d1ffc@163.com>
+Date: Tue, 12 Aug 2025 22:44:06 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
-In-Reply-To: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Tue, 12 Aug 2025 13:07:34 +0200
-X-Gm-Features: Ac12FXz75fv-5GwEH7lTNJ0yhooMj6nwQ9IaaKPBS7pSI2ZcZDdB8Ex-5Z7LxRg
-Message-ID: <CANiq72nV62c8cVBzke73OH-sfLdgerDBGrLKTmT83+OQtK6PjA@mail.gmail.com>
-Subject: Re: [PATCH v4 00/24] vdso: Reject absolute relocations during build
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
-	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
-	Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook <kees@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>, 
-	Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
-	=?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
-	Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
-	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
-	Danilo Krummrich <dakr@kernel.org>, Nicolas Schier <nicolas.schier@linux.dev>, 
-	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-	loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
-	linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@redhat.com>, Alexandre Ghiti <alexghiti@rivosinc.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
+To: Gerd Bayer <gbayer@linux.ibm.com>, Manivannan Sadhasivam
+ <mani@kernel.org>, Hans Zhang <hans.zhang@cixtech.com>
+Cc: Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
+ bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ jingoohan1@gmail.com, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?=
+ <kwilczynski@kernel.org>, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-next <linux-next@vger.kernel.org>,
+ linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Rob Herring <robh@kernel.org>, Niklas Schnelle <schnelle@linux.ibm.com>,
+ geert@linux-m68k.org
+References: <20250731183944.GA3424583@bhelgaas>
+ <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
+ <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
+ <9a155e45-f723-4eec-81d3-2547bfe9a4e9@cixtech.com>
+ <ofsbfhor5ah3yzvkc5g5kb4fpjlzoqkkzukctmr3f6ur4vl2e7@7zvudt63ucbk>
+ <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
+ <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
+ <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
+ <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
+ <6efa10219a41907ebdd7b75fc8d9249e115e8864.camel@linux.ibm.com>
+Content-Language: en-US
+From: Hans Zhang <18255117159@163.com>
+In-Reply-To: <6efa10219a41907ebdd7b75fc8d9249e115e8864.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID:PCgvCgD3XxQ2U5toJw+iAA--.23507S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7Ww15tF4fGFyUKryxuF47twb_yoW8Jw1fpF
+	WSyF4akF4kGrWxJFWIgw1UXF1j93yvyryfu395Gwn8A3Z09r1rJrs3ZF4YgF9rGr97ur4Y
+	va13ZF1aqryjvaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UZiSLUUUUU=
+X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/1tbiQw+no2ibT2J2SgAAsq
 
-On Tue, Aug 12, 2025 at 7:44=E2=80=AFAM Thomas Wei=C3=9Fschuh
-<thomas.weissschuh@linutronix.de> wrote:
->
-> Kbuild and Rust folks: This contains custom definitions of hostprog
-> bindgen and rust library commands.
-> These are currently only defined inside the subsystem directory.
-> Let me know if they should go into scripts/Makefile.host.
 
-Glad to see more Rust host progs :)
 
-Keeping them local may be a bit easier initially to land, I guess
-(e.g. no docs), and then we can generalize when needed later.
+On 2025/8/4 18:09, Gerd Bayer wrote:
+> On Mon, 2025-08-04 at 11:06 +0800, Hans Zhang wrote:
+>>
+>> On 2025/8/1 19:30, Gerd Bayer wrote:
+>>> On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
+>>>
+>>> <--- snip --->
+>>>
+>>>>>>
+>>
+>> Dear all,
+>>
+>> According to the issue mentioned by Lukas and Mani. Gerd has already
+>> been tested on the s390. I have tested it on the RK3588 and it works
+>> fine. RK3588 uses Synopsys' PCIe IP, that is, the DWC driver. Our
+>> company's is based on Cadence's PCIe 4.0 IP, and the test function is
+>> normal. All the platforms I tested were based on ARM.
+>>
+>> The following is the patch based on the capability-search branch. May I
+>> ask everyone, do you have any more questions?
+>>
+>> Gerd, if there's no problem, I'll add your Tested-by label.
+> 
+> Before you add that I'd like to re-test with the "final" patch.
+> 
+>> Branch:
+>> https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git/log/?h=capability-search
+>>
+>> Patch:
+> 
+> <--- snip --->
+> 
+> Please bear with me while I'm working on that.
 
-By the way, for consistency with elsewhere, probably we want
-`HOSTRUSTLIB` -> `HOSTRUSTC L`. Though I am thinking to remove the `L`
-anyway since eventually a lot of code will be "lib".
 
-Cheers,
-Miguel
+Dear Gerd,
+
+May I ask if there is any update?
+
+
+
+I plan to submit the v15 version of my series based on v6.17-rc1.
+The modification method is like the previous comment:
+https://lore.kernel.org/linux-pci/06012cc6-824d-4a7d-85c9-9995ec915382@163.com/
+
+Best regards,
+Hans
+
