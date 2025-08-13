@@ -1,143 +1,111 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 520212DEA60;
-	Wed, 13 Aug 2025 07:51:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40C2B22425B;
+	Wed, 13 Aug 2025 08:16:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755071468; cv=none; b=ioZeCdWwE5XQuSo9FtPMU5JCxkFumnvq5FrUVdHBIIxHmyDJU4X5YKSeGexdrWgWmr2cklq7zVnj01B4Bnw1reZP//d0jSztjXXDTAVJpFAb5S9y3/sWc2W7NvMZnG/Cfmk9qjUP3ktE+wpK7KdSj/9niZF4BKU96gAG0BgLyLU=
+	t=1755072968; cv=none; b=Up/Vi/MQ2ic8h02iuhgbVoZceW6WCbuIerErgpv+6k8tlE7W5f4B4mIvDbkIyZcfWGDYptbH8RWOy2wBdQW+xDvTCVTn4bo5KuGPVFwFTrWZJOVdGZhYpffriyAQT1aRSbNPWFBtp1O4sCu3i53B85XICY6+rrXfZzLZ0+z+tXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755071468; c=relaxed/simple;
-	bh=r4pEFPASKK8up77RtFL+P52xmtDqK18x1y6KA4edrLo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AnlWT8mGkk3piUdkCNdjqxPicTKV1zowxrLSiVFzusW96vO4Am5B2BKrHCJ6FNNIyzKkzkvS4wl7jPqgQpkcE/LhlaEQLBXWZB9zOQ7k6rXtSeP+yh/5K/LJO+8sblyMHQ5UWX/5zFhWScmSs9p+KVMlVMTfZ4mkzxZZeZ1aou8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=fZhjrpq5; arc=none smtp.client-ip=117.135.210.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1755072968; c=relaxed/simple;
+	bh=qLk7KTbjb9ze2aC5zK7QVoAdhOj3IvIDiRP14d2KdAE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hortiraxeFtIBlhaLKLKfEEzJn3lu3DeetG23uNMPdOO8cbXhdV4KclU4IZaxZBingC4SRmO50Cf+QsWjAX16zsTtfK2gONBVaienq6IIPmDrbjgs4tT8XIPgoXW9LMw9Ub3ijyCwSfUDwW2dn4wZJUG3s9sXzutk8xNnqA9FO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=t3ZaanvF; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=E1zvWv48; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="fZhjrpq5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=Mz/nBgsZ7duNmoAntgvSoINKl5IHWwCVTu1EHDpSdzQ=;
-	b=fZhjrpq5DU+sSpql1h/6xp16nQxxOvnhOGR2x59nypWWrCnMONGJcQun0j/8NH
-	01c5O2ASgxLZ/xF85LpQ2twoAqWNYvnUcabKitLATAyjJLMMCreH5zXdaJH7UPww
-	an/6YufaPEcJ8eg9ZJVp3N1lw3woqYxwWIj209m4pKReQ=
-Received: from [192.168.172.52] (unknown [])
-	by gzsmtp3 (Coremail) with SMTP id PigvCgD3n8fKQ5xoY8CzAw--.5193S2;
-	Wed, 13 Aug 2025 15:50:37 +0800 (CST)
-Message-ID: <96c686b7-2a42-4a1b-8cb6-07fd2ca1f5c1@163.com>
-Date: Wed, 13 Aug 2025 15:50:33 +0800
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="t3ZaanvF";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="E1zvWv48"
+Date: Wed, 13 Aug 2025 10:16:02 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1755072965;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vgBW8b/WLrVQq0BHMU+zEk/Lyyfrm6a/mGbcYhX7PWw=;
+	b=t3ZaanvFJHTW1l1H2nSwoa1VFh8EVFo/BJn0UMRG7bq78PXYOpzqMO9UGefI5UiLZP7nNe
+	J1FX1/E5cqcFOVpKvUjolk1j8zY71ykS0B7X6UJ1jM73mZGhOMT+2RFDhdp4Y1WmHG3lB8
+	fhvgGlk/PFabS5Cn+w3uMjkgmqVzkQuRRvX4xJrjg/8hJ+0j7jOT/qLXJIWkp6a9jfxObj
+	LUOs4JziO5PF87uDbwzJHBzRMHIM1CkGRGPGIwWfVdP7ckTLMMlHtUDzc+O5vxoBEjlmG7
+	1skI/bKKNj/R2CTmQujVy01wAp2WhS97QfxNvozWzsRXygdxqvZz7+ZCEZyixQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1755072965;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vgBW8b/WLrVQq0BHMU+zEk/Lyyfrm6a/mGbcYhX7PWw=;
+	b=E1zvWv48KJJ+SOu4RstGU/Hts0jpCLaRVEpYFntAu8DSCAbOKCuCF3vYrHswu5Uo/Nk8OK
+	GMt5eI9bpKssCIDA==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, Andy Lutomirski <luto@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>, 
+	Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
+	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
+	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
+	Nicolas Schier <nicolas.schier@linux.dev>, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
+	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, 
+	linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@redhat.com>, Alexandre Ghiti <alexghiti@rivosinc.com>
+Subject: Re: [PATCH v4 00/24] vdso: Reject absolute relocations during build
+Message-ID: <20250813101305-04911850-2375-4be5-9a06-ced21de3ca22@linutronix.de>
+References: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
+ <CANiq72nV62c8cVBzke73OH-sfLdgerDBGrLKTmT83+OQtK6PjA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] PCI: Fix endianness issues in pci_bus_read_config()
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
- Gerd Bayer <gbayer@linux.ibm.com>, Manivannan Sadhasivam <mani@kernel.org>,
- Hans Zhang <hans.zhang@cixtech.com>
-Cc: Arnd Bergmann <arnd@kernel.org>, Bjorn Helgaas <helgaas@kernel.org>,
- bhelgaas@google.com, Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- jingoohan1@gmail.com, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?=
- <kwilczynski@kernel.org>, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-next <linux-next@vger.kernel.org>,
- linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Rob Herring <robh@kernel.org>, geert@linux-m68k.org
-References: <20250731183944.GA3424583@bhelgaas>
- <6e34b4af-dff9-4360-b3da-c95ca7c740c9@app.fastmail.com>
- <vf65usnffqzlkgijm72nuaslxnflwrugc25vw6q6blbn2s2d2s@b35vjkowd6yc>
- <9a155e45-f723-4eec-81d3-2547bfe9a4e9@cixtech.com>
- <ofsbfhor5ah3yzvkc5g5kb4fpjlzoqkkzukctmr3f6ur4vl2e7@7zvudt63ucbk>
- <c8ffdd21-9000-40c2-9f4d-4d6318e730b5@cixtech.com>
- <cu7qdbwmnixqjce4aetr5ldwe3sqoixgq4fuzmzajzphjdywqq@yw6ojbgeqktm>
- <06f16b1a55eede3dc3e0bf31ff14eca89ab6f009.camel@linux.ibm.com>
- <06012cc6-824d-4a7d-85c9-9995ec915382@163.com>
- <6efa10219a41907ebdd7b75fc8d9249e115e8864.camel@linux.ibm.com>
- <9d0cce06-25fa-4ca6-8cd1-388e932d1ffc@163.com>
- <8d5b5e0450ac4a4f8ca0a9d7b9399a7b0b5eee00.camel@linux.ibm.com>
-Content-Language: en-US
-From: Hans Zhang <18255117159@163.com>
-In-Reply-To: <8d5b5e0450ac4a4f8ca0a9d7b9399a7b0b5eee00.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:PigvCgD3n8fKQ5xoY8CzAw--.5193S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7Zr4xZr45ur4kAr13tw18Xwb_yoW8ur17pF
-	WSyF4YyF4kJr4xtFsFqr1UXF12y3yktry3Xr15Gr1UJF1qvr18Jrn7AFWY9r9rury7uF1j
-	yrWava42qr1jvaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j0YLkUUUUU=
-X-CM-SenderInfo: rpryjkyvrrlimvzbiqqrwthudrp/1tbiOh2oo2icPqCcEgAAsI
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CANiq72nV62c8cVBzke73OH-sfLdgerDBGrLKTmT83+OQtK6PjA@mail.gmail.com>
 
-
-
-On 2025/8/13 15:47, Niklas Schnelle wrote:
-> On Tue, 2025-08-12 at 22:44 +0800, Hans Zhang wrote:
->>
->> On 2025/8/4 18:09, Gerd Bayer wrote:
->>> On Mon, 2025-08-04 at 11:06 +0800, Hans Zhang wrote:
->>>>
->>>> On 2025/8/1 19:30, Gerd Bayer wrote:
->>>>> On Fri, 2025-08-01 at 16:24 +0530, Manivannan Sadhasivam wrote:
->>>>>
->>>>> <--- snip --->
->>>>>
->>>>>>>>
->>>>
->>>> Dear all,
->>>>
->>>> According to the issue mentioned by Lukas and Mani. Gerd has already
->>>> been tested on the s390. I have tested it on the RK3588 and it works
->>>> fine. RK3588 uses Synopsys' PCIe IP, that is, the DWC driver. Our
->>>> company's is based on Cadence's PCIe 4.0 IP, and the test function is
->>>> normal. All the platforms I tested were based on ARM.
->>>>
->>>> The following is the patch based on the capability-search branch. May I
->>>> ask everyone, do you have any more questions?
->>>>
->>>> Gerd, if there's no problem, I'll add your Tested-by label.
->>>
->>> Before you add that I'd like to re-test with the "final" patch.
->>>
->>>> Branch:
->>>> https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git/log/?h=capability-search
->>>>
->>>> Patch:
->>>
->>> <--- snip --->
->>>
->>> Please bear with me while I'm working on that.
->>
->>
->> Dear Gerd,
->>
->> May I ask if there is any update?
->>
->>
->>
->> I plan to submit the v15 version of my series based on v6.17-rc1.
->> The modification method is like the previous comment:
->> https://lore.kernel.org/linux-pci/06012cc6-824d-4a7d-85c9-9995ec915382@163.com/
->>
->> Best regards,
->> Hans
->>
+On Tue, Aug 12, 2025 at 01:07:34PM +0200, Miguel Ojeda wrote:
+> On Tue, Aug 12, 2025 at 7:44 AM Thomas Weißschuh
+> <thomas.weissschuh@linutronix.de> wrote:
+> >
+> > Kbuild and Rust folks: This contains custom definitions of hostprog
+> > bindgen and rust library commands.
+> > These are currently only defined inside the subsystem directory.
+> > Let me know if they should go into scripts/Makefile.host.
 > 
-> Hi Hans,
+> Glad to see more Rust host progs :)
 > 
-> Gerd is currently out so I just gave the patch you provided against
-> capability-search-v14 a try on s390. Didn't see any issues with the
-> previously broken device probing. As I understand it Bjorn asked you to
-> send a complete v15 and then for people to test that. I like that
-> approach and would prefer to provide a Tested-by for v15 rather than
-> via a patch on top. Gerd should be back next week too. Does that work
-> for you?
-> 
+> Keeping them local may be a bit easier initially to land, I guess
+> (e.g. no docs), and then we can generalize when needed later.
 
-Hi Niklas,
+I'm happy to do the docs etc. I only wanted to avoid doing all that work,
+only for it to stay a subsystem-local solution.
 
-Ok, no problem. I'm starting to prepare the patch for V15 now.
+Also it would be nice to have a Kconfig symbol, RUSTC_CAN_LINK or similar,
+which indicates that the rust compiler can build host programs.
 
-Best regards,
-Hans
+> By the way, for consistency with elsewhere, probably we want
+> `HOSTRUSTLIB` -> `HOSTRUSTC L`. Though I am thinking to remove the `L`
+> anyway since eventually a lot of code will be "lib".
 
+Ack.
