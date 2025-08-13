@@ -1,111 +1,133 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40C2B22425B;
-	Wed, 13 Aug 2025 08:16:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F60812B93;
+	Wed, 13 Aug 2025 11:16:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755072968; cv=none; b=Up/Vi/MQ2ic8h02iuhgbVoZceW6WCbuIerErgpv+6k8tlE7W5f4B4mIvDbkIyZcfWGDYptbH8RWOy2wBdQW+xDvTCVTn4bo5KuGPVFwFTrWZJOVdGZhYpffriyAQT1aRSbNPWFBtp1O4sCu3i53B85XICY6+rrXfZzLZ0+z+tXo=
+	t=1755083807; cv=none; b=ULKQ2SNbqpRtLRniwKGCcZ6Nu8Dkt3EeTdJcXsYGnFUT334ACM6ova9xBsrX4kDB7/nyetUEq+QZMTzF4oKP2ONIIRyTJwUXDxbGiLmjnIf3+RebYdSfSGyAy+oUqsMfgicfFo9xRnF4zi1U3wb1UFkJJo9xzGhV4SpkX8uGxFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755072968; c=relaxed/simple;
-	bh=qLk7KTbjb9ze2aC5zK7QVoAdhOj3IvIDiRP14d2KdAE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hortiraxeFtIBlhaLKLKfEEzJn3lu3DeetG23uNMPdOO8cbXhdV4KclU4IZaxZBingC4SRmO50Cf+QsWjAX16zsTtfK2gONBVaienq6IIPmDrbjgs4tT8XIPgoXW9LMw9Ub3ijyCwSfUDwW2dn4wZJUG3s9sXzutk8xNnqA9FO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=t3ZaanvF; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=E1zvWv48; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1755083807; c=relaxed/simple;
+	bh=110FpfBIwTsQ5L/Y0WLWnUkzAzWn/HY/bh17xUk/uFk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OfcT5Rdx6NrHMC4etHCL1iRUqYhJkP/2fO6+V6yXfhYubzfSRUA4jn60UfmaWegs+YzN8shRaeaK5tbEG0Feuo1W5jY7mG8Y8y5NRlNgz6uMzIiF5/ZT8EM+ZUpw4F4UhuMPoM3Ef/Yva9C0mgoUnLwaH58vn22jIzIh231ig4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HlhmmyAE; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="t3ZaanvF";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="E1zvWv48"
-Date: Wed, 13 Aug 2025 10:16:02 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1755072965;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vgBW8b/WLrVQq0BHMU+zEk/Lyyfrm6a/mGbcYhX7PWw=;
-	b=t3ZaanvFJHTW1l1H2nSwoa1VFh8EVFo/BJn0UMRG7bq78PXYOpzqMO9UGefI5UiLZP7nNe
-	J1FX1/E5cqcFOVpKvUjolk1j8zY71ykS0B7X6UJ1jM73mZGhOMT+2RFDhdp4Y1WmHG3lB8
-	fhvgGlk/PFabS5Cn+w3uMjkgmqVzkQuRRvX4xJrjg/8hJ+0j7jOT/qLXJIWkp6a9jfxObj
-	LUOs4JziO5PF87uDbwzJHBzRMHIM1CkGRGPGIwWfVdP7ckTLMMlHtUDzc+O5vxoBEjlmG7
-	1skI/bKKNj/R2CTmQujVy01wAp2WhS97QfxNvozWzsRXygdxqvZz7+ZCEZyixQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1755072965;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vgBW8b/WLrVQq0BHMU+zEk/Lyyfrm6a/mGbcYhX7PWw=;
-	b=E1zvWv48KJJ+SOu4RstGU/Hts0jpCLaRVEpYFntAu8DSCAbOKCuCF3vYrHswu5Uo/Nk8OK
-	GMt5eI9bpKssCIDA==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>, 
-	Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
-	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
-	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
-	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
-	Nicolas Schier <nicolas.schier@linux.dev>, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@redhat.com>, Alexandre Ghiti <alexghiti@rivosinc.com>
-Subject: Re: [PATCH v4 00/24] vdso: Reject absolute relocations during build
-Message-ID: <20250813101305-04911850-2375-4be5-9a06-ced21de3ca22@linutronix.de>
-References: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
- <CANiq72nV62c8cVBzke73OH-sfLdgerDBGrLKTmT83+OQtK6PjA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HlhmmyAE"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57CNQK7a029936;
+	Wed, 13 Aug 2025 11:16:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ExjGljI8lS0e+F1e0JhOF/zhAVPV7s4/oKfS171Uj
+	1M=; b=HlhmmyAEtgH9muYullwGiPij4+FM+A0nVpVgGH6ycZkP8AGIfkFCsvYEm
+	d/eZrVi5xXbwuACOOtF/I+/WTt5xhqiXCtpPhpPUVswm5uGG4TAKsbpNnneAtkRf
+	j4eYK4fluwDi71XNzXsE575R66mFg7kIoIOMVeiCO+qVxhYZ8Lky1mZkUmRqA5h5
+	fUzredX620R63HArTX0cxxoFkkkbuep86VWYhqsE4kOLClCfpvfrlSkzuGYundUz
+	eCKqG6QM/jsmgASd9opj4KqVjNIJbr+lw0cit6kWUooBd26QP3bkaVHtbuuYM1IT
+	dtMd95uFIUWml2/EXKO3wBftBs/rQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dwudc428-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Aug 2025 11:16:39 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57DBA0cf029510;
+	Wed, 13 Aug 2025 11:16:39 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dwudc425-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Aug 2025 11:16:39 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57D7l2WG028658;
+	Wed, 13 Aug 2025 11:16:37 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48ej5n6w73-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 13 Aug 2025 11:16:37 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57DBGXW953346726
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 13 Aug 2025 11:16:33 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9A40B2004B;
+	Wed, 13 Aug 2025 11:16:33 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 899C320040;
+	Wed, 13 Aug 2025 11:16:33 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 13 Aug 2025 11:16:33 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id 5D21CE1267; Wed, 13 Aug 2025 13:16:33 +0200 (CEST)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Simon Horman <horms@kernel.org>, Aswin Karuvally <aswin@linux.ibm.com>
+Subject: [PATCH net-next] MAINTAINERS: update s390/net
+Date: Wed, 13 Aug 2025 13:16:33 +0200
+Message-ID: <20250813111633.241111-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANiq72nV62c8cVBzke73OH-sfLdgerDBGrLKTmT83+OQtK6PjA@mail.gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODEyMDIyNCBTYWx0ZWRfX76iiPHqjkk28
+ 47EKFAXXUoi8DmUnD9BbZ4cVjBgpuLD9Bg8KmP3oRmHPR7/TjYoobzoCTeaJbrdSQaf1ucoXKAt
+ WjH9rTZ9SjCtJDujEfhGHtLfElVbpv0CvzG2cf+WPTzPyudw2266LhfTg4htcWwXhMJ0Z45NEJ2
+ wgN07832ISLS0xOXGVIDIF5R2j5NKdjw0Onb8r5U9S3A4wogx+nOLci2hE7gLk3jyC9Qp2Af1XX
+ tABodu33xcV+YQmdehuAQBBsFdZ9xpFdsv8saDUG4qMWjjIONjRJLcT816odbpoLVNPNNV96+nh
+ /fOYWpROco1+DbVT+95a+JJ5Z8Mtoej8te4pv8IbvliMRhO0tG5Co+vBHZLhJD4BPfNIDs7vdZJ
+ m/9IQBnI
+X-Authority-Analysis: v=2.4 cv=d/31yQjE c=1 sm=1 tr=0 ts=689c7417 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=2OwXVqhp2XgA:10 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=kMCnDhkBFyQEV54F0A0A:9
+X-Proofpoint-GUID: 5uWZkWZZkKnAKjz40ttzUc0pWkzJahIy
+X-Proofpoint-ORIG-GUID: 0sU_bio1Bx8uOD5I8DLdxyMgQ7KDz7iZ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-12_08,2025-08-11_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 impostorscore=0 priorityscore=1501 phishscore=0
+ spamscore=0 adultscore=0 bulkscore=0 malwarescore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508120224
 
-On Tue, Aug 12, 2025 at 01:07:34PM +0200, Miguel Ojeda wrote:
-> On Tue, Aug 12, 2025 at 7:44 AM Thomas Weißschuh
-> <thomas.weissschuh@linutronix.de> wrote:
-> >
-> > Kbuild and Rust folks: This contains custom definitions of hostprog
-> > bindgen and rust library commands.
-> > These are currently only defined inside the subsystem directory.
-> > Let me know if they should go into scripts/Makefile.host.
-> 
-> Glad to see more Rust host progs :)
-> 
-> Keeping them local may be a bit easier initially to land, I guess
-> (e.g. no docs), and then we can generalize when needed later.
+Remove Thorsten Winkler as maintainer and add Aswin Karuvally as reviewer.
 
-I'm happy to do the docs etc. I only wanted to avoid doing all that work,
-only for it to stay a subsystem-local solution.
+Thank you Thorsten for your support, welcome Aswin!
 
-Also it would be nice to have a Kconfig symbol, RUSTC_CAN_LINK or similar,
-which indicates that the rust compiler can build host programs.
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Acked-by: Thorsten Winkler <twinkler@linux.ibm.com>
+Acked-by: Aswin Karuvally <aswin@linux.ibm.com>
+---
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> By the way, for consistency with elsewhere, probably we want
-> `HOSTRUSTLIB` -> `HOSTRUSTC L`. Though I am thinking to remove the `L`
-> anyway since eventually a lot of code will be "lib".
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bd62ad58a47f..cb65a686faf9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -22168,7 +22168,7 @@ F:	arch/s390/mm
+ 
+ S390 NETWORK DRIVERS
+ M:	Alexandra Winter <wintera@linux.ibm.com>
+-M:	Thorsten Winkler <twinkler@linux.ibm.com>
++R:	Aswin Karuvally <aswin@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ L:	netdev@vger.kernel.org
+ S:	Supported
+-- 
+2.48.1
 
-Ack.
