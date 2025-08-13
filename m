@@ -1,80 +1,80 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0869B2BE7A5
-	for <linux-s390@vger.kernel.org>; Wed, 13 Aug 2025 20:30:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D1D82628D
+	for <linux-s390@vger.kernel.org>; Wed, 13 Aug 2025 20:30:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755117039; cv=none; b=STnrHAUAWhqhKdK/pzEMYPpqdMkeCtak4mEvXxI6PjK0q+/SXoqBzjTMCGPrri0m+vwY2uETE/zYy9apco1CTu+F5iRIUUNcJk+D6qTOc93fc+lCB4oU7N8fn9mBJC3He38ku7aXrlbRVh79sCt5MWR9BvTb2i6bEz/qYDGpvl0=
+	t=1755117042; cv=none; b=gABpHUuiua+m9HdVkvIDv0XVeUApXR/GNofI7jGvzxO5QILrTBh03rz6eafah7h4+oWR0CMeNeYaAKWtHJXNdU5Qvih3/VnJlMRLdItGr51Ykk1mv8qCWcc2ZJcMjU4ucJw7bBlWNZ9Ih4p7tduS2GwvSMkTgf66+tFZeHoXRhs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755117039; c=relaxed/simple;
-	bh=TUWUvUZoTPLkbh4j8BITpAkVoVy6W3JXAa84nclCMwU=;
+	s=arc-20240116; t=1755117042; c=relaxed/simple;
+	bh=mcdXn545T9iczKIurqQ/FlGNxvpjg61xSkqMywCy0lc=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=V13cQLgecyqjGHWHgj3ImCpgKqbCV6c8M/1O+jaw02Omk38AH2dAemozZXZAUktm1mEiQAzog/5iRCvNeC6UIKf4wI5WNyVsaQVINpSZaZORX8IzmNHd8R7Rc3lkoCjBCjA8BSDAHTOViKygXX9S2PJum/bOv6wnvE62d9JPdk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ADIeVCv9; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=klkmtx+S81krc2yjpW/yjWiaGrav/Eeq64TbnObJXZ0GaMrLRdPcFIf+XbjCBHlKuaE2TVXqPJb0ByVF4KSk9IAv5fzzameuL4sXFv17A9YlGW+0ow2+HQHgev20QFCnyM2h8KcB+sO9uvpiobBE+TX56nJJi50IHmCpCc94AQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FgFf+LRn; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ADIeVCv9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FgFf+LRn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755117034;
+	s=mimecast20190719; t=1755117039;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ybiuLaukfgYUnCV8dSXZqE5iKES2KXuJCfBdh1/Gwr8=;
-	b=ADIeVCv9/hgSEbTpBi2UkaVnVRQX/APB/T3h1lHcFJ62Nav5d3i7c4Rkf74zggmkfHil2X
-	u+yYIRC4JcQqyyown/7wHkXJ4bJi2oTIRxvRzcPWN5EQROcPK2Ylz1G3uUicL9ZOpTfj9U
-	FBi00KiG+Bp8Co+0JXdlEBeM3IcFoac=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=+BI+9iAXPQA3xNCjPJYTJgadfit0AjGO1DF6bqEY2VU=;
+	b=FgFf+LRnIDUnu3MB/gIuYQBK2/aLy/JReLTkgQLUq9HKnzkWZdNbdizt8Dlo0p4kj9svNS
+	UAeYtETCYmvr1YioWcRnHylCICXOZ+oBpGlAPDjj+iaAfs07qcumJ6g98w/8ePVVwadQ0a
+	kMonOroUYo72L+0fvPYMUxANKVSOG84=
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
+ [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-212-YHGdl0Y5MMOF8loab45iUQ-1; Wed, 13 Aug 2025 16:30:33 -0400
-X-MC-Unique: YHGdl0Y5MMOF8loab45iUQ-1
-X-Mimecast-MFC-AGG-ID: YHGdl0Y5MMOF8loab45iUQ_1755117033
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-3e5700a5525so696205ab.3
-        for <linux-s390@vger.kernel.org>; Wed, 13 Aug 2025 13:30:33 -0700 (PDT)
+ us-mta-30-CdAQmZsGPR-Btt6ITyqIxA-1; Wed, 13 Aug 2025 16:30:37 -0400
+X-MC-Unique: CdAQmZsGPR-Btt6ITyqIxA-1
+X-Mimecast-MFC-AGG-ID: CdAQmZsGPR-Btt6ITyqIxA_1755117037
+Received: by mail-il1-f200.google.com with SMTP id e9e14a558f8ab-3e56ffd00ccso670195ab.1
+        for <linux-s390@vger.kernel.org>; Wed, 13 Aug 2025 13:30:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755117032; x=1755721832;
+        d=1e100.net; s=20230601; t=1755117037; x=1755721837;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ybiuLaukfgYUnCV8dSXZqE5iKES2KXuJCfBdh1/Gwr8=;
-        b=W9KBN94iqEcrwOMAcnnY1qN9FNVqQ6cgrarkQgBKfUL231xW70yeEP9WaS8ZJdiLHx
-         A+NEQs8k7/AMMRihtVtAqmqVYaqNMgcWkJsb7Mj1dHCX5xGrkJ3P3BGpDOctnhsvgU2w
-         T2yI1lRA3/pVgcFU8E9ZVr+VW6ssE4iFBqvCSKT12KYAo9xkhHJmphW1eesPL1uDsJHa
-         QyU1lEaR3jirLQG+zS5ZAhVPqnu5zu+cOwZPUcqnKXXJBvhz9dPFS+X8GsqfdPzpFEbb
-         r++vFyOXH09v/hB0u5Qpcbc7M/YEwQGu39eGu4FIdkKrVH2Wzny1PfKH+HQiak7WNvDu
-         q+LA==
-X-Gm-Message-State: AOJu0YxzWe1Ja6BaxRNbfGvMhOBHytGh6QWcajgBDaAEuf2wYVGGjNG9
-	yFrBT/XlIFFBpV/t/q6zHNMYnBAUlq6xO6ZT8qGfC92fZ3OUH0rj6wTO/ENLuNukIeAGijFA/oG
-	BVBgCvkG3XVXHGW2FTj2P/vJTFjhWdn2R2jqDtexY52i46RaRxc7WncysGhfvZio=
-X-Gm-Gg: ASbGncsw1xY4j1VE6/tqiuHST3tfCdKInym20d87sboLPwTaVy/3eNHgcny8/qVrtPR
-	EEDkzx9tXsq/LJa+myET6OCHiNkbFg9e5PR0w5oqfHdokzkmq4AmPuaxnWqAEiEg81Uug2F4bfB
-	S/jNhPyN+Axw0tlY/YrrcSNql9nEYd6qnctG3EWp1aIdbMQz2UOEU9/1a2wvrm2DHKe8Q//d07S
-	R36Js5DcqSieH5pTRH5CeFxZyDakwZjHuavovLeyPx7uVtPXathtxa19ObSkizyZlhunUZ4RcNA
-	BeSd+sKyWFPR5oyLFLroBmrntaoQ6WaMgs753q+Zc/A=
-X-Received: by 2002:a05:6e02:4801:b0:3e5:6882:661e with SMTP id e9e14a558f8ab-3e568826ad7mr13160285ab.1.1755117032065;
-        Wed, 13 Aug 2025 13:30:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGcKo+ouYURgN6xzgrRL/vMnntYrb2krbn/TmGX1YtA8BbnW1ZDyxxp/DIRh8HDMtndTjAL+g==
-X-Received: by 2002:a05:6e02:4801:b0:3e5:6882:661e with SMTP id e9e14a558f8ab-3e568826ad7mr13160095ab.1.1755117031676;
-        Wed, 13 Aug 2025 13:30:31 -0700 (PDT)
+        bh=+BI+9iAXPQA3xNCjPJYTJgadfit0AjGO1DF6bqEY2VU=;
+        b=q01159wiNJ9aLxfFyX7yV9TzTZKKKDyZksetfZtKbXXOweT0gBIGELRyiDaDk47AUr
+         H3uSuDPZoTHbPtfY12lpTtv5wHrcpq5hhbE3RCWySxQV7QFAfM79zvNkQFUES0hXXrDW
+         f2pWAM4+OyRkHYgvlkLID9kVFLMzIFgC6I/ZbqAPt/pR8+L5fUaZQCYQkGI4Q3gc0LVx
+         vIZPZ74KbA8f5F7UhD94CG7Q8F0OKIYFNfvQh12U+XyaT9qs17u5dXCfd+W6a3Jf+w8s
+         5UhT6Z99qtods0MdORdsHL2eP89f/ldxaWu5/HnE6LF/woDDpLwSR1W3u67Z/etN0uCd
+         s0/w==
+X-Gm-Message-State: AOJu0YxqceYB5nbGgHEUTvDIpN+0fVuTYduXslW/8HShfImN9X2wZSvR
+	M/tNgfDyj49HJEqXEQT7N8YgLKGmOfAFgYkOof93xYqbUgBahAYVj+cBcN0BKTEnlnve0qHCeDz
+	fA2rqNdZXCOh0kQ/y/Ncr6SJE24N75NNmg76QhFq9zHkYpCkPltHrHMRVkDN6v8I=
+X-Gm-Gg: ASbGncsVxakwI/IX5qiB8ISj/WvSsM3e1HqcWKevBXgCd56liAbLw2TxoEsN8i76aRU
+	x4eMshuspIsgV7lGfk6GGnphp6yH8Gxz/T5oClIZyqwzuoKie+8/vQb+++n5+J5/d4ScI4H0qee
+	WLFhH0L6rlzqKEUQmHdCEqZfxH1MbF9F34seh5oeYJUUD5ROj5JpAkDMFta9RI5HoOzyX1at14x
+	fWk3Plti20F9PfqzojMnzaMoALloMCWWHF0h84SrUA8u1bFfC0xXqumjBe8Xy0D14p8IQTTLerL
+	7eHjZvb7+En2D+i/5PDMqw4uWnjOUam8ZA42m2qAjK8=
+X-Received: by 2002:a05:6e02:b2e:b0:3e2:9275:60dc with SMTP id e9e14a558f8ab-3e56750457emr19692495ab.7.1755117037091;
+        Wed, 13 Aug 2025 13:30:37 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGWKByLUCJANfJjFdntgzUouQryuRTSs8eTS8v1GZ/BIcQp6Rqz8qHwqV82SCnUE7c5PEq/xA==
+X-Received: by 2002:a05:6e02:b2e:b0:3e2:9275:60dc with SMTP id e9e14a558f8ab-3e56750457emr19692375ab.7.1755117036671;
+        Wed, 13 Aug 2025 13:30:36 -0700 (PDT)
 Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-50ae99cff85sm4118311173.37.2025.08.13.13.30.30
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-50ae997b3acsm4070617173.13.2025.08.13.13.30.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Aug 2025 13:30:30 -0700 (PDT)
-Date: Wed, 13 Aug 2025 14:30:28 -0600
+        Wed, 13 Aug 2025 13:30:35 -0700 (PDT)
+Date: Wed, 13 Aug 2025 14:30:34 -0600
 From: Alex Williamson <alex.williamson@redhat.com>
 To: Farhan Ali <alifm@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
  linux-kernel@vger.kernel.org, schnelle@linux.ibm.com,
  mjrosato@linux.ibm.com
-Subject: Re: [PATCH v1 4/6] vfio-pci/zdev: Setup a zpci memory region for
- error information
-Message-ID: <20250813143028.1eb08bea.alex.williamson@redhat.com>
-In-Reply-To: <20250813170821.1115-5-alifm@linux.ibm.com>
+Subject: Re: [PATCH v1 5/6] vfio-pci/zdev: Perform platform specific
+ function reset for zPCI
+Message-ID: <20250813143034.36f8c3a4.alex.williamson@redhat.com>
+In-Reply-To: <20250813170821.1115-6-alifm@linux.ibm.com>
 References: <20250813170821.1115-1-alifm@linux.ibm.com>
-	<20250813170821.1115-5-alifm@linux.ibm.com>
+	<20250813170821.1115-6-alifm@linux.ibm.com>
 X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -85,26 +85,128 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Wed, 13 Aug 2025 10:08:18 -0700
+On Wed, 13 Aug 2025 10:08:19 -0700
 Farhan Ali <alifm@linux.ibm.com> wrote:
-> diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-> index 77f2aff1f27e..bcd06f334a42 100644
-> --- a/include/uapi/linux/vfio_zdev.h
-> +++ b/include/uapi/linux/vfio_zdev.h
-> @@ -82,4 +82,9 @@ struct vfio_device_info_cap_zpci_pfip {
->  	__u8 pfip[];
->  };
->  
-> +struct vfio_device_zpci_err_region {
-> +	__u16 pec;
-> +	int pending_errors;
-> +};
-> +
->  #endif
 
-If this is uapi it would hopefully include some description, but if
-this is the extent of what can be read from the device specific region,
-why not just return it via a DEVICE_FEATURE ioctl?  Thanks,
+> For zPCI devices we should drive a platform specific function reset
+> as part of VFIO_DEVICE_RESET. This reset is needed recover a zPCI device
+> in error state.
+> 
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  arch/s390/pci/pci.c              |  1 +
+>  drivers/vfio/pci/vfio_pci_core.c |  4 ++++
+>  drivers/vfio/pci/vfio_pci_priv.h |  5 ++++
+>  drivers/vfio/pci/vfio_pci_zdev.c | 39 ++++++++++++++++++++++++++++++++
+>  4 files changed, 49 insertions(+)
+> 
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index f795e05b5001..860a64993b58 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -788,6 +788,7 @@ int zpci_hot_reset_device(struct zpci_dev *zdev)
+>  
+>  	return rc;
+>  }
+> +EXPORT_SYMBOL_GPL(zpci_hot_reset_device);
+>  
+>  /**
+>   * zpci_create_device() - Create a new zpci_dev and add it to the zbus
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 7dcf5439dedc..7220a22135a9 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -1227,6 +1227,10 @@ static int vfio_pci_ioctl_reset(struct vfio_pci_core_device *vdev,
+>  	 */
+>  	vfio_pci_set_power_state(vdev, PCI_D0);
+>  
+> +	ret = vfio_pci_zdev_reset(vdev);
+> +	if (ret && ret != -ENODEV)
+> +		return ret;
+> +
+>  	ret = pci_try_reset_function(vdev->pdev);
+>  	up_write(&vdev->memory_lock);
+
+You're going to be very unhappy if this lock isn't released.
+
+>  
+> diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
+> index a9972eacb293..5288577b3170 100644
+> --- a/drivers/vfio/pci/vfio_pci_priv.h
+> +++ b/drivers/vfio/pci/vfio_pci_priv.h
+> @@ -86,6 +86,7 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+>  				struct vfio_info_cap *caps);
+>  int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
+>  void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
+> +int vfio_pci_zdev_reset(struct vfio_pci_core_device *vdev);
+>  #else
+>  static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
+>  					      struct vfio_info_cap *caps)
+> @@ -100,6 +101,10 @@ static inline int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+>  
+>  static inline void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+>  {}
+> +int vfio_pci_zdev_reset(struct vfio_pci_core_device *vdev)
+> +{
+> +	return -ENODEV;
+> +}
+>  #endif
+>  
+>  static inline bool vfio_pci_is_vga(struct pci_dev *pdev)
+> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+> index 818235b28caa..dd1919ccb3be 100644
+> --- a/drivers/vfio/pci/vfio_pci_zdev.c
+> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
+> @@ -212,6 +212,45 @@ static int vfio_pci_zdev_setup_err_region(struct vfio_pci_core_device *vdev)
+>  	return ret;
+>  }
+>  
+> +int vfio_pci_zdev_reset(struct vfio_pci_core_device *vdev)
+> +{
+> +	struct zpci_dev *zdev = to_zpci(vdev->pdev);
+> +	int rc = -EIO;
+> +
+> +	if (!zdev)
+> +		return -ENODEV;
+> +
+> +	/*
+> +	 * If we can't get the zdev->state_lock the device state is
+> +	 * currently undergoing a transition and we bail out - just
+> +	 * the same as if the device's state is not configured at all.
+> +	 */
+> +	if (!mutex_trylock(&zdev->state_lock))
+> +		return rc;
+> +
+> +	/* We can reset only if the function is configured */
+> +	if (zdev->state != ZPCI_FN_STATE_CONFIGURED)
+> +		goto out;
+> +
+> +	rc = zpci_hot_reset_device(zdev);
+> +	if (rc != 0)
+> +		goto out;
+> +
+> +	if (!vdev->pci_saved_state) {
+> +		pci_err(vdev->pdev, "No saved available for the device");
+> +		rc = -EIO;
+> +		goto out;
+> +	}
+> +
+> +	pci_dev_lock(vdev->pdev);
+> +	pci_load_saved_state(vdev->pdev, vdev->pci_saved_state);
+> +	pci_restore_state(vdev->pdev);
+> +	pci_dev_unlock(vdev->pdev);
+> +out:
+> +	mutex_unlock(&zdev->state_lock);
+> +	return rc;
+> +}
+
+This looks like it should be a device or arch specific reset
+implemented in drivers/pci, not vfio.  Thanks,
 
 Alex
+
+> +
+>  int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
+>  {
+>  	struct zpci_dev *zdev = to_zpci(vdev->pdev);
 
