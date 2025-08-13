@@ -1,105 +1,65 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58DA285053;
-	Wed, 13 Aug 2025 16:24:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D74E622DF9E;
+	Wed, 13 Aug 2025 17:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755102287; cv=none; b=BT2zSSBRmMuHJk0IYcx55iT99Sanfzg788ljfC+vtTq+OTMyolekrwfMgjCv3N+TzxuBi97AjlBuRrZb7R0qsTjrXR6+x9Shk2h3m1/ByFXgWe913y7XGgCX9vGc+ClAkhLCnJxHyPd7Sy5RERAL+bct9CWoGDePjx9ouxxfMIg=
+	t=1755104487; cv=none; b=MikvVOR+bL/opdP5p4U0CmuUZT+GXSWgAyc3+cW9FvWNEVpuBTqMAFQldCLALD/bM2tDoUAODqqta1iRaP8m8FLhkJfnR9KQbskJiuo6fecHo1eq4IjTgS4J5EDtUrxY2r5PK20VyLzWsbtpjuUBF2r0B/JLMFT6l7FGOsh5vTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755102287; c=relaxed/simple;
-	bh=K1Qnz6FeiAMe891bHx38SnseQkGtn7jJpOFA1e7ci+8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TtNIV5327wJHOdlMm1X42tiRJtmpG9VZcmdBhq5G1HocIebBSMha/Qk75hKuaedodYuOgHTxel+F5pO6OVrVYYVkmKmsl3J3rIWdgxAHG+btFJKt5ysW57qqKk34WVjjCoXwjTn1wkwtrKyEGeKe4Ng8ft57CLpuLHItjLaqaJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NowuzJLv; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NowuzJLv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09AF3C4CEEB;
-	Wed, 13 Aug 2025 16:24:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755102287;
-	bh=K1Qnz6FeiAMe891bHx38SnseQkGtn7jJpOFA1e7ci+8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NowuzJLvoDcytU2mnlkUjH9a3VkVMtm7ue/1JeEievbLShowGrZYKS4ljQgIc4Tvt
-	 3+vYZnNOWzD9UQ8pSH9fEmYwxPiiGspKJ3H0P32SvVzl8AqitUBhqFYwGCZ45kSKAJ
-	 87/gu7vuZjna5FtZYWWUpp9S1G/8o7Ty64t0lObmjPlPr2MXYLPDtH4Sc4eAU6xND8
-	 ThhzDQ4hSAh1VB48U+GqBbKfJNoQAGi7b1yhwF4mFVAalvl713Ll6uzzSrl8gdzvsB
-	 qxd/OanAUdPmrliRUlwzqp8QiFiC+SAvfzE7ZdQVKX6a28IsBlnq34Yk6UcqsLFVxB
-	 8m4KWJEM4NWXw==
-From: SeongJae Park <sj@kernel.org>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: SeongJae Park <sj@kernel.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	Jan Kara <jack@suse.cz>,
-	Kees Cook <kees@kernel.org>,
-	David Hildenbrand <david@redhat.com>,
-	Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Nico Pache <npache@redhat.com>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>,
-	Xu Xin <xu.xin16@zte.com.cn>,
-	Chengming Zhou <chengming.zhou@linux.dev>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	David Rientjes <rientjes@google.com>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>,
-	Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Kan Liang <kan.liang@linux.intel.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Oleg Nesterov <oleg@redhat.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>,
-	Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	John Hubbard <jhubbard@nvidia.com>,
-	Peter Xu <peterx@redhat.com>,
-	Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	Matthew Wilcox <willy@infradead.org>,
-	Mateusz Guzik <mjguzik@gmail.com>,
-	linux-s390@vger.kernel.org,
+	s=arc-20240116; t=1755104487; c=relaxed/simple;
+	bh=9Z/RmbrVLmkjIv2T64d6k3xZWFq+o5FbpjFxow0TKU4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=uNb1YOWvgQo3IvoG5yOhVHm4TtQfnCxonaWfpXNgVsdlhFaUAoqRCP8Tas8pKGZ+qkugrW2bxv9bs1Fh6WbxkN1K+8tGnCEX6HwIQ1zCBpca1YXc30Q5ycnu67446Bo6rlghBaX8bkwhF7SvxgOJvjiHDudVdre81AG6QLiGaHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0CD3A12FC;
+	Wed, 13 Aug 2025 10:01:17 -0700 (PDT)
+Received: from e121345-lin.cambridge.arm.com (e121345-lin.cambridge.arm.com [10.1.196.50])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id E4DF23F738;
+	Wed, 13 Aug 2025 10:01:20 -0700 (PDT)
+From: Robin Murphy <robin.murphy@arm.com>
+To: peterz@infradead.org,
+	mingo@redhat.com,
+	will@kernel.org,
+	mark.rutland@arm.com,
+	acme@kernel.org,
+	namhyung@kernel.org,
+	alexander.shishkin@linux.intel.com,
+	jolsa@kernel.org,
+	irogers@google.com,
+	adrian.hunter@intel.com,
+	kan.liang@linux.intel.com
+Cc: linux-perf-users@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	imx@lists.linux.dev,
+	linux-csky@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
 	sparclinux@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org
-Subject: Re: [PATCH 00/10] mm: make mm->flags a bitmap and 64-bit on all arches
-Date: Wed, 13 Aug 2025 09:24:45 -0700
-Message-Id: <20250813162445.5456-1-sj@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <af5492d4-f8dc-4270-a4c6-73d76f098942@lucifer.local>
-References: 
+	linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org,
+	dmaengine@vger.kernel.org,
+	linux-fpga@vger.kernel.org,
+	amd-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	coresight@lists.linaro.org,
+	iommu@lists.linux.dev,
+	linux-amlogic@lists.infradead.org,
+	linux-cxl@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org
+Subject: [PATCH 00/19] perf: Rework event_init checks
+Date: Wed, 13 Aug 2025 18:00:52 +0100
+Message-Id: <cover.1755096883.git.robin.murphy@arm.com>
+X-Mailer: git-send-email 2.39.2.101.g768bb238c484.dirty
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -108,51 +68,138 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Wed, 13 Aug 2025 05:18:31 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
+Hi all,
 
-> On Tue, Aug 12, 2025 at 01:13:26PM -0700, SeongJae Park wrote:
-> > On Tue, 12 Aug 2025 16:44:09 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
-[...]
-> > > In order to execute this change, we introduce a new opaque type -
-> > > mm_flags_t - which wraps a bitmap.
-> >
-> > I have no strong opinion here, but I think coding-style.rst[1] has one?  To
-> > quote,
-> >
-> >     Please don't use things like ``vps_t``.
-> >     It's a **mistake** to use typedef for structures and pointers.
-> 
-> You stopped reading the relevant section in [1] :) Keep going and you see:
-> 
-> 	Lots of people think that typedefs help readability. Not so. They
-> 	are useful only for: totally opaque objects (where the typedef is
-> 	actively used to hide what the object is).  Example: pte_t
-> 	etc. opaque objects that you can only access using the proper
-> 	accessor functions.
-> 
-> So this is what this is.
-> 
-> The point is that it's opaque, that is you aren't supposed to know about or
-> care about what's inside, you use the accessors.
-> 
-> This means we can extend the size of this thing as we like, and can enforce
-> atomicity through the accessors.
-> 
-> We further highlight the opaqueness through the use of the __private.
-> 
-> >
-> > checkpatch.pl also complains similarly.
-> >
-> > Again, I have no strong opinion, but I think adding a clarification about why
-> > we use typedef despite of the documented recommendation here might be nice?
-> 
-> I already gave one, I clearly indicate it's opaque.
+[ Note I'm only CC'ing lists for now to avoid spamming nearly 100 
+  individual maintainers/reviewers while we work out the basics ]
 
-You're completely right and I agree all the points.  Thank you for kindly
-enlightening me :)
+Reviving my idea from a few years back, the aim here is to minimise
+the amount of event_init boilerplate that most new drivers have to
+implement (and so many get wrong), while also trying to establish
+some more consistent and easy-to-follow patterns for the things that
+drivers should still care about (mostly group validation).
 
+It's ended up somewhat big and ugly, so to start with I've tried to
+optimise for ease of review - based on the typical "fixes, cleanup,
+new development" order the split of the current patches is like so:
+
+* Group validation rework (patches #1-#15)
+  - Specific drivers with functional issues by inspection (#1-#7)
+  - Specific drivers where cleanup changes were non-trivial (#8-#11)
+  - Common patterns across remaining drivers (#12-#15)
+* Capabilities rework (patches #16-#18)
+* Giant bonfire of remaining boilerplate! (patch #19)
+
+If the overall idea is acceptable then a more relaxed merge strategy
+might be to look at landing the common parts first (#16-#18 and maybe
+#13), then rearrange the rest into per-driver patches, but I'm sure
+nobody wants a ~70-patch series out of the gate :)
 
 Thanks,
-SJ
+Robin.
 
-[...]
+
+Robin Murphy (19):
+  perf/arm-cmn: Fix event validation
+  perf/hisilicon: Fix group validation
+  perf/imx8_ddr: Fix group validation
+  perf/starfive: Fix group validation
+  iommu/vt-d: Fix perfmon group validation
+  ARM: l2x0: Fix group validation
+  ARM: imx: Fix MMDC PMU group validation
+  perf/arm_smmu_v3: Improve group validation
+  perf/qcom: Improve group validation
+  perf/arm-ni: Improve event validation
+  perf/arm-cci: Tidy up event validation
+  perf: Ignore event state for group validation
+  perf: Add helper for checking grouped events
+  perf: Clean up redundant group validation
+  perf: Simplify group validation
+  perf: Introduce positive capability for sampling
+  perf: Retire PERF_PMU_CAP_NO_INTERRUPT
+  perf: Introduce positive capability for raw events
+  perf: Garbage-collect event_init checks
+
+ arch/alpha/kernel/perf_event.c                |  5 +-
+ arch/arc/kernel/perf_event.c                  |  4 +-
+ arch/arm/mach-imx/mmdc.c                      | 29 ++----
+ arch/arm/mm/cache-l2x0-pmu.c                  | 19 +---
+ arch/csky/kernel/perf_event.c                 |  3 +-
+ arch/loongarch/kernel/perf_event.c            |  1 +
+ arch/mips/kernel/perf_event_mipsxx.c          |  1 +
+ arch/powerpc/perf/8xx-pmu.c                   |  3 +-
+ arch/powerpc/perf/core-book3s.c               |  4 +-
+ arch/powerpc/perf/core-fsl-emb.c              |  4 +-
+ arch/powerpc/perf/hv-24x7.c                   | 11 ---
+ arch/powerpc/perf/hv-gpci.c                   | 11 ---
+ arch/powerpc/perf/imc-pmu.c                   | 31 +-----
+ arch/powerpc/perf/kvm-hv-pmu.c                |  5 +-
+ arch/powerpc/perf/vpa-pmu.c                   | 13 +--
+ arch/powerpc/platforms/pseries/papr_scm.c     | 18 +---
+ arch/s390/kernel/perf_cpum_cf.c               |  8 +-
+ arch/s390/kernel/perf_cpum_sf.c               |  2 +
+ arch/s390/kernel/perf_pai_crypto.c            |  1 +
+ arch/s390/kernel/perf_pai_ext.c               |  1 +
+ arch/sh/kernel/perf_event.c                   |  1 -
+ arch/sparc/kernel/perf_event.c                |  4 +-
+ arch/x86/events/amd/ibs.c                     | 32 ++-----
+ arch/x86/events/amd/iommu.c                   | 15 ---
+ arch/x86/events/amd/power.c                   |  7 --
+ arch/x86/events/amd/uncore.c                  | 12 +--
+ arch/x86/events/core.c                        |  7 +-
+ arch/x86/events/intel/bts.c                   |  3 -
+ arch/x86/events/intel/cstate.c                | 16 +---
+ arch/x86/events/intel/pt.c                    |  3 -
+ arch/x86/events/intel/uncore.c                | 16 +---
+ arch/x86/events/intel/uncore_snb.c            | 18 ----
+ arch/x86/events/msr.c                         |  8 +-
+ arch/x86/events/rapl.c                        | 11 ---
+ arch/xtensa/kernel/perf_event.c               |  1 +
+ drivers/devfreq/event/rockchip-dfi.c          | 13 +--
+ drivers/dma/idxd/perfmon.c                    | 17 +---
+ drivers/fpga/dfl-fme-perf.c                   | 18 +---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pmu.c       |  4 -
+ drivers/gpu/drm/i915/i915_pmu.c               | 13 ---
+ drivers/gpu/drm/xe/xe_pmu.c                   | 13 ---
+ .../hwtracing/coresight/coresight-etm-perf.c  |  5 -
+ drivers/hwtracing/ptt/hisi_ptt.c              |  8 --
+ drivers/iommu/intel/perfmon.c                 | 28 +++---
+ drivers/perf/alibaba_uncore_drw_pmu.c         | 28 +-----
+ drivers/perf/amlogic/meson_ddr_pmu_core.c     |  9 --
+ drivers/perf/arm-cci.c                        | 56 +++--------
+ drivers/perf/arm-ccn.c                        | 34 -------
+ drivers/perf/arm-cmn.c                        | 15 +--
+ drivers/perf/arm-ni.c                         | 35 +++----
+ drivers/perf/arm_cspmu/arm_cspmu.c            | 34 +------
+ drivers/perf/arm_dmc620_pmu.c                 | 28 +-----
+ drivers/perf/arm_dsu_pmu.c                    | 26 +----
+ drivers/perf/arm_pmu.c                        | 19 +---
+ drivers/perf/arm_pmu_platform.c               |  2 +-
+ drivers/perf/arm_smmuv3_pmu.c                 | 35 ++-----
+ drivers/perf/arm_spe_pmu.c                    |  7 +-
+ drivers/perf/cxl_pmu.c                        |  6 --
+ drivers/perf/dwc_pcie_pmu.c                   | 21 +---
+ drivers/perf/fsl_imx8_ddr_perf.c              | 32 +------
+ drivers/perf/fsl_imx9_ddr_perf.c              | 27 ------
+ drivers/perf/hisilicon/hisi_pcie_pmu.c        | 25 ++---
+ drivers/perf/hisilicon/hisi_uncore_pmu.c      | 41 ++------
+ drivers/perf/hisilicon/hns3_pmu.c             | 24 ++---
+ drivers/perf/marvell_cn10k_ddr_pmu.c          | 18 ----
+ drivers/perf/marvell_cn10k_tad_pmu.c          | 12 +--
+ drivers/perf/marvell_pem_pmu.c                | 22 +----
+ drivers/perf/qcom_l2_pmu.c                    | 96 ++++++-------------
+ drivers/perf/qcom_l3_pmu.c                    | 33 ++-----
+ drivers/perf/riscv_pmu_legacy.c               |  1 -
+ drivers/perf/riscv_pmu_sbi.c                  |  3 +-
+ drivers/perf/starfive_starlink_pmu.c          | 32 ++-----
+ drivers/perf/thunderx2_pmu.c                  | 45 ++-------
+ drivers/perf/xgene_pmu.c                      | 29 ------
+ drivers/powercap/intel_rapl_common.c          |  9 +-
+ include/linux/perf_event.h                    | 10 +-
+ kernel/events/core.c                          | 35 +++++--
+ kernel/events/hw_breakpoint.c                 |  1 +
+ 78 files changed, 244 insertions(+), 1053 deletions(-)
+
+-- 
+2.39.2.101.g768bb238c484.dirty
+
