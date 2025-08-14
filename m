@@ -1,204 +1,134 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id CF63B2FFDDE;
-	Thu, 14 Aug 2025 13:50:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7C02321429;
+	Thu, 14 Aug 2025 14:17:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755179438; cv=none; b=M+/GR9OPN2EJMxsFVNsK4LgsqSsRAoHGYjzEcDiFGswpuHT4qKarraPv8hksTyh004MaJ/niIxkpiIPYV5P1hPRNYXkhgG+FYA/+4tm8h1f8QPquHq6LXMbwUISY+JvIYxHzBtAzIg81voAfaTo5oSpmmlDvAS/1TqkswRAkRQM=
+	t=1755181043; cv=none; b=mS2sQgAUs2tqEEXbg/MGGujmxWgzD1ZmhEi8lI48qjcbdpaokwabasOaLiJNyZZvioi2iWZqhgtJoN43edIjKDB17gqry993dbImEIfmarCM8FCzMGRcSvAlwLSTrCYImTK7jCqii35FArkcKAhn8VcFq9BhogWdFoFG4pDU31o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755179438; c=relaxed/simple;
-	bh=vFczm8e5OaiPzDro8LfC6emO/k/Igt0MHXU7T1y7z8g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HTFYqDf5JsR6ImuBh7i77+YLW1BXiaPjEYt5q/9AAS8X5+TaSndzVRHybOQvPGRUOrJegKoHTOef6GcilvK5Wf6QZaCRfDft1d5uvGkFOmbv8jKzEb952lr62rUZ8vBdXsmMbgbeJLV985rBdVxHAijOggqZX6qKllGUfSU9t60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4c2mf83rJXz9sSN;
-	Thu, 14 Aug 2025 15:43:12 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DBzqxKLEhtqg; Thu, 14 Aug 2025 15:43:12 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4c2mf82mg0z9sSH;
-	Thu, 14 Aug 2025 15:43:12 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 48B088B764;
-	Thu, 14 Aug 2025 15:43:12 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id u4JdrB2diOCo; Thu, 14 Aug 2025 15:43:12 +0200 (CEST)
-Received: from [192.168.235.99] (unknown [192.168.235.99])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id C584A8B763;
-	Thu, 14 Aug 2025 15:43:09 +0200 (CEST)
-Message-ID: <86186254-b2c6-4818-af0a-4eb67d90e501@csgroup.eu>
-Date: Thu, 14 Aug 2025 15:43:09 +0200
+	s=arc-20240116; t=1755181043; c=relaxed/simple;
+	bh=a5LvrdOjd61BgcujBkjsB9RX4jF3+FOqLq8LJGv2MEA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GysKpjO0bchaZ9uO2je0gU00j5Vp0XDvAfjDCu5PhaYizi1n37Icj9Yjt/nOvawudD7s7EKAawfr0xwtRFENPnt39IFkP3yjQNPIU+ZvSD6Wn8Nr+G/I2MJwgC4qJbn4tJXBCEChkis0dSihii2PCctPs0XEpP1WWjaD4fcX/8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dm2g8BH9; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dm2g8BH9"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57EC9eai015942;
+	Thu, 14 Aug 2025 14:17:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=xitHk/pMp/QQRbnoNBeobWtSukHr3B
+	tvqIQXx8tyGSI=; b=dm2g8BH9X+VPUpX0ORW4FXmBPSt0q4HQNVvtqScKT/Y7lR
+	x+ZvZBs4brlmfLxw3tfSolDHU/3qInCOIubRjpFyL59VhiT986Iau4XUhfg/vSJh
+	dogiHlUowgPQl83IVumxbBflYIw0b1fYcHnEcOoE06B7GpESh//GQPxohclOx85S
+	o6KgeEOdZfcBzaq71w+3iNJer4oLZnnR57inLrSu7U5y/YCl4lIRfS6ip3qcA/4C
+	KF5lTrlvO+q9j0XJ4Qe6kXEZz15poLgKGciNc4fGz8OKZH3//ybm10fsMQJSNj+g
+	6SVOmaTI0ur5a1ZPzwHBvSZ9SdLcCqAPmRaU5Gtw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dx14tges-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Aug 2025 14:17:07 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57EE4nZt021961;
+	Thu, 14 Aug 2025 14:17:06 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dx14tgep-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Aug 2025 14:17:06 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57EAGHus025623;
+	Thu, 14 Aug 2025 14:17:05 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 48ejvmm91c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Aug 2025 14:17:05 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57EEH19N49414634
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 14 Aug 2025 14:17:02 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E12AE20043;
+	Thu, 14 Aug 2025 14:17:01 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A245720040;
+	Thu, 14 Aug 2025 14:17:01 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.133])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 14 Aug 2025 14:17:01 +0000 (GMT)
+Date: Thu, 14 Aug 2025 16:16:58 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexey Gladkov <legion@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>,
+        Nicolas Schier <nicolas.schier@linux.dev>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Petr Pavlu <petr.pavlu@suse.com>, Luis Chamberlain <mcgrof@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Daniel Gomez <da.gomez@samsung.com>, linux-kernel@vger.kernel.org,
+        linux-modules@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH v6 9/9] s390: vmlinux.lds.S: Reorder sections
+Message-ID: <20250814141658.7684Fd6-hca@linux.ibm.com>
+References: <cover.1755170493.git.legion@kernel.org>
+ <919570dc048786c4d07affaec4b761811c6c21c5.1755170493.git.legion@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 00/24] vdso: Reject absolute relocations during build
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>,
- Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
- Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook <kees@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>,
- Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>,
- =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>,
- Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>,
- Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
- Danilo Krummrich <dakr@kernel.org>, Nicolas Schier <nicolas.schier@linux.dev>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
- linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org,
- linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
- Arnaldo Carvalho de Melo <acme@redhat.com>,
- Alexandre Ghiti <alexghiti@rivosinc.com>
-References: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Content-Language: fr-FR
-In-Reply-To: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <919570dc048786c4d07affaec4b761811c6c21c5.1755170493.git.legion@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZUHBlsY6Q0Jh5y8HGhdRNiGKb4yCQavS
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODEyMDIyNCBTYWx0ZWRfX9xH1VxH7a5Cr
+ j7aQo8bnSTLGXMtUWVHu3eWBdPNq3vy8W1uvZKFn0bTkrMUJ+YG7b/dR9HCAWvAkMJwTmkKVBKM
+ aEc9V5XagKrDGaD0MMKL8vfSVAk/dVUYbK/LoZ6L/PtlFgkG0rVwj5A3XoTVJx1OIyvgkFmdxZ3
+ uT/2sbj4bLRuti4UGbxAu2AY39AKq8ffgpwsetpHnL6ogjNqC/joDWghtFRes7g+nQoHiqltkkt
+ huuePs6oP5NLyN/4xJ/+5zyqyTRXdoGuKybPlqVjU13w7R0WY91XRDh1U90wK0tALhuI2JKgP+S
+ 4KHK7PAEy8FKzKDxL9frcSAlWo9Z3Y4IKayoQgZxmb+kHwWG/7EdlVhcrqJmldfXr4KD482iiqy
+ xspW36pw
+X-Proofpoint-GUID: jO10P_AygBVVuX9ezUhXEJ3Vyix7YA86
+X-Authority-Analysis: v=2.4 cv=fLg53Yae c=1 sm=1 tr=0 ts=689defe3 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=QyXUC8HyAAAA:8
+ a=QIhr-27iAAAA:8 a=tkzU3b79AAAA:8 a=VnNF1IyMAAAA:8 a=MT9g-S0Fkuafz34HD30A:9
+ a=CjuIK1q_8ugA:10 a=cgaYBWEFosGJW4rWv5Lf:22 a=uCXMw2ptROQ0LevMJYzM:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-13_02,2025-08-14_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 clxscore=1015 spamscore=0 priorityscore=1501 impostorscore=0
+ phishscore=0 malwarescore=0 bulkscore=0 suspectscore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508120224
 
-
-
-Le 12/08/2025 à 07:44, Thomas Weißschuh a écrit :
-> The compiler can emit absolute relocations in vDSO code,
-> which are invalid in vDSO code.
-> Detect them at compile-time.
-
-I'm a bit puzzled with this series.
-
-If I understand correctly, the check will be done only when you have 
-RUST available ?
-
-I wouldn't expect having RUST to build a C kernel.
-
-By the way, aren't relocations already detected by command 
-cmd_vdso_check in lib/vdso/Makefile.include , using readelf ? Why is a 
-new tool needed and why does it have to be written in RUST langage ?
-
-Thanks
-Christophe
-
+On Thu, Aug 14, 2025 at 03:07:17PM +0200, Alexey Gladkov wrote:
+> Reorder the sections to be placed in the default segment. The
+> .vmlinux.info use :NONE to override the default segment and tell the
+> linker to not put the section in any segment at all.
 > 
-> libc elf.h is missing some of the relocation constants,
-> so make user of the kernels own UAPI headers instead.
+> >> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' not in segment
+> >> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' not in segment
+> >> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modinfo' not in segment
 > 
-> Kbuild and Rust folks: This contains custom definitions of hostprog
-> bindgen and rust library commands.
-> These are currently only defined inside the subsystem directory.
-> Let me know if they should go into scripts/Makefile.host.
-> 
-> This will conflict with my SPARC64 generic vDSO patches [0].
-> If both end up being applied at the same time, please leave out commit
-> 'vdso/vdsocheck: Drop the transitional kconfig option' from this series.
-> 
-> [0] https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.kernel.org%2Flkml%2F20250724-vdso-sparc64-generic-2-v1-0-e376a3bd24d1%40linutronix.de%2F&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C3f03f6747325451ee98808ddd9634f27%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C638905742749561064%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=HacF%2FvlUoxA9P6fTiN1ytw49gwayX1wNE7IxfEkFutE%3D&reserved=0
-> 
-> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202506062053.zbkFBEnJ-lkp@intel.com/
+> Signed-off-by: Alexey Gladkov <legion@kernel.org>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
 > ---
-> Changes in v4:
-> - Replace the inline shell logic with a dedicated build-time tool
-> - Link to v3: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.kernel.org%2Fr%2F20250611-vdso-absolute-reloc-v3-0-47897d73784b%40linutronix.de&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C3f03f6747325451ee98808ddd9634f27%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C638905742749584369%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=7NxAhutk6IXl%2B3fe1kkZEzhZz6CWye%2FVAcFO%2BgtS4uo%3D&reserved=0
-> 
-> Changes in v3:
-> - Drop already applied bugfix for arm64
-> - Disable LTO for the riscv vDSO, as it is incompatible
-> - Link to v2: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.kernel.org%2Fr%2F20250430-vdso-absolute-reloc-v2-0-5efcc3bc4b26%40linutronix.de&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C3f03f6747325451ee98808ddd9634f27%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C638905742749600546%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=uv0qMS5qq0DovLHtxfRvT42atbJEkztylpOS8zt6bJ4%3D&reserved=0
-> 
-> Changes in v2:
-> - Link to openend (invalid) GCC bug containing more explanations
-> - Refine commit messages
-> - Don't fail on commit absolute relocations in debug info
-> - Link to v1: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.kernel.org%2Fr%2F20250429-vdso-absolute-reloc-v1-0-987a0afd10b5%40linutronix.de&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C3f03f6747325451ee98808ddd9634f27%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C638905742749616057%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=K5iwoz0Xqc8kheotWEc4M2KrZ7UVMDObOyFfCPj4N8Q%3D&reserved=0
-> 
-> ---
-> Thomas Weißschuh (24):
->        elf, uapi: Add a header for relocation constants
->        x86/elf, um/x86/elf: Move relocation constants to UAPI
->        ARM: elf: Move relocation constants to UAPI
->        arm64: elf: Move relocation constants to UAPI
->        powerpc/elf: Move relocation constants to UAPI
->        riscv: elf: Move relocation constants to UAPI
->        LoongArch: Move relocation constants to UAPI
->        s390/elf: Move relocation constants to UAPI
->        MIPS: ELF: Move relocation constants to UAPI
->        tools headers UAPI: Sync ELF headers with the kernel sources
->        vdso: Add the vdsocheck tool
->        x86/vdso: Enable the vdsocheck tool
->        ARM: vdso: Enable the vdsocheck tool
->        arm64: vdso: Enable the vdsocheck tool
->        powerpc/elf: Add 32-bit REL16 relocation definitions
->        powerpc/vdso: Enable the vdsocheck tool
->        riscv: vdso: Deduplicate CFLAGS_REMOVE_* variables
->        riscv: vdso: Disable LTO for the vDSO
->        riscv: vdso: Enable the vdsocheck tool
->        LoongArch: vDSO: Enable the vdsocheck tool
->        s390/vdso: Enable the vdsocheck tool
->        MIPS: ELF: Add more PC-relative relocation definitions
->        MIPS: vdso: Enable the vdsocheck tool
->        vdso/vdsocheck: Drop the transitional kconfig option
-> 
->   arch/arm/include/asm/elf.h          |  24 --
->   arch/arm/vdso/Makefile              |   4 +-
->   arch/arm64/include/asm/elf.h        |  55 ----
->   arch/arm64/kernel/vdso/Makefile     |   4 +-
->   arch/loongarch/include/asm/elf.h    | 100 ------
->   arch/loongarch/vdso/Makefile        |   4 +-
->   arch/mips/include/asm/elf.h         |  53 ---
->   arch/mips/vdso/Makefile             |   8 +-
->   arch/powerpc/include/uapi/asm/elf.h | 201 ------------
->   arch/powerpc/kernel/vdso/Makefile   |   4 +-
->   arch/riscv/include/uapi/asm/elf.h   |  66 ----
->   arch/riscv/kernel/vdso/Makefile     |  11 +-
->   arch/s390/include/asm/elf.h         |  83 -----
->   arch/s390/kernel/vdso32/Makefile    |   4 +-
->   arch/s390/kernel/vdso64/Makefile    |   4 +-
->   arch/x86/entry/vdso/Makefile        |   6 +-
->   arch/x86/include/asm/elf.h          |  34 --
->   arch/x86/um/asm/elf.h               |  33 --
->   include/uapi/linux/elf-r.h          | 631 ++++++++++++++++++++++++++++++++++++
->   include/uapi/linux/elf.h            |   1 +
->   lib/vdso/Makefile                   |   2 +
->   lib/vdso/Makefile.include           |  17 +
->   lib/vdso/check/.gitignore           |   3 +
->   lib/vdso/check/Makefile             |  28 ++
->   lib/vdso/check/elf.rs               | 488 ++++++++++++++++++++++++++++
->   lib/vdso/check/vdsocheck.rs         | 279 ++++++++++++++++
->   tools/include/uapi/linux/elf-em.h   |  71 ++++
->   tools/include/uapi/linux/elf-r.h    | 631 ++++++++++++++++++++++++++++++++++++
->   tools/include/uapi/linux/elf.h      | 112 ++++++-
->   29 files changed, 2277 insertions(+), 684 deletions(-)
-> ---
-> base-commit: 5180c6526acc9f1cb58f8b11fba67583c22e0854
-> change-id: 20250428-vdso-absolute-reloc-a226293c1761
-> 
-> Best regards,
+>  arch/s390/kernel/vmlinux.lds.S | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 
+Is there any reason why you didn't reorder the patches?
+https://lore.kernel.org/all/aIeUq0qYXoNIePwd@example.org/
