@@ -1,155 +1,110 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E12B42FCC1E
-	for <linux-s390@vger.kernel.org>; Thu, 14 Aug 2025 12:14:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B0AB2F99BF;
+	Thu, 14 Aug 2025 13:08:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755173643; cv=none; b=YBGC//M4aNGmX24aZHtfwGtpsNfox8/omFlv0mjXQQ3eX+JkH+zvjePHZenqzJ6FOD20uhGNVFtJIgjP+DKIlGv9ydMp/xWU0Z+txH02RbaYdJDZGbViZ2oWc6luLxwkCaDq5fP1ytW2dMlChfPvYib775gFRvGrKpy0/EqDuGo=
+	t=1755176905; cv=none; b=HtMm2uxfHmwyopoaS7obVsF3ZET0tPrfcyD2yoMmGi5h8UU4nyuP70iFh5JzwJZ0H1tfiBIdNDCgf+7rBjMknnz6doRbUkA/UpAyRpb6vtCi9fuCz49HnWU5OUCnI0b8IeBt60RLfOkDKrvNUGWAEP8+mEuN9NP7cvLA4SVEyoM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755173643; c=relaxed/simple;
-	bh=7OkosJayZNyd7W5DiR51RlYCLyhyPj7uX5/qhYsgGg0=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=LK/egTsyb1SkgoJcQhMv8gLYxWY82/YkpTLqRjL/QBrPSQ655utmD1al/+PDabE9O/KKQtyYzGju8tN4xGYu13yiTer5KINqJjeX1n1Pbr3JitO9Vut6PoWT23SVhiomDL7GBcVcPJOsViLg+3+wdCQhRXXjbOL51OFwnKBpI1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lLqfi9oA; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1755176905; c=relaxed/simple;
+	bh=jMZ5LWSabVQ7mCxQmeFMV6u0UXjP1UdNg7+VrYxFf58=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=K3B2OYjsVMxAPwMBIeL9seUqXxihy59ERKnXrS1Hnd8pbDm7QNlXgi+KN/hpSgafNuXbXuNjadz6eISXAVvELi85zR8vKNdJh17kEHM5d77nm9GQVdQ7rcXhx+1LtJCeF9vDk8Z701Y6o0nMwmjkgp4p8WXeTQNtVo5mAnFHrt0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F/8BSErw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lLqfi9oA"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57EBucNZ016034;
-	Thu, 14 Aug 2025 12:13:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=uGPSRYSjdDS4rqIxYoZOyNbJWOeOb1F0KQFrZb9kQXo=; b=lLqfi9oA1pNo
-	vLvE/9j57+c45781NxsAw/o5YoN7J8b/274ztkw99/j6iUnTjjpMDrcD1HTilwBe
-	oU622CXJRq/ixpVWq/LCpYFp28XPM2A6ICccEqP6zO3FpIUUSqoNAIe3PIk77EFC
-	uaiN3oNS1umM4qa84FgsKezlPKr2B0TlKCnZmD4DtsjRYxVdfeWKMhdYFDNp1zLj
-	a10Qb/kl+gImyrRLeYdHDKECxpB6bzS/0OLy4UHWhD0Jjz2mvtccIm0uMlvw9UKd
-	FJurrUIkbIQPajJvnJGRCSorCrwcY/jqvQFDGtj0iN+KciXJFQYfawVl7vY4FTYd
-	pqRJK8j0Wg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dvrp9p23-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Aug 2025 12:13:51 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57ECCH0c024167;
-	Thu, 14 Aug 2025 12:13:50 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dvrp9p20-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Aug 2025 12:13:50 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57EA8rJW025654;
-	Thu, 14 Aug 2025 12:13:49 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 48ejvmkuay-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 14 Aug 2025 12:13:49 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57ECDlDT29754032
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 Aug 2025 12:13:48 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D3F2A58055;
-	Thu, 14 Aug 2025 12:13:47 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E70935804B;
-	Thu, 14 Aug 2025 12:13:46 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 14 Aug 2025 12:13:46 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F/8BSErw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D30C4CEF6;
+	Thu, 14 Aug 2025 13:08:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755176905;
+	bh=jMZ5LWSabVQ7mCxQmeFMV6u0UXjP1UdNg7+VrYxFf58=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=F/8BSErwOlzjNvXlBbW8wsUkaOv5U5m9Z6BZzeV8784rYDrphzP/rg3FjIKsH5A9q
+	 5zTltUzyyiQQXW1gFmPwbd1eQD1qSZhDUT3asNKqQPBZx5RjoKFmaxTNsP9IJU7vqJ
+	 mpcgiDpxeqx9viOwNnTHTKJxgEUoPVSPCkcawFGqGH4Lrb5kBKLjqYA0xhdPD00FLO
+	 v/hggaOKUmGIT9Xg1m5GLasuWhmI7MRIrYvEJ426T0+zz/kft7t6QLohMMzTNCG8hK
+	 JBHqAHg/km5o/pOJ8t4O9t4/JbEGLhWFvJ4tDioBkihAxRNL2w6y7kO5esc/EjN78v
+	 99IDSzPfZkmxw==
+From: Alexey Gladkov <legion@kernel.org>
+To: Nathan Chancellor <nathan@kernel.org>,
+	Nicolas Schier <nicolas.schier@linux.dev>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Daniel Gomez <da.gomez@samsung.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-kbuild@vger.kernel.org,
+	Alexey Gladkov <legion@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH v6 9/9] s390: vmlinux.lds.S: Reorder sections
+Date: Thu, 14 Aug 2025 15:07:17 +0200
+Message-ID: <919570dc048786c4d07affaec4b761811c6c21c5.1755170493.git.legion@kernel.org>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <cover.1755170493.git.legion@kernel.org>
+References: <cover.1755170493.git.legion@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Thu, 14 Aug 2025 14:13:46 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller"
- <davem@davemloft.net>,
-        Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-        ifranzki@linux.ibm.com, agk@redhat.com, snitzer@kernel.org,
-        gmazyland@gmail.com
-Subject: Re: [PATCH v5 0/2] dm-integrity: Implement asynch digest support
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <51dc2ccd-c06d-e719-9568-35a8d3a1010f@redhat.com>
-References: <20250722133832.319226-1-freude@linux.ibm.com>
- <5fc734af-a2c1-b7bb-85fb-cba6b8722c13@redhat.com>
- <56aa9892c7825a443f8a6153e17b4c46@linux.ibm.com>
- <20250725173811.GA3642931@google.com>
- <dbe165f661d11a4bed8d7c806a9eeb5e@linux.ibm.com>
- <51dc2ccd-c06d-e719-9568-35a8d3a1010f@redhat.com>
-Message-ID: <7e1362bfc8180f3cef4dd9f8c0f0ff02@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODEyMDIxOSBTYWx0ZWRfX+LjTisUBqMRb
- lsv/YadauX8ijJowIazwiKtWeQmcGeEAqTRJtUiBM+WnGhaWB8+HLl/T62sQtTyy4NHNIrVb6ES
- khIsrt0dRhYS6anxql+aEC/oOObQeebDZIvu+PuosIhZpJB5uGCyoICvpKzFhZ8+mmdYkRAMyg7
- WHegN+YHfhhQxuFr24iU/EZsk1Z51mYjyqf9ZV1EA1PDN6N2emjK9mZKbByCZF3QSMLGVdMjaiY
- hoacAquB5ItWNMXthbzYwxDvZrje8Koe544YRR1qoN/aZJ9rFbTrmLTnQvFe76tyxMjBgf52G9d
- iD0hLw+F07MlPxO4PbGOEYShTy7/o2XlwvGQI2Hi01PJTf23wokISTIs2gPjyGNF6RcskDfHo/5
- xumT1HxO
-X-Authority-Analysis: v=2.4 cv=GrpC+l1C c=1 sm=1 tr=0 ts=689dd2ff cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=2OwXVqhp2XgA:10 a=BOI0VzB9OPX81e2ss2MA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: H75zPy16D_vN9hgFvGugu6CVMqkYys4Z
-X-Proofpoint-ORIG-GUID: 32SrjY7U50dA91TesE9FlJ2dWz5j-UHI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-13_02,2025-08-14_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 adultscore=0 spamscore=0 impostorscore=0 suspectscore=0
- phishscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508120219
+Content-Transfer-Encoding: 8bit
 
-On 2025-07-28 23:24, Mikulas Patocka wrote:
-> On Mon, 28 Jul 2025, Harald Freudenberger wrote:
-> 
->> > > > > Mikulas Patocka (2):
->> > > > >   dm-integrity: use internal variable for digestsize
->> > > > >   dm-integrity: introduce ahash support for the internal hash
->> > > > >
->> > > > >  drivers/md/dm-integrity.c | 370
->> > > > > +++++++++++++++++++++++++++-----------
->> > > > >  1 file changed, 265 insertions(+), 105 deletions(-)
-> 
-> Hi
-> 
-> I reviewed the code and unfortunatelly I found out that it is buggy (I
-> didn't notice the bugs before, when I was working on it).
-> 
-> integrity_ahash_sector_checksum uses sg_set_buf and sg_set_buf needs
-> directly mapped memory. It doesn't work with vmalloc memory and it 
-> doesn't
-> work with memory obtained from kmap.
-> 
-> The result buffer may be vmallocated memory (if we have
-> CONFIG_VMAP_STACK).
-> 
-> I'd like to ask the maintainers of crypto-api - Herbert or David - what 
-> if
-> I pass vmalloc-allocated memory (or possibly stack memory) as "result" 
-> to
-> ahash_request_set_crypt(req, sg, result, nbytes);? Is it legal or not?
-> 
-> Mikulas
+Reorder the sections to be placed in the default segment. The
+.vmlinux.info use :NONE to override the default segment and tell the
+linker to not put the section in any segment at all.
 
-Hi Mikulas, what is the state of the dm-itegrity asynch digest support?
-If you have a newer version or maybe if you need some more code 
-coverage,
-I do offer some worktime for this and a s390 machine...
+>> s390x-linux-ld: .tmp_vmlinux1: warning: allocated section `.modinfo' not in segment
+>> s390x-linux-ld: .tmp_vmlinux2: warning: allocated section `.modinfo' not in segment
+>> s390x-linux-ld: vmlinux.unstripped: warning: allocated section `.modinfo' not in segment
 
-Thanks for your work
-Harald
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202506062053.zbkFBEnJ-lkp@intel.com/
+Signed-off-by: Alexey Gladkov <legion@kernel.org>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/kernel/vmlinux.lds.S | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index 1c606dfa595d..feecf1a6ddb4 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -209,6 +209,11 @@ SECTIONS
+ 	. = ALIGN(PAGE_SIZE);
+ 	_end = . ;
+ 
++	/* Debugging sections.	*/
++	STABS_DEBUG
++	DWARF_DEBUG
++	ELF_DETAILS
++
+ 	/*
+ 	 * uncompressed image info used by the decompressor
+ 	 * it should match struct vmlinux_info
+@@ -239,11 +244,6 @@ SECTIONS
+ #endif
+ 	} :NONE
+ 
+-	/* Debugging sections.	*/
+-	STABS_DEBUG
+-	DWARF_DEBUG
+-	ELF_DETAILS
+-
+ 	/*
+ 	 * Make sure that the .got.plt is either completely empty or it
+ 	 * contains only the three reserved double words.
+-- 
+2.50.1
+
