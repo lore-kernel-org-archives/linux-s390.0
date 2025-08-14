@@ -1,290 +1,208 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A54F01459EA;
-	Thu, 14 Aug 2025 08:44:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B631A317D;
+	Thu, 14 Aug 2025 08:44:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755161047; cv=none; b=eIymfKwifjgSPW0YnL9NsE3DeyhfAaOxtrIXoubxHF2gtJJuEUFf9INq3+B1l9vFNcTyGFFkpDGQ+wBqg/YZ/pG4FVczAHgfkFznQ9IaCYGCQHM+OGSo8J2+XvO+muvb+Z3T07dKbZju6EFtadpJG3/cKTtgG8MfvK75IURteMY=
+	t=1755161065; cv=none; b=VnTK9e2HHikrbbk6vtQy+omDm3wVn04812979PAH0XOXzofinYpf6p+JXTGaRdhwUIE5YcrcYf6qwQSNz+/REpJpO3nSBGJ47CvysvdEMQpdV3QtPmGM8wzRRfG4RDCQyIFU9HO3VGXrRMUEPvmV4M+lngWpWsIsabDoEpsS7qY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755161047; c=relaxed/simple;
-	bh=CTmqLMuj0bCvkwKZAg1Un//8JJ/uJlUZHANgFIqPtcA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qeF/Q1kRSCnDuVF0OhfJ4WeG0uCTsOJXzehPnv//cZgQrWnppRIcAceU3D+tuVoiHckSfaWiQhBWBu4SUibJ40v2Go0LDJTqD3vMzviBKK88nRuyhDhYfE+sZ5fyR1gqMf7Ub+eh1icUVpkOH9oXwLzD3QOEz8DhmoJUtKjeaDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nbIckPkp; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755161065; c=relaxed/simple;
+	bh=T9KgQgoXxc/qzmgJl8c7Zy/bIg4ZAk+Kv3uqGnOvTMo=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=TpZAjf8YmWdEbezP/8FYl64suWbYa3TQU5323Not00KDkPPXY0Czce4pPvo0bHS4+h+D9sGreK23XETpqkq7J/xDpQmLMaqvq0e5+0KkHcQEhnXcQRBqprYeb4fpw20Hh4D3pewDzHY2Ihdeye0GBh1pTlrtJ93W/PNtI5ZnlBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G6IDlHkf; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nbIckPkp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599B6C4CEEF;
-	Thu, 14 Aug 2025 08:43:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755161047;
-	bh=CTmqLMuj0bCvkwKZAg1Un//8JJ/uJlUZHANgFIqPtcA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nbIckPkpIEKyJ2nMayYZEQWySgIgwvq+Q87fMBsC5439jXwx7UjxtP6/3aRizI0iv
-	 ijsnrrrpc8/3O6G/xs9aYaXyUBJeY0IX4fqyj3/x/rGOzs3QvqOtEfqO4IsrCj1EJJ
-	 vVTmwcSsXtJ+0YCx16H+VWsKJOqsPoCy1fgAXOLlGkTP8ir2BQUm7OaO8V1W2MBlEh
-	 imVNM6O/c1ae9lGeBjLpZoDfgKf1bT+2dj2T7y2GbzlYFwT1eLdqkINwalGzjVIgUn
-	 KmVdVPjlyrTerI/WOq7DBLaaWbpmX/v+w8GbjVLyRf5VAICnpi3ce09BCy/VxWeJ9r
-	 2nFsXdboCSbeg==
-Date: Thu, 14 Aug 2025 11:43:42 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Kees Cook <kees@kernel.org>, David Hildenbrand <david@redhat.com>,
-	Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Xu Xin <xu.xin16@zte.com.cn>,
-	Chengming Zhou <chengming.zhou@linux.dev>,
-	Vlastimil Babka <vbabka@suse.cz>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	David Rientjes <rientjes@google.com>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Kan Liang <kan.liang@linux.intel.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Oleg Nesterov <oleg@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
-	Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	Matthew Wilcox <willy@infradead.org>,
-	Mateusz Guzik <mjguzik@gmail.com>, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org
-Subject: Re: [PATCH 10/10] mm: replace mm->flags with bitmap entirely and set
- to 64 bits
-Message-ID: <aJ2hvmqj-wREpqXH@kernel.org>
-References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
- <e1f6654e016d36c43959764b01355736c5cbcdf8.1755012943.git.lorenzo.stoakes@oracle.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G6IDlHkf"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57E7rgpV015981;
+	Thu, 14 Aug 2025 08:44:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=T9KgQg
+	oXxc/qzmgJl8c7Zy/bIg4ZAk+Kv3uqGnOvTMo=; b=G6IDlHkfnl2wQxC8WFcXD5
+	D04EvIuZjyiDutIpSz9Z8YKLKYVwJmDqY9Z3u3Ykv76Igd0VFA8NLoTOjFENbsYt
+	tLTEwIOrrLefGnsDIwFCmYlGL637+r6oFQUu2CB6+0Nj5PPOkcHHmQDUhjDygob4
+	j6bEZbwjvlBn0+nKyEdrzWb8VD/MyDyO0jgXmReZ4bV6LnC6gqWoCGoaJOc1+GLv
+	3dhnvBKJKMmvUB7jyfviYTW6yHqbbGL/Mu9T5sI05WDp8Zvk/YC8wVMvxRbXUBI5
+	7R8n6lcdjtdWWfRZ2zHhCCXCVUGsu9H5+ScJEIzRce/kUlFt0MfV54Ie9lCf97JA
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dx14s2ey-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Aug 2025 08:44:15 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57E846Kc004938;
+	Thu, 14 Aug 2025 08:44:14 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48dx14s2ex-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Aug 2025 08:44:14 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57E5Kra5028585;
+	Thu, 14 Aug 2025 08:44:13 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48ej5nb9k1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 14 Aug 2025 08:44:13 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57E8iBQ133555028
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 14 Aug 2025 08:44:11 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 788C058059;
+	Thu, 14 Aug 2025 08:44:11 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A10EA58043;
+	Thu, 14 Aug 2025 08:44:07 +0000 (GMT)
+Received: from [9.87.142.31] (unknown [9.87.142.31])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 14 Aug 2025 08:44:07 +0000 (GMT)
+Message-ID: <ba0ecfe5df379f6e14c4df655b90695041a616f4.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 0/3] PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI
+ recovery
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
+        Mahesh J Salgaonkar
+	 <mahesh@linux.ibm.com>
+Cc: Linas Vepstas <linasvepstas@gmail.com>,
+        Ilpo =?ISO-8859-1?Q?J=E4rvinen?=
+	 <ilpo.jarvinen@linux.intel.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens
+ <hca@linux.ibm.com>,
+        Vasily Gorbik	 <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Peter
+ Oberparleiter	 <oberpar@linux.ibm.com>,
+        Matthew Rosato
+ <mjrosato@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>, Sinan Kaya
+ <okaya@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        Keith Busch <kbusch@kernel.org>
+Date: Thu, 14 Aug 2025 10:44:06 +0200
+In-Reply-To: <20250807-add_err_uevents-v5-0-adf85b0620b0@linux.ibm.com>
+References: <20250807-add_err_uevents-v5-0-adf85b0620b0@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-1.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e1f6654e016d36c43959764b01355736c5cbcdf8.1755012943.git.lorenzo.stoakes@oracle.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: XfD33j5vxQrXWyRVjtJJvqxHMuEGAtkJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODEyMDIyNCBTYWx0ZWRfX1KUFzCVRppKk
+ NmVvvF0LShF+sgkJMp8+HIr52z3BR8Zux5zbDHsvEwFAQcY2UhMLjXFJrjhml2IZ90TJqEcopcN
+ v0kNG26giWQVdf54FELjFIfr06xNnoxk0xXcYfON3gG3T/q7EvXdYwaYMkrEcLAUyMvV8qkbtEX
+ OxVbeemfx59r9FbhHGgHceZeYLRUqrVr2/LoQETNIf3Aw5QgKVhvN+1Z2B9WJ5JmyXBivm9d5mW
+ bC1XjdfsjY1wqTVdd1mi64r4PfwbFqUubEAm86dKEN7zoLlIoG6sGDmSRd1FSsSlDisw1TEYdbh
+ hX/sPeV/4T6XxwWpnNCB9ya79MsBcWuAFDbyC3/c4OtfriFXvqxFC32VXeq2GuZv+zN8c8NPJbH
+ 476rI6Hd
+X-Proofpoint-GUID: s5iVgtwjJFBeAGD1Uou8os76O7-FPLNX
+X-Authority-Analysis: v=2.4 cv=fLg53Yae c=1 sm=1 tr=0 ts=689da1e0 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VnNF1IyMAAAA:8 a=99k3b_FDGDTT4Z58m1sA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-13_02,2025-08-11_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 clxscore=1015 spamscore=0 priorityscore=1501 impostorscore=0
+ phishscore=0 malwarescore=0 bulkscore=0 suspectscore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508120224
 
-On Tue, Aug 12, 2025 at 04:44:19PM +0100, Lorenzo Stoakes wrote:
-> Now we have updated all users of mm->flags to use the bitmap accessors,
-> repalce it with the bitmap version entirely.
-> 
-> We are then able to move to having 64 bits of mm->flags on both 32-bit and
-> 64-bit architectures.
-> 
-> We also update the VMA userland tests to ensure that everything remains
-> functional there.
-> 
-> No functional changes intended, other than there now being 64 bits of
-> available mm_struct flags.
-> 
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-
-Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-
+On Thu, 2025-08-07 at 15:55 +0200, Niklas Schnelle wrote:
+> Hi Bjorn, Lukas, Mahesh,
+>=20
+> This series adds issuing of uevents during PCI recovery on s390. In
+> developing this I noticed that pci_uevent_ers() ignores
+> PCI_ERS_RESULT_NEED_RESET. I think this will result in AER not generating=
+ a uevent
+> at the beginning of recovery if drivers request a reset via the voting
+> on error_detected() returns. This is fixed in the first patch and relied
+> upon by the s390 recovery code as it also uses the result of
+> error_detected() though with one device/driver at a time.
+>=20
+> Thanks,
+> Niklas
+>=20
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > ---
->  include/linux/mm.h               | 12 ++++++------
->  include/linux/mm_types.h         | 14 +++++---------
->  include/linux/sched/coredump.h   |  2 +-
->  tools/testing/vma/vma_internal.h | 19 +++++++++++++++++--
->  4 files changed, 29 insertions(+), 18 deletions(-)
-> 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 34311ebe62cc..b61e2d4858cf 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -724,32 +724,32 @@ static inline void assert_fault_locked(struct vm_fault *vmf)
->  
->  static inline bool mm_flags_test(int flag, const struct mm_struct *mm)
->  {
-> -	return test_bit(flag, ACCESS_PRIVATE(&mm->_flags, __mm_flags));
-> +	return test_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
->  }
->  
->  static inline bool mm_flags_test_and_set(int flag, struct mm_struct *mm)
->  {
-> -	return test_and_set_bit(flag, ACCESS_PRIVATE(&mm->_flags, __mm_flags));
-> +	return test_and_set_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
->  }
->  
->  static inline bool mm_flags_test_and_clear(int flag, struct mm_struct *mm)
->  {
-> -	return test_and_clear_bit(flag, ACCESS_PRIVATE(&mm->_flags, __mm_flags));
-> +	return test_and_clear_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
->  }
->  
->  static inline void mm_flags_set(int flag, struct mm_struct *mm)
->  {
-> -	set_bit(flag, ACCESS_PRIVATE(&mm->_flags, __mm_flags));
-> +	set_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
->  }
->  
->  static inline void mm_flags_clear(int flag, struct mm_struct *mm)
->  {
-> -	clear_bit(flag, ACCESS_PRIVATE(&mm->_flags, __mm_flags));
-> +	clear_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
->  }
->  
->  static inline void mm_flags_clear_all(struct mm_struct *mm)
->  {
-> -	bitmap_zero(ACCESS_PRIVATE(&mm->_flags, __mm_flags), NUM_MM_FLAG_BITS);
-> +	bitmap_zero(ACCESS_PRIVATE(&mm->flags, __mm_flags), NUM_MM_FLAG_BITS);
->  }
->  
->  extern const struct vm_operations_struct vma_dummy_vm_ops;
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index 25577ab39094..47d2e4598acd 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -932,7 +932,7 @@ struct mm_cid {
->   * Opaque type representing current mm_struct flag state. Must be accessed via
->   * mm_flags_xxx() helper functions.
->   */
-> -#define NUM_MM_FLAG_BITS BITS_PER_LONG
-> +#define NUM_MM_FLAG_BITS (64)
->  typedef struct {
->  	__private DECLARE_BITMAP(__mm_flags, NUM_MM_FLAG_BITS);
->  } mm_flags_t;
-> @@ -1119,11 +1119,7 @@ struct mm_struct {
->  		/* Architecture-specific MM context */
->  		mm_context_t context;
->  
-> -		/* Temporary union while we convert users to mm_flags_t. */
-> -		union {
-> -			unsigned long flags; /* Must use atomic bitops to access */
-> -			mm_flags_t _flags;   /* Must use mm_flags_* helpers to access */
-> -		};
-> +		mm_flags_t flags; /* Must use mm_flags_* hlpers to access */
->  
->  #ifdef CONFIG_AIO
->  		spinlock_t			ioctx_lock;
-> @@ -1236,7 +1232,7 @@ struct mm_struct {
->  /* Read the first system word of mm flags, non-atomically. */
->  static inline unsigned long __mm_flags_get_word(struct mm_struct *mm)
->  {
-> -	unsigned long *bitmap = ACCESS_PRIVATE(&mm->_flags, __mm_flags);
-> +	unsigned long *bitmap = ACCESS_PRIVATE(&mm->flags, __mm_flags);
->  
->  	return bitmap_read(bitmap, 0, BITS_PER_LONG);
->  }
-> @@ -1245,7 +1241,7 @@ static inline unsigned long __mm_flags_get_word(struct mm_struct *mm)
->  static inline void __mm_flags_set_word(struct mm_struct *mm,
->  				       unsigned long value)
->  {
-> -	unsigned long *bitmap = ACCESS_PRIVATE(&mm->_flags, __mm_flags);
-> +	unsigned long *bitmap = ACCESS_PRIVATE(&mm->flags, __mm_flags);
->  
->  	bitmap_copy(bitmap, &value, BITS_PER_LONG);
->  }
-> @@ -1253,7 +1249,7 @@ static inline void __mm_flags_set_word(struct mm_struct *mm,
->  /* Obtain a read-only view of the bitmap. */
->  static inline const unsigned long *__mm_flags_get_bitmap(const struct mm_struct *mm)
->  {
-> -	return (const unsigned long *)ACCESS_PRIVATE(&mm->_flags, __mm_flags);
-> +	return (const unsigned long *)ACCESS_PRIVATE(&mm->flags, __mm_flags);
->  }
->  
->  #define MM_MT_FLAGS	(MT_FLAGS_ALLOC_RANGE | MT_FLAGS_LOCK_EXTERN | \
-> diff --git a/include/linux/sched/coredump.h b/include/linux/sched/coredump.h
-> index 19ecfcceb27a..079ae5a97480 100644
-> --- a/include/linux/sched/coredump.h
-> +++ b/include/linux/sched/coredump.h
-> @@ -20,7 +20,7 @@ static inline unsigned long __mm_flags_get_dumpable(struct mm_struct *mm)
->  
->  static inline void __mm_flags_set_mask_dumpable(struct mm_struct *mm, int value)
->  {
-> -	unsigned long *bitmap = ACCESS_PRIVATE(&mm->_flags, __mm_flags);
-> +	unsigned long *bitmap = ACCESS_PRIVATE(&mm->flags, __mm_flags);
->  
->  	set_mask_bits(bitmap, MMF_DUMPABLE_MASK, value);
->  }
-> diff --git a/tools/testing/vma/vma_internal.h b/tools/testing/vma/vma_internal.h
-> index cb1c2a8afe26..f13354bf0a1e 100644
-> --- a/tools/testing/vma/vma_internal.h
-> +++ b/tools/testing/vma/vma_internal.h
-> @@ -249,6 +249,14 @@ struct mutex {};
->  #define DEFINE_MUTEX(mutexname) \
->  	struct mutex mutexname = {}
->  
-> +#define DECLARE_BITMAP(name, bits) \
-> +	unsigned long name[BITS_TO_LONGS(bits)]
-> +
-> +#define NUM_MM_FLAG_BITS (64)
-> +typedef struct {
-> +	__private DECLARE_BITMAP(__mm_flags, NUM_MM_FLAG_BITS);
-> +} mm_flags_t;
-> +
->  struct mm_struct {
->  	struct maple_tree mm_mt;
->  	int map_count;			/* number of VMAs */
-> @@ -260,7 +268,7 @@ struct mm_struct {
->  
->  	unsigned long def_flags;
->  
-> -	unsigned long flags; /* Must use atomic bitops to access */
-> +	mm_flags_t flags; /* Must use mm_flags_* helpers to access */
->  };
->  
->  struct vm_area_struct;
-> @@ -1333,6 +1341,13 @@ static inline void userfaultfd_unmap_complete(struct mm_struct *mm,
->  {
->  }
->  
-> +# define ACCESS_PRIVATE(p, member) ((p)->member)
-> +
-> +static inline bool mm_flags_test(int flag, const struct mm_struct *mm)
-> +{
-> +	return test_bit(flag, ACCESS_PRIVATE(&mm->flags, __mm_flags));
-> +}
-> +
->  /*
->   * Denies creating a writable executable mapping or gaining executable permissions.
->   *
-> @@ -1363,7 +1378,7 @@ static inline void userfaultfd_unmap_complete(struct mm_struct *mm,
->  static inline bool map_deny_write_exec(unsigned long old, unsigned long new)
->  {
->  	/* If MDWE is disabled, we have nothing to deny. */
-> -	if (!test_bit(MMF_HAS_MDWE, &current->mm->flags))
-> +	if (mm_flags_test(MMF_HAS_MDWE, current->mm))
->  		return false;
->  
->  	/* If the new VMA is not executable, we have nothing to deny. */
-> -- 
-> 2.50.1
-> 
 
--- 
-Sincerely yours,
-Mike.
+Hi Bjorn,
+
+as you just picked up Lukas' "PCI: Reduce AER / EEH deviations" series
+for pci/aer, I think it would make sense to take this via that tree
+also. If you prefer and provide an ack for the first patch this could
+also go via s390 of course.
+
+Thanks,
+Niklas
