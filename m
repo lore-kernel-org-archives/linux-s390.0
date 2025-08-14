@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C1F2264A76;
-	Thu, 14 Aug 2025 08:34:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC5125B1D5;
+	Thu, 14 Aug 2025 08:37:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755160461; cv=none; b=HwDx64GKDkJ+xcfTp75vcZYl0eAYpS2ItdrcRZLvZz7Bc2+d6U+8enLFrn5qWZUcr6bJC2Dpp53moI8BlJo0GkHg8RbTPYlNHTd0ZcqmRecMOZkraOOxqoIUw0xNtQUr/GTZzGoWLb6zyCDEJxSsXybTlzcEvVyZyUhNunIuqMw=
+	t=1755160658; cv=none; b=U0NGzORRFAzewEZYSjdU8iVCuwSyDk7VhNa2x80k7uNfcXMwViXPYvt594pFWVuN9ZuUXp9TEAYMbrB4r1/VTOqBi9ruDlo7LRHoYOOXqHSWgKjb9jXYNUj4GHmN1rosb/aPReCKD3HrfZDlKljhbP26YHsFkQjnOUdpiI5WrNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755160461; c=relaxed/simple;
-	bh=JJZTzu+RAz4/lXyoF8hhed0E/+6KW4y3Lc2HDHprM3E=;
+	s=arc-20240116; t=1755160658; c=relaxed/simple;
+	bh=ySpcFEqW6mx248pQaNRvOQVwo6ykQE7J6nfU5QTBWiE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q8arL3X/cSiR7Z+dtZ4F/9RJ6eycj0WrVvc/4L2Uj9xGKVwFnJDKgurLFlWEJ+NWJ+iTmKZ5MrlaJSmq1N55S0MAbc+Q7WXrWXy83GGudtLjS4CX22lOZfj5TaXvIiU2VbYlcLUxnr6Vse/gx7+sFYngi7hyqE3/VZ+ZQAWcifM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sYJMiC+A; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=slJqOGX41tRUuJQ5cXF6prlgRCqQGttwE90MwZ1um/md7GUu8OPeZA7QqFr5BYuQGWdO7ssUwBo/B5WyCb0rvwMQtReLe8cOthHiWT4lvf8ti+ZZ2yToEDeelMt20NM0RyHkt48q2WiWxjScwuDQMiX4dKuJ/hiSj58+U9fJ4Xo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j6oXdcgV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sYJMiC+A"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83461C4CEEF;
-	Thu, 14 Aug 2025 08:34:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j6oXdcgV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35236C4CEEF;
+	Thu, 14 Aug 2025 08:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755160460;
-	bh=JJZTzu+RAz4/lXyoF8hhed0E/+6KW4y3Lc2HDHprM3E=;
+	s=k20201202; t=1755160656;
+	bh=ySpcFEqW6mx248pQaNRvOQVwo6ykQE7J6nfU5QTBWiE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=sYJMiC+A6ZsYL/xcMfF5gXE5Tqd2ONGCHOWgXGdfoS679A/WsvWY4v/yNnAdOGJ+l
-	 jTR2ZQjW5ocrjLWjjrbnOIQaPGP72w5wLeWhPEeNMh/kwb4iF3HCdoGM4lS27vlnlE
-	 C06vKS2l/dvw+L7KYiTEAmNBniJOG5U2Dg3Z8Oqi41JdMD+dOS2ox8Yt3JVFMK4Ko8
-	 yPGdi7p5vKJqhIUOiCUOT01Fp1IeSJzEyef+iKY1gvCG+p8H824C5wj+OzG16e87LX
-	 PfIthLVHmXIqBCLYKsRoqDM9o16zhFcmVnIDLFE4O9kfBbO8ZR3C0vmiLs8ODwrqV+
-	 DOhyHiLRa8bQA==
-Date: Thu, 14 Aug 2025 11:33:59 +0300
+	b=j6oXdcgVciv/6BykGif5185QIWWX9Vff7Gxpuxu1c1XK1or/K4wIhNhT+pes02G9K
+	 zNvEs9K7QoOxvFG6Fw6noFJ20aHFitgr//ZwU3ghWpn8hW+AZTT8MPYTZwBmVsq1BP
+	 LtAHwk+FdENWA+tnwN91riEqFzg7OMFUoCJOD8tWN/cLUZAp5E/TlJ4I9v8XQTwYoA
+	 +hgzErxjxvLrVN6Sg/aAGfeSYznXOQeiDmqdUmH9KK7FNbXA0BzTgKv7hIbx3uYcaC
+	 1Q2vqEreet9nlLsh5+8IyBPu0V3x30wCUzSOutTeO/X0ojmjwMiGayPIX3+Z7mxNOI
+	 OH9otFL1/ZPiQ==
+Date: Thu, 14 Aug 2025 11:37:14 +0300
 From: Mike Rapoport <rppt@kernel.org>
 To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -82,10 +82,11 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
 	linux-trace-kernel@vger.kernel.org,
 	linux-perf-users@vger.kernel.org
-Subject: Re: [PATCH 05/10] mm: convert uprobes to mm_flags_*() accessors
-Message-ID: <aJ2fd3iD6GqZ_LWw@kernel.org>
+Subject: Re: [PATCH 06/10] mm: update coredump logic to correctly use bitmap
+ mm flags
+Message-ID: <aJ2gOkevzkXazfvv@kernel.org>
 References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
- <1d4fe5963904cc0c707da1f53fbfe6471d3eff10.1755012943.git.lorenzo.stoakes@oracle.com>
+ <2a5075f7e3c5b367d988178c79a3063d12ee53a9.1755012943.git.lorenzo.stoakes@oracle.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -94,131 +95,153 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1d4fe5963904cc0c707da1f53fbfe6471d3eff10.1755012943.git.lorenzo.stoakes@oracle.com>
+In-Reply-To: <2a5075f7e3c5b367d988178c79a3063d12ee53a9.1755012943.git.lorenzo.stoakes@oracle.com>
 
-On Tue, Aug 12, 2025 at 04:44:14PM +0100, Lorenzo Stoakes wrote:
-> As part of the effort to move to mm->flags becoming a bitmap field, convert
-> existing users to making use of the mm_flags_*() accessors which will, when
-> the conversion is complete, be the only means of accessing mm_struct flags.
+On Tue, Aug 12, 2025 at 04:44:15PM +0100, Lorenzo Stoakes wrote:
+> The coredump logic is slightly different from other users in that it both
+> stores mm flags and additionally sets and gets using masks.
 > 
-> No functional change intended.
+> Since the MMF_DUMPABLE_* flags must remain as they are for uABI reasons,
+> and of course these are within the first 32-bits of the flags, it is
+> reasonable to provide access to these in the same fashion so this logic can
+> all still keep working as it has been.
+> 
+> Therefore, introduce coredump-specific helpers __mm_flags_get_dumpable()
+> and __mm_flags_set_mask_dumpable() for this purpose, and update all core
+> dump users of mm flags to use these.
 > 
 > Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 
 Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
 > ---
->  kernel/events/uprobes.c | 32 ++++++++++++++++----------------
->  1 file changed, 16 insertions(+), 16 deletions(-)
+>  fs/coredump.c                  |  4 +++-
+>  fs/exec.c                      |  2 +-
+>  fs/pidfs.c                     |  7 +++++--
+>  fs/proc/base.c                 |  8 +++++---
+>  include/linux/sched/coredump.h | 21 ++++++++++++++++++++-
+>  5 files changed, 34 insertions(+), 8 deletions(-)
 > 
-> diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-> index 7ca1940607bd..31a12b60055f 100644
-> --- a/kernel/events/uprobes.c
-> +++ b/kernel/events/uprobes.c
-> @@ -1153,15 +1153,15 @@ static int install_breakpoint(struct uprobe *uprobe, struct vm_area_struct *vma,
->  	 * set MMF_HAS_UPROBES in advance for uprobe_pre_sstep_notifier(),
->  	 * the task can hit this breakpoint right after __replace_page().
->  	 */
-> -	first_uprobe = !test_bit(MMF_HAS_UPROBES, &mm->flags);
-> +	first_uprobe = !mm_flags_test(MMF_HAS_UPROBES, mm);
->  	if (first_uprobe)
-> -		set_bit(MMF_HAS_UPROBES, &mm->flags);
-> +		mm_flags_set(MMF_HAS_UPROBES, mm);
->  
->  	ret = set_swbp(&uprobe->arch, vma, vaddr);
->  	if (!ret)
-> -		clear_bit(MMF_RECALC_UPROBES, &mm->flags);
-> +		mm_flags_clear(MMF_RECALC_UPROBES, mm);
->  	else if (first_uprobe)
-> -		clear_bit(MMF_HAS_UPROBES, &mm->flags);
-> +		mm_flags_clear(MMF_HAS_UPROBES, mm);
->  
->  	return ret;
->  }
-> @@ -1171,7 +1171,7 @@ static int remove_breakpoint(struct uprobe *uprobe, struct vm_area_struct *vma,
->  {
->  	struct mm_struct *mm = vma->vm_mm;
->  
-> -	set_bit(MMF_RECALC_UPROBES, &mm->flags);
-> +	mm_flags_set(MMF_RECALC_UPROBES, mm);
->  	return set_orig_insn(&uprobe->arch, vma, vaddr);
->  }
->  
-> @@ -1303,7 +1303,7 @@ register_for_each_vma(struct uprobe *uprobe, struct uprobe_consumer *new)
->  			/* consult only the "caller", new consumer. */
->  			if (consumer_filter(new, mm))
->  				err = install_breakpoint(uprobe, vma, info->vaddr);
-> -		} else if (test_bit(MMF_HAS_UPROBES, &mm->flags)) {
-> +		} else if (mm_flags_test(MMF_HAS_UPROBES, mm)) {
->  			if (!filter_chain(uprobe, mm))
->  				err |= remove_breakpoint(uprobe, vma, info->vaddr);
->  		}
-> @@ -1595,7 +1595,7 @@ int uprobe_mmap(struct vm_area_struct *vma)
->  
->  	if (vma->vm_file &&
->  	    (vma->vm_flags & (VM_WRITE|VM_SHARED)) == VM_WRITE &&
-> -	    test_bit(MMF_HAS_UPROBES, &vma->vm_mm->flags))
-> +	    mm_flags_test(MMF_HAS_UPROBES, vma->vm_mm))
->  		delayed_ref_ctr_inc(vma);
->  
->  	if (!valid_vma(vma, true))
-> @@ -1655,12 +1655,12 @@ void uprobe_munmap(struct vm_area_struct *vma, unsigned long start, unsigned lon
->  	if (!atomic_read(&vma->vm_mm->mm_users)) /* called by mmput() ? */
+> diff --git a/fs/coredump.c b/fs/coredump.c
+> index fedbead956ed..e5d9d6276990 100644
+> --- a/fs/coredump.c
+> +++ b/fs/coredump.c
+> @@ -1103,8 +1103,10 @@ void vfs_coredump(const kernel_siginfo_t *siginfo)
+>  		 * We must use the same mm->flags while dumping core to avoid
+>  		 * inconsistency of bit flags, since this flag is not protected
+>  		 * by any locks.
+> +		 *
+> +		 * Note that we only care about MMF_DUMP* flags.
+>  		 */
+> -		.mm_flags = mm->flags,
+> +		.mm_flags = __mm_flags_get_dumpable(mm),
+>  		.vma_meta = NULL,
+>  		.cpu = raw_smp_processor_id(),
+>  	};
+> diff --git a/fs/exec.c b/fs/exec.c
+> index 2a1e5e4042a1..dbac0e84cc3e 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1999,7 +1999,7 @@ void set_dumpable(struct mm_struct *mm, int value)
+>  	if (WARN_ON((unsigned)value > SUID_DUMP_ROOT))
 >  		return;
 >  
-> -	if (!test_bit(MMF_HAS_UPROBES, &vma->vm_mm->flags) ||
-> -	     test_bit(MMF_RECALC_UPROBES, &vma->vm_mm->flags))
-> +	if (!mm_flags_test(MMF_HAS_UPROBES, vma->vm_mm) ||
-> +	     mm_flags_test(MMF_RECALC_UPROBES, vma->vm_mm))
->  		return;
->  
->  	if (vma_has_uprobes(vma, start, end))
-> -		set_bit(MMF_RECALC_UPROBES, &vma->vm_mm->flags);
-> +		mm_flags_set(MMF_RECALC_UPROBES, vma->vm_mm);
+> -	set_mask_bits(&mm->flags, MMF_DUMPABLE_MASK, value);
+> +	__mm_flags_set_mask_dumpable(mm, value);
 >  }
 >  
->  static vm_fault_t xol_fault(const struct vm_special_mapping *sm,
-> @@ -1823,10 +1823,10 @@ void uprobe_end_dup_mmap(void)
+>  SYSCALL_DEFINE3(execve,
+> diff --git a/fs/pidfs.c b/fs/pidfs.c
+> index edc35522d75c..5148b7646b7f 100644
+> --- a/fs/pidfs.c
+> +++ b/fs/pidfs.c
+> @@ -357,8 +357,11 @@ static long pidfd_info(struct file *file, unsigned int cmd, unsigned long arg)
 >  
->  void uprobe_dup_mmap(struct mm_struct *oldmm, struct mm_struct *newmm)
+>  	if ((kinfo.mask & PIDFD_INFO_COREDUMP) && !(kinfo.coredump_mask)) {
+>  		task_lock(task);
+> -		if (task->mm)
+> -			kinfo.coredump_mask = pidfs_coredump_mask(task->mm->flags);
+> +		if (task->mm) {
+> +			unsigned long flags = __mm_flags_get_dumpable(task->mm);
+> +
+> +			kinfo.coredump_mask = pidfs_coredump_mask(flags);
+> +		}
+>  		task_unlock(task);
+>  	}
+>  
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 62d35631ba8c..f0c093c58aaf 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2962,8 +2962,10 @@ static ssize_t proc_coredump_filter_read(struct file *file, char __user *buf,
+>  	ret = 0;
+>  	mm = get_task_mm(task);
+>  	if (mm) {
+> +		unsigned long flags = __mm_flags_get_dumpable(mm);
+> +
+>  		len = snprintf(buffer, sizeof(buffer), "%08lx\n",
+> -			       ((mm->flags & MMF_DUMP_FILTER_MASK) >>
+> +			       ((flags & MMF_DUMP_FILTER_MASK) >>
+>  				MMF_DUMP_FILTER_SHIFT));
+>  		mmput(mm);
+>  		ret = simple_read_from_buffer(buf, count, ppos, buffer, len);
+> @@ -3002,9 +3004,9 @@ static ssize_t proc_coredump_filter_write(struct file *file,
+>  
+>  	for (i = 0, mask = 1; i < MMF_DUMP_FILTER_BITS; i++, mask <<= 1) {
+>  		if (val & mask)
+> -			set_bit(i + MMF_DUMP_FILTER_SHIFT, &mm->flags);
+> +			mm_flags_set(i + MMF_DUMP_FILTER_SHIFT, mm);
+>  		else
+> -			clear_bit(i + MMF_DUMP_FILTER_SHIFT, &mm->flags);
+> +			mm_flags_clear(i + MMF_DUMP_FILTER_SHIFT, mm);
+>  	}
+>  
+>  	mmput(mm);
+> diff --git a/include/linux/sched/coredump.h b/include/linux/sched/coredump.h
+> index 6eb65ceed213..19ecfcceb27a 100644
+> --- a/include/linux/sched/coredump.h
+> +++ b/include/linux/sched/coredump.h
+> @@ -2,12 +2,29 @@
+>  #ifndef _LINUX_SCHED_COREDUMP_H
+>  #define _LINUX_SCHED_COREDUMP_H
+>  
+> +#include <linux/compiler_types.h>
+>  #include <linux/mm_types.h>
+>  
+>  #define SUID_DUMP_DISABLE	0	/* No setuid dumping */
+>  #define SUID_DUMP_USER		1	/* Dump as user of process */
+>  #define SUID_DUMP_ROOT		2	/* Dump as root */
+>  
+> +static inline unsigned long __mm_flags_get_dumpable(struct mm_struct *mm)
+> +{
+> +	/*
+> +	 * By convention, dumpable bits are contained in first 32 bits of the
+> +	 * bitmap, so we can simply access this first unsigned long directly.
+> +	 */
+> +	return __mm_flags_get_word(mm);
+> +}
+> +
+> +static inline void __mm_flags_set_mask_dumpable(struct mm_struct *mm, int value)
+> +{
+> +	unsigned long *bitmap = ACCESS_PRIVATE(&mm->_flags, __mm_flags);
+> +
+> +	set_mask_bits(bitmap, MMF_DUMPABLE_MASK, value);
+> +}
+> +
+>  extern void set_dumpable(struct mm_struct *mm, int value);
+>  /*
+>   * This returns the actual value of the suid_dumpable flag. For things
+> @@ -22,7 +39,9 @@ static inline int __get_dumpable(unsigned long mm_flags)
+>  
+>  static inline int get_dumpable(struct mm_struct *mm)
 >  {
-> -	if (test_bit(MMF_HAS_UPROBES, &oldmm->flags)) {
-> -		set_bit(MMF_HAS_UPROBES, &newmm->flags);
-> +	if (mm_flags_test(MMF_HAS_UPROBES, oldmm)) {
-> +		mm_flags_set(MMF_HAS_UPROBES, newmm);
->  		/* unconditionally, dup_mmap() skips VM_DONTCOPY vmas */
-> -		set_bit(MMF_RECALC_UPROBES, &newmm->flags);
-> +		mm_flags_set(MMF_RECALC_UPROBES, newmm);
->  	}
+> -	return __get_dumpable(mm->flags);
+> +	unsigned long flags = __mm_flags_get_dumpable(mm);
+> +
+> +	return __get_dumpable(flags);
 >  }
 >  
-> @@ -2370,7 +2370,7 @@ static void mmf_recalc_uprobes(struct mm_struct *mm)
->  			return;
->  	}
->  
-> -	clear_bit(MMF_HAS_UPROBES, &mm->flags);
-> +	mm_flags_clear(MMF_HAS_UPROBES, mm);
->  }
->  
->  static int is_trap_at_addr(struct mm_struct *mm, unsigned long vaddr)
-> @@ -2468,7 +2468,7 @@ static struct uprobe *find_active_uprobe_rcu(unsigned long bp_vaddr, int *is_swb
->  		*is_swbp = -EFAULT;
->  	}
->  
-> -	if (!uprobe && test_and_clear_bit(MMF_RECALC_UPROBES, &mm->flags))
-> +	if (!uprobe && mm_flags_test_and_clear(MMF_RECALC_UPROBES, mm))
->  		mmf_recalc_uprobes(mm);
->  	mmap_read_unlock(mm);
->  
-> @@ -2818,7 +2818,7 @@ int uprobe_pre_sstep_notifier(struct pt_regs *regs)
->  	if (!current->mm)
->  		return 0;
->  
-> -	if (!test_bit(MMF_HAS_UPROBES, &current->mm->flags) &&
-> +	if (!mm_flags_test(MMF_HAS_UPROBES, current->mm) &&
->  	    (!current->utask || !current->utask->return_instances))
->  		return 0;
->  
+>  #endif /* _LINUX_SCHED_COREDUMP_H */
 > -- 
 > 2.50.1
 > 
