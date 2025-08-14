@@ -1,108 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9870527A12B;
-	Thu, 14 Aug 2025 07:25:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97EF7286D7C;
+	Thu, 14 Aug 2025 07:44:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755156325; cv=none; b=KW28gAdGu6Ty71MVKZ+S7NhXO/zDea1bbUnpXBRQkRddZ3qmiBLHn0l55Vc9bLK69QypThCfkksQG9aYmirUPt2K0d4Yf4HmFWGA5SFNNpB1Y2oXcHrTz+Zfw/b1vHpg3Fb+np6GuA9pHnTawvc/yBGLR9joNB8w68D1BsdXO6s=
+	t=1755157455; cv=none; b=KPhd+PWqpMIMA5K23Tiqs3r14c15Nnpdxo3FRkQOUjENgLZSK0WD7KdQ9ngdFkjC/h6C8+hq/nqk1G17wThTAhy1Kd+3sCu6Sus65DQonK19Sh2Kfbow+5naR06d0MT35rH20kHabwsGx3uX9BJ5zL6dkXfjmTF486dBSb63zYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755156325; c=relaxed/simple;
-	bh=dcZVeE1ooG0iHensGTvf7QUr3epXcu5dw0Q3AjF9SyM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=s1CsNhnI7CYn2fDP0kE+LEOq6ASuBiSdjdrcREnh2sQeyeW0kJKfCrmoDlHOI8NORcsIhCBjDMY6Kb+enBm7XfwU1ATfncUFKN+TEe64agVtezqFnKCO4KaqOdSNA1VRAJQs48Nozi9xrgsyXrEKoFegArFdhv32XwmSuCZrNR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NTw9pk9z; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755157455; c=relaxed/simple;
+	bh=blkHOHEfczNkc2vt5BMxds3HfRRJSuQ39S+5rHDxB+g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FzA+oQkA3kal0aZphJGEvh/TTfKQ2GV394ZkwbiaSCJK01+J1HMlG1vI0u4dGndwzr81tHKZnt5XQbiJs6TkCjeVleDgZkKavdlD6ih3M9fHSL3eF+JVKy9kpU4zxmDlDWJlcuNcAHs1mAYQc5PJGXtIrCnGhKK/f/BSGG5EdOg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kKCK9wZH; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NTw9pk9z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB67C4CEF5;
-	Thu, 14 Aug 2025 07:25:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755156325;
-	bh=dcZVeE1ooG0iHensGTvf7QUr3epXcu5dw0Q3AjF9SyM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NTw9pk9zEckH+7fhLTV/dF3QHgE5Qjnw//AyXwLQY0t6rJ1RQ/hyummnbTP0FAtS0
-	 P4zi3z8CbNGXisvLpRFU0MIOWMMABpulcHjZyKObuwNURgSdso/XMdCk05FSuHjpSe
-	 8ci15YRw+0v0b/qaXaUHH0ToZiCRRH1TIdIItx0dOXw40/jujFv4+zfgSJFgcHSk6c
-	 VF+Nent4sc4euKVAGluE0uMfGm4ZKcly2c/6brM/UN3m/oWqpQ05rgsyUIh418kClc
-	 +9w+OlLcZsYKjaXxAco1HnsK1uaJ9vsvMn7tvmMPUGq0Pl6U4gK7StNaPNnyLXdfEv
-	 VYjpN9qyHkqKg==
-From: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
-To: gregkh@linuxfoundation.org
-Cc: linux-serial@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH 16/16] s390/char/con3270: use tty_port_tty guard()
-Date: Thu, 14 Aug 2025 09:24:56 +0200
-Message-ID: <20250814072456.182853-17-jirislaby@kernel.org>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250814072456.182853-1-jirislaby@kernel.org>
-References: <20250814072456.182853-1-jirislaby@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kKCK9wZH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1755157454; x=1786693454;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=blkHOHEfczNkc2vt5BMxds3HfRRJSuQ39S+5rHDxB+g=;
+  b=kKCK9wZHaTHgd8QtS/tzmypEar2nTER7jUhai+ZtGdF8lTbnuxATBFse
+   TncjMd6JmARnDk0x9PwLBTRmojyE1JaziJEuq6ijIF08NJEjk7jq1uDx9
+   Joc5aM1W/kb7DiD6H3+NrU+dHrsWyPKZU9qZuQrC6SYk3Fqf2ssZCXstF
+   nGP3swTQMBt5lomiFaHrP/T3ySj1aaTYXMEnbj+KR+bl9/9R9VM44RECd
+   mlSPoRyp1hxF5CRmUIyXvgmISzuOwyjtDD6rgPVwBE112lM46/4EcbvtY
+   3CT7R1T4L2l5COqvbz4frpWzPNFIurL69QYmtXJSSRyKNdWz28GnFMjJG
+   w==;
+X-CSE-ConnectionGUID: 2oUbN6+4TuORtL1d2mCoMg==
+X-CSE-MsgGUID: +Asxgz5gQIGJBuoAl5UhUw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11520"; a="74918024"
+X-IronPort-AV: E=Sophos;i="6.17,287,1747724400"; 
+   d="scan'208";a="74918024"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Aug 2025 00:44:14 -0700
+X-CSE-ConnectionGUID: 1yKr6sy4QamA0+e78ukiIQ==
+X-CSE-MsgGUID: 9p35hw8OSp2btYpLGtKG4Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.17,287,1747724400"; 
+   d="scan'208";a="166677201"
+Received: from lkp-server02.sh.intel.com (HELO 4ea60e6ab079) ([10.239.97.151])
+  by orviesa007.jf.intel.com with ESMTP; 14 Aug 2025 00:44:11 -0700
+Received: from kbuild by 4ea60e6ab079 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1umSd6-000Aim-2n;
+	Thu, 14 Aug 2025 07:44:08 +0000
+Date: Thu, 14 Aug 2025 15:42:40 +0800
+From: kernel test robot <lkp@intel.com>
+To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev, schnelle@linux.ibm.com,
+	mjrosato@linux.ibm.com, alifm@linux.ibm.com,
+	alex.williamson@redhat.com
+Subject: Re: [PATCH v1 5/6] vfio-pci/zdev: Perform platform specific function
+ reset for zPCI
+Message-ID: <202508141518.Z82dHhVu-lkp@intel.com>
+References: <20250813170821.1115-6-alifm@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250813170821.1115-6-alifm@linux.ibm.com>
 
-Having the new tty_port_tty guard, use it in tty3270_resize(). This
-makes the code easier to read. The winsize is now defined in the
-scope and initialized immediately, so that it's obvious.
+Hi Farhan,
 
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
----
-Cc: linux-s390@vger.kernel.org
----
- drivers/s390/char/con3270.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+kernel test robot noticed the following build errors:
 
-diff --git a/drivers/s390/char/con3270.c b/drivers/s390/char/con3270.c
-index b78b86e8f281..a367f95c7c53 100644
---- a/drivers/s390/char/con3270.c
-+++ b/drivers/s390/char/con3270.c
-@@ -970,8 +970,6 @@ static void tty3270_resize(struct raw3270_view *view,
- 	char **old_rcl_lines, **new_rcl_lines;
- 	char *old_prompt, *new_prompt;
- 	char *old_input, *new_input;
--	struct tty_struct *tty;
--	struct winsize ws;
- 	size_t prompt_sz;
- 	int new_allocated, old_allocated = tp->allocated_lines;
- 
-@@ -1023,14 +1021,14 @@ static void tty3270_resize(struct raw3270_view *view,
- 	kfree(old_prompt);
- 	tty3270_free_recall(old_rcl_lines);
- 	tty3270_set_timer(tp, 1);
--	/* Informat tty layer about new size */
--	tty = tty_port_tty_get(&tp->port);
--	if (!tty)
--		return;
--	ws.ws_row = tty3270_tty_rows(tp);
--	ws.ws_col = tp->view.cols;
--	tty_do_resize(tty, &ws);
--	tty_kref_put(tty);
-+	/* Inform the tty layer about new size */
-+	scoped_guard(tty_port_tty, &tp->port) {
-+		struct winsize ws = {
-+			.ws_row = tty3270_tty_rows(tp),
-+			.ws_col = tp->view.cols,
-+		};
-+		tty_do_resize(scoped_tty(), &ws);
-+	}
- 	return;
- out_screen:
- 	tty3270_free_screen(screen, new_rows);
+[auto build test ERROR on awilliam-vfio/next]
+[also build test ERROR on s390/features linus/master v6.17-rc1 next-20250814]
+[cannot apply to kvms390/next awilliam-vfio/for-linus]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Farhan-Ali/s390-pci-Restore-airq-unconditionally-for-the-zPCI-device/20250814-012243
+base:   https://github.com/awilliam/linux-vfio.git next
+patch link:    https://lore.kernel.org/r/20250813170821.1115-6-alifm%40linux.ibm.com
+patch subject: [PATCH v1 5/6] vfio-pci/zdev: Perform platform specific function reset for zPCI
+config: csky-randconfig-002-20250814 (https://download.01.org/0day-ci/archive/20250814/202508141518.Z82dHhVu-lkp@intel.com/config)
+compiler: csky-linux-gcc (GCC) 15.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250814/202508141518.Z82dHhVu-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202508141518.Z82dHhVu-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+   In file included from drivers/vfio/pci/vfio_pci_core.c:36:
+>> drivers/vfio/pci/vfio_pci_priv.h:104:5: warning: no previous prototype for 'vfio_pci_zdev_reset' [-Wmissing-prototypes]
+     104 | int vfio_pci_zdev_reset(struct vfio_pci_core_device *vdev)
+         |     ^~~~~~~~~~~~~~~~~~~
+--
+   csky-linux-ld: drivers/vfio/pci/vfio_pci_intrs.o: in function `vfio_pci_zdev_reset':
+>> drivers/vfio/pci/vfio_pci_priv.h:105: multiple definition of `vfio_pci_zdev_reset'; drivers/vfio/pci/vfio_pci_core.o:(.text+0x1a6c): first defined here
+   csky-linux-ld: drivers/vfio/pci/vfio_pci_rdwr.o: in function `vfio_pci_zdev_reset':
+>> drivers/vfio/pci/vfio_pci_priv.h:105: multiple definition of `vfio_pci_zdev_reset'; drivers/vfio/pci/vfio_pci_core.o:(.text+0x1a6c): first defined here
+   csky-linux-ld: drivers/vfio/pci/vfio_pci_config.o: in function `vfio_pci_zdev_reset':
+   (.text+0x1964): multiple definition of `vfio_pci_zdev_reset'; drivers/vfio/pci/vfio_pci_core.o:(.text+0x1a6c): first defined here
+
+
+vim +105 drivers/vfio/pci/vfio_pci_priv.h
+
+   101	
+   102	static inline void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
+   103	{}
+ > 104	int vfio_pci_zdev_reset(struct vfio_pci_core_device *vdev)
+ > 105	{
+   106		return -ENODEV;
+   107	}
+   108	#endif
+   109	
+
 -- 
-2.50.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
