@@ -1,128 +1,197 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 333492FCC15;
-	Fri, 15 Aug 2025 10:06:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD605B640;
+	Fri, 15 Aug 2025 12:00:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755252366; cv=none; b=NI0+5yFsz4XxlVB9jEdoY/Z+jHn5G1lxQlCAIBH/SMNHDV3oe7Jb9JYf/KDeNJLCC8aUJFaJAv2fxghFfTTb2GPxqwXybudAfvZG/7Wqy4hq8dRHedDV3NzfOUKEOGxNv835w0u/xpTQTc5fpBphfsTva/qSTPxpUOLfTsSWIuk=
+	t=1755259205; cv=none; b=r38uPL3YN/XSOJoKCXeLPZGbYN9GDeuL5b9wWi+uqMd83xSYe4d3fUuzziDD5CZ0Z//aIwIhpWM1s6G9ArMVSZI5m907p/f55CwfAxHwT/QmQHaPseGlcU5tkNvR+jLuFn3FurKWmz1VQxb5nxr9oRHKlfb9ab82syKI9k6evJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755252366; c=relaxed/simple;
-	bh=Qum2QJiRlsLf40QcWgyKpHqDOId5H79nbhv7G1AXN9Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=msdvAgmOBcDqm7R6i4MEo/D0lB/vJJBGS5wPBZZJqmgAhKlv2QHAi37dyC5JmupKmxfyj5kNu3i1KfWIxjejRFE6zK6F1e3qEqrCPHQ+WM4mnyE81oM7V+fG0dw4clsqrHMi+5/BIKidIjYiKyoDMpAqSFE3SNthkydu0r/L4ks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=aO2iazZB; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=S6z9FpXD; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1755259205; c=relaxed/simple;
+	bh=IKdYg2KJS4elXGPTvScy73lA6uhQM7HbLz3SmXwdXBs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CohaDhnghbEtotP7XxKwBmUwXzT2TFZraVv5yI/WvKa3m75+fBbaOvKhH+qn88MiSjZAdqe7ECltvRDG8GPLM1Fu0/4Gd5pAGYvZD5eVEXJcY7XU3gvN9bDpgsbkUBvsjkGm5EiXEjzQnl9nbP1sHoY/lrTI1/IFhyEcrE8vPco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eoKdn4S/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="aO2iazZB";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="S6z9FpXD"
-Date: Fri, 15 Aug 2025 12:06:02 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1755252363;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NKM6vYBTvYJgJZpC+3klg9OwyY5OfNg57KkNb0OocWg=;
-	b=aO2iazZBVl4jvGHcxioVfsh65iLR3Izq+qWPXADbutMqMavKgUaUthaDr+R6w1r6xC69M7
-	pL5h2TEWtWYewAnpScYhJCkIaFAKgULbi15SjfGtKC8LJ/mZc1hQQzLg71FWu25eDTH0y1
-	MdUY3+nnowrj0PdDzw1hyrQ8ozJ0BdBe+J6xfrhxUNOLMiWm7280NRlOtJuKnvCK2Hl4+R
-	JjnaSPjNDatrg+pgW4dq3uCQftbz45AWPj/EWmXs4IklOD4k8lw//0rXGaZQYflfEXqJDN
-	ZoNnis/wD+gc1ASC2wdlydN0BBi8bv7A4d+0Pi34HL6a8GZJXUQvVqO1fxQIkg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1755252363;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NKM6vYBTvYJgJZpC+3klg9OwyY5OfNg57KkNb0OocWg=;
-	b=S6z9FpXDI0m5KmQAvWcT/IWg9tN8RVfisToJ75YI5pbqWTKx4VxzrYh7GLy6FZouW5QiYj
-	9qWhB6v7+0ZZRyBg==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Miguel Ojeda <ojeda@kernel.org>, 
-	Alex Gaynor <alex.gaynor@gmail.com>, Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
-	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
-	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
-	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
-	Nicolas Schier <nicolas.schier@linux.dev>, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
-	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@redhat.com>, Alexandre Ghiti <alexghiti@rivosinc.com>
-Subject: Re: [PATCH v4 00/24] vdso: Reject absolute relocations during build
-Message-ID: <20250815112851-e613308f-d49e-44ae-b2dd-ca7946fa1fd9@linutronix.de>
-References: <20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de>
- <86186254-b2c6-4818-af0a-4eb67d90e501@csgroup.eu>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eoKdn4S/"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57ENUjjc018664;
+	Fri, 15 Aug 2025 11:59:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=mXU5Pp
+	VW86ZARpgiSzQjclIjpoFMLOlVM4kwtmyxvmc=; b=eoKdn4S/iz7DD3Ke82WyHC
+	X4VcfiSqSUesQi3MgTrXLe+lQZieVfwG4tr5nPRWdjM2zeL18M/I3ItXsbkr984p
+	jj7VuPIj4Xe/mC6H/CjoJUXt6YxewaszIdRokjNuVb9FvrYkMO6rLR9ZgNr5NNx8
+	jg2iH5043208adsstiloXIR35CJ59++O4qx9G2qXq9AsN3kERIOiNbzQcOTVA8OK
+	fdQwdORFpsFdgJJsPMxYsDTN+oahX/QQI9HcpWkfmcsOhI7VxHjxgoPkAGZzzUYp
+	aWOI7iRM5d3tsdy/kO14VMcpxWRpS/BZkND9p/hgulOPzlKn8CyOq1DyeCku8Uyg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48gypeh55s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 Aug 2025 11:59:56 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57FBvFin025425;
+	Fri, 15 Aug 2025 11:59:55 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48gypeh55q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 Aug 2025 11:59:55 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57FALIM2010657;
+	Fri, 15 Aug 2025 11:59:54 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 48egnv0xe8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 15 Aug 2025 11:59:54 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57FBxo5554264134
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 15 Aug 2025 11:59:50 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A434920043;
+	Fri, 15 Aug 2025 11:59:50 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 25A1020040;
+	Fri, 15 Aug 2025 11:59:50 +0000 (GMT)
+Received: from [9.111.139.98] (unknown [9.111.139.98])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 15 Aug 2025 11:59:50 +0000 (GMT)
+Message-ID: <88d261d1-b1fe-447f-a928-02dec6141b0b@linux.ibm.com>
+Date: Fri, 15 Aug 2025 13:59:49 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <86186254-b2c6-4818-af0a-4eb67d90e501@csgroup.eu>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC net-next 11/17] net/dibs: Move struct device to dibs_dev
+To: dust.li@linux.alibaba.com, David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang
+ <wenjia@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thorsten Winkler <twinkler@linux.ibm.com>,
+        Simon Horman <horms@kernel.org>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        Halil Pasic <pasic@linux.ibm.com>, linux-rdma@vger.kernel.org
+References: <20250806154122.3413330-1-wintera@linux.ibm.com>
+ <20250806154122.3413330-12-wintera@linux.ibm.com>
+ <369a292c-c8c5-4002-a116-f9e1b4a436ba@linux.ibm.com>
+ <aJ6TsutbywkTLWxO@linux.alibaba.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <aJ6TsutbywkTLWxO@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=eaU9f6EH c=1 sm=1 tr=0 ts=689f213c cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=UXmhFyH_Ja1RVgvJcCoA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: EbyEFtNgKaNCmSSOl4KfF5ONZ25AU6Qj
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODEzMDE2NyBTYWx0ZWRfX1f6RgSeChbgE
+ Y6Qp8E09PNTzQFjbOcw3OyVS/Kimv3oQvL6th2fBZKJLCpj32rJ+t2HuWsSMKfci5Ez2AcdcIyI
+ T+AKGmeuPLKrwiqOUYo5pFWfAs6Ga9PGOYevV3hp8ik8Zj8wbDJyCUnbdm4Ft9Y8caVN8LxcWQD
+ xBpWW4zvNak/Jf7+LQbsMyvAqDjDvj82anVbiqM7XjOYKO3+GjGsUyrsxJfWOCUvpmhC/KUWCu+
+ C5xnGFH0Lz//gKjtRc/MgGgMfesB74G5grmMiwI8Op14OQhHXb/ddIB4gYgoaDtBbbq47jZNJpH
+ fZMTJZ1CadALYEDG+bg9DqWD4Yad+Vk/2bMfW5rLtBkbyr4UJd8vtD97lOqT5SZ0OTIXUN0X0OH
+ PZAljSjU
+X-Proofpoint-ORIG-GUID: Bx52oVEf8BV3iVwfcr_JMs9aZmnd9cKf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-15_04,2025-08-14_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 phishscore=0 clxscore=1015 priorityscore=1501 spamscore=0
+ bulkscore=0 malwarescore=0 adultscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508130167
 
-Hi Christophe,
 
-On Thu, Aug 14, 2025 at 03:43:09PM +0200, Christophe Leroy wrote:
-> Le 12/08/2025 à 07:44, Thomas Weißschuh a écrit :
-> > The compiler can emit absolute relocations in vDSO code,
-> > which are invalid in vDSO code.
-> > Detect them at compile-time.
+
+On 15.08.25 03:56, Dust Li wrote:
+> On 2025-08-14 10:51:27, Alexandra Winter wrote:
+>>
+>> On 06.08.25 17:41, Alexandra Winter wrote:
+>> [...]
+>>> Replace smcd->ops->get_dev(smcd) by dibs_get_dev().
+>>>
+>> Looking at the resulting code, I don't really like this concept of a *_get_dev() function,
+>> that does not call get_device().
+>> I plan to replace that by using dibs->dev directly in the next version.
+> May I ask why? Because of the function name ? If so, maybe we can change the name.
+
+Yes the name. Especially, as it is often used as argument for get_device() or put_device().
+Eventually I would like to provide dibs_get_dev()/dibs_put_dev() that actually
+do refcounting.
+And then I thought defining dibs_read_dev() is not helping readability.
+
 > 
-> I'm a bit puzzled with this series.
+> While I don't have a strong preference either way, I personally favor
+> hiding the members of the dibs_dev structure from the upper layer. In my
+> opinion, it would be better to avoid direct access to dibs members from
+> upper layers and instead provide dedicated interface functions.
 > 
-> If I understand correctly, the check will be done only when you have RUST
-> available ?
-
-Yes, this new check will only be performed if a rust toolchain is available.
-CONFIG_RUST however is *not* required.
-
-> I wouldn't expect having RUST to build a C kernel.
-
-The build will work fine without Rust present and will fall back to the
-simplistic readelf test. A single report of breakage will allow us to fix the code,
-not everybody needs to run the full thing.
-
-> By the way, aren't relocations already detected by command cmd_vdso_check in
-> lib/vdso/Makefile.include , using readelf ? Why is a new tool needed
-
-The current cmd_vdso_check only validates the final vDSO image.
-However that is not sufficient, as some problematic relocations will not show
-up in the final image anymore but only the intermediary object files.
-And there the logic is more complex than can be reasonably expressed in inline
-shell scripts, see the previous revisions of this series for the attempts.
-The valid relocations depend on each architecture and the specific ELF section
-they appear in.
-For the real example that triggered all of this, see commit
-0c314cda9325 ("arm64: vdso: Work around invalid absolute relocations from GCC")
-
-> and why does it have to be written in RUST langage ?
-
-There is no hard requirement for Rust. I chose it for convenience of
-implementation, especially around descriptive error handling and generic
-functions. tglx was fine with it.
+> For example, I even think we should not expose dibs->ops->xxx directly
+> to the SMC layer. Encapsulating such details would improve modularity
+> and maintainability. Just like what IB subsystem has done before :)
+> 
+> For example:
+> # git grep dibs net/smc
+> [...]
+> net/smc/smc_ism.c:      return dibs->ops->query_remote_gid(dibs, &ism_rgid, vlan_id ? 1 : 0,
+> net/smc/smc_ism.c:      return smcd->dibs->ops->get_fabric_id(smcd->dibs);
+> net/smc/smc_ism.c:      if (!smcd->dibs->ops->add_vlan_id)
+> net/smc/smc_ism.c:      if (smcd->dibs->ops->add_vlan_id(smcd->dibs, vlanid)) {
+> net/smc/smc_ism.c:      if (!smcd->dibs->ops->del_vlan_id)
+> net/smc/smc_ism.c:      if (smcd->dibs->ops->del_vlan_id(smcd->dibs, vlanid))
+> [...]
+> 
+> Best regards,
+> Dust
 
 
-Thomas
+I see your point and I remember you brought that up in your review of
+[RFC net-next 0/7] Provide an ism layer
+already.
+
+I tried to keep this series to a meaningful minimum, which is a tradeoff.
+If possible, I just wanted to move code around and add the dibs layer
+in-between. There are several areas where I would like to see even more
+de-coupling. eg.:
+- handle_irq(): Clients should not run in interrupt context,
+  a receive_data() callback function would be better.
+- The device drivers should not loop through the client array
+- dibs_dev_op.*_dmb() functions reveal unnecessary details of the
+  internal dmb struct to the clients
+- ...
+
+So instead of adding a set of 1:1 caller functions / interface functions
+for dibs_dev_ops and dibs_client_ops now, I would like to propose to work
+on further decoupling devices and clients by adding more abstractions that
+bring benefit. And then replace the remaining calls to ops by 1:1 caller
+functions. Does that make sense? Or does anybody feel strongly that I need
+to provide interface functions now?
+
+BTW, there are some client-only functions and some device-driver-only functions
+in dibs.h already. So that is the direction.
+
+
+
+
+
