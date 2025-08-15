@@ -1,67 +1,67 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A17921CC54
-	for <linux-s390@vger.kernel.org>; Fri, 15 Aug 2025 15:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 332DF21D58B
+	for <linux-s390@vger.kernel.org>; Fri, 15 Aug 2025 15:07:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755270353; cv=none; b=X65z1p7mGllACDQrAfqpuYMnQTyNU/JiyKePqJC0NJtU+qhIrxMbQ3+GXMK2YZdaVKrDux+FKM8k4o6ZoqMkeW8EMY5WilBRgGjCQpTxoFm8EoWiiAWFUaAvwa6qwjCVXTPeByX3F81e77YBWwUF17MXPyKxzcFsuI+pBGbYH6A=
+	t=1755270455; cv=none; b=kDte0C5VK8BUNZpD75SEoyeuAvyk3r/qiUVC7oW4LZwHI4INMtleDVBfvxTa1yof8qSXPalReitA5fo+c5c5x4CgEn9C8OSmP/dEnW7mF2hvgmEUj3HP5POsam/sCQZq39hWwDAAgi8n2etemhaUP2ZP2pCaFtbHYI9aX11cOMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755270353; c=relaxed/simple;
-	bh=wNfhEAk3rnqID1OBHwaELciuLi86NZwkA7swq1t5JdI=;
+	s=arc-20240116; t=1755270455; c=relaxed/simple;
+	bh=HPdnoqfMTW5K8PpSXd0uxj2ktrGo1NLLAxniXY1kt3g=;
 	h=Date:Subject:In-Reply-To:CC:From:To:Message-ID:Mime-Version:
-	 Content-Type; b=iYZEDG7DHxxazLR2K7qqu4G4aP1wYOAIjQikN+cSgYzk6rs2m79S5DJjz1rLeahD2OM2kkooRFnlV0ivGh0MibMlcRvozzCWRkguIrm4eBnyQ+qrkjRP4LZh+omHKleDTuptjM6KD3EeEymNys7cRcw1vfdk0CSonof4y9wI6ks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com; spf=pass smtp.mailfrom=dabbelt.com; dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b=mZKauASq; arc=none smtp.client-ip=209.85.210.173
+	 Content-Type; b=hkJ+LjICmItQpUVeJRLOc9+uA/gM+f9wa64gWVizIil36EUNfEAUyQmd8J0WfeQ3RtiP86xf6OWpG0/v+HNDnv9WC2XLURRqTp4HDyVCI8yO6ImWuUiX4Oh62N3GiPLBl89RlnC2leMkIijQoEUOtEmLMCbeEoUVMOmUtrF58JM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com; spf=pass smtp.mailfrom=dabbelt.com; dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b=lUThUIem; arc=none smtp.client-ip=209.85.210.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dabbelt.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dabbelt.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="mZKauASq"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-76e39ec6e05so1091360b3a.2
-        for <linux-s390@vger.kernel.org>; Fri, 15 Aug 2025 08:05:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=dabbelt-com.20230601.gappssmtp.com header.i=@dabbelt-com.20230601.gappssmtp.com header.b="lUThUIem"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-76e2e613e90so1590588b3a.0
+        for <linux-s390@vger.kernel.org>; Fri, 15 Aug 2025 08:07:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1755270350; x=1755875150; darn=vger.kernel.org;
+        d=dabbelt-com.20230601.gappssmtp.com; s=20230601; t=1755270452; x=1755875252; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:to:from:cc
          :in-reply-to:subject:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=38zqqxNHqbGz3C68JOy9Ugb8wAb711DWGVbxjNinx0U=;
-        b=mZKauASq6wZkezrwzg5EsqpZPzKSyUiLiawcT9BlsvW3YiILWWbdCLQfpTP13qY6fB
-         oZwx20nglnVNrDmmPfk4aePlJDu2TAg1mBu6EglTB/5H97T2cGuSu4PxV7HImr8TrepE
-         68t/id3y3tOVHNYVxVkwTaIc14VHd7H1o9mUsS4bzQlMJR/z7XxZmVnGsRHSebQYgnEV
-         rSZiKzLN5z5qnW2SjxlNV1Brx5GmqFnBIIZxMHmU2kyWh2/WybeT81JLEcA4kHv1QC8W
-         CS8Wu00IF1ktWN/Ff/zHUzMA0yvpQqSCuCbC8nUpYkKRabnJW3fuJQ0QupC66XAb6JiG
-         WqDw==
+        bh=EHLPRMwsFUXklJ+HOrV/DsMAdiggx2WSG2UfKCJiulY=;
+        b=lUThUIem/GAn1juJ789DpBzJqqOXtenJ8ovp+k0VW42tuXVED2iih61YudRRfo/koR
+         6XDQTwc0FvhEA8C+CGQIN7lv5nO0yaggRtbbI4fIbxVqIaklYdKSTivQb5gRgHtPuM6z
+         vQ++YMoCCotkEYF1eJPj+P/U4AvDX5UwDYrRHniU7nsHpONJGYJU5lssxyX4g6NYHApM
+         dpLdZHs7Y5L6mu/+7oT4WOSVm/SyJOMkwW7ZMqYbNRsgArNjotlaz28QE78DTskOmRuH
+         qglEE5IRztkbiqSHK1axpi1ik5vE7Z+Tu+l6kj7lNJ3QmiiL1viFjCCcfDfMnqTBBtKa
+         qFbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755270350; x=1755875150;
+        d=1e100.net; s=20230601; t=1755270452; x=1755875252;
         h=content-transfer-encoding:mime-version:message-id:to:from:cc
          :in-reply-to:subject:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=38zqqxNHqbGz3C68JOy9Ugb8wAb711DWGVbxjNinx0U=;
-        b=SeP5wnhfrDGzI/HRAEhDyOR9BHsvd28A5EvdUTVPaOfoAs51Tw9sazFp5ZWDXm0wrf
-         fkXo5aPkw3yC/4DMtBhhBD8tt89wXvSOLMndxmIP/Knyd23O0MiAXsXXmSZKW2jeTwDI
-         5T3F7PYnu4RAE7QXyojP+oO/0NNVTqTSOH/pP2DB6nFksjFYXjLtyVknvrr2HLPZNVz+
-         OAvUEXFNp5Ns5VBm6Kn0WYq5qsUCE6zg7tZ2ipCQrt+UUGurnfcNBDhkIAXfBygQ9Fcw
-         Dtb+XH4Gn7l19vzdeXE99pTXib1YuSzY30/WoAz3dbuiX9gDjy2BM6uCBZ6e9Tfpxozr
-         IM5Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUvoyFBAHSVxGkok6kP5kssA+n6NPfFv4325Mhaud4CjM4FVZeewd1fE5GjnSSnZNfAc/AJSWFIDcE1@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz6WYq0g4b7YvlSuss5bNEkFrI8gq8k6ZTq5kr2Wd6aVfJG8je5
-	+wBycW7GB4+zJjp4tJXH5lc6Wx9MQflNUGKVQGkBidtXIO9h9zQLFLf3lVyr95G/bsE=
-X-Gm-Gg: ASbGnculF0MZgAbAa5h8KWfT117b/b1+wykl7wFfWbkALM4t84cO+oYhrQKtp6FgEcg
-	iLGY+4n1CgoI04scgku72v0fwGosw9qcSkyiY56WM7LgLitfSaLN+6F37eaeZE5jmzPozsj7qVh
-	IK74nBsJd85Yz5VCZE0G2iNGLSBFeD2yyMBP4cDl8PVazpa+GbLEOsCWUchuIAvFKfF92rDTBsW
-	jXWXg6tUAYiKuy7mvIHmv99d9VecoiQxGNJg3Cz8fnn8FVjKaFc9gyOngSt1TZcGLjEwnSYgGOr
-	UmwdFovDY9H8tL79JvrniIEPT5KwNKYq+rPhx21EyjsJd1OpdbosC5bLxlhi2eahn6a2JJeOb35
-	9fyic+LcgeqRFgTWx5BT+zqHYd3t2LamMCxw=
-X-Google-Smtp-Source: AGHT+IG3gBMogdOr+spUGY65daTLUVfmz5lhgO/opdXo6UimhkccgL0C2Gx+F8DUbrOBq4AI/2z6Vg==
-X-Received: by 2002:a17:903:198c:b0:240:a222:230c with SMTP id d9443c01a7336-2446d5af743mr41307075ad.12.1755270349908;
-        Fri, 15 Aug 2025 08:05:49 -0700 (PDT)
+        bh=EHLPRMwsFUXklJ+HOrV/DsMAdiggx2WSG2UfKCJiulY=;
+        b=G1I8UYG0lF3gG4LoruGS8sJ78Nce73ZDZdxjjcto/Xx0jx8YFMWQG1yf3OqrTX5aQq
+         69GFXSa/AFhi04kCmSja5XxQvMtAHnx139XosqtHxXFJfN3qUsaNr90FfEsOx/7DiGEi
+         7NnqPSQxrXZaYC/mtoi08FJoSlRKT9EBOt1VS3uw/hRoaORQeW0k8xz7SyXhjcKaVy3O
+         MBMa0GTSur4x+VhdJSA3Tvt92xZ708M12NKcLltD0oVbehCYm3EmuhmsV1lzzFNBrnh8
+         RqME+YfHoyFtY9frzyZcDVGZYTGJypLaB8KTmnnEVdWU4GqG1a1Dg0corWnyDzyS/xf/
+         B3KA==
+X-Forwarded-Encrypted: i=1; AJvYcCUCF2PlUTenYcinFpD1+wDlh3/4lvRjJBDnf6DCS8oZfSQfrRWGoCzZiGH1/FZ8B949eeXCOR7TR8Cp@vger.kernel.org
+X-Gm-Message-State: AOJu0YywF7U0MvLkKUqIhcF8xAygiKaLa4kiHTss/1m3bAmwLk4Cjrr1
+	gJlG1wR1b9qXpkDZQxIzPHRNe4MwZ7YcTdsIcVH8KuFqvKdsR7wTcaXDrpyyZOCZ8Y8=
+X-Gm-Gg: ASbGncvFqGwpR5J2eHlNy2fKlhJ3JjfFOR0NkxpwcUyZroIa4TKVLlrRvzXuMD/uiei
+	NEnZi5sR1W3qCia99FFHXsq9sfXpz2fmuKxTlc8jecqhtr72UTJhefPH4pukfydDY/4O4CMGUik
+	HiufvnSqkuvF6YWSVQjlBJfyCdrqaTOWK98DN3jp9v+jSIq9ifegrl9DI2RtGsbX4KtKSC69md2
+	HLdW5H14MF/1rfvleVy/67sOGADECRo/TJfAgK5QuJDGvlgmxA1Rd2/LgGL3WthHvir8m62IBb1
+	qfyz80crDmfJrhvUJx67IH9zOfIh1uxQWLgRsM1uTt0eHI1T3XkMwgYN87BFTll1MOHPmobxvpw
+	5Q3HIF+gADWbIWC4+TE141bQijiled0sIli4=
+X-Google-Smtp-Source: AGHT+IHmxnV+YR9cR/LeaPBJErhvHjNkppxMDemXEcOX3MCe4Sp9OWex1hLOxvkMk2wkz7dST8S4eg==
+X-Received: by 2002:a05:6a00:4f96:b0:769:a6a2:fe1e with SMTP id d2e1a72fcca58-76e447e3389mr3104455b3a.11.1755270452302;
+        Fri, 15 Aug 2025 08:07:32 -0700 (PDT)
 Received: from localhost ([192.184.165.199])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-2446cadf96fsm16286885ad.41.2025.08.15.08.05.48
+        by smtp.gmail.com with UTF8SMTPSA id d2e1a72fcca58-76e4558bf19sm1309791b3a.99.2025.08.15.08.07.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Aug 2025 08:05:49 -0700 (PDT)
-Date: Fri, 15 Aug 2025 08:05:49 -0700 (PDT)
-X-Google-Original-Date: Fri, 15 Aug 2025 08:05:47 PDT (-0700)
-Subject:     Re: [PATCH v4 06/24] riscv: elf: Move relocation constants to UAPI
-In-Reply-To: <20250812-vdso-absolute-reloc-v4-6-61a8b615e5ec@linutronix.de>
+        Fri, 15 Aug 2025 08:07:31 -0700 (PDT)
+Date: Fri, 15 Aug 2025 08:07:31 -0700 (PDT)
+X-Google-Original-Date: Fri, 15 Aug 2025 08:06:56 PDT (-0700)
+Subject:     Re: [PATCH v4 17/24] riscv: vdso: Deduplicate CFLAGS_REMOVE_* variables
+In-Reply-To: <20250812-vdso-absolute-reloc-v4-17-61a8b615e5ec@linutronix.de>
 CC: Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu,
   Alexandre Ghiti <alex@ghiti.fr>, nathan@kernel.org, nick.desaulniers+lkml@gmail.com, morbo@google.com,
   justinstitt@google.com, luto@kernel.org, tglx@linutronix.de, vincenzo.frascino@arm.com,
@@ -81,7 +81,7 @@ CC: Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu,
   thomas.weissschuh@linutronix.de
 From: Palmer Dabbelt <palmer@dabbelt.com>
 To: thomas.weissschuh@linutronix.de
-Message-ID: <mhng-5B6E084E-60EE-440E-BFF9-5E81AAC9A473@Palmers-Mini.rwc.dabbelt.com>
+Message-ID: <mhng-540E0EE0-A9CF-4EE3-9E71-969B40D29C50@Palmers-Mini.rwc.dabbelt.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -91,19 +91,39 @@ Mime-Version: 1.0 (MHng)
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On Mon, 11 Aug 2025 22:44:19 PDT (-0700), thomas.weissschuh@linutronix.de wrote:
-> These constants are useful for cross-platform userspace, for example to
-> process ELF files during kernel cross-compilation.
->
-> Move them from the kernel-private architecture-specific header to the UAPI.
+On Mon, 11 Aug 2025 22:44:30 PDT (-0700), thomas.weissschuh@linutronix.de wrote:
+> All vDSO objects need the same treatment.
+> To make changes to both the list of objects and the list of removed flags
+> easier, introduce a helper variable.
 >
 > Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+> Reviewed-by: Alexandre Ghiti <alexghiti@rivosinc.com>
+> Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+> Tested-by: Jan Stancek <jstancek@redhat.com>
 > ---
->  arch/riscv/include/uapi/asm/elf.h | 66 ---------------------------------------
->  include/uapi/linux/elf-r.h        | 66 +++++++++++++++++++++++++++++++++++++++
->  2 files changed, 66 insertions(+), 66 deletions(-)
+>  arch/riscv/kernel/vdso/Makefile | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+> index 9ebb5e590f93a3228c451dca58e6d5cfbbc03ff7..c19c3c76f7c9f6b2f7523a59269de3b683656323 100644
+> --- a/arch/riscv/kernel/vdso/Makefile
+> +++ b/arch/riscv/kernel/vdso/Makefile
+> @@ -49,9 +49,10 @@ CPPFLAGS_vdso.lds += -DHAS_VGETTIMEOFDAY
+>  endif
+>
+>  # Disable -pg to prevent insert call site
+> -CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) $(CC_FLAGS_SCS)
+> -CFLAGS_REMOVE_getrandom.o = $(CC_FLAGS_FTRACE) $(CC_FLAGS_SCS)
+> -CFLAGS_REMOVE_hwprobe.o = $(CC_FLAGS_FTRACE) $(CC_FLAGS_SCS)
+> +CFLAGS_REMOVE_VDSO = $(CC_FLAGS_FTRACE) $(CC_FLAGS_SCS)
+> +CFLAGS_REMOVE_vgettimeofday.o = $(CFLAGS_REMOVE_VDSO)
+> +CFLAGS_REMOVE_getrandom.o = $(CFLAGS_REMOVE_VDSO)
+> +CFLAGS_REMOVE_hwprobe.o = $(CFLAGS_REMOVE_VDSO)
+>
+>  # Force dependency
+>  $(obj)/vdso.o: $(obj)/vdso.so
 
+Reviewed-by: Palmer Dabbelt <palmer@dabbelt.com>
 Acked-by: Palmer Dabbelt <palmer@dabbelt.com>
 
-I'm going to assume you want to take these all together though some 
-other tree, thanks!
+Also assuming you want to take this with the others.
