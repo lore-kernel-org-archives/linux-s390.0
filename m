@@ -1,147 +1,63 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63C0C1E51EB;
-	Fri, 15 Aug 2025 15:18:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+Received: from gate.crashing.org (gate.crashing.org [63.228.1.57])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C8BA330E82B;
+	Fri, 15 Aug 2025 16:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.228.1.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755271132; cv=none; b=B+0cv6eair0OAXFbqPsHM2LpR7svUwupUSSTjN9pZ5D4CnLZpJZ6ZyxyAQL+o4zB/9mv8Tn6Ckxlf7XgUU5+UUbo4I/PW9XazmWAsngPuCSaevyDWRAj2G4eQptA0sLk/YVNMvB5+a9VVotbFanqz2xFcVoGcALpLfo9Xd7VkhQ=
+	t=1755276024; cv=none; b=Mi4YU1V6U/5E9gMHUPghmc3CyZXkZxYHbNtVyOYv/DOMiPZI+WUuqOyVebyF7hzgvXDf0N9oT6GSSXQh2JiesCzsnO7uRR7bhgVgnUZn2eEPGAK89jqNamQCz+aoJVqyRhxVatOOp9dTiObbVLE4kfH3IZBOQElK7jZ1FzCxFQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755271132; c=relaxed/simple;
-	bh=St+m+XjWR/D4VK4NB5c9bnl2k3LwJ4ySiZP7SeGdbVQ=;
+	s=arc-20240116; t=1755276024; c=relaxed/simple;
+	bh=JKqiF9UWISn7sOjd/GaP6Ar/71yL4XvlIOAUaO7+qsQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OecZoLcDjfLEVdiuEXynp80KVkrNHYqwrzePlHvmcEnQRhijQYNPTn21iVGO31RwBnM/Jihk6GsQkKEQosZZbHbJ50yIrskSJQZJg6OwTZZUM2gPP1qJe+anE2OH9RfBqu+gg7Ai3Jv8gZBg0MXtnaqVoBVs0oA04apxF5RtOa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=DZPV+XX9; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="DZPV+XX9"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1755271122; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=XbSjaFfmeqSEDkSADy+S30PSxGVVPnDzKxoBgjjd400=;
-	b=DZPV+XX9dTC4xc35Q9W4bu4WdlPipQlwtDL8qSgVbdl+MvSCQCEY9Tq3BbPZNFyVWgZqLFkA4pVTaAWuZKNmwRIDquj8e/y5JnziiVwTPR9W+l26c/QYxx3NvuLOWOOqoo/ChyUv1xcVhjrc68taEPuOw4Jf7ry1R1MSoCPbGu0=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WlpLglp_1755271121 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 15 Aug 2025 23:18:42 +0800
-Date: Fri, 15 Aug 2025 23:18:41 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Alexandra Winter <wintera@linux.ibm.com>,
-	David Miller <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Julian Ruess <julianr@linux.ibm.com>
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thorsten Winkler <twinkler@linux.ibm.com>,
-	Simon Horman <horms@kernel.org>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, Halil Pasic <pasic@linux.ibm.com>,
-	linux-rdma@vger.kernel.org
-Subject: Re: [RFC net-next 11/17] net/dibs: Move struct device to dibs_dev
-Message-ID: <aJ9P0WpHU30zpLLt@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250806154122.3413330-1-wintera@linux.ibm.com>
- <20250806154122.3413330-12-wintera@linux.ibm.com>
- <369a292c-c8c5-4002-a116-f9e1b4a436ba@linux.ibm.com>
- <aJ6TsutbywkTLWxO@linux.alibaba.com>
- <88d261d1-b1fe-447f-a928-02dec6141b0b@linux.ibm.com>
+	 Content-Type:Content-Disposition:In-Reply-To; b=RaqAey1XbpIaE80CMAGZ0hHfwL8q0mCVph1lmCSzwfE6zDU7CjD4tP/H40l3Qxi3l0mF5hc1JZ4Oz4e8lrS2v/IKFTvpE+9KcPT5qsfil7QSZpPOfJ2z2+qPzZfVLf2t6ywdf/1Ioqb1C57xV93y/cLrMVo8V8fnatn19Wv3iNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.crashing.org; spf=pass smtp.mailfrom=kernel.crashing.org; arc=none smtp.client-ip=63.228.1.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.crashing.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.crashing.org
+Received: from gate.crashing.org (localhost [127.0.0.1])
+	by gate.crashing.org (8.18.1/8.18.1/Debian-2) with ESMTP id 57FGYuWM2568188;
+	Fri, 15 Aug 2025 11:34:56 -0500
+Received: (from segher@localhost)
+	by gate.crashing.org (8.18.1/8.18.1/Submit) id 57FGYuon2568187;
+	Fri, 15 Aug 2025 11:34:56 -0500
+X-Authentication-Warning: gate.crashing.org: segher set sender to segher@kernel.crashing.org using -f
+Date: Fri, 15 Aug 2025 11:34:56 -0500
+From: Segher Boessenkool <segher@kernel.crashing.org>
+To: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Kees Cook <kees@kernel.org>, linux-arch@vger.kernel.org,
+        linux-kernel@vger.kernel.org, x86@kernel.org,
+        linux-alpha@vger.kernel.org, linux-csky@vger.kernel.org,
+        linux-hexagon@vger.kernel.org, linux-m68k@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        llvm@lists.linux.dev, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 05/17] powerpc: Add __attribute_const__ to ffs()-family
+ implementations
+Message-ID: <aJ9hsHj9lsHvvhcA@gate>
+References: <20250804163910.work.929-kees@kernel.org>
+ <20250804164417.1612371-5-kees@kernel.org>
+ <7f4f4d07-38f7-444c-adff-ec2a2387e86b@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <88d261d1-b1fe-447f-a928-02dec6141b0b@linux.ibm.com>
+In-Reply-To: <7f4f4d07-38f7-444c-adff-ec2a2387e86b@linux.ibm.com>
 
-On 2025-08-15 13:59:49, Alexandra Winter wrote:
->
->
->On 15.08.25 03:56, Dust Li wrote:
->> On 2025-08-14 10:51:27, Alexandra Winter wrote:
->>>
->>> On 06.08.25 17:41, Alexandra Winter wrote:
->>> [...]
->>>> Replace smcd->ops->get_dev(smcd) by dibs_get_dev().
->>>>
->>> Looking at the resulting code, I don't really like this concept of a *_get_dev() function,
->>> that does not call get_device().
->>> I plan to replace that by using dibs->dev directly in the next version.
->> May I ask why? Because of the function name ? If so, maybe we can change the name.
->
->Yes the name. Especially, as it is often used as argument for get_device() or put_device().
->Eventually I would like to provide dibs_get_dev()/dibs_put_dev() that actually
->do refcounting.
->And then I thought defining dibs_read_dev() is not helping readability.
+Hi!
 
-I see. I don't like dibs_get_dev() either.
-What about dibs_device_to_dev() or dibs_to_dev() ?
+On Thu, Aug 07, 2025 at 03:16:35PM +0530, Madhavan Srinivasan wrote:
+> making them eligible for compiler optimization.
 
-If we can't agree on a name we’re all happy with, I agree we can
-leave it as is for now.
+You can instead use GCC for this.  __builtin_ffs () exists since 2003,
+and has this attribute built-in, as well as tens of other optimisations
+that the kernel thing misses.
+
+Of course using existing stuff instead of cobbling together something
+half working prevents you from having a lot of fun ;-)
 
 
->> 
->> While I don't have a strong preference either way, I personally favor
->> hiding the members of the dibs_dev structure from the upper layer. In my
->> opinion, it would be better to avoid direct access to dibs members from
->> upper layers and instead provide dedicated interface functions.
->> 
->> For example, I even think we should not expose dibs->ops->xxx directly
->> to the SMC layer. Encapsulating such details would improve modularity
->> and maintainability. Just like what IB subsystem has done before :)
->> 
->> For example:
->> # git grep dibs net/smc
->> [...]
->> net/smc/smc_ism.c:      return dibs->ops->query_remote_gid(dibs, &ism_rgid, vlan_id ? 1 : 0,
->> net/smc/smc_ism.c:      return smcd->dibs->ops->get_fabric_id(smcd->dibs);
->> net/smc/smc_ism.c:      if (!smcd->dibs->ops->add_vlan_id)
->> net/smc/smc_ism.c:      if (smcd->dibs->ops->add_vlan_id(smcd->dibs, vlanid)) {
->> net/smc/smc_ism.c:      if (!smcd->dibs->ops->del_vlan_id)
->> net/smc/smc_ism.c:      if (smcd->dibs->ops->del_vlan_id(smcd->dibs, vlanid))
->> [...]
->> 
->> Best regards,
->> Dust
->
->
->I see your point and I remember you brought that up in your review of
->[RFC net-next 0/7] Provide an ism layer
->already.
->
->I tried to keep this series to a meaningful minimum, which is a tradeoff.
->If possible, I just wanted to move code around and add the dibs layer
->in-between. There are several areas where I would like to see even more
->de-coupling. eg.:
->- handle_irq(): Clients should not run in interrupt context,
->  a receive_data() callback function would be better.
->- The device drivers should not loop through the client array
->- dibs_dev_op.*_dmb() functions reveal unnecessary details of the
->  internal dmb struct to the clients
->- ...
->
->So instead of adding a set of 1:1 caller functions / interface functions
->for dibs_dev_ops and dibs_client_ops now, I would like to propose to work
->on further decoupling devices and clients by adding more abstractions that
->bring benefit. And then replace the remaining calls to ops by 1:1 caller
->functions. Does that make sense? Or does anybody feel strongly that I need
->to provide interface functions now?
-
-Yes, I agree we can do that in the future.
-
-Best regards,
-Dust
-
+Segher
