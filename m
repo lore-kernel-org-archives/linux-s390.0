@@ -1,147 +1,450 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 607C4F9D6;
-	Mon, 18 Aug 2025 05:46:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 255E6275B04
+	for <linux-s390@vger.kernel.org>; Mon, 18 Aug 2025 06:41:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755495995; cv=none; b=LIWYSYfRiBHvxL74dM85YS54BHhvBStKLnB9bmYfC8JrzFVKZbtMbth7kg9XZlC3NuR/rNg1ZVPIyhLyO8z4ZB3AniDObvdipsvfGDJQyIZ8bBaaoK35ph7gsE6+nJsWR1twmeS06lEeylQ1W6X+PuZcEhxK2PTclhVV7LKODqY=
+	t=1755499313; cv=none; b=ato3zWNn89vgzzC1ds/W7R9Lf4X5UDWlLnQAAl12VDtp9yKldqqklKY4R6F6kACft/VRmyjDshQKJPwQYm+xx0UJmGNtAvCNGQsQNCi4Qp90pHjTdqzfdD4pjblG79zQ7+0/s4zAIlP/FcFkTGiWbDyYLTf788yamxW2VU5AfDg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755495995; c=relaxed/simple;
-	bh=pDDbBfhXrzN88gV1+6lWxP3+NPHeJgKNRnA17Z521PM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fdRsn8A4e8HHNj8gf9hsC2gm5h+4PZJ+ucsKtjuGWvwXwGi2yXc1geAKLcQ4HOdUaRgj2lp3YoDWQe8jgveBDmAUu6xH6RYXMVTG2fycUi7+eN4tZPJX63q1oCyq7OaCTko26C8FOkOQlHVORvJ3g5uohw92nWiibev+nyOvfFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=v+Epg6Mj; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1755499313; c=relaxed/simple;
+	bh=4EBVhoBFeF7pNGClKVleaoGFSm/cPIuw0WEv7H0jc9Y=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Hr8vxwrfJNxvf9OT6hMGt2bKCeshNIaM/lbHFhbXz0IN9bSb9D+18oRMvaNc6W+zoAsZl++SvAC9+FYJt0Fp0sK9SnUimi9UL/2yOFIANHVDhtMeF3oyDHpG9cHnT90V3vAZpsLGGOCfUHLRrWJM1ywmzfdDG4f36eVPtXrvA1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=S1ofeuAZ; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="v+Epg6Mj"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1755495984; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=76MvS5h5TvjzmJFUo1hKtylXMp55E5hPoUrgvx1yvlA=;
-	b=v+Epg6MjsuhG4R5grzRPuCEDwePLbEcL0UISzq/VVHjaTcB4XJOL3QulHibIIWnQ7uFeB+A2sAcStwUJXDfkqeQrk2MY63c7E4H0ybtYORGo6iJoMUXtKlxCi8PeRTt+X1SbHSUvWRx0UaTLx1AylC+pZIKaP81NmtTm+WLnVO4=
-Received: from j66a10360.sqa.eu95.tbsite.net(mailfrom:alibuda@linux.alibaba.com fp:SMTPD_---0WlvegjU_1755495978 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 18 Aug 2025 13:46:23 +0800
-From: "D. Wythe" <alibuda@linux.alibaba.com>
-To: Mahanta.Jambigi@ibm.com,
-	Sidraya.Jayagond@ibm.com,
-	wenjia@linux.ibm.com,
-	wintera@linux.ibm.com,
-	dust.li@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com
-Cc: kuba@kernel.org,
-	davem@davemloft.net,
-	netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	jaka@linux.ibm.com
-Subject: [PATCH net] net/smc: fix UAF on smcsk after smc_listen_out()
-Date: Mon, 18 Aug 2025 13:46:18 +0800
-Message-ID: <20250818054618.41615-1-alibuda@linux.alibaba.com>
-X-Mailer: git-send-email 2.45.0
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="S1ofeuAZ"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57HK0NxT024961
+	for <linux-s390@vger.kernel.org>; Mon, 18 Aug 2025 06:41:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=l8N9ttvKyCBAcyEDvuaLoM
+	1BSXehm0oCXcCPSraNLCM=; b=S1ofeuAZEvausPNcfPdvnKZWbPTOWDSn/I7BEC
+	fEzcKChFEREcdnUgDUZ0liwYbWKPM8rZPt1QO6jTgcF7psCTS7i5PGkOE6QI5JZ+
+	KHyXq3fCcqVTX2TNJW8aE6hSDVQ07wo13XXPL6m308u3dn1gS4TZLJGYH+UVZxaP
+	N5c049QcgEAx92YW7CGLG4srnZufUn6OZjs+cmknhQDuglZbtyx7y+zif+BWwBD5
+	rLKoMV37K5sMLFRlSxJZfA3l9dBzOODYODOqjuY6k3pCnQT61mXkUULbWa5h5/21
+	Fb+5mmW8neh+DKoOx0rQ8WtgQ3aJv0kjv4N5E7mgkhK3nJmQ==
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 48jk99kepx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Mon, 18 Aug 2025 06:41:51 +0000 (GMT)
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-24458264c5aso37840445ad.3
+        for <linux-s390@vger.kernel.org>; Sun, 17 Aug 2025 23:41:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755499310; x=1756104110;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=l8N9ttvKyCBAcyEDvuaLoM1BSXehm0oCXcCPSraNLCM=;
+        b=NC9si92FMkKqNHAvxJrdK+mpaQP+dRFcinjuAcyOhLTlqRvNurZsRSD7OvxfL2cTJo
+         iP8ir5c0YheCuEXFD3HbLQ7tipkCMtn3i0RrDu0pdRoxfFaM4ZSa43z3OlM1zNSjM96l
+         Pg9qZUdzMLnICdXgSZs8D3u5jYHHfnNZxogztiS16XoZGc8FcTMVjHpHgn7ucu5NfZ5s
+         FLVK3I5cyVe3Ann/qCIfHZ/C51dLgyjgNOQUyFGpiLoOqWa5AOnVf0lOfMruCw4U5Ggu
+         L9kvyt8cSRZ4PBJTUAGfOSDCKsXXsWZMBWxlHFLax/auyC7aG6oi58Hf0JNK88YiKMs8
+         TjEg==
+X-Forwarded-Encrypted: i=1; AJvYcCW9UlnD5t5Hs1GcrNu3AwT07ChwCXSLjRzg2lnOJX1ZJ9KizAQXmHvt0xcDLoClji5doK/uAu7ehq62@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/1QtXouihB6p0l8airemj1Jay1KttQi7wdWK2wB0/+ur887Rg
+	a/6rCN/9Y/9aFg9w7JotFhpQxXUwAieFcrYtx/K23VcwGc7B8AeYRtpJgGlX7YtJKITQzMXGi9K
+	FrxKVLDdjsweyRigvbp++f/aejuxfTVlTaAWqSbA3hjIvQKm1r5LirnqBuqJXRdaw
+X-Gm-Gg: ASbGncuBEi0BAbyPjgnuFfz1L+dTOE4ZHQvs1bu6Yly+Pm5rWlX3PJcvliOMHQpHUsN
+	zEXrtKVz9PAOkYvH2ikUAh3SD46ccGZ1yYgJQT0XJ7IyRmSYunD391G8gIPL0JpANr4hc+i64bb
+	MrSgGKsTvnxPsgZdIPtf1cIB5F8TugUBV0tZ7S5Xz+i6A4d6yDKMLOGloVINoFv8tEHfAr0eHZy
+	RKg1QbqXrMDaU8yOWNmAC9NTAvIIKcJi80lIpWqK+Q8kipKMtBpVaID+uzX5B+dmyH3kTzkj8RV
+	mTF5ht7VNbvUtWj9IyC8yEg24mDw2m17++m2/OveALc=
+X-Received: by 2002:a17:902:c951:b0:240:22af:91c7 with SMTP id d9443c01a7336-2446d71db3fmr134372935ad.14.1755499310182;
+        Sun, 17 Aug 2025 23:41:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGmF5KBA9eIDDl75sJwjMQCpOEjZ8TR6DA+JYR6yCjrU7iJmsnLTLQaYA9/NFl8UsVIfaN9mw==
+X-Received: by 2002:a17:902:c951:b0:240:22af:91c7 with SMTP id d9443c01a7336-2446d71db3fmr134372375ad.14.1755499309632;
+        Sun, 17 Aug 2025 23:41:49 -0700 (PDT)
+Received: from hu-pbrahma-hyd.qualcomm.com ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2446d53bf5dsm70069295ad.114.2025.08.17.23.41.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 17 Aug 2025 23:41:48 -0700 (PDT)
+From: pratyush.brahma@oss.qualcomm.com
+X-Google-Original-From: Pratyush
+Date: Mon, 18 Aug 2025 12:11:15 +0530
+Subject: [PATCH] mm/numa: Rename memory_add_physaddr_to_nid to
+ memory_get_phys_to_nid
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250818-numa_memblks-v1-1-9eb29ade560a@oss.qualcomm.com>
+X-B4-Tracking: v=1; b=H4sIAArLomgC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDI1MDC0MT3bzS3MT43NTcpJzsYt0kU5NEC3MLCyODlFQloJaCotS0zAqwcdG
+ xQH5GZnFJflElyPTa2loAgXpdgW0AAAA=
+X-Change-ID: 20250814-numa_memblks-b54a878820de
+To: Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@kernel.org>
+Cc: linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-acpi@vger.kernel.org,
+        nvdimm@lists.linux.dev, linux-mm@kvack.org, linux-cxl@vger.kernel.org,
+        linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+        xen-devel@lists.xenproject.org,
+        Pratyush Brahma <pratyush.brahma@oss.qualcomm.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1755499297; l=12122;
+ i=pratyush.brahma@oss.qualcomm.com; s=20250808; h=from:subject:message-id;
+ bh=//n/Cd8/21p2TwuLHbKJjrZr/VX2C3LDE0HHjeHcn3A=;
+ b=YhwC5Lk4afAnAuPN/u4jW8oYab0ctCO2cz+geSxr4bRuihGdwIV2yM1kuCXBVrnF+tdcuoDdH
+ v7S65fFa5CkAcFfEgaPVnJ6mv1qtlUNsSBr4p0Efj25v9textGh8WHy
+X-Developer-Key: i=pratyush.brahma@oss.qualcomm.com; a=ed25519;
+ pk=ZeXF1N8hxU6j3G/ajMI+du/TVXMZQaXDwnJyznB69ms=
+X-Proofpoint-ORIG-GUID: nCLfKjpoMNJN_3v3VrQvtNA9rwdgUV_W
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODE2MDA0NSBTYWx0ZWRfXz1JDpSuGXJmW
+ nqvuE7k4ZP1yo7bVIL5I6HVE7GTCN4ti82NC5LEM2Ue09FKn1gi2MWABr9XVifNMsradHWFF+nL
+ hE1b69v5oTtPxe6yidNU+4E1S0OZDxT/D3WkossvEGeAwMvoSHKaukqYW6JXVc+ABqeU7RMQtfp
+ P++ZAImaf3ZHq5r+uuDDHKgD2IHUU/Ec2uKu7gx3jSu/uh6wKqFttUDzh44TMDd2/sx3SdCJ1TG
+ jzSTryiimR9tu2YQdzxzrEHxAZPVuOUJnfgEgUUlyAxPbe1XPs6euKEk6b/X+Ojzq+UhEJpXHtK
+ XkKUo+BSmKe24UOUxBrQzoLZFcs6pLY10+AMCV8LYAyAKHX11pc8B0VL8KMkU0wfDJYAyo+6JzC
+ OGksb8Pt
+X-Authority-Analysis: v=2.4 cv=IIMCChvG c=1 sm=1 tr=0 ts=68a2cb2f cx=c_pps
+ a=JL+w9abYAAE89/QcEU+0QA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=EUspDBNiAAAA:8 a=qb4DzySmTAYQGscL8MYA:9
+ a=QEXdDO2ut3YA:10 a=324X-CrmTo6CU4MGRt3R:22
+X-Proofpoint-GUID: nCLfKjpoMNJN_3v3VrQvtNA9rwdgUV_W
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-18_03,2025-08-14_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 clxscore=1011 impostorscore=0 phishscore=0
+ adultscore=0 malwarescore=0 bulkscore=0 suspectscore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508160045
 
-BPF CI testing report a UAF issue:
+From: Pratyush Brahma <pratyush.brahma@oss.qualcomm.com>
 
-  [   16.446633] BUG: kernel NULL pointer dereference, address: 000000000000003  0
-  [   16.447134] #PF: supervisor read access in kernel mod  e
-  [   16.447516] #PF: error_code(0x0000) - not-present pag  e
-  [   16.447878] PGD 0 P4D   0
-  [   16.448063] Oops: Oops: 0000 [#1] PREEMPT SMP NOPT  I
-  [   16.448409] CPU: 0 UID: 0 PID: 9 Comm: kworker/0:1 Tainted: G           OE      6.13.0-rc3-g89e8a75fda73-dirty #4  2
-  [   16.449124] Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODUL  E
-  [   16.449502] Hardware name: QEMU Ubuntu 24.04 PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/201  4
-  [   16.450201] Workqueue: smc_hs_wq smc_listen_wor  k
-  [   16.450531] RIP: 0010:smc_listen_work+0xc02/0x159  0
-  [   16.452158] RSP: 0018:ffffb5ab40053d98 EFLAGS: 0001024  6
-  [   16.452526] RAX: 0000000000000001 RBX: 0000000000000002 RCX: 000000000000030  0
-  [   16.452994] RDX: 0000000000000280 RSI: 00003513840053f0 RDI: 000000000000000  0
-  [   16.453492] RBP: ffffa097808e3800 R08: ffffa09782dba1e0 R09: 000000000000000  5
-  [   16.453987] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa0978274640  0
-  [   16.454497] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa09782d4092  0
-  [   16.454996] FS:  0000000000000000(0000) GS:ffffa097bbc00000(0000) knlGS:000000000000000  0
-  [   16.455557] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003  3
-  [   16.455961] CR2: 0000000000000030 CR3: 0000000102788004 CR4: 0000000000770ef  0
-  [   16.456459] PKRU: 5555555  4
-  [   16.456654] Call Trace  :
-  [   16.456832]  <TASK  >
-  [   16.456989]  ? __die+0x23/0x7  0
-  [   16.457215]  ? page_fault_oops+0x180/0x4c  0
-  [   16.457508]  ? __lock_acquire+0x3e6/0x249  0
-  [   16.457801]  ? exc_page_fault+0x68/0x20  0
-  [   16.458080]  ? asm_exc_page_fault+0x26/0x3  0
-  [   16.458389]  ? smc_listen_work+0xc02/0x159  0
-  [   16.458689]  ? smc_listen_work+0xc02/0x159  0
-  [   16.458987]  ? lock_is_held_type+0x8f/0x10  0
-  [   16.459284]  process_one_work+0x1ea/0x6d  0
-  [   16.459570]  worker_thread+0x1c3/0x38  0
-  [   16.459839]  ? __pfx_worker_thread+0x10/0x1  0
-  [   16.460144]  kthread+0xe0/0x11  0
-  [   16.460372]  ? __pfx_kthread+0x10/0x1  0
-  [   16.460640]  ret_from_fork+0x31/0x5  0
-  [   16.460896]  ? __pfx_kthread+0x10/0x1  0
-  [   16.461166]  ret_from_fork_asm+0x1a/0x3  0
-  [   16.461453]  </TASK  >
-  [   16.461616] Modules linked in: bpf_testmod(OE) [last unloaded: bpf_testmod(OE)  ]
-  [   16.462134] CR2: 000000000000003  0
-  [   16.462380] ---[ end trace 0000000000000000 ]---
-  [   16.462710] RIP: 0010:smc_listen_work+0xc02/0x1590
+The function `memory_add_physaddr_to_nid` seems a misnomer.
+It does not to "add" a physical address to a NID mapping,
+but rather it gets the NID associated with a given physical address.
 
-The direct cause of this issue is that after smc_listen_out_connected(),
-newclcsock->sk may be NULL since it will releases the smcsk. Therefore,
-if the application closes the socket immediately after accept,
-newclcsock->sk can be NULL. A possible execution order could be as
-follows:
+Improve the semantic clarity of the API by renaming to a more
+descriptive name.
 
-smc_listen_work                                 | userspace
------------------------------------------------------------------
-lock_sock(sk)                                   |
-smc_listen_out_connected()                      |
-| \- smc_listen_out                             |
-|    | \- release_sock                          |
-     | |- sk->sk_data_ready()                   |
-                                                | fd = accept();
-                                                | close(fd);
-                                                |  \- socket->sk = NULL;
-/* newclcsock->sk is NULL now */
-SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk))
-
-Since smc_listen_out_connected() will not fail, simply swapping the order
-of the code can easily fix this issue.
-
-Fixes: 3b2dec2603d5 ("net/smc: restructure client and server code in af_smc")
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Reviewed-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Pratyush Brahma <pratyush.brahma@oss.qualcomm.com>
 ---
- net/smc/af_smc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/sparsemem.h | 4 ++--
+ arch/powerpc/mm/mem.c                | 4 ++--
+ arch/s390/include/asm/sparsemem.h    | 4 ++--
+ drivers/acpi/acpi_memhotplug.c       | 2 +-
+ drivers/acpi/nfit/core.c             | 2 +-
+ drivers/base/memory.c                | 2 +-
+ drivers/cxl/pmem.c                   | 2 +-
+ drivers/dax/cxl.c                    | 2 +-
+ drivers/hv/hv_balloon.c              | 6 +++---
+ drivers/nvdimm/virtio_pmem.c         | 2 +-
+ drivers/virtio/virtio_mem.c          | 2 +-
+ drivers/xen/balloon.c                | 2 +-
+ include/linux/numa.h                 | 6 +++---
+ include/linux/numa_memblks.h         | 4 ++--
+ mm/numa.c                            | 6 +++---
+ mm/numa_memblks.c                    | 4 ++--
+ 16 files changed, 27 insertions(+), 27 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9311c38f7abe..e0e48f24cd61 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2568,8 +2568,9 @@ static void smc_listen_work(struct work_struct *work)
- 			goto out_decl;
+diff --git a/arch/powerpc/include/asm/sparsemem.h b/arch/powerpc/include/asm/sparsemem.h
+index d072866842e4229159fcb6635745fd19a2788413..cdb5594616c8e32ab8ae3d209d0b2df20f3564f6 100644
+--- a/arch/powerpc/include/asm/sparsemem.h
++++ b/arch/powerpc/include/asm/sparsemem.h
+@@ -14,8 +14,8 @@
+ 
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ extern int remove_section_mapping(unsigned long start, unsigned long end);
+-extern int memory_add_physaddr_to_nid(u64 start);
+-#define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
++extern int memory_get_phys_to_nid(u64 start);
++#define memory_get_phys_to_nid memory_get_phys_to_nid
+ 
+ #ifdef CONFIG_NUMA
+ extern int hot_add_scn_to_nid(unsigned long scn_addr);
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 3ddbfdbfa9413a17d8321885724ce432d967005a..5665b2e2fc68df8634613c11706e1a9158a3a616 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -54,11 +54,11 @@ EXPORT_SYMBOL(__phys_mem_access_prot);
+ static DEFINE_MUTEX(linear_mapping_mutex);
+ 
+ #ifdef CONFIG_NUMA
+-int memory_add_physaddr_to_nid(u64 start)
++int memory_get_phys_to_nid(u64 start)
+ {
+ 	return hot_add_scn_to_nid(start);
+ }
+-EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
++EXPORT_SYMBOL_GPL(memory_get_phys_to_nid);
+ #endif
+ 
+ int __weak create_section_mapping(unsigned long start, unsigned long end,
+diff --git a/arch/s390/include/asm/sparsemem.h b/arch/s390/include/asm/sparsemem.h
+index 668dfc5de538742269af1b25151372506105fd4d..744c67dce4c106d063cb5436b37412045da0fd2a 100644
+--- a/arch/s390/include/asm/sparsemem.h
++++ b/arch/s390/include/asm/sparsemem.h
+@@ -7,11 +7,11 @@
+ 
+ #ifdef CONFIG_NUMA
+ 
+-static inline int memory_add_physaddr_to_nid(u64 addr)
++static inline int memory_get_phys_to_nid(u64 addr)
+ {
+ 	return 0;
+ }
+-#define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
++#define memory_get_phys_to_nid memory_get_phys_to_nid
+ 
+ static inline int phys_to_target_node(u64 start)
+ {
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+index d0c1a71007d0a3054608bec8fddc8e86bdffb78b..6f968243ffc3cc5864e73b914d1bf67748e30e66 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -183,7 +183,7 @@ static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+ 			continue;
+ 		/* We want a single node for the whole memory group */
+ 		if (node < 0)
+-			node = memory_add_physaddr_to_nid(info->start_addr);
++			node = memory_get_phys_to_nid(info->start_addr);
+ 		total_length += info->length;
  	}
  
--	smc_listen_out_connected(new_smc);
- 	SMC_STAT_SERV_SUCC_INC(sock_net(newclcsock->sk), ini);
-+	/* smc_listen_out() will release smcsk */
-+	smc_listen_out_connected(new_smc);
- 	goto out_free;
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index ae035b93da087812dee6ec47d9ef4aa97dc8e7bc..04c3ab311e4d5923aef50252efabd193c5fb7850 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -2630,7 +2630,7 @@ static int acpi_nfit_register_region(struct acpi_nfit_desc *acpi_desc,
  
- out_unlock:
+ 	/* Fallback to address based numa information if node lookup failed */
+ 	if (ndr_desc->numa_node == NUMA_NO_NODE) {
+-		ndr_desc->numa_node = memory_add_physaddr_to_nid(spa->address);
++		ndr_desc->numa_node = memory_get_phys_to_nid(spa->address);
+ 		dev_info(acpi_desc->dev, "changing numa node from %d to %d for nfit region [%pa-%pa]",
+ 			NUMA_NO_NODE, ndr_desc->numa_node, &res.start, &res.end);
+ 	}
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 5c6c1d6bb59f1241a5f42a3396be1a8e2058c965..f657520855408804761afec379e3c0b2a238b239 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -599,7 +599,7 @@ static ssize_t probe_store(struct device *dev, struct device_attribute *attr,
+ 	if (ret)
+ 		return ret;
+ 
+-	nid = memory_add_physaddr_to_nid(phys_addr);
++	nid = memory_get_phys_to_nid(phys_addr);
+ 	ret = __add_memory(nid, phys_addr,
+ 			   MIN_MEMORY_BLOCK_SIZE * sections_per_block,
+ 			   MHP_NONE);
+diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
+index e197883690efc11f60c31bd56aeb5695665d422b..471aed4e11241948e994d0b9d53600c147e38fb0 100644
+--- a/drivers/cxl/pmem.c
++++ b/drivers/cxl/pmem.c
+@@ -410,7 +410,7 @@ static int cxl_pmem_region_probe(struct device *dev)
+ 	ndr_desc.res = res;
+ 	ndr_desc.provider_data = cxlr_pmem;
+ 
+-	ndr_desc.numa_node = memory_add_physaddr_to_nid(res->start);
++	ndr_desc.numa_node = memory_get_phys_to_nid(res->start);
+ 	ndr_desc.target_node = phys_to_target_node(res->start);
+ 	if (ndr_desc.target_node == NUMA_NO_NODE) {
+ 		ndr_desc.target_node = ndr_desc.numa_node;
+diff --git a/drivers/dax/cxl.c b/drivers/dax/cxl.c
+index 13cd94d32ff7a1d70af7821c1aecd7490302149d..35843791872ba466f571c022e1484816368a1198 100644
+--- a/drivers/dax/cxl.c
++++ b/drivers/dax/cxl.c
+@@ -15,7 +15,7 @@ static int cxl_dax_region_probe(struct device *dev)
+ 	struct dev_dax_data data;
+ 
+ 	if (nid == NUMA_NO_NODE)
+-		nid = memory_add_physaddr_to_nid(cxlr_dax->hpa_range.start);
++		nid = memory_get_phys_to_nid(cxlr_dax->hpa_range.start);
+ 
+ 	dax_region = alloc_dax_region(dev, cxlr->id, &cxlr_dax->hpa_range, nid,
+ 				      PMD_SIZE, IORESOURCE_DAX_KMEM);
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 2b4080e51f97c30e7adb06faa56b1403bc08b53c..8878aac6da9cd3bd6f499eae2588e989b7219af3 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -725,7 +725,7 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
+ 
+ 		reinit_completion(&dm_device.ol_waitevent);
+ 
+-		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
++		nid = memory_get_phys_to_nid(PFN_PHYS(start_pfn));
+ 		ret = add_memory(nid, PFN_PHYS((start_pfn)),
+ 				 HA_BYTES_IN_CHUNK, MHP_MERGE_RESOURCE);
+ 
+@@ -1701,8 +1701,8 @@ static int hot_add_enabled(void)
+ {
+ 	/*
+ 	 * Disable hot add on ARM64, because we currently rely on
+-	 * memory_add_physaddr_to_nid() to get a node id of a hot add range,
+-	 * however ARM64's memory_add_physaddr_to_nid() always return 0 and
++	 * memory_get_phys_to_nid() to get a node id of a hot add range,
++	 * however ARM64's memory_get_phys_to_nid() always return 0 and
+ 	 * DM_MEM_HOT_ADD_REQUEST doesn't have the NUMA node information for
+ 	 * add_memory().
+ 	 */
+diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
+index 2396d19ce5496974f8b93b54cc8c95e48dda103d..df6a3fd552d11a577d85708f80e7558ea83839d2 100644
+--- a/drivers/nvdimm/virtio_pmem.c
++++ b/drivers/nvdimm/virtio_pmem.c
+@@ -100,7 +100,7 @@ static int virtio_pmem_probe(struct virtio_device *vdev)
+ 
+ 	ndr_desc.res = &res;
+ 
+-	ndr_desc.numa_node = memory_add_physaddr_to_nid(res.start);
++	ndr_desc.numa_node = memory_get_phys_to_nid(res.start);
+ 	ndr_desc.target_node = phys_to_target_node(res.start);
+ 	if (ndr_desc.target_node == NUMA_NO_NODE) {
+ 		ndr_desc.target_node = ndr_desc.numa_node;
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 1688ecd69a0445d5c21d108a9a1d60577f96d7ac..6154f03a12c3efa65728f626e43b6270245d439c 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -2858,7 +2858,7 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 
+ 	/* Determine the nid for the device based on the lowest address. */
+ 	if (vm->nid == NUMA_NO_NODE)
+-		vm->nid = memory_add_physaddr_to_nid(vm->addr);
++		vm->nid = memory_get_phys_to_nid(vm->addr);
+ 
+ 	dev_info(&vm->vdev->dev, "start address: 0x%llx", vm->addr);
+ 	dev_info(&vm->vdev->dev, "region size: 0x%llx", vm->region_size);
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 2de37dcd75566fc1a03b75232cbe17fc0f53909d..93ca270ddd516ec11bc3f096eb518b9789d92664 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -284,7 +284,7 @@ static enum bp_state reserve_additional_memory(void)
+ 	if (!resource)
+ 		goto err;
+ 
+-	nid = memory_add_physaddr_to_nid(resource->start);
++	nid = memory_get_phys_to_nid(resource->start);
+ 
+ #ifdef CONFIG_XEN_HAVE_PVMMU
+ 	/*
+diff --git a/include/linux/numa.h b/include/linux/numa.h
+index e6baaf6051bcff6c23308d3b67f790053fbd29dc..ed65a20f39718a5a3157f6f9db60561f4418b000 100644
+--- a/include/linux/numa.h
++++ b/include/linux/numa.h
+@@ -33,8 +33,8 @@ int numa_nearest_node(int node, unsigned int state);
+ 
+ int nearest_node_nodemask(int node, nodemask_t *mask);
+ 
+-#ifndef memory_add_physaddr_to_nid
+-int memory_add_physaddr_to_nid(u64 start);
++#ifndef memory_get_phys_to_nid
++int memory_get_phys_to_nid(u64 start);
+ #endif
+ 
+ #ifndef phys_to_target_node
+@@ -54,7 +54,7 @@ static inline int nearest_node_nodemask(int node, nodemask_t *mask)
+ 	return NUMA_NO_NODE;
+ }
+ 
+-static inline int memory_add_physaddr_to_nid(u64 start)
++static inline int memory_get_phys_to_nid(u64 start)
+ {
+ 	return 0;
+ }
+diff --git a/include/linux/numa_memblks.h b/include/linux/numa_memblks.h
+index 991076cba7c5016d845eb40a2f9887f73fa83862..37cc0987e738f8aa2eb5c8f1ca2c94394def4780 100644
+--- a/include/linux/numa_memblks.h
++++ b/include/linux/numa_memblks.h
+@@ -53,8 +53,8 @@ static inline int numa_emu_cmdline(char *str)
+ #ifdef CONFIG_NUMA_KEEP_MEMINFO
+ extern int phys_to_target_node(u64 start);
+ #define phys_to_target_node phys_to_target_node
+-extern int memory_add_physaddr_to_nid(u64 start);
+-#define memory_add_physaddr_to_nid memory_add_physaddr_to_nid
++extern int memory_get_phys_to_nid(u64 start);
++#define memory_get_phys_to_nid memory_get_phys_to_nid
+ #endif /* CONFIG_NUMA_KEEP_MEMINFO */
+ 
+ #endif /* CONFIG_NUMA_MEMBLKS */
+diff --git a/mm/numa.c b/mm/numa.c
+index 7d5e06fe5bd4a2790b83dd7dbe646617f6476d8c..f7b5ac8aea608368b75c606970187eb147ddf427 100644
+--- a/mm/numa.c
++++ b/mm/numa.c
+@@ -40,14 +40,14 @@ void __init alloc_offline_node_data(int nid)
+ 
+ /* Stub functions: */
+ 
+-#ifndef memory_add_physaddr_to_nid
+-int memory_add_physaddr_to_nid(u64 start)
++#ifndef memory_get_phys_to_nid
++int memory_get_phys_to_nid(u64 start)
+ {
+ 	pr_info_once("Unknown online node for memory at 0x%llx, assuming node 0\n",
+ 			start);
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
++EXPORT_SYMBOL_GPL(memory_get_phys_to_nid);
+ #endif
+ 
+ #ifndef phys_to_target_node
+diff --git a/mm/numa_memblks.c b/mm/numa_memblks.c
+index 541a99c4071a67e5b0ef66f4136dee268a880003..346039bd933390fb014931fc61ccd2f96a773c37 100644
+--- a/mm/numa_memblks.c
++++ b/mm/numa_memblks.c
+@@ -580,7 +580,7 @@ int phys_to_target_node(u64 start)
+ }
+ EXPORT_SYMBOL_GPL(phys_to_target_node);
+ 
+-int memory_add_physaddr_to_nid(u64 start)
++int memory_get_phys_to_nid(u64 start)
+ {
+ 	int nid = meminfo_to_nid(&numa_meminfo, start);
+ 
+@@ -588,6 +588,6 @@ int memory_add_physaddr_to_nid(u64 start)
+ 		nid = numa_meminfo.blk[0].nid;
+ 	return nid;
+ }
+-EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
++EXPORT_SYMBOL_GPL(memory_get_phys_to_nid);
+ 
+ #endif /* CONFIG_NUMA_KEEP_MEMINFO */
+
+---
+base-commit: 479058002c32b77acac43e883b92174e22c4be2d
+change-id: 20250814-numa_memblks-b54a878820de
+
+Best regards,
 -- 
-2.45.0
+Pratyush Brahma <pratyush.brahma@oss.qualcomm.com>
 
