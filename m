@@ -1,130 +1,134 @@
-Received: from mxct.zte.com.cn (mxct.zte.com.cn [183.62.165.209])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216291C84BC;
-	Tue, 19 Aug 2025 08:43:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=183.62.165.209
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94F712773CB
+	for <linux-s390@vger.kernel.org>; Tue, 19 Aug 2025 09:38:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755592991; cv=none; b=QgaaLNlcBIC/mGGds8Lwg596BEK8I27TvmS0U6pW3lrjbD8wtSb0yXATr5JZ3DgYYgjFqBO4gGeFcfN7AitbGFZWzVLJ7E8eG61sD26fDMwLVllB3yw5oHKjSEOZ0r3QZEJPw8o/xYGFzmkRNIpTK2OmO6KkzE8IL3CifTJXzJQ=
+	t=1755596290; cv=none; b=SJlLepGPI7oYZdEnbtibdNlbvXtudB6mFRS1JFtfp6WwsLCPrls5JlZWiSARYFpEUCFLekbExyfOB37T5MQNxJNGSn/zUU7qxc41mHmNdaVC+Hdqio5ImBHtrPtNSg3jNZ0IbtH4/mEc0yZFOsr/T2YC4oJHSK1+sfpVbBhL/84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755592991; c=relaxed/simple;
-	bh=iAS1FJ+3/bBYDbXw+jqjQPnametpuIDH+UuNcbmJnn0=;
-	h=Date:Message-ID:Mime-Version:From:To:Cc:Subject:Content-Type; b=cuOf53IgoL4KZRern+NVHTirgTabep7vB2LegyCV9jCzFQzIllrYf6FIQe9pHG5Q19Ls/Yynu8PMsLvCzxxhUTfOg7hLJhBc1TAUkgmUbxzC3/sRRUzraKyYtrOwZ9ET3IV9LdoCUBbCr6DXDfWqY7EOdsSDmG8zdjlBFs3CIfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn; spf=pass smtp.mailfrom=zte.com.cn; arc=none smtp.client-ip=183.62.165.209
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zte.com.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zte.com.cn
-Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mxct.zte.com.cn (FangMail) with ESMTPS id 4c5jlW1k9hz4xNtm;
-	Tue, 19 Aug 2025 16:43:03 +0800 (CST)
-Received: from xaxapp04.zte.com.cn ([10.99.98.157])
-	by mse-fl1.zte.com.cn with SMTP id 57J8gjhK083087;
-	Tue, 19 Aug 2025 16:42:45 +0800 (+08)
-	(envelope-from zhang.enpei@zte.com.cn)
-Received: from mapi (xaxapp04[null])
-	by mapi (Zmail) with MAPI id mid32;
-	Tue, 19 Aug 2025 16:42:47 +0800 (CST)
-Date: Tue, 19 Aug 2025 16:42:47 +0800 (CST)
-X-Zmail-TransId: 2afb68a439071d3-3bc15
-X-Mailer: Zmail v1.0
-Message-ID: <202508191642476319esv1sG1oQiHF4o_zNJC0@zte.com.cn>
+	s=arc-20240116; t=1755596290; c=relaxed/simple;
+	bh=2V8M7LV7ljgsDumKXBHQhC4o9NF1oxLIPIk0ANfKKUU=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=KTTJrNkF8/Vt1FNS89dQu3/8CL6TygaoGBzIVv6Kp5dFii+snQtSQ5UmNS6TRA566yRPlbOCya/6O371GQ3RH14Pi6ugvL6gW8A0PP/IZwc/WWB8qF7TQardarFtBI++9KA3QGM8lY8+7Qvjhzuy7DDJoW+C8nw95DkofAjXqU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=LQ5OpnBC; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="LQ5OpnBC"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-24457f47000so41846865ad.0
+        for <linux-s390@vger.kernel.org>; Tue, 19 Aug 2025 02:38:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1755596288; x=1756201088; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=T6K8gy0h4bXhy9f6BhVNVyKHxXc0oXpO4f2ZuZ3PvLY=;
+        b=LQ5OpnBCqQCKxXO/BF0ocGcd07zuzSpdERlx5BAAYfsIUJbNr4b+NLz7C7wJI2WgpX
+         u67emYC99RAlPV5S3PGvW4UYt1CiwjREE26o7hAvOvQNLevMuE4wVPXTDdElq0a7C3hs
+         pHvS361abm+QDVAMcLuFirUoh+DbPrmgF62TPA57w0y2reH8RWarvrHOnRr2x3g8C8Xq
+         lfSZjFx1wc0Avh0zs/dp672aWFd9aKq91MV/FCKW/r6Plr2oASvuk3K+8JLFEeEol2Xq
+         H3zdowBzOBHJc/XRWXWlYu4xm0lmkH6J7YBdRARcralsemxJP05KmVKT18ge52T/l5yV
+         4IBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755596288; x=1756201088;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=T6K8gy0h4bXhy9f6BhVNVyKHxXc0oXpO4f2ZuZ3PvLY=;
+        b=DbanD5hhK0scAq1rSLOLFSW6ynzUBjl580m+SjuztKLsr07nnYHHDaAPKfmntUkrue
+         WQ/zASwh56g6nyZt1WnezPtOYaMMoEBHKHJFt6X08xuis2WwIb2JZV25OSeTf9ZBL4Q7
+         YWvNCbsLDa8V24E2W40+bufkLah/9lKN9jGLzTXijr3fGlQOaeGAkCdOLkyqIbOSEx1u
+         S8qGT/+UQRiGTJkhciDE1vVgvVfgJBAF1TvbLva+6+Q5r7Jlx5W7fct6K15INmeXyi3n
+         TerVF7MQkg7RN4LTSRDwom0LDjUdtE6p9XZ2UpkJ3NOoEp6KcS4AmKQqaGk+vqYNcESq
+         ku7g==
+X-Forwarded-Encrypted: i=1; AJvYcCUwLiTrdk30J54mMvpKH3oqt/Ra+poIoH+Td86kcXEKKhq4ruX11dhdBnIiMoBiWK8TWtnnKqYgldbp@vger.kernel.org
+X-Gm-Message-State: AOJu0YxspKWIQfNPjHvzpvOEDPFFKXMC6GV2hs6mV0xsJKIaPf9hMgy/
+	z5RF1VSgw72rnWXLXrdv81pl7+6DCxs+b3+ZOxH00UnXD9SdILD49wdGv6MA3M7wGh/tWXxJh1B
+	qtAXRapYfDNyoxzRrGcjYAW9xJfsjn9NI56s1NEmsvw==
+X-Gm-Gg: ASbGncvH0MOtnf4bh0r65nnFub1N9FTwKocaKT3YHL1itcG68wXQFCLz/5xeeVMICSw
+	T3zukKDQvqfR6YcRIgQA1iLBagbrFNcmL8LwxyH0foLowe8jG3LpeFcu9SeeugpyDnSWtsmzuKW
+	qDIa+cCQFCXQsngIS0Yhe5IKIljIcV8G0hUxjaujmLJ39/mhIy4yjpxzHxRHxWACQRj3Ohc+0Hl
+	TRBVKh1zYYjf5jUBRGi+7MaAwAsZDPd3WyVD9jCQBm+DkJYv08=
+X-Google-Smtp-Source: AGHT+IFIxdv+Gumf/6w+v7ffwNzZJemUXI7WRTzzUiAmKNSzZs75iWdEANwcTsNoYtnMKamFklfbi/D3t+vz0EWJMZw=
+X-Received: by 2002:a17:902:f609:b0:234:ba37:879e with SMTP id
+ d9443c01a7336-245e049e36cmr28797065ad.38.1755596287861; Tue, 19 Aug 2025
+ 02:38:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-From: <zhang.enpei@zte.com.cn>
-To: <sth@linux.ibm.com>
-Cc: <hoeppner@linux.ibm.com>, <hca@linux.ibm.com>, <gor@linux.ibm.com>,
-        <agordeev@linux.ibm.com>, <borntraeger@linux.ibm.com>,
-        <svens@linux.ibm.com>, <linux-s390@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: =?UTF-8?B?W1BBVENIXSBzMzkwL2Rhc2Q6IGNvbnZlcnQgdG8gdXNlIEVSUl9DQVNUKCk=?=
-Content-Type: multipart/mixed;
-	boundary="=====_001_next====="
-X-MAIL:mse-fl1.zte.com.cn 57J8gjhK083087
-X-TLS: YES
-X-SPF-DOMAIN: zte.com.cn
-X-ENVELOPE-SENDER: zhang.enpei@zte.com.cn
-X-SPF: None
-X-SOURCE-IP: 10.5.228.132 unknown Tue, 19 Aug 2025 16:43:03 +0800
-X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 68A43917.000/4c5jlW1k9hz4xNtm
+MIME-Version: 1.0
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
+Date: Tue, 19 Aug 2025 15:07:56 +0530
+X-Gm-Features: Ac12FXzSzL7CxVGEj_WaufEFOr4fMyspvQA0mI9KFbrlZz1H1yL9N-ZCIEodprQ
+Message-ID: <CA+G9fYuY=O9EU6yY_QzVdqYyvWVFMcUSM9f9rFg-+1sRVFS6zQ@mail.gmail.com>
+Subject: next-20250813 s390 allyesconfig undefined reference to `stmmac_simple_pm_ops'
+To: open list <linux-kernel@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, 
+	lkft-triage@lists.linaro.org, Linux Regressions <regressions@lists.linux.dev>, 
+	linux-s390@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Jose Abreu <joabreu@synopsys.com>, Ben Copeland <benjamin.copeland@linaro.org>, 
+	Anders Roxell <anders.roxell@linaro.org>, Dan Carpenter <dan.carpenter@linaro.org>, 
+	Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 
+Build regressions were detected on the s390 architecture with the
+Linux next-20250813 tag when building with the allyesconfig configuration.
 
+The failure is caused by unresolved symbol references to stmmac_simple_pm_ops
+in multiple STMMAC driver object files, resulting in a link error during
+vmlinux generation.
 
---=====_001_next=====
-Content-Type: multipart/related;
-	boundary="=====_002_next====="
+First seen on next-20250813
+Good: next-20250812
+Bad: next-20250813 and next-20250819
 
+Regression Analysis:
+- New regression? yes
+- Reproducibility? yes
 
---=====_002_next=====
-Content-Type: multipart/alternative;
-	boundary="=====_003_next====="
+* s390, build
+  - gcc-13-allyesconfig
 
+Boot regression: next-20250813 s390 allyesconfig undefined reference
+to `stmmac_simple_pm_ops'
 
---=====_003_next=====
-Content-Type: text/plain;
-	charset="UTF-8"
-Content-Transfer-Encoding: base64
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-RnJvbTogWmhhbmcgRW5wZWkgPHpoYW5nLmVucGVpQHp0ZS5jb20uY24+DQoNClVzZSBFUlJfQ0FT
-VCgpIHNpbmNlIHRoZSBtYWNybyBjbGVhcmx5IGluZGljYXRlcyB0aGF0IHRoaXMgaXMgYSBwb2lu
-dGVyDQp0byBhbiBlcnJvciB2YWx1ZSBhbmQgYSB0eXBlIGNvbnZlcnNpb24gd2FzIHBlcmZvcm1l
-ZC4NCg0KU2lnbmVkLW9mZi1ieTogWmhhbmcgRW5wZWkgPHpoYW5nLmVucGVpQHp0ZS5jb20uY24+
-DQotLS0NCiBkcml2ZXJzL3MzOTAvYmxvY2svZGFzZF9kZXZtYXAuYyB8IDIgKy0NCiAxIGZpbGUg
-Y2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkNCg0KZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvczM5MC9ibG9jay9kYXNkX2Rldm1hcC5jIGIvZHJpdmVycy9zMzkwL2Jsb2NrL2Rhc2Rf
-ZGV2bWFwLmMNCmluZGV4IGRkYmRmMWY4NWQ0NC4uMGY0OTAwZDI0NmU4IDEwMDY0NA0KLS0tIGEv
-ZHJpdmVycy9zMzkwL2Jsb2NrL2Rhc2RfZGV2bWFwLmMNCisrKyBiL2RyaXZlcnMvczM5MC9ibG9j
-ay9kYXNkX2Rldm1hcC5jDQpAQCAtNTU1LDcgKzU1NSw3IEBAIGRhc2RfY3JlYXRlX2RldmljZShz
-dHJ1Y3QgY2N3X2RldmljZSAqY2RldikNCiANCiAgICAgICAgZGV2bWFwID0gZGFzZF9kZXZtYXBf
-ZnJvbV9jZGV2KGNkZXYpOw0KICAgICAgICBpZiAoSVNfRVJSKGRldm1hcCkpDQotICAgICAgICAg
-ICAgICAgcmV0dXJuICh2b2lkICopIGRldm1hcDsNCisgICAgICAgICAgICAgICByZXR1cm4gRVJS
-X0NBU1QoZGV2bWFwKTsNCiANCiAgICAgICAgZGV2aWNlID0gZGFzZF9hbGxvY19kZXZpY2UoKTsN
-CiAgICAgICAgaWYgKElTX0VSUihkZXZpY2UpKQ0KLS0gDQoyLjI1LjE=
+## Build log
+s390x-linux-gnu-ld:
+drivers/net/ethernet/stmicro/stmmac/dwmac-rk.o:(.data.rel+0xa0):
+undefined reference to `stmmac_simple_pm_ops'
+s390x-linux-gnu-ld:
+drivers/net/ethernet/stmicro/stmmac/dwmac-stm32.o:(.data.rel+0xa0):
+undefined reference to `stmmac_simple_pm_ops'
+s390x-linux-gnu-ld:
+drivers/net/ethernet/stmicro/stmmac/stmmac_pci.o:(.data.rel+0xe0):
+undefined reference to `stmmac_simple_pm_ops'
+s390x-linux-gnu-ld:
+drivers/net/ethernet/stmicro/stmmac/dwmac-loongson.o:(.data.rel+0xe0):
+undefined reference to `stmmac_simple_pm_ops'
+make[3]: *** [/scripts/Makefile.vmlinux:91: vmlinux.unstripped] Error 1
 
+## Source
+* Kernel version: 6.17.0-rc2
+* Git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/next/linux-next.git
+* Git describe: next-20250818
+* Git commit: 3ac864c2d9bb8608ee236e89bf561811613abfce
+* Architectures: s390
+* Toolchains: gcc-13
+* Kconfigs: allyesconfig
 
---=====_003_next=====
-Content-Type: text/html ;
-	charset="UTF-8"
-Content-Transfer-Encoding: base64
+## Build
+* Build log: https://qa-reports.linaro.org/api/testruns/29579401/log_file/
+* Build details:
+https://regressions.linaro.org/lkft/linux-next-master/next-20250818/build/gcc-13-allyesconfig/
+* Build plan: https://tuxapi.tuxsuite.com/v1/groups/linaro/projects/lkft/builds/31RcVYdjsdhroYxXs4TJYixUCaE
+* Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/31RcVYdjsdhroYxXs4TJYixUCaE/
+* Kernel config:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/31RcVYdjsdhroYxXs4TJYixUCaE/config
 
-PGRpdiBjbGFzcz0iemNvbnRlbnRSb3ciPjxwPkZyb206IFpoYW5nIEVucGVpICZsdDt6aGFuZy5l
-bnBlaUB6dGUuY29tLmNuJmd0Ozxicj48L3A+PHA+PGJyPjwvcD48cD5Vc2UgRVJSX0NBU1QoKSBz
-aW5jZSB0aGUgbWFjcm8gY2xlYXJseSBpbmRpY2F0ZXMgdGhhdCB0aGlzIGlzIGEgcG9pbnRlcjxi
-cj48L3A+PHA+dG8gYW4gZXJyb3IgdmFsdWUgYW5kIGEgdHlwZSBjb252ZXJzaW9uIHdhcyBwZXJm
-b3JtZWQuPC9wPjxwPjxicj48L3A+PHA+U2lnbmVkLW9mZi1ieTogWmhhbmcgRW5wZWkgJmx0O3po
-YW5nLmVucGVpQHp0ZS5jb20uY24mZ3Q7PC9wPjxwPi0tLTwvcD48cD4mbmJzcDtkcml2ZXJzL3Mz
-OTAvYmxvY2svZGFzZF9kZXZtYXAuYyB8IDIgKy08L3A+PHA+Jm5ic3A7MSBmaWxlIGNoYW5nZWQs
-IDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pPC9wPjxwPjxicj48L3A+PHA+ZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvczM5MC9ibG9jay9kYXNkX2Rldm1hcC5jIGIvZHJpdmVycy9zMzkwL2Jsb2Nr
-L2Rhc2RfZGV2bWFwLmM8L3A+PHA+aW5kZXggZGRiZGYxZjg1ZDQ0Li4wZjQ5MDBkMjQ2ZTggMTAw
-NjQ0PC9wPjxwPi0tLSBhL2RyaXZlcnMvczM5MC9ibG9jay9kYXNkX2Rldm1hcC5jPC9wPjxwPisr
-KyBiL2RyaXZlcnMvczM5MC9ibG9jay9kYXNkX2Rldm1hcC5jPC9wPjxwPkBAIC01NTUsNyArNTU1
-LDcgQEAgZGFzZF9jcmVhdGVfZGV2aWNlKHN0cnVjdCBjY3dfZGV2aWNlICpjZGV2KTwvcD48cD4m
-bmJzcDs8L3A+PHA+Jm5ic3A7ICZuYnNwOyAmbmJzcDsgJm5ic3A7IGRldm1hcCA9IGRhc2RfZGV2
-bWFwX2Zyb21fY2RldihjZGV2KTs8L3A+PHA+Jm5ic3A7ICZuYnNwOyAmbmJzcDsgJm5ic3A7IGlm
-IChJU19FUlIoZGV2bWFwKSk8L3A+PHA+LSZuYnNwOyAmbmJzcDsgJm5ic3A7ICZuYnNwOyAmbmJz
-cDsgJm5ic3A7ICZuYnNwOyAmbmJzcDtyZXR1cm4gKHZvaWQgKikgZGV2bWFwOzwvcD48cD4rJm5i
-c3A7ICZuYnNwOyAmbmJzcDsgJm5ic3A7ICZuYnNwOyAmbmJzcDsgJm5ic3A7ICZuYnNwO3JldHVy
-biBFUlJfQ0FTVChkZXZtYXApOzwvcD48cD4mbmJzcDs8L3A+PHA+Jm5ic3A7ICZuYnNwOyAmbmJz
-cDsgJm5ic3A7IGRldmljZSA9IGRhc2RfYWxsb2NfZGV2aWNlKCk7PC9wPjxwPiZuYnNwOyAmbmJz
-cDsgJm5ic3A7ICZuYnNwOyBpZiAoSVNfRVJSKGRldmljZSkpPC9wPjxwPi0tJm5ic3A7PC9wPjxw
-PjIuMjUuMTwvcD48cCBzdHlsZT0iZm9udC1zaXplOjE0cHg7Zm9udC1mYW1pbHk65b6u6L2v6ZuF
-6buRLE1pY3Jvc29mdCBZYUhlaTsiPjxicj48L3A+PHAgc3R5bGU9ImZvbnQtc2l6ZToxNHB4O2Zv
-bnQtZmFtaWx5OuW+rui9r+mbhem7kSxNaWNyb3NvZnQgWWFIZWk7Ij48YnI+PC9wPjxwIHN0eWxl
-PSJmb250LXNpemU6MTRweDtmb250LWZhbWlseTrlvq7ova/pm4Xpu5EsTWljcm9zb2Z0IFlhSGVp
-OyI+PGJyPjwvcD48cCBzdHlsZT0iZm9udC1zaXplOjE0cHg7Zm9udC1mYW1pbHk65b6u6L2v6ZuF
-6buRLE1pY3Jvc29mdCBZYUhlaTsiPjxicj48L3A+PC9kaXY+
-
-
---=====_003_next=====--
-
---=====_002_next=====--
-
---=====_001_next=====--
-
+--
+Linaro LKFT
+https://lkft.linaro.org
