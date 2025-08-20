@@ -1,118 +1,276 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF1726F2BC;
-	Wed, 20 Aug 2025 03:11:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7AD1286D55;
+	Wed, 20 Aug 2025 08:09:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755659476; cv=none; b=B2tL7xMyVfOYeZqgAAC6d4/9h+dXTPb9Ar7zCHOsCqRveTZGVCTpwiYk0Bm8kOHJQ3dh4OH4BUSjYwn7qtGqYfXgH8BeYcPO+B0eJJr4ZPvJZhNN01xIvCKG9sBgB3i0u8oMhPhFc1o8XD/1eEU62W3i5M2MW3TAHfSgj7h128g=
+	t=1755677383; cv=none; b=MDWIBRcBnKvMIaeyxCeCrQJLo1Z5///qwXekUjwNDvmmy6ELie0/6mtUGeZPvhlk3JSJpWPaPyCUGFZNFQ0kyel19nDPdr3wfg4LQWseC29k/3UctYYxywZeVIFCjx8rbQ/9Z3x0Zz5awskbjkiEc6D0JIdWECC6ioKz621xt2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755659476; c=relaxed/simple;
-	bh=ml1Y35fvP1QMdZJuztTyhRtOjp4HuX0A5UgIfOSaGDE=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=eFO7aPp3n64tPuziTSN8iFqw/reY6f4EkmXfyQj3HL2DymIXAyS/Jg7VMUYQiD/Vy8rk4HSkiKtq3s/3m3S4Axjz7Xb/4ciobOgsGYHzycLH0P7BEq/JY2/YJSZexbT0JW3JPs7h3qg8xS3AaTT82GZVKsPihSJfc98PeM34r3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PHisFwvW; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755677383; c=relaxed/simple;
+	bh=QtPa4Xm8uTmy+B5vWLRgRCy9n5XjZIkEIBssgZ3jQWw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Ti1LuwTdLcGeG08oYP+3KhP6+E7oOPQEclQAfeFb7lqtuV/zGVXIgZgYsPt883eJ2b7N5VgZerJ+WOVMIwx5P8uU2Eya2VCrYwLFWEEBrTTMAu9xmp9n1WWeZLtl1LPalwXRjnNYZmSHYhG8bIVWtX+LzLs074wtY+8/sn8RcZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xixm2oi8; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PHisFwvW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4664DC116D0;
-	Wed, 20 Aug 2025 03:11:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755659476;
-	bh=ml1Y35fvP1QMdZJuztTyhRtOjp4HuX0A5UgIfOSaGDE=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=PHisFwvWWniHiSbKc+trGaujFsjiUyL8guSgrRbmXX7niPPUW9cwHAkp2RwnEuFMa
-	 7cWTjL3l3qznoQfJ/B7ZuagUXWaE70ckI1kVVQIFdzdp0/EMbD4CdkFYxSRxxv6B+7
-	 onNB2DItSTvfpPAwQN6NVRuDtRZg+lpee+jLRNGvOvl0+64aD821gyvl5TpFe+ghbY
-	 iQBxjgF5YoWvQM/37ICNIYS+6QP3/e60LAodqZu6Be6+lN4amJKZJMbsxMnSLL1yX1
-	 Kp4uweVOxAhZYzEpWM5z9vsmK13zoAGEnB1yoMB9MG/Xxw2QxyLNxXwxYnAv+ZJIcV
-	 5u0097qYHrX7w==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33BC0383BF58;
-	Wed, 20 Aug 2025 03:11:27 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xixm2oi8"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57JNmmLo017631;
+	Wed, 20 Aug 2025 08:09:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=XyEp7P
+	B6Crc5O/n3hDpRBdclhiXWepi7f2DlP7ISOnE=; b=Xixm2oi8D/e/+wAITPeDp3
+	TALHrRG4EBVti1e3wM1Z6LnCfvINBVfhRGmgOPkipNfgbFhBD0MWSeZRRuGZ/NN+
+	NKDq98HPciL4Zozeql4srzji2nvV3CzcZ3UlmCS5mUo4axD1CO9niYr/utY3r3nU
+	R/k9YIllh44h9uoNOFLeppTj5ZpJGLc7EDb+zLBQQ5R2NO8ZqfzYF65N+NeIflzl
+	gTcYt/B8t87ieiFU691ZjDHQqARPeaX+Fy6nA8Cm30nsgWe9R3Iis8b6CyGL5Xlw
+	ovWuvSCaaobgeWwxqiRAGHpZnDDJ13JX7jkAK7240Uso3SZWpw/1sppbNb+XqHPQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48n38vhrww-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Aug 2025 08:09:13 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57K89CuX005377;
+	Wed, 20 Aug 2025 08:09:12 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48n38vhrwp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Aug 2025 08:09:12 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57K4xm2t015619;
+	Wed, 20 Aug 2025 08:09:11 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 48my422cjr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 20 Aug 2025 08:09:11 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57K899B961342160
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 20 Aug 2025 08:09:09 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A734720043;
+	Wed, 20 Aug 2025 08:09:09 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 407A620040;
+	Wed, 20 Aug 2025 08:09:08 +0000 (GMT)
+Received: from [9.111.5.117] (unknown [9.111.5.117])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 20 Aug 2025 08:09:08 +0000 (GMT)
+Message-ID: <295ae4dd-4734-42a0-be63-2d322f00c799@linux.ibm.com>
+Date: Wed, 20 Aug 2025 10:09:07 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 18/19] perf: Introduce positive capability for raw events
+To: Robin Murphy <robin.murphy@arm.com>, peterz@infradead.org,
+        mingo@redhat.com, will@kernel.org, mark.rutland@arm.com,
+        acme@kernel.org, namhyung@kernel.org,
+        alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+        irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com
+Cc: linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, imx@lists.linux.dev,
+        linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+        linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+        sparclinux@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rockchip@lists.infradead.org, dmaengine@vger.kernel.org,
+        linux-fpga@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        intel-xe@lists.freedesktop.org, coresight@lists.linaro.org,
+        iommu@lists.linux.dev, linux-amlogic@lists.infradead.org,
+        linux-cxl@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+References: <cover.1755096883.git.robin.murphy@arm.com>
+ <542787fd188ea15ef41c53d557989c962ed44771.1755096883.git.robin.murphy@arm.com>
+ <67a0d778-6e2c-4955-a7ce-56a10043ae8d@arm.com>
+Content-Language: en-US
+From: Thomas Richter <tmricht@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <67a0d778-6e2c-4955-a7ce-56a10043ae8d@arm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/smc: fix UAF on smcsk after smc_listen_out()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175565948574.3753798.15328877682080975423.git-patchwork-notify@kernel.org>
-Date: Wed, 20 Aug 2025 03:11:25 +0000
-References: <20250818054618.41615-1-alibuda@linux.alibaba.com>
-In-Reply-To: <20250818054618.41615-1-alibuda@linux.alibaba.com>
-To: D. Wythe <alibuda@linux.alibaba.com>
-Cc: Mahanta.Jambigi@ibm.com, Sidraya.Jayagond@ibm.com, wenjia@linux.ibm.com,
- wintera@linux.ibm.com, dust.li@linux.alibaba.com, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
- netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-rdma@vger.kernel.org, pabeni@redhat.com, edumazet@google.com,
- jaka@linux.ibm.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rc1CmpHVUr4PjN6HeVNNaTAKVoWbVX32
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODE5MDIyMiBTYWx0ZWRfX4xTzLYCTQsxG
+ AGD1we0J4ezItB0ejTfm7DJNuDAARyH4VivdukTDV+G2c134zt0WbxSJSEE76uDxTym3DRzLeZX
+ mOf6bUkLRc8HI2z83HLeSrLnCDaUzt6ctsGigqq+Yny6dHl56O82/ysxGcmIZx9UyZO+hyMZvb/
+ ecuWa/hbBYOZ6yeacF65qy/00k1eAjO++Mj45cxXjqV85T1khiwKHAStutPkN05LIcWmzIOI2N6
+ JcZUW/XH3ZbwPgzY20enHnuM+rxpiC2AXWamVYRgBgnxytZoHYJTbh5BurqPVICmyND/IQHxcAh
+ w3J7un0oPnbnMNdQ3B2TA6VUHKYY82ln4UWEvFzI/Jn0XaQRTQr//JuEseTSCgQIqbo5FGoTW85
+ ypKOH5UDXA9ip20lItNjpe1wLNO1nQ==
+X-Proofpoint-GUID: GZ2wu60A03msHy_JXXsuf0f5WSTi9QT-
+X-Authority-Analysis: v=2.4 cv=KPwDzFFo c=1 sm=1 tr=0 ts=68a582a9 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=7CQSdrXTAAAA:8 a=gUTjnckvcJroK4elFEgA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=a-qgeE7W1pNrGK8U0ZQC:22
+ a=DXsff8QfwkrTrK3sU8N1:22 a=Z5ABNNGmrOfJ6cZ5bIyy:22 a=bWyr8ysk75zN3GCy5bjg:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-20_03,2025-08-20_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 spamscore=0 adultscore=0 malwarescore=0 lowpriorityscore=0
+ bulkscore=0 priorityscore=1501 suspectscore=0 phishscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2508110000 definitions=main-2508190222
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Mon, 18 Aug 2025 13:46:18 +0800 you wrote:
-> BPF CI testing report a UAF issue:
+On 8/19/25 15:15, Robin Murphy wrote:
+> On 13/08/2025 6:01 pm, Robin Murphy wrote:
+>> Only a handful of CPU PMUs accept PERF_TYPE_{RAW,HARDWARE,HW_CACHE}
+>> events without registering themselves as PERF_TYPE_RAW in the first
+>> place. Add an explicit opt-in for these special cases, so that we can
+>> make life easier for every other driver (and probably also speed up the
+>> slow-path search) by having perf_try_init_event() do the basic type
+>> checking to cover the majority of cases.
+>>
+>> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+>> ---
+>>
+>> A further possibility is to automatically add the cap to PERF_TYPE_RAW
+>> PMUs in perf_pmu_register() to have a single point-of-use condition; I'm
+>> undecided...
+>> ---
+>>   arch/s390/kernel/perf_cpum_cf.c    |  1 +
+>>   arch/s390/kernel/perf_pai_crypto.c |  2 +-
+>>   arch/s390/kernel/perf_pai_ext.c    |  2 +-
+>>   arch/x86/events/core.c             |  2 +-
+>>   drivers/perf/arm_pmu.c             |  1 +
+>>   include/linux/perf_event.h         |  1 +
+>>   kernel/events/core.c               | 15 +++++++++++++++
+>>   7 files changed, 21 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
+>> index 1a94e0944bc5..782ab755ddd4 100644
+>> --- a/arch/s390/kernel/perf_cpum_cf.c
+>> +++ b/arch/s390/kernel/perf_cpum_cf.c
+>> @@ -1054,6 +1054,7 @@ static void cpumf_pmu_del(struct perf_event *event, int flags)
+>>   /* Performance monitoring unit for s390x */
+>>   static struct pmu cpumf_pmu = {
+>>       .task_ctx_nr  = perf_sw_context,
+>> +    .capabilities = PERF_PMU_CAP_RAW_EVENTS,
+>>       .pmu_enable   = cpumf_pmu_enable,
+>>       .pmu_disable  = cpumf_pmu_disable,
+>>       .event_init   = cpumf_pmu_event_init,
+>> diff --git a/arch/s390/kernel/perf_pai_crypto.c b/arch/s390/kernel/perf_pai_crypto.c
+>> index a64b6b056a21..b5b6d8b5d943 100644
+>> --- a/arch/s390/kernel/perf_pai_crypto.c
+>> +++ b/arch/s390/kernel/perf_pai_crypto.c
+>> @@ -569,7 +569,7 @@ static const struct attribute_group *paicrypt_attr_groups[] = {
+>>   /* Performance monitoring unit for mapped counters */
+>>   static struct pmu paicrypt = {
+>>       .task_ctx_nr  = perf_hw_context,
+>> -    .capabilities = PERF_PMU_CAP_SAMPLING,
+>> +    .capabilities = PERF_PMU_CAP_SAMPLING | PERF_PMU_CAP_RAW_EVENTS,
+>>       .event_init   = paicrypt_event_init,
+>>       .add          = paicrypt_add,
+>>       .del          = paicrypt_del,
+>> diff --git a/arch/s390/kernel/perf_pai_ext.c b/arch/s390/kernel/perf_pai_ext.c
+>> index 1261f80c6d52..bcd28c38da70 100644
+>> --- a/arch/s390/kernel/perf_pai_ext.c
+>> +++ b/arch/s390/kernel/perf_pai_ext.c
+>> @@ -595,7 +595,7 @@ static const struct attribute_group *paiext_attr_groups[] = {
+>>   /* Performance monitoring unit for mapped counters */
+>>   static struct pmu paiext = {
+>>       .task_ctx_nr  = perf_hw_context,
+>> -    .capabilities = PERF_PMU_CAP_SAMPLING,
+>> +    .capabilities = PERF_PMU_CAP_SAMPLING | PERF_PMU_CAP_RAW_EVENTS,
+>>       .event_init   = paiext_event_init,
+>>       .add          = paiext_add,
+>>       .del          = paiext_del,
+>> diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
+>> index 789dfca2fa67..764728bb80ae 100644
+>> --- a/arch/x86/events/core.c
+>> +++ b/arch/x86/events/core.c
+>> @@ -2697,7 +2697,7 @@ static bool x86_pmu_filter(struct pmu *pmu, int cpu)
+>>   }
+>>     static struct pmu pmu = {
+>> -    .capabilities        = PERF_PMU_CAP_SAMPLING,
+>> +    .capabilities        = PERF_PMU_CAP_SAMPLING | PERF_PMU_CAP_RAW_EVENTS,
+>>         .pmu_enable        = x86_pmu_enable,
+>>       .pmu_disable        = x86_pmu_disable,
+>> diff --git a/drivers/perf/arm_pmu.c b/drivers/perf/arm_pmu.c
+>> index 72d8f38d0aa5..bc772a3bf411 100644
+>> --- a/drivers/perf/arm_pmu.c
+>> +++ b/drivers/perf/arm_pmu.c
+>> @@ -877,6 +877,7 @@ struct arm_pmu *armpmu_alloc(void)
+>>            * specific PMU.
+>>            */
+>>           .capabilities    = PERF_PMU_CAP_SAMPLING |
+>> +                  PERF_PMU_CAP_RAW_EVENTS |
+>>                     PERF_PMU_CAP_EXTENDED_REGS |
+>>                     PERF_PMU_CAP_EXTENDED_HW_TYPE,
+>>       };
+>> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+>> index 183b7c48b329..c6ad036c0037 100644
+>> --- a/include/linux/perf_event.h
+>> +++ b/include/linux/perf_event.h
+>> @@ -305,6 +305,7 @@ struct perf_event_pmu_context;
+>>   #define PERF_PMU_CAP_EXTENDED_HW_TYPE    0x0100
+>>   #define PERF_PMU_CAP_AUX_PAUSE        0x0200
+>>   #define PERF_PMU_CAP_AUX_PREFER_LARGE    0x0400
+>> +#define PERF_PMU_CAP_RAW_EVENTS        0x0800
+>>     /**
+>>    * pmu::scope
+>> diff --git a/kernel/events/core.c b/kernel/events/core.c
+>> index 71b2a6730705..2ecee76d2ae2 100644
+>> --- a/kernel/events/core.c
+>> +++ b/kernel/events/core.c
+>> @@ -12556,11 +12556,26 @@ static inline bool has_extended_regs(struct perf_event *event)
+>>              (event->attr.sample_regs_intr & PERF_REG_EXTENDED_MASK);
+>>   }
+>>   +static bool is_raw_pmu(const struct pmu *pmu)
+>> +{
+>> +    return pmu->type == PERF_TYPE_RAW ||
+>> +           pmu->capabilities & PERF_PMU_CAP_RAW_EVENTS;
+>> +}
+>> +
+>>   static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
+>>   {
+>>       struct perf_event_context *ctx = NULL;
+>>       int ret;
+>>   +    /*
+>> +     * Before touching anything, we can safely skip:
+>> +     * - any event for a specific PMU which is not this one
+>> +     * - any common event if this PMU doesn't support them
+>> +     */
+>> +    if (event->attr.type != pmu->type &&
+>> +        (event->attr.type >= PERF_TYPE_MAX || is_raw_pmu(pmu)))
 > 
->   [   16.446633] BUG: kernel NULL pointer dereference, address: 000000000000003  0
->   [   16.447134] #PF: supervisor read access in kernel mod  e
->   [   16.447516] #PF: error_code(0x0000) - not-present pag  e
->   [   16.447878] PGD 0 P4D   0
->   [   16.448063] Oops: Oops: 0000 [#1] PREEMPT SMP NOPT  I
->   [   16.448409] CPU: 0 UID: 0 PID: 9 Comm: kworker/0:1 Tainted: G           OE      6.13.0-rc3-g89e8a75fda73-dirty #4  2
->   [   16.449124] Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODUL  E
->   [   16.449502] Hardware name: QEMU Ubuntu 24.04 PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/201  4
->   [   16.450201] Workqueue: smc_hs_wq smc_listen_wor  k
->   [   16.450531] RIP: 0010:smc_listen_work+0xc02/0x159  0
->   [   16.452158] RSP: 0018:ffffb5ab40053d98 EFLAGS: 0001024  6
->   [   16.452526] RAX: 0000000000000001 RBX: 0000000000000002 RCX: 000000000000030  0
->   [   16.452994] RDX: 0000000000000280 RSI: 00003513840053f0 RDI: 000000000000000  0
->   [   16.453492] RBP: ffffa097808e3800 R08: ffffa09782dba1e0 R09: 000000000000000  5
->   [   16.453987] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa0978274640  0
->   [   16.454497] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa09782d4092  0
->   [   16.454996] FS:  0000000000000000(0000) GS:ffffa097bbc00000(0000) knlGS:000000000000000  0
->   [   16.455557] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003  3
->   [   16.455961] CR2: 0000000000000030 CR3: 0000000102788004 CR4: 0000000000770ef  0
->   [   16.456459] PKRU: 5555555  4
->   [   16.456654] Call Trace  :
->   [   16.456832]  <TASK  >
->   [   16.456989]  ? __die+0x23/0x7  0
->   [   16.457215]  ? page_fault_oops+0x180/0x4c  0
->   [   16.457508]  ? __lock_acquire+0x3e6/0x249  0
->   [   16.457801]  ? exc_page_fault+0x68/0x20  0
->   [   16.458080]  ? asm_exc_page_fault+0x26/0x3  0
->   [   16.458389]  ? smc_listen_work+0xc02/0x159  0
->   [   16.458689]  ? smc_listen_work+0xc02/0x159  0
->   [   16.458987]  ? lock_is_held_type+0x8f/0x10  0
->   [   16.459284]  process_one_work+0x1ea/0x6d  0
->   [   16.459570]  worker_thread+0x1c3/0x38  0
->   [   16.459839]  ? __pfx_worker_thread+0x10/0x1  0
->   [   16.460144]  kthread+0xe0/0x11  0
->   [   16.460372]  ? __pfx_kthread+0x10/0x1  0
->   [   16.460640]  ret_from_fork+0x31/0x5  0
->   [   16.460896]  ? __pfx_kthread+0x10/0x1  0
->   [   16.461166]  ret_from_fork_asm+0x1a/0x3  0
->   [   16.461453]  </TASK  >
->   [   16.461616] Modules linked in: bpf_testmod(OE) [last unloaded: bpf_testmod(OE)  ]
->   [   16.462134] CR2: 000000000000003  0
->   [   16.462380] ---[ end trace 0000000000000000 ]---
->   [   16.462710] RIP: 0010:smc_listen_work+0xc02/0x1590
+> Ah, that should be "!is_raw_pmu(pmu)" there (although it's not entirely the cause of the LKP report on the final patch.)
 > 
-> [...]
+> Thanks,
+> Robin.
+> 
+>> +        return -ENOENT;
+>> +
+>>       if (!try_module_get(pmu->module))
+>>           return -ENODEV;
+>>   
+> 
+> 
 
-Here is the summary with links:
-  - [net] net/smc: fix UAF on smcsk after smc_listen_out()
-    https://git.kernel.org/netdev/net/c/d9cef55ed491
+Hi Robin,
 
-You are awesome, thank you!
+what is the intention of that patch?
+Can you explain that a bit more.
+
+Thanks.
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
+--
+IBM Deutschland Research & Development GmbH
 
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
 
+Geschäftsführung: David Faller
+
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
