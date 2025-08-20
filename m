@@ -1,136 +1,118 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 737C02206B8;
-	Tue, 19 Aug 2025 17:49:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEF1726F2BC;
+	Wed, 20 Aug 2025 03:11:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755625757; cv=none; b=TWHBLcq0Gx3x8clSJkLLPfNmgS5SG1v/cwwScY4/JJeAS5u9WreIdTfcAXkgKa5NuDubaY65bbq2f4zjD+IyfKLqLeQb2U2wnmfcwTYg8arXHQ4lAXfzFiIQQv1lws1ktlc0TaUHdHon1b94GVnm0R7KRDw3jvN5zavjoDPwFWc=
+	t=1755659476; cv=none; b=B2tL7xMyVfOYeZqgAAC6d4/9h+dXTPb9Ar7zCHOsCqRveTZGVCTpwiYk0Bm8kOHJQ3dh4OH4BUSjYwn7qtGqYfXgH8BeYcPO+B0eJJr4ZPvJZhNN01xIvCKG9sBgB3i0u8oMhPhFc1o8XD/1eEU62W3i5M2MW3TAHfSgj7h128g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755625757; c=relaxed/simple;
-	bh=yfhPbDJoc+6CdAo/HUDbAHjm5EOHsprDS0bgOVBPTUo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=u1ggeva+JSjhmo79XKXV92uGsDx2Tdb8tuc4mz+mpH+ImeqLDAPjyuBirabjGLv44dFqqLANceqyhF4DxjP72whhJ+U9T2aEbizeuZrAWMJAbT6xkzIpg4oyVAazkCowyJKO8xToNxIFDhibYKPFUXzL/oWUVdYGz1k3gngk5Lw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8E877152B;
-	Tue, 19 Aug 2025 10:49:06 -0700 (PDT)
-Received: from [10.1.196.50] (e121345-lin.cambridge.arm.com [10.1.196.50])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 475103F738;
-	Tue, 19 Aug 2025 10:49:10 -0700 (PDT)
-Message-ID: <cdb7b1e7-6e51-4c0e-bffb-b0d4b654a623@arm.com>
-Date: Tue, 19 Aug 2025 18:49:08 +0100
+	s=arc-20240116; t=1755659476; c=relaxed/simple;
+	bh=ml1Y35fvP1QMdZJuztTyhRtOjp4HuX0A5UgIfOSaGDE=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=eFO7aPp3n64tPuziTSN8iFqw/reY6f4EkmXfyQj3HL2DymIXAyS/Jg7VMUYQiD/Vy8rk4HSkiKtq3s/3m3S4Axjz7Xb/4ciobOgsGYHzycLH0P7BEq/JY2/YJSZexbT0JW3JPs7h3qg8xS3AaTT82GZVKsPihSJfc98PeM34r3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PHisFwvW; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PHisFwvW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4664DC116D0;
+	Wed, 20 Aug 2025 03:11:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1755659476;
+	bh=ml1Y35fvP1QMdZJuztTyhRtOjp4HuX0A5UgIfOSaGDE=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=PHisFwvWWniHiSbKc+trGaujFsjiUyL8guSgrRbmXX7niPPUW9cwHAkp2RwnEuFMa
+	 7cWTjL3l3qznoQfJ/B7ZuagUXWaE70ckI1kVVQIFdzdp0/EMbD4CdkFYxSRxxv6B+7
+	 onNB2DItSTvfpPAwQN6NVRuDtRZg+lpee+jLRNGvOvl0+64aD821gyvl5TpFe+ghbY
+	 iQBxjgF5YoWvQM/37ICNIYS+6QP3/e60LAodqZu6Be6+lN4amJKZJMbsxMnSLL1yX1
+	 Kp4uweVOxAhZYzEpWM5z9vsmK13zoAGEnB1yoMB9MG/Xxw2QxyLNxXwxYnAv+ZJIcV
+	 5u0097qYHrX7w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33BC0383BF58;
+	Wed, 20 Aug 2025 03:11:27 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 19/19] perf: Garbage-collect event_init checks
-To: kernel test robot <oliver.sang@intel.com>
-Cc: oe-lkp@lists.linux.dev, lkp@intel.com,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-perf-users@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-rockchip@lists.infradead.org,
- dmaengine@vger.kernel.org, linux-fpga@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, coresight@lists.linaro.org,
- iommu@lists.linux.dev, linux-amlogic@lists.infradead.org,
- linux-cxl@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-pm@vger.kernel.org, peterz@infradead.org, mingo@redhat.com,
- will@kernel.org, mark.rutland@arm.com, acme@kernel.org, namhyung@kernel.org,
- alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com,
- adrian.hunter@intel.com, kan.liang@linux.intel.com,
- linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
- imx@lists.linux.dev, linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linux-sh@vger.kernel.org,
- sparclinux@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-riscv@lists.infradead.org
-References: <202508190403.33c83ece-lkp@intel.com>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <202508190403.33c83ece-lkp@intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/smc: fix UAF on smcsk after smc_listen_out()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175565948574.3753798.15328877682080975423.git-patchwork-notify@kernel.org>
+Date: Wed, 20 Aug 2025 03:11:25 +0000
+References: <20250818054618.41615-1-alibuda@linux.alibaba.com>
+In-Reply-To: <20250818054618.41615-1-alibuda@linux.alibaba.com>
+To: D. Wythe <alibuda@linux.alibaba.com>
+Cc: Mahanta.Jambigi@ibm.com, Sidraya.Jayagond@ibm.com, wenjia@linux.ibm.com,
+ wintera@linux.ibm.com, dust.li@linux.alibaba.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, kuba@kernel.org, davem@davemloft.net,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-rdma@vger.kernel.org, pabeni@redhat.com, edumazet@google.com,
+ jaka@linux.ibm.com
 
-On 19/08/2025 3:44 am, kernel test robot wrote:
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Mon, 18 Aug 2025 13:46:18 +0800 you wrote:
+> BPF CI testing report a UAF issue:
 > 
+>   [   16.446633] BUG: kernel NULL pointer dereference, address: 000000000000003  0
+>   [   16.447134] #PF: supervisor read access in kernel mod  e
+>   [   16.447516] #PF: error_code(0x0000) - not-present pag  e
+>   [   16.447878] PGD 0 P4D   0
+>   [   16.448063] Oops: Oops: 0000 [#1] PREEMPT SMP NOPT  I
+>   [   16.448409] CPU: 0 UID: 0 PID: 9 Comm: kworker/0:1 Tainted: G           OE      6.13.0-rc3-g89e8a75fda73-dirty #4  2
+>   [   16.449124] Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODUL  E
+>   [   16.449502] Hardware name: QEMU Ubuntu 24.04 PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/201  4
+>   [   16.450201] Workqueue: smc_hs_wq smc_listen_wor  k
+>   [   16.450531] RIP: 0010:smc_listen_work+0xc02/0x159  0
+>   [   16.452158] RSP: 0018:ffffb5ab40053d98 EFLAGS: 0001024  6
+>   [   16.452526] RAX: 0000000000000001 RBX: 0000000000000002 RCX: 000000000000030  0
+>   [   16.452994] RDX: 0000000000000280 RSI: 00003513840053f0 RDI: 000000000000000  0
+>   [   16.453492] RBP: ffffa097808e3800 R08: ffffa09782dba1e0 R09: 000000000000000  5
+>   [   16.453987] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa0978274640  0
+>   [   16.454497] R13: 0000000000000000 R14: 0000000000000000 R15: ffffa09782d4092  0
+>   [   16.454996] FS:  0000000000000000(0000) GS:ffffa097bbc00000(0000) knlGS:000000000000000  0
+>   [   16.455557] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003  3
+>   [   16.455961] CR2: 0000000000000030 CR3: 0000000102788004 CR4: 0000000000770ef  0
+>   [   16.456459] PKRU: 5555555  4
+>   [   16.456654] Call Trace  :
+>   [   16.456832]  <TASK  >
+>   [   16.456989]  ? __die+0x23/0x7  0
+>   [   16.457215]  ? page_fault_oops+0x180/0x4c  0
+>   [   16.457508]  ? __lock_acquire+0x3e6/0x249  0
+>   [   16.457801]  ? exc_page_fault+0x68/0x20  0
+>   [   16.458080]  ? asm_exc_page_fault+0x26/0x3  0
+>   [   16.458389]  ? smc_listen_work+0xc02/0x159  0
+>   [   16.458689]  ? smc_listen_work+0xc02/0x159  0
+>   [   16.458987]  ? lock_is_held_type+0x8f/0x10  0
+>   [   16.459284]  process_one_work+0x1ea/0x6d  0
+>   [   16.459570]  worker_thread+0x1c3/0x38  0
+>   [   16.459839]  ? __pfx_worker_thread+0x10/0x1  0
+>   [   16.460144]  kthread+0xe0/0x11  0
+>   [   16.460372]  ? __pfx_kthread+0x10/0x1  0
+>   [   16.460640]  ret_from_fork+0x31/0x5  0
+>   [   16.460896]  ? __pfx_kthread+0x10/0x1  0
+>   [   16.461166]  ret_from_fork_asm+0x1a/0x3  0
+>   [   16.461453]  </TASK  >
+>   [   16.461616] Modules linked in: bpf_testmod(OE) [last unloaded: bpf_testmod(OE)  ]
+>   [   16.462134] CR2: 000000000000003  0
+>   [   16.462380] ---[ end trace 0000000000000000 ]---
+>   [   16.462710] RIP: 0010:smc_listen_work+0xc02/0x1590
 > 
-> Hello,
-> 
-> kernel test robot noticed "BUG:unable_to_handle_page_fault_for_address" on:
-> 
-> commit: 1ba20479196e5af3ebbedf9321de6b26f2a0cdd3 ("[PATCH 19/19] perf: Garbage-collect event_init checks")
-> url: https://github.com/intel-lab-lkp/linux/commits/Robin-Murphy/perf-arm-cmn-Fix-event-validation/20250814-010626
-> base: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git 91325f31afc1026de28665cf1a7b6e157fa4d39d
-> patch link: https://lore.kernel.org/all/ace3532a8a438a96338bf349a27636d8294c7111.1755096883.git.robin.murphy@arm.com/
-> patch subject: [PATCH 19/19] perf: Garbage-collect event_init checks
+> [...]
 
-OK, after looking a bit more deeply at x86 and PowerPC, I think it
-probably is nicest to solve this commonly too. Below is what I've cooked
-up for a v2 (I'll save reposting the whole series this soon...)
+Here is the summary with links:
+  - [net] net/smc: fix UAF on smcsk after smc_listen_out()
+    https://git.kernel.org/netdev/net/c/d9cef55ed491
 
-Thanks,
-Robin.
-
------>8-----
-Subject: [PATCH 18.5/19] perf: Add common uncore-CPU check
-
-Many uncore drivers depend on event->cpu being valid in order to look
-up various data in their event_init call. Since we've now factored out
-common PMU identification, we can factor out this check in the correct
-order too. While it might technically be possible to hoist the general
-task/cgroup check up here now, that would be horribly messy, so for
-clarity let's keep these as distinct (albeit related) concerns.
-
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Closes: https://lore.kernel.org/oe-lkp/202508190403.33c83ece-lkp@intel.com
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
----
-  kernel/events/core.c | 12 +++++++++++-
-  1 file changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 5f7eb526d87c..ddf045ad4d83 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12562,6 +12562,11 @@ static bool is_raw_pmu(const struct pmu *pmu)
-  	       pmu->capabilities & PERF_PMU_CAP_RAW_EVENTS;
-  }
-  
-+static bool is_uncore_pmu(const struct pmu *pmu)
-+{
-+	return pmu->task_ctx_nr == perf_invalid_context;
-+}
-+
-  static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
-  {
-  	struct perf_event_context *ctx = NULL;
-@@ -12571,11 +12576,16 @@ static int perf_try_init_event(struct pmu *pmu, struct perf_event *event)
-  	 * Before touching anything, we can safely skip:
-  	 * - any event for a specific PMU which is not this one
-  	 * - any common event if this PMU doesn't support them
-+	 * - non-CPU-bound uncore events (so drivers can assume event->cpu is
-+	 *   valid; we'll check the actual task/cgroup attach state later)
-  	 */
-  	if (event->attr.type != pmu->type &&
-  	    (event->attr.type >= PERF_TYPE_MAX || !is_raw_pmu(pmu)))
-  		return -ENOENT;
-  
-+	if (is_uncore_pmu(pmu) && event->cpu < 0)
-+		return -EINVAL;
-+
-  	if (!try_module_get(pmu->module))
-  		return -ENODEV;
-  
-@@ -12990,7 +13000,7 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
-  	 * events (they don't make sense as the cgroup will be different
-  	 * on other CPUs in the uncore mask).
-  	 */
--	if (pmu->task_ctx_nr == perf_invalid_context && (task || cgroup_fd != -1))
-+	if (is_uncore_pmu(pmu) && (task || cgroup_fd != -1))
-  		return ERR_PTR(-EINVAL);
-  
-  	if (event->attr.aux_output &&
+You are awesome, thank you!
 -- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
