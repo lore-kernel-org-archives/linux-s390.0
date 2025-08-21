@@ -1,73 +1,75 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFF582D7DD9
-	for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 20:07:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10AED2D7DFB
+	for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 20:07:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755806853; cv=none; b=SKTk5gg4iXidIcu+51YS3pkGN8MbdUN+AFDz2oXa28NvU/0FABNcFqC8cRJ4QE1zNeBjQroWUrT8ckhn80deCr/ei/r0ZUk03GvfQVKgNcG+gtYixw9fwQrakgEr7wEIu/EacpUyY3T+npX9kiJ77Fr5VwnapacYLSOQm+Hr+8s=
+	t=1755806854; cv=none; b=n/5Avwgj3keAFLlC6tufRm5GJkYd++cIH3FuBXdFn1WRJV7qXMx43zRCT3Rk6ttPzW6PJzKEUqM8kr8nATJP3RiAX8NbTNIZ/PUmr10RUselLzKb9xqRWVKhqUzq39L0q1G5PjaU0r9D0MoQWeWjxuC/hJ8xhRsubY1InA52MQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755806853; c=relaxed/simple;
-	bh=s79Oeg502W4xdw3NRVnr9AKhHVyvkgzn8FY1ksnzdKY=;
+	s=arc-20240116; t=1755806854; c=relaxed/simple;
+	bh=vLP4m8ubY62ddowshnJEYGhNc+fB41I1n0umGIUlXAI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Hs4fZWay2EhPbDGP8RV47UrMA9Ukwj1O73mZdZwLeGta8WAAUFTlVaJtlX5l1uY1vpr2XuFz/nG15fUjaeD/+1aJckD67/xiV9qoliq01L9h1iXzO3hnFtptGI7d+zdjHj+G8fVpqlikyIte1hbWL0ZnxoCqJEnEPmj8qtHRmmw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jSsGRqUw; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=X7GX349Twm8yPhK71W/Uo4KFpDMYVm93JYDAG9haSDnNHX3PzBFTJGpKjCWCO7TnmCpPGqEdUZmtANwVjSDe90sZPDvSFxqsHaz9WGvIW7BDzTFjka3WfLIZN+NntVOPdya2i+B2BZTxPtBfsyLviQLJxzKY3MlplBpPkcThPuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EwCudSfC; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jSsGRqUw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EwCudSfC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755806850;
+	s=mimecast20190719; t=1755806851;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=A9Znt0atqEjtEUkbTSfKRsvBJ9rEcbnqI7Kn1XkJSrA=;
-	b=jSsGRqUw79W7bpmZwB47eydkIHMJKZ+rKdt+XZha96SplDiDAaYrxwbZOXato5gieOI/KE
-	3In/plysguHc10KPt2VUYFWKScDQ41ty5hiRqi4Dqu180eyY/LlJFRwHRLNq2TR2kbFwHt
-	3TfdkpBygJs5WrS8m6E2dGORxeFMIlA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=aOl+Pd7m6DQCTUATshUDhXjEbKNtUx8aQQ0CVjE/d9w=;
+	b=EwCudSfCGuf1SqCDbUQOneXgeLk2d0dUXwxXAw5A3QQNEClF+sK1g541oUCVmGLdEc7Rmr
+	4B6X0TrlLcf1G508CK1E8EXYvLIJGR5hKxgWAGfzLeu+EB/F2W2KdYgVyaQe+6ELCoQmGH
+	WI+14X7lQVRRgkS09qnUmN1s05VK3D0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-206-wpjMMuYfO5SAwYpvo2abGQ-1; Thu, 21 Aug 2025 16:07:28 -0400
-X-MC-Unique: wpjMMuYfO5SAwYpvo2abGQ-1
-X-Mimecast-MFC-AGG-ID: wpjMMuYfO5SAwYpvo2abGQ_1755806847
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45a1b0cb0aaso10735325e9.3
-        for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 13:07:28 -0700 (PDT)
+ us-mta-612-YEKvdh3CPv-1fTEsBGsdnQ-1; Thu, 21 Aug 2025 16:07:23 -0400
+X-MC-Unique: YEKvdh3CPv-1fTEsBGsdnQ-1
+X-Mimecast-MFC-AGG-ID: YEKvdh3CPv-1fTEsBGsdnQ_1755806842
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45a1b0cc989so8650045e9.3
+        for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 13:07:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755806847; x=1756411647;
+        d=1e100.net; s=20230601; t=1755806842; x=1756411642;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=A9Znt0atqEjtEUkbTSfKRsvBJ9rEcbnqI7Kn1XkJSrA=;
-        b=oyv884uny5UQ/WnmB55pq6JzQ3WbtOH+/aMBPEKkdhUXK1+PKo0++KoaBxTY6YbNpj
-         Kzrsjwr9S3Roq0V2kLoWzUvKiv2bNAC6wef3IaAKeqON7gG2O+ipMltc7ta6cfaqJywG
-         r+M0o7yEAgHH/6fvkctXNbrWrElmyG8SLwuMiKHcPp50nOYlA0eB5yTmA1frdkZ8yS6r
-         vFxthAgvzXft2aSGsK0gayzj1sHsWqKfOtLQTYcsfyTLAzuzoSqPoWHDxDF1vyPuiEKZ
-         CDWZde9MmhIS096Gxf/j2PeMWIya2npV4vS39LXxIfndql1OuFt94aQHXJ3/pT+bKhDK
-         6mxw==
-X-Forwarded-Encrypted: i=1; AJvYcCV3ruI4S8Fav3/gdwdlEIeSuO5M4Awur2eVWP1IcI4uWdFTjxjS+1CcNCKtucQUXADXh6oYQi1dVaqK@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx9HXkueZxaO0qgg6j499Hd6GRupJQf+k27YTx9S3oEfvIRszLM
-	SoPPts8cqOxLGYtE4qATQ912LM+mo3RaRwRO7TD4XJ2TFggj9ldmRR/XeefReZYp+juenJbFOFx
-	scMp7DDwy+RAWJptzHVmG9GjlnRytYYiRSNAiLEyoSliLix8MgGPccQOpODYeOAM=
-X-Gm-Gg: ASbGncuA1zTqT+w9I293Iy3EVRd6twBbD+RYuGpEng7uu39WpePu+UaUio/RYpEBL+j
-	O3YRZWNuY45Pqr1DNK1Vt7d4gilw+drdurfvHG4J8fTp1c8bjlr+0bmNX29+2M3P05cUQW52lrg
-	OkWtAjmkgAlelTZLqG25f+J3ByuyV2OPTnGWSBNRCyEhuYHwfygeD2VbVfrSoLKlV9QLtdbYXeS
-	OG/l0tvWAKi73DK1f1i4G6Ih8t0ksOb8nUuOeAI1hmbr86EAWnM/YrGgRPS7UTQFD+2eAhOwcih
-	efZSN/5EVisnLbm0SGujIaYBGX8w+sskFwQF6XybJP73BoZeYf/1KamLlrC2qIpkwU3DdqjlXFX
-	6FvrmXXkZd8mCZEYDNtEEZg==
-X-Received: by 2002:a05:600c:3552:b0:459:dde3:1a33 with SMTP id 5b1f17b1804b1-45b517d26d4mr2922135e9.26.1755806847217;
-        Thu, 21 Aug 2025 13:07:27 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGUeapMM5JkcwJNJXC+LM6ICHu4lGUEF2ir46AAuHXhYXAFzTcPIdec/q/lplZD/isU7mGEgg==
-X-Received: by 2002:a05:600c:3552:b0:459:dde3:1a33 with SMTP id 5b1f17b1804b1-45b517d26d4mr2921795e9.26.1755806846742;
-        Thu, 21 Aug 2025 13:07:26 -0700 (PDT)
+        bh=aOl+Pd7m6DQCTUATshUDhXjEbKNtUx8aQQ0CVjE/d9w=;
+        b=QpEuuS4PUHzORkVV+z+y4Zj3CeHprINXGlaOYiikEVB5WrUHKFHn54YnMUYdMwUr3d
+         UKRMh7VoSamRl+OYvPRB4xYyGD+foOYwdFFYn7b+sHEx6yk9AdtQY1YQyRKLpNZ8EGK7
+         /BqUmCMzsQPZt4TjZah6XdfV3AESOU8434nBHyOMha3nNJ7LMJG79zv+RNgbBK0xCAz8
+         kpv8DGO4/Sg1hs9oodbVTpgGLSdv5MDm1Ognw6EZPhqqX2FrppddLxsdnsR3+KMJ/kMH
+         wG1etYFEDaaqlrGFJGByx1850JThxGtpN214bX7k3Q1kb8n933cfXwMEkoOV906zINf2
+         FErg==
+X-Forwarded-Encrypted: i=1; AJvYcCX06xjCqgxz1uOQcIPg3cnZS+9JZpD0deCgKh1PLc8O4/Ock1ZkQe6E5cQVRy2undWWk/Ti9YQqe3Mp@vger.kernel.org
+X-Gm-Message-State: AOJu0YxSA8wKZEXoM17WET0cxtOUaTF5udIAbOpR1tLndy1WWp9/31xT
+	k9ItRHhfwi15FXbilOQIsRVtEEdqwycB++fO1qfHG3AxBneOpePkZTAnrXcjBcSqQZfTvzrDJTC
+	9CmByg+AZFwyYtK33sPo7/sr/JbPKKTVgcYGFGLhtNx2ZGjGmarnBYEQvRHcqUqo=
+X-Gm-Gg: ASbGnctcg0KqBfIoUe3vmycpwbRrXuwuHkrWeSDvVKQcolIFlDUrHdM/f7nFrJaUPPM
+	aMsdOz17fk1hIvOqOjnFqIG6QaEN4L/d45hyhvNmii/hRL9IycQbFh8MUdaHi0m/evVK/N5q3UZ
+	CdlfMx7DKPOzUU5w5UagAZf0e/xtGP3U/3CMkKtyyNS/s4uWZYjN+aqQopvfvU1pSLtAEoXl2iy
+	rbdIyqc+MZ9Sdc3S2SJBuexU26730MdRbFOhevbiIhvwFF4RLrqWnDcx6Cpiyt0jcN0a3C3WwSY
+	kRmwlhCzBW40VfhiouNU6/oD/tFGDAar4ntYWWo8CC2ODilxrsrexEiT7Bzqqd/s+ApcdyuImcX
+	JdxDvhfDx5s0xp0Hjkv+zeA==
+X-Received: by 2002:a05:600c:1993:b0:456:e39:ec1a with SMTP id 5b1f17b1804b1-45b517ad4a9mr2412865e9.14.1755806841745;
+        Thu, 21 Aug 2025 13:07:21 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHtBnzBdejX2oNj8vG9iZBZKJew+pPrkGWxHzVnhFEnb5RkXIsj+cBFTtJrIXnzr/4lYhSU+w==
+X-Received: by 2002:a05:600c:1993:b0:456:e39:ec1a with SMTP id 5b1f17b1804b1-45b517ad4a9mr2412295e9.14.1755806841198;
+        Thu, 21 Aug 2025 13:07:21 -0700 (PDT)
 Received: from localhost (p200300d82f26ba0008036ec5991806fd.dip0.t-ipconnect.de. [2003:d8:2f26:ba00:803:6ec5:9918:6fd])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-45b50d62991sm9535385e9.0.2025.08.21.13.07.24
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-45b50dc00a8sm10960275e9.1.2025.08.21.13.07.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Aug 2025 13:07:26 -0700 (PDT)
+        Thu, 21 Aug 2025 13:07:20 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Shuah Khan <shuah@kernel.org>,
 	Alexander Potapenko <glider@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Brendan Jackman <jackmanb@google.com>,
@@ -114,9 +116,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH RFC 07/35] mm/memremap: reject unreasonable folio/compound page sizes in memremap_pages()
-Date: Thu, 21 Aug 2025 22:06:33 +0200
-Message-ID: <20250821200701.1329277-8-david@redhat.com>
+Subject: [PATCH RFC 05/35] wireguard: selftests: remove CONFIG_SPARSEMEM_VMEMMAP=y from qemu kernel config
+Date: Thu, 21 Aug 2025 22:06:31 +0200
+Message-ID: <20250821200701.1329277-6-david@redhat.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250821200701.1329277-1-david@redhat.com>
 References: <20250821200701.1329277-1-david@redhat.com>
@@ -128,36 +130,28 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Let's reject unreasonable folio sizes early, where we can still fail.
-We'll add sanity checks to prepare_compound_head/prepare_compound_page
-next.
+It's no longer user-selectable (and the default was already "y"), so
+let's just drop it.
 
-Is there a way to configure a system such that unreasonable folio sizes
-would be possible? It would already be rather questionable.
-
-If so, we'd probably want to bail out earlier, where we can avoid a
-WARN and just report a proper error message that indicates where
-something went wrong such that we messed up.
-
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Shuah Khan <shuah@kernel.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/memremap.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/testing/selftests/wireguard/qemu/kernel.config | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/mm/memremap.c b/mm/memremap.c
-index b0ce0d8254bd8..a2d4bb88f64b6 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -275,6 +275,9 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 
- 	if (WARN_ONCE(!nr_range, "nr_range must be specified\n"))
- 		return ERR_PTR(-EINVAL);
-+	if (WARN_ONCE(pgmap->vmemmap_shift > MAX_FOLIO_ORDER,
-+		      "requested folio size unsupported\n"))
-+		return ERR_PTR(-EINVAL);
- 
- 	switch (pgmap->type) {
- 	case MEMORY_DEVICE_PRIVATE:
+diff --git a/tools/testing/selftests/wireguard/qemu/kernel.config b/tools/testing/selftests/wireguard/qemu/kernel.config
+index 0a5381717e9f4..1149289f4b30f 100644
+--- a/tools/testing/selftests/wireguard/qemu/kernel.config
++++ b/tools/testing/selftests/wireguard/qemu/kernel.config
+@@ -48,7 +48,6 @@ CONFIG_JUMP_LABEL=y
+ CONFIG_FUTEX=y
+ CONFIG_SHMEM=y
+ CONFIG_SLUB=y
+-CONFIG_SPARSEMEM_VMEMMAP=y
+ CONFIG_SMP=y
+ CONFIG_SCHED_SMT=y
+ CONFIG_SCHED_MC=y
 -- 
 2.50.1
 
