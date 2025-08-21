@@ -1,80 +1,80 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4F637F1F8
-	for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 20:08:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 648A337F21C
+	for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 20:08:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755806927; cv=none; b=JdD6hB/SsRibCSDKBEHjgdJL33OUN2krGL2A9zNH5fPQiNY8Qoc4on5txzRqm21YC4SsWjnoy2UHLEDJjhlieNJ69zVbbncNLwMO4HZkWGAM+d4CTVh0I9kioOkubLM33LhownCigegtfpAwQ1LHzLKElko04+yJW5hZjhteg0s=
+	t=1755806927; cv=none; b=s9inCYOJXUPWtqmQ4qrvrhEZ9BsZs46etSHA6iUwE+ocJx1P4fLnrJjJsjYJs90uuBxF3WkDaO/OWzMdWEM7rSypmuArtnL0edJqk7vXScDPOAyCzzoYAAC7P5lEPCIKIPzzNls7RNNwK9SFEtG4PTC9dMgIhOuqQ6Lqp/Qc6yE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1755806927; c=relaxed/simple;
-	bh=3RfOoWzbZTj8EGhrr7OVQfmCtFM6TSZBuGB7jdppkcE=;
+	bh=+AkJ4dNPQE9q5oho0ySkYtQ5iyrBmFIRoWrlEu7Fgds=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t5a9w3ZJuFcYMHSSApQIFxvcKURV60RariYbZQ1PgPpZoRL1IQPg81DaWY+IN3wuxwt074UNXXc1OljxXf1b6pRZGSDhKlAuios3lgYkqoz410oCwmTc15zNW3qO/ysoTy1wTwsaqNNjCfLDipWEp5aoGDoNwDV7TpxRIj2sJN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KwjJ2GLJ; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=VgfVr1kWW49cJDunk7VXgbv0pLIXQgHQUt3ER+6GBR5IiITutLBbsR7UseLuynXT2kWZKF9oMqrutN5saCP5G+We/DDPOIs0XWSyeMKbp9fQVvu3KbFqKmwJsfuzVhTEVS4pkbiDfVI5h40rszirsB06iSWNgLFrDzbSImfcs6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AURUNmCD; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KwjJ2GLJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AURUNmCD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1755806911;
+	s=mimecast20190719; t=1755806923;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jaRFM4K4Pg6WYlxhcM2k1BGbQ/DW6XfjnDsCttbmjXY=;
-	b=KwjJ2GLJt8UKBGjnBrzu1iSl8btRbBbNlleZFf8f+Dqh6ZevRYHjx4kALT5bxczaEuxKCK
-	gpaPQimSdKI5REDCGpDgtD1a/MrAsTkBJY5FQCNjcjDP76eAKhGB/rIbr11dGldJfvOBFk
-	biEx8vwJsezsloRWf1gVrc9WHaUZnZE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=OnKBChYNBt6k7pWFZ1VK2zlCQ3hhOdGhc0x5VCAB6rA=;
+	b=AURUNmCDt/nfzhjyn/UxG3OeCJDNr18oGNV5dZsJU/zpRMyTnjhkJWsUSiok/LinqbF/3K
+	ZUpJICq5VKbJrV61M1jYWcAp47+LECC08Ze5fGgedKIteggF7tET/QWDPsMUK5pPM61wmS
+	l6EP8nLOIp3tjkA8KP8PkwckMVqvkXk=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-428-GXmhw761OdyumVpCst6r3Q-1; Thu, 21 Aug 2025 16:08:08 -0400
-X-MC-Unique: GXmhw761OdyumVpCst6r3Q-1
-X-Mimecast-MFC-AGG-ID: GXmhw761OdyumVpCst6r3Q_1755806883
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45a1b0045a0so8436285e9.0
-        for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 13:08:05 -0700 (PDT)
+ us-mta-534-7bWjbvWLNUKF5C5xakDHiw-1; Thu, 21 Aug 2025 16:08:41 -0400
+X-MC-Unique: 7bWjbvWLNUKF5C5xakDHiw-1
+X-Mimecast-MFC-AGG-ID: 7bWjbvWLNUKF5C5xakDHiw_1755806920
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3b9dc5c2ba0so675759f8f.1
+        for <linux-s390@vger.kernel.org>; Thu, 21 Aug 2025 13:08:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755806883; x=1756411683;
+        d=1e100.net; s=20230601; t=1755806920; x=1756411720;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jaRFM4K4Pg6WYlxhcM2k1BGbQ/DW6XfjnDsCttbmjXY=;
-        b=uAlnNr2vnJvsyVj2n3gMIhFVaSReNG8oY391Nt34QL9ofZKKqz9Zv+I1P31CvY4Vud
-         pSW1Ze3MlBE3Xy8EA1/9RGTrDV50wp9FZvrp3kaAwlujE64vKM7ckwcobE3Y/Ytxzmch
-         biuwLrbE54DOGy/T5vZo89pdVs9GinYFp3YrYwburHMGI0qX4AsauwewpUdDJ3Q5R5sI
-         YxWBnSBHhLBClPppI12o2NnfxLiB/Ne32jnTPu4nytZsszK+LtbDt1UUFH1iSiuX1CHr
-         jLxNsgjqV+F/AaxsasRJu/j+yjnEE3+yBv6CpPV8VSeyLjl+1VW7lAuCSY/n1P5QGV8r
-         051g==
-X-Forwarded-Encrypted: i=1; AJvYcCUPTru2ZVhjvuZnZ1omEi+u8gXV9a/01Da7xm/77synOz9P4lHWZ27ZI/A92GQp3vLmSLorjwLNj2Pn@vger.kernel.org
-X-Gm-Message-State: AOJu0YysLsN7zn1S/9oPl4DFE4RCL7krmPvAOOgj2FSQ4pw13Hyj6i3A
-	K8b205W1L79vK4oIVTdBYzkdqrEP97Cxwiw+kyOAhWiK3tDxzRfD9Pavw3mKxFoV+7NrBYyUGKU
-	mZHBg0qSr0QlTjS+e3uXxO3nj/jYHjo03OrKUsRB6BiZPk021Y8T3G0ujs2PFpdo=
-X-Gm-Gg: ASbGncuzCvPb3Zy/SsDRNsiy6UbhtJIjRYlzs5UK7YgdpeHp76uSOlTLT5KfcavYmpz
-	H4OII2qETqTSilPxYFftYWtuylriuZ0Wi54tUgf26LkBxkeMrFfeGoBQcM6mylSi6OsX/6/2u/t
-	rw3B7XObjY84FjY69FXvowKVDKAiL2oMvINCvInBJBps1QYRyg1dbEadLEu3ZNmdPRDQWfTPXKQ
-	CIzN+fpswPe5LLneO4+MZ5SnKt0KVQzpfnZGa0f2GTuWlOGO/U5DtV3Ro/6lfdXCoAz/ietOzO7
-	dwmzui36SmU/eameh0bX/gwinW4s63/DbJOa5FR4liFD6VclyYS9XelW/Zgh6ilBUVpGx97tpZj
-	YKJ7H57zLmVBEN3O1qx9ktQ==
-X-Received: by 2002:a05:6000:2012:b0:3b7:dd87:d741 with SMTP id ffacd0b85a97d-3c5dcc095c3mr196182f8f.42.1755806882801;
-        Thu, 21 Aug 2025 13:08:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFiRO9AsztHDXjXXwtKcCswXKV/HQQvQjujQOlltIgK9F5s1Ca8ikdDYrX2bvCVEtKZoFK6NA==
-X-Received: by 2002:a05:6000:2012:b0:3b7:dd87:d741 with SMTP id ffacd0b85a97d-3c5dcc095c3mr196155f8f.42.1755806882316;
-        Thu, 21 Aug 2025 13:08:02 -0700 (PDT)
+        bh=OnKBChYNBt6k7pWFZ1VK2zlCQ3hhOdGhc0x5VCAB6rA=;
+        b=dTNkzIz69Hznegi2KiFAvPB3YGZ/cr/bb6l6DfVeBY1KyPTRdktJSw3wyPq7B8XiI9
+         xQzc/DCCuSQYaU1BTcUAxe/rjb35KShjCI5KJTs6O7vtF1+bmB4OuSyVi4bwoJpvKKed
+         WBiXPHgfGNv0/CndvQTvdCnhov3GHrT48jFVcXrxj1ngE4yQdlcZE/3FGBLPp9ObMTqp
+         nM/fAkmkzHP8Xqmheq79jL2CgyrcSfentksGXrBd//v4AAiPlmrl0ZvpEH0XvsWs/1Wp
+         YDmgEOURolBBNlS0r9CCXccQDb/Y2iRJP1YJNPppD5jIUBxC8v/RbLBQp4mQt24Y7FC9
+         0LMw==
+X-Forwarded-Encrypted: i=1; AJvYcCWOcCI6vE68YtrLB1QCBgmcuUU2SK8xdCVF3wzU47NFcwUXbVjc0qUEHTM+Tux9WsAAEWBggAW519iE@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz6cjYrVvVkec/xPU0VZS5Tu7uvwcs96Rf1EEmhgPLGdW7GAs05
+	LN3cwjrfyhIYxUUxcK3WBr8k2W++3M3o65ZwmOSZIw7521jn3kJ4p40JBp/5SHFl2CTqM9Vasj1
+	8F2upoTqQ9pmPDglDUIIckUxx3Ob9psoA3VeCmBtwjsYhF76OcZ5AL7wWzsM6fw8=
+X-Gm-Gg: ASbGnctW5YBR2S/sl98AbCCXwrGt0et0ASBzc7lpa9TEPdJUDY998BWuhSiUoJZ4Swg
+	1BzLja4E1NZ0yr9f7au9Dre5SxOoidsmocPoNUoz4pO4tBrwer/boKRxNU3i5GpIppflQi7H8lg
+	+AsryHZR/tjBUWDn5sGYBdEfQIcsglFSqE4BJ9dlzafd7JA96PkovDrjULYagB6OWzbcbs6+rlM
+	8y46I6F6LfUNjwgxGjIVUv5IrRisRAW+p1RtiHk2j6yl/eigF2byZQy6QVGL8vzjbYo3rDGY6Ce
+	56TkRQdXmVS+RljsIYufkyO+l+99I5NPo6MgdlSnR+UdE2KoMqYnvSFKDk6dpFVqYvcJiu/FPC4
+	FGVZe5doHFY3FenTHmlfUeQ==
+X-Received: by 2002:a05:6000:2405:b0:3a4:e841:b236 with SMTP id ffacd0b85a97d-3c5dc735246mr192358f8f.33.1755806920378;
+        Thu, 21 Aug 2025 13:08:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFrWn9aM0C/1GZBHvF1UL+fKz7WhllpDdsBGpm2GmVOIF4Yc/dULhABMcTdk4u9sLFplZdR3g==
+X-Received: by 2002:a05:6000:2405:b0:3a4:e841:b236 with SMTP id ffacd0b85a97d-3c5dc735246mr192328f8f.33.1755806919917;
+        Thu, 21 Aug 2025 13:08:39 -0700 (PDT)
 Received: from localhost (p200300d82f26ba0008036ec5991806fd.dip0.t-ipconnect.de. [2003:d8:2f26:ba00:803:6ec5:9918:6fd])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-45b50e0b299sm8957945e9.22.2025.08.21.13.08.00
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3c0771c166bsm12920369f8f.33.2025.08.21.13.08.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Aug 2025 13:08:01 -0700 (PDT)
+        Thu, 21 Aug 2025 13:08:39 -0700 (PDT)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
 	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Brendan Jackman <jackmanb@google.com>,
 	Christoph Lameter <cl@gentwo.org>,
 	Dennis Zhou <dennis@kernel.org>,
-	Dmitry Vyukov <dvyukov@google.com>,
 	dri-devel@lists.freedesktop.org,
 	intel-gfx@lists.freedesktop.org,
 	iommu@lists.linux.dev,
@@ -99,7 +99,6 @@ Cc: David Hildenbrand <david@redhat.com>,
 	linux-s390@vger.kernel.org,
 	linux-scsi@vger.kernel.org,
 	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	Marco Elver <elver@google.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Michal Hocko <mhocko@suse.com>,
 	Mike Rapoport <rppt@kernel.org>,
@@ -115,9 +114,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH RFC 20/35] mips: mm: convert __flush_dcache_pages() to __flush_dcache_folio_pages()
-Date: Thu, 21 Aug 2025 22:06:46 +0200
-Message-ID: <20250821200701.1329277-21-david@redhat.com>
+Subject: [PATCH RFC 33/35] kfence: drop nth_page() usage
+Date: Thu, 21 Aug 2025 22:06:59 +0200
+Message-ID: <20250821200701.1329277-34-david@redhat.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250821200701.1329277-1-david@redhat.com>
 References: <20250821200701.1329277-1-david@redhat.com>
@@ -129,86 +128,82 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Let's make it clearer that we are operating within a single folio by
-providing both the folio and the page.
+We want to get rid of nth_page(), and kfence init code is the last user.
 
-This implies that for flush_dcache_folio() we'll now avoid one more
-page->folio lookup, and that we can safely drop the "nth_page" usage.
+Unfortunately, we might actually walk a PFN range where the pages are
+not contiguous, because we might be allocating an area from memblock
+that could span memory sections in problematic kernel configs (SPARSEMEM
+without SPARSEMEM_VMEMMAP).
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+We could check whether the page range is contiguous
+using page_range_contiguous() and failing kfence init, or making kfence
+incompatible these problemtic kernel configs.
+
+Let's keep it simple and simply use pfn_to_page() by iterating PFNs.
+
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/mips/include/asm/cacheflush.h | 11 +++++++----
- arch/mips/mm/cache.c               |  8 ++++----
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ mm/kfence/core.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/arch/mips/include/asm/cacheflush.h b/arch/mips/include/asm/cacheflush.h
-index 1f14132b3fc98..8a2de28936e07 100644
---- a/arch/mips/include/asm/cacheflush.h
-+++ b/arch/mips/include/asm/cacheflush.h
-@@ -50,13 +50,14 @@ extern void (*flush_cache_mm)(struct mm_struct *mm);
- extern void (*flush_cache_range)(struct vm_area_struct *vma,
- 	unsigned long start, unsigned long end);
- extern void (*flush_cache_page)(struct vm_area_struct *vma, unsigned long page, unsigned long pfn);
--extern void __flush_dcache_pages(struct page *page, unsigned int nr);
-+extern void __flush_dcache_folio_pages(struct folio *folio, struct page *page, unsigned int nr);
- 
- #define ARCH_IMPLEMENTS_FLUSH_DCACHE_PAGE 1
- static inline void flush_dcache_folio(struct folio *folio)
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index 0ed3be100963a..793507c77f9e8 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -594,15 +594,15 @@ static void rcu_guarded_free(struct rcu_head *h)
+  */
+ static unsigned long kfence_init_pool(void)
  {
- 	if (cpu_has_dc_aliases)
--		__flush_dcache_pages(&folio->page, folio_nr_pages(folio));
-+		__flush_dcache_folio_pages(folio, folio_page(folio, 0),
-+					   folio_nr_pages(folio));
- 	else if (!cpu_has_ic_fills_f_dc)
- 		folio_set_dcache_dirty(folio);
- }
-@@ -64,10 +65,12 @@ static inline void flush_dcache_folio(struct folio *folio)
+-	unsigned long addr;
+-	struct page *pages;
++	unsigned long addr, pfn, start_pfn, end_pfn;
+ 	int i;
  
- static inline void flush_dcache_page(struct page *page)
- {
-+	struct folio *folio = page_folio(page);
-+
- 	if (cpu_has_dc_aliases)
--		__flush_dcache_pages(page, 1);
-+		__flush_dcache_folio_pages(folio, page, folio_nr_pages(folio));
- 	else if (!cpu_has_ic_fills_f_dc)
--		folio_set_dcache_dirty(page_folio(page));
-+		folio_set_dcache_dirty(folio);
- }
+ 	if (!arch_kfence_init_pool())
+ 		return (unsigned long)__kfence_pool;
  
- #define flush_dcache_mmap_lock(mapping)		do { } while (0)
-diff --git a/arch/mips/mm/cache.c b/arch/mips/mm/cache.c
-index bf9a37c60e9f0..e3b4224c9a406 100644
---- a/arch/mips/mm/cache.c
-+++ b/arch/mips/mm/cache.c
-@@ -99,9 +99,9 @@ SYSCALL_DEFINE3(cacheflush, unsigned long, addr, unsigned long, bytes,
- 	return 0;
- }
+ 	addr = (unsigned long)__kfence_pool;
+-	pages = virt_to_page(__kfence_pool);
++	start_pfn = PHYS_PFN(virt_to_phys(__kfence_pool));
++	end_pfn = start_pfn + KFENCE_POOL_SIZE / PAGE_SIZE;
  
--void __flush_dcache_pages(struct page *page, unsigned int nr)
-+void __flush_dcache_folio_pages(struct folio *folio, struct page *page,
-+		unsigned int nr)
- {
--	struct folio *folio = page_folio(page);
- 	struct address_space *mapping = folio_flush_mapping(folio);
- 	unsigned long addr;
- 	unsigned int i;
-@@ -117,12 +117,12 @@ void __flush_dcache_pages(struct page *page, unsigned int nr)
- 	 * get faulted into the tlb (and thus flushed) anyways.
+ 	/*
+ 	 * Set up object pages: they must have PGTY_slab set to avoid freeing
+@@ -612,12 +612,13 @@ static unsigned long kfence_init_pool(void)
+ 	 * fast-path in SLUB, and therefore need to ensure kfree() correctly
+ 	 * enters __slab_free() slow-path.
  	 */
- 	for (i = 0; i < nr; i++) {
--		addr = (unsigned long)kmap_local_page(nth_page(page, i));
-+		addr = (unsigned long)kmap_local_page(page + i);
- 		flush_data_cache_page(addr);
- 		kunmap_local((void *)addr);
- 	}
- }
--EXPORT_SYMBOL(__flush_dcache_pages);
-+EXPORT_SYMBOL(__flush_dcache_folio_pages);
+-	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
+-		struct slab *slab = page_slab(nth_page(pages, i));
++	for (pfn = start_pfn; pfn != end_pfn; pfn++) {
++		struct slab *slab;
  
- void __flush_anon_page(struct page *page, unsigned long vmaddr)
- {
+ 		if (!i || (i % 2))
+ 			continue;
+ 
++		slab = page_slab(pfn_to_page(pfn));
+ 		__folio_set_slab(slab_folio(slab));
+ #ifdef CONFIG_MEMCG
+ 		slab->obj_exts = (unsigned long)&kfence_metadata_init[i / 2 - 1].obj_exts |
+@@ -664,11 +665,13 @@ static unsigned long kfence_init_pool(void)
+ 	return 0;
+ 
+ reset_slab:
+-	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
+-		struct slab *slab = page_slab(nth_page(pages, i));
++	for (pfn = start_pfn; pfn != end_pfn; pfn++) {
++		struct slab *slab;
+ 
+ 		if (!i || (i % 2))
+ 			continue;
++
++		slab = page_slab(pfn_to_page(pfn));
+ #ifdef CONFIG_MEMCG
+ 		slab->obj_exts = 0;
+ #endif
 -- 
 2.50.1
 
