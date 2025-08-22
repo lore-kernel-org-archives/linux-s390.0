@@ -1,135 +1,157 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B721277CA4;
-	Fri, 22 Aug 2025 11:31:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 009A72D7DC5;
+	Fri, 22 Aug 2025 12:26:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755862291; cv=none; b=gLY1LEsmW1TYKzlM0YvENdxJGhcOrnVj+s2qNaWh/FCLvrjPu+VveQEcF2NLlfk3uVwv6gRCSXX6sxZ2XActE2GNCHH2jqcgTerNc+BBf2gs/j4Yyiirs65rZ36Hk9fGczQUMOlgyl3aw9vduSMQZbdFsSNwjz4rWGEAARYtLNc=
+	t=1755865573; cv=none; b=iXjJBYlq/m5cRkEtg67OUl3fAG60bjmRBJwsYVMxeaSLwKRWyx/IWbHd7NAZVGh4jcChYPIoUdPAY+Jsr197dljRlFpV/ibufrw48nKtPs6e/dB+ehHvVxjlvWsrblrR0HGSaNCuj+/oNUhZWKGyeWf7Tv+TJNgwl3Ko0mz/MCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755862291; c=relaxed/simple;
-	bh=QxTICeIhRMERCgTBkORqT0sL9XBucsgusTgs9XuOzso=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r8WprZGxOwvTmSdbeAYopeC0ONHtMtWGLfrQJCAxEqmUF7cgoPFe+r4uhmTFJhSHnJbZr4uaO4hNReN8lYrLLfr7eORWonNE7j7K9F0ms8lHr9RpiSLrxl4GEOmZphL8dm2wFyQPMQUBkf84J30l96rIlQ9KtHDImiPlHTK2WZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BMubruNE; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1755865573; c=relaxed/simple;
+	bh=UY/L2tRKcOALJRVQf2k9KAYHGNaFT19Gm20vR020zPw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ri9Vy0XaRzJUkrIVChAje805+1P4Bm4Z8Zsh2zUKOA6y9hT0sTwn40j9ssUHnuWVWX+8jMtRtw6AjXRY1CFfsSY8+2B0cXgCYxnLtFMEIAxcy6yYBR5PlREZudnVz45vl/3XOkWJUTA+5i8YpDkZDpi4cmQFEt2nhFUs4P75eIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RxWGqOSz; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BMubruNE"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-45b4d89217aso9434335e9.2;
-        Fri, 22 Aug 2025 04:31:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755862288; x=1756467088; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=SfbHPH5Jjp8Rpz5+ZFUkvP8crb1ywqdy8VPh1hjPgaM=;
-        b=BMubruNEvhKpWVN7Y44DEKAVsnZ6QcGxFN32j8+1YyBZDKGgIEajcJoqSegm0jir7s
-         BoocTHTYG8OSXLl5yTpmXaIAAMS4x/tjg4PxFwqOZG3D8jV3IJhTisL4qZZxne69/S/K
-         HQBEhFVO6naJDIq1kiqZFnXWxOf7I0j4W06fLDTg17sbdVg0AqSazzwEI3YnrLCQt4BT
-         uwuytRREG9HscRMkzB4pPuv2F/ESXeLK/xGCKoCaonvTZsQ++9mygIkH+JyKtQgWxoIs
-         lCJVY3Cf8zTvIfTceApUmY2leA2DuJ13dhYKN/e2SceRxgFNhCc6CAZUbyYLL2eHNRXa
-         VNqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755862288; x=1756467088;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SfbHPH5Jjp8Rpz5+ZFUkvP8crb1ywqdy8VPh1hjPgaM=;
-        b=HpvL9lcua144BXaJ+h5AvLL6zqalA2ofOG8a5txDJkvpahwgZRVcv8V4X6bfYsSon0
-         C3Y7bupoavMFdURadqkN1trXD4uhIpad2RPE/j5PTqrpHy89PV0SR85hkbT7OiZGWP65
-         8rppjs4Blh2FFLoAM2HEVs8FVXaYnoR02CsY8pi+X8wMWpnccqzFGbaJbNOTfwnkS3WH
-         usp5xTyLL+tytiqUqGI/eYv9RGOj9i2GpIiXQ2Gt4T4wcOG34H0PU2hkIRUeHdMbMFuW
-         ikmwvO9AzriCvadIAxee+1qOhIDBw00nOomrZ65jZeGr3HpD5Tkj13ilad8I9DZqZuL0
-         hvNg==
-X-Forwarded-Encrypted: i=1; AJvYcCU9O1m6sDlWiZM1rcd4+bGf/GTjy3x4KgPimSUxjVAGPIyQIwjR0bLvaA6no2YjcxI5XcE7@vger.kernel.org, AJvYcCUJzr4ePRF5zzT3zwrS+sJAYTvyBWAl8shrwFrqmv/7quAIC4dTro6vYRKS/hnZSwYPWRKmWSNABL2+@vger.kernel.org, AJvYcCUsemyXlQqkDZhweTRp5YglVteJJQo84fh3nYYCLvOFBGc7j2niYdXAQYGsxLIVBwAgXApRMfs5DZqruw==@vger.kernel.org, AJvYcCW1Ed8sYNrIjYPW6Uo/9JNGGpg1Fo4mFSXD7vMQCkIjFwKToHrfBakYVKxKgWXLGc0YnWm7+N9y61RxzrAZ@vger.kernel.org, AJvYcCW1gLKT2NAkC3ErtP0vKWKjIGa5e1amqlL7xOcH0jELHEKPScpvRld/bnouWfjYWdWGs3CK5BIN@vger.kernel.org, AJvYcCW2yumLrMOlf9a9M+WAPUdMYB/5b1v/bG7zxF2EnAgNKkmH2A0/azlEcwEjX6xISKeyvrYUroj6j16udEEfjsif@vger.kernel.org, AJvYcCW8aKPpZkVFKieTBxlgVh/8dxod2Bp3LifliRxOG4CfrdqPoijMmoa+kJa/ivqB25B63a16LEniSOtDnw==@vger.kernel.org, AJvYcCWybWwXjio1RgnXN5astOxUGU4Ulz7wkGhs4IGuYkoT6iA7uLt7ZmfRi7HKdIOXVb7KYwUAGQJ1RT+jGtEi@vger.kernel.org, AJvYcCX9WTz1pWJ6mFdJB8EGogWIEVnDT2f5WbDmUexRA7yZ5zCuhFDBCaU8IGxQ6creRuczo9bvw7o6zQ==@vger.kernel.org, AJvYcCXknjyyeZRKQs/Jt8djUtMo8MUJeF/EMCwOBVu/6/pQOEEPpF/If3UX17PIXJQvYAJOFoTqPAUcWEx22w==@vger.kernel.org, AJvYcCXsA7rsM9SBx6MDkGUaCTPI/l40Rbi/44TETLbPmWnIKG6no+/TRsWDctqXKFMs4H7po2+WnsncgtRu@vger.kernel.org
-X-Gm-Message-State: AOJu0YwkddID+wDK+lZ8JxumPMJFGT1TlX2r1hmYFldGe86nlcxatXOT
-	i+phVVtR3+uvutfZliIigfjTWHzyv7YYs9mWmXLrZsj7xdKV1ukG/ETH
-X-Gm-Gg: ASbGncurVePDMmMfveBJhj0k54mDiUmdw9Qd8trFyyFn8wGdElcvxibzoskuNfj+KK0
-	GaJNq+fzqLNYLbWkY0Mfy0PVEa8xXOkUtiAUFj3SI/DduJcPHvb3loO46MLXiNwxJN1Its/r4vW
-	xUiPZdXmQPZOqQWiw9+pV9Ywd1apEoXYJsgxlOwHsgTB4xcnMgrgkmbEE/Zzz89lPOHw7boI+Yc
-	GyGC+gBg2fHsxWEGQQn5Fh7oPNn6uJPmPOPJ1PE5ZkuZM+5Bq7wwXUi0MKZ4ahfrJrM2FxClugH
-	tM7sNqWJinDNZBICOcKX11sgF5ZoqTvp5mFk8QkcVpI1619C6ZXfOd8Cn2BpbSMynb7fiaK+bQn
-	+6qVcCgfFjb9LqLM3MYpufceP+NdV7Iwgt38/vTs5BcGi6u5jod20mCU=
-X-Google-Smtp-Source: AGHT+IGRxFKrTZ5eDvBkmi1zEgN6s0gJ3t3AoyWptSyZJnQ5Bb32czELomyx9FMDxkr1p0nFemiRbQ==
-X-Received: by 2002:a05:600c:4747:b0:459:e094:92cb with SMTP id 5b1f17b1804b1-45b517ad81bmr24844685e9.12.1755862287996;
-        Fri, 22 Aug 2025 04:31:27 -0700 (PDT)
-Received: from ?IPV6:2620:10d:c096:325:77fd:1068:74c8:af87? ([2620:10d:c092:600::1:1b93])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b50e4241dsm35921185e9.24.2025.08.22.04.31.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Aug 2025 04:31:27 -0700 (PDT)
-Message-ID: <b5b08ad3-d8cd-45ff-9767-7cf1b22b5e03@gmail.com>
-Date: Fri, 22 Aug 2025 12:32:58 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RxWGqOSz"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57M7pStI012363;
+	Fri, 22 Aug 2025 12:25:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=HJ26CL98BAEdjjPC26V3xabEO8vZWHtSFpQwDNtDX
+	ak=; b=RxWGqOSz0te8m2Ixjfu8QPZNIpaQoJ9DP8fJ0JUbvkCrSfPZDTVmqXgcn
+	x0WPMoaTGlOyoFzxXcsi2+VNOPbmMVp28nk51ic0E/JiVXC0V/uSCQyuV1EzQn7Z
+	RVcMAj3dyb9u0EdYsS3K7CB+lX99PvXd2ulxMrz+2I3mhboINUkaCVA3C66uIEf0
+	Nlm6U3HbXNefzW6xrYwn4hJ+ybhkXxudSkk7S5KOqXSxuoloAhga3pM4XO7uhZ+D
+	wUufm2nsVFauFZC8rGvneuZ2d9NM1JykWQ/tlW7tIwnFsZdgxRk9Pokhz0ggF4r2
+	b9F84fkK6hvj+RQe2HcFty1FZ4+Qw==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48n38vx7fy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 22 Aug 2025 12:25:54 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57MCMVGQ001349;
+	Fri, 22 Aug 2025 12:25:54 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48n38vx7fx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 22 Aug 2025 12:25:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57MCIWUt024740;
+	Fri, 22 Aug 2025 12:25:53 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48my5w56ra-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 22 Aug 2025 12:25:53 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57MCPn1P29557460
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 22 Aug 2025 12:25:49 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 53A6B20043;
+	Fri, 22 Aug 2025 12:25:49 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 272C020040;
+	Fri, 22 Aug 2025 12:25:49 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 22 Aug 2025 12:25:49 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org,
+        blakejones@google.com
+Cc: agordeev@linux.ibm.com, gor@linux.ibm.com, sumanthk@linux.ibm.com,
+        hca@linux.ibm.com, japo@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [Ping][PATCH] perf test: Checking BPF metadata collection fails on version string
+Date: Fri, 22 Aug 2025 14:25:39 +0200
+Message-ID: <20250822122540.4104658-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 18/35] io_uring/zcrx: remove "struct io_copy_cache"
- and one nth_page() usage
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>,
- John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
- kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
- Zi Yan <ziy@nvidia.com>
-References: <20250821200701.1329277-1-david@redhat.com>
- <20250821200701.1329277-19-david@redhat.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <20250821200701.1329277-19-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODE5MDIyMiBTYWx0ZWRfX4+kIeLuQeUpb
+ AYE7fZ5YQTv9hAJyu3bCTEMDboH12QuNBZCgV5WgLb5S9Sy5hvGLVIPl8eHlyFEePLc1HpvOYjQ
+ evb1cDMa23OG4IGAvk/watRqAJNRc1GCabnl5QaeuCxbL1KfRw90wJ7odrdSJRX2QTMZGju801w
+ DERruEWBzs5iaWBzljbL71q9UTC7Xf0UxV+hcoF0nbHl3jVLWCivL4WhqziC54MOdWcmHP59gvm
+ gcVFmJwG0nFGVkfi/yo+LqCKnTLnJR6UZX32owU4Yb31yv7iuxFw0mY8oP5+OI//ubuUz+y4NRj
+ lqfearS11BCeY9zgBB8NNXATFrAbfuB9wG4F+VKBNKBRSfztIqJYY3K7xvQuGcQ+J8YC3OpmnYn
+ HjRZ+ZoA61Zn71oDZ7mfR4HpBckFPA==
+X-Proofpoint-ORIG-GUID: KisYOD35_syNFIe_H5JHe_L_1NJm5-wu
+X-Authority-Analysis: v=2.4 cv=T9nVj/KQ c=1 sm=1 tr=0 ts=68a861d2 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=2OwXVqhp2XgA:10 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8 a=UquQ6J-m-umW9Fh778UA:9
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: 9vGB0RlN6JaLlk2fVT6EpBrqly0DtsSl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-22_04,2025-08-20_03,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 malwarescore=0 phishscore=0 spamscore=0 clxscore=1015
+ bulkscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2508110000 definitions=main-2508190222
 
-On 8/21/25 21:06, David Hildenbrand wrote:
-> We always provide a single dst page, it's unclear why the io_copy_cache
-> complexity is required.
+commit edf2cadf01e8f ("perf test: add test for BPF metadata collection")
 
-Because it'll need to be pulled outside the loop to reuse the page for
-multiple copies, i.e. packing multiple fragments of the same skb into
-it. Not finished, and currently it's wasting memory.
+fails consistently on the version string check. The perf version
+string on some of the constant integration test machines contains
+characters with special meaning in grep's extended regular expression
+matching algorithm. The output of perf version is:
 
-Why not do as below? Pages there never cross boundaries of their folios.
+ # perf version
+ perf version 6.17.0-20250814.rc1.git20.24ea63ea3877.63.fc42.s390x+git
+ #
 
-Do you want it to be taken into the io_uring tree?
+and the '+' character has special meaning in egrep command.
+Also the use of egrep is deprecated.
 
-diff --git a/io_uring/zcrx.c b/io_uring/zcrx.c
-index e5ff49f3425e..18c12f4b56b6 100644
---- a/io_uring/zcrx.c
-+++ b/io_uring/zcrx.c
-@@ -975,9 +975,9 @@ static ssize_t io_copy_page(struct io_copy_cache *cc, struct page *src_page,
-  
-  		if (folio_test_partial_kmap(page_folio(dst_page)) ||
-  		    folio_test_partial_kmap(page_folio(src_page))) {
--			dst_page = nth_page(dst_page, dst_offset / PAGE_SIZE);
-+			dst_page += dst_offset / PAGE_SIZE;
-  			dst_offset = offset_in_page(dst_offset);
--			src_page = nth_page(src_page, src_offset / PAGE_SIZE);
-+			src_page += src_offset / PAGE_SIZE;
-  			src_offset = offset_in_page(src_offset);
-  			n = min(PAGE_SIZE - src_offset, PAGE_SIZE - dst_offset);
-  			n = min(n, len);
+Change the perf version string check to fixed character matching
+and get rid of egrep's warning being deprecated. Use grep -F instead.
 
+Output before:
+ # perf test -F 102
+ Checking BPF metadata collection
+ egrep: warning: egrep is obsolescent; using grep -E
+ Basic BPF metadata test [Failed invalid output]
+ 102: BPF metadata collection test             : FAILED!
+ #
+
+Output after:
+ # perf test -F 102
+ Checking BPF metadata collection
+ Basic BPF metadata test [Success]
+ 102: BPF metadata collection test             : Ok
+ #
+
+Fixes: edf2cadf01e8f ("perf test: add test for BPF metadata collection")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Blake Jones <blakejones@google.com>
+---
+ tools/perf/tests/shell/test_bpf_metadata.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/perf/tests/shell/test_bpf_metadata.sh b/tools/perf/tests/shell/test_bpf_metadata.sh
+index 69e3c2055134..be67d56e0f09 100755
+--- a/tools/perf/tests/shell/test_bpf_metadata.sh
++++ b/tools/perf/tests/shell/test_bpf_metadata.sh
+@@ -61,7 +61,7 @@ test_bpf_metadata() {
+ 		/perf_version/ {
+ 			if (entry) print $NF;
+ 		}
+-	' | egrep "$VERS" > /dev/null
++	' | grep -qF "$VERS"
+ 	then
+ 		echo "Basic BPF metadata test [Failed invalid output]"
+ 		err=1
 -- 
-Pavel Begunkov
+2.50.1
 
