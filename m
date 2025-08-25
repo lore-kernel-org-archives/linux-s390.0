@@ -1,190 +1,128 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBF9E2F28F4
-	for <linux-s390@vger.kernel.org>; Mon, 25 Aug 2025 13:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C05212FE581;
+	Mon, 25 Aug 2025 14:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756130377; cv=none; b=hvbEdNgOGfBcNUiuy8/vNw3ADwMNOfskINh1rbsHxzY2/jPWlxlkbplgDiuAlhYXyRBqy53JwKoni7gIeXOfMLCnKnDTiei5yBHy+86Y66pZ1EkhDiT/hRID0NxzdvjPuspeLdAK1wv3ocDBCxHOylmSs+d0c9eRYXVFwKMr0jY=
+	t=1756132362; cv=none; b=rvaKFmxPUXNMBH2MAesz5Qlpp/xkFerUU/SKfTXcIoOtlqi/YtFO9qUgSjde1sEIck4M0f9LjgFbLzGFxb5rEvRBuXjB6DUdWyWUBhPQ8m85JpvwgUQojiBmfA/49tA3flosM8W6RLpXW2O3I2NrUXZNy4Z0HyIncL44H02QLBY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756130377; c=relaxed/simple;
-	bh=iKeLqmJlX7IFGW8KFDsUf3kfbkdQxRY+eQtPXdLNf3I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Q8eqVngDg3LCJo9obNubNCkMMVf2hmWO5wQNgmmD7kSWVdVRCn8T4UoQOfKlhHJng9l8zi87pR4gUdW6AAAZ/+doP/HXKuEm/wp4s1jBJRMm8erwvb4l1NJtvOo675mD1p/cprZiNZovyj6sMGv4qerV35PSdWka/xPjcHpBtOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Dmk8SWHu; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=1n/tRlzM; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Dmk8SWHu; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=1n/tRlzM; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1756132362; c=relaxed/simple;
+	bh=DU+1S4Dtf6BzIA9TMfJpqm5TRVwGVofXB+Dj9RHsm1g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=h5U2W8teEHwEHSAEReWUSuboArGJz/KcccWbLgRYbbEqsTqBX7LtXHdcNag1oRJzbwFhEryM52hhe0TnA5ZWLQyqFZVJgJ3hsiVibG+jzAkGTNAQkhNYKhjeeNexmu3cbMcSiMUUWrzRocKGYTpXeRxqMADeLqRxW5OjwxAsRf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n7YZsnMU; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Dmk8SWHu";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="1n/tRlzM";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Dmk8SWHu";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="1n/tRlzM"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 0784E1F78C;
-	Mon, 25 Aug 2025 13:59:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1756130374; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
-	b=Dmk8SWHufW0/ThrkDQWH8E29p9eCuf66Tu5Nzlf/zmUVG7z32+s8sKC6RlTWa/MwYK1n9D
-	3K4ni/kVYk89Xzho2+jjvGLx+Lx2s/hIuagUc632vb9EIn7k9YVdoyAN9ChIBfpqylL59C
-	XVGWCVs3rWJy6lS77qGtrqEhAaySYGY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1756130374;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
-	b=1n/tRlzMuBcwEoZuvkwRM7jKqbCBFCkjWIyBEd4O5yW07vB8RT5vdrZ78npVSjxWrI2JdU
-	mhyDYWFZqieTHKAQ==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1756130374; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
-	b=Dmk8SWHufW0/ThrkDQWH8E29p9eCuf66Tu5Nzlf/zmUVG7z32+s8sKC6RlTWa/MwYK1n9D
-	3K4ni/kVYk89Xzho2+jjvGLx+Lx2s/hIuagUc632vb9EIn7k9YVdoyAN9ChIBfpqylL59C
-	XVGWCVs3rWJy6lS77qGtrqEhAaySYGY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1756130374;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
-	b=1n/tRlzMuBcwEoZuvkwRM7jKqbCBFCkjWIyBEd4O5yW07vB8RT5vdrZ78npVSjxWrI2JdU
-	mhyDYWFZqieTHKAQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C5E571368F;
-	Mon, 25 Aug 2025 13:59:33 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id hR78L0VsrGjoLQAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Mon, 25 Aug 2025 13:59:33 +0000
-Message-ID: <1afec70b-0424-4477-97d2-34bc2615e4b5@suse.cz>
-Date: Mon, 25 Aug 2025 15:59:33 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n7YZsnMU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28395C4CEED;
+	Mon, 25 Aug 2025 14:32:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1756132360;
+	bh=DU+1S4Dtf6BzIA9TMfJpqm5TRVwGVofXB+Dj9RHsm1g=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=n7YZsnMUaPKieR6Aen8NXplrqXq649ng2cWds08Paw0ZE1V9/s04MYuzfMJunBPPM
+	 e9q5l/4IYbHR+zLW6tZ3Ain+SM/EPsptEidQNiwcBG+gIXbD0MDb3NpuMIodH9q/bK
+	 gfUkw7ZqtLUllteesZei9c9/9Nob4tERnp37xBWgOfA8ssretvfGAj7ddnS1nJ/eSw
+	 gYK9m1P9+EEv6DvwLeTd0I1ynl3rIVfEsEIPpMbPhXNcaQgQQCdndA/xeV7DIotpxx
+	 J60e7ZU1ZivKd3L40DdBa/CHbHS/SOS0E/lE/sJu2Rz1DevUCKw6IvTf/zpKfAvZXV
+	 BIxp/l6R3haNQ==
+Date: Mon, 25 Aug 2025 17:32:20 +0300
+From: Mike Rapoport <rppt@kernel.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: Mika =?iso-8859-1?Q?Penttil=E4?= <mpenttil@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Alexander Potapenko <glider@google.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Christoph Lameter <cl@gentwo.org>, Dennis Zhou <dennis@kernel.org>,
+	Dmitry Vyukov <dvyukov@google.com>, dri-devel@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org, iommu@lists.linux.dev,
+	io-uring@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+	Jens Axboe <axboe@kernel.dk>, Johannes Weiner <hannes@cmpxchg.org>,
+	John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
+	kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linux-arm-kernel@axis.com, linux-arm-kernel@lists.infradead.org,
+	linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, linux-mips@vger.kernel.org,
+	linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Marco Elver <elver@google.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Michal Hocko <mhocko@suse.com>, Muchun Song <muchun.song@linux.dev>,
+	netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
+	Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
+	Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+	virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+	wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+Subject: Re: [PATCH RFC 10/35] mm/hugetlb: cleanup
+ hugetlb_folio_init_tail_vmemmap()
+Message-ID: <aKxz9HLQTflFNYEu@kernel.org>
+References: <20250821200701.1329277-1-david@redhat.com>
+ <20250821200701.1329277-11-david@redhat.com>
+ <9156d191-9ec4-4422-bae9-2e8ce66f9d5e@redhat.com>
+ <7077e09f-6ce9-43ba-8f87-47a290680141@redhat.com>
+ <aKmDBobyvEX7ZUWL@kernel.org>
+ <a90cf9a3-d662-4239-ad54-7ea917c802a5@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/6] KVM: Export KVM-internal symbols for sub-modules only
-Content-Language: en-US
-To: Sean Christopherson <seanjc@google.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>, Andy Lutomirski
- <luto@kernel.org>, Xin Li <xin@zytor.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>,
- Josh Poimboeuf <jpoimboe@kernel.org>, Jarkko Sakkinen <jarkko@kernel.org>,
- Vitaly Kuznetsov <vkuznets@redhat.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- "Kirill A. Shutemov" <kas@kernel.org>, Tony Krowiak
- <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
- Jason Herne <jjherne@linux.ibm.com>,
- Harald Freudenberger <freude@linux.ibm.com>,
- Holger Dengler <dengler@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- linux-sgx@vger.kernel.org, x86@kernel.org, linux-coco@lists.linux.dev,
- linux-s390@vger.kernel.org
-References: <20250729174238.593070-1-seanjc@google.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- m6M14QORSWTLRg==
-In-Reply-To: <20250729174238.593070-1-seanjc@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.997];
-	MIME_GOOD(-0.10)[text/plain];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[33];
-	MIME_TRACE(0.00)[0:+];
-	TO_DN_SOME(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL81e5qggtdx371s8ik49ru6xr)];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Spam-Score: -4.30
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <a90cf9a3-d662-4239-ad54-7ea917c802a5@redhat.com>
 
-On 7/29/25 19:42, Sean Christopherson wrote:
-> Use the newfangled EXPORT_SYMBOL_GPL_FOR_MODULES() along with some macro
-> shenanigans to export KVM-internal symbols if and only if KVM has one or
-
-Note it was renamed to EXPORT_SYMBOL_FOR_MODULES() only in 6.17-rc3 so this
-series will need rebasing to that and adjustment. Probably best to rename
-also EXPORT_SYMBOL_GPL_FOR_KVM_INTERNAL for consistency?
-
-Thanks,
-Vlastimil
-
-> more sub-modules, and only for those sub-modules, e.g. x86's kvm-amd.ko
-> and/or kvm-intel.ko.
+On Mon, Aug 25, 2025 at 02:48:58PM +0200, David Hildenbrand wrote:
+> On 23.08.25 10:59, Mike Rapoport wrote:
+> > On Fri, Aug 22, 2025 at 08:24:31AM +0200, David Hildenbrand wrote:
+> > > On 22.08.25 06:09, Mika Penttilä wrote:
+> > > > 
+> > > > On 8/21/25 23:06, David Hildenbrand wrote:
+> > > > 
+> > > > > All pages were already initialized and set to PageReserved() with a
+> > > > > refcount of 1 by MM init code.
+> > > > 
+> > > > Just to be sure, how is this working with MEMBLOCK_RSRV_NOINIT, where MM is supposed not to
+> > > > initialize struct pages?
+> > > 
+> > > Excellent point, I did not know about that one.
+> > > 
+> > > Spotting that we don't do the same for the head page made me assume that
+> > > it's just a misuse of __init_single_page().
+> > > 
+> > > But the nasty thing is that we use memblock_reserved_mark_noinit() to only
+> > > mark the tail pages ...
+> > 
+> > And even nastier thing is that when CONFIG_DEFERRED_STRUCT_PAGE_INIT is
+> > disabled struct pages are initialized regardless of
+> > memblock_reserved_mark_noinit().
+> > 
+> > I think this patch should go in before your updates:
 > 
+> Shouldn't we fix this in memblock code?
+> 
+> Hacking around that in the memblock_reserved_mark_noinit() user sound wrong
+> -- and nothing in the doc of memblock_reserved_mark_noinit() spells that
+> behavior out.
+
+We can surely update the docs, but unfortunately I don't see how to avoid
+hacking around it in hugetlb. 
+Since it's used to optimise HVO even further to the point hugetlb open
+codes memmap initialization, I think it's fair that it should deal with all
+possible configurations.
+ 
+> -- 
+> Cheers
+> 
+> David / dhildenb
+> 
+> 
+
+-- 
+Sincerely yours,
+Mike.
