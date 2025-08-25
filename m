@@ -1,231 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC2FF30102F
-	for <linux-s390@vger.kernel.org>; Mon, 25 Aug 2025 18:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 636BADF58
+	for <linux-s390@vger.kernel.org>; Mon, 25 Aug 2025 21:35:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756146758; cv=none; b=O29Gnvf36Ld4yOej9o+1cz36ihtgv/M+6unxf1kc9fwtCz2ab2te2SZREQmEhBSyD97MK164Ih7YF8eY/WSSN5KbHTC52eW4YCENLSAar48Dw/6fmrWcgK5SaEG/LQ7cEqQ2XUOHkCERwhBSqDFYC5DSRjdjPnr3w3X4fGIQdPc=
+	t=1756157712; cv=none; b=Gr+OjPKtuNTTfKivJUTUe4xdR+MsrJJNdnmEQLBunZpRa8R92cU4+POKgU89un0BS/v9uYTD9q7XNOBaNicxy3/7FDUscynYt28mFx4snaxaC0mkTeit8Mg+LJybkQeBplARmTHnqZSXyNbqV7koRWJwikQN2cVUWWatHk9DR9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756146758; c=relaxed/simple;
-	bh=5gSbG4LawMNJ/PWjEAWfSVGPawomJWAQkNEyrTBhXtk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GVpEB4do+ab2TQLZyk7xO3nm4ouJxgTMptGWAX8KV047hMstxuyoPP85jiTRXFFLi3TOa0EyF5rqEAgT+TBdMiy2XbaqL0FMTAAcdoaeqzcsajbaDixOoHXbiCgcJ2HaffhCQKO0n5iOPpRUghEeYlvFEX91SFO4pJ0sSY+MP0Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RhYXThG3; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1756157712; c=relaxed/simple;
+	bh=Q9CPbQpH2d/T5EyyLjYG2kTFNAop20As96U/hmdEPUY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cYiEhfb6XueBZjFk+bT5RfRtwMPeH/P1KcKZjbMZHfER+ejLd79Gp6Cj5Y8xuk4CIGY+Fdc9eTRsNCVPXWFDI9EWz7OModYO78HBFxovjQfMU6Zym9P3wR8Izy5yx0qVKOc251oUN1SHqF3gX6BBA7JrQkXd1TkOtc265xSLx4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AVBij65p; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RhYXThG3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AVBij65p"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756146755;
+	s=mimecast20190719; t=1756157709;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=bluti57k39MttADONVHVsAxBvXyqb5R7ZWo2ok70EgM=;
-	b=RhYXThG3+tIFnfqzLIr9RPKxUxwraFl7lO2IPNcEbTyPNdKbVpERSCLZuCs+WhDSSPQMox
-	8AF8QwnYsxJ1QrHDYmS40C5kdt7ZdyEuAeCyVZfTk/DGGnAgMs5zVwdFTws8tKK4Jgeq82
-	8aePnOuj3pRFAfo75YAYdTeDDGMLxcE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=TuacPQu0sUaEe98IXzV5lAzTlLH7oY2OXfsQpZup1+Q=;
+	b=AVBij65pmNfwJOXWbJPtok+69RkZPzIoKvWYOZAb0DfGsr70fG4c4gIuJIgFt3Ppnc/Vn7
+	8ucfpZWlMWxnGqSxPeeRfHlpMCpZljGWGTAd4R1L20fjJ+UGa23XfjGcYzvTh0OKHO6uGh
+	SPiZCkVGhtNFVtsId74ZjaO5CG1dLAg=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-224-lM4bauZNOTOe5kzRYPs9mg-1; Mon, 25 Aug 2025 14:32:33 -0400
-X-MC-Unique: lM4bauZNOTOe5kzRYPs9mg-1
-X-Mimecast-MFC-AGG-ID: lM4bauZNOTOe5kzRYPs9mg_1756146752
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45a1b0ccb6cso23633525e9.3
-        for <linux-s390@vger.kernel.org>; Mon, 25 Aug 2025 11:32:33 -0700 (PDT)
+ us-mta-673-KRJ2TewiMyeCYKUEq5LnuQ-1; Mon, 25 Aug 2025 17:35:08 -0400
+X-MC-Unique: KRJ2TewiMyeCYKUEq5LnuQ-1
+X-Mimecast-MFC-AGG-ID: KRJ2TewiMyeCYKUEq5LnuQ_1756157707
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-886e8134e87so5317639f.3
+        for <linux-s390@vger.kernel.org>; Mon, 25 Aug 2025 14:35:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756146752; x=1756751552;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bluti57k39MttADONVHVsAxBvXyqb5R7ZWo2ok70EgM=;
-        b=rl7lSF1p89h1+TK8lvIQc+5gt2wjDL2hFGwpBvw19ERVqPuHmE4io+nmy3ELfd2Lfz
-         bjehcf7Pe72//pdO4YpWblHyDmOcFWfQDFIOQ8n/iF/Fa9rFtnRJx/54rk8sOQHtQMaO
-         RBQ4ZeaYusGzztn3LXjjw/8G/k6ueJc1ueIgdaoQTYL0d9tw7ZqcWRtg10XOnnTiP1XC
-         veGWD7uoQ6IdxBuOGuyrR7JOTByr627k2/y5lcG+IYBwdXpKyG7C9Um5gYpORTVJa1U3
-         i3VX0TEJEEP6IOan+mknY1QRk9z1EgoCZOCc6OBHRzBdkJeW0uRjCmbSTHLWHSZSciOt
-         ipVw==
-X-Forwarded-Encrypted: i=1; AJvYcCWncVpKP1wF6+cUY4pS3Le25DEdpKs4OUheRxDMFdyJ4NGTu6cpvC+8YuTx4PFPvJJcnkDKhcJhEwsO@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNoPhkM5EWSUnmdSGj28QbsCBe1GGkD+Qvmb/u+YR4yXbjhLyQ
-	sFjgnjbhlilozyXN1qKFTeSSrcpgNc0Nmz815skv6THe17DmQhgTZMEJ//OdA23DZeu5od7Pn0Q
-	ht1FN9wwhpRjbJ1PHd66hCndCrzls3FcIrqKqeOY2TfPHZXMiVPqlQgUXsRtwqDA=
-X-Gm-Gg: ASbGnctxsih0NoEQfLi7n/5U21Rqiha6VBQNjdNn9JcpUVks07vWMEzwDPQVllfLcav
-	RNq8K+OtLxA2YlWOpbvH6N6i93XkwKTsCa+RfPCrhJZyhjKx4kqZ15yLrBmP+ZADjtAaKPcaOzU
-	mF6S5rJ1fMebKbDgJWn+CgNMfoIIVkP2uzPsmDOi+RKnZhH76QpvHdC3a47lg6SwgrGj1WWU3V+
-	LHjbOQvtsWZstTfOMVLv9ZhcH7OX5rdW98HBiPtIPyiN2DWGx0PDAchf+BhsuMKILY2tcdFDnFW
-	ogrfOsbJtlsai84a7gknv07leh5FJHAZt9MNS+f5B8kNlrZW7z3jJqj1fKo3Dv+vdi0IOlMs6eX
-	BeNbuB+fIJ4cgPrHovfGEU5Sj3dBpl1Vkp2Pds9E9/NpFwgnvyGdg13qjAbA/usA/OgU=
-X-Received: by 2002:a05:600c:4e90:b0:458:a559:a693 with SMTP id 5b1f17b1804b1-45b517b957emr126710775e9.18.1756146752237;
-        Mon, 25 Aug 2025 11:32:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFxuQzAylX90vNEmmjxyPSaWFpv8tCbOTWCm8WazHqaDOnMAPM4HK8CKvM3oYkR/BEIZaOMIA==
-X-Received: by 2002:a05:600c:4e90:b0:458:a559:a693 with SMTP id 5b1f17b1804b1-45b517b957emr126710235e9.18.1756146751795;
-        Mon, 25 Aug 2025 11:32:31 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f4f:1300:42f1:98e5:ddf8:3a76? (p200300d82f4f130042f198e5ddf83a76.dip0.t-ipconnect.de. [2003:d8:2f4f:1300:42f1:98e5:ddf8:3a76])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c7119c4200sm12481975f8f.53.2025.08.25.11.32.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Aug 2025 11:32:31 -0700 (PDT)
-Message-ID: <7ffd0abd-27a1-40a8-b538-9a01e21abb29@redhat.com>
-Date: Mon, 25 Aug 2025 20:32:27 +0200
+        d=1e100.net; s=20230601; t=1756157707; x=1756762507;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TuacPQu0sUaEe98IXzV5lAzTlLH7oY2OXfsQpZup1+Q=;
+        b=nzIagHGUk9gM0OhIezFQhkOTX29Y8fcnTKEieedp/cicdetgHMceSRIEfZuGcgeU3E
+         jSNtAGfHOtezrSSciVf0Uzql3bcv9J+M/Fl15szPkSd922JXSaYBJOiIly3PEP0jCs0/
+         U5Ctc/M4ppHuymIglHKVQfmLcSGFWNpclnocERxXvWUQXo4Z6sGDg2skr2rKf9L5FOzM
+         a72oQVQHzsKZ3tc3a1r/1/5aXaecn2FklLJQrprtB/Z6Foy/j1vCzlfmQUcrJUnjFR+B
+         us/NK95zRPtMVnYX7cVlE5Dn8NZWR4WK5eLpqLl7TnlE5fehZfAqjL+0gPgzEuJLAH5g
+         9q/g==
+X-Gm-Message-State: AOJu0Yw3GImb4GSRWFvCRkk3LZkd6BpHEV0Y1yqZ5yOFbukTYtjmqKZL
+	xNKe7/b55t1WXkY2QKy/DA/pB7HAH1Xse6PfeYX42yErAsRQZC1Icb033pCtASX+YE0oGn/D3pG
+	9gvnF/dKqniu4fqua6WxJuLh36Ogxvi79WFp05cV2Hh9hr2tVWogVG/2xDUSM9wQ=
+X-Gm-Gg: ASbGncs5ZxNuBKQ7+5ZcfxolGg4uDR/zBRQsNMnMhWzzKPl9441OLP4ojemB9LHS0Hc
+	u/yQ+7nzM2t0tKFkYUp1QM20AOtY6cqcL/4VF4HYtwBRYsJ25DgKXudNQqmhq9ani3uqZrew799
+	9OMGVKAqPPmUXlSE8mV2t1EICLo9/17fh88Sj6HxTZ8QBsNnb/tSsRy2SmAytoJ6BcfXQttgktA
+	VH1Kbmx2mlSz4KgGAKtTor/wecwJpABQzT9AoF5Nl9dNh9Xgf0p60GxNMTMHtaN8YEzF+9lj39G
+	nla/lL7i8sqXrTMENL9+klIf7xwCNHUFdC5BA0OHI8I=
+X-Received: by 2002:a05:6e02:4414:10b0:3e9:9070:b0bd with SMTP id e9e14a558f8ab-3e99070b2a6mr42182175ab.2.1756157707161;
+        Mon, 25 Aug 2025 14:35:07 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFjadVuAgSDvfABUcZMm01Kysw1HDncV59yUGSUyp2hVa5KPH4rom30lUjRmGeYrcRiA010pQ==
+X-Received: by 2002:a05:6e02:4414:10b0:3e9:9070:b0bd with SMTP id e9e14a558f8ab-3e99070b2a6mr42182075ab.2.1756157706803;
+        Mon, 25 Aug 2025 14:35:06 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3ea4c761718sm56163575ab.23.2025.08.25.14.35.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Aug 2025 14:35:05 -0700 (PDT)
+Date: Mon, 25 Aug 2025 15:35:01 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, helgaas@kernel.org, schnelle@linux.ibm.com,
+ mjrosato@linux.ibm.com
+Subject: Re: [PATCH v2 1/9] PCI: Avoid restoring error values in config
+ space
+Message-ID: <20250825153501.3a1d0f0c.alex.williamson@redhat.com>
+In-Reply-To: <20250825171226.1602-2-alifm@linux.ibm.com>
+References: <20250825171226.1602-1-alifm@linux.ibm.com>
+	<20250825171226.1602-2-alifm@linux.ibm.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: update kernel-doc for MEMBLOCK_RSRV_NOINIT
-To: Mike Rapoport <rppt@kernel.org>
-Cc: =?UTF-8?Q?Mika_Penttil=C3=A4?= <mpenttil@redhat.com>,
- linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Muchun Song <muchun.song@linux.dev>,
- netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
- Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
- virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
- wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-References: <9156d191-9ec4-4422-bae9-2e8ce66f9d5e@redhat.com>
- <7077e09f-6ce9-43ba-8f87-47a290680141@redhat.com>
- <aKmDBobyvEX7ZUWL@kernel.org>
- <a90cf9a3-d662-4239-ad54-7ea917c802a5@redhat.com>
- <aKxz9HLQTflFNYEu@kernel.org>
- <a72080b4-5156-4add-ac7c-1160b44e0dfe@redhat.com>
- <aKx6SlYrj_hiPXBB@kernel.org>
- <f8140a17-c4ec-489b-b314-d45abe48bf36@redhat.com>
- <aKyMfvWe8JetkbRL@kernel.org>
- <dbd2ec55-0e7f-407a-a8bd-e1ac83ac2a0a@redhat.com>
- <aKyWIriZ1bmnIrBW@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <aKyWIriZ1bmnIrBW@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 25.08.25 18:58, Mike Rapoport wrote:
-> On Mon, Aug 25, 2025 at 06:23:48PM +0200, David Hildenbrand wrote:
->>
->> I don't quite understand the interaction with PG_Reserved and why anybody
->> using this function should care.
->>
->> So maybe you can rephrase in a way that is easier to digest, and rather
->> focuses on what callers of this function are supposed to do vs. have the
->> liberty of not doing?
+On Mon, 25 Aug 2025 10:12:18 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
+
+> The current reset process saves the device's config space state before
+> reset and restores it afterward. However, when a device is in an error
+> state before reset, config space reads may return error values instead of
+> valid data. This results in saving corrupted values that get written back
+> to the device during state restoration. Add validation to prevent writing
+> error values to the device when restoring the config space state after
+> reset.
 > 
-> How about
->   
-> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-> index b96746376e17..fcda8481de9a 100644
-> --- a/include/linux/memblock.h
-> +++ b/include/linux/memblock.h
-> @@ -40,8 +40,9 @@ extern unsigned long long max_possible_pfn;
->    * via a driver, and never indicated in the firmware-provided memory map as
->    * system RAM. This corresponds to IORESOURCE_SYSRAM_DRIVER_MANAGED in the
->    * kernel resource tree.
-> - * @MEMBLOCK_RSRV_NOINIT: memory region for which struct pages are
-> - * not initialized (only for reserved regions).
-> + * @MEMBLOCK_RSRV_NOINIT: reserved memory region for which struct pages are not
-> + * fully initialized. Users of this flag are responsible to properly initialize
-> + * struct pages of this region
->    * @MEMBLOCK_RSRV_KERN: memory region that is reserved for kernel use,
->    * either explictitly with memblock_reserve_kern() or via memblock
->    * allocation APIs. All memblock allocations set this flag.
-> diff --git a/mm/memblock.c b/mm/memblock.c
-> index 154f1d73b61f..46b411fb3630 100644
-> --- a/mm/memblock.c
-> +++ b/mm/memblock.c
-> @@ -1091,13 +1091,20 @@ int __init_memblock memblock_clear_nomap(phys_addr_t base, phys_addr_t size)
->   
->   /**
->    * memblock_reserved_mark_noinit - Mark a reserved memory region with flag
-> - * MEMBLOCK_RSRV_NOINIT which results in the struct pages not being initialized
-> - * for this region.
-> + * MEMBLOCK_RSRV_NOINIT
-> + *
->    * @base: the base phys addr of the region
->    * @size: the size of the region
->    *
-> - * struct pages will not be initialized for reserved memory regions marked with
-> - * %MEMBLOCK_RSRV_NOINIT.
-> + * The struct pages for the reserved regions marked %MEMBLOCK_RSRV_NOINIT will
-> + * not be fully initialized to allow the caller optimize their initialization.
-> + *
-> + * When %CONFIG_DEFERRED_STRUCT_PAGE_INIT is enabled, setting this flag
-> + * completely bypasses the initialization of struct pages for such region.
-> + *
-> + * When %CONFIG_DEFERRED_STRUCT_PAGE_INIT is disabled, struct pages in this
-> + * region will be initialized with default values but won't be marked as
-> + * reserved.
-
-Sounds good.
-
-I am surprised regarding "reserved", but I guess that's because we don't 
-end up calling "reserve_bootmem_region()" on these regions in 
-memmap_init_reserved_pages().
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/pci/pci.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index b0f4d98036cd..0dd95d782022 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -1825,6 +1825,9 @@ static void pci_restore_config_dword(struct pci_dev *pdev, int offset,
+>  	if (!force && val == saved_val)
+>  		return;
+>  
+> +	if (PCI_POSSIBLE_ERROR(saved_val))
+> +		return;
+> +
+>  	for (;;) {
+>  		pci_dbg(pdev, "restore config %#04x: %#010x -> %#010x\n",
+>  			offset, val, saved_val);
 
 
--- 
-Cheers
+The commit log makes this sound like more than it is.  We're really
+only error checking the first 64 bytes of config space before restore,
+the capabilities are not checked.  I suppose skipping the BARs and
+whatnot is no worse than writing -1 to them, but this is only a
+complete solution in the narrow case where we're relying on vfio-pci to
+come in and restore the pre-open device state.
 
-David / dhildenb
+I had imagined that pci_save_state() might detect the error state of
+the device, avoid setting state_saved, but we'd still perform the
+restore callouts that only rely on internal kernel state, maybe adding a
+fallback to restore the BARs from resource information.
+
+This implementation serves a purpose, but the commit log should
+describe the specific, narrow scenario this solves, and probably also
+add a comment in the code about why we're not consistently checking the
+saved state for errors.  Thanks,
+
+Alex
 
