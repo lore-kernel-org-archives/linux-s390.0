@@ -1,200 +1,190 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212E11A9F89;
-	Mon, 25 Aug 2025 13:34:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBF9E2F28F4
+	for <linux-s390@vger.kernel.org>; Mon, 25 Aug 2025 13:59:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756128861; cv=none; b=VlH6KHZZv739hrFZA+uwKPMgCf/6ET2GDoQt2ip2gzxjVr4K/CrU96iA8KEaj5Pf1AfJ6KGDLD2JIW7T8FX2bG2VlxRuNWMdFLs7WwQe2SCpNc9TvQIjmGnYxQBFpAGyBxWVNdxnkJq03CghNDWTcf9azLyZATL092l0qLM4MDU=
+	t=1756130377; cv=none; b=hvbEdNgOGfBcNUiuy8/vNw3ADwMNOfskINh1rbsHxzY2/jPWlxlkbplgDiuAlhYXyRBqy53JwKoni7gIeXOfMLCnKnDTiei5yBHy+86Y66pZ1EkhDiT/hRID0NxzdvjPuspeLdAK1wv3ocDBCxHOylmSs+d0c9eRYXVFwKMr0jY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756128861; c=relaxed/simple;
-	bh=CCGJkYhHv6r53MD0QIkrv3WyoU2uM4jlc1ErpFQQMIg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oqFIz4PpnlzpHf2PM+zV92GVKp0hUENrmJOgpAW6CNt6LFJhHr473kTQKpaoi7GEoIyWb7eMh8yikCXHzis+M90W5D+7rxemOxGbK7+4pV8tpslYrESjs8W4+xp2PFkR9vSmjjINswpu3xDo2NMsdr9oLk2OvhM+d5wUO2FZReg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nSoNGub+; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1756130377; c=relaxed/simple;
+	bh=iKeLqmJlX7IFGW8KFDsUf3kfbkdQxRY+eQtPXdLNf3I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Q8eqVngDg3LCJo9obNubNCkMMVf2hmWO5wQNgmmD7kSWVdVRCn8T4UoQOfKlhHJng9l8zi87pR4gUdW6AAAZ/+doP/HXKuEm/wp4s1jBJRMm8erwvb4l1NJtvOo675mD1p/cprZiNZovyj6sMGv4qerV35PSdWka/xPjcHpBtOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Dmk8SWHu; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=1n/tRlzM; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Dmk8SWHu; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=1n/tRlzM; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nSoNGub+"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57PBD2cP019425;
-	Mon, 25 Aug 2025 13:34:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=33mw3k
-	9+Z7/3mpLUSaMOxp6CbqWVf4Vsc6++NrhwCSo=; b=nSoNGub+I/6+7orQEkiNXn
-	aUW+sOmvDRD5RlZki1ebFp9FYqLI/Toeb/ucedSF8xr0E4Lw5z6Msw+6p7fjt3r0
-	oNCOztHuqVBj+zu54I+iy4TQN5BHHS2cwjdatmLWg+Tl+vYVVbMWjUMwEE8HBq+B
-	6tytZfts4JMhY+tSSoudkCc4EyZgxAdY+xaBDXAUNLSnuv8XtkaO4PwQcZET8TAR
-	RjToHem5lKz59wrIbMCWSoBj+E0Tyr9bC8rd2QntBgJwd1gahkx0yQcSJFJYJwQW
-	5NcxIV1uxI3j7EXuZftzOHP6yAzZo3/DC+z1XjGFJn8j0ZLCBNqi/HwFxk/zzAVQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48q557s701-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 25 Aug 2025 13:34:16 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57PD93re007451;
-	Mon, 25 Aug 2025 13:34:15 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 48qqyu67xp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 25 Aug 2025 13:34:15 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57PDYCPA20316726
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 25 Aug 2025 13:34:12 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 171A320043;
-	Mon, 25 Aug 2025 13:34:12 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FFD320040;
-	Mon, 25 Aug 2025 13:34:11 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.17.238])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon, 25 Aug 2025 13:34:11 +0000 (GMT)
-Date: Mon, 25 Aug 2025 15:34:07 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Thomas Huth <thuth@redhat.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
-        Peter Xu
- <peterx@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KVM: s390: Fix access to unavailable adapter indicator
- pages during postcopy
-Message-ID: <20250825153407.5337aaa6@p-imbrenda>
-In-Reply-To: <20250821152309.847187-1-thuth@redhat.com>
-References: <20250821152309.847187-1-thuth@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Dmk8SWHu";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="1n/tRlzM";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Dmk8SWHu";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="1n/tRlzM"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 0784E1F78C;
+	Mon, 25 Aug 2025 13:59:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1756130374; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
+	b=Dmk8SWHufW0/ThrkDQWH8E29p9eCuf66Tu5Nzlf/zmUVG7z32+s8sKC6RlTWa/MwYK1n9D
+	3K4ni/kVYk89Xzho2+jjvGLx+Lx2s/hIuagUc632vb9EIn7k9YVdoyAN9ChIBfpqylL59C
+	XVGWCVs3rWJy6lS77qGtrqEhAaySYGY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1756130374;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
+	b=1n/tRlzMuBcwEoZuvkwRM7jKqbCBFCkjWIyBEd4O5yW07vB8RT5vdrZ78npVSjxWrI2JdU
+	mhyDYWFZqieTHKAQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1756130374; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
+	b=Dmk8SWHufW0/ThrkDQWH8E29p9eCuf66Tu5Nzlf/zmUVG7z32+s8sKC6RlTWa/MwYK1n9D
+	3K4ni/kVYk89Xzho2+jjvGLx+Lx2s/hIuagUc632vb9EIn7k9YVdoyAN9ChIBfpqylL59C
+	XVGWCVs3rWJy6lS77qGtrqEhAaySYGY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1756130374;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=rnmyAeC3uw6SwWB64abdw7mh5BWIFemtPdKIjCP8QD0=;
+	b=1n/tRlzMuBcwEoZuvkwRM7jKqbCBFCkjWIyBEd4O5yW07vB8RT5vdrZ78npVSjxWrI2JdU
+	mhyDYWFZqieTHKAQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C5E571368F;
+	Mon, 25 Aug 2025 13:59:33 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id hR78L0VsrGjoLQAAD6G6ig
+	(envelope-from <vbabka@suse.cz>); Mon, 25 Aug 2025 13:59:33 +0000
+Message-ID: <1afec70b-0424-4477-97d2-34bc2615e4b5@suse.cz>
+Date: Mon, 25 Aug 2025 15:59:33 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/6] KVM: Export KVM-internal symbols for sub-modules only
+Content-Language: en-US
+To: Sean Christopherson <seanjc@google.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, Andy Lutomirski
+ <luto@kernel.org>, Xin Li <xin@zytor.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>,
+ Josh Poimboeuf <jpoimboe@kernel.org>, Jarkko Sakkinen <jarkko@kernel.org>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ "Kirill A. Shutemov" <kas@kernel.org>, Tony Krowiak
+ <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jason Herne <jjherne@linux.ibm.com>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Holger Dengler <dengler@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ linux-sgx@vger.kernel.org, x86@kernel.org, linux-coco@lists.linux.dev,
+ linux-s390@vger.kernel.org
+References: <20250729174238.593070-1-seanjc@google.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+Autocrypt: addr=vbabka@suse.cz; keydata=
+ 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
+ m6M14QORSWTLRg==
+In-Reply-To: <20250729174238.593070-1-seanjc@google.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: dDvztKvdQcyIY1lgd-Kkk-12QFPLgLgS
-X-Proofpoint-ORIG-GUID: dDvztKvdQcyIY1lgd-Kkk-12QFPLgLgS
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODIzMDAyMSBTYWx0ZWRfX5M9SoNFqepBS
- FGGj8TizaT4m7vmTd/2jynReafkxR+GUmeESSL2tFW6+cMIzaWVgZRJ8ZjHckjuISROvMAL+wSo
- gwi/tnPTvZp87o0m/YLMWDC+voFB/+GiiW+h8g4+T7e0isLDmp1nM6+GyjuYdfxxoDaIGg00yTD
- UaQi5/Die8KKK3zoBQwp5wCdXglUAPLT7PBTGP1ueWkBYDvIHYLTarqFKdY6rFjVKSDYcbypJzp
- 61CEotfB/o8rypLkK5+QROwJn+eB0Zip9eZ1MpVuXY1ut7SxjjtOQRp+NecHEu/troUiwyhDph/
- CLbKgODCzWgQPQ4Al3i3DhqDeJ6TFScjxSvvEOXt+1ZulBNnIyIqjPVu306HEQ9mMSUNC+8xglP
- tsMyCyLq
-X-Authority-Analysis: v=2.4 cv=A8ZsP7WG c=1 sm=1 tr=0 ts=68ac6658 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=2OwXVqhp2XgA:10 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
- a=quq3VhT3AGQ69vMGiI4A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-25_06,2025-08-20_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 adultscore=0 priorityscore=1501 suspectscore=0 clxscore=1015
- spamscore=0 impostorscore=0 malwarescore=0 bulkscore=0 classifier=typeunknown
- authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508230021
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.997];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[33];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL81e5qggtdx371s8ik49ru6xr)];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.cz:mid]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spam-Score: -4.30
 
-On Thu, 21 Aug 2025 17:23:09 +0200
-Thomas Huth <thuth@redhat.com> wrote:
+On 7/29/25 19:42, Sean Christopherson wrote:
+> Use the newfangled EXPORT_SYMBOL_GPL_FOR_MODULES() along with some macro
+> shenanigans to export KVM-internal symbols if and only if KVM has one or
 
-> From: Thomas Huth <thuth@redhat.com>
-> 
-> When you run a KVM guest with vhost-net and migrate that guest to
-> another host, and you immediately enable postcopy after starting the
-> migration, there is a big chance that the network connection of the
-> guest won't work anymore on the destination side after the migration.
-> 
-> With a debug kernel v6.16.0, there is also a call trace that looks
-> like this:
-> 
->  FAULT_FLAG_ALLOW_RETRY missing 881
->  CPU: 6 UID: 0 PID: 549 Comm: kworker/6:2 Kdump: loaded Not tainted 6.16.0 #56 NONE
->  Hardware name: IBM 3931 LA1 400 (LPAR)
->  Workqueue: events irqfd_inject [kvm]
->  Call Trace:
->   [<00003173cbecc634>] dump_stack_lvl+0x104/0x168
->   [<00003173cca69588>] handle_userfault+0xde8/0x1310
->   [<00003173cc756f0c>] handle_pte_fault+0x4fc/0x760
->   [<00003173cc759212>] __handle_mm_fault+0x452/0xa00
->   [<00003173cc7599ba>] handle_mm_fault+0x1fa/0x6a0
->   [<00003173cc73409a>] __get_user_pages+0x4aa/0xba0
->   [<00003173cc7349e8>] get_user_pages_remote+0x258/0x770
->   [<000031734be6f052>] get_map_page+0xe2/0x190 [kvm]
->   [<000031734be6f910>] adapter_indicators_set+0x50/0x4a0 [kvm]
->   [<000031734be7f674>] set_adapter_int+0xc4/0x170 [kvm]
->   [<000031734be2f268>] kvm_set_irq+0x228/0x3f0 [kvm]
->   [<000031734be27000>] irqfd_inject+0xd0/0x150 [kvm]
->   [<00003173cc00c9ec>] process_one_work+0x87c/0x1490
->   [<00003173cc00dda6>] worker_thread+0x7a6/0x1010
->   [<00003173cc02dc36>] kthread+0x3b6/0x710
->   [<00003173cbed2f0c>] __ret_from_fork+0xdc/0x7f0
->   [<00003173cdd737ca>] ret_from_fork+0xa/0x30
->  3 locks held by kworker/6:2/549:
->   #0: 00000000800bc958 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x7ee/0x1490
->   #1: 000030f3d527fbd0 ((work_completion)(&irqfd->inject)){+.+.}-{0:0}, at: process_one_work+0x81c/0x1490
->   #2: 00000000f99862b0 (&mm->mmap_lock){++++}-{3:3}, at: get_map_page+0xa8/0x190 [kvm]
-> 
-> The "FAULT_FLAG_ALLOW_RETRY missing" indicates that handle_userfaultfd()
-> saw a page fault request without ALLOW_RETRY flag set, hence userfaultfd
-> cannot remotely resolve it (because the caller was asking for an immediate
-> resolution, aka, FAULT_FLAG_NOWAIT, while remote faults can take time).
-> With that, get_map_page() failed and the irq was lost.
-> 
-> We should not be strictly in an atomic environment here and the worker
-> should be sleepable (the call is done during an ioctl from userspace),
-> so we can allow adapter_indicators_set() to just sleep waiting for the
-> remote fault instead.
-> 
-> Link: https://issues.redhat.com/browse/RHEL-42486
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-> [thuth: Assembled patch description and fixed some cosmetical issues]
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
+Note it was renamed to EXPORT_SYMBOL_FOR_MODULES() only in 6.17-rc3 so this
+series will need rebasing to that and adjustment. Probably best to rename
+also EXPORT_SYMBOL_GPL_FOR_KVM_INTERNAL for consistency?
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Thanks,
+Vlastimil
 
-> ---
->  Note: Instructions for reproducing the bug can be found in the ticket here:
->  https://issues.redhat.com/browse/RHEL-42486?focusedId=26661116#comment-26661116
+> more sub-modules, and only for those sub-modules, e.g. x86's kvm-amd.ko
+> and/or kvm-intel.ko.
 > 
->  arch/s390/kvm/interrupt.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 60c360c18690f..dcce826ae9875 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -2777,12 +2777,19 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
->  
->  static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
->  {
-> +	struct mm_struct *mm = kvm->mm;
->  	struct page *page = NULL;
-> +	int locked = 1;
-> +
-> +	if (mmget_not_zero(mm)) {
-> +		mmap_read_lock(mm);
-> +		get_user_pages_remote(mm, uaddr, 1, FOLL_WRITE,
-> +				      &page, &locked);
-> +		if (locked)
-> +			mmap_read_unlock(mm);
-> +		mmput(mm);
-> +	}
->  
-> -	mmap_read_lock(kvm->mm);
-> -	get_user_pages_remote(kvm->mm, uaddr, 1, FOLL_WRITE,
-> -			      &page, NULL);
-> -	mmap_read_unlock(kvm->mm);
->  	return page;
->  }
->  
-
