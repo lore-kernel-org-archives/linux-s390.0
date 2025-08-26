@@ -1,172 +1,195 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2064.outbound.protection.outlook.com [40.107.93.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A255271475;
-	Mon, 25 Aug 2025 22:28:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756160897; cv=none; b=VXW16JGPkesDUJyObo+CH10OMq6GfbM2jPpIAXFWZfDwyAcLDPgm4tz081TJGm76JQcykkJ5jqDgS+QMk3edB7BUVF7cKsHQCdyohiMSe4HNgTW7h/W1/pqg4uiAZl3RB+b3ZQb8aiJVibGnfWlZuJtDO6pFAfqaInNtZzXnU/Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756160897; c=relaxed/simple;
-	bh=dHdmUqC4IhVQw7Rp7lNJUpN25GaUL62rSFvt6vE7+Tk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VsUrJHYluLo3Lj08cWcFOmQpVnl2R74LxBDM8nbqG1bf3nl2HXFvBsxj0Qi5/WSVZjLz/q4PfvaR+TOCVSASGdL8H9vELm045rpwGNhjVOROz35xdESs/IXGeMtHJvFjumN2Ofjvxbv2d0hSy51CmG/m/YFj38L81FJ7mvNlUnE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fDPPv/8n; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0610D1E5701;
+	Tue, 26 Aug 2025 04:14:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.64
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756181645; cv=fail; b=WCnIt6NN3TVngpiY1d2FFB6NniD1xjxnXnPae9fc0tE5dLUZiUzUU8A+l4Md/yZfWSqP8PuP9flLK9/iX88nJlJFkK+BHrJ+miQ+7NFS/V0+eiUGp1VEtk4F60SYhaozH/OZi8w0aqrZEGJWgHuOsWGkQU3OhHzUY563lKtHaxA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756181645; c=relaxed/simple;
+	bh=bkOeC17z0XahDMSlRtvFGj2FwGIVQj/3np1y9FyKmvk=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VCRZm42cG/hxBwGBOX0Nf4aVoj9vZs+jUwtB8ZxswsUVP7yt+jZvigcEGyTrLUY65HnDdRjpe7xmFI+sSERztDQqDrI51/+/rTlPJvXZD2nAi1/O5PLHSjagnShbO3xZ5Vs0wL6SDoKtLz1pXEvh5bmq021rtULmTrCnlnRKCHQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=w8MGzNlM; arc=fail smtp.client-ip=40.107.93.64
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fDPPv/8n"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57PLVH40022179;
-	Mon, 25 Aug 2025 22:28:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Mo4+QD
-	lHWSnmxXYzX7QnCci4cOeWYhiTqz+K6xpHKXQ=; b=fDPPv/8nZvA2ie2Ci8A8LU
-	0DECjxl8szLRT6lHthL1NZ2g5UVNSygF3hLXwh7ZPo3Uq+KM01ItuENxshPwiG2M
-	2sKYDsjpqMD6ervwx11UoaLBkfGgnhnE3ynumXbWbp9yYDeo5c7/4kvFH1E9WAvf
-	HQonI3sdr3U+A4XlFZaaWZUJRV/N6zP2W2t3SbhdDdu5jiYgrzMEeZ5dTo1FObfl
-	bJDte4REdfaw3TSDMhIqnpSdhXjsrVU5D5oc00YNkeThbaaVHKmjHc3nSPCA11uh
-	ezz93A4xkIzVtlls3/bDp/7iCCuF/uCzWETt/218gGDOaIH3u1gDVb/cef8lyytA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48q5hpuasb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 25 Aug 2025 22:28:11 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57PKTjV2007813;
-	Mon, 25 Aug 2025 22:28:10 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 48qqyu876h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 25 Aug 2025 22:28:10 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57PMS9r133358394
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 25 Aug 2025 22:28:09 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C8875803F;
-	Mon, 25 Aug 2025 22:28:09 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FF595804E;
-	Mon, 25 Aug 2025 22:28:08 +0000 (GMT)
-Received: from [9.61.255.253] (unknown [9.61.255.253])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 25 Aug 2025 22:28:08 +0000 (GMT)
-Message-ID: <042deeb6-864d-4f66-9031-4a4ba3214c94@linux.ibm.com>
-Date: Mon, 25 Aug 2025 15:28:08 -0700
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="w8MGzNlM"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=UM4OooI5NKvTGbzBPnysrIbf5LpDFZYiY330p0PKbsqJoc3wv/pUs0ijxLUJDN0yJmgWrxrUL3PC+0fgHtZifKLW3R88okFo3mSAVZr0XmxEleNA39AXLCOEdz/6sWXza5ZpAEEkrjoEXHoHJHoKtU5p1SIxGaNYs7HPdENMHd/xgcPx7SaihcBpDlCkYbVk3qYYeds5Ywk4R/0Jl1WWXtDuW++V+4LgNvxet1jzFy2ZehbJJoQ8+Njm9VB84PU2FtALrGciJDlqAmkZr9BnAezesAoFDa9Nbd0cNQsEhoLazmv9mdjiOfK13r+HvNAjqEGkAOXP72L9m033WHhaAg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6In/ptpnmVY9UHYqfR1hlW7VPd2tv7EoHAfpADJM/UU=;
+ b=Stmh2m7sI3Ae0lbQOJoblIg758I5QYGrtDbjU5IxWrp06ENOmuRBNBrh1NxY0zQsat3/LQvwT3I+8KYmoTYPo4R4pkv/CHdzStwFerq8VsA+SItbZnBWCfnzwqT19NW2BYHMoQp/qCkgzVQX32Nv5vP+1ufXXwLvuuoC5L57qZDlNnfNyBCoeO15KUGKlRaG7vaMC2lW/DVBp8exwuDELSpYfyYuOt5BazHEb99ILecK3FxfQWwKx7Yy29mv6GcV8TKmAphSFLZo+N4ZuJUXQcAy3e7s8GO3I3Bgy2gJa3scmQOTa0dk75UAhZ7lFTIxJjV9pNaxv04SILa+8G1K/Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6In/ptpnmVY9UHYqfR1hlW7VPd2tv7EoHAfpADJM/UU=;
+ b=w8MGzNlM7VSiSgZPhvHX4GXoI0tDT3+FhDjuOxzS3itdH7im8uCbN089o90gDnXkJ88sC1WMr07UP4BXnZZas8Dzy939fErM8MzkgxseF2NvbyrzQGrCOApMUvvKzrAcBHbYgmUX6nnrK0kUzTP4IciX812bnoEpyR5o6i6+ORY=
+Received: from DS7PR03CA0089.namprd03.prod.outlook.com (2603:10b6:5:3bb::34)
+ by DM4PR12MB7647.namprd12.prod.outlook.com (2603:10b6:8:105::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.20; Tue, 26 Aug
+ 2025 04:14:00 +0000
+Received: from DS1PEPF00017092.namprd03.prod.outlook.com
+ (2603:10b6:5:3bb:cafe::29) by DS7PR03CA0089.outlook.office365.com
+ (2603:10b6:5:3bb::34) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9052.21 via Frontend Transport; Tue,
+ 26 Aug 2025 04:14:00 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DS1PEPF00017092.mail.protection.outlook.com (10.167.17.135) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.9073.11 via Frontend Transport; Tue, 26 Aug 2025 04:14:00 +0000
+Received: from BLRKPRNAYAK.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 25 Aug
+ 2025 23:13:44 -0500
+From: K Prateek Nayak <kprateek.nayak@amd.com>
+To: Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
+	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+	<christophe.leroy@csgroup.eu>, Heiko Carstens <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+	<svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar
+	<mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+	<dave.hansen@linux.intel.com>, <x86@kernel.org>, "H. Peter Anvin"
+	<hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>, Juri Lelli
+	<juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>,
+	<linuxppc-dev@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>
+CC: Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt
+	<rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman
+	<mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, K Prateek Nayak
+	<kprateek.nayak@amd.com>, <thomas.weissschuh@linutronix.de>, Li Chen
+	<chenl311@chinatelecom.cn>, Bibo Mao <maobibo@loongson.cn>, Mete Durlu
+	<meted@linux.ibm.com>, Tobias Huschle <huschle@linux.ibm.com>, "Easwar
+ Hariharan" <easwar.hariharan@linux.microsoft.com>, Guo Weikang
+	<guoweikang.kernel@gmail.com>, "Rafael J. Wysocki"
+	<rafael.j.wysocki@intel.com>, Brian Gerst <brgerst@gmail.com>, Patryk Wlazlyn
+	<patryk.wlazlyn@linux.intel.com>, Swapnil Sapkal <swapnil.sapkal@amd.com>,
+	"Yury Norov [NVIDIA]" <yury.norov@gmail.com>, Sudeep Holla
+	<sudeep.holla@arm.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	Andrea Righi <arighi@nvidia.com>, Yicong Yang <yangyicong@hisilicon.com>,
+	Ricardo Neri <ricardo.neri-calderon@linux.intel.com>, Tim Chen
+	<tim.c.chen@linux.intel.com>, Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Subject: [PATCH v7 0/8] sched/fair: Get rid of sched_domains_curr_level hack for tl->cpumask()
+Date: Tue, 26 Aug 2025 04:13:11 +0000
+Message-ID: <20250826041319.1284-1-kprateek.nayak@amd.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/9] PCI: Add additional checks for flr and pm reset
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, helgaas@kernel.org,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-References: <20250825171226.1602-1-alifm@linux.ibm.com>
- <20250825171226.1602-3-alifm@linux.ibm.com>
- <20250825155420.2ace4847.alex.williamson@redhat.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20250825155420.2ace4847.alex.williamson@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODIzMDAyMSBTYWx0ZWRfX3YeFTJVTF32e
- 5I5kHwgcC5/DeuTqE5KPvrvmp4qFxhd5cp3ZEVdqraLCslxFyfbENZMbgXUoVdXtEC+1N+s+owK
- KeMwmJTiTtaggCBUAKdSRinllT49TcSDN+gnZEj7oLD5PopKmw+6dSuSK7UEvq9MB3KNVsg3xZn
- tqOvDoeXkRFOq3J2Kn6NyKcGuF3Jz8osZ2vDM5ixJbcfmitXIRMBsRqyugEjut/RUPfqdgWMm7R
- yEBI2AFD1aVPIeTcdzMtrI3HZ+wN+G72jxZ2LYqeEOFR9oea3b83Dl6KzJ17pI6dz7ZCzgstJun
- 167Bg8EXcgHt4mpSi5moFSCue+2+GnKjqCuVgjQ8B9F7Wb9Q6x+OCLWS1bmupMbvRbI+q+nIekV
- xym560Wq
-X-Proofpoint-ORIG-GUID: L8AFYC6BMBp_9s5H0IZqkQdYk7J4m2TH
-X-Proofpoint-GUID: L8AFYC6BMBp_9s5H0IZqkQdYk7J4m2TH
-X-Authority-Analysis: v=2.4 cv=Ndbm13D4 c=1 sm=1 tr=0 ts=68ace37b cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=P-IC7800AAAA:8 a=VnNF1IyMAAAA:8
- a=foT7BmcOsW2tIiZqzTwA:9 a=QEXdDO2ut3YA:10 a=d3PnA9EDa4IxuAV0gXij:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-25_10,2025-08-20_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 clxscore=1015 phishscore=0 malwarescore=0
- suspectscore=0 bulkscore=0 spamscore=0 adultscore=0 classifier=typeunknown
- authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508230021
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS1PEPF00017092:EE_|DM4PR12MB7647:EE_
+X-MS-Office365-Filtering-Correlation-Id: 60348fba-fe13-4fad-2230-08dde456fc08
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|82310400026|36860700013|7416014|376014|13003099007|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?44t7sBNej+4mZTtOPFKUy/V16v/xuda/XOiSuY9GXMCG4mozDN23rp/BhAP4?=
+ =?us-ascii?Q?oaBIlDtjnh0OqYgVfhUAWssKgSFd6SrfiIIT0qJq6TBblCcJIQe4K63RK+Dk?=
+ =?us-ascii?Q?JvRYyoff69vr2XCAZmpGJ7bDme3dXvEUgDd4zwGFmRNMHPyCi8M1IqYy/ban?=
+ =?us-ascii?Q?Bb3TOVSZ/XIa6ISJjpjEyhiSuLrbRi14S12mEh5kPB386n86io5qP8OikW9W?=
+ =?us-ascii?Q?wvEJJ43mEanBSTX4eyKE+BFo5pLTU332skLuuUkpUR4BRdsR+lyv9VE5BziX?=
+ =?us-ascii?Q?Goy1HLTkGQQXBXTdxqNY+aDCeoMkE6T/rgHUWdoJH6z3ofRBFYCInX7oHDww?=
+ =?us-ascii?Q?jIyv6LLGhAi7C2eb1xct3CM6i0iHM2NsGR18undni0N8Gr8Lo7P4yXQpE9mW?=
+ =?us-ascii?Q?SExMNlmEM3c7WUIGWkQPrgk4ge1m8+PYz839H5dplG1jwuV4nRRNHJ7Dm/Eq?=
+ =?us-ascii?Q?dT4Mrr7taOxvprqNbrlFycV3ZgQHuUkVepqdgW7ecLJBDz//oYKI6ORSYabF?=
+ =?us-ascii?Q?CiHedl0q7wU4i7UJ6WIeOYzc8laXw24RiIQrlL7/2YGKVuuVasIQ/9XodKaZ?=
+ =?us-ascii?Q?70yotxKF9tIS8TC2D45XkJ0Nj5pH2S/Aaca0Sel9G4KcZoQbdC4W4LXRKxu0?=
+ =?us-ascii?Q?/pXePe33MJYNEa4e0ZUj1549kpkJD3I4dOsX62oFOKQ3cyM0JKxGKacGWai9?=
+ =?us-ascii?Q?UkI8Kr6ZSSP4qNleWY71EI6dVTe5ZVIaqHAGCw3lJfDO6a1BogxQaGJlEeff?=
+ =?us-ascii?Q?f2LwpEPIWzpp4cycPjQPXdAK4rTNatgQ7zygMk/BdNNKT117wRRtzIpWqhM2?=
+ =?us-ascii?Q?WlNN3tBp3rA54bF3snmVJtMAwvzYGZFkj5d6juIVyLphmdGm/yyVyFtlHJF4?=
+ =?us-ascii?Q?efls+usRvuvkNSSFASuvt+g2oKI9rspkcm8MiAypbfwILv6ILZB+TgCjdela?=
+ =?us-ascii?Q?8eNEAT2IGlGCIuGdMi7cSJiWP3vtYE3YBNFby2cWjyMIZtKS+zSZBM8Uiu4H?=
+ =?us-ascii?Q?ZAAJorUvwsOcOfdlg4bikV8/C/WQh5UL0HnOx3v+3RQKz+P4Pr5ETx8gQMj9?=
+ =?us-ascii?Q?Zi5RHB6uC18DTAw1Nh2NqSXDiyfuAF4H+6z0Yxad8rIJ5nE2qkfjZVaX1D6f?=
+ =?us-ascii?Q?JNWEqIugMwGiNVVJ62DUiOCKu2/GEIRMMP6v9ck3gixX3nyu/qQgdp3I9ruM?=
+ =?us-ascii?Q?uMqPk7ZcwG9ZlXD8twlmUxZX5DWSw9siPByHdDMQDfFcB42BRnRJ/cU0pc+g?=
+ =?us-ascii?Q?wB3Rx9we4TdPLr7GpfGXd9y3z3raywcoahPySxwF9JJWmYxwbC5mlE07Lr9U?=
+ =?us-ascii?Q?gchiifqNQy2L8zJGZeZ5WkmUcBPBIL7MWZmiQDSW9f0E8zUyqf49HQ2yUEi3?=
+ =?us-ascii?Q?ToFbKZtW0HMq+M8ZKaRBT0znNCumPD5ZSJvZ/VT+u5SC8KHrkb5xImsQwG6B?=
+ =?us-ascii?Q?kc7WKYV3P6fc3CDGJ7DlhSBdtOPvTCy6VakEarm7Ghn4oHI0jYCJl2nQYVDw?=
+ =?us-ascii?Q?zDqdu7svfjF/7E9SncBWftWYn0G4e3lTcXek4XJ7B9hO/7HmLKUeXf/CLtXC?=
+ =?us-ascii?Q?Y7KSKgPEXwvLHz33LN0=3D?=
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700013)(7416014)(376014)(13003099007)(921020);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2025 04:14:00.2370
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 60348fba-fe13-4fad-2230-08dde456fc08
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS1PEPF00017092.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7647
+
+This version uses Peter's suggestion from [1] as if and incrementally
+adds cleanup on top to the arch/ bits. I've tested the x86 side but the
+PowerPC and the s390 bits are only build tested. Review and feedback is
+greatly appreciated.
+
+[1] https://lore.kernel.org/lkml/20250825091910.GT3245006@noisy.programming.kicks-ass.net/
+
+Patches are prepared on top of tip:master at commit 4628e5bbca91 ("Merge
+branch into tip/master: 'x86/tdx'")
+---
+changelog v6..v7:
+
+o Fix the s390 and ppc build errors (Intel test robot)
+
+o Use Peter's diff as is and incrementally do the cleanup on top. The
+  PowerPC part was slightly more extensive due to the lack of
+  CONFIG_SCHED_MC in arch/powerpc/Kconfig.
+
+v6: https://lore.kernel.org/lkml/20250825120244.11093-1-kprateek.nayak@amd.com/
+---
+K Prateek Nayak (7):
+  powerpc/smp: Rename cpu_corgroup_* to cpu_corgrp_*
+  powerpc/smp: Export cpu_coregroup_mask()
+  powerpc/smp: Introduce CONFIG_SCHED_MC to guard MC scheduling bits
+  sched/topology: Unify tl_smt_mask() across core and all arch
+  sched/topology: Unify tl_cls_mask() across core and x86
+  sched/topology: Unify tl_mc_mask() across core and all arch
+  sched/topology: Unify tl_pkg_mask() across core and all arch
+
+Peter Zijlstra (1):
+  sched/fair: Get rid of sched_domains_curr_level hack for tl->cpumask()
+
+ arch/powerpc/Kconfig           |  9 ++++++
+ arch/powerpc/include/asm/smp.h |  4 +++
+ arch/powerpc/kernel/smp.c      | 51 +++++++++++++++++++---------------
+ arch/s390/kernel/topology.c    | 16 ++++-------
+ arch/x86/kernel/smpboot.c      |  9 +++---
+ include/linux/sched/topology.h | 34 ++++++++++++++++++++---
+ include/linux/topology.h       |  2 +-
+ kernel/sched/topology.c        | 28 +++++++------------
+ 8 files changed, 93 insertions(+), 60 deletions(-)
 
 
-On 8/25/2025 2:54 PM, Alex Williamson wrote:
-> On Mon, 25 Aug 2025 10:12:19 -0700
-> Farhan Ali <alifm@linux.ibm.com> wrote:
->
->> If a device is in an error state, then any reads of device registers can
->> return error value. Add addtional checks to validate if a device is in an
->> error state before doing an flr or pm reset.
-> I think the thing we see in practice for a device that's wedged and
-> returning -1 from config space is that the FLR will timeout waiting for
-> a pending transaction.  So this should fix that, but should we log
-> something?
+base-commit: 4628e5bbca916edaf4ed55915ab399f9ba25519f
+-- 
+2.34.1
 
-I guess it makes sense to add a warn log.
-
-
->
-> I'm assuming AF FLR is not needed here because we don't cache the
-> offset and therefore won't find the capability when we search the chain
-> for it.
-
-Yes, based on my understanding of the when we search for the capability 
-offset, we would return 0 if the config space read returns a -1 
-(https://elixir.bootlin.com/linux/v6.16.3/source/drivers/pci/pci.c#L441).
-
->
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> ---
->>   drivers/pci/pci.c | 7 +++++++
->>   1 file changed, 7 insertions(+)
->>
->> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
->> index 0dd95d782022..a07bdb287cf3 100644
->> --- a/drivers/pci/pci.c
->> +++ b/drivers/pci/pci.c
->> @@ -4560,12 +4560,17 @@ EXPORT_SYMBOL_GPL(pcie_flr);
->>    */
->>   int pcie_reset_flr(struct pci_dev *dev, bool probe)
->>   {
->> +	u32 reg;
->> +
->>   	if (dev->dev_flags & PCI_DEV_FLAGS_NO_FLR_RESET)
->>   		return -ENOTTY;
->>   
->>   	if (!(dev->devcap & PCI_EXP_DEVCAP_FLR))
->>   		return -ENOTTY;
->>   
->> +	if (pcie_capability_read_dword(dev, PCI_EXP_DEVCAP, &reg))
->> +		return -ENOTTY;
->> +
->>   	if (probe)
->>   		return 0;
->>   
->> @@ -4640,6 +4645,8 @@ static int pci_pm_reset(struct pci_dev *dev, bool probe)
->>   		return -ENOTTY;
->>   
->>   	pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &csr);
->> +	if (PCI_POSSIBLE_ERROR(csr))
->> +		return -ENOTTY;
-> Doesn't this turn out to be redundant to the test below?
-
-Yup, I guess i was being extra cautious. Will remove the check.
-
-Thanks
-Farhan
-
->>   	if (csr & PCI_PM_CTRL_NO_SOFT_RESET)
->>   		return -ENOTTY;
->>   
-> Thanks,
-> Alex
->
