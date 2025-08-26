@@ -1,254 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AD0F279784
-	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 15:24:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D40B91D88AC;
+	Tue, 26 Aug 2025 15:31:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756221871; cv=none; b=dTwyCj9E3yoRI/C0Xu2TU4Dbh7cSJJy2XHZXVLu23fvd6NfPuyk91IgrOGKnP5EFe+hGfpIaPGYUTFt+Gd/yEcJQs62DJVcVj0lp3XAZ3/m5TVJQ8gu0JFBqKRAUEJ+iEP4yyLPaWds4LztE+PR0fIE4RfuVycXgGtKZdkwwNLg=
+	t=1756222295; cv=none; b=Y+4zzpggLkNa0xCyJkiskt3WIKIl1zH165KQCz00R33ugU3s49JlbRJJrrxmV5XSOpkH7wp0HBkVcf8h3u2d+ES0MRh+wr38qzvGy0Wq9ZjxZNgLiXAwRzd1rhRtXC1Vj/r6iUNzLUE9i/33wNK+MrhY2bgDjYpxYULH8jT/Eiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756221871; c=relaxed/simple;
-	bh=QXG1Ca3UjT56TcPBrliSuURncoshOr9BKOaPMK2hpdE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R9tBDso5RW/54LBqD8mpkcI4BtXEbC/KxcZ/8sMnjHKCUYA5T2zLTYwfyMl1AqHW7J12IuI4RG/49j6H09znWuZRmKjlB+mhx7eTsJnPUhGaKf77w6x8CMBqACo6VlAKshyheaGM4z6NxqLJDN4QjmXp7p2hC3GTsYDsz0QpVf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BsD9Bioj; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BsD9Bioj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756221869;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=8dRYmdfYPQDBHIeqCHeCxbojw8+BOvuY6ncQfuP6l7w=;
-	b=BsD9BiojwOxEFeuZZZo0p9josyMGXEMznxdTFEIkWDzcfGGFmxZOw1VbfZhsgDbhOvKlhB
-	K8LaA6mchO00t+JTLiQXPCorIq+mgsuON874Vm9SVprXaeEPtvfEclkXE8NZuRUp6tEGH/
-	GU5WUVcwdWNt8cDd2EtvS1M6kH5ETJg=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-150-1onMX_rNPo6TmI2ba9t5ww-1; Tue, 26 Aug 2025 11:24:27 -0400
-X-MC-Unique: 1onMX_rNPo6TmI2ba9t5ww-1
-X-Mimecast-MFC-AGG-ID: 1onMX_rNPo6TmI2ba9t5ww_1756221866
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3c6abcfd303so359420f8f.3
-        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 08:24:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756221866; x=1756826666;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8dRYmdfYPQDBHIeqCHeCxbojw8+BOvuY6ncQfuP6l7w=;
-        b=LqWzX0ecKEeguNJngldSPaYatzxt/RdpUo08rAa+L0yS9du2xmg8pYbUJWvlOswIyl
-         L7KwB3Ay9Z9gp85Kbz/+QnyiwNRVxW1j1e12HaH/AoAgfW5txCiMC4IOcmGHn5jtVtSx
-         flseirj3kUhNGUVJuZQXJCeRDJ1l8lo2t+LctmZh4XeUV90SFvBG4JqjZM+L5ZS6UpF5
-         zLioXE2KdFBztN0uh1ezfIpA0McQa8YIY/1Q89nYMgt1gC9kiT+o3pnsPXnFtBvBFOTt
-         Z1fS/rsXhadrQHPhuj8RGZa485onkfyIRpXhXxSxZV5eLlKej+SE+yvu4ZUEwzLNq/vH
-         x+4w==
-X-Forwarded-Encrypted: i=1; AJvYcCXHrVOmsNPSILdbGtaQxaJ4IUnySG8cshOkJbQ1tEwoO7W6eXqWem7TNyugJo15a/5gfRi35NtqROWk@vger.kernel.org
-X-Gm-Message-State: AOJu0YzcE0IqOdQnjUbU+qEzmwyvvGIa8KPeB+IFU/xDBInwjSY/jR7p
-	Z/gjSEaQ0St0gy/3wlNkzXivIlBqZ5uZLd2vQrz4aGMr5FMzAGgDAT+Del7ivVNXJoQlEt4CnbL
-	REVNZVRzjX/GMKmIo+fYiStj5ZBmvv4L1vzlrIX07zqmwtbkRncmPjF5OaQcyBEU=
-X-Gm-Gg: ASbGncuXTA4/sjnkFbr4+DMSkxvLEG8JpSEhc38XD9ge9/OvyOaDbUx0qpdEgALGFRg
-	43zzI5EwkXtZIL9CzQWFWFtztCf19SecjDEsGORS8IlDm/UTFySEC+NZBL1vq/40qOhI0XhOzOA
-	UmhfYSnKzcH5HlVfUcg8DBaXjc2a7QHpb9Wgqq78eRpocAAcLvCP0t2T2ViQ7N+JI3alQ2DSkPG
-	jHcEz9qvrSAG3/yAaBCa3jQRJcpw3qn0roijJR3mRBgyEdRVFVgiaNfwArk6XnyriIX+w1sMYTn
-	xmrCauaqfqXNKfIRkGegzSlajTjbhUrhScbCKwDHLc+JA5zLq5MmKDMdiUhWD/9NF6Vk141JIQ=
-	=
-X-Received: by 2002:a05:6000:178a:b0:3c8:9438:8b93 with SMTP id ffacd0b85a97d-3c894388fa3mr7039270f8f.60.1756221866121;
-        Tue, 26 Aug 2025 08:24:26 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH7tUX8+axqOYguUOQKRRwlbVCfKARwI+7junufYEnF30XOVYwqq/xeCLNzXlGq7X6f4v1Ocg==
-X-Received: by 2002:a05:6000:178a:b0:3c8:9438:8b93 with SMTP id ffacd0b85a97d-3c894388fa3mr7039200f8f.60.1756221865437;
-        Tue, 26 Aug 2025 08:24:25 -0700 (PDT)
-Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c70eb7eed5sm16180834f8f.18.2025.08.26.08.24.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Aug 2025 08:24:24 -0700 (PDT)
-Message-ID: <e91f7a38-3b17-4a0c-aedb-8b404d40cf59@redhat.com>
-Date: Tue, 26 Aug 2025 17:24:22 +0200
+	s=arc-20240116; t=1756222295; c=relaxed/simple;
+	bh=UMXrN8bVU3BYR4N/kEYm/GzpHnK1RsyFRzDlslFD5X8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BnKnwEHE65JdB0CouyNowrx5u6fJ1ddpnSdy3VuKl6VsMiVSPnHYB1ZUIKeLibo2pVz5rBrvH7wAT9r0TsdfUCV0Fw84TDBMcTisspUdbolV77bubSEMTdyoXmGvOfP8uA7Wb3CUtCi2xNQ3NkGqVWC2gyziJBzmivmnvWO6XqM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 04F3A169E;
+	Tue, 26 Aug 2025 08:31:24 -0700 (PDT)
+Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 376B93F63F;
+	Tue, 26 Aug 2025 08:31:26 -0700 (PDT)
+Date: Tue, 26 Aug 2025 16:31:23 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: peterz@infradead.org, mingo@redhat.com, will@kernel.org,
+	acme@kernel.org, namhyung@kernel.org,
+	alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+	irogers@google.com, adrian.hunter@intel.com,
+	kan.liang@linux.intel.com, linux-perf-users@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, imx@lists.linux.dev,
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, dmaengine@vger.kernel.org,
+	linux-fpga@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, coresight@lists.linaro.org,
+	iommu@lists.linux.dev, linux-amlogic@lists.infradead.org,
+	linux-cxl@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org
+Subject: Re: [PATCH 02/19] perf/hisilicon: Fix group validation
+Message-ID: <aK3TS3s5_Pczx1nu@J2N7QTR9R3>
+References: <cover.1755096883.git.robin.murphy@arm.com>
+ <c7b877e66ba0d34d8558c5af8bbb620e8c0e47d9.1755096883.git.robin.murphy@arm.com>
+ <aK2XS_GhLw1EQ2ml@J2N7QTR9R3>
+ <ab80cb84-42b2-4ce8-aa6c-4ce6be7a12b7@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 08/10] mm: update fork mm->flags initialisation to use
- bitmap
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
- <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
- <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
- Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- David Rientjes <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>,
- Kan Liang <kan.liang@linux.intel.com>, Masami Hiramatsu
- <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
- Pedro Falcato <pfalcato@suse.de>, Matthew Wilcox <willy@infradead.org>,
- Mateusz Guzik <mjguzik@gmail.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
- linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
-References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
- <9fb8954a7a0f0184f012a8e66f8565bcbab014ba.1755012943.git.lorenzo.stoakes@oracle.com>
- <73a39f45-e10c-42f8-819b-7289733eae03@redhat.com>
- <d4f8346d-42eb-48db-962d-6bc0fc348510@lucifer.local>
- <d39e029a-8c12-42fb-8046-8e4a568134dc@redhat.com>
- <1743164d-c2d2-44a1-a2a9-aeeed8c13bc8@lucifer.local>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <1743164d-c2d2-44a1-a2a9-aeeed8c13bc8@lucifer.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ab80cb84-42b2-4ce8-aa6c-4ce6be7a12b7@arm.com>
 
-On 26.08.25 16:32, Lorenzo Stoakes wrote:
-> On Tue, Aug 26, 2025 at 04:28:20PM +0200, David Hildenbrand wrote:
->> On 26.08.25 16:21, Lorenzo Stoakes wrote:
->>> On Tue, Aug 26, 2025 at 03:12:08PM +0200, David Hildenbrand wrote:
->>>> On 12.08.25 17:44, Lorenzo Stoakes wrote:
->>>>> We now need to account for flag initialisation on fork. We retain the
->>>>> existing logic as much as we can, but dub the existing flag mask legacy.
->>>>>
->>>>> These flags are therefore required to fit in the first 32-bits of the flags
->>>>> field.
->>>>>
->>>>> However, further flag propagation upon fork can be implemented in mm_init()
->>>>> on a per-flag basis.
->>>>>
->>>>> We ensure we clear the entire bitmap prior to setting it, and use
->>>>> __mm_flags_get_word() and __mm_flags_set_word() to manipulate these legacy
->>>>> fields efficiently.
->>>>>
->>>>> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
->>>>> ---
->>>>>     include/linux/mm_types.h | 13 ++++++++++---
->>>>>     kernel/fork.c            |  7 +++++--
->>>>>     2 files changed, 15 insertions(+), 5 deletions(-)
->>>>>
->>>>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
->>>>> index 38b3fa927997..25577ab39094 100644
->>>>> --- a/include/linux/mm_types.h
->>>>> +++ b/include/linux/mm_types.h
->>>>> @@ -1820,16 +1820,23 @@ enum {
->>>>>     #define MMF_TOPDOWN		31	/* mm searches top down by default */
->>>>>     #define MMF_TOPDOWN_MASK	_BITUL(MMF_TOPDOWN)
->>>>> -#define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
->>>>> +#define MMF_INIT_LEGACY_MASK	(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
->>>>>     				 MMF_DISABLE_THP_MASK | MMF_HAS_MDWE_MASK |\
->>>>>     				 MMF_VM_MERGE_ANY_MASK | MMF_TOPDOWN_MASK)
->>>>> -static inline unsigned long mmf_init_flags(unsigned long flags)
->>>>> +/* Legacy flags must fit within 32 bits. */
->>>>> +static_assert((u64)MMF_INIT_LEGACY_MASK <= (u64)UINT_MAX);
->>>>
->>>> Why not use the magic number 32 you are mentioning in the comment? :)
->>>
->>> Meh I mean UINT_MAX works as a good 'any bit' mask and this will work on
->>> both 32-bit and 64-bit systems.
->>>
->>>>
->>>> static_assert((u32)MMF_INIT_LEGACY_MASK != MMF_INIT_LEGACY_MASK);
->>>
->>> On 32-bit that'd not work would it?
->>
->> On 32bit, BIT(32) would exceed the shift width of unsigned long -> undefined
->> behavior.
->>
->> The compiler should naturally complain.
+On Tue, Aug 26, 2025 at 03:35:48PM +0100, Robin Murphy wrote:
+> On 2025-08-26 12:15 pm, Mark Rutland wrote:
+> > On Wed, Aug 13, 2025 at 06:00:54PM +0100, Robin Murphy wrote:
+> > > The group validation logic shared by the HiSilicon HNS3/PCIe drivers is
+> > > a bit off, in that given a software group leader, it will consider that
+> > > event *in place of* the actual new event being opened. At worst this
+> > > could theoretically allow an unschedulable group if the software event
+> > > config happens to look like one of the hardware siblings.
+> > > 
+> > > The uncore framework avoids that particular issue,
+> > 
+> > What is "the uncore framework"? I'm not sure exactly what you're
+> > referring to, nor how that composes with the problem described above.
 > 
-> Yeah, I don't love that sorry. Firstly it's a warning, so you may well miss it
-> (I just tried), 
+> Literally that hisi_uncore_pmu.c is actually a framework for half a dozen
+> individual sub-drivers rather than a "driver" itself per se, but I suppose
+> that detail doesn't strictly matter at this level.
 
-Upstream bots usually complain at you for warnings :P
+I see. My concern was just that I couldn't figure out what "the uncore
+framework" was, since it sounded more generic. If you say something like
+"the shared code in hisi_uncore_pmu.c", I think that would be clearer.
 
-> and secondly you're making the static assert not have any
-> meaning except that you expect to trigger a compiler warning, it's a bit
-> bizarre.
-
-On 64 bit where BIT(32) *makes any sense* it triggers as expected, no?
-
+> > > but all 3 also share the common issue of not preventing racy access to
+> > > the sibling list,
+> > 
+> > Can you please elaborate on this racy access to the silbing list? I'm
+> > not sure exactly what you're referring to.
 > 
-> My solution works (unless you can see a reason it shouldn't) and I don't find
-> this approach any simpler.
+> Hmm, yes, I guess an actual race is probably impossible since if we're still
+> in the middle of opening the group leader event then we haven't yet
+> allocated the fd that userspace would need to start adding siblings, even if
+> it tried to guess. I leaned on "racy" as a concise way to infer "when it
+> isn't locked (even though the reasons for that are more subtle)" repeatedly
+> over several patches - after all, the overall theme of this series is that I
+> dislike repetitive boilerplate :)
+> 
+> I'll dedicate some time for polishing commit messages for v2, especially the
+> common context for these "part 1" patches per your feedback on patch #1.
 
-Please explain to me like I am a 5 yo how your approach works with 
-BIT(32) on 32bit when the behavior on 32bit is undefined. :P
+Thanks!
 
--- 
-Cheers
+> > > and some redundant checks which can be cleaned up.
+> > > 
+> > > Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+> > > ---
+> > >   drivers/perf/hisilicon/hisi_pcie_pmu.c   | 17 ++++++-----------
+> > >   drivers/perf/hisilicon/hisi_uncore_pmu.c | 23 +++++++----------------
+> > >   drivers/perf/hisilicon/hns3_pmu.c        | 17 ++++++-----------
+> > >   3 files changed, 19 insertions(+), 38 deletions(-)
+> > > 
+> > > diff --git a/drivers/perf/hisilicon/hisi_pcie_pmu.c b/drivers/perf/hisilicon/hisi_pcie_pmu.c
+> > > index c5394d007b61..3b0b2f7197d0 100644
+> > > --- a/drivers/perf/hisilicon/hisi_pcie_pmu.c
+> > > +++ b/drivers/perf/hisilicon/hisi_pcie_pmu.c
+> > > @@ -338,21 +338,16 @@ static bool hisi_pcie_pmu_validate_event_group(struct perf_event *event)
+> > >   	int counters = 1;
+> > >   	int num;
+> > > -	event_group[0] = leader;
+> > > -	if (!is_software_event(leader)) {
+> > > -		if (leader->pmu != event->pmu)
+> > > -			return false;
+> > > +	if (leader == event)
+> > > +		return true;
+> > > -		if (leader != event && !hisi_pcie_pmu_cmp_event(leader, event))
+> > > -			event_group[counters++] = event;
+> > > -	}
+> > > +	event_group[0] = event;
+> > > +	if (leader->pmu == event->pmu && !hisi_pcie_pmu_cmp_event(leader, event))
+> > > +		event_group[counters++] = leader;
+> > 
+> > Looking at this, the existing logic to share counters (which
+> > hisi_pcie_pmu_cmp_event() is trying to permit) looks to be bogus, given
+> > that the start/stop callbacks will reprogram the HW counters (and hence
+> > can fight with one another).
+> 
+> Yeah, this had a dodgy smell when I first came across it, but after doing
+> all the digging I think it does actually work out - the trick seems to be
+> the group_leader check in hisi_pcie_pmu_get_event_idx(), with the
+> implication the PMU is going to be stopped while scheduling in/out the whole
+> group, so assuming hisi_pcie_pmu_del() doesn't clear the counter value in
+> hardware (even though the first call nukes the rest of the event
+> configuration), then the events should stay in sync.
 
-David / dhildenb
+I don't think that's sufficient. If nothing else, overflow is handled
+per-event, and for a group of two identical events, upon overflow
+hisi_pcie_pmu_irq() will reprogram the shared HW counter when handling
+the first event, and the second event will see an arbitrary
+discontinuity. Maybe no-one has spotted that due to the 2^63 counter
+period that we program, but this is clearly bogus.
 
+In addition, AFAICT the IRQ handler doesn't stop the PMU, so in general
+groups aren't handled atomically, and snapshots of the counters won't be
+atomic.
+
+> It does seem somewhat nonsensical to have multiple copies of the same event
+> in the same group, but I imagine it could happen with some sort of scripted
+> combination of metrics, and supporting it at this level saves needing
+> explicit deduplication further up. So even though my initial instinct was to
+> rip it out too, in the end I concluded that that doesn't seem justified.
+
+As above, I think it's clearly bogus. I don't think we should have
+merged it as-is and it's not something I'd like to see others copy.
+Other PMUs don't do this sort of event deduplication, and in general it
+should be up to the user or userspace software to do that rather than
+doing that badly in the kernel.
+
+Given it was implemented with no rationale I think we should rip it out.
+If that breaks someone's scripting, then we can consider implementing
+something that actually works.
+
+Mark.
