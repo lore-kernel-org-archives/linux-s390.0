@@ -1,226 +1,103 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 427F1227BA4
-	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 13:05:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B30184540;
+	Tue, 26 Aug 2025 13:08:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756213539; cv=none; b=i+P87Yui9JgLqvDfMhFHwJrDIipwne8mDYryvDdKbeGHUCRhy+K1H3f0BwpXHR6CLkw7ZgVFeA5QDmlpFU1V3fUoFX1/tPpkDRshKGHL4F6+ExsxbcuQzXHlucPmDuv7zlH6OYBvXRIZ/3RsD1MoiKOWCu3D31TyF7ji9ngs3I4=
+	t=1756213694; cv=none; b=ZE88xS9qerwBHKbPHE+L1FDoOpsCOnius5W6cPTf78/IeU+sW1qXnmskCswemo9LbXoZPxqkZDg7loW6sFYwrXFkHXF5dYLEqkYqZxvzq1Y08ELfPyBc2Yuz9uaam51FExdUgtGkaZYGF6oLWGB4x6KDrH5+Joif0u9qcRtePv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756213539; c=relaxed/simple;
-	bh=FH1P8Y3Rlx+VsxrV8Fk6g6bj+LlOmbkGsQwEvGMw8wo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=S4LHZkRKhCoMZ7rDC0na5RWVH5oxLZm/rAn8a5cnQM4bNSxLfcvltHBrvOmEk9Px7Rm7E9gEMactXM9cnTzZrN9zioEZ3EkXUt/HTHZEGD5ERCIeIf6HpdD0YxyOm6OoIfe3/puo9lTSZhBPjuKV6sTRJnmoyGhkvhQXeT3U7/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=U68zjeMN; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1756213694; c=relaxed/simple;
+	bh=K5Hq8A3EfCbmeiLfsfr4d1nDO6kRorI56BAyDsThWmo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=klvpv9HYhNGZn6PC3oLwfENyrx7P2IjzEuW9tdbFQaIIopxN3BkJHO2hboRwEgp6Xscz/Y+fqXvN+cgwsa+sFAACpu+4jhfuHOZyQatdRqYGzQoBF5gPzqz+5vZIFLkmfMPXVJrGs5TFQSx7ftgxWhY2dmhKYY7XLlZtBuBrYUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=tTA/3PiA; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U68zjeMN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756213535;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=1BB02iWNVIJ9mg9RLb+t+28O/xwbqNfMBkX4EOOZu44=;
-	b=U68zjeMN4CEfOFag2kBlo/9gNqk7GisVU29AZeYWoorVUIhXgJ/Idl1walWCgsGKMLmGWI
-	ngbHP85W7uNGUyWpZotfIEWRqRLp+bHx1NBNuxKXbMcEl0vgqe879JxbxPCvEERlFIUvsr
-	9pNWn8ppoDNn/1UrFcIbISi7Z0ZjIjw=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-148-qnlXPQezNEWiYM4wgLBMMA-1; Tue, 26 Aug 2025 09:05:33 -0400
-X-MC-Unique: qnlXPQezNEWiYM4wgLBMMA-1
-X-Mimecast-MFC-AGG-ID: qnlXPQezNEWiYM4wgLBMMA_1756213532
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3c897f28ab0so1706785f8f.2
-        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 06:05:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756213532; x=1756818332;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1BB02iWNVIJ9mg9RLb+t+28O/xwbqNfMBkX4EOOZu44=;
-        b=loI2wfa6L3Cjb5xEIL3ujeY8cZ/VUQrKdbKyO7booME5FeXubh/pGIUs4rzgUXwbT7
-         eOhSH3VbWwPy8w1t4/nWcfr3+1ZT3zLwrFafwoIh8ljQ9um5nLjNrDht9x7YENVdH7lI
-         iqAJn7Ce4olltAW/XxT5ODZ+zRJte/xWWcMXHsimm1bX7YbE5+VfL23hxbYmMN4ouZx7
-         S1VzQo3ogB9TlyHUhjrwcN7a7WhgbNDdavWMBoP18Z0Aw9rfFDs/a5Xe9lQ2pzd+Q2r4
-         p0J9VHsOxijrw+tSg+Gcd6kotdlrc5tvOrEeKCqKFt43UaYgGPlZzeAeIdHg50r0C/RH
-         SCbQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVFDMyUUDP5AkqXyC19t1f1rdqVlbmAF20pIjrQDNyF9i7hF714xxgu35o4P3gxXiCM1kfiA7nTCybZ@vger.kernel.org
-X-Gm-Message-State: AOJu0YxN7KDZTMBw1PEZHTE6XjGVNFW+InS0AKc1ITycm2PCcouEFbhr
-	jNRc2qCRy0MJL///IRPsBl0No5jDaJSiqPZoYcVV5MA4PEDxu+TlToF5q1U9sOiFISeJT1XhPR3
-	oL7POPpeYsqttVR7zzbLaxmMgJ+v4iJMIt9s1XHvdna+BRauOggkh8RpaXtiMEZY=
-X-Gm-Gg: ASbGncunwz9ZS4yqO/EuSQO9FeyVYpkWjsR2At6zfkF5QOGo4kL405wkE+Ac+zngqEE
-	iqW1bRZZwwy1SNT82739KDzQinShSezzyrTRbs+XbyjTzQaNNDKTQe3TIkB9ruUd0CoOrh4JZml
-	csZgv7GNGd1bO44Q3NfMb081QTFGozsjPZbrjtNyEq62DomP1zRJY7cIu6bBeUW0rHn9/FTmjLR
-	SBwq+hvNNA7yz6MU5yD86XxNlqhv6Cq7i1VDX7dc8rKxq5DBqQ7H2m3dqxzSUwEbQQbUNWJ09CZ
-	n9COKmj06tp1987Ess7DaQpfDzrZFzhVzZx95GXJYDTHB3RueMYL5fnU6j6ZNNGy20XlC8VTAg=
-	=
-X-Received: by 2002:a5d:5d0a:0:b0:3c7:6348:4086 with SMTP id ffacd0b85a97d-3c763484467mr7275232f8f.1.1756213531665;
-        Tue, 26 Aug 2025 06:05:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IED6aZTaK2lqB/sF3ARmnAdAwZO8b9lpHwjPZdqb85yBXUF5jouz9AriJp/YIpO7DcxRXsArw==
-X-Received: by 2002:a5d:5d0a:0:b0:3c7:6348:4086 with SMTP id ffacd0b85a97d-3c763484467mr7275175f8f.1.1756213531071;
-        Tue, 26 Aug 2025 06:05:31 -0700 (PDT)
-Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c7117d5b10sm16090666f8f.47.2025.08.26.06.05.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Aug 2025 06:05:30 -0700 (PDT)
-Message-ID: <f77fd9af-5824-4f5d-ba97-54d70bbd1935@redhat.com>
-Date: Tue, 26 Aug 2025 15:05:27 +0200
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="tTA/3PiA"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=1anwaqC6FtBZhv/AdRsioHe6z7ff2/NtObpshRSmtXo=; b=tTA/3PiAJQSpvqwn9JBse0zv8x
+	XpRRlvytBaU8d04FPgmaRAhvvZSqAROIZ/4ezjLoE6WsNdrr9/VlG41rEHCWsnk6JH8UsrGv5T5LT
+	zWsAXDZBYt6RN2vrodVyAq1DmmcYAol3ljF/QPWtrzgIrZdA+eDohdH+O3MOT2cIfR3SAL6oZFxxT
+	a0buqH4Cjn32e+/T6hw9u+ioPisD3zaMrQKEyQ6W0w6+Ct9SXam4tKJBvFWH9AMfHquCJRKF+Zp4I
+	PdyzFVdx3HFHpHhkOPtwcc+TPPHK59R640Wqk+YmnwDvNpXZJgmWLR1JQJ9jnUMah3B3H6sSqGhBU
+	hjKnAxuQ==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uqtPC-00000002GIP-3rVi;
+	Tue, 26 Aug 2025 13:08:07 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id DB2A63002C5; Tue, 26 Aug 2025 15:08:06 +0200 (CEST)
+Date: Tue, 26 Aug 2025 15:08:06 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: mingo@redhat.com, will@kernel.org, mark.rutland@arm.com,
+	acme@kernel.org, namhyung@kernel.org,
+	alexander.shishkin@linux.intel.com, jolsa@kernel.org,
+	irogers@google.com, adrian.hunter@intel.com,
+	kan.liang@linux.intel.com, linux-perf-users@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org, imx@lists.linux.dev,
+	linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-rockchip@lists.infradead.org, dmaengine@vger.kernel.org,
+	linux-fpga@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, coresight@lists.linaro.org,
+	iommu@lists.linux.dev, linux-amlogic@lists.infradead.org,
+	linux-cxl@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-riscv@lists.infradead.org
+Subject: Re: [PATCH 16/19] perf: Introduce positive capability for sampling
+Message-ID: <20250826130806.GY4067720@noisy.programming.kicks-ass.net>
+References: <cover.1755096883.git.robin.murphy@arm.com>
+ <ae81cb65b38555c628e395cce67ac6c7eaafdd23.1755096883.git.robin.murphy@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 07/10] mm: correct sign-extension issue in MMF_* flag
- masks
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
- <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
- <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
- Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- David Rientjes <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
- Adrian Hunter <adrian.hunter@intel.com>,
- Kan Liang <kan.liang@linux.intel.com>, Masami Hiramatsu
- <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
- Pedro Falcato <pfalcato@suse.de>, Matthew Wilcox <willy@infradead.org>,
- Mateusz Guzik <mjguzik@gmail.com>, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
- linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
-References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
- <f92194bee8c92a04fd4c9b2c14c7e65229639300.1755012943.git.lorenzo.stoakes@oracle.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <f92194bee8c92a04fd4c9b2c14c7e65229639300.1755012943.git.lorenzo.stoakes@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ae81cb65b38555c628e395cce67ac6c7eaafdd23.1755096883.git.robin.murphy@arm.com>
 
-On 12.08.25 17:44, Lorenzo Stoakes wrote:
-> There is an issue with the mask declarations in linux/mm_types.h, which
-> naively do (1 << bit) operations. Unfortunately this results in the 1 being
-> defaulted as a signed (32-bit) integer.
+On Wed, Aug 13, 2025 at 06:01:08PM +0100, Robin Murphy wrote:
+> Sampling is inherently a feature for CPU PMUs, given that the thing
+> to be sampled is a CPU context. These days, we have many more
+> uncore/system PMUs than CPU PMUs, so it no longer makes much sense to
+> assume sampling support by default and force the ever-growing majority
+> of drivers to opt out of it (or erroneously fail to). Instead, let's
+> introduce a positive opt-in capability that's more obvious and easier to
+> maintain.
 > 
-> When the compiler expands the MMF_INIT_MASK bitmask it comes up with:
-> 
-> (((1 << 2) - 1) | (((1 << 9) - 1) << 2) | (1 << 24) | (1 << 28) | (1 << 30)
-> | (1 << 31))
-> 
-> Which overflows the signed integer to -788,527,105. Implicitly casting this
-> to an unsigned integer results in sign-expansion, and thus this value
-> becomes 0xffffffffd10007ff, rather than the intended 0xd10007ff.
-> 
-> While we're limited to a maximum of 32 bits in mm->flags, this isn't an
-> issue as the remaining bits being masked will always be zero.
-> 
-> However, now we are moving towards having more bits in this flag, this
-> becomes an issue.
-> 
-> Simply resolve this by using the _BITUL() helper to cast the shifted value
-> to an unsigned long.
 
-Hmm, I thought BIT() should be used and would just fine?
+> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+> index 4d439c24c901..bf2cfbeabba2 100644
+> --- a/include/linux/perf_event.h
+> +++ b/include/linux/perf_event.h
+> @@ -294,7 +294,7 @@ struct perf_event_pmu_context;
+>  /**
+>   * pmu::capabilities flags
+>   */
+> -#define PERF_PMU_CAP_NO_INTERRUPT	0x0001
+> +#define PERF_PMU_CAP_SAMPLING		0x0001
+>  #define PERF_PMU_CAP_NO_NMI		0x0002
+>  #define PERF_PMU_CAP_AUX_NO_SG		0x0004
+>  #define PERF_PMU_CAP_EXTENDED_REGS	0x0008
+> @@ -305,6 +305,7 @@ struct perf_event_pmu_context;
+>  #define PERF_PMU_CAP_EXTENDED_HW_TYPE	0x0100
+>  #define PERF_PMU_CAP_AUX_PAUSE		0x0200
+>  #define PERF_PMU_CAP_AUX_PREFER_LARGE	0x0400
+> +#define PERF_PMU_CAP_NO_INTERRUPT	0x0800
 
-include/linux/bits.h includes <vdso/bits.h> where we have
+So NO_INTERRUPT was supposed to be the negative of your new SAMPLING
+(and I agree with your reasoning).
 
-#define BIT(nr)			(UL(1) << (nr))
-
-In contrast, _BITUL is a uapi thingy from include/uapi/linux/const.h ...
-as it seems.
-
-$ git grep "_BITUL" -- include/linux/
-include/linux/mm_types.h:#define MMF_DUMPABLE_MASK (_BITUL(MMF_DUMPABLE_BITS) - 1)
-include/linux/mm_types.h:       ((_BITUL(MMF_DUMP_FILTER_BITS) - 1) << MMF_DUMP_FILTER_SHIFT)
-include/linux/mm_types.h:       (_BITUL(MMF_DUMP_ANON_PRIVATE) | _BITUL(MMF_DUMP_ANON_SHARED) | \
-include/linux/mm_types.h:        _BITUL(MMF_DUMP_HUGETLB_PRIVATE) | MMF_DUMP_MASK_DEFAULT_ELF)
-include/linux/mm_types.h:# define MMF_DUMP_MASK_DEFAULT_ELF     _BITUL(MMF_DUMP_ELF_HEADERS)
-include/linux/mm_types.h:#define MMF_DISABLE_THP_MASK   (_BITUL(MMF_DISABLE_THP_COMPLETELY) | \
-include/linux/mm_types.h:                                _BITUL(MMF_DISABLE_THP_EXCEPT_ADVISED))
-include/linux/mm_types.h:#define MMF_HAS_MDWE_MASK      _BITUL(MMF_HAS_MDWE)
-include/linux/mm_types.h:#define MMF_VM_MERGE_ANY_MASK  _BITUL(MMF_VM_MERGE_ANY)
-include/linux/mm_types.h:#define MMF_TOPDOWN_MASK       _BITUL(MMF_TOPDOWN)
-
-Oh, hey, it's only your changes :P
-
-We should better just be using BIT().
-
--- 
-Cheers
-
-David / dhildenb
-
+What I'm confused/curious about is why we retain NO_INTERRUPT?
