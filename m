@@ -1,207 +1,322 @@
-Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2D8DA1DB95E;
-	Tue, 26 Aug 2025 05:25:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B2D2E88B0;
+	Tue, 26 Aug 2025 05:29:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756185910; cv=none; b=dnCtGO72tT/pwdVn6heGC2rfHEKHQsA5hl67NklzPYz2dT9pGXZpg/OzZFQvmhCeMS8wKFLtwM+59hbkuXLEjFojSBDpghug5hTZr4VUKMaqzXId2b/xm6gjwImnhnIeV7lBWDySTpmvIYcYsRU89wAJJ7FiOQmgTz6kT9YuZec=
+	t=1756186164; cv=none; b=az6K58wE2ZuhLUUulPWzaP0uB4RmUpsPo6QLtt1F8/vck15xU+kDNanesjeHIlImSZSNAEE1No+djkDhk6G2nZ+QVfmw/k9Vzum82TFZ+OeuB0RFQXy5X2T+gSNdOJkcyy/mgMioP+b+NrZkKlzxG3tzA4AKOkF7dR2Dkv+8QvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756185910; c=relaxed/simple;
-	bh=ecf59KpVXnVU4LJKy9jLmYErrPVQTbsTnjCrcxVuU84=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SF4GVgF9ZK0y562YAFQzyLUUASVazGY93Z27xYgh/v12oEGCuIboobnXG99h1sxALCTCjwfqXEgV+2Hsg+yP78TXmgkRq9L4ZKF+qfDat52fch9xQ3IOtargROQ2B4doBFJyGhIvGVU4W4JA1Mp1MMtSnS1hTNWkoTzhT0T8668=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
-Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4c9wXB51PCz9sSS;
-	Tue, 26 Aug 2025 07:02:50 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OAnSCdrgSj6y; Tue, 26 Aug 2025 07:02:50 +0200 (CEST)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4c9wXB3qBmz9sSN;
-	Tue, 26 Aug 2025 07:02:50 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 60C3D8B764;
-	Tue, 26 Aug 2025 07:02:50 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id aPCU04BVP-5t; Tue, 26 Aug 2025 07:02:50 +0200 (CEST)
-Received: from [192.168.235.99] (unknown [192.168.235.99])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 7C6B38B763;
-	Tue, 26 Aug 2025 07:02:48 +0200 (CEST)
-Message-ID: <6e197065-a782-4e24-bf38-5e423d0509ff@csgroup.eu>
-Date: Tue, 26 Aug 2025 07:02:48 +0200
+	s=arc-20240116; t=1756186164; c=relaxed/simple;
+	bh=zAA65t+biCTL2Eftd5Vt0eFjHTRHEoaWFGOLEH6aG4w=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=UYxPxwlZgGdIgruSQ7C1dSZ93g29QUCQmarcFeyug3QUHazF+IR63CYZ4BbXQckQ3J+USIm/B5Yle+0pnQ8rR916vQazG/cab/bR6/YP/P6BZqU5BsptsQ4btj1gRdQJKpiYPbBimMTHgFVWXPfysvzjGleSkQHHCjqYebkAlQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Wq6Ux+WC; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=sKuNjYhf; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Wq6Ux+WC";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="sKuNjYhf"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1756186159;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=65ayLE+QQynk9aQmcYEngRqdHtxeY4HUGz5dhtcY1F0=;
+	b=Wq6Ux+WC2gIff/jZ/isyQz+BbCWLrcjOr4FQaQf29+xxJllaVC2St0w7reMOMbwCf0ucpg
+	wMHNDP6oXt85ysteE3C15+xukHVemOZGaY/xYcgwf1ueeMfvan+cO7iHdI1hnvasFLMVKA
+	wIAtvnoJcQSfPrg80ljFFzoJ5dxD4sHJtTHMbgzvoK11ywq67dzS57viFFMo4nEgU8URaw
+	bO5LlyBGRQY5QRW0z/PfZzxaUodPaMCfOmz0JSuWlI04RKILD8IFxF+IlVeDTQ3ncL1LY5
+	sSe7w1h62t377FLJPMimvuWZtf6i7zY1EscHlJCgbxSJbBMJS+vE72xsTYZpGg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1756186159;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=65ayLE+QQynk9aQmcYEngRqdHtxeY4HUGz5dhtcY1F0=;
+	b=sKuNjYhfjcMqtbi/xJ6keKKcRYn6EZO9jbKAcc5QJRj9FYL4OA5rbvIG5YsuMAshlGQr/W
+	An4saYE4LMRJs5Bw==
+Date: Tue, 26 Aug 2025 07:29:11 +0200
+Subject: [PATCH] vdso: Remove struct getcpu_cache
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 2/8] powerpc/smp: Rename cpu_corgroup_* to cpu_corgrp_*
-To: K Prateek Nayak <kprateek.nayak@amd.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>, linuxppc-dev@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
- thomas.weissschuh@linutronix.de, Li Chen <chenl311@chinatelecom.cn>,
- Bibo Mao <maobibo@loongson.cn>, Mete Durlu <meted@linux.ibm.com>,
- Tobias Huschle <huschle@linux.ibm.com>,
- Easwar Hariharan <easwar.hariharan@linux.microsoft.com>,
- Guo Weikang <guoweikang.kernel@gmail.com>,
- "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- Brian Gerst <brgerst@gmail.com>,
- Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
- Swapnil Sapkal <swapnil.sapkal@amd.com>,
- "Yury Norov [NVIDIA]" <yury.norov@gmail.com>,
- Sudeep Holla <sudeep.holla@arm.com>,
- Jonathan Cameron <Jonathan.Cameron@huawei.com>,
- Andrea Righi <arighi@nvidia.com>, Yicong Yang <yangyicong@hisilicon.com>,
- Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
- Tim Chen <tim.c.chen@linux.intel.com>,
- Vinicius Costa Gomes <vinicius.gomes@intel.com>
-References: <20250826041319.1284-1-kprateek.nayak@amd.com>
- <20250826041319.1284-3-kprateek.nayak@amd.com>
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Content-Language: fr-FR
-In-Reply-To: <20250826041319.1284-3-kprateek.nayak@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Message-Id: <20250826-getcpu_cache-v1-1-8748318f6141@linutronix.de>
+X-B4-Tracking: v=1; b=H4sIACZGrWgC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDI1MDCyNT3fTUkuSC0vjkxOSMVF3jxKTkFKNUM1MTY3MloJaCotS0zAqwcdG
+ xtbUAwJ29uV4AAAA=
+X-Change-ID: 20250825-getcpu_cache-3abcd2e65437
+To: Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Andy Lutomirski <luto@kernel.org>, 
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Vincenzo Frascino <vincenzo.frascino@arm.com>, 
+ Shuah Khan <shuah@kernel.org>
+Cc: loongarch@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-um@lists.infradead.org, 
+ linux-api@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1756186155; l=9757;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=zAA65t+biCTL2Eftd5Vt0eFjHTRHEoaWFGOLEH6aG4w=;
+ b=oCH06dxxdjmFh7WWuVm9nzzFq2kCgh1Ogw3db72JXYeGBbeG8IW+QjHv1UcScE5HMJWzhJ0V8
+ RIFNkDMcDqBDhl6Nfn7WDqgAyYQep8GaP8LuLJF9TlYHxgP3yYaCx0i
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
+The cache parameter of getcpu() is not used by the kernel and no user ever
+passes it in anyways.
 
+Remove the struct and its header.
 
-Le 26/08/2025 à 06:13, K Prateek Nayak a écrit :
-> Rename cpu_corgroup_{map,mask} to cpu_corgrp_{map,mask} to free up the
-> cpu_corgroup_* namespace. cpu_corgroup_mask() will be added back in the
-> subsequent commit for CONFIG_SCHED_MC enablement.
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+We could also completely remove the parameter, but I am not sure if
+that is a good idea for syscalls and vDSO entrypoints.
+---
+ arch/loongarch/vdso/vgetcpu.c                   |  5 ++---
+ arch/s390/kernel/vdso64/getcpu.c                |  3 +--
+ arch/s390/kernel/vdso64/vdso.h                  |  4 +---
+ arch/x86/entry/vdso/vgetcpu.c                   |  5 ++---
+ arch/x86/include/asm/vdso/processor.h           |  4 +---
+ arch/x86/um/vdso/um_vdso.c                      |  7 +++----
+ include/linux/getcpu.h                          | 19 -------------------
+ include/linux/syscalls.h                        |  3 +--
+ kernel/sys.c                                    |  4 +---
+ tools/testing/selftests/vDSO/vdso_test_getcpu.c |  4 +---
+ 10 files changed, 13 insertions(+), 45 deletions(-)
 
-This renaming seems odd and uncomplete. For instance 
-update_coregroup_mask() should probably be renamed as well shoudln't it ?
+diff --git a/arch/loongarch/vdso/vgetcpu.c b/arch/loongarch/vdso/vgetcpu.c
+index 5301cd9d0f839eb0fd7b73a1d36e80aaa75d5e76..aefba899873ed035d70766a95b0b6fea881e94df 100644
+--- a/arch/loongarch/vdso/vgetcpu.c
++++ b/arch/loongarch/vdso/vgetcpu.c
+@@ -4,7 +4,6 @@
+  */
+ 
+ #include <asm/vdso.h>
+-#include <linux/getcpu.h>
+ 
+ static __always_inline int read_cpu_id(void)
+ {
+@@ -20,8 +19,8 @@ static __always_inline int read_cpu_id(void)
+ }
+ 
+ extern
+-int __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused);
+-int __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused)
++int __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused);
++int __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused)
+ {
+ 	int cpu_id;
+ 
+diff --git a/arch/s390/kernel/vdso64/getcpu.c b/arch/s390/kernel/vdso64/getcpu.c
+index 5c5d4a848b7669436e73df8e3b711e5b876eb3db..1e17665616c5fa766ca66c8de276b212528934bd 100644
+--- a/arch/s390/kernel/vdso64/getcpu.c
++++ b/arch/s390/kernel/vdso64/getcpu.c
+@@ -2,11 +2,10 @@
+ /* Copyright IBM Corp. 2020 */
+ 
+ #include <linux/compiler.h>
+-#include <linux/getcpu.h>
+ #include <asm/timex.h>
+ #include "vdso.h"
+ 
+-int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
++int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, void *unused)
+ {
+ 	union tod_clock clk;
+ 
+diff --git a/arch/s390/kernel/vdso64/vdso.h b/arch/s390/kernel/vdso64/vdso.h
+index 9e5397e7b590a23c149ccc6043d0c0b0d5ea8457..cadd307d7a365cabf53f5c8d313be3718625533d 100644
+--- a/arch/s390/kernel/vdso64/vdso.h
++++ b/arch/s390/kernel/vdso64/vdso.h
+@@ -4,9 +4,7 @@
+ 
+ #include <vdso/datapage.h>
+ 
+-struct getcpu_cache;
+-
+-int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused);
++int __s390_vdso_getcpu(unsigned *cpu, unsigned *node, void *unused);
+ int __s390_vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz);
+ int __s390_vdso_clock_gettime(clockid_t clock, struct __kernel_timespec *ts);
+ int __s390_vdso_clock_getres(clockid_t clock, struct __kernel_timespec *ts);
+diff --git a/arch/x86/entry/vdso/vgetcpu.c b/arch/x86/entry/vdso/vgetcpu.c
+index e4640306b2e3c95d74d73037ab6b09294b8e1d6c..6381b472b7c52487bccf3cbf0664c3d7a0e59699 100644
+--- a/arch/x86/entry/vdso/vgetcpu.c
++++ b/arch/x86/entry/vdso/vgetcpu.c
+@@ -6,17 +6,16 @@
+  */
+ 
+ #include <linux/kernel.h>
+-#include <linux/getcpu.h>
+ #include <asm/segment.h>
+ #include <vdso/processor.h>
+ 
+ notrace long
+-__vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused)
++__vdso_getcpu(unsigned *cpu, unsigned *node, void *unused)
+ {
+ 	vdso_read_cpunode(cpu, node);
+ 
+ 	return 0;
+ }
+ 
+-long getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *tcache)
++long getcpu(unsigned *cpu, unsigned *node, void *tcache)
+ 	__attribute__((weak, alias("__vdso_getcpu")));
+diff --git a/arch/x86/include/asm/vdso/processor.h b/arch/x86/include/asm/vdso/processor.h
+index 7000aeb59aa287e2119c3d43ab3eaf82befb59c4..93e0e24e5cb47f7b0056c13f2a7f2304ed4a0595 100644
+--- a/arch/x86/include/asm/vdso/processor.h
++++ b/arch/x86/include/asm/vdso/processor.h
+@@ -18,9 +18,7 @@ static __always_inline void cpu_relax(void)
+ 	native_pause();
+ }
+ 
+-struct getcpu_cache;
+-
+-notrace long __vdso_getcpu(unsigned *cpu, unsigned *node, struct getcpu_cache *unused);
++notrace long __vdso_getcpu(unsigned *cpu, unsigned *node, void *unused);
+ 
+ #endif /* __ASSEMBLER__ */
+ 
+diff --git a/arch/x86/um/vdso/um_vdso.c b/arch/x86/um/vdso/um_vdso.c
+index cbae2584124fd0ff0f9d240c33fefb8d213c84cd..9aa2c62cce6b7a07bbaf8441014d347162d1950d 100644
+--- a/arch/x86/um/vdso/um_vdso.c
++++ b/arch/x86/um/vdso/um_vdso.c
+@@ -10,14 +10,13 @@
+ #define DISABLE_BRANCH_PROFILING
+ 
+ #include <linux/time.h>
+-#include <linux/getcpu.h>
+ #include <asm/unistd.h>
+ 
+ /* workaround for -Wmissing-prototypes warnings */
+ int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts);
+ int __vdso_gettimeofday(struct __kernel_old_timeval *tv, struct timezone *tz);
+ __kernel_old_time_t __vdso_time(__kernel_old_time_t *t);
+-long __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused);
++long __vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused);
+ 
+ int __vdso_clock_gettime(clockid_t clock, struct __kernel_old_timespec *ts)
+ {
+@@ -60,7 +59,7 @@ __kernel_old_time_t __vdso_time(__kernel_old_time_t *t)
+ __kernel_old_time_t time(__kernel_old_time_t *t) __attribute__((weak, alias("__vdso_time")));
+ 
+ long
+-__vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused)
++__vdso_getcpu(unsigned int *cpu, unsigned int *node, void *unused)
+ {
+ 	/*
+ 	 * UML does not support SMP, we can cheat here. :)
+@@ -74,5 +73,5 @@ __vdso_getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *unused
+ 	return 0;
+ }
+ 
+-long getcpu(unsigned int *cpu, unsigned int *node, struct getcpu_cache *tcache)
++long getcpu(unsigned int *cpu, unsigned int *node, void *tcache)
+ 	__attribute__((weak, alias("__vdso_getcpu")));
+diff --git a/include/linux/getcpu.h b/include/linux/getcpu.h
+deleted file mode 100644
+index c304dcdb4eac2a9117080e6a14f4e3f28d07fd56..0000000000000000000000000000000000000000
+--- a/include/linux/getcpu.h
++++ /dev/null
+@@ -1,19 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef _LINUX_GETCPU_H
+-#define _LINUX_GETCPU_H 1
+-
+-/* Cache for getcpu() to speed it up. Results might be a short time
+-   out of date, but will be faster.
+-
+-   User programs should not refer to the contents of this structure.
+-   I repeat they should not refer to it. If they do they will break
+-   in future kernels.
+-
+-   It is only a private cache for vgetcpu(). It will change in future kernels.
+-   The user program must store this information per thread (__thread)
+-   If you want 100% accurate information pass NULL instead. */
+-struct getcpu_cache {
+-	unsigned long blob[128 / sizeof(long)];
+-};
+-
+-#endif
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 77f45e5d44139da36a5dacbf9db7b65261d13398..81822d203eac5d8d91488a18ff7fcdc65670df54 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -59,7 +59,6 @@ struct compat_stat;
+ struct old_timeval32;
+ struct robust_list_head;
+ struct futex_waitv;
+-struct getcpu_cache;
+ struct old_linux_dirent;
+ struct perf_event_attr;
+ struct file_handle;
+@@ -714,7 +713,7 @@ asmlinkage long sys_getrusage(int who, struct rusage __user *ru);
+ asmlinkage long sys_umask(int mask);
+ asmlinkage long sys_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			unsigned long arg4, unsigned long arg5);
+-asmlinkage long sys_getcpu(unsigned __user *cpu, unsigned __user *node, struct getcpu_cache __user *cache);
++asmlinkage long sys_getcpu(unsigned __user *cpu, unsigned __user *node, void __user *cache);
+ asmlinkage long sys_gettimeofday(struct __kernel_old_timeval __user *tv,
+ 				struct timezone __user *tz);
+ asmlinkage long sys_settimeofday(struct __kernel_old_timeval __user *tv,
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 1e28b40053ce206d7d0ed27e8a4fce8b616c3565..a830d78c1e1eb1d6cef31294feeb6a88dc0f83f3 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -31,7 +31,6 @@
+ #include <linux/tty.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
+-#include <linux/getcpu.h>
+ #include <linux/task_io_accounting_ops.h>
+ #include <linux/seccomp.h>
+ #include <linux/cpu.h>
+@@ -2813,8 +2812,7 @@ SYSCALL_DEFINE5(prctl, int, option, unsigned long, arg2, unsigned long, arg3,
+ 	return error;
+ }
+ 
+-SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep,
+-		struct getcpu_cache __user *, unused)
++SYSCALL_DEFINE3(getcpu, unsigned __user *, cpup, unsigned __user *, nodep, void __user *, unused)
+ {
+ 	int err = 0;
+ 	int cpu = raw_smp_processor_id();
+diff --git a/tools/testing/selftests/vDSO/vdso_test_getcpu.c b/tools/testing/selftests/vDSO/vdso_test_getcpu.c
+index cdeaed45fb26c61f6314c58fe1b71fa0be3c0108..994ce569dc37c6689b1a3c79156e3dfc8bf27f22 100644
+--- a/tools/testing/selftests/vDSO/vdso_test_getcpu.c
++++ b/tools/testing/selftests/vDSO/vdso_test_getcpu.c
+@@ -16,9 +16,7 @@
+ #include "vdso_config.h"
+ #include "vdso_call.h"
+ 
+-struct getcpu_cache;
+-typedef long (*getcpu_t)(unsigned int *, unsigned int *,
+-			 struct getcpu_cache *);
++typedef long (*getcpu_t)(unsigned int *, unsigned int *, void *);
+ 
+ int main(int argc, char **argv)
+ {
 
-When you say cpu_corgroup_mask() will be added back, you mean the same 
-function or a completely different function but with the same name ?
+---
+base-commit: 8f5ae30d69d7543eee0d70083daf4de8fe15d585
+change-id: 20250825-getcpu_cache-3abcd2e65437
 
-What's really the difference between corgrp and coregroup ?
-
-Shouldn't also has_coregroup_support() now be renamed has_corgrp_support() ?
-
-Christophe
-
-> 
-> No functional changes intended.
-> 
-> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
-> ---
->   arch/powerpc/kernel/smp.c | 26 +++++++++++++-------------
->   1 file changed, 13 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-> index 862f50c09539..4f48262658cc 100644
-> --- a/arch/powerpc/kernel/smp.c
-> +++ b/arch/powerpc/kernel/smp.c
-> @@ -87,7 +87,7 @@ DEFINE_PER_CPU(cpumask_var_t, cpu_sibling_map);
->   DEFINE_PER_CPU(cpumask_var_t, cpu_smallcore_map);
->   DEFINE_PER_CPU(cpumask_var_t, cpu_l2_cache_map);
->   DEFINE_PER_CPU(cpumask_var_t, cpu_core_map);
-> -static DEFINE_PER_CPU(cpumask_var_t, cpu_coregroup_map);
-> +static DEFINE_PER_CPU(cpumask_var_t, cpu_corgrp_map);
->   
->   EXPORT_PER_CPU_SYMBOL(cpu_sibling_map);
->   EXPORT_PER_CPU_SYMBOL(cpu_l2_cache_map);
-> @@ -1045,9 +1045,9 @@ static const struct cpumask *tl_smt_mask(struct sched_domain_topology_level *tl,
->   }
->   #endif
->   
-> -static struct cpumask *cpu_coregroup_mask(int cpu)
-> +static struct cpumask *cpu_corgrp_mask(int cpu)
->   {
-> -	return per_cpu(cpu_coregroup_map, cpu);
-> +	return per_cpu(cpu_corgrp_map, cpu);
->   }
->   
->   static bool has_coregroup_support(void)
-> @@ -1061,7 +1061,7 @@ static bool has_coregroup_support(void)
->   
->   static const struct cpumask *cpu_mc_mask(struct sched_domain_topology_level *tl, int cpu)
->   {
-> -	return cpu_coregroup_mask(cpu);
-> +	return cpu_corgrp_mask(cpu);
->   }
->   
->   static const struct cpumask *cpu_pkg_mask(struct sched_domain_topology_level *tl, int cpu)
-> @@ -1124,7 +1124,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
->   		zalloc_cpumask_var_node(&per_cpu(cpu_core_map, cpu),
->   					GFP_KERNEL, cpu_to_node(cpu));
->   		if (has_coregroup_support())
-> -			zalloc_cpumask_var_node(&per_cpu(cpu_coregroup_map, cpu),
-> +			zalloc_cpumask_var_node(&per_cpu(cpu_corgrp_map, cpu),
->   						GFP_KERNEL, cpu_to_node(cpu));
->   
->   #ifdef CONFIG_NUMA
-> @@ -1145,7 +1145,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
->   	cpumask_set_cpu(boot_cpuid, cpu_core_mask(boot_cpuid));
->   
->   	if (has_coregroup_support())
-> -		cpumask_set_cpu(boot_cpuid, cpu_coregroup_mask(boot_cpuid));
-> +		cpumask_set_cpu(boot_cpuid, cpu_corgrp_mask(boot_cpuid));
->   
->   	init_big_cores();
->   	if (has_big_cores) {
-> @@ -1510,8 +1510,8 @@ static void remove_cpu_from_masks(int cpu)
->   		set_cpus_unrelated(cpu, i, cpu_core_mask);
->   
->   	if (has_coregroup_support()) {
-> -		for_each_cpu(i, cpu_coregroup_mask(cpu))
-> -			set_cpus_unrelated(cpu, i, cpu_coregroup_mask);
-> +		for_each_cpu(i, cpu_corgrp_mask(cpu))
-> +			set_cpus_unrelated(cpu, i, cpu_corgrp_mask);
->   	}
->   }
->   #endif
-> @@ -1543,7 +1543,7 @@ static void update_coregroup_mask(int cpu, cpumask_var_t *mask)
->   	if (!*mask) {
->   		/* Assume only siblings are part of this CPU's coregroup */
->   		for_each_cpu(i, submask_fn(cpu))
-> -			set_cpus_related(cpu, i, cpu_coregroup_mask);
-> +			set_cpus_related(cpu, i, cpu_corgrp_mask);
->   
->   		return;
->   	}
-> @@ -1551,18 +1551,18 @@ static void update_coregroup_mask(int cpu, cpumask_var_t *mask)
->   	cpumask_and(*mask, cpu_online_mask, cpu_node_mask(cpu));
->   
->   	/* Update coregroup mask with all the CPUs that are part of submask */
-> -	or_cpumasks_related(cpu, cpu, submask_fn, cpu_coregroup_mask);
-> +	or_cpumasks_related(cpu, cpu, submask_fn, cpu_corgrp_mask);
->   
->   	/* Skip all CPUs already part of coregroup mask */
-> -	cpumask_andnot(*mask, *mask, cpu_coregroup_mask(cpu));
-> +	cpumask_andnot(*mask, *mask, cpu_corgrp_mask(cpu));
->   
->   	for_each_cpu(i, *mask) {
->   		/* Skip all CPUs not part of this coregroup */
->   		if (coregroup_id == cpu_to_coregroup_id(i)) {
-> -			or_cpumasks_related(cpu, i, submask_fn, cpu_coregroup_mask);
-> +			or_cpumasks_related(cpu, i, submask_fn, cpu_corgrp_mask);
->   			cpumask_andnot(*mask, *mask, submask_fn(i));
->   		} else {
-> -			cpumask_andnot(*mask, *mask, cpu_coregroup_mask(i));
-> +			cpumask_andnot(*mask, *mask, cpu_corgrp_mask(i));
->   		}
->   	}
->   }
+Best regards,
+-- 
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
