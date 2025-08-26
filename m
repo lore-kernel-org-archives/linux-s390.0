@@ -1,376 +1,254 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAED9356905
-	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 14:40:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AD0F279784
+	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 15:24:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756219216; cv=none; b=RGEIfQOVVKKCH5w366oq1zKdaT6GNR9S+gIlw9TcGJVouWZt4NQqfCcLPznnAjLaUw88NTYcIfofbKWf4X0wz3vWveWQXYpMUcH3ADuRBrI+w1SzXErdqxUmDHXUcO2V/HfcLODEzhUKcb+Ab/FbdjUPl8RNHKVUglBOTEz8Sb4=
+	t=1756221871; cv=none; b=dTwyCj9E3yoRI/C0Xu2TU4Dbh7cSJJy2XHZXVLu23fvd6NfPuyk91IgrOGKnP5EFe+hGfpIaPGYUTFt+Gd/yEcJQs62DJVcVj0lp3XAZ3/m5TVJQ8gu0JFBqKRAUEJ+iEP4yyLPaWds4LztE+PR0fIE4RfuVycXgGtKZdkwwNLg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756219216; c=relaxed/simple;
-	bh=dn2NfWACofZ69eOD3sNRkPRFohsh/ayFLZUSR3XeEBY=;
-	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=OStB9R3SCLkwJACuKmFWzlgC2P5JPK1eKyvH/2fL0bSZGsF4pfmXncnU4ppaADzwva4HuprKJ7QhmEWH4cc86oLJUcnEmxFYV9vw8Qsk0VhsHHk0rqNq8Z6+CI4BBBtsO8Y1hOSjn2Wh5LVwe52qbKxUgvruxDBAPptIRFoXELY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BDaVtnDZ; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1756221871; c=relaxed/simple;
+	bh=QXG1Ca3UjT56TcPBrliSuURncoshOr9BKOaPMK2hpdE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R9tBDso5RW/54LBqD8mpkcI4BtXEbC/KxcZ/8sMnjHKCUYA5T2zLTYwfyMl1AqHW7J12IuI4RG/49j6H09znWuZRmKjlB+mhx7eTsJnPUhGaKf77w6x8CMBqACo6VlAKshyheaGM4z6NxqLJDN4QjmXp7p2hC3GTsYDsz0QpVf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BsD9Bioj; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BDaVtnDZ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BsD9Bioj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756219213;
+	s=mimecast20190719; t=1756221869;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=TxqTfSTeuratZfL0v5UKHr16yLN/J/vZ8P+bape/dC0=;
-	b=BDaVtnDZq8YvFfYVP6SxapVkEmLTthW5mgL+h+0UQq13hFKLBpqsJgHI5tMEokVY9caHcI
-	YRMJXjHhBBEn5UJfp07GOsj3Y4G6r8G8B5iAgig6xHJA3WQkQ4GXFxLk9rcdQfydFzMtgM
-	56JCM2HTw9GpriubvTWFLaFEA17lu1o=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-94-1kr4v8MXOdW2m4wcrevkfg-1; Tue,
- 26 Aug 2025 10:40:10 -0400
-X-MC-Unique: 1kr4v8MXOdW2m4wcrevkfg-1
-X-Mimecast-MFC-AGG-ID: 1kr4v8MXOdW2m4wcrevkfg_1756219209
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 44AA119560AF;
-	Tue, 26 Aug 2025 14:40:09 +0000 (UTC)
-Received: from debian4.vm (unknown [10.22.80.227])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id 4E18C30001A2;
-	Tue, 26 Aug 2025 14:40:05 +0000 (UTC)
-Received: by debian4.vm (sSMTP sendmail emulation); Tue, 26 Aug 2025 16:40:03 +0200
-Message-ID: <20250826144003.574564912@debian4.vm>
-User-Agent: quilt/0.68
-Date: Tue, 26 Aug 2025 16:36:53 +0200
-From: Mikulas Patocka <mpatocka@redhat.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Biggers <ebiggers@kernel.org>,
- dengler@linux.ibm.com,
- linux-s390@vger.kernel.org,
- dm-devel@lists.linux.dev,
- ifranzki@linux.ibm.com,
- agk@redhat.com,
- snitzer@kernel.org,
- gmazyland@gmail.com,
- Mikulas Patocka <mpatocka@redhat.com>
-Subject: [PATCH 7/7] dm-integrity: enable asynchronous hash interface
-References: <20250826143646.570314717@debian4.vm>
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=8dRYmdfYPQDBHIeqCHeCxbojw8+BOvuY6ncQfuP6l7w=;
+	b=BsD9BiojwOxEFeuZZZo0p9josyMGXEMznxdTFEIkWDzcfGGFmxZOw1VbfZhsgDbhOvKlhB
+	K8LaA6mchO00t+JTLiQXPCorIq+mgsuON874Vm9SVprXaeEPtvfEclkXE8NZuRUp6tEGH/
+	GU5WUVcwdWNt8cDd2EtvS1M6kH5ETJg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-150-1onMX_rNPo6TmI2ba9t5ww-1; Tue, 26 Aug 2025 11:24:27 -0400
+X-MC-Unique: 1onMX_rNPo6TmI2ba9t5ww-1
+X-Mimecast-MFC-AGG-ID: 1onMX_rNPo6TmI2ba9t5ww_1756221866
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3c6abcfd303so359420f8f.3
+        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 08:24:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756221866; x=1756826666;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8dRYmdfYPQDBHIeqCHeCxbojw8+BOvuY6ncQfuP6l7w=;
+        b=LqWzX0ecKEeguNJngldSPaYatzxt/RdpUo08rAa+L0yS9du2xmg8pYbUJWvlOswIyl
+         L7KwB3Ay9Z9gp85Kbz/+QnyiwNRVxW1j1e12HaH/AoAgfW5txCiMC4IOcmGHn5jtVtSx
+         flseirj3kUhNGUVJuZQXJCeRDJ1l8lo2t+LctmZh4XeUV90SFvBG4JqjZM+L5ZS6UpF5
+         zLioXE2KdFBztN0uh1ezfIpA0McQa8YIY/1Q89nYMgt1gC9kiT+o3pnsPXnFtBvBFOTt
+         Z1fS/rsXhadrQHPhuj8RGZa485onkfyIRpXhXxSxZV5eLlKej+SE+yvu4ZUEwzLNq/vH
+         x+4w==
+X-Forwarded-Encrypted: i=1; AJvYcCXHrVOmsNPSILdbGtaQxaJ4IUnySG8cshOkJbQ1tEwoO7W6eXqWem7TNyugJo15a/5gfRi35NtqROWk@vger.kernel.org
+X-Gm-Message-State: AOJu0YzcE0IqOdQnjUbU+qEzmwyvvGIa8KPeB+IFU/xDBInwjSY/jR7p
+	Z/gjSEaQ0St0gy/3wlNkzXivIlBqZ5uZLd2vQrz4aGMr5FMzAGgDAT+Del7ivVNXJoQlEt4CnbL
+	REVNZVRzjX/GMKmIo+fYiStj5ZBmvv4L1vzlrIX07zqmwtbkRncmPjF5OaQcyBEU=
+X-Gm-Gg: ASbGncuXTA4/sjnkFbr4+DMSkxvLEG8JpSEhc38XD9ge9/OvyOaDbUx0qpdEgALGFRg
+	43zzI5EwkXtZIL9CzQWFWFtztCf19SecjDEsGORS8IlDm/UTFySEC+NZBL1vq/40qOhI0XhOzOA
+	UmhfYSnKzcH5HlVfUcg8DBaXjc2a7QHpb9Wgqq78eRpocAAcLvCP0t2T2ViQ7N+JI3alQ2DSkPG
+	jHcEz9qvrSAG3/yAaBCa3jQRJcpw3qn0roijJR3mRBgyEdRVFVgiaNfwArk6XnyriIX+w1sMYTn
+	xmrCauaqfqXNKfIRkGegzSlajTjbhUrhScbCKwDHLc+JA5zLq5MmKDMdiUhWD/9NF6Vk141JIQ=
+	=
+X-Received: by 2002:a05:6000:178a:b0:3c8:9438:8b93 with SMTP id ffacd0b85a97d-3c894388fa3mr7039270f8f.60.1756221866121;
+        Tue, 26 Aug 2025 08:24:26 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH7tUX8+axqOYguUOQKRRwlbVCfKARwI+7junufYEnF30XOVYwqq/xeCLNzXlGq7X6f4v1Ocg==
+X-Received: by 2002:a05:6000:178a:b0:3c8:9438:8b93 with SMTP id ffacd0b85a97d-3c894388fa3mr7039200f8f.60.1756221865437;
+        Tue, 26 Aug 2025 08:24:25 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c70eb7eed5sm16180834f8f.18.2025.08.26.08.24.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Aug 2025 08:24:24 -0700 (PDT)
+Message-ID: <e91f7a38-3b17-4a0c-aedb-8b404d40cf59@redhat.com>
+Date: Tue, 26 Aug 2025 17:24:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 08/10] mm: update fork mm->flags initialisation to use
+ bitmap
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
+ <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
+ <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ David Rientjes <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>,
+ Kan Liang <kan.liang@linux.intel.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Matthew Wilcox <willy@infradead.org>,
+ Mateusz Guzik <mjguzik@gmail.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+ linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
+References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
+ <9fb8954a7a0f0184f012a8e66f8565bcbab014ba.1755012943.git.lorenzo.stoakes@oracle.com>
+ <73a39f45-e10c-42f8-819b-7289733eae03@redhat.com>
+ <d4f8346d-42eb-48db-962d-6bc0fc348510@lucifer.local>
+ <d39e029a-8c12-42fb-8046-8e4a568134dc@redhat.com>
+ <1743164d-c2d2-44a1-a2a9-aeeed8c13bc8@lucifer.local>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <1743164d-c2d2-44a1-a2a9-aeeed8c13bc8@lucifer.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This commit enables the asynchronous hash interface in dm-integrity.
+On 26.08.25 16:32, Lorenzo Stoakes wrote:
+> On Tue, Aug 26, 2025 at 04:28:20PM +0200, David Hildenbrand wrote:
+>> On 26.08.25 16:21, Lorenzo Stoakes wrote:
+>>> On Tue, Aug 26, 2025 at 03:12:08PM +0200, David Hildenbrand wrote:
+>>>> On 12.08.25 17:44, Lorenzo Stoakes wrote:
+>>>>> We now need to account for flag initialisation on fork. We retain the
+>>>>> existing logic as much as we can, but dub the existing flag mask legacy.
+>>>>>
+>>>>> These flags are therefore required to fit in the first 32-bits of the flags
+>>>>> field.
+>>>>>
+>>>>> However, further flag propagation upon fork can be implemented in mm_init()
+>>>>> on a per-flag basis.
+>>>>>
+>>>>> We ensure we clear the entire bitmap prior to setting it, and use
+>>>>> __mm_flags_get_word() and __mm_flags_set_word() to manipulate these legacy
+>>>>> fields efficiently.
+>>>>>
+>>>>> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+>>>>> ---
+>>>>>     include/linux/mm_types.h | 13 ++++++++++---
+>>>>>     kernel/fork.c            |  7 +++++--
+>>>>>     2 files changed, 15 insertions(+), 5 deletions(-)
+>>>>>
+>>>>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+>>>>> index 38b3fa927997..25577ab39094 100644
+>>>>> --- a/include/linux/mm_types.h
+>>>>> +++ b/include/linux/mm_types.h
+>>>>> @@ -1820,16 +1820,23 @@ enum {
+>>>>>     #define MMF_TOPDOWN		31	/* mm searches top down by default */
+>>>>>     #define MMF_TOPDOWN_MASK	_BITUL(MMF_TOPDOWN)
+>>>>> -#define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+>>>>> +#define MMF_INIT_LEGACY_MASK	(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+>>>>>     				 MMF_DISABLE_THP_MASK | MMF_HAS_MDWE_MASK |\
+>>>>>     				 MMF_VM_MERGE_ANY_MASK | MMF_TOPDOWN_MASK)
+>>>>> -static inline unsigned long mmf_init_flags(unsigned long flags)
+>>>>> +/* Legacy flags must fit within 32 bits. */
+>>>>> +static_assert((u64)MMF_INIT_LEGACY_MASK <= (u64)UINT_MAX);
+>>>>
+>>>> Why not use the magic number 32 you are mentioning in the comment? :)
+>>>
+>>> Meh I mean UINT_MAX works as a good 'any bit' mask and this will work on
+>>> both 32-bit and 64-bit systems.
+>>>
+>>>>
+>>>> static_assert((u32)MMF_INIT_LEGACY_MASK != MMF_INIT_LEGACY_MASK);
+>>>
+>>> On 32-bit that'd not work would it?
+>>
+>> On 32bit, BIT(32) would exceed the shift width of unsigned long -> undefined
+>> behavior.
+>>
+>> The compiler should naturally complain.
+> 
+> Yeah, I don't love that sorry. Firstly it's a warning, so you may well miss it
+> (I just tried), 
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
----
- drivers/md/dm-integrity.c |  196 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 162 insertions(+), 34 deletions(-)
+Upstream bots usually complain at you for warnings :P
 
-Index: linux-2.6/drivers/md/dm-integrity.c
-===================================================================
---- linux-2.6.orig/drivers/md/dm-integrity.c	2025-08-25 18:17:21.000000000 +0200
-+++ linux-2.6/drivers/md/dm-integrity.c	2025-08-25 22:08:31.000000000 +0200
-@@ -224,6 +224,7 @@ struct dm_integrity_c {
- 	int failed;
- 
- 	struct crypto_shash *internal_shash;
-+	struct crypto_ahash *internal_ahash;
- 	unsigned int internal_hash_digestsize;
- 
- 	struct dm_target *ti;
-@@ -1636,8 +1637,8 @@ static void integrity_end_io(struct bio
- 	dec_in_flight(dio);
- }
- 
--static void integrity_sector_checksum(struct dm_integrity_c *ic, sector_t sector,
--				      const char *data, unsigned offset, char *result)
-+static void integrity_sector_checksum_shash(struct dm_integrity_c *ic, sector_t sector,
-+					    const char *data, unsigned offset, char *result)
- {
- 	__le64 sector_le = cpu_to_le64(sector);
- 	SHASH_DESC_ON_STACK(req, ic->internal_shash);
-@@ -1689,14 +1690,84 @@ failed:
- 	get_random_bytes(result, ic->tag_size);
- }
- 
-+static void integrity_sector_checksum_ahash(struct dm_integrity_c *ic, sector_t sector,
-+					    struct page *page, unsigned offset, char *result)
-+{
-+	__le64 sector_le = cpu_to_le64(sector);
-+	HASH_REQUEST_ON_STACK(req, ic->internal_ahash);
-+	DECLARE_CRYPTO_WAIT(wait);
-+	struct scatterlist sg[3], *s = sg;
-+	int r;
-+	unsigned int digest_size;
-+	unsigned int nbytes = 0;
-+
-+	might_sleep();
-+
-+	req->base.flags &= ~CRYPTO_TFM_REQ_ON_STACK;
-+	ahash_request_set_callback(req, 0, crypto_req_done, &wait);
-+
-+	if (ic->sb->flags & cpu_to_le32(SB_FLAG_FIXED_HMAC)) {
-+		sg_init_table(sg, 3);
-+		sg_set_buf(s, (const __u8 *)&ic->sb->salt, SALT_SIZE);
-+		nbytes += SALT_SIZE;
-+		s++;
-+	} else {
-+		sg_init_table(sg, 2);
-+	}
-+
-+	if (likely(!is_vmalloc_addr(&sector_le))) {
-+		sg_set_buf(s, &sector_le, sizeof(sector_le));
-+	} else {
-+		struct page *sec_page = vmalloc_to_page(&sector_le);
-+		unsigned int sec_off = offset_in_page(&sector_le);
-+		sg_set_page(s, sec_page, sizeof(sector_le), sec_off);
-+	}
-+	s++;
-+	nbytes += sizeof(sector_le);
-+
-+	sg_set_page(s, page, ic->sectors_per_block << SECTOR_SHIFT, offset);
-+	nbytes += ic->sectors_per_block << SECTOR_SHIFT;
-+
-+	ahash_request_set_crypt(req, sg, result, nbytes);
-+
-+	r = crypto_wait_req(crypto_ahash_digest(req), &wait);
-+	if (unlikely(r)) {
-+		dm_integrity_io_error(ic, "crypto_ahash_digest", r);
-+		goto failed;
-+	}
-+
-+	digest_size = ic->internal_hash_digestsize;
-+	if (unlikely(digest_size < ic->tag_size))
-+		memset(result + digest_size, 0, ic->tag_size - digest_size);
-+
-+	return;
-+
-+failed:
-+	/* this shouldn't happen anyway, the hash functions have no reason to fail */
-+	get_random_bytes(result, ic->tag_size);
-+}
-+
-+static void integrity_sector_checksum(struct dm_integrity_c *ic, sector_t sector,
-+				      const char *data, unsigned offset, char *result)
-+{
-+	if (likely(ic->internal_shash != NULL))
-+		integrity_sector_checksum_shash(ic, sector, data, offset, result);
-+	else
-+		integrity_sector_checksum_ahash(ic, sector, (struct page *)data, offset, result);
-+}
-+
- static void *integrity_kmap(struct dm_integrity_c *ic, struct page *p)
- {
--	return kmap_local_page(p);
-+	if (likely(ic->internal_shash != NULL))
-+		return kmap_local_page(p);
-+	else
-+		return p;
- }
- 
- static void integrity_kunmap(struct dm_integrity_c *ic, const void *ptr)
- {
--	kunmap_local(ptr);
-+	if (likely(ic->internal_shash != NULL))
-+		kunmap_local(ptr);
- }
- 
- static void *integrity_identity(struct dm_integrity_c *ic, void *data)
-@@ -1705,7 +1776,10 @@ static void *integrity_identity(struct d
- 	BUG_ON(offset_in_page(data));
- 	BUG_ON(!virt_addr_valid(data));
- #endif
--	return data;
-+	if (likely(ic->internal_shash != NULL))
-+		return data;
-+	else
-+		return virt_to_page(data);
- }
- 
- static noinline void integrity_recheck(struct dm_integrity_io *dio, char *checksum)
-@@ -2623,32 +2697,58 @@ static void dm_integrity_inline_recheck(
- 	bio_endio(bio);
- }
- 
-+static inline bool dm_integrity_check(struct dm_integrity_c *ic, struct dm_integrity_io *dio)
-+{
-+	struct bio *bio = dm_bio_from_per_bio_data(dio, sizeof(struct dm_integrity_io));
-+	unsigned pos = 0;
-+
-+	while (dio->bio_details.bi_iter.bi_size) {
-+		char digest[HASH_MAX_DIGESTSIZE];
-+		struct bio_vec bv = bio_iter_iovec(bio, dio->bio_details.bi_iter);
-+		char *mem = integrity_kmap(ic, bv.bv_page);
-+		integrity_sector_checksum(ic, dio->bio_details.bi_iter.bi_sector, mem, bv.bv_offset, digest);
-+		if (unlikely(crypto_memneq(digest, dio->integrity_payload + pos,
-+				min(ic->internal_hash_digestsize, ic->tag_size)))) {
-+			integrity_kunmap(ic, mem);
-+			dm_integrity_free_payload(dio);
-+			INIT_WORK(&dio->work, dm_integrity_inline_recheck);
-+			queue_work(ic->offload_wq, &dio->work);
-+			return false;
-+		}
-+		integrity_kunmap(ic, mem);
-+		pos += ic->tuple_size;
-+		bio_advance_iter_single(bio, &dio->bio_details.bi_iter, ic->sectors_per_block << SECTOR_SHIFT);
-+	}
-+
-+	return true;
-+}
-+
-+static void dm_integrity_inline_async_check(struct work_struct *w)
-+{
-+	struct dm_integrity_io *dio = container_of(w, struct dm_integrity_io, work);
-+	struct bio *bio = dm_bio_from_per_bio_data(dio, sizeof(struct dm_integrity_io));
-+	struct dm_integrity_c *ic = dio->ic;
-+
-+	if (likely(dm_integrity_check(ic, dio)))
-+		bio_endio(bio);
-+}
-+
- static int dm_integrity_end_io(struct dm_target *ti, struct bio *bio, blk_status_t *status)
- {
- 	struct dm_integrity_c *ic = ti->private;
- 	if (ic->mode == 'I') {
- 		struct dm_integrity_io *dio = dm_per_bio_data(bio, sizeof(struct dm_integrity_io));
--		if (dio->op == REQ_OP_READ && likely(*status == BLK_STS_OK)) {
--			unsigned pos = 0;
-+		if (dio->op == REQ_OP_READ && likely(*status == BLK_STS_OK) && likely(dio->bio_details.bi_iter.bi_size != 0)) {
- 			if (ic->sb->flags & cpu_to_le32(SB_FLAG_RECALCULATING) &&
- 			    unlikely(dio->integrity_range_locked))
--				goto skip_check;
--			while (dio->bio_details.bi_iter.bi_size) {
--				char digest[HASH_MAX_DIGESTSIZE];
--				struct bio_vec bv = bio_iter_iovec(bio, dio->bio_details.bi_iter);
--				char *mem = integrity_kmap(ic, bv.bv_page);
--				integrity_sector_checksum(ic, dio->bio_details.bi_iter.bi_sector, mem, bv.bv_offset, digest);
--				if (unlikely(crypto_memneq(digest, dio->integrity_payload + pos,
--						min(ic->internal_hash_digestsize, ic->tag_size)))) {
--					integrity_kunmap(ic, mem);
--					dm_integrity_free_payload(dio);
--					INIT_WORK(&dio->work, dm_integrity_inline_recheck);
--					queue_work(ic->offload_wq, &dio->work);
-+			    	goto skip_check;
-+			if (likely(ic->internal_shash != NULL)) {
-+				if (unlikely(!dm_integrity_check(ic, dio)))
- 					return DM_ENDIO_INCOMPLETE;
--				}
--				integrity_kunmap(ic, mem);
--				pos += ic->tuple_size;
--				bio_advance_iter_single(bio, &dio->bio_details.bi_iter, ic->sectors_per_block << SECTOR_SHIFT);
-+			} else {
-+				INIT_WORK(&dio->work, dm_integrity_inline_async_check);
-+				queue_work(ic->offload_wq, &dio->work);
-+				return DM_ENDIO_INCOMPLETE;
- 			}
- 		}
- skip_check:
-@@ -4229,27 +4329,49 @@ nomem:
- 	return -ENOMEM;
- }
- 
--static int get_mac(struct crypto_shash **hash, struct alg_spec *a, char **error,
--		   char *error_alg, char *error_key)
-+static int get_mac(struct crypto_shash **shash, struct crypto_ahash **ahash,
-+		   struct alg_spec *a, char **error, char *error_alg, char *error_key)
- {
- 	int r;
- 
- 	if (a->alg_string) {
--		*hash = crypto_alloc_shash(a->alg_string, 0, CRYPTO_ALG_ALLOCATES_MEMORY);
--		if (IS_ERR(*hash)) {
-+		if (ahash) {
-+			*ahash = crypto_alloc_ahash(a->alg_string, 0, CRYPTO_ALG_ALLOCATES_MEMORY);
-+			if (IS_ERR(*ahash)) {
-+				*ahash = NULL;
-+				goto try_shash;
-+			}
-+
-+			if (a->key) {
-+				r = crypto_ahash_setkey(*ahash, a->key, a->key_size);
-+				if (r) {
-+					*error = error_key;
-+					return r;
-+				}
-+			} else if (crypto_ahash_get_flags(*ahash) & CRYPTO_TFM_NEED_KEY) {
-+				*error = error_key;
-+				return -ENOKEY;
-+			}
-+
-+			return 0;
-+		}
-+
-+try_shash:
-+		*shash = crypto_alloc_shash(a->alg_string, 0, CRYPTO_ALG_ALLOCATES_MEMORY);
-+		if (IS_ERR(*shash)) {
- 			*error = error_alg;
--			r = PTR_ERR(*hash);
--			*hash = NULL;
-+			r = PTR_ERR(*shash);
-+			*shash = NULL;
- 			return r;
- 		}
- 
- 		if (a->key) {
--			r = crypto_shash_setkey(*hash, a->key, a->key_size);
-+			r = crypto_shash_setkey(*shash, a->key, a->key_size);
- 			if (r) {
- 				*error = error_key;
- 				return r;
- 			}
--		} else if (crypto_shash_get_flags(*hash) & CRYPTO_TFM_NEED_KEY) {
-+		} else if (crypto_shash_get_flags(*shash) & CRYPTO_TFM_NEED_KEY) {
- 			*error = error_key;
- 			return -ENOKEY;
- 		}
-@@ -4709,7 +4831,7 @@ static int dm_integrity_ctr(struct dm_ta
- 		buffer_sectors = 1;
- 	ic->log2_buffer_sectors = min((int)__fls(buffer_sectors), 31 - SECTOR_SHIFT);
- 
--	r = get_mac(&ic->internal_shash, &ic->internal_hash_alg, &ti->error,
-+	r = get_mac(&ic->internal_shash, &ic->internal_ahash, &ic->internal_hash_alg, &ti->error,
- 		    "Invalid internal hash", "Error setting internal hash key");
- 	if (r)
- 		goto bad;
-@@ -4717,8 +4839,12 @@ static int dm_integrity_ctr(struct dm_ta
- 		ic->internal_hash = true;
- 		ic->internal_hash_digestsize = crypto_shash_digestsize(ic->internal_shash);
- 	}
-+	if (ic->internal_ahash) {
-+		ic->internal_hash = true;
-+		ic->internal_hash_digestsize = crypto_ahash_digestsize(ic->internal_ahash);
-+	}
- 
--	r = get_mac(&ic->journal_mac, &ic->journal_mac_alg, &ti->error,
-+	r = get_mac(&ic->journal_mac, NULL, &ic->journal_mac_alg, &ti->error,
- 		    "Invalid journal mac", "Error setting journal mac key");
- 	if (r)
- 		goto bad;
-@@ -5240,6 +5366,8 @@ static void dm_integrity_dtr(struct dm_t
- 
- 	if (ic->internal_shash)
- 		crypto_free_shash(ic->internal_shash);
-+	if (ic->internal_ahash)
-+		crypto_free_ahash(ic->internal_ahash);
- 	free_alg(&ic->internal_hash_alg);
- 
- 	if (ic->journal_crypt)
-@@ -5256,7 +5384,7 @@ static void dm_integrity_dtr(struct dm_t
- 
- static struct target_type integrity_target = {
- 	.name			= "integrity",
--	.version		= {1, 13, 0},
-+	.version		= {1, 14, 0},
- 	.module			= THIS_MODULE,
- 	.features		= DM_TARGET_SINGLETON | DM_TARGET_INTEGRITY,
- 	.ctr			= dm_integrity_ctr,
+> and secondly you're making the static assert not have any
+> meaning except that you expect to trigger a compiler warning, it's a bit
+> bizarre.
+
+On 64 bit where BIT(32) *makes any sense* it triggers as expected, no?
+
+> 
+> My solution works (unless you can see a reason it shouldn't) and I don't find
+> this approach any simpler.
+
+Please explain to me like I am a 5 yo how your approach works with 
+BIT(32) on 32bit when the behavior on 32bit is undefined. :P
+
+-- 
+Cheers
+
+David / dhildenb
 
