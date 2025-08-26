@@ -1,53 +1,83 @@
-Received: from bmailout3.hostsharing.net (bmailout3.hostsharing.net [176.9.242.62])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D882F549D;
-	Tue, 26 Aug 2025 06:27:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=176.9.242.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D423D1D5178;
+	Tue, 26 Aug 2025 08:02:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756189671; cv=none; b=F0lG6GjQM3Lwtx1ZchWnw3DUrc+CH/FmsEgeNAAIOAhcqPeLRccmofN5tEcV1p/ABCqufIB4XItBqnj8a4KzlCBWTGYzGyH10jEzYMpfOJpzqphAy/dakhnLWV9cuDqpDU5TLFMiCiXAtALrL2zjG4qQl/g/krQQo1nZzFbainE=
+	t=1756195335; cv=none; b=J4udfB6r/Knp6lcRebfuBgkC6etGTzUzCLkzA0l/LX3shmBo+xkpqQBrHTIDZk2uCsge/zvy75ucKk9Y9ZDNeMTtoE76sFE3HGB+yDQeqQE5nvQUzhttPmiSKo+BhFC13xNw+kDPgmU+33GtY7KmjHa8DMW30Frv1uGk3ULjaQg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756189671; c=relaxed/simple;
-	bh=eJdhr9QAnQbhJigRdWkMkHg67d1ZyhomMniXPLkN5oA=;
+	s=arc-20240116; t=1756195335; c=relaxed/simple;
+	bh=8oS45OZxsUUtLvXW5qoqxb0N051dvs8OmIcJ9ROhSpQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kU9PlcVP/9Xa6AexRQzmjyghMkq5HNyD9U2LiI1qL/bV4oykxEf91i/uf0iNah7fMuJsTA/N6dofhAZ53M8mlx5bIgxwIj+wt6ZppcwnKeUtTau6p0OP5kzNTFeKWpxFH+bmU3DKTsXPCKV2cF4ufTk+oh8OekftWI1k9K8VT6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=none smtp.mailfrom=h08.hostsharing.net; arc=none smtp.client-ip=176.9.242.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=h08.hostsharing.net
-Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by bmailout3.hostsharing.net (Postfix) with ESMTPS id 4063C2C05262;
-	Tue, 26 Aug 2025 08:21:24 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-	id 16EC962C37; Tue, 26 Aug 2025 08:21:24 +0200 (CEST)
-Date: Tue, 26 Aug 2025 08:21:24 +0200
-From: Lukas Wunner <lukas@wunner.de>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
-	Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
-	Linas Vepstas <linasvepstas@gmail.com>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	 Content-Type:Content-Disposition:In-Reply-To; b=DM8xI+gxl4RU5ipYLZRAtJ41sijTp+JvWwop6qqFHofNpT1fI8NkAKkhWhp9j+tht+7SAPeIbzd/tVAEB4ajuBUcuMbigl0XXg5Se6eiFErHw4bM/TxiHDcBKxHxpWNEBWdcK/CKtVDr2V4vJHfcXnM41+W+ARd4Tq0bR7cJbaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=YRNJLkkG; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="YRNJLkkG"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=MeaWqH2Rz3f87zQ3/bNc5oTQxLBcu0GLQKcR2xh3Qso=; b=YRNJLkkGouui1FXZAEdgnAYbtq
+	nObm01fOGuFzOAUKso2zWlt0z2cLuE4vbV+flWhLC7PGgdGG+6C5SWh1Sstq1NVW3KejpgeiNZLqL
+	Wg+R9GabyRFIyGtmOF9OoPtvi4sBIPJ4/ie2WcsQ4SEdUcc/XgDpKvsDpQ3jddTkRKOTJrfpdlPd3
+	t0w3QbF1YJ+/v65cMQCWFYrMOntKPAijSzY6PW6irY2KhIyKAnJt0x6jDQwJCGHeRFAG2I8NwB5XW
+	tksAkp+jD/Bdrcmvf5rrHrixtTxpOu2xCmZbJ/QzdoKQfxu03AedLbJk27bejPLIXds4Lc1xG0/fO
+	405uTk/A==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uqocO-00000002AI3-15mB;
+	Tue, 26 Aug 2025 08:01:24 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 134803002C5; Tue, 26 Aug 2025 10:01:23 +0200 (CEST)
+Date: Tue, 26 Aug 2025 10:01:23 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Oliver O'Halloran <oohall@gmail.com>, Sinan Kaya <okaya@kernel.org>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-	Keith Busch <kbusch@kernel.org>
-Subject: Re: [PATCH v5 0/3] PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI
- recovery
-Message-ID: <aK1SZGJBjrOx0s6y@wunner.de>
-References: <20250807-add_err_uevents-v5-0-adf85b0620b0@linux.ibm.com>
- <20250814210201.GA348169@bhelgaas>
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	thomas.weissschuh@linutronix.de, Li Chen <chenl311@chinatelecom.cn>,
+	Bibo Mao <maobibo@loongson.cn>, Mete Durlu <meted@linux.ibm.com>,
+	Tobias Huschle <huschle@linux.ibm.com>,
+	Easwar Hariharan <easwar.hariharan@linux.microsoft.com>,
+	Guo Weikang <guoweikang.kernel@gmail.com>,
+	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+	Brian Gerst <brgerst@gmail.com>,
+	Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
+	Swapnil Sapkal <swapnil.sapkal@amd.com>,
+	"Yury Norov [NVIDIA]" <yury.norov@gmail.com>,
+	Sudeep Holla <sudeep.holla@arm.com>,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+	Andrea Righi <arighi@nvidia.com>,
+	Yicong Yang <yangyicong@hisilicon.com>,
+	Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
+	Tim Chen <tim.c.chen@linux.intel.com>,
+	Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Subject: Re: [PATCH v7 5/8] sched/topology: Unify tl_smt_mask() across core
+ and all arch
+Message-ID: <20250826080123.GB3245006@noisy.programming.kicks-ass.net>
+References: <20250826041319.1284-1-kprateek.nayak@amd.com>
+ <20250826041319.1284-6-kprateek.nayak@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -56,64 +86,32 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250814210201.GA348169@bhelgaas>
+In-Reply-To: <20250826041319.1284-6-kprateek.nayak@amd.com>
 
-On Thu, Aug 14, 2025 at 04:02:01PM -0500, Bjorn Helgaas wrote:
-> On Thu, Aug 07, 2025 at 03:55:37PM +0200, Niklas Schnelle wrote:
-> > Niklas Schnelle (3):
-> >       PCI/AER: Fix missing uevent on recovery when a reset is requested
-> >       PCI/ERR: s390/pci: Use pci_uevent_ers() in PCI recovery
-> >       powerpc/eeh: Use result of error_detected() in uevent
-> > 
-> >  arch/powerpc/kernel/eeh_driver.c | 2 +-
-> >  arch/s390/pci/pci_event.c        | 3 +++
-> >  drivers/pci/pci-driver.c         | 3 ++-
-> >  include/linux/pci.h              | 2 +-
-> >  4 files changed, 7 insertions(+), 3 deletions(-)
-> 
-> Applied on pci/aer for v6.18, thanks!  This on top of Lukas's series:
-> 
->   https://lore.kernel.org/all/cover.1755008151.git.lukas@wunner.de/
-> 
-> Expect the whole branch to be rebased to add Reviewed-by, etc.
+> diff --git a/include/linux/sched/topology.h b/include/linux/sched/topology.h
+> index 602508130c8a..d75fbb7d9667 100644
+> --- a/include/linux/sched/topology.h
+> +++ b/include/linux/sched/topology.h
+> @@ -37,7 +37,13 @@ static inline int cpu_smt_flags(void)
+>  {
+>  	return SD_SHARE_CPUCAPACITY | SD_SHARE_LLC;
+>  }
+> -#endif
+> +
+> +static const __maybe_unused
+> +struct cpumask *tl_smt_mask(struct sched_domain_topology_level *tl, int cpu)
+> +{
+> +	return cpu_smt_mask(cpu);
+> +}
+> +#endif /* CONFIG_SCHED_SMT */
 
-In case it helps, these are all the tags that were offered for my series
-and that haven't been added to the pci/aer branch yet:
+Problem with that __maybe_unused is that you forgot inline.
 
-d0a2dee7d458 PCI/AER: Allow drivers to opt in to Bus Reset on Non-Fatal Errors
-  Reviewed-by: Linas Vepstas <linasvepstas@gmail.com>
-  https://lore.kernel.org/r/CAHrUA34fVV48MShC4CrXSmveR9i8MC4KAQxtM+XQY_Ao8joBQw@mail.gmail.com/
-  Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-  https://lore.kernel.org/r/8491adbd-d8e8-465a-971e-3fe50e2561b1@linux.intel.com/
+static inline const
+struct cpumask *tl_smt_mask(struct sched_domain_topology_level *tl, int cpu)
+{
+	return cpu_smt_mask(cpu);
+}
 
-1cbc5e25fb70 PCI/ERR: Fix uevent on failure to recover
-  Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-  https://lore.kernel.org/r/f0b59604-ae4d-4afe-8522-a8fbe5568e96@linux.intel.com/
-  Reviewed-by: Linas Vepstas <linasvepstas@gmail.com>
-  https://lore.kernel.org/r/CAHrUA34fVV48MShC4CrXSmveR9i8MC4KAQxtM+XQY_Ao8joBQw@mail.gmail.com/
-  Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-  https://lore.kernel.org/r/a4419480c3d494a5940e87fea0c7b9864dc3e85b.camel@linux.ibm.com/
+seems to make it happy.
 
-9011f0667c93 PCI/ERR: Notify drivers on failure to recover
-  Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-  https://lore.kernel.org/r/fa9f42ab-bced-4c7f-9977-c0b611e92e2e@linux.intel.com/
-  Reviewed-by: Linas Vepstas <linasvepstas@gmail.com>
-  https://lore.kernel.org/r/CAHrUA34fVV48MShC4CrXSmveR9i8MC4KAQxtM+XQY_Ao8joBQw@mail.gmail.com/
-
-45bc82563d55 PCI/ERR: Update device error_state already after reset
-  Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-  https://lore.kernel.org/r/004298f7-ae08-428e-9b98-995fc56e55b1@linux.intel.com/
-  Reviewed-by: Linas Vepstas <linasvepstas@gmail.com>
-  https://lore.kernel.org/r/CAHrUA34fVV48MShC4CrXSmveR9i8MC4KAQxtM+XQY_Ao8joBQw@mail.gmail.com/
-
-cc4a7a21e815 PCI/ERR: Remove remnants of .link_reset() callback
-  Reviewed-by: Linas Vepstas <linasvepstas@gmail.com>
-  https://lore.kernel.org/r/CAHrUA34fVV48MShC4CrXSmveR9i8MC4KAQxtM+XQY_Ao8joBQw@mail.gmail.com/
-  Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-  https://lore.kernel.org/r/59308229-24ed-4b8a-b398-cc47c61dfc47@linux.intel.com/
-  Reviewed-by: Justin Tee <justin.tee@broadcom.com>
-  https://lore.kernel.org/r/CABPRKS_Ut8Z+rvM4+-E0YvEwUKbMb0SDpLBdH+g1sYEh+YcxFA@mail.gmail.com/
-
-Thanks!
-
-Lukas
