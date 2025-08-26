@@ -1,154 +1,278 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAAFF35083A
-	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 15:48:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D1633164A3
+	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 15:53:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756223336; cv=none; b=QAlXmsCbhmOjYKqt6AKCKNvjovCRl2sfj84f8TjzSF1tUghU3Cl9qQzmRLtZWU1zmqBBkPKL/b2yluQJvbb84xZOBQRSjtYhlzy1h90n0u0m1h7RADVi/SDp/U5F8yMj8PA0JNf4uzpWthc5+cbyz1h7ktOQXB9GPJQe1x70alE=
+	t=1756223626; cv=none; b=XXL3rgADJDlZThORZfR8IL8HYNZ9XWypTErOP83Mi4WdZNYtPgGNa3zU7sIOBORxQ/br41moyFfex5EUrT80VFUNcmma76F6Btwr4sx6Eq7kNvdbwV9wwVZeHYH2aRygHsRPVYZpd+kPUckrtVMP4R74NbWjM0sHLmkkWgFJ4i4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756223336; c=relaxed/simple;
-	bh=Y0eks1YaOqbzuug07KZLAOR4Y6H+hh0TiHWBe8OcU2k=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KDxF8Kuy+T2icdLO+0FgZRwnzK4X/evJpDtv1IAyVlmw5z0nd8SjL3zprKVMHlEZxGPdUELjVlb/r9+i6nVk3+niqiHSZkpupvlKEHF+gyuVDaF0fx7STIAGl60Yj411uxYCE7DXxsLafN1Pd1i3hNyszMioanx1aP8Uu190pZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TVg1fBmV; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1756223626; c=relaxed/simple;
+	bh=P69Cksxfe/Q80STdfcKyieBFfFGdz3o3/vzI06BYov8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YgVUOI6+xnZ1qiTSGCYh1yiwUModqWE3tnvcc2CK7dKqmFc6eB+rKVH3ZJj8MqjdnRr55QHW9ysFLLSFdWhsbnfLeFZnzGF1iFrJVZS7We7DJ5CpBRJQCD2TGSLEmaoV7wrp/2PNd6STvcqoDkw5x19of3Wq4iWCSnLDJktebu0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A5Dlq2GW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TVg1fBmV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A5Dlq2GW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756223333;
+	s=mimecast20190719; t=1756223623;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BHNXd9VyNqrFX2UZhtEPC0je8otxXnW6I6u8evl0zzQ=;
-	b=TVg1fBmV7p5m4UX/x6AIMhxPN8s3uOrqcuzN3MJ+qUuE9JgUNWLaP5OUuiX022e2yH1waa
-	jT/WsenKad/kzo/mZXy5p11LQ6X8TIfJvv00Ar+wjiEVZ6rlaRr32mD+FJ2MjT/NjObxT/
-	Wf3SZESvgYod++UXm0lGgZH6o/LVo8k=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=+U14wXv0VhbfGH2miM5ngrvAv4bmmIvsTMUNtMccNUc=;
+	b=A5Dlq2GW+ORpVuFEmP1VF3Zeib4UDYuxfS/4IjSp4NZEVVcyvUa4sEWkUNv62dHaFXO5pQ
+	1S+LkxXkV2Xtgq+Wy1t2wxNx/tl0BFLalH480JCWQSqmXudC8iPK4UDn5KT2LoZDyR7Qig
+	z3xEHK0Sh56NxBgnlkm7sd13qcegodU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-397-PgHne1VwOxy_s2yKCkRoTA-1; Tue, 26 Aug 2025 11:48:50 -0400
-X-MC-Unique: PgHne1VwOxy_s2yKCkRoTA-1
-X-Mimecast-MFC-AGG-ID: PgHne1VwOxy_s2yKCkRoTA_1756223329
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-3ef2fe37189so1100635ab.1
-        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 08:48:50 -0700 (PDT)
+ us-mta-391-OYompIc3NuSN4BEaiBv1rw-1; Tue, 26 Aug 2025 11:53:41 -0400
+X-MC-Unique: OYompIc3NuSN4BEaiBv1rw-1
+X-Mimecast-MFC-AGG-ID: OYompIc3NuSN4BEaiBv1rw_1756223621
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45b4e345ce4so22027745e9.2
+        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 08:53:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756223329; x=1756828129;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BHNXd9VyNqrFX2UZhtEPC0je8otxXnW6I6u8evl0zzQ=;
-        b=oZ5N7Jzn+fGBt/+N81TEzYfb0KRNvftXz4MNtoSSOJ2DqQVi2UT1POcI6X5kQi5cIk
-         BI7R25pjiYGu2y9xsxFSH2ohBErR/xLQr4r2lZwbK2XmYWO3gd6s1KA9qdQCg71W3O5f
-         RcH/U/wZ0XlW3dzvoMNm3aBJbPBRLq4aKpK04WkZXBNvtnCGpK09RDkMejIcrCLmBReS
-         IxvxZS6hf5bk2bkm6fnXt4+w6TwOzSW7GOO1cIoZGoCe1jW1Dks9Z30zIubFFYZc7lVo
-         MPd1+UfMBgJjiAJV2lMxJmPkovrzb27hjm4rplffhVS9JetbILEEBC5SJ3tEb/L7FqGW
-         lNXw==
-X-Gm-Message-State: AOJu0YzoKrFJboMM55g3RXeWRqRRrU1fBwoW4eJGryn9eTORUnIX6lWM
-	Ijbi6fQdKzoByPuspa+htX8duegcq5GFKQRMEmCc4j7A7y4EJ/GYcQero/KCPoF0FktagdToa01
-	foSru3K4CnG2mrqPr/GxFHeOC4IltaiGNiqcMvPb/aqQISVoEMfAhqap3QCDseho=
-X-Gm-Gg: ASbGncvheNhH3YEoXh+bijvjR/PjsGrDcQd26X5SP1KnWd6kzlOfNvGiDmiC9zGdlo3
-	aQD7viuwJIKbM9KriEXnBlGsxFka22DsCbm7eMAqevhwbB74YVSBgjwYQV2YjrFKsnMeKSub1cS
-	HUrlyuEDybjwwImfSbqXffCrpLc0LiCBUgWjcVCl1DiWw6Ih8rRerx4h8Fva/OwPihH92KLq582
-	t0BFm0uBMtPfwAG2VeOowiH11WRjXoMhlY0W4MbO+zBoLPioiz8donB+HZSvdH4JGjhK0rRvCJr
-	gBBZTOwL+jKJAVCK5vImuSJofYlIgRZsM6WNV9Zde/E=
-X-Received: by 2002:a05:6e02:1a48:b0:3e6:67f9:2061 with SMTP id e9e14a558f8ab-3e91cfae117mr88824215ab.0.1756223329379;
-        Tue, 26 Aug 2025 08:48:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE41ooOBFFuOfcZRxU06TfSGWwzTnjM8fsjevvJOvWhDhebSC+xJEVzKrEMkNTbsTkk0XUw5w==
-X-Received: by 2002:a05:6e02:1a48:b0:3e6:67f9:2061 with SMTP id e9e14a558f8ab-3e91cfae117mr88824085ab.0.1756223328938;
-        Tue, 26 Aug 2025 08:48:48 -0700 (PDT)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3ea4ec1f6d0sm68656065ab.40.2025.08.26.08.48.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Aug 2025 08:48:47 -0700 (PDT)
-Date: Tue, 26 Aug 2025 09:48:45 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, helgaas@kernel.org, schnelle@linux.ibm.com,
- mjrosato@linux.ibm.com
-Subject: Re: [PATCH v2 1/9] PCI: Avoid restoring error values in config
- space
-Message-ID: <20250826094845.517e0fa7.alex.williamson@redhat.com>
-In-Reply-To: <eb6d05d0-b448-4f4e-a734-50c56078dd9b@linux.ibm.com>
-References: <20250825171226.1602-1-alifm@linux.ibm.com>
-	<20250825171226.1602-2-alifm@linux.ibm.com>
-	<20250825153501.3a1d0f0c.alex.williamson@redhat.com>
-	<eb6d05d0-b448-4f4e-a734-50c56078dd9b@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+        d=1e100.net; s=20230601; t=1756223620; x=1756828420;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+U14wXv0VhbfGH2miM5ngrvAv4bmmIvsTMUNtMccNUc=;
+        b=HXFuQJuEei2fBgogNmVMJ9McVJbBFFwPjE26TjKIWL41iK8tj3JK5KajLv2w6Hbt2a
+         CaxkUUi25YmWlZDajN3bEf8NnWW9QU/Mx2Tx86yO1h9Wg3K0h/yrD5nT+qfK3zC4VnYW
+         /gkyx/yWUho8GMlifSXnRdUbQRTUwadPcH5KXQXivM1bvCXsYATVeDHz1EYnBZJRDGLW
+         oNKfoFUj7qpdeZRgTp9ReIZKUpQN7h72MKeSGoEr9ohlCWEDEHEKqAh+z8OouGGnjL6Q
+         IU8uGxAN2JCz0ub2EQxP20x/A15ox6CFpPfzotGJOWbLE4jLUqj+b7h3Jrrtnni264qL
+         cHFg==
+X-Forwarded-Encrypted: i=1; AJvYcCW3N8pVbfz9XJ5Rt9LNh+k2oba/Z5QxtwBlj1l1nym7FwH4paS32csEmk/SNyDLOZJDN9uiK4imSrHD@vger.kernel.org
+X-Gm-Message-State: AOJu0YzUwCUgO8Oh+PymDbYe1Hs2PEr4+mfRosQZK6Q6Ed6PCdn1U+3R
+	hRnEkhrGJ+ZxLB1szpVTY8i2gMvguJ24wvUA91wP7vFg8ic8qve5R+zm/QZqTO4khkwURlWmipg
+	EyIAZiLtge92qP4BQ9B3roYDvj+2ZCuFhDwx5eqlddtgTDcCtSSNA2/irWLUXd3Q=
+X-Gm-Gg: ASbGnct5Z+8sT/klA0QbezJ2opNAJE0KmwetBr7hHvFo0LdOaKXbkui24DbIWxSi+M9
+	NhQBlZY5yqgyDPSoq91pcg4iGvw2WRojG7ilF/eHgdcBN9LBrW5BMANvWRrB0rDYp0D8T/LyE8u
+	fBudryk8Ahpwb7cmg1wlyn/0EdkCzGhRG5FG0CQw4+lRygRoYNp/fb3yqR7453nXE4VLryMY1Z4
+	qLo2fiY0wa2LENrIIDCSiM0TT8a+znwYT9dcPBlF+2bRxhz4AO4g+a+2Zka8iqM/lOH2xJh9tbE
+	ZgU+GehbhFtqCAv+R4p/arLMKkBXKmAeN06cPGOKCztVGrC1my9legkxsNfNaZrTfB3FBCzE
+X-Received: by 2002:a05:600c:4ed0:b0:459:dfde:3323 with SMTP id 5b1f17b1804b1-45b517cfb81mr136206305e9.27.1756223620421;
+        Tue, 26 Aug 2025 08:53:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFSFZHuF3ZmBgbb1DmR6AWyXPp01fHC/E5LsiIPukWcFbvko5eip1UQdcjgn0D15hklxp1KaQ==
+X-Received: by 2002:a05:600c:4ed0:b0:459:dfde:3323 with SMTP id 5b1f17b1804b1-45b517cfb81mr136205695e9.27.1756223619755;
+        Tue, 26 Aug 2025 08:53:39 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c711211cc8sm16703127f8f.36.2025.08.26.08.53.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Aug 2025 08:53:39 -0700 (PDT)
+Message-ID: <49df1a2a-7c5b-4ada-98b8-8d7871fd7228@redhat.com>
+Date: Tue, 26 Aug 2025 17:53:36 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 08/10] mm: update fork mm->flags initialisation to use
+ bitmap
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
+ <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
+ <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ David Rientjes <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>,
+ Kan Liang <kan.liang@linux.intel.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Matthew Wilcox <willy@infradead.org>,
+ Mateusz Guzik <mjguzik@gmail.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+ linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
+References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
+ <9fb8954a7a0f0184f012a8e66f8565bcbab014ba.1755012943.git.lorenzo.stoakes@oracle.com>
+ <73a39f45-e10c-42f8-819b-7289733eae03@redhat.com>
+ <d4f8346d-42eb-48db-962d-6bc0fc348510@lucifer.local>
+ <d39e029a-8c12-42fb-8046-8e4a568134dc@redhat.com>
+ <1743164d-c2d2-44a1-a2a9-aeeed8c13bc8@lucifer.local>
+ <e91f7a38-3b17-4a0c-aedb-8b404d40cf59@redhat.com>
+ <9e7f5149-afb7-4e94-b231-78876c41a438@lucifer.local>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <9e7f5149-afb7-4e94-b231-78876c41a438@lucifer.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Mon, 25 Aug 2025 15:13:00 -0700
-Farhan Ali <alifm@linux.ibm.com> wrote:
-
-> On 8/25/2025 2:35 PM, Alex Williamson wrote:
-> > On Mon, 25 Aug 2025 10:12:18 -0700
-> > Farhan Ali <alifm@linux.ibm.com> wrote:
-> >  
-> >> The current reset process saves the device's config space state before
-> >> reset and restores it afterward. However, when a device is in an error
-> >> state before reset, config space reads may return error values instead of
-> >> valid data. This results in saving corrupted values that get written back
-> >> to the device during state restoration. Add validation to prevent writing
-> >> error values to the device when restoring the config space state after
-> >> reset.
-> >>
-> >> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> >> ---
-> >>   drivers/pci/pci.c | 3 +++
-> >>   1 file changed, 3 insertions(+)
-> >>
-> >> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> >> index b0f4d98036cd..0dd95d782022 100644
-> >> --- a/drivers/pci/pci.c
-> >> +++ b/drivers/pci/pci.c
-> >> @@ -1825,6 +1825,9 @@ static void pci_restore_config_dword(struct pci_dev *pdev, int offset,
-> >>   	if (!force && val == saved_val)
-> >>   		return;
-> >>   
-> >> +	if (PCI_POSSIBLE_ERROR(saved_val))
-> >> +		return;
-> >> +
-> >>   	for (;;) {
-> >>   		pci_dbg(pdev, "restore config %#04x: %#010x -> %#010x\n",
-> >>   			offset, val, saved_val);  
-> >
-> > The commit log makes this sound like more than it is.  We're really
-> > only error checking the first 64 bytes of config space before restore,
-> > the capabilities are not checked.  I suppose skipping the BARs and
-> > whatnot is no worse than writing -1 to them, but this is only a
-> > complete solution in the narrow case where we're relying on vfio-pci to
-> > come in and restore the pre-open device state.
-> >
-> > I had imagined that pci_save_state() might detect the error state of
-> > the device, avoid setting state_saved, but we'd still perform the
-> > restore callouts that only rely on internal kernel state, maybe adding a
-> > fallback to restore the BARs from resource information.  
+On 26.08.25 17:39, Lorenzo Stoakes wrote:
+> On Tue, Aug 26, 2025 at 05:24:22PM +0200, David Hildenbrand wrote:
+>> On 26.08.25 16:32, Lorenzo Stoakes wrote:
+>>> On Tue, Aug 26, 2025 at 04:28:20PM +0200, David Hildenbrand wrote:
+>>>> On 26.08.25 16:21, Lorenzo Stoakes wrote:
+>>>>> On Tue, Aug 26, 2025 at 03:12:08PM +0200, David Hildenbrand wrote:
+>>>>>> On 12.08.25 17:44, Lorenzo Stoakes wrote:
+>>>>>>> We now need to account for flag initialisation on fork. We retain the
+>>>>>>> existing logic as much as we can, but dub the existing flag mask legacy.
+>>>>>>>
+>>>>>>> These flags are therefore required to fit in the first 32-bits of the flags
+>>>>>>> field.
+>>>>>>>
+>>>>>>> However, further flag propagation upon fork can be implemented in mm_init()
+>>>>>>> on a per-flag basis.
+>>>>>>>
+>>>>>>> We ensure we clear the entire bitmap prior to setting it, and use
+>>>>>>> __mm_flags_get_word() and __mm_flags_set_word() to manipulate these legacy
+>>>>>>> fields efficiently.
+>>>>>>>
+>>>>>>> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+>>>>>>> ---
+>>>>>>>      include/linux/mm_types.h | 13 ++++++++++---
+>>>>>>>      kernel/fork.c            |  7 +++++--
+>>>>>>>      2 files changed, 15 insertions(+), 5 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+>>>>>>> index 38b3fa927997..25577ab39094 100644
+>>>>>>> --- a/include/linux/mm_types.h
+>>>>>>> +++ b/include/linux/mm_types.h
+>>>>>>> @@ -1820,16 +1820,23 @@ enum {
+>>>>>>>      #define MMF_TOPDOWN		31	/* mm searches top down by default */
+>>>>>>>      #define MMF_TOPDOWN_MASK	_BITUL(MMF_TOPDOWN)
+>>>>>>> -#define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+>>>>>>> +#define MMF_INIT_LEGACY_MASK	(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+>>>>>>>      				 MMF_DISABLE_THP_MASK | MMF_HAS_MDWE_MASK |\
+>>>>>>>      				 MMF_VM_MERGE_ANY_MASK | MMF_TOPDOWN_MASK)
+>>>>>>> -static inline unsigned long mmf_init_flags(unsigned long flags)
+>>>>>>> +/* Legacy flags must fit within 32 bits. */
+>>>>>>> +static_assert((u64)MMF_INIT_LEGACY_MASK <= (u64)UINT_MAX);
+>>>>>>
+>>>>>> Why not use the magic number 32 you are mentioning in the comment? :)
+>>>>>
+>>>>> Meh I mean UINT_MAX works as a good 'any bit' mask and this will work on
+>>>>> both 32-bit and 64-bit systems.
+>>>>>
+>>>>>>
+>>>>>> static_assert((u32)MMF_INIT_LEGACY_MASK != MMF_INIT_LEGACY_MASK);
+>>>>>
+>>>>> On 32-bit that'd not work would it?
+>>>>
+>>>> On 32bit, BIT(32) would exceed the shift width of unsigned long -> undefined
+>>>> behavior.
+>>>>
+>>>> The compiler should naturally complain.
+>>>
+>>> Yeah, I don't love that sorry. Firstly it's a warning, so you may well miss it
+>>> (I just tried),
+>>
+>> Upstream bots usually complain at you for warnings :P
 > 
-> I initially started with pci_save_state(), and avoid saving the state 
-> altogether. But that would mean we don't go restore the msix state and 
-> for s390 don't call arch_restore_msi_irqs(). Do you prefer to avoid 
-> saving the state at all? This change was small and sufficient enough to 
-> avoid breaking the device in my testing.
+> Fine, but it's not a static assert and they can be delayed.
+> 
+>>
+>>> and secondly you're making the static assert not have any
+>>> meaning except that you expect to trigger a compiler warning, it's a bit
+>>> bizarre.
+>>
+>> On 64 bit where BIT(32) *makes any sense* it triggers as expected, no?
+> 
+> It's not a static assert.
+> 
+>>
+>>>
+>>> My solution works (unless you can see a reason it shouldn't) and I don't find
+>>> this approach any simpler.
+>>
+>> Please explain to me like I am a 5 yo how your approach works with BIT(32)
+>> on 32bit when the behavior on 32bit is undefined. :P
+> 
+> OK right I see, in both cases BIT(32) is going to cause a warning on 32-bit.
+> 
+> I was wrong in thinking (u64)(1UL << 32) would get fixed up because of the
+> outer cast I guess.
+> 
+> This was the mistake here, so fine, we could do it this way.
+> 
+> I guess I'll have to respin the series at this point.
 
-If we're only reading -1 from the device anyway, I'm not sure what
-value we're adding to continue to save bogus data from the device.
-There are also various restore sub-functions that don't need that saved
-state, ex. PASID, PRI, ATS, REBAR, AER, MSI, MSIX, ACS, VF REBAR,
-SRIOV.  We could push the state_saved check down into the functions
-that do need the prior device state, add warnings and let the remaining
-function proceed.  We really need to at least pull BAR values from
-resources information for there to be a chance of a functional device
-without relying on vfio-pci to restore that though.  Thanks,
+Let me think again: assuming someone would mess up the BIT() thing and 
+convert back to 1 << NR, your variant would catch it on 32bit I guess.
 
-Alex
+So given I was primarily confused by the "u64" when talking about 32it, 
+no need for a full resend of this series just to clean this up.
+
+-- 
+Cheers
+
+David / dhildenb
 
