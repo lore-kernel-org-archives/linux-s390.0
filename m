@@ -1,38 +1,38 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E09B319848;
-	Tue, 26 Aug 2025 09:44:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEE1833436C;
+	Tue, 26 Aug 2025 10:00:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756201490; cv=none; b=QGOvXjniEqBHfO5WtSt7SHVYAnJilhFWZ1UYfHcLIVG4nTari0buk49SrfbybsNVPAIsGm3cAXlvkLgp2sCwXHBB8pmme4XtRRz4EfAy9wGOzR16/88ec5kDFMket7E9NpYmBsge9VTByBnCKVdJ/ffHHzB9s+RDFTPsbRtuH2k=
+	t=1756202435; cv=none; b=NL9aD0FI+7HW0iFmeY32swf3gtrbgOFY5gCsm4X3GKas9volwF7pUVan0WISRZLyoijY4kfDTIiyBLnZRoJVaXUkLnvJJx0oiAcedDe+IVhPGs/SzF5bh4leZCo3JDVPSstqLAdDMpm+pySmHe/0HO3vj9fN9WVOev4+xHxAGkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756201490; c=relaxed/simple;
-	bh=ULr0vGuDuV6TzZuQIg1w3W7HvSTj8tUse9kNuLzqh8s=;
+	s=arc-20240116; t=1756202435; c=relaxed/simple;
+	bh=IEQ9SKBYOe82CYg7Kw499Qi1OkwUtfFEjr9cZviAE3w=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qO6XOCZFD5rNlZruTrvUPVmFZaDqLygMlcOm9FbofT6Y/Gxp3g9sHt/qnqWjN4zG3UbPW/uGDQYksh8w0aSLjdOP9xAnIwSFUMblZrmg4maiMSfLbBLDEdBYzDc3rX/QsBLu6Cnk3k71onlMqLi1Pxk2zX5kUFKfQq7i4mKoG5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=FPBwE9KU; arc=none smtp.client-ip=90.155.50.34
+	 Content-Type:Content-Disposition:In-Reply-To; b=lP3dvfHjKcrsWYPD1ibutd432ueCt2DxDbcITX2Xw5yRNg7EpVKGJpD+8J8UO0B0dlFF0208BC5zsiXXKSIvBP9VlwuZkgYnhOq4yhymppsxPkVOzXqH5v/Ura+6V6TdAet/noCO40B5hRAuHcWVBShKaCoBZ0WCFH0Hi9glsHY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=n0kV5Wue; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="FPBwE9KU"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="n0kV5Wue"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
-	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-	Sender:Reply-To:Content-ID:Content-Description;
-	bh=440g2MCDS70C5GUzL38qGyO0LLNuUeiYROjtfaXpBNc=; b=FPBwE9KUGGI/Sp3bL/acaKowb0
-	7dBUnevCp9OWqlkv9crqDWUTNOIbCLOMN/T9tqAwnwMYrPzXEj9yyGyz0ow3rppgSuXO0n3rnCTnZ
-	hbdOaDwnl3oqQAHNpd9Fn5SzxpJTHrRWqeTKLgDJXFpR2IZlYzkYD/fCqz+NN4+of5+3yX0uYkfPg
-	PaOw2Ezaq/9hhJkSFkDCnczBva1CpLxuF4KoCP0ma/IapXbieiRt/XE7TIvctQiglRagLttO70nvJ
-	f9kPrSg1stJ8+Am80MEMoKSYX86s7pTU3aesVdudUWaaV2/LbuqVBto3mY7tNQn/WfcX8WbgI1wV6
-	60QvIjyw==;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=RZH+TwBr6ueQMAaybKrZKRVrDtnXG+g8a3P12eZE8Z0=; b=n0kV5Wue5+lQyR4Jy72DEbGldq
+	VXg3ka9QF87+d0Pz3thNNd5X9pb/WZUrN+hOyyQoS8nDllPli2pceHjzG19BqQqvKyBGiuBlWIgNZ
+	ra25yhVychtVyjcS1314JePUcGb3SXpcI+lT7P7TkWO05fGvQ5vlHVeZqj0eR/uXGhvjLaAzL+XzX
+	Y+mIKuNjRUG2b+XfCK4y8u3N289YbCji4OMwNRNqLBkLjxVvnuoWbvf6hmqlQpHFzXOU3FADb5iGs
+	0Vj6QcqvEYS3loYSnyXMjgbbgr5PjQK6h52wvkADq+FCFvFs9a21yXUPQ1h84W9dA3K9/nG0wEvZI
+	jZ9Ku3OQ==;
 Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uqqDf-0000000GSI9-19tL;
-	Tue, 26 Aug 2025 09:44:00 +0000
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uqqT1-00000002Brt-33nE;
+	Tue, 26 Aug 2025 09:59:52 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 871BE300323; Tue, 26 Aug 2025 11:43:58 +0200 (CEST)
-Date: Tue, 26 Aug 2025 11:43:58 +0200
+	id 87BEE300220; Tue, 26 Aug 2025 11:59:50 +0200 (CEST)
+Date: Tue, 26 Aug 2025 11:59:50 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 To: Christophe Leroy <christophe.leroy@csgroup.eu>
 Cc: K Prateek Nayak <kprateek.nayak@amd.com>,
@@ -75,478 +75,35 @@ Cc: K Prateek Nayak <kprateek.nayak@amd.com>,
 	Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Subject: Re: [PATCH v7 4/8] powerpc/smp: Introduce CONFIG_SCHED_MC to guard
  MC scheduling bits
-Message-ID: <20250826094358.GG3245006@noisy.programming.kicks-ass.net>
+Message-ID: <20250826095950.GI4068168@noisy.programming.kicks-ass.net>
 References: <20250826041319.1284-1-kprateek.nayak@amd.com>
  <20250826041319.1284-5-kprateek.nayak@amd.com>
  <609a980b-cbe3-442b-a492-91722870b156@csgroup.eu>
  <20250826080706.GC3245006@noisy.programming.kicks-ass.net>
+ <20250826094358.GG3245006@noisy.programming.kicks-ass.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250826080706.GC3245006@noisy.programming.kicks-ass.net>
+In-Reply-To: <20250826094358.GG3245006@noisy.programming.kicks-ass.net>
 
-On Tue, Aug 26, 2025 at 10:07:06AM +0200, Peter Zijlstra wrote:
-> On Tue, Aug 26, 2025 at 06:49:29AM +0200, Christophe Leroy wrote:
-> > 
-> > 
-> > Le 26/08/2025 à 06:13, K Prateek Nayak a écrit :
-> > > PowerPC enables the MC scheduling domain by default on systems with
-> > > coregroup support without having a SCHED_MC config in Kconfig.
-> > > 
-> > > The scheduler uses CONFIG_SCHED_MC to introduce the MC domain in the
-> > > default topology (core) and to optimize the default CPU selection
-> > > routine (sched-ext).
-> > > 
-> > > Introduce CONFIG_SCHED_MC for powerpc and note that it should be
-> > > preferably enabled given the current default behavior. This also ensures
-> > > PowerPC is tested during future developments that come to depend on
-> > > CONFIG_SCHED_MC.
-> > > 
-> > > Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
-> > > ---
-> > >   arch/powerpc/Kconfig           | 9 +++++++++
-> > >   arch/powerpc/include/asm/smp.h | 2 ++
-> > >   arch/powerpc/kernel/smp.c      | 4 ++++
-> > >   3 files changed, 15 insertions(+)
-> > > 
-> > > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> > > index 93402a1d9c9f..e954ab3f635f 100644
-> > > --- a/arch/powerpc/Kconfig
-> > > +++ b/arch/powerpc/Kconfig
-> > > @@ -971,6 +971,15 @@ config SCHED_SMT
-> > >   	  when dealing with POWER5 cpus at a cost of slightly increased
-> > >   	  overhead in some places. If unsure say N here.
-> > > +config SCHED_MC
-> > > +	bool "Multi-Core Cache (MC) scheduler support"
-> > > +	depends on PPC64 && SMP
-> > > +	default y
-> > > +	help
-> > > +	  MC scheduler support improves the CPU scheduler's decision making
-> > > +	  when dealing with POWER systems that contain multiple Last Level
-> > > +	  Cache instances on the same socket. If unsure say Y here.
-> > > +
-> > 
-> > You shouldn't duplicate CONFIG_SCHED_MC in every architecture, instead you
-> > should define a CONFIG_ARCH_HAS_SCHED_MC in arch/Kconfig that gets selected
-> > by architectures then have CONFIG_SCHED_MC defined in init/Kconfig or
-> > kernel/Kconfig or so.
+On Tue, Aug 26, 2025 at 11:43:58AM +0200, Peter Zijlstra wrote:
+
+> Now, when I look at unifying those config options (there's a metric ton
+> of crap that's duplicated in the arch/*/Kconfig), I end up with something
+> like the below.
 > 
-> Let me add this first -- it is currently duplicated. Then I'll see about
-> merging the thing across architectures.
+> And while that isn't exact, it is the closest I could make it without
+> making a giant mess of things.
+> 
+> WDYT?
 
-So what I added to power was:
+Anyway, enough tinkering with this for a little bit. Things are here:
 
-config SCHED_MC
-	def_bool y
-	depends on PPC64 && SMP
+  https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/log/?h=sched/core
 
-because that is more or less the behaviour that was there, per the
-existing SDTL_INIT().
-
----
-
-Now, when I look at unifying those config options (there's a metric ton
-of crap that's duplicated in the arch/*/Kconfig), I end up with something
-like the below.
-
-And while that isn't exact, it is the closest I could make it without
-making a giant mess of things.
-
-WDYT?
-
----
- Kconfig           |   38 ++++++++++++++++++++++++++++++++++++++
- arm/Kconfig       |   18 ++----------------
- arm64/Kconfig     |   26 +++-----------------------
- loongarch/Kconfig |   19 ++-----------------
- mips/Kconfig      |   16 ++--------------
- parisc/Kconfig    |    9 +--------
- powerpc/Kconfig   |   15 +++------------
- riscv/Kconfig     |    9 +--------
- s390/Kconfig      |    8 ++------
- sparc/Kconfig     |   20 ++------------------
- x86/Kconfig       |   27 ++++-----------------------
- 11 files changed, 60 insertions(+), 145 deletions(-)
-
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -41,6 +41,44 @@ config HOTPLUG_SMT
- config SMT_NUM_THREADS_DYNAMIC
- 	bool
- 
-+config ARCH_SUPPORTS_SCHED_SMT
-+	bool
-+
-+config ARCH_SUPPORTS_SCHED_CLUSTER
-+	bool
-+
-+config ARCH_SUPPORTS_SCHED_MC
-+	bool
-+
-+config SCHED_SMT
-+	bool "SMT (Hyperthreading) scheduler support"
-+	depends on ARCH_SUPPORTS_SCHED_SMT
-+	default y
-+	help
-+	  Improves the CPU scheduler's decision making when dealing with
-+	  MultiThreading at a cost of slightly increased overhead in some
-+	  places. If unsure say N here.
-+
-+config SCHED_CLUSTER
-+	bool "Cluster scheduler support"
-+	depends on ARCH_SUPPORTS_SCHED_CLUSTER
-+	default y
-+	help
-+	  Cluster scheduler support improves the CPU scheduler's decision
-+	  making when dealing with machines that have clusters of CPUs.
-+	  Cluster usually means a couple of CPUs which are placed closely
-+	  by sharing mid-level caches, last-level cache tags or internal
-+	  busses.
-+
-+config SCHED_MC
-+	bool "Multi-Core Cache (MC) scheduler support"
-+	depends on ARCH_SUPPORTS_SCHED_MC
-+	default y
-+	help
-+	  Multi-core scheduler support improves the CPU scheduler's decision
-+	  making when dealing with multi-core CPU chips at a cost of slightly
-+	  increased overhead in some places. If unsure say N here.
-+
- # Selected by HOTPLUG_CORE_SYNC_DEAD or HOTPLUG_CORE_SYNC_FULL
- config HOTPLUG_CORE_SYNC
- 	bool
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -941,28 +941,14 @@ config IRQSTACKS
- config ARM_CPU_TOPOLOGY
- 	bool "Support cpu topology definition"
- 	depends on SMP && CPU_V7
-+	select ARCH_SUPPORTS_SCHED_MC
-+	select ARCH_SUPPORTS_SCHED_SMT
- 	default y
- 	help
- 	  Support ARM cpu topology definition. The MPIDR register defines
- 	  affinity between processors which is then used to describe the cpu
- 	  topology of an ARM System.
- 
--config SCHED_MC
--	bool "Multi-core scheduler support"
--	depends on ARM_CPU_TOPOLOGY
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
--config SCHED_SMT
--	bool "SMT scheduler support"
--	depends on ARM_CPU_TOPOLOGY
--	help
--	  Improves the CPU scheduler's decision making when dealing with
--	  MultiThreading at a cost of slightly increased overhead in some
--	  places. If unsure say N here.
--
- config HAVE_ARM_SCU
- 	bool
- 	help
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -108,6 +108,9 @@ config ARM64
- 	select ARCH_SUPPORTS_PER_VMA_LOCK
- 	select ARCH_SUPPORTS_HUGE_PFNMAP if TRANSPARENT_HUGEPAGE
- 	select ARCH_SUPPORTS_RT
-+	select ARCH_SUPPORTS_SCHED_SMT
-+	select ARCH_SUPPORTS_SCHED_CLUSTER
-+	select ARCH_SUPPORTS_SCHED_MC
- 	select ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
- 	select ARCH_WANT_COMPAT_IPC_PARSE_VERSION if COMPAT
- 	select ARCH_WANT_DEFAULT_BPF_JIT
-@@ -1505,29 +1508,6 @@ config CPU_LITTLE_ENDIAN
- 
- endchoice
- 
--config SCHED_MC
--	bool "Multi-core scheduler support"
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
--config SCHED_CLUSTER
--	bool "Cluster scheduler support"
--	help
--	  Cluster scheduler support improves the CPU scheduler's decision
--	  making when dealing with machines that have clusters of CPUs.
--	  Cluster usually means a couple of CPUs which are placed closely
--	  by sharing mid-level caches, last-level cache tags or internal
--	  busses.
--
--config SCHED_SMT
--	bool "SMT scheduler support"
--	help
--	  Improves the CPU scheduler's decision making when dealing with
--	  MultiThreading at a cost of slightly increased overhead in some
--	  places. If unsure say N here.
--
- config NR_CPUS
- 	int "Maximum number of CPUs (2-4096)"
- 	range 2 4096
---- a/arch/loongarch/Kconfig
-+++ b/arch/loongarch/Kconfig
-@@ -70,6 +70,8 @@ config LOONGARCH
- 	select ARCH_SUPPORTS_MSEAL_SYSTEM_MAPPINGS
- 	select ARCH_SUPPORTS_NUMA_BALANCING
- 	select ARCH_SUPPORTS_RT
-+	select ARCH_SUPPORTS_SCHED_SMT if SMP
-+	select ARCH_SUPPORTS_SCHED_MC  if SMP
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_CMPXCHG_LOCKREF
- 	select ARCH_USE_MEMTEST
-@@ -448,23 +450,6 @@ config EFI_STUB
- 	  This kernel feature allows the kernel to be loaded directly by
- 	  EFI firmware without the use of a bootloader.
- 
--config SCHED_SMT
--	bool "SMT scheduler support"
--	depends on SMP
--	default y
--	help
--	  Improves scheduler's performance when there are multiple
--	  threads in one physical core.
--
--config SCHED_MC
--	bool "Multi-core scheduler support"
--	depends on SMP
--	default y
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places.
--
- config SMP
- 	bool "Multi-Processing support"
- 	help
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2223,7 +2223,7 @@ config MIPS_MT_SMP
- 	select SMP
- 	select SMP_UP
- 	select SYS_SUPPORTS_SMP
--	select SYS_SUPPORTS_SCHED_SMT
-+	select ARCH_SUPPORTS_SCHED_SMT
- 	select MIPS_PERF_SHARED_TC_COUNTERS
- 	help
- 	  This is a kernel model which is known as SMVP. This is supported
-@@ -2235,18 +2235,6 @@ config MIPS_MT_SMP
- config MIPS_MT
- 	bool
- 
--config SCHED_SMT
--	bool "SMT (multithreading) scheduler support"
--	depends on SYS_SUPPORTS_SCHED_SMT
--	default n
--	help
--	  SMT scheduler support improves the CPU scheduler's decision making
--	  when dealing with MIPS MT enabled cores at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
--config SYS_SUPPORTS_SCHED_SMT
--	bool
--
- config SYS_SUPPORTS_MULTITHREADING
- 	bool
- 
-@@ -2318,7 +2306,7 @@ config MIPS_CPS
- 	select HOTPLUG_CORE_SYNC_DEAD if HOTPLUG_CPU
- 	select SYNC_R4K if (CEVT_R4K || CSRC_R4K)
- 	select SYS_SUPPORTS_HOTPLUG_CPU
--	select SYS_SUPPORTS_SCHED_SMT if CPU_MIPSR6
-+	select ARCH_SUPPORTS_SCHED_SMT if CPU_MIPSR6
- 	select SYS_SUPPORTS_SMP
- 	select WEAK_ORDERING
- 	select GENERIC_IRQ_MIGRATION if HOTPLUG_CPU
---- a/arch/parisc/Kconfig
-+++ b/arch/parisc/Kconfig
-@@ -44,6 +44,7 @@ config PARISC
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select GENERIC_SMP_IDLE_THREAD
- 	select GENERIC_ARCH_TOPOLOGY if SMP
-+	select ARCH_SUPPORTS_SCHED_MC if SMP && PA8X00
- 	select GENERIC_CPU_DEVICES if !SMP
- 	select GENERIC_LIB_DEVMEM_IS_ALLOWED
- 	select SYSCTL_ARCH_UNALIGN_ALLOW
-@@ -319,14 +320,6 @@ config SMP
- 
- 	  If you don't know what to do here, say N.
- 
--config SCHED_MC
--	bool "Multi-core scheduler support"
--	depends on GENERIC_ARCH_TOPOLOGY && PA8X00
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
- config IRQSTACKS
- 	bool "Use separate kernel stacks when processing interrupts"
- 	default y
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -170,6 +170,9 @@ config PPC
- 	select ARCH_STACKWALK
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC_BOOK3S || PPC_8xx
-+	select ARCH_SUPPORTS_SCHED_SMT		if PPC64 && SMP
-+	select ARCH_SUPPORTS_SCHED_MC		if PPC64 && SMP
-+	select SCHED_MC				if ARCH_SUPPORTS_SCHED_MC
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
- 	select ARCH_USE_MEMTEST
-@@ -963,18 +966,6 @@ config PPC_PROT_SAO_LPAR
- config PPC_COPRO_BASE
- 	bool
- 
--config SCHED_SMT
--	bool "SMT (Hyperthreading) scheduler support"
--	depends on PPC64 && SMP
--	help
--	  SMT scheduler support improves the CPU scheduler's decision making
--	  when dealing with POWER5 cpus at a cost of slightly increased
--	  overhead in some places. If unsure say N here.
--
--config SCHED_MC
--	def_bool y
--	depends on PPC64 && SMP
--
- config PPC_DENORMALISATION
- 	bool "PowerPC denormalisation exception handling"
- 	depends on PPC_BOOK3S_64
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -72,6 +72,7 @@ config RISCV
- 	select ARCH_SUPPORTS_PER_VMA_LOCK if MMU
- 	select ARCH_SUPPORTS_RT
- 	select ARCH_SUPPORTS_SHADOW_CALL_STACK if HAVE_SHADOW_CALL_STACK
-+	select ARCH_SUPPORTS_SCHED_MC if SMP
- 	select ARCH_USE_CMPXCHG_LOCKREF if 64BIT
- 	select ARCH_USE_MEMTEST
- 	select ARCH_USE_QUEUED_RWLOCKS
-@@ -453,14 +454,6 @@ config SMP
- 
- 	  If you don't know what to do here, say N.
- 
--config SCHED_MC
--	bool "Multi-core scheduler support"
--	depends on SMP
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
- config NR_CPUS
- 	int "Maximum number of CPUs (2-512)"
- 	depends on SMP
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -547,15 +547,11 @@ config NODES_SHIFT
- 	depends on NUMA
- 	default "1"
- 
--config SCHED_SMT
--	def_bool n
--
--config SCHED_MC
--	def_bool n
--
- config SCHED_TOPOLOGY
- 	def_bool y
- 	prompt "Topology scheduler support"
-+	select ARCH_SUPPORTS_SCHED_SMT
-+	select ARCH_SUPPORTS_SCHED_MC
- 	select SCHED_SMT
- 	select SCHED_MC
- 	help
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -110,6 +110,8 @@ config SPARC64
- 	select HAVE_SETUP_PER_CPU_AREA
- 	select NEED_PER_CPU_EMBED_FIRST_CHUNK
- 	select NEED_PER_CPU_PAGE_FIRST_CHUNK
-+	select ARCH_SUPPORTS_SCHED_SMT if SMP
-+	select ARCH_SUPPORTS_SCHED_MC  if SMP
- 
- config ARCH_PROC_KCORE_TEXT
- 	def_bool y
-@@ -288,24 +290,6 @@ if SPARC64 || COMPILE_TEST
- source "kernel/power/Kconfig"
- endif
- 
--config SCHED_SMT
--	bool "SMT (Hyperthreading) scheduler support"
--	depends on SPARC64 && SMP
--	default y
--	help
--	  SMT scheduler support improves the CPU scheduler's decision making
--	  when dealing with SPARC cpus at a cost of slightly increased overhead
--	  in some places. If unsure say N here.
--
--config SCHED_MC
--	bool "Multi-core scheduler support"
--	depends on SPARC64 && SMP
--	default y
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
- config CMDLINE_BOOL
- 	bool "Default bootloader kernel arguments"
- 	depends on SPARC64
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -330,6 +330,10 @@ config X86
- 	imply IMA_SECURE_AND_OR_TRUSTED_BOOT    if EFI
- 	select HAVE_DYNAMIC_FTRACE_NO_PATCHABLE
- 	select ARCH_SUPPORTS_PT_RECLAIM		if X86_64
-+	select ARCH_SUPPORTS_SCHED_SMT		if SMP
-+	select SCHED_SMT			if SMP
-+	select ARCH_SUPPORTS_SCHED_CLUSTER	if SMP
-+	select ARCH_SUPPORTS_SCHED_MC		if SMP
- 
- config INSTRUCTION_DECODER
- 	def_bool y
-@@ -1036,29 +1040,6 @@ config NR_CPUS
- 	  This is purely to save memory: each supported CPU adds about 8KB
- 	  to the kernel image.
- 
--config SCHED_CLUSTER
--	bool "Cluster scheduler support"
--	depends on SMP
--	default y
--	help
--	  Cluster scheduler support improves the CPU scheduler's decision
--	  making when dealing with machines that have clusters of CPUs.
--	  Cluster usually means a couple of CPUs which are placed closely
--	  by sharing mid-level caches, last-level cache tags or internal
--	  busses.
--
--config SCHED_SMT
--	def_bool y if SMP
--
--config SCHED_MC
--	def_bool y
--	prompt "Multi-core scheduler support"
--	depends on SMP
--	help
--	  Multi-core scheduler support improves the CPU scheduler's decision
--	  making when dealing with multi-core CPU chips at a cost of slightly
--	  increased overhead in some places. If unsure say N here.
--
- config SCHED_MC_PRIO
- 	bool "CPU core priorities scheduler support"
- 	depends on SCHED_MC
+For to robots to provide feedback :-)
