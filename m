@@ -1,109 +1,183 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEE1833436C;
-	Tue, 26 Aug 2025 10:00:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B54922FAC1F;
+	Tue, 26 Aug 2025 10:06:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756202435; cv=none; b=NL9aD0FI+7HW0iFmeY32swf3gtrbgOFY5gCsm4X3GKas9volwF7pUVan0WISRZLyoijY4kfDTIiyBLnZRoJVaXUkLnvJJx0oiAcedDe+IVhPGs/SzF5bh4leZCo3JDVPSstqLAdDMpm+pySmHe/0HO3vj9fN9WVOev4+xHxAGkI=
+	t=1756202782; cv=none; b=EJtIw5ChXS7YA7dyR8pcL28P1YrWE6o/dFr8dCgMQpZ8jy4qe9SNv/+3wWKCFozodC7y3HgjiEu8AVPrKp/h40skDcNjQJZSg11dHCJBNkmnAPactnSsDSPTWT2iVTzE00Ku1KunEDaxOvesP3EcJlI/MrW3eBtrBgsMpipaPXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756202435; c=relaxed/simple;
-	bh=IEQ9SKBYOe82CYg7Kw499Qi1OkwUtfFEjr9cZviAE3w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lP3dvfHjKcrsWYPD1ibutd432ueCt2DxDbcITX2Xw5yRNg7EpVKGJpD+8J8UO0B0dlFF0208BC5zsiXXKSIvBP9VlwuZkgYnhOq4yhymppsxPkVOzXqH5v/Ura+6V6TdAet/noCO40B5hRAuHcWVBShKaCoBZ0WCFH0Hi9glsHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=n0kV5Wue; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1756202782; c=relaxed/simple;
+	bh=ZHDEzLt3ke3YooF7ZHo7o3l+OS3wk+ZeRiPs0mQqst4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Pc/hK4iKSg9jVaBTLR/rt1TtcQR0YjWtyh0qB3wpSj+L3yzFT2887vbeLPKFt3KUzYJBWqyFAElaWhRKr2qMTPTrAFpY7IfFfOFsf6rWPJpw3Z2+10H1xBBihdu9q/ii2g+imWilduXJG2Qy5KNoCchR6Kog1jnPKshkq5jS+bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PwkFVEvh; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="n0kV5Wue"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=RZH+TwBr6ueQMAaybKrZKRVrDtnXG+g8a3P12eZE8Z0=; b=n0kV5Wue5+lQyR4Jy72DEbGldq
-	VXg3ka9QF87+d0Pz3thNNd5X9pb/WZUrN+hOyyQoS8nDllPli2pceHjzG19BqQqvKyBGiuBlWIgNZ
-	ra25yhVychtVyjcS1314JePUcGb3SXpcI+lT7P7TkWO05fGvQ5vlHVeZqj0eR/uXGhvjLaAzL+XzX
-	Y+mIKuNjRUG2b+XfCK4y8u3N289YbCji4OMwNRNqLBkLjxVvnuoWbvf6hmqlQpHFzXOU3FADb5iGs
-	0Vj6QcqvEYS3loYSnyXMjgbbgr5PjQK6h52wvkADq+FCFvFs9a21yXUPQ1h84W9dA3K9/nG0wEvZI
-	jZ9Ku3OQ==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uqqT1-00000002Brt-33nE;
-	Tue, 26 Aug 2025 09:59:52 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 87BEE300220; Tue, 26 Aug 2025 11:59:50 +0200 (CEST)
-Date: Tue, 26 Aug 2025 11:59:50 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: K Prateek Nayak <kprateek.nayak@amd.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	thomas.weissschuh@linutronix.de, Li Chen <chenl311@chinatelecom.cn>,
-	Bibo Mao <maobibo@loongson.cn>, Mete Durlu <meted@linux.ibm.com>,
-	Tobias Huschle <huschle@linux.ibm.com>,
-	Easwar Hariharan <easwar.hariharan@linux.microsoft.com>,
-	Guo Weikang <guoweikang.kernel@gmail.com>,
-	"Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-	Brian Gerst <brgerst@gmail.com>,
-	Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
-	Swapnil Sapkal <swapnil.sapkal@amd.com>,
-	"Yury Norov [NVIDIA]" <yury.norov@gmail.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	Andrea Righi <arighi@nvidia.com>,
-	Yicong Yang <yangyicong@hisilicon.com>,
-	Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
-	Tim Chen <tim.c.chen@linux.intel.com>,
-	Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Subject: Re: [PATCH v7 4/8] powerpc/smp: Introduce CONFIG_SCHED_MC to guard
- MC scheduling bits
-Message-ID: <20250826095950.GI4068168@noisy.programming.kicks-ass.net>
-References: <20250826041319.1284-1-kprateek.nayak@amd.com>
- <20250826041319.1284-5-kprateek.nayak@amd.com>
- <609a980b-cbe3-442b-a492-91722870b156@csgroup.eu>
- <20250826080706.GC3245006@noisy.programming.kicks-ass.net>
- <20250826094358.GG3245006@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PwkFVEvh"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57Q98Ol9008931;
+	Tue, 26 Aug 2025 10:05:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=yfEvTd
+	P8OMZx3Uvax13oqPCUxjoe2ObopJrczyfNJ7k=; b=PwkFVEvh8VEr2p5Z89g+G7
+	OcRD8wOk3IHi1D1CAi1JRDiwMgrNq/mH1uMrJ5wrgUtdX5669JIIS2PrordjbLYx
+	r2o6zFyo0G2cQeJHnTPfrt7CVjKR+R/1Zl55Eq27ejW7qVx7gfS7Gfepz6uy+PiM
+	t798RVOKNR0cdyNuIILoe9zahFmALjK3A7KMRNpuF5b580rjISijF05XXU9R7lE+
+	vv+nzdXjYlfmz1GSCVobSSnbvspkIRisRAiuA/VDIRJHo0VHcdjv2aFl72pNsL1x
+	bWmivbCtcj01M0uNXsszMrM1HXfGU1FXKeYIUXAuzROIjYYmppKV/XxhLMiZGmGg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48q5avdswj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Aug 2025 10:05:19 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 57QA59qf025127;
+	Tue, 26 Aug 2025 10:05:18 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48q5avdswe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Aug 2025 10:05:18 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57Q7UgP8002543;
+	Tue, 26 Aug 2025 10:05:17 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48qrypj6kk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 26 Aug 2025 10:05:17 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57QA5DIT50594212
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 26 Aug 2025 10:05:13 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3911E20063;
+	Tue, 26 Aug 2025 10:05:13 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7F5CC20040;
+	Tue, 26 Aug 2025 10:05:04 +0000 (GMT)
+Received: from [9.39.23.183] (unknown [9.39.23.183])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 26 Aug 2025 10:05:04 +0000 (GMT)
+Message-ID: <b64c820d-084a-40d9-bb4e-82986b9e6482@linux.ibm.com>
+Date: Tue, 26 Aug 2025 15:35:03 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250826094358.GG3245006@noisy.programming.kicks-ass.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 0/8] sched/fair: Get rid of sched_domains_curr_level
+ hack for tl->cpumask()
+To: K Prateek Nayak <kprateek.nayak@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+        thomas.weissschuh@linutronix.de, Li Chen <chenl311@chinatelecom.cn>,
+        Bibo Mao <maobibo@loongson.cn>, Mete Durlu <meted@linux.ibm.com>,
+        Tobias Huschle <huschle@linux.ibm.com>,
+        Easwar Hariharan <easwar.hariharan@linux.microsoft.com>,
+        Guo Weikang <guoweikang.kernel@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Brian Gerst <brgerst@gmail.com>,
+        Patryk Wlazlyn <patryk.wlazlyn@linux.intel.com>,
+        Swapnil Sapkal <swapnil.sapkal@amd.com>,
+        "Yury Norov [NVIDIA]" <yury.norov@gmail.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andrea Righi <arighi@nvidia.com>,
+        Yicong Yang <yangyicong@hisilicon.com>,
+        Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20250826041319.1284-1-kprateek.nayak@amd.com>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20250826041319.1284-1-kprateek.nayak@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: uGQuBa1nC4_TybwDa_PF212jwdXWPegi
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODIzMDAyMSBTYWx0ZWRfXxUR18LG6id+8
+ cifRDYAQOr1tXWx9SgcNQM6dWtDCpd6fZoA9ntMZMFc3a9etCqoFE7WvzJfIpYpPezhSUFgz2Qq
+ wMaFsKnj4v5s/OI0GC1S7TyDdxJa2HFqaEbxkjcoc0P7W5kvLnkJZSpZsgh1kEwBTi5XKTfncVh
+ x4TZUgi6iJedAUGPUI4PpUra8S58w7I/JCreN1vo7yqE7LNa1WzgM69ZI36f1fd9R40XaeDV0Jm
+ wvjjwPsre0pom2Xn1oZtB+qNBFXG13X1cDeG3qjDt1zxKUSywd00dSqKQq26DxqqWXerOxyNp1i
+ 4mxSRZO0qHuBaN71FSfwhkFpXqd9q1S0zH1E8+p9Y9/P706KNzy02GMiorLUtGnrT4fo7cm5/kU
+ 61CxWupl
+X-Proofpoint-ORIG-GUID: yP65Ia-GiOKTqCIl4llIBnzZIDcWEbSZ
+X-Authority-Analysis: v=2.4 cv=SNNCVPvH c=1 sm=1 tr=0 ts=68ad86df cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=WsHKUha7AAAA:8
+ a=zd2uoN0lAAAA:8 a=eqgBTtMHAimxLhlMCKkA:9 a=QEXdDO2ut3YA:10
+ a=H4LAKuo8djmI0KOkngUh:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-08-26_02,2025-08-26_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 adultscore=0 bulkscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 malwarescore=0 suspectscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508230021
 
-On Tue, Aug 26, 2025 at 11:43:58AM +0200, Peter Zijlstra wrote:
 
-> Now, when I look at unifying those config options (there's a metric ton
-> of crap that's duplicated in the arch/*/Kconfig), I end up with something
-> like the below.
+
+On 8/26/25 9:43 AM, K Prateek Nayak wrote:
+> This version uses Peter's suggestion from [1] as if and incrementally
+> adds cleanup on top to the arch/ bits. I've tested the x86 side but the
+> PowerPC and the s390 bits are only build tested. Review and feedback is
+> greatly appreciated.
 > 
-> And while that isn't exact, it is the closest I could make it without
-> making a giant mess of things.
+> [1] https://lore.kernel.org/lkml/20250825091910.GT3245006@noisy.programming.kicks-ass.net/
 > 
-> WDYT?
+> Patches are prepared on top of tip:master at commit 4628e5bbca91 ("Merge
+> branch into tip/master: 'x86/tdx'")
+> ---
+> changelog v6..v7:
+> 
+> o Fix the s390 and ppc build errors (Intel test robot)
+> 
+> o Use Peter's diff as is and incrementally do the cleanup on top. The
+>    PowerPC part was slightly more extensive due to the lack of
+>    CONFIG_SCHED_MC in arch/powerpc/Kconfig.
+> 
+> v6: https://lore.kernel.org/lkml/20250825120244.11093-1-kprateek.nayak@amd.com/
+> ---
+> K Prateek Nayak (7):
+>    powerpc/smp: Rename cpu_corgroup_* to cpu_corgrp_*
+>    powerpc/smp: Export cpu_coregroup_mask()
+>    powerpc/smp: Introduce CONFIG_SCHED_MC to guard MC scheduling bits
+>    sched/topology: Unify tl_smt_mask() across core and all arch
+>    sched/topology: Unify tl_cls_mask() across core and x86
+>    sched/topology: Unify tl_mc_mask() across core and all arch
+>    sched/topology: Unify tl_pkg_mask() across core and all arch
+> 
+> Peter Zijlstra (1):
+>    sched/fair: Get rid of sched_domains_curr_level hack for tl->cpumask()
+> 
+Can the names be standardized to begin with tl_ ?
 
-Anyway, enough tinkering with this for a little bit. Things are here:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/log/?h=sched/core
-
-For to robots to provide feedback :-)
+arch/powerpc/kernel/smp.c:			SDTL_INIT(smallcore_smt_mask, powerpc_smt_flags, SMT);
+arch/powerpc/kernel/smp.c:			SDTL_INIT(shared_cache_mask, powerpc_shared_cache_flags, CACHE);
+arch/s390/kernel/topology.c:	SDTL_INIT(cpu_book_mask, NULL, BOOK),
+arch/s390/kernel/topology.c:	SDTL_INIT(cpu_drawer_mask, NULL, DRAWER),
+kernel/sched/topology.c:	tl[i++] = SDTL_INIT(sd_numa_mask, NULL, NODE);
+kernel/sched/topology.c:		tl[i] = SDTL_INIT(sd_numa_mask, cpu_numa_flags, NUMA);
