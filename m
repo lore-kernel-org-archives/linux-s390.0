@@ -1,60 +1,73 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C4122D792;
-	Tue, 26 Aug 2025 11:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1B12C0272
+	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 12:16:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756208602; cv=none; b=L3v1HRMYq6GvMEXFiJNiUkshco6WsP7K/ZCBMqq1PPkQUuuFdzsUoOIqCk2Y9JVohUJkGWeQ8UaS4ZkAaSXPkFZdpmJm2sE4KR2GL5CXtWBM5b6T+AdutCVVvEZuPQBbPT6GIWTgA70tUmBOQqJlMpZxo9PDhkHaCpglQdsVIVI=
+	t=1756210599; cv=none; b=rB3c5C/6UWN5ZUJK9oZ3h+v6dNxny5K43OcImtGd3zquT1tYDmubt/rcYbQBX9FnUHx6+DaVQYl90tY3M0qwOjnSeU7suh8fL84em4fTxJygVGgmV5ZLV9GEO4whRzjTwg3zQJnKDU1nOs97pEEjHrYs1ATgiFtS7B+FCrM9YOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756208602; c=relaxed/simple;
-	bh=02P3CixtBdUDcPaD0gm+JuyGHF+OteegFZvZgqJCzIY=;
+	s=arc-20240116; t=1756210599; c=relaxed/simple;
+	bh=/kBnjHicWLRIMWZ5D1z8Ghfc30Q8BGyIoEzgG5YmKrw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TtRBLpDQytcWRT1XbDQxkxs2V9JmBBGEqRjlFvfHbK3YVOL8QIY5YteRS8lmnihnlsGSd/x4BrVtjlKZahNAOB/5VSgoA4N4EfN9s/nc7fDFFzgrkJujzPZCCjiSFBBtEUWfXpJliYV0J0niH1qCRSmyZ7KIV0NUcWM0uAIn2SA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YYCP3T+L; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=uj22BQgsiGZLMSFfiHrK5KbC13L9XzLZQRARZcQjlKDexw+xYUM9sL49bnUjHpfmDBHjG1k63ovyGdAY3SZvDpBW1TZzeBEw6NawptvHQVbgplCbHJXTSs/cTeSvsV4HgE5CBRuDbzzMoKlEjEJULkCUcuLzmC5AI1SfVZuvkXw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TgUPSRj3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YYCP3T+L"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57QBDJFP007896;
-	Tue, 26 Aug 2025 11:43:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ASmeNG
-	bOgjCpuey2rron10uxRWK4g6jADKKoq6uItXI=; b=YYCP3T+LzLSwnr0IhR8fZ/
-	8sHI4rKu+EmcI+8i1MPIlJcNj2ektYZmaL7nAeq5gF6Ru7Nzu1phoovZzG2qYg6l
-	xiPg/tWvX1KNvPt8YLRmHF6fq6audyhd8xRmaIA7s3YDy+9rPb2qV90rh8WIHTRe
-	/D8mEtnysdpvJP8S2kDjxfOoRD4lAhgf+Imy1zYFAHAQARECMOOnIf+f+PQ5vaG0
-	wbC3qBCZq0NM7poUTMqxgc8wpsIASVbwh0blewwV0F8bjBrEsK9M/rRZ+znEuldz
-	3tcdzQ7FE3sHzqIQNuJhnNbhsSIBXnBs8flhspC3O0/SIQOfEeldcA+JAjz9hwFA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48q42hx7r4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Aug 2025 11:43:17 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57QAXQPF007474;
-	Tue, 26 Aug 2025 11:43:16 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 48qqyuapvj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Aug 2025 11:43:16 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57QBhDs616974206
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 26 Aug 2025 11:43:13 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 081482004B;
-	Tue, 26 Aug 2025 11:43:13 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7DAFD20043;
-	Tue, 26 Aug 2025 11:43:12 +0000 (GMT)
-Received: from [9.87.130.24] (unknown [9.87.130.24])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 26 Aug 2025 11:43:12 +0000 (GMT)
-Message-ID: <d91ed0a4-16b2-417d-9b44-6e0d629f65d0@linux.ibm.com>
-Date: Tue, 26 Aug 2025 13:43:12 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TgUPSRj3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756210596;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=diVEa1Cfz6ig0T6TvL360ugfmN6YpEKzRLn9DgHizSM=;
+	b=TgUPSRj3Mn3qrkr+jYz1C+joq5vreRSIHtW1dbhpLDka7I81jm2OXw5RSOYA896lcKtkmA
+	StFYvWSs4Nf6MuTyEsBIcUsCQOUvz5wa8McdBm8yADi9mn216GAOs76qvvBFZsHs/ijSQx
+	K0FJgRbawY6y7AQpkjQj77XRI4wR2Pk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-314-xOQyim-_P8CGXQVGGAlzBg-1; Tue, 26 Aug 2025 08:16:35 -0400
+X-MC-Unique: xOQyim-_P8CGXQVGGAlzBg-1
+X-Mimecast-MFC-AGG-ID: xOQyim-_P8CGXQVGGAlzBg_1756210594
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3c7d6923834so1895986f8f.2
+        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 05:16:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756210594; x=1756815394;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=diVEa1Cfz6ig0T6TvL360ugfmN6YpEKzRLn9DgHizSM=;
+        b=YWdVtxCZhxX3OLVr0ZICqSJfV5itHiKEqZ1cRJVfGHAwyAZgUj/yTPUkmj0M9xabyJ
+         Yy9Ott+f15y10L3gR4Uhr0yHYJId9acEbI6h/v0iUY7SF94WQ64pzaGvHo1yaZWdQS1Y
+         yDQc9kUold+KZz2m8h2fetSXiYDG0tztlr5p3tyV++GHxhX1UD7Ifq1xVyC2OVM0cPd9
+         5Hnhtrqzf4fsfvdXBPnk/e+3EfAx3UBdwfZZBTOBUc2JkRYDX0UpYS6+Z1ZLfOIyqtej
+         KSY+TmrbFuc8wEWiTtCxgv9d7TQgBaSo5ep84BPm/yLFFqYpUjS5YVFCPLs0vW/3y0rq
+         +Ocw==
+X-Forwarded-Encrypted: i=1; AJvYcCVayMvGmpjCKtnhrIVrtQwXMuyN7ZYNUcWLNC+e1IcgdZyUqDvWdq/XlExK/VMNVBeEwHa0VX/i8UKI@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxf08qR24tP7+ewVsJEBPiHxzm7jC5l5T/kfi4cNiWx8bFY76xF
+	dHI5NFuLiy2w53npF5Rq8f19sKxgDIuoSkWqH3LOdIqdlq3fim65pDVSg1vTvEKLOuuHTX0gYMn
+	ZTG8Mn99tW9IUs12g9rK06iMENRORICnpd0FvdQFTxjdxUR4tarE/rq/pMimaEXc=
+X-Gm-Gg: ASbGncvRd2HPL1EOS9lb6lEmP112K01rhGbSWSJtSJy7S5+z7dORbqQEhViy1F7CpdS
+	+nutQKYjn52tICnYRjUcA7KovefEXBBOYt71uVVhrRGuDFZXzRLMF0rzIgfbHHQpxq3GSdNaqi/
+	w5N83zbukH4+96erdNA3kDpvkRm/c27ei89sRIgq2GzdPQVHl4JQb8LItq2rJzIfB3GLlkJklxg
+	0G+VgJWofhexDAZwtGclNKnyPLWmulQjgGI2tprhwg5K6+w5rv+iSjJ9DF799B+nmUqFF8rktN2
+	R5owax1iGIpVpYzBRWFm0LEbcNuDXLc+tk2mtOIh5bWm+9Cr4N25FhqZOo95DliPOKM9a8Ec+xh
+	Ggz2P
+X-Received: by 2002:a05:6000:24c2:b0:3ca:43ce:8a60 with SMTP id ffacd0b85a97d-3ca43ce8debmr4253734f8f.56.1756210594138;
+        Tue, 26 Aug 2025 05:16:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF1vwwLGJx7vZzx6yCM2iOBpq2l97oe5wYAIVyLlq0crxa3xO3y2zxEx14ezkHOG7wMX3UUCg==
+X-Received: by 2002:a05:6000:24c2:b0:3ca:43ce:8a60 with SMTP id ffacd0b85a97d-3ca43ce8debmr4253693f8f.56.1756210593333;
+        Tue, 26 Aug 2025 05:16:33 -0700 (PDT)
+Received: from [192.168.0.6] (ltea-047-064-113-247.pools.arcor-ip.net. [47.64.113.247])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c711d9f3a8sm15987904f8f.62.2025.08.26.05.16.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Aug 2025 05:16:32 -0700 (PDT)
+Message-ID: <c9fe5d6e-c280-4480-a522-a99fa5ce7cb2@redhat.com>
+Date: Tue, 26 Aug 2025 14:16:31 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,97 +77,79 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] KVM: s390: Fix access to unavailable adapter indicator
  pages during postcopy
-To: Thomas Huth <thuth@redhat.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>,
-        kvm@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: Peter Xu <peterx@redhat.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ David Hildenbrand <david@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20250821152309.847187-1-thuth@redhat.com>
+ <d91ed0a4-16b2-417d-9b44-6e0d629f65d0@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20250821152309.847187-1-thuth@redhat.com>
+Autocrypt: addr=thuth@redhat.com; keydata=
+ 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
+In-Reply-To: <d91ed0a4-16b2-417d-9b44-6e0d629f65d0@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODIzMDAxMCBTYWx0ZWRfX5BAhRn4lHbLQ
- bJhHLbQzXcpcNVUcvE3aI+b9f3698RTmRngciT90BZ4fp1dPRTBR9QEM6JtfQMZVw9hHdR3vT6X
- jBcIePQp51LKb4nCineIKKJo8GNhmhIxf2pimjU3gPML6EZp2rqHdellMvsREgYDofnYGlYRCO5
- 65E2jRQYExEVtJiq2FvtxCDZbpS8sX6FFqqUdCKWjlLvISvOtJebAJ5j/1lxHEYmxQo0CEQVtCu
- qpz7ZDW93MYtZkbJ4JUCWRscgsaybmBNNS2GpDCfy45Khn18Z4ETpuVggtnXUIqAODvQXHGd8Gz
- 96LOVWA5dd8rClV0kg5Ryr+5yPU+hX5rmtDdUaoANnjjAPNXmQEEA3CbflYYcvOc2vibFyPEhvI
- CrODysB7
-X-Proofpoint-ORIG-GUID: 9L54WpB3tDCrX8AiJg8UbScVmdjltNUo
-X-Proofpoint-GUID: 9L54WpB3tDCrX8AiJg8UbScVmdjltNUo
-X-Authority-Analysis: v=2.4 cv=evffzppX c=1 sm=1 tr=0 ts=68ad9dd5 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=20KFwNOVAAAA:8 a=C3RHDqs8tSUvgNmTlIQA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-26_02,2025-08-26_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 malwarescore=0 spamscore=0 bulkscore=0
- impostorscore=0 clxscore=1015 priorityscore=1501 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508230010
 
-On 8/21/25 5:23 PM, Thomas Huth wrote:
-> From: Thomas Huth <thuth@redhat.com>
+On 26/08/2025 13.43, Janosch Frank wrote:
+> On 8/21/25 5:23 PM, Thomas Huth wrote:
+>> From: Thomas Huth <thuth@redhat.com>
+>>
+>> When you run a KVM guest with vhost-net and migrate that guest to
+>> another host, and you immediately enable postcopy after starting the
+>> migration, there is a big chance that the network connection of the
+>> guest won't work anymore on the destination side after the migration.
 > 
-> When you run a KVM guest with vhost-net and migrate that guest to
-> another host, and you immediately enable postcopy after starting the
-> migration, there is a big chance that the network connection of the
-> guest won't work anymore on the destination side after the migration.
+> Do we want to add this?
+> 
+> Fixes: f65470661f36 ("KVM: s390/interrupt: do not pin adapter interrupt pages")
 
-Do we want to add this?
+Yes, that sounds like a good idea, please add it when picking up the patch!
 
-Fixes: f65470661f36 ("KVM: s390/interrupt: do not pin adapter interrupt 
-pages")
+  Thanks,
+   Thomas
+
