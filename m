@@ -1,117 +1,232 @@
-Received: from leontynka.twibright.com (leontynka.twibright.com [109.81.181.203])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FC8E350842;
-	Tue, 26 Aug 2025 14:23:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.81.181.203
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E24F35208B
+	for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 14:28:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756218237; cv=none; b=rqkF8UgtJm1fY61+qiC7XMwY8HmvvsS3e6nqhieAWWbthpcST9TjRhXZkR3QSDu+fXmKP3is4tviyB6m1O/kQxuZsCcz+5IMMPHxjt2Td8FEsRfbCFEigS7bCrgovbbGXJOq29f7CWb2zoJBmOQP3ld6hOPhYATroUhrFkPGhts=
+	t=1756218510; cv=none; b=Jt2qdptuSeaylUhZoclQQORWWEABOu5ZxuhE+xg7dnts0TCjjrPqifjVo3u/jBBWW/k8JcH4zhLtnBWjuGEhStx7BNa62xxEJVDcrNB6g42QKPPIQcBGGCcs9RrhCM9Ed4oUw7IVPF5VGgy/m7a//PtcSnSn+eoePivRaOIwQ0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756218237; c=relaxed/simple;
-	bh=TaMtshfmq7VD9kWh1Xk1B8MEuPO2dQgTtQZlkXjoLxk=;
-	h=Message-ID:Date:From:To:Cc:Subject:References:MIME-Version:
-	 Content-Type; b=OfLFWEBGv48DHEwFN+TasDEKDQbY+8SfIBL+/krsCiCg3IJNpugYKg6K/kSD78kJfh4IJJRc09gZmeePCSQTk0kcCshXWDg08lYxeQ5np7NrQlzFoxQ1/ig5fERHXY3L9FHTkeAPmKPkhEU7Cnoqjm/v/e2oT1FzvRgBedykvdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=redhat.com; spf=fail smtp.mailfrom=redhat.com; arc=none smtp.client-ip=109.81.181.203
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=redhat.com
-Received: from zen ([192.168.128.17] helo=debian.vm)
-	by leontynka.twibright.com with smtp (Exim 4.96)
-	(envelope-from <mpatocka@redhat.com>)
-	id 1uqu9U-008Vrn-2t;
-	Tue, 26 Aug 2025 15:55:57 +0200
-Received: by debian.vm (sSMTP sendmail emulation); Tue, 26 Aug 2025 15:55:56 +0200
-Message-ID: <20250826135556.406911161@debian4.vm>
-User-Agent: quilt/0.68
-Date: Tue, 26 Aug 2025 15:54:59 +0200
-From: Mikulas Patocka <mpatocka@redhat.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "David S. Miller" <davem@davemloft.net>,
- Eric Biggers <ebiggers@kernel.org>,
- dengler@linux.ibm.com,
- linux-s390@vger.kernel.org,
- dm-devel@lists.linux.dev,
- ifranzki@linux.ibm.com,
- agk@redhat.com,
- snitzer@kernel.org,
- gmazyland@gmail.com,
- Mikulas Patocka <mpatocka@redhat.com>
-Subject: [PATCH 6/7] dm-integrity: rename internal_hash
-References: <20250826135453.012446010@debian4.vm>
+	s=arc-20240116; t=1756218510; c=relaxed/simple;
+	bh=5IkgTtObWIo/HOE77y+T1mDDKK4C6O5Kl1dDT7OT2m0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Y8xVJ3kSeOmtSkt6PWldHzYrTisIS6fvW6b2d0wKrDoorwyQuFM4CAwkz2Z4mjU/ukqMLSipUKPUc529Pr2hfHASLy+63CZJXOjjnLxp9wXf2LWL0jW8yTMkW1wH9L9PAo3UteQTCnyzJyvmNUpcJOSeZj6ALSpryAZahqIAdWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GI0tZpzw; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GI0tZpzw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756218506;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=qDLf7UHqP/kD/etWBqZtQZ0xB9/zj9AoNH0XrSAyLV0=;
+	b=GI0tZpzwJ5DXViD5l+H4iX3lmJ9o+NoMFrRf1Pg3+1JwgoU8KCcr+vYehGaR9bUlmfDvjB
+	Ekcar9RUgy+8bVvCaWV54dKLRyHflkM+bBWoV+fobwWzSQkwVBQjePPhLJoU4GPc9yPw62
+	KDF73xmZOj/zc6/GBcAHrfwdWTMb8fE=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-671-Rav81IZzOFOtIKt7NsuVww-1; Tue, 26 Aug 2025 10:28:25 -0400
+X-MC-Unique: Rav81IZzOFOtIKt7NsuVww-1
+X-Mimecast-MFC-AGG-ID: Rav81IZzOFOtIKt7NsuVww_1756218504
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3c8406fb5e1so2305028f8f.3
+        for <linux-s390@vger.kernel.org>; Tue, 26 Aug 2025 07:28:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756218504; x=1756823304;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qDLf7UHqP/kD/etWBqZtQZ0xB9/zj9AoNH0XrSAyLV0=;
+        b=ds1FezPxtJzQ/6ToVgtOWB4N66XtyHiGg1hne0wVVGKtPIr4Wuy3+/QLDx/FktIDjL
+         rkpulOr+sZgDKFIp/RfVoxIAHhh/QHw+1WDcR8KjBMbS+Zy4AGYqNEAZPGQ6wG69c95X
+         Sb3saf8BwOsSb7gp2/q93fhzSwgFgfzN3saoMGzYv9fDbrpfaVqHfqDrX0UKF0zNxYuX
+         4wsEGdvB9RT445YCCOFHzQyCp8nuhA+0imadbdTJRK8GEbYMxf1UaDjTLU7Sri385EpE
+         7gG60ftTQGtz3py8DLvn6rupeXnyrm1fRo0JP3ErmF3yItXJHHDFNe2z7hIC5uyp6bq5
+         13Bw==
+X-Forwarded-Encrypted: i=1; AJvYcCU+Q87p8SOarqXv0TcI/pKF8O7/R+UdL5TT34d2QOnPi9FAyzAOFtD/+kdCm9Aq8++aAxZpThsE04eA@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzb/w5UqySvmcwpNkAxNT0rdqKDXPr28hB1ci744UvbidOhHJH+
+	816/i0nIexmn1athYellHMcWJ5ngGo+F3aW6SLvsdpelAe/UKaTE0MS8BvmAtG441ej4tT9md1D
+	cTD1wkSx8ozp9jPsgwa/yCTCMaJIMdppidWdsJslghHaJ1KdN7GuNkQwAk3bgK+Y=
+X-Gm-Gg: ASbGncsnjNrx10VZPAIcix5qE9KZxSKww+zjp76md04nkyhKv8Suz+u0X+2DL2jRi81
+	e1HSCeNmxOBVFvZheuHcJd4ElAwpeqM4MREDpMbHZ2mylZkmyo2IMmQTXyq7zrLrfJgTO0fbu0e
+	DcU8K+UazRZMGWNzfYRNweCG0ukQd/wqEYp2vZZm0CXCfjX3eFcswW/5Nk+JA6vrWu/KJDZyvAn
+	A/TsWWUyEhitDEL8/4poCA/DCt0AVLEeIObFbBn2fcqR+le9+2x1ibFaEvnChE4Pc1zKLUAviU+
+	VHnShh/bryeQvzL6T4zn5/12SzIoJR7QKdGrxj5I/Q9wumvSkoN3LhD+fGU4kZsK5N152jdHRw=
+	=
+X-Received: by 2002:a05:6000:200b:b0:3b9:1444:98b9 with SMTP id ffacd0b85a97d-3c5daefe1a2mr13028594f8f.20.1756218503607;
+        Tue, 26 Aug 2025 07:28:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEesMYr8JzIEF1vgTN54nHPI7cUfVq8ZiROeIcQJ5cCobuevpeofHXLkn08AMqOsb8e/8JJcQ==
+X-Received: by 2002:a05:6000:200b:b0:3b9:1444:98b9 with SMTP id ffacd0b85a97d-3c5daefe1a2mr13028514f8f.20.1756218502957;
+        Tue, 26 Aug 2025 07:28:22 -0700 (PDT)
+Received: from ?IPV6:2a09:80c0:192:0:5dac:bf3d:c41:c3e7? ([2a09:80c0:192:0:5dac:bf3d:c41:c3e7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3c711211cdesm16359467f8f.37.2025.08.26.07.28.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Aug 2025 07:28:22 -0700 (PDT)
+Message-ID: <d39e029a-8c12-42fb-8046-8e4a568134dc@redhat.com>
+Date: Tue, 26 Aug 2025 16:28:20 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 08/10] mm: update fork mm->flags initialisation to use
+ bitmap
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
+ <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski
+ <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache
+ <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>,
+ Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ David Rientjes <rientjes@google.com>, Shakeel Butt <shakeel.butt@linux.dev>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>,
+ Kan Liang <kan.liang@linux.intel.com>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Matthew Wilcox <willy@infradead.org>,
+ Mateusz Guzik <mjguzik@gmail.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+ linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
+References: <cover.1755012943.git.lorenzo.stoakes@oracle.com>
+ <9fb8954a7a0f0184f012a8e66f8565bcbab014ba.1755012943.git.lorenzo.stoakes@oracle.com>
+ <73a39f45-e10c-42f8-819b-7289733eae03@redhat.com>
+ <d4f8346d-42eb-48db-962d-6bc0fc348510@lucifer.local>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <d4f8346d-42eb-48db-962d-6bc0fc348510@lucifer.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Rename "internal_hash" to "internal_shash" and introduce a boolean value
-"internal_hash".
+On 26.08.25 16:21, Lorenzo Stoakes wrote:
+> On Tue, Aug 26, 2025 at 03:12:08PM +0200, David Hildenbrand wrote:
+>> On 12.08.25 17:44, Lorenzo Stoakes wrote:
+>>> We now need to account for flag initialisation on fork. We retain the
+>>> existing logic as much as we can, but dub the existing flag mask legacy.
+>>>
+>>> These flags are therefore required to fit in the first 32-bits of the flags
+>>> field.
+>>>
+>>> However, further flag propagation upon fork can be implemented in mm_init()
+>>> on a per-flag basis.
+>>>
+>>> We ensure we clear the entire bitmap prior to setting it, and use
+>>> __mm_flags_get_word() and __mm_flags_set_word() to manipulate these legacy
+>>> fields efficiently.
+>>>
+>>> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+>>> ---
+>>>    include/linux/mm_types.h | 13 ++++++++++---
+>>>    kernel/fork.c            |  7 +++++--
+>>>    2 files changed, 15 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+>>> index 38b3fa927997..25577ab39094 100644
+>>> --- a/include/linux/mm_types.h
+>>> +++ b/include/linux/mm_types.h
+>>> @@ -1820,16 +1820,23 @@ enum {
+>>>    #define MMF_TOPDOWN		31	/* mm searches top down by default */
+>>>    #define MMF_TOPDOWN_MASK	_BITUL(MMF_TOPDOWN)
+>>> -#define MMF_INIT_MASK		(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+>>> +#define MMF_INIT_LEGACY_MASK	(MMF_DUMPABLE_MASK | MMF_DUMP_FILTER_MASK |\
+>>>    				 MMF_DISABLE_THP_MASK | MMF_HAS_MDWE_MASK |\
+>>>    				 MMF_VM_MERGE_ANY_MASK | MMF_TOPDOWN_MASK)
+>>> -static inline unsigned long mmf_init_flags(unsigned long flags)
+>>> +/* Legacy flags must fit within 32 bits. */
+>>> +static_assert((u64)MMF_INIT_LEGACY_MASK <= (u64)UINT_MAX);
+>>
+>> Why not use the magic number 32 you are mentioning in the comment? :)
+> 
+> Meh I mean UINT_MAX works as a good 'any bit' mask and this will work on
+> both 32-bit and 64-bit systems.
+> 
+>>
+>> static_assert((u32)MMF_INIT_LEGACY_MASK != MMF_INIT_LEGACY_MASK);
+> 
+> On 32-bit that'd not work would it?
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
----
- drivers/md/dm-integrity.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+On 32bit, BIT(32) would exceed the shift width of unsigned long -> 
+undefined behavior.
 
-Index: linux-2.6/drivers/md/dm-integrity.c
-===================================================================
---- linux-2.6.orig/drivers/md/dm-integrity.c	2025-08-25 15:46:51.000000000 +0200
-+++ linux-2.6/drivers/md/dm-integrity.c	2025-08-25 15:46:51.000000000 +0200
-@@ -219,10 +219,11 @@ struct dm_integrity_c {
- 	__u8 log2_blocks_per_bitmap_bit;
- 
- 	unsigned char mode;
-+	bool internal_hash;
- 
- 	int failed;
- 
--	struct crypto_shash *internal_hash;
-+	struct crypto_shash *internal_shash;
- 	unsigned int internal_hash_digestsize;
- 
- 	struct dm_target *ti;
-@@ -1639,11 +1640,11 @@ static void integrity_sector_checksum(st
- 				      const char *data, unsigned offset, char *result)
- {
- 	__le64 sector_le = cpu_to_le64(sector);
--	SHASH_DESC_ON_STACK(req, ic->internal_hash);
-+	SHASH_DESC_ON_STACK(req, ic->internal_shash);
- 	int r;
- 	unsigned int digest_size;
- 
--	req->tfm = ic->internal_hash;
-+	req->tfm = ic->internal_shash;
- 
- 	r = crypto_shash_init(req);
- 	if (unlikely(r < 0)) {
-@@ -4708,12 +4709,14 @@ static int dm_integrity_ctr(struct dm_ta
- 		buffer_sectors = 1;
- 	ic->log2_buffer_sectors = min((int)__fls(buffer_sectors), 31 - SECTOR_SHIFT);
- 
--	r = get_mac(&ic->internal_hash, &ic->internal_hash_alg, &ti->error,
-+	r = get_mac(&ic->internal_shash, &ic->internal_hash_alg, &ti->error,
- 		    "Invalid internal hash", "Error setting internal hash key");
- 	if (r)
- 		goto bad;
--	if (ic->internal_hash)
--		ic->internal_hash_digestsize = crypto_shash_digestsize(ic->internal_hash);
-+	if (ic->internal_shash) {
-+		ic->internal_hash = true;
-+		ic->internal_hash_digestsize = crypto_shash_digestsize(ic->internal_shash);
-+	}
- 
- 	r = get_mac(&ic->journal_mac, &ic->journal_mac_alg, &ti->error,
- 		    "Invalid journal mac", "Error setting journal mac key");
-@@ -5235,8 +5238,8 @@ static void dm_integrity_dtr(struct dm_t
- 	if (ic->sb)
- 		free_pages_exact(ic->sb, SB_SECTORS << SECTOR_SHIFT);
- 
--	if (ic->internal_hash)
--		crypto_free_shash(ic->internal_hash);
-+	if (ic->internal_shash)
-+		crypto_free_shash(ic->internal_shash);
- 	free_alg(&ic->internal_hash_alg);
- 
- 	if (ic->journal_crypt)
+The compiler should naturally complain.
+
+-- 
+Cheers
+
+David / dhildenb
 
