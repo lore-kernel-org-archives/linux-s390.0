@@ -1,50 +1,52 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB0213126CC
-	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:07:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5E072ECE91
+	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:07:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756332449; cv=none; b=ZnFdw/d3Wbsv0ZHc4HAInxwkEQcLFTuhOshtjJ3eZsvqmbFcnRHzKPmTb/RyjCjKZtyC+ezpGKu9PXwQ5ddJlYi6plOuhqSK7MqKLCrm7dCriETRLsNHt4N93pA3KxX9RsFeH0j7hP63g8JHo6TcKaXkeYhXOQXEVljyGxOhhuY=
+	t=1756332464; cv=none; b=EBAtMzT8NP1qbvfWL/5NfNNn2egG8t5Vn0Uh0PhOGJMmTuubCmvqkDZXZnyQoy77IN/qaNNYYYFjf71Ni+SPVb73qMJ1rPKo84OyHUUnaTO9buTkAo6RyfTK2TLF+hEMuTOrUAiMpQH5+pnbMv0OsHvgrYlNKqEj9XwYWRx9zL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756332449; c=relaxed/simple;
-	bh=V9oYPYZ0MUNdNsjhr3YSNju4FRo9h/2ZtKpf2CO4BKk=;
+	s=arc-20240116; t=1756332464; c=relaxed/simple;
+	bh=mysgNLgyqNOcMJc194F7j+8UdorA58cyb0wU+MHoHGk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CSR87VQQSrySAmbw8e93KMzF0dGRRYw0F8C3Pb9cJUTIbXMT+RYt0sH6ZbXjZhsmQsWUjVVc/kmrq+gPPGxgakgf+ClttDY5ob9b70J/dCmCO0UnIVIUCnLs8ad5g2KNzfHVkLfFGs+4QCl/sFAn1U24IPFSetzaD17vBiIdvss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hLb/zMjv; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=RXJUwuesWxhNLhozdZgLVg2d+UPKl/ioWyTQ7Wg76z33BBtdWD0nUcuHwLBTxSkd2HzOSXxEFRXB+CKJmfQe9p0hJCAXnW3bDCEGJV1r1SePbWF/RlE/4U716/IxkZ2zS0s8dUGgqI0tgqUtVR3xwcT06MrLsQNpeKX7MptZ75M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=exu8+pBG; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hLb/zMjv"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="exu8+pBG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756332446;
+	s=mimecast20190719; t=1756332461;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Mae/7n3uM/9R//Wdj7TtDbDkO9ysL6apaiu1QaIksGk=;
-	b=hLb/zMjv0MJzSTt0PSwQ6XA8kXQy7cScOomgSifATpwLak/92qZUYC3cw1uQkiMEMlahnj
-	IiHmtJQaTKDb3eWXDB9HhdF9aIbYntzN232VWthrD2ajzBcd10vHNajqbUrWUnol3WSVEV
-	U+1G1WTgQhv8yf6h4bmqLJ275t+KQ18=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+	bh=jRdNfj9ZJOGMCBURzHWfgI671U+1iCcASfBCX64ogeI=;
+	b=exu8+pBGwmwIeb2lGv4MNF/v4WBx+K1DMFTITGBc7cQpWyPsmyiNc0NhHuY59W3cZ7VbPk
+	j1BZDQ9essfep3gc92xd8F58gaV6tqBf+oKdVBLEKyslPYcUgEMyq0igDiScYOhWPZoTvW
+	ATpAn+RmiCFMO4dftEWMCPtZiTWJdTE=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-484-meNFbt-4OO6MS1lMNpb3mg-1; Wed,
- 27 Aug 2025 18:07:22 -0400
-X-MC-Unique: meNFbt-4OO6MS1lMNpb3mg-1
-X-Mimecast-MFC-AGG-ID: meNFbt-4OO6MS1lMNpb3mg_1756332437
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-552-hUo1S-tsOY-l5AExsMPNLg-1; Wed,
+ 27 Aug 2025 18:07:39 -0400
+X-MC-Unique: hUo1S-tsOY-l5AExsMPNLg-1
+X-Mimecast-MFC-AGG-ID: hUo1S-tsOY-l5AExsMPNLg_1756332454
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 4DB08180036F;
-	Wed, 27 Aug 2025 22:07:17 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DE2EB195608E;
+	Wed, 27 Aug 2025 22:07:33 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.80.195])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 530E930001A1;
-	Wed, 27 Aug 2025 22:07:01 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E10A430001A1;
+	Wed, 27 Aug 2025 22:07:17 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
+	Pavel Begunkov <asml.silence@gmail.com>,
+	Jens Axboe <axboe@kernel.dk>,
 	Alexander Potapenko <glider@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Brendan Jackman <jackmanb@google.com>,
@@ -56,7 +58,6 @@ Cc: David Hildenbrand <david@redhat.com>,
 	iommu@lists.linux.dev,
 	io-uring@vger.kernel.org,
 	Jason Gunthorpe <jgg@nvidia.com>,
-	Jens Axboe <axboe@kernel.dk>,
 	Johannes Weiner <hannes@cmpxchg.org>,
 	John Hubbard <jhubbard@nvidia.com>,
 	kasan-dev@googlegroups.com,
@@ -91,9 +92,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 18/36] mm/gup: drop nth_page() usage within folio when recording subpages
-Date: Thu, 28 Aug 2025 00:01:22 +0200
-Message-ID: <20250827220141.262669-19-david@redhat.com>
+Subject: [PATCH v1 19/36] io_uring/zcrx: remove nth_page() usage within folio
+Date: Thu, 28 Aug 2025 00:01:23 +0200
+Message-ID: <20250827220141.262669-20-david@redhat.com>
 In-Reply-To: <20250827220141.262669-1-david@redhat.com>
 References: <20250827220141.262669-1-david@redhat.com>
 Precedence: bulk
@@ -105,42 +106,39 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-nth_page() is no longer required when iterating over pages within a
-single folio, so let's just drop it when recording subpages.
+Within a folio/compound page, nth_page() is no longer required.
+Given that we call folio_test_partial_kmap()+kmap_local_page(), the code
+would already be problematic if the pages would span multiple folios.
 
+So let's just assume that all src pages belong to a single
+folio/compound page and can be iterated ordinarily. The dst page is
+currently always a single page, so we're not actually iterating
+anything.
+
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- mm/gup.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ io_uring/zcrx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/gup.c b/mm/gup.c
-index b2a78f0291273..89ca0813791ab 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -488,12 +488,11 @@ static int record_subpages(struct page *page, unsigned long sz,
- 			   unsigned long addr, unsigned long end,
- 			   struct page **pages)
- {
--	struct page *start_page;
- 	int nr;
+diff --git a/io_uring/zcrx.c b/io_uring/zcrx.c
+index e5ff49f3425e0..18c12f4b56b6c 100644
+--- a/io_uring/zcrx.c
++++ b/io_uring/zcrx.c
+@@ -975,9 +975,9 @@ static ssize_t io_copy_page(struct io_copy_cache *cc, struct page *src_page,
  
--	start_page = nth_page(page, (addr & (sz - 1)) >> PAGE_SHIFT);
-+	page += (addr & (sz - 1)) >> PAGE_SHIFT;
- 	for (nr = 0; addr != end; nr++, addr += PAGE_SIZE)
--		pages[nr] = nth_page(start_page, nr);
-+		pages[nr] = page++;
- 
- 	return nr;
- }
-@@ -1512,7 +1511,7 @@ static long __get_user_pages(struct mm_struct *mm,
- 			}
- 
- 			for (j = 0; j < page_increm; j++) {
--				subpage = nth_page(page, j);
-+				subpage = page + j;
- 				pages[i + j] = subpage;
- 				flush_anon_page(vma, subpage, start + j * PAGE_SIZE);
- 				flush_dcache_page(subpage);
+ 		if (folio_test_partial_kmap(page_folio(dst_page)) ||
+ 		    folio_test_partial_kmap(page_folio(src_page))) {
+-			dst_page = nth_page(dst_page, dst_offset / PAGE_SIZE);
++			dst_page += dst_offset / PAGE_SIZE;
+ 			dst_offset = offset_in_page(dst_offset);
+-			src_page = nth_page(src_page, src_offset / PAGE_SIZE);
++			src_page += src_offset / PAGE_SIZE;
+ 			src_offset = offset_in_page(src_offset);
+ 			n = min(PAGE_SIZE - src_offset, PAGE_SIZE - dst_offset);
+ 			n = min(n, len);
 -- 
 2.50.1
 
