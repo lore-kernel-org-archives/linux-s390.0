@@ -1,52 +1,53 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A102798EB;
-	Wed, 27 Aug 2025 10:42:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F89E2857DF;
+	Wed, 27 Aug 2025 10:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756291356; cv=none; b=UfGzyNENUaCpI5aWFr9kO9zVUqLrnP1yg41D9FLIyPmPkTFZWgY3kkoXXrLS0j7Qoy8WV+IBDK3kBT91kDPLVKgCusZxKqipfipGsNcUMq+HiP2h4GWyKBJJBXXmbu2adw+hI/QZDiPeuyyWWMOyddAY45hnERZ+Sn54xTlYH6A=
+	t=1756291358; cv=none; b=Cdui2DJqwJiZ06Ky4YrQ2EidbKRwDjlX+s257h8GHVeL+TmYUaCtYNUJHitrGrbNO/AhULXcXpvQMx9kkOELjzwDWcagZzkf50Hs/My3M1dSDntIyaOOO1wdweJ184FH4w+PA08YaWRCjSqoVQdEZjIc4ajyvncmt/InNqxlTIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756291356; c=relaxed/simple;
-	bh=rML8t243wUUhsl2OLv0RtLzgEBGwxGXZlMqXmCPiepA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZVvvcEHoyqFKSas5FLu/t5Pm7PHdo4S1Ptc4in7orylEOpOUWuS8VjSf7UsxPOR2oF+g+IWvanSPmWWZApi0cWw6/S0P79uVLQl0J02AWBsxjUv1H6r/SIpgbLE7XfLbM6VdFeSMnoaLYRAQDVQeejWgFFuLKtZDsDC7Nkbxc0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.52
+	s=arc-20240116; t=1756291358; c=relaxed/simple;
+	bh=ZtBIdZnCHZQ12LtgRqgW3EI2B93ul2ZH8koIDN46ZQM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=nxvs/vRltA3CY/VYmR2UNWVxvmAsMAD0bbYo70pbwkhYuGwwIIa1Z5l9+29fPVyfBXlFeh8UC29rnjtg7qtCCxP2x3HMaR3EwJfqrmdk1x6FfafDaSY9r0salbNSO79mTUMwg95EkvGCwrywEjkfN9EyTtYpJqff82PeVK+F1Ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-61c30ceacdcso1247151a12.1;
-        Wed, 27 Aug 2025 03:42:34 -0700 (PDT)
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-afec56519c4so60515566b.0;
+        Wed, 27 Aug 2025 03:42:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756291353; x=1756896153;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1u4zcic0l+T6GeQNUmUI9Uac9hp+HfKFNViGwyEQyPY=;
-        b=oev0gm4ou3zRVt8r46aYJwnk2saB/MiZa5X7bGF1w6SLeUu5wck9wCHGl77ix4K227
-         bVdBmG7tWG5c4/0dgRPY+hzyEZOvF6GUqQQ07txa/jB35jXWbJzbvIkvlLzZVIrVokNc
-         Gc1TupguOQOtFvfAzL7fSAzMWQC8o49VNfPDI80+MJP7R2nyL26Lm8YqyrSAk/KMz4dw
-         cz+YgXf9lYg2zld5LAuv8rcnIGOxB/ovxbq5GoEG9jjkHj1nRqergOt89A5p3GyAKuo6
-         K8f84SragB2QQcNJ0+mIxoVyM+pkMXQ9a9flqdVfbgpoOGy/6SlK7z2pSqoXff58hUVq
-         P77w==
-X-Forwarded-Encrypted: i=1; AJvYcCVUdFicZR49V2aNXmzIavV2p9usXwLAGYnFBAl28Bc1sYq6FYXmIyhlGn7+GS23JhPCBU/WmaReje+y4ls=@vger.kernel.org, AJvYcCWVciCLWPqF1lkzASxa5eFkm4UQcf5pf43xLvHBzCAHw7pR5MiVMOqQh3cpnEP+rXb7dykdDSsFnjA2Eg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXTFZEfE1MwW+q3MJrXYj+K2tnaBH4kAZv3MpdLl4BO31E93sQ
-	QlRyUdbhwXeeXBYzDPXnb+2eGwjEjnlphNIDW7FIt7ppa7di71FYJpid
-X-Gm-Gg: ASbGncsYwS9N1O9wWJ/cyTS8RpnAVC4JIZm54nNkkLoz5c5UvmO+wu5Go2NaviKGRCv
-	vhgJX8lMklguocptI8OLUMV/s5VTq9nP1xrGpKG8N3em0Ph9tjBDRTxCb164l/VRug9QcOcCiFq
-	vKsEoz/opmEcIjT7h4XokPBxnD9QqNRe3/wFn18VHh5MiZpK25nq980jLJv5gOz0RwPUve7rtRe
-	nwUg5ezehD7x6BeJCp/GVdXnPMj45uHtSAOto7rVNF7DXTmfiN+s5ULJDnn7OjlxRZfYCh73r54
-	mzfgcYxP6rSYXDaxVb++tqccHemlabsfDqzh/qdNV20dYM6I5dbDw5RnMobDdn+YBvEXQHT7Jad
-	HCvkVwjI2jJ5V1Ltt26sKUAM=
-X-Google-Smtp-Source: AGHT+IGjq9XcVFJfT48t3D2sSSWpKBUwYgoLrOJ85gEuT6CFTvTN24ctslyJVbJFjI6uf4ov/6pprA==
-X-Received: by 2002:a05:6402:4cb:b0:61c:4222:4856 with SMTP id 4fb4d7f45d1cf-61c983b899dmr3243783a12.3.1756291352988;
-        Wed, 27 Aug 2025 03:42:32 -0700 (PDT)
-Received: from localhost ([2a03:2880:30ff:5::])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61c3119ffdfsm8866926a12.9.2025.08.27.03.42.32
+        d=1e100.net; s=20230601; t=1756291355; x=1756896155;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=G79AwsSEkP9NYp/OkHMwA+Hki4uOuwUkISdhI+Igu/o=;
+        b=fi+ISCrcnk+pzj6AMEFq0LcCBthTD5k7JwkSWFMCSSiQ/FRQyrV5dxf8WrVyFxADiD
+         bssL++6n6C6gVuTjPjTm3xd+gpmpJQgk/TPDqNgAvSubEyG9dhWswPTLMT5ORFneB9Qa
+         syDPLg4ZtCllG3XxIEFsaCyao3LGiT9CJfatpyecv13GF8dTnM7eXl7F7CNSvHiD82sH
+         ceSKVRoi8GuTbF5T+6KFtOpT9SiuYQ2r4p7bgJq/KlOBLcze6avdyS8J/CeQ9bL6kIzJ
+         TZx15JkBSW5YnVlaL6B+lEr76OsNCMt7xNhF3ZxpIbg2zeAN2fO66lkzPjnssCryMDN+
+         ljYg==
+X-Forwarded-Encrypted: i=1; AJvYcCUlinTxvvKIXyNOxtI8lRLPEtCRnhhwDsEI+R6Z9LDOXjAR5Fe1fZpFx0GjjPct7OK3paTuTLs42xMIgA==@vger.kernel.org, AJvYcCWTh+tqMOGGywge0DagzDr48OC9mnr+Qb3pbP3aGQ7Ur9QFtAAkV827BAg6+2OblmnpzPW8D5kLRbx4j50=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx9i4OQjTgRHN+tZuFnqQdI57CDpUW1rA50RzhcF4N+OSEfd3MA
+	y9odofeLu1xCOW1R4IBSv8ISMfeZJ5Ej/X4n1QSL11I4V6w8vxDpNepI
+X-Gm-Gg: ASbGncv/Lkznrv58dnbbKwphIPEztmC0ui3qK2IxKaDWQYZVYYmu8VubgHd0WDvC0k5
+	RAeVudoc6zghASh1bqDMWQjNWDJ41PfKgdhq76t4JIZOjD+TKtL03Pxa3MLgf5B4kqDeQpAvEeJ
+	ns5G0GiQzYNTFjpVmE4rEOB4eK++995GPfeNN8BLwhCzCbPAVkZGvianiUnsi83U509O5EIHbCY
+	K8PecIaJzpkiWq1jqD02GCmCKX58cR2k1VQpbNkmwANjTJcImg3mMZd3Eg7bxBG3frtcVtu6UUn
+	qmNv5K5ebGuMp076LYoh4EzhKU9j4ioA31jk7dmPFHBze9JL1r3LDPig17tPy9/HZaSP6WuZg1e
+	Mct+uyBdtQCBmGA==
+X-Google-Smtp-Source: AGHT+IGCNXjZVRJSHl42HEXN59RSgLMpGNWQpTXxDCqtsTc88Oi0JVJAK4fEp5EBAEbzQTdpR/dOjg==
+X-Received: by 2002:a17:906:eecc:b0:afa:1d2c:2dc7 with SMTP id a640c23a62f3a-afe296ec4acmr1912007166b.57.1756291354609;
+        Wed, 27 Aug 2025 03:42:34 -0700 (PDT)
+Received: from localhost ([2a03:2880:30ff:73::])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-afe8e77c6aasm519657866b.56.2025.08.27.03.42.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Aug 2025 03:42:32 -0700 (PDT)
+        Wed, 27 Aug 2025 03:42:34 -0700 (PDT)
 From: Breno Leitao <leitao@debian.org>
-Subject: [PATCH 0/3] kexec: Fix invalid field access
-Date: Wed, 27 Aug 2025 03:42:20 -0700
-Message-Id: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
+Date: Wed, 27 Aug 2025 03:42:21 -0700
+Subject: [PATCH 1/3] arm64: kexec: Initialize kexec_buf struct in
+ load_other_segments()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,10 +56,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAzhrmgC/x3M4QpAMBQG0Fe5fb+tZrXYXkWSzcWN0BYpeXflP
- MB5kDkJZ3h6kPiSLPsGT2VBiHO/TaxkgCcYbayuTaWWcI5dv64quMHa6IwrOaAgHIlHuf+qad/
- 3Awsgpn9aAAAA
-X-Change-ID: 20250827-kbuf_all-b9d55c9291eb
+Message-Id: <20250827-kbuf_all-v1-1-1df9882bb01a@debian.org>
+References: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
+In-Reply-To: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
 To: Catalin Marinas <catalin.marinas@arm.com>, 
  Will Deacon <will@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
  Baoquan He <bhe@redhat.com>, Coiby Xu <coxu@redhat.com>, 
@@ -73,20 +73,20 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
  Breno Leitao <leitao@debian.org>, kernel-team@meta.com
 X-Mailer: b4 0.15-dev-dd21f
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1971; i=leitao@debian.org;
- h=from:subject:message-id; bh=rML8t243wUUhsl2OLv0RtLzgEBGwxGXZlMqXmCPiepA=;
- b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBoruEXzwuDBBiV9rroaHj06zedE14jXSY01dNDe
- 05pyXnMz2GJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaK7hFwAKCRA1o5Of/Hh3
- bQ8zEACrimEGA/OQuvFVrT8mrQ5Mr4ou2ECD6x2JT6IN4mZlhwCnR7sMQJqrC032rCxgekihaHs
- 7Ki113795L3C7BTYvyPWbwWtUQaPsSQ0/UJ+6m2XCmjDAbJ7t/WO9A7UVM1FR5idIjTV1oBNTtC
- wpOrdPVNCg0WaxKKdASKjM8a8hVT3jA87Jk7R4lGAjpJaeJy9aftaNWBa8NsFXHwpy75km7tcGF
- SBFX3mhGEe8J9dGy4/nAeVnGht9vZ9Hq5YaznVRgYZyPIfY1G8ZuhDcm+EZtMwSxhi5W//q8LKY
- iUp/8X6lf79htbfC+5DOcq59ZKX/xLV4z90bdmafjP2oy/VIu5caJj1zAve2+Dz27xhy6vjd43W
- C657LTC1KH1FkT7zo9gIQ6ZaH2okMu4Whhj19eiml86fP+KfCoKc0hk/TokrLnuQyHD9aAkRLFn
- 2ucGx3hvFvyGjiL7R5RPhWFjfrY2ZdERinWI7A3v1fnkQxK4MsXgGuMxujjh4Tu34tsjJn/o82U
- 8x+dO26drFZw0H50CdChjQHWa8N22UHPNlVrbvc3PK6dK+5GSeqrTGqgvLdqEMu4d4/XNygR13L
- 5qH8uiuMDjp1NxTTDlw9LR4RVGAebXqZVAEYDejtp/c80AVXiejNbHTcms+vFKQ3dspdi7xDESB
- kUAepqT0fXLi+cg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1445; i=leitao@debian.org;
+ h=from:subject:message-id; bh=ZtBIdZnCHZQ12LtgRqgW3EI2B93ul2ZH8koIDN46ZQM=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBoruEXEz5/jNTGfDniMg/ZnAHUi/RMcmE+6R2RF
+ hCO9Exf9kWJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaK7hFwAKCRA1o5Of/Hh3
+ bfYLEACXBlAx2lnDz27xwPzW4zjmn2zElcwunujZrWs1v4Z9od/NKARCH6tvNwN20afKpZ4gIW3
+ ySL5qOqXCFGmp8SICmUgtEu27vihwQi5mE912eHGfaowVn6ehUpfu+PzplkMA1smdOaHKHkJElB
+ 3rTziKVwLCCkKaGmYFL8sw+IHAxJySOHATGacXbu1CE60eGYgDk5d2A+aa8BgAml1iuEuCNP1vY
+ Z/6VWe5imGd5Fv1lua0SdlFkQ9vWpntT1gXLqKVUospwxDgz/H7D3hcuiTZm5/ggqr9hvD8+4LB
+ 7GkcMPs57t1luyhKi3limgE818GFrnBJT3CNwqxIFy3pEUO+hjdtbtGWwwj0oT5pxu2HUCBe+Jl
+ pLWp7tIEqg5IMLdERqOPKfcyojA2U6l/qSLx6WX84Pk+AT6jI84silv6NNYzG5XAnJQgvRCvY0x
+ SgPs4xSMmkgeztXFOcuGg1jUU0m9VJEELoU9TIUAef07ss+dwSXMRzmNbf/hoRp5LlOCwUgr1KM
+ cyI4eLuldyoxD039e+c2KuUsITIwwDgJXtNeqo3vzpJKU127Iu+anDRICtyp4mRZVACnKmo+nFw
+ D75fz0VAeYQ4+jVEtiG5Sn2CSzpUejInwoTSc5s38P1brzQ0Lz62qtytjJI+IdB1lmT8vQwx2hQ
+ opV5AljUUPp0+hA==
 X-Developer-Key: i=leitao@debian.org; a=openpgp;
  fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
 
@@ -106,35 +106,26 @@ Zero-initializing kexec_buf at declaration ensures all fields are
 cleanly set, preventing future instances of uninitialized memory being
 used.
 
-An initial fix was already landed for arm64[0], and this patchset fixes
-the problem on the remaining arm64 code and on riscv, as raised by Mark.
-
-Discussions about this problem could be found at[1][2].
-
-Link: https://lore.kernel.org/all/20250826180742.f2471131255ec1c43683ea07@linux-foundation.org/ [0]
-Link: https://lore.kernel.org/all/oninomspajhxp4omtdapxnckxydbk2nzmrix7rggmpukpnzadw@c67o7njgdgm3/ [1]
-Link: https://lore.kernel.org/all/20250826-akpm-v1-1-3c831f0e3799@debian.org/ [2]
-
 Signed-off-by: Breno Leitao <leitao@debian.org>
+Fixes: bf454ec31add ("kexec_file: allow to place kexec_buf randomly")
 ---
-Breno Leitao (3):
-      arm64: kexec: Initialize kexec_buf struct in load_other_segments()
-      riscv: kexec: Initialize kexec_buf struct
-      s390: kexec: Initialize kexec_buf struct
-
  arch/arm64/kernel/machine_kexec_file.c | 2 +-
- arch/riscv/kernel/kexec_elf.c          | 4 ++--
- arch/riscv/kernel/kexec_image.c        | 2 +-
- arch/riscv/kernel/machine_kexec_file.c | 2 +-
- arch/s390/kernel/kexec_elf.c           | 2 +-
- arch/s390/kernel/kexec_image.c         | 2 +-
- arch/s390/kernel/machine_kexec_file.c  | 6 +++---
- 7 files changed, 10 insertions(+), 10 deletions(-)
----
-base-commit: 3c642997252eef4449cb6b6e02af3dc22515d817
-change-id: 20250827-kbuf_all-b9d55c9291eb
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Best regards,
---  
-Breno Leitao <leitao@debian.org>
+diff --git a/arch/arm64/kernel/machine_kexec_file.c b/arch/arm64/kernel/machine_kexec_file.c
+index af1ca875c52ce..410060ebd86df 100644
+--- a/arch/arm64/kernel/machine_kexec_file.c
++++ b/arch/arm64/kernel/machine_kexec_file.c
+@@ -94,7 +94,7 @@ int load_other_segments(struct kimage *image,
+ 			char *initrd, unsigned long initrd_len,
+ 			char *cmdline)
+ {
+-	struct kexec_buf kbuf;
++	struct kexec_buf kbuf = {};
+ 	void *dtb = NULL;
+ 	unsigned long initrd_load_addr = 0, dtb_len,
+ 		      orig_segments = image->nr_segments;
+
+-- 
+2.47.3
 
