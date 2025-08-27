@@ -1,147 +1,140 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC913451D1;
-	Wed, 27 Aug 2025 09:42:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A102798EB;
+	Wed, 27 Aug 2025 10:42:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756287762; cv=none; b=nEwjm6CQGT+ALnULD2o6mBDuHpY9yOei6EKhRNECi7QqIpvr0v30qMHJNeJZoil1gow1eMFJ8+dE9zqNm5X/XIBwzCt7p57RY0DJX+j4+BODGt2bkL3a+BEYJo8mIR+M79Tq6+hm3fhjaqVMX866fCEXI0beXWqHtBf6RGi0JKY=
+	t=1756291356; cv=none; b=UfGzyNENUaCpI5aWFr9kO9zVUqLrnP1yg41D9FLIyPmPkTFZWgY3kkoXXrLS0j7Qoy8WV+IBDK3kBT91kDPLVKgCusZxKqipfipGsNcUMq+HiP2h4GWyKBJJBXXmbu2adw+hI/QZDiPeuyyWWMOyddAY45hnERZ+Sn54xTlYH6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756287762; c=relaxed/simple;
-	bh=A0KNxlVGHuvT2hmaoiFbUd67u8sxODxt85QG+mrnbSE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=j79R7A3GCROk2ruAAuKDSgSrH794YN9YWD2icaxlv/z6gnGiNISfH9hEcl56DsFtszrir5+CdE+J0hNWdTKNLW9DrizVbSY95a7+4Yo3x7feeZlt8Htq+OsgkU5tfKAI01lwHpLbiOwe5iZmvKetqMUmmIMXVLQMIyLDX2feDYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eq493+Om; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	s=arc-20240116; t=1756291356; c=relaxed/simple;
+	bh=rML8t243wUUhsl2OLv0RtLzgEBGwxGXZlMqXmCPiepA=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZVvvcEHoyqFKSas5FLu/t5Pm7PHdo4S1Ptc4in7orylEOpOUWuS8VjSf7UsxPOR2oF+g+IWvanSPmWWZApi0cWw6/S0P79uVLQl0J02AWBsxjUv1H6r/SIpgbLE7XfLbM6VdFeSMnoaLYRAQDVQeejWgFFuLKtZDsDC7Nkbxc0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eq493+Om"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3c84925055aso2676474f8f.2;
-        Wed, 27 Aug 2025 02:42:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756287759; x=1756892559; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=s4gNirUawo/2N73RGh/VZFmiZovBEw6Zvsz5pkyBSog=;
-        b=eq493+OmhqNBlrHmEpRZnEz1udJxBnU8wy/od2pb0QmbYFaKRSHxFcsAqHxsJ2TEzG
-         QBqejTxuUzbOVndo32LSzbSSp0rCDlR1WdSjwC3FA3DDY4NQeEbvmkxL+op4Ry1Dw9zQ
-         OORjwVyiKB660OR+sRd3CJ+vaL+LinNcNuq0rl15XuqSNQnmRP4qzaVekokcOd2D+dy3
-         dUFa5PMQezCzhuB179mlCs/5zfgfrc1lKHcDCjIiR915l+JZftBJvMbPLaFLMIvO03tx
-         TYzdoy6btAPmODdrW7nnnPzJthrK5xVn9J6LJC22uVNGCCzA1VZDXL/GZqGef9v9szJ3
-         Li7A==
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-61c30ceacdcso1247151a12.1;
+        Wed, 27 Aug 2025 03:42:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756287759; x=1756892559;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=s4gNirUawo/2N73RGh/VZFmiZovBEw6Zvsz5pkyBSog=;
-        b=XJtmg7UHoVD30CoT+FKblYoZtABzlu4N3DZ6dhhPiXEfpoV9kU+NAB9KR09ra3D8dk
-         NoYjfcZlSyXnyhkrkSNqUTXFdeh490Syntu19fnH93P7KzOt3T59CcNzH1ks4e+/lboE
-         trtBxQ2orJLgABNv4jpYJ8XmGp8faHXf1VU9YiAtURgcCqwW5EIWaBoIdEdT3zYXf6j6
-         NPArsqk+0psPvBmEhyWitc9Md87LJVbBRar+9rp72JlvQPq1XC4tztmcat2hTuy3iJO4
-         huGbKp4QFhw6E5eaEVJOzL7f8F9juzjhkAWq7IWbYwi3KBNLcNeHwA5OYhRc8sE3T7On
-         Kw2A==
-X-Forwarded-Encrypted: i=1; AJvYcCUSCD9fILJ+28uBSDuNZsU5f7Pv/8U1R315+LkMl037ggSCsORSMSvIIsT8BI1aAx5UD7jzqk9fKgAt@vger.kernel.org, AJvYcCUevdMQ2U6BknqNgrRAup+8086qnra1hkhgnS8kGZwYBR8aHMwvZ2s+9Z+/7FR0Rg7zY+RZ0Iz3@vger.kernel.org, AJvYcCUwjwj2psJ3u1NTKFkvIuSk7XPiUFns5EOn/VS/D1k4GTM648TpyZF0gG4qowylcaP4+o+OyxsHSxh7b3lx@vger.kernel.org, AJvYcCVSuYnGxLEuak2LpXneBP47Ev8FwkhXNK4DhZPDbzn9+gI4U22dlBn6NSOMVxI0Y0agjI18swxby6NK+g==@vger.kernel.org, AJvYcCWHItbwDNtWiQSBUrmigpBGdHJmeHDQ0zMuMT4ythMTaaoWqMrV65v2O0zj9OS5r9kvc4rH2aHBRp92CGS8@vger.kernel.org, AJvYcCWPkyZ4ts8gDVwGjo+LVW3NWm3mKfxk/0RP7WQiR5U9Purif6HzR4nw+5MJutgu3rxI72A1baGBwviE9A==@vger.kernel.org, AJvYcCWVxViLACC6YPP+7vcfD03FZmgBbpqoP5faJU93MPVgOC+qnfp3h8nuDLn2YMvpZkIWCMbD1osNAw==@vger.kernel.org, AJvYcCWtpBu505T4zFzQadPKj4FGpkvdL3mU7z3XzmGucBfhTRR7DuFuaQJG23q8n0xbTQMdKcBcGG8miYUS@vger.kernel.org, AJvYcCX2R2aDmNtVcBcxZWgIWrEiBWjFndVBvXbAzZSXgbZn4VJ5T93jH7HlViJj6gWByHrxRqlVPP704Yim/fS+gFQW@vger.kernel.org, AJvYcCXFCJRx/mLbMBsp6wVmhJjhZVhzFvPeRvdqDo3M3lMOAEMTk7+m55WqSEA8xQzvuXszF1rD@vger.kernel.org, AJvYcCXej6CLaLomb7S9q6UVEExPEuszQhiKxOb0t4ZOUjJGyQq/Oeh/JFpg2PJ5msw8r2CU0aBLZ6vyc3bPZA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3uH3XZwv1aBKWmz5rKen1jHgk3kkc+6ikF+oKvmYvv/hHoraV
-	YZto5Bc54QVEQI5XbHTi6VZ5QWjg0Eyxi1xBd7F8GPRBxGs39WuwJnyaqLgB95lE
-X-Gm-Gg: ASbGncux/p/IiTYT3fmUWgdFSu7VtvaeWMCBAcjB6Kdi5nqKmW7qlNYoWmYaihgfJRa
-	KrH7dgFPBmGdi0WMemHtFgyXlPvXydVsnmhjduvmD0zkRxm6ZU3Y2Ah53Hnt7ZEQgU270wSGFMd
-	mdoeOsI4ZRL3ttNGA0d+PLGkO0amO22cOqwv8Rmg1XdfWpi7cUGvfNd6OJFyAOqmTKvU1fnLd4E
-	Th9WaZbUAhhlQpJRm3w9UK/Ueps4M8gEo/m+fan+l3NYcIlMcsEtPsX5q7iIfoaSiMuXVC5C93R
-	m+7/zdVKbc8avq5UFxnSZmJW7a13AVpMoUrHcpBk/KD6Mv6sehhvrsTVie4QKVQ9c+I3RdVrnro
-	KYBnYQaeDHgtAVLM4ooYW0ZattqFcH+27TLMH8dXnqE/temY5qZKyGbEbJwEdf0Elmg==
-X-Google-Smtp-Source: AGHT+IFkjO5GHbU1+2MUuKQvNL0fwH2etmLb7S57NgBpdq01aCYpWSgROxwdQQpXxfO8aoPZevSNpQ==
-X-Received: by 2002:a05:6000:3105:b0:3b8:d672:3cf8 with SMTP id ffacd0b85a97d-3c5dcb10b6amr14770182f8f.43.1756287759105;
-        Wed, 27 Aug 2025 02:42:39 -0700 (PDT)
-Received: from ?IPV6:2620:10d:c096:325:77fd:1068:74c8:af87? ([2620:10d:c092:600::1:4a1a])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cc4b102889sm3363615f8f.51.2025.08.27.02.42.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Aug 2025 02:42:38 -0700 (PDT)
-Message-ID: <46d09557-1873-4d97-b073-ce0c7296b954@gmail.com>
-Date: Wed, 27 Aug 2025 10:43:59 +0100
+        d=1e100.net; s=20230601; t=1756291353; x=1756896153;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1u4zcic0l+T6GeQNUmUI9Uac9hp+HfKFNViGwyEQyPY=;
+        b=oev0gm4ou3zRVt8r46aYJwnk2saB/MiZa5X7bGF1w6SLeUu5wck9wCHGl77ix4K227
+         bVdBmG7tWG5c4/0dgRPY+hzyEZOvF6GUqQQ07txa/jB35jXWbJzbvIkvlLzZVIrVokNc
+         Gc1TupguOQOtFvfAzL7fSAzMWQC8o49VNfPDI80+MJP7R2nyL26Lm8YqyrSAk/KMz4dw
+         cz+YgXf9lYg2zld5LAuv8rcnIGOxB/ovxbq5GoEG9jjkHj1nRqergOt89A5p3GyAKuo6
+         K8f84SragB2QQcNJ0+mIxoVyM+pkMXQ9a9flqdVfbgpoOGy/6SlK7z2pSqoXff58hUVq
+         P77w==
+X-Forwarded-Encrypted: i=1; AJvYcCVUdFicZR49V2aNXmzIavV2p9usXwLAGYnFBAl28Bc1sYq6FYXmIyhlGn7+GS23JhPCBU/WmaReje+y4ls=@vger.kernel.org, AJvYcCWVciCLWPqF1lkzASxa5eFkm4UQcf5pf43xLvHBzCAHw7pR5MiVMOqQh3cpnEP+rXb7dykdDSsFnjA2Eg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzXTFZEfE1MwW+q3MJrXYj+K2tnaBH4kAZv3MpdLl4BO31E93sQ
+	QlRyUdbhwXeeXBYzDPXnb+2eGwjEjnlphNIDW7FIt7ppa7di71FYJpid
+X-Gm-Gg: ASbGncsYwS9N1O9wWJ/cyTS8RpnAVC4JIZm54nNkkLoz5c5UvmO+wu5Go2NaviKGRCv
+	vhgJX8lMklguocptI8OLUMV/s5VTq9nP1xrGpKG8N3em0Ph9tjBDRTxCb164l/VRug9QcOcCiFq
+	vKsEoz/opmEcIjT7h4XokPBxnD9QqNRe3/wFn18VHh5MiZpK25nq980jLJv5gOz0RwPUve7rtRe
+	nwUg5ezehD7x6BeJCp/GVdXnPMj45uHtSAOto7rVNF7DXTmfiN+s5ULJDnn7OjlxRZfYCh73r54
+	mzfgcYxP6rSYXDaxVb++tqccHemlabsfDqzh/qdNV20dYM6I5dbDw5RnMobDdn+YBvEXQHT7Jad
+	HCvkVwjI2jJ5V1Ltt26sKUAM=
+X-Google-Smtp-Source: AGHT+IGjq9XcVFJfT48t3D2sSSWpKBUwYgoLrOJ85gEuT6CFTvTN24ctslyJVbJFjI6uf4ov/6pprA==
+X-Received: by 2002:a05:6402:4cb:b0:61c:4222:4856 with SMTP id 4fb4d7f45d1cf-61c983b899dmr3243783a12.3.1756291352988;
+        Wed, 27 Aug 2025 03:42:32 -0700 (PDT)
+Received: from localhost ([2a03:2880:30ff:5::])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-61c3119ffdfsm8866926a12.9.2025.08.27.03.42.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Aug 2025 03:42:32 -0700 (PDT)
+From: Breno Leitao <leitao@debian.org>
+Subject: [PATCH 0/3] kexec: Fix invalid field access
+Date: Wed, 27 Aug 2025 03:42:20 -0700
+Message-Id: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 18/35] io_uring/zcrx: remove "struct io_copy_cache"
- and one nth_page() usage
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>,
- John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
- kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
- Zi Yan <ziy@nvidia.com>
-References: <20250821200701.1329277-1-david@redhat.com>
- <20250821200701.1329277-19-david@redhat.com>
- <b5b08ad3-d8cd-45ff-9767-7cf1b22b5e03@gmail.com>
- <473f3576-ddf3-4388-aeec-d486f639950a@redhat.com>
-Content-Language: en-US
-From: Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <473f3576-ddf3-4388-aeec-d486f639950a@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAzhrmgC/x3M4QpAMBQG0Fe5fb+tZrXYXkWSzcWN0BYpeXflP
+ MB5kDkJZ3h6kPiSLPsGT2VBiHO/TaxkgCcYbayuTaWWcI5dv64quMHa6IwrOaAgHIlHuf+qad/
+ 3Awsgpn9aAAAA
+X-Change-ID: 20250827-kbuf_all-b9d55c9291eb
+To: Catalin Marinas <catalin.marinas@arm.com>, 
+ Will Deacon <will@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
+ Baoquan He <bhe@redhat.com>, Coiby Xu <coxu@redhat.com>, 
+ Paul Walmsley <paul.walmsley@sifive.com>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
+ Breno Leitao <leitao@debian.org>, kernel-team@meta.com
+X-Mailer: b4 0.15-dev-dd21f
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1971; i=leitao@debian.org;
+ h=from:subject:message-id; bh=rML8t243wUUhsl2OLv0RtLzgEBGwxGXZlMqXmCPiepA=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBoruEXzwuDBBiV9rroaHj06zedE14jXSY01dNDe
+ 05pyXnMz2GJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCaK7hFwAKCRA1o5Of/Hh3
+ bQ8zEACrimEGA/OQuvFVrT8mrQ5Mr4ou2ECD6x2JT6IN4mZlhwCnR7sMQJqrC032rCxgekihaHs
+ 7Ki113795L3C7BTYvyPWbwWtUQaPsSQ0/UJ+6m2XCmjDAbJ7t/WO9A7UVM1FR5idIjTV1oBNTtC
+ wpOrdPVNCg0WaxKKdASKjM8a8hVT3jA87Jk7R4lGAjpJaeJy9aftaNWBa8NsFXHwpy75km7tcGF
+ SBFX3mhGEe8J9dGy4/nAeVnGht9vZ9Hq5YaznVRgYZyPIfY1G8ZuhDcm+EZtMwSxhi5W//q8LKY
+ iUp/8X6lf79htbfC+5DOcq59ZKX/xLV4z90bdmafjP2oy/VIu5caJj1zAve2+Dz27xhy6vjd43W
+ C657LTC1KH1FkT7zo9gIQ6ZaH2okMu4Whhj19eiml86fP+KfCoKc0hk/TokrLnuQyHD9aAkRLFn
+ 2ucGx3hvFvyGjiL7R5RPhWFjfrY2ZdERinWI7A3v1fnkQxK4MsXgGuMxujjh4Tu34tsjJn/o82U
+ 8x+dO26drFZw0H50CdChjQHWa8N22UHPNlVrbvc3PK6dK+5GSeqrTGqgvLdqEMu4d4/XNygR13L
+ 5qH8uiuMDjp1NxTTDlw9LR4RVGAebXqZVAEYDejtp/c80AVXiejNbHTcms+vFKQ3dspdi7xDESB
+ kUAepqT0fXLi+cg==
+X-Developer-Key: i=leitao@debian.org; a=openpgp;
+ fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
 
-On 8/22/25 14:59, David Hildenbrand wrote:
-> On 22.08.25 13:32, Pavel Begunkov wrote:
->> On 8/21/25 21:06, David Hildenbrand wrote:
->>> We always provide a single dst page, it's unclear why the io_copy_cache
->>> complexity is required.
->>
->> Because it'll need to be pulled outside the loop to reuse the page for
->> multiple copies, i.e. packing multiple fragments of the same skb into
->> it. Not finished, and currently it's wasting memory.
-> 
-> Okay, so what you're saying is that there will be follow-up work that will actually make this structure useful.
+The kexec_buf structure was previously declared without initialization.
+commit bf454ec31add ("kexec_file: allow to place kexec_buf randomly")
+added a field that is always read but not consistently populated by all
+architectures. This un-initialized field will contain garbage.
 
-Exactly
+This is also triggering a UBSAN warning when the uninitialized data was
+accessed:
 
->> Why not do as below? Pages there never cross boundaries of their folios. > Do you want it to be taken into the io_uring tree?
-> 
-> This should better all go through the MM tree where we actually guarantee contiguous pages within a folio. (see the cover letter)
+	------------[ cut here ]------------
+	UBSAN: invalid-load in ./include/linux/kexec.h:210:10
+	load of value 252 is not a valid value for type '_Bool'
 
-Makes sense. No objection, hopefully it won't cause too many conflicts.
+Zero-initializing kexec_buf at declaration ensures all fields are
+cleanly set, preventing future instances of uninitialized memory being
+used.
 
->> diff --git a/io_uring/zcrx.c b/io_uring/zcrx.c
->> index e5ff49f3425e..18c12f4b56b6 100644
->> --- a/io_uring/zcrx.c
->> +++ b/io_uring/zcrx.c
->> @@ -975,9 +975,9 @@ static ssize_t io_copy_page(struct io_copy_cache *cc, struct page *src_page,
->>            if (folio_test_partial_kmap(page_folio(dst_page)) ||
->>                folio_test_partial_kmap(page_folio(src_page))) {
->> -            dst_page = nth_page(dst_page, dst_offset / PAGE_SIZE);
->> +            dst_page += dst_offset / PAGE_SIZE;
->>                dst_offset = offset_in_page(dst_offset);
->> -            src_page = nth_page(src_page, src_offset / PAGE_SIZE);
->> +            src_page += src_offset / PAGE_SIZE;
-> 
-> Yeah, I can do that in the next version given that you have plans on extending that code soon.
+An initial fix was already landed for arm64[0], and this patchset fixes
+the problem on the remaining arm64 code and on riscv, as raised by Mark.
 
-If we go with this version:
+Discussions about this problem could be found at[1][2].
 
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/all/20250826180742.f2471131255ec1c43683ea07@linux-foundation.org/ [0]
+Link: https://lore.kernel.org/all/oninomspajhxp4omtdapxnckxydbk2nzmrix7rggmpukpnzadw@c67o7njgdgm3/ [1]
+Link: https://lore.kernel.org/all/20250826-akpm-v1-1-3c831f0e3799@debian.org/ [2]
 
--- 
-Pavel Begunkov
+Signed-off-by: Breno Leitao <leitao@debian.org>
+---
+Breno Leitao (3):
+      arm64: kexec: Initialize kexec_buf struct in load_other_segments()
+      riscv: kexec: Initialize kexec_buf struct
+      s390: kexec: Initialize kexec_buf struct
+
+ arch/arm64/kernel/machine_kexec_file.c | 2 +-
+ arch/riscv/kernel/kexec_elf.c          | 4 ++--
+ arch/riscv/kernel/kexec_image.c        | 2 +-
+ arch/riscv/kernel/machine_kexec_file.c | 2 +-
+ arch/s390/kernel/kexec_elf.c           | 2 +-
+ arch/s390/kernel/kexec_image.c         | 2 +-
+ arch/s390/kernel/machine_kexec_file.c  | 6 +++---
+ 7 files changed, 10 insertions(+), 10 deletions(-)
+---
+base-commit: 3c642997252eef4449cb6b6e02af3dc22515d817
+change-id: 20250827-kbuf_all-b9d55c9291eb
+
+Best regards,
+--  
+Breno Leitao <leitao@debian.org>
 
