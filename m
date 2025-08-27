@@ -1,33 +1,33 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 539DB322768;
-	Wed, 27 Aug 2025 08:11:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 66E3E192B84;
+	Wed, 27 Aug 2025 08:18:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756282298; cv=none; b=TTPeA3eSrZMZoUgVJ0Hm4iyQp/LxWPdfrZKjArsjM9vuDnVCDI8cgKj2GKXjfdL536x1AaphojUzZomW6B7ze2y2XoaV6Q+7OwERL6Q8flieXOdwzU0CQli2lEuXlTSVCraUttSqjxxjy7GDmcwX6RqakiS/NCmbdrx1Rx4r92E=
+	t=1756282732; cv=none; b=F1u28dZJOF+FB9Wg+54w5ldsmb91UV06i7ADydi/odQ0/FJD8bZpXquVEh8aT1bkooWufIReDX0tr9F3Aag0PdFw35TZMLV3nipBah3PCarI6yAOCv6rdGxQIXncL5vMYQrACaFJ3WMA1gv+gr3AK0gMfWbYIKJrIwHaxIDmXg8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756282298; c=relaxed/simple;
-	bh=/qXxxLaNG/fJKAgG5N1611Recp7NdyiAzN47tqQDfTE=;
+	s=arc-20240116; t=1756282732; c=relaxed/simple;
+	bh=CHy7QFSPgSRnuJKdtSIc/yYznxQB2FrFp5irQRpgBE0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aHWB/Z+Gp6aqz7cnFkCAZxRqR6hyAB/uDf6OPNGd2tM6QVH0/vX+Mtvq0OEZIo1nzBwnlJP96dFjMuaZi9VLwfPu/JhDfrT7qrxkHGH6X2ycGl9rp6h13M6lL7dRmZ3pDWy9cCyiVrGg/pqobtLdz14bdpqe/y2O0WrlYTF3TsM=
+	 Content-Type:Content-Disposition:In-Reply-To; b=kT1lQP4FEQI6GbRdrqBrjMlxgL3VvsYcrHwKMExboOEXTJBHLXW+W1SqBJVb6HiFgbnFTGw8dcHl5MA+0A/8a7ddB+zbZoABjBeSIn0+nCE0ENLdZhy7TU/z8WBdxcN5lF/Mov6N+iMsDtaXkcopMcXiKOd1bMgg1XQc4MPgn6g=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3E3641691;
-	Wed, 27 Aug 2025 01:05:09 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 875DD1515;
+	Wed, 27 Aug 2025 01:18:41 -0700 (PDT)
 Received: from J2N7QTR9R3 (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D650B3F694;
-	Wed, 27 Aug 2025 01:05:07 -0700 (PDT)
-Date: Wed, 27 Aug 2025 09:04:46 +0100
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C8D1A3F694;
+	Wed, 27 Aug 2025 01:18:41 -0700 (PDT)
+Date: Wed, 27 Aug 2025 09:18:38 +0100
 From: Mark Rutland <mark.rutland@arm.com>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: peterz@infradead.org, mingo@redhat.com, will@kernel.org,
-	acme@kernel.org, namhyung@kernel.org,
+To: Ian Rogers <irogers@google.com>
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	Peter Zijlstra <peterz@infradead.org>, mingo@redhat.com,
+	will@kernel.org, acme@kernel.org, namhyung@kernel.org,
 	alexander.shishkin@linux.intel.com, jolsa@kernel.org,
-	irogers@google.com, adrian.hunter@intel.com,
-	kan.liang@linux.intel.com, linux-perf-users@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
+	adrian.hunter@intel.com, kan.liang@linux.intel.com,
+	linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org,
 	linux-arm-kernel@lists.infradead.org, imx@lists.linux.dev,
 	linux-csky@vger.kernel.org, loongarch@lists.linux.dev,
 	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
@@ -40,138 +40,68 @@ Cc: peterz@infradead.org, mingo@redhat.com, will@kernel.org,
 	iommu@lists.linux.dev, linux-amlogic@lists.infradead.org,
 	linux-cxl@vger.kernel.org, linux-arm-msm@vger.kernel.org,
 	linux-riscv@lists.infradead.org
-Subject: Re: [PATCH 18/19] perf: Introduce positive capability for raw events
-Message-ID: <aK68Ht03vZ0G3Xpt@J2N7QTR9R3>
+Subject: Re: [PATCH 12/19] perf: Ignore event state for group validation
+Message-ID: <aK6_XrA_OaLnoFkr@J2N7QTR9R3>
 References: <cover.1755096883.git.robin.murphy@arm.com>
- <542787fd188ea15ef41c53d557989c962ed44771.1755096883.git.robin.murphy@arm.com>
- <aK259PrpyxguQzdN@J2N7QTR9R3>
- <015974a4-f129-4ae5-adf9-c94b29f0576a@arm.com>
+ <d6cda4e2999aba5794c8178f043c91068fa8080c.1755096883.git.robin.murphy@arm.com>
+ <20250826130329.GX4067720@noisy.programming.kicks-ass.net>
+ <6080e45d-032e-48c2-8efc-3d7e5734d705@arm.com>
+ <CAP-5=fXF2x3hW4Sk+A362T-50cBbw6HVd7KY+QEUjFwT+JL37Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <015974a4-f129-4ae5-adf9-c94b29f0576a@arm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAP-5=fXF2x3hW4Sk+A362T-50cBbw6HVd7KY+QEUjFwT+JL37Q@mail.gmail.com>
 
-On Tue, Aug 26, 2025 at 11:46:02PM +0100, Robin Murphy wrote:
-> On 2025-08-26 2:43 pm, Mark Rutland wrote:
-> > On Wed, Aug 13, 2025 at 06:01:10PM +0100, Robin Murphy wrote:
-> > To bikeshed a little here, I'm not keen on the PERF_PMU_CAP_RAW_EVENTS
-> > name, because it's not clear what "RAW" really means, and people will
-> > definitely read that to mean something else.
-> > 
-> > Could we go with something like PERF_PMU_CAP_COMMON_CPU_EVENTS, to make
-> > it clear that this is about opting into CPU-PMU specific event types (of
-> > which PERF_TYPE_RAW is one of)?
+On Tue, Aug 26, 2025 at 11:48:48AM -0700, Ian Rogers wrote:
+> On Tue, Aug 26, 2025 at 8:32 AM Robin Murphy <robin.murphy@arm.com> wrote:
+> >
+> > On 2025-08-26 2:03 pm, Peter Zijlstra wrote:
+> > > On Wed, Aug 13, 2025 at 06:01:04PM +0100, Robin Murphy wrote:
+> > >> It may have been different long ago, but today it seems wrong for these
+> > >> drivers to skip counting disabled sibling events in group validation,
+> > >> given that perf_event_enable() could make them schedulable again, and
+> > >> thus increase the effective size of the group later. Conversely, if a
+> > >> sibling event is truly dead then it stands to reason that the whole
+> > >> group is dead, so it's not worth going to any special effort to try to
+> > >> squeeze in a new event that's never going to run anyway. Thus, we can
+> > >> simply remove all these checks.
+> > >
+> > > So currently you can do sort of a manual event rotation inside an
+> > > over-sized group and have it work.
+> > >
+> > > I'm not sure if anybody actually does this, but its possible.
+> > >
+> > > Eg. on a PMU that supports only 4 counters, create a group of 5 and
+> > > periodically cycle which of the 5 events is off.
 > 
-> Indeed I started with that very intention after our previous discussion, but
-> soon realised that in fact nowhere in the code is there any definition or
-> even established notion of what "common" means in this context, so it's
-> hardly immune to misinterpretation either.
+> I'm not sure this is true, I thought this would fail in the
+> perf_event_open when adding the 5th event and there being insufficient
+> counters for the group.
 
-We can document that; it's everything less than PERF_TYPE_MAX:
+We're talking specifically about cases where the logic in a pmu's
+pmu::event_init() callback doesn't count events in specific states, and
+hence the 5th even doesn't get rejected when it is initialised.
 
-	enum perf_type_id {
-		PERF_TYPE_HARDWARE                      = 0, 
-		PERF_TYPE_SOFTWARE                      = 1, 
-		PERF_TYPE_TRACEPOINT                    = 2, 
-		PERF_TYPE_HW_CACHE                      = 3, 
-		PERF_TYPE_RAW                           = 4, 
-		PERF_TYPE_BREAKPOINT                    = 5, 
+For example, in arch/x86/events/core.c, validate_group() uses
+collect_events(), which has:
 
-		PERF_TYPE_MAX,                          /* non-ABI */
-	};
+	for_each_sibling_event(event, leader) {
+		if (!is_x86_event(event) || event->state <= PERF_EVENT_STATE_OFF)
+			continue;
 
-... and maybe you could use "PERF_PMU_CAP_ABI_TYPES" to align with that
-comment?
+		if (collect_event(cpuc, event, max_count, n))
+			return -EINVAL;
 
-> Furthermore the semantics of the cap as it ended up are specifically
-> that the PMU wants the same behaviour as if it had registered as
-> PERF_TYPE_RAW, so having "raw" in the name started to look like the
-> more intuitive option after all (plus being nice and short helps.)
+		n++;
+	}
 
-I appreciate the shortness, but I think it's misleading to tie this to
-"RAW" specifically, when really this is a capabiltiy to say "please let
-me try to init any events for non-dynamic types, in addition to whatever
-specific type I am registered with".
-
-> If anything, it's "events" that carries the implication that's proving hard
-> to capture precisely and concisely here, so maybe the answer to avoid
-> ambiguity is to lean further away from a "what it represents" to a "what it
-> actually does" naming - PERF_PMU_CAP_TYPE_RAW, anyone?
-
-I'm happy with TYPE in the name; it's just RAW specifically that I'm
-objecting to.
-
-> > Likewise, s/is_raw_pmu()/pmu_supports_common_cpu_events()/.
-> 
-> Case in point: is it any more logical and expected that supporting common
-> CPU events implies a PMU should be offered software or breakpoint events as
-> well? Because that's what such a mere rename would currently mean :/
-
-Yes, I think it is.
-
-> > > ---
-> > > 
-> > > A further possibility is to automatically add the cap to PERF_TYPE_RAW
-> > > PMUs in perf_pmu_register() to have a single point-of-use condition; I'm
-> > > undecided...
-> > 
-> > I reckon we don't need to automagically do that, but I reckon that
-> > is_raw_pmu()/pmu_supports_common_cpu_events() should only check the cap,
-> > and we don't read anything special into any of
-> > PERF_TYPE_{RAW,HARDWARE,HW_CACHE}.
-> 
-> OK, but that would then necessitate having to explicitly add the cap to all
-> 15-odd other drivers which register as PERF_TYPE_RAW as well, at which point
-> it starts to look like a more general "I am a CPU PMU in terms of most
-> typical assumptions you might want to make about that" flag...
-> 
-> To clarify (and perhaps something for a v2 commit message), we currently
-> have 3 categories of PMU driver:
-> 
-> 1: (Older/simpler CPUs) Registers as PERF_TYPE_RAW, wants
-> PERF_TYPE_RAW/HARDWARE/HW_CACHE events
-> 2: (Heterogeneous CPUs) Registers as dynamic type, wants
-> PERF_TYPE_RAW/HARDWARE/HW_CACHE events plus events of its own type
-> 3: (Mostly uncore) Registers as dynamic type, only wants events of its own
-> type
-
-Sure, but I think that separating 1 and 2 is an artificial distinction,
-and what we really have is:
-
-(a) Wants to handle (some of) the non-dynamic/common/ABI types (in
-    addition to whatever specific type it was registered with). Needs to
-    have a switch statement somewhere in pmu::event_init().
-
-(b) Only wants to handle the specific type the PMU was registered with.
-
-> My vested interest is in making category 3 the default behaviour, given that
-> the growing majority of new drivers are uncore (and I keep having to write
-> them...) 
-
-Yes, we're aligned on that.
-
-> However unclear the type overlaps in category 1 might be, it's been
-> like that for 15 years, so I didn't feel compelled to churn fossils like
-> Alpha more than reasonably necessary. Category 2 is only these 5 drivers, so
-> a relatively small tweak to distinguish them from category 3 and let them
-> retain the effective category 1 behaviour (which remains the current one of
-> potentially still being offered software etc. events too) seemed like the
-> neatest way to make progress.
-
-I just think we should combine 1 and 2 (into categroy a as above), since
-that removes the need to treat RAW specially going forwards.
-
-> I'm not saying I'm necessarily against a general overhaul of CPU PMUs being
-> attempted too, just that it seems more like a whole other side-quest, and
-> I'd really like to slay the uncore-boilerplate dragon first.
-
-I think that adding the cap to those 15 PMUs would take less time than
-it has taken me to write this email, so I do not understand the
-objection.
+... and so where an event's state is <= PERF_EVENT_STATE_OFF at init
+time, that event is not counted to see if it fits into HW counters.
 
 Mark.
