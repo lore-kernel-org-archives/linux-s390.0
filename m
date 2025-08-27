@@ -1,50 +1,55 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B398C280037
-	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:06:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4631320CAD
+	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756332417; cv=none; b=mMp6BaG3lvvj2+6dKgOrdMmpMf9+YZ7nN7l1ff5/Eb5bkZShYyGqDgI1gh2LDWOdgu9uuNAHDhD69OEk3M8ydfefe9eK/f91TdgtUNgV9LJQ4YYbKUK3qGbXLCzlpKdCtxQ1ymDfJwUcXc91epeWwZW/6CI2/5U4verzv76+bDI=
+	t=1756332419; cv=none; b=cBtBVHQ/7IUatyjoRUP0OGMPB8MfbGU6sqxUUP4ZVnNbQfz/hyTTlrcrZj/hol+9/sfO1O41XHva0Py2sg6PjPbELc6ErKOwjDSxdZ8NXzoHFVTqgpBcePdp1QdxwseW5Lh8yusIwc30FxJQqigryZOx2gZVcy9GsOFgNrocWTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756332417; c=relaxed/simple;
-	bh=MvIwW1z4epLHjmTBTRkhGh1axW3OGBugXRd9FWQyMco=;
+	s=arc-20240116; t=1756332419; c=relaxed/simple;
+	bh=G8hBKtBVwZFtj4CkF2iFuP4QWE3SoN2SvkzJrofZOlQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=J9JhzLEzhObBY/C7rg7tQ7w253sxFSNLkFlzmwi00qRdBsfIpsmB4R3uRKzuIZG1g3jkO0xGG0S9uqUBkDvo8RaetljWohPGgu6UYAgetw/MsHTsunrKWiTsHI3xyvUFFWskYiQjXMKwoPwh5GxW5yyhcXfETrdvVAf9T0qHFkY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I8tySRCE; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=pIHvPtaeRGdJTUiiEk3ON2ozYYi9SNYOqFPTTq0qnf29b9yBf1jtAozxK/8CZe1CvopGeFsktdciHMUe7uYt88ZZuls8hHlKOoATSvPMzNM6DQMojl/0fejvKFCB1ybdKq1rwVTogp6mVYSZqv5xcC7/K9uI+18Zi7p1VKsMcrs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yzfs6CBW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I8tySRCE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yzfs6CBW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756332414;
+	s=mimecast20190719; t=1756332417;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6MroGOug632a51ffxPVHU3ATCsOwaa4b3tJ1MTGryys=;
-	b=I8tySRCEXOP6SoHvu7Gq1d0csFlNaSIQJA/RrSJy6OnXcUV6VSkOlrVw2VFQfA9Ztv2S4H
-	uLpylm83UCjDSgl2S6mhuNRC63FjQsfitG9X2oVBps1Th7xlXD5V/MScE8R3z1xhU+7ak1
-	JRzIAIOCElo0+0AJCi0S794mz5OS4NE=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+	bh=BoCigziN+sd3886gtncwVGrOobwk0eDvjUtVkuDjFuc=;
+	b=Yzfs6CBWpUviEcLGutVu8eCGxk0oyfJ14FULw5aGk/qJEceBr22ENsqdUvsYndOv/zn/vM
+	vFkqCev7NfrMw2DkBHW/Xt6Te24w9743xqamYVBjGZcUyUz8OOeIZ7ybXv1HX+puJ3YFv8
+	4Qf9hELTavfH+CuKK1/21jgAIupF7Q8=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-556-a2F6JvbVP--8yuHhX8WRDg-1; Wed,
- 27 Aug 2025 18:06:50 -0400
-X-MC-Unique: a2F6JvbVP--8yuHhX8WRDg-1
-X-Mimecast-MFC-AGG-ID: a2F6JvbVP--8yuHhX8WRDg_1756332405
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-389-k0g0ERAQMDW3c6U23kRavw-1; Wed,
+ 27 Aug 2025 18:03:37 -0400
+X-MC-Unique: k0g0ERAQMDW3c6U23kRavw-1
+X-Mimecast-MFC-AGG-ID: k0g0ERAQMDW3c6U23kRavw_1756332211
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2834019541AC;
-	Wed, 27 Aug 2025 22:06:45 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id ACA3A195608E;
+	Wed, 27 Aug 2025 22:03:30 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.80.195])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8C0E530001A1;
-	Wed, 27 Aug 2025 22:06:29 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2E8CE30001A5;
+	Wed, 27 Aug 2025 22:03:13 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
+	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
 	Alexander Potapenko <glider@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Brendan Jackman <jackmanb@google.com>,
@@ -78,7 +83,6 @@ Cc: David Hildenbrand <david@redhat.com>,
 	Marco Elver <elver@google.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Michal Hocko <mhocko@suse.com>,
-	Mike Rapoport <rppt@kernel.org>,
 	Muchun Song <muchun.song@linux.dev>,
 	netdev@vger.kernel.org,
 	Oscar Salvador <osalvador@suse.de>,
@@ -91,9 +95,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 16/36] fs: hugetlbfs: cleanup folio in adjust_range_hwpoison()
-Date: Thu, 28 Aug 2025 00:01:20 +0200
-Message-ID: <20250827220141.262669-17-david@redhat.com>
+Subject: [PATCH v1 04/36] x86/Kconfig: drop superfluous "select SPARSEMEM_VMEMMAP"
+Date: Thu, 28 Aug 2025 00:01:08 +0200
+Message-ID: <20250827220141.262669-5-david@redhat.com>
 In-Reply-To: <20250827220141.262669-1-david@redhat.com>
 References: <20250827220141.262669-1-david@redhat.com>
 Precedence: bulk
@@ -105,60 +109,31 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Let's cleanup and simplify the function a bit.
+Now handled by the core automatically once SPARSEMEM_VMEMMAP_ENABLE
+is selected.
 
+Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- fs/hugetlbfs/inode.c | 33 +++++++++++----------------------
- 1 file changed, 11 insertions(+), 22 deletions(-)
+ arch/x86/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index c5a46d10afaa0..6ca1f6b45c1e5 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -198,31 +198,20 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
- static size_t adjust_range_hwpoison(struct folio *folio, size_t offset,
- 		size_t bytes)
- {
--	struct page *page;
--	size_t n = 0;
--	size_t res = 0;
--
--	/* First page to start the loop. */
--	page = folio_page(folio, offset / PAGE_SIZE);
--	offset %= PAGE_SIZE;
--	while (1) {
--		if (is_raw_hwpoison_page_in_hugepage(page))
--			break;
-+	struct page *page = folio_page(folio, offset / PAGE_SIZE);
-+	size_t safe_bytes;
-+
-+	if (is_raw_hwpoison_page_in_hugepage(page))
-+		return 0;
-+	/* Safe to read the remaining bytes in this page. */
-+	safe_bytes = PAGE_SIZE - (offset % PAGE_SIZE);
-+	page++;
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 58d890fe2100e..e431d1c06fecd 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1552,7 +1552,6 @@ config ARCH_SPARSEMEM_ENABLE
+ 	def_bool y
+ 	select SPARSEMEM_STATIC if X86_32
+ 	select SPARSEMEM_VMEMMAP_ENABLE if X86_64
+-	select SPARSEMEM_VMEMMAP if X86_64
  
--		/* Safe to read n bytes without touching HWPOISON subpage. */
--		n = min(bytes, (size_t)PAGE_SIZE - offset);
--		res += n;
--		bytes -= n;
--		if (!bytes || !n)
-+	for (; safe_bytes < bytes; safe_bytes += PAGE_SIZE, page++)
-+		if (is_raw_hwpoison_page_in_hugepage(page))
- 			break;
--		offset += n;
--		if (offset == PAGE_SIZE) {
--			page++;
--			offset = 0;
--		}
--	}
- 
--	return res;
-+	return min(safe_bytes, bytes);
- }
- 
- /*
+ config ARCH_SPARSEMEM_DEFAULT
+ 	def_bool X86_64 || (NUMA && X86_32)
 -- 
 2.50.1
 
