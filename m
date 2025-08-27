@@ -1,54 +1,56 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 407081E0DE3
-	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:10:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F2F335E4E0
+	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:11:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756332650; cv=none; b=ULCyna35L9jma2VDKLP0sFTerOJjpxptln8HEv0HRuz1j6saD1PxFuasaZymJtlqsMFhiO6XxIgg1bk9t2XF+17Bg0t9UB+Oq61JRXhhUIwIYhPE7HfgYbb0NFmjzgL1rsFX/Ak4sf3CaAJBE7KF7x2VizsdtO4YSkCRd5sRpcE=
+	t=1756332673; cv=none; b=cuhPjlpLVZIJ5I+3aJPORKJxE7HeJ4qBWZxX+sFm00Kth6M032mOh+Z1oKa7owVhgnL58Bn4HpGnAZLp0j32sPdHf2CVxK6bBZee/ZsLCT7malYOZVrpIsti/xU4LjsPltN7spL+8LL/QwspsNeCMq2DLvGqXxzsGdh689mYQ54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756332650; c=relaxed/simple;
-	bh=W2zURd3mlNFD6+8/G7aYSvH/DtIoVv4hio5y/lKVdHg=;
+	s=arc-20240116; t=1756332673; c=relaxed/simple;
+	bh=u2IvbkeQqipan9xn1FH8uDngo5kbDeDcvQE423cldao=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RSoslO7HXqGDgOM7glVk2Lp9P8MwVKSL+x+0lMPOu6wVyGawpttclTXZ9TjFSwOWNdSAx4l017gp9pQvf7YjZzu8Uw8QEjcN0RQcLEqr0+jfttLWS4Msbk5dYkDxygok0WFHakKFqvlEopMuWGNrAccKJFdsNUxBHu2wowjZ1qI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eOlV6Djo; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=qQgNHSHP9oTSXhkOQz1w33C8vVM6gNTYlbq3n6uDOabinnb23Js+k/+V5GUf6iZCJbQOF6Gz4GpxZNo9LU2Putge6aXc6Rek8xZjyUHZCPE/IMMfuuuniCtj+ToRyIXD2aLu5jpREBqo/3DjDnRGlFgzje1r+72wHI4Oizo5ofE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c05MteU+; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eOlV6Djo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c05MteU+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756332648;
+	s=mimecast20190719; t=1756332670;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=YpVNTL/msyfj4quk+zG5idx/zOSmESitaXX9oJyyDlo=;
-	b=eOlV6Djo3zgN39O4uF7bLsyVS+/hLcaHIZAmbV5UCaQv4CPHV57JJul2TgviGVFMhw22b7
-	ipY7Wxv50KpaZhJkUixwGq1ENKFfLsE01XSxBcp9rXZ4J7h7MFDq4SC7/gR1OxHOnpvdb7
-	8KTbVDE6oHtHQ+VVnsSNF5UstBDJbWM=
+	bh=uIthYg0x+2djveHghlw2Jb9wmVGYKVQz7R4ULrPQfiU=;
+	b=c05MteU+BC5k4M0GZMtH988XXMj8/Ep7PJoGPLhYuIcSl/CVgjKQ+MTFhaFojEU/vQUzxe
+	G6zvrWoY2amjUva6DTt9/D7j5mZMORNpTZFddEsu/CoagxAY918R5lP1Yd8Qul88uDJZ77
+	jnCJggVAylffnoFsr/MBGdP8nWHY/tA=
 Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-628-sl5k46szNKGimV3zS5dDew-1; Wed,
- 27 Aug 2025 18:10:45 -0400
-X-MC-Unique: sl5k46szNKGimV3zS5dDew-1
-X-Mimecast-MFC-AGG-ID: sl5k46szNKGimV3zS5dDew_1756332640
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-116-ssFK63pfMnq5S88UlMY_DQ-1; Wed,
+ 27 Aug 2025 18:11:04 -0400
+X-MC-Unique: ssFK63pfMnq5S88UlMY_DQ-1
+X-Mimecast-MFC-AGG-ID: ssFK63pfMnq5S88UlMY_DQ_1756332659
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 75B6D180034F;
-	Wed, 27 Aug 2025 22:10:40 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C780E180035B;
+	Wed, 27 Aug 2025 22:10:58 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.80.195])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A20E430001A1;
-	Wed, 27 Aug 2025 22:10:24 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 10AB430001A1;
+	Wed, 27 Aug 2025 22:10:40 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
-	Bart Van Assche <bvanassche@acm.org>,
-	Doug Gilbert <dgilbert@interlog.com>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Brett Creeley <brett.creeley@amd.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Yishai Hadas <yishaih@nvidia.com>,
+	Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+	Kevin Tian <kevin.tian@intel.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
 	Alexander Potapenko <glider@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Brendan Jackman <jackmanb@google.com>,
@@ -95,9 +97,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 30/36] scsi: sg: drop nth_page() usage within SG entry
-Date: Thu, 28 Aug 2025 00:01:34 +0200
-Message-ID: <20250827220141.262669-31-david@redhat.com>
+Subject: [PATCH v1 31/36] vfio/pci: drop nth_page() usage within SG entry
+Date: Thu, 28 Aug 2025 00:01:35 +0200
+Message-ID: <20250827220141.262669-32-david@redhat.com>
 In-Reply-To: <20250827220141.262669-1-david@redhat.com>
 References: <20250827220141.262669-1-david@redhat.com>
 Precedence: bulk
@@ -112,29 +114,46 @@ X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 It's no longer required to use nth_page() when iterating pages within a
 single SG entry, so let's drop the nth_page() usage.
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Cc: Doug Gilbert <dgilbert@interlog.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Brett Creeley <brett.creeley@amd.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Yishai Hadas <yishaih@nvidia.com>
+Cc: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/scsi/sg.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/vfio/pci/pds/lm.c         | 3 +--
+ drivers/vfio/pci/virtio/migrate.c | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
-index 3c02a5f7b5f39..4c62c597c7be9 100644
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -1235,8 +1235,7 @@ sg_vma_fault(struct vm_fault *vmf)
- 		len = vma->vm_end - sa;
- 		len = (len < length) ? len : length;
- 		if (offset < len) {
--			struct page *page = nth_page(rsv_schp->pages[k],
--						     offset >> PAGE_SHIFT);
-+			struct page *page = rsv_schp->pages[k] + (offset >> PAGE_SHIFT);
- 			get_page(page);	/* increment page count */
- 			vmf->page = page;
- 			return 0; /* success */
+diff --git a/drivers/vfio/pci/pds/lm.c b/drivers/vfio/pci/pds/lm.c
+index f2673d395236a..4d70c833fa32e 100644
+--- a/drivers/vfio/pci/pds/lm.c
++++ b/drivers/vfio/pci/pds/lm.c
+@@ -151,8 +151,7 @@ static struct page *pds_vfio_get_file_page(struct pds_vfio_lm_file *lm_file,
+ 			lm_file->last_offset_sg = sg;
+ 			lm_file->sg_last_entry += i;
+ 			lm_file->last_offset = cur_offset;
+-			return nth_page(sg_page(sg),
+-					(offset - cur_offset) / PAGE_SIZE);
++			return sg_page(sg) + (offset - cur_offset) / PAGE_SIZE;
+ 		}
+ 		cur_offset += sg->length;
+ 	}
+diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
+index ba92bb4e9af94..7dd0ac866461d 100644
+--- a/drivers/vfio/pci/virtio/migrate.c
++++ b/drivers/vfio/pci/virtio/migrate.c
+@@ -53,8 +53,7 @@ virtiovf_get_migration_page(struct virtiovf_data_buffer *buf,
+ 			buf->last_offset_sg = sg;
+ 			buf->sg_last_entry += i;
+ 			buf->last_offset = cur_offset;
+-			return nth_page(sg_page(sg),
+-					(offset - cur_offset) / PAGE_SIZE);
++			return sg_page(sg) + (offset - cur_offset) / PAGE_SIZE;
+ 		}
+ 		cur_offset += sg->length;
+ 	}
 -- 
 2.50.1
 
