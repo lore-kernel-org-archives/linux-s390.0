@@ -1,47 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B1CD2DA746
-	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:06:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B398C280037
+	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:06:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756332401; cv=none; b=HIIYDvuJ6u0hmSIZMNJqSCcS4apb0sNpEv6CGX739QCf45sB77oIgyNsd0NrPKyKquluLCsbwt65Ni+ytRpk9uF3rZivQVE7IZe4MoukTR0DQdVp+dom+FabNF2Opqf4tl7LGLP2BSBJlP4rNlehy5/mptTaMe6MKIe3ZBMrIC4=
+	t=1756332417; cv=none; b=mMp6BaG3lvvj2+6dKgOrdMmpMf9+YZ7nN7l1ff5/Eb5bkZShYyGqDgI1gh2LDWOdgu9uuNAHDhD69OEk3M8ydfefe9eK/f91TdgtUNgV9LJQ4YYbKUK3qGbXLCzlpKdCtxQ1ymDfJwUcXc91epeWwZW/6CI2/5U4verzv76+bDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756332401; c=relaxed/simple;
-	bh=ANpe/aj72IDL28EcyXtxKgIaAJfJoWb+vaA9p9Cpqn4=;
+	s=arc-20240116; t=1756332417; c=relaxed/simple;
+	bh=MvIwW1z4epLHjmTBTRkhGh1axW3OGBugXRd9FWQyMco=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RgijJDbb9Qi45lIgSb9PLw0waFTc3nUTsf8N/EbpzsHT4Iqgyrp1FvWKcC2AjbPRtXnrGEEbo0sZrK3z3ik+vzxvkaCeZd59bx55K/VH3IbVoiUUldI51Yi/FrwMXN6yQUE5rEm8yRehZ6ADLjxuqQIhwRhaqYClVs4we92tAHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eYYLK3IB; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=J9JhzLEzhObBY/C7rg7tQ7w253sxFSNLkFlzmwi00qRdBsfIpsmB4R3uRKzuIZG1g3jkO0xGG0S9uqUBkDvo8RaetljWohPGgu6UYAgetw/MsHTsunrKWiTsHI3xyvUFFWskYiQjXMKwoPwh5GxW5yyhcXfETrdvVAf9T0qHFkY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I8tySRCE; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eYYLK3IB"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I8tySRCE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756332399;
+	s=mimecast20190719; t=1756332414;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rjZeFWjCbDhCMUqSkeYcKpAMeyN7QE5gKijkCrCFfpU=;
-	b=eYYLK3IB8uFx/89P4gC16vVZZaR2xKA3QEbS0Iq+SCAFB60JZVoi2lJcifFmPfPgPupMIZ
-	PWH+BfzAhOsVVlST56+55fOFjL2S9x5IyDZiD6yP+sWynEaMivIDtUwXFkhvkSReQomunP
-	Flcq2G5s/XGG9JZTyzZIH1NrWtHPQyU=
+	bh=6MroGOug632a51ffxPVHU3ATCsOwaa4b3tJ1MTGryys=;
+	b=I8tySRCEXOP6SoHvu7Gq1d0csFlNaSIQJA/RrSJy6OnXcUV6VSkOlrVw2VFQfA9Ztv2S4H
+	uLpylm83UCjDSgl2S6mhuNRC63FjQsfitG9X2oVBps1Th7xlXD5V/MScE8R3z1xhU+7ak1
+	JRzIAIOCElo0+0AJCi0S794mz5OS4NE=
 Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-553-lA8LiC6sONKppwkqSITe_w-1; Wed,
- 27 Aug 2025 18:06:37 -0400
-X-MC-Unique: lA8LiC6sONKppwkqSITe_w-1
-X-Mimecast-MFC-AGG-ID: lA8LiC6sONKppwkqSITe_w_1756332389
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-556-a2F6JvbVP--8yuHhX8WRDg-1; Wed,
+ 27 Aug 2025 18:06:50 -0400
+X-MC-Unique: a2F6JvbVP--8yuHhX8WRDg-1
+X-Mimecast-MFC-AGG-ID: a2F6JvbVP--8yuHhX8WRDg_1756332405
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F080119541A4;
-	Wed, 27 Aug 2025 22:06:28 +0000 (UTC)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2834019541AC;
+	Wed, 27 Aug 2025 22:06:45 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.80.195])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id AB5F630001A1;
-	Wed, 27 Aug 2025 22:06:13 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8C0E530001A1;
+	Wed, 27 Aug 2025 22:06:29 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
@@ -91,9 +91,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 15/36] fs: hugetlbfs: remove nth_page() usage within folio in adjust_range_hwpoison()
-Date: Thu, 28 Aug 2025 00:01:19 +0200
-Message-ID: <20250827220141.262669-16-david@redhat.com>
+Subject: [PATCH v1 16/36] fs: hugetlbfs: cleanup folio in adjust_range_hwpoison()
+Date: Thu, 28 Aug 2025 00:01:20 +0200
+Message-ID: <20250827220141.262669-17-david@redhat.com>
 In-Reply-To: <20250827220141.262669-1-david@redhat.com>
 References: <20250827220141.262669-1-david@redhat.com>
 Precedence: bulk
@@ -105,27 +105,60 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-The nth_page() is not really required anymore, so let's remove it.
-While at it, cleanup and simplify the code a bit.
+Let's cleanup and simplify the function a bit.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- fs/hugetlbfs/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c | 33 +++++++++++----------------------
+ 1 file changed, 11 insertions(+), 22 deletions(-)
 
 diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index 34d496a2b7de6..c5a46d10afaa0 100644
+index c5a46d10afaa0..6ca1f6b45c1e5 100644
 --- a/fs/hugetlbfs/inode.c
 +++ b/fs/hugetlbfs/inode.c
-@@ -217,7 +217,7 @@ static size_t adjust_range_hwpoison(struct folio *folio, size_t offset,
+@@ -198,31 +198,20 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ static size_t adjust_range_hwpoison(struct folio *folio, size_t offset,
+ 		size_t bytes)
+ {
+-	struct page *page;
+-	size_t n = 0;
+-	size_t res = 0;
+-
+-	/* First page to start the loop. */
+-	page = folio_page(folio, offset / PAGE_SIZE);
+-	offset %= PAGE_SIZE;
+-	while (1) {
+-		if (is_raw_hwpoison_page_in_hugepage(page))
+-			break;
++	struct page *page = folio_page(folio, offset / PAGE_SIZE);
++	size_t safe_bytes;
++
++	if (is_raw_hwpoison_page_in_hugepage(page))
++		return 0;
++	/* Safe to read the remaining bytes in this page. */
++	safe_bytes = PAGE_SIZE - (offset % PAGE_SIZE);
++	page++;
+ 
+-		/* Safe to read n bytes without touching HWPOISON subpage. */
+-		n = min(bytes, (size_t)PAGE_SIZE - offset);
+-		res += n;
+-		bytes -= n;
+-		if (!bytes || !n)
++	for (; safe_bytes < bytes; safe_bytes += PAGE_SIZE, page++)
++		if (is_raw_hwpoison_page_in_hugepage(page))
  			break;
- 		offset += n;
- 		if (offset == PAGE_SIZE) {
--			page = nth_page(page, 1);
-+			page++;
- 			offset = 0;
- 		}
- 	}
+-		offset += n;
+-		if (offset == PAGE_SIZE) {
+-			page++;
+-			offset = 0;
+-		}
+-	}
+ 
+-	return res;
++	return min(safe_bytes, bytes);
+ }
+ 
+ /*
 -- 
 2.50.1
 
