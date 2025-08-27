@@ -1,55 +1,50 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4631320CAD
-	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:06:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D05230F933
+	for <linux-s390@vger.kernel.org>; Wed, 27 Aug 2025 22:07:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756332419; cv=none; b=cBtBVHQ/7IUatyjoRUP0OGMPB8MfbGU6sqxUUP4ZVnNbQfz/hyTTlrcrZj/hol+9/sfO1O41XHva0Py2sg6PjPbELc6ErKOwjDSxdZ8NXzoHFVTqgpBcePdp1QdxwseW5Lh8yusIwc30FxJQqigryZOx2gZVcy9GsOFgNrocWTY=
+	t=1756332431; cv=none; b=pHaeoccchBQdJIMbDzV6s2oGm9SFzUBJ6yujYcazynyFnoq6y1Nk9dWDZ7LnxKW5mKd1Kwz11iAokPiOw+wvxSt9joWPKQRQe7MyJTZhMQDWNv9XpLME+tRcLe42V+S72clpbunw9yo45pSIiw2ehDCWWZbX06t7m9j9W4iR9GE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756332419; c=relaxed/simple;
-	bh=G8hBKtBVwZFtj4CkF2iFuP4QWE3SoN2SvkzJrofZOlQ=;
+	s=arc-20240116; t=1756332431; c=relaxed/simple;
+	bh=DqyVXDGsUgZb9r/3HwvxxZbRj3b/8OImyDb3ud4Q1pk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pIHvPtaeRGdJTUiiEk3ON2ozYYi9SNYOqFPTTq0qnf29b9yBf1jtAozxK/8CZe1CvopGeFsktdciHMUe7uYt88ZZuls8hHlKOoATSvPMzNM6DQMojl/0fejvKFCB1ybdKq1rwVTogp6mVYSZqv5xcC7/K9uI+18Zi7p1VKsMcrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yzfs6CBW; arc=none smtp.client-ip=170.10.129.124
+	 MIME-Version; b=mZvYzMX8OaN0DWUdb5l0YILZqUOsyVnT4lJB8O4pc9jvf4hc91P6Ka/zHIx297uSRoG5uRNuair3fJekCPqjELg7AVcs3mcUm6unsnsI8XO7X4h0663bXGeVh9MnCAGIgbO9He1/35ajJH8gaYzLVNE4DqhekLQEiUd6+D4CK8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=P/iLOv6B; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yzfs6CBW"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P/iLOv6B"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756332417;
+	s=mimecast20190719; t=1756332428;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=BoCigziN+sd3886gtncwVGrOobwk0eDvjUtVkuDjFuc=;
-	b=Yzfs6CBWpUviEcLGutVu8eCGxk0oyfJ14FULw5aGk/qJEceBr22ENsqdUvsYndOv/zn/vM
-	vFkqCev7NfrMw2DkBHW/Xt6Te24w9743xqamYVBjGZcUyUz8OOeIZ7ybXv1HX+puJ3YFv8
-	4Qf9hELTavfH+CuKK1/21jgAIupF7Q8=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+	bh=QCvnB/7xI7T/4p4mwWx/D4+W6s//h9G2+oSyfbDOFZs=;
+	b=P/iLOv6Bl2AIeiNgfB1OvLERIDEMhf5vJxJEJYyFGuXGxoQoXvz270XLWs0DDIRGId56PT
+	HT6xZScU9daA/up11M7S5nB+TsavxMnwWkLxYxAvptgi4OLDBWjgNGDq41JqDVER2At/dP
+	1QWJ/17ONsvHCO8HPsqvQ6EmzlQoPJI=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-389-k0g0ERAQMDW3c6U23kRavw-1; Wed,
- 27 Aug 2025 18:03:37 -0400
-X-MC-Unique: k0g0ERAQMDW3c6U23kRavw-1
-X-Mimecast-MFC-AGG-ID: k0g0ERAQMDW3c6U23kRavw_1756332211
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-82-ClQKmaRWPAKB1M2iEYT62g-1; Wed,
+ 27 Aug 2025 18:07:06 -0400
+X-MC-Unique: ClQKmaRWPAKB1M2iEYT62g-1
+X-Mimecast-MFC-AGG-ID: ClQKmaRWPAKB1M2iEYT62g_1756332421
 Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id ACA3A195608E;
-	Wed, 27 Aug 2025 22:03:30 +0000 (UTC)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B7B791800285;
+	Wed, 27 Aug 2025 22:07:01 +0000 (UTC)
 Received: from t14s.redhat.com (unknown [10.22.80.195])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2E8CE30001A5;
-	Wed, 27 Aug 2025 22:03:13 +0000 (UTC)
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B7D6F30001A1;
+	Wed, 27 Aug 2025 22:06:45 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: David Hildenbrand <david@redhat.com>,
-	"Mike Rapoport (Microsoft)" <rppt@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
 	Alexander Potapenko <glider@google.com>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Brendan Jackman <jackmanb@google.com>,
@@ -83,6 +78,7 @@ Cc: David Hildenbrand <david@redhat.com>,
 	Marco Elver <elver@google.com>,
 	Marek Szyprowski <m.szyprowski@samsung.com>,
 	Michal Hocko <mhocko@suse.com>,
+	Mike Rapoport <rppt@kernel.org>,
 	Muchun Song <muchun.song@linux.dev>,
 	netdev@vger.kernel.org,
 	Oscar Salvador <osalvador@suse.de>,
@@ -95,9 +91,9 @@ Cc: David Hildenbrand <david@redhat.com>,
 	wireguard@lists.zx2c4.com,
 	x86@kernel.org,
 	Zi Yan <ziy@nvidia.com>
-Subject: [PATCH v1 04/36] x86/Kconfig: drop superfluous "select SPARSEMEM_VMEMMAP"
-Date: Thu, 28 Aug 2025 00:01:08 +0200
-Message-ID: <20250827220141.262669-5-david@redhat.com>
+Subject: [PATCH v1 17/36] mm/pagewalk: drop nth_page() usage within folio in folio_walk_start()
+Date: Thu, 28 Aug 2025 00:01:21 +0200
+Message-ID: <20250827220141.262669-18-david@redhat.com>
 In-Reply-To: <20250827220141.262669-1-david@redhat.com>
 References: <20250827220141.262669-1-david@redhat.com>
 Precedence: bulk
@@ -109,31 +105,27 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-Now handled by the core automatically once SPARSEMEM_VMEMMAP_ENABLE
-is selected.
+It's no longer required to use nth_page() within a folio, so let's just
+drop the nth_page() in folio_walk_start().
 
-Reviewed-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/x86/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ mm/pagewalk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 58d890fe2100e..e431d1c06fecd 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -1552,7 +1552,6 @@ config ARCH_SPARSEMEM_ENABLE
- 	def_bool y
- 	select SPARSEMEM_STATIC if X86_32
- 	select SPARSEMEM_VMEMMAP_ENABLE if X86_64
--	select SPARSEMEM_VMEMMAP if X86_64
- 
- config ARCH_SPARSEMEM_DEFAULT
- 	def_bool X86_64 || (NUMA && X86_32)
+diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+index c6753d370ff4e..9e4225e5fcf5c 100644
+--- a/mm/pagewalk.c
++++ b/mm/pagewalk.c
+@@ -1004,7 +1004,7 @@ struct folio *folio_walk_start(struct folio_walk *fw,
+ found:
+ 	if (expose_page)
+ 		/* Note: Offset from the mapped page, not the folio start. */
+-		fw->page = nth_page(page, (addr & (entry_size - 1)) >> PAGE_SHIFT);
++		fw->page = page + ((addr & (entry_size - 1)) >> PAGE_SHIFT);
+ 	else
+ 		fw->page = NULL;
+ 	fw->ptl = ptl;
 -- 
 2.50.1
 
