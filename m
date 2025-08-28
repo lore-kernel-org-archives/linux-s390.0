@@ -1,176 +1,112 @@
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2081.outbound.protection.outlook.com [40.107.93.81])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD1D1F0E2E;
-	Thu, 28 Aug 2025 01:18:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.81
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756343911; cv=fail; b=QLUYAQD2O9K/s2S/dyeF2i36HXe0mB8YjtP12ue+K6JA3yjghxyaPU/TMVDDt3UezkC5hXZIpNQ/1tIWCUioE15oNDZcs2a6auT/Jk5tATSIg9WTTp/Ad5KvJzNZlipKS+01QTDgI+bgH6aRMgBLgb5kfOdr04fZqHl7RD7XVGo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756343911; c=relaxed/simple;
-	bh=DgEraQjk8YvfJrjcJEr5399iQMrdwzTLvXj7SbaLvVo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=GPuoxuBr2I97IMDxruhEbN/kdvH0KCK/mLZDQoy06C+lAe7+yI03FGV575HPK6jHmrBlkpGKcGYwIkCqKnxK67KFQbUMzDPc0qA6RAwXqerAzpsC4FGRi9/kZxy8yQtl0IWYvGmyM5RszoJIwQJYU8klPq3e6MFqOjEXfytKvjI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SO/zxCy3; arc=fail smtp.client-ip=40.107.93.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19E5330CD8A
+	for <linux-s390@vger.kernel.org>; Thu, 28 Aug 2025 03:49:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756352958; cv=none; b=kZNoVu+18DoAQ+4i0WgmoKRVGq6Qn9kNMBqPAeiqzM5jzMcxnGoTOEf0Lw7uDvI7X3vciyIc/GYcyRDSqv/PrTW79pQSWyOTj6DV7WfivWlvbwRTJwNxL/Zxd6ct8WcYVD1tS5oWgVQxK5WRuRZWBX3uTUaY0ibXJdhLChHPUn4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756352958; c=relaxed/simple;
+	bh=ONOyllB4SKr1nL03miJXEtQ6HJtKv2bbwr9gyHs3III=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MkSs05g7AGTt4z6d3PIpZzYiOmlGFO4X/zMvHrRF/vlAr4yn1zkq1U/0W+QenUA6/EqK+kqbKxBUeE4QByuwaFSZiSG8M/Q37bVMDDDGj3GPonAB8kILCU2uf4rQvm9ODQLvSiQv4nwKWBQ+gxK4kSbKwpMwlxhwIQFaSujcc9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D68cqtgJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SO/zxCy3"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=RP5KFazG5jt0wRDpY5RUlYPJeRQ1i0iTWQTsu5rAGB2yMLjhWiVNoubqnQJHdxkskQr6MjSNLPf5R/l4aaR3lzokPPXe8nujnQmUh76tpFy5CJVR+vhLSpyktA+OuNjMey6gn8aJ2czUXLqiSiRJDwhHasDGDD60wnLqM0mzb+6QbBCvpUDAkIVLi6bg+qAKZF5W7S0RPNLkqW9dPKPeO34pWbUCrZTHMroC31wgqHo6SDrh1/fR3t9ZhHQvsIRd5MQ9/H7uoiUnCkY8nXgCt4nL3M6ck9yEC2piTIJaEKOlCyxeCY9noZcGQNEUxlceBmJjkM/Lr5TCxZ05T8sQuQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=f0z0GspihNSSfeTybTglosJQYVAZScewsE15DFtKC2Q=;
- b=UHIvvRpYJgCfQ8VxeuBp+qe/WcxTzkoUEZQ4lLDhu5MT6gmLBN365eKTRAGk1ODbqH4jGRif8jdQgeIW5687g36hU9gyXuBk7tbesjnzcOYgNTX0+twhOgWCN1ucY8BnfHtt0HZKO9NIWvCS9UKIZc1gdcFHWd92stchW8cuyy7VP1GxIMBw5nN93+1+3YNKwKQwfmJKjwOQuinAgw0z8Ypbhi8gW0BWSRVX8cuwUstiJG7ocIF2Z7sPuLmowmuW9xtz5dnp3viJ+c3SNJMqe8jj0PUxvkVNk/ISDAPBfGQi/pdfurm+ElPbdYoGakhDng3XezUeZt2Ld1nzAQwHhw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=f0z0GspihNSSfeTybTglosJQYVAZScewsE15DFtKC2Q=;
- b=SO/zxCy3z5A3QFClcXnl2nRRmlxyAuQq3KUZ1lVjnvKat0sHUNXcuoX/ngp/uhEPVg0b1WnrroH1x3PW+49bZrNru52SvkMCm4Z6AhrF3h+Wpj1CKhmV1TQapWv0LRyBXyO5z6mXsPowN0Bm0rkJ4dro015BCukp4iE5w5LcSGCmHm+HOFbBTFVvf/GJXcOQ73PSH5J/oA0Z5P3GItwhUIvCEHEqYJ1hzA6eYoV6VXJR+aeYJKsCVzmuLLRLFVNi6tlFPFJaxsGiF8y4TsaAHpvlhJ1X+X9xQHfEMPwfIY5w/KwAJIIxPZ28llaBJbdUvViNNVdwydDANydZC5vj8Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS7PR12MB9473.namprd12.prod.outlook.com (2603:10b6:8:252::5) by
- DS0PR12MB7825.namprd12.prod.outlook.com (2603:10b6:8:14d::13) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9052.21; Thu, 28 Aug 2025 01:18:26 +0000
-Received: from DS7PR12MB9473.namprd12.prod.outlook.com
- ([fe80::5189:ecec:d84a:133a]) by DS7PR12MB9473.namprd12.prod.outlook.com
- ([fe80::5189:ecec:d84a:133a%6]) with mapi id 15.20.9052.019; Thu, 28 Aug 2025
- 01:18:26 +0000
-From: Zi Yan <ziy@nvidia.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
- Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
- Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
- Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
- Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
- Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org
-Subject: Re: [PATCH v1 16/36] hugetlbfs: cleanup folio in
- adjust_range_hwpoison()
-Date: Wed, 27 Aug 2025 21:18:21 -0400
-X-Mailer: MailMate (2.0r6272)
-Message-ID: <22900121-30DB-4A1B-88A2-E3D158E009E2@nvidia.com>
-In-Reply-To: <20250827220141.262669-17-david@redhat.com>
-References: <20250827220141.262669-1-david@redhat.com>
- <20250827220141.262669-17-david@redhat.com>
-Content-Type: text/plain
-X-ClientProxiedBy: MN2PR06CA0025.namprd06.prod.outlook.com
- (2603:10b6:208:23d::30) To DS7PR12MB9473.namprd12.prod.outlook.com
- (2603:10b6:8:252::5)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D68cqtgJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756352956;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Uzv1TpitFH2MWtQCE2YAgMRuIwrsgG0F2dWnOgzNbxU=;
+	b=D68cqtgJKRsC77X4YPTRjALEKDR+MWeb8QIrGU4JLL51hw16AXtVIgrn79KSaG/RD06VnY
+	JytnNrg9m6lDMI+rFtAJV78q7yKFDAGqAKxZmGbArqp6Q/vb97lO1WcXzCr+fWeldLyIpL
+	gy2qDZdsLMS7jOpYUG3K/vEULKPm1M4=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-75-oEaYp2oLO5OtXgsJu53zxg-1; Wed,
+ 27 Aug 2025 23:49:14 -0400
+X-MC-Unique: oEaYp2oLO5OtXgsJu53zxg-1
+X-Mimecast-MFC-AGG-ID: oEaYp2oLO5OtXgsJu53zxg_1756352952
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 54EBE180035F;
+	Thu, 28 Aug 2025 03:49:11 +0000 (UTC)
+Received: from localhost (unknown [10.72.112.154])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B0E2A1800447;
+	Thu, 28 Aug 2025 03:49:09 +0000 (UTC)
+Date: Thu, 28 Aug 2025 11:49:05 +0800
+From: Baoquan He <bhe@redhat.com>
+To: Breno Leitao <leitao@debian.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Coiby Xu <coxu@redhat.com>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	kernel-team@meta.com
+Subject: Re: [PATCH 0/3] kexec: Fix invalid field access
+Message-ID: <aK/RsVZxBw108MNJ@MiWiFi-R3L-srv>
+References: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS7PR12MB9473:EE_|DS0PR12MB7825:EE_
-X-MS-Office365-Filtering-Correlation-Id: 011d6e5f-b108-4c67-6566-08dde5d0c9c4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?anuDnOeBHohnJ67dJqfsbZG2Om5PvfX2R/G0mJZJutrEWiFCJsCoNoNBTXyW?=
- =?us-ascii?Q?Rx1OGMepNnj7VQdMMoT0k7OkLbyZr1gHVvLBYUjMqnYuIgMujFcsg0S6hVTe?=
- =?us-ascii?Q?bzR7Ici2ncRdLv6Z8w1JKbAdT/5SxJs2vjEm6eQBOapBZHH6pTX4qr7Q4fDl?=
- =?us-ascii?Q?FOj77WVwottXVSharV18MyL4eXuFdEUCQ8my6kHchU6qrwjwZq1hIxE0nzdW?=
- =?us-ascii?Q?w91lfBgk9xI8RWHAGwTkwVWHMuloM+LIM5dU+M67FjH2hcWOQWjmBpbTvgGG?=
- =?us-ascii?Q?GkTVQa7cYY2FB+ghC/pDnT44NMsVeiwOSuFTANIuXMbt13Yj2uWAbauO+/Gh?=
- =?us-ascii?Q?TVzM2bGiwFDVcGAJHR50HjSgCqGDKlsROhurpiOn1SE51l+QCutcvTDPn8cF?=
- =?us-ascii?Q?8rwhcDp/6QD/mOy6TeILTGBmDp4GQjhowCx2QrkGxcLBUL0xBZnob9hKr8fe?=
- =?us-ascii?Q?wAYiWhqGcsOzoSnAlZAc4eVB3w9I7BKQQX1YwZ0RaiL7LF5Fizf0w2lyv2ek?=
- =?us-ascii?Q?9t+zxb5WTK6umfui9Ofu2xuL9eFds7tMW5hz5VDbDYRQS6Wjr7lWvsGe0AiR?=
- =?us-ascii?Q?zZnLOIU2g7QZ4ypzDRvdCAkqU93inPkFUjfolL7LS4/rQbKi6uoBFEl+4FWK?=
- =?us-ascii?Q?XuQFXy+LH0hbotWnxMYBQLSD0w/w9Wpdt7adacB8qLn/fndN5wV2MwqCda6X?=
- =?us-ascii?Q?ZbjI3p2rKEBvsYc7ni+p9GEpPG5YfQgiAeTgqUO9ug0rFOGR9jg7XHcyt/Gn?=
- =?us-ascii?Q?6Y7eSQ2OdXQa1c7wPjunC0/Shnn/zr1OxTDP2/zl91sxmrhhrfqh9JdN+5mD?=
- =?us-ascii?Q?J+SEl96fE/LqLmAPrIIXH0qbRIx5GtRqbwORM32K4SArsBFNcmFnfSn4jZO1?=
- =?us-ascii?Q?sxLixGlpueCTjj9dkz78e2/H1I5ZIm+oFqMSAyariDHrC7C7dUnp4TlT6Pzn?=
- =?us-ascii?Q?CkNvy0oQb3VIL6XGHZjB9r0oMzmJdqE1CZsxTVpTrEzKjQLh9QtuBKlvwT2f?=
- =?us-ascii?Q?qB7XqnsFQsJFGfAk4Qt9/usPAQArZ2RWRc/S4RQBFbMQyoLm/YziX0phPFEB?=
- =?us-ascii?Q?SA+h9yZ4phYgY4madHtpR0FGTW7h0KhfOkJKPzjGT4RAHzj0wgRWKI4kGKb3?=
- =?us-ascii?Q?GYzAhPVZ1DqSYuaSgl+MQEw43YVrD7dv/852/3c1Atx7/hOck3Bznh/UTBpW?=
- =?us-ascii?Q?TUcns7lE5UkL2Xsi+Hjssr+2/NS61gmhxboqIsVeErciZMN1TQciROeM5dBJ?=
- =?us-ascii?Q?srVs0FffB504LHiJH/u+ykPhLFaA2dkH/fu6qRXXVLRhegHzVkObgc7JeoIY?=
- =?us-ascii?Q?L1Lsh81F7hgncghVIxaUJocmHCiXRHkQkhRb9uqm0f1IEYAKv7HUftdJQtvP?=
- =?us-ascii?Q?PuptyPRpzwmqVHCC2gJJCpo7CUmRBWlUomx5wlnjMWSfXKGTEUnYOHYpkrGZ?=
- =?us-ascii?Q?cXt9GYvfqVo=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB9473.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?iorvuWOtIzYyTz1Y5tdMMXd4HQLh73OM8fEEUVhaCmYH+a3Fwm/nwXXAbYpw?=
- =?us-ascii?Q?zZ0y1Z3YhMqi0S+ghhB7C5/cnQKvPSHYGkl+HF10VtayOYFw3iQzALbJW4wo?=
- =?us-ascii?Q?pYegPGgjaMSqDDOtlOk4dsou35D/5WCGZV5s4sguq4dYRK6RbfD1aToVmctx?=
- =?us-ascii?Q?axyE4LRVgUxSiun0WCndPOTIndKRmTAKMvCMuSbS8PJKYVU2EyCxRu4/4qh+?=
- =?us-ascii?Q?TumGsAjcqY7vCnaDVlwuZHG5b/VrsGKs+bimUB09vZXq4LpcxISdXoQwJRWc?=
- =?us-ascii?Q?2RjN8IV0G+EQmOahufcFwKxZAgogkp/eSbnfgnZVgJP10SK98e1FtGNic6hv?=
- =?us-ascii?Q?FAXnClYBjWZqR9+rpOjfAGDk495pdgW+rHAifqxt6wgbDO1akIlHA8KBXONW?=
- =?us-ascii?Q?NVjEgPdX/JU6k8dOwHhVyjTYI+uDT8FMavojfaiEA8EDvcUrw0T9a+uStEOD?=
- =?us-ascii?Q?U82IijIw9IDkN+hLEyiDxa+xQHzSLkfGKD8w/GHtXFAO3ByGGXVmhAq9M0oO?=
- =?us-ascii?Q?GkpCNZr4/qayC3wlb3vFYQ5SFoGoNZ7Qpql7Er5DuzKHZEf3YWLRzZlKjvfa?=
- =?us-ascii?Q?8hPXLuXsDHKMGHbr6hHUKXTg1KldFH+y5XJejBJtTlODsRRw2Co/JzD6aM/d?=
- =?us-ascii?Q?3kIjf/jIKAZ/muS9votPMhf5tt4bTee7IHmur4dwux8Qf6HlXDEoAQyj07Y4?=
- =?us-ascii?Q?gDkUgKugZ55IdL5d5r61I1E4lmojpC3bWGuZQvCPhiJSYkXyLMYdKzcAEAVb?=
- =?us-ascii?Q?pT0C624l9s1VQtcgfzPq+m9fdVtuQ2IKzbQlxGyyoj6na0QQZnfICcJv3zRY?=
- =?us-ascii?Q?VkgwXGO0Ij8+qhkoWH+0im0X7W5/WL2Ijck4fKtjzDxLnsY/XkjgHGCa6xte?=
- =?us-ascii?Q?7zT8Ys8FZUd/KZ9BiuqLQciO46tal6/qL0Vf9vQSjFt3OMYkHIyZeEOfydq7?=
- =?us-ascii?Q?aMsvG5c276Qp7DH75alL4y7WA1KmeYhA8LeIfZN+sER1eGz6bPxTlroQwhoK?=
- =?us-ascii?Q?BAC75rSWWGBjTE7YE1ZbGQDR2Uz8N9d+XtPjYydyz++qAJr5upYBouiol7go?=
- =?us-ascii?Q?RaLNaA2wJEzf1d5r4uS7KUzu5Cqkjd9Ak/bPhlIVrdhWC7qqixYmt+dy77QO?=
- =?us-ascii?Q?I+NmXQtRnb8E3rrHJsDvHRsXCIQYAekr4J7ckmX6EIbpYHcBueVAWvRV38CQ?=
- =?us-ascii?Q?5JekFs2UKbU1cLnKGJuM/R3c5Tvpz/srbrZcu7GHHb7ZcAeRxOjPvTyyppB5?=
- =?us-ascii?Q?6S0mpd5xyNopp/XNmyESEpTnLhQ2xr1uBNXdceXmwuXw2uapGscVRyl8DG02?=
- =?us-ascii?Q?wFiQoQg0PA6YGjxiHzghYhQRjDfvI3/7DxrGr9bzgrELZbdei6SEP6+QwfE/?=
- =?us-ascii?Q?N3wzIpbcTCyKyz+mb3sEtLZS9RurDFdRV21Wy3t8qL/vtngaB5EqjRQiDy3R?=
- =?us-ascii?Q?7WH/3i7ikwq94x/4dn3eB1kS3XiGAiqsfZdzKDxZ9uYoKta1pwOT4MiqhYDU?=
- =?us-ascii?Q?DCC/NXY6ENfbLLd0BtNu/Wly45mwvkbn09u7zWYyWxUH9mMCmITO2N5b/vjY?=
- =?us-ascii?Q?J3ofjQx9O3HVICBIjwo7bsNUClembdhtDvQiI8Z3?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 011d6e5f-b108-4c67-6566-08dde5d0c9c4
-X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB9473.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Aug 2025 01:18:25.9047
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: UF0Ue62x+n8oaTn5s9htiLbTjQUtfbOemw40/1mhrxlnWfwDqqZWaepMNo7yAr8j
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7825
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On 27 Aug 2025, at 18:01, David Hildenbrand wrote:
-
-> Let's cleanup and simplify the function a bit.
->
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+On 08/27/25 at 03:42am, Breno Leitao wrote:
+> The kexec_buf structure was previously declared without initialization.
+> commit bf454ec31add ("kexec_file: allow to place kexec_buf randomly")
+> added a field that is always read but not consistently populated by all
+> architectures. This un-initialized field will contain garbage.
+> 
+> This is also triggering a UBSAN warning when the uninitialized data was
+> accessed:
+> 
+> 	------------[ cut here ]------------
+> 	UBSAN: invalid-load in ./include/linux/kexec.h:210:10
+> 	load of value 252 is not a valid value for type '_Bool'
+> 
+> Zero-initializing kexec_buf at declaration ensures all fields are
+> cleanly set, preventing future instances of uninitialized memory being
+> used.
+> 
+> An initial fix was already landed for arm64[0], and this patchset fixes
+> the problem on the remaining arm64 code and on riscv, as raised by Mark.
+> 
+> Discussions about this problem could be found at[1][2].
+> 
+> Link: https://lore.kernel.org/all/20250826180742.f2471131255ec1c43683ea07@linux-foundation.org/ [0]
+> Link: https://lore.kernel.org/all/oninomspajhxp4omtdapxnckxydbk2nzmrix7rggmpukpnzadw@c67o7njgdgm3/ [1]
+> Link: https://lore.kernel.org/all/20250826-akpm-v1-1-3c831f0e3799@debian.org/ [2]
+> 
+> Signed-off-by: Breno Leitao <leitao@debian.org>
 > ---
->  fs/hugetlbfs/inode.c | 33 +++++++++++----------------------
->  1 file changed, 11 insertions(+), 22 deletions(-)
->
-LGTM. Reviewed-by: Zi Yan <ziy@nvidia.com>
+> Breno Leitao (3):
+>       arm64: kexec: Initialize kexec_buf struct in load_other_segments()
+>       riscv: kexec: Initialize kexec_buf struct
+>       s390: kexec: Initialize kexec_buf struct
 
---
-Best Regards,
-Yan, Zi
+Thanks for the fix, all looks good to me.
+
+Acked-by: Baoquan He <bhe@redhat.com>
+
