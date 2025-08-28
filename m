@@ -1,185 +1,107 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBCBC30FF20
-	for <linux-s390@vger.kernel.org>; Thu, 28 Aug 2025 13:00:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72C3313C9C4;
+	Thu, 28 Aug 2025 13:04:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756386056; cv=none; b=k/V8SO5v4PB/TgXyv3dCReNuhpstnOpxqdmOUheR1tULQtkMCEcd+zw9XIn1YeZxiQbREOUDGFnh5qPFqhx5TQ1MIA14SFNGcCs0FI/uLnM4eH3Ohw2QiLCmU0pqYpt4yvfNulnyzTDV//Ay/Qf0ikxHY9BZi1Mqez23m5hHKmU=
+	t=1756386249; cv=none; b=jqzrhFlpmIaKBAxZv36qSUfGimclMPl+ozKBCPu1QN+VjS3T1zwArseqXycYMXFFmhkJzseJGtpE0q7LWzeqSw2dWkJjQTn5leWi0pYwDScdMN2BZIwXwggQkj+//onuF+xzmrWQNVtsk6pUt9fd09nu4YYqc7gcybyIYEu8Hhk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756386056; c=relaxed/simple;
-	bh=jKUgrkKGxwjF/OmmVzVGTm7SLGw0brqesEGq3+BW44I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QTjJscqWchIpA/HEMgnqn7TMeszP/cOosguW5mZtWF+NDxXgklEB2/SITFYp9ytAHLAaqG29FfB6Afgm3AzHZaGefi5UV8sWIHc/4DnTYZhmWVQOW4sXT+uxfqlY7ZqHE4FznIJzh/WplLlvOORmLBvVF6ipMTZSWKFTAsg6104=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Wzi0buhq; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1756386249; c=relaxed/simple;
+	bh=87R04Ox+ehTuM5qn/vfSbAZfNCAWzfGxR1PC7L0e8jI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fuOa9beAwOOgOxHA9aelSq/a8Go9wQ/FXSspzBNH0UT4jj2ZBIPQiODensJcT3hrPlMR2UQJjSG3OsUmlhIDreBT0QbEsWBLgrOyBnFXj2iVgSt6J+tsI8y/xGK/NpOzO/ubamJIIo6+P+xpApQFcC6b0jmZkmQRc04W0iwCB0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NdiOrjfM; arc=none smtp.client-ip=115.124.30.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wzi0buhq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756386053;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=AbvuB6Au0zhNqXABCgDm8J3gFB0IHbInVCTp8q39tsI=;
-	b=Wzi0buhqCMGaIhkel7ejT+AOpqQzxxgNDbCYqaIe1FIDGNSTq3YftD43YYGrveax9KAsxZ
-	MhLAMVikdGMtP8UlAy1V+AtqrefxugThsOgpJPBlfvBWuY3KOUYi7aOkCHAXJIM2fzLpY8
-	wug37TSyK4Kv61DbPdta8O7eCSq4Noo=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-421-mCjf6RcRM9y3fK1b-SKlbg-1; Thu, 28 Aug 2025 09:00:52 -0400
-X-MC-Unique: mCjf6RcRM9y3fK1b-SKlbg-1
-X-Mimecast-MFC-AGG-ID: mCjf6RcRM9y3fK1b-SKlbg_1756386051
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3cc3765679fso352086f8f.2
-        for <linux-s390@vger.kernel.org>; Thu, 28 Aug 2025 06:00:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756386051; x=1756990851;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AbvuB6Au0zhNqXABCgDm8J3gFB0IHbInVCTp8q39tsI=;
-        b=JtNkJiMhj74KwaDqxK64gzud9boDMIVqNHL5OFccqa4lyr2zgtYkQF48Dnjzi+wxgO
-         zeUE4AQcoaViav0mxttEwqAuKPuZj4m0cbrzDsiaENpU1A/GDTnq7uUQmRc5iLIoo4db
-         9BppWwy+lU/TR2ld/hXF4MVJQKFZ8dZFxGZinc8pi8tl87JqP6/vhJKmSNEjbSVpoE3C
-         fiGKcllLMKpgi6CkA7LdnhcykU59kczyccppXapl3CfkBb+b4H/AbLY2wApj04DRssQO
-         LTMGSVAJMDc8QxKin9bCGLHywe732rvvPp58WBpthYxLp02qKArw2edPdkzdhI+f7nzP
-         sB7g==
-X-Forwarded-Encrypted: i=1; AJvYcCVFLVGBvXcXGDANxDRTFHPZSp52BSs26UfOQlcEaqBGFG7Qa0GLyBFNzqQsopHWELElfW5aup+epXhc@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfaC9RRBEbymmLwfsXJfa6zr/rCCYYGmFqP2OmBBkuJRt8tGHc
-	kfz8sY3gGp43/ijb+uUfPLIGUV6+T6h+4QFAkRNrE+EwFT6W1iaiqPZVKSKDZMazGyMXG6nXuZG
-	pCD2ZU3O+YUmN1Gm7idiQ6e2i+uLOP2wx1yCpOBwuprT8Pnzxdw838a1vsWLfNvo=
-X-Gm-Gg: ASbGncu8KnioDUanRuE5pwq+AuG74bvGisZp3LT9ryV1KcqGol/eQDw4mKS9So4cKQl
-	7yW45x4vqmlAvgc8fTxMVjasvitypFJP7lunOEi+ydAzHs9OcmtwG9/IzeBg1oRGRs5Tb1NluZd
-	WlA5FdFdqlSURXpn6rj7/1rqQI/XGiFJIsMV/Tcfm2gtF9+Ehjj0JhC6QsVgCRAs0Fd81RT8ipY
-	TxLrYI3gFZEpEZmAigo0GSAY4da38uZPbv1aQzu23Sj+Sgj1r+S1P/bFH3W7qNKH00cyRB57nly
-	Zm54pTgOzumqi8VDS5ywPgZs5yrECFBM
-X-Received: by 2002:a05:6000:2386:b0:3cb:46fc:8ea2 with SMTP id ffacd0b85a97d-3cb46fc90eamr6842050f8f.6.1756386050901;
-        Thu, 28 Aug 2025 06:00:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEFwS7Qliz/HxgGv2dXJpTk5nUZcNUDdFuQrU+BPOwYcdT0gczDl4R2JQKuapyawZNMQWWyqw==
-X-Received: by 2002:a05:6000:2386:b0:3cb:46fc:8ea2 with SMTP id ffacd0b85a97d-3cb46fc90eamr6842013f8f.6.1756386050171;
-        Thu, 28 Aug 2025 06:00:50 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1515:7300:62e6:253a:2a96:5e3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cd5997658fsm4839515f8f.46.2025.08.28.06.00.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Aug 2025 06:00:49 -0700 (PDT)
-Date: Thu, 28 Aug 2025 09:00:46 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Cc: Cornelia Huck <cohuck@redhat.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"stefanha@redhat.com" <stefanha@redhat.com>,
-	"pbonzini@redhat.com" <pbonzini@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"stable@vger.kernel.org" <stable@vger.kernel.org>,
-	Max Gurtovoy <mgurtovoy@nvidia.com>,
-	"NBU-Contact-Li Rongqing (EXTERNAL)" <lirongqing@baidu.com>,
-	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH] Revert "virtio_pci: Support surprise removal of virtio
- pci device"
-Message-ID: <20250828085526-mutt-send-email-mst@kernel.org>
-References: <CY8PR12MB7195C932CA73F6C2FC7484ABDC3FA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250824102947-mutt-send-email-mst@kernel.org>
- <CY8PR12MB71956B4FDE7C4A2DA4304D0CDC39A@CY8PR12MB7195.namprd12.prod.outlook.com>
- <20250827061537-mutt-send-email-mst@kernel.org>
- <87frdddmni.fsf@redhat.com>
- <CY8PR12MB7195FD9F90C45CC2B17A4776DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
- <87cy8fej4z.fsf@redhat.com>
- <20250828081717-mutt-send-email-mst@kernel.org>
- <87a53jeiv6.fsf@redhat.com>
- <CY8PR12MB719591FB70C7ACA82AD8ACF8DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NdiOrjfM"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1756386242; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
+	bh=C1ejW/71ETj9A3bcLkx0oDuGH2F9c7HT+2BpATISzr4=;
+	b=NdiOrjfM5LMPhTXFvYPUnTmA/DYXZa9J3oojkvB86LBeEFeD/Doqi8o+2PIjuyaz8+8+7PnjQBt3opFq/hG4OVD9MqSJ27rZYspItI6CqGK4bYf4ze7fNEC2mYbIN9h8fMw7H+GBWblboBn8SEPB+jOWIVkgHLo8ESSRHx7e58I=
+Received: from 30.221.116.45(mailfrom:guangguan.wang@linux.alibaba.com fp:SMTPD_---0WmnCu3f_1756386240 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 28 Aug 2025 21:04:01 +0800
+Message-ID: <e32aa255-6ee7-421a-a7d2-8425627eabc1@linux.alibaba.com>
+Date: Thu, 28 Aug 2025 21:04:00 +0800
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CY8PR12MB719591FB70C7ACA82AD8ACF8DC3BA@CY8PR12MB7195.namprd12.prod.outlook.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2] net/smc: fix one NULL pointer dereference in
+ smc_ib_is_sg_need_sync()
+To: Liu Jian <liujian56@huawei.com>, alibuda@linux.alibaba.com,
+ dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
+ mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
+References: <20250828124117.2622624-1-liujian56@huawei.com>
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+In-Reply-To: <20250828124117.2622624-1-liujian56@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 28, 2025 at 12:33:58PM +0000, Parav Pandit wrote:
+
+
+在 2025/8/28 20:41, Liu Jian 写道:
+> BUG: kernel NULL pointer dereference, address: 00000000000002ec
+> PGD 0 P4D 0
+> Oops: Oops: 0000 [#1] SMP PTI
+> CPU: 28 UID: 0 PID: 343 Comm: kworker/28:1 Kdump: loaded Tainted: G        OE       6.17.0-rc2+ #9 NONE
+> Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+> Workqueue: smc_hs_wq smc_listen_work [smc]
+> RIP: 0010:smc_ib_is_sg_need_sync+0x9e/0xd0 [smc]
+> ...
+> Call Trace:
+>  <TASK>
+>  smcr_buf_map_link+0x211/0x2a0 [smc]
+>  __smc_buf_create+0x522/0x970 [smc]
+>  smc_buf_create+0x3a/0x110 [smc]
+>  smc_find_rdma_v2_device_serv+0x18f/0x240 [smc]
+>  ? smc_vlan_by_tcpsk+0x7e/0xe0 [smc]
+>  smc_listen_find_device+0x1dd/0x2b0 [smc]
+>  smc_listen_work+0x30f/0x580 [smc]
+>  process_one_work+0x18c/0x340
+>  worker_thread+0x242/0x360
+>  kthread+0xe7/0x220
+>  ret_from_fork+0x13a/0x160
+>  ret_from_fork_asm+0x1a/0x30
+>  </TASK>
 > 
-> > From: Cornelia Huck <cohuck@redhat.com>
-> > Sent: 28 August 2025 05:52 PM
-> > 
-> > On Thu, Aug 28 2025, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > On Thu, Aug 28, 2025 at 02:16:28PM +0200, Cornelia Huck wrote:
-> > >> On Thu, Aug 28 2025, Parav Pandit <parav@nvidia.com> wrote:
-> > >>
-> > >> >> From: Cornelia Huck <cohuck@redhat.com>
-> > >> >> Sent: 27 August 2025 05:04 PM
-> > >> >>
-> > >> >> On Wed, Aug 27 2025, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > >> >>
-> > >> >> > On Tue, Aug 26, 2025 at 06:52:03PM +0000, Parav Pandit wrote:
-> > >> >> >> > What I do not understand, is what good does the revert do. Sorry.
-> > >> >> >> >
-> > >> >> >> Let me explain.
-> > >> >> >> It prevents the issue of vblk requests being stuck due to broken VQ.
-> > >> >> >> It prevents the vnet driver start_xmit() to be not stuck on skb
-> > completions.
-> > >> >> >
-> > >> >> > This is the part I don't get.  In what scenario, before
-> > >> >> > 43bb40c5b9265 start_xmit is not stuck, but after 43bb40c5b9265 it is
-> > stuck?
-> > >> >> >
-> > >> >> > Once the device is gone, it is not using any buffers at all.
-> > >> >>
-> > >> >> What I also don't understand: virtio-ccw does exactly the same
-> > >> >> thing (virtio_break_device(), added in 2014), and it supports
-> > >> >> surprise removal _only_, yet I don't remember seeing bug reports?
-> > >> >
-> > >> > I suspect that stress testing may not have happened for ccw with active
-> > vblk Ios and outstanding transmit pkt and cvq commands.
-> > >> > Hard to say as we don't have ccw hw or systems.
-> > >>
-> > >> cc:ing linux-s390 list. I'd be surprised if nobody ever tested
-> > >> surprise removal on a loaded system in the last 11 years.
-> > >
-> > >
-> > > As it became very clear from follow up discussion, the issue is
-> > > nothing to do with virtio, it is with a broken hypervisor that allows
-> > > device to DMA into guest memory while also telling the guest that the
-> > > device has been removed.
-> > >
-> > > I guess s390 is just not broken like this.
-> > 
-> > Ah good, I missed that -- that indeed sounds broken, and needs to be fixed
-> > there.
-> Nop. This is not the issue. You missed this focused on fixing the device.
+> If the software RoCE device is used, ibdev->dma_device is a null pointer.
+> As a result, the problem occurs. Null pointer detection is added to
+> prevent problems.
 > 
-> The fact is: the driver is expecting the IOs and CVQ commands and DMA to succeed even after device is removed.
-> The driver is expecting the device reset to also succeed.
-> Stefan already pointed out this in the vblk driver patches.
-> This is why you see call traces on del_gendisk(), CVQ commands.
+> Fixes: 0ef69e788411c ("net/smc: optimize for smc_sndbuf_sync_sg_for_device and smc_rmb_sync_sg_for_cpu")
+> Signed-off-by: Liu Jian <liujian56@huawei.com>
+> ---
+> v1->v2:
+> move the check outside of loop.
+>  net/smc/smc_ib.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> Again, it is the broken drivers not the device.
-> Device can stop the DMA and stop responding to the requests and kernel 6.X will continue to hang as long as it has cited commit.
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index 53828833a3f7..a42ef3f77b96 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -742,6 +742,9 @@ bool smc_ib_is_sg_need_sync(struct smc_link *lnk,
+>  	unsigned int i;
+>  	bool ret = false;
+>  
+> +	if (!lnk->smcibdev->ibdev->dma_device)
+> +		return ret;
+> +
+>  	/* for now there is just one DMA address */
+>  	for_each_sg(buf_slot->sgt[lnk->link_idx].sgl, sg,
+>  		    buf_slot->sgt[lnk->link_idx].nents, i) {
 
-
-Parav, the issues you cite are real but unrelated and will hang anyway
-with or without the commit.
-
-All you have to do is pull out the device while e.g. a command is in the
-process of being submitted.
-
-All the commit you want to revert does, is in some instances instead of
-just hanging it will make queue as broken and release memory. Since you
-device is not really gone and keeps DMAing into memory, guest memory
-gets corrupted.
-
-
-But your argument that the issue is that the fix is "incomplete" is
-bogus - when we make the fix complete it will become even worse for
-this broken devices.
-
-
-
-
-
--- 
-MST
-
+LGTM.
+Reviewed-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
