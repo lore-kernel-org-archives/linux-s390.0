@@ -1,198 +1,222 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 995342D29B7;
-	Thu, 28 Aug 2025 08:10:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 952BA2DFF22
+	for <linux-s390@vger.kernel.org>; Thu, 28 Aug 2025 08:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756368661; cv=none; b=U2iFCyQrqPU9fD/110FziX0v6LHGAk5vNzYlRWjCMbtXByMCeAl+/0bpOz2TkZfF8BqNYCmPJft4HHfgwYbTYinf9fAXCvXRR/emjXDytFGEcD+xspgZ37XVtTsYQH2j8bHwfCZL1n6A0OWQ+DCXqPqdxo+dCZuoLlluuTbCPm0=
+	t=1756369114; cv=none; b=GQVd+mv8mHmmtrYKrK95YCtU/gXXigxCBW0nLmfUXVOpe9CxoxOijDtvfGqEVLfnxGZjpqVsoMa8HxFKx3h9mr0SjLVzPaIeryQ3PXqOFE70Ue3d4ISSZp9t4ArgR01GzDc2E4N3m4xL01LJH9KVocZvOOZV+pOTxkFTuezE+5s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756368661; c=relaxed/simple;
-	bh=3dz9IadScgdKEkCBQbsr1QwXXeIQIoYgy699cAGf160=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=XYeJtYkerQWq44WEQXbxolwdqNm6b4eyC+4aILV+WvdJIzHpELTehWOCttMQp9yqJZJi5aMsIlryY023FhSF8QjuHAuVdnom9Grg6cnbH2GnFIGErZMoCMjkG62reX2kHi+0TpTpgdHD0agAm7xjBFaki5UXt0ywZw51gCU3P0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RlrEzKWT; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1756369114; c=relaxed/simple;
+	bh=DrJKkg6i9D0PoQ1zdwOSdGIFvRSjQgy2FP4D/LXLQRw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=W8Gjb5Cb+Et5C59VLVaj8M5D2/tOyVbIB8pqXYxZ7moPkc42kJtYv9tzZzjvxhVAnx1NkTvtIQmgbSE+op36DacLDjH7HamLA7HhqGxrqdnFSWEKRcPCuUUBJhWbeZ2KxC1GvayhGQE31qENmjHEKeBLjxFn07UzmOMn4MiXSe4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BJjycywl; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RlrEzKWT"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57RJZ491020682;
-	Thu, 28 Aug 2025 08:10:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NIaglf
-	HccRNPqyomLsaKKsVSKVuZ/402mhg40I0kM5k=; b=RlrEzKWTw6Tnppy808GBTR
-	428VN2T8AJO+tmk4TBS/ha0PeqqnaY2kQjvKwU6DseBX/bR9tgQukY3A6TK5B5g+
-	ozpX55vMdSSRJ4jK9sDP45cInhQK6Y6K2MGkbC3HdSCGF66B0fzpISzP0Xy1mgCm
-	xkoH/crmAxGjiUUpRy8yyui3PbXddf3o8PPInZdAE//HWbNf6y/C5g9UtIESCvvP
-	/qX7uLIOPyPL//rhULxVz0ve11XRVVCmkmMYOJhb8WNCyfbgK2TcleRy5ZZafLbi
-	pe3aMqafHx3gT8LjKpHQXvNBrD30lbqW4PQLElGtZsWJHT8enBV3To0OJ0B2wP6Q
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48q5avrjtv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 Aug 2025 08:10:52 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 57S57aET020796;
-	Thu, 28 Aug 2025 08:10:51 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48qrc0v3k4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 28 Aug 2025 08:10:51 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 57S8An1041026222
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 28 Aug 2025 08:10:49 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 723EA58056;
-	Thu, 28 Aug 2025 08:10:49 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E243C58052;
-	Thu, 28 Aug 2025 08:10:47 +0000 (GMT)
-Received: from [9.152.212.219] (unknown [9.152.212.219])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 28 Aug 2025 08:10:47 +0000 (GMT)
-Message-ID: <8d76d3f66a3ad261d7116ed6b8fbccb561c89f7f.camel@linux.ibm.com>
-Subject: Re: [PATCH] iommu/s390: Fix memory corruption when using identity
- domain
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, joro@8bytes.org
-Cc: will@kernel.org, robin.murphy@arm.com, gerald.schaefer@linux.ibm.com,
-        jgg@ziepe.ca, iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, stable@vger.kernel.org,
-        Cam Miller
- <cam@linux.ibm.com>
-Date: Thu, 28 Aug 2025 10:10:47 +0200
-In-Reply-To: <20250827210828.274527-1-mjrosato@linux.ibm.com>
-References: <20250827210828.274527-1-mjrosato@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-1.fc42) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BJjycywl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756369111;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=dQiayb6TF/jkGdLdQdDfmQoC9oGAqREv3FJiJ/1tw1w=;
+	b=BJjycywlYO5+tYRwfuhNoHaRnlIVEGBfCCFaTXgc2Vw009UARHGblqpX5Yb6y23UTWh9Ni
+	/z73jVbcE5pBXdr0LvJfF7W22QCe9VtqCEqPujRtbmCJE/aqYnt+7o0KfJ9Y4xURQl0ODR
+	o82KDX7aPlCQVSCVepY/c/zjiVqDVtk=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-576-JBUzPyNPNxihcSH5sVwm7w-1; Thu, 28 Aug 2025 04:18:28 -0400
+X-MC-Unique: JBUzPyNPNxihcSH5sVwm7w-1
+X-Mimecast-MFC-AGG-ID: JBUzPyNPNxihcSH5sVwm7w_1756369107
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45b7a0d1a71so2809635e9.2
+        for <linux-s390@vger.kernel.org>; Thu, 28 Aug 2025 01:18:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756369107; x=1756973907;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=dQiayb6TF/jkGdLdQdDfmQoC9oGAqREv3FJiJ/1tw1w=;
+        b=MVFlI3I55UxBRjZNxlo0jmvE1v42U4VQK0Q2IYc+q4pSsZu2qFXx3u+DKDJ9Zd9a7U
+         Y5gxeKna2NEDGCJIj8bR8qUZqNx6MHyxg+USLkLZbw5H9f7XaP7wRzSjNd1UzAAA5dVW
+         f73Srj6fsx7rZ9kIoqVvu1pQedrC7IDepuFQPybpYd6Js/8XJ+UoouXL1uPiYS/BF3Sp
+         V9UWnriyoYM3VYRqHE4VpvDTa3c/n96oKNd5SpWkHW82z5fAswPaAfwzQUAvqdM0qJUv
+         E/ZATsDZ4NW899SXXbvP3dOQ7zm0fIErxDXeI7JT0/AYcTje6rwfqicwbjxkb4KgiWdR
+         3ECw==
+X-Forwarded-Encrypted: i=1; AJvYcCVeMLYJUU0quB02GTXxj3F9q+IaFconGzJ77LXqSCC7qlx/xldEsjrFqzohvknvNbVTpydCvspp5h44@vger.kernel.org
+X-Gm-Message-State: AOJu0YyB8Yqr6gJKp4iGo7Ei0QxFwPNPhwUGNUo0XWuFV105Hs7+YHmR
+	lNk7HKhb/tJ4rvhy9OhjDvLhhkBzLOOwjfMisXUlAh20Xq/b0zctn/bO7kAWBcPU3+DgH8cbzne
+	9JM1Lwg/ORhw0FGWMZ+fh/S7RiZwPBw36L0cONBIgm3WENN5W9hklFuV3wgG5/Bg=
+X-Gm-Gg: ASbGnctPV5VX3Wsat3Gy6aKW91hHwMdlo1aDZfl9YE5jsHy10hBWYwuwZTYazvFt9sN
+	2AN0WAIGV8TbXE4ourGMf7kn04hi9lTvv6bMRQzFFcXz30IKV7s3MtM8vB7ocNBB7kj3oKaSW3S
+	qTJyMVWGJNJTX/gJN0GLTCip9ZEQLi1TAeJKqn7zX8CPMNSLMcpV1vri6+dXGH6EIg/K05B2LxG
+	MrJO0/mNVRHT10WiWh8v0DEw4Frd4ViQ5xCxZ+B/0LLilHuXFzoRCrseyzMN1IHwyf0x4Ur33f4
+	zSLPp7WEcG6TIwYSdxZF8Ho9I6YUovM27d4IFPKcrEivJSFjPRbUt+p432rMfhxmzMXZnm7as9y
+	ubJNRfpoYu6Uj2kPA1EbFU+Hm7R4p+/g48/Z5JhGUB6hU17IwQhj4ga7f0iLiJnlFkzM=
+X-Received: by 2002:a05:600c:190b:b0:45b:6743:2240 with SMTP id 5b1f17b1804b1-45b68aa25cbmr59784835e9.27.1756369107148;
+        Thu, 28 Aug 2025 01:18:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHUJsaR2J7iF3R+ldMkn3aeuQzBBUKQPNZcZ93/+SZsto/QZ9LRuZpML8ujkA6ncDdKY9np+A==
+X-Received: by 2002:a05:600c:190b:b0:45b:6743:2240 with SMTP id 5b1f17b1804b1-45b68aa25cbmr59784365e9.27.1756369106625;
+        Thu, 28 Aug 2025 01:18:26 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f28:c100:2225:10aa:f247:7b85? (p200300d82f28c100222510aaf2477b85.dip0.t-ipconnect.de. [2003:d8:2f28:c100:2225:10aa:f247:7b85])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b732671b7sm21138515e9.3.2025.08.28.01.18.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Aug 2025 01:18:26 -0700 (PDT)
+Message-ID: <6880f125-803d-4eea-88ac-b67fdcc5995d@redhat.com>
+Date: Thu, 28 Aug 2025 10:18:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: v4wAkA0haK9Y4PSewS9MpH5A-jzvVZLi
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODIzMDAyMSBTYWx0ZWRfX5fu2EYVBohSa
- AcwxaAb9Qqld0cmRsYYsgB0HRESbP2N5PSRxlumKMTkPWQn3D0mGvRGZBMv/JP4PrB2xd/oq+bw
- MnnzHMNaVk/VW1ziD0uTDilDdnhvYweDrboIX7BFV8IKQc087o1ByqrXIFLJyK85bpaHBZs6TJM
- kHOgyXO1Or3/F6yutZsQCHQgz6wXoNS9Ex0vkJjnhb8/zMP5RzgIyGcBYpbVW6h/+Zsg/7ff2gk
- VPJhZlPwZyOPhNa1EoQvOw+izCEIzamD3BNeN8ny+X5mG5ctyFQkBq5hyVZzCrKQED17bIpMv7M
- kJo1ZGJoQf0MnvOnEuGwaW8a+rH9eDJYp1ET2/jeuLP/29j2erxEBokJm0xkrgI0XgPZ4tAz+Ty
- siVZhZuB
-X-Proofpoint-ORIG-GUID: v4wAkA0haK9Y4PSewS9MpH5A-jzvVZLi
-X-Authority-Analysis: v=2.4 cv=SNNCVPvH c=1 sm=1 tr=0 ts=68b00f0c cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=2OwXVqhp2XgA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=aNs30nL-xdb_lp8ugGoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-28_02,2025-08-26_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 bulkscore=0 phishscore=0 clxscore=1011
- impostorscore=0 malwarescore=0 suspectscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508230021
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 13/36] mm/hugetlb: cleanup
+ hugetlb_folio_init_tail_vmemmap()
+To: Mike Rapoport <rppt@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
+ Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Michal Hocko <mhocko@suse.com>, Muchun Song <muchun.song@linux.dev>,
+ netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
+ Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
+ Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+ virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+ wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+References: <20250827220141.262669-1-david@redhat.com>
+ <20250827220141.262669-14-david@redhat.com> <aLADXP89cp6hAq0q@kernel.org>
+ <377449bd-3c06-4a09-8647-e41354e64b30@redhat.com>
+ <aLAN7xS4WQsN6Hpm@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <aLAN7xS4WQsN6Hpm@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 2025-08-27 at 17:08 -0400, Matthew Rosato wrote:
-> zpci_get_iommu_ctrs() returns counter information to be reported as part
-> of device statistics; these counters are stored as part of the s390_domai=
-n.
-> The problem, however, is that the identity domain is not backed by an
-> s390_domain and so the conversion via to_s390_domain() yields a bad addre=
-ss
-> that is zero'd initially and read on-demand later via a sysfs read.
-> These counters aren't necessary for the identity domain; just return NULL
-> in this case.
->=20
-> This issue was discovered via KASAN with reports that look like:
-> BUG: KASAN: global-out-of-bounds in zpci_fmb_enable_device
-> when using the identity domain for a device on s390.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: 64af12c6ec3a ("iommu/s390: implement iommu passthrough via identit=
-y domain")
-> Reported-by: Cam Miller <cam@linux.ibm.com>
-> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> ---
->  drivers/iommu/s390-iommu.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-> index 9c80d61deb2c..d7370347c910 100644
-> --- a/drivers/iommu/s390-iommu.c
-> +++ b/drivers/iommu/s390-iommu.c
-> @@ -1032,7 +1032,8 @@ struct zpci_iommu_ctrs *zpci_get_iommu_ctrs(struct =
-zpci_dev *zdev)
-> =20
->  	lockdep_assert_held(&zdev->dom_lock);
-> =20
-> -	if (zdev->s390_domain->type =3D=3D IOMMU_DOMAIN_BLOCKED)
-> +	if (zdev->s390_domain->type =3D=3D IOMMU_DOMAIN_BLOCKED ||
-> +	    zdev->s390_domain->type =3D=3D IOMMU_DOMAIN_IDENTITY)
->  		return NULL;
-> =20
->  	s390_domain =3D to_s390_domain(zdev->s390_domain);
+On 28.08.25 10:06, Mike Rapoport wrote:
+> On Thu, Aug 28, 2025 at 09:44:27AM +0200, David Hildenbrand wrote:
+>> On 28.08.25 09:21, Mike Rapoport wrote:
+>>> On Thu, Aug 28, 2025 at 12:01:17AM +0200, David Hildenbrand wrote:
+>>>> We can now safely iterate over all pages in a folio, so no need for the
+>>>> pfn_to_page().
+>>>>
+>>>> Also, as we already force the refcount in __init_single_page() to 1,
+>>>> we can just set the refcount to 0 and avoid page_ref_freeze() +
+>>>> VM_BUG_ON. Likely, in the future, we would just want to tell
+>>>> __init_single_page() to which value to initialize the refcount.
+>>>>
+>>>> Further, adjust the comments to highlight that we are dealing with an
+>>>> open-coded prep_compound_page() variant, and add another comment explaining
+>>>> why we really need the __init_single_page() only on the tail pages.
+>>>>
+>>>> Note that the current code was likely problematic, but we never ran into
+>>>> it: prep_compound_tail() would have been called with an offset that might
+>>>> exceed a memory section, and prep_compound_tail() would have simply
+>>>> added that offset to the page pointer -- which would not have done the
+>>>> right thing on sparsemem without vmemmap.
+>>>>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>> ---
+>>>>    mm/hugetlb.c | 20 ++++++++++++--------
+>>>>    1 file changed, 12 insertions(+), 8 deletions(-)
+>>>>
+>>>> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+>>>> index 4a97e4f14c0dc..1f42186a85ea4 100644
+>>>> --- a/mm/hugetlb.c
+>>>> +++ b/mm/hugetlb.c
+>>>> @@ -3237,17 +3237,18 @@ static void __init hugetlb_folio_init_tail_vmemmap(struct folio *folio,
+>>>>    {
+>>>>    	enum zone_type zone = zone_idx(folio_zone(folio));
+>>>>    	int nid = folio_nid(folio);
+>>>> +	struct page *page = folio_page(folio, start_page_number);
+>>>>    	unsigned long head_pfn = folio_pfn(folio);
+>>>>    	unsigned long pfn, end_pfn = head_pfn + end_page_number;
+>>>> -	int ret;
+>>>> -
+>>>> -	for (pfn = head_pfn + start_page_number; pfn < end_pfn; pfn++) {
+>>>> -		struct page *page = pfn_to_page(pfn);
+>>>> +	/*
+>>>> +	 * We mark all tail pages with memblock_reserved_mark_noinit(),
+>>>> +	 * so these pages are completely uninitialized.
+>>>
+>>>                                ^ not? ;-)
+>>
+>> Can you elaborate?
+> 
+> Oh, sorry, I misread "uninitialized".
+> Still, I'd phrase it as
+> 
+> 	/*
+> 	 * We marked all tail pages with memblock_reserved_mark_noinit(),
+> 	 * so we must initialize them here.
+> 	 */
 
-Looks good to me and thanks for the fix!
+I prefer what I currently have, but thanks for the review.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+-- 
+Cheers
+
+David / dhildenb
+
