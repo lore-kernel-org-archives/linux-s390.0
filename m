@@ -1,164 +1,184 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B405533EB0C
-	for <linux-s390@vger.kernel.org>; Mon,  1 Sep 2025 13:58:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E96733CE8E;
+	Mon,  1 Sep 2025 13:58:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756735114; cv=none; b=lG8bAn0MUU8qLOVNbPFsIo5/0mIYfVStuk2l3SkEF68bggzU4JsxyjJ0DR2OUQS1reFZFMMsH9UY38raX0meKdLPxQ96O6Fhi9dL5pWedmzVQanXy95y0CENMsuMyUi5JVXXnRR/g1AUPr+0YANEhQr+RkmB+ts+h5s7wAo0CjU=
+	t=1756735121; cv=none; b=p8myWMRv021lBeeFX36nJctacuR2N0Fc8JxpJah+XfSwCAfc6CvRcWUeFGW+/Gj9fPN3JjBHpvrCmIj+yYtFaQGMv5eU8LY0MW37uzRA/zdqWzNzIIMWTQ1yZvumcpVy7vzgG6LkAOWgVrvcbvTmXEK4vwI2Nv+ljPY4lzw9usM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756735114; c=relaxed/simple;
-	bh=BcXA+zRMUU3us2dPmusS9uKdoGlno2BlPUSlioMI+VY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=rvWzpYKxmKCP/eoUXvj1/3FXUp7Axo9hwJjUbwO2LvIJLYT8mHMwdobX+Yay+PaCBugpeA+Sl6eyg2K6fmSSq24GfLTY1ur5SB9EDzT6QDpMwgJc5LCUCNvsRF8V+iBVfX9uNSOXqW1v8ovxf0HUuR8SeYkb/VmCeYC5IsMRExI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MQf6XXzN; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MQf6XXzN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756735111;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=ouEgWBG9S9w8yO368Oo6KmFAlN0WSbR0WI/SVZscpXU=;
-	b=MQf6XXzNGtBhtWHo/V3JYz4S6Cupf66RzXQl+a4/9pjscLBL2Jaf3+rMlkfKUZbS4SBY1m
-	n+JTHWVx4EQGF44/ZPi9TugrLF8/RRGHaFyzyIZILHuTxlZLLZMKFGSuJog9K0DfjOajWJ
-	c0b5FPoYGD9RftbTsQ75kN40UCrcpYo=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-10-k_10X9Q_Pja40BClxeOIRg-1; Mon, 01 Sep 2025 09:58:30 -0400
-X-MC-Unique: k_10X9Q_Pja40BClxeOIRg-1
-X-Mimecast-MFC-AGG-ID: k_10X9Q_Pja40BClxeOIRg_1756735109
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ccd58af2bbso1907491f8f.0
-        for <linux-s390@vger.kernel.org>; Mon, 01 Sep 2025 06:58:30 -0700 (PDT)
+	s=arc-20240116; t=1756735121; c=relaxed/simple;
+	bh=oUIhwrLYwstlzlY55FK1ZW41MS2asLYsST3xVM4ctTc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=TmMOEnLWS5DUAxAXIHggxgGsFCo6JdM2ALfcpCibpy0SGTw14eqETYC+W3usYj3GY5L+1+HSZB/iMHh2glZ9jTkb9Q7Vv01E70AsoBSKMAUea7QHOrmBMoLxGwjlUT0Jkb21Sfwf9so6ub2QIhrzcbd6Jv8sL+15y97HrprQnug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.166.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-il1-f171.google.com with SMTP id e9e14a558f8ab-3ea8b3a64b5so37258755ab.2;
+        Mon, 01 Sep 2025 06:58:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756735109; x=1757339909;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ouEgWBG9S9w8yO368Oo6KmFAlN0WSbR0WI/SVZscpXU=;
-        b=bTTA79SyvVhaPs0Ee7AbKL/aNxKt6Gnj4otLtuFa0YslkG7d+pR1ox35qErwOvE9bl
-         5l4ZlQFH6OhMUZR+KJM82vYI3+QKyecnDEUEbyj5nIfzktRX1eRB5D1eukLe/7yfu73h
-         f8MXvIl/QGg8FXiNkobED+xXUmAIlJiE/l/lsG5pe/wJ+G4PoPb5NcCHL6TxVPk2+Tl1
-         PLorDafjRWEXJNpsJUg1lGCJK8O/HsC/h+VltZr06DgIZBzc9Q6SPlpk09ax6jzfrIuc
-         x6wChx4VEFVFV21W3i83xfy4VIO+oPQERDGPl6z2e9wMd/kafr6QbXjs+r52xhgSWV1B
-         0yYg==
-X-Forwarded-Encrypted: i=1; AJvYcCV2AoYQVGHLAPBhdhGhR8GL2CjLvI5bb/xZkiBVKFZoiJ9Vcaw+MCC0opt82BYu2tj13ItBBYy/Wm1j@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw20O6+SmCpdSvWeTpbGG5G60+WfsPNDoNszsqtgSPi9cN1Jt3n
-	NhG3qlH81nAw6IbTr9lN/cyqZmB3zyewITIJJxMXjbPT/aUC04f4YJD1n1iP4wt7sxh03Fsxsa0
-	t3BEms4L9VyfJGQDY6EGi8/e7tGqMUriCB9RHncYFmFKZRPy5ApHEP0z5InN/MRk=
-X-Gm-Gg: ASbGncu+THy7zFOZyEOsaLmr/i7g3rTlmg3hhdIqFT6e/NIF5LdGEc4e/lRwFTYn9+W
-	PY781r9GJzjNuKXfzBnYGD3ZGqDiQZpKYEKSOp/VFR7I10880/Xv0CZ7P6zKL55mnNZ3Fwu+iRc
-	hraNQkY2c1zIZTwBtV2CUj9i1nJIhLkNX8lwIsVLXeYudeRFRUo55VkSzMeyDh4Hm6wtuCAA56e
-	BYQpvUyHdywZSrplw3EMpl2/WUWZOZDCOS/nUpNeCb8Q4GUP/51KJjh/vzkp48GLET00Vck9hfM
-	Qc97xy/pzxfvMYiW77ICIM0kJMkR87GvQj1VPfgB7Z0YFskmrhmZMAG7TGyKrHxyX3S6arKc+Se
-	ZESsC2+uw3x4iUQdRdy7VIRcvjp7q3QPM8Yl9GBf11OpWwJD+hIYmZKOmOaIlkmlI+WU=
-X-Received: by 2002:a05:6000:40da:b0:3cd:b0c1:f9aa with SMTP id ffacd0b85a97d-3d1de992040mr5005452f8f.18.1756735109319;
-        Mon, 01 Sep 2025 06:58:29 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGRno0/4M5FVI51DPUT+NywmYwJkSgIjJ2gav2/NLIxgn/5SvMqgqXvkYf8AQzTH6ogoMO3qw==
-X-Received: by 2002:a05:6000:40da:b0:3cd:b0c1:f9aa with SMTP id ffacd0b85a97d-3d1de992040mr5005405f8f.18.1756735108751;
-        Mon, 01 Sep 2025 06:58:28 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f37:2b00:948c:dd9f:29c8:73f4? (p200300d82f372b00948cdd9f29c873f4.dip0.t-ipconnect.de. [2003:d8:2f37:2b00:948c:dd9f:29c8:73f4])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cf270fc496sm15630922f8f.1.2025.09.01.06.58.26
+        d=1e100.net; s=20230601; t=1756735118; x=1757339918;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=NmDip3pK7R1bCI3jhASK9yPIU2OeMFz+fVnQvMU5RZM=;
+        b=ookCPzvg4cb5ovsdKebhU9K1Jellm/G19uG0vP9BQQd5+2BvVH/x/LbzCj/FX3czQU
+         D56X+ZNQR7t7AVnlBd956tJMelVCbbrRJGozIquP7a//oFufEZ0nAPJPay1Cjy3MPG3W
+         opeW/AwAjHbpXcaPkhEMhyjYURdxax0GksqLu3ku76N3QQhkljfXw23BRWrgqNoC0GPO
+         nYSHznM2/yatV/Py7Ad9ScpoRF3Tdc9qERGrKCrCmXaMxY/cWl9X/3vhazam6F41YZTC
+         kgVW6itpB1+DuYTrG64iiKVbNdK9wG2GLajqrGfhVbcs6p0uTM72mdNfRYEB8U9/Nsy2
+         TPbA==
+X-Forwarded-Encrypted: i=1; AJvYcCUPk72/MJ1XL3orkt1h30T5dNqDAG1qze7Ps6g0NLrj8nImuVqFVYOTYHZQp4W2X5SZyJ8FeKOD/6qkD6cht9k=@vger.kernel.org, AJvYcCVmSHHSt0VVUuLIVw0i8yLvBfUJw2EhT3oKbfHEnyuFrkXS1+z49GCGRPz99IAhnr6GqfhqLDGopU9JGZjW@vger.kernel.org, AJvYcCVnrDmBmUXjqoQGDIMhoMipYV/LX5YaskjBvZOpPmEdqk2u4Rm3oiE/ErkIbAKeNT4+g0W3Ba7gJIXPwA==@vger.kernel.org, AJvYcCWJ/QPcMNYaQAF0GSkT8o4Cml92E+oPD/FCUCVuqUJ+bI+dvZAkYTTlZgdUNueRcib0zmIJG0khaGzgTpXP@vger.kernel.org, AJvYcCWJOwfMQy0qWS3M9oRdV9FNrUl7qPanIqNpnQkL+OOLqliwzB3tob4ZUD6rtSpnLa0uchOag+jZEmfygQ==@vger.kernel.org, AJvYcCWq0KyV93N6QOXX1OrDyT1klUvQ26lgsdAF37wkwJAQLXnr2pQQVDhwcJO4xm+pe53Yd+CcVMZ+7Ql1Zb8=@vger.kernel.org, AJvYcCWrQAYj8WGWxIR7AUxBgeWBPxKjrBdvdcflvQrq+mj1lItZCZnHZJCwjjk4T+2PjB7GRJyn/tAp@vger.kernel.org, AJvYcCWsduK2I9NsCHHGe5HItJOxFRex8ufP21bnwGEtPtynq7ZzPs3aqWNiftxK9W6DNxffoUqKuFafsp2MlU4=@vger.kernel.org, AJvYcCX+v0Gn/VSMF8kaFdc21KTXDdyJqZzeg/kwfVIIr3mNvEZ+uC5Nc5bLdGcFE+vwiInmKO0iQvhtkA==@vger.kernel.org, AJvYcCX0Dn1kBR7hrJOAciV1qKjHqcnS5MXJAAhc4sgEOPZE/JY3XuIdaFf9qjYPuxZ5ZV+Qk8vWCvm9@vger.kernel.org, AJvYcCXBEbf5r102sOi+/VhZEgxB8NTRa5AJMJRlmaTRlvrM9ERsZH+/6UrQJxe/1c9o6+gurzx7aAKqw//85Q==@vger.kernel.org, AJvYcCXEDC2OdkZbDzDZ3Jqp/dx3nhb2cBTRwIr1ROGDMF4AP8TOnU3RueUZb0qSYav73wSbdll5XEozbp1RDA==@vger.kernel.org, AJvYcCXGW+ChK4FRj6QsFSo4YvUb2sRNw9YHJvJqTHsZt7AOmuwDDjXiThnsNZLn9GZMD8KIY72brkgfqdjz1DfDrQ==@vger.kernel.org, AJvYcCXNb9gJWF099r/WlJ1U4rkeEbZrflQ2STzzvSSQCcghkie2xVoKCx1uCWXdrEz5JASBr8kBXmGizUM=@vger.kernel.org, AJvYcCXOnpq0fM1hPHETsIvAEp/fFtS6s1HtQB//tCqJxxK4MBI68hTqZnW1fsX+R4PSxEOvv6fBuWvipGME6r2fvT7nVOOClU4R@vger.kernel.org, AJvYcCXYAiRGiLEB4I5uZCecFQWCWyPlBk33XCItexigMxdnGZU+OP9tuL7UbBLnTFtUKVaQgrkLxBHp2ihAdwq9XA==@vger.kernel.org, AJvYcCXb6UgBlEMzvCZ3VCRBZwJm9kLfr8fvtVWcS7lPagqcXLWb0SytKF7dgrP+/7+zY1RgnkNCSOy4etam8dEIPMifQw==@vger.kernel.org, AJvYcCXwSDbsq6XqXbKbWoC/d6nEeJizTQq8OBf2TYK+Dh29G6NpyxSQXVUXMjug1kWDE5JwbPpaLtnPMe/qFNVHna+Rctqx@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUyk8HjxOOjTH5RoSbkckQLqIq9/b5p9QDj8sFrmWXDSbd7zBb
+	RETIIEF1qtNcOhY1hj/SXpae0sbMVoX4Dcq4lG2XuhI4ix+CuuSuuTnDj/0lfYYPZ+8=
+X-Gm-Gg: ASbGncsTq2wOGyoDJ3IhiHCsLAo73elOod8a4B9S63dCuNP0ZZfoAjVxwfy2iVMIUZ0
+	uqN/qO/BTDNzAXIMPqC4wmgNLVoRcmbO09FVOPzzuphm4yWUMS6M86y5mo5D02nf8UPVOptdtgC
+	G//RVSHD53Wq8heqh8ewsk+4hs9X+Zj/0Kt01bUAGt+uirjehtnTAdszj8LB7bUtVXyPrB7UCa8
+	2N2IJaBZS+hIvgsd4IjNBFgfv6sDpXf317pgLAsH42sGLFNfXa8+eq7jdpphoyCRWSP1h7ZRVcu
+	hmQM6yR9JKzsB3Md+5jkCF7wBPiW/ohQq2D8fR4bmbbCxJH8wLD/n7kg/0a/6vf2G076dhgOARd
+	nB9+t1Z4tQ1BBKqtpX7Fx/5MEWCdawtuDcuW64D1xVN7iYYlw8AKAEAolgDnh
+X-Google-Smtp-Source: AGHT+IE1J+AW0AMEEiqaet6OiGOZk/hzIXBMdylebzV2SmaVtuyinJakXg/+9VDOjnZLVzI4feXpcQ==
+X-Received: by 2002:a05:6e02:1a4c:b0:3ed:eab:439a with SMTP id e9e14a558f8ab-3f400475d88mr158077645ab.12.1756735105932;
+        Mon, 01 Sep 2025 06:58:25 -0700 (PDT)
+Received: from mail-io1-f50.google.com (mail-io1-f50.google.com. [209.85.166.50])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3f3e07ea04fsm29940595ab.25.2025.09.01.06.58.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Sep 2025 06:58:28 -0700 (PDT)
-Message-ID: <b379e134-d946-4c11-b5ba-0344c852d49f@redhat.com>
-Date: Mon, 1 Sep 2025 15:58:26 +0200
+        Mon, 01 Sep 2025 06:58:25 -0700 (PDT)
+Received: by mail-io1-f50.google.com with SMTP id ca18e2360f4ac-8873044d611so46683239f.1;
+        Mon, 01 Sep 2025 06:58:25 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUS5YqmU67qM4/ABmrAkAJCKdOCvdDtgVK2AFgFiwihzx21YfOZ0W+rZQbXYLPi5E4xKvQ43jTFSeCck+15@vger.kernel.org,
+ AJvYcCUg/+3jdpYxm4bpCGgWJ7aVbv69npnj7c5DUZmlsppOoQ6FxzTrUDiJUuxlabquLMCQt1RwDYQJGg==@vger.kernel.org,
+ AJvYcCUn2CbUvtkyFG88YuUQYnva+624tedkL0Qd+KxmDG0r7vboKSUecYLeu/3DsaPnAO0lBF6xwySMiBjg/51E@vger.kernel.org,
+ AJvYcCUrgt2NVbgowDyxI9LPiIsxJiN6AhN1NymMkUftPY53HaSzECRDbq7NtifZBAmyszYsp6MlQX4iTQ4=@vger.kernel.org,
+ AJvYcCUuEvr87UeSno31ysMo6JkpPqSyt5paj4yx1hSiLNQjaSUTyArEjU3eMYRRk1mp29ss9czxhq8zEgxEjw==@vger.kernel.org,
+ AJvYcCV+ts6sMYcJOnntCRU3vJsQDvt+iVy58SmJHi5hwLabDYIf0hW6m7dqKLBfQPoM+TyP/jt9oog4DYimOg==@vger.kernel.org,
+ AJvYcCV9ffK3RX8jSxXMalgnqigWjFcWRh22J+Emh4yqH9RC89FkBSXz+/fzTYJ8YLFErNdoUz9c+xtU@vger.kernel.org,
+ AJvYcCVAao1Qttj7NHcENAyE8JRuBJufneZFHwKpczRuX8NvJOlNj9R3U8ER+E9TwOQR0TCjqBioOEWUFwJGGTcsFWYWgQ==@vger.kernel.org,
+ AJvYcCVnucVCiFAMk46UDvr6gHeKu2x9RyjujKsjeFO68G9dpzS+eWoclRD3LLN2DVz/Il91fpVcpuGV@vger.kernel.org,
+ AJvYcCVtFxTLZAMeU+l5eMn3Ad+L6orDWE2PO71aHWYWqDEt+nFG/Jap+NcQXfIHcYdjRN50AJeFjgL/LQh7fw==@vger.kernel.org,
+ AJvYcCVtqsSdCSpF9AF3XYjtVg0ktspu38/42kOz7riEI0Foc1aLh7hHZl9m2yJxIuGyc9bGcB+mFVW9YqO/z10=@vger.kernel.org,
+ AJvYcCVvoLYodC8U/JcsCmFFu2AdJvLnt1hsvHCYICYysx4qd7UnUMW2W22MRI+Tuq3cWlg6CCc82b7iReVcRmgFVg==@vger.kernel.org,
+ AJvYcCVwxUaV4TERRuoLaXpiRwUkQNN5P3+Op8Ve4/TxnnQ6+1VEd1atmnWGJpx9qq9ZBFD7/MRECqW66XJxZQ==@vger.kernel.org,
+ AJvYcCW2hwihokiau9oJoZLUwL6S0pFYtLt7TpGkZhSestGKgUpav9QW+cug26Ax7pexr5/GEUfq+vWJrSvGuFmidK8=@vger.kernel.org,
+ AJvYcCWAMFF+j80ZiO88t2JPIF0QxDmQWvWMJ7730a4AcruwNz5tww3fttvVoBsvuXzOKolzTxO6kMLAtOqsqqve4g==@vger.kernel.org,
+ AJvYcCWFMqLfYqkrqukIzoFX9uHfJ8NxuKFCKENdkvRFL3kbFejcrbL6mwOru3uJo++oDsrO5UboYATBQi8YPcw=@vger.kernel.org,
+ AJvYcCXBW+kMjmply+YARH3geGX0gj2rM8QakCmir//t5q9DtT+RObNyGsWo1kUlZ09Z+mYLX7BdAFPAYPS1UQLtS763539D@vger.kernel.org,
+ AJvYcCXBWYTcLnG07iyMSiB2MoZFjcHdmtPgK+exmYc1V3jJNtAU45g1rgGiXuR2QiI+XQ2i4OaqiBab+xd1OyaWbe9o239AVzvZ@vger.kernel.org
+X-Received: by 2002:a05:6102:3053:b0:52a:c340:11db with SMTP id
+ ada2fe7eead31-52b1bb24afcmr2206016137.27.1756734711158; Mon, 01 Sep 2025
+ 06:51:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 09/12] mm: constify ptdesc_pmd_pts_count() and
- folio_get_private()
-To: Max Kellermann <max.kellermann@ionos.com>, akpm@linux-foundation.org,
- axelrasmussen@google.com, yuanchu@google.com, willy@infradead.org,
- hughd@google.com, mhocko@suse.com, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com,
- vbabka@suse.cz, rppt@kernel.org, surenb@google.com, vishal.moola@gmail.com,
- linux@armlinux.org.uk, James.Bottomley@HansenPartnership.com, deller@gmx.de,
- agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- davem@davemloft.net, andreas@gaisler.com, dave.hansen@linux.intel.com,
- luto@kernel.org, peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com,
- bp@alien8.de, x86@kernel.org, hpa@zytor.com, chris@zankel.net,
- jcmvbkbc@gmail.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
- jack@suse.cz, weixugc@google.com, baolin.wang@linux.alibaba.com,
- rientjes@google.com, shakeel.butt@linux.dev, thuth@redhat.com,
- broonie@kernel.org, osalvador@suse.de, jfalempe@redhat.com,
- mpe@ellerman.id.au, nysal@linux.ibm.com,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-fsdevel@vger.kernel.org
-References: <20250901123028.3383461-1-max.kellermann@ionos.com>
- <20250901123028.3383461-10-max.kellermann@ionos.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20250901123028.3383461-10-max.kellermann@ionos.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250901-nios2-implement-clone3-v2-0-53fcf5577d57@siemens-energy.com>
+ <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+In-Reply-To: <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 1 Sep 2025 15:51:38 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWyCbOgs6XyW=8PG2pVw1-zhWP_VtsXsGz1HeFrZ6kjdA@mail.gmail.com>
+X-Gm-Features: Ac12FXxyJUafI_d6iF6chcUi31LuXt_e8cojxsF4wFcxCNHCg2s17r6RQqbjdms
+Message-ID: <CAMuHMdWyCbOgs6XyW=8PG2pVw1-zhWP_VtsXsGz1HeFrZ6kjdA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/4] arch: copy_thread: pass clone_flags as u64
+To: schuster.simon@siemens-energy.com
+Cc: Dinh Nguyen <dinguyen@kernel.org>, Christian Brauner <brauner@kernel.org>, 
+	Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@redhat.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, 
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
+	Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt <rostedt@goodmis.org>, 
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
+	Valentin Schneider <vschneid@redhat.com>, Kees Cook <kees@kernel.org>, 
+	Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Guo Ren <guoren@kernel.org>, 
+	Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>, 
+	Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	Paul Moore <paul@paul-moore.com>, Serge Hallyn <sergeh@kernel.org>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
+	Thomas Gleixner <tglx@linutronix.de>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
+	John Johansen <john.johansen@canonical.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Kentaro Takeda <takedakn@nttdata.co.jp>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Vineet Gupta <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	Andreas Larsson <andreas@gaisler.com>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org, 
+	linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	cgroups@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	selinux@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-um@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 01.09.25 14:30, Max Kellermann wrote:
-> These functions from mm_types.h are trivial getters that should never
-> write to the given pointers.
-> 
-> Signed-off-by: Max Kellermann <max.kellermann@ionos.com>
-> Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> ---
+On Mon, 1 Sept 2025 at 15:10, Simon Schuster via B4 Relay
+<devnull+schuster.simon.siemens-energy.com@kernel.org> wrote:
+> From: Simon Schuster <schuster.simon@siemens-energy.com>
+>
+> With the introduction of clone3 in commit 7f192e3cd316 ("fork: add
+> clone3") the effective bit width of clone_flags on all architectures was
+> increased from 32-bit to 64-bit, with a new type of u64 for the flags.
+> However, for most consumers of clone_flags the interface was not
+> changed from the previous type of unsigned long.
+>
+> While this works fine as long as none of the new 64-bit flag bits
+> (CLONE_CLEAR_SIGHAND and CLONE_INTO_CGROUP) are evaluated, this is still
+> undesirable in terms of the principle of least surprise.
+>
+> Thus, this commit fixes all relevant interfaces of the copy_thread
+> function that is called from copy_process to consistently pass
+> clone_flags as u64, so that no truncation to 32-bit integers occurs on
+> 32-bit architectures.
+>
+> Signed-off-by: Simon Schuster <schuster.simon@siemens-energy.com>
 
-Acked-by: David Hildenbrand <david@redhat.com>
+Fixes: c5febea0956fd387 ("fork: Pass struct kernel_clone_args into copy_thread")
+
+>  arch/m68k/kernel/process.c       | 2 +-
+
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Cheers
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-David / dhildenb
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
