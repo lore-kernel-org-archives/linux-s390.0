@@ -1,150 +1,102 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C0A42F1FFE;
-	Mon,  1 Sep 2025 14:58:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C71826B95B
+	for <linux-s390@vger.kernel.org>; Mon,  1 Sep 2025 15:02:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756738738; cv=none; b=HvrvjUqodv7vc8yI+ds2FueDZHkpFdGEJTG3WJetexcrZ8DVKg3vlOuXLVMkQhJWVkQlgHYNWP6YLZgW833y6NALpmKqUfTmn8mpeynyab0sVO8bftE0tTSKwTrKv0SoSc1HEVH9CYngv9UwdGRt0Vu50bMEPJAkjzPn3DG49Hc=
+	t=1756738975; cv=none; b=Xy8xwmaQpPK/ch04voZ4kC0tiCnzdH+b3ZjsrYKOvVBSSIfoGtWYZaqgz5zqNqTBAEn0yf4VRwJDTE5zf/i6X0XbKT2w/JZq4g2ekwEjA/K9pvnM4MjcdR8iJvbM4wXeSB9FnQAczV+MI6c9QkZMPJqXSZPYmtOC50B2UgfMCvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756738738; c=relaxed/simple;
-	bh=A0cEO1IjMFQGU/91KruzluQEM+jZalZQ6j3GdwIZK98=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZzKS+gkAHH51Gg4vi/1/PwAQCPPttxY6qhBhQTEyFNlWkVqYTHPrNOoVJH56tvLPsmtc/nn+mi8l+5CjYndoNs/wnstpe8TUnq97X6ISd3pnsDtHIj++mryeCbsbpp0NkaTO485K/Q1Yo09eICWpAt77QIBGmD+eJ880rSDEWkM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QRPRjmIY; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1756738975; c=relaxed/simple;
+	bh=VGz5s3CgG5oZbwfB15yu/ysF7dSGyM9kka20nq6+kjg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=kqH3inlJoFHgH+UELLcpwRjr8WrCChdjsuaJ82uy3PpNVHy++5EfcUxjfwi6qCjfkpGBnDb/Fr3d4T0AveL+OJ0MTR+/jjniHUf879UYxnVoTlSNiARfK4uzj8XumuZc4EzWfKYjFD0XF29P9OKjPN9RSMlTkbsnJ4nZkExCgf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ionos.com; spf=pass smtp.mailfrom=ionos.com; dkim=pass (2048-bit key) header.d=ionos.com header.i=@ionos.com header.b=Stosj4/A; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ionos.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ionos.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QRPRjmIY"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5818b01O026963;
-	Mon, 1 Sep 2025 14:58:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=WJKed3KXMGV5ekitr
-	OAXUYfuousL4aKXDGBZu9XEUzQ=; b=QRPRjmIYlzcurXswk4vI1K2aUOdIQ+vwo
-	sNaK3IZ2B8pL0GJoP/QzTsGavWjU32GE7UeGgsovMraw6UBWVPReNtguA/dkJLzm
-	asZ/xVbWWYMcbuxUO/90DHHtpFIyl32TFcmhD5y4cqr6N51Un8pLnQ7UFEXN6GIz
-	FzaCzwn0Vq/Rr5jdo+29W7VWvmghkhGKneYja1qfiw38MVYbvdmh93jD8aBacTLK
-	+u5lWzLoGQ4ARqOgLmxYqhPG6LrTnzXu2QQnWwN8mlbUWergi2SnCMHdR4wwpTye
-	bDA8NaWQ7FqV2Kd8bBA3kNP/A5JIGF4aWI3FnqhZTClmjCOlNPMlw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48uswd1jw7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Sep 2025 14:58:48 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 581Eu3SJ010795;
-	Mon, 1 Sep 2025 14:58:48 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48uswd1jw4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Sep 2025 14:58:47 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 581EYO4d009000;
-	Mon, 1 Sep 2025 14:58:46 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 48vdum6754-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Sep 2025 14:58:46 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 581EwhiO41288154
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 1 Sep 2025 14:58:43 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0BB262004D;
-	Mon,  1 Sep 2025 14:58:43 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EC9372004B;
-	Mon,  1 Sep 2025 14:58:42 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  1 Sep 2025 14:58:42 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-	id BAC3DE03EC; Mon, 01 Sep 2025 16:58:42 +0200 (CEST)
-From: Alexandra Winter <wintera@linux.ibm.com>
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Aswin Karuvally <aswin@linux.ibm.com>,
-        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
-Subject: [PATCH net-next 1/2] s390/ism: Log module load/unload
-Date: Mon,  1 Sep 2025 16:58:41 +0200
-Message-ID: <20250901145842.1718373-2-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250901145842.1718373-1-wintera@linux.ibm.com>
-References: <20250901145842.1718373-1-wintera@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ionos.com header.i=@ionos.com header.b="Stosj4/A"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-afcb7ae6ed0so656844366b.3
+        for <linux-s390@vger.kernel.org>; Mon, 01 Sep 2025 08:02:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ionos.com; s=google; t=1756738973; x=1757343773; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VGz5s3CgG5oZbwfB15yu/ysF7dSGyM9kka20nq6+kjg=;
+        b=Stosj4/Aq8oxFTo/ihuTjbA+4h14ygVQT2Vf3seTTjcfK1EGSTxLiJycvkGy4ZyMoU
+         UuJxeAYE9u8W27b33iGd/Bdg8cFCGz/B5skbr9E/lH5WCRebN+rF243H9EE7OUDgc56j
+         0o0z/j9f/kqJVKgLaDDaDw9jlvsUczS6Ncjk9alHAju3nvtIU8LVmgCDxE8jjs6jD/2x
+         zXolOkwsMN1k5Mb3l0poWo2hHZxLaVzVU8biozCFy9xcOIfHMwbbep6S5ZTEdxSlUELX
+         xpE9+65K/5q3c/ZK8xnWhTROPQoG39E189LT9qFoCkqjF0INIDFTs2Ec/R4UEa0NXk15
+         C/Iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756738973; x=1757343773;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VGz5s3CgG5oZbwfB15yu/ysF7dSGyM9kka20nq6+kjg=;
+        b=NQmAOWku/WjHmDYboW3d8Si0BNuH0jKzla1HVs6Ca8/P5zX2kc7SWKbF0i7SMfOhwN
+         sQm8iEc+PE3uD9EDUX5LP3gjEuZwQbeykbnsE7dVGU4M/1JINJJSjheQYeM+ucIBWav5
+         0PyW0h9skNmZzO6rQiADLXgwHFZraCkSDpnOtyChVwu+nKSfzG4F7/CeRa3vEvo39c3b
+         92j72N055v3gP7eY9WcMg3Q/MgHInq3Tc1gd50nWD9giiU3mZydhgLoBXggT8pacNWsE
+         1QpZp8BondiDoHRb3s0M9Hr5TDbb27P5yIVIucDOZxStHSpQ15xgTr9TVoHEUrt+XeTX
+         yNyg==
+X-Forwarded-Encrypted: i=1; AJvYcCVzMJhTce6om8aSd4eqIZj720OaAj+uAQFQVaZjEIPWCjr3WjH0yr3GLKApXUmuupy9z24vZNfwxaXJ@vger.kernel.org
+X-Gm-Message-State: AOJu0YxYL4wINCSwAgCqLqQFDAHa7tLsfKN5PfAmhW3nweOe5zfREQVP
+	UAEVV9zsoPj/J+omA5QOb9pTNw5amFeOJZPghXdeIyhzaywSxj6vMY9bpluH3ARrS9UFvkks1K4
+	pn/EkpHfq5rIcI/Yw7Ytt+E1gpfqzktNBPW+ukVW+3w==
+X-Gm-Gg: ASbGnctgmL9DnzixZ1CtQ7gdtP39ZvbxL4hCDolfvnSic2vn6J3dAKN2R8aF2d9kvkQ
+	nbkr83fsE9QDigk8hSOiNhoRvCBmSit6XCqLB7xxGoXLnE44BFAPFtOOZj1nqmtdSaNBYDAZV3Y
+	+81jIZraMJeTmKvtJTchBpoole+8dAdtwN9qr+zhXL7MmXeRDcQJsGo1G82sg4KmLYDXANDat0h
+	u0stXBRt3QucrsDFsoXxkYed1cSCU5cwiM=
+X-Google-Smtp-Source: AGHT+IFezK1h8zD4ulbO+LoYFx9UJvceg5e5MjfORD1cX6aK9EX6zhmOpTUVOQiq+Ui4qjbP7WefWWIq7O/4+eTMSZU=
+X-Received: by 2002:a17:907:3d42:b0:aff:d39:e350 with SMTP id
+ a640c23a62f3a-b01d8a25c91mr803197066b.3.1756738972529; Mon, 01 Sep 2025
+ 08:02:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=PeP/hjhd c=1 sm=1 tr=0 ts=68b5b4a8 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=2SnCHD6kJk22Aa3V3LsA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfX0T+qvhgE8XwI
- 97dW0eNVMroEu/QJBwu47HTNHIKSzTurSfwKBbkpSR/0bYrDvcGs3Bcm7sP+XIxTTT6vQsXS2aX
- W/ELFFuvtplwdx0BUADeNgDTxFIAygW5cpDd1pz10XVy2ohZuZL7j5gLmColeSVmhre0BSPTe3Q
- 1KlRpvKC6ec1vIyfozRWISOH8DWFUT0fg27zOhjCI4DM+sfqxRdfATGVNhz8CUJ/Ik8CqEe0j2k
- NJH7J6bYYfx7qzM36LzCccoJCDYI7loJUISqx5qwZ8VsLGXcTI4V3mLAk+/Gnhhtz2bqKqdQHBS
- wdUI10Hm7uS5xKKLptCyN4S3Gdomg0TqSu/xJrH2tpX8pHbTWHMmjt3D1I4OH5Q7456Wd9YDfNg
- Sp+Bgjkz
-X-Proofpoint-GUID: EfWWik7Gju2gLByFH3F2LQ9nGbLOfCu2
-X-Proofpoint-ORIG-GUID: EUWkznhnBz4UoROmP5mKveu4h7QFNgIg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-01_06,2025-08-28_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 malwarescore=0 spamscore=0 adultscore=0
- impostorscore=0 bulkscore=0 phishscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508300034
+References: <20250901123028.3383461-1-max.kellermann@ionos.com>
+ <20250901123028.3383461-7-max.kellermann@ionos.com> <ce720df8-cdf2-492a-9eeb-e7b643bffa91@redhat.com>
+In-Reply-To: <ce720df8-cdf2-492a-9eeb-e7b643bffa91@redhat.com>
+From: Max Kellermann <max.kellermann@ionos.com>
+Date: Mon, 1 Sep 2025 17:02:41 +0200
+X-Gm-Features: Ac12FXwscizWLWhMN1KX5yHTr-lGd0ZaL5gCF07LzPcgk8nWDqkiCbWTaVe_QQY
+Message-ID: <CAKPOu+-_E6qKmRo8UXg+5wy9fACX5JHwqjV6uou6aueA_Y7iRA@mail.gmail.com>
+Subject: Re: [PATCH v5 06/12] mm, s390: constify mapping related test
+ functions for improved const-correctness
+To: David Hildenbrand <david@redhat.com>
+Cc: akpm@linux-foundation.org, axelrasmussen@google.com, yuanchu@google.com, 
+	willy@infradead.org, hughd@google.com, mhocko@suse.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, lorenzo.stoakes@oracle.com, 
+	Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org, surenb@google.com, 
+	vishal.moola@gmail.com, linux@armlinux.org.uk, 
+	James.Bottomley@hansenpartnership.com, deller@gmx.de, agordeev@linux.ibm.com, 
+	gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, davem@davemloft.net, 
+	andreas@gaisler.com, dave.hansen@linux.intel.com, luto@kernel.org, 
+	peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
+	x86@kernel.org, hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com, 
+	viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, weixugc@google.com, 
+	baolin.wang@linux.alibaba.com, rientjes@google.com, shakeel.butt@linux.dev, 
+	thuth@redhat.com, broonie@kernel.org, osalvador@suse.de, jfalempe@redhat.com, 
+	mpe@ellerman.id.au, nysal@linux.ibm.com, linux-arm-kernel@lists.infradead.org, 
+	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add log messages to visualize timeline of module loads and unloads.
+On Mon, Sep 1, 2025 at 3:54=E2=80=AFPM David Hildenbrand <david@redhat.com>=
+ wrote:
+> > -int vma_is_stack_for_current(struct vm_area_struct *vma);
+> > +int vma_is_stack_for_current(const struct vm_area_struct *vma);
+>
+> Should this also be *const ?
 
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- drivers/s390/net/ism_drv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 6cd60b174315..a543e59818bb 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -718,8 +718,12 @@ static int __init ism_init(void)
- 	debug_register_view(ism_debug_info, &debug_hex_ascii_view);
- 	ret = pci_register_driver(&ism_driver);
- 	if (ret)
--		debug_unregister(ism_debug_info);
-+		goto err_dbg_unreg;
-+	pr_info("module loaded\n");
-+	return 0;
- 
-+err_dbg_unreg:
-+	debug_unregister(ism_debug_info);
- 	return ret;
- }
- 
-@@ -727,6 +731,7 @@ static void __exit ism_exit(void)
- {
- 	pci_unregister_driver(&ism_driver);
- 	debug_unregister(ism_debug_info);
-+	pr_info("module unloaded\n");
- }
- 
- module_init(ism_init);
--- 
-2.48.1
-
+No. These are function protoypes. A "const" on a parameter value
+(pointer address, not pointed-to memory) makes no sense on a
+prototype.
