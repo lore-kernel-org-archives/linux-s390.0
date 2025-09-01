@@ -1,67 +1,26 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC4C8248F5C;
-	Mon,  1 Sep 2025 06:13:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98F7725A631;
+	Mon,  1 Sep 2025 06:58:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756707184; cv=none; b=jjggaravbrBiAtxC0op2s0Ayf5KIeJZ+lILUQatsvfyKOWsnJuEHr4ZjRwCmQBTdg7FArP0LWOpu6kY736bygNPToIP6L+yaL4t1wHAR9XQkoyfun9AZ5Z0Oe4W4QLEZI/a0KcWtTvzQWD7BV89NyB/rnfqqRXmFZg2O5ePMWt4=
+	t=1756709935; cv=none; b=Dk8zVLTx7bU3OjCoyYI54CC8qP5vkR6bcRFFlr883AGlIwBjpx96WZWdk9y/3eL581DuLGAuZQFTfiXvt4KwBfzNFgoSHRFe78WmU4XPyxhnUyzcQ/HLEJRC/7uYfBi0Nv9+dromLeXsp4dPsbzQniaeotml05PJLmSxoQlKILc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756707184; c=relaxed/simple;
-	bh=EyK1bT+mD7QqA4C8Ly35wKowNy38n2wAvW7UnVG7R+o=;
+	s=arc-20240116; t=1756709935; c=relaxed/simple;
+	bh=bzJJHmbX9vM5aOF/O9o6rY71Kq2Iv7irkIXBpj8H6B8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=elBmOviVoDu/xEwjliOnnRCM7myXcysW+22+5qVG0o4TXPM8LeoKmexGfkNVxHj5SFj0mcl3iIwXs5NLGWnXhq5tPHL5RNguRwt4LE6cMbqIIV/0HtvofodDCtgBY4yWS0N9Mt4SnU8FH220eBB2DhGnjxMx37pjhj/a46Fgqpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fcjr+P7B; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fcjr+P7B"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57VHeBXu017937;
-	Mon, 1 Sep 2025 06:12:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jNIpxH
-	qNy+03Qh0iAc58609OkLAG2uxslj/3KXqMdZ0=; b=fcjr+P7Bb7jM0fkaR3MxDm
-	4OEme6f8DG7I+R3ME0jIago7Mak7QAwr7HbDNyg+zQVQitGyYdzcD5wmIqGJD5dI
-	GX6a+OZyiVKN6qW7XCQidqMTvZTNzn/efWou4QPQ4DYHMhp9O4CD+XZjUItxQoPR
-	QEz5itcxne0mJrEHv+JNFpmkphRYJrgB9cuwAmp8RlnCwZpGyrtGhgpDCb/Fgbpw
-	w2HLgVqa7rqF79hmWgN7Sdjvjo3Jnm+Y+6YD6UUf/nkK+9lrfgcNe7mimzOa9DuR
-	jrm1NJUTH2stCbEk2j0ikQbukXK986b9HX+84IItgYw16ARAJeoT0tP22FxiY8NA
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usuqq7g0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Sep 2025 06:12:48 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5815ugol028220;
-	Mon, 1 Sep 2025 06:12:48 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usuqq7fr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Sep 2025 06:12:48 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5815Jw3c021191;
-	Mon, 1 Sep 2025 06:12:46 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vcmpch87-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Sep 2025 06:12:46 +0000
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5816Cj3E20054598
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 1 Sep 2025 06:12:45 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 499BF5805D;
-	Mon,  1 Sep 2025 06:12:45 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2186558059;
-	Mon,  1 Sep 2025 06:12:40 +0000 (GMT)
-Received: from [9.39.27.54] (unknown [9.39.27.54])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  1 Sep 2025 06:12:39 +0000 (GMT)
-Message-ID: <57c2976e-8b6c-4cee-803f-ca5b0636f30b@linux.ibm.com>
-Date: Mon, 1 Sep 2025 11:42:38 +0530
+	 In-Reply-To:Content-Type; b=tCGve1U3lCE1Glbom+HmMP1p660pfl0zFDfawl7zLeRo+l+5dBgoVZ5hjUVmBsR3qtFFXWsDYkpDgyC0WDTllIqEXuyvfn6yY+Q+HsvPCERoxe41E8wa9pxwA4C4OtukIMtY3dCmq46nbLzPid6fMiK2BXfXGOh0dsgm0RcraMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr; spf=pass smtp.mailfrom=ghiti.fr; arc=none smtp.client-ip=217.70.178.249
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ghiti.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghiti.fr
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
+	by mslow3.mail.gandi.net (Postfix) with ESMTP id 23474582078;
+	Mon,  1 Sep 2025 06:43:04 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 4140743A5E;
+	Mon,  1 Sep 2025 06:42:52 +0000 (UTC)
+Message-ID: <f7d55c91-8877-41aa-8cf0-64af38a9a109@ghiti.fr>
+Date: Mon, 1 Sep 2025 08:42:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,95 +28,95 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: Remove validation of reserved bits in CLC
- Decline message
-To: dust.li@linux.alibaba.com, andrew+netdev@lunn.ch, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        alibuda@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        Alexandra Winter <wintera@linux.ibm.com>
-References: <20250829102626.3271637-1-mjambigi@linux.ibm.com>
- <aLHAAy-S_1_Ud7l-@linux.alibaba.com>
+Subject: Re: [PATCH 0/3] kexec: Fix invalid field access
+To: Breno Leitao <leitao@debian.org>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Baoquan He <bhe@redhat.com>,
+ Coiby Xu <coxu@redhat.com>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ kernel-team@meta.com
+References: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
 Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <aLHAAy-S_1_Ud7l-@linux.alibaba.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
+In-Reply-To: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzMCBTYWx0ZWRfXx9SSJ6arYZfv
- ruSP7JB4eBGBRSV3Lia6GzO1GIZvE49Fl9hlkSueGF4mcZ2rBrELD1mzj3y/KpLHcYC6jCoaeeD
- heeTTVEpoDEOrhbg8HAS2SZCg/y7IQjmdiQAklGlU1R+p3+nmekqngO9HipSt2LO+1jhrjzEQsn
- 3873l2jcDU0kN1ZmVUJgggWlisECDEpmsFAIHZG8MmyqqYxzDgRhZsswb82yWbO4/XnQeGM/oYl
- 1ydM4rhO7+lrB0LjUadzJx8pR950FcYpt7dYGGW9dUG4yWlkwEJL50hbAnTBtsJbqZ28eG17xdd
- vSavgMw4vx0SpBRaR6joWgx+O31weaqPcCYFU7aucoQzJGx5ePdYeNwmiO7ZFo5dnTW400Iteqm
- sdsJtBOL
-X-Proofpoint-GUID: 5rFtGuwiZUjpsOH3REx7kx-heydPPQes
-X-Proofpoint-ORIG-GUID: a_8F3YUUV6fYQj9kKPBg5gPUWY6h7mUg
-X-Authority-Analysis: v=2.4 cv=Ao/u3P9P c=1 sm=1 tr=0 ts=68b53960 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=48vgC7mUAAAA:8 a=VnNF1IyMAAAA:8
- a=K1W8qsRnxZmegyINkbYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-01_03,2025-08-28_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 bulkscore=0 adultscore=0 malwarescore=0 classifier=typeunknown
- authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508300030
+X-GND-State: clean
+X-GND-Score: -100
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdduledugeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkffggfgfuvfevfhfhjggtgfesthejredttddvjeenucfhrhhomheptehlvgigrghnughrvgcuifhhihhtihcuoegrlhgvgiesghhhihhtihdrfhhrqeenucggtffrrghtthgvrhhnpeejkeeugfdthefhveelffdvgeetgeelteeijeekheehfeevtdduvdfgteevgfehffenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhinhhfrhgruggvrggurdhorhhgnecukfhppedvtddtudemkeeiudemfeefkedvmegvfheltdemkeehrgekmeehrggvugemsggrsgefmeeijeelheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvtddtudemkeeiudemfeefkedvmegvfheltdemkeehrgekmeehrggvugemsggrsgefmeeijeelhedphhgvlhhopeglkffrggeimedvtddtudemkeeiudemfeefkedvmegvfheltdemkeehrgekmeehrggvugemsggrsgefmeeijeelhegnpdhmrghilhhfrhhomheprghlvgigsehghhhithhirdhfrhdpnhgspghrtghpthhtohepudelpdhrtghpthhtoheplhgvihhtrghoseguvggsihgrnhdrohhrghdprhgtphhtthhopegtrghtrghlihhnrdhmrghrihhnrghssegrrhhmr
+ dgtohhmpdhrtghpthhtohepfihilhhlsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegrkhhpmheslhhinhhugidqfhhouhhnuggrthhiohhnrdhorhhgpdhrtghpthhtohepsghhvgesrhgvughhrghtrdgtohhmpdhrtghpthhtoheptghogihusehrvgguhhgrthdrtghomhdprhgtphhtthhopehprghulhdrfigrlhhmshhlvgihsehsihhfihhvvgdrtghomhdprhgtphhtthhopehprghlmhgvrhesuggrsggsvghlthdrtghomh
+X-GND-Sasl: alex@ghiti.fr
 
+Hi Breno,
 
-
-On 29/08/25 8:28 pm, Dust Li wrote:
->>
->> Fixes: 8ade200(net/smc: add v2 format of CLC decline message)
->>
->> Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->> Reference-ID: LTC214332
-> 
-> I think this is your internal ID ? It's better not to leave that
-> in the upstream patches.
-
-Oops, I missed to remove it. Sure, I'll remove it.
-
-> 
->> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
->> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
->>
->> ---
->> net/smc/smc_clc.c | 2 --
->> 1 file changed, 2 deletions(-)
->>
->> diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
->> index 5a4db151fe95..08be56dfb3f2 100644
->> --- a/net/smc/smc_clc.c
->> +++ b/net/smc/smc_clc.c
->> @@ -426,8 +426,6 @@ smc_clc_msg_decl_valid(struct smc_clc_msg_decline *dclc)
->> {
->> 	struct smc_clc_msg_hdr *hdr = &dclc->hdr;
->>
->> -	if (hdr->typev1 != SMC_TYPE_R && hdr->typev1 != SMC_TYPE_D)
->> -		return false;
-> 
-> Here it's checking the typev1 in smc_clc_msg_hdr, but your commit message
-> says it's validating the reserved bits:
-> 
->    Currently SMC code is validating the reserved bits while parsing the incoming
->    CLC decline message & when this validation fails, its treated as a protocol
->    error.
-> 
-> Did I miss something ?
-
-If you refer to struct *smc_clc_msg_hdr* in smc_clc.h file, typev1 
-member represents bits 4 & 5 at offset 7. If we compare it with the CLC 
-Decline message header, it represents one of the reserved(5-7 bits) at 
-offset 7. You can refer to below link for reserved bits.
-
-https://datatracker.ietf.org/doc/html/rfc7609#page-105
-
-> 
+On 8/27/25 12:42, Breno Leitao wrote:
+> The kexec_buf structure was previously declared without initialization.
+> commit bf454ec31add ("kexec_file: allow to place kexec_buf randomly")
+> added a field that is always read but not consistently populated by all
+> architectures. This un-initialized field will contain garbage.
+>
+> This is also triggering a UBSAN warning when the uninitialized data was
+> accessed:
+>
+> 	------------[ cut here ]------------
+> 	UBSAN: invalid-load in ./include/linux/kexec.h:210:10
+> 	load of value 252 is not a valid value for type '_Bool'
+>
+> Zero-initializing kexec_buf at declaration ensures all fields are
+> cleanly set, preventing future instances of uninitialized memory being
+> used.
+>
+> An initial fix was already landed for arm64[0], and this patchset fixes
+> the problem on the remaining arm64 code and on riscv, as raised by Mark.
+>
+> Discussions about this problem could be found at[1][2].
+>
+> Link: https://lore.kernel.org/all/20250826180742.f2471131255ec1c43683ea07@linux-foundation.org/ [0]
+> Link: https://lore.kernel.org/all/oninomspajhxp4omtdapxnckxydbk2nzmrix7rggmpukpnzadw@c67o7njgdgm3/ [1]
+> Link: https://lore.kernel.org/all/20250826-akpm-v1-1-3c831f0e3799@debian.org/ [2]
+>
+> Signed-off-by: Breno Leitao <leitao@debian.org>
+> ---
+> Breno Leitao (3):
+>        arm64: kexec: Initialize kexec_buf struct in load_other_segments()
+>        riscv: kexec: Initialize kexec_buf struct
+>        s390: kexec: Initialize kexec_buf struct
+>
+>   arch/arm64/kernel/machine_kexec_file.c | 2 +-
+>   arch/riscv/kernel/kexec_elf.c          | 4 ++--
+>   arch/riscv/kernel/kexec_image.c        | 2 +-
+>   arch/riscv/kernel/machine_kexec_file.c | 2 +-
+>   arch/s390/kernel/kexec_elf.c           | 2 +-
+>   arch/s390/kernel/kexec_image.c         | 2 +-
+>   arch/s390/kernel/machine_kexec_file.c  | 6 +++---
+>   7 files changed, 10 insertions(+), 10 deletions(-)
+> ---
+> base-commit: 3c642997252eef4449cb6b6e02af3dc22515d817
+> change-id: 20250827-kbuf_all-b9d55c9291eb
+>
 > Best regards,
-> Dust
+> --
+> Breno Leitao <leitao@debian.org>
 
+
+I see that the commit those patches fix is in 6.16 so we should add cc: 
+stable.
+
+And who should merge those patches? Should we do it on a per-arch basis?
+
+Thanks,
+
+Alex
+
+
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
