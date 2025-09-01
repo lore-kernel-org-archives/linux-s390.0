@@ -1,70 +1,70 @@
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669D42E88A8;
-	Mon,  1 Sep 2025 14:34:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67A1F13E02A;
+	Mon,  1 Sep 2025 14:39:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756737248; cv=fail; b=atJWzvAIJnGJBSDp1hRWCRkGgspuH2SeQg7hTBL4sTWzQ6g34U0pt9wnOZOa9pu/qNDlwVukBXtjZw7mnD72DqdW9bjDppSvDIqORsk9IYGJmuwLo6l2xbUs6IcVWiNjKPLmL2CViDMbX8/+AyYR4z/MkGp9ha9r67r8P8jrJ8g=
+	t=1756737563; cv=fail; b=fvhbB+T9dj+UDSJH258DDgf9GM0e/mNFWkSRquAwU0/Yz5sVC6QGrQXwHZeWdg8CMz0Y9RZwrFxPhfzJIwd7pRRB2urUIV/z51R8CxdBo8vsDxbrIqm89VkaT2CP8BLTJ55YAN1WiljPUsfBt7MMe9IFBf8b9EqyVGXjxEmhQAA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756737248; c=relaxed/simple;
-	bh=KIo0qdLGhM6/HIydZwRslPxpjPhGfZQArJMxVICcwFc=;
+	s=arc-20240116; t=1756737563; c=relaxed/simple;
+	bh=+k5A8GopAu8g3TRri6gxqilfNItWhiTl7Wi5sb40SWI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=B39B8RAcSNZPrXaw7xfBUO3vl+Ocz99zwYAs/ScFfLrcLc5C+MhSDFsVD+ROD2FP9bUDqoN2gRzvJCZrSeImDrOJ6kH+tM3hM19OJwW1jkzuDHa+FUuKn5pkGC1mjG4lccRvkDdooHxUDlHn+zOhhrML9bRmRvAhHNkDMvF/hoM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=UfTBdt0y; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=Myw95xqN; arc=fail smtp.client-ip=205.220.177.32
+	 Content-Disposition:In-Reply-To:MIME-Version; b=q5InlP4UXf5D26NHnm6WI3flGY8r/GizcdHZWGv7ZJl+/8iueo/MGSbL9eVGSEVihefbEKePzLvfZaWNQEpZSQE8qkLoO/2aeLxms6RIEE5zAwwFeeKpObgkmfEtfsvyONE2fjBtqVtn5qgf16tl3T5laIFo8JD/3D6wt89sm7w=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=R68yTLY/; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=m8QRNW5e; arc=fail smtp.client-ip=205.220.177.32
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="UfTBdt0y";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="Myw95xqN"
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5815fm59026614;
-	Mon, 1 Sep 2025 14:33:10 GMT
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="R68yTLY/";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="m8QRNW5e"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5815fr4v018261;
+	Mon, 1 Sep 2025 14:38:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=corp-2025-04-25; bh=Cj7H5l71z7n4ab26E1
-	+FSdQCJ4yVGBa3bZL1TiIPLH8=; b=UfTBdt0ynsByWskip+i3k9i+AZXjrYOJ/O
-	a1RP9NehIZHSP/5RbWlKc7q1LBr3xURmFfxyDkWukTbq64Fukyk1oUD3Kks50FHt
-	xjvlmxzhGpUwtEcdP9YZ1XKut7bcCIRy8mwLMmDPsDgPGZwWRpnJmJ//rX9EKm1r
-	ENZ2A647E3trRQ0TiVslsDfEgREGqAoxq5hG/MFnru+/gvRwIAiTI6Z9VaPfKjPk
-	WZSRQc1PDWImGhwyHiCOdt1kaSEIm2x0gSZXGXKEpmHGlBoCYVz6F+csHHubQ9Kz
-	03p4+jqBc2R3vU9HT8SI5n9qyz6iWDgOI9wpmdkYtODbbp8dqSmw==
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 48ushgthyq-1
+	:references:subject:to; s=corp-2025-04-25; bh=YH8UYXzGabRIgRVmGP
+	1ocoyr2t9bl70QCBxKkvm7PBw=; b=R68yTLY/54e4r1FrTJd05oIJTuLH0ohRuU
+	uetdVQoup7ul+rVndOpEETxgsupqqvXzbWPQnZU3d1MHYf4l/zBajRFVbl6Y9hsg
+	Y8ouUHrq4x5aXSjXDoDTlLsEhxGi6k41M/9OsBmPm0PkTnv8FVGEoLEJphuqYYeQ
+	nyFPZhf9+92usI2100vG+02SDtJQaplEVdT6S7BXvv21u/XeHDrp9UHtXq12YQ1Y
+	66G1BgWiYPmUxvK/crl1gMfyRo3iit4DYI2F17NRjHzX11VdJw1wmmshntcOTuin
+	YHsV8yxtH+4R1X2sTZUpHGXeGwY4eiIPe0TUyReh1N2dPMtRkLig==
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 48usm9jktt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 01 Sep 2025 14:33:08 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 581DjajF011674;
-	Mon, 1 Sep 2025 14:33:08 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10on2048.outbound.protection.outlook.com [40.107.93.48])
-	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 48uqre7mth-1
+	Mon, 01 Sep 2025 14:38:28 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 581CtWwH026772;
+	Mon, 1 Sep 2025 14:38:27 GMT
+Received: from bn8pr05cu002.outbound.protection.outlook.com (mail-eastus2azon11011020.outbound.protection.outlook.com [52.101.57.20])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 48v01mf08b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 01 Sep 2025 14:33:08 +0000
+	Mon, 01 Sep 2025 14:38:27 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uP8hy09sPHMfTUGHdDk4m3hlOhc/OiAOFD39FxKCJKH/BX/R8Cl5pbqfJo507hx4pypdkEOck2F3Z8LLyrs0M9BCZGxa6rWV1KJ6EO9PHO40PPuIUWEygPvPSX/KBwj0ddKs2+9o9RZiFwV419th0qlWzn785hmXLAmSeK9cnzZvgSPwWBEN0LsT80zsslqyggBT0l/1V9sYgArkJkPUE4ZAB8zpAS94Y21nvABT1hfoE3mnolOuvp74JNEhGxLRVR8INO4WR0wnzEkmTnDI1+mSJOuVcD0JHPO8hXHiUHYYrxWLt/hOn9RHw1kVrBNKP+Y6sP/ILIeSkDk1lWQm3w==
+ b=q1YFlwyRyCYl8CiebR9wT5WL6vHGZXv7XILgQq9sKbrZaaMSTUu5rTLBBkG9uxBYKDZb9+q/2k1v2IJ9A6Xlb6xavEqkq0EW2QHRL0jrkaetyn8anhVhCE4WpIqdOFrFGi5JXAEUYfLtk3IO6Q46+WgaXL1sHRIhZ2Lnt/FE9EGsx8hg14LVJmhhs4W1k6ynldYUBWx6N7j2sL2hgQFTYxD+VqG4E42ZuQW/OkWvl9+upVgWr2/bp68GFFb5LyKSR4RguGjiYwsMCeVH+ZTXx93Eri9CzITINf1KCTgtwCYZqNCsIs+Vjh9efk0Pi1tGbOqr+tj6Ka0v7qm/LKEn6Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Cj7H5l71z7n4ab26E1+FSdQCJ4yVGBa3bZL1TiIPLH8=;
- b=xGLTO+RhKSdkbT83y5MlzicjJ+z3MKX1LgMEfxbdKXpDLni2MpUSs2LeL9ApRRxjQC8KDcbNR+S6Gzw4BuSVGiLGKu2Ca+iXIXKrutx5MsPMbpzGg92EOK4qXKiufg/XFTLhjzJiS6udvn/svFH8ePvZahhrzSMUYa6hlvWvPuDZ3JUndxVokZb0PztU2eMD92Q9IPubxuCS9nP9XKz9ieUtCvClPzJlPvGjGIxdjLbBGTxmksKRyeJuZsvDy5dx92+wdsi0yeHOenf2FcuDOiwJ2C9bXQfS0EmKBIhH4QYZtINXfP3lkiDo9gay5/uyaameIrxV8aJHMogsyTByew==
+ bh=YH8UYXzGabRIgRVmGP1ocoyr2t9bl70QCBxKkvm7PBw=;
+ b=s4y7fWT4CPOhmakWPTG6phPODBwMTcPc4fWn7AFvCEi1MAQundC4XM5u5Kb+iRLW/tQBRBdQ63pFG+lQn+Ttxoo4H/HC+JN+AkMG9v41pioZL+tUap0KFgIUPuTo47Gfk03G1RwVR5hvpeIJwSY4TERq12h98Yi1+U+bCYHM98Z5ds3BKcykxphXSpEwBG8Pq+RewbT6+hlc5DRacg8qw2+13XukebwWwKOQos4e55ThlvzxalgMS3oWH5h7z6VhBT0e4Yrd99A59ENoqi89CfD1DKbWLw5PxEmOrQcdNZG/2/NDCUlyN0ayN5SaalAjv2181WPJKD0/2QLaNM+BUg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Cj7H5l71z7n4ab26E1+FSdQCJ4yVGBa3bZL1TiIPLH8=;
- b=Myw95xqNDuQhfUixjBD9IxX9A5JziNXhedjtI6BHDB7lCo7Dn8EhE0hqqfGKXF0sjkNdhrNjBF2kHcUKiYYcGcKCHIcY3eOqLwdJfLBNYgzv3DTF5M726kDe/7t3lsV/LjVnA50OnQu/D81xFg4tfsdPrtds1dbEE9PcYj9L2RM=
+ bh=YH8UYXzGabRIgRVmGP1ocoyr2t9bl70QCBxKkvm7PBw=;
+ b=m8QRNW5erAjlWkqNTWgH7N8v357oHXXAwRNy0fvyQAlO9L0fv5tPBtdN/d1vx+8OV9yZ75Icovt1zU0Y59HWgBRF/oWsODu/Xe1B6NzDnQeMedeJ+dA+MLvoSFuAs8z75N8jjSgDbCXK7CxdcTH4QPUWXiwg/YUJ6I0QosvI+kw=
 Received: from BL4PR10MB8229.namprd10.prod.outlook.com (2603:10b6:208:4e6::14)
- by BN0PR10MB5157.namprd10.prod.outlook.com (2603:10b6:408:121::20) with
+ by MW5PR10MB5737.namprd10.prod.outlook.com (2603:10b6:303:190::7) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.25; Mon, 1 Sep
- 2025 14:33:00 +0000
+ 2025 14:38:22 +0000
 Received: from BL4PR10MB8229.namprd10.prod.outlook.com
  ([fe80::552b:16d2:af:c582]) by BL4PR10MB8229.namprd10.prod.outlook.com
  ([fe80::552b:16d2:af:c582%3]) with mapi id 15.20.9073.026; Mon, 1 Sep 2025
- 14:33:00 +0000
-Date: Mon, 1 Sep 2025 15:32:49 +0100
+ 14:38:22 +0000
+Date: Mon, 1 Sep 2025 15:37:50 +0100
 From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 To: Max Kellermann <max.kellermann@ionos.com>
 Cc: akpm@linux-foundation.org, david@redhat.com, axelrasmussen@google.com,
@@ -86,16 +86,17 @@ Cc: akpm@linux-foundation.org, david@redhat.com, axelrasmussen@google.com,
         nysal@linux.ibm.com, linux-arm-kernel@lists.infradead.org,
         linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
         sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v5 00/12] mm: establish const-correctness for pointer
- parameters
-Message-ID: <16d2d53d-a2d0-4cd8-9323-eb91ba51b061@lucifer.local>
+Subject: Re: [PATCH v5 03/12] mm: constify zone related test functions for
+ improved const-correctness
+Message-ID: <d4d90b7a-fc5f-4f5d-8f64-7b07d3bd8d66@lucifer.local>
 References: <20250901123028.3383461-1-max.kellermann@ionos.com>
+ <20250901123028.3383461-4-max.kellermann@ionos.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250901123028.3383461-1-max.kellermann@ionos.com>
-X-ClientProxiedBy: GVZP280CA0079.SWEP280.PROD.OUTLOOK.COM
- (2603:10a6:150:274::12) To BL4PR10MB8229.namprd10.prod.outlook.com
- (2603:10b6:208:4e6::14)
+In-Reply-To: <20250901123028.3383461-4-max.kellermann@ionos.com>
+X-ClientProxiedBy: GV3PEPF00007A82.SWEP280.PROD.OUTLOOK.COM
+ (2603:10a6:158:401::612) To DM4PR10MB8218.namprd10.prod.outlook.com
+ (2603:10b6:8:1cc::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -103,270 +104,302 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL4PR10MB8229:EE_|BN0PR10MB5157:EE_
-X-MS-Office365-Filtering-Correlation-Id: b0d061c4-de37-49bf-08c1-08dde96473a4
+X-MS-TrafficTypeDiagnostic: BL4PR10MB8229:EE_|MW5PR10MB5737:EE_
+X-MS-Office365-Filtering-Correlation-Id: 86499747-f775-4781-1074-08dde96529e8
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024;
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|7053199007;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?whuhX3thdaEqR5rSqYlLIb/ufhopzcrYL3UbEiRMyzt9cXVXUmZWwiiNme3h?=
- =?us-ascii?Q?3p1lmQE2tqPhs7iXO+vO+LOkFQBTKff7zK3jiBd9rjOn/NBuWWpsDnyFN10S?=
- =?us-ascii?Q?dAP4mKParWOIEVhLgMehoKgtomxujPrMHqBqrRd0oGHJMzBetH7GNqDf/2Nj?=
- =?us-ascii?Q?fnlNAeRZqmdGyDneX8K/oSYMqk5X5glIcMNlAdJbt3ylkohyt3RgycL8mfQX?=
- =?us-ascii?Q?Ryr1nUAqshz3MtrzK/dpYOcy6r/rJW44+qQpE1sHJ9lUHkH+tCpHnWXyUVYm?=
- =?us-ascii?Q?BuJ+YQ6fTHGYlJT/E34PW6s6JPvOFONufUn1ZoV/qfAnl6/OVESsC/4KEddc?=
- =?us-ascii?Q?WZ6JThCrkFTLu8w1Cu3pJe2buc5gUs81LbBP9/VCsm8jO1H7+U73FS1QEGnu?=
- =?us-ascii?Q?zFV+Zj2/oFe/7cePzRfZCOrOLBBwU1F06nIOsXvYgdV8yu16WHJUpcYXADbd?=
- =?us-ascii?Q?/d1Re5RlOSQYcethKo70XQrBrWWynrgLpx1rGmembqhA2eDBJqpCNa+DnmwO?=
- =?us-ascii?Q?OGK25m72DyUgqqwPpwvpcLWP+XUtXbuQl0UcRMUJl4p1Y8yIzKv+Wjc8LFeR?=
- =?us-ascii?Q?uaoMNAUVowAuDIXpVwEptrmblX66fTNRtjN/eq3u6W61un+D/7XUNsahhZjP?=
- =?us-ascii?Q?Ci+1EuS/L+wg3kuiBu/CZaQJs1y2KMfMBSH2mozAdAvekEtpwfBWEL1gGX3L?=
- =?us-ascii?Q?hB4iLf3v1oKegVTS8doQZnot4k5G6Wmofm9gh/8+1/s1G2V0GpNw9qfqhcfQ?=
- =?us-ascii?Q?rmh6ORAUPQ1Xxc2qXaE9YCFDo0Pt3bdSqMSMdv7ztG5NuI4lVHX+yxcgAZLe?=
- =?us-ascii?Q?ewE46nJXDLEAG8w7x4uferoYUMcuuaRMz3bovAPYYu9wyCtQm20HXJBB87ED?=
- =?us-ascii?Q?+cPIBKxYFCeSSZ6+8jCYasSx8CEultofClcc6gZc+5xWOsD8WMHxcp0Z+ivH?=
- =?us-ascii?Q?wYEfB9iwonhgUNCdA8+3RGRQXZ19nkuV1vh55KtsCS3yily5Far+bESwpVWx?=
- =?us-ascii?Q?zqbg9hzE5QTwRR0cAoKurC7Nu3gdLFVWFolvRlRHPtuA/7TwxYmlF9s82sR7?=
- =?us-ascii?Q?N+3wGTahRSzTpbDI5Lp/OaliITtx3T+RpNoEzSbt0srI1R/n5mph3ihETBqY?=
- =?us-ascii?Q?FEuTmsz2YGvHTm6NXNfkWIzl52jwNDN04H5qSIkXcvuXBdLV89ZjjIl8tLAg?=
- =?us-ascii?Q?W28uL/q34OJXdkhFyyjzQxZsIpq2BxQNra8dTM2LfhOtEBgMnLTA21Nqqvjp?=
- =?us-ascii?Q?sflGJljyXVSb5OopritYz4RICfNLBA5KXLPvPBVaW/R4huJh0ncp7XqeaQWh?=
- =?us-ascii?Q?20AEvEVi1dQUDiu+3yn2QHoHzfx2Pw3dgC+VqIznrd487O/0DZz0zjAGE9RX?=
- =?us-ascii?Q?8MtTdF/lveyZWQYZy9Xnx0Fj3jjjjn1bw5xJ4CoWqaJjxKBgmwpkS7osnbDg?=
- =?us-ascii?Q?cjB8K/p5kGs=3D?=
+	=?us-ascii?Q?JYoGdow/8PzczB3QoHQJ1lALI4TL+V5s6g/tN2mOYsesZUQu6O2VhZR0aNBP?=
+ =?us-ascii?Q?u4fvPYtMuynG/vICDcJhs/x2PXD8qcJBc2pdpyXLdfb9otcYujjKfpXyRPK0?=
+ =?us-ascii?Q?hz4PrD8GOfa27ShMZwT+HoxlkSnr6cicX8o9NyO803lXd2iQHxqYK6xs4ziV?=
+ =?us-ascii?Q?Mt3bdma5z5ikP+DkAKYzEuaptNJjHLfJLBfo49sdEj+Ayi3eUt8IoTyHTk6Q?=
+ =?us-ascii?Q?4CaTGgIGR/cO0ErW2FqdMzLx4FTlqczw1HZcW7awetoZaDZTlt0OT5u4fX/6?=
+ =?us-ascii?Q?cawpc7rXlsYq+oMuUF3m8gcIVdakqslh5wlM60HaOzNZp75Bj29fzmN7pNm1?=
+ =?us-ascii?Q?kXz/wStQ1PmxIgWDP5l0OY9HSqir6/8TGm2PdCV/4qvnYUnGUfmSmI2Kcdnj?=
+ =?us-ascii?Q?v+u0BXNJHTJkLvHrq3xfUB3kgKQo73Y7V39Mq6nXeJaYHAvCZqGA97t2LfLq?=
+ =?us-ascii?Q?jUJxgDVPQoJ2QAM7X1J5FWyBxQxnUte5OVlzi/SqbqqXkjmaVxy54v7MuHCl?=
+ =?us-ascii?Q?0/ppbI2nSFrYg/iY/egjqkYDYCOoIeGXQw2rSMHuNvlj3FBt5jVrBg8CQ8+q?=
+ =?us-ascii?Q?2dz6DQvt/JLRmkpbKwfp14KJWHWjtQWlC3wM0kgGRjXEWtjWjIYJGq+lkSC2?=
+ =?us-ascii?Q?XOkIhYjzgTPZVDhqOqZoNUINuizztuB+D8o65XGWiLqKG+5o/EJvW1il+LRl?=
+ =?us-ascii?Q?nYZEEFZ0kDJ+kCoovoUhX9FpRG3o+99BsGuxySVhxk6LWwZ2GEBNICbam5zL?=
+ =?us-ascii?Q?9w1htu4AgXIa/vFHqcJW2WP+TyYJPGnvuqXjekx7k6lt9MW8xH/KHNzV/Wbh?=
+ =?us-ascii?Q?4AnAVOGlFsrVf/2kcc3KPB7HHFMpzncKmlpDmZrJhVAtd+bneLrRaHcqXmnI?=
+ =?us-ascii?Q?9yL+AtGt9LHkgvATzdRh49dEuxYnhdNOwyKfN+gRfmtbaf/HU7Lex7zRh3Ux?=
+ =?us-ascii?Q?Yyv1lvEnzXVUF7RwXcRkQ9152Q5aYwKKSy3B/OtLs50ISQVWsasepcDuTRbH?=
+ =?us-ascii?Q?ZQHOlBBLPvWS8bYYw8fg9EzuISF27Cc6o4t8Fb0OWfDywr0arCgmpYplhApB?=
+ =?us-ascii?Q?Otbqnms5Svt2ZlHvXd4shA4cpsGVitQTBs26XTC8QF+hc4AfSAFQbqhyPJ8j?=
+ =?us-ascii?Q?9gAfuHEG7azC8laOSVY7ODKdWZGJ16RY0Xa9loMCSeffVRBTyfydNiaVdhqJ?=
+ =?us-ascii?Q?z1Crvt9rxtg6zoGqr0JhiLCuYRqyXaGw4hZKUua8xxkzWltYWYPzvugw6zDk?=
+ =?us-ascii?Q?pKnxqv9H6qPjcYTWbLRgWEM8LksBfo3+aZM3V2p4G8lLW2xfVo5q7jT1RP8x?=
+ =?us-ascii?Q?6sG4vPYRIwadJuT7xHLLlMRhU4hYGw9HTwATNHFiclfMJIYnhXRI2XEYdwSZ?=
+ =?us-ascii?Q?T5plAdI43xN/VSjMlkstpcAa12MIVfpRKfVPfl8KyLAA/J5JfCW/OXut7Bsl?=
+ =?us-ascii?Q?gQsYTW1+PxA=3D?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL4PR10MB8229.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL4PR10MB8229.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?hMljCElO6zygyLvEh/IECnuJmWJcvZS9qdJ+wlWdKgwSE0eZFYHHbPsOosLK?=
- =?us-ascii?Q?nT3YO+tcBrjJhiJn8tCztf3NMqGg4yIq1Zithi4gUZDyh2gR7rDHAH9w7+9o?=
- =?us-ascii?Q?+GF0jhpoaHsztaAnVrGo3ihCVQhH84r5Z3JutZdaZzsFOI7DN/T9c92Wcyh3?=
- =?us-ascii?Q?dR+73FIpSoagRy3nddItRSdUDRy/P/WT6Xls101c2SVRT7df5sGX8tK6Rpac?=
- =?us-ascii?Q?l9OoiH0GZPmuQyZMZUS+CQJ4354b0ivFH+6oRIWErv5JWoZM1OavDjPi5m6/?=
- =?us-ascii?Q?DdQQkVCIfLvBKebrXbDN4bmcoGNyE9z9I71EeglF16DyhCePzHDyPX7/0ILp?=
- =?us-ascii?Q?Mb7uR0l2ISpeV/X8muJJyaM+4h36UeikPjSs03TkC7IueA77EJiyN3I2eQyC?=
- =?us-ascii?Q?ir/1SuTyjfXT50wOnOiew3LM/aEZAz+lgPpt+xNECBPPXILUylh/jTBoTReY?=
- =?us-ascii?Q?we69DG9vaoQ/LEMYoDA7I6oc+faMGI33KB34BAFNz4pTIu3wUEMWSTpTMKU2?=
- =?us-ascii?Q?hZDoBGC5qNbZOxW05vi1xv9dKku7zC4VSbHprVfg6QE/nWdkBLQWcqHkYm1V?=
- =?us-ascii?Q?KDbXfv86pCmq0PGDia+hu/SYUhq6yqT4bgWwo8h0MqKwgIuOyWs2506jOVck?=
- =?us-ascii?Q?5oW5ho7og8k2/W0dTDA/B/w8UhehwaUrrOxbwPgHfQ9h8bH9PJ6fQXp+jMfL?=
- =?us-ascii?Q?bz+kN/VCG5w3E43CItdPQwZEb8Wj9vkxnyoyilbO5TiDFAymabvEn3pI9C+6?=
- =?us-ascii?Q?gSyI7LfJbWu3k1iTYP3C4eNSWENG4PGL1D64l/tfrEBtHQQPu1t1oMQSyf9a?=
- =?us-ascii?Q?6j3x6o/R40GcKcYrggymMTXwskWdflfgo0FL5bFW3sMp4dNeBqM6MAcKq9W4?=
- =?us-ascii?Q?z9Vad/OjImO3iZJUFx9gYzL8SCIVUxYTmHgE0Brh+VnjGwmrnlf48lYE8bA+?=
- =?us-ascii?Q?eS9FvzFnikERO4YvvXeM3aczzI4weK/+wYWqc0VR1+vwen4xtyyIHyvkAj5L?=
- =?us-ascii?Q?ie19h3kkGbEwYtNBcDYINgxkoqq95UTXFWSdi8V6STtgMcO/mQhYTT+0byuC?=
- =?us-ascii?Q?temAV1sG7gV5Nur4kYQCA+nC5y0JWgwX+V5JHRVe92GKA/kWPd5ben5Rjv4I?=
- =?us-ascii?Q?rXryU/1Y+iM/NAaJyZZ7U3grUfIdf80BkzwHlvpxP0kFF/+FMxnN1VIxJuk0?=
- =?us-ascii?Q?sTWA1Jyki+9Y6NX9NheoArK38P95hRzyVTUZjrEFHto789Gy7uwEjCO35FQC?=
- =?us-ascii?Q?LWdEjdjxsZgxVacFmFlW1Y0KRWnQHW9HT3Hqf1k0chWJRjJ1OZqpwqbKcKJd?=
- =?us-ascii?Q?oR9sbzRv3aCNrfdoPCLEOBsZzIRDzITTWZxh1JM7HbOpCcvTCsIqh/Z9D8Oi?=
- =?us-ascii?Q?RdWHDgaQMrDF137Nb2h9oInrJEAJzDQHfcYCGtXWxQgGWmWpD5CV40zaCpD7?=
- =?us-ascii?Q?o0d0jm8q94Cu8MrzF0ut/WZDRlWtsdDsyv9shrUSs4CCJMaJ50ZlaPg5D+8s?=
- =?us-ascii?Q?LTvEpi0alKidM+YRP3HUlrqgKBwD1XzPO92PICaV+Xh/kCYR4ek9TnugCI77?=
- =?us-ascii?Q?UyDroRIiZvPi4lAyRjp+xOioaY0UtjXVP0yM5hhizlicil6OmUt3bjoBby/s?=
- =?us-ascii?Q?rA=3D=3D?=
+	=?us-ascii?Q?36Kapsdykv6cb3eYdLp5UV2zyn6d7GFkAp+RGQU/d2eAOSUnrpa5SrHtyLax?=
+ =?us-ascii?Q?q+COvmHFjgfbPBS08nxz5NxoqeAMOX/xyQ6gjH1LSxnfq7hgCyBvf/7wbdn6?=
+ =?us-ascii?Q?mz0psOoBs/Uixm2bxF9ZdQ07TGU7YFnbZUtEJZ19zQWNwPsQGB5hurEcC20a?=
+ =?us-ascii?Q?0P8XYGlGEqTUO2e7nC7n5NMSlgodvIJZ+5nXZFTF1IQH4YOwn/rZniHnxHIk?=
+ =?us-ascii?Q?55loiu1GBKzbvTpOxna2W57o54dkGLTbdbOL37eYZdKHylckjHASykfdPyYS?=
+ =?us-ascii?Q?jSNqqQ4AiUTDkew/PnzHh9cJqxAJ/UJ1gnwU74Wss7lsx5nleuY4J0GCpN1S?=
+ =?us-ascii?Q?V9b7+nACbzIqcZ5BPvoxsnA2go2LU2PuDbEtQo+JpKDw5/WmJcLotXr3JF91?=
+ =?us-ascii?Q?wPtMjxK1UUcZBhOXxR0I7vX1J/vBuc9yqXmzsm15RUWQ52Hb21SNfmkW/AhI?=
+ =?us-ascii?Q?E8mejO6qOpfQ0dBI4M5b9FAiezfp5VTiKwodAgHeWGlNbxuU3ll9frV7mu+1?=
+ =?us-ascii?Q?NuEHGWv+3JhkWKuWljC1YMCUC8rYWhHzrX2walGY7KkWMansqropxiHdOmq7?=
+ =?us-ascii?Q?O9IURKIZjunnXAkwdcmPWOJEziasTb0iZkpXGHMyCZBVDCOI/g79RJxwEsw4?=
+ =?us-ascii?Q?NwQ4AZd3qG5s+rw3KeYg5jPTWJ3pttYlEbfFw3VkLUYTuy8aGG6l6TW1K6q+?=
+ =?us-ascii?Q?CI1dmiKVt7FV/of80VLFyp+wTyzX2xaouRzGHa++qdJXNwEOLCQ8MkcYH7mR?=
+ =?us-ascii?Q?iwOmZPtPXJBpAUdq8vZgCrk4FMIfylR0khw0RiugsM0g60/gu6djYVh7h2Oc?=
+ =?us-ascii?Q?meHuCsalUbbTb/ljVilATpWtNBybG6G3qfqQGS05CiWvCU2zFXbeHloVbht9?=
+ =?us-ascii?Q?TD+NDoKAAPvo7yG837dj62DJW5jAKK7p0hTMOL5Q/UiNwkJBylbYPSuZArho?=
+ =?us-ascii?Q?dphf3s70RJ/aTf7IILmGzrmiernhbiyx/pVep2gTTcWD5LN8SE0zdxgAaa+S?=
+ =?us-ascii?Q?RkPpFhWt+2U5WC0lCQQDlP3U7An6ukd+iZJB7CYkHmuD4UsghLI7CB+7cUFm?=
+ =?us-ascii?Q?HB5W8FCNbMM1jjxcOZv5+Ay8ZU/lwCOexYocVx+aE42zgkDhgFjL8NPUxmsp?=
+ =?us-ascii?Q?8takEMigCqgvlxJPudoVC79gqbOwZnTUwZ2jLn2Z87k8Uy46Jn6euy2bHfKV?=
+ =?us-ascii?Q?JIfdHGsWImLgR8WeU/OjMJICUbsyrN0Z+Bl5mbMIIuyRtlpL3OiwsxyeovEv?=
+ =?us-ascii?Q?NoPr9Uxd2HLPNlimhqQO+GvUrwzz8UsridaMXpmKnCFEgWNbPjUEngKf+pts?=
+ =?us-ascii?Q?zxPK+ru48j1gwulBIIduRP++fvuMLh4D5nrECfq17GX2vpKd1t82h8MpZRKb?=
+ =?us-ascii?Q?EZShTiLWYStSwxaBbs0c/18yLCtAy7TC4P4glZJcuQt2GzkOq7WhRQV60mNO?=
+ =?us-ascii?Q?QLsmZhZh/NKjUaukEqxUuLP8o1ukCafzWQKHXeZ5KycxjDpkRlAxYXAaH4Tf?=
+ =?us-ascii?Q?cbdIHYGtU5iIDDw5upbm4xs/+aNljipGxlGWFUGSm8BdYBGgneH/Aeee4Cax?=
+ =?us-ascii?Q?L4EGo92rEfYDtMydnFP8o+TdtFdf2aJ3m5QUGy2Q6wPWyVY9AlySv/5cIjyN?=
+ =?us-ascii?Q?YA=3D=3D?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	HSxoTy8zqIZ/KYwVO4uQ4L1sWPeka8GVQcp+gm5bmD7koql3ibLAjn7IYdi9TThHShxpVOuYEgGh/BYPcgip2vxS8LKx/iu4Gj63zPdumb78Gxh01FNRiHSKtXI07ofsd3CP5iWcjCQ2U/lPSKyEP+ra+as5pNdDZ7ZAs8341IBmJSOLB3yJwQ8ms5Fnt/4rAhBrpRk1/mFvqX23Haxh6/3cnYKECyYPBsExbw3Kt4NLJJuzmn/CUwAip4UiEIiar8cxlS3Vmr5hf34/iOFIJ/qUx4/ujM7ObMezabLnwi1UZoGsxausy0FbbCfeZ3q6Gqa54hLZ7fSc4beSpT2mTN/gE+9k7pSSsdhw0Af6Wtn2IoNG3+JIp1eYUD1jORC5ysQHGOrEyNtPNGXWR/mYtsRHigqg0PZ57LiAqNu9QAnUW36rqJjhITCuRu+kqH1ACNXlx/IHGvJYsYlu5rBxwpaz+Q2kqSZFJYrorrlNO1gINUtOhCe171dsC1ejskM5/6E0N4FKlzLMWyArG0wM19KaDwRXHIQmQXMI4UKvuj5WBP6xQLor0uAF8ORk1MKCUiWeaJFIJNZsAVY8ttLL1NEv17Pu5+GWrIBzT8xzWEI=
+	ngVl57rmW/7tt9vTjtDyFn1+jJxO79H8FxEAlu4GtSEWduNLm1GvANbBnyN09hIQi/dfbA7HOH21h3rrOacw+FXmZ2CG8BPip+HsQdnVf8YL7wuR+VHhSKd2bUN6yj5BzkRnpe2eGnovvffgIqchXK7f8Z5RxsTwiyuxmh5OWJvb1udzUYkqTWjOvNOXD9qWiQgKD/CKHsS3+N9FodP2Y/9s9NV0oKb97K/uVlr7ZqFINBAAtlkAWac0d5s/AAeSifUnkckmV4HV5rjL2XPH7dUf6aAyBVLLak7hU481vcfxzjzvI/HjgcsSsn0c7Xue8zIaldYgvjxn+nR8NTcfKGnkme07ACTLoU38XSfAmjjzUlqWI/0AmMZIuESarc2s4bCUgPc+HUUrIZ4vp41hJ6iD91yRu0XYq/NsIjvgGgVbS1tG613galt5l6ZbxhvqkuH21+CS/Ure1MgFC5aKffFHnZ9EGryQGaYHAa+3aMLb1GDr4N2LJAX/LAXQp2CKk0dEK9iiEZhN3uYoRyLEtHUyw+ICp6Q2eI6l08T3yJOaWQAx5Ka+1u7bQBxxHJZEtJfOexXC5oF9a6sSspg+sn1f453O00U9L3YkalRreY8=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b0d061c4-de37-49bf-08c1-08dde96473a4
-X-MS-Exchange-CrossTenant-AuthSource: BL4PR10MB8229.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 86499747-f775-4781-1074-08dde96529e8
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2025 14:33:00.4243
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2025 14:38:22.6605
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rdSaQDiHCalSlC5c4KfpNPeyk2bsC/Bavp5Len0Lkac5KmT0vE3/OLMXl1pepEm3lBsCo5dWZcGGV9QNpzB4mZymkwa8pWJHoZUknhY9PZA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5157
+X-MS-Exchange-CrossTenant-UserPrincipalName: fUV2B10bpkYyJX5ahS+uVUQkAEyFWTDRI3eYMHz62E8RRh91oFkD2AxsAbmx2mC0ru+w/jv+idWXoaidqj14EeB+f9c5LJI+qPNCs5Pp5Yk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW5PR10MB5737
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-01_06,2025-08-28_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 phishscore=0 bulkscore=0
- adultscore=0 mlxlogscore=999 malwarescore=0 mlxscore=0 spamscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 bulkscore=0
+ suspectscore=0 adultscore=0 mlxlogscore=999 malwarescore=0 mlxscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2508110000
- definitions=main-2509010154
-X-Proofpoint-ORIG-GUID: W8arrgByg0kZdwMClcGbtC3EZVvBgcW5
-X-Authority-Analysis: v=2.4 cv=YKifyQGx c=1 sm=1 tr=0 ts=68b5aea4 b=1 cx=c_pps
- a=zPCbziy225d3KhSqZt3L1A==:117 a=zPCbziy225d3KhSqZt3L1A==:17
+ definitions=main-2509010155
+X-Proofpoint-GUID: 0Yjm761WiJz8OmuHS-vNSrypwX1NRmgn
+X-Authority-Analysis: v=2.4 cv=I7xlRMgg c=1 sm=1 tr=0 ts=68b5afe4 cx=c_pps
+ a=XiAAW1AwiKB2Y8Wsi+sD2Q==:117 a=XiAAW1AwiKB2Y8Wsi+sD2Q==:17
  a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
  a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
  a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
- a=yJojWOMRYYMA:10 a=GoEa3M9JfhUA:10 a=VwQbUJbxAAAA:8 a=UgJECxHJAAAA:8
- a=K2KB93EhwB_LE_f0r-4A:9 a=CjuIK1q_8ugA:10 a=-El7cUbtino8hM1DCn8D:22 cc=ntf
- awl=host:12068
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzMiBTYWx0ZWRfXzzjtxnD1bi3v
- Ja6PpoYwi4Y+ITInw/r+cD5bx/8wNu7MvmAF2gF/ZgkIgaTt6K1fgoUX5prS7gd5y81h4L9TqMI
- Co90dEhEkg0a9kYv3ZQpvqvWtYtQuaRiQ31uOlbv3kGRIuXo9TbYcxBlMaQ+Nm1wn0Hz4orql8v
- IHO9yIpcy50TdysFoayV9eWFa0QGpXX72TQHS6xPI2x8jiL4Gw1l6Wv1C2bE20k2E1goznx4f1y
- msJBUbFZPpEpzxK43pLi02P1xAdCjzvYYreexb7Teeg+HKrs1z5iXZcZ0Az2irK7DOeu0c2pSfq
- 0n/WAJxvtVY0APLjIxxdCnoRUEr9iaV5Hweo0gjtHNDacSOIdsjWpq06/JAIePozPRKA8vBfh+R
- V5DVgkS1LHuF5jVWPL/6GVRWQPG6fw==
-X-Proofpoint-GUID: W8arrgByg0kZdwMClcGbtC3EZVvBgcW5
+ a=yJojWOMRYYMA:10 a=GoEa3M9JfhUA:10 a=UgJECxHJAAAA:8 a=pGLkceISAAAA:8
+ a=yPCof4ZbAAAA:8 a=NMxtF6NneZFbZcyBqk4A:9 a=CjuIK1q_8ugA:10
+ a=-El7cUbtino8hM1DCn8D:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzMSBTYWx0ZWRfX1g8kq9v0CEwU
+ lVWbh8O7a6ujYNilbsS5JMQL/UwFTB/Bd8WbKgnxe3OsQ3hlBmKI5PbuHDX3QE6dmsZivR3qE5s
+ jPpxn+Rt3c5kuxu2dzmCT3aosoukZpiOpOwIofYfjSQL63EUtSxUmUMn+mBwl2LDFk+EzgfJ5A7
+ lx+w4HWMU4pVOh5TCD5GP5fcXwnRN62BvIZ01vFTsbGPLMwp0D6ZxJVXllTGvVh1Rct9/6dfwRy
+ ceOlYDXZgGkQ18WiB9Xgc1Isw297W9OvzUGmXS3ppyEZQ1ppA3hwpI+3iisjuKfSIDHqVva9Tc3
+ HzcNOl3zbFX217gPXwew19K4dukJSKZMqPi7CZhrpax+IE76W17ZLyeM2i7FvBiZfzXlCXDB11T
+ D4/yKccS
+X-Proofpoint-ORIG-GUID: 0Yjm761WiJz8OmuHS-vNSrypwX1NRmgn
 
-On Mon, Sep 01, 2025 at 02:30:16PM +0200, Max Kellermann wrote:
-> For improved const-correctness.
+On Mon, Sep 01, 2025 at 02:30:19PM +0200, Max Kellermann wrote:
+> We select certain test functions which either invoke each other,
+> functions that are already const-ified, or no further functions.
 >
-> This patch series systematically adds const qualifiers to pointer
-> parameters throughout the memory management subsystem, establishing a
-> foundation for improved const-correctness across the entire Linux
-> kernel.
+> It is therefore relatively trivial to const-ify them, which
+> provides a basis for further const-ification further up the call
+> stack.
 >
-> Const-correctness provides multiple benefits:
->
-> 1. Type Safety: The compiler enforces that functions marked as taking
->    const parameters cannot accidentally modify the data, catching
->    potential bugs at compile time rather than runtime.
->
-> 2. Compiler Optimizations: When the compiler knows data won't be
->    modified, it can generate more efficient code through better
->    register allocation, code motion, and aliasing analysis.
->
-> 3. API Documentation: Const qualifiers serve as self-documenting code,
->    making it immediately clear to developers which functions are
->    read-only operations versus those that modify state.
->
-> 4. Maintenance Safety: Future modifications to const-correct code are
->    less likely to introduce subtle bugs, as the compiler will reject
->    attempts to modify data that should remain unchanged.
-
-I think all of the above is really a lot of noise that doesn't add a huge
-amount of value.
-
-Please in your own words say why you are doing it, and also please mention
-why you feel it's justified to do:
-
-const <type> *const param
-
-As mentioned on review of 2/12.
-
-I'm pretty well leaning towards - let's just not do the 2nd const at all,
-unless there's a really good reason to do so.
-
-There are also legit cases where you might want to reassign a local
-variable.
-
-Largely, granted, you shouldn't be reassinging params, but it's pretty
-constraining.
-
->
-> The memory management subsystem is a fundamental building block of the
-> kernel.  Most higher-level kernel subsystems (filesystems, drivers,
-> networking) depend on mm interfaces.  By establishing
-> const-correctness at this foundational level:
->
-> 1. Enables Propagation: Higher-level subsystems can adopt
->    const-correctness in their own interfaces.  Without const-correct
->    mm functions, filesystems cannot mark their own parameters const
->    when they need to call mm functions.
->
-> 2. Maximum Impact: Changes to core mm APIs benefit the entire kernel, as
->    these functions are called from virtually every subsystem.
->
-> 3. Prevents Impedance Mismatch: Without const-correctness in mm, other
->    subsystems must either cast away const (dangerous) or avoid using
->    const altogether (missing optimization opportunities).
->
-> Each patch focuses on a specific header or subsystem component to ease review
-> and bisection.
-
-All this is unnecessary noise, can you summarise more succinctly.
-
-More words than 'const-ify everything' doesn't mean 'several paragraphs of
-noise'.
-
->
-> This work was initially posted as a single large patch:
->  https://lore.kernel.org/lkml/20250827192233.447920-1-max.kellermann@ionos.com/
->
-> Following feedback from Lorenzo Stoakes and David Hildenbrand, it has been
-> split into focused, reviewable chunks. The approach was validated with a
-> smaller patch that received agreement:
->  https://lore.kernel.org/lkml/20250828130311.772993-1-max.kellermann@ionos.com/
->
-
-^--- All of this should be below the line and is associated with versions
-not the series as a whole really.
-
 > Signed-off-by: Max Kellermann <max.kellermann@ionos.com>
+> Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+
+On basis that we figure out whether we want the "const <type> *const <param>"
+thing or not, this otherwise LGTM so:
+
+Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+
 > ---
-> v1 -> v2:
-> - made several parameter values const (i.e. the pointer address, not
->   just the pointed-to memory), as suggested by Andrew Morton and
->   Yuanchu Xie
-> - drop existing+obsolete "extern" keywords on lines modified by these
->   patches (suggested by Vishal Moola)
-> - add missing parameter names on lines modified by these patches
->   (suggested by Vishal Moola)
-> - more "const" pointers (e.g. the task_struct passed to
->   process_shares_mm())
-> - add missing "const" to s390, fixing s390 build failure
-> - moved the mmap_is_legacy() change in arch/s390/mm/mmap.c from 08/12
->   to 06/12 (suggested by Vishal Moola)
+>  include/linux/mmzone.h | 42 +++++++++++++++++++++---------------------
+>  1 file changed, 21 insertions(+), 21 deletions(-)
 >
-> v2 -> v3:
-> - remove garbage from 06/12
-> - changed tags on subject line (suggested by Matthew Wilcox)
+> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+> index f3272ef5131b..9a25fb1ade82 100644
+> --- a/include/linux/mmzone.h
+> +++ b/include/linux/mmzone.h
+> @@ -1104,7 +1104,7 @@ static inline unsigned long promo_wmark_pages(const struct zone *z)
+>  	return wmark_pages(z, WMARK_PROMO);
+>  }
 >
-> v3 -> v4:
-> - more verbose commit messages including a listing of function names
->   (suggested by David Hildenbrand and Lorenzo Stoakes)
+> -static inline unsigned long zone_managed_pages(struct zone *zone)
+> +static inline unsigned long zone_managed_pages(const struct zone *const zone)
+>  {
+>  	return (unsigned long)atomic_long_read(&zone->managed_pages);
+>  }
+> @@ -1128,12 +1128,12 @@ static inline bool zone_spans_pfn(const struct zone *zone, unsigned long pfn)
+>  	return zone->zone_start_pfn <= pfn && pfn < zone_end_pfn(zone);
+>  }
 >
-> v4 -> v5:
-> - back to shorter commit messages after an agreement between David
->   Hildenbrand and Lorenzo Stoakes was found
-
-I did ask you to do this in reverse order and add lore links :) I mean
-these aren't big things but it's REALLY helpful for reviewers.
-
-Thanks.
-
+> -static inline bool zone_is_initialized(struct zone *zone)
+> +static inline bool zone_is_initialized(const struct zone *const zone)
+>  {
+>  	return zone->initialized;
+>  }
 >
-> Max Kellermann (12):
->   mm: constify shmem related test functions for improved
->     const-correctness
->   mm: constify pagemap related test functions for improved
->     const-correctness
->   mm: constify zone related test functions for improved
->     const-correctness
->   fs: constify mapping related test functions for improved
->     const-correctness
->   mm: constify process_shares_mm() for improved const-correctness
->   mm, s390: constify mapping related test functions for improved
->     const-correctness
->   parisc: constify mmap_upper_limit() parameter for improved
->     const-correctness
->   mm: constify arch_pick_mmap_layout() for improved const-correctness
->   mm: constify ptdesc_pmd_pts_count() and folio_get_private()
->   mm: constify various inline test functions for improved
->     const-correctness
->   mm: constify assert/test functions in mm.h
->   mm: constify highmem related functions for improved const-correctness
+> -static inline bool zone_is_empty(struct zone *zone)
+> +static inline bool zone_is_empty(const struct zone *const zone)
+>  {
+>  	return zone->spanned_pages == 0;
+>  }
+> @@ -1273,7 +1273,7 @@ static inline bool folio_is_zone_movable(const struct folio *folio)
+>   * Return true if [start_pfn, start_pfn + nr_pages) range has a non-empty
+>   * intersection with the given zone
+>   */
+> -static inline bool zone_intersects(struct zone *zone,
+> +static inline bool zone_intersects(const struct zone *const zone,
+>  		unsigned long start_pfn, unsigned long nr_pages)
+>  {
+>  	if (zone_is_empty(zone))
+> @@ -1581,12 +1581,12 @@ static inline int local_memory_node(int node_id) { return node_id; };
+>  #define zone_idx(zone)		((zone) - (zone)->zone_pgdat->node_zones)
 >
->  arch/arm/include/asm/highmem.h      |  6 +--
->  arch/parisc/include/asm/processor.h |  2 +-
->  arch/parisc/kernel/sys_parisc.c     |  2 +-
->  arch/s390/mm/mmap.c                 |  7 ++--
->  arch/sparc/kernel/sys_sparc_64.c    |  3 +-
->  arch/x86/mm/mmap.c                  |  7 ++--
->  arch/xtensa/include/asm/highmem.h   |  2 +-
->  include/linux/fs.h                  |  7 ++--
->  include/linux/highmem-internal.h    | 44 +++++++++++----------
->  include/linux/highmem.h             |  8 ++--
->  include/linux/mm.h                  | 56 +++++++++++++--------------
->  include/linux/mm_inline.h           | 26 +++++++------
->  include/linux/mm_types.h            |  4 +-
->  include/linux/mmzone.h              | 42 ++++++++++----------
->  include/linux/pagemap.h             | 59 +++++++++++++++--------------
->  include/linux/sched/mm.h            |  4 +-
->  include/linux/shmem_fs.h            |  4 +-
->  mm/highmem.c                        | 10 ++---
->  mm/oom_kill.c                       |  7 ++--
->  mm/shmem.c                          |  6 +--
->  mm/util.c                           | 20 ++++++----
->  21 files changed, 171 insertions(+), 155 deletions(-)
+>  #ifdef CONFIG_ZONE_DEVICE
+> -static inline bool zone_is_zone_device(struct zone *zone)
+> +static inline bool zone_is_zone_device(const struct zone *const zone)
+>  {
+>  	return zone_idx(zone) == ZONE_DEVICE;
+>  }
+>  #else
+> -static inline bool zone_is_zone_device(struct zone *zone)
+> +static inline bool zone_is_zone_device(const struct zone *const zone)
+>  {
+>  	return false;
+>  }
+> @@ -1598,19 +1598,19 @@ static inline bool zone_is_zone_device(struct zone *zone)
+>   * populated_zone(). If the whole zone is reserved then we can easily
+>   * end up with populated_zone() && !managed_zone().
+>   */
+> -static inline bool managed_zone(struct zone *zone)
+> +static inline bool managed_zone(const struct zone *const zone)
+>  {
+>  	return zone_managed_pages(zone);
+>  }
 >
+>  /* Returns true if a zone has memory */
+> -static inline bool populated_zone(struct zone *zone)
+> +static inline bool populated_zone(const struct zone *const zone)
+>  {
+>  	return zone->present_pages;
+>  }
+>
+>  #ifdef CONFIG_NUMA
+> -static inline int zone_to_nid(struct zone *zone)
+> +static inline int zone_to_nid(const struct zone *const zone)
+>  {
+>  	return zone->node;
+>  }
+> @@ -1620,7 +1620,7 @@ static inline void zone_set_nid(struct zone *zone, int nid)
+>  	zone->node = nid;
+>  }
+>  #else
+> -static inline int zone_to_nid(struct zone *zone)
+> +static inline int zone_to_nid(const struct zone *zone)
+>  {
+>  	return 0;
+>  }
+> @@ -1647,7 +1647,7 @@ static inline int is_highmem_idx(enum zone_type idx)
+>   * @zone: pointer to struct zone variable
+>   * Return: 1 for a highmem zone, 0 otherwise
+>   */
+> -static inline int is_highmem(struct zone *zone)
+> +static inline int is_highmem(const struct zone *const zone)
+>  {
+>  	return is_highmem_idx(zone_idx(zone));
+>  }
+> @@ -1713,12 +1713,12 @@ static inline struct zone *zonelist_zone(struct zoneref *zoneref)
+>  	return zoneref->zone;
+>  }
+>
+> -static inline int zonelist_zone_idx(struct zoneref *zoneref)
+> +static inline int zonelist_zone_idx(const struct zoneref *const zoneref)
+>  {
+>  	return zoneref->zone_idx;
+>  }
+>
+> -static inline int zonelist_node_idx(struct zoneref *zoneref)
+> +static inline int zonelist_node_idx(const struct zoneref *const zoneref)
+>  {
+>  	return zone_to_nid(zoneref->zone);
+>  }
+> @@ -2021,7 +2021,7 @@ static inline struct page *__section_mem_map_addr(struct mem_section *section)
+>  	return (struct page *)map;
+>  }
+>
+> -static inline int present_section(struct mem_section *section)
+> +static inline int present_section(const struct mem_section *const section)
+>  {
+>  	return (section && (section->section_mem_map & SECTION_MARKED_PRESENT));
+>  }
+> @@ -2031,12 +2031,12 @@ static inline int present_section_nr(unsigned long nr)
+>  	return present_section(__nr_to_section(nr));
+>  }
+>
+> -static inline int valid_section(struct mem_section *section)
+> +static inline int valid_section(const struct mem_section *const section)
+>  {
+>  	return (section && (section->section_mem_map & SECTION_HAS_MEM_MAP));
+>  }
+>
+> -static inline int early_section(struct mem_section *section)
+> +static inline int early_section(const struct mem_section *const section)
+>  {
+>  	return (section && (section->section_mem_map & SECTION_IS_EARLY));
+>  }
+> @@ -2046,27 +2046,27 @@ static inline int valid_section_nr(unsigned long nr)
+>  	return valid_section(__nr_to_section(nr));
+>  }
+>
+> -static inline int online_section(struct mem_section *section)
+> +static inline int online_section(const struct mem_section *const section)
+>  {
+>  	return (section && (section->section_mem_map & SECTION_IS_ONLINE));
+>  }
+>
+>  #ifdef CONFIG_ZONE_DEVICE
+> -static inline int online_device_section(struct mem_section *section)
+> +static inline int online_device_section(const struct mem_section *const section)
+>  {
+>  	unsigned long flags = SECTION_IS_ONLINE | SECTION_TAINT_ZONE_DEVICE;
+>
+>  	return section && ((section->section_mem_map & flags) == flags);
+>  }
+>  #else
+> -static inline int online_device_section(struct mem_section *section)
+> +static inline int online_device_section(const struct mem_section *const section)
+>  {
+>  	return 0;
+>  }
+>  #endif
+>
+>  #ifdef CONFIG_SPARSEMEM_VMEMMAP_PREINIT
+> -static inline int preinited_vmemmap_section(struct mem_section *section)
+> +static inline int preinited_vmemmap_section(const struct mem_section *const section)
+>  {
+>  	return (section &&
+>  		(section->section_mem_map & SECTION_IS_VMEMMAP_PREINIT));
+> @@ -2076,7 +2076,7 @@ void sparse_vmemmap_init_nid_early(int nid);
+>  void sparse_vmemmap_init_nid_late(int nid);
+>
+>  #else
+> -static inline int preinited_vmemmap_section(struct mem_section *section)
+> +static inline int preinited_vmemmap_section(const struct mem_section *const section)
+>  {
+>  	return 0;
+>  }
 > --
 > 2.47.2
 >
