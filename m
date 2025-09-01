@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C4513148CB
-	for <linux-s390@vger.kernel.org>; Mon,  1 Sep 2025 11:15:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E34310650
+	for <linux-s390@vger.kernel.org>; Mon,  1 Sep 2025 11:35:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756725312; cv=none; b=EnUOr0WF9yjYrw2RB52oT6yRTIUKRq4J+vmcDnJBwMJ36qpQVJMDo6JpMCevI0/nDyFemhbHPvIjUex/KiTPjzvO2Z8u3uqcRrjmdvlFad5zbXF1CfSEDh/3yVa9pg7YFLQSMTbCSTRxYT1qr5xGa2TXAIZ2c6ujQLK550kPWtg=
+	t=1756726514; cv=none; b=PG6E+HZvQ6WK7ozKbfDzjv1eCuzq3IyTYSjjXkm6CHlLNnvtkn7jUnhrASM3AyjuJUFcvJS+HXH48bA1T8siUrkBaOZLr4InSF8H0W0oZIEzHqLxAkH/uiYMtEXJ6wv+zgGk/uAuGoSlfT+zDfYwP0ZT0wfGKHgJfUdSDRruknM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756725312; c=relaxed/simple;
-	bh=SVO7Rx9aB1ZSZGzRvAg21U8fU2LXsUFJ4ZFhCg/yDrI=;
+	s=arc-20240116; t=1756726514; c=relaxed/simple;
+	bh=yAPERDIoeRASAaUpYs1LNdA8p7G30Qgz6mkvFlYbF3c=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BVDDwvs2cFc+80DIKOynhe7G+WrX6iuARohpMciXbZHNXQvdkyc0/c5mQrnS9+G8NCJs9nevgjzzBspD1D5T21LI7BkBTTfNiwugyoBi/tr3Cp8i8//zdzE9zTxP1BxJyoyVNPRSq17OHZbOhi0l0rD1nEmRKz6QIeIQ2/eVmWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ysd3KHm8; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=Z5L91rbhwA+huRCZLD1LD2dmFRs4kcJOsoOIIQEdoom8C51kmCSta2g7cKyASAJJS6PZe0dnkYeCPc7SsJDa3YOOkQMlOCC8sNI92UMpMtoG37t3TXfa2hOzmYW8lTMU/gsCxC6WbcafkmiYXay8ui59g5lG6U4tZFigDVLEZNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Oi4kPtKW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ysd3KHm8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Oi4kPtKW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756725309;
+	s=mimecast20190719; t=1756726511;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=Yi7Fwi/+6Xe6GmqjrFqnM9yl5saNfH6dnB6Y6Wd5wdM=;
-	b=Ysd3KHm8flpoWP8ZN4HMiMaasUCFVz+9RkZzC144PMdcwV9VIxKQPxdvUWznpueCEHr0QJ
-	51fdS1xtVlqNICeeyX3ZuQrp6bAZd4SfFYkxw7BzwIQHv/YQ3xX1E/7hD5isbSkTSiDcpF
-	0b1xe2rFQw+chDUt6+ZOVBNR1y+OQ+0=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=89QceRiDVJR9qzpuoMtjZ42nHjE3zxx93/plzyge73k=;
+	b=Oi4kPtKW6msMclc99VeFrwikaUAGGqFo1qJnSWm3pfX32GugEguMEBTt/RA9KGrQE3tb4j
+	YtiYW6OJ1Nf+URcS2bvEOvL21+u3d0ZwUU+NiPfSgFJGlqRVG2YtLvYkpcs3/KyhMvLVUd
+	76BrqD6X7mJLnFX2+Ua8oSR8rNiVpn4=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-552-VbbeIaTWN0SYK4s-IHiziw-1; Mon, 01 Sep 2025 07:15:08 -0400
-X-MC-Unique: VbbeIaTWN0SYK4s-IHiziw-1
-X-Mimecast-MFC-AGG-ID: VbbeIaTWN0SYK4s-IHiziw_1756725307
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3cc3765679fso1483624f8f.2
-        for <linux-s390@vger.kernel.org>; Mon, 01 Sep 2025 04:15:08 -0700 (PDT)
+ us-mta-597-e6y4C8PvPQ6zyDcUpwpL9Q-1; Mon, 01 Sep 2025 07:35:10 -0400
+X-MC-Unique: e6y4C8PvPQ6zyDcUpwpL9Q-1
+X-Mimecast-MFC-AGG-ID: e6y4C8PvPQ6zyDcUpwpL9Q_1756726509
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3ce7f782622so1806660f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 01 Sep 2025 04:35:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756725307; x=1757330107;
+        d=1e100.net; s=20230601; t=1756726509; x=1757331309;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Yi7Fwi/+6Xe6GmqjrFqnM9yl5saNfH6dnB6Y6Wd5wdM=;
-        b=q7HXlsvKCaNxmgAfsZbQ6KmQjmaX43G74duL5icqdkKyCdqeeKqTcWa262lnXoCKFn
-         V3iHC1wqO/1R1Ayu+pnLgysphruubYousZXG7C5SCOJ48kKGgulcR/NhifNoW+OxIhbR
-         D1t8lJcfIt1VggWvvLyzaImR63azSgROaiC43wMNRSrqDxe/hQJ7Uk0nUr4V457f3d0I
-         AVYWKBqZ5Vyf3ju/K3H6A/cQ+Q8vM/P3FYj1exgxolbZYPksIL78PK7bZDny5Pz7HL3r
-         +QK2V79lUWpn4gfQ6VFvflIBtW3ZN5ejFbxyjZ9N/ekIteIMesbzuFZebn+PIpor1n2u
-         UWJA==
-X-Forwarded-Encrypted: i=1; AJvYcCXI+3dH19+mnhwpiC6gV3lySU34VxDqg7tVNWikzofc/WcvXeoGryspL7g5qxkbh5BcFS8UFi40eu51@vger.kernel.org
-X-Gm-Message-State: AOJu0YyCecBNxA2mt2XkQt+bdeTYJKclSSiCnXLodzY736pTKGFZ/UVU
-	PvCdSISO17IwUxw/K0zRWAQDb+CN+8T4yxG/xHwuLKzbnfkfX5s5ny3FO+KAk+An90w9xy4Hd0Z
-	pkV9u1jRepdagvD2uC/gr8ocLZ1e2J6BrZM9M7EaKDbrH4KvAdlXW2UiCXx5F6tc=
-X-Gm-Gg: ASbGncvpg0bNuXoDPR2jrp5kE4SAckMGG2IlAyEHkl2ktnbGEqQzzq5nbGPhOuc9afG
-	uHbw6Tkk+Y0VCq5i2sWE0Vd/IWH8rrslMKW2g0WRv/IgJwImzKjyAWp8/ggXawqdr+D4GmNmNdd
-	Js/x0GtroMJIbsQ2vo5946XJDBaObwLqh3+dam4emko4oYvK4uImzFgH3IX3N66O68QteUxLLZY
-	oOTDoBDLDia25GQmPwlnK6gFtqqr1W6wPFFbsZCC9dq0WZlRb5Z3wbzto87tOM0FK7kdERAOhi7
-	zFPZkBL82VK+n/B9IyEKgoK2YQaGn2S921ky+/LpLvjtOyoQVjsl/HWdloNmsxovZz+WHbuFMsz
-	q1WHF1LiiRMKg88kZzr+AQnM4Bx2JgjoEg+c/rZ3ijPIdJwIboBXMqH81GpyhP1TI7UA=
-X-Received: by 2002:a05:6000:2302:b0:3ca:6584:be1e with SMTP id ffacd0b85a97d-3d1df731ca0mr6960304f8f.63.1756725306896;
-        Mon, 01 Sep 2025 04:15:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFmpXAOfkbo/7ucu8U3sPdowTv1nqSV9h2Hc/DFrooZf0d2o9cUthDbRMo3GY3Vcoa9zmXMdQ==
-X-Received: by 2002:a05:6000:2302:b0:3ca:6584:be1e with SMTP id ffacd0b85a97d-3d1df731ca0mr6960216f8f.63.1756725306264;
-        Mon, 01 Sep 2025 04:15:06 -0700 (PDT)
+        bh=89QceRiDVJR9qzpuoMtjZ42nHjE3zxx93/plzyge73k=;
+        b=DPOn2auRrB5PIW+INIP1LwQ+FRpuTZZKr6XCZmRlxiZoGFtaBmX8PCumGgq2w4KEju
+         YnCeohmsYJ/A0OfEJcsTQ1JnwSnwV08QOP4X/3P8rvLMClI+3jf88Zw10AJqhtzW6Fcq
+         iq/kGkmFSsAi3aP5uTOBGKJ/P8pR2Mjo9w2CEJTQ/6Y98tOm7V80uB7/euYMqXupCcRM
+         wR5MEcFJZvP41xRY7W0mZ4NnFbVdhCYJJ8WwGf+IZE4M4KrDaCrf03N7D9XPhA/lcVVA
+         g1WHbjccK7c0eDMRvJ9c0SkjwY4EVidOGK83wyoWa8C3Cpc+Zyz3aj1Km+QN9yPvNxp6
+         UXZg==
+X-Forwarded-Encrypted: i=1; AJvYcCVUrz5MTkyLynZ4dj2z4YosuXbBN0GC4VIBNKn9+8gGNjdg1i7MPRpP/WpB0RjypQjO0W9Zyvj3jQ44@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw5ZRITqN7PyFy6oKduD8cNvT+5FlnizcRdqyjEVcTjpRmtvfWb
+	cISc7v8z2P67o0D3J3gC/L1WMIhpjR/MdK/SqPB5IVrQ0NLWPzI/LEg1KGJ7yklPxVjLXt5ztUy
+	7VcQo3UXQflMwL6zWrstFc1IxEljyRUbHPBdspUHYK2/dbdf5Uga1xBSTsTXMLt0=
+X-Gm-Gg: ASbGnctn4OVUYt3MeBZSYEUkSZuDCueIC/ShIUylobseHlT+dbNjnssREq0IViKKMtS
+	98sLC1nndu4k4Mzy6EcayDQEovQij9Ksauxg5qXqc/KywxqXK+jlbOdpTkLkI1gbPrAX3hByFc8
+	la5M64D3MnEXARFdGLD0R4XsaFpukhSUkI6MiXPB8e62Zxrf6wGZajYyMYxYdNzuuQ3ft1LmTgz
+	K3CvY3PVX5XLcTgzodS1JSAYpbcLnPwQ3JnL47ZG6nd8OAWTu1qCV9PPQC1PQKlPe0GIeDVWIkE
+	O/hiIR9c8iottjr1aKyM6fP3iAwiJDPdQfOEv2I2q47C23dV8wRD+ali1IXCN6oDwgitl7ITDYc
+	tMZeiqkfPRAZ13sXh8C+USgR6KJ5iu3gxgwKK7IF5emDCYgYsQ5qxk6OfIx+y6jhmqvE=
+X-Received: by 2002:a5d:5f8c:0:b0:3cf:5f17:f350 with SMTP id ffacd0b85a97d-3d1b16f0165mr6056413f8f.18.1756726508840;
+        Mon, 01 Sep 2025 04:35:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE0RKJ8MgbrMGxtF+aataA+fh1iSiigcyDX0AK/3/6NRoLPIE0BwSmxJshAaTyrpOEmePBJCw==
+X-Received: by 2002:a5d:5f8c:0:b0:3cf:5f17:f350 with SMTP id ffacd0b85a97d-3d1b16f0165mr6056350f8f.18.1756726508320;
+        Mon, 01 Sep 2025 04:35:08 -0700 (PDT)
 Received: from ?IPV6:2003:d8:2f37:2b00:948c:dd9f:29c8:73f4? (p200300d82f372b00948cdd9f29c873f4.dip0.t-ipconnect.de. [2003:d8:2f37:2b00:948c:dd9f:29c8:73f4])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cf270fbd01sm15189382f8f.13.2025.09.01.04.15.02
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b6f0c6fe5sm233831875e9.5.2025.09.01.04.35.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Sep 2025 04:15:05 -0700 (PDT)
-Message-ID: <e42641a8-0f93-4441-9a96-7ed99f4d498d@redhat.com>
-Date: Mon, 1 Sep 2025 13:15:01 +0200
+        Mon, 01 Sep 2025 04:35:07 -0700 (PDT)
+Message-ID: <44072455-fc68-430d-ad38-0b9ce6a10b8d@redhat.com>
+Date: Mon, 1 Sep 2025 13:35:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,36 +75,37 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 00/12] mm: establish const-correctness for pointer
- parameters
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Max Kellermann <max.kellermann@ionos.com>
-Cc: akpm@linux-foundation.org, axelrasmussen@google.com, yuanchu@google.com,
- willy@infradead.org, hughd@google.com, mhocko@suse.com,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, Liam.Howlett@oracle.com,
- vbabka@suse.cz, rppt@kernel.org, surenb@google.com, vishal.moola@gmail.com,
- linux@armlinux.org.uk, James.Bottomley@hansenpartnership.com, deller@gmx.de,
- agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
- davem@davemloft.net, andreas@gaisler.com, dave.hansen@linux.intel.com,
- luto@kernel.org, peterz@infradead.org, tglx@linutronix.de, mingo@redhat.com,
- bp@alien8.de, x86@kernel.org, hpa@zytor.com, chris@zankel.net,
- jcmvbkbc@gmail.com, viro@zeniv.linux.org.uk, brauner@kernel.org,
- jack@suse.cz, weixugc@google.com, baolin.wang@linux.alibaba.com,
- rientjes@google.com, shakeel.butt@linux.dev, thuth@redhat.com,
- broonie@kernel.org, osalvador@suse.de, jfalempe@redhat.com,
- mpe@ellerman.id.au, nysal@linux.ibm.com,
- linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, conduct@kernel.org
-References: <20250901091916.3002082-1-max.kellermann@ionos.com>
- <f065d6ae-c7a7-4b43-9a7d-47b35adf944e@lucifer.local>
- <CAKPOu+9smVnEyiRo=gibtpq7opF80s5XiX=B8+fxEBV7v3-Gyw@mail.gmail.com>
- <76348dd5-3edf-46fc-a531-b577aad1c850@lucifer.local>
- <CAKPOu+-cWED5_KF0BecqxVGKJFWZciJFENxxBSOA+-Ki_4i9zQ@mail.gmail.com>
- <bfe1ae86-981a-4bd5-a96d-2879ef1b3af2@redhat.com>
- <CAKPOu+_jpCE3MuRwKQ7bOhvtNW8XBgV-ZZVd3Qv6J+ULg4GJkw@mail.gmail.com>
- <801c5eb7-33dc-448f-8742-256ac40f357e@lucifer.local>
+Subject: Re: [PATCH v1 18/36] mm/gup: drop nth_page() usage within folio when
+ recording subpages
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
+ Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Marco Elver <elver@google.com>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>,
+ Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
+ netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
+ Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
+ Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
+ virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
+ wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
+References: <20250827220141.262669-1-david@redhat.com>
+ <20250827220141.262669-19-david@redhat.com>
+ <c0dadc4f-6415-4818-a319-e3e15ff47a24@lucifer.local>
+ <632fea32-28aa-4993-9eff-99fc291c64f2@redhat.com>
+ <8a26ae97-9a78-4db5-be98-9c1f6e4fb403@lucifer.local>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -151,53 +152,108 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <801c5eb7-33dc-448f-8742-256ac40f357e@lucifer.local>
+In-Reply-To: <8a26ae97-9a78-4db5-be98-9c1f6e4fb403@lucifer.local>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 01.09.25 13:05, Lorenzo Stoakes wrote:
-> On Mon, Sep 01, 2025 at 12:54:40PM +0200, Max Kellermann wrote:
->> On Mon, Sep 1, 2025 at 12:43 PM David Hildenbrand <david@redhat.com> wrote:
->>> Max, I think this series here is valuable, and you can see that from the
->>> engagement from reviewers (this is a *good* thing, I sometimes wish I
->>> would get feedback that would help me improve my submissions).
->>>
->>> So if you don't want to follow-up on this series to polish the patch
->>> descriptions etc,, let me now and I (or someone else around here) can
->>> drag it over the finishing line.
 >>
->> Thanks David - I do want to finish this, if there is a constructive
->> path ahead. I know what you want, but I'm not so sure about the
->> others.
 >>
->> I can swap all verbose patch messages with the one you suggested.
->> Would everybody agree that David's suggestion was enough text?
+>> The nice thing is that we only record pages in the array if they actually passed our tests.
 > 
-> I'm fine with:
+> Yeah that's nice actually.
 > 
-> "constify shmem related test functions for improved const-correctness."
-> 
-> In the summary line, but, as I said on review, with a little more detail as
-> to what you're doing in that specific file underneath.
-> 
-> You don't necessarily have to list every function, but just to give a sense of
-> _why_ you chose those.
-> 
-> For instance:
-> 
-> 	mm: constify shmem related test functions for improved const-correctness
-> 
-> 	We select certain test functions which either invoke each other,
-> 	functions that are already const-ified, or no further functions.
-> 
-> 	It is therefore relatively trivial to const-ify them, which
-> 	provides a basis for further const-ification further up the call
-> 	stack.
+> This is fine (not the meme :P)
 
-Yes, that covers the what/why/why okay. For me something shorter would 
-be acceptable as well in this case (as explained, due to "test 
-functions" semantics), but as long as we're not in the AI-slop range of 
-text, all good with me.
+:D
+
+> 
+> So yes let's do this!
+
+That leaves us with the following on top of this patch:
+
+ From 4533c6e3590cab0c53e81045624d5949e0ad9015 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Fri, 29 Aug 2025 15:41:45 +0200
+Subject: [PATCH] mm/gup: remove record_subpages()
+
+We can just cleanup the code by calculating the #refs earlier,
+so we can just inline what remains of record_subpages().
+
+Calculate the number of references/pages ahead of times, and record them
+only once all our tests passed.
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+  mm/gup.c | 25 ++++++++-----------------
+  1 file changed, 8 insertions(+), 17 deletions(-)
+
+diff --git a/mm/gup.c b/mm/gup.c
+index 89ca0813791ab..5a72a135ec70b 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -484,19 +484,6 @@ static inline void mm_set_has_pinned_flag(struct mm_struct *mm)
+  #ifdef CONFIG_MMU
+  
+  #ifdef CONFIG_HAVE_GUP_FAST
+-static int record_subpages(struct page *page, unsigned long sz,
+-			   unsigned long addr, unsigned long end,
+-			   struct page **pages)
+-{
+-	int nr;
+-
+-	page += (addr & (sz - 1)) >> PAGE_SHIFT;
+-	for (nr = 0; addr != end; nr++, addr += PAGE_SIZE)
+-		pages[nr] = page++;
+-
+-	return nr;
+-}
+-
+  /**
+   * try_grab_folio_fast() - Attempt to get or pin a folio in fast path.
+   * @page:  pointer to page to be grabbed
+@@ -2963,8 +2950,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+  	if (pmd_special(orig))
+  		return 0;
+  
+-	page = pmd_page(orig);
+-	refs = record_subpages(page, PMD_SIZE, addr, end, pages + *nr);
++	refs = (end - addr) >> PAGE_SHIFT;
++	page = pmd_page(orig) + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+  
+  	folio = try_grab_folio_fast(page, refs, flags);
+  	if (!folio)
+@@ -2985,6 +2972,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+  	}
+  
+  	*nr += refs;
++	for (; refs; refs--)
++		*(pages++) = page++;
+  	folio_set_referenced(folio);
+  	return 1;
+  }
+@@ -3003,8 +2992,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+  	if (pud_special(orig))
+  		return 0;
+  
+-	page = pud_page(orig);
+-	refs = record_subpages(page, PUD_SIZE, addr, end, pages + *nr);
++	refs = (end - addr) >> PAGE_SHIFT;
++	page = pud_page(orig) + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+  
+  	folio = try_grab_folio_fast(page, refs, flags);
+  	if (!folio)
+@@ -3026,6 +3015,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+  	}
+  
+  	*nr += refs;
++	for (; refs; refs--)
++		*(pages++) = page++;
+  	folio_set_referenced(folio);
+  	return 1;
+  }
+-- 
+2.50.1
+
 
 -- 
 Cheers
