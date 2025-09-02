@@ -1,77 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp-out3.simply.com (smtp-out3.simply.com [94.231.106.210])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 367812F3C0F;
-	Tue,  2 Sep 2025 10:57:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D20302FF159;
+	Tue,  2 Sep 2025 11:44:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.231.106.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756810645; cv=none; b=uEx7bgek7pfKZy0JC2TvSAIKW/oqGoFmUsnNXE5LtWr4D+UzgN798I4iAgD9v/Vo+u4rrB/H3zy49MmcDyGUHWYyanJb/0vpq+2yoSzjoImZBzaqUJfmpn/WPdXGwNTUCAL2UW/pcIiThAD6/AwKtF+/3BggXj8JMNp+G4M6YE4=
+	t=1756813502; cv=none; b=GqVCtkGags45mKFqBAVTH1SuSl8cOdxReSIHiVDZK4PtJwXMZrWkUUW28i+ltsja/j2PSQdc2bVpZEZ9kdzKilKaqVolRm1feS6udwLb/ia3eNfhP7ZAxnr9pzelqUOxSW6SoGqv95zxrDD+uUTVA7SDeodfkyMSG+m++krA4BE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756810645; c=relaxed/simple;
-	bh=095NuIZ7Nx8c0fwOC2OSs+cDvccgtMlrYoeSjfTOcqQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uXEGOnoPQ87u7icFDaEfpzMFUkxzBvHlRDdTiBcnOu4WCQpwLHjBlO+HuA4EasKx3NN5yy/ciasLTuaxKwFZTuR3gJrkwCZQGHjJZOmkhgGZtWLePOlk+Totz4hYyG3QjSOpUAHw1WHNrktqZ2k3IavMyFlk+fbxdkulIfvdp+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U19bxKED; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1756813502; c=relaxed/simple;
+	bh=0o5C5Ly/rHsnoowmYx3m8IcTZ1cPVbKim17lOjF7UUg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Yr99fq3LKd2sOGPqzXWTUgrntYafMafyWYpftc7jDAzWfecr0WG1Ub7D8gMijEC4SwxcBl6NFyyJsXN1ld62UMoKvIvLOlitEsQhmblHnR6Fq6O/AY91Lt7Nxv02Mz5VrJhsVI6HlMjwvwjOaRYaMnspm/e0NWPvOj1le/Ik8WI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com; spf=pass smtp.mailfrom=gaisler.com; dkim=fail (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b=jXmzEnXa reason="key not found in DNS"; arc=none smtp.client-ip=94.231.106.210
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gaisler.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U19bxKED"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15A5C4CEF5;
-	Tue,  2 Sep 2025 10:57:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756810644;
-	bh=095NuIZ7Nx8c0fwOC2OSs+cDvccgtMlrYoeSjfTOcqQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=U19bxKEDTS2pl8YXrvOUOiOOiHTIAO1t3vzP+lNrLWXbKtcH/rW8K58r9I/DFwXZQ
-	 KKANo+dhBTGZ2QEpTNoRVugjRz+PXRneWl73Z3M1PjupoeBDcSnESAA8BCcBbtFgzB
-	 TKl/IuFL3r97oTI7JTDGFJ/O8jcR3yJwYnH6xItZGA/vWC1klv7Ta7e2nnqhbLiwfF
-	 GBKMznnSxXtz+S2eQ7AU3FdpMlKDkJEpyW9goog22j31cMfjT/AZ+pH9r3o2mfXSjn
-	 OdeEwbYi0gFpNcp5vQcsFv/d3ZNcbNGSlXR1TFL97sBKoF+PiO77gUSwI69FQsHPnY
-	 HcioZpzP6CKng==
-Date: Tue, 2 Sep 2025 12:57:11 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Max Kellermann <max.kellermann@ionos.com>
-Cc: akpm@linux-foundation.org, david@redhat.com, axelrasmussen@google.com, 
-	yuanchu@google.com, willy@infradead.org, hughd@google.com, mhocko@suse.com, 
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, lorenzo.stoakes@oracle.com, 
-	Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org, surenb@google.com, 
-	vishal.moola@gmail.com, linux@armlinux.org.uk, James.Bottomley@hansenpartnership.com, 
-	deller@gmx.de, agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
-	hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com, 
-	svens@linux.ibm.com, davem@davemloft.net, andreas@gaisler.com, 
-	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, tglx@linutronix.de, 
-	mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, chris@zankel.net, 
-	jcmvbkbc@gmail.com, viro@zeniv.linux.org.uk, jack@suse.cz, weixugc@google.com, 
-	baolin.wang@linux.alibaba.com, rientjes@google.com, shakeel.butt@linux.dev, thuth@redhat.com, 
-	broonie@kernel.org, osalvador@suse.de, jfalempe@redhat.com, mpe@ellerman.id.au, 
-	nysal@linux.ibm.com, linux-arm-kernel@lists.infradead.org, 
-	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v6 04/12] fs: constify mapping related test functions for
- improved const-correctness
-Message-ID: <20250902-einblick-nichtig-c4fe7fa5ae6f@brauner>
-References: <20250901205021.3573313-1-max.kellermann@ionos.com>
- <20250901205021.3573313-5-max.kellermann@ionos.com>
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b="jXmzEnXa"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.simply.com (Simply.com) with ESMTP id 4cGP6x6Rpwz1FZPJ;
+	Tue,  2 Sep 2025 13:44:57 +0200 (CEST)
+Received: from [192.168.0.25] (h-98-128-223-123.NA.cust.bahnhof.se [98.128.223.123])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by smtp.simply.com (Simply.com) with ESMTPSA id 4cGP6w5mgsz1FXjD;
+	Tue,  2 Sep 2025 13:44:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gaisler.com;
+	s=simplycom2; t=1756813497;
+	bh=voGobjfJ+JDIyxPuu8fGQb2u9QP7Z513vboXRHjWrpI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=jXmzEnXapdgWj3k2C76LGG7k/5mt1kwvMqAYSfMFYlJ0dMOQ80Oj2YE0pnZAtNJ4t
+	 tXQk/LzaZA57Nv160y42KGcSc12HLtx5zDkXLTwO001yujBIUCUp0jXWbSqOup1wEK
+	 caelEQWo/j1aiLxV7BPWjSbstlue7ClkuM93YSG2cSzlCJSLWryT6cSw2EEQcr+aVF
+	 FTt0lGn6fnMuHg7U0U6sd3U2Ku9tEiPKwlVMzDHUsOHxPUryMAOV1qAvelOgjen0aR
+	 RoDQinmHdiIG1eCVLztKOXDNMYphrSPAPE4G8u5ceaF4FDq1DzCH6UTTJUx5w29cc0
+	 vZYTj+Lq2QLjQ==
+Message-ID: <92bace9a-b5c4-4ea1-a1f7-4742c15a64a0@gaisler.com>
+Date: Tue, 2 Sep 2025 13:44:56 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250901205021.3573313-5-max.kellermann@ionos.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/4] arch: copy_thread: pass clone_flags as u64
+To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Arnd Bergmann <arnd@arndb.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ cgroups@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com,
+ selinux@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-um@lists.infradead.org
+References: <20250901-nios2-implement-clone3-v2-0-53fcf5577d57@siemens-energy.com>
+ <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+ <f2371539-cd4e-4d70-9576-4bb1c677104c@gaisler.com>
+ <11a4d0a953e3a9405177d67f287c69379a2b2f8f.camel@physik.fu-berlin.de>
+Content-Language: en-US
+From: Andreas Larsson <andreas@gaisler.com>
+In-Reply-To: <11a4d0a953e3a9405177d67f287c69379a2b2f8f.camel@physik.fu-berlin.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Sep 01, 2025 at 10:50:13PM +0200, Max Kellermann wrote:
-> We select certain test functions which either invoke each other,
-> functions that are already const-ified, or no further functions.
+On 2025-09-02 09:15, John Paul Adrian Glaubitz wrote:
+>> Thanks for this and for the whole series! Needed foundation for a
+>> sparc32 clone3 implementation as well.
 > 
-> It is therefore relatively trivial to const-ify them, which
-> provides a basis for further const-ification further up the call
-> stack.
-> 
-> Signed-off-by: Max Kellermann <max.kellermann@ionos.com>
-> Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> Acked-by: David Hildenbrand <david@redhat.com>
-> ---
+> Can you implement clone3 for sparc64 as well?
 
-Reviewed-by: Christian Brauner <brauner@kernel.org>
+(heavily pairing down the to list)
+
+We'll take a look at that as well.
+
+Cheers,
+Andreas
+
