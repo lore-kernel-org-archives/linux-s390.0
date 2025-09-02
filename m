@@ -1,58 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FAC81A288;
-	Tue,  2 Sep 2025 10:02:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6AB926A0E7
+	for <linux-s390@vger.kernel.org>; Tue,  2 Sep 2025 10:42:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756807379; cv=none; b=H5CzJm2sBqV7I0xxafsDwIliAx2jKwU3I/kJwxZkPF54IuP8SRcEvcmIfXQKhAyinB14ABLlQQmxJHr1fninyJ1QnkcisalUcOeebsHF1P8+b5lYmaL8cF01JqmIcwddkJtgRh/eImc/C4Ukawrdz6qGp5m6Sw/eMaQ1lhY7G30=
+	t=1756809765; cv=none; b=EdBTg2uU/Qt/tsn4CJV9+b+1Pw4OB9uu4bo/Z0kOx/NsjFfKIjb1PjRRhAa8ZRS9EgKQMC2BmdI6Z7gNBuVqPsyKBS1tFBUSClJKYQ5eSDTmISalWo29/rA6DwxQErjf6RtCHBZ67EZWuMcThvf304bX7rePnxAWH0oQLbQbqf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756807379; c=relaxed/simple;
-	bh=//nqL4lLAfIxW165Zpqicim1COFnjYI7FmXj/nwXVQc=;
+	s=arc-20240116; t=1756809765; c=relaxed/simple;
+	bh=F6eAwz/5m4+tyz35hgcJKDY+nEXDCRTCv8gcsrfL870=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZClzRzy6ruqB2OS6QSicUz0UPboqp8YLHJyHcbvK2E5MC+nMpx71p/rJV8ti+JGW2HMqms4v6tHOimc4pVKOn2v4+QiWC3zKzN1DzTAkoL+tLYgRwk6Sam8Qq2wF99wYkU6ivdNKglr4xKgtw2AlvCIEfHx1wdc5eZukp3Erqnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bpTNeKRR; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=CGKaefmiy33zCWLQ0YKJ71ZC6DMUfd6AahhZqRfdGNTPzMTMdoym02wOd2kHEAixm+ilwOQ0avrgPREEZPuFigXZhhXex+Dw0aVtNzvwMvaM3ybVOZilZLIy1t5iRIUSWcZ9bWzTQI4Myv2q57F7j5PGSbIaEDrpVJhj4WgQgR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=QRUmkwpA; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=TUsTzDZr; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=QRUmkwpA; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=TUsTzDZr; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bpTNeKRR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC650C4CEED;
-	Tue,  2 Sep 2025 10:02:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756807378;
-	bh=//nqL4lLAfIxW165Zpqicim1COFnjYI7FmXj/nwXVQc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bpTNeKRRpbEq4VuZA9LmqaueKiOGvizEA67DPfZXhNaue0n/VbK9mwN3yewtEUkhj
-	 dwTHEzsYV8K0ilq+2qseVmZk2UnB64cBZkyS1Iadme1heTJtZAlzOCNkgOKbkF9ZvQ
-	 CA43Jp0zfvu4rCxXoCKnZY5uNz80FEF5O1VO6f/iCq1h31bqeuvoEWrq+KwgCAY+Sw
-	 TpBmawNe922+sDtauzRHPr4bqBQ8W00Q0ISUYAJkJXhdDAZwhB/x+V1+KssIBTIniF
-	 0cOlfXlkNDfqZTneuG/Qkoh0h3IvtkKaFNSGcP4sPWy72/mfvsnGFSHWV4F8Jzz/Ss
-	 nG5OfZbpoatPA==
-Date: Tue, 2 Sep 2025 13:02:38 +0300
-From: Mike Rapoport <rppt@kernel.org>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="QRUmkwpA";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="TUsTzDZr";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="QRUmkwpA";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="TUsTzDZr"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id F397F1F458;
+	Tue,  2 Sep 2025 10:42:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1756809762; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=k3zSePqDAkVqyg+t6w7RTiow9puJpMOh9QC/ozrDcc0=;
+	b=QRUmkwpArdhTbNMW+Io/jMFV4GENVLwP5OHktiXSjl/Ix2NbYJ9TeSV5VyqEPd6TSXyj0P
+	Bcc+H1TEvhq+wfhDIVWlzoBBwW97Alwbp1QJLDuqGihyYfWbRLDfjGJ4F44dQBjviGnP6z
+	AcBQ5gaDyFoeif4IryqBICTRHB9CXDA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1756809762;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=k3zSePqDAkVqyg+t6w7RTiow9puJpMOh9QC/ozrDcc0=;
+	b=TUsTzDZrR69YtKKGNv1RU1qMGCsg4wLk1eA63bMaUlLDeDLntI7Mjg45Grtcmtws3qxrrK
+	S1LON5SOoNptTrDQ==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1756809762; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=k3zSePqDAkVqyg+t6w7RTiow9puJpMOh9QC/ozrDcc0=;
+	b=QRUmkwpArdhTbNMW+Io/jMFV4GENVLwP5OHktiXSjl/Ix2NbYJ9TeSV5VyqEPd6TSXyj0P
+	Bcc+H1TEvhq+wfhDIVWlzoBBwW97Alwbp1QJLDuqGihyYfWbRLDfjGJ4F44dQBjviGnP6z
+	AcBQ5gaDyFoeif4IryqBICTRHB9CXDA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1756809762;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=k3zSePqDAkVqyg+t6w7RTiow9puJpMOh9QC/ozrDcc0=;
+	b=TUsTzDZrR69YtKKGNv1RU1qMGCsg4wLk1eA63bMaUlLDeDLntI7Mjg45Grtcmtws3qxrrK
+	S1LON5SOoNptTrDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E3CFE13A54;
+	Tue,  2 Sep 2025 10:42:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id RT1sNyHKtmgeJQAAD6G6ig
+	(envelope-from <jack@suse.cz>); Tue, 02 Sep 2025 10:42:41 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 956B3A0A9F; Tue,  2 Sep 2025 12:42:41 +0200 (CEST)
+Date: Tue, 2 Sep 2025 12:42:41 +0200
+From: Jan Kara <jack@suse.cz>
 To: Max Kellermann <max.kellermann@ionos.com>
-Cc: akpm@linux-foundation.org, david@redhat.com, axelrasmussen@google.com,
-	yuanchu@google.com, willy@infradead.org, hughd@google.com,
-	mhocko@suse.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-	lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com, vbabka@suse.cz,
-	surenb@google.com, vishal.moola@gmail.com, linux@armlinux.org.uk,
-	James.Bottomley@hansenpartnership.com, deller@gmx.de,
-	agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-	hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com,
-	svens@linux.ibm.com, davem@davemloft.net, andreas@gaisler.com,
-	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org,
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-	hpa@zytor.com, chris@zankel.net, jcmvbkbc@gmail.com,
-	viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz,
-	weixugc@google.com, baolin.wang@linux.alibaba.com,
-	rientjes@google.com, shakeel.butt@linux.dev, thuth@redhat.com,
-	broonie@kernel.org, osalvador@suse.de, jfalempe@redhat.com,
-	mpe@ellerman.id.au, nysal@linux.ibm.com,
-	linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org,
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v6 00/12] mm: establish const-correctness for pointer
- parameters
-Message-ID: <aLbAvirCgCfpXaVK@kernel.org>
+Cc: akpm@linux-foundation.org, david@redhat.com, axelrasmussen@google.com, 
+	yuanchu@google.com, willy@infradead.org, hughd@google.com, mhocko@suse.com, 
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org, lorenzo.stoakes@oracle.com, 
+	Liam.Howlett@oracle.com, vbabka@suse.cz, rppt@kernel.org, surenb@google.com, 
+	vishal.moola@gmail.com, linux@armlinux.org.uk, James.Bottomley@hansenpartnership.com, 
+	deller@gmx.de, agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com, 
+	svens@linux.ibm.com, davem@davemloft.net, andreas@gaisler.com, 
+	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, tglx@linutronix.de, 
+	mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, chris@zankel.net, 
+	jcmvbkbc@gmail.com, viro@zeniv.linux.org.uk, brauner@kernel.org, jack@suse.cz, 
+	weixugc@google.com, baolin.wang@linux.alibaba.com, rientjes@google.com, 
+	shakeel.butt@linux.dev, thuth@redhat.com, broonie@kernel.org, osalvador@suse.de, 
+	jfalempe@redhat.com, mpe@ellerman.id.au, nysal@linux.ibm.com, 
+	linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v6 04/12] fs: constify mapping related test functions for
+ improved const-correctness
+Message-ID: <xn6tybxhnrswd5wnhfkt4h2n7romogag2ls7ehzte4r2oxoe6u@4pa7726gzcgj>
 References: <20250901205021.3573313-1-max.kellermann@ionos.com>
+ <20250901205021.3573313-5-max.kellermann@ionos.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -61,26 +103,91 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250901205021.3573313-1-max.kellermann@ionos.com>
+In-Reply-To: <20250901205021.3573313-5-max.kellermann@ionos.com>
+X-Spamd-Result: default: False [-2.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	FREEMAIL_CC(0.00)[linux-foundation.org,redhat.com,google.com,infradead.org,suse.com,vger.kernel.org,kvack.org,oracle.com,suse.cz,kernel.org,gmail.com,armlinux.org.uk,hansenpartnership.com,gmx.de,linux.ibm.com,davemloft.net,gaisler.com,linux.intel.com,linutronix.de,alien8.de,zytor.com,zankel.net,zeniv.linux.org.uk,linux.alibaba.com,linux.dev,suse.de,ellerman.id.au,lists.infradead.org];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_COUNT_THREE(0.00)[3];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[55];
+	RCVD_TLS_LAST(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spam-Score: -2.30
 
-On Mon, Sep 01, 2025 at 10:50:09PM +0200, Max Kellermann wrote:
-> For improved const-correctness in the low-level memory-management
-> subsystem, which provides a basis for further const-ification further
-> up the call stack (e.g. filesystems).
+On Mon 01-09-25 22:50:13, Max Kellermann wrote:
+> We select certain test functions which either invoke each other,
+> functions that are already const-ified, or no further functions.
 > 
-> This patch series splitted into smaller patches was initially posted
-> as a single large patch:
-> 
->  https://lore.kernel.org/lkml/20250827192233.447920-1-max.kellermann@ionos.com/
-> 
-> I started this work when I tried to constify the Ceph filesystem code,
-> but found that to be impossible because many "mm" functions accept
-> non-const pointer, even though they modify nothing.
+> It is therefore relatively trivial to const-ify them, which
+> provides a basis for further const-ification further up the call
+> stack.
 > 
 > Signed-off-by: Max Kellermann <max.kellermann@ionos.com>
+> Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> Acked-by: David Hildenbrand <david@redhat.com>
 
-Acked-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+Looks good to me. Feel free to add:
 
+Reviewed-by: Jan Kara <jack@suse.cz>
+
+								Honza
+
+> ---
+>  include/linux/fs.h | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/fs.h b/include/linux/fs.h
+> index 3b9f54446db0..0b43edb33be2 100644
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -537,7 +537,7 @@ struct address_space {
+>  /*
+>   * Returns true if any of the pages in the mapping are marked with the tag.
+>   */
+> -static inline bool mapping_tagged(struct address_space *mapping, xa_mark_t tag)
+> +static inline bool mapping_tagged(const struct address_space *mapping, xa_mark_t tag)
+>  {
+>  	return xa_marked(&mapping->i_pages, tag);
+>  }
+> @@ -585,7 +585,7 @@ static inline void i_mmap_assert_write_locked(struct address_space *mapping)
+>  /*
+>   * Might pages of this file be mapped into userspace?
+>   */
+> -static inline int mapping_mapped(struct address_space *mapping)
+> +static inline int mapping_mapped(const struct address_space *mapping)
+>  {
+>  	return	!RB_EMPTY_ROOT(&mapping->i_mmap.rb_root);
+>  }
+> @@ -599,7 +599,7 @@ static inline int mapping_mapped(struct address_space *mapping)
+>   * If i_mmap_writable is negative, no new writable mappings are allowed. You
+>   * can only deny writable mappings, if none exists right now.
+>   */
+> -static inline int mapping_writably_mapped(struct address_space *mapping)
+> +static inline int mapping_writably_mapped(const struct address_space *mapping)
+>  {
+>  	return atomic_read(&mapping->i_mmap_writable) > 0;
+>  }
+> -- 
+> 2.47.2
+> 
 -- 
-Sincerely yours,
-Mike.
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
