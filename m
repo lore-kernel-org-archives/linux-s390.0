@@ -1,65 +1,73 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A1812E9EA4
-	for <linux-s390@vger.kernel.org>; Tue,  2 Sep 2025 09:22:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47A452EC0A6
+	for <linux-s390@vger.kernel.org>; Tue,  2 Sep 2025 09:42:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756804936; cv=none; b=KAvkNIR+gr0V1lGWRPK3Lg2ONRLELj4x+gM9K4htTtWg0pnPj7pwuTVTaz8J4citqS5DyMZoF5+GpzfIF7ZQQAxSDcREJ8u7ZhI2yvnQjMeanjdg5xqmw1p/9EWNtnHZ9gBd7IcyuPTW/d/XjAeRfYE9uNc6eywE+qWAAYa0n4w=
+	t=1756806161; cv=none; b=L7/IEBHGVSyr+TWV/NrSZ4V1LXncq4qqoDn9OZhUI2YS1rnHWoL0qY+HWViMfqqn7M1DBU7ORmCgvBziAHBNDFD5gKoLvi2vm0bkXNfOeBDaxlUYMB7Tp+9/Xwgv+F5mAmWpw6SLxIhm9OXFwOANqyE14k4iakGaju1+w2vlYtg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756804936; c=relaxed/simple;
-	bh=Pv1NlzKjL0xFo8BfGbhy/7KnNZN8WrItjraHEOkXixw=;
+	s=arc-20240116; t=1756806161; c=relaxed/simple;
+	bh=i4FWrMpTncOFRXoqXlabsDTohw1HlWD08a2XpGq8Mr4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QsO21xYfqfcgZ2G2Y78IL/Uotjy5kf8/L2FdH6tcjfCvtvW3wN1xYzrr8WxFXVh2h0ImrP0TEvfn7/oLWO4eaLTwWv+Y1M3FlevGQuTZ8Dy04+5Bkqfz5ttNKpRh+clHNbB0B712eu77MzwizVcTd4egKF90pHQbg3QHA96AXIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ursulin.net; spf=none smtp.mailfrom=ursulin.net; dkim=pass (2048-bit key) header.d=ursulin-net.20230601.gappssmtp.com header.i=@ursulin-net.20230601.gappssmtp.com header.b=BjJ4DkI0; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ursulin.net
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ursulin.net
+	 In-Reply-To:Content-Type; b=TAOciglP0j2Jy4LpAdBe38e5rzwg4nk2pwwQ/kzyRlE5dCwy4Q+oHA8TRnhjtx3BNabT7gqsMINs4Jv7igpwLDI7lAacGiV+TWPsiCntHyn/d3Ct0gPKq2KdqX6i1g6Mx9iKq5IzSN9aWX6pzv1gf99YH+fDDWWwU3j41oZmo9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E9zJZ1ao; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ursulin-net.20230601.gappssmtp.com header.i=@ursulin-net.20230601.gappssmtp.com header.b="BjJ4DkI0"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-45b804ed966so15860045e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 02 Sep 2025 02:22:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ursulin-net.20230601.gappssmtp.com; s=20230601; t=1756804931; x=1757409731; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=0Be300C9M54HN2j6qqn3KzILYOn0Dm/rUn/s4aJntRQ=;
-        b=BjJ4DkI0nOIeBWi829gHdcdGEnRHe1ZnQO1njdb+Jyp0kjPhbqnc/pH3IqlbX/mPRt
-         KImIiC5IOBhDUsCOe+bsijMfqcLKa+dXYa461vlf8W43jDTp2NN/HyQttUmEPfTyMDsa
-         +znjOYbf7zmMPfsw7iujVXgeGLUXtwGXlQ+SY2EucQk11hSB12zyiFkHuuLs1Vp+GMQK
-         znrByajiS5QwRXsCGGX/uEAkboujg3cDsCxXhSDvaaKtpi9xTJYSIPVmQMJW+nANv+26
-         x3bpMDTCAYkVqg6BQ0C/DVGa/O/iwl4l6QGYI8jJHyq5e0aZ7lgtishdDOyJn3yv5f02
-         d/Ew==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E9zJZ1ao"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756806157;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=asWSuLH6iU8nN8yxFqi4dFvgrrSedS75Z/J4pSraBcc=;
+	b=E9zJZ1aoIwXJLF8wtF0rPENWj8qxa0CoI7H1xy4OIJ5KNO8nqolaTnri3pmpEvVZnmlBc+
+	c/JvZvfvQRe9OCz4oAasfVW6exC529zBP4v7YhSH6c12gSCUNzTFWeghucHKTelhZxJOAQ
+	RbOADTL875KPGE75VjXAqmUyCY/ZpO4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-455-KyAVRNIBO8mmVdle5hXKQw-1; Tue, 02 Sep 2025 05:42:36 -0400
+X-MC-Unique: KyAVRNIBO8mmVdle5hXKQw-1
+X-Mimecast-MFC-AGG-ID: KyAVRNIBO8mmVdle5hXKQw_1756806155
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45b7d84d8a0so13615355e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 02 Sep 2025 02:42:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756804931; x=1757409731;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=0Be300C9M54HN2j6qqn3KzILYOn0Dm/rUn/s4aJntRQ=;
-        b=B3jHniB1ZZzTCExKVZGp/mDGvwhpvx0sJQmZL13z4TrmQqKmxDFrx5WKWpZj+Rbvye
-         ln/J12ziV+dtmuk5CoGG3ew0Q+28eka68WE7QGxUtmAjUSPH/9GyLMxwjKD0egg7Ajrl
-         ywuMOOIytIYKLgh/9RA/HjZXU2Td5fnVuybEo7ORfAQ1ngpo4sl2TthBpG+56BG/Tb6X
-         VjpnjZaeD07eEy/6rmWknLb/yyRZA67TsKrMSy56lKkvpe6cDpOGPy//egQ8Jqa2MiVV
-         LiNHh0h56noA34e+Psw6iAdJk+zsNVBggd0SnA59uBYZQu6ALvlXyZF+Skb6yqJLJ4RZ
-         g8Zw==
-X-Forwarded-Encrypted: i=1; AJvYcCXe8KM3vNSBQWQHhrrzPFwFScreVWbUIioL6rGRTBBcOgT/KvrUxe67WS8joT7kVKMf+j6/0PH8r9xR@vger.kernel.org
-X-Gm-Message-State: AOJu0YxbLuboD76wZ6M772f0jzrh4mem756jC/L7IAr0GgyISCAwtdrJ
-	7v/6a7QefUS6a/oLt/iqjPDRb8TekN7zJjiEEmw9T7JZMcoclvEOPOUkIOCU58JkTTg=
-X-Gm-Gg: ASbGnctw2n0S7GaBErQwLhig8pQC288x5OS9bR2SlNsf/eWrBFYcBXPv8rdGxA/RVsK
-	9lSEYBtZYhQJi0tqVu5p1klyKHL9mSh0FxyD5eWfG1WdZDd1q33ZT/40WkA0/AxIP39b8AXflPy
-	z007Dh4UW9oRvrX1OaQrwNgJ3ulCyefHHCBQQ3Yu6CxVoKWEPavrFw24ybzXZDa2MQ5pLeeX69j
-	bCUY1/wQpSOkU9XLIwM49/RTxUybuh8VAe1zAupa95QZV52PAvozFypAWcjPAPf8W3hhTxc66sp
-	z1x5sbXaNxyRbxapUq0R0QoCriWocbxBR6+Akcb+nsZl1f83apSb+UWHBVJnvSeiVv/LQUZzoXn
-	EnyfaHMKcVmOWANfcX5Q3SwJPBe4HAf4z7nM=
-X-Google-Smtp-Source: AGHT+IFjGWdM7r4OC2xPYq10JBW42QzIVS9ISDbv655toZnOdc57tKWSkMByc2ni755H7QY3mBnVYA==
-X-Received: by 2002:a05:600c:a04:b0:45b:7d24:beac with SMTP id 5b1f17b1804b1-45b8553335amr94619035e9.10.1756804930815;
-        Tue, 02 Sep 2025 02:22:10 -0700 (PDT)
-Received: from [192.168.0.101] ([84.66.36.92])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3d0b9402299sm17994846f8f.18.2025.09.02.02.22.09
+        d=1e100.net; s=20230601; t=1756806155; x=1757410955;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=asWSuLH6iU8nN8yxFqi4dFvgrrSedS75Z/J4pSraBcc=;
+        b=IC1az64OoNz6b0IT7uDQhJpcOiyPAnU0eVGV96xLQdRMmQ1ipvO437vMvGh2IlFeY+
+         tIeBiBC8GnggtBYddiG7QQbaJlG01ZvnJKrvyUT3XUHGVbacHxMo1j5Iadb/Q/Q5nvpg
+         Vi4RN+jCrJWvmnadk3/mvhDfpiGmb2ExpYPrrXRTLzJmLsTf4gCvBDhvBlHF/Ir300/N
+         9LooHBxV1i3nvize/c2je/f8u9xbi4ysaWXWFKU25HfztSglrTpsR3FsVsFI1EtHCVNN
+         3DExk9z4mP7E7FQ7VMbm/F5Gzx6siZ6z/3693JGUm65otHXSEnTeDqr0Z1YXI8Yb8L43
+         U+Pg==
+X-Forwarded-Encrypted: i=1; AJvYcCUwBiLhREXKc+z/V7W4YB2ZEoGN1+sFEnLreFXdhdpIAkLXMJ59v/8u/K/RO9CrCokMVcLZw7RDfdbM@vger.kernel.org
+X-Gm-Message-State: AOJu0YygGngon9mnfa/cqv+X4nX0AAFC/HkWnFRPwMmREwt6EDSdMijE
+	LrkR8G2rA2jzy3m7vixJxG0g4uOWta7YKztriuaeiLV2TUHxnqSylA/nSkvV/zoy5ApihwnzfYy
+	sU7nlX1F3KXuXumqjRie2Nj6onWlgRn8FORucywCkKna+3VdWnsoMU/jM10WGnEE=
+X-Gm-Gg: ASbGnctGE/51c3JsuF5xyub6Ea8YzL9wzT3svqC39oziIu343OCev2a5PTQjt3Vpw99
+	UuhpjxDpl3qSu7nqYszqdcFiZsCMsllLdh6leYv2klNNlhhtd88uPhMnsDOsK9/nEfrMIS7iz1a
+	ERmHumhlmuKwhVljFhPFubLhrc7U54sutax72hWuZ0kgCmzdwjNmmkLgQkVKm42v9GYa653Y4IU
+	rNZm3XGvgW+ufY7uMoZOiesgzqUVfAXA/i+t3xpqjtB92/PnStCCy7JxaXvx9DwxWOuC3GX1r+o
+	apY2u0A9fe2oTNNUU1Vrazq0tXonBmMyXBjw/6X5fLEvpK+YAFzgamSMuqeGkv3vy0vEuBubNyF
+	P0aSpO3iq1X4M6gwHm73kFVcB52T0DOyBWM1OA1ULZ6I+cVWMjn1GRW14feS6soDJZ5k=
+X-Received: by 2002:a05:600c:1ca4:b0:43c:ec4c:25b4 with SMTP id 5b1f17b1804b1-45b8554e2ffmr100852975e9.10.1756806154869;
+        Tue, 02 Sep 2025 02:42:34 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEDiNU8UZPL8aTl3qS6g7/9CMF4yIxtcwFaCcDzAuhGVy5bNnLkv/vvSAEHWB2EXNvzk4IR6w==
+X-Received: by 2002:a05:600c:1ca4:b0:43c:ec4c:25b4 with SMTP id 5b1f17b1804b1-45b8554e2ffmr100852105e9.10.1756806154215;
+        Tue, 02 Sep 2025 02:42:34 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f1f:3f00:731a:f5e5:774e:d40c? (p200300d82f1f3f00731af5e5774ed40c.dip0.t-ipconnect.de. [2003:d8:2f1f:3f00:731a:f5e5:774e:d40c])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b8acbe982sm57017205e9.6.2025.09.02.02.42.31
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Sep 2025 02:22:10 -0700 (PDT)
-Message-ID: <4bbf5590-7591-4dfc-a23e-0bda6cb31a80@ursulin.net>
-Date: Tue, 2 Sep 2025 10:22:09 +0100
+        Tue, 02 Sep 2025 02:42:33 -0700 (PDT)
+Message-ID: <22019944-2ef2-4463-9b3f-23c9e7c70b2f@redhat.com>
+Date: Tue, 2 Sep 2025 11:42:30 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,7 +77,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v2 26/37] drm/i915/gem: drop nth_page() usage within SG
  entry
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+To: Tvrtko Ursulin <tursulin@ursulin.net>, linux-kernel@vger.kernel.org
 Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
  Jani Nikula <jani.nikula@linux.intel.com>,
  Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
@@ -99,47 +107,96 @@ Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
  wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
 References: <20250901150359.867252-1-david@redhat.com>
  <20250901150359.867252-27-david@redhat.com>
-Content-Language: en-GB
-From: Tvrtko Ursulin <tursulin@ursulin.net>
-In-Reply-To: <20250901150359.867252-27-david@redhat.com>
+ <4bbf5590-7591-4dfc-a23e-0bda6cb31a80@ursulin.net>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <4bbf5590-7591-4dfc-a23e-0bda6cb31a80@ursulin.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-
-On 01/09/2025 16:03, David Hildenbrand wrote:
-> It's no longer required to use nth_page() when iterating pages within a
-> single SG entry, so let's drop the nth_page() usage.
+On 02.09.25 11:22, Tvrtko Ursulin wrote:
 > 
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> Cc: Jani Nikula <jani.nikula@linux.intel.com>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> Cc: Tvrtko Ursulin <tursulin@ursulin.net>
-> Cc: David Airlie <airlied@gmail.com>
-> Cc: Simona Vetter <simona@ffwll.ch>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->   drivers/gpu/drm/i915/gem/i915_gem_pages.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> On 01/09/2025 16:03, David Hildenbrand wrote:
+>> It's no longer required to use nth_page() when iterating pages within a
+>> single SG entry, so let's drop the nth_page() usage.
+>>
+>> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+>> Cc: Jani Nikula <jani.nikula@linux.intel.com>
+>> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+>> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+>> Cc: Tvrtko Ursulin <tursulin@ursulin.net>
+>> Cc: David Airlie <airlied@gmail.com>
+>> Cc: Simona Vetter <simona@ffwll.ch>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>    drivers/gpu/drm/i915/gem/i915_gem_pages.c | 2 +-
+>>    1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+>> index c16a57160b262..031d7acc16142 100644
+>> --- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+>> +++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+>> @@ -779,7 +779,7 @@ __i915_gem_object_get_page(struct drm_i915_gem_object *obj, pgoff_t n)
+>>    	GEM_BUG_ON(!i915_gem_object_has_struct_page(obj));
+>>    
+>>    	sg = i915_gem_object_get_sg(obj, n, &offset);
+>> -	return nth_page(sg_page(sg), offset);
+>> +	return sg_page(sg) + offset;
+>>    }
+>>    
+>>    /* Like i915_gem_object_get_page(), but mark the returned page dirty */
 > 
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-> index c16a57160b262..031d7acc16142 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-> @@ -779,7 +779,7 @@ __i915_gem_object_get_page(struct drm_i915_gem_object *obj, pgoff_t n)
->   	GEM_BUG_ON(!i915_gem_object_has_struct_page(obj));
->   
->   	sg = i915_gem_object_get_sg(obj, n, &offset);
-> -	return nth_page(sg_page(sg), offset);
-> +	return sg_page(sg) + offset;
->   }
->   
->   /* Like i915_gem_object_get_page(), but mark the returned page dirty */
+> LGTM. If you want an ack to merge via a tree other than i915 you have
+> it. I suspect it might be easier to coordinate like that.
 
-LGTM. If you want an ack to merge via a tree other than i915 you have 
-it. I suspect it might be easier to coordinate like that.
+Yeah, it would be best to route all of that through the MM tree. Thanks!
 
-Regards,
+-- 
+Cheers
 
-Tvrtko
+David / dhildenb
 
