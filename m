@@ -1,145 +1,171 @@
-Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02E7A2E54D1;
-	Tue,  2 Sep 2025 07:13:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC27918DB0D;
+	Tue,  2 Sep 2025 07:15:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.133.4.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756797184; cv=none; b=SVbAtPGDvLlSwvts2UsECHePmO4b7B6QqfVLdbJHZMGOYiLxRdL47P9RYz2drczWuldR3Di6Ct+Re1rD5g8gHz+xKay7u5P9dE2dinWeXta09yPKFB4NE7bKU0QKfSNHr8eZLueGjVssHLY0uwXSzF4+ZzR0uRKiYUtg+lx5gi0=
+	t=1756797327; cv=none; b=VvNEulg7vZYy63HUGUoXi046kUdpYQlVpX7tVffT01ujcNhBmwaDpq6IMdmU8ObLZ16y08rBA3QkIARm/Dvz7e23gxyk1JVIxphKDhBytz8KI+BaX+LqDag6LehQdkev+E/TOO23Ik3j/+U1Ixf+J+Yo889cj8wIJN7vCf7IXpY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756797184; c=relaxed/simple;
-	bh=oGDss44/R+p3Gc+SA7s6Q0fiu6Jp4FtRYb3A6LAVp9Y=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=XJY3Hm6VazjthwEZ1k76s8CoFSUP6VlmXsc6iPsiDcwaksn/Xi7IhwfLZO522imtS+auCegX7VGwt1GJhL0Jmz/nD4WnzgWty37Xytr76gZxd5BeinsEtR+9fO159GAUbcIUKKYwdYCs3ZPKkuVfUkqhymtUoNJ0LuLtlz3eZtM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.com; spf=pass smtp.mailfrom=fastmail.com; dkim=pass (2048-bit key) header.d=fastmail.com header.i=@fastmail.com header.b=KK8nmWXS; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YpCWR0bY; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fastmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fastmail.com
+	s=arc-20240116; t=1756797327; c=relaxed/simple;
+	bh=63Ypg42QVZ06s8ykliKTqwl+/W5CTIpV8b7Xr3N12cs=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=BFzdm5jLr0zocw9nsdSeklYN9QCW5WlBCGwGIRGLJbtE4459FkhidLnjrPoU62//Ik7IrBoPd2u14/qY4WRFDLvUJu1DDz6L9QEOt3BSMJWWC2QTcHbK1gNF7DGkzzNNZGMcEHYLn5T4roLrNbXzHhYXUb9I+65/43b/0IyDtqM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de; spf=pass smtp.mailfrom=zedat.fu-berlin.de; dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b=X921ENld; arc=none smtp.client-ip=130.133.4.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=physik.fu-berlin.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zedat.fu-berlin.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fastmail.com header.i=@fastmail.com header.b="KK8nmWXS";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YpCWR0bY"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 1D8321400256;
-	Tue,  2 Sep 2025 03:13:01 -0400 (EDT)
-Received: from phl-imap-15 ([10.202.2.104])
-  by phl-compute-06.internal (MEProxy); Tue, 02 Sep 2025 03:13:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1756797181;
-	 x=1756883581; bh=toLDHdQc9Oyqd27CNLCz1AEnk/JhIml68A5kSp/J1Zg=; b=
-	KK8nmWXSOG9eC9vm3zqHImXC3Vd9TFcsAgdrRcN65bfkzWBqxJdOEbpZqxFjJLFO
-	bxAsZzlsicmJ/Cwb4FRQU4OIjvTJMW5VEBMawaQavkFNInl2eMSaA93E3a3sudu7
-	4g/fHQouWTjBvJhB+hgUOub0LWAVrhnYnRkoFvCdm/VFoRWOgoTTiAcpiiL1gbi+
-	xQ6v9HWhrnolGXJdCd4e2evm1gxiOpVr+vevQkz9Ti7T3e/GHD56cxCiZAL2uLKT
-	TD38scTPaFsoYFbBZQra9218+mOvPsuf7qgHI99Mgvp7GyjXdAPLmfcZgBRH5AQt
-	NpoLOkma7nQYd7ovt8bTCQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1756797181; x=
-	1756883581; bh=toLDHdQc9Oyqd27CNLCz1AEnk/JhIml68A5kSp/J1Zg=; b=Y
-	pCWR0bYSjqAa3379JZWa5VPBaaZCz/CEiS40YM+SpHxXbEc1qZyCDwG1yy2tY88r
-	E8vp5t2+2/ggdwQw1qxjWoBSta0fROKt/kYV1wRvtAhSgLjSs9ys6u4QgyuXpjj4
-	tTnq5XudJAlpGhqVaxgJji56FS2GiIe2OpxQGUkpuqVJ/ecmNZgQiy1tmG8T+H1N
-	jWk3Y5ex9SvLdrSbgpD1XrLil4qe7y87wwrQA9ma3zWchVUvNI+RlfEHRurNM09e
-	4+Bf63BFamWhkoq7oWctiBfBEzkSaFGIs11L+ML6jatDYuqId/dZwIloNX/Ri0pn
-	3S5oU/pTvQ0lQWqsrrRzg==
-X-ME-Sender: <xms:_Ji2aPLnlh-WUgwhMOI2Zg7Mdy4FYXqxIxIczT8bOzH6p2kkAuJflQ>
-    <xme:_Ji2aDJKsv47xLFxUaz8AE-jPCXRWW3QSjsb6PDpgr7XR9hd72ylLk77W9LTz3FPw
-    40jre6gW0DnumR3igA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdduleegfeelucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpeflrghmvghs
-    uceosgholhgurdiiohhnvgdvfeejfeesfhgrshhtmhgrihhlrdgtohhmqeenucggtffrrg
-    htthgvrhhnpeffleeuffekgfefhfejudetheevgfduudefffeifeetveekteefhefffffg
-    heejhfenucffohhmrghinhepthgvshhtvggurdhnvghtnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomhepsgholhgurdiiohhnvgdvfeejfeesfhgr
-    shhtmhgrihhlrdgtohhmpdhnsggprhgtphhtthhopedukedpmhhouggvpehsmhhtphhouh
-    htpdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthho
-    pegvughumhgriigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtohephhhorhhmsheskh
-    gvrhhnvghlrdhorhhgpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgt
-    phhtthhopegrlhhisghuuggrsehlihhnuhigrdgrlhhisggrsggrrdgtohhmpdhrtghpth
-    htohepughushhtrdhliheslhhinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthho
-    pehguhifvghnsehlihhnuhigrdgrlhhisggrsggrrdgtohhmpdhrtghpthhtohepthhonh
-    ihlhhusehlihhnuhigrdgrlhhisggrsggrrdgtohhmpdhrtghpthhtohepmhhjrghmsghi
-    ghhisehlihhnuhigrdhisghmrdgtohhm
-X-ME-Proxy: <xmx:_Ji2aLoTvCpUu1JQ-VNzygKegdd3NWLEUNTPHaAN_6muHs0p2V6wrA>
-    <xmx:_Ji2aG8zF0WHaRHEHckXZMp1eTEo3LqTzgC7TY9GWMtiPgqtt3xSmw>
-    <xmx:_Ji2aM2kmYrNinIuYis4tYswnSOc60WLMQdoDYYAGUbnw5rJfsGFSg>
-    <xmx:_Ji2aBkBM2toMFghTbYgHBM1LtOipJDbWkg8nbLomGULkqGzgXkG9w>
-    <xmx:_Zi2aKkeDCsn6nW1Om00piS6NXNJNdF-aJagw9JQbvmzL4_w2iEXDKvb>
-Feedback-ID: ibd7e4881:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 85B99780070; Tue,  2 Sep 2025 03:13:00 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=fu-berlin.de header.i=@fu-berlin.de header.b="X921ENld"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=fu-berlin.de; s=fub01; h=MIME-Version:Content-Transfer-Encoding:
+	Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:From:
+	Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:In-Reply-To:
+	References; bh=75QsosR73EP7Bhx5dXwnnBiSrQlTSAdKIHehZonw/2s=; t=1756797323;
+	x=1757402123; b=X921ENldUxkTG2iEalnRJczAydGr+60jnSCemShmum7owLYveZD+utCqGKrDy
+	JxsQx+SR98LaDjqI5miAet79XGeKpnPG7pU3BPd3n7/p7jj0zED8JzynlUkYCEXmxO1C+S2YqjUVS
+	V5R+cn5H4MJ8GQ5lESC0XBVCeQWyJDgTJO6mH8pHWkK2Ql2ysaeO0po59wRj2FP9QgbfCVp5rkRUo
+	QrFBccBSWRKwxSgXOohUG2j8ZgCj04hDsSPMblP/7B1bUN6leCRxM1sThlrpmLA6s9V+5QZfZYVck
+	/wq/gloVjZWpqTUN4PorQGEzcaw3hEsFw6JDm7DJLVzjE57ybw==;
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.98)
+          with esmtps (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1utLEY-00000000Jm5-12co; Tue, 02 Sep 2025 09:15:14 +0200
+Received: from p5b13aa34.dip0.t-ipconnect.de ([91.19.170.52] helo=[192.168.178.61])
+          by inpost2.zedat.fu-berlin.de (Exim 4.98)
+          with esmtpsa (TLS1.3)
+          tls TLS_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1utLEX-00000002jxi-2pMt; Tue, 02 Sep 2025 09:15:13 +0200
+Message-ID: <11a4d0a953e3a9405177d67f287c69379a2b2f8f.camel@physik.fu-berlin.de>
+Subject: Re: [PATCH v2 3/4] arch: copy_thread: pass clone_flags as u64
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: Andreas Larsson <andreas@gaisler.com>,
+ schuster.simon@siemens-energy.com,  Dinh Nguyen <dinguyen@kernel.org>,
+ Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+ Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand
+ <david@redhat.com>, Lorenzo Stoakes	 <lorenzo.stoakes@oracle.com>, "Liam R.
+ Howlett" <Liam.Howlett@oracle.com>,  Vlastimil Babka	 <vbabka@suse.cz>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan	 <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Ingo Molnar	 <mingo@redhat.com>, Peter
+ Zijlstra <peterz@infradead.org>, Juri Lelli	 <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,  Dietmar Eggemann
+ <dietmar.eggemann@arm.com>, Steven Rostedt <rostedt@goodmis.org>, Ben
+ Segall <bsegall@google.com>,  Mel Gorman <mgorman@suse.de>, Valentin
+ Schneider <vschneid@redhat.com>, Kees Cook <kees@kernel.org>,  Paul
+ Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>,  Alexandre Ghiti	 <alex@ghiti.fr>, Guo
+ Ren <guoren@kernel.org>, Oleg Nesterov <oleg@redhat.com>,  Jens Axboe
+ <axboe@kernel.dk>, Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara
+ <jack@suse.cz>, Tejun Heo <tj@kernel.org>, Johannes Weiner
+ <hannes@cmpxchg.org>, Michal =?ISO-8859-1?Q?Koutn=FD?=	 <mkoutny@suse.com>,
+ Paul Moore <paul@paul-moore.com>, Serge Hallyn	 <sergeh@kernel.org>, James
+ Morris <jmorris@namei.org>, "Serge E. Hallyn"	 <serge@hallyn.com>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker
+ <frederic@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Masami
+ Hiramatsu	 <mhiramat@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet	 <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni	 <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Mathieu
+ Desnoyers	 <mathieu.desnoyers@efficios.com>, Arnaldo Carvalho de Melo
+ <acme@kernel.org>,  Namhyung Kim <namhyung@kernel.org>, Mark Rutland
+ <mark.rutland@arm.com>, Alexander Shishkin	
+ <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, Ian
+ Rogers	 <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, John
+ Johansen	 <john.johansen@canonical.com>, Stephen Smalley
+ <stephen.smalley.work@gmail.com>,  Ondrej Mosnacek <omosnace@redhat.com>,
+ Kentaro Takeda <takedakn@nttdata.co.jp>, Tetsuo Handa	
+ <penguin-kernel@I-love.SAKURA.ne.jp>, Richard Henderson	
+ <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, Vineet
+ Gupta	 <vgupta@kernel.org>, Russell King <linux@armlinux.org.uk>, Catalin
+ Marinas	 <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Brian
+ Cain	 <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui	
+ <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal
+ Simek	 <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Jonas Bonn	 <jonas@southpole.se>, Stefan Kristiansson
+ <stefan.kristiansson@saunalahti.fi>,  Stafford Horne <shorne@gmail.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge
+ Deller	 <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman	 <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy	 <christophe.leroy@csgroup.eu>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger	
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Yoshinori
+ Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Richard
+ Weinberger	 <richard@nod.at>, Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>, Johannes Berg	
+ <johannes@sipsolutions.net>, Borislav Petkov <bp@alien8.de>, Dave Hansen	
+ <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>,  Chris Zankel <chris@zankel.net>, Max Filippov
+ <jcmvbkbc@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org, 
+	linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	cgroups@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	selinux@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-um@lists.infradead.org
+Date: Tue, 02 Sep 2025 09:15:08 +0200
+In-Reply-To: <f2371539-cd4e-4d70-9576-4bb1c677104c@gaisler.com>
+References: 
+	<20250901-nios2-implement-clone3-v2-0-53fcf5577d57@siemens-energy.com>
+	 <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+	 <f2371539-cd4e-4d70-9576-4bb1c677104c@gaisler.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AYqA-NWBhw8c
-Date: Tue, 02 Sep 2025 00:12:22 -0700
-From: James <bold.zone2373@fastmail.com>
-To: "Mahanta Jambigi" <mjambigi@linux.ibm.com>, alibuda@linux.alibaba.com,
- "Dust Li" <dust.li@linux.alibaba.com>, sidraya@linux.ibm.com,
- wenjia@linux.ibm.com, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- "Simon Horman" <horms@kernel.org>, "Shuah Khan" <skhan@linuxfoundation.org>
-Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-kernel-mentees@lists.linux.dev
-Message-Id: <27d1804c-27c4-488f-9f35-1913a7f7015f@app.fastmail.com>
-In-Reply-To: <7bd60e6d-4b33-4a04-998b-0be163a6fdb0@linux.ibm.com>
-References: <20250901030512.80099-1-bold.zone2373@fastmail.com>
- <7bd60e6d-4b33-4a04-998b-0be163a6fdb0@linux.ibm.com>
-Subject: Re: [PATCH v2] net/smc: Replace use of strncpy on NUL-terminated string with
- strscpy
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-ZEDAT-Hint: PO
 
+Hi Andreas,
 
+On Tue, 2025-09-02 at 09:02 +0200, Andreas Larsson wrote:
+> On 2025-09-01 15:09, Simon Schuster via B4 Relay wrote:
+> > From: Simon Schuster <schuster.simon@siemens-energy.com>
+> >=20
+> > With the introduction of clone3 in commit 7f192e3cd316 ("fork: add
+> > clone3") the effective bit width of clone_flags on all architectures wa=
+s
+> > increased from 32-bit to 64-bit, with a new type of u64 for the flags.
+> > However, for most consumers of clone_flags the interface was not
+> > changed from the previous type of unsigned long.
+> >=20
+> > While this works fine as long as none of the new 64-bit flag bits
+> > (CLONE_CLEAR_SIGHAND and CLONE_INTO_CGROUP) are evaluated, this is stil=
+l
+> > undesirable in terms of the principle of least surprise.
+> >=20
+> > Thus, this commit fixes all relevant interfaces of the copy_thread
+> > function that is called from copy_process to consistently pass
+> > clone_flags as u64, so that no truncation to 32-bit integers occurs on
+> > 32-bit architectures.
+> >=20
+> > Signed-off-by: Simon Schuster <schuster.simon@siemens-energy.com>
+> > ---
+>=20
+> Thanks for this and for the whole series! Needed foundation for a
+> sparc32 clone3 implementation as well.
 
-On Mon, Sep 1, 2025, at 11:40 PM, Mahanta Jambigi wrote:
-> On 01/09/25 8:34 am, James Flowers wrote:
->> strncpy is deprecated for use on NUL-terminated strings, as indicated in
->> Documentation/process/deprecated.rst. strncpy NUL-pads the destination
->> buffer and doesn't guarantee the destination buffer will be NUL
->> terminated.
->> 
->> Signed-off-by: James Flowers <bold.zone2373@fastmail.com>
->> ---
->> V1 -> V2: Replaced with two argument version of strscpy
->> Note: this has only been compile tested.
->> 
->>  net/smc/smc_pnet.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->> 
->> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
->> index 76ad29e31d60..b90337f86e83 100644
->> --- a/net/smc/smc_pnet.c
->> +++ b/net/smc/smc_pnet.c
->> @@ -450,7 +450,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
->>  		return -ENOMEM;
->>  	new_pe->type = SMC_PNET_IB;
->>  	memcpy(new_pe->pnet_name, pnet_name, SMC_MAX_PNETID_LEN);
->> -	strncpy(new_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX);
->> +	strscpy(new_pe->ib_name, ib_name);
->
-> I tested your changes by creating a Software PNET ID using *smc_pnet*
-> tool & it works fine. Your changes are similar to ae2402b(net/smc:
-> replace strncpy with strscpy) commit.
->
-> Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->
->>  	new_pe->ib_port = ib_port;
->>  
->>  	new_ibdev = true;
+Can you implement clone3 for sparc64 as well?
 
-Thank you for doing that test, Mahanta. Thanks to all who have reviewed so far.
+Adrian
 
-Best regards,
-James Flowers
+--=20
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer
+`. `'   Physicist
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
