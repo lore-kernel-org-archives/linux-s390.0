@@ -1,72 +1,46 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3D582797AF;
-	Wed,  3 Sep 2025 07:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C35DD28315D;
+	Wed,  3 Sep 2025 08:12:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756886042; cv=none; b=mTpMJJ5L3QBv3vv147UxisMCaEmMnqrRpPLq0cA/1pYAA8qas8HG5uIEGNz/v+TyZWXnpr0dXs/PIeITP7XVDvVLGWxHWS8oqz2K+KkQAq7dkwSdXMRhbnZgtTq8wbx+8cfxuSpXXUXjrb9xGZWQO9EdlAKjVfbUIftHXWAQw4g=
+	t=1756887139; cv=none; b=Is2vM+7XbO0t+E+NBRXlfb5KfOxQ4xGzbtyb5MGo0dlBregAruF2cx3pkosMuQWuounT/jlUfBkJt3NWCnrQJPs4/TKL8rpbzUSFwF4G5CfETi08Evmz4NEASc93EWWYUVS+vFeyhbawE9w+Z0DGXnL2ct6uvYVJ+c7pHBzLpRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756886042; c=relaxed/simple;
-	bh=pShCvz0hCXlxg4DiUyaGmZin7eZc/sfm8h/3zvpj5gQ=;
+	s=arc-20240116; t=1756887139; c=relaxed/simple;
+	bh=1bDVjTqTrvTyx3jCOVewrN5vmmyZijgy/U9beuzNqik=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e8azjvIQyl/noH/3MoA/7zWk+Lj+VRgdI96g78ehOsd/bq6FzWbaYbUok28cIPQxn36u9/E28j1faLmOkAWvNOiQwZ34jlhHWHN9tKShYuFwJ0KirK8oVRBA6wD2O+u4NeRPbZ8Y1zrMBOOUa0kuvWE+FgHM24C8Jlw/HgZBr2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qGzoURdq; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=XlTJYBG/2GLIuGqOOuN9qRv1NWDaSsi2urIlymGpkABLOU1n5wv5/7lOMkUF9WkbUFN/U0AAbJ8Cx8/lBrUtLDh6t0Qv9+jFLp+W+i5nlzUBh69DRExobZw251jJbh4y7G+lLqZdX/vBax70kfX7pLgQ6Razab2p6dGfZbDIKF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=kN0YLQfF; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qGzoURdq"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 582J2UHR029478;
-	Wed, 3 Sep 2025 07:53:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=AiKq0DZ41X9J7+t02zQN/osPKUZRqw
-	Eavk2A4iSSuQM=; b=qGzoURdqILlSZuQb2owZxn4Z87j7tCecGtj/L1lv5tzswJ
-	rshzI7AWuwn6Pd0lQvXa3XF22caTpKqBBqolBhpmDbu3osgTHqhmu8Z7R0WCsl4X
-	mJDRM0GhWnkdIooGIRzYi9DX1ZCB/fjtdNfWnmn820pJqtPe/mrBbBCl3W2s5c2i
-	6uSwIGhKYGB1b4SJNVzt/GnS7yxw6OCEPVgGI2jRE0uDcWVlb/b2sQzhuOLj8icQ
-	jSoI6Vcjlp4f3o530O8q8VLgDWsrr6euoRxvsHLJL7WcX1M7sOFtWwqZBzFAmOB8
-	aNiJRbUp4zdd2pbfDiLll2X4wLMFntOVA1zfOwqg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvftm6u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Sep 2025 07:53:44 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5837r3J4017985;
-	Wed, 3 Sep 2025 07:53:44 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvftm6m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Sep 2025 07:53:44 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5837m8Ci013959;
-	Wed, 3 Sep 2025 07:53:43 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48veb3e4du-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Sep 2025 07:53:43 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5837rf2W40042966
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Sep 2025 07:53:41 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6383C2004E;
-	Wed,  3 Sep 2025 07:53:41 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CB9142004B;
-	Wed,  3 Sep 2025 07:53:40 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.83.94])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  3 Sep 2025 07:53:40 +0000 (GMT)
-Date: Wed, 3 Sep 2025 09:53:39 +0200
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="kN0YLQfF"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=82BXPuTIAmYs8Jgya751jyIs2p821MLp1j4bro46M3c=; b=kN0YLQfF0Kqedc8S5A6h+o6O/6
+	butaHyUaf77lZbt8jbYVbyt3s2C7e+qUhoqykljabExiBdGoaeI1J0p3SCEC1aCR6E56sJgN+pgQR
+	QUOhf9QucUxcNcdhYzJcVBrfkd9dLgvQaHJGV8jQteh/UFL7CmAfC/WvbQGwHYhWc2bMg0rskvWVk
+	oNFOpUpdUQpCz1Adz7gxkuRNghc5tFUKFPaVhnsufHhh031+WZHOevobOSQe0OUyM//WbE4cD0788
+	n/MbRMh6kBP6Qfc9TsAn6kyG4V+UvE+5Fj81BqacNPhF/NeljZndxMSmQekBmgDNOUwuLR7WxGTLO
+	3gr8V27g==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1utibC-0000000HVse-42d2;
+	Wed, 03 Sep 2025 08:12:11 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 30D4130039F; Wed, 03 Sep 2025 10:12:11 +0200 (CEST)
+Date: Wed, 3 Sep 2025 10:12:11 +0200
+From: Peter Zijlstra <peterz@infradead.org>
 To: kan.liang@linux.intel.com
-Cc: peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
-        namhyung@kernel.org, irogers@google.com, linux-kernel@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: mingo@redhat.com, acme@kernel.org, namhyung@kernel.org,
+	irogers@google.com, linux-kernel@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org,
+	Sumanth Korikkar <sumanthk@linux.ibm.com>
 Subject: Re: [PATCH] perf: Fix the POLL_HUP delivery breakage
-Message-ID: <aLf0A7RR19zyeTBo@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+Message-ID: <20250903081211.GO3245006@noisy.programming.kicks-ass.net>
 References: <20250811182644.1305952-1-kan.liang@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -77,28 +51,6 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20250811182644.1305952-1-kan.liang@linux.intel.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=behrUPPB c=1 sm=1 tr=0 ts=68b7f408 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=QyXUC8HyAAAA:8 a=LfAqjl12Qpy5QSf7LNAA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: E2OGfzWy17SRPri3VmpAF0PbB4VzOpRF
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfXzZQEeuTw/da9
- qjyWKq8gz6DTyPKWN2nu0hKxdgHdBfGFb3KNz9DNNaXTWqpbn9NXaeOWx2y6gzb6T8s0v43iumj
- obaD8YaiHZji+SRresBI5HLjC345CBbR1T6LqbeDVC+pnP354sb5yoQH1oAUtCmEAka0jJfoYgb
- 0a6J9z1dhW6iE1sAnkXXXyGK7oYnBfiEaYag96BplkR+QMTLavSCdN+6BQ1aidpaZzdld9R9/t7
- z6u4pl62mu586y5+aK5hNvw1cV9E9djqnQf7Wy8oVS7D9wZkYZaNpHYsR0vazkaJ5R27rb1ChTM
- nWnA4vQJBLl9wuAKv4/9d0GqiAEecn9UBd2gYozFn6mR6NfO/l9/3WIiAAIea5oieWZlUPWpWLo
- jodpneg3
-X-Proofpoint-GUID: x6GzSGw-YWwpUdF5F_Rybu3d8MROhfnU
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-03_04,2025-08-28_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 spamscore=0 clxscore=1011 phishscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508300034
 
 On Mon, Aug 11, 2025 at 11:26:44AM -0700, kan.liang@linux.intel.com wrote:
 > From: Kan Liang <kan.liang@linux.intel.com>
@@ -136,12 +88,6 @@ On Mon, Aug 11, 2025 at 11:26:44AM -0700, kan.liang@linux.intel.com wrote:
 >  	}
 >  
 >  	if (event->attr.sigtrap) {
-> -- 
-> 2.38.1
->
 
-Hi All,
-
-It would be great, if this patch can be integrated soon.
-
-Thank you
+Right. I've queued the patch, but should we take a hard look at anybody
+still consuming the return value of perf_event_overflow?
