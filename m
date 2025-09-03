@@ -1,120 +1,147 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D8712D7DD7;
-	Wed,  3 Sep 2025 07:41:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3D582797AF;
+	Wed,  3 Sep 2025 07:54:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756885279; cv=none; b=KyDyKlcfQvD+eoWiTy1NjVlMQICnW7izYC7+u0RbgLuNCm7h3oAQrIFNMi1QaXGenAnCCltin1qStqvSLS8O64CKdE1E5TRuLbc/CkH+TCM/Y3wkHpgXgWd6HuLbB/Ix0RJ5a/vZ1Op1kenrS5EqpJ/IR8lwNWV7f/JgIDvI9X0=
+	t=1756886042; cv=none; b=mTpMJJ5L3QBv3vv147UxisMCaEmMnqrRpPLq0cA/1pYAA8qas8HG5uIEGNz/v+TyZWXnpr0dXs/PIeITP7XVDvVLGWxHWS8oqz2K+KkQAq7dkwSdXMRhbnZgtTq8wbx+8cfxuSpXXUXjrb9xGZWQO9EdlAKjVfbUIftHXWAQw4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756885279; c=relaxed/simple;
-	bh=poJK77Xodhwk86ZildhqYl2qko4ReuThLBA7bX1xDTU=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:Subject:From:Cc:
-	 References:In-Reply-To; b=SAVN0DhPiU8qj/CaMCmq6WLehQilDthLZDcutu2K6+8qka3RWAzzYvUqm50SCTn4V9IMZ/UjeWwwshmk9ZQmLOpDS837pPQ9on+qM6Z7oGJijdfCw/Bsa/HCDnNOjEgnMY9b/pHJntGlaqhFpwqlxGrtLr0akL7wRDBkZYukokI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T8MxCQ7Y; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1756886042; c=relaxed/simple;
+	bh=pShCvz0hCXlxg4DiUyaGmZin7eZc/sfm8h/3zvpj5gQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e8azjvIQyl/noH/3MoA/7zWk+Lj+VRgdI96g78ehOsd/bq6FzWbaYbUok28cIPQxn36u9/E28j1faLmOkAWvNOiQwZ34jlhHWHN9tKShYuFwJ0KirK8oVRBA6wD2O+u4NeRPbZ8Y1zrMBOOUa0kuvWE+FgHM24C8Jlw/HgZBr2M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qGzoURdq; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T8MxCQ7Y"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5835fQUZ000501;
-	Wed, 3 Sep 2025 07:41:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qGzoURdq"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 582J2UHR029478;
+	Wed, 3 Sep 2025 07:53:44 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3SYJn+
-	YqPvs28dIABwsepKxHMFbi8ujTMi5coQz13cI=; b=T8MxCQ7Y9/mCMd3RgM8jkz
-	rexaHgjmm5axP19EQggm3ZWwK5+UiV01VfPY99HXmOgxY1HvSWNs/hf3E/s5W7Vp
-	N5E5OIqZbjiabj4BsMrXZwdqPFWh10R5LSJq38x3hp9+QoE+i5t3IbQQGDdpzWbB
-	XzgTFedYZ7+LII2AYSvP4fQmpcbsPhPS6fUG63A83bWgChUH3CXSp71zKLeFYZuI
-	Jg/p46PvjFyyWq6zWU4qtHBTQQDpQV+7icGtrmVoX1D/PTGU2UUVzgzdwyy2/gsG
-	U7CocsnFetuik9cmEIcTqhugE10cUV65vtfgo2EVSsyHOAtsAKs2S3055mygWE2A
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48uswdat62-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=AiKq0DZ41X9J7+t02zQN/osPKUZRqw
+	Eavk2A4iSSuQM=; b=qGzoURdqILlSZuQb2owZxn4Z87j7tCecGtj/L1lv5tzswJ
+	rshzI7AWuwn6Pd0lQvXa3XF22caTpKqBBqolBhpmDbu3osgTHqhmu8Z7R0WCsl4X
+	mJDRM0GhWnkdIooGIRzYi9DX1ZCB/fjtdNfWnmn820pJqtPe/mrBbBCl3W2s5c2i
+	6uSwIGhKYGB1b4SJNVzt/GnS7yxw6OCEPVgGI2jRE0uDcWVlb/b2sQzhuOLj8icQ
+	jSoI6Vcjlp4f3o530O8q8VLgDWsrr6euoRxvsHLJL7WcX1M7sOFtWwqZBzFAmOB8
+	aNiJRbUp4zdd2pbfDiLll2X4wLMFntOVA1zfOwqg==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvftm6u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Sep 2025 07:41:13 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5835U76W017222;
-	Wed, 3 Sep 2025 07:41:12 GMT
+	Wed, 03 Sep 2025 07:53:44 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5837r3J4017985;
+	Wed, 3 Sep 2025 07:53:44 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvftm6m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 03 Sep 2025 07:53:44 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5837m8Ci013959;
+	Wed, 3 Sep 2025 07:53:43 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vc10pg14-1
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48veb3e4du-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 03 Sep 2025 07:41:12 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5837f9wm52429156
+	Wed, 03 Sep 2025 07:53:43 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5837rf2W40042966
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 3 Sep 2025 07:41:09 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F3C042004B;
-	Wed,  3 Sep 2025 07:41:08 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CBCC120043;
-	Wed,  3 Sep 2025 07:41:08 +0000 (GMT)
-Received: from darkmoore (unknown [9.111.67.76])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  3 Sep 2025 07:41:08 +0000 (GMT)
+	Wed, 3 Sep 2025 07:53:41 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6383C2004E;
+	Wed,  3 Sep 2025 07:53:41 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CB9142004B;
+	Wed,  3 Sep 2025 07:53:40 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.83.94])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed,  3 Sep 2025 07:53:40 +0000 (GMT)
+Date: Wed, 3 Sep 2025 09:53:39 +0200
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: kan.liang@linux.intel.com
+Cc: peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
+        namhyung@kernel.org, irogers@google.com, linux-kernel@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] perf: Fix the POLL_HUP delivery breakage
+Message-ID: <aLf0A7RR19zyeTBo@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20250811182644.1305952-1-kan.liang@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 02 Sep 2025 11:22:16 +0200
-Message-Id: <DCI7DI3ER63H.38SU2KS4NW8R8@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3 2/2] KVM: s390: Fix FOLL_*/FAULT_FLAG_* confusion
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <kvm@vger.kernel.org>, <david@redhat.com>,
-        <frankja@linux.ibm.com>, <seiden@linux.ibm.com>, <nsg@linux.ibm.com>,
-        <nrb@linux.ibm.com>, <hca@linux.ibm.com>, <mhartmay@linux.ibm.com>,
-        <borntraeger@de.ibm.com>
-X-Mailer: aerc 0.20.1
-References: <20250825151831.78221-1-imbrenda@linux.ibm.com>
- <20250825151831.78221-3-imbrenda@linux.ibm.com>
-In-Reply-To: <20250825151831.78221-3-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250811182644.1305952-1-kan.liang@linux.intel.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=PeP/hjhd c=1 sm=1 tr=0 ts=68b7f119 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8
- a=hKoHGS1yLziZwobD-tEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfX2VLpBF5QPvpF
- xiYb0ATT55//QiSaPvrIhq27f4GxKNE1fVnv91Gr+OZc9v7rG2aZO4SUjSXZ1IwQthtxZ50iavS
- 1GLyjDU9ImddDMNbRaSfL6rQUWBavi3SOaGomF6nubBuiHO1ASnJSqC2WJ4q0ygBRU2JnQQwieN
- ugL+RXshSrwJpeZPxwb3FepsnF6YTEJQZyNS25FiiMO6aRKrgHokxgbb8V/S0Fda/On6L+1Uirg
- 9XU/wKglulMgOCI+QE2dlBletOsqWvCoXZgM26pdBP3SEjxi8aOcnHwj2ybOVmGIiVqkgOJPFmt
- mPrzGI/thxw3pcafWBwLM9nCxQf/hRM3+bA+ZHyAZaVYYQOXiraNqpm6a1GtbltSpx5Cmu5FMlF
- 3C7KnNN/
-X-Proofpoint-GUID: R5Kgp06ZWRe09sfJBmlNj4HLIjgGAXPM
-X-Proofpoint-ORIG-GUID: R5Kgp06ZWRe09sfJBmlNj4HLIjgGAXPM
+X-Authority-Analysis: v=2.4 cv=behrUPPB c=1 sm=1 tr=0 ts=68b7f408 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=QyXUC8HyAAAA:8 a=LfAqjl12Qpy5QSf7LNAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: E2OGfzWy17SRPri3VmpAF0PbB4VzOpRF
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfXzZQEeuTw/da9
+ qjyWKq8gz6DTyPKWN2nu0hKxdgHdBfGFb3KNz9DNNaXTWqpbn9NXaeOWx2y6gzb6T8s0v43iumj
+ obaD8YaiHZji+SRresBI5HLjC345CBbR1T6LqbeDVC+pnP354sb5yoQH1oAUtCmEAka0jJfoYgb
+ 0a6J9z1dhW6iE1sAnkXXXyGK7oYnBfiEaYag96BplkR+QMTLavSCdN+6BQ1aidpaZzdld9R9/t7
+ z6u4pl62mu586y5+aK5hNvw1cV9E9djqnQf7Wy8oVS7D9wZkYZaNpHYsR0vazkaJ5R27rb1ChTM
+ nWnA4vQJBLl9wuAKv4/9d0GqiAEecn9UBd2gYozFn6mR6NfO/l9/3WIiAAIea5oieWZlUPWpWLo
+ jodpneg3
+X-Proofpoint-GUID: x6GzSGw-YWwpUdF5F_Rybu3d8MROhfnU
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-03_04,2025-08-28_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 malwarescore=0 spamscore=0 adultscore=0
- impostorscore=0 bulkscore=0 phishscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 spamscore=0 clxscore=1011 phishscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508300034
 
-On Mon Aug 25, 2025 at 5:18 PM CEST, Claudio Imbrenda wrote:
-> Pass the right type of flag to vcpu_dat_fault_handler(); it expects a
-> FOLL_* flag (in particular FOLL_WRITE), but FAULT_FLAG_WRITE is passed
-> instead.
->
-> This still works because they happen to have the same integer value,
-> but it's a mistake, thus the fix.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Fixes: 05066cafa925 ("s390/mm/fault: Handle guest-related program interru=
-pts in KVM")
-> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-
-Reviewed-by: Christoph Schlameu=C3=9F <schlameuss@de.ibm.com>
-
+On Mon, Aug 11, 2025 at 11:26:44AM -0700, kan.liang@linux.intel.com wrote:
+> From: Kan Liang <kan.liang@linux.intel.com>
+> 
+> The event_limit can be set by the PERF_EVENT_IOC_REFRESH to limit the
+> number of events. When the event_limit reaches 0, the POLL_HUP signal
+> should be sent. But it's missed.
+> 
+> The corresponding counter should be stopped when the event_limit reaches
+> 0. It was implemented in the ARCH-specific code. However, since the
+> commit 9734e25fbf5a ("perf: Fix the throttle logic for a group"), all
+> the ARCH-specific code has been moved to the generic code. The code to
+> handle the event_limit was lost.
+> 
+> Add the event->pmu->stop(event, 0); back.
+> 
+> Fixes: 9734e25fbf5a ("perf: Fix the throttle logic for a group")
+> Closes: https://lore.kernel.org/lkml/aICYAqM5EQUlTqtX@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com/
+> Reported-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Tested-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 > ---
->  arch/s390/kvm/kvm-s390.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
+>  kernel/events/core.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/kernel/events/core.c b/kernel/events/core.c
+> index dd8cf3c7fb7a..ec19c456b66d 100644
+> --- a/kernel/events/core.c
+> +++ b/kernel/events/core.c
+> @@ -10378,6 +10378,7 @@ static int __perf_event_overflow(struct perf_event *event,
+>  		ret = 1;
+>  		event->pending_kill = POLL_HUP;
+>  		perf_event_disable_inatomic(event);
+> +		event->pmu->stop(event, 0);
+>  	}
+>  
+>  	if (event->attr.sigtrap) {
+> -- 
+> 2.38.1
+>
+
+Hi All,
+
+It would be great, if this patch can be integrated soon.
+
+Thank you
