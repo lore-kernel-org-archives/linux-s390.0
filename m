@@ -1,311 +1,140 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E55FB15D3;
-	Thu,  4 Sep 2025 00:38:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2C2624501B;
+	Thu,  4 Sep 2025 07:16:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756946335; cv=none; b=ZZMm4i6xDWliIqJOhw4E8pL1WJvPCyged5hrLmsvhthak2OKNwHI/J9EMmNCPNNvdTf5G8rtzLsJRnrnBMwIvIWxDmZ7lRq1btiskyc8ZXOYf5SUAawewTbEDtFIk0quaP/0CI77Umf3MpHDRTQQN5hdOHFkZ5I9iqaM1kxK14k=
+	t=1756970208; cv=none; b=PImgXGfIOjHJEECpBWrvpmPLajHEAIrZa5tvKd+W+Q4JyOntjF79HdsFpLVYIWe91HDwBd1kNJjUuLpwQRaPaIkGC+k9y0w3K4P4gXUSMJuyTftPQIV/MSg9bMghrfszAv3PXgjoPNTNBuvlaVIByhnr+rhXUBlTLeUmNk825NQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756946335; c=relaxed/simple;
-	bh=0U0Dsem90VQQK0B/tIbI+8P9Ceh8zzg7qRZcpK9Fp/0=;
-	h=From:To:Cc:Subject:In-Reply-To:Date:Message-ID:References; b=Us1vVqRG4eMaGjP2X8FUsEXskfQwnDHDQOb3D9jqJ12e2RU77D4Z5tPtBSL06glXXEo6HAOIu7I1dhWNCrrZw5IFLf98V4byGkWSOtxGVj+gszvOeGIcPrRMnAiGaabelN+AzAMzlf7PUYeukGagzuRoZse8N1WjqjjkONaNfnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eN2QfXZJ; arc=none smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756970208; c=relaxed/simple;
+	bh=1+RWVcDIIkiRod+TRNgoORvaOZSUBzh3FfCqknTDUbo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=O5VAUejrhD5hXCln0apVIZs3QJrCItdsXMm010X3UzVLdhj363mVbSUC2EfydydvbXgyAblRCkXbKbDe7c1QSZPz0wOFRtBbEzUNt/AEccke/E4oQv5GV/I8DFIhJHpgN9fh9bfZUsxmdcqHaGTVc5oBpEWRu3Y1bLnGXIBDQAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=F94ROrFE; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eN2QfXZJ"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b4717543ed9so245867a12.3;
-        Wed, 03 Sep 2025 17:38:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756946333; x=1757551133; darn=vger.kernel.org;
-        h=references:message-id:date:in-reply-to:subject:cc:to:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=M9wjahpjajRVdLTvLPg2jmwGdR+YAWepelf042yY0AY=;
-        b=eN2QfXZJfv9zJ7QipqbfOn1DWD2byrkUgXk+EfVv8bvK4cN2oVx6WXQdrVhjPQsRoT
-         kk0VU+eueSD5EASHjEB3Ry90GqyzWVq7FeI8qZubVHrWD+hv+eyuM4qLggImY8Hh1mgi
-         AzlofWySunR3RALVlGAf9HcYkBJU10JtXQE2trfLZkGVY4hERJKY7EhouNZa82qBwpOE
-         IsYWTGC9Yx1kDurMSR/eZodYeQonl6I7+FHiks6+Se3TZ1TU4hWyWSSPcz5XFpuElxVj
-         +6fIKw04b698ExrVCfBkzYH3/YG8Qd17qF8bWga5intDkidfonsb7wZa1ZRjRf86XHJD
-         T4JQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756946333; x=1757551133;
-        h=references:message-id:date:in-reply-to:subject:cc:to:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=M9wjahpjajRVdLTvLPg2jmwGdR+YAWepelf042yY0AY=;
-        b=sk2331/w5Be6xJKndG+qEcynyDM8zK82iJ/lQzuNQtbgB6WVRVJ5lizo3YyQa2XguK
-         rQMM6rn+671jSV/xn6vnVT3Hh0hQmsGlfU4TeSj92GsTLJcNE6dWXoC1OJsf85jzvePV
-         8IGkbgH0BE215vhk34b2zVUhiN+5xPd1l00rfVLXNfQLMNU8RmxwXS5NQknUlDEME1ld
-         tM1iCWdcxtml0archo68WQXSKbrnokcOmMMYk3oSB4xdWZ0iM5TFScNlWjxqmBUYDZns
-         Xq04BeclQaR/nvVs0Y0Ba3uy+wzSJyyB19Hi428dF2apNBiwXnt01F0T6bHJuYv0Xwam
-         58LQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVAfbvcsUB3etZfa+3es25bSVaNurT3QBvfF5kQ9jyKjvHgsnFMZXrYmuGmcsnbUzSx4tLObQG5QBtmmw==@vger.kernel.org, AJvYcCXl6wUYvmXYIJqZrVwEDgrV1pk3vXg47g9l3NEEFtwtFY+xpO51F0Jj3Do2KPPvL9T/o/bwO7tOshdp8DM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzrjWR/tAqXSmX5u3HXdvj4EGlX+6DYouyz95TMFHpDRJm4LzEw
-	kaoetoiMqlrY1xlDmtfTs16SKs+RFAbH9qkmXz78qyddxdMbnzLLIihv
-X-Gm-Gg: ASbGncumNlb8V8SxpGfnELG+9kkkLNv06KoGqua3CT8Jtumx66TmCxaGslX1v/rQiwz
-	rN4EdiAw9QCSXnDIMu8rcOogOzMAoPg6AMLvHdaAZM70fs0f2Xc9qCc6ZC02cWfd6Z1uSMVeVrl
-	KHPLLJMyHwd68ycXoIvPX2HNOZBCL1B8Gs1Ojo1SKOwjFqMoEFnG41DZ27taF2BAsjL5dd8Anuh
-	eCZot2dsaX4AaHmpMSOTDcLagM2w3Cezar65a9wAMyeTwfmfIGFECctG1eLa5buCZjqRGg8rGKO
-	5bm4jedfxGvTLaU4ZQqB52kyMhwcNkNV8pRRUL5Ry1YLuV3kLv87ywtCE0a7SU3GFVnQfVE0Wt8
-	9AymsOqsJFsws+BrEq3tAl0w=
-X-Google-Smtp-Source: AGHT+IF8fWb/70JgPLh7N7Xn466vomeY7twFDDtFD6ID6JfG4YJmNgXkQZrYmfFbnlzFyM4OYAuWoQ==
-X-Received: by 2002:a17:90b:3811:b0:32b:6145:fa63 with SMTP id 98e67ed59e1d1-32b614601acmr4849866a91.4.1756946333006;
-        Wed, 03 Sep 2025 17:38:53 -0700 (PDT)
-Received: from dw-tp ([171.76.85.3])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-b4fb98f9f6asm1185841a12.8.2025.09.03.17.38.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Sep 2025 17:38:52 -0700 (PDT)
-From: Ritesh Harjani (IBM) <ritesh.list@gmail.com>
-To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>, ryabinin.a.a@gmail.com, christophe.leroy@csgroup.eu, bhe@redhat.com, hca@linux.ibm.com, andreyknvl@gmail.com, akpm@linux-foundation.org, zhangqing@loongson.cn, chenhuacai@loongson.cn, davidgow@google.com, glider@google.com, dvyukov@google.com, alexghiti@rivosinc.com
-Cc: alex@ghiti.fr, agordeev@linux.ibm.com, vincenzo.frascino@arm.com, elver@google.com, kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org, snovitoll@gmail.com
-Subject: Re: [PATCH v6 1/2] kasan: introduce ARCH_DEFER_KASAN and unify static key across modes
-In-Reply-To: <20250810125746.1105476-2-snovitoll@gmail.com>
-Date: Thu, 04 Sep 2025 05:54:04 +0530
-Message-ID: <87ldmv6p5n.ritesh.list@gmail.com>
-References: <20250810125746.1105476-1-snovitoll@gmail.com> <20250810125746.1105476-2-snovitoll@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="F94ROrFE"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 583I06Yt027831;
+	Thu, 4 Sep 2025 07:16:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=TS0UBg
+	gYq9qgJNvx7S91o1QOtieKgQ4j9xHsjF1SE7w=; b=F94ROrFEux6ZiMlvOFpEgd
+	C9VlT6QYPgM62Fpmj6JSPkwKhE3ohAPg+vh5SD6Zn7u23DqyNnnCXqHq8kpjFTFR
+	/R0/o0mjJo+NFxa4qfvG6n47tqOBGk3SImILuqtbouJt2MUiZrcJDhs/Q232tP0A
+	mdYWNQojPYEtDKs3FqaFCX6RYeOynxMKYtoJ7ZNeVH+znhPdvLqwYuUZj+0tLVqQ
+	OzhhyTP9HKR/FXsGvmLguoGN1mVlGU67/b9gzePX9GFIob31jsgllg7XjjHMLXGj
+	f9GlTcpBkph8tuv7Lf/zky7uBd0zdo9lqw4RSZ93PS7XGMwGuyXPAK5lNDmvqvhQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvg09ry-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Sep 2025 07:16:32 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58478GfV013713;
+	Thu, 4 Sep 2025 07:16:31 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvg09rw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Sep 2025 07:16:31 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5844Avck019404;
+	Thu, 4 Sep 2025 07:16:31 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vd4n35sf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Sep 2025 07:16:31 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5847GRff51184024
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 4 Sep 2025 07:16:27 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8CB532004B;
+	Thu,  4 Sep 2025 07:16:27 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 438CC20043;
+	Thu,  4 Sep 2025 07:16:27 +0000 (GMT)
+Received: from [9.152.224.94] (unknown [9.152.224.94])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Sep 2025 07:16:27 +0000 (GMT)
+Message-ID: <5177c2da-4158-4b12-996d-831ff1ab0708@linux.ibm.com>
+Date: Thu, 4 Sep 2025 09:16:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/2] s390/ism: Log module load/unload
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond
+ <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        David Miller <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        Mahanta Jambigi
+ <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
+References: <20250901145842.1718373-1-wintera@linux.ibm.com>
+ <20250901145842.1718373-2-wintera@linux.ibm.com>
+ <20250903164233.7b2750e8@kernel.org>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20250903164233.7b2750e8@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=behrUPPB c=1 sm=1 tr=0 ts=68b93cd0 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=meDq6FdmJ0PmnKaK2a0A:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: E8rj7Yox8s0U02qs8xoMj_gE5Hoiks5R
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfX9scUnzTkVyjc
+ HKTTXbno/KVTwMyRgJovelqt5QWoUzUgzA4vVPsOcXAeYThh+TZI6ob0noFLrqU5s8nu/RIzrJ/
+ SgeVlEj06oMhyzkec3zvCiYx4SnSDdY2ZaQ6WIRdDT4SumOg/2/lerpdmux1Ho/LcldgqZxmw0j
+ 9PLz916votBQSa25hBoiv39vSfewI5o3O7NpQUXTv3J6czN+36wuncAtr4/3ZPsXFGS9J9FM4A2
+ T8PrAeJ47w9mv0Fonkl5/rVru/v8Nh0MmDizjU76BRgnSU4XMOGL1GF9EQlmzeSv/R9HiL3xtS2
+ sdxMl+HHA9aDnCD4xlVU7CuDRMzwwors8rG0oAWwdyuFlfiKvAo6ItA0x7yozaHvQEZ+FY+grUl
+ 5iGGag15
+X-Proofpoint-GUID: CROkHagpF6zv1arebXtvAW35Gh-l6g-g
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-04_02,2025-08-28_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 impostorscore=0 spamscore=0 clxscore=1015 phishscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508300034
 
-Sabyrzhan Tasbolatov <snovitoll@gmail.com> writes:
 
-> Introduce CONFIG_ARCH_DEFER_KASAN to identify architectures [1] that need
-> to defer KASAN initialization until shadow memory is properly set up,
-> and unify the static key infrastructure across all KASAN modes.
->
-> [1] PowerPC, UML, LoongArch selects ARCH_DEFER_KASAN.
->
-> The core issue is that different architectures haveinconsistent approaches
-> to KASAN readiness tracking:
-> - PowerPC, LoongArch, and UML arch, each implement own
->   kasan_arch_is_ready()
-> - Only HW_TAGS mode had a unified static key (kasan_flag_enabled)
-> - Generic and SW_TAGS modes relied on arch-specific solutions or always-on
->     behavior
->
-> This patch addresses the fragmentation in KASAN initialization
-> across architectures by introducing a unified approach that eliminates
-> duplicate static keys and arch-specific kasan_arch_is_ready()
-> implementations.
->
-> Let's replace kasan_arch_is_ready() with existing kasan_enabled() check,
-> which examines the static key being enabled if arch selects
-> ARCH_DEFER_KASAN or has HW_TAGS mode support.
-> For other arch, kasan_enabled() checks the enablement during compile time.
->
-> Now KASAN users can use a single kasan_enabled() check everywhere.
->
-> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=217049
-> Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-> ---
-> Changes in v6:
-> - Added more details in git commit message
-> - Fixed commenting format per coding style in UML (Christophe Leroy)
-> - Changed exporting to GPL for kasan_flag_enabled (Christophe Leroy)
-> - Converted ARCH_DEFER_KASAN to def_bool depending on KASAN to avoid
->         arch users to have `if KASAN` condition (Christophe Leroy)
-> - Forgot to add __init for kasan_init in UML
->
-> Changes in v5:
-> - Unified patches where arch (powerpc, UML, loongarch) selects
->     ARCH_DEFER_KASAN in the first patch not to break
->     bisectability
-> - Removed kasan_arch_is_ready completely as there is no user
-> - Removed __wrappers in v4, left only those where it's necessary
->     due to different implementations
->
-> Changes in v4:
-> - Fixed HW_TAGS static key functionality (was broken in v3)
-> - Merged configuration and implementation for atomicity
-> ---
->  arch/loongarch/Kconfig                 |  1 +
->  arch/loongarch/include/asm/kasan.h     |  7 ------
->  arch/loongarch/mm/kasan_init.c         |  8 +++----
->  arch/powerpc/Kconfig                   |  1 +
->  arch/powerpc/include/asm/kasan.h       | 12 ----------
->  arch/powerpc/mm/kasan/init_32.c        |  2 +-
->  arch/powerpc/mm/kasan/init_book3e_64.c |  2 +-
->  arch/powerpc/mm/kasan/init_book3s_64.c |  6 +----
->  arch/um/Kconfig                        |  1 +
->  arch/um/include/asm/kasan.h            |  5 ++--
->  arch/um/kernel/mem.c                   | 13 ++++++++---
->  include/linux/kasan-enabled.h          | 32 ++++++++++++++++++--------
->  include/linux/kasan.h                  |  6 +++++
->  lib/Kconfig.kasan                      | 12 ++++++++++
->  mm/kasan/common.c                      | 17 ++++++++++----
->  mm/kasan/generic.c                     | 19 +++++++++++----
->  mm/kasan/hw_tags.c                     |  9 +-------
->  mm/kasan/kasan.h                       |  8 ++++++-
->  mm/kasan/shadow.c                      | 12 +++++-----
->  mm/kasan/sw_tags.c                     |  1 +
->  mm/kasan/tags.c                        |  2 +-
->  21 files changed, 106 insertions(+), 70 deletions(-)
->
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index 93402a1d9c9f..4730c676b6bf 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -122,6 +122,7 @@ config PPC
->  	# Please keep this list sorted alphabetically.
->  	#
->  	select ARCH_32BIT_OFF_T if PPC32
-> +	select ARCH_NEEDS_DEFER_KASAN		if PPC_RADIX_MMU
->  	select ARCH_DISABLE_KASAN_INLINE	if PPC_RADIX_MMU
->  	select ARCH_DMA_DEFAULT_COHERENT	if !NOT_COHERENT_CACHE
->  	select ARCH_ENABLE_MEMORY_HOTPLUG
-> diff --git a/arch/powerpc/include/asm/kasan.h b/arch/powerpc/include/asm/kasan.h
-> index b5bbb94c51f6..957a57c1db58 100644
-> --- a/arch/powerpc/include/asm/kasan.h
-> +++ b/arch/powerpc/include/asm/kasan.h
-> @@ -53,18 +53,6 @@
->  #endif
->  
->  #ifdef CONFIG_KASAN
-> -#ifdef CONFIG_PPC_BOOK3S_64
-> -DECLARE_STATIC_KEY_FALSE(powerpc_kasan_enabled_key);
-> -
-> -static __always_inline bool kasan_arch_is_ready(void)
-> -{
-> -	if (static_branch_likely(&powerpc_kasan_enabled_key))
-> -		return true;
-> -	return false;
-> -}
-> -
-> -#define kasan_arch_is_ready kasan_arch_is_ready
-> -#endif
->  
->  void kasan_early_init(void);
->  void kasan_mmu_init(void);
-> diff --git a/arch/powerpc/mm/kasan/init_32.c b/arch/powerpc/mm/kasan/init_32.c
-> index 03666d790a53..1d083597464f 100644
-> --- a/arch/powerpc/mm/kasan/init_32.c
-> +++ b/arch/powerpc/mm/kasan/init_32.c
-> @@ -165,7 +165,7 @@ void __init kasan_init(void)
->  
->  	/* At this point kasan is fully initialized. Enable error messages */
->  	init_task.kasan_depth = 0;
-> -	pr_info("KASAN init done\n");
-> +	kasan_init_generic();
->  }
->  
->  void __init kasan_late_init(void)
-> diff --git a/arch/powerpc/mm/kasan/init_book3e_64.c b/arch/powerpc/mm/kasan/init_book3e_64.c
-> index 60c78aac0f63..0d3a73d6d4b0 100644
-> --- a/arch/powerpc/mm/kasan/init_book3e_64.c
-> +++ b/arch/powerpc/mm/kasan/init_book3e_64.c
-> @@ -127,7 +127,7 @@ void __init kasan_init(void)
->  
->  	/* Enable error messages */
->  	init_task.kasan_depth = 0;
-> -	pr_info("KASAN init done\n");
-> +	kasan_init_generic();
->  }
->  
->  void __init kasan_late_init(void) { }
-> diff --git a/arch/powerpc/mm/kasan/init_book3s_64.c b/arch/powerpc/mm/kasan/init_book3s_64.c
-> index 7d959544c077..dcafa641804c 100644
-> --- a/arch/powerpc/mm/kasan/init_book3s_64.c
-> +++ b/arch/powerpc/mm/kasan/init_book3s_64.c
-> @@ -19,8 +19,6 @@
->  #include <linux/memblock.h>
->  #include <asm/pgalloc.h>
->  
-> -DEFINE_STATIC_KEY_FALSE(powerpc_kasan_enabled_key);
-> -
->  static void __init kasan_init_phys_region(void *start, void *end)
->  {
->  	unsigned long k_start, k_end, k_cur;
-> @@ -92,11 +90,9 @@ void __init kasan_init(void)
->  	 */
->  	memset(kasan_early_shadow_page, 0, PAGE_SIZE);
->  
-> -	static_branch_inc(&powerpc_kasan_enabled_key);
-> -
->  	/* Enable error messages */
->  	init_task.kasan_depth = 0;
-> -	pr_info("KASAN init done\n");
-> +	kasan_init_generic();
->  }
->  
 
-Only book3s64 needs static keys here because of radix v/s hash mode
-selection during runtime. The changes in above for powerpc looks good to
-me. It's a nice cleanup too.
+On 04.09.25 01:42, Jakub Kicinski wrote:
+> On Mon,  1 Sep 2025 16:58:41 +0200 Alexandra Winter wrote:
+>> Add log messages to visualize timeline of module loads and unloads.
+> 
+> How deeply do you care about this patch ? I understand the benefit when
+> debugging "interface doesn't exist" issues with just logs at hand.
+> OTOH seeing a litany of "hello" messages on every boot from built-in
+> drivers, is rather annoying. Perhaps this being an s390 driver makes
+> it a bit of a special case..
 
-So feel free to take:
-Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com> #powerpc
+tl dr: I don't care very deeply
 
-However I have few comments below...
-
-...
-> diff --git a/mm/kasan/common.c b/mm/kasan/common.c
-> index 9142964ab9c9..e3765931a31f 100644
-> --- a/mm/kasan/common.c
-> +++ b/mm/kasan/common.c
-> @@ -32,6 +32,15 @@
->  #include "kasan.h"
->  #include "../slab.h"
->  
-> +#if defined(CONFIG_ARCH_DEFER_KASAN) || defined(CONFIG_KASAN_HW_TAGS)
-> +/*
-> + * Definition of the unified static key declared in kasan-enabled.h.
-> + * This provides consistent runtime enable/disable across KASAN modes.
-> + */
-> +DEFINE_STATIC_KEY_FALSE(kasan_flag_enabled);
-> +EXPORT_SYMBOL_GPL(kasan_flag_enabled);
-> +#endif
-> +
->  struct slab *kasan_addr_to_slab(const void *addr)
->  {
->  	if (virt_addr_valid(addr))
-> @@ -246,7 +255,7 @@ static inline void poison_slab_object(struct kmem_cache *cache, void *object,
->  bool __kasan_slab_pre_free(struct kmem_cache *cache, void *object,
->  				unsigned long ip)
->  {
-> -	if (!kasan_arch_is_ready() || is_kfence_address(object))
-> +	if (is_kfence_address(object))
-
-For changes in mm/kasan/common.c.. you have removed !kasan_enabled()
-check at few places. This seems to be partial revert of commit [1]:
-  
-  b3c34245756ada "kasan: catch invalid free before SLUB reinitializes the object" 
-
-Can you please explain why this needs to be removed? 
-Also the explaination of the same should be added in the commit msg too.
-
-[1]: https://lore.kernel.org/all/20240809-kasan-tsbrcu-v8-1-aef4593f9532@google.com/
-
->  		return false;
->  	return check_slab_allocation(cache, object, ip);
->  }
-> @@ -254,7 +263,7 @@ bool __kasan_slab_pre_free(struct kmem_cache *cache, void *object,
->  bool __kasan_slab_free(struct kmem_cache *cache, void *object, bool init,
->  		       bool still_accessible)
->  {
-> -	if (!kasan_arch_is_ready() || is_kfence_address(object))
-> +	if (is_kfence_address(object))
->  		return false;
->  
->  	/*
-> @@ -293,7 +302,7 @@ bool __kasan_slab_free(struct kmem_cache *cache, void *object, bool init,
->  
->  static inline bool check_page_allocation(void *ptr, unsigned long ip)
->  {
-> -	if (!kasan_arch_is_ready())
-> +	if (!kasan_enabled())
->  		return false;
->  
->  	if (ptr != page_address(virt_to_head_page(ptr))) {
-> @@ -522,7 +531,7 @@ bool __kasan_mempool_poison_object(void *ptr, unsigned long ip)
->  		return true;
->  	}
->  
-> -	if (is_kfence_address(ptr) || !kasan_arch_is_ready())
-> +	if (is_kfence_address(ptr))
->  		return true;
->  
->  	slab = folio_slab(folio);
-
--ritesh
+I think s390 users care a lot about debugability and are less concerned
+about log size. As you said, many other modules (on s390) have these
+'hello' messages, so I kind of expected the ism module to show up as well.
+But if you want to reject it, we can live without it ;-)
