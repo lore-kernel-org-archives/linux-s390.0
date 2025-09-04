@@ -1,162 +1,196 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B72B2C2ABF;
-	Thu,  4 Sep 2025 09:45:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD4CB2EC08B;
+	Thu,  4 Sep 2025 11:12:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756979117; cv=none; b=OkfBz80jKVk5Ar4QoGT+FYWhCTsjOa/4pgmB+0vkbAeHJ+jM4qx+rhIGyUNUcluNQXgfdlQzMpOfmcRApA6IeFHHPilRH15XJiNe3KI49PkNzQxHW3zwHqgT9CnAA+PlBBIAPLGXly7z1m1XCAdUTnYNL18gKmiuHFtrPGsnXng=
+	t=1756984358; cv=none; b=rTksIZz9D7Iphvfp0hmD5XlelzhBi6Hw4krII1kF36FOZagZ+zEo6F6T8/4f+xArhPQeC2gpWmbScqjBIg9kw3Y/xSDV8oh+CrfIC4tnvHTpXa8DvyNUY3/eGncLdQEoZdFopc9JbsafL+WYlUVS0rp0TTEgx7Hrar4taN9sUmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756979117; c=relaxed/simple;
-	bh=lZHyHsUXDsGsrX6TebtAYsy3nBIcN7FY8vdQTq/1mTQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Nz6FW3msG2Rk/di+wVGJPhSyJwEd1TZUD74wONETccXOh5zwYuX6604oe4fsua6PZiPAG4zPscLc7HXHNqxpcwm9xKpnxOWtSwHEF/1fwnLnZE0PE7bR6LB7mFOUhZRYbxdZa+HTzataRl5zjJHlJFJi+q+B09mkep0AI3s6s6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NBaoaFp2; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1756984358; c=relaxed/simple;
+	bh=NUh4Ct3rcDGpktOBV6+CRcuN5e1CANyp9gZr1JFgsFk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mrf/habRCGzUYiduJPwWML1wkLLFnnVUZDfJ17vXILjBnl+uczc1+lig8hYVgwJCKFBoY8MUniv4WU6fFPvl90k1FCIBjxAmYGgzWyqPVxaKVl/RETLP5M8WWTvVuAbSUJkShHfrlLnuCP2FPxzfLUMLPNqMF6MOPpu41BOxjig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bRPTOnXh; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NBaoaFp2"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5848XM1a017937;
-	Thu, 4 Sep 2025 09:45:09 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bRPTOnXh"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58493o0q001636;
+	Thu, 4 Sep 2025 11:12:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=A0nA+PaBXyWTXSobLQojNRs9RU5X055I9qvx6crey0M=; b=NBaoaFp2vuji
-	XX2Ou+a6MRy7xLbk6jAc3vQD6IQqylonLiDHTWR2KOco832V1+WblAjHtJnsG5oH
-	th3zwEvCvHVsdKEHsVeXm38USHt2xi89MYKsuHjwxp64t+Wpb4gRq0gxOqkXXzV8
-	iZnxJDSQsyV0ov9MlY6MNgjJnDhaJ9wFKwpT2YCIPsGimY2tRO2H71N+BL8PBMTX
-	ZaZX0UiWed0RrKqUHtaX9zmW9pVPsMuxc3pCYw51mxkhDo22b2eWPSaEhwesy+c2
-	r83Av+xJ0V2SbvxqJ1No9MiOAKdYPil/kVP6EstIhn7mPVD/aFCVd87xth34+HTw
-	/7tDSVsEdw==
+	:message-id:mime-version:references:subject:to; s=pp1; bh=fJdoxL
+	fUDXXsS/d69LQviT/kSS1XVQYsqlBlsnjzJQY=; b=bRPTOnXhvvfQjliamjrXZA
+	JRZxYRQHQu4JTWNSbxihlku4vQ91bFKXgW2odznOK38B9O449LyCumbwoDgFqW5C
+	XE1XolxAkgduV6EVXRmO0C8UN/tS6Z5uEIdbOwj0MopPnQeAm9Q8UqsR/1xCXoNw
+	O14fLE25lODSFC26C6e3BdQlSqg58XQvGLuXN6Q4XgVzX1htcvcpij9YHG0DvfFv
+	1q2pzpUcA2ahos6YmRnmjq4vPEnfp5wtCc59rvlD2XkmpQ3iTwJQOzxAJsRrc3yo
+	vMNjPymryOBOprFAtXaJZfx1ajTF58er8oHHaIrtcip03MWe9iHmIxXI6Iwnr3zw
+	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usur9f7m-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48wshf5fq6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Sep 2025 09:45:08 +0000 (GMT)
+	Thu, 04 Sep 2025 11:12:33 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5848bEkX013942;
-	Thu, 4 Sep 2025 09:45:07 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48veb3kjnn-1
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 584916hH014345;
+	Thu, 4 Sep 2025 11:12:33 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 48veb3kv9u-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Sep 2025 09:45:07 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5849j3Ch7864808
+	Thu, 04 Sep 2025 11:12:33 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 584BCSQ851446232
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Sep 2025 09:45:03 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BDA422004D;
-	Thu,  4 Sep 2025 09:45:03 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB2AC20040;
-	Thu,  4 Sep 2025 09:45:03 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.152.212.197])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  4 Sep 2025 09:45:03 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.98.2)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1uu6Wd-00000000Hql-1wez;
-	Thu, 04 Sep 2025 11:45:03 +0200
-Date: Thu, 4 Sep 2025 11:45:03 +0200
-From: Benjamin Block <bblock@linux.ibm.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev
-Subject: Re: [PATCH] iommu/s390: Make attach succeed when the device was
- surprise removed
-Message-ID: <20250904094503.GA23344@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-References: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
+	Thu, 4 Sep 2025 11:12:28 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CCC682004E;
+	Thu,  4 Sep 2025 11:12:28 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC20420043;
+	Thu,  4 Sep 2025 11:12:27 +0000 (GMT)
+Received: from [9.87.130.193] (unknown [9.87.130.193])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Sep 2025 11:12:27 +0000 (GMT)
+Message-ID: <7b5c5629-49b1-42c0-ad88-e955be7b6e2b@linux.ibm.com>
+Date: Thu, 4 Sep 2025 13:12:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] KVM: s390: Fix access to unavailable adapter indicator
+ pages during postcopy
+To: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: Peter Xu <peterx@redhat.com>, David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Douglas Freimuth <freimuth@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+References: <20250821152309.847187-1-thuth@redhat.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+In-Reply-To: <20250821152309.847187-1-thuth@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzMCBTYWx0ZWRfX9Uf97TqOR7P7
- d6kEq/lzAOUGoNT2hzbd2VqLX1GDdkAvWRqIhfRtNNH7j1k7JRxw8tWwniNo4hfWcVHhZEn1jiR
- XApKuimdWTLSlXU1hCdPUcdHCKt7zJHHBMB5lNeFemZ5mKsStSmx/T/YdoPnNzForKxrM9TaWpS
- ydxNlt9EI4vYGEvaqegJAfKh/M49siqZPr0yjdUND7a4rISEe7OJ0CisHm/p+4v/EfhhE6ljA9s
- IUTVRJ7Mq/CXYfLKpVQRyWNWHDqo1VFGBxE8uko5xBmALSLwI4wYf03uu6CC0AMi/yFDtKjuXJq
- 0UaDv4ZSnDEdrL7zLzOsA0JS3Pj0Ltj41ACaByZ1KPJusaTxAQ326OXj8cys21zrpmG/etWAXR5
- tz7fSXLd
-X-Proofpoint-GUID: mARirreqmIRmdzxpAgjnFR0UX0q8JwGf
-X-Proofpoint-ORIG-GUID: mARirreqmIRmdzxpAgjnFR0UX0q8JwGf
-X-Authority-Analysis: v=2.4 cv=Ao/u3P9P c=1 sm=1 tr=0 ts=68b95fa4 cx=c_pps
+X-Proofpoint-GUID: -DVYUYSDcWqDqcfSbqDpZA1CMZZZTQOk
+X-Authority-Analysis: v=2.4 cv=do3bC0g4 c=1 sm=1 tr=0 ts=68b97422 cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=8nJEP1OIZ-IA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=9jRdOu3wAAAA:8
- a=VnNF1IyMAAAA:8 a=f94wAlES5zcTxHjwagAA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
- a=ZE6KLimJVUuLrTuGpvhn:22
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=20KFwNOVAAAA:8 a=XFCOAtceyYmSXJIPWGwA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: -DVYUYSDcWqDqcfSbqDpZA1CMZZZTQOk
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTAyMDA0MCBTYWx0ZWRfX+OIuZGaxCPHI
+ qqIuXuLPOGlefmOgGgmBsRpNE//VCq2m7SJamL6w4AZodUGQ0hBf/cOFRUg8lFZ4et1CEHIS0Fg
+ DUH+qioJGH9clJNr9HB6BwkJHlDQUPRGl9Fac+U6bf0nTF0yTW1LENoRTUp3nHKzVRr4tONThnA
+ Sna2b6IUChwuLb1o3xIgy30xJuB4qaYgHC5e4UHc9XEuwGRUEA6pIbDQhkDW+dAGRP3sjxy4Efi
+ 6ug6UFhJgA7+MO7mcSbjCMEQaw1XkhuJNz/GTnerobFKLcmusuFFzsxJ0w52J7peHgjXE2FeS21
+ EpBwgxZjIau6JMkdgm86zu3F61jzJjL0aMCF59tENIyC52p/zRMlPccbv9Z3dUTCFJE2fOF6S3c
+ yNDJSAam
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-04_03,2025-08-28_01,2025-03-28_01
+ definitions=2025-09-04_04,2025-08-28_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 phishscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 bulkscore=0 adultscore=0 malwarescore=0 classifier=typeunknown
- authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508300030
+ phishscore=0 clxscore=1011 impostorscore=0 bulkscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 priorityscore=1501 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509020040
 
-On Thu, Sep 04, 2025 at 10:59:49AM +0200, Niklas Schnelle wrote:
-> When a PCI device is removed with surprise hotplug, there may still be
-> attempts to attach the device to the default domain as part of tear down
-> via (__iommu_release_dma_ownership()), or because the removal happens
-> during probe (__iommu_probe_device()). In both cases zpci_register_ioat()
-> fails with a cc value indicating that the device handle is invalid. This
-> is because the device is no longer part of the instance as far as the
-> hypervisor is concerned.
+CC Douglas, since Doug is looking into kvm_arch_set_irq_inatomic and this might have implications.
+
+
+Am 21.08.25 um 17:23 schrieb Thomas Huth:
+> From: Thomas Huth <thuth@redhat.com>
 > 
-> Currently this leads to an error return and s390_iommu_attach_device()
-> fails. This triggers the WARN_ON() in __iommu_group_set_domain_nofail()
-> because attaching to the default domain must never fail.
+> When you run a KVM guest with vhost-net and migrate that guest to
+> another host, and you immediately enable postcopy after starting the
+> migration, there is a big chance that the network connection of the
+> guest won't work anymore on the destination side after the migration.
 > 
-> With the device fenced by the hypervisor no DMAs to or from memory are
-> possible and the IOMMU translations have no effect. Proceed as if the
-> registration was successful and let the hotplug event handling clean up
-> the device.
+> With a debug kernel v6.16.0, there is also a call trace that looks
+> like this:
 > 
-> This is similar to how devices in the error state are handled since
-> commit 59bbf596791b ("iommu/s390: Make attach succeed even if the device
-> is in error state") except that for removal the domain will not be
-> registered later. This approach was also previously discussed at the
-> link.
+>   FAULT_FLAG_ALLOW_RETRY missing 881
+>   CPU: 6 UID: 0 PID: 549 Comm: kworker/6:2 Kdump: loaded Not tainted 6.16.0 #56 NONE
+>   Hardware name: IBM 3931 LA1 400 (LPAR)
+>   Workqueue: events irqfd_inject [kvm]
+>   Call Trace:
+>    [<00003173cbecc634>] dump_stack_lvl+0x104/0x168
+>    [<00003173cca69588>] handle_userfault+0xde8/0x1310
+>    [<00003173cc756f0c>] handle_pte_fault+0x4fc/0x760
+>    [<00003173cc759212>] __handle_mm_fault+0x452/0xa00
+>    [<00003173cc7599ba>] handle_mm_fault+0x1fa/0x6a0
+>    [<00003173cc73409a>] __get_user_pages+0x4aa/0xba0
+>    [<00003173cc7349e8>] get_user_pages_remote+0x258/0x770
+>    [<000031734be6f052>] get_map_page+0xe2/0x190 [kvm]
+>    [<000031734be6f910>] adapter_indicators_set+0x50/0x4a0 [kvm]
+>    [<000031734be7f674>] set_adapter_int+0xc4/0x170 [kvm]
+>    [<000031734be2f268>] kvm_set_irq+0x228/0x3f0 [kvm]
+>    [<000031734be27000>] irqfd_inject+0xd0/0x150 [kvm]
+>    [<00003173cc00c9ec>] process_one_work+0x87c/0x1490
+>    [<00003173cc00dda6>] worker_thread+0x7a6/0x1010
+>    [<00003173cc02dc36>] kthread+0x3b6/0x710
+>    [<00003173cbed2f0c>] __ret_from_fork+0xdc/0x7f0
+>    [<00003173cdd737ca>] ret_from_fork+0xa/0x30
+>   3 locks held by kworker/6:2/549:
+>    #0: 00000000800bc958 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x7ee/0x1490
+>    #1: 000030f3d527fbd0 ((work_completion)(&irqfd->inject)){+.+.}-{0:0}, at: process_one_work+0x81c/0x1490
+>    #2: 00000000f99862b0 (&mm->mmap_lock){++++}-{3:3}, at: get_map_page+0xa8/0x190 [kvm]
 > 
-> Handle both cases, error state and removal, in a helper which checks if
-> the error needs to be propagated or ignored. Avoid magic number
-> condition codes by using the pre-existing, but never used, defines for
-> PCI load/store condition codes and rename them to reflect that they
-> apply to all PCI instructions.
+> The "FAULT_FLAG_ALLOW_RETRY missing" indicates that handle_userfaultfd()
+> saw a page fault request without ALLOW_RETRY flag set, hence userfaultfd
+> cannot remotely resolve it (because the caller was asking for an immediate
+> resolution, aka, FAULT_FLAG_NOWAIT, while remote faults can take time).
+> With that, get_map_page() failed and the irq was lost.
 > 
-> Cc: stable@vger.kernel.org # v6.2
-> Link: https://lore.kernel.org/linux-iommu/20240808194155.GD1985367@ziepe.ca/
-> Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> We should not be strictly in an atomic environment here and the worker
+> should be sleepable (the call is done during an ioctl from userspace),
+> so we can allow adapter_indicators_set() to just sleep waiting for the
+> remote fault instead.
+> 
+> Link: https://issues.redhat.com/browse/RHEL-42486
+> Signed-off-by: Peter Xu <peterx@redhat.com>
+> [thuth: Assembled patch description and fixed some cosmetical issues]
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 > ---
->  arch/s390/include/asm/pci_insn.h | 10 +++++-----
->  drivers/iommu/s390-iommu.c       | 26 +++++++++++++++++++-------
->  2 files changed, 24 insertions(+), 12 deletions(-)
+>   Note: Instructions for reproducing the bug can be found in the ticket here:
+>   https://issues.redhat.com/browse/RHEL-42486?focusedId=26661116#comment-26661116
 > 
+>   arch/s390/kvm/interrupt.c | 15 +++++++++++----
+>   1 file changed, 11 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 60c360c18690f..dcce826ae9875 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+> @@ -2777,12 +2777,19 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+>   
+>   static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
+>   {
+> +	struct mm_struct *mm = kvm->mm;
+>   	struct page *page = NULL;
+> +	int locked = 1;
+> +
+> +	if (mmget_not_zero(mm)) {
+> +		mmap_read_lock(mm);
+> +		get_user_pages_remote(mm, uaddr, 1, FOLL_WRITE,
+> +				      &page, &locked);
+> +		if (locked)
+> +			mmap_read_unlock(mm);
+> +		mmput(mm);
+> +	}
+>   
+> -	mmap_read_lock(kvm->mm);
+> -	get_user_pages_remote(kvm->mm, uaddr, 1, FOLL_WRITE,
+> -			      &page, NULL);
+> -	mmap_read_unlock(kvm->mm);
+>   	return page;
+>   }
+>   
 
-Looks good to me; thanks Niklas.
-
-
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-
--- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
-Sitz der Ges.: Böblingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
