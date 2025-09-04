@@ -1,150 +1,152 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E3F27BF7C;
-	Thu,  4 Sep 2025 20:56:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FFFC29AB02;
+	Thu,  4 Sep 2025 21:13:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757019406; cv=none; b=nNrji5ebYq19gpULkeqy9Q18tIjcmWPE1z39ntp6S2Uk9GTdfQ9n8Dq2Ofp68Vq6LTYF6aa91y23kPZ05DyKvlqKTJyNRJBvX4ka8IBNE+cLiwA0R6AJwSnemna1St4sZ5Y145QE8HPqeyLhd25r0TjEaWY1b6Pa7Zxj4tIOzrU=
+	t=1757020393; cv=none; b=NWipBOB35PYpCbGUoJAqye999TKtxrbQswF01zkqIC0a4C2K99fbuav+ufGmta25F2xC6AhEMwN1KeRbiN6DGt+oRVhqUor6q7G0nYfB+87s8Ffs2294Aqn7Sq4qijBLfEszdzKxbQNw8lzks+pe6D2F4sqobAumvLgzXJDZZlA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757019406; c=relaxed/simple;
-	bh=0+JAO72bgTdLrUiNHlhx77p8w8ALu96O4sPB5B0ft8A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VOO6deL7tV4aGBqw9ViRtPa6s4lPyV/RTNTHwMpZjUYXwj4px623ZAhf+4I7PHrGwuEEEnKeMDJ3VL4GbrqNZYv9zM5penu6/6tMUW/f6ITxACWu2T5dy1uUYM9HQQ/0oQaJLFEfwU9lY95Dg4n6KiMzXftDnVp4OnlZgMhZUXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QwkSruKp; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1757020393; c=relaxed/simple;
+	bh=cJeYw+fnmGuV/6yhEDTOpXJYJivHESINJnODijfUJeQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZJNtsJhK8vsw3gpLuceJIqzJAx4bo7OPJ/0l7YHMQlBLlr3WZIosmGHL9ptSXlKw3+EZDb7qW0Vbt/R0qa6/acZ9uz+ggxxYBNq32VXKm9Bj81Fp9P8N58nztmTMdhaAv1UM3ViZ04nO6ePZ+YiPdQLRpqe1nGe9pCSKHz8+lbc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=h4byn6Rl; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QwkSruKp"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 584DXQ8M031307;
-	Thu, 4 Sep 2025 20:56:38 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="h4byn6Rl"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 584EDNYw020235;
+	Thu, 4 Sep 2025 21:13:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TC7gQc
-	Jf7E1ELsGNLmFdV3fkZDlgqOqQ0M6PqkwBgTI=; b=QwkSruKpnr61Jjw1xo3JIf
-	oLXFIDiyZJjGNFQFzFdEwlfAwFn/2+3M0H6/X0eTN9wPcN/r8bMMHDDyB0Th6Bvt
-	9ZkYvLSJxeILMRAv2qOjoz1m6re7uM6CM8qfZT7j9eufNHOfSprcYWkxVDAFx/in
-	RoKliKmUkPeLa5avQe8c25dDOAl/akuUmnjqpSgswoHx+XLI1RT+1R7QVmEhEM2Y
-	d6+BtYw+R7WP/pWA+iLxGyJXJ+XnTpuv15EJ+nY8oJOb0KBq1LyRu+AytSGsqgpe
-	Nm2WjcU6+QyB5DKWlhS7n1jM5G+GqaMUYwInj691b6MzfKKxu0ncVn7LwawoOl9w
-	==
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=gGSz/3wzTB7ULIot6d2uI8FCULkYJSh7CX+787MXO
+	VI=; b=h4byn6RlpOx5ytI43RfSm5XhBgP3sgbYbqD4FmYQEwY6Fyf49G5xx+QPv
+	tQgvUjTB/WB71enpUwZyGJHjp2jy/AyjhJkKs04/lNSoyVrY86vXvsCLFwNiYGgr
+	zzlB2eSg1WYWIytYb2/4sYBsLPizFbM3edNkyVGt7ICKPVnFuN/Hcy+1T47twXgW
+	aLdCYjsyMhzDMsJffvXI3WMAFI4mPDTuqGlMwUw8oyf31abP6goXM02H45nlLtX0
+	6g9N9uo0GP0Nl/ED9mT5m+xbSNwOONt0d5ZDsypDey0luSwy3aoKl6s7Gl8H2GER
+	LpXfZU0BTgXJmEe8f3YajiKnpXRIA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usv3cs3v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 04 Sep 2025 21:13:07 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 584L77Lr003791;
+	Thu, 4 Sep 2025 21:13:06 GMT
 Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usurcnqg-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usv3cs3s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Sep 2025 20:56:37 +0000 (GMT)
+	Thu, 04 Sep 2025 21:13:06 +0000 (GMT)
 Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 584JEVC0021205;
-	Thu, 4 Sep 2025 20:56:36 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vcmpxdr0-1
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 584J2KhP021170;
+	Thu, 4 Sep 2025 21:13:05 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vcmpxfn4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 04 Sep 2025 20:56:36 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 584KuZE946661974
+	Thu, 04 Sep 2025 21:13:05 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 584LD1e661342030
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 4 Sep 2025 20:56:35 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3A31958054;
-	Thu,  4 Sep 2025 20:56:35 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F2A55804E;
-	Thu,  4 Sep 2025 20:56:33 +0000 (GMT)
-Received: from [9.61.17.116] (unknown [9.61.17.116])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  4 Sep 2025 20:56:33 +0000 (GMT)
-Message-ID: <f9e38796-bb97-4846-8f4c-b92421cadc2f@linux.ibm.com>
-Date: Thu, 4 Sep 2025 16:56:32 -0400
+	Thu, 4 Sep 2025 21:13:01 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5FADC20040;
+	Thu,  4 Sep 2025 21:13:01 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1E6962004B;
+	Thu,  4 Sep 2025 21:13:01 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  4 Sep 2025 21:13:01 +0000 (GMT)
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Simon Horman <horms@kernel.org>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>
+Subject: [PATCH net-next 0/2] net/smc: make wr buffer count configurable 
+Date: Thu,  4 Sep 2025 23:12:51 +0200
+Message-ID: <20250904211254.1057445-1-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] iommu/s390: Make attach succeed when the device was
- surprise removed
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, iommu@lists.linux.dev
-References: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzMCBTYWx0ZWRfX3wXbKAEgOvtZ
- n64Hm2mRAa2fRoaLqIzK/YwmScqF3TMX780tnWyXvF2kQg5WvGW0WndoNE+951a8+/chXjfkofz
- ovYOr6THy6y5U5e0Bnsteo6+WxxV4YtwRl4ACWNOuk69Fjqr8DQJtTLw5LtL8xDD2F6EStAj67d
- y0C/BRQ0AVS8fMngssn2R4DyGt7Ul9rRKV+u8i6TYBS2bB5hJZDPADojr5AK8KztuqrelD47Hm+
- 1fT/napTgVSCglUMkP4IeZXELlZTJMxOpsVujGJqoyFuTI/mFg3sG6D1w9fqNai/p2s4gNz2XxC
- g/RETt5sBjED7zytDryUGSYpMRCtPBrWprLslupUranxhOdiMX+vE5j2pgdy1pwNkk+FNbOromt
- YBhBo0FS
-X-Proofpoint-GUID: 8clwZ2gKz53G0an8e24FueLFNBCkizo_
-X-Proofpoint-ORIG-GUID: 8clwZ2gKz53G0an8e24FueLFNBCkizo_
-X-Authority-Analysis: v=2.4 cv=Ao/u3P9P c=1 sm=1 tr=0 ts=68b9fd06 cx=c_pps
+X-Proofpoint-ORIG-GUID: 0N7XCAWMBfEUIccWqvYX4h1yw78u_pk2
+X-Authority-Analysis: v=2.4 cv=FPMbx/os c=1 sm=1 tr=0 ts=68ba00e3 cx=c_pps
  a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=9jRdOu3wAAAA:8
- a=VnNF1IyMAAAA:8 a=f94wAlES5zcTxHjwagAA:9 a=QEXdDO2ut3YA:10
- a=ZE6KLimJVUuLrTuGpvhn:22
+ a=yJojWOMRYYMA:10 a=OPAOpny1AAAA:8 a=piJGGMyLFvZckxoXyWEA:9
+ a=Vt4qOV5uLRUYeah0QK8L:22
+X-Proofpoint-GUID: qbasB6_8y8NRLwbyo1x5bU3BRhdVeJoR
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfX5fgMXwX73yyl
+ /tNGGMedGYSG4BCjH6gySXDmbq0K1RRZzjHsORObH+dInnYbJZHqkq/r/q46myRS5gK9T80Ieh1
+ 9Dki9g66Sr0HJnX/LeDHUhuFWOpJGpdtKEVTzEoi/J13NtqBibFSYiGc5tPghXMTh8sbi5nFKG2
+ ZkDoDa2hXe2LxKCuPGUbcJvzYScVNrJPTt/9ckdoLgMjUQgLnfYu+KoQPvBZh7tnaTJsczsys0I
+ 875M6VBsIy7IeBf1uok+mlShVufxTfgPnKuJg1WRXstyr2Acn033N49gCiPcbrlxv69oIwSepx2
+ oqQ1SHTHgYsPtgl/cGhX/evbO3zhLtdxvePYxm4w20SUaKl3JkCNnAjTbNFummK2p6RJKNyx8qW
+ u6QOK0tL
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-04_07,2025-09-04_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- suspectscore=0 bulkscore=0 adultscore=0 malwarescore=0 classifier=typeunknown
+ priorityscore=1501 impostorscore=0 phishscore=0 clxscore=1011 bulkscore=0
+ spamscore=0 adultscore=0 suspectscore=0 malwarescore=0 classifier=typeunknown
  authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2508300030
+ engine=8.19.0-2507300000 definitions=main-2508300034
 
-On 9/4/25 4:59 AM, Niklas Schnelle wrote:
-> When a PCI device is removed with surprise hotplug, there may still be
-> attempts to attach the device to the default domain as part of tear down
-> via (__iommu_release_dma_ownership()), or because the removal happens
-> during probe (__iommu_probe_device()). In both cases zpci_register_ioat()
-> fails with a cc value indicating that the device handle is invalid. This
-> is because the device is no longer part of the instance as far as the
-> hypervisor is concerned.
-> 
-> Currently this leads to an error return and s390_iommu_attach_device()
-> fails. This triggers the WARN_ON() in __iommu_group_set_domain_nofail()
-> because attaching to the default domain must never fail.
-> 
-> With the device fenced by the hypervisor no DMAs to or from memory are
-> possible and the IOMMU translations have no effect. Proceed as if the
-> registration was successful and let the hotplug event handling clean up
-> the device.
-> 
-> This is similar to how devices in the error state are handled since
-> commit 59bbf596791b ("iommu/s390: Make attach succeed even if the device
-> is in error state") except that for removal the domain will not be
-> registered later. This approach was also previously discussed at the
-> link.
-> 
-> Handle both cases, error state and removal, in a helper which checks if
-> the error needs to be propagated or ignored. Avoid magic number
-> condition codes by using the pre-existing, but never used, defines for
-> PCI load/store condition codes and rename them to reflect that they
-> apply to all PCI instructions.
-> 
-> Cc: stable@vger.kernel.org # v6.2
-> Link: https://lore.kernel.org/linux-iommu/20240808194155.GD1985367@ziepe.ca/
-> Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->  arch/s390/include/asm/pci_insn.h | 10 +++++-----
->  drivers/iommu/s390-iommu.c       | 26 +++++++++++++++++++-------
->  2 files changed, 24 insertions(+), 12 deletions(-)
->
+The current value of SMC_WR_BUF_CNT is 16 which leads to heavy
+contention on the wr_tx_wait workqueue of the SMC-R linkgroup and its
+spinlock when many connections are competing for the work request
+buffers. Currently up to 256 connections per linkgroup are supported.
 
-Makes sense to me.
+To make things worse when finally a buffer becomes available and
+smc_wr_tx_put_slot() signals the linkgroup's wr_tx_wait wq, because
+WQ_FLAG_EXCLUSIVE is not used all the waiters get woken up, most of the
+time a single one can proceed, and the rest is contending on the
+spinlock of the wq to go to sleep again.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Addressing this by simply bumping SMC_WR_BUF_CNT to 256 was deemed
+risky, because the large-ish physically continuous allocation could fail
+and lead to TCP fall-backs. For reference see this discussion thread on
+"[PATCH net-next] net/smc: increase SMC_WR_BUF_CNT" (in archive
+https://lists.openwall.net/netdev/2024/11/05/186), which concludes with
+the agreement to try to come up with something smarter, which is what
+this series aims for.
+
+Additionally if for some reason it is known that heavy contention is not
+to be expected going with something like 256 work request buffers is
+wasteful. To address these concerns make the number of work requests
+configurable, and introduce a back-off logic with handles -ENOMEM form
+smc_wr_alloc_link_mem() gracefully.
+
+Halil Pasic (2):
+  net/smc: make wr buffer count configurable
+  net/smc: handle -ENOMEM from smc_wr_alloc_link_mem gracefully
+
+ Documentation/networking/smc-sysctl.rst | 40 +++++++++++++++++++++++++
+ net/smc/smc.h                           |  2 ++
+ net/smc/smc_core.c                      | 34 ++++++++++++++-------
+ net/smc/smc_core.h                      |  6 ++++
+ net/smc/smc_ib.c                        |  7 ++---
+ net/smc/smc_llc.c                       |  2 ++
+ net/smc/smc_sysctl.c                    | 22 ++++++++++++++
+ net/smc/smc_wr.c                        | 32 ++++++++++----------
+ net/smc/smc_wr.h                        |  2 --
+ 9 files changed, 115 insertions(+), 32 deletions(-)
+
+
+base-commit: 5ef04a7b068cbb828eba226aacb42f880f7924d7
+-- 
+2.48.1
+
