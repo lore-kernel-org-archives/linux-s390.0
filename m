@@ -1,298 +1,158 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32BE5346A1E
-	for <linux-s390@vger.kernel.org>; Fri,  5 Sep 2025 11:38:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C903B267AF6;
+	Fri,  5 Sep 2025 12:01:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757072323; cv=none; b=n8U7KOLLw4Xl4FNINYqkC8/4/3t2cikoVh3YTuEB+Vemy5EnjS0ILAVErlhB9OUNruEizES4RPp/zemI/tryuzFo0aB0zYjzKxIl8wPmtpuiZ/FfWkDgb8M49Nwn0Nl0fm4RTMkFzSV6L849USPdXlouJwM6ovyBzaL8534X5aU=
+	t=1757073710; cv=none; b=ila6JDYW610R2AIHTGIBrOcDnnWuDD2y9KjQ/kfhe0/PVgKIVrZ7Pv0yN8W/zB0xS/DgWUQ7TGqTyrjAQMshSqX0oVXNskuOq+R5dPYpF/JlmIP/n7PclGfj/4Mw48c8WcOgm9N1o8QsBvLpsvEX5jrctC0wzIsUSOQZqxbQutw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757072323; c=relaxed/simple;
-	bh=gMTwdBYGR4qzcIDWfYqeVKqJ5Hz/aktnEvyMtqn6SAg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ckZyJl14oBP7Kj5axEmsfdG0g9Bhtxq+jGKihfgI/rNKHGTou9ZiguOKbY3ChxgjbZvvHChokC73LbKEM9FCUCr8MhRtbIQrcR3U0fztu0loNfoKIOLjvtfbNj8O7NBAteqSUZSb+VbaTHmvYJG0d9LUKp+kxhapFOl5WeFUrYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SAtz4rNY; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1757073710; c=relaxed/simple;
+	bh=x7CfNWzhysW2tmr+31/z5JWos3W0TLidFrU9+BAQ4AM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Vum8zTD0canJVJ7aMhb83gY7wV6CeD1eofRiY5f5SG69l5m09IakK5cQNKnmNqUhSGvz7nUhxELxGxpnBtLPb2xeQ5C88xWeSGwHCu2YQ8vvP4i96ovgQdgpuq2mQpxHc09xQjWnVOTDWZDto5YI7RFVEwHJ959lQXXX3lzYwx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SLWS7XJg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SAtz4rNY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757072319;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=luQGhz3W9bQvvWBMkQH/XO40AxL9T26r0ebxy/p3+ys=;
-	b=SAtz4rNYr7w0xIU/eORxNcydcn09buyBgdrIjsws6k4FTEKWITdv/RG7E8PisbwcxKQk27
-	VTA02f7eYOvqG7RR7RmsTkN8/7MvUpN5OOpWpbc8bwPhFjpteMggqxLXE42DYXsVyP3l/X
-	ddDE10dEkaZiHq9pSW+k0TH0VBdA598=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-103-Y7LQSjx-OICFgX30mDeLXA-1; Fri, 05 Sep 2025 07:38:38 -0400
-X-MC-Unique: Y7LQSjx-OICFgX30mDeLXA-1
-X-Mimecast-MFC-AGG-ID: Y7LQSjx-OICFgX30mDeLXA_1757072317
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3df07c967e9so1059982f8f.2
-        for <linux-s390@vger.kernel.org>; Fri, 05 Sep 2025 04:38:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757072317; x=1757677117;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=luQGhz3W9bQvvWBMkQH/XO40AxL9T26r0ebxy/p3+ys=;
-        b=XWxgLbzyTD8IbXCHd/WNG5q89ANl1+Lkup9Rh+EQHsUFopfmiDw+jke42UjWY5Flhd
-         7REbAxn6TBC1SL9AzL/+2fGwypzZPO4Cw2UTmm822zcKidENQYBvxveGVfSWqFWDRNTK
-         73bsuOoj+8Id02YRBJDqHtOEmZQGTLRp7uN+Ox4CkyOND0UiHaBlhoTZnMkSts/2M2K4
-         rk15LjCzI6lYS2kGSmamCdm9LrDPzGX4VI4qY3iies9LFYjtm/tQUGS8KkgzDVXXgvak
-         ejdxwsVBbKUrITFssXwOFSaeWbEzJM6kq1bQ3/8/sps3n2oiq9yQRUR008bPW6kRuHyb
-         5h7A==
-X-Forwarded-Encrypted: i=1; AJvYcCUEJswJ2TiymXJN8PoDrJJkQbXjJ0j6xiYV0YnIGGCunhsBZZpP836bgHwCe3CrJJRrQVUPvC08nj0v@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMTzpdEZlDHJmaF+SCR9kj/lBSeUuBCAiFYB9T+qKGw+Pry8Yu
-	6DPUrrFJFFrlv72Tn1KCwtCZVTs+yU1OZtsYBRF9sNlZ4oZT3ih7ojklzv/8tfx0Dnv0Dzby0BI
-	ADQjhOtQ6rj19p1WORzdt9LpjxW5H+AhTXFGXm7gkP3RiY3G0Y7NmVemPlCq59v8=
-X-Gm-Gg: ASbGncvAtdSczyjtlSUpsqMRgmxPtEF0w1RlqdA393AHWK5M39nwFtL7GORr8s0VU+y
-	ovi+Yd0foPL69OheMbit4911ABbtrNXqN5/54MlnlqwfWiD7eM/ll5oTQyBKuhzK2U7tB6xS9sJ
-	40ZCqM/zxoacGJ5dCmAUA4q1L4EctAr/poiypVDbq9Sl1lK33aVF1JHwOGUwNIFK0YFa//9GeF2
-	mCQ925KeMMEZ6OQjgq0MZkfrXj0cWYUGFryS+h79osRQndVQFL9wIQvyF8WXpirKqJff9zrsBoS
-	ELn6kMpLy7ChPifnbqCRpo+0QxCH54N7FEDM/bXvFwU95hJlQglfLooIi63tSFL6WAPQQFd0Ckn
-	Y1+rVlWZkl6cTsmvrIE4Zoln1lXHA6ZIUSda1IK3p382AfbeWP/p03y7H
-X-Received: by 2002:a05:6000:1789:b0:3e0:43f0:b7b6 with SMTP id ffacd0b85a97d-3e043f0be07mr5028709f8f.52.1757072316791;
-        Fri, 05 Sep 2025 04:38:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFo8MNleTLRHLacoeKcQ93i9Gk8ZDv5dPOPJ5nfQMIibIGfmFimYQBfp9bCIqgP6uhYUdcj5w==
-X-Received: by 2002:a05:6000:1789:b0:3e0:43f0:b7b6 with SMTP id ffacd0b85a97d-3e043f0be07mr5028644f8f.52.1757072316181;
-        Fri, 05 Sep 2025 04:38:36 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f4d:e00:298:59cc:2514:52? (p200300d82f4d0e00029859cc25140052.dip0.t-ipconnect.de. [2003:d8:2f4d:e00:298:59cc:2514:52])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45dda2021dfsm19061165e9.24.2025.09.05.04.38.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Sep 2025 04:38:34 -0700 (PDT)
-Message-ID: <9fe9f8c7-f59d-4a4b-9668-d3cd2c5a5fc9@redhat.com>
-Date: Fri, 5 Sep 2025 13:38:32 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SLWS7XJg"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5856fqR0027660;
+	Fri, 5 Sep 2025 12:01:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=3Q0Kk1
+	twUqbc+CYwqm2wcSG5DNW9I13tTKUpqyij7k4=; b=SLWS7XJg0oRrpm+ElknuyX
+	E9EqWl8ihXKfE3XqCqv0BQkfUNG2QUcGceSX4z5h58CPwX2vnXM/OqgEITyfZ357
+	MTiB9ZmgkM5NmjJuhcfN0rjHXpJvvn4DZ2nRcEcqjHP2XndzCbEa8FVGWUKJ47k6
+	huUX7gBHtye53xzgKysRgbkgeYqTUUhQjHD092EhyBZBJQRD+pNgmLg7S9cfytiE
+	3/u8zeFpQdzdKA/N26kq26yzm89tA3SdW/QexooiaElA53jSYYO9h397FEzUu/yd
+	o+LdO5fRXIYtGcUwqA6SsXI9yyYlv2gZMElCZz0y4JeWy+R4z2kou5VkxgboZdPg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvg7dqr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Sep 2025 12:01:44 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 585BspIU019578;
+	Fri, 5 Sep 2025 12:01:43 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usvg7dqn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Sep 2025 12:01:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5858RNBW017205;
+	Fri, 5 Sep 2025 12:01:42 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vc111fev-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Sep 2025 12:01:42 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 585C1cwF42795410
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 5 Sep 2025 12:01:39 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D11EF2004E;
+	Fri,  5 Sep 2025 12:01:38 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B432720040;
+	Fri,  5 Sep 2025 12:01:37 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.111.48.22])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri,  5 Sep 2025 12:01:37 +0000 (GMT)
+Date: Fri, 5 Sep 2025 14:01:35 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Dust Li <dust.li@linux.alibaba.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Simon
+ Horman <horms@kernel.org>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Sidraya
+ Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH net-next 1/2] net/smc: make wr buffer count configurable
+Message-ID: <20250905140135.2487a99f.pasic@linux.ibm.com>
+In-Reply-To: <20250905110059.450da664.pasic@linux.ibm.com>
+References: <20250904211254.1057445-1-pasic@linux.ibm.com>
+	<20250904211254.1057445-2-pasic@linux.ibm.com>
+	<aLpc4H_rHkHRu0nQ@linux.alibaba.com>
+	<20250905110059.450da664.pasic@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 19/37] mm/gup: remove record_subpages()
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: linux-kernel@vger.kernel.org, Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Marco Elver <elver@google.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>,
- Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
- netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
- Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
- virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
- wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-References: <20250901150359.867252-1-david@redhat.com>
- <20250901150359.867252-20-david@redhat.com>
- <5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
- <b7544f6d-beac-46af-aa43-27da6d96467e@lucifer.local>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- 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
- qIws/H2t
-In-Reply-To: <b7544f6d-beac-46af-aa43-27da6d96467e@lucifer.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=behrUPPB c=1 sm=1 tr=0 ts=68bad128 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=vYtxJBzLSLu-a_qLxUIA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: fJAOnqgGNIUegCEl7lDr_wUr1MOijxB7
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzNCBTYWx0ZWRfX55DlTtph7uTr
+ xm5FeUgrbjfrtm/GNqkXL4EHPCDwimZglnFhRKAvt3z3tfF56jFWMkC7s60V0oyTWT6wYJbcmez
+ sEIgOu9d0FIuH+kksAxGp8E4kfQXty0iD4UrXiVN0jMfmiqhghq2RNxCIm8/N3otYsrTa3cQbUH
+ RQRUVXZpjioAhcf+sCbP9dEMwE7SVnW8tIvMKMz4BwHkaZu4ODAtB+DZInsU+cval+/GHZEJVeC
+ PmH8tUN4bARehCBVo31ZLg/DKnXJxClRQsk1e9/EnjnyF1m6iHf4Wl3rPhUOBRFP5RkHe2tfMyv
+ i4Rqyx6vc4qAmNug+iRTvO9Qr6vqZOVf/WYhNvXzgDpijpmADOKt90vFiyAk8iJi2GvAEl4gb1O
+ mA/yNehm
+X-Proofpoint-GUID: vq0ghxuKxLZ7XoLbz2YobQiJd7nP3Ynw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-05_03,2025-09-04_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 impostorscore=0 spamscore=0 clxscore=1015 phishscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508300034
 
-On 05.09.25 13:34, Lorenzo Stoakes wrote:
-> On Fri, Sep 05, 2025 at 08:41:23AM +0200, David Hildenbrand wrote:
->> On 01.09.25 17:03, David Hildenbrand wrote:
->>> We can just cleanup the code by calculating the #refs earlier,
->>> so we can just inline what remains of record_subpages().
->>>
->>> Calculate the number of references/pages ahead of times, and record them
->>> only once all our tests passed.
->>>
->>> Signed-off-by: David Hildenbrand <david@redhat.com>
-> 
-> So strange I thought I looked at this...!
-> 
->>> ---
->>>    mm/gup.c | 25 ++++++++-----------------
->>>    1 file changed, 8 insertions(+), 17 deletions(-)
->>>
->>> diff --git a/mm/gup.c b/mm/gup.c
->>> index c10cd969c1a3b..f0f4d1a68e094 100644
->>> --- a/mm/gup.c
->>> +++ b/mm/gup.c
->>> @@ -484,19 +484,6 @@ static inline void mm_set_has_pinned_flag(struct mm_struct *mm)
->>>    #ifdef CONFIG_MMU
->>>    #ifdef CONFIG_HAVE_GUP_FAST
->>> -static int record_subpages(struct page *page, unsigned long sz,
->>> -			   unsigned long addr, unsigned long end,
->>> -			   struct page **pages)
->>> -{
->>> -	int nr;
->>> -
->>> -	page += (addr & (sz - 1)) >> PAGE_SHIFT;
->>> -	for (nr = 0; addr != end; nr++, addr += PAGE_SIZE)
->>> -		pages[nr] = page++;
->>> -
->>> -	return nr;
->>> -}
->>> -
->>>    /**
->>>     * try_grab_folio_fast() - Attempt to get or pin a folio in fast path.
->>>     * @page:  pointer to page to be grabbed
->>> @@ -2967,8 +2954,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
->>>    	if (pmd_special(orig))
->>>    		return 0;
->>> -	page = pmd_page(orig);
->>> -	refs = record_subpages(page, PMD_SIZE, addr, end, pages + *nr);
->>> +	refs = (end - addr) >> PAGE_SHIFT;
->>> +	page = pmd_page(orig) + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
->>>    	folio = try_grab_folio_fast(page, refs, flags);
->>>    	if (!folio)
->>> @@ -2989,6 +2976,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
->>>    	}
->>>    	*nr += refs;
->>> +	for (; refs; refs--)
->>> +		*(pages++) = page++;
->>>    	folio_set_referenced(folio);
->>>    	return 1;
->>>    }
->>> @@ -3007,8 +2996,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
->>>    	if (pud_special(orig))
->>>    		return 0;
->>> -	page = pud_page(orig);
->>> -	refs = record_subpages(page, PUD_SIZE, addr, end, pages + *nr);
->>> +	refs = (end - addr) >> PAGE_SHIFT;
->>> +	page = pud_page(orig) + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
->>>    	folio = try_grab_folio_fast(page, refs, flags);
->>>    	if (!folio)
->>> @@ -3030,6 +3019,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
->>>    	}
->>>    	*nr += refs;
->>> +	for (; refs; refs--)
->>> +		*(pages++) = page++;
->>>    	folio_set_referenced(folio);
->>>    	return 1;
->>>    }
->>
->> Okay, this code is nasty. We should rework this code to just return the nr and receive a the proper
->> pages pointer, getting rid of the "*nr" parameter.
->>
->> For the time being, the following should do the trick:
->>
->> commit bfd07c995814354f6b66c5b6a72e96a7aa9fb73b (HEAD -> nth_page)
->> Author: David Hildenbrand <david@redhat.com>
->> Date:   Fri Sep 5 08:38:43 2025 +0200
->>
->>      fixup: mm/gup: remove record_subpages()
->>      pages is not adjusted by the caller, but idnexed by existing *nr.
->>      Signed-off-by: David Hildenbrand <david@redhat.com>
->>
->> diff --git a/mm/gup.c b/mm/gup.c
->> index 010fe56f6e132..22420f2069ee1 100644
->> --- a/mm/gup.c
->> +++ b/mm/gup.c
->> @@ -2981,6 +2981,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
->>                  return 0;
->>          }
->> +       pages += *nr;
->>          *nr += refs;
->>          for (; refs; refs--)
->>                  *(pages++) = page++;
->> @@ -3024,6 +3025,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
->>                  return 0;
->>          }
->> +       pages += *nr;
->>          *nr += refs;
->>          for (; refs; refs--)
->>                  *(pages++) = page++;
-> 
-> This looks correct.
-> 
-> But.
-> 
-> This is VERY nasty. Before we'd call record_subpages() with pages + *nr, where
-> it was clear we were offsetting by this, now we're making things imo way more
-> confusing.
-> 
-> This makes me less in love with this approach to be honest.
-> 
-> But perhaps it's the least worst thing for now until we can do a bigger
-> refactor...
-> 
-> So since this seems correct to me, and for the sake of moving things forward
-> (was this one patch dropped from mm-new or does mm-new just have an old version?
-> Confused):
-> 
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> 
-> For this patch obviously with the fix applied.
-> 
-> But can we PLEASE revisit this :)
+On Fri, 5 Sep 2025 11:00:59 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Yeah, I already asked someone internally if he would have time to do 
-some refactorings in mm/gup.c.
+> > 1. What if the two sides have different max_send_wr/max_recv_wr configurations?
+> > IIUC, For example, if the client sets max_send_wr to 64, but the server sets
+> > max_recv_wr to 16, the client might overflow the server's QP receive
+> > queue, potentially causing an RNR (Receiver Not Ready) error.  
+> 
+> I don't think the 16 is spec-ed anywhere and if the client and the server
+> need to agree on the same value it should either be speced, or a
+> protocol mechanism for negotiating it needs to exist. So what is your
+> take on this as an SMC maintainer?
+> 
+> I think, we have tested heterogeneous setups and didn't see any grave
+> issues. But let me please do a follow up on this. Maybe the other
+> maintainers can chime in as well.
 
-If that won't work out I shall do it at some point (and the same time 
-reworking follow_page_mask() to just consume the array as well like gup 
-does)
+Did some research and some thinking. Are you concerned about a
+performance regression for e.g. 64 -> 16 compared to 16 -> 16? According
+to my current understanding the RNR must not lead to a catastrophic
+failure, but the RDMA/IB stack is supposed to handle that.
 
--- 
-Cheers
+I would like to also point out that bumping SMC_WR_BUF_CNT basically has
+the same problem, although admittedly to a smaller extent because it is
+only between "old" and "new".
 
-David / dhildenb
+Assuming that my understanding is correct, I believe that the problem of
+the potential RNR is inherent to the objective of the series, and
+probably one that can be lived with. Given this entire EID business, I
+think the SMC-R setup is likely to happen in a coordinated fashion for
+all potential peers, and I hope whoever tweaks those values has a
+sufficent understanding or empiric evidence to justify the tweaks.
 
+Assuming my understanding is not utterly wrong, I would very much like
+to know what would you want me to do with this?
+
+Thank you in advance!
+
+Regards,
+Hali
