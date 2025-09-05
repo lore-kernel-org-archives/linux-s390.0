@@ -1,252 +1,275 @@
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA225CA5A;
-	Fri,  5 Sep 2025 03:45:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F3D22C08CD
+	for <linux-s390@vger.kernel.org>; Fri,  5 Sep 2025 06:41:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757043943; cv=none; b=m2d66Vu5ApYSTD3Q2D/3F5bPVQU6nKdaHdT4oILaxq5zG3sgY1n2RXgFf8aAbDsCN49U5uGynd8Cvjg0HHj5JnHcQTt5RYeWDdz4TlAVSo6j5d9jCebOUYCDuv6yz5rzFicTqnpNr2oTDzVk06/NsclcLVxA2l1zMIp4FaTVpX0=
+	t=1757054494; cv=none; b=Mwu3JiWCpWcsMOxJ/YO2GhLmqxOoiIe9sUjk3msnJNDC5SBFY21x4968/bMXDgt4Qn+U4cf1tsRq4NUr3Jbk6e6YYgnTyXUDY0+wFljsc4D4GD+ve52gR/AfpLMAL4LOEk6GfJv88OpmivhsH9XOl1PhPuXB27yh9KoD9jZ6FzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757043943; c=relaxed/simple;
-	bh=ODcJLz2yv8LUx5SB/Se6fulN0/HliBGOLlqT4v+rlYg=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PwKLg7BbqseHsY84koTNUrxZpLVrNb4OmqDS+erfEASUXKp3CdWB/dZhBrWfJzzX6/lQ+/YFBPJouffZR6+SCU+YoCrzYI9SinFmYfXB1f1juJfUDH4eq2jcwDucoEjM30/XPAlg+aHh9HPzXA4YMF1cQ3qvGNS8F6Re0WgBVK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=BtP78sm/; arc=none smtp.client-ip=115.124.30.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1757054494; c=relaxed/simple;
+	bh=5PP9Qy2JI0RylA8NM1X5jhoGp1Vq+k7r7Qo0XW9WsLM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZJM3FGABhYJLZednUM5/tCldHC/A7yUUZU4RyAoUkv9ZodeCnKs/7j37inboOd6g5i1mYfKEzl9qGc8TUTCNHkh8qwpjNEfLvWk1mz5Ixgc2PPYPaFvt3GF515g6FQWhUX8lR5yJY8I/MksCbat3RECMpb0BfAnrVPOrnrAJ5gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EpW1p9MM; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="BtP78sm/"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1757043937; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=sUZboZ9UiPIP5KDhPN/lk7f2r5hzY8YgBdcI7qMPvJE=;
-	b=BtP78sm/Jrf5YHEwlz6HCxpVGSVoFPo1KMq/KNuIQz4SMbOtrCUX9a+qeFB4GAfCK5fLpfkBKwEM89S1k1EKB3HR1EA+fDOWzPn0kgsUX4EtIiu0j5D1SO2grd2UjuUNHXhEtP5hvIjgJJWIT59rcvfi6E+oV/hC0/7l0iJd4qw=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WnJ07mG_1757043936 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 05 Sep 2025 11:45:36 +0800
-Date: Fri, 5 Sep 2025 11:45:36 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Halil Pasic <pasic@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH net-next 1/2] net/smc: make wr buffer count configurable
-Message-ID: <aLpc4H_rHkHRu0nQ@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250904211254.1057445-1-pasic@linux.ibm.com>
- <20250904211254.1057445-2-pasic@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EpW1p9MM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757054490;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=oF3HN1Q6ZNxZN3c5DymWi4LgFv8yUurotu5FuTflls4=;
+	b=EpW1p9MMbSDUi+SxAEcAL7HZbTLcxXjgKuaRcCee2TDI+3yZ8eGcUiDWKX1LvVr1KMVCwy
+	T7qi/fNDlIqPoU6ENhlQYJskkfhBCl2fSkz8yo+wadhzWXbqUY27ziyTlMA8I3rIjIU15r
+	IVbvW8HRUhpw8oXoa+xYLYjM4qDzqN4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-433-nBt83hpHMGWvEDbUMBPT0Q-1; Fri, 05 Sep 2025 02:41:29 -0400
+X-MC-Unique: nBt83hpHMGWvEDbUMBPT0Q-1
+X-Mimecast-MFC-AGG-ID: nBt83hpHMGWvEDbUMBPT0Q_1757054488
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-45dd9a66cfbso1788775e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 04 Sep 2025 23:41:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757054488; x=1757659288;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oF3HN1Q6ZNxZN3c5DymWi4LgFv8yUurotu5FuTflls4=;
+        b=Jo3nmMQGIYwFAVBOdjRb8EuYVXcX0gwBTvNFKrZnhMMRnPTSUv9quSf8ETlQVQKO5r
+         l80WjjLRIl3r8RMZ28qaRLvor4LOpSMdoxN1kS4m4wSSGKjNGQ79yZCsdqN76C6ZUVm+
+         6hQB8d3BYSM0D5b2kF0r8SWcn8FIV82alVdGzxz7LHQdLtDzEJjC3sQHMR7MCOFPcH4L
+         Vo4hRuNHkZ7UGJiVfVG4YPx/rWby9cR8P0RUc9wqaqtEM8Pf+8Bdz0R95uVvEpVVtbQk
+         skfTv4DzjaYUFZB01cmTuboeIQ91Yb25/JigNQ350n1fxtrtQ6Pm4c/NxxmwDfudaXnz
+         sQJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWHLoT1qumJ5wWw1x12jlVQpk7dnblGTSZpszf7EQl+lNEyV8v50Er1vS9zQsJeJq8Igkl6CeV3lhsb@vger.kernel.org
+X-Gm-Message-State: AOJu0YwAY8hOaInkiY8mu5fu06frsX7us5UGLc29R+Ii04vVZqvfESpC
+	jZP/ZHoKyYXkpnLikJ8d+1HTMwqbTHCbQl/Tgj67MmcDxqUcDgfBd8ffzBTw6cj7AjL+UHNXwUw
+	64EkK6p6b1G3f0RuIjeiqA1Pa3k7CC3oqkE2MXl58qZg7b5LdIbp9kwlc/AY+S8E=
+X-Gm-Gg: ASbGnctPvyWEnuPS3VZuMeiUWF6tzo8SLiWTrjkslrNWxOy3Xi9bs0710Lbr1lIvmlq
+	zd2/gqxEiLyPB5ilXVv5Nxa/+dvIuau3YoiXYZXKUmFAVG6Tur/m+zhSq4/wnzw9A3Rt+lsdslX
+	SAVgn4VlOP63Ug+5SBsIuhVl2gwL4KoVVcfgq3AqsSBOPpMd/kobvrSI59WQXbi5RgYNtCAqbXp
+	YX5a5yutTuS9/cCHx9lb8lFSLQ4N7oHoGg2RiZf+J+xJ4n9rxjY9/8PHr1RQIRAZuy5ZHIqTiCS
+	vjKlnxCeRcGfO6WWockF1XiCNw8IgDIQV+43IpsFFXecNhPK8WdEOeDn8FqmGBNZ63dc6k7F2Fu
+	vvHVS+TCo25lujvPC/zBjNVe2esBq89ZxbsaO+wseWM9QLYNtgZGh0gy6
+X-Received: by 2002:a05:600c:4ec9:b0:45b:7ffa:1bf8 with SMTP id 5b1f17b1804b1-45b934f6a56mr114232975e9.23.1757054487738;
+        Thu, 04 Sep 2025 23:41:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHEj1Q4ueRZg61r58J+1sq7/RpmSeqvAcWabr/Sq37OcVKAf1elh8/EonCz3Jhepl0SBZP4Cg==
+X-Received: by 2002:a05:600c:4ec9:b0:45b:7ffa:1bf8 with SMTP id 5b1f17b1804b1-45b934f6a56mr114232615e9.23.1757054487185;
+        Thu, 04 Sep 2025 23:41:27 -0700 (PDT)
+Received: from ?IPV6:2003:d8:2f4d:e00:298:59cc:2514:52? (p200300d82f4d0e00029859cc25140052.dip0.t-ipconnect.de. [2003:d8:2f4d:e00:298:59cc:2514:52])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b7e8879cesm316420125e9.12.2025.09.04.23.41.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Sep 2025 23:41:26 -0700 (PDT)
+Message-ID: <5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
+Date: Fri, 5 Sep 2025 08:41:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250904211254.1057445-2-pasic@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 19/37] mm/gup: remove record_subpages()
+To: linux-kernel@vger.kernel.org
+Cc: Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
+ Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
+ kasan-dev@googlegroups.com, kvm@vger.kernel.org,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
+ Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
+ Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
+ Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
+ Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
+ Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
+ Zi Yan <ziy@nvidia.com>, Jens Axboe <axboe@kernel.dk>
+References: <20250901150359.867252-1-david@redhat.com>
+ <20250901150359.867252-20-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZoEEwEIAEQCGwMCF4ACGQEFCwkIBwICIgIG
+ FQoJCAsCBBYCAwECHgcWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaJzangUJJlgIpAAKCRBN
+ 3hD3AP+DWhAxD/9wcL0A+2rtaAmutaKTfxhTP0b4AAp1r/eLxjrbfbCCmh4pqzBhmSX/4z11
+ opn2KqcOsueRF1t2ENLOWzQu3Roiny2HOU7DajqB4dm1BVMaXQya5ae2ghzlJN9SIoopTWlR
+ 0Af3hPj5E2PYvQhlcqeoehKlBo9rROJv/rjmr2x0yOM8qeTroH/ZzNlCtJ56AsE6Tvl+r7cW
+ 3x7/Jq5WvWeudKrhFh7/yQ7eRvHCjd9bBrZTlgAfiHmX9AnCCPRPpNGNedV9Yty2Jnxhfmbv
+ Pw37LA/jef8zlCDyUh2KCU1xVEOWqg15o1RtTyGV1nXV2O/mfuQJud5vIgzBvHhypc3p6VZJ
+ lEf8YmT+Ol5P7SfCs5/uGdWUYQEMqOlg6w9R4Pe8d+mk8KGvfE9/zTwGg0nRgKqlQXrWRERv
+ cuEwQbridlPAoQHrFWtwpgYMXx2TaZ3sihcIPo9uU5eBs0rf4mOERY75SK+Ekayv2ucTfjxr
+ Kf014py2aoRJHuvy85ee/zIyLmve5hngZTTe3Wg3TInT9UTFzTPhItam6dZ1xqdTGHZYGU0O
+ otRHcwLGt470grdiob6PfVTXoHlBvkWRadMhSuG4RORCDpq89vu5QralFNIf3EysNohoFy2A
+ LYg2/D53xbU/aa4DDzBb5b1Rkg/udO1gZocVQWrDh6I2K3+cCs7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <20250901150359.867252-20-david@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 2025-09-04 23:12:52, Halil Pasic wrote:
->Think SMC_WR_BUF_CNT_SEND := SMC_WR_BUF_CNT used in send context and
->SMC_WR_BUF_CNT_RECV := 3 * SMC_WR_BUF_CNT used in recv context. Those
->get replaced with lgr->max_send_wr and lgr->max_recv_wr respective.
-
-Hi Halil,
-
-I think making the WR buffer count configurable helps make SMC more flexible.
-
-However, there are two additional issues we need to consider:
-
-1. What if the two sides have different max_send_wr/max_recv_wr configurations?
-IIUC, For example, if the client sets max_send_wr to 64, but the server sets
-max_recv_wr to 16, the client might overflow the server's QP receive
-queue, potentially causing an RNR (Receiver Not Ready) error.
-
-2. Since WR buffers are configurable, it’d be helpful to add some
-monitoring methods so we can keep track of how many WR buffers each QP
-is currently using. This should be useful now that you introduced a fallback
-retry mechanism, which can cause the number of WR buffers to change
-dynamically.
-
-
-Some other minor issues in the patch itself, see below
-
->
->While at it let us also remove a confusing comment that is either not
->about the context in which it resides (describing
->qp_attr.cap.max_send_wr and qp_attr.cap.max_recv_wr) or not applicable
->any more when these values become configurable .
->
->Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
->---
-> Documentation/networking/smc-sysctl.rst | 37 +++++++++++++++++++++++++
-> net/smc/smc.h                           |  2 ++
-> net/smc/smc_core.h                      |  4 +++
-> net/smc/smc_ib.c                        |  7 ++---
-> net/smc/smc_llc.c                       |  2 ++
-> net/smc/smc_sysctl.c                    | 22 +++++++++++++++
-> net/smc/smc_wr.c                        | 32 +++++++++++----------
-> net/smc/smc_wr.h                        |  2 --
-> 8 files changed, 86 insertions(+), 22 deletions(-)
->
->diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
->index a874d007f2db..c687092329e3 100644
->--- a/Documentation/networking/smc-sysctl.rst
->+++ b/Documentation/networking/smc-sysctl.rst
->@@ -71,3 +71,40 @@ smcr_max_conns_per_lgr - INTEGER
-> 	acceptable value ranges from 16 to 255. Only for SMC-R v2.1 and later.
+On 01.09.25 17:03, David Hildenbrand wrote:
+> We can just cleanup the code by calculating the #refs earlier,
+> so we can just inline what remains of record_subpages().
 > 
-> 	Default: 255
->+
->+smcr_max_send_wr - INTEGER
+> Calculate the number of references/pages ahead of times, and record them
+> only once all our tests passed.
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>   mm/gup.c | 25 ++++++++-----------------
+>   1 file changed, 8 insertions(+), 17 deletions(-)
+> 
+> diff --git a/mm/gup.c b/mm/gup.c
+> index c10cd969c1a3b..f0f4d1a68e094 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -484,19 +484,6 @@ static inline void mm_set_has_pinned_flag(struct mm_struct *mm)
+>   #ifdef CONFIG_MMU
+>   
+>   #ifdef CONFIG_HAVE_GUP_FAST
+> -static int record_subpages(struct page *page, unsigned long sz,
+> -			   unsigned long addr, unsigned long end,
+> -			   struct page **pages)
+> -{
+> -	int nr;
+> -
+> -	page += (addr & (sz - 1)) >> PAGE_SHIFT;
+> -	for (nr = 0; addr != end; nr++, addr += PAGE_SIZE)
+> -		pages[nr] = page++;
+> -
+> -	return nr;
+> -}
+> -
+>   /**
+>    * try_grab_folio_fast() - Attempt to get or pin a folio in fast path.
+>    * @page:  pointer to page to be grabbed
+> @@ -2967,8 +2954,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+>   	if (pmd_special(orig))
+>   		return 0;
+>   
+> -	page = pmd_page(orig);
+> -	refs = record_subpages(page, PMD_SIZE, addr, end, pages + *nr);
+> +	refs = (end - addr) >> PAGE_SHIFT;
+> +	page = pmd_page(orig) + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+>   
+>   	folio = try_grab_folio_fast(page, refs, flags);
+>   	if (!folio)
+> @@ -2989,6 +2976,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+>   	}
+>   
+>   	*nr += refs;
+> +	for (; refs; refs--)
+> +		*(pages++) = page++;
+>   	folio_set_referenced(folio);
+>   	return 1;
+>   }
+> @@ -3007,8 +2996,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+>   	if (pud_special(orig))
+>   		return 0;
+>   
+> -	page = pud_page(orig);
+> -	refs = record_subpages(page, PUD_SIZE, addr, end, pages + *nr);
+> +	refs = (end - addr) >> PAGE_SHIFT;
+> +	page = pud_page(orig) + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+>   
+>   	folio = try_grab_folio_fast(page, refs, flags);
+>   	if (!folio)
+> @@ -3030,6 +3019,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+>   	}
+>   
+>   	*nr += refs;
+> +	for (; refs; refs--)
+> +		*(pages++) = page++;
+>   	folio_set_referenced(folio);
+>   	return 1;
+>   }
 
-Why call it max ? But not something like smcr_send_wr_cnt ?
+Okay, this code is nasty. We should rework this code to just return the nr and receive a the proper
+pages pointer, getting rid of the "*nr" parameter.
 
->+	So called work request buffers are SMCR link (and RDMA queue pair) level
->+	resources necessary for performing RDMA operations. Since up to 255
->+	connections can share a link group and thus also a link and the number
->+	of the work request buffers is decided when the link is allocated,
->+	depending on the workload it can a bottleneck in a sense that threads
->+	have to wait for work request buffers to become available. Before the
->+	introduction of this control the maximal number of work request buffers
->+	available on the send path used to be hard coded to 16. With this control
->+	it becomes configurable. The acceptable range is between 2 and 2048.
->+
->+	Please be aware that all the buffers need to be allocated as a physically
->+	continuous array in which each element is a single buffer and has the size
->+	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
->+	like before having this control.
->+	this control.
->+
->+	Default: 16
->+
->+smcr_max_recv_wr - INTEGER
->+	So called work request buffers are SMCR link (and RDMA queue pair) level
->+	resources necessary for performing RDMA operations. Since up to 255
->+	connections can share a link group and thus also a link and the number
->+	of the work request buffers is decided when the link is allocated,
->+	depending on the workload it can a bottleneck in a sense that threads
->+	have to wait for work request buffers to become available. Before the
->+	introduction of this control the maximal number of work request buffers
->+	available on the receive path used to be hard coded to 16. With this control
->+	it becomes configurable. The acceptable range is between 2 and 2048.
->+
->+	Please be aware that all the buffers need to be allocated as a physically
->+	continuous array in which each element is a single buffer and has the size
->+	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
->+	like before having this control.
->+
->+	Default: 48
->diff --git a/net/smc/smc.h b/net/smc/smc.h
->index 2c9084963739..ffe48253fa1f 100644
->--- a/net/smc/smc.h
->+++ b/net/smc/smc.h
->@@ -33,6 +33,8 @@
-> 
-> extern struct proto smc_proto;
-> extern struct proto smc_proto6;
->+extern unsigned int smc_ib_sysctl_max_send_wr;
->+extern unsigned int smc_ib_sysctl_max_recv_wr;
-> 
-> extern struct smc_hashinfo smc_v4_hashinfo;
-> extern struct smc_hashinfo smc_v6_hashinfo;
->diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
->index 48a1b1dcb576..b883f43fc206 100644
->--- a/net/smc/smc_core.h
->+++ b/net/smc/smc_core.h
->@@ -361,6 +361,10 @@ struct smc_link_group {
-> 						/* max conn can be assigned to lgr */
-> 			u8			max_links;
-> 						/* max links can be added in lgr */
->+			u16			max_send_wr;
->+						/* number of WR buffers on send */
->+			u16			max_recv_wr;
->+						/* number of WR buffers on recv */
-> 		};
-> 		struct { /* SMC-D */
-> 			struct smcd_gid		peer_gid;
->diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
->index 0052f02756eb..e8d35c22c525 100644
->--- a/net/smc/smc_ib.c
->+++ b/net/smc/smc_ib.c
->@@ -669,11 +669,6 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
-> 		.recv_cq = lnk->smcibdev->roce_cq_recv,
-> 		.srq = NULL,
-> 		.cap = {
->-				/* include unsolicited rdma_writes as well,
->-				 * there are max. 2 RDMA_WRITE per 1 WR_SEND
->-				 */
->-			.max_send_wr = SMC_WR_BUF_CNT * 3,
->-			.max_recv_wr = SMC_WR_BUF_CNT * 3,
-> 			.max_send_sge = SMC_IB_MAX_SEND_SGE,
-> 			.max_recv_sge = lnk->wr_rx_sge_cnt,
-> 			.max_inline_data = 0,
->@@ -683,6 +678,8 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
-> 	};
-> 	int rc;
-> 
->+	qp_attr.cap.max_send_wr = 3 * lnk->lgr->max_send_wr;
->+	qp_attr.cap.max_recv_wr = lnk->lgr->max_recv_wr;
-> 	lnk->roce_qp = ib_create_qp(lnk->roce_pd, &qp_attr);
-> 	rc = PTR_ERR_OR_ZERO(lnk->roce_qp);
-> 	if (IS_ERR(lnk->roce_qp))
->diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
->index f865c58c3aa7..91c936bf7336 100644
->--- a/net/smc/smc_llc.c
->+++ b/net/smc/smc_llc.c
->@@ -2157,6 +2157,8 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
-> 	init_waitqueue_head(&lgr->llc_msg_waiter);
-> 	init_rwsem(&lgr->llc_conf_mutex);
-> 	lgr->llc_testlink_time = READ_ONCE(net->smc.sysctl_smcr_testlink_time);
->+	lgr->max_send_wr = (u16)(READ_ONCE(smc_ib_sysctl_max_send_wr));
->+	lgr->max_recv_wr = (u16)(READ_ONCE(smc_ib_sysctl_max_recv_wr));
-> }
-> 
-> /* called after lgr was removed from lgr_list */
->diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
->index 2fab6456f765..01da1297e150 100644
->--- a/net/smc/smc_sysctl.c
->+++ b/net/smc/smc_sysctl.c
->@@ -29,6 +29,10 @@ static int links_per_lgr_min = SMC_LINKS_ADD_LNK_MIN;
-> static int links_per_lgr_max = SMC_LINKS_ADD_LNK_MAX;
-> static int conns_per_lgr_min = SMC_CONN_PER_LGR_MIN;
-> static int conns_per_lgr_max = SMC_CONN_PER_LGR_MAX;
->+unsigned int smc_ib_sysctl_max_send_wr = 16;
->+unsigned int smc_ib_sysctl_max_recv_wr = 48;
->+static unsigned int smc_ib_sysctl_max_wr_min = 2;
->+static unsigned int smc_ib_sysctl_max_wr_max = 2048;
-> 
-> static struct ctl_table smc_table[] = {
-> 	{
->@@ -99,6 +103,24 @@ static struct ctl_table smc_table[] = {
-> 		.extra1		= SYSCTL_ZERO,
-> 		.extra2		= SYSCTL_ONE,
-> 	},
->+	{
->+		.procname       = "smcr_max_send_wr",
->+		.data		= &smc_ib_sysctl_max_send_wr,
->+		.maxlen         = sizeof(int),
->+		.mode           = 0644,
->+		.proc_handler   = proc_dointvec_minmax,
->+		.extra1		= &smc_ib_sysctl_max_wr_min,
->+		.extra2		= &smc_ib_sysctl_max_wr_max,
->+	},
->+	{
->+		.procname       = "smcr_max_recv_wr",
->+		.data		= &smc_ib_sysctl_max_recv_wr,
->+		.maxlen         = sizeof(int),
->+		.mode           = 0644,
->+		.proc_handler   = proc_dointvec_minmax,
+For the time being, the following should do the trick:
 
-It's better to use tab instead of space before those '=' here.
+commit bfd07c995814354f6b66c5b6a72e96a7aa9fb73b (HEAD -> nth_page)
+Author: David Hildenbrand <david@redhat.com>
+Date:   Fri Sep 5 08:38:43 2025 +0200
 
-Best regards,
-Dust
+     fixup: mm/gup: remove record_subpages()
+     
+     pages is not adjusted by the caller, but idnexed by existing *nr.
+     
+     Signed-off-by: David Hildenbrand <david@redhat.com>
+
+diff --git a/mm/gup.c b/mm/gup.c
+index 010fe56f6e132..22420f2069ee1 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -2981,6 +2981,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+                 return 0;
+         }
+  
++       pages += *nr;
+         *nr += refs;
+         for (; refs; refs--)
+                 *(pages++) = page++;
+@@ -3024,6 +3025,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+                 return 0;
+         }
+  
++       pages += *nr;
+         *nr += refs;
+         for (; refs; refs--)
+                 *(pages++) = page++;
+
+
+-- 
+
+Cheers
+
+David / dhildenb
 
