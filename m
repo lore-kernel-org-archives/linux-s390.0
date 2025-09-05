@@ -1,100 +1,213 @@
-Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 235F9341AC1
-	for <linux-s390@vger.kernel.org>; Fri,  5 Sep 2025 11:03:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8317C1805A
+	for <linux-s390@vger.kernel.org>; Fri,  5 Sep 2025 11:26:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757070202; cv=none; b=NfBSXHyPFrqwmQ+ffAq15v7dY5WJkujWASqr+wWBJXo52lrxoW3Gmgpay374n7CrgW9xwqnEluTBR433FQZGZ+i/K2T0KGPIY/V/8m/08lDMvG1/20QqWWEq5rJVHldChVGCxO/GrdWhsCKPGzC4z6vL6zg1f8i0Az38F+1mh2U=
+	t=1757071618; cv=none; b=R2bJebe83k8HoTMv094bMBg/JVXccCwFH8OVm12IbWoymQlFMNYH61n+vV2QnBALbYzQ2sN8YXh1Nok5L0+KLP51Pd+AstTX5DXVAGAxFfcKYQRP11RNTnVDwvbpz7V+ErteZt4T3Cmc50dtpjvF+siskofHRNPKoSWw7wCSEmw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757070202; c=relaxed/simple;
-	bh=tGiTIgxzfL0ZubePlSyKKw5/M+qMw+lnVwvCXioNp8o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NFGOXWxEX44NjYCvYR62YXwjGbj+mqJMv7NO29i94qXJIA4zcQ2MSvCht5PQQibY4iBdynx1W3NWGAHcbC3GpLVsENBlOZOHqU0CvddbZvXZa0PYHfNgvrVMEdih0usxwWZpoz/AbuTGUMWjerFUVQnC3r5azS1krw+zFc6uYCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=jJB4KL6O; arc=none smtp.client-ip=91.218.175.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1757071618; c=relaxed/simple;
+	bh=izaO1BR35Fqya77sIICkCHEPey84lEeqJmCseg1mS9I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iDs/5FOYaV8on0OZVy/jVZSpR1jKAX4oZmCW4mm8NmbbKx+kM1o3aZqROPjRSvESjpEWf2oftHt9wHetVLua8+/EcUoV5uHc7TBELJLAM6Yy2FeKfmqVwnFGFP8dDfXC/jEjNEFMpALDt5eZ16FBlubzrKZj2bGGppxglExckco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=CnmtDgbf; arc=none smtp.client-ip=209.85.219.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="jJB4KL6O"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1757070188;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=jU0V2LUx2VEIKkr5+zOng1DSdA2xbaRRNLzM6WgBwNk=;
-	b=jJB4KL6On/uo/T/IUOcrWMuRYlRqrV4fGT2EtF8V8yB0rF3VlpYDSo4pRrz5gZMb9HJRhu
-	WKbs8alWW12fMIEvBNCx6UDuNZe9SrpwKv+W/WQgOlEjFIqwwiXuWJfd9jyWu/59XM4rWp
-	9FXFOHCmhO296R6htqJ+UYS8IHciEwE=
-From: Thorsten Blum <thorsten.blum@linux.dev>
-To: Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Jan Kara <jack@suse.cz>,
-	Thorsten Blum <thorsten.blum@linux.dev>,
-	Christian Brauner <brauner@kernel.org>,
-	Jeff Layton <jlayton@kernel.org>
-Cc: linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/hmcdrv: Replace kmalloc() + copy_from_user() with memdup_user_nul()
-Date: Fri,  5 Sep 2025 13:02:23 +0200
-Message-ID: <20250905110226.485009-2-thorsten.blum@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="CnmtDgbf"
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e96c48e7101so2080718276.2
+        for <linux-s390@vger.kernel.org>; Fri, 05 Sep 2025 04:26:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1757071615; x=1757676415; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=yNzF16PbnrymzXw8XwNj1X2cjJHo1hQQnEraT/RlzJM=;
+        b=CnmtDgbfe5tx1THODz/ci1n4In1WFrcRusjah2wZs+jf2hB56JQjXfJ7ATtpVom76c
+         61hqjlMZi1VFPhasNBrwfMHh9u/meMHuv3TN01wxweWG/qm/nxbbiEwDD5AOCKb+8F1J
+         kqf3SLR5bFzPbJ66alN0+i5bf3paHUZgZnveUXtd/dKpZA89r+cvj5GhEPawFzrOqIGe
+         BFTrneTpqHaT3P0E8di18lRVlobqmkBYoANZyLpCHBsruQuELWugu9BuisPtgQT3CPKc
+         ldGSg6HF51kNkdeuhoPWeW/TZrB5OLZSUJIMA+AXIAsWJ5Cw+nfCxuAyZ2Y68HdN8Sjs
+         o/QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757071615; x=1757676415;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=yNzF16PbnrymzXw8XwNj1X2cjJHo1hQQnEraT/RlzJM=;
+        b=s/4tjP1lb+dVug+qkM7H8WXbCYaj5KW0aIHk4HU3p1rsm54LqTvGbovmhzMa6+8jyz
+         +jUONnt9BYNpyAZeRGRzqnZvruhkVyjBiUJksGTo13HQ+n2bZujab+kizd2de+1TiDat
+         whFyLr/rUNXS0/zOJ56O4GGAYtBWVe0gMLODAE/syt7Y457hg1Er1oO0d61u8OtuNPRA
+         1r17HuBz9XPe77jYbHOqh6NSbed1SgK11JeLXlQLQL7LVFO/UGGZimGTptc7sOGK0n6d
+         yXP36wKkkPTF1BIQDBk41ohx3Uouyi/UBiSHh+Kff+GGpL/RZYezIrGIZ4MVqUdjJXYF
+         Pydg==
+X-Forwarded-Encrypted: i=1; AJvYcCU5vPWnhPUlenThiJQnI6kejAZxiFt2cupJD15G0N+xdCb1J/6Y2eJL7seMIcciBywXHvlfjMlMYuQy@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqnhqpUF7PYZnJiSjKcEk2tixGR1fFZz96yLsTvXZC/rDF74B5
+	CciAbBDq/E/Me9qyuPahZjJxJQ9+Q5jGpyzPFL43wcJZztIGIAcqTKMUQ03Ch1AzOgc=
+X-Gm-Gg: ASbGnctRKqhl5GyvwQpYb980PG1A+fXBSVJRPZxwgVd4Xgw+rvyaeLcL2s+HOh0of05
+	Cg1KfN+k6ylhS5FMawjyNdY3UNj0fPkkglH0IzCpHqV0ie5DwgHVmbeK8w7KJgLfrIazopvJMV1
+	ukiB8pQ+DMZIL+6FbLE6vjTPZMBXDNm3CSgGHe1UDdOkjePit1hmUKaCjyHoDdp8BJKd6QnOGmq
+	Q+/MXFIwwX1/EGvbDNtKT/GrFKCNs/Kt6pTY5a+GSH+U2fBVq6ilXHvjN8Us/8Ad/58KqYetHtD
+	yswuZgjVh0rsxLC3gGtJyvOBgIdNLw/SCHJ1Ci6Vn/nsYkk3bBEM+QCvtFR+DhyU0RjwIvEQ2lj
+	lHvOfGF3+3xAqiznNLg==
+X-Google-Smtp-Source: AGHT+IEXVquWXmj0Yd3oyr4uhZoLxM2opNHaeihf8Xp8KBtnXc2guOYW42U1nSR+kmrTjCZ7Op/enQ==
+X-Received: by 2002:a05:6902:18ce:b0:e96:fac0:60bc with SMTP id 3f1490d57ef6-e98a58455f2mr22114649276.41.1757071615282;
+        Fri, 05 Sep 2025 04:26:55 -0700 (PDT)
+Received: from [10.0.3.24] ([50.227.229.138])
+        by smtp.gmail.com with ESMTPSA id 3f1490d57ef6-e9bbdf504e0sm3031724276.11.2025.09.05.04.26.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Sep 2025 04:26:54 -0700 (PDT)
+Message-ID: <1513d5fd-14ef-4cd0-a9a5-1016e9be6540@kernel.dk>
+Date: Fri, 5 Sep 2025 05:26:53 -0600
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 19/37] mm/gup: remove record_subpages()
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Alexander Potapenko <glider@google.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
+ Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ iommu@lists.linux.dev, io-uring@vger.kernel.org,
+ Jason Gunthorpe <jgg@nvidia.com>, Johannes Weiner <hannes@cmpxchg.org>,
+ John Hubbard <jhubbard@nvidia.com>, kasan-dev@googlegroups.com,
+ kvm@vger.kernel.org, "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
+ linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
+ linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ Marco Elver <elver@google.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@kernel.org>,
+ Muchun Song <muchun.song@linux.dev>, netdev@vger.kernel.org,
+ Oscar Salvador <osalvador@suse.de>, Peter Xu <peterx@redhat.com>,
+ Robin Murphy <robin.murphy@arm.com>, Suren Baghdasaryan <surenb@google.com>,
+ Tejun Heo <tj@kernel.org>, virtualization@lists.linux.dev,
+ Vlastimil Babka <vbabka@suse.cz>, wireguard@lists.zx2c4.com, x86@kernel.org,
+ Zi Yan <ziy@nvidia.com>
+References: <20250901150359.867252-1-david@redhat.com>
+ <20250901150359.867252-20-david@redhat.com>
+ <5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <5090355d-546a-4d06-99e1-064354d156b5@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Replace kmalloc() followed by copy_from_user() with memdup_user_nul() to
-improve and simplify hmcdrv_dev_write(). Remove the manual
-NUL-termination.
+On 9/5/25 12:41 AM, David Hildenbrand wrote:
+> On 01.09.25 17:03, David Hildenbrand wrote:
+>> We can just cleanup the code by calculating the #refs earlier,
+>> so we can just inline what remains of record_subpages().
+>>
+>> Calculate the number of references/pages ahead of times, and record them
+>> only once all our tests passed.
+>>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   mm/gup.c | 25 ++++++++-----------------
+>>   1 file changed, 8 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/mm/gup.c b/mm/gup.c
+>> index c10cd969c1a3b..f0f4d1a68e094 100644
+>> --- a/mm/gup.c
+>> +++ b/mm/gup.c
+>> @@ -484,19 +484,6 @@ static inline void mm_set_has_pinned_flag(struct mm_struct *mm)
+>>   #ifdef CONFIG_MMU
+>>     #ifdef CONFIG_HAVE_GUP_FAST
+>> -static int record_subpages(struct page *page, unsigned long sz,
+>> -               unsigned long addr, unsigned long end,
+>> -               struct page **pages)
+>> -{
+>> -    int nr;
+>> -
+>> -    page += (addr & (sz - 1)) >> PAGE_SHIFT;
+>> -    for (nr = 0; addr != end; nr++, addr += PAGE_SIZE)
+>> -        pages[nr] = page++;
+>> -
+>> -    return nr;
+>> -}
+>> -
+>>   /**
+>>    * try_grab_folio_fast() - Attempt to get or pin a folio in fast path.
+>>    * @page:  pointer to page to be grabbed
+>> @@ -2967,8 +2954,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+>>       if (pmd_special(orig))
+>>           return 0;
+>>   -    page = pmd_page(orig);
+>> -    refs = record_subpages(page, PMD_SIZE, addr, end, pages + *nr);
+>> +    refs = (end - addr) >> PAGE_SHIFT;
+>> +    page = pmd_page(orig) + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+>>         folio = try_grab_folio_fast(page, refs, flags);
+>>       if (!folio)
+>> @@ -2989,6 +2976,8 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+>>       }
+>>         *nr += refs;
+>> +    for (; refs; refs--)
+>> +        *(pages++) = page++;
+>>       folio_set_referenced(folio);
+>>       return 1;
+>>   }
+>> @@ -3007,8 +2996,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+>>       if (pud_special(orig))
+>>           return 0;
+>>   -    page = pud_page(orig);
+>> -    refs = record_subpages(page, PUD_SIZE, addr, end, pages + *nr);
+>> +    refs = (end - addr) >> PAGE_SHIFT;
+>> +    page = pud_page(orig) + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+>>         folio = try_grab_folio_fast(page, refs, flags);
+>>       if (!folio)
+>> @@ -3030,6 +3019,8 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+>>       }
+>>         *nr += refs;
+>> +    for (; refs; refs--)
+>> +        *(pages++) = page++;
+>>       folio_set_referenced(folio);
+>>       return 1;
+>>   }
+> 
+> Okay, this code is nasty. We should rework this code to just return the nr and receive a the proper
+> pages pointer, getting rid of the "*nr" parameter.
+> 
+> For the time being, the following should do the trick:
+> 
+> commit bfd07c995814354f6b66c5b6a72e96a7aa9fb73b (HEAD -> nth_page)
+> Author: David Hildenbrand <david@redhat.com>
+> Date:   Fri Sep 5 08:38:43 2025 +0200
+> 
+>     fixup: mm/gup: remove record_subpages()
+>         pages is not adjusted by the caller, but idnexed by existing *nr.
+>         Signed-off-by: David Hildenbrand <david@redhat.com>
+> 
+> diff --git a/mm/gup.c b/mm/gup.c
+> index 010fe56f6e132..22420f2069ee1 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -2981,6 +2981,7 @@ static int gup_fast_pmd_leaf(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+>                 return 0;
+>         }
+>  
+> +       pages += *nr;
+>         *nr += refs;
+>         for (; refs; refs--)
+>                 *(pages++) = page++;
+> @@ -3024,6 +3025,7 @@ static int gup_fast_pud_leaf(pud_t orig, pud_t *pudp, unsigned long addr,
+>                 return 0;
+>         }
+>  
+> +       pages += *nr;
+>         *nr += refs;
+>         for (; refs; refs--)
+>                 *(pages++) = page++;
+> 
 
-No functional changes intended.
+Tested as fixing the issue for me, thanks.
 
-Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
----
- drivers/s390/char/hmcdrv_dev.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/s390/char/hmcdrv_dev.c b/drivers/s390/char/hmcdrv_dev.c
-index e069dd685899..b26fcf6849f2 100644
---- a/drivers/s390/char/hmcdrv_dev.c
-+++ b/drivers/s390/char/hmcdrv_dev.c
-@@ -244,24 +244,17 @@ static ssize_t hmcdrv_dev_write(struct file *fp, const char __user *ubuf,
- 				size_t len, loff_t *pos)
- {
- 	ssize_t retlen;
-+	void *pdata;
- 
- 	pr_debug("writing file '/dev/%pD' at pos. %lld with length %zd\n",
- 		 fp, (long long) *pos, len);
- 
- 	if (!fp->private_data) { /* first expect a cmd write */
--		fp->private_data = kmalloc(len + 1, GFP_KERNEL);
--
--		if (!fp->private_data)
--			return -ENOMEM;
--
--		if (!copy_from_user(fp->private_data, ubuf, len)) {
--			((char *)fp->private_data)[len] = '\0';
--			return len;
--		}
--
--		kfree(fp->private_data);
--		fp->private_data = NULL;
--		return -EFAULT;
-+		pdata = memdup_user_nul(ubuf, len);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
-+		fp->private_data = pdata;
-+		return len;
- 	}
- 
- 	retlen = hmcdrv_dev_transfer((char *) fp->private_data,
 -- 
-2.51.0
-
+Jens Axboe
