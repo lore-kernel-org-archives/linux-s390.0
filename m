@@ -1,100 +1,172 @@
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B73E935966;
-	Fri,  5 Sep 2025 13:04:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757077475; cv=none; b=Xa/8c5ODKq9j5GxXD9/tcK6Gs3ozd8kKANaC3M05mFHP9J9zlD6HUK9P4Km2ubH6sjD2hnsgbaL3S92h/st9zh315JfIH6W45586i+Va28cXaHUsKuAJW3gvbM/FGIwkZUv6wZGGQmuP5I+54KQMnCZa/nipmdeb6Xuz3z3dYUQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757077475; c=relaxed/simple;
-	bh=gf8Wv3CwSREEIQF0pzbMHFP1Ns2rSOX6mMMsVmZtdoc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Gqa0PUwN6cQSNmsfqp1zoo/Xg8upW8HkyDqh3CmQZuriI6tWZelT+Y2pCbHb7m5lAFQVl+7+D8etEjeOdHRUmx8rb7APM5UmYpSuzTPsuTUOtHVlbT/ZU5FmAf6UuprAhk5iPExU238xdNBSt+r62Bp4GIKyICaE1GaEOLLgOhQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b=6Q4e3nps; arc=none smtp.client-ip=85.214.250.239
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=8bytes.org header.i=@8bytes.org header.b="6Q4e3nps"
-Received: from 8bytes.org (p54921b16.dip0.t-ipconnect.de [84.146.27.22])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.8bytes.org (Postfix) with ESMTPSA id 806CA54B04;
-	Fri,  5 Sep 2025 15:04:30 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
-	s=default; t=1757077470;
-	bh=gf8Wv3CwSREEIQF0pzbMHFP1Ns2rSOX6mMMsVmZtdoc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=6Q4e3npsbUWJsGhy5Eagz8qfy9EPNOm2qK6uYFFlv2EmgCkeAFTGwiK+tOIwfKtJQ
-	 Hvs4uSy7dpTDftCRHTJLbMYx5qOVQu/GUf0xOf3SWKWpXOh7n4DGFH8vK5ugJ8FJ6Z
-	 AN4GLI73puW9nN+53lbgztv60jIWBvLwNU0b2PVPSihK/saRmlMUdtnH7syjm1BmXz
-	 BcSFNviYBaZ7vQC+iRaFUXqQ1Rp0hwnAACzA+wxDP1XNstQ5PibGKRZ+TiFtqj39Mf
-	 jIYVyx23ddSZzu8RwzSms5PTLetCZXCONKjaKBCEFk2VkSxQ6i/7BdPPGmYnBndq3W
-	 41Me7NSvvNxqg==
-Date: Fri, 5 Sep 2025 15:04:29 +0200
-From: Joerg Roedel <joro@8bytes.org>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Gerd Bayer <gbayer@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>,
-	Benjamin Block <bblock@linux.ibm.com>, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, iommu@lists.linux.dev
-Subject: Re: [PATCH] iommu/s390: Make attach succeed when the device was
- surprise removed
-Message-ID: <aLrf3QshijTRYYzk@8bytes.org>
-References: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A907A3629AA;
+	Fri,  5 Sep 2025 14:12:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757081555; cv=none; b=lj/0lzpOixCA1qP7i0Rgq5Hq2857WU+ihcOhiHNAUmIg55Thh4W5S86nVWPCopV7mxTzvpMtjXZBoHVjJ2nrALvv+HxQ5oxgeBACfBNcd8nY2YFuV2BFx8/XzMIS4gS1HL7KkbGAjAwuuqxPvzOz1KuC0xFpotxr05q7fJDv5E8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757081555; c=relaxed/simple;
+	bh=VMDdS7EuAR2lHiKsozVaJG52WZNsXNMUBHTuf32Jo5I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=B2pswmXM4Z60Tizz5su2MWVihCe2Q0kEWka7Cqcy2zGxD1VnKm735lpD2f4PqTJiAitqj0F/FexiPHIRjWmOxgtdIvWS4QmkdOhC+nF7ZN+PyUcrMHFB5Xoro4Xwghj1BCPMo1rBKpm5Nrnvj+3I0GQMzIxEaOIpEsGUJAZbuvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o+iRD4GE; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o+iRD4GE"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5853Xc4n031771;
+	Fri, 5 Sep 2025 14:12:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=R/zV1C
+	NqF6sG2MnNzBPnk+rjDE4p/E/wNM0jQvtc5CQ=; b=o+iRD4GEAo+/UdOYhHCUNj
+	rBLodqxoB+dFHBw0qYn4urRhmp9+Ld7YsVXNUKTzXuw1aGH8NcZTtEcx00JgaxoT
+	Z5rZNeOUmYBS89SGYgnvTJLctymPqP1OfhFgP1cl+TBq/E/+Kl8bj58HNgBjzkCF
+	FaUZkXn+IliFRjw4GnC0H3fKhj0RcjDWYBaqqAoDuSboehn6X9hNmJZjZxZQxanD
+	5WcAdQJAbFt9jiUNPr50hlpttN+yceQZMvy+1nGk+cSOqkcebPsp4wJDbDSTketz
+	d4r6qDVPdbbTcFuDnMdfo4lPm2r/NEm+e9jK2xwTNc54lsldYXTDHCzyN4PhN/lw
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usurgysc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Sep 2025 14:12:29 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 585E7BMX016479;
+	Fri, 5 Sep 2025 14:12:28 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 48usurgys7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Sep 2025 14:12:28 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 585C4rJT017612;
+	Fri, 5 Sep 2025 14:12:27 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 48vc111x4c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 05 Sep 2025 14:12:27 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 585ECQeC27525676
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 5 Sep 2025 14:12:26 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 276725805D;
+	Fri,  5 Sep 2025 14:12:26 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5DE825805E;
+	Fri,  5 Sep 2025 14:12:21 +0000 (GMT)
+Received: from [9.39.29.162] (unknown [9.39.29.162])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  5 Sep 2025 14:12:21 +0000 (GMT)
+Message-ID: <4c5347ff-779b-48d7-8234-2aac9992f487@linux.ibm.com>
+Date: Fri, 5 Sep 2025 19:42:19 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/2] net/smc: make wr buffer count configurable
+To: Halil Pasic <pasic@linux.ibm.com>, Dust Li <dust.li@linux.alibaba.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Simon Horman <horms@kernel.org>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang
+ <wenjia@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org
+References: <20250904211254.1057445-1-pasic@linux.ibm.com>
+ <20250904211254.1057445-2-pasic@linux.ibm.com>
+ <aLpc4H_rHkHRu0nQ@linux.alibaba.com>
+ <20250905110059.450da664.pasic@linux.ibm.com>
+ <20250905140135.2487a99f.pasic@linux.ibm.com>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <20250905140135.2487a99f.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODMwMDAzMCBTYWx0ZWRfX7KKUgk6iFVmQ
+ yML+Za9UEJaK+LkX6q9Y6sXC/mI7Qe4Usq+3LxkrCCU7P3OfRz/gLft5ur6v/6xTXnpCxVyJNI3
+ yA1dDepUxB+GeT27a6naSMMsb7DTt5k1W40+FhOOibr5R0NCizHWmXkCK8bwk8vrpn+U7korLx3
+ i5TX4qRaFT2O/RAcU9ssN38Mmy9AMSfV5S5fkb/imS6Hzta7HVsk6AjQLQCbUfynpx47E2k+l4z
+ hN0j6uVGGLzHTtBzvC6yzZnZMQBfaKXrB5kLD5w1SnlaxyZZekj2JyvXmahj9LV6HF4nXF6y8DY
+ lyDCDgDuqK4CysgQyY4qXkUV5UikTXgCY9GMQYBXshDzgk3LHvC5MQvU65nbYKEpY5MlgiS8W0B
+ R7SLhU1q
+X-Proofpoint-GUID: KpI3tt6SOYpnA3FHAmwT_cdd2oR219cy
+X-Proofpoint-ORIG-GUID: u9qEwTRx78snNTiQBN9ej4uJ3a6I2XJF
+X-Authority-Analysis: v=2.4 cv=Ao/u3P9P c=1 sm=1 tr=0 ts=68baefcd cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=B3rph_lr8uwRdQD9BfQA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-05_04,2025-09-04_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 phishscore=0 impostorscore=0 priorityscore=1501 spamscore=0
+ suspectscore=0 bulkscore=0 adultscore=0 malwarescore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2508300030
 
-On Thu, Sep 04, 2025 at 10:59:49AM +0200, Niklas Schnelle wrote:
-> When a PCI device is removed with surprise hotplug, there may still be
-> attempts to attach the device to the default domain as part of tear down
-> via (__iommu_release_dma_ownership()), or because the removal happens
-> during probe (__iommu_probe_device()). In both cases zpci_register_ioat()
-> fails with a cc value indicating that the device handle is invalid. This
-> is because the device is no longer part of the instance as far as the
-> hypervisor is concerned.
-> 
-> Currently this leads to an error return and s390_iommu_attach_device()
-> fails. This triggers the WARN_ON() in __iommu_group_set_domain_nofail()
-> because attaching to the default domain must never fail.
-> 
-> With the device fenced by the hypervisor no DMAs to or from memory are
-> possible and the IOMMU translations have no effect. Proceed as if the
-> registration was successful and let the hotplug event handling clean up
-> the device.
-> 
-> This is similar to how devices in the error state are handled since
-> commit 59bbf596791b ("iommu/s390: Make attach succeed even if the device
-> is in error state") except that for removal the domain will not be
-> registered later. This approach was also previously discussed at the
-> link.
-> 
-> Handle both cases, error state and removal, in a helper which checks if
-> the error needs to be propagated or ignored. Avoid magic number
-> condition codes by using the pre-existing, but never used, defines for
-> PCI load/store condition codes and rename them to reflect that they
-> apply to all PCI instructions.
-> 
-> Cc: stable@vger.kernel.org # v6.2
-> Link: https://lore.kernel.org/linux-iommu/20240808194155.GD1985367@ziepe.ca/
-> Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> ---
->  arch/s390/include/asm/pci_insn.h | 10 +++++-----
->  drivers/iommu/s390-iommu.c       | 26 +++++++++++++++++++-------
->  2 files changed, 24 insertions(+), 12 deletions(-)
 
-Applied for -rc, thanks.
+
+On 05/09/25 5:31 pm, Halil Pasic wrote:
+> On Fri, 5 Sep 2025 11:00:59 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+>>> 1. What if the two sides have different max_send_wr/max_recv_wr configurations?
+>>> IIUC, For example, if the client sets max_send_wr to 64, but the server sets
+>>> max_recv_wr to 16, the client might overflow the server's QP receive
+>>> queue, potentially causing an RNR (Receiver Not Ready) error.  
+>>
+>> I don't think the 16 is spec-ed anywhere and if the client and the server
+>> need to agree on the same value it should either be speced, or a
+>> protocol mechanism for negotiating it needs to exist. So what is your
+>> take on this as an SMC maintainer?
+>>
+>> I think, we have tested heterogeneous setups and didn't see any grave
+>> issues. But let me please do a follow up on this. Maybe the other
+>> maintainers can chime in as well.
+> 
+> Did some research and some thinking. Are you concerned about a
+> performance regression for e.g. 64 -> 16 compared to 16 -> 16? According
+> to my current understanding the RNR must not lead to a catastrophic
+> failure, but the RDMA/IB stack is supposed to handle that.
+> 
+
+Hi Dust,
+
+I configured a client-server setup & did some SMC-R testing by setting
+the values you proposed. Ran iperf3(using smc_run) with max parallel
+connections of 128 & it looks good. No tcp fallback. No obvious errors.
+As Halil mentioned I don't see any catastrophic failure here. Let me
+know if I need to stress the system by some more tests or any specific
+test that you can think may cause RNR errors. The setup is ready & I can
+try it.
+
+*Client* side logs:
+[root@client ~]$ sysctl net.smc.smcr_max_send_wr
+net.smc.smcr_max_send_wr = 64
+[root@client ~]$
+
+[root@client ~]$ smc_run iperf3  -P 128 -t 120 -c 10.25.0.72
+Connecting to host 10.25.0.72, port 5201
+[  5] local 10.25.0.73 port 52544 connected to 10.25.0.72 port 5201
+[  7] local 10.25.0.73 port 52558 connected to 10.25.0.72 port 5201
+
+*Server* side logs:
+[root@server ~]$ sysctl net.smc.smcr_max_recv_wr
+net.smc.smcr_max_recv_wr = 16
+[root@client ~]$
+
+[root@server~]$ smc_run iperf3 -s
+
+-----------------------------------------------------------
+Server listening on 5201 (test #1)
+-----------------------------------------------------------
