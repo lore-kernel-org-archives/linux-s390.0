@@ -1,65 +1,65 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A460E322549;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A468C322DAF;
 	Tue,  9 Sep 2025 11:55:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757418914; cv=none; b=EQaCGfDqE+dk28BFxUMyreJgY7xAChzhGRafHCQ6O3bXCLn0hQGlH7tHRduHmuT4vhLxUBrISNJmm8ycmgxNyM6ITFc/pq5yvH9NzBWJLdl8rWGpw5WXYZo70840KHs12fQ/4nClVFbqrBWd0pjndKvePXKufbMUhH/bTjofOWo=
+	t=1757418914; cv=none; b=LhTsW2B6533ryXIgCy9Y+pxR0meHGZXoKbZDUvTP2fuME/L9oAjbQJJAqHcB713HV+Yp3XTVHGORW6A+5q9grnRjhGum8fD1g08w8PtvQOZwvEGecY8WZOG818+3mda0wl2sD+UWINyghpAY/D+VtB8tEb3nFFEkcSomBG7JJa8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1757418914; c=relaxed/simple;
-	bh=EDY+sNKmp8vPeydDPfj0J/5qEu2JxSZXb8ePcIUMCbg=;
+	bh=zF1ZQ6RB+26uJISMSmJMJhnVKtYES5dgglmBREviGao=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=B7ynG22bvwaL4nyqduLcxYsdg+7Rln/MaEW12IsgilMQAgO9XtCmUG2gkxSe04q6vUSPonAPtUCQsTG21FMVpPCCW+IVGEPZRj8U8JDsXJE8pwZIvty0YblWUPxKP967zW0Dt2wyxSZN7lJU8Ki0gIs7ew2DPKde8/DtIJPNHXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tg8eRB8o; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=NtaKUIhI75J4fyGfh1EqREUrKCYOql4KqT9q3cmWEppKaSol5+TOaTli3tXKzXsYsCGErEh7mxI+SIyZV/UKs1mJO1wb3O+dbb3JeSwl3mG3qwCub8aIgPcV4Kbo8oUIob9FwaUGDcW7/LVSXkhEhLJp7mNzY1kHebH4hdAYUxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bQfX1f1T; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tg8eRB8o"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 589ANtv8016609;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bQfX1f1T"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5896GkTT017992;
 	Tue, 9 Sep 2025 11:55:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=K1xfU7rRlNzLdOKM/
-	sLZhUJJsCE51Y/ZvaojlK/jf38=; b=tg8eRB8oBNwoXZnJUwQDcKNYKjgDTu+2S
-	8HTP8Dl9V6rAYgqHxGJIEtFH/N59j18zl6gEGZn/Nhd8yx68AJUOFEDfBF9Panxd
-	6x88VmTyEyRdsY/UNuHsUUBCUzR9g/b26YhtMkwZtpFpZobcMSi/tbdHb3ikW+Lr
-	ctOmJ9RH88MrzNPnfxsxQcMr+7tPn4oLz6DO9M6eBFlbPqJQt8RAV5DQWYU9dOBa
-	a4SJ7aw4I9bbE8+nmp4InagodzxJyGNy00m5OqS9u0NUwEqh38q9CM+bXmPe4QwS
-	lScBd5gyANODH5mpgxV0R01M8acri8SwKxb2s7K5MZ88q84RBvQoA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490bcsq994-1
+	:mime-version:references:subject:to; s=pp1; bh=hq2VMFF1b0WrGoSAz
+	HpxrE9H5syU+jcM2e7O0tHEXbQ=; b=bQfX1f1TlSoaQvbMIoHKhheyXLGJdshlM
+	uZXKM+y/0mgdROYdvjYwX4Id2qnTVwNeyH3xujHfh/+kLBrQNTkBGf49eiub+iFl
+	B/8UzoG3Bm4k3wrq0KaVIUSvYdOv+IvHWcOL3KIUWh21YUeM4djgS7nQbK2MpkWi
+	dkwAoFHD9DA8eVy1x1e6xd7X4QkSTQ8fKecdTkYOfkvvUPRqJqvIeY1oCo4GvZm9
+	bMfNZh05ioRI+6fZ0dLuXoXDnLqsK7LrXZ86i0fm51K5G9bDXfk5eIWWM1Edr4DE
+	J3EO36kPDlamiiXPuT/9lDZTIe5fSeMdc9o/8a5uTlXMWOqi9OiXQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490ukecp7g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 11:55:09 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5899tTSi007929;
-	Tue, 9 Sep 2025 11:55:08 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49109pjyg3-1
+	Tue, 09 Sep 2025 11:55:10 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 589A6Tj3010588;
+	Tue, 9 Sep 2025 11:55:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4910smtvmq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 11:55:08 +0000
+	Tue, 09 Sep 2025 11:55:09 +0000
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589Bt4RO57606610
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589Bt5uu9306498
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Sep 2025 11:55:04 GMT
+	Tue, 9 Sep 2025 11:55:05 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CC1A20043;
-	Tue,  9 Sep 2025 11:55:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7413020043;
+	Tue,  9 Sep 2025 11:55:05 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0AFE320040;
-	Tue,  9 Sep 2025 11:55:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1414B20040;
+	Tue,  9 Sep 2025 11:55:05 +0000 (GMT)
 Received: from li-9fd7f64c-3205-11b2-a85c-df942b00d78d.fritz.box (unknown [9.111.71.18])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Sep 2025 11:55:03 +0000 (GMT)
+	Tue,  9 Sep 2025 11:55:05 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com,
         borntraeger@linux.ibm.com, cohuck@redhat.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
-Subject: [GIT PULL 1/3] KVM: s390: Fix access to unavailable adapter indicator pages during postcopy
-Date: Tue,  9 Sep 2025 13:46:13 +0200
-Message-ID: <20250909115446.90338-2-frankja@linux.ibm.com>
+Subject: [GIT PULL 3/3] KVM: s390: Fix FOLL_*/FAULT_FLAG_* confusion
+Date: Tue,  9 Sep 2025 13:46:15 +0200
+Message-ID: <20250909115446.90338-4-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20250909115446.90338-1-frankja@linux.ibm.com>
 References: <20250909115446.90338-1-frankja@linux.ibm.com>
@@ -71,116 +71,141 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAxMCBTYWx0ZWRfX/nlG9xdpmMhb
- F5iBnh5ZIZcZzrmy2sg1AA31TjP4kgnomc4rex+Uk2QWx51x30U5bxOw7ZGg/2ScAP7B0ypIsvp
- gs+IOukhz5+7oirPZuo+6Sq5yOlI9gX8xmyW4SgwUt/i9O06UvkeGBIBjOSIPOx5yO+/Iww4TXN
- DpnuFdCPzhIAavDORIP7gwdm6aTtlIND8fgNuHlF268BUFUdpPw1PHiOA5i+AYy7vl5MjLnolGf
- q3G/NhC8H0geFhrnl+octdCgBs5Simdm6ju2yh6uAzpQowWHagUYl8GaH2PLdIWLYjcrrzPPB/r
- ciyMSSdXvPaS9E+bcTbLN9KgTdjDu9TfgvmywCBgsbAHGhdBn9+bzjKCs4UCjFBZJTdQ6Ny4QOI
- rrmB7neL
-X-Authority-Analysis: v=2.4 cv=SKNCVPvH c=1 sm=1 tr=0 ts=68c0159d cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=yJojWOMRYYMA:10 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=kFCvNu4vXPeMiJgJUQ8A:9
-X-Proofpoint-GUID: vzVZNwvujzdTYPdqTHTqx_wYTYtqp_8B
-X-Proofpoint-ORIG-GUID: vzVZNwvujzdTYPdqTHTqx_wYTYtqp_8B
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDE5NSBTYWx0ZWRfX32lhu3nWjKm4
+ y7TOC3Uxjh2btVrfOKqBnTXJzC5r9+XBX0kdUyN3WYereHTtGOE1x4F3O6oy8X++15n+LeHxrYS
+ zloHSgbvmosU70Snra3w/Fxdez07TlkDViix+h6TnpczxxB/WTWnKa3bnittabeJbRETQuNj2nR
+ 0/fJpdTjI5C6wYAmh10rEe0kL7Odi/L+F2OlclvYC9bbWOWa4pLcUGg9ZlOmOFCKJdQwqrs5jMO
+ trFLOtdRuRqV6LsoSPsAjEuBJkU+T94OKQiVdW427FyukAZYwXCQVRxVivmCf2Z1GE6eX4tE+az
+ Frm71CIWfOC8btTeCZZQda4U3Mp86IYAtlTaMy6acAOnnNZ3AJRqott2mTQXyMcSZyK6vrJQL5p
+ vDb3JKu3
+X-Proofpoint-ORIG-GUID: MlIqhqC1yfgA9XF8HwrvbrhVamZoeJGt
+X-Proofpoint-GUID: MlIqhqC1yfgA9XF8HwrvbrhVamZoeJGt
+X-Authority-Analysis: v=2.4 cv=StCQ6OO0 c=1 sm=1 tr=0 ts=68c0159e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8 a=hH8_rHouDUwXcPhP104A:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-09_01,2025-09-08_02,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
- adultscore=0 suspectscore=0 impostorscore=0 phishscore=0
+ spamscore=0 malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0
+ suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060010
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060195
 
-From: Thomas Huth <thuth@redhat.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-When you run a KVM guest with vhost-net and migrate that guest to
-another host, and you immediately enable postcopy after starting the
-migration, there is a big chance that the network connection of the
-guest won't work anymore on the destination side after the migration.
+Pass the right type of flag to vcpu_dat_fault_handler(); it expects a
+FOLL_* flag (in particular FOLL_WRITE), but FAULT_FLAG_WRITE is passed
+instead.
 
-With a debug kernel v6.16.0, there is also a call trace that looks
-like this:
+This still works because they happen to have the same integer value,
+but it's a mistake, thus the fix.
 
- FAULT_FLAG_ALLOW_RETRY missing 881
- CPU: 6 UID: 0 PID: 549 Comm: kworker/6:2 Kdump: loaded Not tainted 6.16.0 #56 NONE
- Hardware name: IBM 3931 LA1 400 (LPAR)
- Workqueue: events irqfd_inject [kvm]
- Call Trace:
-  [<00003173cbecc634>] dump_stack_lvl+0x104/0x168
-  [<00003173cca69588>] handle_userfault+0xde8/0x1310
-  [<00003173cc756f0c>] handle_pte_fault+0x4fc/0x760
-  [<00003173cc759212>] __handle_mm_fault+0x452/0xa00
-  [<00003173cc7599ba>] handle_mm_fault+0x1fa/0x6a0
-  [<00003173cc73409a>] __get_user_pages+0x4aa/0xba0
-  [<00003173cc7349e8>] get_user_pages_remote+0x258/0x770
-  [<000031734be6f052>] get_map_page+0xe2/0x190 [kvm]
-  [<000031734be6f910>] adapter_indicators_set+0x50/0x4a0 [kvm]
-  [<000031734be7f674>] set_adapter_int+0xc4/0x170 [kvm]
-  [<000031734be2f268>] kvm_set_irq+0x228/0x3f0 [kvm]
-  [<000031734be27000>] irqfd_inject+0xd0/0x150 [kvm]
-  [<00003173cc00c9ec>] process_one_work+0x87c/0x1490
-  [<00003173cc00dda6>] worker_thread+0x7a6/0x1010
-  [<00003173cc02dc36>] kthread+0x3b6/0x710
-  [<00003173cbed2f0c>] __ret_from_fork+0xdc/0x7f0
-  [<00003173cdd737ca>] ret_from_fork+0xa/0x30
- 3 locks held by kworker/6:2/549:
-  #0: 00000000800bc958 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x7ee/0x1490
-  #1: 000030f3d527fbd0 ((work_completion)(&irqfd->inject)){+.+.}-{0:0}, at: process_one_work+0x81c/0x1490
-  #2: 00000000f99862b0 (&mm->mmap_lock){++++}-{3:3}, at: get_map_page+0xa8/0x190 [kvm]
-
-The "FAULT_FLAG_ALLOW_RETRY missing" indicates that handle_userfaultfd()
-saw a page fault request without ALLOW_RETRY flag set, hence userfaultfd
-cannot remotely resolve it (because the caller was asking for an immediate
-resolution, aka, FAULT_FLAG_NOWAIT, while remote faults can take time).
-With that, get_map_page() failed and the irq was lost.
-
-We should not be strictly in an atomic environment here and the worker
-should be sleepable (the call is done during an ioctl from userspace),
-so we can allow adapter_indicators_set() to just sleep waiting for the
-remote fault instead.
-
-Link: https://issues.redhat.com/browse/RHEL-42486
-Signed-off-by: Peter Xu <peterx@redhat.com>
-[thuth: Assembled patch description and fixed some cosmetical issues]
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Fixes: f65470661f36 ("KVM: s390/interrupt: do not pin adapter interrupt pages")
-[frankja: Added fixes tag]
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: 05066cafa925 ("s390/mm/fault: Handle guest-related program interrupts in KVM")
+Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kvm/interrupt.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2a92a8b9e4c2..9384572ffa7b 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2778,12 +2778,19 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
- 
- static struct page *get_map_page(struct kvm *kvm, u64 uaddr)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index bf6fa8b9ca73..6d51aa5f66be 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4864,12 +4864,12 @@ static void kvm_s390_assert_primary_as(struct kvm_vcpu *vcpu)
+  * @vcpu: the vCPU whose gmap is to be fixed up
+  * @gfn: the guest frame number used for memslots (including fake memslots)
+  * @gaddr: the gmap address, does not have to match @gfn for ucontrol gmaps
+- * @flags: FOLL_* flags
++ * @foll: FOLL_* flags
+  *
+  * Return: 0 on success, < 0 in case of error.
+  * Context: The mm lock must not be held before calling. May sleep.
+  */
+-int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, unsigned int flags)
++int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, unsigned int foll)
  {
-+	struct mm_struct *mm = kvm->mm;
- 	struct page *page = NULL;
-+	int locked = 1;
-+
-+	if (mmget_not_zero(mm)) {
-+		mmap_read_lock(mm);
-+		get_user_pages_remote(mm, uaddr, 1, FOLL_WRITE,
-+				      &page, &locked);
-+		if (locked)
-+			mmap_read_unlock(mm);
-+		mmput(mm);
-+	}
+ 	struct kvm_memory_slot *slot;
+ 	unsigned int fault_flags;
+@@ -4883,13 +4883,13 @@ int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, u
+ 	if (!slot || slot->flags & KVM_MEMSLOT_INVALID)
+ 		return vcpu_post_run_addressing_exception(vcpu);
  
--	mmap_read_lock(kvm->mm);
--	get_user_pages_remote(kvm->mm, uaddr, 1, FOLL_WRITE,
--			      &page, NULL);
--	mmap_read_unlock(kvm->mm);
- 	return page;
+-	fault_flags = flags & FOLL_WRITE ? FAULT_FLAG_WRITE : 0;
++	fault_flags = foll & FOLL_WRITE ? FAULT_FLAG_WRITE : 0;
+ 	if (vcpu->arch.gmap->pfault_enabled)
+-		flags |= FOLL_NOWAIT;
++		foll |= FOLL_NOWAIT;
+ 	vmaddr = __gfn_to_hva_memslot(slot, gfn);
+ 
+ try_again:
+-	pfn = __kvm_faultin_pfn(slot, gfn, flags, &writable, &page);
++	pfn = __kvm_faultin_pfn(slot, gfn, foll, &writable, &page);
+ 
+ 	/* Access outside memory, inject addressing exception */
+ 	if (is_noslot_pfn(pfn))
+@@ -4905,7 +4905,7 @@ int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, u
+ 			return 0;
+ 		vcpu->stat.pfault_sync++;
+ 		/* Could not setup async pfault, try again synchronously */
+-		flags &= ~FOLL_NOWAIT;
++		foll &= ~FOLL_NOWAIT;
+ 		goto try_again;
+ 	}
+ 	/* Any other error */
+@@ -4925,7 +4925,7 @@ int __kvm_s390_handle_dat_fault(struct kvm_vcpu *vcpu, gfn_t gfn, gpa_t gaddr, u
+ 	return rc;
  }
  
+-static int vcpu_dat_fault_handler(struct kvm_vcpu *vcpu, unsigned long gaddr, unsigned int flags)
++static int vcpu_dat_fault_handler(struct kvm_vcpu *vcpu, unsigned long gaddr, unsigned int foll)
+ {
+ 	unsigned long gaddr_tmp;
+ 	gfn_t gfn;
+@@ -4950,18 +4950,18 @@ static int vcpu_dat_fault_handler(struct kvm_vcpu *vcpu, unsigned long gaddr, un
+ 		}
+ 		gfn = gpa_to_gfn(gaddr_tmp);
+ 	}
+-	return __kvm_s390_handle_dat_fault(vcpu, gfn, gaddr, flags);
++	return __kvm_s390_handle_dat_fault(vcpu, gfn, gaddr, foll);
+ }
+ 
+ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ {
+-	unsigned int flags = 0;
++	unsigned int foll = 0;
+ 	unsigned long gaddr;
+ 	int rc;
+ 
+ 	gaddr = current->thread.gmap_teid.addr * PAGE_SIZE;
+ 	if (kvm_s390_cur_gmap_fault_is_write())
+-		flags = FAULT_FLAG_WRITE;
++		foll = FOLL_WRITE;
+ 
+ 	switch (current->thread.gmap_int_code & PGM_INT_CODE_MASK) {
+ 	case 0:
+@@ -5003,7 +5003,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 			send_sig(SIGSEGV, current, 0);
+ 		if (rc != -ENXIO)
+ 			break;
+-		flags = FAULT_FLAG_WRITE;
++		foll = FOLL_WRITE;
+ 		fallthrough;
+ 	case PGM_PROTECTION:
+ 	case PGM_SEGMENT_TRANSLATION:
+@@ -5013,7 +5013,7 @@ static int vcpu_post_run_handle_fault(struct kvm_vcpu *vcpu)
+ 	case PGM_REGION_SECOND_TRANS:
+ 	case PGM_REGION_THIRD_TRANS:
+ 		kvm_s390_assert_primary_as(vcpu);
+-		return vcpu_dat_fault_handler(vcpu, gaddr, flags);
++		return vcpu_dat_fault_handler(vcpu, gaddr, foll);
+ 	default:
+ 		KVM_BUG(1, vcpu->kvm, "Unexpected program interrupt 0x%x, TEID 0x%016lx",
+ 			current->thread.gmap_int_code, current->thread.gmap_teid.val);
 -- 
 2.51.0
 
