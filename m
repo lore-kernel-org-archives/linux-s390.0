@@ -1,127 +1,85 @@
-Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D79A22A7E4;
-	Tue,  9 Sep 2025 03:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7494D515;
+	Tue,  9 Sep 2025 03:23:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757387968; cv=none; b=T4enqM5JHCIBBHIcqrYYHTG4NbFzcGuN2Cn8IzeySWAR6LQM3Xv9az48CTfWGA93Tlu1+r+NCeuS7JAvm6zrNhc745W57llO07bJIwJHrP4CNhymFmuFGO0DOU32INwCkJSXGQPWjn8p9ShJEnxaGVdJAfV4KPcQCo51ykemrqU=
+	t=1757388239; cv=none; b=UtDpKlazvwj1kXdbkNy5g2nSWkAqBsVLqxoBXC1zPmD/hS/AoMeSz1rApSBRDWhaa7SltqW4QVNgY8kN5KE45QJfGYdE9rj6IoiMUMisfAKfkVq+b/uDcxFEOwKN1WJ9vyqCOPv8d2DS5+I0w6pbCInDGn5Nh4HWUeegbBWtobQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757387968; c=relaxed/simple;
-	bh=dXeL8bHgEJS0WBDFa6oVj6Cg2JQha9x3GSBxLbSsSp4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gSqDZVHg4Zx472kGkR+tYRLJspdYZuRjjKjo6CxSmyaDauKcLpk7IU078AXpPziEr7EWy9DGZplR//cep5S7lqI2cr4dBRnw8MpWzKg0pJBrVu7WsqkAOucrKY2bdqXpOyRmWVpJWLeyU8XyWY05PAAL632+OfBrNqLClQ6Ul/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=neOoo9fi; arc=none smtp.client-ip=115.124.30.113
+	s=arc-20240116; t=1757388239; c=relaxed/simple;
+	bh=pswCMpx2vTdQ1c7alrFPSg51STxY+Ef9ucqfFUYaqWM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mJvG8+w6clZn7VleWoo5u/ESOpbqX9gboYLWj87svO1KoXoTek3vH6Puw5LGhh5ABtecpdSss84EXSBLTCT9rYGfEO+ZpBQc+4qIy0/b4zSjpLmOe1yrDL1EfU2f/rfpqle2JtDkQ2HT5f0BkCJA7Ujz5T0xNyaffOuKPIEX9pM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=vYiYVXiU; arc=none smtp.client-ip=115.124.30.111
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="neOoo9fi"
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="vYiYVXiU"
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=linux.alibaba.com; s=default;
-	t=1757387962; h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type;
-	bh=kp/49YwOqYc4XSnECrXc1wc8q5JFsR73JTB4gmB0H9s=;
-	b=neOoo9fiPql50Cf0f0s9a8YQh/khunQ8lY2XlD2dktzPloXUrCLWlf5pOFiqwzzBEvFMWEDG6pRsUWq+HEJaTDjpsGDTssXG99pVuT3y//1TUxM4no2j1JxrY3O7Kthd2X6o5Puo15wFv2fMWFwlMaZGQusUltdTTsm3Kd6qkX8=
-Received: from 30.74.144.127(mailfrom:baolin.wang@linux.alibaba.com fp:SMTPD_---0Wnc5f31_1757387957 cluster:ay36)
+	t=1757388233; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=3kUMao3FvCL6I7A/UN7ip7pd2M3nqoLuRCUIBR3cW0E=;
+	b=vYiYVXiUUKMEcjfFwUFjDK7FBk4xB1mNoYoXrMlv552rBDl2ILnOaaTF+jO3JDpchH3wGss0rnBdQROPwHJy1gUlL1YzdvSWyim70qcOV2BhRZmLRd/d+YZeI6sWq8aC5r+DHTmMOl6lF/st4d/TkRkC2SU0okJlPyUQCf7cqWU=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0Wnc7Yfp_1757388232 cluster:ay36)
           by smtp.aliyun-inc.com;
-          Tue, 09 Sep 2025 11:19:18 +0800
-Message-ID: <2a08292a-fdad-49f1-8ad9-550bf3129b2f@linux.alibaba.com>
-Date: Tue, 9 Sep 2025 11:19:16 +0800
+          Tue, 09 Sep 2025 11:23:52 +0800
+Date: Tue, 9 Sep 2025 11:23:52 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Kriish Sharma <kriish.sharma2006@gmail.com>, alibuda@linux.alibaba.com,
+	sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Cc: mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	skhan@linuxfoundation.org,
+	linux-kernel-mentees@lists.linuxfoundation.org
+Subject: Re: [PATCH] net/smc: replace strncpy with strscpy for ib_name
+Message-ID: <aL-dyGTIUuwK_R8_@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250908180913.356632-1-kriish.sharma2006@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/16] mm/shmem: update shmem to use mmap_prepare
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>,
- Guo Ren <guoren@kernel.org>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dan Williams <dan.j.williams@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
- Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>,
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
- Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
- Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>,
- Reinette Chatre <reinette.chatre@intel.com>,
- Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>,
- Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Hugh Dickins <hughd@google.com>, Uladzislau Rezki <urezki@gmail.com>,
- Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, nvdimm@lists.linux.dev,
- linux-cxl@vger.kernel.org, linux-mm@kvack.org, ntfs3@lists.linux.dev,
- kexec@lists.infradead.org, kasan-dev@googlegroups.com,
- Jason Gunthorpe <jgg@nvidia.com>
-References: <cover.1757329751.git.lorenzo.stoakes@oracle.com>
- <2f84230f9087db1c62860c1a03a90416b8d7742e.1757329751.git.lorenzo.stoakes@oracle.com>
-From: Baolin Wang <baolin.wang@linux.alibaba.com>
-In-Reply-To: <2f84230f9087db1c62860c1a03a90416b8d7742e.1757329751.git.lorenzo.stoakes@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250908180913.356632-1-kriish.sharma2006@gmail.com>
+
+On 2025-09-08 18:09:13, Kriish Sharma wrote:
+>Replace the deprecated strncpy() with strscpy() for ib_name in
+>smc_pnet_add_ib(). The destination buffer should be NUL-terminated and
+>does not require any trailing NUL-padding. Since ib_name is a fixed-size
+>array, the two-argument form of strscpy() is sufficient and preferred.
+>
+>Signed-off-by: Kriish Sharma <kriish.sharma2006@gmail.com>
+
+I think d250f14f5f0754ce2d05d9c0ce778e4a51f488b0 has already done the
+same thing.
+
+Best regards,
+Dust
 
 
-
-On 2025/9/8 19:10, Lorenzo Stoakes wrote:
-> This simply assigns the vm_ops so is easily updated - do so.
+>---
+> net/smc/smc_pnet.c | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+>index 76ad29e31d60..b90337f86e83 100644
+>--- a/net/smc/smc_pnet.c
+>+++ b/net/smc/smc_pnet.c
+>@@ -450,7 +450,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
+> 		return -ENOMEM;
+> 	new_pe->type = SMC_PNET_IB;
+> 	memcpy(new_pe->pnet_name, pnet_name, SMC_MAX_PNETID_LEN);
+>-	strncpy(new_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX);
+>+	strscpy(new_pe->ib_name, ib_name);
+> 	new_pe->ib_port = ib_port;
 > 
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> ---
-
-LGTM.
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-
->   mm/shmem.c | 9 +++++----
->   1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/mm/shmem.c b/mm/shmem.c
-> index 29e1eb690125..cfc33b99a23a 100644
-> --- a/mm/shmem.c
-> +++ b/mm/shmem.c
-> @@ -2950,16 +2950,17 @@ int shmem_lock(struct file *file, int lock, struct ucounts *ucounts)
->   	return retval;
->   }
->   
-> -static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
-> +static int shmem_mmap_prepare(struct vm_area_desc *desc)
->   {
-> +	struct file *file = desc->file;
->   	struct inode *inode = file_inode(file);
->   
->   	file_accessed(file);
->   	/* This is anonymous shared memory if it is unlinked at the time of mmap */
->   	if (inode->i_nlink)
-> -		vma->vm_ops = &shmem_vm_ops;
-> +		desc->vm_ops = &shmem_vm_ops;
->   	else
-> -		vma->vm_ops = &shmem_anon_vm_ops;
-> +		desc->vm_ops = &shmem_anon_vm_ops;
->   	return 0;
->   }
->   
-> @@ -5229,7 +5230,7 @@ static const struct address_space_operations shmem_aops = {
->   };
->   
->   static const struct file_operations shmem_file_operations = {
-> -	.mmap		= shmem_mmap,
-> +	.mmap_prepare	= shmem_mmap_prepare,
->   	.open		= shmem_file_open,
->   	.get_unmapped_area = shmem_get_unmapped_area,
->   #ifdef CONFIG_TMPFS
-
+> 	new_ibdev = true;
+>-- 
+>2.34.1
