@@ -1,218 +1,122 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE4A1EB36
-	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 09:55:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DF692C2376
+	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 10:17:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757411761; cv=none; b=iTQHhpZyEekzE9eMxBfDvemRzqzJeKbomDABULEGZ1+iciUKoo0kAbhnFUB0q2tUQ4D8NQDAyEAFYyAIjBJIIE4xZ1ERwVzwHj4M6VTvoMdm3UMx1Jax1r+V3PHgbK05IFM34kFlBPQHJ8IKSuNtYU6/VNVDgUzEX9/hW+KTz+w=
+	t=1757413069; cv=none; b=Z62RApYzEm5ZBO03K5DxkPE4ux6S+RpdfOzqHxqIxiBuUGGelDGX41po1v2k3ZsWuoc6gHb0EgmL9oGWdqxEZvhM4lMpHeZSy4B01dywlFKmJOzu2kegoiGx5E6Z/1vOlhfR8wHe2E9xPKOR/Y33+3I3VPyL6wfLTpNJJeudU08=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757411761; c=relaxed/simple;
-	bh=VKk+DfPeoBviWHTSePPOcfSJ1Fx+ahLOMPVb2ffk1QY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YlS897CDGurl0x0NRRczuG0ePqIX3ZOG/B9NVD0NNmiwmlkpwbkKdMI0c7eVaY8JCHKAnDuerdsJ6euetLfdwmRVdWHOe3Yi6tD1n693ZRzZel2lY+3hZdTdH+JYl8I6uCCTv7wY3vSZq4L4Btcx7mRfghAO0BPf+eZZ+3Zcl18=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NlktjhYQ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1757413069; c=relaxed/simple;
+	bh=4ntcZH3ovQ5NlPNFJUOxZaBnGJTvw3YqF3eMuT7MaSI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FfZeurJe9KRauG665Yp4t8C08I9UK/fetL2/irdDgmmuvgRtcxIRrKQpIGLcQLVZtm8UWiVV2vLzWXqlSwlFK1ixGxDwPPLMgT40Vrd/4EwClsUD4363qgTZxZJvB/tzROSoE6pwdTud3HxNwadng1JnRtHy92SPaaU5zGwDGVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Qhyg533a; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NlktjhYQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757411758;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=uuhn5XZ+k/yXfBkz6uI/EJtHiraKm76UcsqU/6SM9xI=;
-	b=NlktjhYQpXSVZOvHT/0YHoK9170VTsIkOcWr/ks3sIlIarI1sFkI8VXyMEkaDK/15WPHHi
-	Alftj+TpO16rvQvspMBF/G3Vx087w2Lduh7M5Y1d6wHPDArKXmHiwcp9ZlDmslY9zqZDP9
-	euqVFGK6gisdeSCaIXIwqj2mQrx4WnA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-672-hZw_lLYDMmeeG6_mDrH5GQ-1; Tue, 09 Sep 2025 05:55:55 -0400
-X-MC-Unique: hZw_lLYDMmeeG6_mDrH5GQ-1
-X-Mimecast-MFC-AGG-ID: hZw_lLYDMmeeG6_mDrH5GQ_1757411755
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-45cb6d8f42bso52021455e9.2
-        for <linux-s390@vger.kernel.org>; Tue, 09 Sep 2025 02:55:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Qhyg533a"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-55f98e7782bso6215424e87.0
+        for <linux-s390@vger.kernel.org>; Tue, 09 Sep 2025 03:17:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1757413065; x=1758017865; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yTOjobUwof9Yzc4Kuwjdn4adfxee8+12s83EWKmIV5o=;
+        b=Qhyg533aDWddVNipy8ID0IwZyepiC71pEHjEqoXcWG2oVesfi8TdRf4FR5Z1/BAZ81
+         Ty9QsqJK2nxGB/Yw7qFIsYvrfQAv/grC0nKse8hSOf/7vL1f1GTjjpG+oO+FXe7JHZC9
+         Uad58qJTP3VubECgLuA9jeVWHMpOb8rIoj60JokWxqARPqqnf5gtE3kBZavLx153vL/g
+         /VTqpLUebDDO+aUZtn93f32pzCF8Qyg60Q0FEYhyLTbr83yIa3n+vdMokZ30IuZ2rttn
+         D7KOKTiCrVdD0HvxhfcVI+crK70GxyVVjRRBjpSdB1fJ0tjBec1+4k5ae7lq5qum2t70
+         XUqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757411754; x=1758016554;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=uuhn5XZ+k/yXfBkz6uI/EJtHiraKm76UcsqU/6SM9xI=;
-        b=P0agf2sAqjMq2f1dF0jkUs4hRAJhHJudPNmwenihNoDaQ0DKcraZJWOR//RLpa4E7Q
-         5hk0YN9E1ASPZqm6mWtbvcu5TGUFbLQZv1rGcNlImtXfnVKWGPGD1HD57Q+gp6Drp6MO
-         tYmDsVQLasm48ohYk+OSG/c+r/BATD41sDym3gR0ym7dGeX732TJuRJBC6iygUf1xag7
-         33VfSlIr/MDRurd3+hqRxvcdzk7HXvCB8kCrYY3saAvSqX5i9A74bMOQb6NOrnHo8xnA
-         ol3nH0n1lccqNZnNtP7U45CJ7PIDicfvTXt9mqlwmU2wbxnuDzUJv68GRWDmUJxanDSa
-         dQUw==
-X-Forwarded-Encrypted: i=1; AJvYcCXGR55A4SKEch5NZ9kjjiMd6sjaI4Ft1Ql8eIrAKVchBvumFpILqTKdz0w96+Lh+7gBpFL92b37r7vp@vger.kernel.org
-X-Gm-Message-State: AOJu0YwhZ7My2b2stbIi8u8GayGu5DNmCdbPE2BfEiUqTk4Mqh5PwHww
-	tp6AAeDDLf82EAqLcu5TQy7d9vkvAcKYZbhOBOkD8k38p1yi4OXnvyIesuCCxdxy4JEYRrgiruU
-	Kx4OeRpWkD27PUNwrNvOMh4G9YlbJbZ4qt054Etee8Tcz/75//niKhK5BG2Pt4RM=
-X-Gm-Gg: ASbGnctPCByoSHDncCSbHT/Ow1rNRSTw6bfKzN8Yt55bM8EAiijMmyQ2OHo9HKOPL4/
-	AkGklK6tVPHTGJjRjWM48Efhnhvhb44auv9hjJzJS6uyuUROqGEItL7IZta8YgMvErmd2ipk19J
-	AYu4iqdfd4/8QwuOuT4vSejvWSnxBAwC04hVbMhjzWtRKZTS0fLKfBe5ZYUZ16U7OxwSKJyew3a
-	hLo/uarXAt41pvHZ94bCItK3cmsty2FAhcJ1omtUL3hsaM8NeL3aoIO69d55BCbpv8838uhDn4g
-	yXFGVS4byPy52UjX+bcV5VeZvYTyGH5w7hz+IkNEmoaDKvqx/qBHBlY2TsPnneuLTHKyq52bTt8
-	M/tx5WzAt5cZmkp4Y3edqzGiME4SFShfZR6sa8SOSQWWjCDo5jQkAyFor7n1ZH36KVsM=
-X-Received: by 2002:a05:600c:3510:b0:45b:8366:2a1a with SMTP id 5b1f17b1804b1-45ddde829ebmr106120455e9.11.1757411754440;
-        Tue, 09 Sep 2025 02:55:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFywLrR0DszeWqgd9Y5zxb2+w3HhCmkVKXj/s/GXP5Ci/2ssUudLpQTkEWfsIqoDp37rN0MYw==
-X-Received: by 2002:a05:600c:3510:b0:45b:8366:2a1a with SMTP id 5b1f17b1804b1-45ddde829ebmr106119935e9.11.1757411753943;
-        Tue, 09 Sep 2025 02:55:53 -0700 (PDT)
-Received: from ?IPV6:2003:d8:2f23:9c00:d1f6:f7fe:8f14:7e34? (p200300d82f239c00d1f6f7fe8f147e34.dip0.t-ipconnect.de. [2003:d8:2f23:9c00:d1f6:f7fe:8f14:7e34])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45dd296ed51sm228257165e9.3.2025.09.09.02.55.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Sep 2025 02:55:53 -0700 (PDT)
-Message-ID: <6ec933b1-b3f7-41c0-95d8-e518bb87375e@redhat.com>
-Date: Tue, 9 Sep 2025 11:55:51 +0200
+        d=1e100.net; s=20230601; t=1757413065; x=1758017865;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yTOjobUwof9Yzc4Kuwjdn4adfxee8+12s83EWKmIV5o=;
+        b=oHPYnisrSvoBis3ANDAfeTvzcfqihCxsG/MNZgocH39eFHr6c1ZaBlL+EGyKkYKzHn
+         QXaRlq0P7lvVtbA1utGOz8bAbGFcj3uZ6KMvWx27zS76HH+2poYd2tfg/l+jqMDASIue
+         aBCyj63ubgu3tr49kD0A80VzL9uNQhKToFaCIJFCLVlW8rc8NI112lKyic6SLF4zBQQv
+         GewnTF4et++Q2ufOG36ZEOOZf2VQf7cMAeyAlpGZeCoAigjw/rFZOzHOi++tZgP4L4W1
+         Los7+xvmC1/sSy1j/xaOsZJshbR1/2CBD/cXwAI4GS9VP8NOLsj8chpmD4RqYAk9CVVL
+         L3KA==
+X-Forwarded-Encrypted: i=1; AJvYcCXNgDU2ZAhYIuVJr+QNV8QWVbWPHEGlMgnccic3FYv92av8vuWA5NZYgR+q9KE8Ck/IJndjcbCiUZhh@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0XWdgOFIKL/B+3S3xAgj+V2obG18ocEdTaK04QrH5TYSUQ613
+	EmI1zlJeAc41melYndBc2HeMYHN+1ZgEFjt1O8WxWbV1f4Uzbe6oCdQ99w+WHWb9iHaVRtW2ahr
+	nPmg/c1zr2gtRDBMiTK0Ohe4Ryxtg4pNYNU5Bv9tx9Q==
+X-Gm-Gg: ASbGncv9p5N/V9xP6h1SrYN3GptGPdmQSDvRuSOzPdvMdc9aP3sKedKPeKnADEAGfTm
+	FhERzGB0EjJN6+ZSJ6Vo+ZcmeUOFXTZ2RlluM8QzCVF3ipenNJ9FkJrb30UGdiLsxNJNO5gzCq9
+	9IZi4tCcE8Y/QifxDUybeMkIFomnbtOIhW+u0054YI3ejL02O8C+eRYa59r6fUnXH+v7nAOLlk1
+	2yjIz5UcK5nWf/h80ic7OxKpxYaf0CWpa9Esd/i
+X-Google-Smtp-Source: AGHT+IEZ5GvUtxsAL057zSJQgyKWUuSzCjwHIwtQd+xWtc7Krr8W40mAfMvFE7TBrYsLihx4TdiVsiDU3knnkx58H/U=
+X-Received: by 2002:a05:6512:15a6:b0:560:83e2:1dce with SMTP id
+ 2adb3069b0e04-56273118bbamr2949736e87.6.1757413065505; Tue, 09 Sep 2025
+ 03:17:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 22/37] mm/cma: refuse handing out non-contiguous page
- ranges
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linuxfoundation.org>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Alexander Potapenko <glider@google.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Brendan Jackman <jackmanb@google.com>, Christoph Lameter <cl@gentwo.org>,
- Dennis Zhou <dennis@kernel.org>, Dmitry Vyukov <dvyukov@google.com>,
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- iommu@lists.linux.dev, io-uring@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- Johannes Weiner <hannes@cmpxchg.org>, John Hubbard <jhubbard@nvidia.com>,
- kasan-dev@googlegroups.com, kvm@vger.kernel.org,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>,
- Linus Torvalds <torvalds@linux-foundation.org>, linux-arm-kernel@axis.com,
- linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
- linux-ide@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mm@kvack.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-scsi@vger.kernel.org, Marco Elver <elver@google.com>,
- Marek Szyprowski <m.szyprowski@samsung.com>, Michal Hocko <mhocko@suse.com>,
- Mike Rapoport <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
- netdev@vger.kernel.org, Oscar Salvador <osalvador@suse.de>,
- Peter Xu <peterx@redhat.com>, Robin Murphy <robin.murphy@arm.com>,
- Suren Baghdasaryan <surenb@google.com>, Tejun Heo <tj@kernel.org>,
- virtualization@lists.linux.dev, Vlastimil Babka <vbabka@suse.cz>,
- wireguard@lists.zx2c4.com, x86@kernel.org, Zi Yan <ziy@nvidia.com>
-References: <20250901150359.867252-1-david@redhat.com>
- <20250901150359.867252-23-david@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=david@redhat.com; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzSREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT7CwZoEEwEIAEQCGwMCF4ACGQEFCwkIBwICIgIG
- FQoJCAsCBBYCAwECHgcWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaJzangUJJlgIpAAKCRBN
- 3hD3AP+DWhAxD/9wcL0A+2rtaAmutaKTfxhTP0b4AAp1r/eLxjrbfbCCmh4pqzBhmSX/4z11
- opn2KqcOsueRF1t2ENLOWzQu3Roiny2HOU7DajqB4dm1BVMaXQya5ae2ghzlJN9SIoopTWlR
- 0Af3hPj5E2PYvQhlcqeoehKlBo9rROJv/rjmr2x0yOM8qeTroH/ZzNlCtJ56AsE6Tvl+r7cW
- 3x7/Jq5WvWeudKrhFh7/yQ7eRvHCjd9bBrZTlgAfiHmX9AnCCPRPpNGNedV9Yty2Jnxhfmbv
- Pw37LA/jef8zlCDyUh2KCU1xVEOWqg15o1RtTyGV1nXV2O/mfuQJud5vIgzBvHhypc3p6VZJ
- lEf8YmT+Ol5P7SfCs5/uGdWUYQEMqOlg6w9R4Pe8d+mk8KGvfE9/zTwGg0nRgKqlQXrWRERv
- cuEwQbridlPAoQHrFWtwpgYMXx2TaZ3sihcIPo9uU5eBs0rf4mOERY75SK+Ekayv2ucTfjxr
- Kf014py2aoRJHuvy85ee/zIyLmve5hngZTTe3Wg3TInT9UTFzTPhItam6dZ1xqdTGHZYGU0O
- otRHcwLGt470grdiob6PfVTXoHlBvkWRadMhSuG4RORCDpq89vu5QralFNIf3EysNohoFy2A
- LYg2/D53xbU/aa4DDzBb5b1Rkg/udO1gZocVQWrDh6I2K3+cCs7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <20250901150359.867252-23-david@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250905090857.108240-1-marco.crivellari@suse.com>
+ <20250905090857.108240-3-marco.crivellari@suse.com> <f672519b-d21e-4576-8cb8-989b95c88f97@linux.ibm.com>
+In-Reply-To: <f672519b-d21e-4576-8cb8-989b95c88f97@linux.ibm.com>
+From: Marco Crivellari <marco.crivellari@suse.com>
+Date: Tue, 9 Sep 2025 12:17:34 +0200
+X-Gm-Features: Ac12FXz1-AToyo6RC0skU4624VyUlnMOXfyNr8QsqwBYoWNthmfKqMMwnljWEcI
+Message-ID: <CAAofZF4FORxsQnqmtK+HcBgvzZrFMCUiWjyttKn39a0zL75WVA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] s390: replace use of system_wq with system_percpu_wq
+To: Mete Durlu <meted@linux.ibm.com>
+Cc: Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, 
+	Frederic Weisbecker <frederic@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+	Michal Hocko <mhocko@suse.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 01.09.25 17:03, David Hildenbrand wrote:
-> Let's disallow handing out PFN ranges with non-contiguous pages, so we
-> can remove the nth-page usage in __cma_alloc(), and so any callers don't
-> have to worry about that either when wanting to blindly iterate pages.
-> 
-> This is really only a problem in configs with SPARSEMEM but without
-> SPARSEMEM_VMEMMAP, and only when we would cross memory sections in some
-> cases.
-> 
-> Will this cause harm? Probably not, because it's mostly 32bit that does
-> not support SPARSEMEM_VMEMMAP. If this ever becomes a problem we could
-> look into allocating the memmap for the memory sections spanned by a
-> single CMA region in one go from memblock.
-> 
-> Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
-> Reviewed-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
+On Mon, Sep 8, 2025 at 10:33=E2=80=AFAM Mete Durlu <meted@linux.ibm.com> wr=
+ote:
+>
+> If I get this correctly system_wq will be obsolete and users will get
+> system_percpu_wq instead, which means local cpu gets to deal with the
+> delayed work and its timer and it has an affinity to that cpu via per
+> cpu workqueue. In that case;
+>
+> > diff --git a/arch/s390/kernel/hiperdispatch.c b/arch/s390/kernel/hiperd=
+ispatch.c
+> > index e7b66d046e8d..85b5508ab62c 100644
+> > --- a/arch/s390/kernel/hiperdispatch.c
+> > +++ b/arch/s390/kernel/hiperdispatch.c
+> > @@ -191,7 +191,7 @@ int hd_enable_hiperdispatch(void)
+> >               return 0;
+> >       if (hd_online_cores <=3D hd_entitled_cores)
+> >               return 0;
+> > -     mod_delayed_work(system_wq, &hd_capacity_work, HD_DELAY_INTERVAL =
+* hd_delay_factor);
+> > +     mod_delayed_work(system_percpu_wq, &hd_capacity_work, HD_DELAY_IN=
+TERVAL * hd_delay_factor);
+> >       hd_update_capacities();
+>
+> Hiperdispatch's delayed work wouldn't get a noticeable benefit from
+> utilizing a per-cpu workqueue. We probably settled on system_wq to
+> utilize the global work queue at the time. Would system_unbound_wq
+> make more sense here?
+>
+> Thanks.
 
-@Andrew, the following fixup on top. I'm still cross-compiling it, but
-at the time you read this mail my cross compiles should have been done.
+Hello,
 
+I will check the code and if it is possible, I will send the v2 with
+system_dfl_wq (eg. the current/old system_unbound_wq).
 
- From cbfa2763e1820b917ce3430f45e5f3a55eb2970f Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Tue, 9 Sep 2025 05:50:13 -0400
-Subject: [PATCH] fixup: mm/cma: refuse handing out non-contiguous page ranges
+Thanks!
+--=20
 
-Apparently we can have NUMMU configs with SPARSEMEM enabled.
+Marco Crivellari
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
-  mm/util.c | 2 +-
-  1 file changed, 1 insertion(+), 1 deletion(-)
+L3 Support Engineer, Technology & Product
 
-diff --git a/mm/util.c b/mm/util.c
-index 248f877f629b6..6c1d64ed02211 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -1306,6 +1306,7 @@ unsigned int folio_pte_batch(struct folio *folio, pte_t *ptep, pte_t pte,
-  {
-  	return folio_pte_batch_flags(folio, NULL, ptep, &pte, max_nr, 0);
-  }
-+#endif /* CONFIG_MMU */
-  
-  #if defined(CONFIG_SPARSEMEM) && !defined(CONFIG_SPARSEMEM_VMEMMAP)
-  /**
-@@ -1342,4 +1343,3 @@ bool page_range_contiguous(const struct page *page, unsigned long nr_pages)
-  }
-  EXPORT_SYMBOL(page_range_contiguous);
-  #endif
--#endif /* CONFIG_MMU */
--- 
-2.50.1
-
-
--- 
-Cheers
-
-David / dhildenb
-
+marco.crivellari@suse.com
