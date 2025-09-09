@@ -1,66 +1,67 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528132F28E3
-	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 12:15:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96B14321F40;
+	Tue,  9 Sep 2025 12:18:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757420140; cv=none; b=HWil727mMfpgSenzG4z6UjZYdEt5AFdCqfn5lxlLGXU4QUEzFp5olqDjeVokXLuv/OELYlWZ4e+LMzTaoLJk5dqmnrHkYaYlknj/knbeLvy/MRIV7V/QfoMcxRAE6WVy0y1OS3OkYH1AcP3GIzGDbbYN5Pszq4VpRCdtYJrNhU4=
+	t=1757420336; cv=none; b=aOKjwv0iDAKWmcTOkV4x1jjtZWtxoZ95m7YXBshxQIxXIHKIhmI10TtMq2XVeAqDi1huS3m30MeGJ1ZXyKjbWnTQC7R6RCFPA1AoomST380DCk7MrVDm1qeY9V/pOCa3JD5IpXpWNXdPNVV77RdWjJ1aGUK2yGbHE6yIe1Up+5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757420140; c=relaxed/simple;
-	bh=1rXNNakol41mMJcUPR6ynFpy26gIZ8Jta97suT+WGU8=;
+	s=arc-20240116; t=1757420336; c=relaxed/simple;
+	bh=wyk8vcKq8SkKk0WU9NXoJpFQbnSbaxYmpIXLtMSefJw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tC/rUiJf9VwUFZeTBA4+9oaN+3u9+1ATj3E0kT5akbRyWfv/svaH/FUV3/xcR/IJD/ELOONU0isdyoc8/HrrZwuEZH5IM3gXfo3DzBnLOY+ucY8iLnm+NL+fbg10S3cnwLPi18Tw/Bn+AsjfbdsKs3fHdMX3hX2i61S0B9WLWaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M/dih80m; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=NBQE7GQWHawRrVqww+lkGXtUCZa3fVP6v/bNRCM/Fe3nsQGhJvxTE5eC5lOsLai9QnfvfDc+jYccBoiFz/20Tp8hSK0B6N3tezED5qtzs/xpqkLlwE4r3BQ75NG2dl4FcprfaPiFpm9iELw0KsfLsR6+ksDv1GmokfgAbOXgw8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lkAdWZpM; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M/dih80m"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b04679375f6so980478466b.2
-        for <linux-s390@vger.kernel.org>; Tue, 09 Sep 2025 05:15:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757420138; x=1758024938; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=8KO5DR7GI5OZLHDasz7lx/tKdixrpxSApe9F1dlD0os=;
-        b=M/dih80mdFdNmws2q22KgiM6x7bUIT8N7cufRdqaPv57kYOPUmWGhXjZV3XjZH7+qA
-         WXuMpFx29Q1/lGnk0MXu6HfGvRXXckuxZXcZhTU4qJCfxSlGHaGm55CwXql2ZWc24jg5
-         yyWxTQyvVi/95Axe25rHsJU0WqpHvZ3Gv0xST54NV5XZur4tHQZGZJygTzJ/J2aviIhU
-         sWgkqggUw94ibbf+slMmkTuoZjknfj8poA4T/Bw4C2uR9qec2KZWSe/vWXFXd50PGpc3
-         U+j2NnTDxNhCdTXc6dvFDa6ws4Bz+Y7K5DQ9rQcv9JJk06NSBNMhGAOKAz3btixciXXW
-         kEkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757420138; x=1758024938;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8KO5DR7GI5OZLHDasz7lx/tKdixrpxSApe9F1dlD0os=;
-        b=u8pjuRGiPmJ2n6hIZ859vqxjzg6d03KQxxRbTfXUL7dG3TgPjkA2E6BkyzDkjik1KS
-         wE/eyvP5T48/V3SB6IyEQ/nzmPJEcOTE3hBkcJemx3n/u+03JGNycwTiBGkR6MnQimkh
-         tVX0aZhpfNlFLQpORZprIN6YMzlsPvumWmFPZGGQ1psxZZahiKS+BrkUOITpE1sIyeF4
-         2DbjysgT9WZkkpHRYhlg/dhml66W0rpZHJSxgmnptmbYbiMEbHW01oUhftbq5ultqJ+Q
-         UHvX11z330si1dx7LnspRVm8HzbFDpZHhulYy3GScBuGXGRslqDY3+VxIadmxd5rTvCd
-         hHRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX8zLvM9hndNI/ov8/DkdRdv5OJ26cd70YGEc8IFjvtroDgqcWnAJ2xMNRrt5Jb1qTKXlO6wtlUeYxz@vger.kernel.org
-X-Gm-Message-State: AOJu0YzS1WlJ04jVzDxyCKXZO6fzaEtDz06kFHk/V8Kx+8NgTE1Jka9P
-	hnQpdN7PbAl8mJ32z/LgSSYqSCmg5QMcVJWheLEVPJ3A7FZsfGBZKvvY
-X-Gm-Gg: ASbGncuEvoxgfg0s2mXZLQVN0MJX0q/eaO72vQyZGa5NBLQaubxAlvXJjJw1zZRqyIB
-	7dgKPn+xTWHpXoy3rS7CZcLgOFtlxaMZorboXYOUAkqfFP5hBiL3W/d9y6O04d05oLFpK8+WHgO
-	fJHa75ceoCP5qiUcXyL1qGgBfHAUXsktolq3X9/q2gHGrZLyfsFYVVhE0s+RnS8JKpzJdxW1Dw4
-	yMHKOQOgpc1tOhgy97x4gwZcuTB55DNBsU+Aw0nc0IRTsAvFTJV8UyAsq6O3l8Z2i+OUFEt+yKS
-	DruLj0XNnXgA1fEksy/dTvZlpDcwqy1uOXM+r842UgySbjFDRVsQqyl2nhv0KPpIFZ8fTYKW+Yh
-	erNvQoHF+vaHLP/5yFxruRSuw5obk
-X-Google-Smtp-Source: AGHT+IHq0dc7B6Xn8wLE/eSfg8Bg+hX5Iwr2y0yS2I1igzoMmZR/M8HFu/7yzgHQxRVZn0vr9hSWKA==
-X-Received: by 2002:a17:907:9612:b0:b04:70f8:d454 with SMTP id a640c23a62f3a-b04b167e38fmr1045807166b.51.1757420137428;
-        Tue, 09 Sep 2025 05:15:37 -0700 (PDT)
-Received: from [192.168.1.236] ([176.74.141.242])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b0425ce98f1sm2145216366b.67.2025.09.09.05.15.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Sep 2025 05:15:37 -0700 (PDT)
-Message-ID: <bd535ddb-b9b0-4404-81ba-4e6f526429d5@gmail.com>
-Date: Tue, 9 Sep 2025 14:15:36 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lkAdWZpM"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58977BEV030854;
+	Tue, 9 Sep 2025 12:18:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=1kYWlR
+	K6XrnW2KOZCDNXOBfM2bJ+9fL/yDboVZ1h7FU=; b=lkAdWZpMnc9ytktUx4CLth
+	PEB8elzMDWUEn/hoU4f9BrWyuhclTSeaMTL5LlcbT9AqwoqakLBQmTC3RYD6sr2/
+	io8e5srxPJ01gIGGuyPOKPmQpZuz/g0wyX6uUj4/snzccx8CreDPNCsvgtShGKeb
+	E8uKOR3AsGaBM1u7XspEuVYLKGvs/XRYT+T1xHeTZUGiSY7VtuKRVQQ1LnatDVDd
+	aTUooZblJCLLM0TmZnqyyTc3QZx2iDLtIyWkxFTNtaED2VOO4Fjydd0YFKkbaKVX
+	x6PTLOFpLFXRe1pFEzlRqNqjaGuDkwe/bcBkh1/CTs0RGnR4L3JMHLU64cyr7Cjg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xycvh9n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 12:18:47 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 589CFDva008861;
+	Tue, 9 Sep 2025 12:18:47 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xycvh9h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 12:18:46 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5899v8fX007982;
+	Tue, 9 Sep 2025 12:18:45 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49109pk2fu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 12:18:45 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589CIimd27066954
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 9 Sep 2025 12:18:44 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 107215805C;
+	Tue,  9 Sep 2025 12:18:44 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F0E4B58051;
+	Tue,  9 Sep 2025 12:18:38 +0000 (GMT)
+Received: from [9.124.223.138] (unknown [9.124.223.138])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  9 Sep 2025 12:18:38 +0000 (GMT)
+Message-ID: <5c122f38-1ff4-4e24-a123-3a4766206f5c@linux.ibm.com>
+Date: Tue, 9 Sep 2025 17:48:37 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,92 +69,53 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
-To: Ingo Franzki <ifranzki@linux.ibm.com>,
- Mikulas Patocka <mpatocka@redhat.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- "David S. Miller" <davem@davemloft.net>, Eric Biggers <ebiggers@kernel.org>,
- dengler@linux.ibm.com, linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
- agk@redhat.com, snitzer@kernel.org
-References: <20250908131642.385445532@debian4.vm>
- <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
- <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
- <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
- <3184e0b1-571f-4cf7-94ef-acca41c12b02@gmail.com>
- <b01c92bd-e00a-4c8f-803b-20d6a7db2ec3@linux.ibm.com>
+Subject: Re: [PATCH net] net/smc: Remove unused argument from 2 SMC functions
+To: dust.li@linux.alibaba.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        alibuda@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20250909071145.2440407-1-mjambigi@linux.ibm.com>
+ <aMAR8q4mc3Lhkovw@linux.alibaba.com>
+ <8bc987c9-a79d-42ec-8279-da8b407cfd2c@linux.ibm.com>
+ <aMAaH7oQz-FM96sv@linux.alibaba.com>
 Content-Language: en-US
-From: Milan Broz <gmazyland@gmail.com>
-Autocrypt: addr=gmazyland@gmail.com; keydata=
- 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
-In-Reply-To: <b01c92bd-e00a-4c8f-803b-20d6a7db2ec3@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <aMAaH7oQz-FM96sv@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 2QunrHo6fOiqIvkJpjKGaaus590-ONzL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDIzNSBTYWx0ZWRfXxPKqro4e7pnI
+ 035Ii7XVxgYV12/CfywoZPtXtg9Jt/GI0WB/rESf7KJspiw4aM3ypZ3QrZjqWXhQyvuCFGv2Wvm
+ 0aZIOhZb8ugbDjk0ZVuow+H28ILjj34V02jfDuVslJyrSRZoIYpclvW/LLw97w6O2DcfkMTdpU3
+ tUkRlPwYPre7kXFywpik1Hp8y1RimbtsEoSMJNidvnNO0wKE72HM/N3D85dHHcJdXKr5QsprP6T
+ melfnQiQKLvj05sSN0xGOu6q6kmTDD6ooXv2GcCSMZyKRsF9eIYWVvNraRgwrMtFfOJ0pJogoLf
+ HoJ3aX20B1ge+vmETaVXt7UJZ70NoBU9CpFwdcN+Md0zq1tuOVlgMDl2G7nyhqN9tPdOLAl7QMu
+ AQzB1Df0
+X-Proofpoint-GUID: IQX5mC8J3qj-_PtKFewESur_33UrrxDM
+X-Authority-Analysis: v=2.4 cv=F59XdrhN c=1 sm=1 tr=0 ts=68c01b27 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=_qYudFDEZN9pNWPccbYA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-09_01,2025-09-08_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 malwarescore=0 suspectscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 bulkscore=0 adultscore=0 spamscore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2509060235
 
-On 9/9/25 1:50 PM, Ingo Franzki wrote:
-> On 09.09.2025 13:47, Milan Broz wrote:
->> On 9/9/25 1:18 PM, Ingo Franzki wrote:
->>>> Please, revert my patches and run the same test on a clean 6.17.0-rc5 just
->>>> to verify that the patches do not introduce the bug.
->>>
->>> With your patches reverted the combined mode fails the same way as with your patches.
->>> So they did not introduce the bug.
->>
->> Please report it as cryptsetup issue with a reproducer so we can later check it.
+On 09/09/25 5:44 pm, Dust Li wrote:
 > 
-> I don't think its a cryptsetup bug, its rather that dm-crypt is missing something to deal with async HMAC ciphers.
-> The point is that PHMAC is a async-only cipher, with no sync variant.
+> Yes, I think it should remove the Fixes tag and go to net-next.
 
-I know, but there is no tracker for dm-crypt and what I like to have some kind of upstream CI testing for PHMAC/PAES
-even without mainframe hw (we already talked about a fake cipher module).
+Sure. I'll do it in v2!
 
-It is not an real issue as PHMAC is neither in released kernel nor in cryptsetup yet, but we should have a test
-coverage once it is merged.
-
-On the other side, the async thing is a real pain, is there any plan to switch to something better in future
-(for dm-crypt and dm-integrity)?
-
-Thanks,
-Milan
+> 
+> Best regards,
+> Dust
+> 
 
