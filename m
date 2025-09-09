@@ -1,184 +1,153 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA9233CEB3
-	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 13:51:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11BC033CEB3;
+	Tue,  9 Sep 2025 13:52:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757425912; cv=none; b=Dbjs2X/3TFYIuTCqHpdqQpOJEjgjuu5fqoL+P/bYWdcxJyorj7LdBNCGHYBrXUlvka6mPEB5yQf7tglDy7/u+vspB2s0caw0MbEZEL5NnQlnsB+uU6sK0yu2Qo6pj1X6oEjfsFqER5u33U0KMrJHPYPVnnZ+NlxWXWP/O0uEY9k=
+	t=1757425964; cv=none; b=CKv8wGDwOj7t2BBBUVv4hccX2qoP8Vo0JyLMZ0iAsLa5H6CXPDg/jbXaygvd6aix3gEoZHxwV7qPHf+PNM1TqgQt+XV8arunT4gpHwJgjoZEMotnLWMAGJGpRuHNvM7nKEpaxB/VAADMOcQ7/g+IPW3q/VbFTL7NUXhMazM5BJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757425912; c=relaxed/simple;
-	bh=Ra2ziyoRzaDncYLcWd6o29f18mYn+p/OfZ9NFhta0TI=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Dz/Mr2gJ6ufF5iQP6g/gl0c9Z7jCo82hE4/Ci56OkOSia9e1Ij6ffi9p2Pf8IJz4xhezxW+0kQaaPisHsG2BO+9vFvjHsytPcxRjhci4YBH49eeHNBPg8/nXtuM5LspP1ovpfFQzO0434UQPtRk6rY7S72EGZNkbN9U8/ewx6io=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oc5FMuoT; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1757425964; c=relaxed/simple;
+	bh=kkqPnMFSXKC58Mmp+u95ABjAXbkgOnz1Uy3x3OPUuAw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RQRvtBpYOM9e9iXfJraUX9eNZMuPcplYhikp8wKh0VNWvJUmfyPN7+sId6dmsgNr+h6z1ojB3TW94+hsyjKHexX//Eu4yZajJtTrRU4+LxY3cX/qRmf3AAUpiS9nmq09BMz5KJZIDV4HpvwDQK4Ui0yVf0LgNWmkyEcoirrQSuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sGSBQjPB; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oc5FMuoT"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5898qftr009199;
-	Tue, 9 Sep 2025 13:51:43 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sGSBQjPB"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5896fLU0018487;
+	Tue, 9 Sep 2025 13:52:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=IRemyUypDbljzNJrzzBbvec+4GNRQ1uSCXmFvt8xglM=; b=oc5FMuoTGmuE
-	aX+WoaO4bdVF71H25qjm8yb+WyE1p6tL8Aiu6J7TMxWHGpfBgaSpdKQZyQWJRzGh
-	m54UhsCH+CyQWFt1ZNgMG5uWlVh8JTTYpsPBLoU2CapKlROSGhbN/TQKPCkFJhJc
-	RM6v+QmoSXoKYtsMZjfRycA5h9tF3kQuk/0NfZSoquclrzP1p5W6DCQJrkT0elTE
-	+r+uOcfkf9TVOF3CaCZYOyZG7z5c4OB+DZWPrl5K/vQoareFsDhN95n52s54W2Y8
-	ITATfJqRCBQif69tYdIOhLQdLm/AtU1Ry+1G+0HGD+qz5ANR0vxlhe/zYPtcNjmW
-	grD5AYsUfw==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmwr5wa-1
+	:message-id:mime-version:references:sender:subject:to; s=pp1;
+	 bh=BuPG1fP2BiwN2dlCCYD4OsW/T1NO8BqbuJE09pQ1CcM=; b=sGSBQjPB27Of
+	/SDJ5ZWMUkupMnht5upok4DeYiP8FbRmOIEX/C3BbesMgXa+z3MT33CaVsBK2uuM
+	GMkp+lEk0Kf7mf8lwunHZ4WRFiBukAZPZEb/rnMkXmDEu4Wt8U7ga/OO1ai8B1nG
+	xq338KUGXFT4dkIdFSi8HaxKu+YxAq1ZUgc8bLJYaDpCtT3iHd7bHdsJ7QvmhaB7
+	Yw15kqzyZ19tIzGZx+lmd/HQ7PSGfuCm5OxOALvn5YD1OF0XZzG9MOmfmB0KB9Ns
+	+pPw5/lt6VxtBt7fuqRAhmBJhk+QDWDjMGMB3lgOTUMKugPeiV2ppFPSIfbptWDp
+	xHXzEegnhw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490ukedbd0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 13:51:42 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 589DXsZO012161;
-	Tue, 9 Sep 2025 13:51:42 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmwr5w4-1
+	Tue, 09 Sep 2025 13:52:34 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 589B0CSw017188;
+	Tue, 9 Sep 2025 13:52:34 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4911gmb7j5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 13:51:42 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 589Akiww010594;
-	Tue, 9 Sep 2025 13:51:41 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4910smubjx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 13:51:41 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589DpddP39125646
+	Tue, 09 Sep 2025 13:52:34 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589DqU5257606626
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Sep 2025 13:51:39 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 69D2A5805C;
-	Tue,  9 Sep 2025 13:51:39 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D0B6E5805E;
-	Tue,  9 Sep 2025 13:51:38 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Sep 2025 13:51:38 +0000 (GMT)
+	Tue, 9 Sep 2025 13:52:30 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8DD452004B;
+	Tue,  9 Sep 2025 13:52:30 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7B4B320043;
+	Tue,  9 Sep 2025 13:52:30 +0000 (GMT)
+Received: from p1gen4-pw042f0m (unknown [9.152.212.197])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  9 Sep 2025 13:52:30 +0000 (GMT)
+Received: from bblock by p1gen4-pw042f0m with local (Exim 4.98.2)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1uvylq-00000000VY0-1Awe;
+	Tue, 09 Sep 2025 15:52:30 +0200
+Date: Tue, 9 Sep 2025 15:52:30 +0200
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
+        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev
+Subject: Re: [PATCH] iommu/s390: Make attach succeed when the device was
+ surprise removed
+Message-ID: <20250909135230.GA16134@p1gen4-pw042f0m.boeblingen.de.ibm.com>
+References: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 09 Sep 2025 15:51:38 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Milan Broz <gmazyland@gmail.com>
-Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
-        Mikulas Patocka
- <mpatocka@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S.
- Miller" <davem@davemloft.net>,
-        Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com,
-        snitzer@kernel.org
-Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <bd535ddb-b9b0-4404-81ba-4e6f526429d5@gmail.com>
-References: <20250908131642.385445532@debian4.vm>
- <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
- <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
- <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
- <3184e0b1-571f-4cf7-94ef-acca41c12b02@gmail.com>
- <b01c92bd-e00a-4c8f-803b-20d6a7db2ec3@linux.ibm.com>
- <bd535ddb-b9b0-4404-81ba-4e6f526429d5@gmail.com>
-Message-ID: <76c330493c036317755838d2dfce2de0@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: CTaeZ2wjvzPeZ_nslAMQjLgzHr9zWQE5
-X-Proofpoint-ORIG-GUID: u44EgnCjlO9z-E7DEMigR8nXvpDrMOgV
-X-Authority-Analysis: v=2.4 cv=J52q7BnS c=1 sm=1 tr=0 ts=68c030ee cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=4HVZ629U5ZEAqiYOUDsA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAyNSBTYWx0ZWRfX1D97KX8YwMVj
- LHFH4j1WZVIqv+2kwrrS6TqXSDTuAGFf9th35HIo3jSHm06KfSjxrAsNG00BGy24NUJrg4W8bAn
- 5bkwTdBpaEiRS7kfvnpltsOAdXFfk3ZTLqLZ42wc5y0jbPRw/r507T+6LwNjEGvOgiWLm/Fj2Nn
- y2htBqozqmM6DZfG/0Ww8+JQ1trsA7aQMUpWWTzvVjCYOFYgPANihKEq623Qjh8+BmN4JLcmsLe
- IQC6NOLw+sieVWYUQxDeZVT8fJZD+3hyicr8mcEgMlZwiefTNcSyi9cuqsyOauXVdCiHO0lAH5o
- wHMmY6CPvaVL0gZaU1jEQfMdvAiJxc1DCwk7eMvgmptsU2D5b60mkelOk1Y1gGMM0bbvGm14ZXL
- MwNbnDK/
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDE5NSBTYWx0ZWRfX/zqCp+k2nO9L
+ n8kluraprzWWkORc13LBGVR2O3mf+4G96R/CfOUG5dE7Z4L0maIDJLwblFu5DS13N56BBIlD6Nm
+ oCIDkkC6EVmL+7DtubY9hWTocH//PDaI/D8SC5ppYLVv61RQm12yurB+tHjNQ/y2sa2yO+XBcWd
+ fb7uvYdZLnQKaezH0JckNOpWpiru6y2M0XTMEDhyEbRalBFHwSaGrQFKDZfkHC2T9yFEgSo0Pk6
+ M/Arjudp7EDqdii37teHT6SH6cUxpLiJePJT70eJoxDJ4zNX9ekn75E40itgI9e8N1FS2/Z0gjZ
+ yEHl1V2ztPC94WhMCJZIxBx16tb8hsp8K6aRz4daG50SojPs7G25GkbYPZmcEbaY9L8bST2ZsH2
+ y2Ro2a+h
+X-Proofpoint-ORIG-GUID: YlekGEZfiKnv8ugEx6CF933gGtFBosBB
+X-Proofpoint-GUID: YlekGEZfiKnv8ugEx6CF933gGtFBosBB
+X-Authority-Analysis: v=2.4 cv=StCQ6OO0 c=1 sm=1 tr=0 ts=68c03123 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=8nJEP1OIZ-IA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=f94wAlES5zcTxHjwagAA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-09_02,2025-09-08_02,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1015 suspectscore=0 spamscore=0 phishscore=0
- bulkscore=0 adultscore=0 malwarescore=0 priorityscore=1501
+ spamscore=0 malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0
+ suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060025
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060195
 
-On 2025-09-09 14:15, Milan Broz wrote:
-> On 9/9/25 1:50 PM, Ingo Franzki wrote:
->> On 09.09.2025 13:47, Milan Broz wrote:
->>> On 9/9/25 1:18 PM, Ingo Franzki wrote:
->>>>> Please, revert my patches and run the same test on a clean 
->>>>> 6.17.0-rc5 just
->>>>> to verify that the patches do not introduce the bug.
->>>> 
->>>> With your patches reverted the combined mode fails the same way as 
->>>> with your patches.
->>>> So they did not introduce the bug.
->>> 
->>> Please report it as cryptsetup issue with a reproducer so we can 
->>> later check it.
->> 
->> I don't think its a cryptsetup bug, its rather that dm-crypt is 
->> missing something to deal with async HMAC ciphers.
->> The point is that PHMAC is a async-only cipher, with no sync variant.
+On Thu, Sep 04, 2025 at 10:59:49AM +0200, Niklas Schnelle wrote:
+> When a PCI device is removed with surprise hotplug, there may still be
+> attempts to attach the device to the default domain as part of tear down
+> via (__iommu_release_dma_ownership()), or because the removal happens
+> during probe (__iommu_probe_device()). In both cases zpci_register_ioat()
+> fails with a cc value indicating that the device handle is invalid. This
+> is because the device is no longer part of the instance as far as the
+> hypervisor is concerned.
 > 
-> I know, but there is no tracker for dm-crypt and what I like to have
-> some kind of upstream CI testing for PHMAC/PAES
-> even without mainframe hw (we already talked about a fake cipher 
-> module).
-
-Let me think about this a bit... You are suggesting a test kernel module 
-for
-e.g. x64 which acts like the phmac/paes implementation in a asynchronous 
-way.
-I'll discuss this with Ingo.
-
+> Currently this leads to an error return and s390_iommu_attach_device()
+> fails. This triggers the WARN_ON() in __iommu_group_set_domain_nofail()
+> because attaching to the default domain must never fail.
 > 
-> It is not an real issue as PHMAC is neither in released kernel nor in
-> cryptsetup yet, but we should have a test
-> coverage once it is merged.
+> With the device fenced by the hypervisor no DMAs to or from memory are
+> possible and the IOMMU translations have no effect. Proceed as if the
+> registration was successful and let the hotplug event handling clean up
+> the device.
 > 
-> On the other side, the async thing is a real pain, is there any plan
-> to switch to something better in future
-> (for dm-crypt and dm-integrity)?
+> This is similar to how devices in the error state are handled since
+> commit 59bbf596791b ("iommu/s390: Make attach succeed even if the device
+> is in error state") except that for removal the domain will not be
+> registered later. This approach was also previously discussed at the
+> link.
 > 
+> Handle both cases, error state and removal, in a helper which checks if
+> the error needs to be propagated or ignored. Avoid magic number
+> condition codes by using the pre-existing, but never used, defines for
+> PCI load/store condition codes and rename them to reflect that they
+> apply to all PCI instructions.
+> 
+> Cc: stable@vger.kernel.org # v6.2
 
-Well, as of now all the s390 pkey things are by nature asynchronous. 
-Which
-means at any time the key may get invalid. It is in the end a hardware 
-backed
-key and thus if the hardware is changed (for example a 'live' guest 
-migration)
-the key runs invalid and needs to be re-derived or re-fetched. I don't 
-see a
-way to hide this and have a synchronous implementation instead.
+Oh, I just noticed that Niklas. You added `Cc: stable@vger.kernel.org`, but
+didn't actually include the address on the actual Cc of the mail? Was that
+intentional?
 
-I think on the contrary the need for asynchronous algorithms will 
-increase.
-More and more platforms run virtual machines which exploit special 
-hardware
-like AI accelerators and crypto co-processors and do support live guest 
-migration.
 
-Well, that's future. However, it would be nice to have at least one 
-asynchronous
-algorithm implementation available on a broad platform like x64 or arm 
-maybe only
-for test of the dm-integrity layer.
-
-> Thanks,
-> Milan
+-- 
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
+Sitz der Ges.: Böblingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
