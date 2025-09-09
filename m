@@ -1,224 +1,181 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC72D2D4B69;
-	Tue,  9 Sep 2025 14:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1099629BD90
+	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 14:12:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757426765; cv=none; b=Qiv/MYnv8tGT5fmhFmlOdDmgTJ8KxKvtaDu37xuNXAozzTSNImDi1i408mkimF45vb3zzbZ02kJcGYmrtXmVXoSwaAbEvvU5vWdMuqWQHwySzPxntO/Me3XTdXdQyt8lShdemja1VIYRYCuBc038OPyMTmi82vTGC81W+55TWvY=
+	t=1757427167; cv=none; b=AeZY4SmVL5vT1X78GVueLAP0xDfQxI6nABohwNe6jcnStWyJX6lOn63AK53Auy0/C8hotdpSdwpwjK73HVXqH5nOT2yI1t7quf8vPR6ktvia6vNV2EqMeZEalG95g2wIt7MtMFD29ji3fAYCy1frF+0oY2VwvH/FnHrM4x6hO6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757426765; c=relaxed/simple;
-	bh=y+Hw94sBtUnP1rJoRqu/K+SqQqYlz7RF+nZmYjErFEM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=gvmTocm+C2ysDoctJaeX4i0QDWxpD32NXsKaLYh4lJoBuJHFLKxciYr/4dQdOCHdPxjSGHXZeV2E2tqp9pboCefzfMy4IplN7FdktZf+z9w93JemRQOtEgMTtjSr5B8YFijZC4GTiU/DTWSuD0f6WWdNDtH8SglR5XSbxpqfJwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jgl+urs7; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1757427167; c=relaxed/simple;
+	bh=FUGUHbmTlUk8TQfWfWrdMH175CzOHUSDBWw86JAA1Kw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gVbRpCVrp7CLMV15QI/9LzYV1VAKIBwU1jsXgA+ApzO2fhewV0e/fBzkpvSZQ/YSCBN6sNUoAgvJ8YNIYYUrriRtRpWkE4sHASOdIBx9z38Y1nmc4hRQthYbmgNvxfN3ztbWID7KoNHQ6YBGHnIoILv8eqrq32Ir3PIpfX+SUJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m0+ETrUA; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jgl+urs7"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5896Vvxk008043;
-	Tue, 9 Sep 2025 14:05:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=y+Hw94
-	sBtUnP1rJoRqu/K+SqQqYlz7RF+nZmYjErFEM=; b=jgl+urs7Z1kE2WgPxhWbPJ
-	7itD+JmJrqFQqZ578SiQJK+jHIBNmrd5h/PihSg8EZzQLLe1+Q+zCDsAKz50j+dr
-	igS0V+fIKipyvvAK6R0DUtp6y97dnB4xI06PKeONZI0OMxDs2sZNRUU6NG3OImhY
-	MgFwr+AjmsVAt79X7peF3kIFW8EsqJfhzIn/f/c0dH9Yq/yCE6zO3WrLpmy4ZUzf
-	ntujMOjQValK7Wi0a9jneqmKOLGRQ1APmEUmDPymo+d2Yah4AXZsDgTGGADJAfHG
-	SvblkZDybzKH2QNbeyiFVj3vc3vQ2XB5fuhwat3Ht54exFSb076bKohnF9YmYdfA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490ukedeag-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 14:05:54 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 589ChJnl011446;
-	Tue, 9 Sep 2025 14:05:53 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 490y9ubqbn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 14:05:53 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589E5pb931589110
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Sep 2025 14:05:51 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8A1B558058;
-	Tue,  9 Sep 2025 14:05:51 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D357E58063;
-	Tue,  9 Sep 2025 14:05:48 +0000 (GMT)
-Received: from [9.111.23.60] (unknown [9.111.23.60])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  9 Sep 2025 14:05:48 +0000 (GMT)
-Message-ID: <2265b28a92bace029a276bfefe6fd947c2a7bc7d.camel@linux.ibm.com>
-Subject: Re: [PATCH] iommu/s390: Make attach succeed when the device was
- surprise removed
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Benjamin Block <bblock@linux.ibm.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-        Jason
- Gunthorpe <jgg@ziepe.ca>, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily
- Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Gerald Schaefer	 <gerald.schaefer@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>, Farhan Ali	 <alifm@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        iommu@lists.linux.dev
-Date: Tue, 09 Sep 2025 16:05:48 +0200
-In-Reply-To: <20250909135230.GA16134@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-References: 
-	<20250904-iommu_succeed_attach_removed-v1-1-e7f333d2f80f@linux.ibm.com>
-	 <20250909135230.GA16134@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m0+ETrUA"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-621b8b0893bso6875676a12.2
+        for <linux-s390@vger.kernel.org>; Tue, 09 Sep 2025 07:12:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757427164; x=1758031964; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ctfjE+pKRwd5zF4FXaQW3t/vZs+ySfwFN+6YFF61/s=;
+        b=m0+ETrUAsiIjW/n4gbi7VaoDjrTg+WtUGHyiRpN7QWqxrH0gOYcutJpsrDSNhNTAxu
+         a0zzFjuWFHMkQrY5FULwU5BBUWzi9AgNoKgYaZKe8U8DH+TQqKYJcCT0yIln6wBrEhlV
+         W0PfThWGUyJ7SfspfYMm0KHZayFS5r7s3W2lf4uwanIrJqWTKDWsd2u4Z6xm9ACoEFSc
+         0/a034AaZsQEOY+wyxRboTbs/j4qe3viX5ci+rdsb/w4k0RUnAph4zNOsFMSqgtZiZAG
+         DqpCyKA1rrbj9QWs8+/yh2FeGNk/ghd88mOfwTy9H3KvyUb3E7HMvPGLAggHaVj8nwm4
+         Mc+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757427164; x=1758031964;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3ctfjE+pKRwd5zF4FXaQW3t/vZs+ySfwFN+6YFF61/s=;
+        b=WYTbrMW3pZhBCIbJDMonYVAzQNcjmjqN43PdPVg6hZ3I/thxRU1hpot2TOAPJs3Yvp
+         LtGApkTtXyAvof/WjV6YOxQ5XOLEnPthSjH0VkYCc2FApLUvfWA2nfd4NhPvzBupBduk
+         A4Y6J5wmhj8Xu8DUWjfgDE0Vcy47yLOTBFhes8CVf2LDT+S+PVu9kpJ6PfeymHQxMNnr
+         BtgHSK+aMMJ65/whpWVZDSr08VxZpx9IaYOXXvaNBmFVd3gJ8fFLiKSvsQGHogx2RnqN
+         nf7eOJ/cltILofIcq70yuLU2TEmh+Nwcs4AC80HgVxJw6FIFZyIxscwZK1C5L75AxEsH
+         3tlA==
+X-Forwarded-Encrypted: i=1; AJvYcCXDNS8Xws1itaUOPOdLyMMlIoYPF8EpG91ObpcCPRkoBCBAOYFNi3lENkT51+cjbLC2LqZMgkUzWV8J@vger.kernel.org
+X-Gm-Message-State: AOJu0YwdJHzybg1sKm8HAo4+yGAdW1/BqCYaiIHFPpkMct5z9hqCWFOc
+	1cIDToCgYBwJ1z0m7hCdUmp+a6AXfasj0BXPL90IWwi1g+MgV1OPozww
+X-Gm-Gg: ASbGncvHesz5Pb2DKb2M2bDVfOF8+PSgxAda3lhsYzNn2+lVcvnYP1i4BPMNIgwh1IQ
+	AAaL67EgpEBnPNmkkDjwaYqmdAp1ZuXyNdRpD98kKq+OqCK4LKw463mhnij7u9RIMRFW1rk+cD7
+	CyxCazOpS5TWcPeEz2XacawBBLCtA/B5JvImBtexvpMVoYutgkOgN/Eo6qcAwqfShEPqzB71W2D
+	pDeH/q3l4JukkFsVaSTFa02TDAo6haCml5Krz9ro8VyH4Ok6oDlZwHW1fdho/ixmPFfspyN16o5
+	dKlUeQjix1Eor8+yDMeE8qUILYj6NIUjr+Qb26v4NAlKVdd5FVhm4VqzGneFNv4DBqY/0z0mV1P
+	qu8bu/T4Hd90i6vp7hR7ln0+x4JN3um8zDAc4j5Q1bNJHRWsg
+X-Google-Smtp-Source: AGHT+IFo0uq6VNSOptACqaP1uIiI4hzg0CWa7RBqBAinrZ7LRh6LwZhjeHLCNofDQz5RJV+0GvfH/Q==
+X-Received: by 2002:a05:6402:34d3:b0:628:62d0:fdab with SMTP id 4fb4d7f45d1cf-62862d10569mr6682485a12.11.1757427164100;
+        Tue, 09 Sep 2025 07:12:44 -0700 (PDT)
+Received: from [192.168.2.22] (85-70-151-113.rcd.o2.cz. [85.70.151.113])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-62bfef6752esm1329347a12.12.2025.09.09.07.12.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Sep 2025 07:12:43 -0700 (PDT)
+Message-ID: <446ea303-0da0-40a1-8cc7-6faab9f9d22c@gmail.com>
+Date: Tue, 9 Sep 2025 16:12:42 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDE5NSBTYWx0ZWRfX8o1CtUDKXPqH
- cDoNBfh1yvMQZ1Vh999DicTMTga1BuWwnXA4n0JI8VWMXhU9gXqTecGCYssz63VejzGxbWg1DaI
- Iu1T3OTvrZWW3+YXYperSB2dVKZD39/EcRBvW8vdDx78C51K4RUm/GqDEiCDtAnemDsnpRcZi9B
- 5bF5W8uV0ffVtwOaDzc2UHwYdBWwpPP25Ld2k6PDsKfe1bBFH09BH0MOgnhk4BWrV1zgvwz3BHe
- Oy/qbC3/d0Jw4tKKozqcOIPIZaHCYuGbz9PQBEpccnDY4jsYfUr9RUjuq0s/TWWef5iipfM+HhJ
- lDjZbrrGAjbLLgSCAQcjqvtv/CnBOTobFv31oI+bopYvqnBW0qGK55J2/5oXN8wjW4WdE6++dtw
- Aq7ErK5K
-X-Proofpoint-ORIG-GUID: I8yGuZVWHAd62ei3nvcVmIUBLupKDNwv
-X-Proofpoint-GUID: I8yGuZVWHAd62ei3nvcVmIUBLupKDNwv
-X-Authority-Analysis: v=2.4 cv=StCQ6OO0 c=1 sm=1 tr=0 ts=68c03442 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=XMCcNjHGxskXiIk20PUA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-09_02,2025-09-08_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060195
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
+To: freude@linux.ibm.com
+Cc: Ingo Franzki <ifranzki@linux.ibm.com>,
+ Mikulas Patocka <mpatocka@redhat.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ "David S. Miller" <davem@davemloft.net>, Eric Biggers <ebiggers@kernel.org>,
+ dengler@linux.ibm.com, linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
+ agk@redhat.com, snitzer@kernel.org
+References: <20250908131642.385445532@debian4.vm>
+ <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
+ <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
+ <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
+ <3184e0b1-571f-4cf7-94ef-acca41c12b02@gmail.com>
+ <b01c92bd-e00a-4c8f-803b-20d6a7db2ec3@linux.ibm.com>
+ <bd535ddb-b9b0-4404-81ba-4e6f526429d5@gmail.com>
+ <76c330493c036317755838d2dfce2de0@linux.ibm.com>
+Content-Language: en-US
+From: Milan Broz <gmazyland@gmail.com>
+Autocrypt: addr=gmazyland@gmail.com; keydata=
+ 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
+In-Reply-To: <76c330493c036317755838d2dfce2de0@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 2025-09-09 at 15:52 +0200, Benjamin Block wrote:
-> On Thu, Sep 04, 2025 at 10:59:49AM +0200, Niklas Schnelle wrote:
-> > When a PCI device is removed with surprise hotplug, there may still be
-> > attempts to attach the device to the default domain as part of tear dow=
-n
-> > via (__iommu_release_dma_ownership()), or because the removal happens
-> > during probe (__iommu_probe_device()). In both cases zpci_register_ioat=
-()
-> > fails with a cc value indicating that the device handle is invalid. Thi=
-s
-> > is because the device is no longer part of the instance as far as the
-> > hypervisor is concerned.
-> >=20
-> > Currently this leads to an error return and s390_iommu_attach_device()
-> > fails. This triggers the WARN_ON() in __iommu_group_set_domain_nofail()
-> > because attaching to the default domain must never fail.
-> >=20
-> > With the device fenced by the hypervisor no DMAs to or from memory are
-> > possible and the IOMMU translations have no effect. Proceed as if the
-> > registration was successful and let the hotplug event handling clean up
-> > the device.
-> >=20
-> > This is similar to how devices in the error state are handled since
-> > commit 59bbf596791b ("iommu/s390: Make attach succeed even if the devic=
-e
-> > is in error state") except that for removal the domain will not be
-> > registered later. This approach was also previously discussed at the
-> > link.
-> >=20
-> > Handle both cases, error state and removal, in a helper which checks if
-> > the error needs to be propagated or ignored. Avoid magic number
-> > condition codes by using the pre-existing, but never used, defines for
-> > PCI load/store condition codes and rename them to reflect that they
-> > apply to all PCI instructions.
-> >=20
-> > Cc: stable@vger.kernel.org # v6.2
->=20
-> Oh, I just noticed that Niklas. You added `Cc: stable@vger.kernel.org`, b=
-ut
-> didn't actually include the address on the actual Cc of the mail? Was tha=
-t
-> intentional?
->=20
+On 9/9/25 3:51 PM, Harald Freudenberger wrote:
+> On 2025-09-09 14:15, Milan Broz wrote:
+>> On 9/9/25 1:50 PM, Ingo Franzki wrote:
+>>> On 09.09.2025 13:47, Milan Broz wrote:
+>>>> On 9/9/25 1:18 PM, Ingo Franzki wrote:
+>>>>>> Please, revert my patches and run the same test on a clean
+>>>>>> 6.17.0-rc5 just
+>>>>>> to verify that the patches do not introduce the bug.
+>>>>>
+>>>>> With your patches reverted the combined mode fails the same way as
+>>>>> with your patches.
+>>>>> So they did not introduce the bug.
+>>>>
+>>>> Please report it as cryptsetup issue with a reproducer so we can
+>>>> later check it.
+>>>
+>>> I don't think its a cryptsetup bug, its rather that dm-crypt is
+>>> missing something to deal with async HMAC ciphers.
+>>> The point is that PHMAC is a async-only cipher, with no sync variant.
+>>
+>> I know, but there is no tracker for dm-crypt and what I like to have
+>> some kind of upstream CI testing for PHMAC/PAES
+>> even without mainframe hw (we already talked about a fake cipher
+>> module).
+> 
+> Let me think about this a bit... You are suggesting a test kernel module
+> for
+> e.g. x64 which acts like the phmac/paes implementation in a asynchronous
+> way.
+> I'll discuss this with Ingo.
 
-Yes it was intentional. It's my understanding that the tag is enough
-for the stable team to pick the commit up once it lands in Linus' tree.
-And I do have stable@vger.kernel.org explicitly ignored in b4 to
-prevent accidentally sending not-yet-ready or internal patches there.
+Just for the context - we do not need a real implementation, only something
+that pretends the alg with that name exists so we can check all options.
 
-There is an alternative approach of getting patches in stable by
-sending them to the stable mailinglist but accodring to
-Documentation/process/stable-kernel-rules.rst the tag is preferred.
-Sadly the docs don't spell out that Ccing the list isn't needed though
-I feel like it is implied by the "Cc: stable@kernel.org" variant where
-the docs mention that mails send by git send-email will go nowhere.
+In reality we just cloned SHA ans AES modules and renamed them - we do not
+care that keys is not wrapped, we use it directly here. This allows us
+to prepare a test script that can run in our CI without mainframe HW.
+(These modules are compiled on the CI builder and loaded to the kernel.)
 
-Thanks,
-Niklas
+If cryptd() can be used here, we can trivially add async path testing.
+It will not be perfect, but still better than nothing.
+
+That's all, no real magic :)
+
+Milan
+
