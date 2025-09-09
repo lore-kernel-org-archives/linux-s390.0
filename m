@@ -1,102 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFBA02D3EC5
-	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 09:42:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86DBD30F94A;
+	Tue,  9 Sep 2025 09:45:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757410979; cv=none; b=mfvQxoON9ED2nezvMxUrTjngcHz63bQWTfAl7O+vTtY39tEjKIElNB1gZFQtS9Nyk5zOOK4gYAgVU/INYrvNeEJtGsBeegyfRM9cTVp9/+0BMGQrKYe1AZ76+IxWljvAwH2hu+VQ8X+6uWWrlNa0RPeVlI7YZnDShXD9sVgfgiw=
+	t=1757411137; cv=none; b=rPNtMSjVZotAgT5uj+deRtQaBRDmZOM5mxdm0cxPDFbJ+nJ1w6jFHlhP3IHHILUySndXR5kVbvHEp9e8OAjVTlW2Tc2VhyWT+u1pYvVp/zjBeY1fOEuitm+YOwQfywj5Jhfxxn2/oYDwVXq4SHkCzrbFx8JDfxa6tgazbWuVEGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757410979; c=relaxed/simple;
-	bh=AtUy6aIIot5lDF+wKFSl7rcei/z70NVEMFnA2kJkg0s=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=iPqBcKoSltDfjyLB5gxPmGxDP/q4UMLYRb/TJfTKrVZO/Qn3mIC/EkanZzbYi7MbEq6IrEBIWxvRukKxKSWFnpi5DivvKfPlMORW5xk3B+WOflONSKPzogAdy8W5nG8/Tf7UtSYr2xuG6qUrCy7KPDY65mhaWFnrzZOv0kCkgQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ad05eV1i; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1757411137; c=relaxed/simple;
+	bh=QUvP8GINuCzSF7JPaWUyPUnNE7WZ2BGlzy60uTCAee4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C3ndxPEZuZSvcmoN61L/KvVVrWOA+HMVhVHf7Icaem0XIscWJk6T1K2VxdXs8jXo88NTSNKmIwP+qzFGH4adV+5sXl7sMkDIOKBvGzLRbWLWTNB4Re50rUfM294jfLSwgPvG5ULX1WLJ/swYM4cBJpp5vG7l+gMgK/HGdupCX/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jttF35M4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ad05eV1i"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1757410977;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8TXKMFE2iYY6l6MMvYjd6bP03MknA5YdLtc79Mf87gU=;
-	b=Ad05eV1i+njSAHFPbFhFHjQLKH6fklRjUfXunIO0Qd91MYXq7vWYZcO1v4JcQH8sFAfD4s
-	rLWVPcymfmmQLMg0ocnz/hqV0mZGPVBQ7syiAwtux8Ba6hs1eQwbl7VE8xDxqgUulaHa/U
-	TXY8GohUSUHJ2xjvBu5SDZN8MQKLqMU=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-642-cIEobM8sPEiPrgx-pI6J6w-1; Tue,
- 09 Sep 2025 05:42:53 -0400
-X-MC-Unique: cIEobM8sPEiPrgx-pI6J6w-1
-X-Mimecast-MFC-AGG-ID: cIEobM8sPEiPrgx-pI6J6w_1757410971
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 634E219560BB;
-	Tue,  9 Sep 2025 09:42:51 +0000 (UTC)
-Received: from [10.44.32.12] (unknown [10.44.32.12])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2B3A81956095;
-	Tue,  9 Sep 2025 09:42:47 +0000 (UTC)
-Date: Tue, 9 Sep 2025 11:42:42 +0200 (CEST)
-From: Mikulas Patocka <mpatocka@redhat.com>
-To: Ingo Franzki <ifranzki@linux.ibm.com>
-cc: Harald Freudenberger <freude@linux.ibm.com>, 
-    Herbert Xu <herbert@gondor.apana.org.au>, 
-    "David S. Miller" <davem@davemloft.net>, 
-    Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com, 
-    linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com, 
-    snitzer@kernel.org, Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
-In-Reply-To: <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
-Message-ID: <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
-References: <20250908131642.385445532@debian4.vm> <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jttF35M4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97723C4CEF4;
+	Tue,  9 Sep 2025 09:45:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1757411137;
+	bh=QUvP8GINuCzSF7JPaWUyPUnNE7WZ2BGlzy60uTCAee4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=jttF35M4NSuhz5upmy8/c9ZrRK2u7fT59c1LlHk0Yzx4DWtfMXJAL53GBruztjArX
+	 DCT1hUaEPiv28UP+nP4618fMUegp/l4WQdFigfky2Hlvpc+Vciyc6PTEyxcw0kcGjB
+	 7t38n6GJOzJG/4LPMU0n6HUk9ot3Pmcj0Jwm3iyt7nurt+AC5lqsu7LwtNKoLKLSGE
+	 EwYaF6iGgKDDCz5D2Gp0utYfRj0s4l6dh5l3Cl5ZkZwxhyMQQpXPDDqkr4trE0OYos
+	 hY26oLB2zfrWNh1wlODgIeGGeaXDjiHXr60wxOdrZLIaWjAR1lI6CAuIDX6PPW6Vn0
+	 5plBbpkwoYfTA==
+Date: Tue, 9 Sep 2025 12:45:32 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Liu Jian <liujian56@huawei.com>
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com, wenjia@linux.ibm.com, mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org,
+	guangguan.wang@linux.alibaba.com, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH net v2] net/smc: fix one NULL pointer dereference in
+ smc_ib_is_sg_need_sync()
+Message-ID: <20250909094532.GD341237@unreal>
+References: <20250828124117.2622624-1-liujian56@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250828124117.2622624-1-liujian56@huawei.com>
 
-
-
-On Tue, 9 Sep 2025, Ingo Franzki wrote:
-
-> However, combined encryption and integrity seems to have problems. Not 
-> sure if this is related to your changes in dm-integrity, or if there is 
-> still something missing in dm-crypt, or the interface between the two:
->
-> I did:
+On Thu, Aug 28, 2025 at 08:41:17PM +0800, Liu Jian wrote:
+> BUG: kernel NULL pointer dereference, address: 00000000000002ec
+> PGD 0 P4D 0
+> Oops: Oops: 0000 [#1] SMP PTI
+> CPU: 28 UID: 0 PID: 343 Comm: kworker/28:1 Kdump: loaded Tainted: G        OE       6.17.0-rc2+ #9 NONE
+> Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE
+> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1 04/01/2014
+> Workqueue: smc_hs_wq smc_listen_work [smc]
+> RIP: 0010:smc_ib_is_sg_need_sync+0x9e/0xd0 [smc]
+> ...
+> Call Trace:
+>  <TASK>
+>  smcr_buf_map_link+0x211/0x2a0 [smc]
+>  __smc_buf_create+0x522/0x970 [smc]
+>  smc_buf_create+0x3a/0x110 [smc]
+>  smc_find_rdma_v2_device_serv+0x18f/0x240 [smc]
+>  ? smc_vlan_by_tcpsk+0x7e/0xe0 [smc]
+>  smc_listen_find_device+0x1dd/0x2b0 [smc]
+>  smc_listen_work+0x30f/0x580 [smc]
+>  process_one_work+0x18c/0x340
+>  worker_thread+0x242/0x360
+>  kthread+0xe7/0x220
+>  ret_from_fork+0x13a/0x160
+>  ret_from_fork_asm+0x1a/0x30
+>  </TASK>
 > 
-> # cryptsetup luksFormat --type luks2 --master-key-file '<key-file>' 
-> --key-size <size-of-encryption-key-in-bits> --cipher paes-xts-plain64 
-> --pbkdf argon2i --pbkdf-memory 32 --pbkdf-force-iterations 4 --integrity 
-> phmac-sha256 --integrity-key-size <size-of-integrity-key-in-bits> 
-> /dev/loop0
->
-> # cryptsetup luksOpen /dev/loop0 int-loop
+> If the software RoCE device is used, ibdev->dma_device is a null pointer.
+> As a result, the problem occurs. Null pointer detection is added to
+> prevent problems.
 > 
-> The open step succeeds, but the following errors are shown in the journal:
+> Fixes: 0ef69e788411c ("net/smc: optimize for smc_sndbuf_sync_sg_for_device and smc_rmb_sync_sg_for_cpu")
+> Signed-off-by: Liu Jian <liujian56@huawei.com>
+> ---
+> v1->v2:
+> move the check outside of loop.
+>  net/smc/smc_ib.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> Sep 09 04:54:50 fedora kernel: crypt_convert_block_aead: 12 callbacks suppressed
-> Sep 09 04:54:50 fedora kernel: trusted_key: device-mapper: crypt: dm-0: INTEGRITY AEAD ERROR, sector 350976
-> Sep 09 04:54:50 fedora kernel: trusted_key: device-mapper: crypt: dm-0: INTEGRITY AEAD ERROR, sector 350976
-> Sep 09 04:54:50 fedora kernel: buffer_io_error: 3 callbacks suppressed
-> Sep 09 04:54:50 fedora kernel: Buffer I/O error on dev dm-1, logical block 43872, async page read
-> Sep 09 04:54:50 fedora 55-scsi-sg3_id.rules[2378]: WARNING: SCSI device dm-1 has no device ID, consider changing .SCSI_ID_SERIAL_SRC in 00-scsi-sg3_config.rules
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index 53828833a3f7..a42ef3f77b96 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -742,6 +742,9 @@ bool smc_ib_is_sg_need_sync(struct smc_link *lnk,
+>  	unsigned int i;
+>  	bool ret = false;
+>  
+> +	if (!lnk->smcibdev->ibdev->dma_device)
+> +		return ret;
 
-In this mode, the encryption, decryption and authentication is done by 
-dm-crypt, not dm-integrity. dm-integrity just passes the tags around.
+Please use ib_uses_virt_dma() function for that.
 
-So, it looks like a dm-crypt bug.
+It is clearly stated in the code:
+  2784 struct ib_device {
+  2785         /* Do not access @dma_device directly from ULP nor from HW drivers. */
+  2786         struct device                *dma_device;     
 
-Please, revert my patches and run the same test on a clean 6.17.0-rc5 just 
-to verify that the patches do not introduce the bug.
+Thanks
 
-Mikulas
 
+> +
+>  	/* for now there is just one DMA address */
+>  	for_each_sg(buf_slot->sgt[lnk->link_idx].sgl, sg,
+>  		    buf_slot->sgt[lnk->link_idx].nents, i) {
+> -- 
+> 2.34.1
+> 
+> 
