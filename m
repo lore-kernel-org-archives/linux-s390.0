@@ -1,137 +1,165 @@
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22F392D9ECF
-	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 10:24:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A03B92D1900
+	for <linux-s390@vger.kernel.org>; Tue,  9 Sep 2025 11:18:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757413482; cv=none; b=fzfQuwKziROErX19xychyEI8ju/pc3XBRooyUn4e+ggnT8KvmCEynMydxQ8nojpzoQ63X64N5r2RBskdYYZcLwTqjTZIcAofNLB6ub2DL9nOpbBsN/86mCrWCqX/wjfaKnkCjkdznHdnz6eDBwo5MEE9jVIkUgxt2AmBw2ZK6wk=
+	t=1757416729; cv=none; b=NyrUF3AAx6aNPxC2gL72sxqrDBBWxIsixtdTy/Vk820EulMK4oU91j03txySM2cmP3SQAqImhxm+0sUcAUzJH2D4/O6lFB41Cn8DbYVJpEjY9VCpWezPpuFdiOiKM53vxTE52t7m2yM0TYQOPGIYNW9cN0L8Gw/bBnozIyCPL7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757413482; c=relaxed/simple;
-	bh=rvPHXqEY5dz7k/8fFAR3K9ITwPsQt4nSsuTGsFo+WfY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qoJk/prHA41x818O9zUW7xEtiolnQkM0jnNl8tpUTGTfekGH7rF18b6vR7hbVkCvy+acg7uPajis82zFwaxCImyepdQyhO4wb/xp8HuBCSikd8ZbwswJLT1L3rBdd3HjMKmU05Khl+BWmTsQipAnI6LNEPWh/yEGL15mYw8h8Zg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=ebe/oAfY; arc=none smtp.client-ip=209.85.167.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1757416729; c=relaxed/simple;
+	bh=oNpmNIZrapUKVj8KRX1+lpJxJgbw5ZMc1yL4cZJ77wg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Ing/BVEkiI2Tyx+B4+TQegcS58d4JoyN+ZHA9k5RwBw9pqc/DsC8tWO4uHkAv2HhFqDEDpunBDegTDeWafHye3R5UheMoaNQnXSvpgBQVv3fzV2RN4/OnoY9LD454JDdNdvQFrNJ5zoJMOdqAMA30CNSfu0qNLppUaXk9/uVr7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gCsVd/22; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="ebe/oAfY"
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-55f720ffe34so7049075e87.1
-        for <linux-s390@vger.kernel.org>; Tue, 09 Sep 2025 03:24:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1757413478; x=1758018278; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RGAlRpykk4cGfc/EkJVYQzW8Hpd+7/LR38hLx9s5w8s=;
-        b=ebe/oAfYYG//CmRfMU2LOlOpafIyJGxPZIUK3GmJsgmyNlCQ2OdL8ORN3FWPp+Z9j6
-         jF0hG5afZoF85K7KZSi2jpqsuB3R/TToxjUjSsQwTNM+5PSJxl924IXgDKyKGDo8Q5pp
-         GMdMb01gju6ejrlUoOww7rn/78YD08EiUSQcnG84C9q/T34Zfp0w1x16ddmzR9exCxyL
-         k7Aid47RLgvNZVnpnr1YNTa+RYG1d/aZ/tSPhD/JGXTo5R4j/eRmDp6/BC7Z3PbuP/Tp
-         Puk7pizRGTJndXqs9PoRZoVjljvwfkM3LUHibeIX5o9NzO9nrwsxIO1UzIChDW4obASf
-         CTRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757413478; x=1758018278;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RGAlRpykk4cGfc/EkJVYQzW8Hpd+7/LR38hLx9s5w8s=;
-        b=RgxS0YgZAtNBbmLvCtNXQauaZWvu0wN54d3uyF1G7oj8cr3PXwxDlVNTWNxwSUBrv+
-         DeoC46Rqkz3DsTA/jVIVHXMk1HxEF0muYWYjZJbadgsU1LElBuStDRpiCT3GcdsNK8lv
-         2ZPkpTHDWgpM12neEa3/M+LgW8rHcF6DfqGr/ycsDZ6A2UChD5ug2i+O/MM3y/M+N2sN
-         vanEj+lMAfgYP6Pg5aPPDjN9aeuBZ353G54gpwfNO0/FzFLA3+aSKMf4cWHQuRdJTlIL
-         nUAdxhEN2u7VUmb81VRUoG4iPXXZAIFbiHWo4zHq9vZHEblshnSfndXqgmg+NgAaGJ4L
-         kDoA==
-X-Forwarded-Encrypted: i=1; AJvYcCUGoqgbSo/he2RJ0zGlV2XEc0PUvcxdDGXnz8KOJIZdKgfcA//zmEgAGx/SlWUpSOfUiOVzKk3Nkc5v@vger.kernel.org
-X-Gm-Message-State: AOJu0YxIq5d8T/r5wMkhPzt5OsoRktB+xspK/4c1aXFdhUSP2EPpuddm
-	KwbY+sZy9wmkVGs1zJCLeYO3Pl9D8ET5yFfhjwobC/7sRhfdWaiWwgLwp7/w9/699UWp/ROhDha
-	m/75ccHH4Xc7jNZZUZdKQhd4NjHiBDz6e4ccEBnpjQQ==
-X-Gm-Gg: ASbGnct6w1OUCtX8Q5lF0dTljL+sPRvxHvApfeZxInJlrmyW/z8JDFXunHnOawVW2Z+
-	2bG0YXqWBNit9fTfxGD08rApwXEU3mZRPED1qYA9rstZazFHg2xyFfAj5SbOfSy8qFk4rLMpA80
-	Pn6HOXTF/YS1MqTDUL6hP9zOUrjc9+Y84grrxjtdR0S9vdSSuLGFloJnkS69weq2HTciq93a6vc
-	kqE3WM4JtTWLpMm2UyV4BOvumMU1v0R37/eN/ww
-X-Google-Smtp-Source: AGHT+IHheVK/2xt8tglGhIBdTf7j12nw/P5uqJjV3LpiuGiQaAvqnuMpskHQ3hBfVBvVAh2rzbtyU9jEuUuHC5ZjRZg=
-X-Received: by 2002:a05:6512:1545:10b0:569:766:944e with SMTP id
- 2adb3069b0e04-56907669771mr449824e87.8.1757413478145; Tue, 09 Sep 2025
- 03:24:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gCsVd/22"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5899OqSV007665;
+	Tue, 9 Sep 2025 11:18:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=hrspfh
+	nOseUaB3gANwQz0/HN3voraup9Go1axrcqm4I=; b=gCsVd/2280MAGBlpSonsOY
+	2t5jbXrVb7ADeQGB80+00gJqk8ktXJKLiUC0IfOejwhwn02+l2jAGgSRr1myXik4
+	VAW+RisgPZ31W6yeE4p16T7jdo3s0T/DOqIDrlbgrv2hc7o74I8S4Q60cFu4pTEY
+	kk08viKpu98pS87FGUJhM1UVCbYFrgstA3Bcy/CfIxkP9zVriVHp/Kz4xhO2ntfA
+	wutdExL6sxhxByx+IpKAYSDSroFwUz4OP6/j9vz9w2jyhIhF9/2sXus/6x8qW+Cy
+	94OG0ZDjb1Gyp5LHFJgfDeeOti93troBo28qWI2mRPrbJNGWVU804nJ13+b6C2hg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xycv6pt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 11:18:37 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 589B5W6H019976;
+	Tue, 9 Sep 2025 11:18:37 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xycv6pp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 11:18:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5899fwKd020495;
+	Tue, 9 Sep 2025 11:18:35 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 490yp0txdj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 11:18:35 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 589BIVDJ20971936
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 9 Sep 2025 11:18:31 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C9FAB20040;
+	Tue,  9 Sep 2025 11:18:31 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8DCA720049;
+	Tue,  9 Sep 2025 11:18:31 +0000 (GMT)
+Received: from [9.111.198.175] (unknown [9.111.198.175])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  9 Sep 2025 11:18:31 +0000 (GMT)
+Message-ID: <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
+Date: Tue, 9 Sep 2025 13:18:31 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250905090857.108240-1-marco.crivellari@suse.com>
- <20250905090857.108240-3-marco.crivellari@suse.com> <912c038e-b03d-432d-be24-54c0f90193fd-agordeev@linux.ibm.com>
-In-Reply-To: <912c038e-b03d-432d-be24-54c0f90193fd-agordeev@linux.ibm.com>
-From: Marco Crivellari <marco.crivellari@suse.com>
-Date: Tue, 9 Sep 2025 12:24:27 +0200
-X-Gm-Features: Ac12FXxGAtt56FkytPNkO1riyrHt-Bq4O8GOYiiN2EFSKCsbudpEACK-wt8DQvc
-Message-ID: <CAAofZF6ei2cKKHhsxO1EFAb4HMvJBpnkLc7cwqWbL3p0QdfZOg@mail.gmail.com>
-Subject: Re: [PATCH 2/2] s390: replace use of system_wq with system_percpu_wq
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
-	Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Michal Hocko <mhocko@suse.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
+        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com,
+        snitzer@kernel.org, Milan Broz <gmazyland@gmail.com>
+References: <20250908131642.385445532@debian4.vm>
+ <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
+ <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
+Content-Language: en-US, de-DE
+From: Ingo Franzki <ifranzki@linux.ibm.com>
+In-Reply-To: <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: EZHg3_dkJJBQM695PsrUjnzxXiAGcccl
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDIzNSBTYWx0ZWRfX8wJnLtoBi9wD
+ vlnt2HAf59EQIV/+pq6QCXLiugrwaoxCmg6Kb9lRLEEmDPzaeZv3U7+9CAemK/HjJFVBII2feF5
+ hzTGu/jQOlCX5fH/mF1UrWrsNUV5G5FGrTnx239/zMz7jNNQqojvJF2U5422fhq33ZPwXd3o4r1
+ 8bhQc/yIf0a+GbamwIHLMTGWwarHYuKymMcZbutp1DxIGl1Dd89BjuOPE/EeJQ1Ni7RnXqD6hqc
+ k9RNo3OgQzPRmjx0++20xTLNwd0mLCja8/yPvRdxQ0pFD018GST+Ysl3uuK1/Gv9DJIwvWPEL4Z
+ Hmmp+GqsliHWEn4aGdR62QlJFxYkXj270t6yC3yfEvp3HmAu6CKKHhzKNsr7zyqTebQ+KmGcgYy
+ mW1xlsdu
+X-Proofpoint-GUID: lb_4rkQSB5M3xYKzZZuFZylbEVACLhS6
+X-Authority-Analysis: v=2.4 cv=F59XdrhN c=1 sm=1 tr=0 ts=68c00d0d cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=6HZ4xBWJqg8YpoXi22EA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-09_01,2025-09-08_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 malwarescore=0 suspectscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 bulkscore=0 adultscore=0 spamscore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2509060235
 
-On Mon, Sep 8, 2025 at 1:44=E2=80=AFPM Alexander Gordeev <agordeev@linux.ib=
-m.com> wrote:
->
-> On Fri, Sep 05, 2025 at 11:08:57AM +0200, Marco Crivellari wrote:
->
-> Hi Marco,
->
-> > Currently if a user enqueue a work item using schedule_delayed_work() t=
-he
-> > used wq is "system_wq" (per-cpu wq) while queue_delayed_work() use
-> > WORK_CPU_UNBOUND (used when a cpu is not specified). The same applies t=
-o
-> > schedule_work() that is using system_wq and queue_work(), that makes us=
-e
-> > again of WORK_CPU_UNBOUND.
-> >
-> > This lack of consistentcy cannot be addressed without refactoring the A=
-PI.
-> >
-> > system_wq is a per-CPU worqueue, yet nothing in its name tells about th=
-at
-> > CPU affinity constraint, which is very often not required by users. Mak=
-e
-> > it clear by adding a system_percpu_wq.
->
-> This paragraph is not exactly correct. You switch from system_wq to
-> system_percpu_wq - which are two different queues with the same
-> characteristics:
->
->         system_wq =3D alloc_workqueue("events", 0, 0);
->         system_percpu_wq =3D alloc_workqueue("events", 0, 0);
+On 09.09.2025 11:42, Mikulas Patocka wrote:
+> 
+> 
+> On Tue, 9 Sep 2025, Ingo Franzki wrote:
+> 
+>> However, combined encryption and integrity seems to have problems. Not 
+>> sure if this is related to your changes in dm-integrity, or if there is 
+>> still something missing in dm-crypt, or the interface between the two:
+>>
+>> I did:
+>>
+>> # cryptsetup luksFormat --type luks2 --master-key-file '<key-file>' 
+>> --key-size <size-of-encryption-key-in-bits> --cipher paes-xts-plain64 
+>> --pbkdf argon2i --pbkdf-memory 32 --pbkdf-force-iterations 4 --integrity 
+>> phmac-sha256 --integrity-key-size <size-of-integrity-key-in-bits> 
+>> /dev/loop0
+>>
+>> # cryptsetup luksOpen /dev/loop0 int-loop
+>>
+>> The open step succeeds, but the following errors are shown in the journal:
+>>
+>> Sep 09 04:54:50 fedora kernel: crypt_convert_block_aead: 12 callbacks suppressed
+>> Sep 09 04:54:50 fedora kernel: trusted_key: device-mapper: crypt: dm-0: INTEGRITY AEAD ERROR, sector 350976
+>> Sep 09 04:54:50 fedora kernel: trusted_key: device-mapper: crypt: dm-0: INTEGRITY AEAD ERROR, sector 350976
+>> Sep 09 04:54:50 fedora kernel: buffer_io_error: 3 callbacks suppressed
+>> Sep 09 04:54:50 fedora kernel: Buffer I/O error on dev dm-1, logical block 43872, async page read
+>> Sep 09 04:54:50 fedora 55-scsi-sg3_id.rules[2378]: WARNING: SCSI device dm-1 has no device ID, consider changing .SCSI_ID_SERIAL_SRC in 00-scsi-sg3_config.rules
+> 
+> In this mode, the encryption, decryption and authentication is done by 
+> dm-crypt, not dm-integrity. dm-integrity just passes the tags around.
+> 
+> So, it looks like a dm-crypt bug.
+> 
+> Please, revert my patches and run the same test on a clean 6.17.0-rc5 just 
+> to verify that the patches do not introduce the bug.
 
-Hi Alexander,
+With your patches reverted the combined mode fails the same way as with your patches.
+So they did not introduce the bug.
 
-Yes, system_percpu_wq will be in future the replacement of system_wq.
+> 
+> Mikulas
+> 
 
-> > queue_work() / queue_delayed_work() mod_delayed_work() will now use the
-> > new per-cpu wq: whether the user still stick on the old name a warn wil=
-l
-> > be printed along a wq redirect to the new one.
-> >
-> > This patch add the new system_percpu_wq except for mm, fs and net
-> > subsystem, whom are handled in separated patches.
->
-> I do not see this patch does anything like that.
->
 
-I'm sorry for the confusion, I forgot to update the log after the
-previous change.
-There are not, indeed, the changes you mentioned.
+-- 
+Ingo Franzki
+eMail: ifranzki@linux.ibm.com  
+Tel: ++49 (0)7031-16-4648
+Linux on IBM Z Development, Schoenaicher Str. 220, 71032 Boeblingen, Germany
 
-Thanks!
---=20
-
-Marco Crivellari
-
-L3 Support Engineer, Technology & Product
-
-marco.crivellari@suse.com
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen
+Geschäftsführung: David Faller
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+IBM DATA Privacy Statement: https://www.ibm.com/privacy/us/en/
