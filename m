@@ -1,120 +1,165 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99AD53019CE;
-	Tue,  9 Sep 2025 06:25:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49E41235044;
+	Tue,  9 Sep 2025 07:12:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757399121; cv=none; b=BGa1g/xDx+NpmbsgOg0mNKGj2zxhi5sE/ZQnA8i0SE+24O3HjiZxhj8Qah2RrFFnB808wbdq0sFrhB96jXkgw1RK0y+HqYmJMUobw+RcI+yaeBcZ87Epyt5J+lZHnthI/QLcvsQRye5Je26Re62cPAZ8ufSfGmkan05jeTsnq20=
+	t=1757401933; cv=none; b=r7DNIF+dGTG95zkFu1gLxXW55XEGqlY2V7Nvfsfust9r4h4Cj/lYztNbtDaLo0OWRfKspdQnKQj+IrDBl10SZ8yhUdLdsotZKZAxQa+/IEqWtqMb6hrjGtV8+FwjrLqP73e5j4Nm0TuYxyTwsg3weB9/v8U6iNuOyts6sVhIeF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757399121; c=relaxed/simple;
-	bh=CxjfHfaKk6Pj0Ax2XdpRiA8eBdWhCbUpfYxEce74T0k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hSTsJzGFNGIj3y4nF74ATGRZJkp/4S/gNFrqVbXytP05kUk3LsU/9RGt0rm0LpX/9ugFw7RVeKfGWWv2yF9oGMD60OhtSJGkyEdH0s5N/KM11LpN7mAFgCoxNeDfy7N8oQDCaVsAecYmiuUfLslZv3/qWfnKsByKsIQRjIwrN60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KWWz+8or; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1757401933; c=relaxed/simple;
+	bh=KVlFynD/KZmkbHRpxXJbCvEPT7and5zJ2SZIwAzXdvo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Xcri4HhnBvtJL1mxYnIublMt+7bHmbbMK0spTOchGccQSHn4Ry1xnY61yz9JB7KkguMM1cnVp5JQtBVKGsWtZ+Uj28HOTQ+pg2kPM5BmiGeCEhqcVIh886X9yfSDja9nHjoCJIQvnzj2Pb2uhQdd1DLK0HcPEC1Um4ytJ9TGJhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sGnEDM2O; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KWWz+8or"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 588K28g9026821;
-	Tue, 9 Sep 2025 06:25:09 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sGnEDM2O"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 588IKo7a030930;
+	Tue, 9 Sep 2025 07:12:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=WFRLdfwKB+f2Hvcm3tcdJIrkbLxkBr
-	qW9aCB1YOegSg=; b=KWWz+8orQXa1+0v3ElxdEgbkowV7gbPNxTS8Y3geF7oDbP
-	vovW4oM61uu57+clFaoJg18oCkuhR1lFIH+FSunA44z9i0yhoVPuRkEaDaDOvCmi
-	NpyWWSWW8QvpVkYDWWvv7ThDV1GXnnWRJy+nm9YXP2jDAYXZPwP/azdhkx75CEQ9
-	OsT4OhjRBUaYRf34Lg24qQN9rD3ScZ8XvCM1PBTsNwBjzIOI7PS3Y3g9k2EUt9yB
-	UEivUf7CfcZ4zP3Le9exs1TQWgZsV9qlzjYrT134LX6/EgpRTMACWpXJdAaPpjkV
-	7Y0PBekL/bZ+TskWafWfQp4Re6ZF4Lp2tRpNnxjQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490bcsnnge-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=vWUCdWdACL6jj/zlMERgKPOhY36Zq28tXZGn/gKQK
+	SU=; b=sGnEDM2OPA9a0v0Y3XrMFTL3fEyhyjslSkyhJ780yR3GfFOtviSd6RYH1
+	eE2ZQe0ApImNCLQnGDwcZ3CZltePzniMAflEkHuyB+lcRyZdoYxhrpwPwKx7LCUv
+	Rrp/vvANPukmIh4+g5AbpG03ZW1rVSA3LDx4EFhOD6Tp73ffhlOO7QQKf+aFboDh
+	jODkPI6KO4UBK5lIqutaLmQa8CC1GN/Lzein1z+ZXPjN1CQMKYLx3YbGLh82Is43
+	RjwQugtByllRRdZZ74WGKQLK67J+4BUUyJdFJRoWZmfDVolaqGU7HY9QvJ46fVJK
+	MvTHS/hheRYA3atMPx4J4Frc5r25w==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xyctycs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 06:25:09 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5895ax6Y011463;
-	Tue, 9 Sep 2025 06:25:08 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 490y9u9v2g-1
+	Tue, 09 Sep 2025 07:12:03 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 5897BoPo015898;
+	Tue, 9 Sep 2025 07:12:03 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xyctyck-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 09 Sep 2025 06:25:07 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5896P3DG48824760
+	Tue, 09 Sep 2025 07:12:03 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5895LjcB020499;
+	Tue, 9 Sep 2025 07:12:02 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 490yp0t0fc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 09 Sep 2025 07:12:01 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5897BvaU56689130
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 9 Sep 2025 06:25:03 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 28F4820049;
-	Tue,  9 Sep 2025 06:25:03 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 06C322004D;
-	Tue,  9 Sep 2025 06:25:03 +0000 (GMT)
-Received: from osiris (unknown [9.152.212.133])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  9 Sep 2025 06:25:02 +0000 (GMT)
-Date: Tue, 9 Sep 2025 08:25:01 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Thorsten Blum <thorsten.blum@linux.dev>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/nmi: Simplify return statement in
- nmi_registers_valid()
-Message-ID: <20250909062501.8968Abb-hca@linux.ibm.com>
-References: <20250908153221.383589-3-thorsten.blum@linux.dev>
- <b1bf1f70-8b4f-4e96-908a-907da1748377-agordeev@linux.ibm.com>
+	Tue, 9 Sep 2025 07:11:58 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CF3C720043;
+	Tue,  9 Sep 2025 07:11:57 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BD1AE20040;
+	Tue,  9 Sep 2025 07:11:57 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue,  9 Sep 2025 07:11:57 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
+	id 8D31FE1089; Tue, 09 Sep 2025 09:11:57 +0200 (CEST)
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>
+Subject: [PATCH net] net/smc: Remove unused argument from 2 SMC functions
+Date: Tue,  9 Sep 2025 09:11:45 +0200
+Message-ID: <20250909071145.2440407-1-mjambigi@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b1bf1f70-8b4f-4e96-908a-907da1748377-agordeev@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAxMCBTYWx0ZWRfX6UuenHDoZcWT
- KU+V9oRAHNlnYaMjqBwZ9FW8UfrVa5Srrvg1AcEVR978NLXxvkRENYeNuWosz2oQ/naHkYDAIsA
- dfoUyeGXsMWPycHiRN+xA8zgA9ylB/yFl0Uu1EY8gkvKdRxcvKIhxehrYktkjejERWTmICuaMa7
- cmtRytL6Qty8clS4NhFfatZKQYTXFqZK1FCcWhT9xlyjZ7T5RLjn29NYVrLeLpXaJwaUhyKVfta
- 2ux73848asl27cGvp3bPAgY98fMZMUXe+qAJJaPfMIC1CDFnwoIrKR/CrqCwZMJCLxt1M/CA4PP
- K7mLGkImZPOEFXZ+sSQuWVs4FfWZemtjk5HevdWCBvWFzfVDCD1GWC74YyJyIlVRgEGJKxUimer
- PRNYFp8e
-X-Authority-Analysis: v=2.4 cv=SKNCVPvH c=1 sm=1 tr=0 ts=68bfc845 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=NCyeNK3DE-JQ-TOlShkA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: NuLrYkicH6lIBZGHla0usWqo0XtI8Xya
-X-Proofpoint-ORIG-GUID: NuLrYkicH6lIBZGHla0usWqo0XtI8Xya
+X-Proofpoint-ORIG-GUID: A5nJGg-45huZa9MfKbYiaY44eWRAo0NA
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDIzNSBTYWx0ZWRfX8m+VdLur9tS9
+ EuV5nNj7P72F9gdEsxpPXgUv5AT7w7Qm1JTDXxAtg3S5+9ddoPbdfCw2+0lnxKPT7nyqSv7xRaz
+ NultpRVmsIfIFlqXTr8ABOhINZ2oA8k0puhw57NkIi07KpVWzY7krNmqyCF+Qs68mlxKI6MaKr8
+ yell8j6Oew+E3Uy32VC7kntyTTQy3dGJ88VPc+yEIxmW/jvcBuX+4c/+3tJfiFSVg+H/arYfR7B
+ TOvJ/ICm+47/YaNsnnT/ycaA9jD0G46yBiwAh3phQGkzcFawgXkDGMNkmW/WTZPDWSUWi16R6Or
+ 1fHMUWCYAWilx+KbCUWB1u+hzoSkk1FNex7DayFjgnuDP92TXS2IrVLk8OUG17D7GeTlQRFYIe6
+ IH3UB9/k
+X-Proofpoint-GUID: iWqDC6xXS4FtD670A2NIjIFe28u1Oj8N
+X-Authority-Analysis: v=2.4 cv=F59XdrhN c=1 sm=1 tr=0 ts=68bfd343 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=jK4AapCLPKrqRyuMZfEA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-08_06,2025-09-08_02,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
- adultscore=0 suspectscore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060010
+ priorityscore=1501 malwarescore=0 suspectscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 bulkscore=0 adultscore=0 spamscore=0 classifier=typeunknown
+ authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2507300000 definitions=main-2509060235
 
-On Mon, Sep 08, 2025 at 06:52:11PM +0200, Alexander Gordeev wrote:
-> On Mon, Sep 08, 2025 at 05:32:20PM +0200, Thorsten Blum wrote:
-> ...
-> > @@ -321,9 +321,7 @@ static bool notrace nmi_registers_valid(union mci mci)
-> >  	cr2.reg = get_lowcore()->cregs_save_area[2];
-> >  	if (cr2.gse && !mci.gs && !test_cpu_flag(CIF_MCCK_GUEST))
-> >  		return false;
-> > -	if (!mci.ms || !mci.pm || !mci.ia)
-> > -		return false;
-> > -	return true;
-> > +	return mci.ms && mci.pm && mci.ia;
-> >  }
-> >  NOKPROBE_SYMBOL(nmi_registers_valid);
-> 
-> This change does not make the whole function readability better.
+The smc argument is not used in both smc_connect_ism_vlan_setup() &
+smc_connect_ism_vlan_cleanup(). Hence removing it.
 
-It actually would decrease readability since every if-statement tells
-you one condition when registers are not valid. Negating the last one
-makes this harder to understand.
+Fixes: 413498440e30 net/smc: add SMC-D support in af_smc
+Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+---
+ net/smc/af_smc.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-But in general please do not send patches like this, which do not come
-with a significant improvement.
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 66033afd168a..1ea54c09b3ac 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1096,8 +1096,7 @@ static int smc_find_ism_v2_device_clnt(struct smc_sock *smc,
+ }
+ 
+ /* Check for VLAN ID and register it on ISM device just for CLC handshake */
+-static int smc_connect_ism_vlan_setup(struct smc_sock *smc,
+-				      struct smc_init_info *ini)
++static int smc_connect_ism_vlan_setup(struct smc_init_info *ini)
+ {
+ 	if (ini->vlan_id && smc_ism_get_vlan(ini->ism_dev[0], ini->vlan_id))
+ 		return SMC_CLC_DECL_ISMVLANERR;
+@@ -1112,7 +1111,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ 	/* check if there is an ism device available */
+ 	if (!(ini->smcd_version & SMC_V1) ||
+ 	    smc_find_ism_device(smc, ini) ||
+-	    smc_connect_ism_vlan_setup(smc, ini))
++	    smc_connect_ism_vlan_setup(ini))
+ 		ini->smcd_version &= ~SMC_V1;
+ 	/* else ISM V1 is supported for this connection */
+ 
+@@ -1157,8 +1156,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ /* cleanup temporary VLAN ID registration used for CLC handshake. If ISM is
+  * used, the VLAN ID will be registered again during the connection setup.
+  */
+-static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc,
+-					struct smc_init_info *ini)
++static int smc_connect_ism_vlan_cleanup(struct smc_init_info *ini)
+ {
+ 	if (!smcd_indicated(ini->smc_type_v1))
+ 		return 0;
+@@ -1581,13 +1579,13 @@ static int __smc_connect(struct smc_sock *smc)
+ 		goto vlan_cleanup;
+ 
+ 	SMC_STAT_CLNT_SUCC_INC(sock_net(smc->clcsock->sk), aclc);
+-	smc_connect_ism_vlan_cleanup(smc, ini);
++	smc_connect_ism_vlan_cleanup(ini);
+ 	kfree(buf);
+ 	kfree(ini);
+ 	return 0;
+ 
+ vlan_cleanup:
+-	smc_connect_ism_vlan_cleanup(smc, ini);
++	smc_connect_ism_vlan_cleanup(ini);
+ 	kfree(buf);
+ fallback:
+ 	kfree(ini);
+-- 
+2.48.1
+
