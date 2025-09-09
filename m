@@ -1,139 +1,168 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14E751DFE0B;
-	Mon,  8 Sep 2025 23:17:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D8D16DC28;
+	Tue,  9 Sep 2025 01:23:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757373463; cv=none; b=o2yCZT/SwWuT16yOBK3hJvD6NrolM482KwUFdnWkkRa9rBvOwulASl593WpuxXMJfZCqYTyccDb4oQ15rsy7r4x7GPlaHVOZUw9wKZKDzY/1HpwGxFOIQYG/X8IuZbqoI4KlxDkBjs2FM9FO5mNW+0PTu8nPGrDsFMbYExH1cvI=
+	t=1757380987; cv=none; b=dc3Vk0T9MCmAHFuOf2d+9GkIrPB8XK2TaMv9HsG5UPYlpkurDqR5UrIfDZswBBmY5qOOTTor36KgC0Ebd/xtA3V2MOq4qMf20bghcenebHVk+5onE+Sf1yaazowiUYNtgEQABKGFDEDb+3/CoumCP4c6T8PtOJer71wc+nVptyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757373463; c=relaxed/simple;
-	bh=H/1lSf0qRkqLPIS21dDIq6+Jb5KinRAndOcezAcipC4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sDJr5dXBb4hu2+iXAOXy+igaYSJ2cELzjZcHXJtHDzG7tT+AYXocDmXkrF+WzkCeq401SYrIJz2hVMyAwWfEmT5k2CO5H5MoHle79je7Tbwhxq0c/Q1P3DYG2tagkJOt8mk9Zw0S/tZrV9CyUT2xSPW9HEcu1mOnaIEsvj82Ja4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=o/yhZAT6; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1757380987; c=relaxed/simple;
+	bh=+Suf3UYL1FEYqrtEdRrLdPX55+LxnXEf18p8fqNUYqo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ttmgnCyY7k+W4q58+Bw+XYpi1bVbaX/B6zRuOK1qKqKwA+hYhyMMoREHuTXJImh43Ri176FpAplDKNpXtZ809fBdl4BPyZ5XW1GVVOjlCndvrXlyaqvmZTM8r/lBqE4t1vhDslGzWeBN1v28N6NSykacitaB6PVWFDK8Dm5rzh8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Is/jeUlP; arc=none smtp.client-ip=115.124.30.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="o/yhZAT6"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=CMlqYlKj+ILUokIqP1ABAMFD7Ot5oBLbcsJFMFm2zE0=; b=o/yhZAT6Pleqpfj3cap4+Ocr0X
-	SQndNm93uEb+a4QqInydfI6lMJSJFzsSu3/0qeMTKdhPtlmWw3TUQRbR6L2wKk2W3Fv+UH9KsOJEg
-	9qPRFInLAK8DjwwP3kbclODQZmsO+zdGm2eIzKDYqjx3wV8Z9WwBemPbQiE4A+eNMuh7m64z6qIdV
-	KXBfJtcalLtNb7nUQOkOJ5v6vc4bBx6ZTya7R+MDIox9Nxyg/2OCB4wbhLPO78J0Opb4io0rwvic4
-	NDpaGlW9vP1blgirQfaegykINHE1UsAXggKwlIZNRbsS5mNDQybb9YhDkcTYBLtgKyHdfGed+PEsS
-	przXJOJw==;
-Received: from [50.53.25.54] (helo=[192.168.254.17])
-	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uvl6s-00000002unf-1xHe;
-	Mon, 08 Sep 2025 23:17:18 +0000
-Message-ID: <c0d7df5f-ac43-4e15-8400-155bf87d5e77@infradead.org>
-Date: Mon, 8 Sep 2025 16:17:16 -0700
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Is/jeUlP"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1757380981; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=xA2Ejw8sW8Ofk5QY6h87367f6vzr1rTStNEScUBbL98=;
+	b=Is/jeUlPQCjThmyHaJHkSbMrMF10wWmdyesywFmj8n8Dapc4jEKcpng2/HQfOEe+y+58zByof03mDffmjKu3W5Lm286VUOr7o8py5BospLjW0w0pbgQNwaTD2hh1ygVp85WXAcW0/Bz01l9hpRkVV7rIIvOxkrdyiBrqSeWoipQ=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WnbokwK_1757380980 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 09 Sep 2025 09:23:00 +0800
+Date: Tue, 9 Sep 2025 09:23:00 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Alexandra Winter <wintera@linux.ibm.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	David Miller <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Julian Ruess <julianr@linux.ibm.com>,
+	Aswin Karuvally <aswin@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-rdma@vger.kernel.org,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH net-next 01/14] net/smc: Remove error handling of
+ unregister_dmb()
+Message-ID: <aL-BdPSnQTPUy5rc@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250905145428.1962105-1-wintera@linux.ibm.com>
+ <20250905145428.1962105-2-wintera@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 07/16] doc: update porting, vfs documentation for
- mmap_[complete, abort]
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>,
- Guo Ren <guoren@kernel.org>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, "David S . Miller"
- <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dan Williams <dan.j.williams@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
- Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>,
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
- Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
- Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>,
- Reinette Chatre <reinette.chatre@intel.com>,
- Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- "Liam R . Howlett" <Liam.Howlett@oracle.com>,
- Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Hugh Dickins <hughd@google.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>,
- Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov <andreyknvl@gmail.com>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
- sparclinux@vger.kernel.org, nvdimm@lists.linux.dev,
- linux-cxl@vger.kernel.org, linux-mm@kvack.org, ntfs3@lists.linux.dev,
- kexec@lists.infradead.org, kasan-dev@googlegroups.com,
- Jason Gunthorpe <jgg@nvidia.com>
-References: <cover.1757329751.git.lorenzo.stoakes@oracle.com>
- <1ceb56fec97f891df5070b24344bf2009aca6655.1757329751.git.lorenzo.stoakes@oracle.com>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <1ceb56fec97f891df5070b24344bf2009aca6655.1757329751.git.lorenzo.stoakes@oracle.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250905145428.1962105-2-wintera@linux.ibm.com>
 
-Hi--
+On 2025-09-05 16:54:14, Alexandra Winter wrote:
+>smcd_buf_free() calls smc_ism_unregister_dmb(lgr->smcd, buf_desc) and
+>then unconditionally frees buf_desc.
+>
+>Remove the cleaning up of fields of buf_desc in
+>smc_ism_unregister_dmb(), because it is not helpful.
+>
+>This removes the only usage of ISM_ERROR from the smc module. So move it
+>to drivers/s390/net/ism.h.
+>
+>Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+>Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-On 9/8/25 4:10 AM, Lorenzo Stoakes wrote:
-> We have introduced the mmap_complete() and mmap_abort() callbacks, which
-> work in conjunction with mmap_prepare(), so describe what they used for.
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+
+Best regards,
+Dust
+
+>---
+> drivers/s390/net/ism.h |  1 +
+> include/net/smc.h      |  2 --
+> net/smc/smc_ism.c      | 14 +++++---------
+> net/smc/smc_ism.h      |  3 ++-
+> 4 files changed, 8 insertions(+), 12 deletions(-)
+>
+>diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
+>index 047fa6101555..b5b03db52fce 100644
+>--- a/drivers/s390/net/ism.h
+>+++ b/drivers/s390/net/ism.h
+>@@ -10,6 +10,7 @@
+> #include <asm/pci_insn.h>
 > 
-> We update both the VFS documentation and the porting guide.
+> #define UTIL_STR_LEN	16
+>+#define ISM_ERROR	0xFFFF
 > 
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-> ---
->  Documentation/filesystems/porting.rst |  9 +++++++
->  Documentation/filesystems/vfs.rst     | 35 +++++++++++++++++++++++++++
->  2 files changed, 44 insertions(+)
+> /*
+>  * Do not use the first word of the DMB bits to ensure 8 byte aligned access.
+>diff --git a/include/net/smc.h b/include/net/smc.h
+>index db84e4e35080..a9c023dd1380 100644
+>--- a/include/net/smc.h
+>+++ b/include/net/smc.h
+>@@ -44,8 +44,6 @@ struct smcd_dmb {
 > 
-
-> diff --git a/Documentation/filesystems/vfs.rst b/Documentation/filesystems/vfs.rst
-> index 486a91633474..172d36a13e13 100644
-> --- a/Documentation/filesystems/vfs.rst
-> +++ b/Documentation/filesystems/vfs.rst
-
-> @@ -1236,6 +1240,37 @@ otherwise noted.
->  	file-backed memory mapping, most notably establishing relevant
->  	private state and VMA callbacks.
->  
-> +``mmap_complete``
-> +	If mmap_prepare is provided, will be invoked after the mapping is fully
-
-s/mmap_prepare/mmap_complete/ ??
-
-> +	established, with the mmap and VMA write locks held.
-> +
-> +	It is useful for prepopulating VMAs before they may be accessed by
-> +	users.
-> +
-> +	The hook MUST NOT release either the VMA or mmap write locks. This is
-
-You could also do **bold** above:
-
-	The hook **MUST NOT** release ...
-
-
-> +	asserted by the mmap logic.
-> +
-> +	If an error is returned by the hook, the VMA is unmapped and the
-> +	mmap() operation fails with that error.
-> +
-> +	It is not valid to specify this hook if mmap_prepare is not also
-> +	specified, doing so will result in an error upon mapping.
-
--- 
-~Randy
-
+> #define ISM_RESERVED_VLANID	0x1FFF
+> 
+>-#define ISM_ERROR	0xFFFF
+>-
+> struct smcd_dev;
+> 
+> struct smcd_gid {
+>diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+>index a58ffb7a0610..fca01b95b65a 100644
+>--- a/net/smc/smc_ism.c
+>+++ b/net/smc/smc_ism.c
+>@@ -205,13 +205,13 @@ int smc_ism_put_vlan(struct smcd_dev *smcd, unsigned short vlanid)
+> 	return rc;
+> }
+> 
+>-int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
+>+void smc_ism_unregister_dmb(struct smcd_dev *smcd,
+>+			    struct smc_buf_desc *dmb_desc)
+> {
+> 	struct smcd_dmb dmb;
+>-	int rc = 0;
+> 
+> 	if (!dmb_desc->dma_addr)
+>-		return rc;
+>+		return;
+> 
+> 	memset(&dmb, 0, sizeof(dmb));
+> 	dmb.dmb_tok = dmb_desc->token;
+>@@ -219,13 +219,9 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
+> 	dmb.cpu_addr = dmb_desc->cpu_addr;
+> 	dmb.dma_addr = dmb_desc->dma_addr;
+> 	dmb.dmb_len = dmb_desc->len;
+>-	rc = smcd->ops->unregister_dmb(smcd, &dmb);
+>-	if (!rc || rc == ISM_ERROR) {
+>-		dmb_desc->cpu_addr = NULL;
+>-		dmb_desc->dma_addr = 0;
+>-	}
+>+	smcd->ops->unregister_dmb(smcd, &dmb);
+> 
+>-	return rc;
+>+	return;
+> }
+> 
+> int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+>diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+>index 6763133dd8d0..765aa8fae6fa 100644
+>--- a/net/smc/smc_ism.h
+>+++ b/net/smc/smc_ism.h
+>@@ -47,7 +47,8 @@ int smc_ism_get_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+> int smc_ism_put_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+> int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+> 			 struct smc_buf_desc *dmb_desc);
+>-int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
+>+void smc_ism_unregister_dmb(struct smcd_dev *dev,
+>+			    struct smc_buf_desc *dmb_desc);
+> bool smc_ism_support_dmb_nocopy(struct smcd_dev *smcd);
+> int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
+> 		       struct smc_buf_desc *dmb_desc);
+>-- 
+>2.48.1
