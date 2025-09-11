@@ -1,149 +1,172 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BB7A2DC770;
-	Thu, 11 Sep 2025 18:33:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E012DC765;
+	Thu, 11 Sep 2025 18:44:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757615622; cv=none; b=QXQj1bWKRkyvtgwpp5ngf5LzKBo11JShuzikj5mCDfv/vjA0y1spGmoZXA9d9vxUDtJNqXX26ZKQmyc0llVXRQfwKpqeQ/AELDhZvs5wiP5fSWfGy9f5Z/gSay+u/SFqi6e76Xe2gXyC0FU/uThUG1xPIklu8xrt1Oo9bEiVHDA=
+	t=1757616275; cv=none; b=RSCbki0epuZmDKYTAvktRoNQbk86H+we9JwZY1/ShTo3vN2Q2Suj9doNVLUIbrjHNkZCAJFXkEsljMkqR5el+Gmx6/gbfmTKLt9K4O6JmHSRVYUx0MIAy3dUbSQ5jYJwwRmR1MaitxNLyOGT16nnrRSS+lWdNZrs3JuHvrXyjoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757615622; c=relaxed/simple;
-	bh=HvTt5221H5DQ1X+GZWXY3QkHHnBA6eW/stRkoiAL7gs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KZLRuzneqGbGVLuwfnQHPu8g5WkKyFP0JU9g6Vr8qefCsdSTItd3dBnhOz6dpfqPQIKU/KdYo0RmuMF50+KVp0rPRRMTyaeIeNnnr8Pi2EcTarNIi4kp59DcXuG818hMO7WiyGCxVMA4j87xlwCfYUDOpd7fz2+HyjPSHmML+j0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gcb/4Lc3; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1757616275; c=relaxed/simple;
+	bh=w5MXgFugxnmH56tVIOnCqs0AHe/uK/jNlEbRgaWvsQI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PfEfhZBMATrEUPvsrg0AIYD8iGgIzgkKlzgi8JLKiQGjwHOF0AJ44AORFqwrl0Ol/XtIdfTbv34pS3ibismAPUNgKQ8CfqfrMugyfbhJgBzmFBG9SzWH8tonFVdFeYPheT6/nTJVqVf7SgCyMi2IAzwv6DPIvFKgZ2UKPI4vLdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F7s2VtNp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gcb/4Lc3"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58BA1afJ013271;
-	Thu, 11 Sep 2025 18:33:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=+c2kHIW89fFxZMF7i
-	igDqHKPq5NHEczv6HmG2G6s5GY=; b=gcb/4Lc3+ItXqNSeu6FlwZIQ9ORO7Xb7Y
-	s+qmEWxKeaUIKqqD5bShw2HB3OvbXc0zNrBqyxFXehc0wj0ZkJ8tWkXqMhdNpknQ
-	T3fbR+repueFwdTN8cNukLYFiexdqy463ZtriDTF/AvsAEtjQWjaTsxNkFWVjcxd
-	JPvqNooy3oka/AdUyz6ujD64atDDA8NUhL6phaHFyAQWvCHDmAT50oLxS5LAxnfJ
-	NBM7KpB3ZF5BF3Ey9tezNaRc0wXB+sev8gEru40o7V2g9z3jW9NV0GH0SeiVHcy8
-	W9hDd7y5vqYavJF5ZAw2xQsgf5UFodc1ug9I2y0FfP2sfOQUPR3sA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490xydbgbu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 18:33:19 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58BIK3a0001163;
-	Thu, 11 Sep 2025 18:33:18 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 491203q0b1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 18:33:18 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58BIXGYP35455596
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Sep 2025 18:33:16 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7508C58058;
-	Thu, 11 Sep 2025 18:33:16 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C467658057;
-	Thu, 11 Sep 2025 18:33:15 +0000 (GMT)
-Received: from IBM-D32RQW3.ibm.com (unknown [9.61.249.32])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Sep 2025 18:33:15 +0000 (GMT)
-From: Farhan Ali <alifm@linux.ibm.com>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: alex.williamson@redhat.com, helgaas@kernel.org, alifm@linux.ibm.com,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-Subject: [PATCH v3 10/10] vfio: Remove the pcie check for VFIO_PCI_ERR_IRQ_INDEX
-Date: Thu, 11 Sep 2025 11:33:07 -0700
-Message-ID: <20250911183307.1910-11-alifm@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250911183307.1910-1-alifm@linux.ibm.com>
-References: <20250911183307.1910-1-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F7s2VtNp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAD1EC4CEF0;
+	Thu, 11 Sep 2025 18:44:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1757616274;
+	bh=w5MXgFugxnmH56tVIOnCqs0AHe/uK/jNlEbRgaWvsQI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F7s2VtNpCT6pUPhbm+TP2RoBLL+54M9Xj3c0bEYZNFBLR6bBUi4uzERLY33JjNwML
+	 SH2GSslTnR1Tz1F+ujxnzjxLlMIkmeu8dK4aWAJKpufB4hVP4JcG3TX36RMKpiAhlp
+	 28b9DD9ojSChK+EFmr3a/DL81eTNyrT5pnHFzeEfNb2FWz/A6tS3Tqj/nkX13DxVOn
+	 5IJxj+6igewdLy4PM34v+dwZBOvxU0OWfBqZtsOQZQpSOjeu1guDCPgqfOYEpLIaKT
+	 eB1MxqSpYj1+9Zc5g4meTfaAMOBIKLrJUK1D2vQo5uPjiCBR5l/yckP5NDDD5plSWO
+	 CeUp6o831T6ow==
+Date: Thu, 11 Sep 2025 11:44:29 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Miguel Ojeda <ojeda@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Juergen Christ <jchrist@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH 1/3] Compiler Attributes: Add __assume macro
+Message-ID: <20250911184429.GA2395987@ax162>
+References: <20250910151216.646600-1-hca@linux.ibm.com>
+ <20250910151216.646600-2-hca@linux.ibm.com>
+ <20250911013243.GA292340@ax162>
+ <20250911145659.8894Dea-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lGVpjyA4ijHYw0BA5iwJdXUm3XqB5caw
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDIzNSBTYWx0ZWRfX94FDKZeZib8W
- N1zlDk3GxjoPxR/TFgIUd68U0rQuWOGtTuhE4jbOK6r6f2HsQ1CwvkyMHsix1SCVCQFZMpVpBj9
- 4LJacXV4Amrq3kDNhZU1tFFqArVkK8TyvzGmRzJ2rZZQBi+zLaHyrR5GlVk1lV5/XUG2OwemcSD
- X4WbTa74VxBWOHK36YujNk8pUh9sexdOqlKXb/31+by7pn/gaeX/KjIgGlkTR+lnmCITAUWRpgR
- pyYI13za69i3ecwmJ3GoO18Pel6uazJiHhoynmGz3sZcVk15zjh10jIHvT/8EF4WLLfAM89hdQV
- oWrk+X7b6e51YwVV33pRK69pXJL07IJZDWIA/5ZCqw5ePYqHujmMOqLCOXrUZmCUDzc+V+ejB+3
- jbCbkJGY
-X-Proofpoint-GUID: lGVpjyA4ijHYw0BA5iwJdXUm3XqB5caw
-X-Authority-Analysis: v=2.4 cv=F59XdrhN c=1 sm=1 tr=0 ts=68c315ef cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=gONGJyW3jwFs4LhXXOUA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-11_03,2025-09-11_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 malwarescore=0 suspectscore=0 phishscore=0 clxscore=1015
- impostorscore=0 bulkscore=0 adultscore=0 spamscore=0 classifier=typeunknown
- authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2509060235
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250911145659.8894Dea-hca@linux.ibm.com>
 
-We are configuring the error signaling on the vast majority of devices and
-it's extremely rare that it fires anyway. This allows userspace to be
-notified on errors for legacy PCI devices. The Internal Share Memory (ISM)
-device on s390x is one such device. For PCI devices on IBM s390x error
-recovery involves platform firmware and notification to operating system
-is done by architecture specific way. So the ISM device can still be
-recovered when notified of an error.
+On Thu, Sep 11, 2025 at 04:56:59PM +0200, Heiko Carstens wrote:
+> On Wed, Sep 10, 2025 at 06:32:43PM -0700, Nathan Chancellor wrote:
+> > > + *
+> > > + * Optional: only supported since GCC >= 13.1, clang >= 12.0
+> > > + *
+> > > + *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#index-assume-statement-attribute
+> > > + * clang: https://clang.llvm.org/docs/AttributeReference.html#assume
+> > 
+> > Looking at this link sent me down a bit of a rabbit hole :) Prior to
+> > Clang 19.1.0 [2], assume was an OpenMP attribute, which has completely
+> > different semantics and errors out when used in the way the series does:
+> > 
+> >   In file included from kernel/bounds.c:13:
+> >   In file included from include/linux/log2.h:12:
+> >   In file included from include/linux/bitops.h:67:
+> >   arch/s390/include/asm/bitops.h:173:12: error: expected string literal as argument of '__assume__' attribute
+> >     173 |                 __assume(bit <= 64);
+> >         |                          ^
+> > 
+> > Unfortunately, I think __assume will need to be handled in the compiler
+> > specific headers :/
+> > 
+> > [1]: https://clang.llvm.org/docs/AttributeReference.html#id13
+> > [2]: https://github.com/llvm/llvm-project/commit/c44fa3e8a9a44c2e9a575768a3c185354b9f6c17
+> 
+> Thank you for having look. This is quite surprising. So after looking into the
+> various header files it might be acceptable to add this to compiler_types.h,
+> since there seem to be a few similar constructs.
+> 
+> Maybe something like this(?):
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c  | 6 ++----
- drivers/vfio/pci/vfio_pci_intrs.c | 3 +--
- 2 files changed, 3 insertions(+), 6 deletions(-)
+Ah, yeah, that would work too. I had not considered compiler_types.h
+since most of those tend to involve dynamic checks via cc-option but I
+do like keeping the documentation attached to the attribute in a single
+location, rather than duplicating it in the individual compiler files.
+This will also make it easy to move this into compiler_attributes.h in
+the (likely distant) future when both compilers support this
+unconditionally (or clang 19.1.0 is the minimum supported version so
+__has_attribute can be used).
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index f2fcb81b3e69..d125471fd5ea 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -749,8 +749,7 @@ static int vfio_pci_get_irq_count(struct vfio_pci_core_device *vdev, int irq_typ
- 			return (flags & PCI_MSIX_FLAGS_QSIZE) + 1;
- 		}
- 	} else if (irq_type == VFIO_PCI_ERR_IRQ_INDEX) {
--		if (pci_is_pcie(vdev->pdev))
--			return 1;
-+		return 1;
- 	} else if (irq_type == VFIO_PCI_REQ_IRQ_INDEX) {
- 		return 1;
- 	}
-@@ -1150,8 +1149,7 @@ static int vfio_pci_ioctl_get_irq_info(struct vfio_pci_core_device *vdev,
- 	case VFIO_PCI_REQ_IRQ_INDEX:
- 		break;
- 	case VFIO_PCI_ERR_IRQ_INDEX:
--		if (pci_is_pcie(vdev->pdev))
--			break;
-+		break;
- 		fallthrough;
- 	default:
- 		return -EINVAL;
-diff --git a/drivers/vfio/pci/vfio_pci_intrs.c b/drivers/vfio/pci/vfio_pci_intrs.c
-index 123298a4dc8f..f2d13b6eb28f 100644
---- a/drivers/vfio/pci/vfio_pci_intrs.c
-+++ b/drivers/vfio/pci/vfio_pci_intrs.c
-@@ -838,8 +838,7 @@ int vfio_pci_set_irqs_ioctl(struct vfio_pci_core_device *vdev, uint32_t flags,
- 	case VFIO_PCI_ERR_IRQ_INDEX:
- 		switch (flags & VFIO_IRQ_SET_ACTION_TYPE_MASK) {
- 		case VFIO_IRQ_SET_ACTION_TRIGGER:
--			if (pci_is_pcie(vdev->pdev))
--				func = vfio_pci_set_err_trigger;
-+			func = vfio_pci_set_err_trigger;
- 			break;
- 		}
- 		break;
--- 
-2.43.0
+> From d9d67807e6854666507e55d9ac0c7b4ec659aa99 Mon Sep 17 00:00:00 2001
+> From: Heiko Carstens <hca@linux.ibm.com>
+> Date: Wed, 10 Sep 2025 14:18:07 +0200
+> Subject: [PATCH] compiler_types: Add __assume macro
+> 
+> Make the statement attribute "assume" with a new __assume macro available.
+> 
+> This allows compilers to generate better code, however code which makes use
+> of __assume must be written as if the compiler ignores the hint. Otherwise
+> this may lead to subtle bugs if code is compiled with compilers which do
+> not support the attribute.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+
+I do not think anyone really owns compiler_types.h so unless Miguel has
+any objections from the compiler attributes perspective, I think you can
+just take this via the s390 tree with the other two changes.
+
+> ---
+>  include/linux/compiler_types.h | 20 ++++++++++++++++++++
+>  init/Kconfig                   | 10 ++++++++++
+>  2 files changed, 30 insertions(+)
+> 
+> diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
+> index 16755431fc11..38a52a792e48 100644
+> --- a/include/linux/compiler_types.h
+> +++ b/include/linux/compiler_types.h
+> @@ -329,6 +329,26 @@ struct ftrace_likely_data {
+>  #define __no_sanitize_or_inline __always_inline
+>  #endif
+>  
+> +/*
+> + * Beware: Code which makes use of __assume must be written as if the compiler
+> + * ignores the hint. Otherwise this may lead to subtle bugs if code is compiled
+> + * with compilers which do not support the attribute.
+> + * Using this attribute requires careful analysis, since in some cases it may
+> + * generate worse code (see clang documentation).
+> + *
+> + * Optional: only supported since gcc >= 13
+> + * Optional: only supported since clang >= 19
+> + *
+> + *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#index-assume-statement-attribute
+> + * clang: https://clang.llvm.org/docs/AttributeReference.html#id13
+> + *
+> + */
+> +#ifdef CONFIG_CC_HAS_ASSUME
+> +# define __assume(expr)			__attribute__((__assume__(expr)))
+> +#else
+> +# define __assume(expr)
+> +#endif
+> +
+>  /*
+>   * Optional: only supported since gcc >= 15
+>   * Optional: only supported since clang >= 18
+> diff --git a/init/Kconfig b/init/Kconfig
+> index e3eb63eadc87..5882c5e74047 100644
+> --- a/init/Kconfig
+> +++ b/init/Kconfig
+> @@ -112,6 +112,16 @@ config TOOLS_SUPPORT_RELR
+>  config CC_HAS_ASM_INLINE
+>  	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
+>  
+> +config CC_HAS_ASSUME
+> +	bool
+> +	# clang needs to be at least 19.1.0 since the meaning of the assume
+> +	# attribute changed:
+> +	# https://github.com/llvm/llvm-project/commit/c44fa3e8a9a44c2e9a575768a3c185354b9f6c17
+> +	default y if CC_IS_CLANG && CLANG_VERSION >= 190100
+> +	# supported since gcc 13.1.0
+> +	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106654
+> +	default y if CC_IS_GCC && GCC_VERSION >= 130100
+> +
+>  config CC_HAS_NO_PROFILE_FN_ATTR
+>  	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
+>  
+> -- 
+> 2.48.1
