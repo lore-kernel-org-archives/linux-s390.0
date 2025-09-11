@@ -1,204 +1,132 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FF9F2E6CD5
-	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 08:55:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA191B87E8;
+	Thu, 11 Sep 2025 09:28:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757580951; cv=none; b=KBuOy0wWUEKz4W/iErRdUnyoIezX5ilx6vdwvRm7Y61cFB9OEGcnKZ6OciQ+j7qddPKEK9H4BFZkTaoFjcwyz/jg8Daa4uLCWBmwak8X8ZGkXDuCxXBYX/LwfqpYQW8EQdOehogXCqhQ+T+nSvEamxR+MuYwGzzt5pUmCTlsS+s=
+	t=1757582903; cv=none; b=NKR2xv3es5tv0BDw53gUsXb/e4AQIjiYs17nZoK2HkaY/wc+4HrSdSHWztKVl/aDEI/u84voIzAhiwTyMsxJF+f5QBXqKkVPPGXUZe0aHy/BahuYHhJKhynos/+R0a1A7EymnWAoWxd8WPlDxFlWTPDJ1q3OUO6UT5TzK+c/LnE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757580951; c=relaxed/simple;
-	bh=g8rjLkGZDz8l75aKfZa7HlbA3xNuO5qdMG27VMFj5qU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UH6c+7vlQtPGXrmmdk/Me741r0z463L8hbIChmeS5fh0MpccpgAc8v37hJDn9Uyyt4T4Vd51ZI7H/DMbsvRcOrSpNbrhB9EEq759SAZE6fMwibf3UxOtqOfw9lL1alHmMY6g2Si3Is8CqONNxDmpIt08Bbi1ovqn+eLoIMFhRrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=H06dORKL; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=0iIQ+Ipq; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=H06dORKL; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=0iIQ+Ipq; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1757582903; c=relaxed/simple;
+	bh=7O8wP6YesOxxPGXF72XoQUQIVWCXf1NXL+JFB7E9gf8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qixV3yRdLtb7t9SkvEdLcgAlALPKqdLFD6wjwzMlYOF7ecC1PjeiMbkf9vTXlAk3S85xXz5u/Mag+cduyQoNkSqoeoWN7YQ1HNSc1G0F9no3xlShHS6lKGStpNAkOQHbxUgHmi83gO9dsEhWq0gFOd+wB0CVgpJchKO2Mm77CEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ScSwbN5V; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="H06dORKL";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="0iIQ+Ipq";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="H06dORKL";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="0iIQ+Ipq"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id BF3946864B;
-	Thu, 11 Sep 2025 08:55:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1757580946; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g+JbXqJwzf7cOodAKH9xqcseUyaAMBde80ixVE0ZgKU=;
-	b=H06dORKLeqy9oLKCwBAyy8KbyMMgBGmw2umEdwRHB5t4//gwrPu6p/UqepgBh+cqtCMGYj
-	gu16/N0MH0OUE8I2dmmLR/foB3LQlqym6FvW7Qq9xnnjWKvZeFtm5D+PPNO1HxnjqxADHx
-	R9Jg+XWpXeRhDFWLoByfZA9usPYkdhw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1757580946;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g+JbXqJwzf7cOodAKH9xqcseUyaAMBde80ixVE0ZgKU=;
-	b=0iIQ+Ipqu9W5Px/nULTByH8LjK8QRRM8NgGXedpdy+DrzCu/JG3h5fU1YWI+FWRaeWdOMk
-	PDTOzamFaGTIDVCw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=H06dORKL;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=0iIQ+Ipq
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1757580946; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g+JbXqJwzf7cOodAKH9xqcseUyaAMBde80ixVE0ZgKU=;
-	b=H06dORKLeqy9oLKCwBAyy8KbyMMgBGmw2umEdwRHB5t4//gwrPu6p/UqepgBh+cqtCMGYj
-	gu16/N0MH0OUE8I2dmmLR/foB3LQlqym6FvW7Qq9xnnjWKvZeFtm5D+PPNO1HxnjqxADHx
-	R9Jg+XWpXeRhDFWLoByfZA9usPYkdhw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1757580946;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g+JbXqJwzf7cOodAKH9xqcseUyaAMBde80ixVE0ZgKU=;
-	b=0iIQ+Ipqu9W5Px/nULTByH8LjK8QRRM8NgGXedpdy+DrzCu/JG3h5fU1YWI+FWRaeWdOMk
-	PDTOzamFaGTIDVCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B13C613974;
-	Thu, 11 Sep 2025 08:55:46 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 4H7vKpKOwmjqeAAAD6G6ig
-	(envelope-from <jack@suse.cz>); Thu, 11 Sep 2025 08:55:46 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 5F916A0A2D; Thu, 11 Sep 2025 10:55:42 +0200 (CEST)
-Date: Thu, 11 Sep 2025 10:55:42 +0200
-From: Jan Kara <jack@suse.cz>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>, 
-	Guo Ren <guoren@kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, 
-	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
-	Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>, 
-	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, 
-	Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>, 
-	Reinette Chatre <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, 
-	James Morse <james.morse@arm.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov <andreyknvl@gmail.com>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, linux-doc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-csky@vger.kernel.org, 
-	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org, 
-	ntfs3@lists.linux.dev, kexec@lists.infradead.org, kasan-dev@googlegroups.com, 
-	Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH v2 09/16] doc: update porting, vfs documentation for
- mmap_prepare actions
-Message-ID: <xbz56k25ftkjbjpjpslqad5b77klaxg3ganckhbnwe3mf6vtpy@3ytagvaq4gk5>
-References: <cover.1757534913.git.lorenzo.stoakes@oracle.com>
- <e50e91a6f6173f81addb838c5049bed2833f7b0d.1757534913.git.lorenzo.stoakes@oracle.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ScSwbN5V"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58B7MOiO028317;
+	Thu, 11 Sep 2025 09:28:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=XqbZs9hf4mUfj4ECMbTUhoGBGdSmHUuLJrDP1bxxu
+	2w=; b=ScSwbN5VTAUnm2YOcI8EjmtIu6IugVleFPELT7GdADsJKy1836QeVEjJE
+	6JE1GIsqyMtPSQsQHhDEgSDgED4iHCE6avwjSlO+2fFGNZ6GZKV3th+Go1UdUNsx
+	6CI3wDjELgvkoxE3B8AJKGV+oontxUljXLjoCHyIvltdN62tXcBWQnzSgLGkKlLX
+	A2zUd5mmU5lxozrCquLrSrf/tTqqEqVhtgvDW8FZqhD3pPBY36JQLxKmyilXW3cU
+	eEGUFY4PS45VWNE4QGd3+ZKxcJjWIBSdXlQXmkDZvC1Wc9Zx4gL2UpOcyklUtXyh
+	SA/69Bli5alD6SMDC1kAeNhnRcc0Q==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmx3pw3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Sep 2025 09:28:18 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58B9D2mJ007912;
+	Thu, 11 Sep 2025 09:28:17 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49109pw2wc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Sep 2025 09:28:17 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58B9SCIT33161922
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Sep 2025 09:28:12 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C9FB42004B;
+	Thu, 11 Sep 2025 09:28:12 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B9B7920040;
+	Thu, 11 Sep 2025 09:28:12 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 11 Sep 2025 09:28:12 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
+	id 66890E03BC; Thu, 11 Sep 2025 11:28:12 +0200 (CEST)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH] s390/entry: Remove unused TIF flags
+Date: Thu, 11 Sep 2025 11:28:06 +0200
+Message-ID: <20250911092806.3262481-1-svens@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e50e91a6f6173f81addb838c5049bed2833f7b0d.1757534913.git.lorenzo.stoakes@oracle.com>
-X-Spamd-Result: default: False [-2.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	MISSING_XM_UA(0.00)[];
-	RCVD_COUNT_THREE(0.00)[3];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[oracle.com:email,suse.com:email,suse.cz:email,suse.cz:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[linux-foundation.org,lwn.net,infradead.org,kernel.org,alpha.franken.de,linux.ibm.com,davemloft.net,gaisler.com,arndb.de,linuxfoundation.org,intel.com,fluxnic.net,linux.dev,suse.de,redhat.com,paragon-software.com,arm.com,zeniv.linux.org.uk,suse.cz,oracle.com,google.com,suse.com,linux.alibaba.com,gmail.com,vger.kernel.org,lists.linux.dev,kvack.org,lists.infradead.org,googlegroups.com,nvidia.com];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_GT_50(0.00)[59];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Rspamd-Queue-Id: BF3946864B
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -2.51
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nEprxwTOVfEOWQ9MvyTq4uRpIPPFQuys
+X-Proofpoint-ORIG-GUID: nEprxwTOVfEOWQ9MvyTq4uRpIPPFQuys
+X-Authority-Analysis: v=2.4 cv=J52q7BnS c=1 sm=1 tr=0 ts=68c29632 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=acghSI3q7n8i0AATrVwA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAyNSBTYWx0ZWRfX97o0IK0PZ6Uj
+ myTE/QqBteZ3EIqhM4H1r7PJEG+iE3q9iYTagABNOTcOMqQuoLPKuyD7cterD0iNqbaa4t8sWis
+ GqXaP/8IGahR5yviLpDUX6K2+eqPOtLhH350QZSbYDb9RLEyVjcjpLeNcxcAgMGNGtRNv2JNPTz
+ FaMdvjyRh9ZYJmW6bVzWAxUsOEETmFYK+8J1NAXtDEADLgm5urfpiJjwmT0Ea5vwHcHu1RrvStY
+ R729vsYgRtPcY6i8kCZ8aIgYjHPBA2V9cmgpwKjzZTN1JBPxUoWKNQOy2hr/Ef8m6VyrjA6opxq
+ lKOASVfuyvKVbYKlTOYiuda0UBSTwIojiU8+2C6//ExLq/ovy2LNBAJuW+LI0tkyDs9k4igPDDQ
+ OXW16Fw6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-10_04,2025-09-10_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1011 suspectscore=0 spamscore=0 phishscore=0
+ bulkscore=0 adultscore=0 malwarescore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060025
 
-On Wed 10-09-25 21:22:04, Lorenzo Stoakes wrote:
-> Now we have introduced the ability to specify that actions should be taken
-> after a VMA is established via the vm_area_desc->action field as specified
-> in mmap_prepare, update both the VFS documentation and the porting guide to
-> describe this.
-> 
-> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+The conversion of s390 to generic entry missed to remove the
+TIF_SYSCALL*/TIF_SECCOMP flags. Remove them as they are unused now.
 
-Looks good. Feel free to add:
+Fixes: 56e62a737028 ("s390: convert to generic entry")
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+---
+ arch/s390/include/asm/thread_info.h | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-Reviewed-by: Jan Kara <jack@suse.cz>
-
-								Honza
-
-> ---
->  Documentation/filesystems/porting.rst | 5 +++++
->  Documentation/filesystems/vfs.rst     | 4 ++++
->  2 files changed, 9 insertions(+)
-> 
-> diff --git a/Documentation/filesystems/porting.rst b/Documentation/filesystems/porting.rst
-> index 85f590254f07..6743ed0b9112 100644
-> --- a/Documentation/filesystems/porting.rst
-> +++ b/Documentation/filesystems/porting.rst
-> @@ -1285,3 +1285,8 @@ rather than a VMA, as the VMA at this stage is not yet valid.
->  The vm_area_desc provides the minimum required information for a filesystem
->  to initialise state upon memory mapping of a file-backed region, and output
->  parameters for the file system to set this state.
-> +
-> +In nearly all cases, this is all that is required for a filesystem. However, if
-> +a filesystem needs to perform an operation such a pre-population of page tables,
-> +then that action can be specified in the vm_area_desc->action field, which can
-> +be configured using the mmap_action_*() helpers.
-> diff --git a/Documentation/filesystems/vfs.rst b/Documentation/filesystems/vfs.rst
-> index 486a91633474..9e96c46ee10e 100644
-> --- a/Documentation/filesystems/vfs.rst
-> +++ b/Documentation/filesystems/vfs.rst
-> @@ -1236,6 +1236,10 @@ otherwise noted.
->  	file-backed memory mapping, most notably establishing relevant
->  	private state and VMA callbacks.
->  
-> +	If further action such as pre-population of page tables is required,
-> +	this can be specified by the vm_area_desc->action field and related
-> +	parameters.
-> +
->  Note that the file operations are implemented by the specific
->  filesystem in which the inode resides.  When opening a device node
->  (character or block special) most filesystems will call special
-> -- 
-> 2.51.0
-> 
+diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
+index fe6da066b123..7878e9bfbf07 100644
+--- a/arch/s390/include/asm/thread_info.h
++++ b/arch/s390/include/asm/thread_info.h
+@@ -74,12 +74,6 @@ void arch_setup_new_exec(void);
+ #define TIF_BLOCK_STEP		22	/* This task is block stepped */
+ #define TIF_UPROBE_SINGLESTEP	23	/* This task is uprobe single stepped */
+ 
+-/* These could move over to SYSCALL_WORK bits, no? */
+-#define TIF_SYSCALL_TRACE	24	/* syscall trace active */
+-#define TIF_SYSCALL_AUDIT	25	/* syscall auditing active */
+-#define TIF_SECCOMP		26	/* secure computing */
+-#define TIF_SYSCALL_TRACEPOINT	27	/* syscall tracepoint instrumentation */
+-
+ #define _TIF_ASCE_PRIMARY	BIT(TIF_ASCE_PRIMARY)
+ #define _TIF_GUARDED_STORAGE	BIT(TIF_GUARDED_STORAGE)
+ #define _TIF_ISOLATE_BP_GUEST	BIT(TIF_ISOLATE_BP_GUEST)
+@@ -88,9 +82,5 @@ void arch_setup_new_exec(void);
+ #define _TIF_SINGLE_STEP	BIT(TIF_SINGLE_STEP)
+ #define _TIF_BLOCK_STEP		BIT(TIF_BLOCK_STEP)
+ #define _TIF_UPROBE_SINGLESTEP	BIT(TIF_UPROBE_SINGLESTEP)
+-#define _TIF_SYSCALL_TRACE	BIT(TIF_SYSCALL_TRACE)
+-#define _TIF_SYSCALL_AUDIT	BIT(TIF_SYSCALL_AUDIT)
+-#define _TIF_SECCOMP		BIT(TIF_SECCOMP)
+-#define _TIF_SYSCALL_TRACEPOINT	BIT(TIF_SYSCALL_TRACEPOINT)
+ 
+ #endif /* _ASM_THREAD_INFO_H */
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+2.48.1
+
