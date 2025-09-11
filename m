@@ -1,100 +1,219 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0531863E
-	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 19:04:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 148B626561D;
+	Thu, 11 Sep 2025 19:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757617490; cv=none; b=RXJVYSqBwgIMvcNkZh7m3PXZJS8AsxtXedGDS0fXClI3v5C6Yp4L9b+mI5rXTfAJGE2KONrd+zEMOprTf+WejEnpVc3fp6YEzurGEZlgSndOyFrmJM2Hm4Ldkrtdnj9KJHqdrDthXMz/PmL8LJFoQ8G8ABKFg9iNA+luBcdAB0I=
+	t=1757620124; cv=none; b=bOfJk7mU+z/GOvYGTRy0zlzBCaRRvODcP1LGScjHns7YlczDIvpz4UEo2Sx7qr4N/OgnO75kZ3WkQ7k9HgsWSaXbvCrgJnsT45dc8WYtCj6I73YwOKzt+DnhZpxLduKUsktK2Dp+gzBFk6BqFLg5W9WWh8nOFad2CEQIbQta2Rg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757617490; c=relaxed/simple;
-	bh=CXkH7IG5itXt2SmPip8bJaP++ykY/AEN0S8D5dtt3i4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XHny7TEppExo+ocAufcH/t9g5FoXu8PNWv7fcSHhhVnYNo+5/ZuZ7xVLfdcLt4D/zvdQwcLhvj1DI5MQ7mY6BbgReB8ae7gS2GARITDq2VWxgqOWgDF2uARvWtJcLUENfgDOV2Ll6ExC0sPYvM7x+dDmJ+HgnYqvaSTfCgMt4Wk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RsR495xm; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757620124; c=relaxed/simple;
+	bh=xz88VKqDUnGtmGU4WQqpuEmmQUZLaWZxz0B93JsY42s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=sgo3EVTDpb0QeAe7GE4QjcD26zM40ebuEFss/3eJGzioFlqocbUCkDGequzYanAf43s4AF4/0ceAmc+JQBjCzkRBe21Hh7ccvzZQ4PCrUeXqfqf0PpI8Ilzoqi7CfoSJxTuX0f1cl4UN2spODoxSPaO5TIOB11mierSD8Mxfkj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s1W1JuM6; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RsR495xm"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-25bf9dda1fdso1669305ad.2
-        for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 12:04:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757617488; x=1758222288; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CXkH7IG5itXt2SmPip8bJaP++ykY/AEN0S8D5dtt3i4=;
-        b=RsR495xmfdTYp3+BHA/jh+uxCl+a5wbTBnasvdT+q2uCjZcsnP4JUJ4fW0aYZO2llh
-         IOPcZVsn2kuKJbjOfOqQZZhvNVupevRIlzNYfcGQ43NnuhiKZD0yr1RIgwZ8wg2F4FjD
-         LyvRGI05t/o+D2oo68QSy1HMuN82hWx2f1Q1ZSyG/ehhhS1QkLQDYCHlp3YmGXxmk1V5
-         Te/AnoII/V7NQC2yAds5hNq3ApJ43xjtkeIy0OLEMy8I2i9d0ubM4lIViwCvcrxATo6H
-         BGTyVyiblXGwjHoZnyzbwEaUY8z8KtBwPivvs9qrAAitIWx8+BwaNNhgvs32T2TPJS6D
-         P6vg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757617488; x=1758222288;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=CXkH7IG5itXt2SmPip8bJaP++ykY/AEN0S8D5dtt3i4=;
-        b=GqIoJjxXCGtHcl1UlG9owvYf/bNy47aV6rlzhm9a5kXDdAmPkz1D9jzgcdC1RLv6fj
-         izkAV6nu33enF+z7m12xvtsy41v2+OPx8NQbF5L8FOIFlbzLpyNzMWUASoK7qBh9raxN
-         SwfHuXVRE8MA4qS7lYvuJo3bGEaBN7PqVn2YBWRaxsOoc0Ea7uNw5nI0PgYLUl65wmur
-         oEVxvYB+TOdYw88fqcYR2QZiXlmrinHRYuw3ibRkVk6C0UwIHCIceAYw9K/fD/EKRuJn
-         tZSNCLQ8c0T9OvHK8JkO7ANZNeR4Y4XCOVvaDtAe8OCkq0JS1h5wuLYDZpIg2WF9vXMx
-         rxcA==
-X-Forwarded-Encrypted: i=1; AJvYcCUi+lWXi+B16t+54LirxEFdctOPHkSyo8o9n5ytx7IyMBbwS/ipuKfT98nxdwruRVnUFiHQ7/VO28zw@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzo0eVVf6XbXb9TNcwxpX4tSC3/o6II7+N+cUYtn4HTgLofeu7p
-	Pw99gBkS/KlAeVf4/qkcQGtx8pwm2k1xWmW0eefsuykqGK3tUh2Ch2zG+z5NAN5hcN5ix3V9CMr
-	Q+7UbcCQnK4RBeBjFb1QLQTuFPAB0s0I=
-X-Gm-Gg: ASbGncsKnTlvS0qqGjPuJGxoPOCMEveACTbsCwsKsYYUfVMmqAtegG+VDyJaITdR0Hr
-	2JZt0Uf46juJy766xBOjK3+eYaa1K5gugZkIQlOTgOtMVfrDhd5ZVyttT2YdYiN6bm/kEgWImFc
-	M9LqxjkYXyKSSNIHVnUzlcSTC4UgLO85cw6JoJAC30nN577nAOiXyW3AEb74rsej0PBi7v09pvS
-	qtz0kTewLChfGi6+0XvmA/2ELTnTiJd1YQaHIiegzUNLEWGN++W1I8VU1om0ejPL0fk/PbD/znU
-	KzGbQjwzjMigAtRUAXRu2AyYrw==
-X-Google-Smtp-Source: AGHT+IFtOJr7VY+2LEhl5aMk2PoyrpBKl+Pkp7GBG6r4rETx5wsdCdKzGprePS6AckZkoCNRk1yoqNC5tcIfdBwa6VA=
-X-Received: by 2002:a17:902:eccb:b0:24c:b69d:5929 with SMTP id
- d9443c01a7336-25d243ec0cfmr2539275ad.2.1757617488573; Thu, 11 Sep 2025
- 12:04:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s1W1JuM6"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58BFKHLM009911;
+	Thu, 11 Sep 2025 19:48:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=qWgZEhwYpPlPjPS2q
+	wWLiZvJiVl6lmU9u7STf7rzpGo=; b=s1W1JuM6VA+ZxgcOoRD2/9mVS6U+0fOvl
+	Clhhihr0o1mUhYKADGG4f4mxAPynMKhL6pIpbBHGpRQEDtaV5yzNHgKnYFG61z8A
+	WZeHmYt2P9wQE2RAZytgo2NfFWmFofrtQY/SHgUCC7pi+dxCVXVEIOFUUQBosd1X
+	ejwUa88oevCdCo/IEoL79nQ0t64Mx0OdeIBV7yiRK5h/Rd0FXCG7MtTVfGMBnCna
+	Vd1b5rZsmIeUwXH5eLIyAbN1pwnM+tmQ2JE2Qnnv6tZ3cTEQV2wXs7Gl6qy1P749
+	DzT0g+sFaFXsJINq6lExyGFXigcTCtr3qy9eVRv8cw20oE+LG1xIA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmx70bh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Sep 2025 19:48:33 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58BJmWnX027286;
+	Thu, 11 Sep 2025 19:48:32 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmx70bb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Sep 2025 19:48:32 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58BI6ZCb017218;
+	Thu, 11 Sep 2025 19:48:31 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4911gmqa4f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 11 Sep 2025 19:48:31 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58BJmS8640698174
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 11 Sep 2025 19:48:28 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC3AF20043;
+	Thu, 11 Sep 2025 19:48:27 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D810A20040;
+	Thu, 11 Sep 2025 19:48:27 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 11 Sep 2025 19:48:27 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id A390FE12AA; Thu, 11 Sep 2025 21:48:27 +0200 (CEST)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Julian Ruess <julianr@linux.ibm.com>,
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+Subject: [PATCH net-next v2 01/14] net/smc: Remove error handling of unregister_dmb()
+Date: Thu, 11 Sep 2025 21:48:14 +0200
+Message-ID: <20250911194827.844125-2-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250911194827.844125-1-wintera@linux.ibm.com>
+References: <20250911194827.844125-1-wintera@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250910151216.646600-1-hca@linux.ibm.com> <20250910151216.646600-2-hca@linux.ibm.com>
- <20250911013243.GA292340@ax162> <20250911145659.8894Dea-hca@linux.ibm.com> <20250911184429.GA2395987@ax162>
-In-Reply-To: <20250911184429.GA2395987@ax162>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Thu, 11 Sep 2025 21:04:36 +0200
-X-Gm-Features: AS18NWAwft7HpNthq0uaNRzFRK30ynGsG36xk3t_FH_3eH4Ssso_enqZ-_f86rA
-Message-ID: <CANiq72kJ9L_Kpv9+z5=xZvbWxLRYXpKS-76XwwvQP+wMWsMJtg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] Compiler Attributes: Add __assume macro
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Miguel Ojeda <ojeda@kernel.org>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Juergen Christ <jchrist@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: BOssWzWZaotR_CEJddtNyziy_Z39SRT2
+X-Proofpoint-ORIG-GUID: 3elPxzmqpfnbUpHr5_kv2KdvncfHjW8u
+X-Authority-Analysis: v=2.4 cv=J52q7BnS c=1 sm=1 tr=0 ts=68c32791 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=SRrdq9N9AAAA:8 a=E2BrbLywADzKi2prdkwA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAyNSBTYWx0ZWRfX2o8j6i5JyVRT
+ hPa2oXSlMmdux7omB9Eq6yZcSZ5+itlq1tOgQtf1xDPpiY5nmKUJfp2vh6YuagBCQddwrhihZRr
+ TWW6g2joJhrDF/94P+d73d9/O2WGW9pxiJD+WW0ocIrSIFxKxDkYNcHSohvFOzeLOlzxDeSBt2g
+ hZKLAH9t65+ewBz0Ob5r8u03lpJ82ypytQUbZBUITnggZ3Yn7dyNhijBJw8c5iFwgkJ2TYtU/Xv
+ 2k57+s5ErJDIw9RE4d/o6K0OTEULUnYd/31bSU26OY1AwXDazvPZ4Eul+9ByWb/tp69/e7X0zOs
+ 9/Wcafqic+FZWw2axlV6ydfn37N1zJtLsL/lQdD0AlezhYtgTgnybotfBr6kFb/rJfD+HINnV6e
+ urYCp68G
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-11_03,2025-09-11_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 clxscore=1011 suspectscore=0 spamscore=0 phishscore=0
+ bulkscore=0 adultscore=0 malwarescore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060025
 
-On Thu, Sep 11, 2025 at 8:44=E2=80=AFPM Nathan Chancellor <nathan@kernel.or=
-g> wrote:
->
-> I do not think anyone really owns compiler_types.h so unless Miguel has
-> any objections from the compiler attributes perspective, I think you can
-> just take this via the s390 tree with the other two changes.
+smcd_buf_free() calls smc_ism_unregister_dmb(lgr->smcd, buf_desc) and
+then unconditionally frees buf_desc.
 
-No objections from me, and thanks for spotting the OpenMP thing above.
+Remove the cleaning up of fields of buf_desc in
+smc_ism_unregister_dmb(), because it is not helpful.
 
-I would say, though, that this is a fairly general and subtle tool to
-have around, so it would be nice to have others chime in. In other
-words, do we want to start using `assume`s? Should we constrain its
-use a bit, e.g. say its use should really be justified etc.? (In the
-Rust side, a tool like this would require a SAFETY comment on top with
-a justification, which may give a developer pause).
+This removes the only usage of ISM_ERROR from the smc module. So move it
+to drivers/s390/net/ism.h.
 
-Thanks!
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+---
+ drivers/s390/net/ism.h |  1 +
+ include/net/smc.h      |  2 --
+ net/smc/smc_ism.c      | 14 +++++---------
+ net/smc/smc_ism.h      |  3 ++-
+ 4 files changed, 8 insertions(+), 12 deletions(-)
 
-Cheers,
-Miguel
+diff --git a/drivers/s390/net/ism.h b/drivers/s390/net/ism.h
+index 047fa6101555..b5b03db52fce 100644
+--- a/drivers/s390/net/ism.h
++++ b/drivers/s390/net/ism.h
+@@ -10,6 +10,7 @@
+ #include <asm/pci_insn.h>
+ 
+ #define UTIL_STR_LEN	16
++#define ISM_ERROR	0xFFFF
+ 
+ /*
+  * Do not use the first word of the DMB bits to ensure 8 byte aligned access.
+diff --git a/include/net/smc.h b/include/net/smc.h
+index db84e4e35080..a9c023dd1380 100644
+--- a/include/net/smc.h
++++ b/include/net/smc.h
+@@ -44,8 +44,6 @@ struct smcd_dmb {
+ 
+ #define ISM_RESERVED_VLANID	0x1FFF
+ 
+-#define ISM_ERROR	0xFFFF
+-
+ struct smcd_dev;
+ 
+ struct smcd_gid {
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index a58ffb7a0610..fca01b95b65a 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -205,13 +205,13 @@ int smc_ism_put_vlan(struct smcd_dev *smcd, unsigned short vlanid)
+ 	return rc;
+ }
+ 
+-int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
++void smc_ism_unregister_dmb(struct smcd_dev *smcd,
++			    struct smc_buf_desc *dmb_desc)
+ {
+ 	struct smcd_dmb dmb;
+-	int rc = 0;
+ 
+ 	if (!dmb_desc->dma_addr)
+-		return rc;
++		return;
+ 
+ 	memset(&dmb, 0, sizeof(dmb));
+ 	dmb.dmb_tok = dmb_desc->token;
+@@ -219,13 +219,9 @@ int smc_ism_unregister_dmb(struct smcd_dev *smcd, struct smc_buf_desc *dmb_desc)
+ 	dmb.cpu_addr = dmb_desc->cpu_addr;
+ 	dmb.dma_addr = dmb_desc->dma_addr;
+ 	dmb.dmb_len = dmb_desc->len;
+-	rc = smcd->ops->unregister_dmb(smcd, &dmb);
+-	if (!rc || rc == ISM_ERROR) {
+-		dmb_desc->cpu_addr = NULL;
+-		dmb_desc->dma_addr = 0;
+-	}
++	smcd->ops->unregister_dmb(smcd, &dmb);
+ 
+-	return rc;
++	return;
+ }
+ 
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 6763133dd8d0..765aa8fae6fa 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -47,7 +47,8 @@ int smc_ism_get_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+ int smc_ism_put_vlan(struct smcd_dev *dev, unsigned short vlan_id);
+ int smc_ism_register_dmb(struct smc_link_group *lgr, int buf_size,
+ 			 struct smc_buf_desc *dmb_desc);
+-int smc_ism_unregister_dmb(struct smcd_dev *dev, struct smc_buf_desc *dmb_desc);
++void smc_ism_unregister_dmb(struct smcd_dev *dev,
++			    struct smc_buf_desc *dmb_desc);
+ bool smc_ism_support_dmb_nocopy(struct smcd_dev *smcd);
+ int smc_ism_attach_dmb(struct smcd_dev *dev, u64 token,
+ 		       struct smc_buf_desc *dmb_desc);
+-- 
+2.48.1
+
