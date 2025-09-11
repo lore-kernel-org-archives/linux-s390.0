@@ -1,120 +1,247 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2449927F006;
-	Thu, 11 Sep 2025 08:38:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD2EC2E2DDE
+	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 08:38:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757579892; cv=none; b=QFeckJNgOomZ3RBgRKyvROd76kzzHDrr0syOu5BVGZVxLO1ximCRKpMjArIYV7WBUf8mF3Eg7GcsALEK4X0VQ8/YrluOsecAdHJRMjUigoVNMMzSycXp9H7TxRTYSoqgRCUe5xWHmWpnl25dM51/5cGvgVra40+rbGF6hNHeljo=
+	t=1757579927; cv=none; b=HLUEGbk0YoUfYpKPiyMevm/zcYWROpajfTUllmlW9g5+L6iKYDTzSsdV+7Rzr5biJfqY+r0OJSjdn6hLvdKJ1hDvJiE6THjH9GHGtR1XVu+GOZr+CzquHAtfplPZEfMPSPrI6ziIehL4y/ai9M+m26Z6BIoMiNS1FNBSRY+zCpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757579892; c=relaxed/simple;
-	bh=Mr79UWFOM9OOhJaVjUVp0mDo2CalKlW7SJpHH/0Xd00=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=BhLW0jHDWEj5OQAz7ydmXxsQ0TqXU0Cvw6JHM3a8oPIg6bR/H4mW20/xdoNMLAFzrv6WvjYG/jOr6y7ezjjzfxyPHWRGOF3hutMUzqgLvbad7ub5ww1x0YcmtlvOPsPH2wX1R/py2++03kkJsuClAoijwnXKmn3//DVcFdM3u4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G3TREMQ4; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1757579927; c=relaxed/simple;
+	bh=atT5lX6jOkLcVnWSxAH3q2pNOse2zMGHzP1HFQw/Be8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KcTIcJlU2YxkJpLxE/rIYwDlGVwl5lLi5DOkzpz41OWtNZWK0j4IkJfXWfCqMnrpTMF9EyD1oi8ulni/pvfdFkXLwAuz5U0Xl67nD1NXDlftJB14fg5m1lRHwQCy17BynMZVN+UcCI2ZLUMYAU2d8yGYMo04opZCMjGg8vqAg6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=xB4gv7V3; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=PrOFG9bh; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=xB4gv7V3; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=PrOFG9bh; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G3TREMQ4"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58B4Yvab031928;
-	Thu, 11 Sep 2025 08:38:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Mr79UW
-	FOM9OOhJaVjUVp0mDo2CalKlW7SJpHH/0Xd00=; b=G3TREMQ4qOETMMwMs6Cl5K
-	r15DfkCU1HtxbtL1w8mv9G33vfRU8kd8/TqGzmYIsb0akipFQeytEzyRqdlqAZUx
-	IZS6ZDg4L1eAWNoZPWSugTR6Opnjfk8kKGOq3e5DmFh+yWCGqrF5SnYgzgQEoeVE
-	ikOa6nf//5kJZItsZ1g9NgQWDKqKPJ0X7wDEmXS8ZEZi3AOIZFlYuYrVJYk8Gbs7
-	LmGUhknX4PvCGcqAEzURzXeTLM8g2ntX3tROc8dVljY4v4XzBnr0ZkQ46Lf4/Xn0
-	5w5g9X/+d82g6WMB5D9rKBaR+JR71ROW6svjqUy7ilJA8nJPw9mhOTM6Yko63Yhg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490bct2tm4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 08:38:08 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58B50GE8020492;
-	Thu, 11 Sep 2025 08:38:07 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 490yp151bg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 08:38:07 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58B8c3XL49414532
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Sep 2025 08:38:03 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 520072004B;
-	Thu, 11 Sep 2025 08:38:03 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EE84220040;
-	Thu, 11 Sep 2025 08:38:02 +0000 (GMT)
-Received: from t14-nrb (unknown [9.111.58.3])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Sep 2025 08:38:02 +0000 (GMT)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="xB4gv7V3";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="PrOFG9bh";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="xB4gv7V3";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="PrOFG9bh"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 9D40D6860D;
+	Thu, 11 Sep 2025 08:38:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1757579922; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C9OZHv6l97MqIsXfPxgJwmp3fJXxpsxaT+6E3H63F4A=;
+	b=xB4gv7V39AjvzZqhbFvpMeDM5nwbiNwlcCmMOJwTz+PdsznaXJuTdLn3SoDQMoeUWdkeii
+	1r2pEaTWog+deAhwvgwTELQPnF8oZ0yYguW4upel7rfdVE+3wrH3qFra+HpwdHuYteaBSS
+	arDvuQko9RTMU9ux7Cb1QQtSWsvsur4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1757579922;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C9OZHv6l97MqIsXfPxgJwmp3fJXxpsxaT+6E3H63F4A=;
+	b=PrOFG9bhllLqFULElo/ImR0TtrXr4AVrHSKP1NkH/s/biYgBBErxRpzuzCM3a8Sfmolf0X
+	olWF0zUGczMgn/Ag==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=xB4gv7V3;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=PrOFG9bh
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1757579922; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C9OZHv6l97MqIsXfPxgJwmp3fJXxpsxaT+6E3H63F4A=;
+	b=xB4gv7V39AjvzZqhbFvpMeDM5nwbiNwlcCmMOJwTz+PdsznaXJuTdLn3SoDQMoeUWdkeii
+	1r2pEaTWog+deAhwvgwTELQPnF8oZ0yYguW4upel7rfdVE+3wrH3qFra+HpwdHuYteaBSS
+	arDvuQko9RTMU9ux7Cb1QQtSWsvsur4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1757579922;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C9OZHv6l97MqIsXfPxgJwmp3fJXxpsxaT+6E3H63F4A=;
+	b=PrOFG9bhllLqFULElo/ImR0TtrXr4AVrHSKP1NkH/s/biYgBBErxRpzuzCM3a8Sfmolf0X
+	olWF0zUGczMgn/Ag==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 92E4713974;
+	Thu, 11 Sep 2025 08:38:42 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id kfnXI5KKwmiBcwAAD6G6ig
+	(envelope-from <jack@suse.cz>); Thu, 11 Sep 2025 08:38:42 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 4D7CAA0A2D; Thu, 11 Sep 2025 10:38:42 +0200 (CEST)
+Date: Thu, 11 Sep 2025 10:38:42 +0200
+From: Jan Kara <jack@suse.cz>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>, 
+	Guo Ren <guoren@kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, 
+	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>, 
+	Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>, 
+	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, 
+	Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>, 
+	Reinette Chatre <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, 
+	James Morse <james.morse@arm.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov <andreyknvl@gmail.com>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, linux-doc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
+	nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org, 
+	ntfs3@lists.linux.dev, kexec@lists.infradead.org, kasan-dev@googlegroups.com, 
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v2 04/16] relay: update relay to use mmap_prepare
+Message-ID: <q5kr5klayp7wcdv5535etvhfcmsftf2h5pi2nhxjpxsyu4h6qt@e6fidg7kolk2>
+References: <cover.1757534913.git.lorenzo.stoakes@oracle.com>
+ <3e34bb15a386d64e308c897ea1125e5e24fc6fa4.1757534913.git.lorenzo.stoakes@oracle.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 11 Sep 2025 10:38:02 +0200
-Message-Id: <DCPU2JK4AERP.6UMVMBAGJSCY@linux.ibm.com>
-Cc: <linux-s390@vger.kernel.org>, <borntraeger@de.ibm.com>,
-        <frankja@linux.ibm.com>, <nsg@linux.ibm.com>, <seiden@linux.ibm.com>,
-        <schlameuss@linux.ibm.com>, <hca@linux.ibm.com>, <svens@linux.ibm.com>,
-        <agordeev@linux.ibm.com>, <david@redhat.com>,
-        <gerald.schaefer@linux.ibm.com>
-Subject: Re: [PATCH v2 03/20] KVM: s390: Add gmap_helper_set_unused()
-From: "Nico Boehr" <nrb@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, <kvm@vger.kernel.org>
-X-Mailer: aerc 0.20.1
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
- <20250910180746.125776-4-imbrenda@linux.ibm.com>
-In-Reply-To: <20250910180746.125776-4-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAxMCBTYWx0ZWRfX9eiJqfYVwXN3
- 7C63COfO56is7R+5SGoXY1ZfCYbcctKhEsElr+QMh6phIVpqL/mCIYyXogyljZoKVrIHgVGnK3u
- veHBkmunoLnMCHzTkBWyNsqfMbiD/Y2ym9R6T7tPtOSzJQqCgVmTHlsjSQZBULRZmYJad1pDs4B
- G+vr58qqETHzuwGC0d8HgEqtQck+uR/pqHasS6Ko+Pf1MFYS06lNRo4aXHpTMXP41c4HjVpKplR
- RMzfeOjxoBGJCSxTW3d8jlGREaHIG7KkzXgGHZJwms7yX1WkWDdXy9gGzGFVCnCwpb6mOuOQrTV
- l0vwZ43pyV635EHa4bAmSCohSLlWhYb/GNClJLI2HFrP7j6RvcGyjtSlV+4tbrPz5LJUYCX/shJ
- 5yyihadV
-X-Authority-Analysis: v=2.4 cv=SKNCVPvH c=1 sm=1 tr=0 ts=68c28a70 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=WEpOJczLzZDRNqIK8FsA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: r01cRzGd5DCmwe8UDFj4BggK3ysPDNP3
-X-Proofpoint-ORIG-GUID: r01cRzGd5DCmwe8UDFj4BggK3ysPDNP3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-10_04,2025-09-10_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 spamscore=0 priorityscore=1501 bulkscore=0 malwarescore=0
- adultscore=0 suspectscore=0 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060010
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3e34bb15a386d64e308c897ea1125e5e24fc6fa4.1757534913.git.lorenzo.stoakes@oracle.com>
+X-Spamd-Result: default: False [-2.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	MISSING_XM_UA(0.00)[];
+	RCVD_COUNT_THREE(0.00)[3];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,oracle.com:email];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[linux-foundation.org,lwn.net,infradead.org,kernel.org,alpha.franken.de,linux.ibm.com,davemloft.net,gaisler.com,arndb.de,linuxfoundation.org,intel.com,fluxnic.net,linux.dev,suse.de,redhat.com,paragon-software.com,arm.com,zeniv.linux.org.uk,suse.cz,oracle.com,google.com,suse.com,linux.alibaba.com,gmail.com,vger.kernel.org,lists.linux.dev,kvack.org,lists.infradead.org,googlegroups.com,nvidia.com];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCVD_TLS_LAST(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_GT_50(0.00)[59];
+	DKIM_TRACE(0.00)[suse.cz:+]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 9D40D6860D
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -2.51
 
-On Wed Sep 10, 2025 at 8:07 PM CEST, Claudio Imbrenda wrote:
-> Add gmap_helper_set_unused() to mark userspace ptes as unused.
->
-> Core mm code will use that information to discard unused pages instead
-> of attempting to swap them.
->
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+On Wed 10-09-25 21:21:59, Lorenzo Stoakes wrote:
+> It is relatively trivial to update this code to use the f_op->mmap_prepare
+> hook in favour of the deprecated f_op->mmap hook, so do so.
+> 
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
 
-Reviewed-by: Nico Boehr <nrb@linux.ibm.com>
-Tested-by: Nico Boehr <nrb@linux.ibm.com>
+Looks good. Feel free to add:
 
-I observed 21965 calls to gmap_helper_set_unused() where we were successful=
-ly
-traversing the page tables to the PTE; of these 21868 made it to the part w=
-here
-_PAGE_UNUSED is set. So _rarely_ we seem to be unable to take the lock (or =
-the
-PMD changed under us), but in the majority of cases we make it, so this see=
-ms
-fine to me.
+Reviewed-by: Jan Kara <jack@suse.cz>
+
+								Honza
+
+> ---
+>  kernel/relay.c | 33 +++++++++++++++++----------------
+>  1 file changed, 17 insertions(+), 16 deletions(-)
+> 
+> diff --git a/kernel/relay.c b/kernel/relay.c
+> index 8d915fe98198..e36f6b926f7f 100644
+> --- a/kernel/relay.c
+> +++ b/kernel/relay.c
+> @@ -72,17 +72,18 @@ static void relay_free_page_array(struct page **array)
+>  }
+>  
+>  /**
+> - *	relay_mmap_buf: - mmap channel buffer to process address space
+> - *	@buf: relay channel buffer
+> - *	@vma: vm_area_struct describing memory to be mapped
+> + *	relay_mmap_prepare_buf: - mmap channel buffer to process address space
+> + *	@buf: the relay channel buffer
+> + *	@desc: describing what to map
+>   *
+>   *	Returns 0 if ok, negative on error
+>   *
+>   *	Caller should already have grabbed mmap_lock.
+>   */
+> -static int relay_mmap_buf(struct rchan_buf *buf, struct vm_area_struct *vma)
+> +static int relay_mmap_prepare_buf(struct rchan_buf *buf,
+> +				  struct vm_area_desc *desc)
+>  {
+> -	unsigned long length = vma->vm_end - vma->vm_start;
+> +	unsigned long length = vma_desc_size(desc);
+>  
+>  	if (!buf)
+>  		return -EBADF;
+> @@ -90,9 +91,9 @@ static int relay_mmap_buf(struct rchan_buf *buf, struct vm_area_struct *vma)
+>  	if (length != (unsigned long)buf->chan->alloc_size)
+>  		return -EINVAL;
+>  
+> -	vma->vm_ops = &relay_file_mmap_ops;
+> -	vm_flags_set(vma, VM_DONTEXPAND);
+> -	vma->vm_private_data = buf;
+> +	desc->vm_ops = &relay_file_mmap_ops;
+> +	desc->vm_flags |= VM_DONTEXPAND;
+> +	desc->private_data = buf;
+>  
+>  	return 0;
+>  }
+> @@ -749,16 +750,16 @@ static int relay_file_open(struct inode *inode, struct file *filp)
+>  }
+>  
+>  /**
+> - *	relay_file_mmap - mmap file op for relay files
+> - *	@filp: the file
+> - *	@vma: the vma describing what to map
+> + *	relay_file_mmap_prepare - mmap file op for relay files
+> + *	@desc: describing what to map
+>   *
+> - *	Calls upon relay_mmap_buf() to map the file into user space.
+> + *	Calls upon relay_mmap_prepare_buf() to map the file into user space.
+>   */
+> -static int relay_file_mmap(struct file *filp, struct vm_area_struct *vma)
+> +static int relay_file_mmap_prepare(struct vm_area_desc *desc)
+>  {
+> -	struct rchan_buf *buf = filp->private_data;
+> -	return relay_mmap_buf(buf, vma);
+> +	struct rchan_buf *buf = desc->file->private_data;
+> +
+> +	return relay_mmap_prepare_buf(buf, desc);
+>  }
+>  
+>  /**
+> @@ -1006,7 +1007,7 @@ static ssize_t relay_file_read(struct file *filp,
+>  const struct file_operations relay_file_operations = {
+>  	.open		= relay_file_open,
+>  	.poll		= relay_file_poll,
+> -	.mmap		= relay_file_mmap,
+> +	.mmap_prepare	= relay_file_mmap_prepare,
+>  	.read		= relay_file_read,
+>  	.release	= relay_file_release,
+>  };
+> -- 
+> 2.51.0
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
