@@ -1,60 +1,60 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 562D3188CB1
-	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 18:59:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A0531863E
+	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 19:04:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757617183; cv=none; b=U4sm6dvg8qFEb0bjdblRjt9Mpwvav66cRTqTZjVjDagflVJVa7FWEFPZ3Mp5iDWgBtkxFBlte8AkWOzympFk3QqFK0AxE1pdnhPrUJIm1l8CKUHg9yxs7ICvoSV2UXH6mJQZhTPHcOxLWIMp+ZX4NeNje0w/EvnBn0+HkS2ywvQ=
+	t=1757617490; cv=none; b=RXJVYSqBwgIMvcNkZh7m3PXZJS8AsxtXedGDS0fXClI3v5C6Yp4L9b+mI5rXTfAJGE2KONrd+zEMOprTf+WejEnpVc3fp6YEzurGEZlgSndOyFrmJM2Hm4Ldkrtdnj9KJHqdrDthXMz/PmL8LJFoQ8G8ABKFg9iNA+luBcdAB0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757617183; c=relaxed/simple;
-	bh=SlHbXoSOWKIKfOiAlhxlkv67/qSC4UpXFWS+5u+yVPw=;
+	s=arc-20240116; t=1757617490; c=relaxed/simple;
+	bh=CXkH7IG5itXt2SmPip8bJaP++ykY/AEN0S8D5dtt3i4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bGbQHwUJsB+96AdvymFQSBJ/2ym2vfqvgGbBqaR6VpTi/xO5lEBZkwbL9L8UkrEcFtCu8iljvF5F0dMSMxDSlZ+mOywg3ciKoHHz7fE61uiBsD6m7Cd1IlZpvny40qhAlBNyR24fL7iAgtPTmVzR6h4avvGT5ddST+8V0d17Ow8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aUVASghm; arc=none smtp.client-ip=209.85.210.182
+	 To:Cc:Content-Type; b=XHny7TEppExo+ocAufcH/t9g5FoXu8PNWv7fcSHhhVnYNo+5/ZuZ7xVLfdcLt4D/zvdQwcLhvj1DI5MQ7mY6BbgReB8ae7gS2GARITDq2VWxgqOWgDF2uARvWtJcLUENfgDOV2Ll6ExC0sPYvM7x+dDmJ+HgnYqvaSTfCgMt4Wk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RsR495xm; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aUVASghm"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-77280e7bde3so132761b3a.2
-        for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 11:59:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RsR495xm"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-25bf9dda1fdso1669305ad.2
+        for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 12:04:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757617181; x=1758221981; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757617488; x=1758222288; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SlHbXoSOWKIKfOiAlhxlkv67/qSC4UpXFWS+5u+yVPw=;
-        b=aUVASghmtNe7mfqylEdSHQhbn3aeaxn178ztITBznZAdXEN71EzpJ/GPKetlnJ3JLm
-         r4tcSDHFSiEaThAvFy53tL0X+6iDxZFO+WaWvN0KmgxW/gAfbjjLCplgcnNIzeOdkdfr
-         NOzMWK925Pnqy2inGT16DnBCKQ8KB1XCRzX71K3LCwcxZhnz/KO4Xo0KwXQNmVhGq+EH
-         W5XXS341kzwPjVO3mDGBXg5VrAaWdBxEbdWpilqZtjdJK817vutotdc3IZ9CMVSiVtmM
-         uYnJ8+PZhVQ+fL1wJK3l0JFfCrzOiIaNk5sNeQuhlepoKrF/OJ8k4tpDdI/NgyQAWkW4
-         OARg==
+        bh=CXkH7IG5itXt2SmPip8bJaP++ykY/AEN0S8D5dtt3i4=;
+        b=RsR495xmfdTYp3+BHA/jh+uxCl+a5wbTBnasvdT+q2uCjZcsnP4JUJ4fW0aYZO2llh
+         IOPcZVsn2kuKJbjOfOqQZZhvNVupevRIlzNYfcGQ43NnuhiKZD0yr1RIgwZ8wg2F4FjD
+         LyvRGI05t/o+D2oo68QSy1HMuN82hWx2f1Q1ZSyG/ehhhS1QkLQDYCHlp3YmGXxmk1V5
+         Te/AnoII/V7NQC2yAds5hNq3ApJ43xjtkeIy0OLEMy8I2i9d0ubM4lIViwCvcrxATo6H
+         BGTyVyiblXGwjHoZnyzbwEaUY8z8KtBwPivvs9qrAAitIWx8+BwaNNhgvs32T2TPJS6D
+         P6vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757617181; x=1758221981;
+        d=1e100.net; s=20230601; t=1757617488; x=1758222288;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SlHbXoSOWKIKfOiAlhxlkv67/qSC4UpXFWS+5u+yVPw=;
-        b=uFFOK8OPYubrM1n9R+LMS4koEtYJXFeFl/GsX8EECXInShZkjqniYl13KAnnE4TMDo
-         /3wpOQh35Lh3v0EyWNMsY9E6xYxqJzttiUPOrYr1HhNtVKHsu9xdf8dHpzYxk8gXCRJS
-         cUVxKrx4uYhbkdwL6z9kIbs7+AeR71B74BiCW27mpBmZk9VuPv9wnCXOZ4l3aamemASX
-         C9+K6t/C6qrqJ+/3vcsqXwcKAorAXUYxGyRw9T9greEYRGOSf6/Rpn9ey1Q0mgxPhhaY
-         XOIu31zr4c0e52O7ZQLGKbU0a9kYT+fclKuljMbfTXvdxVovDs+6m2pYrsP/OZoqYRxR
-         uNKg==
-X-Forwarded-Encrypted: i=1; AJvYcCXMaz5bkmuvVT/D9gpUhDJuPA6eGBopCVqOIDsouVwCWxDM+GN094J9V/Ct2asPsRf/K8yu/h+k++Yc@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywt9EbAm817liPR8dhL4jlEXDJPjL7kpTgBJoTXMD0ZLcglYXCt
-	tHZ4ZMtcO4zkLnDTnsYr1fjh7jFu1iaLEyjd92l53kZDxjuO5Uw1Bz0Ko8MI+2s3dZnlyoP2Qt6
-	1JcC34AANczlCwquj8sX7wAMtyJKi7cE=
-X-Gm-Gg: ASbGncv77NLCmrPmIiiRk9DraIwhHGs5UJj02pxwxJp2ce7HZ05Vog8Z+hNhcklFaV9
-	q8vPZYPAlef3/8Ajg7I2vxV2KUvN422QCXyHRyAx4VpFTMcghIOh22W7Aipn8xj55X6lka5eHnA
-	3/gvQR+2szEs0GQ6AA65csjXtDMSsSrf1uN6/YqVcO097jaaUcg7blXPJrw3ODVpnd7+ZYqjtmi
-	XNdyJi5enKQ6T1Rif0SVrkVyXbm7i8lCCI6OYAw1oY1/idT6En2pigMIwMMr7Xp80cAUAo/znY3
-	X/Eg9oJYNIStrtfaFupHb85Htw==
-X-Google-Smtp-Source: AGHT+IEhGdAk/TNo3Vs7pJWsw55XwaHN0nNz2mZsFk0wZRa5eWpKkDagr26WeKkx1RHB1o3lH8jQ5UjqAcD9F1rf3Mk=
-X-Received: by 2002:a17:903:1a8b:b0:25a:4437:dbb7 with SMTP id
- d9443c01a7336-25d25e85badmr2097215ad.4.1757617181630; Thu, 11 Sep 2025
- 11:59:41 -0700 (PDT)
+        bh=CXkH7IG5itXt2SmPip8bJaP++ykY/AEN0S8D5dtt3i4=;
+        b=GqIoJjxXCGtHcl1UlG9owvYf/bNy47aV6rlzhm9a5kXDdAmPkz1D9jzgcdC1RLv6fj
+         izkAV6nu33enF+z7m12xvtsy41v2+OPx8NQbF5L8FOIFlbzLpyNzMWUASoK7qBh9raxN
+         SwfHuXVRE8MA4qS7lYvuJo3bGEaBN7PqVn2YBWRaxsOoc0Ea7uNw5nI0PgYLUl65wmur
+         oEVxvYB+TOdYw88fqcYR2QZiXlmrinHRYuw3ibRkVk6C0UwIHCIceAYw9K/fD/EKRuJn
+         tZSNCLQ8c0T9OvHK8JkO7ANZNeR4Y4XCOVvaDtAe8OCkq0JS1h5wuLYDZpIg2WF9vXMx
+         rxcA==
+X-Forwarded-Encrypted: i=1; AJvYcCUi+lWXi+B16t+54LirxEFdctOPHkSyo8o9n5ytx7IyMBbwS/ipuKfT98nxdwruRVnUFiHQ7/VO28zw@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzo0eVVf6XbXb9TNcwxpX4tSC3/o6II7+N+cUYtn4HTgLofeu7p
+	Pw99gBkS/KlAeVf4/qkcQGtx8pwm2k1xWmW0eefsuykqGK3tUh2Ch2zG+z5NAN5hcN5ix3V9CMr
+	Q+7UbcCQnK4RBeBjFb1QLQTuFPAB0s0I=
+X-Gm-Gg: ASbGncsKnTlvS0qqGjPuJGxoPOCMEveACTbsCwsKsYYUfVMmqAtegG+VDyJaITdR0Hr
+	2JZt0Uf46juJy766xBOjK3+eYaa1K5gugZkIQlOTgOtMVfrDhd5ZVyttT2YdYiN6bm/kEgWImFc
+	M9LqxjkYXyKSSNIHVnUzlcSTC4UgLO85cw6JoJAC30nN577nAOiXyW3AEb74rsej0PBi7v09pvS
+	qtz0kTewLChfGi6+0XvmA/2ELTnTiJd1YQaHIiegzUNLEWGN++W1I8VU1om0ejPL0fk/PbD/znU
+	KzGbQjwzjMigAtRUAXRu2AyYrw==
+X-Google-Smtp-Source: AGHT+IFtOJr7VY+2LEhl5aMk2PoyrpBKl+Pkp7GBG6r4rETx5wsdCdKzGprePS6AckZkoCNRk1yoqNC5tcIfdBwa6VA=
+X-Received: by 2002:a17:902:eccb:b0:24c:b69d:5929 with SMTP id
+ d9443c01a7336-25d243ec0cfmr2539275ad.2.1757617488573; Thu, 11 Sep 2025
+ 12:04:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,14 +62,15 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20250910151216.646600-1-hca@linux.ibm.com> <20250910151216.646600-2-hca@linux.ibm.com>
-In-Reply-To: <20250910151216.646600-2-hca@linux.ibm.com>
+ <20250911013243.GA292340@ax162> <20250911145659.8894Dea-hca@linux.ibm.com> <20250911184429.GA2395987@ax162>
+In-Reply-To: <20250911184429.GA2395987@ax162>
 From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Thu, 11 Sep 2025 20:59:29 +0200
-X-Gm-Features: AS18NWBsSbFpEMa9h98MxMUmpHPD8j33LPQt4-hBhwPvnoo-tvGMMll9crK-jFA
-Message-ID: <CANiq72=Zhcrk-cvXX+75mQzqUUwQznkZmLTCoEn0XNs62meUtQ@mail.gmail.com>
+Date: Thu, 11 Sep 2025 21:04:36 +0200
+X-Gm-Features: AS18NWAwft7HpNthq0uaNRzFRK30ynGsG36xk3t_FH_3eH4Ssso_enqZ-_f86rA
+Message-ID: <CANiq72kJ9L_Kpv9+z5=xZvbWxLRYXpKS-76XwwvQP+wMWsMJtg@mail.gmail.com>
 Subject: Re: [PATCH 1/3] Compiler Attributes: Add __assume macro
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, 
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Miguel Ojeda <ojeda@kernel.org>, 
 	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
 	Juergen Christ <jchrist@linux.ibm.com>, linux-kernel@vger.kernel.org, 
 	linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>, 
@@ -77,19 +78,23 @@ Cc: Nathan Chancellor <nathan@kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 10, 2025 at 5:12=E2=80=AFPM Heiko Carstens <hca@linux.ibm.com> =
-wrote:
+On Thu, Sep 11, 2025 at 8:44=E2=80=AFPM Nathan Chancellor <nathan@kernel.or=
+g> wrote:
 >
-> + * Beware: Code which makes use of __assume must be written as if the co=
-mpiler
-> + * ignores the hint. Otherwise this may lead to subtle bugs if code is c=
-ompiled
-> + * with compilers which do not support the attribute.
+> I do not think anyone really owns compiler_types.h so unless Miguel has
+> any objections from the compiler attributes perspective, I think you can
+> just take this via the s390 tree with the other two changes.
 
-I am not sure I understand this "Beware:" comment: is it referring to
-evaluation side-effects? If so, the GCC docs say it is not evaluated.
-The real danger is triggering UB with it, but that is different, i.e.
-one needs to be really, really sure the expression is true.
+No objections from me, and thanks for spotting the OpenMP thing above.
+
+I would say, though, that this is a fairly general and subtle tool to
+have around, so it would be nice to have others chime in. In other
+words, do we want to start using `assume`s? Should we constrain its
+use a bit, e.g. say its use should really be justified etc.? (In the
+Rust side, a tool like this would require a SAFETY comment on top with
+a justification, which may give a developer pause).
+
+Thanks!
 
 Cheers,
 Miguel
