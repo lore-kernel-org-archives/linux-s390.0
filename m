@@ -1,196 +1,180 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9199324B0B;
-	Thu, 11 Sep 2025 13:19:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 707543112D9;
+	Thu, 11 Sep 2025 13:24:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757596783; cv=none; b=BxDn1V/2YmgCFnZIlq//bqIr7RkTUhnoBtLErVXVcFnAcA4+oh1E3u5vH5rqCJ6CVXOYO8HENzHJ4sD1WjiZwG9ikMXJWtZhI2eDJmxCxedF/xvT+4ATbTmd5ZqixGyIJluJaL0ijKIS/8WdUvDDDyJZQuUlq+eygxli9WqzahM=
+	t=1757597092; cv=none; b=lkgpMuH3HsqhCDoeEoeVHCSp0b1B/RV4E4PELoyibdahTilSJA5iznq1hC14kCVplu6Bdz5cmwoym5/K/2NTZWDgt0Wh5sL6GeBGm5WoX5Qihr7IzzwqS0r9nfP/TRBmJfZMmLzonHALQg0KffH6Jhh9OozP8dLmQmQlehjDP3k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757596783; c=relaxed/simple;
-	bh=+yEjZSzV5FAVZ72/nT3u8PRtna74Onm4LO+syKkb3so=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pog9LNrERQlFQUAGawxWzt5czzy8OtWBAeAPn9CkXKw61+FGyPYMgj5jr8hiv8B1b3B+VR+G5zbaMDR1oR+5j1r69/Nr5rJC60iuyWgmTwF6Sd9TR7CAh7+EppQ2cDFK1mgchTGca0ekT6C4xDqR7mthy5WK7NiMVGRskKKojvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Yk1YDA1D; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1757597092; c=relaxed/simple;
+	bh=z2IwYHrG2uP+yqAp6QrCN48pwVj9rmFUIykTv0Z7+Ls=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=W7UkaEkt2l8+jIa3EoWm9R6g8qW4N3BItCmHh6pA/DJnJ7dXF8qCIFo1dx3W+xG6aAXDsjtx+J76JRsiceonC5TFnOsdJ6DeK9waCaitU9+86DUEXZEDQpPlJ024p/UW+GazgIy1RViGeLyi5mKY64aCv4puvwg9KMazGZtqPqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fwnFtV+S; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Yk1YDA1D"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58BDAfnq001272;
-	Thu, 11 Sep 2025 13:19:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ThrRaP
-	bzrbPnQRDS36lYM0XQaSKvF27c/UkW/03ruSU=; b=Yk1YDA1D05pijSgSNfnmTV
-	4Aib39Dx5q95BUZXDw3eSaOx36C6l16rB2WIYM0umAcUBJ8ziZ2vVbdtKfF0t7aX
-	TQsQHwAqYRj1WA3LW3eYNLluHKEQ6U0IaMbqizA+SZ0qsWyUj/anA0a6E0tHroZH
-	E/u7eBUhrBxmMMuvgJhQRIZoUHsITkQasYn4oTx8RA7wJ68mq5SZUOoAtoz/uI5e
-	hPEP3/oq8n2Z1TT0orcdocshvjrX4N+nB2NAjUyGQA+m55n/6pgGuVL5JZxWuu4B
-	2DRz1E298fKwZh0Mpbt3hdyGDH8cJUziG4eNT2VjZwbSj/67AMyqZW/h/4Y3+RWg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490ukesjd4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 13:19:39 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58BAGb4J017227;
-	Thu, 11 Sep 2025 13:19:38 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4911gmnrtw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 13:19:38 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58BDJYmD48234832
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Sep 2025 13:19:34 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C6DF720043;
-	Thu, 11 Sep 2025 13:19:34 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 924ED20040;
-	Thu, 11 Sep 2025 13:19:34 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 11 Sep 2025 13:19:34 +0000 (GMT)
-Date: Thu, 11 Sep 2025 15:19:32 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        nsg@linux.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
-        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH v2 09/20] KVM: s390: KVM page table management
- functions: clear and replace
-Message-ID: <20250911151932.2bce5e01@p-imbrenda>
-In-Reply-To: <91f044a5-803f-4672-960b-cd83f725af44@linux.ibm.com>
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
-	<20250910180746.125776-10-imbrenda@linux.ibm.com>
-	<91f044a5-803f-4672-960b-cd83f725af44@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fwnFtV+S"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1757597091; x=1789133091;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=z2IwYHrG2uP+yqAp6QrCN48pwVj9rmFUIykTv0Z7+Ls=;
+  b=fwnFtV+SJ2doPFvcMb2qCWovo2+Qkcx2kZXb/bjCOI5elV6qTrzSxd3h
+   9w8+codXKaOhZXDdLbzSPMJB/TIebBgMwBxBn1q/nhl+rJCJshnB2jDUc
+   Dj6KMqqxKucXI3TPZf7HI4HOPkOHCfQMTGlG4lZ0U8iQVmjnnUIH4N+ZL
+   NM9xSGOgIHmFk6/ytBDhZ8mSBAIZSUS6dBEiZ6PDeUXfLiNpHrnDePnFP
+   2kOHM5+Ad5KbB6fuzHVdLb5cNAE7lC6Wzxn6nCEjM/6MDTrFMxC+Deb/6
+   sF7Qm360R85xLDInEQeKppRLm1+KQntEofwnBV6hFBB+/uqBF+ivQEHiK
+   g==;
+X-CSE-ConnectionGUID: LdS68ReyQDKrFDnda1xvAw==
+X-CSE-MsgGUID: T2Ng6XTuT0WSMJ0dVJWwEA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="63753549"
+X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
+   d="scan'208";a="63753549"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Sep 2025 06:24:51 -0700
+X-CSE-ConnectionGUID: GfN48kH3QSKRAJhTRGd+Mg==
+X-CSE-MsgGUID: apsUjBajRHerjVhZqwW44w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,257,1751266800"; 
+   d="scan'208";a="173763968"
+Received: from lkp-server02.sh.intel.com (HELO eb5fdfb2a9b7) ([10.239.97.151])
+  by orviesa008.jf.intel.com with ESMTP; 11 Sep 2025 06:24:46 -0700
+Received: from kbuild by eb5fdfb2a9b7 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uwhI3-0000Ls-0z;
+	Thu, 11 Sep 2025 13:24:43 +0000
+Date: Thu, 11 Sep 2025 21:24:22 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Miguel Ojeda <ojeda@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Juergen Christ <jchrist@linux.ibm.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH 2/3] s390/bitops: Limit return value range of __flogr()
+Message-ID: <202509112018.eZI47cSy-lkp@intel.com>
+References: <20250910151216.646600-3-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDE5NSBTYWx0ZWRfXzGmyY/q9446j
- 6Kzl/cGIhgrh8hwZZEKBBDout8sP9riCLdY4beRVNdKKcFZKoDBLAnNVyXL8eAu8iOEKtVTSqt3
- 5DklzdVpaY58WLhJZOSQDjxlsX/973uYXyUU6ghHh4+njCbK/GZkqLC+OZy9S1+6xafW8c3dhN1
- 7COebpma920RiDriPVWubGFV/aEJDevLPIBtCIUMtYTDX4TUUJfI/RQApTrVBM1UmmWz5yHDUsB
- Gv55ImccRXTENKtOvRBUalnH+TvOJQl8w3lfDHuJhOb75MBt9P6OxidoJI1UzCwA/l2lW7Wiq7i
- LZug+2mQTP05OvxkAUR2kTcETfxytHMcZjC9Jt421OcfS4xpdNkShV8Bt3pXlLMMXo9B/imWykw
- Af/ywrGw
-X-Proofpoint-ORIG-GUID: YoBl2pXYhS1simZ9dYkJ-9-V2xxXDxBS
-X-Proofpoint-GUID: YoBl2pXYhS1simZ9dYkJ-9-V2xxXDxBS
-X-Authority-Analysis: v=2.4 cv=StCQ6OO0 c=1 sm=1 tr=0 ts=68c2cc6b cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=0_kEiP-UzsYf8isQq8oA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-10_04,2025-09-11_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060195
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250910151216.646600-3-hca@linux.ibm.com>
 
-On Thu, 11 Sep 2025 14:57:40 +0200
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Hi Heiko,
 
-> On 9/10/25 8:07 PM, Claudio Imbrenda wrote:
-> > Add page table management functions to be used for KVM guest (gmap)
-> > page tables.
-> > 
-> > This patch adds functions to clear, replace or exchange DAT table
-> > entries.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >   arch/s390/kvm/dat.c | 120 ++++++++++++++++++++++++++++++++++++++++++++
-> >   arch/s390/kvm/dat.h |  40 +++++++++++++++
-> >   2 files changed, 160 insertions(+)
-> > 
-> > diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> > index 326be78adcda..f26e3579bd77 100644
-> > --- a/arch/s390/kvm/dat.c
-> > +++ b/arch/s390/kvm/dat.c
-> > @@ -89,3 +89,123 @@ void dat_free_level(struct crst_table *table, bool owns_ptes)
-> >   	}
-> >   	dat_free_crst(table);
-> >   }
-> > +
-> > +/**
-> > + * dat_crstep_xchg - exchange a guest CRST with another
-> > + * @crstep: pointer to the CRST entry
-> > + * @new: replacement entry
-> > + * @gfn: the affected guest address
-> > + * @asce: the ASCE of the address space
-> > + *
-> > + * This function is assumed to be called with the guest_table_lock
-> > + * held.
-> > + */
-> > +void dat_crstep_xchg(union crste *crstep, union crste new, gfn_t gfn, union asce asce)
-> > +{
-> > +	if (crstep->h.i) {
-> > +		WRITE_ONCE(*crstep, new);
-> > +		return;
-> > +	} else if (cpu_has_edat2()) {
-> > +		crdte_crste(crstep, *crstep, new, gfn, asce);
-> > +		return;
-> > +	}
-> > +
-> > +	if (machine_has_tlb_guest())
-> > +		idte_crste(crstep, gfn, IDTE_GUEST_ASCE, asce, IDTE_GLOBAL);
-> > +	else if (cpu_has_idte())
-> > +		idte_crste(crstep, gfn, 0, NULL_ASCE, IDTE_GLOBAL);
-> > +	else
-> > +		csp_invalidate_crste(crstep);  
-> 
-> I'm wondering if we can make stfle 3 (DTE) a requirement for KVM or 
-> Linux as a whole since it was introduced with z990 AFAIK.
+kernel test robot noticed the following build errors:
 
-AFAIK we don't support machines older than z10 anyway
+[auto build test ERROR on s390/features]
+[also build test ERROR on next-20250911]
+[cannot apply to linus/master v6.17-rc5]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-but in that case we can only get rid of csp_invalidate_crste(), which
-is not much.
+url:    https://github.com/intel-lab-lkp/linux/commits/Heiko-Carstens/Compiler-Attributes-Add-__assume-macro/20250910-231949
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+patch link:    https://lore.kernel.org/r/20250910151216.646600-3-hca%40linux.ibm.com
+patch subject: [PATCH 2/3] s390/bitops: Limit return value range of __flogr()
+config: s390-randconfig-002-20250911 (https://download.01.org/0day-ci/archive/20250911/202509112018.eZI47cSy-lkp@intel.com/config)
+compiler: clang version 16.0.6 (https://github.com/llvm/llvm-project 7cbf1a2591520c2491aa35339f227775f4d3adf6)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250911/202509112018.eZI47cSy-lkp@intel.com/reproduce)
 
-I can remove it, if you really think it's ugly
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202509112018.eZI47cSy-lkp@intel.com/
 
-> 
-> > +	WRITE_ONCE(*crstep, new);
-> > +}
-> > +
-> > +/**
-> > + * dat_crstep_xchg_atomic - exchange a gmap pmd with another
-> > + * @crstep: pointer to the crste entry
-> > + * @old: expected old value
-> > + * @new: replacement entry
-> > + * @gfn: the affected guest address
-> > + * @asce: the asce of the address space
-> > + *
-> > + * This function should only be called on invalid crstes, or on crstes with
-> > + * FC = 1, as that guarantees the presence of CSPG.
-> > + *
-> > + * Return: true if the exchange was successful.
-> > + */
-> > +bool dat_crstep_xchg_atomic(union crste *crstep, union crste old, union crste new, gfn_t gfn,
-> > +			    union asce asce)
-> > +{
-> > +	if (old.h.i)
-> > +		return arch_try_cmpxchg((long *)crstep, &old.val, new.val);
-> > +	if (cpu_has_edat2())
-> > +		return crdte_crste(crstep, old, new, gfn, asce);
-> > +	if (cpu_has_idte())
-> > +		return cspg_crste(crstep, old, new);
-> > +
-> > +	WARN_ONCE(1, "Machine does not have CSPG and DAT table was not invalid.");
-> > +	return false;
-> > +}  
+All errors (new ones prefixed by >>):
 
+   In file included from kernel/bounds.c:13:
+   In file included from include/linux/log2.h:12:
+   In file included from include/linux/bitops.h:67:
+>> arch/s390/include/asm/bitops.h:174:3: error: '__assume__' attribute cannot be applied to a statement
+                   __assume(bit <= 64);
+                   ^                  ~
+   include/linux/compiler_attributes.h:68:56: note: expanded from macro '__assume'
+   # define __assume(expr)                 __attribute__((__assume__(expr)))
+                                                          ^
+   1 error generated.
+   make[3]: *** [scripts/Makefile.build:182: kernel/bounds.s] Error 1 shuffle=1723937077
+   make[3]: Target 'prepare' not remade because of errors.
+   make[2]: *** [Makefile:1282: prepare0] Error 2 shuffle=1723937077
+   make[2]: Target 'prepare' not remade because of errors.
+   make[1]: *** [Makefile:248: __sub-make] Error 2 shuffle=1723937077
+   make[1]: Target 'prepare' not remade because of errors.
+   make: *** [Makefile:248: __sub-make] Error 2 shuffle=1723937077
+   make: Target 'prepare' not remade because of errors.
+
+
+vim +/__assume__ +174 arch/s390/include/asm/bitops.h
+
+   124	
+   125	/**
+   126	 * __flogr - find leftmost one
+   127	 * @word - The word to search
+   128	 *
+   129	 * Returns the bit number of the most significant bit set,
+   130	 * where the most significant bit has bit number 0.
+   131	 * If no bit is set this function returns 64.
+   132	 */
+   133	static __always_inline __attribute_const__ unsigned long __flogr(unsigned long word)
+   134	{
+   135		unsigned long bit;
+   136	
+   137		if (__builtin_constant_p(word)) {
+   138			bit = 0;
+   139			if (!word)
+   140				return 64;
+   141			if (!(word & 0xffffffff00000000UL)) {
+   142				word <<= 32;
+   143				bit += 32;
+   144			}
+   145			if (!(word & 0xffff000000000000UL)) {
+   146				word <<= 16;
+   147				bit += 16;
+   148			}
+   149			if (!(word & 0xff00000000000000UL)) {
+   150				word <<= 8;
+   151				bit += 8;
+   152			}
+   153			if (!(word & 0xf000000000000000UL)) {
+   154				word <<= 4;
+   155				bit += 4;
+   156			}
+   157			if (!(word & 0xc000000000000000UL)) {
+   158				word <<= 2;
+   159				bit += 2;
+   160			}
+   161			if (!(word & 0x8000000000000000UL)) {
+   162				word <<= 1;
+   163				bit += 1;
+   164			}
+   165			return bit;
+   166		} else {
+   167			union register_pair rp __uninitialized;
+   168	
+   169			rp.even = word;
+   170			asm volatile(
+   171				"       flogr   %[rp],%[rp]\n"
+   172				: [rp] "+d" (rp.pair) : : "cc");
+   173			bit = rp.even;
+ > 174			__assume(bit <= 64);
+   175			return bit & 127;
+   176		}
+   177	}
+   178	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
