@@ -1,123 +1,203 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f78.google.com (mail-io1-f78.google.com [209.85.166.78])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C56AB18EFD1;
-	Thu, 11 Sep 2025 01:32:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A65CB1487F4
+	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 02:45:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757554368; cv=none; b=NUR+gYAgtq7FmJqrhyg4yA+U9ZIlH9cmc5Hipu5ljhM8CGfgErpdGmfIZSCFdjdgyqpBTRR4oIMLqyfrtdwhruiipFJI1Ag9MOB6c+Rz8QRtcQpsRLPVDS2be5waTe750XpLRsxB8tPnA3dMw+BGR50nzNva6cQ3MK1nat5sJ9c=
+	t=1757558730; cv=none; b=LYU6auJzyCabdJpmpsSG5oLZFNMzGqeRI+VSG+ba24PiR6MEZQ2eCH4FSTIzfiruVNfXEtai7fv9dXVRBDZDXERuteFJx/AP+p1rZQVv7Op05vaR0IUI3saVUDx1ahVtzatlIzg625iREXLPMUmVhp5SHKofM3MKvypIqOIw+zY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757554368; c=relaxed/simple;
-	bh=ymkpTfpELFB6gx7vh446ALqQuBiD7KUtqI1rXRMuCYg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RyEiaZ4NR5DsXaGPzIqkiJt9BQOFH8qW4WFBXdNWlnD8O2yyupGUCNXDu703RRbej4HiBrOnJCDq439vpShXQ1+lXdSdMSepUX6eL6GoWpPI3Rytf2UnpZWt3zq4VPfdIqe9VaGMtpdllfEatFb16pAy2o/RVtLzF4XlB6j+3Co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vHQu08GO; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vHQu08GO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D13BC4CEEB;
-	Thu, 11 Sep 2025 01:32:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757554368;
-	bh=ymkpTfpELFB6gx7vh446ALqQuBiD7KUtqI1rXRMuCYg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=vHQu08GOPQgg9jFutP25ukVoKyJJ86xwBJeZAPQKPDqEb/W/doYl+vACH/SQHJ6vn
-	 qwrFFxxBmvmmknQfD+LbP9Xe8sU+1sL7yb+tXHKJ5ys8LPOgDA5IaCJowZU1sOEt1m
-	 rKq/Ff/V8pSGip+jFM83a5xoRZWhwsaP1RltbI3A8mfeI2sQkhucAT/Y0mDp6U2wvo
-	 0G8vmP89hvBpAq/gvPqeP5e9TIDCFSIM/H8vB/eXaIF14p8RxkGoqbLaZ7tDn3lCbo
-	 ejQ1ikZy80x+UouFamiZzB5V4gmw6AgRfRYmyD2EDsg3USTLx+v/MSCJCjnqGJ0ban
-	 z9MxsG/dvuvuw==
-Date: Wed, 10 Sep 2025 18:32:43 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Miguel Ojeda <ojeda@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Juergen Christ <jchrist@linux.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH 1/3] Compiler Attributes: Add __assume macro
-Message-ID: <20250911013243.GA292340@ax162>
-References: <20250910151216.646600-1-hca@linux.ibm.com>
- <20250910151216.646600-2-hca@linux.ibm.com>
+	s=arc-20240116; t=1757558730; c=relaxed/simple;
+	bh=Kx4XKGUt0cm1Kh3AJGbJzGLZru5R153AUrWHkFQIcn4=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=DbnzEslgB7jcRDnhF9ZPqoLTcQsQr6BQlJ3Dac8Fn1cqEU060pxOUKqnG8qcn0R9ebPy0a0N6Z7eraeiXApW6Utzc1zJT4OdTWbhAOlnTsEVCZrr3zLb8f7Oucmsl8aHirB/801k5IbDAyQBmU7rNQHBemktwLSiISmd4TeeNPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f78.google.com with SMTP id ca18e2360f4ac-887ee7475faso58197739f.0
+        for <linux-s390@vger.kernel.org>; Wed, 10 Sep 2025 19:45:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757558728; x=1758163528;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6CEC/hDrL0RYvcCVpYbKdGS2Fgqi1L5qHrsPvYtgkC0=;
+        b=FmqsKL8yZCTBS661TmDbBo1b8cOf4KYcqBiaHTu4O6hmGy2tWVs8NomlPwAzrjuNT4
+         eqM0OmkrbTd7iOgXXL83qbdc7iRN8oXT28YZXEHnDwq09wHas+HofyMqWbsagIT+FO+i
+         O30/kCD/9ImDklf8GRzIUO+Hlh7L+pBMYpQCW2CYn9pC/2dhPyEqRHGASCMgUbovHGch
+         fUDFnnOE03iiNCcvPqXg+d5ODsSlVSFxAErrBGOSIe8pDP6Tx8LZI/b+jmNuOnRxI/cJ
+         De3zFloiMPXSM+oMx0KkKUYlHusFEuKCa74ZxSlwmW6v99xu0ns+jbmDxr2tIuMw9DRG
+         N3bw==
+X-Forwarded-Encrypted: i=1; AJvYcCWhDA70OzNT6SlOgHkw8S0LIXuZpujvPsulNzOrNv6xqREcncd21WfTbbbe2KdETQFuroo/94bZaA49@vger.kernel.org
+X-Gm-Message-State: AOJu0YwtulC3360aO86/65ct4iJcEYeb+lySLFn7eZx+E5N5NAUBXh/L
+	vp2o0yNAnSFg5L783qU89iA2CvoU41eyLl2urmIkJVv4xvqAkjLGHc/eF8nYG58bGwPYNWfNM0W
+	JbGXyJ4NoqwBs6bv2aWNGWn2If3nMRLHVImWTUGUMPCkzVFi7hnVk/mr/d+8=
+X-Google-Smtp-Source: AGHT+IEp9oIOa2JvRV2TLv6zUHy7G0oti8Rg0SIvm5ulajf2zyYlJIzCreGeUJ7yrZ8VcX/JNL9SFj1VpBgcXhcs0CAO1BgxR0uG
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250910151216.646600-2-hca@linux.ibm.com>
+X-Received: by 2002:a05:6e02:12c3:b0:409:5da6:c72b with SMTP id
+ e9e14a558f8ab-4095da6c7cfmr208270705ab.4.1757558727883; Wed, 10 Sep 2025
+ 19:45:27 -0700 (PDT)
+Date: Wed, 10 Sep 2025 19:45:27 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68c237c7.050a0220.3c6139.0036.GAE@google.com>
+Subject: [syzbot] [smc?] KASAN: use-after-free Read in __pnet_find_base_ndev
+From: syzbot <syzbot+ea28e9d85be2f327b6c6@syzkaller.appspotmail.com>
+To: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sidraya@linux.ibm.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Heiko,
+Hello,
 
-On Wed, Sep 10, 2025 at 05:12:14PM +0200, Heiko Carstens wrote:
-> Make the statement attribute "assume" with a new __assume macro available.
-> 
-> This allows compilers to generate better code, however code which makes use
-> of __assume must be written as if the compiler ignores the hint. Otherwise
-> this may lead to subtle bugs if code is compiled with compilers which do
-> not support the attribute.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->  include/linux/compiler_attributes.h | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
-> 
-> diff --git a/include/linux/compiler_attributes.h b/include/linux/compiler_attributes.h
-> index c16d4199bf92..16c3d4a865e2 100644
-> --- a/include/linux/compiler_attributes.h
-> +++ b/include/linux/compiler_attributes.h
-> @@ -54,6 +54,22 @@
->   */
->  #define __always_inline                 inline __attribute__((__always_inline__))
->  
-> +/*
-> + * Beware: Code which makes use of __assume must be written as if the compiler
-> + * ignores the hint. Otherwise this may lead to subtle bugs if code is compiled
-> + * with compilers which do not support the attribute.
+syzbot found the following issue on:
 
-It may be worth noting that careful analysis should be performed when
-adding this attribute since clang's documentation [1] (more on that
-below...) notes that it could hurt optimizations just as much as it
-could help it.
+HEAD commit:    e0d1c55501d3 net: phy: fix phy_uses_state_machine()
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=10287562580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=9c302bcfb26a48af
+dashboard link: https://syzkaller.appspot.com/bug?extid=ea28e9d85be2f327b6c6
+compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
 
-> + *
-> + * Optional: only supported since GCC >= 13.1, clang >= 12.0
-> + *
-> + *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#index-assume-statement-attribute
-> + * clang: https://clang.llvm.org/docs/AttributeReference.html#assume
+Unfortunately, I don't have any reproducer for this issue yet.
 
-Looking at this link sent me down a bit of a rabbit hole :) Prior to
-Clang 19.1.0 [2], assume was an OpenMP attribute, which has completely
-different semantics and errors out when used in the way the series does:
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/6163bf409a9b/disk-e0d1c555.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/6d13a8029999/vmlinux-e0d1c555.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/41adcb613128/bzImage-e0d1c555.xz
 
-  In file included from kernel/bounds.c:13:
-  In file included from include/linux/log2.h:12:
-  In file included from include/linux/bitops.h:67:
-  arch/s390/include/asm/bitops.h:173:12: error: expected string literal as argument of '__assume__' attribute
-    173 |                 __assume(bit <= 64);
-        |                          ^
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+ea28e9d85be2f327b6c6@syzkaller.appspotmail.com
 
-Unfortunately, I think __assume will need to be handled in the compiler
-specific headers :/
+==================================================================
+BUG: KASAN: use-after-free in __pnet_find_base_ndev+0x1b1/0x1c0 net/smc/smc_pnet.c:926
+Read of size 1 at addr ffff888036bac33a by task syz.0.3632/18609
 
-[1]: https://clang.llvm.org/docs/AttributeReference.html#id13
-[2]: https://github.com/llvm/llvm-project/commit/c44fa3e8a9a44c2e9a575768a3c185354b9f6c17
+CPU: 1 UID: 0 PID: 18609 Comm: syz.0.3632 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xca/0x240 mm/kasan/report.c:482
+ kasan_report+0x118/0x150 mm/kasan/report.c:595
+ __pnet_find_base_ndev+0x1b1/0x1c0 net/smc/smc_pnet.c:926
+ pnet_find_base_ndev net/smc/smc_pnet.c:946 [inline]
+ smc_pnet_find_ism_by_pnetid net/smc/smc_pnet.c:1103 [inline]
+ smc_pnet_find_ism_resource+0xef/0x390 net/smc/smc_pnet.c:1154
+ smc_find_ism_device net/smc/af_smc.c:1030 [inline]
+ smc_find_proposal_devices net/smc/af_smc.c:1115 [inline]
+ __smc_connect+0x372/0x1890 net/smc/af_smc.c:1545
+ smc_connect+0x877/0xd90 net/smc/af_smc.c:1715
+ __sys_connect_file net/socket.c:2086 [inline]
+ __sys_connect+0x313/0x440 net/socket.c:2105
+ __do_sys_connect net/socket.c:2111 [inline]
+ __se_sys_connect net/socket.c:2108 [inline]
+ __x64_sys_connect+0x7a/0x90 net/socket.c:2108
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f47cbf8eba9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f47ccdb1038 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 00007f47cc1d5fa0 RCX: 00007f47cbf8eba9
+RDX: 0000000000000010 RSI: 0000200000000280 RDI: 000000000000000b
+RBP: 00007f47cc011e19 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f47cc1d6038 R14: 00007f47cc1d5fa0 R15: 00007ffc512f8aa8
+ </TASK>
 
-Cheers,
-Nathan
+The buggy address belongs to the physical page:
+page: refcount:0 mapcount:0 mapping:0000000000000000 index:0xffff888036bacd00 pfn:0x36bac
+flags: 0xfff00000000000(node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000000000 ffffea0001243d08 ffff8880b863fdc0 0000000000000000
+raw: ffff888036bacd00 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as freed
+page last allocated via order 2, migratetype Unmovable, gfp_mask 0x446dc0(GFP_KERNEL_ACCOUNT|__GFP_ZERO|__GFP_NOWARN|__GFP_RETRY_MAYFAIL|__GFP_COMP), pid 16741, tgid 16741 (syz-executor), ts 343313197788, free_ts 380670750466
+ set_page_owner include/linux/page_owner.h:32 [inline]
+ post_alloc_hook+0x240/0x2a0 mm/page_alloc.c:1851
+ prep_new_page mm/page_alloc.c:1859 [inline]
+ get_page_from_freelist+0x21e4/0x22c0 mm/page_alloc.c:3858
+ __alloc_frozen_pages_noprof+0x181/0x370 mm/page_alloc.c:5148
+ alloc_pages_mpol+0x232/0x4a0 mm/mempolicy.c:2416
+ ___kmalloc_large_node+0x5f/0x1b0 mm/slub.c:4317
+ __kmalloc_large_node_noprof+0x18/0x90 mm/slub.c:4348
+ __do_kmalloc_node mm/slub.c:4364 [inline]
+ __kvmalloc_node_noprof+0x6d/0x5f0 mm/slub.c:5067
+ alloc_netdev_mqs+0xa3/0x11b0 net/core/dev.c:11812
+ tun_set_iff+0x532/0xef0 drivers/net/tun.c:2775
+ __tun_chr_ioctl+0x788/0x1df0 drivers/net/tun.c:3085
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:598 [inline]
+ __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:584
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+page last free pid 18610 tgid 18608 stack trace:
+ reset_page_owner include/linux/page_owner.h:25 [inline]
+ free_pages_prepare mm/page_alloc.c:1395 [inline]
+ __free_frozen_pages+0xbc4/0xd30 mm/page_alloc.c:2895
+ free_large_kmalloc+0x13a/0x1f0 mm/slub.c:4820
+ device_release+0x99/0x1c0 drivers/base/core.c:-1
+ kobject_cleanup lib/kobject.c:689 [inline]
+ kobject_release lib/kobject.c:720 [inline]
+ kref_put include/linux/kref.h:65 [inline]
+ kobject_put+0x22b/0x480 lib/kobject.c:737
+ netdev_run_todo+0xd2e/0xea0 net/core/dev.c:11513
+ rtnl_unlock net/core/rtnetlink.c:157 [inline]
+ rtnl_net_unlock include/linux/rtnetlink.h:135 [inline]
+ rtnl_dellink+0x537/0x710 net/core/rtnetlink.c:3563
+ rtnetlink_rcv_msg+0x7cc/0xb70 net/core/rtnetlink.c:6946
+ netlink_rcv_skb+0x208/0x470 net/netlink/af_netlink.c:2552
+ netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
+ netlink_unicast+0x82f/0x9e0 net/netlink/af_netlink.c:1346
+ netlink_sendmsg+0x805/0xb30 net/netlink/af_netlink.c:1896
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ __sock_sendmsg+0x219/0x270 net/socket.c:729
+ ____sys_sendmsg+0x505/0x830 net/socket.c:2614
+ ___sys_sendmsg+0x21f/0x2a0 net/socket.c:2668
+ __sys_sendmsg net/socket.c:2700 [inline]
+ __do_sys_sendmsg net/socket.c:2705 [inline]
+ __se_sys_sendmsg net/socket.c:2703 [inline]
+ __x64_sys_sendmsg+0x19b/0x260 net/socket.c:2703
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
 
-> + */
-> +#if __has_attribute(assume)
-> +# define __assume(expr)                 __attribute__((__assume__(expr)))
-> +#else
-> +# define __assume(expr)
-> +#endif
-> +
->  /*
->   * The second argument is optional (default 0), so we use a variadic macro
->   * to make the shorthand.
-> -- 
-> 2.48.1
-> 
+Memory state around the buggy address:
+ ffff888036bac200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888036bac280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>ffff888036bac300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                        ^
+ ffff888036bac380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff888036bac400: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
