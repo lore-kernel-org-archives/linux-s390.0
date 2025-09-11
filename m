@@ -1,67 +1,42 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out-178.mta1.migadu.com (out-178.mta1.migadu.com [95.215.58.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA191B87E8;
-	Thu, 11 Sep 2025 09:28:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C2FC2E36F4
+	for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 09:52:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757582903; cv=none; b=NKR2xv3es5tv0BDw53gUsXb/e4AQIjiYs17nZoK2HkaY/wc+4HrSdSHWztKVl/aDEI/u84voIzAhiwTyMsxJF+f5QBXqKkVPPGXUZe0aHy/BahuYHhJKhynos/+R0a1A7EymnWAoWxd8WPlDxFlWTPDJ1q3OUO6UT5TzK+c/LnE=
+	t=1757584373; cv=none; b=eZjBpuIUrmqEolC/YdaFmaA0XIk0SmOB1+TC1MG8X/OpVM4mKw7YqZm653MuUK1YwG3Kc43g4PO3yifhDEnBH1V3kZOnIlgabhta0BLDY0nVqVGJDVEJbdO1O8zJSO6nziQFa5+nYHh+NsD1OKd5OP7aUMo3A/M/eDD84QJrmkM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757582903; c=relaxed/simple;
-	bh=7O8wP6YesOxxPGXF72XoQUQIVWCXf1NXL+JFB7E9gf8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qixV3yRdLtb7t9SkvEdLcgAlALPKqdLFD6wjwzMlYOF7ecC1PjeiMbkf9vTXlAk3S85xXz5u/Mag+cduyQoNkSqoeoWN7YQ1HNSc1G0F9no3xlShHS6lKGStpNAkOQHbxUgHmi83gO9dsEhWq0gFOd+wB0CVgpJchKO2Mm77CEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ScSwbN5V; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1757584373; c=relaxed/simple;
+	bh=H5PjxiEXFteUg1G8n03MiT+kg/nXlWwwMu+uFRY6ov0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PwJ/ZeW3AV8Envt1F5/+Fc88D+PR+jps2lQD3oToaD4xYqeF/kCf43refgwYTNjAkq8LfRIZICU6351bb8xlOrgk9Vw3DzSfAFus9L7I1BfpKJhsJ/87oJjHP1W/a33bCdNcpgLdvcuXYDJOQYBya1RzeTF5wuJFUYgj2vWs+g8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Nqtp9a2k; arc=none smtp.client-ip=95.215.58.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ScSwbN5V"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58B7MOiO028317;
-	Thu, 11 Sep 2025 09:28:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=XqbZs9hf4mUfj4ECMbTUhoGBGdSmHUuLJrDP1bxxu
-	2w=; b=ScSwbN5VTAUnm2YOcI8EjmtIu6IugVleFPELT7GdADsJKy1836QeVEjJE
-	6JE1GIsqyMtPSQsQHhDEgSDgED4iHCE6avwjSlO+2fFGNZ6GZKV3th+Go1UdUNsx
-	6CI3wDjELgvkoxE3B8AJKGV+oontxUljXLjoCHyIvltdN62tXcBWQnzSgLGkKlLX
-	A2zUd5mmU5lxozrCquLrSrf/tTqqEqVhtgvDW8FZqhD3pPBY36JQLxKmyilXW3cU
-	eEGUFY4PS45VWNE4QGd3+ZKxcJjWIBSdXlQXmkDZvC1Wc9Zx4gL2UpOcyklUtXyh
-	SA/69Bli5alD6SMDC1kAeNhnRcc0Q==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490cmx3pw3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 09:28:18 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58B9D2mJ007912;
-	Thu, 11 Sep 2025 09:28:17 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49109pw2wc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 11 Sep 2025 09:28:17 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58B9SCIT33161922
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 11 Sep 2025 09:28:12 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C9FB42004B;
-	Thu, 11 Sep 2025 09:28:12 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B9B7920040;
-	Thu, 11 Sep 2025 09:28:12 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 11 Sep 2025 09:28:12 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55390)
-	id 66890E03BC; Thu, 11 Sep 2025 11:28:12 +0200 (CEST)
-From: Sven Schnelle <svens@linux.ibm.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH] s390/entry: Remove unused TIF flags
-Date: Thu, 11 Sep 2025 11:28:06 +0200
-Message-ID: <20250911092806.3262481-1-svens@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Nqtp9a2k"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1757584359;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7uqwWKKMvk6LwfNxoryFEjMPkkBENIJWBU06q5sP3oU=;
+	b=Nqtp9a2kCrIDik6vI34QaGCofRDtjnzgBaPZwHzZAeLH6NMd52a5NoEaQ7egyOlTxNbcDK
+	72j2tIoMW86CNdaPjyDhS2o/3LZbVDV9ciSp5wCrESsCPg3uiPkXhm7XxF5wL9kkgldYM0
+	7LERG2r2g8Lp30xF0+3gkcakpnsJkHw=
+From: Thorsten Blum <thorsten.blum@linux.dev>
+To: Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>
+Cc: linux-s390@vger.kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Thorsten Blum <thorsten.blum@linux.dev>,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] initrd: Fix unused variable warning in rd_load_image() on s390
+Date: Thu, 11 Sep 2025 11:49:08 +0200
+Message-ID: <20250911094908.1308767-2-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,64 +44,59 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nEprxwTOVfEOWQ9MvyTq4uRpIPPFQuys
-X-Proofpoint-ORIG-GUID: nEprxwTOVfEOWQ9MvyTq4uRpIPPFQuys
-X-Authority-Analysis: v=2.4 cv=J52q7BnS c=1 sm=1 tr=0 ts=68c29632 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=acghSI3q7n8i0AATrVwA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDAyNSBTYWx0ZWRfX97o0IK0PZ6Uj
- myTE/QqBteZ3EIqhM4H1r7PJEG+iE3q9iYTagABNOTcOMqQuoLPKuyD7cterD0iNqbaa4t8sWis
- GqXaP/8IGahR5yviLpDUX6K2+eqPOtLhH350QZSbYDb9RLEyVjcjpLeNcxcAgMGNGtRNv2JNPTz
- FaMdvjyRh9ZYJmW6bVzWAxUsOEETmFYK+8J1NAXtDEADLgm5urfpiJjwmT0Ea5vwHcHu1RrvStY
- R729vsYgRtPcY6i8kCZ8aIgYjHPBA2V9cmgpwKjzZTN1JBPxUoWKNQOy2hr/Ef8m6VyrjA6opxq
- lKOASVfuyvKVbYKlTOYiuda0UBSTwIojiU8+2C6//ExLq/ovy2LNBAJuW+LI0tkyDs9k4igPDDQ
- OXW16Fw6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-10_04,2025-09-10_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1011 suspectscore=0 spamscore=0 phishscore=0
- bulkscore=0 adultscore=0 malwarescore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060025
+X-Migadu-Flow: FLOW_OUT
 
-The conversion of s390 to generic entry missed to remove the
-TIF_SYSCALL*/TIF_SECCOMP flags. Remove them as they are unused now.
+The local variables 'rotator' and 'rotate' (used for the progress
+indicator) aren't used on s390. Building the kernel with W=1 generates
+the following warning:
 
-Fixes: 56e62a737028 ("s390: convert to generic entry")
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+init/do_mounts_rd.c:192:17: warning: variable 'rotate' set but not used [-Wunused-but-set-variable]
+ 192 |         unsigned short rotate = 0;
+     |                        ^
+1 warning generated.
+
+Remove the preprocessor directives and use the IS_ENABLED(CONFIG_S390)
+macro instead, allowing the compiler to optimize away unused variables
+and avoid the warning on s390.
+
+Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 ---
- arch/s390/include/asm/thread_info.h | 10 ----------
- 1 file changed, 10 deletions(-)
+Changes in v2:
+- Use IS_ENABLED(CONFIG_S390) instead of the preprocessor directives as
+  suggested by Heiko Carstens <hca@linux.ibm.com>
+- Link to v1: https://lore.kernel.org/lkml/20250908121303.180886-2-thorsten.blum@linux.dev/
+---
+ init/do_mounts_rd.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-index fe6da066b123..7878e9bfbf07 100644
---- a/arch/s390/include/asm/thread_info.h
-+++ b/arch/s390/include/asm/thread_info.h
-@@ -74,12 +74,6 @@ void arch_setup_new_exec(void);
- #define TIF_BLOCK_STEP		22	/* This task is block stepped */
- #define TIF_UPROBE_SINGLESTEP	23	/* This task is uprobe single stepped */
+diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
+index ac021ae6e6fa..3cbdf43a42df 100644
+--- a/init/do_mounts_rd.c
++++ b/init/do_mounts_rd.c
+@@ -191,9 +191,7 @@ int __init rd_load_image(char *from)
+ 	char *buf = NULL;
+ 	unsigned short rotate = 0;
+ 	decompress_fn decompressor = NULL;
+-#if !defined(CONFIG_S390)
+ 	char rotator[4] = { '|' , '/' , '-' , '\\' };
+-#endif
  
--/* These could move over to SYSCALL_WORK bits, no? */
--#define TIF_SYSCALL_TRACE	24	/* syscall trace active */
--#define TIF_SYSCALL_AUDIT	25	/* syscall auditing active */
--#define TIF_SECCOMP		26	/* secure computing */
--#define TIF_SYSCALL_TRACEPOINT	27	/* syscall tracepoint instrumentation */
--
- #define _TIF_ASCE_PRIMARY	BIT(TIF_ASCE_PRIMARY)
- #define _TIF_GUARDED_STORAGE	BIT(TIF_GUARDED_STORAGE)
- #define _TIF_ISOLATE_BP_GUEST	BIT(TIF_ISOLATE_BP_GUEST)
-@@ -88,9 +82,5 @@ void arch_setup_new_exec(void);
- #define _TIF_SINGLE_STEP	BIT(TIF_SINGLE_STEP)
- #define _TIF_BLOCK_STEP		BIT(TIF_BLOCK_STEP)
- #define _TIF_UPROBE_SINGLESTEP	BIT(TIF_UPROBE_SINGLESTEP)
--#define _TIF_SYSCALL_TRACE	BIT(TIF_SYSCALL_TRACE)
--#define _TIF_SYSCALL_AUDIT	BIT(TIF_SYSCALL_AUDIT)
--#define _TIF_SECCOMP		BIT(TIF_SECCOMP)
--#define _TIF_SYSCALL_TRACEPOINT	BIT(TIF_SYSCALL_TRACEPOINT)
+ 	out_file = filp_open("/dev/ram", O_RDWR, 0);
+ 	if (IS_ERR(out_file))
+@@ -255,12 +253,10 @@ int __init rd_load_image(char *from)
+ 		}
+ 		kernel_read(in_file, buf, BLOCK_SIZE, &in_pos);
+ 		kernel_write(out_file, buf, BLOCK_SIZE, &out_pos);
+-#if !defined(CONFIG_S390)
+-		if (!(i % 16)) {
++		if (!IS_ENABLED(CONFIG_S390) && !(i % 16)) {
+ 			pr_cont("%c\b", rotator[rotate & 0x3]);
+ 			rotate++;
+ 		}
+-#endif
+ 	}
+ 	pr_cont("done.\n");
  
- #endif /* _ASM_THREAD_INFO_H */
 -- 
-2.48.1
+2.51.0
 
