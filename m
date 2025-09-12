@@ -1,228 +1,225 @@
-Received: from fra-out-011.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-011.esa.eu-central-1.outbound.mail-perimeter.amazon.com [52.28.197.132])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F049E2D8776;
-	Fri, 12 Sep 2025 09:18:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.28.197.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03EBE2F37;
+	Fri, 12 Sep 2025 09:20:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757668693; cv=none; b=fWMnh7sZRnZ1hsMvnwpG7sMFIeQkd9PSOHsDuFwJOvqPAgAP6XN5UYbTBKE9T0yBScxRsGsoN7doF2vd1vQhFBfVBIDFRqVzACchu4eg55SN4VE5SVd5k8ClpBOHuHhLxEKPL7hNC0eMQZgAoJTcyxDEIMufkPnTogvcD+cuuMo=
+	t=1757668811; cv=none; b=XKRC7ZQwTrEGcGxSobvEh3cTHLM4aP9rBf2PK8CvESrkc5K+QTkXfFddbmei2iUB8UbeumMd/hXhhuJqC4lX5E5QuP/6bgh/FSeCtiRZfIX93J3Grsd2k1goNc6hqbLI8pEhNV2RjAEhYuMHDmIT3Fa4wGO16TtuMKgLnk/OCE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757668693; c=relaxed/simple;
-	bh=AQ7ryES0rxz3cGanwiiCgDNyUNIYhiR0LUKgkDqky7Q=;
-	h=From:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=jQC2LVDt92RddEIbFhuDkll4lZwgZhyo091JtITE/PiuC5UuE8nUqpWbed4X2bAITs/dLoY8o8X1mIIglBcDiFI6x4L1z4IUYE0FYLFWZ3gnIgkMjakpUGrlE41Qp2kGBg7DYHtDfQ5+n0IU8wqZplyXFU/+ybpKAwBuEgGWkFA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=UreNPkAI; arc=none smtp.client-ip=52.28.197.132
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
+	s=arc-20240116; t=1757668811; c=relaxed/simple;
+	bh=oPeSuuI2byEtEwCINJ9+OYNed3v6HUlpWD1u/mbM5LA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gcda7sLlTQa7cul1O5mBr5H39x3IpJhTjFOIS+v583m1XxDLdt7Msg2eJnrxK0J4Jbc3uoqG9/GD6uXM3oVLYCZApBjtIMZd8XmRAx+CHwmgZw87KAZFNOcvDV1ZC8rKdoKgQNJrud7l+SICY+tv1GHnahl1NSjYorg/lsdEuN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oT7QcAey; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="UreNPkAI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
-  s=amazoncorp2; t=1757668691; x=1789204691;
-  h=from:cc:subject:date:message-id:references:in-reply-to:
-   content-transfer-encoding:mime-version;
-  bh=Ojtm9hG3uDHHN9CPzAzA1kwd7CoLxip6b5f2qHGneMU=;
-  b=UreNPkAI8nknOO1izzrU4sID7wcjSF+DGwUiRg1Z9byBoRTps5MjvGOt
-   nz/A7OsMw+OriHpf7yUm6C0ebDUHVLdfSHekQk9rS17+BQbU//jZwYJWZ
-   pXIzEwaIs2AzVgp0bIU0lj9aKw5bkfE6+4Shs1vd/vcC9jrS+H03Vl6jH
-   sMVAw+DXLheuRobGMm4+2Cl57KEedsh4dxD6Xtxt44t5BM/R+e00Cjr1U
-   /g7vBmKy/shCIR6J0aejNA6Vqgc5+MI7ALlQ/YmGCOw/WDVFSjunOrUpv
-   i5/UKDketJVH5P9dRyZi4QiKqzEabeAgClpR2epv87AJk/BD1r+V24HZk
-   Q==;
-X-CSE-ConnectionGUID: pZZ13Mj+TDqV8Gs/7yExlA==
-X-CSE-MsgGUID: RfZcwfpiTzSibRHA+5TiDQ==
-X-IronPort-AV: E=Sophos;i="6.18,259,1751241600"; 
-   d="scan'208";a="1903318"
-Received: from ip-10-6-3-216.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.3.216])
-  by internal-fra-out-011.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Sep 2025 09:17:59 +0000
-Received: from EX19MTAEUC002.ant.amazon.com [54.240.197.228:4257]
- by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.23.240:2525] with esmtp (Farcaster)
- id 0791345b-5f96-4e3a-80ef-d080c8c5816b; Fri, 12 Sep 2025 09:17:59 +0000 (UTC)
-X-Farcaster-Flow-ID: 0791345b-5f96-4e3a-80ef-d080c8c5816b
-Received: from EX19D015EUB004.ant.amazon.com (10.252.51.13) by
- EX19MTAEUC002.ant.amazon.com (10.252.51.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.20;
- Fri, 12 Sep 2025 09:17:48 +0000
-Received: from EX19D015EUB004.ant.amazon.com (10.252.51.13) by
- EX19D015EUB004.ant.amazon.com (10.252.51.13) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.20;
- Fri, 12 Sep 2025 09:17:47 +0000
-Received: from EX19D015EUB004.ant.amazon.com ([fe80::2dc9:7aa9:9cd3:fc8a]) by
- EX19D015EUB004.ant.amazon.com ([fe80::2dc9:7aa9:9cd3:fc8a%3]) with mapi id
- 15.02.2562.020; Fri, 12 Sep 2025 09:17:47 +0000
-From: "Roy, Patrick" <roypat@amazon.co.uk>
-CC: "Thomson, Jack" <jackabt@amazon.co.uk>, "Kalyazin, Nikita"
-	<kalyazin@amazon.co.uk>, "Cali, Marco" <xmarcalx@amazon.co.uk>,
-	"derekmn@amazon.co.uk" <derekmn@amazon.co.uk>, "Roy, Patrick"
-	<roypat@amazon.co.uk>, "willy@infradead.org" <willy@infradead.org>,
-	"corbet@lwn.net" <corbet@lwn.net>, "pbonzini@redhat.com"
-	<pbonzini@redhat.com>, "maz@kernel.org" <maz@kernel.org>,
-	"oliver.upton@linux.dev" <oliver.upton@linux.dev>, "joey.gouly@arm.com"
-	<joey.gouly@arm.com>, "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
-	"yuzenghui@huawei.com" <yuzenghui@huawei.com>, "catalin.marinas@arm.com"
-	<catalin.marinas@arm.com>, "will@kernel.org" <will@kernel.org>,
-	"chenhuacai@kernel.org" <chenhuacai@kernel.org>, "kernel@xen0n.name"
-	<kernel@xen0n.name>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
-	"palmer@dabbelt.com" <palmer@dabbelt.com>, "aou@eecs.berkeley.edu"
-	<aou@eecs.berkeley.edu>, "alex@ghiti.fr" <alex@ghiti.fr>,
-	"agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
-	"gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
-	"hca@linux.ibm.com" <hca@linux.ibm.com>, "gor@linux.ibm.com"
-	<gor@linux.ibm.com>, "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
-	"svens@linux.ibm.com" <svens@linux.ibm.com>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "luto@kernel.org" <luto@kernel.org>,
-	"peterz@infradead.org" <peterz@infradead.org>, "tglx@linutronix.de"
-	<tglx@linutronix.de>, "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de"
-	<bp@alien8.de>, "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com"
-	<hpa@zytor.com>, "trondmy@kernel.org" <trondmy@kernel.org>, "anna@kernel.org"
-	<anna@kernel.org>, "hubcap@omnibond.com" <hubcap@omnibond.com>,
-	"martin@omnibond.com" <martin@omnibond.com>, "viro@zeniv.linux.org.uk"
-	<viro@zeniv.linux.org.uk>, "brauner@kernel.org" <brauner@kernel.org>,
-	"jack@suse.cz" <jack@suse.cz>, "akpm@linux-foundation.org"
-	<akpm@linux-foundation.org>, "david@redhat.com" <david@redhat.com>,
-	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
-	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, "vbabka@suse.cz"
-	<vbabka@suse.cz>, "rppt@kernel.org" <rppt@kernel.org>, "surenb@google.com"
-	<surenb@google.com>, "mhocko@suse.com" <mhocko@suse.com>, "ast@kernel.org"
-	<ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>,
-	"andrii@kernel.org" <andrii@kernel.org>, "martin.lau@linux.dev"
-	<martin.lau@linux.dev>, "eddyz87@gmail.com" <eddyz87@gmail.com>,
-	"song@kernel.org" <song@kernel.org>, "yonghong.song@linux.dev"
-	<yonghong.song@linux.dev>, "john.fastabend@gmail.com"
-	<john.fastabend@gmail.com>, "kpsingh@kernel.org" <kpsingh@kernel.org>,
-	"sdf@fomichev.me" <sdf@fomichev.me>, "haoluo@google.com" <haoluo@google.com>,
-	"jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>,
-	"jhubbard@nvidia.com" <jhubbard@nvidia.com>, "peterx@redhat.com"
-	<peterx@redhat.com>, "jannh@google.com" <jannh@google.com>,
-	"pfalcato@suse.de" <pfalcato@suse.de>, "axelrasmussen@google.com"
-	<axelrasmussen@google.com>, "yuanchu@google.com" <yuanchu@google.com>,
-	"weixugc@google.com" <weixugc@google.com>, "hannes@cmpxchg.org"
-	<hannes@cmpxchg.org>, "zhengqi.arch@bytedance.com"
-	<zhengqi.arch@bytedance.com>, "shakeel.butt@linux.dev"
-	<shakeel.butt@linux.dev>, "shuah@kernel.org" <shuah@kernel.org>,
-	"seanjc@google.com" <seanjc@google.com>, "linux-fsdevel@vger.kernel.org"
-	<linux-fsdevel@vger.kernel.org>, "linux-doc@vger.kernel.org"
-	<linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "loongarch@lists.linux.dev"
-	<loongarch@lists.linux.dev>, "linux-riscv@lists.infradead.org"
-	<linux-riscv@lists.infradead.org>, "linux-s390@vger.kernel.org"
-	<linux-s390@vger.kernel.org>, "linux-nfs@vger.kernel.org"
-	<linux-nfs@vger.kernel.org>, "devel@lists.orangefs.org"
-	<devel@lists.orangefs.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>
-Subject: [PATCH v6 11/11] KVM: selftests: Test guest execution from direct map
- removed gmem
-Thread-Topic: [PATCH v6 11/11] KVM: selftests: Test guest execution from
- direct map removed gmem
-Thread-Index: AQHcI8YabQ9AygaqQUCaf6AaD/P8kg==
-Date: Fri, 12 Sep 2025 09:17:47 +0000
-Message-ID: <20250912091708.17502-12-roypat@amazon.co.uk>
-References: <20250912091708.17502-1-roypat@amazon.co.uk>
-In-Reply-To: <20250912091708.17502-1-roypat@amazon.co.uk>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oT7QcAey"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58C7s0fp010489;
+	Fri, 12 Sep 2025 09:19:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=rZc9834EQmnX5OjtQuA7Dp/c6DGjo1
+	MBldcjPqT/2OU=; b=oT7QcAeyDCK579nnNLWUMSZVrW1VsEuASH/MVg9/rpXyvO
+	qx2tdjP0DI+d58PUpp8IUcdgMKdIsu3scsvEWQqpXSyldabSxttqvPuCNi6JvyQU
+	eKuC8ewTHbhVNDwSv+J26pujadusNJFEx9ewhKtws+CBinrWUAMumvxYHGTfNv8r
+	wGPFxPpU9Zy6lx+1iEs65EeIg4GN+IoY+hzhHSETrAo8ql3om5qxClC+0R5cZXlW
+	lUFK5/KKHtP9nmUDrJnTHzg8eWbRrYWdv0ALZnKtkhGraqtCz4UhHEe9vn66LyNl
+	gmHXowVT99A8gtSQQKBkcmWEnDMWR/FkWnu6CqRA==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490ukexmfx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 12 Sep 2025 09:19:59 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58C9FceJ011457;
+	Fri, 12 Sep 2025 09:19:58 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 490y9utf24-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 12 Sep 2025 09:19:58 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58C9JtNa18284942
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 12 Sep 2025 09:19:55 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ED3472004B;
+	Fri, 12 Sep 2025 09:19:54 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5581A20043;
+	Fri, 12 Sep 2025 09:19:54 +0000 (GMT)
+Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.76.176])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 12 Sep 2025 09:19:54 +0000 (GMT)
+Date: Fri, 12 Sep 2025 11:19:52 +0200
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
+        linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH] resource: Improve child resource handling in
+ release_mem_region_adjustable()
+Message-ID: <aMPluIk8EnOuIWbi@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+References: <20250911140004.2241566-1-sumanthk@linux.ibm.com>
+ <0ab2cb14-ba8e-4436-b03d-9457137f492a@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0ab2cb14-ba8e-4436-b03d-9457137f492a@redhat.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDE5NSBTYWx0ZWRfX8+MoGTPNm00b
+ KOFWKPKV2Xy6RGjoy4rtU6RkByiK7NoS78T8ir18gq0fRHiE730SriDs43zGcf0b4Hjb5xIok0I
+ BWWHNTnZhD4ZiOO+KQTPmY+i19osybJzSjnXpE/Fx+XFj2/sBsz6CL71CXB/GNRQh7X/PRVR0gA
+ AmkvzSmLGJRctE6HKF044iUzNjOzF3AkQ6oNFAzMmYSFmsghNoUtk8D3xhk/hUHm/sCyxzv9QGV
+ MryrgP7l5jM3fk1GMdX/L1ARR4/zvtumI+U7v1eUYLC3pqPp/fzUxpEKt9P1+3WUjEXo2ZGbGns
+ cFZJG+/JGGc4BlQdJFES5+c2xq1ryJtdmCUCrf3icv8QG8DJKQoQFT0W4Z3WihToReKBIAY8505
+ lRWnYkx6
+X-Proofpoint-ORIG-GUID: YvJGDlMvwKn3eiGsY0_1sV8saR02XCv-
+X-Proofpoint-GUID: YvJGDlMvwKn3eiGsY0_1sV8saR02XCv-
+X-Authority-Analysis: v=2.4 cv=StCQ6OO0 c=1 sm=1 tr=0 ts=68c3e5bf cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=2Bmdxn4tqa3G8kVuJ3QA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-12_03,2025-09-11_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 malwarescore=0 bulkscore=0 clxscore=1015 adultscore=0
+ suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060195
 
-Add a selftest that loads itself into guest_memfd (via=0A=
-GUEST_MEMFD_FLAG_MMAP) and triggers an MMIO exit when executed. This=0A=
-exercises x86 MMIO emulation code inside KVM for guest_memfd-backed=0A=
-memslots where the guest_memfd folios are direct map removed.=0A=
-Particularly, it validates that x86 MMIO emulation code (guest page=0A=
-table walks + instruction fetch) correctly accesses gmem through the VMA=0A=
-that's been reflected into the memslot's userspace_addr field (instead=0A=
-of trying to do direct map accesses).=0A=
-=0A=
-Signed-off-by: Patrick Roy <roypat@amazon.co.uk>=0A=
----=0A=
- .../selftests/kvm/set_memory_region_test.c    | 50 +++++++++++++++++--=0A=
- 1 file changed, 46 insertions(+), 4 deletions(-)=0A=
-=0A=
-diff --git a/tools/testing/selftests/kvm/set_memory_region_test.c b/tools/t=
-esting/selftests/kvm/set_memory_region_test.c=0A=
-index ce3ac0fd6dfb..cb3bc642d376 100644=0A=
---- a/tools/testing/selftests/kvm/set_memory_region_test.c=0A=
-+++ b/tools/testing/selftests/kvm/set_memory_region_test.c=0A=
-@@ -603,6 +603,41 @@ static void test_mmio_during_vectoring(void)=0A=
- =0A=
- 	kvm_vm_free(vm);=0A=
- }=0A=
-+=0A=
-+static void guest_code_trigger_mmio(void)=0A=
-+{=0A=
-+	/*=0A=
-+	 * Read some GPA that is not backed by a memslot. KVM consider this=0A=
-+	 * as MMIO and tell userspace to emulate the read.=0A=
-+	 */=0A=
-+	READ_ONCE(*((uint64_t *)MEM_REGION_GPA));=0A=
-+=0A=
-+	GUEST_DONE();=0A=
-+}=0A=
-+=0A=
-+static void test_guest_memfd_mmio(void)=0A=
-+{=0A=
-+	struct kvm_vm *vm;=0A=
-+	struct kvm_vcpu *vcpu;=0A=
-+	struct vm_shape shape =3D {=0A=
-+		.mode =3D VM_MODE_DEFAULT,=0A=
-+		.src_type =3D VM_MEM_SRC_GUEST_MEMFD_NO_DIRECT_MAP,=0A=
-+	};=0A=
-+	pthread_t vcpu_thread;=0A=
-+=0A=
-+	pr_info("Testing MMIO emulation for instructions in gmem\n");=0A=
-+=0A=
-+	vm =3D __vm_create_shape_with_one_vcpu(shape, &vcpu, 0, guest_code_trigge=
-r_mmio);=0A=
-+=0A=
-+	virt_map(vm, MEM_REGION_GPA, MEM_REGION_GPA, 1);=0A=
-+=0A=
-+	pthread_create(&vcpu_thread, NULL, vcpu_worker, vcpu);=0A=
-+=0A=
-+	/* If the MMIO read was successfully emulated, the vcpu thread will exit =
-*/=0A=
-+	pthread_join(vcpu_thread, NULL);=0A=
-+=0A=
-+	kvm_vm_free(vm);=0A=
-+}=0A=
- #endif=0A=
- =0A=
- int main(int argc, char *argv[])=0A=
-@@ -626,10 +661,17 @@ int main(int argc, char *argv[])=0A=
- 	test_add_max_memory_regions();=0A=
- =0A=
- #ifdef __x86_64__=0A=
--	if (kvm_has_cap(KVM_CAP_GUEST_MEMFD) &&=0A=
--	    (kvm_check_cap(KVM_CAP_VM_TYPES) & BIT(KVM_X86_SW_PROTECTED_VM))) {=
-=0A=
--		test_add_private_memory_region();=0A=
--		test_add_overlapping_private_memory_regions();=0A=
-+	if (kvm_has_cap(KVM_CAP_GUEST_MEMFD)) {=0A=
-+		if (kvm_check_cap(KVM_CAP_VM_TYPES) & BIT(KVM_X86_SW_PROTECTED_VM)) {=0A=
-+			test_add_private_memory_region();=0A=
-+			test_add_overlapping_private_memory_regions();=0A=
-+		}=0A=
-+=0A=
-+		if (kvm_has_cap(KVM_CAP_GUEST_MEMFD_MMAP) &&=0A=
-+			kvm_has_cap(KVM_CAP_GUEST_MEMFD_NO_DIRECT_MAP))=0A=
-+			test_guest_memfd_mmio();=0A=
-+		else=0A=
-+			pr_info("Skipping tests requiring KVM_CAP_GUEST_MEMFD_MMAP | KVM_CAP_GU=
-EST_MEMFD_NO_DIRECT_MAP");=0A=
- 	} else {=0A=
- 		pr_info("Skipping tests for KVM_MEM_GUEST_MEMFD memory regions\n");=0A=
- 	}=0A=
--- =0A=
-2.50.1=0A=
-=0A=
+> > lsmem
+> > RANGE                                  SIZE   STATE REMOVABLE  BLOCK
+> > 0x0000000000000000-0x000000014fffffff  5.3G  online       yes   0-41
+> > 0x0000000150000000-0x0000000157ffffff  128M offline               42
+> > 0x0000000158000000-0x00000002ffffffff  6.6G  online       yes  43-95
+> > 
+> 
+> First of all
+> 
+> 1) How are you triggering this :)
+> 
+> 2) Why do you say "and removing the range" when it's still listed in lsmem
+> output.
+> 
+> lsmem will only list present memory block devices. So if it's still listed
+> there, nothing was removed. Or is that prior to actually removing it.
+> 
+> 
+> Is this some powerpc dlpar use case?
+
+Hi David,
+
+I am working on the item related to the last discussion -  dynamic
+runtime (de)configuration of memory on s390:
+https://lore.kernel.org/all/aCx-SJdHd-3Z12af@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com/
+
+I came across the problem when I tried to offline and remove the memory
+via /sys/firmware/memory interface.
+
+I have also modified lsmem (not yet upstream) to list deconfigured
+memory, which currently appears as offline. An additional "configured"
+column is also introduced to show the configuration state, but it is not
+displayed here yet (without --output-all).
+
+> > 0x0000000150000000-0x0000000157ffffff  128M offline               42
+
+True, this will not be shown with the master lsmem, since the sysfs
+entry is removed after deconfiguration.
+
+> Do we need a Fixes: and CC stable?
+
+It will reference commit 825f787bb496 ("resource: add
+release_mem_region_adjustable()"). Since the commit already states
+"enhance this logic when necessary," I did not add a Fixes tag.
+
+> > Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> > ---
+> >   kernel/resource.c | 44 +++++++++++++++++++++++++++++++++++++++-----
+> >   1 file changed, 39 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/kernel/resource.c b/kernel/resource.c
+> > index f9bb5481501a..c329b8a4aa2f 100644
+> > --- a/kernel/resource.c
+> > +++ b/kernel/resource.c
+> > @@ -1388,6 +1388,41 @@ void __release_region(struct resource *parent, resource_size_t start,
+> >   EXPORT_SYMBOL(__release_region);
+> >   #ifdef CONFIG_MEMORY_HOTREMOVE
+> > +static void append_child_to_parent(struct resource *new_parent, struct resource *new_child)
+> > +{
+> > +	struct resource *child;
+> > +
+> > +	child = new_parent->child;
+> > +	if (child) {
+> > +		while (child->sibling)
+> > +			child = child->sibling;
+> > +		child->sibling = new_child;
+> 
+> Shouldn't we take care of the address ordering here? I guess this works
+> because we process them in left-to-right (lowest-to-highest) address.
+
+__request_resource() adds the child resources in the increasing order.
+With that, we dont need to check the ordering again here.  True, here we
+process the child resources from lowest to highest address.
+
+> > +	} else {
+> > +		new_parent->child = new_child;
+> > +	}
+> > +	new_child->parent = new_parent;
+> > +	new_child->sibling = NULL;
+> > +}
+> > +
+> > +static void move_children_to_parent(struct resource *old_parent,
+> > +				    struct resource *new_parent,
+> > +				    resource_size_t split_addr)
+> 
+> I'd call this "reparent_child_resources". But actually the function is
+> weird. Because you only reparents some resources from old to now.
+> 
+> Two questions:
+> 
+> a) Is split_addr really required. Couldn't we derive that from "old_parent"
+
+old_parent->end points to old end range before the split, so I think it
+doesnt tell where the split boundary is, until __adjust_resource() is
+called. Hence, split_addr was added.
+
+> b) Could we somehow make it clearer (variable names etc) that we are only
+> reparenting from "left" to "right" (maybe we can find better names).
+> 
+> Something like
+> 
+> /*
+>  * Reparent all child resources that no longer belong to "low" after
+>  * a split to "high". Note that "high" does not have any children,
+>  * because "low" is the adjusted original resource and "high" is a new
+>  * resource.
+>  */
+> static void reparent_children_after_split(struct resource *low,
+> 		struct resource *high)
+
+Nice. I will use this convention with split_addr.
+
+> >    *
+> >    * Note:
+> >    * - Additional release conditions, such as overlapping region, can be
+> >    *   supported after they are confirmed as valid cases.
+> > - * - When a busy memory resource gets split into two entries, the code
+> > - *   assumes that all children remain in the lower address entry for
+> > - *   simplicity.  Enhance this logic when necessary.
+> > + * - When a busy memory resource gets split into two entries, its children is
+> 
+> s/is/are/
+
+Will correct it. Thank you
