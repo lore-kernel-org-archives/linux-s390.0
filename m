@@ -1,154 +1,741 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20B771A38F9;
-	Fri, 12 Sep 2025 05:48:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5041B28725A
+	for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 06:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757656120; cv=none; b=sWJUyiTVCTZFb4KULNKhNurr6VgTCC5PNZYCyRQnZ0WFXLZUdF839+HnwqmYRBWRCW1Vu+5KF3LnNRGr/UrJ0o0yDQh4JNYPH7yY83BQx+6Yxqa8rUFMT14BNtUPBMghKBGGy4VyurVxNusMEJtuewTNlllZdq8vm+T6i0KI9uI=
+	t=1757659863; cv=none; b=YJ+phmNbK1YBAqKAW2ZHNy5sR1f0DkGbk56qmRaEYfAJr3hC2hi5ddgfQMUfhJlHpANpePiz6NEM3nceG5oCiSJH6uI6rsYk+smkKCBFq+jB8gRf8fiZLr6f8vsZL3tL031v2yxAMst/vNTT+mPNIUm8YGeyYFzCETLaaiwrqGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757656120; c=relaxed/simple;
-	bh=+i4OoREQks4VV2znGBqgJdvvBG5OWmH2qBK7R3A4A60=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Sio/TJ+7NIWQk/W3lWbip2nIWvxQ8jRmGW0l+UeU6CHmJGbyZF83M7JsCPzuEeNOA4FSCSt16V2gWNWmr8y60YGX1n8QK8Cu14r5lfzu6GrvemzYR3CW6H3lzIe6PFVzIoNF29KVjuaToF4VWbyMThUTvOVoQtD85ELSHD2oFW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PCT2ZViB; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1757659863; c=relaxed/simple;
+	bh=dZ1TPbCtsGda2jVYQ2SBu326/nbDO6ySla47g/cS6rk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=kO3H/hwWdlZEAWVIcU4D7EI9farhmvyVvunjrqOS9sSzopmxt0iXry6wBCfcjdqj5PNYmeJlJZMz78ZOctH8N+hByG4ROU440NycnurDLmbVFZkbeyp51tzEj+aqwwVxEGnMbgblCvRf75aSHFSw/ewqO5j6oXSWZKwkmr3AyHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UKJrOrdG; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PCT2ZViB"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58BHxX67015803;
-	Fri, 12 Sep 2025 05:48:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Viz/HV
-	rWkQaPqWNQsh/R5A1KAtj0VuBWkxP051RDCa8=; b=PCT2ZViB1lXPOpkWCh2J5D
-	lZzHSYXAsOR1qIlPVjFINrWaopxlBxwFeWDHdmFg95vefudV8R4CfP3simnwySni
-	dlkFjoDaRz8zlV83hGagcwUOB41i5vEgaVfAWrqY+0nuBhhIwQY+RrGRTR455/7V
-	UXnZvzjo3kJMRk6r5myQj+8jeyzAK9wXgz6bUG1CFThxhukr2tcm3jsP489hDcpD
-	lMRygYpgkKuVS3xr2N/O4pSsKBr6sMT+vhriLFkhPi8YWpbKAcJg29qzQtwK490a
-	qtmWSRQB1w7KVINjykdU+TTH9bVb8FpCdiOzVIef0u27KGFnLN+U/CqgjLWP0YdA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 490ukewnb4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Sep 2025 05:48:25 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58C2kUaj017172;
-	Fri, 12 Sep 2025 05:48:24 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4911gms7ex-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 12 Sep 2025 05:48:24 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58C5mKGx58458556
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 12 Sep 2025 05:48:20 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0E3FC20074;
-	Fri, 12 Sep 2025 05:48:20 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 23029200B4;
-	Fri, 12 Sep 2025 05:47:19 +0000 (GMT)
-Received: from [9.111.56.142] (unknown [9.111.56.142])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 12 Sep 2025 05:47:19 +0000 (GMT)
-Message-ID: <dc821fe28bf530c28903a97068aee87d65774b9c.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 10/20] KVM: s390: KVM page table management
- functions: walks
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Janosch Frank
-	 <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        nsg@linux.ibm.com, nrb@linux.ibm.com, seiden@linux.ibm.com,
-        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Date: Fri, 12 Sep 2025 07:47:18 +0200
-In-Reply-To: <20250911151408.2a1595d4@p-imbrenda>
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
-		<20250910180746.125776-11-imbrenda@linux.ibm.com>
-		<aeb461ff-90a1-4d6e-a779-1c6e885bdddb@linux.ibm.com>
-	 <20250911151408.2a1595d4@p-imbrenda>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UKJrOrdG"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-77459bc5d18so1268828b3a.2
+        for <linux-s390@vger.kernel.org>; Thu, 11 Sep 2025 23:51:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757659861; x=1758264661; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=GNGJb45hL/pdjUCLbyKUslPYbeFme5iVchmkooKtgU0=;
+        b=UKJrOrdG+S7uINtdXGRnFcpFkvj5WErNU0VZ4O7WAq8b7MpVXb/ZTOZpwLVbovVoHd
+         paEKpzv9C5g5FortaLca5mMY+FGvc8VvSfYXwci8jMz1XvPx+RaRQyxmUyGR6QJ3qKoB
+         LnqH/Z/aV0ynM0jkvOM+p0C2B0cOf93x3IdttiSch2XryiuxtyoGnB6BLr/QiE4hXML8
+         zds6Kwzu0FcyA9651KJU8W+rBq/J+P9Ym53sTFo+AQPJ9zDOpMMYjjqS4QinA1XtWEPG
+         erSHOQNcCv6bEALZH8svzzbVJwc+kAMvb+G9otJR30/WwOalfFCzxZjVk7pjle5E08zW
+         FPNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757659861; x=1758264661;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GNGJb45hL/pdjUCLbyKUslPYbeFme5iVchmkooKtgU0=;
+        b=qzkKDFyVF6jgJyYz7yjABgbv0sSDryPoaXiRcBz6Y/M0dBOb8+x3KVLLAYTHslizNx
+         0mXgf42HfbM/SEQcfuEoB5LAqZubfvQFQq5f3RJrLoAOQG8biVcz4gPYhIBB/9aGM9Gj
+         NmW6y4SsIEf8scLljGftLzhCzs1cQ1ipvRTmvEeCKrXd/pcdeWaBx2ElXpkV8xiFnVfx
+         95TWOcrLtFhYYUpaMpUAOvBpHEEOp/L/X268+0PF/xvWtblLMFoCuv3baDei5phCLXo6
+         wbkgZIcp1uE9hcSVlewFjQx0/w3PMSZ04YfJGpRseZejW/172KopqafJxJSzNxxZJI7X
+         7pcg==
+X-Forwarded-Encrypted: i=1; AJvYcCU3cdVjXLDlte1ENlsYned9g6rmGXeOM23X2wnQ9WYDZDH3XeZ8GQPK+nM099mvjhgjfsNf++F3wXQF@vger.kernel.org
+X-Gm-Message-State: AOJu0YxicwVF7IvM5f9u9nT3j4BXnLxc/fyMw/usNHtUwI63tZfHdLou
+	Oafa2ADVPHi91NBastbCkDGcDXk5qWLWezruArPOerRxQ7jpQfj98TsB
+X-Gm-Gg: ASbGncs2zjwfguxPAMl6c/gqQYcJxW/zXHzT7mp23r4cybc1QqVAYcK6rmTGBVpvsTv
+	S5uKp3PFZUKKmfYWI/KARdmjTkYt2PgAW/29oOVjdkklevkK/1bcg+oyYwWmlE9vcZZFgnxPR9+
+	CEgPLpR0z59ZdBvNibyu8ibG/K7/GhChibOlVh3JZ+HjSPMp0m2rbgkyPZbD3UD7CVLVyZmv6x5
+	dKBW6xV5WFA4QuOtumZT+ksxOGV3soaSJq+GxdiSnCg+NtqY3sHgJhYr5BT73xTdk8K5WESXWMu
+	i4Txi9El5OF2QanoASKByabQaR3mOK9GAT6utiAqyhgQ2uxGZz/e2Da9z0Nr+pakzEcXOOGxlsZ
+	mOu+Gl3GcD7uEtitZbS2i3bmPJ8f49S+Ime0IoLPRsJAum8kZjg==
+X-Google-Smtp-Source: AGHT+IGCiqKalyWNCSVmUXfqUY84xooMc3L0OzjiKG8CtYJx5OOn5CI4jMuPlVFHVJUuAgSbM8yoUA==
+X-Received: by 2002:a05:6a00:982:b0:76b:d869:43fd with SMTP id d2e1a72fcca58-7761216815amr2556342b3a.18.1757659860532;
+        Thu, 11 Sep 2025 23:51:00 -0700 (PDT)
+Received: from pengdl-pc.mioffice.cn ([43.224.245.249])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7761277ea42sm1817624b3a.77.2025.09.11.23.50.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Sep 2025 23:50:59 -0700 (PDT)
+From: pengdonglin <dolinux.peng@gmail.com>
+To: tj@kernel.org,
+	tony.luck@intel.com,
+	jani.nikula@linux.intel.com,
+	ap420073@gmail.com,
+	jv@jvosburgh.net,
+	freude@linux.ibm.com,
+	bcrl@kvack.org,
+	trondmy@kernel.org,
+	longman@redhat.com,
+	kees@kernel.org
+Cc: bigeasy@linutronix.de,
+	linux-kernel@vger.kernel.org,
+	linux-rt-devel@lists.linux.dev,
+	linux-nfs@vger.kernel.org,
+	linux-aio@kvack.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	netdev@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	linux-acpi@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	cgroups@vger.kernel.org,
+	pengdonglin <dolinux.peng@gmail.com>,
+	pengdonglin <pengdonglin@xiaomi.com>
+Subject: [PATCH] rcu: Remove redundant rcu_read_lock/unlock() in spin_lock critical sections
+Date: Fri, 12 Sep 2025 14:50:50 +0800
+Message-Id: <20250912065050.460718-1-dolinux.peng@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTA2MDE5NSBTYWx0ZWRfX0hSe59ZIE3pp
- Xtvx5rTg6492jmxKk7xedXgTbBwqkSrtYB/rkAe6SVjEnzEY0awZbO23qYVjWeO/YCzQu4Ir7Vn
- w1nUw3zmTYinKfO1J5GVTZpkI1X3YletfTBlxUyuJTqN2/DzLlejflMoanv8oKrUxQTqg4F82AR
- nYMn4wjK3ojWwmm2C3KZOkkoX21SX15LUtQNcmq9FOzj7SjB2Z9XQquhEAbQvCPmGUkaK8D7PaN
- Y/G5C/GU6g14u3qOq2qyzpsGKJqBTS5IzuQ98IocoYduyGrbtVBklyH9QcuU6RLK15UfwrsyMn2
- Di4wA/iJjIhvan2jmOJ5TOh9wBjI/i0yzO9qWTYyg5hn2fE8VuVzgrL+lW/vJO7EjmR+6Xnlq4Y
- 9j/sPG+p
-X-Proofpoint-ORIG-GUID: vpLpewZiyJnZlNq7RK-oZ1P01xplWk5V
-X-Proofpoint-GUID: vpLpewZiyJnZlNq7RK-oZ1P01xplWk5V
-X-Authority-Analysis: v=2.4 cv=StCQ6OO0 c=1 sm=1 tr=0 ts=68c3b429 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=qYKTZLTtyhLZ8LqLyoEA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-12_01,2025-09-11_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 bulkscore=0 clxscore=1011 adultscore=0
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509060195
+Content-Transfer-Encoding: 8bit
 
-On Thu, 2025-09-11 at 15:14 +0200, Claudio Imbrenda wrote:
-> On Thu, 11 Sep 2025 14:56:59 +0200
-> Janosch Frank <frankja@linux.ibm.com> wrote:
->=20
-> > On 9/10/25 8:07 PM, Claudio Imbrenda wrote:
-> > > Add page table management functions to be used for KVM guest (gmap)
-> > > page tables.
-> > >=20
-> > > This patch adds functions to walk to specific table entries, or to
-> > > perform actions on a range of entries.
-> > >=20
-> > > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > > ---
-> > >   arch/s390/kvm/dat.c | 351 +++++++++++++++++++++++++++++++++++++++++=
-+++
-> > >   arch/s390/kvm/dat.h |  38 +++++
-> > >   2 files changed, 389 insertions(+)
-> > >=20
-> > > diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> > > index f26e3579bd77..fe93e1c07158 100644
-> > > --- a/arch/s390/kvm/dat.c
-> > > +++ b/arch/s390/kvm/dat.c
-> > > @@ -209,3 +209,354 @@ union pgste __dat_ptep_xchg(union pte *ptep, un=
-ion pgste pgste, union pte new, g
-> > >   	WRITE_ONCE(*ptep, new);
-> > >   	return pgste;
+From: pengdonglin <pengdonglin@xiaomi.com>
 
-[... snip ...]
+When CONFIG_PREEMPT_RT is disabled, spin_lock*() operations implicitly
+disable preemption, which provides RCU read-side protection. When
+CONFIG_PREEMPT_RT is enabled, spin_lock*() implementations internally
+manage RCU read-side critical sections.
 
-> > > +
-> > > +	while (old.h.i || old.h.fc) {
-> > > +		init.val =3D pmd_origin_large(old);
-> > > +		init.h.p =3D old.h.p;
-> > > +		init.h.i =3D old.h.i;
-> > > +		init.s.d =3D old.s.fc1.d;
-> > > +		init.s.w =3D old.s.fc1.w;
-> > > +		init.s.y =3D old.s.fc1.y;
-> > > +		init.s.sd =3D old.s.fc1.sd;
-> > > +		init.s.pr =3D old.s.fc1.pr; =20
-> >=20
-> > This looks horrible but I haven't found a better solution.
->=20
-> I know what you mean :)
+Thus, explicit rcu_read_lock()/rcu_read_unlock() calls within spin_lock*()
+critical sections are redundant in both configurations. This patch removes
+these unnecessary operations, simplifying the locking semantics while
+maintaining correct RCU protection.
 
-If nothing else, you may try and encapsulate this in a helper to
-concentrate the ugliness there. Then the while-body just calls some
-prepare_init() or similar?
+Signed-off-by: pengdonglin <pengdonglin@xiaomi.com>
+Signed-off-by: pengdonglin <dolinux.peng@gmail.com>
+---
+ drivers/acpi/apei/ghes.c                        | 2 --
+ drivers/gpu/drm/i915/gt/intel_ring_submission.c | 2 --
+ drivers/net/amt.c                               | 6 ------
+ drivers/net/bonding/bond_3ad.c                  | 2 --
+ drivers/net/wireless/ath/ath9k/xmit.c           | 2 --
+ drivers/s390/crypto/pkey_base.c                 | 3 ---
+ fs/aio.c                                        | 2 --
+ fs/nfs/callback_proc.c                          | 2 --
+ fs/nfs/nfs4state.c                              | 2 --
+ fs/nfs/pnfs.c                                   | 9 ---------
+ fs/nfs/pnfs_dev.c                               | 4 ----
+ ipc/msg.c                                       | 1 -
+ ipc/sem.c                                       | 1 -
+ ipc/shm.c                                       | 1 -
+ ipc/util.c                                      | 2 --
+ kernel/cgroup/cgroup.c                          | 2 --
+ kernel/cgroup/cpuset.c                          | 6 ------
+ kernel/cgroup/debug.c                           | 4 ----
+ net/mac80211/cfg.c                              | 2 --
+ net/mac80211/debugfs.c                          | 2 --
+ net/mac80211/debugfs_netdev.c                   | 2 --
+ net/mac80211/debugfs_sta.c                      | 2 --
+ net/mac80211/sta_info.c                         | 2 --
+ net/ncsi/ncsi-manage.c                          | 2 --
+ security/yama/yama_lsm.c                        | 4 ----
+ 25 files changed, 69 deletions(-)
 
+diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+index a0d54993edb3..97ee19f2cae0 100644
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -1207,12 +1207,10 @@ static int ghes_notify_hed(struct notifier_block *this, unsigned long event,
+ 	int ret = NOTIFY_DONE;
+ 
+ 	spin_lock_irqsave(&ghes_notify_lock_irq, flags);
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(ghes, &ghes_hed, list) {
+ 		if (!ghes_proc(ghes))
+ 			ret = NOTIFY_OK;
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock_irqrestore(&ghes_notify_lock_irq, flags);
+ 
+ 	return ret;
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring_submission.c b/drivers/gpu/drm/i915/gt/intel_ring_submission.c
+index 2a6d79abf25b..bf73166a1337 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring_submission.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring_submission.c
+@@ -392,14 +392,12 @@ static void reset_rewind(struct intel_engine_cs *engine, bool stalled)
+ 
+ 	rq = NULL;
+ 	spin_lock_irqsave(&engine->sched_engine->lock, flags);
+-	rcu_read_lock();
+ 	list_for_each_entry(pos, &engine->sched_engine->requests, sched.link) {
+ 		if (!__i915_request_is_complete(pos)) {
+ 			rq = pos;
+ 			break;
+ 		}
+ 	}
+-	rcu_read_unlock();
+ 
+ 	/*
+ 	 * The guilty request will get skipped on a hung engine.
+diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+index ed86537b2f61..e7cce735ce7b 100644
+--- a/drivers/net/amt.c
++++ b/drivers/net/amt.c
+@@ -295,7 +295,6 @@ static void amt_source_work(struct work_struct *work)
+ 
+ 	tunnel = gnode->tunnel_list;
+ 	spin_lock_bh(&tunnel->lock);
+-	rcu_read_lock();
+ 	if (gnode->filter_mode == MCAST_INCLUDE) {
+ 		amt_destroy_source(snode);
+ 		if (!gnode->nr_sources)
+@@ -306,7 +305,6 @@ static void amt_source_work(struct work_struct *work)
+ 		 */
+ 		snode->status = AMT_SOURCE_STATUS_D_FWD;
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&tunnel->lock);
+ }
+ 
+@@ -1327,11 +1325,9 @@ static void amt_clear_groups(struct amt_tunnel_list *tunnel)
+ 	int i;
+ 
+ 	spin_lock_bh(&tunnel->lock);
+-	rcu_read_lock();
+ 	for (i = 0; i < amt->hash_buckets; i++)
+ 		hlist_for_each_entry_safe(gnode, t, &tunnel->groups[i], node)
+ 			amt_del_group(amt, gnode);
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&tunnel->lock);
+ }
+ 
+@@ -1343,11 +1339,9 @@ static void amt_tunnel_expire(struct work_struct *work)
+ 	struct amt_dev *amt = tunnel->amt;
+ 
+ 	spin_lock_bh(&amt->lock);
+-	rcu_read_lock();
+ 	list_del_rcu(&tunnel->list);
+ 	amt->nr_tunnels--;
+ 	amt_clear_groups(tunnel);
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&amt->lock);
+ 	kfree_rcu(tunnel, rcu);
+ }
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index 4edc8e6b6b64..c53ea73f103a 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -2485,7 +2485,6 @@ void bond_3ad_state_machine_handler(struct work_struct *work)
+ 	 * concurrently due to incoming LACPDU as well.
+ 	 */
+ 	spin_lock_bh(&bond->mode_lock);
+-	rcu_read_lock();
+ 
+ 	/* check if there are any slaves */
+ 	if (!bond_has_slaves(bond))
+@@ -2537,7 +2536,6 @@ void bond_3ad_state_machine_handler(struct work_struct *work)
+ 			break;
+ 		}
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&bond->mode_lock);
+ 
+ 	if (update_slave_arr)
+diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
+index 0ac9212e42f7..4a0f465aa2fe 100644
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -1993,7 +1993,6 @@ void ath_txq_schedule(struct ath_softc *sc, struct ath_txq *txq)
+ 
+ 	ieee80211_txq_schedule_start(hw, txq->mac80211_qnum);
+ 	spin_lock_bh(&sc->chan_lock);
+-	rcu_read_lock();
+ 
+ 	if (sc->cur_chan->stopped)
+ 		goto out;
+@@ -2011,7 +2010,6 @@ void ath_txq_schedule(struct ath_softc *sc, struct ath_txq *txq)
+ 	}
+ 
+ out:
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&sc->chan_lock);
+ 	ieee80211_txq_schedule_end(hw, txq->mac80211_qnum);
+ }
+diff --git a/drivers/s390/crypto/pkey_base.c b/drivers/s390/crypto/pkey_base.c
+index b15741461a63..4c4a9feecccc 100644
+--- a/drivers/s390/crypto/pkey_base.c
++++ b/drivers/s390/crypto/pkey_base.c
+@@ -48,16 +48,13 @@ int pkey_handler_register(struct pkey_handler *handler)
+ 
+ 	spin_lock(&handler_list_write_lock);
+ 
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(h, &handler_list, list) {
+ 		if (h == handler) {
+-			rcu_read_unlock();
+ 			spin_unlock(&handler_list_write_lock);
+ 			module_put(handler->module);
+ 			return -EEXIST;
+ 		}
+ 	}
+-	rcu_read_unlock();
+ 
+ 	list_add_rcu(&handler->list, &handler_list);
+ 	spin_unlock(&handler_list_write_lock);
+diff --git a/fs/aio.c b/fs/aio.c
+index 7fc7b6221312..9c47f09df19e 100644
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -359,7 +359,6 @@ static int aio_ring_mremap(struct vm_area_struct *vma)
+ 	int i, res = -EINVAL;
+ 
+ 	spin_lock(&mm->ioctx_lock);
+-	rcu_read_lock();
+ 	table = rcu_dereference(mm->ioctx_table);
+ 	if (!table)
+ 		goto out_unlock;
+@@ -378,7 +377,6 @@ static int aio_ring_mremap(struct vm_area_struct *vma)
+ 	}
+ 
+ out_unlock:
+-	rcu_read_unlock();
+ 	spin_unlock(&mm->ioctx_lock);
+ 	return res;
+ }
+diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
+index 8397c43358bd..16144db39335 100644
+--- a/fs/nfs/callback_proc.c
++++ b/fs/nfs/callback_proc.c
+@@ -721,7 +721,6 @@ __be32 nfs4_callback_offload(void *data, void *dummy,
+ 		return cpu_to_be32(NFS4ERR_DELAY);
+ 
+ 	spin_lock(&cps->clp->cl_lock);
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(server, &cps->clp->cl_superblocks,
+ 				client_link) {
+ 		list_for_each_entry(tmp_copy, &server->ss_copies, copies) {
+@@ -736,7 +735,6 @@ __be32 nfs4_callback_offload(void *data, void *dummy,
+ 		}
+ 	}
+ out:
+-	rcu_read_unlock();
+ 	if (!found) {
+ 		memcpy(&copy->stateid, &args->coa_stateid, NFS4_STATEID_SIZE);
+ 		nfs4_copy_cb_args(copy, args);
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 7612e977e80b..598229fc07ed 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -241,13 +241,11 @@ const struct cred *nfs4_get_renew_cred(struct nfs_client *clp)
+ 		goto out;
+ 
+ 	spin_lock(&clp->cl_lock);
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		cred = nfs4_get_renew_cred_server_locked(server);
+ 		if (cred != NULL)
+ 			break;
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock(&clp->cl_lock);
+ 
+ out:
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index a3135b5af7ee..c9399452bcfd 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -862,16 +862,13 @@ pnfs_layout_bulk_destroy_byserver_locked(struct nfs_client *clp,
+ 			if (pnfs_layout_add_bulk_destroy_list(inode,
+ 						layout_list))
+ 				continue;
+-			rcu_read_unlock();
+ 			spin_unlock(&clp->cl_lock);
+ 			iput(inode);
+ 		} else {
+-			rcu_read_unlock();
+ 			spin_unlock(&clp->cl_lock);
+ 		}
+ 		nfs_sb_deactive(server->super);
+ 		spin_lock(&clp->cl_lock);
+-		rcu_read_lock();
+ 		return -EAGAIN;
+ 	}
+ 	return 0;
+@@ -922,7 +919,6 @@ int pnfs_layout_destroy_byfsid(struct nfs_client *clp, struct nfs_fsid *fsid,
+ 	LIST_HEAD(layout_list);
+ 
+ 	spin_lock(&clp->cl_lock);
+-	rcu_read_lock();
+ restart:
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		if (memcmp(&server->fsid, fsid, sizeof(*fsid)) != 0)
+@@ -932,7 +928,6 @@ int pnfs_layout_destroy_byfsid(struct nfs_client *clp, struct nfs_fsid *fsid,
+ 				&layout_list) != 0)
+ 			goto restart;
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock(&clp->cl_lock);
+ 
+ 	return pnfs_layout_free_bulk_destroy_list(&layout_list, mode);
+@@ -944,14 +939,12 @@ static void pnfs_layout_build_destroy_list_byclient(struct nfs_client *clp,
+ 	struct nfs_server *server;
+ 
+ 	spin_lock(&clp->cl_lock);
+-	rcu_read_lock();
+ restart:
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		if (pnfs_layout_bulk_destroy_byserver_locked(clp, server,
+ 							     list) != 0)
+ 			goto restart;
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock(&clp->cl_lock);
+ }
+ 
+@@ -990,7 +983,6 @@ static void pnfs_layout_build_recover_list_byclient(struct nfs_client *clp,
+ 	struct nfs_server *server;
+ 
+ 	spin_lock(&clp->cl_lock);
+-	rcu_read_lock();
+ restart:
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		if (!(server->caps & NFS_CAP_REBOOT_LAYOUTRETURN))
+@@ -999,7 +991,6 @@ static void pnfs_layout_build_recover_list_byclient(struct nfs_client *clp,
+ 							     list) != 0)
+ 			goto restart;
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock(&clp->cl_lock);
+ }
+ 
+diff --git a/fs/nfs/pnfs_dev.c b/fs/nfs/pnfs_dev.c
+index bf0f2d67e96c..d19752ec1a95 100644
+--- a/fs/nfs/pnfs_dev.c
++++ b/fs/nfs/pnfs_dev.c
+@@ -231,9 +231,7 @@ nfs4_delete_deviceid(const struct pnfs_layoutdriver_type *ld,
+ 	struct nfs4_deviceid_node *d;
+ 
+ 	spin_lock(&nfs4_deviceid_lock);
+-	rcu_read_lock();
+ 	d = _lookup_deviceid(ld, clp, id, nfs4_deviceid_hash(id));
+-	rcu_read_unlock();
+ 	if (!d) {
+ 		spin_unlock(&nfs4_deviceid_lock);
+ 		return;
+@@ -331,14 +329,12 @@ _deviceid_purge_client(const struct nfs_client *clp, long hash)
+ 	HLIST_HEAD(tmp);
+ 
+ 	spin_lock(&nfs4_deviceid_lock);
+-	rcu_read_lock();
+ 	hlist_for_each_entry_rcu(d, &nfs4_deviceid_cache[hash], node)
+ 		if (d->nfs_client == clp && atomic_read(&d->ref)) {
+ 			hlist_del_init_rcu(&d->node);
+ 			hlist_add_head(&d->tmpnode, &tmp);
+ 			clear_bit(NFS_DEVICEID_NOCACHE, &d->flags);
+ 		}
+-	rcu_read_unlock();
+ 	spin_unlock(&nfs4_deviceid_lock);
+ 
+ 	if (hlist_empty(&tmp))
+diff --git a/ipc/msg.c b/ipc/msg.c
+index ee6af4fe52bf..1e579b57023f 100644
+--- a/ipc/msg.c
++++ b/ipc/msg.c
+@@ -179,7 +179,6 @@ static int newque(struct ipc_namespace *ns, struct ipc_params *params)
+ 	}
+ 
+ 	ipc_unlock_object(&msq->q_perm);
+-	rcu_read_unlock();
+ 
+ 	return msq->q_perm.id;
+ }
+diff --git a/ipc/sem.c b/ipc/sem.c
+index a39cdc7bf88f..38ad57b2b558 100644
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -579,7 +579,6 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
+ 	ns->used_sems += nsems;
+ 
+ 	sem_unlock(sma, -1);
+-	rcu_read_unlock();
+ 
+ 	return sma->sem_perm.id;
+ }
+diff --git a/ipc/shm.c b/ipc/shm.c
+index a9310b6dbbc3..61fae1b6a18e 100644
+--- a/ipc/shm.c
++++ b/ipc/shm.c
+@@ -795,7 +795,6 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+ 	error = shp->shm_perm.id;
+ 
+ 	ipc_unlock_object(&shp->shm_perm);
+-	rcu_read_unlock();
+ 	return error;
+ 
+ no_id:
+diff --git a/ipc/util.c b/ipc/util.c
+index cae60f11d9c2..1be691b5dcad 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -293,7 +293,6 @@ int ipc_addid(struct ipc_ids *ids, struct kern_ipc_perm *new, int limit)
+ 	idr_preload(GFP_KERNEL);
+ 
+ 	spin_lock_init(&new->lock);
+-	rcu_read_lock();
+ 	spin_lock(&new->lock);
+ 
+ 	current_euid_egid(&euid, &egid);
+@@ -316,7 +315,6 @@ int ipc_addid(struct ipc_ids *ids, struct kern_ipc_perm *new, int limit)
+ 	if (idx < 0) {
+ 		new->deleted = true;
+ 		spin_unlock(&new->lock);
+-		rcu_read_unlock();
+ 		return idx;
+ 	}
+ 
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index 312c6a8b55bb..db9e00a559df 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -2944,14 +2944,12 @@ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
+ 
+ 	/* look up all src csets */
+ 	spin_lock_irq(&css_set_lock);
+-	rcu_read_lock();
+ 	task = leader;
+ 	do {
+ 		cgroup_migrate_add_src(task_css_set(task), dst_cgrp, &mgctx);
+ 		if (!threadgroup)
+ 			break;
+ 	} while_each_thread(leader, task);
+-	rcu_read_unlock();
+ 	spin_unlock_irq(&css_set_lock);
+ 
+ 	/* prepare dst csets and commit */
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 27adb04df675..9b7e8e8e9411 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -4073,7 +4073,6 @@ void cpuset_cpus_allowed(struct task_struct *tsk, struct cpumask *pmask)
+ 	struct cpuset *cs;
+ 
+ 	spin_lock_irqsave(&callback_lock, flags);
+-	rcu_read_lock();
+ 
+ 	cs = task_cs(tsk);
+ 	if (cs != &top_cpuset)
+@@ -4095,7 +4094,6 @@ void cpuset_cpus_allowed(struct task_struct *tsk, struct cpumask *pmask)
+ 			cpumask_copy(pmask, possible_mask);
+ 	}
+ 
+-	rcu_read_unlock();
+ 	spin_unlock_irqrestore(&callback_lock, flags);
+ }
+ 
+@@ -4168,9 +4166,7 @@ nodemask_t cpuset_mems_allowed(struct task_struct *tsk)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&callback_lock, flags);
+-	rcu_read_lock();
+ 	guarantee_online_mems(task_cs(tsk), &mask);
+-	rcu_read_unlock();
+ 	spin_unlock_irqrestore(&callback_lock, flags);
+ 
+ 	return mask;
+@@ -4265,10 +4261,8 @@ bool cpuset_current_node_allowed(int node, gfp_t gfp_mask)
+ 	/* Not hardwall and node outside mems_allowed: scan up cpusets */
+ 	spin_lock_irqsave(&callback_lock, flags);
+ 
+-	rcu_read_lock();
+ 	cs = nearest_hardwall_ancestor(task_cs(current));
+ 	allowed = node_isset(node, cs->mems_allowed);
+-	rcu_read_unlock();
+ 
+ 	spin_unlock_irqrestore(&callback_lock, flags);
+ 	return allowed;
+diff --git a/kernel/cgroup/debug.c b/kernel/cgroup/debug.c
+index 80aa3f027ac3..81ea38dd6f9d 100644
+--- a/kernel/cgroup/debug.c
++++ b/kernel/cgroup/debug.c
+@@ -49,7 +49,6 @@ static int current_css_set_read(struct seq_file *seq, void *v)
+ 		return -ENODEV;
+ 
+ 	spin_lock_irq(&css_set_lock);
+-	rcu_read_lock();
+ 	cset = task_css_set(current);
+ 	refcnt = refcount_read(&cset->refcount);
+ 	seq_printf(seq, "css_set %pK %d", cset, refcnt);
+@@ -67,7 +66,6 @@ static int current_css_set_read(struct seq_file *seq, void *v)
+ 		seq_printf(seq, "%2d: %-4s\t- %p[%d]\n", ss->id, ss->name,
+ 			  css, css->id);
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock_irq(&css_set_lock);
+ 	cgroup_kn_unlock(of->kn);
+ 	return 0;
+@@ -95,7 +93,6 @@ static int current_css_set_cg_links_read(struct seq_file *seq, void *v)
+ 		return -ENOMEM;
+ 
+ 	spin_lock_irq(&css_set_lock);
+-	rcu_read_lock();
+ 	cset = task_css_set(current);
+ 	list_for_each_entry(link, &cset->cgrp_links, cgrp_link) {
+ 		struct cgroup *c = link->cgrp;
+@@ -104,7 +101,6 @@ static int current_css_set_cg_links_read(struct seq_file *seq, void *v)
+ 		seq_printf(seq, "Root %d group %s\n",
+ 			   c->root->hierarchy_id, name_buf);
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock_irq(&css_set_lock);
+ 	kfree(name_buf);
+ 	return 0;
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 2ed07fa121ab..4fe50d4c461d 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -4825,7 +4825,6 @@ static int ieee80211_get_txq_stats(struct wiphy *wiphy,
+ 	int ret = 0;
+ 
+ 	spin_lock_bh(&local->fq.lock);
+-	rcu_read_lock();
+ 
+ 	if (wdev) {
+ 		sdata = IEEE80211_WDEV_TO_SUB_IF(wdev);
+@@ -4851,7 +4850,6 @@ static int ieee80211_get_txq_stats(struct wiphy *wiphy,
+ 	}
+ 
+ out:
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&local->fq.lock);
+ 
+ 	return ret;
+diff --git a/net/mac80211/debugfs.c b/net/mac80211/debugfs.c
+index e8b78ec682da..82099f4cedbe 100644
+--- a/net/mac80211/debugfs.c
++++ b/net/mac80211/debugfs.c
+@@ -82,7 +82,6 @@ static ssize_t aqm_read(struct file *file,
+ 	int len = 0;
+ 
+ 	spin_lock_bh(&local->fq.lock);
+-	rcu_read_lock();
+ 
+ 	len = scnprintf(buf, sizeof(buf),
+ 			"access name value\n"
+@@ -105,7 +104,6 @@ static ssize_t aqm_read(struct file *file,
+ 			fq->limit,
+ 			fq->quantum);
+ 
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&local->fq.lock);
+ 
+ 	return simple_read_from_buffer(user_buf, count, ppos,
+diff --git a/net/mac80211/debugfs_netdev.c b/net/mac80211/debugfs_netdev.c
+index 1dac78271045..30a5a978a678 100644
+--- a/net/mac80211/debugfs_netdev.c
++++ b/net/mac80211/debugfs_netdev.c
+@@ -625,7 +625,6 @@ static ssize_t ieee80211_if_fmt_aqm(
+ 	txqi = to_txq_info(sdata->vif.txq);
+ 
+ 	spin_lock_bh(&local->fq.lock);
+-	rcu_read_lock();
+ 
+ 	len = scnprintf(buf,
+ 			buflen,
+@@ -642,7 +641,6 @@ static ssize_t ieee80211_if_fmt_aqm(
+ 			txqi->tin.tx_bytes,
+ 			txqi->tin.tx_packets);
+ 
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&local->fq.lock);
+ 
+ 	return len;
+diff --git a/net/mac80211/debugfs_sta.c b/net/mac80211/debugfs_sta.c
+index 49061bd4151b..ef75255d47d5 100644
+--- a/net/mac80211/debugfs_sta.c
++++ b/net/mac80211/debugfs_sta.c
+@@ -148,7 +148,6 @@ static ssize_t sta_aqm_read(struct file *file, char __user *userbuf,
+ 		return -ENOMEM;
+ 
+ 	spin_lock_bh(&local->fq.lock);
+-	rcu_read_lock();
+ 
+ 	p += scnprintf(p,
+ 		       bufsz + buf - p,
+@@ -178,7 +177,6 @@ static ssize_t sta_aqm_read(struct file *file, char __user *userbuf,
+ 			       test_bit(IEEE80211_TXQ_DIRTY, &txqi->flags) ? " DIRTY" : "");
+ 	}
+ 
+-	rcu_read_unlock();
+ 	spin_unlock_bh(&local->fq.lock);
+ 
+ 	rv = simple_read_from_buffer(userbuf, count, ppos, buf, p - buf);
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 8c550aab9bdc..663318a75d7f 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2637,13 +2637,11 @@ static void sta_set_tidstats(struct sta_info *sta,
+ 
+ 	if (link_id < 0 && tid < IEEE80211_NUM_TIDS) {
+ 		spin_lock_bh(&local->fq.lock);
+-		rcu_read_lock();
+ 
+ 		tidstats->filled |= BIT(NL80211_TID_STATS_TXQ_STATS);
+ 		ieee80211_fill_txq_stats(&tidstats->txq_stats,
+ 					 to_txq_info(sta->sta.txq[tid]));
+ 
+-		rcu_read_unlock();
+ 		spin_unlock_bh(&local->fq.lock);
+ 	}
+ }
+diff --git a/net/ncsi/ncsi-manage.c b/net/ncsi/ncsi-manage.c
+index 446e4e3b9553..6e36cd64a31e 100644
+--- a/net/ncsi/ncsi-manage.c
++++ b/net/ncsi/ncsi-manage.c
+@@ -650,7 +650,6 @@ static int set_one_vid(struct ncsi_dev_priv *ndp, struct ncsi_channel *nc,
+ 
+ 	spin_lock_irqsave(&nc->lock, flags);
+ 
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(vlan, &ndp->vlan_vids, list) {
+ 		vid = vlan->vid;
+ 		for (i = 0; i < ncf->n_vids; i++)
+@@ -661,7 +660,6 @@ static int set_one_vid(struct ncsi_dev_priv *ndp, struct ncsi_channel *nc,
+ 		if (vid)
+ 			break;
+ 	}
+-	rcu_read_unlock();
+ 
+ 	if (!vid) {
+ 		/* No VLAN ID is not set */
+diff --git a/security/yama/yama_lsm.c b/security/yama/yama_lsm.c
+index 3d064dd4e03f..60d38deb181b 100644
+--- a/security/yama/yama_lsm.c
++++ b/security/yama/yama_lsm.c
+@@ -117,14 +117,12 @@ static void yama_relation_cleanup(struct work_struct *work)
+ 	struct ptrace_relation *relation;
+ 
+ 	spin_lock(&ptracer_relations_lock);
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(relation, &ptracer_relations, node) {
+ 		if (relation->invalid) {
+ 			list_del_rcu(&relation->node);
+ 			kfree_rcu(relation, rcu);
+ 		}
+ 	}
+-	rcu_read_unlock();
+ 	spin_unlock(&ptracer_relations_lock);
+ }
+ 
+@@ -152,7 +150,6 @@ static int yama_ptracer_add(struct task_struct *tracer,
+ 	added->invalid = false;
+ 
+ 	spin_lock(&ptracer_relations_lock);
+-	rcu_read_lock();
+ 	list_for_each_entry_rcu(relation, &ptracer_relations, node) {
+ 		if (relation->invalid)
+ 			continue;
+@@ -166,7 +163,6 @@ static int yama_ptracer_add(struct task_struct *tracer,
+ 	list_add_rcu(&added->node, &ptracer_relations);
+ 
+ out:
+-	rcu_read_unlock();
+ 	spin_unlock(&ptracer_relations_lock);
+ 	return 0;
+ }
+-- 
+2.34.1
 
