@@ -1,118 +1,274 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574834C8F;
-	Sat, 13 Sep 2025 06:00:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A1A2E973C
+	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 08:27:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757743252; cv=none; b=L9Cy0xi2r772Se18Nb6A20HiRRQri68ILGOmz7n0zoUY/fOx4yL9qUwysr75mH573Wl6rq6lviZ0Ln0ltw/NCVlW1G26k/ZK5ZOFCirZnOgY61L3QISJrOuei45rML8SV+/ZY4bSogTRHJ9vasq7xzuIcNKkXxnoSu6J0r0St/4=
+	t=1757752045; cv=none; b=Nr7/PDq5dYeSt5oGO+gnkQNeuBJnZ7oSzTuT8JxfKa8+m5DHpKAe4DogSQLtka4o5Ez7IV73LlHVZn0FxKWnES0RZZlbMsip27P73azqesZkcAhG7r10JaNPlRABs555QVA323t2Mxik1t/GyThv0lKfo34FBrpubRUF3OFFPLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757743252; c=relaxed/simple;
-	bh=h28c5TxWJadqL6YGponxQMPWMGVBYvFV1IomrQJZdOk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Jm9pua14y2fvMjcSw4X5LWiMNShPQqy07eSF/1+3gS5TmCDIgyGdIURt5axEFT8ikNtxc9gGAAhTtOloFAXSn2Ox79jmqvCONOaojk52aC3/d/eqOWhapOig07qXYTTpGFTPq2F/YD7Zh3qP1QTzgx/JToS3V1ybeB3xigeUJuU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=M+CzmzEW; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1757752045; c=relaxed/simple;
+	bh=KBdb34yjuqC8JNMb7MU0xophtAjSJbuqI+5/g2ts2wc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=I4E4GJW+zndzsyfhtW0QAy6LaWGdhOnxbe66QUYnanBxDAV7iOpZgL3QE01hSTqBxHctcj187GWA6OBRx6r2f/ozVhtonc+jf0eJr1E9SkVYjLzEfly83Z1rHz9ajXnkY49xgdsswbVhZDKnnlHHxc5V84AkOR3wXoYY6fuugmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hQknkwkH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="M+CzmzEW"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 5D6DE40E0140;
-	Sat, 13 Sep 2025 06:00:49 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 5O5L-eN3m4dR; Sat, 13 Sep 2025 06:00:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1757743247; bh=ukCkckAuGMje9cA2p4fcL/eu4iSUrEgrcmTG6KbdR1M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=M+CzmzEWar56cJJ17KOTR6P8eSnXvk4pSviym3bg7uW6BkqS0j+mtX3BQDzmjsLKN
-	 cBfUjtOzG0dtMWCm8gmhsUa3Xxo4FILO/a/EoDcNG+tlw8kR4uStWeJwPdhqSPG8vi
-	 dptoTCZKzdi0Lb7IKesUGcadI0V7LIgtuqv7+ljIAgi+MxFM4i8iy5ZzhN+eNcVDkT
-	 2U5qJFAQwTYKNKjXv/HnQbujbbxSSpVXj5bVy2aRYmWxFocdRZ21hDbVAksBWj/ayB
-	 IyVl/MGqAXPtO85g0YsubzV7s6ahQw9h0Csu9TVUFWQlf+WnPcHv5LpdW2BLaZTSLx
-	 MMPWrLyToEYejhS/laszKvXwNVgYIRKtn46zcfAmgWcVrksJjmgrxaFWOjZaf7IcIu
-	 69gMcfJR5mcDILFbprN0LrSSpnH27j6cHrFVqj50Pgarn5Z+5kEA74Cuh7F+wkwKag
-	 IgiVg9veF2ZWXTokCLUb6KziC0viJ3MFRPeERhFpkN9McnxLf/Lom5CWCUO/GLLsrO
-	 Ik0vYi9bLtv3NWaKGrZ5U38zUX6p3F6aTmchXQOEPOWj3S4lIPOayyV2rrbopxaE+l
-	 7bAPj5LxiMGFgfJow+wWYdkCpmcS3w+RlVWftduP1hFNqKDXn6mv7Glb2r+ccLg5uk
-	 Ktt/rgo0zlxIwboDscbgVlBU=
-Received: from zn.tnic (p5de8ed27.dip0.t-ipconnect.de [93.232.237.39])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with UTF8SMTPSA id 3961D40E015C;
-	Sat, 13 Sep 2025 05:59:52 +0000 (UTC)
-Date: Sat, 13 Sep 2025 07:59:45 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Askar Safin <safinaskar@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Christian Brauner <brauner@kernel.org>,
-	Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-	Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	Andy Shevchenko <andy.shevchenko@gmail.com>,
-	Aleksa Sarai <cyphar@cyphar.com>,
-	Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
-	Julian Stecklina <julian.stecklina@cyberus-technology.de>,
-	Gao Xiang <hsiangkao@linux.alibaba.com>,
-	Art Nikpal <email2tema@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Alexander Graf <graf@amazon.com>, Rob Landley <rob@landley.net>,
-	Lennart Poettering <mzxreary@0pointer.de>,
-	linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	x86@kernel.org, Ingo Molnar <mingo@redhat.com>,
-	linux-block@vger.kernel.org, initramfs@vger.kernel.org,
-	linux-api@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
-	"Theodore Y . Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org,
-	Michal Simek <monstr@monstr.eu>, devicetree@vger.kernel.org,
-	Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>,
-	Thorsten Blum <thorsten.blum@linux.dev>,
-	Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev
-Subject: Re: [PATCH RESEND 28/62] init: alpha, arc, arm, arm64, csky, m68k,
- microblaze, mips, nios2, openrisc, parisc, powerpc, s390, sh, sparc, um,
- x86, xtensa: rename initrd_{start,end} to
- virt_external_initramfs_{start,end}
-Message-ID: <20250913055851.GBaMUIGyF8VhpUsOZg@fat_crate.local>
-References: <20250913003842.41944-1-safinaskar@gmail.com>
- <20250913003842.41944-29-safinaskar@gmail.com>
- <20250913054837.GAaMUFtd4YlaPqL2Ov@fat_crate.local>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hQknkwkH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1757752042;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jHz5EoPd+ylCkG4BgrRtBzTwz79VaTitLewrCZQ2PXY=;
+	b=hQknkwkHk73COEC0woogVkG7DDTZHeQeSaxjuUDgEF10ycwHwa9pVMoIXe7Hi44LBhVHMS
+	f78Opzy+/F3eY5yA10Cibdhh5B5JHp47Cc7cIOOQjOeWMbwVfsnqwj5ds5V4Lsm0mj9Zil
+	o+1uNyKLU2eUAoygIVx0Z4M0gACFFsU=
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
+ [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-257-IUkqluyTOeyz0q6bVslGYA-1; Sat, 13 Sep 2025 04:27:20 -0400
+X-MC-Unique: IUkqluyTOeyz0q6bVslGYA-1
+X-Mimecast-MFC-AGG-ID: IUkqluyTOeyz0q6bVslGYA_1757752040
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-423f9b3edb4so404315ab.0
+        for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 01:27:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757752039; x=1758356839;
+        h=content-transfer-encoding:mime-version:organization:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=jHz5EoPd+ylCkG4BgrRtBzTwz79VaTitLewrCZQ2PXY=;
+        b=fL1+jmms3WGyr26OOiPv7TIicCeOILNuODbU3BbQzA/YUHTujkwc/BaweupDGhPFX0
+         bf5EDk+vk8MMni1Ii54Z7Po7YL+lnvSHl/YA9WFeAhduD9bFIhsMwBG6m0hIb6UhOPRq
+         fZTrYidVlXb8d7IZJbSz+BRVakYGIZsE1Jt4+U/rUH8zEHTJr3575BVl4nnZCWyPffSQ
+         t7k4TX7TlJuv/BYnRp2HpwqAE/ftMy8hxRTVxPcCyvMZrZyimr79KaX0PjKaZxHCRdTF
+         rHBuKNRiOzUQVCg84BOgu/ZM9tQ7YG5Kp++JggHMgsnPRCOvKO1cL2kpsmU49otCZ3Bv
+         bbmA==
+X-Gm-Message-State: AOJu0Yz1cZAa7Jzsv/lrigg29iOasulUFQO/r3D7kOf6X0amGn5KiD9+
+	MUIuaz6PgGyNeJ0poeD14Z5xU/Qe4DQwH6uXEHDdoVZJheJ3I25cyS7pZTF58sd0fD/mdmo6sDw
+	FFTJJtbNw/emsMCsaQh3IBC3WdgBN+9jMKzu2EBpuGftWc4d71zIy7fiCTTadUjshjCsp7xJbRw
+	==
+X-Gm-Gg: ASbGncvXYgetcLOWffUgTT3LueTYmO99nj8Qa+dPP3PsIHSrxnfFTHMPOEuNBheiLcz
+	Xki4ibPkKozzBIz/nVmixih/uSiw34UHJbTMGxuET9XOl5F6Hjt5Jz9wcJlWXPR60kr7Cf4tC0h
+	jcsTuKkU7XvD6hdNF/jUx4JHm4gBWthU719xIndlDGuK4RKJOIy8WEUbQVJ/ZDTQVAtFouEQHiW
+	goBSUoWnc+4lNAMGtihWvpUogMbcSqQTV37lrsdjceS/ZIjJg/kvuf4IoxcR75EZfq11PGcbPFO
+	kHowzWr43Ygy1KMJK16+C1eSrBD0uVZkQn1BjkINxME=
+X-Received: by 2002:a05:6e02:1489:b0:412:5782:c7c1 with SMTP id e9e14a558f8ab-4209fc549bamr26611035ab.5.1757752039132;
+        Sat, 13 Sep 2025 01:27:19 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIW4jBz+RhyO9sjz/kQQ01borjLc8HZiyi2LaANGIQ/TGf19Rkd/3OlbjO/Xq+R2DLvjT7/A==
+X-Received: by 2002:a05:6e02:1489:b0:412:5782:c7c1 with SMTP id e9e14a558f8ab-4209fc549bamr26610945ab.5.1757752038702;
+        Sat, 13 Sep 2025 01:27:18 -0700 (PDT)
+Received: from redhat.com ([38.15.36.11])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-41deede6de7sm30080015ab.10.2025.09.13.01.27.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 13 Sep 2025 01:27:18 -0700 (PDT)
+Date: Sat, 13 Sep 2025 09:27:09 +0100
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+ helgaas@kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v3 01/10] PCI: Avoid saving error values for config
+ space
+Message-ID: <20250913092709.2e58782d.alex.williamson@redhat.com>
+In-Reply-To: <20250911183307.1910-2-alifm@linux.ibm.com>
+References: <20250911183307.1910-1-alifm@linux.ibm.com>
+	<20250911183307.1910-2-alifm@linux.ibm.com>
+Organization: Red Hat
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250913054837.GAaMUFtd4YlaPqL2Ov@fat_crate.local>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sat, Sep 13, 2025 at 07:48:37AM +0200, Borislav Petkov wrote:
-> On Sat, Sep 13, 2025 at 12:38:07AM +0000, Askar Safin wrote:
-> > Rename initrd_start to virt_external_initramfs_start and
-> > initrd_end to virt_external_initramfs_end.
+On Thu, 11 Sep 2025 11:32:58 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
+
+> The current reset process saves the device's config space state before
+> reset and restores it afterward. However, when a device is in an error
+> state before reset, config space reads may return error values instead of
+> valid data. This results in saving corrupted values that get written back
+> to the device during state restoration.
 > 
-> "virt" as in "virtualization"?
+> Avoid saving the state of the config space when the device is in error.
+> While restoring we only restorei the state that can be restored through
 
-Ooh, now I see it - you have virtual and physical initramfs address things. We
-usually call those "va" and "pa". So
+s/restorei/restore/
 
-initramfs_{va,pa}_{start,end}
+> kernel data such as BARs or doesn't depend on the saved state.
+> 
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/pci/pci.c      | 29 ++++++++++++++++++++++++++---
+>  drivers/pci/pcie/aer.c |  5 +++++
+>  drivers/pci/pcie/dpc.c |  5 +++++
+>  drivers/pci/pcie/ptm.c |  5 +++++
+>  drivers/pci/tph.c      |  5 +++++
+>  drivers/pci/vc.c       |  5 +++++
+>  6 files changed, 51 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index b0f4d98036cd..4b67d22faf0a 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -1720,6 +1720,11 @@ static void pci_restore_pcie_state(struct pci_dev *dev)
+>  	struct pci_cap_saved_state *save_state;
+>  	u16 *cap;
+>  
+> +	if (!dev->state_saved) {
+> +		pci_warn(dev, "Not restoring pcie state, no saved state");
+> +		return;
+> +	}
+> +
+>  	/*
+>  	 * Restore max latencies (in the LTR capability) before enabling
+>  	 * LTR itself in PCI_EXP_DEVCTL2.
+> @@ -1775,6 +1780,11 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
+>  	struct pci_cap_saved_state *save_state;
+>  	u16 *cap;
+>  
+> +	if (!dev->state_saved) {
+> +		pci_warn(dev, "Not restoring pcix state, no saved state");
+> +		return;
+> +	}
+> +
+>  	save_state = pci_find_saved_cap(dev, PCI_CAP_ID_PCIX);
+>  	pos = pci_find_capability(dev, PCI_CAP_ID_PCIX);
+>  	if (!save_state || !pos)
+> @@ -1792,6 +1802,14 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
+>  int pci_save_state(struct pci_dev *dev)
+>  {
+>  	int i;
+> +	u16 val;
+> +
+> +	pci_read_config_word(dev, PCI_DEVICE_ID, &val);
+> +	if (PCI_POSSIBLE_ERROR(val)) {
+> +		pci_warn(dev, "Device in error, not saving config space state\n");
+> +		return -EIO;
+> +	}
+> +
 
-perhaps...
+I don't think this works with standard VFs, per the spec the device ID
+register returns 0xFFFF.  Likely need to look for a CRS or error status
+across both vendor and device ID registers.
 
--- 
-Regards/Gruss,
-    Boris.
+We could be a little more formal and specific describing the skipped
+states too, ex. "PCIe capability", "PCI-X capability", "PCI AER
+capability", etc.  Thanks,
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Alex
+
+>  	/* XXX: 100% dword access ok here? */
+>  	for (i = 0; i < 16; i++) {
+>  		pci_read_config_dword(dev, i * 4, &dev->saved_config_space[i]);
+> @@ -1854,6 +1872,14 @@ static void pci_restore_config_space_range(struct pci_dev *pdev,
+>  
+>  static void pci_restore_config_space(struct pci_dev *pdev)
+>  {
+> +	if (!pdev->state_saved) {
+> +		pci_warn(pdev, "No saved config space, restoring BARs\n");
+> +		pci_restore_bars(pdev);
+> +		pci_write_config_word(pdev, PCI_COMMAND,
+> +				PCI_COMMAND_MEMORY | PCI_COMMAND_IO);
+> +		return;
+> +	}
+> +
+>  	if (pdev->hdr_type == PCI_HEADER_TYPE_NORMAL) {
+>  		pci_restore_config_space_range(pdev, 10, 15, 0, false);
+>  		/* Restore BARs before the command register. */
+> @@ -1906,9 +1932,6 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
+>   */
+>  void pci_restore_state(struct pci_dev *dev)
+>  {
+> -	if (!dev->state_saved)
+> -		return;
+> -
+>  	pci_restore_pcie_state(dev);
+>  	pci_restore_pasid_state(dev);
+>  	pci_restore_pri_state(dev);
+> diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+> index e286c197d716..dca3502ef669 100644
+> --- a/drivers/pci/pcie/aer.c
+> +++ b/drivers/pci/pcie/aer.c
+> @@ -361,6 +361,11 @@ void pci_restore_aer_state(struct pci_dev *dev)
+>  	if (!aer)
+>  		return;
+>  
+> +	if (!dev->state_saved) {
+> +		pci_warn(dev, "Not restoring aer state, no saved state");
+> +		return;
+> +	}
+> +
+>  	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_ERR);
+>  	if (!save_state)
+>  		return;
+> diff --git a/drivers/pci/pcie/dpc.c b/drivers/pci/pcie/dpc.c
+> index fc18349614d7..62c520af71a7 100644
+> --- a/drivers/pci/pcie/dpc.c
+> +++ b/drivers/pci/pcie/dpc.c
+> @@ -67,6 +67,11 @@ void pci_restore_dpc_state(struct pci_dev *dev)
+>  	if (!pci_is_pcie(dev))
+>  		return;
+>  
+> +	if (!dev->state_saved) {
+> +		pci_warn(dev, "Not restoring dpc state, no saved state");
+> +		return;
+> +	}
+> +
+>  	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_DPC);
+>  	if (!save_state)
+>  		return;
+> diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
+> index 65e4b008be00..7b5bcc23000d 100644
+> --- a/drivers/pci/pcie/ptm.c
+> +++ b/drivers/pci/pcie/ptm.c
+> @@ -112,6 +112,11 @@ void pci_restore_ptm_state(struct pci_dev *dev)
+>  	if (!ptm)
+>  		return;
+>  
+> +	if (!dev->state_saved) {
+> +		pci_warn(dev, "Not restoring ptm state, no saved state");
+> +		return;
+> +	}
+> +
+>  	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_PTM);
+>  	if (!save_state)
+>  		return;
+> diff --git a/drivers/pci/tph.c b/drivers/pci/tph.c
+> index cc64f93709a4..f0f1bae46736 100644
+> --- a/drivers/pci/tph.c
+> +++ b/drivers/pci/tph.c
+> @@ -435,6 +435,11 @@ void pci_restore_tph_state(struct pci_dev *pdev)
+>  	if (!pdev->tph_enabled)
+>  		return;
+>  
+> +	if (!pdev->state_saved) {
+> +		pci_warn(pdev, "Not restoring tph state, no saved state");
+> +		return;
+> +	}
+> +
+>  	save_state = pci_find_saved_ext_cap(pdev, PCI_EXT_CAP_ID_TPH);
+>  	if (!save_state)
+>  		return;
+> diff --git a/drivers/pci/vc.c b/drivers/pci/vc.c
+> index a4ff7f5f66dd..fda435cd49c1 100644
+> --- a/drivers/pci/vc.c
+> +++ b/drivers/pci/vc.c
+> @@ -391,6 +391,11 @@ void pci_restore_vc_state(struct pci_dev *dev)
+>  {
+>  	int i;
+>  
+> +	if (!dev->state_saved) {
+> +		pci_warn(dev, "Not restoring vc state, no saved state");
+> +		return;
+> +	}
+> +
+>  	for (i = 0; i < ARRAY_SIZE(vc_caps); i++) {
+>  		int pos;
+>  		struct pci_cap_saved_state *save_state;
+
