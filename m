@@ -1,63 +1,63 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BFEC481DD
-	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 00:57:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6D44155322
+	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 00:58:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757725055; cv=none; b=qxTTJ3WZgtzbo+9MGpzDLvPE3C7SE4Le96jYotdfj7qMUXVTqOXxJYQkAz7tkaCzGchJM9QvIxs/D546HbsUi9S2lQP//DJvvI6l1ySuVByvkVow+WmiKJ+jA96s320BhbPteE9PuIPT5EuNIkxs4n1nshtifhR6VN74kzdcjOU=
+	t=1757725122; cv=none; b=GxKpG+sNxHib94n/kfgY2IFugx2UIHp2ch4fGzdIU6mivSMTHeYv7J5Df/2eNcPFHATFs+18nTqgMDlaxqmf36a5c7WgO45qZyp07EukkacDnFRTTiLKvktpMNTSURD0jC7cb9EoG3wiIPy+W9cQYSIK6sK/K7+dktjWQmfIPck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757725055; c=relaxed/simple;
-	bh=icqv9qJHo4M/f4BybNZRp4QArCkqmFyOuQeqTRdwg0I=;
+	s=arc-20240116; t=1757725122; c=relaxed/simple;
+	bh=riLYrwvey4IG1vm31BCl7axPrjxd4nPuzw1Lf4FnM3A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VZ6ZzQTnoS9UhPhoh+2LZzI9kld1bE3QHBPrd7QO9lHON6ODdxQ9xl5Uj04KVNWrgDHbevIq5QiYxnNfkQCkzmMU2UFUf9yN3wkMoss88XarLK/+Fjk9X6yTfI9okZGO5IETLjy8a2JIcNwSu+XAJ3mHrPuF50ZnDD4SXkYJ6fM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IxttpIxd; arc=none smtp.client-ip=209.85.218.45
+	 MIME-Version; b=ijjHtoFxQQI2rlKSkrD8xkwc9irohirR3naeD2kBKa+fQhTDbGyIDA2EHtwJaB+m5bVyADUDMcDUDRM5JPuuXm9TyEhM/+52Uaj3QzU4LARbRoZeKibYRwr8IfEldidFRXsVZ9AUifLUeV6ewtJWmu7tTK+4BY+qJqkSkGtNO2o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hKAdVg/A; arc=none smtp.client-ip=209.85.208.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IxttpIxd"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b042cc39551so392319366b.0
-        for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 17:57:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hKAdVg/A"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6228de280ccso4861927a12.3
+        for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 17:58:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757725050; x=1758329850; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757725115; x=1758329915; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ezI+jX/C/Y112e/n5Rz3xR2Z7MqtqGJhurNzHRBUkc4=;
-        b=IxttpIxd7SK+1cAWw1/JNCEYJzFEye4jRVTGQOfbo1MNIq6mG5v8Y7onxIIuz13jHR
-         nSd98sFpCzgmue005hvKDszQzXg5khhjThue5L+j/7rrDALA/jODXy5Itcc0VqIP1hlp
-         7lREmLms7JNHHRMSgpi3DF4Ip69vY+lt4UlDeIVBOrzTnPJTHtWZVTzqAZ32TSaaUPC5
-         71tw+FITO9Zg3Q/ktA+SeUhnAyBKxiVOVhxgrDJBPZr3AauXnvo8sWFhmedNgGFmaf4M
-         HT2zNLMoK/nEhJetJGumkak/Jvy7jzRS3Tr/4UsuB4DXhw9C3A6DylwaX2WC9VSe8gPI
-         KFhQ==
+        bh=2BXXMTZbWkKZqT8QgJ9Z777RqiFOaP2Wc1It8eJXku8=;
+        b=hKAdVg/A1cgqKS6p9i2KuodzZogaEVcz6+R6REIkiNiIbFfMinE02lC9EOoe6YQ662
+         QoLR9T6aT3+M7BjTiV7UHhhnL8XkKjyZyIXFiPtCqdXyqRhXZQVCsC5d/pExy5n63UVD
+         aP3IcvsxqqlBvJIhGWqLfrRjmqsx4H8gcINoCK2y+hNmwLXGrio/G7e159/gpZcMF69K
+         kaZmEu4fumfSdszmb6RAwXH0qFnnNqWRKA9VZMV1du0FKs+yZoo8fyd8Vjq+UH3lzPCr
+         jJbdtu7AJXlgY45fa3FMZxSgib30KPPXZPVWOybYPPZXcTs7CcclB57K/d1DO8TrpOBv
+         6XDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757725050; x=1758329850;
+        d=1e100.net; s=20230601; t=1757725115; x=1758329915;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ezI+jX/C/Y112e/n5Rz3xR2Z7MqtqGJhurNzHRBUkc4=;
-        b=hDkRZW++bIfn2FT54c9Fk9Cbq3FpH8xmdxoBJRVdEaeQmlUhbv5uz5F6mvg+iUeu1B
-         YZDzgJpFyFZUoSHQA85xbFwsg9me2q0JLBLCeH/9iA65V4KZ7ukues2gP+DPS7dcTgTZ
-         fVPcfX/TPnsuXB9LDVNh8EZE/Nf+1LK6mlKfQF5DpM50QDPSc9pQkruGnV2R72va5Kjq
-         +rSyI6/LhDqbKC92mM42K/huFMvLC/gbM2nLUKUk6rDOAwYpYCU/F8tMoOQuHvQq3Rov
-         9h2WMAza8wowm02FdT8BM3Mi2gv0pg47tLLp97IlycYPuG2Tz9wePWXRKdTZQIGoQIoZ
-         sSlg==
-X-Forwarded-Encrypted: i=1; AJvYcCWB8dpN1S+No1Q0S+iV7yMUQBXQNNM7AlOO/cen9HN24dQJCznIpqfI2vHpm6Ffylg1GchnZtW1jfZ6@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYqMdBaPTW7U849QODeu3R6Pw8xvMpnD2yP3Y1LSA3Odo0eC5T
-	n263X5BKYTBTn70rKTkPgpJag2bJrsAzf7RAC1Q0pWZF1E50wykzPJGF
-X-Gm-Gg: ASbGncsZSK2Pdn2cgn7NbVO4cvQ6DfpZ5mE3MtnmGWERgBHteOPd5I8MxI4ngxL5n65
-	xymrnOs4tBgz/bBqE6V9BGQIXk0L5+z/yCYT2N7epO++O64s5dxTrka1s4mRb5OLLT+Z/vtFsg0
-	jeCAzFZu0qUCBmvX63voWHt6zArnfD9VvFwqftfflfTqPV3BsbiHwhM9V4ynR4NKytqTGCch8OI
-	ajsfEoXXJGOkfPnITdfvtekpUAaP+yBLlDrAi6PTs6dKooLes5hFKh+RUEucPcQaZpG0vXIMlTh
-	JEdVAhtT0SoArd0D4H8uy6rTXkpu2xp8CJ1OROWUVZ64CwMY/76hzA3j3FlCYLWRhia39iGt4ox
-	s/omHSaelGP4omWRXFPZ6QlGHICMd/A==
-X-Google-Smtp-Source: AGHT+IGnRtXHmAlBOGcWImQD5jsKfQTyCdy3QliDqyqREaJdsFoBMJl1utqd/JT9F2sOVlrjQyooHw==
-X-Received: by 2002:a17:907:944b:b0:b04:ad1c:59e4 with SMTP id a640c23a62f3a-b07c35328admr535751966b.12.1757725049282;
-        Fri, 12 Sep 2025 17:57:29 -0700 (PDT)
+        bh=2BXXMTZbWkKZqT8QgJ9Z777RqiFOaP2Wc1It8eJXku8=;
+        b=fHyy6rUpJ/8zoKxqfeZFRfHzlpQa1kIFd8eGnHIkSn5Qv2wy8UKO9RKbJwgUaFp0nJ
+         Lpo1zmAPggaJd7awLAPdXi+ww8fuubjQ5bmPf7AUqMy4+Q/WcYyvKVtMCjluh/hTU0t+
+         kd1GVzdrKdFMc7moNNbi+bEF33DjrgerffyLq9zbkmqLkuy458LrX7IDPjpAvagi255g
+         yQxlKUQyqBI7GrzzRcedYpluKqotSkCJG8pmV4tqdUPuqPvporh79UJGpprNrYZR+xiS
+         SSxoGipfuxdWIIU9f5BJ9DTU5ev0Lpan1Qe0TrSjQ8iKrWpvDh3knDV1zUFmjA9n/XMr
+         LDGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVmC7I/hdID8jqf7x5D9gHFDqq1d3dSoeEZRxcYuoHm1YJwtrVTh8TpSMe30pfUplNiNvmwWYxu8nMH@vger.kernel.org
+X-Gm-Message-State: AOJu0YzeDozs5rmkGh4XOfSjkZDxeluC+SuSXsTD5G5wEcRcew1eBRtP
+	PVmrntdjlMavouu+lHOYYRxTQCpmGnIO74lwVscX5hY0l0nym5hv/cTi
+X-Gm-Gg: ASbGncth3wDOInZFeZE834bRZ3yyOqIf9j5pD3RJvnP+619Aahyz5I6h/qDo90ZPF6c
+	DQ9Kgg7jxVEnNYOu8/DdSslv9JV1GPo9D9yn7ddm7D+nmmNbO3WmI8SxIQfyHKws3l8NEEQ1SqK
+	ipi5AFINNam91j6ljDrwdQh+Dq9KbBaRTzd/48h/yVPzx6ArBfWujUtRXv74LM20JFBjz0QP3Os
+	DgKkq/k5yZuOlo2C6+yAt5hodqHlsJOy0z0w1PcbDeEEDigduFA3LfVaOBM+6XU5oszCesnEUq/
+	0tCXagHypyK0k3QnOvbKa52tIThG6uvg9zxCQMYX5Ihk52G0/SB7Zmm9TmsR/2W2NTyXHWLFDPk
+	bNLXwAYfilpTPE+VW7op5j5EDF1TGfg==
+X-Google-Smtp-Source: AGHT+IF4XezAq8wXNO6voYrJeDnCFhU1tJ+TfyE7OJRqFWOCMlq1YMWoUA8uaJ4xPb3fA3w8qZjP4Q==
+X-Received: by 2002:a05:6402:5242:b0:628:a4fb:3b44 with SMTP id 4fb4d7f45d1cf-62ed825998fmr4961876a12.1.1757725114882;
+        Fri, 12 Sep 2025 17:58:34 -0700 (PDT)
 Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07b32dd47bsm478662366b.58.2025.09.12.17.57.24
+        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-62ec33f3b16sm4143925a12.24.2025.09.12.17.58.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Sep 2025 17:57:28 -0700 (PDT)
+        Fri, 12 Sep 2025 17:58:34 -0700 (PDT)
 From: Askar Safin <safinaskar@gmail.com>
 To: linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
@@ -113,9 +113,9 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Thorsten Blum <thorsten.blum@linux.dev>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	patches@lists.linux.dev
-Subject: [PATCH RESEND 16/62] brd: remove "ramdisk_size" command line parameter
-Date: Sat, 13 Sep 2025 00:37:55 +0000
-Message-ID: <20250913003842.41944-17-safinaskar@gmail.com>
+Subject: [PATCH RESEND 17/62] doc: modernize Documentation/filesystems/ramfs-rootfs-initramfs.rst
+Date: Sat, 13 Sep 2025 00:37:56 +0000
+Message-ID: <20250913003842.41944-18-safinaskar@gmail.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250913003842.41944-1-safinaskar@gmail.com>
 References: <20250913003842.41944-1-safinaskar@gmail.com>
@@ -127,99 +127,82 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-It was used mostly for initrd. It could be used only if
-brd is built-in. Use "brd.rd_size" instead
+Update it to reflect initrd removal.
+
+Also I specified that error reports should
+go to linux-doc@vger.kernel.org , because
+Rob Landley said that he keeps getting
+reports about this document and is unable
+to fix them
 
 Signed-off-by: Askar Safin <safinaskar@gmail.com>
 ---
- .../admin-guide/kernel-parameters.txt         |  3 ---
- Documentation/arch/m68k/kernel-options.rst    | 20 ++-----------------
- arch/arm/configs/s3c6400_defconfig            |  2 +-
- drivers/block/brd.c                           | 10 ----------
- 4 files changed, 3 insertions(+), 32 deletions(-)
+ .../filesystems/ramfs-rootfs-initramfs.rst    | 20 +++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index ad52e3d26014..e862a7b1d2ec 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5279,9 +5279,6 @@
- 	raid=		[HW,RAID]
- 			See Documentation/admin-guide/md.rst.
+diff --git a/Documentation/filesystems/ramfs-rootfs-initramfs.rst b/Documentation/filesystems/ramfs-rootfs-initramfs.rst
+index fa4f81099cb4..38a9cf11f547 100644
+--- a/Documentation/filesystems/ramfs-rootfs-initramfs.rst
++++ b/Documentation/filesystems/ramfs-rootfs-initramfs.rst
+@@ -8,6 +8,8 @@ October 17, 2005
  
--	ramdisk_size=	[RAM] Sizes of RAM disks in kilobytes
--			See Documentation/admin-guide/blockdev/ramdisk.rst.
--
- 	random.trust_cpu=off
- 			[KNL,EARLY] Disable trusting the use of the CPU's
- 			random number generator (if available) to
-diff --git a/Documentation/arch/m68k/kernel-options.rst b/Documentation/arch/m68k/kernel-options.rst
-index 2008a20b4329..f6469ebeb2c7 100644
---- a/Documentation/arch/m68k/kernel-options.rst
-+++ b/Documentation/arch/m68k/kernel-options.rst
-@@ -215,27 +215,11 @@ Devices possible for Atari:
-            seconds.
+ :Author: Rob Landley <rob@landley.net>
  
++Report errors in this document to <linux-doc@vger.kernel.org>
++
+ What is ramfs?
+ --------------
  
--2.6) ramdisk_size=
--------------------
--
--:Syntax: ramdisk_size=<size>
--
--This option instructs the kernel to set up a ramdisk of the given
--size in KBytes. Do not use this option if the ramdisk contents are
--passed by bootstrap! In this case, the size is selected automatically
--and should not be overwritten.
--
--The only application is for root filesystems on floppy disks, that
--should be loaded into memory. To do that, select the corresponding
--size of the disk as ramdisk size, and set the root device to the disk
--drive (with "root=").
--
--
--2.7) swap=
-+2.5) swap=
+@@ -101,9 +103,9 @@ archive is extracted into it, the kernel will fall through to the older code
+ to locate and mount a root partition, then exec some variant of /sbin/init
+ out of that.
  
-   I can't find any sign of this option in 2.2.6.
+-All this differs from the old initrd in several ways:
++All this differs from the old initrd (removed in 2025) in several ways:
  
--2.8) buff=
-+2.6) buff=
- -----------
+-  - The old initrd was always a separate file, while the initramfs archive is
++  - The old initrd was always a separate file, while the initramfs archive can be
+     linked into the linux kernel image.  (The directory ``linux-*/usr`` is
+     devoted to generating this archive during the build.)
  
-   I can't find any sign of this option in 2.2.6.
-diff --git a/arch/arm/configs/s3c6400_defconfig b/arch/arm/configs/s3c6400_defconfig
-index a37e6ac40825..23635d5b9322 100644
---- a/arch/arm/configs/s3c6400_defconfig
-+++ b/arch/arm/configs/s3c6400_defconfig
-@@ -4,7 +4,7 @@ CONFIG_ARCH_MULTI_V6=y
- # CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_S3C64XX=y
- CONFIG_MACH_WLF_CRAGG_6410=y
--CONFIG_CMDLINE="console=ttySAC0,115200 root=/dev/ram init=/linuxrc initrd=0x51000000,6M ramdisk_size=6144"
-+CONFIG_CMDLINE="console=ttySAC0,115200 root=/dev/ram init=/linuxrc initrd=0x51000000,6M"
- CONFIG_VFP=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 72f02d2b8a99..05c4325904d2 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -222,16 +222,6 @@ MODULE_LICENSE("GPL");
- MODULE_ALIAS_BLOCKDEV_MAJOR(RAMDISK_MAJOR);
- MODULE_ALIAS("rd");
+@@ -137,7 +139,7 @@ Populating initramfs:
  
--#ifndef MODULE
--/* Legacy boot options - nonmodular */
--static int __init ramdisk_size(char *str)
--{
--	rd_size = simple_strtol(str, NULL, 0);
--	return 1;
--}
--__setup("ramdisk_size=", ramdisk_size);
--#endif
--
- /*
-  * The device scheme is derived from loop.c. Keep them in synch where possible
-  * (should share code eventually).
+ The 2.6 kernel build process always creates a gzipped cpio format initramfs
+ archive and links it into the resulting kernel binary.  By default, this
+-archive is empty (consuming 134 bytes on x86).
++archive is nearly empty (consuming 134 bytes on x86).
+ 
+ The config option CONFIG_INITRAMFS_SOURCE (in General Setup in menuconfig,
+ and living in usr/Kconfig) can be used to specify a source for the
+@@ -222,15 +224,13 @@ use in place of the above config file::
+ External initramfs images:
+ --------------------------
+ 
+-If the kernel has initrd support enabled, an external cpio.gz archive can also
+-be passed into a 2.6 kernel in place of an initrd.  In this case, the kernel
+-will autodetect the type (initramfs, not initrd) and extract the external cpio
++If the kernel has CONFIG_BLK_DEV_INITRD enabled, an external cpio.gz archive can also
++be passed into a 2.6 kernel.  In this case, the kernel will extract the external cpio
+ archive into rootfs before trying to run /init.
+ 
+-This has the memory efficiency advantages of initramfs (no ramdisk block
+-device) but the separate packaging of initrd (which is nice if you have
++This is nice if you have
+ non-GPL code you'd like to run from initramfs, without conflating it with
+-the GPL licensed Linux kernel binary).
++the GPL licensed Linux kernel binary.
+ 
+ It can also be used to supplement the kernel's built-in initramfs image.  The
+ files in the external archive will overwrite any conflicting files in
+@@ -278,7 +278,7 @@ User Mode Linux, like so::
+   EOF
+   gcc -static hello.c -o init
+   echo init | cpio -o -H newc | gzip > test.cpio.gz
+-  # Testing external initramfs using the initrd loading mechanism.
++  # Testing external initramfs.
+   qemu -kernel /boot/vmlinuz -initrd test.cpio.gz /dev/zero
+ 
+ When debugging a normal root filesystem, it's nice to be able to boot with
 -- 
 2.47.2
 
