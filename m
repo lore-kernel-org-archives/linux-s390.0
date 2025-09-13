@@ -1,63 +1,63 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 478BE5464F
-	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 00:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 601533BBF2
+	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 00:43:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757724138; cv=none; b=qX6pt8/uogBL+U8cNqHtj2yCGhhOd5jp+SnfODbILYl4uL4622LTTcelt+eeLU8D+wyrzVN8Bw9Xn/gbBit56GeF8Y5tIhtO1c7nnm5xYqepoz6URl8yw2shcwZh4E5ux4Es5+Y1kdRcmUt5xLVmkfezG/zAENeKlrSHtIMLIbY=
+	t=1757724202; cv=none; b=Qs01SMO8s+Wrmmeq4Ihw1W/NsDZ40gL4GEfhc6vcGDLc6Ks3Lffj6B3eDhvzQy6RU58Nr8T7/M7sGrPJ39O1Xodj6/c7lyGXGwYRu04AP6sHRoqZgI22GuKQ4Psj8g8EzqTUPD8yGyYAVtIBIpz504lDOGyxKxHyRDjcM2n0YEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757724138; c=relaxed/simple;
-	bh=e1WCcnLcnFd6vSa9GXhjG8apiPFNDP8cBSBGKhm1A0M=;
+	s=arc-20240116; t=1757724202; c=relaxed/simple;
+	bh=YJ3HeYdgmHPacx2K6CLagA34dvdD+umyj49eLYi815Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rVRLc6IjcC0vOnGYixQyOxiAO6VnXvQHUgLFwkQ7Gh9lu6mAfNO8XQ5zsR+Etwvpg5Rup8AxfatMv9dQafmZSoqsPQTZwR3XErVn3vom9odrbnxeHY023Yqtnux1jVyShmiK+5Rlrysc13kf3Wac7Ab1cViMLPe991KvEscpZzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GyeGCvQG; arc=none smtp.client-ip=209.85.218.54
+	 MIME-Version; b=tK3Nm1NFkc9WyZ/lT43+eLdJIMZqPqpyiwRYyuYgVy9AmbmZeGYsVPFwB9vtG7r7DiLdm0l0fdFb+HHOMHCbIGO7UDlonn+gaWiBMDxqSq/2ycq22z5RezlNzoKZFxhoe9pQ07qs7IVCcRqXVDLS5I0yPNosHymvDlXH6ufNgms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jFBjZhx/; arc=none smtp.client-ip=209.85.218.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GyeGCvQG"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-b0787fc3008so352866166b.3
-        for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 17:42:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jFBjZhx/"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-b04ba58a84fso346034866b.2
+        for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 17:43:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757724133; x=1758328933; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757724198; x=1758328998; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Iq4EBZrV1lfKd4Zb7NXCMDMChiW0nY1yh2iMeYqfP7Y=;
-        b=GyeGCvQGXPHBE41J82uu+Cjbau22HxWpjhgX2wShnOnO4nzZNPtLm1DRkl0+F/f0ca
-         rzTX4IdzFdI9MG903XTJiOZcK5xECFwTp7RGpXsacOpGSgDlUfHyfZnyrIb0PYq/WIAN
-         rDX+MYuGDBcb+iUGcR6M5gc4VKjsz8psWUCkGGc/btj9eHPCaKx6ZV5sPuMli9kMuw9b
-         06Fgv281fvFrk0DBdieOCo+ieWCGggnxq7xulicoHGHbeILgKLmHPVtkyPrDlx6PYrxZ
-         V0TXTUp8w9m/9N3a9Fuy5mhVTEj1Rc7h9WUHnTB8yzGtVTwDvxGd9R0AnOsDNxCdz+MB
-         Idsg==
+        bh=nBhZ+rO7As9Va0yYpTLBkeUqDA8zrexqjuJeztCSNI4=;
+        b=jFBjZhx/Mc9YVQOowWWYRFZmW/gI8a7r2Jr7SHSX+maCx9+kJC7Qxhfp6pVAm8Iowi
+         KktUKT6pEE6IrXOGZlm/Yaw5a6keuuTBDhRkZONxXS05e5kMOtxdlzGkeGikDZTIWb+Z
+         5SdddamSLJmM/11Vhxf9uXl3CHcGNKLi6Vlq07NCu3g8ASYDtsys25quNZ5+Pl1b3dXJ
+         IzgnpUAGb0+7bnrZB28miB0YrVmo9xqN/IDgazo83AaQoSLtOeYmEcg7HDENos1Kyvnc
+         Co7HdjBY408nU4q5Ktur0aUYt1jibkq9wK/WOwoSuQF+fUMGM0JxQWxSfQjaIqhNNkcN
+         2big==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757724133; x=1758328933;
+        d=1e100.net; s=20230601; t=1757724198; x=1758328998;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Iq4EBZrV1lfKd4Zb7NXCMDMChiW0nY1yh2iMeYqfP7Y=;
-        b=JQfIg3SXslG+xIVMnizJH0tRGNuybkDrRRAzU3Kw5gx9zo8/OFzqwitv+eedQu2CJA
-         1K41LiqrSr1RAAAafgQ9T1iPJiL7T1wpTyDrS1qtVlys2FmYNRM3INrqf1ZDUtysbzAV
-         ubX1g7bbasHN0XqkxH6kTE0QBcq3V+NNUNGnoE6hUZbF5LExZ17PxPaJgQG0Uwug2zI7
-         zfFHneyq6dpRFDI04c/OK3EWaKkrS0iGouF7ziVa9TUMHuIl1fooz/9WpxkzRulXECrY
-         M/jegM2E6x956YSkVGD7rNppaGQspmcr4ZyhPdZJsOKWZV5Z3u81TYZ8e1nzo/Q9xnvh
-         J5MA==
-X-Forwarded-Encrypted: i=1; AJvYcCWBed7eISHRWugzOeA8WGyCwoq2xseMebJqnuiDuRm1ct/GFWwXWHdMP/BfCKh8OiXXtAatnz+PxXq+@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxx34QlUZIHTmKQmrfH02nr0t53DbjzS3bUN6GUAi4cr4phENua
-	tfx1iuJZlyKhVYd7ys9rpFdrtzEa2xcStkX1b3HFWea/8IXXDyMQOXoc
-X-Gm-Gg: ASbGncuezia6UpEzp0IZHLJ+eKkVmHS/wKuVv83T36+kP7HWMESrM1OGVYRaRDNjLrs
-	cPtkGplfA+0mBMB4pv6NMr9sOsbLpj4U+aRraekAJDh2d2efgQ5MYw6m8O9655V4Fky/17FkyhR
-	ZRuHAoARGY3XvzhQ7kdIaNOxTKhp1bs3mpP9HcBvIQBTnF6Qb1Hp94cDnfrxL1OhXsrB+VaRAy0
-	g1KxHEF42L0xagi2uuPBYJ5G+qR+spNjXfG0ZIo2WQIk2SZyaB3w6I/IQjN4F6lE8fUc9mlOVNY
-	nV00NDVga2rzNdhZZ6B2vebq/K+O1HVU48o5t4aaLSyEgERtkh/cVMMZs+lk9+2ZUIyoYCoitwF
-	qUyuuiTwjEE6vxtCxwVg=
-X-Google-Smtp-Source: AGHT+IF0YGOwgI/SiDLzLobCRbGCMEuk6UiMOqwXQtTxtsbaeH+eIG/iAAo9vQw+zhuCea49+yp7bA==
-X-Received: by 2002:a17:907:2d2b:b0:afe:8761:e77a with SMTP id a640c23a62f3a-b07c35833dfmr474345066b.19.1757724132448;
-        Fri, 12 Sep 2025 17:42:12 -0700 (PDT)
+        bh=nBhZ+rO7As9Va0yYpTLBkeUqDA8zrexqjuJeztCSNI4=;
+        b=EKE17NNi2ZFl2cJ6RmvzOdX6I9k2W3c9cSlTHe34nw4apWGnKDemqNAoUXM5qS8Xf1
+         nXz89c+dlNBQvkchCj+VYVCzk5EwgJYZMKb1UcC1pP+p2khrklC3tcfX0n0NgNhwJ208
+         URrhl2xsoxSd/t43IaAUWMMArLRe6eRWE3WBFW/Aaw0Pcch1vkXqudiH94SU2Ee0kwCF
+         nxYsM2CVYrEIDyhLLus0oRr/G9N57EyoOtxAqWF3ofTMj5A7wHz6BiFwpv+VqrOjy3CC
+         YEiE/OktbHTggpicx0e12wV3tesBxjQ2BcjiWgRVwFitAMtYMO4jAsSH4L/hUt/bY+p+
+         l57Q==
+X-Forwarded-Encrypted: i=1; AJvYcCV+EWR6V4fikRVOupRn8KgNDBNIhwiSgrLWkh5UgRHc3ICr1nB2aGkJy+dgCcpb+AqMz0BE63dKrqva@vger.kernel.org
+X-Gm-Message-State: AOJu0YzUjmcLQG9ovw3rXoYM12JvnnD/e3LsBpNl9MOEQLv6TbUrJ3xm
+	eGNmjhQM70RENofkz/9Fp7UcL1h2O52stG6UNfPvGXjp9HKHzjT540pG
+X-Gm-Gg: ASbGncth7zYxX/Pnn6oWtnWm5EFC0izPs3XiaE+jUagPa79+gIRva02iIOOADDlGNmG
+	fewAMemxymBbIhGYXTlw8sMrIOAk4gYVAIcGKWAm6FZ0ulRaSc+VWnMuoccuZuNFnr6BsfdTdyB
+	eqd6Vr9ns3fOgeFxm4GU5nHbmLucIAjMXJK9eSO7qEsfWlQtZbG6iCHipZi0cVpu+dk3NOV9L/t
+	HmaTkbRK0YGnuagm+jfCeOxDqK4rPHPmEPGZTzskQRZudurNpPtsRC1U7YyHm23WpyU9cUzkMwX
+	6ZU6KMGpyGCdV7i4x+TUXNIWXQKDaZig9cDZMAaGqoww3YEzkNKAydFwyGpR5iGaMB7cyFo0ctZ
+	Dnm3U947vQrmumeuP+Js=
+X-Google-Smtp-Source: AGHT+IHHzjbduKroQCN+yZXT2xkuDjXRSEwS3nHiIMvASVJIn5ZPiks4NchkJZtKdw5/XwXcHwo3Pw==
+X-Received: by 2002:a17:907:9405:b0:b07:c9b2:dbd with SMTP id a640c23a62f3a-b07c9b20f2cmr456569266b.4.1757724197720;
+        Fri, 12 Sep 2025 17:43:17 -0700 (PDT)
 Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07b3128a5csm466901366b.37.2025.09.12.17.42.08
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07cd14268fsm196477866b.3.2025.09.12.17.43.13
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Sep 2025 17:42:12 -0700 (PDT)
+        Fri, 12 Sep 2025 17:43:17 -0700 (PDT)
 From: Askar Safin <safinaskar@gmail.com>
 To: linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
@@ -112,10 +112,11 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Kees Cook <kees@kernel.org>,
 	Thorsten Blum <thorsten.blum@linux.dev>,
 	Heiko Carstens <hca@linux.ibm.com>,
-	patches@lists.linux.dev
-Subject: [PATCH RESEND 02/62] init: remove deprecated "prompt_ramdisk" command line parameter, which does nothing
-Date: Sat, 13 Sep 2025 00:37:41 +0000
-Message-ID: <20250913003842.41944-3-safinaskar@gmail.com>
+	patches@lists.linux.dev,
+	stable+noautosel@kernel.org
+Subject: [PATCH RESEND 03/62] init: sh, sparc, x86: remove unused constants RAMDISK_PROMPT_FLAG and RAMDISK_LOAD_FLAG
+Date: Sat, 13 Sep 2025 00:37:42 +0000
+Message-ID: <20250913003842.41944-4-safinaskar@gmail.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250913003842.41944-1-safinaskar@gmail.com>
 References: <20250913003842.41944-1-safinaskar@gmail.com>
@@ -127,59 +128,86 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is preparation for initrd removal
+They were used for initrd before c8376994c86.
 
+c8376994c86c made them unused and forgot to remove them
+
+Fixes: c8376994c86c ("initrd: remove support for multiple floppies")
+Cc: <stable+noautosel@kernel.org> # because changes uapi headers
 Signed-off-by: Askar Safin <safinaskar@gmail.com>
 ---
- Documentation/admin-guide/kernel-parameters.txt | 2 --
- arch/arm/configs/neponset_defconfig             | 2 +-
- init/do_mounts_rd.c                             | 7 -------
- 3 files changed, 1 insertion(+), 10 deletions(-)
+ arch/sh/kernel/setup.c                | 2 --
+ arch/sparc/kernel/setup_32.c          | 2 --
+ arch/sparc/kernel/setup_64.c          | 2 --
+ arch/x86/include/uapi/asm/bootparam.h | 2 --
+ arch/x86/kernel/setup.c               | 2 --
+ 5 files changed, 10 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index d3b05ce249ff..f940c1184912 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5229,8 +5229,6 @@
- 			Param: <number> - step/bucket size as a power of 2 for
- 				statistical time based profiling.
+diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
+index 039a51291002..d66f098e9e9f 100644
+--- a/arch/sh/kernel/setup.c
++++ b/arch/sh/kernel/setup.c
+@@ -71,8 +71,6 @@ EXPORT_SYMBOL(sh_mv);
+ extern int root_mountflags;
  
--	prompt_ramdisk=	[RAM] [Deprecated]
--
- 	prot_virt=	[S390] enable hosting protected virtual machines
- 			isolated from the hypervisor (if hardware supports
- 			that). If enabled, the default kernel base address
-diff --git a/arch/arm/configs/neponset_defconfig b/arch/arm/configs/neponset_defconfig
-index 16f7300239da..4d720001c12e 100644
---- a/arch/arm/configs/neponset_defconfig
-+++ b/arch/arm/configs/neponset_defconfig
-@@ -9,7 +9,7 @@ CONFIG_ASSABET_NEPONSET=y
- CONFIG_ZBOOT_ROM_TEXT=0x80000
- CONFIG_ZBOOT_ROM_BSS=0xc1000000
- CONFIG_ZBOOT_ROM=y
--CONFIG_CMDLINE="console=ttySA0,38400n8 cpufreq=221200 rw root=/dev/mtdblock2 mtdparts=sa1100:512K(boot),1M(kernel),2560K(initrd),4M(root) prompt_ramdisk=0 mem=32M noinitrd initrd=0xc0800000,3M"
-+CONFIG_CMDLINE="console=ttySA0,38400n8 cpufreq=221200 rw root=/dev/mtdblock2 mtdparts=sa1100:512K(boot),1M(kernel),2560K(initrd),4M(root) mem=32M noinitrd initrd=0xc0800000,3M"
- CONFIG_FPE_NWFPE=y
- CONFIG_PM=y
- CONFIG_MODULES=y
-diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
-index ac021ae6e6fa..f7d53bc21e41 100644
---- a/init/do_mounts_rd.c
-+++ b/init/do_mounts_rd.c
-@@ -17,13 +17,6 @@
- static struct file *in_file, *out_file;
- static loff_t in_pos, out_pos;
+ #define RAMDISK_IMAGE_START_MASK	0x07FF
+-#define RAMDISK_PROMPT_FLAG		0x8000
+-#define RAMDISK_LOAD_FLAG		0x4000
  
--static int __init prompt_ramdisk(char *str)
--{
--	pr_warn("ignoring the deprecated prompt_ramdisk= option\n");
--	return 1;
--}
--__setup("prompt_ramdisk=", prompt_ramdisk);
--
- int __initdata rd_image_start;		/* starting block # of image */
+ static char __initdata command_line[COMMAND_LINE_SIZE] = { 0, };
  
- static int __init ramdisk_start_setup(char *str)
+diff --git a/arch/sparc/kernel/setup_32.c b/arch/sparc/kernel/setup_32.c
+index 704375c061e7..eb60be31127f 100644
+--- a/arch/sparc/kernel/setup_32.c
++++ b/arch/sparc/kernel/setup_32.c
+@@ -172,8 +172,6 @@ extern unsigned short root_flags;
+ extern unsigned short root_dev;
+ extern unsigned short ram_flags;
+ #define RAMDISK_IMAGE_START_MASK	0x07FF
+-#define RAMDISK_PROMPT_FLAG		0x8000
+-#define RAMDISK_LOAD_FLAG		0x4000
+ 
+ extern int root_mountflags;
+ 
+diff --git a/arch/sparc/kernel/setup_64.c b/arch/sparc/kernel/setup_64.c
+index 63615f5c99b4..f728f1b00aca 100644
+--- a/arch/sparc/kernel/setup_64.c
++++ b/arch/sparc/kernel/setup_64.c
+@@ -145,8 +145,6 @@ extern unsigned short root_flags;
+ extern unsigned short root_dev;
+ extern unsigned short ram_flags;
+ #define RAMDISK_IMAGE_START_MASK	0x07FF
+-#define RAMDISK_PROMPT_FLAG		0x8000
+-#define RAMDISK_LOAD_FLAG		0x4000
+ 
+ extern int root_mountflags;
+ 
+diff --git a/arch/x86/include/uapi/asm/bootparam.h b/arch/x86/include/uapi/asm/bootparam.h
+index dafbf581c515..f53dd3f319ba 100644
+--- a/arch/x86/include/uapi/asm/bootparam.h
++++ b/arch/x86/include/uapi/asm/bootparam.h
+@@ -6,8 +6,6 @@
+ 
+ /* ram_size flags */
+ #define RAMDISK_IMAGE_START_MASK	0x07FF
+-#define RAMDISK_PROMPT_FLAG		0x8000
+-#define RAMDISK_LOAD_FLAG		0x4000
+ 
+ /* loadflags */
+ #define LOADED_HIGH	(1<<0)
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 1b2edd07a3e1..6409e766fb17 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -223,8 +223,6 @@ extern int root_mountflags;
+ unsigned long saved_video_mode;
+ 
+ #define RAMDISK_IMAGE_START_MASK	0x07FF
+-#define RAMDISK_PROMPT_FLAG		0x8000
+-#define RAMDISK_LOAD_FLAG		0x4000
+ 
+ static char __initdata command_line[COMMAND_LINE_SIZE];
+ #ifdef CONFIG_CMDLINE_BOOL
 -- 
 2.47.2
 
