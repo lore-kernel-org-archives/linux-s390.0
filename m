@@ -1,63 +1,63 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E91A513A3ED
-	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 00:54:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41AA91494DB
+	for <linux-s390@vger.kernel.org>; Sat, 13 Sep 2025 00:55:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757724858; cv=none; b=YBr8hbCjSVWCjSkx1Tvv/XVi5Y7SI1iTbzYZFp9FvdcpUmHwYnjduStU1uoPAT66HPROXWyolh3nZvy808Ax+MR9y8M31LvMSBkvxS33qghJxlPtjr7pBdBhAFTt3VVKfM1aA/G/tOJR9+fwOQht9BaJ9HSpkMaqIQrz/l0rWqo=
+	t=1757724923; cv=none; b=W0jSSIeI/J6EndEtPXTXeIKS/4d+c/wlcuh/cOxhDIb/srex68Jih3/GoXBH1tj8WwgggKIEggXwXln5KZwssUPiaN1iVGo6Au4MtVnrmbXTXw44O58c1xz0/ollIQOLOxo3eFBSgOERFVTBOEO4KVBkV/hmhX2J3AE0498Wuds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757724858; c=relaxed/simple;
-	bh=Jkxu5ZUI0H6ttWYEi4Z84BWe03GXjUbvUo6lUIoM5rY=;
+	s=arc-20240116; t=1757724923; c=relaxed/simple;
+	bh=eGt6p4ZjFeLe2iCSQ/AVZeB8ZlFdwKPgIafRJWfogAQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MfVmQPDfCApDH/rJ9ZgRgvh9gzRGUAYPhBOWLWexaWbiHdtjdXmJi9rzWK4cfdoDgi0Ew3TedGLpUcMOkeoPSpH6mwAAjowGiE/Z1iiWtWYR3LLakLqE1FeJ/ITnZdoKToVIHCO+BsBkh3H+UKs58jQobqC+axHHhzHipk/dJBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NvT6e3Ob; arc=none smtp.client-ip=209.85.218.44
+	 MIME-Version; b=V2rdLk/AgA1LGHwWON7lCtjOnbfk3gxA7LMDdUF9xL+n8kN1wYKWybe35T5H/QnywsUK9vn01Bo3cHTyTBkl7noat6tBWTq30GFju1q2HtLzj5JjAXvd8F/I+CGZLgeoJCZHgnaKEALhIl/1/MPERhDXE1KsFH24H3yvmlrD/YY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZcTnakkN; arc=none smtp.client-ip=209.85.218.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NvT6e3Ob"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-b07c081660aso312663266b.0
-        for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 17:54:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZcTnakkN"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-b07ba1c3df4so344632266b.3
+        for <linux-s390@vger.kernel.org>; Fri, 12 Sep 2025 17:55:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757724853; x=1758329653; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757724918; x=1758329718; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HNaBVV0FpkKN0cdUwxCZ8fQss5eC0TEeX4co/5GJ2YQ=;
-        b=NvT6e3ObjPoqqPnxCS60GcwK+yLdOlfN22Jnv2lY67RA/U1al/OIo3S4BwG/GKULue
-         oTCpL8coYPSgHWTBgX54uuCFQcUq1LHojhq2vj1SU0MSap61BLXAyUIZVC9Wm8MNNSKQ
-         ZIJvpWkRvAUlrww9wJU5tj83FxL3UGf6dcaoDZIF/lsSYItI6HG6gpZSxJDoVbVfCCvt
-         rdp0lb5dDw4ls+bnlyJn6EDojFmBWvllBN5GBV9Xi95j5sjAnNZnWIgr/IlHDyt1nZ0I
-         q0ApG2FWKiKptbJBqBpWqvJuz2WEwrbOtYPrqw9HMraW/wyXa/GoD5KUhkMKAT0DY+iW
-         pwww==
+        bh=brUQzIfCd0Hsthf3I31XlgkqlDsgZYmVYRfws4Ev66A=;
+        b=ZcTnakkNmFYjQdChEjtaqK6HEcCwMgYs1rXg39HJJglVr4tegCv0ClYqye4QSs7t5B
+         nBzOxKX9ffT0TGlKUjDYDesIqmLae9atQjaty2n+4wACYUDNbsMBnvrEJU+7A6wppzuf
+         JkP2j1HCvksc/G+cQLMJEB26oM4bly9Uaf7len5rAcFLSnrXK4MmjB6mR3W+WbQQzGj2
+         s0B9VmeQH+3+7yBlflwz4FO+7d2p4g5iDNhDU+wLnTbCVPDkcwCH9tSj+xzmhjrzsvNV
+         xYCXm15o6tgPTnS+wPQy3tNtCeu/09LXTyp/+sllPbYOZ5RLlcWPnA/Rd3bvtnahbXWt
+         lKYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757724853; x=1758329653;
+        d=1e100.net; s=20230601; t=1757724918; x=1758329718;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HNaBVV0FpkKN0cdUwxCZ8fQss5eC0TEeX4co/5GJ2YQ=;
-        b=QMZ/JTbirTz2zVf32GHjwqobpGV+0JjdG58/yQAQVifnBfHv6St86xOhgZL624+6Nh
-         Z0FLsF3ZpAyw3C4O6TqVzJjEx1kXMPruDrKtHeu5Mv5Ah0BSslBRGFiSnYsA/AHjO/ES
-         aVjVmakRx5Xu0fIZbGlcV9K+vEeOMLdArodIwjFhJz9KicGb52aAjUb+zWtj09EpP7im
-         78UrSMdmEURin7YMWNEu4gHWk5L5WHlAwDF/jI278f9bR0+GwmrIVOayo5c/VxarP+iE
-         r6pYtY4fz4LqmjyoV7+cV+OfVCWPlF9LJlsfUVeqrFulI6ovDjrl1V3zHCnao7B7b2I+
-         0/fA==
-X-Forwarded-Encrypted: i=1; AJvYcCUVFa5IXnU9p+dddI1DvPGOAMPSjGQ97s+JCQgqSuG9Y4bBNpHjYwxakDw77g+GBLEiTmLRDghJLSHS@vger.kernel.org
-X-Gm-Message-State: AOJu0YyPSNEwYfr+YQNouHW8Rt45gWiUtlrcO6JRHuBNcuERpD/nqtR8
-	Kc/+Sq2wMLdO+y/CzonC+Jas75OdcHoaJqr0QRmA7UuORh4SOZalX9wt
-X-Gm-Gg: ASbGncssOwoi26avPOt7V24EzwGwjorYxNmB9QsmZ+IL/9wxjmkauM2IOdfvnHV+JN+
-	3vjMCwtqIRGh6idT5QexY+8MyxwPHG880gQkalz9BHAViMTcq/uV2k1kR0sUC0LfM007j2zghtf
-	roQ93Njnv/dJ2neU/kumR647m4bAVHCn7ctLgSZrCNbs11Se/qvspp+xWvvWDrjiRZ0z5w94yGf
-	q+JRINtAeLdIpUfVZU5a+QFG59y7iGNbDgV/sauvy1XQxgSpLU1UAU4shM882BfLI/GvpQ5rpbk
-	NuAzkkPVVap8QHQOZYJqNP3fBeq+k2mchCZ7dVK/5WXJ8JB55cKjbCPtI0ZJejW0gPYtfFJLq84
-	zDbMm9xI7kV4+mDkD29I5jzfY/wgkdg==
-X-Google-Smtp-Source: AGHT+IFRAhwUW5zsVWdQl7rom9u+xngcdJiQFGIxNb9yv6sUT2JdEwHxw5AIwBj5WkuunZa0hzcUAQ==
-X-Received: by 2002:a17:907:7e8c:b0:b04:3513:5138 with SMTP id a640c23a62f3a-b07c37fca87mr474198766b.41.1757724853144;
-        Fri, 12 Sep 2025 17:54:13 -0700 (PDT)
+        bh=brUQzIfCd0Hsthf3I31XlgkqlDsgZYmVYRfws4Ev66A=;
+        b=t/lW5TQWT18qjCZ56t2n2K2BtP2URRKAbLcZsO4mv5n65hxxooJlinScJLdrSRu0Ol
+         uzD+Ae9+PXH7Ddgs4TIqmxQM3mFJIxH/twzJq4LA24gONsXnseGeMaoHRGHe+CM1LTv9
+         shY6thZiZq+p1kasqZ/dH53ZM1FyBDRtmfdtfKVxdkfvCRmdLY+8H3fxvolzAy65z2T3
+         K8khU10R03o+3hXj3xsD4j6qkVUMP10CrpU2Ka3zeesm+qprNJb1YkGONIlTrijpPUJs
+         I1lFsW02bOJXF9g2btwERWQjEj7dvijOcUBNK09Tx9tvxcKi17FnnagfuXUhcA8h4qIg
+         aN+w==
+X-Forwarded-Encrypted: i=1; AJvYcCVeHNPRErF/uxPjOx96lN/f4UwmAwwjYWaWpKs5cXCWHAqKeIP/ksC6NgxbCM9AEH+dALj+khNaDYjz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyk750vWZQ/0BENwL0sbxe+n1NsxIA9rD9NDfdic42pU/J8JL7R
+	uyPOMrr0owHArI6vRNARlmHYBkiFIc7LziBe2bA5n9hgStOszA/YR12S
+X-Gm-Gg: ASbGncv4ff04YNU4JeoJjINQYP6yp4UjNzT4R7IWcI8gvpqujtlV5Xepf6iEddHI3sm
+	mB4cB3iUN15JcmBoMosR8Ln8XgkYwslIQwIVPQSY1BygYtP7lkrytcFg8wipV9R6gHFWAUNSp4U
+	0tgwOn9lToacjUD0ceAefyUw2OjmUJekhXHk2ULAWMG4MmA3P820NdoCMPTBXl9ppEpF/NfES28
+	2yF3lI2dqrFv7YUFKMSMzU5Nx4mvJYH7eU8ds79mrkx11rhBAp/WvQ0nlT2vR7Z+vpDWrfoATik
+	Vlt25/7VnCi5ICFPIqK5MjNjNwueFMB4pCGKEaXwGqUkakd0qmdvFB4nbC5rinAZQnVXJDog+bk
+	uqJFJZ6YkZwJ0INS1rDP/cIferEO9cg==
+X-Google-Smtp-Source: AGHT+IFhKaZuOZuHh9m3zt1qgdjZK8E9TZ0Xtk6mNXJxSo6OktVvoEgwN+yDRi3/QGfp0/HMd569SA==
+X-Received: by 2002:a17:907:3d8c:b0:afe:8b53:449c with SMTP id a640c23a62f3a-b07c37dc9f1mr442768666b.34.1757724918489;
+        Fri, 12 Sep 2025 17:55:18 -0700 (PDT)
 Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07b30da310sm465332066b.20.2025.09.12.17.54.08
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b07b316e2d4sm471493966b.45.2025.09.12.17.55.14
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Sep 2025 17:54:12 -0700 (PDT)
+        Fri, 12 Sep 2025 17:55:18 -0700 (PDT)
 From: Askar Safin <safinaskar@gmail.com>
 To: linux-fsdevel@vger.kernel.org,
 	linux-kernel@vger.kernel.org
@@ -113,9 +113,9 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	Thorsten Blum <thorsten.blum@linux.dev>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	patches@lists.linux.dev
-Subject: [PATCH RESEND 13/62] ext2: remove ext2_image_size and associated code
-Date: Sat, 13 Sep 2025 00:37:52 +0000
-Message-ID: <20250913003842.41944-14-safinaskar@gmail.com>
+Subject: [PATCH RESEND 14/62] init: m68k, mips, powerpc, s390, sh: remove Root_RAM0
+Date: Sat, 13 Sep 2025 00:37:53 +0000
+Message-ID: <20250913003842.41944-15-safinaskar@gmail.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250913003842.41944-1-safinaskar@gmail.com>
 References: <20250913003842.41944-1-safinaskar@gmail.com>
@@ -127,56 +127,140 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-It is not used anymore
+Root_RAM0 used to specify ramdisk as root device.
+It means nothing now, so let's remove it
 
 Signed-off-by: Askar Safin <safinaskar@gmail.com>
 ---
- fs/ext2/ext2.h          |  9 ---------
- include/linux/ext2_fs.h | 13 -------------
- 2 files changed, 22 deletions(-)
+ arch/m68k/kernel/uboot.c                |  1 -
+ arch/mips/kernel/setup.c                |  1 -
+ arch/powerpc/kernel/setup-common.c      | 11 ++++-------
+ arch/powerpc/platforms/powermac/setup.c |  4 +---
+ arch/s390/kernel/setup.c                |  2 --
+ arch/sh/kernel/setup.c                  |  4 +---
+ include/linux/root_dev.h                |  1 -
+ init/do_mounts.c                        |  2 --
+ 8 files changed, 6 insertions(+), 20 deletions(-)
 
-diff --git a/fs/ext2/ext2.h b/fs/ext2/ext2.h
-index cf97b76e9fd3..d623a14040d9 100644
---- a/fs/ext2/ext2.h
-+++ b/fs/ext2/ext2.h
-@@ -608,15 +608,6 @@ struct ext2_dir_entry_2 {
- 					 ~EXT2_DIR_ROUND)
- #define EXT2_MAX_REC_LEN		((1<<16)-1)
+diff --git a/arch/m68k/kernel/uboot.c b/arch/m68k/kernel/uboot.c
+index fa7c279ead5d..d278060a250c 100644
+--- a/arch/m68k/kernel/uboot.c
++++ b/arch/m68k/kernel/uboot.c
+@@ -83,7 +83,6 @@ static void __init parse_uboot_commandline(char *commandp, int size)
+ 	    (uboot_initrd_end > uboot_initrd_start)) {
+ 		initrd_start = uboot_initrd_start;
+ 		initrd_end = uboot_initrd_end;
+-		ROOT_DEV = Root_RAM0;
+ 		pr_info("initrd at 0x%lx:0x%lx\n", initrd_start, initrd_end);
+ 	}
+ #endif /* if defined(CONFIG_BLK_DEV_INITRD) */
+diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+index 11b9b6b63e19..a78e24873231 100644
+--- a/arch/mips/kernel/setup.c
++++ b/arch/mips/kernel/setup.c
+@@ -173,7 +173,6 @@ static unsigned long __init init_initrd(void)
+ 		goto disable;
+ 	}
  
--static inline void verify_offsets(void)
--{
--#define A(x,y) BUILD_BUG_ON(x != offsetof(struct ext2_super_block, y));
--	A(EXT2_SB_MAGIC_OFFSET, s_magic);
--	A(EXT2_SB_BLOCKS_OFFSET, s_blocks_count);
--	A(EXT2_SB_BSIZE_OFFSET, s_log_block_size);
--#undef A
--}
--
- /*
-  * ext2 mount options
-  */
-diff --git a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
-index 1fef88569037..e5ebe6cdf06c 100644
---- a/include/linux/ext2_fs.h
-+++ b/include/linux/ext2_fs.h
-@@ -27,17 +27,4 @@
-  */
- #define EXT2_LINK_MAX		32000
+-	ROOT_DEV = Root_RAM0;
+ 	return PFN_UP(end);
+ disable:
+ 	initrd_start = 0;
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index 68d47c53876c..97d330f3b8f1 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -363,17 +363,14 @@ void __init check_for_initrd(void)
+ 	DBG(" -> check_for_initrd()  initrd_start=0x%lx  initrd_end=0x%lx\n",
+ 	    initrd_start, initrd_end);
  
--#define EXT2_SB_MAGIC_OFFSET	0x38
--#define EXT2_SB_BLOCKS_OFFSET	0x04
--#define EXT2_SB_BSIZE_OFFSET	0x18
+-	/* If we were passed an initrd, set the ROOT_DEV properly if the values
+-	 * look sensible. If not, clear initrd reference.
++	/* If we were not passed an sensible initramfs, clear initramfs reference.
+ 	 */
+-	if (is_kernel_addr(initrd_start) && is_kernel_addr(initrd_end) &&
+-	    initrd_end > initrd_start)
+-		ROOT_DEV = Root_RAM0;
+-	else
++	if (!(is_kernel_addr(initrd_start) && is_kernel_addr(initrd_end) &&
++	    initrd_end > initrd_start))
+ 		initrd_start = initrd_end = 0;
+ 
+ 	if (initrd_start)
+-		pr_info("Found initrd at 0x%lx:0x%lx\n", initrd_start, initrd_end);
++		pr_info("Found initramfs at 0x%lx:0x%lx\n", initrd_start, initrd_end);
+ 
+ 	DBG(" <- check_for_initrd()\n");
+ #endif /* CONFIG_BLK_DEV_INITRD */
+diff --git a/arch/powerpc/platforms/powermac/setup.c b/arch/powerpc/platforms/powermac/setup.c
+index eb092f293113..237d8386a3f4 100644
+--- a/arch/powerpc/platforms/powermac/setup.c
++++ b/arch/powerpc/platforms/powermac/setup.c
+@@ -296,9 +296,7 @@ static void __init pmac_setup_arch(void)
+ #endif
+ #ifdef CONFIG_PPC32
+ #ifdef CONFIG_BLK_DEV_INITRD
+-	if (initrd_start)
+-		ROOT_DEV = Root_RAM0;
+-	else
++	if (!initrd_start)
+ #endif
+ 		ROOT_DEV = DEFAULT_ROOT_DEVICE;
+ #endif
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 7b529868789f..a4ce721b7fe8 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -923,8 +923,6 @@ void __init setup_arch(char **cmdline_p)
+ 	/* boot_command_line has been already set up in early.c */
+ 	*cmdline_p = boot_command_line;
+ 
+-        ROOT_DEV = Root_RAM0;
 -
--static inline u64 ext2_image_size(void *ext2_sb)
--{
--	__u8 *p = ext2_sb;
--	if (*(__le16 *)(p + EXT2_SB_MAGIC_OFFSET) != cpu_to_le16(EXT2_SUPER_MAGIC))
--		return 0;
--	return (u64)le32_to_cpup((__le32 *)(p + EXT2_SB_BLOCKS_OFFSET)) <<
--		le32_to_cpup((__le32 *)(p + EXT2_SB_BSIZE_OFFSET));
--}
--
- #endif	/* _LINUX_EXT2_FS_H */
+ 	setup_initial_init_mm(_text, _etext, _edata, _end);
+ 
+ 	if (IS_ENABLED(CONFIG_EXPOLINE_AUTO))
+diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
+index 50f1d39fe34f..c4312ee13db9 100644
+--- a/arch/sh/kernel/setup.c
++++ b/arch/sh/kernel/setup.c
+@@ -147,10 +147,8 @@ void __init check_for_initrd(void)
+ 
+ 	/*
+ 	 * If we got this far in spite of the boot loader's best efforts
+-	 * to the contrary, assume we actually have a valid initrd and
+-	 * fix up the root dev.
++	 * to the contrary, assume we actually have a valid initramfs.
+ 	 */
+-	ROOT_DEV = Root_RAM0;
+ 
+ 	/*
+ 	 * Address sanitization
+diff --git a/include/linux/root_dev.h b/include/linux/root_dev.h
+index 847c9a06101b..e411533b90b7 100644
+--- a/include/linux/root_dev.h
++++ b/include/linux/root_dev.h
+@@ -10,7 +10,6 @@ enum {
+ 	Root_NFS = MKDEV(UNNAMED_MAJOR, 255),
+ 	Root_CIFS = MKDEV(UNNAMED_MAJOR, 254),
+ 	Root_Generic = MKDEV(UNNAMED_MAJOR, 253),
+-	Root_RAM0 = MKDEV(RAMDISK_MAJOR, 0),
+ };
+ 
+ extern dev_t ROOT_DEV;
+diff --git a/init/do_mounts.c b/init/do_mounts.c
+index f0b1a83dbda4..5c407ca54063 100644
+--- a/init/do_mounts.c
++++ b/init/do_mounts.c
+@@ -437,8 +437,6 @@ static dev_t __init parse_root_device(char *root_device_name)
+ 		return Root_NFS;
+ 	if (strcmp(root_device_name, "/dev/cifs") == 0)
+ 		return Root_CIFS;
+-	if (strcmp(root_device_name, "/dev/ram") == 0)
+-		return Root_RAM0;
+ 
+ 	error = early_lookup_bdev(root_device_name, &dev);
+ 	if (error) {
 -- 
 2.47.2
 
