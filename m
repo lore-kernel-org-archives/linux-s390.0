@@ -1,39 +1,39 @@
 Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9BC10304BAF;
-	Mon, 15 Sep 2025 11:50:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 23A1C2FF17B;
+	Mon, 15 Sep 2025 11:50:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757937056; cv=none; b=t9l+W3lt8e3IqCtSOKQbqKJN7FvvigH/XerqeUZQ+vAAhDJDnmsrbMRWpXalbC5JfIPmAc1ONrD9a130XmS6Rzvr3lvvJpD8eACAqJmTTRLHD7bpn+lQCsuqfnkNR1Yi5NusUP5ioDYB1/nefR7QW5QVn9LdGlkV05c79Q2qT68=
+	t=1757937060; cv=none; b=eKeGWWCmVNCthxxY9lFelTGdFhFLDnIfbT9sG+Oz0WJ6CeALdp0irgURLSORmwNvAW8HGKOqnlu0bUQSEybIBOmA7GW3Vlm5DAjrdDp6m7si8hDIgHSvrr1eBPjIZPNBZ0AdVSbXX8UCF0zRMPQY3Hmgi6U6ZKh372LZ6QVbH5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757937056; c=relaxed/simple;
-	bh=8Z5zmYLUV+4ZrO5EHC1XTvy0sirc64JgGyrM0lTrX/4=;
+	s=arc-20240116; t=1757937060; c=relaxed/simple;
+	bh=slLaPaXqm4+66dpacFCrcqHE+39qtJjBzOocuF1xi6c=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HysQ689iKwpGPonDrCdYyDAkjzBUSGbP5UyMcgAHj8gOgLtZUJp37dsFzqbAsF01w6QVKnvQpC6M1AMOE3Y2sxEos5jNW4VVFovd5aXQfJAKdsRfSh4/EyTZwN4Gvj8gUW4RaLoXHNg2xLCtv+XQ9bGmG11O+gmTyliWJKGI8pM=
+	 In-Reply-To:Content-Type; b=iQ6Fq4m9tXLR/ibwIbGT5O9GX7JzFONbdx07WQSg9hibX/KIvQXnCkpiYR3hRnp6iOxpF8fvqxuWWEof02hmQy2S+nzPhns/35idbiHfYr4ge9kEaqu1GinC91RmIjRIiYNGjHbJervZTatz/19XUcwBUxlOFM6V0hPXhQ2DaBs=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
 Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4cQMtV5Jlbz9sxc;
-	Mon, 15 Sep 2025 13:16:50 +0200 (CEST)
+	by localhost (Postfix) with ESMTP id 4cQMxW3jXSz9sxm;
+	Mon, 15 Sep 2025 13:19:27 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from pegase2.c-s.fr ([172.26.127.65])
 	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sZVVkhWHgxQ4; Mon, 15 Sep 2025 13:16:50 +0200 (CEST)
+	with ESMTP id PiKt1_b2wUBu; Mon, 15 Sep 2025 13:19:27 +0200 (CEST)
 Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4cQMtV3yTGz9sxZ;
-	Mon, 15 Sep 2025 13:16:50 +0200 (CEST)
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4cQMxW2Rtvz9sxk;
+	Mon, 15 Sep 2025 13:19:27 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 6BA448B765;
-	Mon, 15 Sep 2025 13:16:50 +0200 (CEST)
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 237C98B765;
+	Mon, 15 Sep 2025 13:19:27 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from messagerie.si.c-s.fr ([127.0.0.1])
 	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id guosnhabo8gg; Mon, 15 Sep 2025 13:16:50 +0200 (CEST)
+	with ESMTP id WotA-UoQ3CTM; Mon, 15 Sep 2025 13:19:27 +0200 (CEST)
 Received: from [10.25.207.160] (unknown [10.25.207.160])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id B33B28B763;
-	Mon, 15 Sep 2025 13:16:49 +0200 (CEST)
-Message-ID: <053f39a9-06dc-4fbd-ad1b-325f9d3f3f66@csgroup.eu>
-Date: Mon, 15 Sep 2025 13:16:49 +0200
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id 6E3148B763;
+	Mon, 15 Sep 2025 13:19:26 +0200 (CEST)
+Message-ID: <c52c2589-9d7b-4ac7-a61f-68fa9ba18308@csgroup.eu>
+Date: Mon, 15 Sep 2025 13:19:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,8 +41,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND 02/62] init: remove deprecated "prompt_ramdisk"
- command line parameter, which does nothing
+Subject: Re: [PATCH RESEND 03/62] init: sh, sparc, x86: remove unused
+ constants RAMDISK_PROMPT_FLAG and RAMDISK_LOAD_FLAG
 To: Askar Safin <safinaskar@gmail.com>, linux-fsdevel@vger.kernel.org,
  linux-kernel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
@@ -72,12 +72,13 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  linux-acpi@vger.kernel.org, Michal Simek <monstr@monstr.eu>,
  devicetree@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
  Kees Cook <kees@kernel.org>, Thorsten Blum <thorsten.blum@linux.dev>,
- Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev
+ Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev,
+ stable+noautosel@kernel.org
 References: <20250913003842.41944-1-safinaskar@gmail.com>
- <20250913003842.41944-3-safinaskar@gmail.com>
+ <20250913003842.41944-4-safinaskar@gmail.com>
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 Content-Language: fr-FR
-In-Reply-To: <20250913003842.41944-3-safinaskar@gmail.com>
+In-Reply-To: <20250913003842.41944-4-safinaskar@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
@@ -86,67 +87,89 @@ Content-Transfer-Encoding: 8bit
 Le 13/09/2025 à 02:37, Askar Safin a écrit :
 > [Vous ne recevez pas souvent de courriers de safinaskar@gmail.com. Découvrez pourquoi ceci est important à https://aka.ms/LearnAboutSenderIdentification ]
 > 
-> This is preparation for initrd removal
-
-Squash patch 1 and patch 2 together and say this is cleanup of two 
-options deprecated by commit c8376994c86c ("initrd: remove support for 
-multiple floppies") with the documentation by commit 6b99e6e6aa62 
-("Documentation/admin-guide: blockdev/ramdisk: remove use of "rdev"")
-
-Christophe
-
+> They were used for initrd before c8376994c86.
 > 
+> c8376994c86c made them unused and forgot to remove them
+> 
+> Fixes: c8376994c86c ("initrd: remove support for multiple floppies")
+> Cc: <stable+noautosel@kernel.org> # because changes uapi headers
 > Signed-off-by: Askar Safin <safinaskar@gmail.com>
+
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+
 > ---
->   Documentation/admin-guide/kernel-parameters.txt | 2 --
->   arch/arm/configs/neponset_defconfig             | 2 +-
->   init/do_mounts_rd.c                             | 7 -------
->   3 files changed, 1 insertion(+), 10 deletions(-)
+>   arch/sh/kernel/setup.c                | 2 --
+>   arch/sparc/kernel/setup_32.c          | 2 --
+>   arch/sparc/kernel/setup_64.c          | 2 --
+>   arch/x86/include/uapi/asm/bootparam.h | 2 --
+>   arch/x86/kernel/setup.c               | 2 --
+>   5 files changed, 10 deletions(-)
 > 
-> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-> index d3b05ce249ff..f940c1184912 100644
-> --- a/Documentation/admin-guide/kernel-parameters.txt
-> +++ b/Documentation/admin-guide/kernel-parameters.txt
-> @@ -5229,8 +5229,6 @@
->                          Param: <number> - step/bucket size as a power of 2 for
->                                  statistical time based profiling.
+> diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
+> index 039a51291002..d66f098e9e9f 100644
+> --- a/arch/sh/kernel/setup.c
+> +++ b/arch/sh/kernel/setup.c
+> @@ -71,8 +71,6 @@ EXPORT_SYMBOL(sh_mv);
+>   extern int root_mountflags;
 > 
-> -       prompt_ramdisk= [RAM] [Deprecated]
-> -
->          prot_virt=      [S390] enable hosting protected virtual machines
->                          isolated from the hypervisor (if hardware supports
->                          that). If enabled, the default kernel base address
-> diff --git a/arch/arm/configs/neponset_defconfig b/arch/arm/configs/neponset_defconfig
-> index 16f7300239da..4d720001c12e 100644
-> --- a/arch/arm/configs/neponset_defconfig
-> +++ b/arch/arm/configs/neponset_defconfig
-> @@ -9,7 +9,7 @@ CONFIG_ASSABET_NEPONSET=y
->   CONFIG_ZBOOT_ROM_TEXT=0x80000
->   CONFIG_ZBOOT_ROM_BSS=0xc1000000
->   CONFIG_ZBOOT_ROM=y
-> -CONFIG_CMDLINE="console=ttySA0,38400n8 cpufreq=221200 rw root=/dev/mtdblock2 mtdparts=sa1100:512K(boot),1M(kernel),2560K(initrd),4M(root) prompt_ramdisk=0 mem=32M noinitrd initrd=0xc0800000,3M"
-> +CONFIG_CMDLINE="console=ttySA0,38400n8 cpufreq=221200 rw root=/dev/mtdblock2 mtdparts=sa1100:512K(boot),1M(kernel),2560K(initrd),4M(root) mem=32M noinitrd initrd=0xc0800000,3M"
->   CONFIG_FPE_NWFPE=y
->   CONFIG_PM=y
->   CONFIG_MODULES=y
-> diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
-> index ac021ae6e6fa..f7d53bc21e41 100644
-> --- a/init/do_mounts_rd.c
-> +++ b/init/do_mounts_rd.c
-> @@ -17,13 +17,6 @@
->   static struct file *in_file, *out_file;
->   static loff_t in_pos, out_pos;
+>   #define RAMDISK_IMAGE_START_MASK       0x07FF
+> -#define RAMDISK_PROMPT_FLAG            0x8000
+> -#define RAMDISK_LOAD_FLAG              0x4000
 > 
-> -static int __init prompt_ramdisk(char *str)
-> -{
-> -       pr_warn("ignoring the deprecated prompt_ramdisk= option\n");
-> -       return 1;
-> -}
-> -__setup("prompt_ramdisk=", prompt_ramdisk);
-> -
->   int __initdata rd_image_start;         /* starting block # of image */
+>   static char __initdata command_line[COMMAND_LINE_SIZE] = { 0, };
 > 
->   static int __init ramdisk_start_setup(char *str)
+> diff --git a/arch/sparc/kernel/setup_32.c b/arch/sparc/kernel/setup_32.c
+> index 704375c061e7..eb60be31127f 100644
+> --- a/arch/sparc/kernel/setup_32.c
+> +++ b/arch/sparc/kernel/setup_32.c
+> @@ -172,8 +172,6 @@ extern unsigned short root_flags;
+>   extern unsigned short root_dev;
+>   extern unsigned short ram_flags;
+>   #define RAMDISK_IMAGE_START_MASK       0x07FF
+> -#define RAMDISK_PROMPT_FLAG            0x8000
+> -#define RAMDISK_LOAD_FLAG              0x4000
+> 
+>   extern int root_mountflags;
+> 
+> diff --git a/arch/sparc/kernel/setup_64.c b/arch/sparc/kernel/setup_64.c
+> index 63615f5c99b4..f728f1b00aca 100644
+> --- a/arch/sparc/kernel/setup_64.c
+> +++ b/arch/sparc/kernel/setup_64.c
+> @@ -145,8 +145,6 @@ extern unsigned short root_flags;
+>   extern unsigned short root_dev;
+>   extern unsigned short ram_flags;
+>   #define RAMDISK_IMAGE_START_MASK       0x07FF
+> -#define RAMDISK_PROMPT_FLAG            0x8000
+> -#define RAMDISK_LOAD_FLAG              0x4000
+> 
+>   extern int root_mountflags;
+> 
+> diff --git a/arch/x86/include/uapi/asm/bootparam.h b/arch/x86/include/uapi/asm/bootparam.h
+> index dafbf581c515..f53dd3f319ba 100644
+> --- a/arch/x86/include/uapi/asm/bootparam.h
+> +++ b/arch/x86/include/uapi/asm/bootparam.h
+> @@ -6,8 +6,6 @@
+> 
+>   /* ram_size flags */
+>   #define RAMDISK_IMAGE_START_MASK       0x07FF
+> -#define RAMDISK_PROMPT_FLAG            0x8000
+> -#define RAMDISK_LOAD_FLAG              0x4000
+> 
+>   /* loadflags */
+>   #define LOADED_HIGH    (1<<0)
+> diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+> index 1b2edd07a3e1..6409e766fb17 100644
+> --- a/arch/x86/kernel/setup.c
+> +++ b/arch/x86/kernel/setup.c
+> @@ -223,8 +223,6 @@ extern int root_mountflags;
+>   unsigned long saved_video_mode;
+> 
+>   #define RAMDISK_IMAGE_START_MASK       0x07FF
+> -#define RAMDISK_PROMPT_FLAG            0x8000
+> -#define RAMDISK_LOAD_FLAG              0x4000
+> 
+>   static char __initdata command_line[COMMAND_LINE_SIZE];
+>   #ifdef CONFIG_CMDLINE_BOOL
 > --
 > 2.47.2
 > 
