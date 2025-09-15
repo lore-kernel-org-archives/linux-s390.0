@@ -1,83 +1,60 @@
-Received: from poodle.tulip.relay.mailchannels.net (poodle.tulip.relay.mailchannels.net [23.83.218.249])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E429B1E411C;
-	Mon, 15 Sep 2025 17:09:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=23.83.218.249
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757956150; cv=pass; b=jRuLz3OhCyXL6HWqADOAX9tQzJHniEFwi5PNsUgK24oFU5tuqqhWMKdMRG6pB30jp8CFkSDSXcTFUQl9a33QXX3tAwQ415AospaGban+wnQrNwoPbiR7AU2VA2wwAQOs0zE8HO+yGb6Ih1RL49xACXJuDG52CSe87dunwFv7v0k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757956150; c=relaxed/simple;
-	bh=QcXwkxkXJJSavuVQocajTsXXfAli+FzNVs3Cosik7T4=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18BE92836A3;
+	Mon, 15 Sep 2025 17:16:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757956571; cv=none; b=hi8lqn2Oo74SGUlx5S2UjLwWvnYlBVbINj3iDTvvSLABdgm2TBBnbdjTGg9LGUDPzSzkK2My9y2EYpjJRgkGuMptzFtpZuryuphYitwgHbzBzV8+eODq/XoydsFK48jXwY+4sMbZKlTK6uq7B54tgaUKfbqVfBHjUs3HXUmjYpI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757956571; c=relaxed/simple;
+	bh=7Cs2abMlYfg0Hlz8i95zu7AVNuUpQjULT/Uojb8KiBw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=txkuqdfyDg9MRwZYU9FPR8wGfn+UDjNro9ILF4p0RbxeTb4RWrpjag8SOuqzOofZ8l74Wr4eHB8eBW/VgWBvYkOTN/YQv1WhWELyuKlUktm6EblD9u6OkfiWjDdoiIgN1Geb5BPGWLEruUAcdOM7Ff9xkVxIG+GbUKfxMPEn06Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net; spf=pass smtp.mailfrom=landley.net; dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b=hHM4pYd/; arc=pass smtp.client-ip=23.83.218.249
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=landley.net
+	 In-Reply-To:Content-Type; b=WzIe/b5M9P+rzJNu3ufOtTzJcgBslOTNbYhuXfpcRaF05GguDR3EAw2V7rBEDlmAX24Xsy7VM0G/5bcAxJMLrFMGcDMNRgSuTZkSxGSVEaRo3Y/zXukHqdsnsSEvWGysdMTPt52iVBcZuD/UXnZKXrRkX1chH9MwJZ2ChwaEvZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k6Vq5qJG; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b="hHM4pYd/"
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id 39E08702EA9;
-	Mon, 15 Sep 2025 16:43:58 +0000 (UTC)
-Received: from pdx1-sub0-mail-a263.dreamhost.com (100-107-6-72.trex-nlb.outbound.svc.cluster.local [100.107.6.72])
-	(Authenticated sender: dreamhost)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 9BB55702282;
-	Mon, 15 Sep 2025 16:43:54 +0000 (UTC)
-ARC-Seal: i=1; s=arc-2022; d=mailchannels.net; t=1757954637; a=rsa-sha256;
-	cv=none;
-	b=jcH1teqBLlSbjLGm8wSnPehjkoxnqnKDUpG0VLOzFQvMVhZ2RDdFx48JVTnsWir31ckqMu
-	EvHw7ndPjn6x3ejP/grrUuf0A3eh0N2g0queP5YloUWZd31ELnY6AwtaV3MGseURoNdaoS
-	zscSVSlE1syzCOnfqWMXHqv2BNZPfKgMjyC2VEzAcakw89VkuKuBaP90ntArsIib7mZKX5
-	ZgdyEESnQCqTf94vRuZObuGhTP1RPfIX0PnGy3kQhlP5kUt/Dz9EbRDsiobBB3oTpkdYWy
-	k6PF9vasGxEY9B6Kc77KSSvLrFmYIRfBHJgN7n0ZqoQA6jkN51HIOvnq2TpRMQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mailchannels.net;
-	s=arc-2022; t=1757954637;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:dkim-signature;
-	bh=xA0gszu8fOIEF8+fZ/zdihDvOFxt7L1IOq6Jl8u2kgw=;
-	b=uf5JurJxL6zPD5ygwIBxiT6IG/NGQSMFBfI/j25Q+JK2yjF3vO/ZeFUzkivSugs95eaoMg
-	59qSqcFbNTSjbKJMujtP6awqbU503n4OV/R0ncaq21v7J9x5Rmz4NG64ypHTRA39FK+kIQ
-	QcvIWdAN8US3InpTGJ0E/js2x9iRNDG6I4ylgwOyesBRTyLg247F0Kqo1EFdrR+ljEh1Av
-	5GQCiDYAEUXavwumWE/vBnelmY4Gbj+BC4uBSlh8dneVcfD4sq5ftE6dv/8SS57HKfdNIL
-	CE1mKhd2skglApswBp3iKe06w5MtCJr2cExHZcQU+hkmm5PzcKoApEbN8wR0GA==
-ARC-Authentication-Results: i=1;
-	rspamd-7d6d7bb5c5-768t4;
-	auth=pass smtp.auth=dreamhost smtp.mailfrom=rob@landley.net
-X-Sender-Id: dreamhost|x-authsender|rob@landley.net
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: dreamhost|x-authsender|rob@landley.net
-X-MailChannels-Auth-Id: dreamhost
-X-Unite-White: 537c80b115ac1c1b_1757954638045_367269675
-X-MC-Loop-Signature: 1757954638045:1180864403
-X-MC-Ingress-Time: 1757954638045
-Received: from pdx1-sub0-mail-a263.dreamhost.com (pop.dreamhost.com
- [64.90.62.162])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.107.6.72 (trex/7.1.3);
-	Mon, 15 Sep 2025 16:43:58 +0000
-Received: from [192.168.88.7] (unknown [209.81.127.98])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: rob@landley.net)
-	by pdx1-sub0-mail-a263.dreamhost.com (Postfix) with ESMTPSA id 4cQW7q36Pxz87;
-	Mon, 15 Sep 2025 09:43:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=landley.net;
-	s=dreamhost; t=1757954634;
-	bh=xA0gszu8fOIEF8+fZ/zdihDvOFxt7L1IOq6Jl8u2kgw=;
-	h=Date:Subject:To:Cc:From:Content-Type:Content-Transfer-Encoding;
-	b=hHM4pYd/5trdTXN8EQrQ00lNAioPSBHN1EqLeHX8tyv2t598Ei1gLYc67SRexxr0o
-	 V0b5BOT6HHaq8Ssq9in/lkr4tC1sG2QaTTQae3Lbu/rnfHom969Ad4mHyQ7NqbQYcw
-	 gP53fXuyiZlBDvddyeoS0qzObAO9y3gkmXtrQOaXHNUfK5TwQ+L96ToYgoS+Gu35CI
-	 V1YXP+0R1LGjVdii8SPZYWnlquLSvuDhcO4PELQxHEyOVux+Xbp+BpIruEIgRvA5Qu
-	 KHe36UtOS8E3jxHb8nrG1IU4Gx6FlURDKqDa9h0q4ahxoeXsq8J5/itWfZ6J5I+Smp
-	 owTGtnU7EFjUg==
-Message-ID: <0342fbda-9901-4293-afa7-ba6085eb1688@landley.net>
-Date: Mon, 15 Sep 2025 11:43:50 -0500
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k6Vq5qJG"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58F9aurC018695;
+	Mon, 15 Sep 2025 17:16:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=O5vLmc
+	YVSWD9a8z/T+INdDdPEgZT9xY4BDXnkFZLLVs=; b=k6Vq5qJGlIo9gYYwFZduZB
+	qcTfo7VHbDSCPHV5akD+b9BtJchToYTZVXJTgo1+UGGjjIgsG2k53iGSeOyuvsgE
+	KvdFzxwlBdjUvDH21+fRiQ7bRWAxW4+0i4RU8IIXojZbFnLu43UO5yPAa8XWC+hm
+	WBxQzKFJqwTszujeFQoUNBcBmvFWGA39umNGfMUQYjNRZ7qcAi+5sT61A5TtMr2p
+	4FaarheteOWJvFYq7UdbpUm07BPjNDq9xneAYPsdZyy5FCXxVzqLRr4Susxl9/af
+	9XjA9sxHEbvKHValz5vo+iHgNivnOja1b1hfhZ1eY0n+/dtxMJQCry+UbwoOfFmg
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496gat2feh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Sep 2025 17:16:05 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58FFAAEM022316;
+	Mon, 15 Sep 2025 17:16:04 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495kxpfk5x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 15 Sep 2025 17:16:04 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58FHG3JY28312314
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 15 Sep 2025 17:16:03 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F377058058;
+	Mon, 15 Sep 2025 17:16:02 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2F9355805B;
+	Mon, 15 Sep 2025 17:16:02 +0000 (GMT)
+Received: from [9.61.244.242] (unknown [9.61.244.242])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 15 Sep 2025 17:16:02 +0000 (GMT)
+Message-ID: <cd1fa387-df80-4756-a2dc-5acdd0f09697@linux.ibm.com>
+Date: Mon, 15 Sep 2025 10:15:58 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -85,346 +62,251 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/62] initrd: remove classic initrd support
-To: Askar Safin <safinaskar@zohomail.com>, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Christian Brauner <brauner@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
- Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
- Jens Axboe <axboe@kernel.dk>, Andy Shevchenko <andy.shevchenko@gmail.com>,
- Aleksa Sarai <cyphar@cyphar.com>,
- =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Julian Stecklina <julian.stecklina@cyberus-technology.de>,
- Gao Xiang <hsiangkao@linux.alibaba.com>, Art Nikpal <email2tema@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>, Eric Curtin <ecurtin@redhat.com>,
- Alexander Graf <graf@amazon.com>, Lennart Poettering <mzxreary@0pointer.de>,
- linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, x86@kernel.org, Ingo Molnar
- <mingo@redhat.com>, linux-block@vger.kernel.org, initramfs@vger.kernel.org,
- linux-api@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
- "Theodore Y . Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org,
- Michal Simek <monstr@monstr.eu>, devicetree@vger.kernel.org,
- Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>,
- Thorsten Blum <thorsten.blum@linux.dev>, Heiko Carstens <hca@linux.ibm.com>,
- patches@lists.linux.dev
-References: <20250912223937.3735076-1-safinaskar@zohomail.com>
+Subject: Re: [PATCH v3 01/10] PCI: Avoid saving error values for config space
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        helgaas@kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+References: <20250911183307.1910-1-alifm@linux.ibm.com>
+ <20250911183307.1910-2-alifm@linux.ibm.com>
+ <20250913092709.2e58782d.alex.williamson@redhat.com>
 Content-Language: en-US
-From: Rob Landley <rob@landley.net>
-In-Reply-To: <20250912223937.3735076-1-safinaskar@zohomail.com>
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20250913092709.2e58782d.alex.williamson@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-
-On 9/12/25 17:38, Askar Safin wrote:
-> Intro
-> ====
-> This patchset removes classic initrd (initial RAM disk) support,
-> which was deprecated in 2020.
-
-Still useful for embedded systems that can memory map flash, but it's 
-getting harder to find embedded developers who consider new kernels an 
-improvement over older ones...
-
-> Initramfs still stays, and RAM disk itself (brd) still stays, too.
-
-While you're at it, could you fix static/builtin initramfs so PID 1 has 
-a valid stdin/stdout/stderr?
-
-A static initramfs won't create /dev/console if the embedded initramfs 
-image doesn't contain it, which a non-root build can't mknod, so the 
-kernel plumbing won't see it dev in the directory we point it at unless 
-we build with root access. This means the open("/dev/console") fails, so 
-init starts with no error reporting and we have to get far enough to 
-mount our own devtmpfs or similar and open our own stdout/stderr before 
-we can see any error output from init, which is kinda brittle.
-
-I posted various patches to make CONFIG_DEVTMPFS_MOUNT work for initmpfs 
-repeatedly since 2017, which also addressed it, but the kernel 
-community's been hermetically sealed against outside intrusion for a 
-while now...
-
-https://lkml.iu.edu/hypermail/linux/kernel/2005.1/09399.html
-
-https://lkml.iu.edu/2302.2/05597.html
-
-> init/do_mounts* and init/*initramfs* are listed in VFS entry in
-> MAINTAINERS, so I think this patchset should go through VFS tree.
-> This patchset touchs every subdirectory in arch/, so I tested it
-> on 8 (!!!) archs in Qemu (see details below).
-
-Oh hey, somebody using mkroot. Cool. :)
-
-My current "passes basic automated smoketests" list for 6.16 is:
-
-aarch64 armv4l armv5l armv7l i486 i686 m68k mips64 mipsel mips powerpc 
-powerpc64le powerpc64 riscv32 riscv64 s390x sh4 x86_64
-
-I'm assuming that's your 8: arm, x86, m68k, mips, ppc, riscv, s390x, 
-superh. (The variants are mostly 32/64 bit and bit/little endian, couple 
-architecture generations in there. The old ones go out of patent first, 
-you can always tell patents are about to expire and get generic clones 
-when corporate shills start insisting that support for something REALLY 
-NEEDS TO GO AWAY RIGHT NOW...)
-
-The or1k, microblaze, and sh4eb targets mostly work: sh4eb has broken 
-eithernet (never tracked down whether it's kernel or qemu that's wrong I 
-just know they disagree), or1k doesn't know how to exit ala 
-https://lists.gnu.org/archive/html/qemu-devel/2024-11/msg04522.html and 
-microblaze never wired up -hda to their hard drive emulation 
-https://lists.nongnu.org/archive/html/qemu-devel/2025-01/msg01149.html
-but I haven't had the spoons to argue with IBM Hat developers about 
-procedure compliance auditing.
-
-I need to track down a decent qemu emulation for armv7m, last time I 
-tried with vanilla was https://landley.net/notes-2023.html#23-02-2023 
-which was not promising, I downloaded a pic32 qemu fork last week, but 
-haven't had the spoons to follow up on that either. Or to ship a new 
-toybox/mkroot release: I've had 6.16 kernel patches since the week it 
-came out, unbreaking powerpc and adding fdpic support to sh4-mmu, but 
-hobbyist friendly this community ain't. Sigh, I should get back on the 
-(beating a dead) horse...
-
-I had hexagon userspace working for a while ("qemu-hexagon ls -l") but 
-no kernel for it: Taylor Simpson said he was going to post a 
-qemu-system-hexagon patchset with a comet board emulation, but that 
-architecture has no gcc support (there was a gcc fork on code aurora but 
-they abandoned it when the FSF went gplv3) so it needs an llvm-only 
-toolchain build with a non-vanilla musl libc fork... Honestly the 
-problem is compiler-rt sucks rocks: I should cycle back around to 
-https://landley.net/notes-2021.html#28-07-2021 but just haven't.
-
-(Although part of the "Just haven't" is that I posted a patch to lkml 
-making generic $CROSS_COMPILE prefixes automatically work whether your 
-toolchain was gcc or llvm, and the response was literally "we decided to 
-manually specify LLVM= on the command line so you must always do that 
-and we're refusing your two line fix to NOT need to do that". No really: 
-https://lkml.iu.edu/2302.2/08170.html
-
-> Warning: this patchset renames CONFIG_BLK_DEV_INITRD (!!!) to CONFIG_INITRAMFS
-> and CONFIG_RD_* to CONFIG_INITRAMFS_DECOMPRESS_* (for example,
-> CONFIG_RD_GZIP to CONFIG_INITRAMFS_DECOMPRESS_GZIP).
-> If you still use initrd, see below for workaround.
-
-Which will break existing configs for what benefit?
-
-I'm not convinced the churn improves matters. Presumably the kernel 
-command line paremeter is still rdinit= and grub still uses the "initrd" 
-command to load an external cpio.gz.
-
-But I bisect to find breakage like that every release so I assume the 
-other embedded linux developers... are mostly shipping 10+ year old 
-kernels that use half the memory of today's.
-
-> Details
-> ====
-> I not only removed initrd, I also removed a lot of code, which
-> became dead, including a lot of code in arch/.
-> 
-> Still I think the only two architectures I touched in non-trivial
-> way are sh and 32-bit arm.
-> 
-> Also I renamed some files, functions and variables (which became misnomers) to proper names,
-> moved some code around, removed a lot of mentions of initrd
-> in code and comments. Also I cleaned up some docs.
-
-Now that lkml.iu.edu is back up (yay!) all the links in 
-ramfs-rootfs-initramfs.txt can theoretically be fixed just by switching 
-the domain name.
-
-> For example, I renamed the following global variables:
-> 
-> __initramfs_start
-> __initramfs_size
-
-That already said initramfs, and you renamed it.
-
-> phys_initrd_start
-> phys_initrd_size
-> initrd_start
-> initrd_end
-
-Which is data delivered through grub's "initrd" command. Here's how I've 
-been explaining it to people for years:
-
-1) initrd is the external blob from the bootloader's initrd= option.
-
-2) initramfs is the extractor plumbing, _init code that gets discarded.
-
-3) rootfs is (for some reason) the name of the mounted filesystem in 
-/proc/mounts (because letting it say "ramfs" or "tmpfs" like normal in 
-/proc/mounts would be consistent and immediately understandable, so they 
-couldn't have that).
-
-(No I don't know why it's called rootfs. Having things like df not show 
-overmounted filesystems isn't special case logic, why...? The argument 
-to special case this because you can't unmount it is like saying PID 1 
-shouldn't have a number because it can't exit. I would happily call the 
-whole thing initramfs... but it's already not.)
-
-> to:
-> 
-> __builtin_initramfs_start
-> __builtin_initramfs_size
-> phys_external_initramfs_start
-> phys_external_initramfs_size
-> virt_external_initramfs_start
-> virt_external_initramfs_end
-
-Do you believe people will understand what the slightly longer names are 
-without looking them up?
-
-I'm all for removing obsolete code, but a partial cleanup that still 
-leaves various sharp edges around isn't necessarily a net improvement. 
-Did you remove the NFS mount code from init/do_mounts.c? Part of the 
-initramfs justification back in 2005 was "you can have a tiny initramfs 
-set up our root filesystem so most of the init special casing can go"... 
-and then they added CONFIG_DEVTMPFS_MOUNT but made it ONLY apply to the 
-fallback root after the system has decided NOT to stay on rootfs, and 
-ignored my patches to at least make it consistent.
-
-The one config symbol that really seems to bite people in this area is 
-BLK_DEV_INITRD because a common thing people running from initramfs want 
-to do is yank the block layer entirely (CONFIG_BLOCK=n) and use 
-initramfs instead, and needing to enable CONFIG_BLK_DEV_INITRD while
-
-And the INSANE part is they generally want a static initrd to do it so 
-they're not using the external loader, but Kconfig has INITRAMFS_SOURCE 
-under CONFIG_BLK_DEV_INITRD and it's a mess. Renaming THAT symbol would 
-be good.
-
-But then, CONFIG_BLOCK is hidden under CONFIG_EXPERT which selects 
-DEBUG_KERNEL (INCREASING KERNEL SIZE!!!) and thus everybody who does 
-this patches the kconfig plumbing to be less stupid anyway. So the 
-problem isn't JUST renaming the symbol...
-
-(Oh CONFIG_EXPERT is SO STUPID. It's got a menu under it, but 
-CONFIG_BLOCK isn't in that menu, it's at the top of menuconfig between 
-loadable module support and executable file formats, just invisible 
-unless you go down into a menu and switch on a setting and then back out 
-to go find it. WHY WOULD YOU DO THAT?)
-
-> New names precisely capture meaning of these variables.
-
-To you. I'm not entirely sure what virt_external means. (Yes I could go 
-read the code. No I don't want to. I EXPECT to need context and 
-refreshing stuff, but having it change out from under me since the LAST 
-time I did that is annoying when it's "same thing, new name, because".)
-
-It makes more sense to YOU because you changed it to smell like you. 
-Meanwhile 35 years of installed base expertise in other people's heads 
-has been discarded and developed version skew for anyone maintaining an 
-existing system. (That's not a "never do this", that's a "be aware 
-humans consistently have the wrong weightings in our heads for this".)
-
-Personally I usually have to look it up either way. And am spending more 
-and more of my time poking at older kernels rather because newer stuff 
-has either removed support for things I need or grown dependencies. (And 
-because there's 20 years of installed base still in various stages of 
-use, I'm personally likely to spend more time looking at the old names 
-than the new ones.)
-
-> This will break all configs out there (update your configs!).
-> Still I think this is okay,
-
-Because you don't have to clean up after it.
-
-> because config names never were part of stable API.
-
-I can forward everyone who asks me questions to you, or just agree when 
-they tell me it's yet another reason not to upgrade.
-
-> Other user-visible changes:
-> 
-> - Removed kernel command line parameters "load_ramdisk" and
-> "prompt_ramdisk", which did nothing and were deprecated
-
-Sure.
-
-> - Removed kernel command line parameter "ramdisk_start",
-> which was used for initrd only (not for initramfs)
-
-Some bootloaders appended that to the kernel command line to specify 
-where in memory they've loaded the initrd image, which could be a 
-cpio.gz once upon a time. No idea what regressions happened since though.
-
-(Last new bootloader I was involved with that had to make it work used 
-some horrible hack editing a dtb at a fixed offset, like the old "rdev" 
-trick but more brittle. Because "device tree better" than human readable 
-textual mechanism. Fixing ramdisk_start to work right sounded like a 
-more sane approach to me, but...)
-
-> I tested my patchset on many architectures in Qemu using my Rust
-> program, heavily based on mkroot [1].
-
-You rewrote a 400 line bash script in rust.
-
-Yeah, that's a rust developer. (And it smells like you now...)
-
-> I used the following cross-compilers:
-> 
-> aarch64-linux-musleabi
-> armv4l-linux-musleabihf
-> armv5l-linux-musleabihf
-> armv7l-linux-musleabihf
-> i486-linux-musl
-> i686-linux-musl
-> mips-linux-musl
-> mips64-linux-musl
-> mipsel-linux-musl
-> powerpc-linux-musl
-> powerpc64-linux-musl
-> powerpc64le-linux-musl
-> riscv32-linux-musl
-> riscv64-linux-musl
-> s390x-linux-musl
-> sh4-linux-musl
-> sh4eb-linux-musl
-> x86_64-linux-musl
-
-or1k and microblaze work, they just don't pass the full smoketest for 
-reasons that shouldn't affect initramfs testing.
-
-I'm still waiting for Rich to ship the next musl release to do new 
-toolchains...
-
-https://www.openwall.com/lists/musl/2025/08/04/1
-
-> Workaround
-> ====
-> If "retain_initrd" is passed to kernel, then initramfs/initrd,
-> passed by bootloader, is retained and becomes available after boot
-> as read-only magic file /sys/firmware/initrd [3].
-
-Common use case for eg romfs is memory mapped flash or rom, so the 
-address range in question isn't actually ram anyway. Mostly on mmu 
-systems you just don't want the mapping to go away, so the kernel can 
-still reach out and read it.
-
-> This is even better than classic initrd, because:
-> - You can use fs not supported by classic initrd, for example erofs
-
-Network block device was the most recent one I saw used, but it had a 
-tiny initramfs to set up and switch_root into it...
-
-(Network block device != network filesystem. I have a todo item to 
-integrate nbd-server into mkroot/testroot.sh but "-hda works" is one of 
-the things it's testing...)
-
-> - One copy is involved (from /sys/firmware/initrd to some file in /)
-> as opposed to two when using classic initrd
-
-Embedded developers have always been reaching out and using mappable 
-flash directly. Vitaly Wool's ELC talk in 2015 (about running Linux in 
-256k of sram, yes one quarter of one megabyte) described the process:
-
-https://elinux.org/images/9/90/Linux_for_Microcontrollers-_From_Marginal_to_Mainstream.pdf
-
-Rob
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=BKWzrEQG c=1 sm=1 tr=0 ts=68c849d5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=7ShtpSrotxfIQnzH-x0A:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: nguE7s-SaO93ZD5vfbu3cCLJ4fUP4Zr5
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDA4NiBTYWx0ZWRfXx27Yvp/YKJlf
+ DBUqCiEb2BckzbXw6GOuWarGUqcRYhSq5Az+pM7qHjf6Ci5ebATFUHuXBsQHOzaJMJhX3/aP8pM
+ RyfcGayKZDics4vS5iq/I2uXNVoywKYUw6oaLrnw9EwpqOcDxdhleTGWWkyNupF9p9fSPalqd0d
+ lmDaE0z01BDlS+pS476p3mB2YjRXJdU9vVy49m8rVj6tu7NasTxojbrNpSUpB3I9UKwytQBOwob
+ 9vonT7ymuymrGYi78kUObCUE0lxL3QvfkV5eR72+FODRxAJkhVQkInitCcZiJ8VGDTiqFutHZsN
+ zCqTymTBkTK+zI/sXTu0p51fYXe/8ApZGKmu3C/wuNUz+ewLRpVS2R+adA1RGpLT438qlwS1O9v
+ xg2Z04jY
+X-Proofpoint-ORIG-GUID: nguE7s-SaO93ZD5vfbu3cCLJ4fUP4Zr5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-15_06,2025-09-12_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 malwarescore=0 priorityscore=1501 adultscore=0
+ suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150086
+
+
+On 9/13/2025 1:27 AM, Alex Williamson wrote:
+> On Thu, 11 Sep 2025 11:32:58 -0700
+> Farhan Ali <alifm@linux.ibm.com> wrote:
+>
+>> The current reset process saves the device's config space state before
+>> reset and restores it afterward. However, when a device is in an error
+>> state before reset, config space reads may return error values instead of
+>> valid data. This results in saving corrupted values that get written back
+>> to the device during state restoration.
+>>
+>> Avoid saving the state of the config space when the device is in error.
+>> While restoring we only restorei the state that can be restored through
+> s/restorei/restore/
+
+Thanks for catching that, will fix.
+
+>> kernel data such as BARs or doesn't depend on the saved state.
+>>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> ---
+>>   drivers/pci/pci.c      | 29 ++++++++++++++++++++++++++---
+>>   drivers/pci/pcie/aer.c |  5 +++++
+>>   drivers/pci/pcie/dpc.c |  5 +++++
+>>   drivers/pci/pcie/ptm.c |  5 +++++
+>>   drivers/pci/tph.c      |  5 +++++
+>>   drivers/pci/vc.c       |  5 +++++
+>>   6 files changed, 51 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>> index b0f4d98036cd..4b67d22faf0a 100644
+>> --- a/drivers/pci/pci.c
+>> +++ b/drivers/pci/pci.c
+>> @@ -1720,6 +1720,11 @@ static void pci_restore_pcie_state(struct pci_dev *dev)
+>>   	struct pci_cap_saved_state *save_state;
+>>   	u16 *cap;
+>>   
+>> +	if (!dev->state_saved) {
+>> +		pci_warn(dev, "Not restoring pcie state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	/*
+>>   	 * Restore max latencies (in the LTR capability) before enabling
+>>   	 * LTR itself in PCI_EXP_DEVCTL2.
+>> @@ -1775,6 +1780,11 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
+>>   	struct pci_cap_saved_state *save_state;
+>>   	u16 *cap;
+>>   
+>> +	if (!dev->state_saved) {
+>> +		pci_warn(dev, "Not restoring pcix state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	save_state = pci_find_saved_cap(dev, PCI_CAP_ID_PCIX);
+>>   	pos = pci_find_capability(dev, PCI_CAP_ID_PCIX);
+>>   	if (!save_state || !pos)
+>> @@ -1792,6 +1802,14 @@ static void pci_restore_pcix_state(struct pci_dev *dev)
+>>   int pci_save_state(struct pci_dev *dev)
+>>   {
+>>   	int i;
+>> +	u16 val;
+>> +
+>> +	pci_read_config_word(dev, PCI_DEVICE_ID, &val);
+>> +	if (PCI_POSSIBLE_ERROR(val)) {
+>> +		pci_warn(dev, "Device in error, not saving config space state\n");
+>> +		return -EIO;
+>> +	}
+>> +
+> I don't think this works with standard VFs, per the spec the device ID
+> register returns 0xFFFF.  Likely need to look for a CRS or error status
+> across both vendor and device ID registers.
+
+Yes, I missed that. Though the spec also mentions both vendor and device 
+id registers can be 0xFFFF for standard VFs. The implementation note in 
+the spec mentions legacy software can ignore VFs if both device id and 
+vendor id is 0xFFFF. So not sure if checking both would work here?
+
+Also by CRS are you referring to Configuration Request Retry? (In PCIe 
+spec v6 I couldn't find reference to CRS, but found RRS so its probably 
+been renamed to Request Retry Status). Based on my understanding of the 
+spec a function will return CRS after a reset, but in this case we are 
+trying to read and save the state before a reset? Based on 
+pci_bus_rrs_vendor_id(), on a CRS vendor ID returned would be 0x1, but 
+that wouldn't work for s390 as currently reads on error will return 
+0xFFFF. Apologies if I misunderstood anything.
+
+I see pci_dev_wait() check for command and status register in case RRS 
+is not available, would that be appropriate check here?
+
+
+>
+> We could be a little more formal and specific describing the skipped
+> states too, ex. "PCIe capability", "PCI-X capability", "PCI AER
+> capability", etc.  Thanks,
+>
+> Alex
+
+Makes sense, will update the warn messages.
+
+Thanks
+Farhan
+
+>
+>>   	/* XXX: 100% dword access ok here? */
+>>   	for (i = 0; i < 16; i++) {
+>>   		pci_read_config_dword(dev, i * 4, &dev->saved_config_space[i]);
+>> @@ -1854,6 +1872,14 @@ static void pci_restore_config_space_range(struct pci_dev *pdev,
+>>   
+>>   static void pci_restore_config_space(struct pci_dev *pdev)
+>>   {
+>> +	if (!pdev->state_saved) {
+>> +		pci_warn(pdev, "No saved config space, restoring BARs\n");
+>> +		pci_restore_bars(pdev);
+>> +		pci_write_config_word(pdev, PCI_COMMAND,
+>> +				PCI_COMMAND_MEMORY | PCI_COMMAND_IO);
+>> +		return;
+>> +	}
+>> +
+>>   	if (pdev->hdr_type == PCI_HEADER_TYPE_NORMAL) {
+>>   		pci_restore_config_space_range(pdev, 10, 15, 0, false);
+>>   		/* Restore BARs before the command register. */
+>> @@ -1906,9 +1932,6 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
+>>    */
+>>   void pci_restore_state(struct pci_dev *dev)
+>>   {
+>> -	if (!dev->state_saved)
+>> -		return;
+>> -
+>>   	pci_restore_pcie_state(dev);
+>>   	pci_restore_pasid_state(dev);
+>>   	pci_restore_pri_state(dev);
+>> diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+>> index e286c197d716..dca3502ef669 100644
+>> --- a/drivers/pci/pcie/aer.c
+>> +++ b/drivers/pci/pcie/aer.c
+>> @@ -361,6 +361,11 @@ void pci_restore_aer_state(struct pci_dev *dev)
+>>   	if (!aer)
+>>   		return;
+>>   
+>> +	if (!dev->state_saved) {
+>> +		pci_warn(dev, "Not restoring aer state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_ERR);
+>>   	if (!save_state)
+>>   		return;
+>> diff --git a/drivers/pci/pcie/dpc.c b/drivers/pci/pcie/dpc.c
+>> index fc18349614d7..62c520af71a7 100644
+>> --- a/drivers/pci/pcie/dpc.c
+>> +++ b/drivers/pci/pcie/dpc.c
+>> @@ -67,6 +67,11 @@ void pci_restore_dpc_state(struct pci_dev *dev)
+>>   	if (!pci_is_pcie(dev))
+>>   		return;
+>>   
+>> +	if (!dev->state_saved) {
+>> +		pci_warn(dev, "Not restoring dpc state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_DPC);
+>>   	if (!save_state)
+>>   		return;
+>> diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
+>> index 65e4b008be00..7b5bcc23000d 100644
+>> --- a/drivers/pci/pcie/ptm.c
+>> +++ b/drivers/pci/pcie/ptm.c
+>> @@ -112,6 +112,11 @@ void pci_restore_ptm_state(struct pci_dev *dev)
+>>   	if (!ptm)
+>>   		return;
+>>   
+>> +	if (!dev->state_saved) {
+>> +		pci_warn(dev, "Not restoring ptm state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_PTM);
+>>   	if (!save_state)
+>>   		return;
+>> diff --git a/drivers/pci/tph.c b/drivers/pci/tph.c
+>> index cc64f93709a4..f0f1bae46736 100644
+>> --- a/drivers/pci/tph.c
+>> +++ b/drivers/pci/tph.c
+>> @@ -435,6 +435,11 @@ void pci_restore_tph_state(struct pci_dev *pdev)
+>>   	if (!pdev->tph_enabled)
+>>   		return;
+>>   
+>> +	if (!pdev->state_saved) {
+>> +		pci_warn(pdev, "Not restoring tph state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	save_state = pci_find_saved_ext_cap(pdev, PCI_EXT_CAP_ID_TPH);
+>>   	if (!save_state)
+>>   		return;
+>> diff --git a/drivers/pci/vc.c b/drivers/pci/vc.c
+>> index a4ff7f5f66dd..fda435cd49c1 100644
+>> --- a/drivers/pci/vc.c
+>> +++ b/drivers/pci/vc.c
+>> @@ -391,6 +391,11 @@ void pci_restore_vc_state(struct pci_dev *dev)
+>>   {
+>>   	int i;
+>>   
+>> +	if (!dev->state_saved) {
+>> +		pci_warn(dev, "Not restoring vc state, no saved state");
+>> +		return;
+>> +	}
+>> +
+>>   	for (i = 0; i < ARRAY_SIZE(vc_caps); i++) {
+>>   		int pos;
+>>   		struct pci_cap_saved_state *save_state;
