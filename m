@@ -1,60 +1,83 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from skyblue.cherry.relay.mailchannels.net (skyblue.cherry.relay.mailchannels.net [23.83.223.167])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABA16284679;
-	Mon, 15 Sep 2025 18:28:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757960893; cv=none; b=NwTxWoetZTHI46hS+gWSSxpVOaVIYo+/Lquuifo68iZvJd/6SVEFVz27CoW64L/xFnSpgLxGLXvU/+npfm52fHgEjq0q/hZdt/jE003kCHiOT2DnfXcN15GsmLyIBmuQKUx5+d+JKsKi3aF5SbUDzyay7d7+6SxoOSpXZC8H2BM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757960893; c=relaxed/simple;
-	bh=ABt6M1tDohzKjz7sdRyb04+ee8AHKlWw3ay3YR4MIOA=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12D81DB95E;
+	Mon, 15 Sep 2025 21:05:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=23.83.223.167
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757970328; cv=pass; b=TaHoy7FM9H+JbvPh1P7i7OrFqGYnU/pQZAUIyify54dv22CbuCl0Ljir/a51acKu0guNwYg30+xSzVdspurZeCVibf57xQH5YUUaf9AIQvU+aSLpPSpteObi14TSSlHv8i4ZEmndqs/3zukbcaVskfucfAC0yeYPbJGovCfQ26U=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757970328; c=relaxed/simple;
+	bh=XM3XKQ5jJB/NRmfxGIRymJW83Dn38opP9h7KE9Mh1Fk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IqdV+J+SATdXtTQfpU5rNIwFbGNdSJxlE55e267syLoout9IdNb90LyV9zlga/eWpCC1kmLtVcqDEQVJc312HHGrgkt+KzjKQZC1Ni9r6lA7NT1goapmEqt8lxhABkUUN2V+Qbs/X5EDFQjmvOsbMGL8HB4CmjkmXHhdAogQdTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kApsjmls; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=XvGCr5n6CAU8qzaHRbAUSIASqxrFtq2P3CtIJguKOX5sL35uDOxifnDq7UZombbGm9Q2bJ1aTa+zGgMaK7Nk8BPhjf1lI6/LNCo0q5yXkV1zVBX0IXd/HKqNh+6iotAVM8dBBzzV0/dYiGGBj+CLjAu4d9QAd7aCuRK4q/KC8Vo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net; spf=pass smtp.mailfrom=landley.net; dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b=hn99im0l; arc=pass smtp.client-ip=23.83.223.167
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=landley.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=landley.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kApsjmls"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58FDXh9a023043;
-	Mon, 15 Sep 2025 18:28:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=wWcgHa
-	z9WZlOhtQ4LnaWODco0CY+vd+MOPf1D+zntUA=; b=kApsjmlsDs2d49cZ/nWMT4
-	uqpn1ybfUPb9Wn7O8BStAmXDyAzUGZlGvX9YgYEi2Ir2Zua5dNyZPf/Lxr8Ve8mi
-	Qs0Ev3/EAjFzLEKN0c2tVyqarnf4+JVSbm8pdSH6z301YhnQ+KS18VA0c8cqGbgp
-	VQ6NLeXsC1RfTr1ICpB71+W+JqQOPFPgT2qiEptycApN52fLwyEW+Po9hyQiN3wq
-	8l6teWvUP9AQBI33R8BzZc/+m9iRHBOhyUS64uoxe+Kb9fWMUCDyL/QLQjfGFxOK
-	9ggF+I62Pe6nTtMHSibOjFGvMUC1/VMD7+mWKSHM/fYhHlOVLNzxdp/soodemTNQ
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496avnmf54-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Sep 2025 18:28:00 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58FI1eav029472;
-	Mon, 15 Sep 2025 18:27:58 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495kb0r14e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Sep 2025 18:27:58 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58FIRvPU48169284
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Sep 2025 18:27:57 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9553158058;
-	Mon, 15 Sep 2025 18:27:57 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A59265805B;
-	Mon, 15 Sep 2025 18:27:56 +0000 (GMT)
-Received: from [9.61.244.242] (unknown [9.61.244.242])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Sep 2025 18:27:56 +0000 (GMT)
-Message-ID: <fdad9c58-5a6f-460d-807b-fc5e6631b994@linux.ibm.com>
-Date: Mon, 15 Sep 2025 11:27:53 -0700
+	dkim=pass (2048-bit key) header.d=landley.net header.i=@landley.net header.b="hn99im0l"
+X-Sender-Id: dreamhost|x-authsender|rob@landley.net
+Received: from relay.mailchannels.net (localhost [127.0.0.1])
+	by relay.mailchannels.net (Postfix) with ESMTP id 15EBC42842;
+	Mon, 15 Sep 2025 21:05:20 +0000 (UTC)
+Received: from pdx1-sub0-mail-a312.dreamhost.com (trex-blue-8.trex.outbound.svc.cluster.local [100.107.107.75])
+	(Authenticated sender: dreamhost)
+	by relay.mailchannels.net (Postfix) with ESMTPA id 7E9D242908;
+	Mon, 15 Sep 2025 21:05:19 +0000 (UTC)
+ARC-Seal: i=1; s=arc-2022; d=mailchannels.net; t=1757970319; a=rsa-sha256;
+	cv=none;
+	b=qGBCJqaBawMZAnONrTbFig1eEnp5gacr3aYcpOcD1dDYTPsX6nwhYplfBMd7L0of/gIXmz
+	CagYaFNMPE0NNJoiF0V5loCpFMdLuyQwGab/xvbCX8rXH0GS1PIdqH6DjpP+f8WwmbM0N8
+	mYL9aZ2QF9IHZ0LVo440g3RFDJ8NJuM/8PAsrlSQGj16xWQYeTlOhwHjBoExgtm5DyoBvW
+	mr8Su8vrD4NuqYozfOAFSpN5dS68NBUQooAGJEy59qbAAhIPLBPSosxNPJFAnd+GtmiTwY
+	cx8vGounvXOoq60QBUmHQJ4cf2B6TZBr6D9ZFvmbYaqP1lc2d+CjYCTyv9WKEA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=mailchannels.net;
+	s=arc-2022; t=1757970319;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:dkim-signature;
+	bh=uCpj1HrCG/lIFPmsjCJyYsttI0Vr58GFZK2WKDkB6bM=;
+	b=70vv5qujaEA0nfpQrZIgWxkp+vtSGh+5xVsC3Y371S62PkzP+TW02KeCvWjUptfbbpaydh
+	Gn9o8lLcjPc0L4aRKWgy24Jj6IfN40pkoLFXP4Z/8m5nUMqPxmx1LRyuqtXhq72d6f+4+J
+	X8un2bAB1Eqc97KOQk0vNZ6v3Shubz7p+jutJB9RpWdW3m5X+Y5MMfNvCCKxchbWLIQsaY
+	31guqGOn+VBDhFTevmEeayAJucpCgnUb6ibi+vf0GrjW+GRSU/5eaEDiSPhGnUz/oCyD4K
+	njJ0vBOfYQ/tPzTgqSpJ4W2IDYO234JylLULDxm479e96TF5xBxtQVqNHTZcmw==
+ARC-Authentication-Results: i=1;
+	rspamd-76d5d85dd7-lnwpr;
+	auth=pass smtp.auth=dreamhost smtp.mailfrom=rob@landley.net
+X-Sender-Id: dreamhost|x-authsender|rob@landley.net
+X-MC-Relay: Neutral
+X-MailChannels-SenderId: dreamhost|x-authsender|rob@landley.net
+X-MailChannels-Auth-Id: dreamhost
+X-Society-Army: 531e81e06c13dcf7_1757970319753_132072418
+X-MC-Loop-Signature: 1757970319753:1485129479
+X-MC-Ingress-Time: 1757970319753
+Received: from pdx1-sub0-mail-a312.dreamhost.com (pop.dreamhost.com
+ [64.90.62.162])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
+	by 100.107.107.75 (trex/7.1.3);
+	Mon, 15 Sep 2025 21:05:19 +0000
+Received: from [192.168.88.7] (unknown [209.81.127.98])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: rob@landley.net)
+	by pdx1-sub0-mail-a312.dreamhost.com (Postfix) with ESMTPSA id 4cQcxR2ZPnzFr;
+	Mon, 15 Sep 2025 14:05:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=landley.net;
+	s=dreamhost; t=1757970319;
+	bh=uCpj1HrCG/lIFPmsjCJyYsttI0Vr58GFZK2WKDkB6bM=;
+	h=Date:Subject:To:Cc:From:Content-Type:Content-Transfer-Encoding;
+	b=hn99im0llKSPW8E4jU23jnYGHjKkBB42PZKG9Y5nexC8X6GV18Ye+xjEO0dI68API
+	 P0iIc1uUspgFQAEvTZJLAiGacD/gPQaqYVm1QWE0N/6QokQnP06W1bW8XwSoYhszK+
+	 lhn3ZJav0Djh8uCO1T1JTFZ2nxRyoQNIwSBLc+tBT4L5AJvvFnEk/puQX4fjV81Sze
+	 CQbiCBjHhliP+rleng7xNOeK8VpGNGP6Px4E+lL1g37CD4cYE8Qe9KRdlQRN3asHoO
+	 TI/V5yxrsCSuRB+QTSU/G3DsOoX+FIakqvSZS3fVzb5U3KSBT5DjgaaVyyrqpLaA73
+	 VR4ur/x6Wjb7g==
+Message-ID: <8f595eec-e85e-4c1f-acb0-5069a01c1012@landley.net>
+Date: Mon, 15 Sep 2025 16:05:14 -0500
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,192 +85,183 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 08/10] vfio-pci/zdev: Add a device feature for error
- information
-To: =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: alex.williamson@redhat.com, helgaas@kernel.org, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com
-References: <20250911183307.1910-1-alifm@linux.ibm.com>
- <20250911183307.1910-9-alifm@linux.ibm.com>
- <d55b6b2e-3217-41e1-a95a-744dbbdbe618@kaod.org>
+Subject: Re: [PATCH RESEND 17/62] doc: modernize
+ Documentation/filesystems/ramfs-rootfs-initramfs.rst
+To: Askar Safin <safinaskar@gmail.com>, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Christian Brauner <brauner@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
+ Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+ Jens Axboe <axboe@kernel.dk>, Andy Shevchenko <andy.shevchenko@gmail.com>,
+ Aleksa Sarai <cyphar@cyphar.com>,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ Julian Stecklina <julian.stecklina@cyberus-technology.de>,
+ Gao Xiang <hsiangkao@linux.alibaba.com>, Art Nikpal <email2tema@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Eric Curtin <ecurtin@redhat.com>,
+ Alexander Graf <graf@amazon.com>, Lennart Poettering <mzxreary@0pointer.de>,
+ linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-um@lists.infradead.org, x86@kernel.org, Ingo Molnar
+ <mingo@redhat.com>, linux-block@vger.kernel.org, initramfs@vger.kernel.org,
+ linux-api@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
+ "Theodore Y . Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org,
+ Michal Simek <monstr@monstr.eu>, devicetree@vger.kernel.org,
+ Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>,
+ Thorsten Blum <thorsten.blum@linux.dev>, Heiko Carstens <hca@linux.ibm.com>,
+ patches@lists.linux.dev
+References: <20250913003842.41944-1-safinaskar@gmail.com>
+ <20250913003842.41944-18-safinaskar@gmail.com>
 Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <d55b6b2e-3217-41e1-a95a-744dbbdbe618@kaod.org>
+From: Rob Landley <rob@landley.net>
+In-Reply-To: <20250913003842.41944-18-safinaskar@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: bJZDFJDB4jMiw85QHaHjZUw1mnMWmKBy
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDAyOCBTYWx0ZWRfXyfV/7NYbPwFY
- VDzjKDB4RLxfkekcdVE9jZBeXhQw3GRm9+r/MYg67FPxAAQIN2UXyQzZFCUa5VU81Bu0AxXqowW
- 25HcF29jiOrvHrWBBTa39khMsMPUXe4SlptruCR/HoL8fGDGOZL3kdNCRZrk2jygLmeYTAgUvrv
- f5f3by4/4dKuIYsBFB0ZWfjOhbri5qb47pCxt62EtHDnV4xrYl/5PJ62STqBPaP1v8jBwkcuF3J
- PERjLUlCDPqkh4APJN875PXfwoeh/Aw4easjU9MnW9QGm8V03C9MeGmzJsc0m1d51NxvqM4FHOc
- bIyOGKVLYJEBke1+T0sgaSyxVw77wlQdUpzbVCmlty/URmSDm1Mc52N2PZ7WGpdAfuvEGKHsjBq
- 7WdjZt3w
-X-Authority-Analysis: v=2.4 cv=HecUTjE8 c=1 sm=1 tr=0 ts=68c85ab0 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=jbbMZsOuVxTQt3OaBu8A:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: bJZDFJDB4jMiw85QHaHjZUw1mnMWmKBy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-15_07,2025-09-12_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 adultscore=0 spamscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 bulkscore=0 impostorscore=0 clxscore=1011
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150028
+Content-Transfer-Encoding: 7bit
 
+On 9/12/25 19:37, Askar Safin wrote:
+> Update it to reflect initrd removal.
+> 
+> Also I specified that error reports should
+> go to linux-doc@vger.kernel.org , because
+> Rob Landley said that he keeps getting
+> reports about this document and is unable
+> to fix them
 
-On 9/14/2025 11:26 PM, Cédric Le Goater wrote:
-> On 9/11/25 20:33, Farhan Ali wrote:
->> For zPCI devices, we have platform specific error information. The 
->> platform
->> firmware provides this error information to the operating system in an
->> architecture specific mechanism. To enable recovery from userspace for
->> these devices, we want to expose this error information to userspace. 
->> Add a
->> new device feature to expose this information.
->>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> ---
->>   drivers/vfio/pci/vfio_pci_core.c |  2 ++
->>   drivers/vfio/pci/vfio_pci_priv.h |  8 ++++++++
->>   drivers/vfio/pci/vfio_pci_zdev.c | 34 ++++++++++++++++++++++++++++++++
->>   include/uapi/linux/vfio.h        | 14 +++++++++++++
->>   4 files changed, 58 insertions(+)
->>
->> diff --git a/drivers/vfio/pci/vfio_pci_core.c 
->> b/drivers/vfio/pci/vfio_pci_core.c
->> index 7dcf5439dedc..378adb3226db 100644
->> --- a/drivers/vfio/pci/vfio_pci_core.c
->> +++ b/drivers/vfio/pci/vfio_pci_core.c
->> @@ -1514,6 +1514,8 @@ int vfio_pci_core_ioctl_feature(struct 
->> vfio_device *device, u32 flags,
->>           return vfio_pci_core_pm_exit(device, flags, arg, argsz);
->>       case VFIO_DEVICE_FEATURE_PCI_VF_TOKEN:
->>           return vfio_pci_core_feature_token(device, flags, arg, argsz);
->> +    case VFIO_DEVICE_FEATURE_ZPCI_ERROR:
->> +        return vfio_pci_zdev_feature_err(device, flags, arg, argsz);
->>       default:
->>           return -ENOTTY;
->>       }
->> diff --git a/drivers/vfio/pci/vfio_pci_priv.h 
->> b/drivers/vfio/pci/vfio_pci_priv.h
->> index a9972eacb293..a4a7f97fdc2e 100644
->> --- a/drivers/vfio/pci/vfio_pci_priv.h
->> +++ b/drivers/vfio/pci/vfio_pci_priv.h
->> @@ -86,6 +86,8 @@ int vfio_pci_info_zdev_add_caps(struct 
->> vfio_pci_core_device *vdev,
->>                   struct vfio_info_cap *caps);
->>   int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
->>   void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
->> +int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
->> +                  void __user *arg, size_t argsz);
->>   #else
->>   static inline int vfio_pci_info_zdev_add_caps(struct 
->> vfio_pci_core_device *vdev,
->>                             struct vfio_info_cap *caps)
->> @@ -100,6 +102,12 @@ static inline int 
->> vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->>     static inline void vfio_pci_zdev_close_device(struct 
->> vfio_pci_core_device *vdev)
->>   {}
->> +
->> +static int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 
->> flags,
->> +                     void __user *arg, size_t argsz);
->
-> The extra ';' breaks builds on non-Z platforms.
->
-> C.
+Do you think emailing a list I could forward stuff to will improve matters?
 
-Thanks for catching this, will fix.
+I find the community an elaborate bureaucracy unresponsive to hobbyists. 
+Documentation/process/submitting-patches.rst being a 934 line document 
+with a bibliography, plus a 24 step checklist not counting the a) b) c) 
+subsections are just symptoms. The real problem is following those is 
+not sufficient to navigate said bureaucracy.
 
-Thanks
-Farhan
+>   What is ramfs?
+>   --------------
+>   
+> @@ -101,9 +103,9 @@ archive is extracted into it, the kernel will fall through to the older code
+>   to locate and mount a root partition, then exec some variant of /sbin/init
+>   out of that.
+>   
+> -All this differs from the old initrd in several ways:
+> +All this differs from the old initrd (removed in 2025) in several ways:
 
+Why keep the section when you removed the old mechanism? You took away 
+their choices, you don't need to sell them on it.
 
->
->> +{
->> +    return -ENODEV;
->> +}
->>   #endif
->>     static inline bool vfio_pci_is_vga(struct pci_dev *pdev)
->> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c 
->> b/drivers/vfio/pci/vfio_pci_zdev.c
->> index 2be37eab9279..261954039aa9 100644
->> --- a/drivers/vfio/pci/vfio_pci_zdev.c
->> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
->> @@ -141,6 +141,40 @@ int vfio_pci_info_zdev_add_caps(struct 
->> vfio_pci_core_device *vdev,
->>       return ret;
->>   }
->>   +int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
->> +                  void __user *arg, size_t argsz)
->> +{
->> +    struct vfio_device_feature_zpci_err err;
->> +    struct vfio_pci_core_device *vdev =
->> +        container_of(device, struct vfio_pci_core_device, vdev);
->> +    struct zpci_dev *zdev = to_zpci(vdev->pdev);
->> +    int ret;
->> +    int head = 0;
->> +
->> +    if (!zdev)
->> +        return -ENODEV;
->> +
->> +    ret = vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_GET,
->> +                 sizeof(err));
->> +    if (ret != 1)
->> +        return ret;
->> +
->> +    mutex_lock(&zdev->pending_errs_lock);
->> +    if (zdev->pending_errs.count) {
->> +        head = zdev->pending_errs.head % ZPCI_ERR_PENDING_MAX;
->> +        err.pec = zdev->pending_errs.err[head].pec;
->> +        zdev->pending_errs.head++;
->> +        zdev->pending_errs.count--;
->> +        err.pending_errors = zdev->pending_errs.count;
->> +    }
->> +    mutex_unlock(&zdev->pending_errs_lock);
->> +
->> +    if (copy_to_user(arg, &err, sizeof(err)))
->> +        return -EFAULT;
->> +
->> +    return 0;
->> +}
->> +
->>   int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->>   {
->>       struct zpci_dev *zdev = to_zpci(vdev->pdev);
->> diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
->> index 75100bf009ba..a950c341602d 100644
->> --- a/include/uapi/linux/vfio.h
->> +++ b/include/uapi/linux/vfio.h
->> @@ -1478,6 +1478,20 @@ struct vfio_device_feature_bus_master {
->>   };
->>   #define VFIO_DEVICE_FEATURE_BUS_MASTER 10
->>   +/**
->> + * VFIO_DEVICE_FEATURE_ZPCI_ERROR feature provides PCI error 
->> information to
->> + * userspace for vfio-pci devices on s390x. On s390x PCI error 
->> recovery involves
->> + * platform firmware and notification to operating system is done by
->> + * architecture specific mechanism.  Exposing this information to 
->> userspace
->> + * allows userspace to take appropriate actions to handle an error 
->> on the
->> + * device.
->> + */
->> +struct vfio_device_feature_zpci_err {
->> +    __u16 pec;
->> +    int pending_errors;
->> +};
->> +#define VFIO_DEVICE_FEATURE_ZPCI_ERROR 11
->> +
->>   /* -------- API for Type1 VFIO IOMMU -------- */
->>     /**
->
->
+(Unless you're trying to sell them on using a current linux kernel 
+rather than 2.6 or bsd or qnx or something. But if they _do_ remove 32 
+bit support, or stick a rust dependency in the base build, I suspect 
+that ship has sailed...)
+
+> -  - The old initrd was always a separate file, while the initramfs archive is
+> +  - The old initrd was always a separate file, while the initramfs archive can be
+>       linked into the linux kernel image.  (The directory ``linux-*/usr`` is
+>       devoted to generating this archive during the build.)
+>   
+> @@ -137,7 +139,7 @@ Populating initramfs:
+>   
+>   The 2.6 kernel build process always creates a gzipped cpio format initramfs
+>   archive and links it into the resulting kernel binary.  By default, this
+> -archive is empty (consuming 134 bytes on x86).
+> +archive is nearly empty (consuming 134 bytes on x86).
+
+Those two lines you just touched contradict each other.
+
+For historical reference, commit c33df4eaaf41 in 2007 added a second 
+codepath to special case NOT having an initramfs, for some reason. 
+That's how static linked cpio in the kernel image and external initrd= 
+loaded cpio from the bootloader wound up having different behavior.
+
+The init/noinitramfs.c file does init/mkdir("/dev") and 
+init_mknod("/dev/console") because calling the syscall_blah() functions 
+directly was considered icky so they created gratuitous wrappers to do 
+it for you instead, because that's cleaner somehow. (Presumably the same 
+logic as C++ having get and set methods that perform a simple assignment 
+and return a value. Because YOU can't be trusted to touch MY code.)
+
+Note that ONLY init/noinitramfs.c creates /dev/console. You'd THINK the 
+logical thing to do would be to detect failure of the filp_open() in 
+console_on_rootfs() and do the mkdir/mknod there and retry (since that's 
+__init code too), but no...
+
+My VERY vague recollection from back in the dark ages is if you didn't 
+specify any INITRAMFS_SOURCE in kconfig then gen_init_cpio got called 
+with no arguments and spit out a "usage" section that got interpreted as 
+scripts/gen_initramfs_list.sh output, back when the plumbing ignored 
+lines it didn't understand but there was an "example: a simple 
+initramfs" section in the usage with "dir /dev" and "nod /dev/console" 
+lines that created a cpio archive with /dev/console in it which would 
+get statically linked in as a "default", and code reached out and used 
+this because it was there without understanding WHY it was there. So it 
+initially worked by coincidence, and rather than make it explicit they 
+went "two codepaths, half the testing!" and thus...
+
+Anyway, that's why the 130+ byte archive was there. It wasn't actually 
+empty, even when initramfs was disabled.
+
+One of the "cleanups that didn't actually fix it" was 
+https://github.com/mpe/linux-fullhistory/commit/2bd3a997befc if you want 
+to dig into the history yourself. I wrote my docs in 2005 and that was 
+2010 so "somewhere in there"...
+
+> -If the kernel has initrd support enabled, an external cpio.gz archive can also
+> -be passed into a 2.6 kernel in place of an initrd.  In this case, the kernel
+> -will autodetect the type (initramfs, not initrd) and extract the external cpio
+> +If the kernel has CONFIG_BLK_DEV_INITRD enabled, an external cpio.gz archive can also
+
+You renamed that symbol, then even you use the old name here.
+
+> +be passed into a 2.6 kernel.  In this case, the kernel will extract the external cpio
+>   archive into rootfs before trying to run /init.
+>   
+> -This has the memory efficiency advantages of initramfs (no ramdisk block
+> -device) but the separate packaging of initrd (which is nice if you have
+> +This is nice if you have
+>   non-GPL code you'd like to run from initramfs, without conflating it with
+> -the GPL licensed Linux kernel binary).
+> +the GPL licensed Linux kernel binary.
+
+IANAL: Whether or not this qualifies as "mere aggregation" had yet to go 
+to court last I heard.
+
+Which is basically why 
+https://hackmd.io/@starnight/Load_Firmware_Files_Later_in_Linux_Kernel 
+was so screwed up in the first place: the logical thing to do would be 
+put the firmware in a static initramfs and have the module 
+initialization happen after initramfs was populated... BUT LICENSING! We 
+must have a much more complicated implementation because license. I 
+believe I suggested passing said initramfs in via the initrd mechanism 
+so it remains a separate file until boot time, and was ignored. *shrug* 
+The usual...
+
+>   It can also be used to supplement the kernel's built-in initramfs image.  The
+>   files in the external archive will overwrite any conflicting files in
+> @@ -278,7 +278,7 @@ User Mode Linux, like so::
+>     EOF
+>     gcc -static hello.c -o init
+>     echo init | cpio -o -H newc | gzip > test.cpio.gz
+> -  # Testing external initramfs using the initrd loading mechanism.
+> +  # Testing external initramfs.
+
+Does grub not still call it "initrd"?
+
+>     qemu -kernel /boot/vmlinuz -initrd test.cpio.gz /dev/zero
+
+A) they added -hda so you don't have to give it a dummy /dev/zero anymore.
+
+B) there's no longer a "qemu" defaulting to the current architecture, 
+you have to explicitly specify qemu-system-blah unless you create the 
+symlink yourself by hand. This was considered an "improvement" by IBM 
+bureaucrats. (Not a regression, a "feature". Oh well...)
+
+C) to be honest I'd just point people at mkroot for examples these days, 
+but I'm biased. (It smells like me.)
+
+Rob
