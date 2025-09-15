@@ -1,39 +1,39 @@
 Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 15C9E304BD3;
-	Mon, 15 Sep 2025 12:20:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B38BC306D3D;
+	Mon, 15 Sep 2025 12:20:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.17.235.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757938836; cv=none; b=A2rCRHQmxP6L9sQ6H1z1oS9mAEc3PNB9Wt0cIuFSAkqWA3mVQpD8ZaPgQx0WfnXP4srVB87zURHeR9dYH3Xd20IKxv/lUzWiuXKu7Wriw31pT6MmH6QnRX9MlTGGhbyvZgpvJ5+myIzX53ZVk54Ye2U59CAibU1+pXLWAZyTB7c=
+	t=1757938844; cv=none; b=aSzMz97HP7HCtpkYrWRkRR8r5nmXhiISIxMUlSc5IW34s/8oaEr9ELX5KmteZj4pc89yDlVOaoVU7BfYraB1zdiNbfiHUh8/CusXLOjd9RmrMSSlSXqW9d5tLctxdghql+7G8pq25ZxVVO2F9nUWsQkyLNafOsFRJ9IYSyj6pGU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757938836; c=relaxed/simple;
-	bh=hzJRZ6RsW9x4FoXCvtGRPheB3cJRywWrGb2f60WiArY=;
+	s=arc-20240116; t=1757938844; c=relaxed/simple;
+	bh=D/7KskjWGePd5lUSyB950r7KaGQ+t6CMELLiiCCjoR4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NAlTp5va3dQjOZ79tlz0sycEFMIPRe73KYiwGWO9Rp61A4p928+VpKPAKEabla4TsEHRHl0N82ydVWCdAlTxl/jaPeRVR2L+ta33oKlLZ6K2As4EI9kHGVcDOCEdwBpMrFDdpvQ5kT+/o7+7g7SW3U3ic4rVXK6XO0nwgK7eYsU=
+	 In-Reply-To:Content-Type; b=VNGOg/d0qqpevadkKt1NlwmRaNkPLl4VV2fT0ZeMCK2GrAVKPkynw3Ogh43eQjOoXR1veS5xysxnQYR6hRC+7rE5SYzpNQvYZOYiP00AQoyhKD+hO+R33Xe95vaP2MPAHqC54qXnBb1C3sNlNo5fXk1/orflRaOmMjjjMsJYYx4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu; spf=pass smtp.mailfrom=csgroup.eu; arc=none smtp.client-ip=93.17.235.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=csgroup.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csgroup.eu
 Received: from localhost (mailhub4.si.c-s.fr [172.26.127.67])
-	by localhost (Postfix) with ESMTP id 4cQNk542mcz9sxg;
-	Mon, 15 Sep 2025 13:54:37 +0200 (CEST)
+	by localhost (Postfix) with ESMTP id 4cQNhm1QGzz9sxZ;
+	Mon, 15 Sep 2025 13:53:28 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from pegase2.c-s.fr ([172.26.127.65])
 	by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gU-FCr8uz3Wx; Mon, 15 Sep 2025 13:54:37 +0200 (CEST)
+	with ESMTP id j4ylV2kcQsFG; Mon, 15 Sep 2025 13:53:28 +0200 (CEST)
 Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-	by pegase2.c-s.fr (Postfix) with ESMTP id 4cQNk52Vgmz9sxc;
-	Mon, 15 Sep 2025 13:54:37 +0200 (CEST)
+	by pegase2.c-s.fr (Postfix) with ESMTP id 4cQNhl6yXbz9sxX;
+	Mon, 15 Sep 2025 13:53:27 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 2BC808B765;
-	Mon, 15 Sep 2025 13:54:37 +0200 (CEST)
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id C8C778B765;
+	Mon, 15 Sep 2025 13:53:27 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from messagerie.si.c-s.fr ([127.0.0.1])
 	by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-	with ESMTP id EtUlfQjxhILa; Mon, 15 Sep 2025 13:54:37 +0200 (CEST)
+	with ESMTP id I6rY-r-Tn42D; Mon, 15 Sep 2025 13:53:27 +0200 (CEST)
 Received: from [10.25.207.160] (unknown [10.25.207.160])
-	by messagerie.si.c-s.fr (Postfix) with ESMTP id 92F668B763;
-	Mon, 15 Sep 2025 13:54:36 +0200 (CEST)
-Message-ID: <a246ee31-1ea3-4278-b103-65fda6e692a9@csgroup.eu>
-Date: Mon, 15 Sep 2025 13:54:36 +0200
+	by messagerie.si.c-s.fr (Postfix) with ESMTP id B538F8B763;
+	Mon, 15 Sep 2025 13:53:26 +0200 (CEST)
+Message-ID: <b7ecad05-9880-4443-b2d2-843cf6fcc937@csgroup.eu>
+Date: Mon, 15 Sep 2025 13:53:26 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,8 +41,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND 08/62] arm: init: remove FLAG_RDLOAD and
- FLAG_RDPROMPT
+Subject: Re: [PATCH RESEND 06/62] arm: init: remove special logic for setting
+ brd.rd_size
 To: Askar Safin <safinaskar@gmail.com>, linux-fsdevel@vger.kernel.org,
  linux-kernel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
@@ -74,10 +74,10 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  Kees Cook <kees@kernel.org>, Thorsten Blum <thorsten.blum@linux.dev>,
  Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev
 References: <20250913003842.41944-1-safinaskar@gmail.com>
- <20250913003842.41944-9-safinaskar@gmail.com>
+ <20250913003842.41944-7-safinaskar@gmail.com>
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 Content-Language: fr-FR
-In-Reply-To: <20250913003842.41944-9-safinaskar@gmail.com>
+In-Reply-To: <20250913003842.41944-7-safinaskar@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
@@ -86,45 +86,93 @@ Content-Transfer-Encoding: 8bit
 Le 13/09/2025 à 02:37, Askar Safin a écrit :
 > [Vous ne recevez pas souvent de courriers de safinaskar@gmail.com. Découvrez pourquoi ceci est important à https://aka.ms/LearnAboutSenderIdentification ]
 > 
-> They are unused since previous commit
+> There is no any reason for having special mechanism
+> for setting ramdisk size.
 
-Since which commit ?
+That's you opinion.
 
+You should explain why.
+
+> 
+> Also this allows us to change rd_size variable to static
 > 
 > Signed-off-by: Askar Safin <safinaskar@gmail.com>
 > ---
->   Documentation/arch/arm/setup.rst | 4 ++--
->   arch/arm/kernel/atags_compat.c   | 2 --
->   2 files changed, 2 insertions(+), 4 deletions(-)
+>   arch/arm/kernel/atags_parse.c | 12 ------------
+>   drivers/block/brd.c           |  8 ++++----
+>   include/linux/initrd.h        |  3 ---
+
+What about:
+
+arch/mips/kernel/setup.c:early_param("rd_size", rd_size_early);
+
+Is it unrelated ?
+
+>   3 files changed, 4 insertions(+), 19 deletions(-)
 > 
-> diff --git a/Documentation/arch/arm/setup.rst b/Documentation/arch/arm/setup.rst
-> index 8e12ef3fb9a7..be77d4b2aac1 100644
-> --- a/Documentation/arch/arm/setup.rst
-> +++ b/Documentation/arch/arm/setup.rst
-> @@ -35,8 +35,8 @@ below:
->       =====   ========================
->       bit 0   1 = mount root read only
->       bit 1   unused
-> -    bit 2   0 = load ramdisk
-> -    bit 3   0 = prompt for ramdisk
-> +    bit 2   unused
-> +    bit 3   unused
->       =====   ========================
+> diff --git a/arch/arm/kernel/atags_parse.c b/arch/arm/kernel/atags_parse.c
+> index a3f0a4f84e04..615d9e83c9b5 100644
+> --- a/arch/arm/kernel/atags_parse.c
+> +++ b/arch/arm/kernel/atags_parse.c
+> @@ -87,18 +87,6 @@ static int __init parse_tag_videotext(const struct tag *tag)
+>   __tagtable(ATAG_VIDEOTEXT, parse_tag_videotext);
+>   #endif
 > 
->    rootdev
-> diff --git a/arch/arm/kernel/atags_compat.c b/arch/arm/kernel/atags_compat.c
-> index b9747061fa97..8d04edee3066 100644
-> --- a/arch/arm/kernel/atags_compat.c
-> +++ b/arch/arm/kernel/atags_compat.c
-> @@ -44,8 +44,6 @@ struct param_struct {
->              unsigned long ramdisk_size;         /*  8 */
->              unsigned long flags;                /* 12 */
->   #define FLAG_READONLY  1
-> -#define FLAG_RDLOAD    4
-> -#define FLAG_RDPROMPT  8
->              unsigned long rootdev;              /* 16 */
->              unsigned long video_num_cols;       /* 20 */
->              unsigned long video_num_rows;       /* 24 */
+> -#ifdef CONFIG_BLK_DEV_RAM
+> -static int __init parse_tag_ramdisk(const struct tag *tag)
+> -{
+> -       if (tag->u.ramdisk.size)
+> -               rd_size = tag->u.ramdisk.size;
+> -
+> -       return 0;
+> -}
+> -
+> -__tagtable(ATAG_RAMDISK, parse_tag_ramdisk);
+> -#endif
+> -
+>   static int __init parse_tag_serialnr(const struct tag *tag)
+>   {
+>          system_serial_low = tag->u.serialnr.low;
+> diff --git a/drivers/block/brd.c b/drivers/block/brd.c
+> index 0c2eabe14af3..72f02d2b8a99 100644
+> --- a/drivers/block/brd.c
+> +++ b/drivers/block/brd.c
+> @@ -27,6 +27,10 @@
+> 
+>   #include <linux/uaccess.h>
+> 
+> +static unsigned long rd_size = CONFIG_BLK_DEV_RAM_SIZE;
+> +module_param(rd_size, ulong, 0444);
+> +MODULE_PARM_DESC(rd_size, "Size of each RAM disk in kbytes.");
+> +
+>   /*
+>    * Each block ramdisk device has a xarray brd_pages of pages that stores
+>    * the pages containing the block device's contents.
+> @@ -209,10 +213,6 @@ static int rd_nr = CONFIG_BLK_DEV_RAM_COUNT;
+>   module_param(rd_nr, int, 0444);
+>   MODULE_PARM_DESC(rd_nr, "Maximum number of brd devices");
+> 
+> -unsigned long rd_size = CONFIG_BLK_DEV_RAM_SIZE;
+> -module_param(rd_size, ulong, 0444);
+> -MODULE_PARM_DESC(rd_size, "Size of each RAM disk in kbytes.");
+> -
+>   static int max_part = 1;
+>   module_param(max_part, int, 0444);
+>   MODULE_PARM_DESC(max_part, "Num Minors to reserve between devices");
+> diff --git a/include/linux/initrd.h b/include/linux/initrd.h
+> index 6320a9cb6686..b42235c21444 100644
+> --- a/include/linux/initrd.h
+> +++ b/include/linux/initrd.h
+> @@ -5,9 +5,6 @@
+> 
+>   #define INITRD_MINOR 250 /* shouldn't collide with /dev/ram* too soon ... */
+> 
+> -/* size of a single RAM disk */
+> -extern unsigned long rd_size;
+> -
+>   /* 1 if it is not an error if initrd_start < memory_start */
+>   extern int initrd_below_start_ok;
+> 
 > --
 > 2.47.2
 > 
