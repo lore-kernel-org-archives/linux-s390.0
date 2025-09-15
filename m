@@ -1,179 +1,160 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C29127FD6E
-	for <linux-s390@vger.kernel.org>; Mon, 15 Sep 2025 09:26:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD2A32FA0C6;
+	Mon, 15 Sep 2025 09:44:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757928393; cv=none; b=nr5laznSFx37f7ZVmN6yXbWkmiYlPoo8bxN7XiTg0OFHKwcUDWJZANv478XieBZGLpjbkQuerjJOrnYSklMBsGMZJcCNZGvv7oLR2anfO7567iJvJKvEELTXaij7m5Z+GBP4EutlV9R+e0a4Yv9jc2Vx57HevOvstSeTIlJSWZc=
+	t=1757929470; cv=none; b=KpqrrAmImNGreczFx7lXeqaK6mB1RQXOpjtzkzMW8fxtcXpxgjXNN30k5fnmPnb9jwG78xgWbg6GbhNywjeP5dIm+bBwt7C4kCj62iGSskuEXqCUCntWmAk35MUMqsO26vpLvMifF63ebw+/WDAjdtBc42Qf7MnV/bjvQcAa9Dk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757928393; c=relaxed/simple;
-	bh=IOQIp4N6SHHFZVwJDFDEohmmexDoxgKEkLnOFFgcGHw=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Sr+T5fq17usWXkGf1Iywb7Zd5u2pF3J8jwus7yft+dN4JGY3wEv++5gc0rVVJkGOa2MbPM6rB0YvDDZiK2wo26FKPQ4K0qOCtWl0j9XYraigUThXpr5ZmafJ+WwmwfahJHBGLH61HBr+tpiiue9IH9Tdzl8u+dGSIMrVgBZdBts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hM/lDGLh; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1757929470; c=relaxed/simple;
+	bh=11q686ArBfmEY572VgZq1ghiEqqgs5Vx8NlQeFXzoxI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CNaevfDHJ7/bTzbKc/t3eHk7cpa5JV+OeJxZEF3KWdc6BRiqxrAfYhs8gdN4bm+swS+25QDoh/9jm0pupZwq2IJnwmzJsddJhEwTpFkuObQ4ElsxT38TXYqDoMpbXPyP+QnqQVcbuwvoPIjTVaIHQMtFDqoWYRilmLaK1EOHS94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S5pwPs6j; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hM/lDGLh"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58F60IYB023508;
-	Mon, 15 Sep 2025 09:26:21 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S5pwPs6j"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58F9P9cr020641;
+	Mon, 15 Sep 2025 09:44:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=VOy+EgFY09Elc3H9CqUHhHvprlZQYgViyrR6QFP455U=; b=hM/lDGLh4esK
-	TMk9P8+nFWNROQyabSM//D6OR4iCzxOJy6I7QIKmvbpiHqOpbeScthc6nKz2tCPV
-	su8187zRuZjsE7x1MMQyETTG7hFr76c2hnNnJ+LI1jAcMMIlindckH6VJ6qNfAjG
-	LhSbJDreVgZeBPFGc4vMacryKuw8spStKlNy/cRSJTSMFRH2lq+fiEkLnhG95piL
-	D+NnzLaJDqjK0pvpoA8Zt85bPVb4V/G6CfzFPOiWSzN20r91T1DB7NlVBgU6F5ji
-	+mlTO9yjpiR11JeN5j6ovEiDNLHA2E5ylAQsBGMqYoA3bgEh5A4sJ1wmjFIAzMyr
-	fM7X6nPopg==
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Gg1b5L
+	SWKiN/P4t7UpthEMIHa8kpFI9w0gNmlYDQvPI=; b=S5pwPs6jJGg8N/dheNKnAP
+	yY2L+VmQ4LisaPEWiq7M+8t8gEjryrb0EEZXV07NAyCtRyhW5E1R/k9K0gIAWCMh
+	5o5S9ZxBumoEvdv604plTFDrtlcnXgd8mNb1Y4kvc33MlxwFn8ik2yV0uhoBJ6UM
+	z/DMGtSWKX3hQzN01tIlkUE8ZoYoFGeJ2gxzF+DdobSpN7jzk0biL4ZyqwtpRpND
+	/NVDm+Nmx4nEhHpx9RbaPcWwc6TryDRUaijuasipm/Rko+WKZWz3oICsiaSkXuWv
+	kO1NdmTzAZ/iN94qxt4jd53uM62NYEXcSA7fQDBbdTUomRkzO5Z9aZOwRPg+6xMw
+	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 494x1t99yr-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496g53054y-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Sep 2025 09:26:21 +0000 (GMT)
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58F9Hvgv021987;
-	Mon, 15 Sep 2025 09:26:20 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 494x1t99ya-1
+	Mon, 15 Sep 2025 09:44:20 +0000 (GMT)
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58F9iKsZ001757;
+	Mon, 15 Sep 2025 09:44:20 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496g53054w-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Sep 2025 09:26:20 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58F6W3jU005935;
-	Mon, 15 Sep 2025 09:26:19 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 495jxtwv0v-1
+	Mon, 15 Sep 2025 09:44:20 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58F7pLrS027349;
+	Mon, 15 Sep 2025 09:44:19 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495memwpbn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Sep 2025 09:26:19 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58F9QHxw28049984
+	Mon, 15 Sep 2025 09:44:19 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58F9iHDb43974968
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Sep 2025 09:26:18 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B837758065;
-	Mon, 15 Sep 2025 09:26:17 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 267F558056;
-	Mon, 15 Sep 2025 09:26:17 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Sep 2025 09:26:17 +0000 (GMT)
+	Mon, 15 Sep 2025 09:44:18 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A96175805D;
+	Mon, 15 Sep 2025 09:44:17 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0240C58043;
+	Mon, 15 Sep 2025 09:44:12 +0000 (GMT)
+Received: from [9.109.249.37] (unknown [9.109.249.37])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 15 Sep 2025 09:44:11 +0000 (GMT)
+Message-ID: <90577486-5f7f-4c62-ae65-07e7808837f4@linux.ibm.com>
+Date: Mon, 15 Sep 2025 15:14:10 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 15 Sep 2025 11:26:16 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: Ingo Franzki <ifranzki@linux.ibm.com>
-Cc: Mikulas Patocka <mpatocka@redhat.com>,
-        Herbert Xu
- <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric
- Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com,
-        snitzer@kernel.org, Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <88984b74-19c5-4e86-a4f6-0c8ef91cf4df@linux.ibm.com>
-References: <20250908131642.385445532@debian4.vm>
- <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
- <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
- <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
- <8cb59ed5-1c9a-49de-beee-01eda52ad618@linux.ibm.com>
- <1af710ec-0f23-2522-d715-e683b9e557d8@redhat.com>
- <88984b74-19c5-4e86-a4f6-0c8ef91cf4df@linux.ibm.com>
-Message-ID: <8660bfcbe617c8f49cdd17d58e21040a@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] net/smc: replace strncpy with strscpy for ib_name
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Kriish Sharma <kriish.sharma2006@gmail.com>, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com, wenjia@linux.ibm.com,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        horms@kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, skhan@linuxfoundation.org,
+        linux-kernel-mentees@lists.linuxfoundation.org
+References: <20250908180913.356632-1-kriish.sharma2006@gmail.com>
+ <20250910100100.GM341237@unreal>
+ <24ced585-1b7f-4577-9cb5-8d6e60ecb363@linux.ibm.com>
+ <20250912090713.GV341237@unreal>
+ <947756ad-f9aa-479f-b463-4c97ff23a936@linux.ibm.com>
+ <20250915080232.GA9353@unreal>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <20250915080232.GA9353@unreal>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=OMsn3TaB c=1 sm=1 tr=0 ts=68c7dbbd cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=pd5FQHo6G-gV790HS4EA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: 2kkaSR8pMKeMVRsscmyCTfXaCgwfHWh_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTEzMDAwMSBTYWx0ZWRfX3KKl0ShwMQE4
- /a7WGPVfKnMzE1hZXsbf7NDlLqRebjmr+xQ7gz6j1FN0Sxkn09c6v9mP59qNx2u/OmirjrKw8RB
- s6daWWJoRIwL2khRcYSeKinNdNDv3N0NQ08kc7AZbT1MGspwt9lJ4tpSDaOsRApqteCjysgzUrs
- hqOMjIHIN/i62d1EdWVXJR13qIwksAg7BWc0RKkv2QFAV0M4do+Ixc+7dDmfZ4cSugE3R97/0GO
- Ao1wJWLfOMOOpxDfcSTF+O5TC3+KuXYRreQZ7uiJy50h8aepqyxDVqg2btZoaWQTilZ8Mk9TNPG
- SwMgyNN1/i3Z85gsyatcy0Tma21X/jWhJUF153oTYHiu7tbDH8g+ealFVIY2lYsbtRldnkgCOhA
- py8/06l2
-X-Proofpoint-GUID: iI6bAUjpBPIqkz6hSV0cGKCCACdFW-kh
+X-Proofpoint-GUID: fp8sVIjxyIBzqqlhMshEetRYZfmsYHih
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDA4NiBTYWx0ZWRfX1Te3tzYw/N0R
+ AAu1xJ9wnYuigwdMO46568JoUXuypv44BukB0gegLHvcdEH0ww9WOx2J8YGUfoE/hdZPANq4ULk
+ r/Cj6jObBglS6wwjrIQpGcl+nOtJ5IieYqu0JR/RFJ1bD2g/Paj/Msit7lG2Y8dACvj4DWK6RKR
+ Hkdu+2RtYqb6H1S65Wwe8I1gH2T7gubM/wpZUzJDM4if14lYhJw34PkNi2YfZLrgeUYtgyapezY
+ DZAniw8gGMFUYcadSWr1TTqRZjhfZjsoftQSYe15cTXqke+gPCYWb1WIulkCquzeSqoHF5HcZlR
+ JuLqLX+9/vQz1ifr5r9d9hUk6AME2YM4F0FM5/R4Y+f8jDqNoYlHR5cgxVS2IRutYtKIxlIUaXm
+ ERLmV0bc
+X-Proofpoint-ORIG-GUID: JyeIXTmNek62LEYT6cwJl9pVoWOyp8K7
+X-Authority-Analysis: v=2.4 cv=UJ7dHDfy c=1 sm=1 tr=0 ts=68c7dff4 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=aOSnVeyxNWsu44SIBWkA:9
+ a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-15_03,2025-09-12_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 suspectscore=0 spamscore=0 priorityscore=1501 adultscore=0
- impostorscore=0 clxscore=1015 malwarescore=0 bulkscore=0
+ adultscore=0 bulkscore=0 impostorscore=0 spamscore=0 priorityscore=1501
+ clxscore=1015 suspectscore=0 phishscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509130001
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150086
 
-On 2025-09-12 10:08, Ingo Franzki wrote:
-> On 11.09.2025 17:58, Mikulas Patocka wrote:
->> 
->> 
->> On Thu, 11 Sep 2025, Ingo Franzki wrote:
->> 
->>>>> So, it looks like a dm-crypt bug.
->>>>> 
->>>>> Please, revert my patches and run the same test on a clean 
->>>>> 6.17.0-rc5 just
->>>>> to verify that the patches do not introduce the bug.
->>>> 
->>>> With your patches reverted the combined mode fails the same way as 
->>>> with your patches.
->>>> So they did not introduce the bug.
->>> 
->>> Mikulas, do you have any idea what could be causing this errors?
->>> Is it that dm-crypt is not properly dealing with async-only HMAC 
->>> ciphers?
->>> Async-only encryption ciphers seem to work fine in dm-crypt, since 
->>> LUKS with PAES (but no integrity) works fine, and PAES is an 
->>> async-onky cipher.
->>> LUKS with sync-HMAC ciphers (e.g. clear key HMAC) also works fine, 
->>> even in combination with PAES.
->> 
->> Yes, I think that it's a problem with async HMAC. The bug is probably
->> either in dm-crypt or in the crypto library.
->> 
->> Do you have some other (non-dm-crypt-related) workload that uses the
->> async authentication, so that we can determine whether the bug is in
->> dm-crypt or crypto?
+
+
+On 15/09/25 1:32 pm, Leon Romanovsky wrote:
+> On Mon, Sep 15, 2025 at 12:24:16PM +0530, Mahanta Jambigi wrote:
+>> On 12/09/25 2:37 pm, Leon Romanovsky wrote:
+>>> On Fri, Sep 12, 2025 at 01:18:52PM +0530, Mahanta Jambigi wrote:
+>>>> On 10/09/25 3:31 pm, Leon Romanovsky wrote:
+>>>>>> --- a/net/smc/smc_pnet.c
+>>>>>> +++ b/net/smc/smc_pnet.c
+>>>>>> @@ -450,7 +450,7 @@ static int smc_pnet_add_ib(struct smc_pnettable *pnettable, char *ib_name,
+>>>>>>  		return -ENOMEM;
+>>>>>>  	new_pe->type = SMC_PNET_IB;
+>>>>>>  	memcpy(new_pe->pnet_name, pnet_name, SMC_MAX_PNETID_LEN);
+>>>>>> -	strncpy(new_pe->ib_name, ib_name, IB_DEVICE_NAME_MAX);
+>>>>>> +	strscpy(new_pe->ib_name, ib_name);
+>>>>>
+>>>>> It is worth to mention that caching ib_name is wrong as IB/core provides
+>>>>> IB device rename functionality.
+>>>>
+>>>> In our case we hit this code path where we pass *PCI_ID*
+>>>> as the *ib_name* using *smc_pnet* tool(smc_pnet -a <pnet_name> -D
+>>>> <PCI_ID>). I believe PCI_ID will not change, so caching it here is fine.
+>>>
+>>> If I remember, you are reporting that cached ib_name through netlink much later.
+>>>
+>>> The caching itself is not an issue, but incorrect reported name can be seen as
+>>> a wrong thing to do.
+>>
+>> In what case we can see this incorrect reported name, could you please
+>> elaborate.
 > 
-> Well, dm-integrity can use PHMAC and this works (with you patches) as
-> confirmed in this mail thread.
-> I don't think we have other non-dm-crypt or non-dm-integrity related 
-> workload.
-> We could probably come up with a test program using AF_ALG that uses 
-> PHMAC.
-> @Harald: Do you possibly have such already?
-> 
+> Did you open net/smc/smc_pnet.c?
 
-I do have. But still it only runs on a s390 platform. And for the qemu 
-s390
-emulation - all the cpacf stuff is not covered. I think the better 
-approach
-is really some kind of a pseudo module which offers some pseudo phmac 
-for
-x64. Let me see how this can be done.
-
->> 
->> Otherwise, would it be possible to give us a virtual machine on the
->> mainframe to debug this issue?
-> 
-> @Harald: What do you think, could this be possible?
-
-Hm - I have my doubts that this is possible.
+Yes, I have gone through it focusing on *ib_name* usage.
 
 > 
->> 
->> Mikulas
->> 
+> Everything that uses ib_name in that file is incorrect.
+> 
+> From glance look:
+> 1. smc_pnet_find_ib() returns completely random results if device is
+> renamed in parallel.
+
+I agree. Currently we are *not* handling the change of IB device names &
+when that happens the cached *ib_name* doesn't match anymore with the
+changed ib_name. We are looking into this internally.
