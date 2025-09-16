@@ -1,164 +1,126 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EAA9DDC3;
-	Tue, 16 Sep 2025 07:30:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B9CD2E091D
+	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 07:40:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758007850; cv=none; b=ZIzBNr+p+Te9teVO0MiZod8TVHlnM+mjwRnQIWEWEevUKdcmAzJJJ5Ytu36+nTkvL2D1I+ROQzCcxzlrH8AjVdLl8mXULe/+GYNQ2LrAagu7IPWI0l2h1X9p6Q9JMo50/1yzxOrUgfR/7LayT9gFZxEONAN0qJOq125rh6OuIio=
+	t=1758008453; cv=none; b=W/TV9SZuxuPf/80i8XTJzgajEYJ5lhLJxp9Wqfv1kbCvLN8fUoj1Ldb1rHhpd6Y0EP7GHd3/NWzrikRjcVvLTgmvOQD4XXcoHMchcy0JpNoK5KWNQdSE9RiB0BL+OcJUctllym82kzYdFIeQqKYwetdmmrqz3A41dgNR2DdXhtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758007850; c=relaxed/simple;
-	bh=67wYFyb9yQMfAldZImDXHhemEGtudY4U1p5WDJhHWeE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JaGjO8hEiS9etDoyjmPRORpmjueZ9BH84lXYaTzGr0a+NMgip2TDo24dWfiHeA+R3f2WNrM5E5tp7f2f66snGb/SmZuPTxb1QDHNCWa1myOlpckzwcsMSfm5lxWSBUWiqt/JeQ9WWuhbJddTP+Qzr2rApL9Z/NofE49lQvD7fZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JWpnjpie; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758008453; c=relaxed/simple;
+	bh=GjEkDyLTh7ZDdDZihLiAf2k7iEwy4dac/0RvjEj6FR4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=p4elT1wOWmxFi9cr5gpaEmJPGWmnyxYa05PZ+yzVAGGOel4vOr8DXKEFJ87taSu+VHyMh9/dxt5up5jzzsFE4nUQgGN6V0qv1DnJsm6lOwh61c0h+Woh1JDa460QcvjHZboAKmw9qWbefOLsFZ+kSz12Y7WRVUFeWXCehvr92Zs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Jz2x5It+; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JWpnjpie"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G1QkHw024260;
-	Tue, 16 Sep 2025 07:30:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=XCdDH6mQmueEzzTBlbzMnv9kmTMNdx
-	k+WM2j7GGhD1U=; b=JWpnjpie0WQ0UO8yEHNOg3+oZzSVjQ0/9u+KREHKoVl6cD
-	hdIyHd31sWI4ZApg4ejbA+otHAV0KWfT/BrkUt6vk5o46c5Hnt0TWFdaSLvYxonA
-	LlCbdVlXvWfb2hqOlbgZjwiOgZxejHO8Zzth+naB7VOcur40ASaYFNkydnpCK8Sp
-	TjHMl64F78BQB4crifJpiawOYxxKQexP1HULtEub+zRU/fd5oURFx7wqZPjC1e7s
-	E+comdCxy6BX8xk8PrORRAdc3cK/PwgGCHgtn39U1Y1Ewf6pGr+ABh+aFOohvOky
-	nkyBusAEfZ1qOFRMSvmqbhXKgriecYNacQrZvUOQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496avnqk9k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 07:30:45 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G7BqSX027349;
-	Tue, 16 Sep 2025 07:30:44 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495men2nbg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 07:30:44 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58G7Uefh11927882
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Sep 2025 07:30:40 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA1BC2004B;
-	Tue, 16 Sep 2025 07:30:40 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 147E620043;
-	Tue, 16 Sep 2025 07:30:40 +0000 (GMT)
-Received: from osiris (unknown [9.111.25.93])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 16 Sep 2025 07:30:40 +0000 (GMT)
-Date: Tue, 16 Sep 2025 09:30:38 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH v2 18/20] KVM: S390: Remove PGSTE code from linux/s390 mm
-Message-ID: <20250916073038.68862-A-seiden@linux.ibm.com>
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
- <20250910180746.125776-19-imbrenda@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jz2x5It+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758008451;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1XC6jQUydWZva3M5eCBceendVdHRZfWZngDNic1d6Rk=;
+	b=Jz2x5It+yK0bAp8xGMYqBnImMwowbOxv1CateLdnrky63F23J+AMqYnDXtfJs6BwW7qBbJ
+	dvU3eWIwVg8qhew61jYKbDf3ZhkZKr6JWmunw9GXhM4lxFH0KrdOq7LPQurCav3yA1DQrU
+	Jmrb1btiIPn2taIwxFAoCnp94ALL5e8=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-594-TrUeih1ANiS9TdOKH_V7yA-1; Tue, 16 Sep 2025 03:40:48 -0400
+X-MC-Unique: TrUeih1ANiS9TdOKH_V7yA-1
+X-Mimecast-MFC-AGG-ID: TrUeih1ANiS9TdOKH_V7yA_1758008447
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3eb5130a9efso1052494f8f.2
+        for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 00:40:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758008447; x=1758613247;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1XC6jQUydWZva3M5eCBceendVdHRZfWZngDNic1d6Rk=;
+        b=UmmlKJFRuZdFm7fZhn5TcnFcmb9KiFUAt8zBftheLRkObQzq50sa4Q+wXL+tiVOAlw
+         /ulbQJ+Vc8oFHJ7AhNT8cvfqQCNQaaMaWG3NWqEMIH51Sqr0Oqyhj2zvcDV5pFSKU5fI
+         viEyEgS/7SF6M+vub4CuHM3ikleKJOlKjl0cZJctJZalatuR19cX1siNSQpn6gwp9wAL
+         ZnsCq+sw0CueVGNHTWu0x4lxmEJt/e66WULXYSrQLOhF1ZHqualI1dgLX+KvNJv3kvgX
+         fyJBEP6q662ZA8lAZY3BhjO3EYQ+aKacESe6TLwP0tPYMPy/xAXH2T5baQv1rg7PGda3
+         w3yQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWR2J/Eqb7cLtYEkoSNtMxWbBMLni8yhZpPXUm74rFDTCXB9wQqIyAgWVQzIpeUjzBxByAVeazaS6Rr@vger.kernel.org
+X-Gm-Message-State: AOJu0YzyMeFAJMcTL40PVC9R605UJgRQTsxay3YuLsrn5lUza/FI88Ph
+	YBKjvkc6EQLrBKcml3jYaDJadSWopMB3OkHkF3aFiUhwkC5z9CJdGnvNOZHtnQBnz/z8E8JFVbF
+	0BPw5WC5BtorB0NcU+1EzbXWCqRbr3XlZaOpWCdwyTBPReyX5VYmwRS0iKWLrfKM=
+X-Gm-Gg: ASbGnctpB0JpeG7Yd/M5Q1IuSOoHL5gS8y6O+1aa/eU8IzfOkpzFp/R+AAAJyh8RBIL
+	yGSqklExCjr7USVp1VUql5Iv0PoxnPxMBHfzxdIRYC994TwHU7SJ/PQTRX55yYVYmY4ubumjsJp
+	RWCAcHqY799csbAwEeGHFQ47Gfea/u/+J1dgSNqv+AccyfMC8eUQNpYfCMlYvw2+j2oPSAC3acO
+	hSyc37A4L8IhxELHH+kiaGRk7xmZLidtOxEfKJ/vUnj0prlk+FjiAsH3xX8AjxWnonpRjN+Kj7W
+	uVVUIoC1pysolZxtdWZXbt/iqyenk0AVP7epljLgk6bRNfM6UX299VI525rJ+FT99GqW5hm9Ea2
+	UyulYugM6U9n6
+X-Received: by 2002:a05:6000:290a:b0:3cd:7200:e025 with SMTP id ffacd0b85a97d-3e765780a29mr15557496f8f.5.1758008447042;
+        Tue, 16 Sep 2025 00:40:47 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF0GMHGyJ7FIQxjksq4RJy1sc/WZjAzYzFb9xJalmfJ1yzSh00m+77viKw3AXwSQDB7C53Aag==
+X-Received: by 2002:a05:6000:290a:b0:3cd:7200:e025 with SMTP id ffacd0b85a97d-3e765780a29mr15557462f8f.5.1758008446588;
+        Tue, 16 Sep 2025 00:40:46 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3e859a278c1sm13594749f8f.24.2025.09.16.00.40.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Sep 2025 00:40:45 -0700 (PDT)
+Message-ID: <eda2c052-a917-4d02-becf-2608242d1644@redhat.com>
+Date: Tue, 16 Sep 2025 09:40:43 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250910180746.125776-19-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: hhMYeSv92yQ5yhh0p_Epp9ZG12M4OJyq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDAyOCBTYWx0ZWRfXyYHLkICk8rNz
- BSyaP3TpfV2IQL3JZo2ryFyG28YBlla3joIzvzpIHLDHeApTOAQH5mMc3Pl/oRbljekkQ3b6Bt6
- SwxdD7uOjYL73BP4wd5CB9o4/ubZUDONEl5WR9IqXC4kjEoiDK2LNNUnBCaxhquzF4LQGLZ978+
- 42utK5QtnGEAUq/Dee/7TPr+Ql2QHVfEXnixRMdLWB8BTmnpIC2ALsYGtanUjM8+fbcXOVk4yAS
- FlT34ILW3ysWH8dTu9ZKFF6FT+syZRAE34ehut61KkfKY+MEoEOsBYqQfQqjuG1uUMjmYu5hhpu
- lU0OIAAT1GI82mu+Kl1zTIq877Lmbm5BrgyFAF4jj5ILlxkj4q9jZ8DMeJreOxwJkZ+XcUYpeIz
- LFeQPdzG
-X-Authority-Analysis: v=2.4 cv=HecUTjE8 c=1 sm=1 tr=0 ts=68c91226 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=Bk4uLiYzvl3jBF9LfpkA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: hhMYeSv92yQ5yhh0p_Epp9ZG12M4OJyq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 adultscore=0 spamscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 bulkscore=0 impostorscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150028
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 04/14] dibs: Register smc as dibs_client
+To: Alexandra Winter <wintera@linux.ibm.com>,
+ "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
+ <wenjia@linux.ibm.com>, David Miller <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Julian Ruess <julianr@linux.ibm.com>,
+ Aswin Karuvally <aswin@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Konstantin Shkolnyy <kshk@linux.ibm.com>
+References: <20250911194827.844125-1-wintera@linux.ibm.com>
+ <20250911194827.844125-5-wintera@linux.ibm.com>
+Content-Language: en-US
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250911194827.844125-5-wintera@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 10, 2025 at 08:07:44PM +0200, Claudio Imbrenda wrote:
-> Remove the PGSTE config option.
-> Remove all code from linux/s390 mm that involves PGSTEs.
-> 
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> ---
->  arch/s390/Kconfig               |   3 -
->  arch/s390/include/asm/mmu.h     |  13 -
->  arch/s390/include/asm/page.h    |   4 -
->  arch/s390/include/asm/pgalloc.h |   2 -
->  arch/s390/include/asm/pgtable.h |  99 +---
->  arch/s390/mm/hugetlbpage.c      |  24 -
->  arch/s390/mm/pgalloc.c          |  29 --
->  arch/s390/mm/pgtable.c          | 827 +-------------------------------
->  mm/khugepaged.c                 |   9 -
->  9 files changed, 14 insertions(+), 996 deletions(-)
-> 
+On 9/11/25 9:48 PM, Alexandra Winter wrote:
+> diff --git a/net/smc/Kconfig b/net/smc/Kconfig
+> index ba5e6a2dd2fd..40dd60c1d23f 100644
+> --- a/net/smc/Kconfig
+> +++ b/net/smc/Kconfig
+> @@ -1,7 +1,7 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+>  config SMC
+>  	tristate "SMC socket protocol family"
+> -	depends on INET && INFINIBAND
+> +	depends on INET && INFINIBAND && DIBS
+>  	depends on m || ISM != m
+>  	help
+>  	  SMC-R provides a "sockets over RDMA" solution making use of
 
-...
+DIBS is tristate, and it looks like SMC build will fail with SMC=y and
+DIBS=m. I *think* you additionally need something alike:
 
->  #define INIT_MM_CONTEXT(name)						   \
-> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-> index 4e5dbabdf202..b4fb4d7adff4 100644
-> --- a/arch/s390/include/asm/page.h
-> +++ b/arch/s390/include/asm/page.h
-> @@ -78,7 +78,6 @@ static inline void copy_page(void *to, void *from)
->  #ifdef STRICT_MM_TYPECHECKS
->  
->  typedef struct { unsigned long pgprot; } pgprot_t;
-> -typedef struct { unsigned long pgste; } pgste_t;
->  typedef struct { unsigned long pte; } pte_t;
->  typedef struct { unsigned long pmd; } pmd_t;
->  typedef struct { unsigned long pud; } pud_t;
-> @@ -94,7 +93,6 @@ static __always_inline unsigned long name ## _val(name ## _t name)	\
->  #else /* STRICT_MM_TYPECHECKS */
->  
->  typedef unsigned long pgprot_t;
-> -typedef unsigned long pgste_t;
->  typedef unsigned long pte_t;
->  typedef unsigned long pmd_t;
->  typedef unsigned long pud_t;
-> @@ -110,7 +108,6 @@ static __always_inline unsigned long name ## _val(name ## _t name)	\
->  #endif /* STRICT_MM_TYPECHECKS */
->  
->  DEFINE_PGVAL_FUNC(pgprot)
-> -DEFINE_PGVAL_FUNC(pgste)
->  DEFINE_PGVAL_FUNC(pte)
->  DEFINE_PGVAL_FUNC(pmd)
->  DEFINE_PGVAL_FUNC(pud)
-> @@ -120,7 +117,6 @@ DEFINE_PGVAL_FUNC(pgd)
->  typedef pte_t *pgtable_t;
->  
->  #define __pgprot(x)	((pgprot_t) { (x) } )
-> -#define __pgste(x)	((pgste_t) { (x) } )
->  #define __pte(x)        ((pte_t) { (x) } )
->  #define __pmd(x)        ((pmd_t) { (x) } )
->  #define __pud(x)	((pud_t) { (x) } )
+	depends on m || DIBS != m
+	
+/P
 
-
-You missed to remove the PGSTE_*_BIT{,S} and _PGSTE_GPS_* definitions in
-arch/s390/include/asm/pgtable.h
-(I found them at line 417.. (based on 6.16 with your patches applied))
-
-Or are they kept on purpose? I could not find any usage after your patches.
-
-Steffen
