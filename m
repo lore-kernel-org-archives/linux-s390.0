@@ -1,89 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF09F38DDB;
-	Tue, 16 Sep 2025 03:09:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2AA2DC78E;
+	Tue, 16 Sep 2025 03:36:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757992145; cv=none; b=WA2g4hKhi8FJxBnR+HLPnFq1p89CC8OcTKGM9XQBFxyaJrW8PAIgaMgaGcEVlJPgr8mEt9RxJWq4Tq4Au6QsKmVjBLTnfXgv6stvc/6Cvvv8LxKOfVk4og4S9TRa7UugJ0qX1SQR8XdS5tpnouSdqGSG+rWXpCAdoVIROMLZwgU=
+	t=1757993815; cv=none; b=dL0J4oJQbSwpbfPkGUBaW7uII5bvSywJn9NbO2y0lrq2DIoyxBrj+OjyvB7m3hx1GwGSjn5NrcY7zC+HqkN/k7rPOStcBdgVj7V+Jr4u1W4pGqx6VxK+j1HCOJ/IbmA/3ezgnf47Fskf+jIH9ajjAPd0LGoo0LAVtxNG6CJ/1u8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757992145; c=relaxed/simple;
-	bh=clS/RriAH6/uzgbxBAN8eXzKr1t8+yo2uadqdbTxw+Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KB3eGyhxwCbq+5Ki7pt2ptUepUu1YXigfVHskFBo/vQYvXrYvkG7sLNYiQ2+EncvNjRoYzkP9yy5sEsDhcUgi3UYKxelpcgDIprZUTC4o3twu+NmB/XfNC3J9OZvX25rj8UvpAWdHkRzO/l8RmYqh5OJCRFRhHPF23eAFNNRvMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bBxS8q66; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1757993815; c=relaxed/simple;
+	bh=CfVil0FdRSS0PaXQXnEL2MuMd3+XojlUadD8GRWQi7w=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=lWaNExEOINSJiYchYCOC5M5M9aohNp8Ue92UacxyeBg9F6Wuotr1Qzdx5ebVZaErEMFK7i7MS0llscolIejxHbvVGWSr2JYzV1XQ7E4eE41uwZHhn1ZGbAFzNcmlEy7nvbhA3ZEMojtlmARMR0AgnDGLmeL7SmEJSx0ikURb7b0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=CNf7AHxN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bBxS8q66"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CD31C4CEF1;
-	Tue, 16 Sep 2025 03:09:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757992144;
-	bh=clS/RriAH6/uzgbxBAN8eXzKr1t8+yo2uadqdbTxw+Y=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=bBxS8q66YdKGXiHFPJJ3//BAWLCIYoh1qbHxHfe2QgUS7fzvi8AFYBbIitGKJPiDy
-	 J0h5xdTTy4wuRH1ymZPr5e0f/C36eUMrkOUag+lWBj8YkZln2Sd8hzT0pfkU01q17O
-	 RT8NuwYenprY6H9Bdb8qKRjkND6VpsGEt1Rf1iUB6mNa5MQsHkHWoiFIr0vmJLaUBy
-	 +Mg6Bb5Jrp6AOX9r3GJRBHhtRWiiY7tieeEbNFvl6251o5yIBpkK00NoObReShSwrw
-	 BlICrcV2YfDygf6hS1MD81NdPJlMqltFalaDERfXuFBjtYfsWMd22V+qS8nHm3+ffq
-	 gVOH5pLBuuEEw==
-Date: Mon, 15 Sep 2025 22:09:03 -0500
-From: Rob Herring <robh@kernel.org>
-To: Askar Safin <safinaskar@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Christian Brauner <brauner@kernel.org>,
-	Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-	Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-	Andy Shevchenko <andy.shevchenko@gmail.com>,
-	Aleksa Sarai <cyphar@cyphar.com>,
-	Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>,
-	Julian Stecklina <julian.stecklina@cyberus-technology.de>,
-	Gao Xiang <hsiangkao@linux.alibaba.com>,
-	Art Nikpal <email2tema@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Eric Curtin <ecurtin@redhat.com>, Alexander Graf <graf@amazon.com>,
-	Rob Landley <rob@landley.net>,
-	Lennart Poettering <mzxreary@0pointer.de>,
-	linux-arch@vger.kernel.org, linux-alpha@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
-	x86@kernel.org, Ingo Molnar <mingo@redhat.com>,
-	linux-block@vger.kernel.org, initramfs@vger.kernel.org,
-	linux-api@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
-	"Theodore Y . Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org,
-	Michal Simek <monstr@monstr.eu>, devicetree@vger.kernel.org,
-	Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>,
-	Thorsten Blum <thorsten.blum@linux.dev>,
-	Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev
-Subject: Re: [PATCH RESEND 28/62] init: alpha, arc, arm, arm64, csky, m68k,
- microblaze, mips, nios2, openrisc, parisc, powerpc, s390, sh, sparc, um,
- x86, xtensa: rename initrd_{start,end} to
- virt_external_initramfs_{start,end}
-Message-ID: <20250916030903.GA3598798-robh@kernel.org>
-References: <20250913003842.41944-1-safinaskar@gmail.com>
- <20250913003842.41944-29-safinaskar@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="CNf7AHxN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F04DAC4CEEB;
+	Tue, 16 Sep 2025 03:36:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1757993814;
+	bh=CfVil0FdRSS0PaXQXnEL2MuMd3+XojlUadD8GRWQi7w=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=CNf7AHxNVzyFResUYW5usorS95/1cgWEfQBxIXzVgEh5LcEryf/UaE9d6FXnmevp/
+	 hUOvt/SIiD7/Xfzhk6DVSSkzymHadep7a/+dLaY5Vb+n0WLbUQmf5rY9iYjBaJbYhP
+	 EK//AR137efTrjN+qYgc2VP+Ya6Cv8E6hGsRI3+Y=
+Date: Mon, 15 Sep 2025 20:36:53 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>, ryabinin.a.a@gmail.com,
+ christophe.leroy@csgroup.eu, bhe@redhat.com, hca@linux.ibm.com,
+ zhangqing@loongson.cn, chenhuacai@loongson.cn, davidgow@google.com,
+ glider@google.com, dvyukov@google.com, alexghiti@rivosinc.com,
+ alex@ghiti.fr, agordeev@linux.ibm.com, vincenzo.frascino@arm.com,
+ elver@google.com, kasan-dev@googlegroups.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-um@lists.infradead.org, linux-mm@kvack.org
+Subject: Re: [PATCH v6 1/2] kasan: introduce ARCH_DEFER_KASAN and unify
+ static key across modes
+Message-Id: <20250915203653.c17d501a5f4b68936a0e3ea9@linux-foundation.org>
+In-Reply-To: <CACzwLxh4pJOBbU2fHKCPWkHHCuLtDW-rh52788u2Q6+nG-+bTA@mail.gmail.com>
+References: <20250810125746.1105476-1-snovitoll@gmail.com>
+	<20250810125746.1105476-2-snovitoll@gmail.com>
+	<CA+fCnZdFp69ZHbccLSEKYH3i7g6r2WdQ0qzyf+quLnA0tjfXJg@mail.gmail.com>
+	<CACzwLxh4pJOBbU2fHKCPWkHHCuLtDW-rh52788u2Q6+nG-+bTA@mail.gmail.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250913003842.41944-29-safinaskar@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sat, Sep 13, 2025 at 12:38:07AM +0000, Askar Safin wrote:
-> Rename initrd_start to virt_external_initramfs_start and
-> initrd_end to virt_external_initramfs_end.
+On Mon, 15 Sep 2025 09:30:03 +0500 Sabyrzhan Tasbolatov <snovitoll@gmail.com> wrote:
 
-There's not really any point in listing every arch in the subject.
+> On Wed, Sep 3, 2025 at 6:01 PM Andrey Konovalov <andreyknvl@gmail.com> wrote:
+>
 
-Rob
+[400+ lines removed - people, please have mercy]
+
+>
+> > > @@ -246,7 +255,7 @@ static inline void poison_slab_object(struct kmem_cache *cache, void *object,
+> > >  bool __kasan_slab_pre_free(struct kmem_cache *cache, void *object,
+> > >                                 unsigned long ip)
+> > >  {
+> > > -       if (!kasan_arch_is_ready() || is_kfence_address(object))
+> > > +       if (is_kfence_address(object))
+> > >                 return false;
+> >
+> > Why is the check removed here and in some other places below? This
+> > need to be explained in the commit message.
+> 
+> kasan_arch_is_ready which was unified with kasan_enabled, was removed
+> here because
+> __kasan_slab_pre_free is called from include/linux/kasan.h [1] where
+> there's already kasan_enabled() check.
+> 
+> [1] https://elixir.bootlin.com/linux/v6.16.7/source/include/linux/kasan.h#L198
+> 
+> Please let me know if v7 is required with the change in the git commit
+> message only.
+
+Neither works - please send along the appropriate paragraph and I'll
+paste it in, can't get easier than that.
+
+> >
+>
+> [another ~250 lines snipped]
+>
