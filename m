@@ -1,177 +1,114 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD95629898B;
-	Tue, 16 Sep 2025 09:24:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC3F29ACFD
+	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 09:42:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758014679; cv=none; b=U2sefE2Hes33YaW4kCLbztjxiuDvAyq26FvLNJ+o3Klz97SycQdxro80YAOxDgGND9D2SRwzWSnmwFZfbQLzmdKgf66XRKHwF5zJinTrR/02xSovXNSho3bvdkHnX67t8OarzrqMh95E5/82dXuKVvdg7Nl7XhT5wZ8lu46wqno=
+	t=1758015727; cv=none; b=O2F4S55UZe1RoByEED2Q6uxmfT2LoKD6DpNQ3IQK4JCmJBbZaBA6v9AFqJ6GFzjz43yityvwSwUUFAZozdo6j3GnYsEdbNceKdzNUrJ4ov/e+gd5XLixPQnKxptphmGSuAfQm19dXzkcqAQNAf1mH7cfLll74hgjUTZgLlTH8Lk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758014679; c=relaxed/simple;
-	bh=lcgW+5ROBPO0QpX7ggPIJKPO+dlkPW76ft8W7CrSM70=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XJnloK80ZuJqP6i07tShSOKFIj3pTl7UqvRmiuuCjaQ2rpbQRahxa2oELrSBQT80EuwfAFCsih/tUhCBWULhUk7qujWDWekgx7P29AFY0fFd7swfxSPtCMi5vDVvDQcFsFEcW7v5iDTrzqr4VdKt/2F9V1X3NsOfkeiIK/MqTyI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HcYlV+dZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758015727; c=relaxed/simple;
+	bh=wtSv0L6/GwqZZywYhmXmG694rGZXr5C/8JsbMi/MtQ8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UAzknHM83w3J/Qd1RxMNVcKlsw9AnA9jCgSL3Ze2WWJ6A4Ovo44veGmG91pPYXObDCHEtGNt+UAcHX6JGolIOqUXcU4Hw1D6fqw7jb+adqc60mo8U11FIpMBIlGH3NLs5pgtW+4ScWAZYhnp6CoL9GndtcY0y/Jn+g/XAxHbROM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NROLxOU4; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HcYlV+dZ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G2nih6019175;
-	Tue, 16 Sep 2025 09:24:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=cpKZz4
-	XYlZyX7UVdnlJ55i8LjnpWTWiMKmZRFBrbocI=; b=HcYlV+dZGiACToUX4GkcaZ
-	w3Dspd93j22x83DW9dnwNHpXYkMrIEzjMBijW6b+A8dK9A++aT6ftk4bjbgs6qjA
-	4QFDjnpc8hCpa0WQ+jthJWz0sBQgE5Ia4kRkrnYoi/9DmsgXnQp5B/UN+yQJ8hA7
-	J0puldJ9dShbXYfhfLHZiu4VCebYmPS6DN9rp4wL0hwyi+FfJsAFDR0n5UNkQNta
-	fKCXrg/3jSPconK8sBnEmY2e0fUiJzR5duggGpbk6cugKlLA4LEZJwpTvo+gu1pb
-	7ssy4oJj5jCPwIuRzQI706VRaMdcypTTKEOKq8zkpRvRj5bhe4tvwbLUPuS5gD8Q
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496gat6jth-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 09:24:32 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G7BqwK027349;
-	Tue, 16 Sep 2025 09:24:31 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495men332b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 09:24:31 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58G9ORt830933472
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Sep 2025 09:24:27 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BF91120043;
-	Tue, 16 Sep 2025 09:24:27 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 80A4F20040;
-	Tue, 16 Sep 2025 09:24:27 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 16 Sep 2025 09:24:27 +0000 (GMT)
-Date: Tue, 16 Sep 2025 11:24:25 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH v2 18/20] KVM: S390: Remove PGSTE code from linux/s390
- mm
-Message-ID: <20250916112425.0b0d65b8@p-imbrenda>
-In-Reply-To: <20250916073038.68862-A-seiden@linux.ibm.com>
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
-	<20250910180746.125776-19-imbrenda@linux.ibm.com>
-	<20250916073038.68862-A-seiden@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NROLxOU4"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-33c9efd65eeso48951601fa.3
+        for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 02:42:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758015724; x=1758620524; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=haBjQsvE5vE3ZaF/RXUldLy+CB1Z0cpROeB+NEV/yO0=;
+        b=NROLxOU4z9V4kypeFZVw3XwLvlvgr7633NM1a03un3CtR4lJaMlWQe4MQ9UCfQlvEb
+         6ob7dt32cZ4IpbAOwNI4qTzia9lGJazUfcNRQp/OvPUSDu7sGMuWeYcpArVUzIW4p20/
+         gKtwWEXsjbsLeP+PHDVCpBxenDK1C/PGey1OlckTGwKYRad5H3S3uYuXCz0vu8CDIW7T
+         egPW/KGCxW3n6bStOzn36fCBk211k/YGoekXP8VanV1j1gkifMzn/eUrtagsp5xDC43J
+         /jMULwG82ttCurMTfCNleWqTU5QOCkSM5vljU7z/8VsgANXljSZs6vhM5Asl795xTzI1
+         suEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758015724; x=1758620524;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=haBjQsvE5vE3ZaF/RXUldLy+CB1Z0cpROeB+NEV/yO0=;
+        b=V2P50MelqFIWLh93VoboxMYf5I7ysgAD8MX8kKUoc6ga8VZLB1C7deNcT7mn3lcfGS
+         i5hMobkN3azFZW713lf+4/deZL38JE1dH+tZg8zUUPfDcrzVk6qkyW6sUnxGjKv+dtic
+         JOscBUKpuvpmrWhYWp33uz2GdDF/O6QObfb7RPFYbsgaGFLlfSrqQfjoX1ZPjWlAOoSD
+         JnaTY2/qbAe5ADJWRb2c/xITe1GhCMrCTzhxMnjCTsHZklg0ekM16p+euugXErLW8xEc
+         9mApQ6/2T/q+x2NQ7oBCtJtUeTunvy0tqMwfkNeJ163sAj5mBepEVfQvAi8NPTLGe+Df
+         S6+g==
+X-Forwarded-Encrypted: i=1; AJvYcCXzjy6/3numAslfR33RejHm4NaPKleKrO2ndY7MTHVdQ0nGMb5PkfezWIzlcoaeWvEXDXNzoWS4wZnH@vger.kernel.org
+X-Gm-Message-State: AOJu0YzZ/YQj7X7IZ+htHULk8mHKdfpY2k5sG5z4cCKVoIX4EXC5KxZb
+	ARMpECGMbFXvIcxvPSwEQiifpg/L/WSCVyh1NHlWJkpciELiRtY8wcOI
+X-Gm-Gg: ASbGncsFKHPo0ju0uaSUW8IuiSTvadS4iIOVObzv4PcZKXhnaPBDkuurchmLmtchc7h
+	Cw/aA9nCTvC2hFu7NzGkUP0HRpLGrCH7Z1oxe/PMZqXP+vZ9uaewlgVfeXRX5pfxm9UxCGzjyGz
+	FpqFQrWZ4qEwEuGkWtJf6+JNOhtsQ4S6SQdeLGP0Rrrbd5UJjr7D+S1/tsTPsnmHu6aAX2qqVRx
+	UX3Qjj4gLAy+dn85fUOO8VddttpBx7vAhQbqWHvxDXX0Xrp+Vw9SNSZzsxy6/4onZP6QUfUSmj6
+	57qDAtpt0MAeHt6sC0b0S30a2iHE/aSExmWRDJ9f7mwa2j0+iEtuJmdfF6jvRvDwBzGlc1K2NLR
+	V2Zv3E7e+r9dsGjwkCjbwFzJ2IPMizh2qNMubjRyCR+Xy0nE=
+X-Google-Smtp-Source: AGHT+IGHsAz1XUgqjX9cBNXDDceT4RSYaRrx53ol9Kht+YGnRRfTcQN5imeqv3DeXohNMYqhdx9Bfg==
+X-Received: by 2002:a2e:a00e:0:20b0:34a:7575:36db with SMTP id 38308e7fff4ca-351401fd0f5mr48965051fa.33.1758015723646;
+        Tue, 16 Sep 2025 02:42:03 -0700 (PDT)
+Received: from home.paul.comp (paulfertser.info. [2001:470:26:54b:226:9eff:fe70:80c2])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-34f15a5835asm32481881fa.4.2025.09.16.02.42.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Sep 2025 02:42:02 -0700 (PDT)
+Received: from home.paul.comp (home.paul.comp [IPv6:0:0:0:0:0:0:0:1])
+	by home.paul.comp (8.15.2/8.15.2/Debian-22+deb11u3) with ESMTP id 58G9fwKw021585;
+	Tue, 16 Sep 2025 12:41:59 +0300
+Received: (from paul@localhost)
+	by home.paul.comp (8.15.2/8.15.2/Submit) id 58G9fts1021584;
+	Tue, 16 Sep 2025 12:41:55 +0300
+Date: Tue, 16 Sep 2025 12:41:55 +0300
+From: Paul Fertser <fercerpav@gmail.com>
+To: pengdonglin <dolinux.peng@gmail.com>
+Cc: tj@kernel.org, tony.luck@intel.com, jani.nikula@linux.intel.com,
+        ap420073@gmail.com, jv@jvosburgh.net, freude@linux.ibm.com,
+        bcrl@kvack.org, trondmy@kernel.org, longman@redhat.com,
+        kees@kernel.org, bigeasy@linutronix.de, hdanton@sina.com,
+        paulmck@kernel.org, linux-kernel@vger.kernel.org,
+        linux-rt-devel@lists.linux.dev, linux-nfs@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org,
+        cgroups@vger.kernel.org, Samuel Mendoza-Jonas <sam@mendozajonas.com>,
+        pengdonglin <pengdonglin@xiaomi.com>
+Subject: Re: [PATCH v3 11/14] net: ncsi: Remove redundant
+ rcu_read_lock/unlock() in spin_lock
+Message-ID: <aMkw4zTLRJqpVGCm@home.paul.comp>
+References: <20250916044735.2316171-1-dolinux.peng@gmail.com>
+ <20250916044735.2316171-12-dolinux.peng@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=BKWzrEQG c=1 sm=1 tr=0 ts=68c92cd1 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=l1XlMsZtLEffUVEgH-4A:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: gvK3LA3av5HPHuLa81xv9NR7nM0gEkCc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDA4NiBTYWx0ZWRfX7Nxqjiip2a3k
- L++PCNw11n6Sz8n2a8EMxBonlndONZ+t0YYx2+HvaBv45182NYh0jJDdroO0NFAyvJRL5WZ2ERz
- iYFMqRvyqqy5Eole3LLQaofGH+lyhP8OpX7m9tNIf0MCPvCFdjh7GXL5TLRsWIU3RuoQE1mH1ee
- LdlQkJB3U0Xh0wySYmIBmTzBW4X8tw1MfSAZG4CY6NJVRcpG/jdm/D+wdSK+ZMAfWCqHSrRnB+S
- JA5zY2xdGWkhKhQqEEzRJ9jKoZlDeV0EY3CcAxS3x6CueuUmYrnIMDHQPZ3Jf61mnXfcjdSRCGc
- V8hOwOJEZCqpjUc6Fx0pW4mMix5+FBn5iNY7k7AZpLGaLOK4LJkPe1INY0BQa/giJtndvO8BJUu
- mRmrT7r7
-X-Proofpoint-ORIG-GUID: gvK3LA3av5HPHuLa81xv9NR7nM0gEkCc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 malwarescore=0 priorityscore=1501 adultscore=0
- suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150086
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250916044735.2316171-12-dolinux.peng@gmail.com>
 
-On Tue, 16 Sep 2025 09:30:38 +0200
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+Hello pengdonglin,
 
-> On Wed, Sep 10, 2025 at 08:07:44PM +0200, Claudio Imbrenda wrote:
-> > Remove the PGSTE config option.
-> > Remove all code from linux/s390 mm that involves PGSTEs.
-> > 
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > ---
-> >  arch/s390/Kconfig               |   3 -
-> >  arch/s390/include/asm/mmu.h     |  13 -
-> >  arch/s390/include/asm/page.h    |   4 -
-> >  arch/s390/include/asm/pgalloc.h |   2 -
-> >  arch/s390/include/asm/pgtable.h |  99 +---
-> >  arch/s390/mm/hugetlbpage.c      |  24 -
-> >  arch/s390/mm/pgalloc.c          |  29 --
-> >  arch/s390/mm/pgtable.c          | 827 +-------------------------------
-> >  mm/khugepaged.c                 |   9 -
-> >  9 files changed, 14 insertions(+), 996 deletions(-)
-> >   
-> 
-> ...
-> 
-> >  #define INIT_MM_CONTEXT(name)						   \
-> > diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-> > index 4e5dbabdf202..b4fb4d7adff4 100644
-> > --- a/arch/s390/include/asm/page.h
-> > +++ b/arch/s390/include/asm/page.h
-> > @@ -78,7 +78,6 @@ static inline void copy_page(void *to, void *from)
-> >  #ifdef STRICT_MM_TYPECHECKS
-> >  
-> >  typedef struct { unsigned long pgprot; } pgprot_t;
-> > -typedef struct { unsigned long pgste; } pgste_t;
-> >  typedef struct { unsigned long pte; } pte_t;
-> >  typedef struct { unsigned long pmd; } pmd_t;
-> >  typedef struct { unsigned long pud; } pud_t;
-> > @@ -94,7 +93,6 @@ static __always_inline unsigned long name ## _val(name ## _t name)	\
-> >  #else /* STRICT_MM_TYPECHECKS */
-> >  
-> >  typedef unsigned long pgprot_t;
-> > -typedef unsigned long pgste_t;
-> >  typedef unsigned long pte_t;
-> >  typedef unsigned long pmd_t;
-> >  typedef unsigned long pud_t;
-> > @@ -110,7 +108,6 @@ static __always_inline unsigned long name ## _val(name ## _t name)	\
-> >  #endif /* STRICT_MM_TYPECHECKS */
-> >  
-> >  DEFINE_PGVAL_FUNC(pgprot)
-> > -DEFINE_PGVAL_FUNC(pgste)
-> >  DEFINE_PGVAL_FUNC(pte)
-> >  DEFINE_PGVAL_FUNC(pmd)
-> >  DEFINE_PGVAL_FUNC(pud)
-> > @@ -120,7 +117,6 @@ DEFINE_PGVAL_FUNC(pgd)
-> >  typedef pte_t *pgtable_t;
-> >  
-> >  #define __pgprot(x)	((pgprot_t) { (x) } )
-> > -#define __pgste(x)	((pgste_t) { (x) } )
-> >  #define __pte(x)        ((pte_t) { (x) } )
-> >  #define __pmd(x)        ((pmd_t) { (x) } )
-> >  #define __pud(x)	((pud_t) { (x) } )  
-> 
-> 
-> You missed to remove the PGSTE_*_BIT{,S} and _PGSTE_GPS_* definitions in
-> arch/s390/include/asm/pgtable.h
-> (I found them at line 417.. (based on 6.16 with your patches applied))
-> 
-> Or are they kept on purpose? I could not find any usage after your patches.
-> 
-> Steffen
+Thank you for the patch, looks reasonable and justified.
 
-I do use PGSTE_IN_BIT, PGSTE_PCL_BIT and PGSTE_UC_BIT, but I should
-probably move those to dat.h, and remove all the other unused
-PGSTE_*_BIT and _PGSTE_GPS_* macros from page.h
+On Tue, Sep 16, 2025 at 12:47:32PM +0800, pengdonglin wrote:
+> From: pengdonglin <pengdonglin@xiaomi.com>
+> 
+> Since commit a8bb74acd8efe ("rcu: Consolidate RCU-sched update-side function definitions")
+> there is no difference between rcu_read_lock(), rcu_read_lock_bh() and
+> rcu_read_lock_sched() in terms of RCU read section and the relevant grace
+> period. That means that spin_lock(), which implies rcu_read_lock_sched(),
+> also implies rcu_read_lock().
+> 
+> There is no need no explicitly start a RCU read section if one has already
+> been started implicitly by spin_lock().
+> 
+> Simplify the code and remove the inner rcu_read_lock() invocation.
 
+Reviewed-by: Paul Fertser <fercerpav@gmail.com>
