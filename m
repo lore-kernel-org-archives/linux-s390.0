@@ -1,72 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C59823E229
-	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 08:20:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4F8915B0FE;
+	Tue, 16 Sep 2025 08:37:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758010804; cv=none; b=BOy5IvveaaR9LxcX7wswk1o6NZZy2/cwuBZ1a1uBBUvouz1cedTcjO5vOZ4okbtikmFhmRKOxcjqdbjHR2MOVTnB6Kt1Mj2NkFfzj1rOTD0ULjnxKFR2NWyVUwcscZF5+HMbWgN4etAznM5bUtKlji6xWzUonzP0JA0eiSRGujw=
+	t=1758011864; cv=none; b=ne41t0cpUxLXd8/iNqdebwEsiz1UA0WaFJDTKXoiqq3Mj3kT1sl+JYv6jBFNF41lpUR/gkJGTclcnXKTzuBc1Td1/Ne+/giLBtiqdPXsjBgR/PLzkBnQy3B20/FSGtoeGGszMrb/yxMyp0SMAn4R7OybyFwH7vj6UnZHGdoqalw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758010804; c=relaxed/simple;
-	bh=wyzFXdhH71/K6R4ozNwpypG96FdPPhKK1bsIffaUOAU=;
+	s=arc-20240116; t=1758011864; c=relaxed/simple;
+	bh=R3OtJIm1acbCvb0ycUYTqKNh2AG8E4utZW4+zDRdC0Y=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XllRdqRQWjlFqTzMV3CbY0/Gy2TtR4OmdreQFwvph39+7RU+fkgCoqAwpcLvpGdWMU+2Qpm4a9ToP3z22LFzPh+q8+XfhynoCPlTtZVCXAy72VAXLVIcnTW1pqp3JrJyhDdEUFfDFLwuU49Riso9Yri5VbwszRBHxzqT585sjT8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cKl8mF+B; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=uBSzV/dQnzTHKv98WTizmsBIzOqRLSUChRq0d46NYI6B/s2aaHu5hOU1pfEYaLkZLvR7boSVnIlvkJFv5Jt7rZyR7Ps8MOVMJIVRcG7XASFg/2PMGlffbUYyeS41M0j8KpLB2htpWRhfJBP7/7kb0hj5mNDRX8LR3BMbvoGp9uE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lM5JFafl; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cKl8mF+B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758010802;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NzL2N1DLwKqBJMwL8CAS9ydZTfmXfd5ccrcFe6t3UgE=;
-	b=cKl8mF+B2HrIPufSGUrOV9ztHLqZHbhhCz+Fi+9OTAMuT5ZKdV9zr27FEvhQzDP5KYyaM0
-	j+J+ZSg4XbfmvPZ/A/M8k66Cz16KPJwabzPaOYo7uVyZNRWYhAVkYuysFm9T2+/8ofdX0/
-	atjWij8Tc1PfdxBwc2vsuz2lhBSEj5A=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-518-f7xhDMXiPgKDAAoJVdgPyg-1; Tue, 16 Sep 2025 04:20:01 -0400
-X-MC-Unique: f7xhDMXiPgKDAAoJVdgPyg-1
-X-Mimecast-MFC-AGG-ID: f7xhDMXiPgKDAAoJVdgPyg_1758010800
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-45b9a856d58so7029675e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 01:20:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758010800; x=1758615600;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NzL2N1DLwKqBJMwL8CAS9ydZTfmXfd5ccrcFe6t3UgE=;
-        b=w8OWtpMt3nzbeT21MvS3qOh6MnObJWuTLBOE9WiWmrfWEQj6GNtyxtgTTcMu1Dbmem
-         dF0moEBPHhV6luwfBEODSJ9l9acbyTzfCs4nzBmxIIMcsjsrwhAaa40fKZ17QZybKgUB
-         yoyjCXDqyiVJzkfpVqHgPKiO787NLnpdjmLbL5R0PdyKgZtXIvb5VvXf5NUXeI+uyBbj
-         x+ppblOYOobGT/nssaqztLTkBVtZKusqZca7uliMg1C+YFVrKDCWCWZNQ10CiafR5OUh
-         WxVwy+dWSh4PMu3lA2rVpppIR1vl5OSk5gYuFkJe7Izp/LleE+cZucnkUM66/AWPk+k2
-         4nrw==
-X-Forwarded-Encrypted: i=1; AJvYcCUoh6uUdcBNXVA9mBD8pL0SewHWre61sFOFtuIqYsKtkNxVbZD/lEMXhXeE/+cYThXQeFVyaENMZ0Gy@vger.kernel.org
-X-Gm-Message-State: AOJu0YzsWz2bd9Y6vyP/0kUisXBEZEw4xJfB98L3a9B1td+tRnQVldse
-	W1tVOr4im/EdWng3KsOI7mVB6RNwyHdWOOK18iA2/UgCw6H/A4euplyWSr/+bCOkhPSFjBh5hno
-	yxBQzh5wwJR7PAsWlL+u+ZohjFpuz4dfY04jxc7veih3dZPVIOjl5xPoadbywahU=
-X-Gm-Gg: ASbGncu6K53YuUZCr4u4WIRbUKSqomnoQstBJswd8D93g7nePRqb1o5mcr6IsugI4Me
-	wXc47hh8/Fat3B6k/UY4MwIpxTjwLpbap8sxKDa7FEbpAgQguNxCF3ysnmrgjAta5+yWig1nxhJ
-	cI0iGf0MVqAU9iI1jAw9zl7A41trJ8B9xOoPmNXX6QpU2qD9HCGKE1zp8uhT+x8C9E2oFP0RLMq
-	xz/GrbSY8EiaF6dOBII9bkFNTJo6F8f4uxbW5IspIbFc8nWXOZ9mSsajq9gq4MnN11XP6ULyYhJ
-	nfXAQBRLRcpopQcoZYA15q1UoiohchIgp+QEX5DZ0n48lADC3r2j/OOucgxoPT+vB32K8t7KB6r
-	3HZY8EJlufvOd
-X-Received: by 2002:a05:6000:23ca:b0:3ea:5f76:3f7a with SMTP id ffacd0b85a97d-3ea5f764a5dmr4367622f8f.22.1758010799646;
-        Tue, 16 Sep 2025 01:19:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEno2K+NdUW6UjWVLC6LxT9P7Qfem/6TR6gFdG8F5R9GArEc4/f2xtzeLzakkVXchgcRbliwQ==
-X-Received: by 2002:a05:6000:23ca:b0:3ea:5f76:3f7a with SMTP id ffacd0b85a97d-3ea5f764a5dmr4367594f8f.22.1758010799204;
-        Tue, 16 Sep 2025 01:19:59 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3e9a066366fsm10432408f8f.44.2025.09.16.01.19.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Sep 2025 01:19:58 -0700 (PDT)
-Message-ID: <e50be1a2-4e9f-44b4-b524-706be01c97e5@redhat.com>
-Date: Tue, 16 Sep 2025 10:19:56 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lM5JFafl"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G5QHpt018817;
+	Tue, 16 Sep 2025 08:37:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ahBnTK
+	8zMkC3+g9xPOJXAMa9qkUgYwpW3Uh8DBbLQuE=; b=lM5JFaflON58Rn5zz9ATo+
+	megSLX4JAwE+LL3BIVrLhqCX8CgqRw588dcE44hS9ubwjo7USEI0eF9E/G6jph8M
+	ImnmDjc5QyyF7s0VPA2mLlkz0pX37CHgBygCP0yiKbKuVWm0AaIMo6QJeetH4eMv
+	uRuB20Sgcjrw2Mtrtfa9kDhfvpQ7JcAHT3jPcxYi2NV3Jmxin4cwteuIUrhhP27X
+	QQ/xMfqwN27RV5SnGZhluJ6RJCB4utghJPWZtMZR1e5PG6arjbUCbg798y4RnQa4
+	HAbyzzTEaAKHssvC9G5j14b0X1vD2zurrzhBvw3i7r6mP42vKxR7Na+zvRHDWPwQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496gat6bdm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 08:37:27 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58G8XCWm008337;
+	Tue, 16 Sep 2025 08:37:26 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496gat6bdh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 08:37:26 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G7XgYx018629;
+	Tue, 16 Sep 2025 08:37:25 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 495n5mas6m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 08:37:25 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58G8bLgd53608858
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Sep 2025 08:37:21 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C8E2220043;
+	Tue, 16 Sep 2025 08:37:21 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5B4C120040;
+	Tue, 16 Sep 2025 08:37:21 +0000 (GMT)
+Received: from [9.152.224.94] (unknown [9.152.224.94])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Sep 2025 08:37:21 +0000 (GMT)
+Message-ID: <f785ff05-acfd-4544-84b8-39f0c2d8e5ee@linux.ibm.com>
+Date: Tue, 16 Sep 2025 10:37:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,55 +69,105 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 13/14] dibs: Move data path to dibs layer
-To: Alexandra Winter <wintera@linux.ibm.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
- <wenjia@linux.ibm.com>, David Miller <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>
+Subject: Re: [PATCH net-next v2 04/14] dibs: Register smc as dibs_client
+To: Paolo Abeni <pabeni@redhat.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond
+ <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
 Cc: Julian Ruess <julianr@linux.ibm.com>,
- Aswin Karuvally <aswin@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
  <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
- Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Harald Freudenberger <freude@linux.ibm.com>,
- Konstantin Shkolnyy <kshk@linux.ibm.com>
+        linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
 References: <20250911194827.844125-1-wintera@linux.ibm.com>
- <20250911194827.844125-14-wintera@linux.ibm.com>
+ <20250911194827.844125-5-wintera@linux.ibm.com>
+ <eda2c052-a917-4d02-becf-2608242d1644@redhat.com>
 Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250911194827.844125-14-wintera@linux.ibm.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <eda2c052-a917-4d02-becf-2608242d1644@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=BKWzrEQG c=1 sm=1 tr=0 ts=68c921c7 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=T1PN338ZtHlUWDigjuoA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: Vf6J9y7SKg2WpjRt2_qg4go6h37zrt4V
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDA4NiBTYWx0ZWRfX5c06qAb5E/Yf
+ ogGq8k1yuvQgzH2iG0auw24H/TFLgtv6I0pI1akLxI2Wwx+k84bKPezzVnjoZmZQ6xlqQR0bpyB
+ vS4n8eeHM+BSSDYDt1tO1GHNTpK0BFiaJMfCLErQnn5TkdNEDKEVuEGRmHEtMpW83xVvOdFgZYH
+ fC5W1pSEMdJTnm8YfM1W7n6xMDPy6Mg69b39Uj7BFwHQpQ7eDjj/ZCRHQkvNRsmvUHCT7iLlhiT
+ CPGd85mCF8mUmXJGyGwW8OlAPoksWN4qOZOr3AJqKg5/nGrNfsYNlEfd/OYE8crIHW68SjDzmeB
+ j8oP0NfBtuXUmpG4QRffBBalnbchmRXTnXK/ULl+56b3r9n1b0oYgkTF9Ps85dC7RkpTfZa8Hu9
+ CjW+Ocsd
+X-Proofpoint-ORIG-GUID: KHL8bkc2_3AR0d1FyHnYLQ4LlV6FvN2X
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 malwarescore=0 priorityscore=1501 adultscore=0
+ suspectscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150086
 
-On 9/11/25 9:48 PM, Alexandra Winter wrote:
-> +static void __dibs_lo_unregister_dmb(struct dibs_lo_dev *ldev,
-> +				     struct dibs_lo_dmb_node *dmb_node)
-> +{
-> +	/* remove dmb from hash table */
-> +	write_lock_bh(&ldev->dmb_ht_lock);
-> +	hash_del(&dmb_node->list);
-> +	write_unlock_bh(&ldev->dmb_ht_lock);
-> +
-> +	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
-> +	kvfree(dmb_node->cpu_addr);
-> +	kfree(dmb_node);
 
-I see the above comes directly from existing code, but it's not clear to
-me where (and if) dmb_node->cpu_addr is vmalloc()ed (as opposed to
-kmalloc()ed).
 
-Could you consider switching to kfree() (if possible/applicable) and/or
-add a describing comment if not?
+On 16.09.25 09:40, Paolo Abeni wrote:
+> On 9/11/25 9:48 PM, Alexandra Winter wrote:
+>> diff --git a/net/smc/Kconfig b/net/smc/Kconfig
+>> index ba5e6a2dd2fd..40dd60c1d23f 100644
+>> --- a/net/smc/Kconfig
+>> +++ b/net/smc/Kconfig
+>> @@ -1,7 +1,7 @@
+>>  # SPDX-License-Identifier: GPL-2.0-only
+>>  config SMC
+>>  	tristate "SMC socket protocol family"
+>> -	depends on INET && INFINIBAND
+>> +	depends on INET && INFINIBAND && DIBS
+>>  	depends on m || ISM != m
+>>  	help
+>>  	  SMC-R provides a "sockets over RDMA" solution making use of
+> 
+> DIBS is tristate, and it looks like SMC build will fail with SMC=y and
+> DIBS=m. I *think* you additionally need something alike:
+> 
+> 	depends on m || DIBS != m
+> 	
+> /P
+> 
 
-Thanks,
 
-Paolo
+My understanding of 'SMC depends on DIBS' is that DIBS has to have
+a higher or equal state than SMC (with y > m > n).
+
+When I do 'make menuconfig' and set DIBS=m, it will only offer SMC: m|n
+
+When I manually set DIBS=m and SMC=y, 'make oldconfig' will change that to
+DIBS=m and SMC=m.
+
+So I my understanding is: it is ok like it is. Am I missing something?
+
+Ugly constructs like  'SMC depends on m || ISM != m' are only required for scenarios,
+where SMC=y ISM=n is allowed, but SMC=y ISM=m is not allowed.
+Link: https://lore.kernel.org/netdev/20231006125847.1517840-1-gbayer@linux.ibm.com/
+
+This was actually my initial motivation for the DIBS shim layer: to get rid of the
+dependencies and IFCONFIGS between ISM and SMC.
+
 
