@@ -1,72 +1,72 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB342848B4;
-	Tue, 16 Sep 2025 10:54:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11225285CB3;
+	Tue, 16 Sep 2025 10:59:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758020080; cv=none; b=qaqpShRtWvYMusdAufStEIptK4MRdhTHvj4HH1KhKwo9Vg+GBA+w5e0u9wa+FtLpRg51h3BWnKWZNqEPAQhogXX7hDoY4//g1smAdu6ZBwqb0G3oHhYTXt+Nq64Sxri7xlE/gLL2wtCzekSpgzknAfwBEpPzI//22RSnohvjH/0=
+	t=1758020382; cv=none; b=EgX2GflmGSgW6KbJD8OSAt65Yi+KOjc7SbRMn/zneB9QPhu84HRpvJr1JZsW7JqZU42fPFErDFeTCpcdKQX1EoCWXER4warB3AINoxgCfljLZGIbKFI4MAhbQ27P9lqXNDeaP4hsyShjVCwN+DH7qfi6Q5zlt32tIY3QVCq+WlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758020080; c=relaxed/simple;
-	bh=iQRfr2CsEXt7MpaemY80t59JywyZ3Y0X2qnknKQzFao=;
+	s=arc-20240116; t=1758020382; c=relaxed/simple;
+	bh=1nr0TMelLWxVrG6W+rd6e5aKpW2N2tfzlgwitf0r5mg=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=kDhT9FHNQ1b8VDFYzilhtlPhFwxQtZQb2TUNVvpqu/Rx0z2+eWEAqp0qWhC6SUukTkLyZvcfqUfEy9eIH0UosCvs4ZqKBkmIb4XxHV2BlfX0n8JKy5F759OvX73Bh+fcmrHt26C5/ae0koGP+/oJquUoReu1LcbzVrsH+TMsTjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dTIz4lCR; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:MIME-Version; b=aRVyaOl5X8Zmv+4f5y9x5TH4L98JMf6nnMFy9Ub+XwX075+/vxGbWYEjvcIWV0XDIol0moite3i7w03BAkvd4ak2npnt2j9Lf1anyAAHOJojomWQZNkit21pqL/bEoWYujrjWiSQRgGZl3rC7nZ/Ph/7zRVb9/PylHev2wD/t5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ixmvp8Vx; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dTIz4lCR"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58GA8ix8015122;
-	Tue, 16 Sep 2025 10:54:35 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ixmvp8Vx"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G026hp024156;
+	Tue, 16 Sep 2025 10:59:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=vB2QT4
-	FmuNsW21Oklh4MJ1T5SbN06uJoDbD/5q5Shjk=; b=dTIz4lCRS2jdQwJsky7Rf1
-	Dx8j36m/qXh0BzjURdre/Pt+HB+V7waLAIhKyeihGMaWdCZuJunWT8TdWmW81rpv
-	oM90ePSsw0qaZF8pdv8wnvEmiZQdqKK4J4Lv7pW/xwz64TqQmVNDBxv3dVFbqU7J
-	90VehOphyW4mhnpwPki9/pNZj4eTlD1oUZ7v4fhwkYpu6h0OZ7eoTsEGaMDbO77V
-	LQPSCtWpWXNr9gtf6WTXcslmLy07u+95NfRPkCIATgDs/G8WS/lijHJd41UdF1m6
-	5BP8CF/qjWVSWLC6SRHHtOCVIdvJ5tUNiZyF0W++tXs2KgkcW6SVc1Nz4nq6Np0Q
+	:message-id:mime-version:references:subject:to; s=pp1; bh=1nr0TM
+	elLWxVrG6W+rd6e5aKpW2N2tfzlgwitf0r5mg=; b=ixmvp8VxpMKCjlDyEcKV6R
+	nOIhUoxdeCX3qOICG+nKkZMXhLX0USCcIcZ2lru8KtXl+4nBnvhb247H1iQj4OAW
+	0i25TWvXLtTLPNBjpn+bD0IS/VUfJNJtqejgk3SUoAhLgTMv6T75qqOXI12aTEnv
+	WIOFSwZ5pGUmuQ4w0tVOQD8PRuXbEOKjxybCHK9JnVVK9O2Taj85DoPMODB3ZU+k
+	jT5pnQC4nMSbTU3ZqZ+XX/N0HOVE3DLgB7dPK0HAyq+HJZEByyZHduftuUX+bycW
+	aSnot1y10Yw/h9vbSsb5M6K9+baSC6jnyy8CJlZFIsx5dU9QZgkfv+a4jv9lDr5w
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 494x1tfv9t-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496avnrkfs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 10:54:34 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G6xMwM027308;
-	Tue, 16 Sep 2025 10:54:34 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495men3cy0-1
+	Tue, 16 Sep 2025 10:59:36 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G85k6Q009486;
+	Tue, 16 Sep 2025 10:59:36 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 495nn3b58c-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 10:54:34 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58GAsWxL34799996
+	Tue, 16 Sep 2025 10:59:36 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58GAxYYJ29229736
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Sep 2025 10:54:33 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8D4D58061;
-	Tue, 16 Sep 2025 10:54:32 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 540B558043;
-	Tue, 16 Sep 2025 10:54:31 +0000 (GMT)
+	Tue, 16 Sep 2025 10:59:34 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2EBE458056;
+	Tue, 16 Sep 2025 10:59:34 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1389058052;
+	Tue, 16 Sep 2025 10:59:33 +0000 (GMT)
 Received: from [9.152.212.194] (unknown [9.152.212.194])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 16 Sep 2025 10:54:31 +0000 (GMT)
-Message-ID: <6703760a502d146909482f3aeb4333bf33cb431b.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 07/10] s390/pci: Store PCI error information for
- passthrough devices
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Sep 2025 10:59:32 +0000 (GMT)
+Message-ID: <5735f0b6c543f1ca1a8d404dca3b6c42ae05d71c.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 05/10] s390/pci: Restore IRQ unconditionally for the
+ zPCI device
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
         kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-pci@vger.kernel.org
 Cc: alex.williamson@redhat.com, helgaas@kernel.org, mjrosato@linux.ibm.com
-Date: Tue, 16 Sep 2025 12:54:30 +0200
-In-Reply-To: <98a3bc6f-9b75-48cd-b09f-343831f5dcbf@linux.ibm.com>
+Date: Tue, 16 Sep 2025 12:59:32 +0200
+In-Reply-To: <f3a91866-3897-4872-8336-384bb8e568a4@linux.ibm.com>
 References: <20250911183307.1910-1-alifm@linux.ibm.com>
-	 <20250911183307.1910-8-alifm@linux.ibm.com>
-	 <197d61dcb036c1038180acf26042b82d4320b9f2.camel@linux.ibm.com>
-	 <98a3bc6f-9b75-48cd-b09f-343831f5dcbf@linux.ibm.com>
+	 <20250911183307.1910-6-alifm@linux.ibm.com>
+	 <d4ae1aede3a62ad60626e9706d11ed3c48f5a30a.camel@linux.ibm.com>
+	 <f3a91866-3897-4872-8336-384bb8e568a4@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -132,103 +132,69 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=OMsn3TaB c=1 sm=1 tr=0 ts=68c941ea cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=H7lXNfFGqXF3HOv8TxgA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: ySSAb4OIcC5rGylVi2v5_M-XzjnoEvc8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTEzMDAwMSBTYWx0ZWRfXxjsQ+COyY5br
- FgjElnh8EcjbEJTKNo43iAR+6WVkKPu5r7rTRArAV35Mt1dB+PbiAFzOMMVAq59/gRveQwwLjs+
- v8c1FbHRtwImTZ3kx4lTqG3V3BKpArEAT/NTChFnyZ2tj4AsnrIz8+ZgHyA3rzzCD823JdsKmQu
- LeGFAQnQSG346DaCrRj3UTM6jYs+7rR9PKeUWmQ7r7Zr2oYUViPkul6vfOUcPkTSjm5DBFmVQLM
- zgNap+40KMnpyaiVSBq8PgFHqvECscjXv6PQx3L4dmcxqUo2up0ieGi4VLzkWhUlk2jCQ5LfgIN
- /M+HP5O7zn7CqJ9ST/lBWbz7hRoEtdoTYyZWLjN/MYdVjRzmQ2MpGHcd3GaUIP2bkFhfJocWMGJ
- AcZNBw38
-X-Proofpoint-GUID: ySSAb4OIcC5rGylVi2v5_M-XzjnoEvc8
+X-Proofpoint-ORIG-GUID: s_2vpAPE-nisw40kZTWU3nE5yMaAjkjp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDAyOCBTYWx0ZWRfXwAxzzbPcSLEU
+ OKLE8Ky2N9F9RiEi7Pbl0TvyCORGiC5r3nmFNmAPn+NqXh3T5X1lfvr5cUMHEIf3sy9GrW7TVZF
+ 6R7Ork+UFMY68Aw8NYCHf3mxcZuG7IJMzfPWC95nsNNkMdb8T/AyCeB3d0jkLjMjiK8xqC0Iy52
+ p3q7V7d+/3K8ZzoNDDtgvvaCi2kEVT8HqC9dEHH415X0hKaWEybjqWTvuUuNi7aCYGBHrBOX8G1
+ IAhU7C5FQAV3vfce58WP5uSP9Tmtw9LEIsoerw9a99Ug0fey3LZypmjCQIojbBinuaYPB9fEAkY
+ 862MiFkXuQQhySdg1GE1dpclZ27H6/4FJri1iRzYqBvzeAhJ0aaA7QcLfz5UNC5M9UrpSa9D7pd
+ Xjy3YU7j
+X-Authority-Analysis: v=2.4 cv=HecUTjE8 c=1 sm=1 tr=0 ts=68c94319 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=72fMoQKuLPYSJsBL-tUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: s_2vpAPE-nisw40kZTWU3nE5yMaAjkjp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 suspectscore=0 spamscore=0 priorityscore=1501 adultscore=0
- impostorscore=0 clxscore=1015 malwarescore=0 bulkscore=0
+ phishscore=0 adultscore=0 spamscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 bulkscore=0 impostorscore=0 clxscore=1015
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509130001
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150028
 
-On Mon, 2025-09-15 at 11:12 -0700, Farhan Ali wrote:
-> On 9/15/2025 4:42 AM, Niklas Schnelle wrote:
+On Mon, 2025-09-15 at 10:42 -0700, Farhan Ali wrote:
+> On 9/15/2025 1:39 AM, Niklas Schnelle wrote:
 > > On Thu, 2025-09-11 at 11:33 -0700, Farhan Ali wrote:
-> > > For a passthrough device we need co-operation from user space to reco=
-ver
-> > > the device. This would require to bubble up any error information to =
-user
-> > > space.  Let's store this error information for passthrough devices, s=
-o it
-> > > can be retrieved later.
+> > > Commit c1e18c17bda6 ("s390/pci: add zpci_set_irq()/zpci_clear_irq()")=
+,
+> > > introduced the zpci_set_irq() and zpci_clear_irq(), to be used while
+> > > resetting a zPCI device.
 > > >=20
-> > > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> > > ---
-> > >=20
---- snip ---
-> > > +	mutex_unlock(&zdev->pending_errs_lock);
-> > > +}
-> > > +
-> > > +void zpci_cleanup_pending_errors(struct zpci_dev *zdev)
-> > > +{
-> > > +	struct pci_dev *pdev =3D NULL;
-> > > +
-> > > +	mutex_lock(&zdev->pending_errs_lock);
-> > > +	pdev =3D pci_get_slot(zdev->zbus->bus, zdev->devfn);
-> > > +	if (zdev->pending_errs.count)
-> > > +		pr_err("%s: Unhandled PCI error events count=3D%zu",
-> > > +				pci_name(pdev), zdev->pending_errs.count);
-> > I think this could be a zpci_dbg(). That way you also don't need the
-> > pci_get_slot() which is also buggy as it misses a pci_dev_put(). The
-> > message also doesn't seem useful for the user. As I understand it this
-> > would happen if a vfio-pci user dies without handling all the error
-> > events but then vfio-pci will also reset the slot on closing of the
-> > fds, no? So the device will get reset anyway.
->=20
-> Right, the device will reset anyway. But I wanted to at least give an=20
-> indication to the user that some events were not handled correctly.=20
-> Maybe pr_err is a little extreme, so can convert to a warn? This should=
-=20
-> be rare as well behaving applications shouldn't do this. I am fine with=
-=20
-> zpci_dbg as well, its just the kernel needs to be in debug mode for us=
-=20
-> to get this info.
-
-No, zpci_dbg() logs to /sys/kernel/debug/s390dbf/pci_msg/sprintf
-without need for debug mode. I'm also ok with a pr_warn() or maybe even
-pr_info(). I can see your argument that this may be useful to have in
-dmesg e.g. when debugging a user-space driver without having to know
-about s390 specific debug aids.
-
->=20
+> > > Commit da995d538d3a ("s390/pci: implement reset_slot for hotplug slot=
+"),
+> > > mentions zpci_clear_irq() being called in the path for zpci_hot_reset=
+_device().
+> > > But that is not the case anymore and these functions are not called
+> > > outside of this file.
+> > If you're doing another version I think you could add a bit more
+> > information on why this still works for existing recovery based on my
+> > investigation in
+> > https://lore.kernel.org/lkml/052ebdbb6f2d38025ca4345ee51e4857e19bb0e4.c=
+amel@linux.ibm.com/
 > >=20
-> > > +	memset(&zdev->pending_errs, 0, sizeof(struct zpci_ccdf_pending));
-> > If this goes wrong and we subsequently crash or take a live memory dump
-> > I'd prefer to have bread crumbs such as the errors that weren't cleaned
-> > up. Wouldn't it be enough to just set the count to zero and for debug
-> > the original count will be in s390dbf.
+> > Even if you don't add more explanations, I'd tend to just drop the
+> > above paragraph as it doesn't seem relevant and sounds like
+> > zpci_hot_reset_device() doesn't clear IRQs. As explained in the linked
+> > mail there really is no need to call zpci_clear_irq() in
+> > zpci_hot_reset_device() as the CLP disable does disable IRQs. It's
+> > really only the state tracking that can get screwed up but is also fine
+> > for drivers which end up doing the tear down.
 >=20
-> I think setting count to zero should be enough, but I am wary about=20
-> keeping stale state around. How about just logging the count that was=20
-> not handled, in s390dbf? I think we already dump the ccdf in s390df if=
+> I referenced commit da995d538d3a as that commit introduced the=20
+> arch_restore_msi_irqs and describes the reasoning as to why we need it.=
 =20
-> we get any error event. So it should be enough for us to trace back the=
+> It also mentions about zpci_clear_irq being called by=20
+> zpci_hot_reset_device. IMHO the message was confusing as it took me my=
 =20
-> unhandled error events?
->=20
-> > Also maybe it would make sense
-> > to pull the zdev->mediated_recovery clearing in here?
->=20
-> I would like to keep the mediated_recovery flag separate from just=20
-> cleaning up the errors. The flag gets initialized when we open the vfio=
+> down the path of trying to identify any commit that changed the behavior=
 =20
-> device and so having the flag cleared on close makes it easier to track=
+> since da995d538d3a. But that wasn't the case and it was an error in the=
 =20
-> this IMHO.
+> commit message. I want to keep a reference here to at least clarify that.
 
-Ok yeah I can see the symmetry argument.
->=20
+Ok that makes sense, maybe you could add asentence like:
+"=E2=80=A6 these functions are not called outside of this file. Instead
+zpci_hot_reset_device() relies on zpci_disable_device() also clearing
+the IRQs, but misses to reset the zdev->irqs_registered flag.
