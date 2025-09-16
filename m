@@ -1,335 +1,164 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 188C92DF3F9
-	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 06:52:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EAA9DDC3;
+	Tue, 16 Sep 2025 07:30:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758005562; cv=none; b=TEzplg7zV7CHXktyEBogulC57a6LDE+4WiQPjzWWR3qlae7UgBpQavmen748ntDTmeim3FQdk97jjnXMS10lczzHCKhajFuMe7ghLjPsGaccqqMj82spwj/drAn6cQzQryn9mw6XF9VUmUmXO69F8NeH+kEQtZYZ8kWr/0g2zAw=
+	t=1758007850; cv=none; b=ZIzBNr+p+Te9teVO0MiZod8TVHlnM+mjwRnQIWEWEevUKdcmAzJJJ5Ytu36+nTkvL2D1I+ROQzCcxzlrH8AjVdLl8mXULe/+GYNQ2LrAagu7IPWI0l2h1X9p6Q9JMo50/1yzxOrUgfR/7LayT9gFZxEONAN0qJOq125rh6OuIio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758005562; c=relaxed/simple;
-	bh=UyKHsrxSZ5d+t/uuNSoao881gpy1Tqfki37w866aktg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fkUulRmnygniNMzMHSfM03oR7ezwW5J8AoJCzluEGJM159nFFKi80DFGix53qGGnO0EOhpqCeXxT5YmCfl21HNGEzTP9hVACY8aPSqYy1rSE7aHFKy0WonJhYsLYPgZ5DTvP6DzjSoUhTPVxDqDuR18CGzArAqEzN/53PipufgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K26DPqiL; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758007850; c=relaxed/simple;
+	bh=67wYFyb9yQMfAldZImDXHhemEGtudY4U1p5WDJhHWeE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JaGjO8hEiS9etDoyjmPRORpmjueZ9BH84lXYaTzGr0a+NMgip2TDo24dWfiHeA+R3f2WNrM5E5tp7f2f66snGb/SmZuPTxb1QDHNCWa1myOlpckzwcsMSfm5lxWSBUWiqt/JeQ9WWuhbJddTP+Qzr2rApL9Z/NofE49lQvD7fZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JWpnjpie; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K26DPqiL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758005558;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=AMVKJlLAy0pyT2tAKFDNaSbI5yrrK8zTASCBh6EKdo4=;
-	b=K26DPqiLv4cqcfi7/xqAzmL09NnfBoTl2al0rT0MbOHyTiML6dzZUE3yGfxfWvLFuY7ANH
-	+1+mshZv53Zo1Ebgj46MtdUInxM1x9lMaojdF9Mh3NvHeKcMwIGOJ1ZgzIcJ6VSrf78MEc
-	2o9G19s7jO+noVw3DMO+hW2vAW9smbY=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681-si05ny1MMayN1Pu-1BpOXA-1; Tue, 16 Sep 2025 02:52:36 -0400
-X-MC-Unique: si05ny1MMayN1Pu-1BpOXA-1
-X-Mimecast-MFC-AGG-ID: si05ny1MMayN1Pu-1BpOXA_1758005555
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3eb5130a9efso1022476f8f.2
-        for <linux-s390@vger.kernel.org>; Mon, 15 Sep 2025 23:52:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758005555; x=1758610355;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=AMVKJlLAy0pyT2tAKFDNaSbI5yrrK8zTASCBh6EKdo4=;
-        b=nSzQmlxyWLMe79CQedZOsJBqwxyyRCo9B81BoDpCVqPcmuRekSscutg+1/UthmIVks
-         il9GBKV+MVCrQ0IUpVpdjBaGLuJ3juM9TkjTKmCrH5pGa2RVGIzFzs6Rc/8UWZcjNZeR
-         RZVTOK6nGTl6GFacsTc8L3tl99MrQ5ye7oc0y54X27ugiojeTtAN9vybOLfIrBX/yZtC
-         Wx5NewtbrUpRmwEKCW/VMQCOHOsccTdKvTw26/NlHeMUKgpF6xp0xUSdKx0xKVNXOIE8
-         1lvLe+sMjmT9raMyiKQEeh9uK2X3ave8A5bVhqHR3RKKpCMErMrvrdJn1WPrzzJhTOPZ
-         z94A==
-X-Forwarded-Encrypted: i=1; AJvYcCXfzDXkyWt/O8POp7FkcftR/sS1x2RMTdJCshN5HQA3GMsspZvvtgEo+JqJwXX/dAldlSmiLcST8hAz@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfryqWxGAX9jvpz224TclFJUTqqJ1IuSdiiL7FlnUoIPhU+/RT
-	Ws8StkRNcfq5GoMKLkc98s56RL3pOZGDEd8E4kUFiK7WAK/czm3StDTn0lObzX2ElcK5tZP6OGO
-	V1+3S0EV3CGnobjFVgvFSQwZw43fheJoCV+10d/FJCDZsTV9jX/QdEBsaw0GjAiM=
-X-Gm-Gg: ASbGncuARD2dP+R4MDqYDl45dpKXZ0S9slg2bEhWIgqM/TpVWbqVe+byjCuCm6KKPJy
-	JQmwwMfXjBuARIpmclynyWbEBQpRVbtxqwidJrpqrdcmwFT5AX3RbWLkwo0i6P+KdR0oiqxZZxz
-	v0GAJomxGctBbQB2HfGeqLqPf88FqBpIVtzFotXrkOVfrHTVSCJX+/IhlLunhPF7CEJhW1erYgq
-	IVP/6ssSPmjQvjuIRGpH53k/AlwWDg7H4mqXx9rLqRNejrOZm9o8zyIbfJz0nqr3bg27x4Tl3oV
-	yCEVdhH3JUi4llRj5Baolcz7+Xno6zId7npstZ6gQHGaq+JNDvY4KqEsgcBx6Wj+LkKq9VgAq1J
-	8g0c=
-X-Received: by 2002:a05:6000:2289:b0:3e5:47a9:1c7a with SMTP id ffacd0b85a97d-3e765a157b7mr13505562f8f.62.1758005555235;
-        Mon, 15 Sep 2025 23:52:35 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEWAXNBenetL3FL9OBDBNc8qHNLpJT5WfiHBs96Rxm+WMgjku9hsruXibgjX6C0ZLNz1vwS8g==
-X-Received: by 2002:a05:6000:2289:b0:3e5:47a9:1c7a with SMTP id ffacd0b85a97d-3e765a157b7mr13505524f8f.62.1758005554679;
-        Mon, 15 Sep 2025 23:52:34 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:280:24f0:576b:abc6:6396:ed4a? ([2a01:e0a:280:24f0:576b:abc6:6396:ed4a])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45e037c4490sm208864185e9.19.2025.09.15.23.52.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Sep 2025 23:52:34 -0700 (PDT)
-Message-ID: <07205677-09f0-464b-b31c-0fb5493a1d81@redhat.com>
-Date: Tue, 16 Sep 2025 08:52:33 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JWpnjpie"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G1QkHw024260;
+	Tue, 16 Sep 2025 07:30:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=XCdDH6mQmueEzzTBlbzMnv9kmTMNdx
+	k+WM2j7GGhD1U=; b=JWpnjpie0WQ0UO8yEHNOg3+oZzSVjQ0/9u+KREHKoVl6cD
+	hdIyHd31sWI4ZApg4ejbA+otHAV0KWfT/BrkUt6vk5o46c5Hnt0TWFdaSLvYxonA
+	LlCbdVlXvWfb2hqOlbgZjwiOgZxejHO8Zzth+naB7VOcur40ASaYFNkydnpCK8Sp
+	TjHMl64F78BQB4crifJpiawOYxxKQexP1HULtEub+zRU/fd5oURFx7wqZPjC1e7s
+	E+comdCxy6BX8xk8PrORRAdc3cK/PwgGCHgtn39U1Y1Ewf6pGr+ABh+aFOohvOky
+	nkyBusAEfZ1qOFRMSvmqbhXKgriecYNacQrZvUOQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496avnqk9k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 07:30:45 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G7BqSX027349;
+	Tue, 16 Sep 2025 07:30:44 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495men2nbg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 07:30:44 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58G7Uefh11927882
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Sep 2025 07:30:40 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA1BC2004B;
+	Tue, 16 Sep 2025 07:30:40 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 147E620043;
+	Tue, 16 Sep 2025 07:30:40 +0000 (GMT)
+Received: from osiris (unknown [9.111.25.93])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Sep 2025 07:30:40 +0000 (GMT)
+Date: Tue, 16 Sep 2025 09:30:38 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, hca@linux.ibm.com, svens@linux.ibm.com,
+        agordeev@linux.ibm.com, david@redhat.com,
+        gerald.schaefer@linux.ibm.com
+Subject: Re: [PATCH v2 18/20] KVM: S390: Remove PGSTE code from linux/s390 mm
+Message-ID: <20250916073038.68862-A-seiden@linux.ibm.com>
+References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
+ <20250910180746.125776-19-imbrenda@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 03/10] PCI: Allow per function PCI slots
-To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: alex.williamson@redhat.com, helgaas@kernel.org, schnelle@linux.ibm.com,
- mjrosato@linux.ibm.com
-References: <20250911183307.1910-1-alifm@linux.ibm.com>
- <20250911183307.1910-4-alifm@linux.ibm.com>
-From: =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@redhat.com>
-Content-Language: en-US, fr
-Autocrypt: addr=clg@redhat.com; keydata=
- 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
- uVKe8BVz4atMOoktmt0GWTOC8P4=
-In-Reply-To: <20250911183307.1910-4-alifm@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250910180746.125776-19-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: hhMYeSv92yQ5yhh0p_Epp9ZG12M4OJyq
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDAyOCBTYWx0ZWRfXyYHLkICk8rNz
+ BSyaP3TpfV2IQL3JZo2ryFyG28YBlla3joIzvzpIHLDHeApTOAQH5mMc3Pl/oRbljekkQ3b6Bt6
+ SwxdD7uOjYL73BP4wd5CB9o4/ubZUDONEl5WR9IqXC4kjEoiDK2LNNUnBCaxhquzF4LQGLZ978+
+ 42utK5QtnGEAUq/Dee/7TPr+Ql2QHVfEXnixRMdLWB8BTmnpIC2ALsYGtanUjM8+fbcXOVk4yAS
+ FlT34ILW3ysWH8dTu9ZKFF6FT+syZRAE34ehut61KkfKY+MEoEOsBYqQfQqjuG1uUMjmYu5hhpu
+ lU0OIAAT1GI82mu+Kl1zTIq877Lmbm5BrgyFAF4jj5ILlxkj4q9jZ8DMeJreOxwJkZ+XcUYpeIz
+ LFeQPdzG
+X-Authority-Analysis: v=2.4 cv=HecUTjE8 c=1 sm=1 tr=0 ts=68c91226 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=Bk4uLiYzvl3jBF9LfpkA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: hhMYeSv92yQ5yhh0p_Epp9ZG12M4OJyq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 adultscore=0 spamscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 bulkscore=0 impostorscore=0 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150028
 
-Hello Ali,
-
-On 9/11/25 20:33, Farhan Ali wrote:
-> On s390 systems, which use a machine level hypervisor, PCI devices are
-> always accessed through a form of PCI pass-through which fundamentally
-> operates on a per PCI function granularity. This is also reflected in the
-> s390 PCI hotplug driver which creates hotplug slots for individual PCI
-> functions. Its reset_slot() function, which is a wrapper for
-> zpci_hot_reset_device(), thus also resets individual functions.
+On Wed, Sep 10, 2025 at 08:07:44PM +0200, Claudio Imbrenda wrote:
+> Remove the PGSTE config option.
+> Remove all code from linux/s390 mm that involves PGSTEs.
 > 
-> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot object
-> to multifunction devices. This approach worked fine on s390 systems that
-> only exposed virtual functions as individual PCI domains to the operating
-> system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
-> s390 supports exposing the topology of multifunction PCI devices by
-> grouping them in a shared PCI domain. When attempting to reset a function
-> through the hotplug driver, the shared slot assignment causes the wrong
-> function to be reset instead of the intended one. It also leaks memory as
-> we do create a pci_slot object for the function, but don't correctly free
-> it in pci_slot_release().
-> 
-> Add a flag for struct pci_slot to allow per function PCI slots for
-> functions managed through a hypervisor, which exposes individual PCI
-> functions while retaining the topology.
-> 
-> Fixes: 44510d6fa0c0 ("s390/pci: Handling multifunctions")
-> Suggested-by: Niklas Schnelle <schnelle@linux.ibm.com>
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > ---
->   drivers/pci/hotplug/s390_pci_hpc.c | 10 ++++++++--
->   drivers/pci/pci.c                  |  4 +++-
->   drivers/pci/slot.c                 | 14 +++++++++++---
->   include/linux/pci.h                |  1 +
->   4 files changed, 23 insertions(+), 6 deletions(-)
+>  arch/s390/Kconfig               |   3 -
+>  arch/s390/include/asm/mmu.h     |  13 -
+>  arch/s390/include/asm/page.h    |   4 -
+>  arch/s390/include/asm/pgalloc.h |   2 -
+>  arch/s390/include/asm/pgtable.h |  99 +---
+>  arch/s390/mm/hugetlbpage.c      |  24 -
+>  arch/s390/mm/pgalloc.c          |  29 --
+>  arch/s390/mm/pgtable.c          | 827 +-------------------------------
+>  mm/khugepaged.c                 |   9 -
+>  9 files changed, 14 insertions(+), 996 deletions(-)
 > 
-> diff --git a/drivers/pci/hotplug/s390_pci_hpc.c b/drivers/pci/hotplug/s390_pci_hpc.c
-> index d9996516f49e..8b547de464bf 100644
-> --- a/drivers/pci/hotplug/s390_pci_hpc.c
-> +++ b/drivers/pci/hotplug/s390_pci_hpc.c
-> @@ -126,14 +126,20 @@ static const struct hotplug_slot_ops s390_hotplug_slot_ops = {
->   
->   int zpci_init_slot(struct zpci_dev *zdev)
->   {
-> +	int ret;
->   	char name[SLOT_NAME_SIZE];
->   	struct zpci_bus *zbus = zdev->zbus;
->   
->   	zdev->hotplug_slot.ops = &s390_hotplug_slot_ops;
->   
->   	snprintf(name, SLOT_NAME_SIZE, "%08x", zdev->fid);
-> -	return pci_hp_register(&zdev->hotplug_slot, zbus->bus,
-> -			       zdev->devfn, name);
-> +	ret = pci_hp_register(&zdev->hotplug_slot, zbus->bus,
-> +				zdev->devfn, name);
-> +	if (ret)
-> +		return ret;
-> +
-> +	zdev->hotplug_slot.pci_slot->per_func_slot = 1;
-> +	return 0;
->   }
->   
->   void zpci_exit_slot(struct zpci_dev *zdev)
-> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> index 3994fa82df68..70296d3b1cfc 100644
-> --- a/drivers/pci/pci.c
-> +++ b/drivers/pci/pci.c
-> @@ -5061,7 +5061,9 @@ static int pci_reset_hotplug_slot(struct hotplug_slot *hotplug, bool probe)
->   
->   static int pci_dev_reset_slot_function(struct pci_dev *dev, bool probe)
->   {
-> -	if (dev->multifunction || dev->subordinate || !dev->slot ||
-> +	if (dev->multifunction && !dev->slot->per_func_slot)
-> +		return -ENOTTY;
-> +	if (dev->subordinate || !dev->slot ||
->   	    dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
->   		return -ENOTTY;
->   
-> diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
-> index 50fb3eb595fe..51ee59e14393 100644
-> --- a/drivers/pci/slot.c
-> +++ b/drivers/pci/slot.c
-> @@ -63,6 +63,14 @@ static ssize_t cur_speed_read_file(struct pci_slot *slot, char *buf)
->   	return bus_speed_read(slot->bus->cur_bus_speed, buf);
->   }
->   
-> +static bool pci_dev_matches_slot(struct pci_dev *dev, struct pci_slot *slot)
-> +{
-> +	if (slot->per_func_slot)
-> +		return dev->devfn == slot->number;
-> +
-> +	return PCI_SLOT(dev->devfn) == slot->number;
-> +}
-> +
->   static void pci_slot_release(struct kobject *kobj)
->   {
->   	struct pci_dev *dev;
-> @@ -73,7 +81,7 @@ static void pci_slot_release(struct kobject *kobj)
->   
->   	down_read(&pci_bus_sem);
->   	list_for_each_entry(dev, &slot->bus->devices, bus_list)
-> -		if (PCI_SLOT(dev->devfn) == slot->number)
-> +		if (pci_dev_matches_slot(dev, slot))
->   			dev->slot = NULL;
->   	up_read(&pci_bus_sem);
->   
-> @@ -166,7 +174,7 @@ void pci_dev_assign_slot(struct pci_dev *dev)
->   
->   	mutex_lock(&pci_slot_mutex);
->   	list_for_each_entry(slot, &dev->bus->slots, list)
-> -		if (PCI_SLOT(dev->devfn) == slot->number)
-> +		if (pci_dev_matches_slot(dev, slot))
->   			dev->slot = slot;
->   	mutex_unlock(&pci_slot_mutex);
->   }
-> @@ -285,7 +293,7 @@ struct pci_slot *pci_create_slot(struct pci_bus *parent, int slot_nr,
->   
->   	down_read(&pci_bus_sem);
->   	list_for_each_entry(dev, &parent->devices, bus_list)
-> -		if (PCI_SLOT(dev->devfn) == slot_nr)
-> +		if (pci_dev_matches_slot(dev, slot))
->   			dev->slot = slot;
->   	up_read(&pci_bus_sem);
->   
-> diff --git a/include/linux/pci.h b/include/linux/pci.h
-> index 59876de13860..9265f32d9786 100644
-> --- a/include/linux/pci.h
-> +++ b/include/linux/pci.h
-> @@ -78,6 +78,7 @@ struct pci_slot {
->   	struct list_head	list;		/* Node in list of slots */
->   	struct hotplug_slot	*hotplug;	/* Hotplug info (move here) */
->   	unsigned char		number;		/* PCI_SLOT(pci_dev->devfn) */
-> +	unsigned int		per_func_slot:1; /* Allow per function slot */
->   	struct kobject		kobj;
->   };
->   
 
-This change generates a kernel oops on x86_64. It can be reproduced in a VM.
+...
+
+>  #define INIT_MM_CONTEXT(name)						   \
+> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+> index 4e5dbabdf202..b4fb4d7adff4 100644
+> --- a/arch/s390/include/asm/page.h
+> +++ b/arch/s390/include/asm/page.h
+> @@ -78,7 +78,6 @@ static inline void copy_page(void *to, void *from)
+>  #ifdef STRICT_MM_TYPECHECKS
+>  
+>  typedef struct { unsigned long pgprot; } pgprot_t;
+> -typedef struct { unsigned long pgste; } pgste_t;
+>  typedef struct { unsigned long pte; } pte_t;
+>  typedef struct { unsigned long pmd; } pmd_t;
+>  typedef struct { unsigned long pud; } pud_t;
+> @@ -94,7 +93,6 @@ static __always_inline unsigned long name ## _val(name ## _t name)	\
+>  #else /* STRICT_MM_TYPECHECKS */
+>  
+>  typedef unsigned long pgprot_t;
+> -typedef unsigned long pgste_t;
+>  typedef unsigned long pte_t;
+>  typedef unsigned long pmd_t;
+>  typedef unsigned long pud_t;
+> @@ -110,7 +108,6 @@ static __always_inline unsigned long name ## _val(name ## _t name)	\
+>  #endif /* STRICT_MM_TYPECHECKS */
+>  
+>  DEFINE_PGVAL_FUNC(pgprot)
+> -DEFINE_PGVAL_FUNC(pgste)
+>  DEFINE_PGVAL_FUNC(pte)
+>  DEFINE_PGVAL_FUNC(pmd)
+>  DEFINE_PGVAL_FUNC(pud)
+> @@ -120,7 +117,6 @@ DEFINE_PGVAL_FUNC(pgd)
+>  typedef pte_t *pgtable_t;
+>  
+>  #define __pgprot(x)	((pgprot_t) { (x) } )
+> -#define __pgste(x)	((pgste_t) { (x) } )
+>  #define __pte(x)        ((pte_t) { (x) } )
+>  #define __pmd(x)        ((pmd_t) { (x) } )
+>  #define __pud(x)	((pud_t) { (x) } )
 
 
-C.
+You missed to remove the PGSTE_*_BIT{,S} and _PGSTE_GPS_* definitions in
+arch/s390/include/asm/pgtable.h
+(I found them at line 417.. (based on 6.16 with your patches applied))
 
-[    3.073990] BUG: kernel NULL pointer dereference, address: 0000000000000021
-[    3.074976] #PF: supervisor read access in kernel mode
-[    3.074976] #PF: error_code(0x0000) - not-present page
-[    3.074976] PGD 0 P4D 0
-[    3.074976] Oops: Oops: 0000 [#1] SMP NOPTI
-[    3.074976] CPU: 18 UID: 0 PID: 1 Comm: swapper/0 Not tainted 6.17.0-rc6-clg-dirty #8 PREEMPT(voluntary)
-[    3.074976] Hardware name: Supermicro Super Server/X13SAE-F, BIOS 4.2 12/17/2024
-[    3.074976] RIP: 0010:pci_reset_bus_function+0xdf/0x160
-[    3.074976] Code: 4e 08 00 00 40 0f 85 83 00 00 00 48 8b 78 18 e8 27 9d ff ff 83 f8 e7 74 17 48 83 c4 08 5b 5d 41 5c c3 cc cc cc cc 48 8b 43 30 <f6> 40 21 01 75 b6 48 8b 53 10 48 83 7a 10 00 74 5e 48 83 7b 18 00
-[    3.074976] RSP: 0000:ffffcd808007b9a8 EFLAGS: 00010202
-[    3.074976] RAX: 0000000000000000 RBX: ffff88c4019b8000 RCX: 0000000000000000
-[    3.074976] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff88c4019b8000
-[    3.074976] RBP: 0000000000000001 R08: 0000000000000002 R09: ffffcd808007b99c
-[    3.074976] R10: ffffcd808007b950 R11: 0000000000000000 R12: 0000000000000001
-[    3.074976] R13: ffff88c4019b80c8 R14: ffff88c401a7e028 R15: ffff88c401a73400
-[    3.074976] FS:  0000000000000000(0000) GS:ffff88d38aad5000(0000) knlGS:0000000000000000
-[    3.074976] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.074976] CR2: 0000000000000021 CR3: 0000000f66222001 CR4: 0000000000770ef0
-[    3.074976] PKRU: 55555554
-[    3.074976] Call Trace:
-[    3.074976]  <TASK>
-[    3.074976]  ? pci_pm_reset+0x39/0x180
-[    3.074976]  pci_init_reset_methods+0x52/0x80
-[    3.074976]  pci_device_add+0x215/0x5d0
-[    3.074976]  pci_scan_single_device+0xa2/0xe0
-[    3.074976]  pci_scan_slot+0x66/0x1c0
-[    3.074976]  ? klist_next+0x145/0x150
-[    3.074976]  pci_scan_child_bus_extend+0x3a/0x290
-[    3.074976]  acpi_pci_root_create+0x236/0x2a0
-[    3.074976]  pci_acpi_scan_root+0x19b/0x1f0
-[    3.074976]  acpi_pci_root_add+0x1a5/0x370
-[    3.074976]  acpi_bus_attach+0x1a8/0x290
-[    3.074976]  ? __pfx_acpi_dev_for_one_check+0x10/0x10
-[    3.074976]  device_for_each_child+0x4b/0x80
-[    3.074976]  acpi_dev_for_each_child+0x28/0x40
-[    3.074976]  ? __pfx_acpi_bus_attach+0x10/0x10
-[    3.074976]  acpi_bus_attach+0x7a/0x290
-[    3.074976]  ? _raw_spin_unlock_irqrestore+0x23/0x40
-[    3.074976]  ? __pfx_acpi_dev_for_one_check+0x10/0x10
-[    3.074976]  device_for_each_child+0x4b/0x80
-[    3.074976]  acpi_dev_for_each_child+0x28/0x40
-[    3.074976]  ? __pfx_acpi_bus_attach+0x10/0x10
-[    3.074976]  acpi_bus_attach+0x7a/0x290
-[    3.074976]  acpi_bus_scan+0x6a/0x1c0
-[    3.074976]  ? __pfx_acpi_init+0x10/0x10
-[    3.074976]  acpi_scan_init+0xdc/0x280
-[    3.074976]  ? __pfx_acpi_init+0x10/0x10
-[    3.074976]  acpi_init+0x218/0x530
-[    3.074976]  do_one_initcall+0x40/0x310
-[    3.074976]  kernel_init_freeable+0x2fe/0x450
-[    3.074976]  ? __pfx_kernel_init+0x10/0x10
-[    3.074976]  kernel_init+0x16/0x1d0
-[    3.074976]  ret_from_fork+0x1ab/0x1e0
-[    3.074976]  ? __pfx_kernel_init+0x10/0x10
-[    3.074976]  ret_from_fork_asm+0x1a/0x30
-[    3.074976]  </TASK>
-[    3.074976] Modules linked in:
-[    3.074976] CR2: 0000000000000021
-[    3.074976] ---[ end trace 0000000000000000 ]---
-[    3.074976] RIP: 0010:pci_reset_bus_function+0xdf/0x160
+Or are they kept on purpose? I could not find any usage after your patches.
 
+Steffen
