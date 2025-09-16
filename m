@@ -1,156 +1,164 @@
-Received: from flow-b2-smtp.messagingengine.com (flow-b2-smtp.messagingengine.com [202.12.124.137])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B598D275B1F;
-	Tue, 16 Sep 2025 08:58:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87D1D23D7E3;
+	Tue, 16 Sep 2025 09:18:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758013139; cv=none; b=lwlSpGC7XDQMIfDOX9sLB6QiqnV+sBLp+fOE4pNaPbzvIZtMBqMAlIntPxI/pfx167+zd+we70676XQ6CvpkuTs1X2hW7gypfaFtCHgknjulfD/wbwugHbqVCtB9PVEL09A7jZTWEx149h7a1lPVwF6vq4scdQUabgZCe6eBpQY=
+	t=1758014335; cv=none; b=KpdqpSWghSCYtznFaXrJXa2eUciqsutUdMnK9T0MKmmM1VZfxTHKPWf166xcsCJ8Jgx4z44Ausiqop1K2SN8OjvesZcAsgXonFqEs5pIYTltpQbRLGyXldQvWM4jk3oImZfT9eodrpYnXBch52kGblkvtj9tx6FfQSjLNrPGP2w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758013139; c=relaxed/simple;
-	bh=RDFVS/12vlPEvpAPazD0+caxnLwdBqgtuPi/RSkpkIE=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=jHGPNkiRpIL4Cofn2PXWC5/gTijneB6X31P/fjW0SDcsqb3RTT6WwU/SN22+QQTkvhnP4mDkbTJ7VZ/gTrCR/hhDwQXdRiLc9RnYlIBuGuwKYlNYzcPKTSH5rNQnk5idt+hVNRN1kTNKvuQ0qM8J+1ZtsnI3/M08is7NIzshBcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=p/B+WJFJ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=kZSbvBvX; arc=none smtp.client-ip=202.12.124.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1758014335; c=relaxed/simple;
+	bh=vDlWhrHfiWBZR+gXQ1/N3QnNubaTDzoCurJUt6HcbwY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lHSqPmqsVnrJ5VZDCSJyTnLJk4oNLholKFZ1cVlmr2n1HQ9T5/i0SSKKVKBv+gPfdlI5HoQD5U5VaC1qcvemPS6ykExXqnN0yg+8ttw57oYyIG3eYkxqxuNQrXMLyDEnmsReXnvbWH6AtaJVSMMi+a40Po0QG8cl0H70CKtyfSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kStaSHy/; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="p/B+WJFJ";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="kZSbvBvX"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailflow.stl.internal (Postfix) with ESMTP id 5ED701300B79;
-	Tue, 16 Sep 2025 04:58:54 -0400 (EDT)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-05.internal (MEProxy); Tue, 16 Sep 2025 04:58:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1758013134;
-	 x=1758020334; bh=9M1JEPa5y3WON6Gl+eiqRK9O7fk6z6pQgd71K0v19EU=; b=
-	p/B+WJFJ3zvsd0DyDuUadqyZnXAI6cYiqhiv6unBmCXntIE8psMAM6DfQy7CG4tu
-	dwuUTBcBHSAmSEokKeGyllqybSHONkBvptXBA49szippYTJiD18aJSwaXIGwCtNY
-	M4Vexja9gLMW6tG7GZSUPNj3XbnBGmnMLH8EJxrwOk1Pupiwv1Y8zd0I3brVRvq4
-	D9DwKD12EGhlSPUUQlTZtgs7UmYHav2Vee+sSpz2O3FkdqJ04sN2DYT0Fa261rdJ
-	zUCK8nQojIxcEGwn8mnKjGJLQ7OKURxhnaFzwYgYF5uPtmLhEztOEtqrDnlAIMa6
-	KsXxnW3BCtMxV2+qIVjtRw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1758013134; x=
-	1758020334; bh=9M1JEPa5y3WON6Gl+eiqRK9O7fk6z6pQgd71K0v19EU=; b=k
-	ZSbvBvXbZuuI9RT3eGTsfHKByF+ZYaWJ2C56VraoQgu7pifGWWofVsbIIEVdktZD
-	Zgq9DAEqiHxGxdfMtJ+kR7aKKqn1sPCY8D596jXBIhNGyK/SBEeXdScxW0InqE6O
-	qrY5nRnQXuYODkZ3xzAIHdQT7dtovownRaXBEC5LhXtolsSjNT+UIzmLu3WT+1ie
-	x36JKxShesGDBx1YNAhv4/BnouYSGpy6XplG4rLes4MUUJXHfdacX4Qc+hwgSNTq
-	edzDF2TvkCrNunZbdVxobnKXzw5lWyp1YcjOcWz+B929Qbl+ty+UkBq+ymJtzfNC
-	L+YLd5TA9UfPFkMGA66Kg==
-X-ME-Sender: <xms:zCbJaEaLHcyIvWW6yAWebvipT0oeBmOpqiAOk2PxnEu8TuEJOpTtHQ>
-    <xme:zCbJaPZMM9QRAWhJwYx9hvmc0gwpjKOD1eLOaoGD2PqomqH5rQvWYoIzG3axry8pT
-    DOXKryxEXEd8GyNWIU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdegtdduhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthhqredtredtjeenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpedvhfdvkeeuudevfffftefgvdevfedvleehvddvgeejvdefhedtgeegveehfeeljeen
-    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnug
-    esrghrnhgusgdruggvpdhnsggprhgtphhtthhopeehtddpmhhouggvpehsmhhtphhouhht
-    pdhrtghpthhtohepsghpsegrlhhivghnkedruggvpdhrtghpthhtoheptggrthgrlhhinh
-    drmhgrrhhinhgrshesrghrmhdrtghomhdprhgtphhtthhopehmrghrkhdrrhhuthhlrghn
-    ugesrghrmhdrtghomhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvg
-    htpdhrtghpthhtohepvgguuhhmrgiivghtsehgohhoghhlvgdrtghomhdprhgtphhtthho
-    pehjuhhsthhinhhsthhithhtsehgohhoghhlvgdrtghomhdprhgtphhtthhopehmohhrsg
-    hosehgohhoghhlvgdrtghomhdprhgtphhtthhopehnuggvshgruhhlnhhivghrshesghho
-    ohhglhgvrdgtohhmpdhrtghpthhtohepshgrlhhilhdrmhgvhhhtrgeshhhurgifvghird
-    gtohhm
-X-ME-Proxy: <xmx:zSbJaFqf1ylLAb5gbeCOgjC42fcc-bcdMn6ok2S1qEyqHza2sq_ESg>
-    <xmx:zSbJaKHheu5wueAQCpzv6yMqp8xGn9dh1VJoHL0vji4s96JlMLoipQ>
-    <xmx:zSbJaP6YqZyPZevTNB4oava3p0DgaX1jC7Tr_5cyKn-xfAkjAP_DDw>
-    <xmx:zSbJaABJudgqO6Fn60G_MknxnUxo0wlD6rpwQbgzC-V0LETDssng-A>
-    <xmx:zibJaGV2CuE5GYECVXMv7P9FR615dxHK3VuxLkHNVBVgrh4Vls-mjUw3>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id E3F0B700069; Tue, 16 Sep 2025 04:58:52 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kStaSHy/"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G2YhDg026797;
+	Tue, 16 Sep 2025 09:18:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=97Dgau
+	1Q+Hu0CADqhfvFigaZSTcR6YEPTbwyjop348I=; b=kStaSHy/y45rqw2HqYTHtc
+	H7kVBGhkTT1CDfa8VSTqm8U6ZGVAM0uKTUt9zJN2q8hiK4+AwcDD3Evl39e7KGOp
+	AME0eJ1eKGQ/NNGigJDHyKyyXSZaOsqfkElaMQVEVICdnMOks7w+j2gz77chFgyW
+	/VuP546Vr/PQOdBYvly3pOT5IWWoQQEizLQuUqGuRbikBIKsGLvdYtQrvjglf8r3
+	Kb0xsuDwUvccYkVwsMHQa8xuNZwvzQmVsfu8qwEpr0Vbrt+t57WCUnVVtWKJYue4
+	LPsqH74qPyg9ujhXMlEL/4KW3CwvsggZnlp+aStHapPG5Sh6BzlCju14nqYk2krg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49509y893w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 09:18:43 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58G9IbxL008445;
+	Tue, 16 Sep 2025 09:18:43 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49509y893u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 09:18:43 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58G7l5C8018649;
+	Tue, 16 Sep 2025 09:18:42 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 495n5mawr4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Sep 2025 09:18:42 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58G9IcwY43319758
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Sep 2025 09:18:38 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2918E20043;
+	Tue, 16 Sep 2025 09:18:38 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B221020040;
+	Tue, 16 Sep 2025 09:18:37 +0000 (GMT)
+Received: from [9.152.224.94] (unknown [9.152.224.94])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 16 Sep 2025 09:18:37 +0000 (GMT)
+Message-ID: <8aa79524-91ec-4000-b262-7e61e486fb9e@linux.ibm.com>
+Date: Tue, 16 Sep 2025 11:18:37 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ApGCQqXJ7W6B
-Date: Tue, 16 Sep 2025 10:58:32 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Patrisious Haddad" <phaddad@nvidia.com>,
- "Nathan Chancellor" <nathan@kernel.org>, "Jason Gunthorpe" <jgg@nvidia.com>
-Cc: "Tariq Toukan" <tariqt@nvidia.com>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>, "Andrew Lunn" <andrew+netdev@lunn.ch>,
- "David S . Miller" <davem@davemloft.net>,
- "Saeed Mahameed" <saeedm@nvidia.com>,
- "Leon Romanovsky" <leon@kernel.org>, "Mark Bloch" <mbloch@nvidia.com>,
- "Sabrina Dubroca" <sd@queasysnail.net>, Netdev <netdev@vger.kernel.org>,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- "Gal Pressman" <gal@nvidia.com>, "Leon Romanovsky" <leonro@nvidia.com>,
- "Michael Guralnik" <michaelgur@nvidia.com>,
- "Moshe Shemesh" <moshe@nvidia.com>, "Will Deacon" <will@kernel.org>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>,
- "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "Heiko Carstens" <hca@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>,
- "Justin Stitt" <justinstitt@google.com>, linux-s390@vger.kernel.org,
- llvm@lists.linux.dev, "Ingo Molnar" <mingo@redhat.com>,
- "Bill Wendling" <morbo@google.com>,
- "Nick Desaulniers" <ndesaulniers@google.com>,
- "Salil Mehta" <salil.mehta@huawei.com>,
- "Sven Schnelle" <svens@linux.ibm.com>,
- "Thomas Gleixner" <tglx@linutronix.de>, x86@kernel.org,
- "Yisen Zhuang" <yisen.zhuang@huawei.com>,
- "Leon Romanovsky" <leonro@mellanox.com>,
- Linux-Arch <linux-arch@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org,
- "Mark Rutland" <mark.rutland@arm.com>,
- "Michael Guralnik" <michaelgur@mellanox.com>, patches@lists.linux.dev,
- "Niklas Schnelle" <schnelle@linux.ibm.com>,
- "Jijie Shao" <shaojijie@huawei.com>
-Message-Id: <9d4cd8d2-343e-4448-ab59-65e69728c850@app.fastmail.com>
-In-Reply-To: <d259ffa9-6c9e-488f-a64f-81025deba75c@nvidia.com>
-References: <1757925308-614943-1-git-send-email-tariqt@nvidia.com>
- <20250915221859.GB925462@ax162> <20250915222758.GC925462@ax162>
- <20250915224810.GM1024672@nvidia.com> <20250915231506.GA973819@ax162>
- <d259ffa9-6c9e-488f-a64f-81025deba75c@nvidia.com>
-Subject: Re: [PATCH net-next V2] net/mlx5: Improve write-combining test reliability for
- ARM64 Grace CPUs
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 13/14] dibs: Move data path to dibs layer
+To: Paolo Abeni <pabeni@redhat.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond
+ <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Julian Ruess <julianr@linux.ibm.com>,
+        Aswin Karuvally <aswin@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Konstantin Shkolnyy <kshk@linux.ibm.com>
+References: <20250911194827.844125-1-wintera@linux.ibm.com>
+ <20250911194827.844125-14-wintera@linux.ibm.com>
+ <e50be1a2-4e9f-44b4-b524-706be01c97e5@redhat.com>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <e50be1a2-4e9f-44b4-b524-706be01c97e5@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTEzMDAyMCBTYWx0ZWRfX16hPaCQOmA94
+ 1aIE9YNTRM8bXG9WKFPFVA248JdkIUjMcw2qEvVQ6PIp5TyrHV88qFhYCF0tBOAhVgJUJ+LOo2X
+ doVEs/KJZ2Vexev9DIaQUJDTqBQTRUnsP8HTO2UvmYOEv9wFwUfYTFoLVs670UzqdpSQUpZvEFH
+ iTDlp73B7rx6yrvK9ajjG5kcYCuo1JfMX3s+FQXzVLL956nUCA3mgxsMFep9epCzsdw1E170H2g
+ P+WUaGhiGgJSrp7+GtnEt7gORCpi8/IlNsN/xUn6v09CFrbvv4zV7tSeWcwu7jhCjbyZQpjt8Gw
+ rt2srosauQa666FgR9tiyXAkQK5yxVwObKwYBzro49mKXivUtZVI2qTlwAYp+fDXcuk2NMGtsA0
+ 4jQVfcmh
+X-Authority-Analysis: v=2.4 cv=OPYn3TaB c=1 sm=1 tr=0 ts=68c92b73 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=DZXUbTWdhNJO4cwk1AcA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 9kfX9LI5ncNrWgTD9GIJPfpTRuVtfdZO
+X-Proofpoint-ORIG-GUID: YZL7BjSUMFy4KphPEPZE0pQFcGxK_Maq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 clxscore=1015 phishscore=0 suspectscore=0 spamscore=0
+ bulkscore=0 malwarescore=0 impostorscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509130020
 
-On Tue, Sep 16, 2025, at 10:39, Patrisious Haddad wrote:
-> On 9/16/2025 2:15 AM, Nathan Chancellor wrote:
->> External email: Use caution opening links or attachments
->
-> ifeq ($(ARCH),arm64)
->  =C2=A0 =C2=A0 =C2=A0 =C2=A0 CFLAGS_lib/neon_iowrite64_copy.o +=3D -ff=
-reestanding
->  =C2=A0 =C2=A0 =C2=A0 =C2=A0 CFLAGS_REMOVE_lib/neon_iowrite64_copy.o +=
-=3D -mgeneral-regs-only
-> endif
->
-> Which is actually equivalent to the diff you sent, Thanks for the=20
-> heads-up will fix and resend.
->
 
-I think it's better to handle this inside of the inline asm itself
-by adding
 
-      ".arch_extension simd;\n\t"
+On 16.09.25 10:19, Paolo Abeni wrote:
+> On 9/11/25 9:48 PM, Alexandra Winter wrote:
+>> +static void __dibs_lo_unregister_dmb(struct dibs_lo_dev *ldev,
+>> +				     struct dibs_lo_dmb_node *dmb_node)
+>> +{
+>> +	/* remove dmb from hash table */
+>> +	write_lock_bh(&ldev->dmb_ht_lock);
+>> +	hash_del(&dmb_node->list);
+>> +	write_unlock_bh(&ldev->dmb_ht_lock);
+>> +
+>> +	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+>> +	kvfree(dmb_node->cpu_addr);
+>> +	kfree(dmb_node);
+> 
+> I see the above comes directly from existing code, but it's not clear to
+> me where (and if) dmb_node->cpu_addr is vmalloc()ed (as opposed to
+> kmalloc()ed).
+> 
+> Could you consider switching to kfree() (if possible/applicable) and/or
+> add a describing comment if not?
+> 
+> Thanks,
+> 
+> Paolo
+> 
 
-at the start of it.
 
-     Arnd
+Yes, that makes sense to me, thank you very much.
+I'll do
+
+- kvfree(dmb_node->cpu_addr);
++ kfree(dmb_node->cpu_addr);
+
+in v3.
