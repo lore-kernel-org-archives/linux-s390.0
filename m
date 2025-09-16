@@ -1,348 +1,277 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA191284889;
-	Tue, 16 Sep 2025 18:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758047889; cv=none; b=K31DdICiuRlYD+Q6Ca3nXeWT1BSwBaq1ItdPUMlWS1nHle/wxrVBHfC8cp3lx9j4rVP7P6HoK3Ai9AYw09S4kFBMIZjbpSHf32dPs4qh7INwFzPcRHIvLiPQvB6L8ZzXAW0cfW8i7wjGeVTiRkEBxul061ThTYH4gTPGuDCMcEI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758047889; c=relaxed/simple;
-	bh=IpDq4Tciz2ORqiJy1wI4JKzfKJ+XkxMcUu/ZTaLKoxs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p11V4WCMeevYgEfpa8dyM0XeoGPuupVOWOclheYOzoR004LaLbcY57qYHcMDbnxwBWjpA6TL3j1Sa6Mt/bCUmhrKzBdlkYn+97O7iOfDKKEXSLe+zNeyncoclinr5WvsjkbE1CWfGLf82cY7ZmQaX3+joFacBqK5KLf9oYTmij8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ce9uqpsK; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CF1C25DAEA;
+	Tue, 16 Sep 2025 19:32:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1758051167; cv=fail; b=MWZyd32eNrMdTPBMOrdIiuWapXUIqdwSuZj+uZdmuDIe/1bcaZLPoXrtl19+2TP6HpH/bzU9RsnQvY4Sdpnlg45kITVRIl8IgEKbGNRCp2QgHfXHoUJ5l4jskyKS/dMQEEpMxNd2wdFeGc6USMbFDbTZpiDiUSSKvCpjMepMs6w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1758051167; c=relaxed/simple;
+	bh=lPTrodf3FYRUZqbPLLWqx3p2lUQ8/iNq5aTgKZeNxIE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=X+wR2mW2rQPMGXngGzWVfMti+Jg5Be4wIYoD9C87sYZ8FdXoyYNq0x6nxO4xsV4yp/qNkam/FoJewYN6woD7lrbTPoUvUa+DPvEodOb5hQ9Rs8Q+8jCh0xUw08Fnf+Bcqtmq+7bbtxR4kNO9Nr9fdgCZ+sum0jZ299DDD+W9C+4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=H1uJWz6N; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=rzBFg6mV; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ce9uqpsK"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58GB3vCJ024250;
-	Tue, 16 Sep 2025 18:38:02 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=dRmI84
-	CR+1H+W4KqtHLaB9gtGpEBCAQvehJ+XP4RHZc=; b=ce9uqpsKCQd8tl6YWap/Ee
-	AEnk/8iDEFC4WO6oKQ99bgbV6I6Ak0bUjNci5lKFmWkLAmP3zYF5w0/jB3Y4n+Ey
-	MEY9YazOOdJunPSENkRckU4x2976NRMXm1k/ujZmDShNCgWwYIPUtgSHBrnvLfCf
-	HA2GECAbXsc+S6Whm2yo6RdToTpue/WLkRgbD/dvY+M/3szj/AgKB/CPR1yXSMfw
-	3tSg9dRphOLbARYtnQGfp2WF1KzYtcCaDkrXowvZ9mLnoSHq0x25wGoUx3/BZwBJ
-	uzG1DaPufbzcD71yxfSnTW5TUQ+9YGPe2OQqJuLnH1S9L+/UCT51/4oFM1SsCj8g
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 496avnu5tn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 18:38:02 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58GHBOne005940;
-	Tue, 16 Sep 2025 18:38:01 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 495jxu5pps-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Sep 2025 18:38:01 +0000
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58GIbx2E23528108
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Sep 2025 18:38:00 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D6CA45803F;
-	Tue, 16 Sep 2025 18:37:59 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D6B9958054;
-	Tue, 16 Sep 2025 18:37:58 +0000 (GMT)
-Received: from [9.61.252.174] (unknown [9.61.252.174])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 16 Sep 2025 18:37:58 +0000 (GMT)
-Message-ID: <e86caff6-8af0-48c9-9058-c1991e23160f@linux.ibm.com>
-Date: Tue, 16 Sep 2025 11:37:54 -0700
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="H1uJWz6N";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="rzBFg6mV"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58GINJl1006691;
+	Tue, 16 Sep 2025 19:32:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2025-04-25; bh=fmM3kGwC1DZVg8up3Y
+	Vot4Kh6jTKFC9LjBWtH9yPTOc=; b=H1uJWz6NbLQZmSMF1RxuoFvUUKbEaHcdre
+	wNMfcAXU+Prs4EXBneo93QXFkrd1AdrBXohNjv7LS+9st56bmyksM1IkSYSW8VwN
+	SNDexav6n6m9uoXaQYLuBbmHBB0C947AWC1ATyKUqO+jLQlEGetTgaqphsTSkyYt
+	pcbG++r/XVZol4PLJbDoQH2GKtDRrWKkZU6xcQje3lVP93jA+3BmzjZMPs92rMib
+	qj3ugJPMccjPokFQG08RDqWgVV8vcD5aSxFYKqarQCTpWEJ57XaJSHvtUwk97GhH
+	MXB563WJf4NVciA0t+eTjr0M/1mBCHGPnoXSwgKanxY2lkja0h8w==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4950nf5hn5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Sep 2025 19:32:04 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 58GJ441W028830;
+	Tue, 16 Sep 2025 19:32:03 GMT
+Received: from ch4pr04cu002.outbound.protection.outlook.com (mail-northcentralusazon11013023.outbound.protection.outlook.com [40.107.201.23])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 494y2ctrgp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Sep 2025 19:32:03 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=jsxq898qdbPTyf34EXzvRUmlh6ekRCzMrbV37KuctrdK2kXBnuRdeECcdC/r3/yeSMJ43tpfZHKTlYK4ll47zOIPBefg3pFVHVreqLinwQmZQFzqmCHk1t3ecJEw3r/I9MuVYYrMmZvwy+KiRmBurHakBpwgu1DFNVWQIhbX9bQlH7ywe2iGinGLy/89uIYBtm2S1VLqQ1YK6xSWdKUt5afCiRvyQuAhyyJv/GXbdcwkFBcsvFW4IUxbXCkl+d9XNUKe+DsekSlDzRIyXC641GSyFRF4xBF0EGwVj6NBL8Uz6NLdF5FsKXQq+xYMRmjbQFvE2droA4E9P7z05oIKwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fmM3kGwC1DZVg8up3YVot4Kh6jTKFC9LjBWtH9yPTOc=;
+ b=nXinakB4LTyDwwvuZQ9MB2Drv0fg2ZHyRxC5OzzirrFvnwZE5GDdCERCoItTj8mTaUo2A0FEWdtVgtqwEpV9h54Qx7S/ZXDh6Xrjha1jrZIDnRIa+Co86HTSuX3a/lZu2oFmrAd3YqbcHDQ5tr4nNWOKeo32/DLQPklH6+ZEmPsguZXb0n2I1OS4MoCzQ6v33iyMXKMw9QusSfDpZwThxcOWZ5uHchCgb6lUOZBZpR8uZazy5CJ2tEQOXM0kuE5Y/1v1vdNBjwMRMADAhFwWljCNT7MisOxKikNZg1l/7sN+v/F+z74K1Lzm7zB5yPNzF6yHb/kBvC/qxOcmdAM87g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fmM3kGwC1DZVg8up3YVot4Kh6jTKFC9LjBWtH9yPTOc=;
+ b=rzBFg6mVesBJwczRrM4J6pMGH1cHFqPySu5psxEcT0EHANdAYEWZFEos9lQKRVcukTXiPxGnPxE2J9Gjx9lMN4NiJgs9KxiTmqjncCAylWppwMsZZG3QN/IivoDBHZR0Df1KLvMwh164OMimuXf2bszxQntf9xPLI80qg5JYpGY=
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com (2603:10b6:8:1cc::16)
+ by SJ0PR10MB5662.namprd10.prod.outlook.com (2603:10b6:a03:3dd::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9115.22; Tue, 16 Sep
+ 2025 19:31:55 +0000
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2]) by DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2%5]) with mapi id 15.20.9115.022; Tue, 16 Sep 2025
+ 19:31:55 +0000
+Date: Tue, 16 Sep 2025 20:31:52 +0100
+From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>,
+        Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, Nicolas Pitre <nico@fluxnic.net>,
+        Muchun Song <muchun.song@linux.dev>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+        Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+        "Liam R . Howlett" <Liam.Howlett@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        Hugh Dickins <hughd@google.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>, Jann Horn <jannh@google.com>,
+        Pedro Falcato <pfalcato@suse.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org,
+        ntfs3@lists.linux.dev, kexec@lists.infradead.org,
+        kasan-dev@googlegroups.com, iommu@lists.linux.dev,
+        Kevin Tian <kevin.tian@intel.com>, Will Deacon <will@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH v3 08/13] mm: add ability to take further action in
+ vm_area_desc
+Message-ID: <1b013d8d-47c8-4a74-8d7b-4cd8d3b8f2e2@lucifer.local>
+References: <cover.1758031792.git.lorenzo.stoakes@oracle.com>
+ <9171f81e64fcb94243703aa9a7da822b5f2ff302.1758031792.git.lorenzo.stoakes@oracle.com>
+ <20250916172836.GQ1086830@nvidia.com>
+ <1d78a0f4-5057-4c68-94d0-6e07cedf3ae7@lucifer.local>
+ <20250916180854.GV1086830@nvidia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250916180854.GV1086830@nvidia.com>
+X-ClientProxiedBy: LO4P123CA0479.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:1a8::16) To DM4PR10MB8218.namprd10.prod.outlook.com
+ (2603:10b6:8:1cc::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 03/10] PCI: Allow per function PCI slots
-To: =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@redhat.com>,
-        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc: alex.williamson@redhat.com, helgaas@kernel.org, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com
-References: <20250911183307.1910-1-alifm@linux.ibm.com>
- <20250911183307.1910-4-alifm@linux.ibm.com>
- <07205677-09f0-464b-b31c-0fb5493a1d81@redhat.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <07205677-09f0-464b-b31c-0fb5493a1d81@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: a48L7LcWdbbzzgrG3cDw7JfR26Hlxgfb
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDAyOCBTYWx0ZWRfXzR4WN/fQO4Ny
- kqHVfeVVWI/I7fTytUUEjtEBJX0o4U1IpJNk9GzfZvSK1BQwn0HmzI1Wvs19I+cJmLBKM4T9sTU
- q4o/b0v9LPfXCc2QiBM5/lTGfY+fipbHIucmjhTzf/94JacS0l22eGdbSAbRohY5B++7jhE29B6
- AOdDEVda6qsDOEh/gMVLegKS+eJwSMf3DdBj4nH/9veOX7dcpGF2HJ1ZdAEVvcqwVw3Q8Qc5Woe
- 3VLDmFCQm4TG0rK/vo5i0NLnv8Ws7z3aijiNNQf8aAjfKyfttEwbF/hAW6Mw2lY9YcsY8lSqQiJ
- tnK4QGcr3+uNy5CKMZt/H+eA8RKNMt0YWiEZLOmeo/FkluTV9YuScgZQPVT+NgwRZzz8e/yD26n
- lE2wkJ2F
-X-Authority-Analysis: v=2.4 cv=HecUTjE8 c=1 sm=1 tr=0 ts=68c9ae8a cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=ECVjj4BpMI1lRmso1gAA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: a48L7LcWdbbzzgrG3cDw7JfR26Hlxgfb
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR10MB8218:EE_|SJ0PR10MB5662:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1f1c2554-3191-4d84-e923-08ddf557b21f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|7416014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?T8gcFybaVkIKxcOqXlzoPrrYtAj84pk92aE7jTmN12NCuBzzgZcApe/KM2mT?=
+ =?us-ascii?Q?edoJzqYsoPWNvx1UFrNsBl5Dczy1CzWCOgQR9fu50nJUok7WVIA/6yTF1zXB?=
+ =?us-ascii?Q?emtRiw07qqjIiOwlrObfGbNGrhkIHOHp4M7PHTnQnbaxKdjCQ2cPV4LpoMWg?=
+ =?us-ascii?Q?BC2JBz1hP5q+EQlv8DVrt2Xxh4DLwZNnj0rCDfWhO778jH+POpe/u6jKB6m7?=
+ =?us-ascii?Q?pj3jKIK81H4dWlobNEdMBb32cUdKKOYf3Li87/vgBuSb98ZIC+WJKinqAweF?=
+ =?us-ascii?Q?BlG5zOqvOKzSInZ4977jk8drpQD7RCNYrMWwxX5FGD+RgdlRZjO7I5H5CV6a?=
+ =?us-ascii?Q?7o9r2emx9JuPZpjtXXcrZZwWU02ARTOBKOUsTVpwskb3GAkW7iActGqBdEFO?=
+ =?us-ascii?Q?3vGymFdJLwkYP7x51qNY0O3btys4MozBLQ1GklcmNe6TPzyI4ZO+O5y5zZEh?=
+ =?us-ascii?Q?T8OkKnChuu4QeAUwaXO9nt/Q2VKPDJFFscw8kXkUPU53TeHuhgXAFPu10bMf?=
+ =?us-ascii?Q?Prez9RqIiweYo79zMN59c2bXItOBB5X3ruVtDb7wZg+ApX3ibPPe5ND3LaEB?=
+ =?us-ascii?Q?SAUZ7oMmKsVzdVtLKBcoosAr9OM+UFKlJTj62HQlnJwFr+TTjpIgiQlDMM3N?=
+ =?us-ascii?Q?wYGz1j70pN4LC3mi3xw8Pc4yuQYDwZWOcrGfUD6ualIREN3PilNivyKXxNYx?=
+ =?us-ascii?Q?PzzXWyE03hXnREf51W3z1Ce/kSq28FAl4XKJ9ljQwzfMckXrwrXwlVfi7IuK?=
+ =?us-ascii?Q?kh3sX0aJJyQOMkjhy+/Dx8bQzoophDnpNN/HoNOio6AH84Ae52GS+S4uThmr?=
+ =?us-ascii?Q?7LBWJjUQinQDnZsNNB8qZTLLFNNoPqG4VcFgPubqecfbyBm+jpOjIlbEorlf?=
+ =?us-ascii?Q?2n8tya34PfCM4vrBfirc6GnBctdeV4Yth4xC3YKB0B4ZKjk3fk/czQKyZgnu?=
+ =?us-ascii?Q?Yz9GHwpFJZoUlFPQnMyjCv/R8aQAZfv/gk5rGUszNJTjz1KoOE7BR9UuHRX0?=
+ =?us-ascii?Q?lvqFeOuG6AQZvEGH7VlBcNZFhAQZYkdUXXg3XypVdbBgpIcIlY8/LdhKp5f4?=
+ =?us-ascii?Q?x0jYyyXI10OiViiJhQFEPejILa79TKbjblxtwnsgpcdvDJWRbnqV/gte55z8?=
+ =?us-ascii?Q?nc/fkFouG9LMNjPpFKSo6lGYmQPnXSZ2OsqOnS8tTaYRh+lcjFfOKSpvWKNS?=
+ =?us-ascii?Q?cgqaodfS1lffRVUa4pwgtEf7AnntyDyoc35JW/JBd8rZKhvK78ldRBZ/hR4c?=
+ =?us-ascii?Q?svUEZ7U56l8/Nz8YsJ1SKXktWTrjGeSCOi1rQvRHn+1y7nOCYEjiQnPR6/36?=
+ =?us-ascii?Q?2aT3Sr9kH9kweJz/nlmyjmFsORmAU3kw2oMb5tFIjTiTRbcKtZzyoym4yro1?=
+ =?us-ascii?Q?lifEil8gIqWReNAciWOGEtnlt8/67VWn736PElMQDK9dF3+25oQuz1+0He6e?=
+ =?us-ascii?Q?zwnxMVnqCA0=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR10MB8218.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(7416014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?xwOd7axHE1F0lA5nrxlPqwFcbb/YeDX/HD+/EZTOLqmcCic4o3S74DwPAR9T?=
+ =?us-ascii?Q?MPkbdlhY01uw9eH9RLUH5MCkvsH4e3UDaKJCy0QRh83JyiyVgQqOoM7cOjpT?=
+ =?us-ascii?Q?kccc9XFUp17sEWvqwibu88oWxDNrvpygHj8ScM7ADlFt+FOSrfLh/OagjNyx?=
+ =?us-ascii?Q?wctlxwXvAJsw9AdNlYr2ix5ZE3MX5asy51omjgVmQSdrrdcIH1VN/HZiCiTk?=
+ =?us-ascii?Q?C8hFGZIu/GGvD9cLs5rdkDVmGcjnW2rdsM2DdWPBj3I10FlhWv8aNlLPpmvj?=
+ =?us-ascii?Q?pzkTFC6+qOxiCuGoVwG65w5bR5/7ZnYO+zbi5EuDbe2mqfss4YYUZnq/FhqY?=
+ =?us-ascii?Q?qCpfpPoZBszXjzcam9mh14E0YdS6PYTsH6gPnd3PrGPYItBnXWVekC88Vy70?=
+ =?us-ascii?Q?JWocruYqZROViOnioRnyAtohFs0PN/Ep/WHiMVVsWahBe93g/iFf8lKxpTtE?=
+ =?us-ascii?Q?Bbib7U9jXKtdWtjA1hXuQY7ZacvIdxX/UVTGptVmx9CXHWnz1Y8Fxhh3IVhJ?=
+ =?us-ascii?Q?3CvnEPZ5i/kFIoEb7jjH2x5IIj/bOz94olDrIhzD1Cpl6YjtjBkePK8tM6mx?=
+ =?us-ascii?Q?j6lgJYtY3DPsjF0CST75Dd8ZSz7uRKgg1S9AHBUPLhltxPrp3fEiNAY8F34T?=
+ =?us-ascii?Q?xH8Q/tbpXliyU+fzFairwmsANV4GuwdUsPYtxvEw7tTN0BIGX3fQscGbVF7a?=
+ =?us-ascii?Q?EJyhpW+s/U4j8Dx9+6VcdxFxA3BGFLZYG/7h72KKIyZio5HSFcwDItsOmaoG?=
+ =?us-ascii?Q?OgYDWIwhxKyldUFkvMFEXC3zoY6MlaKvUjZcr0dGq4z8v4gtojjB9gh7+MRn?=
+ =?us-ascii?Q?aFWzqx0fKBn+qHsNw0BoEgWpnfW5c6py+Q4zguj6BG2BrnpyBSL3lGdabVSp?=
+ =?us-ascii?Q?i7w0RuLENqgOapah6j4O9uOYl4FVyfpx4ht0qx2bPLJEp6uwZnlM66OfP39f?=
+ =?us-ascii?Q?m71LxbdPrwcCL4hs9IS7QqoxO73+pA3qlbOfHK24X8hcRfy2Ydq/UsYkFUIL?=
+ =?us-ascii?Q?4HTlySQg9KbbA/oAbjTiNFVO0VZfiZ8RObrdhwsykAwlP5w/O4mebs4fp2sj?=
+ =?us-ascii?Q?9fHsD66p5C5xpPuaXVJjcSsWfsePOPncIVDLn5IXSGmRKX5QGklCfyXml9HR?=
+ =?us-ascii?Q?j1K34lIxL6grHxgJbxHFywN15G+qP8gw6uWegapvEbAxIp96KMumqFrqsH5Y?=
+ =?us-ascii?Q?/QuadQW3tX0sNOpBurXr+x8XeQ4A06Rhwq0C84OPAajYniEKM9bVTLK5doM3?=
+ =?us-ascii?Q?ljulFLhPzG2hXZoRcH2ej01nq62/9mx+kYxLneBjMMth6W45apYdmTfoAKRZ?=
+ =?us-ascii?Q?IHfwTkHVo282LzqmUGV2AI/QXeiysIkdlgQoj9yso+sqMlOHNI8cvLFGOFVH?=
+ =?us-ascii?Q?nvJq/mmXCZA2VV9Bt3u9jrEIcUcqVvP3iLeA83TLg0uEHYzG3JySTAGzoHPG?=
+ =?us-ascii?Q?07z9Kj3dqopALuASL1Q/Y9n3SOl8/ZLL8jjBW+YkJVZABR7cSjFi3AfMAy/X?=
+ =?us-ascii?Q?u8sUvbEJa4pcW94gsEZj/j1OSpPjq/J/TUoKwepMo479mWGXPvgYezzYJrTN?=
+ =?us-ascii?Q?bTY+6pmixsQfwvvqE5dKacswxDRRHNo0KkPcH9HDJ4Fh7mO9S4DkpzKbxwKr?=
+ =?us-ascii?Q?lw=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	h6+xnRqHmfj9DkBaZ9IcbVOu75NbRNC3gc3HAs+v1BhS1bve9pRtI5R1QAG+BrMn6siSE4f0E0sXsbPozWDEOobD2/FdInjm7n8d+i7RLy97XUf0pG5F/yRytdOBoxay75unE3Dn9seSdv8UFIeFnVm/TV8xdVUSeyU4GD8YtX1ZcdRq8xozoMpT2lUiO0B4OLhQBKWNI10+Jy58k/PCMZUbmZHoo3+59dPkVwcOuZFREjheEcpyYZQ2K+ixLdur9rlWwuLDzPH7Z3IdbybEkrvhX01L8hY0KJajG2bMxe0D8iUaqlHMK3c+x3pJi3icoBL8AZoWmXXWiTRITshEVCiEr5mXJQk9Lq7WQm+fKZcje2KD2zARZbR8S78dzUGzIG4zy3pbBn14gBKSpZZkUjvwkqGuJIMrf7JBlt0PvNz4/vOXN/SPkxnoCdolY0EYpHO32m9cfbElbLr55QRcL20N0cfLAxEhWGIBdkM/lcsfsKHO5BrmtqCtHS55AkXDgfepGCDEb/GbVZiqictNXXQPWXgd7jmx/q6DF1o0zLclEkSLzeUpmaEkbA1wL6wts4J2x0sRxnFuiibPoHFnm6cbNU0Zt33IklXBf9Yx0ko=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1f1c2554-3191-4d84-e923-08ddf557b21f
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2025 19:31:55.6750
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: xTjLEWCjfaaWZLiBukM/Qr7S01OVaaZrImiAaStAvsKdMxCs9iFIleEPxIVbIYKIjT8sPPQWuEhki0udqXiwtQokzn6j2dzje2cCHJMm2Cw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5662
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-16_02,2025-09-16_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 adultscore=0 spamscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 bulkscore=0 impostorscore=0 clxscore=1015
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509150028
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0 phishscore=0
+ bulkscore=0 mlxscore=0 suspectscore=0 mlxlogscore=886 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2508110000
+ definitions=main-2509160181
+X-Authority-Analysis: v=2.4 cv=S7vZwJsP c=1 sm=1 tr=0 ts=68c9bb34 cx=c_pps
+ a=OOZaFjgC48PWsiFpTAqLcw==:117 a=OOZaFjgC48PWsiFpTAqLcw==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
+ a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
+ a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=yJojWOMRYYMA:10 a=GoEa3M9JfhUA:10 a=KN18-bPwZsZEZmGrWHEA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTEzMDAyOSBTYWx0ZWRfX/NSCRlVxDrkT
+ LY1xK7WNeE+D46eCs9f4QXgOyIdJ/Olm9SHmQwkeTiGqL4EBwpnb9+uuJEEhRewqyFrP7Izdh66
+ HGaieQdyY1pBZeU1u578adWiZ/5/ofvOhgArw9L94SGCjRQm4IcPENb93lB1cVdiyQ9lwUOxQe3
+ 2KZxn5c6by0aCIH3mHDwd1NNhDhW861S4I3u61Uuer/G+XxLmbq2hOGJrQD8+3VWRXt3xFuiAE5
+ H4Cill4+296LmKHVkvQyWOAoQ7faDhbV4A9ZDgZIA9w9h9vSD9q5dqoER7dbfjGrUumJxBYGfBt
+ iy6PcJG22Hgtug/x45NnoH8CE0YtntoaWi3xljw7xlkbh4Y0zh7uNK0IGcFUtDRuT/XBAptagEp
+ h2dfrg+V
+X-Proofpoint-ORIG-GUID: GuaEfXtXjDhLYWV1IReCdoaiZfV8RRjK
+X-Proofpoint-GUID: GuaEfXtXjDhLYWV1IReCdoaiZfV8RRjK
 
-
-On 9/15/2025 11:52 PM, Cédric Le Goater wrote:
-> Hello Ali,
+On Tue, Sep 16, 2025 at 03:08:54PM -0300, Jason Gunthorpe wrote:
+> On Tue, Sep 16, 2025 at 06:57:56PM +0100, Lorenzo Stoakes wrote:
+> > > > +	/*
+> > > > +	 * If an error occurs, unmap the VMA altogether and return an error. We
+> > > > +	 * only clear the newly allocated VMA, since this function is only
+> > > > +	 * invoked if we do NOT merge, so we only clean up the VMA we created.
+> > > > +	 */
+> > > > +	if (err) {
+> > > > +		const size_t len = vma_pages(vma) << PAGE_SHIFT;
+> > > > +
+> > > > +		do_munmap(current->mm, vma->vm_start, len, NULL);
+> > > > +
+> > > > +		if (action->error_hook) {
+> > > > +			/* We may want to filter the error. */
+> > > > +			err = action->error_hook(err);
+> > > > +
+> > > > +			/* The caller should not clear the error. */
+> > > > +			VM_WARN_ON_ONCE(!err);
+> > > > +		}
+> > > > +		return err;
+> > > > +	}
+> > > Also seems like this cleanup wants to be in a function that is not
+> > > protected by #ifdef nommu since the code is identical on both branches.
+> >
+> > Not sure which cleanup you mean, this is new code :)
 >
-> On 9/11/25 20:33, Farhan Ali wrote:
->> On s390 systems, which use a machine level hypervisor, PCI devices are
->> always accessed through a form of PCI pass-through which fundamentally
->> operates on a per PCI function granularity. This is also reflected in 
->> the
->> s390 PCI hotplug driver which creates hotplug slots for individual PCI
->> functions. Its reset_slot() function, which is a wrapper for
->> zpci_hot_reset_device(), thus also resets individual functions.
->>
->> Currently, the kernel's PCI_SLOT() macro assigns the same pci_slot 
->> object
->> to multifunction devices. This approach worked fine on s390 systems that
->> only exposed virtual functions as individual PCI domains to the 
->> operating
->> system.  Since commit 44510d6fa0c0 ("s390/pci: Handling multifunctions")
->> s390 supports exposing the topology of multifunction PCI devices by
->> grouping them in a shared PCI domain. When attempting to reset a 
->> function
->> through the hotplug driver, the shared slot assignment causes the wrong
->> function to be reset instead of the intended one. It also leaks 
->> memory as
->> we do create a pci_slot object for the function, but don't correctly 
->> free
->> it in pci_slot_release().
->>
->> Add a flag for struct pci_slot to allow per function PCI slots for
->> functions managed through a hypervisor, which exposes individual PCI
->> functions while retaining the topology.
->>
->> Fixes: 44510d6fa0c0 ("s390/pci: Handling multifunctions")
->> Suggested-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> ---
->>   drivers/pci/hotplug/s390_pci_hpc.c | 10 ++++++++--
->>   drivers/pci/pci.c                  |  4 +++-
->>   drivers/pci/slot.c                 | 14 +++++++++++---
->>   include/linux/pci.h                |  1 +
->>   4 files changed, 23 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/pci/hotplug/s390_pci_hpc.c 
->> b/drivers/pci/hotplug/s390_pci_hpc.c
->> index d9996516f49e..8b547de464bf 100644
->> --- a/drivers/pci/hotplug/s390_pci_hpc.c
->> +++ b/drivers/pci/hotplug/s390_pci_hpc.c
->> @@ -126,14 +126,20 @@ static const struct hotplug_slot_ops 
->> s390_hotplug_slot_ops = {
->>     int zpci_init_slot(struct zpci_dev *zdev)
->>   {
->> +    int ret;
->>       char name[SLOT_NAME_SIZE];
->>       struct zpci_bus *zbus = zdev->zbus;
->>         zdev->hotplug_slot.ops = &s390_hotplug_slot_ops;
->>         snprintf(name, SLOT_NAME_SIZE, "%08x", zdev->fid);
->> -    return pci_hp_register(&zdev->hotplug_slot, zbus->bus,
->> -                   zdev->devfn, name);
->> +    ret = pci_hp_register(&zdev->hotplug_slot, zbus->bus,
->> +                zdev->devfn, name);
->> +    if (ret)
->> +        return ret;
->> +
->> +    zdev->hotplug_slot.pci_slot->per_func_slot = 1;
->> +    return 0;
->>   }
->>     void zpci_exit_slot(struct zpci_dev *zdev)
->> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
->> index 3994fa82df68..70296d3b1cfc 100644
->> --- a/drivers/pci/pci.c
->> +++ b/drivers/pci/pci.c
->> @@ -5061,7 +5061,9 @@ static int pci_reset_hotplug_slot(struct 
->> hotplug_slot *hotplug, bool probe)
->>     static int pci_dev_reset_slot_function(struct pci_dev *dev, bool 
->> probe)
->>   {
->> -    if (dev->multifunction || dev->subordinate || !dev->slot ||
->> +    if (dev->multifunction && !dev->slot->per_func_slot)
->> +        return -ENOTTY;
->> +    if (dev->subordinate || !dev->slot ||
->>           dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
->>           return -ENOTTY;
->>   diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
->> index 50fb3eb595fe..51ee59e14393 100644
->> --- a/drivers/pci/slot.c
->> +++ b/drivers/pci/slot.c
->> @@ -63,6 +63,14 @@ static ssize_t cur_speed_read_file(struct pci_slot 
->> *slot, char *buf)
->>       return bus_speed_read(slot->bus->cur_bus_speed, buf);
->>   }
->>   +static bool pci_dev_matches_slot(struct pci_dev *dev, struct 
->> pci_slot *slot)
->> +{
->> +    if (slot->per_func_slot)
->> +        return dev->devfn == slot->number;
->> +
->> +    return PCI_SLOT(dev->devfn) == slot->number;
->> +}
->> +
->>   static void pci_slot_release(struct kobject *kobj)
->>   {
->>       struct pci_dev *dev;
->> @@ -73,7 +81,7 @@ static void pci_slot_release(struct kobject *kobj)
->>         down_read(&pci_bus_sem);
->>       list_for_each_entry(dev, &slot->bus->devices, bus_list)
->> -        if (PCI_SLOT(dev->devfn) == slot->number)
->> +        if (pci_dev_matches_slot(dev, slot))
->>               dev->slot = NULL;
->>       up_read(&pci_bus_sem);
->>   @@ -166,7 +174,7 @@ void pci_dev_assign_slot(struct pci_dev *dev)
->>         mutex_lock(&pci_slot_mutex);
->>       list_for_each_entry(slot, &dev->bus->slots, list)
->> -        if (PCI_SLOT(dev->devfn) == slot->number)
->> +        if (pci_dev_matches_slot(dev, slot))
->>               dev->slot = slot;
->>       mutex_unlock(&pci_slot_mutex);
->>   }
->> @@ -285,7 +293,7 @@ struct pci_slot *pci_create_slot(struct pci_bus 
->> *parent, int slot_nr,
->>         down_read(&pci_bus_sem);
->>       list_for_each_entry(dev, &parent->devices, bus_list)
->> -        if (PCI_SLOT(dev->devfn) == slot_nr)
->> +        if (pci_dev_matches_slot(dev, slot))
->>               dev->slot = slot;
->>       up_read(&pci_bus_sem);
->>   diff --git a/include/linux/pci.h b/include/linux/pci.h
->> index 59876de13860..9265f32d9786 100644
->> --- a/include/linux/pci.h
->> +++ b/include/linux/pci.h
->> @@ -78,6 +78,7 @@ struct pci_slot {
->>       struct list_head    list;        /* Node in list of slots */
->>       struct hotplug_slot    *hotplug;    /* Hotplug info (move here) */
->>       unsigned char        number;        /* PCI_SLOT(pci_dev->devfn) */
->> +    unsigned int        per_func_slot:1; /* Allow per function slot */
->>       struct kobject        kobj;
->>   };
+> I mean the code I quoted right abouve that cleans up the VMA on
+> error.. It is always the same finishing sequence, there is no nommu
+> dependency in it.
+
+Ah right yeah.
+
+I wonder if it's useful if err != 0 for nommu anyway.
+
 >
-> This change generates a kernel oops on x86_64. It can be reproduced in 
-> a VM.
+> Just put it all in some "finish mmap complete" function and call it in
+> both mmu and nommu versions.
+
+Ack!
+
 >
+> Jason
 >
-> C.
->
-> [    3.073990] BUG: kernel NULL pointer dereference, address: 
-> 0000000000000021
-> [    3.074976] #PF: supervisor read access in kernel mode
-> [    3.074976] #PF: error_code(0x0000) - not-present page
-> [    3.074976] PGD 0 P4D 0
-> [    3.074976] Oops: Oops: 0000 [#1] SMP NOPTI
-> [    3.074976] CPU: 18 UID: 0 PID: 1 Comm: swapper/0 Not tainted 
-> 6.17.0-rc6-clg-dirty #8 PREEMPT(voluntary)
-> [    3.074976] Hardware name: Supermicro Super Server/X13SAE-F, BIOS 
-> 4.2 12/17/2024
-> [    3.074976] RIP: 0010:pci_reset_bus_function+0xdf/0x160
-> [    3.074976] Code: 4e 08 00 00 40 0f 85 83 00 00 00 48 8b 78 18 e8 
-> 27 9d ff ff 83 f8 e7 74 17 48 83 c4 08 5b 5d 41 5c c3 cc cc cc cc 48 
-> 8b 43 30 <f6> 40 21 01 75 b6 48 8b 53 10 48 83 7a 10 00 74 5e 48 83 7b 
-> 18 00
-> [    3.074976] RSP: 0000:ffffcd808007b9a8 EFLAGS: 00010202
-> [    3.074976] RAX: 0000000000000000 RBX: ffff88c4019b8000 RCX: 
-> 0000000000000000
-> [    3.074976] RDX: 0000000000000000 RSI: 0000000000000001 RDI: 
-> ffff88c4019b8000
-> [    3.074976] RBP: 0000000000000001 R08: 0000000000000002 R09: 
-> ffffcd808007b99c
-> [    3.074976] R10: ffffcd808007b950 R11: 0000000000000000 R12: 
-> 0000000000000001
-> [    3.074976] R13: ffff88c4019b80c8 R14: ffff88c401a7e028 R15: 
-> ffff88c401a73400
-> [    3.074976] FS:  0000000000000000(0000) GS:ffff88d38aad5000(0000) 
-> knlGS:0000000000000000
-> [    3.074976] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [    3.074976] CR2: 0000000000000021 CR3: 0000000f66222001 CR4: 
-> 0000000000770ef0
-> [    3.074976] PKRU: 55555554
-> [    3.074976] Call Trace:
-> [    3.074976]  <TASK>
-> [    3.074976]  ? pci_pm_reset+0x39/0x180
-> [    3.074976]  pci_init_reset_methods+0x52/0x80
-> [    3.074976]  pci_device_add+0x215/0x5d0
-> [    3.074976]  pci_scan_single_device+0xa2/0xe0
-> [    3.074976]  pci_scan_slot+0x66/0x1c0
-> [    3.074976]  ? klist_next+0x145/0x150
-> [    3.074976]  pci_scan_child_bus_extend+0x3a/0x290
-> [    3.074976]  acpi_pci_root_create+0x236/0x2a0
-> [    3.074976]  pci_acpi_scan_root+0x19b/0x1f0
-> [    3.074976]  acpi_pci_root_add+0x1a5/0x370
-> [    3.074976]  acpi_bus_attach+0x1a8/0x290
-> [    3.074976]  ? __pfx_acpi_dev_for_one_check+0x10/0x10
-> [    3.074976]  device_for_each_child+0x4b/0x80
-> [    3.074976]  acpi_dev_for_each_child+0x28/0x40
-> [    3.074976]  ? __pfx_acpi_bus_attach+0x10/0x10
-> [    3.074976]  acpi_bus_attach+0x7a/0x290
-> [    3.074976]  ? _raw_spin_unlock_irqrestore+0x23/0x40
-> [    3.074976]  ? __pfx_acpi_dev_for_one_check+0x10/0x10
-> [    3.074976]  device_for_each_child+0x4b/0x80
-> [    3.074976]  acpi_dev_for_each_child+0x28/0x40
-> [    3.074976]  ? __pfx_acpi_bus_attach+0x10/0x10
-> [    3.074976]  acpi_bus_attach+0x7a/0x290
-> [    3.074976]  acpi_bus_scan+0x6a/0x1c0
-> [    3.074976]  ? __pfx_acpi_init+0x10/0x10
-> [    3.074976]  acpi_scan_init+0xdc/0x280
-> [    3.074976]  ? __pfx_acpi_init+0x10/0x10
-> [    3.074976]  acpi_init+0x218/0x530
-> [    3.074976]  do_one_initcall+0x40/0x310
-> [    3.074976]  kernel_init_freeable+0x2fe/0x450
-> [    3.074976]  ? __pfx_kernel_init+0x10/0x10
-> [    3.074976]  kernel_init+0x16/0x1d0
-> [    3.074976]  ret_from_fork+0x1ab/0x1e0
-> [    3.074976]  ? __pfx_kernel_init+0x10/0x10
-> [    3.074976]  ret_from_fork_asm+0x1a/0x30
-> [    3.074976]  </TASK>
-> [    3.074976] Modules linked in:
-> [    3.074976] CR2: 0000000000000021
-> [    3.074976] ---[ end trace 0000000000000000 ]---
-> [    3.074976] RIP: 0010:pci_reset_bus_function+0xdf/0x160
->
-Hi Cedric,
 
-Thanks for pointing this out. I missed that dev->slot could be NULL and 
-so the per_func_slot check should be done after the check for 
-!dev->slot. I tried this change on top of the patch in an x86_64 VM and 
-was able to boot the VM without the oops.
-
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 70296d3b1cfc..3631f7faa0cf 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -5061,10 +5061,9 @@ static int pci_reset_hotplug_slot(struct 
-hotplug_slot *hotplug, bool probe)
-
-  static int pci_dev_reset_slot_function(struct pci_dev *dev, bool probe)
-  {
--       if (dev->multifunction && !dev->slot->per_func_slot)
--               return -ENOTTY;
-         if (dev->subordinate || !dev->slot ||
--           dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET)
-+           dev->dev_flags & PCI_DEV_FLAGS_NO_BUS_RESET ||
-+           (dev->multifunction && !dev->slot->per_func_slot))
-                 return -ENOTTY;
-
-
-
-Thanks
-Farhan
-
+Cheers, Lorenzo
