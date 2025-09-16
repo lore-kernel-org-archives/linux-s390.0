@@ -1,148 +1,226 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02B62F1FD6
-	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 04:49:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFA3A2848A8
+	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 06:23:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757998190; cv=none; b=l1DzRnLAhwMS0AqR9pqilc8Cy6xbe7HhzBYAhadjJ8VzDGuSpDceYi5RNHHIk9Q+taHffOuwpNrnsvwtuvAP36ugQPN5ah9XwPl3VeZLreV6MymWbfl5MfU2HlhGUIK5AZN0skLTEWYV/p1VXbYiBikXMLc/lDG8HEuBQI+cKDg=
+	t=1758003809; cv=none; b=Pnww1fWyG6wdW3oeWtR8OahKEP1BBhz6yNwJSwbQhDK7M02Qr12C2jPJ6og1vDWB9h4msvsmQYTfCG1uUKgx4jdhKTScXrJvTakablfRZNe8/OqnnKcGDj0W3pk+DkQ7UIo8jsSQb5LDwAoui1EyH2qMGOYOM3N+3sOK3W4mdYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757998190; c=relaxed/simple;
-	bh=slyVnZPzDDOXEcpF4QZOR3I7YB3yd3f7Gxtzb+FU87Q=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=GgBA8tfsbPyJu+OFl77283+dFoEmNxRA6/CxBwN1VEXb60i4kx4Su6wFAcZoZBY5yfxD6q1lotuYaYnbto+3/wiSNsK5pGoX7Wc1jTOXUY+G8G3Up23RER98nntYtImbfjq8drphQO5QFYlUZ+FkvMde/6tswxiRdlowXM8XBhk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JL+Xia8W; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1758003809; c=relaxed/simple;
+	bh=ATPz90HRMzTO45UePY5i8G0/KGUUiD+EHn3zGHoMIzU=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=Q2AWA3Sy9xPzgYHNhBaiIzpGyxZZ3Q7nlUUayePYemAn6QsSWnk43FNtn0idSqr7YtJbRCiNcsbbdY38H+JeO/6YVkGVlBcdk3QdGN9ObR0rxC7nd2ufaPhub1xG1/Gyc97yL4oX4queD6t/xWXiA8A+8ZiRZ+bjnwIDlRLq+jM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=lv6xc298; arc=none smtp.client-ip=209.85.128.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JL+Xia8W"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-26763bb9a92so13926955ad.2
-        for <linux-s390@vger.kernel.org>; Mon, 15 Sep 2025 21:49:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="lv6xc298"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-71d603a9cfaso38840507b3.1
+        for <linux-s390@vger.kernel.org>; Mon, 15 Sep 2025 23:23:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757998187; x=1758602987; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OlYXyo2uZuFo7JhGyy9UUCXJlKeDR2CbpPIjqr5RgpE=;
-        b=JL+Xia8W4uyroTDLgoFXQGcvga86g7+1VEKz2roIDSxQwxKuGGI1kJw0E5mRvO2QSO
-         m/1WcvkXEpAacTm9jy5S7c5V4Dczrr3meBJOyddNip27HVCCCOgthvtb5FLtkxbvF41s
-         iGlUzzPGymDg3T5amMQJm6PDCBR7n+L0ahtyEay0NJYWIu7m2vFg6tr2ajT32yaanfBd
-         xDtJu+c4X/3CeTjTCyDCOh+jJ9IMVyUrOd4EWhGGuGTa3TWSp3+no8CtHQqAuwI3rWWA
-         BuIdQSsCM/Xgm1YsJeGbAazZkNWV/RcrZ3PBFtpntXLtYH4Vrd8FCoda8o0sXcMxI94o
-         +OOQ==
+        d=google.com; s=20230601; t=1758003806; x=1758608606; darn=vger.kernel.org;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=jzwxSCgUK/3UElXn+qMCVZOXd6lLimgLpQ+KrGfwqaU=;
+        b=lv6xc298WRJweENer27hHOnZy0J1mSXlDgmMJ1XczXvig9lmT8IYSsn9wC0mwdfdj5
+         e2gtCB9JxtDJOurDvlfbaUzHHwKflOORnpiA5dc+y3kvu3dZCX6i4KBcdxZ17sleigYY
+         gBLX12DMTlSLsrsCCJObjFN4QNvzBCd1Yo26iwrOOeADEc9m77h2TsFWtfwIWY+BUdtD
+         rM2niwRROy03NsATXmlmhT+G43nmno+aSv1AGiF9uvqWiSCfynDgsiD1YkFSoa7d2HNT
+         SCfpVm1fDymRq5fAGHZUjmuj3fXsdACYAKt95DiS0JTGHYdbT0Ib95o1aC3W0qV7NcSh
+         KIEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757998187; x=1758602987;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OlYXyo2uZuFo7JhGyy9UUCXJlKeDR2CbpPIjqr5RgpE=;
-        b=PYnXplpdcUMdbsGMB0Xzeq38/3pM+cn44pq9qUVleMun4KaCXmrLLUP/wZtolAhsHc
-         jC9tIbWS6His4Kh80HoJzBRqPCvyEnwLyOfEh7MppQ5kMjObkV7VsRZcvkvVln4SuJ3k
-         IHUaIFw6Vsq9y1hk/yJQ7lvCJusq0uLxyRSjUXWfcgVRY98btMRLZzcmCGEfHZAxH6yb
-         m6KtWQgZKk8EpNPC2+F8CuyxI7Nsi2cnPcOM6bxRlZ7GkXHYF8Y8K+bVAii+dJrBtiKE
-         FtgxUIKokQDDRJ30MmdVFWrTtpWT2vq1Fdp5yQQh8cJN08+YkVyt3/B5jZA1WudGyigO
-         KvMA==
-X-Forwarded-Encrypted: i=1; AJvYcCU5lWp9gByrBBHCt+re4eEOQH6ZE+zbgjNEV3ZXVyiOa4DH1F5UXHAZeIeKKDf5+P//YEi1I78F5ksB@vger.kernel.org
-X-Gm-Message-State: AOJu0YzjyVS/n7xFhHzXWuKzQkA1wD+epaCa4hBIYVFXXVGwZhklf1O3
-	3SYyHN1RRxr0VjVcwPhaS/jPXUgOfaNif7gQwm3YlW7KP93G2divHmkW
-X-Gm-Gg: ASbGncvBFg/aBMP264G65nsanIlnH+PYemai4eng+VQlbJCXp4Znq0Kkfi7vaJ89lir
-	wRvsGFyMWDO5nJQXFXu7sPN9Lp/MhNofOCc7hor9C36QfKh5A1r8aKEsWmasTWD6AoFvMYj0goB
-	pC8g4QOE2iyeCptIhRPbVuFFSHaN9QbYdpQcSuBiw3yarHxk5Vo/5Y+nLCxfpM9uPUThrphBBd2
-	eYkStOww88fEzsCh6lsOPlsuqffFQ3U0XKJ05IbB8YwWZ+HBpiW/twyCuf0ubHcdUjshm1BVO7n
-	QZwUVI4ObEn7M1rT01Q2X/KePR++1MVKKB7rL6dIpv+dxmAKIuXpEQGG4Uvzbeqs1wf1KZYXVMc
-	5iJ+8aEeLWmClh33Iu5IcEhDuiTDzlkEDPhlQPGmecq3khvO2Ww==
-X-Google-Smtp-Source: AGHT+IFV4zbzh4iycIfH4WDU92suC0bCanMglT0Ogl2GwpwL8kM68NHrYSygkh1AIkIcAzvJhqwslA==
-X-Received: by 2002:a17:903:2f4f:b0:24c:99bd:52bb with SMTP id d9443c01a7336-25d267641camr179941415ad.30.1757998187203;
-        Mon, 15 Sep 2025 21:49:47 -0700 (PDT)
-Received: from pengdl-pc.mioffice.cn ([43.224.245.249])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-25ef09c77f8sm104600605ad.15.2025.09.15.21.49.40
+        d=1e100.net; s=20230601; t=1758003806; x=1758608606;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=jzwxSCgUK/3UElXn+qMCVZOXd6lLimgLpQ+KrGfwqaU=;
+        b=tgM6XS37LNcjNSRLnEvu/M22DKHBfcc3uH93ogAE+T5gKgwgRbGdI8Adq2TNY01cgs
+         nU9k86B7duJ8WfAzRZ9wyqdS6Dltu3acRbKeGaDYH41XYnQwkRsHdiAvcJBaR6KvQKiR
+         eb6QFxNvXYLODab1OB3kzjTn2oZm/HDrK1d6CslX2o2v52U8zRkRQWtuaDy6NSR03ard
+         fc4fqR5O0HErpIfkWQuRSwvoG5bYxp3zJRzJ1tHaD+0FMY7Q6VtIHVSscVwmCCWoKHKY
+         LebJD1E1Yjc3GncqzK5nMhMT86tw2Crl6bgTR5jSZZlgq+bRqk13gBqNi1wRxYId9g04
+         stvw==
+X-Forwarded-Encrypted: i=1; AJvYcCX5megyaef+uAqsQoT2MNEZCCuA/yE/DboXEXR0S8qrTM0mxEnDi5vZJZAYFWjBSHL6u9ewdS7WuAKL@vger.kernel.org
+X-Gm-Message-State: AOJu0YwLBiLuDHfsihnsYSSNVnoY5z0CUxUN+M7uLTFZ/DDGUnlsRHpW
+	7/TMaoF/5cigQXfM+2TpJ2RnskOJygkgBjSa9p0pvx9yjZLVp6J5A18fIfMF8JUL5A==
+X-Gm-Gg: ASbGnctkzeHHxoi37nUzvO9b806sUQHlOzOtMSBdHy6MgYe3WpT3ykUZTbTSO4JY6mJ
+	skO/pZ8NMzZbw61aBuIS3GdHagqXSv6FeNkZAyyG01AfgR3O6wlzUfd99uQv7On+PwLajYG5H2l
+	LtHc/eb0Mr5J4mBBIW0p/HYFaYdLW547Gs6QrjmZNjmaU55+aqCzEk1uMzeCBpDRA5Z+rkFY2Jw
+	ousIP7WG3NCatNRnqGmChOjIwx6kEJz3FmdFRyaeAM5KUrgWvUBg0aATVhNRZlLjeJN2tQ0mPgN
+	dKjcpolve2fQulf+u8hd7Peh+o6iiVouz5FrAYcIF70VtXbUtLbOBeA5o3VUtjXm7aGzX6oC369
+	Gv5o6zETrSOKialy1oiSsCH+Ml2mu13HARzoPDS9wJJ8QS0gMmbpAvk/MOvIn11N6hIViXpPfR3
+	PrFbDDzN9BX5N0Hg==
+X-Google-Smtp-Source: AGHT+IFYH7nKR98YSl0bgd4j6elLmVBr5qc5bTleI6LMDXL64/KgQAEWWcRI4ClTxXA+31LnE3T7pA==
+X-Received: by 2002:a05:690c:b13:b0:71f:eb2b:83e0 with SMTP id 00721157ae682-73062ca43c8mr138095197b3.13.1758003805348;
+        Mon, 15 Sep 2025 23:23:25 -0700 (PDT)
+Received: from darker.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-72f7683148dsm38488107b3.23.2025.09.15.23.23.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Sep 2025 21:49:46 -0700 (PDT)
-From: pengdonglin <dolinux.peng@gmail.com>
-To: tj@kernel.org,
-	tony.luck@intel.com,
-	jani.nikula@linux.intel.com,
-	ap420073@gmail.com,
-	jv@jvosburgh.net,
-	freude@linux.ibm.com,
-	bcrl@kvack.org,
-	trondmy@kernel.org,
-	longman@redhat.com,
-	kees@kernel.org
-Cc: bigeasy@linutronix.de,
-	hdanton@sina.com,
-	paulmck@kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-rt-devel@lists.linux.dev,
-	linux-nfs@vger.kernel.org,
-	linux-aio@kvack.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	netdev@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	linux-wireless@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	cgroups@vger.kernel.org,
-	pengdonglin <dolinux.peng@gmail.com>,
-	"Toke" <toke@toke.dk>,
-	Jakub Kicinski <kuba@kernel.org>,
-	pengdonglin <pengdonglin@xiaomi.com>
-Subject: [PATCH v3 14/14] wifi: ath9k: Remove redundant rcu_read_lock/unlock() in spin_lock
-Date: Tue, 16 Sep 2025 12:47:35 +0800
-Message-Id: <20250916044735.2316171-15-dolinux.peng@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20250916044735.2316171-1-dolinux.peng@gmail.com>
-References: <20250916044735.2316171-1-dolinux.peng@gmail.com>
+        Mon, 15 Sep 2025 23:23:24 -0700 (PDT)
+Date: Mon, 15 Sep 2025 23:23:17 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
+To: "Roy, Patrick" <roypat@amazon.co.uk>
+cc: "Thomson, Jack" <jackabt@amazon.co.uk>, 
+    "Kalyazin, Nikita" <kalyazin@amazon.co.uk>, 
+    "Cali, Marco" <xmarcalx@amazon.co.uk>, 
+    "derekmn@amazon.co.uk" <derekmn@amazon.co.uk>, 
+    Elliot Berman <quic_eberman@quicinc.com>, 
+    "willy@infradead.org" <willy@infradead.org>, 
+    "corbet@lwn.net" <corbet@lwn.net>, 
+    "pbonzini@redhat.com" <pbonzini@redhat.com>, 
+    "maz@kernel.org" <maz@kernel.org>, 
+    "oliver.upton@linux.dev" <oliver.upton@linux.dev>, 
+    "joey.gouly@arm.com" <joey.gouly@arm.com>, 
+    "suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, 
+    "yuzenghui@huawei.com" <yuzenghui@huawei.com>, 
+    "catalin.marinas@arm.com" <catalin.marinas@arm.com>, 
+    "will@kernel.org" <will@kernel.org>, 
+    "chenhuacai@kernel.org" <chenhuacai@kernel.org>, 
+    "kernel@xen0n.name" <kernel@xen0n.name>, 
+    "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>, 
+    "palmer@dabbelt.com" <palmer@dabbelt.com>, 
+    "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, 
+    "alex@ghiti.fr" <alex@ghiti.fr>, 
+    "agordeev@linux.ibm.com" <agordeev@linux.ibm.com>, 
+    "gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>, 
+    "hca@linux.ibm.com" <hca@linux.ibm.com>, 
+    "gor@linux.ibm.com" <gor@linux.ibm.com>, 
+    "borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>, 
+    "svens@linux.ibm.com" <svens@linux.ibm.com>, 
+    "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, 
+    "luto@kernel.org" <luto@kernel.org>, 
+    "peterz@infradead.org" <peterz@infradead.org>, 
+    "tglx@linutronix.de" <tglx@linutronix.de>, 
+    "mingo@redhat.com" <mingo@redhat.com>, "bp@alien8.de" <bp@alien8.de>, 
+    "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>, 
+    "trondmy@kernel.org" <trondmy@kernel.org>, 
+    "anna@kernel.org" <anna@kernel.org>, 
+    "hubcap@omnibond.com" <hubcap@omnibond.com>, 
+    "martin@omnibond.com" <martin@omnibond.com>, 
+    "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, 
+    "brauner@kernel.org" <brauner@kernel.org>, "jack@suse.cz" <jack@suse.cz>, 
+    "akpm@linux-foundation.org" <akpm@linux-foundation.org>, 
+    "david@redhat.com" <david@redhat.com>, 
+    "lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, 
+    "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>, 
+    "vbabka@suse.cz" <vbabka@suse.cz>, "rppt@kernel.org" <rppt@kernel.org>, 
+    "surenb@google.com" <surenb@google.com>, 
+    "mhocko@suse.com" <mhocko@suse.com>, "ast@kernel.org" <ast@kernel.org>, 
+    "daniel@iogearbox.net" <daniel@iogearbox.net>, 
+    "andrii@kernel.org" <andrii@kernel.org>, 
+    "martin.lau@linux.dev" <martin.lau@linux.dev>, 
+    "eddyz87@gmail.com" <eddyz87@gmail.com>, 
+    "song@kernel.org" <song@kernel.org>, 
+    "yonghong.song@linux.dev" <yonghong.song@linux.dev>, 
+    "john.fastabend@gmail.com" <john.fastabend@gmail.com>, 
+    "kpsingh@kernel.org" <kpsingh@kernel.org>, 
+    "sdf@fomichev.me" <sdf@fomichev.me>, 
+    "haoluo@google.com" <haoluo@google.com>, 
+    "jolsa@kernel.org" <jolsa@kernel.org>, "jgg@ziepe.ca" <jgg@ziepe.ca>, 
+    "jhubbard@nvidia.com" <jhubbard@nvidia.com>, 
+    "peterx@redhat.com" <peterx@redhat.com>, 
+    "jannh@google.com" <jannh@google.com>, 
+    "pfalcato@suse.de" <pfalcato@suse.de>, 
+    "axelrasmussen@google.com" <axelrasmussen@google.com>, 
+    "yuanchu@google.com" <yuanchu@google.com>, 
+    "weixugc@google.com" <weixugc@google.com>, 
+    "hannes@cmpxchg.org" <hannes@cmpxchg.org>, 
+    "zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>, 
+    "shakeel.butt@linux.dev" <shakeel.butt@linux.dev>, 
+    "shuah@kernel.org" <shuah@kernel.org>, 
+    "seanjc@google.com" <seanjc@google.com>, 
+    "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, 
+    "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, 
+    "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+    "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+    "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
+    "kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
+    "loongarch@lists.linux.dev" <loongarch@lists.linux.dev>, 
+    "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, 
+    "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, 
+    "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>, 
+    "devel@lists.orangefs.org" <devel@lists.orangefs.org>, 
+    "linux-mm@kvack.org" <linux-mm@kvack.org>, 
+    "bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
+    "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>
+Subject: Re: [PATCH v6 01/11] filemap: Pass address_space mapping to
+ ->free_folio()
+In-Reply-To: <20250912091708.17502-2-roypat@amazon.co.uk>
+Message-ID: <7c2677e1-daf7-3b49-0a04-1efdf451379a@google.com>
+References: <20250912091708.17502-1-roypat@amazon.co.uk> <20250912091708.17502-2-roypat@amazon.co.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 
-From: pengdonglin <pengdonglin@xiaomi.com>
+On Fri, 12 Sep 2025, Roy, Patrick wrote:
 
-Since commit a8bb74acd8efe ("rcu: Consolidate RCU-sched update-side function definitions")
-there is no difference between rcu_read_lock(), rcu_read_lock_bh() and
-rcu_read_lock_sched() in terms of RCU read section and the relevant grace
-period. That means that spin_lock(), which implies rcu_read_lock_sched(),
-also implies rcu_read_lock().
+> From: Elliot Berman <quic_eberman@quicinc.com>
+> 
+> When guest_memfd removes memory from the host kernel's direct map,
+> direct map entries must be restored before the memory is freed again. To
+> do so, ->free_folio() needs to know whether a gmem folio was direct map
+> removed in the first place though. While possible to keep track of this
+> information on each individual folio (e.g. via page flags), direct map
+> removal is an all-or-nothing property of the entire guest_memfd, so it
+> is less error prone to just check the flag stored in the gmem inode's
+> private data.  However, by the time ->free_folio() is called,
+> folio->mapping might be cleared. To still allow access to the address
+> space from which the folio was just removed, pass it in as an additional
+> argument to ->free_folio, as the mapping is well-known to all callers.
+> 
+> Link: https://lore.kernel.org/all/15f665b4-2d33-41ca-ac50-fafe24ade32f@redhat.com/
+> Suggested-by: David Hildenbrand <david@redhat.com>
+> Acked-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Elliot Berman <quic_eberman@quicinc.com>
+> [patrick: rewrite shortlog for new usecase]
+> Signed-off-by: Patrick Roy <roypat@amazon.co.uk>
+> ---
+>  Documentation/filesystems/locking.rst |  2 +-
+>  fs/nfs/dir.c                          | 11 ++++++-----
+>  fs/orangefs/inode.c                   |  3 ++-
+>  include/linux/fs.h                    |  2 +-
+>  mm/filemap.c                          |  9 +++++----
+>  mm/secretmem.c                        |  3 ++-
+>  mm/vmscan.c                           |  4 ++--
+>  virt/kvm/guest_memfd.c                |  3 ++-
+>  8 files changed, 21 insertions(+), 16 deletions(-)
+> 
+> diff --git a/Documentation/filesystems/locking.rst b/Documentation/filesystems/locking.rst
+> index aa287ccdac2f..74c97287ec40 100644
+> --- a/Documentation/filesystems/locking.rst
+> +++ b/Documentation/filesystems/locking.rst
+> @@ -262,7 +262,7 @@ prototypes::
+>  	sector_t (*bmap)(struct address_space *, sector_t);
+>  	void (*invalidate_folio) (struct folio *, size_t start, size_t len);
+>  	bool (*release_folio)(struct folio *, gfp_t);
+> -	void (*free_folio)(struct folio *);
+> +	void (*free_folio)(struct address_space *, struct folio *);
+>  	int (*direct_IO)(struct kiocb *, struct iov_iter *iter);
+>  	int (*migrate_folio)(struct address_space *, struct folio *dst,
+>  			struct folio *src, enum migrate_mode);
 
-There is no need no explicitly start a RCU read section if one has already
-been started implicitly by spin_lock().
+Beware, that is against the intent of free_folio().
 
-Simplify the code and remove the inner rcu_read_lock() invocation.
+Since its 2.6.37 origin in 6072d13c4293 ("Call the filesystem back
+whenever a page is removed from the page cache"), freepage() or
+free_folio() has intentionally NOT taken a struct address_space *mapping,
+because that structure may already be freed by the time free_folio() is
+called, if the last folio holding it has now been freed.
 
-Cc: "Toke" <toke@toke.dk>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: pengdonglin <pengdonglin@xiaomi.com>
-Signed-off-by: pengdonglin <dolinux.peng@gmail.com>
----
- drivers/net/wireless/ath/ath9k/xmit.c | 2 --
- 1 file changed, 2 deletions(-)
+Maybe something has changed since then, or maybe it happens to be safe
+just in the context in which you want to use it; but it is against the
+principle of free_folio().  (Maybe an rcu_read_lock() could be added
+in __remove_mapping() to make it safe nowadays? maybe not welcome.)
 
-diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
-index 0ac9212e42f7..4a0f465aa2fe 100644
---- a/drivers/net/wireless/ath/ath9k/xmit.c
-+++ b/drivers/net/wireless/ath/ath9k/xmit.c
-@@ -1993,7 +1993,6 @@ void ath_txq_schedule(struct ath_softc *sc, struct ath_txq *txq)
- 
- 	ieee80211_txq_schedule_start(hw, txq->mac80211_qnum);
- 	spin_lock_bh(&sc->chan_lock);
--	rcu_read_lock();
- 
- 	if (sc->cur_chan->stopped)
- 		goto out;
-@@ -2011,7 +2010,6 @@ void ath_txq_schedule(struct ath_softc *sc, struct ath_txq *txq)
- 	}
- 
- out:
--	rcu_read_unlock();
- 	spin_unlock_bh(&sc->chan_lock);
- 	ieee80211_txq_schedule_end(hw, txq->mac80211_qnum);
- }
--- 
-2.34.1
+See Documentation/filesystems/vfs.rst:
+free_folio is called once the folio is no longer visible in the
+page cache in order to allow the cleanup of any private data.
+Since it may be called by the memory reclaimer, it should not
+assume that the original address_space mapping still exists, and
+it should not block.
 
+Hugh
