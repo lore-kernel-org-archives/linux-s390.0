@@ -1,63 +1,63 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E876B2ECD15
-	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 04:49:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 605232EFD91
+	for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 04:49:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757998177; cv=none; b=RyLY+nUzaU5fTZM/zTSttwoBzUW40zQ1DNCt0bqY3yF0lDcf/aZ9QwShRrpXK6zxSKqBVpMHAl5fD+rRkpZz5nzVJU5fMwycFXmTZ7BNzbMlLrvkyYjTm/zA2Uifk0eqB25SLBigu6H5Ktd+NsnJSdVvJQAUp1oZ2BnHom7AbOA=
+	t=1757998183; cv=none; b=db0hROF2YqPSpAOErhg+6Wo7TfTmAogftOX/ndsSCKEJB70p4W/SbfKieFjl9qhEUukImXWX1VbhcfAhDbQZvcu+xTrfo1v5K8ZMB78C3Wxy9jEU69IwGgFAKeml+qV+nB9MG6wQeKbsedmDUQwOKMzOCXOzMVERp6SOyNdpmB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757998177; c=relaxed/simple;
-	bh=dy9spvLipBJ0oxpRy6D3U8JeqM1cA+2DUbEARoiEIho=;
+	s=arc-20240116; t=1757998183; c=relaxed/simple;
+	bh=xZie7XPvdT38eYIBnvXACDOKlp4uDfFQ6p8xkwCAypA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rXd9KQ6yVxNQPOZs9OBHXISEemHeFpgK5W4Ka8MM4CAIL+lW9r/eatNds5Uv1M7LwpU1DsiNLxcvTzRSv0CZsyKNYLV1QOPI8zdh/xNCsK9nKPypzDcY9Jhct3M5FTU9sGR6XnZaAENFtscOZZ6MOTFpRFxg1Is8hff7HJVhLww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WEJwboRo; arc=none smtp.client-ip=209.85.214.174
+	 MIME-Version; b=PHuMJjxWK9ny695BvM9PdEtj+Hsp6uOiGsH9NS8IZxcgBOr0UhsO4H2xqHhwnO+DwvuLr/d5lefIlO0t3wzfHg4MnTm8Kz/i1dFrePqkFZsCnn4BiTVii+afYa6YJgWJtmOosMnkrN/tPLg8jaWjeJHZO2PDCmxn011oBSk6OBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VRPVEEEM; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WEJwboRo"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-263b1cf4d99so15669915ad.0
-        for <linux-s390@vger.kernel.org>; Mon, 15 Sep 2025 21:49:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VRPVEEEM"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-b4d118e13a1so3462537a12.3
+        for <linux-s390@vger.kernel.org>; Mon, 15 Sep 2025 21:49:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757998174; x=1758602974; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1757998181; x=1758602981; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=kee/jWM05xMj5MjToYK8a9EUY/mguZ7xPQQnB3cJ53E=;
-        b=WEJwboRoA+7Q/dtbpjLY1iSOzyDv2c7nLD5tzESh/xoo13VNtR/TuEemvpBow5vvEn
-         H7ry4eNsUi4IQV8DjKDpbV4r0L5NEiNdbzxgZ9uF1g6TLnrD4vmU5xiiUDdvRUp82yHX
-         5XmgyQKs33tjnmDUjMrqxpFjpFB6RPqKiIYNPBfImWxQHKjvIJQIuhSjg3OwcMtI6Sfo
-         i4HnREvhWsFyA7lO140ZMwL9JUpp5QX2ZSunJSuv006RmJnQTtQVVYSSc8waQPaTuRg6
-         2dO06Xyt+iuxUmp3SRacsW6eS/lXTsOf7kwLF/UWzELlusoGLpEM/leXstF1sKj4podi
-         n90w==
+        bh=6Tcedso9pzLAwLQitmBj+2+6wC4HZyTUiqHFeMdiOi8=;
+        b=VRPVEEEMyPFp1/apdgsdGcdVZa8RyIEDb4oi+MRkYBM99QFUqx8qesncXE5xPiXr4k
+         5EmQzzVM6ROAy9MD5JQWOsyeqzNpcJOOfhDFpvyiLSBzgAVmSV4PpvkG7J3oLLXh3T2t
+         aSGMxXUkZ/sTwLMVvwCxtrd/98Mzai0cB56bcT2QDXO9wehrl8U9zH9CWY9ycecU5qrW
+         lgZghkMXBNPhiPB0dDJ7sUurWKQUnVaHBn61VqMU8sFvJRgf6DYXbUA1UPvggaPVkZ2/
+         wEyAhf8NXX+w9nILAVNf9HZ/dItwjE6ImKe5EZYWjDrUvt9j68hAE0JwgxYdvG9auYLy
+         KGJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757998174; x=1758602974;
+        d=1e100.net; s=20230601; t=1757998181; x=1758602981;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=kee/jWM05xMj5MjToYK8a9EUY/mguZ7xPQQnB3cJ53E=;
-        b=tCeM28UD86aWKQq2OFlxg67mZG7ajzjntOPWiPGm/d3iU8DvcSbC7I7YIocxb609nJ
-         B7ieFwXcEIbl25+TR8NX6MvDlUpZcUztPV2WW8l6/HPgUAhkpezd+c/YrN3+rXJFbtP7
-         UQWSOPI6lhNFH8nvQH/lc42BNIxDKy8yCa2x2K0pICu+15H46OtzcOrv+0h5aoZP9Bvf
-         e0LaBreBKGHUBM6IHKlxnuN9iCk08C2WBb0jjsvjNvFjxqtZ2KlUBf99CFRX7AjUx6Qv
-         V9Yh9ftGaLHaauw8m4mUiLOXex1/rturVgTlgODXw+GOw1s15dAuNTe4N+km3G6xYwQl
-         tJFA==
-X-Forwarded-Encrypted: i=1; AJvYcCU+kA0s9pFKwftyK2YRZ3NhwR/oJA58YuGRAwRMtDP3E43A4CrXzloUDshJQ2yWURcOazFqNZcvs5wG@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHemlkKq/9LOTxGLImqBJbEFsj/u2U83CPr+QlwOMIWp+ecIAm
-	eBjdqsdRO5FcQYcNvtk8iL8Z0xEID1Vco3MHICx1fKmMe1UolAvHPSoG
-X-Gm-Gg: ASbGncsbMnE6JVcLM5eL9eCdIxNbnDO7oQevWYwt6+OJ/7+SvzL70LdKFpZvoRy0J2r
-	V+SNrE0HgnmoaGDX8kY9npxedJOrwBCogBTEr8QGUZqrrK7Nh6xOE2FcT0Wd0aDpLOji2LNP9W/
-	l6OsHXklF/lvYMvhXiFqIPXNApQ5HtBsbFBMbCmNvASGr7I81o5V11TlvnulpBWJWkQ8jgHjklw
-	QXclhjENkGl9VBJmFihcTedUVJcCjLeS9bDC3XYJXSRHAjgjaYpS4qNqL9rmMHCPaPsB2qahZxS
-	F1+zKuaP9ptC5VpjZDvaHvzZOvdVLMoPj+4qkzUYwLb/zTh9zv3cY3HHJpAoxNaM5Ag8tVHcotU
-	nv/5Id4Doa0ePsq4TXo3b7tIp8QAg8C2mhWzyiOc=
-X-Google-Smtp-Source: AGHT+IHQsp/jp2h5qh/u2y0fwJLYw3kUJFgybrRxf3n883LnUrw88kxlxQMidQOFwo4KtZaOVgbKQg==
-X-Received: by 2002:a17:902:cecc:b0:267:a1d5:7372 with SMTP id d9443c01a7336-267d151fba1mr14211985ad.4.1757998173983;
-        Mon, 15 Sep 2025 21:49:33 -0700 (PDT)
+        bh=6Tcedso9pzLAwLQitmBj+2+6wC4HZyTUiqHFeMdiOi8=;
+        b=oNUwZTPQvvNHNPULO0v00sB1nR9rMS/VsqfkdAncFXSoH9afOK9sqGmTgdSL/B/iK1
+         evo1o6vcx0oBWpjZx285Znh6zYYnMwTbhcCMhnYED4cOvdmKHhIn2x2h8Eei9tNdQqxM
+         cvrpDw5UoiZUQg0bvE4xM3NkVUVUVEhlMblWAORCQCW01mXagsVxCZ5Gp19Cc6iv7Whf
+         24c/TnV7Zs4YUucphwifx4tgozbfctzadjuPx+/uYDm8cnrxv9l/m+wCWR9cdydO2ewt
+         oMK4ROArjFYpvdoHZIx0/BK5RIQODHjq/mZ1eHIg8pBInGFLOuPAVU9QlDaidAX2zDRW
+         oJ+w==
+X-Forwarded-Encrypted: i=1; AJvYcCU7uq/sf0Gz69eW/V/Sz4xs9P3kDxSCx+nP+aOGAXMBgKz/eQRILkSKFRHS4e5Z0+67N22HUmJnHk2u@vger.kernel.org
+X-Gm-Message-State: AOJu0YxhVywROeJvpRItHTcTViUsQPMOK16xdhc+w5eQWTOx4Z0HC2BJ
+	vlt/gwn5+AZgxahj8i7rI/XEhwdBOzGagY+qhDrreAkES3+OCPArt264
+X-Gm-Gg: ASbGncsgWT+yicwFY89yy5QuZ1m/kZgVonBOy/4T4KVfZXGFYlQGHOtUWrZ3j9sjYIG
+	lGJXNApJ0fq7La6X3P7SiD/V+1kl+e9ZaMEGfrzZYUz6d9zVa/OQssHjbMnbwI4SobatnTh6lpN
+	QXRR9WiFpNMJHmVjrUPyKrSUf2s8aEjUVwd2s0YHKhm4r997o7X49cuqN2cPPPmIIfCnF8kXwwW
+	CNWeEM3SK7jy6pq7PCe9ElF9QHirDO7wM+5QzZDHJQyGKd24PeMuyG2jT6I39Oh8jqft6J1S7ae
+	28GD03kNoiX4vjVe/4XpXULJoqmHfGMl2oi394NEZJUkgh04hOW0VMscTs+EbQZT4BWJ+a8D2ns
+	gSmXhKqz9z85p+HRAwApPoGfub0fJxxtKeLQfylc=
+X-Google-Smtp-Source: AGHT+IEk/DXYOCMhugqpymqTGh+KMlTQeAIuikssxOXlHLYZS5SBPJrXDrKkOxyomJ+DECodEM8EoQ==
+X-Received: by 2002:a17:902:c40d:b0:251:a3b3:1580 with SMTP id d9443c01a7336-25d24cac4eemr191581215ad.6.1757998180587;
+        Mon, 15 Sep 2025 21:49:40 -0700 (PDT)
 Received: from pengdl-pc.mioffice.cn ([43.224.245.249])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-25ef09c77f8sm104600605ad.15.2025.09.15.21.49.27
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-25ef09c77f8sm104600605ad.15.2025.09.15.21.49.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Sep 2025 21:49:33 -0700 (PDT)
+        Mon, 15 Sep 2025 21:49:40 -0700 (PDT)
 From: pengdonglin <dolinux.peng@gmail.com>
 To: tj@kernel.org,
 	tony.luck@intel.com,
@@ -85,14 +85,12 @@ Cc: bigeasy@linutronix.de,
 	linux-s390@vger.kernel.org,
 	cgroups@vger.kernel.org,
 	pengdonglin <dolinux.peng@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
+	Paolo Abeni <pabeni@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	pengdonglin <pengdonglin@xiaomi.com>
-Subject: [PATCH v3 12/14] net: amt: Remove redundant rcu_read_lock/unlock() in spin_lock
-Date: Tue, 16 Sep 2025 12:47:33 +0800
-Message-Id: <20250916044735.2316171-13-dolinux.peng@gmail.com>
+Subject: [PATCH v3 13/14] net: bonding: Remove redundant rcu_read_lock/unlock() in spin_lock
+Date: Tue, 16 Sep 2025 12:47:34 +0800
+Message-Id: <20250916044735.2316171-14-dolinux.peng@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250916044735.2316171-1-dolinux.peng@gmail.com>
 References: <20250916044735.2316171-1-dolinux.peng@gmail.com>
@@ -117,77 +115,35 @@ been started implicitly by spin_lock().
 
 Simplify the code and remove the inner rcu_read_lock() invocation.
 
-Cc: Taehee Yoo <ap420073@gmail.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jay Vosburgh <jv@jvosburgh.net>
+Cc: Paolo Abeni <pabeni@redhat.com>
 Cc: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: pengdonglin <pengdonglin@xiaomi.com>
 Signed-off-by: pengdonglin <dolinux.peng@gmail.com>
 ---
- drivers/net/amt.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/net/bonding/bond_3ad.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/amt.c b/drivers/net/amt.c
-index ed86537b2f61..aaed9fbc7526 100644
---- a/drivers/net/amt.c
-+++ b/drivers/net/amt.c
-@@ -295,7 +295,6 @@ static void amt_source_work(struct work_struct *work)
- 
- 	tunnel = gnode->tunnel_list;
- 	spin_lock_bh(&tunnel->lock);
+diff --git a/drivers/net/bonding/bond_3ad.c b/drivers/net/bonding/bond_3ad.c
+index 4edc8e6b6b64..c53ea73f103a 100644
+--- a/drivers/net/bonding/bond_3ad.c
++++ b/drivers/net/bonding/bond_3ad.c
+@@ -2485,7 +2485,6 @@ void bond_3ad_state_machine_handler(struct work_struct *work)
+ 	 * concurrently due to incoming LACPDU as well.
+ 	 */
+ 	spin_lock_bh(&bond->mode_lock);
 -	rcu_read_lock();
- 	if (gnode->filter_mode == MCAST_INCLUDE) {
- 		amt_destroy_source(snode);
- 		if (!gnode->nr_sources)
-@@ -306,7 +305,6 @@ static void amt_source_work(struct work_struct *work)
- 		 */
- 		snode->status = AMT_SOURCE_STATUS_D_FWD;
+ 
+ 	/* check if there are any slaves */
+ 	if (!bond_has_slaves(bond))
+@@ -2537,7 +2536,6 @@ void bond_3ad_state_machine_handler(struct work_struct *work)
+ 			break;
+ 		}
  	}
 -	rcu_read_unlock();
- 	spin_unlock_bh(&tunnel->lock);
- }
+ 	spin_unlock_bh(&bond->mode_lock);
  
-@@ -426,7 +424,6 @@ static void amt_group_work(struct work_struct *work)
- 		goto out;
- 	}
- 
--	rcu_read_lock();
- 	for (i = 0; i < buckets; i++) {
- 		hlist_for_each_entry_safe(snode, t,
- 					  &gnode->sources[i], node) {
-@@ -443,7 +440,6 @@ static void amt_group_work(struct work_struct *work)
- 		amt_del_group(amt, gnode);
- 	else
- 		gnode->filter_mode = MCAST_INCLUDE;
--	rcu_read_unlock();
- 	spin_unlock_bh(&tunnel->lock);
- out:
- 	dev_put(amt->dev);
-@@ -1327,11 +1323,9 @@ static void amt_clear_groups(struct amt_tunnel_list *tunnel)
- 	int i;
- 
- 	spin_lock_bh(&tunnel->lock);
--	rcu_read_lock();
- 	for (i = 0; i < amt->hash_buckets; i++)
- 		hlist_for_each_entry_safe(gnode, t, &tunnel->groups[i], node)
- 			amt_del_group(amt, gnode);
--	rcu_read_unlock();
- 	spin_unlock_bh(&tunnel->lock);
- }
- 
-@@ -1343,11 +1337,9 @@ static void amt_tunnel_expire(struct work_struct *work)
- 	struct amt_dev *amt = tunnel->amt;
- 
- 	spin_lock_bh(&amt->lock);
--	rcu_read_lock();
- 	list_del_rcu(&tunnel->list);
- 	amt->nr_tunnels--;
- 	amt_clear_groups(tunnel);
--	rcu_read_unlock();
- 	spin_unlock_bh(&amt->lock);
- 	kfree_rcu(tunnel, rcu);
- }
+ 	if (update_slave_arr)
 -- 
 2.34.1
 
