@@ -1,46 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701792E92D0;
-	Wed, 17 Sep 2025 14:02:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735C82EACF9;
+	Wed, 17 Sep 2025 14:02:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758117735; cv=none; b=ce/V7Ye5bSPky1xVcGTtQFrmDJgwF80lUB1AsdVGeOwLQVArvJpba4GQlwjxg2RAgOzNDrjrmSd/WTCFVHo/VTZRpCmG/4nCegCmrLlussCngIqzsRMmQ4E3eIfr9rY8OHeUo248DP7JcVGFW3SJyDMbq6LgL69OabwCmqv2y/s=
+	t=1758117737; cv=none; b=gBV8ZUVcoCMwJU0qv4eC7XkQtfbECDfO5UsMzVTu+i4oXB4/6QshU9/5bUglCBbhJEcyZr0mHdALCtm6Rm5k9lQ/c3RMo0rKHVHKM/WXMAZwmKFr2gFr25sQqTR3HUbiNwALxTOIUEZfDPxb+tlmy25A8dBTHW38OvBHGe+1VBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758117735; c=relaxed/simple;
-	bh=QgZWh2CTRuRkVkUn1WW0CJWymakhf5V9YWE5DyFtGgI=;
+	s=arc-20240116; t=1758117737; c=relaxed/simple;
+	bh=8w72gLGme3rV9N/8xInoEUzLlu1u1Hn8GjckW/Fu+5Y=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=BYMEcjx30lLSOUUhP3VziXnvT/wsP4vZeNrzSdTLlIfb+QpSlCUEdCi3Lu6w+AIVPE1elOs6qggR0skAyiJrUDzzg6Gz6P1vrIQ2xyjfsQz0d4bwNiEHTsVvBLogKG7YYv7HwIR9TBgUVzv3upl3rnYzVXXLxtWa28APSfr51Z0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=zzcQj+H+; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=GTuw+m+w; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=S7FhK2sfjg62gVuG1u8x8/kNg9yzIH/Tv/aZX5G96aFsN/Ep8HEFmGTez0WCYTnucFCg8czrKYqOu2et+gCuY6FJLokaMv0vfdP3sLCDrY5F1Zo6zMmj+9BoI9gJIpqoQ9UgaBu+d/dyuLG2EuFphKg/m7esQ65oPk28DtIp8YE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Z30Hwa++; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=uny7uvHO; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="zzcQj+H+";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="GTuw+m+w"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Z30Hwa++";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="uny7uvHO"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1758117728;
+	s=2020; t=1758117729;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Gpmb9cDwEzk02Y+DfJzHKrCKqKqd+Vk47vVVsRIqy1A=;
-	b=zzcQj+H+wV5XHh7JlmQgfczb/SrRXVkOy25S1jepBvRY1OvCDzb0SJCkznPomBX9mcgfqF
-	/ZYOkCYJis4p6VSLvvhey+9FR+llhxD/ioegVLEy6q2nsdjOJRDj4L92e+gfwsHHc7aLBT
-	WAxmW2WVLQrlrl+9xqJ0YeplQxUmBwwooT1LSX0mDpGzhqX0Lg5TzIYdtLFydRxNHAyZjR
-	9wlheU8BHYcKkSSJZ18mF61aXUDCQ1AIhdN3YbwX7YvjwoTE5S4BQeWZuh7g4M9/Rb1I43
-	HyEVJiFPQMWc0/bsduhYPPqU5u6dFf0GXivewKKUYVBT8UeBOecHV2X5jKUB8g==
+	bh=mRNw6GkZZ0SOwENot0cflaJo5WOKKLsTLyEwUK24zow=;
+	b=Z30Hwa++YpmdECroIgGLGo2qdagWua1+42J45XnVC49cul3KcaHrxdUhuIBDt3V6HVyw9C
+	x88vdcmNUH+OJGU/N36wEOa0fbSZhPDuG1A9ophk5d2oEXjvV+ErtH03aur3YOEmSJq05H
+	yrUWa94v4xD6JlJlYveDMSAGZz2bYTDERdBAVq5FJdApxjq9Eo4P5wTRB6cJccOQ71YjVQ
+	otSwetGTNZAeftVt5GIw0Gd/RSIhYYG9VmMDIp2lEWNuVjA+ZrAC3C96zv+KIXdcuxaOGe
+	tWprgkciuzV2udYjb1dIADelwFE05b/S6ia4nm2ZwKn6+icRQgRTcbN290SKCg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1758117728;
+	s=2020e; t=1758117729;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Gpmb9cDwEzk02Y+DfJzHKrCKqKqd+Vk47vVVsRIqy1A=;
-	b=GTuw+m+wQOSdJ2yMAXigPYcPa71hWYh+ILRSyBQvDKyMeYS8Wfje/LSrijnvlSXpaQR3m/
-	wxvLNd6jekFY0BDQ==
-Date: Wed, 17 Sep 2025 16:00:26 +0200
-Subject: [PATCH v3 24/36] vdso/datastore: Allocate data pages dynamically
+	bh=mRNw6GkZZ0SOwENot0cflaJo5WOKKLsTLyEwUK24zow=;
+	b=uny7uvHOBpJaQmiyNWgZDoVcJ/W4s4C4UJydeIXx+29V6CWnPmW/6D9xgUBg+G1HuhVrw6
+	/GPNUaUtapK0CQDQ==
+Date: Wed, 17 Sep 2025 16:00:28 +0200
+Subject: [PATCH v3 26/36] sparc64: vdso: Remove obsolete "fake section
+ table" reservation
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250917-vdso-sparc64-generic-2-v3-24-3679b1bc8ee8@linutronix.de>
+Message-Id: <20250917-vdso-sparc64-generic-2-v3-26-3679b1bc8ee8@linutronix.de>
 References: <20250917-vdso-sparc64-generic-2-v3-0-3679b1bc8ee8@linutronix.de>
 In-Reply-To: <20250917-vdso-sparc64-generic-2-v3-0-3679b1bc8ee8@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
@@ -78,143 +79,97 @@ Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, 
  linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1758117712; l=4686;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1758117712; l=2564;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=QgZWh2CTRuRkVkUn1WW0CJWymakhf5V9YWE5DyFtGgI=;
- b=pOWKEqrLPj1SLyPcTKi14JdVomBv9bCCXIehSogW2jrTVnFtKz2E7s3mSIq15X4wwIsu4UKkw
- rJVX1dAWNHLA5UUNnHFOZ/ONopbJqhLqNpaKXm/JddK/gB3KKSSLbi2
+ bh=8w72gLGme3rV9N/8xInoEUzLlu1u1Hn8GjckW/Fu+5Y=;
+ b=QgCYHWUCSKPu9lf4c4OeQFeEjv9jGji9gCgDezyDsZYodT0c3UE1Qh/8caZxZEy4/G9jAr3o+
+ +gt1ht2t+QnC4eIxVKBSv2ORSay29H8EfuooOZ1hluInrsoTIoX56qW
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-Allocating the datapages as part of the kernel image does not work on
-SPARC. It is also problematic with regards to dcache aliasing as there is
-no guarantee that the virtual addresses used by the kernel are compatible
-with those used by userspace.
+When the vDSO logic was copied from x86 to SPARC some unused remnants of
+the fake section handling were copied, too. In x86 the original fake
+section handling had already been removed incompletely in commit
+da861e18eccc ("x86, vdso: Get rid of the fake section mechanism").
+On x86 the reservation was only cleaned up in commit 24b7c77bbb24
+("x86/vdso: Remove obsolete "fake section table" reservation").
 
-Allocate the data pages through the page allocator instead.
-Unused pages in the vDSO VMA are still allocated to keep the virtual
-addresses aligned.
+Remove the reservation for SPARC, too.
 
-These pages are used by both the timekeeping, random pool and architecture
-initialization code. Introduce a new early initialization step, to make
-sure they are available when needed.
-
+Fixes: 9a08862a5d2e ("vDSO for sparc")
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- include/linux/vdso_datastore.h |  6 ++++++
- init/main.c                    |  2 ++
- lib/vdso/datastore.c           | 44 ++++++++++++++++++++++--------------------
- 3 files changed, 31 insertions(+), 21 deletions(-)
+ arch/sparc/vdso/vdso-layout.lds.S | 21 ---------------------
+ arch/sparc/vdso/vdso2c.c          |  8 --------
+ 2 files changed, 29 deletions(-)
 
-diff --git a/include/linux/vdso_datastore.h b/include/linux/vdso_datastore.h
-index a91fa24b06e09321fdff8c2c7bdfbc1b206db574..0b530428db711e58660e797d9d3cf5dce60217fe 100644
---- a/include/linux/vdso_datastore.h
-+++ b/include/linux/vdso_datastore.h
-@@ -2,9 +2,15 @@
- #ifndef _LINUX_VDSO_DATASTORE_H
- #define _LINUX_VDSO_DATASTORE_H
+diff --git a/arch/sparc/vdso/vdso-layout.lds.S b/arch/sparc/vdso/vdso-layout.lds.S
+index d31e57e8a3bbffd3afb187cd631e2491fde64148..9e0804789d11696948f11be367480b530a1f18d9 100644
+--- a/arch/sparc/vdso/vdso-layout.lds.S
++++ b/arch/sparc/vdso/vdso-layout.lds.S
+@@ -4,16 +4,6 @@
+  * This script controls its layout.
+  */
  
-+#ifdef CONFIG_HAVE_GENERIC_VDSO
- #include <linux/mm_types.h>
- 
- extern const struct vm_special_mapping vdso_vvar_mapping;
- struct vm_area_struct *vdso_install_vvar_mapping(struct mm_struct *mm, unsigned long addr);
- 
-+void __init vdso_setup_data_pages(void);
-+#else /* !CONFIG_HAVE_GENERIC_VDSO */
-+static inline void vdso_setup_data_pages(void) { }
-+#endif /* CONFIG_HAVE_GENERIC_VDSO */
-+
- #endif /* _LINUX_VDSO_DATASTORE_H */
-diff --git a/init/main.c b/init/main.c
-index 0ee0ee7b7c2c0a7aceb6f428f8ee61edeead60ec..0d4510a7a5c21a47a040c05da1db919211706a7e 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -103,6 +103,7 @@
- #include <linux/randomize_kstack.h>
- #include <linux/pidfs.h>
- #include <linux/ptdump.h>
-+#include <linux/vdso_datastore.h>
- #include <net/net_namespace.h>
- 
- #include <asm/io.h>
-@@ -1007,6 +1008,7 @@ void start_kernel(void)
- 	srcu_init();
- 	hrtimers_init();
- 	softirq_init();
-+	vdso_setup_data_pages();
- 	timekeeping_init();
- 	time_init();
- 
-diff --git a/lib/vdso/datastore.c b/lib/vdso/datastore.c
-index 6e5feb4a95b85f5a1cbdced7cdeddc593fcbad40..67799e8919c202e0800cb78ff70919f9604ac492 100644
---- a/lib/vdso/datastore.c
-+++ b/lib/vdso/datastore.c
-@@ -1,41 +1,43 @@
- // SPDX-License-Identifier: GPL-2.0-only
- 
--#include <linux/linkage.h>
- #include <linux/mm.h>
- #include <linux/time_namespace.h>
- #include <linux/types.h>
- #include <linux/vdso_datastore.h>
- #include <vdso/datapage.h>
- 
--/*
-- * The vDSO data page.
-- */
- #ifdef CONFIG_GENERIC_GETTIMEOFDAY
--static union {
--	struct vdso_time_data	data;
--	u8			page[PAGE_SIZE];
--} vdso_time_data_store __page_aligned_data;
--struct vdso_time_data *vdso_k_time_data = &vdso_time_data_store.data;
--static_assert(sizeof(vdso_time_data_store) == PAGE_SIZE);
-+struct vdso_time_data *vdso_k_time_data;
-+static_assert(sizeof(struct vdso_time_data) <= PAGE_SIZE);
- #endif /* CONFIG_GENERIC_GETTIMEOFDAY */
- 
- #ifdef CONFIG_VDSO_GETRANDOM
--static union {
--	struct vdso_rng_data	data;
--	u8			page[PAGE_SIZE];
--} vdso_rng_data_store __page_aligned_data;
--struct vdso_rng_data *vdso_k_rng_data = &vdso_rng_data_store.data;
--static_assert(sizeof(vdso_rng_data_store) == PAGE_SIZE);
-+struct vdso_rng_data *vdso_k_rng_data;
-+static_assert(sizeof(struct vdso_rng_data) <= PAGE_SIZE);
- #endif /* CONFIG_VDSO_GETRANDOM */
- 
- #ifdef CONFIG_ARCH_HAS_VDSO_ARCH_DATA
--static union {
--	struct vdso_arch_data	data;
--	u8			page[VDSO_ARCH_DATA_SIZE];
--} vdso_arch_data_store __page_aligned_data;
--struct vdso_arch_data *vdso_k_arch_data = &vdso_arch_data_store.data;
-+struct vdso_arch_data *vdso_k_arch_data;
- #endif /* CONFIG_ARCH_HAS_VDSO_ARCH_DATA */
- 
-+void __init vdso_setup_data_pages(void)
-+{
-+	unsigned int order = get_order(VDSO_NR_PAGES * PAGE_SIZE);
-+	struct folio *folio = folio_alloc(GFP_KERNEL, order);
-+
-+	if (!folio)
-+		panic("Unable to allocate VDSO storage pages");
-+
-+	if (IS_ENABLED(CONFIG_GENERIC_GETTIMEOFDAY))
-+		vdso_k_time_data = page_address(folio_page(folio, VDSO_TIME_PAGE_OFFSET));
-+
-+	if (IS_ENABLED(CONFIG_VDSO_GETRANDOM))
-+		vdso_k_rng_data = page_address(folio_page(folio, VDSO_RNG_PAGE_OFFSET));
-+
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_VDSO_ARCH_DATA))
-+		vdso_k_arch_data = page_address(folio_page(folio, VDSO_ARCH_PAGES_START));
-+}
-+
- static vm_fault_t vvar_fault(const struct vm_special_mapping *sm,
- 			     struct vm_area_struct *vma, struct vm_fault *vmf)
+-#if defined(BUILD_VDSO64)
+-# define SHDR_SIZE 64
+-#elif defined(BUILD_VDSO32)
+-# define SHDR_SIZE 40
+-#else
+-# error unknown VDSO target
+-#endif
+-
+-#define NUM_FAKE_SHDRS 7
+-
+ SECTIONS
  {
+ 	/*
+@@ -47,19 +37,8 @@ SECTIONS
+ 		*(.bss*)
+ 		*(.dynbss*)
+ 		*(.gnu.linkonce.b.*)
+-
+-		/*
+-		 * Ideally this would live in a C file: kept in here for
+-		 * compatibility with x86-64.
+-		 */
+-		VDSO_FAKE_SECTION_TABLE_START = .;
+-		. = . + NUM_FAKE_SHDRS * SHDR_SIZE;
+-		VDSO_FAKE_SECTION_TABLE_END = .;
+ 	}						:text
+ 
+-	.fake_shstrtab	: { *(.fake_shstrtab) }		:text
+-
+-
+ 	.note		: { *(.note.*) }		:text	:note
+ 
+ 	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
+diff --git a/arch/sparc/vdso/vdso2c.c b/arch/sparc/vdso/vdso2c.c
+index dc81240aab6fd31a72b8a751cc2a4a821a3c4e4e..b97af5ec9f35c01f2a976b6213b1768b677ad231 100644
+--- a/arch/sparc/vdso/vdso2c.c
++++ b/arch/sparc/vdso/vdso2c.c
+@@ -61,8 +61,6 @@ const char *outfilename;
+ /* Symbols that we need in vdso2c. */
+ enum {
+ 	sym_vvar_start,
+-	sym_VDSO_FAKE_SECTION_TABLE_START,
+-	sym_VDSO_FAKE_SECTION_TABLE_END,
+ };
+ 
+ struct vdso_sym {
+@@ -72,12 +70,6 @@ struct vdso_sym {
+ 
+ struct vdso_sym required_syms[] = {
+ 	[sym_vvar_start] = {"vvar_start", 1},
+-	[sym_VDSO_FAKE_SECTION_TABLE_START] = {
+-		"VDSO_FAKE_SECTION_TABLE_START", 0
+-	},
+-	[sym_VDSO_FAKE_SECTION_TABLE_END] = {
+-		"VDSO_FAKE_SECTION_TABLE_END", 0
+-	},
+ };
+ 
+ __attribute__((format(printf, 1, 2))) __attribute__((noreturn))
 
 -- 
 2.51.0
