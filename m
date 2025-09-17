@@ -1,63 +1,63 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEFC333B499
-	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 15:39:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D08E237059F
+	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 15:39:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758123551; cv=none; b=PAZNyOrNXVfC7IPOyPGNfjReesx4znnbVUAuF7RYWKaputVM9e14cDO1o8/3aFldWtLWr/K1Po/suy/S+QDWykJLim0s25/b5muf2DRJynRYhIzjDrSieldaLcKIjukh9To1NnEbkwIt5Pc43Pi44ew47IknXy0nNhmM2QHM10g=
+	t=1758123552; cv=none; b=nU8wqbqvJIQdXzfAu0BFhL5CWl9h2kG4g+QGME3gtFmlipK4MHrc9h7AaWzF8toxD6tuegWDTBWluwjhHpexJDD9tSwB26vlVBS7xjSaZihwcazVPgNLXaXtGjaxszRV5y5PUdiEchYv3lgFCumcP8HMf10/ESrfdR1vn01I274=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758123551; c=relaxed/simple;
-	bh=PFpgUHub9Fmrzg3KWGWHTh2JxvycLlcMGTk6OArN/BM=;
+	s=arc-20240116; t=1758123552; c=relaxed/simple;
+	bh=UKI0GMrIrFld4692U92NbL9P6hnzaYrAgSVS+6kT4NM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lvgIWSkYbQdhqbVRKvubJ295JnPoY0YhpTkeNQ/cJStIy1xd2fgQWk3gDljmc7laaII6zd8etPEkCkkLrc651QNCy+5p4TxA4Zas13cTvWm6XnFkihmmcVfVH4fP54rNfkCWJ2ivK0unA5TwZ0R4YeRwlRa6XdbQgZ/VlCJ86B0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=FMWpqQNR; arc=none smtp.client-ip=209.85.221.54
+	 MIME-Version; b=ChgryWOpveC1BcYU9EiMp4Rl3RhBw0XzJSRNgvqSBH645oEAWBk6KuHRwZ4ibzDRBuKJeBYjVgRjFGzA0OBUyxvvsVdoLeCECE4JVWg4EEBJEOxDqN1boRes0trdYWLE4qum5iGYshc99cNehPppr901NwSNzOFXWZ6DKpAtcvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=bBEXHGcw; arc=none smtp.client-ip=209.85.221.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="FMWpqQNR"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-3ed20bdfdffso299187f8f.2
-        for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 08:39:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="bBEXHGcw"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-3e98c5adbbeso2071152f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 08:39:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1758123547; x=1758728347; darn=vger.kernel.org;
+        d=suse.com; s=google; t=1758123548; x=1758728348; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ugO1a/jnTXgfFN8ZtCaUDxIdkHkZGhM95Bkr0uu7zSk=;
-        b=FMWpqQNRw1flZ8OPXoYkB4mcVE60DDpesxCaq8U7p1UszGFufAuXoDiuXgtVs1EncV
-         37o2Q6b3k6s/rulDZX9SIodBuDWPr+n7Hkyi6SZfhMCP6nVYf1Z8jEoGkpQ/LX5Fydbc
-         DHKMr0FzqVqDVdSnMlRSHhhZuLCYxhyHPEsr25cfX78yKZe0s12oDo5TgKwUXOzcizx4
-         oJAP3BWHa0vc4aQ8tXPeUJC9I5lRBimFC36a7+EOs68SKVBvnsfgyMoKY8yQEv2dG0tU
-         pVlNQTkiDs17U3pwJkQX4olokxnWiicg4LR30Xc196S8KBfO08v657Pu0Mr3z+8Hhlwo
-         wxfA==
+        bh=wVZVmy10Hzps3+n7t5S3fBRU0IFzjHVdjlxkyI552mE=;
+        b=bBEXHGcwmargVZqO4A5K8KgcV/LT1vvWQaH63VnLJm/8INegfwQkLs0XHm4yQxTr3Y
+         SJMrMQFpLGbM1tXqlrn7CANE+3o3ajxn2o+P48MeBByTNLv+M69TDVnymbDY53QgatHr
+         evYYEFmLrQ/+CUB1H5QFND97qT0GW3joGtegHYgBoONT1Z47bFYldzvDG28buJYW+9Gn
+         3af2zje7THCSallZcDtNwOsgJYUi4BcTjJu+HeJpAqS38XiR86Hvr6KYeci8Yf0Q1B8R
+         YCC6XXl3tqQuwcp3mvexWmpqsVGU5Sn0UfFoHDOtGVQf7NyLWEPTtt7rrPqmCUpMvS2/
+         iYzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758123547; x=1758728347;
+        d=1e100.net; s=20230601; t=1758123548; x=1758728348;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ugO1a/jnTXgfFN8ZtCaUDxIdkHkZGhM95Bkr0uu7zSk=;
-        b=OhWdlEsujh5v6NSKI2e7sLxdUGOlfHG0toKAYnVhwl+nV7A1OQBXjnzjf6qS6zEaX8
-         GJZPZXNcd94c+JsQCCxlmRTpl3ctdWPImbgDIzHtUCIpBUZBC6iRkditIXnRupvJFKQ4
-         CHc5EJRsw6ho/+slsiA2LH/R/WD09beu01Qnl/HaAAdCqqlJ/PvJijhStHnHmHUZ5MUj
-         p8QiG6XHGu+AmG28T7yFIdlvgGipO4wRramkI/XrynWhxojEDJDcs5gGIoLtc5eOoQwy
-         dzY+udszGnG8IvmsuEqTqwKRjI5DNWSR+oKVlaIYdaaspJMVU4ih0cFpk0u1/4KscP/t
-         C1ag==
-X-Forwarded-Encrypted: i=1; AJvYcCXf5plOhgVlhFAIXeWHeubgAKEtENZtoH8YaHvMSmO710Y7W8enMhq+bjhPtWiYppdIGduLdnaaS6LL@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx16sMeAkI+GXXx7bGHiZ7PWjF+DiakJHBfjYG/twZhkWayGce/
-	xEnwFhIfxPA9nBhmjf2C/igbaepbQf9R+5FI7R8Q9+4/iWLHfrOWH+SOFhqqxXxvUDw=
-X-Gm-Gg: ASbGncsjNAH951mrGyImnz35BeQ7ttPHqW8PB02vLPNxyAO2ds1SPNCh8E54F8QsocH
-	TGbYfWk5Msht/UbxcxMygsxFqOPa+zWMHec8KI3+DspZSJhI4MA7jTnEtcF0WJXoeDyohih0lUv
-	tsseHvXLabzoD+MEwUTSuA3VaaIYcIox8No2LMFFivCP4s9tBfxVv9UtCnDAq24zqNvEjFE0V/L
-	scDXnJd33zyP+aBEMN1Fo3CSh8x0EKpqQMD6PkBxzYOmUbm6hdIe0fHcqSdPF2Jw+OPO4JuMa3v
-	nWKB2vbmfSuZ++xC7R7cUdv97/ANJhjI4JqSKcKd8Ev0LTTVRESTf1oYxWJjjiUj3I11mb2VaNi
-	YFVilM8QkB59ojtO9/njsMODIgPYKBERmRCRy3qktWhLvip8=
-X-Google-Smtp-Source: AGHT+IHD0ub/VA5RULYt1DM+OOxESsrSpInjb6TmYIn+FbY5msblQCDfU0OY3if9oubO64NJi4LszA==
-X-Received: by 2002:a05:6000:40c8:b0:3d2:9cbf:5b73 with SMTP id ffacd0b85a97d-3ecdf9b5961mr2081818f8f.6.1758123547162;
-        Wed, 17 Sep 2025 08:39:07 -0700 (PDT)
+        bh=wVZVmy10Hzps3+n7t5S3fBRU0IFzjHVdjlxkyI552mE=;
+        b=KkSS8nmBRNE23GyuBoSoBuajqF9oXtUIsNxASa4Qxp0l8Yj49u3cg/6WdH3YFKzp0g
+         dbyrsvSpUuN0zzU211VRXvOB7KP4PRGmNlJs1LtM8qb5QcPsQRCo2X503h8I0IddlKon
+         XW9O7te6EXrIzgBXTRtN6vwLnb3/64Eat1CyC5WiMRKotBg49p18Bmhysvpu3aFQ/Vlw
+         VkYBA8vu8CH1vlFol7oHYd/oZj93bj0z7J3izUVN3fxTxKU6LK1OIE7nZhlV95eH2wbw
+         GqfkVD7WCNwMR6sLsJpwoLXjblipcQDRU9wV9QV03eOTJyJdk9ha/9TSsYHFgaSnKFDk
+         fysQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVewmWOwlPFQCG0zY+7Vv2/I5cT7L4eLnuAAhHxj2LaZ9DE+YTBmH33loRIvNtLqGt91wOz0FwO0IGp@vger.kernel.org
+X-Gm-Message-State: AOJu0YytvOtkJkJzxJzR5enXnnouVyx2lSxTAWvA+sL666x/u/BX8tTj
+	Z6zIfiRGzL0GUZmKkuV7G7JlETBflUkuRELuZzdIztLzVht78EXneqRdcInBWjTKxEA=
+X-Gm-Gg: ASbGncsOI5IdlBh9iiI0GVzw4JuXDxtHiKJjgbUBLrcoCEcXILcBglH10skd+cDy7g+
+	0zVzPaC5y7aSCcMfirYr27sIDcp3gXYQCjWe5DwBgJA5YCx8DTnG7+k6oS7QuoK47KeEwVyVbWm
+	MLFfsTVk+O7XZA2SWyvoOJkO249JHNwsjcnv80hOdFzYimd418TIfvn61idT2k+UnAWZNd4/Sxe
+	MSoX4INgfYIIVPzCMF3C8vduyLfbL3BkShQLRsNf4eVBxFfjLkPAZtvVqlymI2mxIfVHxdBNIxG
+	PFDDBUtUKP4lXgjkZJK10yf1kApiq3kOopr28Lni62kNHNbFpsmLGr1U0sZAtCaBzbnpFoE/7wj
+	rsCiUUFTr5hYfcbSp+wxChMXA3GdJbSpb/9C+CVPAFgR5A98=
+X-Google-Smtp-Source: AGHT+IFZkFyB8wLD1suxu+q9rNVi45peL0SKj0VLllUK4PJZNrtdqFLmgjE0enuXhQVI0UYmVz1X+g==
+X-Received: by 2002:a05:6000:18a7:b0:3e7:ff32:1ab with SMTP id ffacd0b85a97d-3ecdfa4d27amr2496111f8f.50.1758123548077;
+        Wed, 17 Sep 2025 08:39:08 -0700 (PDT)
 Received: from localhost.localdomain ([2a00:6d43:105:c401:e307:1a37:2e76:ce91])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3e774a3fb5bsm23208319f8f.58.2025.09.17.08.39.06
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3e774a3fb5bsm23208319f8f.58.2025.09.17.08.39.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Sep 2025 08:39:06 -0700 (PDT)
+        Wed, 17 Sep 2025 08:39:07 -0700 (PDT)
 From: Marco Crivellari <marco.crivellari@suse.com>
 To: linux-kernel@vger.kernel.org,
 	linux-s390@vger.kernel.org
@@ -70,9 +70,9 @@ Cc: Tejun Heo <tj@kernel.org>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH v2 2/3] s390/diag324: replace use of system_wq with system_percpu_wq
-Date: Wed, 17 Sep 2025 17:38:58 +0200
-Message-ID: <20250917153859.363593-3-marco.crivellari@suse.com>
+Subject: [PATCH v2 3/3] s390: replace use of system_wq with system_dfl_wq
+Date: Wed, 17 Sep 2025 17:38:59 +0200
+Message-ID: <20250917153859.363593-4-marco.crivellari@suse.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20250917153859.363593-1-marco.crivellari@suse.com>
 References: <20250917153859.363593-1-marco.crivellari@suse.com>
@@ -92,43 +92,31 @@ again of WORK_CPU_UNBOUND.
 
 This lack of consistentcy cannot be addressed without refactoring the API.
 
-system_wq is a per-CPU worqueue, yet nothing in its name tells about that
-CPU affinity constraint, which is very often not required by users. Make
-it clear by renaming system_wq to system_percpu_wq.
-
-queue_work() / queue_delayed_work() mod_delayed_work() will now use the
-new per-cpu wq.
+system_wq is a per-CPU worqueue (replaced by system_percpu_wq), but the
+current code does not benefit from it. Because of that, system_wq has been
+replaced by system_dfl_wq, the new unbound workqueue.
 
 The old wq will be kept for a few release cylces.
 
 Suggested-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Marco Crivellari <marco.crivellari@suse.com>
 ---
- arch/s390/kernel/diag/diag324.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/hiperdispatch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/diag/diag324.c b/arch/s390/kernel/diag/diag324.c
-index 7fa4c0b7eb6c..f0a8b4841fb9 100644
---- a/arch/s390/kernel/diag/diag324.c
-+++ b/arch/s390/kernel/diag/diag324.c
-@@ -116,7 +116,7 @@ static void pibwork_handler(struct work_struct *work)
- 	mutex_lock(&pibmutex);
- 	timedout = ktime_add_ns(data->expire, PIBWORK_DELAY);
- 	if (ktime_before(ktime_get(), timedout)) {
--		mod_delayed_work(system_wq, &pibwork, nsecs_to_jiffies(PIBWORK_DELAY));
-+		mod_delayed_work(system_percpu_wq, &pibwork, nsecs_to_jiffies(PIBWORK_DELAY));
- 		goto out;
- 	}
- 	vfree(data->pib);
-@@ -174,7 +174,7 @@ long diag324_pibbuf(unsigned long arg)
- 		pib_update(data);
- 		data->sequence++;
- 		data->expire = ktime_add_ns(ktime_get(), tod_to_ns(data->pib->intv));
--		mod_delayed_work(system_wq, &pibwork, nsecs_to_jiffies(PIBWORK_DELAY));
-+		mod_delayed_work(system_percpu_wq, &pibwork, nsecs_to_jiffies(PIBWORK_DELAY));
- 		first = false;
- 	}
- 	rc = data->rc;
+diff --git a/arch/s390/kernel/hiperdispatch.c b/arch/s390/kernel/hiperdispatch.c
+index e7b66d046e8d..2507bc3f7757 100644
+--- a/arch/s390/kernel/hiperdispatch.c
++++ b/arch/s390/kernel/hiperdispatch.c
+@@ -191,7 +191,7 @@ int hd_enable_hiperdispatch(void)
+ 		return 0;
+ 	if (hd_online_cores <= hd_entitled_cores)
+ 		return 0;
+-	mod_delayed_work(system_wq, &hd_capacity_work, HD_DELAY_INTERVAL * hd_delay_factor);
++	mod_delayed_work(system_dfl_wq, &hd_capacity_work, HD_DELAY_INTERVAL * hd_delay_factor);
+ 	hd_update_capacities();
+ 	return 1;
+ }
 -- 
 2.51.0
 
