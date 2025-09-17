@@ -1,127 +1,196 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC4F12FFDD9
-	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 18:00:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24ECC26D4C4;
+	Wed, 17 Sep 2025 18:42:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758132049; cv=none; b=A1sjvut3I+cQl562+JTsQSq8G9fjAtvCxU6UAc8W5bocHUsfD8zWkFmLl3oOWcPaOSme4RzlQDHmpr6M5UUL7UJmkvpEyHvowjZ20UfFlLWIccYFbgTzZ4FhS1HeYhz/zYT1tQmbEtwE71e0Tn5qA8mAevFh5dAlwjsLhnd8d38=
+	t=1758134560; cv=none; b=fWX6l1Ah02zqTAucVYHk6/rrcCx43XHfrnsr5Q0Ekj4M05tsVZHp+lCqSUsvz/d7RwqHgW78K1xAIJ/xsa2jE/iy+1vwhN/m4FTzFiBLCn51iTRKuX6WUavOIgkTQxpN8nbQpkPhcVRyi00FhimVUeKOs5TdfBud/uQcLXmDT5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758132049; c=relaxed/simple;
-	bh=DLDcGQ3mu3T/MPVKq0NF9V2I5Jn6ILZwFaw9KVQfhOo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SEpLowpb9c2WeJrgZZOOtpRLXKLMYE+WRJ6LCbzqb4b8CdAnchR4i0x0HOgLb5B1V+cSQQ7rGxb4GWB/vlxxUPU84whDGQ4BnZBCobTe0tP0FmJQKIXJN8MQIwRbtuodMy0/NsPqveo5UW40MjMxEdzf9QCxhLY/dDUD3z5ZiHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amacapital.net; spf=pass smtp.mailfrom=amacapital.net; dkim=pass (2048-bit key) header.d=amacapital-net.20230601.gappssmtp.com header.i=@amacapital-net.20230601.gappssmtp.com header.b=g1LtUuBN; arc=none smtp.client-ip=209.85.167.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=amacapital.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amacapital.net
+	s=arc-20240116; t=1758134560; c=relaxed/simple;
+	bh=0foBAsVE+LB5+pq0SPplm74sj2q/NUP0pBhIynF97vU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=A1i5afT9M1XeJVmd6GxgSZu0eOUPksmIPRivZAxIfBD8VI6l1GFF0hTiMBbvlFkWnv/EPgCN8xAhAWSxrtHRTh5tMRj2+QuGAMHB+QecmuW9gM75aNXakVZ6CpJGFG+ZP6JJDEjlqfZTtGo+C1jcD+jApse+JZI0pSLR7OERmWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pajF9CRa; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amacapital-net.20230601.gappssmtp.com header.i=@amacapital-net.20230601.gappssmtp.com header.b="g1LtUuBN"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5720df4acc5so83166e87.3
-        for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 11:00:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amacapital-net.20230601.gappssmtp.com; s=20230601; t=1758132044; x=1758736844; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0Pv4dFUExNQfPloEDat7jfEF9BkjeLOy7zrinjdnc80=;
-        b=g1LtUuBN2lj4qvyQzWAdLKTewMPpvB0BMgAm3EhYmOSEcT379TNMgVSmJk7DCmgjc/
-         T0eHokwlFMY3Yd+mXYCz+ekytPn0ndF69T0GJJIC1YMQr15FXnETUToESn8hAOjjN4TJ
-         wc+dE3joK8Hj6X0qrUlvmHpmCBRx7/hVESh3NV1/RSPbebawN77L/JxPYbAY8rno5NPR
-         h45BlMuQrVS79kOiLhszZHO32mHd/xwXNvhKNiRJJPEEOxGanxAq7D4RvCoxMPnsrP0o
-         gtEy+UX8pbw1CA/Tbhp0++SKDmI4SgqYBJ/2EKyXEOwvuyrgRQgYTYLI+VQny1h7rWhV
-         /NkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758132044; x=1758736844;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0Pv4dFUExNQfPloEDat7jfEF9BkjeLOy7zrinjdnc80=;
-        b=b1xV1ayp0Gu4ipqlW1hq3hwpO8MkJolPEB+K3OwDGN+jlSferu9YhbGzG2u+HLsMWx
-         nccqAns1t1slUI/kMmoVxqMjeNllR44QVKEve1rhcxXy8Tc3GkwNkT2PmwrYs0VuZt4x
-         Xzuo+P7/LcaATxvJEHu+5qQDE0FzQvQeqFW57u9hDG6fYYM+lrgf/87xNF5cSOCsbJ2G
-         GKY8/QUkKCbigeq9AcLREU5n2CeMjiVrV4ywHMx7FvbSWPKzJYCc1ntcRBPW2fOXMVKn
-         W/UH0RrrZKSPQp7ny80hpkm1xir9OxNIcfLFIc9V5N30NVzYe1zK2AqBZnINJ4MpZf2H
-         TDgw==
-X-Forwarded-Encrypted: i=1; AJvYcCWB+Uu0DNGXtWKwRwHLlOgbWstLVpicpHAojCsxmSlqymhgU2Su3KU5xuHKqmH1yVLyT71jxvUCUw2w@vger.kernel.org
-X-Gm-Message-State: AOJu0YzFRyg0G2n1dFQ/TQrK8Z8cas5gFOs24JJSEUeFUsxSdFCdAtlV
-	YisHWpQ+ueg4Eu+mSEsJvosdemylNosadr1cD/Ec1qxZnQyaEVQKe8QcXB/KpKdQ2OTb5UpVppy
-	E4j2y1QfMpUow27zkwJUq4bS4iHf2Mde2LeUZGLEg
-X-Gm-Gg: ASbGncsNtEmgY85lSz87n91PxOU3cTA7TXZHS++m5Gpigag2Msv6AXI4rmTeyrFGlDi
-	L40P8zx54yJepqiohNVhjRp0FI3EZ6g2rxusxBTGW3BdRj9ni9Do1B96dNHytIHYLLL1SxXLYZS
-	fE3qgbpaAk+DNtw0R7/WFTxL2VhHuWaUZhFtQQEBiqlZF/P5/QmwpB0e9uT2RxqIB/gTLu70X6A
-	eKYMg==
-X-Google-Smtp-Source: AGHT+IGI+xF2OSgRbI6+fabXiqu9Xwuf5bxWYwnja/rNGOUuSmNzhH42MNUAKuR34Ox7ov8nmiujA9clDhMS84oRbmU=
-X-Received: by 2002:ac2:4e09:0:b0:576:d217:3f2f with SMTP id
- 2adb3069b0e04-57796b5e819mr1028160e87.3.1758132043747; Wed, 17 Sep 2025
- 11:00:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pajF9CRa"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58HIJd6T027672;
+	Wed, 17 Sep 2025 18:42:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=sz16kJF9qOd971cDCM9SATsIbe06/InSon5nSaYxE
+	zo=; b=pajF9CRaOGNjdwy1Vgu/phOuL0/lkJD5Mqh8LVNtm4WAJ2AmCzTN26VBL
+	Tb5D6egJuP+NHS/udXrtn9gwK/2nMwrxoyg5VD7+BLcAJWOFeJeoj6p54BgVD4jp
+	xkGk9r2KQYsjdC2yG1LpCpkkqilTxsvavvqUxyH8/FzPY3h6YeyMwCUk1FMkbC5Q
+	IaZvSahYXndXGrXVHYaBD6uWvOcKJoBWh3w8H/q3sGAmBAysOReDJ7y+DDfc2Jq8
+	0QMxtBpXSgXbl6ToUgp4lmmG6oopSLGJgu3qV+D+7cg1h3E9UHHRTDscW0vxiALl
+	9KIgIVOlVnau1TZusDTTRma0l1ixQ==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4p5p0s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Sep 2025 18:42:29 +0000 (GMT)
+Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58HIbVG0018256;
+	Wed, 17 Sep 2025 18:42:29 GMT
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4p5p0n-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Sep 2025 18:42:28 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58HIC8Ji018632;
+	Wed, 17 Sep 2025 18:42:27 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 495n5mjjp4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 17 Sep 2025 18:42:27 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58HIgQ507078552
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 17 Sep 2025 18:42:26 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8D6E658050;
+	Wed, 17 Sep 2025 18:42:26 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CF1B958052;
+	Wed, 17 Sep 2025 18:42:24 +0000 (GMT)
+Received: from a3560036.lnxne.boe (unknown [9.152.108.100])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 17 Sep 2025 18:42:24 +0000 (GMT)
+From: Sidraya Jayagond <sidraya@linux.ibm.com>
+To: kuba@kernel.org, andrew+netdev@lunn.ch, davem@davemloft.net,
+        pabeni@redhat.com, horms@kernel.org, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, wenjia@linux.ibm.com,
+        mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, Sidraya Jayagond <sidraya@linux.ibm.com>
+Subject: [PATCH net] net/smc: fix warning in smc_rx_splice() when calling get_page()
+Date: Wed, 17 Sep 2025 20:42:20 +0200
+Message-ID: <20250917184220.801066-1-sidraya@linux.ibm.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250912223937.3735076-1-safinaskar@zohomail.com> <0342fbda-9901-4293-afa7-ba6085eb1688@landley.net>
-In-Reply-To: <0342fbda-9901-4293-afa7-ba6085eb1688@landley.net>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Wed, 17 Sep 2025 11:00:32 -0700
-X-Gm-Features: AS18NWAGwakGZ9zjxjq7MnfN8O7ZgOJb6fmKIJ0JIML7P3j0NnlDZ27eNb5S7Es
-Message-ID: <CALCETrXHxOkHoS+0zhvc4cfpZqJ0wpfQUDnXW-A-qyQkqur-DQ@mail.gmail.com>
-Subject: Re: [PATCH 00/62] initrd: remove classic initrd support
-To: Rob Landley <rob@landley.net>
-Cc: Askar Safin <safinaskar@zohomail.com>, linux-fsdevel@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Brauner <brauner@kernel.org>, 
-	Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>, 
-	Jens Axboe <axboe@kernel.dk>, Andy Shevchenko <andy.shevchenko@gmail.com>, 
-	Aleksa Sarai <cyphar@cyphar.com>, =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>, 
-	Julian Stecklina <julian.stecklina@cyberus-technology.de>, 
-	Gao Xiang <hsiangkao@linux.alibaba.com>, Art Nikpal <email2tema@gmail.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, Eric Curtin <ecurtin@redhat.com>, 
-	Alexander Graf <graf@amazon.com>, Lennart Poettering <mzxreary@0pointer.de>, linux-arch@vger.kernel.org, 
-	linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org, x86@kernel.org, 
-	Ingo Molnar <mingo@redhat.com>, linux-block@vger.kernel.org, initramfs@vger.kernel.org, 
-	linux-api@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
-	"Theodore Y . Ts'o" <tytso@mit.edu>, linux-acpi@vger.kernel.org, Michal Simek <monstr@monstr.eu>, 
-	devicetree@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>, 
-	Thorsten Blum <thorsten.blum@linux.dev>, Heiko Carstens <hca@linux.ibm.com>, patches@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX2+CbK4IC47Rn
+ jHWdDwuPYk6CNOheWhapPHWjtpaBAqdpzaO6h8LPV81V9f+R0o0OxBHQWHjfxWASotsJ55nwaHK
+ tRQ0XQc26sCjigt0h4PALN+8yFlqgEs1PyjS+cjj+2DPnmOO/tnsePgGzeC3x7V4CYComAs9021
+ VGeVfUe9CTXqPucERxCU0iSqhTtTK3ruSvPreqi1Y/VllPx4ZVyhjWnk0JzjdFTEwdl1hrtLiiL
+ eilfxe79N3IlD2MpPt00Xfr3vBhG3oZRmDNPnOtj9XbTU4vS1VId2aE6ywLh8mXHv2AQ2EnA+8H
+ soxaSRmHstDZtr2Ch5nauaahlqKj0C1qzE/FBA1ZVmeQChxbQDqicZVjLIeTnH4uyLXzik5HCgO
+ FrLF+W6S
+X-Proofpoint-ORIG-GUID: kco9-Jjn9a2PjTbvShXfph2LF4VijF9T
+X-Proofpoint-GUID: Ogats12SsLMDZ1X-zxw-rF9lnUJuxn0m
+X-Authority-Analysis: v=2.4 cv=cNzgskeN c=1 sm=1 tr=0 ts=68cb0115 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=3kUJVLf2yPifrhjWNHsA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-17_01,2025-09-17_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 clxscore=1011 spamscore=0 bulkscore=0 malwarescore=0
+ adultscore=0 priorityscore=1501 impostorscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
 
-On Mon, Sep 15, 2025 at 10:09=E2=80=AFAM Rob Landley <rob@landley.net> wrot=
-e:
+smc_lo_register_dmb() allocates DMB buffers with kzalloc(), which are
+later passed to get_page() in smc_rx_splice(). Since kmalloc memory is
+not page-backed, this triggers WARN_ON_ONCE() in get_page() and prevents
+holding a refcount on the buffer. This can lead to use-after-free if
+the memory is released before splice_to_pipe() completes.
 
-> While you're at it, could you fix static/builtin initramfs so PID 1 has
-> a valid stdin/stdout/stderr?
->
-> A static initramfs won't create /dev/console if the embedded initramfs
-> image doesn't contain it, which a non-root build can't mknod, so the
-> kernel plumbing won't see it dev in the directory we point it at unless
-> we build with root access.
+Use folio_alloc() instead, ensuring DMBs are page-backed and safe for
+get_page().
 
-I have no current insight as to whether there's a kernel issue here,
-but why are you trying to put actual device nodes in an actual
-filesystem as part of a build process?  It's extremely straightforward
-to emit devices nodes in cpio format, and IMO it's far *more*
-straightforward to do that than to make a whole directory, try to get
-all the modes right, and cpio it up.
+WARNING: CPU: 18 PID: 12152 at ./include/linux/mm.h:1330 smc_rx_splice+0xaf8/0xe20 [smc]
+CPU: 18 UID: 0 PID: 12152 Comm: smcapp Kdump: loaded Not tainted 6.17.0-rc3-11705-g9cf4672ecfee #10 NONE
+Hardware name: IBM 3931 A01 704 (z/VM 7.4.0)
+Krnl PSW : 0704e00180000000 000793161032696c (smc_rx_splice+0xafc/0xe20 [smc])
+           R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+Krnl GPRS: 0000000000000000 001cee80007d3001 00077400000000f8 0000000000000005
+           0000000000000001 001cee80007d3006 0007740000001000 001c000000000000
+           000000009b0c99e0 0000000000001000 001c0000000000f8 001c000000000000
+           000003ffcc6f7c88 0007740003e98000 0007931600000005 000792969b2ff7b8
+Krnl Code: 0007931610326960: af000000		mc	0,0
+           0007931610326964: a7f4ff43		brc	15,00079316103267ea
+          #0007931610326968: af000000		mc	0,0
+          >000793161032696c: a7f4ff3f		brc	15,00079316103267ea
+           0007931610326970: e320f1000004	lg	%r2,256(%r15)
+           0007931610326976: c0e53fd1b5f5	brasl	%r14,000793168fd5d560
+           000793161032697c: a7f4fbb5		brc	15,00079316103260e6
+           0007931610326980: b904002b		lgr	%r2,%r11
+Call Trace:
+ smc_rx_splice+0xafc/0xe20 [smc]
+ smc_rx_splice+0x756/0xe20 [smc])
+ smc_rx_recvmsg+0xa74/0xe00 [smc]
+ smc_splice_read+0x1ce/0x3b0 [smc]
+ sock_splice_read+0xa2/0xf0
+ do_splice_read+0x198/0x240
+ splice_file_to_pipe+0x7e/0x110
+ do_splice+0x59e/0xde0
+ __do_splice+0x11a/0x2d0
+ __s390x_sys_splice+0x140/0x1f0
+ __do_syscall+0x122/0x280
+ system_call+0x6e/0x90
+Last Breaking-Event-Address:
+smc_rx_splice+0x960/0xe20 [smc]
+---[ end trace 0000000000000000 ]---
 
-I wrote an absolutely trivial tool for this several years ago:
+Fixes: f7a22071dbf3 ("net/smc: implement DMB-related operations of loopback-ism")
+Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Signed-off-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+---
+ net/smc/smc_loopback.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-https://github.com/amluto/virtme/blob/master/virtme/cpiowriter.py
+diff --git a/net/smc/smc_loopback.c b/net/smc/smc_loopback.c
+index 0eb00bbefd17..77cc1c6dc3e9 100644
+--- a/net/smc/smc_loopback.c
++++ b/net/smc/smc_loopback.c
+@@ -56,6 +56,7 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+ {
+ 	struct smc_lo_dmb_node *dmb_node, *tmp_node;
+ 	struct smc_lo_dev *ldev = smcd->priv;
++	struct folio *folio;
+ 	int sba_idx, rc;
+ 
+ 	/* check space for new dmb */
+@@ -74,13 +75,16 @@ static int smc_lo_register_dmb(struct smcd_dev *smcd, struct smcd_dmb *dmb,
+ 
+ 	dmb_node->sba_idx = sba_idx;
+ 	dmb_node->len = dmb->dmb_len;
+-	dmb_node->cpu_addr = kzalloc(dmb_node->len, GFP_KERNEL |
+-				     __GFP_NOWARN | __GFP_NORETRY |
+-				     __GFP_NOMEMALLOC);
+-	if (!dmb_node->cpu_addr) {
++
++	/* not critical; fail under memory pressure and fallback to TCP */
++	folio = folio_alloc(GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC |
++			    __GFP_NORETRY | __GFP_ZERO,
++			    get_order(dmb_node->len));
++	if (!folio) {
+ 		rc = -ENOMEM;
+ 		goto err_node;
+ 	}
++	dmb_node->cpu_addr = folio_address(folio);
+ 	dmb_node->dma_addr = SMC_DMA_ADDR_INVALID;
+ 	refcount_set(&dmb_node->refcnt, 1);
+ 
+@@ -122,7 +126,7 @@ static void __smc_lo_unregister_dmb(struct smc_lo_dev *ldev,
+ 	write_unlock_bh(&ldev->dmb_ht_lock);
+ 
+ 	clear_bit(dmb_node->sba_idx, ldev->sba_idx_mask);
+-	kvfree(dmb_node->cpu_addr);
++	folio_put(virt_to_folio(dmb_node->cpu_addr));
+ 	kfree(dmb_node);
+ 
+ 	if (atomic_dec_and_test(&ldev->dmb_cnt))
+-- 
+2.49.0
 
-it would be barely more complicated to strip the trailer off an cpio
-file from some other source, add some device nodes, and stick the
-trailer back on.  But it's also really, really, really easy to emit an
-entire, functioning cpio-formatted initramfs from plain user code with
-no filesystem manipulation at all.  This also makes that portion of
-the build reproducible, which is worth quite a bit IMO.
-
---Andy
