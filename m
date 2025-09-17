@@ -1,86 +1,134 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CADF11FBEB6;
-	Wed, 17 Sep 2025 01:32:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B3062F546D;
+	Wed, 17 Sep 2025 02:30:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758072776; cv=none; b=SZGPFS65tZljt/zK4SsObyKVoFVDNkRwJvD2Yj2W26OeUo8Xh7rYdy1f8yWJh8QY9TS0T4csyg2pg1PTGVQKvqfZd+AMByZNA1vB/v0IhX+3dOHf0XOvuF/nIN9I7CU7Ovhl7r9MYqD3fQNR/yrBggmLz1CSgqLUiVP0B1qAvcI=
+	t=1758076222; cv=none; b=IX7MiagHAJ9PmXCRvgRhbxxa33sxzkOp4D/H2ojfEMpfhWtTx8gSt/qV/N7RD5Z5QWG45cv0msDy2t7SNU+orxS+m8hV9SjDa58MQlvAQBhqAgTNTF04qvbkCVms5DR0WltFJi6w+NqUsRBb+2zSjn2F2xAyZDBXb4gSzWWGbVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758072776; c=relaxed/simple;
-	bh=VPxe/khPNBojBygLvAaLupb67EgQP1yBXlhF6g/LkIY=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=bx4YDBEypagUrlRjsdOST01WScTx8hZHKQkAnhO1UFvPvMHFZwg4BXu6S/cgfzU1hQvyxAzDrW6iGtZVfuke8l0eiyfPD+xKHZvpDTvAsQtkxV/VzwPoBZa7BzCJpkw2WoppYSYcJ3bFf7iv/SfrD9AP9o4B8O38IHzjawHcsyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Cz58pDdz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1758076222; c=relaxed/simple;
+	bh=9X7QADcxt2zCen4jv6C9mftiuf17xh85fpQtuE7OSM8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EJUaFu9m55mYJg0hVFuI+S+PnYq68DekKodX9Y+6R4TYbv0IkmDtUroSVf6aTncGckzGgW89MVDInyAqGdhCqgnJkHZBCd8iS/ryPnSXyy9D+3UJe5FfqlOUvefIKSxFCK58uEh8WslE6sM3D5RA2paWi/KUbenHohjkoKGRLSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F2IjJp7i; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Cz58pDdz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93CFFC4CEEB;
-	Wed, 17 Sep 2025 01:32:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1758072775;
-	bh=VPxe/khPNBojBygLvAaLupb67EgQP1yBXlhF6g/LkIY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Cz58pDdzIZYmmzo1HFNNAI/yk1M/cOWjkyECmslTAF0/3PdlsvOf6t+VaaqFMj723
-	 j+22m+BYb06quci5edCqkXAKoOvCNtTOG6bD3BJs854pxcHjlvyZO20jrNXGZ75yS8
-	 WpG/k+1TgXypKIZ6/Ilu+GD9PEv4t2pV2hIAiytM=
-Date: Tue, 16 Sep 2025 18:32:53 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
- Matthew Wilcox <willy@infradead.org>, Guo Ren <guoren@kernel.org>, Thomas
- Bogendoerfer <tsbogend@alpha.franken.de>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- "David S . Miller" <davem@davemloft.net>, Andreas Larsson
- <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
- Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>,
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Baoquan He
- <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, Dave Young
- <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>, Reinette Chatre
- <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, James Morse
- <james.morse@arm.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Christian
- Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, "Liam R . Howlett"
- <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport
- <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko
- <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>,
- Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov
- <andreyknvl@gmail.com>, Jann Horn <jannh@google.com>, Pedro Falcato
- <pfalcato@suse.de>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org,
- ntfs3@lists.linux.dev, kexec@lists.infradead.org,
- kasan-dev@googlegroups.com, iommu@lists.linux.dev, Kevin Tian
- <kevin.tian@intel.com>, Will Deacon <will@kernel.org>, Robin Murphy
- <robin.murphy@arm.com>
-Subject: Re: [PATCH v3 13/13] iommufd: update to use mmap_prepare
-Message-Id: <20250916183253.a966ce2ed67493b5bca85c59@linux-foundation.org>
-In-Reply-To: <a2674243-86a2-435e-9add-3038c295e0c7@lucifer.local>
-References: <cover.1758031792.git.lorenzo.stoakes@oracle.com>
-	<59b8cf515e810e1f0e2a91d51fc3e82b01958644.1758031792.git.lorenzo.stoakes@oracle.com>
-	<20250916154048.GG1086830@nvidia.com>
-	<a2674243-86a2-435e-9add-3038c295e0c7@lucifer.local>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F2IjJp7i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D8F3C4CEFE;
+	Wed, 17 Sep 2025 02:30:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758076221;
+	bh=9X7QADcxt2zCen4jv6C9mftiuf17xh85fpQtuE7OSM8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F2IjJp7i0geiRr9f92HGSScUadmZ6+qWXyDpkJSiwVyNs91904DNhtSDuJbhhaj0J
+	 DJKcETxEWzNzBxsyhW7usZxODZD+xgUjmFC614GNYEbZbQwsw0dpeLBxPsCcNBGAAm
+	 /22ayxgBAuSTcnlHABRPG0MUY0z4e8po0p2SiK2dFhh7nhDHJz7GwWhBHU1yJcuQLJ
+	 exW4ZkNB5uaXDutsFJDYqObop2XHXw0CvvnXp7EzwCxcF77trENSy7QplSvBv3vKS4
+	 jDuk3O3FlOraGmLgFKmXx7v+Qqg8oWrsCQSC/M4tSYke5eVMO4wboVh9+IgNJL4b2X
+	 uYcs479yd3FIA==
+Date: Tue, 16 Sep 2025 19:30:16 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Miguel Ojeda <ojeda@kernel.org>, Kees Cook <kees@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Juergen Christ <jchrist@linux.ibm.com>,
+	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH v2 2/4] compiler_types: Add __assume macro
+Message-ID: <20250917023016.GA3935228@ax162>
+References: <20250916134803.874580-1-hca@linux.ibm.com>
+ <20250916134803.874580-3-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250916134803.874580-3-hca@linux.ibm.com>
 
-On Tue, 16 Sep 2025 17:23:31 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
+On Tue, Sep 16, 2025 at 03:48:01PM +0200, Heiko Carstens wrote:
+> Make the statement attribute "assume" with a new __assume macro available.
+> 
+> The assume attribute is used to indicate that a certain condition is
+> assumed to be true. Compilers may or may not use this indication to
+> generate optimized code. If this condition is violated at runtime, the
+> behavior is undefined.
+> 
+> Note that the clang documentation states that optimizers may react
+> differently to this attribute, and this may even have a negative
+> performance impact. Therefore this attribute should be used with care.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-> Andrew - Jason has sent a conflicting patch against this file so it's not
-> reasonable to include it in this series any more, please drop it.
+LGTM.
 
-No probs.
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 
-All added to mm-new, thanks.  emails suppressed due to mercy.
+> ---
+>  include/linux/compiler_types.h | 23 +++++++++++++++++++++++
+>  init/Kconfig                   | 10 ++++++++++
+>  2 files changed, 33 insertions(+)
+> 
+> diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
+> index a910f9fa5341..41c16fb8eb40 100644
+> --- a/include/linux/compiler_types.h
+> +++ b/include/linux/compiler_types.h
+> @@ -329,6 +329,29 @@ struct ftrace_likely_data {
+>  #define __no_sanitize_or_inline __always_inline
+>  #endif
+>  
+> +/*
+> + * The assume attribute is used to indicate that a certain condition is
+> + * assumed to be true. If this condition is violated at runtime, the behavior
+> + * is undefined. Compilers may or may not use this indication to generate
+> + * optimized code.
+> + *
+> + * Note that the clang documentation states that optimizers may react
+> + * differently to this attribute, and this may even have a negative
+> + * performance impact. Therefore this attribute should be used with care.
+> + *
+> + * Optional: only supported since gcc >= 13
+> + * Optional: only supported since clang >= 19
+> + *
+> + *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#index-assume-statement-attribute
+> + * clang: https://clang.llvm.org/docs/AttributeReference.html#id13
+> + *
+> + */
+> +#ifdef CONFIG_CC_HAS_ASSUME
+> +# define __assume(expr)			__attribute__((__assume__(expr)))
+> +#else
+> +# define __assume(expr)
+> +#endif
+> +
+>  /*
+>   * Optional: only supported since gcc >= 15
+>   * Optional: only supported since clang >= 18
+> diff --git a/init/Kconfig b/init/Kconfig
+> index 59ae2b967195..935eff59af97 100644
+> --- a/init/Kconfig
+> +++ b/init/Kconfig
+> @@ -112,6 +112,16 @@ config TOOLS_SUPPORT_RELR
+>  config CC_HAS_ASM_INLINE
+>  	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
+>  
+> +config CC_HAS_ASSUME
+> +	bool
+> +	# clang needs to be at least 19.1.0 since the meaning of the assume
+> +	# attribute changed:
+> +	# https://github.com/llvm/llvm-project/commit/c44fa3e8a9a44c2e9a575768a3c185354b9f6c17
+> +	default y if CC_IS_CLANG && CLANG_VERSION >= 190100
+> +	# supported since gcc 13.1.0
+> +	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106654
+> +	default y if CC_IS_GCC && GCC_VERSION >= 130100
+> +
+>  config CC_HAS_NO_PROFILE_FN_ATTR
+>  	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
+>  
+> -- 
+> 2.48.1
+> 
