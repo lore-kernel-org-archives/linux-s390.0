@@ -1,198 +1,86 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 266506F06B
-	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 00:17:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CADF11FBEB6;
+	Wed, 17 Sep 2025 01:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758068231; cv=none; b=NHrX36esnYAD6GUPwLY4IzkshF4l0+UYDrm0Tty9qAudqZVKzQ3vKejV1xAUZEzRRgjfwoSoCYPCnwwavqBM448QASZrrkX0fei0jBLzmgB26iD8RU5DuOuWinz6ui9v0pv4ubpkGRz5kSW1+JqqWpfKLWLwEDOjwsva4qSH4vs=
+	t=1758072776; cv=none; b=SZGPFS65tZljt/zK4SsObyKVoFVDNkRwJvD2Yj2W26OeUo8Xh7rYdy1f8yWJh8QY9TS0T4csyg2pg1PTGVQKvqfZd+AMByZNA1vB/v0IhX+3dOHf0XOvuF/nIN9I7CU7Ovhl7r9MYqD3fQNR/yrBggmLz1CSgqLUiVP0B1qAvcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758068231; c=relaxed/simple;
-	bh=8bMaW+s8iABakKwgqc6w26p8Hw7d/FhUe28p51azdRg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=F8I6Ijvc6QArZIF7hCH3UNx2M1EvicAbqPFIjKg4pRPk7CXtUHDC+oRrTu7xiyrCFP9d2rqOhvfxOQmu0Q+jyT56ET3NjFv3eyAnAqqQi64/osEsofSq04HZJJ3EKib7O2VWGxHgD5wkOPbSYkTopYF6M7RUR1cWbsRizr0e674=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R3lswAoh; arc=none smtp.client-ip=209.85.208.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1758072776; c=relaxed/simple;
+	bh=VPxe/khPNBojBygLvAaLupb67EgQP1yBXlhF6g/LkIY=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=bx4YDBEypagUrlRjsdOST01WScTx8hZHKQkAnhO1UFvPvMHFZwg4BXu6S/cgfzU1hQvyxAzDrW6iGtZVfuke8l0eiyfPD+xKHZvpDTvAsQtkxV/VzwPoBZa7BzCJpkw2WoppYSYcJ3bFf7iv/SfrD9AP9o4B8O38IHzjawHcsyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Cz58pDdz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R3lswAoh"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-62f1987d53aso4334801a12.0
-        for <linux-s390@vger.kernel.org>; Tue, 16 Sep 2025 17:17:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758068227; x=1758673027; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xXSGAh8chrKBAWdQa4v/8pOW/Kzc0QCjuDzlGtOmWtE=;
-        b=R3lswAohNyOMwWKwXZqGgP77g3sVJvV3/mg9TzComvE2dQRdy7tW7chcmxkZgXm5Pt
-         y8ShAYeveHS9l1YTNw5O33im160bqMNxYklewVHTmq3rbd0RGrrrEKQnTEBMbeGaXYw5
-         /9t/BxIp5x6YFECxH3FclY7u5KY4PbtZH6zaLOai03vO0gev+pPSHEaElrdTFmXcaWyc
-         QTS8iwW92mgHxfbuc18vaFp/5XWSypNuiQ0ebTp7bC+sVmNC7ZUfCgnRAIoiqtmsAEnR
-         1eJNoGEYG0GVdU7ROWlTd39kVc0mCpHRMJo29uGRqv8NNLmdOuXjSY3rWz0QCMxuy7U4
-         9MKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758068227; x=1758673027;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xXSGAh8chrKBAWdQa4v/8pOW/Kzc0QCjuDzlGtOmWtE=;
-        b=Xus1Xmm47TSr5p7XHh/iJFsJTEFywYfwpcA7eubRqLxhQ0s/s/+emGcWpmVuzt0Lnn
-         SgQX25P+HVr32AKoBChynNAtk0zcaN5TwWwV5hb5M57DeNauyS0fFY2hkWIXC+EKbAXp
-         lg16+fxy/Wwv4Mxoi5w2DIhdXctY3dfsLDWwaXhuolhrScsqhBvZDeKiZZhB6PCri37q
-         JXXwSHqLrmMmyXqRKQhWNtiv2NMByA9U7qo0H++e6h0jDhOm4bAPlwf8MP874xCkyasG
-         q2GokFjoCZb/7KewFCOl8bBk/3qX2kU6ptocW9YS0A+aBmVvkPzxjwhvwrRRMBoMVIQL
-         9log==
-X-Forwarded-Encrypted: i=1; AJvYcCUq29UpGUAgwHlfimxd7ERfQpNwpDxR0zCGgIEV2fr5EK2A793/AxH0TreuxXTx1r+9L4clhCm+KtC6@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw3mP9vX5knYT2jn93tvuRfWsg0D6M3WOZYl/HKh0x36qkQRWEk
-	fFI/pfQfLN99otOh8zxJqFJxbIvTlEkm2TI4kjEabMesVvZmYlS7hcyyixYWaS4y1F8EebZT3oa
-	2kqepZmnRAc/hd2PnOX0hecPoK7grryQ=
-X-Gm-Gg: ASbGncsXXqZxZzwmfLiiG6x6riyinUMUd4rCqmECkmSP3/K8U8XiqJPnbJdtF5EeED/
-	eFoUno352Cluev47rotWj02FOVtPewsmzXkoE8zDr53hqAMjmujVtaYdGuizzPg00hP8sZjitis
-	VeYoa4RUNISWH8nCN0grCnplhxoRZ/bPPx3BGjXslDGiVLfxOWlut09PDzxNnR5UqTSfOkC7B+0
-	6fU4smeVuQ44w1zVV5hYIwmiwtHDA1PA1OTdP8=
-X-Google-Smtp-Source: AGHT+IHkWc8z+1xTqfr6RJDMY4BcUWdUqKw6o2ECW5HvusjoalWjKeML6JPCAbs/M1LUcK6l6vjMuNB824YFNjkP4LM=
-X-Received: by 2002:a05:6402:26c3:b0:62f:2afa:60e6 with SMTP id
- 4fb4d7f45d1cf-62f83c3f396mr486555a12.7.1758068227086; Tue, 16 Sep 2025
- 17:17:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Cz58pDdz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93CFFC4CEEB;
+	Wed, 17 Sep 2025 01:32:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1758072775;
+	bh=VPxe/khPNBojBygLvAaLupb67EgQP1yBXlhF6g/LkIY=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Cz58pDdzIZYmmzo1HFNNAI/yk1M/cOWjkyECmslTAF0/3PdlsvOf6t+VaaqFMj723
+	 j+22m+BYb06quci5edCqkXAKoOvCNtTOG6bD3BJs854pxcHjlvyZO20jrNXGZ75yS8
+	 WpG/k+1TgXypKIZ6/Ilu+GD9PEv4t2pV2hIAiytM=
+Date: Tue, 16 Sep 2025 18:32:53 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Jason Gunthorpe <jgg@nvidia.com>, Jonathan Corbet <corbet@lwn.net>,
+ Matthew Wilcox <willy@infradead.org>, Guo Ren <guoren@kernel.org>, Thomas
+ Bogendoerfer <tsbogend@alpha.franken.de>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ "David S . Miller" <davem@davemloft.net>, Andreas Larsson
+ <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>,
+ Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
+ Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>,
+ Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Baoquan He
+ <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, Dave Young
+ <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>, Reinette Chatre
+ <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, James Morse
+ <james.morse@arm.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Christian
+ Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, "Liam R . Howlett"
+ <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport
+ <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko
+ <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>,
+ Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov
+ <andreyknvl@gmail.com>, Jann Horn <jannh@google.com>, Pedro Falcato
+ <pfalcato@suse.de>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org,
+ ntfs3@lists.linux.dev, kexec@lists.infradead.org,
+ kasan-dev@googlegroups.com, iommu@lists.linux.dev, Kevin Tian
+ <kevin.tian@intel.com>, Will Deacon <will@kernel.org>, Robin Murphy
+ <robin.murphy@arm.com>
+Subject: Re: [PATCH v3 13/13] iommufd: update to use mmap_prepare
+Message-Id: <20250916183253.a966ce2ed67493b5bca85c59@linux-foundation.org>
+In-Reply-To: <a2674243-86a2-435e-9add-3038c295e0c7@lucifer.local>
+References: <cover.1758031792.git.lorenzo.stoakes@oracle.com>
+	<59b8cf515e810e1f0e2a91d51fc3e82b01958644.1758031792.git.lorenzo.stoakes@oracle.com>
+	<20250916154048.GG1086830@nvidia.com>
+	<a2674243-86a2-435e-9add-3038c295e0c7@lucifer.local>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <1eb2266f4408798a55bda00cb04545a3203aa572.1755012943.git.lorenzo.stoakes@oracle.com>
- <20250916194915.1395712-1-clm@meta.com>
-In-Reply-To: <20250916194915.1395712-1-clm@meta.com>
-From: Mateusz Guzik <mjguzik@gmail.com>
-Date: Wed, 17 Sep 2025 02:16:54 +0200
-X-Gm-Features: AS18NWCoF9toVvfO2cO2nt5EYzoV_mx2NXf7z13bcCNBsYM4N3TAXw98oK0bZL0
-Message-ID: <CAGudoHE1GfgM-fX9pE-McqXH3dowPRoSPU9yHiGi+a3mk1hwnw@mail.gmail.com>
-Subject: Re: [PATCH 02/10] mm: convert core mm to mm_flags_*() accessors
-To: Chris Mason <clm@meta.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	"H . Peter Anvin" <hpa@zytor.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <kees@kernel.org>, 
-	David Hildenbrand <david@redhat.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, 
-	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Nico Pache <npache@redhat.com>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Xu Xin <xu.xin16@zte.com.cn>, Chengming Zhou <chengming.zhou@linux.dev>, 
-	Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, David Rientjes <rientjes@google.com>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	Kan Liang <kan.liang@linux.intel.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Oleg Nesterov <oleg@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>, 
-	Valentin Schneider <vschneid@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, 
-	Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Matthew Wilcox <willy@infradead.org>, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 17, 2025 at 1:57=E2=80=AFAM Chris Mason <clm@meta.com> wrote:
->
-> On Tue, 12 Aug 2025 16:44:11 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracl=
-e.com> wrote:
->
-> > As part of the effort to move to mm->flags becoming a bitmap field, con=
-vert
-> > existing users to making use of the mm_flags_*() accessors which will, =
-when
-> > the conversion is complete, be the only means of accessing mm_struct fl=
-ags.
-> >
-> > This will result in the debug output being that of a bitmap output, whi=
-ch
-> > will result in a minor change here, but since this is for debug only, t=
-his
-> > should have no bearing.
-> >
-> > Otherwise, no functional changes intended.
-> >
-> > Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
->
-> [ ... ]
->
-> > diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-> > index 25923cfec9c6..17650f0b516e 100644
-> > --- a/mm/oom_kill.c
-> > +++ b/mm/oom_kill.c
->
-> [ ... ]
->
-> > @@ -1251,7 +1251,7 @@ SYSCALL_DEFINE2(process_mrelease, int, pidfd, uns=
-igned int, flags)
-> >        * Check MMF_OOM_SKIP again under mmap_read_lock protection to en=
-sure
-> >        * possible change in exit_mmap is seen
-> >        */
-> > -     if (!test_bit(MMF_OOM_SKIP, &mm->flags) && !__oom_reap_task_mm(mm=
-))
-> > +     if (mm_flags_test(MMF_OOM_SKIP, mm) && !__oom_reap_task_mm(mm))
-> >               ret =3D -EAGAIN;
-> >       mmap_read_unlock(mm);
-> >
->
-> Hi Lorzeno, I think we lost a ! here.
->
-> claude found enough inverted logic in moved code that I did a new run wit=
-h
-> a more explicit prompt for it, but this was the only new hit.
->
+On Tue, 16 Sep 2025 17:23:31 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
 
-I presume conversion was done mostly manually?
+> Andrew - Jason has sent a conflicting patch against this file so it's not
+> reasonable to include it in this series any more, please drop it.
 
-The way(tm) is to use coccinelle.
+No probs.
 
-I whipped out the following real quick and results look good:
-
-@@
-expression mm, bit;
-@@
-
-- test_bit(bit, &mm->flags)
-+ mm_flags_test(bit, mm)
-
-$ spatch --sp-file mmbit.cocci mm/oom_kill.c
-[snip]
-@@ -892,7 +892,7 @@ static bool task_will_free_mem(struct ta
-         * This task has already been drained by the oom reaper so there ar=
-e
-         * only small chances it will free some more
-         */
--       if (test_bit(MMF_OOM_SKIP, &mm->flags))
-+       if (mm_flags_test(MMF_OOM_SKIP, mm))
-                return false;
-
-        if (atomic_read(&mm->mm_users) <=3D 1)
-@@ -1235,7 +1235,7 @@ SYSCALL_DEFINE2(process_mrelease, int, p
-                reap =3D true;
-        else {
-                /* Error only if the work has not been done already */
--               if (!test_bit(MMF_OOM_SKIP, &mm->flags))
-+               if (!mm_flags_test(MMF_OOM_SKIP, mm))
-                        ret =3D -EINVAL;
-        }
-        task_unlock(p);
-@@ -1251,7 +1251,7 @@ SYSCALL_DEFINE2(process_mrelease, int, p
-         * Check MMF_OOM_SKIP again under mmap_read_lock protection to ensu=
-re
-         * possible change in exit_mmap is seen
-         */
--       if (!test_bit(MMF_OOM_SKIP, &mm->flags) && !__oom_reap_task_mm(mm))
-+       if (!mm_flags_test(MMF_OOM_SKIP, mm) && !__oom_reap_task_mm(mm))
-                ret =3D -EAGAIN;
-        mmap_read_unlock(mm);
+All added to mm-new, thanks.  emails suppressed due to mercy.
