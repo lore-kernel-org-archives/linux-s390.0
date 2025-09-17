@@ -1,172 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f206.google.com (mail-il1-f206.google.com [209.85.166.206])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DBD22FABFA
-	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 17:54:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90C0434BA20
+	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 17:58:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758131701; cv=none; b=lWLq5BBEK7l1GQfJqCYLUefRGfqTRykRNuXELngiAmEAT03+62sd2nUR61YGrKAkbgtf+DkPp/4WoghJiBqgzhIIWpDi4lH2eQEUgpuKRfASc3qaAcp3cegG7c9PpqzH9LecD5OL4tF6wrzHPs3UMq7GW6C1QgbVqZ3el0foruo=
+	t=1758131915; cv=none; b=vBMoJUFXu6QFQhEUsrKus8eJmhFJ5zjcxgMLM1wt0LszLsXNVzFDrLCKi84818SKpZCo3o+VxjD0c7YHnWO2KtsvjkCgVt3pXzbd76wUqkNObNfHDlYAx6vi4F0eu0XRniPcndDo+Jsza/C7oYEdqYD963s/36sSBHdTenyDyTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758131701; c=relaxed/simple;
-	bh=zRgW6lw9J701Gqppx8wjChVUjkrQa45BToZXXs36Tu4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V7jl4Vu+GXEbw1Pa/XBv28S+iJ4rGrFAG6z1FjKmqllRUDCRPyu3+eWQF4dBuyzf+ZHU5n4RasGqF+XcSxV3KMTfZKAVh0qaKZgXLPQV5UD4uQGwxfK5gQROgLBQIpvLFp5IaXkSWAI69ojKWyG2U4gjctd8Iz/CY4dvFMteH3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LSWwGYHb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LSWwGYHb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758131698;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=oTk62YZ3WbA6+duzWz6gvXH8IMjQs/3aO/dwk372UHs=;
-	b=LSWwGYHbU/gBVmdLCPAjhpmUzdq1eV1uxlJGSxEoWSwg/J2CfIHE3YN6lUpAB2wgas0R6e
-	Q8dtS8aVdwTmct6X7K7TV2AI770jtAwDcwnqz4CCPDDQObG38Z3dwv9xqFnY7yDgsukWMp
-	Gn9n9aFwyA0zvpwC/yNC3/iMnAKt/Mw=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-399-7kXUdblzNo22viVFIr9b5w-1; Wed, 17 Sep 2025 13:54:57 -0400
-X-MC-Unique: 7kXUdblzNo22viVFIr9b5w-1
-X-Mimecast-MFC-AGG-ID: 7kXUdblzNo22viVFIr9b5w_1758131696
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-3ec7be07a24so3606f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 10:54:57 -0700 (PDT)
+	s=arc-20240116; t=1758131915; c=relaxed/simple;
+	bh=69OG071o7BEwF4No6eOyFMedk4HNChdK7jZDZfMpo+I=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=qigxWvhUcAyX9nImuUmS7oJ92/2RvSH7SC6heD6zb/mrCWW1hgf4ME4dAtiYGd1+rtvHUq3qKrp+XKKfbdXKDzSTh+hy9Hc1Mb1+E+GD+OFgkUUeQG/E9LTuMldA+xJi9kbwLBmeob/oKX6PrRvzSJ9PH2sydJsXcIPjho7v80c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f206.google.com with SMTP id e9e14a558f8ab-424019a3dfaso143405ab.2
+        for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 10:58:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758131696; x=1758736496;
-        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
-         :from:references:cc:to:subject:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=oTk62YZ3WbA6+duzWz6gvXH8IMjQs/3aO/dwk372UHs=;
-        b=lLTr1lMLCdaYdcAF8Vrb9xs4hHWhVnhU+sVA4DE0gT9YTFaVaeROfusXRQXDmknzbZ
-         1+pOu+CscvMg4LmnQu7D5dHkWfy72uyvTgmY49Ol+5il0mZ+9bXhcClKt3R64k36cg3C
-         cnswrsxFIHVz+D0410EZTxhOWCFF2wEHeCDufOY6JqzvRFKFs2dufIBnRS18EhV5yZeh
-         tRipltg8PlWtGaXflzKTH3Oseg+7a9dgcjXBnkElgup4eL1wxqZ3HmMPIvCmEIi3IHJc
-         wG1XExR4cdbwWH51UNJDCAC0QtsZvINuPg+8fo5k28TV+6STiv7A0E2RdIJeGtZFzaM8
-         CBmA==
-X-Forwarded-Encrypted: i=1; AJvYcCUtdBbbFCWQgApGdCCnsCR22U1s053pi2soTWW9XHjOyOV8deDCVaet5OPgvb2IEX+EHhjiTUORe+c3@vger.kernel.org
-X-Gm-Message-State: AOJu0YwCtlxPU0Mf9mvG72nwixUj5FmVmrycJN7AH7ke/ThDQ3T0+Equ
-	aQWf3RT92AllyNWnLLx4bp1sVRq0z/13iRxy3ljdr+jYKp8z7ybmTrEfaeMc3/tEV8QzgYsaXNs
-	9xO5I8V7rQ9CdPbKocyWl4+hf00Emp+PWbhAo/bVlBFEky0lfTk48VeeckfJm/MQ=
-X-Gm-Gg: ASbGncvZMsrWZbTYmW+64kK/UDG+aJ+QzPRbBPbeDh/X3TMO5KSW6ZfqoOXv58KIJR7
-	/XTAmo65BwlSvMk1k45TePFU230W5C99WBA56/xlKz8S6DVCFmUo9jlkB/dH3GkmOQraHv6paDg
-	tl/2Ttcrqm0XK+XNz6GOgn1C+g4m4+dFfr3oYjr3T+xJK3LBrgF+RpjOcQ5vs+jkDcL+uHEVUJL
-	+4s3VDFHkw4+SP2n+j610au3mHzwivKxGI+tbKxjBjbhxmBrceU27Ob+y5S4IbxDJMHYfmsBPCI
-	G/mjoCjl/GpIu59VYfCK+uy6ONJYw7TcUmQfTVFvxoQ33zCEHvTfdQDoRYu8mCn0z85kBNaPFH5
-	vxoNYrUJG5M9oeEzfreReWYNt0F5oHgReUAhnXDln5Oo=
-X-Received: by 2002:a5d:5f91:0:b0:3dc:1473:18bd with SMTP id ffacd0b85a97d-3ecdf9be76fmr2989539f8f.3.1758131696111;
-        Wed, 17 Sep 2025 10:54:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHGZmxP+YviHOm0h6b5wDCSUelRaj5H0jK0k0fbHYIBN7rACMveP/DKR5uKOZjzV7AiczrEDw==
-X-Received: by 2002:a5d:5f91:0:b0:3dc:1473:18bd with SMTP id ffacd0b85a97d-3ecdf9be76fmr2989514f8f.3.1758131695668;
-        Wed, 17 Sep 2025 10:54:55 -0700 (PDT)
-Received: from [192.168.10.48] ([151.95.56.250])
-        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-45f325c3c29sm44803235e9.3.2025.09.17.10.54.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Sep 2025 10:54:55 -0700 (PDT)
-Message-ID: <5aeb8570-7f15-454c-bde2-b77099de94b9@redhat.com>
-Date: Wed, 17 Sep 2025 19:54:54 +0200
+        d=1e100.net; s=20230601; t=1758131913; x=1758736713;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=qigWR4tgTt8PlUwu+HTH5RtNoyHT1mfFt7jRXPhJuVk=;
+        b=YqsdOAZ7+1k4FDdA7eGNyeTf8xOuYHJORg60/Mv5eK+CBG9byyZrp66NZE9qrBSDH+
+         BcUpSs2J8ebccR9kPGGTwrV6elMZKE7wEMq4/+Q7DieJHsA6B97f9n3aWxL0pzXrOk2h
+         OJljxBMOAiSmNf66ZxUB4tkcaQ4CaTUYlFsS+dz1BYs02H7dcWCrWD8RlqOb3sYqavFV
+         5NaktGJ/jPTYKVaLa76ds+uijsN8GmOMGQhWQRoYgewJyWM7HfTempvI/QTXz4vV0UWw
+         rDhFyvTPi7tWzz9dC1+h4zmwcZhMTIbd4NT9fXgK3x3GzZzAI8knb49sfGo9dkFHfc/2
+         TRkw==
+X-Forwarded-Encrypted: i=1; AJvYcCVL5GNYfboelH9UE3pbM9pKv96FePFgMStnAksJ3yvfequqbAAEM1QMCw2ZGWc1pdIxS8AO/ew6PYcT@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0b2jc2zTVEa/FXUt9a2vTptbjetX2hkIz0h6KiF82gNXTVIIx
+	WIdOTBjWw80ZLFCn/GdJ4iaXRt/K76Pl5yqNf/X8+8uhNuwgsevbl6g5UpV6x7QP6gPYbpu60m6
+	qA1JCnhJ2jPB9+IGFDgM2d7NV1MIOFYenmxNl44HWKWndd3+av9nENxzGdwY=
+X-Google-Smtp-Source: AGHT+IHI8JKeGFowjLy0Wq7k903HGmQnMboTuhZ97GWWaj4JMLmqqLM0pV4N9Nrzx89PQOqS034ZZG3LZBWnD5Vd6m6W/MspODLB
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [GIT PULL 0/3] KVM: s390: fixes for 6.17
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@linux.ibm.com,
- cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
-References: <20250909115446.90338-1-frankja@linux.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Content-Language: en-US
-Autocrypt: addr=pbonzini@redhat.com; keydata=
- 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
-In-Reply-To: <20250909115446.90338-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6e02:1567:b0:423:fd65:ff02 with SMTP id
+ e9e14a558f8ab-4241a4cfc3emr41068525ab.4.1758131911038; Wed, 17 Sep 2025
+ 10:58:31 -0700 (PDT)
+Date: Wed, 17 Sep 2025 10:58:31 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68caf6c7.050a0220.2ff435.0597.GAE@google.com>
+Subject: [syzbot] [smc?] general protection fault in __smc_diag_dump (4)
+From: syzbot <syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com>
+To: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sidraya@linux.ibm.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wenjia@linux.ibm.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 9/9/25 13:46, Janosch Frank wrote:
-> Paolo,
-> 
-> here are three fixes for KVM s390. Claudio contributed mm fixes as a
-> preparation for upcoming rework and Thomas fixed a postcopy fault.
-> 
-> I've had these on master for two weeks already but there was KVM Forum
-> in between so here they are based on rc7.
-> 
-> Please pull.
+Hello,
 
-Pulled, thanks.
+syzbot found the following issue on:
 
-Paolo
+HEAD commit:    5aca7966d2a7 Merge tag 'perf-tools-fixes-for-v6.17-2025-09..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=147e2e42580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=8f01d8629880e620
+dashboard link: https://syzkaller.appspot.com/bug?extid=f775be4458668f7d220e
+compiler:       gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17aec534580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=115a9f62580000
 
-> Cheers,
-> Janosch
-> 
-> The following changes since commit 76eeb9b8de9880ca38696b2fb56ac45ac0a25c6c:
-> 
->    Linux 6.17-rc5 (2025-09-07 14:22:57 -0700)
-> 
-> are available in the Git repository at:
-> 
->    https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git tags/kvm-s390-master-6.17-1
-> 
-> for you to fetch changes up to 5f9df945d4e862979b50e4ecaba3dc81fb06e8ed:
-> 
->    KVM: s390: Fix FOLL_*/FAULT_FLAG_* confusion (2025-09-09 08:17:39 +0000)
-> 
-> ----------------------------------------------------------------
-> - KVM mm fixes
-> - Postcopy fix
-> ----------------------------------------------------------------
-> 
-> Claudio Imbrenda (2):
->    KVM: s390: Fix incorrect usage of mmu_notifier_register()
->    KVM: s390: Fix FOLL_*/FAULT_FLAG_* confusion
-> 
-> Thomas Huth (1):
->    KVM: s390: Fix access to unavailable adapter indicator pages during
->      postcopy
-> 
->   arch/s390/kvm/interrupt.c | 15 +++++++++++----
->   arch/s390/kvm/kvm-s390.c  | 24 ++++++++++++------------
->   arch/s390/kvm/pv.c        | 16 +++++++++++-----
->   3 files changed, 34 insertions(+), 21 deletions(-)
-> 
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/f191b2524020/disk-5aca7966.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/5aa02ba0cba2/vmlinux-5aca7966.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/b9b04ddba61b/bzImage-5aca7966.xz
 
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
+
+Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
+KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
+CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
+RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
+RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
+Code: 4c 8b b3 40 06 00 00 4d 85 f6 0f 84 f6 02 00 00 e8 6b 4f 78 f6 49 8d 7e 18 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 f6 1e 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b
+RSP: 0018:ffffc90003f2f1a8 EFLAGS: 00010a06
+RAX: dffffc0000000000 RBX: ffff88802a33bd40 RCX: ffffffff897ee8a4
+RDX: 1bd5a9d5a0000003 RSI: ffffffff8b434dd5 RDI: dead4ead00000018
+RBP: ffff888032418000 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000080000001 R11: 0000000000000000 R12: ffff8880754915f0
+R13: ffff88805d823780 R14: dead4ead00000000 R15: ffff88802a33c380
+FS:  00007fec5f7dd6c0(0000) GS:ffff8881247b2000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fec5f7dcf98 CR3: 000000007d646000 CR4: 00000000003526f0
+Call Trace:
+ <TASK>
+ smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
+ smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
+ netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
+ __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
+ netlink_dump_start include/linux/netlink.h:341 [inline]
+ smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
+ __sock_diag_cmd net/core/sock_diag.c:249 [inline]
+ sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
+ netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
+ netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
+ netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
+ netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
+ sock_sendmsg_nosec net/socket.c:714 [inline]
+ __sock_sendmsg net/socket.c:729 [inline]
+ ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
+ ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
+ __sys_sendmsg+0x16d/0x220 net/socket.c:2700
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fec6018eba9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fec5f7dd038 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007fec603d6090 RCX: 00007fec6018eba9
+RDX: 0000000000000000 RSI: 0000200000000140 RDI: 0000000000000003
+RBP: 00007fec60211e19 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007fec603d6128 R14: 00007fec603d6090 R15: 00007ffcb0713c08
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
+RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
+Code: 4c 8b b3 40 06 00 00 4d 85 f6 0f 84 f6 02 00 00 e8 6b 4f 78 f6 49 8d 7e 18 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 f6 1e 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b
+RSP: 0018:ffffc90003f2f1a8 EFLAGS: 00010a06
+RAX: dffffc0000000000 RBX: ffff88802a33bd40 RCX: ffffffff897ee8a4
+RDX: 1bd5a9d5a0000003 RSI: ffffffff8b434dd5 RDI: dead4ead00000018
+RBP: ffff888032418000 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000080000001 R11: 0000000000000000 R12: ffff8880754915f0
+R13: ffff88805d823780 R14: dead4ead00000000 R15: ffff88802a33c380
+FS:  00007fec5f7dd6c0(0000) GS:ffff8881247b2000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fec5f7dcf98 CR3: 000000007d646000 CR4: 00000000003526f0
+----------------
+Code disassembly (best guess):
+   0:	4c 8b b3 40 06 00 00 	mov    0x640(%rbx),%r14
+   7:	4d 85 f6             	test   %r14,%r14
+   a:	0f 84 f6 02 00 00    	je     0x306
+  10:	e8 6b 4f 78 f6       	call   0xf6784f80
+  15:	49 8d 7e 18          	lea    0x18(%r14),%rdi
+  19:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+  20:	fc ff df
+  23:	48 89 fa             	mov    %rdi,%rdx
+  26:	48 c1 ea 03          	shr    $0x3,%rdx
+* 2a:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
+  2e:	0f 85 f6 1e 00 00    	jne    0x1f2a
+  34:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+  3b:	fc ff df
+  3e:	4d                   	rex.WRB
+  3f:	8b                   	.byte 0x8b
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
