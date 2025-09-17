@@ -1,169 +1,249 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A8A929BD91;
-	Wed, 17 Sep 2025 11:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F9A369964
+	for <linux-s390@vger.kernel.org>; Wed, 17 Sep 2025 11:32:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758108374; cv=none; b=eltqSJeyHJRVJ4gSTV8gLFd96q14RNtwfT/dvKscarvLA6HBq/awi/WShlhWx7GOSSA4m1kgIn9+BKvNRzCZ1jfKRPqmEF/mKXnjasw0HDsNoDRtXVYfHeEo12D82SGtQ2iBr/+NDuMrAgn0jtAHyD1goRmQNRB79uNw4SQBToU=
+	t=1758108747; cv=none; b=By8XOACyU5XuCbKT0oLjWIncQTaZCWo31IbSv1/6cWWqiVgZEOHhz14zFNVA/S3b8xP/hkewkGnG7wlL5Xf/MFCxxwug9sjRDyJNaaAGrnUHT574I90/CoV3lpKKHeIfI8fOWJ1zT5LwONEo9YGLM9PKOJ8FIjyPdU+GD+df0ao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758108374; c=relaxed/simple;
-	bh=x02QU9lvhSASYDW0bLRH+ICU86+8pHmFzOX6JCElmD4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Zeveku1CBCGToUoI9M54eUsr3XvAww2CHO1kVqRau9MLJxDPg+aHcuupY2zNJ5+oGJx+Wqnq4MEOWJfH8HFe92rb2UT70IfwPiTTslUQszRoW/AvVrvxh6woLky4F9P2b4Nhx1wLLnAKBzi8ghvNkivC59AHps8jFTN7IDPiI+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kUh9hWe5; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758108747; c=relaxed/simple;
+	bh=3LlU8D5Tj8BOKkc9McIo8H1J7S9pib7vCnIKwhUAK1s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c6Je9Qi8RaTk5WuYo3YnDvdQJ4ic0S9nFfEn/X3MUriBVgEc0aiSLXw7kI5VPzHOlPzZe+QjB2J0aCx81mmoh5J28JTrgVywYAAhBHPGpvGyrY/l7q/5cN+HVw9LSlyC7ywa2Rsg9mLNhongWEGrkEoVXU/F8f1K7TRGiVkDw+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fxQsuJDb; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MQ0cdVXu; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=fxQsuJDb; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MQ0cdVXu; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kUh9hWe5"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58H91W24010975;
-	Wed, 17 Sep 2025 11:26:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Car/5l
-	IIPcqjsVkyPxygl3Z5uJcpO3FbjoTj6jJcOMI=; b=kUh9hWe5rngZWwHHdbkRI6
-	s8usGtjc0kqVY+ojKVTDueVky08HomgxIejDk0OSc1MsQ1FqUjOtOjKY5Onm/6fC
-	d87mDrPhX04EkDRq9wtJp1Qoomi1hUlBzhlmvXYv2jekzsRT5rl5y2HgohytUiGp
-	RmlsjxAAy3dgKkvxtaK8ll+F5mYGJzROXxITOWEppqJ9LKNU8TLOJam6IgHqldxd
-	gm8+NVTgCLaRRA+7m3n26VmwjNMxZBA4/O0IfNnv4hxfhmNcMrgga5NhHWrmjnWy
-	GGSp8x5p8O2D6//oFHMA4dwXRXIvB5K6VM9l04rvIcF+dXiDnl3cFPKOfrzBldFA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4nb4d2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Sep 2025 11:26:08 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58H7Z5kw018649;
-	Wed, 17 Sep 2025 11:26:08 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 495n5mgr2e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Sep 2025 11:26:07 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58HBQ4dW47907196
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 17 Sep 2025 11:26:04 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3EF9020043;
-	Wed, 17 Sep 2025 11:26:04 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 073CD20040;
-	Wed, 17 Sep 2025 11:26:04 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.152.224.66])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 17 Sep 2025 11:26:03 +0000 (GMT)
-Date: Wed, 17 Sep 2025 13:14:56 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        frankja@linux.ibm.com, nsg@linux.ibm.com, nrb@linux.ibm.com,
-        seiden@linux.ibm.com, schlameuss@linux.ibm.com, svens@linux.ibm.com,
-        agordeev@linux.ibm.com, david@redhat.com,
-        gerald.schaefer@linux.ibm.com
-Subject: Re: [PATCH v2 10/20] KVM: s390: KVM page table management
- functions: walks
-Message-ID: <20250917131456.35a54435@p-imbrenda>
-In-Reply-To: <20250916172433.27229I76-hca@linux.ibm.com>
-References: <20250910180746.125776-1-imbrenda@linux.ibm.com>
-	<20250910180746.125776-11-imbrenda@linux.ibm.com>
-	<20250916162203.27229F62-hca@linux.ibm.com>
-	<20250916184852.50ab6a67@p-imbrenda>
-	<20250916172433.27229I76-hca@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fxQsuJDb";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MQ0cdVXu";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="fxQsuJDb";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MQ0cdVXu"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 99E6921D3E;
+	Wed, 17 Sep 2025 11:32:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1758108739; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+Ap5mPSoqW5VngVWaJTgyJfGx7MJPhwio1kMAlldw6U=;
+	b=fxQsuJDbFPJ+Aq2i2N1EojNI/Hd1bpt5cNweVpv6AUqFIxUOJbm2qY66huYbwL8Tm3GUz5
+	SwH8SBvGIvkqn12PaatbE30ebxk6Fodkbs4w5BuVb54khNk0vMRWP/YIASKCUV0kXQR0cJ
+	CDZdoO2GTvamVOJk2LCTJZWR9rZcfqg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1758108739;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+Ap5mPSoqW5VngVWaJTgyJfGx7MJPhwio1kMAlldw6U=;
+	b=MQ0cdVXu/Fgwg2bcVUOI0ttAv/c4z/ykaLMQuBWxTsaAFW5ZdcGVoWzN/qQnuXyDWnG4qD
+	lXTBNkGr95Rj2EDw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1758108739; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+Ap5mPSoqW5VngVWaJTgyJfGx7MJPhwio1kMAlldw6U=;
+	b=fxQsuJDbFPJ+Aq2i2N1EojNI/Hd1bpt5cNweVpv6AUqFIxUOJbm2qY66huYbwL8Tm3GUz5
+	SwH8SBvGIvkqn12PaatbE30ebxk6Fodkbs4w5BuVb54khNk0vMRWP/YIASKCUV0kXQR0cJ
+	CDZdoO2GTvamVOJk2LCTJZWR9rZcfqg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1758108739;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=+Ap5mPSoqW5VngVWaJTgyJfGx7MJPhwio1kMAlldw6U=;
+	b=MQ0cdVXu/Fgwg2bcVUOI0ttAv/c4z/ykaLMQuBWxTsaAFW5ZdcGVoWzN/qQnuXyDWnG4qD
+	lXTBNkGr95Rj2EDw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 202B113A92;
+	Wed, 17 Sep 2025 11:32:16 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id GSeHBECcymi0TAAAD6G6ig
+	(envelope-from <pfalcato@suse.de>); Wed, 17 Sep 2025 11:32:16 +0000
+Date: Wed, 17 Sep 2025 12:32:10 +0100
+From: Pedro Falcato <pfalcato@suse.de>
+To: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>, 
+	Guo Ren <guoren@kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, 
+	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>, 
+	Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>, 
+	Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, 
+	Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>, 
+	Reinette Chatre <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, 
+	James Morse <james.morse@arm.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov <andreyknvl@gmail.com>, 
+	Jann Horn <jannh@google.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-csky@vger.kernel.org, linux-mips@vger.kernel.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, nvdimm@lists.linux.dev, 
+	linux-cxl@vger.kernel.org, linux-mm@kvack.org, ntfs3@lists.linux.dev, 
+	kexec@lists.infradead.org, kasan-dev@googlegroups.com, Jason Gunthorpe <jgg@nvidia.com>, 
+	iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>, Will Deacon <will@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH v3 08/13] mm: add ability to take further action in
+ vm_area_desc
+Message-ID: <wabzfghapygwy3fzexbplmasrdzttt3nsgpmoj4kr6g7ldstkg@tthpx7de6tqk>
+References: <cover.1758031792.git.lorenzo.stoakes@oracle.com>
+ <9171f81e64fcb94243703aa9a7da822b5f2ff302.1758031792.git.lorenzo.stoakes@oracle.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MN5gmNZl c=1 sm=1 tr=0 ts=68ca9ad0 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=5iT_p6bwntt-X9io5a8A:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: CN_7v2pEpqYJTmXlkkacktS_sAF-XJLH
-X-Proofpoint-ORIG-GUID: CN_7v2pEpqYJTmXlkkacktS_sAF-XJLH
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfXzq3jfOF9sg3Q
- 3xVNrbxWI5XPWECo3v/YoEauHD+dvhlC/xOtnch6RhhtgUCiQ482hbjQjz69du4+GthgsdehSPE
- 9EA5Y1Jb7Zi8/4yDBETa+lzfwrr7GO9bee9K05DT5nFI90XA9TqPYmM91LpnzKx+3OQ1MMStzqs
- l0HZk1DprfOju9Ns4Lq6I4uAQzdBzjOPzsU3FqtRRX8KlGXiLQnDR4shjlGYql5Y1GkonMd3HFi
- 8v0Xv/f1i9uocIvkzNk+yD0fbsreZNWHL7LZrFdm55dlp7Sal9LSQ71MLB2Cem4sst3IGIMtkC4
- lMmmf+3fJeSEDYWTk4JN6HkjUNoCrPzAsupFDMuOjSB03EbwiiwFSVJsmpWh+TdsVNxchOAB12t
- umE9I1i4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-17_01,2025-09-17_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
- malwarescore=0 adultscore=0 phishscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9171f81e64fcb94243703aa9a7da822b5f2ff302.1758031792.git.lorenzo.stoakes@oracle.com>
+X-Spamd-Result: default: False [-2.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	MISSING_XM_UA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[linux-foundation.org,lwn.net,infradead.org,kernel.org,alpha.franken.de,linux.ibm.com,davemloft.net,gaisler.com,arndb.de,linuxfoundation.org,intel.com,fluxnic.net,linux.dev,suse.de,redhat.com,paragon-software.com,arm.com,zeniv.linux.org.uk,suse.cz,oracle.com,google.com,suse.com,linux.alibaba.com,gmail.com,vger.kernel.org,lists.linux.dev,kvack.org,lists.infradead.org,googlegroups.com,nvidia.com];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[62];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spam-Score: -2.30
 
-On Tue, 16 Sep 2025 19:24:33 +0200
-Heiko Carstens <hca@linux.ibm.com> wrote:
+On Tue, Sep 16, 2025 at 03:11:54PM +0100, Lorenzo Stoakes wrote:
+> Some drivers/filesystems need to perform additional tasks after the VMA is
+> set up.  This is typically in the form of pre-population.
+> 
+> The forms of pre-population most likely to be performed are a PFN remap
+> or the insertion of normal folios and PFNs into a mixed map.
+> 
+> We start by implementing the PFN remap functionality, ensuring that we
+> perform the appropriate actions at the appropriate time - that is setting
+> flags at the point of .mmap_prepare, and performing the actual remap at the
+> point at which the VMA is fully established.
+> 
+> This prevents the driver from doing anything too crazy with a VMA at any
+> stage, and we retain complete control over how the mm functionality is
+> applied.
+> 
+> Unfortunately callers still do often require some kind of custom action,
+> so we add an optional success/error _hook to allow the caller to do
+> something after the action has succeeded or failed.
 
-> On Tue, Sep 16, 2025 at 06:48:52PM +0200, Claudio Imbrenda wrote:
-> > On Tue, 16 Sep 2025 18:22:03 +0200
-> > Heiko Carstens <hca@linux.ibm.com> wrote:  
-> > > > +	table = dereference_asce(asce);
-> > > > +	if (asce.dt >= ASCE_TYPE_REGION1) {
-> > > > +		*last = table->crstes + pgd_index(gfn_to_gpa(gfn));
-> > > > +		entry = READ_ONCE(**last);
-> > > > +		if (WARN_ON_ONCE(unlikely(entry.h.tt != LEVEL_PGD)))
-> > > > +			return -EINVAL;    
-> > > 
-> > > Since I've seen this all over the place: this looks just wrong to me.
-> > > 
-> > > This is mixing some random software definition "LEVEL_PGD" with hardware
-> > > bits. A "correct" table type compare would compare with TABLE_TYPE_REGION1  
-> > 
-> > they are defined to be the same for this reason, but I understand what
-> > you mean, and I can use the TABLE_TYPE_* macros instead  
-> 
-> Yes, please.
-> 
-> >   
-> > > instead. Also using pgd_index() & friends here is semantically wrong.  
-> > 
-> > how so? in the end all the various p?d_index() macros are just a
-> > shift-and-mask. I think it's more readable than open coding
-> > ((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1)) each time?  
-> 
-> I'm not saying that this code is incorrect. What I'm complaining about
-> is that this is mixing hardware and software definitions all over the
-> place, which at least to me is very confusing. But ok, maybe I'm the
-> only one.
-> 
-> So e.g. for the above, which operates with a region 1 table entry, I
-> would expect to see similar code like in gaccess.c. E.g. _something_
-> like (and most likely incorrect):
-> 
-> 	table = dereference_asce(asce);
-> 	if (asce.dt >= ASCE_TYPE_REGION1) {
-> 		union vaddress vaddr = {.addr = gfn_to_gpa(gfn)};
-
-hmm, that doesn't look ugly
-
-maybe I can even add one more anonymous struct in vaddr, so that the
-gfn can be assigned directly: union vaddress vaddr = { .gfn = gfn };
+Do we have any idea for rules regarding ->mmap_prepare() and ->*_hook()?
+It feels spooky to e.g grab locks in mmap_prepare, and hold them across core
+mmap(). And I guess it might be needed?
 
 > 
-> 		*last = table->crstes + vaddr.rfx;
-> 		entry = READ_ONCE(**last);
-> 		if (WARN_ON_ONCE(entry.h.tt != TABLE_TYPE_REGION1))
-> 			return -EINVAL;  
+> This is done at the point when the VMA has already been established, so
+> the harm that can be done is limited.
 > 
-> Or in other words, this doesn't mix hw vs sw functions. Anyway, just
-> my 0.02 cents. If you disagree feel free to keep it.
-> You have to maintain this :)
+> The error hook can be used to filter errors if necessary.
 > 
-> Btw.: WARN_ON_ONCE() has a builtin unlikely(), please don't add
-> unlikely again like above:
+> If any error arises on these final actions, we simply unmap the VMA
+> altogether.
 > 
-> 		if (WARN_ON_ONCE(unlikely(entry.h.tt != LEVEL_PGD)))
+> Also update the stacked filesystem compatibility layer to utilise the
+> action behaviour, and update the VMA tests accordingly.
+> 
+> Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+<snip>
+> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+> index 31b27086586d..aa1e2003f366 100644
+> --- a/include/linux/mm_types.h
+> +++ b/include/linux/mm_types.h
+> @@ -775,6 +775,49 @@ struct pfnmap_track_ctx {
+>  };
+>  #endif
+>  
+> +/* What action should be taken after an .mmap_prepare call is complete? */
+> +enum mmap_action_type {
+> +	MMAP_NOTHING,		/* Mapping is complete, no further action. */
+> +	MMAP_REMAP_PFN,		/* Remap PFN range. */
+> +};
+> +
+> +/*
+> + * Describes an action an mmap_prepare hook can instruct to be taken to complete
+> + * the mapping of a VMA. Specified in vm_area_desc.
+> + */
+> +struct mmap_action {
+> +	union {
+> +		/* Remap range. */
+> +		struct {
+> +			unsigned long start;
+> +			unsigned long start_pfn;
+> +			unsigned long size;
+> +			pgprot_t pgprot;
+> +			bool is_io_remap;
+> +		} remap;
+> +	};
+> +	enum mmap_action_type type;
+> +
+> +	/*
+> +	 * If specified, this hook is invoked after the selected action has been
+> +	 * successfully completed. Note that the VMA write lock still held.
+> +	 *
+> +	 * The absolute minimum ought to be done here.
+> +	 *
+> +	 * Returns 0 on success, or an error code.
+> +	 */
+> +	int (*success_hook)(const struct vm_area_struct *vma);
+> +
+> +	/*
+> +	 * If specified, this hook is invoked when an error occurred when
+> +	 * attempting the selection action.
+> +	 *
+> +	 * The hook can return an error code in order to filter the error, but
+> +	 * it is not valid to clear the error here.
+> +	 */
+> +	int (*error_hook)(int err);
 
-oh, right, I'll fix that
+Do we need two hooks? It might be more ergonomic to simply have a:
+
+	int (*finish)(int err);
+
+
+	int random_driver_finish(int err)
+	{
+		if (err)
+			pr_err("ahhhhhhhhh\n");
+		mutex_unlock(&big_lock);
+		return err;
+	}
+
+It's also unclear to me if/why we need the capability to switch error codes,
+but I might've missed some discussion on this.
+
+
+-- 
+Pedro
