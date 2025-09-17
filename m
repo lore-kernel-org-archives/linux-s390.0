@@ -1,134 +1,85 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B3062F546D;
-	Wed, 17 Sep 2025 02:30:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658CE2F6195;
+	Wed, 17 Sep 2025 02:40:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758076222; cv=none; b=IX7MiagHAJ9PmXCRvgRhbxxa33sxzkOp4D/H2ojfEMpfhWtTx8gSt/qV/N7RD5Z5QWG45cv0msDy2t7SNU+orxS+m8hV9SjDa58MQlvAQBhqAgTNTF04qvbkCVms5DR0WltFJi6w+NqUsRBb+2zSjn2F2xAyZDBXb4gSzWWGbVc=
+	t=1758076815; cv=none; b=M0wAJNXOE9S6t+UNAGveu7SXs7GglN2KOLcWwWeFy6W378rUTBGaHY5xfuTQUirJw8KRwZ48DF8NU1Rop4PlGyhvXDWHNWiCBP726suQl996qkyZMCCDTBSrCne+WNOvpobMGQXpPqlNT2kjox83anPi40iQKcircd2OYHs4sf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758076222; c=relaxed/simple;
-	bh=9X7QADcxt2zCen4jv6C9mftiuf17xh85fpQtuE7OSM8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EJUaFu9m55mYJg0hVFuI+S+PnYq68DekKodX9Y+6R4TYbv0IkmDtUroSVf6aTncGckzGgW89MVDInyAqGdhCqgnJkHZBCd8iS/ryPnSXyy9D+3UJe5FfqlOUvefIKSxFCK58uEh8WslE6sM3D5RA2paWi/KUbenHohjkoKGRLSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F2IjJp7i; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1758076815; c=relaxed/simple;
+	bh=S0LGJmfDGnE9fg7KBnzD+2AHLv2B7h2ODLru9DI0lsg=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=bg6ufTiLNETDrU4yz5AlSFD3I+G/puqetK7vfNuK8MO/ofjeqeDBih7EoE6XnhzNNjMs4k2zr8M9KqQ8uOfeuRj5MZ7pub7PI8vE71S2UhXPDsrOfsGGqki0wwr11Ibbj5VrPPB/Za0cevjwXCL67GLmYNblBk4bEaP957pVWDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q2kToCab; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F2IjJp7i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D8F3C4CEFE;
-	Wed, 17 Sep 2025 02:30:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q2kToCab"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BF2C4CEFA;
+	Wed, 17 Sep 2025 02:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1758076221;
-	bh=9X7QADcxt2zCen4jv6C9mftiuf17xh85fpQtuE7OSM8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=F2IjJp7i0geiRr9f92HGSScUadmZ6+qWXyDpkJSiwVyNs91904DNhtSDuJbhhaj0J
-	 DJKcETxEWzNzBxsyhW7usZxODZD+xgUjmFC614GNYEbZbQwsw0dpeLBxPsCcNBGAAm
-	 /22ayxgBAuSTcnlHABRPG0MUY0z4e8po0p2SiK2dFhh7nhDHJz7GwWhBHU1yJcuQLJ
-	 exW4ZkNB5uaXDutsFJDYqObop2XHXw0CvvnXp7EzwCxcF77trENSy7QplSvBv3vKS4
-	 jDuk3O3FlOraGmLgFKmXx7v+Qqg8oWrsCQSC/M4tSYke5eVMO4wboVh9+IgNJL4b2X
-	 uYcs479yd3FIA==
-Date: Tue, 16 Sep 2025 19:30:16 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Miguel Ojeda <ojeda@kernel.org>, Kees Cook <kees@kernel.org>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Juergen Christ <jchrist@linux.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH v2 2/4] compiler_types: Add __assume macro
-Message-ID: <20250917023016.GA3935228@ax162>
-References: <20250916134803.874580-1-hca@linux.ibm.com>
- <20250916134803.874580-3-hca@linux.ibm.com>
+	s=k20201202; t=1758076815;
+	bh=S0LGJmfDGnE9fg7KBnzD+2AHLv2B7h2ODLru9DI0lsg=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=Q2kToCabJnESW8vUmYIu1ab7o3eKbUVQ9kdfBJ5+bFVzM6d+DtAc8KVtPusjYCkkW
+	 lfDeTry07jpkrR88IDvRwTSm3FlaZ3DRQ6C++gAnt82jJ0z+Scrrn5/YRjgzwA/HN3
+	 00XOAJwZMLLA9HO7PYsBVjZTl/U8OOd6x+xQPVndCWFi4sV0hwZG8LvrJ5/ZQjM8dU
+	 g80BovHTnqKi3d7f1jLzDsU2LDkK8EhzlmQ9Ajml61y/5qXBl0YvlIuYhH5VvVi8p4
+	 O3PqYNJ19XigxUlBZqKp2vk/Cv2tkyyhAPwjYXzX5Qsgrgr/oifjbHdpTeNPeic3Xx
+	 l1L+BkrtQRVLQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33C6539D0C1A;
+	Wed, 17 Sep 2025 02:40:17 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250916134803.874580-3-hca@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 0/3] kexec: Fix invalid field access
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <175807681600.1444719.17902386827099362069.git-patchwork-notify@kernel.org>
+Date: Wed, 17 Sep 2025 02:40:16 +0000
+References: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
+In-Reply-To: <20250827-kbuf_all-v1-0-1df9882bb01a@debian.org>
+To: Breno Leitao <leitao@debian.org>
+Cc: linux-riscv@lists.infradead.org, catalin.marinas@arm.com, will@kernel.org,
+ akpm@linux-foundation.org, bhe@redhat.com, coxu@redhat.com,
+ paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu,
+ alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-s390@vger.kernel.org, kernel-team@meta.com
 
-On Tue, Sep 16, 2025 at 03:48:01PM +0200, Heiko Carstens wrote:
-> Make the statement attribute "assume" with a new __assume macro available.
-> 
-> The assume attribute is used to indicate that a certain condition is
-> assumed to be true. Compilers may or may not use this indication to
-> generate optimized code. If this condition is violated at runtime, the
-> behavior is undefined.
-> 
-> Note that the clang documentation states that optimizers may react
-> differently to this attribute, and this may even have a negative
-> performance impact. Therefore this attribute should be used with care.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Hello:
 
-LGTM.
+This series was applied to riscv/linux.git (for-next)
+by Paul Walmsley <pjw@kernel.org>:
 
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+On Wed, 27 Aug 2025 03:42:20 -0700 you wrote:
+> The kexec_buf structure was previously declared without initialization.
+> commit bf454ec31add ("kexec_file: allow to place kexec_buf randomly")
+> added a field that is always read but not consistently populated by all
+> architectures. This un-initialized field will contain garbage.
+> 
+> This is also triggering a UBSAN warning when the uninitialized data was
+> accessed:
+> 
+> [...]
 
-> ---
->  include/linux/compiler_types.h | 23 +++++++++++++++++++++++
->  init/Kconfig                   | 10 ++++++++++
->  2 files changed, 33 insertions(+)
-> 
-> diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-> index a910f9fa5341..41c16fb8eb40 100644
-> --- a/include/linux/compiler_types.h
-> +++ b/include/linux/compiler_types.h
-> @@ -329,6 +329,29 @@ struct ftrace_likely_data {
->  #define __no_sanitize_or_inline __always_inline
->  #endif
->  
-> +/*
-> + * The assume attribute is used to indicate that a certain condition is
-> + * assumed to be true. If this condition is violated at runtime, the behavior
-> + * is undefined. Compilers may or may not use this indication to generate
-> + * optimized code.
-> + *
-> + * Note that the clang documentation states that optimizers may react
-> + * differently to this attribute, and this may even have a negative
-> + * performance impact. Therefore this attribute should be used with care.
-> + *
-> + * Optional: only supported since gcc >= 13
-> + * Optional: only supported since clang >= 19
-> + *
-> + *   gcc: https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#index-assume-statement-attribute
-> + * clang: https://clang.llvm.org/docs/AttributeReference.html#id13
-> + *
-> + */
-> +#ifdef CONFIG_CC_HAS_ASSUME
-> +# define __assume(expr)			__attribute__((__assume__(expr)))
-> +#else
-> +# define __assume(expr)
-> +#endif
-> +
->  /*
->   * Optional: only supported since gcc >= 15
->   * Optional: only supported since clang >= 18
-> diff --git a/init/Kconfig b/init/Kconfig
-> index 59ae2b967195..935eff59af97 100644
-> --- a/init/Kconfig
-> +++ b/init/Kconfig
-> @@ -112,6 +112,16 @@ config TOOLS_SUPPORT_RELR
->  config CC_HAS_ASM_INLINE
->  	def_bool $(success,echo 'void foo(void) { asm inline (""); }' | $(CC) -x c - -c -o /dev/null)
->  
-> +config CC_HAS_ASSUME
-> +	bool
-> +	# clang needs to be at least 19.1.0 since the meaning of the assume
-> +	# attribute changed:
-> +	# https://github.com/llvm/llvm-project/commit/c44fa3e8a9a44c2e9a575768a3c185354b9f6c17
-> +	default y if CC_IS_CLANG && CLANG_VERSION >= 190100
-> +	# supported since gcc 13.1.0
-> +	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=106654
-> +	default y if CC_IS_GCC && GCC_VERSION >= 130100
-> +
->  config CC_HAS_NO_PROFILE_FN_ATTR
->  	def_bool $(success,echo '__attribute__((no_profile_instrument_function)) int x();' | $(CC) -x c - -c -o /dev/null -Werror)
->  
-> -- 
-> 2.48.1
-> 
+Here is the summary with links:
+  - [1/3] arm64: kexec: Initialize kexec_buf struct in load_other_segments()
+    (no matching commit)
+  - [2/3] riscv: kexec: Initialize kexec_buf struct
+    https://git.kernel.org/riscv/c/95c54cd9c769
+  - [3/3] s390: kexec: Initialize kexec_buf struct
+    (no matching commit)
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
