@@ -1,146 +1,201 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7DEB28C866
-	for <linux-s390@vger.kernel.org>; Thu, 18 Sep 2025 19:58:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD602D63FF;
+	Thu, 18 Sep 2025 20:21:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758225500; cv=none; b=sQz7pIayykkzXnS0MBDIwuSHf6+Yk4GDah8Y7pOqHeByvwoY5JEBiMftjRYw0ZfOmE8rug+utnkoY9YT0e1B4OJP3AwzcUxI7eA87dJostWuLUiFC9oKBpUg6GbPiq2J1VlrsB9tASuvaaw8FTCiWdDNbCJhlGYhn1vB3Ce6AKo=
+	t=1758226894; cv=none; b=qKdJnA1YLkQydCErlN8ga6i9euOY9I2htwqyPWTlmCpBnjAc/FB730eNaVGHr8ExNmsVG5p3Fetg8HuGjzqxj2kbjQQXmCf0O9WGNLCcuN9U6YnLiBuOi+us9+ZlmG901uFokqpPMHkLrABkhwZey9ADImRv23RI69PFiaCxshU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758225500; c=relaxed/simple;
-	bh=hrTKVKMuOKbLilzSA+VEl+XSSF0VIocT2KvCzkuRjcw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=f1t2Uut8X0vjHihrfCxVizQx3oAuiXtbEMNuxUGbeTeANElP+n+8kVqPaX5vSXPNhpixLZ4XTUGM7jyyz80nSDh/C9k9foNUqACygyJ6Y5+tUQ1/Mk7uUAwRPZVV5Q5FTUWQYFvTUFJFp4p801sMMc1U4qqh7Ec9drnq0SsFgxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hNlT1dRM; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1758226894; c=relaxed/simple;
+	bh=qP3MQwM1EJ5Gl9Y7CUEowkPmBRxV9f3jSqmnplG0VdM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nFL/BX/Zg/afwPcSUNk7IKzyJ3IZGcymR3cmqSetMg1m0DiLZwew31dtHmjIExm+CzIIjDgaKW7ZfwfuihO2bWJHsHmOBO+/Qr+lMHpYnLuds0jOBGPLhtF9OKj6m02FGJGxzn0PGm3ZDwZvRh+IHQ6nX3X/9N7xtXbZUnEGbrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HieRAthe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hNlT1dRM"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b211ccfda1dso182202566b.3
-        for <linux-s390@vger.kernel.org>; Thu, 18 Sep 2025 12:58:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758225496; x=1758830296; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9McvDjxp1cOQ8m8DQ7zr8KAOkClRv+R613f7KwPZqLk=;
-        b=hNlT1dRMFhV3nNEO8OCPXfEiZjy7HadMXu4vRgp3Ipj8QW/pTjkxFRxYZEa69pe80J
-         R5WZR6uBlmeIbF+VQhBUi3wnRJuDxh3ZSYPm2HtEzHdmYgYFzaLOTkBNZpxqwUsXFCi5
-         xh48TC/I8mOWxP2I4D6qthvi1wAkVJadHw9+Q6aETqCdcS+tzshGNcO1qODnTVXpUxR3
-         DzGuLf7FRf7YNLECrqzb9ayMBLdTqRvBk0ivmzKueGmRkmu1GRq1Uqn5Uc0kg8EqXgPJ
-         5wCj9Urjk2M3jfgX+oYXsBuDx3I+zNM2GW5fMn6rB/kk6qlx/ZV55XBxceRxo80pIEfP
-         n68Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758225496; x=1758830296;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9McvDjxp1cOQ8m8DQ7zr8KAOkClRv+R613f7KwPZqLk=;
-        b=WrM1w6ZaBvcyGyHyK+EM1XFwgxzJ7tsBut69HnWp92J2ix4LTDIGyzaJkDnA+r7Xo3
-         R5c1l4zYvFF+E75jHzffBTD/5X/g2zWMSUbteZIx5h2xrn2sgytuQnpgHpCV5VibZIw6
-         lGwjPRd6o9hgpbmPRYAU0RRWur/gsB9nlnIqMF5a+jYhCUXE1jUcMlGLBaSKHWsgrgwi
-         eskEWKq+cy0Hvc98irzTVV0vobykn5f+GmnGhtolN4HCiCXKOSwO1C0xTksqI5N3pkH7
-         tx8WfNiKdkc4mPCvEVtsgPZwfR64GM5cwJabkXh0l71ExSWLEbWlV73/q56sGgNzs9KO
-         bkkQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUXwLWfK/7/a9iPegqDgPuC0LUWO1eBZN+0rNMlqZ8rgWkX4+yV7jaDQFKVTispDAQ6HmYvaGSy/6nA@vger.kernel.org
-X-Gm-Message-State: AOJu0YwTiuvSbLy91Al7Cm8C9Mlanz6w8vNM0hcMaIqtc1VWZ2myjsLF
-	AcV9rIkChmjtZ9aHz+YNlCzIe0VWhbn8xB+5MJRjGe/qnef4oxr7Mvpj
-X-Gm-Gg: ASbGncuJEr1CDXz6sE58qM3l0cuNRHJV0yPojuMmJijJAOTq6vSa6qPnjaDG5tLcSsi
-	/8eQz+UG4D0yK9ZUK2m/oizsir6BNovOmfmKLYo0Gsejc/ZdVFCiTpmimigjNPkFNSwzoa5k78m
-	KTIqkJvCS1xdFOZZ8R1LDqgGxBTzt8MnQtVHX+muSZWTPee91mRE4YZVijOdM9tJuJ6KvxiP2Bd
-	8pew3W2EFWn5zma5o0avj5S7qqTuLNRhGiY6oC3Tre6f5M60GYQeR+RWrK/9Ke+wQoHcg4riGer
-	oIQ596Fb2VeiUvAikvxexzu+Dxo0fnUlqYyt+UyXi/lxs4rodWina0RWWp3CYxwZH1FCV/8VKwm
-	XSvhiA9X4yDZOUH437Xpk3J+XUeoxc4epNlVY9w==
-X-Google-Smtp-Source: AGHT+IH2NBu6L+bASXNqg9sJUcZ42MFCB2aqzEFiqoDEW6um54A4CtHcJnO37auTgFbi6nwycKDm8A==
-X-Received: by 2002:a17:907:a089:b0:b19:969a:86 with SMTP id a640c23a62f3a-b24f35aa177mr45885966b.37.1758225496090;
-        Thu, 18 Sep 2025 12:58:16 -0700 (PDT)
-Received: from localhost ([212.73.77.104])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-b1fd1101c44sm264530466b.82.2025.09.18.12.58.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 18 Sep 2025 12:58:15 -0700 (PDT)
-From: Askar Safin <safinaskar@gmail.com>
-To: nschichan@freebox.fr
-Cc: akpm@linux-foundation.org,
-	andy.shevchenko@gmail.com,
-	axboe@kernel.dk,
-	brauner@kernel.org,
-	cyphar@cyphar.com,
-	devicetree@vger.kernel.org,
-	ecurtin@redhat.com,
-	email2tema@gmail.com,
-	graf@amazon.com,
-	gregkh@linuxfoundation.org,
-	hca@linux.ibm.com,
-	hch@lst.de,
-	hsiangkao@linux.alibaba.com,
-	initramfs@vger.kernel.org,
-	jack@suse.cz,
-	julian.stecklina@cyberus-technology.de,
-	kees@kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	linux-api@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-block@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-efi@vger.kernel.org,
-	linux-ext4@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-mips@vger.kernel.org,
-	linux-openrisc@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-um@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org,
-	loongarch@lists.linux.dev,
-	mcgrof@kernel.org,
-	mingo@redhat.com,
-	monstr@monstr.eu,
-	mzxreary@0pointer.de,
-	patches@lists.linux.dev,
-	rob@landley.net,
-	safinaskar@gmail.com,
-	sparclinux@vger.kernel.org,
-	thomas.weissschuh@linutronix.de,
-	thorsten.blum@linux.dev,
-	torvalds@linux-foundation.org,
-	tytso@mit.edu,
-	viro@zeniv.linux.org.uk,
-	x86@kernel.org
-Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
-Date: Thu, 18 Sep 2025 22:58:06 +0300
-Message-ID: <20250918195806.6337-1-safinaskar@gmail.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20250918152830.438554-1-nschichan@freebox.fr>
-References: <20250918152830.438554-1-nschichan@freebox.fr>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HieRAthe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F889C4CEFA;
+	Thu, 18 Sep 2025 20:21:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758226893;
+	bh=qP3MQwM1EJ5Gl9Y7CUEowkPmBRxV9f3jSqmnplG0VdM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=HieRAtheU5vVyO0d5vlDxkmm48RkpTsr//AeI0V2zteg8QCexEI2Jtz0O8TSNFUE9
+	 kUquWWzeDw7+4JIu6biklnBx4qNpB7U9ffrqjdd0TP4OdcxbkyOb4Dqmt6Y/91NB9C
+	 A+ux3oIEFvGRN9Vp5TWR//wTmLWE0W0w4A8QFbk1dEWHrrmQOn4joi/a4SlFm2120m
+	 PuW6/Y44NqxWjR7/4eDN/f0TVQ1Vqfw3FIF5333VpqgxYlPumDb18T2C+EvlJ3fAr6
+	 f1oroXfTYkRKJMzwPsh34GBorkUDauXKVjBQoKTeoNiY5+6DuSY6yM4r3t+km9GrJK
+	 UJar4yMGrmVJA==
+Date: Thu, 18 Sep 2025 21:21:16 +0100
+From: Will Deacon <will@kernel.org>
+To: "Roy, Patrick" <roypat@amazon.co.uk>
+Cc: "Thomson, Jack" <jackabt@amazon.co.uk>,
+	"Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
+	"Cali, Marco" <xmarcalx@amazon.co.uk>,
+	"derekmn@amazon.co.uk" <derekmn@amazon.co.uk>,
+	"willy@infradead.org" <willy@infradead.org>,
+	"corbet@lwn.net" <corbet@lwn.net>,
+	"pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"maz@kernel.org" <maz@kernel.org>,
+	"oliver.upton@linux.dev" <oliver.upton@linux.dev>,
+	"joey.gouly@arm.com" <joey.gouly@arm.com>,
+	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>,
+	"yuzenghui@huawei.com" <yuzenghui@huawei.com>,
+	"catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+	"chenhuacai@kernel.org" <chenhuacai@kernel.org>,
+	"kernel@xen0n.name" <kernel@xen0n.name>,
+	"paul.walmsley@sifive.com" <paul.walmsley@sifive.com>,
+	"palmer@dabbelt.com" <palmer@dabbelt.com>,
+	"aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
+	"alex@ghiti.fr" <alex@ghiti.fr>,
+	"agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+	"gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+	"hca@linux.ibm.com" <hca@linux.ibm.com>,
+	"gor@linux.ibm.com" <gor@linux.ibm.com>,
+	"borntraeger@linux.ibm.com" <borntraeger@linux.ibm.com>,
+	"svens@linux.ibm.com" <svens@linux.ibm.com>,
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+	"luto@kernel.org" <luto@kernel.org>,
+	"peterz@infradead.org" <peterz@infradead.org>,
+	"tglx@linutronix.de" <tglx@linutronix.de>,
+	"mingo@redhat.com" <mingo@redhat.com>,
+	"bp@alien8.de" <bp@alien8.de>, "x86@kernel.org" <x86@kernel.org>,
+	"hpa@zytor.com" <hpa@zytor.com>,
+	"trondmy@kernel.org" <trondmy@kernel.org>,
+	"anna@kernel.org" <anna@kernel.org>,
+	"hubcap@omnibond.com" <hubcap@omnibond.com>,
+	"martin@omnibond.com" <martin@omnibond.com>,
+	"viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+	"brauner@kernel.org" <brauner@kernel.org>,
+	"jack@suse.cz" <jack@suse.cz>,
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+	"david@redhat.com" <david@redhat.com>,
+	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>,
+	"Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
+	"vbabka@suse.cz" <vbabka@suse.cz>,
+	"rppt@kernel.org" <rppt@kernel.org>,
+	"surenb@google.com" <surenb@google.com>,
+	"mhocko@suse.com" <mhocko@suse.com>,
+	"ast@kernel.org" <ast@kernel.org>,
+	"daniel@iogearbox.net" <daniel@iogearbox.net>,
+	"andrii@kernel.org" <andrii@kernel.org>,
+	"martin.lau@linux.dev" <martin.lau@linux.dev>,
+	"eddyz87@gmail.com" <eddyz87@gmail.com>,
+	"song@kernel.org" <song@kernel.org>,
+	"yonghong.song@linux.dev" <yonghong.song@linux.dev>,
+	"john.fastabend@gmail.com" <john.fastabend@gmail.com>,
+	"kpsingh@kernel.org" <kpsingh@kernel.org>,
+	"sdf@fomichev.me" <sdf@fomichev.me>,
+	"haoluo@google.com" <haoluo@google.com>,
+	"jolsa@kernel.org" <jolsa@kernel.org>,
+	"jgg@ziepe.ca" <jgg@ziepe.ca>,
+	"jhubbard@nvidia.com" <jhubbard@nvidia.com>,
+	"peterx@redhat.com" <peterx@redhat.com>,
+	"jannh@google.com" <jannh@google.com>,
+	"pfalcato@suse.de" <pfalcato@suse.de>,
+	"axelrasmussen@google.com" <axelrasmussen@google.com>,
+	"yuanchu@google.com" <yuanchu@google.com>,
+	"weixugc@google.com" <weixugc@google.com>,
+	"hannes@cmpxchg.org" <hannes@cmpxchg.org>,
+	"zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>,
+	"shakeel.butt@linux.dev" <shakeel.butt@linux.dev>,
+	"shuah@kernel.org" <shuah@kernel.org>,
+	"seanjc@google.com" <seanjc@google.com>,
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+	"devel@lists.orangefs.org" <devel@lists.orangefs.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>
+Subject: Re: [PATCH v6 05/11] KVM: guest_memfd: Add flag to remove from
+ direct map
+Message-ID: <aMxpvI6Aj8mDsRNm@willie-the-truck>
+References: <20250912091708.17502-1-roypat@amazon.co.uk>
+ <20250912091708.17502-6-roypat@amazon.co.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250912091708.17502-6-roypat@amazon.co.uk>
 
-> When booting with root=/dev/ram0 in the kernel commandline,
-> handle_initrd() where the deprecation message resides is never called,
-> which is rather unfortunate (init/do_mounts_initrd.c):
+Hi Patrick,
 
-Yes, this is unfortunate.
+We chatted briefly at KVM Forum, so I wanted to chime in here too from
+the arm64 side.
 
-I personally still think that initrd should be removed.
+On Fri, Sep 12, 2025 at 09:17:37AM +0000, Roy, Patrick wrote:
+> Add GUEST_MEMFD_FLAG_NO_DIRECT_MAP flag for KVM_CREATE_GUEST_MEMFD()
+> ioctl. When set, guest_memfd folios will be removed from the direct map
+> after preparation, with direct map entries only restored when the folios
+> are freed.
+> 
+> To ensure these folios do not end up in places where the kernel cannot
+> deal with them, set AS_NO_DIRECT_MAP on the guest_memfd's struct
+> address_space if GUEST_MEMFD_FLAG_NO_DIRECT_MAP is requested.
+> 
+> Add KVM_CAP_GUEST_MEMFD_NO_DIRECT_MAP to let userspace discover whether
+> guest_memfd supports GUEST_MEMFD_FLAG_NO_DIRECT_MAP. Support depends on
+> guest_memfd itself being supported, but also on whether linux supports
+> manipulatomg the direct map at page granularity at all (possible most of
+> the time, outliers being arm64 where its impossible if the direct map
+> has been setup using hugepages, as arm64 cannot break these apart due to
+> break-before-make semantics, and powerpc, which does not select
+> ARCH_HAS_SET_DIRECT_MAP, which also doesn't support guest_memfd anyway
+> though).
+> 
+> Note that this flag causes removal of direct map entries for all
+> guest_memfd folios independent of whether they are "shared" or "private"
+> (although current guest_memfd only supports either all folios in the
+> "shared" state, or all folios in the "private" state if
+> GUEST_MEMFD_FLAG_MMAP is not set). The usecase for removing direct map
+> entries of also the shared parts of guest_memfd are a special type of
+> non-CoCo VM where, host userspace is trusted to have access to all of
+> guest memory, but where Spectre-style transient execution attacks
+> through the host kernel's direct map should still be mitigated.  In this
+> setup, KVM retains access to guest memory via userspace mappings of
+> guest_memfd, which are reflected back into KVM's memslots via
+> userspace_addr. This is needed for things like MMIO emulation on x86_64
+> to work.
+> 
+> Do not perform TLB flushes after direct map manipulations. This is
+> because TLB flushes resulted in a up to 40x elongation of page faults in
+> guest_memfd (scaling with the number of CPU cores), or a 5x elongation
+> of memory population. TLB flushes are not needed for functional
+> correctness (the virt->phys mapping technically stays "correct",  the
+> kernel should simply not use it for a while). On the other hand, it means
+> that the desired protection from Spectre-style attacks is not perfect,
+> as an attacker could try to prevent a stale TLB entry from getting
+> evicted, keeping it alive until the page it refers to is used by the
+> guest for some sensitive data, and then targeting it using a
+> spectre-gadget.
 
-I suggest using workaround I described in cover letter.
+I'm really not keen on this last part (at least, for arm64).
 
-Also, for unknown reasons I didn't get your letter in my inbox.
-(Not even in spam folder.) I ocasionally found it on lore.kernel.org .
+If you're not going to bother invalidating the TLB after unmapping from
+the direct map because of performance reasons, you're better off just
+leaving the direct map intact and getting even better performance. On
+arm64, that would mean you could use block mappings too.
 
--- 
-Askar Safin
+On the other hand, if you actually care about the security properties
+from the unmap then you need the invalidation so that the mapping
+doesn't linger around. With "modern" CPU features such as pte
+aggregation and shared TLB walk caches it's not unlikely that these
+entries will persist a lot longer than you think and it makes the
+security benefits of this series impossible to reason about.
+
+As a compromise, could we make the TLB invalidation an architecture
+opt-in so that we can have it enabled on arm64, please?
+
+Will
