@@ -1,67 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8C3628F5;
-	Fri, 19 Sep 2025 06:31:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C9B253958
+	for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 06:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758263488; cv=none; b=lGbS95+jiVKr4OsevoDPFzCK0XRLR/cQBCbeKWJHMvVIwv5QE+yekkptqrfkyrEY/5UWJr0J0uDgkK7UaTnYq/QiYSxwNy6SvKWOuZI/skqE5HnmSkGG1jOV3yVItzsFAkCmU6xy2Q1nqokGNozKKTxfkVzSWla/06noUAeDPAw=
+	t=1758264809; cv=none; b=H3KM0Js/sfn/Rjnbho9gJPPLu8mnBbQDj2RL1PxH+laBYf5rFnPZnp99CZx+F7UO53HLqpniSnKhbwGgQYPyo+FOdwp3cE7oAcj9HLkmbSz+T+3qPGG/i40HkSJWfw/0oQmRV/yCmCFgmd4RbG38FhGmMvl2rInlYLfRmfTOnsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758263488; c=relaxed/simple;
-	bh=4MhWJlP71VZCOVNN+lHvxaptjhimilXlKctIAYX3Byw=;
+	s=arc-20240116; t=1758264809; c=relaxed/simple;
+	bh=6mu5r/20fn8IJXO2AldBdlWVvRnI63AzYbfukrUgu9E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LeoNzhFFSvR7HzWIFOuFNUBAJdwJ3HMIVfEUaNsELhqJKMaCxCA6KOkdxDSOgisnZdsvRhxRwEQwbDm+0d7q97jpRIqusYdjkDOiADrf5E5h9r7/cYNo+3BF4WjZ3NZjh9QMU6temcgIXZh9sKYqRghRtY/MWDYisRNBQi1coUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mk/ZD93M; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=ZoIMqOWw3YaisMCqaP5KpesZVwGw4cRd7ZoIOo/SG2+f3CrJxcXz729q7HNWb4T7ibwBEaVDtBu5SCulXhmmOxN1bL0YNTHxPV4ZQ2ek9yLHosNydaj2x9J7IsrHg4tgNroMBFGVJwOK5bHs882M6pTs2K5ZhfEgt6zEZxN4l7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JfY3wa8n; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mk/ZD93M"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58J3KlCx011575;
-	Fri, 19 Sep 2025 06:31:19 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JfY3wa8n"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58IMEfl8011938;
+	Fri, 19 Sep 2025 06:53:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=AKXTRU
-	MWL+ox9rBx/hXoJNoCYAi39BF6mftgBjv8suY=; b=mk/ZD93Muag+UjLD7/ffZS
-	3/OSHdlEixKtDxg/iE0cyOkIJCFgiBDaIfjhXRqvCJtAMWIO7cZhNGV0VDbNviv0
-	4ays7a4m0fbTfLK5VkJ8IWgOaOrDymA+avDlUoTu6UqTFeIFbCGhJ57p9v7YvJwK
-	XiLPV24xC/VBSbhFUebXwsOEnQqd3hKY95b6w2SPWjQsIjwfzoA78YSGBNIHovL0
-	6o5WxXYt7UuiEW8C688Ty3YYJTx/AhjiI9J9cQmmBmHUXxzQa+y0N4M/pCJKWx/m
-	MlakNlRQZnf1sAHkFsKgBf0wTVw5sZLWd7NpPrNRAuM1lnHuxWkGurnoVs5FdvQA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=9+2B8H
+	BlspqcBDCE1e33XLQoChBnf6tm8BUUbd6SXXg=; b=JfY3wa8nbutWOU27yuTKRk
+	4pyXbCjrTf1cuI413lCi8RU4rQRbPw2LAX6IH/byICCA4+ujzSy5fPmo8DMSwZqn
+	KpIiCu7qO54R3qg/iz4wYZ4tdBLzbo8ukwRzBECl32qhjDdbaW5Qt6uVWsrlxQtE
+	1dmyBSUVATU4US+TDGBI+KAATHtnrXFgAa+o1t3LEV18mK6P/VayeAQDCVSgw7Lv
+	2MqzaIwQQUzEtRvlsBz9QXabgJjwGoDMmnJC6q2ovoi6LIkpw7AfN0TEO3HbSGAP
+	QgCg2TQWr1fdBisc68sAfiRhA1t047moORerTpy2+f6qmcxvZC4tU4ybmtYSt43Q
 	==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4np9s0-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4jeyw4-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 06:31:18 +0000 (GMT)
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58J6VIPR025809;
-	Fri, 19 Sep 2025 06:31:18 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4np9rv-1
+	Fri, 19 Sep 2025 06:53:17 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58J6kQP4016183;
+	Fri, 19 Sep 2025 06:53:16 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4jeyw1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 06:31:18 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58J30QR8009395;
-	Fri, 19 Sep 2025 06:31:17 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 495nn3t8dw-1
+	Fri, 19 Sep 2025 06:53:16 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58J4mJ56005981;
+	Fri, 19 Sep 2025 06:53:15 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 495jxujuv6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 06:31:17 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58J6VEei37880162
+	Fri, 19 Sep 2025 06:53:15 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58J6rB8S19989122
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Sep 2025 06:31:14 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E2E0420043;
-	Fri, 19 Sep 2025 06:31:13 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3138520040;
-	Fri, 19 Sep 2025 06:31:13 +0000 (GMT)
-Received: from [9.111.68.111] (unknown [9.111.68.111])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 19 Sep 2025 06:31:13 +0000 (GMT)
-Message-ID: <d0c954dc-6961-4536-b103-d7fdf1afb313@linux.ibm.com>
-Date: Fri, 19 Sep 2025 08:31:06 +0200
+	Fri, 19 Sep 2025 06:53:11 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B201D20043;
+	Fri, 19 Sep 2025 06:53:11 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7419620040;
+	Fri, 19 Sep 2025 06:53:11 +0000 (GMT)
+Received: from [9.111.165.4] (unknown [9.111.165.4])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 19 Sep 2025 06:53:11 +0000 (GMT)
+Message-ID: <ed4eba43-9d13-4875-a264-233879733bfb@linux.ibm.com>
+Date: Fri, 19 Sep 2025 08:53:11 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -69,124 +69,150 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/5] KVM: s390/vfio-ap: Use kvm_is_gpa_in_memslot()
- instead of open coded equivalent
-To: Sean Christopherson <seanjc@google.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20250919003303.1355064-1-seanjc@google.com>
- <20250919003303.1355064-2-seanjc@google.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20250919003303.1355064-2-seanjc@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
+To: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
+        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com,
+        snitzer@kernel.org, Milan Broz <gmazyland@gmail.com>,
+        freude@linux.ibm.com
+References: <20250908131642.385445532@debian4.vm>
+ <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
+ <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
+ <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
+ <8cb59ed5-1c9a-49de-beee-01eda52ad618@linux.ibm.com>
+ <1af710ec-0f23-2522-d715-e683b9e557d8@redhat.com>
+ <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com>
+Content-Language: en-US, de-DE
+From: Ingo Franzki <ifranzki@linux.ibm.com>
+In-Reply-To: <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MN5gmNZl c=1 sm=1 tr=0 ts=68ccf8b7 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
- a=WMn4R6eJaF8VgN3aVUEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: md5iwfiyFe2OTejpXCjJPdxQmjbfiyb-
-X-Proofpoint-ORIG-GUID: DXgSIvc5M_qRAWhURQ1HdkyzBqz_Qyoc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX/BVrxPcE3PG2
- qtrYAMokM4pZJJN97Ey//DXDj5ryel8jNsk3kaQAMcY4cvdBVgSqsLzhhuKOhCo6a9s1QjEHT8Z
- LxUZ+NcKDumMSiUjjlnyFpqwglBskTojSluoYSHV3BHtvAzX/1bBW0oyU4JmfjPGoKqLqS6VWWe
- +iPOybn8095kSdqUIUCner1Hq9z6pvyS4nzDuIl+c5gGG62dJGyIgONiorxk2gZozbrEhkKZAEt
- dHVmV0RMF0kKOBKBx9RVyBjTRSjo+bYvNF196+lQPmbLsxKFSPhy+Gu4VcAiFJdliAk09Z2aZ2h
- FWf/tXahLW+IMOrIMTIgckz3ZPcFw+rtayAovz0F3Hn/b/Z743nzTUr+zRpaMtSCXVM2xljoTvV
- UkqgHXkD
+X-Authority-Analysis: v=2.4 cv=Qf5mvtbv c=1 sm=1 tr=0 ts=68ccfddd cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=p0WdMEafAAAA:8 a=VnNF1IyMAAAA:8
+ a=O-Iw-kRxmlZWIl0LCTAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: OU8-asROO__vzBoI1aD_ZwN-ZIF3k9js
+X-Proofpoint-GUID: TXVOcf43IzvITQu72NmMkL7l_uXoOXGq
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX1gRzfphqFSbT
+ DVEmRft/CtF/Wlmnt7gRogtUPrRv5dOAoJo1vKVKGlCNfbF+vrqO3diOcBxW6xMuqpl51Ob6Zoe
+ B0t97DD6vtXkoiLKE7AdLsUaWCvFsboZCiUfnkePQo4rpTi6b18M1/OBrtYvwg0LINNINQLxc8N
+ j73qNiU7TBfVDh4Qzvq9QbFezTQIzJzP+cI46bBg2IamMbhCh5j6X4NumhqfV79sC6gdzLt9M4a
+ f9kOOYp+RnirG+TyGDfbR3cOd1L4NPGBR81Ns5TrQrUZO9r+3tmUs/l95Jvnq28/4ImliOwGIpf
+ 8bac5QKhCSXOsVCrJjB6iWifSkn5FZhxDL4CzELWtUGJpQj6D+esec0cezQxq0GqbrY+HfXlmHC
+ 7+RIZ0KZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-18_03,2025-09-19_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 spamscore=0 priorityscore=1501 bulkscore=0 impostorscore=0
- malwarescore=0 adultscore=0 phishscore=0 suspectscore=0
+ spamscore=0 clxscore=1015 phishscore=0 suspectscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 impostorscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
 
-Am 19.09.25 um 02:32 schrieb Sean Christopherson:
-> Use kvm_is_gpa_in_memslot() to check the validity of the notification
-> indicator byte address instead of open coding equivalent logic in the VFIO
-> AP driver.
+On 18.09.2025 17:00, Harald Freudenberger wrote:
+> On 2025-09-11 17:58, Mikulas Patocka wrote:
+>> On Thu, 11 Sep 2025, Ingo Franzki wrote:
+>>
+>>> >> So, it looks like a dm-crypt bug.
+>>> >>
+>>> >> Please, revert my patches and run the same test on a clean 6.17.0-rc5 just
+>>> >> to verify that the patches do not introduce the bug.
+>>> >
+>>> > With your patches reverted the combined mode fails the same way as with your patches.
+>>> > So they did not introduce the bug.
+>>>
+>>> Mikulas, do you have any idea what could be causing this errors?
+>>> Is it that dm-crypt is not properly dealing with async-only HMAC ciphers?
+>>> Async-only encryption ciphers seem to work fine in dm-crypt, since LUKS with PAES (but no integrity) works fine, and PAES is an async-onky cipher.
+>>> LUKS with sync-HMAC ciphers (e.g. clear key HMAC) also works fine, even in combination with PAES.
+>>
+>> Yes, I think that it's a problem with async HMAC. The bug is probably
+>> either in dm-crypt or in the crypto library.
+>>
+>> Do you have some other (non-dm-crypt-related) workload that uses the
+>> async authentication, so that we can determine whether the bug is in
+>> dm-crypt or crypto?
+>>
+>> Otherwise, would it be possible to give us a virtual machine on the
+>> mainframe to debug this issue?
+>>
+>> Mikulas
 > 
-> Opportunistically use a dedicated wrapper that exists and is exported
-> expressly for the VFIO AP module.  kvm_is_gpa_in_memslot() is generally
-> unsuitable for use outside of KVM; other drivers typically shouldn't rely
-> on KVM's memslots, and using the API requires kvm->srcu (or slots_lock) to
-> be held for the entire duration of the usage, e.g. to avoid TOCTOU bugs.
-> handle_pqap() is a bit of a special case, as it's explicitly invoked from
-> KVM with kvm->srcu already held, and the VFIO AP driver is in many ways an
-> extension of KVM that happens to live in a separate module.
+> So here is now an out-of-tree kernel module build which offers a pseudo phmac-sha256
+> for testing and debugging purpose. In the end this is just a asynch (ahash) wrapper
+> around the hmac-sha256 shash crypto subsystem implementation. It should compile and
+> be usable on all platforms (s390, x64, arm, ...).
 > 
-> Providing a dedicated API for the VFIO AP driver will allow restricting
-> the vast majority of generic KVM's exports to KVM submodules (e.g. to x86's
-> kvm-{amd,intel}.ko vendor mdoules).
-> 
-> No functional change intended.
-> 
-> Acked-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> I ran dm-integrity tests with this and all worked fine. Ingo ran dm-crypt tests
+> where he combined aes-cbc encryption with phmac-sha256 integrity and saw hangs
+> on cryptsetup open. He also reported that these issues are different to what he
+> saw with the 'real' phmac in combination with aes encryption. A short glimpse gives
+> me the impression that there is a job blocking the system's workqueue. However, I
+> could not find any indication that the pseudo phmac is not working properly.
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Here is what I did (after insmod'ing the pseudo phmac cipher).
+I did this on a s390x system, but it should behave the same on x86.
 
-> ---
->   arch/s390/include/asm/kvm_host.h  | 2 ++
->   arch/s390/kvm/priv.c              | 8 ++++++++
->   drivers/s390/crypto/vfio_ap_ops.c | 2 +-
->   3 files changed, 11 insertions(+), 1 deletion(-)
+# cryptsetup luksFormat --type luks2 --integrity phmac-sha256 --integrity-key-size 256  /dev/loop0
+# cryptsetup luksOpen /dev/loop0 int-loop
+
+Note: To use the above cryptsetup commands with phmac you might need the code from this cryptsetup PR, otherwise it won't accept phmac as integrity algorithm: https://gitlab.com/cryptsetup/cryptsetup/-/merge_requests/693
+
+The luksOpen step hangs forever and the following messages are shown in syslog after a while:
+
+Sep 19 02:43:29 fedora systemd-udevd[500]: dm-1: Worker [2720] processing SEQNUM=1272 is taking a long time
+Sep 19 02:45:29 fedora systemd-udevd[500]: dm-1: Worker [2720] processing SEQNUM=1272 killed
+
+Still the luksOpen keeps hanging, and a lot of kworkers are hanging around as well: 
+
+# ps -ef
+...
+root        2679    1987  2 02:42 pts/0    00:00:04 cryptsetup luksOpen /dev/loop0 int-loop
+root        2712       2  0 02:42 ?        00:00:00 [kworker/R-kdmflush/251:0]
+root        2713       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-metadata]
+root        2714       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-wait]
+root        2715       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-offload]
+root        2716       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-commit]
+root        2717       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-writer]
+root        2718     500  0 02:42 ?        00:00:00 (udev-worker)
+root        2719     500  0 02:42 ?        00:00:00 (udev-worker)
+root        2720     500  0 02:42 ?        00:00:00 [(udev-worker)]
+root        2726       2  0 02:42 ?        00:00:00 [kworker/R-kdmflush/251:1]
+root        2727       2  0 02:42 ?        00:00:00 [kworker/R-kcryptd_io-251:1-1]
+root        2728       2  0 02:42 ?        00:00:00 [kworker/R-kcryptd-251:1-1]
+root        2729       2  0 02:42 ?        00:00:00 [dmcrypt_write/251:1]
+...
+
+# dmsetup table
+int-loop: 0 351128 crypt capi:authenc(phmac(sha256),xts(aes))-plain64 :96:logon:cryptsetup:239c87ad-8c23-4cdb-943f-947737e9cf5c-d0 0 251:0 0 2 integrity:32:aead integrity_key_size:32
+int-loop_dif: 0 351128 integrity 7:0 32768 32 J 6 interleave_sectors:32768 buffer_sectors:128 journal_sectors:3168 journal_watermark:50 commit_time:10000 fix_padding
+
+# lsblk
+NAME           MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
+loop0            7:0    0   200M  0 loop
+└─int-loop_dif 251:0    0 171.4M  0 crypt
+
+
 > 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index f870d09515cc..ee25eeda12fd 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -722,6 +722,8 @@ extern int kvm_s390_enter_exit_sie(struct kvm_s390_sie_block *scb,
->   extern int kvm_s390_gisc_register(struct kvm *kvm, u32 gisc);
->   extern int kvm_s390_gisc_unregister(struct kvm *kvm, u32 gisc);
->   
-> +bool kvm_s390_is_gpa_in_memslot(struct kvm *kvm, gpa_t gpa);
-> +
->   static inline void kvm_arch_free_memslot(struct kvm *kvm,
->   					 struct kvm_memory_slot *slot) {}
->   static inline void kvm_arch_memslots_updated(struct kvm *kvm, u64 gen) {}
-> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-> index 9253c70897a8..9a71b6e00948 100644
-> --- a/arch/s390/kvm/priv.c
-> +++ b/arch/s390/kvm/priv.c
-> @@ -605,6 +605,14 @@ static int handle_io_inst(struct kvm_vcpu *vcpu)
->   	}
->   }
->   
-> +#if IS_ENABLED(CONFIG_VFIO_AP)
-> +bool kvm_s390_is_gpa_in_memslot(struct kvm *kvm, gpa_t gpa)
-> +{
-> +	return kvm_is_gpa_in_memslot(kvm, gpa);
-> +}
-> +EXPORT_SYMBOL_FOR_MODULES(kvm_s390_is_gpa_in_memslot, "vfio_ap");
-> +#endif
-> +
->   /*
->    * handle_pqap: Handling pqap interception
->    * @vcpu: the vcpu having issue the pqap instruction
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 766557547f83..eb5ff49f6fe7 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -354,7 +354,7 @@ static int vfio_ap_validate_nib(struct kvm_vcpu *vcpu, dma_addr_t *nib)
->   
->   	if (!*nib)
->   		return -EINVAL;
-> -	if (kvm_is_error_hva(gfn_to_hva(vcpu->kvm, *nib >> PAGE_SHIFT)))
-> +	if (!kvm_s390_is_gpa_in_memslot(vcpu->kvm, *nib))
->   		return -EINVAL;
->   
->   	return 0;
+> For instructions on how to build and use the module see the README in the tgz archive.
+> 
+> Thanks to all
+> Harald Freudenberger
+> 
+> 
 
+
+-- 
+Ingo Franzki
+eMail: ifranzki@linux.ibm.com  
+Tel: ++49 (0)7031-16-4648
+Linux on IBM Z Development, Schoenaicher Str. 220, 71032 Boeblingen, Germany
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen
+Geschäftsführung: David Faller
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+IBM DATA Privacy Statement: https://www.ibm.com/privacy/us/en/
