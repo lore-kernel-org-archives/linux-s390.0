@@ -1,1634 +1,311 @@
-Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F160A2561C2
-	for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 00:33:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758242008; cv=none; b=TuZ6kjj++F5bKolRRP9vZi/A0543fWjBVmjkfQrcIHcN9z91sq2+IcoX7wA+rbqg69f+fmhY8W/84M7u6ZOxWMpGSRFF0+HhXA95TBW5T+MSiO6bGrRKt7V2WEhXNOj7RhwcklCuMI0uZhS+SpIBrSG1GoPoWthPA2xa2P4KDWo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758242008; c=relaxed/simple;
-	bh=7Au6ECwRur6gCQPoNuqfb/CqcwlGB4QBIOfW4eOu8Wg=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=AxY4wRxT9jv5aZSN2d5blq9qiD7KSMfgqzX5Nhiu5yGaaDxFjmnUp1ai6V/fpvmKB1WK1agJoBkUtYm28MW61wETcT4K6THSu/4wrKt62N9ibsbHCwYhk+zCTUTAsd/i6446tML3LY+Ef6kSNEu8WygFPMx8LLTKP9JN3WSKOsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=POdODkM/; arc=none smtp.client-ip=209.85.210.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2BE01F462C;
+	Fri, 19 Sep 2025 05:11:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1758258690; cv=fail; b=omt06uAf3XtUkS8oEGBTbo16ub9nEQHcOpUd8/LLMOQQWs5R5rjQIt2xmoaCgGsaEtDXQngw75D9iqUUfYMmiwhqd5iqHhW299ICXw4i28QZARVBaWhnXF94EEMQ7Z3xq8UNPEGesByrTrbReh7Ejk2EIV82vit4A6rfDO3HUUs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1758258690; c=relaxed/simple;
+	bh=xAQwp8cFsomIi9IN1Ga3OJdWMFMbWvehLadaJ8zvS5k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=bEKu1a51xOMzNYetzMF90eLK/FK8JZJ/SOQDFuCMp/cfrFCJtQp4S4KgGP5obGPLNG7AzcRaHFVvgdGzKU7uKja8kxq6Bgo3WIpSN+bidTUSlbfe1y5MSYP2QR25XDRfoHqC8LWIfWjH8puptzi87oqqUFG0W69saRgtMFjumXg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=rlXXHpSP; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=PjDVnyqJ; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="POdODkM/"
-Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-777d7c52cc3so2404326b3a.2
-        for <linux-s390@vger.kernel.org>; Thu, 18 Sep 2025 17:33:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="rlXXHpSP";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="PjDVnyqJ"
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58ILFVRZ004759;
+	Fri, 19 Sep 2025 05:10:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=corp-2025-04-25; bh=aWfh/j1hhKwhq2JXag
+	nZPhERwMR1IqTqWOMO9u+TSDg=; b=rlXXHpSPkkBtXr8gOSmYzMY4Oqd1ki/+Nw
+	rYTNS5svyr+/jUL5KMyO9SVOKRsoiA+mr6flXctDKCJ1DLloZVjDmB3JqRexLsUI
+	A80basghfFjS3n7SJ6D1fW9Z3LHDmoGuvW1cpuGq2TL2wnT2uznqHGNhQEOxd1lo
+	I34VX3gKdO7rcxy3H98HbCJZ9VnwBxHWjmpXWcfdJmScMIrctWgt72kXmloKnl+r
+	4xaG9Y4b3MFGLdBFB7OGUvR1KfS+c4DG2I4AyxLOikyLrTIAdw2wY/6gVjcbXNif
+	XoB3UIauAx906kOoma7budsiC+mwlpq9gicbLQdvIsMz/auNwwWg==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 497fxd4u12-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 19 Sep 2025 05:10:20 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 58J31PUV035255;
+	Fri, 19 Sep 2025 05:10:19 GMT
+Received: from co1pr03cu002.outbound.protection.outlook.com (mail-westus2azon11010068.outbound.protection.outlook.com [52.101.46.68])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 494y2pbsm7-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 19 Sep 2025 05:10:19 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=lJjhttsveew9lXZV5CERZ+KffX5FMz9cQxyAJdiTOUDwowCZrmDEpkpvxMmh679Ea0x5yiYeUrRCky6xYyZ3ZgSW1rhs0rLjTEArpMeoy64pmoJFvTXkFFT0uUKNZJq8g41N5Rm4QxZXXi1hft9zrDDwvbm3nqI3domzeXaiHyDRye28Ds+a6C5LMc8SNuSkgfzxJhkUH1H820695Jr9/irl6P2+NToqbxiageeat8eDHTJaKklxanNWsTL5ZmOue5JUe3qHJVdlFsFCTHKre9jXjL6EzSnxj4+bNDG9EiF34OxEdmiES9SYyq9lxCXMTQxQu2Akzjb3Cl/KpX7vfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=aWfh/j1hhKwhq2JXagnZPhERwMR1IqTqWOMO9u+TSDg=;
+ b=tvCdkN2gh+bpnVJ7QrlAhrOwEfglOnmfBLIVbIxX5BvepvBPKm5OBye5tBBWssMG0xzzcWF3M1ocvgQN02S33GKaf7RwbXrE1So2sH6/dmUL49o3c9VtyHjmMGsA9LDN/jjdxZ/Ma0568Ng5Nq11vveVDDuD22NsqucNOBlpKsR7131uwCak8U5YdyLC/ijppwbNCcH/xWNpMjg14HCJVp8RbaAu8gUYfifwj534Xju8jBGib3pMdObLZHbBg1jL4igCAwzYPkmfvGGR++cW/lA0dvx3kWb/pgKQHtMzGDRU3V75CrTC91iRcsCePcBAL0vltdkjlaogpf0AxWfCFQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1758242003; x=1758846803; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=iWtIqknTatw78RNMwtt34Lt98UAdTdmQo7Vp0jVxdAc=;
-        b=POdODkM/Hjylz1sy3l5BJyqXs3gQEEZZlDGN9UKp4lryzgsEfHEd1PV4X67ApKO9hW
-         aKNxS/9dutjWf0xPNUrXVZJDv5NSuFk9XSUI9BjzHBKEj9b/POrRlNjKuth+rAy0f6eM
-         RAXnwyEE8C/0yvLPv/43n9sOiu03RjGtbpPANTE7mHZFiSXbxa1Y4ugI49lRLgxW/C47
-         UbqbAkUooA+ch1qOwenNSzSO43w5DsbAFsHaMqc39v8trgVMuEUP3NUsrBr4yJQD8ctU
-         iupKksqDHX7+g1WpbHFRiKscpoGV2kT+GyBiQGH/XF1HqaGoDYxXenoEDquDfVxvmyHa
-         t+dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758242003; x=1758846803;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iWtIqknTatw78RNMwtt34Lt98UAdTdmQo7Vp0jVxdAc=;
-        b=YJCpRuKsMzZUAnZBIUeSppMFsAx+yz8mkuUrrvICneEh4SKH5e6Ch98aAkut2pwlBf
-         EMeyRm05DAz43/RpL1zRiWOBwiKvmLuz4t55Q9w73lIFLzh8jlsaD9o7o7AcD863rqtg
-         wBMa4jnlmhb3BvUG/51xuMhTQLBunRYCDbrlekSwNWvFkV5q/zbsvcmw2PAD6EVtJhqU
-         TwfQKUcwoIUHTcA3SX/Aa2Dhq9kVmaUe3XhJ7t1lANL7hKs1pvPOgD4z19aOSkrGf8i5
-         8NBFlqKu+cJb3y4Cpy5XBfBcQIhS+6rDQgauy7mk7/j23SxdYGXkQga2AMXchWcRSxi2
-         w1GQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUCZ0yGossT9ZjD3Tp//+vfYZzjM9UfxeQ92YXv3p0FJXzvwV9wiHN+JZeY5fqdB3rD+96SvbvZ2UaJ@vger.kernel.org
-X-Gm-Message-State: AOJu0YxhD3+qHS+K3Rp67aOc4hlLjF0ywPsMNf/nMBn6dQnTs565GnD0
-	gfaTpQg9IKsC7Yl1hgqqMHyDvODUE0QyAGm9EzT0KGJZ1vqqSLOTAvRQrR7jOS3T3y0MzpWm0jn
-	AVZkHbQ==
-X-Google-Smtp-Source: AGHT+IGXuOLqd69Ccm9uJ6dotAIyGTLvu0YrSbfdR2aJ+sIyrCygY61Z1DCMCWBSxpqRdDQhx6u43Cz5Dy4=
-X-Received: from pfbfw3.prod.google.com ([2002:a05:6a00:61c3:b0:77c:1814:c8d4])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:10d0:b0:772:270f:58ab
- with SMTP id d2e1a72fcca58-77e4e8acfa9mr1706676b3a.15.1758242003097; Thu, 18
- Sep 2025 17:33:23 -0700 (PDT)
-Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Thu, 18 Sep 2025 17:33:03 -0700
-In-Reply-To: <20250919003303.1355064-1-seanjc@google.com>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aWfh/j1hhKwhq2JXagnZPhERwMR1IqTqWOMO9u+TSDg=;
+ b=PjDVnyqJgVy/ZUZOQr/nK+hOVawxdcCs8O4whut8kqHkq/K6qbD4tiXTrhtP3ABqx4T1GiMtFegn2Ei5hEry8J4QRRdvZd6V0JGuE3upu0wIYWFDJC/D9mAipsQNgKXLFTq8t/V7+PdRKIG9QUMjMD8u7Tb4KIA/K3XXR/tKx9s=
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com (2603:10b6:8:1cc::16)
+ by MN2PR10MB4333.namprd10.prod.outlook.com (2603:10b6:208:199::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9137.13; Fri, 19 Sep
+ 2025 05:10:14 +0000
+Received: from DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2]) by DM4PR10MB8218.namprd10.prod.outlook.com
+ ([fe80::2650:55cf:2816:5f2%2]) with mapi id 15.20.9137.012; Fri, 19 Sep 2025
+ 05:10:14 +0000
+Date: Fri, 19 Sep 2025 06:10:12 +0100
+From: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+To: Chris Mason <clm@meta.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, Guo Ren <guoren@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, Nicolas Pitre <nico@fluxnic.net>,
+        Muchun Song <muchun.song@linux.dev>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Baoquan He <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+        Dave Young <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+        "Liam R . Howlett" <Liam.Howlett@oracle.com>,
+        Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+        Hugh Dickins <hughd@google.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>, Jann Horn <jannh@google.com>,
+        Pedro Falcato <pfalcato@suse.de>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+        nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org,
+        ntfs3@lists.linux.dev, kexec@lists.infradead.org,
+        kasan-dev@googlegroups.com, Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v2 16/16] kcov: update kcov to use mmap_prepare
+Message-ID: <17bef9e0-575f-4ced-9884-3fd5a8f77067@lucifer.local>
+References: <5b1ab8ef7065093884fc9af15364b48c0a02599a.1757534913.git.lorenzo.stoakes@oracle.com>
+ <20250918194556.3814405-1-clm@meta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250918194556.3814405-1-clm@meta.com>
+X-ClientProxiedBy: LO4P123CA0685.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:37b::8) To DM4PR10MB8218.namprd10.prod.outlook.com
+ (2603:10b6:8:1cc::16)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20250919003303.1355064-1-seanjc@google.com>
-X-Mailer: git-send-email 2.51.0.470.ga7dc726c21-goog
-Message-ID: <20250919003303.1355064-6-seanjc@google.com>
-Subject: [PATCH v2 5/5] KVM: x86: Export KVM-internal symbols for sub-modules only
-From: Sean Christopherson <seanjc@google.com>
-To: Madhavan Srinivasan <maddy@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Tony Krowiak <akrowiak@linux.ibm.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, 
-	Harald Freudenberger <freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>
-Cc: linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR10MB8218:EE_|MN2PR10MB4333:EE_
+X-MS-Office365-Filtering-Correlation-Id: 337628fc-9ef8-4431-b493-08ddf73ad134
+X-LD-Processed: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|7416014|376014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+ =?us-ascii?Q?/iIi/0qLwcmovAoZZ/f8BF+lliI56VQnYyS90qR/hr+tVloEtE3A0lTZE1IA?=
+ =?us-ascii?Q?gT+ZKE6NJd7aj98zmGkYdlbsgOsnTT81qrE4blzLG10pYSzd2fkmqtndzLXu?=
+ =?us-ascii?Q?nXHZ5gRBCoz+Too/mu2wsS6JISlt1Owq7LjYZU9I9t4GNZ8EKty7sku+L5dK?=
+ =?us-ascii?Q?eoRXkqrl5aR54NpYcTlLW8EEHtB+sLmSDlT5izosJh30gP8wQab29G/F9hv9?=
+ =?us-ascii?Q?n33ex8Pvnvo08vM5f/jG7L+9kpQ3KadJKs1aisu7oHDGx2UXp65vgCZv0XxG?=
+ =?us-ascii?Q?GPcN8OsLWzLluUGVFQWjsA7QFfKLudC8H2NJ+uKiN/HQr+hVrrm6ic9vEb3s?=
+ =?us-ascii?Q?IhqLrEBsoyrYMAFAIQG/ZUneMldSSZYHOf1aqSTMuB0AwHMtQg+heSwZBJxY?=
+ =?us-ascii?Q?c6jKQd26FDfJiuRNlk3WyRLlKdlVzQ3eEtS8i2iiaVjHbOw2LSPtNIsTwrRU?=
+ =?us-ascii?Q?u3BNFKBZrrzTCds6dUKRv11IbHf5cQV+HAU20OEtuVafv1ZrR0ky+jU3ccbz?=
+ =?us-ascii?Q?/0/eHaJ7/fAO2bbuv/ZPyqnzWvgWoPZ/AEib6U5mqINrGYmTJRfTX/ujfV1T?=
+ =?us-ascii?Q?6ri2JtcEejZkEqzTUsPeLVS10REhAKD3kpbJyuVWQRh2FyBYULMFlwb8uV7C?=
+ =?us-ascii?Q?qo+2GE0tooytm6nLPOZBTxtqQYSgTJ217KffhxAwIuBn8TAxDonMuRliOm+W?=
+ =?us-ascii?Q?KSM6ryOI0joaBmlUEFx/jdBdMQCs8EU4WOzRTofU7OShmCwqkxKBFOTmq6OG?=
+ =?us-ascii?Q?kGANaUbQDCI4e0cEmYIYUqgc6BaRCQaPlKUAdyMS4q7SZLKUdYqFuMWDpPBM?=
+ =?us-ascii?Q?dbHigjGqkAbwIA+HTmyBcgbaGwRC8xO+m+GA7wOOWQ9f9exb8nIukenZ93UC?=
+ =?us-ascii?Q?9M0Ar/ODq9/iK1hNjOU227C3E3PAry+E6aP79tY1nXGLWKjpS3hFnxeANhoe?=
+ =?us-ascii?Q?nyGy9zdnUIG1/4Pe7nq5XcuPc++LMtuut7PNbr50KsyP9NNytWn/C8MstnOB?=
+ =?us-ascii?Q?amFTWtvsuO7Xw9hKZMFl1AjJY+k+citmyEKXwRxt+0JXajYgM2RQ4myN0MF9?=
+ =?us-ascii?Q?BANXtFLkE0N4FIXCK6gtNSjj3L7dUFsZcF//NVowH+MEtsJb88/eTlXKnmWu?=
+ =?us-ascii?Q?VUJSrdJ2fh1eojMv/OkOg8uzZ+cn/x8tHcjMvheX10TVJjjpP+VstrZgTAMj?=
+ =?us-ascii?Q?zK7cV8qi1HmMadqNM5cXKdXphn9eG6xuuesxB/ZtrxQiwfx+/W13nDpvc135?=
+ =?us-ascii?Q?I+ZiBaOYZdjzf+iie4LqYGvDEKH4zZeFdMJ/RosSX5i4SqDW//mKshMC4pBh?=
+ =?us-ascii?Q?ZZaMMzmLdxUzs9iW4rbIuFU5OgiMZL+YLoTuz8XwnJ0z37DlY3ZJjbdls99l?=
+ =?us-ascii?Q?q3+kDOQ=3D?=
+X-Forefront-Antispam-Report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR10MB8218.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+ =?us-ascii?Q?Usb3VIbr3ciiLKdOpT5HNGN9rHkXtBIE+07S66RxDIaHixPCqV7r1hnOcggp?=
+ =?us-ascii?Q?21nMfOdf+tMnJiqiB2j1N3gX1dAc8V4HyVmCXbqJs7eTKm3YZ+1gylFkWXCS?=
+ =?us-ascii?Q?2niko9Cd+O2IFXXDR0wnoPkZCncB/HM0bOE9ozMyLR/zFO/31YaHJRbxsWB2?=
+ =?us-ascii?Q?jY9a0rPCvvOR6sF2pNexGc7Dw8vHbWqswyUkDTkyAZbG7caV5bfOKMqK4jL0?=
+ =?us-ascii?Q?/3XA2IRCF8uEwT5AIb5/qU3QvZ/Jm+kfMqwo5vMmrWx5iwOJlyEbAAMmBzXS?=
+ =?us-ascii?Q?KbCcPGqtfbzUsb9kYUFaNfLftt8xWoK75anH50f94NYNioSCgoHGIOm1jcV/?=
+ =?us-ascii?Q?Tn9X3aZvAWhDMnlLg0Oh7/CWAi+3rUH1sGOHZkFs8FO+Mxd8zUhppuLV7Stp?=
+ =?us-ascii?Q?bEBtpF14yZsqRItJ1BhWoExYY4bmyzO3AsbRZTCuCrfU+YzwiYSCgEy51XnR?=
+ =?us-ascii?Q?MEGhyjFbWGahshI7vgkBTpSSLCgwwSEnqiZXo1iuVFP0XVOS6pwLwGUcrNkd?=
+ =?us-ascii?Q?0KIFOqpXSQPNePE/JWDI/wq3OtAhqdtOlvFfRoA63JUkQTE2AcwX4iOOMime?=
+ =?us-ascii?Q?ibzredJMra+sMqWW+neZx5SqFBKxyokhYpT3jEa0AfKupNukZ5jbNWmjEyTR?=
+ =?us-ascii?Q?abUgunrgH9f899eZBBawS/QBW/YuvjviRh1xAxgy18FZBFTEcAoh9jNduhAv?=
+ =?us-ascii?Q?MWyQQglmYbtMw8s7zpM+ns1vEoKUwhP4sUZb2sOGiVlg+niTuTbRRIAq8jV1?=
+ =?us-ascii?Q?rd40o3m7cdYUhnaZeWqpoI1IZo81QKq8rr7KUlDBeFK4kKm+GlhG1Nfn3Dos?=
+ =?us-ascii?Q?m1adKzl+Vbkfb8vLO2tCyv2AoG+2CSyJQ2IPHuiSCoeKBS/G/AeIxBfH+42j?=
+ =?us-ascii?Q?xxgzeq9gzS/b3vmNABIROdW2QpeMam1HFogX+/tj/7eEKPzG/ks46Kt+tKE9?=
+ =?us-ascii?Q?N3ZS8SAT2XCgs9N4u1/w2KGvIV/rtJ8FycpbVUODof2nZ0rLaeHdp6gk2LeX?=
+ =?us-ascii?Q?AIolYGLYMKTqOxK7h4TZX6RAdUcfV2H76lt/KWidCZ0YljJ7BqNYPMdCfMks?=
+ =?us-ascii?Q?YKab42BPdHddMBN/+XmO/EHcnNItJZef/U/BxiBVBdXtyXs1LslXGo+tYvN5?=
+ =?us-ascii?Q?849qUWu6fQ/YI79X0l9QXnY7Rk/6TFrzD2og3e3fjo0tZn3zdhgR924MCYkf?=
+ =?us-ascii?Q?SfIclPZLtRaVL+u26dK9o2Veq6XfSjv/j2oIOYrWAhfzAY6y910361PhIPjm?=
+ =?us-ascii?Q?z7LgiKVL+kpX5fORvo9TFvcwoZr/Eo5CqEwdJRGjXszL7Ygsw5B820IdS0wp?=
+ =?us-ascii?Q?k8FDlEO1He/gY7r9JJqnqJkQmp4VOIjP8iF1Obsnd8YJg87odUEFIJAKFFrE?=
+ =?us-ascii?Q?AZiQtEA5T1ycUI7wmSiz8QShud6VQZ+A5aZEHvgMP9iXpmNag8jI2UQNDrP7?=
+ =?us-ascii?Q?cWchCvTAGpnbbNUSuzax8A7k47BxZKtOYcGWvKJK8L9Q4RHc4G9cTKBsJEju?=
+ =?us-ascii?Q?qi3r5AbVG/pmrg5MP5ORgPXiINAM1kTlZGE10WJsTRxDfmXL2Vig1k6Y6KQz?=
+ =?us-ascii?Q?2uZ1gUIewknJlyCVjd8eMsdJRl2maVkZftJBPHt6iPQEuj8ySMJjnWVdckdF?=
+ =?us-ascii?Q?gg=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	YtCEfLcHvs59JJpIjX0O4QJivziSZkKTQuKsAqt75ECQ6WI/dlQiFiFNxYtkTYIYak+jpOfSDcByUVpiwAKz9gTzROiykMXWp4LxcqjmZQIo5Koc9Hqg5DfRf9lXY6aoLACq5twU5gjtShSxniHELOrijuv63T5hPjM1gD1+hA5dw2fOXHrvMQsED8CStPnmlUS4B8P3kJtjDsEiePmHCkISzc1tJ5gB35A0x8cA5ulQCU+s6vbDzUsVrL5JUby1xeU54i7OXT1osoVWUaMZlNhceSoet21CI/BFQZIlgnPqh3wCLeEIZf9WoFYMN0SuNqAkQGkORweU/96xWsWg8I+KbjQ0ofTTsXG7CzhK2ya0L8UAdtE4WMswHOMeMWha2VF9JdLt2a8a+HmjAvsFl0LILixvJ1TdXxbG5a4WAVqQxiIsWZZFHJve0rtogCSSx0nGYsGiGPTk6YqCiNhOiftqaHyVw+7Tn8KsJMhqEFkH1HH7Hxs3r60cbe1fuxfYAvcKLqfsOfF/qyafgL60hnqV2PeLMyvmKO8cNIdU/EGWuqakIDJ7R5bCJlS3TuDMzHuA9D0/qivBOAbMLrVbraDil4G1PTIgMtTA1r0fa2Y=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 337628fc-9ef8-4431-b493-08ddf73ad134
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR10MB8218.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Sep 2025 05:10:14.7467
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: XjG8PHHbB+lfNlLNwQKtsMl1VDQeHgG8u8GP78D8w/BGbLVwfEoKYfdVwarR85AxUaezHjZ2F35bBLL/huzp11MCW5fN6DrNzNmU34g3DyU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4333
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-18_03,2025-09-18_02,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0 mlxscore=0
+ adultscore=0 bulkscore=0 suspectscore=0 mlxlogscore=999 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2508110000
+ definitions=main-2509190043
+X-Proofpoint-GUID: yJSw5CDOWio5EANrUzoBrm0X4Zi-0BT0
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwMiBTYWx0ZWRfX9qCkfflg9yFz
+ ODwnczr9G3Rb16QUuBEok5Nild8Wl1pEjVgbetb3w+I6T5NfGfwhHtPcZrro4hBYa4G41xszTZO
+ epPDd9mTTmjlxprywB6AtOQw+zoUvjXa4vpqbTu4WX0ONa227TzCBF4NqnlEPKt8r7BPK4ej6ZE
+ ck6Iz3N40YLgXwrn3gvh4L2Yqiqm0IzeBq23edFEubY5d+xT6WyNzKKtUiJUoSj04XwknKfFpaW
+ PI82F+Vaiy1xwlT1BH5c55Ml0jFPjarD2KoZHobjHCT01LyC49EHZdT4BECgNGd1+FxWDft5FQk
+ h0D6lybn9s4Ts+f4QuxDtt2/pTdOC4ZfbmPv+45orUnLcOYFMsXs+cTj+xzDgKbF+X7WU6VI2QP
+ mMg/wc/QHkE2AyIic83nr4LAEbvmRA==
+X-Authority-Analysis: v=2.4 cv=cerSrmDM c=1 sm=1 tr=0 ts=68cce5bc b=1 cx=c_pps
+ a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17
+ a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
+ a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19
+ a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=xqWC_Br6kY4A:10 a=kj9zAlcOel0A:10
+ a=yJojWOMRYYMA:10 a=GoEa3M9JfhUA:10 a=VwQbUJbxAAAA:8 a=yPCof4ZbAAAA:8
+ a=GBp2PlFQoT0y_MyTeIIA:9 a=CjuIK1q_8ugA:10 cc=ntf awl=host:13614
+X-Proofpoint-ORIG-GUID: yJSw5CDOWio5EANrUzoBrm0X4Zi-0BT0
 
-Rework almost all of KVM x86's exports to expose symbols only to KVM's
-vendor modules, i.e. to kvm-{amd,intel}.ko.  Keep the generic exports that
-are guarded by CONFIG_KVM_EXTERNAL_WRITE_TRACKING=y, as they're explicitly
-designed/intended for external usage.
+On Thu, Sep 18, 2025 at 12:45:38PM -0700, Chris Mason wrote:
+> On Wed, 10 Sep 2025 21:22:11 +0100 Lorenzo Stoakes <lorenzo.stoakes@oracle.com> wrote:
+>
+> > We can use the mmap insert pages functionality provided for use in
+> > mmap_prepare to insert the kcov pages as required.
+> >
+> > This does necessitate an allocation, but since it's in the mmap path this
+> > doesn't seem egregious. The allocation/freeing of the pages array is
+> > handled automatically by vma_desc_set_mixedmap_pages() and the mapping
+> > logic.
+> >
+> > Signed-off-by: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+> > ---
+> >  kernel/kcov.c | 42 ++++++++++++++++++++++++++----------------
+> >  1 file changed, 26 insertions(+), 16 deletions(-)
+> >
+> > diff --git a/kernel/kcov.c b/kernel/kcov.c
+> > index 1d85597057e1..2bcf403e5f6f 100644
+> > --- a/kernel/kcov.c
+> > +++ b/kernel/kcov.c
+> > @@ -484,31 +484,41 @@ void kcov_task_exit(struct task_struct *t)
+> >  	kcov_put(kcov);
+> >  }
+> >
+> > -static int kcov_mmap(struct file *filep, struct vm_area_struct *vma)
+> > +static int kcov_mmap_error(int err)
+> > +{
+> > +	pr_warn_once("kcov: vm_insert_page() failed\n");
+> > +	return err;
+> > +}
+> > +
+> > +static int kcov_mmap_prepare(struct vm_area_desc *desc)
+> >  {
+> >  	int res = 0;
+> > -	struct kcov *kcov = vma->vm_file->private_data;
+> > -	unsigned long size, off;
+> > -	struct page *page;
+> > +	struct kcov *kcov = desc->file->private_data;
+> > +	unsigned long size, nr_pages, i;
+> > +	struct page **pages;
+> >  	unsigned long flags;
+> >
+> >  	spin_lock_irqsave(&kcov->lock, flags);
+> >  	size = kcov->size * sizeof(unsigned long);
+> > -	if (kcov->area == NULL || vma->vm_pgoff != 0 ||
+> > -	    vma->vm_end - vma->vm_start != size) {
+> > +	if (kcov->area == NULL || desc->pgoff != 0 ||
+> > +	    vma_desc_size(desc) != size) {
+> >  		res = -EINVAL;
+> >  		goto exit;
+> >  	}
+> >  	spin_unlock_irqrestore(&kcov->lock, flags);
+> > -	vm_flags_set(vma, VM_DONTEXPAND);
+> > -	for (off = 0; off < size; off += PAGE_SIZE) {
+> > -		page = vmalloc_to_page(kcov->area + off);
+> > -		res = vm_insert_page(vma, vma->vm_start + off, page);
+> > -		if (res) {
+> > -			pr_warn_once("kcov: vm_insert_page() failed\n");
+> > -			return res;
+> > -		}
+> > -	}
+> > +
+> > +	desc->vm_flags |= VM_DONTEXPAND;
+> > +	nr_pages = size >> PAGE_SHIFT;
+> > +
+> > +	pages = mmap_action_mixedmap_pages(&desc->action, desc->start,
+> > +					   nr_pages);
+>
+> Hi Lorenzo,
+>
+> Not sure if it belongs here before the EINVAL tests, but it looks like
+> kcov->size doesn't have any page alignment.  I think size could be
+> 4000 bytes other unaligned values, so nr_pages should round up.
 
-Signed-off-by: Sean Christopherson <seanjc@google.com>
----
- arch/x86/kvm/cpuid.c        |  10 +-
- arch/x86/kvm/hyperv.c       |   4 +-
- arch/x86/kvm/irq.c          |   6 +-
- arch/x86/kvm/kvm_onhyperv.c |   6 +-
- arch/x86/kvm/lapic.c        |  40 +++----
- arch/x86/kvm/mmu/mmu.c      |  36 +++---
- arch/x86/kvm/mmu/spte.c     |  10 +-
- arch/x86/kvm/mmu/tdp_mmu.c  |   2 +-
- arch/x86/kvm/pmu.c          |  10 +-
- arch/x86/kvm/smm.c          |   2 +-
- arch/x86/kvm/x86.c          | 216 ++++++++++++++++++------------------
- 11 files changed, 171 insertions(+), 171 deletions(-)
+Thanks, you may well be right, but but this series has been respun and I no
+longer touch kcov. :)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index efee08fad72e..b5ba207f1aa5 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -34,7 +34,7 @@
-  * aligned to sizeof(unsigned long) because it's not accessed via bitops.
-  */
- u32 kvm_cpu_caps[NR_KVM_CPU_CAPS] __read_mostly;
--EXPORT_SYMBOL_GPL(kvm_cpu_caps);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_cpu_caps);
- 
- struct cpuid_xstate_sizes {
- 	u32 eax;
-@@ -131,7 +131,7 @@ struct kvm_cpuid_entry2 *kvm_find_cpuid_entry2(
- 
- 	return NULL;
- }
--EXPORT_SYMBOL_GPL(kvm_find_cpuid_entry2);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_find_cpuid_entry2);
- 
- static int kvm_check_cpuid(struct kvm_vcpu *vcpu)
- {
-@@ -1228,7 +1228,7 @@ void kvm_set_cpu_caps(void)
- 		kvm_cpu_cap_clear(X86_FEATURE_RDPID);
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_set_cpu_caps);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_cpu_caps);
- 
- #undef F
- #undef SCATTERED_F
-@@ -2052,7 +2052,7 @@ bool kvm_cpuid(struct kvm_vcpu *vcpu, u32 *eax, u32 *ebx,
- 			used_max_basic);
- 	return exact;
- }
--EXPORT_SYMBOL_GPL(kvm_cpuid);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_cpuid);
- 
- int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
- {
-@@ -2070,4 +2070,4 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
- 	kvm_rdx_write(vcpu, edx);
- 	return kvm_skip_emulated_instruction(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_cpuid);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_cpuid);
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index a471900c7325..38595ecb990d 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -923,7 +923,7 @@ bool kvm_hv_assist_page_enabled(struct kvm_vcpu *vcpu)
- 		return false;
- 	return vcpu->arch.pv_eoi.msr_val & KVM_MSR_ENABLED;
- }
--EXPORT_SYMBOL_GPL(kvm_hv_assist_page_enabled);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_hv_assist_page_enabled);
- 
- int kvm_hv_get_assist_page(struct kvm_vcpu *vcpu)
- {
-@@ -935,7 +935,7 @@ int kvm_hv_get_assist_page(struct kvm_vcpu *vcpu)
- 	return kvm_read_guest_cached(vcpu->kvm, &vcpu->arch.pv_eoi.data,
- 				     &hv_vcpu->vp_assist_page, sizeof(struct hv_vp_assist_page));
- }
--EXPORT_SYMBOL_GPL(kvm_hv_get_assist_page);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_hv_get_assist_page);
- 
- static void stimer_prepare_msg(struct kvm_vcpu_hv_stimer *stimer)
- {
-diff --git a/arch/x86/kvm/irq.c b/arch/x86/kvm/irq.c
-index 153134893301..7cc8950005b6 100644
---- a/arch/x86/kvm/irq.c
-+++ b/arch/x86/kvm/irq.c
-@@ -103,7 +103,7 @@ int kvm_cpu_has_injectable_intr(struct kvm_vcpu *v)
- 
- 	return kvm_apic_has_interrupt(v) != -1; /* LAPIC */
- }
--EXPORT_SYMBOL_GPL(kvm_cpu_has_injectable_intr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_cpu_has_injectable_intr);
- 
- /*
-  * check if there is pending interrupt without
-@@ -119,7 +119,7 @@ int kvm_cpu_has_interrupt(struct kvm_vcpu *v)
- 
- 	return kvm_apic_has_interrupt(v) != -1;	/* LAPIC */
- }
--EXPORT_SYMBOL_GPL(kvm_cpu_has_interrupt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_cpu_has_interrupt);
- 
- /*
-  * Read pending interrupt(from non-APIC source)
-@@ -148,7 +148,7 @@ int kvm_cpu_get_extint(struct kvm_vcpu *v)
- 	WARN_ON_ONCE(!irqchip_split(v->kvm));
- 	return get_userspace_extint(v);
- }
--EXPORT_SYMBOL_GPL(kvm_cpu_get_extint);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_cpu_get_extint);
- 
- /*
-  * Read pending interrupt vector and intack.
-diff --git a/arch/x86/kvm/kvm_onhyperv.c b/arch/x86/kvm/kvm_onhyperv.c
-index ded0bd688c65..ee53e75a60cb 100644
---- a/arch/x86/kvm/kvm_onhyperv.c
-+++ b/arch/x86/kvm/kvm_onhyperv.c
-@@ -101,13 +101,13 @@ int hv_flush_remote_tlbs_range(struct kvm *kvm, gfn_t start_gfn, gfn_t nr_pages)
- 
- 	return __hv_flush_remote_tlbs_range(kvm, &range);
- }
--EXPORT_SYMBOL_GPL(hv_flush_remote_tlbs_range);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(hv_flush_remote_tlbs_range);
- 
- int hv_flush_remote_tlbs(struct kvm *kvm)
- {
- 	return __hv_flush_remote_tlbs_range(kvm, NULL);
- }
--EXPORT_SYMBOL_GPL(hv_flush_remote_tlbs);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(hv_flush_remote_tlbs);
- 
- void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp)
- {
-@@ -121,4 +121,4 @@ void hv_track_root_tdp(struct kvm_vcpu *vcpu, hpa_t root_tdp)
- 		spin_unlock(&kvm_arch->hv_root_tdp_lock);
- 	}
- }
--EXPORT_SYMBOL_GPL(hv_track_root_tdp);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(hv_track_root_tdp);
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index b5e47c523164..0ae7f913d782 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -106,7 +106,7 @@ bool kvm_apic_pending_eoi(struct kvm_vcpu *vcpu, int vector)
- }
- 
- __read_mostly DEFINE_STATIC_KEY_FALSE(kvm_has_noapic_vcpu);
--EXPORT_SYMBOL_GPL(kvm_has_noapic_vcpu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_has_noapic_vcpu);
- 
- __read_mostly DEFINE_STATIC_KEY_DEFERRED_FALSE(apic_hw_disabled, HZ);
- __read_mostly DEFINE_STATIC_KEY_DEFERRED_FALSE(apic_sw_disabled, HZ);
-@@ -646,7 +646,7 @@ bool __kvm_apic_update_irr(unsigned long *pir, void *regs, int *max_irr)
- 	return ((max_updated_irr != -1) &&
- 		(max_updated_irr == *max_irr));
- }
--EXPORT_SYMBOL_GPL(__kvm_apic_update_irr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(__kvm_apic_update_irr);
- 
- bool kvm_apic_update_irr(struct kvm_vcpu *vcpu, unsigned long *pir, int *max_irr)
- {
-@@ -657,7 +657,7 @@ bool kvm_apic_update_irr(struct kvm_vcpu *vcpu, unsigned long *pir, int *max_irr
- 		apic->irr_pending = true;
- 	return irr_updated;
- }
--EXPORT_SYMBOL_GPL(kvm_apic_update_irr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_update_irr);
- 
- static inline int apic_search_irr(struct kvm_lapic *apic)
- {
-@@ -697,7 +697,7 @@ void kvm_apic_clear_irr(struct kvm_vcpu *vcpu, int vec)
- {
- 	apic_clear_irr(vec, vcpu->arch.apic);
- }
--EXPORT_SYMBOL_GPL(kvm_apic_clear_irr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_clear_irr);
- 
- static void *apic_vector_to_isr(int vec, struct kvm_lapic *apic)
- {
-@@ -779,7 +779,7 @@ void kvm_apic_update_hwapic_isr(struct kvm_vcpu *vcpu)
- 
- 	kvm_x86_call(hwapic_isr_update)(vcpu, apic_find_highest_isr(apic));
- }
--EXPORT_SYMBOL_GPL(kvm_apic_update_hwapic_isr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_update_hwapic_isr);
- 
- int kvm_lapic_find_highest_irr(struct kvm_vcpu *vcpu)
- {
-@@ -790,7 +790,7 @@ int kvm_lapic_find_highest_irr(struct kvm_vcpu *vcpu)
- 	 */
- 	return apic_find_highest_irr(vcpu->arch.apic);
- }
--EXPORT_SYMBOL_GPL(kvm_lapic_find_highest_irr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_lapic_find_highest_irr);
- 
- static int __apic_accept_irq(struct kvm_lapic *apic, int delivery_mode,
- 			     int vector, int level, int trig_mode,
-@@ -954,7 +954,7 @@ void kvm_apic_update_ppr(struct kvm_vcpu *vcpu)
- {
- 	apic_update_ppr(vcpu->arch.apic);
- }
--EXPORT_SYMBOL_GPL(kvm_apic_update_ppr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_update_ppr);
- 
- static void apic_set_tpr(struct kvm_lapic *apic, u32 tpr)
- {
-@@ -1065,7 +1065,7 @@ bool kvm_apic_match_dest(struct kvm_vcpu *vcpu, struct kvm_lapic *source,
- 		return false;
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_apic_match_dest);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_match_dest);
- 
- static int kvm_vector_to_index(u32 vector, u32 dest_vcpus,
- 			       const unsigned long *bitmap, u32 bitmap_size)
-@@ -1292,7 +1292,7 @@ bool kvm_intr_is_single_vcpu(struct kvm *kvm, struct kvm_lapic_irq *irq,
- 
- 	return r == 1;
- }
--EXPORT_SYMBOL_GPL(kvm_intr_is_single_vcpu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_intr_is_single_vcpu);
- 
- int kvm_irq_delivery_to_apic(struct kvm *kvm, struct kvm_lapic *src,
- 			     struct kvm_lapic_irq *irq, struct dest_map *dest_map)
-@@ -1569,7 +1569,7 @@ void kvm_apic_set_eoi_accelerated(struct kvm_vcpu *vcpu, int vector)
- 	kvm_ioapic_send_eoi(apic, vector);
- 	kvm_make_request(KVM_REQ_EVENT, apic->vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_apic_set_eoi_accelerated);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_set_eoi_accelerated);
- 
- static void kvm_icr_to_lapic_irq(struct kvm_lapic *apic, u32 icr_low,
- 				 u32 icr_high, struct kvm_lapic_irq *irq)
-@@ -1600,7 +1600,7 @@ void kvm_apic_send_ipi(struct kvm_lapic *apic, u32 icr_low, u32 icr_high)
- 
- 	kvm_irq_delivery_to_apic(apic->vcpu->kvm, apic, &irq, NULL);
- }
--EXPORT_SYMBOL_GPL(kvm_apic_send_ipi);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_send_ipi);
- 
- static u32 apic_get_tmcct(struct kvm_lapic *apic)
- {
-@@ -1717,7 +1717,7 @@ u64 kvm_lapic_readable_reg_mask(struct kvm_lapic *apic)
- 
- 	return valid_reg_mask;
- }
--EXPORT_SYMBOL_GPL(kvm_lapic_readable_reg_mask);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_lapic_readable_reg_mask);
- 
- static int kvm_lapic_reg_read(struct kvm_lapic *apic, u32 offset, int len,
- 			      void *data)
-@@ -1958,7 +1958,7 @@ void kvm_wait_lapic_expire(struct kvm_vcpu *vcpu)
- 	    lapic_timer_int_injected(vcpu))
- 		__kvm_wait_lapic_expire(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_wait_lapic_expire);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_wait_lapic_expire);
- 
- static void kvm_apic_inject_pending_timer_irqs(struct kvm_lapic *apic)
- {
-@@ -2272,7 +2272,7 @@ void kvm_lapic_expired_hv_timer(struct kvm_vcpu *vcpu)
- out:
- 	preempt_enable();
- }
--EXPORT_SYMBOL_GPL(kvm_lapic_expired_hv_timer);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_lapic_expired_hv_timer);
- 
- void kvm_lapic_switch_to_hv_timer(struct kvm_vcpu *vcpu)
- {
-@@ -2525,7 +2525,7 @@ void kvm_lapic_set_eoi(struct kvm_vcpu *vcpu)
- {
- 	kvm_lapic_reg_write(vcpu->arch.apic, APIC_EOI, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_lapic_set_eoi);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_lapic_set_eoi);
- 
- #define X2APIC_ICR_RESERVED_BITS (GENMASK_ULL(31, 20) | GENMASK_ULL(17, 16) | BIT(13))
- 
-@@ -2608,7 +2608,7 @@ void kvm_apic_write_nodecode(struct kvm_vcpu *vcpu, u32 offset)
- 	else
- 		kvm_lapic_reg_write(apic, offset, kvm_lapic_get_reg(apic, offset));
- }
--EXPORT_SYMBOL_GPL(kvm_apic_write_nodecode);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_write_nodecode);
- 
- void kvm_free_lapic(struct kvm_vcpu *vcpu)
- {
-@@ -2746,7 +2746,7 @@ int kvm_apic_set_base(struct kvm_vcpu *vcpu, u64 value, bool host_initiated)
- 	kvm_recalculate_apic_map(vcpu->kvm);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_apic_set_base);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_set_base);
- 
- void kvm_apic_update_apicv(struct kvm_vcpu *vcpu)
- {
-@@ -2794,7 +2794,7 @@ int kvm_alloc_apic_access_page(struct kvm *kvm)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_alloc_apic_access_page);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_alloc_apic_access_page);
- 
- void kvm_inhibit_apic_access_page(struct kvm_vcpu *vcpu)
- {
-@@ -3058,7 +3058,7 @@ int kvm_apic_has_interrupt(struct kvm_vcpu *vcpu)
- 	__apic_update_ppr(apic, &ppr);
- 	return apic_has_interrupt_for_ppr(apic, ppr);
- }
--EXPORT_SYMBOL_GPL(kvm_apic_has_interrupt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_has_interrupt);
- 
- int kvm_apic_accept_pic_intr(struct kvm_vcpu *vcpu)
- {
-@@ -3117,7 +3117,7 @@ void kvm_apic_ack_interrupt(struct kvm_vcpu *vcpu, int vector)
- 	}
- 
- }
--EXPORT_SYMBOL_GPL(kvm_apic_ack_interrupt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apic_ack_interrupt);
- 
- static int kvm_apic_state_fixup(struct kvm_vcpu *vcpu,
- 		struct kvm_lapic_state *s, bool set)
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 55335dbd70ce..667d66cf76d5 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -110,7 +110,7 @@ static bool __ro_after_init tdp_mmu_allowed;
- #ifdef CONFIG_X86_64
- bool __read_mostly tdp_mmu_enabled = true;
- module_param_named(tdp_mmu, tdp_mmu_enabled, bool, 0444);
--EXPORT_SYMBOL_GPL(tdp_mmu_enabled);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(tdp_mmu_enabled);
- #endif
- 
- static int max_huge_page_level __read_mostly;
-@@ -3865,7 +3865,7 @@ void kvm_mmu_free_roots(struct kvm *kvm, struct kvm_mmu *mmu,
- 		write_unlock(&kvm->mmu_lock);
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_free_roots);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_free_roots);
- 
- void kvm_mmu_free_guest_mode_roots(struct kvm *kvm, struct kvm_mmu *mmu)
- {
-@@ -3892,7 +3892,7 @@ void kvm_mmu_free_guest_mode_roots(struct kvm *kvm, struct kvm_mmu *mmu)
- 
- 	kvm_mmu_free_roots(kvm, mmu, roots_to_free);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_free_guest_mode_roots);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_free_guest_mode_roots);
- 
- static hpa_t mmu_alloc_root(struct kvm_vcpu *vcpu, gfn_t gfn, int quadrant,
- 			    u8 level)
-@@ -4876,7 +4876,7 @@ int kvm_handle_page_fault(struct kvm_vcpu *vcpu, u64 error_code,
- 
- 	return r;
- }
--EXPORT_SYMBOL_GPL(kvm_handle_page_fault);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_handle_page_fault);
- 
- #ifdef CONFIG_X86_64
- static int kvm_tdp_mmu_page_fault(struct kvm_vcpu *vcpu,
-@@ -4966,7 +4966,7 @@ int kvm_tdp_map_page(struct kvm_vcpu *vcpu, gpa_t gpa, u64 error_code, u8 *level
- 		return -EIO;
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_tdp_map_page);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_tdp_map_page);
- 
- long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
- 				    struct kvm_pre_fault_memory *range)
-@@ -5162,7 +5162,7 @@ void kvm_mmu_new_pgd(struct kvm_vcpu *vcpu, gpa_t new_pgd)
- 			__clear_sp_write_flooding_count(sp);
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_new_pgd);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_new_pgd);
- 
- static bool sync_mmio_spte(struct kvm_vcpu *vcpu, u64 *sptep, gfn_t gfn,
- 			   unsigned int access)
-@@ -5808,7 +5808,7 @@ void kvm_init_shadow_npt_mmu(struct kvm_vcpu *vcpu, unsigned long cr0,
- 	shadow_mmu_init_context(vcpu, context, cpu_role, root_role);
- 	kvm_mmu_new_pgd(vcpu, nested_cr3);
- }
--EXPORT_SYMBOL_GPL(kvm_init_shadow_npt_mmu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_init_shadow_npt_mmu);
- 
- static union kvm_cpu_role
- kvm_calc_shadow_ept_root_page_role(struct kvm_vcpu *vcpu, bool accessed_dirty,
-@@ -5862,7 +5862,7 @@ void kvm_init_shadow_ept_mmu(struct kvm_vcpu *vcpu, bool execonly,
- 
- 	kvm_mmu_new_pgd(vcpu, new_eptp);
- }
--EXPORT_SYMBOL_GPL(kvm_init_shadow_ept_mmu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_init_shadow_ept_mmu);
- 
- static void init_kvm_softmmu(struct kvm_vcpu *vcpu,
- 			     union kvm_cpu_role cpu_role)
-@@ -5927,7 +5927,7 @@ void kvm_init_mmu(struct kvm_vcpu *vcpu)
- 	else
- 		init_kvm_softmmu(vcpu, cpu_role);
- }
--EXPORT_SYMBOL_GPL(kvm_init_mmu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_init_mmu);
- 
- void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu)
- {
-@@ -5963,7 +5963,7 @@ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
- 	kvm_mmu_unload(vcpu);
- 	kvm_init_mmu(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_reset_context);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_reset_context);
- 
- int kvm_mmu_load(struct kvm_vcpu *vcpu)
- {
-@@ -5997,7 +5997,7 @@ int kvm_mmu_load(struct kvm_vcpu *vcpu)
- out:
- 	return r;
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_load);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_load);
- 
- void kvm_mmu_unload(struct kvm_vcpu *vcpu)
- {
-@@ -6059,7 +6059,7 @@ void kvm_mmu_free_obsolete_roots(struct kvm_vcpu *vcpu)
- 	__kvm_mmu_free_obsolete_roots(vcpu->kvm, &vcpu->arch.root_mmu);
- 	__kvm_mmu_free_obsolete_roots(vcpu->kvm, &vcpu->arch.guest_mmu);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_free_obsolete_roots);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_free_obsolete_roots);
- 
- static u64 mmu_pte_write_fetch_gpte(struct kvm_vcpu *vcpu, gpa_t *gpa,
- 				    int *bytes)
-@@ -6385,7 +6385,7 @@ int noinline kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa, u64 err
- 	return x86_emulate_instruction(vcpu, cr2_or_gpa, emulation_type, insn,
- 				       insn_len);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_page_fault);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_page_fault);
- 
- void kvm_mmu_print_sptes(struct kvm_vcpu *vcpu, gpa_t gpa, const char *msg)
- {
-@@ -6401,7 +6401,7 @@ void kvm_mmu_print_sptes(struct kvm_vcpu *vcpu, gpa_t gpa, const char *msg)
- 		pr_cont(", spte[%d] = 0x%llx", level, sptes[level]);
- 	pr_cont("\n");
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_print_sptes);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_print_sptes);
- 
- static void __kvm_mmu_invalidate_addr(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
- 				      u64 addr, hpa_t root_hpa)
-@@ -6467,7 +6467,7 @@ void kvm_mmu_invalidate_addr(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
- 			__kvm_mmu_invalidate_addr(vcpu, mmu, addr, mmu->prev_roots[i].hpa);
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_invalidate_addr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_invalidate_addr);
- 
- void kvm_mmu_invlpg(struct kvm_vcpu *vcpu, gva_t gva)
- {
-@@ -6484,7 +6484,7 @@ void kvm_mmu_invlpg(struct kvm_vcpu *vcpu, gva_t gva)
- 	kvm_mmu_invalidate_addr(vcpu, vcpu->arch.walk_mmu, gva, KVM_MMU_ROOTS_ALL);
- 	++vcpu->stat.invlpg;
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_invlpg);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_invlpg);
- 
- 
- void kvm_mmu_invpcid_gva(struct kvm_vcpu *vcpu, gva_t gva, unsigned long pcid)
-@@ -6537,7 +6537,7 @@ void kvm_configure_mmu(bool enable_tdp, int tdp_forced_root_level,
- 	else
- 		max_huge_page_level = PG_LEVEL_2M;
- }
--EXPORT_SYMBOL_GPL(kvm_configure_mmu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_configure_mmu);
- 
- static void free_mmu_pages(struct kvm_mmu *mmu)
- {
-@@ -7204,7 +7204,7 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
- 
- 	return need_tlb_flush;
- }
--EXPORT_SYMBOL_GPL(kvm_zap_gfn_range);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_zap_gfn_range);
- 
- static void kvm_rmap_zap_collapsible_sptes(struct kvm *kvm,
- 					   const struct kvm_memory_slot *slot)
-diff --git a/arch/x86/kvm/mmu/spte.c b/arch/x86/kvm/mmu/spte.c
-index df31039b5d63..37647afde7d3 100644
---- a/arch/x86/kvm/mmu/spte.c
-+++ b/arch/x86/kvm/mmu/spte.c
-@@ -22,7 +22,7 @@
- bool __read_mostly enable_mmio_caching = true;
- static bool __ro_after_init allow_mmio_caching;
- module_param_named(mmio_caching, enable_mmio_caching, bool, 0444);
--EXPORT_SYMBOL_GPL(enable_mmio_caching);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(enable_mmio_caching);
- 
- bool __read_mostly kvm_ad_enabled;
- 
-@@ -470,13 +470,13 @@ void kvm_mmu_set_mmio_spte_mask(u64 mmio_value, u64 mmio_mask, u64 access_mask)
- 	shadow_mmio_mask  = mmio_mask;
- 	shadow_mmio_access_mask = access_mask;
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_set_mmio_spte_mask);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_set_mmio_spte_mask);
- 
- void kvm_mmu_set_mmio_spte_value(struct kvm *kvm, u64 mmio_value)
- {
- 	kvm->arch.shadow_mmio_value = mmio_value;
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_set_mmio_spte_value);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_set_mmio_spte_value);
- 
- void kvm_mmu_set_me_spte_mask(u64 me_value, u64 me_mask)
- {
-@@ -487,7 +487,7 @@ void kvm_mmu_set_me_spte_mask(u64 me_value, u64 me_mask)
- 	shadow_me_value = me_value;
- 	shadow_me_mask = me_mask;
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_set_me_spte_mask);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_set_me_spte_mask);
- 
- void kvm_mmu_set_ept_masks(bool has_ad_bits, bool has_exec_only)
- {
-@@ -513,7 +513,7 @@ void kvm_mmu_set_ept_masks(bool has_ad_bits, bool has_exec_only)
- 	kvm_mmu_set_mmio_spte_mask(VMX_EPT_MISCONFIG_WX_VALUE,
- 				   VMX_EPT_RWX_MASK | VMX_EPT_SUPPRESS_VE_BIT, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_set_ept_masks);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_set_ept_masks);
- 
- void kvm_mmu_reset_all_pte_masks(void)
- {
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 7059ac9d58e2..c5734ca5c17d 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1982,7 +1982,7 @@ bool kvm_tdp_mmu_gpa_is_mapped(struct kvm_vcpu *vcpu, u64 gpa)
- 	spte = sptes[leaf];
- 	return is_shadow_present_pte(spte) && is_last_spte(spte, leaf);
- }
--EXPORT_SYMBOL_GPL(kvm_tdp_mmu_gpa_is_mapped);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_tdp_mmu_gpa_is_mapped);
- 
- /*
-  * Returns the last level spte pointer of the shadow page walk for the given
-diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
-index b7dc5bd981ba..40ac4cb44ed2 100644
---- a/arch/x86/kvm/pmu.c
-+++ b/arch/x86/kvm/pmu.c
-@@ -31,7 +31,7 @@ static struct x86_pmu_capability __read_mostly kvm_host_pmu;
- 
- /* KVM's PMU capabilities, i.e. the intersection of KVM and hardware support. */
- struct x86_pmu_capability __read_mostly kvm_pmu_cap;
--EXPORT_SYMBOL_GPL(kvm_pmu_cap);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_pmu_cap);
- 
- struct kvm_pmu_emulated_event_selectors {
- 	u64 INSTRUCTIONS_RETIRED;
-@@ -373,7 +373,7 @@ void pmc_write_counter(struct kvm_pmc *pmc, u64 val)
- 	pmc->counter &= pmc_bitmask(pmc);
- 	pmc_update_sample_period(pmc);
- }
--EXPORT_SYMBOL_GPL(pmc_write_counter);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(pmc_write_counter);
- 
- static int filter_cmp(const void *pa, const void *pb, u64 mask)
- {
-@@ -581,7 +581,7 @@ void kvm_pmu_recalc_pmc_emulation(struct kvm_pmu *pmu, struct kvm_pmc *pmc)
- 	if (pmc_is_event_match(pmc, kvm_pmu_eventsel.BRANCH_INSTRUCTIONS_RETIRED))
- 		bitmap_set(pmu->pmc_counting_branches, pmc->idx, 1);
- }
--EXPORT_SYMBOL_GPL(kvm_pmu_recalc_pmc_emulation);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_pmu_recalc_pmc_emulation);
- 
- void kvm_pmu_handle_event(struct kvm_vcpu *vcpu)
- {
-@@ -996,13 +996,13 @@ void kvm_pmu_instruction_retired(struct kvm_vcpu *vcpu)
- {
- 	kvm_pmu_trigger_event(vcpu, vcpu_to_pmu(vcpu)->pmc_counting_instructions);
- }
--EXPORT_SYMBOL_GPL(kvm_pmu_instruction_retired);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_pmu_instruction_retired);
- 
- void kvm_pmu_branch_retired(struct kvm_vcpu *vcpu)
- {
- 	kvm_pmu_trigger_event(vcpu, vcpu_to_pmu(vcpu)->pmc_counting_branches);
- }
--EXPORT_SYMBOL_GPL(kvm_pmu_branch_retired);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_pmu_branch_retired);
- 
- static bool is_masked_filter_valid(const struct kvm_x86_pmu_event_filter *filter)
- {
-diff --git a/arch/x86/kvm/smm.c b/arch/x86/kvm/smm.c
-index 5dd8a1646800..f04674cad9ef 100644
---- a/arch/x86/kvm/smm.c
-+++ b/arch/x86/kvm/smm.c
-@@ -131,7 +131,7 @@ void kvm_smm_changed(struct kvm_vcpu *vcpu, bool entering_smm)
- 
- 	kvm_mmu_reset_context(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_smm_changed);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_smm_changed);
- 
- void process_smi(struct kvm_vcpu *vcpu)
- {
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index ea0fffb24d4d..69934531cc1c 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -97,10 +97,10 @@
-  * vendor module being reloaded with different module parameters.
-  */
- struct kvm_caps kvm_caps __read_mostly;
--EXPORT_SYMBOL_GPL(kvm_caps);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_caps);
- 
- struct kvm_host_values kvm_host __read_mostly;
--EXPORT_SYMBOL_GPL(kvm_host);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_host);
- 
- #define  ERR_PTR_USR(e)  ((void __user *)ERR_PTR(e))
- 
-@@ -152,7 +152,7 @@ module_param(ignore_msrs, bool, 0644);
- 
- bool __read_mostly report_ignored_msrs = true;
- module_param(report_ignored_msrs, bool, 0644);
--EXPORT_SYMBOL_GPL(report_ignored_msrs);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(report_ignored_msrs);
- 
- unsigned int min_timer_period_us = 200;
- module_param(min_timer_period_us, uint, 0644);
-@@ -166,7 +166,7 @@ module_param(tsc_tolerance_ppm, uint, 0644);
- 
- bool __read_mostly enable_vmware_backdoor = false;
- module_param(enable_vmware_backdoor, bool, 0444);
--EXPORT_SYMBOL_GPL(enable_vmware_backdoor);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(enable_vmware_backdoor);
- 
- /*
-  * Flags to manipulate forced emulation behavior (any non-zero value will
-@@ -181,7 +181,7 @@ module_param(pi_inject_timer, bint, 0644);
- 
- /* Enable/disable PMU virtualization */
- bool __read_mostly enable_pmu = true;
--EXPORT_SYMBOL_GPL(enable_pmu);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(enable_pmu);
- module_param(enable_pmu, bool, 0444);
- 
- bool __read_mostly eager_page_split = true;
-@@ -208,7 +208,7 @@ struct kvm_user_return_msrs {
- };
- 
- u32 __read_mostly kvm_nr_uret_msrs;
--EXPORT_SYMBOL_GPL(kvm_nr_uret_msrs);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_nr_uret_msrs);
- static u32 __read_mostly kvm_uret_msrs_list[KVM_MAX_NR_USER_RETURN_MSRS];
- static struct kvm_user_return_msrs __percpu *user_return_msrs;
- 
-@@ -218,16 +218,16 @@ static struct kvm_user_return_msrs __percpu *user_return_msrs;
- 				| XFEATURE_MASK_PKRU | XFEATURE_MASK_XTILE)
- 
- bool __read_mostly allow_smaller_maxphyaddr = 0;
--EXPORT_SYMBOL_GPL(allow_smaller_maxphyaddr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(allow_smaller_maxphyaddr);
- 
- bool __read_mostly enable_apicv = true;
--EXPORT_SYMBOL_GPL(enable_apicv);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(enable_apicv);
- 
- bool __read_mostly enable_ipiv = true;
--EXPORT_SYMBOL_GPL(enable_ipiv);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(enable_ipiv);
- 
- bool __read_mostly enable_device_posted_irqs = true;
--EXPORT_SYMBOL_GPL(enable_device_posted_irqs);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(enable_device_posted_irqs);
- 
- const struct _kvm_stats_desc kvm_vm_stats_desc[] = {
- 	KVM_GENERIC_VM_STATS(),
-@@ -612,7 +612,7 @@ int kvm_add_user_return_msr(u32 msr)
- 	kvm_uret_msrs_list[kvm_nr_uret_msrs] = msr;
- 	return kvm_nr_uret_msrs++;
- }
--EXPORT_SYMBOL_GPL(kvm_add_user_return_msr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_add_user_return_msr);
- 
- int kvm_find_user_return_msr(u32 msr)
- {
-@@ -624,7 +624,7 @@ int kvm_find_user_return_msr(u32 msr)
- 	}
- 	return -1;
- }
--EXPORT_SYMBOL_GPL(kvm_find_user_return_msr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_find_user_return_msr);
- 
- static void kvm_user_return_msr_cpu_online(void)
- {
-@@ -664,7 +664,7 @@ int kvm_set_user_return_msr(unsigned slot, u64 value, u64 mask)
- 	kvm_user_return_register_notifier(msrs);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_user_return_msr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_user_return_msr);
- 
- void kvm_user_return_msr_update_cache(unsigned int slot, u64 value)
- {
-@@ -673,7 +673,7 @@ void kvm_user_return_msr_update_cache(unsigned int slot, u64 value)
- 	msrs->values[slot].curr = value;
- 	kvm_user_return_register_notifier(msrs);
- }
--EXPORT_SYMBOL_GPL(kvm_user_return_msr_update_cache);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_user_return_msr_update_cache);
- 
- static void drop_user_return_notifiers(void)
- {
-@@ -695,7 +695,7 @@ noinstr void kvm_spurious_fault(void)
- 	/* Fault while not rebooting.  We want the trace. */
- 	BUG_ON(!kvm_rebooting);
- }
--EXPORT_SYMBOL_GPL(kvm_spurious_fault);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_spurious_fault);
- 
- #define EXCPT_BENIGN		0
- #define EXCPT_CONTRIBUTORY	1
-@@ -800,7 +800,7 @@ void kvm_deliver_exception_payload(struct kvm_vcpu *vcpu,
- 	ex->has_payload = false;
- 	ex->payload = 0;
- }
--EXPORT_SYMBOL_GPL(kvm_deliver_exception_payload);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_deliver_exception_payload);
- 
- static void kvm_queue_exception_vmexit(struct kvm_vcpu *vcpu, unsigned int vector,
- 				       bool has_error_code, u32 error_code,
-@@ -884,7 +884,7 @@ void kvm_queue_exception(struct kvm_vcpu *vcpu, unsigned nr)
- {
- 	kvm_multiple_exception(vcpu, nr, false, 0, false, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_queue_exception);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_queue_exception);
- 
- 
- void kvm_queue_exception_p(struct kvm_vcpu *vcpu, unsigned nr,
-@@ -892,7 +892,7 @@ void kvm_queue_exception_p(struct kvm_vcpu *vcpu, unsigned nr,
- {
- 	kvm_multiple_exception(vcpu, nr, false, 0, true, payload);
- }
--EXPORT_SYMBOL_GPL(kvm_queue_exception_p);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_queue_exception_p);
- 
- static void kvm_queue_exception_e_p(struct kvm_vcpu *vcpu, unsigned nr,
- 				    u32 error_code, unsigned long payload)
-@@ -927,7 +927,7 @@ void kvm_requeue_exception(struct kvm_vcpu *vcpu, unsigned int nr,
- 	vcpu->arch.exception.has_payload = false;
- 	vcpu->arch.exception.payload = 0;
- }
--EXPORT_SYMBOL_GPL(kvm_requeue_exception);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_requeue_exception);
- 
- int kvm_complete_insn_gp(struct kvm_vcpu *vcpu, int err)
- {
-@@ -938,7 +938,7 @@ int kvm_complete_insn_gp(struct kvm_vcpu *vcpu, int err)
- 
- 	return 1;
- }
--EXPORT_SYMBOL_GPL(kvm_complete_insn_gp);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_complete_insn_gp);
- 
- static int complete_emulated_insn_gp(struct kvm_vcpu *vcpu, int err)
- {
-@@ -988,7 +988,7 @@ void kvm_inject_emulated_page_fault(struct kvm_vcpu *vcpu,
- 
- 	fault_mmu->inject_page_fault(vcpu, fault);
- }
--EXPORT_SYMBOL_GPL(kvm_inject_emulated_page_fault);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_inject_emulated_page_fault);
- 
- void kvm_inject_nmi(struct kvm_vcpu *vcpu)
- {
-@@ -1000,7 +1000,7 @@ void kvm_queue_exception_e(struct kvm_vcpu *vcpu, unsigned nr, u32 error_code)
- {
- 	kvm_multiple_exception(vcpu, nr, true, error_code, false, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_queue_exception_e);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_queue_exception_e);
- 
- /*
-  * Checks if cpl <= required_cpl; if true, return true.  Otherwise queue
-@@ -1022,7 +1022,7 @@ bool kvm_require_dr(struct kvm_vcpu *vcpu, int dr)
- 	kvm_queue_exception(vcpu, UD_VECTOR);
- 	return false;
- }
--EXPORT_SYMBOL_GPL(kvm_require_dr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_require_dr);
- 
- static inline u64 pdptr_rsvd_bits(struct kvm_vcpu *vcpu)
- {
-@@ -1077,7 +1077,7 @@ int load_pdptrs(struct kvm_vcpu *vcpu, unsigned long cr3)
- 
- 	return 1;
- }
--EXPORT_SYMBOL_GPL(load_pdptrs);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(load_pdptrs);
- 
- static bool kvm_is_valid_cr0(struct kvm_vcpu *vcpu, unsigned long cr0)
- {
-@@ -1130,7 +1130,7 @@ void kvm_post_set_cr0(struct kvm_vcpu *vcpu, unsigned long old_cr0, unsigned lon
- 	if ((cr0 ^ old_cr0) & KVM_MMU_CR0_ROLE_BITS)
- 		kvm_mmu_reset_context(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_post_set_cr0);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_post_set_cr0);
- 
- int kvm_set_cr0(struct kvm_vcpu *vcpu, unsigned long cr0)
- {
-@@ -1171,13 +1171,13 @@ int kvm_set_cr0(struct kvm_vcpu *vcpu, unsigned long cr0)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_cr0);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_cr0);
- 
- void kvm_lmsw(struct kvm_vcpu *vcpu, unsigned long msw)
- {
- 	(void)kvm_set_cr0(vcpu, kvm_read_cr0_bits(vcpu, ~0x0eul) | (msw & 0x0f));
- }
--EXPORT_SYMBOL_GPL(kvm_lmsw);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_lmsw);
- 
- void kvm_load_guest_xsave_state(struct kvm_vcpu *vcpu)
- {
-@@ -1200,7 +1200,7 @@ void kvm_load_guest_xsave_state(struct kvm_vcpu *vcpu)
- 	     kvm_is_cr4_bit_set(vcpu, X86_CR4_PKE)))
- 		wrpkru(vcpu->arch.pkru);
- }
--EXPORT_SYMBOL_GPL(kvm_load_guest_xsave_state);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_load_guest_xsave_state);
- 
- void kvm_load_host_xsave_state(struct kvm_vcpu *vcpu)
- {
-@@ -1226,7 +1226,7 @@ void kvm_load_host_xsave_state(struct kvm_vcpu *vcpu)
- 	}
- 
- }
--EXPORT_SYMBOL_GPL(kvm_load_host_xsave_state);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_load_host_xsave_state);
- 
- #ifdef CONFIG_X86_64
- static inline u64 kvm_guest_supported_xfd(struct kvm_vcpu *vcpu)
-@@ -1291,7 +1291,7 @@ int kvm_emulate_xsetbv(struct kvm_vcpu *vcpu)
- 
- 	return kvm_skip_emulated_instruction(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_xsetbv);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_xsetbv);
- 
- static bool kvm_is_valid_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- {
-@@ -1339,7 +1339,7 @@ void kvm_post_set_cr4(struct kvm_vcpu *vcpu, unsigned long old_cr4, unsigned lon
- 		kvm_make_request(KVM_REQ_TLB_FLUSH_CURRENT, vcpu);
- 
- }
--EXPORT_SYMBOL_GPL(kvm_post_set_cr4);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_post_set_cr4);
- 
- int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- {
-@@ -1370,7 +1370,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_cr4);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_cr4);
- 
- static void kvm_invalidate_pcid(struct kvm_vcpu *vcpu, unsigned long pcid)
- {
-@@ -1462,7 +1462,7 @@ int kvm_set_cr3(struct kvm_vcpu *vcpu, unsigned long cr3)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_cr3);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_cr3);
- 
- int kvm_set_cr8(struct kvm_vcpu *vcpu, unsigned long cr8)
- {
-@@ -1474,7 +1474,7 @@ int kvm_set_cr8(struct kvm_vcpu *vcpu, unsigned long cr8)
- 		vcpu->arch.cr8 = cr8;
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_cr8);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_cr8);
- 
- unsigned long kvm_get_cr8(struct kvm_vcpu *vcpu)
- {
-@@ -1483,7 +1483,7 @@ unsigned long kvm_get_cr8(struct kvm_vcpu *vcpu)
- 	else
- 		return vcpu->arch.cr8;
- }
--EXPORT_SYMBOL_GPL(kvm_get_cr8);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_cr8);
- 
- static void kvm_update_dr0123(struct kvm_vcpu *vcpu)
- {
-@@ -1508,7 +1508,7 @@ void kvm_update_dr7(struct kvm_vcpu *vcpu)
- 	if (dr7 & DR7_BP_EN_MASK)
- 		vcpu->arch.switch_db_regs |= KVM_DEBUGREG_BP_ENABLED;
- }
--EXPORT_SYMBOL_GPL(kvm_update_dr7);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_update_dr7);
- 
- static u64 kvm_dr6_fixed(struct kvm_vcpu *vcpu)
- {
-@@ -1549,7 +1549,7 @@ int kvm_set_dr(struct kvm_vcpu *vcpu, int dr, unsigned long val)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_dr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_dr);
- 
- unsigned long kvm_get_dr(struct kvm_vcpu *vcpu, int dr)
- {
-@@ -1566,7 +1566,7 @@ unsigned long kvm_get_dr(struct kvm_vcpu *vcpu, int dr)
- 		return vcpu->arch.dr7;
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_get_dr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_dr);
- 
- int kvm_emulate_rdpmc(struct kvm_vcpu *vcpu)
- {
-@@ -1582,7 +1582,7 @@ int kvm_emulate_rdpmc(struct kvm_vcpu *vcpu)
- 	kvm_rdx_write(vcpu, data >> 32);
- 	return kvm_skip_emulated_instruction(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_rdpmc);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_rdpmc);
- 
- /*
-  * Some IA32_ARCH_CAPABILITIES bits have dependencies on MSRs that KVM
-@@ -1721,7 +1721,7 @@ bool kvm_valid_efer(struct kvm_vcpu *vcpu, u64 efer)
- 
- 	return __kvm_valid_efer(vcpu, efer);
- }
--EXPORT_SYMBOL_GPL(kvm_valid_efer);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_valid_efer);
- 
- static int set_efer(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- {
-@@ -1764,7 +1764,7 @@ void kvm_enable_efer_bits(u64 mask)
- {
-        efer_reserved_bits &= ~mask;
- }
--EXPORT_SYMBOL_GPL(kvm_enable_efer_bits);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_enable_efer_bits);
- 
- bool kvm_msr_allowed(struct kvm_vcpu *vcpu, u32 index, u32 type)
- {
-@@ -1807,7 +1807,7 @@ bool kvm_msr_allowed(struct kvm_vcpu *vcpu, u32 index, u32 type)
- 
- 	return allowed;
- }
--EXPORT_SYMBOL_GPL(kvm_msr_allowed);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_msr_allowed);
- 
- /*
-  * Write @data into the MSR specified by @index.  Select MSR specific fault
-@@ -1944,13 +1944,13 @@ int __kvm_emulate_msr_read(struct kvm_vcpu *vcpu, u32 index, u64 *data)
- {
- 	return kvm_get_msr_ignored_check(vcpu, index, data, false);
- }
--EXPORT_SYMBOL_GPL(__kvm_emulate_msr_read);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(__kvm_emulate_msr_read);
- 
- int __kvm_emulate_msr_write(struct kvm_vcpu *vcpu, u32 index, u64 data)
- {
- 	return kvm_set_msr_ignored_check(vcpu, index, data, false);
- }
--EXPORT_SYMBOL_GPL(__kvm_emulate_msr_write);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(__kvm_emulate_msr_write);
- 
- int kvm_emulate_msr_read(struct kvm_vcpu *vcpu, u32 index, u64 *data)
- {
-@@ -1959,7 +1959,7 @@ int kvm_emulate_msr_read(struct kvm_vcpu *vcpu, u32 index, u64 *data)
- 
- 	return __kvm_emulate_msr_read(vcpu, index, data);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_msr_read);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_msr_read);
- 
- int kvm_emulate_msr_write(struct kvm_vcpu *vcpu, u32 index, u64 data)
- {
-@@ -1968,7 +1968,7 @@ int kvm_emulate_msr_write(struct kvm_vcpu *vcpu, u32 index, u64 data)
- 
- 	return __kvm_emulate_msr_write(vcpu, index, data);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_msr_write);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_msr_write);
- 
- 
- static void complete_userspace_rdmsr(struct kvm_vcpu *vcpu)
-@@ -2077,7 +2077,7 @@ int kvm_emulate_rdmsr(struct kvm_vcpu *vcpu)
- 	return __kvm_emulate_rdmsr(vcpu, kvm_rcx_read(vcpu), -1,
- 				   complete_fast_rdmsr);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_rdmsr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_rdmsr);
- 
- int kvm_emulate_rdmsr_imm(struct kvm_vcpu *vcpu, u32 msr, int reg)
- {
-@@ -2085,7 +2085,7 @@ int kvm_emulate_rdmsr_imm(struct kvm_vcpu *vcpu, u32 msr, int reg)
- 
- 	return __kvm_emulate_rdmsr(vcpu, msr, reg, complete_fast_rdmsr_imm);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_rdmsr_imm);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_rdmsr_imm);
- 
- static int __kvm_emulate_wrmsr(struct kvm_vcpu *vcpu, u32 msr, u64 data)
- {
-@@ -2113,13 +2113,13 @@ int kvm_emulate_wrmsr(struct kvm_vcpu *vcpu)
- 	return __kvm_emulate_wrmsr(vcpu, kvm_rcx_read(vcpu),
- 				   kvm_read_edx_eax(vcpu));
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_wrmsr);
- 
- int kvm_emulate_wrmsr_imm(struct kvm_vcpu *vcpu, u32 msr, int reg)
- {
- 	return __kvm_emulate_wrmsr(vcpu, msr, kvm_register_read(vcpu, reg));
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr_imm);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_wrmsr_imm);
- 
- int kvm_emulate_as_nop(struct kvm_vcpu *vcpu)
- {
-@@ -2131,7 +2131,7 @@ int kvm_emulate_invd(struct kvm_vcpu *vcpu)
- 	/* Treat an INVD instruction as a NOP and just skip it. */
- 	return kvm_emulate_as_nop(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_invd);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_invd);
- 
- fastpath_t handle_fastpath_invd(struct kvm_vcpu *vcpu)
- {
-@@ -2140,14 +2140,14 @@ fastpath_t handle_fastpath_invd(struct kvm_vcpu *vcpu)
- 
- 	return EXIT_FASTPATH_REENTER_GUEST;
- }
--EXPORT_SYMBOL_GPL(handle_fastpath_invd);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(handle_fastpath_invd);
- 
- int kvm_handle_invalid_op(struct kvm_vcpu *vcpu)
- {
- 	kvm_queue_exception(vcpu, UD_VECTOR);
- 	return 1;
- }
--EXPORT_SYMBOL_GPL(kvm_handle_invalid_op);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_handle_invalid_op);
- 
- 
- static int kvm_emulate_monitor_mwait(struct kvm_vcpu *vcpu, const char *insn)
-@@ -2173,13 +2173,13 @@ int kvm_emulate_mwait(struct kvm_vcpu *vcpu)
- {
- 	return kvm_emulate_monitor_mwait(vcpu, "MWAIT");
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_mwait);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_mwait);
- 
- int kvm_emulate_monitor(struct kvm_vcpu *vcpu)
- {
- 	return kvm_emulate_monitor_mwait(vcpu, "MONITOR");
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_monitor);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_monitor);
- 
- static inline bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
- {
-@@ -2217,13 +2217,13 @@ fastpath_t handle_fastpath_wrmsr(struct kvm_vcpu *vcpu)
- 	return __handle_fastpath_wrmsr(vcpu, kvm_rcx_read(vcpu),
- 				       kvm_read_edx_eax(vcpu));
- }
--EXPORT_SYMBOL_GPL(handle_fastpath_wrmsr);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(handle_fastpath_wrmsr);
- 
- fastpath_t handle_fastpath_wrmsr_imm(struct kvm_vcpu *vcpu, u32 msr, int reg)
- {
- 	return __handle_fastpath_wrmsr(vcpu, msr, kvm_register_read(vcpu, reg));
- }
--EXPORT_SYMBOL_GPL(handle_fastpath_wrmsr_imm);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(handle_fastpath_wrmsr_imm);
- 
- /*
-  * Adapt set_msr() to msr_io()'s calling convention
-@@ -2589,7 +2589,7 @@ u64 kvm_read_l1_tsc(struct kvm_vcpu *vcpu, u64 host_tsc)
- 	return vcpu->arch.l1_tsc_offset +
- 		kvm_scale_tsc(host_tsc, vcpu->arch.l1_tsc_scaling_ratio);
- }
--EXPORT_SYMBOL_GPL(kvm_read_l1_tsc);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_read_l1_tsc);
- 
- u64 kvm_calc_nested_tsc_offset(u64 l1_offset, u64 l2_offset, u64 l2_multiplier)
- {
-@@ -2604,7 +2604,7 @@ u64 kvm_calc_nested_tsc_offset(u64 l1_offset, u64 l2_offset, u64 l2_multiplier)
- 	nested_offset += l2_offset;
- 	return nested_offset;
- }
--EXPORT_SYMBOL_GPL(kvm_calc_nested_tsc_offset);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_calc_nested_tsc_offset);
- 
- u64 kvm_calc_nested_tsc_multiplier(u64 l1_multiplier, u64 l2_multiplier)
- {
-@@ -2614,7 +2614,7 @@ u64 kvm_calc_nested_tsc_multiplier(u64 l1_multiplier, u64 l2_multiplier)
- 
- 	return l1_multiplier;
- }
--EXPORT_SYMBOL_GPL(kvm_calc_nested_tsc_multiplier);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_calc_nested_tsc_multiplier);
- 
- static void kvm_vcpu_write_tsc_offset(struct kvm_vcpu *vcpu, u64 l1_offset)
- {
-@@ -3692,7 +3692,7 @@ void kvm_service_local_tlb_flush_requests(struct kvm_vcpu *vcpu)
- 	if (kvm_check_request(KVM_REQ_TLB_FLUSH_GUEST, vcpu))
- 		kvm_vcpu_flush_tlb_guest(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_service_local_tlb_flush_requests);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_service_local_tlb_flush_requests);
- 
- static void record_steal_time(struct kvm_vcpu *vcpu)
- {
-@@ -4184,7 +4184,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_set_msr_common);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_msr_common);
- 
- static int get_msr_mce(struct kvm_vcpu *vcpu, u32 msr, u64 *pdata, bool host)
- {
-@@ -4533,7 +4533,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_get_msr_common);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_msr_common);
- 
- /*
-  * Read or write a bunch of msrs. All parameters are kernel addresses.
-@@ -7521,7 +7521,7 @@ gpa_t kvm_mmu_gva_to_gpa_read(struct kvm_vcpu *vcpu, gva_t gva,
- 	u64 access = (kvm_x86_call(get_cpl)(vcpu) == 3) ? PFERR_USER_MASK : 0;
- 	return mmu->gva_to_gpa(vcpu, mmu, gva, access, exception);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_gva_to_gpa_read);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_gva_to_gpa_read);
- 
- gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
- 			       struct x86_exception *exception)
-@@ -7532,7 +7532,7 @@ gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
- 	access |= PFERR_WRITE_MASK;
- 	return mmu->gva_to_gpa(vcpu, mmu, gva, access, exception);
- }
--EXPORT_SYMBOL_GPL(kvm_mmu_gva_to_gpa_write);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_mmu_gva_to_gpa_write);
- 
- /* uses this to access any guest's mapped memory without checking CPL */
- gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
-@@ -7618,7 +7618,7 @@ int kvm_read_guest_virt(struct kvm_vcpu *vcpu,
- 	return kvm_read_guest_virt_helper(addr, val, bytes, vcpu, access,
- 					  exception);
- }
--EXPORT_SYMBOL_GPL(kvm_read_guest_virt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_read_guest_virt);
- 
- static int emulator_read_std(struct x86_emulate_ctxt *ctxt,
- 			     gva_t addr, void *val, unsigned int bytes,
-@@ -7690,7 +7690,7 @@ int kvm_write_guest_virt_system(struct kvm_vcpu *vcpu, gva_t addr, void *val,
- 	return kvm_write_guest_virt_helper(addr, val, bytes, vcpu,
- 					   PFERR_WRITE_MASK, exception);
- }
--EXPORT_SYMBOL_GPL(kvm_write_guest_virt_system);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_write_guest_virt_system);
- 
- static int kvm_check_emulate_insn(struct kvm_vcpu *vcpu, int emul_type,
- 				  void *insn, int insn_len)
-@@ -7724,7 +7724,7 @@ int handle_ud(struct kvm_vcpu *vcpu)
- 
- 	return kvm_emulate_instruction(vcpu, emul_type);
- }
--EXPORT_SYMBOL_GPL(handle_ud);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(handle_ud);
- 
- static int vcpu_is_mmio_gpa(struct kvm_vcpu *vcpu, unsigned long gva,
- 			    gpa_t gpa, bool write)
-@@ -8203,7 +8203,7 @@ int kvm_emulate_wbinvd(struct kvm_vcpu *vcpu)
- 	kvm_emulate_wbinvd_noskip(vcpu);
- 	return kvm_skip_emulated_instruction(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_wbinvd);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_wbinvd);
- 
- 
- 
-@@ -8692,7 +8692,7 @@ void kvm_inject_realmode_interrupt(struct kvm_vcpu *vcpu, int irq, int inc_eip)
- 		kvm_set_rflags(vcpu, ctxt->eflags);
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_inject_realmode_interrupt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_inject_realmode_interrupt);
- 
- static void prepare_emulation_failure_exit(struct kvm_vcpu *vcpu, u64 *data,
- 					   u8 ndata, u8 *insn_bytes, u8 insn_size)
-@@ -8757,13 +8757,13 @@ void __kvm_prepare_emulation_failure_exit(struct kvm_vcpu *vcpu, u64 *data,
- {
- 	prepare_emulation_failure_exit(vcpu, data, ndata, NULL, 0);
- }
--EXPORT_SYMBOL_GPL(__kvm_prepare_emulation_failure_exit);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(__kvm_prepare_emulation_failure_exit);
- 
- void kvm_prepare_emulation_failure_exit(struct kvm_vcpu *vcpu)
- {
- 	__kvm_prepare_emulation_failure_exit(vcpu, NULL, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_prepare_emulation_failure_exit);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_prepare_emulation_failure_exit);
- 
- void kvm_prepare_event_vectoring_exit(struct kvm_vcpu *vcpu, gpa_t gpa)
- {
-@@ -8785,7 +8785,7 @@ void kvm_prepare_event_vectoring_exit(struct kvm_vcpu *vcpu, gpa_t gpa)
- 	run->internal.suberror = KVM_INTERNAL_ERROR_DELIVERY_EV;
- 	run->internal.ndata = ndata;
- }
--EXPORT_SYMBOL_GPL(kvm_prepare_event_vectoring_exit);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_prepare_event_vectoring_exit);
- 
- static int handle_emulation_failure(struct kvm_vcpu *vcpu, int emulation_type)
- {
-@@ -8909,7 +8909,7 @@ int kvm_skip_emulated_instruction(struct kvm_vcpu *vcpu)
- 		r = kvm_vcpu_do_singlestep(vcpu);
- 	return r;
- }
--EXPORT_SYMBOL_GPL(kvm_skip_emulated_instruction);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_skip_emulated_instruction);
- 
- static bool kvm_is_code_breakpoint_inhibited(struct kvm_vcpu *vcpu)
- {
-@@ -9040,7 +9040,7 @@ int x86_decode_emulated_instruction(struct kvm_vcpu *vcpu, int emulation_type,
- 
- 	return r;
- }
--EXPORT_SYMBOL_GPL(x86_decode_emulated_instruction);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(x86_decode_emulated_instruction);
- 
- int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
- 			    int emulation_type, void *insn, int insn_len)
-@@ -9264,14 +9264,14 @@ int kvm_emulate_instruction(struct kvm_vcpu *vcpu, int emulation_type)
- {
- 	return x86_emulate_instruction(vcpu, 0, emulation_type, NULL, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_instruction);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_instruction);
- 
- int kvm_emulate_instruction_from_buffer(struct kvm_vcpu *vcpu,
- 					void *insn, int insn_len)
- {
- 	return x86_emulate_instruction(vcpu, 0, 0, insn, insn_len);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_instruction_from_buffer);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_instruction_from_buffer);
- 
- static int complete_fast_pio_out_port_0x7e(struct kvm_vcpu *vcpu)
- {
-@@ -9366,7 +9366,7 @@ int kvm_fast_pio(struct kvm_vcpu *vcpu, int size, unsigned short port, int in)
- 		ret = kvm_fast_pio_out(vcpu, size, port);
- 	return ret && kvm_skip_emulated_instruction(vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_fast_pio);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_fast_pio);
- 
- static int kvmclock_cpu_down_prep(unsigned int cpu)
- {
-@@ -9798,7 +9798,7 @@ int kvm_x86_vendor_init(struct kvm_x86_init_ops *ops)
- 	kmem_cache_destroy(x86_emulator_cache);
- 	return r;
- }
--EXPORT_SYMBOL_GPL(kvm_x86_vendor_init);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_x86_vendor_init);
- 
- void kvm_x86_vendor_exit(void)
- {
-@@ -9832,7 +9832,7 @@ void kvm_x86_vendor_exit(void)
- 	kvm_x86_ops.enable_virtualization_cpu = NULL;
- 	mutex_unlock(&vendor_module_lock);
- }
--EXPORT_SYMBOL_GPL(kvm_x86_vendor_exit);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_x86_vendor_exit);
- 
- #ifdef CONFIG_X86_64
- static int kvm_pv_clock_pairing(struct kvm_vcpu *vcpu, gpa_t paddr,
-@@ -9896,7 +9896,7 @@ bool kvm_apicv_activated(struct kvm *kvm)
- {
- 	return (READ_ONCE(kvm->arch.apicv_inhibit_reasons) == 0);
- }
--EXPORT_SYMBOL_GPL(kvm_apicv_activated);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_apicv_activated);
- 
- bool kvm_vcpu_apicv_activated(struct kvm_vcpu *vcpu)
- {
-@@ -9906,7 +9906,7 @@ bool kvm_vcpu_apicv_activated(struct kvm_vcpu *vcpu)
- 
- 	return (vm_reasons | vcpu_reasons) == 0;
- }
--EXPORT_SYMBOL_GPL(kvm_vcpu_apicv_activated);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_vcpu_apicv_activated);
- 
- static void set_or_clear_apicv_inhibit(unsigned long *inhibits,
- 				       enum kvm_apicv_inhibit reason, bool set)
-@@ -10082,7 +10082,7 @@ int ____kvm_emulate_hypercall(struct kvm_vcpu *vcpu, int cpl,
- 	vcpu->run->hypercall.ret = ret;
- 	return 1;
- }
--EXPORT_SYMBOL_GPL(____kvm_emulate_hypercall);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(____kvm_emulate_hypercall);
- 
- int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
- {
-@@ -10095,7 +10095,7 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
- 	return __kvm_emulate_hypercall(vcpu, kvm_x86_call(get_cpl)(vcpu),
- 				       complete_hypercall_exit);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_hypercall);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_hypercall);
- 
- static int emulator_fix_hypercall(struct x86_emulate_ctxt *ctxt)
- {
-@@ -10538,7 +10538,7 @@ void __kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
- 	preempt_enable();
- 	up_read(&vcpu->kvm->arch.apicv_update_lock);
- }
--EXPORT_SYMBOL_GPL(__kvm_vcpu_update_apicv);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(__kvm_vcpu_update_apicv);
- 
- static void kvm_vcpu_update_apicv(struct kvm_vcpu *vcpu)
- {
-@@ -10614,7 +10614,7 @@ void kvm_set_or_clear_apicv_inhibit(struct kvm *kvm,
- 	__kvm_set_or_clear_apicv_inhibit(kvm, reason, set);
- 	up_write(&kvm->arch.apicv_update_lock);
- }
--EXPORT_SYMBOL_GPL(kvm_set_or_clear_apicv_inhibit);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_or_clear_apicv_inhibit);
- 
- static void vcpu_scan_ioapic(struct kvm_vcpu *vcpu)
- {
-@@ -11159,7 +11159,7 @@ bool kvm_vcpu_has_events(struct kvm_vcpu *vcpu)
- 
- 	return false;
- }
--EXPORT_SYMBOL_GPL(kvm_vcpu_has_events);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_vcpu_has_events);
- 
- int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
- {
-@@ -11312,7 +11312,7 @@ int kvm_emulate_halt_noskip(struct kvm_vcpu *vcpu)
- {
- 	return __kvm_emulate_halt(vcpu, KVM_MP_STATE_HALTED, KVM_EXIT_HLT);
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_halt_noskip);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_halt_noskip);
- 
- int kvm_emulate_halt(struct kvm_vcpu *vcpu)
- {
-@@ -11323,7 +11323,7 @@ int kvm_emulate_halt(struct kvm_vcpu *vcpu)
- 	 */
- 	return kvm_emulate_halt_noskip(vcpu) && ret;
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_halt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_halt);
- 
- fastpath_t handle_fastpath_hlt(struct kvm_vcpu *vcpu)
- {
-@@ -11335,7 +11335,7 @@ fastpath_t handle_fastpath_hlt(struct kvm_vcpu *vcpu)
- 
- 	return EXIT_FASTPATH_EXIT_HANDLED;
- }
--EXPORT_SYMBOL_GPL(handle_fastpath_hlt);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(handle_fastpath_hlt);
- 
- int kvm_emulate_ap_reset_hold(struct kvm_vcpu *vcpu)
- {
-@@ -11344,7 +11344,7 @@ int kvm_emulate_ap_reset_hold(struct kvm_vcpu *vcpu)
- 	return __kvm_emulate_halt(vcpu, KVM_MP_STATE_AP_RESET_HOLD,
- 					KVM_EXIT_AP_RESET_HOLD) && ret;
- }
--EXPORT_SYMBOL_GPL(kvm_emulate_ap_reset_hold);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_emulate_ap_reset_hold);
- 
- bool kvm_arch_dy_has_pending_interrupt(struct kvm_vcpu *vcpu)
- {
-@@ -11876,7 +11876,7 @@ int kvm_task_switch(struct kvm_vcpu *vcpu, u16 tss_selector, int idt_index,
- 	kvm_set_rflags(vcpu, ctxt->eflags);
- 	return 1;
- }
--EXPORT_SYMBOL_GPL(kvm_task_switch);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_task_switch);
- 
- static bool kvm_is_valid_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
- {
-@@ -12576,7 +12576,7 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
- 	if (init_event)
- 		kvm_make_request(KVM_REQ_TLB_FLUSH_GUEST, vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_vcpu_reset);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_vcpu_reset);
- 
- void kvm_vcpu_deliver_sipi_vector(struct kvm_vcpu *vcpu, u8 vector)
- {
-@@ -12588,7 +12588,7 @@ void kvm_vcpu_deliver_sipi_vector(struct kvm_vcpu *vcpu, u8 vector)
- 	kvm_set_segment(vcpu, &cs, VCPU_SREG_CS);
- 	kvm_rip_write(vcpu, 0);
- }
--EXPORT_SYMBOL_GPL(kvm_vcpu_deliver_sipi_vector);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_vcpu_deliver_sipi_vector);
- 
- void kvm_arch_enable_virtualization(void)
- {
-@@ -12706,7 +12706,7 @@ bool kvm_vcpu_is_reset_bsp(struct kvm_vcpu *vcpu)
- {
- 	return vcpu->kvm->arch.bsp_vcpu_id == vcpu->vcpu_id;
- }
--EXPORT_SYMBOL_GPL(kvm_vcpu_is_reset_bsp);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_vcpu_is_reset_bsp);
- 
- bool kvm_vcpu_is_bsp(struct kvm_vcpu *vcpu)
- {
-@@ -12870,7 +12870,7 @@ void __user * __x86_set_memory_region(struct kvm *kvm, int id, gpa_t gpa,
- 
- 	return (void __user *)hva;
- }
--EXPORT_SYMBOL_GPL(__x86_set_memory_region);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(__x86_set_memory_region);
- 
- void kvm_arch_pre_destroy_vm(struct kvm *kvm)
- {
-@@ -13278,13 +13278,13 @@ unsigned long kvm_get_linear_rip(struct kvm_vcpu *vcpu)
- 	return (u32)(get_segment_base(vcpu, VCPU_SREG_CS) +
- 		     kvm_rip_read(vcpu));
- }
--EXPORT_SYMBOL_GPL(kvm_get_linear_rip);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_linear_rip);
- 
- bool kvm_is_linear_rip(struct kvm_vcpu *vcpu, unsigned long linear_rip)
- {
- 	return kvm_get_linear_rip(vcpu) == linear_rip;
- }
--EXPORT_SYMBOL_GPL(kvm_is_linear_rip);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_is_linear_rip);
- 
- unsigned long kvm_get_rflags(struct kvm_vcpu *vcpu)
- {
-@@ -13295,7 +13295,7 @@ unsigned long kvm_get_rflags(struct kvm_vcpu *vcpu)
- 		rflags &= ~X86_EFLAGS_TF;
- 	return rflags;
- }
--EXPORT_SYMBOL_GPL(kvm_get_rflags);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_rflags);
- 
- static void __kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags)
- {
-@@ -13310,7 +13310,7 @@ void kvm_set_rflags(struct kvm_vcpu *vcpu, unsigned long rflags)
- 	__kvm_set_rflags(vcpu, rflags);
- 	kvm_make_request(KVM_REQ_EVENT, vcpu);
- }
--EXPORT_SYMBOL_GPL(kvm_set_rflags);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_set_rflags);
- 
- static inline u32 kvm_async_pf_hash_fn(gfn_t gfn)
- {
-@@ -13553,7 +13553,7 @@ bool kvm_arch_has_noncoherent_dma(struct kvm *kvm)
- {
- 	return atomic_read(&kvm->arch.noncoherent_dma_count);
- }
--EXPORT_SYMBOL_GPL(kvm_arch_has_noncoherent_dma);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_arch_has_noncoherent_dma);
- 
- bool kvm_arch_no_poll(struct kvm_vcpu *vcpu)
- {
-@@ -13609,7 +13609,7 @@ int kvm_spec_ctrl_test_value(u64 value)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(kvm_spec_ctrl_test_value);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_spec_ctrl_test_value);
- 
- void kvm_fixup_and_inject_pf_error(struct kvm_vcpu *vcpu, gva_t gva, u16 error_code)
- {
-@@ -13634,7 +13634,7 @@ void kvm_fixup_and_inject_pf_error(struct kvm_vcpu *vcpu, gva_t gva, u16 error_c
- 	}
- 	vcpu->arch.walk_mmu->inject_page_fault(vcpu, &fault);
- }
--EXPORT_SYMBOL_GPL(kvm_fixup_and_inject_pf_error);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_fixup_and_inject_pf_error);
- 
- /*
-  * Handles kvm_read/write_guest_virt*() result and either injects #PF or returns
-@@ -13663,7 +13663,7 @@ int kvm_handle_memory_failure(struct kvm_vcpu *vcpu, int r,
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_handle_memory_failure);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_handle_memory_failure);
- 
- int kvm_handle_invpcid(struct kvm_vcpu *vcpu, unsigned long type, gva_t gva)
- {
-@@ -13727,7 +13727,7 @@ int kvm_handle_invpcid(struct kvm_vcpu *vcpu, unsigned long type, gva_t gva)
- 		return 1;
- 	}
- }
--EXPORT_SYMBOL_GPL(kvm_handle_invpcid);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_handle_invpcid);
- 
- static int complete_sev_es_emulated_mmio(struct kvm_vcpu *vcpu)
- {
-@@ -13812,7 +13812,7 @@ int kvm_sev_es_mmio_write(struct kvm_vcpu *vcpu, gpa_t gpa, unsigned int bytes,
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_sev_es_mmio_write);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_sev_es_mmio_write);
- 
- int kvm_sev_es_mmio_read(struct kvm_vcpu *vcpu, gpa_t gpa, unsigned int bytes,
- 			 void *data)
-@@ -13850,7 +13850,7 @@ int kvm_sev_es_mmio_read(struct kvm_vcpu *vcpu, gpa_t gpa, unsigned int bytes,
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(kvm_sev_es_mmio_read);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_sev_es_mmio_read);
- 
- static void advance_sev_es_emulated_pio(struct kvm_vcpu *vcpu, unsigned count, int size)
- {
-@@ -13938,7 +13938,7 @@ int kvm_sev_es_string_io(struct kvm_vcpu *vcpu, unsigned int size,
- 	return in ? kvm_sev_es_ins(vcpu, size, port)
- 		  : kvm_sev_es_outs(vcpu, size, port);
- }
--EXPORT_SYMBOL_GPL(kvm_sev_es_string_io);
-+EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_sev_es_string_io);
- 
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_entry);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
--- 
-2.51.0.470.ga7dc726c21-goog
+Am at v4 now -
+https://lore.kernel.org/linux-mm/cover.1758135681.git.lorenzo.stoakes@oracle.com/
+- apologies for the quick turnaround but going to kernel recipes soon and then
+on vacation so wanted to get this wrapped up!
 
+>
+> -chris
+
+Cheers, Lorenzo
