@@ -1,153 +1,131 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A028A1F3FEC;
-	Fri, 19 Sep 2025 14:56:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE403191AF
+	for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 15:25:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758293764; cv=none; b=ne6q2m1qKVxHEnSJeSnPA4Grv9dxbJNLLP6fihSjdVQ2bNujQnk7D99OpZrxBXbjQnBVD5Tpf4Ryer9Zyo/aJ8tJVfz9fh2ipU2+gKPukOyHuQpfmALJ5YOFrYmkDjjUODocz0qiIwHceaOeYyy259xncYNjlcEHV0oCw082+VU=
+	t=1758295505; cv=none; b=RXZUGtXq1Teql0POM6eD2bPRj+PEtv5quBQgZSNxjQSMs2m3IpCRGyCBUWpiIQE4YZV90NE+US4/04/cX00Yf3pixXrRgOzJ8CLgUF6iRZy9ainPkBh/ZHSL31f8Ve0PlDDdUbzySifCqIsDT37cG5NV57P9FfGfUTOrbbS1WZw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758293764; c=relaxed/simple;
-	bh=8uIFhtK2IJ/B47NJpWMNwnQqZrSj51H4Icha31JBO1I=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=K3I84clbQc3RwnzR7jJhmFticfAOAJIca5ZcBrKQILDruMS+/1LkwfmMd5M6V7oY+WgPcQl3SbAYH+fKj/Em9OifAieYlup4VfNI6Awp+d6ZdFAoo3oZW7UIXnSA0aJwOxtdAJWEdTIM8apDnBs7mPzd5F3qrPUkf+02KqgogEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mJxYt1bO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758295505; c=relaxed/simple;
+	bh=tIBWHHOOKfm2qL1G0oNEg1lQ/EY8RTTkm2B9w+25Bvk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XQTZHvCUoLrihlQM/OuyjS6vG6XwCmRBP/PAntNe2cCFb0I7rFtXhS21gy8GlDvp89MRhU8UcIkik2ABRuiIwOCdL+elwZ688fFWNGQVvnKvnKHuES5yeLSFrzFxgkzyQeA8Q+CRY108/sBOI4jAqaBIgR12XMO8WLIHr3HTSTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=freebox.fr; spf=pass smtp.mailfrom=freebox.fr; dkim=pass (2048-bit key) header.d=freebox-fr.20230601.gappssmtp.com header.i=@freebox-fr.20230601.gappssmtp.com header.b=xbo3W1UF; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=freebox.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=freebox.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mJxYt1bO"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58J54pgL027133;
-	Fri, 19 Sep 2025 14:55:58 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=aU/IL1
-	yNGjUFzjuYRWTqCY8LpnItOiXO9jDsErM/ZSw=; b=mJxYt1bO9ZlAJGOriKukNR
-	6DRTT67kcYHIqst30BRLtnh1SMyV+iw+RyyHy1d/pgGo776owZC0aTcq259/Y4PV
-	EtCjbjz9ddjqDVfW/ji/d6eUueeEGNv+e7TJzWKs7S/eQv9i+6Lp6d6yAHZ8YI/r
-	IrN8HV0TfIgPS+/iHqzcCnm8ijIxGoSQ4s2cQggDj9bByZkqTTkP8FLnWYuEp/aR
-	2PBDN2EU2NRR9Aa+T5QlRhVUAWuRZ+ds4Gp4GqkzDg8FxZj9d904SJ15dd3SQMbc
-	Rew2+rgPJd4hk24k6NYLq0ktzrv470p+fO5USmfSUuTgRP/HRH+I6WXsbPWl8HkQ
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4phff2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 14:55:58 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58JEkpni015466;
-	Fri, 19 Sep 2025 14:55:57 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4phfeq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 14:55:57 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58JE6KCl027308;
-	Fri, 19 Sep 2025 14:55:56 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 495menm9bn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 14:55:56 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58JEtqm030998972
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Sep 2025 14:55:52 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D1202004D;
-	Fri, 19 Sep 2025 14:55:52 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4663920040;
-	Fri, 19 Sep 2025 14:55:51 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.111.70.35])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Fri, 19 Sep 2025 14:55:51 +0000 (GMT)
-Date: Fri, 19 Sep 2025 16:55:49 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Dust Li <dust.li@linux.alibaba.com>,
-        Guangguan Wang
- <guangguan.wang@linux.alibaba.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-        Simon
- Horman <horms@kernel.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Sidraya
- Jayagond <sidraya@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu
- <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH net-next v2 1/2] net/smc: make wr buffer count
- configurable
-Message-ID: <20250919165549.7bebfbc3.pasic@linux.ibm.com>
-In-Reply-To: <20250909121850.2635894a.pasic@linux.ibm.com>
-References: <20250908220150.3329433-1-pasic@linux.ibm.com>
-	<20250908220150.3329433-2-pasic@linux.ibm.com>
-	<aL-YYoYRsFiajiPW@linux.alibaba.com>
-	<20250909121850.2635894a.pasic@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=freebox-fr.20230601.gappssmtp.com header.i=@freebox-fr.20230601.gappssmtp.com header.b="xbo3W1UF"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5725e554ec1so1848255e87.3
+        for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 08:25:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=freebox-fr.20230601.gappssmtp.com; s=20230601; t=1758295500; x=1758900300; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=EztjVQ+y07YMfegmHOd0VyK62XkODMWu0LdNE29WAS0=;
+        b=xbo3W1UFpKFkZ1p3cmir9bHExoubmn+zN65uKZIOYM/VNr4k3So7pYfDI6mX/D9Xs7
+         tKrFxrKGsa1OUV4/BaJm81tBW61J4ZGYYxqxZFHL+2WJXFRTEp/mhXDIaLf+cQRcgUXe
+         AYqPNZvLbxLN1AyYo7ig5n8eVxO+iPi1huE+4hW6lV7MZkf7YHIdjHXfXdto2VLmATJZ
+         knqRg3MYiebrHRGL5TV4krfrv3EaVDwqo3YKPYYlEuRSeFOsywbR4G16hcwfzRVUvkmK
+         +8rrea1TuR59LvTS19HlGLqGt+kLHJ+F5+322OVOV6/84SIcgYqHnsi5cc3ulWFd4ja5
+         pnpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758295500; x=1758900300;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=EztjVQ+y07YMfegmHOd0VyK62XkODMWu0LdNE29WAS0=;
+        b=wiLvGbvrMTSNE2HTXfJ7rPmCIqO/9sKjkt/0DEF6IBPBm5Xjspj9XHgnddJTHyFeea
+         Mce6+9fbVIskRdtX5IHowkdoIZoDjdc4AE62ULprxuhDmee6hzTsq7ZnAFyPgNOC0lnv
+         l3KbTp5kkilh3JOYOVXkRuyePVITvy1YFd28HqeILRa2mP6ZlkFkSf3H/o666EpZTw2r
+         D7gGnFKOnIgDhpG5hAVjKmKyCyFVefJ5PIt37VfHTjz/pZ4u9fWwN2SKs1G9m51sxcmb
+         mwS+pzKTpG9A7VAX1d3+ceIcVTuIqwdmd+MxL8MI9oPb/YB5omQVY9s7kcBUrdG4u0pl
+         6hNw==
+X-Forwarded-Encrypted: i=1; AJvYcCXVPztgS0fA4wroI9w8Isc7JqiCXDxA+k/BqYtQI+jMVUeZfrnr9Puw53Sn5LZhZRzhaKjZJ4jkwqlN@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw2FFtmQGM0TIxGw5i/e2UZiOM0TlW3EpHrw6K2GS/K4WeMq3og
+	zpyYQyeCAZOg/j06O2oAazPpQVte399Ba9hglI+swMsgVh3ocYGrIJIa/OJDSLdpckVt9AF8qgv
+	pqaaX8uuwV/9+OaHxf37s2jSGaKDqhvhb391Rq4cuyA==
+X-Gm-Gg: ASbGncumQjs1cZ42NQZL/j25p76EvhCtn43XRObRZaR/wKG8YB04xdzrp+k55e1jEkW
+	V3IwjkGG1ln5z4MjmoQd1i2LMR7m0g4gni57egv9l35nSdhJoOiZWvGooJYgvQdBn1LyfVxLTe1
+	t24VGhJqf2HA2xflas/9J8vaV1P71N25DlqNCtsFcbF7PYwIJ+EWAFhD1QDPRICJBUlcNWStYB5
+	+l0YMr6SEm0T30=
+X-Google-Smtp-Source: AGHT+IHin4gQus9SrkFEog2pTedfunr2Ers950l0f82oxrEtfjemfexmsAorW/Dsqdjvay/GpFMt6pfW/hwC+qBHF14=
+X-Received: by 2002:a05:6512:2c0b:b0:571:b70b:7dbf with SMTP id
+ 2adb3069b0e04-579e2507c81mr1455897e87.17.1758295499599; Fri, 19 Sep 2025
+ 08:24:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX7O7GttvqFagT
- Cdun3QY+uzZBQMr3Un9NEUfVHdWnZ89ljb2eIA+Z180TJxat8rpwzQRJkEPXhPv1dwLpcdnbfrA
- idK0almy44vfEFXQVDYad9se7l4qKhdVK2eshyDNuctlc4iMua3jHv+SK7LkRzt5RTA/X9YJj+G
- 1nO1Mi8BVzIkNpOY8xPoPnLCCCb8kdkP3eVICBc7rfp/utcePt7ZZrEBCk8Sa5R2pe8JDMm4fng
- +KyvkxlYLiuVZDDHSliv+cfO3pOxnidDbxJq2Jb2x68NXI09dkJ1rEsGCDh6SUzv6AOlYbJRI6G
- t2PvjRxgQEVFepk4Emyj5t0Wt9GvkfazRUxtz6FNIv3+IkVBzVDRf95DuqTXfWHf28BlkY55+jh
- WB5FYOr/
-X-Proofpoint-ORIG-GUID: LvQE9PCL4m0Y2ALvOcZbGvygtvYCo3uo
-X-Proofpoint-GUID: 1ej1yVyvFNjiPyIa0glrzXpwWEFApiLH
-X-Authority-Analysis: v=2.4 cv=cNzgskeN c=1 sm=1 tr=0 ts=68cd6efe cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=3-ZsZ1Rs_CeAYfPLFTEA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-19_01,2025-09-19_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1015 spamscore=0 bulkscore=0 malwarescore=0
- adultscore=0 priorityscore=1501 impostorscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
+References: <20250918152830.438554-1-nschichan@freebox.fr> <20250918195806.6337-1-safinaskar@gmail.com>
+In-Reply-To: <20250918195806.6337-1-safinaskar@gmail.com>
+From: Nicolas Schichan <nschichan@freebox.fr>
+Date: Fri, 19 Sep 2025 17:24:48 +0200
+X-Gm-Features: AS18NWBwMqIXE_dMXDlT0ngUIReSbekPPTszWv5gIfg03bAEg3Id33JL3Yqjedw
+Message-ID: <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
+Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
+To: Askar Safin <safinaskar@gmail.com>
+Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk, 
+	brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org, 
+	ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com, 
+	gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de, 
+	hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz, 
+	julian.stecklina@cyberus-technology.de, kees@kernel.org, 
+	linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
+	linux-csky@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, mcgrof@kernel.org, 
+	mingo@redhat.com, monstr@monstr.eu, mzxreary@0pointer.de, 
+	patches@lists.linux.dev, rob@landley.net, sparclinux@vger.kernel.org, 
+	thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev, 
+	torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk, 
+	x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, 9 Sep 2025 12:18:50 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+Hello,
 
-> > >-	link->wr_rx_bufs = kcalloc(SMC_WR_BUF_CNT * 3, link->wr_rx_buflen,
-> > >+	link->wr_rx_bufs = kcalloc(link->lgr->pref_recv_wr, SMC_WR_BUF_SIZE,
-> > > 				   GFP_KERNEL);    
-> 
-> 
-> I will have to do some digging, let's assume for now that it is my
-> mistake. Unfortunately I won't be able to revisit this before next
-> Wednesday.
+> > When booting with root=/dev/ram0 in the kernel commandline,
+> > handle_initrd() where the deprecation message resides is never called,
+> > which is rather unfortunate (init/do_mounts_initrd.c):
 
-Can maybe Wen Gu and  Guangguan Wang chime in. From what I read
-link->wr_rx_buflen can be either SMC_WR_BUF_SIZE that is 48 in which
-case it does not matter, or SMC_WR_BUF_V2_SIZE that is 8192, if
-!smc_link_shared_v2_rxbuf(lnk) i.e. max_recv_sge == 1. So we talk
-about roughly a factor of 170 here. For a large pref_recv_wr the
-back of logic is still there to save us but I really would not say that
-this is how this is intended to work.
+> Yes, this is unfortunate.
+>
+> I personally still think that initrd should be removed.
 
-Maybe not supporting V2 on devices with max_recv_sge is a better choice,
-assuming that a maximal V2 LLC msg needs to fit each and every receive
-WR buffer. Which seems to be the case based on 27ef6a9981fe ("net/smc:
-support SMC-R V2 for rdma devices with max_recv_sge equals to 1").
+Considering that the deprecation message didn't get displayed in some
+configurations, maybe it's a bit early at the very least.
 
-For me the best course of action seems to be to send a V3 using
-link->wr_rx_buflen. I'm really not that knowledgeable about RDMA or
-the SMC-R protocol, but I'm happy to be part of the discussion on this
-matter.
+> I suggest using workaround I described in cover letter.
+
+I'm not too keen on having an initramfs just to loop-mount
+/sys/firmware/initrd, after all current kernels are able to handle the
+use case just fine.
+
+It looks like there is a lot of code calling into specific filesystems
+so that the initrd code can guess the size of the file system before
+copying into /dev/ram0, and I believe this is what causes the main
+gripe against initrd today. What is wrong with just copying
+/initrd.image using its actual size into /dev/ram0 instead of guessing
+it with the help of filesystem specific code ?
+
+> Also, for unknown reasons I didn't get your letter in my inbox.
+> (Not even in spam folder.) I ocasionally found it on lore.kernel.org .
+
+Sorry about that, When I used git-send-email yesterday to reply, the
+SMTP server I used wasn't authenticated to google, so all gmail
+recipients were dropped. Hopefully this work better today.
 
 Regards,
-Halil
+
+-- 
+Nicolas Schichan
