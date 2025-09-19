@@ -1,218 +1,384 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fra-out-010.esa.eu-central-1.outbound.mail-perimeter.amazon.com (fra-out-010.esa.eu-central-1.outbound.mail-perimeter.amazon.com [63.178.143.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C9B253958
-	for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 06:53:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E18C2E7162;
+	Fri, 19 Sep 2025 08:25:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.178.143.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758264809; cv=none; b=H3KM0Js/sfn/Rjnbho9gJPPLu8mnBbQDj2RL1PxH+laBYf5rFnPZnp99CZx+F7UO53HLqpniSnKhbwGgQYPyo+FOdwp3cE7oAcj9HLkmbSz+T+3qPGG/i40HkSJWfw/0oQmRV/yCmCFgmd4RbG38FhGmMvl2rInlYLfRmfTOnsc=
+	t=1758270351; cv=none; b=pzNCbm45+PrHHvXdCFLLFnGPBS+qiBHUKcDOEQNuJnhlke3Qr1m6yeDcHBp9xHWTBls9+7bQ/uIrRVmycRhlhzGG6rKI673ooJaeBxTy9l3ZSM0cpBP60cTmu2sTRkidQVWxqOg4SG8PeDg5TNpobns4eBLY7heLNMXDrBe5Ywg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758264809; c=relaxed/simple;
-	bh=6mu5r/20fn8IJXO2AldBdlWVvRnI63AzYbfukrUgu9E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZoIMqOWw3YaisMCqaP5KpesZVwGw4cRd7ZoIOo/SG2+f3CrJxcXz729q7HNWb4T7ibwBEaVDtBu5SCulXhmmOxN1bL0YNTHxPV4ZQ2ek9yLHosNydaj2x9J7IsrHg4tgNroMBFGVJwOK5bHs882M6pTs2K5ZhfEgt6zEZxN4l7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JfY3wa8n; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758270351; c=relaxed/simple;
+	bh=BA/sRPI6jXhN56RrqZT1cQZlEyECp3Dmd4VItUSB6n0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=YlXmsKi2K8wMgEtKqjoYjuwlSGCJhc/mShEkmF5a6OSYblZkECYpJXr9YgI8egJAnesCcrdNDA58cJ+Uy7zxHXeZLPQOjIDgGmS6+McQJQk1brOAPsFsk+Y1subXYk96ufxlldfhCQxiZ2dUHgx+V6pIiIrJu21i1r25vaafxj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk; spf=pass smtp.mailfrom=amazon.co.uk; dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b=rY5hIkwm; arc=none smtp.client-ip=63.178.143.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JfY3wa8n"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58IMEfl8011938;
-	Fri, 19 Sep 2025 06:53:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=9+2B8H
-	BlspqcBDCE1e33XLQoChBnf6tm8BUUbd6SXXg=; b=JfY3wa8nbutWOU27yuTKRk
-	4pyXbCjrTf1cuI413lCi8RU4rQRbPw2LAX6IH/byICCA4+ujzSy5fPmo8DMSwZqn
-	KpIiCu7qO54R3qg/iz4wYZ4tdBLzbo8ukwRzBECl32qhjDdbaW5Qt6uVWsrlxQtE
-	1dmyBSUVATU4US+TDGBI+KAATHtnrXFgAa+o1t3LEV18mK6P/VayeAQDCVSgw7Lv
-	2MqzaIwQQUzEtRvlsBz9QXabgJjwGoDMmnJC6q2ovoi6LIkpw7AfN0TEO3HbSGAP
-	QgCg2TQWr1fdBisc68sAfiRhA1t047moORerTpy2+f6qmcxvZC4tU4ybmtYSt43Q
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4jeyw4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 06:53:17 +0000 (GMT)
-Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58J6kQP4016183;
-	Fri, 19 Sep 2025 06:53:16 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 497g4jeyw1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 06:53:16 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58J4mJ56005981;
-	Fri, 19 Sep 2025 06:53:15 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 495jxujuv6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 19 Sep 2025 06:53:15 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58J6rB8S19989122
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 19 Sep 2025 06:53:11 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B201D20043;
-	Fri, 19 Sep 2025 06:53:11 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7419620040;
-	Fri, 19 Sep 2025 06:53:11 +0000 (GMT)
-Received: from [9.111.165.4] (unknown [9.111.165.4])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 19 Sep 2025 06:53:11 +0000 (GMT)
-Message-ID: <ed4eba43-9d13-4875-a264-233879733bfb@linux.ibm.com>
-Date: Fri, 19 Sep 2025 08:53:11 +0200
+	dkim=pass (2048-bit key) header.d=amazon.co.uk header.i=@amazon.co.uk header.b="rY5hIkwm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.co.uk; i=@amazon.co.uk; q=dns/txt;
+  s=amazoncorp2; t=1758270349; x=1789806349;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=GFL7BzHqZtJ+hf0GoLUZhF6DxwKb7xJe9EgTIEodTbE=;
+  b=rY5hIkwmnf28yDoZF+O4efBCPae4e34Ds0qa2E7C+9AHflfREUlaSuCa
+   yQKaIGSUHPCrR9hYqSnr6CsUAwNmZ+UUn3lRZoSu54dSrsdd6/kOOz7FZ
+   t3t12Xo7lKTDBPokRitIYYcXcmO8Uc8mrEc3W25R1sOYe8jKft1rU8+3b
+   lwVPA0KDgXIDrPkUzId2mju68+9mYOwJ8OYoFZfwIQQmP5ZFMbqQoVa5X
+   um/wc1fkX87nnCrX/Pw3S8u280AjfXxFq5uoHJayqfzsdgaKNiJI6jkRa
+   qc3KSAIK4rGTNU+MGS/pUrG7T2tylJZUlHGPGn2b5CvwYVMMx92Zs3yuv
+   w==;
+X-CSE-ConnectionGUID: IsZxf8f8SjWiNUjgDVp6Og==
+X-CSE-MsgGUID: xwNyaF2SS7eyXLTiQsdIFQ==
+X-IronPort-AV: E=Sophos;i="6.18,277,1751241600"; 
+   d="scan'208";a="2255186"
+Received: from ip-10-6-6-97.eu-central-1.compute.internal (HELO smtpout.naws.eu-central-1.prod.farcaster.email.amazon.dev) ([10.6.6.97])
+  by internal-fra-out-010.esa.eu-central-1.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Sep 2025 08:25:37 +0000
+Received: from EX19MTAEUA001.ant.amazon.com [54.240.197.233:22673]
+ by smtpin.naws.eu-central-1.prod.farcaster.email.amazon.dev [10.0.0.240:2525] with esmtp (Farcaster)
+ id 99b608d7-c465-47ba-b3fb-c53cc7a3b236; Fri, 19 Sep 2025 08:25:37 +0000 (UTC)
+X-Farcaster-Flow-ID: 99b608d7-c465-47ba-b3fb-c53cc7a3b236
+Received: from EX19D015EUB003.ant.amazon.com (10.252.51.113) by
+ EX19MTAEUA001.ant.amazon.com (10.252.50.192) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.20;
+ Fri, 19 Sep 2025 08:25:36 +0000
+Received: from EX19D015EUB004.ant.amazon.com (10.252.51.13) by
+ EX19D015EUB003.ant.amazon.com (10.252.51.113) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.20;
+ Fri, 19 Sep 2025 08:25:36 +0000
+Received: from EX19D015EUB004.ant.amazon.com ([fe80::2dc9:7aa9:9cd3:fc8a]) by
+ EX19D015EUB004.ant.amazon.com ([fe80::2dc9:7aa9:9cd3:fc8a%3]) with mapi id
+ 15.02.2562.020; Fri, 19 Sep 2025 08:25:36 +0000
+From: "Roy, Patrick" <roypat@amazon.co.uk>
+To: "rppt@kernel.org" <rppt@kernel.org>
+CC: "Liam.Howlett@oracle.com" <Liam.Howlett@oracle.com>,
+	"agordeev@linux.ibm.com" <agordeev@linux.ibm.com>,
+	"akpm@linux-foundation.org" <akpm@linux-foundation.org>, "alex@ghiti.fr"
+	<alex@ghiti.fr>, "andrii@kernel.org" <andrii@kernel.org>, "anna@kernel.org"
+	<anna@kernel.org>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>,
+	"ast@kernel.org" <ast@kernel.org>, "axelrasmussen@google.com"
+	<axelrasmussen@google.com>, "borntraeger@linux.ibm.com"
+	<borntraeger@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>,
+	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "brauner@kernel.org"
+	<brauner@kernel.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
+	"chenhuacai@kernel.org" <chenhuacai@kernel.org>, "corbet@lwn.net"
+	<corbet@lwn.net>, "daniel@iogearbox.net" <daniel@iogearbox.net>,
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+	"david@redhat.com" <david@redhat.com>, "derekmn@amazon.co.uk"
+	<derekmn@amazon.co.uk>, "devel@lists.orangefs.org"
+	<devel@lists.orangefs.org>, "eddyz87@gmail.com" <eddyz87@gmail.com>,
+	"gerald.schaefer@linux.ibm.com" <gerald.schaefer@linux.ibm.com>,
+	"gor@linux.ibm.com" <gor@linux.ibm.com>, "hannes@cmpxchg.org"
+	<hannes@cmpxchg.org>, "haoluo@google.com" <haoluo@google.com>,
+	"hca@linux.ibm.com" <hca@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>,
+	"hubcap@omnibond.com" <hubcap@omnibond.com>, "jack@suse.cz" <jack@suse.cz>,
+	"Thomson, Jack" <jackabt@amazon.co.uk>, "jannh@google.com"
+	<jannh@google.com>, "jgg@ziepe.ca" <jgg@ziepe.ca>, "jhubbard@nvidia.com"
+	<jhubbard@nvidia.com>, "joey.gouly@arm.com" <joey.gouly@arm.com>,
+	"john.fastabend@gmail.com" <john.fastabend@gmail.com>, "jolsa@kernel.org"
+	<jolsa@kernel.org>, "Kalyazin, Nikita" <kalyazin@amazon.co.uk>,
+	"kernel@xen0n.name" <kernel@xen0n.name>, "kpsingh@kernel.org"
+	<kpsingh@kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-doc@vger.kernel.org"
+	<linux-doc@vger.kernel.org>, "linux-fsdevel@vger.kernel.org"
+	<linux-fsdevel@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-kselftest@vger.kernel.org"
+	<linux-kselftest@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+	"linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"loongarch@lists.linux.dev" <loongarch@lists.linux.dev>,
+	"lorenzo.stoakes@oracle.com" <lorenzo.stoakes@oracle.com>, "luto@kernel.org"
+	<luto@kernel.org>, "martin.lau@linux.dev" <martin.lau@linux.dev>,
+	"martin@omnibond.com" <martin@omnibond.com>, "maz@kernel.org"
+	<maz@kernel.org>, "mhocko@suse.com" <mhocko@suse.com>, "mingo@redhat.com"
+	<mingo@redhat.com>, "oliver.upton@linux.dev" <oliver.upton@linux.dev>,
+	"palmer@dabbelt.com" <palmer@dabbelt.com>, "paul.walmsley@sifive.com"
+	<paul.walmsley@sifive.com>, "pbonzini@redhat.com" <pbonzini@redhat.com>,
+	"peterx@redhat.com" <peterx@redhat.com>, "peterz@infradead.org"
+	<peterz@infradead.org>, "pfalcato@suse.de" <pfalcato@suse.de>, "Roy, Patrick"
+	<roypat@amazon.co.uk>, "sdf@fomichev.me" <sdf@fomichev.me>,
+	"seanjc@google.com" <seanjc@google.com>, "shakeel.butt@linux.dev"
+	<shakeel.butt@linux.dev>, "shuah@kernel.org" <shuah@kernel.org>,
+	"song@kernel.org" <song@kernel.org>, "surenb@google.com" <surenb@google.com>,
+	"suzuki.poulose@arm.com" <suzuki.poulose@arm.com>, "svens@linux.ibm.com"
+	<svens@linux.ibm.com>, "tglx@linutronix.de" <tglx@linutronix.de>,
+	"trondmy@kernel.org" <trondmy@kernel.org>, "vbabka@suse.cz" <vbabka@suse.cz>,
+	"viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>, "weixugc@google.com"
+	<weixugc@google.com>, "will@kernel.org" <will@kernel.org>,
+	"willy@infradead.org" <willy@infradead.org>, "x86@kernel.org"
+	<x86@kernel.org>, "Cali, Marco" <xmarcalx@amazon.co.uk>,
+	"yonghong.song@linux.dev" <yonghong.song@linux.dev>, "yuanchu@google.com"
+	<yuanchu@google.com>, "yuzenghui@huawei.com" <yuzenghui@huawei.com>,
+	"zhengqi.arch@bytedance.com" <zhengqi.arch@bytedance.com>
+Subject: Re: [PATCH v6 05/11] KVM: guest_memfd: Add flag to remove from direct
+ map
+Thread-Topic: [PATCH v6 05/11] KVM: guest_memfd: Add flag to remove from
+ direct map
+Thread-Index: AQHcKT757eD2hLtXdESX+jHFR62e2Q==
+Date: Fri, 19 Sep 2025 08:25:36 +0000
+Message-ID: <20250919082534.17376-1-roypat@amazon.co.uk>
+References: <aMZyacbUEM7HErM1@kernel.org>
+In-Reply-To: <aMZyacbUEM7HErM1@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/7] dm-integrity: asynchronous hash support
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-        linux-s390@vger.kernel.org, dm-devel@lists.linux.dev, agk@redhat.com,
-        snitzer@kernel.org, Milan Broz <gmazyland@gmail.com>,
-        freude@linux.ibm.com
-References: <20250908131642.385445532@debian4.vm>
- <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
- <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
- <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
- <8cb59ed5-1c9a-49de-beee-01eda52ad618@linux.ibm.com>
- <1af710ec-0f23-2522-d715-e683b9e557d8@redhat.com>
- <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com>
-Content-Language: en-US, de-DE
-From: Ingo Franzki <ifranzki@linux.ibm.com>
-In-Reply-To: <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Qf5mvtbv c=1 sm=1 tr=0 ts=68ccfddd cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=p0WdMEafAAAA:8 a=VnNF1IyMAAAA:8
- a=O-Iw-kRxmlZWIl0LCTAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: OU8-asROO__vzBoI1aD_ZwN-ZIF3k9js
-X-Proofpoint-GUID: TXVOcf43IzvITQu72NmMkL7l_uXoOXGq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE2MDIwNCBTYWx0ZWRfX1gRzfphqFSbT
- DVEmRft/CtF/Wlmnt7gRogtUPrRv5dOAoJo1vKVKGlCNfbF+vrqO3diOcBxW6xMuqpl51Ob6Zoe
- B0t97DD6vtXkoiLKE7AdLsUaWCvFsboZCiUfnkePQo4rpTi6b18M1/OBrtYvwg0LINNINQLxc8N
- j73qNiU7TBfVDh4Qzvq9QbFezTQIzJzP+cI46bBg2IamMbhCh5j6X4NumhqfV79sC6gdzLt9M4a
- f9kOOYp+RnirG+TyGDfbR3cOd1L4NPGBR81Ns5TrQrUZO9r+3tmUs/l95Jvnq28/4ImliOwGIpf
- 8bac5QKhCSXOsVCrJjB6iWifSkn5FZhxDL4CzELWtUGJpQj6D+esec0cezQxq0GqbrY+HfXlmHC
- 7+RIZ0KZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-18_03,2025-09-19_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 phishscore=0 suspectscore=0 adultscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509160204
 
-On 18.09.2025 17:00, Harald Freudenberger wrote:
-> On 2025-09-11 17:58, Mikulas Patocka wrote:
->> On Thu, 11 Sep 2025, Ingo Franzki wrote:
->>
->>> >> So, it looks like a dm-crypt bug.
->>> >>
->>> >> Please, revert my patches and run the same test on a clean 6.17.0-rc5 just
->>> >> to verify that the patches do not introduce the bug.
->>> >
->>> > With your patches reverted the combined mode fails the same way as with your patches.
->>> > So they did not introduce the bug.
->>>
->>> Mikulas, do you have any idea what could be causing this errors?
->>> Is it that dm-crypt is not properly dealing with async-only HMAC ciphers?
->>> Async-only encryption ciphers seem to work fine in dm-crypt, since LUKS with PAES (but no integrity) works fine, and PAES is an async-onky cipher.
->>> LUKS with sync-HMAC ciphers (e.g. clear key HMAC) also works fine, even in combination with PAES.
->>
->> Yes, I think that it's a problem with async HMAC. The bug is probably
->> either in dm-crypt or in the crypto library.
->>
->> Do you have some other (non-dm-crypt-related) workload that uses the
->> async authentication, so that we can determine whether the bug is in
->> dm-crypt or crypto?
->>
->> Otherwise, would it be possible to give us a virtual machine on the
->> mainframe to debug this issue?
->>
->> Mikulas
-> 
-> So here is now an out-of-tree kernel module build which offers a pseudo phmac-sha256
-> for testing and debugging purpose. In the end this is just a asynch (ahash) wrapper
-> around the hmac-sha256 shash crypto subsystem implementation. It should compile and
-> be usable on all platforms (s390, x64, arm, ...).
-> 
-> I ran dm-integrity tests with this and all worked fine. Ingo ran dm-crypt tests
-> where he combined aes-cbc encryption with phmac-sha256 integrity and saw hangs
-> on cryptsetup open. He also reported that these issues are different to what he
-> saw with the 'real' phmac in combination with aes encryption. A short glimpse gives
-> me the impression that there is a job blocking the system's workqueue. However, I
-> could not find any indication that the pseudo phmac is not working properly.
-
-Here is what I did (after insmod'ing the pseudo phmac cipher).
-I did this on a s390x system, but it should behave the same on x86.
-
-# cryptsetup luksFormat --type luks2 --integrity phmac-sha256 --integrity-key-size 256  /dev/loop0
-# cryptsetup luksOpen /dev/loop0 int-loop
-
-Note: To use the above cryptsetup commands with phmac you might need the code from this cryptsetup PR, otherwise it won't accept phmac as integrity algorithm: https://gitlab.com/cryptsetup/cryptsetup/-/merge_requests/693
-
-The luksOpen step hangs forever and the following messages are shown in syslog after a while:
-
-Sep 19 02:43:29 fedora systemd-udevd[500]: dm-1: Worker [2720] processing SEQNUM=1272 is taking a long time
-Sep 19 02:45:29 fedora systemd-udevd[500]: dm-1: Worker [2720] processing SEQNUM=1272 killed
-
-Still the luksOpen keeps hanging, and a lot of kworkers are hanging around as well: 
-
-# ps -ef
-...
-root        2679    1987  2 02:42 pts/0    00:00:04 cryptsetup luksOpen /dev/loop0 int-loop
-root        2712       2  0 02:42 ?        00:00:00 [kworker/R-kdmflush/251:0]
-root        2713       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-metadata]
-root        2714       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-wait]
-root        2715       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-offload]
-root        2716       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-commit]
-root        2717       2  0 02:42 ?        00:00:00 [kworker/R-dm-integrity-writer]
-root        2718     500  0 02:42 ?        00:00:00 (udev-worker)
-root        2719     500  0 02:42 ?        00:00:00 (udev-worker)
-root        2720     500  0 02:42 ?        00:00:00 [(udev-worker)]
-root        2726       2  0 02:42 ?        00:00:00 [kworker/R-kdmflush/251:1]
-root        2727       2  0 02:42 ?        00:00:00 [kworker/R-kcryptd_io-251:1-1]
-root        2728       2  0 02:42 ?        00:00:00 [kworker/R-kcryptd-251:1-1]
-root        2729       2  0 02:42 ?        00:00:00 [dmcrypt_write/251:1]
-...
-
-# dmsetup table
-int-loop: 0 351128 crypt capi:authenc(phmac(sha256),xts(aes))-plain64 :96:logon:cryptsetup:239c87ad-8c23-4cdb-943f-947737e9cf5c-d0 0 251:0 0 2 integrity:32:aead integrity_key_size:32
-int-loop_dif: 0 351128 integrity 7:0 32768 32 J 6 interleave_sectors:32768 buffer_sectors:128 journal_sectors:3168 journal_watermark:50 commit_time:10000 fix_padding
-
-# lsblk
-NAME           MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINTS
-loop0            7:0    0   200M  0 loop
-└─int-loop_dif 251:0    0 171.4M  0 crypt
-
-
-> 
-> For instructions on how to build and use the module see the README in the tgz archive.
-> 
-> Thanks to all
-> Harald Freudenberger
-> 
-> 
-
-
--- 
-Ingo Franzki
-eMail: ifranzki@linux.ibm.com  
-Tel: ++49 (0)7031-16-4648
-Linux on IBM Z Development, Schoenaicher Str. 220, 71032 Boeblingen, Germany
-
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Gregor Pillen
-Geschäftsführung: David Faller
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
-IBM DATA Privacy Statement: https://www.ibm.com/privacy/us/en/
+Hi Mike,=0A=
+=0A=
+...=0A=
+=0A=
+>> diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/=
+kvm_host.h=0A=
+>> index 2f2394cce24e..0bfd8e5fd9de 100644=0A=
+>> --- a/arch/arm64/include/asm/kvm_host.h=0A=
+>> +++ b/arch/arm64/include/asm/kvm_host.h=0A=
+>> @@ -19,6 +19,7 @@=0A=
+>>  #include <linux/maple_tree.h>=0A=
+>>  #include <linux/percpu.h>=0A=
+>>  #include <linux/psci.h>=0A=
+>> +#include <linux/set_memory.h>=0A=
+>>  #include <asm/arch_gicv3.h>=0A=
+>>  #include <asm/barrier.h>=0A=
+>>  #include <asm/cpufeature.h>=0A=
+>> @@ -1706,5 +1707,16 @@ void compute_fgu(struct kvm *kvm, enum fgt_group_=
+id fgt);=0A=
+>>  void get_reg_fixed_bits(struct kvm *kvm, enum vcpu_sysreg reg, u64 *res=
+0, u64 *res1);=0A=
+>>  void check_feature_map(void);=0A=
+>>=0A=
+>> +#ifdef CONFIG_KVM_GUEST_MEMFD=0A=
+>> +static inline bool kvm_arch_gmem_supports_no_direct_map(void)=0A=
+>> +{=0A=
+>> +     /*=0A=
+>> +      * Without FWB, direct map access is needed in kvm_pgtable_stage2_=
+map(),=0A=
+>> +      * as it calls dcache_clean_inval_poc().=0A=
+>> +      */=0A=
+>> +     return can_set_direct_map() && cpus_have_final_cap(ARM64_HAS_STAGE=
+2_FWB);=0A=
+>> +}=0A=
+>> +#define kvm_arch_gmem_supports_no_direct_map kvm_arch_gmem_supports_no_=
+direct_map=0A=
+>> +#endif /* CONFIG_KVM_GUEST_MEMFD */=0A=
+>>=0A=
+>>  #endif /* __ARM64_KVM_HOST_H__ */=0A=
+>> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h=0A=
+>> index 1d0585616aa3..a9468bce55f2 100644=0A=
+>> --- a/include/linux/kvm_host.h=0A=
+>> +++ b/include/linux/kvm_host.h=0A=
+>> @@ -36,6 +36,7 @@=0A=
+>>  #include <linux/rbtree.h>=0A=
+>>  #include <linux/xarray.h>=0A=
+>>  #include <asm/signal.h>=0A=
+>> +#include <linux/set_memory.h>=0A=
+> =0A=
+> The set_memory APIs are not used in the header, no need to include it her=
+e.=0A=
+> =0A=
+=0A=
+Ack!=0A=
+=0A=
+>>  #include <linux/kvm.h>=0A=
+>>  #include <linux/kvm_para.h>=0A=
+>> @@ -731,6 +732,12 @@ static inline bool kvm_arch_has_private_mem(struct =
+kvm *kvm)=0A=
+>>  bool kvm_arch_supports_gmem_mmap(struct kvm *kvm);=0A=
+>>  #endif=0A=
+>>=0A=
+>> +#ifdef CONFIG_KVM_GUEST_MEMFD=0A=
+>> +#ifndef kvm_arch_gmem_supports_no_direct_map=0A=
+>> +#define kvm_arch_gmem_supports_no_direct_map can_set_direct_map=0A=
+>> +#endif=0A=
+>> +#endif /* CONFIG_KVM_GUEST_MEMFD */=0A=
+>> +=0A=
+>>  #ifndef kvm_arch_has_readonly_mem=0A=
+>>  static inline bool kvm_arch_has_readonly_mem(struct kvm *kvm)=0A=
+>>  {=0A=
+>> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h=0A=
+>> index 6efa98a57ec1..33c8e8946019 100644=0A=
+>> --- a/include/uapi/linux/kvm.h=0A=
+>> +++ b/include/uapi/linux/kvm.h=0A=
+>> @@ -963,6 +963,7 @@ struct kvm_enable_cap {=0A=
+>>  #define KVM_CAP_RISCV_MP_STATE_RESET 242=0A=
+>>  #define KVM_CAP_ARM_CACHEABLE_PFNMAP_SUPPORTED 243=0A=
+>>  #define KVM_CAP_GUEST_MEMFD_MMAP 244=0A=
+>> +#define KVM_CAP_GUEST_MEMFD_NO_DIRECT_MAP 245=0A=
+>>=0A=
+>>  struct kvm_irq_routing_irqchip {=0A=
+>>       __u32 irqchip;=0A=
+>> @@ -1600,6 +1601,7 @@ struct kvm_memory_attributes {=0A=
+>>=0A=
+>>  #define KVM_CREATE_GUEST_MEMFD       _IOWR(KVMIO,  0xd4, struct kvm_cre=
+ate_guest_memfd)=0A=
+>>  #define GUEST_MEMFD_FLAG_MMAP        (1ULL << 0)=0A=
+>> +#define GUEST_MEMFD_FLAG_NO_DIRECT_MAP (1ULL << 1)=0A=
+>>=0A=
+>>  struct kvm_create_guest_memfd {=0A=
+>>       __u64 size;=0A=
+>> diff --git a/virt/kvm/guest_memfd.c b/virt/kvm/guest_memfd.c=0A=
+>> index 81028984ff89..3c64099fc98a 100644=0A=
+>> --- a/virt/kvm/guest_memfd.c=0A=
+>> +++ b/virt/kvm/guest_memfd.c=0A=
+>> @@ -4,6 +4,7 @@=0A=
+>>  #include <linux/kvm_host.h>=0A=
+>>  #include <linux/pagemap.h>=0A=
+>>  #include <linux/anon_inodes.h>=0A=
+>> +#include <linux/set_memory.h>=0A=
+>>=0A=
+>>  #include "kvm_mm.h"=0A=
+>>=0A=
+>> @@ -42,9 +43,24 @@ static int __kvm_gmem_prepare_folio(struct kvm *kvm, =
+struct kvm_memory_slot *slo=0A=
+>>       return 0;=0A=
+>>  }=0A=
+>>=0A=
+>> -static inline void kvm_gmem_mark_prepared(struct folio *folio)=0A=
+>> +static bool kvm_gmem_test_no_direct_map(struct inode *inode)=0A=
+>>  {=0A=
+>> -     folio_mark_uptodate(folio);=0A=
+>> +     return ((unsigned long) inode->i_private) & GUEST_MEMFD_FLAG_NO_DI=
+RECT_MAP;=0A=
+>> +}=0A=
+>> +=0A=
+>> +static inline int kvm_gmem_mark_prepared(struct folio *folio)=0A=
+>> +{=0A=
+>> +     struct inode *inode =3D folio_inode(folio);=0A=
+>> +     int r =3D 0;=0A=
+>> +=0A=
+>> +     if (kvm_gmem_test_no_direct_map(inode))=0A=
+>> +             r =3D set_direct_map_valid_noflush(folio_page(folio, 0), f=
+olio_nr_pages(folio),=0A=
+>> +                                              false);=0A=
+>> +=0A=
+>> +     if (!r)=0A=
+>> +             folio_mark_uptodate(folio);=0A=
+>> +=0A=
+>> +     return r;=0A=
+>>  }=0A=
+>>=0A=
+>>  /*=0A=
+>> @@ -82,7 +98,7 @@ static int kvm_gmem_prepare_folio(struct kvm *kvm, str=
+uct kvm_memory_slot *slot,=0A=
+>>       index =3D ALIGN_DOWN(index, 1 << folio_order(folio));=0A=
+>>       r =3D __kvm_gmem_prepare_folio(kvm, slot, index, folio);=0A=
+>>       if (!r)=0A=
+>> -             kvm_gmem_mark_prepared(folio);=0A=
+>> +             r =3D kvm_gmem_mark_prepared(folio);=0A=
+> =0A=
+> If this fails, shouldn't we undo __kvm_gmem_prepare_folio()?=0A=
+>=0A=
+=0A=
+Yes, good point. I'm not sure if we can undo preparation (its only used=0A=
+by AMD-SEV right now, for passing off the page to the CoCo context). But=0A=
+not undoing it means that guest_memfd will consider the page unprepared,=0A=
+and zero it again the next time it's accesses, which will cause a=0A=
+machine check because the page has already been passed off to the=0A=
+confidential world.=0A=
+=0A=
+We talked about this in the guest_memfd upstream call yesterday, and=0A=
+decided that in addition to this problem, we want to separate=0A=
+preparedness tracking from direct map removal state tracking anyway (and=0A=
+move preparedness tracking outside of guest_memfd into the arch specific=0A=
+code). And if direct map state and preparedness are separate bits, then=0A=
+we can accurately record the state of "preparation worked but direct map=0A=
+removal failed".=0A=
+=0A=
+>>=0A=
+>>       return r;=0A=
+>>  }=0A=
+>> @@ -344,8 +360,15 @@ static vm_fault_t kvm_gmem_fault_user_mapping(struc=
+t vm_fault *vmf)=0A=
+>>       }=0A=
+>>=0A=
+>>       if (!folio_test_uptodate(folio)) {=0A=
+>> +             int err =3D 0;=0A=
+>> +=0A=
+>>               clear_highpage(folio_page(folio, 0));=0A=
+>> -             kvm_gmem_mark_prepared(folio);=0A=
+>> +             err =3D kvm_gmem_mark_prepared(folio);=0A=
+>> +=0A=
+>> +             if (err) {=0A=
+>> +                     ret =3D vmf_error(err);=0A=
+>> +                     goto out_folio;=0A=
+>> +             }=0A=
+>>       }=0A=
+>>=0A=
+>>       vmf->page =3D folio_file_page(folio, vmf->pgoff);=0A=
+>> @@ -436,6 +459,16 @@ static void kvm_gmem_free_folio(struct address_spac=
+e *mapping,=0A=
+>>       kvm_pfn_t pfn =3D page_to_pfn(page);=0A=
+>>       int order =3D folio_order(folio);=0A=
+>>=0A=
+>> +     /*=0A=
+>> +      * Direct map restoration cannot fail, as the only error condition=
+=0A=
+>> +      * for direct map manipulation is failure to allocate page tables=
+=0A=
+>> +      * when splitting huge pages, but this split would have already=0A=
+>> +      * happened in set_direct_map_invalid_noflush() in kvm_gmem_mark_p=
+repared().=0A=
+>> +      * Thus set_direct_map_valid_noflush() here only updates prot bits=
+.=0A=
+>> +      */=0A=
+>> +     if (kvm_gmem_test_no_direct_map(mapping->host))=0A=
+>> +             set_direct_map_valid_noflush(page, folio_nr_pages(folio), =
+true);=0A=
+>> +=0A=
+>>       kvm_arch_gmem_invalidate(pfn, pfn + (1ul << order));=0A=
+>>  }=0A=
+>>=0A=
+>> @@ -500,6 +533,9 @@ static int __kvm_gmem_create(struct kvm *kvm, loff_t=
+ size, u64 flags)=0A=
+>>       /* Unmovable mappings are supposed to be marked unevictable as wel=
+l. */=0A=
+>>       WARN_ON_ONCE(!mapping_unevictable(inode->i_mapping));=0A=
+>>=0A=
+>> +     if (flags & GUEST_MEMFD_FLAG_NO_DIRECT_MAP)=0A=
+>> +             mapping_set_no_direct_map(inode->i_mapping);=0A=
+>> +=0A=
+>>       kvm_get_kvm(kvm);=0A=
+>>       gmem->kvm =3D kvm;=0A=
+>>       xa_init(&gmem->bindings);=0A=
+>> @@ -524,6 +560,9 @@ int kvm_gmem_create(struct kvm *kvm, struct kvm_crea=
+te_guest_memfd *args)=0A=
+>>       if (kvm_arch_supports_gmem_mmap(kvm))=0A=
+>>               valid_flags |=3D GUEST_MEMFD_FLAG_MMAP;=0A=
+>>=0A=
+>> +     if (kvm_arch_gmem_supports_no_direct_map())=0A=
+>> +             valid_flags |=3D GUEST_MEMFD_FLAG_NO_DIRECT_MAP;=0A=
+>> +=0A=
+>>       if (flags & ~valid_flags)=0A=
+>>               return -EINVAL;=0A=
+>>=0A=
+>> @@ -768,7 +807,7 @@ long kvm_gmem_populate(struct kvm *kvm, gfn_t start_=
+gfn, void __user *src, long=0A=
+>>               p =3D src ? src + i * PAGE_SIZE : NULL;=0A=
+>>               ret =3D post_populate(kvm, gfn, pfn, p, max_order, opaque)=
+;=0A=
+>>               if (!ret)=0A=
+>> -                     kvm_gmem_mark_prepared(folio);=0A=
+>> +                     ret =3D kvm_gmem_mark_prepared(folio);=0A=
+>>=0A=
+>>  put_folio_and_exit:=0A=
+>>               folio_put(folio);=0A=
+...=0A=
+=0A=
+>=0A=
+> Sincerely yours,=0A=
+> Mike.=0A=
+Best, =0A=
+Patrick=0A=
+=0A=
