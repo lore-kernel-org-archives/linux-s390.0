@@ -1,169 +1,199 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92F164A3E
-	for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 18:17:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8B82264636;
+	Fri, 19 Sep 2025 19:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758305868; cv=none; b=J4DD5fPG6vbh7LFq60F/utvcc8gkH2Hg0oPGOPGP9XqOKJLSaw5DRfZm02HCI1z+bcQj0ugceOBAZ1SkxQRYNlw0kE+YcX03BWDuU0P1hnWL4ZVKBdQkbR22bsDELug44ivC4dfEXn87td6DPCuY27tuYt5KknQT5Vt2WGU3m1k=
+	t=1758308661; cv=none; b=MBE9quc8XjfP5oTSdV/7FRjWayzSqKX2fyzVSeQwWhcC4EPFE7fyZh/UOcJIrLhspQ6/HUsZEeyKzGcQ/7bpdnHjZ4lN+D6C8LtmKlQ8UEynhaWNJ/6wU3rmhuM5xTXBZG93M77wuKv4ZuO5x/kl5v7UL6rfuJskRxa9iNELA5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758305868; c=relaxed/simple;
-	bh=UYQ/heBMSwesBf4ndeJdw8Tnd7iUiwyxPBtUng/3UNg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gn/rM3RqeJqvNdZ/ALVVTs7e2vQgP57dKljxvWbN+1+4hhZjSx8D2SKIDXNP78zUDRTl7+oxrRaHvpizGPjdw/E9HPutfzENU1bzqmXaahfSvUdKhkAAoISAlZg8YJ1Urf8wYvElWDGbfmv3UqilZAzMAJs3V3ELE8SxjCsvbjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W7/D//+A; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1758308661; c=relaxed/simple;
+	bh=+1gH9nh7Z9jLWMfLfJ0dorAYo0y8h0IdTCU2qgAMylM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=swYlnnjAWyF5694egKSZ4wSAr88mRhcR1oDB0/lv29QFfynEG+CLV3lHsC+yVWc8ilyxk3QH6tsEg8YDm+u6DF3CX0gNTODj6sf/zXAzEpgxyKU2jS33lYR1OzMUijaltrfOxwL6ZUwYZGxgGt+BCJHVf88DLeED5NXVM3MSFD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oNanpnCj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W7/D//+A"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758305865;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2tP8qgX24boDvqrfxOc41UrXAFnZAOnA7a7ICmrly80=;
-	b=W7/D//+AAzrsFhfJuBmqimxbi0nbNwlKgLoRfiNJffPU+JGqnKy8qUWgQig8ERxyML3+QC
-	jI0pUeEH4DVtMyISqyAk0abURfRAAjw71SXVdShZagJXxSV7vVovFVkJ0swSlhEAPqR+bg
-	TN9kAvqcc02B7E2eaZWl27UGoZ71rWI=
-Received: from mail-il1-f199.google.com (mail-il1-f199.google.com
- [209.85.166.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-E9lNI6FqMSqOGpDg7fQfAg-1; Fri, 19 Sep 2025 14:17:44 -0400
-X-MC-Unique: E9lNI6FqMSqOGpDg7fQfAg-1
-X-Mimecast-MFC-AGG-ID: E9lNI6FqMSqOGpDg7fQfAg_1758305863
-Received: by mail-il1-f199.google.com with SMTP id e9e14a558f8ab-4240abfbce2so4261015ab.1
-        for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 11:17:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758305863; x=1758910663;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2tP8qgX24boDvqrfxOc41UrXAFnZAOnA7a7ICmrly80=;
-        b=oKdg8OaHEKBlP+qPECvW0F+9tRR1gvjzNdKjc1fM7XIncs+3FpaedbPOLd27cEsLrg
-         c3olUJZEvTURX3cGvF9+r/44TlYJK2fCf9ishKNKyOmffyvpZBFNsN5g4JpMlyZXDonR
-         uwPkH7b44wOdDx3xvCwwz7jatEMsHQ6cR0Htir3kgplMJHB2P0mk9LofU/eLm0PrBWnZ
-         gI4khOy/9He+qqacSVDrhhzdyL6W3Jue7MihDZPkSZgI3n8qD/BYw3UcCBo+H8ph2ew+
-         8yefGoBNEAnuy9rqXoQD+4EYtakziFzdHWUV0y3xSZu1HL/OqC3EgGT4xiAqHkYMOANh
-         wNqA==
-X-Forwarded-Encrypted: i=1; AJvYcCVQwlmRjKIgfT746N58oaVJBn+f1uxfYA1h1VEupj6vG8ijMh9YJ2mQq47CrToAIWdpZVAGMOg/hPxx@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz6osIvst2+L0FY+jBJpSForUiKmeYfjRcOpGmA4mR+yU9OkyQx
-	tC1Z9fQWfX8CroTDh4KBBTWSG0iG83ivufK+6x8dFEGWNE2IfLDhbDaa3B27L7RsSma2eR/7N5D
-	5yXke++oIMOgZiJA1CKR0IIAGoY1AY67FTVH0XXAFhHybjtiqMmg+OXQbW3V6UQk=
-X-Gm-Gg: ASbGncviNhz6E0aEcjjgoc3vDoqb5pWDqwWHj0B+NLLnWEnUqEwgMHmIn5ziEzj2Xi/
-	YD6v7BvsHxERjZmSca9+EuxMWJCJCe7i3U0TRBLGk0VpS34YotvuQ4ncRPckqy+Vy2rz/A70LjP
-	+x970h/7zVx6PhpQLozaKuvOEHjhxDv+WhzK66p3g3RoYnTRHF7GxZ1SPPDVYn3FBiPgwKKTMIy
-	Yg3muB+Gsp84O386zGgRP85tYB7V+njUAiPBMgz4tgIJ/Ir9OCrbFdSPEgCCF3oqyb1mHpZEraX
-	Q9/N6Z5j+DCvRxTNPw7Y8WUMcBJj+Wk6wsJ7pcx1k4Y=
-X-Received: by 2002:a05:6e02:1d9d:b0:424:69b:e8d0 with SMTP id e9e14a558f8ab-4248190395emr19310665ab.1.1758305863186;
-        Fri, 19 Sep 2025 11:17:43 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGb10MnB7zhkH1dVW9AEzJVk+z8ybEB8AlSck6uXI8Tp5xc6aeeZCL649awhtncJC1hXa8bVg==
-X-Received: by 2002:a05:6e02:1d9d:b0:424:69b:e8d0 with SMTP id e9e14a558f8ab-4248190395emr19310505ab.1.1758305862772;
-        Fri, 19 Sep 2025 11:17:42 -0700 (PDT)
-Received: from redhat.com ([38.15.36.11])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-4244afa9f6fsm24280945ab.22.2025.09.19.11.17.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Sep 2025 11:17:42 -0700 (PDT)
-Date: Fri, 19 Sep 2025 12:17:39 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: Bjorn Helgaas <helgaas@kernel.org>, linux-s390@vger.kernel.org,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-pci@vger.kernel.org, schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-Subject: Re: [PATCH v3 01/10] PCI: Avoid saving error values for config
- space
-Message-ID: <20250919121739.53f79518.alex.williamson@redhat.com>
-In-Reply-To: <d6655c44-ca97-4527-8788-94be2644c049@linux.ibm.com>
-References: <20250916180958.GA1797871@bhelgaas>
-	<d6655c44-ca97-4527-8788-94be2644c049@linux.ibm.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oNanpnCj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D86C1C4CEF0;
+	Fri, 19 Sep 2025 19:04:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758308658;
+	bh=+1gH9nh7Z9jLWMfLfJ0dorAYo0y8h0IdTCU2qgAMylM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=oNanpnCjSjsll5K2MuYanlRd4lQmwPAdpDsKOByL4FDhlwNKLVMWRpEMQ8JwfHYzQ
+	 EbRS5CEdk1MKvwQS4YWvyNe5I4QwimcJsNv2MfIZtIKna3+FtziWMzz4P1AQiuIAQr
+	 mN1BEDVpW6rSeBcWeaXgk2z9TmJr62oMLPGsFBAgShUSKOYJpkTWbcUahsgI55KPyy
+	 ghL13KQIKGbyjfUTSnfLUwRiN2Epqhd75pjPC1uPVV5WaZdC0Oem/coNbupssSoXnU
+	 QfTQt3uEaVbyv9WKfn2cmLbDgEwNjPlS63rwKHU4viKw7D+OgSNTvYPCIDADeWN/aB
+	 ZxLbcQrzXQHCg==
+Date: Fri, 19 Sep 2025 14:04:13 -0500
+From: Eric Biggers <ebiggers@kernel.org>
+To: David Howells <dhowells@redhat.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Stephan Mueller <smueller@chronox.de>, Simo Sorce <simo@redhat.com>,
+	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+	keyrings@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] lib/crypto: Add SHA3-224, SHA3-256, SHA3-384,
+ SHA-512, SHAKE128, SHAKE256
+Message-ID: <20250919190413.GA2249@quark>
+References: <3936580.1758299519@warthog.procyon.org.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3936580.1758299519@warthog.procyon.org.uk>
 
-On Tue, 16 Sep 2025 13:00:30 -0700
-Farhan Ali <alifm@linux.ibm.com> wrote:
-
-> On 9/16/2025 11:09 AM, Bjorn Helgaas wrote:
-> > On Thu, Sep 11, 2025 at 11:32:58AM -0700, Farhan Ali wrote:  
-> >> The current reset process saves the device's config space state before
-> >> reset and restores it afterward. However, when a device is in an error
-> >> state before reset, config space reads may return error values instead of
-> >> valid data. This results in saving corrupted values that get written back
-> >> to the device during state restoration.
-> >>
-> >> Avoid saving the state of the config space when the device is in error.
-> >> While restoring we only restorei the state that can be restored through
-> >> kernel data such as BARs or doesn't depend on the saved state.
-> >>
-> >> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> >> ---
-> >>   drivers/pci/pci.c      | 29 ++++++++++++++++++++++++++---
-> >>   drivers/pci/pcie/aer.c |  5 +++++
-> >>   drivers/pci/pcie/dpc.c |  5 +++++
-> >>   drivers/pci/pcie/ptm.c |  5 +++++
-> >>   drivers/pci/tph.c      |  5 +++++
-> >>   drivers/pci/vc.c       |  5 +++++
-> >>   6 files changed, 51 insertions(+), 3 deletions(-)
-> >>
-> >> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-> >> index b0f4d98036cd..4b67d22faf0a 100644
-> >> --- a/drivers/pci/pci.c
-> >> +++ b/drivers/pci/pci.c
-> >> @@ -1720,6 +1720,11 @@ static void pci_restore_pcie_state(struct pci_dev *dev)
-> >>   	struct pci_cap_saved_state *save_state;
-> >>   	u16 *cap;
-> >>   
-> >> +	if (!dev->state_saved) {
-> >> +		pci_warn(dev, "Not restoring pcie state, no saved state");
-> >> +		return;  
-> Hi Bjorn
+On Fri, Sep 19, 2025 at 05:31:59PM +0100, David Howells wrote:
+> Add SHA3, providing SHA3-224, SHA3-256, SHA3-384, SHA-512, SHAKE128 and
+> SHAKE256 to lib/crypto.
 > 
-> Thanks for taking a look.
+> The state array handling is simplified from what's in crypto/sha3_generic.c
+> by keeping the state array (a u64[25]) in LE form and byteswapping all the
+> entries before and after applying the keccak function on a BE system.  This
+> means no byteswapping is required when XOR'ing data into the state array or
+> when extracting the digest.  Further, this is a no-op on LE systems.
 > 
-> > Seems like a lot of messages.  If we want to warn about this, why
-> > don't we do it once in pci_restore_state()?  
+> Also:
 > 
-> I thought providing messages about which state is not restored would be 
-> better and meaningful as we try to restore some of the state. But if the 
-> preference is to just have a single warn message in pci_restore_state 
-> then I can update it. (would also like to hear if Alex has any 
-> objections to that)
+>  - Perform a multistage shake256 hash check in the module initialisation.
+> 
+>  - Add kunit tests for each algorithm based on the gen-hash-testvecs.
+> 
+>  - The conflicting static s390x crypto function names are renamed to have
+>    an s390_ prefix.
+> 
+>  - gen-hash-testvecs.py had to be modified to be able to generate SHAKE
+>    hashes because Python's hashlib requires the output digest size
+>    supplying for those two algorithms as they produce arbitrary length
+>    digests.
+> 
+> Notes:
+> 
+>  (1) I've left hooks in sha3.c for asm-optimised variants, but as I don't
+>      entirely know what those might look like, not having implemented any,
+>      the hooks' usability is uncertain.
+> 
+>  (2) The SHAKE algorithms will be required for ML-DSA.
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: Eric Biggers <ebiggers@kernel.org>
+> cc: Jason A. Donenfeld <Jason@zx2c4.com>
+> cc: Ard Biesheuvel <ardb@kernel.org>
+> cc: Harald Freudenberger <freude@linux.ibm.com>
+> cc: Holger Dengler <dengler@linux.ibm.com>
+> cc: Herbert Xu <herbert@gondor.apana.org.au>
+> cc: Stephan Mueller <smueller@chronox.de>
+> cc: linux-crypto@vger.kernel.org
+> cc: linux-s390@vger.kernel.org
+> ---    
+>  Changes
+>  =======
+>  v2)
+>   - Simplify the endianness handling.
+>  
+>   - Rename sha3_final() to sha3_squeeze() and don't clear the context at the
+>     end as it's permitted to continue calling sha3_final() to extract
+>     continuations of the digest (needed by ML-DSA).
+>  
+>   - Don't reapply the end marker to the hash state in continuation
+>     sha3_squeeze() unless sha3_update() gets called again (needed by
+>     ML-DSA).
+>  
+>   - Give sha3_squeeze() the amount of digest to produce as a parameter
+>     rather than using ctx->digest_size and don't return the amount digested.
+>  
+>   - Reimplement sha3_final() as a wrapper around sha3_squeeze() that
+>     extracts ctx->digest_size amount of digest and then zeroes out the
+>     context.  The latter is necessary to avoid upsetting
+>     hash-test-template.h.
+>  
+>   - Provide a sha3_reinit() function to clear the state, but to leave the
+>     parameters that indicate the hash properties unaffected, allowing for
+>     reuse.
+>  
+>   - Provide a sha3_set_digestsize() function to change the size of the
+>     digest to be extracted by sha3_final().  sha3_squeeze() takes a
+>     parameter for this instead.
+>  
+>   - Don't pass the digest size as a parameter to shake128/256_init() but
+>     rather default to 128/256 bits as per the function name.
+>  
+>   - Provide a sha3_clear() function to zero out the context.
+> 
+>  arch/s390/crypto/sha3_256_s390.c          |   26 -
+>  include/crypto/sha3.h                     |  160 +++++++-
+>  lib/crypto/Kconfig                        |    7 
+>  lib/crypto/Makefile                       |    6 
+>  lib/crypto/sha3.c                         |  597 ++++++++++++++++++++++++++++++
+>  lib/crypto/tests/Kconfig                  |   12 
+>  lib/crypto/tests/Makefile                 |    7 
+>  lib/crypto/tests/sha3_224_kunit.c         |   32 +
+>  lib/crypto/tests/sha3_224_testvecs.h      |  231 +++++++++++
+>  lib/crypto/tests/sha3_256_kunit.c         |   32 +
+>  lib/crypto/tests/sha3_256_testvecs.h      |  231 +++++++++++
+>  lib/crypto/tests/sha3_384_kunit.c         |   32 +
+>  lib/crypto/tests/sha3_384_testvecs.h      |  281 ++++++++++++++
+>  lib/crypto/tests/sha3_512_kunit.c         |   32 +
+>  lib/crypto/tests/sha3_512_testvecs.h      |  331 ++++++++++++++++
+>  lib/crypto/tests/sha3_shake128_kunit.c    |   37 +
+>  lib/crypto/tests/sha3_shake128_testvecs.h |  181 +++++++++
+>  lib/crypto/tests/sha3_shake256_kunit.c    |   37 +
+>  lib/crypto/tests/sha3_shake256_testvecs.h |  231 +++++++++++
+>  scripts/crypto/gen-hash-testvecs.py       |    8 
+>  20 files changed, 2495 insertions(+), 16 deletions(-)
 
-I thought it got a bit verbose as well.
+Thanks for working on this!  Some preliminary comments (it will take a
+few days for me to find time to fully review this):
 
-> > I guess you're making some judgment about what things can be restored
-> > even when !dev->state_saved.  That seems kind of hard to maintain in
-> > the future as other capabilities are added.
-> >
-> > Also seems sort of questionable if we restore partial state and keep
-> > using the device as if all is well.  Won't the device be in some kind
-> > of inconsistent, unpredictable state then?
+This should be based on libcrypto-next.  And as with any kernel patch,
+it should include a base-commit so that people know where it applies to.
 
-To an extent that's always true.  Reset is a lossy process, we're
-intentionally throwing away the internal state of the device and
-attempting to restore the architected config space as best as we can.
-It's hard to guarantee it's complete though.
+This should be split into three patches: (1) the arch/s390/ changes, (2)
+adding the library functions themselves, and (3) adding the tests.
 
-In this case we're largely just trying to determine whether the
-pre-reset config space is already broken, which would mean that some
-forms of reset are unavailable and our restore data is bogus.  In
-addition to the s390x specific scenario resolved here, I hope this
-might eliminate some of the "device stuck in D3" or "device stuck with
-pending transaction" errors we currently see trying to do PM or FLR
-resets on broken devices.  Failing to actually reset the device in any
-way, then trying to write back -1 for restore data is what we'd see
-today, which also isn't what we intend.
+We'll also need to integrate the existing arch-optimized SHA-3 code, and
+reimplement the SHA-3 crypto_shash algorithms on top of the library.
+Let me know whether you're planning to do that to.  If not, I can do it.
 
-It probably doesn't make sense to note the specific capabilities that
-aren't being restored.  Probably a single pci_warn indicating the
-device config space is inaccessible prior to reset and will only be
-partially restored is probably sufficient.  Thanks,
+In kerneldoc comments, please make it clear that lengths are measured in
+bytes, and that the functions can be called in any context.
 
-Alex
+The testing situation looks odd.  This patch adds six KUnit test suites:
+one for each of the SHA-3 algorithms.  But they only include the
+hash-test-template.h test cases, and they don't test the unique behavior
+of SHAKE.  The KUnit tests need to fully test the library.
 
+I see you also have a test in sha3_mod_init(), which doesn't make sense.
+The tests should be in the KUnit test suite(s).  If you intended for the
+sha3_mod_init() test to be a FIPS pre-operational self-test, then (1) it
+would first need to be confirmed with the people doing FIPS
+certifications that a FIPS pre-operational self-test is actually
+necessary here, (2) it would need to be fixed to actually fulfill the
+requirements for that type of test such as panicing the kernel on
+failure, and (3) it would need to come in its own patch with its own
+explanation.  But, unless you are sure you actually need the FIPS test,
+just omit it out for now and focus on the real tests.
+
+I also think that splitting the SHA-3 tests into six KUnit test suites
+is awkward.  I know I did something similar for SHA-2, but it made more
+sense for SHA-2 because (1) there are only four SHA-2 variants, (2)
+SHA-256 and SHA-512 don't share any code, and (3) there wasn't anything
+more to add on top of hash-test-template.h.  In contrast, SHA-3 has six
+variants, which all share most of their code, and there will need to be
+SHA-3 specific tests (for the XOFs).
+
+I think what I'd recommend is creating a single sha3_kunit test suite.
+Make it instantiate hash-test-template.h once to test one of the
+algorithms, maybe SHA3-256.  Then add test cases (that is, additional
+KUnit test cases in the same KUnit test suite) that cover the code
+specific to the other variants, including the XOFs.
+
+- Eric
