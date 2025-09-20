@@ -1,272 +1,119 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A203286A9;
-	Sat, 20 Sep 2025 03:14:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80550221F39
+	for <linux-s390@vger.kernel.org>; Sat, 20 Sep 2025 03:55:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758338055; cv=none; b=UF3/Q/9j5yJV6y5VLcw/6FOm0mlkXPMstpWQKz1DuY7idA8G9PG5zftgj5hexY9h+KysdM4ziYzuiG2KhoK/XWgVRh6P4vZ+lHJ15GcFusSQG6HC6KcMP7JMUEygivK8Bi5R5le75wyehsa9lCGO4UArv5yu6IdU0POuxsjHpm4=
+	t=1758340539; cv=none; b=buUmR8NjUCXuGVu1TpKrGAHb7baElAGxPWVH1s9OKJKQcA1Apu6x02DNh72ntOGfLO/Zdbry3giQhmjcW0Hr0UKSNjWvhYhh3fqmPBHdkwzU2epn2eyTh38uMWFokoNQS/Nka1rVc9jSaPhuEjtfpNlI8kgvAxxWDTLbm+oxsqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758338055; c=relaxed/simple;
-	bh=42Q1yqeXj9JxOAIn0H5mMd4LavLanRycmbxv9/wrDmA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=QnMwj1JJa+mVXeaJslwwt6Lb+GY6/sZcmX61eU/9oR4mdfzMHBRyLPaRyZ9yCnVbLRhB1queaVuANM27Ws4mw9kzWVFdwsfDbe1SQrvura+3fiYnM91i5EtOlVIgE6/Ct6Ru6AZRptAmGSFFDcAGz+6qCoR9VCPXgG9zk7JLLt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4cTDws673wz14MPh;
-	Sat, 20 Sep 2025 11:13:49 +0800 (CST)
-Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
-	by mail.maildlp.com (Postfix) with ESMTPS id 804DC1402C1;
-	Sat, 20 Sep 2025 11:14:07 +0800 (CST)
-Received: from [10.174.176.70] (10.174.176.70) by
- dggpemf500016.china.huawei.com (7.185.36.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Sat, 20 Sep 2025 11:14:05 +0800
-Message-ID: <0ca2c567-b311-4f0b-bb29-2b860b75f85e@huawei.com>
-Date: Sat, 20 Sep 2025 11:14:04 +0800
+	s=arc-20240116; t=1758340539; c=relaxed/simple;
+	bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sps9oXZXlnblEITZmO5YKYd25Z4wGhRazs+J2a0MNg5PkhQ/+udVe82NELRGLlZ06Ni4OHR/oKzjfqEjx3PL/HqJNMT2vZqwmJsqdTvHzK8mA+jUpk7AOQe4hlHplI5QnRMT0DWMBQ+0E/D7/nQYdH3daT6QmeKsWP6g1zxdr8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZFPKZ+Oq; arc=none smtp.client-ip=209.85.219.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZFPKZ+Oq"
+Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-ea63e86b79aso1890045276.2
+        for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 20:55:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758340534; x=1758945334; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
+        b=ZFPKZ+OqAAj1VhKugky3kjemp/VIqd75of38HGEmt1IOj91W4b7jLe+Myfu3ent1n8
+         I+OsNztO7baVS7SDNqQDhsKyRcudzp5fPl2dQ3EsKmIi5TGzzTSREF9BOYtdvwLtcCQ9
+         lX8BgfQDKyo0m2JfxIC+zD4CzDFgLzCucCTNnl0sqYXFOybMgodTGPU/RxeED3KpD6Ge
+         7yQG/mA18ZVwa9TAvZspdmtVMoFft3MmApalEp7/PJVnD7pAqdNfemDIdWOkktS1fK7N
+         5MIan1ZBYEJnEUm4lD9oNaRI/NjfTi3RIA4zVC5lAmPgo6eel/h/B86mXEMgdrCKJemE
+         DM2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758340534; x=1758945334;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
+        b=ZMI5b1/wzjz+axPiO30ZIT5lxAGWEbRMU319GDsLmtf2U1tdKvT0gUSWIcVsYA138d
+         6osrEKxQTSt99GjwWiW8R5CU6b7bMjUY//shu/a69sdjEU+JPbTzNyRqLohT2z7zjA4A
+         Pt+9u6MvQgWDp/Hty2CB9KNYpNkEOxmkK7IAKJI56Xio1v6a3AKhQ3mjLW+AAh6k4MXP
+         ptt9bIxFR4B/51KN3yBI+XGKQvRdpzulCsRIpOqfUSA+M9z6/sFfHMZSdYSqmJ1PgmUS
+         /4WzLccBeeQZlIRfcw1zFEhi1T6LlM+QJkVFKmnJjF/kTzZANpehTbypJrHKNx8rixvB
+         s+DQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUZJfp3g0s0itF0YmAX16NR5ecBA+DDmJ+Uw4EK9OT+lxhx84HUZlxJTYAXVKTH4hn4Nt3EBsXSJCEN@vger.kernel.org
+X-Gm-Message-State: AOJu0YwBxPVTEkB0cwY05xelf5ZX7o5A5EH+8DKnsEYJMAeKgyIWrlPp
+	F+xT/TlkyXW3dw8uFC4/tffxmIoyz0qoCB7tzj2C+5rf1Zing/K+sJFFSFxkxpQFniNK2LpWvW1
+	vMIl7vVXfpJBDu+RrO94XKLMuta1N+T4=
+X-Gm-Gg: ASbGnct08G5lbQntzRI6+vedCVSSbw+ucMUfiwPanc5TwFN5rcN8Jp33xvY3ThCE4Pu
+	W7P4S/yjeo0WmVf5kpWs2jkADqDTmMdIhJATEBcwCcvMSpk84ghUrTMP45YqfdRXqI+FMZCuhNJ
+	J53Cnyosx6DJZdxkdllOB3IVrt6iUHoqrnngqithKBKsaqlp7k3cQQNTqs4cDQojT3sFfs2ZoxO
+	Kh29pI=
+X-Google-Smtp-Source: AGHT+IH7cxRQcDAWrx6iopGK0fgAvvotX/SwRt/T/KElvH4XQULrd96czgOrVv1CSvA0vDpbRNCMKcVlhfdowxEBryU=
+X-Received: by 2002:a53:b3c5:0:b0:622:4818:ce38 with SMTP id
+ 956f58d0204a3-6347f610c7emr3546092d50.37.1758340534336; Fri, 19 Sep 2025
+ 20:55:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [smc?] general protection fault in __smc_diag_dump (4)
-To: syzbot <syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com>,
-	<alibuda@linux.alibaba.com>, <davem@davemloft.net>,
-	<dust.li@linux.alibaba.com>, <edumazet@google.com>,
-	<guwen@linux.alibaba.com>, <horms@kernel.org>, <kuba@kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <mjambigi@linux.ibm.com>,
-	<netdev@vger.kernel.org>, <pabeni@redhat.com>, <sidraya@linux.ibm.com>,
-	<syzkaller-bugs@googlegroups.com>, <tonylu@linux.alibaba.com>,
-	<wenjia@linux.ibm.com>, zhangchangzhong <zhangchangzhong@huawei.com>,
-	yuehaibing <yuehaibing@huawei.com>
-References: <68caf6c7.050a0220.2ff435.0597.GAE@google.com>
-From: Wang Liang <wangliang74@huawei.com>
-In-Reply-To: <68caf6c7.050a0220.2ff435.0597.GAE@google.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
- dggpemf500016.china.huawei.com (7.185.36.197)
+References: <20250918152830.438554-1-nschichan@freebox.fr> <20250918195806.6337-1-safinaskar@gmail.com>
+ <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
+In-Reply-To: <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
+From: Askar Safin <safinaskar@gmail.com>
+Date: Sat, 20 Sep 2025 06:54:58 +0300
+X-Gm-Features: AS18NWCqg0xtU5KiNe17DWjmiPCEbBI_FSj5NCOyDGZFj_7oFaRqSu7O_vUKCrA
+Message-ID: <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
+Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
+To: Nicolas Schichan <nschichan@freebox.fr>
+Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk, 
+	brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org, 
+	ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com, 
+	gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de, 
+	hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz, 
+	julian.stecklina@cyberus-technology.de, kees@kernel.org, 
+	linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
+	linux-csky@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, mcgrof@kernel.org, 
+	mingo@redhat.com, monstr@monstr.eu, mzxreary@0pointer.de, 
+	patches@lists.linux.dev, rob@landley.net, sparclinux@vger.kernel.org, 
+	thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev, 
+	torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk, 
+	x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This issue is similar to:
-https://lore.kernel.org/netdev/20250331081003.1503211-1-wangliang74@huawei.com/
+On Fri, Sep 19, 2025 at 6:25=E2=80=AFPM Nicolas Schichan <nschichan@freebox=
+.fr> wrote:
+> Considering that the deprecation message didn't get displayed in some
+> configurations, maybe it's a bit early at the very least.
 
-The process like this:
-(CPU1)                           | (CPU2)
----------------------------------|-------------------------------
-inet_create()                    |
-   sk = sk_alloc()                |
-                                  |
-   inet_init_csk_locks()          |
-     modify smc->clcsock          |
-                                  |
-   sk->sk_prot->init              |
-     smc_inet_init_sock()         |
-       smc_sk_init()              |
-         smc_hash_sk()            |
-           head = &smc_hash->ht;  |
-           sk_add_node(sk, head); |
-                                  | smc_diag_dump_proto
-                                  |   head = &smc_hash->ht;
-                                  |     sk_for_each(sk, head)
-                                  |       __smc_diag_dump()
-                                  |         visit smc->clcsock
+I changed my opinion.
+Breaking users, who did not see a deprecation message at all,
+is unfair.
+I will send a patchset soon, which will remove initrd codepath,
+which currently contains deprecation notice. And I will put
+deprecation notice to
+other codepath.
 
+Then in September 2026 I will fully remove initrd.
 
-The 'smc->clcsock' is modified in inet_init_csk_locks():
-__sock_create(family=2, type=1, protocol=256)
-     inet_create
-         sk = sk_alloc(...); // smc->clcsock = 0
-         inet_init_csk_locks(sk);
-             icsk = inet_csk(sk);
-spin_lock_init(&icsk->icsk_accept_queue.rskq_lock); // smc->clcsock = 
-0xdead4ead00000000
+> SMTP server I used wasn't authenticated to google, so all gmail
+> recipients were dropped. Hopefully this work better today.
 
-The relevant structure is 'struct smc_sock' and 'struct 
-inet_connection_sock':
-struct smc_sock {
-     union {
-         struct sock      sk;
-         struct inet_sock icsk_inet;
-     };
-     struct socket        *clcsock;
-     ...
-};
-struct inet_connection_sock {
-     struct inet_sock          icsk_inet;
-     struct request_sock_queue icsk_accept_queue;
-     ...
-};
+Yes, this time I got your email
 
-Commit 60ada4fe644e ("smc: Fix various oops due to inet_sock type 
-confusion.")
-add inet_sock as the first member of smc_sock. Maybe add 
-inet_connection_sock
-instead of inet_sock is more appropriate.
-
-#syz test
-
- From 782467e7f55f2f1487744252060ffbaa992ee47a Mon Sep 17 00:00:00 2001
-From: Wang Liang <wangliang74@huawei.com>
-Date: Sat, 20 Sep 2025 11:29:52 +0800
-Subject: [PATCH net] net/smc: fix general protection fault in 
-__smc_diag_dump
-
-Use inet_connection_sock instead of inet_sock in struct smc_sock.
-
-Signed-off-by: Wang Liang <wangliang74@huawei.com>
----
-  net/smc/smc.h | 2 +-
-  1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 2c9084963739..1b20f0c927d3 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -285,7 +285,7 @@ struct smc_connection {
-  struct smc_sock {                              /* smc sock container */
-         union {
-                 struct sock             sk;
--               struct inet_sock        icsk_inet;
-+               struct inet_connection_sock     inet_conn;
-         };
-         struct socket           *clcsock;       /* internal tcp socket */
-         void                    (*clcsk_state_change)(struct sock *sk);
---
-2.34.1
-
-
-
-
-在 2025/9/18 1:58, syzbot 写道:
-> Hello,
->
-> syzbot found the following issue on:
->
-> HEAD commit:    5aca7966d2a7 Merge tag 'perf-tools-fixes-for-v6.17-2025-09..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=147e2e42580000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=8f01d8629880e620
-> dashboard link: https://syzkaller.appspot.com/bug?extid=f775be4458668f7d220e
-> compiler:       gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17aec534580000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=115a9f62580000
->
-> Downloadable assets:
-> disk image: https://storage.googleapis.com/syzbot-assets/f191b2524020/disk-5aca7966.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/5aa02ba0cba2/vmlinux-5aca7966.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/b9b04ddba61b/bzImage-5aca7966.xz
->
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
->
-> Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
-> KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
-> CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full)
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
-> RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
-> RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
-> Code: 4c 8b b3 40 06 00 00 4d 85 f6 0f 84 f6 02 00 00 e8 6b 4f 78 f6 49 8d 7e 18 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 f6 1e 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b
-> RSP: 0018:ffffc90003f2f1a8 EFLAGS: 00010a06
-> RAX: dffffc0000000000 RBX: ffff88802a33bd40 RCX: ffffffff897ee8a4
-> RDX: 1bd5a9d5a0000003 RSI: ffffffff8b434dd5 RDI: dead4ead00000018
-> RBP: ffff888032418000 R08: 0000000000000005 R09: 0000000000000000
-> R10: 0000000080000001 R11: 0000000000000000 R12: ffff8880754915f0
-> R13: ffff88805d823780 R14: dead4ead00000000 R15: ffff88802a33c380
-> FS:  00007fec5f7dd6c0(0000) GS:ffff8881247b2000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 00007fec5f7dcf98 CR3: 000000007d646000 CR4: 00000000003526f0
-> Call Trace:
->   <TASK>
->   smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
->   smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
->   netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
->   __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
->   netlink_dump_start include/linux/netlink.h:341 [inline]
->   smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
->   __sock_diag_cmd net/core/sock_diag.c:249 [inline]
->   sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
->   netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
->   netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
->   netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
->   netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
->   sock_sendmsg_nosec net/socket.c:714 [inline]
->   __sock_sendmsg net/socket.c:729 [inline]
->   ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
->   ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
->   __sys_sendmsg+0x16d/0x220 net/socket.c:2700
->   do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
->   do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
->   entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> RIP: 0033:0x7fec6018eba9
-> Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-> RSP: 002b:00007fec5f7dd038 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-> RAX: ffffffffffffffda RBX: 00007fec603d6090 RCX: 00007fec6018eba9
-> RDX: 0000000000000000 RSI: 0000200000000140 RDI: 0000000000000003
-> RBP: 00007fec60211e19 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-> R13: 00007fec603d6128 R14: 00007fec603d6090 R15: 00007ffcb0713c08
->   </TASK>
-> Modules linked in:
-> ---[ end trace 0000000000000000 ]---
-> RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
-> RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
-> Code: 4c 8b b3 40 06 00 00 4d 85 f6 0f 84 f6 02 00 00 e8 6b 4f 78 f6 49 8d 7e 18 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 f6 1e 00 00 48 b8 00 00 00 00 00 fc ff df 4d 8b
-> RSP: 0018:ffffc90003f2f1a8 EFLAGS: 00010a06
-> RAX: dffffc0000000000 RBX: ffff88802a33bd40 RCX: ffffffff897ee8a4
-> RDX: 1bd5a9d5a0000003 RSI: ffffffff8b434dd5 RDI: dead4ead00000018
-> RBP: ffff888032418000 R08: 0000000000000005 R09: 0000000000000000
-> R10: 0000000080000001 R11: 0000000000000000 R12: ffff8880754915f0
-> R13: ffff88805d823780 R14: dead4ead00000000 R15: ffff88802a33c380
-> FS:  00007fec5f7dd6c0(0000) GS:ffff8881247b2000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 00007fec5f7dcf98 CR3: 000000007d646000 CR4: 00000000003526f0
-> ----------------
-> Code disassembly (best guess):
->     0:	4c 8b b3 40 06 00 00 	mov    0x640(%rbx),%r14
->     7:	4d 85 f6             	test   %r14,%r14
->     a:	0f 84 f6 02 00 00    	je     0x306
->    10:	e8 6b 4f 78 f6       	call   0xf6784f80
->    15:	49 8d 7e 18          	lea    0x18(%r14),%rdi
->    19:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
->    20:	fc ff df
->    23:	48 89 fa             	mov    %rdi,%rdx
->    26:	48 c1 ea 03          	shr    $0x3,%rdx
-> * 2a:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
->    2e:	0f 85 f6 1e 00 00    	jne    0x1f2a
->    34:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
->    3b:	fc ff df
->    3e:	4d                   	rex.WRB
->    3f:	8b                   	.byte 0x8b
->
->
-> ---
-> This report is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
->
-> syzbot will keep track of this issue. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
->
-> If the report is already addressed, let syzbot know by replying with:
-> #syz fix: exact-commit-title
->
-> If you want syzbot to run the reproducer, reply with:
-> #syz test: git://repo/address.git branch-or-commit-hash
-> If you attach or paste a git patch, syzbot will apply it before testing.
->
-> If you want to overwrite report's subsystems, reply with:
-> #syz set subsystems: new-subsystem
-> (See the list of subsystem names on the web dashboard)
->
-> If the report is a duplicate of another one, reply with:
-> #syz dup: exact-subject-of-another-report
->
-> If you want to undo deduplication, reply with:
-> #syz undup
->
->
+--=20
+Askar Safin
