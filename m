@@ -1,119 +1,79 @@
-Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80550221F39
-	for <linux-s390@vger.kernel.org>; Sat, 20 Sep 2025 03:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35F131F4621
+	for <linux-s390@vger.kernel.org>; Sat, 20 Sep 2025 04:37:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758340539; cv=none; b=buUmR8NjUCXuGVu1TpKrGAHb7baElAGxPWVH1s9OKJKQcA1Apu6x02DNh72ntOGfLO/Zdbry3giQhmjcW0Hr0UKSNjWvhYhh3fqmPBHdkwzU2epn2eyTh38uMWFokoNQS/Nka1rVc9jSaPhuEjtfpNlI8kgvAxxWDTLbm+oxsqE=
+	t=1758343028; cv=none; b=oHC/9QAY3CPWLfECFpa91TZVLysUMOw48M7a/LbhK7pCBKTXIGfG7Va/HtVcM5XXUjb+U6cTm4TQEZgXgXERgZznyPmu4Y0RuTMeRlrHiqfbbXy/NdTbQS3OutfVqn3c2Ugmgjkm+syqJiAQXk/LAXou1pwl01/sYaatwRt2oBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758340539; c=relaxed/simple;
-	bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sps9oXZXlnblEITZmO5YKYd25Z4wGhRazs+J2a0MNg5PkhQ/+udVe82NELRGLlZ06Ni4OHR/oKzjfqEjx3PL/HqJNMT2vZqwmJsqdTvHzK8mA+jUpk7AOQe4hlHplI5QnRMT0DWMBQ+0E/D7/nQYdH3daT6QmeKsWP6g1zxdr8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZFPKZ+Oq; arc=none smtp.client-ip=209.85.219.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZFPKZ+Oq"
-Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-ea63e86b79aso1890045276.2
-        for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 20:55:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1758340534; x=1758945334; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
-        b=ZFPKZ+OqAAj1VhKugky3kjemp/VIqd75of38HGEmt1IOj91W4b7jLe+Myfu3ent1n8
-         I+OsNztO7baVS7SDNqQDhsKyRcudzp5fPl2dQ3EsKmIi5TGzzTSREF9BOYtdvwLtcCQ9
-         lX8BgfQDKyo0m2JfxIC+zD4CzDFgLzCucCTNnl0sqYXFOybMgodTGPU/RxeED3KpD6Ge
-         7yQG/mA18ZVwa9TAvZspdmtVMoFft3MmApalEp7/PJVnD7pAqdNfemDIdWOkktS1fK7N
-         5MIan1ZBYEJnEUm4lD9oNaRI/NjfTi3RIA4zVC5lAmPgo6eel/h/B86mXEMgdrCKJemE
-         DM2g==
+	s=arc-20240116; t=1758343028; c=relaxed/simple;
+	bh=eLZJJ4b5Hv13WnuF/je/2Gc/GJOLCP6cLSLyncvNLdA=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=H7BjjeyxdmsP7H2oJhnGh5ab0F/7/rO4DJaHemkwKfDBa/DV4a0J0Coa3Jb0wtd1lTZDSLOTCJhcsMcRaQ/MgvAvKt7j3g1fRkPDy/x1EjXNXyqy5br5K/nUgVXntpzqFr8iJoHe3ana0atmZK/kulFkqoHJhds3hbhfHXFun60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-8870219dce3so297031139f.0
+        for <linux-s390@vger.kernel.org>; Fri, 19 Sep 2025 21:37:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758340534; x=1758945334;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wLR5A4WVJygISPHG42IIvYb+LPD25B9I3WH7jC2e5xU=;
-        b=ZMI5b1/wzjz+axPiO30ZIT5lxAGWEbRMU319GDsLmtf2U1tdKvT0gUSWIcVsYA138d
-         6osrEKxQTSt99GjwWiW8R5CU6b7bMjUY//shu/a69sdjEU+JPbTzNyRqLohT2z7zjA4A
-         Pt+9u6MvQgWDp/Hty2CB9KNYpNkEOxmkK7IAKJI56Xio1v6a3AKhQ3mjLW+AAh6k4MXP
-         ptt9bIxFR4B/51KN3yBI+XGKQvRdpzulCsRIpOqfUSA+M9z6/sFfHMZSdYSqmJ1PgmUS
-         /4WzLccBeeQZlIRfcw1zFEhi1T6LlM+QJkVFKmnJjF/kTzZANpehTbypJrHKNx8rixvB
-         s+DQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUZJfp3g0s0itF0YmAX16NR5ecBA+DDmJ+Uw4EK9OT+lxhx84HUZlxJTYAXVKTH4hn4Nt3EBsXSJCEN@vger.kernel.org
-X-Gm-Message-State: AOJu0YwBxPVTEkB0cwY05xelf5ZX7o5A5EH+8DKnsEYJMAeKgyIWrlPp
-	F+xT/TlkyXW3dw8uFC4/tffxmIoyz0qoCB7tzj2C+5rf1Zing/K+sJFFSFxkxpQFniNK2LpWvW1
-	vMIl7vVXfpJBDu+RrO94XKLMuta1N+T4=
-X-Gm-Gg: ASbGnct08G5lbQntzRI6+vedCVSSbw+ucMUfiwPanc5TwFN5rcN8Jp33xvY3ThCE4Pu
-	W7P4S/yjeo0WmVf5kpWs2jkADqDTmMdIhJATEBcwCcvMSpk84ghUrTMP45YqfdRXqI+FMZCuhNJ
-	J53Cnyosx6DJZdxkdllOB3IVrt6iUHoqrnngqithKBKsaqlp7k3cQQNTqs4cDQojT3sFfs2ZoxO
-	Kh29pI=
-X-Google-Smtp-Source: AGHT+IH7cxRQcDAWrx6iopGK0fgAvvotX/SwRt/T/KElvH4XQULrd96czgOrVv1CSvA0vDpbRNCMKcVlhfdowxEBryU=
-X-Received: by 2002:a53:b3c5:0:b0:622:4818:ce38 with SMTP id
- 956f58d0204a3-6347f610c7emr3546092d50.37.1758340534336; Fri, 19 Sep 2025
- 20:55:34 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1758343026; x=1758947826;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=gja0G+YNMT4nfkxekGzUizab20nltKnqLeo3HZHwrLU=;
+        b=b/x43UlYS63t7TxvpsNubgiv1qzoyFd6LnjrK+8wjW48Wa9rVfT5NxV0P8Qyub8yBq
+         cC9SqJBNU9rkrctKRpuClA6NCOIYWvMevsSXtCv1RVBci9BszOsa+p2q1XAYOaQMmwqd
+         fHMGjmJu+bjrBjKbBmTMVwGOXYgXe1S2HushNPzn6RPj3+Q1H3Ma4yfiepA0sxfCVqBt
+         ZGGzLOelVau7ynyFtUyXmpLQch4GHZ8GUFZynEDAZEXzhc/ACBuITl/fU61dATdZoCsL
+         iJIiScJywnuWPDHIv7eYPmNZJf1pzyO5EbBbqNJ9Uo4QymkBdJKHd5o+m4hjoTeTNF3V
+         B6uw==
+X-Forwarded-Encrypted: i=1; AJvYcCUv+fA8YhDhcvgTHCZAvRaYCLTlQTPL5c/tXInP2F4p/dKAwAmGgkKtXLCs+sV7iQaz6wlP0sSwD9ll@vger.kernel.org
+X-Gm-Message-State: AOJu0YxM5EzOH6qCdyoucgQbSnQxvVBLJ2KcZ5Oj91J/rAKU7Ci6NPrr
+	ZVCNgzkG4FtESyYcEE3Pli0PW9kilWNWXCHz415oDrYvg5WlmrDUX4+Zn0tWvyNanelys1yXJxM
+	QiG8FPRbL3gH5+eZ2o8JxP30KCcs8WCxDBhPmLjb/X5j06pVan+yczEENFrc=
+X-Google-Smtp-Source: AGHT+IEboJPHmu/GmGIV1HX2yNQ77XkVwCngjKU9vicDDz+MZ7u0oRXuv26/XZA4q8RUdEr6/vmWleC4YNydH6JYZXyh1b78jOd3
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250918152830.438554-1-nschichan@freebox.fr> <20250918195806.6337-1-safinaskar@gmail.com>
- <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
-In-Reply-To: <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com>
-From: Askar Safin <safinaskar@gmail.com>
-Date: Sat, 20 Sep 2025 06:54:58 +0300
-X-Gm-Features: AS18NWCqg0xtU5KiNe17DWjmiPCEbBI_FSj5NCOyDGZFj_7oFaRqSu7O_vUKCrA
-Message-ID: <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
-Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
-To: Nicolas Schichan <nschichan@freebox.fr>
-Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk, 
-	brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org, 
-	ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com, 
-	gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de, 
-	hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz, 
-	julian.stecklina@cyberus-technology.de, kees@kernel.org, 
-	linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, 
-	linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
-	linux-csky@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, mcgrof@kernel.org, 
-	mingo@redhat.com, monstr@monstr.eu, mzxreary@0pointer.de, 
-	patches@lists.linux.dev, rob@landley.net, sparclinux@vger.kernel.org, 
-	thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev, 
-	torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk, 
-	x86@kernel.org
+X-Received: by 2002:a05:6e02:1885:b0:424:2d4:585e with SMTP id
+ e9e14a558f8ab-424818f920bmr87191575ab.1.1758343026440; Fri, 19 Sep 2025
+ 21:37:06 -0700 (PDT)
+Date: Fri, 19 Sep 2025 21:37:06 -0700
+In-Reply-To: <0ca2c567-b311-4f0b-bb29-2b860b75f85e@huawei.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68ce2f72.050a0220.13cd81.000f.GAE@google.com>
+Subject: Re: [syzbot] [smc?] general protection fault in __smc_diag_dump (4)
+From: syzbot <syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com>
+To: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com, 
+	edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, mjambigi@linux.ibm.com, netdev@vger.kernel.org, 
+	pabeni@redhat.com, sidraya@linux.ibm.com, syzkaller-bugs@googlegroups.com, 
+	tonylu@linux.alibaba.com, wangliang74@huawei.com, wenjia@linux.ibm.com, 
+	yuehaibing@huawei.com, zhangchangzhong@huawei.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 19, 2025 at 6:25=E2=80=AFPM Nicolas Schichan <nschichan@freebox=
-.fr> wrote:
-> Considering that the deprecation message didn't get displayed in some
-> configurations, maybe it's a bit early at the very least.
+Hello,
 
-I changed my opinion.
-Breaking users, who did not see a deprecation message at all,
-is unfair.
-I will send a patchset soon, which will remove initrd codepath,
-which currently contains deprecation notice. And I will put
-deprecation notice to
-other codepath.
+syzbot tried to test the proposed patch but the build/boot failed:
 
-Then in September 2026 I will fully remove initrd.
+failed to apply patch:
+checking file net/smc/smc.h
+Hunk #1 FAILED at 285.
+1 out of 1 hunk FAILED
 
-> SMTP server I used wasn't authenticated to google, so all gmail
-> recipients were dropped. Hopefully this work better today.
 
-Yes, this time I got your email
 
---=20
-Askar Safin
+Tested on:
+
+commit:         cd89d487 Merge tag '6.17-rc6-smb3-client-fixes' of git..
+git tree:       upstream
+kernel config:  https://syzkaller.appspot.com/x/.config?x=8f01d8629880e620
+dashboard link: https://syzkaller.appspot.com/bug?extid=f775be4458668f7d220e
+compiler:       
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=1381a0e2580000
+
