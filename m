@@ -1,320 +1,154 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2C0C2C3251;
-	Sun, 21 Sep 2025 21:45:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AA8C140E34;
+	Sun, 21 Sep 2025 21:58:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758491106; cv=none; b=DNGG6qp1uUXQx+CcdhgwLqHwy2QJ9ZIOBrabsS4KJCOST5BUvGkUQiZCoIoGTfFQF8OKK0YoelJG8NvTrJBwiytNj7LjsvPlUB5G2k87+G6zO5Mk8WiymFfqWP7SgLdo7tvKNjt9vTo8qhovUdfcyecM0A5Vqo3zcyXvOP+HBYE=
+	t=1758491925; cv=none; b=V58bi6G72Eu2LTMSAIIrgeM4UBH4ee4WlJbXxsvbcTt9WItUldAuQ6NWgbG6SS0WVOW0A3vd5OPOMFgU/tgAsi9VRp6aLxx4fhcKAeY2h1tENgr1pyN5lQqKlAGkJSXkHMo2B5jLrM8OJ49R5pTtj9dT1A6c+J+e8ZEA++b6/rg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758491106; c=relaxed/simple;
-	bh=CbmDTP8h53MG2g84pS1mnV8p4mkYAcrqZnbCQEF5x/I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p1I3r3XCYv1grj8fhy72i3skc0RCgUNlR/7uNHnI7giWu/KYri5wPgWaw35HZ0jwEUd6Yp3a6F/aPpu4evJU8n2ZCgQuehIIb2f4TtzUm0w9QgAVAlVPwjjOL0y0EKXfvmTD5+nmei5AVBm5zwszzuUsO4ljFzLMyl8tCJKkcv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dG2xKJxu; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1758491925; c=relaxed/simple;
+	bh=/tZjPgAJdBpcSzn5Osdrz4wtBYeaEV6KDmnIc7IqSp0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JHOgBXKS6P2/QunlGEQ+AvTCPfZYmsKTcoMQPVrH34dn6G+51iTiLX5ftMn/J/rh1albHUUExZG/YMIpgBI/1n1gON/7t7pjsBkCYoEu9E8qOQnKl1yD+Jbv68fwpFGbESldUOzfkrPJ3IPYaCZxvkqYhA9G7HdITwN9dYQH1yY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s8z6p4Lw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dG2xKJxu"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58LBQeoh017068;
-	Sun, 21 Sep 2025 21:44:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=rpWAmSzRr0l1DuNzP
-	6UkVcw3Fb5aM5LXJoByQJyVPIE=; b=dG2xKJxuSA0V0SVs8ILNAVPTWboxCLfOq
-	p95GMYgIhYyXpgYsrRgmYyKMpTCEhPwEf3Wj6hkLLZVISft/IuWF8DJAlq0sQiEk
-	/j0j5kOef0V6/aMglrPYaMW+DbybfFPLaamUiIrjk+p5SGY1FusItrEe8vnVIAFd
-	iEnsyXx5LS9wN4FgM98JwMF4fAj2ZwGZv37p8r7jvCsSe49b8yAOXRnM5ejXDfK0
-	qttA4/fFVw+TBH08IwBQM8S3kDoNNGZbKRb83jQJ4LXZXdpDn0ic5jn2FxyGLoYQ
-	Vm0MIaX/8HElqku/dFRTkTureioxMIxRatvf94QlJ/jA0qsSqZJ/A==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 499ky5q4qy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 21 Sep 2025 21:44:53 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58LLiqt8009352;
-	Sun, 21 Sep 2025 21:44:52 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 499ky5q4qt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 21 Sep 2025 21:44:52 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58LGp7OG029540;
-	Sun, 21 Sep 2025 21:44:51 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49a6krkd63-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sun, 21 Sep 2025 21:44:51 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58LLilrZ37355934
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sun, 21 Sep 2025 21:44:47 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE9502004B;
-	Sun, 21 Sep 2025 21:44:47 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 89C8120043;
-	Sun, 21 Sep 2025 21:44:47 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Sun, 21 Sep 2025 21:44:47 +0000 (GMT)
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-        Simon Horman <horms@kernel.org>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>,
-        Wenjia Zhang <wenjia@linux.ibm.com>,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH net-next v3 2/2] net/smc: handle -ENOMEM from smc_wr_alloc_link_mem gracefully
-Date: Sun, 21 Sep 2025 23:44:40 +0200
-Message-ID: <20250921214440.325325-3-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250921214440.325325-1-pasic@linux.ibm.com>
-References: <20250921214440.325325-1-pasic@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s8z6p4Lw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F5E2C4CEE7;
+	Sun, 21 Sep 2025 21:58:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758491924;
+	bh=/tZjPgAJdBpcSzn5Osdrz4wtBYeaEV6KDmnIc7IqSp0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=s8z6p4Lw8w7OohgU7E5Ynwl2ifDKKBc0m26J3XhD63TAsoxgfKl6NG4m/Z30wCUGz
+	 lsQ5tG34XupdhXMr47mQO4XhcdhiljadGlEjAkHYTqRFiM8RMqyKk/L/QejKXnvn24
+	 0eZ5LwkDoDDBDMgjJl1tmscRlyRkUR7x+k43Qu0u88BMZHaSVqrIP7TY3Q6vc85yjb
+	 pKsvnCJYJK08zSK9OfL4Tdj5xOp1DGdnuL4rW7nxg17OguCkzMRpASaiEnyxIhp1fG
+	 O/DYiGjS903zdrZzfArWpWm+V0/CLZREgtVfTHf/Qz9mx6oTSAYrAbQGa0d9ioY3B+
+	 vY14IH8GxwNkQ==
+Date: Sun, 21 Sep 2025 14:57:28 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+To: David Howells <dhowells@redhat.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Stephan Mueller <smueller@chronox.de>, Simo Sorce <simo@redhat.com>,
+	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+	keyrings@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] lib/crypto: Add SHA3-224, SHA3-256, SHA3-384,
+ SHA-512, SHAKE128, SHAKE256
+Message-ID: <20250921215728.GA6409@sol>
+References: <20250921192757.GB22468@sol>
+ <3936580.1758299519@warthog.procyon.org.uk>
+ <38637.1758489516@warthog.procyon.org.uk>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: IdjHpc584FZtdSjVPQLcTlh5PHPpa3xl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTIwMDAyMCBTYWx0ZWRfXx8zdGlKAw5yH
- Z98VoLL65NyAaDaOdq1qGBOrOkfp4uPGAsfL8/ydOYlWjibA3gkyJIhPkQB03oYu4HtOxb33gEp
- H76Wh6VDArcNWhdRFDLM2D8rL9k3GwFxjc6KlBtkyreDorle25uO3SV7EGVTa/aPjgDFUNrYIBR
- oJt1Kg/zWXOez8nS/YC2K9FxjxVfKJaLoiWMmnu1moOyR/jG7ooo3caOmD8wNdzZnNRVgvSrRzS
- d6RZuEp7r2/sPXRDIrdz4uSp0qo5DI8RcrSnAK5lAxL1D8jrM0CXMNMPbeM3zxs+0yE4DFL9brt
- nn0ZZKUzYyQGPtzHOUoNVKGmltBHiPkCdw+ilU2lBonOYVy+IATbbrUs7O7MIkFea9fHhwaSCi1
- JvCA4wBZ
-X-Authority-Analysis: v=2.4 cv=XYGJzJ55 c=1 sm=1 tr=0 ts=68d071d5 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=7VMdMTDjWeNOirE0wYMA:9
-X-Proofpoint-GUID: U76d1UJCnSqmq01zK53ZyBeshX9Henck
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-21_08,2025-09-19_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 clxscore=1015 adultscore=0 malwarescore=0
- suspectscore=0 impostorscore=0 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509200020
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <38637.1758489516@warthog.procyon.org.uk>
 
-Currently if a -ENOMEM from smc_wr_alloc_link_mem() is handled by
-giving up and going the way of a TCP fallback. This was reasonable
-before the sizes of the allocations there were compile time constants
-and reasonably small. But now those are actually configurable.
+On Sun, Sep 21, 2025 at 10:18:36PM +0100, David Howells wrote:
+> Eric Biggers <ebiggers@kernel.org> wrote:
+> 
+> > > +/* update the state with given number of rounds */
+> > > +
+> > > +static SHA3_INLINE void keccakf_round(u64 st[25])
+> > 
+> > The above comment doesn't match the code.  keccakf_round() does only one
+> > round.
+> 
+> This is exactly as in crypto/sha3_generic.c.  You may want to fix that also.
 
-So instead of giving up, keep retrying with half of the requested
-size unless we dip below the old static sizes -- then give up!
+First, as I've mentioned, the SHA-3 crypto_shash algorithms will
+eventually need to be reimplemented on top of the library.  We shouldn't
+have two competing SHA-3 implementations in the kernel.  So
+sha3_generic.c will get replaced soon anyway.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
-Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
----
- Documentation/networking/smc-sysctl.rst |  8 ++++--
- net/smc/smc_core.c                      | 34 +++++++++++++++++--------
- net/smc/smc_core.h                      |  2 ++
- net/smc/smc_wr.c                        | 28 ++++++++++----------
- 4 files changed, 46 insertions(+), 26 deletions(-)
+Second, this patch already makes changes to the SHA-3 code and doesn't
+simply copy it.  Cleaning up some additional small things like incorrect
+comments would make sense, similar to how you've also cleaned up the
+endianness handling.  If you'd like for it to instead be a simple copy
+followed by a separate cleanup patch, that could be okay too, but the
+submission would need to be organized that way.
 
-diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
-index c94d750c7c84..c8dbe7ac8bdf 100644
---- a/Documentation/networking/smc-sysctl.rst
-+++ b/Documentation/networking/smc-sysctl.rst
-@@ -85,7 +85,9 @@ smcr_max_send_wr - INTEGER
+> > Would you mind putting all the kerneldoc comments for the public API in
+> > the .h file, similar to sha1.h and sha2.h?  Then they'll all be in a
+> > consistent place, and they won't have to be moved around each time we
+> > change functions to inline functions or vice versa.
+> 
+> Yes.  I know include/crypto/ does it, but that really makes the header files
+> suck as the doc-to-code ratio is too heavily in the doc's favour.
+> 
+> Actually, this should be done properly and I'll add an API doc to
+> Documention/crypto/.
  
- 	Please be aware that all the buffers need to be allocated as a physically
- 	continuous array in which each element is a single buffer and has the size
--	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
-+	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails, we keep retrying
-+	with half of the buffer count until it is ether successful or (unlikely)
-+	we dip below the old hard coded value which is 16 where we give up much
- 	like before having this control.
- 
- 	Default: 16
-@@ -103,7 +105,9 @@ smcr_max_recv_wr - INTEGER
- 
- 	Please be aware that all the buffers need to be allocated as a physically
- 	continuous array in which each element is a single buffer and has the size
--	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
-+	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails, we keep retrying
-+	with half of the buffer count until it is ether successful or (unlikely)
-+	we dip below the old hard coded value which is 16 where we give up much
- 	like before having this control.
- 
- 	Default: 48
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2a559a98541c..f8131b4dfcd6 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -810,6 +810,8 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->clearing = 0;
- 	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
- 	lnk->link_id = smcr_next_link_id(lgr);
-+	lnk->max_send_wr = lgr->max_send_wr;
-+	lnk->max_recv_wr = lgr->max_recv_wr;
- 	lnk->lgr = lgr;
- 	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
- 	lnk->link_idx = link_idx;
-@@ -836,27 +838,39 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	rc = smc_llc_link_init(lnk);
- 	if (rc)
- 		goto out;
--	rc = smc_wr_alloc_link_mem(lnk);
--	if (rc)
--		goto clear_llc_lnk;
- 	rc = smc_ib_create_protection_domain(lnk);
- 	if (rc)
--		goto free_link_mem;
--	rc = smc_ib_create_queue_pair(lnk);
--	if (rc)
--		goto dealloc_pd;
-+		goto clear_llc_lnk;
-+	do {
-+		rc = smc_ib_create_queue_pair(lnk);
-+		if (rc)
-+			goto dealloc_pd;
-+		rc = smc_wr_alloc_link_mem(lnk);
-+		if (!rc)
-+			break;
-+		else if (rc != -ENOMEM) /* give up */
-+			goto destroy_qp;
-+		/* retry with smaller ... */
-+		lnk->max_send_wr /= 2;
-+		lnk->max_recv_wr /= 2;
-+		/* ... unless droping below old SMC_WR_BUF_SIZE */
-+		if (lnk->max_send_wr < 16 || lnk->max_recv_wr < 48)
-+			goto destroy_qp;
-+		smc_ib_destroy_queue_pair(lnk);
-+	} while (1);
-+
- 	rc = smc_wr_create_link(lnk);
- 	if (rc)
--		goto destroy_qp;
-+		goto free_link_mem;
- 	lnk->state = SMC_LNK_ACTIVATING;
- 	return 0;
- 
-+free_link_mem:
-+	smc_wr_free_link_mem(lnk);
- destroy_qp:
- 	smc_ib_destroy_queue_pair(lnk);
- dealloc_pd:
- 	smc_ib_dealloc_protection_domain(lnk);
--free_link_mem:
--	smc_wr_free_link_mem(lnk);
- clear_llc_lnk:
- 	smc_llc_link_clear(lnk, false);
- out:
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index ab2d15929cb2..b9addf633d8a 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -174,6 +174,8 @@ struct smc_link {
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
- 	atomic_t		conn_cnt; /* connections on this link */
-+	u16			max_send_wr;
-+	u16			max_recv_wr;
- };
- 
- /* For now we just allow one parallel link per link group. The SMC protocol
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index f5b2772414fd..6b14711f0c93 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -548,9 +548,9 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
- 		    IB_QP_DEST_QPN,
- 		    &init_attr);
- 
--	lnk->wr_tx_cnt = min_t(size_t, lnk->lgr->max_send_wr,
-+	lnk->wr_tx_cnt = min_t(size_t, lnk->max_send_wr,
- 			       lnk->qp_attr.cap.max_send_wr);
--	lnk->wr_rx_cnt = min_t(size_t, lnk->lgr->max_recv_wr,
-+	lnk->wr_rx_cnt = min_t(size_t, lnk->max_recv_wr,
- 			       lnk->qp_attr.cap.max_recv_wr);
- }
- 
-@@ -742,51 +742,51 @@ int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr)
- int smc_wr_alloc_link_mem(struct smc_link *link)
- {
- 	/* allocate link related memory */
--	link->wr_tx_bufs = kcalloc(link->lgr->max_send_wr,
-+	link->wr_tx_bufs = kcalloc(link->max_send_wr,
- 				   SMC_WR_BUF_SIZE, GFP_KERNEL);
- 	if (!link->wr_tx_bufs)
- 		goto no_mem;
--	link->wr_rx_bufs = kcalloc(link->lgr->max_recv_wr, link->wr_rx_buflen,
-+	link->wr_rx_bufs = kcalloc(link->max_recv_wr, link->wr_rx_buflen,
- 				   GFP_KERNEL);
- 	if (!link->wr_rx_bufs)
- 		goto no_mem_wr_tx_bufs;
--	link->wr_tx_ibs = kcalloc(link->lgr->max_send_wr,
-+	link->wr_tx_ibs = kcalloc(link->max_send_wr,
- 				  sizeof(link->wr_tx_ibs[0]), GFP_KERNEL);
- 	if (!link->wr_tx_ibs)
- 		goto no_mem_wr_rx_bufs;
--	link->wr_rx_ibs = kcalloc(link->lgr->max_recv_wr,
-+	link->wr_rx_ibs = kcalloc(link->max_recv_wr,
- 				  sizeof(link->wr_rx_ibs[0]),
- 				  GFP_KERNEL);
- 	if (!link->wr_rx_ibs)
- 		goto no_mem_wr_tx_ibs;
--	link->wr_tx_rdmas = kcalloc(link->lgr->max_send_wr,
-+	link->wr_tx_rdmas = kcalloc(link->max_send_wr,
- 				    sizeof(link->wr_tx_rdmas[0]),
- 				    GFP_KERNEL);
- 	if (!link->wr_tx_rdmas)
- 		goto no_mem_wr_rx_ibs;
--	link->wr_tx_rdma_sges = kcalloc(link->lgr->max_send_wr,
-+	link->wr_tx_rdma_sges = kcalloc(link->max_send_wr,
- 					sizeof(link->wr_tx_rdma_sges[0]),
- 					GFP_KERNEL);
- 	if (!link->wr_tx_rdma_sges)
- 		goto no_mem_wr_tx_rdmas;
--	link->wr_tx_sges = kcalloc(link->lgr->max_send_wr, sizeof(link->wr_tx_sges[0]),
-+	link->wr_tx_sges = kcalloc(link->max_send_wr, sizeof(link->wr_tx_sges[0]),
- 				   GFP_KERNEL);
- 	if (!link->wr_tx_sges)
- 		goto no_mem_wr_tx_rdma_sges;
--	link->wr_rx_sges = kcalloc(link->lgr->max_recv_wr,
-+	link->wr_rx_sges = kcalloc(link->max_recv_wr,
- 				   sizeof(link->wr_rx_sges[0]) * link->wr_rx_sge_cnt,
- 				   GFP_KERNEL);
- 	if (!link->wr_rx_sges)
- 		goto no_mem_wr_tx_sges;
--	link->wr_tx_mask = bitmap_zalloc(link->lgr->max_send_wr, GFP_KERNEL);
-+	link->wr_tx_mask = bitmap_zalloc(link->max_send_wr, GFP_KERNEL);
- 	if (!link->wr_tx_mask)
- 		goto no_mem_wr_rx_sges;
--	link->wr_tx_pends = kcalloc(link->lgr->max_send_wr,
-+	link->wr_tx_pends = kcalloc(link->max_send_wr,
- 				    sizeof(link->wr_tx_pends[0]),
- 				    GFP_KERNEL);
- 	if (!link->wr_tx_pends)
- 		goto no_mem_wr_tx_mask;
--	link->wr_tx_compl = kcalloc(link->lgr->max_send_wr,
-+	link->wr_tx_compl = kcalloc(link->max_send_wr,
- 				    sizeof(link->wr_tx_compl[0]),
- 				    GFP_KERNEL);
- 	if (!link->wr_tx_compl)
-@@ -907,7 +907,7 @@ int smc_wr_create_link(struct smc_link *lnk)
- 		goto dma_unmap;
- 	}
- 	smc_wr_init_sge(lnk);
--	bitmap_zero(lnk->wr_tx_mask, lnk->lgr->max_send_wr);
-+	bitmap_zero(lnk->wr_tx_mask, lnk->max_send_wr);
- 	init_waitqueue_head(&lnk->wr_tx_wait);
- 	rc = percpu_ref_init(&lnk->wr_tx_refs, smcr_wr_tx_refs_free, 0, GFP_KERNEL);
- 	if (rc)
--- 
-2.48.1
+These are just functions.  The first priority should be kerneldoc, as
+that's where most people will look.  Documention/crypto/ maybe could
+contain a high-level overview of the various hash function APIs (not
+just SHA-3), but it should not be duplicative of the kerneldoc and it
+doesn't eliminate the need to write high-quality kerneldoc.
 
+> > First, this patch's proposed API is error-prone due to the weak typing
+> > that allows mixing steps of different algorithms together.  For example,
+> > users could initialize a sha3_ctx with sha3_256_init() and then squeeze
+> > an arbitrary amount from it, incorrectly treating it as a XOF.  It would
+> > be worth considering separating the APIs for the different algorithms
+> > that are part of SHA-3, similar to what I did with SHA-224 and SHA-256.
+> > (They would of course still share code internally, just like SHA-2.)
+> 
+> I disagree.  You're adding excessive complexity.  I would be more inclined to
+> agree if the thing might crash because you used the wrong thing.  That said,
+> sha3_final() uses the digestsize set by sha3_whatever_init(), which could
+> cause a problem, so I think it's better on balance to just add an extra
+> parameter to sha3_final() to say how much digest you want and ditch
+> ctx->digest_size.
+
+A cryptographic flaw can be as bad or worse than a crash.  We need to
+design APIs that are easy to use correctly and hard to use incorrectly.
+
+> > Second, the support for update() + squeeze() + update() + squeeze()
+> > seems to be trying to achieve something that is not defined in the SHA-3
+> > spec.  Could you elaborate on what it is meant to be doing, and why it's
+> > here?  According to the spec, the XOFs SHAKE128 and SHAKE256 actually
+> > just take a single message as their input.
+> >
+> > One might think the above sequence would compute SHAKE*() on the first
+> > message as well as SHAKE*() of the two messages concatenated together.
+> > But that's not what you've made it do, as you've made it apply padding
+> > after *both* messages.  So, then one might think that it's meant to be a
+> > XOF on the sequence of messages, built on top of SHAKE*().  But it's not
+> > that either, since the way that you've proposed to format the sequence
+> > of messages into a longer message isn't injective.  So, I can't figure
+> > out why you're supporting this usage and what it is meant to be doing.
+> 
+> I can't speak to that except to say that ML-DSA does exactly this as far as I
+> can tell.
+
+Citation needed.
+
+> > Shouldn't the term "digest" be avoided when talking about the output
+> > from a XOF, to avoid confusion with traditional hash functions?
+> 
+> No idea.  There's not any real programmatic difference except for the padding
+> byte.  I can change it to "output" if it makes you happy.
+
+How about reviewing the specs and seeing what terms are used?  It's not
+about what makes me happy, but rather about using standard terminology.
+
+> > If a test is included at all here, it should be simpler, e.g. just
+> > compute the SHA3-256 of some short hardcoded message.  That will be
+> > sufficient to test the implementation of the Keccak permutation.  The
+> > real tests will be in the KUnit suite, as discussed previously.
+> 
+> No.  Please stick with the one I have.  It exercises the extended features
+> used by ML-DSA that will be used for PQ module signing.
+
+That should go in the KUnit test suite.
+
+- Eric
