@@ -1,140 +1,149 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C925B303A1E;
-	Mon, 22 Sep 2025 11:57:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D05021FF7C7
+	for <linux-s390@vger.kernel.org>; Mon, 22 Sep 2025 14:29:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758542245; cv=none; b=PuOJenppUBjLpszfqHNhMN5azO5QxgQjBE1Llsc9ISf0kNMLU/XtP1vNMKYh516X8W8cZFLfo7rkVGcEGYdVnApg9an6qx7+9KxRQ+J8X1wk/34CdGPZn1cevTslUV+d10zPyrTvurTZpDfU6q0Uk+SIjPHYvINAIXFvRqQZelA=
+	t=1758551350; cv=none; b=Ad/cSBuh1FZyMr3UmoMMX09E11PwUeRgweiXnnVEN8tn8GCCro6Kl5KFzdo2U47bOszE31cYQFcrTrrHxtIC2RWtjmg+3I8Uv9Dtp29yO47RI3WuNedYomGggcqbjHDOHbvBLGMX6EnJeAaGyfRb+m8w5rjephy00yZHbaLW01M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758542245; c=relaxed/simple;
-	bh=GvG5ejXGXPafTAj+efoN2UKdHGx1hTFLARGVrTbUyiQ=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=D2lGYzgMuFpPr/FX5MtGiGdXMA9SC9m/ulkuM9ohFAZpt3HmnHQa48qET+vQd/oJGkdgxbP1aJX3m+xWe4kY07auLcMJHYD/XRBlSyXtvsFN5+On88TbriAJFytJTjoRTHYUy7XD3G92ulzBWFW7J5+Z4ed8tdWnlIxcQQwP+MM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.163])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4cVhNG3dpDz1R9BM;
-	Mon, 22 Sep 2025 19:54:06 +0800 (CST)
-Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
-	by mail.maildlp.com (Postfix) with ESMTPS id 874181800B2;
-	Mon, 22 Sep 2025 19:57:14 +0800 (CST)
-Received: from huawei.com (10.50.159.234) by dggpemf500016.china.huawei.com
- (7.185.36.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 22 Sep
- 2025 19:57:13 +0800
-From: Wang Liang <wangliang74@huawei.com>
-To: <alibuda@linux.alibaba.com>, <dust.li@linux.alibaba.com>,
-	<sidraya@linux.ibm.com>, <wenjia@linux.ibm.com>, <mjambigi@linux.ibm.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<horms@kernel.org>
-CC: <yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<wangliang74@huawei.com>, <linux-kernel@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>
-Subject: [PATCH net] net/smc: fix general protection fault in __smc_diag_dump
-Date: Mon, 22 Sep 2025 20:18:18 +0800
-Message-ID: <20250922121818.654011-1-wangliang74@huawei.com>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1758551350; c=relaxed/simple;
+	bh=zds9c11i5EPuC+LW5E2qVk5slu7nHVv1cCYASY1uK64=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dfLTtR1xAAgkOFTeGN2LzPESaKfpRbdZ3JxbyrLs2M7+fapA7GPHHjTomKv1HdyBpZMkmHzaF+ok7RAW4nC9G+VnJ/M3qWa8NKB/t8glZu6wCtn6FJjN8+Z5iel5uV7+XyySJvWp5hh3PaYy8151Ta+dQCD8TsgtSd9vXJbV5oQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=freebox.fr; spf=pass smtp.mailfrom=freebox.fr; dkim=pass (2048-bit key) header.d=freebox-fr.20230601.gappssmtp.com header.i=@freebox-fr.20230601.gappssmtp.com header.b=T5tm19TQ; arc=none smtp.client-ip=209.85.167.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=freebox.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=freebox.fr
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=freebox-fr.20230601.gappssmtp.com header.i=@freebox-fr.20230601.gappssmtp.com header.b="T5tm19TQ"
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-57f0aa38aadso892736e87.2
+        for <linux-s390@vger.kernel.org>; Mon, 22 Sep 2025 07:29:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=freebox-fr.20230601.gappssmtp.com; s=20230601; t=1758551345; x=1759156145; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zds9c11i5EPuC+LW5E2qVk5slu7nHVv1cCYASY1uK64=;
+        b=T5tm19TQZikqjHqoMR54+Q7+U/JgAbrwxCDjAEr+j4BV3oKJ1vYACVblsq/0dgQB3O
+         xzcE44eyHkSt3+1/LwS8iG05NDQybwpGXmErJGsX7qf1JoHnxQE/QJKsAyQCq5BZ8yUL
+         fZfsv/oGGtZ7K0RaFe8fFXZtm3jS4C5jkLwGskUTTKy01oseY4elZgmJ1wcia/Nwx29N
+         /akdQTqyJ1yRSFcBAOKV1BSGnn1RLnJEPHIfsiagl3HTh7OEmakPzgo3DZkunVSmL2Xx
+         hH2z75SXfyBjFg0mXpIzvJjI6rXfLJCfOxCsk/r78caU8Q500JO1XsPO5Zy2dD22Jb+z
+         2rDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758551345; x=1759156145;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zds9c11i5EPuC+LW5E2qVk5slu7nHVv1cCYASY1uK64=;
+        b=wkSb52UOva2q+bbpmasF502/BdDjPAhoG5p/NCF9yXzrremTVBppztKXahRKdjIXF7
+         opRmRkwUeHiK7PmNlP/7GfVj/SK0kgBcs2q530X/yXxnFhuizvQoZ83ls3eiJ8OIZ/ss
+         UDVfdiyc9Ul/GZFeAxaDkRKvvuR1zfke4tAb4xMbWG2TXufyfNy/ydyNr9p2dnYQfiB6
+         5P8+SOIM7gxjDpZhXvmoeHDyNI/wShaJRHEFna9ntvz+nc0IMapiIfG/1mutTTBib0ny
+         KuEwqRHSpRqJvJcWUOziDu5FZTS0GUSRmEIca9GFHH2Po3th5aaj2XtUrVpaj1NA6LOL
+         85yA==
+X-Forwarded-Encrypted: i=1; AJvYcCXF9+PJ8ArwCRmHPo4LSkgR5RWsr4pfBeNYB0KkHY+YU0USdkLThi54hd8/iEJgyvQAnJ+lUjflRx01@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyz7kEPq1WzOpInpYGjIYACL1b3pH4YEu5jt+iaVVDkkFzSf5pY
+	NWqnUii2WfaMtKEJa/4wt/Yt8vwcz1cca18iIZHsEpo3u7B3e1RKO8SK/BUwqhGV4leOiUYHAjc
+	KiM9JAhvacGuvrGQZN302FH/jzpgh1QoCT2NYZ1Unsg==
+X-Gm-Gg: ASbGncveU3F21YMTaQW/0KS0rVOnW1J9zEvAyvQWRlrm082T5cseA5OR4OzoiI7yiVD
+	gZnipLLqlG4H6IrKqkua37B0xyRPvgi+paR+km+L/DBOV96hXWFtyBd93fbnutY94Nc7qBY3OgQ
+	Mlma/mGRSW7iyiYHjXNutrBq1Da6JxM+z0Kbp92krX6qE0xYIeWOJ5hulul89gYxwLeH4JhqLgf
+	8plADc+MFFT4BU=
+X-Google-Smtp-Source: AGHT+IF9Kx0YHTgWZximr8IphichwJGTQ/wmiFKfxBKU7xEPIwY53K1eZ5EsUZqb+vcW1xAllqgOcQU2VEEacURTmEE=
+X-Received: by 2002:a05:6512:4389:b0:57b:478b:d8a6 with SMTP id
+ 2adb3069b0e04-57b478be162mr3313173e87.35.1758551344116; Mon, 22 Sep 2025
+ 07:29:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
- dggpemf500016.china.huawei.com (7.185.36.197)
+References: <20250918152830.438554-1-nschichan@freebox.fr> <20250918195806.6337-1-safinaskar@gmail.com>
+ <CAHNNwZAzecVcJXZmycX063-=p-M5jVkfStfgYVKJruOFo7y9zg@mail.gmail.com> <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
+In-Reply-To: <CAPnZJGDwETQVVURezSRxZB8ZAwBETQ5fwbXyeMpfDLuLW4rVdg@mail.gmail.com>
+From: Nicolas Schichan <nschichan@freebox.fr>
+Date: Mon, 22 Sep 2025 16:28:52 +0200
+X-Gm-Features: AS18NWBjmNA3KBj8cPrgwDAVm5OX9a5odWP7LbRlHvhoE96nP3yo2_PGoZ1JbG8
+Message-ID: <CAHNNwZC7gC7zaZGiSBhobSAb4m2O1BuoZ4r=SQBF-tCQyuAPvw@mail.gmail.com>
+Subject: Re: [PATCH RESEND 00/62] initrd: remove classic initrd support
+To: Askar Safin <safinaskar@gmail.com>
+Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk, 
+	brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org, 
+	ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com, 
+	gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de, 
+	hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz, 
+	julian.stecklina@cyberus-technology.de, kees@kernel.org, 
+	linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org, 
+	linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org, 
+	linux-csky@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, mcgrof@kernel.org, 
+	mingo@redhat.com, monstr@monstr.eu, mzxreary@0pointer.de, 
+	patches@lists.linux.dev, rob@landley.net, sparclinux@vger.kernel.org, 
+	thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev, 
+	torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk, 
+	x86@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The syzbot report a crash:
+[resending to the lists and Cc, sorry I initially replied only to Askar]
 
-  Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
-  KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
-  CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full)
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
-  RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
-  RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
-  Call Trace:
-   <TASK>
-   smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
-   smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
-   netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
-   __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
-   netlink_dump_start include/linux/netlink.h:341 [inline]
-   smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
-   __sock_diag_cmd net/core/sock_diag.c:249 [inline]
-   sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
-   netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
-   netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
-   netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
-   netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
-   sock_sendmsg_nosec net/socket.c:714 [inline]
-   __sock_sendmsg net/socket.c:729 [inline]
-   ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
-   ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
-   __sys_sendmsg+0x16d/0x220 net/socket.c:2700
-   do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-   do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
-   entry_SYSCALL_64_after_hwframe+0x77/0x7f
-   </TASK>
+On Sat, Sep 20, 2025 at 5:55=E2=80=AFAM Askar Safin <safinaskar@gmail.com> =
+wrote:
+> On Fri, Sep 19, 2025 at 6:25=E2=80=AFPM Nicolas Schichan <nschichan@freeb=
+ox.fr> wrote:
+> > Considering that the deprecation message didn't get displayed in some
+> > configurations, maybe it's a bit early at the very least.
+>
+> I changed my opinion.
+> Breaking users, who did not see a deprecation message at all,
+> is unfair.
+> I will send a patchset soon, which will remove initrd codepath,
+> which currently contains deprecation notice. And I will put
+> deprecation notice to
+> other codepath.
 
-The process like this:
+Thanks
 
-               (CPU1)              |             (CPU2)
-  ---------------------------------|-------------------------------
-  inet_create()                    |
-    // init clcsock to NULL        |
-    sk = sk_alloc()                |
-                                   |
-    // unexpectedly change clcsock |
-    inet_init_csk_locks()          |
-                                   |
-    // add sk to hash table        |
-    smc_inet_init_sock()           |
-      smc_sk_init()                |
-        smc_hash_sk()              |
-                                   | // traverse the hash table
-                                   | smc_diag_dump_proto
-                                   |   __smc_diag_dump()
-                                   |     // visit wrong clcsock
-                                   |     smc_diag_msg_common_fill()
-    // alloc clcsock               |
-    smc_create_clcsk               |
-      sock_create_kern             |
+> Then in September 2026 I will fully remove initrd.
 
-With CONFIG_DEBUG_LOCK_ALLOC=y, the smc->clcsock is unexpectedly changed
-in inet_init_csk_locks(), because the struct smc_sock does not have struct
-inet_connection_sock as the first member.
+Is there a way to find some kind of middle ground here ?
 
-Previous commit 60ada4fe644e ("smc: Fix various oops due to inet_sock type
-confusion.") add inet_sock as the first member of smc_sock. For protocol
-with INET_PROTOSW_ICSK, use inet_connection_sock instead of inet_sock is
-more appropriate.
+I'm lead to believe that the main issue with the current code is that
+it needs to parse the superblocks of the ramdisk image in order to get
+the amount to data to copy into /dev/ram0.
 
-Reported-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=f775be4458668f7d220e
-Tested-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
-Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-Signed-off-by: Wang Liang <wangliang74@huawei.com>
----
- net/smc/smc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It looks like it is partly because of the ramdisk_start=3D kernel
+command line parameter which looks to be a remnant of the time it was
+possible to boot on floppy disk on x86.
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 2c9084963739..1b20f0c927d3 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -285,7 +285,7 @@ struct smc_connection {
- struct smc_sock {				/* smc sock container */
- 	union {
- 		struct sock		sk;
--		struct inet_sock	icsk_inet;
-+		struct inet_connection_sock	inet_conn;
- 	};
- 	struct socket		*clcsock;	/* internal tcp socket */
- 	void			(*clcsk_state_change)(struct sock *sk);
--- 
-2.34.1
+This kernel command line allows to look for a rootfs image at an
+offset into the initrd data.
 
+If we assume now that the rootfs image data starts at the beginning of
+the initrd image and is the only part of the initrd image this would
+indeed remove a lot of complexity.
+
+Maybe it would be possible to remove the identify_ramdisk_image()
+function and just copy the actual size of /initrd.image into
+/dev/ram0. This would allow any file system to be used in an initrd
+image (no just romfs, cramfs, minixfs, ext2fs and squashfs), and this
+would simplify the code in init/do_mounts_rd.c greatly, with just the
+function rd_load_image() and nr_blocks() remaining in this file.
+
+I can send a patch for that but first I need to sort out my SMTP
+issues from the other day.
+
+Regards,
+
+--=20
+Nicolas Schichan
