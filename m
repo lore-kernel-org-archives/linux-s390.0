@@ -1,56 +1,83 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2551AD24;
-	Tue, 23 Sep 2025 03:47:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52D8730F944;
+	Tue, 23 Sep 2025 07:20:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758599259; cv=none; b=EKpPmwgea3ui8V1NUsQQGyQp8y8467oMATtPqc54WPomQttFNeuXoO/qtOQAt4bufV2M4bqr/RsBWssYwgQGWrpTyWMkmSwC9IKsd//a9ygHMDufNRHQwoaO5nvUeo4zBgF2hfIF6jONbBbvPwWsyJFWh8ENwStEJO3Al/am4Yc=
+	t=1758612011; cv=none; b=XjkeA+G3DSfV/ifog8JzaE6B/D4dv5TmoO0jvxT7ZEIBqT1NSmIpFWOUctEks4Mi2etkH6ii5Rptbl7aKdw7j5K0ekg8uKbXqj7MZ+QqtKxBsPnSvQFzUQd/Y/JWYRd8z1MbrS2CIy/ACnYjTDphlgeRkoT7yhp/B2uYAGYTn+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758599259; c=relaxed/simple;
-	bh=VhdoVNBgm6X5qYz6gn0vHAYfUBuCXLK7xB+54qTojnU=;
+	s=arc-20240116; t=1758612011; c=relaxed/simple;
+	bh=lwJ9UOqD//PDM/RdW1ujxGd44CcPYvzNz6RKR54u+xI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a559vM/ARstNx625t4iMtCBIBKvMmaCzwxNjq7BuNBJzqWNFBWJhjMPw+0qWJTS9n8pVrP6L1Hy17nUEN2FbPh6TkZP28s5H+1xJYZvVavjCZaPYfw7qXmUVop9YpA8u8rQ5fHkQfX8e3GyLEb8LzWZa/I4f8tr9mB6NYAflvmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b=hq9SgPV1; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	 Content-Type:Content-Disposition:In-Reply-To; b=Yj1FISjaxTUCAGfusr+7oHk1yesMVustihRryI+bUbf0omv9otsul2J5KyAGycPAvnXEyg72001XTcz/8wU4YqXoU8z97XYdqtRi184DkTvwm8lddq0ZftU5QjkmZrMNyzWiRJU4F2H9L3OBbJGqTDCSII8xRftXZHS2vjpfKYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=V27zlUZt; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hmeau.com header.i=@hmeau.com header.b="hq9SgPV1"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hmeau.com;
-	s=formenos; h=In-Reply-To:MIME-Version:References:Message-ID:Subject:Cc:To:
-	From:Date:cc:to:subject:message-id:date:from:reply-to;
-	bh=FGYTrCooQJBuf7my5KhHNwL4DZ/TWFdIhPLkYZYv7Q4=; b=hq9SgPV1CgQITcaGyUKSE7TfV/
-	vEVwmNYT4PlcL2yDjL7pEypDWtmat2hfF5RJEJqcawdjlh268T6NCg7Vx/okBOgxYnWvIbIzftB7W
-	dwX5wFiGirC7J6CGDmJtO4USoKi3K7oClz6Rw0dIUqjgHOu7Gvev3025bFtRDWsM0tKKEylsgVM8K
-	Q2d9XoyJz9ISBi3laZE3eAXl9Cu3XcYIcJqCno/2P5+HuOdAmSkA/P7yXxqeTHWin2mmQz9SOlR/d
-	00WyxQmnoEpYTVp1knrAe6rTvUW+hyd0s6KVUHGgoH/z2FiQk6FVlzsazmE5YW3GsPXv9gpsku9in
-	RA6DV38w==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
-	id 1v0tzy-007ZOl-1g;
-	Tue, 23 Sep 2025 11:47:27 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 23 Sep 2025 11:47:26 +0800
-Date: Tue, 23 Sep 2025 11:47:26 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Mikulas Patocka <mpatocka@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Ingo Franzki <ifranzki@linux.ibm.com>, linux-crypto@vger.kernel.org,
-	Eric Biggers <ebiggers@kernel.org>, dengler@linux.ibm.com,
-	linux-s390@vger.kernel.org, dm-devel@lists.linux.dev,
-	agk@redhat.com, snitzer@kernel.org,
-	Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH] crypto/authenc: don't return -EBUSY when enqueuing the
- hash request
-Message-ID: <aNIYTm6neC3lC6dP@gondor.apana.org.au>
-References: <20250908131642.385445532@debian4.vm>
- <3a6b6f8f-5205-459c-810a-2425aae92fc8@linux.ibm.com>
- <e1e420d5-dc00-14d0-fdef-635d6ef70811@redhat.com>
- <bb68f9d6-8180-4291-9e6b-33bbdcef780f@linux.ibm.com>
- <8cb59ed5-1c9a-49de-beee-01eda52ad618@linux.ibm.com>
- <1af710ec-0f23-2522-d715-e683b9e557d8@redhat.com>
- <f799d7ab97470f2529b8dcb5566fd673@linux.ibm.com>
- <e26aedc6-7132-46c3-78f3-a3582b1c4f9a@redhat.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="V27zlUZt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1758612009; x=1790148009;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=lwJ9UOqD//PDM/RdW1ujxGd44CcPYvzNz6RKR54u+xI=;
+  b=V27zlUZtetY/r9/AQeifUAGuFD7QaUmRDnDq7FBycNHBxIswHpwSHAIq
+   vZbBPCCCukaoMk26CpDrGlm6l6Dld3zxJyLPVOwmdM/SyGNTGFOXdEPNd
+   ZNIQfDKr8mncxv+NCxz5wiFbnA1OAE+1X3hJ4ltTAM4+z2/eJk/xt/zxl
+   E62Mr9JqWxGTo4U/EdyFMiUJiU26qk0Fs5ebPE7Cg1R71KHOCwKT4kmPK
+   MMLpDBS0W8U2PwR+s6Dk1PsV7OL73bM84IJnnxGzoLNI/Y/oV6bzH7+/c
+   OZmGPE8rOhsiQtGoIlAokvrgz+U3OC9tp1K1RlveVCbj5iJJ+73SXkOiq
+   A==;
+X-CSE-ConnectionGUID: ldYJDQNkRtylDdNddlP6bA==
+X-CSE-MsgGUID: nJqbN5ogQC68l4NrdimYhQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11561"; a="72310800"
+X-IronPort-AV: E=Sophos;i="6.18,287,1751266800"; 
+   d="scan'208";a="72310800"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2025 00:20:08 -0700
+X-CSE-ConnectionGUID: Yfyb9R4/Q+iN3TxSgmOafA==
+X-CSE-MsgGUID: tJaYf2dMRTq2G+2tFbHnZg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,287,1751266800"; 
+   d="scan'208";a="181079366"
+Received: from lkp-server02.sh.intel.com (HELO 84c55410ccf6) ([10.239.97.151])
+  by fmviesa005.fm.intel.com with ESMTP; 23 Sep 2025 00:20:02 -0700
+Received: from kbuild by 84c55410ccf6 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1v0xJf-0002rB-2I;
+	Tue, 23 Sep 2025 07:19:59 +0000
+Date: Tue, 23 Sep 2025 15:19:38 +0800
+From: kernel test robot <lkp@intel.com>
+To: Tariq Toukan <tariqt@nvidia.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>
+Cc: oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>,
+	Mark Bloch <mbloch@nvidia.com>, linux-rdma@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+	Jason Gunthorpe <jgg@nvidia.com>,
+	Michael Guralnik <michaelgur@nvidia.com>,
+	Moshe Shemesh <moshe@nvidia.com>, Will Deacon <will@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Justin Stitt <justinstitt@google.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next V4] net/mlx5: Improve write-combining test
+ reliability for ARM64 Grace CPUs
+Message-ID: <202509231437.exOuF9vQ-lkp@intel.com>
+References: <1758528951-817323-1-git-send-email-tariqt@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -59,53 +86,61 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e26aedc6-7132-46c3-78f3-a3582b1c4f9a@redhat.com>
+In-Reply-To: <1758528951-817323-1-git-send-email-tariqt@nvidia.com>
 
-On Mon, Sep 22, 2025 at 09:08:42PM +0200, Mikulas Patocka wrote:
->
-> When we return -EBUSY from encryption routines, the caller is supposed to
-> sleep until it receives -EINPROGRESS in the callback method.
-> 
-> However when using authenc with asynchronous hash, the hash function may 
-> return -EBUSY. In this case, the crypto API never calls the caller with 
-> -EINPROGRESS and it causes deadlock in dm-crypt.
-> 
-> Fix this by turning -EBUSY into -EINPROGRESS.
-> 
-> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-> Cc: stable@vger.kernel.org
-> 
-> ---
->  crypto/authenc.c |   10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> Index: linux-2.6/crypto/authenc.c
-> ===================================================================
-> --- linux-2.6.orig/crypto/authenc.c	2025-09-22 20:32:02.000000000 +0200
-> +++ linux-2.6/crypto/authenc.c	2025-09-22 20:35:38.000000000 +0200
-> @@ -146,8 +146,11 @@ static int crypto_authenc_genicv(struct
->  				   authenc_geniv_ahash_done, req);
->  
->  	err = crypto_ahash_digest(ahreq);
-> -	if (err)
-> +	if (err) {
-> +		if (err == -EBUSY)
-> +			err = -EINPROGRESS;
->  		return err;
-> +	}
+Hi Tariq,
 
-If authenc gets EBUSY from the ahash, then the ahash is responsible
-for sending an EINPROGRESS notification.  I just checked the authenc
-code and it does pass the notification back up to the caller (which
-is dm-crypt).
+kernel test robot noticed the following build errors:
 
-So if EINPROGRESS is not being received, then it's a bug in the
-ahash layer or the underlying ahash algorithm.
+[auto build test ERROR on 312e6f7676e63bbb9b81e5c68e580a9f776cc6f0]
 
-Which phmac implementation was this?
+url:    https://github.com/intel-lab-lkp/linux/commits/Tariq-Toukan/net-mlx5-Improve-write-combining-test-reliability-for-ARM64-Grace-CPUs/20250922-161859
+base:   312e6f7676e63bbb9b81e5c68e580a9f776cc6f0
+patch link:    https://lore.kernel.org/r/1758528951-817323-1-git-send-email-tariqt%40nvidia.com
+patch subject: [PATCH net-next V4] net/mlx5: Improve write-combining test reliability for ARM64 Grace CPUs
+config: arm-allmodconfig (https://download.01.org/0day-ci/archive/20250923/202509231437.exOuF9vQ-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 15.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250923/202509231437.exOuF9vQ-lkp@intel.com/reproduce)
 
-Cheers,
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202509231437.exOuF9vQ-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In function 'mlx5_iowrite64_copy',
+       inlined from 'mlx5_wc_post_nop' at drivers/net/ethernet/mellanox/mlx5/core/wc.c:317:2:
+>> drivers/net/ethernet/mellanox/mlx5/core/wc.c:268:17: error: unknown register name 'v0' in 'asm'
+     268 |                 asm volatile
+         |                 ^~~
+
+
+vim +268 drivers/net/ethernet/mellanox/mlx5/core/wc.c
+
+   261	
+   262	static void mlx5_iowrite64_copy(struct mlx5_wc_sq *sq, __be32 mmio_wqe[16],
+   263					size_t mmio_wqe_size, unsigned int offset)
+   264	{
+   265	#ifdef CONFIG_KERNEL_MODE_NEON
+   266		if (cpu_has_neon()) {
+   267			kernel_neon_begin();
+ > 268			asm volatile
+   269			(".arch_extension simd;\n\t"
+   270			"ld1 {v0.16b, v1.16b, v2.16b, v3.16b}, [%0]\n\t"
+   271			"st1 {v0.16b, v1.16b, v2.16b, v3.16b}, [%1]"
+   272			:
+   273			: "r"(mmio_wqe), "r"(sq->bfreg.map + offset)
+   274			: "memory", "v0", "v1", "v2", "v3");
+   275			kernel_neon_end();
+   276			return;
+   277		}
+   278	#endif
+   279		__iowrite64_copy(sq->bfreg.map + offset, mmio_wqe,
+   280				 mmio_wqe_size / 8);
+   281	}
+   282	
+
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
