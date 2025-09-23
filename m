@@ -1,101 +1,73 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from sender4-g3-154.zohomail360.com (sender4-g3-154.zohomail360.com [136.143.188.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B26BF309F12;
-	Tue, 23 Sep 2025 21:17:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758662228; cv=none; b=PVHlDbqMvJZj0ItQGaDgQ+uqwAiaN64FgKa0TKo2KsUWa2H51pg71vABtbhN+1kN6tIMgUVHEXfFvrGsaKyMLj6R7wCeKjaPq6PPL2chUT1rkMLDKYfwnDgSjSnx2JxM3xpFTmcreDIP41Edm73mi0YdfiMxMB2A1ZcqHJeTt3U=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758662228; c=relaxed/simple;
-	bh=9maMwx7/tfxHiKFTD825WGlX9Scv4cfcxvOcT74ZDTg=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=Pi0DfaJdRl5ndPhT9JZmFJDPc3iVs+8tFZuMJf37jiy6ALr6yMWpKMuN4fNUflp9U2An4pEBQR4Ya4B6fV5NrhXYbo2O3OujraoYOp4x4/LMAHnDdEvBxr79LruOlqifo+gnrVFcTyU5xX+LkTg8gqJ73cpF+YT4kzPUAms4Hrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=YQt4yJD4; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EAFC191F89
+	for <linux-s390@vger.kernel.org>; Wed, 24 Sep 2025 00:35:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.154
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1758674103; cv=pass; b=Cgz93BTLUAT/Pkcnt+WajaEA0oahCgKnfzeEdL56sv8o3Zh1X6apaCuD7zAEmYpQz7DgnXc94zJE0H81QHuEW+N22oYVWLWkSrVX48mG8PerTQRplehxUfKMhpt3SEHzC6z2Z4YZmHsXqIkQepZNPoVUkF0IaqYr2Wu3yyJFAwg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1758674103; c=relaxed/simple;
+	bh=AWveDXA8ALJzWgHEIwnedN8w9zGfyFbE+EAufRDnZAo=;
+	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type; b=CkxnA5ckSGNMDTYEzDi3mkD5+gTejPSolUi33UQ4VhrFMHCJ1qF6XblPGj182ygZEyaBA6qX+g4PdZdplZJSiJTiCzxBcQb2j9nIZTXBsegN3RaWHyOsvRrOb4zK7pQuQatIkYSd0zY+T8ThgiWbH96kycM57rOWeGDYfZzzZfM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=maguitec.com.mx; spf=pass smtp.mailfrom=bounce-zem.maguitec.com.mx; dkim=pass (1024-bit key) header.d=maguitec.com.mx header.i=@maguitec.com.mx header.b=C/CArbLt; arc=pass smtp.client-ip=136.143.188.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=maguitec.com.mx
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bounce-zem.maguitec.com.mx
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="YQt4yJD4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51CB1C4CEF5;
-	Tue, 23 Sep 2025 21:17:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1758662227;
-	bh=9maMwx7/tfxHiKFTD825WGlX9Scv4cfcxvOcT74ZDTg=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=YQt4yJD4LLyMB/AA7fhRdzHKMMyKrYX7tPYO7bcgLcaYZEMTEEDS+V/u87paR8mvk
-	 vaZ6Hf5HJhiz4iN6UcpLvuzXo0K/kulYjPZuGmcFLhgj45aLOuctbBJIR6+SoLAoCq
-	 q1aNHSIO3K1aKeAi1QD+S0yrDrsK77/N3Jf/bOOk=
-Date: Tue, 23 Sep 2025 14:17:04 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, Jonathan Corbet
- <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>, Guo Ren
- <guoren@kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Heiko
- Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander
- Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
- "David S . Miller" <davem@davemloft.net>, Andreas Larsson
- <andreas@gaisler.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>,
- Nicolas Pitre <nico@fluxnic.net>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@redhat.com>,
- Konstantin Komarov <almaz.alexandrovich@paragon-software.com>, Baoquan He
- <bhe@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, Dave Young
- <dyoung@redhat.com>, Tony Luck <tony.luck@intel.com>, Reinette Chatre
- <reinette.chatre@intel.com>, Dave Martin <Dave.Martin@arm.com>, James Morse
- <james.morse@arm.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Christian
- Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, "Liam R . Howlett"
- <Liam.Howlett@oracle.com>, Vlastimil Babka <vbabka@suse.cz>, Mike Rapoport
- <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko
- <mhocko@suse.com>, Hugh Dickins <hughd@google.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Uladzislau Rezki <urezki@gmail.com>,
- Dmitry Vyukov <dvyukov@google.com>, Andrey Konovalov
- <andreyknvl@gmail.com>, Jann Horn <jannh@google.com>, Pedro Falcato
- <pfalcato@suse.de>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- nvdimm@lists.linux.dev, linux-cxl@vger.kernel.org, linux-mm@kvack.org,
- ntfs3@lists.linux.dev, kexec@lists.infradead.org,
- kasan-dev@googlegroups.com, Jason Gunthorpe <jgg@nvidia.com>,
- iommu@lists.linux.dev, Kevin Tian <kevin.tian@intel.com>, Will Deacon
- <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH v4 11/14] mm/hugetlbfs: update hugetlbfs to use
- mmap_prepare
-Message-Id: <20250923141704.90fba5bdf8c790e0496e6ac1@linux-foundation.org>
-In-Reply-To: <aNKJ6b7kmT_u0A4c@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <cover.1758135681.git.lorenzo.stoakes@oracle.com>
-	<e5532a0aff1991a1b5435dcb358b7d35abc80f3b.1758135681.git.lorenzo.stoakes@oracle.com>
-	<aNKJ6b7kmT_u0A4c@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=maguitec.com.mx header.i=@maguitec.com.mx header.b="C/CArbLt"
+ARC-Seal: i=1; a=rsa-sha256; t=1758674101; cv=none; 
+	d=us.zohomail360.com; s=zohoarc; 
+	b=JweJUzuL/WQJmGNpMFW1Jpo4Pynt30z2TxoYkShGP15lr87q1OGarCPH96dBaG18XLJdT2ttc1WK5T6Yb+fr1Az2zLjJPiXHhIHcu6AF5ZDv/W65UfY6ToZJ5NGQczwA03zmV66J04dtLoK8yvYB/aF+ngPSPnzvSq+CeJNc4SY=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=us.zohomail360.com; s=zohoarc; 
+	t=1758674101; h=Content-Type:Content-Transfer-Encoding:Date:Date:From:From:MIME-Version:Message-ID:Reply-To:Reply-To:Subject:Subject:To:To:Message-Id:Cc; 
+	bh=AWveDXA8ALJzWgHEIwnedN8w9zGfyFbE+EAufRDnZAo=; 
+	b=lzopzpspTDnZpVeFXsHa+3V4cdnU32ztiNf1Qh/Dm0DLeoeMtk3Us17QbuNyeCX4IteLD1UPoJuQGvAqoVskIcdz/LFgIlqwnl4BOz0bUbydVst1qsLCveJtsgT3cIB5tVTWnfo4NsK8wUiQbMWnn9wW406iJiiwkYLxpKU0GoA=
+ARC-Authentication-Results: i=1; mx.us.zohomail360.com;
+	dkim=pass  header.i=maguitec.com.mx;
+	spf=pass  smtp.mailfrom=investorrelations+9ab582b0-98d8-11f0-9ce0-52540088df93_vt1@bounce-zem.maguitec.com.mx;
+	dmarc=pass header.from=<investorrelations@maguitec.com.mx>
+Received: by mx.zohomail.com with SMTPS id 1758671653580616.0598269629054;
+	Tue, 23 Sep 2025 16:54:13 -0700 (PDT)
+DKIM-Signature: a=rsa-sha256; b=C/CArbLtp5rFZ/zYJ+3Z4ebi0gL7Y0+Svz9mEsOSDBbdgS8OI2fr7Cnu2o4sQzXeiRWjA+nlvVLXegmt7202z+bfxMsV3yKiFvT//FykfvEHwO5rfDkjGoj71BGR0ebuFtRrC+UcKA3ObTb+iqzhfCvdvtkHsg7pV4c6CyIBP0k=; c=relaxed/relaxed; s=15205840; d=maguitec.com.mx; v=1; bh=AWveDXA8ALJzWgHEIwnedN8w9zGfyFbE+EAufRDnZAo=; h=date:from:reply-to:to:message-id:subject:mime-version:content-type:content-transfer-encoding:date:from:reply-to:to:message-id:subject;
+Date: Tue, 23 Sep 2025 16:54:13 -0700 (PDT)
+From: Al Sayyid Sultan <investorrelations@maguitec.com.mx>
+Reply-To: investorrelations@alhaitham-investment.ae
+To: linux-s390@vger.kernel.org
+Message-ID: <2d6f.1aedd99b146bc1ac.m1.9ab582b0-98d8-11f0-9ce0-52540088df93.19978ffc65b@bounce-zem.maguitec.com.mx>
+Subject: Thematic Funds Letter Of Intent
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+content-transfer-encoding-Orig: quoted-printable
+content-type-Orig: text/plain;\r\n\tcharset="utf-8"
+Original-Envelope-Id: 2d6f.1aedd99b146bc1ac.m1.9ab582b0-98d8-11f0-9ce0-52540088df93.19978ffc65b
+X-JID: 2d6f.1aedd99b146bc1ac.s1.9ab582b0-98d8-11f0-9ce0-52540088df93.19978ffc65b
+TM-MAIL-JID: 2d6f.1aedd99b146bc1ac.m1.9ab582b0-98d8-11f0-9ce0-52540088df93.19978ffc65b
+X-App-Message-ID: 2d6f.1aedd99b146bc1ac.m1.9ab582b0-98d8-11f0-9ce0-52540088df93.19978ffc65b
+X-Report-Abuse: <abuse+2d6f.1aedd99b146bc1ac.m1.9ab582b0-98d8-11f0-9ce0-52540088df93.19978ffc65b@zeptomail.com>
+X-ZohoMailClient: External
 
-On Tue, 23 Sep 2025 13:52:09 +0200 Sumanth Korikkar <sumanthk@linux.ibm.com> wrote:
+To: linux-s390@vger.kernel.org
+Date: 24-09-2025
+Thematic Funds Letter Of Intent
 
-> > --- a/fs/hugetlbfs/inode.c
-> > +++ b/fs/hugetlbfs/inode.c
-> > @@ -96,8 +96,15 @@ static const struct fs_parameter_spec hugetlb_fs_parameters[] = {
-> >  #define PGOFF_LOFFT_MAX \
-> >  	(((1UL << (PAGE_SHIFT + 1)) - 1) <<  (BITS_PER_LONG - (PAGE_SHIFT + 1)))
-> >  
-> > -static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
-> > +static int hugetlb_file_mmap_prepare_success(const struct vm_area_struct *vma)
-> >  {
-> > +	/* Unfortunate we have to reassign vma->vm_private_data. */
-> > +	return hugetlb_vma_lock_alloc((struct vm_area_struct *)vma);
-> > +}
-> 
-> Hi Lorenzo,
-> 
-> The following tests causes the kernel to enter a blocked state,
-> suggesting an issue related to locking order. I was able to reproduce
-> this behavior in certain test runs.
+It's a pleasure to connect with you
 
-Thanks.  I pulled this series out of mm.git's mm-stable branch, put it
-back into mm-unstable.
+Having been referred to your investment by my team, we would be=20
+honored to review your available investment projects for onward=20
+referral to my principal investors who can allocate capital for=20
+the financing of it.
+
+kindly advise at your convenience
+
+Best Regards,
+
+Respectfully,
+Al Sayyid Sultan Yarub Al Busaidi
+Director
