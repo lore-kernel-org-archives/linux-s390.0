@@ -1,129 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27EBF21C9F4;
-	Tue, 23 Sep 2025 17:45:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D663527703C
+	for <linux-s390@vger.kernel.org>; Tue, 23 Sep 2025 17:49:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758649544; cv=none; b=NtAxak3if7CX9v+mgSnyJzISaxp5I1nclZg0Aw1V8RDyhoi6BaZhE2DiesEssorCWTJBxVzJb9HsaWnqQcEprhq1ihkbpUqRdoWEsfRoPwVMJgOipzmgLgB5uFtwpv6lLPqtvDttB06ZhbW3EtRcxYRDoQUsRpX13byrkf9pZ5w=
+	t=1758649758; cv=none; b=r7q+dk6oYngDJkPfISKSdJxVGKYpjAVxIK1H4HuK7fJEsuRCmtbo7D2KVfG68/sqXigUKl19NCSgYMtiGVn9vChCDBS4xcijAowpLsysY0yRCwXfqkYV9zw+FgUzyZiryLEV5m7mLkPw7UvKJl5BU3/558KQM++nEXItgG3t0hQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758649544; c=relaxed/simple;
-	bh=4eo/a1KUEFY7fEWdOih7ebHnYSPIXBQbHE0axcplA7o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=F61CTTlccrxYWITMPxU9J8ROpp45f1tl3/LwkR/pI5IA6d94Iqd2ASapAQ1hYqotLxAjRm2XsaPwaS1zpnTKFIZm9CsLxMtH2UwEnGPnYvH3o0ual6ijFvF7iEQVwF21alc2uU78aZlGnlVmCiL53Jkicb7DiJmpfVBr5jzNYI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gLBwm0NZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1758649758; c=relaxed/simple;
+	bh=ak83w47Un+0YVkw6h4ejJTiciQnGZqbDFJcToiU+0xQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YDi86AokqAqeQ1+Nk1kc/WngHYx13U64SOQCTY/BuVE1NLrsTBdupmTpFtCWr9db7YFyhI+vIrAyYftAv09AsgQ+U7bTb4ZAtBQdN2kufNwxxQI3h1yajP28d6ImZGLXTKNU3G0r4DVAQbvt9+ZCvPXOMEZ6r9JNs0UtovQOspk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d3LgF6Jv; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gLBwm0NZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42797C4CEF5;
-	Tue, 23 Sep 2025 17:45:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1758649543;
-	bh=4eo/a1KUEFY7fEWdOih7ebHnYSPIXBQbHE0axcplA7o=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=gLBwm0NZiP5WB54dyrSCDfzdzAje1hFBdha6vFXsG445cBLf+e6Apbuu92tfpoqRM
-	 YIdf/xrhOjQwvFltc//95KCDvZV69WQVXSAmreR2fEOIL32Mtj8EOXw5ZplzpgRKbM
-	 Iy2dSlUL1pUrKtKQU383z9+OigzrojzAR8rVZNoKirYFsKDs2aKM0hrWNcHKB3MHX4
-	 tDagc/uepq0esC/KnPok/F1Nqe9/tKYoVV9KwTIGdCs8PsQ02Na0doFrenPIrBd+Kv
-	 EH9bY68Ds/grUtEwBuj8qBLnHUCHC4P9WzO6wpLfNJJswt/nG4PpMKyPoF3FvJ8pDo
-	 1lp8LevcFd8Uw==
-Date: Tue, 23 Sep 2025 17:45:41 +0000
-From: Eric Biggers <ebiggers@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Ard Biesheuvel <ardb@kernel.org>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Stephan Mueller <smueller@chronox.de>, Simo Sorce <simo@redhat.com>,
-	linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-	keyrings@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] lib/crypto: Add SHA3-224, SHA3-256, SHA3-384,
- SHA-512, SHAKE128, SHAKE256
-Message-ID: <20250923174541.GA2695109@google.com>
-References: <20250919203208.GA8350@quark>
- <20250919190413.GA2249@quark>
- <3936580.1758299519@warthog.procyon.org.uk>
- <3975735.1758311280@warthog.procyon.org.uk>
- <538563.1758648981@warthog.procyon.org.uk>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d3LgF6Jv"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-3ee1221ceaaso3440779f8f.3
+        for <linux-s390@vger.kernel.org>; Tue, 23 Sep 2025 10:49:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758649755; x=1759254555; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ak83w47Un+0YVkw6h4ejJTiciQnGZqbDFJcToiU+0xQ=;
+        b=d3LgF6JvMtM5Vo9+fY573KOIj3qvM67QymJmVTviYCpzOCwmiZzhV9RSQEs+t3a/DL
+         fga8i1kQhM54QcdelpgjqI6RyUCyRysraF0yZ+m2gnWmrfYhNlQwTdfRayY1Fw7knisW
+         /XjcSEGMjRm1eKs2wIZBFHxSZFd3QuO06a641Z3P1yDKCIByw2pVGMUzHLSYiP1CN22R
+         954ivXD66e+eL1P9PKssQJngDExsIN80+mkrlEkAphwePMwdOYrfPsODtrPm7xcKo9Qz
+         M8G50FoA0FaBalMk1OznZkFsXsf0S++nD2TtmeY7gAwGZyqtMJ4cFRrMzRkXbqvwc412
+         Uy+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758649755; x=1759254555;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ak83w47Un+0YVkw6h4ejJTiciQnGZqbDFJcToiU+0xQ=;
+        b=xQPyZxIr/skmLhUESCFTIi8L2p9rRwg7YaStqRIwdnb02hy1/nlJFnVuUsmuColTU5
+         yAuvv3ZEapBa/8B//DA/qJ3Wd5JvsDFHWxMn05XS0uwF01i6lWse/5ys0XtZVXoydRWm
+         cKviWCQ1Vn8X/H8DfNexciGzxWJiabiXAJ1rXJhX+aWCCNIXd9wQjfJ8aNGZSzSuaY9b
+         6CYwV0IKJWs1FhPShC+kXTQbD7C3D5sHcuQhSFC1Rc9qyeN/cvJ0AVoo3atyNmSnCchM
+         5rCdIr8AGjPc6qgXsc1t8nGBS/G047MJSlnLacIqHgIXCxWsELJfKzkvCVAegREuQLLB
+         AwEA==
+X-Forwarded-Encrypted: i=1; AJvYcCU/9eqNtJVZGIS4yH4NBYzHEnVCi6vnmvRh3khgCAcook+e10UE5penwv/rWsK43CAbKrdivCeCr9xO@vger.kernel.org
+X-Gm-Message-State: AOJu0YwosVsDIXBkARp95QKm9Dejg0JVuaiqA1K6r53n/EcFlLsep3Hh
+	jbxAbzW6y0t/fqyz/vSWC6x8qeIlSyq47Uc5a46av5vXjksyZ1vLWir5z7LFxezBtyAdtO9jXCV
+	pCjwV47w99woKIAoZ05qP5zVy+XG9ngQ=
+X-Gm-Gg: ASbGncstPyDCDyxc/F6R9jIOG0doE9SESp8dpAfxksSv9/ZO/MysvVTObrYxgiKj0lt
+	9wklgbvzKfarOXqrn8m15KQqT5tVydZxRy2P7Fs49JI9JKI4RaNyZNUN0FEeWhKmwgya8fqpYZj
+	AW3q4bIDr77yVWqXKN0LOnvCbc+J4QL9xFlt50yUeyAoBAH8QDFT99s0hvFfZEP/IYo9s9KwADZ
+	6MFqEm/Mw==
+X-Google-Smtp-Source: AGHT+IFSBc+NBD1jZsd0LSs+Pw95eV8L2vwpY4rCb+CqA5TPaGXD6Axn8yxp6z29u7E5i0MPRJJiZRdC/VoVJA9DlfM=
+X-Received: by 2002:a05:6000:2585:b0:3ea:c7ea:13da with SMTP id
+ ffacd0b85a97d-405c4a9734bmr2645479f8f.9.1758649754815; Tue, 23 Sep 2025
+ 10:49:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <538563.1758648981@warthog.procyon.org.uk>
+References: <20250810125746.1105476-1-snovitoll@gmail.com> <20250810125746.1105476-2-snovitoll@gmail.com>
+ <CA+fCnZdFp69ZHbccLSEKYH3i7g6r2WdQ0qzyf+quLnA0tjfXJg@mail.gmail.com> <CACzwLxh4pJOBbU2fHKCPWkHHCuLtDW-rh52788u2Q6+nG-+bTA@mail.gmail.com>
+In-Reply-To: <CACzwLxh4pJOBbU2fHKCPWkHHCuLtDW-rh52788u2Q6+nG-+bTA@mail.gmail.com>
+From: Andrey Konovalov <andreyknvl@gmail.com>
+Date: Tue, 23 Sep 2025 19:49:03 +0200
+X-Gm-Features: AS18NWAo7UnIsKkvCh16EnxIlUsef04XXrIh6VHPmyIq2HZ6eh0cMjqVLlDuPQw
+Message-ID: <CA+fCnZce3AR+pUesbDkKMtMJ+iR8eDrcjFTbVpAcwjBoZ=gJnQ@mail.gmail.com>
+Subject: Re: [PATCH v6 1/2] kasan: introduce ARCH_DEFER_KASAN and unify static
+ key across modes
+To: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Cc: ryabinin.a.a@gmail.com, christophe.leroy@csgroup.eu, bhe@redhat.com, 
+	hca@linux.ibm.com, akpm@linux-foundation.org, zhangqing@loongson.cn, 
+	chenhuacai@loongson.cn, davidgow@google.com, glider@google.com, 
+	dvyukov@google.com, alexghiti@rivosinc.com, alex@ghiti.fr, 
+	agordeev@linux.ibm.com, vincenzo.frascino@arm.com, elver@google.com, 
+	kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
+	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 23, 2025 at 06:36:21PM +0100, David Howells wrote:
-> Eric Biggers <ebiggers@kernel.org> wrote:
-> 
-> > > > and that the functions can be called in any context.
-> > > 
-> > > "Context" as in?
-> > 
-> > See the "Function context" section of
-> > Documentation/doc-guide/kernel-doc.rst
-> 
-> Btw, in include/crypto/sha1.h:
-> 
-> /**
->  * hmac_sha1_update() - Update an HMAC-SHA1 context with message data
->  * @ctx: the HMAC context to update; must have been initialized
->  * @data: the message data
->  * @data_len: the data length in bytes
->  *
->  * This can be called any number of times.
->  *
->  * Context: Any context.
->  */
-> static inline void hmac_sha1_update(struct hmac_sha1_ctx *ctx,
-> 				    const u8 *data, size_t data_len)
-> {
-> 	sha1_update(&ctx->sha_ctx, data, data_len);
-> }
-> 
-> for example, your specification of "Context: Any context." is probably not
-> correct if FPU/Vector registers are used by optimised assembly as part of the
-> function.  See:
-> 
-> void kernel_fpu_begin_mask(unsigned int kfpu_mask)
-> {
-> 	if (!irqs_disabled())
-> 		fpregs_lock();
-> 
-> 	WARN_ON_FPU(!irq_fpu_usable());
-> 
-> 	/* Toggle kernel_fpu_allowed to false: */
-> 	WARN_ON_FPU(!this_cpu_read(kernel_fpu_allowed));
-> 	this_cpu_write(kernel_fpu_allowed, false);
-> 
-> 	if (!(current->flags & (PF_KTHREAD | PF_USER_WORKER)) &&
-> 	    !test_thread_flag(TIF_NEED_FPU_LOAD)) {
-> 		set_thread_flag(TIF_NEED_FPU_LOAD);
-> 		save_fpregs_to_fpstate(x86_task_fpu(current));
-> 	}
-> 	__cpu_invalidate_fpregs_state();
-> 
-> 	/* Put sane initial values into the control registers. */
-> 	if (likely(kfpu_mask & KFPU_MXCSR) && boot_cpu_has(X86_FEATURE_XMM))
-> 		ldmxcsr(MXCSR_DEFAULT);
-> 
-> 	if (unlikely(kfpu_mask & KFPU_387) && boot_cpu_has(X86_FEATURE_FPU))
-> 		asm volatile ("fninit");
-> }
-> 
-> If you try and access the function in IRQ mode, for example, you'll get a
-> warning, and if IRQs are not disabled, it will disable BH/preemption.
-> 
-> You also can't use it from inside something else that uses FPU registers.
-> 
-> I suggest something like:
-> 
->  * Context: Arch-dependent: May use the FPU/Vector unit registers.
+On Mon, Sep 15, 2025 at 6:30=E2=80=AFAM Sabyrzhan Tasbolatov
+<snovitoll@gmail.com> wrote:
+>
+> > Why is the check removed here and in some other places below? This
+> > need to be explained in the commit message.
+>
+> kasan_arch_is_ready which was unified with kasan_enabled, was removed
+> here because
+> __kasan_slab_pre_free is called from include/linux/kasan.h [1] where
+> there's already kasan_enabled() check.
+>
+> [1] https://elixir.bootlin.com/linux/v6.16.7/source/include/linux/kasan.h=
+#L198
+>
+> Please let me know if v7 is required with the change in the git commit
+> message only.
 
-Kernel-mode FPU is used only when irq_fpu_usable().
+No need, but next time please add such info into the commit message.
 
-The tests verify that the functions do work in IRQ context.
+> > What I meant with these __wrappers was that we should add them for the
+> > KASAN hooks that are called from non-KASAN code (i.e. for the hooks
+> > defined in include/linux/kasan.h). And then move all the
+> > kasan_enabled() checks from mm/kasan/* to where the wrappers are
+> > defined in include/linux/kasan.h (see kasan_unpoison_range() as an
+> > example).
+> >
+> > kasan_save_free_info is a KASAN internal function that should need
+> > such a wrapper.
+> >
+> > For now, to make these patches simpler, you can keep kasan_enabled()
+> > checks in mm/kasan/*, where they are now. Later we can move them to
+> > include/linux/kasan.h with a separate patch.
+>
+> Yes, I'd like to revisit this in the next separate patch series.
 
-- Eric
+Great!
+
+But for now, please send a fix-up patch that removes the
+__kasan_save_free_info() wrapper (or a v8? But I see that your series
+is now in mm-stable, so I guess a separate fix-up patch is preferred).
+
+I don't think you need a kasan_enabled() check in
+kasan_save_free_info() at all. Both the higher level paths
+(kasan_slab_free and kasan_mempool_poison_object) already contain this
+check.
+
+Thanks!
