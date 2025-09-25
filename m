@@ -1,117 +1,91 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FA0F2367BF;
-	Thu, 25 Sep 2025 08:05:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F2B827467E
+	for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 08:39:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758787502; cv=none; b=qhQt0Rd4OzbTPLC2BqGbrPUfQkCxOGgM5HueYfGuPKfcpusEVMeuteYS5y3jjoZBZx3WyZcJEdj7PKRRdfTDJP+CUqCIlJj1zS0Sr9AE0wcR5gD3VhkoUhuAyAkEWC+y/Nu3+gKKssYGuo8Xh7Qm+N1+BJYCdfOCo7F5PXeWm0A=
+	t=1758789571; cv=none; b=Wxe9k5nSdta+jA6+GBtt1tM6DPl4SPKVtlBlr6mXRwHWJD8ddjAKCtHm7kcV9s8a8aulzoHiWNnugzITE9N6cEPb3zXBeYGfas+wrBqB6/f564f2kcsIakmEFyuQIHiDrPoE6Aaxd0SHI2CvgwXgM7si32/4Q53nMtKCBFpZVYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758787502; c=relaxed/simple;
-	bh=rYyXxlBGjW+fW8RT9+6EcT7A+KojzwwNLk/C97s3Pds=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TdeZR0YoWLqv1seNs7TW+3gxKTFI4upj8Eu+GDW+9LlDiF8aWzIwdzXS7ecPvZ7CAzG1F93ylzsUwEKa0k+DG3mWUhhwqkpNZZbkp+bI0qobTIR8T449f0pa0i5xp5e/xL45bAz8fUb1XMfjZlR+iYc3z1Mtem0yQ/xJFgqp7Nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=G8Z4RNBi; arc=none smtp.client-ip=198.175.65.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1758789571; c=relaxed/simple;
+	bh=tbpoAV5rkSfpdPr00sFGgdZX3s9IjydPkwrvuz8KxgA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rgzUqdpYva+1O55s4BmfllQs2Eux6bfOIQtdo0w6kZXASv2zFxdUvx90xVsNNV4aV8WDP+EnAp0f08iSCx0l+A132EIEq86NJmZQqq2Nlhtv++eWBqwVv1Wt08LAf5GYOUZYV5kNq9xsrVkji6XPpl24Yzn5x7p2iBMKmao4Ig4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rxuJAMAd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="G8Z4RNBi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1758787501; x=1790323501;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=rYyXxlBGjW+fW8RT9+6EcT7A+KojzwwNLk/C97s3Pds=;
-  b=G8Z4RNBiLugMltDZELZbARWYvXwawYG4drTevN4pZi+q5E6VPuX812rS
-   CxyLxKffh3FAol2tsGIbq46rborEwf4QYbUIdz6JZLukWGCg61b0lwqCD
-   u5IpRhkQg9ZmLXbVNMZ3nZnx0jrVcb5YYlkiSh9xsagfczp2ud39jF5Ia
-   9cyZOY45wLlXOesGaXULekoF6TQWhj2kaF6ksvAmlDWe1QxBeVk7yqq64
-   YcLZtkO0M9Z31li+5bS+TvwlbQ3QPCOUM25cikW9FwPL+/a4XzyeF4cjo
-   4tn4Goj85hHI2u5cMkdvmNPjPEKJp1VYZLRIS55GbbAKk/1rOdRGQzcg0
-   Q==;
-X-CSE-ConnectionGUID: 87FD3K1VSBCvRyva9OG8Qw==
-X-CSE-MsgGUID: hBXM6XnIRkWFVI4t5jCXZQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="61045267"
-X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
-   d="scan'208";a="61045267"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2025 01:05:00 -0700
-X-CSE-ConnectionGUID: XbP/FV+3T+Ww+hmLOgDGFQ==
-X-CSE-MsgGUID: mJYZrIEfRISVYJY4vFFgvw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,292,1751266800"; 
-   d="scan'208";a="178031281"
-Received: from lkp-server02.sh.intel.com (HELO 84c55410ccf6) ([10.239.97.151])
-  by fmviesa010.fm.intel.com with ESMTP; 25 Sep 2025 01:04:58 -0700
-Received: from kbuild by 84c55410ccf6 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1v1gy9-000537-2C;
-	Thu, 25 Sep 2025 08:04:51 +0000
-Date: Thu, 25 Sep 2025 16:04:05 +0800
-From: kernel test robot <lkp@intel.com>
-To: Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pci@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, alex.williamson@redhat.com,
-	helgaas@kernel.org, clg@redhat.com, alifm@linux.ibm.com,
-	schnelle@linux.ibm.com, mjrosato@linux.ibm.com
-Subject: Re: [PATCH v4 08/10] vfio-pci/zdev: Add a device feature for error
- information
-Message-ID: <202509251506.Z5Ov6pYQ-lkp@intel.com>
-References: <20250924171628.826-9-alifm@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rxuJAMAd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 087C6C4CEF4
+	for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 08:39:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758789571;
+	bh=tbpoAV5rkSfpdPr00sFGgdZX3s9IjydPkwrvuz8KxgA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=rxuJAMAdPX5xKmCEQeLmvh1ujK52YyZumQO6MG1UAEbqkSqaSWjjweBbn2OyLGpo2
+	 MJS7FtuhexPtBNmK8lrem4E5BdajOzEfeHHH6jLFhOIHgynnITzUNurhUiCi9HEJDB
+	 hdfovFUWKAk78xxLKezK8ysV2uhmSeRq2pl/WPbvGeZwEbLel9QmLrjKTIPmbvgHh8
+	 x9jNbkOOZhMuHkjOH+jr7uP86wfTt2Szt9tSBujq6cluQNHnrqGSPHxeu6uej+xVHf
+	 h8C1ODH1Agw5tLxHXCxWHzgLlUA1uaa3OmLZTmF1QEZlTS8VJB0nQ7w+zn+K9puHPG
+	 15V3pbEHn1yLw==
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-57da66e0dc9so656120e87.0
+        for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 01:39:30 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXUxD/HK3emJV7kMY2X3XpEVq291DtM9BKg5fr6BdFmzm9lQn06r9ncKrBKmD16C9Yi46STIK1a4CX4@vger.kernel.org
+X-Gm-Message-State: AOJu0YwP/r/cK2y7nRJC9J1vhKFmHQ7PLsj6JFupJW76RqpE+VegdKNW
+	Q6EjgiyvrTkkfVBcQbHl2jJlst67Mb+/3SWLpoR2wjJXWIjpXuMv9+kFSnaWz0rDw+J0DzlYyXE
+	kbmqEuUMDFfRGK4HuqTh/f79F/J7r4JA=
+X-Google-Smtp-Source: AGHT+IHLsN2EtNdB2fIFtvSA/U80eTKV8D5qdT2MlBwjOom6gmMCLRDVFq+h1ZbkEBmbg1G/WIiNZD1/OppxbRe+aPw=
+X-Received: by 2002:a05:6512:10c8:b0:57c:2474:371f with SMTP id
+ 2adb3069b0e04-582d32fef36mr768094e87.45.1758789569288; Thu, 25 Sep 2025
+ 01:39:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250924171628.826-9-alifm@linux.ibm.com>
+References: <20250923153228.GA1570@sol> <20250921192757.GB22468@sol>
+ <3936580.1758299519@warthog.procyon.org.uk> <506171.1758637355@warthog.procyon.org.uk>
+ <529581.1758644752@warthog.procyon.org.uk> <530340.1758645078@warthog.procyon.org.uk>
+In-Reply-To: <530340.1758645078@warthog.procyon.org.uk>
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Thu, 25 Sep 2025 10:39:18 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXHzjMBEiKrugxFVn-xGZY2FrKKWbvpp2r9q0E_6Md1KJw@mail.gmail.com>
+X-Gm-Features: AS18NWAGIqnzfVXdpFegxk-whah8b8SgJLEJrvUw3GEnyhnyNeOPCp56xNVNAUM
+Message-ID: <CAMj1kXHzjMBEiKrugxFVn-xGZY2FrKKWbvpp2r9q0E_6Md1KJw@mail.gmail.com>
+Subject: Re: [PATCH v2] lib/crypto: Add SHA3-224, SHA3-256, SHA3-384, SHA-512,
+ SHAKE128, SHAKE256
+To: David Howells <dhowells@redhat.com>
+Cc: Eric Biggers <ebiggers@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+	Harald Freudenberger <freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Stephan Mueller <smueller@chronox.de>, 
+	Simo Sorce <simo@redhat.com>, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, 
+	keyrings@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Farhan,
+On Tue, 23 Sept 2025 at 18:31, David Howells <dhowells@redhat.com> wrote:
+>
+> David Howells <dhowells@redhat.com> wrote:
+>
+> > Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > > > I assume that pertains to the comment about inlining in some way.  This
+> > > > is as is in sha3_generic.c.  I can move it into the round function if
+> > > > you like, but can you tell me what the effect will be?
+> > >
+> > > The effect will be that the code will align more closely with how the
+> > > algorithm is described in the SHA-3 spec and other publications.
+> >
+> > I meant on the code produced and the stack consumed.  It may align with other
+> > code, but if it runs off of the end of the stack then alignment is irrelevant.
+>
+> See commit 4767b9ad7d762876a5865a06465e13e139a01b6b
+>
+> "crypto: sha3-generic - deal with oversize stack frames"
+>
+> For some reason (maybe Ard can comment on it), he left the Iota function out
+> of the keccakf_round() function.
+>
 
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on pci/next]
-[also build test WARNING on pci/for-linus awilliam-vfio/next s390/features linus/master v6.17-rc7]
-[cannot apply to awilliam-vfio/for-linus]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Farhan-Ali/PCI-Avoid-saving-error-values-for-config-space/20250925-012105
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pci/pci.git next
-patch link:    https://lore.kernel.org/r/20250924171628.826-9-alifm%40linux.ibm.com
-patch subject: [PATCH v4 08/10] vfio-pci/zdev: Add a device feature for error information
-config: csky-randconfig-002-20250925 (https://download.01.org/0day-ci/archive/20250925/202509251506.Z5Ov6pYQ-lkp@intel.com/config)
-compiler: csky-linux-gcc (GCC) 15.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250925/202509251506.Z5Ov6pYQ-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202509251506.Z5Ov6pYQ-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   In file included from drivers/vfio/pci/vfio_pci_config.c:29:
->> drivers/vfio/pci/vfio_pci_priv.h:106:12: warning: 'vfio_pci_zdev_feature_err' defined but not used [-Wunused-function]
-     106 | static int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
-         |            ^~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +/vfio_pci_zdev_feature_err +106 drivers/vfio/pci/vfio_pci_priv.h
-
-   105	
- > 106	static int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
-   107					     void __user *arg, size_t argsz)
-   108	{
-   109		return -ENODEV;
-   110	}
-   111	#endif
-   112	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+The Iota function is the only transformation that does not operate
+purely on the state array, so that would have required passing an
+additional u64 into keccakf_round(). But I agree it is slightly
+cleaner, although arguably, it should be a separate change.
