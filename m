@@ -1,72 +1,72 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FDAD2EA156
-	for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 09:27:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EA912D7DD1
+	for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 09:40:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758792466; cv=none; b=F5bUkPsJ2EkFmV/uBDLScP3a9PqRREQRxnNImUO1XrqDQRtvTWlzdtKlTI9HldVneJUwtbv88g9ke7sWunRag64il83xq62qIgAsHH9wEliokCWmr0u207q57z8DxiulQYNgjY5UJAWlrbvnIIrfvqftgqH69NVtZhautuX4JVU=
+	t=1758793248; cv=none; b=t+5dv9hC5sGjUlu8rZ5IjCnbD1NVXE0cgs95J1YX3K/Di+eHdO/dCyrkBG6gCBYys3OvJxYzg/FhsoyKobuLJulMa5No5DwrGWGcY/q+BtPkK7KW7316YExpo+UbYy1K5AjHbrvpSqLoHUtu+JJ0Hi5VB9DVpFCOWc4xyo7jD+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758792466; c=relaxed/simple;
-	bh=4Yv3Q5cOmyZVTHyUxtyXh72sHLtXQN/FSgzj4obRUDY=;
+	s=arc-20240116; t=1758793248; c=relaxed/simple;
+	bh=Ismx6yKHMCrWAtzO1V+zHu5cuIvgP8WRaG1URDkbiUY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=G0mto8G9p69zsg71rD7gQ0nbDBO/HAR8tKijRNTumKJw/RiAivdc0NrnF1D+5vbpTXaU8E95Hy8XUlWaqd+X8+aspo20Z0YPYY2OrY75VMVrWSfavdkHB/AkjjcxM0++3jwzZYI+lO5Kp17km4RvgFdMDdyJLrr95lFpW778lCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ahLQOEsu; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=g3iWmtQqwD/8DSAymE8lJSD3FO7txQEt9Y25U+mXH4NEkac7BbHMf5pi2yu292DVnQZMRHoK69xhQiUdQKI3i7Xr5jvYfyEBydyPqdqYuZ4a1lK5tCBW1l5/ayOwoWZq96u6N/1v8AQOZYaHSvxI3DG0wlXCfFnizx6GzrVSTaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VM7nNPhU; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ahLQOEsu"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VM7nNPhU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1758792463;
+	s=mimecast20190719; t=1758793246;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UWFAvZzxsmjhh9q6bJ5VMROTWJuLviIpjPx87FL9KGM=;
-	b=ahLQOEsuJAlRSGpN3nTznj1ZHQrtDjFUWHtgM2wtYfMtM5wFFspBNzCM9INFVmy6xJ+fEx
-	Aj+l1m2baFTS88wMNjSmMaYxQkGHkrodxyhROiTQfTywA+PKT3iqzmIUBitVQx/kdy1knp
-	BVRBU/PtHf/mJVR6fIYpcMPCf9Oz24o=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=2OC7o0y5NqDwPgeMke0PyEOvsv7ZIPwi/d2lkMqYclw=;
+	b=VM7nNPhUVAk4Qs0rVVAmraMhV5ziteRXcRsjBOLHaOMjjc4E87QalvmqJGk16mNJNiamkI
+	G0nfyRFDqsYqlKa7KOo9/qpKA6HpgANVOxoXFUzqXx9DPlTy1Ly+Zj4v/b+iTGEGTtGxKA
+	T8tqfyY1zfmDcaab4okpd6icCpps9dk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-371-gwaIs4bHOi2E4qnaxcno6g-1; Thu, 25 Sep 2025 05:27:41 -0400
-X-MC-Unique: gwaIs4bHOi2E4qnaxcno6g-1
-X-Mimecast-MFC-AGG-ID: gwaIs4bHOi2E4qnaxcno6g_1758792460
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3ece0cb7c9cso597626f8f.1
-        for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 02:27:41 -0700 (PDT)
+ us-mta-6-mxP626RRO1KP4wrGpm9S5A-1; Thu, 25 Sep 2025 05:40:44 -0400
+X-MC-Unique: mxP626RRO1KP4wrGpm9S5A-1
+X-Mimecast-MFC-AGG-ID: mxP626RRO1KP4wrGpm9S5A_1758793244
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ecdfe971abso573333f8f.2
+        for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 02:40:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758792460; x=1759397260;
+        d=1e100.net; s=20230601; t=1758793243; x=1759398043;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UWFAvZzxsmjhh9q6bJ5VMROTWJuLviIpjPx87FL9KGM=;
-        b=RYa7o2v5w0hEGfO6X8tVlmQi+iOtppXNrNAph/cn7Pcz/2m5yduySzmtZ9szoiHVNF
-         aLEDD0fAyHGZ0DzeGjVlB8kv9SLcd5EsowhdaoSQaA4gduWSrVjHA8O8AFA0y0PamaS2
-         qQm6zoueixRtEWkPubbayDB8zL3N4U8I8E4KwsIxZ4d+F2CCmTJRTPJGDWKTwNOYKWPV
-         sfovUD0+3/1SkuPCOkX9D+AsybJEECqMWKCKPq8U0evSMsc7A0ddRwJP/wzdV4jcIEeh
-         PW02XHethc12n3AS3w++75blSPXFi8mzhcQz+D0trTCANx2opsW88sdEmG05XZcpqhxb
-         z4wg==
-X-Forwarded-Encrypted: i=1; AJvYcCWr6GFhWKzIZmWU439Qq6tzxGmsbXSKGm8RzQ7YWdUTVMaVossNHxPHtx8pBXPJhV9gjq/BYQlNn1k8@vger.kernel.org
-X-Gm-Message-State: AOJu0YwrUjYz6uIwuDrZm0kdvKfnKkl7yTFM2GGB/6+XK6AtEnpll8Kp
-	7eLXkPhLtQQmrJkdH5eIwQRlWAsYgKSgEN30I8iw/GO9durpNuFm8/lvwOv5jDGq9SDPNPDRIbw
-	Cd8xTvKyhYXIUZMEu4vZ6jpq3Ig1tUFK5DdNrZ2swvIl2tL0FBIOBYEZIJ9SfzqI=
-X-Gm-Gg: ASbGncugwW7dkwqaSHNqQt6xY5BrKBsqdov6mM9rRqSTuFoLo7vnoHgB0hrNsC6PR6q
-	EBNLBHM+WKw7nZ4BiI84h5n9MFI/lgvRJS0b2ozBA1Me5tu5jxwze4wif9MCuQeiodc5uVjPQIm
-	M+kqgvxVfsqUSn9YnUqoFO12XzEM+TjMgblDOZDK2YAbrVGfeeYFxwI9l+6g7m8riG3UHeVXcqy
-	Yqw/nquGIlYSWwzfdmB6z9f4qxsb9fPRwAiHPpHk7h3m+JEjGpBBFksRjZfknZDtbKkRm5e9DFt
-	LB0l5m7rW30GIg3qZSzmkxabuqrW/xMlkDUBzZl/p01SBQZQaKQDAbGI4VYgGhdZ6v8VpEdLNT+
-	INNpLl8/ryw88
-X-Received: by 2002:a05:6000:2306:b0:3ec:dd19:5ab with SMTP id ffacd0b85a97d-40e4dabf4bcmr2260617f8f.61.1758792460432;
-        Thu, 25 Sep 2025 02:27:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH4KO3m6UVzFQeKSl0okBGg5bJ0PBmfh3JJWmV5i+8yo09g9ZgqQZzl0ahuXJF36hdJNUY9+g==
-X-Received: by 2002:a05:6000:2306:b0:3ec:dd19:5ab with SMTP id ffacd0b85a97d-40e4dabf4bcmr2260602f8f.61.1758792459988;
-        Thu, 25 Sep 2025 02:27:39 -0700 (PDT)
+        bh=2OC7o0y5NqDwPgeMke0PyEOvsv7ZIPwi/d2lkMqYclw=;
+        b=jgsSX19Xc9z2FG7plnqEUGMJyTtLaPpAY0lu6X0FQ8EfPo9lFhPcwNzX2nIS/mLu2E
+         pe3MiTEee4O2keOKtZSaoUqkQEji5Ur/XWwSLyTtdn/j4g0Vzy+L32WZWTkwI+V3gTkO
+         WwxFAml2vudVFcfbm9wUCgNHGaz4ZRnE3OiCG9tHcXjUrM7u4UA8ZpAYzE3lqK40+3fr
+         ybNSTWbq3yxPIJOUIR9NnaLoSjGLQP4hnoApzaeYa2ocwYTT/gj9DZ2vw2UDCUkx+t8I
+         /oORi7qb1Yw1kAVRPfiboeAd5SKsAJ8pvWKPLcHQ8fZhefpsC0DKk6K5Mkc7/3zxqUG8
+         NArQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVYY1vgtFFXD//OwjPqGseSOxQp8hiIDbuu690xsijzyIm5ecxb0o7GQs/KM1x1V5ZilPVA/eegaDhQ@vger.kernel.org
+X-Gm-Message-State: AOJu0YxzH8TF7tuWJnBj25ZCr73jZb2Uza/V6DHEu+CSh/LWWl5Ya40l
+	yKTBGqVncLgKIlDZMz7vq+k4/zPyU69ZAW5rX88zljkVppf+YJmPqRvU166RWRn/DUkvtO+cyDy
+	FIVcrAkod/6aC09izTWqd7Ig9OuFVhm7phnZ+clgsvZ3BEngKTdMGpk3PGu4JiFU=
+X-Gm-Gg: ASbGncsIpcV+9V9uRRPsr5IN20EpPp+fmwA7uMsTXe/8z0G1ScJuMFNsWvfHs52jY8C
+	JsCDa/Ef/sfsgYzHrdh1NjDBuABxx6mwRxCrYgHFhDHYIjsSdXlyfiQJYutCEhr1sxb7z+ttciv
+	ZVS22Mo1G1jqyh2wkrIFTFTpCpQuqrRkF/SlZA5CMgFl6W0qhFODWBKVsPtCJJ0qRNr/l/mnaC/
+	37DNMMg8ncfhzIGPT2ag5fcz9Kc2RK4J7G0+1KPOP3Uf0k23hMgdBB7dTF2LrDaGiv7OB/RR3vu
+	OUQLGeoT5kL5ul2GCY1HWyb8b676PshgRgWn1/wDIQDHDoKsIzISpClIXip8yYv/+aDYlPaqRbz
+	4ZvU+RcIviCks
+X-Received: by 2002:a05:6000:3102:b0:405:3028:1bce with SMTP id ffacd0b85a97d-40e4886dea7mr2786405f8f.32.1758793243368;
+        Thu, 25 Sep 2025 02:40:43 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFrxeBRnYoMGSl0W8MRr9kJ35noutUmBpUjFhjol2reKWsJgQ/uDYSHftZAJXtiFbd/sSnPig==
+X-Received: by 2002:a05:6000:3102:b0:405:3028:1bce with SMTP id ffacd0b85a97d-40e4886dea7mr2786379f8f.32.1758793242960;
+        Thu, 25 Sep 2025 02:40:42 -0700 (PDT)
 Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46e2ab61eecsm69224455e9.20.2025.09.25.02.27.38
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46e33b9e902sm25724495e9.5.2025.09.25.02.40.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Sep 2025 02:27:39 -0700 (PDT)
-Message-ID: <7cc2df09-0230-40cb-ad4f-656b0d1d785b@redhat.com>
-Date: Thu, 25 Sep 2025 11:27:38 +0200
+        Thu, 25 Sep 2025 02:40:42 -0700 (PDT)
+Message-ID: <cd1c6040-0a8f-45fb-91aa-2df2c5ae085a@redhat.com>
+Date: Thu, 25 Sep 2025 11:40:40 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,8 +74,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3 1/2] net/smc: make wr buffer count
- configurable
+Subject: Re: [PATCH net-next v3 2/2] net/smc: handle -ENOMEM from
+ smc_wr_alloc_link_mem gracefully
 To: Halil Pasic <pasic@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>,
  Simon Horman <horms@kernel.org>, "D. Wythe" <alibuda@linux.alibaba.com>,
  Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
@@ -86,94 +86,52 @@ To: Halil Pasic <pasic@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>,
  linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
  linux-s390@vger.kernel.org
 References: <20250921214440.325325-1-pasic@linux.ibm.com>
- <20250921214440.325325-2-pasic@linux.ibm.com>
+ <20250921214440.325325-3-pasic@linux.ibm.com>
 Content-Language: en-US
 From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20250921214440.325325-2-pasic@linux.ibm.com>
+In-Reply-To: <20250921214440.325325-3-pasic@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 9/21/25 11:44 PM, Halil Pasic wrote:
-> diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
-> index a874d007f2db..c94d750c7c84 100644
-> --- a/Documentation/networking/smc-sysctl.rst
-> +++ b/Documentation/networking/smc-sysctl.rst
-> @@ -71,3 +71,39 @@ smcr_max_conns_per_lgr - INTEGER
->  	acceptable value ranges from 16 to 255. Only for SMC-R v2.1 and later.
->  
->  	Default: 255
-> +
-> +smcr_max_send_wr - INTEGER
-> +	So called work request buffers are SMCR link (and RDMA queue pair) level
-> +	resources necessary for performing RDMA operations. Since up to 255
-> +	connections can share a link group and thus also a link and the number
-> +	of the work request buffers is decided when the link is allocated,
-> +	depending on the workload it can a bottleneck in a sense that threads
+> @@ -836,27 +838,39 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+>  	rc = smc_llc_link_init(lnk);
+>  	if (rc)
+>  		goto out;
+> -	rc = smc_wr_alloc_link_mem(lnk);
+> -	if (rc)
+> -		goto clear_llc_lnk;
+>  	rc = smc_ib_create_protection_domain(lnk);
+>  	if (rc)
+> -		goto free_link_mem;
+> -	rc = smc_ib_create_queue_pair(lnk);
+> -	if (rc)
+> -		goto dealloc_pd;
+> +		goto clear_llc_lnk;
+> +	do {
+> +		rc = smc_ib_create_queue_pair(lnk);
+> +		if (rc)
+> +			goto dealloc_pd;
+> +		rc = smc_wr_alloc_link_mem(lnk);
+> +		if (!rc)
+> +			break;
+> +		else if (rc != -ENOMEM) /* give up */
+> +			goto destroy_qp;
+> +		/* retry with smaller ... */
+> +		lnk->max_send_wr /= 2;
+> +		lnk->max_recv_wr /= 2;
+> +		/* ... unless droping below old SMC_WR_BUF_SIZE */
+> +		if (lnk->max_send_wr < 16 || lnk->max_recv_wr < 48)
+> +			goto destroy_qp;
 
-missing 'be' or 'become'           here^^
+If i.e. smc.sysctl_smcr_max_recv_wr == 2048, and
+smc.sysctl_smcr_max_send_wr == 16, the above loop can give-up a little
+too early - after the first failure. What about changing the termination
+condition to:
 
-> +	have to wait for work request buffers to become available. Before the
-> +	introduction of this control the maximal number of work request buffers
-> +	available on the send path used to be hard coded to 16. With this control
-> +	it becomes configurable. The acceptable range is between 2 and 2048.
-> +
-> +	Please be aware that all the buffers need to be allocated as a physically
-> +	continuous array in which each element is a single buffer and has the size
-> +	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
-> +	like before having this control.
-> +
-> +	Default: 16
-> +
-> +smcr_max_recv_wr - INTEGER
-> +	So called work request buffers are SMCR link (and RDMA queue pair) level
-> +	resources necessary for performing RDMA operations. Since up to 255
-> +	connections can share a link group and thus also a link and the number
-> +	of the work request buffers is decided when the link is allocated,
-> +	depending on the workload it can a bottleneck in a sense that threads
+	lnk->max_send_wr < 16 && lnk->max_recv_wr < 48
 
-same                               here^^
-
-[...]
-> @@ -683,6 +678,8 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
->  	};
->  	int rc;
->  
-> +	qp_attr.cap.max_send_wr = 3 * lnk->lgr->max_send_wr;
-> +	qp_attr.cap.max_recv_wr = lnk->lgr->max_recv_wr;
-
-Possibly:
-
-	cap = max(3 * lnk->lgr->max_send_wr, lnk->lgr->max_recv_wr);
-	qp_attr.cap.max_send_wr = cap;
-	qp_attr.cap.max_recv_wr = cap
-
-to avoid assumption on `max_send_wr`, `max_recv_wr` relative values.
-
-[...]
-> diff --git a/net/smc/smc_sysctl.h b/net/smc/smc_sysctl.h
-> index eb2465ae1e15..8538915af7af 100644
-> --- a/net/smc/smc_sysctl.h
-> +++ b/net/smc/smc_sysctl.h
-> @@ -25,6 +25,8 @@ static inline int smc_sysctl_net_init(struct net *net)
->  	net->smc.sysctl_autocorking_size = SMC_AUTOCORKING_DEFAULT_SIZE;
->  	net->smc.sysctl_max_links_per_lgr = SMC_LINKS_PER_LGR_MAX_PREFER;
->  	net->smc.sysctl_max_conns_per_lgr = SMC_CONN_PER_LGR_PREFER;
-> +	net->smc.sysctl_smcr_max_send_wr = SMCR_MAX_SEND_WR_DEF;
-> +	net->smc.sysctl_smcr_max_recv_wr = SMCR_MAX_RECV_WR_DEF;
->  	return 0;
->  }
->  
-> diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-> index b04a21b8c511..f5b2772414fd 100644
-> --- a/net/smc/smc_wr.c
-> +++ b/net/smc/smc_wr.c
-> @@ -34,6 +34,7 @@
->  #define SMC_WR_MAX_POLL_CQE 10	/* max. # of compl. queue elements in 1 poll */
->  
->  #define SMC_WR_RX_HASH_BITS 4
-> +
-
-Please avoid unrelated whitespace only changes.
+and use 2 as a lower bound for both lnk->max_send_wr and lnk->max_recv_wr?
 
 Thanks,
 
