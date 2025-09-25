@@ -1,191 +1,175 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E661A2DA74A
-	for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 14:32:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB1CE31A06C;
+	Thu, 25 Sep 2025 15:05:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758810763; cv=none; b=Vlkab3cEAau05qClv8ZPYN1Ki682q9ecYyCRopCt8UJb1kLDQl0f1OtI6Ga7xASP74HligQvBuc5Rx/nWdPrazKXDybq+6g9Ggqjd6p9OLn7+lgvKH/bEyZJUdySv1OXQ0kSF1fvdorRtm7dCuKxZin2Ig4qsYLlytd2Uw41Q5Q=
+	t=1758812739; cv=none; b=jqw9c2VI4or0KGZCujgIrahhtvfLpTM2oInifIcvbb7D1KxA9DTDnXSAamFU2A/eDDn2BvcxpYOP2kUqrEqYDh++7WdGMWJFSfHctRllGnaBDvnAv0GZXBrl4UoiIQZz47dewvrl2jvjm3XQ6t22n6tgB3EUPVTR2+mCe/7ma38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758810763; c=relaxed/simple;
-	bh=t2XhKDcOt+laEXJKI0ZnYMcUTY3NrTdNzuZY0B9gwa8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pBrJmN2cbS8G/JdXoyrTCQai1TlYizB7HnzDJbYNQng887ZE05XJ/bR5xH+O7r67mO6mssqB4YJlhMuIAd9D6tUwr1NARJWS0abmeRGNYGi/4joB7gYwRVfGjLfq0SbZ9GKNV83KyOiqlE3Zisgu62Clrvq4tqZvXPOPaHdKwHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oIgb/qKt; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1758812739; c=relaxed/simple;
+	bh=JHCPquvZB7G0O7g5UTmpSZA2j5My+jkbbFdEeHPVnqw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=c2g+W8oq9dSC1k5O6OPazVk6tNL3kFUhHudK5xwAjj2G0voX8EBnnh45n1b96eoStWicvGTpxWxt0TuLurKybXt6p7YwjTGMzi7yiFVjJCj1NTxJCFFCig+77lng+mpiakSVzuS92WOb5UJqoaHAbyPO4fVmK778cqQqeQ5+/HA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JOALaPPf; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oIgb/qKt"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-743ba48eb71so22615837b3.1
-        for <linux-s390@vger.kernel.org>; Thu, 25 Sep 2025 07:32:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1758810760; x=1759415560; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Q3t/i7G6sNLKCulldNQHYLFlpc4dAP8McL+RwiXOYYM=;
-        b=oIgb/qKtzNG20IudvQHkMdpg78J7mR5whHJN11kqRfTI7Rwxbdh4teDfCJIzTDthYV
-         LqFWXDHfq7mV7JGPezZkmiaiNBnFlrhi1XQJ0Vgh4cBepdTR5MLworBtXkWPtxiIpeLg
-         fCluQPVHGI8m+bj2omQif9xnbn3D5MWkcy3bKuqN2ZT0/Vwv6tSDsM5xElNVwlpJsfE2
-         oCwu+LwD7FaRaW3/sxTxvE+J9yLPuxMxArjHfJlFeys4AzuEKno1LMhOKHFvhkqegOQd
-         Fhr2fNUcDG/pHRd2vvKzGxK0piUCf34UKHBekgbc4zjNGwQx7JSHDugFim2ZDaizPG03
-         CO1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758810760; x=1759415560;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Q3t/i7G6sNLKCulldNQHYLFlpc4dAP8McL+RwiXOYYM=;
-        b=u0q257V2iL2Gzckgtgr5sVx0d9bL/bp2fpzIzbJ5BtC5ES77hKMdA4PRFTkbELoNm4
-         kR8VhsTnTLJ2mvqPs/pOHeTgYKR6emLtSi7CnPdz3t54NChWnR5aUwF5NDZM0p6zjJum
-         dTNgxz/oZj6V1p1RM1i4IevMZQGCQi2QHFjOjgcG0d/u8cXQRMCNj4R2MdwTge1Ba/o/
-         gWtscrZvkj0I5rcKzcebjcVR4Wb84d+JT/SbX1PdwcmfMePWCeQZ3qO6smYhFSvf2Xm8
-         Kqf5nfV9ISjGJ1F2aRfgNVs20RARIPZRWEl7mbfgxZWfo0V/w5vtmlZBL1OboBBRqDte
-         mfWw==
-X-Forwarded-Encrypted: i=1; AJvYcCUGgC9XL8d53F5US6F/73gAS92cDHgdI3d2VX5UWFUMkqMV/M/siQrJCw5JXOYmmwQImFby7L0SsFNH@vger.kernel.org
-X-Gm-Message-State: AOJu0YwMGyiMTs8oP/lTRmUiKy8GKnl8+XyhmBv3zT2a5xA8OY9m9/EO
-	UYxu6aV7ZQr7v/X487kbApxrcqDYZ2hk+0P0S7MP5zKjVK3ShBbalLZwcz3r8YS3HeHou6E2ZTR
-	iFZg3z11UCr4YzWQ+MgsdjHqXsQza6XWViCc4e9hp
-X-Gm-Gg: ASbGnctFMEx//oQHhxCU7XMjlUTJHPYxyVKW9soepe9ZOPkZ8Yd9LpBtIFiM12PtXtx
-	fcmQ0GvrCxKGdxI7Z173+pcZ8kJGhFlXEL/vbG5njDmKbO4V7c/jANo96kgHMLbsX74hn8Rpjua
-	ZxTC3Ko2JkJeNEK0wgnBdOwffxqE0avGb54A1nEqJFS2wQ2PqtxKWyhB28ODxQt2i7Seba4mBu0
-	U9Mn1ILZXESKw==
-X-Google-Smtp-Source: AGHT+IGPVZb8260WIN2V5Is62i24gV4aTIwROuDhQPAORW+WvMp6xmIWUJzg3WDP3IAyIAjWSew/LKrgoflQZygG3no=
-X-Received: by 2002:a05:6902:1003:b0:ea5:b757:9641 with SMTP id
- 3f1490d57ef6-eb3853fca26mr1716135276.1.1758810759200; Thu, 25 Sep 2025
- 07:32:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JOALaPPf"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58PCDuxx003612;
+	Thu, 25 Sep 2025 15:05:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=iO7kiS
+	/RDntZtZVimHq7uSbHYNpxB8Bx4nnYZchDz0k=; b=JOALaPPfkrX6sU0OjclHoZ
+	nbleYF8fEciVdCU1h+xII/D5Ex4CyOKuOE/BPy/r5pMGSRrQc95UZ/y7d464HIG0
+	KE2dsYnqrimtrt4CiptZZzQahsWdkc4bBKjdJK2362lvxgl6nt2q9PvkWeV2iZ58
+	/DJmH9lp19flze4R216N/sqWw5nK49PQwPkeL+3FUFWvAxxgl2PSEG8SpOihRtv9
+	xX+5GCS2IEunu8Rt5bKmmsA2e76mf9+MszM94v0ObxvJNk5SqbfwEKMEJ3g/SVHK
+	jf0wS76uJNju3z4SzDZESfgtN9n8G+buN68No1iwaA9efwEY3R8hmT/HoxE79oow
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 499ky6eje9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 25 Sep 2025 15:05:32 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58PEbqVL010021;
+	Thu, 25 Sep 2025 15:05:32 GMT
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 499ky6eje2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 25 Sep 2025 15:05:32 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58PE6eJu030340;
+	Thu, 25 Sep 2025 15:05:30 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49a9a1e90k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 25 Sep 2025 15:05:30 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58PF5RNZ49414446
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 25 Sep 2025 15:05:27 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 005602004D;
+	Thu, 25 Sep 2025 15:05:27 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F2C0820063;
+	Thu, 25 Sep 2025 15:05:25 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.87.151.15])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 25 Sep 2025 15:05:25 +0000 (GMT)
+Date: Thu, 25 Sep 2025 17:05:24 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
+        "D.
+ Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang
+ <wenjia@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH net-next v3 2/2] net/smc: handle -ENOMEM from
+ smc_wr_alloc_link_mem gracefully
+Message-ID: <20250925170524.7adc1aa3.pasic@linux.ibm.com>
+In-Reply-To: <cd1c6040-0a8f-45fb-91aa-2df2c5ae085a@redhat.com>
+References: <20250921214440.325325-1-pasic@linux.ibm.com>
+	<20250921214440.325325-3-pasic@linux.ibm.com>
+	<cd1c6040-0a8f-45fb-91aa-2df2c5ae085a@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250922121818.654011-1-wangliang74@huawei.com>
-In-Reply-To: <20250922121818.654011-1-wangliang74@huawei.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Thu, 25 Sep 2025 07:32:27 -0700
-X-Gm-Features: AS18NWC0x8CFQRjOZVU80gw3PZ5hWaNCl3XvXGEiSPqo83w7a1Av7fuCtK5U9es
-Message-ID: <CANn89iLOyFnwD+monMHCmTgfZEAPWmhrZu-=8mvtMGyM9FG49g@mail.gmail.com>
-Subject: Re: [PATCH net] net/smc: fix general protection fault in __smc_diag_dump
-To: Wang Liang <wangliang74@huawei.com>, Kuniyuki Iwashima <kuniyu@google.com>
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
-	sidraya@linux.ibm.com, wenjia@linux.ibm.com, mjambigi@linux.ibm.com, 
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, yuehaibing@huawei.com, 
-	zhangchangzhong@huawei.com, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: nBZevxKP4kxkAl4FsC2gxe5A7UScRFgJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTIwMDAyMCBTYWx0ZWRfX8UZmBSfyYmpY
+ JMmNTOj7URk6vJowSlWekipNbFO86vLcmCSe/dtKSBZMEg0LEQ38HQbvSy5/tQ7ASo7H5MscF65
+ Qtia0B0HrD20+FQ8Ena2tNfLgKaE+hAPH4Mzu9Fl38hcR+H3S6xzXnk5ABxk8vH8yg6OjrZ+QVG
+ PUeFPa2jrCQ+WXXN7Oc+Wt+aOXHgyOP5z/3+a6fFXnOfRSe2lW7wbwXJncPs/4k1XpIk/uz4k0w
+ 6tydGrgtgRNBmpOuGwZVmIvqD+RiunSGu+LXU0YIyvSN/N2vNBTdztd2i/0Ge3T3G2Z7vkQ7Plw
+ j85gPbnuaHxRgnqF/1C8AqJWMWTVSKDKdyalcn8cY8Ye8oyKxwirnDEXDNkBBctcIIMm9RfZw+1
+ 2VtD1w2B
+X-Authority-Analysis: v=2.4 cv=XYGJzJ55 c=1 sm=1 tr=0 ts=68d55a3d cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=20KFwNOVAAAA:8 a=gPG2f1ptgi-rRd_ibX0A:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: IVesFF_vMbMokXRhspM-AJDwi0Z6rpRr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-25_01,2025-09-25_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 clxscore=1015 adultscore=0 malwarescore=0
+ suspectscore=0 impostorscore=0 priorityscore=1501 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2509200020
 
-On Mon, Sep 22, 2025 at 4:57=E2=80=AFAM Wang Liang <wangliang74@huawei.com>=
- wrote:
->
-> The syzbot report a crash:
->
->   Oops: general protection fault, probably for non-canonical address 0xfb=
-d5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
->   KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead=
-0000001f]
->   CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMP=
-T(full)
->   Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS=
- Google 08/18/2025
->   RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
->   RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:8=
-9
->   Call Trace:
->    <TASK>
->    smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
->    smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
->    netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
->    __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
->    netlink_dump_start include/linux/netlink.h:341 [inline]
->    smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
->    __sock_diag_cmd net/core/sock_diag.c:249 [inline]
->    sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
->    netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
->    netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
->    netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
->    netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
->    sock_sendmsg_nosec net/socket.c:714 [inline]
->    __sock_sendmsg net/socket.c:729 [inline]
->    ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
->    ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
->    __sys_sendmsg+0x16d/0x220 net/socket.c:2700
->    do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
->    do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
->    entry_SYSCALL_64_after_hwframe+0x77/0x7f
->    </TASK>
->
-> The process like this:
->
->                (CPU1)              |             (CPU2)
->   ---------------------------------|-------------------------------
->   inet_create()                    |
->     // init clcsock to NULL        |
->     sk =3D sk_alloc()                |
->                                    |
->     // unexpectedly change clcsock |
->     inet_init_csk_locks()          |
->                                    |
->     // add sk to hash table        |
->     smc_inet_init_sock()           |
->       smc_sk_init()                |
->         smc_hash_sk()              |
->                                    | // traverse the hash table
->                                    | smc_diag_dump_proto
->                                    |   __smc_diag_dump()
->                                    |     // visit wrong clcsock
->                                    |     smc_diag_msg_common_fill()
->     // alloc clcsock               |
->     smc_create_clcsk               |
->       sock_create_kern             |
->
-> With CONFIG_DEBUG_LOCK_ALLOC=3Dy, the smc->clcsock is unexpectedly change=
-d
-> in inet_init_csk_locks(), because the struct smc_sock does not have struc=
-t
-> inet_connection_sock as the first member.
->
-> Previous commit 60ada4fe644e ("smc: Fix various oops due to inet_sock typ=
-e
-> confusion.") add inet_sock as the first member of smc_sock. For protocol
-> with INET_PROTOSW_ICSK, use inet_connection_sock instead of inet_sock is
-> more appropriate.
->
-> Reported-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3Df775be4458668f7d220e
-> Tested-by: syzbot+f775be4458668f7d220e@syzkaller.appspotmail.com
-> Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-> Signed-off-by: Wang Liang <wangliang74@huawei.com>
-> ---
->  net/smc/smc.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/net/smc/smc.h b/net/smc/smc.h
-> index 2c9084963739..1b20f0c927d3 100644
-> --- a/net/smc/smc.h
-> +++ b/net/smc/smc.h
-> @@ -285,7 +285,7 @@ struct smc_connection {
->  struct smc_sock {                              /* smc sock container */
->         union {
->                 struct sock             sk;
-> -               struct inet_sock        icsk_inet;
-> +               struct inet_connection_sock     inet_conn;
->         };
->         struct socket           *clcsock;       /* internal tcp socket */
->         void                    (*clcsk_state_change)(struct sock *sk);
-> --
-> 2.34.1
->
+On Thu, 25 Sep 2025 11:40:40 +0200
+Paolo Abeni <pabeni@redhat.com> wrote:
 
-Kuniyuki, can you please review, I think you had a related fix recently.
+> > +	do {
+> > +		rc = smc_ib_create_queue_pair(lnk);
+> > +		if (rc)
+> > +			goto dealloc_pd;
+> > +		rc = smc_wr_alloc_link_mem(lnk);
+> > +		if (!rc)
+> > +			break;
+> > +		else if (rc != -ENOMEM) /* give up */
+> > +			goto destroy_qp;
+> > +		/* retry with smaller ... */
+> > +		lnk->max_send_wr /= 2;
+> > +		lnk->max_recv_wr /= 2;
+> > +		/* ... unless droping below old SMC_WR_BUF_SIZE */
+> > +		if (lnk->max_send_wr < 16 || lnk->max_recv_wr < 48)
+> > +			goto destroy_qp;  
+> 
+> If i.e. smc.sysctl_smcr_max_recv_wr == 2048, and
+> smc.sysctl_smcr_max_send_wr == 16, the above loop can give-up a little
+> too early - after the first failure. What about changing the termination
+> condition to:
+> 
+> 	lnk->max_send_wr < 16 && lnk->max_recv_wr < 48
+> 
+> and use 2 as a lower bound for both lnk->max_send_wr and lnk->max_recv_wr?
 
-Thanks.
+My intention was to preserve the ratio (max_recv_wr/max_send_wr) because 
+I assume that the optimal ratio is workload dependent, and that scaling
+both down at the same rate is easy to understand. And also to never dip
+below the old values to avoid regressions due to even less WR buffers
+than before the change.
 
-commit 60ada4fe644edaa6c2da97364184b0425e8aeaf5
-Author: Kuniyuki Iwashima <kuniyu@google.com>
-Date:   Fri Jul 11 06:07:52 2025 +0000
+I get your point, but as long as the ratio is kept I think the problem,
+if considered a problem is there to stay. For example for 
+smc.sysctl_smcr_max_recv_wr == 2048 and smc.sysctl_smcr_max_send_wr == 2
+we would still give up after the first failure even with 2 as a lower
+bound.
 
-    smc: Fix various oops due to inet_sock type confusion.
+Let me also state that in my opinion giving up isn't that bad, because
+SMC-R is supposed to be an optimization, and we still have the TCP
+fallback. If we end up much worse than TCP because of back-off going
+overboard, that is probably worse than just giving up on SMC-R and
+going with TCP.
+
+On the other hand, making the ratio change would make things more
+complicated, less predictable, and also possibly take more iterations.
+For example smc.sysctl_smcr_max_recv_wr == 2048 and
+smc.sysctl_smcr_max_send_wr == 2000.
+
+So I would prefer sticking to the current logic.
+
+Regards,
+Halil
+
+
