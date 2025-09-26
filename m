@@ -1,217 +1,264 @@
-Received: from smtp-out3.simply.com (smtp-out3.simply.com [94.231.106.210])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEDAD2FAC12;
-	Fri, 26 Sep 2025 13:54:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.231.106.210
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75FA01E5710
+	for <linux-s390@vger.kernel.org>; Fri, 26 Sep 2025 14:20:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758894845; cv=none; b=qdSvvUPOeGQ/X+OmTkxoxUVrTZ01Pk3jxDFXci3nv4cYbtMi8yfwj5AyZ5b5wmgpjtUh0YFwJ07xpVisMhqnz90zo7sZlPMDSvpewfikTc9lCsG5GUwndaOnR4o2DLWLiU49fKsRsi6y7C2WZoSA3l3A1U88LE/H3ocdbjM2hZM=
+	t=1758896422; cv=none; b=j4o21lypEbLZQA3FsA+024HUfZZqTOQYKfg3nS4qm2ayhsLEsEcctN1lxumJQR2fqljcVLEAstDvMwnuDXSq/HR0m5NsYXMc90ls0WOU33H2bffte3pO7rRCzDjiYiLe5f2q22USKwaoqYEEQGc1fa4X5NCUQkhBvGLx0CzrztA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758894845; c=relaxed/simple;
-	bh=EAqKV/2RF7bW8arWG9fwnOlAqRNSwPmfuGtdSoCMrbU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iXnkN3q9YiVcVgu3gkINWJo0z1GgVodR44ISm+hEyOUI9Bda+cXkncwdi1gjUWPcclPrM2kaQC+TleROQktICz9nUlfRGkig0Z1/I7dsN1x6tMTW3lTpps4JMeYpNRpc1l3YshzTmFxp7spxhF3V6vr6S7q8y3ETYnmkCwkh7qU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com; spf=pass smtp.mailfrom=gaisler.com; dkim=fail (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b=exUyD7xU reason="key not found in DNS"; arc=none smtp.client-ip=94.231.106.210
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gaisler.com
+	s=arc-20240116; t=1758896422; c=relaxed/simple;
+	bh=GfjEOwIZvP6ZV3GP07VdgHRmLY/8P+pYs2iDKRrn0vA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OKZHCd1eB97gbakUvhsXylEoL4DulpLngsj5DkoR88yHL7miSLiVmjukWiMIn8pTfwkS23FM2fi5Qb87q9SQV2B9/KXBj0fOVozUxionLjmj/wKCyb8XXXPNy+3aqFcejpTSj6xvOynuwtPohNOb8eAVlI6SteR1VumNMMyGAew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ju/Obxj2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b="exUyD7xU"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp.simply.com (Simply.com) with ESMTP id 4cYBrd72t9z1DDr7;
-	Fri, 26 Sep 2025 15:53:53 +0200 (CEST)
-Received: from [10.10.15.8] (h-98-128-223-123.NA.cust.bahnhof.se [98.128.223.123])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ju/Obxj2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1758896419;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=crVe3jLhJ1XzzLdm8GA5F+o0SRGF7gXz4EGryRbWYhc=;
+	b=Ju/Obxj2Cnhk4d48X4eXI2y0cDSSeupVTjMAJaz/BxUhpFB35znzQKF40afKTS9R86UuoU
+	As3g3t1nwld6H+m1eRZXTWjuENvNvbJSweTTjJvXZUmrp0FZ/H95OZyzbDLRwd1Vq+zTJ5
+	oppi3gidWMq8QMcdG3do0bpQjgdyybA=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-679-IGyjZpYWMIyZcqNFFflK0Q-1; Fri,
+ 26 Sep 2025 10:20:14 -0400
+X-MC-Unique: IGyjZpYWMIyZcqNFFflK0Q-1
+X-Mimecast-MFC-AGG-ID: IGyjZpYWMIyZcqNFFflK0Q_1758896411
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by smtp.simply.com (Simply.com) with ESMTPSA id 4cYBrc5B6bz1Fb38;
-	Fri, 26 Sep 2025 15:53:52 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gaisler.com;
-	s=simplycom2; t=1758894833;
-	bh=0oKPt5B2BYzle8pqRjAR1Qbv4tzNfaR8uywq90JI968=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=exUyD7xU1FFoAo0zIaGO8L1T0an8JyysSniNaBEN284brN/McStsyIZqRxq8PWEKU
-	 4xjl2QjrfL3v6vRMcSOZA6TsputTD4TBzNeEmQkcG3KIUuhpPXP+zEXF3Yz/NS7pmB
-	 PcxjXfIwjxcneymF0BZH9kKiWkU57AHDRlm5Of+kNpRF0jGMlR6JwP/sN6nrYrb0Z0
-	 guRP8WAhweSnyJbReXLTERryS4IR1w0uYknNh+L2dgFLhbTwnQE2kx++CD7JJaeLrS
-	 PJLHZmJ4jqQSjfHyyxYla7ZzLAyJTcxvyTl+OUIQNZsx642Tr8lLuLkTgoW04lH9tr
-	 uEVtlAUR67olA==
-Message-ID: <76d9171c-4a74-499e-a598-ec51fdfa4e94@gaisler.com>
-Date: Fri, 26 Sep 2025 15:53:52 +0200
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 22E701955DD8;
+	Fri, 26 Sep 2025 14:20:11 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.155])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 78C1430001B7;
+	Fri, 26 Sep 2025 14:20:07 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: 
+Cc: David Howells <dhowells@redhat.com>,
+	Eric Biggers <ebiggers@kernel.org>,
+	"Jason A . Donenfeld" <Jason@zx2c4.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Stephan Mueller <smueller@chronox.de>,
+	linux-crypto@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v3 1/8] s390/sha3: Rename conflicting functions
+Date: Fri, 26 Sep 2025 15:19:44 +0100
+Message-ID: <20250926141959.1272455-2-dhowells@redhat.com>
+In-Reply-To: <20250926141959.1272455-1-dhowells@redhat.com>
+References: <20250926141959.1272455-1-dhowells@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 00/36] sparc64: vdso: Switch to the generic vDSO
- library
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- Vincenzo Frascino <vincenzo.frascino@arm.com>, Arnd Bergmann
- <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>,
- Nick Alcock <nick.alcock@oracle.com>, John Stultz <jstultz@google.com>,
- Stephen Boyd <sboyd@kernel.org>,
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Shuah Khan <shuah@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, Russell King
- <linux@armlinux.org.uk>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Nagarathnam Muthusamy <nagarathnam.muthusamy@oracle.com>,
- Shannon Nelson <sln@onemain.com>
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
- Arnd Bergmann <arnd@kernel.org>
-References: <20250917-vdso-sparc64-generic-2-v3-0-3679b1bc8ee8@linutronix.de>
-Content-Language: en-US
-From: Andreas Larsson <andreas@gaisler.com>
-In-Reply-To: <20250917-vdso-sparc64-generic-2-v3-0-3679b1bc8ee8@linutronix.de>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On 2025-09-17 16:00, Thomas Weißschuh wrote:
-> The generic vDSO provides a lot common functionality shared between
-> different architectures. SPARC is the last architecture not using it,
-> preventing some necessary code cleanup.
-> 
-> Make use of the generic infrastructure.
-> 
-> Follow-up to and replacement for Arnd's SPARC vDSO removal patches:
-> https://lore.kernel.org/lkml/20250707144726.4008707-1-arnd@kernel.org/
-> 
-> Tested on a Niagara T4 and QEMU.
-> 
-> This has a semantic conflict with my series "vdso: Reject absolute
-> relocations during build". The last patch of this series expects all users
-> of the generic vDSO library to use the vdsocheck tool.
-> This is not the case (yet) for SPARC64. I do have the patches for the
-> integration, the specifics will depend on which series is applied first.
-> 
-> Based on tip/timers/vdso.
-> 
-> [0] https://lore.kernel.org/lkml/20250812-vdso-absolute-reloc-v4-0-61a8b615e5ec@linutronix.de/
-> 
-> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-> ---
-> Changes in v3:
-> - Allocate vDSO data pages dynamically (and lots of preparations for that)
-> - Drop clock_getres()
-> - Fix 32bit clock_gettime() syscall fallback
-> - Link to v2: https://lore.kernel.org/r/20250815-vdso-sparc64-generic-2-v2-0-b5ff80672347@linutronix.de
-> 
-> Changes in v2:
-> - Rebase on v6.17-rc1
-> - Drop RFC state
-> - Fix typo in commit message
-> - Drop duplicate 'select GENERIC_TIME_VSYSCALL'
-> - Merge "sparc64: time: Remove architecture-specific clocksource data" into the
->   main conversion patch. It violated the check in __clocksource_register_scale()
-> - Link to v1: https://lore.kernel.org/r/20250724-vdso-sparc64-generic-2-v1-0-e376a3bd24d1@linutronix.de
-> 
-> ---
-> Arnd Bergmann (1):
->       clocksource: remove ARCH_CLOCKSOURCE_DATA
-> 
-> Thomas Weißschuh (35):
->       selftests: vDSO: vdso_test_correctness: Handle different tv_usec types
->       arm64: vDSO: getrandom: Explicitly include asm/alternative.h
->       arm64: vDSO: gettimeofday: Explicitly include vdso/clocksource.h
->       arm64: vDSO: compat_gettimeofday: Add explicit includes
->       ARM: vdso: gettimeofday: Add explicit includes
->       powerpc/vdso/gettimeofday: Explicitly include vdso/time32.h
->       powerpc/vdso: Explicitly include asm/cputable.h and asm/feature-fixups.h
->       LoongArch: vDSO: Explicitly include asm/vdso/vdso.h
->       MIPS: vdso: Add include guard to asm/vdso/vdso.h
->       MIPS: vdso: Explicitly include asm/vdso/vdso.h
->       random: vDSO: Add explicit includes
->       vdso/gettimeofday: Add explicit includes
->       vdso/helpers: Explicitly include vdso/processor.h
->       vdso/datapage: Remove inclusion of gettimeofday.h
->       vdso/datapage: Trim down unnecessary includes
->       random: vDSO: trim vDSO includes
->       random: vDSO: remove ifdeffery
->       random: vDSO: split out datapage update into helper functions
->       random: vDSO: only access vDSO datapage after random_init()
->       s390/time: Set up vDSO datapage later
->       vdso/datastore: Reduce scope of some variables in vvar_fault()
->       vdso/datastore: Drop inclusion of linux/mmap_lock.h
->       vdso/datastore: Map pages through struct page
->       vdso/datastore: Allocate data pages dynamically
->       sparc64: vdso: Link with -z noexecstack
->       sparc64: vdso: Remove obsolete "fake section table" reservation
->       sparc64: vdso: Replace code patching with runtime conditional
->       sparc64: vdso: Move hardware counter read into header
->       sparc64: vdso: Move syscall fallbacks into header
->       sparc64: vdso: Introduce vdso/processor.h
->       sparc64: vdso: Switch to the generic vDSO library
->       sparc64: vdso2c: Drop sym_vvar_start handling
->       sparc64: vdso2c: Remove symbol handling
->       sparc64: vdso: Implement clock_gettime64()
->       clocksource: drop include of asm/clocksource.h from linux/clocksource.h
-> 
->  arch/arm/include/asm/vdso/gettimeofday.h           |   2 +
->  arch/arm64/include/asm/vdso/compat_gettimeofday.h  |   3 +
->  arch/arm64/include/asm/vdso/gettimeofday.h         |   2 +
->  arch/arm64/kernel/vdso/vgetrandom.c                |   2 +
->  arch/loongarch/kernel/process.c                    |   1 +
->  arch/loongarch/kernel/vdso.c                       |   1 +
->  arch/mips/include/asm/vdso/vdso.h                  |   5 +
->  arch/mips/kernel/vdso.c                            |   1 +
->  arch/powerpc/include/asm/vdso/gettimeofday.h       |   1 +
->  arch/powerpc/include/asm/vdso/processor.h          |   3 +
->  arch/s390/kernel/time.c                            |   4 +-
->  arch/sparc/Kconfig                                 |   3 +-
->  arch/sparc/include/asm/clocksource.h               |   9 -
->  arch/sparc/include/asm/processor.h                 |   3 +
->  arch/sparc/include/asm/processor_32.h              |   2 -
->  arch/sparc/include/asm/processor_64.h              |  25 --
->  arch/sparc/include/asm/vdso.h                      |   2 -
->  arch/sparc/include/asm/vdso/clocksource.h          |  10 +
->  arch/sparc/include/asm/vdso/gettimeofday.h         | 184 ++++++++++
->  arch/sparc/include/asm/vdso/processor.h            |  41 +++
->  arch/sparc/include/asm/vdso/vsyscall.h             |  10 +
->  arch/sparc/include/asm/vvar.h                      |  75 ----
->  arch/sparc/kernel/Makefile                         |   1 -
->  arch/sparc/kernel/time_64.c                        |   6 +-
->  arch/sparc/kernel/vdso.c                           |  69 ----
->  arch/sparc/vdso/Makefile                           |   8 +-
->  arch/sparc/vdso/vclock_gettime.c                   | 380 ++-------------------
->  arch/sparc/vdso/vdso-layout.lds.S                  |  26 +-
->  arch/sparc/vdso/vdso.lds.S                         |   2 -
->  arch/sparc/vdso/vdso2c.c                           |  24 --
->  arch/sparc/vdso/vdso2c.h                           |  45 +--
->  arch/sparc/vdso/vdso32/vdso32.lds.S                |   4 +-
->  arch/sparc/vdso/vma.c                              | 274 +--------------
->  drivers/char/random.c                              |  75 ++--
->  include/linux/clocksource.h                        |   8 -
->  include/linux/vdso_datastore.h                     |   6 +
->  include/vdso/datapage.h                            |  23 +-
->  include/vdso/helpers.h                             |   1 +
->  init/main.c                                        |   2 +
->  kernel/time/Kconfig                                |   4 -
->  lib/vdso/datastore.c                               |  73 ++--
->  lib/vdso/getrandom.c                               |   3 +
->  lib/vdso/gettimeofday.c                            |  17 +
->  .../testing/selftests/vDSO/vdso_test_correctness.c |   8 +-
->  44 files changed, 451 insertions(+), 997 deletions(-)
-> ---
-> base-commit: 5f84f6004e298bd41c9e4ed45c18447954b1dce6
-> change-id: 20250722-vdso-sparc64-generic-2-25f2e058e92c
+Rename the s390 sha3_* functions to have an "s390_" prefix to avoid
+conflict with generic code.
 
-Tested-by: Andreas Larsson <andreas@gaisler.com>
-Reviewed-by: Andreas Larsson <andreas@gaisler.com>
-Acked-by: Andreas Larsson <andreas@gaisler.com> # arch/sparc
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Eric Biggers <ebiggers@kernel.org>
+cc: Jason A. Donenfeld <Jason@zx2c4.com>
+cc: Ard Biesheuvel <ardb@kernel.org>
+cc: Harald Freudenberger <freude@linux.ibm.com>
+cc: Holger Dengler <dengler@linux.ibm.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>
+cc: Stephan Mueller <smueller@chronox.de>
+cc: linux-crypto@vger.kernel.org
+cc: linux-s390@vger.kernel.org
+---
+ arch/s390/crypto/sha3_256_s390.c | 26 +++++++++++++-------------
+ arch/s390/crypto/sha3_512_s390.c | 26 +++++++++++++-------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-Thanks,
-Andreas
+diff --git a/arch/s390/crypto/sha3_256_s390.c b/arch/s390/crypto/sha3_256_s390.c
+index 03bb4f4bab70..fd5ecae60a57 100644
+--- a/arch/s390/crypto/sha3_256_s390.c
++++ b/arch/s390/crypto/sha3_256_s390.c
+@@ -19,7 +19,7 @@
+ 
+ #include "sha.h"
+ 
+-static int sha3_256_init(struct shash_desc *desc)
++static int s390_sha3_256_init(struct shash_desc *desc)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 
+@@ -32,7 +32,7 @@ static int sha3_256_init(struct shash_desc *desc)
+ 	return 0;
+ }
+ 
+-static int sha3_256_export(struct shash_desc *desc, void *out)
++static int s390_sha3_256_export(struct shash_desc *desc, void *out)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 	union {
+@@ -50,7 +50,7 @@ static int sha3_256_export(struct shash_desc *desc, void *out)
+ 	return 0;
+ }
+ 
+-static int sha3_256_import(struct shash_desc *desc, const void *in)
++static int s390_sha3_256_import(struct shash_desc *desc, const void *in)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 	union {
+@@ -68,22 +68,22 @@ static int sha3_256_import(struct shash_desc *desc, const void *in)
+ 	return 0;
+ }
+ 
+-static int sha3_224_import(struct shash_desc *desc, const void *in)
++static int s390_sha3_224_import(struct shash_desc *desc, const void *in)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 
+-	sha3_256_import(desc, in);
++	s390_sha3_256_import(desc, in);
+ 	sctx->func = CPACF_KIMD_SHA3_224;
+ 	return 0;
+ }
+ 
+ static struct shash_alg sha3_256_alg = {
+ 	.digestsize	=	SHA3_256_DIGEST_SIZE,	   /* = 32 */
+-	.init		=	sha3_256_init,
++	.init		=	s390_sha3_256_init,
+ 	.update		=	s390_sha_update_blocks,
+ 	.finup		=	s390_sha_finup,
+-	.export		=	sha3_256_export,
+-	.import		=	sha3_256_import,
++	.export		=	s390_sha3_256_export,
++	.import		=	s390_sha3_256_import,
+ 	.descsize	=	S390_SHA_CTX_SIZE,
+ 	.statesize	=	SHA3_STATE_SIZE,
+ 	.base		=	{
+@@ -96,22 +96,22 @@ static struct shash_alg sha3_256_alg = {
+ 	}
+ };
+ 
+-static int sha3_224_init(struct shash_desc *desc)
++static int s390_sha3_224_init(struct shash_desc *desc)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 
+-	sha3_256_init(desc);
++	s390_sha3_256_init(desc);
+ 	sctx->func = CPACF_KIMD_SHA3_224;
+ 	return 0;
+ }
+ 
+ static struct shash_alg sha3_224_alg = {
+ 	.digestsize	=	SHA3_224_DIGEST_SIZE,
+-	.init		=	sha3_224_init,
++	.init		=	s390_sha3_224_init,
+ 	.update		=	s390_sha_update_blocks,
+ 	.finup		=	s390_sha_finup,
+-	.export		=	sha3_256_export, /* same as for 256 */
+-	.import		=	sha3_224_import, /* function code different! */
++	.export		=	s390_sha3_256_export, /* same as for 256 */
++	.import		=	s390_sha3_224_import, /* function code different! */
+ 	.descsize	=	S390_SHA_CTX_SIZE,
+ 	.statesize	=	SHA3_STATE_SIZE,
+ 	.base		=	{
+diff --git a/arch/s390/crypto/sha3_512_s390.c b/arch/s390/crypto/sha3_512_s390.c
+index a5c9690eecb1..f4b52a3a0433 100644
+--- a/arch/s390/crypto/sha3_512_s390.c
++++ b/arch/s390/crypto/sha3_512_s390.c
+@@ -18,7 +18,7 @@
+ 
+ #include "sha.h"
+ 
+-static int sha3_512_init(struct shash_desc *desc)
++static int s390_sha3_512_init(struct shash_desc *desc)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 
+@@ -31,7 +31,7 @@ static int sha3_512_init(struct shash_desc *desc)
+ 	return 0;
+ }
+ 
+-static int sha3_512_export(struct shash_desc *desc, void *out)
++static int s390_sha3_512_export(struct shash_desc *desc, void *out)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 	union {
+@@ -49,7 +49,7 @@ static int sha3_512_export(struct shash_desc *desc, void *out)
+ 	return 0;
+ }
+ 
+-static int sha3_512_import(struct shash_desc *desc, const void *in)
++static int s390_sha3_512_import(struct shash_desc *desc, const void *in)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 	union {
+@@ -67,22 +67,22 @@ static int sha3_512_import(struct shash_desc *desc, const void *in)
+ 	return 0;
+ }
+ 
+-static int sha3_384_import(struct shash_desc *desc, const void *in)
++static int s390_sha3_384_import(struct shash_desc *desc, const void *in)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 
+-	sha3_512_import(desc, in);
++	s390_sha3_512_import(desc, in);
+ 	sctx->func = CPACF_KIMD_SHA3_384;
+ 	return 0;
+ }
+ 
+ static struct shash_alg sha3_512_alg = {
+ 	.digestsize	=	SHA3_512_DIGEST_SIZE,
+-	.init		=	sha3_512_init,
++	.init		=	s390_sha3_512_init,
+ 	.update		=	s390_sha_update_blocks,
+ 	.finup		=	s390_sha_finup,
+-	.export		=	sha3_512_export,
+-	.import		=	sha3_512_import,
++	.export		=	s390_sha3_512_export,
++	.import		=	s390_sha3_512_import,
+ 	.descsize	=	S390_SHA_CTX_SIZE,
+ 	.statesize	=	SHA3_STATE_SIZE,
+ 	.base		=	{
+@@ -97,22 +97,22 @@ static struct shash_alg sha3_512_alg = {
+ 
+ MODULE_ALIAS_CRYPTO("sha3-512");
+ 
+-static int sha3_384_init(struct shash_desc *desc)
++static int s390_sha3_384_init(struct shash_desc *desc)
+ {
+ 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
+ 
+-	sha3_512_init(desc);
++	s390_sha3_512_init(desc);
+ 	sctx->func = CPACF_KIMD_SHA3_384;
+ 	return 0;
+ }
+ 
+ static struct shash_alg sha3_384_alg = {
+ 	.digestsize	=	SHA3_384_DIGEST_SIZE,
+-	.init		=	sha3_384_init,
++	.init		=	s390_sha3_384_init,
+ 	.update		=	s390_sha_update_blocks,
+ 	.finup		=	s390_sha_finup,
+-	.export		=	sha3_512_export, /* same as for 512 */
+-	.import		=	sha3_384_import, /* function code different! */
++	.export		=	s390_sha3_512_export, /* same as for 512 */
++	.import		=	s390_sha3_384_import, /* function code different! */
+ 	.descsize	=	S390_SHA_CTX_SIZE,
+ 	.statesize	=	SHA3_STATE_SIZE,
+ 	.base		=	{
 
