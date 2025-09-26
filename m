@@ -1,195 +1,192 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40A1C35950;
-	Fri, 26 Sep 2025 08:42:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6D4929D289;
+	Fri, 26 Sep 2025 10:13:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758876164; cv=none; b=DExztVPYivMWQYOenkgfL4YHk57qRyfJp8RGiZZ+QiTQLODURC9D1f2Vka1Fs80mj4mM1MVSZXWSvolJyNYm9IsEQtKv49JUfxNnZ0qaKmCKaFoLM4MoAzQ1ImEzcDjQAwPcotJ+2LYORw+fzgKImyBPpihjjd+Em4Bsi6qiACo=
+	t=1758881584; cv=none; b=A5LM9M7O50hIXtbbJWkC5Xj3pgQDAJ9It6oR6M1o+jEVwUkGtkdQFmLk3qEBsN2sej56nHFrgf3Cukuiq3aZMa5nUZMCwMY3CADSebW48YB4HR/tUuNNLCqUzd092ig1860WXNuKs0IGnvZhZA5bwfz4BcITCj2oxgTjv7pNWfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758876164; c=relaxed/simple;
-	bh=YpkXVO2Y6uKbqfDq/4Hn+poYOhVaKbGk1KU87swjoOQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=mAD8hU6pbgw7hSbSvjvaUiO8sUOX+IjMxDq0tNV3nHyZYEm1OWRilFom8hgiOXv8C5wNoD+Xxfu7yR5c4AhnA1SoC/c3rVAa4AixrZviBM+cytH7nb26gKX7jX1wKvnW6U9L8lTo3GXTTT3jv9oSbeF7XucnXy//xkW6c4Z2+zg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4cY3r74l2NzRkDx;
-	Fri, 26 Sep 2025 16:37:59 +0800 (CST)
-Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
-	by mail.maildlp.com (Postfix) with ESMTPS id 755C6180486;
-	Fri, 26 Sep 2025 16:42:38 +0800 (CST)
-Received: from [10.174.177.19] (10.174.177.19) by
- dggpemf500016.china.huawei.com (7.185.36.197) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Fri, 26 Sep 2025 16:42:36 +0800
-Message-ID: <8ab4d343-d287-4b42-94f7-511f46e131d3@huawei.com>
-Date: Fri, 26 Sep 2025 16:42:35 +0800
+	s=arc-20240116; t=1758881584; c=relaxed/simple;
+	bh=jxwkLcSlFmLlhuSO9JAqyrMk8tO6ktk/gXc+hdvU51Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Q1BHJHh1ZG+NVrJEFLqMZSpaaz2MtKt8Ig9DzwuTo78c2pAOQbpImcjJ4Gmtigu1NNNZ7tkcU+kPbwzaLDBjTjgvnNtSNHJdDr5lKYaNQc0YlLxImhD4wZ3Y8ClGOfk6nlLVjbFjTnAd391sWQRArjKpG5pDQRwyIPOwlp9vvTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aGS8g3jp; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aGS8g3jp"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58Q5qIwk029715;
+	Fri, 26 Sep 2025 10:12:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=20t6D+
+	fKshQ1xZ374I0WRhkvucIJKVOb9UKEMWdZ/5w=; b=aGS8g3jpKTORvjbZ87voR5
+	tl+j9rvZZQGXJVdbqOVym/WWD/BYc+6rJq9dXtCJBxj5kDs6JpmxI2A2z6T+0sbz
+	gYto8PXuAJSqa5Xbih2XND4uGvbHPuJ6D+pAy9Qq0BYW8BaPVoOsyKZ909tgMOMR
+	KmgwUiQFTlDE8epBDr0HwZ17TT26qBP021kyIv7Gp0UDz/twERDL8L5fPKFSwMgC
+	jQmeFalVHYaF2BtIvqUFNdqflX6x3kMQqjDSRFjxtbD+lJAIRToDp+VIIq9UEn7c
+	KwDlhR+Z5mdDI3v3AlY3JZghLsMI2lw53uC1bEvh1Gj9UxWk9//NY0V+HZP8EbyQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49dbb3uter-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Sep 2025 10:12:58 +0000 (GMT)
+Received: from m0356517.ppops.net (m0356517.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58Q9n5fZ025930;
+	Fri, 26 Sep 2025 10:12:57 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49dbb3uten-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Sep 2025 10:12:57 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58QACbg1006458;
+	Fri, 26 Sep 2025 10:12:56 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49dawpkgj4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 26 Sep 2025 10:12:56 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58QACqle52691358
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 26 Sep 2025 10:12:52 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5C70A20043;
+	Fri, 26 Sep 2025 10:12:52 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6944720040;
+	Fri, 26 Sep 2025 10:12:51 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.87.129.170])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 26 Sep 2025 10:12:51 +0000 (GMT)
+Date: Fri, 26 Sep 2025 12:12:49 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+        Simon
+ Horman <horms@kernel.org>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li
+ <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Mahanta Jambigi
+ <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen Gu
+ <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH net-next v3 1/2] net/smc: make wr buffer count
+ configurable
+Message-ID: <20250926121249.687b519d.pasic@linux.ibm.com>
+In-Reply-To: <1aa764d0-0613-499e-bc44-52e70602b661@linux.alibaba.com>
+References: <20250921214440.325325-1-pasic@linux.ibm.com>
+	<20250921214440.325325-2-pasic@linux.ibm.com>
+	<1aa764d0-0613-499e-bc44-52e70602b661@linux.alibaba.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: fix general protection fault in
- __smc_diag_dump
-To: Kuniyuki Iwashima <kuniyu@google.com>, Eric Dumazet <edumazet@google.com>
-CC: <alibuda@linux.alibaba.com>, <dust.li@linux.alibaba.com>,
-	<sidraya@linux.ibm.com>, <wenjia@linux.ibm.com>, <mjambigi@linux.ibm.com>,
-	<tonylu@linux.alibaba.com>, <guwen@linux.alibaba.com>, <davem@davemloft.net>,
-	<kuba@kernel.org>, <pabeni@redhat.com>, <horms@kernel.org>,
-	<yuehaibing@huawei.com>, <zhangchangzhong@huawei.com>,
-	<linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>
-References: <20250922121818.654011-1-wangliang74@huawei.com>
- <CANn89iLOyFnwD+monMHCmTgfZEAPWmhrZu-=8mvtMGyM9FG49g@mail.gmail.com>
- <CAAVpQUBxoWW_4U2an4CZNoSi95OduUhArezHnzKgpV3oOYs5Jg@mail.gmail.com>
- <CANn89i+V847kRTTFW43ouZXXuaBs177fKv5_bqfbvRutpg+s6g@mail.gmail.com>
- <CAAVpQUBriJFUhq2MpfwFTBLkF0rJfaVp1gaJ3wdhZuD7NWOaXw@mail.gmail.com>
- <CANn89i+Ntwzm2A=NSHbKdFuGVR6kar00AjrJE91Lu0e5BUsVow@mail.gmail.com>
- <CAAVpQUAd1oba6cy-hSub-iS0cnh7WH=HXgVnUwj8MXZLyU=a+w@mail.gmail.com>
-From: Wang Liang <wangliang74@huawei.com>
-In-Reply-To: <CAAVpQUAd1oba6cy-hSub-iS0cnh7WH=HXgVnUwj8MXZLyU=a+w@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- dggpemf500016.china.huawei.com (7.185.36.197)
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI1MDE3NCBTYWx0ZWRfX4LsnfnEISYHh
+ YdnXdz1EUb+HFq89QlFF5kq0OZsIj8n842o2KZ96MiJ4HoJtGZ13BnsbouTe8doGQ4oAl6yhk7f
+ I5zYL/o39QyywMwpwfmpoz1zKJBuq23nqMqid391Bz3FFOa4dfIH2/85ws4ZQb7IaFHfl893qHh
+ oPy8edTI9hRY0iLLgpvMsogibKIw4dlAL1Eo3gCoro8DiwuM+eY7lASGM7mBWQOBbG4e7IN0z31
+ RWcsbJn4ct4PaNr8x1nPOENSI81yD4klScLj6RKSIpMTaoje8LYbTGSumN9iRK7PQXxjj3mC24z
+ F1p7cnXdtbgiVoN/sgNf0wmhOFlad6aQ3Hhy9pkRutlorVsZ0TALzXApdBc5JGdxSN0jJuEtYsu
+ 6Q0hliHXlAYnSEPnd7l2RAPJJSdaxA==
+X-Proofpoint-GUID: 6dQaDM1mPAJ4Jzk0yl6fQVY57NpGgFXK
+X-Authority-Analysis: v=2.4 cv=T/qBjvKQ c=1 sm=1 tr=0 ts=68d6672a cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=SRrdq9N9AAAA:8 a=hP6Lh0ber_LRzFWUQkQA:9
+ a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-ORIG-GUID: UWvketDTN0Ot3v1bfgOxKp68MJngqz5N
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-26_02,2025-09-26_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 phishscore=0 priorityscore=1501 impostorscore=0 suspectscore=0
+ lowpriorityscore=0 spamscore=0 adultscore=0 clxscore=1015 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509250174
+
+On Fri, 26 Sep 2025 10:44:00 +0800
+Guangguan Wang <guangguan.wang@linux.alibaba.com> wrote:
+
+> > +
+> > +smcr_max_send_wr - INTEGER
+> > +	So called work request buffers are SMCR link (and RDMA queue pair) level
+> > +	resources necessary for performing RDMA operations. Since up to 255
+> > +	connections can share a link group and thus also a link and the number
+> > +	of the work request buffers is decided when the link is allocated,
+> > +	depending on the workload it can a bottleneck in a sense that threads
+> > +	have to wait for work request buffers to become available. Before the
+> > +	introduction of this control the maximal number of work request buffers
+> > +	available on the send path used to be hard coded to 16. With this control
+> > +	it becomes configurable. The acceptable range is between 2 and 2048.
+> > +
+> > +	Please be aware that all the buffers need to be allocated as a physically
+> > +	continuous array in which each element is a single buffer and has the size
+> > +	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
+> > +	like before having this control.
+> > +
+> > +	Default: 16
+> > +
+> > +smcr_max_recv_wr - INTEGER
+> > +	So called work request buffers are SMCR link (and RDMA queue pair) level
+> > +	resources necessary for performing RDMA operations. Since up to 255
+> > +	connections can share a link group and thus also a link and the number
+> > +	of the work request buffers is decided when the link is allocated,
+> > +	depending on the workload it can a bottleneck in a sense that threads
+> > +	have to wait for work request buffers to become available. Before the
+> > +	introduction of this control the maximal number of work request buffers
+> > +	available on the receive path used to be hard coded to 16. With this control
+> > +	it becomes configurable. The acceptable range is between 2 and 2048.
+> > +
+> > +	Please be aware that all the buffers need to be allocated as a physically
+> > +	continuous array in which each element is a single buffer and has the size
+> > +	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
+> > +	like before having this control.
+> > +
+> > +	Default: 48  
+> 
+> Notice that the ratio of smcr_max_recv_wr to smcr_max_send_wr is set to 3:1, with the
+> intention of ensuring that the peer QP's smcr_max_recv_wr is three times the local QP's
+> smcr_max_send_wr and the local QP's smcr_max_recv_wr is three times the peer QP's
+> smcr_max_send_wr, rather than making the local QP's smcr_max_recv_wr three times its own
+> smcr_max_send_wr. The purpose of this design is to guarantee sufficient receive WRs on
+> the side to receive incoming data when peer QP doing RDMA sends. Otherwise, RNR (Receiver
+> Not Ready) may occur, leading to poor performance(RNR will drop the packet and retransmit
+> happens in the transport layer of the RDMA).
+
+Thank you Guangguan! I think we already had that discussion. 
+> 
+> Let us guess a scenario that have multiple hosts, and the multiple hosts have different
+> smcr_max_send_wr and smcr_max_recv_wr configurations, mesh connections between these hosts.
+> It is difficult to ensure that the smcr_max_recv_wr/smcr_max_send_wr is 3:1 on the connected
+> QPs between these hosts, and it may even be hard to guarantee the smcr_max_recv_wr > smcr_max_send_wr
+> on the connected QPs between these hosts.
 
 
-在 2025/9/26 3:51, Kuniyuki Iwashima 写道:
-> On Thu, Sep 25, 2025 at 12:37 PM Eric Dumazet <edumazet@google.com> wrote:
->> On Thu, Sep 25, 2025 at 12:25 PM Kuniyuki Iwashima <kuniyu@google.com> wrote:
->>> On Thu, Sep 25, 2025 at 11:54 AM Eric Dumazet <edumazet@google.com> wrote:
->>>> On Thu, Sep 25, 2025 at 11:46 AM Kuniyuki Iwashima <kuniyu@google.com> wrote:
->>>>> Thanks Eric for CCing me.
->>>>>
->>>>> On Thu, Sep 25, 2025 at 7:32 AM Eric Dumazet <edumazet@google.com> wrote:
->>>>>> On Mon, Sep 22, 2025 at 4:57 AM Wang Liang <wangliang74@huawei.com> wrote:
->>>>>>> The syzbot report a crash:
->>>>>>>
->>>>>>>    Oops: general protection fault, probably for non-canonical address 0xfbd5a5d5a0000003: 0000 [#1] SMP KASAN NOPTI
->>>>>>>    KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
->>>>>>>    CPU: 1 UID: 0 PID: 6949 Comm: syz.0.335 Not tainted syzkaller #0 PREEMPT(full)
->>>>>>>    Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
->>>>>>>    RIP: 0010:smc_diag_msg_common_fill net/smc/smc_diag.c:44 [inline]
->>>>>>>    RIP: 0010:__smc_diag_dump.constprop.0+0x3ca/0x2550 net/smc/smc_diag.c:89
->>>>>>>    Call Trace:
->>>>>>>     <TASK>
->>>>>>>     smc_diag_dump_proto+0x26d/0x420 net/smc/smc_diag.c:217
->>>>>>>     smc_diag_dump+0x27/0x90 net/smc/smc_diag.c:234
->>>>>>>     netlink_dump+0x539/0xd30 net/netlink/af_netlink.c:2327
->>>>>>>     __netlink_dump_start+0x6d6/0x990 net/netlink/af_netlink.c:2442
->>>>>>>     netlink_dump_start include/linux/netlink.h:341 [inline]
->>>>>>>     smc_diag_handler_dump+0x1f9/0x240 net/smc/smc_diag.c:251
->>>>>>>     __sock_diag_cmd net/core/sock_diag.c:249 [inline]
->>>>>>>     sock_diag_rcv_msg+0x438/0x790 net/core/sock_diag.c:285
->>>>>>>     netlink_rcv_skb+0x158/0x420 net/netlink/af_netlink.c:2552
->>>>>>>     netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
->>>>>>>     netlink_unicast+0x5a7/0x870 net/netlink/af_netlink.c:1346
->>>>>>>     netlink_sendmsg+0x8d1/0xdd0 net/netlink/af_netlink.c:1896
->>>>>>>     sock_sendmsg_nosec net/socket.c:714 [inline]
->>>>>>>     __sock_sendmsg net/socket.c:729 [inline]
->>>>>>>     ____sys_sendmsg+0xa95/0xc70 net/socket.c:2614
->>>>>>>     ___sys_sendmsg+0x134/0x1d0 net/socket.c:2668
->>>>>>>     __sys_sendmsg+0x16d/0x220 net/socket.c:2700
->>>>>>>     do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
->>>>>>>     do_syscall_64+0xcd/0x4e0 arch/x86/entry/syscall_64.c:94
->>>>>>>     entry_SYSCALL_64_after_hwframe+0x77/0x7f
->>>>>>>     </TASK>
->>>>>>>
->>>>>>> The process like this:
->>>>>>>
->>>>>>>                 (CPU1)              |             (CPU2)
->>>>>>>    ---------------------------------|-------------------------------
->>>>>>>    inet_create()                    |
->>>>>>>      // init clcsock to NULL        |
->>>>>>>      sk = sk_alloc()                |
->>>>>>>                                     |
->>>>>>>      // unexpectedly change clcsock |
->>>>>>>      inet_init_csk_locks()          |
->>>>>>>                                     |
->>>>>>>      // add sk to hash table        |
->>>>>>>      smc_inet_init_sock()           |
->>>>>>>        smc_sk_init()                |
->>>>>>>          smc_hash_sk()              |
->>>>>>>                                     | // traverse the hash table
->>>>>>>                                     | smc_diag_dump_proto
->>>>>>>                                     |   __smc_diag_dump()
->>>>>>>                                     |     // visit wrong clcsock
->>>>>>>                                     |     smc_diag_msg_common_fill()
->>>>>>>      // alloc clcsock               |
->>>>>>>      smc_create_clcsk               |
->>>>>>>        sock_create_kern             |
->>>>>>>
->>>>>>> With CONFIG_DEBUG_LOCK_ALLOC=y, the smc->clcsock is unexpectedly changed
->>>>>>> in inet_init_csk_locks(), because the struct smc_sock does not have struct
->>>>>>> inet_connection_sock as the first member.
->>>>>>>
->>>>>>> Previous commit 60ada4fe644e ("smc: Fix various oops due to inet_sock type
->>>>>>> confusion.") add inet_sock as the first member of smc_sock. For protocol
->>>>>>> with INET_PROTOSW_ICSK, use inet_connection_sock instead of inet_sock is
->>>>>>> more appropriate.
->>>>> Why is INET_PROTOSW_ICSK necessary in the first place ?
->>>>>
->>>>> I don't see a clear reason because smc_clcsock_accept() allocates
->>>>> a new sock by smc_sock_alloc() and does not use inet_accept().
->>>>>
->>>>> Or is there any other path where smc_sock is cast to
->>>>> inet_connection_sock ?
->>>> What I saw in this code was a missing protection.
->>>>
->>>> smc_diag_msg_common_fill() runs without socket lock being held.
->>>>
->>>> I was thinking of this fix, but apparently syzbot still got crashes.
->>> Looking at the test result,
->>>
->>> https://syzkaller.appspot.com/x/report.txt?x=15944c7c580000
->>> KASAN: maybe wild-memory-access in range [0xdead4ead00000018-0xdead4ead0000001f]
->>>
->>> the top half of the address is SPINLOCK_MAGIC (0xdead4ead),
->>> so the type confusion mentioned in the commit message makes
->>> sense to me.
->>>
->>> $ pahole -C inet_connection_sock vmlinux
->>> struct inet_connection_sock {
->>> ...
->>>      struct request_sock_queue  icsk_accept_queue;    /*   992    80 */
->>>
->>> $ pahole -C smc_sock vmlinux
->>> struct smc_sock {
->>> ...
->>>      struct socket *            clcsock;              /*   992     8 */
->>>
->>> The option is 1) let inet_init_csk_locks() init inet_connection_sock
->>> or 2) avoid inet_init_csk_locks(), and I guess 2) could be better to
->>> avoid potential issues in IS_ICSK branches.
->>>
->> I definitely vote to remove INET_PROTOSW_ICSK from smc.
->>
->> We want to reserve inet_connection_sock to TCP only, so that we can
->> move fields to better
->> cache friendly locations in tcp_sock hopefully for linux-6.19
-> Fully agreed.
->
-> Wang: please squash the revert of 6fd27ea183c2 for
-> INET_PROTOSW_ICSK removal.  This is for one of
-> IS_ICSK branches.
+It is not difficult IMHO. You just leave the knobs alone and you have
+3:1 per default. If tuning is attempted that needs to be done carefully.
+At least with SMC-R V2 there is this whole EID business, as well so it
+is reasonable to assume that the environment can be tuned in a coherent
+fashion. E.g. whoever is calling the EID could call use smcr_max_recv_wr:=32 and smcr_max_send_wr:=
 
+> 
+> Therefore, I believe that if these values are made configurable, additional mechanisms must be
+> in place to prevent RNR from occurring. Otherwise we need to carefully configure smcr_max_recv_wr
+> and smcr_max_send_wr, or ensure that all hosts capable of establishing SMC-R connections are configured
+> smcr_max_recv_wr and smcr_max_send_wr with the same values.
 
-Thanks for your suggestions, they are helpful!
-
-I will remove INET_PROTOSW_ICSK from smc_inet_protosw and smc_inet6_protosw,
-
-and revert 6fd27ea183c2 ("net/smc: fix lacks of icsk_syn_mss with 
-IPPROTO_SMC")
-
-in one patchset later.
-
-------
-Best regards
-Wang Liang
-
-
-
+Thank you for 
