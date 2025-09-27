@@ -1,105 +1,100 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f202.google.com (mail-pg1-f202.google.com [209.85.215.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A2D519047A;
-	Sat, 27 Sep 2025 03:22:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 940CF25486D
+	for <linux-s390@vger.kernel.org>; Sat, 27 Sep 2025 06:02:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758943381; cv=none; b=bbsJZIneZc0nX9xgxtF56HG8K0zjSCNcJUNCzTkntuo+xXOvJDqWKuSzJ1wmAy4KU1qGPkKPqqpFv4IHnLnqTMZiqrAdGk7no2ch/s2s7GanwE1SSrdncMqLnXHS+mMuKipQ9smwU1/xfgqq0rljzcKMmRAE9klASIWNzZu9m+M=
+	t=1758952971; cv=none; b=UvIi+i89n5mA0rwpFuibKCDTAMRMdMJip2ZkCNXWVbxizHf55mazSzymP8wZoCOR1qRxJ9KrGkdJODrwP7/Y4Xdg+KrVYqu/8XXBueEd6lchen7qNwJ8xsjQqQq+gdwpeLCHaaqblWFK9+J7Ndl9VsuLaf3VF8XJKJ07hkw5nhQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758943381; c=relaxed/simple;
-	bh=kg1d0MTY71zfQLb6meJ6ncRhMBIMtCldbRRgQF/Fyog=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=hKCfXvO/QbMa2/4kVmXDV6NFMRBkKIxy07MeLSFwpJYgtT+cynHE0Z9sWoyt6C4ce7Rf+gTt3x1ge3Ig5Na4Tb+cr6rNA8cxA6wor+XEbEnfItlr/TochBhXdikUI8TcZzhm4zuuu3ZtOuEs8y7D/yIjvZxbR23uaAwaUmtufmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.174])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4cYXn04fPVztTZc;
-	Sat, 27 Sep 2025 11:21:56 +0800 (CST)
-Received: from dggpemf500002.china.huawei.com (unknown [7.185.36.57])
-	by mail.maildlp.com (Postfix) with ESMTPS id EE906140121;
-	Sat, 27 Sep 2025 11:22:48 +0800 (CST)
-Received: from [10.174.178.247] (10.174.178.247) by
- dggpemf500002.china.huawei.com (7.185.36.57) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Sat, 27 Sep 2025 11:22:47 +0800
-Subject: Re: [PATCH v3 01/14] ACPI: APEI: Remove redundant
- rcu_read_lock/unlock() in spin_lock
-To: pengdonglin <dolinux.peng@gmail.com>, <tj@kernel.org>,
-	<tony.luck@intel.com>, <jani.nikula@linux.intel.com>, <ap420073@gmail.com>,
-	<jv@jvosburgh.net>, <freude@linux.ibm.com>, <bcrl@kvack.org>,
-	<trondmy@kernel.org>, <longman@redhat.com>, <kees@kernel.org>
-CC: <bigeasy@linutronix.de>, <hdanton@sina.com>, <paulmck@kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-rt-devel@lists.linux.dev>,
-	<linux-nfs@vger.kernel.org>, <linux-aio@kvack.org>,
-	<linux-fsdevel@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
-	<netdev@vger.kernel.org>, <intel-gfx@lists.freedesktop.org>,
-	<linux-wireless@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <cgroups@vger.kernel.org>, "Rafael J. Wysocki"
-	<rafael@kernel.org>, pengdonglin <pengdonglin@xiaomi.com>
-References: <20250916044735.2316171-1-dolinux.peng@gmail.com>
- <20250916044735.2316171-2-dolinux.peng@gmail.com>
-From: Hanjun Guo <guohanjun@huawei.com>
-Message-ID: <03ad08d9-4510-19fb-bbad-652159308119@huawei.com>
-Date: Sat, 27 Sep 2025 11:22:46 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+	s=arc-20240116; t=1758952971; c=relaxed/simple;
+	bh=zCVl73JMB1ILRN0jM2f4aqDdL5c6hRSipsaHR6tah9I=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=tDNi/cmF0/Tcc4Rk0i8fBRYqSKG5x+cKRn5OrbB54fAAkKQ4hpHjP9KaJXnfCIE3N/8yre1W3Dg1XHtp3UvyxBAg/fYiAZwGorxgbIbaU6QXRZ+7+DUOEVd7ZLISb0FXVq7qAnvMqLAcyCXAKCrNl9sFRYEyVKZc7RClqjCXP9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Kjzr4HOB; arc=none smtp.client-ip=209.85.215.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Kjzr4HOB"
+Received: by mail-pg1-f202.google.com with SMTP id 41be03b00d2f7-b54a30515cfso2763343a12.1
+        for <linux-s390@vger.kernel.org>; Fri, 26 Sep 2025 23:02:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1758952970; x=1759557770; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=EZz9pdPxtkQCQg0LwPC7a9M9+XqgI2y1Onp5LAdJY54=;
+        b=Kjzr4HOBQCl4MwfaqGIScTaKZ3yQv7ScjD/ZZlFTf2JjhmakiM6jgI9WJNKTi3tEtP
+         wPKhAiOmL/ueKi3lH/cu1MUwdHbIIBRSoEfPZ5AcwFoLY+vMBCXhKptTEMpV0Y/CsBYK
+         +mu6lmQQIoRj0RC7ElPvdG+5ssuuPMAYzWfD1Xrr5q3Fw1ETlvCWMlzkeLCzDD9YD9ZA
+         A5gZtKuLdLILk2n4iMM31UBid52xYr6DSgKcP2BYFcyigiyoqKgBgb9GSJVR3kq/8gms
+         X+n+S1QEuhLC39XHAE/bTgKYwAwGZNthKgbuz6zVyJ4Otu/Ii1GxDllbk4cmJTlj9J4O
+         uu1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758952970; x=1759557770;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EZz9pdPxtkQCQg0LwPC7a9M9+XqgI2y1Onp5LAdJY54=;
+        b=PKSn2k3wYc6HfRJthi9RB0xHA86JIPLIb9O1vdaNiM98j6/PabNMv8iExYbrMqwocf
+         Cytd6Z0IQMFbYWzXhPH+Qto3CKp+HemBuhuYjLag+7WwskbwvLWHhw1elmK+a4843RiS
+         tkiSL337vMQwRDF3+hyXheqCgx5X/dcwHBOm/CvhdgOPKvqIed4uWjXkiESgdbfSpSPN
+         K9bXJtNntMIlADHiM/Mwd4PadQ2mENJvdTWxIdJpd3uIURdT9gD8W1RHwVL/u0a4gz1n
+         KbC7GyAm+yN1zgMTk5vT1sGwO0hd3LDuMzq4wED4lW946hF0F/dNF3ag77/meDox7AsV
+         DZfg==
+X-Forwarded-Encrypted: i=1; AJvYcCV+lfq6tg8+NFVclDuSeXtmAR6yyWR+N1Daa4ciubIDMeSckNlyfV6xdQhW3H/3xrLu91swODUWZkCu@vger.kernel.org
+X-Gm-Message-State: AOJu0YyEpMonfG3Jq6PyFry0Q+aQ1Z4f7wg2eThPyf80EfdjDXvJHhv5
+	dIT+4LjiAaC0okq6KbPjmHA77SQHJG4yQvrFsjyr/ZZnqGd0qprQq06GxNxfghnZ9RpyHdCGqT2
+	dD2w2Bg==
+X-Google-Smtp-Source: AGHT+IG+O2/UkKI29OQKSSuWam69+x9DRDtxFfKKLWwebRfAoiKlUD2jq0l73MqVAHzrMbEcLiUIcTj1iZg=
+X-Received: from pjst22.prod.google.com ([2002:a17:90b:196:b0:330:7be2:9bdc])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:4b43:b0:32e:72bd:6d5a
+ with SMTP id 98e67ed59e1d1-33454f56a18mr9327831a91.1.1758952969598; Fri, 26
+ Sep 2025 23:02:49 -0700 (PDT)
+Date: Fri, 26 Sep 2025 23:02:32 -0700
+In-Reply-To: <20250919003303.1355064-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <20250916044735.2316171-2-dolinux.peng@gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
- dggpemf500002.china.huawei.com (7.185.36.57)
+Mime-Version: 1.0
+References: <20250919003303.1355064-1-seanjc@google.com>
+X-Mailer: git-send-email 2.51.0.536.g15c5d4f767-goog
+Message-ID: <175895291958.2931667.5042104101547847294.b4-ty@google.com>
+Subject: Re: [PATCH v2 0/5] KVM: Export KVM-internal symbols for sub-modules only
+From: Sean Christopherson <seanjc@google.com>
+To: Sean Christopherson <seanjc@google.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Tony Krowiak <akrowiak@linux.ibm.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, 
+	Harald Freudenberger <freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
 
-On 2025/9/16 12:47, pengdonglin wrote:
-> From: pengdonglin <pengdonglin@xiaomi.com>
+On Thu, 18 Sep 2025 17:32:58 -0700, Sean Christopherson wrote:
+> Use the newfangled EXPORT_SYMBOL_FOR_MODULES() along with some macro
+> shenanigans to export KVM-internal symbols if and only if KVM has one or
+> more sub-modules, and only for those sub-modules, e.g. x86's kvm-amd.ko
+> and/or kvm-intel.ko.
 > 
-> Since commit a8bb74acd8efe ("rcu: Consolidate RCU-sched update-side function definitions")
-> there is no difference between rcu_read_lock(), rcu_read_lock_bh() and
-> rcu_read_lock_sched() in terms of RCU read section and the relevant grace
-> period. That means that spin_lock(), which implies rcu_read_lock_sched(),
-> also implies rcu_read_lock().
+> Patch 5 gives KVM x86 the full treatment.  If anyone wants to tackle PPC,
+> it should be doable to restrict KVM PPC's exports as well.
 > 
-> There is no need no explicitly start a RCU read section if one has already
-> been started implicitly by spin_lock().
-> 
-> Simplify the code and remove the inner rcu_read_lock() invocation.
-> 
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Tony Luck <tony.luck@intel.com>
-> Cc: Hanjun Guo <guohanjun@huawei.com>
-> Signed-off-by: pengdonglin <pengdonglin@xiaomi.com>
-> Signed-off-by: pengdonglin <dolinux.peng@gmail.com>
-> ---
->   drivers/acpi/apei/ghes.c | 2 --
->   1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-> index a0d54993edb3..97ee19f2cae0 100644
-> --- a/drivers/acpi/apei/ghes.c
-> +++ b/drivers/acpi/apei/ghes.c
-> @@ -1207,12 +1207,10 @@ static int ghes_notify_hed(struct notifier_block *this, unsigned long event,
->   	int ret = NOTIFY_DONE;
->   
->   	spin_lock_irqsave(&ghes_notify_lock_irq, flags);
-> -	rcu_read_lock();
->   	list_for_each_entry_rcu(ghes, &ghes_hed, list) {
->   		if (!ghes_proc(ghes))
->   			ret = NOTIFY_OK;
->   	}
-> -	rcu_read_unlock();
->   	spin_unlock_irqrestore(&ghes_notify_lock_irq, flags);
->   
->   	return ret;
+> [...]
 
-Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Quite belatedly (forgot to send the "thanks"), applied to kvm-x86 exports.
 
-Thanks
-Hanjun
+[1/5] KVM: s390/vfio-ap: Use kvm_is_gpa_in_memslot() instead of open coded equivalent
+      https://github.com/kvm-x86/linux/commit/66d1a7ac946c
+[2/5] KVM: Export KVM-internal symbols for sub-modules only
+      https://github.com/kvm-x86/linux/commit/d66078b8c990
+[3/5] KVM: x86: Move kvm_intr_is_single_vcpu() to lapic.c
+      https://github.com/kvm-x86/linux/commit/16e53ef18450
+[4/5] KVM: x86: Drop pointless exports of kvm_arch_xxx() hooks
+      https://github.com/kvm-x86/linux/commit/26caf4d04e01
+[5/5] KVM: x86: Export KVM-internal symbols for sub-modules only
+      https://github.com/kvm-x86/linux/commit/aca2a0fa7796
+
+--
+https://github.com/kvm-x86/linux/tree/next
