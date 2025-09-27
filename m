@@ -1,146 +1,156 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38B0E17E4;
-	Sat, 27 Sep 2025 17:15:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F81227599;
+	Sat, 27 Sep 2025 22:55:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758993321; cv=none; b=sFJm7IiCXGNZE5eQoAe6cMOchTrOOi4jgxAaBidMilRnbAvaJf9puA6cxYWQ3lo2VJ8VQMQfNZrStcwDVNXxvQO/GnfW528rt2VFZjT7uvFEAq6qgaEsasCbUut00eW1ok7DXv4SpcY60CJHHg3cZqIGWxFZWZT0SfK+QYNb0So=
+	t=1759013734; cv=none; b=GR8M7rWZX3xdXPAZ7Dr5QIXgETOsSUFTpouu/30RIR6Q3mtH9dUmL1vL9JQObMQNU0Svfm8TGhkv+FVPYiWJaR5yQ3vqMYJd1vh374EjuWeB4dGkWAiM3fSuCMoeHiykOHPDLi4AA9o5/nSBLuiL86HktnlEhpBsyT9aF1ChEgg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758993321; c=relaxed/simple;
-	bh=EirxfAdYtb+idmVV2ek0+dgQhvpkG6voZOoMYEXUy+w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CIBM/udEvSyCPMLNE33I9BHATMIlochFfJIGWt0x++f9jOzzajinlADFIQHqbdyNkkrGUH4Nzreb4vjGWq0S27D2FgdsBhPVkr+kV+2WlmVgTbmjOvilFfMK7mvcv6gOOl0g+3APhkKM+ln69cXemAh6uI2qBkbnkIzLmT8AeFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=M7uhH/gC; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1759013734; c=relaxed/simple;
+	bh=J/lkEaSlOjgbIMEBcrcnqLn8F4KPz/eqNN7bz7Ax+Yw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fXIMbmdrU5MfAgThgvqh+16WaaUogJEDAyGHvIjIr6V92KUgB6QQq4/ALFEfT3ticd0O+SCNcSpcnU+xCcENV8MiuLPRtE9FDEDOAs5HREDoPrZtJNJrNtz+wKh0uRsPO9uAa3wMj8IX7+xR1lsSBEMieApNRhMMHrTnZrTvccg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WCRpzsJg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="M7uhH/gC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1758993320; x=1790529320;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=EirxfAdYtb+idmVV2ek0+dgQhvpkG6voZOoMYEXUy+w=;
-  b=M7uhH/gCgWKp38CjiOXVR+AS728C6FEljuVxMipMt6bCiFKfDcbFEw65
-   wXemyikttv1M0dRH67gSr/Hu/3b6lF1pegKeY0+6TVgqu8fRT1cfqeAYV
-   lwMYNgz3wZRAyDtZ3fRPsFag4DCLJiI83mFxKWxbqS2pNlnEIRL4AaYLQ
-   J3Mn6j3czt4EOZwWzg6dsiZzyYBqNjmH1SZOQh0s1bLRrgXXKH/4PbXWk
-   OC3ick1/SYtzSALO/cIuKhkJxo8PcwEOqEbduodxf5uF63LCOJkj7BToF
-   /T8zDI0lCVaw2RiiUIrfegFqY3BkoSxPrj0b/CQyG92bcN+3ivLHvJBHO
-   w==;
-X-CSE-ConnectionGUID: Ze5+RuLfQtiK45+YZpPGHg==
-X-CSE-MsgGUID: 4fl/DckFR3u8o+e8qLsmwA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11566"; a="63929773"
-X-IronPort-AV: E=Sophos;i="6.18,298,1751266800"; 
-   d="scan'208";a="63929773"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Sep 2025 10:15:19 -0700
-X-CSE-ConnectionGUID: ncsgsvn7SmKqpvpiEywQJg==
-X-CSE-MsgGUID: jATeppt5SRSMXxU7/3U17w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,298,1751266800"; 
-   d="scan'208";a="176994667"
-Received: from lkp-server02.sh.intel.com (HELO 84c55410ccf6) ([10.239.97.151])
-  by orviesa006.jf.intel.com with ESMTP; 27 Sep 2025 10:15:16 -0700
-Received: from kbuild by 84c55410ccf6 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1v2YVo-0007EJ-1E;
-	Sat, 27 Sep 2025 17:15:09 +0000
-Date: Sun, 28 Sep 2025 01:14:56 +0800
-From: kernel test robot <lkp@intel.com>
-To: Gautam Gala <ggala@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@redhat.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH] KVM: s390: Fix to clear PTE when discarding a swapped
- page
-Message-ID: <202509280003.NWFBhwme-lkp@intel.com>
-References: <20250924121707.145350-1-ggala@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WCRpzsJg"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58RIn5Yj021061;
+	Sat, 27 Sep 2025 22:55:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=CGyNmg
+	9lCRxrC35psWn0YaeYKYJvFaHxr0YSuHrRWPE=; b=WCRpzsJgvk4FmskRTpKedc
+	u46iz0gqDqvhWK/obPldUMM/nhqgvaLJXsjpbuQxryERLMU6c0twg49jw3Ui0Xgs
+	erQKXhpnvV8PwDexdLBhyvA2l6TljnL7qbcUTjBuUPPEyXcDUIIiZOA4LmiBK3xk
+	L5M3dqssEmRrfn60ila3oOuoWS02zrcfXqNaXYDXSuyru/mIaWSXMueqfH+97V+j
+	IoO1PG+pQAi0TilrynNH5vgCfVLtqX7rBLpN0WQlAOAOGDehTv9F7yt6JHdAmkIR
+	tzVgF7d9Fm1BKhNmiZV+NhXCcTkjaS+TGJy8T84NDii8v+C+9r+yjBqpParvgYHg
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bh3nch-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 27 Sep 2025 22:55:22 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58RMtMlI004163;
+	Sat, 27 Sep 2025 22:55:22 GMT
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bh3ncf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 27 Sep 2025 22:55:22 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58RLkDEv014407;
+	Sat, 27 Sep 2025 22:55:21 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49dawmaspt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Sat, 27 Sep 2025 22:55:21 +0000
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58RMtH0M50725312
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sat, 27 Sep 2025 22:55:17 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B2D8A20043;
+	Sat, 27 Sep 2025 22:55:17 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CC4D220040;
+	Sat, 27 Sep 2025 22:55:16 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.87.130.219])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Sat, 27 Sep 2025 22:55:16 +0000 (GMT)
+Date: Sun, 28 Sep 2025 00:55:15 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
+        "D.
+ Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>,
+        Wenjia Zhang
+ <wenjia@linux.ibm.com>,
+        Mahanta Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu
+ <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH net-next v3 1/2] net/smc: make wr buffer count
+ configurable
+Message-ID: <20250928005515.61a57542.pasic@linux.ibm.com>
+In-Reply-To: <20250925132540.74091295.pasic@linux.ibm.com>
+References: <20250921214440.325325-1-pasic@linux.ibm.com>
+	<20250921214440.325325-2-pasic@linux.ibm.com>
+	<7cc2df09-0230-40cb-ad4f-656b0d1d785b@redhat.com>
+	<20250925132540.74091295.pasic@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250924121707.145350-1-ggala@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Se/6t/Ru c=1 sm=1 tr=0 ts=68d86b5a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=d6B9MPh4GzydLbDzm_AA:9
+ a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAxMCBTYWx0ZWRfXyehZBiMfHR7w
+ /n+rhFoG6VKNxi4OIteUySe+T9U5LSk+p9iOJQqjt/toVbbgtBieuiAQdYIG/Li18yuWZDArA1q
+ xg1B/ph5qs50y2dELYwGUGWJyPGGN0HEgMrMwm218Ln1MVnR3myymCFlbeQne3I8cjoDeJeo9c+
+ JdZBqj8Do4bFVaQ6uzpc1atWlXUaexmZSmtFbO8aKMisvRPOquVCAIU6Oj/AAi1uacWVzcr3Pun
+ ipH/xQLpnNXSf81AkJhTPfzoShMQQpGsg/N7orVnpOPvggv9Aqeegz19x5rbt5GNLUiuDcOTcWD
+ pU41s+LQ4EXJbdQhtaTRsd6HxsPwis6gJxb2KKNvXLDf2oTFMNcLI+Cu1AVdtLrHFyjX1ZGv0zP
+ UoyfIZNWmn20Cpua2BUfNrMrc9k98w==
+X-Proofpoint-GUID: ZvXP4YeF5JYu1VuKgBF2CVctlzrCxZDg
+X-Proofpoint-ORIG-GUID: pWjiWAZRIuuBP2oSto0eEBbGqHdIJIfm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-27_08,2025-09-26_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 phishscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270010
 
-Hi Gautam,
+On Thu, 25 Sep 2025 13:25:40 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-kernel test robot noticed the following build warnings:
+> > [...]  
+> > > @@ -683,6 +678,8 @@ int smc_ib_create_queue_pair(struct smc_link *lnk)
+> > >  	};
+> > >  	int rc;
+> > >  
+> > > +	qp_attr.cap.max_send_wr = 3 * lnk->lgr->max_send_wr;
+> > > +	qp_attr.cap.max_recv_wr = lnk->lgr->max_recv_wr;    
+> > 
+> > Possibly:
+> > 
+> > 	cap = max(3 * lnk->lgr->max_send_wr, lnk->lgr->max_recv_wr);
+> > 	qp_attr.cap.max_send_wr = cap;
+> > 	qp_attr.cap.max_recv_wr = cap
+> > 
+> > to avoid assumption on `max_send_wr`, `max_recv_wr` relative values.  
+> 
+> Can you explain a little more. I'm happy to do the change, but I would
+> prefer to understand why is keeping qp_attr.cap.max_send_wr ==
+> qp_attr.cap.max_recv_wr better? But if you tell: "Just trust me!" I will.
 
-[auto build test WARNING on s390/features]
-[also build test WARNING on linus/master v6.17-rc7 next-20250926]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Due to a little accident we ended up having a private conversation
+on this, which I'm going to sum up quickly.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Gautam-Gala/KVM-s390-Fix-to-clear-PTE-when-discarding-a-swapped-page/20250924-201847
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
-patch link:    https://lore.kernel.org/r/20250924121707.145350-1-ggala%40linux.ibm.com
-patch subject: [PATCH] KVM: s390: Fix to clear PTE when discarding a swapped page
-config: s390-defconfig (https://download.01.org/0day-ci/archive/20250928/202509280003.NWFBhwme-lkp@intel.com/config)
-compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project cafc064fc7a96b3979a023ddae1da2b499d6c954)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250928/202509280003.NWFBhwme-lkp@intel.com/reproduce)
+Paolo stated that he has no strong preference and that I should at
+least add a comment, which I will do for v4. 
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202509280003.NWFBhwme-lkp@intel.com/
+Unfortunately I don't quite understand why qp_attr.cap.max_send_wr is 3
+times the number of send WR buffers we allocate. My understanding
+is that qp_attr.cap.max_send_wr is about the number of send WQEs.
+I assume that qp_attr.cap.max_send_wr == qp_attr.cap.max_recv_wr
+is not something we would want to preserve.
 
-All warnings (new ones prefixed by >>):
-
-   In file included from arch/s390/boot/als.c:9:
-   In file included from arch/s390/include/asm/sclp.h:26:
-   In file included from arch/s390/include/asm/chpid.h:10:
-   In file included from arch/s390/include/asm/cio.h:10:
-   In file included from arch/s390/include/asm/dma-types.h:7:
-   In file included from include/linux/io.h:12:
-   In file included from arch/s390/include/asm/io.h:15:
->> arch/s390/include/asm/pgtable.h:2065:48: warning: passing 'unsigned long *' to parameter of type 'long *' converts between pointers to integer types with different sign [-Wpointer-sign]
-    2065 |                 value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
-         |                                                              ^~~
-   arch/s390/include/asm/atomic_ops.h:161:1: note: passing argument to parameter 'ptr' here
-     161 | __ATOMIC64_OPS(__atomic64_or,  "ogr")
-         | ^
-   arch/s390/include/asm/atomic_ops.h:157:2: note: expanded from macro '__ATOMIC64_OPS'
-     157 |         __ATOMIC64_OP(op_name##_barrier, op_string)
-         |         ^
-   arch/s390/include/asm/atomic_ops.h:141:53: note: expanded from macro '__ATOMIC64_OP'
-     141 | static __always_inline long op_name(long val, long *ptr)                \
-         |                                                     ^
-   1 warning generated.
-
-
-vim +2065 arch/s390/include/asm/pgtable.h
-
-  2057	
-  2058	static inline pgste_t pgste_get_lock(pte_t *ptep)
-  2059	{
-  2060		unsigned long value = 0;
-  2061	#ifdef CONFIG_PGSTE
-  2062		unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
-  2063	
-  2064		do {
-> 2065			value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
-  2066		} while (value & PGSTE_PCL_BIT);
-  2067		value |= PGSTE_PCL_BIT;
-  2068	#endif
-  2069		return __pgste(value);
-  2070	}
-  2071	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Regards,
+Halil 
