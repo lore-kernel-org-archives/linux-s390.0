@@ -1,121 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B87082DC33F
-	for <linux-s390@vger.kernel.org>; Sun, 28 Sep 2025 10:33:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5914C3C38;
+	Sun, 28 Sep 2025 11:43:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759055603; cv=none; b=O+ecHk2ID6QEnnDQv0IPOIdI1Lc1NqlTvZ7X3L1cmZ3w6j3t9tn3hYTJtr2XMVzJ1JYLNp5dUWNjyPWWX9g4GCpmpkrUsWiQsbqvuMxrPMwmMDl9Et03lX1LG7g1wqLP6kxFvA4Zra6TTfoJH/64kuLf0GKYRldF0z04UK3wrYk=
+	t=1759059788; cv=none; b=ozvRSZqr1MoAspVc1kI56VCBBaMsyzgQ6Q6n+GW3D4sNzfPMuss13ENLE0JAIzJqq2BkycDNH5brbdpmCHL1f8trm4uBp7olKL/5hh97ZRn8FMRRtOXLaIBVy4+0w5/dGA0gon9chHA9FAAQeLZVo2E3nbnD2RXq045DpxJ6Vko=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759055603; c=relaxed/simple;
-	bh=W1P4GzY1bC9YgmxJ2fNnWAboDU4JuIT0DBDqxALFX0M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Xp2wELqHfaP/5OOe2X1u7l6sFWWJR9WWl6u+qxrvEGA3IDxWmR4u5E2fgOgbwK6Wl2Gix4Qsapr2yDzUapkJdsoCgyVS3SPE7K1J7a2y4WUOUOMISZM0JVhfavKIbGipVq2V2KQluujDNydVS8yuUw4VIWFALGsaSHlt8+iGHNg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ud20ASVs; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1759059788; c=relaxed/simple;
+	bh=MjFIAl9k9tX8maWLewrIXygg9RZGYKcf7XkiGNCxuJk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FKCB2v7Rune2hqNGTRdJWfg1YZ0cywHTFu7dmIwhtlMZOSBsxaiWrxTT9cNyhpdWB954AZgJON7StP8wBiUOwbUGjo+YrlQkWI76QbyMKDcBfZ9LIGV7sslumUO/Dp8RTIYVncPM456sJ5/K4LYqw+0+BeCGuFp/U48gt66a6ys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=hysO746P; arc=none smtp.client-ip=115.124.30.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ud20ASVs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77AC5C2BCB5
-	for <linux-s390@vger.kernel.org>; Sun, 28 Sep 2025 10:33:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1759055603;
-	bh=W1P4GzY1bC9YgmxJ2fNnWAboDU4JuIT0DBDqxALFX0M=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=ud20ASVsnYuE5kNMszyEQpSoR0Bq4bejcUKHOUGjiL35VMUaD5yL3aWJSfDAcC6Td
-	 gZvVM+w5J+fLJk+M+cm+C5F6V8+n4QeTYvqpgUamaRejIQgk3V0BlYAFNlqYQL24Bc
-	 DWcQUU6VEeKpDUxZxLhye5/BzKyKh/wIMTJhcQ4gOf6DwgjgyJduc9FxYI2tEQHU8G
-	 Smimz0KWLOn1bqbGAIREMMYENc9PlF8rWaED7GAKDBcxtwEhefJidnd2amv8AtvhLY
-	 P0w6Rw13h6lhC3C6zgIAqhb2YGn56pNaWFWlqBEqDnFrzkyAsiQ1FYLlftVUlNnfCZ
-	 N4zqSVcCig0bw==
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-30cce86052cso2861612fac.1
-        for <linux-s390@vger.kernel.org>; Sun, 28 Sep 2025 03:33:23 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVRQsvXHI0bFx2KrAUwfyGtmm+4dbFXpw9Zc7hpPJkJcP6Q43uzz24nrzuMrc/UCfDbcA26Owyhn719@vger.kernel.org
-X-Gm-Message-State: AOJu0YymzWxdfG+ggFo6PrcioeUCTH0ItuBzQTsM3yDkQh0f1Ee5PoC7
-	kIzv8cuU9fmFlTbTfUoPQE/R0G9sdYVmHkuitSOzIDscQ8Hh/6SCc7r3fWatzsLSuJCzUOgLc6R
-	qSh0fArEA2F3Wg6QlEW5NoJLdm4sIlLs=
-X-Google-Smtp-Source: AGHT+IHHkBehFxa/bp8CnX34GBVpEV5VAfmAS0oqHk9Wg6vhKkRCMfTaIXQ9hfF+1UwB0EGnwQh5Kq0MuUSpqvkAupk=
-X-Received: by 2002:a05:6870:a118:b0:315:b618:d6be with SMTP id
- 586e51a60fabf-35ef20c8e8fmr6297578fac.51.1759055602481; Sun, 28 Sep 2025
- 03:33:22 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="hysO746P"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1759059776; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=FbEJZn1VlIH4Up2Uzqcbz9YfXVxLvi1ttktMbwcIwhA=;
+	b=hysO746P5MhOK6F3nFGQjtUJePDRaWmtP47eRL9u7y+qdAmfBl+Z5IrmUo+Gd60YSnwQCUF8h0TmSiXbk/apbdWEgZx8dpaOrVsvU+npY9xZ8BxptAywDAG4X9ch61W7J1WXU3TCMEEAlNyWTzhxZbr8Lp4a2qCqre2GynLkY24=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WoyoQGt_1759059774 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Sun, 28 Sep 2025 19:42:55 +0800
+Date: Sun, 28 Sep 2025 19:42:54 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+	Simon Horman <horms@kernel.org>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, netdev@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next v3 1/2] net/smc: make wr buffer count
+ configurable
+Message-ID: <aNkfPqTyQxYTusKw@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250921214440.325325-1-pasic@linux.ibm.com>
+ <20250921214440.325325-2-pasic@linux.ibm.com>
+ <7cc2df09-0230-40cb-ad4f-656b0d1d785b@redhat.com>
+ <20250925132540.74091295.pasic@linux.ibm.com>
+ <20250928005515.61a57542.pasic@linux.ibm.com>
+ <aNiXQ_UfG9k-f9-n@linux.alibaba.com>
+ <20250928103951.6464dfd3.pasic@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250916044735.2316171-1-dolinux.peng@gmail.com>
- <20250916044735.2316171-2-dolinux.peng@gmail.com> <03ad08d9-4510-19fb-bbad-652159308119@huawei.com>
-In-Reply-To: <03ad08d9-4510-19fb-bbad-652159308119@huawei.com>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Sun, 28 Sep 2025 12:33:11 +0200
-X-Gmail-Original-Message-ID: <CAJZ5v0ix+taHWpKAeYsNBQMoxG6f7E9vyO=yqjrh5_AnjrXZbg@mail.gmail.com>
-X-Gm-Features: AS18NWDE1zAXVuNiUSbLmdX4xI4485zsbYvsUyBO0gNsC9FdVLBA2B2bjlgQB_4
-Message-ID: <CAJZ5v0ix+taHWpKAeYsNBQMoxG6f7E9vyO=yqjrh5_AnjrXZbg@mail.gmail.com>
-Subject: Re: [PATCH v3 01/14] ACPI: APEI: Remove redundant rcu_read_lock/unlock()
- in spin_lock
-To: Hanjun Guo <guohanjun@huawei.com>, pengdonglin <dolinux.peng@gmail.com>
-Cc: tj@kernel.org, tony.luck@intel.com, jani.nikula@linux.intel.com, 
-	ap420073@gmail.com, jv@jvosburgh.net, freude@linux.ibm.com, bcrl@kvack.org, 
-	trondmy@kernel.org, longman@redhat.com, kees@kernel.org, 
-	bigeasy@linutronix.de, hdanton@sina.com, paulmck@kernel.org, 
-	linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev, 
-	linux-nfs@vger.kernel.org, linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org, 
-	intel-gfx@lists.freedesktop.org, linux-wireless@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-s390@vger.kernel.org, 
-	cgroups@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	pengdonglin <pengdonglin@xiaomi.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250928103951.6464dfd3.pasic@linux.ibm.com>
 
-On Sat, Sep 27, 2025 at 5:22=E2=80=AFAM Hanjun Guo <guohanjun@huawei.com> w=
-rote:
+On 2025-09-28 10:39:51, Halil Pasic wrote:
+>On Sun, 28 Sep 2025 10:02:43 +0800
+>Dust Li <dust.li@linux.alibaba.com> wrote:
 >
-> On 2025/9/16 12:47, pengdonglin wrote:
-> > From: pengdonglin <pengdonglin@xiaomi.com>
-> >
-> > Since commit a8bb74acd8efe ("rcu: Consolidate RCU-sched update-side fun=
-ction definitions")
-> > there is no difference between rcu_read_lock(), rcu_read_lock_bh() and
-> > rcu_read_lock_sched() in terms of RCU read section and the relevant gra=
-ce
-> > period. That means that spin_lock(), which implies rcu_read_lock_sched(=
-),
-> > also implies rcu_read_lock().
-> >
-> > There is no need no explicitly start a RCU read section if one has alre=
-ady
-> > been started implicitly by spin_lock().
-> >
-> > Simplify the code and remove the inner rcu_read_lock() invocation.
-> >
-> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > Cc: Tony Luck <tony.luck@intel.com>
-> > Cc: Hanjun Guo <guohanjun@huawei.com>
-> > Signed-off-by: pengdonglin <pengdonglin@xiaomi.com>
-> > Signed-off-by: pengdonglin <dolinux.peng@gmail.com>
-> > ---
-> >   drivers/acpi/apei/ghes.c | 2 --
-> >   1 file changed, 2 deletions(-)
-> >
-> > diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-> > index a0d54993edb3..97ee19f2cae0 100644
-> > --- a/drivers/acpi/apei/ghes.c
-> > +++ b/drivers/acpi/apei/ghes.c
-> > @@ -1207,12 +1207,10 @@ static int ghes_notify_hed(struct notifier_bloc=
-k *this, unsigned long event,
-> >       int ret =3D NOTIFY_DONE;
-> >
-> >       spin_lock_irqsave(&ghes_notify_lock_irq, flags);
-> > -     rcu_read_lock();
-> >       list_for_each_entry_rcu(ghes, &ghes_hed, list) {
-> >               if (!ghes_proc(ghes))
-> >                       ret =3D NOTIFY_OK;
-> >       }
-> > -     rcu_read_unlock();
-> >       spin_unlock_irqrestore(&ghes_notify_lock_irq, flags);
-> >
-> >       return ret;
+>> >Unfortunately I don't quite understand why qp_attr.cap.max_send_wr is 3
+>> >times the number of send WR buffers we allocate. My understanding
+>> >is that qp_attr.cap.max_send_wr is about the number of send WQEs.  
+>> 
+>> We have at most 2 RDMA Write for 1 RDMA send. So 3 times is necessary.
+>> That is explained in the original comments. Maybe it's better to keep it.
+>> 
+>> ```
+>> .cap = {
+>>                 /* include unsolicited rdma_writes as well,
+>>                  * there are max. 2 RDMA_WRITE per 1 WR_SEND
+>>                  */
 >
-> Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+>But what are "the unsolicited" rdma_writes? I have heard of
+>unsolicited receive, where the data is received without
+>consuming a WR previously put on the RQ on the receiving end, but
+>the concept of unsolicited rdma_writes eludes me completely.
 
-Applied as 6.18 material, thanks!
+unsolicited RDMA Writes means those RDMA Writes won't generate
+CQEs on the local side. You can refer to:
+https://www.rdmamojo.com/2014/05/27/solicited-event/
+
+>
+>I guess what you are trying to say, and what I understand is
+>that we first put the payload into the RMB of the remote, which
+>may require up 2 RDMA_WRITE operations, probably because we may
+>cross the end (and start) of the array that hosts the circular
+>buffer, and then we send a CDC message to update the cursor.
+>
+>For the latter a  ib_post_send() is used in smc_wr_tx_send()
+>and AFAICT it consumes a WR from wr_tx_bufs. For the former
+>we consume a single wr_tx_rdmas which and each wr_tx_rdmas
+>has 2 WR allocated.
+
+Right.
+
+>
+>And all those WRs need a WQE. So I guess now I do understand
+>SMC_WR_BUF_CNT, but I find the comment still confusing like
+>hell because of these unsolicited rdma_writes.
+>
+>Thank you for the explanation! It was indeed helpful! Let
+>me try to come up with a better comment -- unless somebody
+>manages to explain "unsolicited rdma_writes" to me.
+>
+>>         .max_send_wr = SMC_WR_BUF_CNT * 3,
+>>         .max_recv_wr = SMC_WR_BUF_CNT * 3,
+>>         .max_send_sge = SMC_IB_MAX_SEND_SGE,
+>>         .max_recv_sge = lnk->wr_rx_sge_cnt,
+>>         .max_inline_data = 0,
+>> },
+>> ```
+>> 
+>> >I assume that qp_attr.cap.max_send_wr == qp_attr.cap.max_recv_wr
+>> >is not something we would want to preserve.  
+>> 
+>> IIUC, RDMA Write won't consume any RX wqe on the receive side, so I think
+>> the .max_recv_wr can be SMC_WR_BUF_CNT if we don't use RDMA_WRITE_IMM.
+>
+>Maybe we don't want to assume somebody else (another implementation)
+>would not use immediate data. I'm not sure. But I don't quite understand
+>the why the relationship between the send and the receive side either.
+
+I missed something here. I sent an other email right after this to
+explain my thoughts here:
+
+    I kept thinking about this a bit more, and I realized that max_recv_wr
+    should be larger than SMC_WR_BUF_CNT.
+
+    Since receive WQEs are posted in a softirq context, their posting may be
+    delayed. Meanwhile, the sender might already have received the TX
+    completion (CQE) and continue sending new messages. In this case, if the
+    receiver’s post_recv() (i.e., posting of RX WQEs) is delayed, an RNR
+    (Receiver Not Ready) can easily occur.
+
+Best regards,
+Dust
+
