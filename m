@@ -1,315 +1,168 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB6CF3016EC;
-	Mon, 29 Sep 2025 11:44:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090EE2405EC;
+	Mon, 29 Sep 2025 18:30:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759146281; cv=none; b=Iw61S4tJ8Zl2EqxsMtDDZQV/7t3iPNcSuv9CA6sFUM0GmnjzphwxoHuJCGW4c3+5yOghALvlSharQvhBqafeNuq4w1zJu3S3sCc2tTJcq1s6iP6tDjlyPuuy/2OJjYLId6hghiFP65VBEhVsoNo3RnuStqn/cHwDwgFTU6OwWCc=
+	t=1759170614; cv=none; b=MjJ4v6nGKz+KROHHPqGYjenGq4dwlwzZLL4GJYDWwOfwIpvUo6PMaytoaE4Wdv/3G/4tGhwjakADO6476hpqoTLFZyVgs6a6ZzYxVwbXZ4hCrjZBwXcsgSpsXoSE0FBrGuWuUZ1i+vFDmhrsHLzyq4gN85Qq2foW5Ik6xCPrBJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759146281; c=relaxed/simple;
-	bh=C1ygtBPEqFsy/Q8p5AKavsu3/YI1AB1lWX+iu/u/QPI=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=aNJ5wA7o0c0ARKYvxskBBPwV3Hcs3XosCfD+zWTr9e3pcZsO30dADlpsB2ZMwCUL9hIp/5wto8EZOUeRPwIWRc08W/m4AMNOPIwMREe2gy3AqMMWEdualwVdIc/msrJKX06ShxmgCnvHuNkJ5n4phd8+8iSxPUGFDMP0u4PQXBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NKRukHif; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1759170614; c=relaxed/simple;
+	bh=rJ2qz3X9zXmAr8f5ULFf/IOmDoZ3cSKZpUCMR3PZM4I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=V5h3d37apms7QZmLguY/lCybcMBMXMkDcihROKRC5qJGxHsEdCsujE9w+w/bLLGB7RxxA0tOQgnBMiR1Pene7UnK+1hn6Qo73po40T7m/9ftHdEsdYBx7XaRcXcHUURFR80MQAf49hTK/JEU1edEcIoYegKICGyp2YjtcUuf/ss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PzdtXT+1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NKRukHif"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58SMK6EX022485;
-	Mon, 29 Sep 2025 11:39:30 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=hFeN9jTOUjBxVBfzmkKkge1w/Iv5GqKPsgbt8sCqfo4=; b=NKRukHifdj1t
-	t/vIt3waWrr7JyRfEd7DJhH+wpLf1LuE81qbnrmhBphIzmRN7jZUnNI1MgRgv2Kt
-	Fci/ZL9NlrWEv//APfatVc39W0GqaGTexFgMTZEpjpc8Gwqm2YcgW/6+hOrGHfac
-	Faag+H1JI7+jkB2qC8zT/LyTZtzKXp4mCPU6369rfqtjKkB02xBCvILRKaRLyPfj
-	PG7c011FN2PdZ6WzqlUaZv6ZSIspweZO5ADDkstevNGpqILH6NYlEnGIgv+Sh7ZA
-	K6U/6WDQARdivAZR+sM7+x58bUuVCEvp/CyiZDFZSQVF1S3vJ7+rIQuP2aw/22PU
-	ZGBNmvPOpQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7n7hw3t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Sep 2025 11:39:30 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58T7jAvp020508;
-	Mon, 29 Sep 2025 11:39:29 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49et8rx0h4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Sep 2025 11:39:29 +0000
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58TBdH1j29295210
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 29 Sep 2025 11:39:17 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4457958052;
-	Mon, 29 Sep 2025 11:39:28 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B993F58056;
-	Mon, 29 Sep 2025 11:39:27 +0000 (GMT)
-Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 29 Sep 2025 11:39:27 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PzdtXT+1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F09FAC4CEF4;
+	Mon, 29 Sep 2025 18:30:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1759170610;
+	bh=rJ2qz3X9zXmAr8f5ULFf/IOmDoZ3cSKZpUCMR3PZM4I=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=PzdtXT+1eDllY8w+VOqFihbNZrHe9bw1aPUFZRrOIwVJhDTs+XjAFvLEH/imbx3qH
+	 1IM/vNzAiSo20pxBMPJdqndAk1v5FCythLckQfAhVZ+nYgmh3Pn8NDqPIpZTT5PA/Z
+	 NqlcqQWFoHZbDvpbc5lkRrTsB5JW5JJdFfFSE8OE0g1ueXkp3F7ijznW9bQQD+8Q0O
+	 +aWo898dVNgjANsERCrWzM7ucMkAtkumxIX3fAA2zxbQCAx4e5rEe7gSRdPIm+h9wi
+	 TsGQyq6cyTQY2ENEa4g8a1Gc+HRDWpIHn1x+SrlHpmwx5VIRvvpTwA967V0U6FkJHC
+	 TEQxQ2DMWRrZw==
+Message-ID: <2d23db3f-27fb-4f9c-b516-97b5687f2a36@kernel.org>
+Date: Mon, 29 Sep 2025 19:29:54 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Mon, 29 Sep 2025 13:39:27 +0200
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Eric Biggers <ebiggers@kernel.org>,
-        "Jason A . Donenfeld"
- <Jason@zx2c4.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu
- <herbert@gondor.apana.org.au>,
-        Stephan Mueller <smueller@chronox.de>, linux-crypto@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Holger Dengler
- <dengler@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v3 1/8] s390/sha3: Rename conflicting functions
-Reply-To: freude@linux.ibm.com
-Mail-Reply-To: freude@linux.ibm.com
-In-Reply-To: <20250926141959.1272455-2-dhowells@redhat.com>
-References: <20250926141959.1272455-1-dhowells@redhat.com>
- <20250926141959.1272455-2-dhowells@redhat.com>
-Message-ID: <88913f4419f2f7cd29b57539c3726251@linux.ibm.com>
-X-Sender: freude@linux.ibm.com
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla Thunderbird Beta
+Subject: Re: [PATCH net-next v3 13/14] dibs: Move data path to dibs layer:
+ manual merge
+Content-Language: en-GB, fr-BE
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Alexandra Winter <wintera@linux.ibm.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>,
+ Julian Ruess <julianr@linux.ibm.com>, Aswin Karuvally <aswin@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Konstantin Shkolnyy <kshk@linux.ibm.com>,
+ Dan Williams <dan.j.williams@intel.com>, Dave Jiang <dave.jiang@intel.com>,
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+ Shannon Nelson <sln@onemain.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
+ David Miller <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Stephen Rothwell <sfr@canb.auug.org.au>
+References: <20250918110500.1731261-1-wintera@linux.ibm.com>
+ <20250918110500.1731261-14-wintera@linux.ibm.com>
+ <74368a5c-48ac-4f8e-a198-40ec1ed3cf5f@kernel.org>
+ <20250925105733.040604ca@kernel.org>
+From: Matthieu Baerts <matttbe@kernel.org>
+Autocrypt: addr=matttbe@kernel.org; keydata=
+ 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
+ lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
+Organization: NGI0 Core
+In-Reply-To: <20250925105733.040604ca@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 2l9zG-XCITD7Ju6YkV2wUG6m2cFz_gPL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAyNSBTYWx0ZWRfXzLK+mcl8g2dl
- WAKtYLQstbEsmze6p/QHc/FgrDB+MhGkt9E6HR8IYzsmrtMPqDcRxSW4dIHbavjn8U3KzfNQXgr
- +Ke55XqQaSRTpgHBSkugmuBIGnHGqTiSAR8CsiYmVqKoojg17UpgJrmhqTB33xyBjIYyUVb90Oe
- i8/rrhq7yELYcXraD3TeWrSXwmvBafh1Mk0arCx5sit1ADjjYnO7RUgK6UpZnKOrEDt6pGyfapY
- jb/VI6XbWgA1cL5SrkBJvPwdqk4uBgkOC1rMxV2+2EL2NzU/tdmhVeG57/jirYronziC1Lc5mXO
- eLO0iSDyuWqfzPKjLwZ2SiRpZwAyfY9dY1LfeFdcu0UrsNKBt3B1dXR5Jdbn4I4/wrQrPzQdWwH
- oFpbiBHK9JwcGulAh+ehnOdsuwuyfQ==
-X-Proofpoint-GUID: 2l9zG-XCITD7Ju6YkV2wUG6m2cFz_gPL
-X-Authority-Analysis: v=2.4 cv=T7qBjvKQ c=1 sm=1 tr=0 ts=68da6ff2 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=20KFwNOVAAAA:8 a=VwQbUJbxAAAA:8
- a=UGG5zPGqAAAA:8 a=VnNF1IyMAAAA:8 a=FNyBlpCuAAAA:8 a=ViNXwmFP9Bwyp9zFovgA:9
- a=CjuIK1q_8ugA:10 a=17ibUXfGiVyGqR_YBevW:22 a=RlW-AWeGUCXs_Nkyno-6:22
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-29_04,2025-09-29_02,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
- clxscore=1011 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270025
 
-On 2025-09-26 16:19, David Howells wrote:
-> Rename the s390 sha3_* functions to have an "s390_" prefix to avoid
-> conflict with generic code.
-> 
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Eric Biggers <ebiggers@kernel.org>
-> cc: Jason A. Donenfeld <Jason@zx2c4.com>
-> cc: Ard Biesheuvel <ardb@kernel.org>
-> cc: Harald Freudenberger <freude@linux.ibm.com>
-> cc: Holger Dengler <dengler@linux.ibm.com>
-> cc: Herbert Xu <herbert@gondor.apana.org.au>
-> cc: Stephan Mueller <smueller@chronox.de>
-> cc: linux-crypto@vger.kernel.org
-> cc: linux-s390@vger.kernel.org
-> ---
->  arch/s390/crypto/sha3_256_s390.c | 26 +++++++++++++-------------
->  arch/s390/crypto/sha3_512_s390.c | 26 +++++++++++++-------------
->  2 files changed, 26 insertions(+), 26 deletions(-)
-> 
-> diff --git a/arch/s390/crypto/sha3_256_s390.c 
-> b/arch/s390/crypto/sha3_256_s390.c
-> index 03bb4f4bab70..fd5ecae60a57 100644
-> --- a/arch/s390/crypto/sha3_256_s390.c
-> +++ b/arch/s390/crypto/sha3_256_s390.c
-> @@ -19,7 +19,7 @@
-> 
->  #include "sha.h"
-> 
-> -static int sha3_256_init(struct shash_desc *desc)
-> +static int s390_sha3_256_init(struct shash_desc *desc)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
-> 
-> @@ -32,7 +32,7 @@ static int sha3_256_init(struct shash_desc *desc)
->  	return 0;
->  }
-> 
-> -static int sha3_256_export(struct shash_desc *desc, void *out)
-> +static int s390_sha3_256_export(struct shash_desc *desc, void *out)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
->  	union {
-> @@ -50,7 +50,7 @@ static int sha3_256_export(struct shash_desc *desc, 
-> void *out)
->  	return 0;
->  }
-> 
-> -static int sha3_256_import(struct shash_desc *desc, const void *in)
-> +static int s390_sha3_256_import(struct shash_desc *desc, const void 
-> *in)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
->  	union {
-> @@ -68,22 +68,22 @@ static int sha3_256_import(struct shash_desc
-> *desc, const void *in)
->  	return 0;
->  }
-> 
-> -static int sha3_224_import(struct shash_desc *desc, const void *in)
-> +static int s390_sha3_224_import(struct shash_desc *desc, const void 
-> *in)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
-> 
-> -	sha3_256_import(desc, in);
-> +	s390_sha3_256_import(desc, in);
->  	sctx->func = CPACF_KIMD_SHA3_224;
->  	return 0;
->  }
-> 
->  static struct shash_alg sha3_256_alg = {
->  	.digestsize	=	SHA3_256_DIGEST_SIZE,	   /* = 32 */
-> -	.init		=	sha3_256_init,
-> +	.init		=	s390_sha3_256_init,
->  	.update		=	s390_sha_update_blocks,
->  	.finup		=	s390_sha_finup,
-> -	.export		=	sha3_256_export,
-> -	.import		=	sha3_256_import,
-> +	.export		=	s390_sha3_256_export,
-> +	.import		=	s390_sha3_256_import,
->  	.descsize	=	S390_SHA_CTX_SIZE,
->  	.statesize	=	SHA3_STATE_SIZE,
->  	.base		=	{
-> @@ -96,22 +96,22 @@ static struct shash_alg sha3_256_alg = {
->  	}
->  };
-> 
-> -static int sha3_224_init(struct shash_desc *desc)
-> +static int s390_sha3_224_init(struct shash_desc *desc)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
-> 
-> -	sha3_256_init(desc);
-> +	s390_sha3_256_init(desc);
->  	sctx->func = CPACF_KIMD_SHA3_224;
->  	return 0;
->  }
-> 
->  static struct shash_alg sha3_224_alg = {
->  	.digestsize	=	SHA3_224_DIGEST_SIZE,
-> -	.init		=	sha3_224_init,
-> +	.init		=	s390_sha3_224_init,
->  	.update		=	s390_sha_update_blocks,
->  	.finup		=	s390_sha_finup,
-> -	.export		=	sha3_256_export, /* same as for 256 */
-> -	.import		=	sha3_224_import, /* function code different! */
-> +	.export		=	s390_sha3_256_export, /* same as for 256 */
-> +	.import		=	s390_sha3_224_import, /* function code different! */
->  	.descsize	=	S390_SHA_CTX_SIZE,
->  	.statesize	=	SHA3_STATE_SIZE,
->  	.base		=	{
-> diff --git a/arch/s390/crypto/sha3_512_s390.c 
-> b/arch/s390/crypto/sha3_512_s390.c
-> index a5c9690eecb1..f4b52a3a0433 100644
-> --- a/arch/s390/crypto/sha3_512_s390.c
-> +++ b/arch/s390/crypto/sha3_512_s390.c
-> @@ -18,7 +18,7 @@
-> 
->  #include "sha.h"
-> 
-> -static int sha3_512_init(struct shash_desc *desc)
-> +static int s390_sha3_512_init(struct shash_desc *desc)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
-> 
-> @@ -31,7 +31,7 @@ static int sha3_512_init(struct shash_desc *desc)
->  	return 0;
->  }
-> 
-> -static int sha3_512_export(struct shash_desc *desc, void *out)
-> +static int s390_sha3_512_export(struct shash_desc *desc, void *out)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
->  	union {
-> @@ -49,7 +49,7 @@ static int sha3_512_export(struct shash_desc *desc, 
-> void *out)
->  	return 0;
->  }
-> 
-> -static int sha3_512_import(struct shash_desc *desc, const void *in)
-> +static int s390_sha3_512_import(struct shash_desc *desc, const void 
-> *in)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
->  	union {
-> @@ -67,22 +67,22 @@ static int sha3_512_import(struct shash_desc
-> *desc, const void *in)
->  	return 0;
->  }
-> 
-> -static int sha3_384_import(struct shash_desc *desc, const void *in)
-> +static int s390_sha3_384_import(struct shash_desc *desc, const void 
-> *in)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
-> 
-> -	sha3_512_import(desc, in);
-> +	s390_sha3_512_import(desc, in);
->  	sctx->func = CPACF_KIMD_SHA3_384;
->  	return 0;
->  }
-> 
->  static struct shash_alg sha3_512_alg = {
->  	.digestsize	=	SHA3_512_DIGEST_SIZE,
-> -	.init		=	sha3_512_init,
-> +	.init		=	s390_sha3_512_init,
->  	.update		=	s390_sha_update_blocks,
->  	.finup		=	s390_sha_finup,
-> -	.export		=	sha3_512_export,
-> -	.import		=	sha3_512_import,
-> +	.export		=	s390_sha3_512_export,
-> +	.import		=	s390_sha3_512_import,
->  	.descsize	=	S390_SHA_CTX_SIZE,
->  	.statesize	=	SHA3_STATE_SIZE,
->  	.base		=	{
-> @@ -97,22 +97,22 @@ static struct shash_alg sha3_512_alg = {
-> 
->  MODULE_ALIAS_CRYPTO("sha3-512");
-> 
-> -static int sha3_384_init(struct shash_desc *desc)
-> +static int s390_sha3_384_init(struct shash_desc *desc)
->  {
->  	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
-> 
-> -	sha3_512_init(desc);
-> +	s390_sha3_512_init(desc);
->  	sctx->func = CPACF_KIMD_SHA3_384;
->  	return 0;
->  }
-> 
->  static struct shash_alg sha3_384_alg = {
->  	.digestsize	=	SHA3_384_DIGEST_SIZE,
-> -	.init		=	sha3_384_init,
-> +	.init		=	s390_sha3_384_init,
->  	.update		=	s390_sha_update_blocks,
->  	.finup		=	s390_sha_finup,
-> -	.export		=	sha3_512_export, /* same as for 512 */
-> -	.import		=	sha3_384_import, /* function code different! */
-> +	.export		=	s390_sha3_512_export, /* same as for 512 */
-> +	.import		=	s390_sha3_384_import, /* function code different! */
->  	.descsize	=	S390_SHA_CTX_SIZE,
->  	.statesize	=	SHA3_STATE_SIZE,
->  	.base		=	{
+Hi Jakub,
 
-Acked-By: Harald Freudenberger <freude@linux.ibm.com>
+(Sorry for the delay, I was travelling)
+
+On 25/09/2025 18:57, Jakub Kicinski wrote:
+> On Wed, 24 Sep 2025 10:07:35 +0100 Matthieu Baerts wrote:
+>> Regarding this conflict, I hope the resolution is correct. The patch
+>> from 'net' was modifying 'net/smc/smc_loopback.c' in
+>> smc_lo_register_dmb() and __smc_lo_unregister_dmb(). I applied the same
+>> modifications in 'drivers/dibs/dibs_loopback.c', in
+>> dibs_lo_register_dmb() and __dibs_lo_unregister_dmb(). In net-next,
+>> kfree(cpu_addr) was used instead of kvfree(cpu_addr), but this was done
+>> on purpose. Also, I had to include mm.h to be able to build this driver.
+>> I also attached a simple diff of the modifications I did.
+> 
+> Thanks a lot for sharing the resolutions!
+
+You are very welcome!
+
+>> Note: no rerere cache is available for this kind of conflicts.
+> 
+> BTW have you figured out how to resolve that automatically?
+> NIPA does trusts rerere but because it didn't work we were running
+> without net for the last few days (knowingly) :(
+
+When I was in charge of supporting MPTCP on top of a few old stable
+kernels, and keeping new features in sync on all these kernels, I ended
+up automating the resolution of such conflicts. In my case, I was
+cherry-picking patches, and I could then simply take a fingerprint based
+on the 'git diff' output without the index and lines numbers. With the
+hash of the diff, I could either create or get the corresponding
+'.patch' file can be automatically applied with the 'patch' command to
+resolve the conflicts.
+
+In your case, you are merging trees that are regularly changing, if I'm
+not mistaken. In this case, the fingerprint should not be based on
+everything pending during the merge, but I guess it should be possible
+to get a fingerprint, e.g. a diff showing the conflicts.
+
+Note that in the MPTCP tree, we use 'TopGit' [1], and our tree is
+regularly synced with 'net' and 'net-next'. When there are conflicts, I
+only have to fix them once, because TopGit merges multiple branches and
+keep a continuous history. That's another solution, but it might not be
+adapted to NIPA's needs.
+
+[1] https://mackyle.github.io/topgit/
+
+Cheers,
+Matt
+-- 
+Sponsored by the NGI0 Core fund.
+
