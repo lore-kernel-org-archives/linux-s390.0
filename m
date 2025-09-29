@@ -1,296 +1,242 @@
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A3942F2E;
-	Mon, 29 Sep 2025 01:51:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E64C1283FD4
+	for <linux-s390@vger.kernel.org>; Mon, 29 Sep 2025 09:13:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759110669; cv=none; b=SoFvXURs8zOzIDuJ+LpeYgWdlEW5eNRiUkFttN58Fbsi0Z41UeW0DMFWwN5avhaj34uMZCCTlpwB8d5Dapqzfdq3Ype1lLK0WlYoiNaGl0IXlnV/ce9izQfWbTpprRWRYaUIIpUdax6/0J81xLYZeKAqPffPKZCElac3+yyo65o=
+	t=1759137225; cv=none; b=DO+yzN3tvgmfCkxAc4s82KnUDdS7x67+hCB2b8/edhl197nn4zZsllOV3ldVeQM/F+NQC/vk4JghboJboalAsrWwOkKBzjUN7/TTjVKFsD10if7oYSUm2ZvDNDbdvUmEDQnBSwLjD33hFPbNVMtpJ7hb1kPAsM+6Q/RzjSR+fUQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759110669; c=relaxed/simple;
-	bh=QPLiG3/EaSBK7ty8Ofz3g15Hll54Bo9Sr+73BNfJa6Q=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ipQL0wEwn4h6gCK+O/56ookfEgeUtlE7+9QwT4laJx/jAZV9N+4rZ8VVw/tVNTsEi/ikDb2x+myV52GlmyAQYG7OnCCzRyhCYUPnmaetnv3r5hVs1DtmnB9JUfOOqgo/mvREUoG0Rlh0Uo9h9EJHN16xSA/G+0R5R/xMtl3lYOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=CHzHYqLg; arc=none smtp.client-ip=115.124.30.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1759137225; c=relaxed/simple;
+	bh=jtJHKeg4V3hrJtslZs+qvCCY9ECaZmET93hB+vqILeg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=LHQxXMXE3/eJSRUGGI54CDpgg57pM9LyEVQfPiprmXRu/zD0UMr/M5KGVFFzCspoZ7wPBzWxU7+z/tCchyKFvtM0/LuIBlXxO+/5nzmrULbYz0B9BUWoIIFPlzUe9S3mZFdeL+hQ50E+hxmAQGLBTX97KZ+BWgjzePpdW01TxkE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Hq4pd3FL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=b25DWtEA; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hMG0X5o7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZWV8cEdM; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="CHzHYqLg"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1759110654; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=9aorilP5lRAQIaWXx/azi+eQ3upGhw4CPgjfhTO+Sro=;
-	b=CHzHYqLgqUtZ+U8hRZFXvzMFo2FAC3SIlCnHPN1KGU8M2Iqmot7mm8NVV9U6O9Jx7oJ3C7yZUqv5QG41ROZI8cCA/k/4tUTVJVD4jsgBpPnlys+bACeKN3zzMJuZ/Otd9PZufNQkS091+XOV7WodKgCfw7yHsVsvFD4qZU2YDIs=
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WozqZKo_1759110652 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 29 Sep 2025 09:50:53 +0800
-Date: Mon, 29 Sep 2025 09:50:52 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Halil Pasic <pasic@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Guangguan Wang <guangguan.wang@linux.alibaba.com>,
-	netdev@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH net-next v5 2/2] net/smc: handle -ENOMEM from
- smc_wr_alloc_link_mem gracefully
-Message-ID: <aNnl_CfV0EvIujK0@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20250929000001.1752206-1-pasic@linux.ibm.com>
- <20250929000001.1752206-3-pasic@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Hq4pd3FL";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="b25DWtEA";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hMG0X5o7";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZWV8cEdM"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id A4745297E2;
+	Mon, 29 Sep 2025 09:13:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1759137220; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
+	b=Hq4pd3FLlIHlpsq/WIWIpKTQIK1u5uVC206WcP0fQUSFrI19DANzMPCVUP75KY+hBZcL0Q
+	dtdVgf8LzRHS+mLGqBHxvAYy4l40BsAWLIlpobyu01j8D02b0I98f1+p5dw6q44ptuX62H
+	m9Zo3mhg2ZXRKipx4DYunUuhbPd04E4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1759137220;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
+	b=b25DWtEAGkPFc4sT9issDmqy/BMl9Qbnlh5ruisp0J1gFMCT/qNvoATff8AwO5EUhSceEL
+	kSBiQsu7tqSUuVAA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=hMG0X5o7;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=ZWV8cEdM
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1759137219; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
+	b=hMG0X5o7qx5uLzOvtPU6oAOR/sM1jQy2B6QsQik0JJGzKLSrpedSDbKzqP6/qSgL4E6z5c
+	PYEIwt7LMqEi6gairxqjXKFRdyD4dFJYTy2ovOneowKDznaaZr9VZ4B/+OwUlRFxMrvTSI
+	pzIsg61tXM/wB+hrp8gOffgcwit1QxI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1759137219;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
+	b=ZWV8cEdMR8rl5mD9g70Zqdfp6Osb2Z+ASfy/UIiBlSB9+DmXXVL0n2mnz3VGfUEWe6Zu2m
+	Fw46i1nCG69w1gBA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CB9D413782;
+	Mon, 29 Sep 2025 09:13:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id q2iJILJN2mgkQwAAD6G6ig
+	(envelope-from <ddiss@suse.de>); Mon, 29 Sep 2025 09:13:22 +0000
+Date: Mon, 29 Sep 2025 19:13:16 +1000
+From: David Disseldorp <ddiss@suse.de>
+To: nschichan@freebox.fr
+Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk,
+ brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org,
+ ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com,
+ gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de,
+ hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz,
+ julian.stecklina@cyberus-technology.de, kees@kernel.org,
+ linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-api@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
+ linux-csky@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
+ linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+ mcgrof@kernel.org, mingo@redhat.com, monstr@monstr.eu,
+ mzxreary@0pointer.de, patches@lists.linux.dev, rob@landley.net,
+ safinaskar@gmail.com, sparclinux@vger.kernel.org,
+ thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev,
+ torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk,
+ x86@kernel.org
+Subject: Re: [PATCH-RFC] init: simplify initrd code (was Re: [PATCH RESEND
+ 00/62] initrd: remove classic initrd support).
+Message-ID: <20250929171652.50b7a959.ddiss@suse.de>
+In-Reply-To: <20250925131055.3933381-1-nschichan@freebox.fr>
+References: <CAHNNwZC7gC7zaZGiSBhobSAb4m2O1BuoZ4r=SQBF-tCQyuAPvw@mail.gmail.com>
+	<20250925131055.3933381-1-nschichan@freebox.fr>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250929000001.1752206-3-pasic@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spamd-Result: default: False [-2.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FREEMAIL_CC(0.00)[linux-foundation.org,gmail.com,kernel.dk,kernel.org,cyphar.com,vger.kernel.org,redhat.com,amazon.com,linuxfoundation.org,linux.ibm.com,lst.de,linux.alibaba.com,suse.cz,cyberus-technology.de,lists.infradead.org,lists.linux-m68k.org,lists.ozlabs.org,lists.linux.dev,monstr.eu,0pointer.de,landley.net,linutronix.de,linux.dev,mit.edu,zeniv.linux.org.uk];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	TO_DN_NONE(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[56];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Rspamd-Queue-Id: A4745297E2
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Score: -2.01
 
-On 2025-09-29 02:00:01, Halil Pasic wrote:
->Currently if a -ENOMEM from smc_wr_alloc_link_mem() is handled by
->giving up and going the way of a TCP fallback. This was reasonable
->before the sizes of the allocations there were compile time constants
->and reasonably small. But now those are actually configurable.
->
->So instead of giving up, keep retrying with half of the requested size
->unless we dip below the old static sizes -- then give up! In terms of
->numbers that means we give up when it is certain that we at best would
->end up allocating less than 16 send WR buffers or less than 48 recv WR
->buffers. This is to avoid regressions due to having fewer buffers
->compared the static values of the past.
->
->Please note that SMC-R is supposed to be an optimisation over TCP, and
->falling back to TCP is superior to establishing an SMC connection that
->is going to perform worse. If the memory allocation fails (and we
->propagate -ENOMEM), we fall back to TCP.
->
->Preserve (modulo truncation) the ratio of send/recv WR buffer counts.
->
->Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
->Reviewed-by: Wenjia Zhang <wenjia@linux.ibm.com>
->Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
->---
-> Documentation/networking/smc-sysctl.rst |  8 ++++--
-> net/smc/smc_core.c                      | 34 +++++++++++++++++--------
-> net/smc/smc_core.h                      |  2 ++
-> net/smc/smc_wr.c                        | 28 ++++++++++----------
-> 4 files changed, 46 insertions(+), 26 deletions(-)
->
->diff --git a/Documentation/networking/smc-sysctl.rst b/Documentation/networking/smc-sysctl.rst
->index 5de4893ef3e7..4a5b4c89bc97 100644
->--- a/Documentation/networking/smc-sysctl.rst
->+++ b/Documentation/networking/smc-sysctl.rst
->@@ -85,7 +85,9 @@ smcr_max_send_wr - INTEGER
-> 
-> 	Please be aware that all the buffers need to be allocated as a physically
-> 	continuous array in which each element is a single buffer and has the size
->-	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
->+	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails, we keep retrying
->+	with half of the buffer count until it is ether successful or (unlikely)
->+	we dip below the old hard coded value which is 16 where we give up much
-> 	like before having this control.
-> 
-> 	Default: 16
->@@ -103,7 +105,9 @@ smcr_max_recv_wr - INTEGER
-> 
-> 	Please be aware that all the buffers need to be allocated as a physically
-> 	continuous array in which each element is a single buffer and has the size
->-	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails we give up much
->+	of SMC_WR_BUF_SIZE (48) bytes. If the allocation fails, we keep retrying
->+	with half of the buffer count until it is ether successful or (unlikely)
->+	we dip below the old hard coded value which is 16 where we give up much
-> 	like before having this control.
-> 
-> 	Default: 48
->diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->index be0c2da83d2b..e4eabc83719e 100644
->--- a/net/smc/smc_core.c
->+++ b/net/smc/smc_core.c
->@@ -810,6 +810,8 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
-> 	lnk->clearing = 0;
-> 	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
-> 	lnk->link_id = smcr_next_link_id(lgr);
->+	lnk->max_send_wr = lgr->max_send_wr;
->+	lnk->max_recv_wr = lgr->max_recv_wr;
-> 	lnk->lgr = lgr;
-> 	smc_lgr_hold(lgr); /* lgr_put in smcr_link_clear() */
-> 	lnk->link_idx = link_idx;
->@@ -836,27 +838,39 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
-> 	rc = smc_llc_link_init(lnk);
-> 	if (rc)
-> 		goto out;
->-	rc = smc_wr_alloc_link_mem(lnk);
->-	if (rc)
->-		goto clear_llc_lnk;
-> 	rc = smc_ib_create_protection_domain(lnk);
-> 	if (rc)
->-		goto free_link_mem;
->-	rc = smc_ib_create_queue_pair(lnk);
->-	if (rc)
->-		goto dealloc_pd;
->+		goto clear_llc_lnk;
->+	do {
->+		rc = smc_ib_create_queue_pair(lnk);
->+		if (rc)
->+			goto dealloc_pd;
->+		rc = smc_wr_alloc_link_mem(lnk);
->+		if (!rc)
->+			break;
->+		else if (rc != -ENOMEM) /* give up */
->+			goto destroy_qp;
->+		/* retry with smaller ... */
->+		lnk->max_send_wr /= 2;
->+		lnk->max_recv_wr /= 2;
->+		/* ... unless droping below old SMC_WR_BUF_SIZE */
->+		if (lnk->max_send_wr < 16 || lnk->max_recv_wr < 48)
->+			goto destroy_qp;
->+		smc_ib_destroy_queue_pair(lnk);
->+	} while (1);
->+
-> 	rc = smc_wr_create_link(lnk);
-> 	if (rc)
->-		goto destroy_qp;
->+		goto free_link_mem;
-> 	lnk->state = SMC_LNK_ACTIVATING;
-> 	return 0;
-> 
->+free_link_mem:
->+	smc_wr_free_link_mem(lnk);
-> destroy_qp:
-> 	smc_ib_destroy_queue_pair(lnk);
-> dealloc_pd:
-> 	smc_ib_dealloc_protection_domain(lnk);
->-free_link_mem:
->-	smc_wr_free_link_mem(lnk);
-> clear_llc_lnk:
-> 	smc_llc_link_clear(lnk, false);
-> out:
->diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
->index 8d06c8bb14e9..5c18f08a4c8a 100644
->--- a/net/smc/smc_core.h
->+++ b/net/smc/smc_core.h
->@@ -175,6 +175,8 @@ struct smc_link {
-> 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
-> 	int			llc_testlink_time; /* testlink interval */
-> 	atomic_t		conn_cnt; /* connections on this link */
->+	u16			max_send_wr;
->+	u16			max_recv_wr;
+Hi Nicolas,
 
-Here, you've moved max_send_wr/max_recv_wr from the link group to individual links.
-This means we can now have different max_send_wr/max_recv_wr values on two
-different links within the same link group.
+On Thu, 25 Sep 2025 15:10:56 +0200, nschichan@freebox.fr wrote:
 
-Since in Alibaba we doesn't use multi-link configurations, we haven't tested
-this scenario. Have you tested the link-down handling process in a multi-link
-setup?
-
-Otherwise, the patch looks good to me.
-
-Best regards,
-Dust
-
-> };
+> From: Nicolas Schichan <nschichan@freebox.fr>
 > 
-> /* For now we just allow one parallel link per link group. The SMC protocol
->diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
->index 883fb0f1ce43..5feafa98ab1a 100644
->--- a/net/smc/smc_wr.c
->+++ b/net/smc/smc_wr.c
->@@ -547,9 +547,9 @@ void smc_wr_remember_qp_attr(struct smc_link *lnk)
-> 		    IB_QP_DEST_QPN,
-> 		    &init_attr);
+> - drop prompt_ramdisk and ramdisk_start kernel parameters
+> - drop compression support
+> - drop image autodetection, the whole /initrd.image content is now
+>   copied into /dev/ram0
+> - remove rd_load_disk() which doesn't seem to be used anywhere.
 > 
->-	lnk->wr_tx_cnt = min_t(size_t, lnk->lgr->max_send_wr,
->+	lnk->wr_tx_cnt = min_t(size_t, lnk->max_send_wr,
-> 			       lnk->qp_attr.cap.max_send_wr);
->-	lnk->wr_rx_cnt = min_t(size_t, lnk->lgr->max_recv_wr,
->+	lnk->wr_rx_cnt = min_t(size_t, lnk->max_recv_wr,
-> 			       lnk->qp_attr.cap.max_recv_wr);
-> }
+> There is now no more limitation on the type of initrd filesystem that
+> can be loaded since the code trying to guess the initrd filesystem
+> size is gone (the whole /initrd.image file is used).
 > 
->@@ -741,51 +741,51 @@ int smc_wr_alloc_lgr_mem(struct smc_link_group *lgr)
-> int smc_wr_alloc_link_mem(struct smc_link *link)
-> {
-> 	/* allocate link related memory */
->-	link->wr_tx_bufs = kcalloc(link->lgr->max_send_wr,
->+	link->wr_tx_bufs = kcalloc(link->max_send_wr,
-> 				   SMC_WR_BUF_SIZE, GFP_KERNEL);
-> 	if (!link->wr_tx_bufs)
-> 		goto no_mem;
->-	link->wr_rx_bufs = kcalloc(link->lgr->max_recv_wr, link->wr_rx_buflen,
->+	link->wr_rx_bufs = kcalloc(link->max_recv_wr, link->wr_rx_buflen,
-> 				   GFP_KERNEL);
-> 	if (!link->wr_rx_bufs)
-> 		goto no_mem_wr_tx_bufs;
->-	link->wr_tx_ibs = kcalloc(link->lgr->max_send_wr,
->+	link->wr_tx_ibs = kcalloc(link->max_send_wr,
-> 				  sizeof(link->wr_tx_ibs[0]), GFP_KERNEL);
-> 	if (!link->wr_tx_ibs)
-> 		goto no_mem_wr_rx_bufs;
->-	link->wr_rx_ibs = kcalloc(link->lgr->max_recv_wr,
->+	link->wr_rx_ibs = kcalloc(link->max_recv_wr,
-> 				  sizeof(link->wr_rx_ibs[0]),
-> 				  GFP_KERNEL);
-> 	if (!link->wr_rx_ibs)
-> 		goto no_mem_wr_tx_ibs;
->-	link->wr_tx_rdmas = kcalloc(link->lgr->max_send_wr,
->+	link->wr_tx_rdmas = kcalloc(link->max_send_wr,
-> 				    sizeof(link->wr_tx_rdmas[0]),
-> 				    GFP_KERNEL);
-> 	if (!link->wr_tx_rdmas)
-> 		goto no_mem_wr_rx_ibs;
->-	link->wr_tx_rdma_sges = kcalloc(link->lgr->max_send_wr,
->+	link->wr_tx_rdma_sges = kcalloc(link->max_send_wr,
-> 					sizeof(link->wr_tx_rdma_sges[0]),
-> 					GFP_KERNEL);
-> 	if (!link->wr_tx_rdma_sges)
-> 		goto no_mem_wr_tx_rdmas;
->-	link->wr_tx_sges = kcalloc(link->lgr->max_send_wr, sizeof(link->wr_tx_sges[0]),
->+	link->wr_tx_sges = kcalloc(link->max_send_wr, sizeof(link->wr_tx_sges[0]),
-> 				   GFP_KERNEL);
-> 	if (!link->wr_tx_sges)
-> 		goto no_mem_wr_tx_rdma_sges;
->-	link->wr_rx_sges = kcalloc(link->lgr->max_recv_wr,
->+	link->wr_rx_sges = kcalloc(link->max_recv_wr,
-> 				   sizeof(link->wr_rx_sges[0]) * link->wr_rx_sge_cnt,
-> 				   GFP_KERNEL);
-> 	if (!link->wr_rx_sges)
-> 		goto no_mem_wr_tx_sges;
->-	link->wr_tx_mask = bitmap_zalloc(link->lgr->max_send_wr, GFP_KERNEL);
->+	link->wr_tx_mask = bitmap_zalloc(link->max_send_wr, GFP_KERNEL);
-> 	if (!link->wr_tx_mask)
-> 		goto no_mem_wr_rx_sges;
->-	link->wr_tx_pends = kcalloc(link->lgr->max_send_wr,
->+	link->wr_tx_pends = kcalloc(link->max_send_wr,
-> 				    sizeof(link->wr_tx_pends[0]),
-> 				    GFP_KERNEL);
-> 	if (!link->wr_tx_pends)
-> 		goto no_mem_wr_tx_mask;
->-	link->wr_tx_compl = kcalloc(link->lgr->max_send_wr,
->+	link->wr_tx_compl = kcalloc(link->max_send_wr,
-> 				    sizeof(link->wr_tx_compl[0]),
-> 				    GFP_KERNEL);
-> 	if (!link->wr_tx_compl)
->@@ -906,7 +906,7 @@ int smc_wr_create_link(struct smc_link *lnk)
-> 		goto dma_unmap;
-> 	}
-> 	smc_wr_init_sge(lnk);
->-	bitmap_zero(lnk->wr_tx_mask, lnk->lgr->max_send_wr);
->+	bitmap_zero(lnk->wr_tx_mask, lnk->max_send_wr);
-> 	init_waitqueue_head(&lnk->wr_tx_wait);
-> 	rc = percpu_ref_init(&lnk->wr_tx_refs, smcr_wr_tx_refs_free, 0, GFP_KERNEL);
-> 	if (rc)
->-- 
->2.48.1
+> A few global variables in do_mounts_rd.c are now put as local
+> variables in rd_load_image() since they do not need to be visible
+> outside this function.
+> ---
+> 
+> Hello,
+> 
+> Hopefully my email config is now better and reaches gmail users
+> correctly.
+> 
+> The patch below could probably split in a few patches, but I think
+> this simplify the code greatly without removing the functionality we
+> depend on (and this allows now to use EROFS initrd images).
+> 
+> Coupled with keeping the function populate_initrd_image() in
+> init/initramfs.c, this will keep what we need from the initrd code.
+> 
+> This removes support of loading bzip/gz/xz/... compressed images as
+> well, not sure if many user depend on this feature anymore.
+> 
+> No signoff because I'm only seeking comments about those changes right
+> now.
+> 
+>  init/do_mounts.h    |   2 -
+>  init/do_mounts_rd.c | 243 +-------------------------------------------
+>  2 files changed, 4 insertions(+), 241 deletions(-)
+
+This seems like a reasonable improvement to me. FWIW, one alternative
+approach to clean up the FS specific code here was proposed by Al:
+https://lore.kernel.org/all/20250321020826.GB2023217@ZenIV/
+
+...
+> diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
+> index ac021ae6e6fa..5a69ff43f5ee 100644
+> --- a/init/do_mounts_rd.c
+> +++ b/init/do_mounts_rd.c
+> @@ -14,173 +14,9 @@
+>  
+>  #include <linux/decompress/generic.h>
+>  
+> -static struct file *in_file, *out_file;
+> -static loff_t in_pos, out_pos;
+> -
+> -static int __init prompt_ramdisk(char *str)
+> -{
+> -	pr_warn("ignoring the deprecated prompt_ramdisk= option\n");
+> -	return 1;
+> -}
+> -__setup("prompt_ramdisk=", prompt_ramdisk);
+> -
+> -int __initdata rd_image_start;		/* starting block # of image */
+> -
+> -static int __init ramdisk_start_setup(char *str)
+> -{
+> -	rd_image_start = simple_strtol(str,NULL,0);
+> -	return 1;
+> -}
+> -__setup("ramdisk_start=", ramdisk_start_setup);
+
+There are a couple of other places that mention these parameters, which
+should also be cleaned up.
+
+...
+>  static unsigned long nr_blocks(struct file *file)
+>  {
+> -	struct inode *inode = file->f_mapping->host;
+> -
+> -	if (!S_ISBLK(inode->i_mode))
+> -		return 0;
+> -	return i_size_read(inode) >> 10;
+> +	return i_size_read(file->f_mapping->host) >> 10;
+
+This should be >> BLOCK_SIZE_BITS, and dropped as a wrapper function
+IMO.
