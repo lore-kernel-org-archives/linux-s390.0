@@ -1,112 +1,98 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E64C1283FD4
-	for <linux-s390@vger.kernel.org>; Mon, 29 Sep 2025 09:13:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DDBA2877E2;
+	Mon, 29 Sep 2025 09:23:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759137225; cv=none; b=DO+yzN3tvgmfCkxAc4s82KnUDdS7x67+hCB2b8/edhl197nn4zZsllOV3ldVeQM/F+NQC/vk4JghboJboalAsrWwOkKBzjUN7/TTjVKFsD10if7oYSUm2ZvDNDbdvUmEDQnBSwLjD33hFPbNVMtpJ7hb1kPAsM+6Q/RzjSR+fUQ=
+	t=1759137788; cv=none; b=R7/YAM5GP0eACoUBFNhhHazcHeHTtS5d87Fud4x8XnMrDq53WqGwzIfMgozfbQxOItkoxS6NjdM5ctPtz6ZNVAM4N18Qw8Jn4QgFgOVXfxTUMhkZh7H+URQDq7I3Heha9jmc1tBoQZwY5Dzf11X7CSTv47+awp7FfEjH9dZJDzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759137225; c=relaxed/simple;
-	bh=jtJHKeg4V3hrJtslZs+qvCCY9ECaZmET93hB+vqILeg=;
+	s=arc-20240116; t=1759137788; c=relaxed/simple;
+	bh=o38UPIN29bLniqPiPhFpZrIMTLX/LLvulgo6lweFGic=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LHQxXMXE3/eJSRUGGI54CDpgg57pM9LyEVQfPiprmXRu/zD0UMr/M5KGVFFzCspoZ7wPBzWxU7+z/tCchyKFvtM0/LuIBlXxO+/5nzmrULbYz0B9BUWoIIFPlzUe9S3mZFdeL+hQ50E+hxmAQGLBTX97KZ+BWgjzePpdW01TxkE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Hq4pd3FL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=b25DWtEA; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hMG0X5o7; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZWV8cEdM; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 MIME-Version:Content-Type; b=NijNDWI/8y1q5AG1KZV/DOgdP8UoUgGlMiBE3ncmNnRyeRfq+y4rsEwI+f7GKydE/EiNiQXIxoLt7N/+nsQcZs+O8AEuQcnc1ob5w9W4oSKCFpkgmqwEZlnMivf0Tkz4WNXS+3rjjaUVVB0SuFWgiJIQddSx9MJWisIFOAPHcvo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CGCadrZb; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Hq4pd3FL";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="b25DWtEA";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hMG0X5o7";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZWV8cEdM"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id A4745297E2;
-	Mon, 29 Sep 2025 09:13:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1759137220; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=Hq4pd3FLlIHlpsq/WIWIpKTQIK1u5uVC206WcP0fQUSFrI19DANzMPCVUP75KY+hBZcL0Q
-	dtdVgf8LzRHS+mLGqBHxvAYy4l40BsAWLIlpobyu01j8D02b0I98f1+p5dw6q44ptuX62H
-	m9Zo3mhg2ZXRKipx4DYunUuhbPd04E4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1759137220;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=b25DWtEAGkPFc4sT9issDmqy/BMl9Qbnlh5ruisp0J1gFMCT/qNvoATff8AwO5EUhSceEL
-	kSBiQsu7tqSUuVAA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=hMG0X5o7;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=ZWV8cEdM
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1759137219; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=hMG0X5o7qx5uLzOvtPU6oAOR/sM1jQy2B6QsQik0JJGzKLSrpedSDbKzqP6/qSgL4E6z5c
-	PYEIwt7LMqEi6gairxqjXKFRdyD4dFJYTy2ovOneowKDznaaZr9VZ4B/+OwUlRFxMrvTSI
-	pzIsg61tXM/wB+hrp8gOffgcwit1QxI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1759137219;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=krawKFrMK6CfXJGZRbum6m0whh/VNnnKuCLw/mlg22U=;
-	b=ZWV8cEdMR8rl5mD9g70Zqdfp6Osb2Z+ASfy/UIiBlSB9+DmXXVL0n2mnz3VGfUEWe6Zu2m
-	Fw46i1nCG69w1gBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CB9D413782;
-	Mon, 29 Sep 2025 09:13:22 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id q2iJILJN2mgkQwAAD6G6ig
-	(envelope-from <ddiss@suse.de>); Mon, 29 Sep 2025 09:13:22 +0000
-Date: Mon, 29 Sep 2025 19:13:16 +1000
-From: David Disseldorp <ddiss@suse.de>
-To: nschichan@freebox.fr
-Cc: akpm@linux-foundation.org, andy.shevchenko@gmail.com, axboe@kernel.dk,
- brauner@kernel.org, cyphar@cyphar.com, devicetree@vger.kernel.org,
- ecurtin@redhat.com, email2tema@gmail.com, graf@amazon.com,
- gregkh@linuxfoundation.org, hca@linux.ibm.com, hch@lst.de,
- hsiangkao@linux.alibaba.com, initramfs@vger.kernel.org, jack@suse.cz,
- julian.stecklina@cyberus-technology.de, kees@kernel.org,
- linux-acpi@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-api@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-block@vger.kernel.org,
- linux-csky@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-efi@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-hexagon@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
- linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org,
- linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
- mcgrof@kernel.org, mingo@redhat.com, monstr@monstr.eu,
- mzxreary@0pointer.de, patches@lists.linux.dev, rob@landley.net,
- safinaskar@gmail.com, sparclinux@vger.kernel.org,
- thomas.weissschuh@linutronix.de, thorsten.blum@linux.dev,
- torvalds@linux-foundation.org, tytso@mit.edu, viro@zeniv.linux.org.uk,
- x86@kernel.org
-Subject: Re: [PATCH-RFC] init: simplify initrd code (was Re: [PATCH RESEND
- 00/62] initrd: remove classic initrd support).
-Message-ID: <20250929171652.50b7a959.ddiss@suse.de>
-In-Reply-To: <20250925131055.3933381-1-nschichan@freebox.fr>
-References: <CAHNNwZC7gC7zaZGiSBhobSAb4m2O1BuoZ4r=SQBF-tCQyuAPvw@mail.gmail.com>
-	<20250925131055.3933381-1-nschichan@freebox.fr>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CGCadrZb"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58T3eQYh010350;
+	Mon, 29 Sep 2025 09:22:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=s1gJnQ
+	2qSyMcjpCBSUPDDpGvvrpJYUiX69aCYoKB4ko=; b=CGCadrZbpOzw/Gsgjhf4/F
+	SyVr0VsvCuX15NyQWXc1x1jE3nrrsctfWfK25rL1vp2SiuKzqT8zEpg3lJxO1qaQ
+	WdWPr87Uz0mpwrtxms1FkbzL5rjTCbEKtrN1m3Fj1LJ3MIXnLgxCKNpPkNukK6v2
+	40GlKT4sWxtayuXTrN+BuQRByDAiQIxT3AogN3SL8SCml3L83q+rmUOO/jOBS9Oa
+	qqHwBjqQGfR8BMUXMAwcwvOMdzbDtZFcTBtv40r67Q86+2blPzVWsdQwwrNgcN1r
+	HiZfspiBCyB7n1VHUqHUQ6b4he+R88NaTckMr1qB/RCzQFv5GAz/600r1EZX5C5A
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bh9c97-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Sep 2025 09:22:58 +0000 (GMT)
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58T9FOkB025149;
+	Mon, 29 Sep 2025 09:22:58 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bh9c94-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Sep 2025 09:22:58 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58T8xJb5026736;
+	Mon, 29 Sep 2025 09:22:57 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49eu8mnbgg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Sep 2025 09:22:57 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58T9MreZ26607972
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 29 Sep 2025 09:22:53 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5AC5C20043;
+	Mon, 29 Sep 2025 09:22:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0D3DA20040;
+	Mon, 29 Sep 2025 09:22:53 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.152.224.212])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 29 Sep 2025 09:22:53 +0000 (GMT)
+Date: Mon, 29 Sep 2025 11:22:51 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Dust Li <dust.li@linux.alibaba.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni
+ <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Jonathan Corbet
+ <corbet@lwn.net>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Sidraya Jayagond
+ <sidraya@linux.ibm.com>,
+        Wenjia Zhang <wenjia@linux.ibm.com>,
+        Mahanta
+ Jambigi <mjambigi@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>, Wen
+ Gu <guwen@linux.alibaba.com>,
+        Guangguan Wang
+ <guangguan.wang@linux.alibaba.com>,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-s390@vger.kernel.org, Halil Pasic
+ <pasic@linux.ibm.com>
+Subject: Re: [PATCH net-next v5 2/2] net/smc: handle -ENOMEM from
+ smc_wr_alloc_link_mem gracefully
+Message-ID: <20250929112251.72ab759d.pasic@linux.ibm.com>
+In-Reply-To: <aNnl_CfV0EvIujK0@linux.alibaba.com>
+References: <20250929000001.1752206-1-pasic@linux.ibm.com>
+	<20250929000001.1752206-3-pasic@linux.ibm.com>
+	<aNnl_CfV0EvIujK0@linux.alibaba.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -114,129 +100,90 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-2.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FROM_HAS_DN(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_CC(0.00)[linux-foundation.org,gmail.com,kernel.dk,kernel.org,cyphar.com,vger.kernel.org,redhat.com,amazon.com,linuxfoundation.org,linux.ibm.com,lst.de,linux.alibaba.com,suse.cz,cyberus-technology.de,lists.infradead.org,lists.linux-m68k.org,lists.ozlabs.org,lists.linux.dev,monstr.eu,0pointer.de,landley.net,linutronix.de,linux.dev,mit.edu,zeniv.linux.org.uk];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[56];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim]
-X-Spam-Flag: NO
-X-Spam-Level: 
-X-Rspamd-Queue-Id: A4745297E2
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -2.01
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Se/6t/Ru c=1 sm=1 tr=0 ts=68da4ff2 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=SRrdq9N9AAAA:8 a=Rw7vO3jwzhc16tXXxd0A:9
+ a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAxMCBTYWx0ZWRfX1CpacjLlkMq6
+ MIbY1/i9PfsW6QpiUG7SAbznR9jJwDMtVQ+bO+jWx4E7eVjDBSuFqAAvRFtVeu2M/xzfvf4w5n8
+ XiOUb2qKAQgkxrD7/bpHgFK25I6vtFcuyDmDUQMVs0J+IdIB7cdm5CqyU8ytioHKMG67+Ic9L0f
+ IJ9dMqnhFTVeNAQvcNz8VC8eFxYRuqChKT/RcfiSkl+zveLFLoXMhZXWzwfwmxvPoyQlOBdyY47
+ l93E7Oth99sEfePpNf09VZxKBLwJCf+0EKXLmXwaSL4LnFH6jOHdIAA1PkdsgDj+a2yb6BRNMh0
+ yUtzU7ssrNIZqmpHGAK0vaSJcrJRNz4qT8VqU0fEIJiQRHiLoVe/8HK1bkVjNtubGlUlwkUzgu4
+ EG4nHcgYOyC9LtAXenpQZiE0S0tPNw==
+X-Proofpoint-GUID: nGVjQKKzu6o9ZAcaEMtguM9SGulJrRt2
+X-Proofpoint-ORIG-GUID: iHKcb-bTY_QZrCitDOpNcCuxb1IVoaeM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-09-29_03,2025-09-29_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 phishscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270010
 
-Hi Nicolas,
+On Mon, 29 Sep 2025 09:50:52 +0800
+Dust Li <dust.li@linux.alibaba.com> wrote:
 
-On Thu, 25 Sep 2025 15:10:56 +0200, nschichan@freebox.fr wrote:
+> >@@ -175,6 +175,8 @@ struct smc_link {
+> > 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+> > 	int			llc_testlink_time; /* testlink interval */
+> > 	atomic_t		conn_cnt; /* connections on this link */
+> >+	u16			max_send_wr;
+> >+	u16			max_recv_wr;  
+> 
+> Here, you've moved max_send_wr/max_recv_wr from the link group to individual links.
+> This means we can now have different max_send_wr/max_recv_wr values on two
+> different links within the same link group.
 
-> From: Nicolas Schichan <nschichan@freebox.fr>
-> 
-> - drop prompt_ramdisk and ramdisk_start kernel parameters
-> - drop compression support
-> - drop image autodetection, the whole /initrd.image content is now
->   copied into /dev/ram0
-> - remove rd_load_disk() which doesn't seem to be used anywhere.
-> 
-> There is now no more limitation on the type of initrd filesystem that
-> can be loaded since the code trying to guess the initrd filesystem
-> size is gone (the whole /initrd.image file is used).
-> 
-> A few global variables in do_mounts_rd.c are now put as local
-> variables in rd_load_image() since they do not need to be visible
-> outside this function.
-> ---
-> 
-> Hello,
-> 
-> Hopefully my email config is now better and reaches gmail users
-> correctly.
-> 
-> The patch below could probably split in a few patches, but I think
-> this simplify the code greatly without removing the functionality we
-> depend on (and this allows now to use EROFS initrd images).
-> 
-> Coupled with keeping the function populate_initrd_image() in
-> init/initramfs.c, this will keep what we need from the initrd code.
-> 
-> This removes support of loading bzip/gz/xz/... compressed images as
-> well, not sure if many user depend on this feature anymore.
-> 
-> No signoff because I'm only seeking comments about those changes right
-> now.
-> 
->  init/do_mounts.h    |   2 -
->  init/do_mounts_rd.c | 243 +-------------------------------------------
->  2 files changed, 4 insertions(+), 241 deletions(-)
+Only if allocations fail. Please notice that the hunk:
 
-This seems like a reasonable improvement to me. FWIW, one alternative
-approach to clean up the FS specific code here was proposed by Al:
-https://lore.kernel.org/all/20250321020826.GB2023217@ZenIV/
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -810,6 +810,8 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->clearing = 0;
+ 	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
+ 	lnk->link_id = smcr_next_link_id(lgr);
++	lnk->max_send_wr = lgr->max_send_wr;
++	lnk->max_recv_wr = lgr->max_recv_wr;
 
-...
-> diff --git a/init/do_mounts_rd.c b/init/do_mounts_rd.c
-> index ac021ae6e6fa..5a69ff43f5ee 100644
-> --- a/init/do_mounts_rd.c
-> +++ b/init/do_mounts_rd.c
-> @@ -14,173 +14,9 @@
->  
->  #include <linux/decompress/generic.h>
->  
-> -static struct file *in_file, *out_file;
-> -static loff_t in_pos, out_pos;
-> -
-> -static int __init prompt_ramdisk(char *str)
-> -{
-> -	pr_warn("ignoring the deprecated prompt_ramdisk= option\n");
-> -	return 1;
-> -}
-> -__setup("prompt_ramdisk=", prompt_ramdisk);
-> -
-> -int __initdata rd_image_start;		/* starting block # of image */
-> -
-> -static int __init ramdisk_start_setup(char *str)
-> -{
-> -	rd_image_start = simple_strtol(str,NULL,0);
-> -	return 1;
-> -}
-> -__setup("ramdisk_start=", ramdisk_start_setup);
+initializes the link values with the values from the lgr which are in
+turn picked up form the systctls at lgr creation time. I have made an
+effort to keep these values the same for each link, but in case the
+allocation fails and we do back off, we can end up with different values
+on the links. 
 
-There are a couple of other places that mention these parameters, which
-should also be cleaned up.
+The alternative would be to throw in the towel, and not create
+a second link if we can't match what worked for the first one.
 
-...
->  static unsigned long nr_blocks(struct file *file)
->  {
-> -	struct inode *inode = file->f_mapping->host;
-> -
-> -	if (!S_ISBLK(inode->i_mode))
-> -		return 0;
-> -	return i_size_read(inode) >> 10;
-> +	return i_size_read(file->f_mapping->host) >> 10;
+> 
+> Since in Alibaba we doesn't use multi-link configurations, we haven't tested
+> this scenario. Have you tested the link-down handling process in a multi-link
+> setup?
+> 
 
-This should be >> BLOCK_SIZE_BITS, and dropped as a wrapper function
-IMO.
+Mahanta was so kind to do most of the testing on this. I don't think
+I've tested this myself. @Mahanta: Would you be kind to give this a try
+if it wasn't covered in the past? The best way is probably to modify
+the code to force such a scenario. I don't think it is easy to somehow
+trigger in the wild.
+
+BTW I don't expect any problems. I think at worst the one link would
+end up giving worse performance than the other, but I guess that can
+happen for other reasons as well (like different HW for the two links).
+
+But I think getting some sort of a query interface which would tell
+us how much did we end up with down the road would be a good idea anyway.
+
+And I hope we can switch to vmalloc down the road as well, which would
+make back off less likely.
+
+> Otherwise, the patch looks good to me.
+> 
+
+Thank you very much!
+
+Regards,
+Halil
