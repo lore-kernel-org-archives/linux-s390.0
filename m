@@ -1,227 +1,159 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D8434BA28;
-	Tue, 30 Sep 2025 16:33:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 549961BF58;
+	Tue, 30 Sep 2025 17:04:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759250040; cv=none; b=u7sMYYZXgt/D+AJ/OaS9fpRrINMLmqp5SCHj7wrKj2+jejJONiLBrzf4Xbj1ztbdGtzVdMqHgtzLSu5bnzPgCRxkQqZpc7Mm3oyqrLW94bsd6TB3Rhocp4vLhk3G2gtMxBrB/53yMuqwvlrGhRIadl3FKdG8ZifjXXrYX5gx09Q=
+	t=1759251874; cv=none; b=Amy1da0+y3LSYh8rP/qqbABx1Ai6sx11NT9NZPyE0fckoLyz8495vcuTxu65omk+VoIXphG1zAASlRscjZuDn7101CXUQ732K5ujbVfdHm8+oxFAY2Ob1rYZYGZrj7HENwygZKgM9Y4RQLqncP6JKhwPCQCVjkhDSb7pSI6hnWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759250040; c=relaxed/simple;
-	bh=AEPMdml46ULUtTOKqF5X8r3wP3pKhY5Ejtc1s+85IJQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iTQHu4gdi77KeskWuQr/ZXsmmg8Gz/s9hSDxhfXKJ2tMtRxh9W/pqCFG4+5O/Tn7CmqLSQ/z4L29lPVZlY/dGowtk917OvaniIdYODha9kKl8J+VOZs9PAGpQjev7uD9/zV+JV9OOqkp87/dJ0HEH4yWVcdL0N5qkxDVnQ7br/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fE4kFnb/; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1759251874; c=relaxed/simple;
+	bh=oLDwMMBM2SycPVojx4qBlYhPFKtLQeL0zXmZF2KWzeQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qtwjjorwf8IblQhgMQuuOiFLGf62GQQXadrCexpus/fS5nrlgi+Trt9rBGw3pveuepfBPzxdktvMGruq4bOXhl3taac+8hH++86sx531+qVVeoaRcvReQ8uin1b20hlsSAO+Dm8FsfVkFnHjC2k6MHdRuJXIOObnfDx12QNciSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pFZuodD1; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fE4kFnb/"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58U9Sn3F026191;
-	Tue, 30 Sep 2025 16:33:55 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pFZuodD1"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58UDe8Q6005411;
+	Tue, 30 Sep 2025 17:04:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=jR3v6SSaULZd3rObz
-	M7pdTAJnQxNk3urHNrPSmK9tys=; b=fE4kFnb/83jg8QteEcWEJZh8iueGKxdCk
-	5/zusVGaRp+yB20X9Yf0FtHHyN9vGLNYPZjyCfBGat8Kaq+Op6CR7ilCCrIiIyiR
-	e+YYK4RttEpwaKto40w1MOQDole/6IrUYJTK94qgRwC7NIlqTPv7OaNt5KM9Abeq
-	9MaIAydDnNrjhQyB9jkcXYAv/S9fzFPt3UBqEhbsSo5bGV1sSE5rlwM8Ge7lHUXc
-	wTBOXp1zNYG9+Xj0uIFk35bvkVmyUlGSTQ4RwouroHRPMNo8BLDuBy/MMSeI2Whu
-	RbM8VFd1wsSrVUyDAhZ12FarkHlruCUX09SmEIzd3Kjdnyvu0wo0w==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bhhw7k-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=naVZF4
+	LCJN0Pw0nONp81AmhWWeyVPtnfJ+yezrIe+hY=; b=pFZuodD1zIIZTW8k7UCBKn
+	sUvYBGCvUIjrQtD0Eclmi3kd0xDClYJErJU/vL5thx+LoDZiHoFAZ0lVNi1Si9kJ
+	NvACKSiXv648/OnKCNLnxekcip4raZ7r5c3glHWVtNHqbfUt7GFifZZtsaoveqyG
+	aneVW4fLS2C6S/Kmi1POk5GwUG3Zt+g6Ald67+bWQJD5A8Pn3sWYEfzKxlNxVF6y
+	QsDaj7SRvu6RlDKum0wU0/43jUadjfdQpZOKXCeomwzhmPUS9JTbO6XbhrmtgrCy
+	xiUCbWhF257Yt3CnQS7C17sKXnnTLhmgD/RJJUZR9gyzxg3X936bU+531kaKDNrQ
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7kuaf94-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Sep 2025 16:33:55 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58UGXhPq026752;
-	Tue, 30 Sep 2025 16:33:55 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49eu8mvctg-1
+	Tue, 30 Sep 2025 17:04:28 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58UELKhY024198;
+	Tue, 30 Sep 2025 17:04:27 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49evy147eu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Sep 2025 16:33:54 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58UGXo4A49414462
+	Tue, 30 Sep 2025 17:04:27 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58UH4QlP31982198
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Sep 2025 16:33:51 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DECDC2004B;
-	Tue, 30 Sep 2025 16:33:50 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C100B20043;
-	Tue, 30 Sep 2025 16:33:50 +0000 (GMT)
-Received: from p-imbrenda.boeblingen.de.ibm.com (unknown [9.152.224.66])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 30 Sep 2025 16:33:50 +0000 (GMT)
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        borntraeger@de.ibm.com, david@redhat.com
-Subject: [GIT PULL v1 2/2] KVM: s390: Fix to clear PTE when discarding a swapped page
-Date: Tue, 30 Sep 2025 18:33:50 +0200
-Message-ID: <20250930163350.83377-3-imbrenda@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20250930163350.83377-1-imbrenda@linux.ibm.com>
-References: <20250930163350.83377-1-imbrenda@linux.ibm.com>
+	Tue, 30 Sep 2025 17:04:26 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 56A0458057;
+	Tue, 30 Sep 2025 17:04:26 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 95D0C58059;
+	Tue, 30 Sep 2025 17:04:25 +0000 (GMT)
+Received: from [9.61.249.240] (unknown [9.61.249.240])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 30 Sep 2025 17:04:25 +0000 (GMT)
+Message-ID: <1f5abbae-7a7d-402d-ac6e-029cdc3b0d63@linux.ibm.com>
+Date: Tue, 30 Sep 2025 10:04:25 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 02/10] PCI: Add additional checks for flr reset
+To: Benjamin Block <bblock@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        alex.williamson@redhat.com, helgaas@kernel.org, clg@redhat.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+References: <20250924171628.826-1-alifm@linux.ibm.com>
+ <20250924171628.826-3-alifm@linux.ibm.com>
+ <20250930100321.GB15786@p1gen4-pw042f0m.boeblingen.de.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20250930100321.GB15786@p1gen4-pw042f0m.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Se/6t/Ru c=1 sm=1 tr=0 ts=68dc0673 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=o9l_a8J5pJTIQegNmNkA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAxMCBTYWx0ZWRfXziRO5KWpw7Yu
- 2dhD3Vzk0drr4UdN81PwJDVWwOGGmcoStzEATpao/Pspg5GBC5aC19OGDl0lCOa1sEDzg0VeCJO
- Ml3WYYK5SoyTZAUy3MtMXYRj2HU9HXB6/FoCWqFBgfp3VGjdU0Rhgzwij3n15dxyX14ck7DSREj
- 3+0+LokHi9FbXdbokIxAh3Wdj34N1N85dtyg6z3y/bo/Of6EdKqbNIVBqezMIowpDWPaV4oVLAs
- 5mPrP+qyx5R0T5XOYns94/XNC9/MdsKR3pJ42fQmJC04OgNVTuMy35ttmQZlnzzxPjTxpdjsdtd
- OloH0J1xzqo7SGxGhXcLaInzkRVSGWhdWhzD31mPn5//A16fdekE4wI7OUdaRAjIfPV7Nqs0V+S
- WISJsrvK2xjWXmL1eZwH7ZJSLtu1iA==
-X-Proofpoint-GUID: 3GsrbdsNaAM0LZsFauFLuDZhXTV7WBtC
-X-Proofpoint-ORIG-GUID: 3GsrbdsNaAM0LZsFauFLuDZhXTV7WBtC
+X-Authority-Analysis: v=2.4 cv=T7WBjvKQ c=1 sm=1 tr=0 ts=68dc0d9c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=yJojWOMRYYMA:10 a=BMGjUjUgpuDZBGNCpE8A:9
+ a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: PQUxSMRTqZxFM1SYDVuw5HCVqKk4fY3_
+X-Proofpoint-ORIG-GUID: PQUxSMRTqZxFM1SYDVuw5HCVqKk4fY3_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAyNSBTYWx0ZWRfX28mtSnEoDnxl
+ KxFCtQ476SvG3rWv5OYoACfPQnKSIsfeesLQE+GhAvPEYCGnanMnT6ABTjG4cMzIxjVpOjF1fV+
+ 8s2evQfOFS5PB0JuxofJ8lG9K29XWhhQMd/SEyiQKIemwlhUgLscNPhCprNXC6eadRac1lse/9w
+ JOAyq02QFx7mCJLt7hKR7bvrQGCPQqDN1Lxpi5DnzA3gQWvhgLU8bmSnQOysQM9JcnjahyYzx5u
+ sPvC1ChWZ6gxJSIPQfSdNVVVdQSddlDCblA+54qytIxNNCSlSTJPY2UDZYAknHb5FzV4BVJQQM0
+ THiQ3BPpu2ntAi1El7Y0O+tHd/OZ1ZJWxKPouKEcCpCLwdOUiJsz1Rgni2T/ggLCq7edjIGfAnT
+ bh0K0MsdvY3UcQpXNQ7AqCskNP5kGA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-30_03,2025-09-29_04,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
- clxscore=1015 phishscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ impostorscore=0 clxscore=1015 spamscore=0 suspectscore=0 priorityscore=1501
+ bulkscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270010
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270025
 
-From: Gautam Gala <ggala@linux.ibm.com>
 
-KVM run fails when guests with 'cmm' cpu feature and host are
-under memory pressure and use swap heavily. This is because
-npages becomes ENOMEN (out of memory) in hva_to_pfn_slow()
-which inturn propagates as EFAULT to qemu. Clearing the page
-table entry when discarding an address that maps to a swap
-entry resolves the issue.
+On 9/30/2025 3:03 AM, Benjamin Block wrote:
+> On Wed, Sep 24, 2025 at 10:16:20AM -0700, Farhan Ali wrote:
+>> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+>> index a3d93d1baee7..327fefc6a1eb 100644
+>> --- a/drivers/pci/pci.c
+>> +++ b/drivers/pci/pci.c
+>> @@ -4576,12 +4576,19 @@ EXPORT_SYMBOL_GPL(pcie_flr);
+>>    */
+>>   int pcie_reset_flr(struct pci_dev *dev, bool probe)
+>>   {
+>> +	u32 reg;
+>> +
+>>   	if (dev->dev_flags & PCI_DEV_FLAGS_NO_FLR_RESET)
+>>   		return -ENOTTY;
+>>   
+>>   	if (!(dev->devcap & PCI_EXP_DEVCAP_FLR))
+>>   		return -ENOTTY;
+>>   
+>> +	if (pcie_capability_read_dword(dev, PCI_EXP_DEVCAP, &reg)) {
+>> +		pci_warn(dev, "Device unable to do an FLR\n");
+>> +		return -ENOTTY;
+>> +	}
+> Just thinking out loud, not sure whether it make sense, but since you already
+> read an up-to-date value from the config space, would it make sense to
+> pull the check above `dev->devcap & PCI_EXP_DEVCAP_FLR` below this read, and
+> check on the just read `reg`?
 
-Fixes: 200197908dc4 ("KVM: s390: Refactor and split some gmap helpers")
-Cc: stable@vger.kernel.org
-Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/include/asm/pgtable.h | 22 ++++++++++++++++++++++
- arch/s390/mm/gmap_helpers.c     | 12 +++++++++++-
- arch/s390/mm/pgtable.c          | 23 +----------------------
- 3 files changed, 34 insertions(+), 23 deletions(-)
+My thinking was we could exit early if the device never had FLR 
+capability (and so was not cached in devcap). This way we avoid an extra 
+PCI read.
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 6d8bc27a366e..324f96485604 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -2010,4 +2010,26 @@ static inline unsigned long gmap_pgste_get_pgt_addr(unsigned long *pgt)
- 	return res;
- }
- 
-+static inline pgste_t pgste_get_lock(pte_t *ptep)
-+{
-+	unsigned long value = 0;
-+#ifdef CONFIG_PGSTE
-+	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
-+
-+	do {
-+		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
-+	} while (value & PGSTE_PCL_BIT);
-+	value |= PGSTE_PCL_BIT;
-+#endif
-+	return __pgste(value);
-+}
-+
-+static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
-+{
-+#ifdef CONFIG_PGSTE
-+	barrier();
-+	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
-+#endif
-+}
-+
- #endif /* _S390_PAGE_H */
-diff --git a/arch/s390/mm/gmap_helpers.c b/arch/s390/mm/gmap_helpers.c
-index a45d417ad951..c382005577bd 100644
---- a/arch/s390/mm/gmap_helpers.c
-+++ b/arch/s390/mm/gmap_helpers.c
-@@ -13,6 +13,7 @@
- #include <linux/pagewalk.h>
- #include <linux/ksm.h>
- #include <asm/gmap_helpers.h>
-+#include <asm/pgtable.h>
- 
- /**
-  * ptep_zap_swap_entry() - discard a swap entry.
-@@ -45,6 +46,7 @@ void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vmaddr)
- {
- 	struct vm_area_struct *vma;
- 	spinlock_t *ptl;
-+	pgste_t pgste;
- 	pte_t *ptep;
- 
- 	mmap_assert_locked(mm);
-@@ -58,8 +60,16 @@ void gmap_helper_zap_one_page(struct mm_struct *mm, unsigned long vmaddr)
- 	ptep = get_locked_pte(mm, vmaddr, &ptl);
- 	if (unlikely(!ptep))
- 		return;
--	if (pte_swap(*ptep))
-+	if (pte_swap(*ptep)) {
-+		preempt_disable();
-+		pgste = pgste_get_lock(ptep);
-+
- 		ptep_zap_swap_entry(mm, pte_to_swp_entry(*ptep));
-+		pte_clear(mm, vmaddr, ptep);
-+
-+		pgste_set_unlock(ptep, pgste);
-+		preempt_enable();
-+	}
- 	pte_unmap_unlock(ptep, ptl);
- }
- EXPORT_SYMBOL_GPL(gmap_helper_zap_one_page);
-diff --git a/arch/s390/mm/pgtable.c b/arch/s390/mm/pgtable.c
-index 7df70cd8f739..6b92c348b56f 100644
---- a/arch/s390/mm/pgtable.c
-+++ b/arch/s390/mm/pgtable.c
-@@ -23,6 +23,7 @@
- #include <asm/tlbflush.h>
- #include <asm/mmu_context.h>
- #include <asm/page-states.h>
-+#include <asm/pgtable.h>
- #include <asm/machine.h>
- 
- pgprot_t pgprot_writecombine(pgprot_t prot)
-@@ -114,28 +115,6 @@ static inline pte_t ptep_flush_lazy(struct mm_struct *mm,
- 	return old;
- }
- 
--static inline pgste_t pgste_get_lock(pte_t *ptep)
--{
--	unsigned long value = 0;
--#ifdef CONFIG_PGSTE
--	unsigned long *ptr = (unsigned long *)(ptep + PTRS_PER_PTE);
--
--	do {
--		value = __atomic64_or_barrier(PGSTE_PCL_BIT, ptr);
--	} while (value & PGSTE_PCL_BIT);
--	value |= PGSTE_PCL_BIT;
--#endif
--	return __pgste(value);
--}
--
--static inline void pgste_set_unlock(pte_t *ptep, pgste_t pgste)
--{
--#ifdef CONFIG_PGSTE
--	barrier();
--	WRITE_ONCE(*(unsigned long *)(ptep + PTRS_PER_PTE), pgste_val(pgste) & ~PGSTE_PCL_BIT);
--#endif
--}
--
- static inline pgste_t pgste_get(pte_t *ptep)
- {
- 	unsigned long pgste = 0;
--- 
-2.51.0
+
+>
+> Also wondering whether it makes sense to stable-tag this? We've recently seen
+> "unpleasant" recovery attempts that look like this in the kernel logs:
+>
+>      [  663.330053] vfio-pci 0007:00:00.1: timed out waiting for pending transaction; performing function level reset anyway
+>      [  664.730051] vfio-pci 0007:00:00.1: not ready 1023ms after FLR; waiting
+>      [  665.830023] vfio-pci 0007:00:00.1: not ready 2047ms after FLR; waiting
+>      [  667.910023] vfio-pci 0007:00:00.1: not ready 4095ms after FLR; waiting
+>      [  672.070022] vfio-pci 0007:00:00.1: not ready 8191ms after FLR; waiting
+>      [  680.550025] vfio-pci 0007:00:00.1: not ready 16383ms after FLR; waiting
+>      [  697.190023] vfio-pci 0007:00:00.1: not ready 32767ms after FLR; waiting
+>      [  730.470021] vfio-pci 0007:00:00.1: not ready 65535ms after FLR; giving up
+>
+> The VF here was already dead in the water at that point, so I suspect
+> `pci_read_config_dword()` might have failed, and so this check would have
+> failed, and we wouldn't have "wasted" the minute waiting for a FLR that was
+> never going to happen anyway.
+I think maybe we could? I don't think this patch fixes anything that's 
+"broken" but rather improves the behavior to escalate to other reset 
+method if the device is already in a bad state. I will cc stable.
+
+Thanks
+
+Farhan
 
