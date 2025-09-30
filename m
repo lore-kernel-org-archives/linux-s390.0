@@ -1,168 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090EE2405EC;
-	Mon, 29 Sep 2025 18:30:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 865391E1A17
+	for <linux-s390@vger.kernel.org>; Tue, 30 Sep 2025 02:24:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759170614; cv=none; b=MjJ4v6nGKz+KROHHPqGYjenGq4dwlwzZLL4GJYDWwOfwIpvUo6PMaytoaE4Wdv/3G/4tGhwjakADO6476hpqoTLFZyVgs6a6ZzYxVwbXZ4hCrjZBwXcsgSpsXoSE0FBrGuWuUZ1i+vFDmhrsHLzyq4gN85Qq2foW5Ik6xCPrBJg=
+	t=1759199090; cv=none; b=AheDvIkS8f91vPERSgGAauk8kzNXyY77fWYHMv3CIqYnxIfam7Ru11NPKnDdVuZMWim6ZAzKNm+ZrtBFjRuQruOPyXepdxSHMY5iSHxRQ+wmSZq1wRbg8uudnfmeHhzVC8+FNh8rfO6CDqT/IKE5UgWXB7gh9AQ7HBNYpVx5FFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759170614; c=relaxed/simple;
-	bh=rJ2qz3X9zXmAr8f5ULFf/IOmDoZ3cSKZpUCMR3PZM4I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V5h3d37apms7QZmLguY/lCybcMBMXMkDcihROKRC5qJGxHsEdCsujE9w+w/bLLGB7RxxA0tOQgnBMiR1Pene7UnK+1hn6Qo73po40T7m/9ftHdEsdYBx7XaRcXcHUURFR80MQAf49hTK/JEU1edEcIoYegKICGyp2YjtcUuf/ss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PzdtXT+1; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1759199090; c=relaxed/simple;
+	bh=JOHkgl9LqBf+BFWsaX+4JXqJ6AHUlrUTGlZ73UK7P2M=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UJ9XDWHiSXUtDZ8RDKyigN4nj6KZgBSyrYV5Jmm+vTGkky9htJeHqZ2cDMSX1qY+JukO1eDYYc6t0hhVai3igi1w46q3lQJ24VPkHoWVnoZaGaCyMqZL8wHyzeQWf57uNtVv79JEBmjFS6Kwijj4tmxzGo061d8LGfInsg5ZJko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=hVOmHIgB; arc=none smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PzdtXT+1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F09FAC4CEF4;
-	Mon, 29 Sep 2025 18:30:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1759170610;
-	bh=rJ2qz3X9zXmAr8f5ULFf/IOmDoZ3cSKZpUCMR3PZM4I=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=PzdtXT+1eDllY8w+VOqFihbNZrHe9bw1aPUFZRrOIwVJhDTs+XjAFvLEH/imbx3qH
-	 1IM/vNzAiSo20pxBMPJdqndAk1v5FCythLckQfAhVZ+nYgmh3Pn8NDqPIpZTT5PA/Z
-	 NqlcqQWFoHZbDvpbc5lkRrTsB5JW5JJdFfFSE8OE0g1ueXkp3F7ijznW9bQQD+8Q0O
-	 +aWo898dVNgjANsERCrWzM7ucMkAtkumxIX3fAA2zxbQCAx4e5rEe7gSRdPIm+h9wi
-	 TsGQyq6cyTQY2ENEa4g8a1Gc+HRDWpIHn1x+SrlHpmwx5VIRvvpTwA967V0U6FkJHC
-	 TEQxQ2DMWRrZw==
-Message-ID: <2d23db3f-27fb-4f9c-b516-97b5687f2a36@kernel.org>
-Date: Mon, 29 Sep 2025 19:29:54 +0100
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="hVOmHIgB"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-b41870fef44so159989166b.3
+        for <linux-s390@vger.kernel.org>; Mon, 29 Sep 2025 19:24:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1759199087; x=1759803887; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=oaVj5/YycRPyG67e4RKcEIp1KOYsVMX34xHPHMeexRY=;
+        b=hVOmHIgBo7M11AtRHv1GlREH1soqiw/X4GCrHh8c4r452SJPwwTLpO3pIG15dskMP2
+         E/jYKXJ3cxkmUKC8Gsiw3uC7foR0/N54w81y+lwq1iNdLeRv49/Pt0CKOFQZ6z2Nebf7
+         TNruc+hEnOhX26JDMrXdTMgoTsl6HGyfnAkzs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759199087; x=1759803887;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oaVj5/YycRPyG67e4RKcEIp1KOYsVMX34xHPHMeexRY=;
+        b=Ihj3SI75zAqJHFdUqj70sO5RqVuSC43vz4TJA3zW8r1ztxP/EZPQyBFSu4Z7m20a06
+         fJFyoP8hftVGqrt+44oGG0twIxpH1UJ0wsjhZJ9f2nQcKlPXj+wDrwBOowz8fZQtZ2xk
+         cf9vRI3Wl9T1XUJp+1yFXhoeClDnCl2N/b+zsgJ/Lcr09655CxACihl7s0uM4bzaGcqb
+         L0dd7dnnv4Qaq92p/n/fXtnRNLqtCFn2EyQM5HtsPaO4Yrop5SJmzYFR2fUfAPQsboz8
+         XjEEZGe6ROuvT2GxEgJr/EDxgeMKe+X1TWWobHDC5/cjuk3CF1la4VRQoEUJiRm1cEDM
+         JMvg==
+X-Forwarded-Encrypted: i=1; AJvYcCVUssM3xdBz4L0DRVxSMwQJdUu43atpw1YcjHJEOM/zTSXXbocx0pCgbN2HkL+AYLffstUoQUCZNnxi@vger.kernel.org
+X-Gm-Message-State: AOJu0YzEJI6G8loRIF6NzV2Wvo/DCN104BoimULGWKxXPcMdt2Jsy3if
+	L6Vp7Pu5n9qctBdYLDnzRSCZ+7VLIrCCH4Rrhu32FOZnuWpiONSVOwV4+u6xYZdeTfsQFoTesiR
+	oQkAke4a1ZA==
+X-Gm-Gg: ASbGncvtt7yAGtnMnBnwjeKErb+amvhBamiHGPCm82JvB5BjsbrrNBsmUh+mhamdBLa
+	KeBhgyDPazL68Fjg/iY89TRnzfstrbJ5q0ayh5rq/cRCcKEa0EhtprDlTXqhxkIch/pa0lWYqPi
+	tpUhygWx4suZt9k52EuXxHdf8Iq9UeAEPuBZOu8FFxYX6Z6TkVcAptJj50HDIBzBoCJRIHV8024
+	hWZoTMNHfGx4EySSLq5U/Uy1SLXTW+lwa0cggvd9NRNx6E4RyP2ZCtXo9vF7hpJHQVkYE3Uo6rA
+	EkijOFRUTiFP/+KqpTC89VrGBWLW01ExuZStfiOzMtFc2GzvCJtwpaXXOdD+BqcSHJv3O1FV9OZ
+	WgKUGu6tWF36yNbrSIJHWmKsnEpiXpDDmePO7thKorkHoWUHDIBPK70KRfTdpXIrKRRbUuzb4uh
+	KcqJw1od/Ywp0sZgfRz0jaOf9NY86A0Hc=
+X-Google-Smtp-Source: AGHT+IEyZahtw0HDrwzmk2wQvmxjHdBR2PFP4UqbDJM2Lk1Hotvubrd5y+9VAJDflZ69x7276V1New==
+X-Received: by 2002:a17:907:2da9:b0:b40:f7dd:f8ee with SMTP id a640c23a62f3a-b40f7de0aa4mr356231966b.28.1759199086742;
+        Mon, 29 Sep 2025 19:24:46 -0700 (PDT)
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com. [209.85.208.49])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b3ae61b7260sm581496766b.48.2025.09.29.19.24.45
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Sep 2025 19:24:45 -0700 (PDT)
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-6318855a83fso10112750a12.2
+        for <linux-s390@vger.kernel.org>; Mon, 29 Sep 2025 19:24:45 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXCTQmNM/vapVd2LRWOnHvZLwJ6+QtQxXHOhm/DI7khx5WhgmRjltXYVpDS6SLnNDtJoJMq0AFC19is@vger.kernel.org
+X-Received: by 2002:a17:907:60c9:b0:b40:cfe9:ed35 with SMTP id
+ a640c23a62f3a-b40cfe9f8aemr357751066b.39.1759199085323; Mon, 29 Sep 2025
+ 19:24:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird Beta
-Subject: Re: [PATCH net-next v3 13/14] dibs: Move data path to dibs layer:
- manual merge
-Content-Language: en-GB, fr-BE
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Alexandra Winter <wintera@linux.ibm.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>,
- Julian Ruess <julianr@linux.ibm.com>, Aswin Karuvally <aswin@linux.ibm.com>,
- Halil Pasic <pasic@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
- Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Harald Freudenberger <freude@linux.ibm.com>,
- Konstantin Shkolnyy <kshk@linux.ibm.com>,
- Dan Williams <dan.j.williams@intel.com>, Dave Jiang <dave.jiang@intel.com>,
- Jonathan Cameron <Jonathan.Cameron@huawei.com>,
- Shannon Nelson <sln@onemain.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, "D. Wythe" <alibuda@linux.alibaba.com>,
- Dust Li <dust.li@linux.alibaba.com>, Wenjia Zhang <wenjia@linux.ibm.com>,
- David Miller <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>,
- Eric Dumazet <edumazet@google.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Stephen Rothwell <sfr@canb.auug.org.au>
-References: <20250918110500.1731261-1-wintera@linux.ibm.com>
- <20250918110500.1731261-14-wintera@linux.ibm.com>
- <74368a5c-48ac-4f8e-a198-40ec1ed3cf5f@kernel.org>
- <20250925105733.040604ca@kernel.org>
-From: Matthieu Baerts <matttbe@kernel.org>
-Autocrypt: addr=matttbe@kernel.org; keydata=
- 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
- lzVbFe7fduHbABmYz9cefQpO7wDE/Q==
-Organization: NGI0 Core
-In-Reply-To: <20250925105733.040604ca@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20250929093828.2714469Af2-agordeev@linux.ibm.com>
+In-Reply-To: <20250929093828.2714469Af2-agordeev@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 29 Sep 2025 19:24:29 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjL1Jkr6L_fak_SDWiHZy3-KFpM9+_oG57G9zPc6yg=yg@mail.gmail.com>
+X-Gm-Features: AS18NWDnvEPAl6IWViL1lCt5VhxCXlZKT9yWZPjffZc7pmvLjRMVE8fBlk6Tj-0
+Message-ID: <CAHk-=wjL1Jkr6L_fak_SDWiHZy3-KFpM9+_oG57G9zPc6yg=yg@mail.gmail.com>
+Subject: Re: [GIT PULL] s390 updates for 6.18 merge window
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Jakub,
+On Mon, 29 Sept 2025 at 02:38, Alexander Gordeev <agordeev@linux.ibm.com> wrote:
+>
+> - Make the compiler statement attribute "assume" available with
+>   a new __assume macro
 
-(Sorry for the delay, I was travelling)
+Ahh. Interesting. I hadn't realized this existed.
 
-On 25/09/2025 18:57, Jakub Kicinski wrote:
-> On Wed, 24 Sep 2025 10:07:35 +0100 Matthieu Baerts wrote:
->> Regarding this conflict, I hope the resolution is correct. The patch
->> from 'net' was modifying 'net/smc/smc_loopback.c' in
->> smc_lo_register_dmb() and __smc_lo_unregister_dmb(). I applied the same
->> modifications in 'drivers/dibs/dibs_loopback.c', in
->> dibs_lo_register_dmb() and __dibs_lo_unregister_dmb(). In net-next,
->> kfree(cpu_addr) was used instead of kvfree(cpu_addr), but this was done
->> on purpose. Also, I had to include mm.h to be able to build this driver.
->> I also attached a simple diff of the modifications I did.
-> 
-> Thanks a lot for sharing the resolutions!
+It does seem like a potentially dangerous feature - you get some very
+confusing behavior if you misuse it, but looks quite useful for
+describing the results of inline asm like you do.
 
-You are very welcome!
+I have definitely had cases where I would have liked to tell the
+compiler that the result is already zero-extended or similar, and this
+looks good for that.
 
->> Note: no rerere cache is available for this kind of conflicts.
-> 
-> BTW have you figured out how to resolve that automatically?
-> NIPA does trusts rerere but because it didn't work we were running
-> without net for the last few days (knowingly) :(
-
-When I was in charge of supporting MPTCP on top of a few old stable
-kernels, and keeping new features in sync on all these kernels, I ended
-up automating the resolution of such conflicts. In my case, I was
-cherry-picking patches, and I could then simply take a fingerprint based
-on the 'git diff' output without the index and lines numbers. With the
-hash of the diff, I could either create or get the corresponding
-'.patch' file can be automatically applied with the 'patch' command to
-resolve the conflicts.
-
-In your case, you are merging trees that are regularly changing, if I'm
-not mistaken. In this case, the fingerprint should not be based on
-everything pending during the merge, but I guess it should be possible
-to get a fingerprint, e.g. a diff showing the conflicts.
-
-Note that in the MPTCP tree, we use 'TopGit' [1], and our tree is
-regularly synced with 'net' and 'net-next'. When there are conflicts, I
-only have to fix them once, because TopGit merges multiple branches and
-keep a continuous history. That's another solution, but it might not be
-adapted to NIPA's needs.
-
-[1] https://mackyle.github.io/topgit/
-
-Cheers,
-Matt
--- 
-Sponsored by the NGI0 Core fund.
-
+           Linus
