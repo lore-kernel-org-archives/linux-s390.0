@@ -1,90 +1,73 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D834E13B7AE;
-	Tue, 30 Sep 2025 09:09:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961202144C7;
+	Tue, 30 Sep 2025 10:03:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759223398; cv=none; b=HSSc5Y5OU/n5dujSa7BPGVqkpCeKJu21qLfIJ70iU/VhHJZqg8R5J+MW+N/8GYvuWMgSYzO0JZGRLgUnancTplQvCWgvYZsNRpGux2PKPpkW0vbwc61oFGYiHdCn/ahNRxX5SS9tHHpynDX3vMhOJusveXO08pYVSB1sFLBSo4s=
+	t=1759226613; cv=none; b=AXhr8g8cX8bb+t+86xvvRt+eHDF9yKHF4sn656Kw63TaT1CUzjT36h0KnRe0SH9u6Kn82pCbq65Pgq76450iiMivBo5yqMq0mt4SuX65J9K/fh9uDI/09psnEueC+n2hHbkfvuS6AFaT2y/sjoFiNjc1wv2LARjZMB3by14IJyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759223398; c=relaxed/simple;
-	bh=j0dQ61BBZgel+vLf64vdTWhhJTqPlVoBGym2X/T+t7o=;
+	s=arc-20240116; t=1759226613; c=relaxed/simple;
+	bh=C+uDptFGPX/XX4u4uX2laDXbZLRztM/wuZjt8KMmf5U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZlDOpmkT4PRU8uR4rK95yNzbM2DznhL2tQmEsIQFeE4z5y7roNUNO7TP7ecnefmSwxHCQ2IkggecTE87WlFddZnENPtH38lEQvuyb5B5C++bAPZxmiosDjHLk50Rk/sWkLYB5VnpuUqx45ML+cGUXV9oWNWP0LZEExeiSPqzhAY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ved8tk7E; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=hCgChOxpDRjsBqbq8TsCb6+qc0+9rdVliLd4ymTMEBlzdor84iVpyrzxdE8Xhya2r3yNbUCzZydEx6Q6PO5j3aPc0GD37gAtMZk/KJMZwRhpn7QPrLVyObRKJJN9Eka6Hm2uYXmg9znTAWHHYBdIWE2c1kzkyXjRChG+7ICi2LI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s+YO5Euq; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ved8tk7E"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58U2k2fG003535;
-	Tue, 30 Sep 2025 09:09:56 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s+YO5Euq"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58TLfT63030414;
+	Tue, 30 Sep 2025 10:03:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=NwY0hUYw15bUdFK/K7Y9PHuY1XDRcsqtjAjoNeZwMBc=; b=Ved8tk7EVv15
-	FlNGeSlVOJrPP4FDWHq3Uo0Lsbudh13HmeG/eXpW5x07Tvb8BoylOOLLeF2GvqlM
-	FGD0+JHOqV+16l3qnjcLrohq5KLzDn244gILkJEfbvfB1X+AOfuA0FnTpKcIulyb
-	88xmvsDbgdi9hM3k21sGVyGY+kpe0BBF42zTsYSQwFN1nP2qBMi0GVh+rueLp0fU
-	l3qPScYwXFcYP0usytcynt2EfeB4kXoWeN0g2ucENr+04fRvB2wtGjxAqDOXtIH3
-	dNrDmVN56i8TJKmA3KOReJp5GZ5+iNapCdo75DrXMYTrYGZy7H4IJd+VwZt6Ggde
-	cyrZdu6MSA==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7e77r4g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Sep 2025 09:09:55 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 58U8j04R022733;
-	Tue, 30 Sep 2025 09:09:55 GMT
+	 bh=MMjnW8ZGY5JsHDTDmnnEqn4fKP+OrNKDNH+uh8F2tUM=; b=s+YO5EuqJV6A
+	jVerq/WC5ng0P43OgyRV6NWlC2S6jF0BaCIOtkasYLn9mBTyiZOz8h2Xd99A/C13
+	n00B0b17MIwkqbShKIauba2S38l7eN7XceUx7lJfwpcLIsv96X4QqT4JI3ZcCW91
+	2OijYGI7zPX6Uxy0Y8XeELSW4WKOu8xqyRjFb9eJluc4YSFtR2xHwiWo4WQufyHi
+	/x37E2xvQd2Szl503rh6xjoVFO/9/YO2bY6/GKAEXXr4aCyPh9s789c3RPM5/XB0
+	jmFyXzYYeffor633ExkuE3sCfqPKbBQIm92qt9P/oX3lQKABoQuAdnkf0bNoydop
+	w8jcBTBZOQ==
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7e77r4c-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bhfqka-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Sep 2025 09:09:55 +0000 (GMT)
+	Tue, 30 Sep 2025 10:03:26 +0000 (GMT)
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58U8eAKh020061;
-	Tue, 30 Sep 2025 09:09:54 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49et8s2rm1-1
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 58U7v1Of020064;
+	Tue, 30 Sep 2025 10:03:25 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49et8s2yu7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 30 Sep 2025 09:09:54 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58U99oTP38470034
+	Tue, 30 Sep 2025 10:03:25 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 58UA3MR840763648
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 30 Sep 2025 09:09:50 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 494DD20043;
-	Tue, 30 Sep 2025 09:09:50 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 36D6920040;
-	Tue, 30 Sep 2025 09:09:50 +0000 (GMT)
+	Tue, 30 Sep 2025 10:03:22 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1F68A20067;
+	Tue, 30 Sep 2025 10:03:22 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0ECC920063;
+	Tue, 30 Sep 2025 10:03:22 +0000 (GMT)
 Received: from p1gen4-pw042f0m (unknown [9.152.212.180])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 30 Sep 2025 09:09:50 +0000 (GMT)
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 30 Sep 2025 10:03:22 +0000 (GMT)
 Received: from bblock by p1gen4-pw042f0m with local (Exim 4.98.2)
 	(envelope-from <bblock@linux.ibm.com>)
-	id 1v3WMn-00000000iGP-47IM;
-	Tue, 30 Sep 2025 11:09:49 +0200
-Date: Tue, 30 Sep 2025 11:09:49 +0200
+	id 1v3XCb-00000000m9T-3RZ6;
+	Tue, 30 Sep 2025 12:03:21 +0200
+Date: Tue, 30 Sep 2025 12:03:21 +0200
 From: Benjamin Block <bblock@linux.ibm.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH] PCI: s390: Expose the UID as an arch specific PCI slot
- attribute
-Message-ID: <20250930090949.GA15786@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-References: <20250924-uid_slot-v1-1-09ae04f48c57@linux.ibm.com>
- <20250926142714.GB17059@p1gen4-pw042f0m.boeblingen.de.ibm.com>
- <b8c610fa2ac725364c8e485e948c7bd6efd605fa.camel@linux.ibm.com>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
+        alex.williamson@redhat.com, helgaas@kernel.org, clg@redhat.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com
+Subject: Re: [PATCH v4 02/10] PCI: Add additional checks for flr reset
+Message-ID: <20250930100321.GB15786@p1gen4-pw042f0m.boeblingen.de.ibm.com>
+References: <20250924171628.826-1-alifm@linux.ibm.com>
+ <20250924171628.826-3-alifm@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -94,100 +77,75 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <b8c610fa2ac725364c8e485e948c7bd6efd605fa.camel@linux.ibm.com>
+In-Reply-To: <20250924171628.826-3-alifm@linux.ibm.com>
 Sender: Benjamin Block <bblock@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: anLfgzOBtdKKQkM0Z2Ta8usHZ4XXk3vR
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAyMCBTYWx0ZWRfX5Gba03ruZ+U+
- 71Z/DJiUBaU+qvI4ApME5w/AzhUgCLa+3eFFk+m1aef+T0jTPwmPBXLUjMaKJDs8xJLMp8relNt
- PHCMiz30wKnfMjWEknHVcFd+pHiC5E2ncR8+fjoz26oTIj4qUhTnkAiVfa0dIsSMjIeCSnxJxBu
- KQOtqe2NGq/QwFE6sXciNB4uo2/NP4tmVQ/BZMmCQBzwtwu9cZsYwgpKMu93g+1DXaVtyxsh0B2
- 51r7QzwKj96DqiaX8qMD/sd0XKh0BFGYmuex+1SqG8KcozbYIcW0TfQb9VMqhad2tHSuW1z2mse
- I3BEph6UAw6qw+sUJccn6pzgc69DG+F/zoku7kpCt9FoNISLXYHJK4Z9QM40H2PhzcCAgYwg/+x
- DoCrXTsTH2eeVd8BEMaQ7UZvZVWYMA==
-X-Proofpoint-GUID: DJpkWsOD3XE8tA1gEunMbX9Q1-ETNTIO
-X-Authority-Analysis: v=2.4 cv=Jvj8bc4C c=1 sm=1 tr=0 ts=68db9e63 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=Se/6t/Ru c=1 sm=1 tr=0 ts=68dbaaee cx=c_pps
  a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=8nJEP1OIZ-IA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=idd3SK8aOH9gq0nm_TcA:9
- a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+ a=8nJEP1OIZ-IA:10 a=yJojWOMRYYMA:10 a=VnNF1IyMAAAA:8 a=2Qdhaze4vaRhrbKc8xAA:9
+ a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAxMCBTYWx0ZWRfXwOnINJ1dUPG6
+ rzozq1J9kNxyzuL+TWL+XBQ30Ym8MbuPfLi/2O46LtF76sJW0P8byyLTrrWvxzmYR1MM8ogeG2i
+ IshuVSXujzD6+bXhj8ZoMYg1Y34+g1auQwVQEgBBrri+w5AdlJf0UvVOJy2dsAwjOObD7iADVPk
+ DJgb+E9dG1p0UncWzCV85a1oosxbcNsBJCMw5AmBUlxP0wCM9Atz4OTMeGQoSYfzsGvzMs4M/lv
+ vSMyRVHIMBejKZZeTqDYUNNsMkFmBiBYpmG0kzgS+aUtqil4TC3ttMG165gY3QP/sQ29r8qSb3C
+ +Qi5HyyQeeXpOj6W+ZrYPeu/kfixYbsi3ngbyhe6h5B1Ut1HcOIypJclPzq4iTF20LDcUoLzRBl
+ ugJ8AjhoHVpJ/MWd07WIOn9gOqbpuw==
+X-Proofpoint-GUID: 3QCoety8nuQyFRoJJfZ-pCKRmkH81s2D
+X-Proofpoint-ORIG-GUID: 3QCoety8nuQyFRoJJfZ-pCKRmkH81s2D
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-09-30_01,2025-09-29_04,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 phishscore=0 bulkscore=0 clxscore=1015 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2509150000
- definitions=main-2509270020
+ impostorscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1011 phishscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270010
 
-On Fri, Sep 26, 2025 at 08:25:07PM +0200, Niklas Schnelle wrote:
-> On Fri, 2025-09-26 at 16:27 +0200, Benjamin Block wrote:
-> > > +extern const struct attribute_group zpci_slot_attr_group;
-> > > +
-> > > +#define ARCH_PCI_SLOT_GROUPS (&zpci_slot_attr_group)
-> > 
-> > I don't know the history exactly, but this can't be easily extended like the
-> > other group above `ARCH_PCI_DEV_GROUPS`.
-> > 
-> >     (&zpci_slot_attr_group,  \
-> >      &zpci_slot_attr_group_b)
-> > 
-> > Won't compile. The way `ARCH_PCI_DEV_GROUPS` does it, attaching a different
-> > group is just adding a new line.
-> 
-> Without the parenthesis it should. I only added them because otherwise
-> checkpatch complains and it's still valid for a single item to have
-> parenthesis.
+On Wed, Sep 24, 2025 at 10:16:20AM -0700, Farhan Ali wrote:
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index a3d93d1baee7..327fefc6a1eb 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -4576,12 +4576,19 @@ EXPORT_SYMBOL_GPL(pcie_flr);
+>   */
+>  int pcie_reset_flr(struct pci_dev *dev, bool probe)
+>  {
+> +	u32 reg;
+> +
+>  	if (dev->dev_flags & PCI_DEV_FLAGS_NO_FLR_RESET)
+>  		return -ENOTTY;
+>  
+>  	if (!(dev->devcap & PCI_EXP_DEVCAP_FLR))
+>  		return -ENOTTY;
+>  
+> +	if (pcie_capability_read_dword(dev, PCI_EXP_DEVCAP, &reg)) {
+> +		pci_warn(dev, "Device unable to do an FLR\n");
+> +		return -ENOTTY;
+> +	}
 
-It's not like checkpatch is the last arbiter of truth here, especially sind we
-already have a case without parenthesis; but I guess if we ever need to extend
-the list, we can remove the parenthesis again.
+Just thinking out loud, not sure whether it make sense, but since you already
+read an up-to-date value from the config space, would it make sense to
+pull the check above `dev->devcap & PCI_EXP_DEVCAP_FLR` below this read, and
+check on the just read `reg`?
 
-> > > diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-> > > index 0ee0924cfab7e5d22468fb197ee78cac679d8c13..997dff3796094680d9a3f0b6eb27a89fa1ed30b2 100644
-> > > --- a/arch/s390/pci/pci_sysfs.c
-> > > +++ b/arch/s390/pci/pci_sysfs.c
-> > > @@ -178,6 +178,17 @@ static ssize_t index_show(struct device *dev,
-> > >  }
-> > >  static DEVICE_ATTR_RO(index);
-> > >  
-> > > --- snip ---
-> > > +{
-> > > +	struct zpci_dev *zdev = container_of(slot->hotplug, struct zpci_dev,
-> > > +					     hotplug_slot);
-> > > +
-> > > +	return sysfs_emit(buf, "0x%x\n", zdev->uid);
-> > 
-> > Do we need a special case for when `uid` is 0? That would imply the uid is
-> > invalid, right? Would we want to return an error in that case (-EINVAL, or
-> > smth)? 
-> > 
-> > Also, do we want to use the same format as in `zpci_setup_bus_resources()`
-> > with the 4 leading 0's (`0x%04x`)?
-> 
-> I chose to match the "uid" device attribute here ("zpci_attr(uid,
-> "0x%x\n", uid)" in the beginning of the same file).
+Also wondering whether it makes sense to stable-tag this? We've recently seen
+"unpleasant" recovery attempts that look like this in the kernel logs:
 
-Ah right, fair enough.
+    [  663.330053] vfio-pci 0007:00:00.1: timed out waiting for pending transaction; performing function level reset anyway
+    [  664.730051] vfio-pci 0007:00:00.1: not ready 1023ms after FLR; waiting
+    [  665.830023] vfio-pci 0007:00:00.1: not ready 2047ms after FLR; waiting
+    [  667.910023] vfio-pci 0007:00:00.1: not ready 4095ms after FLR; waiting
+    [  672.070022] vfio-pci 0007:00:00.1: not ready 8191ms after FLR; waiting
+    [  680.550025] vfio-pci 0007:00:00.1: not ready 16383ms after FLR; waiting
+    [  697.190023] vfio-pci 0007:00:00.1: not ready 32767ms after FLR; waiting
+    [  730.470021] vfio-pci 0007:00:00.1: not ready 65535ms after FLR; giving up
 
-> This doesn't
-> special case UID 0. You are right that this is an invalid UID though.
-> It also still exposes the UID even if it is not guaranteed to be
-> unique. But we'll make that setting known to user-space separately.
-> I feel like knowing the UIDs can still be helpful even when they are
-> not unique, for example to check that they've been set correctly from
-> within Linux before enabling UID Checking.
+The VF here was already dead in the water at that point, so I suspect
+`pci_read_config_dword()` might have failed, and so this check would have
+failed, and we wouldn't have "wasted" the minute waiting for a FLR that was
+never going to happen anyway.
 
-I don't mind the case where the UID is not checked for uniqueness (the naming
-is confusing in any case, since the U doesn't stand for unique), I was just
-wondering whether printing an invalid UID makes sense. I think those are
-distinct cases. 
-It might be easier to 'encode' this knowledge about an UID being "invalid"
-here, rather than 'encoding' it in every single user that might read this
-attribute.
-
-I guess the same can be said for the old `uid` attribute that is attached to
-the PCI device, but that was introduced by Sebastian a long time ago.
 
 -- 
 Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
