@@ -1,72 +1,60 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11B931865FA
-	for <linux-s390@vger.kernel.org>; Wed,  1 Oct 2025 09:28:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E367F35977;
+	Wed,  1 Oct 2025 09:32:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759310900; cv=none; b=aI3jutulXOBCjmSAJRJ3Ct98ICw6Zch9rCfSNKB/u0zcqjRrgo7BNDV2rP+uiTPn61AXDsNtdE2tILTjqjkcrjtuFMYcOIePvt+YJCgxMIZ0f3B9ccnc12ss5ErRQiO0USviQik1STm1paCWvWl6s5tYikH2u+GVNblX0kB6SPE=
+	t=1759311155; cv=none; b=hLoUV2A16ugjTK1yp47Na29jBExDEcyV56FXOJx1QXVpORKkugGJdqZcxsVfanNijuWS+MH4+GKULMt4cgd4dh26VlqnVhBRvhRoptX2b/7ylMDdStvMsF2/AudbajmB/RG6ZZabdDgWJ8eI3k/sKg7pRXgU92yjk2LaPrDc4Zk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759310900; c=relaxed/simple;
-	bh=u8Q/puU00m1+Ma30hn2PbTN/YeCwD3+SnWOZqn5KRRE=;
+	s=arc-20240116; t=1759311155; c=relaxed/simple;
+	bh=V3TMuotS0sFVsytD6YSO99/qgAzB4uInxJsGz7nPwB8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rgoL/E1GhOi5My5TdSoGTTOWDqPbny709ZcKJOLtRdtBKSyUYIK2/KIWyQBks/jbVhNc+Y1inCOszVglb6YJzgMqd/UPQHGgB+Ida/3mgJngED6wflD7SqwBisIgVKzAao8HxLYht4cqGjFS2vdQzxyxN9Mi5bYxONyk46ZAWhs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BHKMtLub; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=I2QzzTfH9Kz806HWqtihGHs1oDIhwFWBSitaA9Z/YvwoONM5bf5BnwRO8M+rwzWdz+LdgW/Ka8geG4X9sySGnwCsoMCkNdWnKZXvUB95h7/ksqXOEfOkiq8elJ6BMPQ8bTDyILgRrRmvpyUo66C7oiyJV8eTTQj5LlEfnc7JbGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I5hSRx9H; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BHKMtLub"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759310896;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ybtVMUpvDW3U/F2Zx0MRGWKL6mjqpdZhKS9ovQqZCJg=;
-	b=BHKMtLubZVnUb3kgB8l8GqsQOgsRsfJQJORgdf1eigTzkrvrcMBtWwXXK7JK45Gcw8Q6aR
-	DLMdlexDdwY70oyFUA059g04mpYC6ew0fNiD55sKAkoeE0Gy1K+I4VXBrY3sVzbjTOJMQC
-	i+NHFO2+xR92ZRiQRCz9b0OuIXQrQnk=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-694-fjPWvYoyPHWSPvE8YujVMA-1; Wed, 01 Oct 2025 05:28:15 -0400
-X-MC-Unique: fjPWvYoyPHWSPvE8YujVMA-1
-X-Mimecast-MFC-AGG-ID: fjPWvYoyPHWSPvE8YujVMA_1759310894
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-40fd1b17d2bso3379618f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 01 Oct 2025 02:28:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759310894; x=1759915694;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ybtVMUpvDW3U/F2Zx0MRGWKL6mjqpdZhKS9ovQqZCJg=;
-        b=XHy0OPwiyvQ8v695TJzhWS7BxoLthJ7TuQGQe0lNjDUBRpQHIQUxgXmNRsTAoAAUrP
-         FFqtihUFUPyquPDut/S0ILdiAmrBc1X9XiqSPi6pMD8LSPyCf1WuQNBA9zSzg7kOy3jl
-         Sa3bHZCeXFrgmEdxbHq/fhe2Rj/DIgzBoiRJnBuhTVaskKhMRMXI1TV/PPahiQdf6Lqw
-         fa282evBjPvPdq2i4AONolkSwAISxrCI/vP+Xw7GbBpoI3KtAs2nMtE1QIpLupzUfuNa
-         KrDncS1n+YIS8x7aOk+kBMgi0jnqLSDH289c1Dt+0U4HQnl9N48BGQi86aFFDwhNSRGj
-         mLuA==
-X-Forwarded-Encrypted: i=1; AJvYcCXk8VpWK91Uxqind08LU8GmVbkbiAxx9S6Th94rtaxUDVGqWsj1UQVrXFPRebZrRd500HaXrMfKUFvf@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywg/cws2HeybLETDZ6EFmzV+5+0Cl0UcsCkynWUVLAeytA34wMy
-	sNNq3xbQTU8b2/krCcF21NVJuOmyX0nDTISLTk42c7N6FvKChXlfhBBg12+M8WFIJZvRGNgrKQQ
-	AhtUfR0X7/O8Z3KjS7nYfQATbW/0cHg2Y6l+48Y8+NTx6QMk8pd11xwIlC2GtSKo=
-X-Gm-Gg: ASbGncuyDXgActYh9JeBjWc/SpmneADv75rI5u6cUA0iqEiVcx4cYI8F3P/MkI8TfEi
-	sh78Qnrre0e719JXKoahONXG2HNNKK3T4DHKI6ETB1/fNyfNAqvSIoeVkX/iPQSkGRlPjgKuZMF
-	jtuaSZwo19/kTjmbYhpqeX2Eu9CSulCSOMNEWLYhHgXd1MlQX9zORnnnKKfjPlU2Pz1UcQxnXob
-	AiXwsmGtdoMf7IhgLApR160eqiCVmJSWuvLFSQWURFuOvzRjsdmGVgwx2B2L7gChez0I8hEUGEc
-	nprr0itp+eiCpev01hxbNE45wb0s7LdRF95SiZPr9HphzYBu0uE3yfY93ucVDAq0xtDU5azY9lT
-	pltKmwzRd7wLxwBR+Vg==
-X-Received: by 2002:a5d:588a:0:b0:3ec:248f:f86a with SMTP id ffacd0b85a97d-425578183aamr2084059f8f.48.1759310893674;
-        Wed, 01 Oct 2025 02:28:13 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH2jGX49TGzAee2RWy6ApUBj/jwFn2OVqWsFJymuz8OiVF8ehgSB3/azRECWeXusX/4XaZBCg==
-X-Received: by 2002:a5d:588a:0:b0:3ec:248f:f86a with SMTP id ffacd0b85a97d-425578183aamr2084020f8f.48.1759310893212;
-        Wed, 01 Oct 2025 02:28:13 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fac4a5e41sm28042341f8f.0.2025.10.01.02.28.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Oct 2025 02:28:12 -0700 (PDT)
-Message-ID: <651ee9fe-706e-4471-a71b-e7a12b42cc3e@redhat.com>
-Date: Wed, 1 Oct 2025 11:28:09 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I5hSRx9H"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5919R3xu023218;
+	Wed, 1 Oct 2025 09:32:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=kiemtK
+	JmuPJKF/4jmmq0+oOyRI0uHGd8jAqCvv8beUk=; b=I5hSRx9Hgi+ByCA2RJDhbI
+	4Zz8OwegLU0QOWN+GmmPEOR9D0G/6y7CxbsK2UJAjWdA1kARB3JOSvS2QyjkW7Z0
+	EdA96vVCTNulyaph26FdfBIF0XdLyb0bwyCvc/w8mjODIoP46htRBDkK7Lz3nB0A
+	pWMzAn/y+z6k067KehnS6FCLiXl6VAM9nCH5FxK5/PNI7yupuHfv1TR44PMRMtSd
+	vD8HLScACvg5QYkvLKP3DHdy+67+LZ4xUm6anlmUWiWxXG7H7lYAz+xPKV2NHeoh
+	2W8A5kGa0SlZk/ywTKCo4IL2tJ1xv0chgHCfgS4h2ob47vqHo1r4aYD815ioE/aQ
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e6bhnyc3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 01 Oct 2025 09:32:23 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5918lOQo007293;
+	Wed, 1 Oct 2025 09:32:22 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49eurjyyvr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 01 Oct 2025 09:32:22 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5919WIeY36307392
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 1 Oct 2025 09:32:18 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 957FC20043;
+	Wed,  1 Oct 2025 09:32:18 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 159DD20040;
+	Wed,  1 Oct 2025 09:32:18 +0000 (GMT)
+Received: from [9.111.38.10] (unknown [9.111.38.10])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  1 Oct 2025 09:32:18 +0000 (GMT)
+Message-ID: <18a1c26f-036a-44c3-9c53-82cd86d79340@linux.ibm.com>
+Date: Wed, 1 Oct 2025 11:32:17 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -74,86 +62,123 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next V6] net/mlx5: Improve write-combining test
- reliability for ARM64 Grace CPUs
-To: Tariq Toukan <tariqt@nvidia.com>
-Cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
- Mark Bloch <mbloch@nvidia.com>, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- Gal Pressman <gal@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>,
- Jason Gunthorpe <jgg@nvidia.com>, Michael Guralnik <michaelgur@nvidia.com>,
- Moshe Shemesh <moshe@nvidia.com>, Will Deacon <will@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Justin Stitt <justinstitt@google.com>,
- linux-s390@vger.kernel.org, llvm@lists.linux.dev,
- Ingo Molnar <mingo@redhat.com>, Bill Wendling <morbo@google.com>,
- Nathan Chancellor <nathan@kernel.org>,
- Nick Desaulniers <ndesaulniers@google.com>,
- Salil Mehta <salil.mehta@huawei.com>, Sven Schnelle <svens@linux.ibm.com>,
- Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
- Yisen Zhuang <yisen.zhuang@huawei.com>, Arnd Bergmann <arnd@arndb.de>,
- Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>,
- Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
- Niklas Schnelle <schnelle@linux.ibm.com>, Jijie Shao <shaojijie@huawei.com>,
- Simon Horman <horms@kernel.org>, Patrisious Haddad <phaddad@nvidia.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, Eric Dumazet <edumazet@google.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
-References: <1759093688-841357-1-git-send-email-tariqt@nvidia.com>
+Subject: Re: [PATCH] KVM: s390: Remove unused return variable in
+ kvm_arch_vcpu_ioctl_set_fpu
+To: Thorsten Blum <thorsten.blum@linux.dev>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20250916131238.2489818-3-thorsten.blum@linux.dev>
 Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <1759093688-841357-1-git-send-email-tariqt@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20250916131238.2489818-3-thorsten.blum@linux.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Se/6t/Ru c=1 sm=1 tr=0 ts=68dcf527 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VnNF1IyMAAAA:8 a=IGrXz5sEf57Iun4jFoEA:9
+ a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAxMCBTYWx0ZWRfX9/wY5NcDypmU
+ wzO4gEfVGnaW/EWZVgifr+S0VvtAnrIk1ZNLiuZJPCQw2jWHX2mbDtfDKJiAXm+RfjlZQsKS0jr
+ V4vi7fnR6dwkOyUNqNlMUwpfXNeImi+k+5G62TUtFpqVN0qeGaLU3eWAePSgOVz9hKQ0fwRpsT5
+ oVrRycWcDrtRDeU/lpmMr/DlDsTKAe+8N4XgSwt84vfsteVfWRSeae9N6URT21BHh0Tzke9OVfS
+ k05fMo3DDal9mPmvboiovag+49KZzSlSVAYdf97n1eT3TPxQwhQa2OjvQITBSKd2KQPmivzVgqn
+ YFo6rxh8On5lz02i2p2+Veli0KsnigCPF96qdnYN9T/JcCxzOCdp8AQQk4fx2sAM2J78hbEwxwf
+ KlxJIedsdrBi50VFz/S6pmRZd7ZxqA==
+X-Proofpoint-GUID: J0_JOq3r8hYqgZc3f9wv778s57COSv3D
+X-Proofpoint-ORIG-GUID: J0_JOq3r8hYqgZc3f9wv778s57COSv3D
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-01_02,2025-09-29_04,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1011 phishscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270010
 
-Hi,
+On 9/16/25 3:12 PM, Thorsten Blum wrote:
+> kvm_arch_vcpu_ioctl_set_fpu() always returns 0 and the local return
+> variable 'ret' is not used anymore. Remove it.
+> 
+> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 
-On 9/28/25 11:08 PM, Tariq Toukan wrote:
-> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/wc.c b/drivers/net/ethernet/mellanox/mlx5/core/wc.c
-> index 999d6216648a..c281153bd411 100644
-> --- a/drivers/net/ethernet/mellanox/mlx5/core/wc.c
-> +++ b/drivers/net/ethernet/mellanox/mlx5/core/wc.c
-> @@ -7,6 +7,10 @@
->  #include "mlx5_core.h"
->  #include "wq.h"
->  
-> +#if IS_ENABLED(CONFIG_KERNEL_MODE_NEON) && IS_ENABLED(CONFIG_ARM64)
-> +#include <asm/neon.h>
-> +#endif
-> +
->  #define TEST_WC_NUM_WQES 255
->  #define TEST_WC_LOG_CQ_SZ (order_base_2(TEST_WC_NUM_WQES))
->  #define TEST_WC_SQ_LOG_WQ_SZ TEST_WC_LOG_CQ_SZ
-> @@ -255,6 +259,27 @@ static void mlx5_wc_destroy_sq(struct mlx5_wc_sq *sq)
->  	mlx5_wq_destroy(&sq->wq_ctrl);
->  }
->  
-> +static void mlx5_iowrite64_copy(struct mlx5_wc_sq *sq, __be32 mmio_wqe[16],
-> +				size_t mmio_wqe_size, unsigned int offset)
-> +{
-> +#if IS_ENABLED(CONFIG_KERNEL_MODE_NEON) && IS_ENABLED(CONFIG_ARM64)
-> +	if (cpu_has_neon()) {
-> +		kernel_neon_begin();
-> +		asm volatile
-> +		(".arch_extension simd;\n\t"
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
-Here I'm observing build errors with aarch64-linux-gnu-gcc 12.1.1
-20220507 (Red Hat Cross 12.1.1-1):
+Thanks, picked
 
-/tmp/cchqHdeI.s: Assembler messages:
-/tmp/cchqHdeI.s:746: Error: unknown architectural extension `simd;'
-
-I can't reproduce the error on any recent compiler version via
-godbolt.org, so I *think* this should not block/be reverted for the MR,
-but could you please have a look soonish?
-
-Thanks,
-
-Paolo
+> ---
+>   arch/s390/kvm/kvm-s390.c | 4 +---
+>   1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index bf6fa8b9ca73..f61cb8a5ea77 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4367,8 +4367,6 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
+>   
+>   int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+>   {
+> -	int ret = 0;
+> -
+>   	vcpu_load(vcpu);
+>   
+>   	vcpu->run->s.regs.fpc = fpu->fpc;
+> @@ -4379,7 +4377,7 @@ int kvm_arch_vcpu_ioctl_set_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
+>   		memcpy(vcpu->run->s.regs.fprs, &fpu->fprs, sizeof(fpu->fprs));
+>   
+>   	vcpu_put(vcpu);
+> -	return ret;
+> +	return 0;
+>   }
+>   
+>   int kvm_arch_vcpu_ioctl_get_fpu(struct kvm_vcpu *vcpu, struct kvm_fpu *fpu)
 
