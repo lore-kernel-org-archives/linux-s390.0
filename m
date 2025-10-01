@@ -1,83 +1,95 @@
-Received: from mail-108-mta141.mxroute.com (mail-108-mta141.mxroute.com [136.175.108.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C3AC2773F3
-	for <linux-s390@vger.kernel.org>; Wed,  1 Oct 2025 16:41:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=136.175.108.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE5D31EBA19;
+	Wed,  1 Oct 2025 16:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759336901; cv=none; b=rtdrFnBhIiocmMYrCdD4uu6YcmDyQ/r3yAc+vGmk+IE5DGN+m+6UyyfpVEItVcjqK545dO5kJacF3i3IZcketphVqt5kygV8R/t94eJT3cAz93K6UvJP5c30/Em5ofTaonIIYqBn1qCn4m2d/jbuFjJLaPsaY9K/uuD5XkI3LWQ=
+	t=1759337118; cv=none; b=JimRg528vhe/IilB308kIyiTQ3++Z4g7BNPKFXSHaXZYhMXZLm3ZRr4HJPfxqCHHFpEP95dlPdwv3E1g1yb7LBc734PWeLuIJqxSW4XM735uWg1qBjAFWeZlnbEgCxuSN4FhWSETcACb1jdmxUvpk2NJxPEKLt9SRUgdVVygzz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759336901; c=relaxed/simple;
-	bh=swqdbT4jab/ALeaUUe5hxevREAFBu9sSDetdj/EqHyk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZfDF+AfHIksfzKSWaUgzgbuJNRiJxXWsXWeuwlGjvxEWieN5QHC+aVVDtLO1FrgIvPE/GeFJNQ4brHzeu0ehcg0a5f1wOzucUeuhADm9gmKK70+D0AEd5axTfqxumE45MNFZeiKx8Hqu6sRDlz/2Ibv0H1gkD2lAqv7hQ4zLymE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=josie.lol; spf=pass smtp.mailfrom=josie.lol; dkim=pass (2048-bit key) header.d=josie.lol header.i=@josie.lol header.b=dn2qdvHS; arc=none smtp.client-ip=136.175.108.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=josie.lol
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=josie.lol
+	s=arc-20240116; t=1759337118; c=relaxed/simple;
+	bh=MlqpAikH1OWmKnPftKwstAu69RtadIFDLdyHc9NLlCA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=M8hM6VQvJVDLen2LB/lXl0C0vyw28+WLwdhU5dFrB1RPdOlX4uUN+ZVhfgGR/SbNIiQ/cUMqM+DtE/e8tyN1vPf0Jq9jZw1faUiuAdTdsgbbERY3bZiTo3aGP/7BmwS2qAqwF9VQsGyl9XsIg7AiefrCdazMxLNW+gTqi96ho1A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=grt/R0so; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=josie.lol header.i=@josie.lol header.b="dn2qdvHS"
-Received: from filter006.mxroute.com ([136.175.111.3] filter006.mxroute.com)
- (Authenticated sender: mN4UYu2MZsgR)
- by mail-108-mta141.mxroute.com (ZoneMTA) with ESMTPSA id 199a0a1dbec000c244.008
- for <linux-s390@vger.kernel.org>
- (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
- Wed, 01 Oct 2025 16:36:26 +0000
-X-Zone-Loop: 958000758e91f7cfaa392b33b6ff4c3c9dde504d4c4a
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=josie.lol;
-	s=x; h=Content-Transfer-Encoding:MIME-Version:Date:Subject:Cc:To:From:Sender:
-	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
-	List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=SmRueyWLp08d1J7X5zA7xIae/GZpHWZua3Wla6Pf5CU=; b=dn2qdvHSMctm
-	SRjpStl6TdBIzwPfAE8IkSwQ5DXHRzSzuDBvA2N/2VUPdlnL38keEvli9YzJaIulKTSFf3/EfJTLJ
-	lu3pfFAS7upFRbFjD1JlTMQUSw/El//bORea5cA1uKm314sjtJZngO2BZnvbquzPft9UXZjmkgYOS
-	MDxglMInHIgYLGZMUhUhoob+Ro8bndzWbU1eS3kvEq1NcD7oIvXhbMMKWEP3b9x7CT+D4XhO9svdD
-	a4IGguQe5HoRElRKWqY8Fxc73ppJnuvjGBt7aIuRcWX1LSamMCZRH7BgqruT5hYcNz2+X0PogNAhX
-	/3E7MxXxP+9zMyTLyAtmQQ==;
-From: Josephine Pfeiffer <hi@josie.lol>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="grt/R0so"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1B1C4CEF9;
+	Wed,  1 Oct 2025 16:45:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1759337117;
+	bh=MlqpAikH1OWmKnPftKwstAu69RtadIFDLdyHc9NLlCA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=grt/R0so3wGZBLWpTvtis4YVWYu0OWep3ecKNHvbq7qnybhqzve3CRlAwyGup1A0m
+	 ZrU5gzan7fvGY+HBDacq9cQVhu0kD/9p5zyxIRXlbfTE//GuC03KL8xX/DzZYBYHfg
+	 ERyVJYc45o+Gv/5N/HK/VQMVCTd5fX+Qz92sDRMbes4AgKrxiE13uPZTBeVLUxFqHp
+	 7CWCOVLqlb4dDxrfw4YDP8hdWAfu5hV3+V92AWWv7uzT6GHzUtowxz6+RJZ0yRbr2K
+	 6HRzFTdg6/mkV8ko8OxuQ/Vw5UUFLujZsbJ6PWs+JaM5XcAlYTHRx+dEI5wgAzFmmZ
+	 yQjKV8fw8MCKQ==
+Date: Wed, 1 Oct 2025 09:45:05 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, Tariq Toukan <tariqt@nvidia.com>,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Leon Romanovsky <leon@kernel.org>, Mark Bloch <mbloch@nvidia.com>,
+	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+	Leon Romanovsky <leonro@nvidia.com>,
+	Michael Guralnik <michaelgur@nvidia.com>,
+	Moshe Shemesh <moshe@nvidia.com>, Will Deacon <will@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Justin Stitt <justinstitt@google.com>, linux-s390@vger.kernel.org,
+	llvm@lists.linux.dev, Ingo Molnar <mingo@redhat.com>,
+	Bill Wendling <morbo@google.com>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Salil Mehta <salil.mehta@huawei.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/cmm: Replace sprintf with scnprintf for buffer safety
-Date: Wed,  1 Oct 2025 18:36:22 +0200
-Message-ID: <20251001163622.164143-1-hi@josie.lol>
+	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
+	Yisen Zhuang <yisen.zhuang@huawei.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
+	Niklas Schnelle <schnelle@linux.ibm.com>,
+	Jijie Shao <shaojijie@huawei.com>, Simon Horman <horms@kernel.org>,
+	Patrisious Haddad <phaddad@nvidia.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Eric Dumazet <edumazet@google.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH net-next V6] net/mlx5: Improve write-combining test
+ reliability for ARM64 Grace CPUs
+Message-ID: <20251001164505.GA379753@ax162>
+References: <1759093688-841357-1-git-send-email-tariqt@nvidia.com>
+ <651ee9fe-706e-4471-a71b-e7a12b42cc3e@redhat.com>
+ <20251001145514.GC3024065@nvidia.com>
+ <20251001163655.GA370262@ax162>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Authenticated-Id: hi@josie.lol
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251001163655.GA370262@ax162>
 
-Replace sprintf() with scnprintf() in cmm_timeout_handler() to prevent
-potential buffer overflow. The scnprintf() function ensures we don't
-write beyond the buffer size and provides safer string formatting.
+On Wed, Oct 01, 2025 at 09:36:55AM -0700, Nathan Chancellor wrote:
+> Removing the semicolon resolves the issue for me and matches the format
+> of .arch_extension in the rest of the kernel. I am guessing binutils
+> became less strict with parsing at some point.
 
-Signed-off-by: Josephine Pfeiffer <hi@josie.lol>
----
- arch/s390/mm/cmm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Looks like 2.40 is the first fixed release.
 
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index e2a6eb92420f..eb7ef63fab1e 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -321,8 +321,8 @@ static int cmm_timeout_handler(const struct ctl_table *ctl, int write,
- 		cmm_set_timeout(nr, seconds);
- 		*ppos += *lenp;
- 	} else {
--		len = sprintf(buf, "%ld %ld\n",
--			      cmm_timeout_pages, cmm_timeout_seconds);
-+		len = scnprintf(buf, sizeof(buf), "%ld %ld\n",
-+				cmm_timeout_pages, cmm_timeout_seconds);
- 		if (len > *lenp)
- 			len = *lenp;
- 		memcpy(buffer, buf, len);
--- 
-2.51.0
-
+  https://sourceware.org/bugzilla/show_bug.cgi?id=29519
+  https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=e8f20526238199c18afe163a230eafe19b51fca0
