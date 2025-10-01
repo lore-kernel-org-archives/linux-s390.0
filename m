@@ -1,93 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 577C01DF25C;
-	Wed,  1 Oct 2025 00:30:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52B232032D
+	for <linux-s390@vger.kernel.org>; Wed,  1 Oct 2025 07:21:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759278626; cv=none; b=JMZenIK4Lm2hd26t1owvZNk1AlzIpNduHSkAmkS/k5hZFh3gibjoKLjyT9xQbFw0/VH1KhbrHDu3XmJRajZ30RROj0o2kkczHrWCGcElEOmD0FNr0wVL2ADn8ZXM4/pqxjzCHMu+VwAK+yvT1t985cOyTswqXN9v0vBDrDxTx24=
+	t=1759303277; cv=none; b=RRj7K1pEr1LCuc+TruJEZuMo4ZY7HtMyCfr6UGQG4Q6wWkZfia1gNyYa4yjIMqZuv1PmTrfjn/sfj10KULoH/diwufWM5TPA96Ro3+RhTdscEM8XbBMIyDO0iI3wJv3VSuZtzNN0Bbqy8sfufmr3inTGsYPogBuS971vs49HO3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759278626; c=relaxed/simple;
-	bh=0fQVWwUWkMLw33UpF2OAmId1Q2Rfqf5COyBi7cgwMjk=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=BV6urRKehuCUb5qmS6PhCmCjGkIYjEwrJ94hNbKlzlCpHUbg3XKy7j9QErQUK5Zg1Xlrg9OyVGqVVaJeTzZSGQGz2AAoUOjl+LoRDwzM8YHxuYvKBJQnAmsllkF+JkoVRNp3r4tGPkckluRLIgVvyBXvcvwdPqkPYcHrzLAwwvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ggMZxZvA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1759303277; c=relaxed/simple;
+	bh=ZchBe3UVZFcajzAfPm5iupGhaT45ZKDAxK04VZzhIoA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZSD7xfSCbhrS171t/Uqn3jZ+cVfD5tsTgfdBNtskFlMxSfCsKkLxza1W01BSyDAFeo9BAmkHSQsDzfSP2NML/s2aZwdRv634Z3d6jgU4Y0md7i+xRMxeXI3py7cLGekquFyGDTfYmGwfG15osUlbsTxpysdtut+nnTQvmn7U63k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QcnIQXbp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ggMZxZvA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D725DC116C6;
-	Wed,  1 Oct 2025 00:30:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1759278625;
-	bh=0fQVWwUWkMLw33UpF2OAmId1Q2Rfqf5COyBi7cgwMjk=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=ggMZxZvAdqGwXcKzbUBeVmq6kYQUo6N6wv4YaBXSVcZkd0PWTE7TFXLcN41hQ5u62
-	 eIbMgt8c6zAH0elSzu62Yr7Re+vHbOzVk4ABqKmbyuvdnIvPwEf9BWx6AtJeobox1m
-	 C+L2GM3/rh2zzwmY/Avrl5o4a8njn8Ymvl7GBKPY5qQWdXHOXbDQJOrrEvebLZjR1o
-	 VYj8KTa/+28xLsMy4gYmcFG4HdE+bqYMC+LJq+GD5x6aVLlI55gzJhnJuXht3rtc7q
-	 BGtdsQZoXifnHkeGnT6QLk1Ol0aI4ZpERr5X379G5hQEzWM18+8MCugodLaKBw7eMy
-	 iGXPwOfa0jxHw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EACAB39D0C1A;
-	Wed,  1 Oct 2025 00:30:19 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QcnIQXbp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1759303274;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=S6TphmWVV7btIJvjp1CTjxC8F2bt+sldx5I/c4TiGGc=;
+	b=QcnIQXbpCqa3QuGfqc4LTZ8GIpfHs/Pm5KZBIfi24tc2rfSsgskY8NmNRBU6Nc7rYHlZ8J
+	2SmPMOV59rEommb0W5rz0GNP3K6LUI21Nnp6RZfBHGwC32VYRMAtu2hG+DGK/2H9ckDvrs
+	zTNR15kwE2CWrpyXNEcUPQZ/Po5NURM=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-251-dVWo_90RPuKV5iZFrCcABA-1; Wed, 01 Oct 2025 03:21:13 -0400
+X-MC-Unique: dVWo_90RPuKV5iZFrCcABA-1
+X-Mimecast-MFC-AGG-ID: dVWo_90RPuKV5iZFrCcABA_1759303272
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-3fba0d9eb87so3666758f8f.0
+        for <linux-s390@vger.kernel.org>; Wed, 01 Oct 2025 00:21:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759303272; x=1759908072;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=S6TphmWVV7btIJvjp1CTjxC8F2bt+sldx5I/c4TiGGc=;
+        b=Q2ROzudFisiDxLIMJxp5aGjezGInDP7UIQvm7Ks4dcorxi2TORFp1awgzBfI9Bo+BT
+         TPISw2IAq7rCwMiVM4i+UunKzgf9tSoyJybM1aL6QM8q8sz+MkGo1cFO1zaQzH78/jLz
+         3UMVXXP5qIC4bLkT78IOpKPsm7kYap8oWuwhHfvTiNpir5nhoSq24m7tqx74lvsdNGlb
+         9wa1L6sKAuoeNMqkAuCgdqi53nyxeEd8cnsxR6F+i6vsKwnpN+m8nWf3SiJ41xiSfchY
+         ugGZFOFQDp7FoAmldM8nketUgr1KKLfSo/K8Cm1ENOMKwhm6xtmhR/fy0Ahm/lsjGr8y
+         Q64g==
+X-Forwarded-Encrypted: i=1; AJvYcCVLsJ1xIlJP4CLyPrUztCObjbjT0HzANngcH+mnPn9e5545nzyTUyjVsFDCcQdf+dUDh42ODdKUAWUK@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy8KkGBPRkdK/h66R5tSDremC1vA3huWdriF1WGfNWUDTz90ai7
+	+tJJl65rXD8uvqSKwiftI30LwOqqUonvhMeU7rqP7NA7egakXDvWAYosQ4AXAibWYE6HvMH6klA
+	ElWo3zUT3L8Cil0v0JKohx9XhqWUsTLdzR5wxlPjbpeCESlKct8lTr6C4ng7wZgQ=
+X-Gm-Gg: ASbGncs9PYs5k99Tph48mA+TbmY8jUDskCD9THyEL+b3RpW6tTZVlZZjiO1Lt3Cbjlg
+	Vy7b3CwGfnQQQT3UMHhj5SnTLWBxUr1iqhodJKd9V/OovA4b2gy6kyLhDYnB2B87Wwl4DrqpYdO
+	8gWCfATR7zBgVJorJbc8PPvmGHZIYayIc+zsMUEIHJ8uwzi6pXvTodkz+9srY0XlMBKAhkCY9H9
+	ZfbQGrqqpQByIqEcmmpSDByv+6C6s1vkA2JEZXJR1ORGyu9UUXsDvKTnmVQo0PAtOFUMzhjmdaB
+	CxqVFBledwIn+pd2Hw7rpcBVWhf+vXrfAPt2+A8z2I/AXsG3T8Mc9OGyt8WYRjXbp1KX2yFBBfk
+	80lC2t0rYmgkLCttiXQ==
+X-Received: by 2002:a05:6000:2dc3:b0:410:3a4f:12c8 with SMTP id ffacd0b85a97d-425577f0588mr1793501f8f.20.1759303271975;
+        Wed, 01 Oct 2025 00:21:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFL9Aoaglcvmq0NJZa7kQLBpIJUntR5wIckFB4bSle6etuGPxOt3URwof3q3OmopFDd6P6LuQ==
+X-Received: by 2002:a05:6000:2dc3:b0:410:3a4f:12c8 with SMTP id ffacd0b85a97d-425577f0588mr1793475f8f.20.1759303271534;
+        Wed, 01 Oct 2025 00:21:11 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:2712:7e10:4d59:d956:544f:d65c? ([2a0d:3344:2712:7e10:4d59:d956:544f:d65c])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-40fb72fb729sm25151903f8f.6.2025.10.01.00.21.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Oct 2025 00:21:10 -0700 (PDT)
+Message-ID: <acad498b-06e6-4639-b389-ef954e4c6abc@redhat.com>
+Date: Wed, 1 Oct 2025 09:21:09 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next V6] net/mlx5: Improve write-combining test
- reliability for ARM64 Grace CPUs
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175927861849.2249992.11585338388238905826.git-patchwork-notify@kernel.org>
-Date: Wed, 01 Oct 2025 00:30:18 +0000
-References: <1759093688-841357-1-git-send-email-tariqt@nvidia.com>
-In-Reply-To: <1759093688-841357-1-git-send-email-tariqt@nvidia.com>
-To: Tariq Toukan <tariqt@nvidia.com>
-Cc: catalin.marinas@arm.com, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- saeedm@nvidia.com, leon@kernel.org, mbloch@nvidia.com,
- netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-kernel@vger.kernel.org, gal@nvidia.com, leonro@nvidia.com,
- jgg@nvidia.com, michaelgur@nvidia.com, moshe@nvidia.com, will@kernel.org,
- agordeev@linux.ibm.com, akpm@linux-foundation.org, borntraeger@linux.ibm.com,
- bp@alien8.de, dave.hansen@linux.intel.com, gerald.schaefer@linux.ibm.com,
- gor@linux.ibm.com, hca@linux.ibm.com, hpa@zytor.com, justinstitt@google.com,
- linux-s390@vger.kernel.org, llvm@lists.linux.dev, mingo@redhat.com,
- morbo@google.com, nathan@kernel.org, ndesaulniers@google.com,
- salil.mehta@huawei.com, svens@linux.ibm.com, tglx@linutronix.de,
- x86@kernel.org, yisen.zhuang@huawei.com, arnd@arndb.de, leonro@mellanox.com,
- linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- mark.rutland@arm.com, michaelgur@mellanox.com, patches@lists.linux.dev,
- schnelle@linux.ibm.com, shaojijie@huawei.com, horms@kernel.org,
- phaddad@nvidia.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v5 2/2] net/smc: handle -ENOMEM from
+ smc_wr_alloc_link_mem gracefully
+To: Halil Pasic <pasic@linux.ibm.com>, Dust Li <dust.li@linux.alibaba.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ "D. Wythe" <alibuda@linux.alibaba.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>, Wenjia Zhang
+ <wenjia@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ Guangguan Wang <guangguan.wang@linux.alibaba.com>, netdev@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20250929000001.1752206-1-pasic@linux.ibm.com>
+ <20250929000001.1752206-3-pasic@linux.ibm.com>
+ <aNnl_CfV0EvIujK0@linux.alibaba.com>
+ <20250929112251.72ab759d.pasic@linux.ibm.com>
+Content-Language: en-US
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20250929112251.72ab759d.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Mon, 29 Sep 2025 00:08:08 +0300 you wrote:
-> From: Patrisious Haddad <phaddad@nvidia.com>
+On 9/29/25 11:22 AM, Halil Pasic wrote:
+> On Mon, 29 Sep 2025 09:50:52 +0800
+> Dust Li <dust.li@linux.alibaba.com> wrote:
 > 
-> Write combining is an optimization feature in CPUs that is frequently
-> used by modern devices to generate 32 or 64 byte TLPs at the PCIe level.
-> These large TLPs allow certain optimizations in the driver to HW
-> communication that improve performance. As WC is unpredictable and
-> optional the HW designs all tolerate cases where combining doesn't
-> happen and simply experience a performance degradation.
+>>> @@ -175,6 +175,8 @@ struct smc_link {
+>>> 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+>>> 	int			llc_testlink_time; /* testlink interval */
+>>> 	atomic_t		conn_cnt; /* connections on this link */
+>>> +	u16			max_send_wr;
+>>> +	u16			max_recv_wr;  
+>>
+>> Here, you've moved max_send_wr/max_recv_wr from the link group to individual links.
+>> This means we can now have different max_send_wr/max_recv_wr values on two
+>> different links within the same link group.
 > 
-> [...]
+> Only if allocations fail. Please notice that the hunk:
+> 
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -810,6 +810,8 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+>  	lnk->clearing = 0;
+>  	lnk->path_mtu = lnk->smcibdev->pattr[lnk->ibport - 1].active_mtu;
+>  	lnk->link_id = smcr_next_link_id(lgr);
+> +	lnk->max_send_wr = lgr->max_send_wr;
+> +	lnk->max_recv_wr = lgr->max_recv_wr;
+> 
+> initializes the link values with the values from the lgr which are in
+> turn picked up form the systctls at lgr creation time. I have made an
+> effort to keep these values the same for each link, but in case the
+> allocation fails and we do back off, we can end up with different values
+> on the links. 
+> 
+> The alternative would be to throw in the towel, and not create
+> a second link if we can't match what worked for the first one.
+> 
+>>
+>> Since in Alibaba we doesn't use multi-link configurations, we haven't tested
+>> this scenario. Have you tested the link-down handling process in a multi-link
+>> setup?
+>>
+> 
+> Mahanta was so kind to do most of the testing on this. I don't think
+> I've tested this myself. @Mahanta: Would you be kind to give this a try
+> if it wasn't covered in the past? The best way is probably to modify
+> the code to force such a scenario. I don't think it is easy to somehow
+> trigger in the wild.
+> 
+> BTW I don't expect any problems. I think at worst the one link would
+> end up giving worse performance than the other, but I guess that can
+> happen for other reasons as well (like different HW for the two links).
+> 
+> But I think getting some sort of a query interface which would tell
+> us how much did we end up with down the road would be a good idea anyway.
+> 
+> And I hope we can switch to vmalloc down the road as well, which would
+> make back off less likely.
 
-Here is the summary with links:
-  - [net-next,V6] net/mlx5: Improve write-combining test reliability for ARM64 Grace CPUs
-    https://git.kernel.org/netdev/net-next/c/fd8c8216648c
+Unfortunately we are closing the net-next PR right now and I would
+prefer such testing being reported explicitly. Let's defer this series
+to the next cycle: please re-post when net-next will reopen after Oct 12th.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Thanks,
 
+Paolo
 
