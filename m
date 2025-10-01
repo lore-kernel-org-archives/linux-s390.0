@@ -1,114 +1,83 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-108-mta141.mxroute.com (mail-108-mta141.mxroute.com [136.175.108.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817E927F749;
-	Wed,  1 Oct 2025 16:37:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C3AC2773F3
+	for <linux-s390@vger.kernel.org>; Wed,  1 Oct 2025 16:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=136.175.108.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759336627; cv=none; b=JNZA5LDER2muScGdIHqpatJJ7llqmlplpmdcZxa17KeBwb8wRGm/y/i7v6wgaeQJXbpoyPzvRR39LsM14ZOphWnja7BTMEApU14XbCk2i/en+BrGIM4Dlb2gUaXW3Ldme1PJ1S9a/rhAFLNPVHYpEtjBEasKfMt8aIXIPC8DRU0=
+	t=1759336901; cv=none; b=rtdrFnBhIiocmMYrCdD4uu6YcmDyQ/r3yAc+vGmk+IE5DGN+m+6UyyfpVEItVcjqK545dO5kJacF3i3IZcketphVqt5kygV8R/t94eJT3cAz93K6UvJP5c30/Em5ofTaonIIYqBn1qCn4m2d/jbuFjJLaPsaY9K/uuD5XkI3LWQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759336627; c=relaxed/simple;
-	bh=Z2NyxMKwcPeMXXKKAv2xDnR4oJ5LczuNNOFthCmdrr0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GnPoc+ZHdVQFLGw+uuzWvO5dIkIkSasT1rrn2YdUUkY/pNhY0uwuJ06hG7zbGPmxjTWwv/Wfcm8BVUJLTYoC6WNmOIEbntRKxdx30Kt8OgU9kZ7gw5EDIBo/s9LBLUArpZiVROmo1+JCU+x0zS5/LK+4BwzTFhc8FZfoajWMkpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pdEs2skq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1759336901; c=relaxed/simple;
+	bh=swqdbT4jab/ALeaUUe5hxevREAFBu9sSDetdj/EqHyk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZfDF+AfHIksfzKSWaUgzgbuJNRiJxXWsXWeuwlGjvxEWieN5QHC+aVVDtLO1FrgIvPE/GeFJNQ4brHzeu0ehcg0a5f1wOzucUeuhADm9gmKK70+D0AEd5axTfqxumE45MNFZeiKx8Hqu6sRDlz/2Ibv0H1gkD2lAqv7hQ4zLymE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=josie.lol; spf=pass smtp.mailfrom=josie.lol; dkim=pass (2048-bit key) header.d=josie.lol header.i=@josie.lol header.b=dn2qdvHS; arc=none smtp.client-ip=136.175.108.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=josie.lol
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=josie.lol
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pdEs2skq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9119C4CEF1;
-	Wed,  1 Oct 2025 16:36:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1759336627;
-	bh=Z2NyxMKwcPeMXXKKAv2xDnR4oJ5LczuNNOFthCmdrr0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pdEs2skqGh70Zo1YI7DOoy0aHJ4HyFogdGtdCIGleVtLKrtCn2RVAk0weWaPfpVaR
-	 QsjhbNwWzsEPIy3c6ubYWjwAvf+W12ZWE0sj4KXEuAj/6x+hItzGtqAzrsg6HH9uh1
-	 tpwtJLVaLW9Gf3jMWeI1mgiOvjvntUQIlshpktbKoefzm2aDnjPWnR+1t/36brucD+
-	 kJlZ7n6esgshltyonSUnbDHGsLosx1fPpraYDnKjRb8+thXVO+HWaKoFbcOCUjKHt/
-	 KvDNqiz28a8Etu79fFmX+l8kL9EE39VtJvMA8AJXVBNg4dqMumlorzFCtiRqAirXW5
-	 OlOUSv2m92lnA==
-Date: Wed, 1 Oct 2025 09:36:55 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Tariq Toukan <tariqt@nvidia.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Leon Romanovsky <leon@kernel.org>, Mark Bloch <mbloch@nvidia.com>,
-	netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-	Leon Romanovsky <leonro@nvidia.com>,
-	Michael Guralnik <michaelgur@nvidia.com>,
-	Moshe Shemesh <moshe@nvidia.com>, Will Deacon <will@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
+	dkim=pass (2048-bit key) header.d=josie.lol header.i=@josie.lol header.b="dn2qdvHS"
+Received: from filter006.mxroute.com ([136.175.111.3] filter006.mxroute.com)
+ (Authenticated sender: mN4UYu2MZsgR)
+ by mail-108-mta141.mxroute.com (ZoneMTA) with ESMTPSA id 199a0a1dbec000c244.008
+ for <linux-s390@vger.kernel.org>
+ (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+ Wed, 01 Oct 2025 16:36:26 +0000
+X-Zone-Loop: 958000758e91f7cfaa392b33b6ff4c3c9dde504d4c4a
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=josie.lol;
+	s=x; h=Content-Transfer-Encoding:MIME-Version:Date:Subject:Cc:To:From:Sender:
+	Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
+	List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=SmRueyWLp08d1J7X5zA7xIae/GZpHWZua3Wla6Pf5CU=; b=dn2qdvHSMctm
+	SRjpStl6TdBIzwPfAE8IkSwQ5DXHRzSzuDBvA2N/2VUPdlnL38keEvli9YzJaIulKTSFf3/EfJTLJ
+	lu3pfFAS7upFRbFjD1JlTMQUSw/El//bORea5cA1uKm314sjtJZngO2BZnvbquzPft9UXZjmkgYOS
+	MDxglMInHIgYLGZMUhUhoob+Ro8bndzWbU1eS3kvEq1NcD7oIvXhbMMKWEP3b9x7CT+D4XhO9svdD
+	a4IGguQe5HoRElRKWqY8Fxc73ppJnuvjGBt7aIuRcWX1LSamMCZRH7BgqruT5hYcNz2+X0PogNAhX
+	/3E7MxXxP+9zMyTLyAtmQQ==;
+From: Josephine Pfeiffer <hi@josie.lol>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Justin Stitt <justinstitt@google.com>, linux-s390@vger.kernel.org,
-	llvm@lists.linux.dev, Ingo Molnar <mingo@redhat.com>,
-	Bill Wendling <morbo@google.com>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Salil Mehta <salil.mehta@huawei.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org,
-	Yisen Zhuang <yisen.zhuang@huawei.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Leon Romanovsky <leonro@mellanox.com>, linux-arch@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Mark Rutland <mark.rutland@arm.com>,
-	Michael Guralnik <michaelgur@mellanox.com>, patches@lists.linux.dev,
-	Niklas Schnelle <schnelle@linux.ibm.com>,
-	Jijie Shao <shaojijie@huawei.com>, Simon Horman <horms@kernel.org>,
-	Patrisious Haddad <phaddad@nvidia.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Eric Dumazet <edumazet@google.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH net-next V6] net/mlx5: Improve write-combining test
- reliability for ARM64 Grace CPUs
-Message-ID: <20251001163655.GA370262@ax162>
-References: <1759093688-841357-1-git-send-email-tariqt@nvidia.com>
- <651ee9fe-706e-4471-a71b-e7a12b42cc3e@redhat.com>
- <20251001145514.GC3024065@nvidia.com>
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390/cmm: Replace sprintf with scnprintf for buffer safety
+Date: Wed,  1 Oct 2025 18:36:22 +0200
+Message-ID: <20251001163622.164143-1-hi@josie.lol>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20251001145514.GC3024065@nvidia.com>
+Content-Transfer-Encoding: 8bit
+X-Authenticated-Id: hi@josie.lol
 
-On Wed, Oct 01, 2025 at 11:55:14AM -0300, Jason Gunthorpe wrote:
-> On Wed, Oct 01, 2025 at 11:28:09AM +0200, Paolo Abeni wrote:
-> 
-> > > +static void mlx5_iowrite64_copy(struct mlx5_wc_sq *sq, __be32 mmio_wqe[16],
-> > > +				size_t mmio_wqe_size, unsigned int offset)
-> > > +{
-> > > +#if IS_ENABLED(CONFIG_KERNEL_MODE_NEON) && IS_ENABLED(CONFIG_ARM64)
-> > > +	if (cpu_has_neon()) {
-> > > +		kernel_neon_begin();
-> > > +		asm volatile
-> > > +		(".arch_extension simd;\n\t"
-> > 
-> > Here I'm observing build errors with aarch64-linux-gnu-gcc 12.1.1
-> > 20220507 (Red Hat Cross 12.1.1-1):
-> 
-> > /tmp/cchqHdeI.s: Assembler messages:
-> > /tmp/cchqHdeI.s:746: Error: unknown architectural extension `simd;'
-> 
-> This is a binutils error not gcc.. What is the binutils version?
+Replace sprintf() with scnprintf() in cmm_timeout_handler() to prevent
+potential buffer overflow. The scnprintf() function ensures we don't
+write beyond the buffer size and provides safer string formatting.
 
-I can reproduce this with at least binutils 2.36.1, which is in the
-kernel.org GCC 8.5.0 toolchain.
+Signed-off-by: Josephine Pfeiffer <hi@josie.lol>
+---
+ arch/s390/mm/cmm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Removing the semicolon resolves the issue for me and matches the format
-of .arch_extension in the rest of the kernel. I am guessing binutils
-became less strict with parsing at some point.
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index e2a6eb92420f..eb7ef63fab1e 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -321,8 +321,8 @@ static int cmm_timeout_handler(const struct ctl_table *ctl, int write,
+ 		cmm_set_timeout(nr, seconds);
+ 		*ppos += *lenp;
+ 	} else {
+-		len = sprintf(buf, "%ld %ld\n",
+-			      cmm_timeout_pages, cmm_timeout_seconds);
++		len = scnprintf(buf, sizeof(buf), "%ld %ld\n",
++				cmm_timeout_pages, cmm_timeout_seconds);
+ 		if (len > *lenp)
+ 			len = *lenp;
+ 		memcpy(buffer, buf, len);
+-- 
+2.51.0
 
-Cheers,
-Nathan
