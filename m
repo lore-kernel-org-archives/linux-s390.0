@@ -1,166 +1,205 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5F1A30E0C6;
-	Thu,  2 Oct 2025 11:05:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9355E279DD3;
+	Thu,  2 Oct 2025 12:58:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759403137; cv=none; b=r3SjLSow3hKwxbxk7cjUtG9gDGJjejsB2Va2waoS3w9/i3gFAZex0eHUZzJEVBKScNGid0Js2pptNSFUjdlM0GcjCwBQ6WRiRB0tWJiHvhRjPYl+y836eyInJp8aiSC83ISK82+tuCS2JTBK3b8kTKBB6gPq0vjLnJGEkIQ53IM=
+	t=1759409936; cv=none; b=iATK/HRUgrAwlyw7OCX5ooR+yxnZQxEKvTiUqHtmwU7OJPxs0QVXdOGA3UACptLD1BlDSXVNJredTDKZ8J0j9HyTQR6zwZDK7Cy62Fy4YS26ez/AMakPDmX1wnXqWXKTaAp3HR+i1uBVo2aIvry6AbPbZZmghXUO6gVf2yDOpLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759403137; c=relaxed/simple;
-	bh=Gbms4G+50NJ83q+xm8/NzAd6fbZ4vf+huSYnRnfSNhI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dgXPcDGuF4Uf+p+sa+WgGvommQF1EliOfjhRz5EzppgkSbDWFUeSN6h+zdOeihf41THQmy020egu0BkWiPNRxP6aauoe0ReJAhSq1WJsUcWZPSJW+ujRNQbWB58h+dk1J37P1F26gnP191rxg4dJnfWqTcXHuUjGkT8mWD5ZEP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OHgRwMc3; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1759409936; c=relaxed/simple;
+	bh=PZzLvhR1eh9enNJYbi5+jKKH86QfSTKt0Y3v1XqghEQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=A/k3hxDMIFOovOCdU6edoTnm1KI3LAJONrfvDO8syE0NzPTrS9Ic6bOC/iZMxcHjJUme+d/K96wLJ2wcXqNQ3AOFL4UK9L+bqlnbwYptaVvmn0JeXmy/d0n5V+2ZB52iuL7JVlxTFadEPuvSkgSHhmZFd7onBNLF7SQO0RyK/Qg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gxR1lBin; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OHgRwMc3"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gxR1lBin"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5920lH9V023884;
-	Thu, 2 Oct 2025 11:05:34 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 592B17Nc003678;
+	Thu, 2 Oct 2025 12:58:50 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=hRD3zu
-	0oLCOgYfE9guMupoc6bczXi8SWhb/uOhXW9d4=; b=OHgRwMc3ougy6uUCwuHj1H
-	mq3nrFihwEbPIveM9WP4cpMhyzChxeLYRU8SwOy8vQ2mftSpKRo3jQkB13F+Bm3o
-	Jlwq3bA2QZqabOMemMuvij9Zygdz6AK8kYymSpYNzItuixfiiBj4/4X3cFtb0IK6
-	rMjb3jxXFxUYp6CNn7Cs9wW/eFG2MINqp/qoDjJGZj0ra/OsFrcwoWzg9AmEweUr
-	XQ+T38ESZ6GBu4GHmjDNO+DEPIo9OgzkKwxkIw40XWBNIi5OH+Oqh9VUau2vNgGo
-	QjO6JEJNJnl+6RldSDB2dwM6EnecPpk2+BbPPL6vFEiJHlKRdVmU/+YBQzz/Xs/A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QS7Jku
+	v7e2nE+7GrZZYZc4cpN2EwS4uJvVk+DvUTVuA=; b=gxR1lBinW9L+1Kgrqwij17
+	Lze6kModpnz7h5x8JtVWV1HFFu3NZCQkbIoSsdYBO4RQsBAADYmOzkrv+f6oPFF/
+	zM/2eDZuwg/vrOtmZSAKns30SUBB/dhLNgJRc0a9leqq+S4dWcBTTK2nOgbtmT0+
+	Um0cfiyVIhLIciyAcFFb3pXaRfnPY1Cj0KcTWU+F+pZftLre5wzPiaVts2STr29C
+	6YbkAMwdoHRnpqB2TIkvZqHp8Y6Z+6bxmJVXYvMa9PpBhNHIMI5AN5XWT8xaHntc
+	64PFflbgGHwsGR7xZ/YThEoR6dVmtcmIpuJZGrF8ucueq/0kG3xrtTVQq/r1NAgw
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7n84y7g-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7n85ek5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Oct 2025 11:05:33 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 5927u9Vv020064;
-	Thu, 2 Oct 2025 11:05:32 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 49et8sdscf-1
+	Thu, 02 Oct 2025 12:58:49 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 592AAUhV024110;
+	Thu, 2 Oct 2025 12:58:48 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49evy1dnjx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Oct 2025 11:05:32 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 592B5TiN52887906
+	Thu, 02 Oct 2025 12:58:48 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 592Cwl5L11011474
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 2 Oct 2025 11:05:29 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 409C320043;
-	Thu,  2 Oct 2025 11:05:29 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0CC1920040;
-	Thu,  2 Oct 2025 11:05:29 +0000 (GMT)
-Received: from osiris (unknown [9.155.211.25])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  2 Oct 2025 11:05:28 +0000 (GMT)
-Date: Thu, 2 Oct 2025 13:05:26 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PULL] s390 fixes for 6.17-rc3
-Message-ID: <20251002110526.7570C1c-hca@linux.ibm.com>
-References: <20250822123608.142112A72-agordeev@linux.ibm.com>
- <ab3131a2-c42a-47ff-bf03-e9f68ac053c0@t-8ch.de>
+	Thu, 2 Oct 2025 12:58:47 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B46CD58055;
+	Thu,  2 Oct 2025 12:58:47 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D579958043;
+	Thu,  2 Oct 2025 12:58:45 +0000 (GMT)
+Received: from [9.111.41.120] (unknown [9.111.41.120])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  2 Oct 2025 12:58:45 +0000 (GMT)
+Message-ID: <a5ab698977f724e9121f81b9cfec9503d9decc72.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 04/10] s390/pci: Add architecture specific
+ resource/bus address translation
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+To: Bjorn Helgaas <helgaas@kernel.org>,
+        Ilpo =?ISO-8859-1?Q?J=E4rvinen?=
+	 <ilpo.jarvinen@linux.intel.com>
+Cc: alex.williamson@redhat.com, clg@redhat.com, mjrosato@linux.ibm.com,
+        Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci
+ <linux-pci@vger.kernel.org>
+Date: Thu, 02 Oct 2025 14:58:45 +0200
+In-Reply-To: <20250924171628.826-5-alifm@linux.ibm.com>
+References: <20250924171628.826-1-alifm@linux.ibm.com>
+	 <20250924171628.826-5-alifm@linux.ibm.com>
+Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
+ keydata=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
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ab3131a2-c42a-47ff-bf03-e9f68ac053c0@t-8ch.de>
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: Dq8cAoC4UxGiBYd4j48VMLB2p7PbjA8w
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAyNSBTYWx0ZWRfX8tPaQDF9S2VL
- jjugdQNNiob+j3oDZ1XsC6qpCj/8PnpqOclpbvncsV1irEiSqfpAKZ8v5vsvM+jPqj16yY3OTbl
- zWJi0MSrJxCSFJgCqEOifdD3VV/vRfGcXIEmgYSRFz5DbQpIBlgQr/qjSwS58x7xxEkP9mmkGVh
- 75wlc6mzcS046LNDZHDPvACTLrqfRofyXNvjBKJB1QUv0RJAMq896kIbA7fpTKikBLH2SAT3U2C
- Cm4Kk+1Y/N9A/fjhBUW79EiV0PcS2U9neEpgYGWn/ozufrdmr+ITGTyIrklODj+AvVxtE9IKmPF
- xd3mqTuoYje7h+rFn47qtPILNjTFtk9SULQPuC6gdctvYPBlwnzkhl2vo/X2h3pkon7Sh+DA7uy
- YgRLxj5vG/pry9Ugp2wa4getQBNz1Q==
-X-Proofpoint-GUID: Dq8cAoC4UxGiBYd4j48VMLB2p7PbjA8w
-X-Authority-Analysis: v=2.4 cv=T7qBjvKQ c=1 sm=1 tr=0 ts=68de5c7d cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=8nJEP1OIZ-IA:10 a=x6icFKpwvdMA:10 a=7XOAULQ-JK2wxBLJYocA:9
- a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+X-Proofpoint-ORIG-GUID: qholUCQBC-4BKBAasfoVWTdXlunZ7rvf
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAyNSBTYWx0ZWRfXzrVPQ3wsf1Nr
+ duOIdSauju5seGMzW/WBXxqcWTT9S382tWUJROazBmdfvZTiFxNgcFn1SgvsqHW5RcNs+pAuBMI
+ d1Q07JFB1w0S/1lRTjuaDZWj9WMSa0g7fwY/Zj2XEOvQPKxSC2E8fKZmvuLjDD7cBa96IKMyh3u
+ xfgMnHcnsD2i3urBVcNteHmab7zU4/wZYtrUZIkzXPvDgFcmdXuV1D8qxzPE0XJRuIpryKoYc3u
+ W51YjNYWTZ4wFC0jmsKyy4zO/pNbU4SP9TVv4/BsyGWwn7KkbzIMI1lv+siYyNleA+S3nQjsixK
+ UuHgoZatFJBY6kF55kOarXlT2R7r6VoS3EAX9w3x2scg/DAt21iPdD3tEfo2Q99qhERBmWpnxzw
+ 3rQCZZL8nynSECCsO485/T2enHJmWA==
+X-Proofpoint-GUID: qholUCQBC-4BKBAasfoVWTdXlunZ7rvf
+X-Authority-Analysis: v=2.4 cv=T7qBjvKQ c=1 sm=1 tr=0 ts=68de7709 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VnNF1IyMAAAA:8 a=BrrQjfjyEgxiKddweyAA:9
+ a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-02_04,2025-10-02_03,2025-03-28_01
+ definitions=2025-10-02_05,2025-10-02_03,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  adultscore=0 impostorscore=0 lowpriorityscore=0 malwarescore=0 spamscore=0
  clxscore=1015 suspectscore=0 bulkscore=0 phishscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270025
 
-On Thu, Oct 02, 2025 at 12:44:41AM +0200, Thomas Weißschuh wrote:
-> Hi Alexander, Vasily and Heiko,
-> 
-> On 2025-08-22 14:36:08+0200, Alexander Gordeev wrote:
-> > please pull s390 fixes for 6.17-rc3.
-> 
-> (...)
-> 
-> >       s390/configs: Set HZ=1000
-> 
-> With this commit the nolibc testsuite for 32bit on QEMU 10.1.0 starts to
-> reliably crash. 64bit is fine. Actually I encountered the same problem
-> before this change, but it happened much less frequently.
-> Output below for a testrun that never got to print anything to stdout,
-> but the crashes can also happen later or sometimes not at all.
-> 
-> [    2.118473] Run /init as init process
-> [    2.142148] User process fault: interruption code 0006 ilc:0
-> [    2.142626] CPU: 0 UID: 0 PID: 1 Comm: init Not tainted 6.17.0-rc2-00002-gfcc43a7e294f #24 NONE
-> [    2.142739] Hardware name: QEMU 8561 QEMU (KVM/Linux)
-> [    2.142822] User PSW : 0705200080000000 00000000804087b2
-> [    2.142911]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:1 AS:0 CC:2 PM:0 RI:0 EA:1
-> [    2.142979] User GPRS: 0000000000000000 000000000040c060 ffffffffffffffff 0000000000000002
-> [    2.143022]            0000000000000800 00000000000007ff 0000000000000000 0000000000000000
-> [    2.143061]            0000000000000000 000003ff00000001 000000000040c000 000000007ff720ac
-> [    2.143106]            000000007ff720a4 0000000000409540 00000000804087b2 000000007ff71ec0
-> [    2.143406] User Code: Bad PSW.
-> [    2.143454] Last Breaking-Event-Address:
-> [    2.143483]  [<0000000000000001>]
-> [    2.144705] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000004
-> [    2.144875] CPU: 0 UID: 0 PID: 1 Comm: init Not tainted 6.17.0-rc2-00002-gfcc43a7e294f #24 NONE
-> [    2.144922] Hardware name: QEMU 8561 QEMU (KVM/Linux)
-> [    2.144989] Call Trace:
-> [    2.145292]  [<000003fffe657cf4>] vpanic+0x1dc/0x2f0
-> [    2.145535]  [<000003fffe657e4e>] panic+0x46/0x48
-> [    2.145586]  [<000003fffe65e4e2>] do_exit+0x3da/0x520
-> [    2.145634]  [<000003fffe65e820>] do_group_exit+0x40/0xb8
-> [    2.145683]  [<000003fffe66fc98>] copy_siginfo_to_user+0x0/0x60
-> [    2.145735]  [<000003fffe60614e>] arch_do_signal_or_restart+0x66/0x2b0
-> [    2.145787]  [<000003ffff42e2bc>] irqentry_exit_to_user_mode+0x174/0x1f8
-> [    2.145902]  [<000003ffff439d5c>] pgm_check_handler+0x114/0x160
-> 
-> You can run the testuite for yourself:
-> (run-tests.sh will download a cross toolchain)
-> 
-> $ cd tools/testing/selftests/nolibc
-> $ ./run-tests.sh -p s390
-> (Expected output, lower numbers mean failures)
-> s390:          228 test(s): 227 passed,   1 skipped,   0 failed => status: warning
-> 
-> The full test output will be in run.out.
-> 
-> This doesn't feel like an issue in nolibc to me.
-> Any ideas?
+On Wed, 2025-09-24 at 10:16 -0700, Farhan Ali wrote:
+> On s390 today we overwrite the PCI BAR resource address to either an
+> artificial cookie address or MIO address. However this address is differe=
+nt
+> from the bus address of the BARs programmed by firmware. The artificial
+> cookie address was created to index into an array of function handles
+> (zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmwa=
+re
+> but maybe different from the bus address. This creates an issue when tryi=
+ng
+> to convert the BAR resource address to bus address using the generic
+> pcibios_resource_to_bus().
+>=20
+> Implement an architecture specific pcibios_resource_to_bus() function to
+> correctly translate PCI BAR resource addresses to bus addresses for s390.
+> Similarly add architecture specific pcibios_bus_to_resource function to d=
+o
+> the reverse translation.
+>=20
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
+>  drivers/pci/host-bridge.c |  4 +--
+>  2 files changed, 76 insertions(+), 2 deletions(-)
+>=20
 
-Hm, this looks like a qemu bug to me.
+@Bjorn, interesting new development. This actually fixes a current
+linux-next breakage for us. In linux-next commit 06b77d5647a4 ("PCI:
+Mark resources IORESOURCE_UNSET when outside bridge windows") from Ilpo
+(added) breaks PCI on s390 because the check he added in
+__pci_read_base() doesn't find the resource because the BAR address
+does not match our MIO / address cookie addresses. With this patch
+added however the pcibios_bus_to_resource() in __pci_read_base()
+converts  the region correctly and then Ilpo's check works. I was
+looking at this code quite intensely today wondering about Benjamin's
+comment if we do need to check for containment rather than exact match.
+I concluded that I think it is fine as is and was about to give my R-b
+before Gerd had tracked down the linux-next issue and I found that this
+fixes it.
 
-Ilya, could you have a look at this please?
+So now I wonder if we might want to pick this one already to fix the
+linux-next regression? Either way I'd like to add my:
 
-The above report is a specification exception with an instruction length
-code of zero, while the PSW points to a 31 bit user space address. As far
-as I understand the architecture this is only possible for an early PSW
-specification exception (aka invalid PSW); however the PSW looks good to
-me.
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-So something seems to be odd here.
+Thanks,
+Niklas
