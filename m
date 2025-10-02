@@ -1,139 +1,104 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6393B2580F2;
-	Thu,  2 Oct 2025 16:25:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0B451419A9;
+	Thu,  2 Oct 2025 17:00:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759422309; cv=none; b=Ag3ylDzffF9M6ZlM54TbI6buAMyPpe3vc9rYViAjbefvsSkt2vhqzFL8bvMU2o5b+BISOMG4fvv2bMDjcFVySaraPOsMEhuSpPT32u65KVRUD+D9UP410e30rArefIVrBT8g+Rvn+NwDiRzp6tZfrRFA9wH8H0T0fImwDKkLxL0=
+	t=1759424414; cv=none; b=tpy+LGvQHJ2ay5mNEJCUEiGQtUq+qBYK8zacJrq7hed8v1G0AFFqG/BdYDe39FT9TAD0Ov6PHa8Y7OYdlpVXcUoEdNXGjlSKP8LS/lQNzlCjPPZfJIpwT/p0NU7CxQm9yfYvpDBcZBfnLYk5kiusI/A40OaeSyqb57g01FcHgqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759422309; c=relaxed/simple;
-	bh=9nwGKuyNtHubpdbOJNjuRGLZdiDBAvEzAaHiSSBbL98=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u/OlMuuz7KtqBk0SZa6vS2OxOrlDjqlacMiN8gbIBAfkGUB8MkjmHQQE/or+spDCtpH7Or9RxJSkDBe8yS8AxRLbvxo9elSiXG29M8NheXfSvoABtTwWw8d54LjNuy4sW1vCOR8TojAUT2KkqSXWc7zwY+esqfhX6RCiOsngHbk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lwT0ThyQ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1759424414; c=relaxed/simple;
+	bh=JeDo0/gU/aESo9xjFaYoM9qP44UP1j9qzQZuprvxYBc=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=au0+3Ugwvb1at0VENwkxMjh3nmtGDv0wrD1n1J6Ha6JHo17xgSqsz9xfTBhD9P9b7EaH73LPkuQJTMKxglOzX8hb0+Wzzau2kUGJpcfSPip1LIK5rwDLYV2hYOIxb/ZwGuiqXxnv1iZRqHSYrjwHdrLt9QuZuTdgszFHgVuUDgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tfYrp3gD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lwT0ThyQ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 592DH7iY000711;
-	Thu, 2 Oct 2025 16:25:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Bo/dND
-	lTJhGwVL7sPqtlWS6mqbDbIA35vEa1y8XEvUU=; b=lwT0ThyQDfkXLTTvnkPMQe
-	N9ocbfa59EfUfOGf/WSR0ZtxmXiofOGFwucpQPrgB3bmaBgFJsrIZmIebir+hQzL
-	EuojpYNNfYl8uMuon74Hr5LXA40WrST2MzZqx5Rnw7UrO6yoZRPyiPIliXbiIfEV
-	yJ0rnlb6+gjUjBuVXoBA8aNjSStpvvMtnDodlD0WYqsLR3j6AbpaBtDInuY+HSVy
-	pTfFBgZMW+qJ0xzFH2Ym6BT5KXFWwnvwo0YX+7j3QXRBA/kPm5gTGpqDNAqwUdC+
-	AmnCips92sXCfkwjirTzCqweQP776WheXZ2aEjWP08CShUtHuf6p5jww+nF71GVA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49e7jww8vf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Oct 2025 16:25:05 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 592F00KD024198;
-	Thu, 2 Oct 2025 16:25:04 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49evy1efm6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Oct 2025 16:25:04 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 592GP0Hr57409802
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 2 Oct 2025 16:25:00 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A75E520043;
-	Thu,  2 Oct 2025 16:25:00 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7190020040;
-	Thu,  2 Oct 2025 16:24:59 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.87.143.163])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu,  2 Oct 2025 16:24:59 +0000 (GMT)
-Date: Thu, 2 Oct 2025 18:24:56 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Thomas Huth <thuth@redhat.com>
-Cc: freude@linux.ibm.com, Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        David Hildenbrand
- <david@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/uv: Fix the comment of the uv_find_secret()
- function
-Message-ID: <20251002182456.273e7205@p-imbrenda>
-In-Reply-To: <20251002155423.466142-1-thuth@redhat.com>
-References: <20251002155423.466142-1-thuth@redhat.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tfYrp3gD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75414C4CEF4;
+	Thu,  2 Oct 2025 17:00:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1759424414;
+	bh=JeDo0/gU/aESo9xjFaYoM9qP44UP1j9qzQZuprvxYBc=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=tfYrp3gDrkm1utxo4ziuF3mm7o/zWzsSnOByeTqhVl2Z8gFpwqyj5Bhaf5nfQ5Tao
+	 wxU0PkCLscfjB40FmXWgjsJipOSll3imjERGnUBvScnrDniapFuomAMA/Ru3PtSX1z
+	 SZZLFC7ycSg7qMv6hmde4oNMp8AePiVz68I2Ca3nwF08dMUYpsTovXEhqmvh8ZrSEA
+	 ds7nwIQEVMnbbyGowfMPme3HhOQxuCs7wv4etQCAHAqEga8uJUX08Ad3AfLi0qIOoH
+	 rqjpd9hETAVn8khrUBKUz1sXmuhylGLB3x+S474ZpfzV2Hwbg1JksEp39XllqIxDyA
+	 FD8Bw5/b7U/Bw==
+Date: Thu, 2 Oct 2025 12:00:13 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
+	alex.williamson@redhat.com, clg@redhat.com, mjrosato@linux.ibm.com,
+	Farhan Ali <alifm@linux.ibm.com>, linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pci <linux-pci@vger.kernel.org>
+Subject: Re: [PATCH v4 04/10] s390/pci: Add architecture specific
+ resource/bus address translation
+Message-ID: <20251002170013.GA278722@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTI3MDAyNSBTYWx0ZWRfX95qDt8n9sHRM
- hYX/pJpQ0HtZskshN06KciEQ0Njx6qM18rkyHTR1YCiE8HHTiVC0BkGQNAuw9P5HuHr0PyzmTMN
- nIaTnesDvK8Gz9baWuE/ati1hu/T6I/Xkuh/7iMoX97T43StPoqlw9GR7oFfCKaFSddJXQDU6kv
- x5bo0JUqynzqxojYvKPwyWnTdETMOhHBrKHEOMR61k5QrUBTV91Ip6JI/+ZX3vs2xyNmM+D/vvp
- Q1mJNhwhMqcrigm4fEaUF4Z8/qVFMDmGn8sq3ej8cV0mOVgsgmBmB6Y0wzWeO5RJMTvZQuQUwTZ
- nvsp4Fk80WNcsy54Krf1JkxOBpDLjQFqhVsAUIdxqj05qOeGyaVrgUCochnXfRYauU2MH/0t8Pv
- DJYJURbmZAQDWFhHhG54Rl9Hd/2rDw==
-X-Proofpoint-ORIG-GUID: ao7fTf_wYv-gZxhxOovAh12vkug2TpYJ
-X-Proofpoint-GUID: ao7fTf_wYv-gZxhxOovAh12vkug2TpYJ
-X-Authority-Analysis: v=2.4 cv=GdUaXAXL c=1 sm=1 tr=0 ts=68dea761 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
- a=IxN_qdxVzOrQSJR8OegA:9 a=CjuIK1q_8ugA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-02_06,2025-10-02_03,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 clxscore=1015 phishscore=0 adultscore=0 priorityscore=1501
- malwarescore=0 spamscore=0 bulkscore=0 impostorscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2509270025
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a5ab698977f724e9121f81b9cfec9503d9decc72.camel@linux.ibm.com>
 
-On Thu,  2 Oct 2025 17:54:23 +0200
-Thomas Huth <thuth@redhat.com> wrote:
-
-> From: Thomas Huth <thuth@redhat.com>
+On Thu, Oct 02, 2025 at 02:58:45PM +0200, Niklas Schnelle wrote:
+> On Wed, 2025-09-24 at 10:16 -0700, Farhan Ali wrote:
+> > On s390 today we overwrite the PCI BAR resource address to either an
+> > artificial cookie address or MIO address. However this address is different
+> > from the bus address of the BARs programmed by firmware. The artificial
+> > cookie address was created to index into an array of function handles
+> > (zpci_iomap_start). The MIO (mapped I/O) addresses are provided by firmware
+> > but maybe different from the bus address. This creates an issue when trying
+> > to convert the BAR resource address to bus address using the generic
+> > pcibios_resource_to_bus().
+> > 
+> > Implement an architecture specific pcibios_resource_to_bus() function to
+> > correctly translate PCI BAR resource addresses to bus addresses for s390.
+> > Similarly add architecture specific pcibios_bus_to_resource function to do
+> > the reverse translation.
+> > 
+> > Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> > ---
+> >  arch/s390/pci/pci.c       | 74 +++++++++++++++++++++++++++++++++++++++
+> >  drivers/pci/host-bridge.c |  4 +--
+> >  2 files changed, 76 insertions(+), 2 deletions(-)
+> > 
 > 
-> The uv_get_secret_metadata() function has been removed some
-> months ago, so we should not mention it in the comment anymore.
+> @Bjorn, interesting new development. This actually fixes a current
+> linux-next breakage for us. In linux-next commit 06b77d5647a4 ("PCI:
+> Mark resources IORESOURCE_UNSET when outside bridge windows") from Ilpo
+> (added) breaks PCI on s390 because the check he added in
+> __pci_read_base() doesn't find the resource because the BAR address
+> does not match our MIO / address cookie addresses. With this patch
+> added however the pcibios_bus_to_resource() in __pci_read_base()
+> converts  the region correctly and then Ilpo's check works. I was
+> looking at this code quite intensely today wondering about Benjamin's
+> comment if we do need to check for containment rather than exact match.
+> I concluded that I think it is fine as is and was about to give my R-b
+> before Gerd had tracked down the linux-next issue and I found that this
+> fixes it.
 > 
-> Fixes: a42831f0b74dc ("s390/uv: Remove uv_get_secret_metadata function")
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-
-Acked-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-
-> ---
->  arch/s390/kernel/uv.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> So now I wonder if we might want to pick this one already to fix the
+> linux-next regression? Either way I'd like to add my:
 > 
-> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-> index 47f574cd1728a..324cd549807a5 100644
-> --- a/arch/s390/kernel/uv.c
-> +++ b/arch/s390/kernel/uv.c
-> @@ -866,8 +866,8 @@ static int find_secret_in_page(const u8 secret_id[UV_SECRET_ID_LEN],
->  	return -ENOENT;
->  }
->  
-> -/*
-> - * Do the actual search for `uv_get_secret_metadata`.
-> +/**
-> + * uv_find_secret() - search secret metadata for a given secret id.
->   * @secret_id: search pattern.
->   * @list: ephemeral buffer space
->   * @secret: output data, containing the secret's metadata.
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
+Hmmm, thanks for the report.  I'm about ready to send the pull
+request, and I hate to include something that is known to break s390
+and would require a fix before v6.18.  At the same time, I hate to add
+non-trivial code, including more weak functions, this late in the
+window.
+
+06b77d5647a4 ("PCI: Mark resources IORESOURCE_UNSET when outside
+bridge windows") fixes some bogus messages, but I'm not sure that it's
+actually a functional change.  So maybe the simplest at this point
+would be to defer that commit until we can do it and the s390 change
+together.
+
+Bjorn
