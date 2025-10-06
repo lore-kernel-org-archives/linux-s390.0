@@ -1,170 +1,184 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BEFD199237;
-	Mon,  6 Oct 2025 17:47:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52B4127A135;
+	Mon,  6 Oct 2025 17:55:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759772875; cv=none; b=q02mh5Ly0A9w8qQRsSf6nmVqqb/NJuG2zaiz/ZrXFbZ1ErXOXen5pqMW10RoxH4XGPLVQQJDoO7uZ3DaH4m/t6ttKZGuk5Bmz2tJr4u9AqCa+7uaRaNff2ZxIEkDfB3UV4Rzn8Af14E3CDuw+5rXJFLAjiywiYCNddSCmED6rec=
+	t=1759773304; cv=none; b=b7lzGwFoJHfpEgsfNnnVOd+SoATU4Hpo5c91Lic1dVzatvM0yA9NJMM9xwWx/G7hUmmTsyAfMkTvXWDb7IJQ3cSxkGLUB1mLjkZhv4GUCYdse8dczz2BAS/hOLtAckbh0QpPlMI+aMGLV0aQZoC15feYBydK2Dph/k4OTFrx98k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759772875; c=relaxed/simple;
-	bh=fs9hUfEVexxAfYpjTyITTLJDNYflHPxV0GaTNmPv45g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LWyiGMQFACCVhnFoFQjfHXFkagJWeZ/cNEj2aaWdBQ52kqbndLa4e5MOc3fLL4sq/6icOq5Fo+umzhmlfrxl7vbnkQG5g5klPIo+XfsQWrH8LmGMEU6TAYP3V7oOlZSaMjEcLdFnTbvj7h1vjHuOXZ+eZ9m1NJhUEv79psRtO3I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s5nPKJxX; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1759773304; c=relaxed/simple;
+	bh=OrzhZUhqaOPvxSScylhPqu1GUjJmZzUCqVaJ6svNe0A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=euLdmqJvTY7LjAyfKgZYWzJfxQJUC8Ipuh+mzAVoPnRRUwXhUC4uXRjmUTt6t2z5XPruMHQ479uc+jJeUOcDOQfxTvbZD5B494U5r4jiyElcUleLtv6dBRqgx2bKhGI0bgacMg3aSxe3Pyb+u+K7f/PUhv7lQfa3CWGLcTS5u4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NstfYjh8; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s5nPKJxX"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 596GOgPg017742;
-	Mon, 6 Oct 2025 17:47:48 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NstfYjh8"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 596DXi6D013981;
+	Mon, 6 Oct 2025 17:54:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=y650WnoV6UlxEDnN3qJMdVFPuu8AtV
-	zw/0GeglG768Q=; b=s5nPKJxXUPu6ahyAFV79OwrYQYaYZQsz6m3mw6BlZnSUaS
-	RVT2sncbFNrLLYTbiJx9vuzVKrCTV0pEGTkXSYqph6+/ih1uAv0GUNzjQOCI0Wur
-	S1i+IMfup4tQVwIY7VH2ht40Z/duRXQaXrEMLP/vidziLwTjmCsprGjDqgArYvkF
-	P9tgY1av72W7mTVbvUzV6ebM3qQwH7phBp+3Qh8UGiyWruEsSI4vLY5eL/34ChqG
-	GAxODZiPTco/o3jccz16c9sdIMm9KUuoH+qd3i71kLDNpt3X1WPdWM/4iiGvzbuY
-	kJ1xQ2KYEbgTAnGJld0KBPmoTlbaKFMjmlL3x9jw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49ju93as0d-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=nnlGO/
+	buJD5PNd+VzUXVnHoPh9UB9cRnsDAnS8lcYeA=; b=NstfYjh8M5B9FlkOjwENIU
+	2QK/hnc7aX32rfdg1ChTJulPhHcaJv7zJNnESaO2RfbSzHJDjXE4RJc9jAg982yV
+	v29JDO38rJszpd8jGgnQ/B59tiDX/GlgIjaTmHKxADtZfn79iQDgAjTzblRd08Fw
+	qur4nV+MjTyXobbOVGobyHbqrQrgKeGvf4jkZtk1FAySDY5kfD9MMcYmv2YIi7FQ
+	+MykCWMdCXJYv/kHuPjkeOSxjKvXrSTZrRQanIuC8snZxt64P8gQantkLVN9JpMZ
+	hZKsCKaJWuyT++ZZEY4R478jPJPnD7hBpfpSXptQPgWrNKJmxq5MzB/x/lOoXK0Q
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49js0saquw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Oct 2025 17:47:47 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 596ESFIe021174;
-	Mon, 6 Oct 2025 17:47:46 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49kgm171mg-1
+	Mon, 06 Oct 2025 17:54:57 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 596G6lRC000900;
+	Mon, 6 Oct 2025 17:54:56 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49ke9xyfqs-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Oct 2025 17:47:46 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 596HlgLN48890170
+	Mon, 06 Oct 2025 17:54:56 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 596Hst4r32309950
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 6 Oct 2025 17:47:43 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D2AB020040;
-	Mon,  6 Oct 2025 17:47:42 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 26E5A20043;
-	Mon,  6 Oct 2025 17:47:42 +0000 (GMT)
-Received: from osiris (unknown [9.87.137.121])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon,  6 Oct 2025 17:47:42 +0000 (GMT)
-Date: Mon, 6 Oct 2025 19:47:40 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Alexey Gladkov <legion@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Cc: linux-s390@vger.kernel.org, open list <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        Linux Regressions <regressions@lists.linux.dev>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dan Carpenter <dan.carpenter@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Ben Copeland <benjamin.copeland@linaro.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: next-20251002: S390: gcc-8-defconfig: symbol `.modinfo' required
- but not present - no symbols
-Message-ID: <20251006174740.13659A33-hca@linux.ibm.com>
-References: <CA+G9fYvVktRhFtZXdNgVOL8j+ArsJDpvMLgCitaQvQmCx=hwOQ@mail.gmail.com>
+	Mon, 6 Oct 2025 17:54:55 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2035058055;
+	Mon,  6 Oct 2025 17:54:55 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 00E165803F;
+	Mon,  6 Oct 2025 17:54:54 +0000 (GMT)
+Received: from [9.61.253.189] (unknown [9.61.253.189])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  6 Oct 2025 17:54:53 +0000 (GMT)
+Message-ID: <c0818c13-8075-4db0-b76f-3c9b10516e7a@linux.ibm.com>
+Date: Mon, 6 Oct 2025 10:54:51 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvVktRhFtZXdNgVOL8j+ArsJDpvMLgCitaQvQmCx=hwOQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 01/10] PCI: Avoid saving error values for config space
+To: Lukas Wunner <lukas@wunner.de>
+Cc: Benjamin Block <bblock@linux.ibm.com>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pci@vger.kernel.org, alex.williamson@redhat.com,
+        helgaas@kernel.org, clg@redhat.com, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com
+References: <20250924171628.826-1-alifm@linux.ibm.com>
+ <20250924171628.826-2-alifm@linux.ibm.com>
+ <20251001151543.GB408411@p1gen4-pw042f0m>
+ <ae5b191d-ffc6-4d40-a44b-d08e04cac6be@linux.ibm.com>
+ <aOE1JMryY_Oa663e@wunner.de>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <aOE1JMryY_Oa663e@wunner.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 4Vcvnt5Z0hm-q6z5TxGQIzN7HBiCKIvx
-X-Proofpoint-ORIG-GUID: 4Vcvnt5Z0hm-q6z5TxGQIzN7HBiCKIvx
-X-Authority-Analysis: v=2.4 cv=Fec6BZ+6 c=1 sm=1 tr=0 ts=68e400c3 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=x6icFKpwvdMA:10 a=Oh2cFVv5AAAA:8 a=21D8NHQQAAAA:8
- a=KKAkSRfTAAAA:8 a=5jmsZD25J3Aw2ox8uuIA:9 a=CjuIK1q_8ugA:10
- a=7KeoIwV6GZqOttXkcoxL:22 a=aE7_2WBlPvBBVsBbSUWX:22 a=cvBusfyB2V15izCimMoJ:22
+X-Authority-Analysis: v=2.4 cv=EqnfbCcA c=1 sm=1 tr=0 ts=68e40271 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=NEAV23lmAAAA:8 a=P-IC7800AAAA:8
+ a=zJXkMSJU7NT2EHsJNlkA:9 a=QEXdDO2ut3YA:10 a=d3PnA9EDa4IxuAV0gXij:22
  a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA0MDAyMiBTYWx0ZWRfX3QPbcpTlPtbx
- mH2t5fQ3iCfOvxGb+ZQinKFkHn71EHnt/vpXxmJISi/YUAOXZRdQ7p2KK2Tv9sDW4LTbu7/LIBK
- j91pxdcPkcEoRCqYr2Avxg4/OmRdIYDLdLTGu6Bti/2tYVwwAlhDLVf+19ux3vGNP1bocGsx5nU
- mq6MvaTYSlajnYl9TXT4eI+beOxmJh377jCDv8ete4k16mv53BaQbjj9FIoC6qmvIlhZDQmjrMd
- ef27oJ9O5uyNM9kEFAv2XI4g/XBUBpsLBM/DhrKOHT58vSyxkMR1RdrTl2b4kmRzIrz1I2hKsnW
- oVIEIAgGeBDGtOhFZZ0PEkFKW0N5XTDyjOxgZ63MCh5sKHO+OutK4pqI3wnq/AdRMxLrSz2m89g
- eENH/iXCrs3mEVnJ8rRt/l1YxcEjPA==
+X-Proofpoint-GUID: G_iHf6DPdxWFX7bOfHcVmCoXVaDJECte
+X-Proofpoint-ORIG-GUID: G_iHf6DPdxWFX7bOfHcVmCoXVaDJECte
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDAzMDIwMSBTYWx0ZWRfXwhIK5IHCE55F
+ CCzwbBr+Ky5DIdqWODmAyMbg1O6jxJlDRAPMfsLzbkukHi4uOGPLu5i/1QW0PuaLbW8flxJwQbv
+ J/S19+ocrNrCFEumQwptApG89m2N0hFuE9ZZjFe6azOUERZRxOcwdWK0L2pLmajy7sC/M7h+agN
+ bEVslKNRiVvEU4O92mSRF+8DIoFnfY0tYhqdEHN21yGib2o6tYJGY2r0EofERM/RdcK+i9isT6s
+ 84KAxUY2uUkbUsSV73JcK53x6IJ4dgESlEnYswoeklfcckBBMmdi/V0NG1vNSL7tVDfJUAid+6s
+ 2+m0tVZbb5D2cqFzPffkHHRJSUNhEuMMAPP+Fv3vII8PXi5jJiYUMPULKeb4yYxfzGuNWjniAgu
+ rusalSO9MufWyO+WqB/wuL0/OtVIrQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-06_05,2025-10-06_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 impostorscore=0 suspectscore=0 spamscore=0 adultscore=0
- clxscore=1011 malwarescore=0 priorityscore=1501 phishscore=0 bulkscore=0
+ suspectscore=0 malwarescore=0 impostorscore=0 adultscore=0 phishscore=0
+ priorityscore=1501 bulkscore=0 clxscore=1015 spamscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2510040022
+ reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2510030201
 
-[full quote below, adding Alexey and Nathan]
 
-On Mon, Oct 06, 2025 at 04:55:56PM +0530, Naresh Kamboju wrote:
-> The S390 defconfig builds failed on the Linux next-20251002 tag build due
-> to following build warnings / errors with gcc-8 toolchain.
-> 
-> * S390, build
->   - gcc-8-defconfig
-> 
-> First seen on next-20251002
-> Good: next-20250929
-> Bad: next-20251002..next-20251003
-> 
-> Regression Analysis:
-> - New regression? yes
-> - Reproducibility? yes
-> 
-> Test regression: next-20251002: S390: gcc-8-defconfig: symbol
-> `.modinfo' required but not present - no symbols
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> ### Build error log
-> s390x-linux-gnu-ld: .tmp_vmlinux1: warning: allocated section
-> `.got.plt' not in segment
-> s390x-linux-gnu-ld: .tmp_vmlinux2: warning: allocated section
-> `.got.plt' not in segment
-> s390x-linux-gnu-ld: vmlinux.unstripped: warning: allocated section
-> `.got.plt' not in segment
-> s390x-linux-gnu-objcopy: vmlinux: warning: allocated section
-> `.got.plt' not in segment
-> s390x-linux-gnu-objcopy: stM7JmYX: warning: allocated section
-> `.got.plt' not in segment
-> s390x-linux-gnu-objcopy: stM7JmYX: symbol `.modinfo' required but not present
-> s390x-linux-gnu-objcopy:stM7JmYX: no symbols
-> make[3]: *** [scripts/Makefile.vmlinux:97: vmlinux] Error 1
-> 
-> 
-> ## Source
-> * Kernel version: 6.17.0
-> * Git tree: https://kernel.googlesource.com/pub/scm/linux/kernel/git/next/linux-next.git
-> * Git commit: 47a8d4b89844f5974f634b4189a39d5ccbacd81c
-> * Architectures: S390
-> * Toolchains: gcc-8
-> * Kconfigs: defconfig
-> 
-> ## Build
-> * Build log: https://storage.tuxsuite.com/public/linaro/lkft/builds/33YUHdDpSLSMJfU4MFvRyEUQuDn/build.log
-> * Build details:
-> https://regressions.linaro.org/lkft/linux-next-master/next-20251003/build/gcc-8-defconfig/
-> * Build plan: https://tuxapi.tuxsuite.com/v1/groups/linaro/projects/lkft/builds/33YUHdDpSLSMJfU4MFvRyEUQuDn
-> * Build link: https://storage.tuxsuite.com/public/linaro/lkft/builds/33YUHdDpSLSMJfU4MFvRyEUQuDn/
-> * Kernel config:
-> https://storage.tuxsuite.com/public/linaro/lkft/builds/33YUHdDpSLSMJfU4MFvRyEUQuDn/config
-> 
-> 
-> ## Steps to reproduce
->   tuxmake --runtime podman --target-arch s390 --toolchain gcc-8
-> --kconfig defconfig --kconfig-add CONFIG_DEBUG_INFO_BTF=n
+On 10/4/2025 7:54 AM, Lukas Wunner wrote:
+> On Wed, Oct 01, 2025 at 10:12:03AM -0700, Farhan Ali wrote:
+>> AFAIU if the state_saved flag was set to true then any state that we have
+>> saved should be valid and should be okay to be restored from. We just want
+>> to avoid saving any invalid data.
+> The state_saved flag is used by the PCI core to detect whether a driver
+> has called pci_save_state() in one of its suspend callbacks.  If it did,
+> the PCI core assumes that the driver has taken on the responsibility to
+> put the device into a low power state.  The PCI core will thus not put
+> the device into a low power state itself and it won't (again) call
+> pci_save_state().
+>
+> Hence state_saved is cleared before the driver suspend callbacks are
+> invoked and it is checked afterwards.
+>
+> Clearing the state_saved flag in pci_restore_state() merely serves the
+> purpose of ensuring that the flag is cleared ahead of the next suspend
+> and resume cycle.
+>
+> It is a fallacy to think that state_saved indicates validity of the
+> saved state.
 
-Isn't the above exactly what is supposed to be addressed with commit
-8d18ef04f940 ("s390: vmlinux.lds.S: Reorder sections")? Or did something
-change with the commit? Didn't check, and might look into this tomorrow,
-but adding Alexey and Nathan already now :)
+Hi Lukas,
+
+Thanks for the detailed explanation, this was very helpful for me.
+
+> Unfortunately pci_restore_state() was amended by c82f63e411f1 to
+> bail out if state_saved is false.  This has arguably caused more
+> problems than it solved, so I have prepared this development branch
+> which essentially reverts the commit and undoes most of the awful
+> workarounds that it necessitated:
+>
+> https://github.com/l1k/linux/commits/aer_reset_v1
+>
+> I intend to submit this after the merge window has closed.
+>
+> The motivation of c82f63e411f1 was to prevent restoring state if
+> pci_save_state() hasn't been called before.  I am solving that by
+> calling pci_save_state() on device addition, hence error
+> recoverability is ensured at all times.
+>
+> I believe this also makes patch [01/10] in your series unnecessary.
+
+I tested your patches + patches 2-10 of this series. It unfortunately 
+didn't completely help with the s390x use case. We still need the check 
+to in pci_save_state() from this patch to make sure we are not saving 
+error values, which can be written back to the device in 
+pci_restore_state().
+
+As part of the error recovery userspace can use the VFIO_DEVICE_RESET to 
+reset the device (pci_try_reset_function()). The function call for this is:
+
+pci_dev_save_and_disable 
+<https://elixir.bootlin.com/linux/v6.17.1/C/ident/pci_dev_save_and_disable>();
+
+__pci_reset_function_locked 
+<https://elixir.bootlin.com/linux/v6.17.1/C/ident/__pci_reset_function_locked>();
+
+pci_dev_restore 
+<https://elixir.bootlin.com/linux/v6.17.1/C/ident/pci_dev_restore>();
+
+So we can end up overwriting the initial saved state (added by you in 
+pci_bus_add_device()). Do we need to update the 
+pci_dev_save_and_disable() not to save the state?
+
+Thanks
+
+Farhan
+
+
+>
+> A lot of drivers call pci_save_state() in their probe hook and
+> that continues to be correct if they modified Config Space
+> vis-a-vis what was saved on device addition.
+>
+> Thanks,
+>
+> Lukas
