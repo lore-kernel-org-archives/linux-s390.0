@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC96C2E7186
-	for <linux-s390@vger.kernel.org>; Tue,  7 Oct 2025 16:02:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A34561FDE09
+	for <linux-s390@vger.kernel.org>; Tue,  7 Oct 2025 16:11:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759852979; cv=none; b=BFq6QX3YWNTE9ztvnE9NWPMwtQlsnj22T5alrct1eBpIb4Ud7YSAtbb3j4XpWgKtNfmHSDwmnTi0L17XP0xBhHjOZkWHz7q6+Fl0Yfg8JnaZ+V/N0Gp7BtpcxMQ0/WBNoINfihP3S0Ppuea6+F5iNI+emAr7Hgi5Ynd7NW2d4aA=
+	t=1759853483; cv=none; b=J0eNfl+uzmUk2x1wTG09TpUa30KyCgwNfJiO1Y39SdphwviMSEks5vu17xYqxh0ww8bhRjIBUMk/FpnJ8C37NClgxR0JtVGj6iPGXhD7yhCstjDxHTSUr9vACVyVpek2iR0dMsSVV1Y/wEvUkBBQnieakK43oWsNAI4DFiSZ76o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759852979; c=relaxed/simple;
-	bh=eZnjY/1uRorpVUA11zHcJ2APdx2Vku/TYD0GLCz90q4=;
+	s=arc-20240116; t=1759853483; c=relaxed/simple;
+	bh=AiOrPIJwttq3xRREeRU1YWy7Kn6StknJmn8+55UXyVM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=I+J2O/cBr1S+A9ggOXcqZ/9o29Uk5+cnpxfvSJ/t5aWdlWjLQdPATWrMIAAUz90DU1Maztf4F0tga7dYtcX1VnvyUtKe6FU9e4AZC3dIY23g+pExVsZcOhC3vHrHwiphgP8pQ/fZcK9C1hAZF2RBaVkBExrFZ/Zu/GbQX+1NIFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DPKhSKtQ; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=LrheJTeGOeHpD8fbmknde1oEROljzl3tuevDbJA3rzDK6MP3eS3KCQgU1mCNZ07jm4V+MJAmCN6aTTBki4cRgJxy5EaeKbGLB2J1Wti6iCC/+78FQMNM7NBhZGeg9xypK0KXx7z2/k/LqV8ps140kTU+g2EzFXSy2s82jhKkXBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BC7WI6mo; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DPKhSKtQ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BC7WI6mo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759852976;
+	s=mimecast20190719; t=1759853480;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=D02vIogCWcywjjMvcCY1S+8ke4T1mD4/y69uYsSn6EI=;
-	b=DPKhSKtQpYPp7Di4JWW4OMcMpfD2ri6cBhfEOTemg/Ytk2KqAyG4eohGnjqXWHmhvbMBfw
-	lB6Fg1q6qEhQ0m0sCwuWvEOKSHJdobKDr9JBUbKaOqqRafgWofb4xZ4UvhYGR0f9nybzsQ
-	M+pyOsZOBKGVF/21hyv7DluIq5BdWNE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=l1TG7fNWBYED87Irl/Zr2hY86eg+AQbf2b3fSmJLhsM=;
+	b=BC7WI6mou2OSCHBztVg8FRr0/omkEnNPvN80u+8lm3Y0hHPKvWq/ukfC3YmoZBnh/utUyQ
+	Z0SmvjfCxFGUEpbkVZ8n6xmo+AEWm5tBQZL5DzO3raeqAb2LASAPslM8nYEGCu94LRdhrT
+	cbpAjaz1GhuXP1V6RV2Nk5pF2kH4IqQ=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-677-GstCZa8WN-y_32DyPaqeCg-1; Tue, 07 Oct 2025 12:02:55 -0400
-X-MC-Unique: GstCZa8WN-y_32DyPaqeCg-1
-X-Mimecast-MFC-AGG-ID: GstCZa8WN-y_32DyPaqeCg_1759852974
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46e473e577eso33682635e9.0
-        for <linux-s390@vger.kernel.org>; Tue, 07 Oct 2025 09:02:55 -0700 (PDT)
+ us-mta-427-EAl74U5YOdeh4ZRQ_OyBJQ-1; Tue, 07 Oct 2025 12:11:19 -0400
+X-MC-Unique: EAl74U5YOdeh4ZRQ_OyBJQ-1
+X-Mimecast-MFC-AGG-ID: EAl74U5YOdeh4ZRQ_OyBJQ_1759853478
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-46e36686ca1so62708035e9.2
+        for <linux-s390@vger.kernel.org>; Tue, 07 Oct 2025 09:11:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759852974; x=1760457774;
+        d=1e100.net; s=20230601; t=1759853478; x=1760458278;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=D02vIogCWcywjjMvcCY1S+8ke4T1mD4/y69uYsSn6EI=;
-        b=aOLYZmnGV72VGpdNpfcmmLE05459SMs2QWYZ7nrkXX+zHxsJid7R23u7M43kPbsXtn
-         xTwbHSYQ0C6qNsGOKAvuMi4rzLw+DeuHc2MXck1ctfeLvKg4K9ReZ8slnRquS6yg+g8q
-         /HsL+8/Pg7e9YOzJEkmUgOkr5lHctfJJLR0kOR7woj5tAG0Vn4I/e1ze1Tv6+qTK0Sux
-         1ZY6zASOk3pcqoD5Fe+ES47pjDhdGdoYF3zGaAamOnbpl4zh/Rn4QMoI3crzSGeoX+lr
-         76yncQ0jlqWrdI+/ls/myF6EGtNPp5//xP6NLjmi/bu6EYm+2guNW/xNa6yj8wGLHa+u
-         H43w==
-X-Forwarded-Encrypted: i=1; AJvYcCXQuQoqRWF5JN0bFSRg+f/jXBFEwCPiz2WG89QL6H05dCQxS1QzreceGP+2BfFmSHh+7rhsuPYmsSB4@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxgo5zVKKfcN7lLXSudWvnU+XxY0Fl9oGFMrSqZoy0tpE3rckAq
-	z6VGGWAz0BI4Ww1aLhb/C27OwFjMAsZTt3pn0m9m6+j86WX49OJgnPBbCGJ7v19BYe0Hj8KF6DI
-	BP4/X9/5Jg3LQakRzftwgWMHfpRT7q43OMJihYVocYf5B0ww8DJNqqgU6ENUxX80=
-X-Gm-Gg: ASbGncvxGG7PA3agkPgH4iWUzUICP+V+ldiZE3qrw3bO1b5XfFdkexMWWiG8OOVhEsO
-	99IuSVCeho1x8C/TiOXwcruV0Wzq2ZXOByt+jSlNoNkcgV9rsUtrhqFzpGEegq51JrLcJnkxGLf
-	/vr7I0ZvNiq5BsifpofPcsEw9wC+v71W9Td89jEVbqWs1cDNn7jTfrdpcUMLYoPsjDRZTxQWF2U
-	ChxTCGYKn6+mq+jNQV+NoVTdVORVSG8lZVAPQFbgzGQYMBgrcPDTYypi0a5PPDeS7gMh2Rg6I3y
-	FmDheACTgl+xyXTDI6sTLTpabdUtFK5D/XhUspkJBSqJMU32tCqDjL1xlAH2pU4tjmfT5X5PdOe
-	S0ay/9mDF
-X-Received: by 2002:a05:600c:46cf:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-46fa9b02cebmr918085e9.27.1759852974079;
-        Tue, 07 Oct 2025 09:02:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGOCwhrXnFdPlPojqY5siU8KpIQ2/rmE8ldqFTs7bhEaF0DysabXEfVeEe2qCO04cRNTkizwg==
-X-Received: by 2002:a05:600c:46cf:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-46fa9b02cebmr917695e9.27.1759852973646;
-        Tue, 07 Oct 2025 09:02:53 -0700 (PDT)
+        bh=l1TG7fNWBYED87Irl/Zr2hY86eg+AQbf2b3fSmJLhsM=;
+        b=CChUklCwJ36jqxImWSQcuX9wS3a1zrUtodyFAP4AskGPdmLfaosYEnesVIgvpViqLG
+         ZhzQUb1L3kuE8BV90aJ9ri34eDWlNeuZ0qe6PYkw0riiCxEy1mSdPqIukF162aULIw/4
+         VD7nkgjko1gZYWXBrz7AXbhPPSAGVO8Uu1sDT5+m+pPeI7bS0C9yMVaRj7QUcN6tYikR
+         UY4jCK9Cfd+XrjBy0q98tlopwgj5r3/E9Ep8j2NE67cI2z+S2Ta2gMOaXVaqaZyDwtNM
+         t3UU4cWIZJk1kH5NyFIyjkx6cu8Dk86uogCaROXDc7t73k+OYBLLi3TPVRf/F0J+abQw
+         u1mA==
+X-Forwarded-Encrypted: i=1; AJvYcCVLiqQrkKBluNay8dePUbKyBS3TjUOSNAugumxNoRu26PQMswWltq7GyezFwJotyHUz4eMwFqcJqfLn@vger.kernel.org
+X-Gm-Message-State: AOJu0YxEQW/viB1Inh/y1bdWNe1U9cK7WdvM37QCu8PG4YR3ar3TYKdR
+	TacIGesfAteDAoQLcGXQqPJGZIlVTxFv6P+PPemKCm4IwzOUrpwSuaAvAJOGteK09ltVKsPU0J7
+	jv4uwgomEwRnQSlxVxEF4Rd6hwrIaB1Ek3fRpbia/IfAxBq/Qm59Pcppxyb4XgCQ=
+X-Gm-Gg: ASbGncvfX3OvZwyAZRD5C0kDxWZ5GQbI6D1py1QUNI3tntrwd8K28+2uF7oJqoq0Pg/
+	UwVIyCq3RD3gfLa6ktX6DQ65pjDYJxwTkSti1u0zZkC5fwrqyXqU/xYlnkoZQn7WXsGfS0/0OXe
+	zAQbbjNCFA9JhunNU3KqahL0MLileaxDzi6Lr36Qslx1smy3EXZusKYRB2aNlxYSqhEC28Q+NSu
+	NppWxYkc3ItzQAcqsqHwL5DrV0qqGIsJjtHUjFBNBQ2fP5o9mT+MnT3EsH0Bz8dFP7DCLm/L95q
+	IQ2fOUHh+gaoT9hm0ab3Ovu7hGe/vOySl2zJuRLcI9dFk8P3OGATQmMinN41CCS80FHIsPttO+l
+	GhEpJicqB
+X-Received: by 2002:a05:600c:468e:b0:46e:4b79:551 with SMTP id 5b1f17b1804b1-46fa9b092femr1336575e9.31.1759853478058;
+        Tue, 07 Oct 2025 09:11:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH7kxIG94axeHuIA4cL4kYLnzrOyY3qxXsr5H8R4EofA01FREwYYzGLEMnYegBwXYAIBqinkA==
+X-Received: by 2002:a05:600c:468e:b0:46e:4b79:551 with SMTP id 5b1f17b1804b1-46fa9b092femr1336305e9.31.1759853477513;
+        Tue, 07 Oct 2025 09:11:17 -0700 (PDT)
 Received: from [192.168.3.141] (tmo-083-110.customers.d1-online.com. [80.187.83.110])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d869d50sm26841834f8f.0.2025.10.07.09.02.52
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8acc4csm25683339f8f.16.2025.10.07.09.11.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Oct 2025 09:02:53 -0700 (PDT)
-Message-ID: <0daf151e-d126-4e7b-adb6-5d6b745f4ad2@redhat.com>
-Date: Tue, 7 Oct 2025 18:02:51 +0200
+        Tue, 07 Oct 2025 09:11:17 -0700 (PDT)
+Message-ID: <ab366c03-8c78-449d-bfc4-2d155212d9d7@redhat.com>
+Date: Tue, 7 Oct 2025 18:11:14 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,7 +84,6 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
  Alexander Gordeev <agordeev@linux.ibm.com>
 References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
- <aOUj_RE8z9OiIIfN@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -131,50 +130,174 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aOUj_RE8z9OiIIfN@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+In-Reply-To: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 07.10.25 16:30, Sumanth Korikkar wrote:
-> On Fri, Sep 26, 2025 at 03:15:23PM +0200, Sumanth Korikkar wrote:
->> Hi,
->>
->> Patchset provides a new interface for dynamic configuration and
->> deconfiguration of hotplug memory on s390, allowing with/without
->> memmap_on_memory support. It is a follow up on the discussion with David
->> when introducing memmap_on_memory support for s390 and support dynamic
->> (de)configuration of memory:
->> https://lore.kernel.org/all/ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com/
->> https://lore.kernel.org/all/20241202082732.3959803-1-sumanthk@linux.ibm.com/
->>
->> The original motivation for introducing memmap_on_memory on s390 was to
->> avoid using online memory to store struct pages metadata, particularly
->> for standby memory blocks. This became critical in cases where there was
->> an imbalance between standby and online memory, potentially leading to
->> boot failures due to insufficient memory for metadata allocation.
->>
->> To address this, memmap_on_memory was utilized on s390. However, in its
->> current form, it adds struct pages metadata at the start of each memory
->> block at the time of addition (only standby memory), and this
->> configuration is static. It cannot be changed at runtime  (When the user
->> needs continuous physical memory).
->>
->> Inorder to provide more flexibility to the user and overcome the above
->> limitation, add an option to dynamically configure and deconfigure
->> hotpluggable memory block with/without memmap_on_memory.
->>
->> With the new interface, s390 will not add all possible hotplug memory in
->> advance, like before, to make it visible in sysfs for online/offline
->> actions. Instead, before memory block can be set online, it has to be
->> configured via a new interface in /sys/firmware/memory/memoryX/config,
->> which makes s390 similar to others.  i.e. Adding of hotpluggable memory is
->> controlled by the user instead of adding it at boottime.
-> 
-> Hi David,
-> 
-> Looking forward to your feedback to proceed further.
+On 26.09.25 15:15, Sumanth Korikkar wrote:
+> Hi,
 
-Thanks for bumping it up in my inbox, will comment today :)
+Hi,
+
+> 
+> Patchset provides a new interface for dynamic configuration and
+> deconfiguration of hotplug memory on s390, allowing with/without
+> memmap_on_memory support. It is a follow up on the discussion with David
+> when introducing memmap_on_memory support for s390 and support dynamic
+> (de)configuration of memory:
+> https://lore.kernel.org/all/ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com/
+> https://lore.kernel.org/all/20241202082732.3959803-1-sumanthk@linux.ibm.com/
+> 
+> The original motivation for introducing memmap_on_memory on s390 was to
+> avoid using online memory to store struct pages metadata, particularly
+> for standby memory blocks. This became critical in cases where there was
+> an imbalance between standby and online memory, potentially leading to
+> boot failures due to insufficient memory for metadata allocation.
+> 
+> To address this, memmap_on_memory was utilized on s390. However, in its
+> current form, it adds struct pages metadata at the start of each memory
+> block at the time of addition (only standby memory), and this
+> configuration is static. It cannot be changed at runtime  (When the user
+> needs continuous physical memory).
+> 
+> Inorder to provide more flexibility to the user and overcome the above
+> limitation, add an option to dynamically configure and deconfigure
+> hotpluggable memory block with/without memmap_on_memory.
+
+This will cleanly add/remove the memory, including the directmap and 
+other tracking data, so I like it.
+
+> 
+> With the new interface, s390 will not add all possible hotplug memory in
+> advance, like before, to make it visible in sysfs for online/offline
+> actions. Instead, before memory block can be set online, it has to be
+> configured via a new interface in /sys/firmware/memory/memoryX/config,
+> which makes s390 similar to others.  i.e. Adding of hotpluggable memory is
+> controlled by the user instead of adding it at boottime.
+
+Before I dig into the details, will onlining/offling still trigger 
+hypervisor action, or does that now really happen when memory is 
+added/removed?
+
+That would be really nice, because it would remove the whole need for 
+"standby" memory, and having to treat hotplugged memory differently 
+under LPAR/z/VM than anywhere else (-> keep it offline).
+
+> 
+> s390 kernel sysfs interface to configure/deconfigure memory with
+> memmap_on_memory (with upcoming lsmem changes):
+>      
+> * Initial memory layout:
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x7fffffff   2G  online 0-15  yes        no
+> 0x80000000-0xffffffff   2G offline 16-31 no         yes
+
+Could we instead modify "STATE" to reflect that it is "not added" / "not 
+configured" / "disabled" etc?
+
+Like
+
+lsmem -o RANGE,SIZE,STATE,BLOCK,MEMMAP_ON_MEMORY
+RANGE                 SIZE    STATE BLOCK
+0x00000000-0x7fffffff   2G   online 0-15
+0x80000000-0xffffffff   2G disabled 16-31
+
+Or is that an attempt to maintain backwards compatibility?
+
+> 
+> * Configure memory
+> echo 1 > /sys/firmware/memory/memory16/config
+
+The granularity here is also memory_block_size_bytes(), correct?
+
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x7fffffff    2G  online  0-15  yes        no
+> 0x80000000-0x87ffffff  128M offline    16  yes        yes
+> 0x88000000-0xffffffff  1.9G offline 17-31  no         yes
+> 
+> * Deconfigure memory
+> echo 0 > /sys/firmware/memory/memory16/config
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x7fffffff   2G  online 0-15  yes        no
+> 0x80000000-0xffffffff   2G offline 16-31 no         yes
+> 
+> * Enable memmap_on_memory and online it.
+> (Deconfigure first)
+> echo 0 > /sys/devices/system/memory/memory5/online
+> echo 0 > /sys/firmware/memory/memory5/config
+> 
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                  SIZE  STATE  BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x27ffffff  640M  online 0-4   yes        no
+> 0x28000000-0x2fffffff  128M offline 5     no         no
+> 0x30000000-0x7fffffff  1.3G  online 6-15  yes        no
+> 0x80000000-0xffffffff    2G offline 16-31 no         yes
+> 
+> (Enable memmap_on_memory and online it)
+> echo 1 > /sys/firmware/memory/memory5/memmap_on_memory
+> echo 1 > /sys/firmware/memory/memory5/config
+> echo 1 > /sys/devices/system/memory/memory5/online
+
+I guess the use for memmap_on_memory would now be limited to making 
+hotplug more likely to succeed in OOM scenarios.
+
+> 
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x27ffffff  640M  online  0-4   yes        no
+> 0x28000000-0x2fffffff  128M  online  5     yes        yes
+> 0x30000000-0x7fffffff  1.3G  online  6-15  yes        no
+> 0x80000000-0xffffffff    2G  offline 16-31 no         yes
+> 
+> * Disable memmap_on_memory and online it.
+> (Deconfigure first)
+> echo 0 > /sys/devices/system/memory/memory5/online
+> echo 0 > /sys/firmware/memory/memory5/config
+> 
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                  SIZE  STATE  BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x27ffffff  640M  online 0-4   yes        no
+> 0x28000000-0x2fffffff  128M offline 5     no         yes
+> 0x30000000-0x7fffffff  1.3G  online 6-15  yes        no
+> 0x80000000-0xffffffff    2G offline 16-31 no         yes
+> 
+> (Disable memmap_on_memory and online it)
+> echo 0 > /sys/firmware/memory/memory5/memmap_on_memory
+> echo 1 > /sys/firmware/memory/memory5/config
+> echo 1 > /sys/devices/system/memory/memory5/online
+> 
+> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+> RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
+> 0x00000000-0x7fffffff  2G    online  0-15  yes        no
+> 0x80000000-0xffffffff  2G    offline 16-31 no         yes
+> 
+> * Userspace changes:
+> lsmem/chmem tool is also changed to use the new interface. I will send
+> it to util-linux soon.
+> 
+> Patch 1 adds support for removal of boot-allocated memory blocks.
+> 
+> Patch 2 provides option to dynamically configure and deconfigure memory
+> with/without memmap_on_memory.
+> 
+> Patch 3 removes MHP_OFFLINE_INACCESSIBLE from s390. The mhp flag was
+> used to mark memory as not accessible until memory hotplug online phase
+> begins.  However, with patch 2, it is no longer essential. Memory can be
+> brought to accessible state before adding memory, as the memory is added
+> during runttime now instead of boottime.
+
+Nice.
+
+> 
+> Patch 4 removes the MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers. It
+> is no longer needed.  Memory can be brought to accessible state before
+> adding memory now, with runtime (de)configuration of memory.
+
+Nice.
+
 
 -- 
 Cheers
