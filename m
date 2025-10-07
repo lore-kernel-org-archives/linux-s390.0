@@ -1,210 +1,183 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FCAA2DFA2B;
-	Tue,  7 Oct 2025 14:48:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC96C2E7186
+	for <linux-s390@vger.kernel.org>; Tue,  7 Oct 2025 16:02:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759848532; cv=none; b=k0mdQzwooLzd4+/KJaJlkKug0sWFzCju9itwu660YpEhNwPSfSXnNyM82Bqzr5i/v/RYrL5n/B6PzV7BNIC755maLa0nnJUWmMOKbweVG/KEu2r8KoOeDvK4/jEU0LWZ75fWZYNfgh80PQe2JrQnZP5W2nfSUmFpyLm0h45yiBY=
+	t=1759852979; cv=none; b=BFq6QX3YWNTE9ztvnE9NWPMwtQlsnj22T5alrct1eBpIb4Ud7YSAtbb3j4XpWgKtNfmHSDwmnTi0L17XP0xBhHjOZkWHz7q6+Fl0Yfg8JnaZ+V/N0Gp7BtpcxMQ0/WBNoINfihP3S0Ppuea6+F5iNI+emAr7Hgi5Ynd7NW2d4aA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759848532; c=relaxed/simple;
-	bh=z5HmmgPSnRAHY03Khmg/L4NBt5sSkrUdWDBcy72dlIo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RiMOpzisp+dISagX0cgB/+dUkwhvyCXLNDWs6WYiKKuCqxXi5lr6MTeLdl85ZQolmrfhTqxbuVN2I8e01d3Uq7pIBGgfgL0HhcvUzbhq5oL9Vxdi5w0eh8b/mYqTsuBn3wIgh7Yye85Hy6me/FIp7ozeqepOuTpuZ3RkCWELBcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C8fN+aKS; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1759852979; c=relaxed/simple;
+	bh=eZnjY/1uRorpVUA11zHcJ2APdx2Vku/TYD0GLCz90q4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=I+J2O/cBr1S+A9ggOXcqZ/9o29Uk5+cnpxfvSJ/t5aWdlWjLQdPATWrMIAAUz90DU1Maztf4F0tga7dYtcX1VnvyUtKe6FU9e4AZC3dIY23g+pExVsZcOhC3vHrHwiphgP8pQ/fZcK9C1hAZF2RBaVkBExrFZ/Zu/GbQX+1NIFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DPKhSKtQ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C8fN+aKS"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59775qAm007914;
-	Tue, 7 Oct 2025 14:48:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=9OeCrfT7+te8QI0hZM2PY0LLpqc1e1Cpvi/YOWkra
-	Ac=; b=C8fN+aKSI0wW1Xiwn9SybcMR6H/NY8NtWxn08Acq4NnoJU/K5cAhMU8iC
-	1gpBLsI79X3ZbpkVUlRxRZxvjjjak5H9krT7t6JO5YzlTmE40NUtN9czta9mOLpG
-	nblR8DZOYje9gZgQPLJ3sX6NK9RlHg3P8Np9clj/2KxK4eLQREwlvm4TfJBlNIJA
-	on5n8As8oDo4PZfdkbbwLfO1wUR4Xuov+5pc2KON0X8Z8lXgm4L/zKwNOOMwII0P
-	4Etdp73YOdSCpkh7n2HzcD1e9QIOYEqSNVL7cbI+L65Yka0Ilbj5BxWppuenkO0m
-	UcTx6u5AyNHJXY/MxlsGjh803cgwg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49jt0pfawb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Oct 2025 14:48:32 +0000 (GMT)
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 597Eh7HO025642;
-	Tue, 7 Oct 2025 14:48:31 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49jt0pfaw8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Oct 2025 14:48:31 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 597EbcPU021251;
-	Tue, 7 Oct 2025 14:48:30 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49kgm1bfne-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 Oct 2025 14:48:30 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 597EmRoP52756784
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 Oct 2025 14:48:27 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EEA3E20043;
-	Tue,  7 Oct 2025 14:48:26 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A576E20040;
-	Tue,  7 Oct 2025 14:48:26 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  7 Oct 2025 14:48:26 +0000 (GMT)
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Tariq Toukan <tariqt@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>, Shay Drori <shayd@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>
-Cc: Gerd Bayer <gbayer@linux.ibm.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Alex Vesker <valex@mellanox.com>,
-        Feras Daoud <ferasda@mellanox.com>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: [PATCH net v2] net/mlx5: Avoid deadlock between PCI error recovery and health reporter
-Date: Tue,  7 Oct 2025 16:48:26 +0200
-Message-ID: <20251007144826.2825134-1-gbayer@linux.ibm.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DPKhSKtQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1759852976;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=D02vIogCWcywjjMvcCY1S+8ke4T1mD4/y69uYsSn6EI=;
+	b=DPKhSKtQpYPp7Di4JWW4OMcMpfD2ri6cBhfEOTemg/Ytk2KqAyG4eohGnjqXWHmhvbMBfw
+	lB6Fg1q6qEhQ0m0sCwuWvEOKSHJdobKDr9JBUbKaOqqRafgWofb4xZ4UvhYGR0f9nybzsQ
+	M+pyOsZOBKGVF/21hyv7DluIq5BdWNE=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-677-GstCZa8WN-y_32DyPaqeCg-1; Tue, 07 Oct 2025 12:02:55 -0400
+X-MC-Unique: GstCZa8WN-y_32DyPaqeCg-1
+X-Mimecast-MFC-AGG-ID: GstCZa8WN-y_32DyPaqeCg_1759852974
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46e473e577eso33682635e9.0
+        for <linux-s390@vger.kernel.org>; Tue, 07 Oct 2025 09:02:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759852974; x=1760457774;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=D02vIogCWcywjjMvcCY1S+8ke4T1mD4/y69uYsSn6EI=;
+        b=aOLYZmnGV72VGpdNpfcmmLE05459SMs2QWYZ7nrkXX+zHxsJid7R23u7M43kPbsXtn
+         xTwbHSYQ0C6qNsGOKAvuMi4rzLw+DeuHc2MXck1ctfeLvKg4K9ReZ8slnRquS6yg+g8q
+         /HsL+8/Pg7e9YOzJEkmUgOkr5lHctfJJLR0kOR7woj5tAG0Vn4I/e1ze1Tv6+qTK0Sux
+         1ZY6zASOk3pcqoD5Fe+ES47pjDhdGdoYF3zGaAamOnbpl4zh/Rn4QMoI3crzSGeoX+lr
+         76yncQ0jlqWrdI+/ls/myF6EGtNPp5//xP6NLjmi/bu6EYm+2guNW/xNa6yj8wGLHa+u
+         H43w==
+X-Forwarded-Encrypted: i=1; AJvYcCXQuQoqRWF5JN0bFSRg+f/jXBFEwCPiz2WG89QL6H05dCQxS1QzreceGP+2BfFmSHh+7rhsuPYmsSB4@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxgo5zVKKfcN7lLXSudWvnU+XxY0Fl9oGFMrSqZoy0tpE3rckAq
+	z6VGGWAz0BI4Ww1aLhb/C27OwFjMAsZTt3pn0m9m6+j86WX49OJgnPBbCGJ7v19BYe0Hj8KF6DI
+	BP4/X9/5Jg3LQakRzftwgWMHfpRT7q43OMJihYVocYf5B0ww8DJNqqgU6ENUxX80=
+X-Gm-Gg: ASbGncvxGG7PA3agkPgH4iWUzUICP+V+ldiZE3qrw3bO1b5XfFdkexMWWiG8OOVhEsO
+	99IuSVCeho1x8C/TiOXwcruV0Wzq2ZXOByt+jSlNoNkcgV9rsUtrhqFzpGEegq51JrLcJnkxGLf
+	/vr7I0ZvNiq5BsifpofPcsEw9wC+v71W9Td89jEVbqWs1cDNn7jTfrdpcUMLYoPsjDRZTxQWF2U
+	ChxTCGYKn6+mq+jNQV+NoVTdVORVSG8lZVAPQFbgzGQYMBgrcPDTYypi0a5PPDeS7gMh2Rg6I3y
+	FmDheACTgl+xyXTDI6sTLTpabdUtFK5D/XhUspkJBSqJMU32tCqDjL1xlAH2pU4tjmfT5X5PdOe
+	S0ay/9mDF
+X-Received: by 2002:a05:600c:46cf:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-46fa9b02cebmr918085e9.27.1759852974079;
+        Tue, 07 Oct 2025 09:02:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGOCwhrXnFdPlPojqY5siU8KpIQ2/rmE8ldqFTs7bhEaF0DysabXEfVeEe2qCO04cRNTkizwg==
+X-Received: by 2002:a05:600c:46cf:b0:46e:35a0:3587 with SMTP id 5b1f17b1804b1-46fa9b02cebmr917695e9.27.1759852973646;
+        Tue, 07 Oct 2025 09:02:53 -0700 (PDT)
+Received: from [192.168.3.141] (tmo-083-110.customers.d1-online.com. [80.187.83.110])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d869d50sm26841834f8f.0.2025.10.07.09.02.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Oct 2025 09:02:53 -0700 (PDT)
+Message-ID: <0daf151e-d126-4e7b-adb6-5d6b745f4ad2@redhat.com>
+Date: Tue, 7 Oct 2025 18:02:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XvT3+FF9 c=1 sm=1 tr=0 ts=68e52840 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=x6icFKpwvdMA:10 a=sWKEhP36mHoA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=_69atRxAefIsapZGGosA:9 a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-ORIG-GUID: 3ZoUPiVvIgFsDPfY5UT_l0KEZREjcV77
-X-Proofpoint-GUID: 35fo2wBLflfgKKVPIECL0i4FqqLQSy3Y
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA0MDAwOSBTYWx0ZWRfXzPSpuHAmWTJy
- dDNc64Q1Q72geC3T9so5xRBqqNrE7wUh4yJAOfky/qoyv1uqVo9855Sc8IhXTQepAKFQRoe9YhS
- s4M1ac2jMHdr0XANzsY/9XaMvHPrCDpSoF5hE6KpZZs2n4CnAhmuRkHVV1Ygi3kMLVfLs1BD7jj
- K5NQ0CZFfrLENgSHH0Dd8iYyfiux1AfrHC8E+nXKxPHPYl3vgSZQduixOP+Kr0ejgecc4QZYIRT
- mjeF/T33kgkW09VbA+CAXDjZk9AE1h1LHHMDEHa329B2yHi88TpG5tMHdjodazVM1iZuSApx4Ev
- pkilGvBZ3KYKLKQKgSiBI50COdQF2yTO5yYIvqvIZnhdx8399B7b3960HsFbYsZxayItsXCsYnD
- NOjH9A2vfGW/rD9W9k1u0M5H47J88Q==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-07_01,2025-10-06_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
- phishscore=0 priorityscore=1501 clxscore=1011 adultscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2510040009
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] Support dynamic (de)configuration of memory
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ linux-s390 <linux-s390@vger.kernel.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
+ <aOUj_RE8z9OiIIfN@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <aOUj_RE8z9OiIIfN@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Try to block further PCI config accesses just once when trying to acquire
-the VSC GW lock. PCI error recovery on s390 may be blocking accesses
-while trying to acquire the devlink lock that mlx5_crdump_collect is
-holding already. In effect, this sacrifices the crdump if there is
-contention with other tasks about PCI config accesses.
+On 07.10.25 16:30, Sumanth Korikkar wrote:
+> On Fri, Sep 26, 2025 at 03:15:23PM +0200, Sumanth Korikkar wrote:
+>> Hi,
+>>
+>> Patchset provides a new interface for dynamic configuration and
+>> deconfiguration of hotplug memory on s390, allowing with/without
+>> memmap_on_memory support. It is a follow up on the discussion with David
+>> when introducing memmap_on_memory support for s390 and support dynamic
+>> (de)configuration of memory:
+>> https://lore.kernel.org/all/ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com/
+>> https://lore.kernel.org/all/20241202082732.3959803-1-sumanthk@linux.ibm.com/
+>>
+>> The original motivation for introducing memmap_on_memory on s390 was to
+>> avoid using online memory to store struct pages metadata, particularly
+>> for standby memory blocks. This became critical in cases where there was
+>> an imbalance between standby and online memory, potentially leading to
+>> boot failures due to insufficient memory for metadata allocation.
+>>
+>> To address this, memmap_on_memory was utilized on s390. However, in its
+>> current form, it adds struct pages metadata at the start of each memory
+>> block at the time of addition (only standby memory), and this
+>> configuration is static. It cannot be changed at runtime  (When the user
+>> needs continuous physical memory).
+>>
+>> Inorder to provide more flexibility to the user and overcome the above
+>> limitation, add an option to dynamically configure and deconfigure
+>> hotpluggable memory block with/without memmap_on_memory.
+>>
+>> With the new interface, s390 will not add all possible hotplug memory in
+>> advance, like before, to make it visible in sysfs for online/offline
+>> actions. Instead, before memory block can be set online, it has to be
+>> configured via a new interface in /sys/firmware/memory/memoryX/config,
+>> which makes s390 similar to others.  i.e. Adding of hotpluggable memory is
+>> controlled by the user instead of adding it at boottime.
+> 
+> Hi David,
+> 
+> Looking forward to your feedback to proceed further.
 
-During error recovery testing a pair of tasks was reported to be hung:
+Thanks for bumping it up in my inbox, will comment today :)
 
-[10144.859042] mlx5_core 0000:00:00.1: mlx5_health_try_recover:338:(pid 5553): health recovery flow aborted, PCI reads still not working
-[10320.359160] INFO: task kmcheck:72 blocked for more than 122 seconds.
-[10320.359169]       Not tainted 5.14.0-570.12.1.bringup7.el9.s390x #1
-[10320.359171] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[10320.359172] task:kmcheck         state:D stack:0     pid:72    tgid:72    ppid:2      flags:0x00000000
-[10320.359176] Call Trace:
-[10320.359178]  [<000000065256f030>] __schedule+0x2a0/0x590
-[10320.359187]  [<000000065256f356>] schedule+0x36/0xe0
-[10320.359189]  [<000000065256f572>] schedule_preempt_disabled+0x22/0x30
-[10320.359192]  [<0000000652570a94>] __mutex_lock.constprop.0+0x484/0x8a8
-[10320.359194]  [<000003ff800673a4>] mlx5_unload_one+0x34/0x58 [mlx5_core]
-[10320.359360]  [<000003ff8006745c>] mlx5_pci_err_detected+0x94/0x140 [mlx5_core]
-[10320.359400]  [<0000000652556c5a>] zpci_event_attempt_error_recovery+0xf2/0x398
-[10320.359406]  [<0000000651b9184a>] __zpci_event_error+0x23a/0x2c0
-[10320.359411]  [<00000006522b3958>] chsc_process_event_information.constprop.0+0x1c8/0x1e8
-[10320.359416]  [<00000006522baf1a>] crw_collect_info+0x272/0x338
-[10320.359418]  [<0000000651bc9de0>] kthread+0x108/0x110
-[10320.359422]  [<0000000651b42ea4>] __ret_from_fork+0x3c/0x58
-[10320.359425]  [<0000000652576642>] ret_from_fork+0xa/0x30
-[10320.359440] INFO: task kworker/u1664:6:1514 blocked for more than 122 seconds.
-[10320.359441]       Not tainted 5.14.0-570.12.1.bringup7.el9.s390x #1
-[10320.359442] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[10320.359443] task:kworker/u1664:6 state:D stack:0     pid:1514  tgid:1514  ppid:2      flags:0x00000000
-[10320.359447] Workqueue: mlx5_health0000:00:00.0 mlx5_fw_fatal_reporter_err_work [mlx5_core]
-[10320.359492] Call Trace:
-[10320.359521]  [<000000065256f030>] __schedule+0x2a0/0x590
-[10320.359524]  [<000000065256f356>] schedule+0x36/0xe0
-[10320.359526]  [<0000000652172e28>] pci_wait_cfg+0x80/0xe8
-[10320.359532]  [<0000000652172f94>] pci_cfg_access_lock+0x74/0x88
-[10320.359534]  [<000003ff800916b6>] mlx5_vsc_gw_lock+0x36/0x178 [mlx5_core]
-[10320.359585]  [<000003ff80098824>] mlx5_crdump_collect+0x34/0x1c8 [mlx5_core]
-[10320.359637]  [<000003ff80074b62>] mlx5_fw_fatal_reporter_dump+0x6a/0xe8 [mlx5_core]
-[10320.359680]  [<0000000652512242>] devlink_health_do_dump.part.0+0x82/0x168
-[10320.359683]  [<0000000652513212>] devlink_health_report+0x19a/0x230
-[10320.359685]  [<000003ff80075a12>] mlx5_fw_fatal_reporter_err_work+0xba/0x1b0 [mlx5_core]
-[10320.359728]  [<0000000651bbf852>] process_one_work+0x1c2/0x458
-[10320.359733]  [<0000000651bc073e>] worker_thread+0x3ce/0x528
-[10320.359735]  [<0000000651bc9de0>] kthread+0x108/0x110
-[10320.359737]  [<0000000651b42ea4>] __ret_from_fork+0x3c/0x58
-[10320.359739]  [<0000000652576642>] ret_from_fork+0xa/0x30
-
-No kernel log of the exact same error with an upstream kernel is
-available - but the very same deadlock situation can be constructed there,
-too:
-
-- task: kmcheck
-  mlx5_unload_one() tries to acquire devlink lock while the PCI error
-  recovery code has set pdev->block_cfg_access by way of
-  pci_cfg_access_lock()
-- task: kworker
-  mlx5_crdump_collect() tries to set block_cfg_access through
-  pci_cfg_access_lock() while devlink_health_report() had acquired
-  the devlink lock.
-
-A similar deadlock situation can be reproduced by requesting a
-crdump with
-  > devlink health dump show pci/<BDF> reporter fw_fatal
-
-while PCI error recovery is executed on the same <BDF> physical function
-by mlx5_core's pci_error_handlers. On s390 this can be injected with
-  > zpcictl --reset-fw <BDF>
-
-Extensive tests with the same setup that showed the original dead-lock
-didn't reproduce, nor did the second deadlock situation hit with
-this patch applied.
-
-Fixes: b25bbc2f24dc ("net/mlx5: Add Vendor Specific Capability access gateway")
-Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
-
----
-
-v1:
-Attempted to fix this differently, but still had potential for deadlocks
-and the second inject reproduced it quite regularly, still
-https://lore.kernel.org/netdev/20250807131130.4056349-1-gbayer@linux.ibm.com/
----
- drivers/net/ethernet/mellanox/mlx5/core/lib/pci_vsc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/pci_vsc.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/pci_vsc.c
-index 432c98f2626d..f668237b6bb0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/pci_vsc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/pci_vsc.c
-@@ -73,7 +73,9 @@ int mlx5_vsc_gw_lock(struct mlx5_core_dev *dev)
- 	u32 lock_val;
- 	int ret;
- 
--	pci_cfg_access_lock(dev->pdev);
-+	if (!pci_cfg_access_trylock(dev->pdev))
-+		return -EBUSY;
-+
- 	do {
- 		if (retries > VSC_MAX_RETRIES) {
- 			ret = -EBUSY;
 -- 
-2.48.1
+Cheers
+
+David / dhildenb
 
