@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB95D205E25
-	for <linux-s390@vger.kernel.org>; Tue,  7 Oct 2025 19:35:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10B6C2E0915
+	for <linux-s390@vger.kernel.org>; Tue,  7 Oct 2025 19:40:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759865738; cv=none; b=dRssO3Yn3tyuez8ythMdKWwxbg8nIajdr3dwfoCy4gNqhTD1DbE1edAf337r0+h+kP4jPqQXyOmP2pHZwbv2s1Q05N6uy2gP2I9SsloT3XQu/NRUscy80yDucp3A0fpocyxYUkzrAmzWR6wEdTvv2O5wxswMyNahIwYvMtwaCyo=
+	t=1759866006; cv=none; b=Wrj3nlbamjLQKRLPnkWc/lenUXPvoT/CJuJi5+9DqCOeoN+yC3plWbNviaaGcd0hKXo5S9MV27OwK/KW0SMk0hNaOBhacc6Uy4DEpzGO/yqHpOfuDuFn6aupfD8Sj4NRAZ2Yky3EwRN/m5lgSWEF0UKTlRSs7wnDnS4SyVAPEzo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759865738; c=relaxed/simple;
-	bh=uKIkhTM78wpKbUjie3b7/JDvt+bc3ZLFicExdAwdDPQ=;
+	s=arc-20240116; t=1759866006; c=relaxed/simple;
+	bh=Udd/yjrW9L4anOjlghUyo9BC8Qll6R5LcXpuy/V6dpI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BGayUUPB2qZ+aZ5H/8OQpNGvBj7vVHXF7Lu1nrX6CQUa1yYCv9KVszCcqIthoJlyL3bcCMJqV9e6Bhz+cZfDrsVWAQHeuusfrPu2MP+yhZCpRYg31edNPM5oYeat1LicopFV5P0oBVQL7ZDdYCz7IEbbYjyt6vo8X1BUL1MepEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gDq8hdat; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=tdL2BS7ItDNGNLIzUDgAtFUpID0EcTUzYnS44mLYAj4YS5ex+eCu0IcuAZ8ETAhX8tUO07Kur25BwYVMs7hcaqFfOe9undiMA9GXU8eeC/YcMk1HMH8jeU2g2RRcv9l7IMlalew0vEHwlMxlry4FgsjwTQMqhwqBQua7i+VXM0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LLbRAgEA; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gDq8hdat"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LLbRAgEA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759865735;
+	s=mimecast20190719; t=1759866004;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=RAfzTxWuab53JE8Gy3AGdKtPMv/FNNv2702EcVDBDzo=;
-	b=gDq8hdatFRQs8oUcR2ODaZVibfHlo/Fi5qZPkq+E69fFOPNzmAUzIjSfdcq4UVCq2XQqJE
-	WkEL25MJIMhSQF0FSPEQMUmjqCg3ceKGDyIBhGfBelc556pwdrDtvPNZctJOyJu8i4jh6u
-	rJjRjyNP+GW5lfr59gn6sya1pBCEAmY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=9VumtYpTrX67AUkgEfTTMEIc6RIxe4xeW3+00mS96fE=;
+	b=LLbRAgEAj1e46bGbVdT5v1q6fAGB8MoWpd0IWGt/bbTUxzJIbJKF0CBoyAOuAYGpVCGpib
+	04x3rvGBd9hocRMtgdNoxhBXlln04nnA3TyNLw6AMRLvkGDDeJXUA7zhw4VEQhTDpTQZvv
+	MavXXd1CCh4nWrat8S/xCy5YFhsyJgk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-692-jAaU9x-fN4qANCX498pVxQ-1; Tue, 07 Oct 2025 15:35:33 -0400
-X-MC-Unique: jAaU9x-fN4qANCX498pVxQ-1
-X-Mimecast-MFC-AGG-ID: jAaU9x-fN4qANCX498pVxQ_1759865732
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46fa88b5760so1308345e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 07 Oct 2025 12:35:33 -0700 (PDT)
+ us-mta-190-roCyjjiJNw2v2uw2jw5scQ-1; Tue, 07 Oct 2025 15:40:02 -0400
+X-MC-Unique: roCyjjiJNw2v2uw2jw5scQ-1
+X-Mimecast-MFC-AGG-ID: roCyjjiJNw2v2uw2jw5scQ_1759866001
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3efa77de998so4021117f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 07 Oct 2025 12:40:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759865732; x=1760470532;
+        d=1e100.net; s=20230601; t=1759866001; x=1760470801;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=RAfzTxWuab53JE8Gy3AGdKtPMv/FNNv2702EcVDBDzo=;
-        b=v01mIiU+yzr6OdCpgDBB/iX+bosTBTvnLcZ/d2Xf31GUtNt76MKR/vipXhxgtRJa8G
-         298TVHY7Q5jLkXNeJALoO8n7/cfVM689d4R3NFwO4nmkwkuOpICVxCPj4deLdpHNK3ns
-         p6MUgG7YwF/c3R5JKnXjSei2VcLnHcCe/vRuDwPFwnWpuK+iq+/+P6hLKfUWH+DR2pEa
-         aePGdG3ZH/z9vyjz+NizTorouPRp+XWSdsPHwdWDW0xlWPJbSZvYgu1yprYE0WkJTzYW
-         xziph/KtSWYPS1DWI3pb7j08GT7QDGl7OZC8RGcfmGH1PlN8GNypbaMGmeXt6bEfQgtk
-         1loA==
-X-Forwarded-Encrypted: i=1; AJvYcCX9c6uSZ9Oc8tz/0xsiMVxIyDuFHHKkgotNqffviygAk3eNZnGTXml/UKkEZLOKIX4IfG3wzTdoXTpK@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz0p2wFDvSOs/EUJPj4bcb/n0x12XEBESv3o8B6weJ/adkWnhQb
-	jr4i+G8acYwzQW8AEAAwBKlyigT0vxj20Lij5agdhFVACtthKLCm5sWZRLzVZ8qzqHj0urqYUPY
-	iPam1UjxZZbFLpwfcog6ppfS8cXuTZ6FE6S7j3WfjURM371pyeO5+a2doB9um3ik=
-X-Gm-Gg: ASbGncvk4YpfU3F2G6JXuETXyvXPO5pGxKb8DBSF9ZhFmhil2WegozpkBFJUPgRCSPz
-	Eqc+3l0jN9JNI+DxvpQ0GTwLb+krkOYI55tbni12OLZ8aIgcd3lDvoUU9vd/NbWoVpdkmM8Srsc
-	WIEP50FmFKsSWECptenEEpowIKaUW8pM15CR37kP3q1CONb/+AUQGkbLNMjjrNIfZYM/P5lD0wa
-	5AgKgEWucNtLKECso/GHmXQI1WJtkscpo5Q6/S0apfLFfyXFahFhBTPDdZ6FgDL5bMs0l4CTgp4
-	P6gL++Tpw+q039WlwmOKtdxlNZDYa9zv9VUGhF+I/glhTD4rDL885+A9siXR3bO4atZyldE1Pse
-	nXbNJBYG+
-X-Received: by 2002:a05:600c:1986:b0:46e:4246:c90d with SMTP id 5b1f17b1804b1-46fa9aa4711mr6325705e9.11.1759865732183;
-        Tue, 07 Oct 2025 12:35:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGCN7DAOe0T4B7zFqJ7eZ3GMf7f3SbobsOoyW6DhHtRl7kGlkXWNnfp4MoPqJQerU+j3+Qa0Q==
-X-Received: by 2002:a05:600c:1986:b0:46e:4246:c90d with SMTP id 5b1f17b1804b1-46fa9aa4711mr6325625e9.11.1759865731749;
-        Tue, 07 Oct 2025 12:35:31 -0700 (PDT)
+        bh=9VumtYpTrX67AUkgEfTTMEIc6RIxe4xeW3+00mS96fE=;
+        b=QW7WnWNOWrNxSvEjtEtXYvbr0wDirn39FHSM/SYq+pBj3h4f8ukB34RmqTInmACnVs
+         rxmkBLjhYTgC6LBH6/0kISyuhy+W+MhqaDuQd4OMGObamRPc1CqhxE8rrsRDz3w/yhJB
+         cJ/6f2uyliM+7Hgksg/HYnAznT0Hf68gqtVdnRo/0XErsMZ+XEE9mS+hvmLiqc2NC5R3
+         93arwTLo86NmPj/rkiD0CnViPY2wL7RMrdfpC0g1vXRDqS43ylqoDO7rs8r1CCCZH/08
+         J1WRaJLs0mz+pRRlZBtT6ENfQDwl2JBqnWGsZ4iMODqkayy2mhwmfO66Y8vPHuVF0wHf
+         5BQg==
+X-Forwarded-Encrypted: i=1; AJvYcCXGGS3U8+HMuLJg5ilnn+rTn+6aKZamTjBwuezO2hI47Yx0Rs6HbI9G7JYcQsv1a2/XScV5OlB7aNNg@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyf5wzyMS+uwCxVyKukWjK5FROG3DSopnUVceXZtfpOo6PAXEz+
+	PDxXiPjF6omkvEbRnBM4hRfRCu2a+MKEt6zvvQsM+SrTr80rSUMSnHCS1hD6udEL447CuunloVL
+	62vfGRfBiO7CQoJi55U+J91yHb2Wb049a7fKaP4d9Q54IRfWub1JUvMLjBpa/grY=
+X-Gm-Gg: ASbGncu6Ajz2Wi0JS/EdH2DRb2xM91xck4gExI4Dvz7talsPXIOEkv6IkctoR6dsBMV
+	h0edjxQkNtozDphcAwgETd74vCRPGBd3WpOcF/1miDu3cnuY+lPVwuTm90lvyqhdrLXRz10IRw/
+	6y3Lf6z7vej+SRQZ9abXLag8yKfR7yrYrOlQ8gqjEYPnn5WRZ0wGjMzq9RrbKvb5iADp0DgaxQ7
+	WghoqHZXQ07VR+8RCZdJMBtNwXbtU0/2b+Vuh7Xp6HAsG+lFSjWjiZWFDOm/7L+J5pp3y0l5Uie
+	87b+XPVUmLo5J3zwjMIe5mx3tRF05Waex+DgPOfGYnVMO7yJ9CbciApCMOhgTqhU0jdfb17/muF
+	qS29UWPzq
+X-Received: by 2002:a05:6000:208a:b0:3ec:42ad:597 with SMTP id ffacd0b85a97d-4266e7dff52mr302898f8f.37.1759866001467;
+        Tue, 07 Oct 2025 12:40:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEej/svesPDrHY997doiJUMRsBCaL4lMY/21dpeNKaxMJMF1Jf9ZuSBWRwx+hr9s6QqrTCUyg==
+X-Received: by 2002:a05:6000:208a:b0:3ec:42ad:597 with SMTP id ffacd0b85a97d-4266e7dff52mr302886f8f.37.1759866001067;
+        Tue, 07 Oct 2025 12:40:01 -0700 (PDT)
 Received: from [192.168.3.141] (tmo-083-110.customers.d1-online.com. [80.187.83.110])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fa9c2a39dsm7330825e9.18.2025.10.07.12.35.30
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fa9c2a39dsm7457035e9.18.2025.10.07.12.39.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Oct 2025 12:35:31 -0700 (PDT)
-Message-ID: <5e3b16ec-9ef9-483e-b97e-bff0c1915b19@redhat.com>
-Date: Tue, 7 Oct 2025 21:35:29 +0200
+        Tue, 07 Oct 2025 12:40:00 -0700 (PDT)
+Message-ID: <ba392005-8cb1-44c6-a4ca-7608423fea62@redhat.com>
+Date: Tue, 7 Oct 2025 21:39:58 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,16 +75,16 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] Support dynamic (de)configuration of memory
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
- LKML <linux-kernel@vger.kernel.org>, linux-s390
- <linux-s390@vger.kernel.org>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH 3/4] s390/sclp: Remove MHP_OFFLINE_INACCESSIBLE
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ linux-s390 <linux-s390@vger.kernel.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>
 References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
- <ab366c03-8c78-449d-bfc4-2d155212d9d7@redhat.com>
- <aOVUNmDiWgrDJ1dJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <20250926131527.3260733-4-sumanthk@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -131,84 +131,27 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aOVUNmDiWgrDJ1dJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+In-Reply-To: <20250926131527.3260733-4-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 07.10.25 19:56, Sumanth Korikkar wrote:
->>> With the new interface, s390 will not add all possible hotplug memory in
->>> advance, like before, to make it visible in sysfs for online/offline
->>> actions. Instead, before memory block can be set online, it has to be
->>> configured via a new interface in /sys/firmware/memory/memoryX/config,
->>> which makes s390 similar to others.  i.e. Adding of hotpluggable memory is
->>> controlled by the user instead of adding it at boottime.
->>
->> Before I dig into the details, will onlining/offling still trigger
->> hypervisor action, or does that now really happen when memory is
->> added/removed?
->>
->> That would be really nice, because it would remove the whole need for
->> "standby" memory, and having to treat hotplugged memory differently under
->> LPAR/z/VM than anywhere else (-> keep it offline).
+On 26.09.25 15:15, Sumanth Korikkar wrote:
+> mhp_flag MHP_OFFLINE_INACCESSIBLE was used to mark memory as not
+> accessible until memory hotplug online phase begins.
 > 
-> With this approach, hypervisor actions are triggered only when memory is
-> actually added or removed.
+> Earlier, standby memory blocks were added upfront during boottime and
+> MHP_OFFLINE_INACCESSIBLE flag avoided page_init_poison() on memmap
+> during mhp addtion phase.
 > 
-> Online and offline operations are common code memory hotplug actions and
-> the s390 memory notifier actions are none/minimal.
+> However with dynamic runtime configuration of memory, standby memory can
+> be brought to accessible state before performing add_memory(). Hence,
+> remove MHP_OFFLINE_INACCESSIBLE.
+> 
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> ---
 
-Very nice.
-
-> 
->>> s390 kernel sysfs interface to configure/deconfigure memory with
->>> memmap_on_memory (with upcoming lsmem changes):
->>> * Initial memory layout:
->>> lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
->>> RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
->>> 0x00000000-0x7fffffff   2G  online 0-15  yes        no
->>> 0x80000000-0xffffffff   2G offline 16-31 no         yes
->>
->> Could we instead modify "STATE" to reflect that it is "not added" / "not
->> configured" / "disabled" etc?
->>
->> Like
->>
->> lsmem -o RANGE,SIZE,STATE,BLOCK,MEMMAP_ON_MEMORY
->> RANGE                 SIZE    STATE BLOCK
->> 0x00000000-0x7fffffff   2G   online 0-15
->> 0x80000000-0xffffffff   2G disabled 16-31
->>
->> Or is that an attempt to maintain backwards compatibility?
-> 
-> Mostly. Also, similar to lscpu output, where CPU status shows
-> CONFIGURED/STATE column.
-
-Care to share an example output? I only have a s390x VM with 2 CPUs and 
-no way to configure/deconfigure.
-
-> 
-> Also, older scripts to get list of offline memory typically use:
-> lsmem | grep offline
-> 
-> and
-> 
-> chmem -e <SIZE> would work as usual, where <SIZE> specifies amount of
-> memory to set online.
-> 
-> chmem changes would look like:
-> chmem -c 128M -m 1 : configure memory with memmap-on-memory enabled
-> chmem -g 128M : deconfigure memory
-
-I wonder if the above two are really required. I would expect most/all 
-users to simply keep using -e / -d.
-
-Sure, there might be some corner cases, but I would assume most people 
-to not want to care about memmap-on-memory with the new model.
-
-> chmem -e 128M : optionally configure (if supported by architecture) and
-> 		always online memory
-> chmem -d 128M : offline and optionally deconfigure memory (if supported
-> 		by architecture)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Cheers
