@@ -1,256 +1,157 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F2831C84A2;
-	Wed,  8 Oct 2025 12:16:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8600A25DD0B;
+	Wed,  8 Oct 2025 12:47:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759925819; cv=none; b=XzbWmSMEt7k/Swgt1LHM/tkV6RRmyAVGr5Qryp0pABvpdNGRfH1Lq8krH/lKTtWQDmRpMvbkmw//BfjUAwoyeCCvhNAfub1/J2l3ga9NBCWoi2MW0eOwA08BDg8fzadVTIMXCm/rrXMZBk0mg3xqT92lGJySElx2LTEfIZuap2w=
+	t=1759927662; cv=none; b=BrN75YBUTtGh5Qg0FYW7Ydq7mjQ5MAk2xjf2stSonTaEEMIMKn/Du8w4UpRla/2JPvlwB8zIWiset21DjEOD0MHRVlyzeQb7/s+3mbg8w9Zpy+gHikRLqmUhnHu4RGnLSfDdS4Q2Q0HQN59x0npxCkfKGcaqnrUdMM81SjClFN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759925819; c=relaxed/simple;
-	bh=eAHdmLR4oZyEKurr43V+oHcALn75l8FScvxfru0CUNA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=cFJBGeZFjpnISMC5nGW9uT853DJfvNRJFGnKOmbvh0udSIXpyfjWEIt6y6ArBan1FAxHDwFenRtWDKh+LpQTtSukDmX72pjStOAdz6wYIiOm/CU+K+gw9dlkpQk5T6yM3PbFk0wAPPVJCJmIHYXN3nhscxMgPhwsJbh5tXsfyHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PJ6QysbO; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1759927662; c=relaxed/simple;
+	bh=9oEYxSjZqlIAA+cCSre2rgovRfPuHA0sMuZ7ItzITQs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=if9C4herhq964SXkORJ1ksoE1Ez1fGZ5lQhV1ONQBy+sXA/se7Fhfy8bvWha8P8URKctbgG8coXzFz9LVtUcIn6EVdmM8FdNj3Mv1+B2UdaYfX4oYqQEY7KE+e6qys0LBfjSknVL87P4pbiWtaausqQ4KIKKLdzJmc0mrEa8glA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZyqjHbht; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PJ6QysbO"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5984Jqw4026964;
-	Wed, 8 Oct 2025 12:16:56 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZyqjHbht"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5984uYHg002491;
+	Wed, 8 Oct 2025 12:47:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=FNfuJA8ilq797+M+ztA15mYq/rke
-	H12cgl1x87R6vvc=; b=PJ6QysbO6s0e/Y+nL3m7IK5DSfjzEPxQwPzeVKHdww9p
-	ENbyw+3I8W/hXHs0zXlxavrTPvlQ1MySaqFFrDsy0QjfjxhnY1CpaIjKCnaE+MkE
-	ptr/ymssh3MYmp+Fuyhz4RCJOQ5P/liV1+N6sXmIJKvJKi+bcR8HSTrk0/EcBD+b
-	3+lispbOxL18rgle3zAsf6I30iwJm88pPIIZD5At66VR4LHng8Zwq+bghxAsGbH8
-	x3xXUGdHO0Bm69uSuQK4HiNrDTBd5JRTL9oeTE8tFLo0hRaKnr73kGXi2KULInVt
-	k0x6G+V8By3+XNvOmUx/VmHrhNFJp17T5Dc47uv7gg==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49ju3h4y92-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=N4zpMc
+	C/Cps5ja4lDluPN0SzVC7G7PBdIa4bZbOGYwY=; b=ZyqjHbhtm8V41NleyCtgm8
+	8d60v/xZCM98hv/wwfGMaIymkkpjcwQ2CHOp0Z5s3sf19PV2Vk2QzlvZdYv7P7Gq
+	Mtf4rx1kdtC7i/piBT7BhDFeGAEuqJ2P41g1/KX2fgDi0p3HChzoM8WWaqORaf8e
+	MBu5OQvjc1tLU4FnIqmQqypqbA+niLWNIrfe+d7fX89D9BJvqcq2YTVTGfYuZ48G
+	+VY5gU/HO1XJlhIXpRmHdgMa6LnXbj5c728QBAEIpZV/8l4gtOYjTW+u5jHOcdwK
+	H9R4NLQAwoX5IYXkN5dgO3P61wEuKnVUkbzSxbkX54ULq+lvukn3FCB4ZFJ78HMg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49ju8avajm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Oct 2025 12:16:56 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.0.8) with ESMTP id 598CCl6f028121;
-	Wed, 8 Oct 2025 12:16:55 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49ju3h4y8r-1
+	Wed, 08 Oct 2025 12:47:38 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59894wqS000875;
+	Wed, 8 Oct 2025 12:47:37 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49ke9y8m4b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Oct 2025 12:16:55 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 598BNJC4013317;
-	Wed, 8 Oct 2025 12:16:54 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 49kg4jr4wb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Oct 2025 12:16:54 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 598CGqUk31982080
+	Wed, 08 Oct 2025 12:47:37 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 598ClXBa30802224
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Oct 2025 12:16:52 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 963A25805A;
-	Wed,  8 Oct 2025 12:16:52 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CB53358054;
-	Wed,  8 Oct 2025 12:16:49 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  8 Oct 2025 12:16:49 +0000 (GMT)
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Date: Wed, 08 Oct 2025 14:16:36 +0200
-Subject: [PATCH v2] PCI: s390: Expose the UID as an arch specific PCI slot
- attribute
+	Wed, 8 Oct 2025 12:47:33 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9F15420043;
+	Wed,  8 Oct 2025 12:47:33 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0758D20040;
+	Wed,  8 Oct 2025 12:47:33 +0000 (GMT)
+Received: from [9.87.146.232] (unknown [9.87.146.232])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  8 Oct 2025 12:47:32 +0000 (GMT)
+Message-ID: <818d278c-8918-4a73-b582-e4cbc1fe11a3@linux.ibm.com>
+Date: Wed, 8 Oct 2025 14:47:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251008-uid_slot-v2-1-ef22cef27741@linux.ibm.com>
-X-B4-Tracking: v=1; b=H4sIACNW5mgC/22MwQqDMBAFf0VybiQmBrWn/keRkq6buqCmJCoW8
- d8bpSfpcR5vZmUBPWFg12RlHmcK5IYI8pIwaM3wQk5NZCaF1KKSik/UPELnRo5K6wqsBqMEi/e
- 3R0vLkbrXkVsKo/Ofozxn+/onMmc846rQEkwBtjTq1tEwLSk9+xRcv3d/Un6SRGVQ5DYvQRcnq
- d627QuTQ6Mu2QAAAA==
-X-Change-ID: 20250923-uid_slot-e3559cf5ca30
-To: Bjorn Helgaas <bhelgaas@google.com>, Lukas Wunner <lukas@wunner.de>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/uv: Fix the comment of the uv_find_secret() function
+To: Thomas Huth <thuth@redhat.com>, freude@linux.ibm.com,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5082;
- i=schnelle@linux.ibm.com; h=from:subject:message-id;
- bh=eAHdmLR4oZyEKurr43V+oHcALn75l8FScvxfru0CUNA=;
- b=owGbwMvMwCX2Wz534YHOJ2GMp9WSGDKehRmeORfodiWsIO3A2eoGPt/FFXpzrYrOVocLX+vtc
- u99sKu9o5SFQYyLQVZMkWVRl7PfuoIppnuC+jtg5rAygQxh4OIUgIkcsmNkmPbg1ZpFP12bd2mq
- l71b1jDF+V7sqh2z1zEuvRt0fvMV11iGP1zNHMvs4vbb7pnhHcFg2T5TifN/5sG/00vPHLp/JdX
- yJwsA
-X-Developer-Key: i=schnelle@linux.ibm.com; a=openpgp;
- fpr=9DB000B2D2752030A5F72DDCAFE43F15E8C26090
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20251002155423.466142-1-thuth@redhat.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20251002155423.466142-1-thuth@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA0MDAxOCBTYWx0ZWRfXxrVif7M3Y0Ez
- euDjQrgyJ7XICXbeYVciNJBl/w79BODWZaiNPCVDD44Yg6ckIuRjgao1A8YPE8P3g85GjkzIKc7
- a0lggd1Q5hs9VB4UStyArinJ1GsrMMMvibVU3ec2wDZS9BLbYEgpEm4LgCabWb9JZjIDIkMpEHR
- D/VPTE+tDnzEW3lqhZ1f5l3+nXtpr+PFZ+73hewyzfJQ6b5sre4EaljA+vT8uOZV5jXMXBccr6G
- f0QVI3NskrDUgOV+9oXb9OKWvIlQwijSMmUdTM68JtGEiV9KzO3V6GoKtQK/wZjlN5IxvD51qFZ
- inKJKvnu8eDltXNE6DCpTfP7JfdjAx7/jq7LYAsfdme4Z+bU2p5VvQh4rq28qwCrEonP0Tqppix
- ysa1c3VT5edY/SfcLMW2eCvr9FqEzg==
-X-Authority-Analysis: v=2.4 cv=I4dohdgg c=1 sm=1 tr=0 ts=68e65638 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=AQEDfA8N-JhHbHfKeYEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: YnXi2Uqsa7jkn_xVOXrGLL9pKpmilfJm
-X-Proofpoint-ORIG-GUID: wgN4ZSqhxIfhlISj3yDjzA4ul7AMNDaG
+X-Proofpoint-GUID: h29j1gSJaw7CZHOozFa20DVKWXG_z47y
+X-Authority-Analysis: v=2.4 cv=BpiQAIX5 c=1 sm=1 tr=0 ts=68e65d6a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=20KFwNOVAAAA:8 a=IkQwAILPEdY48X5WYg4A:9
+ a=QEXdDO2ut3YA:10 a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA0MDAyMiBTYWx0ZWRfX0SIhKjGT4POm
+ z4MnuidsxYlU6cIXEVlXcFAXpOr+Gd7BA98vND8FLpjLkTKSMff41ZBbmJe9qv6n+HwDKKbFs79
+ pVmwM72y1p93vMQ7wPcVq4mx6DhbJLxRQT5+eCRX7UVhr/ru4n/O3WVGzOq29AMVDMOIth5vGhB
+ /0od6+LABmzlL0CI6+oOESN32zrFUfNyIyeSXxTplrF6pxFDQDzP+4EABxOJBfl9QLiFs7gcol2
+ 7F39rHRF92pJ7fck970pMUfCrQ8FbuSfys9LzzktCys4+RLiSY443iz+l8icNZuCM04ezNXOgwi
+ lcPuhrgbsyP1+xT05PduKyt61CCP4p3Wd5JBWsm4cFLENMw11VpzWI7WOC6VU86nwGlFHHE6Qi4
+ h8Zzrp4RKtQvFkPIPyoarkspbRlYFw==
+X-Proofpoint-ORIG-GUID: h29j1gSJaw7CZHOozFa20DVKWXG_z47y
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-08_03,2025-10-06_01,2025-03-28_01
+ definitions=2025-10-08_04,2025-10-06_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0 spamscore=0
- bulkscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2510040018
+ spamscore=0 lowpriorityscore=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 bulkscore=0 impostorscore=0 adultscore=0 clxscore=1015
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2509150000
+ definitions=main-2510040022
 
-On s390, an individual PCI function can generally be identified by two
-identifiers, the FID and the UID. Which identifier is used depends on
-the scope and the platform configuration.
+On 10/2/25 5:54 PM, Thomas Huth wrote:
+> From: Thomas Huth <thuth@redhat.com>
+> 
+> The uv_get_secret_metadata() function has been removed some
+> months ago, so we should not mention it in the comment anymore.
+> 
+> Fixes: a42831f0b74dc ("s390/uv: Remove uv_get_secret_metadata function")
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
 
-The first identifier, the FID, is always available and identifies a PCI
-device uniquely within a machine. The FID may be virtualized by
-hypervisors, but on the LPAR level, the machine scope makes it
-impossible to create the same configuration based on FIDs on two
-different LPARs of the same machine, and difficult to reuse across
-machines.
-
-Such matching LPAR configurations are useful, though, allowing
-standardized setups and booting a Linux installation on different LPARs.
-To this end the UID, or user-defined identifier, was introduced. While
-it is only guaranteed to be unique within an LPAR and only if indicated
-by firmware, it allows users to replicate PCI device setups.
-
-On s390, which uses a machine hypervisor, a per PCI function hotplug
-model is used. The shortcoming with the UID then is, that it is not
-visible to the user without first attaching the PCI function and
-accessing the "uid" device attribute. The FID, on the other hand, is
-used as the slot name and is thus known even with the PCI function in
-standby.
-
-Remedy this shortcoming by providing the UID as an attribute on the slot
-allowing the user to identify a PCI function based on the UID without
-having to first attach it. Do this via a macro mechanism analogous to
-what was introduced by commit 265baca69a07 ("s390/pci: Stop usurping
-pdev->dev.groups") for the PCI device attributes.
-
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
----
-Note: I considered adding the UID as a generic "index" via the hotplug
-slot driver but opted for a minimal solution to open the discussion. In
-particular my concern with a generic attribute is that it would be hard
-to find a format that fits everyone. For example on PCI devices we also
-use the "index" attribute for UIDs analogous to SMBIOS but having it in
-decimal is odd on s390 where these are usual in hexadecimal.
----
-Changes in v2:
-- Reword commit message (Ramesh, Gerd, Benjamin)
-- Add "static" on pci_slot_default_groups() (kernel test robot)
-- Link to v1: https://lore.kernel.org/r/20250924-uid_slot-v1-1-09ae04f48c57@linux.ibm.com
----
- arch/s390/include/asm/pci.h |  4 ++++
- arch/s390/pci/pci_sysfs.c   | 20 ++++++++++++++++++++
- drivers/pci/slot.c          | 13 ++++++++++++-
- 3 files changed, 36 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 41f900f693d92522ff729829e446b581977ef3ff..23eed78d9dce72ef466679f31c78aca52ba00f99 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -207,6 +207,10 @@ extern const struct attribute_group zpci_ident_attr_group;
- 			    &pfip_attr_group,		 \
- 			    &zpci_ident_attr_group,
- 
-+extern const struct attribute_group zpci_slot_attr_group;
-+
-+#define ARCH_PCI_SLOT_GROUPS (&zpci_slot_attr_group)
-+
- extern unsigned int s390_pci_force_floating __initdata;
- extern unsigned int s390_pci_no_rid;
- 
-diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
-index 0ee0924cfab7e5d22468fb197ee78cac679d8c13..997dff3796094680d9a3f0b6eb27a89fa1ed30b2 100644
---- a/arch/s390/pci/pci_sysfs.c
-+++ b/arch/s390/pci/pci_sysfs.c
-@@ -178,6 +178,17 @@ static ssize_t index_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(index);
- 
-+static ssize_t zpci_uid_slot_show(struct pci_slot *slot, char *buf)
-+{
-+	struct zpci_dev *zdev = container_of(slot->hotplug, struct zpci_dev,
-+					     hotplug_slot);
-+
-+	return sysfs_emit(buf, "0x%x\n", zdev->uid);
-+}
-+
-+static struct pci_slot_attribute zpci_slot_attr_uid =
-+	__ATTR(uid, 0444, zpci_uid_slot_show, NULL);
-+
- static umode_t zpci_index_is_visible(struct kobject *kobj,
- 				     struct attribute *attr, int n)
- {
-@@ -233,3 +244,12 @@ const struct attribute_group pfip_attr_group = {
- 	.name = "pfip",
- 	.attrs = pfip_attrs,
- };
-+
-+static struct attribute *zpci_slot_attrs[] = {
-+	&zpci_slot_attr_uid.attr,
-+	NULL,
-+};
-+
-+const struct attribute_group zpci_slot_attr_group = {
-+	.attrs = zpci_slot_attrs,
-+};
-diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
-index 50fb3eb595fe65e271b6b339d43c9677c61b1e45..b09e7852c33ed4957432ac73b36d181ecd8283a1 100644
---- a/drivers/pci/slot.c
-+++ b/drivers/pci/slot.c
-@@ -96,7 +96,18 @@ static struct attribute *pci_slot_default_attrs[] = {
- 	&pci_slot_attr_cur_speed.attr,
- 	NULL,
- };
--ATTRIBUTE_GROUPS(pci_slot_default);
-+
-+static const struct attribute_group pci_slot_default_group = {
-+	.attrs = pci_slot_default_attrs,
-+};
-+
-+static const struct attribute_group *pci_slot_default_groups[] = {
-+	&pci_slot_default_group,
-+#ifdef ARCH_PCI_SLOT_GROUPS
-+	ARCH_PCI_SLOT_GROUPS,
-+#endif
-+	NULL,
-+};
- 
- static const struct kobj_type pci_slot_ktype = {
- 	.sysfs_ops = &pci_slot_sysfs_ops,
-
----
-base-commit: cec1e6e5d1ab33403b809f79cd20d6aff124ccfe
-change-id: 20250923-uid_slot-e3559cf5ca30
-
-Best regards,
--- 
-Niklas Schnelle
-
+FYI:
+The 390 team has picked this up and will move it through their repository.
