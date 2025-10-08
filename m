@@ -1,73 +1,73 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6F2C19D8BC
-	for <linux-s390@vger.kernel.org>; Wed,  8 Oct 2025 08:02:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1101829AAF8
+	for <linux-s390@vger.kernel.org>; Wed,  8 Oct 2025 08:05:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759910555; cv=none; b=JnM6KxKAYLXPaYfTXQrq93/HNJtP2GHS2qj+eyBDXmMlOOYJ2emPC31hHtIatUGrQSwaSTiZyO7uf/qW27jpGT7K51ZTcfL3XTfn8NS1J/kdXwNa6UmZ6AW8pNjr56YoTkV+LXIuOeR424/iXZHFSlhAPYiIr8a3nTHB5w3rKZ0=
+	t=1759910745; cv=none; b=m5bvkG+uzM5FIt9SntlN6bOguc2Hwpc6//NF/FNv8RH1HRl96UZdp7o9z85xwIwjaa2q1yFhRX9TtNv/A8FIs2waAFXCXN7PIQh8ADFeeV9Qn17zMfdZoL833+B3nZDBd/u3yerIoQQbaQM5EgHJdEkFdQevDq0RkpteDN4hTdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759910555; c=relaxed/simple;
-	bh=Y02Z5LfdT7QBwB7Olb29gAwh2+0LN36RT7fk6o03+Nc=;
+	s=arc-20240116; t=1759910745; c=relaxed/simple;
+	bh=yq/iDEiQ1RPX6RmohINmLnUzpZ9jfovo6KITeqhLMRM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kFcnAXID0P56Ecyx/zGc08rmKZfFu5OzU1wQ9heshAnlznNP8C5vqDfPxmnyoCxBld7lxOQLIlmWP6IPWiW1dERnPKo/2R22HhztDYSndYLQQmQPyTOcDjyrTq9L0h7lUaGh6Gsjgml1m/ZZ0oKizh6PeEegomst4NKNq6VVT7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aVQSMVrl; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=uddoQjXpB/FVY1rPTf2HXJphAAOc9opre+Us9dNDXeyu0Tbs45wgpiUWkGMk2Da16K1CU0ac3PpQKzUj+WHKYFaFpTehD1xuvTayy/mzslfSMW79D8NSQtqTyc1yD/1Wa6Sl1Z+GHPSRJcgX0eb14Peo8DduC6nplCNZm+tgT9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ErINyHjp; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aVQSMVrl"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ErINyHjp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759910552;
+	s=mimecast20190719; t=1759910743;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=pddHH/uKIG+2OdAE3dfwxjSpPlFOQuBykDEPMc5UKGA=;
-	b=aVQSMVrliEYvrPpdMO+VoIgDrNP8XV5XWd0ujqs0TJCak8xaF0l2B6LePTZpjK3DZR/WQE
-	jECg/Clk05Dr9kPOGrugJnht7GJX2wZP62PTYTtdF43zawcXT3u4SRE0xQPPezm1T5K4gE
-	H8dePjuwFY7+NN4x3RomFSU7tz6E4NA=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=Fckckqu8FhSLe+YJGblmZ5Veu3gXLrLCsl3rTsripxs=;
+	b=ErINyHjpcPMn/buFcwqkkyl7/ECnVH/DPVQJb6X2mWY3ioFBpzcs7J6wS9FNyZY810vTOG
+	bxu6lGSxvspMEOL+VbdUIDcDycRrZXJCdT6MichQdnDYrwL68b+AqtpWezRJzrJ8fnDaj8
+	xj9Fq3A83jAaps2N2ODbeZuwnErPpwQ=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-652-Afuwd-jiOgC-aeZkELbWcg-1; Wed, 08 Oct 2025 04:02:31 -0400
-X-MC-Unique: Afuwd-jiOgC-aeZkELbWcg-1
-X-Mimecast-MFC-AGG-ID: Afuwd-jiOgC-aeZkELbWcg_1759910550
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-46e38bd6680so24137035e9.1
-        for <linux-s390@vger.kernel.org>; Wed, 08 Oct 2025 01:02:31 -0700 (PDT)
+ us-mta-44-j_-nZH3ZNLeRuUb4M90GoQ-1; Wed, 08 Oct 2025 04:05:41 -0400
+X-MC-Unique: j_-nZH3ZNLeRuUb4M90GoQ-1
+X-Mimecast-MFC-AGG-ID: j_-nZH3ZNLeRuUb4M90GoQ_1759910740
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-46e35baddc1so35648155e9.2
+        for <linux-s390@vger.kernel.org>; Wed, 08 Oct 2025 01:05:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759910550; x=1760515350;
+        d=1e100.net; s=20230601; t=1759910740; x=1760515540;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=pddHH/uKIG+2OdAE3dfwxjSpPlFOQuBykDEPMc5UKGA=;
-        b=g/z9IdxjKJM+0chmyO0GbDjfBllWWvgILR8Dtv5WAcNyjSD7Oc+s+8SZakuyBusJn5
-         6JiK3yk9GDiuAT7wJMSP1b2jVWoxwxmnieuPW7w0e/9bgWFBuer1DqICUgLxrMXUcmNZ
-         /3zubnsIV7+zztIaFv2pWqcS7fghLDMi8IARJPAsnsd/juKdAJs9hlvok+wgFA9R8ks6
-         H4TPAY6veOwKHmT2fS3NO3WmjD7JlSCrxxTsES+LZMtvAWHL6CbyjFhZCKYxZEOWnAQc
-         NIQjZfmvGejbT0tXY8IwJ9/WepArPZ6r8s+cuE0orvREWsO6HkTW8uptcBiN7TfhzBjQ
-         VQsg==
-X-Forwarded-Encrypted: i=1; AJvYcCVS3T3cFDYD3uE5yF1D/G1BHSucNALCZBocz4Dt+bquzwx5VKk760hNT1tbxDa/uSp+uXK1z8hMPe/8@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz4Bo0cvhKNMlFAbMjz3KfJv/0lQkrgvlkz2mHKD2ZKpZnJuLKo
-	sJRfCvhds+oXl+1BCsutXvrft3Pd/wipBSbWS/hMrKJmLAkc1C+4Ijo0Zea5mUqpfUjc3WsVUzf
-	R3ehK4V2zmGtdOXUbJWZr34Xsi9Cu8vsYATodaKpeTfVi36UU05uVQUto3fWjFmQ=
-X-Gm-Gg: ASbGncsPdDYrtiSC6fBhihVDW20s/YNGo5Stkh671w55WVv1/BPefYkodBrOiutBQlW
-	CQqou8RuvovzwTPUwaFUTgFDNeBieL08zcU+BYMR02Pov5/YQ6kl0s8Xki78z3L8me9LHbXqepp
-	+DoYOV86y635nyOhhVIRRe2zvxgbACwgMCeESS6csj7vrUUDDYqMjmcu7WzAFQW7uBW+LDUht16
-	fkjYN2cJte8MOPTZyThDWuM3InHAVPGtR316mGRYNYtr7WIn/L0VrFS1uuOzJ4n2wjvP2V00PkI
-	VOVh9gdoYdxlxzPxQzMOItj+/D1iqic+/cKL/uo1oWPdp6HbTuy0lhDdDoASHn34XeVY68UsOCH
-	2EL2CaCys
-X-Received: by 2002:a05:600c:34c2:b0:46e:21c8:ad37 with SMTP id 5b1f17b1804b1-46fa9b06d3dmr14877345e9.25.1759910550016;
-        Wed, 08 Oct 2025 01:02:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGEbw0aJZMLEsvRDrluvzxmPzzAjNZ2fUN5jdXsXVmOstYYrD7freeeFECzzcJlyO/7OK6m0A==
-X-Received: by 2002:a05:600c:34c2:b0:46e:21c8:ad37 with SMTP id 5b1f17b1804b1-46fa9b06d3dmr14877115e9.25.1759910549578;
-        Wed, 08 Oct 2025 01:02:29 -0700 (PDT)
+        bh=Fckckqu8FhSLe+YJGblmZ5Veu3gXLrLCsl3rTsripxs=;
+        b=c7hJWCQK63A3iwAMGq63yX+/6b9jtrRayXZlsHMSTvD9cb53GIS0UHeWqiTzVcE5Pc
+         Ex7sWKV+W4ynQ2idtSTbWOAlUqkZ5nzUnZ+hFHwIT44TluejV9hXL02kt4ZRb6nou3/m
+         OCM1N706EnsQIzA/0deyYV/EW2ZLHPsByzJGtzBjQ8G214SJcqR6cO9l9LCBlXesKd+M
+         wk0+hJHdcy5AvkOZ6/0YpGVBmxDOEaStFvF7o8z2INL3woKYaaIof6GLjsraKKw/7dMD
+         sYuqgXDKXErWS/g8XG6wti8adZRAMXGK3atE9QM0B+qrJsqA9b/H+JO1PHuaQX3iJNlq
+         TuEQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVKixF/IZKxr82ebbB4SBHqRWYf3U6ljebvfenJjRChWxccdeN8z9LHNuVVE8Jy4Uj29Pyt0iqSc1Ix@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUmkOgEgvP4r/RA9ZiwqO2b4U0+6W0TZIiDn1qX94CplMnBQxT
+	6y3QeG7ndsZGcJ3zbGgqRUf92RZ0242/DzDdXy3jJJXs2T1sJDvphLzah/RJkAO3+XYDSxpKDo4
+	ka+iYZGP+0JCsnCYU/8HSzUdqBSotmVKrIWSRuAOy5PjoKYBGDALrm62Hf0iAXoU=
+X-Gm-Gg: ASbGncvxEqyV+FMt1tzjmD3464a5wMHzEhVbGguWvkCLiW00++I5l7kyIEZo59VfUMa
+	SjfvJMZwEv1RuVXxWsqC4AHpG6tO+jnMCzP2Zc7gdN6aOrGlktvQHei6v1J1RlU9mnA34j4q3lg
+	XFGWek3AaBCY070XqvwpW/Y0VnnNjbolC5qKPFo5KDz3RdpAwq5mE+H1egziUa30GPAeAP+01Eq
+	Xc41BrciPu0ZGjDdsSi+pzk7awI4S3bRUpCcdXui1r3DNQajUP1eoetAXbP8Bxju2cLbBZuqnK5
+	yW5A0bwbl7ZwmVBh4COS04hSkDFTlPU6zjXQIrO0kYO271O/+HazQ9LTR/JxdNI1hpqAbdpH/Qt
+	gf2wU7Yi8
+X-Received: by 2002:a05:600c:1395:b0:46e:37fc:def0 with SMTP id 5b1f17b1804b1-46fa9a9efaamr17049985e9.9.1759910740321;
+        Wed, 08 Oct 2025 01:05:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG01JXdA7zG4WT7hRXme96s2VqM9oTOcf5aTlv4lkpg5WkgJHOM8zu4tbyk7O6KwitLxTnxnw==
+X-Received: by 2002:a05:600c:1395:b0:46e:37fc:def0 with SMTP id 5b1f17b1804b1-46fa9a9efaamr17049655e9.9.1759910739866;
+        Wed, 08 Oct 2025 01:05:39 -0700 (PDT)
 Received: from [192.168.3.141] (tmo-083-110.customers.d1-online.com. [80.187.83.110])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f083asm28904014f8f.43.2025.10.08.01.02.27
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8ac750sm29018283f8f.24.2025.10.08.01.05.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Oct 2025 01:02:28 -0700 (PDT)
-Message-ID: <1efcb368-fcdf-4bdd-8b94-a705b7806bc2@redhat.com>
-Date: Wed, 8 Oct 2025 10:02:26 +0200
+        Wed, 08 Oct 2025 01:05:39 -0700 (PDT)
+Message-ID: <60066a80-4758-4034-bbd8-25d9c24861b9@redhat.com>
+Date: Wed, 8 Oct 2025 10:05:37 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,7 +75,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] Support dynamic (de)configuration of memory
+Subject: Re: [PATCH 2/4] s390/sclp: Add support for dynamic (de)configuration
+ of memory
 To: Sumanth Korikkar <sumanthk@linux.ibm.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
  LKML <linux-kernel@vger.kernel.org>, linux-s390
@@ -83,10 +84,9 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
  <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
  Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
 References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
- <ab366c03-8c78-449d-bfc4-2d155212d9d7@redhat.com>
- <aOVUNmDiWgrDJ1dJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <5e3b16ec-9ef9-483e-b97e-bff0c1915b19@redhat.com>
- <aOX_L1_2S30XhLRA@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <20250926131527.3260733-3-sumanthk@linux.ibm.com>
+ <4e832570-32f8-46a5-80d0-40570db862b2@redhat.com>
+ <aOYIwEGgrjpNMGKD@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -133,85 +133,166 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aOX_L1_2S30XhLRA@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+In-Reply-To: <aOYIwEGgrjpNMGKD@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 08.10.25 08:05, Sumanth Korikkar wrote:
->> Care to share an example output? I only have a s390x VM with 2 CPUs and no
->> way to configure/deconfigure.
-> 
-> lscpu -e
-> CPU NODE DRAWER BOOK SOCKET CORE L1d:L1i:L2 ONLINE CONFIGURED POLARIZATION ADDRESS
->    0    0      0    0      0    0 0:0:0         yes yes        vert-medium  0
->    1    0      0    0      0    0 1:1:1         yes yes        vert-medium  1
->    2    0      0    0      0    1 2:2:2         yes yes        vert-low     2
->    3    0      0    0      0    1 3:3:3         yes yes        vert-low     3
->    
-> # chcpu -d 2-3
-> CPU 2 disabled
-> CPU 3 disabled
-> # chcpu -g 2
-> CPU 2 deconfigured
-> # chcpu -c 2
-> CPU 2 configured
-> # chcpu -e 2-3
-> CPU 2 enabled
-> CPU 3 enabled
-
-Makes sense, thanks!
-
-> 
->>> chmem changes would look like:
->>> chmem -c 128M -m 1 : configure memory with memmap-on-memory enabled
->>> chmem -g 128M : deconfigure memory
+>> Is there any reson this notifier is still needed? I'd assume we can just allow
+>> for offlining + re-onlining as we please now.
 >>
->> I wonder if the above two are really required. I would expect most/all users
->> to simply keep using -e / -d.
+>> In fact, I'd assume we can get rid of the notifier entirely now?
+> 
+> I was initially uncertain about contains_standby_increment() use case
+> and didnt change it here.  However, after testing by removing the
+> contains_standby_increment() checks, I observed that the common memory
+> hotplug code already prevents offlining a memory block that contains
+> holes. This ensures safety without relying on these checks.
+> 
+> c5e79ef561b0 ("mm/memory_hotplug.c: don't allow to online/offline memory blocks with holes")
+
+Rings a bell :)
+
+> 
+> i.e. #cp define storage 3504M standby 2148M
+> This leads to a configuration where memory block 27 contains both
+> assigned and standby incr.
+> 
+> But, offlining it will not succeed:
+> chmem -d 0x00000000d8000000-0x00000000dfffffff
+> chmem: Memory Block 27 (0x00000000d8000000-0x00000000dfffffff) disable
+> failed: Invalid argument
+> 
+> Hence, I will remove it. Thanks.
+
+Cool!
+
+> 
+>>> -	case MEM_PREPARE_ONLINE:
+>>> -		/*
+>>> -		 * Access the altmap_start_pfn and altmap_nr_pages fields
+>>> -		 * within the struct memory_notify specifically when dealing
+>>> -		 * with only MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers.
+>>> -		 *
+>>> -		 * When altmap is in use, take the specified memory range
+>>> -		 * online, which includes the altmap.
+>>> -		 */
+>>> -		if (arg->altmap_nr_pages) {
+>>> -			start = PFN_PHYS(arg->altmap_start_pfn);
+>>> -			size += PFN_PHYS(arg->altmap_nr_pages);
+>>> -		}
+>>> -		rc = sclp_mem_change_state(start, size, 1);
+>>> -		if (rc || !arg->altmap_nr_pages)
+>>> -			break;
+>>> -		/*
+>>> -		 * Set CMMA state to nodat here, since the struct page memory
+>>> -		 * at the beginning of the memory block will not go through the
+>>> -		 * buddy allocator later.
+>>> -		 */
+>>> -		__arch_set_page_nodat((void *)__va(start), arg->altmap_nr_pages);
+>>> +	default:
+>>>    		break;
+>>> -	case MEM_FINISH_OFFLINE:
+>>> +	}
+>>> +	return rc ? NOTIFY_BAD : NOTIFY_OK;
+>>> +}
+>>> +
+>>> +static ssize_t config_mblock_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+>>> +{
+>>> +	struct mblock *mblock = container_of(kobj, struct mblock, kobj);
+>>> +
+>>> +	return sysfs_emit(buf, "%u\n", READ_ONCE(mblock->config));
+>>> +}
+>>> +
+>>> +static ssize_t config_mblock_store(struct kobject *kobj, struct kobj_attribute *attr,
+>>> +				   const char *buf, size_t count)
+>>> +{
+>>> +	unsigned long long addr, block_size;
 >>
->> Sure, there might be some corner cases, but I would assume most people to
->> not want to care about memmap-on-memory with the new model.
+>> "unsigned long" should be sufficient I'm sure :)
 > 
-> I believe this remains very beneficial for customers in the following
-> scenario:
+> Left over. I will do so.
 > 
-> 1) Initial memory layout:
-> 4 GB configured online
-> 512 GB standby
+>>> +	struct memory_block *mem;
+>>> +	struct mblock *mblock;
+>>> +	unsigned char id;
+>>> +	bool value;
+>>> +	int rc;
+>>> +
+>>> +	rc = kstrtobool(buf, &value);
+>>> +	if (rc)
+>>> +		return rc;
+>>> +	mblock = container_of(kobj, struct mblock, kobj);
+>>> +	block_size = memory_block_size_bytes();
+>>> +	addr = mblock->id * block_size;
+>>> +	/*
+>>> +	 * Hold device_hotplug_lock when adding/removing memory blocks.
+>>> +	 * Additionally, also protect calls to find_memory_block() and
+>>> +	 * sclp_attach_storage().
+>>> +	 */
+>>> +	rc = lock_device_hotplug_sysfs();
+>>> +	if (rc)
+>>> +		goto out;
+>>> +	for_each_clear_bit(id, sclp_storage_ids, sclp_max_storage_id + 1)
+>>> +		sclp_attach_storage(id);
+>>> +	if (value) {
+>>> +		if (mblock->config)
+>>> +			goto out_unlock;
+>>> +		rc = sclp_mem_change_state(addr, block_size, 1);
+>>> +		if (rc)
+>>> +			goto out_unlock;
+>>>    		/*
+>>> -		 * When altmap is in use, take the specified memory range
+>>> -		 * offline, which includes the altmap.
+>>> +		 * Set entire memory block CMMA state to nodat. Later, when
+>>> +		 * page tables pages are allocated via __add_memory(), those
+>>> +		 * regions are marked __arch_set_page_dat().
+>>>    		 */
+>>> -		if (arg->altmap_nr_pages) {
+>>> -			start = PFN_PHYS(arg->altmap_start_pfn);
+>>> -			size += PFN_PHYS(arg->altmap_nr_pages);
+>>> +		__arch_set_page_nodat((void *)__va(addr), block_size >> PAGE_SHIFT);
+>>> +		rc = __add_memory(0, addr, block_size,
+>>> +				  mblock->memmap_on_memory ?
+>>> +				  MHP_MEMMAP_ON_MEMORY | MHP_OFFLINE_INACCESSIBLE : MHP_NONE);
+>>> +		if (rc)
+>>> +			goto out_unlock;
+>>
+>> Do we have to undo the state change?
 > 
-> If memory_hotplug.memmap_on_memory=Y is set in the kernel command line:
-> Suppose user requires more memory and onlines 256 GB. With memmap-on-memory
-> enabled, this likely succeeds by default.
+> Intention was to keep error handling simple. In case of failure in
+> add_memory(), we would have state set to 1 (not given back). But,
+> subsequent configuration request for that block will not have an impact.
+
+I mean, if we can cleanup easily here by doing another 
+sclp_mem_change_state(), I think we should just do that.
+
+I'd assume that sclp_mem_change_state() to 0 will usually not fail (I 
+might be wrong :) ).
+
+[...]
+
+>>> -static int __init sclp_detect_standby_memory(void)
+>>> +static int __init sclp_setup_memory(void)
+>>>    {
+>>>    	struct read_storage_sccb *sccb;
+>>>    	int i, id, assigned, rc;
+>>> +	struct mblock *mblocks;
+>>> +	struct kset *kset;
+>>>    	/* No standby memory in kdump mode */
+>>>    	if (oldmem_data.start)
+>>
+>> Wouldn't we still want to create the ones for initial memory at least?
 > 
-> Later, the user needs 256 GB of contiguous physical memory across memory
-> blocks. Then, the user can still configure those memory blocks with
-> memmap-on-memory disabled and online it.
+> Intention was the following:
+> configuration and deconfiguration of memory with optional
+> memmap-on-memory is mostly needed for only standby memory.
 > 
-> 2) If the administrator forgets to configure
-> memory_hotplug.memmap_on_memory=Y, the following steps can be taken:
-> Rescue from OOM situations: configure with memmap-on-memory enabled, online it.
+> If standby memory is absent or sclp is unavailable, we continue using
+> the previous behavior (only software offline/online), since the sclp
+> memory notifier was not registered in that case before either.
 
-That's my point: I don't consider either very likely to be used by 
-actual admins.
-
-I guess in (1) it really only is a problem with very big memory blocks. 
-Assuming a memory block is just 128 MiB (or even 1 GiB), you can 
-add+online them individually. Once you succeeded with the first one 
-(very likely), the other ones will follow.
-
-Sure, if you are so low on memory that you cannot even a single memory 
-block, then memmap-on-memory makes sense.
-
-But note that memmap-on-memory was added to handle hotplug of large 
-chunks of memory (large DIMM/NVDIMM, large CXL device) in one go, 
-without the chance to add+online individual memory blocks incrementally.
-
-That's also the reason why I didn't care so far to implement 
-memmap-on-memory support for virito-mem: as we add+online individual 
-(small) emmory blocks, the implementation effort for supporting 
-memmap_on_memory was so far not warranted.
-
-(it's a bit trickier for virtio-mem to implement :) )
+I mean, probably nobody in the kdump kernel cares about it either way, 
+agreed.
 
 -- 
 Cheers
