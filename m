@@ -1,165 +1,194 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D296D4A01;
-	Wed,  8 Oct 2025 09:14:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B75391E25F9
+	for <linux-s390@vger.kernel.org>; Wed,  8 Oct 2025 09:33:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759914848; cv=none; b=P716JVfEqJwazWq0/Bx9rGP8hWTttcWX/USjOlhMk1wIcamw6cm4vzbd6yUaj/cbdRsHzbDFsId1tEootVh0ajpu30M+yUJPe654fSFOwUDz2Jc4p1sImu4g+zBILZu5w0tgLHVmqYfWzrjyZ5UudKYP6EE5k7cIBrhzzAZsf78=
+	t=1759916040; cv=none; b=C1MEd9u1AAwJ8i/a+j2lFtjdNhdAPeIX9TzMIJe1QP8F+/A4EOCJazFrGKHa9kNtj151tztqRbypHqQ+7cC1faGggTD16NEpFavZ22HVUNdqkCi14kk8u08rnFS4LzqO9vjAjLgw+ML9Kbpby3cKFy4o8lAjcRt8eQyWlILUidM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759914848; c=relaxed/simple;
-	bh=RBX/JvHVp/JLTGdlufX43YS1sS3t80WXsI+7GI4P8Ps=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z0Ho+uevH66M/xSUyBnQfhXzNRPT3bZqKMwccENu27H4UzSP/RVVYAJavNbeEwv4289x5Qe4h8cA4oy7kqdHdCQ2vO0bKHhDMkBU2ZfonZ0vCa5Aw1pZjoBXJB/Ghxgp4Lps6Cq7Ghdvfx1uC27nGtnVIxa/U7lr8D+sjOuQjiU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=i/kN9LKS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1759916040; c=relaxed/simple;
+	bh=6zxM30aDH01IiYvZ1H7Wr1pAyvigajpz0autcEP1khY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=AR6RJ0iD6sJseM3khDP4lE3vkVqJiGTwwEts/D4CS1ICWZQt0tHCf5n12/VABRonxJd2AeqPW6rfOHxrmBXozwvvFGyHYH601x1tGGbD5THnNOa1Qlw+At4EaihiuH90qMh2OpaLmaAHM/bZiYqWzeNwOTkURfsZGonV76Ky5Q8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bVeoDjOK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="i/kN9LKS"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5982Vevp030070;
-	Wed, 8 Oct 2025 09:14:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=QPruGH
-	7fTf9jQZZnyfNgBfKH7Ef9ATtAqGNYbKyXYM0=; b=i/kN9LKSsmIECxE9pgj0Pk
-	paFXt2sDl4b+d2sBH4uGOUVcKUec+xGrhyQbK0wIWCgmXsPveGyps1GWXHw+pKWz
-	N4kN7G/tmKla269vrIm6mK4PdE0X8vVgQRisckMiL1u1we1omRiivBcvpw+LN5rs
-	r4b/C5UjUUH9Yl+4u0MxMc/3Qw0ounpPdieaOZv+9mY/o2U9dQ9DwulkoXjjSQ6H
-	s3NaLEKbh5+8j2yN0/KY3S/e6qqqseyXcmbQZbc4wjxyiHo/Vq/9DaQQTGLeDZ0z
-	+LbfOTKEqpWHS9y6wp3LiJGMWkI0Xe/cljVA0WBws5gYI1QHRp99V33yKGyH+aOA
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49ju3h46td-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Oct 2025 09:13:59 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59859MxQ028041;
-	Wed, 8 Oct 2025 09:13:58 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49kewn7qwj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 08 Oct 2025 09:13:58 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 5989Dsxl38404354
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 8 Oct 2025 09:13:54 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9ABC92004D;
-	Wed,  8 Oct 2025 09:13:54 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2CB1420043;
-	Wed,  8 Oct 2025 09:13:54 +0000 (GMT)
-Received: from li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com (unknown [9.111.14.160])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed,  8 Oct 2025 09:13:54 +0000 (GMT)
-Date: Wed, 8 Oct 2025 11:13:52 +0200
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH 0/4] Support dynamic (de)configuration of memory
-Message-ID: <aOYrUEr-inqogzJE@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
-References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
- <ab366c03-8c78-449d-bfc4-2d155212d9d7@redhat.com>
- <aOVUNmDiWgrDJ1dJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <5e3b16ec-9ef9-483e-b97e-bff0c1915b19@redhat.com>
- <aOX_L1_2S30XhLRA@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
- <1efcb368-fcdf-4bdd-8b94-a705b7806bc2@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bVeoDjOK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1759916037;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=pvNQ2sqsxcgVrxGJZXdoSqap7VzzZ3mjW5LxJACJ12c=;
+	b=bVeoDjOKPj0XetoejOhFasGEUkL641UKLGMlsT2j24Ka2OuHjJN26NOBZGNisa+tZvGqnS
+	VKjk17PsxTcyzp6qYPgdfH/+B/GFpAvob0wUd7jFgGqY5bKMf6ip8elZRZBfeCuJKiLNZu
+	jHG8kr63bKTSBL9nnb9BEdVBjUW5nfw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-630-FYqxn6SSM-yFWTKwfDxrTw-1; Wed, 08 Oct 2025 05:33:56 -0400
+X-MC-Unique: FYqxn6SSM-yFWTKwfDxrTw-1
+X-Mimecast-MFC-AGG-ID: FYqxn6SSM-yFWTKwfDxrTw_1759916035
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ed9557f976so4871741f8f.3
+        for <linux-s390@vger.kernel.org>; Wed, 08 Oct 2025 02:33:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759916034; x=1760520834;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pvNQ2sqsxcgVrxGJZXdoSqap7VzzZ3mjW5LxJACJ12c=;
+        b=d+zgb65++dJs3N3n6sgCp792Eb6ItVfOwB3Bm1GQDLQckRvD+5t66JEri3cKwm5oJL
+         +2imWCrAY5yayV3DwNUkZ2Fhyg6V0zU1b+KH52lVeCJj5CUdj4NSudE5R7tvq58aKdVe
+         ok7TaUMOQj7bt/NZ5F+/OjqOIJT0ub7JfV9i1QDFG60KEFu7eQ11nVML8FIoUBErNuBB
+         A324ipAj1ZHx5ZU5ve9pKXrcZwtXcGId6dYWGiv+xULT2M9RaHZSCYAKlEHiOrvb7xeu
+         haleWZdrZo5H61SL/mmlvNrUtuFBePP4pldoxg0SFTZ/demB/rLcUPR+1L62bIMcgG4Q
+         0DmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXkVu9bUkwsTQ/Vnfyz1yE7o6W22BNKzCoaGpYT4kMLrsDPB01azHhYttwEwLIIGw8do473vQ0mfXLe@vger.kernel.org
+X-Gm-Message-State: AOJu0YztJxWmmo+j3n7BjEti5n4G7ONWI3v5rPotun2k/7aS/gOAggA1
+	b0JQyxpLP7CCvo4++znm35c2ZouwTucRY5QaXfxJeoofXn6Yix8YwiM2UWJKmpmwpGEcNbntiu8
+	gHX9MnsU5xPQ2Ts5+26wETO7HbVFJfoV2mhMdBlnHcMeANb9pN6U6CeTiuWH4L6o=
+X-Gm-Gg: ASbGncuHCujSUjZA87XZpKCmdjBCCgWXmZY9PF/STiGR/NQhb9bV9dZ58pm2Aec3Kix
+	yniXsAFD+xBXtB0zv8VArh2XA5/LHlsOlhWTlWQRM0G1AtQPs3h7OQTEMFqNGRaXY9rMfvdxYWt
+	9AcMFrqneCBJlCbQZa7JVup+viMzn0JxdXzhW7fk1KxpK/227EGOtXmgou8pvcbSjO3g73Deiqb
+	eNht/xW/xsV8RtssdjikyBiC+9qT+osmgNXJ621KuaMuLjbo00B7Hs/b00YlCueJexS+AZeU0DU
+	ulIkZcy+L2n0YJ04C8gQYwP6h6yD8JzQ3w6gc+hs5ZAEgj+QS1K8EMoD+g5/7gDzNoI23vTUJRU
+	f9TVYlqMm
+X-Received: by 2002:a05:6000:2408:b0:414:6fe6:8fbd with SMTP id ffacd0b85a97d-4266e8de55dmr1525953f8f.54.1759916034443;
+        Wed, 08 Oct 2025 02:33:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHRgm9ENNBAKPQVvD/piMECVRSv9+MLaK5jztOw4UsWToxz1h/ZD5Ud2PMOKOKZArxB19KvCg==
+X-Received: by 2002:a05:6000:2408:b0:414:6fe6:8fbd with SMTP id ffacd0b85a97d-4266e8de55dmr1525932f8f.54.1759916034010;
+        Wed, 08 Oct 2025 02:33:54 -0700 (PDT)
+Received: from [192.168.3.141] (tmo-083-110.customers.d1-online.com. [80.187.83.110])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f4cc3sm29006938f8f.55.2025.10.08.02.33.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Oct 2025 02:33:53 -0700 (PDT)
+Message-ID: <9f35aedb-fd67-412f-a3d3-bb6692f7c2ce@redhat.com>
+Date: Wed, 8 Oct 2025 11:33:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] Support dynamic (de)configuration of memory
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
+ LKML <linux-kernel@vger.kernel.org>, linux-s390
+ <linux-s390@vger.kernel.org>, Gerald Schaefer
+ <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
+References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
+ <ab366c03-8c78-449d-bfc4-2d155212d9d7@redhat.com>
+ <aOVUNmDiWgrDJ1dJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <5e3b16ec-9ef9-483e-b97e-bff0c1915b19@redhat.com>
+ <aOX_L1_2S30XhLRA@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <1efcb368-fcdf-4bdd-8b94-a705b7806bc2@redhat.com>
+ <aOYrUEr-inqogzJE@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+Autocrypt: addr=david@redhat.com; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <aOYrUEr-inqogzJE@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1efcb368-fcdf-4bdd-8b94-a705b7806bc2@redhat.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA0MDAxOCBTYWx0ZWRfX2SinUPWl76cz
- AjKGe/+vIb6wkkuw6snsxnXWw8uKHTIO5PX8ZtgaWkHm6x2aLt1nN+KYH89EnYoHdv9argm1nwQ
- NlCyOiYHCnWmsi1jz0fXmhUSxgXER53PFSh71pk0g22a6zf1/sPcUrFZk+scMcUxhfUHoXOy23p
- 6fWLp5DjrexUoFTp3P/wLrLD5p3Y6fFzdp/Z5QG1xyCBYaQJZulxcKj22WlTp9CvMZpRMbosDhZ
- JvJSubMsHEzKqf3eRyxW3AQbXJnLRP8+KAOKBGD2wsoTrePfW3wMecwgNimPv6vJ9jFKTrxWRsa
- r30WYsftT8s0Hp+3DpEbIeVH/nJgS/pMQdPf/Dr0EoekvSQ8TIpyAdigJOUiyVx4ZLy/pHnCJi0
- QvG7PavYzOhbAbsjv48DHsK/MaI6Hg==
-X-Authority-Analysis: v=2.4 cv=I4dohdgg c=1 sm=1 tr=0 ts=68e62b58 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=5lHgw4X1gRwckBSjVGgA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=cPQSjfK2_nFv0Q5t_7PE:22
-X-Proofpoint-GUID: frYyvW6OcdJeNiV13t28CQ7UrL4Xa7Gg
-X-Proofpoint-ORIG-GUID: frYyvW6OcdJeNiV13t28CQ7UrL4Xa7Gg
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-10-08_02,2025-10-06_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0 spamscore=0
- bulkscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2509150000 definitions=main-2510040018
 
-> > > I wonder if the above two are really required. I would expect most/all users
-> > > to simply keep using -e / -d.
-> > > 
-> > > Sure, there might be some corner cases, but I would assume most people to
-> > > not want to care about memmap-on-memory with the new model.
-> > 
-> > I believe this remains very beneficial for customers in the following
-> > scenario:
-> > 
-> > 1) Initial memory layout:
-> > 4 GB configured online
-> > 512 GB standby
-> > 
-> > If memory_hotplug.memmap_on_memory=Y is set in the kernel command line:
-> > Suppose user requires more memory and onlines 256 GB. With memmap-on-memory
-> > enabled, this likely succeeds by default.
-> > 
-> > Later, the user needs 256 GB of contiguous physical memory across memory
-> > blocks. Then, the user can still configure those memory blocks with
-> > memmap-on-memory disabled and online it.
-> > 
-> > 2) If the administrator forgets to configure
-> > memory_hotplug.memmap_on_memory=Y, the following steps can be taken:
-> > Rescue from OOM situations: configure with memmap-on-memory enabled, online it.
+On 08.10.25 11:13, Sumanth Korikkar wrote:
+>>>> I wonder if the above two are really required. I would expect most/all users
+>>>> to simply keep using -e / -d.
+>>>>
+>>>> Sure, there might be some corner cases, but I would assume most people to
+>>>> not want to care about memmap-on-memory with the new model.
+>>>
+>>> I believe this remains very beneficial for customers in the following
+>>> scenario:
+>>>
+>>> 1) Initial memory layout:
+>>> 4 GB configured online
+>>> 512 GB standby
+>>>
+>>> If memory_hotplug.memmap_on_memory=Y is set in the kernel command line:
+>>> Suppose user requires more memory and onlines 256 GB. With memmap-on-memory
+>>> enabled, this likely succeeds by default.
+>>>
+>>> Later, the user needs 256 GB of contiguous physical memory across memory
+>>> blocks. Then, the user can still configure those memory blocks with
+>>> memmap-on-memory disabled and online it.
+>>>
+>>> 2) If the administrator forgets to configure
+>>> memory_hotplug.memmap_on_memory=Y, the following steps can be taken:
+>>> Rescue from OOM situations: configure with memmap-on-memory enabled, online it.
+>>
+>> That's my point: I don't consider either very likely to be used by actual
+>> admins.
+>>
+>> I guess in (1) it really only is a problem with very big memory blocks.
+>> Assuming a memory block is just 128 MiB (or even 1 GiB), you can add+online
+>> them individually. Once you succeeded with the first one (very likely), the
+>> other ones will follow.
+>>
+>> Sure, if you are so low on memory that you cannot even a single memory
+>> block, then memmap-on-memory makes sense.
+>>
+>> But note that memmap-on-memory was added to handle hotplug of large chunks
+>> of memory (large DIMM/NVDIMM, large CXL device) in one go, without the
+>> chance to add+online individual memory blocks incrementally.
 > 
-> That's my point: I don't consider either very likely to be used by actual
-> admins.
+> Interesting. Thanks David.
 > 
-> I guess in (1) it really only is a problem with very big memory blocks.
-> Assuming a memory block is just 128 MiB (or even 1 GiB), you can add+online
-> them individually. Once you succeeded with the first one (very likely), the
-> other ones will follow.
-> 
-> Sure, if you are so low on memory that you cannot even a single memory
-> block, then memmap-on-memory makes sense.
-> 
-> But note that memmap-on-memory was added to handle hotplug of large chunks
-> of memory (large DIMM/NVDIMM, large CXL device) in one go, without the
-> chance to add+online individual memory blocks incrementally.
+> Heiko suggested that memory increment size could also be upto
+> 64GB. In that case, it might be useful.
 
-Interesting. Thanks David.
+Yeha, rings a bell. But that would not be your 4GiB scenario you shared :)
 
-Heiko suggested that memory increment size could also be upto
-64GB. In that case, it might be useful.
+-- 
+Cheers
 
-https://lore.kernel.org/all/20250521142149.11483C95-hca@linux.ibm.com/
+David / dhildenb
 
-> That's also the reason why I didn't care so far to implement
-> memmap-on-memory support for virito-mem: as we add+online individual (small)
-> emmory blocks, the implementation effort for supporting memmap_on_memory was
-> so far not warranted.
-> 
-> (it's a bit trickier for virtio-mem to implement :) )
-> 
-> -- 
-> Cheers
-> 
-> David / dhildenb
-> 
