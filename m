@@ -1,124 +1,105 @@
-Received: from bmailout1.hostsharing.net (bmailout1.hostsharing.net [83.223.95.100])
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0E1424E01D;
-	Wed,  8 Oct 2025 13:34:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.223.95.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D562EB870;
+	Wed,  8 Oct 2025 14:37:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759930469; cv=none; b=YZ2oamUITFXtcomblTxQwbk06Nv2DECJXC8EAxOjkDExRnMzTXgmIQK0GsU/HM8MjO3Vo4Ko00ypKKpSZgNXqEnlb4IDTPZSgwoEyj9fwL4iveTgH0TveQsbZOuOxKn7BXPLL2qB2faxpm9fDLCGulIst/ZZZuwppQ3gGJqDD00=
+	t=1759934256; cv=none; b=L6zYhCoxr4eTkJQgJWI3of7Lv2muCz6aKD2zFlhlYDDISEy/xwVt5NYc4zUOjN9MeStPffO2GEySAc1U41derYSkWBRRnYDAEHtLNLWxVdUUE4uv9BZ59vOHPwZPbca65/POh67Ia7PQTZmdr3KlmaRLkflO6j/WllwAd2HEyzM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759930469; c=relaxed/simple;
-	bh=L/JfgYUl9kx54NZaz4So/Tc7t9Ld6kXKMjxc+OdFfT4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ni7SAbaJWuGAuoQ95vzONXZNCDrr/CJv3rKukPbuKlAtns/PDSWeWinS3q3cENlBTBIRhEW5qBIGTkm1rxOr044NeYcIWrgY8eWWSfyPi3YNsJBnZspynp6DWHGITWrtUFdEzPU4Pr9WP+a3502j8vUSh8C4/7YAB2CAsH8AN34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de; spf=none smtp.mailfrom=h08.hostsharing.net; arc=none smtp.client-ip=83.223.95.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wunner.de
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=h08.hostsharing.net
-Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
-	 client-signature RSA-PSS (4096 bits) client-digest SHA256)
-	(Client CN "*.hostsharing.net", Issuer "RapidSSL TLS RSA CA G1" (verified OK))
-	by bmailout1.hostsharing.net (Postfix) with ESMTPS id C542E2C4E592;
-	Wed,  8 Oct 2025 15:34:16 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-	id B363A5F7D2E; Wed,  8 Oct 2025 15:34:16 +0200 (CEST)
-Date: Wed, 8 Oct 2025 15:34:16 +0200
-From: Lukas Wunner <lukas@wunner.de>
-To: Farhan Ali <alifm@linux.ibm.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, linux-s390@vger.kernel.org,
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pci@vger.kernel.org, alex.williamson@redhat.com,
-	helgaas@kernel.org, clg@redhat.com, schnelle@linux.ibm.com,
-	mjrosato@linux.ibm.com
-Subject: Re: [PATCH v4 01/10] PCI: Avoid saving error values for config space
-Message-ID: <aOZoWDQV0TNh-NiM@wunner.de>
-References: <20250924171628.826-1-alifm@linux.ibm.com>
- <20250924171628.826-2-alifm@linux.ibm.com>
- <20251001151543.GB408411@p1gen4-pw042f0m>
- <ae5b191d-ffc6-4d40-a44b-d08e04cac6be@linux.ibm.com>
- <aOE1JMryY_Oa663e@wunner.de>
- <c0818c13-8075-4db0-b76f-3c9b10516e7a@linux.ibm.com>
- <aOQX6ZTMvekd6gWy@wunner.de>
- <8c14d648-453c-4426-af69-4e911a1128c1@linux.ibm.com>
+	s=arc-20240116; t=1759934256; c=relaxed/simple;
+	bh=fM/soW1wxcm6ZUoUCSrXUsq1Ch641FejBxdWZ2T9VTY=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RP5mZRQ0fLWRtYpLvlvoEZKmvK4Iavn4+YMrZrjc5vxVkUUkBU5xDWFueylwAFXMqZ/JSK2h0FYtrzzlWsZfj4M/EgfS5Yq5AKsNxx8Gbc9aZ0ZSj+DjkRl7A6dgUqIJUfV6mFReX6AXyJI3OrdwxXH6FgVLfTEzTEEJ/imj6iM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=PYiweDzo; arc=none smtp.client-ip=115.124.30.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="PYiweDzo"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1759934244; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=y8JH2A/X+FfSGLqk5PRkD3V44OnLqwLLX/lM69mSF2o=;
+	b=PYiweDzo0YOeOsiHJRq0QGRmJ9YqbxqcuL9iWNng1x09kPqvoXGqNwd4OkNnfukheFXOny3gBGe03TOO1dX55vQ9oua8uirGGE34OHhIw/OjYMnzoFT13PRP7a/CLvBK7yUsU2ZKhQXe7p97lzCkAv5TQiosJyA8Wn9kZ4rGzA0=
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0WpfC3B0_1759932368 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 08 Oct 2025 22:06:08 +0800
+Date: Wed, 8 Oct 2025 22:06:08 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+	netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next v5 2/2] net/smc: handle -ENOMEM from
+ smc_wr_alloc_link_mem gracefully
+Message-ID: <aOZv0NmekKIgpc5M@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20250929000001.1752206-1-pasic@linux.ibm.com>
+ <20250929000001.1752206-3-pasic@linux.ibm.com>
+ <aNnl_CfV0EvIujK0@linux.alibaba.com>
+ <de0baa92-417c-475a-a342-9041f8fb5b8e@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <8c14d648-453c-4426-af69-4e911a1128c1@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <de0baa92-417c-475a-a342-9041f8fb5b8e@linux.ibm.com>
 
-On Mon, Oct 06, 2025 at 02:35:49PM -0700, Farhan Ali wrote:
-> On 10/6/2025 12:26 PM, Lukas Wunner wrote:
-> > On Mon, Oct 06, 2025 at 10:54:51AM -0700, Farhan Ali wrote:
-> > > On 10/4/2025 7:54 AM, Lukas Wunner wrote:
-> > > > I believe this also makes patch [01/10] in your series unnecessary.
-> > > I tested your patches + patches 2-10 of this series. It unfortunately didn't
-> > > completely help with the s390x use case. We still need the check to in
-> > > pci_save_state() from this patch to make sure we are not saving error
-> > > values, which can be written back to the device in pci_restore_state().
-> > What's the caller of pci_save_state() that needs this?
-> > 
-> > Can you move the check for PCI_POSSIBLE_ERROR() to the caller?
-> > I think plenty of other callers don't need this, so it adds
-> > extra overhead for them and down the road it'll be difficult
-> > to untangle which caller needs it and which doesn't.
-> 
-> The caller would be pci_dev_save_and_disable(). Are you suggesting moving
-> the PCI_POSSIBLE_ERROR() prior to calling pci_save_state()?
+On 2025-10-06 11:25:22, Mahanta Jambigi wrote:
+>On 29/09/25 7:20 am, Dust Li wrote:
+>>> diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+>>> index 8d06c8bb14e9..5c18f08a4c8a 100644
+>>> --- a/net/smc/smc_core.h
+>>> +++ b/net/smc/smc_core.h
+>>> @@ -175,6 +175,8 @@ struct smc_link {
+>>> 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+>>> 	int			llc_testlink_time; /* testlink interval */
+>>> 	atomic_t		conn_cnt; /* connections on this link */
+>>> +	u16			max_send_wr;
+>>> +	u16			max_recv_wr;
+>> 
+>> Here, you've moved max_send_wr/max_recv_wr from the link group to individual links.
+>> This means we can now have different max_send_wr/max_recv_wr values on two
+>> different links within the same link group.
+>> Since in Alibaba we doesn't use multi-link configurations, we haven't tested
+>
+>Does Alibaba always use a single RoCE device for SMC-R? In that case how
+>redundancy is achieved if that link goes down?
 
-I'm not sure yet.  Let's back up a little:  I'm missing an
-architectural description how you're intending to do error
-recovery in the VM.  If I understand correctly, you're
-informing the VM of the error via the ->error_detected() callback.
+We expose a virtual RDMA device to our client inside their virtual
+machine. The underlying network is already redundant, so it’s got
+built-in reliability. You can think of it kind of like virtio-net, but
+instead of a regular virtual NIC, it’s an RDMA device.
 
-You're saying you need to check for accessibility of the device
-prior to resetting it from the VM, does that mean you're attempting
-a reset from the ->error_detected() callback?
+>
+>> this scenario. Have you tested the link-down handling process in a multi-link
+>> setup?
+>I did test this after you query & don't see any issues. As Halil
+>mentioned in worst case scenario one link might perform lesser than the
+>other, that too if the kcalloc() failed for that link in
+>smc_wr_alloc_link_mem() & succeeded in subsequent request with reduced
+>max_send_wr/max_recv_wr size(half).
 
-According to Documentation/PCI/pci-error-recovery.rst, the device
-isn't supposed to be considered accessible in ->error_detected().
-The first callback which allows access is ->mmio_enabled().
+Great! You can add my
 
-I also don't quite understand why the VM needs to perform a reset.
-Why can't you just let the VM tell the host that a reset is needed
-(PCI_ERS_RESULT_NEED_RESET) and then the host resets the device on
-behalf of the VM?
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-Furthermore, I'm thinking that you should be using pci_channel_offline()
-to detect accessibility of the device, rather than reading from
-Config Space and checking for PCI_POSSIBLE_ERROR().
-
-> > The state saved on device addition is just the initial state and
-> > it is fine if later on it gets updated (which is a nicer term than
-> > "overwritten").  E.g. when portdrv.c instantiates port services
-> > and drivers are bound to them, various registers in Config Space
-> > are changed, hence pcie_portdrv_probe() calls pci_save_state()
-> > again.
-> > 
-> > However we can discuss whether pci_save_state() is still needed
-> > in pci_dev_save_and_disable().
-> 
-> The commit 8dd7f8036c12 ("PCI: add support for function level reset")
-> introduced the logic of saving/restoring the device state after an FLR. My
-> assumption is it was done to save the most recent state of the device (as
-> the state could be updated by drivers). So I think it would still make sense
-> to save the device state in pci_dev_save_and_disable() if the Config Space
-> is still accessible?
-
-Yes, right now we can't assume that drivers call pci_save_state()
-in their probe hook if they modified Config Space.  They may rely
-on the state being saved prior to reset or a D3hot/D3cold transition.
-So we need to keep the pci_dev_save_and_disable() call for now.
-
-Generally the expectation is that Config Space is accessible when
-performing a reset with pci_try_reset_function().  Since that's
-apparently not guaranteed for your use case, I'm wondering if you
-might be using the function in a context it's not supposed to be used.
-
-Thanks,
-
-Lukas
+>> Otherwise, the patch looks good to me.
+>> 
+>> Best regards,
+>> Dust
