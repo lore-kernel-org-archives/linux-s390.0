@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6473384039;
-	Wed,  8 Oct 2025 22:47:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 269E82C3769;
+	Wed,  8 Oct 2025 22:47:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759963623; cv=none; b=hEL6gKp/3bKzPl8nhi32xfhqIsTOG9ajsm1w+ErfEi4o8PuQfwNY1t4rdu097CP5fdjYvSWWq4IwglsllG1AEL+SQEuHvu2Odp4KfpXNGdHdXQVl1veBF+qapmqroLyYFUSWbxDTt2uFigEGD/4WjiZd7/X0Ho/xzB9TYvczYGk=
+	t=1759963630; cv=none; b=piL0XW/TLRj6a4sWTzO4oG/5CaDeZfgo4+ocAtXaE0f/Wsk7vJbCVL7g7NiEJhFHNdWHxQJh9HWRDKtQv8BMe37JMcMb/CQE2Wzmmdf5Uvetrl+jMMcEZV6JjVjftRHLiThmrEMdvNByXwREO67DcV77lsGC9PUpDfC5onMEZpE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759963623; c=relaxed/simple;
-	bh=vy0cdTjBCP17fnaUtam7ndt5AAkcVL5PvEI4IC1UcA8=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=RzaC0WGW6OMAA04bcvM4EKzuqfNf2njD4IIXoL/nCnNAfSNgUHhBW+78Ng0TVS5LwZW0GiLDZUQ5MyK2PLo2OukQtbgcaj3qyDvGDvFrL3kYicULKAj1kcP+SpzXk1l48IyWqnnoEztBZO//QDuPSC+lw5UYTSsvszvFAueTvgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KO6HrilE; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1759963630; c=relaxed/simple;
+	bh=MmSj15jHMzn0CKEQNU4y1JyA4D5YNuL1L+U1napVCas=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=VRsgGX1qBt/mGM7KZw2+OEFocbcrYOKq1kGcn3uaFAZ5FgVeJjG1JTQnWLDyvDVMebgTcqChzSj5wkKwvjB3Ju5338nl0Bbjcxt6u3dukkh5ghC0ilvkddaEgWWJpym6dMPbiIjjVhXF9bMcuMtb5VDWdgD/w0fwdFV1r9w/zhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jTFGcpRJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KO6HrilE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F3DAC4CEE7;
-	Wed,  8 Oct 2025 22:46:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jTFGcpRJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C09EC4CEE7;
+	Wed,  8 Oct 2025 22:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1759963623;
-	bh=vy0cdTjBCP17fnaUtam7ndt5AAkcVL5PvEI4IC1UcA8=;
-	h=From:Subject:Date:To:Cc:From;
-	b=KO6HrilErsxh11FruCjdBhaLifunJhKM1uD3q622E9iAFsp+YvXTiBkQuJXT4TK9G
-	 OZKzhd2e5k2Hza804aygqnXmhO8QmTcEVNH9PUXtRmrRE0kFMrvjtXF4ipgDv1KN6E
-	 vLBljLljtB5EPtkJ89YZoLS6Qu+uHBsGu5X9/6++V/OpySr3bi665KTTDgV9kPQeDh
-	 6+n/EjKjFc1JbGID+r80lkKCUuhxD0lfuzsj0JLdhjwUJ0rpnZmRWGTEd/qg1KoM9p
-	 Jxur4YGCk5AwD+p2qzrorimK7kPZrrWXlNl0qQQq3TPmkxQWOcPXIa5SfL7hzxylnb
-	 zFNXM6i+kCMuw==
+	s=k20201202; t=1759963629;
+	bh=MmSj15jHMzn0CKEQNU4y1JyA4D5YNuL1L+U1napVCas=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=jTFGcpRJy/Fmwjac4Cwvj3PDjM7MxlvEenLl66dxqHmmEEst5webr3bi4J0MBh5xG
+	 GEGEDpBg05c0Z7DmepQEdeWG08RYxyuTWB1Myh+2hhgpJsiKLHdjsy1dPd+g7xIWHr
+	 1caI2XAJTtKGphza6d3CQyqVUofrBtElrX25YS13M95UO6Ezys9X+f0pDfTHibdapS
+	 mrrlbuMZpiJggo7ZIMdpRVQAx1MFrpVjq5oFQfzIYCbSR+R7jRVhPMMaf/KWKpdcql
+	 Cm/RC/DDDsTQfO03gB7RB0KbicBdojGqKIx08trEZEe+Ts/7BaQIS8ePvg2GP475wF
+	 RWCNmCAvIFdew==
 From: Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 0/3] kbuild: Fixes for fallout from recent
- modules.builtin.modinfo series
-Date: Wed, 08 Oct 2025 15:46:43 -0700
-Message-Id: <20251008-kbuild-fix-modinfo-regressions-v1-0-9fc776c5887c@kernel.org>
+Date: Wed, 08 Oct 2025 15:46:46 -0700
+Subject: [PATCH 3/3] s390/vmlinux.lds.S: Move .vmlinux.info to end of
+ allocatable sections
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,59 +38,122 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIANPp5mgC/x2N0QrCMBAEf6XcswdJJWD9FemD9jb1qCblDkUo/
- XejjwM7Oxs5TOF07jYyvNW1lgbx0NF0v5YZrNKY+tCnGMKJl9tLH8JZP/ysoiVXNswG/5nOQ8I
- xS0xRMFE7WQ1t+g9cxn3/ArMY+PhwAAAA
-X-Change-ID: 20251008-kbuild-fix-modinfo-regressions-95e3fd151dec
+Message-Id: <20251008-kbuild-fix-modinfo-regressions-v1-3-9fc776c5887c@kernel.org>
+References: <20251008-kbuild-fix-modinfo-regressions-v1-0-9fc776c5887c@kernel.org>
+In-Reply-To: <20251008-kbuild-fix-modinfo-regressions-v1-0-9fc776c5887c@kernel.org>
 To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>
 Cc: Alexey Gladkov <legion@kernel.org>, 
  Masahiro Yamada <masahiroy@kernel.org>, linux-kbuild@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>, 
- Alexandre Ghiti <alexghiti@rivosinc.com>, 
- Linux Kernel Functional Testing <lkft@linaro.org>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
+ Vasily Gorbik <gor@linux.ibm.com>, 
  Alexander Gordeev <agordeev@linux.ibm.com>, 
  Christian Borntraeger <borntraeger@linux.ibm.com>, 
  Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
 X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1217; i=nathan@kernel.org;
- h=from:subject:message-id; bh=vy0cdTjBCP17fnaUtam7ndt5AAkcVL5PvEI4IC1UcA8=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDBnPXj52OX67+ZFJ/fK1mUlm8zdwSsZPVZi2+vitt27da
- z/ol4nv6yhlYRDjYpAVU2Spfqx63NBwzlnGG6cmwcxhZQIZwsDFKQATObuJ4X+Q/b7T6lpOAhKL
- X1oFxi90vbrBt/+Wef3/Cxt2hPyvj1zL8FdYYwGr6Yewet4KtaxJ2gwlx2wmBc6oqJC4prV/nlV
- dEwcA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3481; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=MmSj15jHMzn0CKEQNU4y1JyA4D5YNuL1L+U1napVCas=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDBnPXj4+eXjv8cDtK+zll+zqMDx73uJE4RYpN+OJz5cws
+ 02ePP/C+o5SFgYxLgZZMUWW6seqxw0N55xlvHFqEswcViaQIQxcnAIwkS5bhj98vYdaLW+0W//q
+ qOopcljM1Bzz1PNAg4Oh5fEZkkff1+9jZDj67smfQxUboxVkvG9e03zLEjd9u06D8JTweHPXaRc
+ uuTAAAA==
 X-Developer-Key: i=nathan@kernel.org; a=openpgp;
  fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-Hi all,
+When building s390 defconfig with binutils older than 2.32, there are
+several warnings during the final linking stage:
 
-This is a series to address some problems that were exposed by the
-recent modules.builtin.modinfo series that landed in commit c7d3dd9163e6
-("Merge patch series "Add generated modalias to
-modules.builtin.modinfo"").
+  s390-linux-ld: .tmp_vmlinux1: warning: allocated section `.got.plt' not in segment
+  s390-linux-ld: .tmp_vmlinux2: warning: allocated section `.got.plt' not in segment
+  s390-linux-ld: vmlinux.unstripped: warning: allocated section `.got.plt' not in segment
+  s390-linux-objcopy: vmlinux: warning: allocated section `.got.plt' not in segment
+  s390-linux-objcopy: st7afZyb: warning: allocated section `.got.plt' not in segment
 
-The third patch is not directly related to the aforementioned series, as
-the warning it fixes happens prior to the series but commit 8d18ef04f940
-("s390: vmlinux.lds.S: Reorder sections") from the series creates
-conflicts in this area, so I included it here.
+binutils commit afca762f598 ("S/390: Improve partial relro support for
+64 bit") [1] in 2.32 changed where .got.plt is emitted, avoiding the
+warning.
 
-I plan to send at least the first two patches to Linus by Saturday for
--rc1 but I will take the third with an Ack.
+The :NONE in the .vmlinux.info output section description changes the
+segment for subsequent allocated sections. Move .vmlinux.info right
+above the discards section to place all other sections in the previously
+defined segment, .data.
 
+Fixes: 30226853d6ec ("s390: vmlinux.lds.S: explicitly handle '.got' and '.plt' sections")
+Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=afca762f598d453c563f244cd3777715b1a0cb72 [1]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
-Nathan Chancellor (3):
-      kbuild: Restore pattern to avoid stripping .rela.dyn from vmlinux
-      kbuild: Add '.rel.*' strip pattern for vmlinux
-      s390/vmlinux.lds.S: Move .vmlinux.info to end of allocatable sections
-
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+---
  arch/s390/kernel/vmlinux.lds.S | 44 +++++++++++++++++++++---------------------
- scripts/Makefile.vmlinux       |  5 ++++-
- 2 files changed, 26 insertions(+), 23 deletions(-)
----
-base-commit: 38492c5743f8b7213ca86f0cd72ea625af35d5ef
-change-id: 20251008-kbuild-fix-modinfo-regressions-95e3fd151dec
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-Best regards,
---  
-Nathan Chancellor <nathan@kernel.org>
+diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
+index feecf1a6ddb4..d74d4c52ccd0 100644
+--- a/arch/s390/kernel/vmlinux.lds.S
++++ b/arch/s390/kernel/vmlinux.lds.S
+@@ -214,6 +214,28 @@ SECTIONS
+ 	DWARF_DEBUG
+ 	ELF_DETAILS
+ 
++	/*
++	 * Make sure that the .got.plt is either completely empty or it
++	 * contains only the three reserved double words.
++	 */
++	.got.plt : {
++		*(.got.plt)
++	}
++	ASSERT(SIZEOF(.got.plt) == 0 || SIZEOF(.got.plt) == 0x18, "Unexpected GOT/PLT entries detected!")
++
++	/*
++	 * Sections that should stay zero sized, which is safer to
++	 * explicitly check instead of blindly discarding.
++	 */
++	.plt : {
++		*(.plt) *(.plt.*) *(.iplt) *(.igot .igot.plt)
++	}
++	ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
++	.rela.dyn : {
++		*(.rela.*) *(.rela_*)
++	}
++	ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations (.rela) detected!")
++
+ 	/*
+ 	 * uncompressed image info used by the decompressor
+ 	 * it should match struct vmlinux_info
+@@ -244,28 +266,6 @@ SECTIONS
+ #endif
+ 	} :NONE
+ 
+-	/*
+-	 * Make sure that the .got.plt is either completely empty or it
+-	 * contains only the three reserved double words.
+-	 */
+-	.got.plt : {
+-		*(.got.plt)
+-	}
+-	ASSERT(SIZEOF(.got.plt) == 0 || SIZEOF(.got.plt) == 0x18, "Unexpected GOT/PLT entries detected!")
+-
+-	/*
+-	 * Sections that should stay zero sized, which is safer to
+-	 * explicitly check instead of blindly discarding.
+-	 */
+-	.plt : {
+-		*(.plt) *(.plt.*) *(.iplt) *(.igot .igot.plt)
+-	}
+-	ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
+-	.rela.dyn : {
+-		*(.rela.*) *(.rela_*)
+-	}
+-	ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations (.rela) detected!")
+-
+ 	/* Sections to be discarded */
+ 	DISCARDS
+ 	/DISCARD/ : {
+
+-- 
+2.51.0
 
