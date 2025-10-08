@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B75391E25F9
-	for <linux-s390@vger.kernel.org>; Wed,  8 Oct 2025 09:33:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10DC02EBDE9
+	for <linux-s390@vger.kernel.org>; Wed,  8 Oct 2025 09:43:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759916040; cv=none; b=C1MEd9u1AAwJ8i/a+j2lFtjdNhdAPeIX9TzMIJe1QP8F+/A4EOCJazFrGKHa9kNtj151tztqRbypHqQ+7cC1faGggTD16NEpFavZ22HVUNdqkCi14kk8u08rnFS4LzqO9vjAjLgw+ML9Kbpby3cKFy4o8lAjcRt8eQyWlILUidM=
+	t=1759916594; cv=none; b=BioV2xF97kw5HvSREgaey0J8ohHlbS6wM+qPjF/a3u5+Y6Us/hk84x5Vp5SkBGfEdGmRM6+qpIk6Qof3KdtrqkaRoMK/C1Nmu61I9alXGZmmfy6j1aFpUWaVGhVpLlPVeBTkg6gdKFnAUbD5pv/ExArZV0+BGrDyTRwzSa8L7zo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759916040; c=relaxed/simple;
-	bh=6zxM30aDH01IiYvZ1H7Wr1pAyvigajpz0autcEP1khY=;
+	s=arc-20240116; t=1759916594; c=relaxed/simple;
+	bh=EgzJyb14mOG30JZpf3Du1BkGUThOSDWk4PkwBOZ1Jig=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AR6RJ0iD6sJseM3khDP4lE3vkVqJiGTwwEts/D4CS1ICWZQt0tHCf5n12/VABRonxJd2AeqPW6rfOHxrmBXozwvvFGyHYH601x1tGGbD5THnNOa1Qlw+At4EaihiuH90qMh2OpaLmaAHM/bZiYqWzeNwOTkURfsZGonV76Ky5Q8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bVeoDjOK; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type; b=NSmo2XauXas10pZZ8fWbgp0TQyT6ZHkX99l9YxJxmdhVpIISpb2CqKrMzMuZRSkwGf0RkAHefLXuAJKs3ZGLt1D4DHuIAW8q4pfhODZvYNuT+VWTHGbNCgNQZpgSaoLxsFaQNjehk7q1cnSkX+f66rY60ikpZ7/QJ+lmlNNT2RM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LFyqC6HO; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bVeoDjOK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LFyqC6HO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1759916037;
+	s=mimecast20190719; t=1759916590;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=pvNQ2sqsxcgVrxGJZXdoSqap7VzzZ3mjW5LxJACJ12c=;
-	b=bVeoDjOKPj0XetoejOhFasGEUkL641UKLGMlsT2j24Ka2OuHjJN26NOBZGNisa+tZvGqnS
-	VKjk17PsxTcyzp6qYPgdfH/+B/GFpAvob0wUd7jFgGqY5bKMf6ip8elZRZBfeCuJKiLNZu
-	jHG8kr63bKTSBL9nnb9BEdVBjUW5nfw=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=JD/HSn//vajjys6bQcekYCIiWa+gYSHGEuJh3U25KF4=;
+	b=LFyqC6HOuzSqXdpVo3/F8tKPhrHOFV6dMU1LhEAv7zN1guM/YEDWV0NVJ0k/2kKn1x3KnO
+	X5lXbJ4LkegWKmM0v94XPdlKwKOP3JOcsNc2+oB0Xk+9SO9r93lpC0tmz5HbYcgI+CyxWO
+	UA7i7K2v8RjNYRwBT4xY5cTWbGXUKaE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-FYqxn6SSM-yFWTKwfDxrTw-1; Wed, 08 Oct 2025 05:33:56 -0400
-X-MC-Unique: FYqxn6SSM-yFWTKwfDxrTw-1
-X-Mimecast-MFC-AGG-ID: FYqxn6SSM-yFWTKwfDxrTw_1759916035
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-3ed9557f976so4871741f8f.3
-        for <linux-s390@vger.kernel.org>; Wed, 08 Oct 2025 02:33:55 -0700 (PDT)
+ us-mta-333-OB0qIO9CPsGPp54HtLHl5g-1; Wed, 08 Oct 2025 05:43:09 -0400
+X-MC-Unique: OB0qIO9CPsGPp54HtLHl5g-1
+X-Mimecast-MFC-AGG-ID: OB0qIO9CPsGPp54HtLHl5g_1759916588
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-46e473e577eso37705045e9.0
+        for <linux-s390@vger.kernel.org>; Wed, 08 Oct 2025 02:43:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759916034; x=1760520834;
+        d=1e100.net; s=20230601; t=1759916588; x=1760521388;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=pvNQ2sqsxcgVrxGJZXdoSqap7VzzZ3mjW5LxJACJ12c=;
-        b=d+zgb65++dJs3N3n6sgCp792Eb6ItVfOwB3Bm1GQDLQckRvD+5t66JEri3cKwm5oJL
-         +2imWCrAY5yayV3DwNUkZ2Fhyg6V0zU1b+KH52lVeCJj5CUdj4NSudE5R7tvq58aKdVe
-         ok7TaUMOQj7bt/NZ5F+/OjqOIJT0ub7JfV9i1QDFG60KEFu7eQ11nVML8FIoUBErNuBB
-         A324ipAj1ZHx5ZU5ve9pKXrcZwtXcGId6dYWGiv+xULT2M9RaHZSCYAKlEHiOrvb7xeu
-         haleWZdrZo5H61SL/mmlvNrUtuFBePP4pldoxg0SFTZ/demB/rLcUPR+1L62bIMcgG4Q
-         0DmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXkVu9bUkwsTQ/Vnfyz1yE7o6W22BNKzCoaGpYT4kMLrsDPB01azHhYttwEwLIIGw8do473vQ0mfXLe@vger.kernel.org
-X-Gm-Message-State: AOJu0YztJxWmmo+j3n7BjEti5n4G7ONWI3v5rPotun2k/7aS/gOAggA1
-	b0JQyxpLP7CCvo4++znm35c2ZouwTucRY5QaXfxJeoofXn6Yix8YwiM2UWJKmpmwpGEcNbntiu8
-	gHX9MnsU5xPQ2Ts5+26wETO7HbVFJfoV2mhMdBlnHcMeANb9pN6U6CeTiuWH4L6o=
-X-Gm-Gg: ASbGncuHCujSUjZA87XZpKCmdjBCCgWXmZY9PF/STiGR/NQhb9bV9dZ58pm2Aec3Kix
-	yniXsAFD+xBXtB0zv8VArh2XA5/LHlsOlhWTlWQRM0G1AtQPs3h7OQTEMFqNGRaXY9rMfvdxYWt
-	9AcMFrqneCBJlCbQZa7JVup+viMzn0JxdXzhW7fk1KxpK/227EGOtXmgou8pvcbSjO3g73Deiqb
-	eNht/xW/xsV8RtssdjikyBiC+9qT+osmgNXJ621KuaMuLjbo00B7Hs/b00YlCueJexS+AZeU0DU
-	ulIkZcy+L2n0YJ04C8gQYwP6h6yD8JzQ3w6gc+hs5ZAEgj+QS1K8EMoD+g5/7gDzNoI23vTUJRU
-	f9TVYlqMm
-X-Received: by 2002:a05:6000:2408:b0:414:6fe6:8fbd with SMTP id ffacd0b85a97d-4266e8de55dmr1525953f8f.54.1759916034443;
-        Wed, 08 Oct 2025 02:33:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHRgm9ENNBAKPQVvD/piMECVRSv9+MLaK5jztOw4UsWToxz1h/ZD5Ud2PMOKOKZArxB19KvCg==
-X-Received: by 2002:a05:6000:2408:b0:414:6fe6:8fbd with SMTP id ffacd0b85a97d-4266e8de55dmr1525932f8f.54.1759916034010;
-        Wed, 08 Oct 2025 02:33:54 -0700 (PDT)
+        bh=JD/HSn//vajjys6bQcekYCIiWa+gYSHGEuJh3U25KF4=;
+        b=Fc7pyAboCoQX9D+4x/rfCVkF5skcJo7d77n1jaoxFSvu9v5iOKJaM+64zWXnQwGHuQ
+         LgDqTHQPCtZHjjFFy226f2xi/B1e6AStjuZ11yDJzZoaf3w1QnZcu4pjTpv2BY0YVo9G
+         b7om8faO1HZBbV5ZOEZ0smZBMX3UwxJbUAUqBuktgfEZzu+JxTSwm2v/ByzMGoZM0qtL
+         oSkTnmPxTIIwaOtFcf1/O3nTFRLts7aHgv+qYQzoG66UYwDoMnFHf0RmyEVZppDTBeUj
+         ymAPi70NBjKiGgk7AahNbhWPeAZrm2Y+yq/Nd9Rlo2O5kTrEvlcK78rtvwsGC4tx79Dv
+         Kxrw==
+X-Forwarded-Encrypted: i=1; AJvYcCVthaROGa8F9Jk17gQ7SetU5rj3TjAMVqKgc9pGhuaU8KKSmUb7upM6FdJrfcP+zxd2JZnSJp99E1Zt@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy1ZlFNfXhA7DmLDVhWb+jn00P6DOqOxVL94K+AM7wgc/iMp2ln
+	nFxqLR7+MlSsxqvy7swNNX8M7vtFpDYKAJxRgKLr590RnMmt6OYYCQEwqwT9V+oXcQQ1OA1j+Km
+	FCJ5Io1GrS/ZNEjv+/sroTOMUfVYGDiHorIFlp0jfonwWHNpENv2H0RbNYMTDYds=
+X-Gm-Gg: ASbGncssZoRqlCG8uDvbmfRdlSug9P+bzyYdNXVGXB1A/lpRIqQAh27B3GHSbJQ/uvW
+	s2OdFvMpr+0kNqwRlT65QUqcqe+HRoGvmDqs20RLuTZ0JF3w3nWln0hI8zHDdiPaB56xDH7aq/K
+	MSiswow99IhiP8wRxwxkZmjsenStbhD6T04MfJ24ROEVkmmW6NA1dBKYuoUuGSrPK4VtruDBzMR
+	oryntGTcAkwg0enWWJmABr3St/yZrdin7un4s5YZ//21ATdXVIYo+n2QHPE/UpQ1JbmcuCL3Syv
+	FgZMYDzDqXfYyG2qGXaeA/Y7+Mnsu03ynkTrqCViXVEE4lYsZrGK0oEfR7tdaAD8sJebnA+AV+K
+	Sjm7/T8Mz
+X-Received: by 2002:a05:600c:1384:b0:46e:3cd9:e56f with SMTP id 5b1f17b1804b1-46fa9a89286mr19134805e9.6.1759916588205;
+        Wed, 08 Oct 2025 02:43:08 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFYzPp9F7S3QX2xHYqfV5S6fHz6gcoGlAerW1ZxI0fAG/Jst1h7y7+sJqtkHP4Cco90/r1u5Q==
+X-Received: by 2002:a05:600c:1384:b0:46e:3cd9:e56f with SMTP id 5b1f17b1804b1-46fa9a89286mr19134555e9.6.1759916587743;
+        Wed, 08 Oct 2025 02:43:07 -0700 (PDT)
 Received: from [192.168.3.141] (tmo-083-110.customers.d1-online.com. [80.187.83.110])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4255d8f4cc3sm29006938f8f.55.2025.10.08.02.33.52
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-46fa9bf94ddsm30134765e9.2.2025.10.08.02.43.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Oct 2025 02:33:53 -0700 (PDT)
-Message-ID: <9f35aedb-fd67-412f-a3d3-bb6692f7c2ce@redhat.com>
-Date: Wed, 8 Oct 2025 11:33:51 +0200
+        Wed, 08 Oct 2025 02:43:07 -0700 (PDT)
+Message-ID: <abdd6107-d380-48f5-9a25-22a5f560c78b@redhat.com>
+Date: Wed, 8 Oct 2025 11:43:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -76,19 +76,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 0/4] Support dynamic (de)configuration of memory
-To: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>,
  LKML <linux-kernel@vger.kernel.org>, linux-s390
  <linux-s390@vger.kernel.org>, Gerald Schaefer
- <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>
+ <gerald.schaefer@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>
 References: <20250926131527.3260733-1-sumanthk@linux.ibm.com>
  <ab366c03-8c78-449d-bfc4-2d155212d9d7@redhat.com>
  <aOVUNmDiWgrDJ1dJ@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
  <5e3b16ec-9ef9-483e-b97e-bff0c1915b19@redhat.com>
  <aOX_L1_2S30XhLRA@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
  <1efcb368-fcdf-4bdd-8b94-a705b7806bc2@redhat.com>
- <aOYrUEr-inqogzJE@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+ <20251008091226.7407Ba1-hca@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -135,57 +136,45 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aOYrUEr-inqogzJE@li-2b55cdcc-350b-11b2-a85c-a78bff51fc11.ibm.com>
+In-Reply-To: <20251008091226.7407Ba1-hca@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 08.10.25 11:13, Sumanth Korikkar wrote:
+On 08.10.25 11:12, Heiko Carstens wrote:
+> On Wed, Oct 08, 2025 at 10:02:26AM +0200, David Hildenbrand wrote:
+>> On 08.10.25 08:05, Sumanth Korikkar wrote:
+>>>>> chmem changes would look like:
+>>>>> chmem -c 128M -m 1 : configure memory with memmap-on-memory enabled
+>>>>> chmem -g 128M : deconfigure memory
+>>>>
 >>>> I wonder if the above two are really required. I would expect most/all users
 >>>> to simply keep using -e / -d.
 >>>>
 >>>> Sure, there might be some corner cases, but I would assume most people to
 >>>> not want to care about memmap-on-memory with the new model.
->>>
->>> I believe this remains very beneficial for customers in the following
->>> scenario:
->>>
->>> 1) Initial memory layout:
->>> 4 GB configured online
->>> 512 GB standby
->>>
->>> If memory_hotplug.memmap_on_memory=Y is set in the kernel command line:
->>> Suppose user requires more memory and onlines 256 GB. With memmap-on-memory
->>> enabled, this likely succeeds by default.
->>>
->>> Later, the user needs 256 GB of contiguous physical memory across memory
->>> blocks. Then, the user can still configure those memory blocks with
->>> memmap-on-memory disabled and online it.
->>>
+> 
+> ...
+> 
 >>> 2) If the administrator forgets to configure
 >>> memory_hotplug.memmap_on_memory=Y, the following steps can be taken:
 >>> Rescue from OOM situations: configure with memmap-on-memory enabled, online it.
 >>
 >> That's my point: I don't consider either very likely to be used by actual
 >> admins.
->>
->> I guess in (1) it really only is a problem with very big memory blocks.
->> Assuming a memory block is just 128 MiB (or even 1 GiB), you can add+online
->> them individually. Once you succeeded with the first one (very likely), the
->> other ones will follow.
->>
->> Sure, if you are so low on memory that you cannot even a single memory
->> block, then memmap-on-memory makes sense.
->>
->> But note that memmap-on-memory was added to handle hotplug of large chunks
->> of memory (large DIMM/NVDIMM, large CXL device) in one go, without the
->> chance to add+online individual memory blocks incrementally.
 > 
-> Interesting. Thanks David.
-> 
-> Heiko suggested that memory increment size could also be upto
-> 64GB. In that case, it might be useful.
+> But does it really hurt to add those options?
 
-Yeha, rings a bell. But that would not be your 4GiB scenario you shared :)
+Oh, I don't think so.
+
+I was just a bit surprised to see it in the first version of this, 
+because it felt to me like this is something to be added later on top 
+quite easily/cleanly.
+
+In particular, patch #2 would get a lot lighter also in terms of 
+documentation.
+
+So no strong opinion about adding it, but maybe we can just split it 
+into a separate patch and focus on patch #2 on the real magic?
 
 -- 
 Cheers
