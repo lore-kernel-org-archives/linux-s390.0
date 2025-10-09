@@ -1,56 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE9482E7F1A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEED9134AB;
 	Thu,  9 Oct 2025 13:19:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760015949; cv=none; b=WSjzaUP0X3MqADS/pLkidN3CLf9Veq2UfyrZJ/7bPfe+5hpLR/VVROJVp4/579bder35xvnjJE001PQGiP5gPamUfgyxvzd3CcxL03KeB2jDWOR+bLrB39fBBWSiSmscdnUGUD9uEz6qjmS5xaGqzEId950KRTTfKQd8fKoEbHo=
+	t=1760015950; cv=none; b=t+P3yf29dCC6Eg+uCLdQRMuaFwDvE7Um6T40Qnw7elaFYJUk+XR+6LP+Ut+9oV39UjFwQX61/5TWISSA3Njn2N/vUdrnZsUQuQ6on29yStbsaNhsa3JGdpL2dhaphgG099TxPy5bzUro9eYMiv6ITEtnYthpUs6eh2QKNSB2s48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760015949; c=relaxed/simple;
-	bh=lFY2RoSNVcE833H3YFHmV7HopjRXKQkaoiifdIhZDHE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Hn+WL/cRxwGRdrv1bg5ELfhQDnPUKaN36Ut3MRYZLrK9Oc7G0lksTzMLF369a3Uqi2NXUPQgSJqYLMYD+CFoG55w5IrZq0UzcOQN7RSzm0bgoROYnoIFQRXvqKZPyu5OGQUUwD5WDaB6exbCDb0DiQ0LfPK+ptkDMpxJQDEn7eY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e/92wk8E; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1760015950; c=relaxed/simple;
+	bh=VOkcicrFygpDmrBojUXqu1hDl2Iym163C4Y6MHwpygw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=p1t5rkFhWZKc/jdjGHutXRL+ryzvy5bPFM0eUgSlnDZogW+XnH+ZxhqxJ8pqmv8EHIyAnC/sE2jPIPeQGLlJ9NE5MiYf2ZnIYvgRzg2n4xfetLAI8nQhAAYVJMqk7umuFX9Lm0ukjsK/Pe1Vt219yuPsoXqEtZzK3Ov4hm/WjHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MIH19KGV; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e/92wk8E"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5998lWlP016972;
-	Thu, 9 Oct 2025 13:19:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MIH19KGV"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5994K5bR031890;
+	Thu, 9 Oct 2025 13:19:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=ixhYVe2pc24hkcGpvIynsZsPtOkzbOJtj+sEGOBtO
-	VA=; b=e/92wk8EizfNUB5hKsSXnyusLPJh3QopLivdUingxc1EaJ53+7J2cKeiO
-	2EEnRv7Ho15SmAxH9CQ19yhsyydB1p3ze0DLX14p5H7qGisNdcX/yulFwy9IOC8x
-	2L2jSHMoGD9u3HqOAZsuq3g74Iw+zdBtcXLByw9OmCKiHrMwkcNFBxGk3EPRwa2i
-	GsHpTVRp6psWJUunxr7iihSlkytHrZQWyOZLZTBZPw7Bo1wGAjwGqQQ64HFB+U7L
-	30fYvbO+FjFUtlvzVn3gmP6+QXNr035xybuoVHQmbnmWTBdUtfvkPDdwBshoRHyL
-	6Py62uS/fyjyohW13Jev3sUCgOtFQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49nv84mw9c-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=WKN0FPCSK59HHaCWo
+	uC6GyUqvnLN2IO2zPGkGpWENm8=; b=MIH19KGVcX+jre5boNkeewJZ0+/c6LlYH
+	sYhKsSMYIfqJiOTaCHtSQO7m48EykZvuPeQMByniYbSpHlOFa7Ytayps5MuVUgor
+	T586xzc4yo0XKA7WjUPaFM2uYJTthlseAgb9JMHXQHqawyma9WFXuAJbyunU6tmH
+	X/ucopH20HF7fxo6bggSl6dUXT8k9+XCXuEmpDqZKCLEMr2j7X3WmMKB4OkkqpZ9
+	yCAFBqc3mSZK2nVDVImwiiawszpmcLLjPENlasn3NLgrxyqYkopQgYBpy2ibMlKG
+	fn7Dwx3P+BXFK2CGuxIvtoQAFEp4o4QGHlCAjzyVOrELddtqg8Deg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49nv81mube-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Oct 2025 13:19:00 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 599CJrJr008366;
-	Thu, 9 Oct 2025 13:18:59 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49nvanvmyt-1
+	Thu, 09 Oct 2025 13:19:01 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 599CGDoR022784;
+	Thu, 9 Oct 2025 13:19:00 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49nv8vcngt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 09 Oct 2025 13:18:59 +0000
+	Thu, 09 Oct 2025 13:19:00 +0000
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 599DItLl41812450
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 599DIu6P15204616
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 9 Oct 2025 13:18:55 GMT
+	Thu, 9 Oct 2025 13:18:56 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D61B20043;
-	Thu,  9 Oct 2025 13:18:55 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 6E9C620040;
+	Thu,  9 Oct 2025 13:18:56 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 44FEA20040;
-	Thu,  9 Oct 2025 13:18:55 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3AB7520043;
+	Thu,  9 Oct 2025 13:18:56 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  9 Oct 2025 13:18:55 +0000 (GMT)
+	Thu,  9 Oct 2025 13:18:56 +0000 (GMT)
 From: Sumanth Korikkar <sumanthk@linux.ibm.com>
 To: Andrew Morton <akpm@linux-foundation.org>,
         David Hildenbrand <david@redhat.com>, linux-mm <linux-mm@kvack.org>
@@ -60,10 +61,12 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [PATCH v2 0/4] Support dynamic (de)configuration of memory
-Date: Thu,  9 Oct 2025 15:18:35 +0200
-Message-ID: <20251009131839.3739108-1-sumanthk@linux.ibm.com>
+Subject: [PATCH v2 4/4] mm/memory_hotplug: Remove MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers
+Date: Thu,  9 Oct 2025 15:18:39 +0200
+Message-ID: <20251009131839.3739108-5-sumanthk@linux.ibm.com>
 X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20251009131839.3739108-1-sumanthk@linux.ibm.com>
+References: <20251009131839.3739108-1-sumanthk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,188 +75,260 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=HKPO14tv c=1 sm=1 tr=0 ts=68e7b644 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=x6icFKpwvdMA:10 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
- a=NBdnYRyKUmeqgR0V3jUA:9 a=HhbK4dLum7pmb74im6QT:22 a=cPQSjfK2_nFv0Q5t_7PE:22
- a=pHzHmUro8NiASowvMSCR:22 a=Ew2E2A-JSTLzCXPT_086:22
-X-Proofpoint-GUID: 12N06D22HleIoDqnjz0piqRpAPAO5LuX
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDEyMSBTYWx0ZWRfX9QgSusyJRrUt
- dqQWQCpg6E/kbpqdjFHFojNYQIwBcug7t7Q4SYReiVbs3uE2bGD/zoSqZk6wJhIbclOJ4UWONt+
- uPEgp7MAs3Gk/AD530zh7AGw4NCKW2Ixt5HVr2QRo+U0k9ObwAS8qQykBOkTAwVN24ani9o9isl
- 0HNYd9rnJU+Diu1mx7HyOGrfNsBM10uHQppVnncxA5qxvlk1n8uOk1k6GR1/oevkLfkC+0CJqYh
- BvMQEMS7NxBNpSaorkJANi1etGgCtDBGNpz9aI8sxBoYB17EL/PIbZnpRbDwz0it/gfnGyFHcQY
- MV7FerlZ6iy+RNVSxoZKVpMKjbafmFn6J19LKy+Hdwe20j2Bov3MS/vENqCP1N+cJXVgA4kxvzm
- fCqAK31D7sNPKSbgJG18/TaWvGwIWg==
-X-Proofpoint-ORIG-GUID: 12N06D22HleIoDqnjz0piqRpAPAO5LuX
+X-Proofpoint-ORIG-GUID: S-XrwK9RxNKLtc5UIvI2KOi1lSohAbZb
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDEyMSBTYWx0ZWRfXzIQy3uj7SYU0
+ ticA8CMPXlhe01aF4bsdB6ZiMyF3qrp5km2dOdzWklTBfBaCCG8VH69v6PgPeDui9m7Ks/uoHv+
+ ycrvLgfbytpjJq6O4R2ak/tIlFemtgZ4M2iuu7mDP1zmpPZ3Vj+6vYFKCM8EUAmIIyzMyR+LCUh
+ D78O87s11qqFvegQrRuPDeYsZBU81TynV1o5tBIHcX5awEv2kt3kblnXZhgPrDcRZTgPbAj44kt
+ uotAwL55hSuJtf7sWMFdAgqvPDZY44B/ACMiJOo774ZMhc+M8TO2mokudQrziTBWzn+nADHknzR
+ CUcfb3Ely+8iAL9QRn+6uWHu86vkw8Sz6ShFetiZT1bkKlcci2TXrXMaaFau4bwEizm/pSegh1D
+ 3wN25CGy4zvjEhowwG+XEfkU14kMDA==
+X-Authority-Analysis: v=2.4 cv=cKntc1eN c=1 sm=1 tr=0 ts=68e7b645 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=x6icFKpwvdMA:10 a=VnNF1IyMAAAA:8 a=rQaNfnSK3a-WYbhgV1gA:9
+ a=cPQSjfK2_nFv0Q5t_7PE:22
+X-Proofpoint-GUID: S-XrwK9RxNKLtc5UIvI2KOi1lSohAbZb
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-09_04,2025-10-06_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
- adultscore=0 clxscore=1015 phishscore=0 priorityscore=1501 malwarescore=0
+ clxscore=1015 impostorscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
+ suspectscore=0 bulkscore=0 phishscore=0 spamscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510080121
 
-Hi,
+MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory notifiers were introduced
+to prepare the transition of memory to and from a physically accessible
+state. This enhancement was crucial for implementing the "memmap on memory"
+feature for s390.
 
-Patchset provides a new interface for dynamic configuration and
-deconfiguration of hotplug memory on s390, allowing with/without
-memmap_on_memory support. It is a follow up on the discussion with David
-when introducing memmap_on_memory support for s390 and support dynamic
-(de)configuration of memory:
-https://lore.kernel.org/all/ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com/
-https://lore.kernel.org/all/20241202082732.3959803-1-sumanthk@linux.ibm.com/
+With introduction of dynamic (de)configuration of hotpluggable memory,
+memory can be brought to accessible state before add_memory(). Memory
+can be brought to inaccessible state before remove_memory(). Hence,
+there is no need of MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory
+notifiers anymore.
 
-The original motivation for introducing memmap_on_memory on s390 was to
-avoid using online memory to store struct pages metadata, particularly
-for standby memory blocks. This became critical in cases where there was
-an imbalance between standby and online memory, potentially leading to
-boot failures due to insufficient memory for metadata allocation.
+This basically reverts commit
+c5f1e2d18909 ("mm/memory_hotplug: introduce MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers")
+Additionally, apply minor adjustments to the function parameters of
+move_pfn_range_to_zone() and mhp_supports_memmap_on_memory() to ensure
+compatibility with the latest branch.
 
-To address this, memmap_on_memory was utilized on s390. However, in its
-current form, it adds struct pages metadata at the start of each memory
-block at the time of addition (only standby memory), and this
-configuration is static. It cannot be changed at runtime  (When the user
-needs continuous physical memory).
+Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+---
+ drivers/base/memory.c          | 23 +----------------------
+ include/linux/memory.h         |  9 ---------
+ include/linux/memory_hotplug.h | 18 +-----------------
+ include/linux/memremap.h       |  1 -
+ mm/memory_hotplug.c            | 17 +++--------------
+ mm/sparse.c                    |  3 +--
+ 6 files changed, 6 insertions(+), 65 deletions(-)
 
-Inorder to provide more flexibility to the user and overcome the above
-limitation, add an option to dynamically configure and deconfigure
-hotpluggable memory block with/without memmap_on_memory.
-
-With the new interface, s390 will not add all possible hotplug memory in
-advance, like before, to make it visible in sysfs for online/offline
-actions. Instead, before memory block can be set online, it has to be
-configured via a new interface in /sys/firmware/memory/memoryX/config,
-which makes s390 similar to others.  i.e. Adding of hotpluggable memory is
-controlled by the user instead of adding it at boottime.
-
-s390 kernel sysfs interface to configure/deconfigure memory with
-memmap_on_memory (with upcoming lsmem changes):
-
-* Initial memory layout:
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x7fffffff   2G  online 0-15  yes        no
-0x80000000-0xffffffff   2G offline 16-31 no         yes
-
-* Configure memory
-echo 1 > /sys/firmware/memory/memory16/config
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x7fffffff    2G  online  0-15  yes        no
-0x80000000-0x87ffffff  128M offline    16  yes        yes
-0x88000000-0xffffffff  1.9G offline 17-31  no         yes
-
-* Deconfigure memory
-echo 0 > /sys/firmware/memory/memory16/config
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x7fffffff   2G  online 0-15  yes        no
-0x80000000-0xffffffff   2G offline 16-31 no         yes
-
-* Enable memmap_on_memory and online it.
-(Deconfigure first)
-echo 0 > /sys/devices/system/memory/memory5/online
-echo 0 > /sys/firmware/memory/memory5/config
-
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                  SIZE  STATE  BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x27ffffff  640M  online 0-4   yes        no
-0x28000000-0x2fffffff  128M offline 5     no         no
-0x30000000-0x7fffffff  1.3G  online 6-15  yes        no
-0x80000000-0xffffffff    2G offline 16-31 no         yes
-
-(Enable memmap_on_memory and online it)
-echo 1 > /sys/firmware/memory/memory5/memmap_on_memory
-echo 1 > /sys/firmware/memory/memory5/config
-echo 1 > /sys/devices/system/memory/memory5/online
-
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x27ffffff  640M  online  0-4   yes        no
-0x28000000-0x2fffffff  128M  online  5     yes        yes
-0x30000000-0x7fffffff  1.3G  online  6-15  yes        no
-0x80000000-0xffffffff    2G  offline 16-31 no         yes
-
-* Disable memmap_on_memory and online it.
-(Deconfigure first)
-echo 0 > /sys/devices/system/memory/memory5/online
-echo 0 > /sys/firmware/memory/memory5/config
-
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                  SIZE  STATE  BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x27ffffff  640M  online 0-4   yes        no
-0x28000000-0x2fffffff  128M offline 5     no         yes
-0x30000000-0x7fffffff  1.3G  online 6-15  yes        no
-0x80000000-0xffffffff    2G offline 16-31 no         yes
-
-(Disable memmap_on_memory and online it)
-echo 0 > /sys/firmware/memory/memory5/memmap_on_memory
-echo 1 > /sys/firmware/memory/memory5/config
-echo 1 > /sys/devices/system/memory/memory5/online
-
-lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
-RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
-0x00000000-0x7fffffff  2G    online  0-15  yes        no
-0x80000000-0xffffffff  2G    offline 16-31 no         yes
-
-* Userspace changes:
-lsmem/chmem tool is also changed to use the new interface. I will send
-it to util-linux soon.
-
-Patch 1 adds support for removal of boot-allocated memory blocks.
-
-Patch 2 provides option to dynamically configure and deconfigure memory
-with/without memmap_on_memory.
-
-Patch 3 removes MHP_OFFLINE_INACCESSIBLE from s390. The mhp flag was
-used to mark memory as not accessible until memory hotplug online phase
-begins.  However, with patch 2, it is no longer essential. Memory can be
-brought to accessible state before adding memory, as the memory is added
-during runttime now instead of boottime.
-
-Patch 4 removes the MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers. It
-is no longer needed.  Memory can be brought to accessible state before
-adding memory now, with runtime (de)configuration of memory.
-
-Note: The patches apply to the linux-next branch.
-
-v2:
-Thanks David
-* Rename struct mblock/mblock_arg with struct sclp_mem/sclp_mem_arg.
-* Rename all mblocks/mblock references with sclp_mems/sclp_mem -
-  structures, functions.
-* Rename create_online_mblock() with create_configured_sclp_mem().
-* Rename config_mblock_show()/config_mblock_store() with
-  config_sclp_mem_show()/config_sclp_mem_store().
-* Remove contains_standby_increment() and
-  sclp_mem_notifier. sclp mem state change is performed when
-  adding/removing memory. sclp memory notifier - no longer needed with
-  this patchset.
-* Recover sclp mem state when add_memory() fails.
-* Refactor and add function init_sclp_mem().
-* Use unsigned long instead of unsigned long long.
-* Simplify and correct kobj handling. Thanks Heiko.
-
-Sumanth Korikkar (4):
-  s390/mm: Support removal of boot-allocated virtual memory map
-  s390/sclp: Add support for dynamic (de)configuration of memory
-  s390/sclp: Remove MHP_OFFLINE_INACCESSIBLE
-  mm/memory_hotplug: Remove MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE
-    notifiers
-
- arch/s390/mm/pgalloc.c         |   2 +
- arch/s390/mm/vmem.c            |  21 ++-
- drivers/base/memory.c          |  23 +--
- drivers/s390/char/sclp_mem.c   | 290 +++++++++++++++++++++++----------
- include/linux/memory.h         |   9 -
- include/linux/memory_hotplug.h |  18 +-
- include/linux/memremap.h       |   1 -
- mm/memory_hotplug.c            |  17 +-
- mm/sparse.c                    |   3 +-
- 9 files changed, 227 insertions(+), 157 deletions(-)
-
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 6d84a02cfa5d..fc43f2703ae0 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -226,7 +226,6 @@ static int memory_block_online(struct memory_block *mem)
+ 	unsigned long start_pfn = section_nr_to_pfn(mem->start_section_nr);
+ 	unsigned long nr_pages = PAGES_PER_SECTION * sections_per_block;
+ 	unsigned long nr_vmemmap_pages = 0;
+-	struct memory_notify arg;
+ 	struct zone *zone;
+ 	int ret;
+ 
+@@ -246,19 +245,9 @@ static int memory_block_online(struct memory_block *mem)
+ 	if (mem->altmap)
+ 		nr_vmemmap_pages = mem->altmap->free;
+ 
+-	arg.altmap_start_pfn = start_pfn;
+-	arg.altmap_nr_pages = nr_vmemmap_pages;
+-	arg.start_pfn = start_pfn + nr_vmemmap_pages;
+-	arg.nr_pages = nr_pages - nr_vmemmap_pages;
+ 	mem_hotplug_begin();
+-	ret = memory_notify(MEM_PREPARE_ONLINE, &arg);
+-	ret = notifier_to_errno(ret);
+-	if (ret)
+-		goto out_notifier;
+-
+ 	if (nr_vmemmap_pages) {
+-		ret = mhp_init_memmap_on_memory(start_pfn, nr_vmemmap_pages,
+-						zone, mem->altmap->inaccessible);
++		ret = mhp_init_memmap_on_memory(start_pfn, nr_vmemmap_pages, zone);
+ 		if (ret)
+ 			goto out;
+ 	}
+@@ -280,11 +269,7 @@ static int memory_block_online(struct memory_block *mem)
+ 					  nr_vmemmap_pages);
+ 
+ 	mem->zone = zone;
+-	mem_hotplug_done();
+-	return ret;
+ out:
+-	memory_notify(MEM_FINISH_OFFLINE, &arg);
+-out_notifier:
+ 	mem_hotplug_done();
+ 	return ret;
+ }
+@@ -297,7 +282,6 @@ static int memory_block_offline(struct memory_block *mem)
+ 	unsigned long start_pfn = section_nr_to_pfn(mem->start_section_nr);
+ 	unsigned long nr_pages = PAGES_PER_SECTION * sections_per_block;
+ 	unsigned long nr_vmemmap_pages = 0;
+-	struct memory_notify arg;
+ 	int ret;
+ 
+ 	if (!mem->zone)
+@@ -329,11 +313,6 @@ static int memory_block_offline(struct memory_block *mem)
+ 		mhp_deinit_memmap_on_memory(start_pfn, nr_vmemmap_pages);
+ 
+ 	mem->zone = NULL;
+-	arg.altmap_start_pfn = start_pfn;
+-	arg.altmap_nr_pages = nr_vmemmap_pages;
+-	arg.start_pfn = start_pfn + nr_vmemmap_pages;
+-	arg.nr_pages = nr_pages - nr_vmemmap_pages;
+-	memory_notify(MEM_FINISH_OFFLINE, &arg);
+ out:
+ 	mem_hotplug_done();
+ 	return ret;
+diff --git a/include/linux/memory.h b/include/linux/memory.h
+index 0c214256216f..ba1515160894 100644
+--- a/include/linux/memory.h
++++ b/include/linux/memory.h
+@@ -96,17 +96,8 @@ int set_memory_block_size_order(unsigned int order);
+ #define	MEM_GOING_ONLINE	(1<<3)
+ #define	MEM_CANCEL_ONLINE	(1<<4)
+ #define	MEM_CANCEL_OFFLINE	(1<<5)
+-#define	MEM_PREPARE_ONLINE	(1<<6)
+-#define	MEM_FINISH_OFFLINE	(1<<7)
+ 
+ struct memory_notify {
+-	/*
+-	 * The altmap_start_pfn and altmap_nr_pages fields are designated for
+-	 * specifying the altmap range and are exclusively intended for use in
+-	 * MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers.
+-	 */
+-	unsigned long altmap_start_pfn;
+-	unsigned long altmap_nr_pages;
+ 	unsigned long start_pfn;
+ 	unsigned long nr_pages;
+ };
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index 23f038a16231..f2f16cdd73ee 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -58,22 +58,6 @@ typedef int __bitwise mhp_t;
+  * implies the node id (nid).
+  */
+ #define MHP_NID_IS_MGID		((__force mhp_t)BIT(2))
+-/*
+- * The hotplugged memory is completely inaccessible while the memory is
+- * offline. The memory provider will handle MEM_PREPARE_ONLINE /
+- * MEM_FINISH_OFFLINE notifications and make the memory accessible.
+- *
+- * This flag is only relevant when used along with MHP_MEMMAP_ON_MEMORY,
+- * because the altmap cannot be written (e.g., poisoned) when adding
+- * memory -- before it is set online.
+- *
+- * This allows for adding memory with an altmap that is not currently
+- * made available by a hypervisor. When onlining that memory, the
+- * hypervisor can be instructed to make that memory available, and
+- * the onlining phase will not require any memory allocations, which is
+- * helpful in low-memory situations.
+- */
+-#define MHP_OFFLINE_INACCESSIBLE	((__force mhp_t)BIT(3))
+ 
+ /*
+  * Extended parameters for memory hotplug:
+@@ -123,7 +107,7 @@ extern void adjust_present_page_count(struct page *page,
+ 				      long nr_pages);
+ /* VM interface that may be used by firmware interface */
+ extern int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+-				     struct zone *zone, bool mhp_off_inaccessible);
++				     struct zone *zone);
+ extern void mhp_deinit_memmap_on_memory(unsigned long pfn, unsigned long nr_pages);
+ extern int online_pages(unsigned long pfn, unsigned long nr_pages,
+ 			struct zone *zone, struct memory_group *group);
+diff --git a/include/linux/memremap.h b/include/linux/memremap.h
+index e5951ba12a28..30c7aecbd245 100644
+--- a/include/linux/memremap.h
++++ b/include/linux/memremap.h
+@@ -25,7 +25,6 @@ struct vmem_altmap {
+ 	unsigned long free;
+ 	unsigned long align;
+ 	unsigned long alloc;
+-	bool inaccessible;
+ };
+ 
+ /*
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 0be83039c3b5..238a6712738e 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1088,7 +1088,7 @@ void adjust_present_page_count(struct page *page, struct memory_group *group,
+ }
+ 
+ int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+-			      struct zone *zone, bool mhp_off_inaccessible)
++			      struct zone *zone)
+ {
+ 	unsigned long end_pfn = pfn + nr_pages;
+ 	int ret, i;
+@@ -1097,15 +1097,6 @@ int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
+ 	if (ret)
+ 		return ret;
+ 
+-	/*
+-	 * Memory block is accessible at this stage and hence poison the struct
+-	 * pages now.  If the memory block is accessible during memory hotplug
+-	 * addition phase, then page poisining is already performed in
+-	 * sparse_add_section().
+-	 */
+-	if (mhp_off_inaccessible)
+-		page_init_poison(pfn_to_page(pfn), sizeof(struct page) * nr_pages);
+-
+ 	move_pfn_range_to_zone(zone, pfn, nr_pages, NULL, MIGRATE_UNMOVABLE,
+ 			       false);
+ 
+@@ -1444,7 +1435,7 @@ static void remove_memory_blocks_and_altmaps(u64 start, u64 size)
+ }
+ 
+ static int create_altmaps_and_memory_blocks(int nid, struct memory_group *group,
+-					    u64 start, u64 size, mhp_t mhp_flags)
++					    u64 start, u64 size)
+ {
+ 	unsigned long memblock_size = memory_block_size_bytes();
+ 	u64 cur_start;
+@@ -1460,8 +1451,6 @@ static int create_altmaps_and_memory_blocks(int nid, struct memory_group *group,
+ 		};
+ 
+ 		mhp_altmap.free = memory_block_memmap_on_memory_pages();
+-		if (mhp_flags & MHP_OFFLINE_INACCESSIBLE)
+-			mhp_altmap.inaccessible = true;
+ 		params.altmap = kmemdup(&mhp_altmap, sizeof(struct vmem_altmap),
+ 					GFP_KERNEL);
+ 		if (!params.altmap) {
+@@ -1555,7 +1544,7 @@ int add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
+ 	 */
+ 	if ((mhp_flags & MHP_MEMMAP_ON_MEMORY) &&
+ 	    mhp_supports_memmap_on_memory()) {
+-		ret = create_altmaps_and_memory_blocks(nid, group, start, size, mhp_flags);
++		ret = create_altmaps_and_memory_blocks(nid, group, start, size);
+ 		if (ret)
+ 			goto error;
+ 	} else {
+diff --git a/mm/sparse.c b/mm/sparse.c
+index 17c50a6415c2..b5b2b6f7041b 100644
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -951,8 +951,7 @@ int __meminit sparse_add_section(int nid, unsigned long start_pfn,
+ 	 * Poison uninitialized struct pages in order to catch invalid flags
+ 	 * combinations.
+ 	 */
+-	if (!altmap || !altmap->inaccessible)
+-		page_init_poison(memmap, sizeof(struct page) * nr_pages);
++	page_init_poison(memmap, sizeof(struct page) * nr_pages);
+ 
+ 	ms = __nr_to_section(section_nr);
+ 	set_section_nid(section_nr, nid);
 -- 
 2.48.1
 
