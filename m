@@ -1,152 +1,251 @@
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A91262FB0AE
-	for <linux-s390@vger.kernel.org>; Thu,  9 Oct 2025 15:59:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20D442FD1BF;
+	Thu,  9 Oct 2025 16:01:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760025593; cv=none; b=tewSmL/uPsxOtZv6UOKXuaGnR7TaPiIDPv9lVXR2aMyf5b2qsPDnIUNCRQayQIkYogtqpyegtSG657TblKDQE/ESDr0fBXUVv0CKxKB09Wkd7wm5yER9bVpjfPuIe1m3xYI9Pb9uE+NxmZ6F0C7v/gcJ7w4GKeX70j32ZPk4hYk=
+	t=1760025682; cv=none; b=sDeQzkrWOWgLl+ElkjYp2nCwofh0iDPENoRphgdqwipRJ9cbdE8tWjPWagjahdoSgubfSNB0rj6Digjcq1pvgZnmX78wSINgBas1iuyr9cxdVdOEiUYZzKmUsPAFvP4u8gRuyCvndvEjxLYBaM9DONgmvn/WhHcTveksW8iizis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760025593; c=relaxed/simple;
-	bh=Ofw2I16zOAWsVSdhqMKa7TgqrVl1ooqEk3Bf5PywpZo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ik+QB5K34ckZ5bx/8AvxrhVscV8APA5GI3v6pVOPKLIM+CnLdiAjyHpYPp4jmlm07KfqGIwKoCbA0Pw8y5Tq4+pYgAicJ+wqoRNfhRxuYYGhob3RdV4R5H88CAoVyIJc+s8nsl/khVKvQC6q3ymJG5SjbWUq1QhbwefMGTPdupI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SRTYuIjO; arc=none smtp.client-ip=209.85.167.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760025682; c=relaxed/simple;
+	bh=nvT3bqqmd/ZTVgzoChwcHAwDuko6MgdkW9yhsZ+nFlM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=egDz1cd5bBepHQ8KVSBaR4a2Si9Pxmc+PvYN+3UZbABWB7G9DodcA0CJnClo0kT2z4Am7fgI/DBqK0wuzy9NI+bJJI/n+XEodhQElCDSgz2JaHsxImVKaw0krnfiJBOSAvjJakfhEDDAqyII3IeKpXLdHieTPK0Dc4tddhn22k4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=H+wivxW/; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SRTYuIjO"
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-579d7104c37so1446736e87.3
-        for <linux-s390@vger.kernel.org>; Thu, 09 Oct 2025 08:59:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760025590; x=1760630390; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WQBxmURKiGaN3QIqBhTff7pEbZ70mJ9TllMgftPCUcQ=;
-        b=SRTYuIjOje8r6cXW2qpRd0dY/ZyjVi4A15VW3m8fSyMJu9bYw/Sijp19C6+PisQi0R
-         qOLjOYWdxA8rWQR6PQsXd5PaUPSkilEQjMgREc98L+35ug0HOmLP97er4loXp8ovDIzO
-         I6RnOoyyh22PCiDkM1S/tft10mLI4dntA2Lyvmp4dJMTB7ypKewNDVN6DFPbzGy0PSfp
-         fZ8PREHHSUdyXnumbfujBWE204gcjR6waYhXvo7zu+PJJzidyn+EiUYfB6yYQQeBEgtC
-         DCfjE081Uc85NLCeJHKdAKkp/qp4OS89/BlEbbOvq8HPciGt3tpaomoiVvg6pfTiXVI4
-         B0uA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760025590; x=1760630390;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WQBxmURKiGaN3QIqBhTff7pEbZ70mJ9TllMgftPCUcQ=;
-        b=aDA9XhTroA5wRKjoBhkk3rvBWiKZti61a1lz+EnqnmqnrD5KSMY1X90s8tKVEEAC/q
-         9micJ/ps1d0XvVgETNQbfQTdVKrVHoc48icGJqF2/vTZ6pwYCgYg9Qb+Zua9vTfxaBPX
-         hLHSYXZY1onnIkNA+EgdckCtN9gYNZqufIccanoVhww1KySLswzXrgz+SqBTKFIzR0YV
-         wlsFvx5+oY4APbqNKBdShwq7kIPi7xlnFavvMRcb37JEAiCqvoKFAPesWhjz6e/BCxMA
-         5eIbwOHnTVB33fAzmBcSSUwN1zZuAhkiEMVkaUnanJ6VFekcoNMqezSXmbHJzOPVYEd/
-         VwtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVYAOjAs02TiwZXiyXR8TX8yoCOC63nyX0thIdqS6jEiQs62S5SCrSHMiWWpzZFfF9ZR1I3urH0xrSA@vger.kernel.org
-X-Gm-Message-State: AOJu0YwUjVuZFxFAfVECZWAZnprxTV4cSJBQ5J7Xf+JEvFbMF0kEvytu
-	ptyfA2pL+7pCz7HCvre5YReDA8IAjwdzAxLoiAMRtrfveiA6oGtt1MDrmiUwFnDEuTwxlHBzjwn
-	cK02OEkJaCZiFaq5N4JklTZlmO1mBW1A=
-X-Gm-Gg: ASbGncvZK3q9Z4z+7dq3W4BbjRQdfq+fPohErn82tZ3A6gBmU2ujAuN12hEpU0/IxkS
-	l4vi77nYgzTseICd4IcfyVVXvFqpP8DBdMo/uyDaKp/hYUbnMkk4IdgPCezjnAgqD48dsOAhIEt
-	hcwmiy2Dg7dTZsxx5htY5zXaamg1cjlBLMTA9QFdnHXnwZHidsRyEfPMobtp2LDrkwDgb4zQO/r
-	pP7IXCw4A8AT6LmQ7r1lC/YXxAU/4jKbeMsYosdUA==
-X-Google-Smtp-Source: AGHT+IFiOw5ablsLgUKfCaNuQJri4wcztl+zI4ly3LRjrgaXjzgOnqWcpR8ZMzuTHWFg5QDe7h9JoAEutSyQKhvfT4w=
-X-Received: by 2002:a05:6512:1291:b0:57d:ffa4:56f4 with SMTP id
- 2adb3069b0e04-5906dae5904mr2393608e87.41.1760025589415; Thu, 09 Oct 2025
- 08:59:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="H+wivxW/"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 599CT8FE014348;
+	Thu, 9 Oct 2025 16:01:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=ATbopCDDnMzuxqFTGxMo1lciLR2hOpEsRiTtlhpcH
+	Ss=; b=H+wivxW/ujj7kXPrvP4wqzns6R23JID/xmDqKYNMzJnOEOeSo5ytp4bwZ
+	ZxQKfT9W+0Eq7xMFl7vAKDpGo1zz8yucqU53M1ZVrTYN/iVH+vr2KfBzu82iPckl
+	al50EGKnY70XIVWbuCVfQGOxvH3HwODyyIpGc7JeFcr34czOg4cp6dBrWhWgAM8p
+	6Qq4YCnGrSRNuE3k7oGIdbNdzwEMvPSVLEdm4kci18n99T6X2wsfvuoXgaUdvHoe
+	O94Vlwzd77elLKAvdhue8miSJJpo/pqfJpizN/IEhfugwnmQdpyt/6X7+7KvwTIK
+	RW5Rp61JrqkMcwuQK3A4IeqKIcGpw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49nv84nt4h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Oct 2025 16:01:15 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 599FWK9u026009;
+	Thu, 9 Oct 2025 16:01:14 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 49nvamncuq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 09 Oct 2025 16:01:14 +0000
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 599G1AcG37617970
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 9 Oct 2025 16:01:10 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6934420043;
+	Thu,  9 Oct 2025 16:01:10 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4E30820040;
+	Thu,  9 Oct 2025 16:01:10 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.111.166.239])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  9 Oct 2025 16:01:10 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, ifranzki@linux.ibm.com
+Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
+        herbert@gondor.apana.org.au, mpatocka@redhat.com
+Subject: [PATCH v1] crypto: s390/phmac - Do not modify the req->nbytes value
+Date: Thu,  9 Oct 2025 18:01:10 +0200
+Message-ID: <20251009160110.12829-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250810125746.1105476-1-snovitoll@gmail.com> <20250810125746.1105476-2-snovitoll@gmail.com>
- <87ldmv6p5n.ritesh.list@gmail.com>
-In-Reply-To: <87ldmv6p5n.ritesh.list@gmail.com>
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Date: Thu, 9 Oct 2025 20:59:32 +0500
-X-Gm-Features: AS18NWAnJdcYDP3fsUmpv8ZuZnvVnkv1zMHsU4QWH3X3orZoE8748Ur0FWZohd0
-Message-ID: <CACzwLxia6xMcQ=vsYG7SE+pUO8=4DiRWD_Omq3wzRyuhDjGcPQ@mail.gmail.com>
-Subject: Re: [PATCH v6 1/2] kasan: introduce ARCH_DEFER_KASAN and unify static
- key across modes
-To: Ritesh Harjani <ritesh.list@gmail.com>
-Cc: ryabinin.a.a@gmail.com, christophe.leroy@csgroup.eu, bhe@redhat.com, 
-	hca@linux.ibm.com, andreyknvl@gmail.com, akpm@linux-foundation.org, 
-	zhangqing@loongson.cn, chenhuacai@loongson.cn, davidgow@google.com, 
-	glider@google.com, dvyukov@google.com, alexghiti@rivosinc.com, alex@ghiti.fr, 
-	agordeev@linux.ibm.com, vincenzo.frascino@arm.com, elver@google.com, 
-	kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, loongarch@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=HKPO14tv c=1 sm=1 tr=0 ts=68e7dc4b cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=x6icFKpwvdMA:10 a=VnNF1IyMAAAA:8 a=qGRyj5zWsW19h7j0xN0A:9
+X-Proofpoint-GUID: _BHN1m-2-Tv0-HfLQCoZW1RO1Ekj3I8y
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDEyMSBTYWx0ZWRfX/E4boZ8hxPda
+ Xzn7pbEZgVNkPyEYyRDfG2ZGlGaSWCUy83ZF2CZnCVxvv+Debxfy84Psdk2CGwPh2oGpR8/pNbY
+ kmexLqNADPx8ywbFL6/LIXTX8z9+j26jYGaiPuh1SknmTMRi7x0dXELIOLJmJkc5tfJnml32FtB
+ aPEbtxd+UozuId2gXvKNkqXoQXaNedGquy567sSqAy7gYmWOKZAy6d4H+p3nhzxiumCpKP61jTX
+ 7XjJ15y2ExkQys9mJBSzczgfQauAYBTK5OAOUEGLQxgy+neKocG8dPB+ZghlnmyhSaK3naeThV7
+ SDvMRPloydbfEdwvqXNRCUlJNuRJZW9pmxDGc9+VT44s6gWM0NBwXFHpSKC6KfwW1nA2LWtJdf1
+ jnLhVEMC2ijsvNsov/ha5XAEdDzxRw==
+X-Proofpoint-ORIG-GUID: _BHN1m-2-Tv0-HfLQCoZW1RO1Ekj3I8y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-09_05,2025-10-06_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
+ adultscore=0 clxscore=1015 phishscore=0 priorityscore=1501 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510080121
 
-On Thu, Sep 4, 2025 at 5:38=E2=80=AFAM Ritesh Harjani <ritesh.list@gmail.co=
-m> wrote:
->
->
-> Only book3s64 needs static keys here because of radix v/s hash mode
-> selection during runtime. The changes in above for powerpc looks good to
-> me. It's a nice cleanup too.
->
+There was a failure reported by the phmac only in combination
+with dm-crypt where the phmac is used as the integrity check
+mechanism. A pseudo phmac which was implemented just as an
+asynchronous wrapper around the synchronous hmac algorithm did
+not show this failure. After some debugging the reason is clear:
+The crypto aead layer obvious uses the req->nbytes value after
+the verification algorithm is through and finished with the
+request. If the req->nbytes value has been modified the aead
+layer will react with -EBADMSG to the caller (dm-crypt).
 
-Hello,
-Thanks for the review and sorry for the late reply. This has already
-been merged.
-AFAIU, in arch/powerpc/Kconfig
+Unfortunately the phmac implementation used the req->nbytes
+field on combined operations (finup, digest) to track the
+state: with req->nbytes > 0 the update needs to be processed,
+while req->nbytes == 0 means to do the final operation. For
+this purpose the req->nbytes field was set to 0 after successful
+update operation. This worked fine and all tests succeeded but
+only failed with aead use as dm-crypt with verify uses it.
 
-config PPC
-...
-        select ARCH_NEEDS_DEFER_KASAN if PPC_RADIX_MMU
+Fixed by a slight rework on the phmac implementation. There is
+now a new field async_op in the request context which tracks
+the (asynch) operation to process. So the 'state' via req->nbytes
+is not needed any more and now this field is untouched and may
+be evaluated even after a request is processed by the phmac
+implementation.
 
-and in arch/powerpc/platforms/Kconfig.cputype:
+Fixes: cbbc675506cc ("crypto: s390 - New s390 specific protected key hash phmac")
+Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+---
+ arch/s390/crypto/phmac_s390.c | 52 +++++++++++++++++++++++------------
+ 1 file changed, 34 insertions(+), 18 deletions(-)
 
-config PPC_RADIX_MMU
-        bool "Radix MMU Support"
-        depends on PPC_BOOK3S_64
-        select ARCH_HAS_GIGANTIC_PAGE
-        default y
+diff --git a/arch/s390/crypto/phmac_s390.c b/arch/s390/crypto/phmac_s390.c
+index 7ecfdc4fba2d..5d38a48cc45d 100644
+--- a/arch/s390/crypto/phmac_s390.c
++++ b/arch/s390/crypto/phmac_s390.c
+@@ -169,11 +169,18 @@ struct kmac_sha2_ctx {
+ 	u64 buflen[2];
+ };
+ 
++enum async_op {
++	OP_NOP = 0,
++	OP_UPDATE,
++	OP_FINAL,
++	OP_FINUP,
++};
++
+ /* phmac request context */
+ struct phmac_req_ctx {
+ 	struct hash_walk_helper hwh;
+ 	struct kmac_sha2_ctx kmac_ctx;
+-	bool final;
++	int async_op;
+ };
+ 
+ /*
+@@ -610,6 +617,7 @@ static int phmac_update(struct ahash_request *req)
+ 	 * using engine to serialize requests.
+ 	 */
+ 	if (rc == 0 || rc == -EKEYEXPIRED) {
++		req_ctx->async_op = OP_UPDATE;
+ 		atomic_inc(&tfm_ctx->via_engine_ctr);
+ 		rc = crypto_transfer_hash_request_to_engine(phmac_crypto_engine, req);
+ 		if (rc != -EINPROGRESS)
+@@ -647,8 +655,7 @@ static int phmac_final(struct ahash_request *req)
+ 	 * using engine to serialize requests.
+ 	 */
+ 	if (rc == 0 || rc == -EKEYEXPIRED) {
+-		req->nbytes = 0;
+-		req_ctx->final = true;
++		req_ctx->async_op = OP_FINAL;
+ 		atomic_inc(&tfm_ctx->via_engine_ctr);
+ 		rc = crypto_transfer_hash_request_to_engine(phmac_crypto_engine, req);
+ 		if (rc != -EINPROGRESS)
+@@ -676,13 +683,16 @@ static int phmac_finup(struct ahash_request *req)
+ 	if (rc)
+ 		goto out;
+ 
++	req_ctx->async_op = OP_FINUP;
++
+ 	/* Try synchronous operations if no active engine usage */
+ 	if (!atomic_read(&tfm_ctx->via_engine_ctr)) {
+ 		rc = phmac_kmac_update(req, false);
+ 		if (rc == 0)
+-			req->nbytes = 0;
++			req_ctx->async_op = OP_FINAL;
+ 	}
+-	if (!rc && !req->nbytes && !atomic_read(&tfm_ctx->via_engine_ctr)) {
++	if (!rc && req_ctx->async_op == OP_FINAL &&
++	    !atomic_read(&tfm_ctx->via_engine_ctr)) {
+ 		rc = phmac_kmac_final(req, false);
+ 		if (rc == 0)
+ 			goto out;
+@@ -694,7 +704,7 @@ static int phmac_finup(struct ahash_request *req)
+ 	 * using engine to serialize requests.
+ 	 */
+ 	if (rc == 0 || rc == -EKEYEXPIRED) {
+-		req_ctx->final = true;
++		/* req->async_op has been set to either OP_FINUP or OP_FINAL */
+ 		atomic_inc(&tfm_ctx->via_engine_ctr);
+ 		rc = crypto_transfer_hash_request_to_engine(phmac_crypto_engine, req);
+ 		if (rc != -EINPROGRESS)
+@@ -855,15 +865,16 @@ static int phmac_do_one_request(struct crypto_engine *engine, void *areq)
+ 
+ 	/*
+ 	 * Three kinds of requests come in here:
+-	 * update when req->nbytes > 0 and req_ctx->final is false
+-	 * final when req->nbytes = 0 and req_ctx->final is true
+-	 * finup when req->nbytes > 0 and req_ctx->final is true
+-	 * For update and finup the hwh walk needs to be prepared and
+-	 * up to date but the actual nr of bytes in req->nbytes may be
+-	 * any non zero number. For final there is no hwh walk needed.
++	 * 1. req->async_op == OP_UPDATE with req->nbytes > 0
++	 * 2. req->async_op == OP_FINUP with req->nbytes > 0
++	 * 3. req->async_op == OP_FINAL
++	 * For update and finup the hwh walk has already been prepared
++	 * by the caller. For final there is no hwh walk needed.
+ 	 */
+ 
+-	if (req->nbytes) {
++	switch (req_ctx->async_op) {
++	case OP_UPDATE:
++	case OP_FINUP:
+ 		rc = phmac_kmac_update(req, true);
+ 		if (rc == -EKEYEXPIRED) {
+ 			/*
+@@ -880,10 +891,11 @@ static int phmac_do_one_request(struct crypto_engine *engine, void *areq)
+ 			hwh_advance(hwh, rc);
+ 			goto out;
+ 		}
+-		req->nbytes = 0;
+-	}
+-
+-	if (req_ctx->final) {
++		if (req_ctx->async_op == OP_UPDATE)
++			break;
++		req_ctx->async_op = OP_FINAL;
++		fallthrough;
++	case OP_FINAL:
+ 		rc = phmac_kmac_final(req, true);
+ 		if (rc == -EKEYEXPIRED) {
+ 			/*
+@@ -897,10 +909,14 @@ static int phmac_do_one_request(struct crypto_engine *engine, void *areq)
+ 			cond_resched();
+ 			return -ENOSPC;
+ 		}
++		break;
++	default:
++		/* unknown/unsupported/unimplemented asynch op */
++		return -EOPNOTSUPP;
+ 	}
+ 
+ out:
+-	if (rc || req_ctx->final)
++	if (rc || req_ctx->async_op == OP_FINAL)
+ 		memzero_explicit(kmac_ctx, sizeof(*kmac_ctx));
+ 	pr_debug("request complete with rc=%d\n", rc);
+ 	local_bh_disable();
+-- 
+2.43.0
 
-So the KASAN static key is enabled only for PPC_BOOK3S_64 by this
-Kconfig selection.
-In other git changes like:
-arch/powerpc/mm/kasan/init_32.c
-arch/powerpc/mm/kasan/init_book3e_64.c
-
-, where we call kasan_init_generic() -> kasan_enable() does nothing because
-CONFIG_ARCH_DEFER_KASAN is not selected.
-
-> So feel free to take:
-> Reviewed-by: Ritesh Harjani (IBM) <ritesh.list@gmail.com> #powerpc
->
-> However I have few comments below...
->
-> > @@ -246,7 +255,7 @@ static inline void poison_slab_object(struct kmem_c=
-ache *cache, void *object,
-> >  bool __kasan_slab_pre_free(struct kmem_cache *cache, void *object,
-> >                               unsigned long ip)
-> >  {
-> > -     if (!kasan_arch_is_ready() || is_kfence_address(object))
-> > +     if (is_kfence_address(object))
->
-> For changes in mm/kasan/common.c.. you have removed !kasan_enabled()
-> check at few places. This seems to be partial revert of commit [1]:
->
->   b3c34245756ada "kasan: catch invalid free before SLUB reinitializes the=
- object"
->
-> Can you please explain why this needs to be removed?
-
-kasan_arch_is_ready() was removed here because in
-commit 1e338f4d99e6("kasan: introduce ARCH_DEFER_KASAN and unify
-static key across modes")
-I've unified the check with kasan_enabled() which is already called in
-the __wrapper
-__kasan_slab_pre_free in include/linux/kasan.h
-
-> Also the explaination of the same should be added in the commit msg too.
->
-> [1]: https://lore.kernel.org/all/20240809-kasan-tsbrcu-v8-1-aef4593f9532@=
-google.com/
->
