@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7152934BA59
-	for <linux-s390@vger.kernel.org>; Thu,  9 Oct 2025 19:03:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CAEE70830
+	for <linux-s390@vger.kernel.org>; Thu,  9 Oct 2025 19:13:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760036620; cv=none; b=ibqE3yQgh3NIDA4McEjSEM0fVn1a8w2lZ1sMbX2SNhtCX5uE9vS8DXsDIUI+IZBbTJRHw5t+oTVS4Mk5zH76aD4MiMqVZHQEjXQSoZXGWJ3tnBrVmHdFJrNSC2qNiT1QMOX/muHzWTNY0R59NQU3vu/D1w/QgNF9abK8ur0KQDU=
+	t=1760037194; cv=none; b=dJAlk43f9BjWlquDlSl30FXRieqUSQDX5IM1Q4jQfZjQBhaWG72MYL84n77sXfcfxUE+9YaKwTJ1kklPVRs2yc/76gOBY4Jtuf3AJC8J1Wjh4nPOsEdXNzAydHYPtEGVtxUSQ/NWZqhekXNLTQQgCPJDerGGeCAQW/IUaMnM8ek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760036620; c=relaxed/simple;
-	bh=B/0kxFMHOwy7JuUoZgL1UR0F/5ADsv+qa8fGxfyAGWo=;
+	s=arc-20240116; t=1760037194; c=relaxed/simple;
+	bh=ENC6amdDkAm4vf7SRoBraXZjYWz3wUySAT+4cMfHVRo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EaiRy330PtIEnaz5Ikzx1Yk82ekWfNr7oT9fSAUFo+nGA+IE+xpjn213kXW2WnTuyZ8yb8GK5OqCl9p2JSek2JRMmlLihWpYQ0qCxz43T3SLAh0rHjYKDtJokGff58dZctAq4qJrG00lNkcxGjwNVwQOdifL1ilT5CGN0S8eHLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LzY8HEM6; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type; b=a8yJqLm8m9WgSdNDn+Nobr7nLKQYmBSMzIHB+LsAKiHjdY5xIV4gSKWGh6W+TiVzJXR67YMzKb2xVSqs/+c0Ne4GD2u4NzsmwLNrtmYsW7Nv+9qKgwqzHES3JIs8plU0eYxTyQ5X+pewTUjLImtjqlgpscE0hDmd6n35EAx2DUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XjM+9EED; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LzY8HEM6"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XjM+9EED"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1760036617;
+	s=mimecast20190719; t=1760037192;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=v/ssIfgtDfZ/vZQpJbYy04kO6t4txkot0+r1aHEyw0s=;
-	b=LzY8HEM657UM8F5BhNcwW9BNcNr/dhsiuPlzXajZEngN4NyYsYGu61502QupZMvM+8u393
-	1wUjxM8dmPJX8lECSusVvCs34IGiCF63FQSmflhiGv4Kcl24ZJ7GnUPW6sTKWHXL3fzu/K
-	5RuMQb7qXILBs7PIsnDl2Fp/3NnDeAk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uMfDHaIXjP5qW70eAEFIPvcXKGAAk4uyl5DbHMEw+mw=;
+	b=XjM+9EEDO+yWaSYe23l5uRAVcQrK0fm8W+nv5DS5maTlNEOkv3TFP7rqGxuILlJ0tve9Du
+	QG2AZvnBTojAJdhIZeN6yb/z/HzyfTvLdqyapiboSoQWSEatTEOyhdt0Ff+nUA6b2Ktk/o
+	rxwBXjAzJVYqMoz6Fs06DrUZLsD16G8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-141-TjSELij6Mn6BSsClKg08MA-1; Thu, 09 Oct 2025 15:03:36 -0400
-X-MC-Unique: TjSELij6Mn6BSsClKg08MA-1
-X-Mimecast-MFC-AGG-ID: TjSELij6Mn6BSsClKg08MA_1760036615
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-46e46486972so8396295e9.0
-        for <linux-s390@vger.kernel.org>; Thu, 09 Oct 2025 12:03:35 -0700 (PDT)
+ us-mta-244-yYofjqbvOP-n1qfJSh-XGw-1; Thu, 09 Oct 2025 15:13:11 -0400
+X-MC-Unique: yYofjqbvOP-n1qfJSh-XGw-1
+X-Mimecast-MFC-AGG-ID: yYofjqbvOP-n1qfJSh-XGw_1760037190
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-46e36686ca1so13026675e9.2
+        for <linux-s390@vger.kernel.org>; Thu, 09 Oct 2025 12:13:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760036615; x=1760641415;
+        d=1e100.net; s=20230601; t=1760037190; x=1760641990;
         h=content-transfer-encoding:in-reply-to:autocrypt:content-language
          :from:references:cc:to:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=v/ssIfgtDfZ/vZQpJbYy04kO6t4txkot0+r1aHEyw0s=;
-        b=BD5R9os3RLjhCXMzHPv0yFj8k61sDy34gE4imxRswZcImWNn+bREp8OqmhblfYFwyT
-         qtK6fuaKQEDd53/wC8qBvOd6z6H3RXANOzeoK1xTOQZSR/efMFmePbvnLIFCQ9ZouWvg
-         zGkpCfd6gpaAoWgBr4ReYmE2XnsE++H2hMyi87XfO2Lad0VBq5PWwRKtTaW3ckrZy3EO
-         LvpMAV1MDsfyQ0lTjdVJzqVcyg+vrt0/8IAchq5cLXYnySVx6X4lyV6BOFq9uhxYjoAY
-         TyTJnLS4DCKI64oZeupapusKuWSkrlCkviYy4T3zS3JqjlL8ibr7DjZ0E9jRplUSMbyo
-         nMow==
-X-Forwarded-Encrypted: i=1; AJvYcCU7Sxnb5eruyGrUxnQIJEJ7zzvvaRtAfrGtlFdD5AWQoBxcUr0tvuP2FUXll3LqzVGRsG6b2c6Bbwmc@vger.kernel.org
-X-Gm-Message-State: AOJu0YxwRY8LpD+iMH4Dh9R8AMuwKo96+xpxKQGflSr8EseFEwk4mPdZ
-	4dDLEWHWMoFmot0HCFyeyvUuhLvPBytyFZg6LexMCWiMkhU84A4Z7I6R4IbIJXLD+oIDGo2ODdx
-	k43MtRlkyJU8P7KF62LYpQtIw3pxF/Ev4T/NeciwxhUme/JqNNHTShnnTLzCuUiw=
-X-Gm-Gg: ASbGncsE+ND63DkWUhzS/X05rH7VLZwedDdJcrRPJpMwc0Dis8LLdn57W8qyu+41OIc
-	MsI7d0Ow8aEoQSdT2sOL0SQ+OYSa8KTGS5MTWi7fCMzauY+oEDbEQoU2ArUSwnFD+N6JfyonXZR
-	7B47xkX5nejfR/GlDNsmR1GNRhJ8MjZXT4cRYFYeVoVhmLQZFvqFwKLpiwb92UrB8eLlTzFm8zG
-	p7GSKD6bGP1Dr/Fg/EqJ44RmA31jhq9SwfqxBBiVFZDpRcKyHVOnyEO9G5NYlE09ATKPVGRR4Z/
-	oNks8XtzByr+KU0V1ur/zcQKTvkM3rZNCG3mz6BCiB8FEfh55S8UKLVDQzKWVBV5JHQexnBQJS+
-	wVbBooAl1
-X-Received: by 2002:a05:600c:6287:b0:46f:b42e:edcd with SMTP id 5b1f17b1804b1-46fb42eee07mr11006325e9.38.1760036614783;
-        Thu, 09 Oct 2025 12:03:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFKJxh6vFQ36gJauYPkq/a3ScSVmIoEQBpQlpefqbtkRe6rn2htikCoXY1hIWlxMFsl+Gqqiw==
-X-Received: by 2002:a05:600c:6287:b0:46f:b42e:edcd with SMTP id 5b1f17b1804b1-46fb42eee07mr11006155e9.38.1760036614381;
-        Thu, 09 Oct 2025 12:03:34 -0700 (PDT)
+        bh=uMfDHaIXjP5qW70eAEFIPvcXKGAAk4uyl5DbHMEw+mw=;
+        b=Ezm3adfCd0Vc0XdDGhYMiXUl8C9Gk/Xf6+0j4aCRSXfSRDFhiiwkVTjVBJFurVG8sF
+         hMG6C8iros1txDCF0hCJnnpOV9OZywW4dReIBHugueKPaW4AuuJaLWyy9nPyvz0wyF1e
+         t58qT161+QtZ4rp0Gj7Mc4YVMkFnZ3LfZRQ29mpz7C+FUIgEDjMKmYVWv4ZTpTJVtel9
+         XJmtyN4C8HcegrYpVNZq+cnU98Dq2bCSrHGJaoW0naPqXOnpCG3unpdb4dLuBpl0xG3b
+         altLGCQOsyTf/5k+q/cY6g0pkrkGPf0ETLBJIKyt+FIltp6qAAGL6cbYEKWhVcqxOgX4
+         i/jQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW0Gax42logpzFans+frszMsRRE0/KSSaSrXjvGM5w1yVwCLgP5LRKo6TjbUMp+Ol8LDOYsWZxGYxTf@vger.kernel.org
+X-Gm-Message-State: AOJu0YwAwrPAEZ8XfVERvjdSneZoe+gEbVY075hfZ/pkGbaMUp5v76pP
+	rEtqPmcXW9o24hluM9gj2+ehoPd6qgvrmRb/Ov5rfFvhHqBVKlgsBpPHTelREjWNkejwwrxjcI5
+	MSN0KhTzixBfc5pQY0jlcghMRXUc/rYWRX0+/2ZifMbaetKE8c2Vj9orH/+hujGg=
+X-Gm-Gg: ASbGnctcK37Aey+gLlua2p7c6/4cLwCwcjoIynO4/Oq87sUPO/jOc2X0eoRoIexUjop
+	m6+Gmv0S09qxQA7qWmCTTzPFQnTIbecasq6Qog3UkxEvXBlLqIVD8lm51Hf7xf1Uo2+Ro9b7LXf
+	onLQXHxqndRi1ELntwBG7ewADT9t9NTm1HDRLMtPZ3oj/vxGSwe5J6DvwVk3B3DhFQtmnMzZabn
+	3pVzkACN0FH+Y7j0E2F9pTG9sJUvFlWlLfI0XbgKHpRPmdAc8lzW42UpQBYfTz2a0NMKOEITISc
+	B9HgJwQ/hLQf+7tVzuxfhXOG/4TcS5sCYpwt3H3uMdPDL9GNxARfX3d4+8sAFsJMWzoxtbyjsU/
+	bcXKuSLTk
+X-Received: by 2002:a05:600c:1394:b0:45b:7a93:f108 with SMTP id 5b1f17b1804b1-46fa9a8f090mr59071555e9.3.1760037189450;
+        Thu, 09 Oct 2025 12:13:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHBcImDsyxTunmBqgZfkDNrdR7pu/FzopoU++FfWBhFLzzgiDgfzJIo/TDjPU5ArHmmJTRIsA==
+X-Received: by 2002:a05:600c:1394:b0:45b:7a93:f108 with SMTP id 5b1f17b1804b1-46fa9a8f090mr59071425e9.3.1760037189032;
+        Thu, 09 Oct 2025 12:13:09 -0700 (PDT)
 Received: from [192.168.3.141] (tmo-083-189.customers.d1-online.com. [80.187.83.189])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5cfe4esm352054f8f.26.2025.10.09.12.03.32
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5cf6b4sm405958f8f.25.2025.10.09.12.13.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Oct 2025 12:03:33 -0700 (PDT)
-Message-ID: <da27231d-e8dc-41f1-b5bd-e32b5eed52f3@redhat.com>
-Date: Thu, 9 Oct 2025 21:03:31 +0200
+        Thu, 09 Oct 2025 12:13:08 -0700 (PDT)
+Message-ID: <ed7db8b9-e828-420d-a8b2-3e1b8aa8c95c@redhat.com>
+Date: Thu, 9 Oct 2025 21:13:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,8 +75,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/4] mm/memory_hotplug: Remove
- MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers
+Subject: Re: [PATCH v2 2/4] s390/sclp: Add support for dynamic
+ (de)configuration of memory
 To: Sumanth Korikkar <sumanthk@linux.ibm.com>,
  Andrew Morton <akpm@linux-foundation.org>, linux-mm <linux-mm@kvack.org>
 Cc: LKML <linux-kernel@vger.kernel.org>,
@@ -85,7 +85,7 @@ Cc: LKML <linux-kernel@vger.kernel.org>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
  Alexander Gordeev <agordeev@linux.ibm.com>
 References: <20251009131839.3739108-1-sumanthk@linux.ibm.com>
- <20251009131839.3739108-5-sumanthk@linux.ibm.com>
+ <20251009131839.3739108-3-sumanthk@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
 Content-Language: en-US
 Autocrypt: addr=david@redhat.com; keydata=
@@ -132,32 +132,115 @@ Autocrypt: addr=david@redhat.com; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20251009131839.3739108-5-sumanthk@linux.ibm.com>
+In-Reply-To: <20251009131839.3739108-3-sumanthk@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 09.10.25 15:18, Sumanth Korikkar wrote:
-> MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory notifiers were introduced
-> to prepare the transition of memory to and from a physically accessible
-> state. This enhancement was crucial for implementing the "memmap on memory"
-> feature for s390.
-> 
-> With introduction of dynamic (de)configuration of hotpluggable memory,
-> memory can be brought to accessible state before add_memory(). Memory
-> can be brought to inaccessible state before remove_memory(). Hence,
-> there is no need of MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE memory
-> notifiers anymore.
-> 
-> This basically reverts commit
-> c5f1e2d18909 ("mm/memory_hotplug: introduce MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers")
-> Additionally, apply minor adjustments to the function parameters of
-> move_pfn_range_to_zone() and mhp_supports_memmap_on_memory() to ensure
-> compatibility with the latest branch.
-> 
-> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
-> ---
 
-Acked-by: David Hildenbrand <david@redhat.com>
+Just a couple of nits
+
+> ---
+>   drivers/s390/char/sclp_mem.c | 290 +++++++++++++++++++++++++----------
+>   1 file changed, 207 insertions(+), 83 deletions(-)
+> 
+> diff --git a/drivers/s390/char/sclp_mem.c b/drivers/s390/char/sclp_mem.c
+> index 27f49f5fd358..e1302b1c98ac 100644
+> --- a/drivers/s390/char/sclp_mem.c
+> +++ b/drivers/s390/char/sclp_mem.c
+> @@ -9,9 +9,12 @@
+>   #define pr_fmt(fmt) KMSG_COMPONENT ": " fmt
+>   
+>   #include <linux/cpufeature.h>
+> +#include <linux/container_of.h>
+>   #include <linux/err.h>
+>   #include <linux/errno.h>
+>   #include <linux/init.h>
+> +#include <linux/kobject.h>
+> +#include <linux/kstrtox.h>
+>   #include <linux/memory.h>
+>   #include <linux/memory_hotplug.h>
+>   #include <linux/mm.h>
+> @@ -27,7 +30,6 @@
+>   #define SCLP_CMDW_ASSIGN_STORAGE		0x000d0001
+>   #define SCLP_CMDW_UNASSIGN_STORAGE		0x000c0001
+>   
+> -static DEFINE_MUTEX(sclp_mem_mutex);
+>   static LIST_HEAD(sclp_mem_list);
+>   static u8 sclp_max_storage_id;
+>   static DECLARE_BITMAP(sclp_storage_ids, 256);
+> @@ -38,6 +40,18 @@ struct memory_increment {
+>   	int standby;
+>   };
+>   
+> +struct sclp_mem {
+> +	struct kobject kobj;
+> +	unsigned int id;
+> +	unsigned int memmap_on_memory;
+> +	unsigned int config;
+> +};
+> +
+> +struct sclp_mem_arg {
+> +	struct sclp_mem *sclp_mems;
+> +	struct kset *kset;
+> +};
+
+Just one thought: if you keep either as global variable you wouldn't 
+need this. (I would just keep both as globals, but whatever you prefer)
+
+Whatever you prefer.
+
+[...]
+
+>   
+> -static void __init sclp_add_standby_memory(void)
+> +static int __init create_standby_sclp_mems(struct sclp_mem *sclp_mems, struct kset *kset)
+>   {
+>   	struct memory_increment *incr;
+> +	int rc = 0;
+>   
+>   	list_for_each_entry(incr, &sclp_mem_list, list) {
+>   		if (incr->standby)
+> -			add_memory_merged(incr->rn);
+> +			rc = create_standby_sclp_mems_merged(sclp_mems, kset, incr->rn);
+> +		if (rc)
+> +			goto out;
+
+Why not "return rc;" to avoid the goto label?
+
+>   	}
+> -	add_memory_merged(0);
+> +	rc = create_standby_sclp_mems_merged(sclp_mems, kset, 0);
+> +out:
+> +	return rc;
+> +}
+> +
+> +static int __init init_sclp_mem(void)
+> +{
+> +	const u64 block_size = memory_block_size_bytes();
+
+Instead of "u64" maybe "unsigned long" like memory_block_size_bytes() 
+returns?
+
+> +	const u64 max_sclp_mems = roundup(sclp.rnmax * sclp.rzm, block_size) / block_size;
+
+Instead of u64 maybe "unsigned int" like the ids you store per sclp_mem?
+
+> +	struct sclp_mem *sclp_mems;
+> +	struct sclp_mem_arg arg;
+> +	struct kset *kset;
+> +	int rc;
+> +
+> +	/* Allocate memory for all blocks ahead of time. */
+> +	sclp_mems = kcalloc(max_sclp_mems, sizeof(struct sclp_mem), GFP_KERNEL);
+> +	if (!sclp_mems)
+> +		return -ENOMEM;
+> +
+> +	kset = kset_create_and_add("memory", NULL, firmware_kobj);
+> +	if (!kset)
+> +		return -ENOMEM;
+
+I guess we don't care about freeing sclp_mems in that case? Likely it 
+should never ever happen either way.
 
 -- 
 Cheers
