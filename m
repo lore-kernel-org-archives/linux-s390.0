@@ -1,159 +1,109 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 269E82C3769;
-	Wed,  8 Oct 2025 22:47:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2C697082D;
+	Thu,  9 Oct 2025 01:07:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759963630; cv=none; b=piL0XW/TLRj6a4sWTzO4oG/5CaDeZfgo4+ocAtXaE0f/Wsk7vJbCVL7g7NiEJhFHNdWHxQJh9HWRDKtQv8BMe37JMcMb/CQE2Wzmmdf5Uvetrl+jMMcEZV6JjVjftRHLiThmrEMdvNByXwREO67DcV77lsGC9PUpDfC5onMEZpE=
+	t=1759972028; cv=none; b=D84JNm438dyr9ZH9mBrdve6x2rw+Kh1q7L3QWthJ9GcsdSiIPot62PWAJe2H8uyq5B9+MUJqwphe7kDaPctcl2XXN1GLmPRMCD2/wstfvc5x2haBK34Pto7VM2w0pxq5wDa3ccmZfOIBVp93jB5krrpC2CZKJj+wIZU1v7PYYxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759963630; c=relaxed/simple;
-	bh=MmSj15jHMzn0CKEQNU4y1JyA4D5YNuL1L+U1napVCas=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VRsgGX1qBt/mGM7KZw2+OEFocbcrYOKq1kGcn3uaFAZ5FgVeJjG1JTQnWLDyvDVMebgTcqChzSj5wkKwvjB3Ju5338nl0Bbjcxt6u3dukkh5ghC0ilvkddaEgWWJpym6dMPbiIjjVhXF9bMcuMtb5VDWdgD/w0fwdFV1r9w/zhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jTFGcpRJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1759972028; c=relaxed/simple;
+	bh=VISjCl3028ZdolLBlNDZGd4lu4o1butuKMV03AtZBlw=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=BNUU0AANUHqccrRIptTrY9gZjtGJEozA74zp58XfSB9qOwfrBpucQQB47KmDptEOE/XZoNqgfL74FPmHKPHJK3rxyCkzsyCWbYBSjjFGUy9oDP8fVuaJ/pJ4v6/sjN3ALQdagnbr/R8acTRTr1Ehb3jgPMk6RvRoNMW5OpiyG+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z85MDq7b; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jTFGcpRJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C09EC4CEE7;
-	Wed,  8 Oct 2025 22:47:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z85MDq7b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE42C4CEF8;
+	Thu,  9 Oct 2025 01:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1759963629;
-	bh=MmSj15jHMzn0CKEQNU4y1JyA4D5YNuL1L+U1napVCas=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=jTFGcpRJy/Fmwjac4Cwvj3PDjM7MxlvEenLl66dxqHmmEEst5webr3bi4J0MBh5xG
-	 GEGEDpBg05c0Z7DmepQEdeWG08RYxyuTWB1Myh+2hhgpJsiKLHdjsy1dPd+g7xIWHr
-	 1caI2XAJTtKGphza6d3CQyqVUofrBtElrX25YS13M95UO6Ezys9X+f0pDfTHibdapS
-	 mrrlbuMZpiJggo7ZIMdpRVQAx1MFrpVjq5oFQfzIYCbSR+R7jRVhPMMaf/KWKpdcql
-	 Cm/RC/DDDsTQfO03gB7RB0KbicBdojGqKIx08trEZEe+Ts/7BaQIS8ePvg2GP475wF
-	 RWCNmCAvIFdew==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Wed, 08 Oct 2025 15:46:46 -0700
-Subject: [PATCH 3/3] s390/vmlinux.lds.S: Move .vmlinux.info to end of
- allocatable sections
+	s=k20201202; t=1759972027;
+	bh=VISjCl3028ZdolLBlNDZGd4lu4o1butuKMV03AtZBlw=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=Z85MDq7bFHAVb7Rv7QvW4jT9Y15cPiI0WVlhCJV3Hb8KzH2ZYtKDIugmNBfAaGySd
+	 z5ewF5rNJ+Eg/0lDf4iQ7eqlYgIW0QFXYttqFueGd0EyH0q3YxGVMid01GmetPjhLw
+	 CLKH4BhiZk2QE9ZHGNcP1R+Uu7twuBVmXVU7JX+WU6Qkgezekw/tfTay9IqLn/03qv
+	 fGM0puNNPNlEwlNS8diIH3zKif6A6uWsftAXlyDWexxIsHVq/Ua4/nh1U3nC4uYics
+	 +WuF25l1nNqeg2I6RnH6RhbrrEuRMwXBeUzGy3elVssgawfAsHG1eRRK1qPPGapFZ4
+	 MDqB4RaRlBhng==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB00C3A41017;
+	Thu,  9 Oct 2025 01:06:56 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20251008-kbuild-fix-modinfo-regressions-v1-3-9fc776c5887c@kernel.org>
-References: <20251008-kbuild-fix-modinfo-regressions-v1-0-9fc776c5887c@kernel.org>
-In-Reply-To: <20251008-kbuild-fix-modinfo-regressions-v1-0-9fc776c5887c@kernel.org>
-To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>
-Cc: Alexey Gladkov <legion@kernel.org>, 
- Masahiro Yamada <masahiroy@kernel.org>, linux-kbuild@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, 
- Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3481; i=nathan@kernel.org;
- h=from:subject:message-id; bh=MmSj15jHMzn0CKEQNU4y1JyA4D5YNuL1L+U1napVCas=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDBnPXj4+eXjv8cDtK+zll+zqMDx73uJE4RYpN+OJz5cws
- 02ePP/C+o5SFgYxLgZZMUWW6seqxw0N55xlvHFqEswcViaQIQxcnAIwkS5bhj98vYdaLW+0W//q
- qOopcljM1Bzz1PNAg4Oh5fEZkkff1+9jZDj67smfQxUboxVkvG9e03zLEjd9u06D8JTweHPXaRc
- uuTAAAA==
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 00/11] vdso: Various cleanups
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <175997201575.3661959.11378704835584004005.git-patchwork-notify@kernel.org>
+Date: Thu, 09 Oct 2025 01:06:55 +0000
+References: <20250826-vdso-cleanups-v1-0-d9b65750e49f@linutronix.de>
+In-Reply-To: <20250826-vdso-cleanups-v1-0-d9b65750e49f@linutronix.de>
+To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Cthomas=2Eweissschuh=40linutronix=2Ede=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
+Cc: linux-riscv@lists.infradead.org, luto@kernel.org, tglx@linutronix.de,
+ vincenzo.frascino@arm.com, paul.walmsley@sifive.com, palmer@dabbelt.com,
+ aou@eecs.berkeley.edu, alex@ghiti.fr, namcao@linutronix.de,
+ linux@armlinux.org.uk, mingo@redhat.com, bp@alien8.de,
+ dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+ catalin.marinas@arm.com, will@kernel.org, chenhuacai@kernel.org,
+ kernel@xen0n.name, tsbogend@alpha.franken.de, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, npiggin@gmail.com, christophe.leroy@csgroup.eu,
+ hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com, svens@linux.ibm.com, arnd@arndb.de,
+ brauner@kernel.org, shuah@kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux@rasmusvillemoes.dk
 
-When building s390 defconfig with binutils older than 2.32, there are
-several warnings during the final linking stage:
+Hello:
 
-  s390-linux-ld: .tmp_vmlinux1: warning: allocated section `.got.plt' not in segment
-  s390-linux-ld: .tmp_vmlinux2: warning: allocated section `.got.plt' not in segment
-  s390-linux-ld: vmlinux.unstripped: warning: allocated section `.got.plt' not in segment
-  s390-linux-objcopy: vmlinux: warning: allocated section `.got.plt' not in segment
-  s390-linux-objcopy: st7afZyb: warning: allocated section `.got.plt' not in segment
+This series was applied to riscv/linux.git (for-next)
+by Thomas Gleixner <tglx@linutronix.de>:
 
-binutils commit afca762f598 ("S/390: Improve partial relro support for
-64 bit") [1] in 2.32 changed where .got.plt is emitted, avoiding the
-warning.
+On Tue, 26 Aug 2025 08:17:03 +0200 you wrote:
+> Various cleanups to the generic vDSO infrastructure and a patch for ARM
+> which was never applied.
+> 
+> This series has one trivial syntactic conflict with "dso/datastore: Allow
+> prefaulting by mlockall()" [0] and a semantic one with "sparc64: vdso:
+> Switch to generic vDSO library" [1], which still uses the removed
+> GENERIC_VDSO_DATA_STORE.
+> 
+> [...]
 
-The :NONE in the .vmlinux.info output section description changes the
-segment for subsequent allocated sections. Move .vmlinux.info right
-above the discards section to place all other sections in the previously
-defined segment, .data.
+Here is the summary with links:
+  - [01/11] vdso/datastore: Gate time data behind CONFIG_GENERIC_GETTIMEOFDAY
+    https://git.kernel.org/riscv/c/7c0c01a216e6
+  - [02/11] ARM: VDSO: remove cntvct_ok global variable
+    https://git.kernel.org/riscv/c/39f1ee1299c9
+  - [03/11] vdso: Move ENABLE_COMPAT_VDSO from core to arm64
+    https://git.kernel.org/riscv/c/7d298d25ce81
+  - [04/11] vdso/gettimeofday: Remove !CONFIG_TIME_NS stubs
+    https://git.kernel.org/riscv/c/f145d6bf8d59
+  - [05/11] time: Build generic update_vsyscall() only with generic time vDSO
+    https://git.kernel.org/riscv/c/ea1a1fa919a5
+  - [06/11] riscv: vdso: Untangle kconfig logic
+    https://git.kernel.org/riscv/c/eb3b66aab72c
+  - [07/11] vdso: Drop kconfig GENERIC_VDSO_32
+    https://git.kernel.org/riscv/c/278f1c933c3f
+  - [08/11] vdso: Drop kconfig GENERIC_COMPAT_VDSO
+    https://git.kernel.org/riscv/c/bb5bc7bfab06
+  - [09/11] vdso: Drop kconfig GENERIC_VDSO_DATA_STORE
+    https://git.kernel.org/riscv/c/7b338f6d4e3d
+  - [10/11] vdso: Drop kconfig GENERIC_VDSO_TIME_NS
+    https://git.kernel.org/riscv/c/bad53ae2dc42
+  - [11/11] vdso: Gate VDSO_GETRANDOM behind HAVE_GENERIC_VDSO
+    https://git.kernel.org/riscv/c/258b37c6e626
 
-Fixes: 30226853d6ec ("s390: vmlinux.lds.S: explicitly handle '.got' and '.plt' sections")
-Link: https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=afca762f598d453c563f244cd3777715b1a0cb72 [1]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- arch/s390/kernel/vmlinux.lds.S | 44 +++++++++++++++++++++---------------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
-
-diff --git a/arch/s390/kernel/vmlinux.lds.S b/arch/s390/kernel/vmlinux.lds.S
-index feecf1a6ddb4..d74d4c52ccd0 100644
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -214,6 +214,28 @@ SECTIONS
- 	DWARF_DEBUG
- 	ELF_DETAILS
- 
-+	/*
-+	 * Make sure that the .got.plt is either completely empty or it
-+	 * contains only the three reserved double words.
-+	 */
-+	.got.plt : {
-+		*(.got.plt)
-+	}
-+	ASSERT(SIZEOF(.got.plt) == 0 || SIZEOF(.got.plt) == 0x18, "Unexpected GOT/PLT entries detected!")
-+
-+	/*
-+	 * Sections that should stay zero sized, which is safer to
-+	 * explicitly check instead of blindly discarding.
-+	 */
-+	.plt : {
-+		*(.plt) *(.plt.*) *(.iplt) *(.igot .igot.plt)
-+	}
-+	ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
-+	.rela.dyn : {
-+		*(.rela.*) *(.rela_*)
-+	}
-+	ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations (.rela) detected!")
-+
- 	/*
- 	 * uncompressed image info used by the decompressor
- 	 * it should match struct vmlinux_info
-@@ -244,28 +266,6 @@ SECTIONS
- #endif
- 	} :NONE
- 
--	/*
--	 * Make sure that the .got.plt is either completely empty or it
--	 * contains only the three reserved double words.
--	 */
--	.got.plt : {
--		*(.got.plt)
--	}
--	ASSERT(SIZEOF(.got.plt) == 0 || SIZEOF(.got.plt) == 0x18, "Unexpected GOT/PLT entries detected!")
--
--	/*
--	 * Sections that should stay zero sized, which is safer to
--	 * explicitly check instead of blindly discarding.
--	 */
--	.plt : {
--		*(.plt) *(.plt.*) *(.iplt) *(.igot .igot.plt)
--	}
--	ASSERT(SIZEOF(.plt) == 0, "Unexpected run-time procedure linkages detected!")
--	.rela.dyn : {
--		*(.rela.*) *(.rela_*)
--	}
--	ASSERT(SIZEOF(.rela.dyn) == 0, "Unexpected run-time relocations (.rela) detected!")
--
- 	/* Sections to be discarded */
- 	DISCARDS
- 	/DISCARD/ : {
-
+You are awesome, thank you!
 -- 
-2.51.0
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
