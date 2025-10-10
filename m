@@ -1,174 +1,265 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2385231830;
-	Fri, 10 Oct 2025 08:41:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52EB9258CFA;
+	Fri, 10 Oct 2025 08:52:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760085662; cv=none; b=WM7KJmXMLOS8HUniTkxYoAmDLbYBqSUn+NgUT6CvhZvnD9u/WcJZTpWFgasTsEexNiUl6KVRKWpMTlZitBoXusfcb5b7CLi1TgB6uIj9j8KsAFCAI2YR109azD7Oj5cJyYmzJoOMWW9vbC16I/wmnShToDSsCGn8AB//uFmsWbA=
+	t=1760086333; cv=none; b=K4vUcf7uteL0moiFjCWA+fhbUTt0/G/M5bmvFxdIesij9Oyg2WyA7cF1PCLY0/u0nk6QgJqHQ3qYfq5L4bQ/pX4ThvsSsylP90ZLPXCrsKWsb/PkyO2bZVDE6stGFpSd4zKgM462TikmtcIV/qW/4LpxvOczrIQrRuEdu4Iv58g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760085662; c=relaxed/simple;
-	bh=XwpwIRkEIv4SYYLw+4YNpxTaDQ0UaMTxFWbqRVNXtoE=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=k84yvXbL0ke0ZrbbT0wAGrugXg/qTdZnSDDjYV3NKL5P02d+jDkG280uhlO8LZndFfeeSPk73UIPBbpUB8tvEd7Q/jKTB2FXlXIvvEYMcg1eciFP5OsMnw7RMh6SL1IIi8SW4QlEqpQZujOaHHODmOre7GfyMj0kqFcWFg/1x5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ck0ksyAc; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1760086333; c=relaxed/simple;
+	bh=yolDaoqwvvZ2SZlVZTDUsOOCJ3rncpBjNhuLVfaY1xU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XTRaqc4gWdaDtCC4SHcahqam2FU9/WsYL9Bmtcmgvhs+c0HxttkuL/uVYOyNbw8DLFMwyHOe6ItO1zOwKUjNFXxCiA+nPO4TC6RMWM6dinj0hXl5SEzdGpN3rB/5SAKVlWpwfikQ7Le2ZiiEPbrJecmW93HWNEIHCsRC+MH5kgM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=drNtNgtR; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ck0ksyAc"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 599KSeV4002113;
-	Fri, 10 Oct 2025 08:40:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="drNtNgtR"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59A8GRd5014547;
+	Fri, 10 Oct 2025 08:52:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=v4zbV5
-	rdgjMhCpYVqkKeNz8rDni5tZf7Rrcd5hEinMk=; b=ck0ksyAc8xrADG7aOq1qkc
-	+1OfosiFUmEJoIO0+7lKjK5iqbuDDbsCEVzPQNLmJha83afHR2ugo91pGZI0TNdY
-	wRWnWDmcrGhvj3h7UR6wqNLFdwfL3PNE4bMI0YXiEUmtn1VcPt8is174c7SlrIuL
-	3qGomyyX9SIFoeWJS93K4gpASc+OKSShzxBb8yeohMKuOcJ2v4xjzUF1zpxybp5n
-	MFnSCahVeH2CKIxUsOWVEQXiA+gOHqd12Oi2lYpeNWDZEPKrVlL7bmi1V8yfJ26f
-	j7xA7Rtk++eqFAePy8JLI/gyN+dNbQV0qWjB+R7HQL8C3RA+nAB1ADcdyRAUSoMg
-	==
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=QRsNL82ZLwEb6IY0lunB/CAS5uyvEyO5V5O5FXn1E
+	uM=; b=drNtNgtR0n0enbZ3EYIt9vyDiirGa6mdaolTKZRFsju7K5Lmbno9cDrZL
+	JRHZAo7O86YVHWX0U88X/rPDjEUEkDMmDYJCdl6h2mQTwovtbpPkdX/RaQ2ZUo/M
+	UHkfoRPi3NTpJ6sIKhraRpJMrTShTYC9MSVrMiI5HEqaCtjFfVf94O+Ivg+FTpNR
+	cNzf6AgUptIaX2L0Gxwa8oYIRIwSyV+LfTmP5x9t+7IeyNw4LkByfHig7dAK41J9
+	+OUCM9ORyNmeaOyRKdWP6YhrMnpyLfWNnTCbxhO/DYT/5hLiGElFf/kfmpOrZfv6
+	DL/3+45+iV/ibbdaBzXXHMP4OnIiw==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49nv871frd-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 49nv84shmq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Oct 2025 08:40:54 +0000 (GMT)
+	Fri, 10 Oct 2025 08:52:05 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59A7utCi020997;
-	Fri, 10 Oct 2025 08:40:53 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49nv9n0y9j-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 59A7wfom020946;
+	Fri, 10 Oct 2025 08:52:05 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 49nv9n109h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 10 Oct 2025 08:40:53 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59A8en3i52363676
+	Fri, 10 Oct 2025 08:52:05 +0000
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 59A8q13M53412224
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 10 Oct 2025 08:40:49 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BFD4C20043;
-	Fri, 10 Oct 2025 08:40:49 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9A56C20040;
-	Fri, 10 Oct 2025 08:40:49 +0000 (GMT)
-Received: from [9.111.194.191] (unknown [9.111.194.191])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 10 Oct 2025 08:40:49 +0000 (GMT)
-Message-ID: <01d6f348-46af-4b4b-8f99-f10a75131cbc@linux.ibm.com>
-Date: Fri, 10 Oct 2025 10:40:49 +0200
+	Fri, 10 Oct 2025 08:52:01 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 156642008C;
+	Fri, 10 Oct 2025 08:52:01 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CE8F42008F;
+	Fri, 10 Oct 2025 08:52:00 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.152.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 10 Oct 2025 08:52:00 +0000 (GMT)
+From: Sumanth Korikkar <sumanthk@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>, linux-mm <linux-mm@kvack.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>
+Subject: [PATCH v3 0/4] Support dynamic (de)configuration of memory
+Date: Fri, 10 Oct 2025 10:51:43 +0200
+Message-ID: <20251010085147.2175918-1-sumanthk@linux.ibm.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] crypto: s390/phmac - Do not modify the req->nbytes
- value
-From: Ingo Franzki <ifranzki@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>, herbert@gondor.apana.org.au
-Cc: linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org,
-        mpatocka@redhat.com, dengler@linux.ibm.com
-References: <20251009160110.12829-1-freude@linux.ibm.com>
- <546f224a-70b9-4108-b6f9-4ddacc305b25@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <546f224a-70b9-4108-b6f9-4ddacc305b25@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hb91fQIT37XjnILwBYltQmEDY2QqMpeW
-X-Proofpoint-ORIG-GUID: hb91fQIT37XjnILwBYltQmEDY2QqMpeW
-X-Authority-Analysis: v=2.4 cv=MKNtWcZl c=1 sm=1 tr=0 ts=68e8c696 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=HKPO14tv c=1 sm=1 tr=0 ts=68e8c935 cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=x6icFKpwvdMA:10 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=HFL11G2TRnG_llR-b0MA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDEyMSBTYWx0ZWRfX1XLtMsx7xBGJ
- 0rzx1ZnWii1lIV5bDswWimkOdfk82GGiLsdzBkNLzQ1id8Gckz5VhwC+i/WG8Nvru96SsofSxSs
- v2p065HECSQRJqvXGFD/UzpEHyi4khqPpyD0pIcByJiebKJMqZE0GzXhxMXaXnqHK/CMkuZ8zt1
- 8Ecmn2mA4Wrn2ZhTZB7UlVNxUJ3ZdRcbLT+LO0vGWqgV4kCDjZr5dUNOfQC8faIAFokRhYaaGv6
- AC7WH2EvA3hz0+PcbatqFIkmHU4BPYl3V5/Qbp7L9o1YpD408ReqavSYMPEIxwz8uND2I1pWZ7N
- 4cysQq5GwlNKzJugEiZm1hcqPcFSM0ALNV2A9s1eDZKraq9lFdJQ2ldM9lE/7vD2P0DGygFr4sP
- uud9gVCoH4NSTDRl7/HswWg0zAB0QQ==
+ a=x6icFKpwvdMA:10 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
+ a=NBdnYRyKUmeqgR0V3jUA:9 a=HhbK4dLum7pmb74im6QT:22 a=cPQSjfK2_nFv0Q5t_7PE:22
+ a=pHzHmUro8NiASowvMSCR:22 a=Ew2E2A-JSTLzCXPT_086:22
+X-Proofpoint-GUID: IggDq2wNjKyEyC6EEBTpFy57fP0Xn7q7
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDA4MDEyMSBTYWx0ZWRfX0pKeSPlMyxM1
+ 6kUvIo0m5+W3MqSpxn45bNB3MBD+0tp2+HCS2geMF29OTAGVSoGf9XyulXU5/260G3vwAx0Acuk
+ sQVbSRdc+73KPapmVsSAl3tcGEyghNB3UbTHSRRmer94YTsjxwooR6bufuTBjyB1Wa+838Ex8Tk
+ sEweAlSt2swHw7+WXi5E28EHRO2PP9vE6/0s+iOvG1kbsjHmbDF+3melptOjYtaW+IfS9K6o1JE
+ A3oQM+hkNcYslYdgAQVM/I9SzJdNdNP3cpo/1mJj/fHCgGKqOTTx8OXspFV5JGbHBP0YABFxWV2
+ z+wzQQvwXx7HBL6TA+GxZj5hLTUk8bYBJdux+91cEXlznXe92l92ikhucfchC1F5i05IT3k28/R
+ ARLLB5Vu9k47+3OLpgqcvHsQ7M7Zjg==
+X-Proofpoint-ORIG-GUID: IggDq2wNjKyEyC6EEBTpFy57fP0Xn7q7
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
  definitions=2025-10-10_01,2025-10-06_01,2025-03-28_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 phishscore=0 malwarescore=0 bulkscore=0 spamscore=0
- priorityscore=1501 suspectscore=0 lowpriorityscore=0 clxscore=1015
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2510020000
- definitions=main-2510080121
+ suspectscore=0 impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0
+ adultscore=0 clxscore=1015 phishscore=0 priorityscore=1501 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2510020000 definitions=main-2510080121
 
-On 10.10.2025 09:55, Ingo Franzki wrote:
-> On 09.10.2025 18:01, Harald Freudenberger wrote:
->> There was a failure reported by the phmac only in combination
->> with dm-crypt where the phmac is used as the integrity check
->> mechanism. A pseudo phmac which was implemented just as an
->> asynchronous wrapper around the synchronous hmac algorithm did
->> not show this failure. After some debugging the reason is clear:
->> The crypto aead layer obvious uses the req->nbytes value after
->> the verification algorithm is through and finished with the
->> request. If the req->nbytes value has been modified the aead
->> layer will react with -EBADMSG to the caller (dm-crypt).
+Hi,
 
-I guess the place where nbytes is used after the verification is in
-crypto_authenc_decrypt_tail().  This is called either directly by
-crypto_authenc_decrypt() if crypto_ahash_digest() completed synchronously,
-or in case or async completion, via the authenc_verify_ahash_done() callback.
+Patchset provides a new interface for dynamic configuration and
+deconfiguration of hotplug memory on s390, allowing with/without
+memmap_on_memory support. It is a follow up on the discussion with David
+when introducing memmap_on_memory support for s390 and support dynamic
+(de)configuration of memory:
+https://lore.kernel.org/all/ee492da8-74b4-4a97-8b24-73e07257f01d@redhat.com/
+https://lore.kernel.org/all/20241202082732.3959803-1-sumanthk@linux.ibm.com/
 
-crypto_authenc_decrypt_tail() then does:
+The original motivation for introducing memmap_on_memory on s390 was to
+avoid using online memory to store struct pages metadata, particularly
+for standby memory blocks. This became critical in cases where there was
+an imbalance between standby and online memory, potentially leading to
+boot failures due to insufficient memory for metadata allocation.
 
-	scatterwalk_map_and_copy(ihash, req->src, ahreq->nbytes, authsize, 0);
+To address this, memmap_on_memory was utilized on s390. However, in its
+current form, it adds struct pages metadata at the start of each memory
+block at the time of addition (only standby memory), and this
+configuration is static. It cannot be changed at runtime  (When the user
+needs continuous physical memory).
 
-	if (crypto_memneq(ihash, ahreq->result, authsize))
-		return -EBADMSG;
+Inorder to provide more flexibility to the user and overcome the above
+limitation, add an option to dynamically configure and deconfigure
+hotpluggable memory block with/without memmap_on_memory.
 
-Where the scatterwalk_map_and_copy() uses the ahreq->nbytes value to know the
-amount of bytes to copy. If this is zero then the copied ihash value is wrong and
-thus it returns -EBADMSG.
+With the new interface, s390 will not add all possible hotplug memory in
+advance, like before, to make it visible in sysfs for online/offline
+actions. Instead, before memory block can be set online, it has to be
+configured via a new interface in /sys/firmware/memory/memoryX/config,
+which makes s390 similar to others.  i.e. Adding of hotpluggable memory is
+controlled by the user instead of adding it at boottime.
 
-Not sure if the number of bytes could be saved elsewhere, to allow that the
-requests's nbytes can be modified by the digest (if this is desired to be allowed)?
-Otherwise, a comment in the header file that nbytes must not be modified might be useful.
+s390 kernel sysfs interface to configure/deconfigure memory with
+memmap_on_memory (with upcoming lsmem changes):
 
->>
->> Unfortunately the phmac implementation used the req->nbytes
->> field on combined operations (finup, digest) to track the
->> state: with req->nbytes > 0 the update needs to be processed,
->> while req->nbytes == 0 means to do the final operation. For
->> this purpose the req->nbytes field was set to 0 after successful
->> update operation. This worked fine and all tests succeeded but
->> only failed with aead use as dm-crypt with verify uses it.
->>
->> Fixed by a slight rework on the phmac implementation. There is
->> now a new field async_op in the request context which tracks
->> the (asynch) operation to process. So the 'state' via req->nbytes
->> is not needed any more and now this field is untouched and may
->> be evaluated even after a request is processed by the phmac
->> implementation.
->>
->> Fixes: cbbc675506cc ("crypto: s390 - New s390 specific protected key hash phmac")
->> Reported-by: Ingo Franzki <ifranzki@linux.ibm.com>
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->> ---
->>  arch/s390/crypto/phmac_s390.c | 52 +++++++++++++++++++++++------------
->>  1 file changed, 34 insertions(+), 18 deletions(-)
-> 
-> I can confirm that this fixes the failures reported at https://lore.kernel.org/dm-devel/fec83aad-c38b-4617-bb9a-0b9827125d79@linux.ibm.com/T/#u
-> Also, having the operation in the request context makes the code even more clear IMHO.
-> 
-> Tested-by: Ingo Franzki <ifranzki@linux.ibm.com>
-> Reviewed-by: Ingo Franzki <ifranzki@linux.ibm.com>
-> 
-> 
+* Initial memory layout:
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x7fffffff   2G  online 0-15  yes        no
+0x80000000-0xffffffff   2G offline 16-31 no         yes
 
+* Configure memory
+echo 1 > /sys/firmware/memory/memory16/config
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x7fffffff    2G  online  0-15  yes        no
+0x80000000-0x87ffffff  128M offline    16  yes        yes
+0x88000000-0xffffffff  1.9G offline 17-31  no         yes
+
+* Deconfigure memory
+echo 0 > /sys/firmware/memory/memory16/config
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                 SIZE   STATE BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x7fffffff   2G  online 0-15  yes        no
+0x80000000-0xffffffff   2G offline 16-31 no         yes
+
+* Enable memmap_on_memory and online it.
+(Deconfigure first)
+echo 0 > /sys/devices/system/memory/memory5/online
+echo 0 > /sys/firmware/memory/memory5/config
+
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                  SIZE  STATE  BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x27ffffff  640M  online 0-4   yes        no
+0x28000000-0x2fffffff  128M offline 5     no         no
+0x30000000-0x7fffffff  1.3G  online 6-15  yes        no
+0x80000000-0xffffffff    2G offline 16-31 no         yes
+
+(Enable memmap_on_memory and online it)
+echo 1 > /sys/firmware/memory/memory5/memmap_on_memory
+echo 1 > /sys/firmware/memory/memory5/config
+echo 1 > /sys/devices/system/memory/memory5/online
+
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x27ffffff  640M  online  0-4   yes        no
+0x28000000-0x2fffffff  128M  online  5     yes        yes
+0x30000000-0x7fffffff  1.3G  online  6-15  yes        no
+0x80000000-0xffffffff    2G  offline 16-31 no         yes
+
+* Disable memmap_on_memory and online it.
+(Deconfigure first)
+echo 0 > /sys/devices/system/memory/memory5/online
+echo 0 > /sys/firmware/memory/memory5/config
+
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                  SIZE  STATE  BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x27ffffff  640M  online 0-4   yes        no
+0x28000000-0x2fffffff  128M offline 5     no         yes
+0x30000000-0x7fffffff  1.3G  online 6-15  yes        no
+0x80000000-0xffffffff    2G offline 16-31 no         yes
+
+(Disable memmap_on_memory and online it)
+echo 0 > /sys/firmware/memory/memory5/memmap_on_memory
+echo 1 > /sys/firmware/memory/memory5/config
+echo 1 > /sys/devices/system/memory/memory5/online
+
+lsmem -o RANGE,SIZE,STATE,BLOCK,CONFIGURED,MEMMAP_ON_MEMORY
+RANGE                  SIZE  STATE   BLOCK CONFIGURED MEMMAP_ON_MEMORY
+0x00000000-0x7fffffff  2G    online  0-15  yes        no
+0x80000000-0xffffffff  2G    offline 16-31 no         yes
+
+* Userspace changes:
+lsmem/chmem tool is also changed to use the new interface. I will send
+it to util-linux soon.
+
+Patch 1 adds support for removal of boot-allocated memory blocks.
+
+Patch 2 provides option to dynamically configure and deconfigure memory
+with/without memmap_on_memory.
+
+Patch 3 removes MHP_OFFLINE_INACCESSIBLE from s390. The mhp flag was
+used to mark memory as not accessible until memory hotplug online phase
+begins.  However, with patch 2, it is no longer essential. Memory can be
+brought to accessible state before adding memory, as the memory is added
+during runttime now instead of boottime.
+
+Patch 4 removes the MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE notifiers. It
+is no longer needed.  Memory can be brought to accessible state before
+adding memory now, with runtime (de)configuration of memory.
+
+Note: The patches apply to the linux-next branch.
+
+v3:
+Thanks David
+* Avoid goto label in create_standby_sclp_mems().
+* Use unsigned long instead of u64.
+* Add Acked-by.
+
+v2:
+Thanks David
+* Rename struct mblock/mblock_arg with struct sclp_mem/sclp_mem_arg.
+* Rename all mblocks/mblock references with sclp_mems/sclp_mem -
+  structures, functions.
+* Rename create_online_mblock() with create_configured_sclp_mem().
+* Rename config_mblock_show()/config_mblock_store() with
+  config_sclp_mem_show()/config_sclp_mem_store().
+* Remove contains_standby_increment() and
+  sclp_mem_notifier. sclp mem state change is performed when
+  adding/removing memory. sclp memory notifier - no longer needed with
+  this patchset.
+* Recover sclp mem state when add_memory() fails.
+* Refactor and add function init_sclp_mem().
+* Use unsigned long instead of unsigned long long.
+* Simplify and correct kobj handling. Thanks Heiko.
+
+Sumanth Korikkar (4):
+  s390/mm: Support removal of boot-allocated virtual memory map
+  s390/sclp: Add support for dynamic (de)configuration of memory
+  s390/sclp: Remove MHP_OFFLINE_INACCESSIBLE
+  mm/memory_hotplug: Remove MEM_PREPARE_ONLINE/MEM_FINISH_OFFLINE
+    notifiers
+
+ arch/s390/mm/pgalloc.c         |   2 +
+ arch/s390/mm/vmem.c            |  21 +--
+ drivers/base/memory.c          |  23 +--
+ drivers/s390/char/sclp_mem.c   | 288 +++++++++++++++++++++++----------
+ include/linux/memory.h         |   9 --
+ include/linux/memory_hotplug.h |  18 +--
+ include/linux/memremap.h       |   1 -
+ mm/memory_hotplug.c            |  17 +-
+ mm/sparse.c                    |   3 +-
+ 9 files changed, 225 insertions(+), 157 deletions(-)
 
 -- 
-Ingo Franzki
-eMail: ifranzki@linux.ibm.com  
-Linux on IBM Z Development, Schoenaicher Str. 220, 71032 Boeblingen, Germany
+2.48.1
 
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-Geschäftsführung: David Faller
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
-IBM DATA Privacy Statement: https://www.ibm.com/privacy/us/en/
