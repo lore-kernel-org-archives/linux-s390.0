@@ -1,75 +1,76 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5916821C9E5
-	for <linux-s390@vger.kernel.org>; Fri, 10 Oct 2025 03:18:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B2981E5B88
+	for <linux-s390@vger.kernel.org>; Fri, 10 Oct 2025 04:07:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760066302; cv=none; b=GLcjpcHAZBpP6rqsS5ZDF4z06XlTGaIdf0VL16BPgorrhTHmqvDTYwPiWNolo3mnDAVCNKXdX015fLh5ACgDNAlKR/narBT9RfXZU1BWC/8S6IuNeJM/hqFjCysfHdnHIUJ6ueYxj8QRP8UE0rnyl0Dvi5AwpXYP0kFwG8zrCtA=
+	t=1760069264; cv=none; b=PYFf7THnMFZSI0RI+0KiRxCpcbW0XGgiD3oLR06Y9/uVZ16uDAuXsn7bOxXps254CAiR61qBw1OYVt4iUwDnfPz5nh+HTXSk3HAED616pbWe5wuH1+PE+8InvkkPF+PTksdik1iDcwamPWLd5/Q7j2LUzcX6+tAl+d4QCQnhKwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760066302; c=relaxed/simple;
-	bh=Pa2OhCNI6n3Mf2P8BAMZLHp7akXwtALOTxVawJZtfK8=;
+	s=arc-20240116; t=1760069264; c=relaxed/simple;
+	bh=zKp2kw3Tfj/wI+7DBmKCMChAalHVoRdliS5fwx1zm9s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ESf+osgse2D/MPKdYACw/cm65ISOUVZ6va0Kn81/2hA/QQRC2YK6n22P9g1iAVl4PKlrs1W5U/K8CxBq62j7Z9wb75ORKbidznFeHAfC9sUu3KTEep8tVP0nStIK1dd8XOcuhgM14Q6817mZ0Bth6H/iBVvrQn2a+sVtRKk68HQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TPjRTN5O; arc=none smtp.client-ip=209.85.128.178
+	 To:Cc:Content-Type; b=ujEVVP2R7HVUPxSl+ZGagf+Or0foZzBIO/7j3peaKmXd2JdOUTcoy0ZwP8JOv2qXLvvbrCJLk1ns04epRaNXDm+iwaCkCa40cQRuZ15q5Jbaw2fqIf1R/7n67DwiVO66x0zTe+s0kBPUOdel/smorWET4XmqTwKhvlQb8jGHzt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MTQhtqJO; arc=none smtp.client-ip=209.85.128.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TPjRTN5O"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-780fe73e337so13736327b3.1
-        for <linux-s390@vger.kernel.org>; Thu, 09 Oct 2025 20:18:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MTQhtqJO"
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-780fe73cb41so9417787b3.2
+        for <linux-s390@vger.kernel.org>; Thu, 09 Oct 2025 21:07:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1760066297; x=1760671097; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1760069260; x=1760674060; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Pa2OhCNI6n3Mf2P8BAMZLHp7akXwtALOTxVawJZtfK8=;
-        b=TPjRTN5OIdK/OXusT04ct2sgaYmzHo4t4RUcO6PdWBlDAfEWtPUI7uWv35B1xXRQxj
-         nWDps35hFTHMxr6Vk6M3zzXh9jL55JqC/Vtbp/qJ6kt/g1GOp16G+Bg7LB6bG1r+b641
-         2GZAocJ0Y9aAfXmNH7ZbdSlkaY3855X9zXdD9dkM95xNJUS9OJ0kOfTN+fQ/pIQRx9sx
-         UeR9ve3br8pXzxG5ySPUb1OPrdiaO3ghhmi6NZfYRnFFgvD4Pi0E0XzWFozMQQbypHnK
-         0gPBMHcY8gVSfhZZYOScFt4tOJz4MKXSPhlAeobvvXhPaauJ7QzUiKey4bQvJhfYcTAm
-         mK8g==
+        bh=zKp2kw3Tfj/wI+7DBmKCMChAalHVoRdliS5fwx1zm9s=;
+        b=MTQhtqJO+fB23BeKxPChePBiul2OLD2R3e4r3/DBj5FLkEAuL0XSceSwP5w5vMbnmZ
+         l042076U99GkRQvHqrdAzbVDwCW4eeypNzpcLQdRO1KUT1CBsk/MB0MXNkPJuViMaDgh
+         1dDSkmBJLlA+wMSkgc2OpI21yLucA+ywwLmE/B4fj9AKSCShFPkwrCY6j4IS/f6hrzvh
+         LHNxt1GryrhatGCYhA2KFuZJAeJ50Yas5ibGAHfG/tMWPAlvGKKMde7gORw+L7RR1o9q
+         8lIZjeMw75nk7FSwmxnzCwhNG6pIiaIDRurrsPBd9G2WJTuf2T/CWP2V/QeJEKWVHjc5
+         1ZuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760066297; x=1760671097;
+        d=1e100.net; s=20230601; t=1760069260; x=1760674060;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Pa2OhCNI6n3Mf2P8BAMZLHp7akXwtALOTxVawJZtfK8=;
-        b=Fo59JRgqPVpmZFTThyhlfWaJ/aTjZ7ToejGFasrwxfHxPPWWcOlsl1k+Q1exWYO9ku
-         b4MHpfoPhdvq+LADn8kCPv3mLcz1lN418WyGpdkNlsjaZCEygEp2Z7hbF4VPvEJBHKlX
-         mDr58Im02oohfNSGZok0N6zvcdpopZTLkrCRk1TBMaCqjybcStTklcKZWRYjzdz8u3p5
-         o3XrkbOxsOAdclDd+Ey6WECu2PqPUP8/W+FK8qp8LgpMBRFJIYsmXr+nMfhNc+yUhPOy
-         WUaaj2yFRcgKETTmobRtjxvOYhJt2PXQBu5Pq5WtbgNHWBs2G7zVRHY0+qFYK7Z3Gvj/
-         iRTg==
-X-Forwarded-Encrypted: i=1; AJvYcCU/tryC/5JMrofJUsOR4eTwpp8h4Xxmmw+9Zv70ZK229zXgbghQY6NQSvV82NtQe630PRr+/PVp72Uh@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYcF/sMCMTRad81zxm6P8m5sweitJwqNu4q6Ksr+zWIANdXO/x
-	p7lYer2WNIZGSHRtzrFdNYuGpWht2DCO45hQFown9OaN+ifLTL/3199oDAkr95A2H4Zot12Ugee
-	7xbXV1NPiMMDhAkK8y/I5KofzoD0cYoM=
-X-Gm-Gg: ASbGncsbw+UNaA3dPM7/fOg9o7BLTojJg205eMVEomsGkn74aJQ7Awfwz+S4yyHjdia
-	rfNX4lO1NQ4M/WbzZ06UcBq3RYld3OPxBJb7k6A8VdR0QwY94GXZKRYJmiA4dPSoUqKFnTVsqy3
-	VT15F4ttC0KQZS4ocUYgOTy6IDqLrjQnbDHydhRHlPDBYGHsrKmB6T/eGjaem0sLog/VyuvVPTN
-	p4HgmoX/FMShrlK93qFUePPOg==
-X-Google-Smtp-Source: AGHT+IFTQdXvlZxDoBIwCyChBgf2ijvKjPOXu3xyloDy3VewP6H31eXx2tdJ5Y2sZs04pWqa6kN09Zh4TAMeP3pYKTk=
-X-Received: by 2002:a05:690e:1587:10b0:63c:e90c:a6d8 with SMTP id
- 956f58d0204a3-63ce90cac96mr2654086d50.44.1760066297220; Thu, 09 Oct 2025
- 20:18:17 -0700 (PDT)
+        bh=zKp2kw3Tfj/wI+7DBmKCMChAalHVoRdliS5fwx1zm9s=;
+        b=WGUhZf6bx8FF9mF21m+2t4XX/S3WmgF4yHVa+KX6KqwceBEG9vv/ubx3uxiNFzQVF2
+         75ZRb5RxkIGY4JtGYk4NNpxQq6MU5ysRv6Io3dHne2RXR44YLoebQqLgXZVPqybOiiKL
+         CLXyvWPBTVQPh4UG7myoY4hcKWl26rdCipaoGKKTpJY4XE+sKQIZ/zzxEEBriRt9y2gY
+         WA1A91rL9dG+Pk7bVEv3nbsFHVQKEmiCwGkFSDCLg+XDYdkTNQDymMN5+Kd782122abj
+         mzwjTN+BbzXRigt26H71RRyURIa1fl3XSrE3wT9QYtSTqITUEkq+KdfesbFJtSVvll8H
+         4elw==
+X-Forwarded-Encrypted: i=1; AJvYcCXo3MKdSBiKw1TTavZimGpG0dKnbSnj3idMkAmlIVn0a8L69XPNUXc5Jo2ztCTkrWZHeKh04CWBCLol@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywed07wYPFXKqQEWvl6XW+BFOXuTudT4EOVLT/cEQ+JZY5JNE4P
+	xxwCLGrtSQP9+3x8BuMqkEdiBsQf7uw7bPwJrZ+Qn1DBNBVH0Pt7y6El2a6jWe9VDFJPK7fU/oa
+	QFlzoa1bBfgMLm9O3S+cMLIkIeZom0UE=
+X-Gm-Gg: ASbGncvxkiC32PN8bf2lBgWUvmqArogK6mQzB+7LxZrMeJKFOtd6QeOAVnlJhAk+cib
+	3FokVxrvDFRJJa3F/Fpfqq1kY7xv42WRtaofAcLF9ocZpj4SlhLQJ/zxOd+Pns4f3VgA9tYujhA
+	7sd0OZMjZ7dh32JmN+0rr9X+RtjOrqoVA1sQFN1tVfNVwPxOCTnOBlPGT3SNKRstIOFYXtuAg3Y
+	ESALPqMVSq6fBvfeFA8Mn0F4Q==
+X-Google-Smtp-Source: AGHT+IFQERg8mTh7nax6OaWavJ8DgllCOHm5p0zLQR54uFFNlwqM0wGCA+Q/Rj/bdvDMe/rRbnhyAA7hAcefbtq0UHo=
+X-Received: by 2002:a53:ca49:0:b0:633:a883:3d1b with SMTP id
+ 956f58d0204a3-63ccb87491emr6995599d50.6.1760069259733; Thu, 09 Oct 2025
+ 21:07:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250913003842.41944-1-safinaskar@gmail.com> <20250913003842.41944-3-safinaskar@gmail.com>
- <053f39a9-06dc-4fbd-ad1b-325f9d3f3f66@csgroup.eu>
-In-Reply-To: <053f39a9-06dc-4fbd-ad1b-325f9d3f3f66@csgroup.eu>
+References: <20250913003842.41944-1-safinaskar@gmail.com> <20250913003842.41944-29-safinaskar@gmail.com>
+ <20250916030903.GA3598798-robh@kernel.org>
+In-Reply-To: <20250916030903.GA3598798-robh@kernel.org>
 From: Askar Safin <safinaskar@gmail.com>
-Date: Fri, 10 Oct 2025 06:17:41 +0300
-X-Gm-Features: AS18NWCm5nh3vfq5EIpD-J_OKHQvi_8uVbgLjcXTz6TnQl9pdn9vqNDRLNkppRk
-Message-ID: <CAPnZJGC9avy1s=xFS5Tg6obS+RB3zw4yWsUBw9g=Vt09S6j88w@mail.gmail.com>
-Subject: Re: [PATCH RESEND 02/62] init: remove deprecated "prompt_ramdisk"
- command line parameter, which does nothing
-To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Fri, 10 Oct 2025 07:07:02 +0300
+X-Gm-Features: AS18NWBct1j-7S8OHD6pljCYd2aEZxR7vcCRPjZz3T1pRcQcUgdDoCBWxEfbyM8
+Message-ID: <CAPnZJGAvQirGTJTiTxumn8sAJ5KYDv8+MUTBmEW2fYX+r2RE3Q@mail.gmail.com>
+Subject: Re: [PATCH RESEND 28/62] init: alpha, arc, arm, arm64, csky, m68k,
+ microblaze, mips, nios2, openrisc, parisc, powerpc, s390, sh, sparc, um, x86,
+ xtensa: rename initrd_{start,end} to virt_external_initramfs_{start,end}
+To: Rob Herring <robh@kernel.org>
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	Linus Torvalds <torvalds@linux-foundation.org>, 
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Brauner <brauner@kernel.org>, 
@@ -98,14 +99,12 @@ Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 15, 2025 at 2:16=E2=80=AFPM Christophe Leroy
-<christophe.leroy@csgroup.eu> wrote:
-> Squash patch 1 and patch 2 together and say this is cleanup of two
-> options deprecated by commit c8376994c86c ("initrd: remove support for
-> multiple floppies") with the documentation by commit 6b99e6e6aa62
-> ("Documentation/admin-guide: blockdev/ramdisk: remove use of "rdev"")
+On Tue, Sep 16, 2025 at 6:09=E2=80=AFAM Rob Herring <robh@kernel.org> wrote=
+:
+> There's not really any point in listing every arch in the subject.
 
-Will do in v2.
+Ok, I will fix this.
+
 
 --=20
 Askar Safin
